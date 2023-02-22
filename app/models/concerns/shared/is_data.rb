@@ -24,6 +24,10 @@ module Shared::IsData
       self < Shared::SharedAcrossProjects ? true : false
     end
 
+    def is_containable?
+      self < Shared::Containable
+    end
+
     def dwc_occurrence_eligible?
       self < Shared::IsDwcOccurrence
     end

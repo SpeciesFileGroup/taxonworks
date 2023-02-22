@@ -9,8 +9,6 @@ module Queries
        with_buffered_determinations
        with_buffered_collecting_event
        with_buffered_other_labels
-       identifiers
-       local_identifiers
       }.freeze
 
       PARAMS = [

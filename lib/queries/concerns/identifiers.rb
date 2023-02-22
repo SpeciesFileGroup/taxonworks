@@ -4,6 +4,11 @@
 #
 # TODO: Some of this is only for autocomplete !!
 # See anything refencing terms, query_string
+#
+# These queries are impacted by Shared::Containable.
+# When Containable identifiers have to match, potentially
+# targets directly, and indirectly through virtual containers.
+#
 module Queries::Concerns::Identifiers
   include Queries::Helpers
 
@@ -27,8 +32,7 @@ module Queries::Concerns::Identifiers
   end
 
   included do
-    # USED?!
-    # Match on cached
+    # Matches on cached
     attr_accessor :identifier
 
     #  matches .identifier
@@ -57,10 +61,22 @@ module Queries::Concerns::Identifiers
     #   nil - not applied
     attr_accessor :local_identifiers
 
+    # @param match_identifiers [String]
+    # @return [String, nil]
+    #   a list of delimited identifiers
+    # !! Requires match_identifiers_delimiter to be present
     attr_accessor :match_identifiers
 
+    # @param match_identifiers_delimiter [String]
+    # A listr delimiter, defaults to ','.  Is applied to `match_identifiers` to build an Array.
+    #    Any reference is possible.
+    # '\t' is translated to "\t"
+    # '\n' is translated to "\n"
     attr_accessor :match_identifiers_delimiter
 
+    # @return [String, nil]
+    #  one of 'internal' or 'identifier'
+    # if 'internal' then references the internal id of the object
     attr_accessor :match_identifiers_type
 
     # Limit to this namespace
@@ -90,6 +106,10 @@ module Queries::Concerns::Identifiers
     def identifier_type
       [@identifier_type].flatten.compact.uniq
     end
+
+    def match_identifiers_type
+      @match_identifiers_type&.downcase
+    end
   end
 
   def set_identifier_params(params)
@@ -111,13 +131,10 @@ module Queries::Concerns::Identifiers
     ::Identifier.arel_table
   end
 
-  # def substring
-  #   Arel::Nodes::NamedFunction.new('SUBSTRING', [ identifier_table[:identifier], Arel::Nodes::SqlLiteral.new("'([\\d]{1,9})$'") ]).as('integer')
-  # end
-
   def self.merge_clauses
     [
       :identifier_between_facet,
+
       :identifier_facet,
       :identifier_namespace_facet,
       :identifier_type_facet,
@@ -137,6 +154,7 @@ module Queries::Concerns::Identifiers
     )
   end
 
+  # @return Array
   def identifiers_to_match
     ids = match_identifiers.strip.split(match_identifiers_delimiter).flatten.map(&:strip).uniq
     if match_identifiers_type == 'internal'
@@ -148,66 +166,102 @@ module Queries::Concerns::Identifiers
   def match_identifiers_facet
     return nil if match_identifiers.blank?
     ids = identifiers_to_match
-    if !ids.empty?
-      case match_identifiers_type&.downcase
-      when 'internal'
-        referenced_klass.where(id: ids)
-      when 'identifier'
-        referenced_klass.joins(:identifiers).where(identifiers: {cached: ids})
-      else
-        return nil
-      end
+
+    return nil if ids.empty?
+
+    a = nil
+
+    case match_identifiers_type
+    when 'internal'
+      a = referenced_klass.where(id: ids)
+    when 'identifier'
+      a = referenced_klass.joins(:identifiers).where(identifiers: {cached: ids})
     else
       return nil
     end
+
+    a = referenced_klass_union([a, match_identifiers_container_match ]) if referenced_klass.is_containable?
+    a
   end
 
   def identifiers_facet
     return nil if identifiers.nil?
+    a = nil
     if identifiers
-      referenced_klass.joins(:identifiers).distinct
+      a = referenced_klass.joins(:identifiers).distinct
     else
-      referenced_klass.left_outer_joins(:identifiers)
-        .where(identifiers: {id: nil})
-        .distinct
+      a = referenced_klass.where.missing(:identifiers).distinct
     end
+
+    if referenced_klass.is_containable?
+      c = referenced_klass_union([a, identifiers_container_match ])
+      @identifiers = !identifiers
+      except = identifiers_container_match
+      @identifiers = !identifiers
+
+      return referenced_klass.from('(' + c.to_sql + " EXCEPT #{except.to_sql}) as #{table.name}")
+    end
+
+    a
   end
 
   def local_identifiers_facet
     return nil if local_identifiers.nil?
+    a = nil
     if local_identifiers
-      referenced_klass.joins(:identifiers).where("identifiers.type ILIKE 'Identifier::Local%'").distinct
+      a = referenced_klass.joins(:identifiers).where("identifiers.type ILIKE 'Identifier::Local%'").distinct
     else
       i = ::Identifier.arel_table[:identifier_object_id].eq(table[:id]).and(
         ::Identifier.arel_table[:identifier_object_type].eq( table.name.classify.to_s )
       )
-      referenced_klass.where.not(::Identifier::Local.where(i).arel.exists)
+      a = referenced_klass.where.not(::Identifier::Local.where(i).arel.exists)
     end
+
+    if referenced_klass.is_containable?
+      c = referenced_klass_union([a, local_identifiers_container_match ])
+      @local_identifiers = !local_identifiers
+      except = local_identifiers_container_match
+      @local_identifiers = !local_identifiers
+
+      return referenced_klass.from('(' + c.to_sql + " EXCEPT #{except.to_sql}) as #{table.name}")
+    end
+
+    a
   end
 
   def identifier_facet
     return nil if identifier.blank?
 
     q = referenced_klass.joins(:identifiers)
+
     w = identifier_exact ?
       identifier_table[:cached].eq(identifier) :
       identifier_table[:cached].matches('%' + identifier.to_s + '%')
 
     w = w.and(identifier_table[:namespace_id].eq(namespace_id)) if namespace_id
-    q.where(w)
+    a = q.where(w)
+
+    a = referenced_klass_union([a, identifier_container_match]) if referenced_klass.is_containable?
+    a
   end
 
   def identifier_type_facet
     return nil if identifier_type.empty?
     q = referenced_klass.joins(:identifiers)
     w = identifier_table[:type].eq_any(identifier_type)
-    q.where(w)
+    a = q.where(w)
+
+    a = referenced_klass_union([a, identifier_type_container_match ]) if referenced_klass.is_containable?
+    a
   end
 
   def identifier_namespace_facet
     return nil if namespace_id.blank?
     q = referenced_klass.joins(:identifiers)
-    q.where(identifier_table[:namespace_id].eq(namespace_id))
+    a = q.where(identifier_table[:namespace_id].eq(namespace_id))
+
+    a = referenced_klass_union([a, identifier_namespace_container_match ]) if referenced_klass.is_containable?
+    a
   end
 
   def identifier_between_facet
@@ -215,9 +269,11 @@ module Queries::Concerns::Identifiers
     @identifier_end = @identifier_start if @identifier_end.nil?
 
     w = between
-    w = w.and(identifier_table[:namespace_id].eq(namespace_id)) if namespace_id
+    w = w.and(identifier_table[:namespace_id].eq(namespace_id)) if namespace_id # TODO: redundant with namespace facet likely
 
-    referenced_klass.joins(:identifiers).where(w)
+    a = referenced_klass.joins(:identifiers).where(w)
+    a = referenced_klass_union([a, identifier_between_container_match]) if referenced_klass.is_containable?
+    a
   end
 
   # @return [Arel::Nodes::Equality]
@@ -279,5 +335,9 @@ module Queries::Concerns::Identifiers
   def autocomplete_identifier_matching_cached_fragments_anywhere
     referenced_klass.joins(:identifiers).where(with_identifier_cached_like_fragments.to_sql)
   end
+
+  # def substring
+  #   Arel::Nodes::NamedFunction.new('SUBSTRING', [ identifier_table[:identifier], Arel::Nodes::SqlLiteral.new("'([\\d]{1,9})$'") ]).as('integer')
+  # end
 
 end

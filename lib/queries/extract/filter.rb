@@ -3,30 +3,31 @@ module Queries
 
     class Filter < Query::Filter
       include Queries::Concerns::Citations
+      include Queries::Concerns::Containable
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
       include Queries::Helpers
 
       PARAMS = [
-        :taxon_name_id,
         :collection_object_id,
+        :descendants,
         :exact_verbatim_anatomical_origin,
         :extract_end_date_range,
+        :extract_id,
         :extract_origin,
         :extract_start_date_range,
-        :descendants,
-        :extract_id,
         :otu_id,
         :protocol_id,
         :repository_id,
         :sequences,
+        :taxon_name_id,
         :verbatim_anatomical_origin,
-        taxon_name_id: [],
-        extract_id: [],
         collection_object_id: [],
+        extract_id: [],
         otu_id: [],
         repository_id: [],
+        taxon_name_id: [],
       ].freeze
 
       # @return [Array of Repository#id]
@@ -94,6 +95,7 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @verbatim_anatomical_origin = params[:verbatim_anatomical_origin]
 
+        set_containable_params(params)
         set_citations_params(params)
         set_dates(params)
         set_tags_params(params)
