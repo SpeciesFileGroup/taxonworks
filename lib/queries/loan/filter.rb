@@ -11,13 +11,14 @@ module Queries
         *ATTRIBUTES,
         :descendants,
         :documentation, # TODO: concern?
+        :loan_id,
         :loan_item_disposition,
         :loan_wildcards,
         :overdue,
         :person_id,
         :role,
         :taxon_name_id,
-        :loan_id,
+        
 
         loan_id: [],
         loan_wildcards: [],
