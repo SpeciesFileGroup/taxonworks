@@ -10,11 +10,13 @@ module Queries
       PARAMS = [
         *::Citation.related_foreign_keys.map(&:to_sym),
         :citation_id,
-        :citation_object_type,
         :citation_object_id,
+        :citation_object_type,
         :source_id,
         :is_original,
         citation_id: [],
+        citation_object_id: [],
+        citation_object_type: [],
       ].freeze
 
       # Array, Integer
@@ -37,11 +39,12 @@ module Queries
         @citation_object_type = params[:citation_object_type]
         @is_original = params[:is_original]
         @source_id = params[:source_id]
+
         set_polymorphic_params(params)
       end
 
       def citation_object_type
-        [@citationcitation_object_type].flatten.compact
+        [@citation_object_type].flatten.compact
       end
 
       def citation_object_id
@@ -58,12 +61,12 @@ module Queries
 
       def citation_object_type_facet
         return nil if citation_object_type.empty?
-        table[:citation_object_type].eq(citation_object_type)
+        table[:citation_object_type].eq_any(citation_object_type)
       end
 
       def citation_object_id_facet
         return nil if citation_object_id.empty?
-        table[:citation_object_id].eq(citation_object_id)
+        table[:citation_object_id].eq_any(citation_object_id)
       end
 
       def source_id_facet
