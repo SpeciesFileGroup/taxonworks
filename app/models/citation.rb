@@ -19,7 +19,7 @@
 #
 # @!attribute pages
 #   @return [String, nil]
-#     a specific location/localization for the data in the Source, if you lead with an integer seperated by space or punctation that
+#     a specific location/localization for the data in the Source, if you lead with an integer separated by space or punctation that
 #     integer will be returned as the "first" page and usable in direct linkouts to Documents if available
 #
 # @!attribute is_original

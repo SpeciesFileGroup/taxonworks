@@ -197,7 +197,7 @@ class Tools::InteractiveKey
     ### delete temporary data
 
     # @proceps this is very confusing to initialize a variable, but really not initialize it. If you are
-    # using these to initialize some other initialization then write seperate code to initialize only what is needed?
+    # using these to initialize some other initialization then write separate code to initialize only what is needed?
 
     @row_hash = nil #
     @descriptors_hash = nil

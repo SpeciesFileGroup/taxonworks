@@ -521,6 +521,9 @@ module Queries
     #   If true then if there are no clauses return nil not .all
     # @return [ActiveRecord::Relation]
     def all(nil_empty = false)
+
+      # TODO: should turn off/on project_id here on nil empty
+
       a = all_and_clauses
       b = all_merge_clauses
 

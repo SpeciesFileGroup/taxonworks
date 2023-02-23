@@ -11,26 +11,23 @@ module Queries
         *ATTRIBUTES,
         :descendants,
         :documentation, # TODO: concern?
+        :end_date_closed,
+        :end_date_received,
+        :end_date_requested,
+        :end_date_return_expected,
+        :end_date_sent,
+        :loan_id,
         :loan_item_disposition,
         :loan_wildcards,
         :overdue,
         :person_id,
         :role,
-        :taxon_name_id,
-        :loan_id,
-
-        :start_date_requested,           
-        :start_date_sent,           
-        :start_date_received,       
+        :start_date_closed,
+        :start_date_received,
+        :start_date_requested,
         :start_date_return_expected,
-        :start_date_closed,    
-
-        :end_date_requested,
-        :end_date_sent,           
-        :end_date_received,       
-        :end_date_return_expected,
-        :end_date_closed,    
-
+        :start_date_sent,
+        :taxon_name_id,
 
         loan_id: [],
         loan_wildcards: [],
@@ -81,17 +78,16 @@ module Queries
       #  Match all loans with loan items that have that disposition
       attr_accessor :loan_item_disposition
 
-      attr_accessor :start_date_requested
-      attr_accessor :start_date_sent
-      attr_accessor :start_date_received
-      attr_accessor :start_date_return_expected
-      attr_accessor :start_date_closed
-
-      attr_accessor :end_date_requested
-      attr_accessor :end_date_sent
-      attr_accessor :end_date_received
-      attr_accessor :end_date_return_expected
       attr_accessor :end_date_closed
+      attr_accessor :end_date_received
+      attr_accessor :end_date_requested
+      attr_accessor :end_date_return_expected
+      attr_accessor :end_date_sent
+      attr_accessor :start_date_closed
+      attr_accessor :start_date_received
+      attr_accessor :start_date_requested
+      attr_accessor :start_date_return_expected
+      attr_accessor :start_date_sent
 
       # not done
       attr_accessor :taxon_name_id
@@ -103,24 +99,23 @@ module Queries
 
         @descendants = boolean_param(params, :descendants)
         @documentation = boolean_param(params, :documentation)
+        @end_date_closed = params[:end_date_closed]
+        @end_date_received = params[:end_date_received]
+        @end_date_requested = params[:end_date_requested]
+        @end_date_return_expected = params[:end_date_return_expected]
+        @end_date_sent = params[:end_date_sent]
         @loan_id = params[:loan_id]
         @loan_item_disposition = params[:loan_item_disposition]
         @loan_wildcards = params[:loan_wildcards]
         @overdue = boolean_param(params, :overdue)
         @person_id = params[:person_id]
         @role = params[:role]
-        @taxon_name_id = params[:taxon_name_id]
-
-        @start_date_requested = params[:start_date_requested]           
-        @start_date_sent = params[:start_date_sent]           
+        @start_date_closed = params[:start_date_closed]
         @start_date_received = params[:start_date_received]
+        @start_date_requested = params[:start_date_requested]
         @start_date_return_expected = params[:start_date_return_expected]
-        @start_date_closed = params[:start_date_closed]    
-        @end_date_requested = params[:end_date_requested]           
-        @end_date_sent = params[:end_date_sent]           
-        @end_date_received = params[:end_date_received]       
-        @end_date_return_expected = params[:end_date_return_expected]
-        @end_date_closed = params[:end_date_closed]
+        @start_date_sent = params[:start_date_sent]
+        @taxon_name_id = params[:taxon_name_id]
 
         set_attributes(params)
         set_notes_params(params)
@@ -134,6 +129,10 @@ module Queries
 
       def loan_wildcards
         [@loan_wildcards].flatten.compact.uniq.map(&:to_sym)
+      end
+
+      def taxon_name_id
+        [@taxon_name_id].flatten.compact.uniq
       end
 
       def loan_id
@@ -169,6 +168,39 @@ module Queries
           end
         end
         c
+      end
+
+      def taxon_name_id_facet
+        return nil if taxon_name_id.empty?
+        a = ::Queries::CollectionObject::Filter.new(taxon_name_id: taxon_name_id, descendants: descendants)
+        b = ::Queries::Otu::Filter.new(taxon_name_id: taxon_name_id, descendants: descendants)
+
+        a.project_id = nil
+        b.project_id = nil
+
+        if a.all(true)
+          a.project_id = project_id
+          c = ::LoanItem.from('(' +
+                              'WITH co_tn AS (' + a.all.to_sql + ') ' +
+                              ::LoanItem.joins("JOIN co_tn AS co_tn1 on co_tn1.id = loan_items.loan_item_object_id AND loan_items.loan_item_object_type = 'CollectionObject'").to_sql +
+                              ') as loan_items'
+                             ).to_sql
+        end
+
+        if b.all(true)
+          b.project_id = project_id
+          d = ::LoanItem.from('(' +
+                              'WITH otu_tn AS (' + b.all.to_sql + ') ' +
+                              ::LoanItem.joins("JOIN otu_tn AS otu_tn1 on otu_tn1.id = loan_items.loan_item_object_id AND loan_items.loan_item_object_type = 'Otu'").to_sql +
+                              ') as loan_items'
+                             ).to_sql
+        end
+
+        e = ::LoanItem.from( '(' + [c,d].compact.join(' UNION ') + ') as loan_items').to_sql
+
+        s = 'WITH items AS (' + e + ') ' + ::Loan.joins('JOIN items as items1 on items1.loan_id = loans.id').to_sql
+
+        ::Loan.from("(#{s}) as loans")
       end
 
       def date_requested_facet
@@ -268,13 +300,13 @@ module Queries
 
       def merge_clauses
         [
-          date_requested_facet,
-          date_sent_facet,
-          date_received_facet,
-          date_return_expected_facet,
-          date_closed_facet,
-
           collection_object_query_facet,
+          taxon_name_id_facet,
+          date_closed_facet,
+          date_received_facet,
+          date_requested_facet,
+          date_return_expected_facet,
+          date_sent_facet,
           documentation_facet,
           loan_item_disposition_facet,
           otu_query_facet,
