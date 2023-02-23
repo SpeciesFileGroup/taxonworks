@@ -1,6 +1,6 @@
 <template>
   <VNavbar>
-    <div class="gap-xsmall">
+    <div class="horizontal-left-content gap-small">
       <VBtn
         color="primary"
         medium
@@ -13,10 +13,15 @@
         color="create"
         medium
         :disabled="!Object.keys(store.edges).length"
-        @click="() => store.createBiologicalAssociation()"
+        @click="() => store.saveBiologicalAssociations()"
       >
-        Save biological associations
+        Save
       </VBtn>
+      <VIcon
+        v-if="store.isUnsaved"
+        name="attention"
+        color="warning"
+      />
     </div>
   </VNavbar>
 </template>
@@ -24,6 +29,7 @@
 <script setup>
 import VNavbar from 'components/layout/NavBar'
 import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 import { useGraphStore } from '../store/useGraphStore.js'
 
 const store = useGraphStore()

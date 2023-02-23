@@ -7,12 +7,7 @@
       <SmartSelector
         :model="MODEL_TYPE[store.currentNodeType]"
         :target="BIOLOGICAL_ASSOCIATION"
-        @selected="
-          ($event) => {
-            store.createNode($event)
-            emit('close')
-          }
-        "
+        @selected="addNode"
       />
     </template>
   </VModal>
@@ -35,4 +30,10 @@ const MODEL_TYPE = {
 
 const emit = defineEmits('close')
 const store = useGraphStore()
+
+function addNode(obj) {
+  store.createNode(obj)
+  store.setNodePosition(obj.id, store.currentSVGCursorPosition)
+  emit('close')
+}
 </script>
