@@ -37,9 +37,19 @@ const store = useGraphStore()
 onMounted(() => {
   const params = URLParamsToJSON(location.href)
   const biologicalAssociationGraphId = params.biological_assocciations_graph_id
+  const coId = params.collection_object_id
+  const otuId = params.otu_id
 
   if (biologicalAssociationGraphId) {
     store.loadGraph(biologicalAssociationGraphId)
+  }
+
+  if (coId) {
+    store.loadCO(coId)
+  }
+
+  if (otuId) {
+    store.loadOtu(otuId)
   }
 })
 </script>

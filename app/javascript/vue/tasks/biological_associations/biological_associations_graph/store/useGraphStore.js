@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
 import {
   BiologicalAssociation,
-  BiologicalAssociationGraph
+  BiologicalAssociationGraph,
+  CollectionObject,
+  Otu
 } from 'routes/endpoints'
 
 const extend = [
@@ -77,6 +79,18 @@ export const useGraphStore = defineStore('useGraphStore', {
   },
 
   actions: {
+    loadOtu(id) {
+      Otu.find(id).then(({ body }) => {
+        this.createNode({ ...body, isUnsaved: true })
+      })
+    },
+
+    loadCO(id) {
+      CollectionObject.find(id).then(({ body }) => {
+        this.createNode({ ...body, isUnsaved: true })
+      })
+    },
+
     createNode(obj) {
       const nodeId = obj.id
       const name = obj.object_label
