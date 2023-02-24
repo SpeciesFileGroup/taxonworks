@@ -229,11 +229,13 @@ export const useGraphStore = defineStore('useGraphStore', {
             extend
           }
 
-          const request = this.graph.id
-            ? BiologicalAssociationGraph.update(this.graph.id, payload)
-            : BiologicalAssociationGraph.create(payload)
+          if (this.graph.isUnsaved) {
+            const request = this.graph.id
+              ? BiologicalAssociationGraph.update(this.graph.id, payload)
+              : BiologicalAssociationGraph.create(payload)
 
-          this.graph = (await request).body
+            this.graph = (await request).body
+          }
         }
       })
 

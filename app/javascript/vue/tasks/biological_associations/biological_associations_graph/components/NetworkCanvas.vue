@@ -107,10 +107,6 @@ const eventHandlers = {
 
 const nodeSize = 40
 
-store.loadGraph(4).then((_) => {
-  updateLayout('LR')
-})
-
 function layout(direction) {
   if (
     Object.keys(store.nodes).length <= 1 ||
@@ -175,6 +171,12 @@ function updateLayout(direction) {
     layout(direction)
   })
 }
+
+store.$onAction(({ name, after }) => {
+  after(() => {
+    if (name === 'loadGraph') updateLayout('LR')
+  })
+})
 </script>
 
 <style lang="scss" scoped>

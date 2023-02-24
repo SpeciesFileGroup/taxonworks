@@ -28,9 +28,20 @@ import VNavbar from './components/Navbar.vue'
 import ModalNode from './components/ModalNode.vue'
 import ModalEdge from './components/ModalEdge.vue'
 import VSpinner from 'components/spinner.vue'
+import { URLParamsToJSON } from 'helpers/url/parse'
+import { onMounted } from 'vue'
 import { useGraphStore } from './store/useGraphStore.js'
 
 const store = useGraphStore()
+
+onMounted(() => {
+  const params = URLParamsToJSON(location.href)
+  const biologicalAssociationGraphId = params.biological_assocciations_graph_id
+
+  if (biologicalAssociationGraphId) {
+    store.loadGraph(biologicalAssociationGraphId)
+  }
+})
 </script>
 
 <style scoped>

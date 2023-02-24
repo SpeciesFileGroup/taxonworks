@@ -25,7 +25,8 @@ function addRelation(relationship) {
   store.createEdge({
     source,
     target,
-    relationship
+    relationship,
+    isUnsaved: true
   })
 
   store.modal.edge = false
