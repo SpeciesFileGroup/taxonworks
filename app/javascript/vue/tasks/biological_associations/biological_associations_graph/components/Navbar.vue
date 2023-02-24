@@ -3,6 +3,9 @@
     <div class="flex-separate">
       <VAutocomplete
         url="/biological_associations_graphs/autocomplete"
+        param="term"
+        label="label_html"
+        clear-after
         placeholder="Search a graph..."
         @get-item="({ id }) => store.loadGraph(id)"
       />

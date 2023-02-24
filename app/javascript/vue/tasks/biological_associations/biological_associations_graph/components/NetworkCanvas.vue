@@ -20,75 +20,189 @@
   </VNetworkGraph>
 
   <GraphContextMenu
-    v-if="showViewMenu"
+    ref="viewContextMenu"
     :position="store.currentEvent"
-    @focusout="() => (showViewMenu = false)"
   >
-    <ContextMenuView @focusout="() => (showViewMenu = false)" />
+    <ContextMenuView />
   </GraphContextMenu>
 
   <GraphContextMenu
-    v-if="showNodeMenu"
+    ref="nodeContextMenu"
     :position="store.currentEvent"
-    @focusout="() => (showNodeMenu = false)"
   >
-    <ContextMenuNode @focusout="() => (showNodeMenu = false)" />
+    <div class="flex-separate middle gap-small graph-context-menu-list-item">
+      <span>{{ store.getNodes[currentNodeId]?.name }}</span>
+      <VBtn
+        circle
+        :color="isCurrentNodeSaved ? 'destroy' : 'primary'"
+        @click="() => removeNode(currentNodeId)"
+      >
+        <VIcon
+          x-small
+          name="trash"
+        />
+      </VBtn>
+    </div>
+    <div
+      class="graph-context-menu-list-item"
+      v-if="store.selectedNodes.length === 2"
+      @click="() => (store.modal.edge = true)"
+    >
+      Create relation
+    </div>
   </GraphContextMenu>
 
   <GraphContextMenu
-    v-if="showEdgeMenu"
+    ref="edgeContextMenu"
     :position="store.currentEvent"
-    @focusout="() => (showEdgeMenu = false)"
   >
-    <ContextMenuEdge @focusout="() => (showEdgeMenu = false)" />
+    <div
+      v-for="edgeId in currentEdge"
+      :key="edgeId"
+      class="flex-separate middle gap-small graph-context-menu-list-item"
+    >
+      {{ store.edges[edgeId]?.label }}
+      <div class="horizontal-right-content gap-xsmall">
+        <VBtn
+          color="primary"
+          class="circle-button"
+          @click="
+            () => {
+              emit('reverse:edge', edgeId)
+            }
+          "
+        >
+          <VIcon
+            name="swap"
+            x-small
+          />
+        </VBtn>
+        <VBtn
+          circle
+          :color="store.edges[edgeId].id ? 'destroy' : 'primary'"
+          @click="
+            () => {
+              removeEdge(edgeId)
+            }
+          "
+        >
+          <VIcon
+            x-small
+            name="trash"
+          />
+        </VBtn>
+      </div>
+    </div>
+    <ContextMenuEdge>
+      <div
+        v-for="edgeId in store.currentEdge"
+        :key="edgeId"
+        class="flex-separate middle gap-small graph-context-menu-list-item"
+      >
+        {{ store.edges[edgeId]?.label }}
+        <div class="horizontal-right-content gap-xsmall">
+          <VBtn
+            color="primary"
+            class="circle-button"
+            @click="
+              () => {
+                store.reverseRelation(edgeId)
+              }
+            "
+          >
+            <VIcon
+              name="swap"
+              x-small
+            />
+          </VBtn>
+          <VBtn
+            circle
+            :color="store.edges[edgeId].id ? 'destroy' : 'primary'"
+            @click="
+              () => {
+                removeEdge(edgeId)
+              }
+            "
+          >
+            <VIcon
+              x-small
+              name="trash"
+            />
+          </VBtn>
+        </div>
+      </div>
+    </ContextMenuEdge>
   </GraphContextMenu>
+
+  <ConfirmationModal ref="confirmationModalRef" />
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useGraphStore } from '../store/useGraphStore.js'
 import { configs } from '../constants/networkConfig'
-import dagre from 'dagre'
+import { graphLayout } from '../utils/graphLayout.js'
 import GraphContextMenu from './ContextMenu/ContextMenu.vue'
 import ContextMenuView from './ContextMenu/ContextMenuView.vue'
-import ContextMenuNode from './ContextMenu/ContextMenuNode.vue'
 import ContextMenuEdge from './ContextMenu/ContextMenuEdge.vue'
+import ConfirmationModal from 'components/ConfirmationModal.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
+
+const props = defineProps({
+  nodes: {
+    type: Object,
+    default: () => ({})
+  },
+
+  edges: {
+    type: Object,
+    default: () => ({})
+  },
+
+  layout: {
+    type: Object,
+    default: () => ({})
+  }
+})
 
 const store = useGraphStore()
 
-const showViewMenu = ref()
-function showViewContextMenu(params) {
-  const { event } = params
+const emit = defineEmits(['reverse:edge', 'remove:node'])
+
+const graph = ref()
+const edgeContextMenu = ref()
+const nodeContextMenu = ref()
+const viewContextMenu = ref()
+
+const currentNodeId = ref()
+const currentEdge = ref()
+
+const isCurrentNodeSaved = computed(
+  () => store.getCreatedAssociationsByNodeId(currentNodeId.value).length > 0
+)
+
+function showViewContextMenu({ event }) {
+  const point = { x: event.offsetX, y: event.offsetY }
 
   handleEvent(event)
-
-  if (!graph.value) return
-
-  const point = { x: event.offsetX, y: event.offsetY }
 
   store.currentSVGCursorPosition =
     graph.value.translateFromDomToSvgCoordinates(point)
 
-  showViewMenu.value = true
+  viewContextMenu.value.openContextMenu()
 }
 
-const showNodeMenu = ref()
-
-function showNodeContextMenu(params) {
-  const { node, event } = params
-
+function showNodeContextMenu({ node, event }) {
   handleEvent(event)
-  store.currentNode = node
-  showNodeMenu.value = true
+  currentNodeId.value = node
+  nodeContextMenu.value.openContextMenu()
 }
 
-const showEdgeMenu = ref(false)
-function showEdgeContextMenu(params) {
-  const { event } = params
-
+function showEdgeContextMenu({ event, summarized, edges, edge }) {
   handleEvent(event)
-  store.currentEdge = params.summarized ? params.edges : [params.edge]
-  showEdgeMenu.value = true
+  currentEdge.value = summarized ? edges : [edge]
+  edgeContextMenu.value.openContextMenu()
 }
 
 function handleEvent(event) {
@@ -97,78 +211,60 @@ function handleEvent(event) {
   store.currentEvent = event
 }
 
-const graph = ref()
-
 const eventHandlers = {
   'view:contextmenu': showViewContextMenu,
   'node:contextmenu': showNodeContextMenu,
   'edge:contextmenu': showEdgeContextMenu
 }
 
-const nodeSize = 40
+const confirmationModalRef = ref()
 
-function layout(direction) {
-  if (
-    Object.keys(store.nodes).length <= 1 ||
-    Object.keys(store.edges).length === 0
-  ) {
-    return
+async function removeNode(node) {
+  const ok =
+    !isCurrentNodeSaved.value ||
+    (await confirmationModalRef.value.show({
+      title: 'Destroy biological association',
+      message:
+        'This will delete biological associations connected to this node. Are you sure you want to proceed?',
+      okButton: 'Destroy',
+      cancelButton: 'Cancel',
+      typeButton: 'delete'
+    }))
+
+  if (ok) {
+    store.removeNode(node)
   }
+}
 
-  // convert graph
-  // ref: https://github.com/dagrejs/dagre/wiki
-  const g = new dagre.graphlib.Graph()
-  // Set an object for the graph label
-  g.setGraph({
-    rankdir: direction,
-    nodesep: nodeSize * 2,
-    edgesep: nodeSize,
-    ranksep: nodeSize * 2
-  })
-  // Default to assigning a new object as a label for each new edge.
-  g.setDefaultEdgeLabel(() => ({}))
+async function removeEdge(edgeId) {
+  const ok =
+    !store.edges[edgeId].id ||
+    (await confirmationModalRef.value.show({
+      title: 'Destroy biological association',
+      message:
+        'This will delete the biological association. Are you sure you want to proceed?',
+      okButton: 'Destroy',
+      cancelButton: 'Cancel',
+      typeButton: 'delete'
+    }))
 
-  // Add nodes to the graph. The first argument is the node id. The second is
-  // metadata about the node. In this case we're going to add labels to each of
-  // our nodes.
-  Object.entries(store.nodes).forEach(([nodeId, node]) => {
-    g.setNode(nodeId, { label: node.name, width: nodeSize, height: nodeSize })
-  })
-
-  // Add edges to the graph.
-  Object.values(store.edges).forEach((edge) => {
-    g.setEdge(edge.source, edge.target)
-  })
-
-  dagre.layout(g)
-
-  const box = {}
-  g.nodes().forEach((nodeId) => {
-    // update node position
-    const x = g.node(nodeId).x
-    const y = g.node(nodeId).y
-    store.layouts.nodes[nodeId] = { x, y }
-
-    // calculate bounding box size
-    box.top = box.top ? Math.min(box.top, y) : y
-    box.bottom = box.bottom ? Math.max(box.bottom, y) : y
-    box.left = box.left ? Math.min(box.left, x) : x
-    box.right = box.right ? Math.max(box.right, x) : x
-  })
-
-  const graphMargin = nodeSize * 2
-  const viewBox = {
-    top: (box.top ?? 0) - graphMargin,
-    bottom: (box.bottom ?? 0) + graphMargin,
-    left: (box.left ?? 0) - graphMargin,
-    right: (box.right ?? 0) + graphMargin
+  if (ok) {
+    store.removeEdge(edgeId)
   }
-  graph.value?.setViewBox(viewBox)
 }
 
 function updateLayout(direction) {
   graph.value?.transitionWhile(() => {
-    layout(direction)
+    const { layouts, viewBox } = graphLayout({
+      direction,
+      graphRef: graph,
+      nodes: store.nodes,
+      edges: store.edges,
+      nodeSize: 40
+    })
+
+    store.layouts = layouts
+    graph.value.setViewBox(viewBox)
   })
 }
 

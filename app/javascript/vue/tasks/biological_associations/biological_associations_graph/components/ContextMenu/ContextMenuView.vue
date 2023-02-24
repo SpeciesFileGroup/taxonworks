@@ -5,7 +5,6 @@
       () => {
         store.modal.node = true
         store.currentNodeType = OTU
-        emit('focusout')
       }
     "
   >
@@ -17,7 +16,6 @@
       () => {
         store.modal.node = true
         store.currentNodeType = COLLECTION_OBJECT
-        emit('focusout')
       }
     "
   >
@@ -30,5 +28,4 @@ import { useGraphStore } from '../../store/useGraphStore'
 import { COLLECTION_OBJECT, OTU } from 'constants/index.js'
 
 const store = useGraphStore()
-const emit = defineEmits(['focusout'])
 </script>

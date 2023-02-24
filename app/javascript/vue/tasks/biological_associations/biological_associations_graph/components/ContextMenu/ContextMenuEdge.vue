@@ -11,8 +11,7 @@
         class="circle-button"
         @click="
           () => {
-            store.reverseRelation(edgeId)
-            emit('focusout')
+            emit('reverse:edge', edgeId)
           }
         "
       >
@@ -42,31 +41,11 @@
 
 <script setup>
 import { useGraphStore } from '../../store/useGraphStore.js'
-import { ref } from 'vue'
 import ConfirmationModal from 'components/ConfirmationModal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 
+const emit = defineEmits(['remove:edge', 'reverse:edge'])
+
 const store = useGraphStore()
-const emit = defineEmits(['focusout'])
-
-const confirmationModalRef = ref()
-
-async function removeEdge(edgeId) {
-  const ok =
-    !store.edges[edgeId].id ||
-    (await confirmationModalRef.value.show({
-      title: 'Destroy biological association',
-      message:
-        'This will delete the biological association. Are you sure you want to proceed?',
-      okButton: 'Destroy',
-      cancelButton: 'Cancel',
-      typeButton: 'delete'
-    }))
-
-  if (ok) {
-    store.removeEdge(edgeId)
-    emit('focusout')
-  }
-}
 </script>

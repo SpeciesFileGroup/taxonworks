@@ -1,14 +1,17 @@
 <template>
   <div
+    v-if="isVisible"
     ref="element"
     class="graph-context-menu panel"
+    :style="stylePosition"
+    @click="() => (isVisible = false)"
   >
     <slot />
   </div>
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
   position: {
@@ -17,19 +20,25 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['focusout'])
+const isVisible = ref(false)
 const element = ref()
 
+const stylePosition = computed(() => ({
+  left: props.position.x + 'px',
+  top: props.position.y + 'px'
+}))
+
+function openContextMenu() {
+  isVisible.value = true
+}
+
 function handleEvent(event) {
-  if (!event.target || !element.value.contains(event.target)) {
-    emit('focusout')
+  if (!event.target || !element.value?.contains(event.target)) {
+    isVisible.value = false
   }
 }
 
 onMounted(() => {
-  element.value.style.left = props.position.x + 'px'
-  element.value.style.top = props.position.y + 'px'
-
   document.addEventListener('pointerdown', handleEvent, {
     passive: true,
     capture: true
@@ -37,7 +46,13 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  document.removeEventListener('pointerdown', handleEvent, { capture: true })
+  document.removeEventListener('pointerdown', handleEvent, {
+    capture: true
+  })
+})
+
+defineExpose({
+  openContextMenu
 })
 </script>
 
