@@ -17,6 +17,7 @@
   />
   <FacetBiocurations v-model="params" />
   <FacetIdentifiers v-model="params" />
+  <FacetMatchIdentifiers v-model="params" />
   <FacetTags
     target="Image"
     v-model="params"
@@ -43,6 +44,7 @@ import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vu
 import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import FacetDepictionObjectType from 'components/Filter/Facets/Depiction/FacetDepictionObjectType.vue'
+import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 
 const props = defineProps({
   modelValue: {
