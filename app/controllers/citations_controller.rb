@@ -59,7 +59,8 @@ class CitationsController < ApplicationController
 
   # /citations/batch_create.json?citation_object_type=Otu&citation_object_id[]=123&source_id=456
   def batch_create
-    if @citations = Citation.batch_create(batch_citation_params)
+    @citations = Citation.batch_create(batch_citation_params)
+    if @citations.present? 
       render '/citations/index'
     else
       render json: { failed: true, status: :unprocessable_entity}
@@ -161,7 +162,9 @@ class CitationsController < ApplicationController
   end
 
   def batch_citation_params
-    params.require(:citation).permit(base_params.last.merge(citation_object_id: []))
+    p = base_params 
+    p.last.merge!(citation_object_id: [])
+    params.require(:citation).permit(p)
   end
 
   def citation_params
