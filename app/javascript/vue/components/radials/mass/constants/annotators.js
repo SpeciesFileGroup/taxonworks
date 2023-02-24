@@ -17,6 +17,7 @@ import AnnotatorNote from '../components/Annotator/AnnotatorNote.vue'
 import AnnotatorConfidence from '../components/Annotator/AnnotatorConfidence.vue'
 import AnnotatorVerifier from '../components/Annotator/AnnotatorVerifier.vue'
 import AnnotatorAttribution from '../components/Annotator/Attribution/AttributionMain.vue'
+import AnnotatorCitation from '../components/Annotator/AnnotatorCitation.vue'
 
 export const ANNOTATORS = {
   [ALTERNATE_VALUE]: {
@@ -27,7 +28,8 @@ export const ANNOTATORS = {
     component: AnnotatorAttribution
   },
   [CITATION]: {
-    label: 'Citations'
+    label: 'Citations',
+    component: AnnotatorCitation
   },
   [CONFIDENCE]: {
     label: 'Confidence',
