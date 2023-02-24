@@ -73,6 +73,9 @@ resources :citation_topics, only: [:create, :update, :destroy]
 
 resources :citations do # except: [:show]
   concerns [:data_routes]
+  collection do
+    post :batch_create, defaults: {format: :json}
+  end
 end
 
 get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
