@@ -6,6 +6,7 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Tags
+      include Queries::Concerns::Notes
       include Queries::Helpers
 
       PARAMS = [
@@ -173,6 +174,7 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @wkt = params[:wkt]
 
+        set_notes_params(params)
         set_citations_params(params)
         set_depiction_params(params)
         set_data_attributes_params(params)

@@ -11,7 +11,9 @@ module Queries
         :text,
         :note_object_type,
         :note_object_id,
-        note_id: []
+        note_id: [],
+        note_object_id: [],
+        note_object_type: [],
       ].freeze
 
       # @return Array
