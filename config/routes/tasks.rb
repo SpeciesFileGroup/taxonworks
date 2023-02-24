@@ -165,6 +165,10 @@ scope :tasks do
   end
 
   scope :loans do
+      scope :dashboard, controller: 'tasks/loans/dashboard' do
+        get '/', action: :index, as: 'loan_dashboard_task'
+      end
+
       scope :filter, controller: 'tasks/loans/filter' do
         get '/', action: :index, as: 'filter_loans_task'
       end

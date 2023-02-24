@@ -816,11 +816,19 @@ source_citation_totals_task:
   categories:
   status: prototype
   description: 'Report a count per citation object type for each source in the result.'
-
-index_biological_associations_graph_task:
+edit_biological_associations_graph_task:
   hub: true
-  name: 'Biological associations graph'
+  name: 'New biological associations'
   related:
   categories:
+    - biology 
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Create, edit, and cite biological associations and their inter-relationships.'
+loan_dashboard_task:
+  hub: true
+  name: 'Loans dashboard'
+  related:
+  categories:
+    - loan
+  status: prototype
+  description: 'Summarize various loan-related statistics.'

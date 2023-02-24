@@ -168,7 +168,7 @@ namespace :tw do
     # def model_description(table_name)
     #   byebug
     #   p = File.expand_path(table_name.singularize + '.rb', Rails.root.to_s + '/app/models/')
-    #   if File.exists?(p)
+    #   if File.exist?(p)
     #     r = File.read(p)
     #     puts r
     #   else

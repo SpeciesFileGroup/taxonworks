@@ -236,7 +236,7 @@ module SqedToTaxonworks
     end
 
     def image_unavailable?
-      return true if !File.exists?(depiction.image.image_file.path(:original))
+      return true if !File.exist?(depiction.image.image_file.path(:original))
       false
     end
 

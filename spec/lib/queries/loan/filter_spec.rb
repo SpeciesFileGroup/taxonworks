@@ -7,6 +7,23 @@ describe Queries::Loan::Filter, type: :model, group: [:geo, :collection_objects,
   # let!(:l1) { FactoryBot.create(:valid_loan) }
   # let!(:l2) { FactoryBot.create(:valid_loan) }
 
+  specify '#taxon_name_id' do
+    l1 = FactoryBot.create(:valid_loan, recipient_address: 'Mars, home of chocolate bars.') 
+    FactoryBot.create(:valid_loan) 
+    s =  Specimen.create!
+    l1.loan_items << FactoryBot.create(:valid_loan_item, loan_item_object: s)
+
+    s.taxon_determinations << FactoryBot.create(:valid_taxon_determination)
+
+    o = s.taxon_determinations.first.otu
+    o.update!(taxon_name: FactoryBot.create(:valid_protonym))
+
+    q.taxon_name_id = o.taxon_name_id
+
+    expect(q.all).to contain_exactly(l1)
+  end
+
+
   specify '#collection_object_query' do
     l1 = FactoryBot.create(:valid_loan, recipient_address: 'Mars, home of chocolate bars.') 
     l2 = FactoryBot.create(:valid_loan) 

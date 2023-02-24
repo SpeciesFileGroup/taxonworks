@@ -434,9 +434,7 @@ module Queries
         if taxon_determinations
           ::CollectionObject.joins(:taxon_determinations).distinct
         else
-          ::CollectionObject.left_outer_joins(:taxon_determinations)
-            .where(taxon_determinations: {id: nil})
-            .distinct
+          ::CollectionObject.where.missing(:taxon_determinations)
         end
       end
 
@@ -748,7 +746,7 @@ module Queries
           return q
         end
 
-        ::CollectionObject.joins(q.join_sources).where(z)
+        ::CollectionObject.joins(q.join_sources).where(z).distinct
       end
 
       def taxon_name_query_facet
@@ -759,7 +757,7 @@ module Queries
           .joins('JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id')
           .to_sql
 
-        ::CollectionObject.from('(' + s + ') as collection_objects')
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def collecting_event_query_facet
@@ -797,7 +795,7 @@ module Queries
           .where(taxon_determinations: {position: 1})
           .to_sql
 
-        ::CollectionObject.from('(' + s + ') as collection_objects')
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def biological_associations_facet
@@ -808,6 +806,7 @@ module Queries
         ::CollectionObject.from("((#{a.to_sql}) UNION (#{b.to_sql})) as collection_objects")
       end
 
+      # TODO: turn into UNION!
       def biological_association_id_facet
         return nil if biological_association_id.empty?
         b = ::BiologicalAssociation.where(id: biological_association_id)
@@ -818,9 +817,10 @@ module Queries
           .where('(query_ba_id_co1.id) IS NOT NULL OR (query_ba_id_co2.id IS NOT NULL)')
           .to_sql
 
-        ::CollectionObject.from('(' + s + ') as collection_objects')
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
+      # TODO: turn into UNION!
       def biological_association_query_facet
         return nil if biological_association_query.nil?
         s = 'WITH query_ba_co AS (' + biological_association_query.all.to_sql + ') ' +
@@ -830,7 +830,7 @@ module Queries
           .where('(query_ba_co1.id) IS NOT NULL OR (query_ba_co2.id IS NOT NULL)')
           .to_sql
 
-        ::CollectionObject.from('(' + s + ') as collection_objects')
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def extract_query_facet
@@ -867,7 +867,7 @@ module Queries
           current_repository_id_facet,
           preparation_type_id_facet,
           repository_id_facet,
-          type_facet,
+          type_facet
         ]
       end
 
@@ -910,10 +910,10 @@ module Queries
           type_material_type_facet,
           with_buffered_collecting_event_facet,
           with_buffered_determinations_facet,
-          with_buffered_other_labels_facet,
+          with_buffered_other_labels_facet
         ]
       end
 
-      end
-      end
-      end
+    end
+  end
+end

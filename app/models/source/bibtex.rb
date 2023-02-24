@@ -795,7 +795,7 @@ class Source::Bibtex < Source
     ::BIBTEX_FIELDS.each do |f|
       next if f == :bibtex_type
       v = send(f)
-      if !v.blank? && (v =~ /\A{(.*)}\z/)
+      if !v.blank? && (v.to_s =~ /\A{(.*)}\z/)
         a[f.to_s] = {literal: $1}
       end
     end

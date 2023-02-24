@@ -63,7 +63,7 @@ module DescriptorsHelper
   end
 
   # @return [String]
-  #   the column/descriptor name modified for comma seperated
+  #   the column/descriptor name modified for comma separated
   #     quote delimited CSV export
   def descriptor_matrix_label_csv(descriptor, quote = '"')
     quote + descriptor.name.gsub('"', "'") + quote

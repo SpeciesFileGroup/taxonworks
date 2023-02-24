@@ -155,7 +155,7 @@ module Queries
         s = 'WITH query_otu_ob AS (' + otu_query.all.to_sql + ') ' +
           ::Descriptor
           .joins(:observations)
-          .joins("JOIN query_otu_ob as query_otu_ob1 on observations.observation_object_id = query_otu_ob1.id and observation.observation_object_type = 'Otu'")
+          .joins("JOIN query_otu_ob AS query_otu_ob1 ON observations.observation_object_id = query_otu_ob1.id AND observations.observation_object_type = 'Otu'")
           .to_sql
 
         ::Descriptor.from('(' + s + ') as descriptors')

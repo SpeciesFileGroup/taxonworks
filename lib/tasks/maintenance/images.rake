@@ -86,7 +86,7 @@ namespace :tw do
                 FileUtils.cp(temp_original, original_file)
                 raise
               ensure
-                File.delete(temp_original) if File.exists?(temp_original)
+                File.delete(temp_original) if File.exist?(temp_original)
               end
 
               i.image_file.reprocess!

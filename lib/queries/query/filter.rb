@@ -86,7 +86,6 @@ module Queries
       taxon_name_query: '::Queries::TaxonName::Filter',
     }.freeze
 
-
     # @return [Array]
     # @param project_id [Array, Integer]
     attr_accessor :project_id
@@ -521,19 +520,26 @@ module Queries
     # @param nil_empty [Boolean]
     #   If true then if there are no clauses return nil not .all
     # @return [ActiveRecord::Relation]
+    #
+    # See /lib/queries/ARCHITECTURE.md for additional explanation.
     def all(nil_empty = false)
+
+      # TODO: should turn off/on project_id here on nil empty?
+
       a = all_and_clauses
       b = all_merge_clauses
 
       return nil if nil_empty && a.nil? && b.nil?
 
+      # !! Do not apply `.distinct here`
+
       q = nil
       if a && b
-        q = b.where(a).distinct
+        q = b.where(a)
       elsif a
-        q = referenced_klass.where(a).distinct
+        q = referenced_klass.where(a)
       elsif b
-        q = b.distinct
+        q = b
       else
         q = referenced_klass.all
       end
@@ -541,7 +547,6 @@ module Queries
       if recent
         q = referenced_klass.from(q.all, table.name).order(updated_at: :desc)
       end
-
       q
     end
 

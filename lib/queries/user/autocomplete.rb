@@ -1,6 +1,6 @@
 module Queries
   module User
-   class Autocomplete < Query::Autocomplete
+    class Autocomplete < Query::Autocomplete
 
       # @return [Scope]
       def where_sql
@@ -28,7 +28,7 @@ module Queries
       end
 
       # @return [Scope]
-      def autocomplete 
+      def autocomplete
         # For reference, this is equivalent: Otu.eager_load(:taxon_name).where(where_sql)
         ::User.where(where_sql).order(name: :asc)
       end

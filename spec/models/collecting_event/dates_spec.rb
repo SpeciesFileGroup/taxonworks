@@ -250,7 +250,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
       #  a b     c    d
       # -*-*-----s----e-----
-      context 'search range and record range completely seperate' do
+      context 'search range and record range completely separate' do
         let(:params) {
           {search_start_date: a, search_end_date: b, partial_overlap: 'off'}
         }

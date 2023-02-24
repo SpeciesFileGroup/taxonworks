@@ -15,9 +15,11 @@ class CitationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @citations = ::Queries::Citation::Filter.new(params).all.where(project_id: sessions_current_project_id).includes(:source)
+        @citations = ::Queries::Citation::Filter.new(params).all
+          .where(project_id: sessions_current_project_id)
+          .eager_load(:source)
           .order(:source_id, :pages)
-          .page(params[:page]).per(params[:per] || 500)
+          .page(params[:page]).per(params[:per])
       }
     end
   end
