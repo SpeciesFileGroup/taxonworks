@@ -60,7 +60,7 @@ class CitationsController < ApplicationController
   # /citations/batch_create.json?citation_object_type=Otu&citation_object_id[]=123&source_id=456
   def batch_create
     if @citations = Citation.batch_create(
-         params.require(citation_params.permit!(citation_object_id: []))
+         citation_params.permit!(citation_object_id: [])
        )
       render '/index'
     else
