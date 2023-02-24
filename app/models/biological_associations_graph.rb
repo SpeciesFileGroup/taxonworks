@@ -13,10 +13,10 @@ class BiologicalAssociationsGraph < ApplicationRecord
   include Shared::Citations
   include Shared::Notes
   include Shared::Tags
+  include Shared::Identifiers
   include Shared::IsData
 
-  has_many :biological_associations_biological_associations_graphs, inverse_of: :biological_associations_graph
-
+  has_many :biological_associations_biological_associations_graphs, inverse_of: :biological_associations_graph, dependent: :delete_all
   has_many :biological_associations, through: :biological_associations_biological_associations_graphs
 
   accepts_nested_attributes_for  :biological_associations_biological_associations_graphs, allow_destroy: true

@@ -351,7 +351,7 @@ scope :tasks do
 
   scope :biological_associations do
       scope :biological_associations_graph, controller: 'tasks/biological_associations/biological_associations_graph' do
-        get :index, as: 'index_biological_associations_graph_task'
+        get '/', action: :index, as: 'edit_biological_associations_graph_task'
       end
 
     scope :filter, controller: 'tasks/biological_associations/filter' do

@@ -79,6 +79,14 @@ class BiologicalAssociationsGraphsController < ApplicationController
     end
   end
 
+  def autocomplete
+    @biological_associations_graphs = Queries::BiologicalAssociationsGraph::Autocomplete.new(
+      params.require(:term),
+      project_id: sessions_current_project_id
+    ).autocomplete
+  end
+
+  # TODO: remove!
   def search
     if params[:id].blank?
       redirect_to biological_associations_graphs_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'

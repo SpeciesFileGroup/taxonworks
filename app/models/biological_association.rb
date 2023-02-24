@@ -48,7 +48,7 @@ class BiologicalAssociation < ApplicationRecord
 
   belongs_to :biological_association_subject, polymorphic: true
   belongs_to :biological_association_object, polymorphic: true
-  has_many :biological_associations_biological_associations_graphs, inverse_of: :biological_association
+  has_many :biological_associations_biological_associations_graphs, inverse_of: :biological_association, dependent: :destroy
   has_many :biological_associations_graphs, through: :biological_associations_biological_associations_graphs, inverse_of: :biological_associations
 
   validates :biological_relationship, presence: true
