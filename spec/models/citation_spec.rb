@@ -22,10 +22,8 @@ describe Citation, type: :model, group: [:annotators, :citations] do
     }
 
     p = ActionController::Parameters.new(h)
-
-    p.permit(citation_object_id: [])
+    p.permit!
    
-    byebug
     Citation.batch_create(p)
     
     expect(Citation.count).to eq(2)
