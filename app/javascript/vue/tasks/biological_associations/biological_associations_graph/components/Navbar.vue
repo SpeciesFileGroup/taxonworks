@@ -7,6 +7,13 @@
         @get-item="({ id }) => store.loadGraph(id)"
       />
       <div class="horizontal-left-content gap-small">
+        <VIcon
+          v-if="store.isUnsaved"
+          name="attention"
+          small
+          color="attention"
+          title="You have unsaved changes."
+        />
         <VBtn
           color="primary"
           medium
@@ -23,11 +30,6 @@
         >
           Save
         </VBtn>
-        <VIcon
-          v-if="store.isUnsaved"
-          name="attention"
-          color="warning"
-        />
       </div>
     </div>
   </VNavbar>

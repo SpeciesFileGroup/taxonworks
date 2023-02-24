@@ -61,7 +61,7 @@ async function removeEdge(edgeId) {
         'This will delete the biological association. Are you sure you want to proceed?',
       okButton: 'Destroy',
       cancelButton: 'Cancel',
-      typeButton: 'submit'
+      typeButton: 'delete'
     }))
 
   if (ok) {

@@ -104,7 +104,12 @@ export const useGraphStore = defineStore('useGraphStore', {
         this.getCreatedAssociationsByNodeId(nodeId)
 
       biologicalAssociationsCreated.forEach((id) =>
-        BiologicalAssociation.destroy(id)
+        BiologicalAssociation.destroy(id).then(() => {
+          TW.workbench.alert.create(
+            'Biological association was successfully deleted.',
+            'notice'
+          )
+        })
       )
 
       delete this.nodes[nodeId]
@@ -129,7 +134,6 @@ export const useGraphStore = defineStore('useGraphStore', {
         isUnsaved
       }
 
-      this.graph.isUnsaved = true
       this.nextEdgeIndex++
     },
 
@@ -229,13 +233,24 @@ export const useGraphStore = defineStore('useGraphStore', {
             extend
           }
 
-          if (this.graph.isUnsaved) {
-            const request = this.graph.id
-              ? BiologicalAssociationGraph.update(this.graph.id, payload)
-              : BiologicalAssociationGraph.create(payload)
+          const request = this.graph.id
+            ? BiologicalAssociationGraph.update(this.graph.id, payload)
+            : BiologicalAssociationGraph.create(payload)
 
-            this.graph = (await request).body
-          }
+          request.then(({ body }) => {
+            this.graph = body
+            TW.workbench.alert.create(
+              'Biological associations graph was successfully saved.',
+              'notice'
+            )
+          })
+        } else {
+          TW.workbench.alert.create(
+            this.relations.length > 1
+              ? 'Biological associations were successfully saved.'
+              : 'Biological association was successfully saved.',
+            'notice'
+          )
         }
       })
 

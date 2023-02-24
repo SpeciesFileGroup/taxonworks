@@ -56,7 +56,7 @@ async function removeNode(node) {
         'This will delete biological associations connected to this node. Are you sure you want to proceed?',
       okButton: 'Destroy',
       cancelButton: 'Cancel',
-      typeButton: 'submit'
+      typeButton: 'delete'
     }))
 
   if (ok) {
