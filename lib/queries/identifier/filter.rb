@@ -70,10 +70,6 @@ module Queries
         set_polymorphic_params(params)
       end
 
-      def table
-        ::Identifier.arel_table
-      end
-
       def type
         [@type].flatten.compact.uniq
       end
