@@ -76,10 +76,11 @@ class Citation < ApplicationRecord
     ids = params[:citation_object_id]
     params.delete(:citation_object_id)
 
+    citations = []
     Citation.transaction do
       begin
         ids.each do |id|
-          Citation.create(
+          citations.push Citation.create!(
             params.merge(
               citation_object_id: id
             )
@@ -89,6 +90,7 @@ class Citation < ApplicationRecord
         return false
       end
     end
+    citations
   end
 
   # TODO: deprecate
