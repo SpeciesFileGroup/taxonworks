@@ -73,6 +73,7 @@ const WITH_PARAMS = [
   'collectors',
   'current_repository',
   'data_attributes',
+  'dates',
   'deaccessioned',
   'determiners',
   'dwc_indexed',

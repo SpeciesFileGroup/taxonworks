@@ -1,8 +1,6 @@
 class OriginRelationshipsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
  
- # include ShallowPolymorphic
-
   before_action :set_origin_relationship, only: [:show, :edit, :update, :destroy]
 
   # GET /origin_relationships
@@ -16,8 +14,8 @@ class OriginRelationshipsController < ApplicationController
       format.json{
         @origin_relationships = Queries::OriginRelationship::Filter.new(params)
           .all
-          .where(project_id: sessions_current_project_id)
           .page(params[:page])
+          .per(params[:per])
       }
     end
   end
@@ -107,17 +105,6 @@ class OriginRelationshipsController < ApplicationController
   end
 
   private
-
-# def filter_params
-#   params.permit(
-#     :new_object_global_id,
-#     :old_object_global_id,
-#   ).to_h
-#     .merge(
-#   #    old_object_global_id: shallow_object_global_param[:object_global_id],
-#       project_id: sessions_current_project_id
-#     )
-# end
 
   # Use callbacks to share common setup or constraints between actions.
   def set_origin_relationship

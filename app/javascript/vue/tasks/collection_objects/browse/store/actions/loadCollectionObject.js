@@ -21,7 +21,7 @@ export default ({ state, dispatch }, coId) => {
     dispatch(ActionNames.LoadSoftValidation, co.globalId)
 
     BiologicalAssociation.where({
-      subject_global_id: co.globalId,
+      subject_object_global_id: co.globalId,
       extend: ['origin_citation', 'object', 'biological_relationship']
     }).then(({ body }) => {
       state.biologicalAssociations = body

@@ -25,6 +25,7 @@ module Queries
         :current_determinations,
         :current_repository,
         :current_repository_id,
+        :dates,
         :descendants,
         :determiner_id_or,
         :determiner_name_regex,
@@ -284,6 +285,12 @@ module Queries
       # @return Array
       attr_accessor :extract_id
 
+      # @return Boolean
+      #    true - any of start/end date or verbatim date are populated
+      #    false - none of start/end date or verbatim date are populated
+      #    nil - ignored
+      attr_accessor :dates
+
       # rubocop:disable Metric/MethodLength
       # @param [Hash] args are permitted params
       def initialize(query_params)
@@ -311,6 +318,7 @@ module Queries
         @current_determinations = boolean_param(params, :current_determinations)
         @current_repository = boolean_param(params, :current_repository)
         @current_repository_id = params[:current_repository_id].blank? ? nil : params[:current_repository_id]
+        @dates = boolean_param(params, :dates)
         @descendants = boolean_param(params, :descendants)
         @determiners = boolean_param(params, :determiners)
         @determiner_id = params[:determiner_id]
@@ -749,6 +757,33 @@ module Queries
         ::CollectionObject.joins(q.join_sources).where(z).distinct
       end
 
+      def dates_facet
+        return nil if dates.nil? 
+        if dates
+          ::CollectionObject.left_joins(:collecting_event).where(
+            'start_date_year IS NOT NULL OR ' +
+            'start_date_month IS NOT NULL OR ' +
+            'start_date_day IS NOT NULL OR ' +
+            'end_date_year IS NOT NULL OR ' +
+            'end_date_month IS NOT NULL OR ' +
+            'end_date_day IS NOT NULL OR ' +
+            'verbatim_date IS NOT NULL'
+          ) 
+        else
+          ::CollectionObject.left_joins(:collecting_event).where(
+            collecting_event: {
+              start_date_year: nil,
+              start_date_month: nil,
+              start_date_day: nil,
+              end_date_year: nil,
+              end_date_month: nil,
+              end_date_day: nil,
+              verbatim_date: nil
+            }
+          )
+        end
+      end
+
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
         s = 'WITH query_tn_co AS (' + taxon_name_query.all.to_sql + ') ' +
@@ -888,6 +923,7 @@ module Queries
           collecting_event_facet,
           collectors_facet,
           current_repository_facet,
+          dates_facet,
           determiner_facet,
           determiner_name_regex_facet,
           determiners_facet,
