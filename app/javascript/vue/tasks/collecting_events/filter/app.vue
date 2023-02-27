@@ -10,7 +10,7 @@
       :url-request="urlRequest"
       :list="list"
       v-model:append="append"
-      @filter="loadList"
+      @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -33,8 +33,7 @@
         />
       </template>
       <template #facets>
-        <filter-component
-          class="separate-right"
+        <FilterComponent
           v-show="preferences.activeFilter"
           v-model="parameters"
         />
@@ -51,7 +50,11 @@
           v-model="selectedIds"
           :list="list"
           @on-row-hover="setRowHover"
-          @on-sort="list = $event"
+          @on-sort="
+            ($event) => {
+              list = $event
+            }
+          "
         />
       </template>
     </FilterLayout>
@@ -127,31 +130,26 @@ const {
 const rowHover = ref()
 const georeferences = ref([])
 
-watch(list, (newVal, oldList) => {
-  const currIds = newVal.map((item) => item.id)
-  const prevIds = oldList.map((item) => item.id)
-
-  if (currIds.length && currIds.some((id) => !prevIds.includes(id))) {
-    loadGeoreferences(newVal)
-  }
-})
-
-const loadList = () => {
-  makeFilterRequest({ ...parameters.value, extend }).then((_) => {
-    list.value = parseList(list.value)
-  })
-}
-
 function parseList(list) {
-  return list.map((item) => ({
-    ...item,
-    roles: (item?.collector_roles || [])
-      .map((role) => role.person.cached)
-      .join('; '),
-    identifiers: (item?.identifiers || []).map((i) => i.cached).join('; '),
-    start_date: parseStartDate(item),
-    end_date: parseEndDate(item)
-  }))
+  const newList = list.map((item) => {
+    const identifiers = Array.isArray(item.identifiers)
+      ? item.identifiers
+      : [item.identifiers]
+
+    return {
+      ...item,
+      roles: (item?.collector_roles || [])
+        .map((role) => role.person.cached)
+        .join('; '),
+      identifiers: identifiers.map((i) => i.cached).join('; '),
+      start_date: parseStartDate(item),
+      end_date: parseEndDate(item)
+    }
+  })
+
+  loadGeoreferences(newList)
+
+  return newList
 }
 
 const loadGeoreferences = async (list = []) => {
