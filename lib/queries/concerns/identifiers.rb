@@ -176,6 +176,8 @@ module Queries::Concerns::Identifiers
       a = referenced_klass.where(id: ids)
     when 'identifier'
       a = referenced_klass.joins(:identifiers).where(identifiers: {cached: ids})
+    when 'dwc_occurrence_id'
+      a = referenced_klass.joins(:identifiers).where(identifiers: {cached: ids, type: 'Identifier::Global::Uuid::TaxonworksDwcOccurrence' })
     else
       return nil
     end

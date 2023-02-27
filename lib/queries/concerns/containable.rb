@@ -129,8 +129,10 @@ module Queries::Concerns::Containable
 
     if match_identifiers_type&.downcase == 'identifier'
       referenced_klass_container_identifiers.where(identifiers: {cached: ids})
+    elsif match_identifiers_type&.downcase == 'dwc_occurrence_id'
+      referenced_klass_container_identifiers.where(identifiers: {cached: ids, type: 'Identifier::Global::Uuid::TaxonworksDwcOccurrence' })
     else
-      nil
+      nil # don't match on internal IDs of containers, it doesn't make sense
     end
   end
 
