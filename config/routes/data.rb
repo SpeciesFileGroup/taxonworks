@@ -214,6 +214,7 @@ resources :data_attributes, except: [:show] do
   concerns [:data_routes]
 
   collection do
+    post :batch_create, defaults: {format: :json}
     get 'value_autocomplete', defaults: {format: :json}
   end
 end
