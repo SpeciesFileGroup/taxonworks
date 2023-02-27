@@ -151,7 +151,7 @@ class DataAttributesController < ApplicationController
 
   def batch_data_attribute_params
     p = base_params 
-    p.last.merge!(attribute_subject_id: [])
+    p << {attribute_subject_id: []}
     params.require(:data_attribute).permit(p)
   end
 
