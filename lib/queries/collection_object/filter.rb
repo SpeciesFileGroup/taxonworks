@@ -132,13 +132,16 @@ module Queries
       #  nil - not applied
       attr_accessor :collectors
 
-      # @return [True, nil]
+      # @param on_loan [True]
+      #   true - the CollectionObject *currently* on loan
       attr_accessor :on_loan
 
-      # @return [True, nil]
+      # @param loaned [True]
+      #   true - the CollectionObject has been loaned at least once
       attr_accessor :loaned
 
-      # @return [True, nil]
+      # @param never_loaned [True]
+      #   true - the CollectionObject has never been loaned
       attr_accessor :never_loaned
 
       # @return [Array]
