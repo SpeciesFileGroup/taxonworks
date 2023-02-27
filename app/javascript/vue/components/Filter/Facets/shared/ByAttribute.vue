@@ -48,11 +48,14 @@
           <td>{{ field.value }}</td>
           <td>
             <input
-              v-if="checkForMatch(field.type) && !field.any"
+              v-if="checkForMatch(field.type) && !field.any && field.value"
               v-model="field.exact"
               type="checkbox"
             />
-            <span v-if="field.any">Any</span>
+            <template v-else>
+              <span v-if="field.any">Any</span>
+              <span v-else>Empty</span>
+            </template>
           </td>
           <td>
             <span
@@ -107,13 +110,17 @@ const selectedField = ref(undefined)
 watch(
   selectedFields,
   (newVal) => {
-    const matches = newVal
-      .filter((item) => !item.exact && !item.any)
-      .map((item) => item.param)
     const attributes = {}
+    const matches = newVal
+      .filter((item) => !item.exact && !item.any && item.value)
+      .map((item) => item.param)
 
     params.value.any_value_attribute = newVal
       .filter((item) => item.any)
+      .map((item) => item.param)
+
+    params.value.no_value_attribute = newVal
+      .filter((item) => !item.value && !item.any)
       .map((item) => item.param)
 
     params.value[props.wildcardParam] = matches
@@ -153,8 +160,9 @@ onBeforeMount(() => {
       const value = params.value[name]
       const any = params.value.any_value_attribute?.includes(name)
       const exact = !params.value[props.wildcardParam]?.includes(name)
+      const noValue = params.value.no_value_attribute?.includes(name)
 
-      if (value === undefined) {
+      if (value === undefined && !noValue && !any) {
         return
       }
 
