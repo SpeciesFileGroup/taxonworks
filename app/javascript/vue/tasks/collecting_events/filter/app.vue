@@ -33,10 +33,7 @@
         />
       </template>
       <template #facets>
-        <FilterComponent
-          v-show="preferences.activeFilter"
-          v-model="parameters"
-        />
+        <FilterComponent v-model="parameters" />
       </template>
 
       <template #above-table>
@@ -74,7 +71,7 @@ import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import { COLLECTING_EVENT } from 'constants/index.js'
-import { computed, ref, watch, reactive } from 'vue'
+import { computed, ref, reactive } from 'vue'
 import { chunkArray, sortArray } from 'helpers/arrays'
 import { CollectingEvent, Georeference } from 'routes/endpoints'
 

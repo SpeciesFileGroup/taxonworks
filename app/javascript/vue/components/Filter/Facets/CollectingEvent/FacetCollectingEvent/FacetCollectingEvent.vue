@@ -56,7 +56,6 @@
     <ByAttribute
       controller="collecting_events"
       v-model="params"
-      wildcard-param="collecting_event_wildcards"
     />
   </FacetContainer>
 </template>

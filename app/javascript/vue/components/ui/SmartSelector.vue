@@ -419,17 +419,19 @@ watch(view, (newVal) => {
 })
 
 watch(
-  props.customList,
+  () => props.customList,
   () => {
     addCustomElements()
   },
   { deep: true }
 )
 
-watch(props.model, () => {
-  refresh()
-})
-
+watch(
+  () => props.model,
+  () => {
+    refresh()
+  }
+)
 
 onUnmounted(() => {
   document.removeEventListener('smartselector:update', refresh)
