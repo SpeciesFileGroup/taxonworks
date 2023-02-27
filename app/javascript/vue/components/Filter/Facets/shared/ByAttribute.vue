@@ -25,7 +25,6 @@
     v-if="selectedField"
     class="horizontal-left-content"
     :field="selectedField"
-    :any="any"
     @add="addField"
   />
 
@@ -83,11 +82,6 @@ const props = defineProps({
   controller: {
     type: String,
     required: true
-  },
-
-  any: {
-    type: Boolean,
-    default: false
   }
 })
 

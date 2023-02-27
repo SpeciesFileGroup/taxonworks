@@ -47,11 +47,6 @@ const props = defineProps({
   field: {
     type: Object,
     required: true
-  },
-
-  any: {
-    type: Boolean,
-    default: false
   }
 })
 
