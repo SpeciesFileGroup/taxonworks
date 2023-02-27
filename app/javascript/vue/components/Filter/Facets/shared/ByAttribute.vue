@@ -85,11 +85,6 @@ const props = defineProps({
     required: true
   },
 
-  wildcardParam: {
-    type: String,
-    required: true
-  },
-
   any: {
     type: Boolean,
     default: false
@@ -123,7 +118,7 @@ watch(
       .filter((item) => !item.value && !item.any)
       .map((item) => item.param)
 
-    params.value[props.wildcardParam] = matches
+    params.value.wildcard_attribute = matches
 
     fields.value.forEach(({ name }) => {
       attributes[name] = undefined
@@ -146,7 +141,7 @@ watch(
       parameters.includes(name)
     )
 
-    if (!parameters.includes(props.wildcardParam) && !isAttributeSetted) {
+    if (!parameters.includes('wildcard_attribute') && !isAttributeSetted) {
       selectedFields.value = []
     }
   }
@@ -159,7 +154,7 @@ onBeforeMount(() => {
     fields.value.forEach(({ name, type }) => {
       const value = params.value[name]
       const any = params.value.any_value_attribute?.includes(name)
-      const exact = !params.value[props.wildcardParam]?.includes(name)
+      const exact = !params.value.wildcard_attribute?.includes(name)
       const noValue = params.value.no_value_attribute?.includes(name)
 
       if (value === undefined && !noValue && !any) {
