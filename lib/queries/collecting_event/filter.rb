@@ -27,6 +27,7 @@ module Queries
       #
       BASE_PARAMS = [
         *ATTRIBUTES,
+        :any_value_attribute,
         :collectors,
         :collecting_event_object_id,
         :collecting_event_wildcards,
@@ -43,16 +44,19 @@ module Queries
         :in_labels,
         :in_verbatim_locality,
         :md5_verbatim_label,
+        :no_value_attribute,
         :partial_overlap_dates,
         :radius,
         :start_date,
         :use_max,
         :use_min,
         :wkt,
+        any_value_attribute: [], # TODO
         collecting_event_id: [],
         collecting_event_wildcards: [],
         collector_id: [],
         geographic_area_id: [],
+        no_value_attribute: [],
       ].freeze
 
       PARAMS = [
@@ -73,6 +77,14 @@ module Queries
         b = a.pop.keys
         (a + b).uniq
       end
+
+      # @return [Array]
+      #  ATTRIBUTES listed here will all not-null records
+      attr_accessor :any_value_attribute
+
+      # @return [Array]
+      #  ATTRIBUTES listed here will match null
+      attr_accessor :no_value_attribute
 
       # @return [Boolean, nil]
       #  true - A collector role exists
@@ -164,6 +176,8 @@ module Queries
       def initialize(query_params)
         super
 
+        @any_value_attribute = params[:any_value_attribute]
+        @no_value_attribute = params[:no_value_attribute]
         @collectors = boolean_param(params, :collectors )
         @collecting_event_id = params[:collecting_event_id]
         @collecting_event_wildcards = params[:collecting_event_wildcards]
@@ -179,6 +193,7 @@ module Queries
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
         @md5_verbatim_label = params[:md5_verbatim_label]&.to_s&.downcase == 'true'
+        @no_value_attribute = params[:no_value_attribute]
         @otu_id = params[:otu_id].presence
         @radius = params[:radius].presence || 100
         @use_max = params[:use_max]
@@ -214,6 +229,14 @@ module Queries
         [@otu_id].flatten.compact
       end
 
+      def any_value_attribute
+        [@any_value_attribute].flatten.compact.map(&:to_sym)
+      end
+
+      def no_value_attribute
+        [@no_value_attribute].flatten.compact.map(&:to_sym)
+      end
+
       def collecting_event_wildcards
         [@collecting_event_wildcards].flatten.compact.uniq.map(&:to_sym)
       end
@@ -221,7 +244,12 @@ module Queries
       def attribute_clauses
         c = []
         ATTRIBUTES.each do |a|
-          if v = send(a)
+          if any_value_attribute.include?(a)
+            c.push table[a].not_eq(nil)
+          elsif no_value_attribute.include?(a)
+            c.push table[a].eq(nil)
+          else
+            v = send(a)
             if v.present?
               if collecting_event_wildcards.include?(a)
                 c.push Arel::Nodes::NamedFunction.new('CAST', [table[a].as('TEXT')]).matches('%' + v.to_s + '%')

@@ -59,6 +59,12 @@ module Queries
           .and(table[:old_object_id].eq(old_object.id))
       end
 
+
+      def polymorphic_id_facet
+        return nil if polymorphic_id.blank?
+        table[referenced_klass.annotator_id].eq(polymorphic_id).and(table[referenced_klass.annotator_type].eq(polymorphic_type))
+      end
+
       def and_clauses
         [
           new_object_facet,

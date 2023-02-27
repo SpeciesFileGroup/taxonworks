@@ -123,11 +123,11 @@ module Queries
       end
 
       def identifier_object_id_facet
-        return nil 
+        return nil if identifier_object_id.empty?
         table[:identifier_object_id].eq_any(identifier_object_id)
       end
 
-      def matching_identifier_object_type
+      def identifier_object_type_facet
         return nil if identifier_object_type.empty?
          table[:identifier_object_type].eq_any(identifier_object_type)
       end
@@ -171,7 +171,7 @@ module Queries
           matching_identifier_attribute(:namespace_id),
           matching_identifier_attribute(:type),
           identifier_object_id_facet,
-          matching_identifier_object_type,
+          identifier_object_type_facet,
           community_project_id_facet,
         ]
       end

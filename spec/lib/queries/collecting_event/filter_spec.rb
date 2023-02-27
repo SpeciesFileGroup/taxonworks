@@ -23,6 +23,16 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
   # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
+  specify '#no_value_attribute' do
+    query.no_value_attribute = [:print_label]
+    expect(query.all).to contain_exactly(ce1)
+  end
+
+  specify '#any_value_attribute' do
+    query.any_value_attribute = [:print_label]
+    expect(query.all).to contain_exactly(ce2)
+  end
+
   specify '#recent' do
     query.recent = true 
     expect(query.all.map(&:id)).to contain_exactly(ce2.id, ce1.id)

@@ -51,6 +51,7 @@ module Queries
         :type_material,
         :type_specimen_taxon_name_id,
         :validity,
+
         :with_buffered_collecting_event,
         :with_buffered_determinations,
         :with_buffered_other_labels,
@@ -758,7 +759,7 @@ module Queries
       end
 
       def dates_facet
-        return nil if dates.nil? 
+        return nil if dates.nil?
         if dates
           ::CollectionObject.left_joins(:collecting_event).where(
             'start_date_year IS NOT NULL OR ' +
@@ -768,7 +769,7 @@ module Queries
             'end_date_month IS NOT NULL OR ' +
             'end_date_day IS NOT NULL OR ' +
             'verbatim_date IS NOT NULL'
-          ) 
+          )
         else
           ::CollectionObject.left_joins(:collecting_event).where(
             collecting_event: {
