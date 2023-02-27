@@ -78,15 +78,16 @@ const WITH_TITLES = {
 }
 
 const WITH_PARAMS = [
-  'citations',
-  'origin_citation',
-  'leaves',
-  'data_attributes',
-  'type_metadata',
-  'otus',
   'authors',
+  'citations',
+  'data_attributes',
   'etymology',
-  'not_specified'
+  'leaves',
+  'not_specified',
+  'origin_citation',
+  'original_combination',
+  'otus',
+  'type_metadata',
 ]
 
 const props = defineProps({

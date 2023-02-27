@@ -26,6 +26,7 @@ module Queries
         :nomenclature_code,
         :nomenclature_group, # !! different than autocomplete
         :not_specified,
+        :original_combination,
         :otu_id,
         :otus,
         :rank,
@@ -151,6 +152,13 @@ module Queries
       #   Class names of TaxonNameClassification, as strings.
       attr_accessor :taxon_name_classification
 
+      # @param original_combination [Boolean]
+      # @return [Boolean, nil]
+      #   true - name has at least one element of original combination
+      #   false - name has no element of original combination
+      #   nil - ignored
+      attr_accessor :original_combination
+
       # @param otu_id [Array, nil]
       # @return [Array, nil]
       #   one or more OTU ids
@@ -253,6 +261,7 @@ module Queries
         @not_specified = boolean_param(params, :not_specified)
         @otu_id = params[:otu_id]
         @otus = boolean_param(params, :otus)
+        @original_combination = boolean_param(params, :original_combination)
         @parent_id = params[:parent_id]
         @rank = params[:rank]
         @sort = params[:sort]
@@ -361,6 +370,15 @@ module Queries
         else
           ::TaxonName.where(table[:cached].does_not_match("%NOT SPECIFIED%").and(
             table[:cached_original_combination].does_not_match("%NOT SPECIFIED%")))
+        end
+      end
+
+      def original_combination_facet
+        return nil if original_combination.nil?
+        if original_combination
+          ::Protonym.joins(:original_combination_relationships)
+        else
+          ::Protonym.where.missing(:original_combination_relationships)
         end
       end
 
@@ -690,6 +708,7 @@ module Queries
           leaves_facet,
           taxon_name_author_id_facet,
           not_specified_facet,
+          original_combination_facet,
           otu_id_facet,
           otus_facet,
           taxon_name_classification_facet,
