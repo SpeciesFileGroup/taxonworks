@@ -11,8 +11,8 @@ export const configs = defineConfigs({
     selectable: 1,
     normal: {
       width: 3,
-      color: '#4466cc',
-      dasharray: '0',
+      color: (node) => node.color || '#4466cc',
+      dasharray: (node) => node.dasharray || '0',
       linecap: 'butt',
       animate: false,
       animationSpeed: 50

@@ -1,7 +1,7 @@
 export function makeBiologicalAssociation(ba) {
   return {
     uuid: crypto.randomUUID(),
-    ba: ba.id,
+    id: ba.id,
     name: ba.name,
     biologicalRelationship: {
       ...ba.biological_relationship,

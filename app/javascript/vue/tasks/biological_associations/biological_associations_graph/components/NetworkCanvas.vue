@@ -3,11 +3,11 @@
     ref="graph"
     class="graph panel"
     :configs="configs"
-    :edges="store.getEdges"
+    :edges="edges"
+    :nodes="nodes"
     :event-handlers="eventHandlers"
-    v-model:selected-nodes="store.selectedNodes"
-    v-model:nodes="store.nodes"
-    v-model:layouts="store.layouts"
+    v-model:selected-nodes="computedSelectedNodes"
+    v-model:layouts="computedLayouts"
   >
     <template #edge-label="{ edge, ...slotProps }">
       <VEdgeLabel
@@ -21,17 +21,36 @@
 
   <GraphContextMenu
     ref="viewContextMenu"
-    :position="store.currentEvent"
+    :position="currentEvent"
   >
-    <ContextMenuView />
+    <div
+      class="graph-context-menu-list-item"
+      @click="
+        () => {
+          emit('add:node', { type: OTU })
+        }
+      "
+    >
+      Add OTU
+    </div>
+    <div
+      class="graph-context-menu-list-item"
+      @click="
+        () => {
+          emit('add:node', { type: COLLECTION_OBJECT })
+        }
+      "
+    >
+      Add Collection object
+    </div>
   </GraphContextMenu>
 
   <GraphContextMenu
     ref="nodeContextMenu"
-    :position="store.currentEvent"
+    :position="currentEvent"
   >
     <div class="flex-separate middle gap-small graph-context-menu-list-item">
-      <span>{{ store.getNodes[currentNodeId]?.name }}</span>
+      <span>{{ nodes[currentNodeId]?.name }}</span>
       <VBtn
         circle
         :color="isCurrentNodeSaved ? 'destroy' : 'primary'"
@@ -45,8 +64,8 @@
     </div>
     <div
       class="graph-context-menu-list-item"
-      v-if="store.selectedNodes.length === 2"
-      @click="() => (store.modal.edge = true)"
+      v-if="selectedNodes.length === 2"
+      @click="() => emit('add:edge', selectedNodes)"
     >
       Create relation
     </div>
@@ -54,14 +73,14 @@
 
   <GraphContextMenu
     ref="edgeContextMenu"
-    :position="store.currentEvent"
+    :position="currentEvent"
   >
     <div
       v-for="edgeId in currentEdge"
       :key="edgeId"
       class="flex-separate middle gap-small graph-context-menu-list-item"
     >
-      {{ store.edges[edgeId]?.label }}
+      {{ edges[edgeId]?.label }}
       <div class="horizontal-right-content gap-xsmall">
         <VBtn
           color="primary"
@@ -79,7 +98,7 @@
         </VBtn>
         <VBtn
           circle
-          :color="store.edges[edgeId].id ? 'destroy' : 'primary'"
+          :color="edges[edgeId].id ? 'destroy' : 'primary'"
           @click="
             () => {
               removeEdge(edgeId)
@@ -99,16 +118,12 @@
         :key="edgeId"
         class="flex-separate middle gap-small graph-context-menu-list-item"
       >
-        {{ store.edges[edgeId]?.label }}
+        {{ edges[edgeId]?.label }}
         <div class="horizontal-right-content gap-xsmall">
           <VBtn
             color="primary"
             class="circle-button"
-            @click="
-              () => {
-                store.reverseRelation(edgeId)
-              }
-            "
+            @click="() => emit('reverse:edge', edgeId)"
           >
             <VIcon
               name="swap"
@@ -117,7 +132,7 @@
           </VBtn>
           <VBtn
             circle
-            :color="store.edges[edgeId].id ? 'destroy' : 'primary'"
+            :color="edges[edgeId].id ? 'destroy' : 'primary'"
             @click="
               () => {
                 removeEdge(edgeId)
@@ -139,11 +154,10 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { useGraphStore } from '../store/useGraphStore.js'
 import { configs } from '../constants/networkConfig'
 import { graphLayout } from '../utils/graphLayout.js'
+import { COLLECTION_OBJECT, OTU } from 'constants/index.js'
 import GraphContextMenu from './ContextMenu/ContextMenu.vue'
-import ContextMenuView from './ContextMenu/ContextMenuView.vue'
 import ContextMenuEdge from './ContextMenu/ContextMenuEdge.vue'
 import ConfirmationModal from 'components/ConfirmationModal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
@@ -160,15 +174,27 @@ const props = defineProps({
     default: () => ({})
   },
 
-  layout: {
+  layouts: {
     type: Object,
     default: () => ({})
+  },
+
+  selectedNodes: {
+    type: Array,
+    default: () => []
   }
 })
 
-const store = useGraphStore()
-
-const emit = defineEmits(['reverse:edge', 'remove:node'])
+const emit = defineEmits([
+  'add:edge',
+  'add:node',
+  'remove:edge',
+  'remove:node',
+  'reverse:edge',
+  'update:layouts',
+  'update:selectedNodes',
+  'view:position'
+])
 
 const graph = ref()
 const edgeContextMenu = ref()
@@ -177,19 +203,34 @@ const viewContextMenu = ref()
 
 const currentNodeId = ref()
 const currentEdge = ref()
+const currentEvent = ref()
 
-const isCurrentNodeSaved = computed(
-  () => store.getCreatedAssociationsByNodeId(currentNodeId.value).length > 0
+const computedLayouts = computed({
+  get: () => props.layouts,
+  set: (value) => emit('update:layouts', value)
+})
+
+const computedSelectedNodes = computed({
+  get: () => props.selectedNodes,
+  set: (value) => emit('update:selectedNodes', value)
+})
+
+const isCurrentNodeSaved = computed(() =>
+  Object.values(props.edges)
+    .filter(
+      (edge) =>
+        edge.id &&
+        (currentNodeId.value === edge.source ||
+          currentNodeId.value === edge.target)
+    )
+    .map((edge) => edge.id)
 )
 
 function showViewContextMenu({ event }) {
   const point = { x: event.offsetX, y: event.offsetY }
 
   handleEvent(event)
-
-  store.currentSVGCursorPosition =
-    graph.value.translateFromDomToSvgCoordinates(point)
-
+  emit('view:position', graph.value.translateFromDomToSvgCoordinates(point))
   viewContextMenu.value.openContextMenu()
 }
 
@@ -208,7 +249,7 @@ function showEdgeContextMenu({ event, summarized, edges, edge }) {
 function handleEvent(event) {
   event.stopPropagation()
   event.preventDefault()
-  store.currentEvent = event
+  currentEvent.value = event
 }
 
 const eventHandlers = {
@@ -232,13 +273,13 @@ async function removeNode(node) {
     }))
 
   if (ok) {
-    store.removeNode(node)
+    emit('remove:node', node)
   }
 }
 
 async function removeEdge(edgeId) {
   const ok =
-    !store.edges[edgeId].id ||
+    !props.edges[edgeId].id ||
     (await confirmationModalRef.value.show({
       title: 'Destroy biological association',
       message:
@@ -249,7 +290,7 @@ async function removeEdge(edgeId) {
     }))
 
   if (ok) {
-    store.removeEdge(edgeId)
+    emit('remove:edge', edgeId)
   }
 }
 
@@ -257,21 +298,18 @@ function updateLayout(direction) {
   graph.value?.transitionWhile(() => {
     const { layouts, viewBox } = graphLayout({
       direction,
-      graphRef: graph,
-      nodes: store.nodes,
-      edges: store.edges,
+      nodes: props.nodes,
+      edges: props.edges,
       nodeSize: 40
     })
 
-    store.layouts = layouts
+    computedLayouts.value = layouts
     graph.value.setViewBox(viewBox)
   })
 }
 
-store.$onAction(({ name, after }) => {
-  after(() => {
-    if (name === 'loadGraph') updateLayout('LR')
-  })
+defineExpose({
+  updateLayout
 })
 </script>
 

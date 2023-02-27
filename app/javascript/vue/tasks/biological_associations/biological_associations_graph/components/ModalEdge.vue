@@ -1,12 +1,12 @@
 <template>
-  <VModal @close="() => (isModalVisible = false)">
+  <VModal>
     <template #header>
       <h3>Select a biological relationship</h3>
     </template>
     <template #body>
       <SmartSelector
         model="biological_relationships"
-        @selected="addRelation"
+        @selected="($event) => emit('addRelationship', $event)"
       />
     </template>
   </VModal>
@@ -15,20 +15,6 @@
 <script setup>
 import SmartSelector from 'components/ui/SmartSelector'
 import VModal from 'components/ui/Modal.vue'
-import { useGraphStore } from '../store/useGraphStore'
 
-const store = useGraphStore()
-
-function addRelation(relationship) {
-  const [source, target] = store.selectedNodes
-
-  store.createEdge({
-    source,
-    target,
-    relationship,
-    isUnsaved: true
-  })
-
-  store.modal.edge = false
-}
+const emit = defineEmits(['addRelationship'])
 </script>
