@@ -59,6 +59,22 @@ export const LAYOUTS = {
     includes: {}
   },
 
+  Identifiers: {
+    properties: {
+      dwc_occurrence: [
+        'id',
+        'catalogNumber',
+        'otherCatalogNumbers',
+        'occurrenceID',
+        'fieldNumber'
+      ]
+    },
+    includes: {
+      identifiers: true
+    }
+  },
+
+
   Place: {
     properties: {
       dwc_occurrence: [
