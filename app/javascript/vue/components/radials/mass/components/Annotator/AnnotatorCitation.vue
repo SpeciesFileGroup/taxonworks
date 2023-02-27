@@ -30,6 +30,7 @@ const props = defineProps({
 })
 
 const citation = ref({})
+const topics = ref([])
 
 function createCitation() {
   Citation.createBatch({
@@ -38,10 +39,7 @@ function createCitation() {
     pages: citation.value.pages,
     citation_object_id: props.ids
   }).then(() => {
-    TW.workbench.alert.create(
-      'Note item(s) were successfully created',
-      'notice'
-    )
+    TW.workbench.alert.create('Citation(s) were successfully created', 'notice')
   })
 }
 </script>
