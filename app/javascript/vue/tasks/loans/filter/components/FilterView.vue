@@ -1,6 +1,7 @@
 <template>
   <FacetByAttribute
     controller="loans"
+    wildcard-param="loan_wildcards"
     v-model="params"
   />
   <FacetPerson v-model="params" />
