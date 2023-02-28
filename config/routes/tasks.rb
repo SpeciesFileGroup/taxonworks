@@ -165,21 +165,17 @@ scope :tasks do
   end
 
   scope :loans do
-      scope :dashboard, controller: 'tasks/loans/dashboard' do
-        get '/', action: :index, as: 'loan_dashboard_task'
-      end
+    scope :dashboard, controller: 'tasks/loans/dashboard' do
+      get '/', action: :index, as: 'loan_dashboard_task'
+    end
 
-      scope :filter, controller: 'tasks/loans/filter' do
-        get '/', action: :index, as: 'filter_loans_task'
-      end
+    scope :filter, controller: 'tasks/loans/filter' do
+      get '/', action: :index, as: 'filter_loans_task'
+    end
 
     scope :edit_loan, controller: 'tasks/loans/edit_loan' do
       get 'loan_item_metadata', as: 'loan_item_metdata', defaults: {format: :json}
       get '(:id)', action: :index, as: 'edit_loan_task'
-    end
-
-    scope :overdue, controller: 'tasks/loans/overdue' do
-      get 'index', as: 'overdue_loans_task'
     end
   end
 
@@ -198,9 +194,9 @@ scope :tasks do
   end
 
   scope :sources do
-      scope :source_citation_totals, controller: 'tasks/sources/source_citation_totals' do
-        get '/', action: :index, as: 'source_citation_totals_task'
-      end
+    scope :source_citation_totals, controller: 'tasks/sources/source_citation_totals' do
+      get '/', action: :index, as: 'source_citation_totals_task'
+    end
 
     scope :gnfinder, controller: 'tasks/sources/gnfinder' do
       get '/', action: :index, as: 'gnfinder_task'

@@ -269,14 +269,6 @@ dates_index_task:
     - collecting_event
   status: prototype
   description: "Parse the collecting_events table's verbatim label for possible date combinations."
-overdue_loans_task:
-  hub: true
-  name: 'Overdue loans'
-  related:
-  categories:
-    - collection_object
-  status: prototype
-  description: 'List overdue loans.'
 browse_collection_objects_task:
   hub: true
   name: 'Browse collection objects'
