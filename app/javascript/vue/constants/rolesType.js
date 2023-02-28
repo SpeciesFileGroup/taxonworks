@@ -3,7 +3,6 @@ export const ROLE_ATTRIBUTION_COPYRIGHT_HOLDER = 'AttributionCopyrightHolder'
 export const ROLE_ATTRIBUTION_CREATOR = 'AttributionCreator'
 export const ROLE_ATTRIBUTION_EDITOR = 'AttributionEditor'
 export const ROLE_ATTRIBUTION_OWNER = 'AttributionOwner'
-export const ROLE_ATTRIBUTION_ROLE = 'Role::AttributionRole'
 export const ROLE_COLLECTOR = 'Collector'
 export const ROLE_DEACCESSION_RECIPIENT = 'DeaccessionRecipient'
 export const ROLE_DETERMINER = 'Determiner'
@@ -18,4 +17,16 @@ export const ROLE_SOURCE_SOURCE = 'SourceSource'
 export const ROLE_TAXON_NAME_AUTHOR = 'TaxonNameAuthor'
 export const ROLE_VERIFIER = 'Verifier'
 
-export const ROLE_GROUP_LOAN = [ROLE_LOAN_RECIPIENT, ROLE_LOAN_SUPERVISOR]
+export const TAXON_NAME_AUTHOR_SELECTOR = [ROLE_TAXON_NAME_AUTHOR] // TN / 'Authors(s)
+
+export const DETERMINER_SELECTOR = [ROLE_DETERMINER] // CO, CE / Detrminer
+
+export const COLLECTOR_SELECTOR = [ROLE_COLLECTOR] // CO, CE / Collector
+
+export const SOURCE_AUTHOR_SELECTOR = [ROLE_SOURCE_AUTHOR] // Source / Author
+
+export const SOURCE_EDITOR_SELECTOR = [ROLE_SOURCE_EDITOR] // !! furture use, don't implement Source / Editor
+
+// Doesn't follow same pattern as above
+export const LOAN_ROLE_SELECTOR = [ROLE_LOAN_RECIPIENT, ROLE_LOAN_SUPERVISOR] // Loan / Person (R/S) hmmm- has toggles already
+
