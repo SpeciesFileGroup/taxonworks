@@ -12,7 +12,7 @@
   <FacetParamExact
     v-model="params"
     param="name"
-    title="Taxon"
+    title="Name"
   />
   <FacetPrecision v-model="params" />
   <FacetNomenclatureGroup v-model="params" />
@@ -34,7 +34,10 @@
     v-for="param in WITH_PARAMS"
     :key="param"
     :param="param"
-    :title="(WITH_TITLES[param] && WITH_TITLES[param].title) || param.replaceAll('_', ' ')"
+    :title="
+      (WITH_TITLES[param] && WITH_TITLES[param].title) ||
+      param.replaceAll('_', ' ')
+    "
     :inverted="WITH_TITLES[param] && WITH_TITLES[param].inverted"
     v-model="params"
   />
@@ -42,7 +45,6 @@
 </template>
 
 <script setup>
-
 import FacetPrecision from './filters/FacetPrecision.vue'
 import FacetUpdatedSince from './filters/FacetUpdatedSince'
 import FacetValidity from './filters/FacetValidity.vue'
@@ -88,7 +90,7 @@ const WITH_PARAMS = [
   'origin_citation',
   'original_combination',
   'otus',
-  'type_metadata',
+  'type_metadata'
 ]
 
 const props = defineProps({
@@ -102,7 +104,6 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
-
 </script>
