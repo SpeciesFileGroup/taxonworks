@@ -16,6 +16,7 @@ module Queries
         :collecting_event_id,
         :collection_objects,
         :contents,
+        :coordinatify,
         :descendants,
         :descriptor_id,
         :geo_json,
@@ -36,6 +37,12 @@ module Queries
         otu_id: [],
         taxon_name_id: [],
       ].freeze
+
+      # @params coordinatify ['true', True, nil]
+      # @return Boolean
+      #    if true then, additionally, all coordinate otus for the result are included
+      # !! This param is not like the others. !!  See parallel in TaxonName filter.
+      attr_accessor :coordinatify
 
       # @param name [String, Array]
       # @return Array
@@ -160,6 +167,7 @@ module Queries
         @collecting_event_id = params[:collecting_event_id]
         @collection_objects = boolean_param(params, :collection_objects)
         @contents = boolean_param(params, :contents)
+        @coordinatify = boolean_param(params, :coordinatify)
         @descendants = boolean_param(params, :descendants)
         @descriptor_id = params[:descriptor_id]
         @geo_json = params[:geo_json]
@@ -514,6 +522,37 @@ module Queries
         ::Otu.from('(' + s + ') as otus')
       end
 
+      # Does not include children !
+
+      # For all valid OTUs -> find invalid
+
+      # For all invalid OTUs -> find valid, find invalid
+      def coordinatify_result(q)
+
+        i = q.joins(:taxon_name).where('taxon_names.id != taxon_names.cached_valid_taxon_name_id')
+        v = q.joins(:taxon_name).where('taxon_names.id = taxon_names.cached_valid_taxon_name_id')
+
+        # Find valid for invalid
+        s = 'WITH invalid_otu_result AS (' + i.to_sql + ') ' +
+          ::Otu
+          .joins('JOIN taxon_names tn1 on otus.taxon_name_id = tn1.cached_valid_taxon_name_id')
+          .joins('JOIN invalid_otu_result AS invalid_otu_result1 ON invalid_otu_result1.taxon_name_id = tn1.id') # invalid otus matching valid names
+          .to_sql
+
+        a = ::Otu.from('(' + s + ') as otus' )
+
+        # Find invalid for valid
+        t = 'WITH valid_otu_result AS (' + v.to_sql + ') ' +
+          ::Otu
+          .joins('JOIN taxon_names tn2 on otus.taxon_name_id = tn2.id')
+          .joins('JOIN valid_otu_result AS valid_otu_result1 ON valid_otu_result1.taxon_name_id = tn2.cached_valid_taxon_name_id') # valid otus matching invalid names
+          .to_sql
+
+        b = ::Otu.from('(' + t + ') as otus' )
+
+        referenced_klass_union([a, b, q])
+      end
+
       def and_clauses
         [
           name_facet,
@@ -547,6 +586,13 @@ module Queries
           taxon_name_id_facet,
           wkt_facet,
         ].compact
+      end
+
+      # @return [ActiveRecord::Relation]
+      def all
+        q = super
+        q = coordinatify_result(q) if coordinatify
+        q
       end
 
     end

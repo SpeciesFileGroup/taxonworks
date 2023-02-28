@@ -385,6 +385,7 @@ class Otu < ApplicationRecord
     end
   end
 
+  # TODO: Re/move
   # temporary method to gent list of taxa from a geographic area and save it to csv file
   def taxa_by_geographic_area
     area = 'China'

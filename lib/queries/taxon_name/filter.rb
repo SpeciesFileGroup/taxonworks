@@ -92,7 +92,7 @@ module Queries
       # Matches against cached_nomenclature_date
       attr_accessor :year_start
 
-      # @param year_start [String]
+      # @param year_end [String]
       #   "yyyy"
       # Matches against cached_nomenclature_date
       attr_accessor :year_end
@@ -102,7 +102,7 @@ module Queries
       #   true if only valid, false if only invalid, nil if both
       attr_accessor :validity
 
-      # @params validity ['true', True, nil]
+      # @params validify ['true', True, nil]
       # @return Boolean
       #    if true then for each name in the result its valid
       # name is returned
@@ -334,7 +334,7 @@ module Queries
 
       def year_end
         return nil if @year_end.blank?
-        Date.new(@year_end.to_i)
+        Date.new(@year_end.to_i, 12, 31)
       end
 
       # @return [String, nil]
@@ -577,11 +577,12 @@ module Queries
         end
       end
 
-      # TODO: should match against cached_nomenclature_date?
-      # (yes, likely, but needs more logi)
       def year_facet
         return nil if year.blank?
-        table[:cached_author_year].matches('%' + year + '%')
+
+        s = Date.new(@year.to_i)
+        e = Date.new(@year.to_i, 12, 31)
+        table[:cached_nomenclature_date].between(s..e)
       end
 
       def year_range_facet
@@ -732,7 +733,6 @@ module Queries
       end
 
       def validify_result(q)
-        return nil if otu_query.nil?
         s = 'WITH tn_result_query AS (' + q.to_sql + ') ' +
           ::TaxonName
           .joins('JOIN tn_result_query as tn_result_query1 on tn_result_query1.cached_valid_taxon_name_id = taxon_names.id')

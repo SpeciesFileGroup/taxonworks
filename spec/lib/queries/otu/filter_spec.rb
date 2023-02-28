@@ -8,6 +8,35 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   let(:o1) { Otu.create!(name: 'Abc 1') }
   let(:o2) { Otu.create!(name: 'Def 2') }
 
+  context 'coordinatify' do
+    # TODO: unify with OTU as a include
+    let!(:root) { FactoryBot.create(:root_taxon_name) }
+    let!(:g) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
+    let!(:s1) { Protonym.create!(name: 'bus', parent: g, rank_class: Ranks.lookup(:iczn, :species)) } # valid
+    let!(:s2) { Protonym.create!(name: 'cus', parent: g, rank_class: Ranks.lookup(:iczn, :species)) } # invalid
+
+    let!(:r) { TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: s2, object_taxon_name: s1) }
+
+    let!(:o1) { Otu.create!(taxon_name: s1) }
+    let!(:o2) { Otu.create!(taxon_name: s2) }
+    let!(:o3) { Otu.create!(name: 'none') }
+
+    specify '#coordinatify 1' do
+      q.otu_id = o1.id
+      q.coordinatify = true
+      expect(q.all).to contain_exactly(o1, o2)
+    end
+
+    specify '#coordinatify 2' do
+      q.otu_id = o2.id
+      q.coordinatify = true
+      expect(q.all).to contain_exactly(o1, o2)
+    end
+
+  end
+
+
+
   # TODO: This block tests Queries::Query::Filter
   context '<sub>_query initialization' do
 
