@@ -163,7 +163,7 @@ module Queries
         @in_labels = params[:in_labels]
         @md5_verbatim_label = params[:md5_verbatim_label]&.to_s&.downcase == 'true'
         @otu_id = params[:otu_id].presence
-        @radius = params[:radius].presence || 100
+        @radius = params[:radius].presence || 100.0
         @use_max = params[:use_max]
         @use_min = params[:use_min]
         @wkt = params[:wkt]
@@ -422,10 +422,10 @@ module Queries
 
       def merge_clauses
         [
-          taxon_name_query_facet,
-          otu_query_facet,
-          collection_object_query_facet,
           biological_association_query_facet,
+          collection_object_query_facet,
+          otu_query_facet,
+          taxon_name_query_facet,
 
           collectors_facet,
           collection_objects_facet,
