@@ -10,6 +10,7 @@
   <FacetParamExact
     title="Content"
     v-model="params"
+    label="text"
     param="text"
   />
   <FacetUsers v-model="params" />

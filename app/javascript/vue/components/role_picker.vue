@@ -19,6 +19,10 @@
             display="label"
             min="2"
             clear-after
+            :add-params="{
+              project_id: true,
+              limit_to_roles: roleTypes
+            }"
             placeholder="Family name, given name"
             param="term"
             @get-input="setInput"
@@ -193,6 +197,10 @@ export default {
     organization: {
       type: Boolean,
       default: false
+    },
+    roleTypes: {
+      type: Array,
+      default: () => []
     }
   },
 
