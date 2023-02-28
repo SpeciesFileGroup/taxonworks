@@ -97,13 +97,13 @@ describe Queries::Person::Autocomplete, type: :model, group: :people do
     end
 
     specify 'roles, no project' do
-      query.limit_to_roles = ['Collector']
+      query.role_type = ['Collector']
       expect(query.autocomplete.map(&:id)).to contain_exactly(p2.id)
     end
 
     specify 'roles, project' do
       query.project_id = 1
-      query.limit_to_roles = ['Collector']
+      query.role_type = ['Collector']
       expect(query.autocomplete.map(&:id)).to contain_exactly(p2.id)
     end
   end
