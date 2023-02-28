@@ -6,13 +6,14 @@
     validity
   />
   <FacetIdentifiers v-model="params" />
-  <FacetCollectors
+  <FacetPeople
     v-model="params"
     role="Collector"
     title="Collectors"
     klass="CollectingEvent"
     param-people="collector_id"
     param-any="collector_id_or"
+    :role-type="COLLECTOR_SELECTOR"
   />
   <FacetMaterial v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
@@ -44,12 +45,13 @@ import FacetCollectingEventAttributes from 'components/Filter/Facets/CollectingE
 import FacetKeywords from 'components/Filter/Facets/shared/FacetTags.vue'
 import FaceDeterminations from 'components/Filter/Facets/CollectionObject/Determiner/FacetDetermination.vue'
 import FacetMaterial from 'components/Filter/Facets/CollectionObject/FacetTypeMaterial.vue'
-import FacetCollectors from 'components/Filter/Facets/shared/FacetPeople.vue'
+import FacetPeople from 'components/Filter/Facets/shared/FacetPeople.vue'
 import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import FacetProtocol from 'components/Filter/Facets/Extract/FacetProtocol.vue'
 import { computed } from 'vue'
+import { COLLECTOR_SELECTOR } from 'constants/index.js'
 
 const props = defineProps({
   modelValue: {

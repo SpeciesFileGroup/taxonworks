@@ -29,7 +29,7 @@
       </ul>
     </div>
     <div class="field">
-      <determiner-component
+      <FacetPeople
         class="no-shadow no-padding"
         v-model="params"
         role="Determiner"
@@ -37,8 +37,13 @@
         klass="CollectionObject"
         param-people="determiner_id"
         param-any="determiner_id_or"
+        :role-type="DETERMINER_SELECTOR"
         toggle
-        @toggle="isCurrentDeterminationVisible = $event"
+        @toggle="
+          ($event) => {
+            isCurrentDeterminationVisible = $event
+          }
+        "
       />
     </div>
 
@@ -69,7 +74,8 @@
 <script setup>
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import Autocomplete from 'components/ui/Autocomplete'
-import DeterminerComponent from '../../shared/FacetPeople.vue'
+import FacetPeople from '../../shared/FacetPeople.vue'
+import { DETERMINER_SELECTOR } from 'constants/index.js'
 import { Otu } from 'routes/endpoints'
 import { ref, computed, watch, onBeforeMount } from 'vue'
 

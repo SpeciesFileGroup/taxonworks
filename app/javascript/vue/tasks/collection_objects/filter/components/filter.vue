@@ -19,6 +19,7 @@
     klass="CollectingEvent"
     param-people="collector_id"
     param-any="collector_id_or"
+    :role-type="COLLECTOR_SELECTOR"
     v-model="params"
   />
   <FacetMatchIdentifiers v-model="params" />
@@ -44,6 +45,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { COLLECTOR_SELECTOR } from 'constants/index.js'
 import FacetDetermination from 'components/Filter/Facets/CollectionObject/Determiner/FacetDetermination.vue'
 import FacetCollectingEvent from 'components/Filter/Facets/CollectingEvent/FacetCollectingEvent/FacetCollectingEvent.vue'
 import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'

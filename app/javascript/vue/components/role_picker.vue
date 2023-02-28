@@ -21,7 +21,7 @@
             clear-after
             :add-params="{
               project_id: true,
-              limit_to_roles: roleTypes
+              role_type: roleTypes
             }"
             placeholder="Family name, given name"
             param="term"
