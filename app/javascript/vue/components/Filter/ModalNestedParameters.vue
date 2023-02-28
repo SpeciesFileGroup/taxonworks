@@ -44,7 +44,7 @@
       :color="isEmpty ? 'currentColor' : 'warning'"
       name="attention"
     />
-    <span class="margin-xsmall-left">Nested</span>
+    <span class="margin-xsmall-left">History</span>
   </VBtn>
 </template>
 
