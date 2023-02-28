@@ -598,7 +598,7 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
-      def all
+      def all(nil_empty = false)
         q = super
         q = coordinatify_result(q) if coordinatify
         q

@@ -760,7 +760,7 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
-      def all
+      def all(nil_empty = false)
         q = super
         q = validify_result(q) if validify
         q = order_clause(q) if sort

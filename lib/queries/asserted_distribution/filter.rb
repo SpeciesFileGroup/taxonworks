@@ -138,56 +138,37 @@ module Queries
       # Shape is a Hash in GeoJSON format
       def geo_json_facet
         return nil if geo_json.nil?
+        if i = spatial_query
 
-        if a = RGeo::GeoJSON.decode(geo_json)
+          # All spatial records
+          j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
 
-          # # all spatial records
-          i = spatial_query(a.geometry_type.to_s, a.to_s)
+          # Expand to include all descendants of any spatial match!
+          k = ::GeographicArea.descendants_of(j)
 
-       #  # All spatial records
-       #  j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
+          l = ::GeographicArea.from("((#{j.to_sql}) UNION (#{k.to_sql})) as geographic_areas").distinct
 
-       #  # Expand to include all descendants of any spatial match!
-       #  k = ::GeographicArea.descendants_of(j)
-
-       #  l = ::GeographicArea.from("((#{j.to_sql}) UNION (#{k.to_sql})) as geographic_areas").distinct
-
-          return i #  ::AssertedDistribution.where( geographic_area: l )
+          return ::AssertedDistribution.where( geographic_area: l )
         else
           return nil
         end
       end
 
-      def spatial_query(geometry_type, wkt)
-        case geometry_type
-        when 'Point'
-          ::AssertedDistribution
-            .joins(:geographic_items)
-            .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius ))
-        when 'Polygon', 'MultiPolygon'
-          ::AssertedDistribution
-            .joins(:geographic_items)
-            .where(::GeographicItem.contained_by_wkt_sql(wkt))
+      # @return [GeographicItem scope]
+      def spatial_query
+        if geometry = RGeo::GeoJSON.decode(geo_json)
+          case geometry.geometry_type.to_s
+          when 'Point'
+            ::GeographicItem.where(::GeographicItem.within_radius_of_wkt_sql(geometry.to_s, radius ) )
+          when 'Polygon', 'MultiPolygon'
+            ::GeographicItem.where(::GeographicItem.contained_by_wkt_sql(geometry.to_s))
+          else
+            nil
+          end
         else
           nil
         end
       end
-
- #    # @return [GeographicItem scope]
- #    def spatial_query
- #      if geometry = RGeo::GeoJSON.decode(geo_json)
- #        case geometry.geometry_type.to_s
- #        when 'Point'
- #          ::GeographicItem.where(::GeographicItem.within_radius_of_wkt_sql(geometry.to_s, radius ) )
- #        when 'Polygon', 'MultiPolygon'
- #          ::GeographicItem.where(::GeographicItem.contained_by_wkt_sql(geometry.to_s))
- #        else
- #          nil
- #        end
- #      else
- #        nil
- #      end
- #    end
 
       def geographic_area_id_facet
         return nil if geographic_area_id.empty?
