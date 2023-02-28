@@ -83,11 +83,11 @@ module Queries::Concerns::Identifiers
     attr_accessor :namespace_id
 
     def identifier_start
-      ( @identifier_start.to_i - 1 ).to_s
+      @identifier_start.to_i
     end
 
     def identifier_end
-      ( @identifier_end.to_i + 1 ).to_s
+      @identifier_end.to_s
     end
 
     def match_identifiers_delimiter
