@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Figure label in label on image API response
 - Add input to create N records in Simple new specimen [#3269]
+- Added soft_validation for seniority of synonyms.
 
 ### Fixed
 
