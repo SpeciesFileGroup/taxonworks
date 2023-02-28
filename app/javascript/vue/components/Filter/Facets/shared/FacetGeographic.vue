@@ -29,7 +29,7 @@
               type="radio"
               :value="value"
               v-model="geographic.geographic_area_mode"
-            >
+            />
             {{ key }}
           </label>
         </li>
@@ -43,7 +43,11 @@
             :key="geoArea.id"
           >
             <span
-              :class="{ subtle: geographic.geographic_area_mode === GEOGRAPHIC_OPTIONS.Spatial && !geoArea.has_shape }"
+              :class="{
+                subtle:
+                  geographic.geographic_area_mode ===
+                    GEOGRAPHIC_OPTIONS.Spatial && !geoArea.has_shape
+              }"
               v-html="geoArea.name"
             />
             <VBtn
@@ -78,12 +82,13 @@
         @geo-json-layer-created="addShape"
       />
     </div>
-    <RadialFilterAttribute :parameters="{ geographic_area_id: geographic.geographic_area_id }" />
+    <RadialFilterAttribute
+      :parameters="{ geographic_area_id: geographic.geographic_area_id }"
+    />
   </FacetContainer>
 </template>
 
 <script setup>
-
 import SwitchComponent from 'components/switch'
 import Autocomplete from 'components/ui/Autocomplete'
 import GeoreferenceMap from 'components/georeferences/map'
@@ -121,7 +126,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const geographic = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 const geographicAreas = ref([])
 const geojson = ref([])
@@ -129,16 +134,23 @@ const view = ref(TABS.Area)
 
 watch(
   geojson,
-  newVal => {
+  (newVal) => {
     if (newVal.length) {
       const shape = newVal[0]
 
       geographic.value.geographic_area_id = []
+      console.log(shape)
       if (shape.properties?.radius) {
         geographic.value.radius = shape.properties.radius
-        geographic.value.geo_json = JSON.stringify({ type: 'Point', coordinates: shape.geometry.coordinates })
+        geographic.value.geo_json = JSON.stringify({
+          type: 'Point',
+          coordinates: shape.geometry.coordinates
+        })
       } else {
-        geographic.value.geo_json = JSON.stringify({ type: 'MultiPolygon', coordinates: newVal.map(feature => feature.geometry.coordinates) })
+        geographic.value.geo_json = JSON.stringify({
+          type: 'MultiPolygon',
+          coordinates: newVal.map((feature) => feature.geometry.coordinates)
+        })
         geographic.value.radius = undefined
       }
     } else {
@@ -156,8 +168,8 @@ const removeGeoArea = (index) => {
   geographicAreas.value.splice(index, 1)
 }
 
-const addGeoArea = id => {
-  GeographicArea.find(id).then(response => {
+const addGeoArea = (id) => {
+  GeographicArea.find(id).then((response) => {
     geographic.value.geo_json = undefined
     geographic.value.radius = undefined
     geographicAreas.value.push(response.body)
@@ -170,11 +182,12 @@ const convertGeoJSONParam = (urlParams) => {
   return {
     type: 'Feature',
     geometry: {
-      coordinates: geojson.type === 'Point' ? geojson.coordinates : geojson.coordinates[0],
+      coordinates:
+        geojson.type === 'Point' ? geojson.coordinates : geojson.coordinates[0],
       type: geojson.type === 'Point' ? 'Point' : 'Polygon'
     },
     properties: {
-      radius: geojson?.radius
+      radius: urlParams?.radius
     }
   }
 }
@@ -190,14 +203,14 @@ watch(
 )
 
 watch(
-  [
-    geographicAreas,
-    () => geographic.value.geographic_area_mode
-  ],
+  [geographicAreas, () => geographic.value.geographic_area_mode],
   () => {
-    geographic.value.geographic_area_id = geographic.value.geographic_area_mode === GEOGRAPHIC_OPTIONS.Spatial
-      ? geographicAreas.value.filter(item => item.has_shape).map(item => item.id)
-      : geographicAreas.value.map(item => item.id)
+    geographic.value.geographic_area_id =
+      geographic.value.geographic_area_mode === GEOGRAPHIC_OPTIONS.Spatial
+        ? geographicAreas.value
+            .filter((item) => item.has_shape)
+            .map((item) => item.id)
+        : geographicAreas.value.map((item) => item.id)
   },
   { deep: true }
 )
@@ -213,23 +226,18 @@ watch(
 )
 
 onBeforeMount(() => {
-  const urlParams = URLParamsToJSON(location.href)
-
-  if (Object.keys(urlParams).length) {
-    if (urlParams.geographic_area_id) {
-      urlParams.geographic_area_id.forEach(id => {
-        addGeoArea(id)
-      })
-    }
-    if (urlParams.geo_json) {
-      addShape(convertGeoJSONParam(urlParams))
-    }
-    geographic.value.geographic_area_mode = urlParams.geographic_area_mode
+  if (geographic.value.geographic_area_id) {
+    geographic.value.geographic_area_id.forEach((id) => {
+      addGeoArea(id)
+    })
+  }
+  if (geographic.value.geo_json) {
+    addShape(convertGeoJSONParam(geographic.value))
   }
 })
 </script>
 <style scoped>
-  :deep(.vue-autocomplete-input) {
-    width: 100%
-  }
+:deep(.vue-autocomplete-input) {
+  width: 100%;
+}
 </style>
