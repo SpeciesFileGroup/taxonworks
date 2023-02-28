@@ -1,12 +1,12 @@
 <template>
   <FacetContainer highlight>
-    <h3>Validify</h3>
+    <h3>Coordinate</h3>
     <label>
       <input
         type="checkbox"
-        v-model="params.validify"
+        v-model="params.coordinatify"
       />
-      Convert result to their valid names
+      Expand result to include cooridinate OTUs
     </label>
   </FacetContainer>
 </template>
