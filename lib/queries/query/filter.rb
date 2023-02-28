@@ -200,7 +200,8 @@ module Queries
       if referenced_klass.annotates?
         f.push ::Queries::Concerns::Polymorphic if self < ::Queries::Concerns::Polymorphic
       else
-        # TODO There is room for an AlternateValue concern here ultimtely
+        # TODO There is room for an AlternateValue concern here
+        f.push ::Queries::Concerns::Attributes if self < ::Queries::Concerns::Attributes
         f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
         f.push ::Queries::Concerns::Containable if self < ::Queries::Concerns::Containable
         f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
@@ -380,14 +381,7 @@ module Queries
       true
     end
 
-    # @params params [Hash, ActionControllerParameters]
-    #   in practice we only pass Hash
-    # See CE, Loan filters for use.
-    def set_attributes(params)
-      self.class::ATTRIBUTES.each do |a|
-        send("#{a}=", params[a.to_sym])
-      end
-    end
+
 
     # Returns id= facet, automatically
     # added to all queries.

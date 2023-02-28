@@ -80,6 +80,7 @@ const WITH_TITLES = {
 const WITH_PARAMS = [
   'authors',
   'citations',
+  'citation_documents',
   'data_attributes',
   'etymology',
   'leaves',

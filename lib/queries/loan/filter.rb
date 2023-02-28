@@ -1,11 +1,12 @@
 module Queries
   module Loan
     class Filter < Query::Filter
-      include Queries::Helpers
-      include Queries::Concerns::Tags
-      include Queries::Concerns::Notes
-
       ATTRIBUTES = ::Loan.core_attributes.map(&:to_sym).freeze
+
+      include Queries::Concerns::Attributes
+      include Queries::Concerns::Notes
+      include Queries::Concerns::Tags
+      include Queries::Helpers
 
       PARAMS = [
         *ATTRIBUTES,
@@ -18,7 +19,6 @@ module Queries
         :end_date_sent,
         :loan_id,
         :loan_item_disposition,
-        :loan_wildcards,
         :overdue,
         :person_id,
         :role,
@@ -30,24 +30,13 @@ module Queries
         :taxon_name_id,
 
         loan_id: [],
-        loan_wildcards: [],
         loan_item_disposition: [],
         person_id: [],
         role: [],
         taxon_name_id: [],
       ].freeze
 
-      ATTRIBUTES.each do |a|
-        class_eval { attr_accessor a.to_sym }
-      end
-
       attr_accessor :loan_id
-
-      # @return [Array, of Symbols]
-      # @param loan_wildcards [String, Array]
-      #   used with ATTRIBUTE variables, wildcard match if
-      # variable name is contained in this list
-      attr_accessor :loan_wildcards
 
       # @return [Boolean, nil]
       #   nil - all
@@ -106,7 +95,6 @@ module Queries
         @end_date_sent = params[:end_date_sent]
         @loan_id = params[:loan_id]
         @loan_item_disposition = params[:loan_item_disposition]
-        @loan_wildcards = params[:loan_wildcards]
         @overdue = boolean_param(params, :overdue)
         @person_id = params[:person_id]
         @role = params[:role]
@@ -117,7 +105,7 @@ module Queries
         @start_date_sent = params[:start_date_sent]
         @taxon_name_id = params[:taxon_name_id]
 
-        set_attributes(params)
+        set_attributes_params(params)
         set_notes_params(params)
         set_tags_params(params)
       end
@@ -125,10 +113,6 @@ module Queries
       def role
         r = [@role].flatten.compact.uniq
         r.empty? ? ['LoanSupervisor', 'LoanRecipient'] : r
-      end
-
-      def loan_wildcards
-        [@loan_wildcards].flatten.compact.uniq.map(&:to_sym)
       end
 
       def taxon_name_id
@@ -149,25 +133,6 @@ module Queries
 
       def loan_item_disposition
         [@loan_item_disposition].flatten.compact.uniq
-      end
-
-      # @return Array
-      # TODO: refactor into Query::Filter
-      # See also CollectingEvent filter
-      def attribute_clauses
-        c = []
-        ATTRIBUTES.each do |a|
-          if v = send(a)
-            if v.present?
-              if loan_wildcards.include?(a)
-                c.push Arel::Nodes::NamedFunction.new('CAST', [table[a].as('TEXT')]).matches('%' + v + '%')
-              else
-                c.push table[a].eq(v)
-              end
-            end
-          end
-        end
-        c
       end
 
       def taxon_name_id_facet
@@ -292,10 +257,6 @@ module Queries
           .joins("JOIN query_co_loan as query_co_loan1 on query_co_loan1.id = loan_items.loan_item_object_id AND loan_items.loan_item_object_type = 'CollectionObject'").to_sql
 
         ::Loan.from('(' + s + ::Loan.from("(#{a}) as loans").to_sql + ') as loans' )
-      end
-
-      def and_clauses
-        attribute_clauses
       end
 
       def merge_clauses

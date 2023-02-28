@@ -489,7 +489,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     specify '#verbatim_locality (partial)' do
       query.base_collecting_event_query.verbatim_locality = 'Out there'
-      query.base_collecting_event_query.collecting_event_wildcards = ['verbatim_locality']
+      query.base_collecting_event_query.wildcard_attribute = ['verbatim_locality']
       expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id)
     end
 

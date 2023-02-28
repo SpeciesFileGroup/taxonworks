@@ -1,20 +1,15 @@
 module Queries
   module Source
-
     class Filter < Query::Filter
 
-      include Queries::Concerns::Tags
-      include Queries::Concerns::Notes
+      ATTRIBUTES =  (::Source.core_attributes - %w{bibtex_type title author}).map(&:to_sym).freeze 
+
+      include Queries::Concerns::Attributes
       include Queries::Concerns::Empty
+      include Queries::Concerns::Notes
+      include Queries::Concerns::Tags
 
-      # TOOD: confirm cached should not be a target
-      ATTRIBUTES = ::Source.core_attributes.map(&:to_sym).freeze
-
-      # TODO: are we using this in the filter?
-      #  ATTRIBUTES.each do |a|
-      #    class_eval { attr_accessor a.to_sym }
-      #  end
-
+     
       PARAMS = [
         *ATTRIBUTES,
         :source_id,
@@ -190,9 +185,10 @@ module Queries
 
         build_terms
 
+        set_attributes_params(params)
+        set_empty_params(params)
         set_tags_params(params)
         set_user_dates(params)
-        set_empty_params(params)
       end
 
       def source_id

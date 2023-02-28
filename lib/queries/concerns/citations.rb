@@ -7,6 +7,7 @@ module Queries::Concerns::Citations
   def self.params
     [
       :citations,
+      :citation_documents,   
       :origin_citation
     ]
   end
@@ -28,9 +29,19 @@ module Queries::Concerns::Citations
 
     # @return [::Query::Source::Filter, nil]
     attr_accessor :source_query
+
+    # @params citation_documents [ture, false]
+    # @return [Boolean, nil]
+    #   true - has citations, sources have documents
+    #   false - has citations, sources do not have documents
+    #   nil - ignored
+    attr_accessor :citation_documents
+
   end
 
   def set_citations_params(params)
+    
+    @citation_documents = boolean_param(params, :citation_documents)
     @citations = boolean_param(params, :citations)
     @origin_citation = boolean_param(params, :origin_citation)
 
@@ -43,11 +54,13 @@ module Queries::Concerns::Citations
     ::Citation.arel_table
   end
 
-  def self.merge_clauses
-    [ :citations_facet,
-      :origin_citation_facet,
-      :source_query_facet
-    ]
+  def citation_documents_facet
+    return nil if citation_documents.nil?
+    if citation_documents
+      referenced_klass.joins(citations: [:documents])
+    else
+      referenced_klass.left_joins(citations: [source: [:documents]]).where('sources.id IS NOT null and document.id is NULL')
+    end
   end
 
   def citations_facet
@@ -80,6 +93,15 @@ module Queries::Concerns::Citations
     .to_sql
 
     referenced_klass.from('(' + s + ') as ' + referenced_klass.name.tableize) 
+  end
+
+  def self.merge_clauses
+    [
+      :citation_documents_facet,
+      :citations_facet,
+      :origin_citation_facet,
+      :source_query_facet,
+    ]
   end
 
 end
