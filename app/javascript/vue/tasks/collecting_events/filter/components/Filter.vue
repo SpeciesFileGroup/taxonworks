@@ -16,6 +16,7 @@
   />
   <FacetMaterial v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
+  <FacetProtocol v-model="params" />
   <FacetKeywords
     target="CollectingEvent"
     v-model="params"
@@ -47,6 +48,7 @@ import FacetCollectors from 'components/Filter/Facets/shared/FacetPeople.vue'
 import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
+import FacetProtocol from 'components/Filter/Facets/Extract/FacetProtocol.vue'
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -66,7 +68,7 @@ const WITH_PARAMS = [
   'georeferences',
   'identifiers',
   'local_identifiers',
-  'origin_citation',
+  'origin_citation'
 ]
 
 const emit = defineEmits(['update:modelValue'])

@@ -82,6 +82,11 @@ const props = defineProps({
   controller: {
     type: String,
     required: true
+  },
+
+  exclude: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -143,7 +148,9 @@ watch(
 
 onBeforeMount(() => {
   ajaxCall('get', `/${props.controller}/attributes`).then((response) => {
-    fields.value = response.body
+    fields.value = response.body.filter(
+      ({ name }) => !props.exclude.includes(name)
+    )
 
     fields.value.forEach(({ name, type }) => {
       const value = params.value[name]

@@ -27,7 +27,7 @@
   <FacetByAttribute
     controller="sources"
     v-model="params"
-    any
+    :exclude="['title', 'author', 'bibtex_type']"
   />
   <FacetUsers v-model="params" />
   <FacetSomeValue

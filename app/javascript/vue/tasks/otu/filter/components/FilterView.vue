@@ -31,6 +31,7 @@
     :param="param"
     v-model="params"
   />
+  <FacetCoordinatify v-model="params" />
 </template>
 
 <script setup>
@@ -48,6 +49,7 @@ import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
 import FacetIdentifiers from 'components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetParamExact from 'components/Filter/Facets/shared/FacetParamExact.vue'
+import FacetCoordinatify from 'components/Filter/Facets/Otu/FacetCoordinatify.vue'
 
 const WITH_PARAMS = [
   'asserted_distributions',
