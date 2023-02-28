@@ -139,7 +139,7 @@ watch(
       const shape = newVal[0]
 
       geographic.value.geographic_area_id = []
-      console.log(shape)
+
       if (shape.properties?.radius) {
         geographic.value.radius = shape.properties.radius
         geographic.value.geo_json = JSON.stringify({
