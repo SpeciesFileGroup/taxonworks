@@ -41,7 +41,9 @@ module Queries
       # @params coordinatify ['true', True, nil]
       # @return Boolean
       #    if true then, additionally, all coordinate otus for the result are included
-      # !! This param is not like the others. !!  See parallel in TaxonName filter.
+      # See `coordinatify_result` for more.
+      #
+      # !! This param is not like the others. !!  See parallel in TaxonName filter 'validify'.
       attr_accessor :coordinatify
 
       # @param name [String, Array]
@@ -522,13 +524,14 @@ module Queries
         ::Otu.from('(' + s + ') as otus')
       end
 
-      # Does not include children !
-
-      # For all valid OTUs -> find invalid
-
-      # For all invalid OTUs -> find valid, find invalid
+      # Expands result of OTU filter query in 2 ways:
+      #  1 - to include all valid OTUs by (proxy of TaxonName) if OTU is by proxy invalid
+      #  2 - to include all invalid OTUS (by proxy of TaxonName) if OTU is by proxy valid
+      # 
+      # In essence this creates full sets of TaxonConcepts from partial results.
+      # The result can be used to, for example, get a comprehensive list of Sources for the concept,
+      # or a comprehensive historical list of Specimens, etc.
       def coordinatify_result(q)
-
         i = q.joins(:taxon_name).where('taxon_names.id != taxon_names.cached_valid_taxon_name_id')
         v = q.joins(:taxon_name).where('taxon_names.id = taxon_names.cached_valid_taxon_name_id')
 
