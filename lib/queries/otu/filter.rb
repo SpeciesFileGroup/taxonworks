@@ -26,6 +26,7 @@ module Queries
         :name_exact,
         :observations,
         :otu_id,
+        :radius,
         :taxon_name,
         :taxon_name_id,
         :wkt,
@@ -160,6 +161,10 @@ module Queries
       #   nil - not applied
       attr_accessor :observations
 
+      # Integer in Meters
+      #   !! defaults to 100m
+      attr_accessor :radius
+
       def initialize(query_params)
         super
 
@@ -180,6 +185,7 @@ module Queries
         @name_exact = boolean_param(params, :name_exact)
         @observations = boolean_param(params, :observations)
         @otu_id = params[:otu_id]
+        @radius = params[:radius].presence || 100.0
         @taxon_name = boolean_param(params, :taxon_name)
         @taxon_name_id = params[:taxon_name_id]
         @wkt = params[:wkt]
@@ -263,8 +269,8 @@ module Queries
       def geo_json_facet
         return nil if geo_json.nil?
 
-        c = ::Queries::CollectingEvent::Filter.new(geo_json: geo_json, project_id: project_id)
-        a = ::Queries::AssertedDistribution::Filter.new(geo_json: geo_json, project_id: project_id)
+        c = ::Queries::CollectingEvent::Filter.new(geo_json: geo_json, project_id: project_id, radius: radius)
+        a = ::Queries::AssertedDistribution::Filter.new(geo_json: geo_json, project_id: project_id, radius: radius)
 
         q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all).to_sql
         q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all).to_sql
