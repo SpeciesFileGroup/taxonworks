@@ -809,6 +809,16 @@ module Queries
         ::CollectionObject.from('(' + s + ') as collection_objects')
       end
 
+      def loan_query_facet
+        return nil if loan_query.nil?
+        s = 'WITH query_loan_co AS (' + loan_query.all.to_sql + ') ' +
+          ::CollectionObject.joins(:loan_items)
+          .joins('JOIN query_loan_co as query_loan_co1 on query_loan_co1.id = loan_items.loan_id')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects')
+      end
+
       def base_collecting_event_query_facet
         # Turn project_id off and check for a truly empty query
         base_collecting_event_query.project_id = nil
@@ -918,6 +928,7 @@ module Queries
           biological_association_query_facet,
           collecting_event_query_facet,
           extract_query_facet,
+          loan_query_facet,
           otu_query_facet,
           taxon_name_query_facet,
 

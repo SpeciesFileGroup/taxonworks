@@ -36,7 +36,7 @@ module Queries
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name],
       biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name],
       collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name],
-      collection_object: [:source, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
+      collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
       content: [:source, :otu, :taxon_name, :image],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object],
