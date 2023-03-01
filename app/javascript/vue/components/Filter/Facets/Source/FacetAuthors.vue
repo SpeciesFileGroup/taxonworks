@@ -22,7 +22,8 @@
         model="people"
         target="Author"
         :autocomplete-params="{
-          roles: ['SourceAuthor', 'SourceEditor']
+          role_type: ['SourceAuthor', 'SourceEditor'],
+          in_project: false
         }"
         label="cached"
         @selected="addAuthor"

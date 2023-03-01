@@ -4,7 +4,7 @@
     <div class="flex-separate margin-medium-bottom">
       <div class="fields">
         <label>
-          <input type="checkbox">
+          <input type="checkbox" />
           Current only
         </label>
       </div>
@@ -24,7 +24,7 @@
               v-model="projectIds"
               :value="project.id"
               type="checkbox"
-            >
+            />
             {{ project.name }}
           </label>
         </li>
@@ -34,10 +34,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onBeforeMount } from 'vue'
 import { User } from 'routes/endpoints'
 import { getCurrentUserId } from 'helpers/user.js'
-import { URLParamsToJSON } from 'helpers/url/parse'
 import VToggle from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
@@ -51,11 +50,11 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
-  get () {
+  get() {
     return props.modelValue
   },
 
-  set (value) {
+  set(value) {
     emit('update:modelValue', value)
   }
 })
@@ -64,33 +63,25 @@ const projectIds = ref([])
 const projects = ref([])
 const isExcept = ref(false)
 
-watch(
-  [
-    projectIds,
-    isExcept
-  ],
-  _ => {
-    params.value.except_project_id = isExcept.value
-      ? [...projectIds.value]
-      : []
+onBeforeMount(() => {
+  const userId = getCurrentUserId()
+  const exceptIds = params.value.except_project_id || []
+  const onlyIds = params.value.only_project_id || []
 
-    params.value.project_id = isExcept.value
-      ? []
-      : [...projectIds.value]
+  User.find(userId, { extend: ['projects'] }).then(({ body }) => {
+    projects.value = body?.projects || []
+  })
+
+  isExcept.value = !!params.value.except_project_id?.length
+  projectIds.value = [...exceptIds, ...onlyIds]
+})
+
+watch(
+  [projectIds, isExcept],
+  (_) => {
+    params.value.except_project_id = isExcept.value ? [...projectIds.value] : []
+    params.value.only_project_id = isExcept.value ? [] : [...projectIds.value]
   },
   { deep: true }
 )
-
-User.find(getCurrentUserId(), { extend: ['projects'] }).then(r => {
-  projects.value = r.body?.projects || []
-})
-
-const {
-  except_project_id: exceptIds = [],
-  project_id: ids = []
-} = URLParamsToJSON(location.href)
-
-isExcept.value = !!exceptIds.length
-params.value.project_id = ids
-params.value.except_project_id = exceptIds
 </script>
