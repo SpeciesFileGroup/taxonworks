@@ -77,6 +77,8 @@ export default function (service, { listParser, initParameters } = {}) {
   }
 
   const loadPage = (params) => {
+    state.parameters.page = params.page
+
     makeFilterRequest({
       ...state.parameters,
       ...params
