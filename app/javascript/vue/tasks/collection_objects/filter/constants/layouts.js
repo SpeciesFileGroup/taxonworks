@@ -46,6 +46,13 @@ export const LAYOUTS = {
     }
   },
 
+  CollectingEvent: {
+    properties: {
+      collecting_event: COLLECTING_EVENT_PROPERTIES,
+    },
+    includes: {}
+  },
+
   LocateInCollection: {
     properties: {
       dwc_occurrence: [
@@ -58,22 +65,6 @@ export const LAYOUTS = {
     },
     includes: {}
   },
-
-  Identifiers: {
-    properties: {
-      dwc_occurrence: [
-        'id',
-        'catalogNumber',
-        'otherCatalogNumbers',
-        'occurrenceID',
-        'fieldNumber'
-      ]
-    },
-    includes: {
-      identifiers: true
-    }
-  },
-
 
   Place: {
     properties: {
@@ -199,5 +190,30 @@ export const LAYOUTS = {
       collecting_event: ['verbatim_label', 'document_label', 'print_label']
     },
     includes: {}
-  }
+  },
+
+  People: {
+    properties: {
+      collection_object: ['buffered_determinations'],
+      collecting_event: ['verbatim_collectors'],
+      dwc_occurrence: ['recordedBy', 'recordedByID', 'identifiedBy', 'identifiedByID', 'scientificNameAuthorship', 'georeferencedBy'],
+    },
+    includes: {}
+  },
+
+  Identifiers: {
+    properties: {
+      dwc_occurrence: [
+        'id',
+        'catalogNumber',
+        'otherCatalogNumbers',
+        'occurrenceID',
+        'fieldNumber'
+      ],
+      identifiers: IDENTIFIER_PROPERTIES
+    },
+    includes: {
+      identifiers: true
+    }
+  },
 }

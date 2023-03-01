@@ -89,8 +89,8 @@ GeographicArea:
     recent: false
 Loan:
   tasks:
-    - overdue_loans_task
     - edit_loan_task
+    - loan_dashboard_task
   config:
     recent: true
 ObservationMatrix:
