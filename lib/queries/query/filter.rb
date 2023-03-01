@@ -165,7 +165,12 @@ module Queries
       @api = boolean_param(query_params, :api)
       @recent = boolean_param(query_params, :recent)
       @object_global_id = query_params[:object_global_id]
-      @project_id = query_params[:project_id] || Current.project_id # !! Always on. TODO: Current reference bad, reconsider.
+
+       # !! This is the *only* place Current.project_id should be seen !! It's still not the best 
+       # way to implement this, but we use it to optimize the scope of sub/nested-queries efficiently.
+       # Ideally we'd have a global class param that stores this that all Filters would have access to,
+       # rather than an instance variable.
+      @project_id = query_params[:project_id] || Current.project_id
 
       # After this point, if you started with ActionController::Parameters, 
       # then all values have been explicitly permitted.

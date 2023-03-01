@@ -755,7 +755,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     # See spec/lib/queries/person/filter_spec.rb for specs.
     specify 'user hooks' do
-      query.user_id = Current.user_id
+      query.user_id = user_id
       expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id)
     end
 
