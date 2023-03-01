@@ -9,26 +9,26 @@ module Queries
       # @return [Array]
       # @param limit_to_role [String, Array] 
       #    any Role class, like `TaxonNameAuthor`, `SourceAuthor`, `SourceEditor`, `Collector`, etc.
-      attr_accessor :limit_to_roles
+      attr_accessor :role_type
 
       # any project == all roles
       # project_id - the target project in general
 
       # @param [Hash] args
       def initialize(string, **params)
-        @limit_to_roles = params[:roles] # roles
+        @role_type = params[:role_type]
         set_tags_params(params)
         set_alternate_value(params)
         super
       end
 
-      def limit_to_roles
-        [@limit_to_roles].flatten.compact.uniq
+      def role_type
+        [@role_type].flatten.compact.uniq
       end
 
       # @return [Arel::Nodes::Equatity]
       def role_match
-        a = roles_table[:type].eq_any(limit_to_roles)
+        a = roles_table[:type].eq_any(role_type)
         a = a.and(roles_table[:project_id].eq_any(project_id)) if project_id.present?
         a
       end
@@ -36,7 +36,7 @@ module Queries
       # @return [Arel::Nodes::Equatity]
       def role_project_match
         roles_table[:project_id].eq_any(project_id)
-      end
+    end
 
       # @return [Scope]
       def autocomplete_exact_match
@@ -90,7 +90,7 @@ module Queries
 
       # @return [Boolean]
       def roles_assigned?
-        limit_to_roles.kind_of?(Array) && limit_to_roles.any?
+        role_type.kind_of?(Array) && role_type.any?
       end
 
       # @return [Array]
