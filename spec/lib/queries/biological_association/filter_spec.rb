@@ -17,6 +17,16 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
 
   let(:query) { Queries::BiologicalAssociation::Filter }
 
+  specify 'collecting_event_query' do
+    ce = FactoryBot.create(:valid_collecting_event)
+    o3.update!(collecting_event: ce) 
+
+    h = { 'collecting_event_query':  {'collecting_event_id': ce.id} } 
+    q = query.new(h)
+
+    expect(q.all).to contain_exactly(ba2, ba3)
+  end
+  
   # TODO: meld with 
   context 'subqueries' do
     specify 'A->B->A params' do

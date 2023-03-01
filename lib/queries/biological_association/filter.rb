@@ -570,13 +570,13 @@ module Queries
 
         a = ::BiologicalAssociation
           .joins("JOIN collection_objects co1 on co1.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'CollectionObject'")
-          .joins('JOIN query_ce_ba as query_ce_ba1 on co1.collecting_event_id = query_ce_ba1.id').to_sql
+          .joins('JOIN query_ce_ba as query_ce_ba1 on co1.collecting_event_id = query_ce_ba1.id')
 
         b = ::BiologicalAssociation
           .joins("JOIN collection_objects co2 on co2.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'CollectionObject'")
-          .joins('JOIN query_ce_ba as query_ce_ba2 on co2.collecting_event_id = query_ce_ba2.id').to_sql
+          .joins('JOIN query_ce_ba as query_ce_ba2 on co2.collecting_event_id = query_ce_ba2.id')
 
-        s << ::BiologicalAssociation.from("((#{a} UNION (#{b})) as biological_associations").to_sql
+        s << referenced_klass_union([a,b]).to_sql
 
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
