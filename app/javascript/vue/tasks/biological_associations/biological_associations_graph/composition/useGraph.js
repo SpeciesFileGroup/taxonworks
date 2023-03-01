@@ -1,9 +1,7 @@
 import { ref, reactive, computed, toRefs } from 'vue'
 import {
   BiologicalAssociation,
-  BiologicalAssociationGraph,
-  CollectionObject,
-  Otu
+  BiologicalAssociationGraph
 } from 'routes/endpoints'
 import { addToArray } from 'helpers/arrays'
 import { makeBiologicalAssociation } from '../adapters/biologicalAssociation'

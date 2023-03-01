@@ -54,10 +54,16 @@ import VAutocomplete from 'components/ui/Autocomplete.vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { onMounted, ref } from 'vue'
 import { useGraph } from './composition/useGraph.js'
+import { CollectionObject, Otu } from 'routes/endpoints'
 
 const graph = ref()
-const { saveBiologicalAssociations, isGraphUnsaved, edges, resetStore } =
-  useGraph()
+const {
+  saveBiologicalAssociations,
+  isGraphUnsaved,
+  edges,
+  resetStore,
+  addObject
+} = useGraph()
 
 onMounted(() => {
   const params = URLParamsToJSON(location.href)
@@ -70,11 +76,15 @@ onMounted(() => {
   }
 
   if (coId) {
-    loadCO(coId)
+    CollectionObject.find(coId).then(({ body }) => {
+      addObject(body)
+    })
   }
 
   if (otuId) {
-    loadOtu(otuId)
+    Otu.find(otuId).then(({ body }) => {
+      addObject(body)
+    })
   }
 })
 

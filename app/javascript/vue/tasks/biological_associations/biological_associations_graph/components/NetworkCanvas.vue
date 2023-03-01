@@ -112,41 +112,6 @@
         </VBtn>
       </div>
     </div>
-    <ContextMenuEdge>
-      <div
-        v-for="edgeId in store.currentEdge"
-        :key="edgeId"
-        class="flex-separate middle gap-small graph-context-menu-list-item"
-      >
-        {{ edges[edgeId]?.label }}
-        <div class="horizontal-right-content gap-xsmall">
-          <VBtn
-            color="primary"
-            class="circle-button"
-            @click="() => emit('reverse:edge', edgeId)"
-          >
-            <VIcon
-              name="swap"
-              x-small
-            />
-          </VBtn>
-          <VBtn
-            circle
-            :color="edges[edgeId].id ? 'destroy' : 'primary'"
-            @click="
-              () => {
-                removeEdge(edgeId)
-              }
-            "
-          >
-            <VIcon
-              x-small
-              name="trash"
-            />
-          </VBtn>
-        </div>
-      </div>
-    </ContextMenuEdge>
   </GraphContextMenu>
 
   <ConfirmationModal ref="confirmationModalRef" />
@@ -158,7 +123,6 @@ import { configs } from '../constants/networkConfig'
 import { graphLayout } from '../utils/graphLayout.js'
 import { COLLECTION_OBJECT, OTU } from 'constants/index.js'
 import GraphContextMenu from './ContextMenu/ContextMenu.vue'
-import ContextMenuEdge from './ContextMenu/ContextMenuEdge.vue'
 import ConfirmationModal from 'components/ConfirmationModal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
@@ -240,9 +204,9 @@ function showNodeContextMenu({ node, event }) {
   nodeContextMenu.value.openContextMenu()
 }
 
-function showEdgeContextMenu({ event, summarized, edges, edge }) {
+function showEdgeContextMenu({ event, edge }) {
   handleEvent(event)
-  currentEdge.value = summarized ? edges : [edge]
+  currentEdge.value = edge
   edgeContextMenu.value.openContextMenu()
 }
 
