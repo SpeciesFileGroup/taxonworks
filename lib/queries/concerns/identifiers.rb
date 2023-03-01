@@ -83,7 +83,7 @@ module Queries::Concerns::Identifiers
     attr_accessor :namespace_id
 
     def identifier_start
-      @identifier_start.to_i
+      @identifier_start.to_s
     end
 
     def identifier_end
