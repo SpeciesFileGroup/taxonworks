@@ -314,6 +314,7 @@ module Queries
         end
       end
 
+      # TODO: Spatial concern?
       def spatial_query(geometry_type, wkt)
         case geometry_type
         when 'Point'
