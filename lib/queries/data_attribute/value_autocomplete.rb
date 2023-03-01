@@ -1,6 +1,6 @@
 module Queries
   module DataAttribute
-    class ValueAutocomplete < Query::Autcomplete
+    class ValueAutocomplete < Query::Autocomplete
 
       attr_accessor :predicate_id
 
