@@ -5,10 +5,14 @@ module Queries::Concerns::Protocols
   extend ActiveSupport::Concern
 
   def self.params 
-    [:protocols,
+    [
+      :protocols,
       :protocol_id_or,
       :protocol_id_and,
-      :protocol_id, # TODO: unused? or maybe in polymorphics setters!! 
+      :protocol_id,        # TODO: unused? or maybe in polymorphics setters!! 
+      protocol_id: [],     # TODO: unused? or maybe in polymorphics setters!! 
+      protocol_id_or: [],
+      protocol_id_and: [],
     ]
   end
 
@@ -37,31 +41,19 @@ module Queries::Concerns::Protocols
     def protocol_id=(value = [])
       @protocol_id = value
     end
+
+    def set_protocols_params(params)
+      @protocol_id_and = params[:protocol_id_and]
+      @protocol_id_or = params[:protocol_id_or]
+      @protocols = boolean_param(params, :protocols)
+    end
   end
 
-  def set_protocols_params(params)
-    @protocol_id_and = params[:protocol_id_and]
-    @protocol_id_or = params[:protocol_id_or]
-    @protocols = boolean_param(params, :protocols)
-  end
-
-  # @return [Arel::Table]
-  def protocol_relationship_table 
-    ::ProtocolRelationship.arel_table
-  end
-
-  def self.merge_clauses
-    [
-      :protocol_id_facet,
-      :protocol_facet,
-    ]
-  end 
 
   # @return
   #   all sources that match all _and ids OR any OR id
   def protocol_id_facet
     return nil if protocol_id_or.empty? && protocol_id_and.empty?
-    k = table.name.classify.safe_constantize
 
     a = matching_protocol_id_or
     b = matching_protocol_id_and
@@ -71,11 +63,11 @@ module Queries::Concerns::Protocols
     elsif b.nil?
       a
     else
-      k.from("( (#{a.to_sql}) UNION (#{b.to_sql})) as #{table.name}")
+      referenced_klass_union([a,b]) # k.from("( (#{a.to_sql}) UNION (#{b.to_sql})) as #{table.name}")
     end
   end
 
-  def protocol_facet
+  def protocols_facet
     return nil if protocols.nil?
     if protocols
       referenced_table.joins(:protocols).distinct
@@ -83,6 +75,13 @@ module Queries::Concerns::Protocols
       referenced_table.where.mising(:protocols)
     end
   end
+
+  def self.merge_clauses
+    [
+      :protocol_id_facet,
+      :protocols_facet,
+    ]
+  end 
 
   private
 

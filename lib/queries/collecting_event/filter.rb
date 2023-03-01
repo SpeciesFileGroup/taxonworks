@@ -13,6 +13,7 @@ module Queries
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
+      include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
       include Queries::Helpers
 
@@ -174,6 +175,7 @@ module Queries
         set_dates(params)
         set_depiction_params(params)
         set_notes_params(params)
+        set_protocols_params(params)
         set_tags_params(params)
       end
 

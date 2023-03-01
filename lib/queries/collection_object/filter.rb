@@ -9,6 +9,7 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
+      include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
 
       PARAMS = [
@@ -356,11 +357,12 @@ module Queries
         @with_buffered_determinations =  boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
-        set_containable_params(params)
         set_citations_params(params)
-        set_depiction_params(params)
+        set_containable_params(params)
         set_data_attributes_params(params)
+        set_depiction_params(params)
         set_notes_params(params)
+        set_protocols_params(params)
         set_tags_params(params)
       end
 

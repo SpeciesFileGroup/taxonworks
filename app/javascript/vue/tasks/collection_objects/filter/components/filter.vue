@@ -33,6 +33,7 @@
   <FacetUsers v-model="params" />
   <FacetNotes v-model="params" />
   <FacetBuffered v-model="params" />
+  <FacetProtocol v-model="params" />
   <FacetDataAttribute v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
@@ -67,6 +68,7 @@ import FacetCurrentRepository from './filters/FacetCurrentRepository.vue'
 import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetWKT from 'components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
+import FacetProtocol from 'components/Filter/Facets/Extract/FacetProtocol.vue'
 
 const WITH_PARAMS = [
   'biological_associations',
