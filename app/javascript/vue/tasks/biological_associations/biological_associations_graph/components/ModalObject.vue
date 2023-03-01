@@ -7,7 +7,7 @@
       <SmartSelector
         :model="MODEL_TYPE[props.type]"
         :target="BIOLOGICAL_ASSOCIATION"
-        @selected="($event) => emit('addObject', $event)"
+        @selected="($event) => emit('addObject', makeNodeObject($event))"
       />
     </template>
   </VModal>
@@ -21,6 +21,7 @@ import {
   OTU,
   COLLECTION_OBJECT
 } from 'constants/index.js'
+import { makeNodeObject } from '../adapters'
 
 const props = defineProps({
   type: {

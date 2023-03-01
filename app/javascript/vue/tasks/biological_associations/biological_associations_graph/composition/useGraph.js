@@ -1,11 +1,11 @@
-import { ref, reactive, computed, toRefs } from 'vue'
+import { reactive, computed, toRefs } from 'vue'
 import {
   BiologicalAssociation,
   BiologicalAssociationGraph
 } from 'routes/endpoints'
-import { addToArray } from 'helpers/arrays'
-import { makeBiologicalAssociation } from '../adapters/biologicalAssociation'
+import { makeBiologicalAssociation, makeNodeObject } from '../adapters'
 import { unsavedEdge } from '../constants/graphStyle.js'
+import { parseNodeId, makeNodeId, isEqualNodeObject } from '../utils'
 
 const extend = [
   'biological_associations_biological_associations_graphs',
@@ -35,9 +35,9 @@ export function useGraph() {
   const nodes = computed(() =>
     Object.fromEntries(
       state.nodeObjects.map((obj) => [
-        `${obj.base_class}:${obj.id}`,
+        makeNodeId(obj),
         {
-          name: obj.object_label
+          name: obj.name
         }
       ])
     )
@@ -48,8 +48,8 @@ export function useGraph() {
       state.biologicalAssociations.map((ba) => {
         const edgeObject = {
           id: ba.id,
-          source: `${ba.subject.base_class}:${ba.subject.id}`,
-          target: `${ba.object.base_class}:${ba.object.id}`,
+          source: makeNodeId(ba.subject),
+          target: makeNodeId(ba.object),
           label: ba.biologicalRelationship.name
         }
 
@@ -62,6 +62,16 @@ export function useGraph() {
     )
   )
 
+  const getBiologicalRelationshipsByNodeId = (nodeId) => {
+    const obj = parseNodeId(nodeId)
+
+    return state.biologicalAssociations.filter((ba) => {
+      return (
+        isEqualNodeObject(ba.object, obj) || isEqualNodeObject(ba.subject, obj)
+      )
+    })
+  }
+
   const isGraphUnsaved = computed(() =>
     state.biologicalAssociations.some((ba) => ba.isUnsaved)
   )
@@ -71,15 +81,11 @@ export function useGraph() {
     objectNodeId,
     relationship
   }) {
-    const [subjectType, subjectId] = subjectNodeId.split(':')
-    const [objectType, objectId] = objectNodeId.split(':')
+    const nObj = parseNodeId(subjectNodeId)
+    const nSub = parseNodeId(objectNodeId)
 
-    const subject = state.nodeObjects.find(
-      (o) => o.id === Number(subjectId) && o.base_class === subjectType
-    )
-    const object = state.nodeObjects.find(
-      (o) => o.id === Number(objectId) && o.base_class === objectType
-    )
+    const subject = state.nodeObjects.find((o) => isEqualNodeObject(o, nSub))
+    const object = state.nodeObjects.find((o) => isEqualNodeObject(o, nObj))
 
     const biologicalAssociation = {
       id: undefined,
@@ -126,11 +132,7 @@ export function useGraph() {
   }
 
   function addObject(obj) {
-    if (
-      !state.nodeObjects.some(
-        (item) => item.id === obj.id && item.base_class === obj.base_class
-      )
-    ) {
+    if (!state.nodeObjects.some((item) => isEqualNodeObject(item, obj))) {
       state.nodeObjects.push(obj)
     }
   }
@@ -153,11 +155,44 @@ export function useGraph() {
       body.forEach((item) => {
         const ba = makeBiologicalAssociation(item)
 
-        addToArray(state.nodeObjects, ba.subject)
-        addToArray(state.nodeObjects, ba.object)
+        addObject(ba.subject)
+        addObject(ba.object)
         state.biologicalAssociations.push(ba)
       })
     })
+  }
+
+  function removeNode(nodeId) {
+    const biologicalAssociations = getBiologicalRelationshipsByNodeId(nodeId)
+    const created = biologicalAssociations.filter(({ id }) => id)
+    const nodeObject = makeNodeObject(nodeId)
+
+    if (created.length) {
+      const requests = created.map(({ id }) =>
+        BiologicalAssociation.destroy(id)
+      )
+
+      Promise.all(requests).then(() => {
+        const message =
+          created.length > 1
+            ? 'Biological association(s) were successfully deleted.'
+            : 'Biological association was successfully deleted.'
+
+        TW.workbench.alert.create(message, 'notice')
+      })
+    }
+
+    removeNodeObject(nodeObject)
+
+    state.biologicalAssociations = state.biologicalAssociations.filter(
+      ({ uuid }) => biologicalAssociations.some((ba) => ba.uuid !== uuid)
+    )
+  }
+
+  function removeNodeObject(obj) {
+    const index = state.nodeObjects.findIndex((o) => isEqualNodeObject(o, obj))
+
+    state.nodeObjects.splice(index, 1)
   }
 
   function saveBiologicalAssociations() {
@@ -171,9 +206,9 @@ export function useGraph() {
         biological_association: {
           biological_relationship_id: biologicalRelationship.id,
           biological_association_object_id: object.id,
-          biological_association_object_type: object.base_class,
+          biological_association_object_type: object.objectType,
           biological_association_subject_id: subject.id,
-          biological_association_subject_type: subject.base_class
+          biological_association_subject_type: subject.objectType
         }
       }
 
@@ -244,6 +279,8 @@ export function useGraph() {
     reverseRelation,
     saveBiologicalAssociations,
     isGraphUnsaved,
+    getBiologicalRelationshipsByNodeId,
+    removeNode,
     ...toRefs(state)
   }
 }

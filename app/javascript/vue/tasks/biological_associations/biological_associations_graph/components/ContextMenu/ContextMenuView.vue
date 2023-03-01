@@ -3,8 +3,7 @@
     class="graph-context-menu-list-item"
     @click="
       () => {
-        store.modal.node = true
-        store.currentNodeType = OTU
+        emit('add:node', { type: OTU })
       }
     "
   >
@@ -14,8 +13,7 @@
     class="graph-context-menu-list-item"
     @click="
       () => {
-        store.modal.node = true
-        store.currentNodeType = COLLECTION_OBJECT
+        emit('add:node', { type: COLLECTION_OBJECT })
       }
     "
   >
@@ -24,8 +22,7 @@
 </template>
 
 <script setup>
-import { useGraphStore } from '../../store/useGraphStore'
 import { COLLECTION_OBJECT, OTU } from 'constants/index.js'
 
-const store = useGraphStore()
+const emit = defineEmits(['add:node'])
 </script>

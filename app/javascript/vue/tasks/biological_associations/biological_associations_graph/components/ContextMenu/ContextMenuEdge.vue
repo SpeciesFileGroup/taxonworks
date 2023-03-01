@@ -1,10 +1,6 @@
 <template>
-  <div
-    v-for="edgeId in store.currentEdge"
-    :key="edgeId"
-    class="flex-separate middle gap-small graph-context-menu-list-item"
-  >
-    {{ store.edges[edgeId]?.label }}
+  <div class="flex-separate middle gap-small graph-context-menu-list-item">
+    {{ edge.label }}
     <div class="horizontal-right-content gap-xsmall">
       <VBtn
         color="primary"
@@ -22,10 +18,10 @@
       </VBtn>
       <VBtn
         circle
-        :color="store.edges[edgeId].id ? 'destroy' : 'primary'"
+        :color="!!edge.id ? 'destroy' : 'primary'"
         @click="
           () => {
-            removeEdge(edgeId)
+            emit('remove:edge', edgeId)
           }
         "
       >
@@ -36,16 +32,23 @@
       </VBtn>
     </div>
   </div>
-  <ConfirmationModal ref="confirmationModalRef" />
 </template>
 
 <script setup>
-import { useGraphStore } from '../../store/useGraphStore.js'
-import ConfirmationModal from 'components/ConfirmationModal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 
-const emit = defineEmits(['remove:edge', 'reverse:edge'])
+defineProps({
+  edgeId: {
+    type: String,
+    required: true
+  },
 
-const store = useGraphStore()
+  edge: {
+    type: Object,
+    default: () => ({})
+  }
+})
+
+const emit = defineEmits(['remove:edge', 'reverse:edge'])
 </script>

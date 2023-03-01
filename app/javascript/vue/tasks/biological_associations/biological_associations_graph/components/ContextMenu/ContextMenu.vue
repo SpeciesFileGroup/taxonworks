@@ -13,23 +13,18 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
-const props = defineProps({
-  position: {
-    type: Object,
-    required: true
-  }
-})
-
+const position = ref({})
 const isVisible = ref(false)
 const element = ref()
 
 const stylePosition = computed(() => ({
-  left: props.position.x + 'px',
-  top: props.position.y + 'px'
+  left: position.value.x + 'px',
+  top: position.value.y + 'px'
 }))
 
-function openContextMenu() {
+function openContextMenu({ x, y }) {
   isVisible.value = true
+  position.value = { x, y }
 }
 
 function handleEvent(event) {

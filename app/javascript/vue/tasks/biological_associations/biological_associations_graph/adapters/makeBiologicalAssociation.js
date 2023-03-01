@@ -1,3 +1,4 @@
+import { makeNodeObject } from './makeNodeObject'
 export function makeBiologicalAssociation(ba) {
   return {
     uuid: crypto.randomUUID(),
@@ -8,7 +9,7 @@ export function makeBiologicalAssociation(ba) {
       id: ba.biological_relationship_id,
       name: ba.biological_relationship.object_label
     },
-    subject: ba.subject,
-    object: ba.object
+    subject: makeNodeObject(ba.subject),
+    object: makeNodeObject(ba.object)
   }
 }
