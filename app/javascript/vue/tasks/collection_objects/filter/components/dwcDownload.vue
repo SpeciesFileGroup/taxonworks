@@ -205,14 +205,16 @@ function download() {
     ? { collection_object_id: props.selectedIds }
     : getFilterParams(props.params)
 
-  DwcOcurrence.generateDownload({ ...downloadParams }).then((_) => {
-    window.open(
-      `${RouteNames.DwcDashboard}?${qs.stringify(downloadParams, {
-        arrayFormat: 'brackets'
-      })}`
-    )
-    setModalView(false)
-  })
+  DwcOcurrence.generateDownload({ ...downloadParams, ...predicateParams }).then(
+    (_) => {
+      window.open(
+        `${RouteNames.DwcDashboard}?${qs.stringify(downloadParams, {
+          arrayFormat: 'brackets'
+        })}`
+      )
+      setModalView(false)
+    }
+  )
 }
 
 function setModalView(value) {
