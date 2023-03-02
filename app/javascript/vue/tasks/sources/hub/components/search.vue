@@ -27,7 +27,7 @@
 
 <script>
 import Autocomplete from 'components/ui/Autocomplete'
-import { ATTR_CURRENT_USER_ID } from 'constants/index.js'
+import { getCurrentUserId } from 'helpers/user.js'
 
 export default {
   components: {
@@ -45,9 +45,7 @@ export default {
   },
   mounted() {
     const date = new Date()
-    const userId = document
-      .querySelector(`[${ATTR_CURRENT_USER_ID}]`)
-      .getAttribute(ATTR_CURRENT_USER_ID)
+    const userId = getCurrentUserId()
     const today = date.toISOString().split('T')[0]
     date.setDate(date.getDate() - 14)
     const twoWeeksAgo = date.toISOString().split('T')[0]

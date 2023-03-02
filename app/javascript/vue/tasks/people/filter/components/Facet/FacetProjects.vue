@@ -4,7 +4,10 @@
     <div class="flex-separate margin-medium-bottom">
       <div class="fields">
         <label>
-          <input type="checkbox" />
+          <input
+            type="checkbox"
+            v-model="currentProjectOnly"
+          />
           Current only
         </label>
       </div>
@@ -37,6 +40,7 @@
 import { ref, computed, watch, onBeforeMount } from 'vue'
 import { User } from 'routes/endpoints'
 import { getCurrentUserId } from 'helpers/user.js'
+import { getCurrentProjectId } from 'helpers/project.js'
 import VToggle from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
@@ -59,9 +63,22 @@ const params = computed({
   }
 })
 
+const currentProjectId = Number(getCurrentProjectId())
+
 const projectIds = ref([])
 const projects = ref([])
 const isExcept = ref(false)
+
+const currentProjectOnly = computed({
+  get: () =>
+    projectIds.value.length === 1 &&
+    projectIds.value.includes(currentProjectId),
+  set: (isChecked) => {
+    projectIds.value = isChecked
+      ? [currentProjectId]
+      : projectIds.value.filter((id) => id !== currentProjectId)
+  }
+})
 
 onBeforeMount(() => {
   const userId = getCurrentUserId()

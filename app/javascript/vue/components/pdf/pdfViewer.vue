@@ -99,10 +99,8 @@
 import PdfViewer from './components/pdfComponent'
 import ResizeHandle from '../resizeHandle'
 import IndexedDBStorage from 'storage/indexddb.js'
-import {
-  ATTR_CURRENT_USER_ID,
-  ATTR_CURRENT_PROJECT_ID
-} from 'constants/index.js'
+import { getCurrentProjectId } from 'helpers/project.js'
+import { getCurrentUserId } from 'helpers/user.js'
 import { blobToArrayBuffer } from 'helpers/files.js'
 import { createLoadingTask } from './components/pdfLibraryComponents'
 import {
@@ -285,12 +283,8 @@ const getPdf = async (url) => {
 const findPos = (obj) => obj.offsetTop
 
 const getUserAndProjectIds = () => {
-  const userId = document
-    .querySelector(`[${ATTR_CURRENT_USER_ID}]`)
-    .getAttribute(ATTR_CURRENT_USER_ID)
-  const projectId = document
-    .querySelector(`[${ATTR_CURRENT_PROJECT_ID}]`)
-    .getAttribute(ATTR_CURRENT_PROJECT_ID)
+  const userId = getCurrentUserId()
+  const projectId = getCurrentProjectId()
 
   return `${userId}-${projectId}`
 }
