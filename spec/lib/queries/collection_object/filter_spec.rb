@@ -5,27 +5,6 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
-  context 'lib/queries/concerns/data attributes.rb' do
-    specify '#no_value_data_attribute' do
-      n = Specimen.create!
-      s = Specimen.create!
-      FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s)
-
-      query.no_value_data_attribute = s.data_attributes.first.controlled_vocabulary_term_id
-      expect(query.all).to contain_exactly(n)
-    end
-
-    specify '#any_value_data_attribute' do
-      n = Specimen.create!
-      s = Specimen.create!
-      FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s)
-
-      query.any_value_data_attribute = s.data_attributes.first.controlled_vocabulary_term_id
-      expect(query.all).to contain_exactly(s)
-    end
-  end
-
-
   specify 'CollectingEvent params are permitted' do
     h = {geographic_area_id: 1 }
     p = ActionController::Parameters.new(h)
@@ -605,61 +584,6 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       specify '#wkt (POINT)' do
         query.base_collecting_event_query.wkt = wkt_point
         expect(query.all.pluck(:id)).to contain_exactly(co1.id)
-      end
-    end
-
-    context 'data_attributes' do
-      let(:p1) { FactoryBot.create(:valid_predicate) }
-      let(:p2) { FactoryBot.create(:valid_predicate) }
-
-      specify '#data_attributes' do
-        d = InternalAttribute.create!(predicate: p1, value: 1, attribute_subject: Specimen.create!)
-        Specimen.create!
-
-        query.data_attributes = true
-        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
-      end
-
-      specify '#data_attribute_predicate_id' do
-        d = InternalAttribute.create!(predicate: p1, value: 1, attribute_subject: Specimen.create!)
-        InternalAttribute.create!(predicate: p2, value: 1, attribute_subject: Specimen.create!)
-
-        query.data_attribute_predicate_id = [p1.id]
-        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
-      end
-
-      specify '#data_attribute_value' do
-        d = InternalAttribute.create!(predicate: p1, value: 1, attribute_subject: Specimen.create!)
-        Specimen.create!
-
-        query.data_attribute_value = 1
-        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
-      end
-
-      specify '#value 2' do
-        d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
-        Specimen.create!
-
-        query.data_attribute_value = 1
-        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
-      end
-
-      specify '#data_attribute_exact_value' do
-        d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
-        Specimen.create!
-
-        query.data_attribute_value = 1
-        query.data_attribute_exact_value = true
-        expect(query.all.pluck(:id)).to contain_exactly()
-      end
-
-      specify '#data_attribute_exact_value 2' do
-        d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
-        Specimen.create!
-
-        query.data_attribute_value = 212
-        query.data_attribute_exact_value = true
-        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
       end
     end
 
