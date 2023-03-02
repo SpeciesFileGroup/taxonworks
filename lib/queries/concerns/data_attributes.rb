@@ -97,7 +97,7 @@ module Queries::Concerns::DataAttributes
       if @data_attribute_exact_pair.kind_of?(Hash)
         @data_attribute_exact_pair
       else
-        split_pairs(@data_attribute_exact_pair.flatten.compact)
+        split_pairs([@data_attribute_exact_pair].flatten.compact)
       end
     end
 
@@ -106,7 +106,7 @@ module Queries::Concerns::DataAttributes
       if @data_attribute_wildcard_pair.kind_of?(Hash)
         @data_attribute_wildcard_pair
       else
-        split_pairs(@data_attribute_exact_pair.flatten.compact)
+        split_pairs([@data_attribute_exact_pair].flatten.compact)
       end
     end
 
