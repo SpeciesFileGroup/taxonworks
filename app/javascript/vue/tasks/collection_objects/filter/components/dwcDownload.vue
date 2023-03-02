@@ -129,6 +129,7 @@
         </div>
       </template>
     </v-modal>
+    <ConfirmationModal ref="confirmationModalRef" />
   </div>
 </template>
 <script setup>
@@ -136,6 +137,7 @@ import { computed, reactive, ref, onBeforeMount, watch } from 'vue'
 import { RouteNames } from 'routes/routes.js'
 import { DwcOcurrence } from 'routes/endpoints'
 import { qs } from 'qs'
+import ConfirmationModal from 'components/ConfirmationModal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VModal from 'components/ui/Modal.vue'
 import VSpinner from 'components/spinner.vue'
@@ -157,6 +159,7 @@ const props = defineProps({
   }
 })
 
+const confirmationModalRef = ref()
 const showModal = ref(false)
 const isLoading = ref(false)
 const collectingEvents = ref([])
@@ -207,12 +210,7 @@ function download() {
 
   DwcOcurrence.generateDownload({ ...downloadParams, ...predicateParams }).then(
     (_) => {
-      window.open(
-        `${RouteNames.DwcDashboard}?${qs.stringify(downloadParams, {
-          arrayFormat: 'brackets'
-        })}`
-      )
-      setModalView(false)
+      openGenerateDownloadModal()
     }
   )
 }
@@ -223,6 +221,17 @@ function setModalView(value) {
 
 function action() {
   setModalView(true)
+}
+
+async function openGenerateDownloadModal() {
+  await confirmationModalRef.value.show({
+    title: 'Generating Download',
+    message: `It will be available shortly on the <a href="${RouteNames.DwcDashboard}">DwC Dashboard</a>`,
+    okButton: 'Close',
+    typeButton: 'default'
+  })
+
+  setModalView(false)
 }
 
 onBeforeMount(() => {
