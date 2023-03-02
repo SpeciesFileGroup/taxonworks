@@ -17,6 +17,7 @@ module Queries
         :authors,
         :collecting_event_id,
         :collection_object_id,
+        :combinations,
         :descendants,
         :descendants_max_depth,
         :etymology,
@@ -58,6 +59,17 @@ module Queries
         taxon_name_relationship_type: [],
         type: [],
       ].freeze
+
+      # @param collection_object_id[String, Array]
+      # @return Array
+      attr_accessor :collection_object_id
+
+      # @param combinations [Boolean]
+      #   true - only return names that have (subsequent) Combinations
+      #   false - only return names without (subequent) Combinations
+      #   nil - ignore
+      # This parameter should be used along side species or genus group limits.
+      attr_accessor :combinations
 
       # @param collection_object_id[String, Array]
       # @return Array
@@ -249,6 +261,7 @@ module Queries
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
         @combination_taxon_name_id = params[:combination_taxon_name_id]
+        @combinations = boolean_param(params, :combinations)
         @descendants = boolean_param(params,:descendants )
         @descendants_max_depth = params[:descendants_max_depth]
         @etymology = boolean_param(params, :etymology)
@@ -616,6 +629,16 @@ module Queries
           .where(collection_objects: {collecting_event_id: collecting_event_id})
       end
 
+      def combinations_facet
+        return nil if combinations.nil?
+        a = ::Protonym.joins(:combination_relationships)
+        if combinations
+          a
+        else
+          referenced_klass_except(a)
+        end
+      end
+
       def otu_query_facet
         return nil if otu_query.nil?
         s = 'WITH query_otu_tn AS (' + otu_query.all.to_sql + ') ' +
@@ -705,12 +728,13 @@ module Queries
           collecting_event_id_facet,
           collection_object_id_facet,
           combination_taxon_name_id_facet,
+          combinations_facet,
           descendant_facet,
           leaves_facet,
-          taxon_name_author_id_facet,
           not_specified_facet,
           original_combination_facet,
           otu_id_facet,
+          taxon_name_author_id_facet,
           otus_facet,
           taxon_name_classification_facet,
           taxon_name_relationship_type_facet,

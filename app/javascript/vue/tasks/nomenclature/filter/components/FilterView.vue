@@ -83,6 +83,7 @@ const WITH_PARAMS = [
   'authors',
   'citations',
   'citation_documents',
+  'combinations',
   'data_attributes',
   'etymology',
   'leaves',

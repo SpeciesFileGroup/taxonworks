@@ -58,6 +58,17 @@ module Queries
       referenced_klass.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' UNION ')}) as #{table.name}")
     end
 
+    # @param query A query that returns referenced_klass records
+    # 
+    # This is an exists equivalent to saying all referenced_klass except those
+    #  in the related query
+    def referenced_klass_except(query)
+      t = "q_#{table.name}"
+      s = "with #{t} AS (" + query.to_sql + ')' +
+      referenced_klass.joins("LEFT JOIN #{t} AS #{t}1 on #{t}1.id = #{table.name}.id").to_sql
+      referenced_klass.from("(#{s}) as #{table.name}")
+    end
+
     def terms=(string)
       @query_string = string
       build_terms

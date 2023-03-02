@@ -12,6 +12,7 @@ module Queries
     #   the initial, unparsed value
     attr_accessor :query_string
 
+    # Unused, to be used in future
     # limit based on size and potentially properties of terms
     attr_accessor :dynamic_limit
 
