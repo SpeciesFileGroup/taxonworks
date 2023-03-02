@@ -10,13 +10,17 @@ module Queries::Concerns::DataAttributes
   include Queries::Helpers
 
   def self.params
-   [   
+    [   
+      :any_value_data_attribute,
       :data_attribute_exact_value,
       :data_attribute_predicate_id,
       :data_attribute_value,
       :data_attributes,
+      :no_value_data_attribute,
+      any_value_data_attribute: [],
       data_attribute_predicate_id: [],
       data_attribute_value: [],
+      no_value_data_attribute: [],
     ]
   end
 
@@ -41,6 +45,16 @@ module Queries::Concerns::DataAttributes
     #   nil - not applied
     attr_accessor :data_attributes
 
+    # @param [Array of Predicate#id]
+    # @return [Array]
+    #  predicate_ids listed here match records simply by use of Predicate
+    attr_accessor :any_value_data_attribute
+
+    # @param [Array of Predicate#id]
+    # @return [Array]
+    #  Predicate_ids listed here match records without use of Predicates
+    attr_accessor :no_value_data_attribute
+
     def data_attribute_predicate_id
       [@data_attribute_predicate_id].flatten.compact
     end
@@ -48,9 +62,19 @@ module Queries::Concerns::DataAttributes
     def data_attribute_value
       [@data_attribute_value].flatten.compact.select{|a| a.present?}
     end
+
+    def any_value_data_attribute
+      [@any_value_data_attribute].flatten.compact
+    end
+
+    def no_value_data_attribute
+      [@no_value_data_attribute].flatten.compact
+    end
   end
 
-  def set_data_attributes_params(params) # ... hash
+  def set_data_attributes_params(params)
+    @no_value_data_attribute = params[:no_value_data_attribute]
+    @any_value_data_attribute = params[:any_value_data_attribute]
     @data_attribute_predicate_id = params[:data_attribute_predicate_id]
     @data_attribute_value = params[:data_attribute_value]
     @data_attribute_exact_value = boolean_param(params, :data_attribute_exact_value)
@@ -64,10 +88,29 @@ module Queries::Concerns::DataAttributes
 
   def self.merge_clauses
     [
+     :no_value_data_attribute_facet,
+     :any_value_data_attribute_facet, 
      :data_attribute_predicate_facet,
      :data_attribute_value_facet,
      :data_attributes_facet,
     ]
+  end
+
+  def no_value_data_attribute_facet
+    return nil if no_value_data_attribute.blank?
+    not_these = referenced_klass.left_joins(:data_attributes).where(data_attributes: {controlled_vocabulary_term_id: no_value_data_attribute})
+
+    # a Not exists without using .exists
+    s = 'WITH not_these AS (' + not_these.to_sql + ') ' + 
+    referenced_klass.joins("LEFT JOIN not_these AS not_these1 ON not_these1.id = #{table.name}.id")
+    .where('not_these1.id IS NULL').to_sql
+
+    referenced_klass.from("(#{s}) as #{table.name}")
+  end
+
+  def any_value_data_attribute_facet
+    return nil if any_value_data_attribute.blank?
+    referenced_klass.joins(:data_attributes).where(data_attributes: {controlled_vocabulary_term_id: any_value_data_attribute})
   end
 
   def data_attributes_facet

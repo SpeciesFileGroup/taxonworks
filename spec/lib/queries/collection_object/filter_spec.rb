@@ -5,6 +5,27 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
+  context 'lib/queries/concerns/data attributes.rb' do
+    specify '#no_value_data_attribute' do
+      n = Specimen.create!
+      s = Specimen.create!
+      FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s)
+
+      query.no_value_data_attribute = s.data_attributes.first.controlled_vocabulary_term_id
+      expect(query.all).to contain_exactly(n)
+    end
+
+    specify '#any_value_data_attribute' do
+      n = Specimen.create!
+      s = Specimen.create!
+      FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s)
+
+      query.any_value_data_attribute = s.data_attributes.first.controlled_vocabulary_term_id
+      expect(query.all).to contain_exactly(s)
+    end
+  end
+
+
   specify 'CollectingEvent params are permitted' do
     h = {geographic_area_id: 1 }
     p = ActionController::Parameters.new(h)
