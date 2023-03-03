@@ -7,6 +7,9 @@ module BatchLoad
     # The id of the parent taxon name, computed automatically as Root if not provided
     attr_accessor :parent_taxon_name_id
 
+    # The default parent if otherwise not provided
+    attr_accessor :base_taxon_name_id
+
     # The code (Rank Class) that new names will use
     attr_accessor :nomenclature_code
 

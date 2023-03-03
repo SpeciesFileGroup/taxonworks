@@ -1,5 +1,6 @@
 import baseCRUD from './base'
-
+import ajaxCall from 'helpers/ajaxCall'
+const controller = 'citations'
 const permitParams = {
   citation: {
     citation_object_type: String,
@@ -28,5 +29,8 @@ const permitParams = {
 }
 
 export const Citation = {
-  ...baseCRUD('citations', permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  createBatch: (params) =>
+    ajaxCall('post', `/${controller}/batch_create`, params)
 }

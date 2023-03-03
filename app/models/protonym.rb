@@ -405,7 +405,7 @@ class Protonym < TaxonName
       if z.rank_string == 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
         if z.cached_is_valid
           a[year][:valid] = a[year][:valid] += 1
-        elsif TaxonNameRelationship.where_subject_is_taxon_name(z.id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).any?
+        elsif TaxonNameRelationship.where_subject_is_taxon_name(z.id).with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).any?
           a[year][:synonyms] = a[year][:synonyms] += 1
         end
       end
@@ -475,9 +475,9 @@ class Protonym < TaxonName
     # Is faster than above?
     #    return true if rank_string =~ /Icnp/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
 
-    return true if is_family_rank? && !(taxon_name_relationships.collect{|i| i.type} & TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).empty?
-    return true unless (taxon_name_classifications.collect{|i| i.type} & EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?
-    return true unless (taxon_name_relationships.collect{|i| i.type} & TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).empty?
+    return true if is_family_rank? && !(taxon_name_relationships.collect{|i| i.type} & ::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).empty?
+    return true unless (taxon_name_classifications.collect{|i| i.type} & ::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?
+    return true unless (taxon_name_relationships.collect{|i| i.type} & ::TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).empty?
     false
   end
 
@@ -970,10 +970,11 @@ class Protonym < TaxonName
     end
   end
 
-  # This is a *very* expensive soft validation, it should be fragemented into individual parts likely
+  # This is a *very* expensive soft validation, it should be fragemented into individual parts likely.
   # It should also not be necessary by default our code should be good enough to handle these
   # issues in the long run.
   # DD: rules for cached tend to evolve, what was good in the past, may not be true today
+  # MJY: If the meaning of cached changes then it should be removed, not changed.
   def sv_cached_names # this cannot be moved to soft_validation_extensions
   is_cached = true
   is_cached = false if cached_author_year != get_author_and_year

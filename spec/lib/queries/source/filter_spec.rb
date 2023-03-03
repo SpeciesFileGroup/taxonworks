@@ -1,7 +1,7 @@
 require 'rails_helper'
 require_relative "shared_context"
 
-describe Queries::Source::Filter, type: :model, group: [:sources] do
+describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
 
   # lib/queries/source/shared_context.rb
   include_examples 'source queries'
@@ -10,37 +10,42 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   let!(:doi) { '10.11646/stuff.1234.5.6' }
   let(:tomorrow) {  (Time.now + 1.day).strftime("%Y-%m-%d") }
 
+  specify '#cached_facet' do
+    query.query_string = 'good'
+    expect(query.cached_facet.to_sql).to match("ILIKE 'good%'")
+  end
+
   specify '#cached ordered fragments' do
     s = FactoryBot.create(:valid_source_verbatim, verbatim: 'Jones, AP (1920) stuff and things')
     query.query_string = 'Jones 1920'
     expect(query.all.map(&:id)).to contain_exactly(s.id)
   end
 
-  specify '#ancestor_id' do
+  specify '#taxon_name_id' do
     t = FactoryBot.create(:valid_taxon_name)
     c = FactoryBot.create(:valid_citation, citation_object: t)
-    query.ancestor_id = t.id
+    query.taxon_name_id = t.id
     expect(query.all.map(&:id)).to contain_exactly( c.source.id)
   end
 
-  specify '#ancestor_id, omits in scope sources on OTUs' do
+  specify '#taxon_name_id, omits in scope sources on OTUs' do
     t = FactoryBot.create(:valid_taxon_name)
     c = FactoryBot.create(:valid_citation, citation_object: t)
 
     c2 = FactoryBot.create(:valid_citation, citation_object: FactoryBot.create(:valid_descriptor))
     c3 = FactoryBot.create(:valid_citation, citation_object: FactoryBot.create(:valid_otu, taxon_name: t))
 
-    query.ancestor_id = t.id
+    query.taxon_name_id = t.id
     expect(query.all.map(&:id)).to contain_exactly( c.source.id)
   end
 
-  specify '#ancestor_id, includes TaxonNameClassifications' do
+  specify '#taxon_name_id, includes TaxonNameClassifications' do
     t = FactoryBot.create(:valid_taxon_name)
     c = FactoryBot.create(:valid_citation, citation_object: t)
 
     c1 = FactoryBot.create(:valid_citation, citation_object: FactoryBot.create(:valid_taxon_name_classification, taxon_name: t))
 
-    query.ancestor_id = t.id
+    query.taxon_name_id = t.id
     expect(query.all.map(&:id)).to contain_exactly( c.source.id, c1.source.id)
   end
 
@@ -51,7 +56,7 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
     FactoryBot.create(:valid_citation, citation_object: Otu.create!(name: 'ancestor no'))
 
     query.citations_on_otus = true
-    query.ancestor_id = o.taxon_name_id
+    query.taxon_name_id = o.taxon_name_id
 
     expect(query.all.map(&:id)).to contain_exactly(c.source.id)
   end
@@ -63,7 +68,7 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
     c2 = FactoryBot.create(:valid_citation, citation_object: o.taxon_name)
 
     query.citations_on_otus = true
-    query.ancestor_id = o.taxon_name_id
+    query.taxon_name_id = o.taxon_name_id
 
     expect(query.all.map(&:id)).to contain_exactly(c1.source.id, c2.source.id )
   end
@@ -133,22 +138,22 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
-  specify '#topic_ids 1' do
+  specify '#topic_id 1' do
     topic = FactoryBot.create(:valid_topic)
     Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name), topics: [topic])
-    query.topic_ids = [topic.id]
+    query.topic_id = [topic.id]
     expect(query.all.map(&:id)).to contain_exactly(s1.id)
   end
 
-  specify '#topic_ids 2' do
+  specify '#topic_id 2' do
     t1 = FactoryBot.create(:valid_topic)
     t2 = FactoryBot.create(:valid_topic)
     Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name), topics: [t1])
-    query.topic_ids = [t2.id]
+    query.topic_id = [t2.id]
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
-  specify '#topic_ids 3' do
+  specify '#topic_id 3' do
     topic = FactoryBot.create(:valid_topic)
     Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name), topics: [topic])
     expect(query.all.map(&:id)).to_not contain_exactly()
@@ -257,8 +262,8 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
     expect(query.all.map(&:id)).to contain_exactly(s3.id, s4.id, s5.id)
   end
 
-  specify '#author_ids' do
-    query.author_ids = [p1.id]
+  specify '#author_id' do
+    query.author_id = [p1.id]
     expect(query.all.map(&:id)).to contain_exactly(s2.id, s4.id)
   end
 
@@ -274,28 +279,28 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   end
 
   specify '#project_id / in_project 1' do
-    query.project_id = Current.project_id
+    query.project_id = project_id
     query.in_project = true
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
   specify '#project_id / in_project 1' do
-    ProjectSource.create!(source: s1, project_id: Current.project_id)
-    query.project_id = Current.project_id
+    ProjectSource.create!(source: s1, project_id: project_id)
+    query.project_id = project_id
     query.in_project = false
     expect(query.all.map(&:id)).to contain_exactly( *(all_source_ids - [s1.id]) )
   end
 
   specify '#project_id / in_project 2' do
-    query.project_id = Current.project_id
+    query.project_id = project_id
     query.in_project = false
     expect(query.all.map(&:id)).to contain_exactly(*all_source_ids)
   end
 
   specify '#project_id / in_project 3' do
-    ProjectSource.create!(source: s1, project_id: Current.project_id)
+    ProjectSource.create!(source: s1, project_id: project_id)
     ProjectSource.create!(source: s2, project_id: FactoryBot.create(:valid_project).id)
-    query.project_id = Current.project_id
+    query.project_id = project_id
     query.in_project = true
     expect(query.all.map(&:id)).to contain_exactly(s1.id)
   end
@@ -314,7 +319,7 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
 
   context 'all' do
     before do
-      query.user_id = Current.user_id
+      query.user_id = user_id
       query.user_target = 'created'
       query.user_date_start = '2001-1-2'
       query.user_date_end = tomorrow

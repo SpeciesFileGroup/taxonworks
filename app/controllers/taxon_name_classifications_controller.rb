@@ -14,11 +14,10 @@ class TaxonNameClassificationsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_name_classifications = Queries::TaxonNameClassification::Filter.new(filter_params)
+        @taxon_name_classifications = Queries::TaxonNameClassification::Filter.new(params)
           .all
-          .where(project_id: sessions_current_project_id)
           .page(params[:page])
-          .per(params[:per] || 500)
+          .per(params[:per])
       }
     end
   end
@@ -134,7 +133,7 @@ class TaxonNameClassificationsController < ApplicationController
 
   # GET /api/v1/taxon_name_classifications
   def api_index
-    @taxon_name_classifications = Queries::TaxonNameClassification::Filter.new(api_params).all
+    @taxon_name_classifications = Queries::TaxonNameClassification::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('taxon_name_classifications.id')
       .page(params[:page])
@@ -147,30 +146,7 @@ class TaxonNameClassificationsController < ApplicationController
     render '/taxon_name_classifications/api/v1/show'
   end
 
-
   private
-
-  def api_params
-    params.permit(
-      :taxon_name_id,
-      :taxon_name_classification_type,
-      :taxon_name_classification_set,
-      taxon_name_id: [],
-      taxon_name_classification_type: [],
-      taxon_name_classification_set: []
-    )
-  end
-
-  def filter_params
-    params.permit(
-      :taxon_name_id,
-      :taxon_name_classification_type,
-      :taxon_name_classification_set,
-      taxon_name_id: [],
-      taxon_name_classification_type: [],
-      taxon_name_classification_set: []
-    )
-  end
 
   def set_taxon_name_classification
     @taxon_name_classification = TaxonNameClassification.with_project_id(sessions_current_project_id).find(params[:id])

@@ -19,6 +19,8 @@ module Shared::OriginRelationship
   extend ActiveSupport::Concern
 
   included do
+    ::OriginRelationship.related_foreign_keys.push self.name.foreign_key
+
     related_class = self.name
 
     attr_accessor :origin

@@ -8,6 +8,8 @@
 #   description - 
 #   related_models - an array of similar models
 #
+# See lib/hub/data.rb for integration (or CONFIG_DATA)
+#
 ---
 Core: # a Section
   Otu:

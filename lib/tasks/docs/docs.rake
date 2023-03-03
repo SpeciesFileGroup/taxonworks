@@ -166,9 +166,8 @@ namespace :tw do
 
     # TODO: scrape descriptions using RDOC processor, add as headers for ER
     # def model_description(table_name)
-    #   byebug
     #   p = File.expand_path(table_name.singularize + '.rb', Rails.root.to_s + '/app/models/')
-    #   if File.exists?(p)
+    #   if File.exist?(p)
     #     r = File.read(p)
     #     puts r
     #   else
@@ -705,7 +704,7 @@ namespace :tw do
       dirs = DOCS_OUTPUT_LOCATIONS.values.collect{|l| @target_path + l}
 
       dirs.each do |d|
-        if Dir.exists?(d)
+        if Dir.exist?(d)
           puts Rainbow('Found ' + d).green
         else
           puts Rainbow('Did not find ' + d).red

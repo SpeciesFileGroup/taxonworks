@@ -63,12 +63,7 @@
                   <button
                     class="button normal-input button-submit"
                     type="button"
-                    @click="
-                      () => {
-                        noCreated = []
-                        createCOs(0)
-                      }
-                    "
+                    @click="handleClick"
                   >
                     Create
                   </button>
@@ -154,7 +149,11 @@
                   class="contextMenuCells"
                 >
                   <td>{{ item.id }}</td>
-                  <td v-html="item.identifiers.join('<br>')" />
+                  <td
+                    v-html="
+                      item.identifiers.map((item) => item.cached).join('<br>')
+                    "
+                  />
                   <td
                     v-html="
                       item.taxon_determinations
@@ -348,7 +347,7 @@ export default {
 
     loadTable() {
       const params = {
-        collecting_event_ids: [this.ceId],
+        collecting_event_id: [this.ceId],
         extend
       }
 
@@ -357,6 +356,11 @@ export default {
         this.list = response.body
         this.isLoading = false
       })
+    },
+
+    handleClick() {
+      this.noCreated = []
+      this.createCOs(0)
     }
   }
 }

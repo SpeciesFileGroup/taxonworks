@@ -3,7 +3,7 @@
     <div
       class="modal-mask"
       @click="emit('close')"
-      @key.esc="emit('close')"
+      @key.esc.stop="emit('close')"
     >
       <div class="modal-wrapper">
         <div
@@ -15,20 +15,14 @@
           :style="containerStyle"
           @click.stop
         >
-          <div class="modal-header">
-            <div
-              class="modal-close"
-              :class="{ 'invert-color opacity-100': transparent }"
-              @click="emit('close')"
-            />
-            <slot name="header">
-              default header
-            </slot>
+          <div
+            class="modal-header"
+            :class="{ 'panel content': transparent }"
+          >
+            <slot name="header"> default header </slot>
           </div>
           <div class="modal-body">
-            <slot name="body">
-              default body
-            </slot>
+            <slot name="body"> default body </slot>
           </div>
           <div class="modal-footer">
             <slot name="footer" />
@@ -63,10 +57,15 @@ const emit = defineEmits(['close'])
 
 const handleKeys = (e) => {
   if (e.key === 'Escape') {
+    e.stopPropagation()
     emit('close')
   }
 }
 
-onMounted(() => { document.addEventListener('keydown', handleKeys) })
-onUnmounted(() => { document.removeEventListener('keydown', handleKeys) })
+onMounted(() => {
+  document.addEventListener('keydown', handleKeys)
+})
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeys)
+})
 </script>

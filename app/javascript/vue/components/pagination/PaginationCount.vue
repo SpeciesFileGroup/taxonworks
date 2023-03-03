@@ -4,8 +4,8 @@
       v-if="haveRecords"
       class="horizontal-left-content"
     >
-      {{ recordsAtCurrentPage }} - 
-      {{ recordsAtNextPage }} of {{ pagination.total }} records.
+      {{ recordsAtCurrentPage }} - {{ recordsAtNextPage }} of
+      {{ pagination.total }} records.
     </span>
     <span v-else>0 records.</span>
     <div class="margin-small-left">
@@ -38,31 +38,34 @@ export default {
 
     maxRecords: {
       type: Array,
-      default: () => [50, 100, 250, 500, 1000]
+      default: () => [50, 100, 250, 500, 1000, 2500]
     }
   },
 
   emits: ['update:modelValue'],
 
   computed: {
-    recordsAtCurrentPage () {
-      return ((this.pagination.paginationPage - 1) * this.pagination.perPage) || 1
+    recordsAtCurrentPage() {
+      return (this.pagination.paginationPage - 1) * this.pagination.perPage || 1
     },
 
-    recordsAtNextPage () {
-      const recordsCount = this.pagination.paginationPage * this.pagination.perPage
-      return recordsCount > this.pagination.total ? this.pagination.total : recordsCount
+    recordsAtNextPage() {
+      const recordsCount =
+        this.pagination.paginationPage * this.pagination.perPage
+      return recordsCount > this.pagination.total
+        ? this.pagination.total
+        : recordsCount
     },
 
-    haveRecords () {
+    haveRecords() {
       return Number(this.pagination.total)
     },
 
     per: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }

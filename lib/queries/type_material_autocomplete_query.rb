@@ -13,11 +13,6 @@ module Queries
     end
 
     # @return [Arel::Table]
-    def table
-      ::TypeMaterial.arel_table
-    end
-
-    # @return [Arel::Table]
     def taxon_name_table
       ::TaxonName.arel_table
     end

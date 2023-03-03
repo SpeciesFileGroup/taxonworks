@@ -57,8 +57,9 @@ module PeopleHelper
     'active ~ ' + [ person.year_active_start || '?', ae || '?'].join('-')
   end
 
+  # TODO: optimize, too expensive
   def person_used_tag(person)
-    # Use count is SQL based attribute
+    # use_count is SQL based attribute
     if person.respond_to?(:use_count)
       a = ''
       if person.use_count == 0

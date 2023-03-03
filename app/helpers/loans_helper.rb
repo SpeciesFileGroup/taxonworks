@@ -106,4 +106,194 @@ module LoansHelper
     Keyword.joins(:tags).where(project_id: sessions_current_project_id).where(tags: {tag_object_type: ['Container', 'Otu', 'CollectionObject']}).distinct.all
   end
 
+  # date_loan_requested, date_recieved, date_return_expected, date_closed
+  def loans_per_year(loans, target = :date_sent )
+    s,e = loans_start_end_year(loans, target)
+    return {} if s.nil? && e.nil?
+
+    data = zeroed_loan_year_hash(s,e)
+
+    loans.select(target).each do |l|
+      if y = l.send(target)&.year
+        data[y] += 1
+      end
+    end
+
+    data
+  end
+
+  def loans_start_end_year(loans, target = :date_sent)
+    s = loans.unscope(:select).select("min(#{target}) d").unscope(:order).all[0][:d]&.year
+    e = loans.unscope(:select).select("max(#{target}) d").unscope(:order).all[0][:d]&.year
+
+    return [] if s.nil? && e.nil?
+
+    if s && e
+    elsif s
+      e = s
+    else
+      s = e
+    end
+    [s,e]
+  end
+
+  def loan_items_totals_per_year(loans)
+    s,e = loans_start_end_year(loans, :date_sent)
+    y = zeroed_loan_year_hash(s,e)
+    data = [
+      {name: 'Otus',
+       data: y
+      },
+      {name: 'CollectionObjects',
+       data: y.dup
+      }
+    ]
+
+    q = selected_loan_items(loans)
+
+    q.where(loan_item_object_type: 'Otu').joins(:loan).pluck(:date_sent, :total).each do |d, t|
+      data.first[:data][d&.year] += t if t
+    end
+
+    q.where(loan_item_object_type: 'CollectionObject')
+      .joins(:loan)
+      .joins('JOIN collection_objects on collection_objects.id = loan_items.loan_item_object_id')
+      .pluck(:date_sent, 'collection_objects.total' ).each do |d, t|
+        data.last[:data][d&.year] += t if t
+      end
+
+    data
+  end
+
+  def loan_fulfillment_latency(loans)
+    s,e = loans_start_end_year(loans, :date_requested)
+    d = arrayed_loan_year_hash(s,e)
+
+    loans.where.not(date_requested: nil).where.not(date_sent: nil).all.pluck(:date_requested, :date_sent).each do |req, sent|
+      y = req.year
+      d[y].push(sent.jd - req.jd)
+    end
+
+    data = {}
+
+    d.each do |y, times|
+      if times.any?
+        data[y] = (times.sum.to_f / times.length.to_f).to_i
+      else
+        data[y] = nil
+      end
+    end
+
+    data
+  end
+
+  def arrayed_loan_year_hash(start_year, end_year)
+    years = {}
+    (start_year..end_year).to_a.each do |y|
+      years[y] = []
+    end
+    years[nil] = []
+    years
+  end
+
+  def zeroed_loan_year_hash(start_year, end_year)
+    years = {}
+    (start_year..end_year).to_a.each do |y|
+      years[y] = 0
+    end
+    years[nil] = 0
+    years
+  end
+
+  def loans_loan_item_disposition(loans)
+    data =  Hash.new(0)
+
+    q = selected_loan_items(loans)
+
+    dispositions = LoanItem.where(project_id: sessions_current_project_id).select('disposition').distinct.pluck(:disposition)
+
+    dispositions.each do |d|
+      data[d] = q.where(disposition: d).count
+    end
+
+    data['unknown'] = data[nil]
+    data.delete(nil)
+
+    data
+  end
+
+  def selected_loan_items(loans)
+    s = 'WITH selected_loans AS (' + loans.all.to_sql + ') ' +
+      ::LoanItem
+      .joins('JOIN selected_loans as selected_loans1 on selected_loans1.id = loan_items.loan_id')
+      .to_sql
+
+    ::LoanItem.from('(' + s + ') as loan_items')
+  end
+
+  def loans_individuals(loans)
+    data = {
+      otus: 0,
+      collection_objects: 0
+    }
+
+    q = selected_loan_items(loans)
+
+    data[:otus] = q.where(loan_item_object_type: 'Otu').joins(:loan).sum(:total)
+
+    data[:collection_objects] = q.where(loan_item_object_type: 'CollectionObject')
+      .joins(:loan)
+      .joins('JOIN collection_objects on collection_objects.id = loan_items.loan_item_object_id')
+      .sum('collection_objects.total')
+    data
+  end
+
+  def loans_summary(loans)
+    start_year, end_year = loans_start_end_year(loans, target = :date_sent)
+
+    tag.table do
+      [ tag.tr( tag.td('Total')+ tag.td(loans.all.count) ),
+
+        tag.tr( tag.td('Year start (date sent)')+ tag.td(start_year) ),
+        tag.tr( tag.td('Year end (date sent)')+ tag.td(end_year) ),
+        tag.tr( tag.td('Year span')+ tag.td(end_year - start_year) ),
+
+        tag.tr( tag.td('Overdue') + tag.td( loans.overdue.count ) ),
+        tag.tr( tag.td('Not overdue') + tag.td( loans.not_overdue.count) ),
+      ].join.html_safe
+    end
+  end
+
+  def overdue_individuals(loans)
+    data = {
+      otus: 0,
+      collection_objects: 0
+    }
+
+    q = selected_loan_items(loans).where.not(date_returned: nil)
+
+    data[:otus] = q.where(loan_item_object_type: 'Otu').joins(:loan).sum(:total)
+
+    data[:collection_objects] = q.where(loan_item_object_type: 'CollectionObject')
+      .joins(:loan)
+      .joins('JOIN collection_objects on collection_objects.id = loan_items.loan_item_object_id')
+      .sum('collection_objects.total')
+    data
+  end
+
+  def loans_loan_item_summary(loans)
+    a = loans_individuals(loans)
+    b = overdue_individuals(loans)
+
+    tag.table do
+      [ tag.tr( tag.td('Total')+ tag.td(loans.collect{|a| a.loan_items.count}.sum) ),
+        tag.tr( tag.td('CollectionObject items') + tag.td(loans.collect{|a| a.loan_items.where(loan_item_object_type: 'CollectionObject').count}.sum ) ),
+        tag.tr( tag.td('OTU items') + tag.td(loans.collect{|a| a.loan_items.where(loan_item_object_type: 'Otu').count}.sum ) ),
+        tag.tr( tag.td('Individuals') + tag.td( a[:otus] + a[:collection_objects] ) ),
+        tag.tr( tag.td('Unreturned individuals') + tag.td( b[:otus] + b[:collection_objects] ) ),
+
+      ].join.html_safe
+    end
+  end
+
 end

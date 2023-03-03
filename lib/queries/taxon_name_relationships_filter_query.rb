@@ -1,17 +1,28 @@
 module Queries
 
-  class TaxonNameRelationshipsFilterQuery < Queries::Query
+  class TaxonNameRelationshipsFilterQuery < ::Query::Filter
+
+    PARAMS = [
+      :taxon_name_id, 
+      :keyword_args,
+      :person_id
+    ].freeze
 
     attr_accessor :taxon_name_id
 
     attr_accessor :keyword_args
 
+    # @return [Array]
+    attr_accessor :taxon_name_relationship_id
+
     # @param [Hash] args
-    def initialize(taxon_name_id: nil, project_id: nil, **keyword_args)
-      return if taxon_name_id.nil?
-      @taxon_name_id = taxon_name_id
-      @project_id = project_id
-      @keyword_args = keyword_args
+    def initialize(query_params)
+      super
+      return if params[:taxon_name_id].blank?
+      @taxon_name_relationship_id = params[:taxon_name_relationship_id]
+      @taxon_name_id = params[:taxon_name_id]
+      @project_id = params[:project_id]
+      @keyword_args = params[:keyword_args]
     end
 
     # @return [Array]
@@ -54,9 +65,9 @@ module Queries
     def relationship_types
       t = []
       of_types.each do |i|
-        t = t + STATUS_TAXON_NAME_RELATIONSHIP_NAMES if i == 'status'
-        t = t + TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM if i == 'synonym'
-        t = t + TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION if i == 'classification'
+        t = t + ::STATUS_TAXON_NAME_RELATIONSHIP_NAMES if i == 'status'
+        t = t + ::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM if i == 'synonym'
+        t = t + ::TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION if i == 'classification'
         # t = t + TAXON_NAME_RELATIONSHIPS_JSON[:typification][:all].keys if i == 'type'
       end
       t
@@ -76,11 +87,6 @@ module Queries
       clause = or_clauses
       clause = clause.and(and_clauses) if and_clauses
       clause.to_sql
-    end
-
-    # @return [Arel::Table]
-    def table
-      ::TaxonNameRelationship.arel_table
     end
 
     # @return [ActiveRecord::Relation, nil]

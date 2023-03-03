@@ -372,10 +372,10 @@ GEM
       method_source (~> 1.0)
     psych (3.3.4)
     public_suffix (5.0.1)
-    puma (5.6.5)
+    puma (6.1.1)
       nio4r (~> 2.0)
     racc (1.6.2)
-    rack (2.2.6.2)
+    rack (2.2.6.3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
     rack-proxy (0.7.6)
@@ -483,7 +483,7 @@ GEM
       rspec-support (~> 3.10)
     rspec-support (3.12.0)
     rtesseract (3.1.2)
-    rubocop (1.46.0)
+    rubocop (1.47.0)
       json (~> 2.3)
       parallel (~> 1.10)
       parser (>= 3.2.0.0)
@@ -493,7 +493,7 @@ GEM
       rubocop-ast (>= 1.26.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.26.0)
+    rubocop-ast (1.27.0)
       parser (>= 3.2.1.0)
     rubocop-capybara (2.17.1)
       rubocop (~> 1.41)
@@ -514,7 +514,7 @@ GEM
       rexml
     ruby-ole (1.2.12.2)
     ruby-prof (1.6.1)
-    ruby-progressbar (1.11.0)
+    ruby-progressbar (1.12.0)
     ruby-rc4 (0.1.5)
     ruby-units (2.3.2)
     ruby2_keywords (0.0.5)
@@ -578,7 +578,7 @@ GEM
     terrapin (0.6.0)
       climate_control (>= 0.0.3, < 1.0)
     thor (1.2.1)
-    tilt (2.0.11)
+    tilt (2.1.0)
     timecop (0.9.6)
     timeliness (0.4.5)
     timeout (0.3.2)
@@ -605,8 +605,8 @@ GEM
     vcr (6.1.0)
     voight_kampff (1.1.4)
       rack (>= 1.4, < 3.0)
-    waxy (0.1.0)
-      tilt (~> 2.0.9)
+    waxy (0.1.1)
+      tilt (~> 2.1)
     web-console (4.2.0)
       actionview (>= 6.0.0)
       activemodel (>= 6.0.0)
@@ -638,7 +638,7 @@ GEM
     zip_tricks (5.6.0)
 
 PLATFORMS
-  x86_64-darwin-20
+  x86_64-darwin-22
   x86_64-linux
 
 DEPENDENCIES
@@ -706,7 +706,7 @@ DEPENDENCIES
   postgresql_cursor (~> 0.6.1)
   prawn (~> 2.4.0)
   psych (~> 3.3)
-  puma (~> 5.5)
+  puma (~> 6.0)
   rack-cors (~> 1.1)
   rails (~> 6.1)
   rails-controller-testing (~> 1.0.2)
@@ -744,7 +744,7 @@ DEPENDENCIES
   seedbank (~> 0.5.0)
   selenium-webdriver (~> 4.6, >= 4.6.1)
   serrano!
-  shakapacker (~> 6.3)
+  shakapacker (= 6.5.6)
   shortener (~> 0.8.0)
   simplecov
   spring-commands-rspec (~> 1.0.4)
@@ -761,7 +761,7 @@ DEPENDENCIES
   uglifier (~> 4.2)
   validates_timeliness (~> 4.1, >= 4.1.1)
   vcr (~> 6.0)
-  waxy (~> 0.1)
+  waxy (~> 0.1.1)
   web-console (~> 4.0, >= 4.0.1)
   webdrivers (~> 5.0)
   webmock (~> 3.8)

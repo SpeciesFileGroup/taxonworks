@@ -123,11 +123,11 @@ module Settings
 
   # @param [String] path
   def self.setup_directory(path)
-    if !Dir.exists?(path)
+    if !Dir.exist?(path)
       # TODO: use/open a logger
       Rainbow("Directory #{path} does not exist, creating").purple
       FileUtils.mkdir_p(path)
-      raise Error, "Directory #{path} could not be made, check permissions" unless Dir.exists?(path)
+      raise Error, "Directory #{path} could not be made, check permissions" unless Dir.exist?(path)
     end
   end
 
@@ -199,8 +199,8 @@ module Settings
     invalid = settings.keys - [:browser, :marionette, :firefox_binary_path, :chromedriver_path, :headless]
 
     raise Error, "#{invalid} are not valid settings for test:selenium." unless invalid.empty?
-    raise Error, "Can not find Firefox browser binary #{settings[:firefox_binary_path]}." if settings[:browser] == :firefox && !settings[:firefox_binary_path].blank? && !File.exists?(settings[:firefox_binary_path])
-    raise Error, "Can not find chromedriver #{ settings[:chromedriver_path] }." if settings[:browser] == :chrome && !settings[:chromedriver_path].blank? && !File.exists?(settings[:chromedriver_path])
+    raise Error, "Can not find Firefox browser binary #{settings[:firefox_binary_path]}." if settings[:browser] == :firefox && !settings[:firefox_binary_path].blank? && !File.exist?(settings[:firefox_binary_path])
+    raise Error, "Can not find chromedriver #{ settings[:chromedriver_path] }." if settings[:browser] == :chrome && !settings[:chromedriver_path].blank? && !File.exist?(settings[:chromedriver_path])
 
     settings.each do |k,v|
       @@selenium_settings[k] = v if !v.blank?

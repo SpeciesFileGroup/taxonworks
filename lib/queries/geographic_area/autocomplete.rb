@@ -1,20 +1,14 @@
 module Queries
   module GeographicArea
-    class Autocomplete <  Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       include Queries::Concerns::AlternateValues
       include Queries::Concerns::Tags
 
       def initialize(string, **params)
-        set_identifier(params)
         set_tags_params(params)
         set_alternate_value(params)
         super
-      end
-
-      # @return [Scope]
-      def base_query
-        ::GeographicArea #.select('people.*')
       end
 
       # TODO: use or_clauses
@@ -22,7 +16,6 @@ module Queries
       def where_sql
         named.to_sql
       end
-
 
       def autocomplete_alternate_values_name
         matching_alternate_value_on(:name)
@@ -45,17 +38,12 @@ module Queries
         queries.compact!
 
         result = []
-        queries.each_with_index do |q, i|
-          result += q.to_a
+        queries.each do |q|
+          result += q.includes(:geographic_areas_geographic_items).to_a
           result.uniq!
           break if result.count > 19
         end
         result = result[0..19]
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::GeographicArea.arel_table
       end
 
     end

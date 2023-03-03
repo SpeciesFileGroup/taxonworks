@@ -1,48 +1,47 @@
 module Queries
   module Content
-    class Filter < Queries::Query
+    class Filter < Query::Filter
 
-      include Queries::Concerns::Users
+      include Queries::Concerns::Citations
+      include Queries::Concerns::Depictions
 
-      # @return [Array]
-      # @param topic_id [Array, Integer, String, nil]
-      attr_accessor :topic_id
+      PARAMS = [
+        :exact,
+        :text,
+        :topic_id,
+        :otu_id,
+        :content_id,
+        topic_id: [],
+        otu_id: [],
+        content_id: [],
+      ].freeze
+
+      # @return [Boolean, nil]
+      attr_accessor :exact
 
       # @return [Array]
       # @param otu_id [Array, Integer, String, nil]
       attr_accessor :otu_id
 
       # @return [Array]
-      # @param project_id [Array, Integer, String, nil]
-      attr_accessor :project_id
+      # @param topic_id [Array, Integer, String, nil]
+      attr_accessor :topic_id
 
-      # @return [Boolean, nil]
-      attr_accessor :exact
-
-      attr_accessor :text # was query_string
-
-      # @return [Boolean, nil]
-      #   true - only content with depictions
-      attr_accessor :depictions
-
-      # @return [Boolean, nil]
-      #   true - only content with citations
-      attr_accessor :citations
+      # @return [String, nil]
+      #   text to match against
+      attr_accessor :text
 
       # @param [Hash] args
-      def initialize(params)
-
-        @topic_id = params[:topic_id]
+      def initialize(query_params)
+        super
+        @exact = boolean_param(params, :exact)
         @otu_id = params[:otu_id]
-        @project_id = params[:project_id]
         @text = params[:text]
+        @topic_id = params[:topic_id]
+        @content_id = params[:content_id]
 
-        # TODO: use helper method
-        @exact = (params[:exact]&.to_s&.downcase == 'true' ? true : false) if !params[:exact].nil?
-        @depictions = (params[:depictions]&.to_s&.downcase == 'true' ? true : false) if !params[:depictions].nil?
-        @citations = (params[:citations]&.to_s&.downcase == 'true' ? true : false) if !params[:citations].nil?
-
-        set_user_dates(params)
+        set_citations_params(params)
+        set_depiction_params(params)
       end
 
       def topic_id
@@ -53,29 +52,8 @@ module Queries
         [@otu_id].flatten.compact
       end
 
-      def project_id
-        [@project_id].flatten.compact
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Content.arel_table
-      end
-
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = [
-          text_facet,
-          topic_id_facet,
-          otu_id_facet,
-          project_id_facet,
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+      def content_id
+        [@content_id].flatten.compact
       end
 
       # @return [Arel::Node, nil]
@@ -95,31 +73,9 @@ module Queries
       end
 
       # @return [Arel::Node, nil]
-      def project_id_facet
-        return nil if project_id.empty?
-        table[:project_id].eq_any(project_id)
-      end
-
-      # TODO: DRY depictions/citations
-
-      # @return [Arel::Node, nil]
-      def depictions_facet
-        return nil if depictions.nil?
-        if depictions
-          ::Content.joins(:depictions)
-        else
-          ::Content.left_joins(:depictions).where(depictions: {id: nil})
-        end
-      end
-
-      # @return [Arel::Node, nil]
-      def citations_facet
-        return nil if citations.nil?
-        if citations
-          ::Content.joins(:citations)
-        else
-          ::Content.left_joins(:citations).where(citations: {id: nil})
-        end
+      def content_id_facet
+        return nil if content_id.empty?
+        table[:id].eq_any(content_id)
       end
 
       # @return [Arel::Node, nil]
@@ -128,41 +84,44 @@ module Queries
         table[:topic_id].eq_any(topic_id)
       end
 
+      def otu_query_facet
+        return nil if otu_query.nil?
+
+        s = 'WITH query_otu_con AS (' + otu_query.all.to_sql + ') ' +
+          ::Content
+          .joins('JOIN query_otu_con as query_otu_con1 on contents.otu_id = query_otu_con1.id')
+          .to_sql
+
+        ::Content.from('(' + s + ') as contents')
+      end
+
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
+
+        s = 'WITH query_tn_con AS (' + taxon_name_query.all.to_sql + ') ' +
+          ::Content
+          .joins(otu: [:taxon_name])
+          .joins('JOIN query_tn_con as query_tn_con1 on taxon_names.id = query_tn_con1.id')
+          .to_sql
+
+        ::Content.from('(' + s + ') as contents')
+      end
+
+      def and_clauses
+        [
+          content_id_facet,
+          otu_id_facet,
+          text_facet,
+          topic_id_facet,
+        ]
+      end
+
       def merge_clauses
-        clauses = [
-          depictions_facet,
-          citations_facet,
-          created_updated_facet, # See Queries::Concerns::Users
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
+        [
+          otu_query_facet,
+          taxon_name_query_facet,
+        ]
       end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-
-        q = nil
-        if a && b
-          q = b.where(a)
-        elsif a
-          q = ::Content.includes(:otu, :topic).where(a)
-        elsif b
-          q = b
-        else
-          q = ::Content.includes(:otu, :topic).all
-        end
-
-        q
-      end
-
     end
 
   end

@@ -10,6 +10,4 @@ class SqedDepictionsController < ApplicationController
   def metadata_options 
   end
 
-  private
-
 end

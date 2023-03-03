@@ -4,6 +4,6 @@ describe Queries::DwcOccurrence::Filter, type: :model, group: [:dwc_occurrence] 
   let(:query) { Queries::DwcOccurrence::Filter.new({}) }
 
   specify '#initialize' do
-    expect(q = Queries::DwcOccurrence::Filter.new).to be_truthy
+    expect(q = Queries::DwcOccurrence::Filter.new({})).to be_truthy
   end
 end

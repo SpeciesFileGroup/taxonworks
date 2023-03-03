@@ -126,6 +126,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   @return [Boolean]
 #   Stores if the status of the name is valid based on both taxon_name_relationships and taxon_name_classifications.
 #
+# rubocop:disable Metrics/ClassLength
 class TaxonName < ApplicationRecord
 
   # @return class
@@ -881,7 +882,7 @@ class TaxonName < ApplicationRecord
   # @return [TaxonNameRelationship]
   #  returns youngest taxon name relationship where self is the subject.
   def first_possible_valid_taxon_name_relationship
-    taxon_name_relationships.reload.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
+    taxon_name_relationships.reload.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
   end
 
   def first_possible_invalid_taxan_name_relationship
@@ -908,7 +909,7 @@ class TaxonName < ApplicationRecord
       first_pass = false
       list_of_taxa_to_check = list.empty? ? [self] : list.keys.select{|t| list[t] == false}
       list_of_taxa_to_check.each do |t|
-        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).order_by_oldest_source_first
+        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).order_by_oldest_source_first
         potentialy_invalid_relationships.each do |r|
           if !TaxonNameClassification.where_taxon_name(r.subject_taxon_name).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
             # do nothing, taxon has a status of valid name
@@ -1051,6 +1052,7 @@ class TaxonName < ApplicationRecord
     nil
   end
 
+
   # Returns an Array of ancestors
   #   same as self.ancestors, but also works
   #   for new records when parents specified
@@ -1070,7 +1072,13 @@ class TaxonName < ApplicationRecord
     if new_record?
       ancestors_through_parents
     else
-      self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
+      # self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
+
+      self_and_ancestors
+      .unscope(:order)
+      .order(generations: :DESC)
+      .reload # TODO Why needed? Should not be
+      .to_a
     end
   end
 
@@ -1119,7 +1127,10 @@ class TaxonName < ApplicationRecord
   def full_name_hash
     gender = nil
     data = {}
-    safe_self_and_ancestors.each do |i| # !! You can not use self.self_and_ancestors because (this) record is not saved off.
+
+    # !! TODO: create a persisted only version of this for speed
+    # !! You can not use self.self_and_ancestors because (this) record is not saved off.
+    safe_self_and_ancestors.each do |i| 
       rank = i.rank
       gender = i.gender_name if rank == 'genus'
 
@@ -1685,7 +1696,7 @@ class TaxonName < ApplicationRecord
   end
 
   def sv_two_unresolved_alternative_synonyms
-    r = taxon_name_relationships.includes(:source).order_by_oldest_source_first.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
+    r = taxon_name_relationships.includes(:source).order_by_oldest_source_first.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
     if r.to_a.size > 1
       if r.first.nomenclature_date.to_date == r.second.nomenclature_date.to_date
         soft_validations.add(:base, 'Taxon has two alternative invalidating relationships with identical dates. To resolve ambiguity, add original sources to the relationships with different priority dates.')

@@ -56,6 +56,10 @@ class SqedDepiction < ApplicationRecord
 
   after_save :recalculate, if: -> { rebuild }
 
+  def self.is_containable?
+    false
+  end
+
   def rebuild=(value)
     @rebuild = value
   end
@@ -76,6 +80,10 @@ class SqedDepiction < ApplicationRecord
 
   def depiction_object
     depiction.depiction_object
+  end
+
+  def self.annotates?
+    false 
   end
 
   def self.with_collection_object_data
@@ -164,7 +172,7 @@ class SqedDepiction < ApplicationRecord
   end
 
   def preprocess(force = true)
-    return true if !File.exists?(depiction.image.image_file.path(:original))
+    return true if !File.exist?(depiction.image.image_file.path(:original))
     # don't rebuild if not forced and one or both cache is empty
     if !force
       if !result_ocr.blank? || !result_boundary_coordinates.blank?

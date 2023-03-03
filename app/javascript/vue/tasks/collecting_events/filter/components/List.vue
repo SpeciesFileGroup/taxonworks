@@ -15,12 +15,13 @@
           </th>
         </tr>
         <tr>
-          <th>
+          <th class="w-2">
             <input
               v-model="selectAll"
               type="checkbox"
             >
           </th>
+          <th class="w-2" />
           <th
             v-for="(label, property) in properties"
             :key="property"
@@ -28,7 +29,6 @@
           >
             {{ label }}
           </th>
-          <th>Options</th>
         </tr>
       </thead>
       <tbody @mouseout="$emit('onRowHover', undefined)">
@@ -45,20 +45,20 @@
               type="checkbox"
             >
           </td>
+          <td>
+            <div class="horizontal-left-content">
+              <RadialAnnotator
+                type="annotations"
+                :global-id="item.global_id"
+              />
+              <RadialNavigation :global-id="item.global_id" />
+            </div>
+          </td>
           <td
             v-for="(_, property) in properties"
             :key="property"
             v-html="item[property]"
           />
-          <td>
-            <div class="horizontal-left-content">
-              <radial-object :global-id="item.global_id" />
-              <radial-annotator
-                type="annotations"
-                :global-id="item.global_id"
-              />
-            </div>
-          </td>
         </tr>
       </tbody>
     </table>
@@ -75,8 +75,8 @@
 import { ref, computed } from 'vue'
 import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn.js'
+import RadialNavigation from 'components/radials/navigation/radial.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialObject from 'components/radials/navigation/radial'
 
 const props = defineProps({
   list: {
@@ -138,7 +138,7 @@ const sortTable = (sortProperty) => {
 </script>
 <style scoped>
   td {
-    max-width: 50px;
+    max-width: 70px;
     overflow : hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

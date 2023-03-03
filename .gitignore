@@ -68,3 +68,5 @@ yarn.lock
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
+
+taxonworks.code-workspace

@@ -46,15 +46,15 @@ describe Queries::Content::Filter, type: :model do
     expect(query.all.map(&:id)).to contain_exactly(c1.id)
   end
 
-  specify 'depictions 1' do
+  specify 'images 1' do
     c1.depictions << Depiction.new(image: FactoryBot.create(:valid_image))
-    query.depictions = true
+    query.images = true
     expect(query.all.map(&:id)).to contain_exactly(c1.id)
   end
 
-  specify 'depictions 2' do
+  specify 'images 2' do
     c1.depictions << Depiction.new(image: FactoryBot.create(:valid_image))
-    query.depictions = false 
+    query.images = false 
     expect(query.all.map(&:id)).to contain_exactly(c2.id, c3.id)
   end
 
