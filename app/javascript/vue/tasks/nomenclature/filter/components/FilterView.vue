@@ -14,7 +14,6 @@
     param="name"
     title="Name"
   />
-  <FacetPrecision v-model="params" />
   <FacetNomenclatureGroup v-model="params" />
   <FacetNomenclatureCode v-model="params" />
   <FacetValidity v-model="params" />
@@ -45,7 +44,6 @@
 </template>
 
 <script setup>
-import FacetPrecision from './filters/FacetPrecision.vue'
 import FacetUpdatedSince from './filters/FacetUpdatedSince'
 import FacetValidity from './filters/FacetValidity.vue'
 import FacetRelationships from './filters/FacetRelationships.vue'
