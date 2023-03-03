@@ -10,7 +10,7 @@
       :selected-ids="selectedIds"
       :list="list"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >

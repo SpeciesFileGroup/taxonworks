@@ -8,7 +8,7 @@
       :pagination="pagination"
       v-model="parameters"
       v-model:per="per"
-      @filter="makeFilterRequest({ ...parameters, extend })"
+      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
