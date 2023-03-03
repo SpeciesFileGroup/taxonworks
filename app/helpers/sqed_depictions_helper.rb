@@ -152,8 +152,11 @@ module SqedDepictionsHelper
       meta.unshift a
     end
 
-    c = Waxy::Render::Svg::Canvas.new(600, 400)
-    c.body << Waxy::Render::Svg.rectangle(layout, meta, 9)
+    t = sqed_depictions.count.to_f
+    h = t / 10.0 * 46.0
+
+    c = Waxy::Render::Svg::Canvas.new(520, h.to_i)
+    c.body << Waxy::Render::Svg.rectangle(layout, meta, 9, (t / 10.0).to_i + 5 ) # + 5 -> ensure rounding limit is OK
     c.to_svg.html_safe
   end
 

@@ -7,10 +7,13 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
   # /tasks/accessions/breakdown/sqed_depiction/todo_map
   def todo_map
     SqedDepiction.clear_stale_progress
-    @base_query = ::Queries::SqedDepiction::Filter.new(params).all
+
+    @sqed_depictions = ::Queries::SqedDepiction::Filter.new(params).all
       .where(project_id: sessions_current_project_id)
       .order(:id)
-    @sqed_depictions = @base_query.page(params[:page]).per(params[:per] || 50)
+      .page(params[:page])
+      .per(params[:per])
+
     respond_to do |format|
       format.html {}
       format.json {}
