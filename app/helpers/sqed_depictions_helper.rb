@@ -153,25 +153,15 @@ module SqedDepictionsHelper
     end
 
     t = sqed_depictions.count.to_f
-    h = t / 10.0 * 46.0
+    rows = t.divmod(10).first + 1
+    h = ((t.divmod(10).first + 1) * 40.0) 
 
     c = Waxy::Render::Svg::Canvas.new(520, h.to_i)
-    c.body << Waxy::Render::Svg.rectangle(layout, meta, 9, (t / 10.0).to_i + 5 ) # + 5 -> ensure rounding limit is OK
+    c.body << Waxy::Render::Svg.rectangle(layout, meta, 9, rows )
     c.to_svg.html_safe
   end
 
-  # @return Array lenght 6
-  def sqed_waxy_metadata(sqed_depiction)
-    o = sqed_depiction.depiction_object
-    [
-      (o.identifiers.local.any? ? 1 : 0),
-      (o.buffered_collecting_event.blank? ? 0 : 1),
-      (o.buffered_determinations.blank? ? 0 : 1),
-      (o.buffered_other_labels.blank? ? 0 : 1),
-      (o.collecting_event_id ? 1 : 0),
-      (o.taxon_determinations.any? ? 1 : 0)
-    ]
-  end
+
 
   def sqed_waxy_legend_section_tag(position, label)
     layout = Waxy::Geometry::Layout.new(
@@ -194,17 +184,30 @@ module SqedDepictionsHelper
     end
   end
 
+  # @return Array
+  def sqed_waxy_metadata(sqed_depiction)
+    o = sqed_depiction.depiction_object
+    [
+      (o.identifiers.local.any? ? 1 : 0),
+      (o.buffered_collecting_event.blank? ? 0 : 1),
+      (o.buffered_determinations.blank? ? 0 : 1),
+      (o.buffered_other_labels.blank? ? 0 : 1),
+      (o.collecting_event_id ? 1 : 0),
+      (o.taxon_determinations.any? ? 1 : 0)
+    ]
+  end
+
   def sqed_waxy_legend_tag
     l = ''
-    {
-      0 => 'Local identifier(s)',
-      1 => 'Buffered collecting event',
-      2 => 'Buffered determination',
-      3 => 'Buffered other labels',
-      4 => 'Collecting event',
-      5 => 'Taxon determination(s)'
-    }.each do |i,label|
-      l << sqed_waxy_legend_section_tag(i, label)
+    [
+      [ 0, 'Local identifier(s)' ],
+      [ 1, 'Buffered collecting event' ],
+      [ 2, 'Buffered determination' ],
+      [ 3, 'Buffered other labels' ],
+      [ 4, 'Collecting event' ],
+      [ 5, 'Taxon determination(s)']
+    ].each do |a|
+      l << sqed_waxy_legend_section_tag(a[0], a[1])
     end
     tag.div do
       tag.h3('Legend') +
