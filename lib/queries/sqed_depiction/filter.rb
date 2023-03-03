@@ -35,6 +35,13 @@ module Queries
         [@sqed_depiction_id].flatten.compact
       end
 
+      # TODO: will need to consider moving Identifies out of base class
+      # because of edge cases like this (less inheritence, more composition)
+      # applies to CO, not here 
+      def local_identifiers_facet
+        nil
+      end
+
       # TODO: use WITH
       def base_collection_object_query_facet
         q = ::Queries::CollectionObject::Filter.new(base_collection_object_filter_params).all

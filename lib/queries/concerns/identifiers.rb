@@ -208,6 +208,7 @@ module Queries::Concerns::Identifiers
   def local_identifiers_facet
     return nil if local_identifiers.nil?
     a = nil
+
     if local_identifiers
       a = referenced_klass.joins(:identifiers).where("identifiers.type ILIKE 'Identifier::Local%'").distinct
     else
@@ -217,13 +218,19 @@ module Queries::Concerns::Identifiers
       a = referenced_klass.where.not(::Identifier::Local.where(i).arel.exists)
     end
 
+    # TODO: this logic can almost certainly be simplified.  Test coverage is decent for attempts to do so.
     if referenced_klass.is_containable?
-      c = referenced_klass_union([a, local_identifiers_container_match ])
+      c = referenced_klass_union([a, local_identifiers_container_match ].compact)
+
       @local_identifiers = !local_identifiers
       except = local_identifiers_container_match
       @local_identifiers = !local_identifiers
 
-      return referenced_klass.from('(' + c.to_sql + " EXCEPT #{except.to_sql}) as #{table.name}")
+      if except
+        return referenced_klass.from('(' + c.to_sql + " EXCEPT #{except.to_sql}) as #{table.name}")
+      else
+        return referenced_klass.from('(' + c.to_sql + ") as #{table.name}")
+      end
     end
 
     a

@@ -27,8 +27,7 @@ module Queries::Concerns::Containable
 
   def identified_containers
     # TODO: Ultimately replace with Containers filter
-    ::Container.joins(:identifiers)
-      .where(project_id: project_id)
+    ::Container.joins(:identifiers).where(project_id: project_id)
   end
 
   # referenced_klass referenceable in any ContainerItem
@@ -94,11 +93,8 @@ module Queries::Concerns::Containable
     if local_identifiers
       q
     else
-      s = "WITH co_with_local as (#{q.to_sql}) " +
-      referenced_klass_with_container_items.joins("LEFT JOIN co_with_local AS co_with_local1 on co_with_local1.id = #{table.name}.id")
-          .where('co_with_local1.id IS NULL').to_sql
-
-      referenced_klass.from( "(#{s}) as #{table.name}")
+      # If we don't need to exclude objects from containers that don't have (local) identifiers.
+      nil
     end
   end
 

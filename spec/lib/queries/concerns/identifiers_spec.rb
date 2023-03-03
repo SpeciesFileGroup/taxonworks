@@ -5,12 +5,31 @@ describe Queries::Concerns::Identifiers, type: :model, group: [:identifiers, :fi
   let(:query) { Queries::CollectionObject::Filter.new({}) }
   let!(:n1) { Namespace.create!(name: 'First', short_name: 'second')}
   let!(:n2) { Namespace.create!(name: 'Third', short_name: 'fourth')}
-  
+
   let!(:co1) { Specimen.create! }
   let!(:co2) { Lot.create!(total: 2) }
 
   let!(:i1) { Identifier::Local::CatalogNumber.create!(namespace: n1, identifier: '123', identifier_object: co1) }
   let!(:i2) { Identifier::Local::CatalogNumber.create!(namespace: n2, identifier: '453', identifier_object: co2) }
+
+
+  specify '#local_identifiers_container_match' do
+    c = FactoryBot.create(:valid_container)
+    e = FactoryBot.create(:valid_specimen, contained_in: c)
+    e.identifiers << FactoryBot.create(:valid_identifier_local)
+
+    query.local_identifiers = false
+    expect(query.local_identifiers_container_match).to eq(nil)
+  end
+
+  specify '#local_identifiers false 2' do
+    c = FactoryBot.create(:valid_container)
+    e = FactoryBot.create(:valid_specimen, contained_in: c)
+    e.identifiers << FactoryBot.create(:valid_identifier_local)
+
+    query.local_identifiers = false
+    expect(query.all).to contain_exactly()
+  end
 
   specify '#local_identifiers false' do
     c = FactoryBot.create(:valid_container)
@@ -28,20 +47,20 @@ describe Queries::Concerns::Identifiers, type: :model, group: [:identifiers, :fi
 
   specify '#local_identifiers true' do
     c = FactoryBot.create(:valid_container)
-    e = FactoryBot.create(:valid_specimen, contained_in: c) 
+    e = FactoryBot.create(:valid_specimen, contained_in: c)
     n = FactoryBot.create(:valid_specimen)
 
     c.identifiers << FactoryBot.create(:valid_identifier_local) # on container
     n.identifiers << FactoryBot.create(:valid_identifier_local) # on specimen
 
-    query.local_identifiers = true 
+    query.local_identifiers = true
     expect(query.all).to contain_exactly(e, n, co1, co2)
   end
 
   specify '#match_identifiers_delimiter' do
     expect(query.match_identifiers_delimiter).to eq(',')
   end
-  
+
   specify '#match_identifiers' do
     query.match_identifiers = "a,b,   c, #{co1.id}, 99"
     query.match_identifiers_type = 'internal'

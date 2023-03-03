@@ -17,6 +17,7 @@ module Queries
         *::Queries::CollectingEvent::Filter::BASE_PARAMS,
         :biological_association_id,
         :biological_associations,
+        :biological_relationship_id,
         :buffered_collecting_event,
         :buffered_determinations,
         :buffered_other_labels,
