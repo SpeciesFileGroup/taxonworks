@@ -6,13 +6,10 @@
     coverage
     validity
   />
-  <FacetCurrentRepository v-model="params" />
-  <FacetRepository v-model="params" />
-  <FacetIdentifiers v-model="params" />
-  <FacetPreparationTypes v-model="params" />
   <FacetBiocurations v-model="params" />
+  <FacetIdentifiers v-model="params" />
+  <FacetMatchIdentifiers v-model="params" />
   <FacetCollectingEvent v-model="params" />
-  <FacetWKT v-model="params" />
   <FacetPeople
     role="Collector"
     title="Collectors"
@@ -22,19 +19,22 @@
     :role-type="COLLECTOR_SELECTOR"
     v-model="params"
   />
-  <FacetMatchIdentifiers v-model="params" />
-  <FacetTags
-    v-model="params"
-    target="CollectionObject"
-  />
+  <FacetDataAttribute v-model="params" /> 
+  <FacetCurrentRepository v-model="params" />
+  <FacetRepository v-model="params" /> 
+  <FacetPreparationTypes v-model="params" />
   <FacetTypeMaterial v-model="params" />
   <FacetInRelationship v-model="params" />
   <FacetLoan v-model="params" />
   <FacetUsers v-model="params" />
+  <FacetTags
+     v-model="params"
+     target="CollectionObject"
+   />
   <FacetNotes v-model="params" />
   <FacetBuffered v-model="params" />
   <FacetProtocol v-model="params" />
-  <FacetDataAttribute v-model="params" />
+  <FacetWKT v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
     :key="param"

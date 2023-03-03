@@ -23,16 +23,6 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
   # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
-  specify '#no_value_attribute' do
-    query.no_value_attribute = [:print_label]
-    expect(query.all).to contain_exactly(ce1)
-  end
-
-  specify '#any_value_attribute' do
-    query.any_value_attribute = [:print_label]
-    expect(query.all).to contain_exactly(ce2)
-  end
-
   specify '#recent' do
     query.recent = true 
     expect(query.all.map(&:id)).to contain_exactly(ce2.id, ce1.id)
@@ -140,30 +130,6 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     ce1.update!(geographic_area: FactoryBot.create(:valid_geographic_area))
     query.geographic_area_id = [ce1.geographic_area_id]
     expect(query.all.map(&:id)).to contain_exactly(ce1.id)
-  end
-
-  context 'wildcard_attribute' do
-    specify '#start_date_year (integer field test) 1' do
-      query.start_date_year = 20
-      query.wildcard_attribute = 'start_date_year'
-      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
-    end
-
-    specify '#start_date_year (integer field test) 2' do
-      query.start_date_year = 2010
-      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
-    end
-
-    specify '#verbatim_locality (string field test) 1' do
-      query.verbatim_locality = 'Out there'
-      query.wildcard_attribute = 'verbatim_locality'
-      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
-    end
-
-    specify '#verbatim_locality (string field test) 2' do
-      query.verbatim_locality = 'Out there, '
-      expect(query.all.map(&:id)).to contain_exactly()
-    end
   end
 
   context 'geo' do

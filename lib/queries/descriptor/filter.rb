@@ -147,7 +147,7 @@ module Queries
           .joins('JOIN query_ob_d as query_ob_d1 on query_ob_d1.descriptor_id = descriptors.id')
           .to_sql
 
-        ::Descriptor.from('(' + s + ') as descriptors')
+        ::Descriptor.from('(' + s + ') as descriptors').distinct
       end
 
       def otu_query_facet
@@ -158,7 +158,7 @@ module Queries
           .joins("JOIN query_otu_ob AS query_otu_ob1 ON observations.observation_object_id = query_otu_ob1.id AND observations.observation_object_type = 'Otu'")
           .to_sql
 
-        ::Descriptor.from('(' + s + ') as descriptors')
+        ::Descriptor.from('(' + s + ') as descriptors').distinct
       end
 
       def and_clauses

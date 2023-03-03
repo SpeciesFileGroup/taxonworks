@@ -14,6 +14,9 @@ module Queries::Concerns::Attributes
       :wildcard_attribute,
       :any_value_attribute,
       :no_value_attribute,
+      wildcard_attribute: [],
+      any_value_attribute: [],
+      no_value_attribute: [],
     ]
   end
 

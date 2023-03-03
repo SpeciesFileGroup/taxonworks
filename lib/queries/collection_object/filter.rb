@@ -3,6 +3,7 @@ module Queries
 
     class Filter < Query::Filter
 
+      # !! May not include Concerns::Attributes (used by CE)
       include Queries::Helpers
       include Queries::Concerns::Citations
       include Queries::Concerns::Containable
@@ -52,7 +53,6 @@ module Queries
         :type_material,
         :type_specimen_taxon_name_id,
         :validity,
-
         :with_buffered_collecting_event,
         :with_buffered_determinations,
         :with_buffered_other_labels,
@@ -808,7 +808,7 @@ module Queries
           .joins('JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = collection_objects.collecting_event_id')
           .to_sql
 
-        ::CollectionObject.from('(' + s + ') as collection_objects')
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def loan_query_facet
@@ -818,7 +818,7 @@ module Queries
           .joins('JOIN query_loan_co as query_loan_co1 on query_loan_co1.id = loan_items.loan_id')
           .to_sql
 
-        ::CollectionObject.from('(' + s + ') as collection_objects')
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def base_collecting_event_query_facet
@@ -834,7 +834,7 @@ module Queries
           .joins('JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = collection_objects.collecting_event_id')
           .to_sql
 
-        ::CollectionObject.from('(' + s + ') as collection_objects')
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def otu_query_facet
@@ -854,7 +854,7 @@ module Queries
         a = ::CollectionObject.joins(:biological_associations)
         b = ::CollectionObject.joins(:related_biological_associations)
 
-        ::CollectionObject.from("((#{a.to_sql}) UNION (#{b.to_sql})) as collection_objects")
+        referenced_klass_union([a,b])
       end
 
       # TODO: turn into UNION!
@@ -893,7 +893,7 @@ module Queries
           .joins("JOIN query_extract_co as query_extract_co1 on origin_relationships.new_object_id = query_extract_co1.id and origin_relationships.new_object_type = 'Extract'")
           .to_sql
 
-        ::CollectionObject.from('(' + s + ') as collection_objects')
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def observation_query_facet
@@ -905,7 +905,7 @@ module Queries
           .joins('JOIN query_obs_co as query_obs_co1 on observations.id = query_obs_co1.id')
           .to_sql
 
-        ::CollectionObject.from('(' + s + ') as collection_objects')
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def and_clauses

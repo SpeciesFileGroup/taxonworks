@@ -28,6 +28,7 @@ module Queries
       # convienience.
       #
       BASE_PARAMS = [
+        *Queries::Concerns::Attributes.params,
         *ATTRIBUTES,
         :collectors,
         :collecting_event_object_id,
@@ -52,7 +53,7 @@ module Queries
         collecting_event_id: [],
         collector_id: [],
         geographic_area_id: [],
-      ].freeze
+      ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
 
       PARAMS = [
         *BASE_PARAMS,
@@ -378,7 +379,7 @@ module Queries
           .where('(query_ba_ces1.id) IS NOT NULL OR (query_ba_ces2.id IS NOT NULL)')
           .to_sql
 
-        ::CollectingEvent.from('(' + s + ') as collecting_events')
+        ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
       end
 
       def otu_query_facet
@@ -388,7 +389,7 @@ module Queries
           .joins('JOIN query_otu_ces as query_otu_ces1 on query_otu_ces1.id = otus.id')
           .to_sql
 
-        ::CollectingEvent.from('(' + s + ') as collecting_events')
+        ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
       end
 
       def collection_object_query_facet
@@ -399,7 +400,7 @@ module Queries
           .joins('JOIN query_co_ce as query_co_ce1 on collection_objects.id = query_co_ce1.id')
           .to_sql
 
-        ::CollectingEvent.from('(' + s + ') as collecting_events')
+        ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
       end
 
       def taxon_name_query_facet
@@ -410,7 +411,7 @@ module Queries
           .joins('JOIN query_tn_ce as query_tn_ce1 on otus.taxon_name_id = query_tn_ce1.id')
           .to_sql
 
-        ::CollectingEvent.from('(' + s + ') as collecting_events')
+        ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
       end
 
       # @return [Array]

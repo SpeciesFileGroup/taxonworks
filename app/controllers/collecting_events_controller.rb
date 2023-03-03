@@ -15,7 +15,8 @@ class CollectingEventsController < ApplicationController
       format.json {
         @collecting_events = Queries::CollectingEvent::Filter.new(params).all
         .where(project_id: sessions_current_project_id)
-        .page(params[:page]).per(params[:per])
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
