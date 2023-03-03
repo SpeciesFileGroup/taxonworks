@@ -3,11 +3,9 @@
     <h1>Filter staged images</h1>
 
     <FilterLayout
-      :filter="preferences.activeFilter"
-      :table="preferences.showList"
       :pagination="pagination"
+      :url-request="urlRequest"
       v-model="parameters"
-      v-model:per="per"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
@@ -18,9 +16,8 @@
       <template #table>
         <div class="full_width">
           <ListComponent
-            v-if="Object.keys(sqedResult).length"
+            v-if="!Array.isArray(list.value)"
             :list="list"
-            @on-sort="list = $event"
           />
         </div>
       </template>
@@ -41,21 +38,13 @@ import ListComponent from './components/list'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import VSpinner from 'components/spinner.vue'
 import { CollectionObject } from 'routes/endpoints'
-import { computed, reactive } from 'vue'
+import { onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
-
-const preferences = reactive({
-  activeFilter: true,
-  activeJSONRequest: false,
-  showList: true
-})
 
 const {
   isLoading,
   list,
   pagination,
-  per,
-  append,
   urlRequest,
   loadPage,
   parameters,
@@ -63,10 +52,13 @@ const {
   resetFilter
 } = useFilter({ filter: CollectionObject.sqedFilter })
 
-const sqedResult = computed(() => (Array.isArray(list.value) ? {} : list.value))
-const urlParams = URLParamsToJSON(location.href)
+onBeforeMount(() => {
+  const urlParams = URLParamsToJSON(location.href)
 
-makeFilterRequest(urlParams)
+  if (!Object.keys(urlParams).length) {
+    makeFilterRequest()
+  }
+})
 </script>
 
 <script>
