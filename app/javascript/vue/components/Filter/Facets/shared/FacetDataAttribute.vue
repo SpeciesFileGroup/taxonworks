@@ -1,96 +1,42 @@
 <template>
   <FacetContainer>
     <h3>Data attributes</h3>
-    <label>Predicate</label>
-    <SmartSelector
-      autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-      :autocomplete-params="{ 'type[]': 'Predicate' }"
-      get-url="/controlled_vocabulary_terms/"
-      model="predicates"
-      buttons
-      inline
-      klass="DataAttribute"
-      @selected="(predicate) => addPredicate(predicate, VALUE_OPTION.with)"
-    />
-    <table
+    <AddPredicate @add="(p) => predicates.push(p)" />
+    <TablePredicate
       v-if="predicates.length"
-      class="margin-medium-bottom table-striped"
-    >
-      <thead>
-        <tr>
-          <th>Predicate</th>
-          <th>Value</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="predicate in predicates"
-          :key="predicate.id"
-        >
-          <td>{{ predicate.name }}</td>
-          <td>
-            <ul class="no_bullets">
-              <li
-                v-for="(option, key) in VALUE_OPTION"
-                :key="key"
-              >
-                <label>
-                  <input
-                    :value="option"
-                    v-model="predicate.param"
-                    type="radio"
-                  />
-                  {{ key }}
-                </label>
-              </li>
-            </ul>
-          </td>
-          <td>
-            <VBtn
-              color="primary"
-              circle
-              @click="() => removeFromArray(predicates, predicate)"
-            >
-              <VIcon
-                name="trash"
-                x-small
-              />
-            </VBtn>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <label>Value</label>
-    <div class="field">
-      <textarea
-        v-model="inputValue"
-        class="full_width"
-        rows="5"
-      />
-      <div class="flex-separate middle">
-        <div class="horizontal-left-content middle gap-small">
-          <VBtn
-            color="primary"
-            medium
-            @click="() => addValue()"
-          >
-            Add
-          </VBtn>
-        </div>
-        <label>
-          <input
-            v-model="params.data_attribute_exact"
-            type="checkbox"
-          />
-          Data attribute exact
-        </label>
-      </div>
-    </div>
-    <DisplayList
-      :list="params.data_attribute_value"
-      :delete-warning="false"
-      @delete-index="(index) => params.data_attribute_value.splice(index, 1)"
+      :predicates="predicates"
+      @update="
+        ({ index, predicate }) => {
+          predicates[index] = predicate
+        }
+      "
+      @remove="
+        (index) => {
+          predicates.splice(index, 1)
+        }
+      "
+    />
+    <hr class="divisor full_width" />
+    <AddValue
+      @add="
+        (value) => {
+          values.push(value)
+        }
+      "
+    />
+    <TableValue
+      v-if="values.length"
+      :values="values"
+      @update="
+        ({ index, value }) => {
+          values[index] = value
+        }
+      "
+      @remove="
+        (index) => {
+          values.splice(index, 1)
+        }
+      "
     />
   </FacetContainer>
 </template>
@@ -98,12 +44,11 @@
 <script setup>
 import { computed, ref, watch, onBeforeMount } from 'vue'
 import { ControlledVocabularyTerm } from 'routes/endpoints'
-import { addToArray, removeFromArray } from 'helpers/arrays.js'
+import TablePredicate from './FacetDataAttribute/TablePredicate.vue'
+import TableValue from './FacetDataAttribute/TableValue.vue'
+import AddPredicate from './FacetDataAttribute/AddPredicate.vue'
+import AddValue from './FacetDataAttribute/AddValue.vue'
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import DisplayList from 'components/displayList.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
 
 const props = defineProps({
   modelValue: {
@@ -112,14 +57,9 @@ const props = defineProps({
   }
 })
 
-const VALUE_OPTION = {
-  with: 'with',
-  without: 'without',
-  any: 'any'
-}
-
 const emit = defineEmits(['update:modelValue'])
 const predicates = ref([])
+const values = ref([])
 
 const params = computed({
   get: () => props.modelValue,
@@ -130,14 +70,30 @@ watch(
   predicates,
   (newVal) => {
     params.value.data_attribute_predicate_id = newVal
-      .filter((p) => p.param === VALUE_OPTION.with)
-      .map((item) => item.id)
-    params.value.any_value_data_attribute = newVal
-      .filter((p) => p.param === VALUE_OPTION.any)
-      .map((item) => item.id)
-    params.value.no_value_data_attribute = newVal
-      .filter((p) => p.param === VALUE_OPTION.without)
-      .map((item) => item.id)
+      .filter((p) => p.any)
+      .map((p) => p.id)
+    params.value.data_attribute_without_predicate_id = newVal
+      .filter((p) => !p.any && !p.text)
+      .map((p) => p.id)
+    params.value.data_attribute_exact_pair = newVal
+      .filter((p) => !p.any && p.exact && p.text.length)
+      .map((p) => `${p.id}:${p.text}`)
+    params.value.data_attribute_wildcard_pair = newVal
+      .filter((p) => !p.any && !p.exact && p.text.length)
+      .map((p) => `${p.id}:${p.text}`)
+  },
+  { deep: true }
+)
+
+watch(
+  values,
+  (newVal) => {
+    params.value.data_attribute_exact_value = newVal
+      .filter((item) => item.exact)
+      .map((item) => item.text)
+    params.value.data_attribute_wildcard_value = newVal
+      .filter((item) => !item.exact)
+      .map((item) => item.text)
   },
   { deep: true }
 )
@@ -145,15 +101,14 @@ watch(
 watch(
   [
     () => props.modelValue.data_attribute_predicate_id,
-    () => props.modelValue.no_value_data_attribute,
-    () => props.modelValue.any_value_data_attribute
+    () => props.modelValue.data_attribute_without_predicate_id,
+    () => props.modelValue.data_attribute_exact_pair,
+    () => props.modelValue.data_attribute_wildcard_pair
   ],
-  ([newVal, newVal2, newVal3], [oldVal, oldVal2, oldVal3]) => {
+  (newVals, oldVals) => {
     if (
-      !newVal?.length &&
-      !newVal2?.length &&
-      !newVal3?.length &&
-      (oldVal?.length || oldVal2?.length || oldVal3?.length)
+      newVals.every((value) => !value?.length) &&
+      oldVals.some((value) => value?.length)
     ) {
       predicates.value = []
     }
@@ -161,45 +116,104 @@ watch(
   { deep: true }
 )
 
-const inputValue = ref('')
+watch(
+  [
+    () => props.modelValue.data_attribute_exact_value,
+    () => props.modelValue.data_attribute_wildcard_value
+  ],
+  (newVals, oldVals) => {
+    if (
+      newVals.every((value) => !value?.length) &&
+      oldVals.some((value) => value?.length)
+    ) {
+      values.value = []
+    }
+  },
+  { deep: true }
+)
 
-const addValue = () => {
-  ;(params.value.data_attribute_value ||= []).push(inputValue.value)
-
-  inputValue.value = ''
-}
-
-function addPredicate(p, param) {
-  addToArray(predicates.value, {
+function addPredicate(p) {
+  predicates.value.push({
     id: p.id,
     name: p.name,
-    param
+    exact: p.exact,
+    any: p.any,
+    text: p.text
   })
 }
 
-onBeforeMount(() => {
-  const predicateWithValues = params.value.data_attribute_predicate_id || []
-  const predicateWithoutValues = params.value.no_value_data_attribute || []
-  const predicateAny = params.value.any_value_data_attribute || []
+function parsedPredicateParam(param) {
+  return param.map((value) => {
+    const index = value.indexOf(':')
+
+    return [Number(value.slice(0, index)), value.slice(index + 1)]
+  })
+}
+
+function loadPredicates({ predicateIds, predicateList, predicateValues }) {
+  predicateIds.forEach((id) => {
+    const p = predicateList.find((item) => item.id === id)
+
+    if (p) {
+      addPredicate({ ...p, ...predicateValues })
+    }
+  })
+}
+
+onBeforeMount(async () => {
+  const predicateWithValues = parsedPredicateParam(
+    params.value.data_attribute_wildcard_pair || []
+  )
+  const predicateWithValuesExact = parsedPredicateParam(
+    params.value.data_attribute_exact_pair || []
+  )
+  const predicatesWithoutValues =
+    params.value.data_attribute_without_predicate_id || []
+  const predicateWithAnyValues = params.value.data_attribute_predicate_id || []
+
+  values.value = [
+    ...(params.value.data_attribute_exact_value || []).map((text) => ({
+      text,
+      exact: true
+    })),
+    ...(params.value.data_attribute_wildcard_value || []).map((text) => ({
+      text,
+      exact: false
+    }))
+  ]
+
   const predicateIds = [
-    ...predicateWithValues,
-    ...predicateWithoutValues,
-    ...predicateAny
+    ...predicateWithAnyValues,
+    ...predicatesWithoutValues,
+    ...predicateWithValues.map(([value]) => value),
+    ...predicateWithValuesExact.map(([value]) => value)
   ]
 
   if (predicateIds.length) {
-    ControlledVocabularyTerm.where({ id: predicateIds }).then(({ body }) => {
-      body.forEach((p) => {
-        const id = p.id
+    const predicateList = (
+      await ControlledVocabularyTerm.where({ id: predicateIds })
+    ).body
 
-        if (predicateWithValues.includes(id)) {
-          addPredicate(p, VALUE_OPTION.with)
-        } else if (predicateWithoutValues.includes(id)) {
-          addPredicate(p, VALUE_OPTION.without)
-        } else {
-          addPredicate(p, VALUE_OPTION.any)
-        }
-      })
+    loadPredicates({
+      predicateIds: predicatesWithoutValues,
+      predicateList,
+      predicateValues: { text: '' }
+    })
+
+    loadPredicates({
+      predicateIds: predicateWithAnyValues,
+      predicateList,
+      predicateValues: { text: '', any: true }
+    })
+
+    predicateWithValues.forEach(([id, text]) => {
+      const p = predicateList.find((item) => item.id === id)
+      addPredicate({ ...p, text })
+    })
+
+    predicateWithValuesExact.forEach(([id, text]) => {
+      const p = predicateList.find((item) => item.id === id)
+      addPredicate({ ...p, text, exact: true })
     })
   }
 })
