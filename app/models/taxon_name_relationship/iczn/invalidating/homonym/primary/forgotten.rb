@@ -6,8 +6,9 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten < T
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
-        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary) +
-        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Suppressed)
+        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary,
+                          TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Suppressed) -
+        self.collect_to_s(TaxonNameRelationship::Iczn::Validating::UncertainPlacement)
   end
 
   def object_status
