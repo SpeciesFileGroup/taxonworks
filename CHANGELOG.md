@@ -10,23 +10,33 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Figure label in label on image API response
-- Add input to create N records in Simple new specimen [#3269]
-- Added soft_validation for seniority of synonyms.
+- Input to create N records in Simple new specimen [#3269]
+- Soft_validation for seniority of synonyms
+- Added `cached_author` to TaxonName
 
 ### Fixed
-
 - PK sequences was not setup in the correct dump stage in Export project task occasionally causing PK constraints errors on usage.
 - Radial object redirects to `Data` page after destroy a collection object in Simple new specimen task [#3284]
 - Wrong label for display unscored columns in Matrix column coder [#3292]
 - Duplicate records in nomenclature match task [#3300]
+- NeXML rendering bug 
+- Breaking CoL export bug [#3310]
 
 ### Changed
-
 - Export project task now removes hierarchies rows that don't belong to selected project [#3271]
 - Export project task no longer includes `delayed_jobs` and `imports` tables.
 - Clipboard hotkey combination [#3273]
-- Updated Ruby gems.
+- Recently used confidence levels improvements
+- Multiple nomenclatural soft validation improvements
+- Improvements to intelligence of various autocompletes
+- Improved cursor focus on new source task
+- Update Ruby to 3.2.1
+- Updated Ruby gems
+- Updated docker container (including psql client version to 15)
 
+[#3310]: https://github.com/SpeciesFileGroup/taxonworks/issues/3310
+[#3300]: https://github.com/SpeciesFileGroup/taxonworks/issues/3300
+[#3273]: https://github.com/SpeciesFileGroup/taxonworks/issues/3273
 [#3269]: https://github.com/SpeciesFileGroup/taxonworks/issues/3269
 [#3271]: https://github.com/SpeciesFileGroup/taxonworks/issues/3271
 [#3284]: https://github.com/SpeciesFileGroup/taxonworks/issues/3284

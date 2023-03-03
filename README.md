@@ -2,7 +2,7 @@
 
 [![build](https://github.com/SpeciesFileGroup/taxonworks/workflows/build/badge.svg?branch=development)](https://github.com/SpeciesFileGroup/taxonworks/actions?query=workflow%3Abuild)
 [![Coverage Status][3]][4]
-[![Gitter][20]][19]
+[![Chat on Matrix](https://matrix.to/img/matrix-badge.svg)](https://app.gitter.im/#/room/#SpeciesFileGroup_taxonworks:gitter.im)
 [![Inline docs](https://inch-ci.org/github/SpeciesFileGroup/taxonworks.svg?branch=master&style=shields)](https://inch-ci.org/github/SpeciesFileGroup/taxonworks)
 
 ## Overview
@@ -21,6 +21,4 @@ The foundation of TaxonWorks is funded by an endowment of the [Species File Grou
 
 [3]: https://codecov.io/gh/SpeciesFileGroup/taxonworks/branch/development/graph/badge.svg?token=X2Raeg8KJI
 [4]: https://codecov.io/gh/SpeciesFileGroup/taxonworks
-[19]: https://matrix.to/#/#taxonworks:gitter.im 
-[20]: https://badges.gitter.im/SpeciesFileGroup/taxonworks.svg
 
