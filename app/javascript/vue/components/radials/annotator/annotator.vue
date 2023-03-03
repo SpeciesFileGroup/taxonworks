@@ -118,6 +118,7 @@ import ContextMenu from './components/contextMenu'
 import Icons from './images/icons.js'
 import shortcutsMixin from '../mixins/shortcuts'
 import { Tag } from 'routes/endpoints'
+import { RadialAnnotatorEventEmitter } from 'utils/index.js'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
@@ -279,7 +280,7 @@ export default {
         svgSliceAttributes: {
           fontSize: 11
         },
-        slices: slices
+        slices
       }
     },
 
@@ -342,10 +343,16 @@ export default {
     }
   },
 
-  mounted() {
+  created() {
     if (this.showCount) {
       this.loadMetadata()
     }
+
+    RadialAnnotatorEventEmitter.on('reset', this.resetAnnotator)
+  },
+
+  unmounted() {
+    RadialAnnotatorEventEmitter.removeListener('reset', this.resetAnnotator)
   },
 
   methods: {
@@ -478,6 +485,11 @@ export default {
           'notice'
         )
       })
+    },
+
+    resetAnnotator() {
+      this.metadata = undefined
+      this.globalIdSaved = undefined
     }
   }
 }

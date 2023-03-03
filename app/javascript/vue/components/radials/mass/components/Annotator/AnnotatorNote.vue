@@ -33,10 +33,12 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['create'])
+
 const note = ref('')
 
-function createNote () {
-  const promises = props.ids.map(id => {
+function createNote() {
+  const promises = props.ids.map((id) => {
     const payload = {
       text: note.value,
       note_object_id: id,
@@ -46,8 +48,15 @@ function createNote () {
     return Note.create({ note: payload })
   })
 
-  Promise.all(promises).then(_ => {
-    TW.workbench.alert.create('Note item(s) were successfully created', 'notice')
+  Promise.all(promises).then((_) => {
+    TW.workbench.alert.create(
+      'Note item(s) were successfully created',
+      'notice'
+    )
+    emit(
+      'create',
+      promises.map((r) => r.body)
+    )
   })
 }
 </script>

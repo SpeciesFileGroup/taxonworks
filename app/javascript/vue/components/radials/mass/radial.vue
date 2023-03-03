@@ -40,6 +40,11 @@
                 :is="ANNOTATORS[currentAnnotator]?.component"
                 :object-type="objectType"
                 :ids="ids"
+                @create="
+                  () => {
+                    RadialAnnotatorEventEmitter.emit('reset')
+                  }
+                "
               />
             </div>
           </div>
@@ -69,6 +74,7 @@ import VSpinner from 'components/spinner.vue'
 import Icons from 'components/radials/annotator/images/icons.js'
 import VIcon from 'components/ui/VIcon/index.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
+import { RadialAnnotatorEventEmitter } from 'utils/index.js'
 import { ANNOTATORS } from './constants/annotators.js'
 import { Metadata, Tag } from 'routes/endpoints'
 import { computed, ref, onBeforeMount } from 'vue'

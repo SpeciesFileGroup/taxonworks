@@ -29,6 +29,8 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['create'])
+
 const citation = ref({})
 const topics = ref([])
 
@@ -38,8 +40,9 @@ function createCitation() {
     source_id: citation.value.source_id,
     pages: citation.value.pages,
     citation_object_id: props.ids
-  }).then(() => {
+  }).then((response) => {
     TW.workbench.alert.create('Citation(s) were successfully created', 'notice')
+    emit('create', response.body)
   })
 }
 </script>
