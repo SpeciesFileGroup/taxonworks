@@ -8,7 +8,9 @@ module Queries
         :taxon_determinations,
         :with_buffered_determinations,
         :with_buffered_collecting_event,
-        :with_buffered_other_labels
+        :with_buffered_other_labels,
+
+        :local_identifiers,
       ].freeze
 
       PARAMS = [
@@ -35,6 +37,7 @@ module Queries
 
       # TODO: use WITH
       def base_collection_object_query_facet
+        byebug
         q = ::Queries::CollectionObject::Filter.new(base_collection_object_filter_params).all
         ::SqedDepiction.joins(:collection_object).where(collection_objects: q)
       end

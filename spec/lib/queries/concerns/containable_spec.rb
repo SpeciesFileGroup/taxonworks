@@ -73,7 +73,7 @@ describe 'Queries::Concerns::Containable', type: :model do
       expect(qco.all).to contain_exactly(s)
     end
 
-    specify '#identifier 1' do
+    specify '#local_identifier 1' do
       c = FactoryBot.create(:valid_container)
       e = FactoryBot.create(:valid_extract, contained_in: c)
       FactoryBot.create(:valid_extract) # not this
@@ -84,7 +84,7 @@ describe 'Queries::Concerns::Containable', type: :model do
       expect(qe.all).to contain_exactly(e)
     end
 
-    specify '#identifiers 2' do
+    specify '#local_identifiers 2' do
       c = FactoryBot.create(:valid_container)
       e = FactoryBot.create(:valid_extract, contained_in: c)  # not this
       n = FactoryBot.create(:valid_extract)
@@ -93,6 +93,18 @@ describe 'Queries::Concerns::Containable', type: :model do
 
       qe.local_identifiers = false
       expect(qe.all).to contain_exactly(n)
+    end
+
+    specify '#local_identifiers 3' do
+      c = FactoryBot.create(:valid_container)
+      e = FactoryBot.create(:valid_extract, contained_in: c)  # not this
+      n = FactoryBot.create(:valid_extract)
+
+      c.identifiers << FactoryBot.create(:valid_identifier_local)
+      n.identifiers << FactoryBot.create(:valid_identifier_local)
+
+      qe.local_identifiers = false
+      expect(qe.all).to contain_exactly() # they all have!
     end
 
     specify '#match_identifiers_facet' do

@@ -1,7 +1,5 @@
 # Helpers for queries that reference Identifier
 #
-# See spec/lib/queries/collection_object/filter_spec.rb for existing spec tests
-#
 # TODO: Some of this is only for autocomplete !!
 # See anything refencing terms, query_string
 #
