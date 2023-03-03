@@ -37,7 +37,6 @@ module Queries
 
       # TODO: use WITH
       def base_collection_object_query_facet
-        byebug
         q = ::Queries::CollectionObject::Filter.new(base_collection_object_filter_params).all
         ::SqedDepiction.joins(:collection_object).where(collection_objects: q)
       end
