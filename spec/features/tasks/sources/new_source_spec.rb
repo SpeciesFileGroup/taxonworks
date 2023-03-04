@@ -19,7 +19,6 @@ describe 'New taxon name', type: :feature, group: :sources do
 
 
         specify 'add a record' do
-          begin
           select "article", :from => "type"
           fill_in "title", with: 'Qurious'
           fill_in "serials-autocomplete", with: "Journal stuff and things"
@@ -27,10 +26,6 @@ describe 'New taxon name', type: :feature, group: :sources do
           click_button 'Save'
           expect(page).to_not have_text('New record')
           expect(page).to have_text('Remove from project')
-          rescue
-            puts page.body
-            raise
-          end
         end
       end
 
