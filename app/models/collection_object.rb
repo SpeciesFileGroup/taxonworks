@@ -131,6 +131,8 @@ class CollectionObject < ApplicationRecord
   has_many :georeferences, through: :collecting_event
   has_many :geographic_items, through: :georeferences
 
+  has_many :collectors, through: :collecting_event
+
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
   before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
@@ -577,13 +579,13 @@ class CollectionObject < ApplicationRecord
                 t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
               )
             )
-              .where(t['created_by_id'].eq(user_id))
+              .where(t['updated_by_id'].eq(user_id))
               .where(t['project_id'].eq(project_id))
               .order(t['updated_at'].desc)
         else
           t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
-            .where(t['created_by_id'].eq(user_id))
+            .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         end
@@ -733,8 +735,8 @@ class CollectionObject < ApplicationRecord
 
   def reject_collecting_event(attributed)
     reject = true
-    CollectingEvent.data_attributes.each do |a|
-      if !attributed[a].blank?
+    CollectingEvent.core_attributes.each do |a|
+      if attributed[a].present?
         reject = false
         break
       end

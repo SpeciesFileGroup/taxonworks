@@ -2,29 +2,30 @@
   <transition name="modal">
     <div
       class="modal-mask"
-      @click="$emit('close')"
-      @key.esc="$emit('close')">
+      @click="emit('close')"
+      @key.esc.stop="emit('close')"
+    >
       <div class="modal-wrapper">
         <div
           class="modal-container"
-          :class="containerClass"
+          :class="{
+            'bg-transparent shadow-none': transparent,
+            ...containerClass
+          }"
           :style="containerStyle"
-          @click.stop>
-          <div class="modal-header">
-            <div
-              class="modal-close"
-              @click="$emit('close')"/>
-            <slot name="header">
-              default header
-            </slot>
+          @click.stop
+        >
+          <div
+            class="modal-header"
+            :class="{ 'panel content': transparent }"
+          >
+            <slot name="header"> default header </slot>
           </div>
           <div class="modal-body">
-            <slot name="body">
-              default body
-            </slot>
+            <slot name="body"> default body </slot>
           </div>
           <div class="modal-footer">
-            <slot name="footer"/>
+            <slot name="footer" />
           </div>
         </div>
       </div>
@@ -32,28 +33,39 @@
   </transition>
 </template>
 
-<script>
-export default {
-  props: {
-    containerClass: {
-      type: Object,
-      default: () => ({})
-    },
+<script setup>
+import { onMounted, onUnmounted } from 'vue'
 
-    containerStyle: {
-      type: Object,
-      default: () => ({})
-    }
+defineProps({
+  containerClass: {
+    type: Object,
+    default: () => ({})
   },
 
-  emits: ['close'],
+  containerStyle: {
+    type: Object,
+    default: () => ({})
+  },
 
-  mounted () {
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        this.$emit('close')
-      }
-    })
+  transparent: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['close'])
+
+const handleKeys = (e) => {
+  if (e.key === 'Escape') {
+    e.stopPropagation()
+    emit('close')
   }
 }
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeys)
+})
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeys)
+})
 </script>

@@ -9,13 +9,22 @@ module Shared::IsData::Annotation
 
   # see config/initializes/constanst/model/annotations for types
 
-  module ClassMethods
+  included do
+
     # @return [Boolean]
     # true if model is an "annotator" (e.g. identifiers, tags, notes, data attributes, alternate values, citations), i.e. data that references another data element through STI
     def annotates?
       respond_to?(:annotated_object)
     end
+  end
 
+
+  module ClassMethods
+
+    def annotates?
+      self < Shared::PolymorphicAnnotator ? true : false
+    end
+    
     # Determines whether the class can be annotated
     # in one of the following ways
     ::ANNOTATION_TYPES.each do |t|
@@ -23,6 +32,12 @@ module Shared::IsData::Annotation
         k = "Shared::#{t.to_s.singularize.classify.pluralize}".safe_constantize
         self < k ? true : false
       end
+    end
+
+    def available_annotation_types
+      ::ANNOTATION_TYPES.collect do |a|
+        self.send("has_#{a}?") ? a.to_s.classify : nil
+      end.compact
     end
   end
 
@@ -35,21 +50,21 @@ module Shared::IsData::Annotation
     end
   end
 
+  def available_annotation_types
+    ::ANNOTATION_TYPES.select do |a|
+      self.send("has_#{a}?")
+    end
+  end
+
   # Doesn't belong here
   def has_loans?
     self.class < Shared::Loanable ? true : false
   end
 
-  # @return [#annotations_hash]
+  # @return [Hash]
   #   an accessor for the annotations_hash, overwritten by some inheriting classes
   def annotations
     annotations_hash
-  end
-
-  def available_annotation_types
-    ::ANNOTATION_TYPES.select do |a|
-      self.send("has_#{a}?")
-    end
   end
 
   # @return [Hash]
@@ -86,9 +101,9 @@ module Shared::IsData::Annotation
     result['protocol relationships'] = protocols if has_protocol_relationships? && protocolled?
     result['alternate values'] = alternate_values if has_alternate_values? && alternate_values.load.any?
     result['attribution'] = attribution if has_attribution? && attribution.load.any?
+
+    result['verifiers'] = verifiers if has_verifiers? && verifiers.load.any?
     result
   end
 
 end
-
-

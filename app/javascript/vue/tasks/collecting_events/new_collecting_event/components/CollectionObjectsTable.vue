@@ -18,20 +18,22 @@
         type="button"
         class="button normal-input button-default"
         :disabled="!ceId"
-        @click="showModal = true">
+        @click="showModal = true"
+      >
         Add/Current ({{ list.length }})
       </button>
     </div>
     <modal-component
       v-if="showModal"
       @close="showModal = false"
+      transparent
       :container-style="{
-        width: '1100px',
+        width: '100%',
+        maxWidth: '90vw',
         height: '90vh',
-        overflowX: 'auto',
-        background: 'transparent',
-        boxShadow: 'none'
-      }">
+        overflowX: 'auto'
+      }"
+    >
       <template #header>
         <h3>Create collection objects</h3>
       </template>
@@ -39,8 +41,13 @@
         <div class="horizontal-left-content align-start">
           <spinner-component
             v-if="isLoading || isSaving"
-            :legend="isSaving ? `Creating ${index} of ${count} collection object(s)...` : 'Loading...'"/>
-          <div class="full_width margin-medium-right">
+            :legend="
+              isSaving
+                ? `Creating ${index} of ${count} collection object(s)...`
+                : 'Loading...'
+            "
+          />
+          <div class="margin-medium-right max-w-md full_width">
             <div class="panel content margin-medium-bottom">
               <h3>Number to create</h3>
               <div class="flex-separate align-end">
@@ -49,13 +56,15 @@
                     min="1"
                     type="number"
                     max="100"
-                    v-model.number="count">
+                    v-model.number="count"
+                  />
                 </div>
                 <div class="field">
                   <button
                     class="button normal-input button-submit"
                     type="button"
-                    @click="noCreated = []; createCOs(0)">
+                    @click="handleClick"
+                  >
                     Create
                   </button>
                 </div>
@@ -63,33 +72,38 @@
             </div>
             <label-component
               class="margin-medium-bottom panel content"
-              v-model="labelType"/>
+              v-model="labelType"
+            />
             <identifiers-component
               class="margin-medium-bottom panel content"
               v-model="identifier"
-              :count="count"/>
+              :count="count"
+            />
             <preparation-types
               class="margin-medium-bottom panel content"
-              v-model="preparationType"/>
+              v-model="preparationType"
+            />
             <repository-component
               class="margin-medium-bottom panel content"
-              v-model="repositoryId"/>
+              v-model="repositoryId"
+            />
             <biocuration-component
               class="margin-medium-bottom panel content"
-              v-model="biocurations"/>
+              v-model="biocurations"
+            />
             <determiner-component
               class="margin-medium-bottom panel content"
-              v-model="determinations"/>
+              v-model="determinations"
+            />
             <tag-component
               class="margin-medium-bottom panel content"
-              v-model="tagList"/>
+              v-model="tagList"
+            />
           </div>
-          <div
-            class="full_width panel content">
+          <div class="panel content flex-grow-2">
             <template v-if="noCreated.length">
               <h3>Creation errors ({{ noCreated.length }})</h3>
-              <table
-                class="full_width margin-medium-bottom">
+              <table class="full_width margin-medium-bottom">
                 <thead>
                   <tr>
                     <th>Identifier</th>
@@ -100,39 +114,60 @@
                   <tr
                     v-for="(item, index) in noCreated"
                     :key="index"
-                    class="contextMenuCells feedback feedback-warning">
+                    class="contextMenuCells feedback feedback-warning"
+                  >
                     <td>{{ item.namespace }} {{ item.identifier }}</td>
-                    <td>{{ Object.keys(item.error).map(k => item.error[k]).join(', ') }}</td>
+                    <td>
+                      {{
+                        Object.keys(item.error)
+                          .map((k) => item.error[k])
+                          .join(', ')
+                      }}
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </template>
-            <span>{{ list.length }} object(s) are already associated with this collecting event</span>
+            <span
+              >{{ list.length }} object(s) are already associated with this
+              collecting event</span
+            >
             <h3>Existing</h3>
-            <table class="full_width">
+            <table class="full_width table-striped">
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Identifier</th>
-                  <th>Determination</th>
+                  <th class="half_width">Identifier</th>
+                  <th class="half_width">Determination</th>
                   <th />
                 </tr>
               </thead>
               <tbody>
                 <tr
-                  v-for="(item, index) in list"
+                  v-for="item in list"
                   :key="item.id"
                   class="contextMenuCells"
-                  :class="{ 'even': (index % 2 == 0) }">
+                >
                   <td>{{ item.id }}</td>
-                  <td v-html="item.catalogNumber"/>
-                  <td v-html="item.scientificName"/>
+                  <td
+                    v-html="
+                      item.identifiers.map((item) => item.cached).join('<br>')
+                    "
+                  />
+                  <td
+                    v-html="
+                      item.taxon_determinations
+                        .map((t) => t.object_tag)
+                        .join('<br>')
+                    "
+                  />
                   <td>
                     <div
                       v-if="item.global_id"
-                      class="horizontal-left-content">
-                      <radial-annotator :global-id="item.global_id"/>
-                      <radial-navigation :global-id="item.global_id"/>
+                      class="horizontal-left-content"
+                    >
+                      <radial-annotator :global-id="item.global_id" />
+                      <radial-navigation :global-id="item.global_id" />
                     </div>
                   </td>
                 </tr>
@@ -146,7 +181,6 @@
 </template>
 
 <script>
-
 import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from 'constants/index.js'
 import BiocurationComponent from './Biocuration'
 import PreparationTypes from './PreparationTypes'
@@ -165,6 +199,8 @@ import {
   CollectionObject,
   TaxonDetermination
 } from 'routes/endpoints'
+
+const extend = ['taxon_determinations', 'identifiers']
 
 export default {
   components: {
@@ -188,7 +224,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       biocurations: [],
       showModal: false,
@@ -212,7 +248,7 @@ export default {
 
   watch: {
     ceId: {
-      handler (newVal) {
+      handler(newVal) {
         this.noCreated = []
         if (newVal) {
           this.loadTable()
@@ -224,7 +260,7 @@ export default {
   },
 
   methods: {
-    async createCOs (index = 0) {
+    async createCOs(index = 0) {
       this.index = index + 1
       this.isSaving = true
       if (index < this.count) {
@@ -238,64 +274,93 @@ export default {
           repository_id: this.repositoryId,
           preparation_type_id: this.preparationType,
           collecting_event_id: this.ceId,
-          tags_attributes: this.tagList.map(tag => ({ keyword_id: tag.id })),
-          identifiers_attributes: identifier.identifier && identifier.namespace.id
-            ? [{
-                identifier: identifier.identifier,
-                namespace_id: identifier.namespace.id,
-                type: IDENTIFIER_LOCAL_CATALOG_NUMBER,
-                labels_attributes: this.labelType
-                  ? [{
-                      text_method: 'build_cached',
-                      type: this.labelType,
-                      total: 1
-                    }]
-                  : undefined
-              }]
-            : undefined
+          tags_attributes: this.tagList.map((tag) => ({ keyword_id: tag.id })),
+          identifiers_attributes:
+            identifier.identifier && identifier.namespace.id
+              ? [
+                  {
+                    identifier: identifier.identifier,
+                    namespace_id: identifier.namespace.id,
+                    type: IDENTIFIER_LOCAL_CATALOG_NUMBER,
+                    labels_attributes: this.labelType
+                      ? [
+                          {
+                            text_method: 'build_cached',
+                            type: this.labelType,
+                            total: 1
+                          }
+                        ]
+                      : undefined
+                  }
+                ]
+              : undefined
         }
         const promises = []
 
-        await CollectionObject.create({ collection_object: co }).then(response => {
-          this.determinations.forEach(determination => {
-            determination.biological_collection_object_id = response.body.id
-            promises.push(TaxonDetermination.create({ taxon_determination: determination }))
-          })
-          this.biocurations.forEach(biocurationId => {
-            promises.push(BiocurationClassification.create({
-              biocuration_classification: {
-                biocuration_class_id: biocurationId,
-                biological_collection_object_id: response.body.id
-              }
-            }))
-          })
-          index++
-          Promise.all(promises).then(() => {
+        await CollectionObject.create({ collection_object: co, extend }).then(
+          (response) => {
+            this.determinations.forEach((determination) => {
+              determination.biological_collection_object_id = response.body.id
+              promises.push(
+                TaxonDetermination.create({
+                  taxon_determination: determination
+                })
+              )
+            })
+            this.biocurations.forEach((biocurationId) => {
+              promises.push(
+                BiocurationClassification.create({
+                  biocuration_classification: {
+                    biocuration_class_id: biocurationId,
+                    biological_collection_object_id: response.body.id
+                  }
+                })
+              )
+            })
+            index++
+            Promise.all(promises).then(() => {
+              this.createCOs(index)
+            })
+          },
+          (error) => {
+            this.noCreated.unshift({
+              identifier: identifier.identifier,
+              namespace: identifier.namespace.name,
+              error: error.body
+            })
+            index++
             this.createCOs(index)
-          })
-        }, (error) => {
-          this.noCreated.unshift({
-            identifier: identifier.identifier,
-            namespace: identifier.namespace.name,
-            error: error.body
-          })
-          index++
-          this.createCOs(index)
-        })
+          }
+        )
       } else {
         this.isSaving = false
         this.loadTable()
       }
     },
-    openComprehensive (id) {
-      window.open(`${RouteNames.DigitizeTask}?collection_object_id=${id}`, '_self')
+
+    openComprehensive(id) {
+      window.open(
+        `${RouteNames.DigitizeTask}?collection_object_id=${id}`,
+        '_self'
+      )
     },
-    loadTable () {
+
+    loadTable() {
+      const params = {
+        collecting_event_id: [this.ceId],
+        extend
+      }
+
       this.isLoading = true
-      CollectionObject.where({ collecting_event_ids: [this.ceId] }).then(response => {
+      CollectionObject.where(params).then((response) => {
         this.list = response.body
         this.isLoading = false
       })
+    },
+
+    handleClick() {
+      this.noCreated = []
+      this.createCOs(0)
     }
   }
 }

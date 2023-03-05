@@ -57,9 +57,12 @@
       <map-component
         width="90%"
         height="300px"
+        tooltips
+        actions
         :zoom="2"
         :zoom-on-click="false"
-        :geojson="shapes"/>
+        :geojson="shapes"
+      />
     </div>
     <table-list
       class="separate-top"

@@ -1,15 +1,11 @@
 module Queries
   module CollectionObject
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       # @params string [String]
       # @params [Hash] args
       def initialize(string, project_id: nil)
         super
-      end
-
-      def base_query
-        ::CollectionObject.select('collection_objects.*')
       end
 
       # @return [Arel::Table]
@@ -20,11 +16,6 @@ module Queries
       # @return [Arel::Table]
       def otu_table
         ::Otu.arel_table
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::CollectionObject.arel_table
       end
 
       # @return [Arel::Table]
@@ -82,7 +73,7 @@ module Queries
         updated_queries = []
 
         queries.each_with_index do |q ,i|
-          a = q.where(project_id: project_id) if project_id
+          a = q.where(project_id: project_id) if project_id.present?
           a ||= q
           updated_queries[i] = a
         end

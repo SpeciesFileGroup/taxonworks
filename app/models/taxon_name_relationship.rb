@@ -60,7 +60,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   # TODO: remove, it's required by STI
   validates_presence_of :type, message: 'Relationship type should be specified'
-  
+
   validates_presence_of :subject_taxon_name, message: 'Missing taxon name on the left side'
   validates_presence_of :object_taxon_name, message: 'Missing taxon name on the right side'
 
@@ -144,6 +144,12 @@ class TaxonNameRelationship < ApplicationRecord
     set: :validate_priority,
     name: 'Priority validation',
     description: 'Junior synonym should be younger than senior synonym' )
+
+  soft_validate(
+    :sv_validate_seniority,
+    set: :validate_seniority,
+    name: 'Seniority validation',
+    description: 'Of two synonyms described in the same paper, one described at a higher rank has a priority' )
 
   soft_validate(
     :sv_coordinated_taxa,
@@ -541,7 +547,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def sv_synonym_linked_to_valid_name
     #synonyms and misspellings should be linked to valid names
-    if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
+    if ::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
       obj = self.object_taxon_name
       subj = self.subject_taxon_name
       if subj.rank_class.try(:nomenclatural_code) == :iczn && (obj.parent_id != subj.parent_id || obj.rank_class != subj.rank_class) &&  subj.cached_valid_taxon_name_id == obj.cached_valid_taxon_name_id
@@ -576,6 +582,10 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def sv_validate_priority
+    true # all validations moved to subclasses
+  end
+
+  def sv_validate_seniority
     true # all validations moved to subclasses
   end
 

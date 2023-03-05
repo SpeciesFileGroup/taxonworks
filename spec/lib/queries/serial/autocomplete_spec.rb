@@ -14,7 +14,17 @@ describe Queries::Source::Autocomplete, type: :model do
   let!(:a2) { AlternateValue::Translation.create!(value: 'Diario de cosas y cosas', language: FactoryBot.create(:valid_language), alternate_value_object: serial1, alternate_value_object_attribute: :name) }
   let!(:a3) { AlternateValue::AlternateSpelling.create!(value: 'Journal of Stuph and Thingz', alternate_value_object: serial1, alternate_value_object_attribute: :name) }
 
-  let(:query) { Queries::Serial::Autocomplete.new('') }
+  let(:query) { Queries::Serial::Autocomplete.new(nil, project_id: project_id) }
+
+  specify '#autocomplete_exact_name 2' do
+    query.terms = 'Journal of Stuff and Things' 
+    expect(query.autocomplete).to contain_exactly(serial1)
+  end
+
+  specify '#autocomplete_begining_name 2' do
+    query.terms = 'Journal' 
+    expect(query.autocomplete).to contain_exactly(serial1, serial2)
+  end
 
   specify '#autocomplete_exact_name' do
     query.terms = 'Journal of Stuff and Things' 

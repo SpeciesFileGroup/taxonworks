@@ -16,9 +16,18 @@ export const Content = {
 
   summary: () => AjaxCall('get', '/tasks/content/publisher/summary'),
 
-  publishAll: (topicId) => AjaxCall('post', '/tasks/content/publisher/publish_all', { topic_id: topicId }),
+  publishAll: (topicId) =>
+    AjaxCall('post', '/tasks/content/publisher/publish_all', {
+      topic_id: topicId
+    }),
 
-  unpublishAll: (topicId) => AjaxCall('post', '/tasks/content/publisher/unpublish_all', { topic_id: topicId }),
+  unpublishAll: (topicId) =>
+    AjaxCall('post', '/tasks/content/publisher/unpublish_all', {
+      topic_id: topicId
+    }),
 
-  topicTable: (params) => AjaxCall('get', '/tasks/content/publisher/topic_table', { params })
+  topicTable: (params) =>
+    AjaxCall('get', '/tasks/content/publisher/topic_table', { params }),
+
+  filter: (params) => AjaxCall('post', '/contents/filter', params)
 }

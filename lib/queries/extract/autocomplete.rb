@@ -1,6 +1,6 @@
 module Queries
   module Extract
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       # @return Array
       #   !! Not an external param
@@ -22,26 +22,17 @@ module Queries
         @taxon_name_ids
       end
 
-      def base_query
-        ::Extract.select('extracts.*')
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Extract.arel_table
-      end
-
       # @return [Array]
       #   !! Returns multiple queries !!
       # Find matching names, get their IDs
       # then use ancestor to get target Extracts
-      def autocomplete_taxon_name_ancestor_id
+      def autocomplete_taxon_name_taxon_name_id
         return [] if taxon_name_ids.size > 100
 
         results = []
         taxon_name_ids.each do |id|
           results.push ::Queries::Extract::Filter.new(
-            ancestor_id: id
+            taxon_name_id: id
           ).all.limit(10)
         end
         results
@@ -91,7 +82,7 @@ module Queries
           autocomplete_identifier_cached_like,
           autocomplete_otu_taxon_name_id_determined_as, # here on built here
           autocomplete_otu_name_determined_as,
-        ] + autocomplete_taxon_name_ancestor_id
+        ] + autocomplete_taxon_name_taxon_name_id
 
         queries.compact!
 
@@ -100,7 +91,7 @@ module Queries
         updated_queries = []
 
         queries.each do |q|
-          a = q.where(project_id: project_id) # if project_id
+          a = q.where(project_id: project_id) if project_id.present?
           updated_queries.push a
         end
         updated_queries

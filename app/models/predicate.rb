@@ -5,19 +5,19 @@ class Predicate < ControlledVocabularyTerm
   scope :used_on_klass, -> (klass) { joins(:internal_attributes).where(data_attributes: {attribute_subject_type: klass}) }
 
   # @return [Scope]
-  #    the max 10 most recently used predicates 
+  #    the max 10 most recently used predicates
   def self.used_recently(user_id, project_id, klass)
     i = InternalAttribute.arel_table
     p = Predicate.arel_table
 
     # i is a select manager
-    i = i.project(i['controlled_vocabulary_term_id'], i['created_at']).from(i)
-      .where(i['created_at'].gt( 1.weeks.ago ))
-      .where(i['created_by_id'].eq(user_id))
+    i = i.project(i['controlled_vocabulary_term_id'], i['updated_at']).from(i)
+      .where(i['updated_at'].gt( 10.weeks.ago ))
+      .where(i['updated_by_id'].eq(user_id))
       .where(i['project_id'].eq(project_id))
-      .order(i['created_at'].desc)
+      .order(i['updated_at'].desc)
 
-    # z is a table alias 
+    # z is a table alias
     z = i.as('recent_t')
 
     Predicate.used_on_klass(klass).joins(

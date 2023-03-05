@@ -65,12 +65,12 @@ describe Person, type: :model, group: [:sources, :people] do
     before do
       person.update!(last_name: 'Smith', first_name: 'Jones')
       source_bibtex.authors << person
-      source_bibtex.save
+      source_bibtex.save!
     end
 
     context 'no roles' do
       specify ':recent' do
-        a = Person.select_optimized(Current.user_id, Current.project_id, 'SourceAuthor')
+        a = Person.select_optimized(user_id, project_id, 'SourceAuthor')
         expect(a[:recent].map(&:id)).to contain_exactly(person.id)
       end
 

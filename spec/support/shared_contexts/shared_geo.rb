@@ -1733,9 +1733,9 @@ Two different shapes with the same name, 'East Boxia', and
                                            geographic_area: area_old_boxia) }
   let(:item_m4) { FactoryBot.create(:geographic_item, multi_polygon: shape_m4) }
   let(:item_r) { FactoryBot.create(:geographic_item, multi_polygon: shape_r) }
-  let(:shape_r) { RspecGeoHelpers.make_box(shape_m3[0]
+  let(:shape_r) { RspecGeoHelpers.make_multipolygon(shape_m3[0]
     .exterior_ring.points[0], 0, 0, 2, 2) }
-  let(:shape_m4) { RspecGeoHelpers.make_box(point_m1_p0, 0, 3, 1, 1) }
+  let(:shape_m4) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 0, 3, 1, 1) }
   # building stuff in R
 
   # western big boxia
@@ -1791,9 +1791,9 @@ Two different shapes with the same name, 'East Boxia', and
   area.save!
   area
   }
-  let(:shape_m3) { RspecGeoHelpers.make_box(point_m1_p0, 0, 2, 1, 1) }
+  let(:shape_m3) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 0, 2, 1, 1) }
   let(:item_n3) { FactoryBot.create(:geographic_item, multi_polygon: shape_n3) }
-  let(:shape_n3) { RspecGeoHelpers.make_box(point_m1_p0, 1, 2, 1, 1) }
+  let(:shape_n3) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 1, 2, 1, 1) }
 
   # build the collecting event for an object in P1(B), part of Big Boxia
   let(:ce_p1b) { FactoryBot.create(:collecting_event,
@@ -1830,16 +1830,16 @@ Two different shapes with the same name, 'East Boxia', and
   area
   }
 
-  let(:shape_p1b) { RspecGeoHelpers.make_box(point_m1_p0, 3, 0, 1, 1) }
-  let(:shape_q) { RspecGeoHelpers.make_box(shape_m1[0].exterior_ring.points[0], 0, 0, 4, 2) }
-  let(:shape_m1) { RspecGeoHelpers.make_box(point_m1_p0, 0, 0, 1, 1) }
-  let(:shape_ob) { RspecGeoHelpers.make_box(point_m1_p0, 0, 0, 2, 4) }
-  let(:shape_eb_1) { RspecGeoHelpers.make_box(point_m1_p0, 3, 0, 1, 4) }
-  let(:shape_eb_2) { RspecGeoHelpers.make_box(point_m1_p0, 2, 0, 2, 2) }
-  let(:shape_wb) { RspecGeoHelpers.make_box(point_m1_p0, 0, 0, 1, 4) }
-  let(:shape_w) { RspecGeoHelpers.make_box(point_m1_p0, 0, 0, 4, 4) }
-  let(:shape_u) { RspecGeoHelpers.make_box(shape_o1[0].exterior_ring.points[0], 0, 0, 2, 2) }
-  let(:shape_o1) { RspecGeoHelpers.make_box(point_m1_p0, 2, 0, 1, 1) }
+  let(:shape_p1b) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 3, 0, 1, 1) }
+  let(:shape_q) { RspecGeoHelpers.make_multipolygon(shape_m1[0].exterior_ring.points[0], 0, 0, 4, 2) }
+  let(:shape_m1) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 0, 0, 1, 1) }
+  let(:shape_ob) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 0, 0, 2, 4) }
+  let(:shape_eb_1) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 3, 0, 1, 4) }
+  let(:shape_eb_2) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 2, 0, 2, 2) }
+  let(:shape_wb) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 0, 0, 1, 4) }
+  let(:shape_w) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 0, 0, 4, 4) }
+  let(:shape_u) { RspecGeoHelpers.make_multipolygon(shape_o1[0].exterior_ring.points[0], 0, 0, 2, 2) }
+  let(:shape_o1) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 2, 0, 1, 1) }
 
   # secondary country shapes
   # same shape as Q, different object
@@ -1951,9 +1951,9 @@ Two different shapes with the same name, 'East Boxia', and
   area
   }
   let(:item_s) { FactoryBot.create(:geographic_item, multi_polygon: shape_s) }
-  let(:shape_s) { RspecGeoHelpers.make_box(shape_o3[0]
+  let(:shape_s) { RspecGeoHelpers.make_multipolygon(shape_o3[0]
     .exterior_ring.points[0], 0, 0, 2, 2) }
-  let(:shape_o3) { RspecGeoHelpers.make_box(point_m1_p0, 2, 2, 1, 1) }
+  let(:shape_o3) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 2, 2, 1, 1) }
   let(:item_o3) { FactoryBot.create(:geographic_item, multi_polygon: shape_o3) }
   let(:area_so3) {
     area = FactoryBot.create(:level1_geographic_area,
@@ -2007,10 +2007,10 @@ Two different shapes with the same name, 'East Boxia', and
   area
   }
   let(:item_t_1) { FactoryBot.create(:geographic_item, multi_polygon: shape_t_1) }
-  let(:shape_t_1) { RspecGeoHelpers.make_box(shape_m1[0]
+  let(:shape_t_1) { RspecGeoHelpers.make_multipolygon(shape_m1[0]
     .exterior_ring.points[0], 0, 0, 2, 2) }
   let(:item_n2) { FactoryBot.create(:geographic_item, multi_polygon: shape_n2) }
-  let(:shape_n2) { RspecGeoHelpers.make_box(point_m1_p0, 1, 1, 1, 1) }
+  let(:shape_n2) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 1, 1, 1, 1) }
   let(:area_t_2) {
     area = FactoryBot.create(:level1_geographic_area,
                              name: 'QT',
@@ -2022,7 +2022,7 @@ Two different shapes with the same name, 'East Boxia', and
   area
   }
   let(:item_t_2) { FactoryBot.create(:geographic_item, multi_polygon: shape_t_2) }
-  let(:shape_t_2) { RspecGeoHelpers.make_box(shape_m1[0]
+  let(:shape_t_2) { RspecGeoHelpers.make_multipolygon(shape_m1[0]
     .exterior_ring.points[0], 0, 0, 2, 2) }
 
   # build the collecting event for objects in N4
@@ -2061,7 +2061,7 @@ Two different shapes with the same name, 'East Boxia', and
   area
   }
   let(:item_n4) { FactoryBot.create(:geographic_item, multi_polygon: shape_n4) }
-  let(:shape_n4) { RspecGeoHelpers.make_box(point_m1_p0, 1, 3, 1, 1) }
+  let(:shape_n4) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 1, 3, 1, 1) }
 
 
   # build the collecting events associated with M1 and M1A
@@ -2161,7 +2161,7 @@ Two different shapes with the same name, 'East Boxia', and
   area
   }
   let(:item_p2b) { FactoryBot.create(:geographic_item, multi_polygon: shape_p2b) }
-  let(:shape_p2b) { RspecGeoHelpers.make_box(point_m1_p0, 3, 1, 1, 1) }
+  let(:shape_p2b) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 3, 1, 1, 1) }
 
   let(:area_qup2) {
     area = FactoryBot.create(:level2_geographic_area,
@@ -2210,7 +2210,7 @@ Two different shapes with the same name, 'East Boxia', and
   area
   }
   let(:item_m2) { FactoryBot.create(:geographic_item, multi_polygon: shape_m2) }
-  let(:shape_m2) { RspecGeoHelpers.make_box(point_m1_p0, 0, 1, 1, 1) }
+  let(:shape_m2) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 0, 1, 1, 1) }
 
   # build the collecting event for objects in N1
   let(:ce_n1) { FactoryBot.create(:collecting_event,
@@ -2237,7 +2237,7 @@ Two different shapes with the same name, 'East Boxia', and
   area
   }
   let(:item_n1) { FactoryBot.create(:geographic_item, multi_polygon: shape_n1) }
-  let(:shape_n1) { RspecGeoHelpers.make_box(point_m1_p0, 1, 0, 1, 1) }
+  let(:shape_n1) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 1, 0, 1, 1) }
 
   let(:area_qtn1) {
     area = FactoryBot.create(:level2_geographic_area,
@@ -2277,7 +2277,7 @@ Two different shapes with the same name, 'East Boxia', and
   }
 
   let(:item_o2) { FactoryBot.create(:geographic_item, multi_polygon: shape_o2, by: geo_user) }
-  let(:shape_o2) { RspecGeoHelpers.make_box(point_m1_p0, 2, 1, 1, 1) }
+  let(:shape_o2) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 2, 1, 1, 1) }
 
   # build for collecting event for objects in M3
   let(:ce_m3) { FactoryBot.create(:collecting_event,

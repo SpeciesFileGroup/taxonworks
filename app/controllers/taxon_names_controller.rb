@@ -13,7 +13,9 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 50)
+        @taxon_names = Queries::TaxonName::Filter.new(params).all
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -224,10 +226,11 @@ class TaxonNamesController < ApplicationController
 
   # GET /api/v1/taxon_names
   def api_index
-    @taxon_names = Queries::TaxonName::Filter.new(api_params).all
+    @taxon_names = Queries::TaxonName::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('taxon_names.id')
-      .page(params[:page]).per(params[:per])
+      .page(params[:page])
+      .per(params[:per])
     render '/taxon_names/api/v1/index'
   end
 
@@ -299,122 +302,6 @@ class TaxonNamesController < ApplicationController
         user_id: sessions_current_user_id,
         project_id: sessions_current_project_id
       ).to_h.symbolize_keys
-  end
-
-  def filter_params
-    params.permit(
-      :ancestors,
-      :author,
-      :authors,
-      :citations,
-      :data_attribute_exact_value,
-      :data_attributes,
-      :descendants,
-      :descendants_max_depth,
-      :etymology,
-      :exact,
-      :leaves,
-      :name,
-      :nomenclature_code,
-      :nomenclature_group, # !! different than autocomplete
-      :not_specified,
-      :note_exact, # Notes concern
-      :note_text,
-      :notes,
-      :otus,
-      :page,
-      :per,
-      :taxon_name_author_ids_or,
-      :taxon_name_type,
-      :type_metadata,
-      :updated_since,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      :validity,
-      :year,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifiers,
-      :match_identifiers,
-      :match_identifiers_delimiter,
-      :match_identifiers_type,
-      combination_taxon_name_id: [],
-      data_attribute_predicate_id: [], # DataAttributes concern
-      data_attribute_value: [],        # DataAttributes concern
-      keyword_id_and: [],
-      keyword_id_or: [],
-      parent_id: [],
-      taxon_name_author_ids: [],
-      taxon_name_classification: [],
-      taxon_name_id: [],
-      taxon_name_relationship: [
-        :subject_taxon_name_id,
-        :object_taxon_name_id,
-        :type
-      ],
-      taxon_name_relationship_type: [],
-      type: [],
-      # user_id: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-  end
-
-  def api_params
-    params.permit(
-      :ancestors,
-      :author,
-      :authors,
-      :citations,
-      :data_attribute_exact_value,
-      :data_attributes,
-      :descendants,
-      :descendants_max_depth,
-      :etymology,
-      :exact,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifiers,
-      :match_identifiers,
-      :match_identifiers_delimiter,
-      :match_identifiers_type,
-      :leaves,
-      :name,
-      :nomenclature_code,
-      :nomenclature_group, # !! different than autocomplete
-      :not_specified,
-      :otus,
-      :taxon_name_type,
-      :type_metadata,
-      :updated_since,
-      :validity,
-      :year,
-#     :page, # TODO: yes or no?
-#     :per,
-      combination_taxon_name_id: [],
-      data_attribute_predicate_id: [], # DataAttributes concern
-      data_attribute_value: [],        # DataAttributes concern
-      keyword_id_and: [],
-      keyword_id_or: [],
-      parent_id: [],
-      taxon_name_classification: [],
-      taxon_name_id: [],
-      taxon_name_relationship: [
-        :subject_taxon_name_id,
-        :object_taxon_name_id,
-        :type
-      ],
-      taxon_name_relationship_type: [],
-      type: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-
-    # TODO: see config in collection objects controller
-    # a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
-    # a
   end
 
 end

@@ -118,14 +118,13 @@
 #
 # @!attribute sample_standard_units
 #   @return [Boolean]
-#     A controlled vocabulary from Ruby::Units, like 'm".  The unit of the sample observations
+#     A controlled vocabulary from Ruby::Units, like 'm' (meters).  The unit of the sample observation.
 #
 class Observation < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Identifiers
-  include Shared::Depictions
   include Shared::Notes
   include Shared::Tags
   include Shared::Depictions
@@ -147,7 +146,9 @@ class Observation < ApplicationRecord
 
   # before_validation :convert_observation_object_global_id
 
-  validates_presence_of :descriptor_id, :type
+  validates_presence_of :descriptor_id # should be :descriptor
+
+  validates_presence_of :type # not required, it's STI
   validates_presence_of :observation_object
   validate :type_matches_descriptor
 
@@ -173,7 +174,7 @@ class Observation < ApplicationRecord
   def self.in_observation_matrix(observation_matrix_id)
     Observation.joins('JOIN observation_matrix_rows omr on (omr.observation_object_type = observations.observation_object_type AND omr.observation_object_id = observations.observation_object_id)')
       .joins('JOIN observation_matrix_columns omc on omc.descriptor_id = observations.descriptor_id')
-      .where('omr.observation_matrix_id = ? AND omc.observation_matrix_id = ?', observation_matrix_id, observation_matrix_id)
+      .where('omr.observation_matrix_id IN (?) AND omc.observation_matrix_id IN (?)', observation_matrix_id, observation_matrix_id)
   end
 
   def self.by_matrix_and_position(observation_matrix_id, options = {})

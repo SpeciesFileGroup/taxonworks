@@ -2,20 +2,21 @@
 #
 # Test coverage is currently in spec/lib/queries/source/filter_spec.rb.
 #
-# You must define
-#
-#    def table
-#      :;Model.arel_table
-#    end
-#
-# in including modules.
-#
 module Queries::Concerns::Tags
 
   extend ActiveSupport::Concern
 
-  included do
+  def self.params
+    [ 
+      :keyword_id_and,
+      :keyword_id_or,
+      :tags,
+      keyword_id_and: [],
+      keyword_id_or: []
+    ]
+  end
 
+  included do
     # @return [Array]
     # @params keyword_id_and [:keyword_id_and | [keyword_id_and, .. ] ]
     attr_accessor :keyword_id_and
@@ -27,21 +28,36 @@ module Queries::Concerns::Tags
     # @return [Boolean, nil]
     # @params tags ['true', 'false', nil]
     attr_accessor :tags
+
+    def keyword_id_and
+      [@keyword_id_and].flatten.compact.uniq
+    end
+
+    def keyword_id_or
+      [@keyword_id_or].flatten.compact.uniq
+    end
+  end
+
+  def self.merge_clauses
+    [
+      :keyword_id_facet,
+      :tags_facet
+    ]
   end
 
   def set_tags_params(params)
-    @keyword_id_and = params[:keyword_id_and].blank? ? [] : params[:keyword_id_and]
-    @keyword_id_or = params[:keyword_id_or].blank? ? [] : params[:keyword_id_or]
+    @keyword_id_and = params[:keyword_id_and]
+    @keyword_id_or = params[:keyword_id_or]
 
-    @tags = (params[:tags]&.to_s&.downcase == 'true' ? true : false) if !params[:tags].nil?
+    @tags = boolean_param(params, :tags) # (params[:tags]&.to_s&.downcase == 'true' ? true : false) if !params[:tags].nil?
   end
 
   def keyword_id_and
-    [@keyword_id_and].flatten
+    [@keyword_id_and].flatten.compact.uniq
   end
 
   def keyword_id_or
-    [@keyword_id_or].flatten
+    [@keyword_id_or].flatten.compact.uniq
   end
 
   # @return [Arel::Table]
@@ -72,7 +88,18 @@ module Queries::Concerns::Tags
     end
   end
 
-  # merge
+  def tags_facet
+    return nil if tags.nil?
+    k = table.name.classify.safe_constantize
+
+    if tags
+      k.joins(:tags).distinct
+    else
+      k.left_outer_joins(:tags)
+        .where(tags: {id: nil})
+    end
+  end
+ 
   def matching_keyword_id_or
     return nil if keyword_id_or.empty?
     k = table.name.classify.safe_constantize
@@ -84,7 +111,6 @@ module Queries::Concerns::Tags
     k.where( ::Tag.where(w).arel.exists )
   end
 
-  # merge
   def matching_keyword_id_and
     return nil if keyword_id_and.empty?
     l = table.name
@@ -118,17 +144,4 @@ module Queries::Concerns::Tags
 
     k.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b[:id].eq(table[:id]))))
   end
-
-  def tag_facet
-    return nil if tags.nil?
-    k = table.name.classify.safe_constantize
-
-    if tags
-      k.joins(:tags).distinct
-    else
-      k.left_outer_joins(:tags)
-        .where(tags: {id: nil})
-    end
-  end
-
 end

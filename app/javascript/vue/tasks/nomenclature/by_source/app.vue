@@ -33,7 +33,6 @@
 </template>
 
 <script setup>
-
 import HeaderBar from './components/HeaderBar.vue'
 import CitationSummary from './components/CitationSummary.vue'
 import OtusMatchProxy from './components/OtusMatchProxy'
@@ -50,30 +49,29 @@ import {
 const CITATION_BLOCKS = {
   [TAXON_NAME]: {
     title: 'Taxon names',
-    summarizeParam: 'taxon_name_ids'
+    summarizeParam: 'taxon_name_id'
   },
   [TAXON_NAME_CLASSIFICATION]: {
     title: 'Nomenclature status',
-    summarizeParam: 'taxon_name_classification_ids'
+    summarizeParam: 'taxon_name_classification_id'
   },
   [TAXON_NAME_RELATIONSHIP]: {
     title: 'Taxon name relationships',
-    summarizeParam: 'taxon_name_relationship_ids'
+    summarizeParam: 'taxon_name_relationship_id'
   },
   [BIOLOGICAL_ASSOCIATION]: {
     title: 'Biological associations',
-    summarizeParam: 'biological_association_ids'
+    summarizeParam: 'biological_association_id'
   },
   [ASSERTED_DISTRIBUTION]: {
     title: 'Asserted distributions',
-    summarizeParam: 'asserted_distribution_ids'
+    summarizeParam: 'asserted_distribution_id'
   },
   [OTU]: {
     title: 'OTUs',
-    summarizeParam: 'otu_ids'
+    summarizeParam: 'otu_id'
   }
 }
-
 </script>
 
 <script>

@@ -1,14 +1,15 @@
 module Queries
 
+  module ObservationMatrixRow
   # A wrapper around Otu and CollectionObject filters
-  class ObservationMatrixRow::Autocomplete < Queries::Query
+  class Autocomplete < Query::Autocomplete
 
     attr_accessor :observation_matrix_id
 
     def initialize(string, project_id: nil, observation_matrix_id: nil)
-      super 
+      super
       @observation_matrix_id = observation_matrix_id
-    end 
+    end
 
     # @return [Array]
     #   TODO: optimize limits
@@ -23,14 +24,14 @@ module Queries
       a.each do |q|
         j = ::ObservationMatrixRow.joins(:otu).where(otu: q.limit(50).pluck(:id)).order('observation_matrix_rows.position')
         c = j.where(observation_matrix_id: observation_matrix_id) if observation_matrix_id
-        c ||= j 
+        c ||= j
         updated_queries.push c
       end
-      
+
       b.each do |q|
         j = ::ObservationMatrixRow.joins(:collection_object).where(otu: q.limit(50).pluck(:id)).order('observation_matrix_rows.position')
         c = j.where(observation_matrix_id: observation_matrix_id) if observation_matrix_id
-        c ||= j 
+        c ||= j
         updated_queries.push c
       end
 

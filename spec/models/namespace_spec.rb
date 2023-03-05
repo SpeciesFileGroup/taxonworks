@@ -15,7 +15,7 @@ describe Namespace, type: :model do
   context 'validation' do
     context 'requires' do
       before { namespace.valid? }
-      
+
       specify 'name' do
         expect(namespace.errors.include?(:name)).to be_truthy
       end
@@ -44,7 +44,7 @@ describe Namespace, type: :model do
     let(:n1) { FactoryBot.create(:valid_namespace) }
     let(:n2) { FactoryBot.create(:valid_namespace) }
     let!(:identifier) { Identifier::Local::CatalogNumber.create!(identifier_object: otu, identifier: 123, namespace: n1 ) }
-    let!(:old_identifier) { Identifier::Local::CatalogNumber.create!(identifier_object: specimen, identifier: 123, namespace: n2, created_at: 2.years.ago ) }
+    let!(:old_identifier) { Identifier::Local::CatalogNumber.create!(identifier_object: specimen, identifier: 123, namespace: n2, created_at: 2.years.ago, updated_at: 2.years.ago ) }
 
     specify '#used_on_klass 1' do
       expect(Namespace.used_on_klass('Otu')).to contain_exactly(n1)

@@ -1,108 +1,56 @@
 module Queries
   module SqedDepiction
-    class Filter < Queries::Query
+    class Filter < Query::Filter
       include Queries::Helpers
-      include Queries::Concerns::Users
 
-      COLLECTION_OBJECT_FILTER_PARAMS = %w{
-       collecting_event
-       taxon_determinations
-       with_buffered_determinations
-       with_buffered_collecting_event
-       with_buffered_other_labels
-       identifiers
-       local_identifiers
-      }
+      COLLECTION_OBJECT_FILTER_PARAMS = [
+        :collecting_event,
+        :taxon_determinations,
+        :with_buffered_determinations,
+        :with_buffered_collecting_event,
+        :with_buffered_other_labels,
 
-      attr_accessor :collection_object_filter_params
+        :local_identifiers,
+      ].freeze
 
-      attr_accessor :recent
+      PARAMS = [
+        *COLLECTION_OBJECT_FILTER_PARAMS,
+        :sqed_depiction_id,
+        sqed_depiction_id: [],
+      ].freeze
 
-      def initialize(params)
-        @recent = params[:recent]
-        @collection_object_filter_params = params.permit(COLLECTION_OBJECT_FILTER_PARAMS).to_h.select{|k,v| COLLECTION_OBJECT_FILTER_PARAMS.include?(k) ? k : nil}
+      # @return Hash
+      attr_accessor :base_collection_object_filter_params
 
-        set_user_dates(params)
+      attr_accessor :sqed_depiction_id
+
+      def initialize(query_params)
+        super
+
+        @sqed_depiction_id = params[:sqed_depiction_id]
+        @base_collection_object_filter_params = params.select{|k,v| COLLECTION_OBJECT_FILTER_PARAMS.include?(k) ? k : nil}
       end
 
-      # @return [Arel::Table]
-      def table
-        ::SqedDepiction.arel_table
+      def sqed_depiction_id
+        [@sqed_depiction_id].flatten.compact
       end
 
-      def base_query
-        ::SqedDepiction.select('sqed_depictions.*')
+      # TODO: will need to consider moving Identifies out of base class
+      # because of edge cases like this (less inheritence, more composition)
+      # applies to CO, not here 
+      def local_identifiers_facet
+        nil
       end
 
-      def collection_object_query_facet
-        q = ::Queries::CollectionObject::Filter.new(collection_object_filter_params).all
+      # TODO: use WITH
+      def base_collection_object_query_facet
+        q = ::Queries::CollectionObject::Filter.new(base_collection_object_filter_params).all
         ::SqedDepiction.joins(:collection_object).where(collection_objects: q)
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = base_and_clauses
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
-      # @return [Array]
-      def base_and_clauses
-        clauses = []
-        clauses += [ ]
-        clauses.compact!
-        clauses
-      end
-
-      def base_merge_clauses
-        clauses = []
-
-        clauses += [
-          created_updated_facet,  # See Queries::Concerns::Users
-          collection_object_query_facet,
-        ]
-
-        clauses.compact!
-        clauses
-      end
-
-      # @return [ActiveRecord::Relation]
       def merge_clauses
-        clauses = base_merge_clauses
-        return nil if clauses.empty?
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-        # q = nil
-        if a && b
-          q = b.where(a).distinct
-        elsif a
-          q = ::SqedDepiction.where(a).distinct
-        elsif b
-          q = b
-        else
-          q = ::SqedDepiction.all
-        end
-
-        # TODO: needs to go, orders mess with chaining.
-        q = q.order(updated_at: :desc) if recent
-        q
+        [ base_collection_object_query_facet ]
       end
     end
-
   end
 end

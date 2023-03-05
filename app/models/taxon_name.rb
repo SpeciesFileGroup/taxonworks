@@ -126,6 +126,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   @return [Boolean]
 #   Stores if the status of the name is valid based on both taxon_name_relationships and taxon_name_classifications.
 #
+# rubocop:disable Metrics/ClassLength
 class TaxonName < ApplicationRecord
 
   # @return class
@@ -419,11 +420,6 @@ class TaxonName < ApplicationRecord
     ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(t['id']))))
   end
 
-  # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
-  def synonyms
-    TaxonName.with_cached_valid_taxon_name_id(self.id)
-  end
-
   soft_validate(:sv_missing_confidence_level,
                 set: :missing_fields,
                 name: 'Missing confidence level',
@@ -515,6 +511,11 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
+  def synonyms
+    TaxonName.with_cached_valid_taxon_name_id(self.id)
+  end
+
   # @return [String]
   #   rank as human readable short-form, like 'genus' or 'species'
   def rank
@@ -571,11 +572,6 @@ class TaxonName < ApplicationRecord
     )
   end
 
-  # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
-  def synonyms
-    TaxonName.with_cached_valid_taxon_name_id(id)
-  end
-
   # @return [Array]
   #   all TaxonNameRelationships where this taxon is an object or subject.
   def all_taxon_name_relationships
@@ -628,7 +624,7 @@ class TaxonName < ApplicationRecord
 
   # @return String, nil
   #   virtual attribute, to ultimately be fixed in db
-  def cached_author
+  def get_author
     cached_author_year&.gsub(/,\s\d+/, '')
   end
 
@@ -805,6 +801,12 @@ class TaxonName < ApplicationRecord
     taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).any?
   end
 
+  # @return [Boolean]
+  #  whether this name has any classification asserting that this the name is unavailable
+  def classification_unavailable?
+    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE).any?
+  end
+
   #  @return [Boolean]
   #     return true if name is unavailable OR invalid, else false, checks both classifications and relationships
   # !! Should only be referenced when building cached values, all other uses should rather be `!is_valid?`
@@ -880,7 +882,7 @@ class TaxonName < ApplicationRecord
   # @return [TaxonNameRelationship]
   #  returns youngest taxon name relationship where self is the subject.
   def first_possible_valid_taxon_name_relationship
-    taxon_name_relationships.reload.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
+    taxon_name_relationships.reload.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
   end
 
   def first_possible_invalid_taxan_name_relationship
@@ -907,7 +909,7 @@ class TaxonName < ApplicationRecord
       first_pass = false
       list_of_taxa_to_check = list.empty? ? [self] : list.keys.select{|t| list[t] == false}
       list_of_taxa_to_check.each do |t|
-        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).order_by_oldest_source_first
+        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).order_by_oldest_source_first
         potentialy_invalid_relationships.each do |r|
           if !TaxonNameClassification.where_taxon_name(r.subject_taxon_name).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
             # do nothing, taxon has a status of valid name
@@ -957,6 +959,7 @@ class TaxonName < ApplicationRecord
     assign_attributes(
       cached_html: nil,
       cached_author_year: nil,
+      cached_author: nil,
       cached_original_combination_html: nil,
       cached_secondary_homonym: nil,
       cached_primary_homonym: nil,
@@ -991,6 +994,7 @@ class TaxonName < ApplicationRecord
     # For example, when a TaxonName relationship forces a cached reload it may/not need to call these two things
     set_cached_classified_as
     set_cached_author_year
+    set_cached_author # should be after the 'set_cached_author_year'
   end
 
   def set_cached_valid_taxon_name_id
@@ -1006,6 +1010,7 @@ class TaxonName < ApplicationRecord
     update_columns(
       cached:  NO_CACHED_MESSAGE,
       cached_author_year:  NO_CACHED_MESSAGE,
+      cached_author: NO_CACHED_MESSAGE,
       cached_nomenclature_date: NO_CACHED_MESSAGE,
       cached_classified_as: NO_CACHED_MESSAGE,
       cached_html:  NO_CACHED_MESSAGE
@@ -1015,6 +1020,11 @@ class TaxonName < ApplicationRecord
   def set_cached_author_year
     update_column(:cached_author_year, get_author_and_year)
   end
+
+  def set_cached_author
+    update_column(:cached_author, get_author)
+  end
+
 
   def set_cached_classified_as
     update_column(:cached_classified_as, get_cached_classified_as)
@@ -1042,6 +1052,7 @@ class TaxonName < ApplicationRecord
     nil
   end
 
+
   # Returns an Array of ancestors
   #   same as self.ancestors, but also works
   #   for new records when parents specified
@@ -1061,7 +1072,13 @@ class TaxonName < ApplicationRecord
     if new_record?
       ancestors_through_parents
     else
-      self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
+      # self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
+
+      self_and_ancestors
+      .unscope(:order)
+      .order(generations: :DESC)
+      .reload # TODO Why needed? Should not be
+      .to_a
     end
   end
 
@@ -1110,7 +1127,10 @@ class TaxonName < ApplicationRecord
   def full_name_hash
     gender = nil
     data = {}
-    safe_self_and_ancestors.each do |i| # !! You can not use self.self_and_ancestors because (this) record is not saved off.
+
+    # !! TODO: create a persisted only version of this for speed
+    # !! You can not use self.self_and_ancestors because (this) record is not saved off.
+    safe_self_and_ancestors.each do |i| 
       rank = i.rank
       gender = i.gender_name if rank == 'genus'
 
@@ -1361,7 +1381,7 @@ class TaxonName < ApplicationRecord
 
   # TODO: this should be paginated, not all IDs!
   def next_sibling
-    if siblings.where(project_id: project_id).load.any?
+    if siblings.where(project_id: project_id).any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
       s = sibs.index(id)
       TaxonName.find(sibs[ s + 1] ) if s < sibs.length - 1
@@ -1372,8 +1392,9 @@ class TaxonName < ApplicationRecord
 
   # TODO: this should be paginated, not all IDs!
   def previous_sibling
-    if siblings.where(project_id: project_id).load.any?
+    if siblings.where(project_id: project_id).any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
+
       s = sibs.index(id)
       TaxonName.find(sibs[s - 1]) if s != 0
     else
@@ -1388,10 +1409,10 @@ class TaxonName < ApplicationRecord
   # @return [Scope]
   #   All taxon names attached to relationships recently created by user
   def self.used_recently_in_classifications(user_id, project_id)
-    TaxonName.where(project_id: project_id, created_by_id: user_id)
+    TaxonName.where(project_id: project_id, updated_by_id: user_id)
       .joins(:taxon_name_classifications)
       .includes(:taxon_name_classifications)
-      .where(taxon_name_classifications: { created_at: 1.weeks.ago..Time.now } )
+      .where(taxon_name_classifications: { updated_at: 1.weeks.ago..Time.now } )
       .order('taxon_name_classifications.updated_at DESC')
   end
 
@@ -1406,8 +1427,8 @@ class TaxonName < ApplicationRecord
       .or(t2[:updated_by_id].eq(user_id).or(t2[:created_by_id].eq(user_id))
     ).to_sql
 
-    sql2 = t1[:created_at].between( 1.weeks.ago..Time.now )
-      .or( t2[:created_at].between( 1.weeks.ago..Time.now ) ).to_sql
+    sql2 = t1[:updated_at].between( 1.weeks.ago..Time.now )
+      .or( t2[:updated_at].between( 1.weeks.ago..Time.now ) ).to_sql
 
     TaxonName.with_taxon_name_relationships
       .where(taxon_names: {project_id: project_id})
@@ -1582,7 +1603,7 @@ class TaxonName < ApplicationRecord
       elsif self.origin_citation.try(:pages).blank?
         soft_validations.add(:base, 'Original citation pages are not recorded')
       elsif !self.source.pages.blank?
-        matchdata1 = self.origin_citation.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
+        matchdata1 = self.origin_citation.pages.match(/^(\d+) ?[-–] ?(\d+)$|^(\d+)$/)
         if matchdata1
           citMinP = matchdata1[1] ? matchdata1[1].to_i : matchdata1[3].to_i
           citMaxP = matchdata1[2] ? matchdata1[2].to_i : matchdata1[3].to_i
@@ -1675,7 +1696,7 @@ class TaxonName < ApplicationRecord
   end
 
   def sv_two_unresolved_alternative_synonyms
-    r = taxon_name_relationships.includes(:source).order_by_oldest_source_first.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
+    r = taxon_name_relationships.includes(:source).order_by_oldest_source_first.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
     if r.to_a.size > 1
       if r.first.nomenclature_date.to_date == r.second.nomenclature_date.to_date
         soft_validations.add(:base, 'Taxon has two alternative invalidating relationships with identical dates. To resolve ambiguity, add original sources to the relationships with different priority dates.')

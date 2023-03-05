@@ -4,11 +4,29 @@ class LoansController < ApplicationController
   before_action :require_sign_in_and_project_selection
   before_action :set_loan, only: [:show, :edit, :update, :destroy, :recipient_form]
 
+  after_action -> { set_pagination_headers(:loans) }, only: [:index], if: :json_request?
+
   # GET /loans
   # GET /loans.json
   def index
     @recent_objects = Loan.includes(:loan_items, :identifiers).recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
+  end
+
+  # GET /loans
+  # GET /loans.json
+  def index
+    respond_to do |format|
+      format.html do
+        @recent_objects = Loan.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @loans = ::Queries::Loan::Filter.new(params).all
+          .page(params[:page])
+          .per(params[:per])
+      }
+    end
   end
 
   # GET /loans/1
@@ -43,6 +61,13 @@ class LoansController < ApplicationController
 
   def recipient_form
     render layout: 'us_letter'
+  end
+
+  def attributes
+    render json: ::Loan.columns.select{
+      |a| Queries::Loan::Filter::ATTRIBUTES.include?(
+        a.name.to_sym)
+    }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
 
   # PATCH/PUT /loans/1

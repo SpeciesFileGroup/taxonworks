@@ -113,6 +113,13 @@ div.ce_label_pg {
     white-space: normal;
     order: 2
   }
+
+  .qrcode_barcode {
+    svg {
+      width: 24pt;
+      height: 24pt;
+    }
+  }
 }
 
 .code128 {

@@ -70,7 +70,7 @@ export default {
     },
 
     showTitle () {
-      return this.title || `${this.name} icon`
+      return this.title
     }
   },
 

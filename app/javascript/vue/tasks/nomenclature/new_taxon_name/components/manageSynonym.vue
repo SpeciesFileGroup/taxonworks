@@ -1,9 +1,9 @@
 <template>
   <div>
     <block-layout
-      anchor="original-combination"
+      anchor="manage-synonymy"
       v-if="isInvalid && validTaxon && childrenList.length"
-      v-help.section.originalCombination.container>
+    >
       <template #header>
         <h3>Manage synonymy</h3>
       </template>

@@ -191,6 +191,7 @@ class CollectingEvent < ApplicationRecord
   include Shared::Labels
   include Shared::Confidences
   include Shared::Documentation
+  include Shared::ProtocolRelationships
   include Shared::HasPapertrail
   include SoftValidation
   include Shared::Labels
@@ -324,7 +325,7 @@ class CollectingEvent < ApplicationRecord
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))
   end
 
-  scope :used_recently, -> { joins(:collection_objects).includes(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ).order('"collection_objects"."created_at" DESC') }
+  scope :used_recently, -> { joins(:collection_objects).includes(:collection_objects).where(collection_objects: { updated_at: 1.weeks.ago..Time.now } ).order('"collection_objects"."updated_at" DESC') }
   scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: project_id } ) }
 
   class << self
@@ -452,8 +453,8 @@ class CollectingEvent < ApplicationRecord
   # @return [Boolean]
   #   test for minimal data
   def has_data?
-    CollectingEvent.data_attributes.each do |a|
-      return true unless self.send(a).blank?
+    CollectingEvent.core_attributes.each do |a|
+      return true if self.send(a).present?
     end
     return true if georeferences.any?
     false
@@ -794,7 +795,7 @@ class CollectingEvent < ApplicationRecord
   #   determines (prioritizes) the method to be used to decided the geographic name classification
   #   (string labels for country, state, county) for this collecting_event.
   def geographic_name_classification_method
-    # Over-ride first 
+    # Over-ride first
     return :geographic_area if meta_prioritize_geographic_area
 
     return :preferred_georeference if !preferred_georeference.nil?

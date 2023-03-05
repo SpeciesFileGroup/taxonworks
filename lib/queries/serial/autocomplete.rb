@@ -1,6 +1,6 @@
 module Queries
-  module Serial 
-    class Autocomplete < Queries::Query
+  module Serial
+    class Autocomplete < Query::Autocomplete
 
       # @param [Hash] args
       def initialize(string, project_id: nil)
@@ -11,7 +11,7 @@ module Queries
       def base_query
         ::Serial.select('serials.*')
       end
- 
+
       # @return [Array]
       def autocomplete
         queries = [
@@ -33,24 +33,25 @@ module Queries
 
         queries.compact!
 
-        updated_queries = []
-        queries.each_with_index do |q ,i|
-          a = q
-          if project_id
-            # a = q.joins(:project_sources).where(member_of_project_id.to_sql) if project_id && limit_to_project
-            a = a.select('serials.*, COUNT(project_sources.source_id) AS use_count, NULLIF(project_sources.project_id, NULL) as in_project')
-                 .left_outer_joins(:sources)
-                 .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
-                 .where('project_sources.project_id = ? OR project_sources.project_id IS DISTINCT FROM ?', project_id, project_id)
-                 .group('serials.id, project_sources.project_id')
-                 .order('use_count DESC')
-          end
-          a ||= q
-          updated_queries[i] = a
-        end
+    #   updated_queries = []
+    #   queries.each_with_index do |q ,i|
+    #     a = q
+    #     if project_id.present?
+    #       a = a.select("serials.*, COUNT(project_sources.source_id) AS use_count, CASE WHEN project_sources.project_id IN (#{project_id.join(',')}) THEN project_sources.project_id ELSE NULL END AS in_project")
+    #            .left_outer_joins(:sources)
+    #            .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
+    #            .where('project_sources.project_id IN (?) OR project_sources.project_id NOT IN (?)', project_id, project_id)
+    #            .group('serials.id, project_sources.project_id')
+    #            .order('in_project, use_count DESC')
+    #     end
+    #     a ||= q
+    #     updated_queries[i] = a
+    #   end
 
         result = []
-        updated_queries.each do |q|
+     
+     
+        queries.each do |q|
           result += q.to_a
           result.uniq!
           break if result.count > 19
@@ -63,16 +64,16 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
-      #    match exact name 
+      #    match exact name
       def autocomplete_exact_name
-        a = table[:name].eq(query_string) 
+        a = table[:name].eq(query_string)
         base_query.where(a.to_sql).limit(20)
       end
 
       # @return [ActiveRecord::Relation]
       #    match begining of name
       def autocomplete_begining_name
-        a = table[:name].matches(query_string + '%') 
+        a = table[:name].matches(query_string + '%')
         base_query.where(a.to_sql).limit(20)
       end
 
@@ -113,17 +114,12 @@ module Queries
       #      .on(table[:id].eq(alternate_value_table[:alternate_value_object_id]).and(
       #        alternate_value_table[:alternate_value_object_type].eq('Serial')
       #      )
-      #    ) 
+      #    )
       #  end
 
       # @return [Arel::Table]
       def alternate_value_table
         ::AlternateValue.arel_table
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Serial.arel_table
       end
 
     end

@@ -8,9 +8,16 @@
     <%= render(partial: '/shared/data/all/show/soft_validation', locals: { object: @taxon_name }) -%> 
   </div>
 
-  <div id="relationships-validations">
-    <%= content_tag(:h3, 'Relationships') if @taxon_name.taxon_name_relationships.any? %>
+  <div id="subject-relationships-validations">
+    <%= content_tag(:h3, 'Subject relationships') if @taxon_name.taxon_name_relationships.any? %>
     <% @taxon_name.taxon_name_relationships.each do |relationship| %>
+      <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: relationship }) -%>  
+    <% end %>
+  </div>
+
+    <div id="object-relationships-validations">
+    <%= content_tag(:h3, 'Object relationships') if @taxon_name.related_taxon_name_relationships.any? %>
+    <% @taxon_name.related_taxon_name_relationships.each do |relationship| %>
       <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: relationship }) -%>  
     <% end %>
   </div>

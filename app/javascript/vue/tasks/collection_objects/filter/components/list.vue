@@ -1,147 +1,285 @@
 <template>
-  <HandyScroll ref="root">
-    <div>
-      <table
-        ref="tableBar"
-        v-resize-column
-      >
-        <thead>
-          <tr>
-            <th>
-              <input
-                type="checkbox"
-                v-model="selectIds"
-              >
-            </th>
-            <th>Collection object</th>
-            <template
-              v-for="(item, index) in list.column_headers"
-              :key="item"
+  <HandyScroll>
+    <table
+      class="full_width"
+      ref="tableElement"
+      v-resize-column
+    >
+      <thead>
+        <tr>
+          <td colspan="2" />
+          <template
+            v-for="(properties, key) in layout.properties"
+            :key="key"
+          >
+            <th
+              v-if="properties.length"
+              :colspan="properties.length"
+              scope="colgroup"
+              class="cell-left-border"
             >
-              <th
-                v-if="index > 2"
-                @click="sortTable(index)"
-              >
-                {{ item }}
-              </th>
-            </template>
-          </tr>
-        </thead>
-        <tbody>
+              {{ humanize(key) }}
+            </th>
+          </template>
+          <th
+            v-if="layout.includes.data_attributes"
+            :colspan="dataAttributeHeaders.length"
+            scope="colgroup"
+            class="cell-left-border"
+          >
+            Data attributes
+          </th>
+        </tr>
+        <tr>
+          <th class="w-2">
+            <input
+              type="checkbox"
+              v-model="selectIds"
+            />
+          </th>
+          <th class="w-2" />
+          <template
+            v-for="(propertiesList, key) in layout.properties"
+            :key="key"
+          >
+            <th
+              v-for="(property, pIndex) in propertiesList"
+              :key="property"
+              :class="{ 'cell-left-border': pIndex === 0 }"
+              @click="sortTable(`${key}.${property}`)"
+            >
+              <div class="horizontal-left-content">
+                <span>{{ property }}</span>
+                <VBtn
+                  v-if="filterValues[`${key}.${property}`]"
+                  class="margin-small-left"
+                  color="primary"
+                  small
+                  @click.stop="
+                    () => {
+                      delete filterValues[`${key}.${property}`]
+                    }
+                  "
+                >
+                  X
+                </VBtn>
+              </div>
+            </th>
+          </template>
+          <th
+            v-for="(header, index) in dataAttributeHeaders"
+            :class="{ 'cell-left-border': index === 0 }"
+            :key="header"
+            @click="sortTable(`data_attributes.${header}`)"
+          >
+            {{ header }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <template
+          v-for="(item, index) in list"
+          :key="item.id"
+        >
           <tr
+            v-show="rowHasCurrentValues(item)"
             class="contextMenuCells"
-            :class="{ even: indexR % 2 }"
-            v-for="(row, indexR) in list.data"
-            :key="row[0]"
+            :class="{ even: index % 2 }"
           >
             <td>
               <input
                 v-model="ids"
-                :value="row[0]"
+                :value="item.id"
                 type="checkbox"
-              >
+              />
             </td>
             <td>
-              <a
-                :href="`/tasks/collection_objects/browse?collection_object_id=${row[0]}`"
-                target="_blank"
-              >
-                Show
-              </a>
+              <div class="horizontal-left-content">
+                <RadialAnnotator :global-id="item.global_id" />
+                <RadialObject :global-id="item.global_id" />
+                <RadialNavigation :global-id="item.global_id" />
+              </div>
             </td>
             <template
-              v-for="(item, index) in row"
-              :key="index"
+              v-for="(properties, key) in props.layout.properties"
+              :key="key"
             >
-              <td v-if="index > 2">
-                <span>{{ item }}</span>
-              </td>
+              <td
+                v-for="(property, pIndex) in properties"
+                :key="property"
+                v-html="renderItem(item, key, property)"
+                :class="{ 'cell-left-border': pIndex === 0 }"
+                @dblclick="
+                  () => {
+                    filterValues[`${key}.${property}`] = Array.isArray(
+                      item[key]
+                    )
+                      ? item[key].map((obj) => obj[property])
+                      : item[key][property]
+                  }
+                "
+              />
             </template>
+            <td
+              v-for="(predicateName, dIndex) in dataAttributeHeaders"
+              :key="predicateName"
+              :class="{ 'cell-left-border': dIndex === 0 }"
+              v-text="renderDataAttribute(item.data_attributes, predicateName)"
+            />
           </tr>
-        </tbody>
-      </table>
-    </div>
+        </template>
+      </tbody>
+    </table>
   </HandyScroll>
 </template>
 
 <script setup>
-import { computed, watch, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn.js'
+import { humanize } from 'helpers/strings'
 import HandyScroll from 'vue-handy-scroll'
+import VBtn from 'components/ui/VBtn/index.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialObject from 'components/radials/object/radial.vue'
+import RadialNavigation from 'components/radials/navigation/radial.vue'
 
 const props = defineProps({
   list: {
-    type: Object,
-    default: undefined
+    type: Array,
+    default: () => []
   },
+
   modelValue: {
     type: Array,
     default: () => []
+  },
+
+  base: {
+    type: String,
+    default: 'collection_object'
+  },
+
+  layout: {
+    type: Object,
+    required: true
   }
 })
 
-const emit = defineEmits([
-  'onSort',
-  'update:modelValue'
-])
+const emit = defineEmits(['onSort', 'update:modelValue'])
+const tableElement = ref(null)
+const ascending = ref(false)
 
-const root = ref(null)
+const filterValues = ref({})
+
+function rowHasCurrentValues(item) {
+  return Object.entries(filterValues.value).every(([properties, value]) => {
+    const itemValue = getValue(item, properties)
+
+    return Array.isArray(itemValue)
+      ? itemValue.some((i) => value.includes(i))
+      : itemValue === value
+  })
+}
+
+function getValue(item, property) {
+  const properties = property.split('.')
+
+  return properties.reduce((acc, curr) => {
+    return Array.isArray(acc) ? acc.map((item) => item[curr]) : acc[curr]
+  }, item)
+}
 
 const ids = computed({
-  get () {
+  get() {
     return props.modelValue
   },
-  set (value) {
+  set(value) {
     emit('update:modelValue', value)
   }
 })
 
 const selectIds = computed({
-  get: () => props.list?.data?.length === ids.value.length,
-  set: value => {
-    ids.value = value
-      ? props.list.data.map(r => r[0])
-      : []
+  get: () => props.list.length === ids.value.length && props.list.length > 0,
+  set: (value) => {
+    ids.value = value ? props.list.map((r) => r.id) : []
   }
 })
 
-const ascending = ref(false)
+const dataAttributeHeaders = computed(() => {
+  if (!props.layout.includes.data_attributes) return
+
+  const predicateNames = []
+
+  props.list.forEach((item) => {
+    Object.keys(item.data_attributes || {}).forEach((name) => {
+      if (!predicateNames.includes(name)) {
+        predicateNames.push(name)
+      }
+    })
+  })
+
+  return predicateNames.sort()
+})
+
+function renderItem(item, listType, property) {
+  const value = item[listType]
+
+  return Array.isArray(value)
+    ? value.map((obj) => obj[property]).join('; ')
+    : value && value[property]
+}
+
+function renderDataAttribute(dataAttributes, predicateName) {
+  const key = Object.keys(dataAttributes).find((key) => key === predicateName)
+
+  return dataAttributes[key]
+}
+
+function sortTable(sortProperty) {
+  emit('onSort', sortArray(props.list, sortProperty, ascending.value))
+  ascending.value = !ascending.value
+}
+
+watch(
+  [() => props.layout, () => props.list],
+  () =>
+    HandyScroll.EventBus.emit('update', { sourceElement: tableElement.value }),
+  { deep: true }
+)
 
 watch(
   () => props.list,
-  () => {
-    HandyScroll.EventBus.emit('update', { sourceElement: root.value })
-  })
-
-const sortTable = (sortProperty) => {
-  emit('onSort', sortArray(props.list.data, sortProperty, ascending.value))
-  ascending.value = !ascending.value
-}
+  (newVal) => {
+    if (!newVal.length) {
+      filterValues.value = {}
+    }
+  }
+)
 </script>
 
 <style lang="scss" scoped>
+tr {
+  height: 44px;
+}
+.options-column {
+  width: 130px;
+}
 
-  tr {
-    height: 44px;
-  }
-  .options-column {
-    width: 130px;
-  }
-  .overflow-scroll {
-    overflow: scroll;
-  }
+td {
+  /*   max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis; */
+  white-space: nowrap;
+}
 
-  td {
-    max-width: 80px;
-    overflow : hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+td:hover {
+  /*   max-width: 200px;
+  text-overflow: ellipsis; */
+  //white-space: normal;
+}
 
-  td:hover {
-    max-width : 200px;
-    text-overflow: ellipsis;
-    white-space: normal;
-  }
+.cell-left-border {
+  border-left: 3px #eaeaea solid;
+}
 </style>

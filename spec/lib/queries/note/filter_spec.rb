@@ -28,7 +28,7 @@ describe Queries::Note::Filter, type: :model do
   end
 
   specify '#object_global_id' do
-    query.object_global_id = collecting_event.to_global_id.to_s 
+    query.object_global_id = n3.to_global_id.to_s 
     expect(query.all.map(&:id)).to contain_exactly(n3.id)
   end
 

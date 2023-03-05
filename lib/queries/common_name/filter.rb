@@ -1,65 +1,73 @@
 module Queries
+  module CommonName
+    class Filter < Query::Filter
 
-  class CommonName::Filter < Queries::Query
+      PARAMS = [
+        :common_name_id,
+        :geographic_area_id,
+        :language_id,
+        :name,
+        :otu_id,
+        otu_id: [],
+        common_name_id: [],
+      ].freeze
 
-    # Query variables
-    attr_accessor :name, :geographic_area_id, :otu_id, :language_id
+      # Query variables
+      attr_accessor :name, :geographic_area_id, :otu_id, :language_id
 
-    # @param options [Hash] 
-    def initialize(options)
-      @name = options[:name]
-      @geographic_area_id = options[:geographic_area_id]
-      @otu_id = options[:otu_id]
-      @language_id = options[:language_id]
-    end
-
-    def table
-      ::CommonName.arel_table
-    end
-
-    def matching_otu_id
-      otu_id ? table[:otu_id].eq(otu_id) : nil
-    end
-
-    def matching_language_id
-      language_id ? table[:language_id].eq(language_id) : nil
-    end
-
-    def matching_name
-      name ? table[:name].eq(name) : nil
-    end
-
-    def matching_geographic_area_id
-      geographic_area_id ? table[:geographic_area_id].eq(geographic_area_id) : nil
-    end
-
-    # @return [ActiveRecord::Relation, nil]
-    def and_clauses
-      clauses = [
-          matching_otu_id,
-          matching_geographic_area_id,
-          matching_name,
-          matching_language_id
-      ].compact
-
-      return nil if clauses.empty?
-
-      a = clauses.shift
-      clauses.each do |b|
-        a = a.and(b)
+      def initialize(query_params)
+        super
+        @geographic_area_id = params[:geographic_area_id]
+        @language_id = params[:language_id]
+        @name = params[:name]
+        @otu_id = params[:otu_id]
       end
-      a
-    end
 
-    # @return [ActiveRecord::Relation]
-    def all
-      a = and_clauses
-      if a 
-        ::CommonName.where(a).distinct
-      else
-        ::CommonName.none
+      def otu_id
+        [@otu_id].flatten.compact
       end
-    end
 
+      def language_id
+        [@language_id].flatten.compact
+      end
+
+      def geographic_area_id
+        [@geographic_area_id_id].flatten.compact
+      end
+
+      def common_name_id
+        [@common_name_id].flatten.compact
+      end
+
+      def otu_id_facet
+        return nil if otu_id.empty?
+        table[:otu_id].eq_any(otu_id)
+      end
+
+      def language_id_facet
+        return nil if language_id.empty?
+        table[:language_id].eq_any(language_id)
+      end
+
+      def name_facet
+        return nil if name.blank?
+        table[:name].eq(name)
+      end
+
+      def geographic_area_id_facet
+        return nil if geographic_area_id.empty?
+        table[:geographic_area_id].eq_any(geographic_area_id)
+      end
+
+      def and_clauses
+        [
+          geographic_area_id_facet,
+          language_id_facet,
+          name_facet,
+          otu_id_facet,
+        ]
+      end
+
+    end
   end
 end

@@ -24,6 +24,10 @@ module Shared::IsData
       self < Shared::SharedAcrossProjects ? true : false
     end
 
+    def is_containable?
+      self < Shared::Containable
+    end
+
     def dwc_occurrence_eligible?
       self < Shared::IsDwcOccurrence
     end
@@ -32,8 +36,13 @@ module Shared::IsData
       self < Shared::Observations
     end
 
-    # @return [Array] of strings of only the non-cached and non-housekeeping column names
-    def data_attributes
+    def is_biologically_relatable?
+      self < Shared::BiologicalAssociations
+    end
+
+    # @return [Array of String]
+    #   only the non-cached and non-housekeeping column names
+    def core_attributes # was data_attributes
       column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at}
         .include?(c) || c =~ /^cached/ }
     end
