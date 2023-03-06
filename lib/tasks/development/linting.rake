@@ -48,7 +48,7 @@ namespace :tw do
           v.each do |c|
             puts "   #{c}"
             if k == :citations
-              puts Rainbow('    missing _attributes').red if !File.exists(Rails.root.to_s + "/app/views/#{k}/_attributes.json.jbuilder")
+              puts Rainbow('    missing _attributes').red if !File.exist?(Rails.root.to_s + "/app/views/#{k}/_attributes.json.jbuilder")
             end
           end
         end
