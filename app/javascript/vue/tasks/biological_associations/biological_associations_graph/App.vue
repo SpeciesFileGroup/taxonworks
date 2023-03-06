@@ -15,7 +15,7 @@
                 @get-item="
                   ({ id }) => {
                     graph.resetStore()
-                    graph.setGraph(id)
+                    loadGraph(id)
                   }
                 "
               />
@@ -62,13 +62,46 @@ import VNavbar from 'components/layout/NavBar'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 import VAutocomplete from 'components/ui/Autocomplete.vue'
+import setParam from 'helpers/setParam.js'
+import useHotkey from 'vue3-hotkey'
+import platformKey from 'helpers/getPlatformKey'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { onMounted, ref } from 'vue'
 import { CollectionObject, Otu } from 'routes/endpoints'
 import { RouteNames } from 'routes/routes.js'
-import setParam from 'helpers/setParam.js'
 
 const graph = ref()
+const hotkeys = ref([
+  {
+    keys: [platformKey(), 's'],
+    preventDefault: true,
+    handler() {
+      if (graph.value.isGraphUnsaved) {
+        saveGraph()
+      }
+    }
+  },
+  {
+    keys: [platformKey(), 'r'],
+    preventDefault: true,
+    handler() {
+      graph.value.resetStore()
+    }
+  },
+  {
+    keys: [platformKey(), 'a'],
+    preventDefault: true,
+    handler() {
+      if (graph.value.currentNodes.length === 2) {
+        graph.value.openEdgeModal()
+      } else {
+        TW.workbench.alert.create('Select two nodes to create a biological association')
+      }
+    }
+  }
+])
+
+const stop = useHotkey(hotkeys.value)
 
 onMounted(() => {
   const params = URLParamsToJSON(location.href)
@@ -95,18 +128,26 @@ onMounted(() => {
 
 function loadGraph(id) {
   graph.value.setGraph(id)
+  setParam(RouteNames.NewBiologicalAssociationGraph, {
+    biological_associations_graph_id: id
+  })
 }
 
 function saveGraph() {
-  graph.value.saveBiologicalAssociations()
+  graph.value.save().then(({ body }) => {
+    TW.workbench.alert.create('Biological association(s) were successfully saved.', 'notice')
+
+    if (!Array.isArray(body)) {
+      setParam(RouteNames.NewBiologicalAssociationGraph, {
+        biological_associations_graph_id: body?.id
+      })
+    }
+  })
 }
 
 function reset() {
   graph.value.resetStore()
-  setParam(
-    RouteNames.NewBiologicalAssociationGraph,
-    'biological_associations_graph_id'
-  )
+  setParam(RouteNames.NewBiologicalAssociationGraph, 'biological_associations_graph_id')
 }
 </script>
 

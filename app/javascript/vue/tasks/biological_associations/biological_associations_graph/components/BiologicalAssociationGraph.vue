@@ -91,7 +91,6 @@ import { configs } from '../constants/networkConfig'
 import { graphLayout } from '../utils/graphLayout.js'
 import { useGraph } from '../composition/useGraph.js'
 import { makeNodeId } from '../utils/makeNodeId.js'
-import platformKey from 'helpers/getPlatformKey'
 import ConfirmationModal from 'components/ConfirmationModal.vue'
 import ModalObject from './ModalObject.vue'
 import ModalEdge from './ModalEdge.vue'
@@ -100,7 +99,6 @@ import ContextMenu from './ContextMenu/ContextMenu.vue'
 import ContextMenuEdge from './ContextMenu/ContextMenuEdge.vue'
 import ContextMenuView from './ContextMenu/ContextMenuView.vue'
 import ContextMenuNode from './ContextMenu/ContextMenuNode.vue'
-import useHotkey from 'vue3-hotkey'
 
 const showModalNode = ref(false)
 const showModalEdge = ref(false)
@@ -122,38 +120,11 @@ const {
   reverseRelation,
   saveBiologicalAssociations,
   selectedNodes,
-  setNodePosition
+  setNodePosition,
+  currentNodes,
+  save
 } = useGraph()
 
-const hotkeys = ref([
-  {
-    keys: [platformKey(), 's'],
-    preventDefault: true,
-    handler() {
-      saveBiologicalAssociations()
-    }
-  },
-  {
-    keys: [platformKey(), 'r'],
-    preventDefault: true,
-    handler() {
-      resetStore()
-    }
-  },
-  {
-    keys: [platformKey(), 'a'],
-    preventDefault: true,
-    handler() {
-      if (selectedNodes.value.length === 2) {
-        showModalEdge.value = true
-      } else {
-        TW.workbench.alert.create('Select two nodes to create a biological association')
-      }
-    }
-  }
-])
-
-const stop = useHotkey(hotkeys.value)
 const graph = ref()
 const edgeContextMenu = ref()
 const nodeContextMenu = ref()
@@ -267,11 +238,16 @@ function setGraph(graphId) {
 }
 
 defineExpose({
-  setGraph,
-  saveBiologicalAssociations,
-  updateLayout,
   addObject,
-  resetStore
+  currentNodes,
+  openEdgeModal,
+  openNodeModal,
+  resetStore,
+  saveBiologicalAssociations,
+  setGraph,
+  updateLayout,
+  isGraphUnsaved,
+  save
 })
 </script>
 

@@ -8,9 +8,7 @@ import {
   unsavedNodeStyle
 } from '../constants/graphStyle.js'
 import { parseNodeId, makeNodeId, isEqualNodeObject, isNetwork } from '../utils'
-import { RouteNames } from 'routes/routes'
 import { COLLECTION_OBJECT } from 'constants/index.js'
-import setParam from 'helpers/setParam'
 
 const EXTEND_GRAPH = [
   'biological_associations_biological_associations_graphs',
@@ -82,6 +80,7 @@ export function useGraph() {
   )
 
   const currentGraph = computed(() => state.graph)
+  const currentNodes = computed(() => state.selectedNodes)
 
   function resetStore() {
     Object.assign(state, initState())
@@ -146,10 +145,6 @@ export function useGraph() {
 
     resetStore()
     state.graph = graph
-
-    setParam(RouteNames.NewBiologicalAssociationGraph, {
-      biological_associations_graph_id: graphId
-    })
 
     if (baIds.length) {
       await BiologicalAssociation.where({
@@ -238,20 +233,17 @@ export function useGraph() {
       return request
     })
 
-    if (!biologicalAssociations.length) return
+    return Promise.all(requests)
+  }
 
-    Promise.all(requests).then(async (_) => {
-      if (isNetwork(state.biologicalAssociations) || state.graph.id) {
-        saveGraph()
-      } else {
-        TW.workbench.alert.create(
-          requests.length > 1
-            ? 'Biological associations were successfully saved.'
-            : 'Biological association was successfully saved.',
-          'notice'
-        )
-      }
-    })
+  async function save() {
+    const createdBiologicalAssociations = await saveBiologicalAssociations()
+
+    if (isNetwork(state.biologicalAssociations) || state.graph.id) {
+      return saveGraph()
+    }
+
+    return createdBiologicalAssociations
   }
 
   function saveGraph() {
@@ -277,14 +269,7 @@ export function useGraph() {
       : BiologicalAssociationGraph.create(payload)
 
     request.then(({ body }) => {
-      if (state.graph.id) {
-        setParam(RouteNames.NewBiologicalAssociationGraph, {
-          biological_associations_graph_id: state.graph.id
-        })
-      }
-
       state.graph = body
-      TW.workbench.alert.create('Biological associations graph was successfully saved.', 'notice')
     })
 
     return request
@@ -294,6 +279,7 @@ export function useGraph() {
     addBiologicalRelationship,
     addObject,
     currentGraph,
+    currentNodes,
     edges,
     getBiologicalRelationshipsByNodeId,
     isGraphUnsaved,
@@ -303,6 +289,7 @@ export function useGraph() {
     removeNode,
     resetStore,
     reverseRelation,
+    save,
     saveBiologicalAssociations,
     setNodePosition,
     ...toRefs(state)
