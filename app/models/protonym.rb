@@ -526,7 +526,6 @@ class Protonym < TaxonName
   end
 
   # @return Boolean
-  #   could also be determined by parens in cached_author year
   def is_original_name?
     cached_author_year =~ /\(/ ? false : true
   end
