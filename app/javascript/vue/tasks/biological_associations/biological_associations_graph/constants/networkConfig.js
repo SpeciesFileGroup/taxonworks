@@ -5,22 +5,32 @@ export const configs = defineConfigs({
     boxSelectionEnabled: true
   },
   node: {
+    normal: {
+      type: (node) => node.type || 'circle',
+      strokeDasharray: (node) => node.strokeDasharray || 0,
+      strokeWidth: (node) => node.strokeWidth || 0,
+      strokeColor: (node) => node.strokeColor || '#4466cc',
+      color: (node) => node.color || '#4466cc'
+    },
+    hover: {
+      color: (node) => node.hoverColor
+    },
     selectable: 2
   },
   edge: {
     selectable: 1,
     normal: {
       width: 3,
-      color: (node) => node.color || '#4466cc',
-      dasharray: (node) => node.dasharray || '0',
+      color: (edge) => edge.color || '#4466cc',
+      dasharray: (edge) => edge.dasharray || '0',
       linecap: 'butt',
       animate: false,
       animationSpeed: 50
     },
     hover: {
       width: 4,
-      color: '#3355bb',
-      dasharray: '0',
+      color: (edge) => edge.hoverColor || '#3355bb',
+      dasharray: (edge) => edge.hoverDasharray || '0',
       linecap: 'butt',
       animate: false,
       animationSpeed: 50

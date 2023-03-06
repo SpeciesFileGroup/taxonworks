@@ -1,4 +1,11 @@
 <template>
+  <slot
+    name="header"
+    :selected-nodes="selectedNodes"
+    :is-graph-unsaved="isGraphUnsaved"
+    :edges="edges"
+    :current-graph="currentGraph"
+  />
   <VNetworkGraph
     ref="graph"
     class="graph panel"
@@ -59,7 +66,7 @@
     v-if="showModalEdge"
     @add-relationship="
       ($event) => {
-        createBiologicalRelationship({
+        addBiologicalRelationship({
           subjectNodeId: selectedNodes[0],
           objectNodeId: selectedNodes[1],
           relationship: $event
@@ -84,6 +91,7 @@ import { configs } from '../constants/networkConfig'
 import { graphLayout } from '../utils/graphLayout.js'
 import { useGraph } from '../composition/useGraph.js'
 import { makeNodeId } from '../utils/makeNodeId.js'
+import platformKey from 'helpers/getPlatformKey'
 import ConfirmationModal from 'components/ConfirmationModal.vue'
 import ModalObject from './ModalObject.vue'
 import ModalEdge from './ModalEdge.vue'
@@ -92,27 +100,60 @@ import ContextMenu from './ContextMenu/ContextMenu.vue'
 import ContextMenuEdge from './ContextMenu/ContextMenuEdge.vue'
 import ContextMenuView from './ContextMenu/ContextMenuView.vue'
 import ContextMenuNode from './ContextMenu/ContextMenuNode.vue'
+import useHotkey from 'vue3-hotkey'
 
 const showModalNode = ref(false)
 const showModalEdge = ref(false)
 const nodeType = ref()
 const {
+  addBiologicalRelationship,
+  addObject,
+  currentGraph,
+  edges,
+  getBiologicalRelationshipsByNodeId,
+  isGraphUnsaved,
+  isSaving,
+  layouts,
   loadGraph,
   nodes,
-  edges,
-  layouts,
-  addObject,
-  setNodePosition,
-  selectedNodes,
-  isSaving,
-  removeNode,
   removeEdge,
-  getBiologicalRelationshipsByNodeId,
-  createBiologicalRelationship,
+  removeNode,
+  resetStore,
   reverseRelation,
-  saveBiologicalAssociations
+  saveBiologicalAssociations,
+  selectedNodes,
+  setNodePosition
 } = useGraph()
 
+const hotkeys = ref([
+  {
+    keys: [platformKey(), 's'],
+    preventDefault: true,
+    handler() {
+      saveBiologicalAssociations()
+    }
+  },
+  {
+    keys: [platformKey(), 'r'],
+    preventDefault: true,
+    handler() {
+      resetStore()
+    }
+  },
+  {
+    keys: [platformKey(), 'a'],
+    preventDefault: true,
+    handler() {
+      if (selectedNodes.value.length === 2) {
+        showModalEdge.value = true
+      } else {
+        TW.workbench.alert.create('Select two nodes to create a biological association')
+      }
+    }
+  }
+])
+
+const stop = useHotkey(hotkeys.value)
 const graph = ref()
 const edgeContextMenu = ref()
 const nodeContextMenu = ref()
@@ -183,8 +224,7 @@ async function handleRemoveEdge(edgeId) {
     !edges.value[edgeId].id ||
     (await confirmationModalRef.value.show({
       title: 'Destroy biological association',
-      message:
-        'This will delete the biological association. Are you sure you want to proceed?',
+      message: 'This will delete the biological association. Are you sure you want to proceed?',
       okButton: 'Destroy',
       cancelButton: 'Cancel',
       typeButton: 'delete'
@@ -203,6 +243,8 @@ function updateLayout(direction) {
       edges: edges.value,
       nodeSize: 40
     })
+
+    if (!data) return
 
     layouts.value = data.layouts
     graph.value.setViewBox(data.viewBox)
@@ -227,7 +269,9 @@ function setGraph(graphId) {
 defineExpose({
   setGraph,
   saveBiologicalAssociations,
-  updateLayout
+  updateLayout,
+  addObject,
+  resetStore
 })
 </script>
 

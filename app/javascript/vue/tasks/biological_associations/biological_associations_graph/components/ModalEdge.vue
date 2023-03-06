@@ -6,6 +6,7 @@
     <template #body>
       <SmartSelector
         model="biological_relationships"
+        autofocus
         @selected="($event) => emit('addRelationship', $event)"
       />
     </template>

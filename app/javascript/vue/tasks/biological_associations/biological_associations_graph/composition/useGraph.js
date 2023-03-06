@@ -1,16 +1,23 @@
 import { reactive, computed, toRefs } from 'vue'
-import {
-  BiologicalAssociation,
-  BiologicalAssociationGraph
-} from 'routes/endpoints'
+import { BiologicalAssociation, BiologicalAssociationGraph } from 'routes/endpoints'
 import { makeBiologicalAssociation, makeNodeObject } from '../adapters'
-import { unsavedEdge } from '../constants/graphStyle.js'
-import { parseNodeId, makeNodeId, isEqualNodeObject } from '../utils'
+import {
+  unsavedEdge,
+  nodeCollectionObjectStyle,
+  nodeOtuStyle,
+  unsavedNodeStyle
+} from '../constants/graphStyle.js'
+import { parseNodeId, makeNodeId, isEqualNodeObject, isNetwork } from '../utils'
+import { RouteNames } from 'routes/routes'
+import { COLLECTION_OBJECT } from 'constants/index.js'
+import setParam from 'helpers/setParam'
 
-const extend = [
+const EXTEND_GRAPH = [
   'biological_associations_biological_associations_graphs',
   'biological_associations'
 ]
+
+const EXTEND_BA = ['subject', 'object', 'biological_relationship']
 
 function initState() {
   return {
@@ -29,17 +36,29 @@ function initState() {
   }
 }
 
-const state = reactive(initState())
-
 export function useGraph() {
+  const state = reactive(initState())
+
   const nodes = computed(() =>
     Object.fromEntries(
-      state.nodeObjects.map((obj) => [
-        makeNodeId(obj),
-        {
+      state.nodeObjects.map((obj) => {
+        const nodeId = makeNodeId(obj)
+        const isSaved = getBiologicalRelationshipsByNodeId(nodeId).some((ba) => !!ba.id)
+        const node = {
           name: obj.name
         }
-      ])
+
+        Object.assign(
+          node,
+          obj.objectType === COLLECTION_OBJECT ? nodeCollectionObjectStyle : nodeOtuStyle
+        )
+
+        if (!isSaved) {
+          Object.assign(node, unsavedNodeStyle)
+        }
+
+        return [nodeId, node]
+      })
     )
   )
 
@@ -62,25 +81,23 @@ export function useGraph() {
     )
   )
 
+  const currentGraph = computed(() => state.graph)
+
+  function resetStore() {
+    Object.assign(state, initState())
+  }
+
   const getBiologicalRelationshipsByNodeId = (nodeId) => {
     const obj = parseNodeId(nodeId)
 
     return state.biologicalAssociations.filter((ba) => {
-      return (
-        isEqualNodeObject(ba.object, obj) || isEqualNodeObject(ba.subject, obj)
-      )
+      return isEqualNodeObject(ba.object, obj) || isEqualNodeObject(ba.subject, obj)
     })
   }
 
-  const isGraphUnsaved = computed(() =>
-    state.biologicalAssociations.some((ba) => ba.isUnsaved)
-  )
+  const isGraphUnsaved = computed(() => state.biologicalAssociations.some((ba) => ba.isUnsaved))
 
-  function createBiologicalRelationship({
-    subjectNodeId,
-    objectNodeId,
-    relationship
-  }) {
+  function addBiologicalRelationship({ subjectNodeId, objectNodeId, relationship }) {
     const nObj = parseNodeId(subjectNodeId)
     const nSub = parseNodeId(objectNodeId)
 
@@ -109,26 +126,8 @@ export function useGraph() {
     })
   }
 
-  function isNetwork() {
-    const subjects = state.biologicalAssociations.map((edge) => edge.subject)
-    const objects = state.biologicalAssociations.map((edge) => edge.object)
-
-    const uniqueObjects = [...new Set(objects)]
-    const uniqueSubjects = [...new Set(subjects)]
-
-    return (
-      subjects.some((nodeId) => objects.includes(nodeId)) ||
-      uniqueSubjects.length < subjects.length ||
-      uniqueObjects.length < objects.length
-    )
-  }
-
   function setNodePosition(nodeId, position) {
     state.layouts.nodes[nodeId] = position
-  }
-
-  function resetStore() {
-    Object.assign(state, initState())
   }
 
   function addObject(obj) {
@@ -139,27 +138,48 @@ export function useGraph() {
 
   async function loadGraph(graphId) {
     const { body: graph } = await BiologicalAssociationGraph.find(graphId, {
-      extend
+      extend: EXTEND_GRAPH
     })
-    const baIds =
-      graph.biological_associations_biological_associations_graphs.map(
-        (ba) => ba.biological_association_id
-      )
+    const baIds = graph.biological_associations_biological_associations_graphs.map(
+      (ba) => ba.biological_association_id
+    )
 
+    resetStore()
     state.graph = graph
 
-    return BiologicalAssociation.where({
-      biological_association_id: baIds,
-      extend: ['subject', 'object', 'biological_relationship']
-    }).then(({ body }) => {
-      body.forEach((item) => {
-        const ba = makeBiologicalAssociation(item)
-
-        addObject(ba.subject)
-        addObject(ba.object)
-        state.biologicalAssociations.push(ba)
-      })
+    setParam(RouteNames.NewBiologicalAssociationGraph, {
+      biological_associations_graph_id: graphId
     })
+
+    if (baIds.length) {
+      await BiologicalAssociation.where({
+        biological_association_id: baIds,
+        extend: EXTEND_BA
+      }).then(({ body }) => {
+        body.forEach((item) => {
+          const ba = makeBiologicalAssociation(item)
+
+          addObject(ba.subject)
+          addObject(ba.object)
+          state.biologicalAssociations.push(ba)
+        })
+      })
+    }
+
+    return graph
+  }
+
+  function removeEdge(edgeId) {
+    const index = state.biologicalAssociations.findIndex((ba) => ba.uuid === edgeId)
+    const ba = state.biologicalAssociations[index]
+
+    if (ba.id) {
+      BiologicalAssociation.destroy(ba.id).then((_) => {
+        TW.workbench.alert.create('Biological association was successfully deleted.', 'notice')
+      })
+    }
+
+    state.biologicalAssociations.splice(index, 1)
   }
 
   function removeNode(nodeId) {
@@ -167,25 +187,21 @@ export function useGraph() {
     const created = biologicalAssociations.filter(({ id }) => id)
     const nodeObject = makeNodeObject(nodeId)
 
-    if (created.length) {
-      const requests = created.map(({ id }) =>
-        BiologicalAssociation.destroy(id)
-      )
+    biologicalAssociations.forEach((ba) => {
+      removeEdge(ba.uuid)
+    })
 
-      Promise.all(requests).then(() => {
-        const message =
-          created.length > 1
-            ? 'Biological association(s) were successfully deleted.'
-            : 'Biological association was successfully deleted.'
+    const message =
+      created.length > 1
+        ? 'Biological association(s) were successfully deleted.'
+        : 'Biological association was successfully deleted.'
 
-        TW.workbench.alert.create(message, 'notice')
-      })
-    }
+    TW.workbench.alert.create(message, 'notice')
 
     removeNodeObject(nodeObject)
 
-    state.biologicalAssociations = state.biologicalAssociations.filter(
-      ({ uuid }) => biologicalAssociations.some((ba) => ba.uuid !== uuid)
+    state.biologicalAssociations = state.biologicalAssociations.filter(({ uuid }) =>
+      biologicalAssociations.some((ba) => ba.uuid !== uuid)
     )
   }
 
@@ -196,9 +212,7 @@ export function useGraph() {
   }
 
   function saveBiologicalAssociations() {
-    const biologicalAssociations = state.biologicalAssociations.filter(
-      (ba) => ba.isUnsaved
-    )
+    const biologicalAssociations = state.biologicalAssociations.filter((ba) => ba.isUnsaved)
 
     const requests = biologicalAssociations.map((ba) => {
       const { biologicalRelationship, object, subject, id } = ba
@@ -224,42 +238,14 @@ export function useGraph() {
       return request
     })
 
+    if (!biologicalAssociations.length) return
+
     Promise.all(requests).then(async (_) => {
-      if (isNetwork()) {
-        const savedAssociations = state.biologicalAssociations.filter(
-          (r) => r.id
-        )
-        const graphAssociations = (
-          state.graph.biological_associations_biological_associations_graphs ||
-          []
-        ).map((obj) => obj.biological_association_id)
-
-        const payload = {
-          biological_associations_graph: {
-            biological_associations_biological_associations_graphs_attributes:
-              savedAssociations
-                .filter((ba) => !graphAssociations.includes(ba.id))
-                .map((r) => ({
-                  biological_association_id: r.id
-                }))
-          },
-          extend
-        }
-
-        const request = state.graph.id
-          ? BiologicalAssociationGraph.update(state.graph.id, payload)
-          : BiologicalAssociationGraph.create(payload)
-
-        request.then(({ body }) => {
-          state.graph = body
-          TW.workbench.alert.create(
-            'Biological associations graph was successfully saved.',
-            'notice'
-          )
-        })
+      if (isNetwork(state.biologicalAssociations) || state.graph.id) {
+        saveGraph()
       } else {
         TW.workbench.alert.create(
-          state.biologicalAssociations.length > 1
+          requests.length > 1
             ? 'Biological associations were successfully saved.'
             : 'Biological association was successfully saved.',
           'notice'
@@ -268,19 +254,57 @@ export function useGraph() {
     })
   }
 
+  function saveGraph() {
+    const biologicalAssociationsSaved = state.biologicalAssociations.filter((r) => r.id)
+    const biologicalAssociationsInGraph = (
+      state.graph.biological_associations_biological_associations_graphs || []
+    ).map((obj) => obj.biological_association_id)
+
+    const payload = {
+      biological_associations_graph: {
+        biological_associations_biological_associations_graphs_attributes:
+          biologicalAssociationsSaved
+            .filter((ba) => !biologicalAssociationsInGraph.includes(ba.id))
+            .map((r) => ({
+              biological_association_id: r.id
+            }))
+      },
+      extend: EXTEND_GRAPH
+    }
+
+    const request = state.graph.id
+      ? BiologicalAssociationGraph.update(state.graph.id, payload)
+      : BiologicalAssociationGraph.create(payload)
+
+    request.then(({ body }) => {
+      if (state.graph.id) {
+        setParam(RouteNames.NewBiologicalAssociationGraph, {
+          biological_associations_graph_id: state.graph.id
+        })
+      }
+
+      state.graph = body
+      TW.workbench.alert.create('Biological associations graph was successfully saved.', 'notice')
+    })
+
+    return request
+  }
+
   return {
-    resetStore,
-    nodes,
-    edges,
-    loadGraph,
+    addBiologicalRelationship,
     addObject,
-    setNodePosition,
-    createBiologicalRelationship,
+    currentGraph,
+    edges,
+    getBiologicalRelationshipsByNodeId,
+    isGraphUnsaved,
+    loadGraph,
+    nodes,
+    removeEdge,
+    removeNode,
+    resetStore,
     reverseRelation,
     saveBiologicalAssociations,
-    isGraphUnsaved,
-    getBiologicalRelationshipsByNodeId,
-    removeNode,
+    setNodePosition,
     ...toRefs(state)
   }
 }
