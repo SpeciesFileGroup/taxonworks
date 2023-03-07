@@ -7,6 +7,13 @@ GIT
       ffi (~> 1.14)
 
 GIT
+  remote: https://github.com/LocoDelAssembly/Voight-Kampff.git
+  revision: 1316d141c615054e4889aa9876d01d20bdb01332
+  specs:
+    voight_kampff (1.1.4)
+      rack (>= 1.4, < 3.0)
+
+GIT
   remote: https://github.com/LocoDelAssembly/dwc-archive.git
   revision: c2243e26a3884af64f3295ad30f26306a16df38a
   branch: overhaul
@@ -603,8 +610,6 @@ GEM
     validates_timeliness (4.1.1)
       timeliness (>= 0.3.10, < 1)
     vcr (6.1.0)
-    voight_kampff (1.1.4)
-      rack (>= 1.4, < 3.0)
     waxy (0.1.1)
       tilt (~> 2.1)
     web-console (4.2.0)
@@ -762,6 +767,7 @@ DEPENDENCIES
   uglifier (~> 4.2)
   validates_timeliness (~> 4.1, >= 4.1.1)
   vcr (~> 6.0)
+  voight_kampff!
   waxy (~> 0.1.1)
   web-console (~> 4.0, >= 4.0.1)
   webdrivers (~> 5.0)
