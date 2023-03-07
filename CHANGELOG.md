@@ -17,6 +17,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Repository autocomplete [#3331]
 - Some staged filter results failing to set size of window [#3328]
 
+### Changed
+- `/combinations/<id>` redirects to `/taxon_names/<id>`
+
 [#3328]: https://github.com/SpeciesFileGroup/taxonworks/issues/3328
 [#3331]: https://github.com/SpeciesFileGroup/taxonworks/issues/3331
 [#3329]: https://github.com/SpeciesFileGroup/taxonworks/issues/3329
