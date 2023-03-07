@@ -7,9 +7,6 @@ module Queries
       # @param limit_to_project [String] `true` or `false`
       attr_accessor :limit_to_project
 
-      # Comes from sessions_current_project_id in UI
-      attr_accessor :project_id
-
       # @param [Hash] args
       def initialize(string, project_id: nil, limit_to_project: false)
         @limit_to_project = limit_to_project
