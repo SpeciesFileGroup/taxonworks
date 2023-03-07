@@ -88,7 +88,6 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { configs } from '../constants/networkConfig'
-import { graphLayout } from '../utils/graphLayout.js'
 import { useGraph } from '../composition/useGraph.js'
 import { makeNodeId } from '../utils/makeNodeId.js'
 import ConfirmationModal from 'components/ConfirmationModal.vue'
@@ -233,7 +232,7 @@ function openEdgeModal() {
 
 function setGraph(graphId) {
   loadGraph(graphId).then((_) => {
-    updateLayout('LR')
+    graph.value.fitToContents()
   })
 }
 
@@ -245,7 +244,6 @@ defineExpose({
   resetStore,
   saveBiologicalAssociations,
   setGraph,
-  updateLayout,
   isGraphUnsaved,
   save
 })

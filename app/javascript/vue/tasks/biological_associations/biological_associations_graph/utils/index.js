@@ -1,4 +1,3 @@
-export * from './graphLayout'
 export * from './isEqualNodeObject'
 export * from './isNetwork'
 export * from './makeNodeId'
