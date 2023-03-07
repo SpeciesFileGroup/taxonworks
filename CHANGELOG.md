@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `Set as current` button doesn't work on Original combination section in New taxon name task [#3325]
 - Repository autocomplete [#3331]
 - Some staged filter results failing to set size of window [#3328]
+- Fixed repository, source, serial, people autocomplete with new project_id param. New specs added
 - Short URLs not working due to Ruby 3.2 incompatibility.
 
 ### Changed
