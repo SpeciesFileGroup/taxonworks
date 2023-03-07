@@ -8,6 +8,10 @@
 #   @return [String]
 #     the name of the graph
 #
+# @!attribute graph
+#   @return [Json]
+#      a layout for the graph
+#      
 class BiologicalAssociationsGraph < ApplicationRecord
   include Housekeeping
   include Shared::Citations

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_13_090400) do
+ActiveRecord::Schema.define(version: 2023_03_07_041322) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -132,6 +132,7 @@ ActiveRecord::Schema.define(version: 2023_01_13_090400) do
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
     t.string "name"
+    t.jsonb "layout"
     t.index ["created_by_id"], name: "index_biological_associations_graphs_on_created_by_id"
     t.index ["project_id"], name: "index_biological_associations_graphs_on_project_id"
     t.index ["updated_by_id"], name: "index_biological_associations_graphs_on_updated_by_id"
