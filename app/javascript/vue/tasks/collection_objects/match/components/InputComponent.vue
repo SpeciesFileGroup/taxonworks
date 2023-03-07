@@ -15,27 +15,27 @@ import { URLParamsToJSON } from 'helpers/url/parse'
 export default {
   emits: ['lines'],
 
-  data () {
+  data() {
     return {
       text: undefined
     }
   },
 
   watch: {
-    text (newVal) {
-      this.$emit('lines', newVal.split('\n').filter(line => line.trim().length))
+    text(newVal) {
+      this.$emit(
+        'lines',
+        newVal.split('\n').filter((line) => line.trim().length)
+      )
     }
   },
 
-  created () {
+  created() {
     const urlParams = URLParamsToJSON(location.href)
-    const coIds = urlParams.collection_object_ids || []
-    const identifierIds = urlParams.identifier_ids || []
+    const coIds = urlParams.collection_object_id || []
+    const identifierIds = urlParams.identifier_id || []
 
-    this.text = [
-      ...coIds,
-      ...identifierIds
-    ].join('\n')
+    this.text = [...coIds, ...identifierIds].join('\n')
   }
 }
 </script>

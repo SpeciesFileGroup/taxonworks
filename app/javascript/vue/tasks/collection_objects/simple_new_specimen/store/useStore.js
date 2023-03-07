@@ -24,7 +24,8 @@ const makeInitialState = () => ({
   identifier: undefined,
   namespace: undefined,
   otu: undefined,
-  recentList: []
+  recentList: [],
+  createTotal: 1
 })
 
 export const useStore = defineStore('main', {

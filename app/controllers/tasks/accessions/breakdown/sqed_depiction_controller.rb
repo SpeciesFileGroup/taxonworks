@@ -7,10 +7,13 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
   # /tasks/accessions/breakdown/sqed_depiction/todo_map
   def todo_map
     SqedDepiction.clear_stale_progress
-    @base_query = ::Queries::SqedDepiction::Filter.new(filter_params).all
+
+    @sqed_depictions = ::Queries::SqedDepiction::Filter.new(params).all
       .where(project_id: sessions_current_project_id)
       .order(:id)
-    @sqed_depictions = @base_query.page(params[:page]).per(params[:per] || 50)
+      .page(params[:page])
+      .per(params[:per])
+
     respond_to do |format|
       format.html {}
       format.json {}
@@ -69,25 +72,5 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
     # TODO: Run jobs in background with admin task.
     # @sqed_depiction.preprocess
   end
-
-  private
-
-  def filter_params
-    a = params.permit(
-      ::Queries::SqedDepiction::Filter::COLLECTION_OBJECT_FILTER_PARAMS,
-      :recent,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-    )
-
-    # TODO: check user_id: []
-
-    a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
-    a
-  end
-
-
 
 end

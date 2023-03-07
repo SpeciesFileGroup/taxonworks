@@ -13,11 +13,17 @@ class SourcesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @sources = Queries::Source::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per] || 500)
+        @sources = Queries::Source::Filter.new(params).all
+        .order(:cached)
+        .page(params[:page])
+        .per(params[:per])
       }
       format.bib {
         # TODO - handle count and download
-        @sources = Queries::Source::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per] || 2000)
+        @sources = Queries::Source::Filter.new(params).all
+        .order(:cached)
+        .page(params[:page])
+        .per(params[:per] || 2000)
       }
     end
   end
@@ -81,7 +87,7 @@ class SourcesController < ApplicationController
   def attributes
     render json: ::Source.columns.select{
       |a| Queries::Source::Filter::ATTRIBUTES.include?(
-        a.name)
+        a.name.to_sym)
     }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
 
@@ -210,7 +216,7 @@ class SourcesController < ApplicationController
 
   # GET /sources/generate.json?<filter params>
   def generate
-    sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 2000)
+    sources = Queries::Source::Filter.new(params).all.page(params[:page]).per(params[:per] || 2000)
     @download = ::Export::Bibtex.download(
       sources,
       request.url,
@@ -222,7 +228,7 @@ class SourcesController < ApplicationController
 
   # GET /api/v1/sources
   def api_index
-    @sources = Queries::Source::Filter.new(api_params).all
+    @sources = Queries::Source::Filter.new(params.merge!(api: true)).all
       .order('sources.id')
       .page(params[:page]).per(params[:per])
     render '/sources/api/v1/index'
@@ -245,112 +251,6 @@ class SourcesController < ApplicationController
 
   def autocomplete_params
     params.permit(:limit_to_project).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
-  end
-
-  def filter_params
-    params[:project_id] = sessions_current_project_id
-    params.permit(
-      :author,
-      :ancestor_id,
-      :author_ids_or,
-      :bibtex_type,
-      :citations,
-      :citations_on_otus,
-      :documents,
-      :exact_author,
-      :exact_title,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :match_identifiers,
-      :match_identifiers_delimiter,
-      :match_identifiers_type,
-      :in_project,
-      :namespace_id,
-      :nomenclature,
-      :notes,
-      :per,
-      :project_id,
-      :query_term,
-      :recent,
-      :roles,
-      :source_type,
-      :serial,
-      :tags,
-      :title,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      :with_doi,
-      :with_title,
-      :year_end,
-      :year_start,
-      author_ids: [],
-      bibtex_type: [],
-      citation_object_type: [],
-      ids: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      topic_ids: [],
-      serial_ids: [],
-      empty: [],
-      not_empty: []
-    )
-  end
-
-  def api_params
-    params[:project_id] = sessions_current_project_id
-    params.permit(
-      :ancestor_id,
-      :author,
-      :author_ids_or,
-      :bibtex_type,
-      :citations,
-      :citations_on_otus,
-      # :documents
-      :exact_author,
-      :exact_title,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :match_identifiers,
-      :match_identifiers_delimiter,
-      :match_identifiers_type,
-      :in_project,
-      :namespace_id,
-      :nomenclature,
-      :notes,
-      :per,
-      :project_id,
-      :query_term,
-      :recent,
-      :roles,
-      :serial,
-      :source_type,
-      :tags,
-      :title,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      :with_doi,
-      :with_title,
-      :year_end,
-      :year_start,
-      bibtex_type: [],
-      ids: [],
-      author_ids: [],
-      citation_object_type: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      topic_ids: [],
-      serial_ids: [],
-      empty: [],
-      not_empty: []
-    )
   end
 
   def set_source

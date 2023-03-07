@@ -15,7 +15,7 @@
         <div class="flex-separate">
           <div class="radial-annotator-menu">
             <div>
-              <radial-menu 
+              <radial-menu
                 :options="menuOptions"
                 @on-click="createLabels"
               />
@@ -26,7 +26,7 @@
     </modal>
     <VBtn
       class="circle-button"
-      color="primary"
+      color="radial"
       title="Radial filter"
       circle
       :disabled="disabled"
@@ -70,7 +70,7 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 const menuOptions = computed(() => {
   const labels = SLICES[props.objectType]
-  const slices = labels.map(item => addSlice(item))
+  const slices = labels.map((item) => addSlice(item))
 
   return {
     width: 400,
@@ -92,7 +92,7 @@ const menuOptions = computed(() => {
 
 const isVisible = ref(false)
 
-function addSlice ({ label, link }) {
+function addSlice({ label, link }) {
   return {
     label,
     name: link,
@@ -102,24 +102,25 @@ function addSlice ({ label, link }) {
   }
 }
 
-function closeModal () {
+function closeModal() {
   isVisible.value = false
   emit('close')
 }
 
-function openRadialMenu () {
+function openRadialMenu() {
   isVisible.value = true
 }
 
-function createLabels ({ name }) {
-  const { link, param } = SLICES[props.objectType].find(slice => slice.link === name)
+function createLabels({ name }) {
+  const { link, param } = SLICES[props.objectType].find(
+    (slice) => slice.link === name
+  )
 
-  AjaxCall('post', link, { [param]: props.ids }).then(_ => {
+  AjaxCall('post', link, { [param]: props.ids }).then((_) => {
     TW.workbench.alert.create('Label was successfully created.', 'notice')
     closeModal()
   })
 }
-
 </script>
 
 <script>

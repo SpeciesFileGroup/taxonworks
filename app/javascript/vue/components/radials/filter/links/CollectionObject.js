@@ -1,37 +1,24 @@
+// Update corresponding at SUBQUERIES in /lib/queries/query/filter.rb
+import {
+  FILTER_BIOLOGICAL_ASSOCIATION,
+  FILTER_COLLECTING_EVENT,
+  FILTER_EXTRACT,
+  FILTER_IMAGE,
+  FILTER_LOAN,
+  FILTER_OBSERVATION,
+  FILTER_OTU,
+  FILTER_SOURCE,
+  FILTER_TAXON_NAME,
+} from '../constants/filterLinks'
+
 export const CollectionObject = [
-  {
-    label: 'By collecting event',
-    link: '/tasks/collection_objects/filter',
-    params: ['collecting_event_ids']
-  },
-  {
-    label: 'By verbatim locality',
-    link: '/tasks/collection_objects/filter',
-    params: ['verbatim_locality']
-  },
-  {
-    label: 'By OTU',
-    link: '/tasks/collection_objects/filter',
-    params: ['otu_ids']
-  },
-  {
-    label: 'By taxon name',
-    link: '/tasks/collection_objects/filter',
-    params: ['ancestor_id']
-  },
-  {
-    label: 'Images',
-    link: '/tasks/images/filter',
-    params: ['collection_object_id']
-  },
-  {
-    label: 'Images by taxon name',
-    link: '/tasks/images/filter',
-    params: ['taxon_name_id']
-  },
-  {
-    label: 'By geographic area',
-    link: '/tasks/collection_objects/filter',
-    params: ['geographic_area_id']
-  }
+  FILTER_BIOLOGICAL_ASSOCIATION,
+  FILTER_COLLECTING_EVENT,
+  FILTER_EXTRACT,
+  FILTER_IMAGE,
+  FILTER_LOAN,
+  FILTER_OBSERVATION,
+  FILTER_OTU,
+  FILTER_SOURCE,
+  FILTER_TAXON_NAME,
 ]

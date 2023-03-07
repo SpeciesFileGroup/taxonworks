@@ -24,7 +24,7 @@ class AssertedDistribution < ApplicationRecord
   include Shared::Notes
   include SoftValidation
   include Shared::Tags
-  include Shared::DataAttributes
+  include Shared::DataAttributes # why?
   include Shared::Citations
   include Shared::Confidences
   include Shared::OriginRelationship

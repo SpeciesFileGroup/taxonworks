@@ -1,56 +1,47 @@
 module Queries
   module Serial
 
-    # !! does not inherit from base query
-    class Filter
+    class Filter < Query::Filter
+      include Queries::Concerns::DataAttributes
 
-      # General annotator options handling
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      attr_accessor :options
+      PARAMS = [
+        :name,
+        :serial_id,
+        serial_id: []
+      ].freeze
 
-      # Params specific to Note
+      # @return Array
+      attr_accessor :serial_id
+
+      # @param [String]
+      #   matching name exactlyjk
       attr_accessor :name
 
-      def initialize(params)
+      def initialize(query_params)
+        super
         @name = params[:name]
-        @options = params
+        @serial_id = params[:serial_id]
+        set_data_attributes_params(params)
       end
 
-      # @return [ActiveRecord::Relation]
+      def serial_id
+        [@serial_id].flatten.compact
+      end
+
+      # Required, disable default facet
+      def project_id_facet
+        nil
+      end
+
+      def name_facet
+        return nil if nil.blank?
+        table[:name].eq(name)
+      end
+
       def and_clauses
-        clauses = [
-            matching_name,
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+        [ name_facet ]
       end
 
-      # @return [Arel::Node, nil]
-      def matching_name
-        name.blank? ? nil : table[:name].eq(name)
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::Serial.where(and_clauses.to_sql)
-        else
-          ::Serial.all
-        end
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Serial.arel_table
-      end
     end
   end
 end

@@ -13,20 +13,22 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters'
 import PanelContainer from './PanelContainer.vue'
-import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
+import RadialFilterAttribute from 'components/radials/linker/RadialFilterAttribute.vue'
 import TableData from '../Table/TableData.vue'
 
 const HEADERS = ['OTU', 'Determiners', 'Date']
 
 const store = useStore()
-const determinations = computed(() => store.getters[GetterNames.GetDeterminations])
+const determinations = computed(
+  () => store.getters[GetterNames.GetDeterminations]
+)
 
 const parameters = computed(() => {
   const d = determinations.value[0]
 
   return d
     ? {
-        otu_ids: [d.otu_id],
+        otu_id: [d.otu_id],
         ancestor_id: d.otu.taxon_name_id,
         taxon_name_id: d.otu.taxon_name_id
       }
@@ -34,9 +36,9 @@ const parameters = computed(() => {
 })
 
 const list = computed(() => {
-  return determinations.value.map(d => ({
+  return determinations.value.map((d) => ({
     otu: d.otu.object_tag,
-    roles: d?.determiner_roles?.map(r => r?.person?.cached).join('; '),
+    roles: d?.determiner_roles?.map((r) => r?.person?.cached).join('; '),
     date: [d.day_made, d.month_made, d.year_made].filter(Boolean).join('/')
   }))
 })

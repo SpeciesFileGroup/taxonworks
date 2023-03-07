@@ -132,11 +132,13 @@ module Utilities::Strings
   # @param string [String]
   # @return [Array]
   #   whitespace and special character split, then any string containing a digit eliminated
+  # #alphanumeric allows searches by page number, year, etc.
   def self.alphabetic_strings(string)
     return [] if string.nil? || string.length == 0
     string.split(/[^[[:word:]]]+/).select { |b| !(b =~ /\d/) }.reject { |b| b.empty? }
   end
 
+  # alphanumeric allows searches by page number, year, etc.
   def self.alphanumeric_strings(string)
     return [] if string.nil? || string.length == 0
     string.split(/[^[[:word:]]]+/).reject { |b| b.empty? }

@@ -1,4 +1,7 @@
-# An Image is just that, as it is stored in the filesystem.  No additional metadata beyond file descriptors is included here.
+# An Image is just that, as it is stored in the filesystem. No additional metadata beyond file descriptors is included here.
+# More broadly we consider an Image to be the digital encoding of a radiation-derived observation. This lets Images
+# conceptually include things like 3D volumetric models, ASCII drawings, or other data that were generated from (originated based on)
+# light (radiation) interacting with life.
 #
 # This class relies on the paperclip gem and the ImageMagik app to link, store and manipulate images.
 #

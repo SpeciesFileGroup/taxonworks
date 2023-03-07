@@ -6,8 +6,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName < TaxonN
     self.parent.disjoint_taxon_name_relationships +
         self.collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression) +
-        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym,
-            TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective)
+        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym)
   end
 
   def object_status

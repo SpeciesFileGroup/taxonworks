@@ -2,16 +2,12 @@
   "extends": [
     "standard",
     "eslint:recommended",
-    "plugin:vue/vue3-strongly-recommended"
+    "plugin:vue/vue3-strongly-recommended",
+    "prettier"
   ],
-  "plugins": [
-    "vue",
-    "import"
-  ],
+  "plugins": ["vue", "import"],
   "env": {
-    "browser": true,
-    "es2021": true,
-    "jquery": true
+    "browser": true
   },
   "parserOptions": {
     "ecmaVersion": "latest",
@@ -23,5 +19,15 @@
     "defineEmits": true,
     "defineProps": true,
     "defineExpose": true
+  },
+  "rules": {
+    "space-before-function-paren": [
+      "error",
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "always"
+      }
+    ]
   }
 }

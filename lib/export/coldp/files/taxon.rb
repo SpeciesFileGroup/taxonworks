@@ -144,6 +144,9 @@ module Export::Coldp::Files::Taxon
 
       taxon_remarks_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Taxon.remarks',
                                                  project_id: otus[0]&.project_id)&.id
+      name_phrase_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Taxon.namePhrase',
+                                                 project_id: otus[0]&.project_id)&.id
+
       otus.each do |o|
         # !! When a name is a synonmy (combination), but that combination has no OTU
         # !! then the parent of the name in the taxon table is nil
