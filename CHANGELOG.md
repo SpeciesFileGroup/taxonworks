@@ -9,12 +9,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
-
 ### Fixed
 - Radial annotator documentation shows too much [#3326]
+- Roles not displaying while edint loan [#3327]
+- Loan autocomplete [#3329] 
 
+[#3329]: https://github.com/SpeciesFileGroup/taxonworks/issues/3329
+[#3327]: https://github.com/SpeciesFileGroup/taxonworks/issues/3327
 [#3326]: https://github.com/SpeciesFileGroup/taxonworks/issues/3326
-
 
 ## [0.31.0] - 2023-03-07
 

@@ -1,7 +1,8 @@
 # TaxonNameAutocompleteQuery
 module Queries
   module Loan 
-    class Autocomplete < Queries::Query
+
+    class Autocomplete < Query::Autocomplete
 
       # @param [Hash] args
       def initialize(string, project_id: nil)
