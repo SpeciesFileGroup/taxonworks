@@ -136,15 +136,16 @@ export function useGraph() {
   }
 
   async function loadGraph(graphId) {
-    const { body: graph } = await BiologicalAssociationGraph.find(graphId, {
+    const { body } = await BiologicalAssociationGraph.find(graphId, {
       extend: EXTEND_GRAPH
     })
-    const baIds = graph.biological_associations_biological_associations_graphs.map(
+    const baIds = body.biological_associations_biological_associations_graphs.map(
       (ba) => ba.biological_association_id
     )
 
     resetStore()
-    state.graph = graph
+    state.graph = body
+    state.layouts = JSON.parse(body.layout)
 
     if (baIds.length) {
       await BiologicalAssociation.where({
@@ -161,7 +162,7 @@ export function useGraph() {
       })
     }
 
-    return graph
+    return body
   }
 
   function removeEdge(edgeId) {
@@ -254,6 +255,7 @@ export function useGraph() {
 
     const payload = {
       biological_associations_graph: {
+        layout: JSON.stringify(state.layouts),
         biological_associations_biological_associations_graphs_attributes:
           biologicalAssociationsSaved
             .filter((ba) => !biologicalAssociationsInGraph.includes(ba.id))

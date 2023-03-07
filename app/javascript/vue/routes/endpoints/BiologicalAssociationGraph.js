@@ -5,6 +5,7 @@ const controller = 'biological_associations_graphs'
 const permitParams = {
   biological_associations_graph: {
     name: String,
+    layout: Object,
     origin_citation_attributes: {
       id: Number,
       _destroy: Boolean,

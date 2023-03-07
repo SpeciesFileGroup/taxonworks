@@ -1,4 +1,4 @@
-json.extract! biological_associations_graph, :id, :created_by_id, :updated_by_id, :project_id, :name
+json.extract! biological_associations_graph, :id, :created_by_id, :updated_by_id, :project_id, :name, :layout
 json.partial! '/shared/data/all/metadata', object: biological_associations_graph
 
 if extend_response_with('biological_associations_biological_associations_graphs')
