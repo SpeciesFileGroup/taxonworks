@@ -8,7 +8,9 @@ module Queries
         :taxon_determinations,
         :with_buffered_determinations,
         :with_buffered_collecting_event,
-        :with_buffered_other_labels
+        :with_buffered_other_labels,
+
+        :local_identifiers,
       ].freeze
 
       PARAMS = [
@@ -31,6 +33,13 @@ module Queries
 
       def sqed_depiction_id
         [@sqed_depiction_id].flatten.compact
+      end
+
+      # TODO: will need to consider moving Identifies out of base class
+      # because of edge cases like this (less inheritence, more composition)
+      # applies to CO, not here 
+      def local_identifiers_facet
+        nil
       end
 
       # TODO: use WITH

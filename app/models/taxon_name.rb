@@ -82,6 +82,10 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   @return [String]
 #   As in `cached` but with <i></i> tags.
 #
+# @attribute cached_author
+#   @return [String, nil]
+#      author string *without* parentheses
+#
 # @attribute cached_author_year
 #   @return [String, nil]
 #      author and year string with parentheses where necessary, i.e. with context of present placement for ICZN
@@ -622,6 +626,7 @@ class TaxonName < ApplicationRecord
     try(:source).try(:year)
   end
 
+  # TODO: cleanly isolate getters, setters, and cached builders
   # @return String, nil
   #   virtual attribute, to ultimately be fixed in db
   def get_author
@@ -737,6 +742,10 @@ class TaxonName < ApplicationRecord
 
   # TODO: should be moved to helpers
   # and referenced in models with helper.
+
+  # TODO: in refactor these are often just helper methods ,
+  # though variously used in soft_validations
+  # (and various are only used in helpers already)
 
   # @return [String]
   #   combination of cached_html and cached_author_year.
@@ -895,7 +904,7 @@ class TaxonName < ApplicationRecord
     return self if !unavailable_or_invalid?                      # catches all cases where no Classifications or Relationships are provided
     relationship = first_possible_valid_taxon_name_relationship
     relationship.nil? ? self : relationship.object_taxon_name    # ?! probably the if is caught by unavailable_or_invalid already
-   end
+  end
 
   # @return [Array of TaxonName]
   #  returns list of invalid names for a given taxon.
@@ -942,14 +951,14 @@ class TaxonName < ApplicationRecord
   #   names of all genera where the species was placed
   def name_in_gender(gender = nil)
     case gender
-      when 'masculine'
-        n = masculine_name
-      when 'feminine'
-        n = feminine_name
-      when 'neuter'
-        n = neuter_name
-      else
-        n = nil
+    when 'masculine'
+      n = masculine_name
+    when 'feminine'
+      n = feminine_name
+    when 'neuter'
+      n = neuter_name
+    else
+      n = nil
     end
     n = n.blank? ? name : n
     return n
@@ -990,11 +999,13 @@ class TaxonName < ApplicationRecord
     set_cached_valid_taxon_name_id
     set_cached_is_valid
 
-    # These two can be isolated as they are not always pertinent to a generalized cascading cache setting
+    # TODO: Isolate and optimize. These an be isolated as they are not always pertinent to a generalized cascading cache setting
     # For example, when a TaxonName relationship forces a cached reload it may/not need to call these two things
+    # TODO: build author year from cached author and year, not the other way around
+    #  * at this point we have already updated date
     set_cached_classified_as
     set_cached_author_year
-    set_cached_author # should be after the 'set_cached_author_year'
+    set_cached_author # should be after the 'set_cached_author_year
   end
 
   def set_cached_valid_taxon_name_id
@@ -1022,9 +1033,8 @@ class TaxonName < ApplicationRecord
   end
 
   def set_cached_author
-    update_column(:cached_author, get_author)
+    update_column(:cached_author, get_author&.gsub(/[\(\)]/, ''))
   end
-
 
   def set_cached_classified_as
     update_column(:cached_classified_as, get_cached_classified_as)
@@ -1075,10 +1085,10 @@ class TaxonName < ApplicationRecord
       # self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
 
       self_and_ancestors
-      .unscope(:order)
-      .order(generations: :DESC)
-      .reload # TODO Why needed? Should not be
-      .to_a
+        .unscope(:order)
+        .order(generations: :DESC)
+        .reload # TODO Why needed? Should not be
+        .to_a
     end
   end
 
@@ -1130,7 +1140,7 @@ class TaxonName < ApplicationRecord
 
     # !! TODO: create a persisted only version of this for speed
     # !! You can not use self.self_and_ancestors because (this) record is not saved off.
-    safe_self_and_ancestors.each do |i| 
+    safe_self_and_ancestors.each do |i|
       rank = i.rank
       gender = i.gender_name if rank == 'genus'
 
@@ -1244,7 +1254,7 @@ class TaxonName < ApplicationRecord
 
   # return [String, nil, false] # TODO: fix
   def get_genus_species(genus_option, self_option)
-  # see Protonym
+    # see Protonym
     true
   end
 
@@ -1257,6 +1267,7 @@ class TaxonName < ApplicationRecord
   # return [String]
   #   the author and year of the name, adds parenthesis where asserted
   def get_author_and_year
+    # TODO: Isolate to Combination
     if self.type == 'Combination'
       c = protonyms_by_rank
       return nil if c.empty?
@@ -1275,7 +1286,7 @@ class TaxonName < ApplicationRecord
     when :icn
       ay = icn_author_and_year(taxon)
     else
-      ay = ([author_string] + [year_integer]).compact.join(' ')
+      ay = ([author_string] + [year_integer]).compact.join(' ') # TODO: !! cached_nomenclature_date is set here already, don't recalculate !!
     end
     ay.blank? ? nil : ay
   end
@@ -1324,7 +1335,7 @@ class TaxonName < ApplicationRecord
       y = [taxon.try(:year_integer)]
     end
     if a[0] =~ /^\(.+\)$/ # (Author)
-      a[0] = a[0][1..-2] ## remove parentheses in the author string
+      a[0] = a[0][1..-2] ## remove parentheses in the author string # TODO: draw from cached_author
       p = true
     else
       p = false
@@ -1425,16 +1436,16 @@ class TaxonName < ApplicationRecord
 
     sql = t1[:updated_by_id].eq(user_id).or(t1[:created_by_id].eq(user_id))
       .or(t2[:updated_by_id].eq(user_id).or(t2[:created_by_id].eq(user_id))
-    ).to_sql
+         ).to_sql
 
-    sql2 = t1[:updated_at].between( 1.weeks.ago..Time.now )
-      .or( t2[:updated_at].between( 1.weeks.ago..Time.now ) ).to_sql
+         sql2 = t1[:updated_at].between( 1.weeks.ago..Time.now )
+           .or( t2[:updated_at].between( 1.weeks.ago..Time.now ) ).to_sql
 
-    TaxonName.with_taxon_name_relationships
-      .where(taxon_names: {project_id: project_id})
-      .where(sql2)
-      .where(sql)
-      .order('taxon_names.updated_at DESC') ## needs optimisation. Does not sort by TNR date
+         TaxonName.with_taxon_name_relationships
+           .where(taxon_names: {project_id: project_id})
+           .where(sql2)
+           .where(sql)
+           .order('taxon_names.updated_at DESC') ## needs optimisation. Does not sort by TNR date
   end
 
   # @return [Array]
@@ -1591,9 +1602,9 @@ class TaxonName < ApplicationRecord
 
   # TODO: this needs to go.
   def sv_missing_confidence_level # should be removed once the alternative solution is implemented. It is heavily used now.
-    confidence_level_array = [93]
-    confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.project_id).pluck(:id)
-    soft_validations.add(:base, 'Confidence level is missing') if !confidence_level_array.empty? && (self.confidences.pluck(:confidence_level_id) & confidence_level_array).empty?
+  confidence_level_array = [93]
+  confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.project_id).pluck(:id)
+  soft_validations.add(:base, 'Confidence level is missing') if !confidence_level_array.empty? && (self.confidences.pluck(:confidence_level_id) & confidence_level_array).empty?
   end
 
   def sv_missing_original_publication
@@ -1609,8 +1620,8 @@ class TaxonName < ApplicationRecord
           citMaxP = matchdata1[2] ? matchdata1[2].to_i : matchdata1[3].to_i
           matchdata = self.source.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
           if citMinP && citMaxP && matchdata
-          minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
-          maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
+            minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
+            maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
             minP = 1 if minP == maxP && %w{book booklet manual mastersthesis phdthesis techreport}.include?(self.source.bibtex_type)
             unless (maxP && minP && minP <= citMinP && maxP >= citMaxP)
               soft_validations.add(:base, 'Original citation could be out of the source page range')
@@ -1773,4 +1784,4 @@ class TaxonName < ApplicationRecord
     true # see validation in Hybrid.rb
   end
 
-end
+  end

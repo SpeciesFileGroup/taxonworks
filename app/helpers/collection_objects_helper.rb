@@ -1,7 +1,6 @@
 module CollectionObjectsHelper
 
   def table_example(collection_objects)
-
     cols = %i{
       class 
       b
@@ -11,17 +10,15 @@ module CollectionObjectsHelper
     tag.table do 
       tag.tr { cols.collect{|h| tag.td(h.to_s) }.join.html_safe } + 
 
-        collection_objects.collect{|co|
-          tag.tr +
-            tag.td( co.dwc_class) +
-            tag.td( co.dwc_order) +
-            tag.td( co.dwc_family) +
-            tag.td( co.dwc_sex) 
+      collection_objects.collect{|co|
+        tag.tr +
+          tag.td( co.dwc_class) +
+          tag.td( co.dwc_order) +
+          tag.td( co.dwc_family) +
+          tag.td( co.dwc_sex) 
 
-        }.join.html_safe
-
+      }.join.html_safe
     end.html_safe
-
   end
 
 

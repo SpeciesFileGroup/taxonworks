@@ -3,7 +3,7 @@
     <smart-selector
       class="margin-medium-bottom"
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-      :autocomplete-params="{'type[]' : 'ConfidenceLevel'}"
+      :autocomplete-params="{ 'type[]': 'ConfidenceLevel' }"
       get-url="/controlled_vocabulary_terms/"
       model="confidence_levels"
       button-class="button-submit"
@@ -34,16 +34,20 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['create'])
+
 const allList = ref([])
 
 onBeforeMount(() => {
-  ControlledVocabularyTerm.where({ type: ['ConfidenceLevel'] }).then(({ body }) => {
-    allList.value = body
-  })
+  ControlledVocabularyTerm.where({ type: ['ConfidenceLevel'] }).then(
+    ({ body }) => {
+      allList.value = body
+    }
+  )
 })
 
-function createConfidence (confidence) {
-  const promises = props.ids.map(id => {
+function createConfidence(confidence) {
+  const promises = props.ids.map((id) => {
     const payload = {
       confidence_level_id: confidence.id,
       confidence_object_id: id,
@@ -53,9 +57,15 @@ function createConfidence (confidence) {
     return Confidence.create({ confidence: payload })
   })
 
-  Promise.all(promises).then(_ => {
-    TW.workbench.alert.create('Note item(s) were successfully created', 'notice')
+  Promise.all(promises).then((_) => {
+    emit(
+      'create',
+      promises.map((r) => r.body)
+    )
+    TW.workbench.alert.create(
+      'Note item(s) were successfully created',
+      'notice'
+    )
   })
 }
-
 </script>

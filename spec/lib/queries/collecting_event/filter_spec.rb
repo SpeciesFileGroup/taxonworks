@@ -115,11 +115,6 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all.map(&:id)).to contain_exactly(ce2.id)
   end
 
-  specify '#in_verbatim_locality' do
-    query.in_verbatim_locality = 'Under'
-    expect(query.all.map(&:id)).to contain_exactly(ce2.id)
-  end
-
   specify '#in_labels' do
     query.in_labels = 'star'
     expect(query.all.map(&:id)).to contain_exactly(ce2.id)
@@ -135,30 +130,6 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     ce1.update!(geographic_area: FactoryBot.create(:valid_geographic_area))
     query.geographic_area_id = [ce1.geographic_area_id]
     expect(query.all.map(&:id)).to contain_exactly(ce1.id)
-  end
-
-  context 'collecting_event_wildcards' do
-    specify '#start_date_year (integer field test) 1' do
-      query.start_date_year = 20
-      query.collecting_event_wildcards = 'start_date_year'
-      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
-    end
-
-    specify '#start_date_year (integer field test) 2' do
-      query.start_date_year = 2010
-      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
-    end
-
-    specify '#verbatim_locality (string field test) 1' do
-      query.verbatim_locality = 'Out there'
-      query.collecting_event_wildcards = 'verbatim_locality'
-      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
-    end
-
-    specify '#verbatim_locality (string field test) 2' do
-      query.verbatim_locality = 'Out there, '
-      expect(query.all.map(&:id)).to contain_exactly()
-    end
   end
 
   context 'geo' do
@@ -204,19 +175,5 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 
-
-
-  # specify '#shape, combined 1' do
-  #   query.shape = point_shape
-  #   query.in_verbatim_locality = 'out'
-  #   expect(query.all.map(&:id)).to contain_exactly(ce1.id)
-  # end
-
-  # specify '#shape, combined 2' do
-  #   query.shape = point_shape
-  #   query.in_verbatim_locality = 'RRRRAWR!'
-  #   expect(query.all.map(&:id)).to contain_exactly()
-  # end
   end
-
 end

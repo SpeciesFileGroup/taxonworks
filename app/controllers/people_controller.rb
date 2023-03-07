@@ -155,7 +155,11 @@ class PeopleController < ApplicationController
   private
 
   def autocomplete_params
-    params.permit(roles: []).to_h.symbolize_keys
+    params.permit(
+      :in_project,
+      :role_type,
+      role_type: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def set_person

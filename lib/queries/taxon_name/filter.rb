@@ -17,6 +17,7 @@ module Queries
         :authors,
         :collecting_event_id,
         :collection_object_id,
+        :combinations,
         :descendants,
         :descendants_max_depth,
         :etymology,
@@ -26,6 +27,7 @@ module Queries
         :nomenclature_code,
         :nomenclature_group, # !! different than autocomplete
         :not_specified,
+        :original_combination,
         :otu_id,
         :otus,
         :rank,
@@ -62,6 +64,17 @@ module Queries
       # @return Array
       attr_accessor :collection_object_id
 
+      # @param combinations [Boolean]
+      #   true - only return names that have (subsequent) Combinations
+      #   false - only return names without (subequent) Combinations
+      #   nil - ignore
+      # This parameter should be used along side species or genus group limits.
+      attr_accessor :combinations
+
+      # @param collection_object_id[String, Array]
+      # @return Array
+      attr_accessor :collection_object_id
+
       # @param collecting_event_id [String, Array]
       # @return Array
       attr_accessor :collecting_event_id
@@ -91,7 +104,7 @@ module Queries
       # Matches against cached_nomenclature_date
       attr_accessor :year_start
 
-      # @param year_start [String]
+      # @param year_end [String]
       #   "yyyy"
       # Matches against cached_nomenclature_date
       attr_accessor :year_end
@@ -101,7 +114,7 @@ module Queries
       #   true if only valid, false if only invalid, nil if both
       attr_accessor :validity
 
-      # @params validity ['true', True, nil]
+      # @params validify ['true', True, nil]
       # @return Boolean
       #    if true then for each name in the result its valid
       # name is returned
@@ -150,6 +163,13 @@ module Queries
       # @param taxon_name_classification [Array]
       #   Class names of TaxonNameClassification, as strings.
       attr_accessor :taxon_name_classification
+
+      # @param original_combination [Boolean]
+      # @return [Boolean, nil]
+      #   true - name has at least one element of original combination
+      #   false - name has no element of original combination
+      #   nil - ignored
+      attr_accessor :original_combination
 
       # @param otu_id [Array, nil]
       # @return [Array, nil]
@@ -241,6 +261,7 @@ module Queries
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
         @combination_taxon_name_id = params[:combination_taxon_name_id]
+        @combinations = boolean_param(params, :combinations)
         @descendants = boolean_param(params,:descendants )
         @descendants_max_depth = params[:descendants_max_depth]
         @etymology = boolean_param(params, :etymology)
@@ -253,6 +274,7 @@ module Queries
         @not_specified = boolean_param(params, :not_specified)
         @otu_id = params[:otu_id]
         @otus = boolean_param(params, :otus)
+        @original_combination = boolean_param(params, :original_combination)
         @parent_id = params[:parent_id]
         @rank = params[:rank]
         @sort = params[:sort]
@@ -325,7 +347,7 @@ module Queries
 
       def year_end
         return nil if @year_end.blank?
-        Date.new(@year_end.to_i)
+        Date.new(@year_end.to_i, 12, 31)
       end
 
       # @return [String, nil]
@@ -361,6 +383,15 @@ module Queries
         else
           ::TaxonName.where(table[:cached].does_not_match("%NOT SPECIFIED%").and(
             table[:cached_original_combination].does_not_match("%NOT SPECIFIED%")))
+        end
+      end
+
+      def original_combination_facet
+        return nil if original_combination.nil?
+        if original_combination
+          ::Protonym.joins(:original_combination_relationships)
+        else
+          ::Protonym.where.missing(:original_combination_relationships)
         end
       end
 
@@ -559,11 +590,12 @@ module Queries
         end
       end
 
-      # TODO: should match against cached_nomenclature_date?
-      # (yes, likely, but needs more logi)
       def year_facet
         return nil if year.blank?
-        table[:cached_author_year].matches('%' + year + '%')
+
+        s = Date.new(@year.to_i)
+        e = Date.new(@year.to_i, 12, 31)
+        table[:cached_nomenclature_date].between(s..e)
       end
 
       def year_range_facet
@@ -595,6 +627,16 @@ module Queries
         ::TaxonName
           .joins(:collection_objects)
           .where(collection_objects: {collecting_event_id: collecting_event_id})
+      end
+
+      def combinations_facet
+        return nil if combinations.nil?
+        a = ::Protonym.joins(:combination_relationships)
+        if combinations
+          a
+        else
+          referenced_klass_except(a)
+        end
       end
 
       def otu_query_facet
@@ -686,11 +728,13 @@ module Queries
           collecting_event_id_facet,
           collection_object_id_facet,
           combination_taxon_name_id_facet,
+          combinations_facet,
           descendant_facet,
           leaves_facet,
-          taxon_name_author_id_facet,
           not_specified_facet,
+          original_combination_facet,
           otu_id_facet,
+          taxon_name_author_id_facet,
           otus_facet,
           taxon_name_classification_facet,
           taxon_name_relationship_type_facet,
@@ -713,7 +757,6 @@ module Queries
       end
 
       def validify_result(q)
-        return nil if otu_query.nil?
         s = 'WITH tn_result_query AS (' + q.to_sql + ') ' +
           ::TaxonName
           .joins('JOIN tn_result_query as tn_result_query1 on tn_result_query1.cached_valid_taxon_name_id = taxon_names.id')
@@ -741,7 +784,7 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
-      def all
+      def all(nil_empty = false)
         q = super
         q = validify_result(q) if validify
         q = order_clause(q) if sort

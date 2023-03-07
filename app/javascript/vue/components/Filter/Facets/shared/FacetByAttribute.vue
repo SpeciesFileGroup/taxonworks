@@ -3,6 +3,7 @@
     <h3>By attributes</h3>
     <ByAttribute
       :controller="controller"
+      :exclude="exclude"
       v-model="params"
     />
   </FacetContainer>
@@ -22,6 +23,11 @@ const props = defineProps({
   controller: {
     type: String,
     required: true
+  },
+
+  exclude: {
+    type: Array,
+    default: () => []
   }
 })
 

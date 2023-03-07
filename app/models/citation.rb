@@ -72,6 +72,27 @@ class Citation < ApplicationRecord
 
   soft_validate(:sv_page_range, set: :page_range)
 
+  def self.batch_create(params)
+    ids = params[:citation_object_id]
+    params.delete(:citation_object_id)
+
+    citations = []
+    Citation.transaction do
+      begin
+        ids.each do |id|
+          citations.push Citation.create!(
+            params.merge(
+              citation_object_id: id
+            )
+          )
+        end
+      rescue ActiveRecord::RecordInvalid
+        return false
+      end
+    end
+    citations
+  end
+
   # TODO: deprecate
   # @return [Scope of matching sources]
   def self.find_for_autocomplete(params)

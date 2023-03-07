@@ -79,3 +79,9 @@
 
 </div>
 
+<h2> Task - Overdue loans</h1>
+
+<p> Total: <%= @loans.overdue.count -%>
+
+<%= render "loans/list_table", loans: @loans.overdue %>
+

@@ -97,7 +97,7 @@ gem 'kaminari', '~> 1.2.0'
 gem "best_in_place", git: "https://github.com/mmotherwell/best_in_place"
 gem 'redcarpet', '~> 3.4'
 gem 'sassc-rails', '~> 2.1.0'
-gem 'waxy', '~> 0.1'
+gem 'waxy', '~> 0.1.1'
 gem 'rgb', '~> 0.1'
 
 # Drawing

@@ -6,33 +6,35 @@
     coverage
     validity
   />
-  <FacetCurrentRepository v-model="params" />
-  <FacetRepository v-model="params" />
-  <FacetIdentifiers v-model="params" />
-  <FacetPreparationTypes v-model="params" />
   <FacetBiocurations v-model="params" />
+  <FacetIdentifiers v-model="params" />
+  <FacetMatchIdentifiers v-model="params" />
   <FacetCollectingEvent v-model="params" />
-  <FacetWKT v-model="params" />
   <FacetPeople
     role="Collector"
     title="Collectors"
     klass="CollectingEvent"
     param-people="collector_id"
     param-any="collector_id_or"
+    :role-type="COLLECTOR_SELECTOR"
     v-model="params"
   />
-  <FacetMatchIdentifiers v-model="params" />
-  <FacetTags
-    v-model="params"
-    target="CollectionObject"
-  />
+  <FacetDataAttribute v-model="params" /> 
+  <FacetCurrentRepository v-model="params" />
+  <FacetRepository v-model="params" /> 
+  <FacetPreparationTypes v-model="params" />
   <FacetTypeMaterial v-model="params" />
   <FacetInRelationship v-model="params" />
   <FacetLoan v-model="params" />
   <FacetUsers v-model="params" />
+  <FacetTags
+     v-model="params"
+     target="CollectionObject"
+   />
   <FacetNotes v-model="params" />
   <FacetBuffered v-model="params" />
-  <FacetDataAttribute v-model="params" />
+  <FacetProtocol v-model="params" />
+  <FacetWKT v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
     :key="param"
@@ -44,6 +46,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { COLLECTOR_SELECTOR } from 'constants/index.js'
 import FacetDetermination from 'components/Filter/Facets/CollectionObject/Determiner/FacetDetermination.vue'
 import FacetCollectingEvent from 'components/Filter/Facets/CollectingEvent/FacetCollectingEvent/FacetCollectingEvent.vue'
 import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
@@ -65,6 +68,7 @@ import FacetCurrentRepository from './filters/FacetCurrentRepository.vue'
 import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetWKT from 'components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
+import FacetProtocol from 'components/Filter/Facets/Extract/FacetProtocol.vue'
 
 const WITH_PARAMS = [
   'biological_associations',
@@ -73,6 +77,7 @@ const WITH_PARAMS = [
   'collectors',
   'current_repository',
   'data_attributes',
+  'dates',
   'deaccessioned',
   'determiners',
   'dwc_indexed',

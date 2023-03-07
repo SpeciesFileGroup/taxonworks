@@ -24,6 +24,11 @@
     </template>
   </FacetTaxonName>
   <FacetCitationTypes v-model="params" />
+  <FacetByAttribute
+    controller="sources"
+    v-model="params"
+    :exclude="['title', 'author', 'bibtex_type']"
+  />
   <FacetUsers v-model="params" />
   <FacetSomeValue
     model="sources"
@@ -57,6 +62,7 @@ import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vu
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetBibtexType from 'components/Filter/Facets/Source/FacetBibtexType.vue'
 import CitationOnOtus from 'components/Filter/Facets/Source/CitationOnOtus.vue'
+import FacetByAttribute from 'components/Filter/Facets/shared/FacetByAttribute.vue'
 
 const WITH_TITLES = {
   with_title: 'BibTeX title'

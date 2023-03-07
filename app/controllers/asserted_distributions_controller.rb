@@ -19,7 +19,7 @@ class AssertedDistributionsController < ApplicationController
           .all
           .where(project_id: sessions_current_project_id)
           .page(params[:page])
-          .per(params[:per] || 500)
+          .per(params[:per])
       }
     end
   end

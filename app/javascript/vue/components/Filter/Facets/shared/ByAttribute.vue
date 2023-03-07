@@ -47,10 +47,14 @@
           <td>{{ field.value }}</td>
           <td>
             <input
-              v-if="checkForMatch(field.type)"
+              v-if="checkForMatch(field.type) && !field.any && field.value"
               v-model="field.exact"
               type="checkbox"
             />
+            <template v-else>
+              <span v-if="field.any">Any</span>
+              <span v-else>Empty</span>
+            </template>
           </td>
           <td>
             <span
@@ -78,6 +82,11 @@ const props = defineProps({
   controller: {
     type: String,
     required: true
+  },
+
+  exclude: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -95,12 +104,20 @@ const selectedField = ref(undefined)
 watch(
   selectedFields,
   (newVal) => {
-    const matches = newVal
-      .filter((item) => !item.exact)
-      .map((item) => item.param)
     const attributes = {}
+    const matches = newVal
+      .filter((item) => !item.exact && !item.any && item.value)
+      .map((item) => item.param)
 
-    params.value.loan_wildcards = matches
+    params.value.any_value_attribute = newVal
+      .filter((item) => item.any)
+      .map((item) => item.param)
+
+    params.value.no_value_attribute = newVal
+      .filter((item) => !item.value && !item.any)
+      .map((item) => item.param)
+
+    params.value.wildcard_attribute = matches
 
     fields.value.forEach(({ name }) => {
       attributes[name] = undefined
@@ -123,7 +140,7 @@ watch(
       parameters.includes(name)
     )
 
-    if (!parameters.includes('loan_wildcards') && !isAttributeSetted) {
+    if (!parameters.includes('wildcard_attribute') && !isAttributeSetted) {
       selectedFields.value = []
     }
   }
@@ -131,17 +148,35 @@ watch(
 
 onBeforeMount(() => {
   ajaxCall('get', `/${props.controller}/attributes`).then((response) => {
-    fields.value = response.body
+    fields.value = response.body.filter(
+      ({ name }) => !props.exclude.includes(name)
+    )
 
-    fields.value.forEach((field) => {
-      if (params.value[field.name]) {
-        selectedFields.value.push({
-          param: field.name,
-          value: params.value[field.name],
-          type: field.type,
-          exact: !params.value.loan_wildcards?.includes(field.name)
-        })
+    fields.value.forEach(({ name, type }) => {
+      const value = params.value[name]
+      const any = params.value.any_value_attribute?.includes(name)
+      const exact = !params.value.wildcard_attribute?.includes(name)
+      const noValue = params.value.no_value_attribute?.includes(name)
+
+      if (value === undefined && !noValue && !any) {
+        return
       }
+
+      const field = {
+        param: name,
+        type,
+        any
+      }
+
+      selectedFields.value.push(
+        any
+          ? field
+          : {
+              ...field,
+              value,
+              exact
+            }
+      )
     })
   })
 })

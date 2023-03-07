@@ -1,6 +1,8 @@
 <template>
   <FacetContainer>
-    <h3>Loans</h3>
+    <h3 class="flex-separate">
+       Loan status 
+    </h3>
     <ul class="no_bullets">
       <li>
         <label>
@@ -17,7 +19,7 @@
             v-model="params.loaned"
             type="checkbox"
           >
-          Loaned
+          Loaned at least once
         </label>
       </li>
       <li>
@@ -30,12 +32,15 @@
         </label>
       </li>
     </ul>
+    <h3 class="flex-separate">
+      In loan
+    </h3>
     <autocomplete
       class="margin-medium-top"
       url="/loans/autocomplete"
       param="term"
       clear-after
-      placeholder="Search a loan..."
+      placeholder="Search loans..."
       label="label_html"
       @get-item="addLoan($event.id)"
     />

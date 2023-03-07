@@ -37,7 +37,7 @@ module Queries
       biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name],
       biological_association_graph: [:biological_association, :source],
       collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name],
-      collection_object: [:source, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
+      collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
       content: [:source, :otu, :taxon_name, :image],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object],
@@ -166,7 +166,12 @@ module Queries
       @api = boolean_param(query_params, :api)
       @recent = boolean_param(query_params, :recent)
       @object_global_id = query_params[:object_global_id]
-      @project_id = query_params[:project_id] || Current.project_id # !! Always on. TODO: Current reference bad, reconsider.
+
+       # !! This is the *only* place Current.project_id should be seen !! It's still not the best 
+       # way to implement this, but we use it to optimize the scope of sub/nested-queries efficiently.
+       # Ideally we'd have a global class param that stores this that all Filters would have access to,
+       # rather than an instance variable.
+      @project_id = query_params[:project_id] || Current.project_id
 
       # After this point, if you started with ActionController::Parameters, 
       # then all values have been explicitly permitted.
@@ -201,7 +206,8 @@ module Queries
       if referenced_klass.annotates?
         f.push ::Queries::Concerns::Polymorphic if self < ::Queries::Concerns::Polymorphic
       else
-        # TODO There is room for an AlternateValue concern here ultimtely
+        # TODO There is room for an AlternateValue concern here
+        f.push ::Queries::Concerns::Attributes if self < ::Queries::Concerns::Attributes
         f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
         f.push ::Queries::Concerns::Containable if self < ::Queries::Concerns::Containable
         f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
@@ -381,14 +387,7 @@ module Queries
       true
     end
 
-    # @params params [Hash, ActionControllerParameters]
-    #   in practice we only pass Hash
-    # See CE, Loan filters for use.
-    def set_attributes(params)
-      self.class::ATTRIBUTES.each do |a|
-        send("#{a}=", params[a.to_sym])
-      end
-    end
+
 
     # Returns id= facet, automatically
     # added to all queries.

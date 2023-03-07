@@ -2,7 +2,11 @@
   <FacetContainer>
     <h3>{{ title }}</h3>
     <div class="field label-above">
-      <label class="capitalize">{{ param }}</label>
+      <label
+        v-if="label"
+        class="capitalize"
+        >{{ label }}</label
+      >
       <input
         class="full_width"
         :name="param"
@@ -40,6 +44,11 @@ const props = defineProps({
   param: {
     type: String,
     required: true
+  },
+
+  label: {
+    type: String,
+    default: ''
   }
 })
 

@@ -49,7 +49,7 @@ jobs:
         [ ! -f ${CACHE_PATH}/images.tar ] || docker load -i ${CACHE_PATH}/images.tar
 
     - name: Build the Docker image
-      run: docker build . -t sfgrp/taxonworks:ruby32 --build-arg REVISION=$(echo $GITHUB_SHA | cut -c1-9) --build-arg BUNDLER_WORKERS=3
+      run: docker build . -t sfgrp/taxonworks --build-arg REVISION=$(echo $GITHUB_SHA | cut -c1-9) --build-arg BUNDLER_WORKERS=3
 
     - name: Run image tests
       run: .github/docker-tests/test.sh

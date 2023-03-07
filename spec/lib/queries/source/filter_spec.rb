@@ -279,28 +279,28 @@ describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
   end
 
   specify '#project_id / in_project 1' do
-    query.project_id = Current.project_id
+    query.project_id = project_id
     query.in_project = true
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
   specify '#project_id / in_project 1' do
-    ProjectSource.create!(source: s1, project_id: Current.project_id)
-    query.project_id = Current.project_id
+    ProjectSource.create!(source: s1, project_id: project_id)
+    query.project_id = project_id
     query.in_project = false
     expect(query.all.map(&:id)).to contain_exactly( *(all_source_ids - [s1.id]) )
   end
 
   specify '#project_id / in_project 2' do
-    query.project_id = Current.project_id
+    query.project_id = project_id
     query.in_project = false
     expect(query.all.map(&:id)).to contain_exactly(*all_source_ids)
   end
 
   specify '#project_id / in_project 3' do
-    ProjectSource.create!(source: s1, project_id: Current.project_id)
+    ProjectSource.create!(source: s1, project_id: project_id)
     ProjectSource.create!(source: s2, project_id: FactoryBot.create(:valid_project).id)
-    query.project_id = Current.project_id
+    query.project_id = project_id
     query.in_project = true
     expect(query.all.map(&:id)).to contain_exactly(s1.id)
   end
@@ -319,7 +319,7 @@ describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
 
   context 'all' do
     before do
-      query.user_id = Current.user_id
+      query.user_id = user_id
       query.user_target = 'created'
       query.user_date_start = '2001-1-2'
       query.user_date_end = tomorrow

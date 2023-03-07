@@ -82,6 +82,16 @@ class DataAttributesController < ApplicationController
     end
   end
 
+  # /data_attributes/batch_create.json?attribute_subject_type=Otu&attribute_subject_id[]=123&value=456
+  def batch_create
+    @data_attributes = InternalAttribute.batch_create(batch_data_attribute_params)
+    if @data_attributes.present? 
+      render '/data_attributes/index'
+    else
+      render json: { failed: true, status: :unprocessable_entity}
+    end
+  end
+
   def list
     @data_attributes = DataAttribute.where(project_id: sessions_current_project_id).order(:attribute_subject_type).page(params[:page])
   end
@@ -128,15 +138,24 @@ class DataAttributesController < ApplicationController
     end
   end
 
-  def data_attribute_params
-    params.require(:data_attribute).permit(
-      :type,
+  def base_params
+    [ :type,
       :attribute_subject_id,
       :attribute_subject_type,
       :controlled_vocabulary_term_id,
       :import_predicate,
       :value,
       :annotated_global_entity
-    )
+    ]
+  end
+
+  def batch_data_attribute_params
+    p = base_params 
+    p << {attribute_subject_id: []}
+    params.require(:data_attribute).permit(p)
+  end
+
+  def data_attribute_params
+    params.require(:data_attribute).permit(base_params) 
   end
 end

@@ -9,10 +9,10 @@
       />
     </div>
     <div v-if="isPeopleView">
-      <smart-selector
-        :autocomplete-params="{'roles[]' : role }"
-        model="people"
+      <SmartSelector
+        :autocomplete-params="{ role_type: roleType, in_project: true }"
         :klass="klass"
+        model="people"
         pin-section="People"
         pin-type="People"
         label="cached"
@@ -22,7 +22,7 @@
         <input
           v-model="params[paramAny]"
           type="checkbox"
-        >
+        />
         Any
       </label>
       <display-list
@@ -39,13 +39,12 @@
         v-model="params.determiner_name_regex"
         class="full_width"
         type="text"
-      >
+      />
     </div>
   </FacetContainer>
 </template>
 
 <script>
-
 import SwitchButtom from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
 import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
@@ -82,8 +81,8 @@ export default {
       default: ''
     },
 
-    role: {
-      type: String,
+    roleType: {
+      type: Array,
       required: true
     },
 
@@ -98,12 +97,9 @@ export default {
     }
   },
 
-  emits: [
-    'update:modelValue',
-    'toggle'
-  ],
+  emits: ['update:modelValue', 'toggle'],
 
-  data () {
+  data() {
     return {
       list: [],
       switchOptions: ['People', 'Name'],
@@ -113,42 +109,42 @@ export default {
 
   computed: {
     params: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
   },
 
   watch: {
-    modelValue (newVal) {
+    modelValue(newVal) {
       if (!newVal[this.paramPeople]?.length && this.list.length) {
         this.list = []
       }
     },
 
     list: {
-      handler () {
-        this.params[this.paramPeople] = this.list.map(item => item.id)
+      handler() {
+        this.params[this.paramPeople] = this.list.map((item) => item.id)
       },
       deep: true
     },
 
-    isPeopleView (newVal) {
+    isPeopleView(newVal) {
       this.$emit('toggle', newVal)
       this.list = []
       this.params.determiner_name_regex = undefined
     }
   },
 
-  created () {
+  created() {
     const urlParams = URLParamsToJSON(location.href)
     const peopleIds = urlParams[this.paramPeople] || []
 
     this.params[this.paramAny] = urlParams[this.paramAny]
-    peopleIds.forEach(id => {
+    peopleIds.forEach((id) => {
       People.find(id).then(({ body }) => {
         this.addPerson(body)
       })
@@ -156,20 +152,20 @@ export default {
   },
 
   methods: {
-    addPerson (person) {
-      if (!this.list.find(item => item.id === person.id)) {
+    addPerson(person) {
+      if (!this.list.find((item) => item.id === person.id)) {
         this.list.push(person)
       }
     },
 
-    removePerson (index) {
+    removePerson(index) {
       this.list.splice(index, 1)
     }
   }
 }
 </script>
 <style scoped>
-  :deep(.vue-autocomplete-input) {
-    width: 100%
-  }
+:deep(.vue-autocomplete-input) {
+  width: 100%;
+}
 </style>

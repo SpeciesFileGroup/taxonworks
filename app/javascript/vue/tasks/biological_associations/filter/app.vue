@@ -10,7 +10,7 @@
       :list="list"
       :url-request="urlRequest"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend })"
+      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >

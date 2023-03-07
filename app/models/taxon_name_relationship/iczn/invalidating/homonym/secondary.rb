@@ -44,7 +44,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary < TaxonNameR
     s = subject_taxon_name
     o = object_taxon_name
     if !s.original_genus.nil? && s.original_genus == o.original_genus
-      soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} species described in the same original genus #{s.original_genus}, they are primary homonyms")
+      soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} species described in the same original genus #{s.original_genus.cached_html}, they are primary homonyms")
     end
   end
 

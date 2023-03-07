@@ -6,7 +6,8 @@
       model="people"
       target="Author"
       :autocomplete-params="{
-        roles: ['TaxonNameAuthor']
+        role_type: TAXON_NAME_AUTHOR_SELECTOR,
+        in_project: true
       }"
       label="cached"
       @selected="addAuthor"
@@ -51,6 +52,7 @@ import DisplayList from 'components/displayList'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { People } from 'routes/endpoints'
 import { computed, ref, watch, onBeforeMount } from 'vue'
+import { TAXON_NAME_AUTHOR_SELECTOR } from 'constants/index.js'
 
 const props = defineProps({
   modelValue: {

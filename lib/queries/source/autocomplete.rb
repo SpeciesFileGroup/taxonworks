@@ -237,7 +237,7 @@ module Queries
           if project_id.present? && scope
             a = a.left_outer_joins(:citations)
               .left_outer_joins(:project_sources)
-              .select("sources.*, COUNT(citations.id) AS use_count, CASE WHEN project_sources.project_id = #{Current.project_id} THEN project_sources.project_id ELSE NULL END AS in_project")
+            .select("sources.*, COUNT(citations.id) AS use_count, CASE WHEN project_sources.project_id = #{project_id} THEN project_sources.project_id ELSE NULL END AS in_project")
               .where('citations.project_id = ? OR citations.project_id IS DISTINCT FROM ?', project_id, project_id)
               .where('project_sources.project_id = ? OR project_sources.project_id IS DISTINCT FROM ?', project_id, project_id)
               .group('sources.id, citations.project_id, project_sources.project_id')

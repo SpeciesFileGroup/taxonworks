@@ -1,19 +1,21 @@
 module Queries
   module CollectingEvent
     class Filter < Query::Filter
-      include Queries::Helpers
 
-      include Queries::Concerns::Tags
-      include Queries::Concerns::Notes
-      include Queries::Concerns::DateRanges
-      include Queries::Concerns::DataAttributes
-      include Queries::Concerns::Depictions
-      include Queries::Concerns::Citations
-
-      # TODO: likely move to model (replicated in Source too) and setup via macro?
       # Params exists for all CollectingEvent attributes except these.
       # collecting_event_id is excluded because we handle it specially in conjunction with `geographic_area_mode``
+      # Definition must preceed include.
       ATTRIBUTES = (::CollectingEvent.core_attributes - %w{geographic_area_id}).map(&:to_sym).freeze
+
+      include Queries::Concerns::Attributes
+      include Queries::Concerns::Citations
+      include Queries::Concerns::DataAttributes
+      include Queries::Concerns::DateRanges
+      include Queries::Concerns::Depictions
+      include Queries::Concerns::Notes
+      include Queries::Concerns::Protocols
+      include Queries::Concerns::Tags
+      include Queries::Helpers
 
       # This list of params are those that only occur
       # in this CollectingEvent filter. For those
@@ -26,10 +28,10 @@ module Queries
       # convienience.
       #
       BASE_PARAMS = [
+        *Queries::Concerns::Attributes.params,
         *ATTRIBUTES,
         :collectors,
         :collecting_event_object_id,
-        :collecting_event_wildcards,
         :collection_objects,
         :collector_id,
         :collector_id_or,
@@ -41,7 +43,6 @@ module Queries
         :geographic_area_mode,
         :georeferences,
         :in_labels,
-        :in_verbatim_locality,
         :md5_verbatim_label,
         :partial_overlap_dates,
         :radius,
@@ -50,10 +51,9 @@ module Queries
         :use_min,
         :wkt,
         collecting_event_id: [],
-        collecting_event_wildcards: [],
         collector_id: [],
         geographic_area_id: [],
-      ].freeze
+      ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
 
       PARAMS = [
         *BASE_PARAMS,
@@ -62,11 +62,6 @@ module Queries
         collection_object_id: [],
         otu_id: [],
       ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
-
-      # All CollectingEvent fields have their own accessor.
-      ATTRIBUTES.each do |a|
-        class_eval { attr_accessor a.to_sym }
-      end
 
       def self.base_params
         a = BASE_PARAMS.dup
@@ -90,10 +85,6 @@ module Queries
       # If true then in_labels checks only the MD5
       attr_accessor :md5_verbatim_label
 
-      # TODO: remove for exact/array
-      # Wildcard wrapped matching verbatim_locality via ATTRIBUTES
-      attr_accessor :in_verbatim_locality
-
       # A spatial representation in well known text
       attr_accessor :wkt
 
@@ -104,10 +95,6 @@ module Queries
       # @return [Hash, nil]
       #  in geo_json format (no Feature ...) ?!
       attr_accessor :geo_json
-
-      # @return [Array (Symbols)]
-      #   values are ATTRIBUTES that should be wildcarded
-      attr_accessor :collecting_event_wildcards
 
       # DONE: singularize and handle array or single
       # @return [Array]
@@ -166,7 +153,6 @@ module Queries
 
         @collectors = boolean_param(params, :collectors )
         @collecting_event_id = params[:collecting_event_id]
-        @collecting_event_wildcards = params[:collecting_event_wildcards]
         @collection_object_id = params[:collection_object_id]
         @collection_objects = boolean_param(params, :collection_objects )
         @collector_id = params[:collector_id]
@@ -177,21 +163,21 @@ module Queries
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
         @georeferences = boolean_param(params, :georeferences)
         @in_labels = params[:in_labels]
-        @in_verbatim_locality = params[:in_verbatim_locality]
         @md5_verbatim_label = params[:md5_verbatim_label]&.to_s&.downcase == 'true'
         @otu_id = params[:otu_id].presence
-        @radius = params[:radius].presence || 100
+        @radius = params[:radius].presence || 100.0
         @use_max = params[:use_max]
         @use_min = params[:use_min]
         @wkt = params[:wkt]
 
+        set_attributes_params(params)
         set_citations_params(params)
-        set_dates(params)
-        set_attributes(params)
-        set_tags_params(params)
         set_data_attributes_params(params)
-        set_notes_params(params)
+        set_dates(params)
         set_depiction_params(params)
+        set_notes_params(params)
+        set_protocols_params(params)
+        set_tags_params(params)
       end
 
       def collecting_event_id
@@ -212,26 +198,6 @@ module Queries
 
       def otu_id
         [@otu_id].flatten.compact
-      end
-
-      def collecting_event_wildcards
-        [@collecting_event_wildcards].flatten.compact.uniq.map(&:to_sym)
-      end
-
-      def attribute_clauses
-        c = []
-        ATTRIBUTES.each do |a|
-          if v = send(a)
-            if v.present?
-              if collecting_event_wildcards.include?(a)
-                c.push Arel::Nodes::NamedFunction.new('CAST', [table[a].as('TEXT')]).matches('%' + v.to_s + '%')
-              else
-                c.push table[a].eq(v)
-              end
-            end
-          end
-        end
-        c
       end
 
       def use_facet
@@ -351,6 +317,7 @@ module Queries
         end
       end
 
+      # TODO: Spatial concern?
       def spatial_query(geometry_type, wkt)
         case geometry_type
         when 'Point'
@@ -394,12 +361,6 @@ module Queries
         ::CollectingEvent.joins(:collection_objects).where(collection_objects: {id: collection_object_id})
       end
 
-      def verbatim_locality_facet
-        return nil if in_verbatim_locality.blank?
-        t = "%#{in_verbatim_locality}%"
-        table[:verbatim_locality].matches(t)
-      end
-
       def collectors_facet
         return nil if collectors.nil?
         if collectors
@@ -418,17 +379,17 @@ module Queries
           .where('(query_ba_ces1.id) IS NOT NULL OR (query_ba_ces2.id IS NOT NULL)')
           .to_sql
 
-        ::CollectingEvent.from('(' + s + ') as collecting_events')
+        ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
       end
 
       def otu_query_facet
         return nil if otu_query.nil?
         s = 'WITH query_otu_ces AS (' + otu_query.all.to_sql + ') ' +
           ::CollectingEvent.joins(:otus)
-          .joins("JOIN query_otu_ces as query_otu_ces1 on query_otu_ces1.id = otus.id")
+          .joins('JOIN query_otu_ces as query_otu_ces1 on query_otu_ces1.id = otus.id')
           .to_sql
 
-        ::CollectingEvent.from('(' + s + ') as collecting_events')
+        ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
       end
 
       def collection_object_query_facet
@@ -439,7 +400,7 @@ module Queries
           .joins('JOIN query_co_ce as query_co_ce1 on collection_objects.id = query_co_ce1.id')
           .to_sql
 
-        ::CollectingEvent.from('(' + s + ') as collecting_events')
+        ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
       end
 
       def taxon_name_query_facet
@@ -450,28 +411,25 @@ module Queries
           .joins('JOIN query_tn_ce as query_tn_ce1 on otus.taxon_name_id = query_tn_ce1.id')
           .to_sql
 
-        ::CollectingEvent.from('(' + s + ') as collecting_events')
+        ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
       end
 
       # @return [Array]
       def and_clauses
-        clauses = attribute_clauses
-        clauses += [
+        [
           between_date_range,
           any_label_facet,
           collecting_event_id_facet,
           verbatim_label_md5_facet,
-          verbatim_locality_facet,
         ]
-        clauses
       end
 
       def merge_clauses
         [
-          taxon_name_query_facet,
-          otu_query_facet,
-          collection_object_query_facet,
           biological_association_query_facet,
+          collection_object_query_facet,
+          otu_query_facet,
+          taxon_name_query_facet,
 
           collectors_facet,
           collection_objects_facet,

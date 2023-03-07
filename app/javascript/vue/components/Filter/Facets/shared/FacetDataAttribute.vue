@@ -1,65 +1,54 @@
 <template>
   <FacetContainer>
     <h3>Data attributes</h3>
-    <label>Predicate</label>
-    <smart-selector
-      autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-      :autocomplete-params="{ 'type[]': 'Predicate' }"
-      get-url="/controlled_vocabulary_terms/"
-      model="predicates"
-      buttons
-      inline
-      klass="DataAttribute"
-      @selected="addToArray(predicates, $event)"
+    <AddPredicate @add="(p) => predicates.push(p)" />
+    <TablePredicate
+      v-if="predicates.length"
+      :predicates="predicates"
+      @update="
+        ({ index, predicate }) => {
+          predicates[index] = predicate
+        }
+      "
+      @remove="
+        (index) => {
+          predicates.splice(index, 1)
+        }
+      "
     />
-    <display-list
-      :list="predicates"
-      :delete-warning="false"
-      label="name"
-      @delete="removeFromArray(predicates, $event)"
+    <hr class="divisor full_width" />
+    <AddValue
+      @add="
+        (value) => {
+          values.push(value)
+        }
+      "
     />
-    <label>Value</label>
-    <div class="field">
-      <textarea
-        v-model="inputValue"
-        class="full_width"
-        rows="5"
-      />
-      <div class="flex-separate middle">
-        <VBtn
-          color="primary"
-          medium
-          :disabled="!inputValue.length"
-          @click="addValue"
-        >
-          Add
-        </VBtn>
-        <label>
-          <input
-            v-model="params.data_attribute_exact"
-            type="checkbox"
-          />
-          Data attribute exact
-        </label>
-      </div>
-    </div>
-    <DisplayList
-      :list="params.data_attribute_value"
-      :delete-warning="false"
-      @delete-index="params.data_attribute_value.splice($event, 1)"
+    <TableValue
+      v-if="values.length"
+      :values="values"
+      @update="
+        ({ index, value }) => {
+          values[index] = value
+        }
+      "
+      @remove="
+        (index) => {
+          values.splice(index, 1)
+        }
+      "
     />
   </FacetContainer>
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onBeforeMount } from 'vue'
 import { ControlledVocabularyTerm } from 'routes/endpoints'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { addToArray, removeFromArray } from 'helpers/arrays.js'
+import TablePredicate from './FacetDataAttribute/TablePredicate.vue'
+import TableValue from './FacetDataAttribute/TableValue.vue'
+import AddPredicate from './FacetDataAttribute/AddPredicate.vue'
+import AddValue from './FacetDataAttribute/AddValue.vue'
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import DisplayList from 'components/displayList.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
 
 const props = defineProps({
   modelValue: {
@@ -70,32 +59,56 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 const predicates = ref([])
+const values = ref([])
 
 const params = computed({
-  get() {
-    return props.modelValue
-  },
-
-  set(value) {
-    emit('update:modelValue', value)
-  }
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value)
 })
 
 watch(
   predicates,
   (newVal) => {
-    params.value.data_attribute_predicate_id = newVal.map((item) => item.id)
+    params.value.data_attribute_predicate_id = newVal
+      .filter((p) => p.any)
+      .map((p) => p.id)
+    params.value.data_attribute_without_predicate_id = newVal
+      .filter((p) => !p.any && !p.text)
+      .map((p) => p.id)
+    params.value.data_attribute_exact_pair = newVal
+      .filter((p) => !p.any && p.exact && p.text.length)
+      .map((p) => `${p.id}:${p.text}`)
+    params.value.data_attribute_wildcard_pair = newVal
+      .filter((p) => !p.any && !p.exact && p.text.length)
+      .map((p) => `${p.id}:${p.text}`)
   },
   { deep: true }
 )
 
 watch(
-  () => props.modelValue,
-  (newVal, oldVal) => {
+  values,
+  (newVal) => {
+    params.value.data_attribute_exact_value = newVal
+      .filter((item) => item.exact)
+      .map((item) => item.text)
+    params.value.data_attribute_wildcard_value = newVal
+      .filter((item) => !item.exact)
+      .map((item) => item.text)
+  },
+  { deep: true }
+)
+
+watch(
+  [
+    () => props.modelValue.data_attribute_predicate_id,
+    () => props.modelValue.data_attribute_without_predicate_id,
+    () => props.modelValue.data_attribute_exact_pair,
+    () => props.modelValue.data_attribute_wildcard_pair
+  ],
+  (newVals, oldVals) => {
     if (
-      !newVal?.data_attribute_predicate_id?.length &&
-      newVal?.data_attribute_predicate_id?.length !==
-        oldVal?.data_attribute_predicate_id?.length
+      newVals.every((value) => !value?.length) &&
+      oldVals.some((value) => value?.length)
     ) {
       predicates.value = []
     }
@@ -103,28 +116,105 @@ watch(
   { deep: true }
 )
 
-const inputValue = ref('')
+watch(
+  [
+    () => props.modelValue.data_attribute_exact_value,
+    () => props.modelValue.data_attribute_wildcard_value
+  ],
+  (newVals, oldVals) => {
+    if (
+      newVals.every((value) => !value?.length) &&
+      oldVals.some((value) => value?.length)
+    ) {
+      values.value = []
+    }
+  },
+  { deep: true }
+)
 
-const addValue = () => {
-  ;(params.value.data_attribute_value ||= []).push(inputValue.value)
-  inputValue.value = ''
-}
-
-const {
-  data_attribute_value: dataAttributeValue = [],
-  data_attribute_predicate_id: predicateIds = [],
-  data_attribute_exact: dataAttributeExact
-} = URLParamsToJSON(location.href)
-
-Object.assign(params.value, {
-  data_attribute_value: dataAttributeValue,
-  data_attribute_predicate_id: predicateIds,
-  data_attribute_exact: dataAttributeExact
-})
-
-if (predicateIds.length) {
-  ControlledVocabularyTerm.where({ id: predicateIds }).then(({ body }) => {
-    predicates.value = body
+function addPredicate(p) {
+  predicates.value.push({
+    id: p.id,
+    name: p.name,
+    exact: p.exact,
+    any: p.any,
+    text: p.text
   })
 }
+
+function parsedPredicateParam(param) {
+  return param.map((value) => {
+    const index = value.indexOf(':')
+
+    return [Number(value.slice(0, index)), value.slice(index + 1)]
+  })
+}
+
+function loadPredicates({ predicateIds, predicateList, predicateValues }) {
+  predicateIds.forEach((id) => {
+    const p = predicateList.find((item) => item.id === id)
+
+    if (p) {
+      addPredicate({ ...p, ...predicateValues })
+    }
+  })
+}
+
+onBeforeMount(async () => {
+  const predicateWithValues = parsedPredicateParam(
+    params.value.data_attribute_wildcard_pair || []
+  )
+  const predicateWithValuesExact = parsedPredicateParam(
+    params.value.data_attribute_exact_pair || []
+  )
+  const predicatesWithoutValues =
+    params.value.data_attribute_without_predicate_id || []
+  const predicateWithAnyValues = params.value.data_attribute_predicate_id || []
+
+  values.value = [
+    ...(params.value.data_attribute_exact_value || []).map((text) => ({
+      text,
+      exact: true
+    })),
+    ...(params.value.data_attribute_wildcard_value || []).map((text) => ({
+      text,
+      exact: false
+    }))
+  ]
+
+  const predicateIds = [
+    ...predicateWithAnyValues,
+    ...predicatesWithoutValues,
+    ...predicateWithValues.map(([value]) => value),
+    ...predicateWithValuesExact.map(([value]) => value)
+  ]
+
+  if (predicateIds.length) {
+    const predicateList = (
+      await ControlledVocabularyTerm.where({ id: predicateIds })
+    ).body
+
+    loadPredicates({
+      predicateIds: predicatesWithoutValues,
+      predicateList,
+      predicateValues: { text: '' }
+    })
+
+    loadPredicates({
+      predicateIds: predicateWithAnyValues,
+      predicateList,
+      predicateValues: { text: '', any: true }
+    })
+
+    predicateWithValues.forEach(([id, text]) => {
+      const p = predicateList.find((item) => item.id === id)
+      addPredicate({ ...p, text })
+    })
+
+    predicateWithValuesExact.forEach(([id, text]) => {
+      const p = predicateList.find((item) => item.id === id)
+      addPredicate({ ...p, text, exact: true })
+    })
+  }
+})
 </script>

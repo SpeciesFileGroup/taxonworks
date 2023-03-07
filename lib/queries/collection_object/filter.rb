@@ -3,18 +3,21 @@ module Queries
 
     class Filter < Query::Filter
 
+      # !! May not include Concerns::Attributes (used by CE)
       include Queries::Helpers
       include Queries::Concerns::Citations
       include Queries::Concerns::Containable
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
+      include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
 
       PARAMS = [
         *::Queries::CollectingEvent::Filter::BASE_PARAMS,
         :biological_association_id,
         :biological_associations,
+        :biological_relationship_id,
         :buffered_collecting_event,
         :buffered_determinations,
         :buffered_other_labels,
@@ -25,6 +28,7 @@ module Queries
         :current_determinations,
         :current_repository,
         :current_repository_id,
+        :dates,
         :descendants,
         :determiner_id_or,
         :determiner_name_regex,
@@ -130,13 +134,16 @@ module Queries
       #  nil - not applied
       attr_accessor :collectors
 
-      # @return [True, nil]
+      # @param on_loan [True]
+      #   true - the CollectionObject *currently* on loan
       attr_accessor :on_loan
 
-      # @return [True, nil]
+      # @param loaned [True]
+      #   true - the CollectionObject has been loaned at least once
       attr_accessor :loaned
 
-      # @return [True, nil]
+      # @param never_loaned [True]
+      #   true - the CollectionObject has never been loaned
       attr_accessor :never_loaned
 
       # @return [Array]
@@ -284,6 +291,12 @@ module Queries
       # @return Array
       attr_accessor :extract_id
 
+      # @return Boolean
+      #    true - any of start/end date or verbatim date are populated
+      #    false - none of start/end date or verbatim date are populated
+      #    nil - ignored
+      attr_accessor :dates
+
       # rubocop:disable Metric/MethodLength
       # @param [Hash] args are permitted params
       def initialize(query_params)
@@ -311,6 +324,7 @@ module Queries
         @current_determinations = boolean_param(params, :current_determinations)
         @current_repository = boolean_param(params, :current_repository)
         @current_repository_id = params[:current_repository_id].blank? ? nil : params[:current_repository_id]
+        @dates = boolean_param(params, :dates)
         @descendants = boolean_param(params, :descendants)
         @determiners = boolean_param(params, :determiners)
         @determiner_id = params[:determiner_id]
@@ -344,11 +358,12 @@ module Queries
         @with_buffered_determinations =  boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
-        set_containable_params(params)
         set_citations_params(params)
-        set_depiction_params(params)
+        set_containable_params(params)
         set_data_attributes_params(params)
+        set_depiction_params(params)
         set_notes_params(params)
+        set_protocols_params(params)
         set_tags_params(params)
       end
 
@@ -749,6 +764,33 @@ module Queries
         ::CollectionObject.joins(q.join_sources).where(z).distinct
       end
 
+      def dates_facet
+        return nil if dates.nil?
+        if dates
+          ::CollectionObject.left_joins(:collecting_event).where(
+            'start_date_year IS NOT NULL OR ' +
+            'start_date_month IS NOT NULL OR ' +
+            'start_date_day IS NOT NULL OR ' +
+            'end_date_year IS NOT NULL OR ' +
+            'end_date_month IS NOT NULL OR ' +
+            'end_date_day IS NOT NULL OR ' +
+            'verbatim_date IS NOT NULL'
+          )
+        else
+          ::CollectionObject.left_joins(:collecting_event).where(
+            collecting_event: {
+              start_date_year: nil,
+              start_date_month: nil,
+              start_date_day: nil,
+              end_date_year: nil,
+              end_date_month: nil,
+              end_date_day: nil,
+              verbatim_date: nil
+            }
+          )
+        end
+      end
+
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
         s = 'WITH query_tn_co AS (' + taxon_name_query.all.to_sql + ') ' +
@@ -767,7 +809,17 @@ module Queries
           .joins('JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = collection_objects.collecting_event_id')
           .to_sql
 
-        ::CollectionObject.from('(' + s + ') as collection_objects')
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
+      end
+
+      def loan_query_facet
+        return nil if loan_query.nil?
+        s = 'WITH query_loan_co AS (' + loan_query.all.to_sql + ') ' +
+          ::CollectionObject.joins(:loan_items)
+          .joins('JOIN query_loan_co as query_loan_co1 on query_loan_co1.id = loan_items.loan_id')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def base_collecting_event_query_facet
@@ -783,7 +835,7 @@ module Queries
           .joins('JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = collection_objects.collecting_event_id')
           .to_sql
 
-        ::CollectionObject.from('(' + s + ') as collection_objects')
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def otu_query_facet
@@ -803,7 +855,7 @@ module Queries
         a = ::CollectionObject.joins(:biological_associations)
         b = ::CollectionObject.joins(:related_biological_associations)
 
-        ::CollectionObject.from("((#{a.to_sql}) UNION (#{b.to_sql})) as collection_objects")
+        referenced_klass_union([a,b])
       end
 
       # TODO: turn into UNION!
@@ -842,7 +894,7 @@ module Queries
           .joins("JOIN query_extract_co as query_extract_co1 on origin_relationships.new_object_id = query_extract_co1.id and origin_relationships.new_object_type = 'Extract'")
           .to_sql
 
-        ::CollectionObject.from('(' + s + ') as collection_objects')
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def observation_query_facet
@@ -854,7 +906,7 @@ module Queries
           .joins('JOIN query_obs_co as query_obs_co1 on observations.id = query_obs_co1.id')
           .to_sql
 
-        ::CollectionObject.from('(' + s + ') as collection_objects')
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def and_clauses
@@ -879,6 +931,7 @@ module Queries
           biological_association_query_facet,
           collecting_event_query_facet,
           extract_query_facet,
+          loan_query_facet,
           otu_query_facet,
           taxon_name_query_facet,
 
@@ -888,6 +941,7 @@ module Queries
           collecting_event_facet,
           collectors_facet,
           current_repository_facet,
+          dates_facet,
           determiner_facet,
           determiner_name_regex_facet,
           determiners_facet,

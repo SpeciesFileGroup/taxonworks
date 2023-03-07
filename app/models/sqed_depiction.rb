@@ -56,6 +56,10 @@ class SqedDepiction < ApplicationRecord
 
   after_save :recalculate, if: -> { rebuild }
 
+  def self.is_containable?
+    false
+  end
+
   def rebuild=(value)
     @rebuild = value
   end

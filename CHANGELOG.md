@@ -8,28 +8,123 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-
+- Filter asserted distributions task [#1035]
+- Filter biological associations task [#1156]
+- Filter content task
+- Filter descriptors task [#2802]
+- Filter loans task [#2124]
+- Filter observations task [#3291] [#3062]
+- Filters can mass-annotate select rows (e.g. Notes, Citations) [#2257] [#2340]
+- Filter collection objects with/out preparations [#2937]
+- Filter collecting events with/out any date value, verbaitm or parsed [#2940]
+- Filter collecting events with any/no value in field (covers, in part [#2756])
+- Collection object filter - add with/out local identifiers facet [#2699]
+- Collection object filter - de-accession facet [#3195]
+- Data attributes facet returns results matching/without any predicate value
+- Integrated filters (pass results from one to another) [#2652] Also in full/part [#1649] [#1744] [#2178] [#2147] [#2770]
+- Match identifiers facet added across filters/API [#3151] [#3058]
+- Nomenclature filter - facets for names with/out citations and with/out documentation [#2865]
+- Nomenclature filter - facet for by year described [#2059]
+- Nomenclature filter - facet to return names with/out (subsequent) combinations [#3051]
+- Nomenclature filter - facet to for with/out original combination [#2496]
+- Protocol facet to collection object, collecting event filters [#2803]
+- Task - Loans dashboard  [#2116] (in part)
+- Task - Source citation totals (linked from Source filter) [#2305]
+- Ability to "coordinatify" an OTU filter result [#3317]
 - Figure label in label on image API response
-- Add input to create N records in Simple new specimen [#3269]
+- Input to create N records in Simple new specimen [#3269]
+- Soft_validation for seniority of synonyms
+- Added `cached_author` to TaxonName
 
 ### Fixed
-
+- Local identifier facet in filter CollectionObject [#3275]
+- Identifier within range includes +1,-1 results [#2179]
+- Data attribute facets [#3075]
+- Collection object filter finds objects by container identifiers [#1240]
+- Clarified collection object loan facet [#3005]
+- Radius based map searchers returned intersections, not covering results [#2552]
+- Data attributes not appending to DwC export [#3280]
+- DwC download from CollectionObject "not downloading"/closing [#3313]
+- Filter nomenclature returns original combination when there is none [#3024]
+- Staged image visualization incorrectly cropped [#3260]
+- Staged images incorrectly returning records with local-identified containers [#3258]
 - PK sequences was not setup in the correct dump stage in Export project task occasionally causing PK constraints errors on usage.
 - Radial object redirects to `Data` page after destroy a collection object in Simple new specimen task [#3284]
 - Wrong label for display unscored columns in Matrix column coder [#3292]
 - Duplicate records in nomenclature match task [#3300]
+- NeXML rendering bug 
+- Breaking CoL export bug [#3310]
 
 ### Changed
-
+- Unified look and feel of all filters [#445] [#1677]
+- Filter OTUs completely rebuilt, numerous new facets [#1633]
+- Filter collection objects displays (customizable) columns of many types, not just DwC [#3197] [#2931]
+- Unified form of filter/API `*_ids` and `*_id` parameters to always use singular [#2188]
+- Merged 'Task - Overdue loans' with Loans dashboard [#2116]
 - Export project task now removes hierarchies rows that don't belong to selected project [#3271]
 - Export project task no longer includes `delayed_jobs` and `imports` tables.
 - Clipboard hotkey combination [#3273]
-- Updated Ruby gems.
+- Recently used confidence levels improvements
+- Multiple nomenclatural soft validation improvements
+- Improvements to intelligence of various autocompletes
+- Improved cursor focus on new source task
+- Update Ruby to 3.2.1
+- Updated Ruby gems
+- Updated Docker container (including psql client version to 15)
 
+[#445]: https://github.com/SpeciesFileGroup/taxonworks/issues/445
+[#1035]: https://github.com/SpeciesFileGroup/taxonworks/issues/1035
+[#1156]: https://github.com/SpeciesFileGroup/taxonworks/issues/1156
+[#1240]: https://github.com/SpeciesFileGroup/taxonworks/issues/1240
+[#1633]: https://github.com/SpeciesFileGroup/taxonworks/issues/1633
+[#1649]: https://github.com/SpeciesFileGroup/taxonworks/issues/1649
+[#1667]: https://github.com/SpeciesFileGroup/taxonworks/issues/1677
+[#1744]: https://github.com/SpeciesFileGroup/taxonworks/issues/1744
+[#2059]: https://github.com/SpeciesFileGroup/taxonworks/issues/2059
+[#2116]: https://github.com/SpeciesFileGroup/taxonworks/issues/2116
+[#2124]: https://github.com/SpeciesFileGroup/taxonworks/issues/2124
+[#2147]: https://github.com/SpeciesFileGroup/taxonworks/issues/2147
+[#2178]: https://github.com/SpeciesFileGroup/taxonworks/issues/2178
+[#2179]: https://github.com/SpeciesFileGroup/taxonworks/issues/2179
+[#2188]: https://github.com/SpeciesFileGroup/taxonworks/issues/2188
+[#2257]: https://github.com/SpeciesFileGroup/taxonworks/issues/2257
+[#2305]: https://github.com/SpeciesFileGroup/taxonworks/issues/2305
+[#2340]: https://github.com/SpeciesFileGroup/taxonworks/issues/2340
+[#2496]: https://github.com/SpeciesFileGroup/taxonworks/issues/2496
+[#2552]: https://github.com/SpeciesFileGroup/taxonworks/issues/2552
+[#2652]: https://github.com/SpeciesFileGroup/taxonworks/issues/2652
+[#2699]: https://github.com/SpeciesFileGroup/taxonworks/issues/2699
+[#2756]: https://github.com/SpeciesFileGroup/taxonworks/issues/2756
+[#2770]: https://github.com/SpeciesFileGroup/taxonworks/issues/2770
+[#2802]: https://github.com/SpeciesFileGroup/taxonworks/issues/2802
+[#2803]: https://github.com/SpeciesFileGroup/taxonworks/issues/2803
+[#2865]: https://github.com/SpeciesFileGroup/taxonworks/issues/2865
+[#2931]: https://github.com/SpeciesFileGroup/taxonworks/issues/2931
+[#2937]: https://github.com/SpeciesFileGroup/taxonworks/issues/2937
+[#2940]: https://github.com/SpeciesFileGroup/taxonworks/issues/2940
+[#3005]: https://github.com/SpeciesFileGroup/taxonworks/issues/3005
+[#3024]: https://github.com/SpeciesFileGroup/taxonworks/issues/3024
+[#3051]: https://github.com/SpeciesFileGroup/taxonworks/issues/3051
+[#3058]: https://github.com/SpeciesFileGroup/taxonworks/issues/3058
+[#3062]: https://github.com/SpeciesFileGroup/taxonworks/issues/3062
+[#3075]: https://github.com/SpeciesFileGroup/taxonworks/issues/3075
+[#3151]: https://github.com/SpeciesFileGroup/taxonworks/issues/3151
+[#3195]: https://github.com/SpeciesFileGroup/taxonworks/issues/3195
+[#3197]: https://github.com/SpeciesFileGroup/taxonworks/issues/3197
+[#3258]: https://github.com/SpeciesFileGroup/taxonworks/issues/3258
+[#3260]: https://github.com/SpeciesFileGroup/taxonworks/issues/3260
 [#3269]: https://github.com/SpeciesFileGroup/taxonworks/issues/3269
 [#3271]: https://github.com/SpeciesFileGroup/taxonworks/issues/3271
+[#3273]: https://github.com/SpeciesFileGroup/taxonworks/issues/3273
+[#3275]: https://github.com/SpeciesFileGroup/taxonworks/issues/3275
+[#3280]: https://github.com/SpeciesFileGroup/taxonworks/issues/3280
 [#3284]: https://github.com/SpeciesFileGroup/taxonworks/issues/3284
+[#3291]: https://github.com/SpeciesFileGroup/taxonworks/issues/3291
 [#3292]: https://github.com/SpeciesFileGroup/taxonworks/issues/3292
+[#3300]: https://github.com/SpeciesFileGroup/taxonworks/issues/3300
+[#3310]: https://github.com/SpeciesFileGroup/taxonworks/issues/3310
+[#3313]: https://github.com/SpeciesFileGroup/taxonworks/issues/3313
+[#3317]: https://github.com/SpeciesFileGroup/taxonworks/issues/3317
 
 ## [0.30.3] - 2023-01-04
 

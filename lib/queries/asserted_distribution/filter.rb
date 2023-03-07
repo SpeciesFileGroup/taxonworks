@@ -78,7 +78,7 @@ module Queries
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
         @otu_id = params[:otu_id]
         @presence = boolean_param(params, :presence)
-        @radius = params[:radius].presence || 100
+        @radius = params[:radius].presence || 100.0
         @taxon_name_id = params[:taxon_name_id]
         @wkt = params[:wkt]
 
@@ -144,7 +144,8 @@ module Queries
           j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
 
           # Expand to include all descendants of any spatial match!
-          k = ::GeographicArea.descendants_of(j)
+          # We only care about areas actually used here.
+          k = ::GeographicArea.joins(:asserted_distributions).descendants_of(j)
 
           l = ::GeographicArea.from("((#{j.to_sql}) UNION (#{k.to_sql})) as geographic_areas").distinct
 
@@ -159,9 +160,9 @@ module Queries
         if geometry = RGeo::GeoJSON.decode(geo_json)
           case geometry.geometry_type.to_s
           when 'Point'
-            ::GeographicItem.where(::GeographicItem.within_radius_of_wkt_sql(geometry.to_s, radius ) )
+            ::GeographicItem.joins(:geographic_areas).where( ::GeographicItem.within_radius_of_wkt_sql(geometry.to_s, radius ) )
           when 'Polygon', 'MultiPolygon'
-            ::GeographicItem.where(::GeographicItem.contained_by_wkt_sql(geometry.to_s))
+            ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(geometry.to_s))
           else
             nil
           end

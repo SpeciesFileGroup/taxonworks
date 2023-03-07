@@ -14,7 +14,7 @@ describe Queries::Otu::Autocomplete, type: :model do
 
   specify '#project_id' do
     o = Otu.create!(project: other_project, name: name)
-    q = Queries::Otu::Autocomplete.new('Test', project_id: Current.project_id)
+    q = Queries::Otu::Autocomplete.new('Test', project_id: project_id)
     expect(q.autocomplete).to contain_exactly(otu)
   end
 

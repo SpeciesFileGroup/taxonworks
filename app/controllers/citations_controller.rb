@@ -57,6 +57,16 @@ class CitationsController < ApplicationController
     end
   end
 
+  # /citations/batch_create.json?citation_object_type=Otu&citation_object_id[]=123&source_id=456
+  def batch_create
+    @citations = Citation.batch_create(batch_citation_params)
+    if @citations.present? 
+      render '/citations/index'
+    else
+      render json: { failed: true, status: :unprocessable_entity}
+    end
+  end
+
   # PATCH/PUT /citations/1
   # PATCH/PUT /citations/1.json
   def update
@@ -140,16 +150,25 @@ class CitationsController < ApplicationController
     @citation = Citation.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
-  def citation_params
-    params.require(:citation).permit(
-      :citation_object_type, :citation_object_id, :source_id, :pages, :is_original,
+  def base_params
+    [ :citation_object_type, :citation_object_id, :source_id, :pages, :is_original,
       :annotated_global_entity, :user_id,
       citation_topics_attributes: [
         :id, :_destroy, :pages, :topic_id,
         topic_attributes: [:id, :_destroy, :name, :definition]
       ],
       topics_attributes: [:name, :definition]
-    )
+    ]
+  end
+
+  def batch_citation_params
+    p = base_params 
+    p.last.merge!(citation_object_id: [])
+    params.require(:citation).permit(p)
+  end
+
+  def citation_params
+    params.require(:citation).permit(base_params)
   end
 
 end

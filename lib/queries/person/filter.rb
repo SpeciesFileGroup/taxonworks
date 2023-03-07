@@ -36,7 +36,6 @@ module Queries
         only_project_id: [],
         person_id: [],
         role: [],
-        used_in_project_id: [],
         with: [],
         without: [],
       ].freeze
@@ -161,6 +160,7 @@ module Queries
         @last_name_starts_with = params[:last_name_starts_with]
         @levenshtein_cuttoff = params[:levenshtein_cuttoff]
         @name = params[:name]
+        @only_project_id = params[:only_project_id]
         @regex = params[:regex]
         @repeated_total = params[:repeated_total]
         @role = params[:role]
@@ -291,7 +291,7 @@ module Queries
 
       def role_facet
         return nil if role.empty?
-        ::Person.joins(:roles).where( role_table[:type].eq_any(role) )
+        ::Person.joins(:roles).where( role_table[:type].eq_any(role) ).distinct
       end
 
       def except_role_facet
@@ -311,7 +311,7 @@ module Queries
           ).join_sources
         ).merge(
           ::Role.where(id: nil)
-        )
+        ).distinct
       end
 
       def repeated_total_facet
@@ -372,13 +372,10 @@ module Queries
       def only_project_id_facet
         return nil if only_project_id.empty?
 
-        w1 = role_table[:project_id].eq_any(only_project_id)
-        w2 = ::ProjectSource.arel_table[:project_id].eq_any(only_project_id)
+        a = ::Person.joins(:roles).where(roles: {project_id: only_project_id})
+        b = ::Person.joins(sources: [:project_sources]).where( project_sources: {project_id: only_project_id})
 
-        a = ::Person.joins(:roles).where(w1.to_sql)
-        b = ::Person.joins(sources: [:project_sources]).where( w2.to_sql)
-
-        ::Person.from("((#{a.to_sql}) UNION (#{b.to_sql})) as people")
+        referenced_klass_union([a,b])
       end
 
       def except_project_id_facet
@@ -390,9 +387,10 @@ module Queries
         a = ::Person.joins(:roles).where(w1.to_sql)
         b = ::Person.joins(sources: [:project_sources]).where( w2.to_sql)
 
-        ::Person.from("((#{a.to_sql}) UNION (#{b.to_sql})) as people")
+        referenced_klass_union([a,b])
       end
 
+      # Applies specificly to model[:project_id], there is no such thing in Person
       def project_id_facet
         nil
       end
@@ -428,8 +426,6 @@ module Queries
           use_facet,
         ]
       end
-
-
     end
   end
 end

@@ -42,6 +42,8 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['create'])
+
 const allList = ref([])
 
 function createWithId({ id }) {
@@ -49,8 +51,9 @@ function createWithId({ id }) {
     object_type: props.objectType,
     keyword_id: id,
     object_id: props.ids
-  }).then(() => {
+  }).then((response) => {
     TW.workbench.alert.create('Tag item(s) were successfully created', 'notice')
+    emit('create', response.body)
   })
 }
 

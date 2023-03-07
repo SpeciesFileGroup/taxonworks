@@ -16,6 +16,7 @@ module Queries
         :collecting_event_id,
         :collection_objects,
         :contents,
+        :coordinatify,
         :descendants,
         :descriptor_id,
         :geo_json,
@@ -25,6 +26,7 @@ module Queries
         :name_exact,
         :observations,
         :otu_id,
+        :radius,
         :taxon_name,
         :taxon_name_id,
         :wkt,
@@ -36,6 +38,14 @@ module Queries
         otu_id: [],
         taxon_name_id: [],
       ].freeze
+
+      # @params coordinatify ['true', True, nil]
+      # @return Boolean
+      #    if true then, additionally, all coordinate otus for the result are included
+      # See `coordinatify_result` for more.
+      #
+      # !! This param is not like the others. !!  See parallel in TaxonName filter 'validify'.
+      attr_accessor :coordinatify
 
       # @param name [String, Array]
       # @return Array
@@ -151,6 +161,10 @@ module Queries
       #   nil - not applied
       attr_accessor :observations
 
+      # Integer in Meters
+      #   !! defaults to 100m
+      attr_accessor :radius
+
       def initialize(query_params)
         super
 
@@ -160,6 +174,7 @@ module Queries
         @collecting_event_id = params[:collecting_event_id]
         @collection_objects = boolean_param(params, :collection_objects)
         @contents = boolean_param(params, :contents)
+        @coordinatify = boolean_param(params, :coordinatify)
         @descendants = boolean_param(params, :descendants)
         @descriptor_id = params[:descriptor_id]
         @geo_json = params[:geo_json]
@@ -170,6 +185,7 @@ module Queries
         @name_exact = boolean_param(params, :name_exact)
         @observations = boolean_param(params, :observations)
         @otu_id = params[:otu_id]
+        @radius = params[:radius].presence || 100.0
         @taxon_name = boolean_param(params, :taxon_name)
         @taxon_name_id = params[:taxon_name_id]
         @wkt = params[:wkt]
@@ -253,8 +269,8 @@ module Queries
       def geo_json_facet
         return nil if geo_json.nil?
 
-        c = ::Queries::CollectingEvent::Filter.new(geo_json: geo_json, project_id: project_id)
-        a = ::Queries::AssertedDistribution::Filter.new(geo_json: geo_json, project_id: project_id)
+        c = ::Queries::CollectingEvent::Filter.new(geo_json: geo_json, project_id: project_id, radius: radius)
+        a = ::Queries::AssertedDistribution::Filter.new(geo_json: geo_json, project_id: project_id, radius: radius)
 
         q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all).to_sql
         q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all).to_sql
@@ -514,6 +530,38 @@ module Queries
         ::Otu.from('(' + s + ') as otus')
       end
 
+      # Expands result of OTU filter query in 2 ways:
+      #  1 - to include all valid OTUs by (proxy of TaxonName) if OTU is by proxy invalid
+      #  2 - to include all invalid OTUS (by proxy of TaxonName) if OTU is by proxy valid
+      # 
+      # In essence this creates full sets of TaxonConcepts from partial results.
+      # The result can be used to, for example, get a comprehensive list of Sources for the concept,
+      # or a comprehensive historical list of Specimens, etc.
+      def coordinatify_result(q)
+        i = q.joins(:taxon_name).where('taxon_names.id != taxon_names.cached_valid_taxon_name_id')
+        v = q.joins(:taxon_name).where('taxon_names.id = taxon_names.cached_valid_taxon_name_id')
+
+        # Find valid for invalid
+        s = 'WITH invalid_otu_result AS (' + i.to_sql + ') ' +
+          ::Otu
+          .joins('JOIN taxon_names tn1 on otus.taxon_name_id = tn1.cached_valid_taxon_name_id')
+          .joins('JOIN invalid_otu_result AS invalid_otu_result1 ON invalid_otu_result1.taxon_name_id = tn1.id') # invalid otus matching valid names
+          .to_sql
+
+        a = ::Otu.from('(' + s + ') as otus' )
+
+        # Find invalid for valid
+        t = 'WITH valid_otu_result AS (' + v.to_sql + ') ' +
+          ::Otu
+          .joins('JOIN taxon_names tn2 on otus.taxon_name_id = tn2.id')
+          .joins('JOIN valid_otu_result AS valid_otu_result1 ON valid_otu_result1.taxon_name_id = tn2.cached_valid_taxon_name_id') # valid otus matching invalid names
+          .to_sql
+
+        b = ::Otu.from('(' + t + ') as otus' )
+
+        referenced_klass_union([a, b, q])
+      end
+
       def and_clauses
         [
           name_facet,
@@ -547,6 +595,13 @@ module Queries
           taxon_name_id_facet,
           wkt_facet,
         ].compact
+      end
+
+      # @return [ActiveRecord::Relation]
+      def all(nil_empty = false)
+        q = super
+        q = coordinatify_result(q) if coordinatify
+        q
       end
 
     end

@@ -70,10 +70,20 @@ module TaxonNamesHelper
   # @return [String]
   #  the name in original combination, with author year, with HTML
   def full_original_taxon_name_tag(taxon_name)
-    return nil if taxon_name.nil?
+    return nil if taxon_name.nil? 
     [ original_taxon_name_tag(taxon_name),
       history_author_year_tag(taxon_name)
     ].compact.join(' ').html_safe
+  end
+
+  # @return [String, nil]
+  #  if no cached_original_combination is defined return nothing
+  # !! This is used in taxon_name attributes now!   
+  # TODO: Refactor our logic for display contexts and value contexts
+  # to better reflect presence of data vs. utility of report.
+  def defined_full_original_taxon_name_tag(taxon_name)
+    return nil if taxon_name.nil?  || taxon_name.cached_original_combination_html.blank?
+    full_original_taxon_name_tag(taxon_name) 
   end
 
   # @return [String]

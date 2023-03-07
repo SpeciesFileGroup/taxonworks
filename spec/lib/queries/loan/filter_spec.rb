@@ -52,12 +52,12 @@ describe Queries::Loan::Filter, type: :model, group: [:geo, :collection_objects,
     expect(q.all).to contain_exactly(l1)
   end
 
-  specify '#loan_wildcards' do
+  specify '#wildcard_attribute' do
     l1 = FactoryBot.create(:valid_loan, recipient_address: 'Mars, home of chocolate bars.') 
     l2 = FactoryBot.create(:valid_loan) 
 
     q.recipient_address = 'choco' 
-    q.loan_wildcards = 'recipient_address'
+    q.wildcard_attribute = 'recipient_address'
     expect(q.all).to contain_exactly(l1)
   end
 

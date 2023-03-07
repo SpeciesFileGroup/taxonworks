@@ -12,9 +12,8 @@
   <FacetParamExact
     v-model="params"
     param="name"
-    title="Taxon"
+    title="Name"
   />
-  <FacetPrecision v-model="params" />
   <FacetNomenclatureGroup v-model="params" />
   <FacetNomenclatureCode v-model="params" />
   <FacetValidity v-model="params" />
@@ -34,7 +33,10 @@
     v-for="param in WITH_PARAMS"
     :key="param"
     :param="param"
-    :title="(WITH_TITLES[param] && WITH_TITLES[param].title) || param.replaceAll('_', ' ')"
+    :title="
+      (WITH_TITLES[param] && WITH_TITLES[param].title) ||
+      param.replaceAll('_', ' ')
+    "
     :inverted="WITH_TITLES[param] && WITH_TITLES[param].inverted"
     v-model="params"
   />
@@ -42,8 +44,6 @@
 </template>
 
 <script setup>
-
-import FacetPrecision from './filters/FacetPrecision.vue'
 import FacetUpdatedSince from './filters/FacetUpdatedSince'
 import FacetValidity from './filters/FacetValidity.vue'
 import FacetRelationships from './filters/FacetRelationships.vue'
@@ -78,15 +78,18 @@ const WITH_TITLES = {
 }
 
 const WITH_PARAMS = [
-  'citations',
-  'origin_citation',
-  'leaves',
-  'data_attributes',
-  'type_metadata',
-  'otus',
   'authors',
+  'citations',
+  'citation_documents',
+  'combinations',
+  'data_attributes',
   'etymology',
-  'not_specified'
+  'leaves',
+  'not_specified',
+  'origin_citation',
+  'original_combination',
+  'otus',
+  'type_metadata'
 ]
 
 const props = defineProps({
@@ -100,7 +103,6 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
-
 </script>
