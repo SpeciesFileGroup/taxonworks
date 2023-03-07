@@ -9,8 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+
 ### Fixed
 - Radial annotator documentation shows too much [#3326]
+- Cached values not updated [#3324]
 - Roles not displaying while edint loan [#3327]
 - Loan autocomplete [#3329] 
 

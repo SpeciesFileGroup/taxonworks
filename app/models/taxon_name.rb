@@ -630,7 +630,7 @@ class TaxonName < ApplicationRecord
   # @return String, nil
   #   virtual attribute, to ultimately be fixed in db
   def get_author
-    cached_author_year&.gsub(/,\s\d+/, '').gsub(/[\(\)]/, '')
+    cached_author_year&.gsub(/,\s\d+/, '')&.gsub(/[\(\)]/, '')
   end
 
   # !! Overrides Shared::Citations#nomenclature_date
