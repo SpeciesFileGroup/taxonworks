@@ -2,8 +2,9 @@ module Queries
   module Documentation
 
     class Filter < Query::Filter
+
       include Concerns::Polymorphic
-      polymorphic_klass(::Attribution)
+      polymorphic_klass(::Documentation)
 
       PARAMS = [
         *::Documentation.related_foreign_keys.map(&:to_sym), 

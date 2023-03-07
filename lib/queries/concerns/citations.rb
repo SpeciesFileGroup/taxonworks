@@ -36,11 +36,9 @@ module Queries::Concerns::Citations
     #   false - has citations, sources do not have documents
     #   nil - ignored
     attr_accessor :citation_documents
-
   end
 
   def set_citations_params(params)
-    
     @citation_documents = boolean_param(params, :citation_documents)
     @citations = boolean_param(params, :citations)
     @origin_citation = boolean_param(params, :origin_citation)

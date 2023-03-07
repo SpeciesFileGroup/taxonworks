@@ -9,6 +9,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+
+### Fixed
+- Radial annotator documentation shows too much [#3326]
+
+[#3326]: https://github.com/SpeciesFileGroup/taxonworks/issues/3326
+
+
 ## [0.31.0] - 2023-03-07
 
 ### Added
