@@ -7,7 +7,13 @@ import {
   nodeOtuStyle,
   unsavedNodeStyle
 } from '../constants/graphStyle.js'
-import { parseNodeId, makeNodeId, isEqualNodeObject, isNetwork } from '../utils'
+import {
+  parseNodeId,
+  makeNodeId,
+  isEqualNodeObject,
+  isNetwork,
+  getHexColorFromString
+} from '../utils'
 import { COLLECTION_OBJECT } from 'constants/index.js'
 
 const EXTEND_GRAPH = [
@@ -60,24 +66,25 @@ export function useGraph() {
     )
   )
 
-  const edges = computed(() =>
-    Object.fromEntries(
-      state.biologicalAssociations.map((ba) => {
-        const edgeObject = {
-          id: ba.id,
-          source: makeNodeId(ba.subject),
-          target: makeNodeId(ba.object),
-          label: ba.biologicalRelationship.name
-        }
+  const edges = computed(() => {
+    const baEdges = state.biologicalAssociations.map((ba) => {
+      const edgeObject = {
+        id: ba.id,
+        source: makeNodeId(ba.subject),
+        target: makeNodeId(ba.object),
+        label: ba.biologicalRelationship.name,
+        color: ba.color
+      }
 
-        if (ba.isUnsaved) {
-          Object.assign(edgeObject, unsavedEdge)
-        }
+      if (ba.isUnsaved) {
+        Object.assign(edgeObject, unsavedEdge)
+      }
 
-        return [ba.uuid, edgeObject]
-      })
-    )
-  )
+      return [ba.uuid, edgeObject]
+    })
+
+    return Object.fromEntries(baEdges)
+  })
 
   const currentGraph = computed(() => state.graph)
   const currentNodes = computed(() => state.selectedNodes)
@@ -96,7 +103,7 @@ export function useGraph() {
 
   const isGraphUnsaved = computed(() => state.biologicalAssociations.some((ba) => ba.isUnsaved))
 
-  function addBiologicalRelationship({ subjectNodeId, objectNodeId, relationship }) {
+  async function addBiologicalRelationship({ subjectNodeId, objectNodeId, relationship }) {
     const nObj = parseNodeId(subjectNodeId)
     const nSub = parseNodeId(objectNodeId)
 
@@ -109,6 +116,7 @@ export function useGraph() {
       subject,
       object,
       biologicalRelationship: relationship,
+      color: await getHexColorFromString(relationship.name),
       isUnsaved: true
     }
 
@@ -151,14 +159,14 @@ export function useGraph() {
       await BiologicalAssociation.where({
         biological_association_id: baIds,
         extend: EXTEND_BA
-      }).then(({ body }) => {
-        body.forEach((item) => {
-          const ba = makeBiologicalAssociation(item)
+      }).then(async ({ body }) => {
+        for (const item of body) {
+          const ba = await makeBiologicalAssociation(item)
 
           addObject(ba.subject)
           addObject(ba.object)
           state.biologicalAssociations.push(ba)
-        })
+        }
       })
     }
 

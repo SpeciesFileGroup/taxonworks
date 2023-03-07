@@ -32,7 +32,7 @@
               <VBtn
                 color="create"
                 medium
-                :disabled="!Object.keys(edges).length"
+                :disabled="!Object.keys(edges || {}).length"
                 @click="saveGraph"
               >
                 Save

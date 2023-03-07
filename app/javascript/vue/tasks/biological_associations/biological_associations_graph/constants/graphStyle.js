@@ -19,11 +19,13 @@ export const unsavedNodeStyle = {
 }
 
 export const nodeCollectionObjectStyle = {
-  type: 'rect',
-  ...DEFAULT_NODE_STYLE
+  ...DEFAULT_NODE_STYLE,
+  color: '#2196F3',
+  type: 'rect'
 }
 
 export const nodeOtuStyle = {
+  ...DEFAULT_NODE_STYLE,
   type: 'circle',
-  ...DEFAULT_NODE_STYLE
+  color: '#4CAF50'
 }
