@@ -638,6 +638,7 @@ GEM
     zip_tricks (5.6.0)
 
 PLATFORMS
+  x86_64-darwin-20
   x86_64-darwin-22
   x86_64-linux
 
