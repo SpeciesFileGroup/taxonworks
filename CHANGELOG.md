@@ -15,7 +15,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loan autocomplete [#3329]
 - `Set as current` button doesn't work on Original combination section in New taxon name task [#3325]
 - Repository autocomplete [#3331]
+- Some staged filter results failing to set size of window [#3328]
 
+[#3328]: https://github.com/SpeciesFileGroup/taxonworks/issues/3328
 [#3331]: https://github.com/SpeciesFileGroup/taxonworks/issues/3331
 [#3329]: https://github.com/SpeciesFileGroup/taxonworks/issues/3329
 [#3327]: https://github.com/SpeciesFileGroup/taxonworks/issues/3327
