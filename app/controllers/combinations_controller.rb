@@ -11,6 +11,10 @@ class CombinationsController < ApplicationController
 
   # GET /combinations/123.json
   def show
+    respond_to do |format|
+      format.html { redirect_to taxon_name_path(params.require(:id)) }
+      format.json { render :show, location: @combination.metamorphosize }
+    end
   end
 
   # GET /combinations/new
