@@ -14,7 +14,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Roles not displaying while edint loan [#3327]
 - Loan autocomplete [#3329]
 - `Set as current` button doesn't work on Original combination section in New taxon name task [#3325]
+- Repository autocomplete [#3331]
 
+[#3331]: https://github.com/SpeciesFileGroup/taxonworks/issues/3331
 [#3329]: https://github.com/SpeciesFileGroup/taxonworks/issues/3329
 [#3327]: https://github.com/SpeciesFileGroup/taxonworks/issues/3327
 [#3326]: https://github.com/SpeciesFileGroup/taxonworks/issues/3326
