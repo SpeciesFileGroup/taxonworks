@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Mass annotator for Sources showed no options
 - People filtering doesn't work on Filter nomenclature [#3332]
 
 [#3334]: https://github.com/SpeciesFileGroup/taxonworks/issues/3334
