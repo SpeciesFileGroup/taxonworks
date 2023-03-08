@@ -278,7 +278,7 @@ module Queries
         @parent_id = params[:parent_id]
         @rank = params[:rank]
         @sort = params[:sort]
-        @taxon_name_author_id = params[:taxon_name_author_ids]
+        @taxon_name_author_id = params[:taxon_name_author_id]
         @taxon_name_author_id_or = boolean_param(params, :taxon_name_author_id_or)
         @taxon_name_classification = params[:taxon_name_classification] || []
         @taxon_name_id = params[:taxon_name_id]
@@ -517,7 +517,7 @@ module Queries
           )
 
         e = c[:id].not_eq(nil)
-        f = c[:person_id].eq_any(taxon_name_author_ids)
+        f = c[:person_id].eq_any(taxon_name_author_id)
 
         b = b.where(e.and(f))
         b = b.group(a['id'])

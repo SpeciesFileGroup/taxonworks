@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- People filtering doesn't work on Filter nomenclature [#3332]
+
+[#3332]: https://github.com/SpeciesFileGroup/taxonworks/issues/3332
 
 ## [0.31.1] - 2023-03-07
 
@@ -24,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Short URLs not working due to Ruby 3.2 incompatibility.
 
 ### Changed
+
 - `/combinations/<id>` redirects to `/taxon_names/<id>`
 
 [#3328]: https://github.com/SpeciesFileGroup/taxonworks/issues/3328
