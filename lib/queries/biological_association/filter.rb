@@ -584,15 +584,28 @@ module Queries
       def otu_query_facet
         return nil if otu_query.nil?
         s = 'WITH query_otu_ba AS (' + otu_query.all.to_sql + ') '
-        ::BiologicalAssociation
 
         a = ::BiologicalAssociation
-          .joins("JOIN query_otu_ba as query_otu_ba1 on biological_associations.biological_association_subject_id = query_otu_ba1.id AND biological_associations.biological_association_subject_type = 'Otu'").to_sql
+          .joins("JOIN query_otu_ba as query_otu_ba1 on biological_associations.biological_association_subject_id = query_otu_ba1.id AND biological_associations.biological_association_subject_type = 'Otu'")
 
         b = ::BiologicalAssociation
-          .joins("JOIN query_otu_ba as query_otu_ba2 on biological_associations.biological_association_object_id = query_otu_ba2.id AND biological_associations.biological_association_object_type = 'Otu'").to_sql
+          .joins("JOIN query_otu_ba as query_otu_ba2 on biological_associations.biological_association_object_id = query_otu_ba2.id AND biological_associations.biological_association_object_type = 'Otu'")
 
-        s << ::BiologicalAssociation.from("((#{a} UNION (#{b})) as biological_associations").to_sql
+        s << referenced_klass_union([a,b]).to_sql
+        ::BiologicalAssociation.from('(' + s + ') as biological_associations')
+      end
+
+      def asserted_distribution_query_facet
+        return nil if asserted_distribution_query.nil?
+        s = 'WITH query_ad_ba AS (' + asserted_distribution_query.all.to_sql + ') '
+
+        a = ::BiologicalAssociation
+          .joins("JOIN query_ad_ba as query_ad_ba1 on biological_associations.biological_association_subject_id = query_ad_ba1.otu_id AND biological_associations.biological_association_subject_type = 'Otu'")
+
+        b = ::BiologicalAssociation
+          .joins("JOIN query_ad_ba as query_ad_ba2 on biological_associations.biological_association_object_id = query_ad_ba2.otu_id AND biological_associations.biological_association_object_type = 'Otu'")
+
+        s << referenced_klass_union([a,b]).to_sql
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
 
@@ -601,12 +614,12 @@ module Queries
         s = 'WITH query_co_ba AS (' + collection_object_query.all.to_sql + ') '
 
         a = ::BiologicalAssociation
-          .joins("JOIN query_co_ba as query_co_ba1 on biological_associations.biological_association_subject_id = query_co_ba1.id AND biological_associations.biological_association_subject_type = 'CollectionObject'").to_sql
+          .joins("JOIN query_co_ba as query_co_ba1 on biological_associations.biological_association_subject_id = query_co_ba1.id AND biological_associations.biological_association_subject_type = 'CollectionObject'")
 
         b = ::BiologicalAssociation
-          .joins("JOIN query_co_ba as query_co_ba2 on biological_associations.biological_association_object_id = query_co_ba2.id AND biological_associations.biological_association_object_type = 'CollectionObject'").to_sql
+          .joins("JOIN query_co_ba as query_co_ba2 on biological_associations.biological_association_object_id = query_co_ba2.id AND biological_associations.biological_association_object_type = 'CollectionObject'")
 
-        s << ::BiologicalAssociation.from('(' + [a,b].collect{|q| "(#{q})"}.join(' UNION ') + ') as biological_associations').to_sql
+        s << referenced_klass_union([a,b]).to_sql
 
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
@@ -620,12 +633,10 @@ module Queries
         a = ::BiologicalAssociation
           .joins("JOIN otus on otus.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'Otu'")
           .joins('JOIN query_tn_ba as query_tn_ba1 on otus.taxon_name_id = query_tn_ba1.id')
-          .to_sql
 
         b = ::BiologicalAssociation
           .joins("JOIN otus on otus.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'Otu'")
           .joins('JOIN query_tn_ba as query_tn_ba2 on otus.taxon_name_id = query_tn_ba2.id')
-          .to_sql
 
         c = ::BiologicalAssociation
           .joins("JOIN collection_objects on collection_objects.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'CollectionObject'")
@@ -633,7 +644,6 @@ module Queries
           .joins('JOIN otus on otus.id = taxon_determinations.otu_id')
           .joins('JOIN query_tn_ba as query_tn_ba3 on otus.taxon_name_id = query_tn_ba3.id')
           .where('taxon_determinations.position = 1')
-          .to_sql
 
         d = ::BiologicalAssociation
           .joins("JOIN collection_objects on collection_objects.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'CollectionObject'")
@@ -641,9 +651,8 @@ module Queries
           .joins('JOIN otus on otus.id = taxon_determinations.otu_id')
           .joins('JOIN query_tn_ba as query_tn_ba4 on otus.taxon_name_id = query_tn_ba4.id')
           .where('taxon_determinations.position = 1')
-          .to_sql
 
-        s << ::BiologicalAssociation.from('(' + [a,b,c,d].collect{|q| "(#{q})"}.join(' UNION ') + ') as biological_associations').to_sql
+        s << referenced_klass_union([a,b,c,d]).to_sql
 
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
@@ -662,6 +671,7 @@ module Queries
 
       def merge_clauses
         [
+          asserted_distribution_query_facet,
           collecting_event_query_facet,
           collection_object_query_facet,
           otu_query_facet,

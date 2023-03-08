@@ -8,7 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 # Added
-
+- Link from AssertedDistribution filter to BiologicalAssociations filter
 - All tab to biological relationships facet [#3334]
 
 ### Changed
@@ -16,10 +16,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add nomenclature code to relationships and statuses labels in Filter nomenclature [#3333]
 
 ### Fixed
-
+- Biological association filter raises [#3335]
 - Mass annotator for Sources showed no options
 - People filtering doesn't work on Filter nomenclature [#3332]
 
+[#3335]: https://github.com/SpeciesFileGroup/taxonworks/issues/3335
 [#3334]: https://github.com/SpeciesFileGroup/taxonworks/issues/3334
 [#3333]: https://github.com/SpeciesFileGroup/taxonworks/issues/3333
 [#3332]: https://github.com/SpeciesFileGroup/taxonworks/issues/3332

@@ -3,27 +3,28 @@
     v-model="params"
     input-id="area_picker_autocomplete"
   />
-  <FacetWKT v-model="params" />
+  <FacetTaxonName
+    v-model="params"
+    coverage
+  />
+  <FacetHistorialDeterminations v-model="params" />
   <FacetCollectingEvent v-model="params" />
   <FacetParamExact
     title="OTU"
     v-model="params"
     param="name"
   />
-  <FacetTaxonName
-    v-model="params"
-    coverage
-  />
-  <FacetHistorialDeterminations v-model="params" />
   <FacetBiologicalRelationship v-model="params" />
   <FacetDescriptor v-model="params" />
   <FacetDataAttribute v-model="params" />
   <FacetUsers v-model="params" />
+  <FacetIdentifiers v-model="params" />
   <FacetTags
     v-model="params"
     target="Otu"
   />
-  <FacetIdentifiers v-model="params" />
+
+  <FacetWKT v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
     :key="param"

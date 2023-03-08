@@ -49,9 +49,9 @@ module Queries
       attr_accessor :geo_json
 
       # @return [Boolean, nil]
+      #   true - Return AssertedDistributions where the OTU is asserted as present according to the Source
+      #   false - Return AssertedDistributions where the OTU is asserted as absent according to the Source
       #   nil - both
-      #   true - only 't'
-      #   false - only 'f'
       attr_accessor :presence
 
       # @return Array
@@ -213,7 +213,7 @@ module Queries
 
           ::AssertedDistribution.joins(:otu).joins(j.join_sources).where(z)
         else
-          ::AssertedDistribution.joins(:otu).where(otus: {taxon_name_id: taxon_name_id})
+          ::AssertedDistribution.joins(:otu).where(otus: {taxon_name_id:})
         end
       end
 
@@ -241,14 +241,14 @@ module Queries
         s = 'WITH query_ad_ba AS (' + biological_association_query.all.to_sql + ') '
 
         a = ::AssertedDistribution
-          .joins("JOIN query_ad_ba as query_ad_ba1 on asserted_distributions.otu_id = query_ad_ba1.biological_association_subject_id AND query_ad_ba1.biological_association_subject_type = 'Otu'").to_sql
+          .joins("JOIN query_ad_ba as query_ad_ba1 on asserted_distributions.otu_id = query_ad_ba1.biological_association_subject_id AND query_ad_ba1.biological_association_subject_type = 'Otu'")
 
         b = ::AssertedDistribution
-          .joins("JOIN query_ad_ba as query_ad_ba2 on asserted_distributions.otu_id = query_ad_ba2.biological_association_object_id AND query_ad_ba2.biological_association_object_type = 'Otu'").to_sql
+          .joins("JOIN query_ad_ba as query_ad_ba2 on asserted_distributions.otu_id = query_ad_ba2.biological_association_object_id AND query_ad_ba2.biological_association_object_type = 'Otu'")
 
-        s << ::AssertedDistribution.from("((#{a}) UNION (#{b})) as asserted_distributions").to_sql
+        s << referenced_klass_union([a,b]).to_sql
 
-        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+        ::AssertedDistribution.from('(' + s + ') as asserted_distributions').distinct
       end
 
       def and_clauses
