@@ -124,6 +124,14 @@ onMounted(() => {
       graph.value.addObject(body)
     })
   }
+
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+a`,
+    'Create biological association between two nodes',
+    'Biological associations graph'
+  )
+  TW.workbench.keyboard.createLegend(`${platformKey()}+r`, 'Reset', 'Biological associations graph')
+  TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'Biological associations graph')
 })
 
 function loadGraph(id) {
