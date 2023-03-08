@@ -7,14 +7,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-### Fixed
+# Added
 
-- People filtering doesn't work on Filter nomenclature [#3332]
+- All tab to biological relationships facet [#3334]
 
 ### Changed
 
 - Add nomenclature code to relationships and statuses labels in Filter nomenclature [#3333]
 
+### Fixed
+
+- People filtering doesn't work on Filter nomenclature [#3332]
+
+[#3334]: https://github.com/SpeciesFileGroup/taxonworks/issues/3334
 [#3333]: https://github.com/SpeciesFileGroup/taxonworks/issues/3333
 [#3332]: https://github.com/SpeciesFileGroup/taxonworks/issues/3332
 
