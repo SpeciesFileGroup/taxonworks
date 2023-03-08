@@ -33,25 +33,25 @@ module Queries
 
         queries.compact!
 
-    #   updated_queries = []
-    #   queries.each_with_index do |q ,i|
-    #     a = q
-    #     if project_id.present?
-    #       a = a.select("serials.*, COUNT(project_sources.source_id) AS use_count, CASE WHEN project_sources.project_id IN (#{project_id.join(',')}) THEN project_sources.project_id ELSE NULL END AS in_project")
-    #            .left_outer_joins(:sources)
-    #            .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
-    #            .where('project_sources.project_id IN (?) OR project_sources.project_id NOT IN (?)', project_id, project_id)
-    #            .group('serials.id, project_sources.project_id')
-    #            .order('in_project, use_count DESC')
-    #     end
-    #     a ||= q
-    #     updated_queries[i] = a
-    #   end
-
+       updated_queries = []
+       pr_id = project_id.join(',') if project_id
+       queries.each_with_index do |q ,i|
+         a = q
+         if project_id
+           a = a.select("serials.*, COUNT(project_sources.source_id) AS use_count, CASE WHEN project_sources.project_id IN (#{pr_id}) THEN project_sources.project_id ELSE NULL END AS in_project")
+                .left_outer_joins(:sources)
+                .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
+                .where("project_sources.project_id IN (#{pr_id}) OR project_sources.project_id NOT IN (#{pr_id}) OR project_sources.project_id IS NULL")
+                .group('serials.id, project_sources.project_id')
+                .order('in_project, use_count DESC')
+         end
+         a ||= q
+         updated_queries[i] = a
+       end
         result = []
-     
-     
-        queries.each do |q|
+
+
+        updated_queries.each do |q|
           result += q.to_a
           result.uniq!
           break if result.count > 19

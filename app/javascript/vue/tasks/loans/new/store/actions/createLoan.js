@@ -3,7 +3,7 @@ import { Loan } from 'routes/endpoints'
 
 export default ({ commit }, loan) => {
   commit(MutationNames.SetSaving, true)
-  Loan.create({ loan }).then(response => {
+  Loan.create({ loan, extend: ['roles'] }).then((response) => {
     TW.workbench.alert.create('Loan was successfully created.', 'notice')
     commit(MutationNames.SetLoan, response.body)
     commit(MutationNames.SetSaving, false)

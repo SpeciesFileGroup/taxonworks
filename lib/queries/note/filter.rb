@@ -3,7 +3,7 @@ module Queries
     class Filter < Query::Filter
 
       include Concerns::Polymorphic
-      polymorphic_klass(::Identifier)
+      polymorphic_klass(::Note)
 
       PARAMS = [
         *::Note.related_foreign_keys.map(&:to_sym),

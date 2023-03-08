@@ -15,7 +15,7 @@ describe Queries::Person::Autocomplete, type: :model, group: :people do
     let!(:a2) { AlternateValue::Misspelling.create!(alternate_value_object: p4, alternate_value_object_attribute: :first_name, value: 'Geerge') }
     let!(:a3) { AlternateValue::AlternateSpelling.create!(alternate_value_object: p5, alternate_value_object_attribute: :last_name, value: 'Tartero') }
 
-    before { query.project_id = project_id }
+    before { query.project_id = [project_id] }
 
     specify '1' do
       query.terms = 'S.'
@@ -31,6 +31,14 @@ describe Queries::Person::Autocomplete, type: :model, group: :people do
       query.terms = 'Tartero'
       expect(query.autocomplete.map(&:id)).to contain_exactly(p5.id)
     end
+
+    specify 'in_project' do
+      tn = FactoryBot.create(:relationship_genus, taxon_name_author_roles_attributes: [ {person_id: p1.id}, {person_id: p3.id}])
+      query.terms = 'Smith'
+      query.project_id = [tn.project_id]
+      expect(query.autocomplete.map(&:in_project)).to contain_exactly(1, nil)
+    end
+
   end
 
   specify '#normalize 1' do
@@ -95,12 +103,7 @@ describe Queries::Person::Autocomplete, type: :model, group: :people do
     end
 
     specify 'no roles, no in_project' do
-      expect(query.autocomplete.map(&:id)).to contain_exactly(p1.id, p2.id) 
-    end
-
-    specify 'in_project, no roles' do
-      query.in_project = true
-      expect(query.autocomplete.map(&:id)).to contain_exactly(p2.id) 
+      expect(query.autocomplete.map(&:id)).to contain_exactly(p1.id, p2.id)
     end
 
     specify 'roles, no in_project' do

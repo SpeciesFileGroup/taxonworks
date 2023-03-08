@@ -386,8 +386,6 @@ module Queries
       true
     end
 
-
-
     # Returns id= facet, automatically
     # added to all queries.
     # Over-ridden in some base classes.
