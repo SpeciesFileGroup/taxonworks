@@ -1,6 +1,10 @@
 <template>
-  <div class="flex-separate middle gap-small graph-context-menu-list-item">
-    {{ edge.label }}
+  <div
+    v-for="edgeId in selectedEdgeIds"
+    :key="edgeId"
+    class="flex-separate middle gap-small graph-context-menu-list-item"
+  >
+    {{ edges[edgeId].label }}
     <div class="horizontal-right-content gap-xsmall">
       <VBtn
         color="primary"
@@ -18,7 +22,7 @@
       </VBtn>
       <VBtn
         circle
-        :color="!!edge.id ? 'destroy' : 'primary'"
+        :color="!!edges[edgeId].id ? 'destroy' : 'primary'"
         @click="
           () => {
             emit('remove:edge', edgeId)
@@ -32,6 +36,12 @@
       </VBtn>
     </div>
   </div>
+  <div
+    class="graph-context-menu-list-item"
+    @click="() => emit('cite:edges', selectedEdgeIds)"
+  >
+    Add citation
+  </div>
 </template>
 
 <script setup>
@@ -39,16 +49,16 @@ import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 
 defineProps({
-  edgeId: {
+  selectedEdgeIds: {
     type: String,
     required: true
   },
 
-  edge: {
+  edges: {
     type: Object,
     default: () => ({})
   }
 })
 
-const emit = defineEmits(['remove:edge', 'reverse:edge'])
+const emit = defineEmits(['remove:edge', 'reverse:edge', 'add:citation'])
 </script>

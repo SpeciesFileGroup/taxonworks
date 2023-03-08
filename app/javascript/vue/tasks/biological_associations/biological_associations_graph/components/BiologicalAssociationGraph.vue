@@ -14,6 +14,7 @@
     :nodes="nodes"
     :event-handlers="eventHandlers"
     v-model:selected-nodes="selectedNodes"
+    v-model:selected-edges="selectedEdges"
     v-model:layouts="layouts"
   >
     <template #edge-label="{ edge, ...slotProps }">
@@ -27,7 +28,14 @@
   </VNetworkGraph>
 
   <ContextMenu ref="viewContextMenu">
-    <ContextMenuView @add:node="openNodeModal" />
+    <ContextMenuView
+      @add:node="openNodeModal"
+      @cite:graph="
+        () => {
+          showModalCitation = true
+        }
+      "
+    />
   </ContextMenu>
 
   <ContextMenu ref="nodeContextMenu">
@@ -43,8 +51,13 @@
 
   <ContextMenu ref="edgeContextMenu">
     <ContextMenuEdge
-      :edge="edges[currentEdgeId]"
-      :edge-id="currentEdgeId"
+      :edges="edges"
+      :selected-edge-ids="selectedEdges"
+      @cite:edge="
+        () => {
+          showModalCitation = true
+        }
+      "
       @reverse:edge="(edgeId) => reverseRelation(edgeId)"
       @remove:edge="handleRemoveEdge"
     />
@@ -53,7 +66,7 @@
   <ModalObject
     v-if="showModalNode"
     :type="nodeType"
-    @add-object="
+    @add:object="
       ($event) => {
         addObject($event)
         setNodePosition(makeNodeId($event), currentPosition)
@@ -64,7 +77,7 @@
   />
   <ModalEdge
     v-if="showModalEdge"
-    @add-relationship="
+    @add:relationship="
       ($event) => {
         addBiologicalRelationship({
           subjectNodeId: selectedNodes[0],
@@ -76,6 +89,7 @@
     "
     @close="() => (showModalEdge = false)"
   />
+  <ModalCitation v-if="showModalCitation" />
   <VSpinner
     v-if="isSaving"
     full-screen
@@ -91,6 +105,7 @@ import { configs } from '../constants/networkConfig'
 import { useGraph } from '../composition/useGraph.js'
 import { makeNodeId } from '../utils/makeNodeId.js'
 import ConfirmationModal from 'components/ConfirmationModal.vue'
+import ModalCitation from './ModalCitation.vue'
 import ModalObject from './ModalObject.vue'
 import ModalEdge from './ModalEdge.vue'
 import VSpinner from 'components/spinner.vue'
@@ -99,9 +114,6 @@ import ContextMenuEdge from './ContextMenu/ContextMenuEdge.vue'
 import ContextMenuView from './ContextMenu/ContextMenuView.vue'
 import ContextMenuNode from './ContextMenu/ContextMenuNode.vue'
 
-const showModalNode = ref(false)
-const showModalEdge = ref(false)
-const nodeType = ref()
 const {
   addBiologicalRelationship,
   addObject,
@@ -118,6 +130,7 @@ const {
   resetStore,
   reverseRelation,
   saveBiologicalAssociations,
+  selectedEdges,
   selectedNodes,
   setNodePosition,
   currentNodes,
@@ -125,9 +138,15 @@ const {
 } = useGraph()
 
 const graph = ref()
+const nodeType = ref()
+
 const edgeContextMenu = ref()
 const nodeContextMenu = ref()
 const viewContextMenu = ref()
+
+const showModalNode = ref(false)
+const showModalEdge = ref(false)
+const showModalCitation = ref(false)
 
 const currentNodeId = ref()
 const currentEdgeId = ref()
@@ -203,22 +222,6 @@ async function handleRemoveEdge(edgeId) {
   if (ok) {
     removeEdge(edgeId)
   }
-}
-
-function updateLayout(direction) {
-  graph.value?.transitionWhile(() => {
-    const data = graphLayout({
-      direction,
-      nodes: nodes.value,
-      edges: edges.value,
-      nodeSize: 40
-    })
-
-    if (!data) return
-
-    layouts.value = data.layouts
-    graph.value.setViewBox(data.viewBox)
-  })
 }
 
 function openNodeModal({ type }) {

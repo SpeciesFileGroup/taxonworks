@@ -17,5 +17,5 @@
 import SmartSelector from 'components/ui/SmartSelector'
 import VModal from 'components/ui/Modal.vue'
 
-const emit = defineEmits(['addRelationship'])
+const emit = defineEmits(['add:relationship'])
 </script>

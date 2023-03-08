@@ -1,6 +1,6 @@
 import { reactive, computed, toRefs } from 'vue'
-import { BiologicalAssociation, BiologicalAssociationGraph } from 'routes/endpoints'
-import { makeBiologicalAssociation, makeNodeObject } from '../adapters'
+import { BiologicalAssociation, BiologicalAssociationGraph, Citation } from 'routes/endpoints'
+import { makeBiologicalAssociation, makeNodeObject, makeCitation } from '../adapters'
 import {
   unsavedEdge,
   nodeCollectionObjectStyle,
@@ -14,7 +14,12 @@ import {
   isNetwork,
   getHexColorFromString
 } from '../utils'
-import { COLLECTION_OBJECT } from 'constants/index.js'
+import { addToArray } from 'helpers/arrays'
+import {
+  COLLECTION_OBJECT,
+  BIOLOGICAL_ASSOCIATIONS_GRAPH,
+  BIOLOGICAL_ASSOCIATION
+} from 'constants/index.js'
 
 const EXTEND_GRAPH = [
   'biological_associations_biological_associations_graphs',
@@ -28,6 +33,8 @@ function initState() {
     biologicalAssociations: [],
     nodeObjects: [],
     selectedNodes: [],
+    selectedEdges: [],
+    citations: [],
     layouts: {
       nodes: {}
     },
@@ -93,6 +100,12 @@ export function useGraph() {
     Object.assign(state, initState())
   }
 
+  function addCitation(data) {
+    const citation = makeCitation(data)
+
+    state.citations.push(citation)
+  }
+
   const getBiologicalRelationshipsByNodeId = (nodeId) => {
     const obj = parseNodeId(nodeId)
 
@@ -144,9 +157,8 @@ export function useGraph() {
   }
 
   async function loadGraph(graphId) {
-    const { body } = await BiologicalAssociationGraph.find(graphId, {
-      extend: EXTEND_GRAPH
-    })
+    const params = { extend: EXTEND_GRAPH }
+    const { body } = await BiologicalAssociationGraph.find(graphId, params)
     const baIds = body.biological_associations_biological_associations_graphs.map(
       (ba) => ba.biological_association_id
     )
@@ -154,6 +166,11 @@ export function useGraph() {
     resetStore()
     state.graph = body
     state.layouts = JSON.parse(body.layout)
+
+    loadCitations({
+      id: [graphId, ...baIds],
+      objectType: [BIOLOGICAL_ASSOCIATION, BIOLOGICAL_ASSOCIATIONS_GRAPH]
+    })
 
     if (baIds.length) {
       await BiologicalAssociation.where({
@@ -171,6 +188,17 @@ export function useGraph() {
     }
 
     return body
+  }
+
+  function loadCitations({ id, objectType }) {
+    const payload = {
+      citation_object_id: id,
+      citation_object_type: objectType
+    }
+
+    Citation.where(payload).then(({ body }) => {
+      state.citations = body.map((c) => makeCitation(c))
+    })
   }
 
   function removeEdge(edgeId) {

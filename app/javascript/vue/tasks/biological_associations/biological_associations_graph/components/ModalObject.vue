@@ -31,5 +31,5 @@ const MODEL_TYPE = {
   [COLLECTION_OBJECT]: 'collection_objects'
 }
 
-const emit = defineEmits(['addObject'])
+const emit = defineEmits(['add:object'])
 </script>

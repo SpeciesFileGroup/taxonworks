@@ -18,7 +18,7 @@ export const configs = defineConfigs({
     selectable: 2
   },
   edge: {
-    selectable: 1,
+    selectable: true,
     normal: {
       width: 3,
       color: (edge) => edge.color || '#4466cc',

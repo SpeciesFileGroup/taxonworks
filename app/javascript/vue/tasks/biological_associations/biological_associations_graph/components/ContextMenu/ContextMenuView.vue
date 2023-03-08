@@ -19,6 +19,12 @@
   >
     Add Collection object
   </div>
+  <div
+    class="graph-context-menu-list-item"
+    @click="() => emit('cite:graph')"
+  >
+    Add Citation
+  </div>
 </template>
 
 <script setup>
