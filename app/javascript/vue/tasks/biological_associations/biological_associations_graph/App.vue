@@ -10,6 +10,7 @@
                 url="/biological_associations_graphs/autocomplete"
                 param="term"
                 label="label_html"
+                autofocus
                 clear-after
                 placeholder="Search a graph..."
                 @get-item="
@@ -19,7 +20,10 @@
                   }
                 "
               />
-              <span v-if="currentGraph.id">{{ currentGraph.object_tag }}</span>
+              <template v-if="currentGraph.id">
+                <RadialAnnotator :global-id="currentGraph.global_id" />
+                <span>{{ currentGraph.object_tag }}</span>
+              </template>
             </div>
             <div class="horizontal-left-content gap-small">
               <VIcon
@@ -65,6 +69,7 @@ import VAutocomplete from 'components/ui/Autocomplete.vue'
 import setParam from 'helpers/setParam.js'
 import useHotkey from 'vue3-hotkey'
 import platformKey from 'helpers/getPlatformKey'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { onMounted, ref } from 'vue'
 import { CollectionObject, Otu } from 'routes/endpoints'
