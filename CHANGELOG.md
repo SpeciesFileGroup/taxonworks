@@ -28,13 +28,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `Clone last citation` button doesn't work
 - Missing asserted distributions in Browse OTU and Quick forms radial [#3337]
 
-[#3337]: https://github.com/SpeciesFileGroup/taxonworks/issues/3337
-[#3336]: https://github.com/SpeciesFileGroup/taxonworks/issues/3336
-[#3335]: https://github.com/SpeciesFileGroup/taxonworks/issues/3335
-[#3334]: https://github.com/SpeciesFileGroup/taxonworks/issues/3334
-[#3333]: https://github.com/SpeciesFileGroup/taxonworks/issues/3333
-[#3332]: https://github.com/SpeciesFileGroup/taxonworks/issues/3332
 [#3330]: https://github.com/SpeciesFileGroup/taxonworks/issues/3330
+[#3332]: https://github.com/SpeciesFileGroup/taxonworks/issues/3332
+[#3333]: https://github.com/SpeciesFileGroup/taxonworks/issues/3333
+[#3334]: https://github.com/SpeciesFileGroup/taxonworks/issues/3334
+[#3335]: https://github.com/SpeciesFileGroup/taxonworks/issues/3335
+[#3336]: https://github.com/SpeciesFileGroup/taxonworks/issues/3336
+[#3337]: https://github.com/SpeciesFileGroup/taxonworks/issues/3337
 
 ## [0.31.1] - 2023-03-07
 
