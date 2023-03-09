@@ -26,7 +26,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Biological associations section shows incorrect results in Browse Otu [#3336]
 - `Clone last citation` button doesn't work
 
-
 [#3330]: https://github.com/SpeciesFileGroup/taxonworks/issues/3330
 [#3336]: https://github.com/SpeciesFileGroup/taxonworks/issues/3336
 [#3335]: https://github.com/SpeciesFileGroup/taxonworks/issues/3335

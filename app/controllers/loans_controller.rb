@@ -41,6 +41,7 @@ class LoansController < ApplicationController
 
   # GET /loans/1/edit
   def edit
+    redirect_to edit_loan_task_path(id: params[:id])
   end
 
   # POST /loans
@@ -97,7 +98,7 @@ class LoansController < ApplicationController
 
   def list
     @loans = Loan.includes(:identifiers).with_project_id(sessions_current_project_id)
-      .order(Arel.sql("LENGTH(identifier), identifier")).references(:identifiers).page(params[:page]) #.per(10) #.per(3)
+      .order(Arel.sql('LENGTH(identifier), identifier')).references(:identifiers).page(params[:page])
   end
 
   def search
