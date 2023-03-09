@@ -170,13 +170,10 @@ resources :collecting_events do
   end
 end
 
-resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
+resources :combinations, only: [:create, :edit, :update, :destroy, :new, :show] do
   concerns [:data_routes]
   collection do
     get :index, defaults: {format: :json}
-  end
-  member do
-    get :show, defaults: {format: :json}
   end
 end
 

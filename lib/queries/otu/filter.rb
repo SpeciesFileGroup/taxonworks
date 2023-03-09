@@ -419,7 +419,7 @@ module Queries
           .joins('JOIN query_ad_otus as query_ad_otus1 on otus.id = query_ad_otus1.otu_id')
           .to_sql
 
-        ::Otu.from('(' + s + ') as otus')
+        ::Otu.from('(' + s + ') as otus').distinct
       end
 
       def content_query_facet
@@ -429,7 +429,7 @@ module Queries
           .joins('JOIN query_con_otus as query_con_otus1 on otus.id = query_con_otus1.otu_id')
           .to_sql
 
-        ::Otu.from('(' + s + ') as otus')
+        ::Otu.from('(' + s + ') as otus').distinct
       end
 
       def biological_association_query_facet
@@ -437,12 +437,12 @@ module Queries
         s = 'WITH query_ba_otu AS (' + biological_association_query.all.to_sql + ') '
 
         a = ::Otu
-          .joins("JOIN query_ba_otu as query_ba_otu1 on otus.id = query_ba_otu1.biological_association_subject_id AND query_ba_otu1.biological_association_subject_type = 'Otu'").to_sql
+          .joins("JOIN query_ba_otu as query_ba_otu1 on otus.id = query_ba_otu1.biological_association_subject_id AND query_ba_otu1.biological_association_subject_type = 'Otu'")
 
         b = ::Otu
-          .joins("JOIN query_ba_otu as query_ba_otu2 on otus.id = query_ba_otu2.biological_association_object_id AND query_ba_otu2.biological_association_object_type = 'Otu'").to_sql
+          .joins("JOIN query_ba_otu as query_ba_otu2 on otus.id = query_ba_otu2.biological_association_object_id AND query_ba_otu2.biological_association_object_type = 'Otu'")
 
-        s << ::Otu.from("((#{a}) UNION (#{b})) as otus").to_sql
+        s << referenced_klass_union([a,b]).to_sql
 
         ::Otu.from('(' + s + ') as otus')
       end
@@ -455,7 +455,7 @@ module Queries
           .joins('JOIN query_co_otus as query_co_otus1 on collection_objects.id = query_co_otus1.id')
           .to_sql
 
-        ::Otu.from('(' + s + ') as otus')
+        ::Otu.from('(' + s + ') as otus').distinct
       end
 
       def collecting_event_query_facet
@@ -466,7 +466,7 @@ module Queries
           .joins('JOIN query_ce_otus as query_ce_otus1 on collecting_events.id = query_ce_otus1.id')
           .to_sql
 
-        ::Otu.from('(' + s + ') as otus')
+        ::Otu.from('(' + s + ') as otus').distinct
       end
 
       def extract_query_facet
@@ -477,7 +477,7 @@ module Queries
           .joins("JOIN query_ex_otus as query_ex_otus1 on origin_relationships.new_object_id = query_ex_otus1.id and origin_relationships.new_object_type = 'Extract'")
           .to_sql
 
-        ::Otu.from('(' + s + ') as otus')
+        ::Otu.from('(' + s + ') as otus').distinct
       end
 
       def taxon_name_query_facet
@@ -488,7 +488,7 @@ module Queries
           .joins('JOIN query_taxon_names as query_taxon_names1 on otus.taxon_name_id = query_taxon_names1.id')
           .to_sql
 
-        ::Otu.from('(' + s + ') as otus')
+        ::Otu.from('(' + s + ') as otus').distinct
       end
 
       def descriptor_query_facet
@@ -499,7 +499,7 @@ module Queries
           .joins('JOIN query_de_otus as query_de_otus1 on observations.descriptor_id = query_de_otus1.id')
           .to_sql
 
-        ::Otu.from('(' + s + ') as otus')
+        ::Otu.from('(' + s + ') as otus').distinct
       end
 
       def loan_query_facet
@@ -508,15 +508,13 @@ module Queries
 
         a = ::Otu.joins(:loan_items)
           .joins('JOIN query_loan_otus as query_loan_otus1 on loan_items.loan_id = query_loan_otus1.id')
-          .to_sql
 
         b = ::Otu.joins(collection_objects: [:loan_items])
           .joins('JOIN query_loan_otus as query_loan_otus1 on loan_items.loan_id = query_loan_otus1.id')
-          .to_sql
 
-        s << ::Otu.from("((#{a}) UNION (#{b})) as otus").to_sql
+        s << referenced_klass_union([a,b]).to_sql
 
-        ::Otu.from('(' + s + ') as otus')
+        ::Otu.from('(' + s + ') as otus').distinct
       end
 
       def observation_query_facet

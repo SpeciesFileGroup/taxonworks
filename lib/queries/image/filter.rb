@@ -22,8 +22,6 @@ module Queries
         collection_object_id: [],
         depiction_object_type: [],
         image_id: [],
-        keyword_id_and: [],
-        keyword_id_or: [],
         otu_id: [],
         otu_scope: [],
         sled_image_id: [],
@@ -72,7 +70,7 @@ module Queries
       #
       # !! Must be used with an otu_id !!
       # @param otu_scope
-      #   One or more of: 
+      #   One or more of:
       #     :all (default, includes all below)
       #
       #     :otu (those on the OTU)
@@ -205,13 +203,13 @@ module Queries
         return nil if biocuration_class_id.empty?
         ::Image.joins(collection_objects: [:depictions]).merge(
           ::CollectionObject::BiologicalCollectionObject.joins(:biocuration_classifications)
-          .where(biocuration_classifications: {biocuration_class_id: biocuration_class_id})
+          .where(biocuration_classifications: {biocuration_class_id:})
         )
       end
 
       def depiction_object_type_facet
         return nil if depiction_object_type.empty?
-        ::Image.joins(:depictions).where(depictions: {depiction_object_type: depiction_object_type})
+        ::Image.joins(:depictions).where(depictions: {depiction_object_type:})
       end
 
       def depictions_facet

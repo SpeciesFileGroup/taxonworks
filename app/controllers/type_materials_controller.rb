@@ -89,7 +89,7 @@ class TypeMaterialsController < ApplicationController
   end
 
   def autocomplete
-    @type_materials = Queries::TypeMaterialAutocompleteQuery.new(params[:term], project_id: sessions_current_project_id).all
+    @type_materials = Queries::TypeMaterial::Autocomplete.new(params[:term], project_id: sessions_current_project_id).all
 
     data = @type_materials.collect do |t|
       {id: t.id,

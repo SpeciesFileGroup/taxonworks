@@ -2,14 +2,14 @@ module Queries
   module Source
     class Filter < Query::Filter
 
-      ATTRIBUTES =  (::Source.core_attributes - %w{bibtex_type title author}).map(&:to_sym).freeze 
+      ATTRIBUTES =  (::Source.core_attributes - %w{bibtex_type title author}).map(&:to_sym).freeze
 
       include Queries::Concerns::Attributes
       include Queries::Concerns::Empty
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
 
-     
+
       PARAMS = [
         *ATTRIBUTES,
         :source_id,
@@ -38,8 +38,6 @@ module Queries
         bibtex_type: [],
         citation_object_type: [],
         empty: [],
-        keyword_id_and: [],
-        keyword_id_or: [],
         not_empty: [],
         serial_id: [],
         source_id: [],
@@ -71,6 +69,8 @@ module Queries
       attr_accessor :author_id
 
       # @params author [Boolean, nil]
+      #   `false`, nil - treat the ids in author_id as "or"
+      #   'true' - treat the ids in author_id as "and" (only Sources with all and only all will match)
       attr_accessor :author_id_or
 
       # @params author [Array of Integer, Topic#id]
@@ -255,7 +255,7 @@ module Queries
 
       def year_facet
         return nil if year_start.blank?
-        if year_start && !year_end.blank?
+        if year_start && year_end.present?
           table[:year].gteq(year_start)
             .and(table[:year].lteq(year_end))
         else # only start
@@ -272,7 +272,7 @@ module Queries
         o = table
         r = ::Role.arel_table
 
-        a = o.alias("a_")
+        a = o.alias('a_')
         b = o.project(a[Arel.star]).from(a)
 
         c = r.alias('r1')
@@ -297,7 +297,7 @@ module Queries
 
       def topic_id_facet
         return nil if topic_id.empty?
-        ::Source.joins(:citation_topics).where(citation_topics: { topic_id: topic_id }).distinct
+        ::Source.joins(:citation_topics).where(citation_topics: { topic_id: }).distinct
       end
 
       def in_project_facet
@@ -379,7 +379,7 @@ module Queries
       def citation_object_type_facet
         return nil if citation_object_type.empty?
         ::Source.joins(:citations)
-          .where(citations: {citation_object_type: citation_object_type}).distinct
+          .where(citations: {citation_object_type:}).distinct
       end
 
       def nomenclature_facet

@@ -152,7 +152,7 @@ module SqedDepictionsHelper
       meta.unshift a
     end
 
-    t = sqed_depictions.count.to_f
+    t = sqed_depictions.size.to_f
     rows = t.divmod(10).first + 1
     h = ((t.divmod(10).first + 1) * 40.0) 
 

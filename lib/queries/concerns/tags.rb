@@ -7,7 +7,7 @@ module Queries::Concerns::Tags
   extend ActiveSupport::Concern
 
   def self.params
-    [ 
+    [
       :keyword_id_and,
       :keyword_id_or,
       :tags,
@@ -18,11 +18,13 @@ module Queries::Concerns::Tags
 
   included do
     # @return [Array]
-    # @params keyword_id_and [:keyword_id_and | [keyword_id_and, .. ] ]
+    # @params keyword_id_and
+    #   match all objects tagged with all of the keywords referenced in this array
     attr_accessor :keyword_id_and
 
     # @return [Array]
-    # @params keyword_id_or [:keyword_id_or | [keyword_id_or, .. ] ]
+    # @params keyword_id_or
+    #   match all objects tagged with any of the keywords referenced in this array
     attr_accessor :keyword_id_or
 
     # @return [Boolean, nil]
@@ -61,7 +63,7 @@ module Queries::Concerns::Tags
   end
 
   # @return [Arel::Table]
-  def tag_table 
+  def tag_table
     ::Tag.arel_table
   end
 
@@ -99,14 +101,14 @@ module Queries::Concerns::Tags
         .where(tags: {id: nil})
     end
   end
- 
+
   def matching_keyword_id_or
     return nil if keyword_id_or.empty?
     k = table.name.classify.safe_constantize
     t = ::Tag.arel_table
 
     w = t[:tag_object_id].eq(table[:id]).and( t[:tag_object_type].eq(table.name.classify))
-    w = w.and( t[:keyword_id].eq_any(keyword_id_or) ) if keyword_id_or.any? 
+    w = w.and( t[:keyword_id].eq_any(keyword_id_or) ) if keyword_id_or.any?
 
     k.where( ::Tag.where(w).arel.exists )
   end

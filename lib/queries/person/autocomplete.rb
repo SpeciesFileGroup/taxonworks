@@ -7,7 +7,7 @@ module Queries
       include Queries::Concerns::Tags
 
       # @return [Array]
-      # @param limit_to_role [String, Array] 
+      # @param limit_to_role [String, Array]
       #    any Role class, like `TaxonNameAuthor`, `SourceAuthor`, `SourceEditor`, `Collector`, etc.
       attr_accessor :role_type
 
@@ -82,7 +82,7 @@ module Queries
         n
       end
 
-      # TODO: Use Namae? 
+      # TODO: Use Namae?
       # @return [String] simple name inversion
       #   given `Sarah Smith` return `Smith, Sarah`
       def invert_name
@@ -119,9 +119,10 @@ module Queries
         queries.compact!
 
         updated_queries = []
-        
+
+        pr_id = project_id.join(',') if project_id
         queries.each_with_index do |q, i|
-          a = q[0] 
+          a = q[0]
 
           if !a.nil?
             if role_type.present?
@@ -129,19 +130,19 @@ module Queries
             end
 
             if q[1] # do not use extended query for identifiers
-              if in_project
+              if project_id.present?
                 a = a.left_outer_joins(:roles)
                 .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
                 .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
-                .select("people.*, COUNT(roles.id) AS use_count, CASE WHEN MAX(roles.project_id) IN (#{project_id.join(',')}) THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS in_project_id")
-                .where('roles.project_id IN (?) OR project_sources.project_id IN (?) OR (roles.project_id NOT IN (?) AND project_sources.project_id NOT IN (?))', project_id, project_id, project_id, project_id)
+                .select("people.*, COUNT(roles.id) AS use_count, CASE WHEN MAX(roles.project_id) IN (#{pr_id}) THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS in_project")
+                .where("roles.project_id IN (#{pr_id}) OR project_sources.project_id IN (#{pr_id}) OR (roles.project_id NOT IN (#{pr_id}) AND project_sources.project_id NOT IN (#{pr_id})) OR (roles.project_id IS NULL AND project_sources.project_id IS NULL)")
                 .group('people.id')
-                .order('in_project_id, use_count DESC')
-              else
+                .order('in_project, use_count DESC')
+              elsif role_type.present?
                 a = a.left_outer_joins(:roles)
                   .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
                   .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
-                  .select("people.*, COUNT(roles.id) AS use_count, CASE WHEN MAX(roles.project_id) IN (#{project_id.join(',')}) THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS in_project_id")
+                  .select("people.*, COUNT(roles.id) AS use_count, CASE WHEN MAX(roles.project_id) IN (#{pr_id}) THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS in_project")
                   .group('people.id')
                   .order('in_project_id, use_count DESC')
               end
@@ -150,7 +151,6 @@ module Queries
             updated_queries[i] = a
           end
         end
-        
         result = []
         updated_queries.each do |q|
           result += q.to_a

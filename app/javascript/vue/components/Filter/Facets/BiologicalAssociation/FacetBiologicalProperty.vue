@@ -2,10 +2,13 @@
   <FacetContainer>
     <h3>Biological property</h3>
     <div class="field">
-      <SmartSelector
-        model="controlled_vocabulary_terms"
-        :autocomplete-params="{ type: ['BiologicalProperty'] }"
-        @selected="addBiologicalProperty"
+      <VAutocomplete
+        url="/controlled_vocabulary_terms/autocomplete"
+        param="term"
+        :add-params="{ type: ['BiologicalProperty'] }"
+        label="label_html"
+        clear-after
+        @getItem="({ id }) => addBiologicalProperty(id)"
       />
       <table
         v-if="biologicalProperties.length"
@@ -35,7 +38,7 @@
                 object: false
               }"
               v-model="item.isSubject"
-              @remove="removeBiologicalProperty(item)"
+              @remove="removeBiologicalProperty"
             />
           </template>
         </transition-group>
@@ -45,9 +48,9 @@
 </template>
 
 <script setup>
-import SmartSelector from 'components/ui/SmartSelector.vue'
 import RowItem from 'components/Filter/Facets/shared/RowItem.vue'
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import VAutocomplete from 'components/ui/Autocomplete.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { ControlledVocabularyTerm } from 'routes/endpoints'
 import { ref, computed, watch } from 'vue'
@@ -65,7 +68,7 @@ const emit = defineEmits(['update:modelValue'])
 const biologicalProperties = ref([])
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 watch(
@@ -86,39 +89,40 @@ watch(
 
 watch(
   biologicalProperties,
-  newVal => {
-    params.value.object_biological_property_id = newVal.filter(item => !item.isSubject).map(item => item.id)
-    params.value.subject_biological_property_id = newVal.filter(item => item.isSubject).map(item => item.id)
+  (newVal) => {
+    params.value.object_biological_property_id = newVal
+      .filter((item) => !item.isSubject)
+      .map((item) => item.id)
+    params.value.subject_biological_property_id = newVal
+      .filter((item) => item.isSubject)
+      .map((item) => item.id)
   },
   { deep: true }
 )
 
-function addBiologicalProperty (item, isSubject = false) {
-  biologicalProperties.value.push({
-    ...item,
-    isSubject
+function addBiologicalProperty(id, isSubject = false) {
+  ControlledVocabularyTerm.find(id).then(({ body }) => {
+    biologicalProperties.value.push({
+      ...body,
+      isSubject
+    })
   })
 }
 
-function removeBiologicalProperty (biologicalRelationship) {
+function removeBiologicalProperty(biologicalRelationship) {
   removeFromArray(biologicalProperties.value, biologicalRelationship)
 }
 
 const {
-  subject_biological_property_id = [],
-  object_biological_property_id = []
+  subject_biological_property_id: subjectIds = [],
+  object_biological_property_id: objectIds = []
 } = URLParamsToJSON(location.href)
 
-subject_biological_property_id.forEach(id => {
-  ControlledVocabularyTerm.find(id).then(({ body }) => {
-    addBiologicalProperty(body, true)
-  })
+subjectIds.forEach((id) => {
+  addBiologicalProperty(id, true)
 })
 
-object_biological_property_id.forEach(id => {
-  ControlledVocabularyTerm.find(id).then(({ body }) => {
-    addBiologicalProperty(body, false)
-  })
+objectIds.forEach((id) => {
+  addBiologicalProperty(id, false)
 })
-
 </script>
