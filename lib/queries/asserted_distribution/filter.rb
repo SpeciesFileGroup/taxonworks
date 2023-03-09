@@ -33,7 +33,7 @@ module Queries
       # @return [Array]
       attr_accessor :otu_id
 
-      # @param otu_id [Array, Integer, String]
+      # @param geographic_area_id [Array, Integer, String]
       # @return [Array]
       attr_accessor :geographic_area_id
 
@@ -54,7 +54,7 @@ module Queries
       #   nil - both
       attr_accessor :presence
 
-      # @return Array
+      # @return [Array]
       # @param [taxon name ids, nil]
       #   all Otus matching these taxon names
       attr_accessor :taxon_name_id
@@ -119,7 +119,6 @@ module Queries
       end
 
       def from_wkt(wkt_shape)
-
         i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(wkt_shape))
 
         j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
