@@ -6,12 +6,19 @@ module AnnotationsHelper
   #   see /metadata/annotators.json
   def klass_annotations
     j = {}
-     ::Project::MANIFEST.sort.each do |m|
-       k = m.safe_constantize
-       if k.respond_to?(:available_annotation_types) 
+    ::Project::MANIFEST.sort.each do |m|
+      k = m.safe_constantize
+      if k.respond_to?(:available_annotation_types)
         j[k.name] = k.available_annotation_types
-       end
-     end
+      end
+    end
+
+    # Community classes that can be referenced in Filters 
+    # at minimum need to be here
+    j.merge!(
+      'Source' => Source.available_annotation_types
+    )
+
     j
   end
 
@@ -19,13 +26,13 @@ module AnnotationsHelper
   # Assumes the context is the object, not a multi-object summary
   def annotations_summary_tag(object)
     v = [citation_list_tag(object),
-        identifier_list_tag(object),
-        data_attribute_list_tag(object),
-        note_list_tag(object),
-        tag_list_tag(object),
-        alternate_values_list_tag(object),
-        confidence_list_tag(object),
-        attribution_list_tag(object)
+         identifier_list_tag(object),
+         data_attribute_list_tag(object),
+         note_list_tag(object),
+         tag_list_tag(object),
+         alternate_values_list_tag(object),
+         confidence_list_tag(object),
+         attribution_list_tag(object)
     ].compact
 
     tag.div(class: %w{item panel separate-bottom}) do

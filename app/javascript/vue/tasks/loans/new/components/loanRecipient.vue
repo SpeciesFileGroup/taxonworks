@@ -8,7 +8,8 @@
         <li>
           <a
             v-if="loan.id"
-            :href="`/loans/${loan.id}/recipient_form`">
+            :href="`/loans/${loan.id}/recipient_form`"
+          >
             Recipient form
           </a>
         </li>
@@ -17,7 +18,8 @@
             v-if="loan.id"
             :href="`/loans/${loan.id}`"
             target="_blank"
-            class="taxonname separate-right">
+            class="taxonname separate-right"
+          >
             Show
           </a>
         </li>
@@ -27,37 +29,43 @@
         @click="showModal = true"
         :disabled="loanItems.length > 0"
         type="button"
-        class="button normal-input button-delete separate-left separate-right">
+        class="button normal-input button-delete separate-left separate-right"
+      >
         Delete loan
       </button>
       <expand
         class="separate-left"
-        v-model="displayBody"/>
+        v-model="displayBody"
+      />
     </template>
     <template #body>
       <modal
         v-if="showModal"
-        @close="showModal = false">
+        @close="showModal = false"
+      >
         <template #header>
           <h3>Confirm delete</h3>
         </template>
         <template #body>
-          <div>Are you sure you want to delete <span v-html="loan.object_tag"/>?</div>
+          <div>Are you sure you want to delete <span v-html="loan.object_tag" />?</div>
         </template>
         <template #footer>
           <button
             @click="deleteLoan()"
             type="button"
-            class="normal-input button button-delete">Delete
+            class="normal-input button button-delete"
+          >
+            Delete
           </button>
         </template>
       </modal>
       <div
         class="body horizontal-left-content align-start loan-information"
-        v-if="displayBody">
+        v-if="displayBody"
+      >
         <div>
           <span><b>Lender</b></span>
-          <hr>
+          <hr />
           <div class="field label-above">
             <label>Lender address</label>
             <textarea
@@ -71,42 +79,47 @@
             <input
               v-model="loan.request_method"
               type="text"
-              class="normal-input full_width">
+              class="normal-input full_width"
+            />
           </div>
           <div class="field label-above">
             <label>Date requested</label>
             <input
               v-model="loan.date_requested"
               type="date"
-              class="normal-input">
+              class="normal-input"
+            />
           </div>
           <div class="field label-above">
             <label>Date sent</label>
             <input
               v-model="loan.date_sent"
               type="date"
-              class="normal-input">
+              class="normal-input"
+            />
           </div>
           <div class="field label-above">
             <label>Date received</label>
             <input
               v-model="loan.date_received"
               type="date"
-              class="normal-input">
+              class="normal-input"
+            />
           </div>
           <div class="field label-above">
             <label>Date return expected</label>
             <input
               v-model="loan.date_return_expected"
               type="date"
-              class="normal-input">
+              class="normal-input"
+            />
           </div>
           <div class="field">
             <label>
               <input
                 v-model="loan.is_gift"
                 type="checkbox"
-              >
+              />
               Gift
             </label>
           </div>
@@ -115,33 +128,39 @@
             <input
               v-model="loan.date_closed"
               type="date"
-              class="normal-input">
+              class="normal-input"
+            />
           </div>
           <div>
             <template v-if="loan.hasOwnProperty('id')">
               <button
                 @click="update()"
                 type="button"
-                class="button normal-input button-submit">Update Loan
+                class="button normal-input button-submit"
+              >
+                Update Loan
               </button>
             </template>
             <button
               @click="create()"
               v-else
               type="button"
-              class="button normal-input button-submit">Create Loan
+              class="button normal-input button-submit"
+            >
+              Create Loan
             </button>
           </div>
         </div>
 
         <div>
           <span><b>Recipient</b></span>
-          <hr>
+          <hr />
           <div class="field">
             <label>People</label>
             <role-picker
               v-model="rolesRecipient"
-              role-type="LoanRecipient"/>
+              role-type="LoanRecipient"
+            />
           </div>
           <div class="horizontal-left-content align-start full_width">
             <div class="separate-right full_width">
@@ -150,7 +169,8 @@
                 <input
                   v-model="loan.recipient_honorific"
                   type="text"
-                  class="normal-input full_width">
+                  class="normal-input full_width"
+                />
               </div>
               <div class="field label-above">
                 <label>Address</label>
@@ -158,7 +178,8 @@
                   class="full_width"
                   rows="5"
                   v-model="loan.recipient_address"
-                  type="text" />
+                  type="text"
+                />
               </div>
             </div>
             <div class="full_width">
@@ -167,44 +188,50 @@
                 <input
                   v-model="loan.recipient_email"
                   type="text"
-                  class="normal-input full_width">
+                  class="normal-input full_width"
+                />
               </div>
               <div class="field label-above">
                 <label>Phone</label>
                 <input
                   v-model="loan.recipient_phone"
                   type="text"
-                  class="normal-input full_width">
+                  class="normal-input full_width"
+                />
               </div>
               <div class="field label-above">
                 <label>Country</label>
                 <input
                   v-model="loan.recipient_country"
                   type="text"
-                  class="normal-input full_width">
+                  class="normal-input full_width"
+                />
               </div>
             </div>
           </div>
           <p><b>Supervisor</b></p>
-          <hr>
+          <hr />
           <div class="field">
             <role-picker
               v-model="rolesSupervisor"
-              role-type="LoanSupervisor"/>
+              role-type="LoanSupervisor"
+            />
           </div>
           <div class="field label-above">
             <label>Email</label>
             <input
               v-model="loan.supervisor_email"
               type="text"
-              class="normal-input">
+              class="normal-input"
+            />
           </div>
           <div class="field label-above">
             <label>Phone</label>
             <input
               v-model="loan.supervisor_phone"
               type="text"
-              class="normal-input">
+              class="normal-input"
+            />
           </div>
         </div>
       </div>
@@ -213,7 +240,6 @@
 </template>
 
 <script>
-
 import RolePicker from 'components/role_picker.vue'
 import Modal from 'components/ui/Modal.vue'
 import Expand from './expand.vue'
@@ -231,7 +257,7 @@ export default {
   },
 
   computed: {
-    loanItems () {
+    loanItems() {
       return this.$store.getters[GetterNames.GetLoanItems]
     },
 
@@ -242,25 +268,25 @@ export default {
     },
 
     rolesRecipient: {
-      get () {
+      get() {
         return this.loan.loan_recipient_roles
       },
-      set (value) {
+      set(value) {
         this.roles_recipient = value
       }
     },
 
     rolesSupervisor: {
-      get () {
+      get() {
         return this.loan.loan_supervisor_roles
       },
-      set (value) {
+      set(value) {
         this.roles_supervisor = value
       }
     }
   },
 
-  data () {
+  data() {
     return {
       showModal: false,
       displayBody: true,
@@ -292,25 +318,25 @@ export default {
   },
 
   watch: {
-    getLoan () {
+    getLoan() {
       this.loan = this.getLoan
     }
   },
 
   methods: {
-    update () {
+    update() {
       this.loan.roles_attributes = this.roles_recipient.concat(this.roles_supervisor)
-      Loan.update(this.loan.id, { loan: this.loan }).then(() => {
+      Loan.update(this.loan.id, { loan: this.loan, extend: ['roles'] }).then(() => {
         TW.workbench.alert.create('Loan was successfully updated.', 'notice')
       })
     },
 
-    create () {
+    create() {
       this.loan.roles_attributes = this.roles_recipient.concat(this.roles_supervisor)
       this.$store.dispatch(ActionNames.CreateLoan, this.loan)
     },
 
-    deleteLoan () {
+    deleteLoan() {
       Loan.destroy(this.loan.id).then(() => {
         window.location.href = '/tasks/loans/edit_loan/'
       })

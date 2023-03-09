@@ -10,7 +10,7 @@ if extend_response_with('status')
   json.families loan.families
 end
 
-if extend_response_with(:roles) 
+if extend_response_with('roles') 
   if loan.roles.any?
     json.loan_recipient_roles do
       json.array! loan.loan_recipient_roles.each do |role|

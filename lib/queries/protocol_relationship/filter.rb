@@ -3,7 +3,7 @@ module Queries
     class Filter < Query::Filter
 
       include Concerns::Polymorphic
-      polymorphic_klass(::Tag)
+      polymorphic_klass(::ProtocolRelationship)
 
       PARAMS = [
         *::ProtocolRelationship.related_foreign_keys.map(&:to_sym),

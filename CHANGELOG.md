@@ -7,7 +7,65 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+# Added
+
+- Link from AssertedDistribution filter to BiologicalAssociations filter
+- All tab to biological relationships facet [#3334]
+- Biological Property to Manage controlled vocabulary terms
+
+### Changed
+
+- Add nomenclature code to relationships and statuses labels in Filter nomenclature [#3333]
+- All Loan edit requests resolve to the edit task [#3330]
+
+### Fixed
+
+- Biological association filter raises [#3335]
+- Mass annotator for Sources showed no options
+- People filtering doesn't work on Filter nomenclature [#3332]
+- Biological associations section shows incorrect results in Browse Otu [#3336]
+- Error message on Combination [#3340]
+- `Clone last citation` button doesn't work
+- Missing asserted distributions in Browse OTU and Quick forms radial [#3337]
+
+[#3330]: https://github.com/SpeciesFileGroup/taxonworks/issues/3330
+[#3332]: https://github.com/SpeciesFileGroup/taxonworks/issues/3332
+[#3333]: https://github.com/SpeciesFileGroup/taxonworks/issues/3333
+[#3334]: https://github.com/SpeciesFileGroup/taxonworks/issues/3334
+[#3335]: https://github.com/SpeciesFileGroup/taxonworks/issues/3335
+[#3336]: https://github.com/SpeciesFileGroup/taxonworks/issues/3336
+[#3337]: https://github.com/SpeciesFileGroup/taxonworks/issues/3337
+
+## [0.31.1] - 2023-03-07
+
+### Fixed
+
+- Radial annotator documentation shows too much [#3326]
+- Cached values not updated [#3324]
+- Roles not displaying while edint loan [#3327]
+- Loan autocomplete [#3329]
+- `Set as current` button doesn't work on Original combination section in New taxon name task [#3325]
+- Repository autocomplete [#3331]
+- Some staged filter results failing to set size of window [#3328]
+- Fixed repository, source, serial, people autocomplete with new project_id param. New specs added
+- Short URLs not working due to Ruby 3.2 incompatibility.
+
+### Changed
+
+- `/combinations/<id>` redirects to `/taxon_names/<id>`
+
+[#3328]: https://github.com/SpeciesFileGroup/taxonworks/issues/3328
+[#3331]: https://github.com/SpeciesFileGroup/taxonworks/issues/3331
+[#3329]: https://github.com/SpeciesFileGroup/taxonworks/issues/3329
+[#3327]: https://github.com/SpeciesFileGroup/taxonworks/issues/3327
+[#3326]: https://github.com/SpeciesFileGroup/taxonworks/issues/3326
+[#3325]: https://github.com/SpeciesFileGroup/taxonworks/issues/3325
+[#3324]: https://github.com/SpeciesFileGroup/taxonworks/issues/3324
+
+## [0.31.0] - 2023-03-07
+
 ### Added
+
 - Filter asserted distributions task [#1035]
 - Filter biological associations task [#1156]
 - Filter content task
@@ -28,7 +86,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Nomenclature filter - facet to return names with/out (subsequent) combinations [#3051]
 - Nomenclature filter - facet to for with/out original combination [#2496]
 - Protocol facet to collection object, collecting event filters [#2803]
-- Task - Loans dashboard  [#2116] (in part)
+- Task - Loans dashboard [#2116] (in part)
 - Task - Source citation totals (linked from Source filter) [#2305]
 - Ability to "coordinatify" an OTU filter result [#3317]
 - Figure label in label on image API response
@@ -37,6 +95,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Added `cached_author` to TaxonName
 
 ### Fixed
+
 - Local identifier facet in filter CollectionObject [#3275]
 - Identifier within range includes +1,-1 results [#2179]
 - Data attribute facets [#3075]
@@ -52,10 +111,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial object redirects to `Data` page after destroy a collection object in Simple new specimen task [#3284]
 - Wrong label for display unscored columns in Matrix column coder [#3292]
 - Duplicate records in nomenclature match task [#3300]
-- NeXML rendering bug 
+- NeXML rendering bug
 - Breaking CoL export bug [#3310]
 
 ### Changed
+
 - Unified look and feel of all filters [#445] [#1677]
 - Filter OTUs completely rebuilt, numerous new facets [#1633]
 - Filter collection objects displays (customizable) columns of many types, not just DwC [#3197] [#2931]
@@ -3362,7 +3422,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.1...development
+[0.31.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.0...v0.31.1
+[0.31.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.3...v0.31.0
 [0.30.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.2...v0.30.3
 [0.30.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.1...v0.30.2
 [0.30.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.0...v0.30.1

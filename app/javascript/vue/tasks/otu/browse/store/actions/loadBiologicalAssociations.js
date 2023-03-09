@@ -12,10 +12,16 @@ const extend = [
 
 export default ({ state, commit }, globalId) =>
   new Promise((resolve, reject) => {
-    BiologicalAssociation.where({ any_global_id: globalId, extend }).then(response => {
-      commit(MutationNames.SetBiologicalAssociations, state.biologicalAssociations.concat(response.body))
-      resolve(response)
-    }, error => {
-      reject(error)
-    })
+    BiologicalAssociation.all({ any_global_id: [globalId], extend }).then(
+      (response) => {
+        commit(
+          MutationNames.SetBiologicalAssociations,
+          state.biologicalAssociations.concat(response.body)
+        )
+        resolve(response)
+      },
+      (error) => {
+        reject(error)
+      }
+    )
   })

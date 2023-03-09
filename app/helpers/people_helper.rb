@@ -3,7 +3,7 @@ module PeopleHelper
   def person_tag(person)
     return nil if person.nil?
     if person.new_record?
-      person.bibtex_name 
+      person.bibtex_name
     else
       person.cached ? person.cached : 'CACHED VALUE NOT BUILT, CONTACT AN ADMIN.'
     end
@@ -29,20 +29,20 @@ module PeopleHelper
   end
 
   def person_timeframe_tag(person)
-    content_tag(:span, class: [ :feedback, 'feedback-secondary', 'feedback-thin' ]) do 
+    content_tag(:span, class: [ :feedback, 'feedback-secondary', 'feedback-thin' ]) do
       (person_lived_tag(person) + ' ' + person_active_tag(person)).html_safe
     end.html_safe
   end
 
   def person_lived_tag(person)
-    'lived: ' + [person.year_born || '?', person.year_died || '?'].join('-') 
+    'lived: ' + [person.year_born || '?', person.year_died || '?'].join('-')
   end
 
   def person_project_membership_tag(person)
-    if person && person.respond_to?(:in_project_id) && person.in_project_id == sessions_current_project_id
+    if person && person.respond_to?(:in_project) && person.in_project == sessions_current_project_id
       content_tag(:span, "In&nbsp;Project".html_safe, class: [:feedback, 'feedback-thin', 'feedback-success'])
     elsif person && person.used_in_project?(sessions_current_project_id)
-      content_tag(:span, "In&nbsp;Project".html_safe, class: [:feedback, 'feedback-thin', 'feedback-success']) 
+      content_tag(:span, "In&nbsp;Project".html_safe, class: [:feedback, 'feedback-thin', 'feedback-success'])
     else
       nil
     end
@@ -92,7 +92,7 @@ module PeopleHelper
   #   A formatted list of people's last names
   #   TODO: deprecate for native call
   def people_names(people)
-    Utilities::Strings.authorship_sentence( people.collect{ |a| a.full_last_name } ) 
+    Utilities::Strings.authorship_sentence( people.collect{ |a| a.full_last_name } )
   end
 
   def author_annotation_tag(author)

@@ -240,8 +240,8 @@ module Queries
 
       # @return [Boolean]
       # @param determiner_id_or [String, nil]
-      #   `false`, nil - treat ids as "or"
-      #   'true' - treat ids as "and" (only collection objects with all and only all will match)
+      #   `false`, nil - treat the ids in determiner_id as "or"
+      #   'true' - treat the ids in determiner_id as "and" (only collection objects with all and only all will match)
       attr_accessor :determiner_id_or
 
       # @return [String, nil]
@@ -289,6 +289,7 @@ module Queries
       attr_accessor :determiner_name_regex
 
       # @return Array
+      #  match all CollectionObjects that are the origin of these Extracts
       attr_accessor :extract_id
 
       # @return Boolean
@@ -320,10 +321,10 @@ module Queries
         @collectors = boolean_param(params, :collectors)
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
-        @collection_object_type = params[:collection_object_type].blank? ? nil : params[:collection_object_type]
+        @collection_object_type = (params[:collection_object_type].presence)
         @current_determinations = boolean_param(params, :current_determinations)
         @current_repository = boolean_param(params, :current_repository)
-        @current_repository_id = params[:current_repository_id].blank? ? nil : params[:current_repository_id]
+        @current_repository_id = (params[:current_repository_id].presence)
         @dates = boolean_param(params, :dates)
         @descendants = boolean_param(params, :descendants)
         @determiners = boolean_param(params, :determiners)
@@ -347,12 +348,12 @@ module Queries
         @preparation_type = boolean_param(params, :preparation_type)
         @preparation_type_id = params[:preparation_type_id]
         @repository = boolean_param(params, :repository)
-        @repository_id = params[:repository_id].blank? ? nil : params[:repository_id]
-        @sled_image_id = params[:sled_image_id].blank? ? nil : params[:sled_image_id]
+        @repository_id = (params[:repository_id].presence)
+        @sled_image_id = (params[:sled_image_id].presence)
         @taxon_determinations = boolean_param(params, :taxon_determinations)
         @taxon_name_id = params[:taxon_name_id]
         @type_material = boolean_param(params, :type_material)
-        @type_specimen_taxon_name_id = params[:type_specimen_taxon_name_id].blank? ? nil : params[:type_specimen_taxon_name_id]
+        @type_specimen_taxon_name_id = (params[:type_specimen_taxon_name_id].presence)
         @validity = boolean_param(params, :validity)
         @with_buffered_collecting_event = boolean_param(params, :with_buffered_collecting_event)
         @with_buffered_determinations =  boolean_param(params, :with_buffered_determinations)
@@ -462,7 +463,7 @@ module Queries
         o = ::TaxonDetermination.arel_table
         r = ::Role.arel_table
 
-        a = o.alias("a_det__")
+        a = o.alias('a_det__')
         b = o.project(a[Arel.star]).from(a)
 
         c = r.alias('det_r1')
@@ -599,7 +600,7 @@ module Queries
       def biocuration_facet
         return nil if biocuration_class_id.empty?
         ::CollectionObject::BiologicalCollectionObject.joins(:biocuration_classifications)
-          .where(biocuration_classifications: {biocuration_class_id: biocuration_class_id})
+          .where(biocuration_classifications: {biocuration_class_id:})
       end
 
       def loan_facet
@@ -614,7 +615,7 @@ module Queries
 
       def sled_image_facet
         return nil if sled_image_id.nil?
-        ::CollectionObject::BiologicalCollectionObject.joins(:depictions).where("depictions.sled_image_id = ?", sled_image_id)
+        ::CollectionObject::BiologicalCollectionObject.joins(:depictions).where('depictions.sled_image_id = ?', sled_image_id)
       end
 
       def biological_relationship_id_facet
@@ -752,7 +753,7 @@ module Queries
 
         else
           q = ::CollectionObject.joins(taxon_determinations: [:otu])
-            .where(otus: {taxon_name_id: taxon_name_id})
+            .where(otus: {taxon_name_id:})
 
           if current_determinations
             q = q.where(taxon_determinations: {position: 1})

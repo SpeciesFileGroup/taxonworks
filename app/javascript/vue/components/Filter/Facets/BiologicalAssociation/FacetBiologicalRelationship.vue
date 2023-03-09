@@ -5,6 +5,9 @@
       <SmartSelector
         model="biological_relationships"
         @selected="addBiologicalRelationship"
+        :custom-list="{
+          all: allBiologicalRelationshipsList
+        }"
       />
       <label>
         <input
@@ -42,7 +45,9 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
+const allBiologicalRelationshipsList = ref([])
 const biologicalRelationships = ref([])
+
 const params = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
@@ -79,6 +84,10 @@ onBeforeMount(() => {
     BiologicalRelationship.find(id).then(({ body }) => {
       addBiologicalRelationship(body)
     })
+  })
+
+  BiologicalRelationship.all().then(({ body }) => {
+    allBiologicalRelationshipsList.value = body
   })
 })
 </script>

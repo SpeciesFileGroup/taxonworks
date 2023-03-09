@@ -526,7 +526,6 @@ class Protonym < TaxonName
   end
 
   # @return Boolean
-  #   could also be determined by parens in cached_author year
   def is_original_name?
     cached_author_year =~ /\(/ ? false : true
   end
@@ -979,7 +978,6 @@ class Protonym < TaxonName
   is_cached = true
   is_cached = false if cached_author_year != get_author_and_year
   is_cached = false if cached_author != get_author
-
   if is_cached && (
       cached_valid_taxon_name_id != get_valid_taxon_name.id ||
       cached_is_valid != !unavailable_or_invalid? || # Do not change this, we want the calculated value.
