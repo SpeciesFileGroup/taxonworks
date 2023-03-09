@@ -12,7 +12,7 @@ const extend = [
 
 export default ({ state, commit }, globalId) =>
   new Promise((resolve, reject) => {
-    BiologicalAssociation.where({ any_global_id: [globalId], extend }).then(
+    BiologicalAssociation.all({ any_global_id: [globalId], extend }).then(
       (response) => {
         commit(
           MutationNames.SetBiologicalAssociations,

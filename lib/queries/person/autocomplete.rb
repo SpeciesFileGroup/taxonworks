@@ -138,13 +138,6 @@ module Queries
                 .where("roles.project_id IN (#{pr_id}) OR project_sources.project_id IN (#{pr_id}) OR (roles.project_id NOT IN (#{pr_id}) AND project_sources.project_id NOT IN (#{pr_id})) OR (roles.project_id IS NULL AND project_sources.project_id IS NULL)")
                 .group('people.id')
                 .order('in_project, use_count DESC')
-              elsif role_type.present?
-                a = a.left_outer_joins(:roles)
-                  .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
-                  .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
-                  .select("people.*, COUNT(roles.id) AS use_count, CASE WHEN MAX(roles.project_id) IN (#{pr_id}) THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS in_project")
-                  .group('people.id')
-                  .order('in_project_id, use_count DESC')
               end
             end
 

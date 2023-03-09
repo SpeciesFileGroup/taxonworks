@@ -3,7 +3,7 @@ import { MutationNames } from '../mutations/mutations'
 
 export default ({ state, commit }, otuId) =>
   new Promise((resolve, reject) => {
-    CollectionObject.where({
+    CollectionObject.all({
       otu_id: otuId,
       current_determinations: true,
       extend: ['citations', 'source']
