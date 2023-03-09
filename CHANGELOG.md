@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.31.2] - 2023-03-09
+
 # Added
 
 - Link from AssertedDistribution filter to BiologicalAssociations filter
@@ -3422,7 +3426,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.1...development
+
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.2...development
+[0.31.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.1...v0.31.2
 [0.31.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.0...v0.31.1
 [0.31.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.3...v0.31.0
 [0.30.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.2...v0.30.3
