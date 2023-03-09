@@ -31,9 +31,7 @@
     <ContextMenuView
       @add:node="openNodeModal"
       @cite:graph="
-        () => {
-          showModalCitation = true
-        }
+        () => openCitationModal({ type: BIOLOGICAL_ASSOCIATIONS_GRAPH })
       "
     />
   </ContextMenu>
@@ -89,7 +87,10 @@
     "
     @close="() => (showModalEdge = false)"
   />
-  <ModalCitation v-if="showModalCitation" />
+  <ModalCitation
+    v-if="showModalCitation"
+    @close="() => openCitationModal({ type: BIOLOGICAL_ASSOCIATION })"
+  />
   <VSpinner
     v-if="isSaving"
     full-screen
@@ -113,6 +114,10 @@ import ContextMenu from './ContextMenu/ContextMenu.vue'
 import ContextMenuEdge from './ContextMenu/ContextMenuEdge.vue'
 import ContextMenuView from './ContextMenu/ContextMenuView.vue'
 import ContextMenuNode from './ContextMenu/ContextMenuNode.vue'
+import {
+  BIOLOGICAL_ASSOCIATION,
+  BIOLOGICAL_ASSOCIATIONS_GRAPH
+} from 'constants/index.js'
 
 const {
   addBiologicalRelationship,
@@ -139,6 +144,7 @@ const {
 
 const graph = ref()
 const nodeType = ref()
+const citationType = ref()
 
 const edgeContextMenu = ref()
 const nodeContextMenu = ref()
@@ -213,7 +219,8 @@ async function handleRemoveEdge(edgeId) {
     !edges.value[edgeId].id ||
     (await confirmationModalRef.value.show({
       title: 'Destroy biological association',
-      message: 'This will delete the biological association. Are you sure you want to proceed?',
+      message:
+        'This will delete the biological association. Are you sure you want to proceed?',
       okButton: 'Destroy',
       cancelButton: 'Cancel',
       typeButton: 'delete'
@@ -231,6 +238,11 @@ function openNodeModal({ type }) {
 
 function openEdgeModal() {
   showModalEdge.value = true
+}
+
+function openCitationModal(type) {
+  citationType.value = type
+  showModalCitation.value = true
 }
 
 function setGraph(graphId) {

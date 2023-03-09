@@ -1,5 +1,5 @@
 <template>
-  <VModal>
+  <VModal :container-style="{ width: '800px' }">
     <template #header><h3>Citations</h3></template>
     <template #body>
       <FormCitation @submit="($event) => emit('add:citation', $event)" />
