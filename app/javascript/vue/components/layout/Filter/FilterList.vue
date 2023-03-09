@@ -63,7 +63,6 @@
             v-for="(_, attr) in attributes"
             :key="attr"
             v-html="item[attr]"
-            @click="sortTable(attr)"
           />
         </tr>
       </tbody>

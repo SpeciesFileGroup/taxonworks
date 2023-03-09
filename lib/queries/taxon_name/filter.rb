@@ -228,7 +228,8 @@ module Queries
 
       # @return [Boolean]
       # @param [String]
-      #    'true'
+      #   `false`, nil - treat the ids in taxon_name_author_id as "or" (match any TaxonName with any of these authors)
+      #   'true' - treat the ids in taxon_name_author_id as "and" (only TaxonNames with all and only all will match)
       attr_accessor :taxon_name_author_id_or
 
       # @return [String, nil]
@@ -278,7 +279,7 @@ module Queries
         @parent_id = params[:parent_id]
         @rank = params[:rank]
         @sort = params[:sort]
-        @taxon_name_author_id = params[:taxon_name_author_ids]
+        @taxon_name_author_id = params[:taxon_name_author_id]
         @taxon_name_author_id_or = boolean_param(params, :taxon_name_author_id_or)
         @taxon_name_classification = params[:taxon_name_classification] || []
         @taxon_name_id = params[:taxon_name_id]
@@ -366,11 +367,11 @@ module Queries
 
       def geo_json_facet
         return nil if geo_json.nil?
-        otus = ::Queries::Otu::Filter.new(geo_json: geo_json).all
-        collection_objects = ::Queries::CollectionObject::Filter.new(geo_json: geo_json).all
+        otus = ::Queries::Otu::Filter.new(geo_json:).all
+        collection_objects = ::Queries::CollectionObject::Filter.new(geo_json:).all
 
         a = ::TaxonName.joins(:taxon_taxon_determinations).where(taxon_determinations: { biological_collection_object: collection_objects} )
-        b = ::TaxonName.joins(:otus).where(otus: otus)
+        b = ::TaxonName.joins(:otus).where(otus:)
 
         ::TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
       end
@@ -378,11 +379,11 @@ module Queries
       def not_specified_facet
         return nil if not_specified.nil?
         if not_specified
-          ::TaxonName.where(table[:cached].matches("%NOT SPECIFIED%").or(
-            table[:cached_original_combination].matches("%NOT SPECIFIED%")))
+          ::TaxonName.where(table[:cached].matches('%NOT SPECIFIED%').or(
+            table[:cached_original_combination].matches('%NOT SPECIFIED%')))
         else
-          ::TaxonName.where(table[:cached].does_not_match("%NOT SPECIFIED%").and(
-            table[:cached_original_combination].does_not_match("%NOT SPECIFIED%")))
+          ::TaxonName.where(table[:cached].does_not_match('%NOT SPECIFIED%').and(
+            table[:cached_original_combination].does_not_match('%NOT SPECIFIED%')))
         end
       end
 
@@ -504,7 +505,7 @@ module Queries
         o = table
         r = ::Role.arel_table
 
-        a = o.alias("a_")
+        a = o.alias('a_')
         b = o.project(a[Arel.star]).from(a)
 
         c = r.alias('r1')
@@ -517,7 +518,7 @@ module Queries
           )
 
         e = c[:id].not_eq(nil)
-        f = c[:person_id].eq_any(taxon_name_author_ids)
+        f = c[:person_id].eq_any(taxon_name_author_id)
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
@@ -626,7 +627,7 @@ module Queries
         return nil if collecting_event_id.empty?
         ::TaxonName
           .joins(:collection_objects)
-          .where(collection_objects: {collecting_event_id: collecting_event_id})
+          .where(collection_objects: {collecting_event_id:})
       end
 
       def combinations_facet

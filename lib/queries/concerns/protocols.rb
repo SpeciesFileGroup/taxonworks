@@ -4,13 +4,13 @@ module Queries::Concerns::Protocols
 
   extend ActiveSupport::Concern
 
-  def self.params 
+  def self.params
     [
       :protocols,
       :protocol_id_or,
       :protocol_id_and,
-      :protocol_id,        # TODO: unused? or maybe in polymorphics setters!! 
-      protocol_id: [],     # TODO: unused? or maybe in polymorphics setters!! 
+      :protocol_id,        # TODO: unused? or maybe in polymorphics setters!!
+      protocol_id: [],     # TODO: unused? or maybe in polymorphics setters!!
       protocol_id_or: [],
       protocol_id_and: [],
     ]
@@ -18,15 +18,20 @@ module Queries::Concerns::Protocols
 
   included do
     # @return [Array]
-    # @params protocol_id_and [:protocol_id_and | [protocol_id_and, .. ] ]
+    # @params protocol_id_and
+    #   match any objects linked to all Protocols referenced here
     attr_accessor :protocol_id_and
 
     # @return [Array]
-    # @params protocol_id_or [:protocol_id_or | [protocol_id_or, .. ] ]
+    # @params keyword_id_or
+    #   match any objects linked to any Protocol referenced here
     attr_accessor :protocol_id_or
 
     # @return [Boolean, nil]
     # @params protocols ['true', 'false', nil]
+    #   true - return objects that reference any Protocol
+    #   false - return objects that reference no Protocol
+    #   nil - ignored
     attr_accessor :protocols
 
     def protocol_id_and
@@ -81,7 +86,7 @@ module Queries::Concerns::Protocols
       :protocol_id_facet,
       :protocols_facet,
     ]
-  end 
+  end
 
   private
 
@@ -92,7 +97,7 @@ module Queries::Concerns::Protocols
     t = ::ProtocolRelationship.arel_table
 
     w = t[:protocol_relationship_object_id].eq(table[:id]).and( t[:protocol_relationship_object_type].eq(table.name.classify))
-    w = w.and( t[:protocol_id].eq_any(protocol_id_or) ) if protocol_id_or.any? 
+    w = w.and( t[:protocol_id].eq_any(protocol_id_or) ) if protocol_id_or.any?
 
     k.where( ::ProtocolRelationship.where(w).arel.exists )
   end

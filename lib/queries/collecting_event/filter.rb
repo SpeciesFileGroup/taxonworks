@@ -106,8 +106,8 @@ module Queries
 
       # @return [Boolean]
       # @param collector_id_or [String]
-      #   'true' - all ids treated as "or"
-      #   'false', nil - all ids treated as "and"
+      #   `false`, nil - treat the ids in collector_id as "or"
+      #   'true' - treat the ids in collector_id as "and" (only CollectingEvent with all and only all of collector_id will match)
       attr_accessor :collector_id_or
 
       # @param collection_objects [String, nil]

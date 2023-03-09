@@ -31,8 +31,6 @@ module Queries
         exact: [],
         except_project_id: [],
         except_role: [],
-        keyword_id_and: [],
-        keyword_id_or: [],
         only_project_id: [],
         person_id: [],
         role: [],
@@ -276,7 +274,7 @@ module Queries
       end
 
       def name_facet
-        return nil if name.nil? || !levenshtein_cuttoff.blank?
+        return nil if name.nil? || levenshtein_cuttoff.present?
         if exact.include?('name')
           table[:cached].eq(name)
         else
@@ -285,7 +283,7 @@ module Queries
       end
 
       def last_name_starts_with_facet
-        return nil if last_name_starts_with.blank? || !levenshtein_cuttoff.blank?
+        return nil if last_name_starts_with.blank? || levenshtein_cuttoff.present?
         table[:last_name].matches(last_name_starts_with + '%')
       end
 
@@ -363,7 +361,7 @@ module Queries
       end
 
       def levenshtein_facet
-        return nil unless levenshtein_cuttoff && (!name.blank?)
+        return nil unless levenshtein_cuttoff && (name.present?)
         ::Person.where(
           levenshtein_distance(:cached, name).lteq(levenshtein_cuttoff).to_sql
         )

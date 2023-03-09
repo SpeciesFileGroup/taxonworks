@@ -9,6 +9,37 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.31.2] - 2023-03-09
+
+# Added
+
+- Link from AssertedDistribution filter to BiologicalAssociations filter
+- All tab to biological relationships facet [#3334]
+- Biological Property to Manage controlled vocabulary terms
+
+### Changed
+
+- Add nomenclature code to relationships and statuses labels in Filter nomenclature [#3333]
+- All Loan edit requests resolve to the edit task [#3330]
+
+### Fixed
+
+- Biological association filter raises [#3335]
+- Mass annotator for Sources showed no options
+- People filtering doesn't work on Filter nomenclature [#3332]
+- Biological associations section shows incorrect results in Browse Otu [#3336]
+- Error message on Combination [#3340]
+- `Clone last citation` button doesn't work
+- Missing asserted distributions in Browse OTU and Quick forms radial [#3337]
+
+[#3330]: https://github.com/SpeciesFileGroup/taxonworks/issues/3330
+[#3332]: https://github.com/SpeciesFileGroup/taxonworks/issues/3332
+[#3333]: https://github.com/SpeciesFileGroup/taxonworks/issues/3333
+[#3334]: https://github.com/SpeciesFileGroup/taxonworks/issues/3334
+[#3335]: https://github.com/SpeciesFileGroup/taxonworks/issues/3335
+[#3336]: https://github.com/SpeciesFileGroup/taxonworks/issues/3336
+[#3337]: https://github.com/SpeciesFileGroup/taxonworks/issues/3337
+
 ## [0.31.1] - 2023-03-07
 
 ### Fixed
@@ -24,6 +55,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Short URLs not working due to Ruby 3.2 incompatibility.
 
 ### Changed
+
 - `/combinations/<id>` redirects to `/taxon_names/<id>`
 
 [#3328]: https://github.com/SpeciesFileGroup/taxonworks/issues/3328
@@ -32,6 +64,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3327]: https://github.com/SpeciesFileGroup/taxonworks/issues/3327
 [#3326]: https://github.com/SpeciesFileGroup/taxonworks/issues/3326
 [#3325]: https://github.com/SpeciesFileGroup/taxonworks/issues/3325
+[#3324]: https://github.com/SpeciesFileGroup/taxonworks/issues/3324
 
 ## [0.31.0] - 2023-03-07
 
@@ -3393,7 +3426,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.1...development
+
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.2...development
+[0.31.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.1...v0.31.2
 [0.31.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.0...v0.31.1
 [0.31.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.3...v0.31.0
 [0.30.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.2...v0.30.3

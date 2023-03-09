@@ -7,7 +7,7 @@ const maxCEPerCall = 100
 
 export default ({ state, commit }, otusId) =>
   new Promise((resolve, reject) => {
-    CollectingEvent.where({ otu_id: otusId })
+    CollectingEvent.all({ otu_id: otusId })
       .then(
         (response) => {
           const CEs = response.body
@@ -23,9 +23,7 @@ export default ({ state, commit }, otusId) =>
           )
           if (CEs.length) {
             CEIds.forEach((idGroup) => {
-              promises.push(
-                Georeference.where({ collecting_event_id: idGroup })
-              )
+              promises.push(Georeference.all({ collecting_event_id: idGroup }))
             })
 
             Promise.all(promises).then((responses) => {
