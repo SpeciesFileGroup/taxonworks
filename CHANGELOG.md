@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Mass annotator for Sources showed no options
 - People filtering doesn't work on Filter nomenclature [#3332]
 - Biological associations section shows incorrect results in Browse Otu [#3336]
+- `Clone last citation` button doesn't work
 
 [#3336]: https://github.com/SpeciesFileGroup/taxonworks/issues/3336
 [#3335]: https://github.com/SpeciesFileGroup/taxonworks/issues/3335
