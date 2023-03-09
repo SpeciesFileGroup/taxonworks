@@ -26,13 +26,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Biological associations section shows incorrect results in Browse Otu [#3336]
 - Error message on Combination [#3340]
 - `Clone last citation` button doesn't work
+- Missing asserted distributions in Browse OTU and Quick forms radial [#3337]
 
-[#3330]: https://github.com/SpeciesFileGroup/taxonworks/issues/3330
+[#3337]: https://github.com/SpeciesFileGroup/taxonworks/issues/3337
 [#3336]: https://github.com/SpeciesFileGroup/taxonworks/issues/3336
 [#3335]: https://github.com/SpeciesFileGroup/taxonworks/issues/3335
 [#3334]: https://github.com/SpeciesFileGroup/taxonworks/issues/3334
 [#3333]: https://github.com/SpeciesFileGroup/taxonworks/issues/3333
 [#3332]: https://github.com/SpeciesFileGroup/taxonworks/issues/3332
+[#3330]: https://github.com/SpeciesFileGroup/taxonworks/issues/3330
 
 ## [0.31.1] - 2023-03-07
 

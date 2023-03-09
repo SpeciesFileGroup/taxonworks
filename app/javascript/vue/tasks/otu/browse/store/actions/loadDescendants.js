@@ -23,7 +23,7 @@ function getAllCollectingEvents(taxonNames) {
       chunks.forEach((ids) => {
         if (ids.length) {
           promises.push(
-            CollectingEvent.where({ otu_id: [].concat(...ids) }).then(
+            CollectingEvent.all({ otu_id: [].concat(...ids) }).then(
               (response) => {
                 collectingEvents.push(response.body)
               }
@@ -55,7 +55,7 @@ function getAllGeoreferences(CEIds) {
     if (chunks.length) {
       chunks.forEach((ids) => {
         promises.push(
-          Georeference.where({ collecting_event_id: ids }).then((response) => {
+          Georeference.all({ collecting_event_id: ids }).then((response) => {
             georeferences.push(response.body)
           })
         )
@@ -81,7 +81,7 @@ export default ({ commit, state }, otu) => {
     georeferences: []
   }
 
-  TaxonName.where(params)
+  TaxonName.all(params)
     .then((response) => {
       descendants.taxon_names = response.body.filter(
         (tn) => tn.id !== otu.taxon_name_id
