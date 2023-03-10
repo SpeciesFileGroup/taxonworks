@@ -8,6 +8,7 @@ import {
   makeBiologicalAssociation,
   makeNodeObject,
   makeCitation,
+  makeCitationPayload,
   makeGraph
 } from '../adapters'
 import {
@@ -23,19 +24,15 @@ import {
   isNetwork,
   getHexColorFromString
 } from '../utils'
-import { addToArray } from 'helpers/arrays'
-import {
-  COLLECTION_OBJECT,
-  BIOLOGICAL_ASSOCIATIONS_GRAPH,
-  BIOLOGICAL_ASSOCIATION
-} from 'constants/index.js'
+import { COLLECTION_OBJECT } from 'constants/index.js'
 
 const EXTEND_GRAPH = [
   'biological_associations_biological_associations_graphs',
-  'biological_associations'
+  'biological_associations',
+  'citations'
 ]
 
-const EXTEND_BA = ['subject', 'object', 'biological_relationship']
+const EXTEND_BA = ['subject', 'object', 'biological_relationship', 'citations']
 
 function initState() {
   return {
@@ -50,9 +47,7 @@ function initState() {
     settings: {
       isSaving: false
     },
-    graph: {
-      biological_association_id: []
-    }
+    graph: makeGraph({})
   }
 }
 
@@ -96,7 +91,7 @@ export function useGraph() {
         color: ba.color
       }
 
-      if (ba.isUnsaved) {
+      if (ba.isUnsaved || ba.citations.some((c) => !c.id)) {
         Object.assign(edgeObject, unsavedEdge)
       }
 
@@ -113,13 +108,18 @@ export function useGraph() {
     Object.assign(state, initState())
   }
 
-  function addCitation({ uuid, citationData, type }) {
-    const citation = makeCitation(citationData)
+  function getCitationsFor(uuid) {
+    return state.citations.filter((c) => c.objectUuid === uuid)
+  }
 
-    citation.objectUuid = uuid
-    citation.objectType = type
+  function addCitationFor(obj, citationData) {
+    const citation = makeCitation({
+      ...citationData,
+      objectUuid: obj.uuid,
+      objectType: obj.objectType
+    })
 
-    state.citations.push(citation)
+    obj.citations.push(citation)
 
     return citation
   }
@@ -162,6 +162,12 @@ export function useGraph() {
     state.biologicalAssociations.push(biologicalAssociation)
   }
 
+  function getObjectByUuid(uuid) {
+    return [state.graph, ...state.biologicalAssociations].find(
+      (item) => item.uuid === uuid
+    )
+  }
+
   function reverseRelation(uuid) {
     const ba = state.biologicalAssociations.find((ba) => ba.uuid === uuid)
 
@@ -196,46 +202,25 @@ export function useGraph() {
     state.layouts = JSON.parse(graph.layout)
 
     if (baIds.length) {
-      await BiologicalAssociation.where({
-        biological_association_id: baIds,
-        extend: EXTEND_BA
-      }).then(async ({ body }) => {
-        for (const item of body) {
-          const ba = await makeBiologicalAssociation(item)
-
-          addObject(ba.subject)
-          addObject(ba.object)
-          state.biologicalAssociations.push(ba)
-        }
-      })
+      await loadBiologicalAssociations(baIds)
     }
-
-    loadCitations()
 
     return graph
   }
 
-  async function loadCitations() {
-    Citation.where({
-      citation_object_id: state.graph.id,
-      citation_object_type: BIOLOGICAL_ASSOCIATIONS_GRAPH
-    }).then(({ body }) => {
-      body.forEach((c) => {
-        addCitation({
-          citationData: c,
-          type: BIOLOGICAL_ASSOCIATIONS_GRAPH,
-          uuid: state.graph.uuid
-        })
-      })
-    })
+  async function loadBiologicalAssociations(ids) {
+    return BiologicalAssociation.where({
+      biological_association_id: ids,
+      extend: EXTEND_BA
+    }).then(async ({ body }) => {
+      for (const item of body) {
+        const ba = await makeBiologicalAssociation(item)
 
-    Citation.where({
-      citation_object_id: state.biologicalAssociations.map((ba) => ba.id),
-      citation_object_type: BIOLOGICAL_ASSOCIATION
-    }).then(({ body }) => {
-      body.forEach(({ body }) => {
-        addCitation({ citationData: body, type: BIOLOGICAL_ASSOCIATION })
-      })
+        addObject(ba.subject)
+        addObject(ba.object)
+
+        state.biologicalAssociations.push(ba)
+      }
     })
   }
 
@@ -320,23 +305,47 @@ export function useGraph() {
 
   async function save() {
     const createdBiologicalAssociations = await saveBiologicalAssociations()
-
+    let biologicalAssociationGraph
     if (isNetwork(state.biologicalAssociations) || state.graph.id) {
-      return saveGraph()
+      biologicalAssociationGraph = saveGraph()
     }
 
-    return createdBiologicalAssociations
+    const citations = await Promise.all([
+      saveCitationsFor(state.graph),
+      ...state.biologicalAssociations.map((ba) => saveCitationsFor(ba))
+    ])
+
+    return {
+      biologicalAssociations: createdBiologicalAssociations,
+      biologicalAssociationGraph,
+      citations
+    }
   }
 
-  function saveCitations() {}
+  function saveCitationsFor(obj) {
+    const unsaved = obj.citations.filter((c) => !c.id)
+
+    const requests = unsaved.map((c) => {
+      const payload = makeCitationPayload({ ...c, objectId: obj.id })
+
+      return Citation.create({ citation: payload }).then(({ body }) => {
+        const index = obj.citations.findIndex((item) => item.uuid === c.uuid)
+
+        obj.citations[index] = makeCitation(body)
+      })
+    })
+
+    return requests
+  }
 
   function saveGraph() {
     const biologicalAssociationsSaved = state.biologicalAssociations.filter(
       (r) => r.id
     )
-    const biologicalAssociationsInGraph = (
-      state.graph.biologicalAssociationIds || []
-    ).map((obj) => obj.biological_association_id)
+    const biologicalAssociationsInGraph =
+      state.graph.biologicalAssociationIds.map(
+        (obj) => obj.biological_association_id
+      )
 
     const payload = {
       biological_associations_graph: {
@@ -356,14 +365,14 @@ export function useGraph() {
       : BiologicalAssociationGraph.create(payload)
 
     request.then(({ body }) => {
-      state.graph = body
+      state.graph = makeGraph(body)
     })
 
     return request
   }
 
   return {
-    addCitation,
+    addCitationFor,
     addBiologicalRelationship,
     addObject,
     currentGraph,
@@ -380,6 +389,8 @@ export function useGraph() {
     save,
     saveBiologicalAssociations,
     setNodePosition,
+    getCitationsFor,
+    getObjectByUuid,
     ...toRefs(state)
   }
 }

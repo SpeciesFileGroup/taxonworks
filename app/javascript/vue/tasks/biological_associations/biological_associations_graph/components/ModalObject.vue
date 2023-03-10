@@ -8,7 +8,7 @@
         :model="MODEL_TYPE[props.type]"
         :target="BIOLOGICAL_ASSOCIATION"
         autofocus
-        @selected="($event) => emit('addObject', makeNodeObject($event))"
+        @selected="($event) => emit('add:object', makeNodeObject($event))"
       />
     </template>
   </VModal>
@@ -17,7 +17,11 @@
 <script setup>
 import SmartSelector from 'components/ui/SmartSelector'
 import VModal from 'components/ui/Modal.vue'
-import { BIOLOGICAL_ASSOCIATION, OTU, COLLECTION_OBJECT } from 'constants/index.js'
+import {
+  BIOLOGICAL_ASSOCIATION,
+  OTU,
+  COLLECTION_OBJECT
+} from 'constants/index.js'
 import { makeNodeObject } from '../adapters'
 
 const props = defineProps({

@@ -22,7 +22,7 @@
               />
               <template v-if="currentGraph.id">
                 <RadialAnnotator :global-id="currentGraph.globalId" />
-                <span>{{ currentGraph.object_tag }}</span>
+                <span>{{ currentGraph.label }}</span>
               </template>
             </div>
             <div class="horizontal-left-content gap-small">
@@ -158,15 +158,15 @@ function loadGraph(id) {
 }
 
 function saveGraph() {
-  graph.value.save().then(({ body }) => {
+  graph.value.save().then(({ biologicalAssociationGraphId }) => {
     TW.workbench.alert.create(
       'Biological association(s) were successfully saved.',
       'notice'
     )
 
-    if (!Array.isArray(body)) {
+    if (biologicalAssociationGraphId) {
       setParam(RouteNames.NewBiologicalAssociationGraph, {
-        biological_associations_graph_id: body?.id
+        biological_associations_graph_id: biologicalAssociationGraphId.id
       })
     }
   })

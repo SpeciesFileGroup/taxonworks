@@ -190,6 +190,7 @@ function setSource(value) {
   source.value = value
   sessionStorage.setItem(STORAGE.sourceId, value.id)
   citation.value.source_id = value.id
+  citation.value._label = value.cached
 
   emit('source', value)
 }

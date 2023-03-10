@@ -76,6 +76,12 @@ defineExpose({
   border-bottom: 1px solid #eaeaea;
 }
 
+.graph-context-menu-list-header {
+  padding: 1em;
+  background-color: #f0f0f0;
+  border-bottom: 2px solid #eaeaea;
+}
+
 .graph-context-menu-list-item:hover {
   background-color: #fafafa;
 }

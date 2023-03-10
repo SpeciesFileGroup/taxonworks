@@ -7,7 +7,7 @@
       <SmartSelector
         model="biological_relationships"
         autofocus
-        @selected="($event) => emit('addRelationship', $event)"
+        @selected="($event) => emit('add:relationship', $event)"
       />
     </template>
   </VModal>

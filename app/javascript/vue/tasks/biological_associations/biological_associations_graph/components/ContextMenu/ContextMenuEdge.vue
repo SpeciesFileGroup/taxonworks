@@ -50,8 +50,8 @@ import VIcon from 'components/ui/VIcon/index.vue'
 
 defineProps({
   selectedEdgeIds: {
-    type: String,
-    required: true
+    type: Array,
+    default: () => []
   },
 
   edges: {
