@@ -38,7 +38,7 @@
   </div>
   <div
     class="graph-context-menu-list-item"
-    @click="() => emit('cite:edges', selectedEdgeIds)"
+    @click="() => emit('cite:edge', selectedEdgeIds)"
   >
     Add citation
   </div>
@@ -60,5 +60,5 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['remove:edge', 'reverse:edge', 'add:citation'])
+const emit = defineEmits(['remove:edge', 'reverse:edge', 'cite:edge'])
 </script>

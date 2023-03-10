@@ -51,11 +51,7 @@
     <ContextMenuEdge
       :edges="edges"
       :selected-edge-ids="selectedEdges"
-      @cite:edge="
-        () => {
-          showModalCitation = true
-        }
-      "
+      @cite:edge="() => openCitationModal({ type: BIOLOGICAL_ASSOCIATION })"
       @reverse:edge="(edgeId) => reverseRelation(edgeId)"
       @remove:edge="handleRemoveEdge"
     />
@@ -89,8 +85,10 @@
   />
   <ModalCitation
     v-if="showModalCitation"
-    @close="() => openCitationModal({ type: BIOLOGICAL_ASSOCIATION })"
+    @add:citation="handleCitationModal"
+    @close="() => (showModalCitation = false)"
   />
+
   <VSpinner
     v-if="isSaving"
     full-screen
@@ -120,6 +118,7 @@ import {
 } from 'constants/index.js'
 
 const {
+  addCitation,
   addBiologicalRelationship,
   addObject,
   currentGraph,
@@ -139,12 +138,12 @@ const {
   selectedNodes,
   setNodePosition,
   currentNodes,
-  save
+  save,
+  citations
 } = useGraph()
 
 const graph = ref()
 const nodeType = ref()
-const citationType = ref()
 
 const edgeContextMenu = ref()
 const nodeContextMenu = ref()
@@ -154,8 +153,8 @@ const showModalNode = ref(false)
 const showModalEdge = ref(false)
 const showModalCitation = ref(false)
 
+const currentObjectType = ref()
 const currentNodeId = ref()
-const currentEdgeId = ref()
 const currentEvent = ref()
 const currentPosition = ref()
 
@@ -179,7 +178,6 @@ function showNodeContextMenu({ node, event }) {
 
 function showEdgeContextMenu({ event, edge }) {
   handleEvent(event)
-  currentEdgeId.value = edge
   edgeContextMenu.value.openContextMenu(currentEvent.value)
 }
 
@@ -187,6 +185,27 @@ function handleEvent(event) {
   event.stopPropagation()
   event.preventDefault()
   currentEvent.value = event
+}
+
+function handleCitationModal(citationData) {
+  switch (currentObjectType.value) {
+    case BIOLOGICAL_ASSOCIATION:
+      addCitation({
+        citationData,
+        type: BIOLOGICAL_ASSOCIATION,
+        uuid: graph.value.uuid
+      })
+      break
+    case BIOLOGICAL_ASSOCIATIONS_GRAPH:
+      addCitation({
+        citationData,
+        type: BIOLOGICAL_ASSOCIATIONS_GRAPH,
+        uuid: graph.value.uuid
+      })
+      break
+  }
+
+  showModalCitation.value = false
 }
 
 const eventHandlers = {
@@ -240,8 +259,8 @@ function openEdgeModal() {
   showModalEdge.value = true
 }
 
-function openCitationModal(type) {
-  citationType.value = type
+function openCitationModal({ type }) {
+  currentObjectType.value = type
   showModalCitation.value = true
 }
 

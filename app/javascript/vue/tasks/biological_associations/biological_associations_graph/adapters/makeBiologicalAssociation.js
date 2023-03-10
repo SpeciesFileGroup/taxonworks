@@ -5,6 +5,7 @@ export async function makeBiologicalAssociation(ba) {
   return {
     uuid: crypto.randomUUID(),
     id: ba.id,
+    globalId: ba.globalId,
     name: ba.name,
     biologicalRelationship: {
       ...ba.biological_relationship,

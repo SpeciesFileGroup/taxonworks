@@ -1,6 +1,15 @@
 import { reactive, computed, toRefs } from 'vue'
-import { BiologicalAssociation, BiologicalAssociationGraph, Citation } from 'routes/endpoints'
-import { makeBiologicalAssociation, makeNodeObject, makeCitation } from '../adapters'
+import {
+  BiologicalAssociation,
+  BiologicalAssociationGraph,
+  Citation
+} from 'routes/endpoints'
+import {
+  makeBiologicalAssociation,
+  makeNodeObject,
+  makeCitation,
+  makeGraph
+} from '../adapters'
 import {
   unsavedEdge,
   nodeCollectionObjectStyle,
@@ -54,14 +63,18 @@ export function useGraph() {
     Object.fromEntries(
       state.nodeObjects.map((obj) => {
         const nodeId = makeNodeId(obj)
-        const isSaved = getBiologicalRelationshipsByNodeId(nodeId).some((ba) => !!ba.id)
+        const isSaved = getBiologicalRelationshipsByNodeId(nodeId).some(
+          (ba) => !!ba.id
+        )
         const node = {
           name: obj.name
         }
 
         Object.assign(
           node,
-          obj.objectType === COLLECTION_OBJECT ? nodeCollectionObjectStyle : nodeOtuStyle
+          obj.objectType === COLLECTION_OBJECT
+            ? nodeCollectionObjectStyle
+            : nodeOtuStyle
         )
 
         if (!isSaved) {
@@ -100,23 +113,36 @@ export function useGraph() {
     Object.assign(state, initState())
   }
 
-  function addCitation(data) {
-    const citation = makeCitation(data)
+  function addCitation({ uuid, citationData, type }) {
+    const citation = makeCitation(citationData)
+
+    citation.objectUuid = uuid
+    citation.objectType = type
 
     state.citations.push(citation)
+
+    return citation
   }
 
   const getBiologicalRelationshipsByNodeId = (nodeId) => {
     const obj = parseNodeId(nodeId)
 
     return state.biologicalAssociations.filter((ba) => {
-      return isEqualNodeObject(ba.object, obj) || isEqualNodeObject(ba.subject, obj)
+      return (
+        isEqualNodeObject(ba.object, obj) || isEqualNodeObject(ba.subject, obj)
+      )
     })
   }
 
-  const isGraphUnsaved = computed(() => state.biologicalAssociations.some((ba) => ba.isUnsaved))
+  const isGraphUnsaved = computed(() =>
+    state.biologicalAssociations.some((ba) => ba.isUnsaved)
+  )
 
-  async function addBiologicalRelationship({ subjectNodeId, objectNodeId, relationship }) {
+  async function addBiologicalRelationship({
+    subjectNodeId,
+    objectNodeId,
+    relationship
+  }) {
     const nObj = parseNodeId(subjectNodeId)
     const nSub = parseNodeId(objectNodeId)
 
@@ -158,19 +184,16 @@ export function useGraph() {
 
   async function loadGraph(graphId) {
     const params = { extend: EXTEND_GRAPH }
-    const { body } = await BiologicalAssociationGraph.find(graphId, params)
-    const baIds = body.biological_associations_biological_associations_graphs.map(
+    const graph = makeGraph(
+      (await BiologicalAssociationGraph.find(graphId, params)).body
+    )
+    const baIds = graph.biologicalAssociationIds.map(
       (ba) => ba.biological_association_id
     )
 
     resetStore()
-    state.graph = body
-    state.layouts = JSON.parse(body.layout)
-
-    loadCitations({
-      id: [graphId, ...baIds],
-      objectType: [BIOLOGICAL_ASSOCIATION, BIOLOGICAL_ASSOCIATIONS_GRAPH]
-    })
+    state.graph = graph
+    state.layouts = JSON.parse(graph.layout)
 
     if (baIds.length) {
       await BiologicalAssociation.where({
@@ -187,27 +210,47 @@ export function useGraph() {
       })
     }
 
-    return body
+    loadCitations()
+
+    return graph
   }
 
-  function loadCitations({ id, objectType }) {
-    const payload = {
-      citation_object_id: id,
-      citation_object_type: objectType
-    }
+  async function loadCitations() {
+    Citation.where({
+      citation_object_id: state.graph.id,
+      citation_object_type: BIOLOGICAL_ASSOCIATIONS_GRAPH
+    }).then(({ body }) => {
+      body.forEach((c) => {
+        addCitation({
+          citationData: c,
+          type: BIOLOGICAL_ASSOCIATIONS_GRAPH,
+          uuid: state.graph.uuid
+        })
+      })
+    })
 
-    Citation.where(payload).then(({ body }) => {
-      state.citations = body.map((c) => makeCitation(c))
+    Citation.where({
+      citation_object_id: state.biologicalAssociations.map((ba) => ba.id),
+      citation_object_type: BIOLOGICAL_ASSOCIATION
+    }).then(({ body }) => {
+      body.forEach(({ body }) => {
+        addCitation({ citationData: body, type: BIOLOGICAL_ASSOCIATION })
+      })
     })
   }
 
   function removeEdge(edgeId) {
-    const index = state.biologicalAssociations.findIndex((ba) => ba.uuid === edgeId)
+    const index = state.biologicalAssociations.findIndex(
+      (ba) => ba.uuid === edgeId
+    )
     const ba = state.biologicalAssociations[index]
 
     if (ba.id) {
       BiologicalAssociation.destroy(ba.id).then((_) => {
-        TW.workbench.alert.create('Biological association was successfully deleted.', 'notice')
+        TW.workbench.alert.create(
+          'Biological association was successfully deleted.',
+          'notice'
+        )
       })
     }
 
@@ -232,8 +275,8 @@ export function useGraph() {
 
     removeNodeObject(nodeObject)
 
-    state.biologicalAssociations = state.biologicalAssociations.filter(({ uuid }) =>
-      biologicalAssociations.some((ba) => ba.uuid !== uuid)
+    state.biologicalAssociations = state.biologicalAssociations.filter(
+      ({ uuid }) => biologicalAssociations.some((ba) => ba.uuid !== uuid)
     )
   }
 
@@ -244,7 +287,9 @@ export function useGraph() {
   }
 
   function saveBiologicalAssociations() {
-    const biologicalAssociations = state.biologicalAssociations.filter((ba) => ba.isUnsaved)
+    const biologicalAssociations = state.biologicalAssociations.filter(
+      (ba) => ba.isUnsaved
+    )
 
     const requests = biologicalAssociations.map((ba) => {
       const { biologicalRelationship, object, subject, id } = ba
@@ -283,10 +328,14 @@ export function useGraph() {
     return createdBiologicalAssociations
   }
 
+  function saveCitations() {}
+
   function saveGraph() {
-    const biologicalAssociationsSaved = state.biologicalAssociations.filter((r) => r.id)
+    const biologicalAssociationsSaved = state.biologicalAssociations.filter(
+      (r) => r.id
+    )
     const biologicalAssociationsInGraph = (
-      state.graph.biological_associations_biological_associations_graphs || []
+      state.graph.biologicalAssociationIds || []
     ).map((obj) => obj.biological_association_id)
 
     const payload = {
@@ -314,6 +363,7 @@ export function useGraph() {
   }
 
   return {
+    addCitation,
     addBiologicalRelationship,
     addObject,
     currentGraph,

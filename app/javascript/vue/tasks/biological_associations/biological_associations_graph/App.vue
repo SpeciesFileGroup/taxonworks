@@ -21,7 +21,7 @@
                 "
               />
               <template v-if="currentGraph.id">
-                <RadialAnnotator :global-id="currentGraph.global_id" />
+                <RadialAnnotator :global-id="currentGraph.globalId" />
                 <span>{{ currentGraph.object_tag }}</span>
               </template>
             </div>
@@ -70,6 +70,7 @@ import setParam from 'helpers/setParam.js'
 import useHotkey from 'vue3-hotkey'
 import platformKey from 'helpers/getPlatformKey'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { onMounted, ref } from 'vue'
 import { CollectionObject, Otu } from 'routes/endpoints'
@@ -100,7 +101,9 @@ const hotkeys = ref([
       if (graph.value.currentNodes.length === 2) {
         graph.value.openEdgeModal()
       } else {
-        TW.workbench.alert.create('Select two nodes to create a biological association')
+        TW.workbench.alert.create(
+          'Select two nodes to create a biological association'
+        )
       }
     }
   }
@@ -135,8 +138,16 @@ onMounted(() => {
     'Create biological association between two nodes',
     'Biological associations graph'
   )
-  TW.workbench.keyboard.createLegend(`${platformKey()}+r`, 'Reset', 'Biological associations graph')
-  TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'Biological associations graph')
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+r`,
+    'Reset',
+    'Biological associations graph'
+  )
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+s`,
+    'Save',
+    'Biological associations graph'
+  )
 })
 
 function loadGraph(id) {
@@ -148,7 +159,10 @@ function loadGraph(id) {
 
 function saveGraph() {
   graph.value.save().then(({ body }) => {
-    TW.workbench.alert.create('Biological association(s) were successfully saved.', 'notice')
+    TW.workbench.alert.create(
+      'Biological association(s) were successfully saved.',
+      'notice'
+    )
 
     if (!Array.isArray(body)) {
       setParam(RouteNames.NewBiologicalAssociationGraph, {
@@ -160,7 +174,10 @@ function saveGraph() {
 
 function reset() {
   graph.value.resetStore()
-  setParam(RouteNames.NewBiologicalAssociationGraph, 'biological_associations_graph_id')
+  setParam(
+    RouteNames.NewBiologicalAssociationGraph,
+    'biological_associations_graph_id'
+  )
 }
 </script>
 

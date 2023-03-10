@@ -1,10 +1,12 @@
-export function makeCitation(citation) {
+export function makeCitation(data) {
   return {
-    id: citation.id,
-    objectType: citation.citation_object_type,
-    objectId: citation.citation_object_id,
-    pages: citation.pages,
-    sourceId: citation.source_id,
-    label: citation.object_label
+    id: data.id,
+    label: data.object_label || data._label,
+    objectId: data.citation_object_id,
+    objectType: data.citation_object_type,
+    objectUuid: data.objectUuid,
+    pages: data.pages,
+    sourceId: data.source_id,
+    uuid: crypto.randomUUID()
   }
 }
