@@ -155,7 +155,9 @@ end
 gem 'parallel_tests', group: [:development, :test]
 
 group :development do
-# gem 'tunemygc'
+  gem "ruby-lsp", "~> 0.4.1", require: false
+  
+  # gem 'tunemygc'
   gem 'ruby-prof', '~> 1.2'
   gem 'better_errors', '~> 2.9'
   gem 'binding_of_caller'
@@ -193,3 +195,5 @@ group :production do
   gem 'execjs', '~> 2.8.1'
   gem 'passenger', '~> 6.0.2'
 end
+
+
