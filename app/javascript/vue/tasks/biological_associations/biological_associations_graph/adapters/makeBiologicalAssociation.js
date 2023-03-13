@@ -12,9 +12,8 @@ export async function makeBiologicalAssociation(ba) {
     globalId: ba.global_id,
     name: ba.name,
     objectType: BIOLOGICAL_ASSOCIATION,
-    citations: ba.citations.map((c) =>
-      makeCitation({ ...c, objectUuid: uuid })
-    ),
+    citations:
+      ba.citations.map((c) => makeCitation({ ...c, objectUuid: uuid })) || [],
     biologicalRelationship: {
       ...ba.biological_relationship,
       id: ba.biological_relationship_id,

@@ -7,6 +7,7 @@
       <SmartSelector
         :model="MODEL_TYPE[props.type]"
         :target="BIOLOGICAL_ASSOCIATION"
+        :otu-picker="type === OTU"
         autofocus
         @selected="($event) => emit('add:object', makeNodeObject($event))"
       />

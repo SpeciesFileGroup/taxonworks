@@ -24,7 +24,7 @@ import {
   isNetwork,
   getHexColorFromString
 } from '../utils'
-import { COLLECTION_OBJECT } from 'constants/index.js'
+import { COLLECTION_OBJECT, BIOLOGICAL_ASSOCIATION } from 'constants/index.js'
 
 const EXTEND_GRAPH = [
   'biological_associations_biological_associations_graphs',
@@ -113,6 +113,7 @@ export function useGraph() {
   }
 
   function addCitationFor(obj, citationData) {
+    console.log(obj)
     const citation = makeCitation({
       ...citationData,
       objectUuid: obj.uuid,
@@ -154,6 +155,8 @@ export function useGraph() {
       uuid: crypto.randomUUID(),
       subject,
       object,
+      citations: [],
+      objectType: BIOLOGICAL_ASSOCIATION,
       biologicalRelationship: relationship,
       color: await getHexColorFromString(relationship.name),
       isUnsaved: true
@@ -303,7 +306,6 @@ export function useGraph() {
 
       request.then(({ body }) => {
         ba.id = body.id
-        ba.citations = body.citations
         ba.isUnsaved = false
       })
 
@@ -316,6 +318,7 @@ export function useGraph() {
   async function save() {
     const createdBiologicalAssociations = await saveBiologicalAssociations()
     let biologicalAssociationGraph
+
     if (isNetwork(state.biologicalAssociations) || state.graph.id) {
       biologicalAssociationGraph = saveGraph()
     }
