@@ -36,6 +36,9 @@
         <TableCitation
           :title="label"
           :citations="item.citations"
+          @remove="
+            ($event) => emit('remove:citation', { citation: $event, obj: item })
+          "
         />
       </div>
     </template>
@@ -61,7 +64,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['add:citation'])
+const emit = defineEmits(['add:citation', 'remove:citation'])
 const selectedItems = ref([...props.items])
 
 const objectItems = computed(() => {

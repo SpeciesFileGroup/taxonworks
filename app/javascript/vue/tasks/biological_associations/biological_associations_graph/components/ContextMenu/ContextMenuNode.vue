@@ -13,6 +13,13 @@
     </VBtn>
   </div>
   <div
+    v-if="isSaved"
+    class="graph-context-menu-list-item"
+    @click="() => emit('cite:edge')"
+  >
+    Add citation
+  </div>
+  <div
     v-if="createButton"
     class="graph-context-menu-list-item"
     @click="() => emit('add:edge')"
@@ -47,5 +54,5 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['remove:node', 'add:edge'])
+const emit = defineEmits(['remove:node', 'add:edge', 'cite:edge'])
 </script>

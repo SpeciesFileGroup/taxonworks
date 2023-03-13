@@ -224,6 +224,14 @@ export function useGraph() {
     })
   }
 
+  function removeCitationFor({ obj, citation }) {
+    const index = obj.citations.findIndex((item) => item.uuid === citation.uuid)
+
+    return Citation.destroy(citation.id).then((_) => {
+      obj.citations.splice(index, 1)
+    })
+  }
+
   function removeEdge(edgeId) {
     const index = state.biologicalAssociations.findIndex(
       (ba) => ba.uuid === edgeId
@@ -391,6 +399,7 @@ export function useGraph() {
     setNodePosition,
     getCitationsFor,
     getObjectByUuid,
+    removeCitationFor,
     ...toRefs(state)
   }
 }

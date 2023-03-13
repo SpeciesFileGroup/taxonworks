@@ -20,7 +20,7 @@
             :color="!!citation.id ? 'destroy' : 'primary'"
             @click="
               () => {
-                emit('remove', citation)
+                removeCitation(citation)
               }
             "
           >
@@ -33,10 +33,14 @@
       </tr>
     </tbody>
   </table>
+  <ConfirmationModal ref="confirmationModalRef" />
 </template>
+
 <script setup>
+import ConfirmationModal from 'components/ConfirmationModal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
+import { ref } from 'vue'
 
 defineProps({
   citations: {
@@ -51,4 +55,22 @@ defineProps({
 })
 
 const emit = defineEmits(['remove'])
+
+const confirmationModalRef = ref()
+
+async function removeCitation(citation) {
+  const ok =
+    !citation.id ||
+    (await confirmationModalRef.value.show({
+      title: 'Destroy citation',
+      message: 'Are you sure you want to proceed?',
+      okButton: 'Destroy',
+      cancelButton: 'Cancel',
+      typeButton: 'delete'
+    }))
+
+  if (ok) {
+    emit('remove', citation)
+  }
+}
 </script>

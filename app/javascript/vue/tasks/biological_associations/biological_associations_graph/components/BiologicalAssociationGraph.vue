@@ -44,6 +44,14 @@
       :create-button="selectedNodes.length === 2"
       @remove:node="handleRemoveNode"
       @add:edge="openEdgeModal"
+      @cite:edge="
+        () =>
+          openCitationModalFor(
+            getBiologicalRelationshipsByNodeId(currentNodeId).map(
+              (item) => item.uuid
+            )
+          )
+      "
     />
   </ContextMenu>
 
@@ -88,6 +96,7 @@
     :items="currentCitationObjects"
     @add:citation="handleCitationModal"
     @close="() => (showModalCitation = false)"
+    @remove:citation="removeCitationFor"
   />
 
   <VSpinner
@@ -137,7 +146,8 @@ const {
   currentNodes,
   save,
   biologicalAssociations,
-  getObjectByUuid
+  getObjectByUuid,
+  removeCitationFor
 } = useGraph()
 
 const graph = ref()
