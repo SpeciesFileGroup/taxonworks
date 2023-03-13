@@ -7,13 +7,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-# Added
+### Added
 
 - JSON nomenclature inventory endpoint `/api/v1/taxon_names/:id/inventory/catalog`
 
+### Changed
+
+- Updated Ruby gems
+
 ## [0.31.2] - 2023-03-09
 
-# Added
+### Added
 
 - Link from AssertedDistribution filter to BiologicalAssociations filter
 - All tab to biological relationships facet [#3334]
