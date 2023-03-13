@@ -293,7 +293,8 @@ export function useGraph() {
           biological_association_object_type: object.objectType,
           biological_association_subject_id: subject.id,
           biological_association_subject_type: subject.objectType
-        }
+        },
+        extend: EXTEND_BA
       }
 
       const request = id
@@ -302,6 +303,7 @@ export function useGraph() {
 
       request.then(({ body }) => {
         ba.id = body.id
+        ba.citations = body.citations
         ba.isUnsaved = false
       })
 

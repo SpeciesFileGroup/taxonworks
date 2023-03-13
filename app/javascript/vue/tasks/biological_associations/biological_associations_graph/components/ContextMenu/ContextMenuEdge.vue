@@ -1,4 +1,5 @@
 <template>
+  <div class="graph-context-menu-list-header">Biological associations</div>
   <div
     v-for="edgeId in selectedEdgeIds"
     :key="edgeId"
@@ -40,7 +41,7 @@
     class="graph-context-menu-list-item"
     @click="() => emit('cite:edge', selectedEdgeIds)"
   >
-    Add citation
+    Citations ({{ citations }})
   </div>
 </template>
 
@@ -57,6 +58,11 @@ defineProps({
   edges: {
     type: Object,
     default: () => ({})
+  },
+
+  citations: {
+    type: Number,
+    default: 0
   }
 })
 

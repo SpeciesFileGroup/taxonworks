@@ -26,7 +26,7 @@
     class="graph-context-menu-list-item"
     @click="() => emit('cite:graph')"
   >
-    Add Citation
+    Citations ({{ citations }})
   </div>
 </template>
 
@@ -42,6 +42,11 @@ defineProps({
   },
 
   count: {
+    type: Number,
+    default: 0
+  },
+
+  citations: {
     type: Number,
     default: 0
   }

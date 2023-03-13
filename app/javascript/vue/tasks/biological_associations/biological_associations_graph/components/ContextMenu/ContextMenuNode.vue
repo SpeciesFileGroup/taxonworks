@@ -1,4 +1,5 @@
 <template>
+  <div class="graph-context-menu-list-header">CO/OTU</div>
   <div class="flex-separate middle gap-small graph-context-menu-list-item">
     <span>{{ node.name }}</span>
     <VBtn
@@ -13,18 +14,18 @@
     </VBtn>
   </div>
   <div
-    v-if="isSaved"
-    class="graph-context-menu-list-item"
-    @click="() => emit('cite:edge')"
-  >
-    Add citation
-  </div>
-  <div
     v-if="createButton"
     class="graph-context-menu-list-item"
     @click="() => emit('add:edge')"
   >
     Create relation
+  </div>
+  <div
+    v-if="isSaved"
+    class="graph-context-menu-list-item"
+    @click="() => emit('cite:edge')"
+  >
+    Citations ({{ citations }})
   </div>
 </template>
 
@@ -46,6 +47,11 @@ defineProps({
   isSaved: {
     type: Boolean,
     default: false
+  },
+
+  citations: {
+    type: Number,
+    default: 0
   },
 
   createButton: {

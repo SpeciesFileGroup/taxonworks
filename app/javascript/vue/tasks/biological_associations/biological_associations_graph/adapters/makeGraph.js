@@ -13,8 +13,7 @@ export function makeGraph(data) {
     biologicalAssociationIds:
       data.biological_associations_biological_associations_graphs || [],
     layout: data.layout,
-    citations: data.citations?.map(
-      (c) => makeCitation({ ...c, objectUuid: uuid }) || []
-    )
+    citations:
+      data.citations?.map((c) => makeCitation({ ...c, objectUuid: uuid })) || []
   }
 }

@@ -31,6 +31,7 @@
     <ContextMenuView
       :title="currentGraph.label"
       :count="biologicalAssociations.length"
+      :citations="currentGraph.citations.length"
       @add:node="openNodeModal"
       @cite:graph="() => openCitationModalFor([currentGraph.uuid])"
     />
@@ -42,6 +43,12 @@
       :node-id="currentNodeId"
       :is-saved="isCurrentNodeSaved"
       :create-button="selectedNodes.length === 2"
+      :citations="
+        getBiologicalRelationshipsByNodeId(currentNodeId).reduce(
+          (acc, curr) => acc + curr.citations.length,
+          0
+        )
+      "
       @remove:node="handleRemoveNode"
       @add:edge="openEdgeModal"
       @cite:edge="
@@ -59,6 +66,12 @@
     <ContextMenuEdge
       :edges="edges"
       :selected-edge-ids="selectedEdges"
+      :citations="
+        selectedEdges.reduce(
+          (acc, curr) => acc + getObjectByUuid(curr).citations.length,
+          0
+        )
+      "
       @cite:edge="() => openCitationModalFor(selectedEdges)"
       @reverse:edge="(edgeId) => reverseRelation(edgeId)"
       @remove:edge="handleRemoveEdge"
