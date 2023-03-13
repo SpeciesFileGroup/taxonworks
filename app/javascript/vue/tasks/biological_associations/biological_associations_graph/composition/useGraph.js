@@ -135,7 +135,9 @@ export function useGraph() {
   }
 
   const isGraphUnsaved = computed(() =>
-    state.biologicalAssociations.some((ba) => ba.isUnsaved)
+    state.biologicalAssociations.some(
+      (ba) => ba.isUnsaved || ba.citations.some((c) => !c.id)
+    )
   )
 
   async function addBiologicalRelationship({
@@ -233,9 +235,11 @@ export function useGraph() {
   function removeCitationFor({ obj, citation }) {
     const index = obj.citations.findIndex((item) => item.uuid === citation.uuid)
 
-    return Citation.destroy(citation.id).then((_) => {
-      obj.citations.splice(index, 1)
-    })
+    if (citation.id) {
+      Citation.destroy(citation.id)
+    }
+
+    obj.citations.splice(index, 1)
   }
 
   function removeEdge(edgeId) {
