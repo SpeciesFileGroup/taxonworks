@@ -6,119 +6,125 @@
     :edges="edges"
     :current-graph="currentGraph"
   />
-  <VNetworkGraph
-    ref="graph"
-    class="graph panel"
-    :configs="configs"
-    :edges="edges"
-    :nodes="nodes"
-    :event-handlers="eventHandlers"
-    v-model:selected-nodes="selectedNodes"
-    v-model:selected-edges="selectedEdges"
-    v-model:layouts="layouts"
-  >
-    <template #edge-label="{ edge, ...slotProps }">
-      <VEdgeLabel
-        :text="edge.label"
-        align="center"
-        vertical-align="below"
-        v-bind="slotProps"
-      />
-    </template>
-  </VNetworkGraph>
-
-  <ContextMenu ref="viewContextMenu">
-    <ContextMenuView
-      :title="currentGraph.label"
-      :count="biologicalAssociations.length"
-      :citations="currentGraph.citations.length"
-      @add:node="openNodeModal"
-      @cite:graph="() => openCitationModalFor([currentGraph.uuid])"
+  <div>
+    <VSpinner
+      v-if="isSaving"
+      full-screen
+      legend="Saving biological associations..."
     />
-  </ContextMenu>
 
-  <ContextMenu ref="nodeContextMenu">
-    <ContextMenuNode
-      :node="nodes[currentNodeId]"
-      :node-id="currentNodeId"
-      :is-saved="isCurrentNodeSaved"
-      :create-button="selectedNodes.length === 2"
-      :citations="
-        getBiologicalRelationshipsByNodeId(currentNodeId).reduce(
-          (acc, curr) => acc + curr.citations.length,
-          0
-        )
-      "
-      @remove:node="handleRemoveNode"
-      @add:edge="openEdgeModal"
-      @cite:edge="
-        () =>
-          openCitationModalFor(
-            getBiologicalRelationshipsByNodeId(currentNodeId).map(
-              (item) => item.uuid
-            )
-          )
-      "
+    <VSpinner
+      v-if="isLoading"
+      legend="Loading biological associations graph..."
     />
-  </ContextMenu>
-
-  <ContextMenu ref="edgeContextMenu">
-    <ContextMenuEdge
+    <VNetworkGraph
+      ref="graph"
+      class="graph panel"
+      :configs="configs"
       :edges="edges"
-      :selected-edge-ids="selectedEdges"
-      :citations="
-        selectedEdges.reduce(
-          (acc, curr) => acc + getObjectByUuid(curr).citations.length,
-          0
-        )
+      :nodes="nodes"
+      :event-handlers="eventHandlers"
+      v-model:selected-nodes="selectedNodes"
+      v-model:selected-edges="selectedEdges"
+      v-model:layouts="layouts"
+    >
+      <template #edge-label="{ edge, ...slotProps }">
+        <VEdgeLabel
+          :text="edge.label"
+          align="center"
+          vertical-align="below"
+          v-bind="slotProps"
+        />
+      </template>
+    </VNetworkGraph>
+
+    <ContextMenu ref="viewContextMenu">
+      <ContextMenuView
+        :title="currentGraph.label"
+        :count="biologicalAssociations.length"
+        :citations="currentGraph.citations.length"
+        @add:node="openNodeModal"
+        @cite:graph="() => openCitationModalFor([currentGraph.uuid])"
+      />
+    </ContextMenu>
+
+    <ContextMenu ref="nodeContextMenu">
+      <ContextMenuNode
+        :node="nodes[currentNodeId]"
+        :node-id="currentNodeId"
+        :is-saved="isCurrentNodeSaved"
+        :create-button="selectedNodes.length === 2"
+        :citations="
+          getBiologicalRelationshipsByNodeId(currentNodeId).reduce(
+            (acc, curr) => acc + curr.citations.length,
+            0
+          )
+        "
+        @remove:node="handleRemoveNode"
+        @add:edge="openEdgeModal"
+        @cite:edge="
+          () =>
+            openCitationModalFor(
+              getBiologicalRelationshipsByNodeId(currentNodeId).map(
+                (item) => item.uuid
+              )
+            )
+        "
+      />
+    </ContextMenu>
+
+    <ContextMenu ref="edgeContextMenu">
+      <ContextMenuEdge
+        :edges="edges"
+        :selected-edge-ids="selectedEdges"
+        :citations="
+          selectedEdges.reduce(
+            (acc, curr) => acc + getObjectByUuid(curr).citations.length,
+            0
+          )
+        "
+        @cite:edge="() => openCitationModalFor(selectedEdges)"
+        @reverse:edge="(edgeId) => reverseRelation(edgeId)"
+        @remove:edge="handleRemoveEdge"
+      />
+    </ContextMenu>
+
+    <ModalObject
+      v-if="showModalNode"
+      :type="nodeType"
+      @add:object="
+        ($event) => {
+          addObject($event)
+          setNodePosition(makeNodeId($event), currentPosition)
+          showModalNode = false
+        }
       "
-      @cite:edge="() => openCitationModalFor(selectedEdges)"
-      @reverse:edge="(edgeId) => reverseRelation(edgeId)"
-      @remove:edge="handleRemoveEdge"
+      @close="() => (showModalNode = false)"
     />
-  </ContextMenu>
+    <ModalEdge
+      v-if="showModalEdge"
+      @add:relationship="
+        ($event) => {
+          addBiologicalRelationship({
+            subjectNodeId: selectedNodes[0],
+            objectNodeId: selectedNodes[1],
+            relationship: $event
+          })
+          showModalEdge = false
+        }
+      "
+      @close="() => (showModalEdge = false)"
+    />
+    <ModalCitation
+      v-if="showModalCitation"
+      :items="currentCitationObjects"
+      @add:citation="handleCitationModal"
+      @close="() => (showModalCitation = false)"
+      @remove:citation="removeCitationFor"
+    />
 
-  <ModalObject
-    v-if="showModalNode"
-    :type="nodeType"
-    @add:object="
-      ($event) => {
-        addObject($event)
-        setNodePosition(makeNodeId($event), currentPosition)
-        showModalNode = false
-      }
-    "
-    @close="() => (showModalNode = false)"
-  />
-  <ModalEdge
-    v-if="showModalEdge"
-    @add:relationship="
-      ($event) => {
-        addBiologicalRelationship({
-          subjectNodeId: selectedNodes[0],
-          objectNodeId: selectedNodes[1],
-          relationship: $event
-        })
-        showModalEdge = false
-      }
-    "
-    @close="() => (showModalEdge = false)"
-  />
-  <ModalCitation
-    v-if="showModalCitation"
-    :items="currentCitationObjects"
-    @add:citation="handleCitationModal"
-    @close="() => (showModalCitation = false)"
-    @remove:citation="removeCitationFor"
-  />
-
-  <VSpinner
-    v-if="isSaving"
-    full-screen
-    legend="Saving biological associations..."
-  />
-
-  <ConfirmationModal ref="confirmationModalRef" />
+    <ConfirmationModal ref="confirmationModalRef" />
+  </div>
 </template>
 
 <script setup>
@@ -160,7 +166,8 @@ const {
   save,
   biologicalAssociations,
   getObjectByUuid,
-  removeCitationFor
+  removeCitationFor,
+  isLoading
 } = useGraph()
 
 const graph = ref()

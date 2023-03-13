@@ -1,5 +1,5 @@
 <template>
-  <VModal>
+  <VModal :container-style="{ width: '800px', minHeight: '50vh' }">
     <template #header>
       <h3>Select {{ type }}</h3>
     </template>

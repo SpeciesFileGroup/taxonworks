@@ -1,5 +1,5 @@
 <template>
-  <VModal :container-style="{ width: '800px' }">
+  <VModal :container-style="{ width: '800px', minHeight: '50vh' }">
     <template #header>
       <h3>Citations</h3>
     </template>

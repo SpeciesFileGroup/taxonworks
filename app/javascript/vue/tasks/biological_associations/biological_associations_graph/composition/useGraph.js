@@ -44,9 +44,8 @@ function initState() {
     layouts: {
       nodes: {}
     },
-    settings: {
-      isSaving: false
-    },
+    isSaving: false,
+    isLoading: false,
     graph: makeGraph({})
   }
 }
@@ -192,6 +191,8 @@ export function useGraph() {
   }
 
   async function loadGraph(graphId) {
+    state.isLoading = true
+
     const params = { extend: EXTEND_GRAPH }
     const graph = makeGraph(
       (await BiologicalAssociationGraph.find(graphId, params)).body
@@ -207,6 +208,8 @@ export function useGraph() {
     if (baIds.length) {
       await loadBiologicalAssociations(baIds)
     }
+
+    state.isLoading = false
 
     return graph
   }
@@ -316,6 +319,8 @@ export function useGraph() {
   }
 
   async function save() {
+    state.isSaving = true
+
     const createdBiologicalAssociations = await saveBiologicalAssociations()
     let biologicalAssociationGraph
 
@@ -327,6 +332,8 @@ export function useGraph() {
       saveCitationsFor(state.graph),
       ...state.biologicalAssociations.map((ba) => saveCitationsFor(ba))
     ])
+
+    state.isSaving = false
 
     return {
       biologicalAssociations: createdBiologicalAssociations,
