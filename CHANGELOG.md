@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+# Added
+
+- JSON nomenclature inventory endpoint `/api/v1/taxon_names/:id/inventory/catalog`
 
 ## [0.31.2] - 2023-03-09
 
