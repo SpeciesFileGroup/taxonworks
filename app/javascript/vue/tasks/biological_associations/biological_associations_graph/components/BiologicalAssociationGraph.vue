@@ -6,7 +6,10 @@
     :edges="edges"
     :current-graph="currentGraph"
   />
-  <div>
+  <div
+    class="panel relative"
+    v-help.canvas
+  >
     <VSpinner
       v-if="isSaving"
       full-screen
@@ -17,9 +20,15 @@
       v-if="isLoading"
       legend="Loading biological associations graph..."
     />
+    <div
+      v-if="!Object.keys(nodes).length"
+      id="background"
+    >
+      <h2 class="subtle">Right-click canvas to begin</h2>
+    </div>
     <VNetworkGraph
       ref="graph"
-      class="graph panel"
+      class="graph"
       :configs="configs"
       :edges="edges"
       :nodes="nodes"
@@ -143,31 +152,32 @@ import ContextMenuView from './ContextMenu/ContextMenuView.vue'
 import ContextMenuNode from './ContextMenu/ContextMenuNode.vue'
 
 const {
-  addCitationFor,
   addBiologicalRelationship,
+  addCitationFor,
   addObject,
+  biologicalAssociations,
   currentGraph,
+  currentNodes,
   edges,
   getBiologicalRelationshipsByNodeId,
+  getObjectByUuid,
   isGraphUnsaved,
+  isLoading,
   isSaving,
   layouts,
+  loadBiologicalAssociations,
   loadGraph,
   nodes,
+  removeCitationFor,
   removeEdge,
   removeNode,
   resetStore,
   reverseRelation,
+  save,
   saveBiologicalAssociations,
   selectedEdges,
   selectedNodes,
-  setNodePosition,
-  currentNodes,
-  save,
-  biologicalAssociations,
-  getObjectByUuid,
-  removeCitationFor,
-  isLoading
+  setNodePosition
 } = useGraph()
 
 const graph = ref()
@@ -291,17 +301,32 @@ function setGraph(graphId) {
 defineExpose({
   addObject,
   currentNodes,
+  isGraphUnsaved,
+  loadBiologicalAssociations,
   openEdgeModal,
   openNodeModal,
   resetStore,
+  save,
   saveBiologicalAssociations,
-  setGraph,
-  isGraphUnsaved,
-  save
+  setGraph
 })
 </script>
 
 <style lang="scss" scoped>
+#background {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
 .graph {
   width: calc(100vw - 2em);
   height: calc(100vh - 250px);

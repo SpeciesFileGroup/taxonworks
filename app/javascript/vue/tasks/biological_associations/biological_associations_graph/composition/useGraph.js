@@ -410,16 +410,20 @@ export function useGraph() {
   }
 
   return {
-    addCitationFor,
     addBiologicalRelationship,
+    addCitationFor,
     addObject,
     currentGraph,
     currentNodes,
     edges,
     getBiologicalRelationshipsByNodeId,
+    getCitationsFor,
+    getObjectByUuid,
     isGraphUnsaved,
+    loadBiologicalAssociations,
     loadGraph,
     nodes,
+    removeCitationFor,
     removeEdge,
     removeNode,
     resetStore,
@@ -427,9 +431,6 @@ export function useGraph() {
     save,
     saveBiologicalAssociations,
     setNodePosition,
-    getCitationsFor,
-    getObjectByUuid,
-    removeCitationFor,
     ...toRefs(state)
   }
 }

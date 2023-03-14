@@ -116,6 +116,7 @@ onMounted(() => {
   const biologicalAssociationGraphId = params.biological_associations_graph_id
   const coId = params.collection_object_id
   const otuId = params.otu_id
+  const baId = params.biological_association_id
 
   if (biologicalAssociationGraphId) {
     loadGraph(biologicalAssociationGraphId)
@@ -131,6 +132,10 @@ onMounted(() => {
     Otu.find(otuId).then(({ body }) => {
       graph.value.addObject(body)
     })
+  }
+
+  if (baId) {
+    graph.value.loadBiologicalAssociations([baId])
   }
 
   TW.workbench.keyboard.createLegend(
