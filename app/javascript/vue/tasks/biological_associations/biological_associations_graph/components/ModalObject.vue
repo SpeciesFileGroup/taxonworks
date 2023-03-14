@@ -5,9 +5,10 @@
     </template>
     <template #body>
       <SmartSelector
-        :model="MODEL_TYPE[props.type]"
+        :model="MODEL_TYPE[props.type].model"
         :target="BIOLOGICAL_ASSOCIATION"
         :otu-picker="type === OTU"
+        :pin-section="MODEL_TYPE[props.type].section"
         autofocus
         @selected="($event) => emit('add:object', makeNodeObject($event))"
       />
@@ -32,8 +33,14 @@ const props = defineProps({
   }
 })
 const MODEL_TYPE = {
-  [OTU]: 'otus',
-  [COLLECTION_OBJECT]: 'collection_objects'
+  [OTU]: {
+    model: 'otus',
+    section: 'Otus'
+  },
+  [COLLECTION_OBJECT]: {
+    model: 'collection_objects',
+    section: 'CollectionObjects'
+  }
 }
 
 const emit = defineEmits(['add:object'])
