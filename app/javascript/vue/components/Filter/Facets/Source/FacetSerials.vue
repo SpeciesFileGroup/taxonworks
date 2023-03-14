@@ -64,7 +64,7 @@ watch(
 )
 
 function addSerial(serial) {
-  if (!params.value.serial_id?.includes(serial.id)) {
+  if (!serials.value.some(s => s.id === serial.id)) {
     serials.value.push(serial)
   }
 }
