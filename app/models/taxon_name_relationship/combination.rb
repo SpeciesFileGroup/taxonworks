@@ -76,7 +76,7 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
   end
 
   def subject_is_protonym
-    errors.add(:subject_taxon_name, 'Must be a protonym') # if subject_taxon_name.type == 'Combination'
+    errors.add(:subject_taxon_name, 'Must be a protonym') if subject_taxon_name.type == 'Combination'
   end
 
   def sv_validate_priority
