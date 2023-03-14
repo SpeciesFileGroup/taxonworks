@@ -11,6 +11,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - JSON nomenclature inventory endpoint `/api/v1/taxon_names/:id/inventory/catalog`
 
+### Fixed
+
+- Serial name filter doesn't work
+
 ### Changed
 
 - Updated Ruby gems

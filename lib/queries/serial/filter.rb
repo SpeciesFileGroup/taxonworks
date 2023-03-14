@@ -34,7 +34,7 @@ module Queries
       end
 
       def name_facet
-        return nil if nil.blank?
+        return nil if name.blank?
         table[:name].eq(name)
       end
 
