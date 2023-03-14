@@ -1,15 +1,13 @@
 <template>
   <FacetContainer>
-    <h3 class="flex-separate">
-       Loan status 
-    </h3>
+    <h3 class="flex-separate">Loan status</h3>
     <ul class="no_bullets">
       <li>
         <label>
           <input
             v-model="params.on_loan"
             type="checkbox"
-          >
+          />
           Currently on loan
         </label>
       </li>
@@ -18,7 +16,7 @@
           <input
             v-model="params.loaned"
             type="checkbox"
-          >
+          />
           Loaned at least once
         </label>
       </li>
@@ -27,14 +25,12 @@
           <input
             v-model="params.never_loaned"
             type="checkbox"
-          >
+          />
           Never loaned
         </label>
       </li>
     </ul>
-    <h3 class="flex-separate">
-      In loan
-    </h3>
+    <h3 class="flex-separate">In loan</h3>
     <autocomplete
       class="margin-medium-top"
       url="/loans/autocomplete"
@@ -55,7 +51,6 @@
 
 <script setup>
 import { computed, ref, watch, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Loan } from 'routes/endpoints'
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import Autocomplete from 'components/ui/Autocomplete.vue'
@@ -73,34 +68,39 @@ const emit = defineEmits(['update:modelValue'])
 const loanList = ref([])
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 watch(
   loanList,
-  newVal => {
-    this.loans.loan_id = newVal.map(item => item.id)
+  (newVal) => {
+    params.value.loan_id = newVal.map((item) => item.id)
+  },
+  { deep: true }
+)
+
+watch(
+  () => props.modelValue.loan_id,
+  (newVal, oldVal) => {
+    if (!newVal?.length && oldVal?.length) {
+      loanList.value = []
+    }
   }
 )
 
 onBeforeMount(() => {
-  const urlParams = URLParamsToJSON(location.href)
-  const loanIds = urlParams.loan_id || []
+  const loanIds = params.value.loan_id || []
 
-  params.value.on_loan = urlParams.on_loan
-  params.value.loaned = urlParams.loaned
-  params.value.never_loaned = urlParams.never_loaned
-
-  loanIds.forEach(id => addLoan(id))
+  loanIds.forEach((id) => addLoan(id))
 })
 
-const addLoan = id => {
+const addLoan = (id) => {
   Loan.find(id).then(({ body }) => {
     loanList.value.push(body)
   })
 }
 
-const removeLoan = index => {
+const removeLoan = (index) => {
   loanList.value.splice(index, 1)
 }
 </script>

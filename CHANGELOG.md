@@ -15,10 +15,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Serial name filter query doesn't work
 - Serial facet
+- Loan facet doesn't work on Filter collection objects [#3345]
 
 ### Changed
 
 - Updated Ruby gems
+
+[#3345]: https://github.com/SpeciesFileGroup/taxonworks/issues/3345
 
 ## [0.31.2] - 2023-03-09
 
