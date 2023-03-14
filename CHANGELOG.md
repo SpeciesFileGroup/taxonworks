@@ -13,7 +13,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
-- Serial name filter doesn't work
+- Serial name filter query doesn't work
+- Serial facet
 
 ### Changed
 
