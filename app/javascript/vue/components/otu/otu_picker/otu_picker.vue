@@ -10,7 +10,7 @@
       :input-attributes="inputAttributes"
       placeholder="Select an OTU"
       param="term"
-      @found="() => (found = $event)"
+      @found="($event) => (found = $event)"
       @get-item="emitOtu"
       @get-input="callbackInput"
     />
@@ -29,7 +29,7 @@
         <span
           class="close-panel small-icon"
           data-icon="close"
-          @click="create = false"
+          @click="() => (create = false)"
         />
         <div class="field label-above">
           <label>Name</label>

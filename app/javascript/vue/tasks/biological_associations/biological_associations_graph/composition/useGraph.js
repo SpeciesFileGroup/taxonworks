@@ -150,6 +150,14 @@ export function useGraph() {
 
     const subject = state.nodeObjects.find((o) => isEqualNodeObject(o, nSub))
     const object = state.nodeObjects.find((o) => isEqualNodeObject(o, nObj))
+    const alreadyExist = state.biologicalAssociations.find(
+      (ba) =>
+        ba.object.id === object.id &&
+        ba.subject.id === subject.id &&
+        ba.biologicalRelationship.id === relationship.id
+    )
+
+    if (alreadyExist) return
 
     const biologicalAssociation = {
       id: undefined,
@@ -324,20 +332,26 @@ export function useGraph() {
 
   async function save() {
     state.isSaving = true
-
-    const createdBiologicalAssociations = await saveBiologicalAssociations()
+    let createdBiologicalAssociations
     let biologicalAssociationGraph
+    let citations
 
-    if (isNetwork(state.biologicalAssociations) || state.graph.id) {
-      biologicalAssociationGraph = saveGraph()
+    try {
+      createdBiologicalAssociations = await saveBiologicalAssociations()
+
+      if (isNetwork(state.biologicalAssociations) || state.graph.id) {
+        biologicalAssociationGraph = saveGraph()
+      }
+
+      citations = await Promise.all([
+        saveCitationsFor(state.graph),
+        ...state.biologicalAssociations.map((ba) => saveCitationsFor(ba))
+      ])
+
+      state.isSaving = false
+    } catch (e) {
+      state.isSaving = false
     }
-
-    const citations = await Promise.all([
-      saveCitationsFor(state.graph),
-      ...state.biologicalAssociations.map((ba) => saveCitationsFor(ba))
-    ])
-
-    state.isSaving = false
 
     return {
       biologicalAssociations: createdBiologicalAssociations,
