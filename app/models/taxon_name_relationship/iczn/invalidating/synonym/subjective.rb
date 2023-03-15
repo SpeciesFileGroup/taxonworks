@@ -35,6 +35,16 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective < TaxonName
     end
   end
 
+  def sv_validate_seniority
+    if self.subject_taxon_name.cached_nomenclature_date == self.object_taxon_name.cached_nomenclature_date
+      r1 = self.subject_taxon_name.original_combination_relationships.reload.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
+      r2 = self.object_taxon_name.original_combination_relationships.reload.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
+      if !r1.empty? && !r2.empty? && ORIGINAL_COMBINATION_RANKS.index(r1.last.type) < ORIGINAL_COMBINATION_RANKS.index(r2.last.type)
+        soft_validations.add(:base, "#{self.subject_taxon_name.cached_original_combination_html} has priority; it was described simultaneously, but at higher rank than #{self.object_taxon_name.cached_original_combination_html}")
+      end
+    end
+  end
+
   def sv_not_specific_relationship
     true
   end
