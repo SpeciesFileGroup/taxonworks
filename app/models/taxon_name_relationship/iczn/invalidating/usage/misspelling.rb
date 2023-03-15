@@ -55,7 +55,6 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling < TaxonNameR
 
   def sv_fix_no_citation
     c  = self.subject_taxon_name.origin_citation
-    byebug
     return false if c.nil?
     self.citations.create(source_id: c.source_id, pages: c.pages, is_original: true)
   end
