@@ -16,11 +16,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Serial name filter query doesn't work
 - Serial facet
 - Loan facet doesn't work on Filter collection objects [#3345]
+- Valid name is not provided for all matches on Match nomenclature task [#3343]
 
 ### Changed
 
 - Updated Ruby gems
 
+[#3343]: https://github.com/SpeciesFileGroup/taxonworks/issues/3343
 [#3345]: https://github.com/SpeciesFileGroup/taxonworks/issues/3345
 
 ## [0.31.2] - 2023-03-09
@@ -3440,7 +3442,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-
 [unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.2...development
 [0.31.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.1...v0.31.2
 [0.31.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.0...v0.31.1
