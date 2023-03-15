@@ -60,7 +60,7 @@ class Catalog
 
   def self.chronological_item_sort(entry_items)
     now = Time.now
-    entry_items.sort{|a,b| [(a.cached_nomenclature_date.to_time || now) ] <=> [(b.cached_nomenclature_date.to_time || now) ] }
+    entry_items.sort{|a,b| [(a.nomenclature_date || now) ] <=> [(b.nomenclature_date || now) ] }
   end
 
   # @return [Array of TaxonName]
@@ -136,7 +136,7 @@ class Catalog
   def self.topic_year_metadata(entry_item_list)
     h = {}
     entry_item_list.each do |i|
-      y = i.cached_nomenclature_date&.year
+      y = i.nomenclature_date&.year
       y ||= 'unknown'
       i.topics.each do |t|
         id = t.metamorphosize.to_global_id.to_s
@@ -183,7 +183,7 @@ class Catalog
      #end
 
     item_list.each do |i|
-      d.push i.cached_nomenclature_date
+      d.push i.nomenclature_date
     end
 
     d.compact.uniq.sort
