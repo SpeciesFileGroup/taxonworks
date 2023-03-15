@@ -130,7 +130,7 @@ class TypeMaterial < ApplicationRecord
         soft_validations.add(:base, "Source for #{type_type} designation is not selected ") if source.nil?
       elsif !protonym.try(:source).nil? && source.cached_nomenclature_date && protonym.cached_nomenclature_date
         soft_validations.add(:base, "#{type_type.capitalize} could not be designated in the original publication") if source == protonym.source
-        soft_validations.add(:base, "#{type_type.capitalize} could not be designated before taxon description") if source.cached_nomenclature_date < protonym.cached_nomenclature_date
+        soft_validations.add(:base, "#{type_type.capitalize} could not be designated before taxon description") if source.cached_nomenclature_date&.to_date < protonym.cached_nomenclature_date
       end
     end
   end
