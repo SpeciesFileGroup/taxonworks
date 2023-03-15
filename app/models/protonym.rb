@@ -535,9 +535,9 @@ class Protonym < TaxonName
     list1 = list.select{|s| s.id == s.lowest_rank_coordinated_taxon.id}
     list1.reject!{|s| self.cached_valid_taxon_name_id == s.cached_valid_taxon_name_id} unless list1.empty?
     unless list1.empty?
-      date1 = self.nomenclature_date
+      date1 = self.cached_nomenclature_date
       unless date1.nil?
-        list1.reject!{|s| date1 < (s.year_of_publication ? s.nomenclature_date : Time.utc(1))}
+        list1.reject!{|s| date1 < (s.cached_nomenclature_date ? s.cached_nomenclature_date : Time.utc(1))}
       end
     end
     list1

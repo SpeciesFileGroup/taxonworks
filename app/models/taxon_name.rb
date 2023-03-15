@@ -930,7 +930,7 @@ class TaxonName < ApplicationRecord
       end
     end
     return [] if list.empty?
-    list.sort_by{|t, a| (t.nomenclature_date || Time.now)}.collect{|t, a| t}
+    list.sort_by{|t, a| (t.cached_nomenclature_date.to_time || Time.now)}.collect{|t, a| t}
   end
 
   def gbif_status_array
@@ -1709,7 +1709,7 @@ class TaxonName < ApplicationRecord
   def sv_two_unresolved_alternative_synonyms
     r = taxon_name_relationships.includes(:source).order_by_oldest_source_first.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
     if r.to_a.size > 1
-      if r.first.nomenclature_date.to_date == r.second.nomenclature_date.to_date
+      if r.first.cached_nomenclature_date == r.second.cached_nomenclature_date
         soft_validations.add(:base, 'Taxon has two alternative invalidating relationships with identical dates. To resolve ambiguity, add original sources to the relationships with different priority dates.')
       end
     end
