@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Updated Ruby gems
+- nomenclature related validation changed from nomenclature_date to cached_nomenclature_date, which should speadup the process
 
 [#3343]: https://github.com/SpeciesFileGroup/taxonworks/issues/3343
 [#3345]: https://github.com/SpeciesFileGroup/taxonworks/issues/3345
