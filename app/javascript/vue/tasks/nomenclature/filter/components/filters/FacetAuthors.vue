@@ -31,7 +31,7 @@
       <label class="capitalize">Author</label>
       <input
         class="full_width"
-        v-model="params.author_exact"
+        v-model="params.author"
         type="text"
       />
       <label>
