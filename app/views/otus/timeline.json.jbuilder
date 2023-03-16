@@ -18,7 +18,7 @@ json.topics @catalog.topics_to_json
 json.items do
   json.array! @catalog.items_chronologically do |i|
     json.label_html send(i.html_helper, i)
-    json.nomenclature_date i.cached_nomenclature_date
+    json.nomenclature_date i.nomenclature_date
     json.data_attributes i.data_attributes
     json.topics do
       json.array! i.topics.collect{|t| t.metamorphosize.to_global_id.to_s}
