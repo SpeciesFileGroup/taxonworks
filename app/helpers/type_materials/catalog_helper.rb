@@ -20,7 +20,7 @@ module TypeMaterials::CatalogHelper
 
     # Holotype male, adult, INHS 12312, deposited: <repoo name>. <verbatim_label>.
 
-    v.push t.type_type.capitalize + (co.total > 1 ? " (n= #{co.total})" : '')
+    v.push t.type_type.capitalize + (co.to_i.total > 1 ? " (n= #{co.total})" : '')
     v.push co.biocuration_classes.collect{|a| a.name.downcase}.join(', ').presence
 
     # TODO: add verbose warning when missing any identifier

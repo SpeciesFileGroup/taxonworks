@@ -43,7 +43,7 @@ module TaxonNames::JsonCatalogHelper
 
     if depth < target_depth
       taxon_name.children.that_is_valid.order(:cached).each do |t|
-        recursive_catalog_json(taxon_name: t, depth: depth + 1, target_depth:, data: )
+        recursive_catalog_json(taxon_name: t, depth: depth + 1, target_depth: nil, data: nil)
       end
     end
 
