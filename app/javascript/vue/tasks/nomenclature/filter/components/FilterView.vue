@@ -1,4 +1,9 @@
 <template>
+  <FacetParamExact
+    v-model="params"
+    param="name"
+    title="Name"
+  />
   <FacetTaxonName
     :autocomplete-params="{
       type: 'Protonym',
@@ -9,11 +14,6 @@
   />
   <FacetAuthors v-model="params" />
   <FacetDateYear v-model="params" />
-  <FacetParamExact
-    v-model="params"
-    param="name"
-    title="Name"
-  />
   <FacetNomenclatureGroup v-model="params" />
   <FacetNomenclatureCode v-model="params" />
   <FacetValidity v-model="params" />

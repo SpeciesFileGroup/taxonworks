@@ -9,9 +9,33 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.31.3] - 2023-03-17
+
+### Added
+
+- JSON nomenclature inventory endpoint `/api/v1/taxon_names/:id/inventory/catalog`
+
+### Fixed
+
+- Serial name filter query doesn't work
+- Serial facet
+- Authors facet doesn't work on Filter nomenclature
+- Fixed bug preventing combination update
+- Loan facet doesn't work on Filter collection objects [#3345]
+- Valid name is not provided for all matches on Match nomenclature task [#3343]
+- Object links don't work on Interactive key
+
+### Changed
+
+- Updated Ruby gems
+- nomenclature related validation changed from nomenclature_date to cached_nomenclature_date, which should speadup the process
+
+[#3343]: https://github.com/SpeciesFileGroup/taxonworks/issues/3343
+[#3345]: https://github.com/SpeciesFileGroup/taxonworks/issues/3345
+
 ## [0.31.2] - 2023-03-09
 
-# Added
+### Added
 
 - Link from AssertedDistribution filter to BiologicalAssociations filter
 - All tab to biological relationships facet [#3334]
@@ -3427,7 +3451,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.3...development
+[0.31.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.2...v0.31.3
 [0.31.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.1...v0.31.2
 [0.31.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.0...v0.31.1
 [0.31.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.3...v0.31.0

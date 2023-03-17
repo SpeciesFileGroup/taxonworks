@@ -930,7 +930,7 @@ class TaxonName < ApplicationRecord
       end
     end
     return [] if list.empty?
-    list.sort_by{|t, a| (t.nomenclature_date || Time.now)}.collect{|t, a| t}
+    list.sort_by{|t, a| (t.cached_nomenclature_date&.to_time || Time.now)}.collect{|t, a| t}
   end
 
   def gbif_status_array

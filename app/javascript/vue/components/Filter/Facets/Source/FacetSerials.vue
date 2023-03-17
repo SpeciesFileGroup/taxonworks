@@ -3,14 +3,14 @@
     <h3>Serials</h3>
     <fieldset>
       <legend>Serials</legend>
-      <smart-selector
+      <SmartSelector
         model="serials"
         klass="Source"
         target="Source"
         @selected="addSerial"
       />
     </fieldset>
-    <display-list
+    <DisplayList
       :list="serials"
       label="object_tag"
       :delete-warning="false"
@@ -19,88 +19,65 @@
   </FacetContainer>
 </template>
 
-<script>
+<script setup>
 import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Serial } from 'routes/endpoints'
+import { computed, ref, watch, onMounted } from 'vue'
 
-export default {
-  components: {
-    SmartSelector,
-    DisplayList,
-    FacetContainer
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: () => ({})
+  }
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const params = computed({
+  get() {
+    return props.modelValue
   },
+  set(value) {
+    emit('update:modelValue', value)
+  }
+})
 
-  props: {
-    modelValue: {
-      type: Object,
-      default: () => ({})
-    }
-  },
+const serials = ref([])
 
-  emits: ['update:modelValue'],
-
-  computed: {
-    params: {
-      get() {
-        return this.modelValue
-      },
-      set(value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
-  },
-
-  data() {
-    return {
-      serials: [],
-      allSerials: undefined
-    }
-  },
-
-  watch: {
-    value(newVal, oldVal) {
-      if (!newVal.length && oldVal.length) {
-        this.serials = []
-      }
-    },
-
-    serials: {
-      handler(newVal) {
-        this.params = this.serials.map((serial) => serial.id)
-      },
-      deep: true
-    }
-  },
-
-  mounted() {
-    const urlParams = URLParamsToJSON(location.href)
-    if (urlParams.serial_id) {
-      urlParams.serial_id.forEach((id) => {
-        Serial.find(id).then((response) => {
-          this.addSerial(response.body)
-        })
-      })
-    }
-  },
-
-  methods: {
-    addSerial(serial) {
-      if (!this.params.includes(serial.id)) {
-        this.serials.push(serial)
-      }
-    },
-
-    removeSerial(index) {
-      this.serials.splice(index, 1)
+watch(
+  () => props.modelValue.serial_id,
+  (newVal, oldVal) => {
+    if (!newVal?.length && oldVal?.length) {
+      serials.value = []
     }
   }
+)
+
+watch(
+  serials,
+  (newVal) => {
+    params.value.serial_id = newVal.map((item) => item.id)
+  },
+  { deep: true }
+)
+
+function addSerial(serial) {
+  if (!serials.value.some(s => s.id === serial.id)) {
+    serials.value.push(serial)
+  }
 }
+
+function removeSerial(index) {
+  serials.value.splice(index, 1)
+}
+
+onMounted(() => {
+  params.value.serial_id?.forEach((id) => {
+    Serial.find(id).then((response) => {
+      addSerial(response.body)
+    })
+  })
+})
 </script>
-<style scoped>
-:deep(.vue-autocomplete-input) {
-  width: 100%;
-}
-</style>

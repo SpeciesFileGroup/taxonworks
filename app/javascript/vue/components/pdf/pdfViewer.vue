@@ -293,7 +293,7 @@ const savePdfInStorage = (url, pdfBuffer, isOpen) => {
   IndexedDBStorage.put('Pdf', {
     userAndProjectId: getUserAndProjectIds(),
     url,
-    pdfBuffer,
+    pdfBuffer: structuredClone(pdfBuffer),
     isOpen
   })
 }

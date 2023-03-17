@@ -76,12 +76,12 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
   end
 
   def subject_is_protonym
-    errors.add(:subject_taxon_name, 'Must be a protonym') # if subject_taxon_name.type == 'Combination'
+    errors.add(:subject_taxon_name, 'Must be a protonym') if subject_taxon_name.type == 'Combination'
   end
 
   def sv_validate_priority
-    date1 = self.subject_taxon_name.nomenclature_date
-    date2 = self.object_taxon_name.nomenclature_date
+    date1 = self.subject_taxon_name.cached_nomenclature_date
+    date2 = self.object_taxon_name.cached_nomenclature_date
     if !!date1 && !!date2 && date1 > date2 && subject_invalid_statuses.empty?
       soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than citation (#{self.object_taxon_name.source&.author_year}) of #{self.object_taxon_name.cached_html_name_and_author_year}")
     end

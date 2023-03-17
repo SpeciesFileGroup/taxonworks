@@ -360,7 +360,7 @@ class Combination < TaxonName
   # @return [Array of Integers]
   #   the collective years the protonyms were (nomenclaturaly) published on (ordered from genus to below)
   def publication_years
-    description_years = protonyms.collect{|a| a.nomenclature_date ? a.nomenclature_date.year : nil}.compact
+    description_years = protonyms.collect{|a| a.cached_nomenclature_date ? a.cached_nomenclature_date&.year : nil}.compact
   end
 
   # @return [Integer, nil]

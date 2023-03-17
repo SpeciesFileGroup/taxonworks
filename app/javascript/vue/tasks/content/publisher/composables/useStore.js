@@ -1,4 +1,3 @@
-
 import { Content } from 'routes/endpoints'
 import { reactive, toRefs } from 'vue'
 
@@ -8,13 +7,14 @@ const state = reactive({
   isLoading: false
 })
 
-function getTopicById (topicId) {
-  return Object.entries(state.topics).find(([_, topic]) => topic.topic_id === topicId)[1]
+function getTopicById(topicId) {
+  return Object.entries(state.topics).find(
+    ([_, topic]) => topic.topic_id === topicId
+  )[1]
 }
 
 export const useStore = () => {
   const actions = {
-
     requestTopics: async () => {
       state.isLoading = true
 
@@ -29,7 +29,10 @@ export const useStore = () => {
     requestTopicTable: async (topicId) => {
       state.isLoading = true
 
-      const { body } = await Content.topicTable({ topic_id: topicId, extend: ['public_content'] })
+      const { body } = await Content.topicTable({
+        topic_id: topicId,
+        extend: ['public_content']
+      })
 
       state.isLoading = false
       state.contents[topicId] = body
@@ -37,15 +40,17 @@ export const useStore = () => {
     },
 
     updateContent: async ({ contentId, isPublic, topicId }) => {
+      state.isLoading = true
+
       const contentList = state.contents[topicId]
-      const index = contentList.findIndex(content => content.id === contentId)
+      const index = contentList.findIndex((content) => content.id === contentId)
       const topic = getTopicById(topicId)
-      const { body } = await Content.update(
-        contentId, {
-          content: { is_public: isPublic },
-          extend: ['public_content']
-        }
-      )
+      const { body } = await Content.update(contentId, {
+        content: { is_public: isPublic },
+        extend: ['public_content']
+      })
+
+      state.isLoading = false
 
       if (isPublic) {
         topic.unpublished--
@@ -62,18 +67,24 @@ export const useStore = () => {
     },
 
     publishAll: async (topicId) => {
+      state.isLoading = true
+
       const { body } = await Content.publishAll(topicId)
       const topic = getTopicById(topicId)
 
+      state.isLoading = false
       state.contents[topicId] = body
       topic.unpublished = 0
       topic.published = body.length
     },
 
     unpublishAll: async (topicId) => {
+      state.isLoading = true
+
       const { body } = await Content.unpublishAll(topicId)
       const topic = getTopicById(topicId)
 
+      state.isLoading = false
       state.contents[topicId] = body
       topic.unpublished = body.length
       topic.published = 0

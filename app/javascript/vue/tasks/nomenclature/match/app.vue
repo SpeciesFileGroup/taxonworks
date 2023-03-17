@@ -117,7 +117,7 @@ const matchesList = computed(() => {
 function GetMatches() {
   const lineRequests = {}
   const requests = lines.value.map((line) => {
-    const request = TaxonName.where({ name: line, exact: exact.value })
+    const request = TaxonName.where({ name: line, name_exact: exact.value })
 
     request.then((response) => {
       lineRequests[line] = response.body
@@ -131,12 +131,16 @@ function GetMatches() {
     .then(async (responses) => {
       const taxonNames = [].concat(...responses.map((r) => r.body))
       const uniqueList = getUnique(taxonNames, 'id')
-      const validTaxonNameIDs = uniqueList
-        .filter((taxon) => !taxon.cached_is_valid)
-        .map((taxon) => taxon.cached_valid_taxon_name_id)
+      const validTaxonNameIDs = uniqueList.map(
+        (taxon) => taxon.cached_valid_taxon_name_id
+      )
 
       const validNames = validTaxonNameIDs.length
-        ? (await TaxonName.where({ taxon_name_id: validTaxonNameIDs })).body
+        ? (
+            await TaxonName.filter({
+              taxon_name_id: [...new Set(validTaxonNameIDs)]
+            })
+          ).body
         : []
 
       validNames.forEach((taxon) => {

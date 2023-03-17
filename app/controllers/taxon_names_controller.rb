@@ -1,7 +1,7 @@
 class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show, :api_summary]
+  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show, :api_summary, :api_catalog]
   after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index], if: :json_request?
 
   # GET /taxon_names
@@ -242,6 +242,12 @@ class TaxonNamesController < ApplicationController
   # GET /api/v1/taxon_names/:id/inventory/summary
   def api_summary
     render '/taxon_names/api/v1/summary'
+  end
+
+  # GET /api/v1/taxon_names/:id/inventory/catalog
+  def api_catalog
+    @data = helpers.recursive_catalog_json(taxon_name: @taxon_name, target_depth: params[:target_depth] || 0 )
+    render '/taxon_names/api/v1/catalog'
   end
 
   def api_parse
