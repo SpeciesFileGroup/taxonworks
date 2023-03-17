@@ -53,4 +53,12 @@ class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRel
   def self.inverse_assignment_method
     :iczn_set_as_uncertain_placement_of
   end
+
+  def sv_coordinated_taxa
+    true
+  end
+
+  def sv_coordinated_taxa_object
+    true
+  end
 end
