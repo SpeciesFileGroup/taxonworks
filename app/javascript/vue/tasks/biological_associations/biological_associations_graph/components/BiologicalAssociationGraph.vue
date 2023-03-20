@@ -98,6 +98,18 @@
       />
     </ContextMenu>
 
+    <ModalGraph
+      v-if="showModalGraph"
+      :graph="currentGraph"
+      @update:name="
+        ($event) => {
+          setGraphName($event)
+          showModalGraph = false
+        }
+      "
+      @close="() => (showModalGraph = false)"
+    />
+
     <ModalObject
       v-if="showModalNode"
       :type="nodeType"
@@ -142,6 +154,7 @@ import { configs } from '../constants/networkConfig'
 import { useGraph } from '../composition/useGraph.js'
 import { makeNodeId } from '../utils/makeNodeId.js'
 import ConfirmationModal from 'components/ConfirmationModal.vue'
+import ModalGraph from './ModalGraph.vue'
 import ModalCitation from './ModalCitation.vue'
 import ModalObject from './ModalObject.vue'
 import ModalEdge from './ModalEdge.vue'
@@ -178,6 +191,7 @@ const {
   saveBiologicalAssociations,
   selectedEdges,
   selectedNodes,
+  setGraphName,
   setNodePosition
 } = useGraph()
 
@@ -190,6 +204,7 @@ const viewContextMenu = ref()
 
 const showModalNode = ref(false)
 const showModalEdge = ref(false)
+const showModalGraph = ref(false)
 const showModalCitation = ref(false)
 
 const currentCitationObjects = ref([])
@@ -288,6 +303,10 @@ function openEdgeModal() {
   showModalEdge.value = true
 }
 
+function openGraphModal() {
+  showModalGraph.value = true
+}
+
 function openCitationModalFor(items) {
   currentCitationObjects.value = items.map((item) => getObjectByUuid(item))
   showModalCitation.value = true
@@ -310,6 +329,7 @@ defineExpose({
   loadBiologicalAssociations,
   openEdgeModal,
   openNodeModal,
+  openGraphModal,
   resetStore,
   save,
   saveBiologicalAssociations,

@@ -5,7 +5,7 @@
       <template #header="{ isGraphUnsaved, edges, currentGraph }">
         <VNavbar>
           <div class="flex-separate">
-            <div class="horizontal-left-content middle gap-small">
+            <div class="horizontal-left-content middle">
               <VAutocomplete
                 url="/biological_associations_graphs/autocomplete"
                 param="term"
@@ -21,8 +21,20 @@
                 "
               />
               <template v-if="currentGraph.id">
-                <RadialAnnotator :global-id="currentGraph.globalId" />
-                <span>{{ currentGraph.label }}</span>
+                <div class="horizontal-left-content margin-small-left">
+                  <VBtn
+                    color="primary"
+                    circle
+                    @click="() => graph.openGraphModal()"
+                  >
+                    <VIcon
+                      name="pencil"
+                      x-small
+                    />
+                  </VBtn>
+                  <RadialAnnotator :global-id="currentGraph.globalId" />
+                </div>
+                <span>{{ currentGraph.name || currentGraph.label }}</span>
               </template>
             </div>
             <div class="horizontal-left-content gap-small">

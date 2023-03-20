@@ -107,6 +107,12 @@ export function useGraph() {
     Object.assign(state, initState())
   }
 
+  function setGraphName(name) {
+    console.log(name)
+    state.graph.name = name
+    state.graph.isUnsaved = true
+  }
+
   function getCitationsFor(uuid) {
     return state.citations.filter((c) => c.objectUuid === uuid)
   }
@@ -134,10 +140,11 @@ export function useGraph() {
     })
   }
 
-  const isGraphUnsaved = computed(() =>
-    state.biologicalAssociations.some(
-      (ba) => ba.isUnsaved || ba.citations.some((c) => !c.id)
-    )
+  const isGraphUnsaved = computed(
+    () =>
+      state.biologicalAssociations.some(
+        (ba) => ba.isUnsaved || ba.citations.some((c) => !c.id)
+      ) || state.graph.isUnsaved
   )
 
   async function addBiologicalRelationship({
@@ -387,6 +394,7 @@ export function useGraph() {
 
     const payload = {
       biological_associations_graph: {
+        name: state.graph.name,
         layout: JSON.stringify(state.layouts),
         biological_associations_biological_associations_graphs_attributes:
           biologicalAssociationsSaved
@@ -430,6 +438,7 @@ export function useGraph() {
     reverseRelation,
     save,
     saveBiologicalAssociations,
+    setGraphName,
     setNodePosition,
     ...toRefs(state)
   }

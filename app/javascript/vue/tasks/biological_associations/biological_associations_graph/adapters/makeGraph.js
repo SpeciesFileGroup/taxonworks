@@ -9,6 +9,7 @@ export function makeGraph(data) {
     globalId: data.global_id,
     objectType: BIOLOGICAL_ASSOCIATIONS_GRAPH,
     label: data.object_tag,
+    isUnsaved: false,
     name: data.name,
     biologicalAssociationIds:
       data.biological_associations_biological_associations_graphs || [],
