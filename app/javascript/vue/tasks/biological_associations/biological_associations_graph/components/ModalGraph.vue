@@ -10,14 +10,14 @@
         type="text"
         ref="inputName"
         v-model="graphName"
+        @keyup.enter="handleUpdateName"
       />
     </template>
     <template #footer>
       <VBtn
         medium
         color="primary"
-        @click="() => emit('update:name', graphName)"
-        @keyup.enter="() => emit('update:name', graphName)"
+        @click="handleUpdateName"
       >
         Set
       </VBtn>
@@ -41,6 +41,10 @@ const emit = defineEmits(['update:name'])
 
 const graphName = ref(props.graph.name)
 const inputName = ref()
+
+function handleUpdateName() {
+  emit('update:name', graphName.value)
+}
 
 onMounted(() => {
   inputName.value.focus()
