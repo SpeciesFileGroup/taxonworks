@@ -150,6 +150,7 @@ import ContextMenu from './ContextMenu/ContextMenu.vue'
 import ContextMenuEdge from './ContextMenu/ContextMenuEdge.vue'
 import ContextMenuView from './ContextMenu/ContextMenuView.vue'
 import ContextMenuNode from './ContextMenu/ContextMenuNode.vue'
+import { makeNodeObject } from '../adapters'
 
 const {
   addBiologicalRelationship,
@@ -298,8 +299,12 @@ function setGraph(graphId) {
   })
 }
 
+function addNodeObject(obj) {
+  addObject(makeNodeObject(obj))
+}
+
 defineExpose({
-  addObject,
+  addNodeObject,
   currentNodes,
   isGraphUnsaved,
   loadBiologicalAssociations,

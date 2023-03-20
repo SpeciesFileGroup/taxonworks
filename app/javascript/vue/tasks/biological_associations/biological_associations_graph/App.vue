@@ -124,13 +124,13 @@ onMounted(() => {
 
   if (coId) {
     CollectionObject.find(coId).then(({ body }) => {
-      graph.value.addObject(body)
+      graph.value.addNodeObject(body)
     })
   }
 
   if (otuId) {
     Otu.find(otuId).then(({ body }) => {
-      graph.value.addObject(body)
+      graph.value.addNodeObject(body)
     })
   }
 
