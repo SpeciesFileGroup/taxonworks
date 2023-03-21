@@ -7,7 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- New panels for Adminstrators User activity dashboard
 
 ## [0.31.3] - 2023-03-17
 
