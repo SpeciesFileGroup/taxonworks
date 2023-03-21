@@ -9,6 +9,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - New panels for Adminstrators User activity dashboard
+- Deaccessioned layout for filter collection objects
+
+### Fixed
+- Deaccessioned facet in Filter collection objects [#3352]
+
+[#3352]: https://github.com/SpeciesFileGroup/taxonworks/issues/3352
 
 ## [0.31.3] - 2023-03-17
 
