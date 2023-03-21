@@ -210,6 +210,42 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id)
   end
 
+  specify '#taxon_name_id[] 2.1' do
+    combination = Combination.new
+    combination.genus = genus
+    combination.species = species
+    combination.save!
+    query.taxon_name_id = [genus.id]
+    query.descendants = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, combination.id)
+  end
+
+  specify '#taxon_name_id[] 2.2' do
+    species1 = Protonym.create!(
+        name: 'atra',
+        rank_class: Ranks.lookup(:iczn, 'species'),
+        parent: genus,
+        original_genus: original_genus,
+        verbatim_author: 'Fitch & Say',
+        year_of_publication: 1800)
+    tr = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name_id: species1.id, object_taxon_name_id: species.id)
+
+    query.taxon_name_id = [genus.id]
+    query.descendants = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, species1.id)
+  end
+
+  specify '#taxon_name_id[] 2.3' do
+    genus1 = Protonym.create!(
+      name: 'Genus',
+      rank_class: Ranks.lookup(:iczn, 'genus'),
+      parent_id: genus.parent_id)
+    tr = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name_id: genus1.id, object_taxon_name_id: genus.id)
+    query.taxon_name_id = [genus.id]
+    query.descendants = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, genus1.id)
+  end
+
   specify '#taxon_name_id[] 3' do
     query.taxon_name_id = [species.id]
     query.ancestors = true
