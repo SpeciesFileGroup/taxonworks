@@ -61,7 +61,7 @@ module Queries
 
       def biological_associations_graph_id_facet
         return nil if biological_associations_graph_id.empty?
-        table[:id].eq_any(biological_association_graph_id)
+        table[:id].eq_any(biological_associations_graph_id)
       end
 
       def biological_relationship_id_facet

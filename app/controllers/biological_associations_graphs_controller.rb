@@ -91,12 +91,12 @@ class BiologicalAssociationsGraphsController < ApplicationController
     if params[:id].blank?
       redirect_to biological_associations_graphs_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
-      redirect_to biological_association_graph_path(params[:id])
+      redirect_to biological_associations_graph_path(params[:id])
     end
   end
-  
+
   private
-  
+
   def set_biological_associations_graph
     @biological_associations_graph = BiologicalAssociationsGraph.where(project_id: sessions_current_project_id).find(params[:id])
   end
