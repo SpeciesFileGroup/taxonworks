@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Deaccessioned facet in Filter collection objects [#3352]
 - Reversed OTU taxon name facet [#3360]
+- Relationships are not listed in biological associations form in Quick forms
 
 [#3352]: https://github.com/SpeciesFileGroup/taxonworks/issues/3352
 [#3360]: https://github.com/SpeciesFileGroup/taxonworks/issues/3360
