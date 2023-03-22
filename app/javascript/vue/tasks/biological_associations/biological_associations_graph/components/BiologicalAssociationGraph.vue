@@ -53,6 +53,7 @@
         :title="currentGraph.label"
         :count="biologicalAssociations.length"
         :citations="currentGraph.citations.length"
+        :is-graph="isNetwork(biologicalAssociations)"
         @add:node="openNodeModal"
         @cite:graph="() => openCitationModalFor([currentGraph.uuid])"
       />
@@ -159,7 +160,7 @@
 import { computed, ref } from 'vue'
 import { configs } from '../constants/networkConfig'
 import { useGraph } from '../composition/useGraph.js'
-import { makeNodeId } from '../utils/makeNodeId.js'
+import { makeNodeId, isNetwork } from '../utils'
 import ConfirmationModal from 'components/ConfirmationModal.vue'
 import ModalGraph from './ModalGraph.vue'
 import ModalCitation from './ModalCitation.vue'

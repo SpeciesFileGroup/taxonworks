@@ -108,13 +108,11 @@ export function useGraph() {
   }
 
   function setGraphName(name) {
-    console.log(name)
     state.graph.name = name
     state.graph.isUnsaved = true
   }
 
   function addCitationFor(obj, citationData) {
-    console.log(obj)
     const citation = makeCitation({
       ...citationData,
       objectUuid: obj.uuid,
@@ -245,7 +243,8 @@ export function useGraph() {
 
   function getSourceIds() {
     const citations = [].concat(
-      ...state.biologicalAssociations.map((ba) => ba.citations)
+      ...state.biologicalAssociations.map((ba) => ba.citations),
+      state.graph.citations
     )
     const sourceIds = citations.map((c) => c.sourceId)
 
@@ -351,14 +350,16 @@ export function useGraph() {
     try {
       createdBiologicalAssociations = await saveBiologicalAssociations()
 
+      const savedCitations = [
+        state.biologicalAssociations.map((ba) => saveCitationsFor(ba))
+      ]
+
       if (isNetwork(state.biologicalAssociations) || state.graph.id) {
-        biologicalAssociationGraph = saveGraph()
+        biologicalAssociationGraph = await saveGraph()
+        savedCitations.push(saveCitationsFor(state.graph))
       }
 
-      citations = await Promise.all([
-        saveCitationsFor(state.graph),
-        ...state.biologicalAssociations.map((ba) => saveCitationsFor(ba))
-      ])
+      citations = await Promise.all(savedCitations)
 
       state.isSaving = false
     } catch (e) {
@@ -416,7 +417,11 @@ export function useGraph() {
       : BiologicalAssociationGraph.create(payload)
 
     request.then(({ body }) => {
-      state.graph = makeGraph(body)
+      Object.assign(state.graph, {
+        id: body.id,
+        globalId: body.global_id,
+        label: body.object_tag
+      })
     })
 
     return request

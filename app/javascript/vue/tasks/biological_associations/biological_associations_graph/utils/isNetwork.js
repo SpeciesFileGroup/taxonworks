@@ -1,7 +1,10 @@
-export function isNetwork(biologicalAssociations) {
-  const subjects = biologicalAssociations.map((edge) => edge.subject)
-  const objects = biologicalAssociations.map((edge) => edge.object)
+import { makeNodeId } from './makeNodeId'
 
+export function isNetwork(biologicalAssociations) {
+  const subjects = biologicalAssociations.map((edge) =>
+    makeNodeId(edge.subject)
+  )
+  const objects = biologicalAssociations.map((edge) => makeNodeId(edge.object))
   const uniqueObjects = [...new Set(objects)]
   const uniqueSubjects = [...new Set(subjects)]
 

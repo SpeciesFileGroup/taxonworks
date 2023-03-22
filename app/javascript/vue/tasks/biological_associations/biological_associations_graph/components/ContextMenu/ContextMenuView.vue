@@ -1,5 +1,8 @@
 <template>
-  <div class="graph-context-menu-list-header">
+  <div
+    v-if="isGraph"
+    class="graph-context-menu-list-header"
+  >
     {{ title }} ({{ count }} BAs)
   </div>
   <div
@@ -23,6 +26,7 @@
     Add Collection object
   </div>
   <div
+    v-if="isGraph"
     class="graph-context-menu-list-item"
     @click="() => emit('cite:graph')"
   >
@@ -49,6 +53,11 @@ defineProps({
   citations: {
     type: Number,
     default: 0
+  },
+
+  isGraph: {
+    type: Boolean,
+    default: false
   }
 })
 </script>
