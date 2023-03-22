@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- New biological association task [#1638], in part [#2143]
 - New options to extend results in Nomenclature filter [#3361]
 - New panels for Adminstrators User activity dashboard
 - Deaccessioned layout for filter collection objects
@@ -28,10 +29,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - PublicContent causing OTU destruction to raise
 - Several paper-catalog rendering issues
 
-[#3361]: https://github.com/SpeciesFileGroup/taxonworks/issues/3361
+[#1638]: https://github.com/SpeciesFileGroup/taxonworks/issues/1638
+[#2143]: https://github.com/SpeciesFileGroup/taxonworks/issues/2143
 [#3352]: https://github.com/SpeciesFileGroup/taxonworks/issues/3352
 [#3359]: https://github.com/SpeciesFileGroup/taxonworks/issues/3359
 [#3360]: https://github.com/SpeciesFileGroup/taxonworks/issues/3360
+[#3361]: https://github.com/SpeciesFileGroup/taxonworks/issues/3361
 
 ## [0.31.3] - 2023-03-17
 
