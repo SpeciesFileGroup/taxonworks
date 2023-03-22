@@ -70,6 +70,10 @@ const getPreview = computed(() => {
   const type = namespace.value.delimiter
   const shortName = namespace.value.short_name || '<short_name>'
 
+  if (namespace.value.is_virtual) {
+    return ''
+  }
+
   switch (type) {
     case Types['Single whitespace']:
       return `${shortName} 123`

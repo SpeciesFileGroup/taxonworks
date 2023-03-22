@@ -4,4 +4,3 @@ json.object_tag taxon_name_classification_tag(taxon_name_classification)
 json.url taxon_name_classification_url(taxon_name_classification, format: :json)
 json.global_id taxon_name_classification.to_global_id.to_s
 
-

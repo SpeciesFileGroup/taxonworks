@@ -5,14 +5,14 @@ module Shared::Identifiers
   extend ActiveSupport::Concern
   included do
     Identifier.related_foreign_keys.push self.name.foreign_key
-    
+
     # Validation happens on the parent side!
     has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy # TODO: add for validation, inverse_of: :identifier_object
     accepts_nested_attributes_for :identifiers, reject_if: :reject_identifiers, allow_destroy: true
-    
+
     scope :with_identifier_type, ->(identifier_type) { joins(:identifiers).where('identifiers.type = ?', identifier_type).references(:identifiers) }
     scope :with_identifier_namespace, ->(namespace_id) { joins(:identifiers).where('identifiers.namespace_id = ?', namespace_id).references(:identifiers) }
-    
+
     # !! This only is able to match numeric identifiers, other results are excluded !!
     def self.with_identifiers_sorted(sort_order = 'ASC')
       raise "illegal sort_order" if !['ASC', 'DESC'].include?(sort_order)
@@ -21,12 +21,11 @@ module Shared::Identifiers
         .order(cached_numeric_identifier: sort_order)
         .references(:identifiers)
     end
-    
-    
+
     scope :with_identifier_type_and_namespace, ->(identifier_type = nil, namespace_id = nil, sorted = nil) {
       with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted)
     }
-    
+
     # Used to memoize identifier for navigating purposes
     attr_accessor :navigating_identifier
   end
@@ -96,7 +95,7 @@ module Shared::Identifiers
   def next_by_identifier
     # TODO: Memoize i so it can be shared with previous etc.
     # LIke attr_accessor @navigating_identifier
-    if @navigating_identifier ||= identifiers.where("type ILIKE 'Identifier::Local%'").order(:position).first
+    if @navigating_identifier ||= identifiers.where("identifiers.type ILIKE 'Identifier::Local%'").order(:position).first
       self.class
         .where(project_id: project_id)
         .where.not(id: id)

@@ -38,7 +38,6 @@ if extensions
             json.partial! '/sources/roles_attributes', source: object.origin_citation.source
           end
         end
-
       end
     end
   end

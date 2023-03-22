@@ -49,9 +49,8 @@ class Identifier::Local < Identifier
           Identifier::Local.arel_table[:identifier]
         ]
       )
-    ) if [:short_name, :verbatim_short_name, :delimiter].detect { |a| namespace.saved_change_to_attribute?(a) }
+    ) if [:short_name, :verbatim_short_name, :delimiter, :is_virtual].detect { |a| namespace.saved_change_to_attribute?(a) }
   end
-
 
   def is_local?
     true
@@ -68,10 +67,14 @@ class Identifier::Local < Identifier
   end
 
   def self.build_cached_prefix(namespace)
-    delimiter = namespace.read_attribute(:delimiter) || ' '
-    delimiter = '' if delimiter == 'NONE'
+    if namespace.is_virtual?
+      ''
+    else
+      delimiter = namespace.read_attribute(:delimiter) || ' '
+      delimiter = '' if delimiter == 'NONE'
 
-    [namespace&.verbatim_short_name, namespace&.short_name, ''].compact.first + delimiter
+      [namespace&.verbatim_short_name, namespace&.short_name, ''].compact.first + delimiter
+    end
   end
 
 end

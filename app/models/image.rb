@@ -1,4 +1,7 @@
-# An Image is just that, as it is stored in the filesystem.  No additional metadata beyond file descriptors is included here.
+# An Image is just that, as it is stored in the filesystem. No additional metadata beyond file descriptors is included here.
+# More broadly we consider an Image to be the digital encoding of a radiation-derived observation. This lets Images
+# conceptually include things like 3D volumetric models, ASCII drawings, or other data that were generated from (originated based on)
+# light (radiation) interacting with life.
 #
 # This class relies on the paperclip gem and the ImageMagik app to link, store and manipulate images.
 #
@@ -319,7 +322,7 @@ class Image < ApplicationRecord
     # i is a select manager
     j = d.project(d['image_id'], d['updated_at'], d['depiction_object_type']).from(d)
       .where(d['updated_at'].gt( 1.weeks.ago ))
-      .where(d['created_by_id'].eq(user_id))
+      .where(d['updated_by_id'].eq(user_id))
       .where(d['project_id'].eq(project_id))
       .order(d['updated_at'].desc)
 

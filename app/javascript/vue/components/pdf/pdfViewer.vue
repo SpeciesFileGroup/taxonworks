@@ -54,7 +54,7 @@
           :min="1"
           :max="state.numPages"
           @keydown.enter="setPage(Number($event.target.value))"
-        >
+        />
         <span
           id="numPages"
           class="toolbarLabel"
@@ -77,9 +77,7 @@
               :page="i"
               :scale="state.scale"
             >
-              <template #loading>
-                Loading content here...
-              </template>
+              <template #loading> Loading content here... </template>
             </pdf-viewer>
           </template>
           <h2
@@ -91,9 +89,7 @@
         </div>
       </div>
       <div class="slide-panel-circle-icon">
-        <div class="slide-panel-description">
-          PDF Document viewer
-        </div>
+        <div class="slide-panel-description">PDF Document viewer</div>
       </div>
     </div>
   </div>
@@ -103,6 +99,8 @@
 import PdfViewer from './components/pdfComponent'
 import ResizeHandle from '../resizeHandle'
 import IndexedDBStorage from 'storage/indexddb.js'
+import { getCurrentProjectId } from 'helpers/project.js'
+import { getCurrentUserId } from 'helpers/user.js'
 import { blobToArrayBuffer } from 'helpers/files.js'
 import { createLoadingTask } from './components/pdfLibraryComponents'
 import {
@@ -116,16 +114,14 @@ import {
 } from 'vue'
 
 const styleWidth = computed(() => ({
-  width: state.width !== 400
-    ? `${state.width}px`
-    : ''
+  width: state.width !== 400 ? `${state.width}px` : ''
 }))
 
 const showPage = computed({
-  get () {
+  get() {
     return state.displayPage
   },
-  set (value) {
+  set(value) {
     state.displayPage = Number(value)
     page.value = Number(value)
   }
@@ -155,7 +151,7 @@ onMounted(() => {
   eventListeners()
   isOpenInStorage()
 
-  document.addEventListener('turbolinks:load', _ => {
+  document.addEventListener('turbolinks:load', (_) => {
     document.removeEventListener(state.eventLoadPDFName, handlePdfLoadEvent)
   })
 })
@@ -165,46 +161,42 @@ onUnmounted(() => {
   state.pdfDocument?.destroy()
 })
 
-watch(
-  page,
-  p => {
-    if (state.noTrigger) {
-      state.noTrigger = false
-    } else {
-      if (p > 0 && p <= state.numPages) {
-        const containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
-        const currentPage = document.getElementById(p)
-        const nextPageElement = document.getElementById(p + 1)
+watch(page, (p) => {
+  if (state.noTrigger) {
+    state.noTrigger = false
+  } else {
+    if (p > 0 && p <= state.numPages) {
+      const containerPosition =
+        Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) +
+        120
+      const currentPage = document.getElementById(p)
+      const nextPageElement = document.getElementById(p + 1)
 
-        if (
-          (containerPosition <= findPos(currentPage) || p === 1) ||
-          (nextPageElement && containerPosition >= findPos(nextPageElement))
-        ) {
-          currentPage.scrollIntoView()
-        }
+      if (
+        containerPosition <= findPos(currentPage) ||
+        p === 1 ||
+        (nextPageElement && containerPosition >= findPos(nextPageElement))
+      ) {
+        currentPage.scrollIntoView()
       }
     }
   }
-)
+})
 
-watch(
-  textCopy,
-  newVal => {
-    document.querySelector('[data-panel-name="pinboard"]').setAttribute('data-clipboard', newVal)
+watch(textCopy, (newVal) => {
+  document
+    .querySelector('[data-panel-name="pinboard"]')
+    .setAttribute('data-clipboard', newVal)
+})
+
+watch(viewerActive, async (newVal) => {
+  const pdfStored = await IndexedDBStorage.get('Pdf', getUserAndProjectIds())
+
+  if (pdfStored) {
+    pdfStored.isOpen = newVal
+    IndexedDBStorage.put('Pdf', pdfStored)
   }
-)
-
-watch(
-  viewerActive,
-  async newVal => {
-    const pdfStored = await IndexedDBStorage.get('Pdf', getUserAndProjectIds())
-
-    if (pdfStored) {
-      pdfStored.isOpen = newVal
-      IndexedDBStorage.put('Pdf', pdfStored)
-    }
-  }
-)
+})
 
 const isOpenInStorage = async () => {
   const pdfStored = await IndexedDBStorage.get('Pdf', getUserAndProjectIds())
@@ -215,11 +207,11 @@ const isOpenInStorage = async () => {
   }
 }
 
-const setWidth = style => {
+const setWidth = (style) => {
   state.width = style
 }
 
-const setPage = value => {
+const setPage = (value) => {
   if (value > state.numPages) {
     showPage.value = state.numPages
   } else if (value < 1) {
@@ -229,13 +221,11 @@ const setPage = value => {
   }
 }
 
-const setScale = value => {
-  state.scale = value > 0
-    ? value
-    : 1
+const setScale = (value) => {
+  state.scale = value > 0 ? value : 1
 }
 
-const getPdf = async url => {
+const getPdf = async (url) => {
   const pdfStored = await IndexedDBStorage.get('Pdf', getUserAndProjectIds())
   const isAlreadyStored = pdfStored?.url === url
   const pdfBuffer = isAlreadyStored
@@ -252,16 +242,19 @@ const getPdf = async url => {
   state.pdfDocument?.destroy()
   state.pdfDocument = createLoadingTask({ data: pdfBuffer })
 
-  state.pdfDocument.then(pdf => {
+  state.pdfDocument.then((pdf) => {
     state.loadingPdf = false
     state.numPages = pdf.numPages
 
-    const changePage = _ => {
+    const changePage = (_) => {
       const count = Number(state.numPages)
       let i = 1
 
       if (count > 1) {
-        const containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
+        const containerPosition =
+          Math.abs(
+            document.querySelector('#viewer').getBoundingClientRect().y
+          ) + 120
 
         do {
           const currentElement = document.getElementById(i)
@@ -287,11 +280,11 @@ const getPdf = async url => {
   })
 }
 
-const findPos = obj => obj.offsetTop
+const findPos = (obj) => obj.offsetTop
 
 const getUserAndProjectIds = () => {
-  const userId = document.querySelector('[data-current-user-id]').getAttribute('data-current-user-id')
-  const projectId = document.querySelector('[data-project-id]').getAttribute('data-project-id')
+  const userId = getCurrentUserId()
+  const projectId = getCurrentProjectId()
 
   return `${userId}-${projectId}`
 }
@@ -300,7 +293,7 @@ const savePdfInStorage = (url, pdfBuffer, isOpen) => {
   IndexedDBStorage.put('Pdf', {
     userAndProjectId: getUserAndProjectIds(),
     url,
-    pdfBuffer,
+    pdfBuffer: structuredClone(pdfBuffer),
     isOpen
   })
 }
@@ -314,20 +307,20 @@ const openPanel = () => {
 const eventListeners = () => {
   document.addEventListener(state.eventLoadPDFName, handlePdfLoadEvent)
 
-  document.addEventListener('onSlidePanelClose', event => {
+  document.addEventListener('onSlidePanelClose', (event) => {
     if (event.detail.name === 'pdfviewer') {
       setWidth(400)
       viewerActive.value = false
     }
   })
 
-  document.addEventListener('onSlidePanelOpen', event => {
+  document.addEventListener('onSlidePanelOpen', (event) => {
     if (event.detail.name === 'pdfviewer') {
       viewerActive.value = true
     }
   })
 
-  document.body.addEventListener('click', event => {
+  document.body.addEventListener('click', (event) => {
     const name = event.target.nodeName
 
     if (name === 'INPUT' || name === 'TEXTAREA') {
@@ -343,19 +336,23 @@ const eventListeners = () => {
     textCopy.value = getSelectedText()
   })
 
-  document.addEventListener('dblclick', event => {
+  document.addEventListener('dblclick', (event) => {
     const name = event.target.nodeName
 
     if (name === 'INPUT' || name === 'TEXTAREA') {
       if (viewerActive.value) {
         const inputText = event.target.value
-        event.target.value = insertStringInPosition(inputText, textCopy.value, state.cursorPosition)
+        event.target.value = insertStringInPosition(
+          inputText,
+          textCopy.value,
+          state.cursorPosition
+        )
       }
     }
   })
 }
 
-const handlePdfLoadEvent = event => {
+const handlePdfLoadEvent = (event) => {
   loadPDF(event)
   openPanel()
 }
@@ -370,7 +367,7 @@ const getSelectedText = () => {
   return ''
 }
 
-const loadPDF = event => {
+const loadPDF = (event) => {
   if (state.loadingPdf) return
   showPage.value = 1
   state.numPages = 0
@@ -382,20 +379,19 @@ const loadPDF = event => {
   })
 }
 
-const downloadPdf = url =>
+const downloadPdf = (url) =>
   new Promise((resolve, reject) => {
     fetch(url)
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok')
         }
         return response.blob()
       })
-      .then(async blobObject => {
+      .then(async (blobObject) => {
         resolve(await blobToArrayBuffer(blobObject))
       })
   })
-
 </script>
 
 <script>

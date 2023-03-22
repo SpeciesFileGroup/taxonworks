@@ -1,6 +1,5 @@
 class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  include CollectionObjects::FilterParams
 
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :navigation, :containerize,
@@ -21,10 +20,40 @@ class CollectionObjectsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        # see app/controllers/collection_objects/filter_params.rb
-        @collection_objects = filtered_collection_objects.order('collection_objects.id').page(params[:page]).per(params[:per] || 50)
+        @collection_objects = ::Queries::CollectionObject::Filter.new(params).all
+        .order('collection_objects.id')
+        .page(params[:page])
+        .per(params[:per])
       }
     end
+  end
+
+  # /collection_objects/index_metadata/.json
+  def index_metadata
+    render json: metadata_index( {
+      repository: Repository,
+      current_respository: Repository,
+      collecting_event: CollectingEvent,
+      taxon_determinations: TaxonDetermination })
+      .merge( dwc_occurrence:  DwcOccurrence.target_columns.inject({}){|hsh,p| hsh[p] = nil; hsh}.delete_if{|k,v| k =~ /(_id|_type)\z/} )
+      .merge( CollectionObject.core_attributes.inject({}){|hsh,p| hsh[p] = nil; hsh})
+      .merge(
+        identifiers: nil,
+        object_tag: nil,
+        object_label: nil,
+      ).delete_if{|k,v| k =~ /(_id|_type)\z/}
+  end
+
+  # TODO: probably some deep clean
+  # TODO: Move
+  def metadata_index(models = {})
+    h = {}
+    models.each do |l, m|
+      h.merge!(
+        l => m.core_attributes.inject({}){|hsh,p| hsh[p] = nil; hsh}
+      )
+    end
+    h
   end
 
   # GET /collection_objects/1
@@ -54,10 +83,10 @@ class CollectionObjectsController < ApplicationController
 
   # Render DWC fields *only*
   def dwc_index
-    objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500).all
+    objects = ::Queries::CollectionObject::Filter.new(params).all.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per]).all
     assign_pagination(objects)
 
-    # Default to *exclude* some big fields, like geo spatial wkt
+    # Default to *exclude* some big fields, like geo-spatial wkt
     mode = params[:mode] || :view
     @objects = objects.pluck(*::CollectionObject.dwc_attribute_vector(mode))
     @headers = ::CollectionObject.dwc_attribute_vector_names(mode)
@@ -101,12 +130,12 @@ class CollectionObjectsController < ApplicationController
   # Intent is DWC fields + quick summary fields for reports
   # !! As currently implemented rebuilds DWC all
   def report
-    @collection_objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
+    @collection_objects = ::Queries::CollectionObject::Filter.new(params).all.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
   end
 
   # /collection_objects/preview?<filter params>
   def preview
-    @collection_objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
+    @collection_objects = ::Queries::CollectionObject::Filter.new(params).all.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
   end
 
   # GET /collection_objects/depictions/1
@@ -328,11 +357,11 @@ class CollectionObjectsController < ApplicationController
         project_id: sessions_current_project_id
       ).autocomplete
   end
-
-
+  
   # GET /api/v1/collection_objects
   def api_index
-    @collection_objects = ::Queries::CollectionObject::Filter.new(collection_object_api_params).all.where(project_id: sessions_current_project_id)
+    @collection_objects = ::Queries::CollectionObject::Filter.new(params.merge!(api: true)).all
+       .where(project_id: sessions_current_project_id)
       .order('collection_objects.id')
       .page(params[:page]).per(params[:per])
     render '/collection_objects/api/v1/index'

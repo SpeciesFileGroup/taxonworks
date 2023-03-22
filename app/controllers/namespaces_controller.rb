@@ -12,7 +12,7 @@ class NamespacesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @namespaces = Queries::Namespace::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        @namespaces = Queries::Namespace::Filter.new(params).all.page(params[:page]).per(params[:per])
       }
     end
   end
@@ -129,10 +129,6 @@ class NamespacesController < ApplicationController
   end
 
   private
-
-  def filter_params
-    params.permit(:name, :short_name, :verbatim_name, :institution, :is_virtual)
-  end
 
   def set_namespace
     @namespace = Namespace.find(params[:id])

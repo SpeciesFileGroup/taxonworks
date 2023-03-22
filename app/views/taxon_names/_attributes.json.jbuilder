@@ -1,7 +1,7 @@
 json.partial! '/taxon_names/base_attributes', taxon_name: taxon_name
 json.partial! '/shared/data/all/metadata', object: taxon_name
 
-json.original_combination full_original_taxon_name_tag(taxon_name) # contains HTML
+json.original_combination defined_full_original_taxon_name_tag(taxon_name) # contains HTML
 
 if extend_response_with('parent')
   if taxon_name.parent

@@ -1,3 +1,3 @@
 module Taxonworks
-  VERSION = "0.29.6"
+  VERSION = "0.31.3"
 end

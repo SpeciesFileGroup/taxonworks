@@ -60,7 +60,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   # TODO: remove, it's required by STI
   validates_presence_of :type, message: 'Relationship type should be specified'
-  
+
   validates_presence_of :subject_taxon_name, message: 'Missing taxon name on the left side'
   validates_presence_of :object_taxon_name, message: 'Missing taxon name on the right side'
 
@@ -144,6 +144,12 @@ class TaxonNameRelationship < ApplicationRecord
     set: :validate_priority,
     name: 'Priority validation',
     description: 'Junior synonym should be younger than senior synonym' )
+
+  soft_validate(
+    :sv_validate_seniority,
+    set: :validate_seniority,
+    name: 'Seniority validation',
+    description: 'Of two synonyms described in the same paper, one described at a higher rank has a priority' )
 
   soft_validate(
     :sv_coordinated_taxa,
@@ -541,7 +547,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def sv_synonym_linked_to_valid_name
     #synonyms and misspellings should be linked to valid names
-    if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
+    if ::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
       obj = self.object_taxon_name
       subj = self.subject_taxon_name
       if subj.rank_class.try(:nomenclatural_code) == :iczn && (obj.parent_id != subj.parent_id || obj.rank_class != subj.rank_class) &&  subj.cached_valid_taxon_name_id == obj.cached_valid_taxon_name_id
@@ -579,6 +585,10 @@ class TaxonNameRelationship < ApplicationRecord
     true # all validations moved to subclasses
   end
 
+  def sv_validate_seniority
+    true # all validations moved to subclasses
+  end
+
   def sv_coordinated_taxa
     s = subject_taxon_name
     o = object_taxon_name
@@ -593,7 +603,7 @@ class TaxonNameRelationship < ApplicationRecord
     s = subject_taxon_name
     o = object_taxon_name
     o_new = o.lowest_rank_coordinated_taxon
-    if o != o_new && type_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+    if o != o_new
       soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o_new.cached_html}",
                            success_message: "Relationship moved to  #{o_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end

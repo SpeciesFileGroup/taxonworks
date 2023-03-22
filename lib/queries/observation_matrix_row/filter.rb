@@ -1,6 +1,14 @@
 module Queries
   module ObservationMatrixRow
-    class Filter < Queries::Query
+    class Filter < Query::Filter
+
+      PARAMS = [
+        :observation_object_type,
+        :observation_object_id,
+        :observation_matrix_id,
+        :observation_matrix_row_id,
+        observation_matrix_row_id: []
+      ].freeze
 
       attr_accessor :observation_object_type
       attr_accessor :observation_object_id
@@ -10,24 +18,22 @@ module Queries
       #   a vector of ids in the format `123|456|790|`
       attr :observation_object_id_vector
 
-      def initialize(params)
+      def initialize(query_params)
+        super
         @observation_object_type = params[:observation_object_type]
         @observation_object_id = params[:observation_object_id]
         @project_id = params[:project_id]
         @observation_object_id_vector = params[:observation_object_id_vector]
         @observation_matrix_id = params[:observation_matrix_id]
+        @observation_matrix_row_id = params[:observation_matrix_row_id]
       end
 
-      def base_query
-        ::ObservationMatrixRow.select('observation_matrices.*')
-      end
-
-      def table
-        ::ObservationMatrixRow.arel_table
+      def observation_matrix_row_id
+        [@observation_matrix_row_id].flatten.compact
       end
 
       def observation_object_id
-        [@observation_object_id].flatten.compact +  
+        [@observation_object_id].flatten.compact +
           (observation_object_id_vector.blank? ? [] : observation_object_id_vector.split('|'))
       end
 
@@ -42,7 +48,7 @@ module Queries
           matching_observation_object_id,
           matching_observation_object_type,
         ].compact
-      
+
         return nil if clauses.empty?
 
         a = clauses.shift

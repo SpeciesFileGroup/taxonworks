@@ -1,11 +1,31 @@
 module Queries
   module Identifier
 
-    # !! does not inherit from Queries::Query
-    class Filter
+    class Filter < Query::Filter
 
       include Concerns::Polymorphic
       polymorphic_klass(::Identifier)
+
+      PARAMS = [
+        *::Identifier.related_foreign_keys.map(&:to_sym),
+        :identifier,
+        :identifier_id,
+        :identifier_object_id,
+        :identifier_object_type,
+        :namespace_id,
+        :namespace_name,
+        :namespace_short_name,
+        :query_string,
+        :type,
+        identifier: [],
+        identifier_id: [],
+        identifier_object_id: [],
+        identifier_object_type: [],
+        namespace_id: [],
+      ].freeze
+
+      # @return Array
+      attr_accessor :identifier_id
 
       # A fully qualified identifier, matches cached
       # !! This is the only wildcarded value !!
@@ -24,39 +44,38 @@ module Queries
       #      or ['Otu', 'Specimen']
       attr_accessor :identifier_object_type
 
+      # @return Array
       attr_accessor :identifier_object_id
-
-      attr_accessor :object_global_id
 
       # @return Array
       attr_accessor :type
 
-      attr_accessor :project_id
-
-      attr_accessor :options
+      # TODO: community likely broken/intercept somewhere
+      # attr_accessor :project_id
 
       # @params params [ActionController::Parameters]
-      def initialize(params)
-
-        @options = params
+      def initialize(query_params)
+        super
 
         @identifier = params[:identifier]
+        @identifier_id = params[:identifier_id]
         @identifier_object_id = params[:identifier_object_id]
         @identifier_object_type = params[:identifier_object_type]
         @namespace_id = params[:namespace_id]
         @namespace_name = params[:namespace_name]
         @namespace_short_name = params[:namespace_short_name]
-        @project_id = params[:project_id]
         @query_string = params[:query_string]
         @type = params[:type]
 
-        # See Queries::Concerns::Polymorphic
-        @object_global_id = params[:object_global_id]
-        set_polymorphic_ids(params)
+        set_polymorphic_params(params)
       end
 
       def type
         [@type].flatten.compact.uniq
+      end
+
+      def identifier_id
+        [@identifier_id].flatten.compact.uniq
       end
 
       def namespace_id
@@ -68,15 +87,15 @@ module Queries
       end
 
       def identifier_object_type
-        [@identifier_object_type, global_object_type].flatten.compact
+        [@identifier_object_type].flatten.compact
       end
 
       def identifier_object_id
-        [@identifier_object_id, global_object_id].flatten.compact
+        [@identifier_object_id].flatten.compact
       end
 
-     def annotated_class
-        ::Queries::Annotator.annotated_class(options, ::Identifier)
+      def annotated_class
+        ::Queries::Annotator.annotated_class(params, ::Identifier)
       end
 
       def ignores_project?
@@ -87,70 +106,32 @@ module Queries
       # Ommits non community klasses of identifiers
       def community_project_id_facet
         return nil if project_id.nil?
-          if !ignores_project?
-            # Not a community class 
-            return table[:project_id].eq(project_id)
-          else
-            # Is a community class
-            # Identifiers that are not local only
-            return table[:type].matches('Identifier::Global%').or(table[:project_id].eq(project_id))
-          end
+        if !ignores_project?
+          # Not a community class
+          return table[:project_id].eq_any(project_id)
+        else
+          # Is a community class
+          # Identifiers that are not local only
+          return table[:type].matches('Identifier::Global%').or(table[:project_id].eq_any(project_id))
+        end
         nil
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = [
-          Queries::Annotator.annotator_params(options, ::Identifier),
-          matching_cached,
-          matching_identifier_attribute(:identifier),
-          matching_identifier_attribute(:namespace_id),
-          matching_identifier_attribute(:type),
-          matching_identifier_object_id,
-          matching_identifier_object_type,
-          matching_polymorphic_ids,
-
-          community_project_id_facet,
-        ].flatten.compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+      def cached_facet
+        return nil if query_string.blank?
+        table[:cached].matches('%' + query_string + '%')
       end
 
-      def merge_clauses
-        clauses = [
-          matching_namespace(:short_name),
-          matching_namespace(:name),
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
+      def identifier_object_id_facet
+        return nil if identifier_object_id.empty?
+        table[:identifier_object_id].eq_any(identifier_object_id)
       end
 
-      # @return [Arel::Node, nil]
-      def matching_cached
-        query_string.blank? ? nil : table[:cached].matches('%' + query_string + '%')
+      def identifier_object_type_facet
+        return nil if identifier_object_type.empty?
+         table[:identifier_object_type].eq_any(identifier_object_type)
       end
 
-      # @return [Arel::Node, nil]
-      def matching_identifier_object_id
-        identifier_object_id.empty? ? nil : table[:identifier_object_id].eq_any(identifier_object_id)
-      end
-
-      # @return [Arel::Node, nil]
-      def matching_identifier_object_type
-        identifier_object_type.empty? ? nil : table[:identifier_object_type].eq_any(identifier_object_type)
-      end
-
-      # @return [Arel::Node, nil]
       def matching_identifier_attribute(attribute)
         v = send(attribute)
         v.blank? ? nil : table[attribute].eq_any(v)
@@ -170,7 +151,7 @@ module Queries
         b = b.join(c, Arel::Nodes::OuterJoin)
           .on(
             a[:namespace_id].eq(c[:id])
-        )
+          )
 
         e = c[:id].not_eq(nil)
         f = c[attribute].eq(v)
@@ -183,23 +164,23 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-        if a && b
-          b.where(a).distinct
-        elsif a
-          ::Identifier.where(a).distinct
-        elsif b
-          b.distinct
-        else
-          ::Identifier.all
-        end
+      def and_clauses
+        [
+          cached_facet,
+          matching_identifier_attribute(:identifier),
+          matching_identifier_attribute(:namespace_id),
+          matching_identifier_attribute(:type),
+          identifier_object_id_facet,
+          identifier_object_type_facet,
+          community_project_id_facet,
+        ]
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Identifier.arel_table
+      def merge_clauses
+        [
+          matching_namespace(:short_name),
+          matching_namespace(:name),
+        ]
       end
 
     end

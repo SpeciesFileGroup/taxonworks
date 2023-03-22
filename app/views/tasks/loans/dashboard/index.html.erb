@@ -1,0 +1,87 @@
+<%= content_for :head do %>
+  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" %>
+<% end %>
+
+<h1> Loans dashboard </h1>
+
+<%= link_to('Back to filter', filter_loans_task_path) %><br/>
+<%= link_to('New loan', edit_loan_task_path) %><br/>
+
+<% days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %>
+
+<h2> Loans </h2>
+<div class="simple_flexbox flex-separate">
+
+  <% if @loan_query.params.present? %>
+    <div class="panel content">
+      <h2> Report scope </h2>
+      <% p = @loan_query.params %>
+      <% if p %>
+        <%= tag.span 'Limited to filter.', class: [:feedback, 'feedback-narrow', 'feedback-warning'] %>
+        <h3>Parameters</h3>
+        <%= ap @loan_query.params %>
+      <% else %>
+        <em> All loans. </em>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="panel content separate-top">
+    <h2> Summary </h2>
+    <%= loans_summary(@loans) %>
+  </div>
+
+  <div class="panel content separate-top">
+    <h2> Created at in the past </h2>
+    <table>
+      <tr><td>24 hours</td><td><%= tag.strong @loans.where('loans.created_at > ?', 24.hours.ago).count %></td></tr>
+      <tr><td>Week</td><td><%= tag.strong @loans.where('loans.created_at > ?', 1.week.ago).count %></td></tr>
+      <tr><td>Month</td><td><%= tag.strong @loans.where('loans.created_at > ?', 1.month.ago).count %></td></tr>
+      <tr><td>Half year</td><td><%= tag.strong @loans.where('loans.created_at > ?', 6.months.ago).count %></td></tr>
+      <tr><td>Year</td><td><%= tag.strong @loans.where('loans.created_at > ?', 1.year.ago).count %></td></tr>
+      <tr><td>3 years</td><td><%= tag.strong @loans.where('loans.created_at > ?', 3.years.ago).count %></td></tr>
+      <tr><td>All time</td><td><%= tag.strong @loans.where('loans.created_at > ?', 1000.years.ago).count %></td></tr>
+    </table>
+  </div>
+
+  <div class="panel content separate-top">
+    <%= pie_chart({overdue: @loans.overdue.count, not_overdue: @loans.not_overdue.count}, donut: true, height: '400px', download: true, title: 'Overdue status')  %>
+  </div>
+
+  <div class="panel content separate-top">
+    <%= column_chart( loans_per_year(@loans) , vertical: true, download: true, ytitle: 'Total', title: 'By year (date requested)')  %>
+  </div>
+
+  <div class="panel content separate-top">
+    <%= column_chart( loans_per_year(@loans, :date_closed), download: true, ytitle: 'Total', title: 'By year (date closed)')  %>
+  </div>
+
+  <div class="panel content separate-top">
+    <%= column_chart( loan_fulfillment_latency(@loans), download: true, ytitle: 'Days', title: 'Fulfillment latency')  %>
+  </div>
+</div>
+
+<h2> Loan items </h2>
+<div class="simple_flexbox">
+
+  <div class="panel content separate-top">
+    <h2> Summary </h2>
+    <%= loans_loan_item_summary(@loans) %>
+  </div>
+
+  <div class="panel content separate-top">
+    <%= column_chart loan_items_totals_per_year(@loans), height: '400px', stacked: true, download: true, descrete: true, ytitle: 'Total', xtitle: 'Year', title: 'Individuals by year (date sent)' %>
+  </div>
+
+  <div class="panel content separate-top">
+    <%= pie_chart( loans_loan_item_disposition(@loans), download: true, height: '400px', donut: true, title: 'Disposition (loan items)')  %>
+  </div>
+
+</div>
+
+<h2> Task - Overdue loans</h1>
+
+<p> Total: <%= @loans.overdue.count -%>
+
+<%= render "loans/list_table", loans: @loans.overdue %>
+

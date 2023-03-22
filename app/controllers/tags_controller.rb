@@ -1,4 +1,4 @@
-require_dependency 'queries/tag/filter'
+# require_dependency 'queries/tag/filter'
 
 class TagsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
@@ -14,14 +14,16 @@ class TagsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @tags = ::Queries::Tag::Filter.new(params).all.where(project_id: sessions_current_project_id).
-        page(params[:page]).per(params[:per] || 500)
+        # Possibly broken polymorphics?
+        @tags = ::Queries::Tag::Filter.new(params).all
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
 
   def api_index
-    @tags = Queries::Tag::Filter.new(api_params).all
+    @tags = Queries::Tag::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('tags.id')
       .page(params[:page])
@@ -128,10 +130,14 @@ class TagsController < ApplicationController
     end
   end
 
-  # POST /tags/batch_create.json?keyword_id=123&object_type=CollectionObject&object_ids[]=123
+  # POST /tags/batch_create.json?keyword_id=123&object_type=CollectionObject&object_id[]=123
   def batch_create
     if Tag.batch_create(
-        **params.permit(:keyword_id, :object_type, object_ids: []).to_h.merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
+        **params.permit(
+          :keyword_id,
+          :object_type,
+          object_id: []).to_h
+          .merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
     )
       render json: {success: true}
     else
@@ -145,31 +151,21 @@ class TagsController < ApplicationController
     @tag = Tag.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
-  def api_params
-    params.permit(
-      :tag_object_id,
-      :tag_object_type,
-      :object_global_id,
-      tag_object_id: [],
-      tag_object_type: [],
-      keyword_id: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-  end
-
-
   def tag_params
     params.require(:tag).permit(
-      :keyword_id, :tag_object_id, :tag_object_type, :tag_object_attribute, :annotated_global_entity, :_destroy,
-      :target, keyword_attributes: [:name, :definition, :uri, :uri_relation, :css_color]
+      :keyword_id, :tag_object_id, :tag_object_type,
+      :tag_object_attribute, :annotated_global_entity,
+      :_destroy, :target
+      #   keyword_attributes: [:name, :definition, :uri, :uri_relation, :css_color] # TODO: this almost certainly doesn't belon
     )
   end
 
   def taggable_object_params
     params.require(:taggable_object).permit(
-      tags_attributes: [:_destroy, :id, :keyword_id, :position,
-                        keyword_attributes: [:name, :definition, :uri, :html_color]
-
-    ])
+      tags_attributes: [
+        :_destroy, :id, :keyword_id, :position,
+        keyword_attributes: [:name, :definition, :uri, :html_color]
+      ])
   end
 
   def taggable_object

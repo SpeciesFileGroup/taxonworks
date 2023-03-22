@@ -17,11 +17,10 @@ class DownloadsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @downloads = Queries::Download::Filter.new(filter_params)
+        @downloads = Queries::Download::Filter.new(params)
           .all
-          .where(project_id: sessions_current_project_id)
           .page(params[:page])
-          .per(params[:per] || 20)
+          .per(params[:per])
       }
     end
   end
@@ -122,10 +121,6 @@ class DownloadsController < ApplicationController
   end
 
   private
-
-  def filter_params
-    params.permit(:download_type)
-  end
 
   def set_download
     # Why .unscoped ?

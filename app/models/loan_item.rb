@@ -7,11 +7,11 @@
 #   @return [Integer]
 #   Id of the loan
 #
-# @!attribute loan_object_type
+# @!attribute loan_item_object_type
 #   @return [String]
 #   Polymorphic- one of Container, CollectionObject, or Otu
 #
-# @!attribute loan_object_id
+# @!attribute loan_item_object_id
 #   @return [Integer]
 #   Polymorphic, the id of the Container, CollectionObject or Otu
 #

@@ -11,7 +11,7 @@ module GraphHelper
     when 'TaxonName'
       taxon_name_graph(object, children: true, parents: true, otus: true, synonymy: true).to_json
     when 'Otu'
-      otu_graph(object, collection_objects: true, taxon_name: true, synonymy: true, biological_associations: true).to_json
+      otu_graph(object, collection_objects: true, taxon_name: true, synonymy: true, biological_associations: true, asserted_distributions: true).to_json
     when 'TaxonDetermination'
       taxon_determination_graph(object, collection_object: true, taxon_names: true).to_json
     when 'Person'
@@ -165,7 +165,7 @@ module GraphHelper
     g
   end
 
-  def otu_graph(otu, graph: nil, target: nil, collection_objects: false, taxon_name: true, synonymy: false, biological_associations: true )
+  def otu_graph(otu, graph: nil, target: nil, collection_objects: false, taxon_name: true, synonymy: false, biological_associations: true, asserted_distributions: true )
     o = otu
     return nil if o.nil?
     g = initialize_graph(graph, o, target)
@@ -188,6 +188,16 @@ module GraphHelper
 
         g.add_edge(b.biological_relationship, b.biological_association_subject)
         g.add_edge(b.biological_relationship, b.biological_association_object)
+      end
+    end
+
+    if asserted_distributions 
+      o.asserted_distributions.each do |a|
+
+        g.add_node(a)
+        g.add_node(a.geographic_area)
+
+        g.add_edge(a, a.geographic_area)
       end
     end
 

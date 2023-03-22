@@ -77,6 +77,8 @@ class GeographicArea < ApplicationRecord
    63 => 'State'
   }
 
+  before_destroy :check_for_children
+
   belongs_to :geographic_area_type, inverse_of: :geographic_areas
   belongs_to :level0, class_name: 'GeographicArea', foreign_key: :level0_id
   belongs_to :level1, class_name: 'GeographicArea', foreign_key: :level1_id
@@ -99,6 +101,8 @@ class GeographicArea < ApplicationRecord
   validates :name, presence: true, length: {minimum: 1}
   validates :data_origin, presence: true
 
+  # @param geographic_area [Array, GeographicArea]
+  #    all descendants of one or more GeographicAreas, *not* including geogrpahic_area
   scope :descendants_of, -> (geographic_area) { with_ancestor(geographic_area) }
   scope :ancestors_of, -> (geographic_area) { joins(:descendant_hierarchies).order('geographic_area_hierarchies.generations DESC').where(geographic_area_hierarchies: {descendant_id: geographic_area.id}).where('geographic_area_hierarchies.ancestor_id != ?', geographic_area.id) }
 
@@ -161,7 +165,22 @@ class GeographicArea < ApplicationRecord
 
   scope :ordered_by_area, -> (direction = :ASC) { joins(:geographic_items).order("geographic_items.cached_total_area #{direction || 'ASC'}") }
 
-  before_destroy :check_for_children
+  # Same results as descendant_of but starts with Array of IDs
+  def self.descendants_of_any(ids = [])
+    ids = [ids].flatten.compact.uniq
+   return nil if ids.empty?
+
+    descendants_subquery = GeographicAreaHierarchy.where(
+      GeographicAreaHierarchy.arel_table[:descendant_id].eq(GeographicArea.arel_table[:id]).and(
+        GeographicAreaHierarchy.arel_table[:ancestor_id].in(ids))
+    )
+
+    #unless descendants_max_depth.nil? || descendants_max_depth.to_i < 0
+    #  descendants_subquery = descendants_subquery.where(GeographicAreaHierarchy.arel_table[:generations].lteq(descendants_max_depth.to_i))
+    #end
+
+    GeographicArea.where(descendants_subquery.arel.exists)
+  end
 
   # @param array [Array] of strings of names for areas
   # @return [Scope] of GeographicAreas which match name and parent.name.
@@ -183,11 +202,11 @@ class GeographicArea < ApplicationRecord
 
   # @return [Scope] GeographicAreas which are countries.
   def self.countries
-    includes([:geographic_area_type]).where(geographic_area_types: {name: 'Country'})
+    includes(:geographic_area_type).where(geographic_area_types: {name: 'Country'})
   end
 
   # @param [GeographicArea]
-  # @return [Scope] of geographic_areas
+  # @return [Scope, nil] of geographic_areas
   def self.is_contained_by(geographic_area)
     pieces = nil
     if geographic_area.geographic_items.any?
@@ -239,9 +258,9 @@ class GeographicArea < ApplicationRecord
   end
 
   # @return [Scope] of areas which have at least one shape
-  def self.have_shape?
-    joins(:geographic_areas_geographic_items).select('distinct(geographic_areas.id)')
-  end
+  # def self.have_shape?
+  #  joins(:geographic_areas_geographic_items)
+  # end
 
   # @return [Hash]
   #   A key/value pair that classify this GeographicArea
@@ -255,7 +274,7 @@ class GeographicArea < ApplicationRecord
     end
 
      # TODO: Wrap this a pre-loading constant. This makes specs very fragile.
-     
+
      unless Rails.env == 'test'
        n = CACHED_GEOGRAPHIC_AREA_TYPES[geographic_area_type_id]
      end
@@ -353,7 +372,7 @@ class GeographicArea < ApplicationRecord
 
   # @return [Boolean]
   def has_shape?
-    geographic_items.any?
+    geographic_areas_geographic_items.any?
   end
 
   # @return [RGeo object] of the default GeographicItem
@@ -440,7 +459,7 @@ class GeographicArea < ApplicationRecord
 
   # @return [Hash]
   def name_hash
-     return {
+    return {
       'country' => level0&.name,
       'state'   => level1&.name,
       'county'  => level2&.name
@@ -494,11 +513,11 @@ class GeographicArea < ApplicationRecord
         when 'CollectingEvent'
           t = CollectingEvent.arel_table
           # i is a select manager
-          i = t.project(t['geographic_area_id'], t['created_at']).from(t)
-                  .where(t['created_at'].gt(1.weeks.ago))
-                  .where(t['created_by_id'].eq(user_id))
+          i = t.project(t['geographic_area_id'], t['updated_at']).from(t)
+                  .where(t['updated_at'].gt(1.weeks.ago))
+                  .where(t['updated_by_id'].eq(user_id))
                   .where(t['project_id'].eq(project_id))
-                  .order(t['created_at'].desc)
+                  .order(t['updated_at'].desc)
 
           # z is a table alias
           z = i.as('recent_t')

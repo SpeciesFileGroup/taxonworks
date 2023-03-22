@@ -26,11 +26,11 @@ class Protocol < ApplicationRecord
     k = self.arel_table
 
     # i is a select manager
-    i = t.project(t['protocol_id'], t['created_at']).from(t)
-      .where(t['created_at'].gt( 1.weeks.ago ))
-      .where(t['created_by_id'].eq(user_id))
+    i = t.project(t['protocol_id'], t['updated_at']).from(t)
+      .where(t['updated_at'].gt( 10.weeks.ago ))
+      .where(t['updated_by_id'].eq(user_id))
       .where(t['project_id'].eq(project_id))
-      .order(t['created_at'].desc)
+      .order(t['updated_at'].desc)
 
     # z is a table alias
     z = i.as('recent_t')

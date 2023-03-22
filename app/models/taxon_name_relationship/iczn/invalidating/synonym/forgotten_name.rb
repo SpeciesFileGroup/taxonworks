@@ -6,8 +6,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName < TaxonN
     self.parent.disjoint_taxon_name_relationships +
         self.collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression) +
-        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym,
-            TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective)
+        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym)
   end
 
   def object_status
@@ -42,8 +41,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName < TaxonN
   end
 
   def sv_validate_priority
-    date1 = self.subject_taxon_name.nomenclature_date
-    date2 = self.object_taxon_name.nomenclature_date
+    date1 = self.subject_taxon_name.cached_nomenclature_date
+    date2 = self.object_taxon_name.cached_nomenclature_date
     if !!date1 && !!date2 && date1 > date2 && subject_invalid_statuses.empty?
       soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
     end

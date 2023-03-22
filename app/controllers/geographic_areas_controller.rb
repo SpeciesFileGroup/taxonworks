@@ -13,7 +13,6 @@ class GeographicAreasController < ApplicationController
   # GET /geographic_areas/1
   # GET /geographic_areas/1.json
   def show
-    # GeographicArea.idontknow()
   end
 
   def display_coordinates
@@ -37,7 +36,8 @@ class GeographicAreasController < ApplicationController
   def autocomplete
     c = Queries::GeographicArea::Autocomplete.new(params[:term]).autocomplete
     @geographic_areas = c.sort_by{|geographic_area|
-      -(geographic_area.collecting_events.where(project_id: sessions_current_project_id).count + geographic_area.asserted_distributions.where(project_id: sessions_current_project_id).count + (geographic_area.has_shape? && 1||0))
+      -(geographic_area.collecting_events.where(project_id: sessions_current_project_id).count +
+        geographic_area.asserted_distributions.where(project_id: sessions_current_project_id).count + (geographic_area.has_shape? && 1||0))
     }
   end
 

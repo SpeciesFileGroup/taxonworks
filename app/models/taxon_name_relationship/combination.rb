@@ -6,8 +6,8 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
 
   # This is over-writing the assignment in taxon_name.rb, which restricts destroy.
   # In this case we want to destroy all the relationships.
-  has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', 
-    foreign_key: :object_taxon_name_id, 
+  has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship',
+    foreign_key: :object_taxon_name_id,
     inverse_of: :object_taxon_name
 
   # @return [Integer, nil]
@@ -42,13 +42,13 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
   end
 
   # @return String
-  #    the status inferred by the relationship to the object name 
+  #    the status inferred by the relationship to the object name
   def object_status
     rank_name + ' in combination'
   end
 
   # @return String
-  #    the status inferred by the relationship to the subject name 
+  #    the status inferred by the relationship to the subject name
   def subject_status
     ' as ' +  rank_name + ' in combination'
   end
@@ -80,10 +80,10 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
   end
 
   def sv_validate_priority
-    date1 = self.subject_taxon_name.nomenclature_date
-    date2 = self.object_taxon_name.nomenclature_date
+    date1 = self.subject_taxon_name.cached_nomenclature_date
+    date2 = self.object_taxon_name.cached_nomenclature_date
     if !!date1 && !!date2 && date1 > date2 && subject_invalid_statuses.empty?
-      soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
+      soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than citation (#{self.object_taxon_name.source&.author_year}) of #{self.object_taxon_name.cached_html_name_and_author_year}")
     end
   end
 

@@ -66,7 +66,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       when 'point'
         @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id)
           .joins(:geographic_items)
-          .where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
+          .where(GeographicItem.intersecting_radius_of_wkt_sql(geometry, radius)) # !! probably want within_radius_of_wkt_sql
       when 'polygon'
         @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id)
           .joins(:geographic_items)
@@ -121,6 +121,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     render_gr_select_json(message)
   end
 
+  # TODO: if kept replace with a Georeferences filter
   def drawn_georeferences
     message = ''
     value = params['gr_geographic_item_attributes_shape']
@@ -138,7 +139,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       when 'point'
         @georeferences = Georeference.with_project_id(sessions_current_project_id)
           .joins(:geographic_item)
-          .where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
+          .where(GeographicItem.intersecting_radius_of_wkt_sql(geometry, radius)) # TODO: likely want within_radius_of_wkt_sql
       when 'polygon'
         @georeferences = Georeference.with_project_id(sessions_current_project_id)
           .joins(:geographic_item)

@@ -81,7 +81,7 @@ describe Settings do
 
         it 'creates the directory when it does not exist' do
           expect(Settings.load_from_hash(rails_config, invalid_directory)).to be_truthy
-          expect(Dir.exists?(path)).to be_truthy
+          expect(Dir.exist?(path)).to be_truthy
         end
       end
 
@@ -127,7 +127,7 @@ describe Settings do
 
         it 'creates the directory when it does not exist' do
           expect(Settings.load_from_hash(rails_config, invalid_directory)).to be_truthy
-          expect( Dir.exists?(path) ).to be_truthy
+          expect( Dir.exist?(path) ).to be_truthy
         end
       end
 
