@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- New options to extend results in Nomenclature filter [#3361]
 - New panels for Adminstrators User activity dashboard
 - Deaccessioned layout for filter collection objects
 
@@ -25,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - TaxonNameClassification API call raises
 - Raises related to cached_nomenclature_date
 
+[#3361]: https://github.com/SpeciesFileGroup/taxonworks/issues/3361
 [#3352]: https://github.com/SpeciesFileGroup/taxonworks/issues/3352
 [#3359]: https://github.com/SpeciesFileGroup/taxonworks/issues/3359
 [#3360]: https://github.com/SpeciesFileGroup/taxonworks/issues/3360

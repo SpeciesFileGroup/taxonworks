@@ -1,19 +1,19 @@
 <template>
   <FacetContainer highlight>
-    <h3>Validify</h3>
+    <h3>Synonymify</h3>
     <label>
       <input
         type="checkbox"
         v-model="inputValue"
       />
-      Convert result to their valid names
+      Expand to include synonyms
     </label>
   </FacetContainer>
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { useYellowFacetCheckbox } from '../../utils/resetYellowFacets'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {
@@ -23,5 +23,5 @@ const props = defineProps({
 })
 const emit = defineEmits('update:modelValue')
 
-const inputValue = useYellowFacetCheckbox(props, emit, 'validify')
+const inputValue = useYellowFacetCheckbox(props, emit, 'synonymify')
 </script>
