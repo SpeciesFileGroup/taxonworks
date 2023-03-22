@@ -212,11 +212,11 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id)
   end
 
-  xspecify "#taxon_name_id[] 2.1" do
+  specify "#combinationify" do
     combination = Combination.create!(genus:, species:)
-
     query.taxon_name_id = [genus.id]
     query.descendants = true
+    query.combinationify = true
     expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, combination.id)
   end
 
@@ -236,7 +236,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, species1.id)
   end
 
-  xspecify "#taxon_name_id[] 2.3" do
+  specify "#synonymify" do
     genus1 = Protonym.create!(
       name: "Genus",
       rank_class: Ranks.lookup(:iczn, "genus"),
@@ -245,6 +245,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     tr = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name_id: genus1.id, object_taxon_name_id: genus.id)
     query.taxon_name_id = [genus.id]
     query.descendants = true
+    query.synonymify = true
     expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, genus1.id)
   end
 

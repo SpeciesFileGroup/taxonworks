@@ -1,9 +1,5 @@
 module Queries
   module TaxonName
-
-    # TODO: Combinationinfy
-    # TOOD: Synonymify
-
     class Filter < Query::Filter
       include Queries::Helpers
 
@@ -21,6 +17,7 @@ module Queries
         :collecting_event_id,
         :collection_object_id,
         :combinations,
+        :combinationify,
         :descendants,
         :descendants_max_depth,
         :etymology,
@@ -34,6 +31,7 @@ module Queries
         :otu_id,
         :otus,
         :rank,
+        :synonymify,
         :taxon_name_author_id_or,
         :taxon_name_id,
         :taxon_name_type,
@@ -73,6 +71,12 @@ module Queries
       #   nil - ignore
       # This parameter should be used along side species or genus group limits.
       attr_accessor :combinations
+
+      # @param combinationify [Boolean]
+      #   true - extend result to include all Combinations in which the finest name is a member of the result
+      #   false/nil - ignore
+      # !! This parameter is not like the others, it is applied POST result, see also synonymify and validify
+      attr_accessor :combinationify
 
       # @param collection_object_id[String, Array]
       # @return Array
@@ -152,6 +156,12 @@ module Queries
       # @return [Boolean]
       #   Ignored when taxon_name_id[].empty? Return descendants of parents as well.
       attr_accessor :descendants
+
+      # @param synonymify [Boolean]
+      #   true - extend result to include all Synonyms of any member of the list
+      #   false/nil - ignore
+      # !! This parameter is not like the others, it is applied POST result, see also combinationify and validify
+      attr_accessor :synonymify
 
       # @param taxon_name_relationship [Array]
       #  [ { 'type' => 'TaxonNameRelationship::<>', 'subject|object_taxon_name_id' => '123' } ... {} ]
@@ -268,6 +278,7 @@ module Queries
         @collection_object_id = params[:collection_object_id]
         @combination_taxon_name_id = params[:combination_taxon_name_id]
         @combinations = boolean_param(params, :combinations)
+        @combinationify = boolean_param(params, :combinationify)
         @descendants = boolean_param(params, :descendants)
         @descendants_max_depth = params[:descendants_max_depth]
         @etymology = boolean_param(params, :etymology)
@@ -284,6 +295,7 @@ module Queries
         @parent_id = params[:parent_id]
         @rank = params[:rank]
         @sort = params[:sort]
+        @synonymify = boolean_param(params, :synonymify)
         @taxon_name_author_id = params[:taxon_name_author_id]
         @taxon_name_author_id_or = boolean_param(params, :taxon_name_author_id_or)
         @taxon_name_classification = params[:taxon_name_classification] || []
@@ -303,6 +315,23 @@ module Queries
         set_notes_params(params)
         set_data_attributes_params(params)
         set_tags_params(params)
+      end
+
+      def taxon_name_author_id
+        [@taxon_name_author_id].flatten.compact
+      end
+
+      def year
+        return nil if @year.blank?
+        @year.to_s
+      end
+
+      def name
+        [@name].flatten.compact
+      end
+
+      def collection_object_id
+        [@collection_object_id].flatten.compact
       end
 
       def taxon_name_author_id
@@ -780,6 +809,29 @@ module Queries
         ::TaxonName.from("(" + s + ") as taxon_names").distinct
       end
 
+      def synonimify_result(q)
+        s = "WITH tn_result_query AS (" + q.to_sql + ") " +
+            ::TaxonName
+              .joins("JOIN tn_result_query as tn_result_query2 on tn_result_query2.id = taxon_names.cached_valid_taxon_name_id")
+              .to_sql
+
+        a = ::TaxonName.from("(" + s + ") as taxon_names").distinct
+
+        referenced_klass_union([q, a])
+      end
+
+      def combinationify_result(q)
+        s = "WITH tn_result_query AS (" + q.to_sql + ") " +
+            ::TaxonName
+              .joins("JOIN tn_result_query as tn_result_query3 on tn_result_query3.id = taxon_names.cached_valid_taxon_name_id")
+              .where("taxon_names.type = 'Combination'")
+              .to_sql
+
+        a = ::TaxonName.from("(" + s + ") as taxon_names").distinct
+
+        referenced_klass_union([q, a])
+      end
+
       def order_clause(query)
         case sort
         when "alphabetical"
@@ -802,6 +854,8 @@ module Queries
       def all(nil_empty = false)
         q = super
         q = validify_result(q) if validify
+        q = combinationify_result(q) if combinationify
+        q = synonimify_result(q) if synonymify
         q = order_clause(q) if sort
         q
       end
