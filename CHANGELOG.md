@@ -44,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loan facet doesn't work on Filter collection objects [#3345]
 - Valid name is not provided for all matches on Match nomenclature task [#3343]
 - Object links don't work on Interactive key
+- Alternate values on ObservationMatrix name failing
 
 ### Changed
 

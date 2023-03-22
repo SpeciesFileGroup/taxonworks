@@ -179,7 +179,7 @@ class TaxonName < ApplicationRecord
     icnp: 'http://purl.obolibrary.org/obo/NOMEN_0000081',
     icvcn: 'http://purl.obolibrary.org/obo/NOMEN_0000125',
     iczn: 'http://purl.obolibrary.org/obo/NOMEN_0000224'
-  }
+  }.freeze
 
   # See related concept in concerns/shared/taxonomy, this may belong there.
   #
@@ -247,7 +247,7 @@ class TaxonName < ApplicationRecord
   has_many :taxon_name_authors, -> { order('roles.position ASC') }, through: :taxon_name_author_roles, source: :person
 
   # TODO: Combinations shouldn't have classifications or relationships?  Move to Protonym?
-  has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id, inverse_of: :taxon_name
+  has_many :taxon_name_classifications, dependent: :destroy, inverse_of: :taxon_name
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :restrict_with_error, inverse_of: :subject_taxon_name
 
   # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
@@ -278,7 +278,7 @@ class TaxonName < ApplicationRecord
       )
   end
 
-  scope :with_type, -> (type) {where(type: type)}
+  scope :with_type, -> (type) {where(type:)}
   scope :descendants_of, -> (taxon_name) { with_ancestor(taxon_name )}
 
   scope :ancestors_of, -> (taxon_name) {
@@ -352,8 +352,8 @@ class TaxonName < ApplicationRecord
   }
 
   # TODO: deprecate all of these for where()
-  scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
-  scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
+  scope :with_parent_id, -> (parent_id) {where(parent_id:)}
+  scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id:)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
 
   scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
@@ -546,7 +546,7 @@ class TaxonName < ApplicationRecord
   # @see .out_of_scope_combinations
   def out_of_scope_combinations
     ::TaxonName
-      .where(project_id: project_id)
+      .where(project_id:)
       .out_of_scope_combinations(id)
   end
 
@@ -960,7 +960,7 @@ class TaxonName < ApplicationRecord
     else
       n = nil
     end
-    n = n.blank? ? name : n
+    n = (n.presence || name)
     return n
   end
 
@@ -1207,13 +1207,13 @@ class TaxonName < ApplicationRecord
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
 
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
-    elements.blank? ? nil : elements
+    (elements.presence)
   end
 
   def get_full_name_html(name = nil)
     name = get_full_name if name.nil?
     return  "\"<i>Candidatus</i> #{name}\"" if is_candidatus?
-    if !name.blank? && is_hybrid?
+    if name.present? && is_hybrid?
       w = name.split(' ')
       w[-1] = ('×' + w[-1]).gsub('×(', '(×')
       name = w.join(' ')
@@ -1288,7 +1288,7 @@ class TaxonName < ApplicationRecord
     else
       ay = ([author_string] + [year_integer]).compact.join(' ') # TODO: !! cached_nomenclature_date is set here already, don't recalculate !!
     end
-    ay.blank? ? nil : ay
+    (ay.presence)
   end
 
   def icn_author_and_year(taxon)
@@ -1306,15 +1306,15 @@ class TaxonName < ApplicationRecord
       cc = current_combination.empty? ? self : current_combination.first.subject_taxon_name
     end
 
-    if !self.author_string.blank? && mobj.id != cc.id
+    if self.author_string.present? && mobj.id != cc.id
       ay = '(' + ay.to_s + ') ' + cc.try(:author_string).to_s
     end
 
-    if !misapplication.empty? && !m_obj.author_string.blank?
+    if !misapplication.empty? && m_obj.author_string.present?
       ay += ' non ' + m_obj.author_string
     end
 
-    ay.blank? ? nil : ay
+    (ay.presence)
   end
 
   # @return [String, nil]
@@ -1327,7 +1327,7 @@ class TaxonName < ApplicationRecord
     misspelling = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING)
 
     mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
-    unless mobj.blank?
+    if mobj.present?
       a = [mobj.try(:author_string)]
       y = [mobj.try(:year_integer)]
     else
@@ -1366,7 +1366,7 @@ class TaxonName < ApplicationRecord
       ay += ' non ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
     end
 
-    ay.blank? ? nil : ay
+    (ay.presence)
   end
 
   # @return Protonym
@@ -1381,7 +1381,7 @@ class TaxonName < ApplicationRecord
     return nil unless is_protonym? || is_combination?
     # source_classified_as is a method generated through relationships
     r = reload_source_classified_as
-    return " (as #{r.name})" unless r.blank?
+    return " (as #{r.name})" if r.present?
     nil
   end
 
@@ -1392,7 +1392,7 @@ class TaxonName < ApplicationRecord
 
   # TODO: this should be paginated, not all IDs!
   def next_sibling
-    if siblings.where(project_id: project_id).any?
+    if siblings.where(project_id:).any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
       s = sibs.index(id)
       TaxonName.find(sibs[ s + 1] ) if s < sibs.length - 1
@@ -1403,7 +1403,7 @@ class TaxonName < ApplicationRecord
 
   # TODO: this should be paginated, not all IDs!
   def previous_sibling
-    if siblings.where(project_id: project_id).any?
+    if siblings.where(project_id:).any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
 
       s = sibs.index(id)
@@ -1414,16 +1414,16 @@ class TaxonName < ApplicationRecord
   end
 
   def create_otu
-    Otu.create(by: creator, project: project, taxon_name_id: id)
+    Otu.create(by: creator, project:, taxon_name_id: id)
   end
 
   # @return [Scope]
   #   All taxon names attached to relationships recently created by user
   def self.used_recently_in_classifications(user_id, project_id)
-    TaxonName.where(project_id: project_id, updated_by_id: user_id)
+    TaxonName.where(project_id:, updated_by_id: user_id)
       .joins(:taxon_name_classifications)
       .includes(:taxon_name_classifications)
-      .where(taxon_name_classifications: { updated_at: 1.weeks.ago..Time.now } )
+      .where(taxon_name_classifications: { updated_at: 1.week.ago..Time.now } )
       .order('taxon_name_classifications.updated_at DESC')
   end
 
@@ -1438,11 +1438,11 @@ class TaxonName < ApplicationRecord
       .or(t2[:updated_by_id].eq(user_id).or(t2[:created_by_id].eq(user_id))
          ).to_sql
 
-         sql2 = t1[:updated_at].between( 1.weeks.ago..Time.now )
-           .or( t2[:updated_at].between( 1.weeks.ago..Time.now ) ).to_sql
+         sql2 = t1[:updated_at].between( 1.week.ago..Time.now )
+           .or( t2[:updated_at].between( 1.week.ago..Time.now ) ).to_sql
 
          TaxonName.with_taxon_name_relationships
-           .where(taxon_names: {project_id: project_id})
+           .where(taxon_names: {project_id:})
            .where(sql2)
            .where(sql)
            .order('taxon_names.updated_at DESC') ## needs optimisation. Does not sort by TNR date
@@ -1453,12 +1453,12 @@ class TaxonName < ApplicationRecord
     klass, a,b,c = nil, nil, nil, nil
     if target == 'TypeMaterial'
       klass = Protonym
-      a = klass.is_species_group.touched_by(user_id).where(project_id: project_id).order(updated_at: :desc).limit(6).to_a
+      a = klass.is_species_group.touched_by(user_id).where(project_id:).order(updated_at: :desc).limit(6).to_a
       b = used_recently_in_classifications(user_id, project_id).is_species_group.where(type: klass.name).limit(6).to_a
       c = used_recently_in_relationships(user_id, project_id).is_species_group.where(type: klass.name).limit(6).to_a
     else
       klass = TaxonName
-      a = klass.touched_by(user_id).where(project_id: project_id).order(updated_at: :desc).limit(6).to_a
+      a = klass.touched_by(user_id).where(project_id:).order(updated_at: :desc).limit(6).to_a
       b = used_recently_in_classifications(user_id, project_id).where(type: klass.name).limit(6).to_a
       c = used_recently_in_relationships(user_id, project_id).where(type: klass.name).limit(6).to_a
     end
@@ -1483,7 +1483,7 @@ class TaxonName < ApplicationRecord
   # the hash corresponding to the keyword used in this tag if it exists
   # !! Assumes it can only be in one matrix, this is wrong !!
   def matrix_row_item
-    mri = ObservationMatrixRowItem::TaxonNameRowItem.where(taxon_name_id: id, project_id: project_id).limit(1)
+    mri = ObservationMatrixRowItem::TaxonNameRowItem.where(taxon_name_id: id, project_id:).limit(1)
 
     if mri.any?
       return { matrix_row_item: mri.first, object: taxon_name }
@@ -1509,7 +1509,7 @@ class TaxonName < ApplicationRecord
     @result = {
       failed: 0,
       passed: 0,
-      kind: kind
+      kind:
     }
 
     case kind
@@ -1552,14 +1552,14 @@ class TaxonName < ApplicationRecord
   end
 
   def validate_parent_from_the_same_project
-    if parent && !project_id.blank?
-      errors.add(:project_id, "The parent taxon is not from the same project") if project_id != parent.project_id
+    if parent && project_id.present?
+      errors.add(:project_id, 'The parent taxon is not from the same project') if project_id != parent.project_id
     end
   end
 
   def validate_one_root_per_project
     if new_record? || parent_id_changed? # project_id !?@
-      if !parent_is_set? && TaxonName.where(parent_id: nil, project_id: project_id).count > 0
+      if !parent_is_set? && TaxonName.where(parent_id: nil, project_id:).count > 0
         errors.add(:parent_id, 'should not be empty/only one root is allowed per project')
       end
     end
@@ -1602,7 +1602,7 @@ class TaxonName < ApplicationRecord
 
   # TODO: this needs to go.
   def sv_missing_confidence_level # should be removed once the alternative solution is implemented. It is heavily used now.
-  confidence_level_array = [93]
+    confidence_level_array = [93]
   confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.project_id).pluck(:id)
   soft_validations.add(:base, 'Confidence level is missing') if !confidence_level_array.empty? && (self.confidences.pluck(:confidence_level_id) & confidence_level_array).empty?
   end
@@ -1613,7 +1613,7 @@ class TaxonName < ApplicationRecord
         soft_validations.add(:base, 'Original publication is not selected')
       elsif self.origin_citation.try(:pages).blank?
         soft_validations.add(:base, 'Original citation pages are not recorded')
-      elsif !self.source.pages.blank?
+      elsif self.source.pages.present?
         matchdata1 = self.origin_citation.pages.match(/^(\d+) ?[-–] ?(\d+)$|^(\d+)$/)
         if matchdata1
           citMinP = matchdata1[1] ? matchdata1[1].to_i : matchdata1[3].to_i
