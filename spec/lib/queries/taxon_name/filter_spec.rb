@@ -213,7 +213,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
   end
 
   xspecify "#taxon_name_id[] 2.1" do
-    combination = Combination.create!(genus:, species:)
+    combination = Combination.create!(genus: nil, species: nil)
 
     query.taxon_name_id = [genus.id]
     query.descendants = true

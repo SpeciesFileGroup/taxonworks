@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Combination names are missing in Citations by source
 - Handle another class of SQED raises
 - TaxonNameClassification API call raises
+- Raises related to cached_nomenclature_date
 
 [#3352]: https://github.com/SpeciesFileGroup/taxonworks/issues/3352
 [#3359]: https://github.com/SpeciesFileGroup/taxonworks/issues/3359
