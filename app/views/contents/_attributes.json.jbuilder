@@ -21,4 +21,3 @@ if extend_response_with('topic')
     json.partial! '/controlled_vocabulary_terms/attributes', controlled_vocabulary_term: content.topic, extensions: false
   end
 end
-

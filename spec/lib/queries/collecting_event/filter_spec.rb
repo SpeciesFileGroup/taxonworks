@@ -23,11 +23,16 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
   # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
+  specify '#recent' do
+    query.recent = true 
+    expect(query.all.map(&:id)).to contain_exactly(ce2.id, ce1.id)
+  end
+
   context 'otus' do
     let!(:o) { Otu.create!(name: 'foo') }
     let!(:s) { Specimen.create!(collecting_event: ce1, taxon_determinations_attributes: [{otu: o}]) }
 
-    specify '#otu_ids' do
+    specify '#otu_id' do
       q = Queries::CollectingEvent::Filter.new(otu_id: [o.id])
       expect(q.all).to contain_exactly(ce1)
     end
@@ -71,14 +76,14 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   end
 
   specify 'md5 1' do
-    ce2.update(verbatim_label: 'QQQQ')
+    ce2.update!(verbatim_label: 'QQQQ')
     query.md5_verbatim_label = true
     query.in_labels = 'QQQ'
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
   specify 'md5 2' do
-    ce2.update(verbatim_label: 'QQQQ')
+    ce2.update!(verbatim_label: 'QQQQ')
     query.md5_verbatim_label = true
     query.in_labels = 'QQQQ'
     expect(query.all.map(&:id)).to contain_exactly(ce2.id)
@@ -88,6 +93,14 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     query.start_date = '1999-1-1'
     query.end_date = '2001-1-1'
     expect(query.all.map(&:id)).to contain_exactly(ce2.id)
+  end
+
+  specify 'between date range 1, ActionController::Parameters' do
+    h = {start_date: '1999-1-1', end_date: '2001-1-1'}
+    p = ActionController::Parameters.new( h )
+    q = Queries::CollectingEvent::Filter.new(p) 
+
+    expect(q.all.map(&:id)).to contain_exactly(ce2.id)
   end
 
   specify 'between date range 2 - conflicts' do
@@ -102,18 +115,8 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all.map(&:id)).to contain_exactly(ce2.id)
   end
 
-  specify '#in_verbatim_locality' do
-    query.in_verbatim_locality = 'Under'
-    expect(query.all.map(&:id)).to contain_exactly(ce2.id)
-  end
-
   specify '#in_labels' do
     query.in_labels = 'star'
-    expect(query.all.map(&:id)).to contain_exactly(ce2.id)
-  end
-
-  specify '#recent' do
-    query.recent = 1
     expect(query.all.map(&:id)).to contain_exactly(ce2.id)
   end
 
@@ -129,30 +132,9 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all.map(&:id)).to contain_exactly(ce1.id)
   end
 
-  context 'collecting_event_wildcards' do
-    specify '#start_date_year (integer field test)' do
-      query.start_date_year = 20
-      query.collecting_event_wildcards << 'start_date_year'
-      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
-
-      query.start_date_year = 201
-      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
-    end
-
-    specify '#verbatim_locality (string field test)' do
-      query.verbatim_locality = 'Out there'
-      query.collecting_event_wildcards << 'verbatim_locality'
-      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
-
-      query.verbatim_locality = 'Out there, '
-      expect(query.all.map(&:id)).to contain_exactly(ce2.id)
-    end
-  end
-
   context 'geo' do
     let(:point_lat) { '10.0' }
     let(:point_long) { '10.0' }
-
 
    # let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
    let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
@@ -193,19 +175,5 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 
-
-
-  # specify '#shape, combined 1' do
-  #   query.shape = point_shape
-  #   query.in_verbatim_locality = 'out'
-  #   expect(query.all.map(&:id)).to contain_exactly(ce1.id)
-  # end
-
-  # specify '#shape, combined 2' do
-  #   query.shape = point_shape
-  #   query.in_verbatim_locality = 'RRRRAWR!'
-  #   expect(query.all.map(&:id)).to contain_exactly()
-  # end
   end
-
 end

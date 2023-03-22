@@ -51,26 +51,26 @@ class Otu < ApplicationRecord
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]
 
   belongs_to :taxon_name, inverse_of: :otus
+ 
+  # Why?  Could be combination too.
   belongs_to :protonym, -> { where(type: 'Protonym') }, foreign_key: :taxon_name_id
 
   has_many :cached_maps, dependent: :destroy
 
   has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error
 
-  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject, dependent: :restrict_with_error
-  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation', dependent: :restrict_with_error
-
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
   has_many :type_materials, through: :protonym
 
+  # TODO: no longer true since they can come through Otu as well
   has_many :extracts, through: :collection_objects, source: :extracts
   has_many :sequences, through: :extracts, source: :derived_sequences
 
   has_many :collecting_events, -> { distinct }, through: :collection_objects
   has_many :common_names, dependent: :destroy
   has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what? DD: profile should never be update, a new profile should be created insted
-  
+
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :public_contents, inverse_of: :otu, dependent: :destroy
 
@@ -137,8 +137,8 @@ class Otu < ApplicationRecord
     end
   end
 
-  # TODO: This is coordinate otus with children, 
-  #       It should probably be renamed coordinate
+  # TODO: This is coordinate_otus with children,
+  #       it should probably be renamed coordinate.
   # @return [Otu::ActiveRecordRelation]
   #   all OTUs linked to the taxon_name_id, it descendants, and
   #   any synonym of any of the previous
@@ -146,7 +146,9 @@ class Otu < ApplicationRecord
   #   !! Invalid taxon_name_ids return nothing
   #   !! Taxon names with synonyms return the OTUs of their synonyms
   # @param taxon_name_id [The id of a valid TaxonName]
-  def self.descendant_of_taxon_name(taxon_name_id)
+  def self.descendant_of_taxon_name(taxon_name_id = [])
+    ids = [taxon_name_id].flatten.compact.uniq
+  
     o = Otu.arel_table
     t = TaxonName.arel_table
     h = TaxonNameHierarchy.arel_table
@@ -156,7 +158,7 @@ class Otu < ApplicationRecord
       .join(h, Arel::Nodes::InnerJoin).on(
         t[:cached_valid_taxon_name_id].eq(h[:descendant_id]))
 
-    Otu.joins(q.join_sources).where(h[:ancestor_id].eq(taxon_name_id).to_sql)
+    Otu.joins(q.join_sources).where(h[:ancestor_id].eq_any(ids).to_sql)
   end
 
   # return [Scope] the Otus bound to that taxon name and its descendants
@@ -225,13 +227,13 @@ class Otu < ApplicationRecord
                 t['biological_association_object_type'].eq('Otu')
               )
             )
-              .where(t['created_by_id'].eq(user_id))
+              .where(t['updated_by_id'].eq(user_id))
               .where(t['project_id'].eq(project_id))
               .order(t['updated_at'].desc)
         else
           t.project(t['otu_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
-            .where(t['created_by_id'].eq(user_id))
+            .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         end
@@ -256,7 +258,7 @@ class Otu < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: Otu.pinned_by(user_id).where(project_id: project_id).to_a,
+      pinboard: Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
       recent: []
     }
 
@@ -268,11 +270,11 @@ class Otu < ApplicationRecord
         .limit(3).to_a
       ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
       h[:quick] = (
-        Otu.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+        Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a +
         Otu.where('"otus"."id" IN (?)', r.first(4) ).to_a).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
     else
       h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
-      h[:quick] = Otu.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+      h[:quick] = Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
     end
 
     h
@@ -314,7 +316,7 @@ class Otu < ApplicationRecord
     if taxon_name_id.nil?
       Otu.coordinate_otus(id)
     else
-      Otu.descendant_of_taxon_name(taxon_name.valid_taxon_name.id)     
+      Otu.descendant_of_taxon_name(taxon_name.valid_taxon_name.id)
     end
   end
 
@@ -385,6 +387,7 @@ class Otu < ApplicationRecord
     end
   end
 
+  # TODO: Re/move
   # temporary method to gent list of taxa from a geographic area and save it to csv file
   def taxa_by_geographic_area
     area = 'China'

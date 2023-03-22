@@ -7,7 +7,7 @@ module IdentifiersHelper
       if identifier.namespace.is_virtual?
         [
           tag.span(identifier.namespace.short_name, class: [:feedback, 'feedback-thin', 'feedback-light']),
-          tag.span(identifier.cached, title: identifier.type.demodulize.titleize.humanize)
+          tag.span(identifier.identifier, title: identifier.type.demodulize.titleize.humanize)
         ].join('&nbsp;').html_safe
       else
         tag.span(identifier.cached, title: identifier.type.demodulize.titleize.humanize)

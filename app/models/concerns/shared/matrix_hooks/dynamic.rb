@@ -120,7 +120,6 @@ module Shared
             if p.persisted?
              # See row version.  
              #if p.descriptor == o
-             #  #byebug
              #  #p.update_column(:reference_count,  p.reference_count + 1) 
              #end
               #  see "only added observation_matrix column is incremented" spec  # mci.increment_matrix_column_reference_count(p)

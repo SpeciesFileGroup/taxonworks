@@ -6,12 +6,12 @@ class ConfidenceLevelsController < ApplicationController
     respond_to do |format|
 
       format.html do
-        render '/shared/data/all/index' 
+        render '/shared/data/all/index'
       end
 
       format.json do
         @controlled_vocabulary_terms = ConfidenceLevel.with_project_id(sessions_current_project_id).order(:position)
-        render '/controlled_vocabulary_terms/index' 
+        render '/controlled_vocabulary_terms/index'
       end
     end
   end
@@ -44,7 +44,7 @@ class ConfidenceLevelsController < ApplicationController
   end
 
   def select_options
-    @confidence_levels = ConfidenceLevel.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:klass))
+    @confidence_levels = ConfidenceLevel.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
   protected

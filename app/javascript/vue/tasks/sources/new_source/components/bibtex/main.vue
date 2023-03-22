@@ -1,5 +1,5 @@
 <template>
-  <div class="panel content">
+  <div>
     <h3>BibTeX</h3>
     <div class="horizontal-left-content align-start">
       <draggable
@@ -10,12 +10,14 @@
         :item-key="element => element"
         :disabled="!sortable"
         :group="{ name: 'components' }"
-        @end="updatePreferences">
+        @end="updatePreferences"
+      >
         <template #item="{ element }">
           <component
             class="separate-bottom separate-right"
-            @onModal="setDraggable"
-            :is="element"/>
+            :is="element"
+            @on-modal="setDraggable"
+          />
         </template>
       </draggable>
     </div>
@@ -108,9 +110,9 @@ export default {
     return {
       disableDraggable: false,
       columns: {
-        componentsOrderOne: ['BibtexType', 'BibtexTitle', 'BibtexAuthors', 'BibtexDate', 'BibtexSerial', 'BibtexVolume', 'BibtexLanguageId', 'BibtexChapter', 'BibtexBookTitle', 'BibtexEdition', 'BibtexSeries',],
+        componentsOrderOne: ['BibtexType', 'BibtexTitle', 'BibtexAuthors', 'BibtexDate', 'BibtexSerial', 'BibtexVolume', 'BibtexLanguageId', 'BibtexChapter', 'BibtexBookTitle', 'BibtexEdition', 'BibtexSeries'],
         componentsOrderTwo: ['BibtexSourceEditor', 'BibtexOrganization', 'BibtexInstitution', 'BibtexHowpublished', 'BibtexPublisher', 'BibtexAddress', 'BibtexSchool', 'BibtexCopyright', 'BibtexTranslator', 'BibtexLanguage', 'BibtexAbstract', 'BibtexKey', 'BibtexUrl'],
-        componentsOrderThree: ['BibtexVerbatim', 'BibtexCrosslinks', 'BibtexTwAttributes'],
+        componentsOrderThree: ['BibtexVerbatim', 'BibtexCrosslinks', 'BibtexTwAttributes']
       },
       keyStorage: 'tasks::newsource::bibtex'
     }

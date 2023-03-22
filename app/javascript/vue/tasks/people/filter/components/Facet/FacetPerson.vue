@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Name</h3>
     <div class="field">
       <label class="display-block">Full name</label>
@@ -51,13 +51,13 @@
         Exact
       </label>
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { computed } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
-import InputRange from 'components/ui/Input/InputRange.vue'
 
 const props = defineProps({
   modelValue: {
@@ -88,13 +88,8 @@ const fields = [
 const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
-  get () {
-    return props.modelValue
-  },
-
-  set (value) {
-    emit('update:modelValue', value)
-  }
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
 })
 
 const urlParams = URLParamsToJSON(location.href)

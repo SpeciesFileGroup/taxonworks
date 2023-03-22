@@ -21,7 +21,7 @@ namespace :tw do
         raise 'Path to data directory not provided'.red if data_directory_path.nil?
         raise "Data directory does not exist at #{data_directory_path}".red unless File.directory?(data_directory_path)
         raise 'Path to meta data file not provided'.red if meta_data_file_path.nil?
-        raise "Meta data file does not exist at #{meta_data_file_path}".red unless File.exists?(meta_data_file_path)
+        raise "Meta data file does not exist at #{meta_data_file_path}".red unless File.exist?(meta_data_file_path)
 
         csv = CSV.parse(File.read(meta_data_file_path), { headers: true, col_sep: "\t" })
 
@@ -47,7 +47,7 @@ namespace :tw do
                   filenames.each do |filename|
                     file_path = File.join(data_directory_path, filename)
 
-                    if File.exists?(file_path)
+                    if File.exist?(file_path)
                       # Check if the document already exists
                       document = Document.find_by(document_file_fingerprint: Digest::MD5.file(file_path).hexdigest)
 

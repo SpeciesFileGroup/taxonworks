@@ -236,8 +236,8 @@ require 'namecase'
 #   Non-Bibtex attribute that is cross-referenced.
 #
 # @!attribute bibtex_type
-#   @return [String]
-#    one of VALID_BIBTEX_TYPES (config/initializers/constants/_controlled_vocabularies/bibtex_constants.rb, keys there are symbols)
+#   @return [String]config/initializers/constants/_controlled_vocabularies/bibtex_constants
+#    one of VALID_BIBTEX_TYPES (.rb, keys there are symbols)
 #
 # @!attribute day
 #   @return [Integer]
@@ -795,7 +795,7 @@ class Source::Bibtex < Source
     ::BIBTEX_FIELDS.each do |f|
       next if f == :bibtex_type
       v = send(f)
-      if !v.blank? && (v =~ /\A{(.*)}\z/)
+      if !v.blank? && (v.to_s =~ /\A{(.*)}\z/)
         a[f.to_s] = {literal: $1}
       end
     end
@@ -968,8 +968,8 @@ class Source::Bibtex < Source
   def sv_cached_names # this cannot be moved to soft_validation_extensions
     is_cached = true
 
-    if author.to_s != get_bibtex_names('author') ||
-        editor.to_s != get_bibtex_names('editor') ||
+    if (author.to_s != get_bibtex_names('author') && !get_bibtex_names('author').blank?) ||
+        (editor.to_s != get_bibtex_names('editor') && !get_bibtex_names('editor').blank?) ||
         cached != get_cached ||
         cached_nomenclature_date != nomenclature_date ||
         cached_author_string.to_s != authority_name(false)
@@ -983,6 +983,8 @@ class Source::Bibtex < Source
   end
 end
 
+
+### to be deleted
 def aaa
   ids = []
   Source.joins(:project_sources).where('project_sources.project_id = 13').first(100).each do |s|

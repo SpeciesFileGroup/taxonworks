@@ -1,48 +1,28 @@
 module Queries
   module Attribution
 
-    # !! does not inherit from base query
-    class Filter 
+    class Filter < Query::Filter
+      include Concerns::Polymorphic
+      polymorphic_klass(::Attribution)
 
-      # General annotator options handling 
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      attr_accessor :options
+      PARAMS = [
+        *::Attribution.related_foreign_keys.map(&:to_sym),
+        :attriution_id,
+        attribution_id: []
+      ].freeze
 
-      # Params specific to Attribution 
+      attr_accessor :attribution_id
 
-      # @params params [ActionController::Parameters]
-      def initialize(params)
-        @options = params
+      def initialize(query_params)
+        super
+        @attribution_id = params[:attribution_id]
+        set_polymorphic_params(params)
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = [
-          Queries::Annotator.annotator_params(options, ::Attribution),
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+      def attribution_id
+        [@attribution_id].flatten.compact
       end
 
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::Attribution.where(and_clauses)
-        else
-          ::Attribution.all
-        end
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Attribution.arel_table
-      end
     end
   end
 end

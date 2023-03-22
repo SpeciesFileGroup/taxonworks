@@ -1,4 +1,8 @@
-# Turn the shallow resource into a global_object_id for use in filters.
+# 
+# !! This is no longer relevant. 
+#
+# Turn the shallow resource into a object_global_id for use in filters.
+#
 module ShallowPolymorphic
 
   extend ActiveSupport::Concern

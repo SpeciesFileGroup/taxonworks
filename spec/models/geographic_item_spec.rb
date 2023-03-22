@@ -705,7 +705,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
               .to eq([k])
           end
 
-          specify 'three things inside k (as seperate parameters)' do
+          specify 'three things inside k (as separate parameters)' do
             expect(GeographicItem.are_contained_in_item_by_id('polygon', p1.id,
                                                               p2.id,
                                                               p3.id).to_a)

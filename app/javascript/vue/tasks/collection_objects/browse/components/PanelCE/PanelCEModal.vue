@@ -6,7 +6,6 @@
     <template #body>
       <div>
         <div class="field label-above">
-
           <textarea
             v-if="textarea"
             v-model="fieldValue"
@@ -18,7 +17,7 @@
             type="text"
             class="full_width"
             v-model="fieldValue"
-          >
+          />
           <div class="margin-small-top middle">
             <VIcon
               name="attention"
@@ -99,40 +98,47 @@ const confirmationModal = ref(null)
 
 const MAX_WITHOUT_WARNING = 10
 
-CollectionObject.where({ collecting_event_ids: [props.collectingEventId] }).then(({ body }) => {
-  collectionObjects.value = body
-  isLoading.value = false
-})
+CollectionObject.where({ collecting_event_id: [props.collectingEventId] }).then(
+  ({ body }) => {
+    collectionObjects.value = body
+    isLoading.value = false
+  }
+)
 
-async function updateCE () {
-  const ok = collectionObjects.value.length > MAX_WITHOUT_WARNING
-    ? await confirmationModal.value.show({
-      title: 'Update collecting event',
-      message: 'This will update the current collecting event. Are you sure you want to proceed?',
-      confirmationWord: 'UPDATE',
-      okButton: 'Update',
-      typeButton: 'submit'
-    })
-    : true
+async function updateCE() {
+  const ok =
+    collectionObjects.value.length > MAX_WITHOUT_WARNING
+      ? await confirmationModal.value.show({
+          title: 'Update collecting event',
+          message:
+            'This will update the current collecting event. Are you sure you want to proceed?',
+          confirmationWord: 'UPDATE',
+          okButton: 'Update',
+          typeButton: 'submit'
+        })
+      : true
 
   if (ok) {
     isUpdating.value = true
 
-    store.dispatch(ActionNames.UpdateCollectingEvent, {
-      collectingEventId: props.collectingEventId,
-      payload: { [props.param.field]: fieldValue.value }
-    })
-      .then(_ => {
+    store
+      .dispatch(ActionNames.UpdateCollectingEvent, {
+        collectingEventId: props.collectingEventId,
+        payload: { [props.param.field]: fieldValue.value }
+      })
+      .then((_) => {
         const coId = store.getters[GetterNames.GetCollectionObject].id
 
         store.dispatch(ActionNames.LoadDwc, coId)
         store.dispatch(ActionNames.LoadTimeline, coId)
 
         isUpdating.value = false
-        TW.workbench.alert.create('Collecting event was successfully updated', 'notice')
+        TW.workbench.alert.create(
+          'Collecting event was successfully updated',
+          'notice'
+        )
         emit('close')
       })
   }
 }
-
 </script>

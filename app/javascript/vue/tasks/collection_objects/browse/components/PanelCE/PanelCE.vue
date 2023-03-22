@@ -3,7 +3,9 @@
     <template #header>
       <div class="flex-separate middle full_width">
         <h3>Collecting event</h3>
-        <RadialFilterAttribute :parameters="{ collecting_event_ids: [collectingEvent.id] }" />
+        <RadialFilterAttribute
+          :parameters="{ collecting_event_id: [collectingEvent.id] }"
+        />
         <div class="horizontal-right-content">
           <RadialAnnotator :global-id="collectingEvent.global_id" />
           <RadialObject :global-id="collectingEvent.global_id" />
@@ -36,7 +38,7 @@ import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/object/radial.vue'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
 import TableGrid from 'components/layout/Table/TableGrid.vue'
-import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
+import RadialFilterAttribute from 'components/radials/linker/RadialFilterAttribute.vue'
 import PanelCEModal from './PanelCEModal.vue'
 
 const notEditableFields = [
@@ -56,7 +58,7 @@ const textareaFields = [
   'verbatim_locality'
 ]
 
-function setRow (rowObject) {
+function setRow(rowObject) {
   if (!notEditableFields.includes(rowObject.field)) {
     row.value = rowObject
   }
@@ -65,6 +67,7 @@ function setRow (rowObject) {
 const row = ref(undefined)
 
 const store = useStore()
-const collectingEvent = computed(() => store.getters[GetterNames.GetCollectingEvent])
-
+const collectingEvent = computed(
+  () => store.getters[GetterNames.GetCollectingEvent]
+)
 </script>

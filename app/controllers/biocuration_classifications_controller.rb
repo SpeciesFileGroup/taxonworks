@@ -56,6 +56,7 @@ class BiocurationClassificationsController < ApplicationController
       params.require(:biocuration_classification).permit(:biocuration_class_id, :biological_collection_object_id)
     end
 
+    # No corresponding filter.rb 
     def filter_params
       params.require(:biological_collection_object_id)
       return params.permit(:biocuration_class_id, :biological_collection_object_id).merge(project_id: sessions_current_project_id)

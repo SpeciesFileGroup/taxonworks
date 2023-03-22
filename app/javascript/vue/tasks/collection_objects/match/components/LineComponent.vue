@@ -5,13 +5,16 @@
         <ul class="no_bullets context-menu">
           <li
             class="capitalize"
-            v-for="item in show">
+            v-for="item in show"
+            :key="item"
+          >
             <label>
               <input
                 type="radio"
                 :value="item"
-                v-model="filter">
-              {{ item }}
+                v-model="view"
+              >
+              {{ item }} ({{ listCount[item] }})
             </label>
           </li>
         </ul>
@@ -19,26 +22,30 @@
           <button
             type="button"
             class="button button-default normal-input margin-small-right"
-            @click="selectAll">
+            @click="selectAll"
+          >
             Select all
           </button>
           <button
             type="button"
             class="button button-default normal-input margin-small-right"
-            @click="selected = []">
+            @click="selected = []"
+          >
             Unselect all
           </button>
-          <compare-component
-            :compare="compare"/>
+          <compare-component :compare="compare" />
         </div>
       </div>
     </navbar-component>
+
     <template
       v-for="(match, recordId) in matchList"
-      :key="recordId">
+      :key="recordId"
+    >
       <div
         v-if="filterView(match)"
-        class="panel content">
+        class="panel content rounded-none"
+      >
         <div class="flex-separate">
           <template v-if="(Array.isArray(match) && match.length) || Object.keys(match).length">
             <span><b>{{ recordId }}</b></span>
@@ -53,16 +60,21 @@
           </template>
         </div>
         <ul v-if="match.length">
-          <li v-for="record in match">
+          <li
+            v-for="record in match"
+            :key="record.id"
+          >
             <label>
               <input
                 :value="record.id"
                 v-model="selected"
-                type="checkbox">
+                type="checkbox"
+              >
             </label>
             <a
               :href="`/tasks/collection_objects/browse?collection_object_id=${record.id}`"
-              v-html="record.object_tag"/>
+              v-html="record.object_tag"
+            />
           </li>
         </ul>
       </div>
@@ -92,16 +104,25 @@ export default {
 
   computed: {
     compare () {
-      if (this.selected.length === 2) {
+      if (this.selected.length > 1) {
         const list = [].concat(...Object.values(this.matchList).filter(item => Array.isArray(item)))
 
-        return [
-          list.find(item => item.id === this.selected[0]),
-          list.find(item => item.id === this.selected[1])
-        ]
-      }
-      else {
+        return list.filter(item => this.selected.includes(item.id))
+      } else {
         return []
+      }
+    },
+
+    listCount () {
+      const matchList = Object.values(this.matchList)
+      const matches = matchList.filter(match => (Array.isArray(match) && match.length) || Object.keys(match).length).length
+      const unmatched = matchList.filter(match => !(Array.isArray(match) && match.length) || !Object.keys(match).length).length
+      const both = matches + unmatched
+
+      return {
+        matches,
+        unmatched,
+        both
       }
     }
   },
@@ -110,7 +131,7 @@ export default {
     return {
       selected: [],
       show: ['matches', 'unmatched', 'both'],
-      filter: 'both'
+      view: 'both'
     }
   },
 
@@ -124,12 +145,12 @@ export default {
   },
 
   methods: {
-    selectAll() {
+    selectAll () {
       this.selected = [].concat(...Object.values(this.matchList).filter(item => Array.isArray(item))).map(item => item.id)
     },
 
     filterView (record) {
-      switch (this.filter) {
+      switch (this.view) {
         case 'matches':
           return record.length
         case 'unmatched':

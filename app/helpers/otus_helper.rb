@@ -7,6 +7,13 @@ module OtusHelper
     content_tag(:span, a.compact.join(' ').html_safe, class: :otu_tag)
   end
 
+  def label_for_otu(otu)
+    return nil if otu.nil?
+    [otu.name,
+     label_for_taxon_name(otu.taxon_name)
+    ].compact.join(': ')
+  end
+
   def otu_tag_elements(otu)
     return nil if otu.nil?
     [
@@ -27,13 +34,6 @@ module OtusHelper
   def otu_link(otu)
     return nil if otu.nil?
     link_to(otu_tag_elements(otu).join(' ').html_safe, otu)
-  end
-
-  def label_for_otu(otu)
-    return nil if otu.nil?
-    [otu.name,
-     label_for_taxon_name(otu.taxon_name)
-    ].compact.join(': ')
   end
 
   def otus_search_form
@@ -66,15 +66,37 @@ module OtusHelper
   #   of OTUs
   def next_otus(otu)
     if otu.taxon_name_id
-      otu.taxon_name.next_sibling&.otus || []
+      o = []
+      t = otu.taxon_name.next_sibling
+      unless t.nil?
+        while o.empty?
+          o = t&.otus.to_a
+          break if t.nil?
+          t = t.next_sibling
+        end
+      end
+      o
     else
       Otu.where(project_id: otu.id).where('id > ?', otu.id).all
     end
   end
 
+  # @return [Array]
+  #   of OTUs
+  # Some OTUs don't have TaxonName, skip along
+  # until we hit one.
   def previous_otus(otu)
     if otu.taxon_name_id
-      otu.taxon_name.previous_sibling&.otus || []
+      o = []
+      t = otu.taxon_name.previous_sibling
+      unless t.nil?
+        while o.empty?
+          o = t&.otus.to_a
+          break if t.nil?
+          t = t.previous_sibling
+        end
+      end
+      o
     else
       Otu.where(project_id: otu.id).where('id < ?', otu.id).all
     end

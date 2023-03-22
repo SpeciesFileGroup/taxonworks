@@ -13,6 +13,10 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
         self.collect_to_s(TaxonNameClassification::Iczn::Available)
   end
 
+  def self.disjoint_object_classes
+    ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICVCN_TAXON_NAME_CLASSIFICATION_NAMES
+  end
+
   def self.nomenclatural_priority
     :direct
   end

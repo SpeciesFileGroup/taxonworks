@@ -5,6 +5,28 @@ describe InternalAttribute, type: :model do
   let(:otu) { FactoryBot.build(:valid_otu) }
   let(:predicate) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate) }
 
+  specify '.batch_create 1' do
+    o1 = FactoryBot.create(:valid_otu)
+    o2 = FactoryBot.create(:valid_otu)
+
+    p = FactoryBot.create(:valid_predicate)
+
+    h = {
+      attribute_subject_id: [o1.id, o2.id],
+      attribute_subject_type: 'Otu',
+      controlled_vocabulary_term_id: p.id,
+      value: 22
+    }
+
+    p = ActionController::Parameters.new(h)
+    p.permit!
+   
+    InternalAttribute.batch_create(p)
+    
+    expect(InternalAttribute.count).to eq(2)
+    expect(InternalAttribute.first.value).to eq('22')
+  end
+
   context 'validation' do
     before(:each) {
       internal_attribute.valid?
