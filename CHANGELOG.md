@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Relationships are not listed in biological associations form in Quick forms
 - Topics are not listed after create them on Citation form in Quick forms
 - Combination names are missing in Citations by source
+- Error messages related to cached_nomenclature_date
 
 [#3352]: https://github.com/SpeciesFileGroup/taxonworks/issues/3352
 [#3359]: https://github.com/SpeciesFileGroup/taxonworks/issues/3359
