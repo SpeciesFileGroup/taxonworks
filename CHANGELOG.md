@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Handle another class of SQED raises
 - TaxonNameClassification API call raises
 - Raises related to cached_nomenclature_date
+- PublicContent causing OTU destruction to raise
 
 [#3361]: https://github.com/SpeciesFileGroup/taxonworks/issues/3361
 [#3352]: https://github.com/SpeciesFileGroup/taxonworks/issues/3352
