@@ -11,6 +11,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New panels for Adminstrators User activity dashboard
 - Deaccessioned layout for filter collection objects
 
+### Changed
+- Replace GeoJSON long/lat format to lat/long on interfaces [#3359]
+
 ### Fixed
 - Deaccessioned facet in Filter collection objects [#3352]
 - Reversed OTU taxon name facet [#3360]
@@ -19,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Combination names are missing in Citations by source
 
 [#3352]: https://github.com/SpeciesFileGroup/taxonworks/issues/3352
+[#3359]: https://github.com/SpeciesFileGroup/taxonworks/issues/3359
 [#3360]: https://github.com/SpeciesFileGroup/taxonworks/issues/3360
 
 ## [0.31.3] - 2023-03-17

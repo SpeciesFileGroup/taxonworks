@@ -14,7 +14,8 @@
       </thead>
       <transition-group
         name="list-complete"
-        tag="tbody">
+        tag="tbody"
+      >
         <tr
           v-for="item in list"
           :key="item.id"
@@ -26,7 +27,8 @@
           <td class="line-nowrap">
             <edit-in-place
               v-model="item.error_radius"
-              @end="emit('updateGeo', item)"/>
+              @end="emit('updateGeo', item)"
+            />
           </td>
           <td class="word-keep-all">{{ item.type }}</td>
           <td>
@@ -49,7 +51,7 @@
           </td>
           <td>
             <div class="horizontal-right-content">
-              <radial-annotator :global-id="item.global_id"/>
+              <radial-annotator :global-id="item.global_id" />
               <v-btn
                 color="destroy"
                 circle
@@ -69,12 +71,12 @@
 </template>
 
 <script setup>
-
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import EditInPlace from 'components/editInPlace'
 import DateComponent from 'components/ui/Date/DateFields.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
+import { convertToLatLongOrder } from 'helpers/geojson.js'
 
 const props = defineProps({
   list: {
@@ -83,23 +85,26 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits([
-  'update',
-  'dateChanged',
-  'delete',
-  'updateGeo'
-])
+const emit = defineEmits(['update', 'dateChanged', 'delete', 'updateGeo'])
 
-const deleteItem = item => {
-  if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+const deleteItem = (item) => {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
     emit('delete', item)
   }
 }
 
-const getCoordinates = coordinates =>
-  coordinates.map(coordinate => Array.isArray(coordinate)
-    ? coordinate.map(item => item.slice(0, 2))
-    : coordinate
-  )
+function getCoordinates(coordinates) {
+  const flatten = coordinates.flat(1)
 
+  if (typeof flatten[0] === 'number') {
+    console.log(coordinates)
+    return convertToLatLongOrder(coordinates)
+  } else {
+    return flatten.map((arr) => convertToLatLongOrder(arr))
+  }
+}
 </script>
