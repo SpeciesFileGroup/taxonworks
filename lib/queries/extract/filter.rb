@@ -97,7 +97,7 @@ module Queries
 
         set_containable_params(params)
         set_citations_params(params)
-        set_dates(params)
+        set_date_params(params)
         set_tags_params(params)
         set_protocols_params(params)
       end
@@ -206,7 +206,7 @@ module Queries
         if descendants
           o = ::Otu.descendant_of_taxon_name(taxon_name_id)
         else
-          o = ::Otu.where(taxon_name_id: taxon_name_id)
+          o = ::Otu.where(taxon_name_id:)
         end
 
         a = ::Extract.joins(:origin_otus).where(otus: o)
