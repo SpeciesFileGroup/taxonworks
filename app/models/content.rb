@@ -31,17 +31,17 @@ class Content < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::DataAttributes # TODO: reconsider, why is this here?  Should be removed, use case is currently cross reference to an identifier, if required use Identifier
   include Shared::IsData
-  
+
   ignore_whitespace_on(:text)
 
-  attr_accessor :is_public 
+  attr_accessor :is_public
 
   after_save :publish, if: -> { (is_public == true) || is_public == '1' }
   after_save :unpublish, if: -> { (is_public == false) || (is_public == '0') }
 
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents
-  has_one :public_content, inverse_of: :content
+  has_one :public_content, inverse_of: :content, dependent: :destroy
   belongs_to :language
 
   validate :topic_id_is_type_topic
@@ -64,9 +64,9 @@ class Content < ApplicationRecord
     public_content.delete if public_content
     PublicContent.create!(
       content: self,
-      topic: topic,
-      text:  text,
-      otu:   otu
+      topic:,
+      text:,
+      otu:
     )
   end
 
@@ -96,15 +96,15 @@ class Content < ApplicationRecord
   end
 
   def self.used_recently(user_id, project_id)
-    Content.touched_by(user_id).where(project_id: project_id).order(updated_at: :desc).limit(6).to_a
+    Content.touched_by(user_id).where(project_id:).order(updated_at: :desc).limit(6).to_a
   end
 
   def self.select_optimized(user_id, project_id)
     r = used_recently(user_id, project_id)
 
     h = {
-      quick: Content.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a,
-      pinboard: Content.pinned_by(user_id).where(project_id: project_id).to_a,
+      quick: Content.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a,
+      pinboard: Content.pinned_by(user_id).where(project_id:).to_a,
       recent: used_recently(user_id, project_id)
     }
 
