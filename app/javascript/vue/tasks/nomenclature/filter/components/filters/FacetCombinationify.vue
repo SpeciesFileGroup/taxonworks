@@ -4,7 +4,7 @@
     <label>
       <input
         type="checkbox"
-        v-model="params.combinationify"
+        v-model="inputValue"
       />
       Expand to include combinations
     </label>
@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { useYellowFacetCheckbox } from '../../utils/resetYellowFacets'
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
@@ -23,9 +23,5 @@ const props = defineProps({
 })
 const emit = defineEmits('update:modelValue')
 
-const params = computed({
-  get: () => props.modelValue,
-
-  set: (value) => emit('update:modelValue', value)
-})
+const inputValue = useYellowFacetCheckbox(props, emit, 'combinationify')
 </script>
