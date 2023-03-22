@@ -7,7 +7,61 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-# Added
+### Added
+- New options to extend results in Nomenclature filter [#3361]
+- New panels for Adminstrators User activity dashboard
+- Deaccessioned layout for filter collection objects
+
+### Changed
+- Replace GeoJSON long/lat format to lat/long on interfaces [#3359]
+- Returned ability to show TaxonNameClassifications (from `/taxon_name_classifications/list`)
+
+### Fixed
+- Deaccessioned facet in Filter collection objects [#3352]
+- Reversed OTU taxon name facet [#3360]
+- Relationships are not listed in biological associations form in Quick forms
+- Topics are not listed after create them on Citation form in Quick forms
+- Combination names are missing in Citations by source
+- Handle another class of SQED raises
+- TaxonNameClassification API call raises
+- Raises related to cached_nomenclature_date
+- PublicContent causing OTU destruction to raise
+- Several paper-catalog rendering issues
+
+[#3361]: https://github.com/SpeciesFileGroup/taxonworks/issues/3361
+[#3352]: https://github.com/SpeciesFileGroup/taxonworks/issues/3352
+[#3359]: https://github.com/SpeciesFileGroup/taxonworks/issues/3359
+[#3360]: https://github.com/SpeciesFileGroup/taxonworks/issues/3360
+
+## [0.31.3] - 2023-03-17
+
+### Added
+
+- JSON nomenclature inventory endpoint `/api/v1/taxon_names/:id/inventory/catalog`
+
+### Fixed
+
+- Serial name filter query doesn't work
+- Serial facet <IN WHERE>
+- Authors facet doesn't work on Filter nomenclature
+- Fixed bug preventing combination update
+- Loan facet doesn't work on Filter collection objects [#3345]
+- Valid name is not provided for all matches on Match nomenclature task [#3343]
+- Object links don't work on Interactive key
+- Alternate values on ObservationMatrix name failing
+- Start and End date in Collecting Event related facets
+
+### Changed
+
+- Updated Ruby gems
+- nomenclature related validation changed from nomenclature_date to cached_nomenclature_date, which should speadup the process
+
+[#3343]: https://github.com/SpeciesFileGroup/taxonworks/issues/3343
+[#3345]: https://github.com/SpeciesFileGroup/taxonworks/issues/3345
+
+## [0.31.2] - 2023-03-09
+
+### Added
 
 - Link from AssertedDistribution filter to BiologicalAssociations filter
 - All tab to biological relationships facet [#3334]
@@ -28,13 +82,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `Clone last citation` button doesn't work
 - Missing asserted distributions in Browse OTU and Quick forms radial [#3337]
 
-[#3337]: https://github.com/SpeciesFileGroup/taxonworks/issues/3337
-[#3336]: https://github.com/SpeciesFileGroup/taxonworks/issues/3336
-[#3335]: https://github.com/SpeciesFileGroup/taxonworks/issues/3335
-[#3334]: https://github.com/SpeciesFileGroup/taxonworks/issues/3334
-[#3333]: https://github.com/SpeciesFileGroup/taxonworks/issues/3333
-[#3332]: https://github.com/SpeciesFileGroup/taxonworks/issues/3332
 [#3330]: https://github.com/SpeciesFileGroup/taxonworks/issues/3330
+[#3332]: https://github.com/SpeciesFileGroup/taxonworks/issues/3332
+[#3333]: https://github.com/SpeciesFileGroup/taxonworks/issues/3333
+[#3334]: https://github.com/SpeciesFileGroup/taxonworks/issues/3334
+[#3335]: https://github.com/SpeciesFileGroup/taxonworks/issues/3335
+[#3336]: https://github.com/SpeciesFileGroup/taxonworks/issues/3336
+[#3337]: https://github.com/SpeciesFileGroup/taxonworks/issues/3337
 
 ## [0.31.1] - 2023-03-07
 
@@ -3422,7 +3476,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.1...development
+
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.3...development
+[0.31.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.2...v0.31.3
+[0.31.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.1...v0.31.2
 [0.31.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.0...v0.31.1
 [0.31.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.3...v0.31.0
 [0.30.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.2...v0.30.3

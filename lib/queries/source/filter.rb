@@ -2,7 +2,7 @@ module Queries
   module Source
     class Filter < Query::Filter
 
-      ATTRIBUTES =  (::Source.core_attributes - %w{bibtex_type title author}).map(&:to_sym).freeze
+      ATTRIBUTES =  (::Source.core_attributes - %w{bibtex_type title author serial_id}).map(&:to_sym).freeze
 
       include Queries::Concerns::Attributes
       include Queries::Concerns::Empty
@@ -370,7 +370,7 @@ module Queries
         return nil if serial.nil?
 
         if serial
-          rtable[:serial_id].not_eq(nil)
+          table[:serial_id].not_eq(nil)
         else
           table[:serial_id].eq(nil)
         end

@@ -62,7 +62,6 @@
 
 <script setup>
 import { ref, computed, watch, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { CollectingEvent } from 'routes/endpoints'
 import SmartSelector from 'components/ui/SmartSelector'
 import ByAttribute from '../../shared/ByAttribute.vue'
@@ -88,24 +87,34 @@ const params = computed({
 
 const collectingEvents = ref([])
 
-watch(collectingEvents, (newVal) => {
-  params.value.collecting_event_id = newVal.map((ce) => ce.id)
-})
+watch(
+  collectingEvents,
+  (newVal) => {
+    params.value.collecting_event_id = newVal.map((ce) => ce.id)
+  },
+  {
+    deep: true
+  }
+)
+
+watch(
+  () => props.modelValue.collecting_event_id,
+  (newVal, oldVal) => {
+    if (!newVal?.length && oldVal?.length) {
+      collectingEvents.value = []
+    }
+  },
+  {
+    deep: true
+  }
+)
 
 onBeforeMount(() => {
-  const urlParams = URLParamsToJSON(location.href)
-
-  if (urlParams.collecting_event_id) {
-    urlParams.collecting_event_id.forEach((id) => {
-      CollectingEvent.find(id).then((response) => {
-        addCe(response.body)
-      })
+  params.value.collecting_event_id?.forEach((id) => {
+    CollectingEvent.find(id).then((response) => {
+      addCe(response.body)
     })
-  }
-
-  params.value.start_date = urlParams.start_date
-  params.value.end_date = urlParams.end_date
-  params.value.partial_overlap_dates = urlParams.partial_overlap_dates
+  })
 })
 
 const addCe = (ce) => {
@@ -116,8 +125,3 @@ const removeCe = (index) => {
   collectingEvents.value.splice(index, 1)
 }
 </script>
-<style scoped>
-:deep(.vue-autocomplete-input) {
-  width: 100%;
-}
-</style>

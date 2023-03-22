@@ -740,13 +740,13 @@ resources :taxon_names do
   end
 end
 
-resources :taxon_name_classifications, except: [:show] do
+resources :taxon_name_classifications do
   concerns [:data_routes]
   collection do
     get :taxon_name_classification_types
   end
   member do
-    get :show, {format: :json}
+    get :show
   end
 end
 

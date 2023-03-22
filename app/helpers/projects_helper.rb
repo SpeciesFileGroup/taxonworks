@@ -95,6 +95,48 @@ module ProjectsHelper
       total: classification.values.sum
     }
   end
+
+  def document_gb_per_year
+   gb_per_year( Document.group_by_year(:created_at, format: "%Y").sum(:document_file_file_size)) 
+  end
+
+  def image_gb_per_year
+    gb_per_year( Image.group_by_year(:created_at, format: "%Y").sum(:image_file_file_size) )
+  end
+
+  def gb_per_year(sums)
+    min = sums.keys.sort.first
+    max = sums.keys.sort.last  
+
+    data = {}
+
+    (min..max).each do |y|
+      data[y] = sums[y].present? ? (sums[y].to_f / 1073741824.0).to_i : 0
+    end
+
+    data
+  end
+
+  def cumulative_gb_per_year(sums)
+    d = gb_per_year(sums)
+
+    data = {}
+
+    t = 0
+    d.each do |k,v|
+      t = t + v
+      data[k] = t
+    end
+    data
+  end
+
+  def document_cumulative_gb_per_year
+    cumulative_gb_per_year(Document.group_by_year(:created_at, format: "%Y").sum(:document_file_file_size))
+  end
+
+  def image_cumulative_gb_per_year
+    cumulative_gb_per_year(Image.group_by_year(:created_at, format: "%Y").sum(:image_file_file_size))
+  end
   
   
 end

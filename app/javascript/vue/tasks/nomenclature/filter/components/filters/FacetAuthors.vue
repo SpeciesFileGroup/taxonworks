@@ -1,37 +1,12 @@
 <template>
   <FacetContainer>
-    <h3>Author(s)</h3>
-
-    <smart-selector
-      model="people"
-      target="Author"
-      :autocomplete-params="{
-        role_type: TAXON_NAME_AUTHOR_SELECTOR,
-        in_project: true
-      }"
-      label="cached"
-      @selected="addAuthor"
-    />
-    <label>
-      <input
-        v-model="params.taxon_name_author_id_or"
-        type="checkbox"
-      />
-      Any
-    </label>
-
-    <display-list
-      :list="authors"
-      label="object_tag"
-      :delete-warning="false"
-      @delete-index="removeAuthor"
-    />
+    <h3>Authors</h3>
 
     <div class="field label-above">
-      <label class="capitalize">Author</label>
+      <label>Author as text string</label>
       <input
         class="full_width"
-        v-model="params.author_exact"
+        v-model="params.author"
         type="text"
       />
       <label>
@@ -42,6 +17,34 @@
         Exact
       </label>
     </div>
+
+    <fieldset>
+      <legend>Author as role</legend>
+      <SmartSelector
+        model="people"
+        target="Author"
+        :autocomplete-params="{
+          role_type: TAXON_NAME_AUTHOR_SELECTOR,
+          in_project: true
+        }"
+        label="cached"
+        @selected="addAuthor"
+      />
+      <label>
+        <input
+          v-model="params.taxon_name_author_id_or"
+          type="checkbox"
+        />
+        Any
+      </label>
+    </fieldset>
+
+    <display-list
+      :list="authors"
+      label="object_tag"
+      :delete-warning="false"
+      @delete-index="removeAuthor"
+    />
   </FacetContainer>
 </template>
 

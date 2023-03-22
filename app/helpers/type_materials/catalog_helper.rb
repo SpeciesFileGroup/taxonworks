@@ -20,7 +20,12 @@ module TypeMaterials::CatalogHelper
 
     # Holotype male, adult, INHS 12312, deposited: <repoo name>. <verbatim_label>.
 
-    v.push t.type_type.capitalize + (co.total > 1 ? " (n= #{co.total})" : '')
+    if co.ranged_lot_category.present?
+      v.push t.type_type.capitalize + "(n= #{ranged_lot_range(co.ranged_lot_category)})"
+    else
+      v.push t.type_type.capitalize + (co.total > 1 ? " (n= #{co.ranged_lot_category.name})" : '')
+    end
+
     v.push co.biocuration_classes.collect{|a| a.name.downcase}.join(', ').presence
 
     # TODO: add verbose warning when missing any identifier
@@ -33,7 +38,7 @@ module TypeMaterials::CatalogHelper
       v.push "deposited at: #{d}"
     else
       if verbose
-        v.push "[TODO: Repository NOT PROVIDED]"
+        v.push '[TODO: Repository NOT PROVIDED]'
       end
     end
 

@@ -12,7 +12,7 @@ json.metadata do
   end
 end
 
-json.sources @catalog.sources_to_json 
+json.sources @catalog.sources_to_json
 json.topics @catalog.topics_to_json
 
 json.items do

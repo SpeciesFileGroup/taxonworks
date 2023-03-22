@@ -603,7 +603,7 @@ class TaxonNameRelationship < ApplicationRecord
     s = subject_taxon_name
     o = object_taxon_name
     o_new = o.lowest_rank_coordinated_taxon
-    if o != o_new && type_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+    if o != o_new
       soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o_new.cached_html}",
                            success_message: "Relationship moved to  #{o_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end

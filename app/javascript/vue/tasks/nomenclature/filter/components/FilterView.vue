@@ -1,4 +1,9 @@
 <template>
+  <FacetParamExact
+    v-model="params"
+    param="name"
+    title="Name"
+  />
   <FacetTaxonName
     :autocomplete-params="{
       type: 'Protonym',
@@ -9,11 +14,6 @@
   />
   <FacetAuthors v-model="params" />
   <FacetDateYear v-model="params" />
-  <FacetParamExact
-    v-model="params"
-    param="name"
-    title="Name"
-  />
   <FacetNomenclatureGroup v-model="params" />
   <FacetNomenclatureCode v-model="params" />
   <FacetValidity v-model="params" />
@@ -41,6 +41,8 @@
     v-model="params"
   />
   <FacetValidify v-model="params" />
+  <FacetCombinationify v-model="params" />
+  <FacetSynonymify v-model="params" />
 </template>
 
 <script setup>
@@ -57,6 +59,8 @@ import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import FacetValidify from './filters/FacetValidify.vue'
+import FacetCombinationify from './filters/FacetCombinationify.vue'
+import FacetSynonymify from './filters/FacetSynonymify.vue'
 import FacetAuthors from './filters/FacetAuthors.vue'
 import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'

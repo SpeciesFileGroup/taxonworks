@@ -215,6 +215,7 @@ module Queries
         f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
         f.push ::Queries::Concerns::Containable if self < ::Queries::Concerns::Containable
         f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
+        f.push ::Queries::Concerns::DateRanges if self < ::Queries::Concerns::DateRanges
         f.push ::Queries::Concerns::Depictions if self < ::Queries::Concerns::Depictions
         f.push ::Queries::Concerns::Identifiers if self < ::Queries::Concerns::Identifiers
         f.push ::Queries::Concerns::Notes if self < ::Queries::Concerns::Notes

@@ -5,7 +5,8 @@
         v-if="row.errors"
         class="cursor-pointer"
         @click="showModal = true"
-      >({{ row.errors }})</a>
+        >({{ row.errors }})</a
+      >
       <a
         :href="getLink(row.object)"
         v-html="displayLabel(row.object)"
@@ -35,7 +36,6 @@
 </template>
 
 <script>
-
 import ModalComponent from 'components/ui/Modal'
 import RanksList from '../const/ranks'
 import { GetterNames } from '../store/getters/getters'
@@ -51,29 +51,31 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       showModal: false
     }
   },
 
   computed: {
-    filters () {
+    filters() {
       return this.$store.getters[GetterNames.GetParamsFilter]
     }
   },
 
   methods: {
-    displayLabel (obj) {
-      return this.filters.identified_to_rank && obj.base_class !== 'ObservationMatrixRow' ? obj[RanksList[this.filters.identified_to_rank].label] : obj.object_tag
+    displayLabel(obj) {
+      return this.filters.identified_to_rank &&
+        obj.base_class !== 'ObservationMatrixRow'
+        ? obj[RanksList[this.filters.identified_to_rank].label]
+        : obj.object_tag
     },
 
-    getLink (obj) {
-      return this.filters.identified_to_rank && obj.base_class !== 'ObservationMatrixRow'
+    getLink(obj) {
+      return this.filters.identified_to_rank &&
+        obj.base_class !== 'ObservationMatrixRow'
         ? RanksList[this.filters.identified_to_rank].link(obj.id)
-        : obj.otu_id
-          ? `${RouteNames.BrowseOtu}?otu_id=${obj.otu_id}&observation_matrix_id=${obj.observation_matrix_id}`
-          : undefined
+        : `${RouteNames.BrowseOtu}?otu_id=${obj.observation_object_id}&observation_matrix_id=${obj.observation_matrix_id}`
     }
   }
 }
