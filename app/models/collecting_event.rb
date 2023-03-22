@@ -259,8 +259,8 @@ class CollectingEvent < ApplicationRecord
     :check_ma_range
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: -> { verbatim_label.blank? }
-  validates_presence_of :verbatim_longitude, if: -> { !verbatim_latitude.blank? }
-  validates_presence_of :verbatim_latitude, if: -> { !verbatim_longitude.blank? }
+  validates_presence_of :verbatim_longitude, if: -> { verbatim_latitude.present? }
+  validates_presence_of :verbatim_latitude, if: -> { verbatim_longitude.present? }
 
   validates :geographic_area, presence: true, allow_nil: true
 
@@ -268,15 +268,15 @@ class CollectingEvent < ApplicationRecord
   validates :time_start_minute, time_minute: true
   validates :time_start_second, time_second: true
 
-  validates_presence_of :time_start_minute, if: -> { !self.time_start_second.blank? }
-  validates_presence_of :time_start_hour, if: -> { !self.time_start_minute.blank? }
+  validates_presence_of :time_start_minute, if: -> { self.time_start_second.present? }
+  validates_presence_of :time_start_hour, if: -> { self.time_start_minute.present? }
 
   validates :time_end_hour, time_hour: true
   validates :time_end_minute, time_minute: true
   validates :time_end_second, time_second: true
 
-  validates_presence_of :time_end_minute, if: -> { !self.time_end_second.blank? }
-  validates_presence_of :time_end_hour, if: -> { !self.time_end_minute.blank? }
+  validates_presence_of :time_end_minute, if: -> { self.time_end_second.present? }
+  validates_presence_of :time_end_hour, if: -> { self.time_end_minute.present? }
 
   validates :start_date_year, date_year: {min_year: 1000, max_year: Time.now.year + 5}
   validates :end_date_year, date_year: {min_year: 1000, max_year: Time.now.year + 5}
@@ -325,8 +325,8 @@ class CollectingEvent < ApplicationRecord
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))
   end
 
-  scope :used_recently, -> { joins(:collection_objects).includes(:collection_objects).where(collection_objects: { updated_at: 1.weeks.ago..Time.now } ).order('"collection_objects"."updated_at" DESC') }
-  scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: project_id } ) }
+  scope :used_recently, -> { joins(:collection_objects).includes(:collection_objects).where(collection_objects: { updated_at: 1.week.ago..Time.now } ).order('"collection_objects"."updated_at" DESC') }
+  scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: } ) }
 
   class << self
 
@@ -343,7 +343,7 @@ class CollectingEvent < ApplicationRecord
           .limit(5)
           .order(:cached)
           .to_a +
-        CollectingEvent.where(project_id: project_id, updated_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
+        CollectingEvent.where(project_id:, updated_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
         pinboard: CollectingEvent.pinned_by(user_id).pinned_in_project(project_id).to_a
       }
 
@@ -378,7 +378,7 @@ class CollectingEvent < ApplicationRecord
     def in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
       allow_partial = (partial_overlap.downcase == 'off' ? false : true)
       q = Queries::CollectingEvent::Filter.new(start_date: search_start_date, end_date: search_end_date, partial_overlap_dates: allow_partial)
-      where(q.between_date_range.to_sql).distinct # TODO: uniq should likely not be here
+      where(q.between_date_range_facet.to_sql).distinct # TODO: uniq should likely not be here
     end
 
     # @param [ActionController::Parameters] params in the style Rails of 'params'
@@ -386,7 +386,7 @@ class CollectingEvent < ApplicationRecord
     # TODO: deprecate for lib/queries/collecting_event/filter
     def filter_by(params)
       sql_string = ''
-      unless params.blank? # not strictly necessary, but handy for debugging
+      if params.present? # not strictly necessary, but handy for debugging
         sql_string = Utilities::Dates.date_sql_from_params(params)
 
         # processing text data
@@ -395,15 +395,15 @@ class CollectingEvent < ApplicationRecord
         id_fragment = params['identifier_text']
 
         prefix = ''
-        unless v_locality_fragment.blank?
-          unless sql_string.blank?
+        if v_locality_fragment.present?
+          if sql_string.present?
             prefix = ' and '
           end
           sql_string += "#{ prefix }verbatim_locality ilike '%#{v_locality_fragment}%'"
         end
         prefix = ''
-        unless any_label_fragment.blank?
-          unless sql_string.blank?
+        if any_label_fragment.present?
+          if sql_string.present?
             prefix = 'and '
           end
           sql_string += "#{ prefix }(verbatim_label ilike '%#{any_label_fragment}%'"
@@ -412,7 +412,7 @@ class CollectingEvent < ApplicationRecord
           sql_string += ')'
         end
 
-        unless id_fragment.blank?
+        if id_fragment.present?
           # @todo this still needs to be dealt with
         end
 
@@ -437,16 +437,16 @@ class CollectingEvent < ApplicationRecord
   #   TODO: deprecate and move to filter
   def similar_lat_longs(lat, long, project_id, piece = '', include_values = true)
     sql = '('
-    sql += "verbatim_label LIKE '%#{::Utilities::Strings.escape_single_quote(lat)}%'" unless lat.blank?
-    sql += " or verbatim_label LIKE '%#{::Utilities::Strings.escape_single_quote(long)}%'" unless long.blank?
-    sql += " or verbatim_label LIKE '%#{::Utilities::Strings.escape_single_quote(piece)}%'" unless piece.blank?
+    sql += "verbatim_label LIKE '%#{::Utilities::Strings.escape_single_quote(lat)}%'" if lat.present?
+    sql += " or verbatim_label LIKE '%#{::Utilities::Strings.escape_single_quote(long)}%'" if long.present?
+    sql += " or verbatim_label LIKE '%#{::Utilities::Strings.escape_single_quote(piece)}%'" if piece.present?
     sql += ')'
     sql += ' and (verbatim_latitude is null or verbatim_longitude is null)' unless include_values
 
     retval = CollectingEvent.where(sql)
       .with_project_id(project_id)
       .order(:id)
-      .where.not(id: id).distinct
+      .where.not(id:).distinct
     retval
   end
 
@@ -461,23 +461,23 @@ class CollectingEvent < ApplicationRecord
   end
 
   def has_some_date?
-    !verbatim_date.blank? || some_start_date? || some_end_date?
+    verbatim_date.present? || some_start_date? || some_end_date?
   end
 
   def has_collectors?
-    !verbatim_collectors.blank? || collectors.any?
+    verbatim_collectors.present? || collectors.any?
   end
 
   # @return [Boolean]
   #   has a fully defined date
   def has_start_date?
-    !start_date_day.blank? && !start_date_month.blank? && !start_date_year.blank?
+    start_date_day.present? && start_date_month.present? && start_date_year.present?
   end
 
   # @return [Boolean]
   #   has a fully defined date
   def has_end_date?
-    !end_date_day.blank? && !end_date_month.blank? && !end_date_year.blank?
+    end_date_day.present? && end_date_month.present? && end_date_year.present?
   end
 
   def some_start_date?
@@ -564,8 +564,8 @@ class CollectingEvent < ApplicationRecord
     return false if (verbatim_latitude.nil? || verbatim_longitude.nil?)
     begin
       CollectingEvent.transaction do
-        vg_attributes = {collecting_event_id: id.to_s, no_cached: no_cached}
-        vg_attributes.merge!(by: creator.id, project_id: project_id) if reference_self
+        vg_attributes = {collecting_event_id: id.to_s, no_cached:}
+        vg_attributes.merge!(by: creator.id, project_id:) if reference_self
         a = ::Georeference::VerbatimData.new(vg_attributes)
         if a.valid?
           a.save
@@ -586,7 +586,7 @@ class CollectingEvent < ApplicationRecord
       local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude)
       elev            = Utilities::Geo.distance_in_meters(verbatim_elevation).to_f
       point           = Gis::FACTORY.point(local_latitude, local_longitude, elev)
-      GeographicItem.new(point: point)
+      GeographicItem.new(point:)
     else
       nil
     end
@@ -610,7 +610,7 @@ class CollectingEvent < ApplicationRecord
   # @return [id, nil]
   #  returns the geographic_item corresponding to the geographic area, if provided
   def geographic_area_default_geographic_item_id
-    GeographicAreasGeographicItem.where(geographic_area_id: geographic_area_id)
+    GeographicAreasGeographicItem.where(geographic_area_id:)
       .default_geographic_item_data
       .pluck(:geographic_item_id)
       .first
@@ -1019,7 +1019,7 @@ class CollectingEvent < ApplicationRecord
 
   # @return [Scalar (Int, Float, etc), nil]
   def geolocate_uncertainty_in_meters
-    if !verbatim_geolocation_uncertainty.blank?
+    if verbatim_geolocation_uncertainty.present?
       begin
         a = verbatim_geolocation_uncertainty.to_unit
         return a.convert_to('m').scalar if (a =~ '1 m'.to_unit)
@@ -1089,7 +1089,7 @@ class CollectingEvent < ApplicationRecord
   end
 
   def check_verbatim_geolocation_uncertainty
-    errors.add(:verbatim_geolocation_uncertainty, 'Provide both verbatim_latitude and verbatim_longitude if you provide verbatim_uncertainty.') if !verbatim_geolocation_uncertainty.blank? && verbatim_longitude.blank? && verbatim_latitude.blank?
+    errors.add(:verbatim_geolocation_uncertainty, 'Provide both verbatim_latitude and verbatim_longitude if you provide verbatim_uncertainty.') if verbatim_geolocation_uncertainty.present? && verbatim_longitude.blank? && verbatim_latitude.blank?
   end
 
   def check_date_range
@@ -1106,7 +1106,7 @@ class CollectingEvent < ApplicationRecord
   end
 
   def check_elevation_range
-    errors.add(:maximum_elevation, 'Maximum elevation is lower than minimum elevation.') if !minimum_elevation.blank? && !maximum_elevation.blank? && maximum_elevation < minimum_elevation
+    errors.add(:maximum_elevation, 'Maximum elevation is lower than minimum elevation.') if minimum_elevation.present? && maximum_elevation.present? && maximum_elevation < minimum_elevation
   end
 
   def sv_missing_georeference
@@ -1136,14 +1136,14 @@ class CollectingEvent < ApplicationRecord
 
   def sv_minimally_check_for_a_label
     [:verbatim_label, :print_label, :document_label, :field_notes].each do |v|
-      return true if !self.send(v).blank?
+      return true if self.send(v).present?
     end
     soft_validations.add(:base, 'At least one label type, or field notes, should be provided.')
   end
 
   def sv_verbatim_uncertainty_format
     begin
-      if !verbatim_geolocation_uncertainty.blank? && verbatim_geolocation_uncertainty.to_unit
+      if verbatim_geolocation_uncertainty.present? && verbatim_geolocation_uncertainty.to_unit
         return true
       end
     rescue ArgumentError
