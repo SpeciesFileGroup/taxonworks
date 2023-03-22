@@ -1,10 +1,10 @@
 <template>
-  <VModal :container-style="{ width: '800px', minHeight: '50vh' }">
+  <VModal :container-style="{ width: '800px', maxHeight: '50vh' }">
     <template #header>
       <h3>Sources</h3>
     </template>
     <template #body>
-      <table>
+      <table class="table-striped">
         <thead>
           <tr>
             <th class="full_width">Source</th>
