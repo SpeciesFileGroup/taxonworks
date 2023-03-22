@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Reversed OTU taxon name facet [#3360]
 - Relationships are not listed in biological associations form in Quick forms
 - Topics are not listed after create them on Citation form in Quick forms
+- Combination names are missing in Citations by source
 
 [#3352]: https://github.com/SpeciesFileGroup/taxonworks/issues/3352
 [#3360]: https://github.com/SpeciesFileGroup/taxonworks/issues/3360
