@@ -40,7 +40,7 @@ module Queries
         @biological_association_id = params[:biological_association_id]
         @biological_associations_graph_id = params[:biological_associations_graph_id]
         @biological_relationship_id = params[:biological_relationship_id]
-       
+
         set_data_attributes_params(params)
         set_citations_params(params)
         set_notes_params(params)
@@ -50,7 +50,7 @@ module Queries
       def biological_association_id
         [@biological_association_id].flatten.compact
       end
-      
+
       def biological_relationship_id
         [@biological_relationship_id].flatten.compact
       end
