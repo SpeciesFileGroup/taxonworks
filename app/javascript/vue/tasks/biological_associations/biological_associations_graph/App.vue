@@ -2,7 +2,7 @@
   <div>
     <h1>Biological associations graph</h1>
     <BiologicalAssociationGraph ref="graph">
-      <template #header="{ isGraphUnsaved, edges, currentGraph }">
+      <template #header="{ isGraphUnsaved, edges, currentGraph, sourceIds }">
         <VNavbar>
           <div class="flex-separate">
             <div class="horizontal-left-content middle">
@@ -52,6 +52,14 @@
                 @click="saveGraph"
               >
                 Save
+              </VBtn>
+              <VBtn
+                color="primary"
+                medium
+                :disabled="!sourceIds.length"
+                @click="() => graph.openSourceModal()"
+              >
+                Sources
               </VBtn>
               <VBtn
                 color="primary"

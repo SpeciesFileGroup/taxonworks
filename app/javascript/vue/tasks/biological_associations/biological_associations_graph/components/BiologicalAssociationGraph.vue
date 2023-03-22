@@ -5,6 +5,7 @@
     :is-graph-unsaved="isGraphUnsaved"
     :edges="edges"
     :current-graph="currentGraph"
+    :source-ids="getSourceIds()"
   />
   <div
     class="panel relative"
@@ -144,6 +145,12 @@
       @remove:citation="removeCitationFor"
     />
 
+    <ModalSource
+      v-if="showModalSource"
+      :source-id="getSourceIds()"
+      @close="() => (showModalSource = false)"
+    />
+
     <ConfirmationModal ref="confirmationModalRef" />
   </div>
 </template>
@@ -157,6 +164,7 @@ import ConfirmationModal from 'components/ConfirmationModal.vue'
 import ModalGraph from './ModalGraph.vue'
 import ModalCitation from './ModalCitation.vue'
 import ModalObject from './ModalObject.vue'
+import ModalSource from './ModalSource.vue'
 import ModalEdge from './ModalEdge.vue'
 import VSpinner from 'components/spinner.vue'
 import ContextMenu from './ContextMenu/ContextMenu.vue'
@@ -175,6 +183,7 @@ const {
   edges,
   getBiologicalRelationshipsByNodeId,
   getObjectByUuid,
+  getSourceIds,
   isGraphUnsaved,
   isLoading,
   isSaving,
@@ -206,6 +215,7 @@ const showModalNode = ref(false)
 const showModalEdge = ref(false)
 const showModalGraph = ref(false)
 const showModalCitation = ref(false)
+const showModalSource = ref(false)
 
 const currentCitationObjects = ref([])
 const currentNodeId = ref()
@@ -307,6 +317,10 @@ function openGraphModal() {
   showModalGraph.value = true
 }
 
+function openSourceModal() {
+  showModalSource.value = true
+}
+
 function openCitationModalFor(items) {
   currentCitationObjects.value = items.map((item) => getObjectByUuid(item))
   showModalCitation.value = true
@@ -328,8 +342,9 @@ defineExpose({
   isGraphUnsaved,
   loadBiologicalAssociations,
   openEdgeModal,
-  openNodeModal,
   openGraphModal,
+  openNodeModal,
+  openSourceModal,
   resetStore,
   save,
   saveBiologicalAssociations,

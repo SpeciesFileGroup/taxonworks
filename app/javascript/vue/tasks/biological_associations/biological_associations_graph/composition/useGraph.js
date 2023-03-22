@@ -113,10 +113,6 @@ export function useGraph() {
     state.graph.isUnsaved = true
   }
 
-  function getCitationsFor(uuid) {
-    return state.citations.filter((c) => c.objectUuid === uuid)
-  }
-
   function addCitationFor(obj, citationData) {
     console.log(obj)
     const citation = makeCitation({
@@ -245,6 +241,15 @@ export function useGraph() {
         state.biologicalAssociations.push(ba)
       }
     })
+  }
+
+  function getSourceIds() {
+    const citations = [].concat(
+      ...state.biologicalAssociations.map((ba) => ba.citations)
+    )
+    const sourceIds = citations.map((c) => c.sourceId)
+
+    return [...new Set(sourceIds)]
   }
 
   function removeCitationFor({ obj, citation }) {
@@ -425,8 +430,8 @@ export function useGraph() {
     currentNodes,
     edges,
     getBiologicalRelationshipsByNodeId,
-    getCitationsFor,
     getObjectByUuid,
+    getSourceIds,
     isGraphUnsaved,
     loadBiologicalAssociations,
     loadGraph,
