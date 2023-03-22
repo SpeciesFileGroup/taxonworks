@@ -36,9 +36,9 @@ export const configs = defineConfigs({
       animationSpeed: 50
     },
     selected: {
-      width: 3,
+      width: 4,
       color: '#dd8800',
-      dasharray: '6',
+      dasharray: 0,
       linecap: 'round',
       animate: false,
       animationSpeed: 50
