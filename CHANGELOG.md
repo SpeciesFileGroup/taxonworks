@@ -7,7 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Date related rendering error in Catalog
+
 
 ## [0.32.0] - 2023-03-22
 
