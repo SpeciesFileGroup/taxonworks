@@ -134,6 +134,7 @@ ActiveRecord::Schema.define(version: 2022_12_05_150258) do
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
     t.string "name"
+    t.jsonb "layout"
     t.index ["created_by_id"], name: "index_biological_associations_graphs_on_created_by_id"
     t.index ["project_id"], name: "index_biological_associations_graphs_on_project_id"
     t.index ["updated_by_id"], name: "index_biological_associations_graphs_on_updated_by_id"

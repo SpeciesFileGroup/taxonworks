@@ -21,7 +21,7 @@
       <div class="margin-medium-bottom">
         <autocomplete
           ref="autocompleteRef"
-          v-if="autocomplete"
+          v-if="autocomplete && !otuPicker"
           :id="`smart-selector-${model}-autocomplete`"
           :input-id="inputId"
           placeholder="Search..."
@@ -38,7 +38,7 @@
         <otu-picker
           v-if="otuPicker"
           :input-id="inputId"
-          :clear-after="true"
+          clear-after
           @get-item="getObject($event.id)"
         />
       </div>

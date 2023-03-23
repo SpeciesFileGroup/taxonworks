@@ -9,11 +9,11 @@ concern :data_routes do |options|
     post 'batch_preview'
     get 'batch_load'
     get 'autocomplete'
-    get 'search'
+    get 'search' # TODO: deprecate/remove
   end
 
   member do
-    get 'related'
+    get 'related' # TODO: remove or redirect here to Task route
   end
 end
 

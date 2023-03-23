@@ -1,9 +1,9 @@
 # This configuration file determines what is shown per object radial
-# 
+#
 # The values here are returned as JSON via /metadata/radial/:klass
 #
 # Valid attributes (* required)
-#   tasks: - A named task (see user_tasks.yml) !! Limit this to 3 or 4 
+#   tasks: - A named task (see user_tasks.yml) !! Limit this to 3 or 4
 #   recent: - defaults to true if not provided, if false no recent list is shown
 #   edit: over-ride data->edit
 #   new: over-ride data->new
@@ -24,8 +24,15 @@
 ---
 AssertedDistribution:
   tasks:
-    - asserted_distributions_basic_endemism_task 
+    - asserted_distributions_basic_endemism_task
     - new_asserted_distribution_from_map_task
+  config:
+    recent: true
+BiologicalAssociation:
+  tasks:
+    - edit_biological_associations_graph_task
+  edit: edit_biological_associations_graph_task
+  new: edit_biological_associations_graph_task
   config:
     recent: true
 Combination:
@@ -36,7 +43,7 @@ Combination:
   edit: new_combination_task
   new: new_combination_task
   home: browse_nomenclature_task
-  destroyed_redirect: browse_nomenclature_task 
+  destroyed_redirect: browse_nomenclature_task
   config:
     recent: true
 CollectionObject:
@@ -44,11 +51,12 @@ CollectionObject:
     - browse_collection_objects_task
     - comprehensive_collection_object_task
     - collection_objects_filter_task
+    - edit_biological_associations_graph_task
     - browse_collecting_events_task
     - new_taxon_name_task
     - build_biocuration_groups_task
     - report_dwc_task
-  config: 
+  config:
     recent: true
   edit: comprehensive_collection_object_task
   new: comprehensive_collection_object_task
@@ -59,7 +67,7 @@ CollectingEvent:
     - new_collecting_event_task
     - filter_collecting_events_task
     - comprehensive_collection_object_task
-  config: 
+  config:
     recent: true
   edit: new_collecting_event_task
   new: new_collecting_event_task
@@ -73,18 +81,18 @@ Descriptor:
 Document:
   tasks:
     - gnfinder_task
-  config: 
+  config:
     recent: true
 Extract:
   tasks:
-    - new_extract_task 
+    - new_extract_task
   new: new_extract_task
-  edit: new_extract_task 
-  config: 
+  edit: new_extract_task
+  config:
     recent: true
 GeographicArea:
   tasks:
-    - asserted_distributions_basic_endemism_task 
+    - asserted_distributions_basic_endemism_task
   config:
     recent: false
 Loan:
@@ -99,15 +107,16 @@ ObservationMatrix:
     - new_descriptor_task
     - observation_matrices_hub_task
   config:
-    recent: true    
+    recent: true
 Otu:
   tasks:
     - browse_otus_task
     - filter_otus_task
     - comprehensive_collection_object_task
+    - edit_biological_associations_graph_task
     - index_editor_task
     - cite_otus_task
-    - index_browse_asserted_distributions_task 
+    - index_browse_asserted_distributions_task
     - otu_distribution_data_task
   home: browse_otus_task
   config:
@@ -121,7 +130,7 @@ Source:
   tasks:
     - source_hub_task
     - new_source_task
-    - filter_sources_task   
+    - filter_sources_task
     - nomenclature_by_source_task
     - gnfinder_task
   new: new_source_task

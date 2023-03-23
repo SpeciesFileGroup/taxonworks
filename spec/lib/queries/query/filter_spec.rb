@@ -57,6 +57,8 @@ describe Queries::Query::Filter do
       n = file.split('/').last
       next unless n =~ /^[A-Z]/ # Constants start with a capital
 
+      puts n
+
       filter_name = n.split('.').first.tableize.singularize.to_sym 
 
       models = File.read(file)
@@ -65,7 +67,9 @@ describe Queries::Query::Filter do
 
       # Ensure all Model.js constants match what is asserted in SUBQUERIES
       specify "#{n}" do
-        expect( query_names ).to contain_exactly( *::Queries::Query::Filter.inverted_subqueries[filter_name]  )
+        a = *::Queries::Query::Filter.inverted_subqueries[filter_name]  
+        a.delete(:biological_associations_graph) if a # There is no BioloigalAssociationsGraph UI
+        expect( query_names ).to contain_exactly( *a )
       end
     end
   end

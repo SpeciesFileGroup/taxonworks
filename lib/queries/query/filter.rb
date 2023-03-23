@@ -35,6 +35,7 @@ module Queries
     SUBQUERIES = {
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name],
       biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name, :asserted_distribution],
+      biological_associations_graph: [:biological_association, :source],
       collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name],
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
       content: [:source, :otu, :taxon_name, :image],
@@ -71,6 +72,7 @@ module Queries
     FILTER_QUERIES = {
       asserted_distribution_query: '::Queries::AssertedDistribution::Filter',
       biological_association_query: '::Queries::BiologicalAssociation::Filter',
+      biological_associations_graph_query: '::Queries::BiologicalAssociationsGraph::Filter',
       collecting_event_query: '::Queries::CollectingEvent::Filter',
       collection_object_query: '::Queries::CollectionObject::Filter',
       content_query: '::Queries::Content::Filter',
@@ -109,6 +111,9 @@ module Queries
 
     # @return [Query::BiologicalAssociation::Filter, nil]
     attr_accessor :biological_association_query
+
+    # @return [Query::BiologicalAssociationsGraph::Filter, nil]
+    attr_accessor :biological_associations_graph_query
 
     # @return [Query::TaxonName::Filter, nil]
     attr_accessor :collection_object_query
