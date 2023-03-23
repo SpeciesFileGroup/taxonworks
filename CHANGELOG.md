@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Raises related to cached_nomenclature_date
 - PublicContent causing OTU destruction to raise
 - Several paper-catalog rendering issues
+- Geographic area smart selector is not rendering correctly on Common names slice in Quick Forms
 
 [#1638]: https://github.com/SpeciesFileGroup/taxonworks/issues/1638
 [#2143]: https://github.com/SpeciesFileGroup/taxonworks/issues/2143
