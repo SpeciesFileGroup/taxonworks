@@ -7,17 +7,24 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.32.0] - 2023-03-22
+
 ### Added
+
 - New biological association task [#1638], in part [#2143]
 - New options to extend results in Nomenclature filter [#3361]
 - New panels for Adminstrators User activity dashboard
 - Deaccessioned layout for filter collection objects
 
 ### Changed
+
 - Replace GeoJSON long/lat format to lat/long on interfaces [#3359]
 - Returned ability to show TaxonNameClassifications (from `/taxon_name_classifications/list`)
 
 ### Fixed
+
 - Deaccessioned facet in Filter collection objects [#3352]
 - Reversed OTU taxon name facet [#3360]
 - Relationships are not listed in biological associations form in Quick forms
@@ -3481,7 +3488,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.0...development
+[0.32.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.3...v0.32.0
 [0.31.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.2...v0.31.3
 [0.31.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.1...v0.31.2
 [0.31.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.0...v0.31.1
