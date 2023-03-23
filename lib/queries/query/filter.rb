@@ -35,6 +35,7 @@ module Queries
     SUBQUERIES = {
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name],
       biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name, :asserted_distribution],
+      biological_associations_graph: [:biological_association, :source],
       collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name],
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
       content: [:source, :otu, :taxon_name, :image],
@@ -71,6 +72,7 @@ module Queries
     FILTER_QUERIES = {
       asserted_distribution_query: '::Queries::AssertedDistribution::Filter',
       biological_association_query: '::Queries::BiologicalAssociation::Filter',
+      biological_associations_graph_query: '::Queries::BiologicalAssociationsGraph::Filter',
       collecting_event_query: '::Queries::CollectingEvent::Filter',
       collection_object_query: '::Queries::CollectionObject::Filter',
       content_query: '::Queries::Content::Filter',
@@ -93,11 +95,11 @@ module Queries
     # @params object_global_id
     #   Rails global ids.
     #  Locally these look like gid://taxon-works/Otu/1
-    # Using a global id is equivalent to 
+    # Using a global id is equivalent to
     # using <model>_id.  I.e. it simply restricts
     # the filter to those matching Model#id.
     #
-    # !! If any global id model name does not 
+    # !! If any global id model name does not
     # match the current filter, then then facet
     # is completely rejected.
     attr_accessor :object_global_id
@@ -109,6 +111,9 @@ module Queries
 
     # @return [Query::BiologicalAssociation::Filter, nil]
     attr_accessor :biological_association_query
+
+    # @return [Query::BiologicalAssociationsGraph::Filter, nil]
+    attr_accessor :biological_associations_graph_query
 
     # @return [Query::TaxonName::Filter, nil]
     attr_accessor :collection_object_query
@@ -166,13 +171,13 @@ module Queries
       @recent = boolean_param(query_params, :recent)
       @object_global_id = query_params[:object_global_id]
 
-       # !! This is the *only* place Current.project_id should be seen !! It's still not the best 
+       # !! This is the *only* place Current.project_id should be seen !! It's still not the best
        # way to implement this, but we use it to optimize the scope of sub/nested-queries efficiently.
        # Ideally we'd have a global class param that stores this that all Filters would have access to,
        # rather than an instance variable.
       @project_id = query_params[:project_id] || Current.project_id
 
-      # After this point, if you started with ActionController::Parameters, 
+      # After this point, if you started with ActionController::Parameters,
       # then all values have been explicitly permitted.
       if query_params.kind_of?(Hash)
         @params = query_params
@@ -183,7 +188,7 @@ module Queries
       else
         raise TaxonWorks::Error, "can not initialize filter with #{query_params.class.name}"
       end
-      
+
       set_identifier_params(params)
       set_nested_queries(params)
       set_user_dates(params)
@@ -210,6 +215,7 @@ module Queries
         f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
         f.push ::Queries::Concerns::Containable if self < ::Queries::Concerns::Containable
         f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
+        f.push ::Queries::Concerns::DateRanges if self < ::Queries::Concerns::DateRanges
         f.push ::Queries::Concerns::Depictions if self < ::Queries::Concerns::Depictions
         f.push ::Queries::Concerns::Identifiers if self < ::Queries::Concerns::Identifiers
         f.push ::Queries::Concerns::Notes if self < ::Queries::Concerns::Notes
@@ -228,7 +234,7 @@ module Queries
       (a + b).uniq
     end
 
-    # Any params set here, and in corresponding subclasses will not 
+    # Any params set here, and in corresponding subclasses will not
     # be permitted when api: true is present
     def self.api_except_params
       []

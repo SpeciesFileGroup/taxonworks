@@ -802,17 +802,25 @@ filter_contents_task:
   status: prototype
   description: 'Content is text blocks, with optional figures, per OTU. Search and return sets by text, topic, or OTU.'
 source_citation_totals_task:
-  hub: false 
+  hub: false
   name: 'Source citation totals'
   related:
   categories:
   status: prototype
   description: 'Report a count per citation object type for each source in the result.'
+edit_biological_associations_graph_task:
+  hub: true
+  name: 'New biological associations'
+  related:
+  categories:
+    - biology 
+  status: prototype
+  description: 'Create, edit, and cite biological associations and their inter-relationships.'
 loan_dashboard_task:
   hub: true
   name: 'Loans dashboard'
   related:
   categories:
+    - loan
   status: prototype
   description: 'Summarize various loan-related statistics.'
-

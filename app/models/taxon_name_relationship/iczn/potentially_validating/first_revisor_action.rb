@@ -48,4 +48,7 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction < T
     :iczn_first_revisor_action
   end
 
+  def sv_coordinated_taxa
+    true
+  end
 end

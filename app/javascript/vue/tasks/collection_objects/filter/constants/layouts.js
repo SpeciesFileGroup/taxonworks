@@ -171,6 +171,17 @@ export const LAYOUTS = {
     includes: {}
   },
 
+  Deaccessioned: {
+    properties: {
+      collection_object: [
+        'accessioned_at',
+        'deaccessioned_at',
+        'deaccession_reason',
+      ],
+    },
+    includes: {}
+  },
+
   Paleo: {
     properties: {
       collection_object: [

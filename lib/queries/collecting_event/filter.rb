@@ -36,7 +36,6 @@ module Queries
         :collector_id,
         :collector_id_or,
         :determiner_name_regex,
-        :end_date,
         :geo_json,
         :geographic_area,
         :geographic_area_id,
@@ -44,9 +43,7 @@ module Queries
         :georeferences,
         :in_labels,
         :md5_verbatim_label,
-        :partial_overlap_dates,
         :radius,
-        :start_date,
         :use_max,
         :use_min,
         :wkt,
@@ -173,7 +170,7 @@ module Queries
         set_attributes_params(params)
         set_citations_params(params)
         set_data_attributes_params(params)
-        set_dates(params)
+        set_date_params(params)
         set_depiction_params(params)
         set_notes_params(params)
         set_protocols_params(params)
@@ -417,7 +414,7 @@ module Queries
       # @return [Array]
       def and_clauses
         [
-          between_date_range,
+          between_date_range_facet,
           any_label_facet,
           collecting_event_id_facet,
           verbatim_label_md5_facet,

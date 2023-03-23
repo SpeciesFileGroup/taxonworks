@@ -23,6 +23,7 @@
     "qs": "^6.11.1",
     "shakapacker": "6.6.0",
     "v-hotkey": "^0.9.0",
+    "v-network-graph": "^0.8.1",
     "vue": "^3.2.47",
     "vue-handy-scroll": "^3.0.2",
     "vue-tippy": "^6.0.0",

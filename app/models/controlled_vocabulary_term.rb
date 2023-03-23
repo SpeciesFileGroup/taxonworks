@@ -25,7 +25,7 @@
 #     A SKOS relationship that defines/describes the relationship between the concept identified by the URI and the concept defined in the definition.
 #
 class ControlledVocabularyTerm < ApplicationRecord
-  # ControlledVocabularyTerms are NOT taggable
+  # ControlledVocabularyTerms are NOT Taggable (with 'Tag')
   include Housekeeping
   include Shared::AlternateValues
   include Shared::HasPapertrail
@@ -34,7 +34,6 @@ class ControlledVocabularyTerm < ApplicationRecord
 
   acts_as_list scope: [:project_id, :type]
 
-  # Class constants
   ALTERNATE_VALUES_FOR = [:name, :definition].freeze
 
   validates_presence_of :name, :definition, :type

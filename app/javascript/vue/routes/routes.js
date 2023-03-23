@@ -33,6 +33,8 @@ const RouteNames = {
   ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',
   MatchCollectionObject: '/tasks/collection_objects/match',
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
+  NewBiologicalAssociationGraph:
+    '/tasks/biological_associations/biological_associations_graph',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
   NewExtract: '/tasks/extracts/new_extract',
   NewNamespace: '/tasks/namespaces/new_namespace',

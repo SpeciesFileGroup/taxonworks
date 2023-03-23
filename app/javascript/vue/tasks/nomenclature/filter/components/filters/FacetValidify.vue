@@ -4,7 +4,7 @@
     <label>
       <input
         type="checkbox"
-        v-model="params.validify"
+        v-model="inputValue"
       />
       Convert result to their valid names
     </label>
@@ -12,8 +12,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { useYellowFacetCheckbox } from '../../utils/resetYellowFacets'
 
 const props = defineProps({
   modelValue: {
@@ -23,9 +23,5 @@ const props = defineProps({
 })
 const emit = defineEmits('update:modelValue')
 
-const params = computed({
-  get: () => props.modelValue,
-
-  set: (value) => emit('update:modelValue', value)
-})
+const inputValue = useYellowFacetCheckbox(props, emit, 'validify')
 </script>

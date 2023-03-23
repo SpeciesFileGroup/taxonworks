@@ -9,11 +9,11 @@ concern :data_routes do |options|
     post 'batch_preview'
     get 'batch_load'
     get 'autocomplete'
-    get 'search'
+    get 'search' # TODO: deprecate/remove
   end
 
   member do
-    get 'related'
+    get 'related' # TODO: remove or redirect here to Task route
   end
 end
 
@@ -740,13 +740,13 @@ resources :taxon_names do
   end
 end
 
-resources :taxon_name_classifications, except: [:show] do
+resources :taxon_name_classifications do
   concerns [:data_routes]
   collection do
     get :taxon_name_classification_types
   end
   member do
-    get :show, {format: :json}
+    get :show
   end
 end
 

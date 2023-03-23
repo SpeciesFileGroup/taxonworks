@@ -8,6 +8,14 @@ require 'date'
 module Queries::Concerns::DateRanges
   extend ActiveSupport::Concern
 
+  def self.params
+    [
+      :start_date,
+      :end_date,
+      :partial_overlap_dates
+    ]
+  end
+
   included do
     # @param [String] search_start_date string in form 'yyyy-mm-dd'
     attr_accessor :start_date
@@ -35,8 +43,7 @@ module Queries::Concerns::DateRanges
       @end_date
     end
 
-    def set_dates(params)
-      # Why do we have to do this?
+    def set_date_params(params)
       self.send('start_date='.to_sym, params[:start_date]) if params[:start_date].present?
       self.send('end_date=', params[:end_date]) if params[:end_date].present?
 
@@ -45,9 +52,8 @@ module Queries::Concerns::DateRanges
     end
   end
 
-
   def use_date_range?
-    !start_date.blank? && !end_date.blank?
+    start_date.present? && end_date.present?
   end
 
   def start_year_present
@@ -164,20 +170,20 @@ module Queries::Concerns::DateRanges
     a
   end
 
-  # Reflects origin variable, rename to clarify
+  # Reflects origin of variable, rename to clarify
   def part_1e
     empty_end_year.and(st_string).
       or((equal_end_year.and(end_month_between.or(equal_end_month.and(equal_or_earlier_end_day)))))
   end
 
-  # Reflects origin variable, rename to clarify
+  # Reflects origin of variable, rename to clarify
   def part_3e
     table[:end_date_year].eq(start_year).and(
       table[:end_date_month].gt(start_month).or(table[:end_date_month].eq(start_month).and(table[:end_date_day].gteq(start_day)))
     )
   end
 
-  # Reflects origin variable, rename to clarify
+  # Reflects origin of variable, rename to clarify
   def en_string
     q = part_1e
 
@@ -192,7 +198,7 @@ module Queries::Concerns::DateRanges
   end
 
   # @return [Scope, nil]
-  def between_date_range
+  def between_date_range_facet
     return nil unless use_date_range?
     q = st_string
 
@@ -255,7 +261,7 @@ module Queries::Concerns::DateRanges
       nil
     end
   end
-  
+
   def autocomplete_start_or_end_date
     if a = with_parsed_date
       base_query.where(a.or(with_parsed_date(:end)).to_sql).limit(20)

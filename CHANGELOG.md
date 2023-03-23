@@ -9,6 +9,41 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.32.0] - 2023-03-22
+
+### Added
+
+- New biological association task [#1638], in part [#2143]
+- New options to extend results in Nomenclature filter [#3361]
+- New panels for Adminstrators User activity dashboard
+- Deaccessioned layout for filter collection objects
+
+### Changed
+
+- Replace GeoJSON long/lat format to lat/long on interfaces [#3359]
+- Returned ability to show TaxonNameClassifications (from `/taxon_name_classifications/list`)
+
+### Fixed
+
+- Deaccessioned facet in Filter collection objects [#3352]
+- Reversed OTU taxon name facet [#3360]
+- Relationships are not listed in biological associations form in Quick forms
+- Topics are not listed after create them on Citation form in Quick forms
+- Combination names are missing in Citations by source
+- Handle another class of SQED raises
+- TaxonNameClassification API call raises
+- Raises related to cached_nomenclature_date
+- PublicContent causing OTU destruction to raise
+- Several paper-catalog rendering issues
+- Geographic area smart selector is not rendering correctly on Common names slice in Quick Forms
+
+[#1638]: https://github.com/SpeciesFileGroup/taxonworks/issues/1638
+[#2143]: https://github.com/SpeciesFileGroup/taxonworks/issues/2143
+[#3352]: https://github.com/SpeciesFileGroup/taxonworks/issues/3352
+[#3359]: https://github.com/SpeciesFileGroup/taxonworks/issues/3359
+[#3360]: https://github.com/SpeciesFileGroup/taxonworks/issues/3360
+[#3361]: https://github.com/SpeciesFileGroup/taxonworks/issues/3361
+
 ## [0.31.3] - 2023-03-17
 
 ### Added
@@ -18,12 +53,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Serial name filter query doesn't work
-- Serial facet
+- Serial facet <IN WHERE>
 - Authors facet doesn't work on Filter nomenclature
 - Fixed bug preventing combination update
 - Loan facet doesn't work on Filter collection objects [#3345]
 - Valid name is not provided for all matches on Match nomenclature task [#3343]
 - Object links don't work on Interactive key
+- Alternate values on ObservationMatrix name failing
+- Start and End date in Collecting Event related facets
 
 ### Changed
 
@@ -3451,7 +3488,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.0...development
+[0.32.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.3...v0.32.0
 [0.31.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.2...v0.31.3
 [0.31.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.1...v0.31.2
 [0.31.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.0...v0.31.1
