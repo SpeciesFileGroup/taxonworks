@@ -1,29 +1,37 @@
-
 <template>
   <div>
     <fieldset>
       <legend>Geographic area</legend>
-      <smart-selector
+      <SmartSelector
         model="geographic_areas"
         klass="AssertedDistribution"
         target="AssertedDistribution"
         ref="smartSelector"
         label="name"
-        :buttons="true"
-        :inline="true"
+        :add-tabs="['map']"
+        buttons
+        inline
         pin-section="GeographicAreas"
         pin-type="GeographicArea"
         @selected="sendGeographic"
-      />
+      >
+        <template #map>
+          <GeographicAreaMapPicker @select="sendGeographic" />
+        </template>
+      </SmartSelector>
     </fieldset>
   </div>
 </template>
 
 <script>
 import SmartSelector from 'components/ui/SmartSelector'
+import GeographicAreaMapPicker from 'components/ui/SmartSelector/GeographicAreaMapPicker.vue'
 
 export default {
-  components: { SmartSelector },
+  components: {
+    GeographicAreaMapPicker,
+    SmartSelector
+  },
 
   props: {
     sourceLock: {
@@ -35,7 +43,7 @@ export default {
   emits: ['select'],
 
   methods: {
-    sendGeographic (item) {
+    sendGeographic(item) {
       this.$emit('select', item.id)
       if (this.sourceLock) {
         this.$refs.smartSelector.setFocus()
