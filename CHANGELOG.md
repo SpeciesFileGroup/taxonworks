@@ -7,10 +7,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.32.1] - 2023-03-23
+
 ### Fixed
 
 - Date related rendering error in Catalog
-
 
 ## [0.32.0] - 2023-03-22
 
@@ -3491,7 +3494,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.1...development
+[0.32.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.0...v0.32.1
 [0.32.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.3...v0.32.0
 [0.31.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.2...v0.31.3
 [0.31.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.1...v0.31.2
