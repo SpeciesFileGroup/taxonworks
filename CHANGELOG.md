@@ -7,7 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- Add CO quick forms in New type specimen task
 
 ## [0.32.1] - 2023-03-23
 
