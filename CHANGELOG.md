@@ -13,8 +13,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Paper catalog raised when rendering some type material records
 - Lock buttons are not working on New source task
 - Some rows don't show name string in Citations by source task [#3370]
+
+### Changed
+
+- Updated bundle gems
 
 [#3370]: https://github.com/SpeciesFileGroup/taxonworks/issues/3370
 
