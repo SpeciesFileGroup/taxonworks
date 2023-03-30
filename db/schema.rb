@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_13_090400) do
-ActiveRecord::Schema.define(version: 2022_12_05_150258) do
+ActiveRecord::Schema.define(version: 2023_03_07_041322) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -171,6 +170,24 @@ ActiveRecord::Schema.define(version: 2022_12_05_150258) do
     t.index ["created_by_id"], name: "bio_rel_created_by"
     t.index ["project_id"], name: "bio_rel_project"
     t.index ["updated_by_id"], name: "bio_rel_updated_by"
+  end
+
+  create_table "cached_maps", force: :cascade do |t|
+    t.bigint "otu_id", null: false
+    t.bigint "geographic_item_id", null: false
+    t.string "type"
+    t.integer "reference_count"
+    t.boolean "is_absent"
+    t.string "level0_geographic_name"
+    t.string "level1_geographic_name"
+    t.string "level2_geographic_name"
+    t.bigint "project_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["geographic_item_id"], name: "index_cached_maps_on_geographic_item_id"
+    t.index ["otu_id", "geographic_item_id"], name: "index_cached_maps_on_otu_id_and_geographic_item_id"
+    t.index ["otu_id"], name: "index_cached_maps_on_otu_id"
+    t.index ["project_id"], name: "index_cached_maps_on_project_id"
   end
 
   create_table "character_states", id: :serial, force: :cascade do |t|
@@ -615,8 +632,8 @@ ActiveRecord::Schema.define(version: 2022_12_05_150258) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.integer "documentation_object_id", null: false
     t.string "documentation_object_type", null: false
+    t.integer "documentation_object_id", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -634,7 +651,7 @@ ActiveRecord::Schema.define(version: 2022_12_05_150258) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.integer "document_file_file_size", null: false
+    t.bigint "document_file_file_size", null: false
     t.datetime "document_file_updated_at", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -1043,7 +1060,7 @@ ActiveRecord::Schema.define(version: 2022_12_05_150258) do
     t.datetime "updated_at", null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.integer "image_file_file_size"
+    t.bigint "image_file_file_size"
     t.datetime "image_file_updated_at"
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
@@ -1124,8 +1141,8 @@ ActiveRecord::Schema.define(version: 2022_12_05_150258) do
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "loan_item_object_id"
     t.string "loan_item_object_type"
+    t.integer "loan_item_object_id"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -1437,8 +1454,8 @@ ActiveRecord::Schema.define(version: 2022_12_05_150258) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.integer "pinned_object_id", null: false
     t.string "pinned_object_type", null: false
+    t.integer "pinned_object_id", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1502,7 +1519,7 @@ ActiveRecord::Schema.define(version: 2022_12_05_150258) do
     t.datetime "updated_at", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.jsonb "preferences", default: {}, null: false
+    t.jsonb "preferences", default: "{}", null: false
     t.string "api_access_token"
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
     t.index ["updated_by_id"], name: "index_projects_on_updated_by_id"
@@ -1769,8 +1786,8 @@ ActiveRecord::Schema.define(version: 2022_12_05_150258) do
     t.string "boundary_finder", null: false
     t.boolean "has_border", null: false
     t.string "layout", null: false
-    t.jsonb "metadata_map", default: {}, null: false
-    t.jsonb "specimen_coordinates", default: {}, null: false
+    t.jsonb "metadata_map", default: "{}", null: false
+    t.jsonb "specimen_coordinates", default: "{}", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false

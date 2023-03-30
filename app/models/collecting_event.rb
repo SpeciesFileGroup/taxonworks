@@ -769,10 +769,7 @@ class CollectingEvent < ApplicationRecord
   def get_geographic_name_classification
     case geographic_name_classification_method
     when :preferred_georeference
-      # quick
-      r = preferred_georeference.geographic_item.quick_geographic_name_hierarchy # almost never the case, UI not setup to do this
-      # slow
-      r = preferred_georeference.geographic_item.inferred_geographic_name_hierarchy if r == {} # therefor defaults to slow
+      r = preferred_georeference.geographic_item.geographic_name_hierarchy
     when :geographic_area_with_shape # geographic_area.try(:has_shape?)
       # very quick
       r = geographic_area.geographic_name_classification # do not round trip to the geographic_item, it just points back to the geographic area
