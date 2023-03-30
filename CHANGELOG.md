@@ -14,6 +14,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Lock buttons are not working on New source task
+- Some rows don't show name string in Citations by source task [#3370]
+
+[#3370]: https://github.com/SpeciesFileGroup/taxonworks/issues/3370
 
 ## [0.32.1] - 2023-03-23
 
@@ -3499,7 +3502,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-
 [unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.1...development
 [0.32.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.0...v0.32.1
 [0.32.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.3...v0.32.0

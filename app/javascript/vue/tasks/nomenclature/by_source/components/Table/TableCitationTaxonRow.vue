@@ -22,12 +22,11 @@
       >
         <span
           v-html="
-            citation.citation_object.type === COMBINATION
-              ? [
-                  citation.citation_object.cached_html,
-                  citation.citation_object.cached_author_year
-                ].join(' ')
-              : citation.citation_object.original_combination
+            citation.citation_object?.original_combination ||
+            [
+              citation.citation_object.cached_html,
+              citation.citation_object.cached_author_year
+            ].join(' ')
           "
         />
         {{ isInvalid(citation.citation_object) }}
