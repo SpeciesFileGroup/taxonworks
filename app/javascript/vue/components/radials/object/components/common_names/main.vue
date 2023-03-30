@@ -11,7 +11,7 @@
 
     <fieldset>
       <legend>Geographic area</legend>
-      <smart-selector
+      <SmartSelector
         model="geographic_areas"
         klass="CollectingEvent"
         target="CollectingEvent"
@@ -21,7 +21,7 @@
         @selected="selectedGeographic = $event"
       />
       <div>
-        <smart-selector-item
+        <SmartSelectorItem
           :item="selectedGeographic"
           label="name"
           @unset="selectedGeographic = null"
@@ -31,14 +31,15 @@
 
     <fieldset>
       <legend>Language</legend>
-      <smart-selector
+      <SmartSelector
         model="languages"
         klass="AlternateValue"
         pin-section="Languages"
         pin-type="Language"
-        @selected="selectedLanguage = $event"
+        label="english_name"
+        @selected="() => (selectedLanguage = $event)"
       />
-      <smart-selector-item
+      <SmartSelectorItem
         :item="selectedLanguage"
         label="english_name"
         @unset="selectedLanguage = null"
