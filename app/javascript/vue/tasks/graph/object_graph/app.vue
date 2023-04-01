@@ -112,7 +112,7 @@ function initGraph() {
 
   simulation = d3
     .forceSimulation(nodes)
-    .force('charge', d3.forceManyBody().strength(-100))
+    .force('charge', d3.forceManyBody())
     .force('center', d3.forceCenter(width / 2, height / 2))
     .force('link', d3.forceLink().links(links))
     .on('tick', ticked)
