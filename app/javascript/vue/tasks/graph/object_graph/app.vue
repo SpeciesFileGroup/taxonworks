@@ -48,6 +48,10 @@
     </div>
   </div>
   <div class="graph-container panel">
+    <VSpinner
+      v-if="isLoading"
+      full-screen
+    />
     <div class="panel content graph-container__stats">
       <ul class="capitalize">
         <li
@@ -60,20 +64,14 @@
     </div>
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      :width="width + 'px'"
-      :height="height + 'px'"
       ref="svgElement"
     ></svg>
   </div>
-  <v-spinner
-    v-if="isLoading"
-    full-screen
-  />
 </template>
 
 <script setup>
 import * as d3 from 'd3'
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import SetParam from 'helpers/setParam'
 import AjaxCall from 'helpers/ajaxCall'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
@@ -90,10 +88,8 @@ const opt = {
   size: 10
 }
 
-const width =
-  Math.max(document.documentElement.clientWidth, window.innerWidth || 0) - 20
-const height =
-  Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 200
+let width = 0
+let height = 0
 
 const stats = ref({})
 const svgElement = ref(null)
@@ -130,6 +126,7 @@ function initGraph() {
       .data(links)
       .enter()
       .append('line')
+      .attr('stroke', '#ccc')
 
     graphContainer.append('g').attr('class', 'nodes')
 
@@ -227,15 +224,17 @@ function loadGraph(globalId) {
       }))
 
       initGraph()
+      isLoading.value = false
     }
   )
-
-  isLoading.value = false
 }
 
 onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search)
   const globalId = urlParams.get('global_id')
+
+  height = svgElement.value.clientHeight
+  width = svgElement.value.clientWidth
 
   if (globalId) {
     loadGraph(globalId)
@@ -245,7 +244,9 @@ onMounted(() => {
 <style lang="scss">
 .graph-container {
   svg {
-    height: calc(100vh - 200px);
+    width: 100%;
+    height: calc(100vh - 250px);
+    cursor: move;
   }
   position: relative;
 
@@ -258,10 +259,8 @@ onMounted(() => {
     margin: 0;
   }
 
-  .links {
-    line {
-      stroke: #ccc;
-    }
+  .node {
+    cursor: pointer;
   }
 }
 </style>
