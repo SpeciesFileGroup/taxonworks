@@ -1,49 +1,59 @@
 <template>
   <h1>Task: Object graph</h1>
   <div class="panel content margin-medium-bottom">
-    <div class="horizontal-left-content middle">
-      <h3 v-if="currentNode">Target: {{ currentNode.name }}</h3>
-      <h3 v-else>Target: None</h3>
-      <div
-        v-if="currentNode"
-        class="square-brackets margin-medium-left"
-      >
-        <ul class="no_bullets context-menu">
-          <li>
-            <a
-              :href="`/graph/${encodeURIComponent(currentGlobalId)}/object`"
-              target="_blank"
-            >
-              JSON
-            </a>
-          </li>
-          <li>
-            <v-btn
-              color="primary"
-              circle
-              @click="
-                () =>
-                  downloadTextFile(
-                    svgElement.outerHTML,
-                    'image/svg+xml',
-                    'graph.svg'
-                  )
-              "
-            >
-              <v-icon
-                color="white"
-                x-small
-                name="download"
-              />
-            </v-btn>
-          </li>
-          <li>
-            <radial-annotator :global-id="currentNode.id" />
-          </li>
-          <li>
-            <radial-navigation :global-id="currentNode.id" />
-          </li>
-        </ul>
+    <div class="flex-separate middle">
+      <div class="horizontal-left-content middle">
+        <h3>Target: {{ currentNode?.name }}</h3>
+        <div
+          v-if="currentNode"
+          class="square-brackets margin-medium-left"
+        >
+          <ul class="no_bullets context-menu">
+            <li>
+              <a
+                :href="`/graph/${encodeURIComponent(currentGlobalId)}/object`"
+                target="_blank"
+              >
+                JSON
+              </a>
+            </li>
+            <li>
+              <v-btn
+                color="primary"
+                circle
+                @click="
+                  () =>
+                    downloadTextFile(
+                      svgElement.outerHTML,
+                      'image/svg+xml',
+                      'graph.svg'
+                    )
+                "
+              >
+                <v-icon
+                  color="white"
+                  x-small
+                  name="download"
+                />
+              </v-btn>
+            </li>
+            <li>
+              <radial-annotator :global-id="currentNode.id" />
+            </li>
+            <li>
+              <radial-navigation :global-id="currentNode.id" />
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            v-model="showLabels"
+          />
+          Show labels
+        </label>
       </div>
     </div>
   </div>
@@ -65,6 +75,7 @@
     <svg
       xmlns="http://www.w3.org/2000/svg"
       ref="svgElement"
+      :class="!showLabels && 'hide-labels'"
     ></svg>
   </div>
 </template>
@@ -96,6 +107,7 @@ const svgElement = ref(null)
 const currentNode = ref(null)
 const isLoading = ref(false)
 const currentGlobalId = ref(null)
+const showLabels = ref(true)
 let nodes = []
 let links = []
 let simulation
@@ -108,11 +120,11 @@ function initGraph() {
     graphContainer.attr('transform', e.transform)
   })
 
-  graph.call(zoom)
+  graph.call(zoom).call(zoom.transform, d3.zoomIdentity)
 
   simulation = d3
     .forceSimulation(nodes)
-    .force('charge', d3.forceManyBody().strength(-10))
+    .force('charge', d3.forceManyBody().strength(-10).distanceMax(10))
     .force('center', d3.forceCenter(width / 2, height / 2))
     .force('link', d3.forceLink().links(links).distance(150))
     .on('tick', ticked)
@@ -259,6 +271,12 @@ onMounted(() => {
 
   .node {
     cursor: pointer;
+  }
+
+  .hide-labels {
+    text {
+      display: none;
+    }
   }
 }
 </style>
