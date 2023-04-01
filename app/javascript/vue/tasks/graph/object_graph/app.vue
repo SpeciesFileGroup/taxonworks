@@ -151,14 +151,10 @@ function initGraph() {
       .attr('dx', size * 2 + 4)
       .attr('dy', size / 2)
 
-    nodeGroup
-      .on('click', (e, d) => {
-        currentNode.value = d
-      })
-      .on('dblclick', (e, d) => {
-        e.stopPropagation()
-        loadGraph(d.id)
-      })
+    nodeGroup.on('dblclick', (e, d) => {
+      e.stopPropagation()
+      loadGraph(d.id)
+    })
   }
 
   createNodes()
@@ -222,6 +218,8 @@ function loadGraph(globalId) {
         source: body.nodes.findIndex((node) => node.id === link.start_id),
         target: body.nodes.findIndex((node) => node.id === link.end_id)
       }))
+
+      currentNode.value = nodes.find((n) => n.id === globalId)
 
       initGraph()
       isLoading.value = false
