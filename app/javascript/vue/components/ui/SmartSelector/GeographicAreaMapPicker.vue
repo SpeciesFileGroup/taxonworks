@@ -39,7 +39,7 @@
             :checked="selectedItem && item.id === selectedItem.id"
             @click="() => emit('select', item)"
           />
-          {{ item.name }}
+          {{ item.name }} ({{ item.data_origin }})
         </label>
       </li>
     </ul>

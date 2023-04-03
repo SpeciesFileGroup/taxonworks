@@ -418,7 +418,7 @@ const randomShapeStyle = (index) => ({
   color: generateHue(index + 6),
   dashArray: '3',
   dashOffset: '3',
-  fillOpacity: 0.5
+  fillOpacity: 0.25
 })
 
 const stripeShapeStyle = (index) => {
