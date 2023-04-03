@@ -27,10 +27,6 @@
             </div>
             <div
               class="radial-annotator-template panel"
-              :style="{
-                'max-height': windowHeight(),
-                'min-height': windowHeight()
-              }"
               v-if="currentAnnotator"
             >
               <h2 class="capitalize view-title">
@@ -170,13 +166,6 @@ function selectComponent({ name }) {
 function closeModal() {
   isModalVisible.value = false
   emit('close')
-}
-
-function windowHeight() {
-  return (
-    (window.innerHeight - 100 > 650 ? 650 : window.innerHeight - 100) +
-    'px !important'
-  )
 }
 
 function createTag() {
