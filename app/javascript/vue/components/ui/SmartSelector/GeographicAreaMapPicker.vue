@@ -43,6 +43,7 @@
         </label>
       </li>
     </ul>
+    <hr />
   </div>
 </template>
 
