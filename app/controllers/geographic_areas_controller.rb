@@ -10,7 +10,6 @@ class GeographicAreasController < ApplicationController
     respond_to do |format|
       format.html do
         @recent_objects = GeographicArea.updated_in_last(2.months).order(updated_at: :desc).limit(10)
-        @recent_objects = Otu.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
       format.json {
