@@ -60,7 +60,7 @@
 
       <VBtn
         v-if="showBottom"
-        :title="globalId ? `${globalId.split('/')[3]} annotator` : buttonTitle"
+        :title="buttonTitle"
         class="circle-button"
         :class="[pulse ? 'pulse-blue' : '']"
         color="radial"
@@ -70,9 +70,7 @@
         @click="displayAnnotator()"
       >
         <VIcon
-          :title="
-            globalId ? `${globalId.split('/')[3]} annotator` : buttonTitle
-          "
+          :title="buttonTitle"
           name="radialAnnotator"
           x-small
         />
