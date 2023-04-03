@@ -109,7 +109,6 @@ function enableDraw() {
 }
 
 function disableDraw() {
-  console.log('Se')
   mapRef.value.getMapObject().pm.disableDraw()
 }
 
