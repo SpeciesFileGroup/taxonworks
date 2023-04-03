@@ -16,10 +16,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
-- Paper catalog raised when rendering some type material records
+- Paper catalog raised when rendering some type material records [#3364]
 - Lock buttons are not working on New source task
 - Some rows don't show name string in Citations by source task [#3370]
 - Updating a data attributes updates related DwcOccurrences
+- API catalog method call [#3368]
+- Alternate values appear on community data [#3363]
 
 ### Changed
 
@@ -27,6 +29,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New D3 engine for object graph greatly improves performance, new rendering options
 - New DwC occurrence version reflecting [#3371]
 
+[#3363]: https://github.com/SpeciesFileGroup/taxonworks/issues/3363
+[#3364]: https://github.com/SpeciesFileGroup/taxonworks/issues/3364
+[#3368]: https://github.com/SpeciesFileGroup/taxonworks/issues/3368
 [#3293]: https://github.com/SpeciesFileGroup/taxonworks/issues/3293
 [#3371]: https://github.com/SpeciesFileGroup/taxonworks/issues/3371
 [#3370]: https://github.com/SpeciesFileGroup/taxonworks/issues/3370
