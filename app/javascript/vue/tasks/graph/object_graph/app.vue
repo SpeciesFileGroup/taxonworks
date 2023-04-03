@@ -3,7 +3,9 @@
   <div class="panel content margin-medium-bottom">
     <div class="flex-separate middle">
       <div class="horizontal-left-content middle">
-        <h3>Target: {{ currentNode?.name }}</h3>
+        <h3>
+          <span>Target: <span v-html="currentNode?.name" /></span>
+        </h3>
         <div
           v-if="currentNode"
           class="square-brackets margin-medium-left"
