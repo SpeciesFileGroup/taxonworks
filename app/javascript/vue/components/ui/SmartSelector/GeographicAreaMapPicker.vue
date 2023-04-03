@@ -21,6 +21,8 @@
       :edit-mode="false"
       :drag-mode="false"
       @geo-json-layer-created="addShape"
+      @mouseenter="() => enableDraw()"
+      @mouseleave="() => disableDraw()"
     />
     <ul class="no_bullets">
       <li
@@ -102,6 +104,15 @@ function addShape(shape) {
   loadGeopgraphicAreas(wkt)
 }
 
+function enableDraw() {
+  mapRef.value.getMapObject().pm.enableDraw('Marker')
+}
+
+function disableDraw() {
+  console.log('Se')
+  mapRef.value.getMapObject().pm.disableDraw()
+}
+
 function loadGeopgraphicAreas(wkt) {
   const payload = {
     containing_point: wkt,
@@ -112,7 +123,7 @@ function loadGeopgraphicAreas(wkt) {
   GeographicArea.where(payload)
     .then(({ body }) => {
       geographicAreas.value = body
-      mapRef.value.getMapObject().pm.disableDraw()
+      disableDraw()
     })
     .finally(() => {
       isLoading.value = false
