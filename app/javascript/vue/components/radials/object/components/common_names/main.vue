@@ -17,14 +17,21 @@
         target="CollectingEvent"
         pin-section="GeographicAreas"
         label="name"
+        :add-tabs="['map']"
         pin-type="GeographicArea"
-        @selected="selectedGeographic = $event"
-      />
+        @selected="() => (selectedGeographic = $event)"
+      >
+        <template #map>
+          <GeographicAreaMapPicker
+            @select="() => (selectedGeographic = $event)"
+          />
+        </template>
+      </SmartSelector>
       <div>
         <SmartSelectorItem
           :item="selectedGeographic"
           label="name"
-          @unset="selectedGeographic = null"
+          @unset="() => (selectedGeographic = null)"
         />
       </div>
     </fieldset>
@@ -42,7 +49,7 @@
       <SmartSelectorItem
         :item="selectedLanguage"
         label="english_name"
-        @unset="selectedLanguage = null"
+        @unset="() => (selectedLanguage = null)"
       />
     </fieldset>
 
@@ -116,6 +123,7 @@ import TableList from 'components/table_list.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
 import makeCommonName from 'factory/CommonName.js'
+import GeographicAreaMapPicker from 'components/ui/SmartSelector/GeographicAreaMapPicker.vue'
 import { addToArray } from 'helpers/arrays.js'
 import { CommonName } from 'routes/endpoints'
 import VBtn from 'components/ui/VBtn/index.vue'
@@ -127,6 +135,7 @@ export default {
     TableList,
     SmartSelector,
     SmartSelectorItem,
+    GeographicAreaMapPicker,
     VBtn
   },
 
