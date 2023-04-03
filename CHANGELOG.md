@@ -9,19 +9,23 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- Add CO quick forms in New type specimen task
+- Add collection object quick forms in New type specimen task
+- New layout for collection objects filter - Data attributes
+- DarwinCore`asscociatedTaxa` indexing via data attributes [#3371]
 
 ### Fixed
 
 - Paper catalog raised when rendering some type material records
 - Lock buttons are not working on New source task
 - Some rows don't show name string in Citations by source task [#3370]
+- Updating a data attributes updates related DwcOccurrences
 
 ### Changed
 
 - Updated bundle gems
 - New D3 engine for object graph greatly improves performance, new rendering options
 
+[#3371]: https://github.com/SpeciesFileGroup/taxonworks/issues/3371
 [#3370]: https://github.com/SpeciesFileGroup/taxonworks/issues/3370
 
 ## [0.32.1] - 2023-03-23
