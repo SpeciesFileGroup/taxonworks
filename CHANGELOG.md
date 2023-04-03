@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Geographic area smart-selector has click-to-select map option [#3293]
 - Add collection object quick forms in New type specimen task
 - New layout for collection objects filter - Data attributes
 - DarwinCore`asscociatedTaxa` indexing via data attributes [#3371]
@@ -24,7 +25,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Updated bundle gems
 - New D3 engine for object graph greatly improves performance, new rendering options
+- New DwC occurrence version reflecting [#3371]
 
+[#3293]: https://github.com/SpeciesFileGroup/taxonworks/issues/3293
 [#3371]: https://github.com/SpeciesFileGroup/taxonworks/issues/3371
 [#3370]: https://github.com/SpeciesFileGroup/taxonworks/issues/3370
 
