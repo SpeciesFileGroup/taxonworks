@@ -1,13 +1,14 @@
 <template>
-  <div>
+  <div class="margin-small-bottom">
     <VSpinner v-if="isLoading" />
     <VMap
+      ref="mapRef"
       class="margin-small-bottom"
       :geojson="geojson"
       height="300px"
       width="100%"
       :zoom="2"
-      :fit-bounds="false"
+      :fit-bounds="true"
       draw-controls
       :draw-circle="false"
       :draw-polyline="false"
@@ -27,7 +28,10 @@
         :key="item.id"
         class="list__item"
       >
-        <label>
+        <label
+          @mouseover="() => (geoHover = item)"
+          @mouseout="() => (geoHover = null)"
+        >
           <input
             :name="`smart-geographic-${name}`"
             type="radio"
@@ -63,31 +67,51 @@ const props = defineProps({
 
 const emit = defineEmits(['select', 'update:modelValue'])
 
+const mapRef = ref(null)
+const geojson = computed(() => {
+  const data = geographicAreas.value
+    .filter((g) => g.shape)
+    .map((g) => JSON.parse(JSON.stringify(g.shape)))
+
+  if (geoHover.value) {
+    const current = data.find(
+      (g) => g.properties.geographic_area.id === geoHover.value.id
+    )
+
+    current.properties.style = { color: 'blue' }
+
+    return [current]
+  }
+
+  return data
+})
+
 const selectedItem = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
 })
 
-const geojson = ref([])
 const geographicAreas = ref([])
 const isLoading = ref(false)
+const geoHover = ref(null)
 
 function addShape(shape) {
   const wkt = `POINT (${shape.geometry.coordinates.join(' ')})`
 
-  geojson.value = [shape]
   loadGeopgraphicAreas(wkt)
 }
 
 function loadGeopgraphicAreas(wkt) {
   const payload = {
-    containing_point: wkt
+    containing_point: wkt,
+    embed: ['shape']
   }
 
   isLoading.value = true
   GeographicArea.where(payload)
     .then(({ body }) => {
       geographicAreas.value = body
+      mapRef.value.getMapObject().pm.disableDraw()
     })
     .finally(() => {
       isLoading.value = false
