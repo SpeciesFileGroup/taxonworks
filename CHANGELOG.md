@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Updated bundle gems
+- New D3 engine for object graph greatly improves performance, new rendering options
 
 [#3370]: https://github.com/SpeciesFileGroup/taxonworks/issues/3370
 
