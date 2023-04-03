@@ -227,4 +227,13 @@ export const LAYOUTS = {
       identifiers: true
     }
   },
+
+  DataAttributes: {
+    properties: {
+    },
+    includes: {
+      data_attributes: true
+    }
+  },
+
 }

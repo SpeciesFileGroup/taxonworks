@@ -113,6 +113,7 @@ export default {
       )
         .then((response) => {
           if (response.body.title) {
+            this.$store.dispatch(ActionNames.ResetSource)
             response.body.roles_attributes = []
             this.$store.commit(MutationNames.SetSource, response.body)
 

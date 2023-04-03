@@ -3,10 +3,12 @@
     <spinner-component
       v-if="sorting"
       :full-screen="true"
-      legend="Loading..."/>
-    <div 
+      legend="Loading..."
+    />
+    <div
       class="flex-separate"
-      v-if="taxon">
+      v-if="taxon"
+    >
       <div class="horizontal-left-content">
         <div class="header-box middle separate-right">
           <h3 v-if="taxon">Scoped: {{ taxon.name }}</h3>
@@ -16,50 +18,53 @@
             <option
               v-for="field in fieldset"
               :key="field.value"
-              :value="field.value">
+              :value="field.value"
+            >
               {{ field.label }}
             </option>
           </select>
         </div>
       </div>
-      <div class="flex-separate">
-        <span
-          class="middle cursor-pointer"
-          data-icon="reset"
-          @click="resetList">Reset order</span>
-        <csv-button
-          class="separate-left"
+      <div class="flex-separate gap-xsmall">
+        <CsvButton
           :list="tableRanks.data"
-          :options="{ fields: csvFields }" />
+          :options="{ fields: csvFields }"
+        />
       </div>
     </div>
     <table
       class="full_width"
-      v-if="tableRanks">
+      v-if="tableRanks"
+    >
       <thead>
         <tr>
           <template v-for="(header, index) in tableRanks.column_headers">
-            <th 
+            <th
               v-if="index >= renderPosition"
-              @click="sortBy(header)">
-              <span v-html="header.replace('_', '<br>')"/>
+              @click="sortBy(header)"
+            >
+              <span v-html="header.replace('_', '<br>')" />
             </th>
           </template>
           <th @click="sortBy('cached')">Show</th>
         </tr>
       </thead>
       <tbody>
-        <tr 
+        <tr
           v-for="(row, index) in tableRanks.data"
           class="contextMenuCells"
-          :class="{ even: (index % 2)}">
+          :class="{ even: index % 2 }"
+        >
           <template v-for="(header, hindex) in tableRanks.column_headers">
             <td v-if="hindex >= renderPosition">
               {{ row[hindex] }}
             </td>
           </template>
           <td>
-            <a :href="getBrowseUrl(getValueFromTable('taxon_name_id', index))">{{ getValueFromTable('cached', index) }}</a>
+            <a
+              :href="getBrowseUrl(getValueFromTable('taxon_name_id', index))"
+              >{{ getValueFromTable('cached', index) }}</a
+            >
           </td>
         </tr>
       </tbody>
@@ -68,16 +73,19 @@
 </template>
 
 <script>
-
+import { RouteNames } from 'routes/routes'
 import { GetterNames } from '../store/getters/getters'
 import SpinnerComponent from 'components/spinner'
 import CsvButton from 'components/csvButton'
-import { RouteNames } from 'routes/routes'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 export default {
   components: {
     SpinnerComponent,
-    CsvButton
+    CsvButton,
+    VBtn,
+    VIcon
   },
   props: {
     tableList: {
@@ -86,11 +94,11 @@ export default {
     }
   },
   computed: {
-    taxon () {
+    taxon() {
       return this.$store.getters[GetterNames.GetTaxon]
     },
 
-    csvFields () {
+    csvFields() {
       if (!Object.keys(this.tableRanks).length) return []
       return this.tableRanks.column_headers.map((item, index) => {
         return {
@@ -102,7 +110,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       renderPosition: 6,
       tableRanks: {},
@@ -125,7 +133,7 @@ export default {
 
   watch: {
     tableList: {
-      handler (newVal) {
+      handler(newVal) {
         this.sorting = true
         setTimeout(() => {
           this.tableRanks = newVal
@@ -139,28 +147,32 @@ export default {
   },
 
   methods: {
-    getBrowseUrl (id) {
+    getBrowseUrl(id) {
       return `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
     },
 
-    resetList () {
-      this.tableRanks = this.tableList
-    },
-
-    getValueFromTable (header, rowIndex) {
-      const otuIndex = this.tableRanks.column_headers.findIndex(item => item === header)
+    getValueFromTable(header, rowIndex) {
+      const otuIndex = this.tableRanks.column_headers.findIndex(
+        (item) => item === header
+      )
       return this.tableRanks.data[rowIndex][otuIndex]
     },
 
-    sortBy (headerName) {
+    sortBy(headerName) {
       this.sorting = true
       setTimeout(() => {
-        const index = this.tableRanks.column_headers.findIndex(item => item === headerName)
+        const index = this.tableRanks.column_headers.findIndex(
+          (item) => item === headerName
+        )
 
         this.tableRanks.data.sort((a, b) =>
           this.ascending
-            ? (a[index] === null) - (b[index] === null) || +(a[index] > b[index]) || -(a[index] < b[index])
-            : (a[index] === null) - (b[index] === null) || -(a[index] > b[index]) || +(a[index] < b[index])
+            ? (a[index] === null) - (b[index] === null) ||
+              +(a[index] > b[index]) ||
+              -(a[index] < b[index])
+            : (a[index] === null) - (b[index] === null) ||
+              -(a[index] > b[index]) ||
+              +(a[index] < b[index])
         )
         this.ascending = !this.ascending
 

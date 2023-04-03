@@ -14,7 +14,7 @@ module Queries
       attr_accessor :serial_id
 
       # @param [String]
-      #   matching name exactlyjk
+      #   matching name exactly
       attr_accessor :name
 
       def initialize(query_params)

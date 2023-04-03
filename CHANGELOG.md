@@ -9,6 +9,37 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.32.2] - 2023-04-03
+
+### Added
+
+- Geographic area smart-selector has click-to-select map option [#3293]
+- Add collection object quick forms in New type specimen task
+- New layout for collection objects filter - Data attributes
+- DarwinCore`asscociatedTaxa` indexing via data attributes [#3371]
+
+### Fixed
+
+- Paper catalog raised when rendering some type material records [#3364]
+- Lock buttons are not working on New source task
+- Some rows don't show name string in Citations by source task [#3370]
+- Updating a data attributes updates related DwcOccurrences
+- API catalog method call [#3368]
+- Alternate values appear on community data [#3363]
+
+### Changed
+
+- Updated bundle gems
+- New D3 engine for object graph greatly improves performance, new rendering options
+- New DwC occurrence version reflecting [#3371]
+
+[#3363]: https://github.com/SpeciesFileGroup/taxonworks/issues/3363
+[#3364]: https://github.com/SpeciesFileGroup/taxonworks/issues/3364
+[#3368]: https://github.com/SpeciesFileGroup/taxonworks/issues/3368
+[#3293]: https://github.com/SpeciesFileGroup/taxonworks/issues/3293
+[#3371]: https://github.com/SpeciesFileGroup/taxonworks/issues/3371
+[#3370]: https://github.com/SpeciesFileGroup/taxonworks/issues/3370
+
 ## [0.32.1] - 2023-03-23
 
 ### Fixed
@@ -3494,7 +3525,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.2...development
+[0.32.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.1...v0.32.2
 [0.32.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.0...v0.32.1
 [0.32.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.3...v0.32.0
 [0.31.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.2...v0.31.3

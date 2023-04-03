@@ -99,6 +99,9 @@
         :node="nodes[currentNodeId]"
         :node-id="currentNodeId"
         :is-saved="isCurrentNodeSaved"
+        :has-relationship="
+          !!getBiologicalRelationshipsByNodeId(currentNodeId).length
+        "
         :create-button="selectedNodes.length === 2"
         :citations="
           getBiologicalRelationshipsByNodeId(currentNodeId).reduce(

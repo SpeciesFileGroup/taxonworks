@@ -15,7 +15,7 @@
             v-for="source in sources"
             :key="source.id"
           >
-            <td>{{ source.object_tag }}</td>
+            <td v-html="source.object_tag" />
           </tr>
         </tbody>
       </table>
