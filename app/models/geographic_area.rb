@@ -275,11 +275,11 @@ class GeographicArea < ApplicationRecord
 
      # TODO: Wrap this a pre-loading constant. This makes specs very fragile.
 
-     unless Rails.env == 'test'
+     unless Rails.env.test?
        n = CACHED_GEOGRAPHIC_AREA_TYPES[geographic_area_type_id]
      end
 
-     n ||= GeographicAreaType.where(id: geographic_area_type_id).limit(1).pluck(:name).first
+     n ||= GeographicAreaType.where(id: geographic_area_type_id).limit(1).pick(:name)
 
     return {country: s} if GeographicAreaType::COUNTRY_LEVEL_TYPES.include?(n) || (id == level0_id)
     return {state: s} if GeographicAreaType::STATE_LEVEL_TYPES.include?(n) || (data_origin == 'ne_states') || (id == level1_id) || (!parent.nil? && (parent&.id) == parent&.level0_id)
@@ -299,7 +299,7 @@ class GeographicArea < ApplicationRecord
       .where(name: name) # shares the same name
       .where('level0_id = parent_id') # parent is a country
       .where.not(geographic_area_type: [111,112]).any? # not another TDWG record
-    return {state: name}
+      return {state: name}
     end
 
     # !! Do not use ::Utilities::Geo::DICTIONARY here, this is particular to TDWG's names
@@ -391,12 +391,10 @@ class GeographicArea < ApplicationRecord
   #   4) everything else (at present, TDWG)
   def default_geographic_item
     default_geographic_area_geographic_item&.geographic_item
-    # GeographicItem.default_by_geographic_area_ids([id]).first
   end
 
   def default_geographic_item_id
     default_geographic_area_geographic_item.pluck('geographic_items.id').first # &.geographic_item
-    # GeographicItem.default_by_geographic_area_ids([id]).first
   end
 
   # @return [GeographicAreasGeographicItem, nil]

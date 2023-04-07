@@ -24,7 +24,7 @@
 class Otu < ApplicationRecord
   include Housekeeping
   include SoftValidation
-  # include Shared::AlternateValues   # No alternate values on Name!! Consequences - search cumbersome, names not unified and controllable ... others?
+  # include Shared::AlternateValues # No alternate values on Name!! Consequences - search cumbersome, names not unified and controllable ... others?
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Identifiers
@@ -48,11 +48,13 @@ class Otu < ApplicationRecord
 
   is_origin_for 'Sequence', 'Extract'
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes].freeze
+
+  has_one :cached_map, dependent: :destroy
 
   belongs_to :taxon_name, inverse_of: :otus
- 
-  # Why?  Could be combination too.
+
+  # Why? Could be Combination too.
   belongs_to :protonym, -> { where(type: 'Protonym') }, foreign_key: :taxon_name_id
 
   has_many :cached_maps, dependent: :destroy
@@ -148,7 +150,7 @@ class Otu < ApplicationRecord
   # @param taxon_name_id [The id of a valid TaxonName]
   def self.descendant_of_taxon_name(taxon_name_id = [])
     ids = [taxon_name_id].flatten.compact.uniq
-  
+
     o = Otu.arel_table
     t = TaxonName.arel_table
     h = TaxonNameHierarchy.arel_table

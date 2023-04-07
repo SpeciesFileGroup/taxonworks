@@ -40,21 +40,21 @@ class ObservationMatrixRowItem < ApplicationRecord
   end
 
   def update_matrix_rows
-     observation_objects.each do |o|
+    observation_objects.each do |o|
       update_single_matrix_row o
     end
   end
 
   def cleanup_matrix_rows
     return true if observation_objects.count == 0
-    ObservationMatrixRow.where(observation_matrix: observation_matrix, observation_object: observation_objects).each do |mr|
+    ObservationMatrixRow.where(observation_matrix:, observation_object: observation_objects).each do |mr|
       decrement_matrix_row_reference_count(mr)
     end
     true
   end
 
   def find_or_build_row(object)
-    ObservationMatrixRow.find_or_initialize_by(observation_matrix: observation_matrix, observation_object: object)
+    ObservationMatrixRow.find_or_initialize_by(observation_matrix:, observation_object: object)
   end
 
   def update_single_matrix_row(object)
@@ -65,14 +65,14 @@ class ObservationMatrixRowItem < ApplicationRecord
 
   # Not named "destroy_" because it doesn't always delete row
   def cleanup_single_matrix_row(object)
-    mr = ObservationMatrixRow.where(observation_matrix: observation_matrix, observation_object: object).first
+    mr = ObservationMatrixRow.where(observation_matrix:, observation_object: object).first
     decrement_matrix_row_reference_count(mr) if !mr.nil?
   end
 
   def self.human_name
     self.name.demodulize.humanize
   end
-  
+
   # @return [Array]
   #   the required attributes for this subclass
   # override
@@ -92,7 +92,6 @@ class ObservationMatrixRowItem < ApplicationRecord
     matrix_row_item_object.class.name == object_type ? matrix_row_item_object : nil
   end
 
-  protected
 
   # @return [Array] of ObservationMatrixRowItems
   def self.batch_create(params)
@@ -111,12 +110,12 @@ class ObservationMatrixRowItem < ApplicationRecord
     ObservationMatrixRowItem.transaction do
       begin
         if klass
-          klass.safe_constantize.joins(:tags).where(tags: {keyword_id: keyword_id} ).each do |o|
-            created.push ObservationMatrixRowItem::Single.create!(observation_matrix_id: observation_matrix_id, observation_object: o)
+          klass.safe_constantize.joins(:tags).where(tags: {keyword_id:} ).each do |o|
+            created.push ObservationMatrixRowItem::Single.create!(observation_matrix_id:, observation_object: o)
           end
         else
           created += create_for_tags(
-            Tag.where(keyword_id: keyword_id, tag_object_type: OBSERVABLE_TYPES).all,
+            Tag.where(keyword_id:, tag_object_type: OBSERVABLE_TYPES).all,
             observation_matrix_id
           )
         end
@@ -135,12 +134,12 @@ class ObservationMatrixRowItem < ApplicationRecord
     ObservationMatrixRow.transaction do
       begin
         if klass
-          klass.safe_constantize.joins(:pinboard_items).where(pinboard_items: {user_id: user_id, project_id: project_id}).each do |o|
-            created.push ObservationMatrixRowItem::Single.create!(observation_matrix_id: observation_matrix_id, observation_object: o)
+          klass.safe_constantize.joins(:pinboard_items).where(pinboard_items: {user_id:, project_id:}).each do |o|
+            created.push ObservationMatrixRowItem::Single.create!(observation_matrix_id:, observation_object: o)
           end
         else
           created += create_for_pinboard_items(
-            PinboardItem.where(project_id: project_id, user_id: user_id, pinned_object_type: OBSERVABLE_TYPES).all,
+            PinboardItem.where(project_id:, user_id:, pinned_object_type: OBSERVABLE_TYPES).all,
             observation_matrix_id
           )
         end
@@ -157,7 +156,7 @@ class ObservationMatrixRowItem < ApplicationRecord
   def self.create_for_tags(tag_scope, observation_matrix_id)
     a = []
     tag_scope.each do |o|
-      a.push ObservationMatrixRowItem::Single.create!(observation_matrix_id: observation_matrix_id, observation_object: o.tag_object)
+      a.push ObservationMatrixRowItem::Single.create!(observation_matrix_id:, observation_object: o.tag_object)
     end
     a
   end
@@ -168,7 +167,7 @@ class ObservationMatrixRowItem < ApplicationRecord
   def self.create_for_pinboard_items(pinboard_item_scope, observation_matrix_id)
     a = []
     pinboard_item_scope.each do |o|
-      a.push ObservationMatrixRowItem::Single.create!(observation_matrix_id: observation_matrix_id, observation_object: o.pinned_object)
+      a.push ObservationMatrixRowItem::Single.create!(observation_matrix_id:, observation_object: o.pinned_object)
     end
     a
   end

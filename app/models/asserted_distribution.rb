@@ -35,6 +35,8 @@ class AssertedDistribution < ApplicationRecord
   include Shared::IsDwcOccurrence
   include AssertedDistribution::DwcExtensions
 
+  include Shared::Maps
+
   originates_from 'Specimen', 'Lot'
 
   # @return [Hash]
@@ -47,6 +49,8 @@ class AssertedDistribution < ApplicationRecord
 
   has_one :geographic_item, through: :geographic_area, source: :default_geographic_item
   has_many :geographic_items, through: :geographic_area
+
+  has_one :cached_map, through: :otu
 
   validates_presence_of :geographic_area_id, message: 'geographic area is not selected'
 
