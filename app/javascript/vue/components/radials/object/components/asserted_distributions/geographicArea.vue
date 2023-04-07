@@ -1,46 +1,58 @@
-
 <template>
   <div>
+    <VSpinner
+      v-if="disabled"
+      :show-legend="false"
+      :show-spinner="false"
+      z-index="2000"
+    />
     <fieldset>
       <legend>Geographic area</legend>
-      <smart-selector
+      <SmartSelector
         model="geographic_areas"
         klass="AssertedDistribution"
         target="AssertedDistribution"
         ref="smartSelector"
         label="name"
-        :buttons="true"
-        :inline="true"
+        :add-tabs="['map']"
+        buttons
+        inline
         pin-section="GeographicAreas"
         pin-type="GeographicArea"
         @selected="sendGeographic"
-      />
+      >
+        <template #map>
+          <GeographicAreaMapPicker @select="sendGeographic" />
+        </template>
+      </SmartSelector>
     </fieldset>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
+import VSpinner from 'components/spinner.vue'
 import SmartSelector from 'components/ui/SmartSelector'
+import GeographicAreaMapPicker from 'components/ui/SmartSelector/GeographicAreaMapPicker.vue'
 
-export default {
-  components: { SmartSelector },
-
-  props: {
-    sourceLock: {
-      type: Boolean,
-      required: true
-    }
+const props = defineProps({
+  sourceLock: {
+    type: Boolean,
+    required: true
   },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+})
 
-  emits: ['select'],
+const emit = defineEmits(['select'])
+const smartSelector = ref(null)
 
-  methods: {
-    sendGeographic (item) {
-      this.$emit('select', item.id)
-      if (this.sourceLock) {
-        this.$refs.smartSelector.setFocus()
-      }
-    }
+function sendGeographic(item) {
+  emit('select', item.id)
+  if (props.sourceLock) {
+    smartSelector.value.setFocus()
   }
 }
 </script>

@@ -20,8 +20,9 @@ module Export
       '2022-01-21 16:30:00.000000 -0500',    # basisOfRecord can now be FossilSpecimen; occurrenceId exporting; adds redundant time fields
       '2022-03-31 16:30:00.000000 -0500',    # collectionCode, occurrenceRemarks and various small fixes
       '2022-04-28 16:30:00.000000 -0500',    # add dwcOccurrenceStatus
-      '2022-09-28 16:30:00.000000 -0500'     # add phylum, class, order, higherClassification
-    ]
+      '2022-09-28 16:30:00.000000 -0500',     # add phylum, class, order, higherClassification
+      '2023-04-03 16:30:00.000000 -0500'     # add associatedTaxa; updating InternalAttributes is now reflected in index
+    ].freeze
 
     # @param record_scope [ActiveRecord::Relation]
     #   a relation that returns DwcOccurrence records
@@ -34,16 +35,16 @@ module Export
       name = "dwc-a_#{DateTime.now}.zip"
 
       download = ::Download::DwcArchive.create!(
-        name: "DwC Archive generated at #{Time.now}.",
+        name: "DwC Archive generated at #{Time.now.utc}.",
         description: 'A Darwin Core archive.',
         filename: name,
-        request: request,
+        request:,
         expires: 2.days.from_now,
         total_records: record_scope.size # Was haveing problems with count() TODO: increment after when extensions are allowed.
       )
 
       # Note we pass a string with the record scope
-      ::DwcaCreateDownloadJob.perform_later(download, core_scope: record_scope.to_sql, predicate_extension_params: predicate_extension_params)
+      ::DwcaCreateDownloadJob.perform_later(download, core_scope: record_scope.to_sql, predicate_extension_params:)
 
       download
     end

@@ -2,12 +2,24 @@ class GeographicAreasController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :set_geographic_area, only: [:show, :png]
+  after_action -> { set_pagination_headers(:geographic_areas) }, only: [:index], if: :json_request?
 
   # GET /geographic_areas
   # GET /geographic_areas.json
   def index
-    @recent_objects = GeographicArea.updated_in_last(2.months).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = GeographicArea.updated_in_last(2.months).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @geographic_areas = ::Queries::GeographicArea::Filter.new(params).all
+          .includes(:geographic_items)
+          .page(params[:page])
+          .per(params[:per])
+          # .order('geographic_items.cached_total_area, geographic_area.name')
+      }
+    end
   end
 
   # GET /geographic_areas/1

@@ -41,14 +41,10 @@
         @delete="removeCitation"
       />
       <div>
-        <spinner
-          v-if="!citation.source_id || asserted_distribution.id"
-          :show-legend="false"
-          :show-spinner="false"
-        />
-        <geographic-area
+        <GeographicArea
           class="separate-bottom"
           :source-lock="lock.source"
+          :disabled="!citation.source_id || asserted_distribution.id"
           @select="
             ($event) => {
               asserted_distribution.geographic_area_id = $event
@@ -64,6 +60,7 @@
         legend="Loading..."
       />
       <map-component
+        v-if="list.length"
         width="90%"
         height="300px"
         tooltips

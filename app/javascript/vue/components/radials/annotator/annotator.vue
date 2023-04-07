@@ -31,10 +31,6 @@
             </div>
             <div
               class="radial-annotator-template panel"
-              :style="{
-                'max-height': windowHeight(),
-                'min-height': windowHeight()
-              }"
               v-if="currentAnnotator"
             >
               <h2 class="capitalize view-title">
@@ -60,7 +56,7 @@
 
       <VBtn
         v-if="showBottom"
-        :title="globalId ? `${globalId.split('/')[3]} annotator` : buttonTitle"
+        :title="buttonTitle"
         class="circle-button"
         :class="[pulse ? 'pulse-blue' : '']"
         color="radial"
@@ -70,9 +66,7 @@
         @click="displayAnnotator()"
       >
         <VIcon
-          :title="
-            globalId ? `${globalId.split('/')[3]} annotator` : buttonTitle
-          "
+          :title="buttonTitle"
           name="radialAnnotator"
           x-small
         />
@@ -455,13 +449,6 @@ export default {
       document.dispatchEvent(event)
     },
 
-    windowHeight() {
-      return (
-        (window.innerHeight - 100 > 650 ? 650 : window.innerHeight - 100) +
-        'px !important'
-      )
-    },
-
     createTag() {
       const tag = {
         keyword_id: this.getDefault(),
@@ -545,27 +532,21 @@ export default {
     padding: 1em;
     width: 100%;
     max-width: 100%;
-    min-height: 600px;
+    height: 80vh;
     overflow-y: auto;
   }
 
   .radial-annotator-container {
     display: flex;
-    height: 600px;
+    height: 100%;
     flex-direction: column;
     overflow-y: scroll;
     position: relative;
   }
 
-  .radial-annotator-inner-modal {
-    height: 700px;
-  }
-
   .radial-annotator-menu {
-    padding-top: 1em;
-    padding-bottom: 1em;
     width: 700px;
-    min-height: 650px;
+    height: 90vh;
   }
 
   .annotator-buttons-list {

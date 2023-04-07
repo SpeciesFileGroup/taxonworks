@@ -30,7 +30,10 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 # @!attribute rank_class
 #   @param rank_class [String]
 #   @return [Class]
-#     The NOMEN based rank as a class.
+#     The NOMEN based rank as a class.  Reflects the current relationship between a name and its synonymy.
+#     !! Combinations are "rankless".
+#     !! Rank class may be automatically changed when synonymy is applied.  For example if a tribe is
+#     synonymized with a subfamily the rank Tribe is updated to subfamily.
 #
 # @!attribute type
 #   @return [String]

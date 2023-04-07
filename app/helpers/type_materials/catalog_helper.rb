@@ -23,7 +23,7 @@ module TypeMaterials::CatalogHelper
     if co.ranged_lot_category.present?
       v.push t.type_type.capitalize + "(n= #{ranged_lot_range(co.ranged_lot_category)})"
     else
-      v.push t.type_type.capitalize + (co.total > 1 ? " (n= #{co.ranged_lot_category.name})" : '')
+      v.push t.type_type.capitalize + (co.total > 1 ? " (n= #{co.total})" : '')
     end
 
     v.push co.biocuration_classes.collect{|a| a.name.downcase}.join(', ').presence

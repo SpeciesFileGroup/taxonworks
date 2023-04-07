@@ -13,19 +13,19 @@
             v-if="biologicalId"
             target="blank"
             :href="getDigitizeRoute()"
-          >Expanded edit
+            >Expanded edit
           </a>
           <radial-annotator
             v-if="typeMaterial.id"
             :global-id="typeMaterial.collection_object.global_id"
           />
-          <expand v-model="displayBody" />
+          <radial-object
+            v-if="typeMaterial.id"
+            :global-id="typeMaterial.collection_object.global_id"
+          />
         </div>
       </div>
-      <div
-        class="body"
-        v-if="displayBody"
-      >
+      <div class="body">
         <div class="switch-radio field">
           <switch-component
             v-model="view"
@@ -34,13 +34,12 @@
         </div>
         <div class="flex-separate">
           <div>
-            <collection-object
-              v-if="view === TAB.new || view === TAB.edit"
-            />
+            <collection-object v-if="view === TAB.new || view === TAB.edit" />
 
             <div
               v-if="view == 'existing'"
-              class="field">
+              class="field"
+            >
               <label>Collection object</label>
               <autocomplete
                 class="types_field"
@@ -74,26 +73,23 @@
         type="button"
         class="button normal-input button-submit"
       >
-        {{ (typeMaterial.id ? 'Update' : 'Create') }}
+        {{ typeMaterial.id ? 'Update' : 'Create' }}
       </button>
     </div>
   </div>
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
+import { RouteNames } from 'routes/routes'
 import ActionNames from '../store/actions/actionNames'
-
+import RadialObject from 'components/radials/object/radial.vue'
 import Autocomplete from 'components/ui/Autocomplete.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import Spinner from 'components/spinner.vue'
-import Expand from 'components/expand.vue'
 import CollectionObject from './collectionObject.vue'
 import DepictionsSection from './depictions.vue'
 import SwitchComponent from 'components/switch.vue'
-
-import { RouteNames } from 'routes/routes'
 
 const TAB = {
   edit: 'edit',
@@ -106,45 +102,44 @@ export default {
     DepictionsSection,
     CollectionObject,
     Autocomplete,
-    Expand,
     RadialAnnotator,
     Spinner,
-    SwitchComponent
+    SwitchComponent,
+    RadialObject
   },
 
   computed: {
-    typeMaterial () {
+    typeMaterial() {
       return this.$store.getters[GetterNames.GetTypeMaterial]
     },
 
-    total () {
+    total() {
       return this.$store.getters[GetterNames.GetCollectionObjectTotal]
     },
 
-    protonymId () {
+    protonymId() {
       return this.$store.getters[GetterNames.GetProtonymId]
     },
 
-    type () {
+    type() {
       return this.$store.getters[GetterNames.GetType]
     },
 
-    biologicalId () {
+    biologicalId() {
       return this.$store.getters[GetterNames.GetBiologicalId]
     }
   },
 
-  data () {
+  data() {
     return {
       tabOptions: [TAB.new, TAB.existing],
-      displayBody: true,
       view: TAB.new,
       TAB
     }
   },
 
   watch: {
-    typeMaterial (newVal) {
+    typeMaterial(newVal) {
       if (newVal.id) {
         this.view = TAB.edit
         this.tabOptions = [TAB.edit, TAB.existing]
@@ -155,15 +150,15 @@ export default {
   },
 
   methods: {
-    getDigitizeRoute () {
+    getDigitizeRoute() {
       return `${RouteNames.DigitizeTask}?collection_object_id=${this.biologicalId}&taxon_name_id=${this.protonymId}`
     },
 
-    createTypeMaterial () {
+    createTypeMaterial() {
       this.$store.dispatch(ActionNames.CreateTypeMaterial)
     },
 
-    saveTypeMaterial () {
+    saveTypeMaterial() {
       if (this.typeMaterial.id) {
         this.updateTypeMaterial()
       } else {
@@ -171,13 +166,13 @@ export default {
       }
     },
 
-    updateTypeMaterial () {
+    updateTypeMaterial() {
       const typeMaterial = this.$store.getters[GetterNames.GetTypeMaterial]
 
       this.$store.dispatch(ActionNames.UpdateTypeSpecimen, typeMaterial)
     },
 
-    setCollectionObject (collectionObject) {
+    setCollectionObject(collectionObject) {
       this.$store.dispatch(ActionNames.SetTypeMaterialCO, collectionObject)
     }
   }

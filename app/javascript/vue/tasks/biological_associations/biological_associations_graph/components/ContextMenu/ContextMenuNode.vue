@@ -21,7 +21,7 @@
     Create relation
   </div>
   <div
-    v-if="isSaved"
+    v-if="hasRelationship"
     class="graph-context-menu-list-item"
     @click="() => emit('cite:edge')"
   >
@@ -45,6 +45,11 @@ defineProps({
   },
 
   isSaved: {
+    type: Boolean,
+    default: false
+  },
+
+  hasRelationship: {
     type: Boolean,
     default: false
   },

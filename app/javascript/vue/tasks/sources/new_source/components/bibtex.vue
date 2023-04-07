@@ -47,6 +47,7 @@
 import SpinnerComponent from 'components/spinner'
 import ModalComponent from 'components/ui/Modal'
 import newSource from '../const/source'
+import setParam from 'helpers/setParam'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import { Source, Serial } from 'routes/endpoints'
@@ -70,6 +71,7 @@ function createSource() {
   Source.create({ bibtex_input: bibtexInput.value })
     .then((response) => {
       bibtexInput.value = ''
+      store.dispatch(ActionNames.ResetSource)
       emit('close', true)
       store.commit(
         MutationNames.SetSource,
@@ -83,6 +85,8 @@ function createSource() {
           }
         })
       }
+
+      setParam('/tasks/sources/new_source', 'source_id', response.body.id)
       TW.workbench.alert.create('New source from BibTeX created.', 'notice')
     })
     .finally(() => {
