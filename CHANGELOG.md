@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+
+- Updated bundle gems
 
 ## [0.32.2] - 2023-04-03
 
