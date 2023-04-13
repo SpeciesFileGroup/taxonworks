@@ -11,6 +11,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Updated bundle gems
 
+### Fixed
+
+- Missing pagination for asserted_distributions API endpoint [#3377]
+
+[#3377]: https://github.com/SpeciesFileGroup/taxonworks/issues/3363
+
 ## [0.32.2] - 2023-04-03
 
 ### Added
@@ -3526,7 +3532,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-
 [unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.2...development
 [0.32.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.1...v0.32.2
 [0.32.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.0...v0.32.1
