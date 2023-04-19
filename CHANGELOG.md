@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Updated bundle gems
+- Ruby 3.2 is now required as minimum
 
 ### Fixed
 
