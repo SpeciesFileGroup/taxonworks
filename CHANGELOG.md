@@ -653,6 +653,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Added OriginallyInvalid relationship in ICN [#3315]
 - Add `/api/v1/otus/123/inventory/content`, includes `embed[]=depictions` [#3004]
 - Adds `data_attributes`, `data_attribute_value`, `data_attribute_predicate_id`, `data_attribute_exact` in filter concern [#2922]
 - `/api/v1/tags` endpoint with `tag_object_type[]`,`tag_object_id[]`, `tag_object_type`, `object_global_id`, `keyword_id[]` [#3061]
