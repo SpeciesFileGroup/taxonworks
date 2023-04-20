@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Icn::Unaccepting::OriginallyInvalid < TaxonNameRelationship::Icn::Unaccepting
 
-NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000700'.freeze
+NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0001064'.freeze
 
   validates_uniqueness_of :object_taxon_name_id, scope: :type
 

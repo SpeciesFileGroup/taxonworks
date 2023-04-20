@@ -677,6 +677,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Object global id param in identifiers API/filter
 - Bad logic check on adding new user to project
 - Dependency loop problem in DwC checklist importer
+- Image matrix error
 
 [#3004]: https://github.com/SpeciesFileGroup/taxonworks/issues/3004
 [#3061]: https://github.com/SpeciesFileGroup/taxonworks/issues/3061
