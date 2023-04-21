@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Download SVG button in Biological associations graph task
+
 ### Changed
 
 - Updated bundle gems
@@ -16,7 +20,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Missing pagination for asserted_distributions API endpoint [#3377]
 
-[#3377]: https://github.com/SpeciesFileGroup/taxonworks/issues/3363
+[#3377]: https://github.com/SpeciesFileGroup/taxonworks/issues/3377
+[#3382]: https://github.com/SpeciesFileGroup/taxonworks/issues/3382
 
 ## [0.32.2] - 2023-04-03
 

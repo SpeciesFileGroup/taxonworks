@@ -385,6 +385,17 @@ function addNodeObject(obj) {
   addObject(makeNodeObject(obj))
 }
 
+async function downloadAsSvg() {
+  if (!graph.value) return
+  const text = await graph.value.exportAsSvgText()
+  const url = URL.createObjectURL(new Blob([text], { type: 'octet/stream' }))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'network-graph.svg'
+  a.click()
+  window.URL.revokeObjectURL(url)
+}
+
 defineExpose({
   addNodeObject,
   currentNodes,
@@ -397,7 +408,8 @@ defineExpose({
   resetStore,
   save,
   saveBiologicalAssociations,
-  setGraph
+  setGraph,
+  downloadAsSvg
 })
 </script>
 

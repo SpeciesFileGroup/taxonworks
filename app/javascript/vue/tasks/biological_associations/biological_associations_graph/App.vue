@@ -62,6 +62,18 @@
                 Sources
               </VBtn>
               <VBtn
+                v-if="graph"
+                color="primary"
+                circle
+                medium
+                @click="() => graph.downloadAsSvg()"
+              >
+                <VIcon
+                  name="download"
+                  x-small
+                />
+              </VBtn>
+              <VBtn
                 color="primary"
                 circle
                 medium
@@ -90,6 +102,7 @@ import setParam from 'helpers/setParam.js'
 import useHotkey from 'vue3-hotkey'
 import platformKey from 'helpers/getPlatformKey'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import { downloadTextFile } from 'helpers/files'
 
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { onMounted, ref } from 'vue'
