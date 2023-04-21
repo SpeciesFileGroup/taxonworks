@@ -282,7 +282,7 @@ export function useGraph() {
   function removeNode(nodeId) {
     const biologicalAssociations = getBiologicalRelationshipsByNodeId(nodeId)
     const created = biologicalAssociations.filter(({ id }) => id)
-    const nodeObject = makeNodeObject(nodeId)
+    const nodeObject = parseNodeId(nodeId)
 
     biologicalAssociations.forEach((ba) => {
       removeEdge(ba.uuid)

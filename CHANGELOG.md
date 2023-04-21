@@ -19,9 +19,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Missing pagination for asserted_distributions API endpoint [#3377]
+- Delete wrong node in Biological associations graph [#3383]
 
 [#3377]: https://github.com/SpeciesFileGroup/taxonworks/issues/3377
 [#3382]: https://github.com/SpeciesFileGroup/taxonworks/issues/3382
+[#3383]: https://github.com/SpeciesFileGroup/taxonworks/issues/3383
 
 ## [0.32.2] - 2023-04-03
 
