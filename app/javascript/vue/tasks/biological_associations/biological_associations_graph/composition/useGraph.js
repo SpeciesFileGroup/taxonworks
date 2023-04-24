@@ -6,7 +6,6 @@ import {
 } from 'routes/endpoints'
 import {
   makeBiologicalAssociation,
-  makeNodeObject,
   makeCitation,
   makeCitationPayload,
   makeGraph

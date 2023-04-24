@@ -191,12 +191,6 @@
       @close="() => (showModalSource = false)"
     />
 
-    <ModalRelated
-      v-if="showModalRelated"
-      :relations="biologicalAssociations"
-      @close="() => (showModalRelated = false)"
-    />
-
     <ConfirmationModal ref="confirmationModalRef" />
   </div>
 </template>
@@ -211,7 +205,6 @@ import ModalGraph from './ModalGraph.vue'
 import ModalCitation from './ModalCitation.vue'
 import ModalObject from './ModalObject.vue'
 import ModalSource from './ModalSource.vue'
-import ModalRelated from './ModalRelated.vue'
 import ModalEdge from './ModalEdge.vue'
 import VSpinner from 'components/spinner.vue'
 import ContextMenu from './ContextMenu/ContextMenu.vue'
@@ -219,6 +212,8 @@ import ContextMenuEdge from './ContextMenu/ContextMenuEdge.vue'
 import ContextMenuView from './ContextMenu/ContextMenuView.vue'
 import ContextMenuNode from './ContextMenu/ContextMenuNode.vue'
 import { makeNodeObject } from '../adapters'
+
+const emit = defineEmits('load:graph')
 
 const {
   addBiologicalRelationship,
@@ -264,7 +259,6 @@ const showModalEdge = ref(false)
 const showModalGraph = ref(false)
 const showModalCitation = ref(false)
 const showModalSource = ref(false)
-const showModalRelated = ref(false)
 
 const currentCitationObjects = ref([])
 const currentNodeId = ref()
@@ -370,10 +364,6 @@ function openSourceModal() {
   showModalSource.value = true
 }
 
-function openRelatedModal() {
-  showModalRelated.value = true
-}
-
 function openCitationModalFor(items) {
   currentCitationObjects.value = items.map((item) => getObjectByUuid(item))
   showModalCitation.value = true
@@ -424,7 +414,6 @@ defineExpose({
   openGraphModal,
   openNodeModal,
   openSourceModal,
-  openRelatedModal,
   resetStore,
   save,
   saveBiologicalAssociations,

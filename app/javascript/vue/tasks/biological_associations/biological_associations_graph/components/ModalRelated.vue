@@ -14,11 +14,16 @@
         v-if="graphs.length"
         class="margin-medium-bottom"
       >
-        <h3>Biological associations graph</h3>
+        <p>
+          <i
+            >Graphs in which some of the biological relationships of the current
+            graph are used
+          </i>
+        </p>
         <table class="table-striped full_width">
           <thead>
             <tr>
-              <th></th>
+              <th class="w-2"></th>
               <th>Graph</th>
             </tr>
           </thead>
@@ -27,15 +32,33 @@
               v-for="item in graphs"
               :key="item.id"
             >
-              <td />
+              <td>
+                <div class="horizontal-left-content middle gap-2">
+                  <VBtn
+                    color="primary"
+                    circle
+                    @click="emit('select:graph', item)"
+                  >
+                    <VIcon
+                      name="pencil"
+                      x-small
+                    />
+                  </VBtn>
+                  <RadialAnnotator :global-id="item.global_id" />
+                </div>
+              </td>
               <td v-html="item.object_tag" />
             </tr>
           </tbody>
         </table>
       </div>
       <div>
-        <h3>Biological associations</h3>
-        <table class="table-striped full_width">
+        <p>
+          <i
+            >Biological relationships containing related CollectionObjects/OTUS
+          </i>
+        </p>
+        <table class="table-striped table-related-graph">
           <thead>
             <tr>
               <th>Object</th>
@@ -48,9 +71,20 @@
               v-for="item in biologicalAssociations"
               :key="item.id"
             >
-              <td v-html="item.object.object_tag" />
-              <td v-html="item.biological_relationship.object_label" />
-              <td v-html="item.subject.object_tag" />
+              <td
+                class="text-ellipsis half_width"
+                v-html="item.object.object_tag"
+                :title="item.object.object_label"
+              />
+              <td
+                class="text-ellipsis"
+                v-html="item.biological_relationship.object_label"
+              />
+              <td
+                class="text-ellipsis half_width"
+                v-html="item.subject.object_tag"
+                :title="item.subject.object_label"
+              />
             </tr>
           </tbody>
         </table>
@@ -62,6 +96,9 @@
 <script setup>
 import VSpinner from 'components/spinner.vue'
 import VModal from 'components/ui/Modal.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import { ref, onBeforeMount } from 'vue'
 import {
   BiologicalAssociation,
@@ -72,6 +109,11 @@ import { OTU } from 'constants/index.js'
 const props = defineProps({
   relations: {
     type: Array,
+    required: true
+  },
+
+  currentGraph: {
+    type: Object,
     required: true
   }
 })
@@ -114,7 +156,9 @@ function loadRelatedAssociations() {
   }
 
   return BiologicalAssociation.filter(payload).then(({ body }) => {
-    biologicalAssociations.value = body
+    biologicalAssociations.value = body.filter(
+      (ba) => !props.relations.find((re) => re.id === ba.id)
+    )
   })
 }
 
@@ -128,7 +172,7 @@ function loadGraphs() {
   }
 
   return BiologicalAssociationGraph.where(payload).then(({ body }) => {
-    graphs.value = body
+    graphs.value = body.filter((graph) => graph.id !== props.currentGraph.id)
   })
 }
 
@@ -140,3 +184,14 @@ onBeforeMount(async () => {
   }
 })
 </script>
+
+<style scoped>
+.table-related-graph {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+}
+.text-ellipsis {
+  display: table-cell;
+}
+</style>
