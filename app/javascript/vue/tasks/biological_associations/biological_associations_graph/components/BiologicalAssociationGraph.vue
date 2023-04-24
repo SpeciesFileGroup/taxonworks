@@ -144,6 +144,7 @@
       @update:name="
         ($event) => {
           setGraphName($event)
+          saveGraph()
           showModalGraph = false
         }
       "
@@ -190,6 +191,12 @@
       @close="() => (showModalSource = false)"
     />
 
+    <ModalRelated
+      v-if="showModalRelated"
+      :relations="biologicalAssociations"
+      @close="() => (showModalRelated = false)"
+    />
+
     <ConfirmationModal ref="confirmationModalRef" />
   </div>
 </template>
@@ -204,6 +211,7 @@ import ModalGraph from './ModalGraph.vue'
 import ModalCitation from './ModalCitation.vue'
 import ModalObject from './ModalObject.vue'
 import ModalSource from './ModalSource.vue'
+import ModalRelated from './ModalRelated.vue'
 import ModalEdge from './ModalEdge.vue'
 import VSpinner from 'components/spinner.vue'
 import ContextMenu from './ContextMenu/ContextMenu.vue'
@@ -237,6 +245,7 @@ const {
   reverseRelation,
   save,
   saveBiologicalAssociations,
+  saveGraph,
   selectedEdges,
   selectedNodes,
   setGraphName,
@@ -255,6 +264,7 @@ const showModalEdge = ref(false)
 const showModalGraph = ref(false)
 const showModalCitation = ref(false)
 const showModalSource = ref(false)
+const showModalRelated = ref(false)
 
 const currentCitationObjects = ref([])
 const currentNodeId = ref()
@@ -360,6 +370,10 @@ function openSourceModal() {
   showModalSource.value = true
 }
 
+function openRelatedModal() {
+  showModalRelated.value = true
+}
+
 function openCitationModalFor(items) {
   currentCitationObjects.value = items.map((item) => getObjectByUuid(item))
   showModalCitation.value = true
@@ -396,15 +410,21 @@ async function downloadAsSvg() {
   window.URL.revokeObjectURL(url)
 }
 
+function getBiologicalRelationships() {
+  return biologicalAssociations
+}
+
 defineExpose({
   addNodeObject,
   currentNodes,
+  getBiologicalRelationships,
   isGraphUnsaved,
   loadBiologicalAssociations,
   openEdgeModal,
   openGraphModal,
   openNodeModal,
   openSourceModal,
+  openRelatedModal,
   resetStore,
   save,
   saveBiologicalAssociations,

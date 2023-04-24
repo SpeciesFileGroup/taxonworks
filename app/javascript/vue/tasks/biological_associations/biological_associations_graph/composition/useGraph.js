@@ -134,11 +134,10 @@ export function useGraph() {
     })
   }
 
-  const isGraphUnsaved = computed(
-    () =>
-      state.biologicalAssociations.some(
-        (ba) => ba.isUnsaved || ba.citations.some((c) => !c.id)
-      ) || state.graph.isUnsaved
+  const isGraphUnsaved = computed(() =>
+    [...state.biologicalAssociations, state.graph].some(
+      (obj) => obj.isUnsaved || obj.citations.some((c) => !c.id)
+    )
   )
 
   async function addBiologicalRelationship({
@@ -420,7 +419,8 @@ export function useGraph() {
       Object.assign(state.graph, {
         id: body.id,
         globalId: body.global_id,
-        label: body.object_tag
+        label: body.object_tag,
+        isUnsaved: false
       })
     })
 
@@ -448,6 +448,7 @@ export function useGraph() {
     reverseRelation,
     save,
     saveBiologicalAssociations,
+    saveGraph,
     setGraphName,
     setNodePosition,
     ...toRefs(state)

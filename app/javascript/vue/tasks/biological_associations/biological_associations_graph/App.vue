@@ -64,6 +64,15 @@
               <VBtn
                 v-if="graph"
                 color="primary"
+                medium
+                :disabled="!graph.getBiologicalRelationships().value.length"
+                @click="() => graph.openRelatedModal()"
+              >
+                Related
+              </VBtn>
+              <VBtn
+                v-if="graph"
+                color="primary"
                 circle
                 medium
                 @click="() => graph.downloadAsSvg()"
@@ -102,8 +111,6 @@ import setParam from 'helpers/setParam.js'
 import useHotkey from 'vue3-hotkey'
 import platformKey from 'helpers/getPlatformKey'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import { downloadTextFile } from 'helpers/files'
-
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { onMounted, ref } from 'vue'
 import { CollectionObject, Otu } from 'routes/endpoints'
