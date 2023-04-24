@@ -48,15 +48,15 @@ module Queries
       end
 
       def biological_association_id
-        [@biological_association_id].flatten.compact
+        [@biological_association_id].flatten.compact.uniq
       end
 
       def biological_relationship_id
-        [@biological_relationship_id].flatten.compact
+        [@biological_relationship_id].flatten.compact.uniq
       end
 
       def biological_associations_graph_id
-        [@biological_associations_graph_id].flatten.compact
+        [@biological_associations_graph_id].flatten.compact.uniq
       end
 
       def biological_associations_graph_id_facet
@@ -67,13 +67,13 @@ module Queries
       def biological_relationship_id_facet
         return nil if biological_relationship_id.empty?
         ::BiologicalAssociationsGraph.joins(biological_associations_biological_associations_graphs: [:biological_association])
-        .where(biological_associations: {biological_association_relationship_id: biological_association_realtionship_id} )
+        .where(biological_associations: { biological_association_relationship_id: biological_relationship_id })
       end
 
       def biological_association_id_facet
         return nil if biological_association_id.empty?
         ::BiologicalAssociationsGraph.joins(biological_associations_biological_associations_graphs: [:biological_association])
-        .where(biological_associations_biological_associations_graphs: {biological_association_id: biological_association_realtionship_id} )
+        .where(biological_associations_biological_associations_graphs: { biological_association_id: biological_association_id }).distinct
       end
 
      def biological_association_query_facet
