@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_07_041322) do
+ActiveRecord::Schema.define(version: 2023_04_19_192128) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -225,6 +225,19 @@ ActiveRecord::Schema.define(version: 2023_03_07_041322) do
     t.index ["project_id"], name: "index_citations_on_project_id"
     t.index ["source_id"], name: "index_citations_on_source_id"
     t.index ["updated_by_id"], name: "index_citations_on_updated_by_id"
+  end
+
+  create_table "coldp_profiles", force: :cascade do |t|
+    t.string "title_alias"
+    t.bigint "project_id"
+    t.bigint "otu_id"
+    t.boolean "prefer_unlabelled_otu"
+    t.integer "checklistbank"
+    t.string "export_interval"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["otu_id"], name: "index_coldp_profiles_on_otu_id"
+    t.index ["project_id"], name: "index_coldp_profiles_on_project_id"
   end
 
   create_table "collecting_events", id: :serial, force: :cascade do |t|
@@ -2066,6 +2079,8 @@ ActiveRecord::Schema.define(version: 2023_03_07_041322) do
   add_foreign_key "citations", "sources", name: "citations_source_id_fkey"
   add_foreign_key "citations", "users", column: "created_by_id", name: "citations_created_by_id_fkey"
   add_foreign_key "citations", "users", column: "updated_by_id", name: "citations_updated_by_id_fkey"
+  add_foreign_key "coldp_profiles", "otus"
+  add_foreign_key "coldp_profiles", "projects"
   add_foreign_key "collecting_events", "geographic_areas", name: "collecting_events_geographic_area_id_fkey"
   add_foreign_key "collecting_events", "projects", name: "collecting_events_project_id_fkey"
   add_foreign_key "collecting_events", "users", column: "created_by_id", name: "collecting_events_created_by_id_fkey"

@@ -85,6 +85,11 @@ scope :tasks do
     scope :coldp, controller: 'tasks/exports/coldp' do
       get '/', action: :index, as: 'export_coldp_task'
       get 'download', as: 'download_coldp_task'
+      post '/new', action: :create, as: 'create_coldp_profile'
+      get '/new', action: :new, as: 'new_coldp_profile'
+      get '/:id', action: :edit, as: 'coldp_profile'
+      patch  '/:id', action: :update, as: 'edit_coldp_profile'
+      delete '/:id', action: :destroy, as: 'delete_coldp_profile'
     end
 
     scope :nomenclature, controller: 'tasks/exports/nomenclature' do

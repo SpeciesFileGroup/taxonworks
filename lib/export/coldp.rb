@@ -27,7 +27,7 @@ module Export
         .where('(otus.name IS NULL) OR (otus.name = taxon_names.cached)')
     end
 
-    def self.export(otu_id, prefer_unlabelled_otus: true)
+    def self.export(otu_id, metadata, prefer_unlabelled_otus: true)
       otus = otus(otu_id)
 
       # source_id: [csv_array]
@@ -40,15 +40,6 @@ module Export
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
 
       metadata_path = Zaru::sanitize!("/tmp/#{project.name}_#{DateTime.now}_metadata.yaml").gsub(' ', '_').downcase
-      version = Taxonworks::VERSION
-      if Settings.sandbox_mode?
-        version = Settings.sandbox_commit_sha
-      end
-      metadata = {
-        'title' => project.name,
-        'version' => version,
-        'issued' => DateTime.now.strftime('%Y-%m-%d'),
-      }
       metadata_file = Tempfile.new(metadata_path)
       metadata_file.write(metadata.to_yaml)
       metadata_file.close
@@ -85,9 +76,10 @@ module Export
       Zaru::sanitize!("#{::Project.find(otu.project_id).name}_coldp_otu_id_#{otu.id}_#{DateTime.now}.zip").gsub(' ', '_').downcase
     end
 
-    def self.download(otu, request = nil, prefer_unlabelled_otus: true)
+    def self.download(otu, metadata, request = nil, prefer_unlabelled_otus: true)
       file_path = ::Export::Coldp.export(
         otu.id,
+        metadata,
         prefer_unlabelled_otus: prefer_unlabelled_otus
       )
       name = "coldp_otu_id_#{otu.id}_#{DateTime.now}.zip"
@@ -102,7 +94,7 @@ module Export
       )
     end
 
-    def self.download_async(otu, request = nil, prefer_unlabelled_otus: true)
+    def self.download_async(otu, metadata, request = nil, prefer_unlabelled_otus: true)
       download = ::Download::Coldp.create!(
         name: "ColDP Download for #{otu.otu_name} on #{Time.now}.",
         description: 'A zip file containing CoLDP formatted data.',
@@ -111,7 +103,7 @@ module Export
         expires: 2.days.from_now
       )
 
-      ColdpCreateDownloadJob.perform_later(otu, download, prefer_unlabelled_otus: prefer_unlabelled_otus)
+      ColdpCreateDownloadJob.perform_later(otu, metadata, download, prefer_unlabelled_otus: prefer_unlabelled_otus)
 
       download
     end

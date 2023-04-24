@@ -1,0 +1,52 @@
+<%= form_for :post do |form| %>
+  <% if @coldp_profile.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(coldp_profile.errors.count, "error") %> prohibited this coldp_profile from being saved:</h2>
+
+      <ul>
+        <% coldp_profile.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form.hidden_field :project_id, value: Current.project_id %>
+
+
+  <div class="field">
+    <%= form.label :title_alias %><br/>
+    <%= form.text_field :title_alias %>
+  </div>
+
+  <div class="field">
+    <%= label_tag :otu, 'OTU', data: {help: 'The scope of the download is determined by this parent taxon. All children, by proxy of the taxon name attached to this OTU will be included in the export.'} %> <br>
+    <%= render partial: 'workbench/elements/forms/ajax_select', locals: {
+      controller: '/otus',
+      object: '',
+      method: 'otu_id',
+      tag_id: 'otu_id_for_coldp',
+      display: nil,
+      size: 60} %>
+  </div>
+
+  <div class="field">
+    <%= form.label :prefer_unlabelled_otu %><br/>
+    <%= form.check_box :prefer_unlabelled_otu %>
+  </div>
+
+  <div class="field">
+    <% # TODO: if we want to be fancy, we could use Colrapi.dataset(q: '') to suggest dataset_id's or just a direct JS call to api.checklistbank.org/dataset?q=Name  %>
+    ChecklistBank Dataset ID<br/>
+    <%= form.number_field :checklistbank %>
+  </div>
+
+  <div class="field">
+    <%= form.label :export_interval %><br/>
+    <%= select_tag(:export_interval, options_for_select([['Never', 'Never'], ['Weekly', 'Weekly'], ['Monthly', 'Monthly']])) %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

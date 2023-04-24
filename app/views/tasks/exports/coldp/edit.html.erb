@@ -1,0 +1,201 @@
+<h1> Catalogue of Life Data Package Exporter </h1>
+
+<div> 
+  <%= form_tag(download_coldp_task_path, method: :get) do %>
+    <p> The Catalog of Life seeks to build a list of all <i> taxa </i> and their names. Scope your export to include those taxa (= OTUs) that are children, by proxy of the attached nomenclature, of this selected taxon (OTU). </p>
+
+    <div class="field">
+      <%= label_tag :otu, 'OTU', data: {help: 'The scope of the download is determined by this parent taxon. All children, by proxy of the taxon name attached to this OTU will be included in the export.'} %> <br>
+      <%= render partial: 'workbench/elements/forms/ajax_select', locals: {
+        controller: '/otus',
+        object: '',
+        method: 'otu_id',
+        tag_id: 'otu_id_for_coldp',
+        display: @render_otu,
+        size: 60} %>
+    </div>
+    <div class="field">
+      <%= check_box_tag 'prefer_unlabelled_otu', @profile.prefer_unlabelled_otu, true %>
+      <%= label_tag 'prefer_unlabelled_otu', 'Export single OTU only' %> <span class="feedback feedback-warning feedback-thin"> If a taxon name has multiple OTUs, then, if possible, choose the OTU without a value in the OTU <b>name</b> field.</span>
+    </div>
+    <div class="field">
+      <% # TODO: if we want to be fancy, we could use Colrapi.dataset(q: '') to suggest dataset_id's or just a direct JS call to api.checklistbank.org/dataset?q=Name  %>
+      <label data-help="The ChecklistBank dataset ID" for="checklistbank">ChecklistBank Dataset ID</label><br/>
+      <input type='text' name='checklistbank' id='checklistbank' value="<%= @profile.checklistbank %>" style='width:500px;'/>
+    </div>
+
+    <h2>Metadata</h2>
+
+    <p>Prior to importing, it is strongly recommended to enable the metadata merge option in ChecklistBank under <a href="https://www.checklistbank.org/dataset/<%= @metadata['key'] %>/options">dataset options</a>.
+      If any metadata information is ever overwritten, you can recover previous metadata versions archived in ChecklistBank by changing <a href="https://api.checklistbank.org/dataset/<%= @metadata['key'] %>/1.yaml">1 in this URL</a>
+      to a previous <a href="https://api.checklistbank.org/importer/<%= @metadata['key'] %>">import attempt number</a>, or ask <a href="mailto:gdower@illinois.edu">Geoff</a> for help.</p>
+
+    <div class="field">
+      <label data-help="The dataset title" for="title">Title</label><br/>
+      <input type='text' name='title' id='title' style='width:500px;'/>
+    </div>
+
+    <div class="field">
+      <label data-help="The short title or alias for the database" for="title_alias">Alias</label><br/>
+      <input type='text' name='title_alias' id='title_alias' style='width:500px;'/>
+    </div>
+
+    <div class="field">
+      <label data-help="The database date issued or export date from TaxonWorks" for="issued">Issued</label><br/>
+      <input type='text' name='issued' id='issued' style='width:500px;'/>
+    </div>
+
+    <div class="field">
+      <label data-help="The database version (recommended to use TaxonWorks version)" for="version">Version</label><br/>
+      <input type='text' name='version' id='version' style='width:500px;'/>
+    </div>
+
+    <div class="field">
+      <label data-help="The database's DOI (datasets published in Catalogue of Life will get a DOI automatically)" for="doi">DOI</label><br/>
+      <input type='text' name='doi' id='doi' style='width:500px;'/>
+    </div>
+
+    <div class="field">
+      <label data-help="An abstract for the database" for="description">Description</label><br/>
+      <textarea type='text' name='description' id='description' rows='6' cols='100' style='width:500px;height: auto;'>
+      </textarea>
+    </div>
+
+    <div class="field">
+      <label data-help="The contact person for the database" for="contact">Contact</label><br/>
+      <textarea type='text' name='contact' id='contact' rows='6' cols='100' style='width:500px;height: auto;'>
+      </textarea>
+    </div>
+
+    <div class="field">
+      <label data-help="The publisher of the database" for="publisher">Publisher</label><br/>
+      <textarea type='text' name='publisher' id='publisher' rows='6' cols='100' style='width:500px;height: auto;'>
+      </textarea>
+    </div>
+
+    <div class="field">
+      <label data-help="The creator(s) of the database" for="creator">Creator(s)</label><br/>
+      <textarea type='text' name='creator' id='creator' rows='6' cols='100' style='width:500px;height: auto;'>
+      </textarea>
+    </div>
+
+    <div class="field">
+      <label data-help="The editor(s) of the database" for="editor">Editor(s)</label><br/>
+      <textarea type='text' name='editor' id='editor' rows='6' cols='100' style='width:500px;height: auto;'>
+      </textarea>
+    </div>
+
+    <div class="field">
+      <label data-help="The contributor(s) of the database" for="contributor">Contributor(s)</label><br/>
+      <textarea type='text' name='contributor' id='contributor' rows='6' cols='100' style='width:500px;height: auto;'>
+      </textarea>
+    </div>
+
+    <div class="field">
+      <label data-help="The taxonomic scope" for="taxonomic_scope">Taxonomic Scope</label><br/>
+      <input type='text' name='taxonomic_scope' id='taxonomic_scope' style='width:500px;'/>
+    </div>
+
+    <div class="field">
+      <label data-help="The geographic scope of the database" for="geographic_scope">Geographic Scope</label><br/>
+      <input type='text' name='geographic_scope' id='geographic_scope' style='width:500px;'/>
+    </div>
+
+    <div class="field">
+      <label data-help="The temporal scope of the database" for="temporal_scope">Temporal Scope</label><br/>
+      <input type='text' name='temporal_scope' id='temporal_scope' style='width:500px;'/>
+    </div>
+
+    <div class="field">
+      <label data-help="The license for the exported dataset" for="license">License</label><br/>
+      <input type='text' name='license' id='license' style='width:500px;'/>
+    </div>
+
+    <div class="field">
+      <label data-help="Your confidence level in the database for data quality (1 to 5 stars)" for="confidence">Confidence</label><br/>
+      <input type='text' name='confidence' id='confidence' style='width:500px;'/>
+    </div>
+
+    <div class="field">
+      <label data-help="The estimated completeness of the database" for="completeness">Completeness</label><br/>
+      <input type='text' name='completeness' id='completeness' style='width:500px;'/>
+    </div>
+
+    <div class="field">
+      <label data-help="An optional dataset ID from the GBIF registry" for="gbif_key">GBIF Key</label><br/>
+      <input type='text' name='gbif_key' id='gbif_key' style='width:500px;'/>
+    </div>
+
+    <div class="field">
+      <label data-help="An optional publisher ID from the GBIF registry" for="gbif_publisher_key">GBIF Publisher Key</label><br/>
+      <input type='text' name='gbif_publisher_key' id='gbif_publisher_key' style='width:500px;'/>
+    </div>
+    <input type="hidden" id="[otu_id]" name="[otu_id]" value="<%= @profile.otu_id %>" />
+    <input type="hidden" id="id" name="id" value="<%= @profile.id %>" />
+
+    <script>
+        let metadata = JSON.parse('<%= raw(@metadata.to_json.to_s.gsub("'", "").gsub(/\\n/, '')) %>');
+
+        // Populate form fields with metadata from ChecklistBank
+        if (metadata.title) {
+            document.getElementById('title').value = metadata.title;
+        }
+        if (metadata.alias) {
+            document.getElementById('title_alias').value = metadata.alias;
+        }
+        document.getElementById('issued').value = '<%= Time.now.iso8601.split('T')[0] %>';
+        document.getElementById('version').value = '<%= Taxonworks::VERSION %>';
+        if (metadata.doi) {
+            document.getElementById('doi').value = metadata.doi;
+        }
+        if (metadata.description) {
+            document.getElementById('description').value = metadata.description;
+        }
+        if (metadata.contact) {
+            document.getElementById('contact').value = JSON.stringify(metadata.contact);
+        }
+        if (metadata.publisher) {
+            document.getElementById('publisher').value = JSON.stringify(metadata.publisher);
+        }
+        if (metadata.creator) {
+            document.getElementById('creator').value = JSON.stringify(metadata.creator);
+        }
+        if (metadata.editor) {
+            document.getElementById('editor').value = JSON.stringify(metadata.editor);
+        }
+        if (metadata.contributor) {
+            document.getElementById('contributor').value = JSON.stringify(metadata.contributor);
+        }
+        if (metadata.taxonomicScope) {
+            document.getElementById('taxonomic_scope').value = metadata.taxonomicScope;
+        }
+        if (metadata.geographicScope) {
+            document.getElementById('geographic_scope').value = metadata.geographicScope;
+        }
+        if (metadata.temporalScope) {
+            document.getElementById('temporal_scope').value = metadata.temporalScope;
+        }
+        if (metadata.license) {
+            document.getElementById('license').value = metadata.license;
+        }
+        if (metadata.confidence) {
+            document.getElementById('confidence').value = metadata.confidence;
+        }
+        if (metadata.completeness) {
+            document.getElementById('completeness').value = metadata.completeness;
+        }
+        if (metadata.hasOwnProperty('gbifKey') && metadata.gbifKey) {
+            document.getElementById('gbif_key').value = metadata.gbifKey;
+        }
+        if (metadata.hasOwnProperty('gbifPublisherKey') && metadata.gbifPublisherKey) {
+            document.getElementById('gbif_publisher_key').value = metadata.gbifPublisherKey;
+        }
+        document.getElementById('[otu_id]').value = <%= @profile.otu_id %>;
+
+    </script>
+
+    <br>
+
+    <%= submit_tag :Download, class: ['normal-input', :button, 'button-default'] -%>
+  <% end %>
+</div>

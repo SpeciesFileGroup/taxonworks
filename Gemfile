@@ -114,6 +114,9 @@ gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul' # '
 gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
+# ChecklistBank/Catalogue of Life
+gem 'colrapi'
+
 # Global Names
 gem 'gnfinder', '~> 1.0'
 

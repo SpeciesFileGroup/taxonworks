@@ -1,24 +1,35 @@
-<h1> CoLDP exports </h1>
-<div> 
-  <%= form_tag(download_coldp_task_path, method: :get) do %>
-    <p> The Catalog of Life seeks to build a list of all <i> taxa </i> and their names. Scope your export to include those taxa (= OTUs) that are children, by proxy of the attached nomenclature, of this selected taxon (OTU). </p>
+<h1> CoLDP Export Profiles </h1>
 
-    <div class="field">
-      <%= label_tag :otu, 'OTU', data: {help: 'The scope of the download is determined by this parent taxon. All children, by proxy of the taxon name attached to this OTU will be included in the export.'} %> <br>
-      <%= render partial: 'workbench/elements/forms/ajax_select', locals: {
-        controller: '/otus',
-        object: '',
-        method: 'otu_id',
-        tag_id: 'otu_id_for_coldp',
-        display: nil,
-        size: 60} %>
-    </div>
-    <div class="field">
-      <%= check_box_tag 'prefer_unlabelled_otus' %>
-      <%= label_tag 'prefer_unlabelled_otus', 'Export single OTU only' %> <span class="feedback feedback-warning feedback-thin"> If a taxon name has multiple OTUs, then, if possible, choose the OTU without a value in the OTU <b>name</b> field.</span>
-    </div>
+<% if @coldp_profiles.blank? %>
+  <p>No export profiles found.</p>
+<% else %>
+  <table>
+    <thead>
+    <tr>
+      <th>Alias</th>
+      <th>OTU</th>
+      <th>Single OTU</th>
+      <th>ChecklistBank ID</th>
+      <th>Export interval</th>
+      <th colspan="3"></th>
+    </tr>
+    </thead>
 
-    <br>
-    <%= submit_tag :Download, class: ['normal-input', :button, 'button-default'] -%>
-  <% end %>
-</div>
+    <tbody>
+    <% @coldp_profiles.each do |coldp_profile| %>
+      <tr>
+        <td><%= coldp_profile.title_alias %></td>
+        <td><%= coldp_profile.otu_id %></td>
+        <td><%= coldp_profile.prefer_unlabelled_otu %></td>
+        <td><a href="https://www.checklistbank.org/dataset/<%= coldp_profile.checklistbank %>"><%= coldp_profile.checklistbank %></a></td>
+        <td><%= coldp_profile.export_interval %></td>
+        <td><%= link_to 'Download', edit_coldp_profile_path(coldp_profile) %></td>
+        <td><%= link_to 'Push to ChecklistBank', edit_coldp_profile_path(coldp_profile) %></td>
+        <td><%= link_to 'Destroy', coldp_profile, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<%= link_to 'Create new CoLDP export profile', new_coldp_profile_path %>
