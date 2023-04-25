@@ -11,17 +11,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Download SVG button in Biological associations graph task
 - Related modal in Biological associations graph task
+- Return BibTeX with `extend[]=bibtex` on calls to `/api/v1/sources` 
 
 ### Changed
 
 - Updated bundle gems
 - Ruby 3.2 is now required as minimum
+- API /people and /sources resources no longer require authentication [#3385]
 
 ### Fixed
 
 - Missing pagination for asserted_distributions API endpoint [#3377]
 - Delete wrong node in Biological associations graph [#3383]
 
+[#3385]: https://github.com/SpeciesFileGroup/taxonworks/issues/3385
 [#3377]: https://github.com/SpeciesFileGroup/taxonworks/issues/3377
 [#3382]: https://github.com/SpeciesFileGroup/taxonworks/issues/3382
 [#3383]: https://github.com/SpeciesFileGroup/taxonworks/issues/3383
