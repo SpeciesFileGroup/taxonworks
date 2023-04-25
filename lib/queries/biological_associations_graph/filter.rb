@@ -67,7 +67,7 @@ module Queries
       def biological_relationship_id_facet
         return nil if biological_relationship_id.empty?
         ::BiologicalAssociationsGraph.joins(biological_associations_biological_associations_graphs: [:biological_association])
-        .where(biological_associations: { biological_association_relationship_id: biological_relationship_id })
+        .where(biological_associations: { biological_association_relationship_id: biological_relationship_id }).distinct
       end
 
       def biological_association_id_facet

@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Download SVG button in Biological associations graph task
+- Related modal in Biological associations graph task
 
 ### Changed
 
