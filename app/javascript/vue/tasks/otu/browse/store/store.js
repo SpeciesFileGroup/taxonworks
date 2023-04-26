@@ -4,7 +4,7 @@ import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 import componentNames from '../const/componentNames'
 
-function makeInitialState () {
+function makeInitialState() {
   return {
     loadState: {
       assertedDistribution: true,
@@ -41,13 +41,15 @@ function makeInitialState () {
               equal: true
             }
           ],
-          year: [{
-            label: 'Year',
-            key: 'history-year',
-            value: undefined,
-            attribute: true,
-            equal: true
-          }]
+          year: [
+            {
+              label: 'Year',
+              key: 'history-year',
+              value: undefined,
+              attribute: true,
+              equal: true
+            }
+          ]
         },
         or: {
           valid: [
@@ -105,6 +107,7 @@ function makeInitialState () {
     currentOtu: undefined,
     assertedDistributions: [],
     biologicalAssociations: [],
+    relatedBAs: [],
     collectingEvents: [],
     collectionObjects: [],
     otus: [],
@@ -122,7 +125,7 @@ function makeInitialState () {
   }
 }
 
-function newStore () {
+function newStore() {
   return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
@@ -131,7 +134,4 @@ function newStore () {
   })
 }
 
-export {
-  newStore,
-  makeInitialState
-}
+export { newStore, makeInitialState }

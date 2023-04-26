@@ -11,7 +11,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Download SVG button in Biological associations graph task
 - Related modal in Biological associations graph task
-- Return BibTeX with `extend[]=bibtex` on calls to `/api/v1/sources` 
+- Return BibTeX with `extend[]=bibtex` on calls to `/api/v1/sources`
+- Related button to biological associations in Browse OTU
 
 ### Changed
 
