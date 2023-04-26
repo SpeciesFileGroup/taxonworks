@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated bundle gems
 - Ruby 3.2 is now required as minimum
 - API /people and /sources resources no longer require authentication [#3385]
+- The genus rank is allowed as incertae sedis
 
 ### Fixed
 
@@ -718,7 +719,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
-- The genus rank is allowed as incertae sedis
 - ElectronicPulbications moved from NomenNudum to Unavailable.
 - Updated Ruby gems and Node packages
 - OTU name string into link in Observation matrices dashboard task
