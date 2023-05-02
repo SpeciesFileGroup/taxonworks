@@ -9,22 +9,36 @@
           class="button normal-input separate-right button-default"
           v-if="editLoanItems.length"
           type="button"
-          @click="unselectAll()">Unselect all
+          @click="() => store.commit(MutationNames.CleanEditLoanItems)"
+        >
+          Unselect all
         </button>
         <button
           class="button normal-input separate-right button-default"
           v-else
           type="button"
-          @click="selectAll()">Select all
+          @click="() => store.commit(MutationNames.SetAllEditLoanItems)"
+        >
+          Select all
         </button>
-        <expand
-          class="separate-left"
-          v-model="displayBody"/>
       </div>
     </template>
-    <template
-      #body
-      v-if="displayBody">
+    <template #body>
+      <div
+        v-if="pagination"
+        class="horizontal-left-content flex-separate middle"
+      >
+        <VPagination
+          :pagination="pagination"
+          @next-page="
+            store.dispatch(ActionNames.LoadLoanItems, { ...$event, per })
+          "
+        />
+        <VPaginationCount
+          v-model="per"
+          :pagination="pagination"
+        />
+      </div>
       <table class="vue-table">
         <thead>
           <tr>
@@ -39,13 +53,16 @@
         <transition-group
           class="table-entrys-list"
           name="list-complete"
-          tag="tbody">
+          tag="tbody"
+        >
           <row-item
             v-for="item in list"
             :key="item.id"
             :item="item"
-            @onUpdate="updateItem"
-            @onDelete="deleteItem"
+            @on-update="
+              (item) => store.dispatch(ActionNames.UpdateLoanItem, item)
+            "
+            @on-delete="deleteItem"
           />
         </transition-group>
       </table>
@@ -53,62 +70,37 @@
   </block-layout>
 </template>
 
-<script>
-
+<script setup>
+import { computed, ref, watch } from 'vue'
+import { useStore } from 'vuex'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import VPaginationCount from 'components/pagination/PaginationCount.vue'
+import VPagination from 'components/pagination.vue'
 import ActionNames from '../store/actions/actionNames'
-
 import BlockLayout from 'components/layout/BlockLayout.vue'
-import Expand from './expand.vue'
 import RowItem from './table/row'
 
-export default {
-  components: {
-    BlockLayout,
-    RowItem,
-    Expand
-  },
+const store = useStore()
 
-  computed: {
-    list () {
-      return this.$store.getters[GetterNames.GetLoanItems]
-    },
+const per = ref(50)
+const list = computed(() => store.getters[GetterNames.GetLoanItems])
+const pagination = computed(() => store.getters[GetterNames.GetPagination])
+const editLoanItems = computed(
+  () => store.getters[GetterNames.GetEditLoanItems]
+)
 
-    editLoanItems () {
-      return this.$store.getters[GetterNames.GetEditLoanItems]
-    }
-  },
-
-  data () {
-    return {
-      selectedItems: [],
-      displayBody: true
-    }
-  },
-
-  methods: {
-    selectAll () {
-      this.$store.commit(MutationNames.SetAllEditLoanItems)
-    },
-
-    unselectAll () {
-      this.$store.commit(MutationNames.CleanEditLoanItems)
-    },
-
-    deleteItem (item) {
-      if (window.confirm('You\'re trying to delete a record. Are you sure want to proceed?')) {
-        this.$store.dispatch(ActionNames.DeleteLoanItem, item.id)
-      }
-    },
-
-    updateItem (item) {
-      this.$store.dispatch(ActionNames.UpdateLoanItem, item)
-    },
-
-    removeSelectedItem (item) {
-      this.$store.commit(MutationNames.RemoveEditLoanItem, item)
-    }
+function deleteItem(item) {
+  if (
+    window.confirm(
+      "You're trying to delete a record. Are you sure want to proceed?"
+    )
+  ) {
+    store.dispatch(ActionNames.DeleteLoanItem, item.id)
   }
 }
+
+watch(per, (newVal) =>
+  store.dispatch(ActionNames.LoadLoanItems, { per: newVal })
+)
 </script>

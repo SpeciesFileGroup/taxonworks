@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Related modal in Biological associations graph task
 - Return BibTeX with `extend[]=bibtex` on calls to `/api/v1/sources`
 - Related button to biological associations in Browse OTU
+- Pagination for loan items in Edit/new loan task [#3391]
 
 ### Changed
 
@@ -26,10 +27,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing pagination for asserted_distributions API endpoint [#3377]
 - Delete wrong node in Biological associations graph [#3383]
 
-[#3385]: https://github.com/SpeciesFileGroup/taxonworks/issues/3385
 [#3377]: https://github.com/SpeciesFileGroup/taxonworks/issues/3377
 [#3382]: https://github.com/SpeciesFileGroup/taxonworks/issues/3382
 [#3383]: https://github.com/SpeciesFileGroup/taxonworks/issues/3383
+[#3385]: https://github.com/SpeciesFileGroup/taxonworks/issues/3385
+[#3391]: https://github.com/SpeciesFileGroup/taxonworks/issues/3391
 
 ## [0.32.2] - 2023-04-03
 

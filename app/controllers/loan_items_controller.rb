@@ -2,6 +2,7 @@ class LoanItemsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_loan_item, only: [:update, :destroy, :show, :edit]
+  after_action -> { set_pagination_headers(:loan_items) }, only: [:index], if: :json_request?
 
   # GET /loan_items
   # GET /loan_items.json
@@ -12,7 +13,10 @@ class LoanItemsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @loan_items = LoanItem.where(filter_params).with_project_id(sessions_current_project_id)
+        @loan_items = LoanItem.where(filter_params)
+          .with_project_id(sessions_current_project_id)
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
