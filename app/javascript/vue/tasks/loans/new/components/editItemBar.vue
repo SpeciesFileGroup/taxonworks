@@ -4,30 +4,35 @@
       <h3>Update selected items</h3>
     </template>
     <template #options>
-      <expand v-model="displayBody"/>
+      <expand v-model="displayBody" />
     </template>
     <template
       #body
-      v-if="displayBody">
+      v-if="displayBody"
+    >
       <div id="loan-update-items">
         <div>
           <span><b>Loan item information</b></span>
-          <hr>
+          <hr />
           <div class="field label-above">
             <label>Status</label>
             <select
               v-model="status"
-              class="normal-input information-input">
+              class="normal-input information-input"
+            >
               <option
                 v-for="item in statusList"
                 :key="item"
-                :value="item">{{ item }}
+                :value="item"
+              >
+                {{ item }}
               </option>
             </select>
             <button
               :disabled="!status || !list.length"
               @click="updateStatus()"
-              class="button button-submit normal-input margin-small-left">
+              class="button button-submit normal-input margin-small-left"
+            >
               Update
             </button>
           </div>
@@ -38,23 +43,24 @@
               type="date"
               class="information-input"
               required
-              pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}">
+              pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
+            />
             <button
-              :disabled="!date || !list.length"
+              :disabled="date === undefined || !list.length"
               @click="updateDate()"
-              class="button button-submit normal-input margin-small-left">
+              class="button button-submit normal-input margin-small-left"
+            >
               Update
             </button>
           </div>
         </div>
-        <date-determination :list="list"/>
+        <date-determination :list="list" />
       </div>
     </template>
   </block-layout>
 </template>
 
 <script>
-
 import ActionNames from '../store/actions/actionNames'
 import { GetterNames } from '../store/getters/getters'
 import statusList from '../const/status.js'
@@ -70,21 +76,21 @@ export default {
   },
 
   computed: {
-    list () {
+    list() {
       return this.$store.getters[GetterNames.GetEditLoanItems]
     }
   },
 
-  data () {
+  data() {
     return {
       date: undefined,
       status: undefined,
-      statusList: statusList,
+      statusList,
       displayBody: true
     }
   },
   methods: {
-    updateDate () {
+    updateDate() {
       this.list.forEach((item) => {
         const loanItem = {
           id: item.id,
@@ -94,7 +100,7 @@ export default {
       })
     },
 
-    updateStatus () {
+    updateStatus() {
       this.list.forEach((item) => {
         const loanItem = {
           id: item.id,
@@ -107,12 +113,12 @@ export default {
 }
 </script>
 <style scoped>
-  #loan-update-items {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
+#loan-update-items {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
 
-  .information-input {
-    width: 200px;
-  }
+.information-input {
+  width: 200px;
+}
 </style>

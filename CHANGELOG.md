@@ -26,11 +26,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Missing pagination for asserted_distributions API endpoint [#3377]
 - Delete wrong node in Biological associations graph [#3383]
+- Cannot clear `Returned on date` input for loan items in Edit/new loan task [#3390]
 
 [#3377]: https://github.com/SpeciesFileGroup/taxonworks/issues/3377
 [#3382]: https://github.com/SpeciesFileGroup/taxonworks/issues/3382
 [#3383]: https://github.com/SpeciesFileGroup/taxonworks/issues/3383
 [#3385]: https://github.com/SpeciesFileGroup/taxonworks/issues/3385
+[#3390]: https://github.com/SpeciesFileGroup/taxonworks/issues/3390
 [#3391]: https://github.com/SpeciesFileGroup/taxonworks/issues/3391
 
 ## [0.32.2] - 2023-04-03
