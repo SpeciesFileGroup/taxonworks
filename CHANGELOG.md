@@ -724,6 +724,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Softvalidation message for new combination is rewarded
+- The genus rank is allowed as incertae sedis
 - ElectronicPulbications moved from NomenNudum to Unavailable.
 - Updated Ruby gems and Node packages
 - OTU name string into link in Observation matrices dashboard task
