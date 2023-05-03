@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Ruby 3.2 is now required as minimum
 - API /people and /sources resources no longer require authentication [#3385]
 - The genus rank is allowed as incertae sedis
+- Trigger filter after change records per page selector
 
 ### Fixed
 
