@@ -413,12 +413,12 @@ module Queries
       def not_specified_facet
         return nil if not_specified.nil?
         if not_specified
-          ::TaxonName.where(table[:cached].matches("%NOT SPECIFIED%").or(
-            table[:cached_original_combination].matches("%NOT SPECIFIED%")
+          ::TaxonName.where(table[:cached].matches('%NOT SPECIFIED%').or(
+            table[:cached_original_combination].matches('%NOT SPECIFIED%')
           ))
         else
-          ::TaxonName.where(table[:cached].does_not_match("%NOT SPECIFIED%").and(
-            table[:cached_original_combination].does_not_match("%NOT SPECIFIED%")
+          ::TaxonName.where(table[:cached].does_not_match('%NOT SPECIFIED%').and(
+            table[:cached_original_combination].does_not_match('%NOT SPECIFIED%')
           ))
         end
       end
@@ -514,15 +514,15 @@ module Queries
       # @return Scope
       #   wrapped in descendant_facet!
       def taxon_name_relationship_facet(hsh)
-        param_key = hsh["subject_taxon_name_id"] ? "subject_taxon_name_id" : "object_taxon_name_id"
-        join_key = hsh["subject_taxon_name_id"] ? "object_taxon_name_id" : "subject_taxon_name_id"
+        param_key = hsh['subject_taxon_name_id'] ? 'subject_taxon_name_id' : 'object_taxon_name_id'
+        join_key = hsh['subject_taxon_name_id'] ? 'object_taxon_name_id' : 'subject_taxon_name_id'
 
         ::TaxonName.where(
           ::TaxonNameRelationship.where(
             ::TaxonNameRelationship.arel_table[join_key].eq(::TaxonName.arel_table[:id]).and(
               ::TaxonNameRelationship.arel_table[param_key].eq(hsh[param_key])
             ).and(
-              ::TaxonNameRelationship.arel_table[:type].eq(hsh["type"])
+              ::TaxonNameRelationship.arel_table[:type].eq(hsh['type'])
             )
           ).arel.exists
         )
@@ -546,27 +546,27 @@ module Queries
         o = table
         r = ::Role.arel_table
 
-        a = o.alias("a_")
+        a = o.alias('a_')
         b = o.project(a[Arel.star]).from(a)
 
-        c = r.alias("r1")
+        c = r.alias('r1')
 
         b = b.join(c, Arel::Nodes::OuterJoin)
           .on(
             a[:id].eq(c[:role_object_id])
-              .and(c[:role_object_type].eq("TaxonName"))
-              .and(c[:type].eq("TaxonNameAuthor"))
+              .and(c[:role_object_type].eq('TaxonName'))
+              .and(c[:type].eq('TaxonNameAuthor'))
           )
 
         e = c[:id].not_eq(nil)
         f = c[:person_id].eq_any(taxon_name_author_id)
 
         b = b.where(e.and(f))
-        b = b.group(a["id"])
-        b = b.having(a["id"].count.eq(taxon_name_author_id.length)) unless taxon_name_author_id_or
-        b = b.as("tn_z1_")
+        b = b.group(a['id'])
+        b = b.having(a['id'].count.eq(taxon_name_author_id.length)) unless taxon_name_author_id_or
+        b = b.as('tn_z1_')
 
-        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b["id"].eq(o["id"]))))
+        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
 
       # @return Scope
@@ -614,7 +614,7 @@ module Queries
           table[:cached].eq_any(name)
           #  table[:cached].eq(name.strip).or(table[:cached_original_combination].eq(name.strip))
         else
-          table[:cached].matches_any(name.collect { |n| "%" + n.gsub(/\s+/, "%") + "%" })
+          table[:cached].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' })
         end
       end
 
@@ -628,7 +628,7 @@ module Queries
         if author_exact
           table[:cached_author_year].eq(author.strip)
         else
-          table[:cached_author_year].matches("%" + author.strip.gsub(/\s/, "%") + "%")
+          table[:cached_author_year].matches('%' + author.strip.gsub(/\s/, '%') + '%')
         end
       end
 
@@ -685,51 +685,51 @@ module Queries
 
       def otu_query_facet
         return nil if otu_query.nil?
-        s = "WITH query_otu_tn AS (" + otu_query.all.to_sql + ") " +
+        s = 'WITH query_otu_tn AS (' + otu_query.all.to_sql + ') ' +
             ::TaxonName
               .joins(:otus)
-              .joins("JOIN query_otu_tn as query_otu_tn1 on otus.id = query_otu_tn1.id") # Don't change, see `validify`
+              .joins('JOIN query_otu_tn as query_otu_tn1 on otus.id = query_otu_tn1.id') # Don't change, see `validify`
               .to_sql
 
-        ::TaxonName.from("(" + s + ") as taxon_names").distinct
+        ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
       def asserted_distribution_query_facet
         return nil if asserted_distribution_query.nil?
-        s = "WITH query_ad_tn AS (" + asserted_distribution_query.all.to_sql + ") " +
+        s = 'WITH query_ad_tn AS (' + asserted_distribution_query.all.to_sql + ') ' +
             ::TaxonName
               .joins(otus: [:asserted_distributions])
-              .joins("JOIN query_ad_tn as query_ad_tn1 on query_ad_tn1.otu_id = asserted_distributions.otu_id")
+              .joins('JOIN query_ad_tn as query_ad_tn1 on query_ad_tn1.otu_id = asserted_distributions.otu_id')
               .to_sql
 
-        ::TaxonName.from("(" + s + ") as taxon_names").distinct
+        ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
       def collection_object_query_facet
         return nil if collection_object_query.nil?
-        s = "WITH query_collection_objects AS (" + collection_object_query.all.to_sql + ") " +
+        s = 'WITH query_collection_objects AS (' + collection_object_query.all.to_sql + ') ' +
             ::TaxonName
               .joins(:collection_objects)
-              .joins("JOIN query_collection_objects as query_collection_objects1 on collection_objects.id = query_collection_objects1.id")
+              .joins('JOIN query_collection_objects as query_collection_objects1 on collection_objects.id = query_collection_objects1.id')
               .to_sql
 
-        ::TaxonName.from("(" + s + ") as taxon_names").distinct
+        ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
       def collecting_event_query_facet
         return nil if collecting_event_query.nil?
-        s = "WITH query_ce_tns AS (" + collecting_event_query.all.to_sql + ") " +
+        s = 'WITH query_ce_tns AS (' + collecting_event_query.all.to_sql + ') ' +
             ::TaxonName
               .joins(:collection_objects)
-              .joins("JOIN query_ce_tns as query_ce_tns1 on collection_objects.collecting_event_id = query_ce_tns1.id")
+              .joins('JOIN query_ce_tns as query_ce_tns1 on collection_objects.collecting_event_id = query_ce_tns1.id')
               .to_sql
 
-        ::TaxonName.from("(" + s + ") as taxon_names").distinct
+        ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
       def biological_association_query_facet
         return nil if biological_association_query.nil?
-        s = "WITH query_tn_ba AS (" + biological_association_query.all.to_sql + ") "
+        s = 'WITH query_tn_ba AS (' + biological_association_query.all.to_sql + ') '
 
         a = ::TaxonName
           .joins(:otus)
@@ -741,7 +741,7 @@ module Queries
 
         s << ::TaxonName.from("((#{a}) UNION (#{b})) as taxon_names").to_sql
 
-        ::TaxonName.from("(" + s + ") as taxon_names")
+        ::TaxonName.from('(' + s + ') as taxon_names')
       end
 
       # @return [ActiveRecord::Relation]
@@ -801,48 +801,48 @@ module Queries
       end
 
       def validify_result(q)
-        s = "WITH tn_result_query AS (" + q.to_sql + ") " +
+        s = 'WITH tn_result_query AS (' + q.to_sql + ') ' +
             ::TaxonName
-              .joins("JOIN tn_result_query as tn_result_query1 on tn_result_query1.cached_valid_taxon_name_id = taxon_names.id")
+              .joins('JOIN tn_result_query as tn_result_query1 on tn_result_query1.cached_valid_taxon_name_id = taxon_names.id')
               .to_sql
 
-        ::TaxonName.from("(" + s + ") as taxon_names").distinct
+        ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
       def synonimify_result(q)
-        s = "WITH tn_result_query AS (" + q.to_sql + ") " +
+        s = 'WITH tn_result_query AS (' + q.to_sql + ') ' +
             ::TaxonName
-              .joins("JOIN tn_result_query as tn_result_query2 on tn_result_query2.id = taxon_names.cached_valid_taxon_name_id")
+              .joins('JOIN tn_result_query as tn_result_query2 on tn_result_query2.id = taxon_names.cached_valid_taxon_name_id')
               .to_sql
 
-        a = ::TaxonName.from("(" + s + ") as taxon_names").distinct
+        a = ::TaxonName.from('(' + s + ') as taxon_names').distinct
 
         referenced_klass_union([q, a])
       end
 
       def combinationify_result(q)
-        s = "WITH tn_result_query AS (" + q.to_sql + ") " +
+        s = 'WITH tn_result_query AS (' + q.to_sql + ') ' +
             ::TaxonName
-              .joins("JOIN tn_result_query as tn_result_query3 on tn_result_query3.id = taxon_names.cached_valid_taxon_name_id")
+              .joins('JOIN tn_result_query as tn_result_query3 on tn_result_query3.id = taxon_names.cached_valid_taxon_name_id')
               .where("taxon_names.type = 'Combination'")
               .to_sql
 
-        a = ::TaxonName.from("(" + s + ") as taxon_names").distinct
+        a = ::TaxonName.from('(' + s + ') as taxon_names').distinct
 
         referenced_klass_union([q, a])
       end
 
       def order_clause(query)
         case sort
-        when "alphabetical"
-          ::TaxonName.select("*").from(
-            query.order("taxon_names.cached"), :inner_query
+        when 'alphabetical'
+          ::TaxonName.select('*').from(
+            query.order('taxon_names.cached'), :inner_query
           )
-        when "classification"
-          ::TaxonName.select("*").from(
+        when 'classification'
+          ::TaxonName.select('*').from(
             query
-              .joins("INNER JOIN taxon_name_hierarchies ON taxon_names.id = taxon_name_hierarchies.descendant_id")
-              .order("taxon_name_hierarchies.generations, taxon_name_hierarchies.ancestor_id, taxon_names.cached"),
+              .joins('INNER JOIN taxon_name_hierarchies ON taxon_names.id = taxon_name_hierarchies.descendant_id')
+              .order('taxon_name_hierarchies.generations, taxon_name_hierarchies.ancestor_id, taxon_names.cached'),
             :inner_query
           )
         else
