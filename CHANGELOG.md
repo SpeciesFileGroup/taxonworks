@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Image filter with `otu_id` only returns as expected
 - Depictions/Images facet not consistent and broken [#3395]
 - Missing pagination for asserted_distributions API endpoint [#3377]
 - Delete wrong node in Biological associations graph [#3383]
