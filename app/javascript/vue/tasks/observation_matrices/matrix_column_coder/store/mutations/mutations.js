@@ -26,7 +26,9 @@ import setSampleStandardMean from './setSampleStandardMean'
 import setSampleUnitFor from './setSampleUnitFor'
 import setPresence from './setPresence'
 import setYearFor from './setYearFor'
-import setDisplayOnlyUnsecored from './options/setDisplayOnlyUnsecored'
+import setDisplayOnlyUnscored from './options/setDisplayOnlyUnscored'
+import setDisplayCharacterStates from './options/setDisplayCharacterStates'
+import setDisplayScoredCharacterStates from './options/setDisplayScoredCharacterStates'
 
 const MutationNames = {
   AddObservation: 'addObservation',
@@ -57,7 +59,9 @@ const MutationNames = {
   SetSampleUnitFor: 'setSampleUnitFor',
   SetPresence: 'setPresence',
   SetYearFor: 'setYearFor',
-  SetDisplayOnlyUnsecored: 'setDisplayOnlyUnsecored'
+  SetDisplayOnlyUnscored: 'setDisplayOnlyUnscored',
+  SetDisplayCharacterStates: 'setDisplayCharacterStates',
+  SetDisplayScoredCharacterStates: 'setDisplayScoredCharacterStates'
 }
 
 const MutationFunctions = {
@@ -89,7 +93,9 @@ const MutationFunctions = {
   [MutationNames.SetSampleUnitFor]: setSampleUnitFor,
   [MutationNames.SetPresence]: setPresence,
   [MutationNames.SetYearFor]: setYearFor,
-  [MutationNames.SetDisplayOnlyUnsecored]: setDisplayOnlyUnsecored
+  [MutationNames.SetDisplayOnlyUnscored]: setDisplayOnlyUnscored,
+  [MutationNames.SetDisplayCharacterStates]: setDisplayCharacterStates,
+  [MutationNames.SetDisplayScoredCharacterStates]: setDisplayScoredCharacterStates
 }
 
 export {

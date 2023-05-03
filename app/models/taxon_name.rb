@@ -176,6 +176,11 @@ class TaxonName < ApplicationRecord
     iczn: 'http://purl.obolibrary.org/obo/NOMEN_0000224'
   }
 
+  # See related concept in concerns/shared/taxonomy, this may belong there.
+  #
+  # @return [Hash]
+  attr_reader :taxonomy
+
   # @return [Boolean]
   #   When true, also creates an OTU that is tied to this taxon name
   attr_accessor :also_create_otu
@@ -501,6 +506,15 @@ class TaxonName < ApplicationRecord
     SQL
   end
 
+  # See attr_reader.
+  def taxonomy(rebuild = false)
+    if rebuild
+      @taxonomy = full_name_hash
+    else
+      @taxonomy ||= full_name_hash
+    end
+  end
+
   # @return [String]
   #   rank as human readable short-form, like 'genus' or 'species'
   def rank
@@ -724,6 +738,10 @@ class TaxonName < ApplicationRecord
     combination_list_all.select{|c| c.protonyms_by_rank[c.protonyms_by_rank.keys.last] == self}
   end
 
+
+  # TODO: should be moved to helpers
+  # and referenced in models with helper.
+
   # @return [String]
   #   combination of cached_html and cached_author_year.
   def cached_html_name_and_author_year
@@ -772,7 +790,7 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #   true if there is a relationship where then name is asserted to be invalid
   def relationship_invalid?
-    !first_possible_valid_taxon_name_relationship.nil?
+    !first_possible_invalid_taxan_name_relationship.nil?
   end
 
   # @return [Boolean]
@@ -785,6 +803,12 @@ class TaxonName < ApplicationRecord
   #  whether this name has any classification asserting that this the name is NOT valid or that it is unavailable
   def classification_invalid_or_unavailable?
     taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).any?
+  end
+
+  # @return [Boolean]
+  #  whether this name has any classification asserting that this the name is unavailable
+  def classification_unavailable?
+    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE).any?
   end
 
   #  @return [Boolean]
@@ -863,6 +887,10 @@ class TaxonName < ApplicationRecord
   #  returns youngest taxon name relationship where self is the subject.
   def first_possible_valid_taxon_name_relationship
     taxon_name_relationships.reload.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
+  end
+
+  def first_possible_invalid_taxan_name_relationship
+    taxon_name_relationships.reload.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).youngest_by_citation
   end
 
   # @return [TaxonName]
@@ -1339,7 +1367,7 @@ class TaxonName < ApplicationRecord
 
   # TODO: this should be paginated, not all IDs!
   def next_sibling
-    if siblings.where(project_id: project_id).load.any?
+    if siblings.where(project_id: project_id).any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
       s = sibs.index(id)
       TaxonName.find(sibs[ s + 1] ) if s < sibs.length - 1
@@ -1350,8 +1378,9 @@ class TaxonName < ApplicationRecord
 
   # TODO: this should be paginated, not all IDs!
   def previous_sibling
-    if siblings.where(project_id: project_id).load.any?
+    if siblings.where(project_id: project_id).any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
+
       s = sibs.index(id)
       TaxonName.find(sibs[s - 1]) if s != 0
     else
@@ -1366,10 +1395,10 @@ class TaxonName < ApplicationRecord
   # @return [Scope]
   #   All taxon names attached to relationships recently created by user
   def self.used_recently_in_classifications(user_id, project_id)
-    TaxonName.where(project_id: project_id, created_by_id: user_id)
+    TaxonName.where(project_id: project_id, updated_by_id: user_id)
       .joins(:taxon_name_classifications)
       .includes(:taxon_name_classifications)
-      .where(taxon_name_classifications: { created_at: 1.weeks.ago..Time.now } )
+      .where(taxon_name_classifications: { updated_at: 1.weeks.ago..Time.now } )
       .order('taxon_name_classifications.updated_at DESC')
   end
 
@@ -1384,8 +1413,8 @@ class TaxonName < ApplicationRecord
       .or(t2[:updated_by_id].eq(user_id).or(t2[:created_by_id].eq(user_id))
     ).to_sql
 
-    sql2 = t1[:created_at].between( 1.weeks.ago..Time.now )
-      .or( t2[:created_at].between( 1.weeks.ago..Time.now ) ).to_sql
+    sql2 = t1[:updated_at].between( 1.weeks.ago..Time.now )
+      .or( t2[:updated_at].between( 1.weeks.ago..Time.now ) ).to_sql
 
     TaxonName.with_taxon_name_relationships
       .where(taxon_names: {project_id: project_id})
@@ -1560,7 +1589,7 @@ class TaxonName < ApplicationRecord
       elsif self.origin_citation.try(:pages).blank?
         soft_validations.add(:base, 'Original citation pages are not recorded')
       elsif !self.source.pages.blank?
-        matchdata1 = self.origin_citation.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
+        matchdata1 = self.origin_citation.pages.match(/^(\d+) ?[-–] ?(\d+)$|^(\d+)$/)
         if matchdata1
           citMinP = matchdata1[1] ? matchdata1[1].to_i : matchdata1[3].to_i
           citMaxP = matchdata1[2] ? matchdata1[2].to_i : matchdata1[3].to_i

@@ -6,7 +6,7 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
   let(:specimen) { FactoryBot.create(:valid_specimen) }
 
   specify 'destroying depiction does not destroy related Observation::Media 2 when not last' do
-    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test')) 
+    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))
     d = FactoryBot.create(:valid_depiction, depiction_object: o)
 
     FactoryBot.create(:valid_depiction, depiction_object: o)
@@ -15,8 +15,31 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
     expect(Observation.find(o.id)).to be_truthy
   end
 
+  specify 'updating depiction destroys related Observation::Media 1 if there are no others' do
+    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))
+    d = FactoryBot.create(:valid_depiction, depiction_object: o)
+
+    d.update!(depiction_object: FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test2') ) )
+
+    expect {Observation.find(o.id)}.to raise_error ActiveRecord::RecordNotFound
+    expect(Depiction.find(d.id).id).to be_truthy
+  end
+
+  specify 'updating from OTU to Observation' do
+    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))
+    d1 = FactoryBot.create(:valid_depiction, depiction_object: o)
+
+    otu = Otu.create!(name: 'Foo') 
+    d2 = FactoryBot.create(:valid_depiction, depiction_object: otu)
+
+    d2.update!(depiction_object: o)
+
+    expect(d2.depiction_object).to eq(o)
+    expect(otu.reload).to be_truthy
+  end
+
   specify 'destroying depiction destroys related Observation::Media 1' do
-    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test')) 
+    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))
     d = FactoryBot.create(:valid_depiction, depiction_object: o)
     d.destroy!
     expect {Observation.find(o.id)}.to raise_error ActiveRecord::RecordNotFound

@@ -34,7 +34,7 @@
       <span class="middle">
         <span class="mark-box button-default separate-right" /> Images
       </span>
-      <div class="horizontal-left-content">
+      <div class="flex-wrap-row">
         <image-viewer
           v-for="depiction in depictions"
           :key="depiction.id"

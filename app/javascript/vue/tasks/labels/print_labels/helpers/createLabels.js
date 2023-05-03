@@ -26,19 +26,18 @@ const createHeader = (customClass) =>
     </style>
   </head>`
 
-function addSeparator(separator, spaceAround) {
-  if(separator.length) {
-    if(spaceAround) {
+function addSeparator (separator, spaceAround) {
+  if (separator.length) {
+    if (spaceAround) {
       return `<br>${separator}<br>`
-    }
-    else {
+    } else {
       return separator
     }
   }
   return ''
 }
 
-function createPages(labels, maxColumns, maxRows, divisor, cssStye, customStyle, separator = '', spaceAround) { // add labelType ?
+function createPages (labels, maxColumns, maxRows, divisor, cssStye, customStyle, separator = '', spaceAround) { // add labelType ?
   let columns = 1
   let pages = `${createHeader(customStyle)}<body><div class="ce_label_pg"><div class="ce_label_col">`
   let rowLines = 0
@@ -46,22 +45,23 @@ function createPages(labels, maxColumns, maxRows, divisor, cssStye, customStyle,
   labels.forEach(label => {
     const labelLines = getLinesCount(label.text, label.type)
 
-    for(var i = 0; i < label.total; i++) {
+    for (let i = 0; i < label.total; i++) {
       rowLines = rowLines + labelLines
-      pages = pages + createLabel(label, cssStye)
-      if(rowLines >= maxRows) {
-        pages = pages + `</div><div class="ce_label_col">`
+      pages = pages + (label.is_generated ? label.label : createLabel(label, cssStye))
+
+      if (rowLines >= maxRows) {
+        pages = pages + '</div><div class="ce_label_col">'
         columns = columns + 1
         rowLines = 0
-        if(columns > maxColumns) {
+        if (columns > maxColumns) {
           columns = 1
-          pages = pages + `</div></div><div class="ce_label_pg"><div  class="ce_label_col">`
+          pages = pages + '</div></div><div class="ce_label_pg"><div  class="ce_label_col">'
         }
       }
     }
     pages = pages + addSeparator(separator, spaceAround)
   })
-  pages = pages + `</body></html>`
+  pages = pages + '</body></html>'
   return pages
 }
 

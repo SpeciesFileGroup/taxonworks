@@ -177,7 +177,7 @@ export default {
       const keys = {}
 
       keys[`${platformKey()}+r`] = this.resetFilter
-      keys[`${platformKey()}+f`] = this.searchForCollectionObjects
+      keys[`${platformKey()}+f`] = () => this.searchForCollectionObjects(this.parseParams)
 
       return keys
     },
@@ -197,7 +197,7 @@ export default {
         this.params.collectors.collector_id.length ||
         this.params.determination.otu_ids.length ||
         this.params.determination.determiner_id.length ||
-        this.params.determination.ancestor_id ||
+        this.params.determination.taxon_name_id ||
         this.params.repository.repository_id ||
         this.params.repository.current_repository_id ||
         this.params.collectingEvents.collecting_event_ids.length ||
@@ -298,7 +298,7 @@ export default {
           depictions: undefined,
           geographic_area: undefined,
           georeferences: undefined,
-          identifiers: undefined,
+          local_identifiers: undefined,
           taxon_determinations: undefined,
           type_material: undefined,
           current_repository: undefined,

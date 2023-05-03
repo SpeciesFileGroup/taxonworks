@@ -3,14 +3,17 @@
     <div class="radial-annotator">
       <modal
         v-if="display"
-        :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
-        @close="closeModal()">
+        transparent
+        @close="closeModal()"
+      >
         <template #header>
           <h3 class="flex-separate">
             <span v-html="title" />
             <span
               v-if="metadata"
-              class="separate-right"> {{ metadata.type }}</span>
+              class="separate-right"
+              v-text="metadata.type"
+            />
           </h3>
         </template>
         <template #body>
@@ -21,13 +24,15 @@
                 <radial-menu
                   v-if="menuCreated"
                   :options="menuOptions"
-                  @onClick="selectedRadialOption"/>
+                  @onClick="selectedRadialOption"
+                />
               </div>
             </div>
             <div
               class="radial-annotator-template panel"
               :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
-              v-if="currentView">
+              v-if="currentView"
+            >
               <h2 class="capitalize view-title">
                 {{ currentView.replace("_"," ") }}
               </h2>
@@ -38,23 +43,25 @@
                 :metadata="metadata"
                 :global-id="globalId"
                 @onSelectedGlobalId="loadMetadata"
-                @updateCount="setTotal"/>
+                @updateCount="setTotal"
+              />
             </div>
             <destroy-confirmation
               v-if="showDestroyModal"
               @close="showDestroyModal = false"
-              @confirm="destroyObject"/>
+              @confirm="destroyObject"
+            />
           </div>
         </template>
       </modal>
-      <span
+      <VBtn
         v-if="showBottom"
+        circle
+        color="primary"
+        :class="[buttonClass, 'circle-button']"
         :title="buttonTitle"
-        type="button"
-        class="circle-button"
-        :class="[buttonClass]"
-        @click="displayRadialObject()">Radial annotator
-      </span>
+        @click="displayRadialObject()"
+      />
     </div>
   </div>
 </template>
@@ -63,6 +70,7 @@
 import RadialMenu from 'components/radials/RadialMenu.vue'
 import Modal from 'components/ui/Modal.vue'
 import Spinner from 'components/spinner.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
 
 import CRUD from './request/crud'
 import Icons from './images/icons.js'
@@ -95,7 +103,8 @@ export default {
     RadialMenu,
     Modal,
     Spinner,
-    DestroyConfirmation
+    DestroyConfirmation,
+    VBtn
   },
 
   props: {
@@ -121,7 +130,7 @@ export default {
 
     buttonTitle: {
       type: String,
-      default: 'Navigate radial'
+      default: 'Radial navigator'
     },
 
     maxTaskInPie: {
@@ -218,7 +227,7 @@ export default {
           fontSize: 11,
           class: 'slice'
         },
-        slices: slices
+        slices
       }
     },
 

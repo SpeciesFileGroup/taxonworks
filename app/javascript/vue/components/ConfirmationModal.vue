@@ -34,6 +34,7 @@
           {{ okButton }}
         </button>
         <button
+          v-if="cancelButton"
           class="button normal-input button-default margin-small-left"
           @click="_cancel"
         >
@@ -56,7 +57,7 @@ export default {
     title: undefined,
     message: undefined,
     okButton: undefined,
-    cancelButton: 'Cancel',
+    cancelButton: undefined,
     typeButton: 'delete',
     showModal: false,
     resolvePromise: undefined,
@@ -77,15 +78,12 @@ export default {
       this.message = opts.message
       this.okButton = opts.okButton || 'Accept'
       this.typeButton = opts.typeButton || 'delete'
-      if (opts.cancelButton) {
-        this.cancelButton = opts.cancelButton
-      }
-
+      this.cancelButton = opts.cancelButton
+      this.confirmationWord = opts.confirmationWord
       this.showModal = true
       this.inputValue = undefined
 
       if (opts.confirmationWord) {
-        this.confirmationWord = opts.confirmationWord
         this.$nextTick(() => {
           this.$refs.inputtext.focus()
         })

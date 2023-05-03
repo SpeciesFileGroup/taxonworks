@@ -39,7 +39,7 @@ module Protonym::Becomes
   end
 
   def becomes_test_classifications
-    if taxon_name_classifications.any? 
+    if taxon_name_classifications.any?
       errors.add(:base, 'Protonym has taxon name classifications, it can not be converted to combination.')
       false
     else
@@ -69,7 +69,6 @@ module Protonym::Becomes
   # @return [[taxon_name_relationship, original_relationships]]
   def convertable_to_combination?
     a = nil
-
     return false unless a = becomes_test_for_relationship
     return false unless becomes_test_for_similarity(a)
     return false unless becomes_test_for_original_genus 

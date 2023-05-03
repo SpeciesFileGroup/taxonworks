@@ -51,6 +51,10 @@ class Label < ApplicationRecord
 
   scope :unprinted, -> { where(is_printed: false) }
 
+  def is_generated?
+    false
+  end
+
   protected
 
   def set_text

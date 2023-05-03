@@ -151,9 +151,7 @@ export default {
     },
 
     existOriginalCombination () {
-      const combinations = Object.values(this.originalCombinations)
-
-      return !!combinations.find(combination => combination?.subject_taxon_name_id === this.taxon?.id)
+      return !!Object.values(this.originalCombinations).length
     },
 
     types () {

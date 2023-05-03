@@ -41,6 +41,7 @@
       <div class="width-30">
         <div class="horizontal-left-content panel-section separate-right align-start">
           <FormCitation
+            class="full_width"
             v-model="asserted_distribution.citation"
             v-model:absent="asserted_distribution.is_absent"
             :klass="ASSERTED_DISTRIBUTION"
@@ -62,19 +63,17 @@
       <div class="horizontal-left-content separate-bottom separate-left separate-right align-start width-40">
         <otu-component
           class="separate-right full_width"
-          v-model="asserted_distribution.otu"/>
-        <lock-component
-          class="margin-medium-top"
-          v-model="locks.otu"/>
+          v-model="asserted_distribution.otu"
+          v-model:lock="locks.otu"
+        />
       </div>
       <div class="horizontal-left-content separate-left align-start width-30">
         <geographic-area
           class="separate-right full_width"
+          v-model="asserted_distribution.geographicArea"
+          v-model:lock="locks.geographicArea"
           @selected="triggerAutosave"
-          v-model="asserted_distribution"/>
-        <lock-component
-          class="margin-medium-top"
-          v-model="locks.geographicArea"/>
+        />
       </div>
     </div>
 
@@ -232,7 +231,7 @@ export default {
       AssertedDistribution.create({ asserted_distribution, extend }).then(response => {
         this.list.unshift(response.body)
         TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
-        this.refreshSmarts()
+        smartSelectorRefresh()
         this.newWithLock()
       })
     },
@@ -243,7 +242,7 @@ export default {
 
         this.list[index] = response.body
         TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
-        this.refreshSmarts()
+        smartSelectorRefresh()
         this.newWithLock()
       })
     },
@@ -252,10 +251,6 @@ export default {
       AssertedDistribution.destroy(asserted.id).then(() => {
         this.list.splice(this.list.findIndex(item => item.id === asserted.id), 1)
       })
-    },
-
-    refreshSmarts () {
-      smartSelectorRefresh()
     },
 
     setSourceOtu (item) {

@@ -12,7 +12,6 @@ module Queries
 
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
-      include Queries::Concerns::Identifiers
       include Queries::Concerns::Notes
       include Queries::Concerns::DataAttributes
 
@@ -624,12 +623,13 @@ module Queries
           dwc_indexed_facet,
           geographic_area_facet,
           georeferences_facet,
-         
+
           # See Queries::Concerns::Identifiers
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,
           identifiers_facet,
+          local_identifiers_facet,
           match_identifiers_facet,
 
           keyword_id_facet,       # See Queries::Concerns::Tags

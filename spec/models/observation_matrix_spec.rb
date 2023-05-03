@@ -49,8 +49,8 @@ RSpec.describe ObservationMatrix, type: :model, group: :observation_matrix do
         r1 = ObservationMatrixRowItem::Single.create!(observation_object: otu, observation_matrix: om)
         r2 = ObservationMatrixRowItem::Single.create!(observation_object: collection_object, observation_matrix: om)
         c3 = ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor, observation_matrix: om)
-        o1 = Observation.create!(observation_object: otu, descriptor: descriptor1, continuous_value: 6)
-        o2 = Observation.create!(observation_object: collection_object, descriptor: descriptor1, continuous_value: 5)
+        o1 = Observation::Continuous.create!(observation_object: otu, descriptor: descriptor1, continuous_value: 6)
+        o2 = Observation::Continuous.create!(observation_object: collection_object, descriptor: descriptor1, continuous_value: 5)
         om.reload
 
         expect(ObservationMatrix.where(id: om.id).first.nil?).to be_falsey

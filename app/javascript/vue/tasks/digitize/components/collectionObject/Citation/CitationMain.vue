@@ -67,7 +67,8 @@ export default {
   },
 
   data: () => ({
-    citation: makeCitationObject(COLLECTION_OBJECT)
+    citation: makeCitationObject(COLLECTION_OBJECT),
+    COLLECTION_OBJECT
   }),
 
   methods: {

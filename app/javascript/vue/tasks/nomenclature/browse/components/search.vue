@@ -4,6 +4,7 @@
     <autocomplete
       url="/taxon_names/autocomplete"
       placeholder="Select a taxon name"
+      autofocus
       param="term"
       :input-style="{ width: '300px' }"
       @getItem="redirect"

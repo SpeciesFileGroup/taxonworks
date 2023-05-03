@@ -17,7 +17,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
 
   def self.disjoint_object_classes
     self.parent.disjoint_object_classes +
-        self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Available::Invalid)
+        self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable,
+                                                 TaxonNameClassification::Iczn::Available::Invalid)
   end
 
   def object_status
@@ -77,7 +78,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
       new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective'
     end
     if new_relationship_name && self.type_name != new_relationship_name
-      self.update_columns(type: new_relationship_name)
+      self.type = new_relationship_name
+      self.save
       return true
     end
     false

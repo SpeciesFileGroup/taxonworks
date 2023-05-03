@@ -19,7 +19,13 @@ export default ({ state, commit, getters }, page) => {
     state.temporary.downloadingPages.push(pagePosition)
 
     GetDatasetRecords(state.dataset.id, {
-      params: Object.assign({}, { page: loadPage }, state.paramsFilter), paramsSerializer: (params) => Qs.stringify(params, { arrayFormat: 'brackets' })
+      params: {
+        page: loadPage,
+        ...state.paramsFilter
+      },
+      paramsSerializer: {
+        serialize: (params) => Qs.stringify(params, { arrayFormat: 'brackets' })
+      }
     }).then(response => {
       commit(MutationNames.SetPagination, GetPagination(response))
       state.dataset.progress = response.body.progress

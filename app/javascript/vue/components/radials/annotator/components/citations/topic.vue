@@ -82,7 +82,7 @@ export default {
   },
 
   mounted () {
-    ControlledVocabularyTerm.where({ type: ['Topic '] }).then(response => {
+    ControlledVocabularyTerm.where({ type: ['Topic'] }).then(response => {
       this.topicsAllList = response.body
     })
   },

@@ -2,11 +2,19 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
   include TaskControllerConfiguration
 
   before_action :set_sqed_depiction, except: [:todo_map]
+  after_action -> { set_pagination_headers(:sqed_depictions) }, only: [:todo_map], if: :json_request?
 
   # /tasks/accessions/breakdown/sqed_depiction/todo_map
   def todo_map
     SqedDepiction.clear_stale_progress
-    @sqed_depictions = SqedDepiction.where(project_id: sessions_current_project_id).order(:id).page(params[:page]).per(100)
+    @base_query = ::Queries::SqedDepiction::Filter.new(filter_params).all
+      .where(project_id: sessions_current_project_id)
+      .order(:id)
+    @sqed_depictions = @base_query.page(params[:page]).per(params[:per] || 50)
+    respond_to do |format|
+      format.html {}
+      format.json {}
+    end
   end
 
   # GET /tasks/accession/breakdown/depiction/:id # id is a collection_object_id !!
@@ -61,5 +69,25 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
     # TODO: Run jobs in background with admin task.
     # @sqed_depiction.preprocess
   end
+
+  private
+
+  def filter_params
+    a = params.permit(
+      ::Queries::SqedDepiction::Filter::COLLECTION_OBJECT_FILTER_PARAMS,
+      :recent,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+    )
+
+    # TODO: check user_id: []
+
+    a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
+    a
+  end
+
+
 
 end

@@ -219,7 +219,8 @@ export default {
           data_attributes: undefined,
           geographic_area: undefined,
           georeferences: undefined,
-          identifiers: undefined
+          identifiers: undefined,
+          local_identifiers: undefined
         },
         identifier: {
           identifier: undefined,
@@ -252,7 +253,7 @@ export default {
           keyword_id_or: []
         },
         collectors: {
-          collector_ids: [],
+          collector_id: [],
           collector_ids_or: false
         },
         collectingEvents: {

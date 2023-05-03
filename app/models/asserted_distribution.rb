@@ -31,10 +31,15 @@ class AssertedDistribution < ApplicationRecord
   include Shared::Identifiers
   include Shared::IsData
 
+  include Shared::Taxonomy # at present must be before IsDwcOccurence
   include Shared::IsDwcOccurrence
   include AssertedDistribution::DwcExtensions
 
   originates_from 'Specimen', 'Lot'
+
+  # @return [Hash]
+  #   of known country/state/county values
+  attr_accessor :geographic_names
 
   belongs_to :otu, inverse_of: :asserted_distributions
   has_one :taxon_name, through: :otu
@@ -55,27 +60,22 @@ class AssertedDistribution < ApplicationRecord
 
   # TODO: deprecate scopes referencing single wheres
   scope :with_otu_id, -> (otu_id) { where(otu_id: otu_id) }
-  
+
   scope :with_is_absent, -> { where('is_absent = true') }
- 
+
   scope :with_geographic_area_array, -> (geographic_area_array) { where('geographic_area_id IN (?)', geographic_area_array) }
-  
+
   scope :without_is_absent, -> { where('is_absent = false OR is_absent is Null') }
 
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
 
-  soft_validate(:sv_conflicting_geographic_area,
-                set: :conflicting_geographic_area,
-                name: 'Conflicting geographic area',
-                description: 'Conflicting geographic area' )
+  soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area, name: 'conflicting geographic area', description: 'conflicting geographic area')
 
-  # @param [ActionController::Parameters] params
-  # @return [Scope]
-  def self.find_for_autocomplete(params)
-    term = params[:term]
-    include(:geographic_area, :otu)
-      .where(geographic_areas: {name: term}, otus: {name: term})
-      .with_project_id(params[:project_id])
+  # getter for attr :geographic_names
+  def geographic_names
+    return @geographic_names if !@geographic_names.nil?
+    @geographic_names ||= geographic_area.geographic_name_classification.delete_if{|k,v| v.nil?}
+    @geographic_names ||= {}
   end
 
   # @param [Hash] defaults
@@ -89,8 +89,8 @@ class AssertedDistribution < ApplicationRecord
     a
   end
 
-  # TODO: DRY with helper methods 
   # rubocop:disable Style/StringHashKeys
+  # TODO: DRY with helper methods
   # @return [Hash] GeoJSON feature
   def to_geo_json_feature
     retval = {
@@ -142,7 +142,7 @@ class AssertedDistribution < ApplicationRecord
         soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.geographic_area.name}") unless presence.empty?
       else
         presence = AssertedDistribution
-          .with_is_absent 
+          .with_is_absent
           .where(otu_id: otu_id)
           .with_geographic_area_array(areas)
         soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.geographic_area.name}") unless presence.empty?
@@ -165,5 +165,6 @@ class AssertedDistribution < ApplicationRecord
     end
     result
   end
-
 end
+
+

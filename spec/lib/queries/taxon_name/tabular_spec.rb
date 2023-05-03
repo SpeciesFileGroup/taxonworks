@@ -294,15 +294,14 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
       observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single.new(observation_object: otu1)
 
       observation_matrix.save!
-      o1 = Observation.create!(observation_object: otu1, descriptor: descriptor1, continuous_value: 5)
-      o2 = Observation.create!(observation_object: otu1, descriptor: descriptor2)
-      o3 = Observation.create!(observation_object: otu1, descriptor: descriptor1, continuous_value: 6)
-      o4 = Observation.create!(observation_object: otu1, descriptor: descriptor3)
+      o1 = Observation::Continuous.create!(observation_object: otu1, descriptor: descriptor1, continuous_value: 5)
+      o2 = Observation::Media.create!(observation_object: otu1, descriptor: descriptor2)
+      o3 = Observation::Continuous.create!(observation_object: otu1, descriptor: descriptor1, continuous_value: 6)
+      o4 = Observation::Media.create!(observation_object: otu1, descriptor: descriptor3)
 
       FactoryBot.create(:valid_depiction, depiction_object: o2)
       FactoryBot.create(:valid_depiction, depiction_object: o2)
       FactoryBot.create(:valid_depiction, depiction_object: o4)
-
 
       query.ancestor_id = genus.id.to_s
       query.ranks = ['genus', 'species']

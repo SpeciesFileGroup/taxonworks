@@ -7,7 +7,6 @@
         :list="depictions"
         item-key="id"
         @choose="setObservationDragged"
-        @remove="removeDepiction"
       >
         <template #item="{ element }">
           <div class="drag-container">
@@ -19,7 +18,8 @@
                 <div class="horizontal-left-content">
                   <radial-annotator
                     type="annotations"
-                    :global-id="element.image.global_id"/>
+                    :global-id="element.image.global_id"
+                  />
                   <button-citation
                     :global-id="element.image.global_id"
                     :citations="element.image.citations"
@@ -68,15 +68,9 @@ export default {
     }
   },
 
-  emits: ['removeDepiction'],
-
   methods: {
     setObservationDragged (event) {
       this.$store.commit(MutationNames.SetDepictionMoved, this.depictions[event.oldIndex])
-    },
-
-    removeDepiction ({ oldIndex }) {
-      this.$emit('removeDepiction', oldIndex)
     }
   }
 }

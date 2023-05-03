@@ -146,7 +146,7 @@ class Observation < ApplicationRecord
   belongs_to :observation_object, polymorphic: true
 
   # before_validation :convert_observation_object_global_id
-  before_validation :set_type_from_descriptor
+
   validates_presence_of :descriptor_id, :type
   validates_presence_of :observation_object
   validate :type_matches_descriptor
@@ -263,8 +263,7 @@ class Observation < ApplicationRecord
     true
   end
 
-  # TODO: Does this belong here?
-  # Remove all observations for the set of descriptors in a given row
+  # Destroy all observations for the set of descriptors in a given row
   def self.destroy_row(observation_matrix_row_id)
     r = ObservationMatrixRow.find(observation_matrix_row_id)
     begin
@@ -277,13 +276,58 @@ class Observation < ApplicationRecord
     true
   end
 
-  protected
-
-  def set_type_from_descriptor
-    if type.blank? && descriptor&.type
-      write_attribute(:type, 'Observation::' + descriptor.type.split('::').last)
+  # Destroy observations for the set of descriptors in a given column
+  def self.destroy_column(observation_matrix_column_id)
+    c = ObservationMatrixColumn.find(observation_matrix_column_id)
+    observations = self.in_observation_matrix(c.observation_matrix_id).where(descriptor_id: c.descriptor_id)
+    begin
+      Observation.transaction do
+        observations.destroy_all
+      end
+    rescue
+      raise
     end
+    true
   end
+
+  # @return [Hash]
+  #  { created: 1, failed: 2 }
+  def self.code_column(observation_matrix_column_id, observation_params)
+    c = ObservationMatrixColumn.find(observation_matrix_column_id)
+    o = ObservationMatrix.find(c.observation_matrix_id)
+
+    descriptor = c.descriptor
+
+    # Type is required on the onset
+    p = observation_params.merge(
+      type: descriptor.observation_type
+    )
+
+    h = Hash.new(0)
+
+    Observation.transaction do
+      o.observation_matrix_rows.each do |r|
+        begin
+          if !Observation.where(observation_object: r.observation_object, descriptor: descriptor).any?
+            Observation.create!(
+              p.merge(
+                observation_object: r.observation_object,
+                descriptor: descriptor,
+              )
+            )
+            h[:passed] += 1
+          else
+            h[:exists] += 1
+          end
+        rescue ActiveRecord::RecordInvalid
+          h[:failed] += 1
+        end
+      end
+    end
+    h
+  end
+
+  protected
 
   def type_matches_descriptor
     a = type&.split('::')&.last

@@ -43,6 +43,7 @@ const permitParams = {
     field_notes: String,
     verbatim_datum: String,
     verbatim_elevation: String,
+    meta_prioritize_geographic_area: Boolean,
     roles_attributes: {
       id: Number,
       _destroy: Boolean,

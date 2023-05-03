@@ -135,7 +135,10 @@ const getRoleString = role =>
 
 const addDetermination = () => {
   const rolesString = taxonDetermination.roles_attributes.map(getRoleString).join('; ')
-  const label = `${otuLabel.value} by ${rolesString} ${dateString(taxonDetermination)}`
+  const rolesLabel = rolesString.length
+    ? 'by ' + rolesString
+    : ''
+  const label = `${otuLabel.value} ${rolesLabel} ${dateString(taxonDetermination)}`
 
   emit('onAdd', {
     uuid: crypto.randomUUID(),

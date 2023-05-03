@@ -70,6 +70,7 @@ export default {
           ? 'This will destroy the dataset that is partially imported, are you sure you want to proceed? Imported data will not be destroyed.'
           : 'This will destroy the dataset. Are you sure you want to proceed?.',
         typeButton: 'delete',
+        cancelButton: 'Cancel',
         confirmationWord: hasImportedData ? 'DESTROY' : undefined
       })
 

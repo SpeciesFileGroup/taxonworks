@@ -797,24 +797,28 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # identificationQualifier: [Mapped as part of otu name in parse_taxon_class]
 
     # typeStatus: [Type material only if scientific name matches scientificName and type term is recognized by TW vocabulary]
-    type_status = get_field_value(:typeStatus)&.match(/(?<type>\w+)\s+OF\s+(?<scientificName>.*)/i)
+    type_status = get_field_value(:typeStatus)
+    type_status_parsed = type_status&.match(/^(?<type>\w+)$/i) || type_status&.match(/(?<type>\w+)(\s+OF\s+(?<scientificName>.*))/i)
     scientific_name = get_field_value(:scientificName)&.gsub(/\s+/, ' ')
-    type_scientific_name = type_status&.[](:scientificName)&.gsub(/\s+/, ' ')
+    type_scientific_name = (type_status_parsed&.[](:scientificName)&.gsub(/\s+/, ' ') rescue nil) || scientific_name
 
-
-    if scientific_name && type_scientific_name.present?
+    if type_status_parsed && scientific_name && type_scientific_name.present?
 
       # if type_scientific_name matches the current name of the occurrence, use that
       if type_scientific_name&.delete_prefix!(scientific_name)&.match(/^\W*$/)
         type_material = {
-          type_type: type_status[:type].downcase
+          type_type: type_status_parsed[:type].downcase
         }
       elsif (original_combination_protonym = Protonym.find_by(cached_original_combination: type_scientific_name, project_id: self.project_id))
         type_material = {
-          type_type: type_status[:type].downcase,
+          type_type: type_status_parsed[:type].downcase,
           protonym: original_combination_protonym
         }
       end
+    end
+
+    if type_status && type_material.nil?
+      raise DarwinCore::InvalidData.new({ "typeStatus": ["Unprocessable typeStatus information"] }) if self.import_dataset.require_type_material_success?
     end
 
     # identifiedBy: determiners of taxon determination

@@ -1,0 +1,74 @@
+<div class="panel content">
+  <h2> Activity of past 24 hours</h2>
+
+<% d = User.where('last_seen_at > ?', 1.day.ago).order(:last_seen_at).pluck(:last_seen_at).collect{|t| ((Time.now - t) / 3600).to_i  }.inject(Hash.new(0)){|hsh, v| hsh[v] += 1; hsh} %><br>
+
+  <div style="height: 280px; width: 420px;">
+    <canvas id="myChart"></canvas>
+  </div>
+</div>
+
+<script>
+  const ctx = document.getElementById('myChart');
+  const myChart = new Chart(ctx, {
+    type: 'polarArea',
+
+    data:  {
+      labels: [<%= (0..23).collect{|t| ('"' + t.to_s + '"').html_safe}.join(', ').html_safe %>],
+      datasets: [{
+        label: 'Users in past 24 hours',
+        data: <%=  (0..23).collect{|h| d[h] || 0} %> ,
+        backgroundColor: [
+          'rgb(250, 250, 110)',
+          'rgb(228, 245, 112)',
+          'rgb(207, 239, 114)',
+          'rgb(187, 234, 118)',
+          'rgb(167, 227, 121)',
+          'rgb(148, 220, 125)',
+          'rgb(130, 213, 129)',
+          'rgb(112, 206, 133)',
+          'rgb(94, 198, 136)',
+          'rgb(77, 190, 139)',
+          'rgb(61, 182, 141)',
+          'rgb(44, 174, 143)',
+          'rgb(26, 165, 143)',
+          'rgb(2, 157, 143)',
+          'rgb(0, 148, 142)',
+          'rgb(0, 140, 139)',
+          'rgb(0, 131, 136)',
+          'rgb(0, 122, 132)',
+          'rgb(10, 114, 126)',
+          'rgb(22, 105, 120)',
+          'rgb(30, 97, 113)',
+          'rgb(36, 88, 105)',
+          'rgb(40, 80, 97)',
+          'rgb(42, 72, 88)']
+      }]
+    },
+    options: {
+      scales: {
+        r: {
+         ticks: {
+           stepSize: 2.0
+          }
+        }
+      },
+
+      responsibe: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'left',
+          title: {
+            text: 'Hours ago',
+            display: true,
+          }
+        },
+        title: {
+          display: false,
+        }
+      }
+    },
+  });
+</script>
+

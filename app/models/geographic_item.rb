@@ -47,6 +47,10 @@ class GeographicItem < ApplicationRecord
   # Used to build geographic items from a shape [ of what class ] !?
   attr_accessor :shape
 
+  # @return [Boolean]
+  #   When true cached values are not built
+  attr_accessor :no_cached
+
   DATA_TYPES = [
     :point,
     :line_string,
@@ -93,6 +97,7 @@ class GeographicItem < ApplicationRecord
   has_many :collecting_events_through_georeference_error_geographic_item,
            through: :georeferences_through_error_geographic_item, source: :collecting_event
 
+  # TODO: THIS IS NOT GOOD
   before_validation :set_type_if_geography_present
 
   validate :some_data_is_provided
@@ -101,6 +106,8 @@ class GeographicItem < ApplicationRecord
   scope :include_collecting_event, -> { includes(:collecting_events_through_georeferences) }
   scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
   scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
+
+  after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
 
   class << self
 
@@ -550,12 +557,6 @@ class GeographicItem < ApplicationRecord
       where(GeographicItem.containing_where_for_point_sql(rgeo_point))
     end
 
-    # @param [String] 'ASC' or 'DESC'
-    # @return [Scope]
-    def ordered_by_area(direction = 'ASC')
-      order(Arel.sql("ST_Area(#{GeographicItem::GEOMETRY_SQL.to_sql}) #{direction}"))
-    end
-
     # @return [Scope]
     #   adds an area_in_meters field, with meters
     def with_area
@@ -854,7 +855,7 @@ class GeographicItem < ApplicationRecord
     # @return [Hash]
     #   as per #inferred_geographic_name_hierarchy but for Rgeo point
     def point_inferred_geographic_name_hierarchy(point)
-      GeographicItem.containing_point(point).ordered_by_area.limit(1).first&.inferred_geographic_name_hierarchy
+      GeographicItem.containing_point(point).order(cached_total_area: :ASC).limit(1).first&.inferred_geographic_name_hierarchy
     end
 
     # @param [String] type_name ('polygon', 'point', 'line' [, 'circle'])
@@ -903,45 +904,45 @@ class GeographicItem < ApplicationRecord
   end # class << self
 
   # @return [Hash]
-  #   a quick, geographic area hierarchy based approach to
-  #   returning country, state, and county categories
-  #   !! Note this just takes the first referenced GeographicArea, which should be safe most cases
+  #    a geographic_name_classification or empty Hash
+  # This is a quick approach that works only when
+  # the geographic_item is linked explicitly to a GeographicArea.
+  #
+  # !! Note that it is not impossible for a GeographicItem to be linked
+  # to > 1 GeographicArea, in that case we are assuming that all are
+  # equally refined, this might not be the case in the future because
+  # of how the GeographicArea gazetteer is indexed.
   def quick_geographic_name_hierarchy
-    v = {}
-    a = geographic_areas.first&.geographic_name_classification
-    v = a unless a.nil?
-    v
+    if a = geographic_areas.first
+      a.geographic_name_classification
+    else
+      {}
+    end
   end
 
   # @return [Hash]
-  #   a slower, gis-based inference approach to
-  #     returning country, state, and county categories
+  #   a geographic_name_classification (see GeographicArea) inferred by
+  # finding the smallest area containing this GeographicItem, in the most accurate gazetteer
+  # and using it to return country/state/county. See also the logic in
+  # filling in missing levels in GeographicArea.
   def inferred_geographic_name_hierarchy
-    v = {}
-    # !! Ordering by name is arbitrary, and likely to cause downstream problems,
-    # but might solve non-deterministic merge issue.
-    # !! The real solution here is to add a sort to prioritize by gazeteer.
-    # !! This ordering basically means that if two areas with country (for example) level are found,
-    # the first in the alphabet is selected, then sorting by id if equally named
-    (containing_geographic_areas
-         .joins(:geographic_areas_geographic_items)
-         .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
-         .order('geographic_areas.name') +
-        geographic_areas
-            .joins(:geographic_areas_geographic_items)
-            .merge(GeographicAreasGeographicItem
-                       .ordered_by_data_origin)
-            .order('geographic_areas.name').limit(1)).each do |a|
-      v.merge!(a.categorize)
+    if small_area = containing_geographic_areas
+      .joins(:geographic_areas_geographic_items)
+      .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
+      .ordered_by_area
+      .limit(1)
+      .first
+      return small_area.geographic_name_classification
+    else
+      {}
     end
-    v
   end
 
   # @return [Scope]
   #   the Geographic Areas that contain (gis) this geographic item
   def containing_geographic_areas
     GeographicArea.joins(:geographic_items).includes(:geographic_area_type)
-        .joins("JOIN (#{GeographicItem.containing(id).to_sql}) j on geographic_items.id = j.id")
+      .joins("JOIN (#{GeographicItem.containing(id).to_sql}) j on geographic_items.id = j.id")
   end
 
   # @return [Boolean]
@@ -1102,7 +1103,7 @@ class GeographicItem < ApplicationRecord
 
   # @return [Hash]
   #   in GeoJSON format
-  #   Computed via "raw" PostGIS (much faster). This 
+  #   Computed via "raw" PostGIS (much faster). This
   #   requires the geo_object_type and id.
   #
   def to_geo_json
@@ -1152,7 +1153,7 @@ class GeographicItem < ApplicationRecord
 
       begin
         object = Gis::FACTORY.parse_wkt(geom.geometry.to_s)
-      rescue RGeo::Error::InvalidGeometry 
+      rescue RGeo::Error::InvalidGeometry
         return false
       end
 
@@ -1172,6 +1173,17 @@ class GeographicItem < ApplicationRecord
     else
       return nil
     end
+  end
+
+  # return float, in meters, calculated, not from cached
+  def area
+    GeographicItem.where(id: id).select("ST_Area(#{GeographicItem::GEOGRAPHY_SQL}, false) as area_in_meters").first['area_in_meters']
+  end
+
+  private
+
+  def set_cached
+    update_column(:cached_total_area, area)
   end
 
   protected
@@ -1306,9 +1318,9 @@ class GeographicItem < ApplicationRecord
 
     case data.count
     when 0
-      errors.add(:base, 'No shape provided or provided shape is invalid') 
+      errors.add(:base, 'No shape provided or provided shape is invalid')
     when 1
-      return true 
+      return true
     else
       data.each do |object|
         errors.add(object, 'More than one shape type provided')

@@ -54,8 +54,8 @@
 #
 # @!attribute is_virtual
 # @return [Boolean]
-#   Defaults to false. If false then
-#
+#   Defaults to false. If true then the namespace short name is not part of the "physical" identifier. Required to handle identifiers incoming
+# from DwC in some contexts.
 #
 class Namespace < ApplicationRecord
   include Housekeeping::Users
@@ -69,13 +69,13 @@ class Namespace < ApplicationRecord
   validates_presence_of :name, :short_name
   validates_uniqueness_of :name, :short_name, case_sensitive: false
 
-  # autosave should resave all, but it clearly doesn't
+  # Autosave should resave all, but it clearly doesn't
   # we also don't want to validte the identifiers on this resave, but rather
   # just trigger the rebuild of identifiers#cache.  Will have to add an after_save here.
   has_many :identifiers, autosave: true, dependent: :restrict_with_error, inverse_of: :namespace
 
   scope :used_on_klass, -> (klass) { joins(:identifiers).where(identifiers: {identifier_object_type: klass} ) }
-  scope :used_recently, -> { joins(:identifiers).includes(:identifiers).where(identifiers: { created_at: 10.weeks.ago..Time.now } ).order('"identifiers"."created_at" DESC') }
+  scope :used_recently, -> { joins(:identifiers).includes(:identifiers).where(identifiers: { updated_at: 10.weeks.ago..Time.now } ).order('"identifiers"."created_at" DESC') }
   scope :used_in_project, -> (project_id) { joins(:identifiers).where( identifiers: { project_id: project_id } ) }
 
   def is_virtual?

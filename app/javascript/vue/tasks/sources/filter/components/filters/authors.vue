@@ -2,7 +2,7 @@
   <div>
     <h3>Authors</h3>
     <div class="field label-above">
-      <label>Author</label>
+      <label>Author as text string</label>
       <input
         type="text"
         class="full_width"
@@ -15,7 +15,7 @@
       </label>
     </div>
     <fieldset>
-      <legend>Authors</legend>
+      <legend>Author as role</legend>
       <smart-selector
         model="people"
         target="Author"

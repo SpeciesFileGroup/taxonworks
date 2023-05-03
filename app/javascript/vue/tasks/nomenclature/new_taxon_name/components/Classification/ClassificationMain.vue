@@ -1,6 +1,7 @@
 <template>
   <classification-list
     :lists="objectLists"
+    :created="created"
     @select="emit('select', $event)"
   />
 </template>
@@ -11,6 +12,13 @@ import { createStatusLists } from '../../helpers/createStatusLists'
 import { ref, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import ClassificationList from './ClassificationList.vue'
+
+defineProps({
+  created: {
+    type: Array,
+    default: () => []
+  }
+})
 
 const emit = defineEmits(['select'])
 
@@ -28,12 +36,16 @@ const objectLists = ref({
   all: []
 })
 
-watch([taxonRank, parent], () => {
-  objectLists.value = createStatusLists(
-    statusList.value[nomenclaturalCode.value] || {},
-    taxon.value.rank_string,
-    parent.value.rank_string
-  )
-}, { immediate: true })
+watch([taxonRank, parent],
+  () => {
+    if (taxon.value && parent.value) {
+      objectLists.value = createStatusLists(
+        statusList.value[nomenclaturalCode.value] || {},
+        taxon.value.rank_string,
+        parent.value.rank_string
+      )
+    }
+  },
+  { immediate: true })
 
 </script>

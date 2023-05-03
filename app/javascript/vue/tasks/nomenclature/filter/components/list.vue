@@ -6,23 +6,49 @@
     >
       <thead>
         <tr>
-          <th @click="sortTable('cached')">Name</th>
-          <th @click="sortTable('cached_author_year')">Author and year</th>
-          <th @click="sortTable('original_combination')">Original combination</th>
+          <th>
+            <input
+              type="checkbox"
+              v-model="selectAll"
+            >
+          </th>
+          <th @click="sortTable('cached')">
+            Name
+          </th>
+          <th @click="sortTable('cached_author_year')">
+            Author and year
+          </th>
+          <th @click="sortTable('original_combination')">
+            Original combination
+          </th>
           <th>Valid?</th>
-          <th @click="sortTable('rank')">Rank</th>
+          <th @click="sortTable('rank')">
+            Rank
+          </th>
           <th>Parent</th>
           <th>Options</th>
         </tr>
       </thead>
+
       <tbody>
         <tr
-          v-for="item in list"
-          :key="item.id">
+          v-for="(item, index) in list"
+          :key="item.id"
+          class="contextMenuCells"
+          :class="{ even: index % 2 }"
+        >
+          <td>
+            <input
+              v-model="selectedIds"
+              :value="item.id"
+              type="checkbox"
+            >
+          </td>
           <td>
             <a
               :href="`/tasks/nomenclature/browse?taxon_name_id=${item.id}`"
-              v-html="item.cached_html"/>
+              v-html="item.cached_html"
+            />
           </td>
           <td>{{ item.cached_author_year }}</td>
           <td v-html="item.original_combination" />
@@ -36,70 +62,69 @@
           </td>
           <td class="options-column">
             <div class="horizontal-left-content">
-              <radial-object :global-id="item.global_id"/>
+              <radial-object :global-id="item.global_id" />
               <radial-annotator
                 type="annotations"
-                :global-id="item.global_id"/>
+                :global-id="item.global_id"
+              />
             </div>
           </td>
         </tr>
       </tbody>
     </table>
+
     <span
       v-if="list.length"
-      class="horizontal-left-content">{{ list.length }} records.
+      class="horizontal-left-content"
+    >
+      {{ list.length }} records.
     </span>
   </div>
 </template>
 
-<script>
-
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialObject from 'components/radials/navigation/radial'
+<script setup>
+import { computed, ref } from 'vue'
 import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialObject from 'components/radials/navigation/radial'
 
-export default {
-  components: {
-    RadialAnnotator,
-    RadialObject
+const props = defineProps({
+  list: {
+    type: Array,
+    default: () => []
   },
 
-  props: {
-    list: {
-      type: Array,
-      default: () => []
-    }
-  },
-
-  directives: {
-    ResizeColumn: vResizeColumn
-  },
-
-  emits: ['onSort'],
-
-  data () {
-    return {
-      ascending: false
-    }
-  },
-
-  methods: {
-    sortTable (sortProperty) {
-      this.$emit('onSort', sortArray(this.list, sortProperty, this.ascending))
-      this.ascending = !this.ascending
-    }
+  modelValue: {
+    type: Array,
+    default: () => []
   }
+})
+
+const selectedIds = computed({
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
+})
+
+const emit = defineEmits(['onSort', 'update:modelValue'])
+const ascending = ref(false)
+
+const selectAll = computed({
+  get: () => props.modelValue.length === props.list.length,
+  set: value => {
+    selectedIds.value = value
+      ? props.list.map(item => item.id)
+      : []
+  }
+})
+
+function sortTable (sortProperty) {
+  emit('onSort', sortArray(props.list, sortProperty, ascending.value))
+  ascending.value = !ascending.value
 }
 </script>
 
 <style lang="scss" scoped>
-  table {
-    margin-top: 0px;
-  }
-  tr {
-    height: 44px;
-  }
   .options-column {
     width: 130px;
   }

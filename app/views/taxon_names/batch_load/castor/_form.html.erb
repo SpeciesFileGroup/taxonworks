@@ -6,18 +6,19 @@
 
   <% if @result -%>
     <div class="field">
-      <%= label_tag "Attaching to:" %> <%= taxon_name_tag(@result.parent_taxon_name) %>
+      <%= label_tag "Attaching to:" %> <%= tag.strong taxon_name_tag(@result.parent_taxon_name) %>
       <%= hidden_field_tag :parent_taxon_name_id, @result.parent_taxon_name_id -%>
     </div>
 
     <div class="field">
       <%= label_tag "Nomenclatural code:" %> <%= hidden_field_tag :nomenclature_code, @result.nomenclature_code -%>
-      <%= @result.nomenclature_code %>
+      <%= tag.strong @result.nomenclature_code %>
     </div>
 
     <div class="field">
       <%= label_tag :also_create_otu, 'Also create OTU:' -%>
-      <%= check_box(nil, :also_create_otu, {checked: @result.also_create_otu, disabled: true}, true, false) -%>
+      <%= tag.strong(@result.also_create_otu ? 'yes' : 'no') %>
+      <%= hidden_field_tag(:also_create_otu, @result.also_create_otu ? '1' : '0' )  -%>
     </div>
 
   <% else %>

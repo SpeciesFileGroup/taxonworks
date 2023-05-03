@@ -3,128 +3,132 @@
     <h1>Nomenclature match</h1>
     <spinner-component
       v-if="isLoading"
-      :full-screen="true"/>
-    <div class="horizontal-left-content align-start">
-      <div class="full_width margin-small-right">
-        <input-component @lines="lines = $event"/>
-        <div class="flex-separate">
-          <button
-            class="button normal-input button-default"
-            type="button"
-            :disabled="!lines.length"
-            @click="processList">
-            Match
-          </button>
-          <label>
-            <input
-              type="checkbox"
-              v-model="exact">
-            Exact match
-          </label>
-        </div>
-      </div>
-
-      <div class="full_width margin-small-left">
-        <navbar-component>
-          <ul class="no_bullets context-menu">
-            <li
-              class="capitalize"
-              v-for="item in show">
-              <label>
-                <input
-                  type="radio"
-                  :value="item"
-                  v-model="filter">
-                  {{ item }}
-              </label>
-            </li>
-          </ul>
-        </navbar-component>
-        <template
-          v-for="(match, key) in matches"
-          :key="key">
-          <line-component
-            v-if="filterView(match)"
-            class="margin-small-bottom"
-            :name="key"
-            :records="match"/>
-        </template>
-      </div>
+      full-screen
+    />
+    <input-component @lines="lines = $event" />
+    <div class="horizontal-left-content margin-medium-bottom margin-small-top">
+      <button
+        class="button normal-input button-default margin-small-right"
+        type="button"
+        :disabled="!lines.length"
+        @click="GetMatches"
+      >
+        Match
+      </button>
+      <label class="middle">
+        <input
+          type="checkbox"
+          v-model="exact"
+        >
+        Exact match
+      </label>
     </div>
+
+    <navbar-component>
+      <div class="flex-separate full_width">
+        <ul class="no_bullets context-menu">
+          <li
+            v-for="(value, key) in tableComponent"
+            :key="key"
+          >
+            <label>
+              <input
+                type="radio"
+                :value="value"
+                v-model="tableView"
+              >
+              {{ value }}
+            </label>
+          </li>
+        </ul>
+        <CSVButton
+          :list="matches"
+          :options="{ fields }"
+        />
+      </div>
+    </navbar-component>
+
+    <TableUnmatched
+      v-if="(tableView === tableComponent.Unmatched || tableView === tableComponent.Both)"
+      :list="unmatched"
+      class="full_width margin-medium-bottom"
+    />
+    <TableMatched
+      v-if="(tableView === tableComponent.Matches || tableView === tableComponent.Both)"
+      :valid-names="validTaxonNames"
+      :list="matches"
+      class="full_width"
+    />
   </div>
 </template>
 
-<script>
-
-import InputComponent from './components/InputComponent'
-import LineComponent from './components/LineComponent'
+<script setup>
+import { ref } from 'vue'
+import { TaxonName } from 'routes/endpoints'
+import { getUnique } from 'helpers/arrays'
+import TableMatched from './components/Table/TableMatched.vue'
+import TableUnmatched from './components/Table/TableUnmatched.vue'
+import InputComponent from './components/InputComponent.vue'
 import SpinnerComponent from 'components/spinner'
 import NavbarComponent from 'components/layout/NavBar'
-import { TaxonName } from 'routes/endpoints'
+import CSVButton from 'components/csvButton.vue'
 
-export default {
-  components: {
-    InputComponent,
-    LineComponent,
-    SpinnerComponent,
-    NavbarComponent
-  },
+const fields = [
+  { label: 'Id', value: 'taxon.id' },
+  { label: 'taxon name', value: 'taxon.object_label' },
+  { label: 'Author and year', value: 'taxon.cached_author_year' },
+  { label: 'Valid name', value: 'taxon.original_combination' }
+]
 
-  data () {
-    return {
-      lines: [],
-      maxPerCall: 1,
-      exact: false,
-      isLoading: false,
-      show: ['matches', 'unmatched', 'both'],
-      filter: 'both',
-      matches: {}
-    }
-  },
-
-  methods: {
-    GetMatches (position) {
-      const promises = []
-
-      for (let i = 0; i < this.maxPerCall; i++) {
-        if (position < this.lines.length) {
-          promises.push(new Promise((resolve, reject) => {
-            const name = this.lines[position]
-
-            TaxonName.where({ name: name, exact: this.exact }).then(response => {
-              this.matches[name] = response.body
-              resolve()
-            })
-          }))
-          position++
-        }
-      }
-
-      Promise.all(promises).then(() => {
-        if (position < this.lines.length) {
-          this.GetMatches(position)
-        } else {
-          this.isLoading = false
-        }
-      })
-    },
-
-    processList () {
-      this.matches = {}
-      this.isLoading = true
-      this.GetMatches(0)
-    },
-
-    filterView (record) {
-      switch (this.filter) {
-        case 'matches':
-          return record.length
-        case 'unmatched':
-          return !record.length
-        default:
-          return true
-      }
-    }
-  }
+const tableComponent = {
+  Matches: 'Matches',
+  Unmatched: 'Unmatched',
+  Both: 'Both'
 }
+
+const exact = ref(false)
+const matches = ref([])
+const unmatched = ref([])
+const isLoading = ref(false)
+const lines = ref([])
+const tableView = ref(tableComponent.Both)
+const validTaxonNames = ref({})
+
+function GetMatches () {
+  const requests = lines.value.map(name => TaxonName.where({ name, exact: exact.value }))
+
+  isLoading.value = true
+  Promise.all(requests).then(async responses => {
+    const taxonNames = [].concat(...responses.map(r => r.body))
+    const uniqueList = getUnique(taxonNames, 'id')
+    const validTaxonNameIDs = uniqueList
+      .filter(taxon => !taxon.cached_is_valid)
+      .map(taxon => taxon.cached_valid_taxon_name_id)
+
+    const validNames = validTaxonNameIDs.length
+      ? (await TaxonName.where({ taxon_name_id: validTaxonNameIDs })).body
+      : []
+
+    validNames.forEach(taxon => {
+      validTaxonNames.value[taxon.id] = taxon
+    })
+
+    matches.value = uniqueList.map(taxon =>
+      ({
+        taxon,
+        match: lines.value.filter(line => taxon.object_label.toLowerCase().includes(line.toLowerCase())).join(', ')
+      })
+    )
+
+    unmatched.value = lines.value.filter(
+      line => !matches.value.length || !!matches.value.find(({ match }) => !match.includes(line))
+    )
+
+    tableView.value = tableComponent.Both
+  })
+    .finally(() => {
+      isLoading.value = false
+    })
+}
+
 </script>

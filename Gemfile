@@ -28,8 +28,7 @@ gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 
 gem 'net-smtp', '~> 0.3.1'
-gem 'net-pop'
-gem 'net-imap'
+gem 'mail', '~> 2.7', '< 2.8' # Locked while https://github.com/mikel/mail/issues/1516 is not resolved
 gem "matrix", "~> 0.4.2"
 
 # Geo
@@ -130,8 +129,16 @@ gem 'chunky_png', '~> 1.4.0'
 gem 'namecase', '~> 2.0'
 gem 'zaru', '~> 0.3.0'
 
+# Export
+gem 'asciidoctor', '~> 2.0'
+# gem 'asciidoctor-epub3', '~> 1.5'
+
 # www
 gem 'wikidata-client', '~> 0.1.0.pre.rc1', require: 'wikidata'
+
+# Maintenance
+gem 'parallel', '~> 1.22'
+gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
   gem 'faker', '~> 2.10'
@@ -140,7 +147,7 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
   gem 'webdrivers', '~> 5.0', require: false
-  gem 'selenium-webdriver', '~> 4.2.0'
+  gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
   gem 'prawn', '~> 2.4.0'
   gem 'puma', '~> 5.5'
 end

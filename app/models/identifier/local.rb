@@ -22,8 +22,8 @@
 #
 class Identifier::Local < Identifier
 
-  # This must exist, rather than namespace: true, because we don't have database side not null in the model.  We also don't accept nested
-  # namespaces in this belongs to.
+  # This must exist, rather than namespace: true, because we don't have database side not null in the model. We also don't accept nested
+  # namespaces in this belongs_to.
   validates :namespace_id, presence: true
 
   validates_uniqueness_of :identifier, scope: [:namespace_id, :project_id, :type], message: lambda { |error, attributes| "#{attributes[:value]} already taken"}
@@ -49,9 +49,8 @@ class Identifier::Local < Identifier
           Identifier::Local.arel_table[:identifier]
         ]
       )
-    ) if [:short_name, :verbatim_short_name, :delimiter].detect { |a| namespace.saved_change_to_attribute?(a) }
+    ) if [:short_name, :verbatim_short_name, :delimiter, :is_virtual].detect { |a| namespace.saved_change_to_attribute?(a) }
   end
-
 
   def is_local?
     true
@@ -68,14 +67,14 @@ class Identifier::Local < Identifier
   end
 
   def self.build_cached_prefix(namespace)
-    delimiter = namespace.read_attribute(:delimiter) || ' '
-    delimiter = '' if delimiter == 'NONE'
+    if namespace.is_virtual?
+      ''
+    else
+      delimiter = namespace.read_attribute(:delimiter) || ' '
+      delimiter = '' if delimiter == 'NONE'
 
-    [namespace&.verbatim_short_name, namespace&.short_name, ''].compact.first + delimiter
-  end
-
-  def set_cached
-    update_column(:cached, build_cached)
+      [namespace&.verbatim_short_name, namespace&.short_name, ''].compact.first + delimiter
+    end
   end
 
 end

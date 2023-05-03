@@ -34,10 +34,6 @@ class Identifier::Global < Identifier
     identifier
   end
 
-  def set_cached
-    update_column(:cached, build_cached)
-  end
-
   def permit_only_one_global_without_relation_supplied_per_type
     if identifier_object && identifier_object.identifiers.where(type: type.to_s).where.not(id: id).any?
       errors.add(:relation,

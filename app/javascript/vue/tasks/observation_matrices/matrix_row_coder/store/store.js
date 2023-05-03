@@ -13,11 +13,14 @@ export function makeInitialState (requestModule) {
     description: undefined,
     descriptors: [],
     observations: [],
-    units: {}
+    units: {},
+    options: {
+      showOnlyUnsecoredRows: false
+    }
   }
 }
 
-const UnacceptableRequestModuleError = `Store must be given an IMatrixRowCoderRequest`
+const UnacceptableRequestModuleError = 'Store must be given an IMatrixRowCoderRequest'
 
 export function newStore (requestModule) {
   if (requestModule instanceof IMatrixRowCoderRequest === false) { throw UnacceptableRequestModuleError }

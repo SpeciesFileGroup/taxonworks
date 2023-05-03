@@ -1,10 +1,45 @@
-= Catalog of the Species of <%= ::Utilities::Strings.asciify(full_original_taxon_name_tag(taxon_name) ) %>
-:hardbreaks-option:
+= Catalog of the Species of <%= ::Utilities::Strings.asciify(full_taxon_name_tag(taxon_name) ) %>
+
+++++
+<style>
+p {
+  padding-left: 1.5em;
+  text-indent:-1.5em;
+  margin: 0px;
+}
+
+.type {
+  margin-left: 1.5em;
+}
+
+.distribution {
+  margin-left: 1.5em;
+}
+</style>
+++++
+
+== Materials and Methods
+
+<%= data[:repositories].uniq.collect{|c| c.join(' - ')}.join("\n\n").html_safe %>
 
 == Nomenclature
 
-<%= body&.html_safe %>
+<%= data[:body].gsub!(/<i>|<\/i>/, '_').html_safe %>
 
 == References
 
-<%= sources&.html_safe %>
+<%= (data[:sources] + data[:supplementary_distribution].paper_catalog_sources).flatten.uniq.collect{|s| s.cached}.sort.join("\n\n").gsub(/<i>|<\/i>/, '_').html_safe %>
+
+== Supplementary Material 1 - Distributions
+
+<% if data[:supplementary_distribution].items.any? %>
+[cols="1,1,1,1,1,1,1,1,1,1,1,1,1"]
+|===
+|kingdom |family |genus |specificEpithet |infraspecificEpithet |scientificName |scientificNameAuthorship |taxonRank |country |stateProvince |county |occurrenceStatus |associatedReferences
+<% data[:supplementary_distribution].items.uniq.each do |i| %>
+<%= paper_distribution_row (i) %>
+<% end %>
+|===
+<% else %>
+_None recorded._
+<% end %>
