@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Return BibTeX with `extend[]=bibtex` on calls to `/api/v1/sources`
 - Related button to biological associations in Browse OTU
 - Pagination for loan items in Edit/new loan task [#3391]
+- Caption and figure label to Depictions list in Radial annotator [#3396]
 
 ### Changed
 
@@ -25,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Always show pin button
 
 ### Fixed
+
 - An issue when geo-json related facets were not being applied in Otu filter
 - Image filter with `otu_id` only returns as expected
 - Depictions/Images facet not consistent and broken [#3395]
@@ -38,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3385]: https://github.com/SpeciesFileGroup/taxonworks/issues/3385
 [#3390]: https://github.com/SpeciesFileGroup/taxonworks/issues/3390
 [#3391]: https://github.com/SpeciesFileGroup/taxonworks/issues/3391
+[#3396]: https://github.com/SpeciesFileGroup/taxonworks/issues/3396
 
 ## [0.32.2] - 2023-04-03
 

@@ -11,7 +11,7 @@
             width: `${depiction.image.alternatives.medium.width}px`,
             height: `${depiction.image.alternatives.medium.height}px`
           }"
-        >
+        />
       </div>
       <div class="field">
         <input
@@ -19,7 +19,7 @@
           type="text"
           v-model="depiction.figure_label"
           placeholder="Label"
-        >
+        />
       </div>
       <div class="field">
         <textarea
@@ -34,7 +34,7 @@
         <input
           type="checkbox"
           v-model="depiction.is_metadata_depiction"
-        >
+        />
         Is data depiction
       </label>
       <div class="separate-top separate-bottom">
@@ -50,7 +50,7 @@
                 name="depiction-type"
                 v-model="selectedType"
                 :value="type"
-              >
+              />
               {{ type.label }}
             </label>
           </li>
@@ -139,7 +139,7 @@
                   :width="image.alternatives.thumb.width"
                   :height="image.alternatives.thumb.height"
                   :src="image.alternatives.thumb.image_file_url"
-                >
+                />
               </div>
             </div>
           </div>
@@ -149,56 +149,30 @@
         <input
           type="checkbox"
           v-model="isDataDepiction"
-        >
+        />
         Is data depiction
       </label>
-      <table class="full_width">
-        <thead>
-          <tr>
-            <th>Image</th>
-            <th>Is data</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="item in list"
-            :key="item.id"
-          >
-            <td v-html="item.object_tag" />
-            <td>{{ item.is_metadata_depiction }}</td>
-            <td>
-              <div class="horizontal-right-content middle">
-                <radial-annotator
-                  default-view="attributioan"
-                  :global-id="item.image.global_id"
-                />
-                <span
-                  class="button circle-button btn-edit button-submit"
-                  @click="depiction = item"
-                />
-                <span
-                  @click="confirmDelete(item)"
-                  class="button circle-button btn-delete"
-                />
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <DepictionList
+        :list="list"
+        @delete="removeItem"
+        @selected="(item) => (depiction = item)"
+        @update:caption="updateDepiction"
+        @update:label="updateDepiction"
+      />
     </div>
   </div>
 </template>
 <script>
-
-import CRUD from '../request/crud.js'
+import CRUD from '../../request/crud.js'
 import Dropzone from 'components/dropzone.vue'
-import annotatorExtend from '../components/annotatorExtend.js'
+import annotatorExtend from '../../components/annotatorExtend.js'
 import Autocomplete from 'components/ui/Autocomplete'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import FilterImage from 'tasks/images/filter/components/filter'
 import SmartSelector from 'components/ui/SmartSelector'
+import DepictionList from './DepictionList.vue'
+import { addToArray } from 'helpers/arrays'
 import { Depiction, Image } from 'routes/endpoints'
 
 export default {
@@ -209,24 +183,26 @@ export default {
     Autocomplete,
     FilterImage,
     OtuPicker,
-    RadialAnnotator,
-    SmartSelector
+    SmartSelector,
+    DepictionList
   },
 
   computed: {
-    updateObjectType () {
+    updateObjectType() {
       return this.selectedObject && this.selectedType
     }
   },
 
-  data () {
+  data() {
     return {
       depiction: undefined,
       dropzone: {
         paramName: 'depiction[image_attributes][image_file]',
         url: '/depictions',
         headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          'X-CSRF-Token': document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute('content')
         },
         dictDefaultMessage: 'Drop images here to add figures',
         acceptedFiles: 'image/*,.heic'
@@ -265,48 +241,63 @@ export default {
     }
   },
 
-  mounted () {
+  mounted() {
     this.$options.components.RadialAnnotator = RadialAnnotator
   },
 
   methods: {
-    success (file, response) {
+    success(file, response) {
       this.list.push(response)
       this.$refs.figure.removeFile(file)
     },
 
-    sending (file, xhr, formData) {
-      formData.append('depiction[annotated_global_entity]', decodeURIComponent(this.globalId))
+    sending(file, xhr, formData) {
+      formData.append(
+        'depiction[annotated_global_entity]',
+        decodeURIComponent(this.globalId)
+      )
       formData.append('depiction[is_metadata_depiction]', this.isDataDepiction)
     },
 
-    updateFigure () {
+    updateFigure() {
       if (this.updateObjectType) {
         this.depiction.depiction_object_type = this.selectedType.value
         this.depiction.depiction_object_id = this.selectedObject.id
       }
 
-      Depiction.update(this.depiction.id, { depiction: this.depiction }).then(response => {
-        const index = this.list.findIndex(element => this.depiction.id === element.id)
+      Depiction.update(this.depiction.id, { depiction: this.depiction }).then(
+        (response) => {
+          const index = this.list.findIndex(
+            (element) => this.depiction.id === element.id
+          )
 
-        if (this.updateObjectType) {
-          this.list.splice(index, 1)
-        } else {
-          this.list[index] = response.body
+          if (this.updateObjectType) {
+            this.list.splice(index, 1)
+          } else {
+            this.list[index] = response.body
+          }
+          this.depiction = undefined
+
+          TW.workbench.alert.create(
+            'Depiction was successfully updated.',
+            'notice'
+          )
         }
-        this.depiction = undefined
+      )
+    },
 
-        TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
+    updateDepiction(depiction) {
+      Depiction.update(depiction.id, { depiction }).then(({ body }) => {
+        addToArray(this.list, body)
+
+        TW.workbench.alert.create(
+          'Depiction was successfully updated.',
+          'notice'
+        )
       })
     },
 
-    confirmDelete (item) {
-      if (window.confirm("You're trying to delete this record. Are you sure want to proceed?")) {
-        this.removeItem(item)
-      }
-    },
-
-    createDepiction (image) {
+    createDepiction(image) {
       const depiction = {
         image_id: image.id,
         annotated_global_entity: this.globalId,
@@ -315,11 +306,14 @@ export default {
 
       Depiction.create({ depiction }).then(({ body }) => {
         this.list.push(body)
-        TW.workbench.alert.create('Depiction was successfully created.', 'notice')
+        TW.workbench.alert.create(
+          'Depiction was successfully created.',
+          'notice'
+        )
       })
     },
 
-    loadList (params) {
+    loadList(params) {
       Image.filter(params).then(({ body }) => {
         this.filterList = body
       })
