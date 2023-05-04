@@ -164,7 +164,7 @@ class LoanItem < ApplicationRecord
   def self.batch_move(params)
     return false if params[:loan_id].blank?
 
-    a = ::Filters::CollectionObject::Filter.new(params[:collection_object_query])
+    a = Queries::CollectionObject::Filter.new(params[:collection_object_query])
     return false if a.all.count == 0
 
     moved = []
@@ -174,7 +174,7 @@ class LoanItem < ApplicationRecord
       a.all.each do |co|
         new_loan_item = nil
 
-        if b = LoanItem.find_by(loan_item_object: object, project_id: object.project_id)
+        if b = LoanItem.find_by(loan_item_object: co, project_id: co.project_id)
           new_loan_item = b.close_and_move(params[:loan_id], params[:date_returned], params[:disposition])
           if new_loan_item.nil?
             moved.push new_loan_item
@@ -190,8 +190,11 @@ class LoanItem < ApplicationRecord
     return { moved:, unmoved: }
   end
 
+  # @param param[:collection_object_query] required
+  #
+  # Return all CollectionObjects matching the query. Does not yet work with OtuQuery
   def self.batch_return(params)
-    a = ::Filters::CollectionObject::Filter.new(params[:collection_object_query])
+    a = Queries::CollectionObject::Filter.new(params[:collection_object_query])
     return false if a.all.count == 0
 
     returned = []
@@ -199,10 +202,10 @@ class LoanItem < ApplicationRecord
 
     begin
       a.all.each do |co|
-        if b = LoanItem.find_by(loan_item_object: object, project_id: object.project_id)
+        if b = LoanItem.find_by(loan_item_object: co, project_id: co.project_id)
           begin
-            b.update!(params.permit(:disposition, :date_returned))
-            return.push b
+            b.update!(disposition: params[:disposition], date_returned: params[:date_returned])
+            returned.push b
           rescue ActiveRecord::RecordInvalid
             unreturned.push b
           end
