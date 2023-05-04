@@ -23,6 +23,7 @@
           :list="list"
           :attributes="ATTRIBUTES"
           v-model="selectedIds"
+          radial-object
           @on-sort="list = $event"
         />
       </template>
