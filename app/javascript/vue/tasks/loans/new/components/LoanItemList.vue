@@ -3,26 +3,6 @@
     <template #header>
       <h3>Loan items</h3>
     </template>
-    <template #options>
-      <div class="horizontal-left-content">
-        <button
-          class="button normal-input separate-right button-default"
-          v-if="editLoanItems.length"
-          type="button"
-          @click="() => store.commit(MutationNames.CleanEditLoanItems)"
-        >
-          Unselect all
-        </button>
-        <button
-          class="button normal-input separate-right button-default"
-          v-else
-          type="button"
-          @click="() => store.commit(MutationNames.SetAllEditLoanItems)"
-        >
-          Select all
-        </button>
-      </div>
-    </template>
     <template #body>
       <div
         v-if="pagination"
@@ -42,7 +22,12 @@
       <table class="vue-table">
         <thead>
           <tr>
-            <th />
+            <th>
+              <input
+                type="checkbox"
+                v-model="selectLoanItems"
+              />
+            </th>
             <th>Loan item</th>
             <th>Date returned</th>
             <th>Status</th>
@@ -89,6 +74,16 @@ const pagination = computed(() => store.getters[GetterNames.GetPagination])
 const editLoanItems = computed(
   () => store.getters[GetterNames.GetEditLoanItems]
 )
+
+const selectLoanItems = computed({
+  get: () => editLoanItems.value.length === list.value.length,
+  set: (value) => {
+    store.commit(
+      MutationNames.SetEditLoanItems,
+      value ? list.value.map((item) => item.id) : []
+    )
+  }
+})
 
 function deleteItem(item) {
   if (
