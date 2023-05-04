@@ -36,13 +36,17 @@
         </template>
       </VModal>
       <VBtn
+        class="circle-button"
         title="Radial Loan"
         circle
         color="radial"
         :disabled="!ids.length && !Object.keys(params).length"
         @click="isModalVisible = true"
       >
-        L
+        <VIcon
+          name="picking"
+          x-small
+        />
       </VBtn>
     </div>
   </div>
@@ -78,6 +82,10 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['close'])
+const isModalVisible = ref(false)
+const currentSlice = ref()
+
 const params = computed(() => {
   const parameters = removeEmptyProperties({
     ...props.parameters,
@@ -90,11 +98,6 @@ const params = computed(() => {
 
   return removeEmptyProperties(parameters)
 })
-
-const emit = defineEmits(['close'])
-
-const isModalVisible = ref(false)
-const currentSlice = ref()
 
 const menuOptions = computed(() => {
   const sliceName = Object.keys(SLICES)
