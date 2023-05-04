@@ -394,7 +394,7 @@ GEM
       nio4r (~> 2.0)
     racc (1.6.2)
     rack (2.2.7)
-    rack-cors (1.1.1)
+    rack-cors (2.0.1)
       rack (>= 2.0.0)
     rack-proxy (0.7.6)
       rack
@@ -732,7 +732,7 @@ DEPENDENCIES
   prawn (~> 2.4.0)
   psych (~> 3.3)
   puma (~> 6.0)
-  rack-cors (~> 1.1)
+  rack-cors (~> 2.0)
   rails (~> 6.1)
   rails-controller-testing (~> 1.0.2)
   rails-jquery-autocomplete (~> 1.0.3)
