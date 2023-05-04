@@ -25,7 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Always show pin button
 
 ### Fixed
-
+- An issue when geo-json related facets were not being applied in Otu filter
 - Image filter with `otu_id` only returns as expected
 - Depictions/Images facet not consistent and broken [#3395]
 - Missing pagination for asserted_distributions API endpoint [#3377]
