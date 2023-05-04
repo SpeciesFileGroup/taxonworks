@@ -16,8 +16,12 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialLoan :parameters="parameters" />
+      </template>
       <template #nav-right>
         <div class="horizontal-right-content">
+          <RadialLoan :ids="selectedIds" />
           <DeleteCollectionObjects
             :ids="selectedIds"
             :disabled="!selectedIds.length"
@@ -58,6 +62,7 @@ import DwcDownload from './components/dwcDownload.vue'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 import VSpinner from 'components/spinner.vue'
 import LayoutConfiguration from './components/Layout/LayoutConfiguration.vue'
+import RadialLoan from 'components/radials/loan/radial.vue'
 import { computed } from 'vue'
 import { CollectionObject } from 'routes/endpoints'
 import { COLLECTION_OBJECT } from 'constants/index.js'
