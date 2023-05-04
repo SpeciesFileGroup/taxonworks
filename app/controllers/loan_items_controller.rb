@@ -101,6 +101,9 @@ class LoanItemsController < ApplicationController
     render json: data
   end
 
+
+  # TODO: JSON versions of this
+
   # POST /loan_items/batch_create?batch_type=tags&loan_id=123&keyword_id=456&klass=Otu
   # POST /loan_items/batch_create?batch_type=pinboard&loan_id=123&klass=Otu
   def batch_create
@@ -108,27 +111,57 @@ class LoanItemsController < ApplicationController
       render :index
     else
       render json: {success: false}
-    end 
+    end
+  end
+
+  # POST /loan_items/batch_return.json?collection_object_query=<>
+  def batch_return
+    if @loan_items = LoanItem.batch_return(batch_params)[:returned]
+      render :index
+    else
+      render json: {success: false}
+    end
+  end
+
+  # POST /loan_items/batch_move.json?collection_object_query=<>
+  def batch_move
+    if @loan_items = LoanItem.batch_move(batch_params)[:moved]
+      render :index
+    else
+      render json: {success: false}
+    end
   end
 
   private
 
   def filter_params
     params.permit(:loan_id)
-  end 
+  end
 
   def set_loan_item
     @loan_item = LoanItem.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
   def batch_params
-    params.permit(:batch_type, :loan_id, :keyword_id, :klass).to_h.symbolize_keys.merge(project_id: sessions_current_project_id, user_id: sessions_current_user_id)
+    params.permit(
+      :batch_type,
+      :loan_id,
+      :keyword_id,
+      :collection_object_status,
+      :date_returned,
+      :date_returned_jquery, #!? old forms only perhaps
+      :disposition,
+      :klass).to_h.symbolize_keys.merge(
+        project_id: sessions_current_project_id,
+        user_id: sessions_current_user_id,
+        collection_object_query: params[:collection_object_query]
+       )
   end
 
   def loan_item_params
     params.require(:loan_item).permit(
       :loan_id, :collection_object_status, :date_returned, :loan_item_object_id, :loan_item_object_type,
-      :date_returned_jquery, :disposition, :total,  
+      :date_returned_jquery, :disposition, :total,
       :global_entity,
       :position
     )

@@ -60,10 +60,10 @@ class LoanItem < ApplicationRecord
   validate :total_provided_only_when_otu
 
   validate :loan_object_is_loanable
- 
+
   validate :available_for_loan
 
-  validates_inclusion_of :disposition, in: STATUS, if: -> {!disposition.blank?}
+  validates_inclusion_of :disposition, in: STATUS, if: -> {disposition.present?}
 
   def global_entity
     self.loan_item_object.to_global_id if self.loan_item_object.present?
@@ -82,7 +82,7 @@ class LoanItem < ApplicationRecord
   end
 
   def returned?
-    !date_returned.blank?
+    date_returned.present?
   end
 
   # @return [Integer, nil]
@@ -155,20 +155,94 @@ class LoanItem < ApplicationRecord
       batch_create_from_tags(params[:keyword_id], params[:klass], params[:loan_id])
     when 'pinboard'
       batch_create_from_pinboard(params[:loan_id], params[:project_id], params[:user_id], params[:klass])
+    when 'collection_object_filter'
+      batch_create_from_pinboard(params[:loan_id], params[:project_id], params[:user_id], params[:klass])
     end
   end
+
+  # @return [Hash]
+  def self.batch_move(params)
+    return false if params[:loan_id].blank?
+
+    a = ::Filters::CollectionObject::Filter.new(params[:collection_object_query])
+    return false if a.all.count == 0
+
+    moved = []
+    unmoved = []
+
+    begin
+      a.all.each do |co|
+        new_loan_item = nil
+
+        if b = LoanItem.find_by(loan_item_object: object, project_id: object.project_id)
+          new_loan_item = b.close_and_move(params[:loan_id], params[:date_returned], params[:disposition])
+          if new_loan_item.nil?
+            moved.push new_loan_item
+          else
+            unmoved.push b
+          end
+        end
+      end
+
+    rescue ActiveRecord::RecordInvalid
+    end
+
+    return { moved:, unmoved: }
+  end
+
+  def self.batch_return(params)
+    a = ::Filters::CollectionObject::Filter.new(params[:collection_object_query])
+    return false if a.all.count == 0
+
+    returned = []
+    unreturned = []
+
+    begin
+      a.all.each do |co|
+        if b = LoanItem.find_by(loan_item_object: object, project_id: object.project_id)
+          begin
+            b.update!(params.permit(:disposition, :date_returned))
+            return.push b
+          rescue ActiveRecord::RecordInvalid
+            unreturned.push b
+          end
+        end
+      end
+    end
+    return {returned:, unreturned:}
+  end
+
+  def close_and_move(to_loan_id, date_returned, disposition)
+    return nil if to_loan_id.blank?
+
+    new_loan_item = nil
+    LoanItem.transaction do
+      begin
+        update!(date_returned:, disposition:)
+
+        new_loan_item = LoanItem.create!(
+          loan_item_object:,
+          loan_id: to_loan_id)
+
+      rescue ActiveRecord::RecordInvalid
+        return false
+      end
+    end
+    new_loan_item
+  end
+
 
   def self.batch_create_from_tags(keyword_id, klass, loan_id)
     created = []
     LoanItem.transaction do
       begin
         if klass
-          klass.constantize.joins(:tags).where(tags: {keyword_id: keyword_id}).each do |o|
-            created.push LoanItem.create!(loan_item_object: o, loan_id: loan_id)
+          klass.constantize.joins(:tags).where(tags: {keyword_id:}).each do |o|
+            created.push LoanItem.create!(loan_item_object: o, loan_id:)
           end
         else
-          Tag.where(keyword_id: keyword_id).where(tag_object_type: ['Container', 'Otu', 'CollectionObject']).distinct.all.each do |o|
-            created.push LoanItem.create!(loan_item_object: o.tag_object, loan_id: loan_id)
+          Tag.where(keyword_id:).where(tag_object_type: ['Container', 'Otu', 'CollectionObject']).distinct.all.each do |o|
+            created.push LoanItem.create!(loan_item_object: o.tag_object, loan_id:)
           end
         end
       rescue ActiveRecord::RecordInvalid
@@ -185,12 +259,12 @@ class LoanItem < ApplicationRecord
     LoanItem.transaction do
       begin
         if klass
-          klass.constantize.joins(:pinboard_items).where(pinboard_items: {user_id: user_id, project_id: project_id, pinned_object_type: klass}).each do |o|
-            created.push LoanItem.create!(loan_item_object: o, loan_id: loan_id)
+          klass.constantize.joins(:pinboard_items).where(pinboard_items: {user_id:, project_id:, pinned_object_type: klass}).each do |o|
+            created.push LoanItem.create!(loan_item_object: o, loan_id:)
           end
         else
-          PinboardItem.where(project_id: project_id, user_id: user_id, pinned_object_type: ['Container', 'Otu', 'CollectionObject']).all.each do |o|
-            created.push LoanItem.create!(loan_item_object: o.pinned_object, loan_id: loan_id)
+          PinboardItem.where(project_id:, user_id:, pinned_object_type: ['Container', 'Otu', 'CollectionObject']).all.each do |o|
+            created.push LoanItem.create!(loan_item_object: o.pinned_object, loan_id:)
           end
         end
       rescue ActiveRecord::RecordInvalid
@@ -221,7 +295,7 @@ class LoanItem < ApplicationRecord
 
   # Is not already in a loan item if CollectionObject/Container
   def available_for_loan
-    if !persisted? # if it is, then this check should not be necessary 
+    if !persisted? # if it is, then this check should not be necessary
       if object_loanable_check
         if loan_item_object_type == 'Otu'
           true
