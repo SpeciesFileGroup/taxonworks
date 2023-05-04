@@ -166,7 +166,7 @@ class LoanItem < ApplicationRecord
 
   # @return [Hash]
   def self.batch_move(params)
-    return false if params[:loan_id].blank?
+    return false if params[:loan_id].blank? || params[:disposition].blank? || params[:user_id].blank? || params[:date_returned].blank?
 
     a = Queries::CollectionObject::Filter.new(params[:collection_object_query])
     return false if a.all.count == 0
@@ -178,17 +178,21 @@ class LoanItem < ApplicationRecord
       a.all.each do |co|
         new_loan_item = nil
 
-        if b = LoanItem.find_by(loan_item_object: co, project_id: co.project_id)
-          new_loan_item = b.close_and_move(params[:loan_id], params[:date_returned], params[:disposition])
+        # Only match open loan items
+        if b = LoanItem.where(disposition: nil).find_by(loan_item_object: co, project_id: co.project_id)
+
+          new_loan_item = b.close_and_move(params[:loan_id], params[:date_returned], params[:disposition], params[:user_id])
+
           if new_loan_item.nil?
-            moved.push new_loan_item
-          else
             unmoved.push b
+          else
+            moved.push new_loan_item
           end
         end
       end
 
-    rescue ActiveRecord::RecordInvalid
+    rescue ActiveRecord::RecordInvalid => e
+     # raise e
     end
 
     return { moved:, unmoved: }
@@ -206,7 +210,7 @@ class LoanItem < ApplicationRecord
 
     begin
       a.all.each do |co|
-        if b = LoanItem.find_by(loan_item_object: co, project_id: co.project_id)
+        if b = LoanItem.where(disposition: nil).find_by(loan_item_object: co, project_id: co.project_id)
           begin
             b.update!(disposition: params[:disposition], date_returned: params[:date_returned])
             returned.push b
@@ -219,7 +223,7 @@ class LoanItem < ApplicationRecord
     return {returned:, unreturned:}
   end
 
-  def close_and_move(to_loan_id, date_returned, disposition)
+  def close_and_move(to_loan_id, date_returned, disposition, user_id)
     return nil if to_loan_id.blank?
 
     new_loan_item = nil
@@ -228,11 +232,13 @@ class LoanItem < ApplicationRecord
         update!(date_returned:, disposition:)
 
         new_loan_item = LoanItem.create!(
+          project_id:,
           loan_item_object:,
-          loan_id: to_loan_id)
+          loan_id: to_loan_id
+          )
 
-      rescue ActiveRecord::RecordInvalid
-        return false
+      rescue ActiveRecord::RecordInvalid => e
+        #raise e
       end
     end
     new_loan_item
@@ -250,7 +256,7 @@ class LoanItem < ApplicationRecord
           end
         end
       rescue ActiveRecord::RecordInvalid => e
-        # raise e
+        raise e
       end
     end
     return created

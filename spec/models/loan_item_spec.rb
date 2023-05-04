@@ -106,7 +106,35 @@ describe LoanItem, type: :model, group: :loans do
     let(:c1) { FactoryBot.create(:valid_container) }
     let(:c2) { FactoryBot.create(:valid_container) }
 
-    context '.batch_create' do
+    context '.batch_move' do
+
+      let(:loan2) { FactoryBot.create(:valid_loan) }
+
+      before do
+        LoanItem.create!(loan_item_object: s1, loan:)
+        LoanItem.create!(loan_item_object: s2, loan:)
+      end
+
+      specify 'moves' do
+        r = LoanItem.batch_move(
+          loan_id: loan2.id,
+          collection_object_query: {},
+          disposition: 'Returned',
+          date_returned: Time.current.to_date,
+          user_id:,
+          )
+
+        expect(r[:moved].size).to eq(2)
+
+        expect(LoanItem.all.reload.size).to eq(4)
+
+        expect(LoanItem.last.loan_id).to eq(loan2.id)
+        expect(LoanItem.first.disposition).to eq('Returned')
+        expect(LoanItem.first.date_returned).to eq(Time.current.to_date)
+      end
+    end
+
+    context '.batch_create batch_type=collection_object_filter' do
       before do
         s1
         s2
