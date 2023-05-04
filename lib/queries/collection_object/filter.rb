@@ -447,7 +447,7 @@ module Queries
         return nil if extract_id.empty?
         ::CollectionObject
           .joins(:origin_relationships)
-          .where(origin_relationships: { new_object_id: extract_id, new_object_type: "Extract" })
+          .where(origin_relationships: { new_object_id: extract_id, new_object_type: 'Extract' })
       end
 
       def taxon_determinations_facet
@@ -469,28 +469,28 @@ module Queries
         o = ::TaxonDetermination.arel_table
         r = ::Role.arel_table
 
-        a = o.alias("a_det__")
+        a = o.alias('a_det__')
         b = o.project(a[Arel.star]).from(a)
 
-        c = r.alias("det_r1")
+        c = r.alias('det_r1')
 
         b = b.join(c, Arel::Nodes::OuterJoin)
           .on(
             a[:id].eq(c[:role_object_id])
-              .and(c[:role_object_type].eq("TaxonDetermination"))
-              .and(c[:type].eq("Determiner"))
+              .and(c[:role_object_type].eq('TaxonDetermination'))
+              .and(c[:type].eq('Determiner'))
           )
 
         e = c[:id].not_eq(nil)
         f = c[:person_id].eq_any(determiner_id)
 
         b = b.where(e.and(f))
-        b = b.group(a["id"])
-        b = b.having(a["id"].count.eq(determiner_id.length)) unless determiner_id_or
+        b = b.group(a['id'])
+        b = b.having(a['id'].count.eq(determiner_id.length)) unless determiner_id_or
 
-        b = b.as("det_z1_")
+        b = b.as('det_z1_')
 
-        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b["biological_collection_object_id"].eq(tt["id"]))))
+        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['biological_collection_object_id'].eq(tt['id']))))
       end
 
       def determiners_facet
@@ -513,7 +513,7 @@ module Queries
 
       def determiner_name_regex_facet
         return nil if determiner_name_regex.nil?
-        ::CollectionObject.joins(:determiners).where("people.cached ~* ?", determiner_name_regex)
+        ::CollectionObject.joins(:determiners).where('people.cached ~* ?', determiner_name_regex)
       end
 
       def georeferences_facet
@@ -621,7 +621,7 @@ module Queries
 
       def sled_image_facet
         return nil if sled_image_id.nil?
-        ::CollectionObject::BiologicalCollectionObject.joins(:depictions).where("depictions.sled_image_id = ?", sled_image_id)
+        ::CollectionObject::BiologicalCollectionObject.joins(:depictions).where('depictions.sled_image_id = ?', sled_image_id)
       end
 
       def biological_relationship_id_facet
@@ -652,7 +652,6 @@ module Queries
           ::CollectionObject.dwc_not_indexed
       end
 
-      # @return Scope
       def collecting_event_id_facet
         return nil if collecting_event_id.empty?
         table[:collecting_event_id].eq_any(collecting_event_id)
@@ -773,13 +772,13 @@ module Queries
         return nil if dates.nil?
         if dates
           ::CollectionObject.left_joins(:collecting_event).where(
-            "start_date_year IS NOT NULL OR " \
-            "start_date_month IS NOT NULL OR " \
-            "start_date_day IS NOT NULL OR " \
-            "end_date_year IS NOT NULL OR " \
-            "end_date_month IS NOT NULL OR " \
-            "end_date_day IS NOT NULL OR " \
-            "verbatim_date IS NOT NULL"
+            'start_date_year IS NOT NULL OR ' \
+            'start_date_month IS NOT NULL OR ' \
+            'start_date_day IS NOT NULL OR ' \
+            'end_date_year IS NOT NULL OR ' \
+            'end_date_month IS NOT NULL OR ' \
+            'end_date_day IS NOT NULL OR ' \
+            'verbatim_date IS NOT NULL'
           )
         else
           ::CollectionObject.left_joins(:collecting_event).where(
@@ -798,50 +797,50 @@ module Queries
 
       def deaccessioned_facet
         return nil if deaccessioned.nil?
-        a = ::CollectionObject.where("(deaccession_reason IS NOT NULL) OR (deaccessioned_at IS NOT NULL)")
+        a = ::CollectionObject.where('(deaccession_reason IS NOT NULL) OR (deaccessioned_at IS NOT NULL)')
         b = ::CollectionObject.joins(:deaccession_recipient)
 
         c = referenced_klass_union([a, b])
         if deaccessioned
           c
         else
-          s = "WITH query_deac AS (" + c.all.to_sql + ") " +
+          s = 'WITH query_deac AS (' + c.all.to_sql + ') ' +
               ::CollectionObject
-                .joins("LEFT JOIN query_deac as query_deac1 on query_deac1.id = collection_objects.id")
-                .where("query_deac1.id IS NULL").to_sql
-          ::CollectionObject.from("(" + s + ") as collection_objects").distinct
+                .joins('LEFT JOIN query_deac as query_deac1 on query_deac1.id = collection_objects.id')
+                .where('query_deac1.id IS NULL').to_sql
+          ::CollectionObject.from('(' + s + ') as collection_objects').distinct
         end
       end
 
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
-        s = "WITH query_tn_co AS (" + taxon_name_query.all.to_sql + ") " +
+        s = 'WITH query_tn_co AS (' + taxon_name_query.all.to_sql + ') ' +
             ::CollectionObject
               .joins(:taxon_names)
-              .joins("JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id")
+              .joins('JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id')
               .to_sql
 
-        ::CollectionObject.from("(" + s + ") as collection_objects").distinct
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def collecting_event_query_facet
         return nil if collecting_event_query.nil?
-        s = "WITH query_ce_co AS (" + collecting_event_query.all.to_sql + ") " +
+        s = 'WITH query_ce_co AS (' + collecting_event_query.all.to_sql + ') ' +
             ::CollectionObject
-              .joins("JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = collection_objects.collecting_event_id")
+              .joins('JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = collection_objects.collecting_event_id')
               .to_sql
 
-        ::CollectionObject.from("(" + s + ") as collection_objects").distinct
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def loan_query_facet
         return nil if loan_query.nil?
-        s = "WITH query_loan_co AS (" + loan_query.all.to_sql + ") " +
+        s = 'WITH query_loan_co AS (' + loan_query.all.to_sql + ') ' +
             ::CollectionObject.joins(:loan_items)
-              .joins("JOIN query_loan_co as query_loan_co1 on query_loan_co1.id = loan_items.loan_id")
+              .joins('JOIN query_loan_co as query_loan_co1 on query_loan_co1.id = loan_items.loan_id')
               .to_sql
 
-        ::CollectionObject.from("(" + s + ") as collection_objects").distinct
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def base_collecting_event_query_facet
@@ -852,24 +851,24 @@ module Queries
         # Turn project_id back on
         base_collecting_event_query.project_id = project_id
 
-        s = "WITH query_ce_base_co AS (" + base_collecting_event_query.all.to_sql + ") " +
+        s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.to_sql + ') ' +
             ::CollectionObject
-              .joins("JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = collection_objects.collecting_event_id")
+              .joins('JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = collection_objects.collecting_event_id')
               .to_sql
 
-        ::CollectionObject.from("(" + s + ") as collection_objects").distinct
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def otu_query_facet
         return nil if otu_query.nil?
-        s = "WITH query_otu_co AS (" + otu_query.all.to_sql + ") " +
+        s = 'WITH query_otu_co AS (' + otu_query.all.to_sql + ') ' +
             ::CollectionObject
               .joins(:taxon_determinations)
-              .joins("JOIN query_otu_co as query_otu_co1 on query_otu_co1.id = taxon_determinations.otu_id")
+              .joins('JOIN query_otu_co as query_otu_co1 on query_otu_co1.id = taxon_determinations.otu_id')
               .where(taxon_determinations: { position: 1 })
               .to_sql
 
-        ::CollectionObject.from("(" + s + ") as collection_objects").distinct
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def biological_associations_facet
@@ -884,51 +883,51 @@ module Queries
       def biological_association_id_facet
         return nil if biological_association_id.empty?
         b = ::BiologicalAssociation.where(id: biological_association_id)
-        s = "WITH query_ba_id_co AS (" + b.all.to_sql + ") " +
+        s = 'WITH query_ba_id_co AS (' + b.all.to_sql + ') ' +
             ::CollectionObject
               .joins("LEFT JOIN query_ba_id_co as query_ba_id_co1 on collection_objects.id = query_ba_id_co1.biological_association_subject_id AND query_ba_id_co1.biological_association_subject_type = 'CollectionObject'")
               .joins("LEFT JOIN query_ba_id_co as query_ba_id_co2 on collection_objects.id = query_ba_id_co2.biological_association_object_id AND query_ba_id_co2.biological_association_object_type = 'CollectionObject'")
-              .where("(query_ba_id_co1.id) IS NOT NULL OR (query_ba_id_co2.id IS NOT NULL)")
+              .where('(query_ba_id_co1.id) IS NOT NULL OR (query_ba_id_co2.id IS NOT NULL)')
               .to_sql
 
-        ::CollectionObject.from("(" + s + ") as collection_objects").distinct
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       # TODO: turn into UNION!
       def biological_association_query_facet
         return nil if biological_association_query.nil?
-        s = "WITH query_ba_co AS (" + biological_association_query.all.to_sql + ") " +
+        s = 'WITH query_ba_co AS (' + biological_association_query.all.to_sql + ') ' +
             ::CollectionObject
               .joins("LEFT JOIN query_ba_co as query_ba_co1 on collection_objects.id = query_ba_co1.biological_association_subject_id AND query_ba_co1.biological_association_subject_type = 'CollectionObject'")
               .joins("LEFT JOIN query_ba_co as query_ba_co2 on collection_objects.id = query_ba_co2.biological_association_object_id AND query_ba_co2.biological_association_object_type = 'CollectionObject'")
-              .where("(query_ba_co1.id) IS NOT NULL OR (query_ba_co2.id IS NOT NULL)")
+              .where('(query_ba_co1.id) IS NOT NULL OR (query_ba_co2.id IS NOT NULL)')
               .to_sql
 
-        ::CollectionObject.from("(" + s + ") as collection_objects").distinct
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def extract_query_facet
         return nil if extract_query.nil?
 
-        s = "WITH query_extract_co AS (" + extract_query.all.to_sql + ") " +
+        s = 'WITH query_extract_co AS (' + extract_query.all.to_sql + ') ' +
             ::CollectionObject
               .joins(:origin_relationships)
               .joins("JOIN query_extract_co as query_extract_co1 on origin_relationships.new_object_id = query_extract_co1.id and origin_relationships.new_object_type = 'Extract'")
               .to_sql
 
-        ::CollectionObject.from("(" + s + ") as collection_objects").distinct
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def observation_query_facet
         return nil if observation_query.nil?
 
-        s = "WITH query_obs_co AS (" + observation_query.all.to_sql + ") " +
+        s = 'WITH query_obs_co AS (' + observation_query.all.to_sql + ') ' +
             ::CollectionObject
               .joins(:observations)
-              .joins("JOIN query_obs_co as query_obs_co1 on observations.id = query_obs_co1.id")
+              .joins('JOIN query_obs_co as query_obs_co1 on observations.id = query_obs_co1.id')
               .to_sql
 
-        ::CollectionObject.from("(" + s + ") as collection_objects").distinct
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
       def and_clauses

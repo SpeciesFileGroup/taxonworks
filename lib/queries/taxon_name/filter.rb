@@ -286,8 +286,8 @@ module Queries
         @leaves = boolean_param(params, :leaves)
         @name = params[:name]
         @name_exact = boolean_param(params, :name_exact)
-        @nomenclature_code = params[:nomenclature_code] if !params[:nomenclature_code].nil?
-        @nomenclature_group = params[:nomenclature_group] if !params[:nomenclature_group].nil?
+        @nomenclature_code = params[:nomenclature_code] if params[:nomenclature_code].present?
+        @nomenclature_group = params[:nomenclature_group] if params[:nomenclature_group].present?
         @not_specified = boolean_param(params, :not_specified)
         @otu_id = params[:otu_id]
         @otus = boolean_param(params, :otus)
@@ -332,10 +332,6 @@ module Queries
 
       def collection_object_id
         [@collection_object_id].flatten.compact
-      end
-
-      def taxon_name_author_id
-        [@taxon_name_author_id].flatten.compact
       end
 
       def year

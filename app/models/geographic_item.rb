@@ -62,13 +62,13 @@ class GeographicItem < ApplicationRecord
   ].freeze
 
   GEOMETRY_SQL = Arel::Nodes::Case.new(arel_table[:type])
-    .when('GeographicItem::MultiPolygon').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_polygon].as('geometry')]))
-    .when('GeographicItem::Point').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:point].as('geometry')]))
-    .when('GeographicItem::LineString').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:line_string].as('geometry')]))
-    .when('GeographicItem::Polygon').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:polygon].as('geometry')]))
-    .when('GeographicItem::MultiLineString').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_line_string].as('geometry')]))
-    .when('GeographicItem::MultiPoint').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_point].as('geometry')]))
-    .when('GeographicItem::GeometryCollection').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:geometry_collection].as('geometry')]))
+    .when('GeographicItem::MultiPolygon').then(Arel::Nodes::NamedFunction.new('CAST', [arel_table[:multi_polygon].as('geometry')]))
+    .when('GeographicItem::Point').then(Arel::Nodes::NamedFunction.new('CAST', [arel_table[:point].as('geometry')]))
+    .when('GeographicItem::LineString').then(Arel::Nodes::NamedFunction.new('CAST', [arel_table[:line_string].as('geometry')]))
+    .when('GeographicItem::Polygon').then(Arel::Nodes::NamedFunction.new('CAST', [arel_table[:polygon].as('geometry')]))
+    .when('GeographicItem::MultiLineString').then(Arel::Nodes::NamedFunction.new('CAST', [arel_table[:multi_line_string].as('geometry')]))
+    .when('GeographicItem::MultiPoint').then(Arel::Nodes::NamedFunction.new('CAST', [arel_table[:multi_point].as('geometry')]))
+    .when('GeographicItem::GeometryCollection').then(Arel::Nodes::NamedFunction.new('CAST', [arel_table[:geometry_collection].as('geometry')]))
     .freeze
 
   GEOGRAPHY_SQL = "CASE geographic_items.type
@@ -956,7 +956,7 @@ class GeographicItem < ApplicationRecord
       .ordered_by_area
       .limit(1)
       .first
-    return small_area.geographic_name_classification
+      return small_area.geographic_name_classification
     else
       {}
     end
@@ -1010,7 +1010,7 @@ class GeographicItem < ApplicationRecord
     _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance((?),(?)) as d',
                                                         GeographicItem.select_geography_sql(self.id),
                                                         GeographicItem.select_geography_sql(geographic_item_id)])
-    deg = GeographicItem.where(id: id).pluck(Arel.sql(q1)).first
+    deg = GeographicItem.where(id:).pluck(Arel.sql(q1)).first
     deg * Utilities::Geo::ONE_WEST
   end
 
@@ -1021,13 +1021,13 @@ class GeographicItem < ApplicationRecord
     unless !persisted? || changed?
       a = "(#{GeographicItem.select_geography_sql(id)})"
     else
-      a = "ST_GeographyFromText('#{geo_object.to_s}')"
+      a = "ST_GeographyFromText('#{geo_object}')"
     end
 
     unless !geographic_item.persisted? || geographic_item.changed?
       b = "(#{GeographicItem.select_geography_sql(geographic_item.id)})"
     else
-      b = "ST_GeographyFromText('#{geographic_item.geo_object.to_s}')"
+      b = "ST_GeographyFromText('#{geographic_item.geo_object}')"
     end
 
     ActiveRecord::Base.connection.select_value("SELECT ST_Distance(#{a}, #{b})")
@@ -1046,7 +1046,7 @@ class GeographicItem < ApplicationRecord
                                    GeographicItem.select_geometry_sql(geographic_item_id),
                                    Gis::SPHEROID])
     # TODO: what is _q2?
-    GeographicItem.where(id: id).pluck(Arel.sql(q1)).first
+    GeographicItem.where(id:).pluck(Arel.sql(q1)).first
   end
 
   # @return [String]
@@ -1058,7 +1058,7 @@ class GeographicItem < ApplicationRecord
   # @return [Integer]
   #   the number of points in the geometry
   def st_npoints
-    GeographicItem.where(id: id).pluck(Arel.sql("ST_NPoints(#{GeographicItem::GEOMETRY_SQL.to_sql}) as npoints")).first
+    GeographicItem.where(id:).pluck(Arel.sql("ST_NPoints(#{GeographicItem::GEOMETRY_SQL.to_sql}) as npoints")).first
   end
 
   # @return [Symbol]
@@ -1164,7 +1164,7 @@ class GeographicItem < ApplicationRecord
   # @param [String] value
   # @return [Boolean, RGeo object]
   def shape=(value)
-    unless value.blank?
+    if value.present?
       geom = RGeo::GeoJSON.decode(value, json_parser: :json)
       this_type = JSON.parse(value)['geometry']['type']
 
@@ -1201,7 +1201,7 @@ class GeographicItem < ApplicationRecord
 
   # return float, in meters, calculated, not from cached
   def area
-    GeographicItem.where(id: id).select("ST_Area(#{GeographicItem::GEOGRAPHY_SQL}, false) as area_in_meters").first['area_in_meters']
+    GeographicItem.where(id:).select("ST_Area(#{GeographicItem::GEOGRAPHY_SQL}, false) as area_in_meters").first['area_in_meters']
   end
 
   private
@@ -1337,7 +1337,7 @@ class GeographicItem < ApplicationRecord
     data = []
 
     DATA_TYPES.each do |item|
-      data.push(item) unless send(item).blank?
+      data.push(item) if send(item).present?
     end
 
     case data.count
