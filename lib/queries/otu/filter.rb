@@ -256,19 +256,19 @@ module Queries
         q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all)
         q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all)
 
-        ::Otu.from("((#{q1.to_sql}) UNION (#{q2.to_sql})) as otus")
+        referenced_klass_union([q1, q2]).distinct
       end
 
       def geo_json_facet
-        return nil if geo_json.nil?
+        return nil if geo_json.blank?
 
         c = ::Queries::CollectingEvent::Filter.new(geo_json:, project_id:, radius:)
         a = ::Queries::AssertedDistribution::Filter.new(geo_json:, project_id:, radius:)
 
-        q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all).to_sql
-        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all).to_sql
+        q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all)
+        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all)
 
-        ::Otu.from("((#{q1}) UNION (#{q2})) as otus")
+        referenced_klass_union([q1, q2]).distinct
       end
 
       def asserted_distributions_facet
@@ -365,9 +365,9 @@ module Queries
           q4 = q4.where.not(taxon_determinations: { position: 1 })
         end
 
-        query = [q1, q2, q3, q4].collect { |s| '(' + s.to_sql + ')' }.join(' UNION ')
+        query = referenced_klass_union([q1, q2, q3, q4])
 
-        ::Otu.from("(#{query}) as otus")
+        ::Otu.from("(#{query}) as otus").distinct
       end
 
       def geographic_area_id_facet
@@ -394,7 +394,7 @@ module Queries
           return from_wkt(wkt_shape)
         end
 
-        ::Otu.from("((#{b.to_sql}) UNION (#{c.to_sql})) as otus")
+        referenced_klass_union([b, c])
       end
 
       def descriptor_id_facet
@@ -403,7 +403,7 @@ module Queries
         q1 = ::Otu.joins(:descriptors).where(descriptors: { id: descriptor_id })
         q2 = ::Otu.joins(collection_objects: [:descriptors]).where(descriptors: { id: descriptor_id })
 
-        ::Otu.from("((#{q1.to_sql}) UNION (#{q2.to_sql})) as otus")
+        referenced_klass_union([q1, q2]).distinct
       end
 
       def asserted_distribution_query_facet
@@ -438,7 +438,7 @@ module Queries
 
         s << referenced_klass_union([a, b]).to_sql
 
-        ::Otu.from('(' + s + ') as otus')
+        ::Otu.from('(' + s + ') as otus').distinct
       end
 
       def collection_object_query_facet
@@ -519,7 +519,7 @@ module Queries
               .joins('JOIN query_obs_otus as query_obs_otus1 on observations.id = query_obs_otus1.id')
               .to_sql
 
-        ::Otu.from('(' + s + ') as otus')
+        ::Otu.from('(' + s + ') as otus').distinct
       end
 
       # Expands result of OTU filter query in 2 ways:
