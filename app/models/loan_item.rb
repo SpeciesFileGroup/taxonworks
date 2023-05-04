@@ -156,7 +156,11 @@ class LoanItem < ApplicationRecord
     when 'pinboard'
       batch_create_from_pinboard(params[:loan_id], params[:project_id], params[:user_id], params[:klass])
     when 'collection_object_filter'
-      batch_create_from_pinboard(params[:loan_id], params[:project_id], params[:user_id], params[:klass])
+      batch_create_from_collection_object_filter(
+        params[:loan_id],
+        params[:project_id],
+        params[:user_id],
+        params[:collection_object_query])
     end
   end
 
@@ -234,6 +238,23 @@ class LoanItem < ApplicationRecord
     new_loan_item
   end
 
+  def self.batch_create_from_collection_object_filter(loan_id, project_id, user_id, collection_object_filter)
+    created = []
+    query = Queries::CollectionObject::Filter.new(collection_object_filter)
+    LoanItem.transaction do
+      begin
+        query.all.each do |co|
+          i = LoanItem.create!(loan_item_object: co, by: user_id, loan_id:, project_id:)
+          if i.persisted?
+            created.push i
+          end
+        end
+      rescue ActiveRecord::RecordInvalid => e
+        # raise e
+      end
+    end
+    return created
+  end
 
   def self.batch_create_from_tags(keyword_id, klass, loan_id)
     created = []

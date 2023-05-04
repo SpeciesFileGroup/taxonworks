@@ -106,6 +106,17 @@ describe LoanItem, type: :model, group: :loans do
     let(:c1) { FactoryBot.create(:valid_container) }
     let(:c2) { FactoryBot.create(:valid_container) }
 
+    context '.batch_create' do
+      before do
+        s1
+        s2
+      end
+      specify 'creates' do
+        LoanItem.batch_create(collection_object_query: {}, batch_type: 'collection_object_filter', loan_id: loan.id)
+        expect(LoanItem.all.count).to eq(2)
+      end
+    end
+
     context '.batch_return' do
       let!(:li) {LoanItem.create!(loan:, loan_item_object: s1 )}
       let!(:li) {LoanItem.create!(loan:, loan_item_object: s2 )}
@@ -114,7 +125,6 @@ describe LoanItem, type: :model, group: :loans do
         LoanItem.batch_return(collection_object_query: {}, disposition: 'Returned', returned_on: Time.current.to_date )
         expect(LoanItem.where(disposition: nil).any?).to be_falsey
       end
-
     end
 
   context '.batch_create' do
