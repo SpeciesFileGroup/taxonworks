@@ -510,10 +510,16 @@ module Queries
     def all_merge_clauses
       clauses = merge_clauses + annotator_merge_clauses
       clauses.compact!
+
       return nil if clauses.empty?
 
       a = clauses.shift
       clauses.each do |b|
+        #
+        # When `.distinct` is variably present
+        # in a merge clause then there can be issues with merge().
+        # For example a.merge(b) != b.merge(a) in some cases.
+        #
         a = a.merge(b)
       end
       a

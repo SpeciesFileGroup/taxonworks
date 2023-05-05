@@ -96,7 +96,7 @@ import VIcon from 'components/ui/VIcon/index.vue'
 import CRUD from './request/crud'
 
 import confidencesAnnotator from './components/confidence/confidence_annotator.vue'
-import depictionsAnnotator from './components/depiction_annotator.vue'
+import depictionsAnnotator from './components/depictions/depiction_annotator.vue'
 import documentationAnnotator from './components/documentation_annotator.vue'
 import identifiersAnnotator from './components/identifier/identifier_annotator.vue'
 import tagsAnnotator from './components/tag_annotator.vue'

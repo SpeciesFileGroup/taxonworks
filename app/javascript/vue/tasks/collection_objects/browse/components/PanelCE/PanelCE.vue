@@ -8,7 +8,6 @@
         />
         <div class="horizontal-right-content">
           <RadialAnnotator :global-id="collectingEvent.global_id" />
-          <RadialObject :global-id="collectingEvent.global_id" />
           <RadialNavigator :global-id="collectingEvent.global_id" />
         </div>
       </div>
@@ -35,7 +34,6 @@ import { GetterNames } from '../../store/getters/getters'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import PanelCEAttributes from './PanelCEAttributes.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialObject from 'components/radials/object/radial.vue'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
 import TableGrid from 'components/layout/Table/TableGrid.vue'
 import RadialFilterAttribute from 'components/radials/linker/RadialFilterAttribute.vue'

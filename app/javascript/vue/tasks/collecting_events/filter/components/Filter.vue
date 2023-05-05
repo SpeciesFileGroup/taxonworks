@@ -65,11 +65,12 @@ const WITH_PARAMS = [
   'collection_objects',
   'collectors',
   'data_attributes',
-  'images',
+  'depictions',
   'geographic_area',
   'georeferences',
   'identifiers',
   'local_identifiers',
+  'global_identifiers',
   'origin_citation'
 ]
 

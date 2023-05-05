@@ -25,7 +25,16 @@
       <% if loan_item.notes.load.any? %>
         <%= tag.tr(tag.td(  loan_item.notes.collect{|n| '&nbsp;&nbsp; &nbsp;&nbsp;' + n.text}.join(' | ').html_safe, colspan: 6)) -%>
       <% end %>
-
     <% end %>
+
+   <tr>
+    <td></td>
+    <td></td>
+    <td>Total Individuals</td>
+    <td><%= loan_total_individuals(@loan) %></td>
+    <td></td>
+    <td></td>
+  </tr>
+
   </tbody>
 </table>

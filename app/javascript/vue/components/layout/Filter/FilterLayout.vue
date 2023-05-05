@@ -26,6 +26,7 @@
           </div>
           <ModalNestedParameters :parameters="parameters" />
           <div class="horizontal-left-content">
+            <slot name="nav-query-left" />
             <RadialFilter
               v-if="objectType"
               :parameters="parameters"
@@ -39,6 +40,7 @@
               :object-type="objectType"
               :disabled="!list.length"
             />
+            <slot name="nav-query-right" />
             <span class="separate-left separate-right">|</span>
             <VBtn
               color="primary"
@@ -204,7 +206,7 @@ const emit = defineEmits([
   'reset',
   'filter',
   'nextpage',
-  'update:per',
+  'per',
   'update:modelValue',
   'update:append'
 ])
@@ -229,6 +231,7 @@ const perValue = computed({
   get: () => parameters.value.per,
   set: (value) => {
     parameters.value.per = value
+    emit('per', value)
   }
 })
 

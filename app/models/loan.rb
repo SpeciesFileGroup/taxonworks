@@ -103,7 +103,7 @@ class Loan < ApplicationRecord
   # This is not defined in HasRoles
   has_many :people, through: :roles
 
-  not_super = lambda {!supervisor_email.blank?}
+  not_super = lambda {supervisor_email.present?}
   validates :supervisor_email, format: {with: User::VALID_EMAIL_REGEX}, if: not_super
   validates :recipient_email, format: {with: User::VALID_EMAIL_REGEX}, if: not_super
 
@@ -187,6 +187,10 @@ class Loan < ApplicationRecord
   # @return [Scope]
   #   the max 10 most recently used loans
   def self.used_recently(project_id)
+
+    a = Loan.where(project_id:, updated_at: (3.weeks.ago..1.day.from_now))
+    .select(:loan_id).order(updated_at: :desc).limit(5).pluck(:id)
+
     t = LoanItem.arel_table
     k = Loan.arel_table
 
@@ -199,24 +203,26 @@ class Loan < ApplicationRecord
     # z is a table alias
     z = i.as('recent_t')
 
-    Loan.joins(
+    b = Loan.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['loan_id'].eq(k['id'])))
     ).pluck(:loan_id).uniq
+
+    (a + b).uniq
   end
 
   def self.select_optimized(user_id, project_id)
     r = used_recently(project_id)
     h = {
         quick: [],
-        pinboard: Loan.pinned_by(user_id).where(project_id: project_id).to_a,
+        pinboard: Loan.pinned_by(user_id).where(project_id:).to_a,
         recent: []
     }
 
     if r.empty?
-      h[:quick] = Loan.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+      h[:quick] = Loan.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a
     else
       h[:recent] = Loan.where(id: r.first(10)).to_a
-      h[:quick] = (Loan.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+      h[:quick] = (Loan.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a +
           Loan.where(id: r.first(4)).to_a).uniq
     end
     h

@@ -55,7 +55,10 @@
           <td>
             <div class="horizontal-right-content">
               <RadialAnnotator :global-id="item.global_id" />
-              <RadialObject :global-id="item.global_id" />
+              <RadialObject
+                v-if="radialObject"
+                :global-id="item.global_id"
+              />
               <RadialNavigation :global-id="item.global_id" />
             </div>
           </td>
@@ -98,6 +101,11 @@ const props = defineProps({
   headerGroups: {
     type: Array,
     default: () => []
+  },
+
+  radialObject: {
+    type: Boolean,
+    default: false
   }
 })
 

@@ -3,7 +3,7 @@ import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 
-function makeInitialState () {
+function makeInitialState() {
   return {
     settings: {
       loading: false,
@@ -30,11 +30,12 @@ function makeInitialState () {
       clone_from: undefined
     },
     loan_items: [],
-    edit_loan_items: []
+    edit_loan_items: [],
+    pagination: undefined
   }
 }
 
-function newStore () {
+function newStore() {
   return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
@@ -43,6 +44,4 @@ function newStore () {
   })
 }
 
-export {
-  newStore
-}
+export { newStore }

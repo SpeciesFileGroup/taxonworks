@@ -241,7 +241,6 @@ module Queries
               .group('sources.id, citations.project_id, project_sources.project_id')
               .order('in_project, use_count DESC')
           end
-
           a ||= q
           result += a.to_a
           result.uniq!

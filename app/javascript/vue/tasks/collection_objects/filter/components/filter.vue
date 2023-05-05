@@ -19,9 +19,9 @@
     :role-type="COLLECTOR_SELECTOR"
     v-model="params"
   />
-  <FacetDataAttribute v-model="params" /> 
+  <FacetDataAttribute v-model="params" />
   <FacetCurrentRepository v-model="params" />
-  <FacetRepository v-model="params" /> 
+  <FacetRepository v-model="params" />
   <FacetPreparationTypes v-model="params" />
   <FacetTypeMaterial v-model="params" />
   <FacetInRelationship v-model="params" />
@@ -83,8 +83,9 @@ const WITH_PARAMS = [
   'dwc_indexed',
   'geographic_area',
   'georeferences',
-  'images',
+  'depictions',
   'local_identifiers',
+  'global_identifiers',
   'notes',
   'origin_citation',
   'preparation_type',

@@ -239,6 +239,13 @@ module Queries
         ids.uniq
       end
 
+      def otu_id_facet
+        # only run this when scope not provided
+        return nil if otu_id.empty? || !otu_scope.empty?
+
+        ::Image.joins(:otus).where(otus: {id: otu_id})
+      end
+
       def otu_scope_facet
         return nil if otu_id.empty? || otu_scope.empty?
 
@@ -434,6 +441,7 @@ module Queries
           collection_object_scope_facet,
           depiction_object_type_facet,
           depictions_facet,
+          otu_id_facet,
           otu_scope_facet,
           sled_image_facet,
           sqed_depiction_facet,

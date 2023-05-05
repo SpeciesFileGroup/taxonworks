@@ -213,7 +213,7 @@ class OtusController < ApplicationController
       digest_cookie(params[:file].tempfile, :data_attributes_batch_load_otus_md5)
       render 'otus/batch_load/data_attributes/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end

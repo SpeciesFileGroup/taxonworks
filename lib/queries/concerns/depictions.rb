@@ -1,13 +1,13 @@
-# Helpers and facets for queries that reference Depictions/Images 
+# Helpers and facets for queries that reference Depictions/Images
 #
 module Queries::Concerns::Depictions
   extend ActiveSupport::Concern
 
   def self.params
-    [ 
+    [
       :image_id,
       :images,
-      # :depictions ?
+      :depictions,
       image_id: []
     ]
   end
@@ -22,6 +22,12 @@ module Queries::Concerns::Depictions
     #  false - doesn't have images
     attr_accessor :images
 
+    # @return [Boolean, nil]
+    # Alias/identical to images
+    #  true - has images
+    #  false - doesn't have images
+    attr_accessor :depictions
+
     def image_id
       [@image_id].flatten.compact.uniq
     end
@@ -29,14 +35,24 @@ module Queries::Concerns::Depictions
 
   def set_depiction_params(params)
     @image_id = params[:image_id]
+
     @images = boolean_param(params, :images)
+    @depictions = boolean_param(params, :depictions)
   end
 
-  # @return
-  #   all sources that match all _and ids OR any OR id
   def image_id_facet
     return nil if image_id.empty?
-    referenced_klass.joins(:depictions).where(depictions: {image_id: image_id})
+    referenced_klass.joins(:depictions).where(depictions: {image_id:})
+  end
+
+  # !! Duplicate with images
+  def depictions_facet
+    return nil if depictions.blank?
+    if depictions
+      referenced_klass.joins(:depictions).distinct
+    else
+      referenced_klass.where.missing(:depictions)
+    end
   end
 
   def images_facet
@@ -50,18 +66,19 @@ module Queries::Concerns::Depictions
 
   def image_query_facet
     return nil if image_query.nil?
-    s = 'WITH query_images AS (' + image_query.all.to_sql + ')' 
+    s = 'WITH query_images AS (' + image_query.all.to_sql + ')'
 
     s << ' ' + referenced_klass
     .joins(:depictions)
     .joins('JOIN query_images as query_images1 on depictions.image_id = query_images1.id')
     .to_sql
 
-    referenced_klass.from('(' + s + ') as ' + referenced_klass.name.tableize) 
+    referenced_klass.from('(' + s + ') as ' + referenced_klass.name.tableize)
   end
 
   def self.merge_clauses
     [
+      :depictions_facet,
       :image_query_facet,
       :image_id_facet,
       :images_facet

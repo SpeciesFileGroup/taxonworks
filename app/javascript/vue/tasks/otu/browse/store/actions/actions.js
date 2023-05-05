@@ -9,27 +9,26 @@ import loadPreferences from './loadPreferences'
 import loadAssertedDistributions from './loadAssertedDistributions'
 import loadDescendants from './loadDescendants'
 import loadTaxonName from './loadTaxonName'
+import loadRelatedBAs from './loadRelatedBAs'
 import loadObservationDepictions from './loadObservationDepictions'
 import loadOtus from './loadOtus'
 import resetStore from './resetStore'
 
 const ActionFunctions = {
+  [ActionNames.LoadAssertedDistributions]: loadAssertedDistributions,
   [ActionNames.LoadBiologicalAssociations]: loadBiologicalAssociations,
-  [ActionNames.LoadInformation]: loadInformation,
-  [ActionNames.LoadCollectionObjects]: loadCollectionObjects,
   [ActionNames.LoadCollectingEvents]: loadCollectingEvents,
+  [ActionNames.LoadCollectionObjects]: loadCollectionObjects,
   [ActionNames.LoadCommonNames]: loadCommonNames,
   [ActionNames.LoadDepictions]: loadDepictions,
-  [ActionNames.LoadPreferences]: loadPreferences,
-  [ActionNames.LoadAssertedDistributions]: loadAssertedDistributions,
   [ActionNames.LoadDescendants]: loadDescendants,
-  [ActionNames.LoadTaxonName]: loadTaxonName,
+  [ActionNames.LoadInformation]: loadInformation,
   [ActionNames.LoadObservationDepictions]: loadObservationDepictions,
   [ActionNames.LoadOtus]: loadOtus,
+  [ActionNames.LoadPreferences]: loadPreferences,
+  [ActionNames.LoadRelatedBAs]: loadRelatedBAs,
+  [ActionNames.LoadTaxonName]: loadTaxonName,
   [ActionNames.ResetStore]: resetStore
 }
 
-export {
-  ActionNames,
-  ActionFunctions
-}
+export { ActionNames, ActionFunctions }

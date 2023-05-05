@@ -21,6 +21,7 @@ module Queries::Concerns::Identifiers
       :identifier_type,
       :identifiers,
       :local_identifiers,
+      :global_identifiers,
       :match_identifiers,
       :match_identifiers_delimiter,
       :match_identifiers_type,
@@ -54,10 +55,16 @@ module Queries::Concerns::Identifiers
     attr_accessor :identifiers
 
     # @return [True, False, nil]
-    #   true - has an local identifier
-    #   false - does not have an local identifier
+    #   true - has a local identifier
+    #   false - does not have a local identifier
     #   nil - not applied
     attr_accessor :local_identifiers
+
+    # @return [True, False, nil]
+    #   true - has an global identifier
+    #   false - does not have a global identifier
+    #   nil - not applied
+    attr_accessor :global_identifiers
 
     # @param match_identifiers [String]
     # @return [String, nil]
@@ -111,6 +118,7 @@ module Queries::Concerns::Identifiers
   end
 
   def set_identifier_params(params)
+    @global_identifiers = boolean_param(params, :global_identifiers)
     @identifier = params[:identifier]
     @identifier_end = params[:identifier_end]
     @identifier_exact = boolean_param(params, :identifier_exact)
@@ -131,8 +139,8 @@ module Queries::Concerns::Identifiers
 
   def self.merge_clauses
     [
+      :global_identifiers_facet,
       :identifier_between_facet,
-
       :identifier_facet,
       :identifier_namespace_facet,
       :identifier_type_facet,
@@ -205,6 +213,37 @@ module Queries::Concerns::Identifiers
     a
   end
 
+  def global_identifiers_facet
+    return nil if global_identifiers.nil?
+    a = nil
+
+    if global_identifiers
+      a = referenced_klass.joins(:identifiers).where("identifiers.type ILIKE 'Identifier::Global%'").distinct
+    else
+      i = ::Identifier.arel_table[:identifier_object_id].eq(table[:id]).and(
+        ::Identifier.arel_table[:identifier_object_type].eq( table.name.classify.to_s )
+      )
+      a = referenced_klass.where.not(::Identifier::Local.where(i).arel.exists)
+    end
+
+    # TODO: this logic can almost certainly be simplified.  Test coverage is decent for attempts to do so.
+    if referenced_klass.is_containable?
+      c = referenced_klass_union([a, global_identifiers_container_match ].compact)
+
+      @global_identifiers = !local_identifiers
+      except = global_identifiers_container_match
+      @global_identifiers = !local_identifiers
+
+      if except
+        return referenced_klass.from('(' + c.to_sql + " EXCEPT #{except.to_sql}) as #{table.name}")
+      else
+        return referenced_klass.from('(' + c.to_sql + ") as #{table.name}")
+      end
+    end
+
+    a
+  end
+
   def local_identifiers_facet
     return nil if local_identifiers.nil?
     a = nil
@@ -225,6 +264,39 @@ module Queries::Concerns::Identifiers
       @local_identifiers = !local_identifiers
       except = local_identifiers_container_match
       @local_identifiers = !local_identifiers
+
+      if except
+        return referenced_klass.from('(' + c.to_sql + " EXCEPT #{except.to_sql}) as #{table.name}")
+      else
+        return referenced_klass.from('(' + c.to_sql + ") as #{table.name}")
+      end
+    end
+
+    a
+  end
+
+
+  # TODO: Simplify local/global copy-pasta
+  def global_identifiers_facet
+    return nil if global_identifiers.nil?
+    a = nil
+
+    if global_identifiers
+      a = referenced_klass.joins(:identifiers).where("identifiers.type ILIKE 'Identifier::Global%'").distinct
+    else
+      i = ::Identifier.arel_table[:identifier_object_id].eq(table[:id]).and(
+        ::Identifier.arel_table[:identifier_object_type].eq( table.name.classify.to_s )
+      )
+      a = referenced_klass.where.not(::Identifier::Global.where(i).arel.exists)
+    end
+
+    # TODO: this logic can almost certainly be simplified.  Test coverage is decent for attempts to do so.
+    if referenced_klass.is_containable?
+      c = referenced_klass_union([a, global_identifiers_container_match ].compact)
+
+      @global_identifiers = !global_identifiers
+      except = global_identifiers_container_match
+      @global_identifiers = !global_identifiers
 
       if except
         return referenced_klass.from('(' + c.to_sql + " EXCEPT #{except.to_sql}) as #{table.name}")
