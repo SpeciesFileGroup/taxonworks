@@ -6,14 +6,15 @@
       <input
         class="full_width"
         v-model="params.name"
+        placeholder="von Smith III, Alex; prefix last name suffix, first name"
         type="text"
-      >
+      />
       <label>
         <input
           v-model="params.exact"
           type="checkbox"
           value="name"
-        >
+        />
         Exact
       </label>
     </div>
@@ -32,7 +33,7 @@
     </div>
     <h4>Parts</h4>
     <div
-      v-for="({ label, param }) in fields"
+      v-for="{ label, param } in fields"
       :key="param"
       class="field"
     >
@@ -41,13 +42,13 @@
         class="full_width"
         type="text"
         v-model="params[param]"
-      >
+      />
       <label>
         <input
           type="checkbox"
           :value="param"
           v-model="params.exact"
-        >
+        />
         Exact
       </label>
     </div>
@@ -89,7 +90,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const urlParams = URLParamsToJSON(location.href)
@@ -102,5 +103,4 @@ Object.assign(params.value, {
   prefix: urlParams.prefix,
   exact: urlParams.exact || []
 })
-
 </script>
