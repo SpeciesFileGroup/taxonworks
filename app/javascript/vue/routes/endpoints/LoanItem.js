@@ -1,5 +1,7 @@
 import baseCRUD from './base'
+import AjaxCall from 'helpers/ajaxCall.js'
 
+const controller = 'loan_items'
 const permitParams = {
   loan_item: {
     loan_id: Number,
@@ -16,5 +18,13 @@ const permitParams = {
 }
 
 export const LoanItem = {
-  ...baseCRUD('loan_items', permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  createBatch: (params) =>
+    AjaxCall('post', `/${controller}/batch_create`, params),
+
+  returnBatch: (params) =>
+    AjaxCall('post', `/${controller}/batch_return`, params),
+
+  moveBatch: (params) => AjaxCall('post', `/${controller}/batch_move`, params)
 }
