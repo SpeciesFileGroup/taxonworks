@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h3>Return</h3>
     <div class="field label-above">
       <label>Status</label>
       <select
@@ -54,6 +53,21 @@
     >
       Update
     </VBtn>
+
+    <div
+      v-if="moved.length"
+      class="margin-large-top"
+    >
+      <h3>Moved</h3>
+      <ul>
+        <li
+          v-for="item in moved"
+          :key="item.id"
+          v-html="item.object_tag"
+        />
+      </ul>
+      <a :href="`/tasks/loans/edit_loan/${loan.id}`">Edit loan items</a>
+    </div>
   </div>
 </template>
 
@@ -73,6 +87,7 @@ const props = defineProps({
   }
 })
 
+const moved = ref([])
 const date = ref(null)
 const status = ref(null)
 const loan = ref(null)
@@ -87,6 +102,7 @@ function updateLoanItems() {
   }
 
   LoanItem.moveBatch(payload).then(({ body }) => {
+    moved.value = body
     TW.workbench.alert.create(
       `${body.length} Loan items were successfully updated.`,
       'notice'
