@@ -5,12 +5,13 @@
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
-      v-model="parameters"
       :selected-ids="selectedIds"
       :object-type="TAXON_NAME"
       :list="list"
+      v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
