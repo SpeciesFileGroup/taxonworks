@@ -367,7 +367,7 @@ module Queries
 
         query = referenced_klass_union([q1, q2, q3, q4])
 
-        ::Otu.from("(#{query}) as otus").distinct
+        ::Otu.from("(#{query.to_sql}) as otus").distinct
       end
 
       def geographic_area_id_facet
