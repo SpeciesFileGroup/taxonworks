@@ -153,6 +153,7 @@
         Is data depiction
       </label>
       <DepictionList
+        class="margin-large-top"
         :list="list"
         @delete="removeItem"
         @selected="(item) => (depiction = item)"

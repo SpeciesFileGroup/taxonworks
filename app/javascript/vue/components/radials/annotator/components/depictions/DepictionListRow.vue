@@ -15,9 +15,10 @@
       />
     </td>
     <td>
-      <div class="horizontal-right-content middle gap-small">
+      <div class="flex-wrap-column gap-small">
         <RadialAnnotator :global-id="depiction.global_id" />
         <VBtn
+          class="circle-button"
           color="primary"
           circle
           @click="emit('selected', depiction)"
@@ -28,6 +29,7 @@
           />
         </VBtn>
         <VBtn
+          class="circle-button"
           color="destroy"
           circle
           @click="confirmDelete"
