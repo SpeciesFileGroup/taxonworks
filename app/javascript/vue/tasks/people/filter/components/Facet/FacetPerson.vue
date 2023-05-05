@@ -1,7 +1,10 @@
 <template>
   <FacetContainer>
     <h3>Name</h3>
-    <div class="field">
+    <div
+      class="field"
+      v-help.facets.name.fullName
+    >
       <label class="display-block">Full name</label>
       <input
         class="full_width"
