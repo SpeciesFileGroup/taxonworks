@@ -15,7 +15,8 @@ class DepictionsController < ApplicationController
       format.json {
         @depictions = Depiction.where(project_id: sessions_current_project_id).where(
           Queries::Annotator::polymorphic_params(params, Depiction)
-        )
+       ).page(params[:page])
+       .per(params[:per])
       }
     end
   end
