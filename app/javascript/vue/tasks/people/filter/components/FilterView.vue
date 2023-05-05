@@ -75,7 +75,13 @@ import WithComponent from 'components/Filter/Facets/shared/FacetWith.vue'
 import { computed } from 'vue'
 
 const withFilter = ['first_name', 'suffix', 'prefix']
-const WITH_PARAMS = ['identifiers', 'data_attributes', 'notes']
+const WITH_PARAMS = [
+  'identifiers',
+  'local_identifiers',
+  'global_identifiers',
+  'data_attributes',
+  'notes'
+]
 
 const props = defineProps({
   modelValue: {

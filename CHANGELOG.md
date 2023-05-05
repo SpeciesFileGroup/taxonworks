@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Always show pin button
 
 ### Fixed
+- Global identifiers not appearing on community data [#3393]
 - Lag in selecting loan items on edit loan [#3399]
 - Collection object was loanable 2x in some cases
 - An issue when geo-json related facets were not being applied in Otu filter
@@ -37,18 +38,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Delete wrong node in Biological associations graph [#3383]
 - Cannot clear `Returned on date` input for loan items in Edit/new loan task [#3390]
 
-[#3380]: https://github.com/SpeciesFileGroup/taxonworks/issues/3380
-[#3399]: https://github.com/SpeciesFileGroup/taxonworks/issues/3399
-[#3387]: https://github.com/SpeciesFileGroup/taxonworks/issues/3387
-[#3394]: https://github.com/SpeciesFileGroup/taxonworks/issues/3394
-[#3398]: https://github.com/SpeciesFileGroup/taxonworks/issues/3398
 [#3377]: https://github.com/SpeciesFileGroup/taxonworks/issues/3377
+[#3380]: https://github.com/SpeciesFileGroup/taxonworks/issues/3380
 [#3382]: https://github.com/SpeciesFileGroup/taxonworks/issues/3382
 [#3383]: https://github.com/SpeciesFileGroup/taxonworks/issues/3383
 [#3385]: https://github.com/SpeciesFileGroup/taxonworks/issues/3385
+[#3387]: https://github.com/SpeciesFileGroup/taxonworks/issues/3387
 [#3390]: https://github.com/SpeciesFileGroup/taxonworks/issues/3390
 [#3391]: https://github.com/SpeciesFileGroup/taxonworks/issues/3391
+[#3393]: https://github.com/SpeciesFileGroup/taxonworks/issues/3393
+[#3394]: https://github.com/SpeciesFileGroup/taxonworks/issues/3394
 [#3396]: https://github.com/SpeciesFileGroup/taxonworks/issues/3396
+[#3398]: https://github.com/SpeciesFileGroup/taxonworks/issues/3398
+[#3399]: https://github.com/SpeciesFileGroup/taxonworks/issues/3399
 
 ## [0.32.2] - 2023-04-03
 

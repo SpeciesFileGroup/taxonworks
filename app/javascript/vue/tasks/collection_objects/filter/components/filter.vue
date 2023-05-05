@@ -85,6 +85,7 @@ const WITH_PARAMS = [
   'georeferences',
   'depictions',
   'local_identifiers',
+  'global_identifiers',
   'notes',
   'origin_citation',
   'preparation_type',

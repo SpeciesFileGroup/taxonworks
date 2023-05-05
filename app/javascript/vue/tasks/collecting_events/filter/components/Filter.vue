@@ -70,6 +70,7 @@ const WITH_PARAMS = [
   'georeferences',
   'identifiers',
   'local_identifiers',
+  'global_identifiers',
   'origin_citation'
 ]
 
