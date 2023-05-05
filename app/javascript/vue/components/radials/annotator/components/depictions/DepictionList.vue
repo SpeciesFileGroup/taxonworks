@@ -1,5 +1,5 @@
 <template>
-  <table class="full_width">
+  <table class="full_width table-striped">
     <thead>
       <tr>
         <th>Image</th>
