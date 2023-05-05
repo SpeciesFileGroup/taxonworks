@@ -16,7 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Return BibTeX with `extend[]=bibtex` on calls to `/api/v1/sources`
 - Related button to biological associations in Browse OTU
 - Pagination for loan items in Edit/new loan task [#3391]
-- Caption and figure label to Depictions list in Radial annotator [#3396]
+- Caption and figure label editable in Depictions list in Radial annotator [#3396]
 
 ### Changed
 - Pagination headers are exposed via CORS [#3380]
@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - The genus rank is allowed as incertae sedis
 - Trigger filter after change records per page selector
 - Always show pin button
+- Browse OTU biological association table contains related modal
 
 ### Fixed
 - Global identifiers not appearing on community data [#3393]
@@ -48,6 +49,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3391]: https://github.com/SpeciesFileGroup/taxonworks/issues/3391
 [#3393]: https://github.com/SpeciesFileGroup/taxonworks/issues/3393
 [#3394]: https://github.com/SpeciesFileGroup/taxonworks/issues/3394
+[#3395]: https://github.com/SpeciesFileGroup/taxonworks/issues/3395
 [#3396]: https://github.com/SpeciesFileGroup/taxonworks/issues/3396
 [#3398]: https://github.com/SpeciesFileGroup/taxonworks/issues/3398
 [#3399]: https://github.com/SpeciesFileGroup/taxonworks/issues/3399
