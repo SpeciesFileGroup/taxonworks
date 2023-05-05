@@ -67,7 +67,7 @@ function updateLoanItems() {
 
   LoanItem.returnBatch(payload).then(({ body }) => {
     TW.workbench.alert.create(
-      `${body.length} Loan items were successfully created.`,
+      `${body.length} Loan items were successfully returned.`,
       'notice'
     )
   })

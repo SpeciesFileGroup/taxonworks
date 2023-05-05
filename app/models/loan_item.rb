@@ -63,6 +63,8 @@ class LoanItem < ApplicationRecord
 
   validate :available_for_loan
 
+  validates_uniqueness_of :loan_id, scope: [:loan_item_object_id], if: -> { loan_item_object_type == 'CollectionObject' }
+
   validates_inclusion_of :disposition, in: STATUS, if: -> {disposition.present?}
 
   def global_entity
@@ -256,7 +258,7 @@ class LoanItem < ApplicationRecord
           end
         end
       rescue ActiveRecord::RecordInvalid => e
-        raise e
+        # raise e
       end
     end
     return created
@@ -330,7 +332,7 @@ class LoanItem < ApplicationRecord
         if loan_item_object_type == 'Otu'
           true
         else
-          if loan_item_object.on_loan? #loan_item_object.loan_items.where.not(id: id).any?
+          if loan_item_object.on_loan? # loan_item_object.loan_items.where.not(id: id).any?
             errors.add(:loan_item_object, 'is already on loan')
           end
         end

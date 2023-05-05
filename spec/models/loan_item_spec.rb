@@ -38,16 +38,16 @@ describe LoanItem, type: :model, group: :loans do
 
   specify 'collection object can NOT be loaned 2x' do
     s = Specimen.create!
-    loan_item.update!(loan:, loan_item_object: s)
+    loan_item.update!(loan_item_object: s, loan:)
     s.reload
     expect(LoanItem.new(loan_item_object: s, loan:).valid?).to be_falsey
   end
 
   specify 'loan item can be created when object previously returned from loan' do
     s = Specimen.create!
-    loan_item.update!(loan:, loan_item_object: s, date_returned: Time.now.to_date )
+    loan_item.update!(loan:, loan_item_object: s, date_returned: Time.current.to_date )
     s.reload
-    expect(LoanItem.new(loan_item_object: s, loan:).valid?).to be_truthy
+    expect(LoanItem.new(loan_item_object: s, loan: FactoryBot.create(:valid_loan)).valid?).to be_truthy
   end
 
   specify '#disposition can be updated on CollectionObject' do
