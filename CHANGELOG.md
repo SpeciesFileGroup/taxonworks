@@ -8,7 +8,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-
 - Add/move/return collection objects from collection object filter [#3387]
 - Interpretation help for `full name` facet in people filter [#3394]
 - Total individuals to loan show/recipient form [#3398]
@@ -20,7 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Caption and figure label to Depictions list in Radial annotator [#3396]
 
 ### Changed
-
+- Pagination headers are exposed via CORS [#3380]
 - Updated bundle gems
 - Ruby 3.2 is now required as minimum
 - API /people and /sources resources no longer require authentication [#3385]
@@ -38,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Delete wrong node in Biological associations graph [#3383]
 - Cannot clear `Returned on date` input for loan items in Edit/new loan task [#3390]
 
+[#3380]: https://github.com/SpeciesFileGroup/taxonworks/issues/3380
 [#3399]: https://github.com/SpeciesFileGroup/taxonworks/issues/3399
 [#3387]: https://github.com/SpeciesFileGroup/taxonworks/issues/3387
 [#3394]: https://github.com/SpeciesFileGroup/taxonworks/issues/3394
