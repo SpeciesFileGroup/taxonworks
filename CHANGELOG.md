@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Interpretation help for `full name` facet in people filter [#3394]
 - Total individuals to loan show/recipient form [#3398]
 - Download SVG button in Biological associations graph task
 - Related modal in Biological associations graph task
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Always show pin button
 
 ### Fixed
+
 - Collection object was loanable 2x in some cases
 - An issue when geo-json related facets were not being applied in Otu filter
 - Image filter with `otu_id` only returns as expected
@@ -34,7 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Delete wrong node in Biological associations graph [#3383]
 - Cannot clear `Returned on date` input for loan items in Edit/new loan task [#3390]
 
-
+[#3394]: https://github.com/SpeciesFileGroup/taxonworks/issues/3394
 [#3398]: https://github.com/SpeciesFileGroup/taxonworks/issues/3398
 [#3377]: https://github.com/SpeciesFileGroup/taxonworks/issues/3377
 [#3382]: https://github.com/SpeciesFileGroup/taxonworks/issues/3382
