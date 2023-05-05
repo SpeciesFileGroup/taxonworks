@@ -13,7 +13,8 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors, debug: true, lo
       methods: [:get, :post, :delete, :put, :patch, :options, :head],
       max_age: 0,
       credentials: false,
-      expose: ['Pagination']
+      expose: %w{pagination-next-page pagination-page pagination-per-page pagination-previous-page pagination-total pagination-total-pages}
+
   end
 end
 
