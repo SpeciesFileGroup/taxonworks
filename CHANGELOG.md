@@ -29,7 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Always show pin button
 
 ### Fixed
-
+- Lag in selecting loan items on edit loan [#3399]
 - Collection object was loanable 2x in some cases
 - An issue when geo-json related facets were not being applied in Otu filter
 - Image filter with `otu_id` only returns as expected
@@ -38,9 +38,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Delete wrong node in Biological associations graph [#3383]
 - Cannot clear `Returned on date` input for loan items in Edit/new loan task [#3390]
 
-
+[#3399]: https://github.com/SpeciesFileGroup/taxonworks/issues/3399
 [#3387]: https://github.com/SpeciesFileGroup/taxonworks/issues/3387
-
 [#3394]: https://github.com/SpeciesFileGroup/taxonworks/issues/3394
 [#3398]: https://github.com/SpeciesFileGroup/taxonworks/issues/3398
 [#3377]: https://github.com/SpeciesFileGroup/taxonworks/issues/3377
