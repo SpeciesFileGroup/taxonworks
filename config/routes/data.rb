@@ -62,6 +62,16 @@ resources :biological_relationships do
   end
 end
 
+resources :cached_maps do
+  collection do
+    get :index
+    get 'png', defaults: {format: :json}
+    get 'geo_json', defaults: {format: :json}
+    get 'svg', defaults: {format: :json}
+  end
+
+end
+
 resources :character_states do
   concerns [:data_routes]
   member do
@@ -281,7 +291,6 @@ resources :extracts do
 end
 
 resources :geographic_areas, only: [:index, :show] do
-
   collection do
     get 'download'
     get 'list'
@@ -296,9 +305,7 @@ resources :geographic_areas, only: [:index, :show] do
 
   member do
     get 'related'
-    get 'png', defaults: {format: :json}
   end
-
 end
 
 resources :gene_attributes do

@@ -137,7 +137,7 @@ gem 'asciidoctor', '~> 2.0'
 gem 'wikidata-client', '~> 0.1.0.pre.rc1', require: 'wikidata'
 
 # Maintenance
-gem 'parallel', '~> 1.22'
+gem 'parallel', '~> 1.23'
 gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
