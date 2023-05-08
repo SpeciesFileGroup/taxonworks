@@ -56,6 +56,7 @@
       >
         <VIcon
           name="radialMassAnnotator"
+          title="Radial massive annoator"
           x-small
         />
       </VBtn>

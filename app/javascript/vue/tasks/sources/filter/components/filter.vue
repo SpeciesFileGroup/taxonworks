@@ -89,6 +89,8 @@ const WITH_PARAMS = [
   'documents',
   'nomenclature',
   'with_doi',
+  'local_identifiers',
+  'global_identifiers',
   'tags',
   'notes',
   'serial',

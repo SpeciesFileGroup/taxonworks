@@ -9,6 +9,55 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.32.3] - 2023-05-05
+
+### Added
+- Add/move/return collection objects from collection object filter [#3387]
+- Interpretation help for `full name` facet in people filter [#3394]
+- Total individuals to loan show/recipient form [#3398]
+- Download SVG button in Biological associations graph task
+- Related modal in Biological associations graph task
+- Return BibTeX with `extend[]=bibtex` on calls to `/api/v1/sources`
+- Related button to biological associations in Browse OTU
+- Pagination for loan items in Edit/new loan task [#3391]
+- Caption and figure label editable in Depictions list in Radial annotator [#3396]
+
+### Changed
+- Pagination headers are exposed via CORS [#3380]
+- Updated bundle gems
+- Ruby 3.2 is now required as minimum
+- API /people and /sources resources no longer require authentication [#3385]
+- The genus rank is allowed as incertae sedis
+- Trigger filter after change records per page selector
+- Always show pin button
+- Browse OTU biological association table contains related modal
+
+### Fixed
+- Global identifiers not appearing on community data [#3393]
+- Lag in selecting loan items on edit loan [#3399]
+- Collection object was loanable 2x in some cases
+- An issue when geo-json related facets were not being applied in Otu filter
+- Image filter with `otu_id` only returns as expected
+- Depictions/Images facet not consistent and broken [#3395]
+- Missing pagination for asserted_distributions API endpoint [#3377]
+- Delete wrong node in Biological associations graph [#3383]
+- Cannot clear `Returned on date` input for loan items in Edit/new loan task [#3390]
+
+[#3377]: https://github.com/SpeciesFileGroup/taxonworks/issues/3377
+[#3380]: https://github.com/SpeciesFileGroup/taxonworks/issues/3380
+[#3382]: https://github.com/SpeciesFileGroup/taxonworks/issues/3382
+[#3383]: https://github.com/SpeciesFileGroup/taxonworks/issues/3383
+[#3385]: https://github.com/SpeciesFileGroup/taxonworks/issues/3385
+[#3387]: https://github.com/SpeciesFileGroup/taxonworks/issues/3387
+[#3390]: https://github.com/SpeciesFileGroup/taxonworks/issues/3390
+[#3391]: https://github.com/SpeciesFileGroup/taxonworks/issues/3391
+[#3393]: https://github.com/SpeciesFileGroup/taxonworks/issues/3393
+[#3394]: https://github.com/SpeciesFileGroup/taxonworks/issues/3394
+[#3395]: https://github.com/SpeciesFileGroup/taxonworks/issues/3395
+[#3396]: https://github.com/SpeciesFileGroup/taxonworks/issues/3396
+[#3398]: https://github.com/SpeciesFileGroup/taxonworks/issues/3398
+[#3399]: https://github.com/SpeciesFileGroup/taxonworks/issues/3399
+
 ## [0.32.2] - 2023-04-03
 
 ### Added
@@ -644,6 +693,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Added OriginallyInvalid relationship in ICN [#3315]
 - Add `/api/v1/otus/123/inventory/content`, includes `embed[]=depictions` [#3004]
 - Adds `data_attributes`, `data_attribute_value`, `data_attribute_predicate_id`, `data_attribute_exact` in filter concern [#2922]
 - `/api/v1/tags` endpoint with `tag_object_type[]`,`tag_object_id[]`, `tag_object_type`, `object_global_id`, `keyword_id[]` [#3061]
@@ -667,6 +717,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Object global id param in identifiers API/filter
 - Bad logic check on adding new user to project
 - Dependency loop problem in DwC checklist importer
+- Image matrix error
 
 [#3004]: https://github.com/SpeciesFileGroup/taxonworks/issues/3004
 [#3061]: https://github.com/SpeciesFileGroup/taxonworks/issues/3061
@@ -696,6 +747,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Softvalidation message for new combination is rewarded
+- The genus rank is allowed as incertae sedis
 - ElectronicPulbications moved from NomenNudum to Unavailable.
 - Updated Ruby gems and Node packages
 - OTU name string into link in Observation matrices dashboard task
@@ -3525,7 +3578,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.3...development
+[0.32.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.2...v0.32.3
 [0.32.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.1...v0.32.2
 [0.32.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.0...v0.32.1
 [0.32.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.3...v0.32.0

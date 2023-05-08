@@ -28,18 +28,22 @@ const isJSON = (str) => {
 
 const isObject = (value) => typeof value === 'object' && value !== null
 
-const removeEmptyProperties = (object) => {
-  const keys = Object.keys(object)
-  keys.forEach((key) => {
+function removeEmptyProperties(object) {
+  const obj = { ...object }
+
+  for (const key in obj) {
+    const value = obj[key]
+
     if (
-      object[key] === '' ||
-      object[key] === undefined ||
-      (Array.isArray(object[key]) && !object[key].length)
+      value === '' ||
+      value === undefined ||
+      (Array.isArray(value) && !value.length)
     ) {
-      delete object[key]
+      delete obj[key]
     }
-  })
-  return object
+  }
+
+  return obj
 }
 
 const isDeepEqual = (object1, object2) => {

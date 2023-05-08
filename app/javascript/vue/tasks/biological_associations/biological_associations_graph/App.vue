@@ -15,7 +15,6 @@
                 placeholder="Search a graph..."
                 @get-item="
                   ({ id }) => {
-                    graph.resetStore()
                     loadGraph(id)
                   }
                 "
@@ -62,6 +61,28 @@
                 Sources
               </VBtn>
               <VBtn
+                v-if="graph"
+                color="primary"
+                medium
+                :disabled="!graph.getBiologicalRelationships().value.length"
+                @click="() => (showModalRelated = true)"
+              >
+                Related
+              </VBtn>
+
+              <VBtn
+                v-if="graph"
+                color="primary"
+                circle
+                medium
+                @click="() => graph.downloadAsSvg()"
+              >
+                <VIcon
+                  name="download"
+                  x-small
+                />
+              </VBtn>
+              <VBtn
                 color="primary"
                 circle
                 medium
@@ -73,6 +94,18 @@
                 />
               </VBtn>
             </div>
+            <ModalRelated
+              v-if="showModalRelated"
+              :current-graph="currentGraph"
+              :relations="graph.getBiologicalRelationships().value"
+              @select:graph="
+                ($event) => {
+                  loadGraph($event.id)
+                  showModalRelated = false
+                }
+              "
+              @close="() => (showModalRelated = false)"
+            />
           </div>
         </VNavbar>
       </template>
@@ -90,7 +123,7 @@ import setParam from 'helpers/setParam.js'
 import useHotkey from 'vue3-hotkey'
 import platformKey from 'helpers/getPlatformKey'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-
+import ModalRelated from './components/ModalRelated.vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { onMounted, ref } from 'vue'
 import { CollectionObject, Otu } from 'routes/endpoints'
@@ -130,6 +163,7 @@ const hotkeys = ref([
 ])
 
 const stop = useHotkey(hotkeys.value)
+const showModalRelated = ref(false)
 
 onMounted(() => {
   const params = URLParamsToJSON(location.href)
@@ -176,6 +210,7 @@ onMounted(() => {
 })
 
 function loadGraph(id) {
+  graph.value.resetStore()
   graph.value.setGraph(id)
   setParam(RouteNames.NewBiologicalAssociationGraph, {
     biological_associations_graph_id: id

@@ -95,6 +95,7 @@ begin
         TaxonNameRelationship::Icvcn::Unaccepting) +
        %w{ TaxonNameRelationship::Iczn::Invalidating
        TaxonNameRelationship::Icn::Unaccepting
+       TaxonNameRelationship::Icn::Unaccepting::OriginallyInvalid
        TaxonNameRelationship::Icnp::Unaccepting
        TaxonNameRelationship::Icvcn::Unaccepting}.freeze
 

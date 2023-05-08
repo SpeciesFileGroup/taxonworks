@@ -23,6 +23,7 @@ const WITH_TITLE = {
 
 const WITH_PARAMS = [
   'local_identifiers',
+  'global_identifiers',
   'collecting_event',
   'taxon_determinations',
   'with_buffered_determinations',

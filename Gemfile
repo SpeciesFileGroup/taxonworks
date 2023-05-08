@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 
-gem 'rack-cors', '~> 1.1', require: 'rack/cors'
+gem 'rack-cors', '~> 2.0', require: 'rack/cors'
 
-ruby '>= 3.0', '< 3.3.0'
+ruby '>= 3.2', '< 3.3.0'
 
 gem 'bundler', '~> 2.0'
 
@@ -27,7 +27,7 @@ gem 'rmagick', '~> 4.2', '>= 4.2.2'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 gem 'net-smtp', '~> 0.3.1'
-gem 'mail', '~> 2.7', '< 2.8' # Locked while https://github.com/mikel/mail/issues/1516 is not resolved
+gem 'mail', '~> 2.8', '>= 2.8.1'
 gem "matrix", "~> 0.4.2"
 
 # Geo

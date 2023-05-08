@@ -27,13 +27,13 @@
     <VBtn
       class="circle-button"
       color="radial"
-      title="Radial filter"
+      title="Radial label"
       circle
       :disabled="disabled"
       @click="openRadialMenu()"
     >
       <VIcon
-        title="Radial filter"
+        title="Radial label"
         name="label"
         x-small
       />

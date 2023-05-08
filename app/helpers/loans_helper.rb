@@ -18,7 +18,7 @@ module LoansHelper
   def loan_recipients_tag(loan)
     return nil if loan.nil?
     recipients = loan.loan_recipients.collect{|lr| person_tag(lr)}.join.html_safe
-    recipients.blank? ? 'No recipients defined!' : recipients
+    (recipients.presence || 'No recipients defined!')
   end
 
   def loan_autocomplete_tag(loan)
@@ -44,7 +44,7 @@ module LoansHelper
       return tag.span("Due in #{distance_of_time_in_words_to_now(loan.date_return_expected)}", class: [:feedback, 'feedback-thin', 'feedback-information']) if loan.date_return_expected > Time.now
       return tag.span("#{distance_of_time_in_words(Time.now, loan.date_return_expected)} overdue", class: [:feedback, 'feedback-thin', 'feedback-danger']) if loan.date_return_expected < Time.now
     end
-    return tag.span("Lost/destroyed", class: [:feedback, 'feedback-thin', 'feedback-warning']) if loan.loan_items.count == loan.loan_items.where(disposition: ['Lost', 'Destroyed']).distinct.count
+    return tag.span('Lost/destroyed', class: [:feedback, 'feedback-thin', 'feedback-warning']) if loan.loan_items.count == loan.loan_items.where(disposition: ['Lost', 'Destroyed']).distinct.count
   end
 
   def loan_link(loan)
@@ -262,6 +262,14 @@ module LoansHelper
         tag.tr( tag.td('Not overdue') + tag.td( loans.not_overdue.count) ),
       ].join.html_safe
     end
+  end
+
+  def loan_total_individuals(loan)
+    total = 0
+    q = LoanItem.where(loan:)
+    from_otu = q.sum(:total)
+    from_collection_object = CollectionObject.joins(:loan_items).where(loan_items: {loan:}).sum('collection_objects.total')
+    from_otu + from_collection_object
   end
 
   def overdue_individuals(loans)

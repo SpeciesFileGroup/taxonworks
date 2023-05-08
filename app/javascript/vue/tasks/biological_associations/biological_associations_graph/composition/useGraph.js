@@ -6,7 +6,6 @@ import {
 } from 'routes/endpoints'
 import {
   makeBiologicalAssociation,
-  makeNodeObject,
   makeCitation,
   makeCitationPayload,
   makeGraph
@@ -134,11 +133,10 @@ export function useGraph() {
     })
   }
 
-  const isGraphUnsaved = computed(
-    () =>
-      state.biologicalAssociations.some(
-        (ba) => ba.isUnsaved || ba.citations.some((c) => !c.id)
-      ) || state.graph.isUnsaved
+  const isGraphUnsaved = computed(() =>
+    [...state.biologicalAssociations, state.graph].some(
+      (obj) => obj.isUnsaved || obj.citations.some((c) => !c.id)
+    )
   )
 
   async function addBiologicalRelationship({
@@ -282,7 +280,7 @@ export function useGraph() {
   function removeNode(nodeId) {
     const biologicalAssociations = getBiologicalRelationshipsByNodeId(nodeId)
     const created = biologicalAssociations.filter(({ id }) => id)
-    const nodeObject = makeNodeObject(nodeId)
+    const nodeObject = parseNodeId(nodeId)
 
     biologicalAssociations.forEach((ba) => {
       removeEdge(ba.uuid)
@@ -420,7 +418,8 @@ export function useGraph() {
       Object.assign(state.graph, {
         id: body.id,
         globalId: body.global_id,
-        label: body.object_tag
+        label: body.object_tag,
+        isUnsaved: false
       })
     })
 
@@ -448,6 +447,7 @@ export function useGraph() {
     reverseRelation,
     save,
     saveBiologicalAssociations,
+    saveGraph,
     setGraphName,
     setNodePosition,
     ...toRefs(state)

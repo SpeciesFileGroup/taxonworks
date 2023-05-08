@@ -43,7 +43,8 @@
     <%= content_tag(:li, 'None.') if !@loan.documents.any? -%>
   </ul>
 
-  <h3> Loan Items </h3>
+  <h3> Loan Items</h3>
+  <p> Total individuals: <%= loan_total_individuals(@loan) %> </p>
   <%= render('/loan_items/loan_table', loan_items: @loan.loan_items.order(:position)) -%>
   <%= @loan.loan_items.any? ? nil : content_tag(:span, 'None.', class: :warning) -%>
 

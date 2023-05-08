@@ -411,8 +411,11 @@ end
 
 resources :loan_items do
   concerns [:data_routes]
+
   collection do
     post :batch_create
+    post :batch_return
+    post :batch_move
   end
 end
 

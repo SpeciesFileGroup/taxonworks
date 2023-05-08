@@ -12,7 +12,7 @@ namespace :api, defaults: {format: :json} do
     get :ping, controller: 'ping'
     get :pingz, controller: 'ping'
 
-    # No authentication required!
+    # not authenticated
     get '/sources', to: '/sources#api_index'
     get '/sources/autocomplete', to: '/sources#autocomplete'
     get '/sources/:id', to: '/sources#api_show'
