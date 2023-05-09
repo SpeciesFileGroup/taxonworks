@@ -11,6 +11,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - `Add` button to add biological associations from `Related` modal in new biological associations task
 
+### Fixed
+
+- BibTeX typo [#3408]
+
+[#3408]: https://github.com/SpeciesFileGroup/taxonworks/issues/3408
+
 ## [0.32.3] - 2023-05-05
 
 ### Added
