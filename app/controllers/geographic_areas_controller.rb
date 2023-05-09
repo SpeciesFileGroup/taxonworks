@@ -1,7 +1,7 @@
 class GeographicAreasController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :set_geographic_area, only: [:show, :png]
+  before_action :set_geographic_area, only: [:show]
   after_action -> { set_pagination_headers(:geographic_areas) }, only: [:index], if: :json_request?
 
   # GET /geographic_areas
@@ -71,28 +71,6 @@ class GeographicAreasController < ApplicationController
       params.require(:longitude).to_f
     )
     render action: :autocomplete
-  end
-
-  def png
-    if i = @geographic_area.geographic_items.first
-
-      sql = "SELECT ST_AsPNG(
-        ST_AsRaster(
-            ST_Buffer( multi_polygon::geometry, 1, 'join=bevel'),
-                200,
-                200)
-         ) png
-    from geographic_items where id = " + i.to_param + ';'
-
-    # hack, not the best way to unpack result 
-    result = ActiveRecord::Base.connection.execute(sql).first['png']
-    r = ActiveRecord::Base.connection.unescape_bytea(result)
-
-    send_data r, filename: 'foo.png', type: 'imnage/png' 
-
-   else
-     render json: {foo: false}
-    end
   end
 
   private

@@ -1,6 +1,6 @@
-class CreateCachedMaps < ActiveRecord::Migration[6.1]
+class CreateCachedMapItems < ActiveRecord::Migration[6.1]
   def change
-    create_table :cached_maps do |t|
+    create_table :cached_map_items do |t|
       t.references :otu, null: false
       t.references :geographic_item, null: false
       t.string :type
@@ -13,6 +13,6 @@ class CreateCachedMaps < ActiveRecord::Migration[6.1]
       t.timestamps
     end
 
-    add_index :cached_maps, [:otu_id, :geographic_item_id]
+    add_index :cached_map_items, [:otu_id, :geographic_item_id]
   end
 end

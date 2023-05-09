@@ -155,20 +155,13 @@ module OtusHelper
   #     type
   #     id
   #
-  def otu_distribution(otu, children = true)
+  def otu_distribution(otu, children = true, cutoff = 200)
     return {} if otu.nil?
     otus = if children
              otu.coordinate_otus_with_children
            else
              Otu.coordinate_otus(otu.id)
            end
-
-    t = 40
-    if otus.size > t
-      return { request_too_large: true,
-               message: "The number of children (#{t}) of this OTU is too large to presently return."
-      }
-    end
 
     h = {
       'type' => 'FeatureCollection',
@@ -182,34 +175,98 @@ module OtusHelper
       }
     }
 
-    otus.each do |o|
+    if otu.taxon_name && otu.taxon_name.is_protonym? && !otu.taxon_name.is_species_rank?
+      if g = aggregate_geo_json(otu, h)
 
-      # internal target
-      t = {
-        'id' => o.id,
-        'type' => 'Otu',
-        'label' => label_for_otu(otu)
+        t = {
+          'id' => otu.id,
+          'type' => 'Otu',
+          'label' => label_for_otu(otu)
+        }
+
+        g['properties'] = {}
+
+        g['properties']['target'] = t
+        h['features'].push g
+      end
+
+    else
+      otus.each do |o|
+        add_distribution_geo_json(o, h)
+      end
+    end
+
+    h
+  end
+
+  def aggregate_geo_json(otu, target, cached_map_type = 'CachedMapItem::WebLevel1')
+    h = target
+
+    a = ::Queries::Otu::Filter.new(taxon_name_id: otu.taxon_name_id, descendants: true).all.to_sql
+    b = ::Queries::Otu::Filter.new(taxon_name_id: otu.taxon_name_id).all.to_sql
+    c = Otu.from("((#{a}) UNION (#{b})) as otus").select('id')
+
+    i = ::GeographicItem.select("#{GeographicItem::GEOMETRY_SQL.to_sql}")
+      .joins('JOIN cached_maps cm on cm.geographic_item_id = geographic_items.id')
+      .joins('JOIN otu_scope AS otu_scope1 on otu_scope1.id = cm.otu_id')
+
+    s = "WITH otu_scope AS (#{c.to_sql}) " + i.to_sql
+
+    sql = "SELECT ST_AsGeoJSON(ST_Union(geom_array)) AS geojson
+    FROM (
+      SELECT ARRAY(
+        #{s}
+      ) AS geom_array
+    ) AS subquery;"
+
+    result = ActiveRecord::Base.connection.execute(sql)
+    gj = JSON.parse(result[0]['geojson'])
+
+    return {
+      'type' => gj['type'],  # 'Feature',
+      'coordinates' => gj['coordinates'],
+      'properties' => {
+        'base' => {
+          'type' => 'Otu',
+          'id' => otu.id,
+          'label' => label_for_otu(otu) },
+        'shape' => {
+          'type' => cached_map_type,
+          'id' => nil },
+       'updated_at' => 'foo' # last updated at on CachedMapItem scope, possibly
       }
+    }
+  end
 
-      o.current_collection_objects.each do |c|
-        if g = collection_object_to_geo_json_feature(c)
-          g['properties']['target'] = t
-          h['features'].push g
-        end
+  def add_distribution_geo_json(otu, target)
+    h = target
+    o = otu
+
+    # internal target
+    t = {
+      'id' => o.id,
+      'type' => 'Otu',
+      'label' => label_for_otu(otu)
+    }
+
+    o.current_collection_objects.each do |c|
+      if g = collection_object_to_geo_json_feature(c)
+        g['properties']['target'] = t
+        h['features'].push g
       end
+    end
 
-      o.asserted_distributions.each do |a|
-        if g = asserted_distribution_to_geo_json_feature(a)
-          g['properties']['target'] = t
-          h['features'].push g
-        end
+    o.asserted_distributions.each do |a|
+      if g = asserted_distribution_to_geo_json_feature(a)
+        g['properties']['target'] = t
+        h['features'].push g
       end
+    end
 
-      o.type_materials.each do |e|
-        if g = type_material_to_geo_json_feature(e)
-          g['properties']['target'] = t
-          h['features'].push g
-        end
+    o.type_materials.each do |e|
+      if g = type_material_to_geo_json_feature(e)
+        g['properties']['target'] = t
+        h['features'].push g
       end
     end
     h

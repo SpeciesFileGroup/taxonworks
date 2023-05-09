@@ -1,5 +1,5 @@
-# An AssertedDistribution is the source-backed assertion that a taxon (OTU) is present in some *spatial area*.  It requires a Citation indicating where/who made the assertion.
-# In TaxonWorks the areas are drawn from GeographicAreas, which essentially represent a gazeteer of 3 levels of subdivision (e.g. country, state, county).
+# An AssertedDistribution is the Source-backed assertion that a taxon (OTU) is present in some *spatial area*. It requires a Citation indicating where/who made the assertion.
+# In TaxonWorks the areas are drawn from GeographicAreas.
 #
 # AssertedDistributions can be asserts that the source indicates that a taxon is NOT present in an area.  This is a "positive negative" in , i.e. the Source can be thought of recording evidence that a taxon is not present. TaxonWorks does not differentiate between types of negative evidence.
 #
@@ -50,8 +50,6 @@ class AssertedDistribution < ApplicationRecord
   has_one :geographic_item, through: :geographic_area, source: :default_geographic_item
   has_many :geographic_items, through: :geographic_area
 
-  has_one :cached_map, through: :otu
-
   validates_presence_of :geographic_area_id, message: 'geographic area is not selected'
 
   # Might not be able to do these for nested attributes
@@ -63,7 +61,7 @@ class AssertedDistribution < ApplicationRecord
   validate :new_records_include_citation
 
   # TODO: deprecate scopes referencing single wheres
-  scope :with_otu_id, -> (otu_id) { where(otu_id: otu_id) }
+  scope :with_otu_id, -> (otu_id) { where(otu_id:) }
 
   scope :with_is_absent, -> { where('is_absent = true') }
 
@@ -142,12 +140,12 @@ class AssertedDistribution < ApplicationRecord
         presence = AssertedDistribution
           .without_is_absent
           .with_geographic_area_array(areas)
-          .where(otu_id: otu_id)
+          .where(otu_id:)
         soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.geographic_area.name}") unless presence.empty?
       else
         presence = AssertedDistribution
           .with_is_absent
-          .where(otu_id: otu_id)
+          .where(otu_id:)
           .with_geographic_area_array(areas)
         soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.geographic_area.name}") unless presence.empty?
       end

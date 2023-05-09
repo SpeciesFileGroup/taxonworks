@@ -81,6 +81,7 @@ class Georeference < ApplicationRecord
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Confidences # qualitative, not spatial
+  include Shared::Maps
   include Shared::IsData
 
   include Shared::Maps
@@ -92,8 +93,6 @@ class Georeference < ApplicationRecord
   belongs_to :collecting_event, inverse_of: :georeferences
   belongs_to :error_geographic_item, class_name: 'GeographicItem', inverse_of: :georeferences_through_error_geographic_item
   belongs_to :geographic_item, inverse_of: :georeferences
-
-  has_one :cached_map, through: :geographic_item
 
   has_many :collection_objects, through: :collecting_event, inverse_of: :georeferences
 

@@ -1,0 +1,2 @@
+class CachedMapUnion < ApplicationRecord
+end

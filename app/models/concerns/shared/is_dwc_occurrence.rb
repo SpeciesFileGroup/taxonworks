@@ -12,6 +12,8 @@ module Shared::IsDwcOccurrence
   included do
     delegate :persisted?, to: :dwc_occurrence, prefix: :dwc_occurrence, allow_nil: true
 
+    # TODO: do we need a ENV check option for disableing dwc_occurrence setting here as well?
+
     # @return Boolean, nil
     #   when true prevents automatic dwc_index from being created
     attr_accessor :no_dwc_occurrence

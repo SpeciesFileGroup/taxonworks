@@ -115,6 +115,18 @@ class GeographicItem < ApplicationRecord
 
   class << self
 
+    def aliased_geographic_sql(name = 'a')
+      "CASE #{name}.type \
+         WHEN 'GeographicItem::MultiPolygon' THEN #{name}.multi_polygon \
+         WHEN 'GeographicItem::Point' THEN #{name}.point \
+         WHEN 'GeographicItem::LineString' THEN #{name}.line_string \
+         WHEN 'GeographicItem::Polygon' THEN #{name}.polygon \
+         WHEN 'GeographicItem::MultiLineString' THEN #{name}.multi_line_string \
+         WHEN 'GeographicItem::MultiPoint' THEN #{name}.multi_point \
+         WHEN 'GeographicItem::GeometryCollection' THEN #{name}.geometry_collection \
+         END"
+  end
+
     def st_union(geographic_item_scope)
       GeographicItem.select("ST_Union(#{GeographicItem::GEOMETRY_SQL.to_sql}) as collection")
         .where(id: geographic_item_scope.pluck(:id))
@@ -859,7 +871,7 @@ class GeographicItem < ApplicationRecord
   # of how the GeographicArea gazetteer is indexed.
   def quick_geographic_name_hierarchy
     if a = geographic_areas.first
-      a.geographic_name_classification
+      a.geographic_name_classification # not quick enough
     else
       {}
     end
@@ -884,7 +896,7 @@ class GeographicItem < ApplicationRecord
   end
 
   def geographic_name_hierarchy
-    a = quick_geographic_name_hierarchy # quick;  almost never the case, UI not setup to do this
+    a = quick_geographic_name_hierarchy # quick; almost never the case, UI not setup to do this
     return a if a.present?
     inferred_geographic_name_hierarchy # slow
   end
@@ -1129,6 +1141,19 @@ class GeographicItem < ApplicationRecord
   # return float, in meters, calculated, not from cached
   def area
     GeographicItem.where(id:).select("ST_Area(#{GeographicItem::GEOGRAPHY_SQL}, false) as area_in_meters").first['area_in_meters']
+  end
+
+  # @return [Float, false]
+  #    the value in square meters of the interesecting area of this and another GeographicItem
+  def intersecting_area(geographic_item_id)
+    a = GeographicItem.aliased_geographic_sql('a')
+    b = GeographicItem.aliased_geographic_sql('b')
+
+    c = GeographicItem.connection.execute("SELECT ST_Area(ST_Intersection(#{a}, #{b})) as intersecting_area
+      FROM geographic_items a, geographic_items b
+      WHERE a.id = #{id} AND b.id = #{geographic_item_id};"
+    ).first
+    c && c['intersecting_area'].to_f
   end
 
   private

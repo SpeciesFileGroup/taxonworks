@@ -1,10 +1,15 @@
 scope :tasks do
-    scope :observations do
-      scope :filter, controller: 'tasks/observations/filter' do
-        get '/', as: 'filter_observations_task', action: :index
-      end
+  scope :geographic_areas do
+    scope :usage, controller: 'tasks/geographic_areas/usage' do
+      get '/', action: :index, as: 'geographic_area_usage_task'
     end
+  end
 
+  scope :observations do
+    scope :filter, controller: 'tasks/observations/filter' do
+      get '/', as: 'filter_observations_task', action: :index
+    end
+  end
   
   scope :shared do
     scope :related_data, controller: 'tasks/shared/related_data' do
