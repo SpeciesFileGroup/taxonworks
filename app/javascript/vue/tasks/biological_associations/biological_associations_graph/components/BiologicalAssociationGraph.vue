@@ -244,7 +244,8 @@ const {
   selectedEdges,
   selectedNodes,
   setGraphName,
-  setNodePosition
+  setNodePosition,
+  updateObjectByUuid
 } = useGraph()
 
 const graph = ref()
@@ -418,7 +419,8 @@ defineExpose({
   save,
   saveBiologicalAssociations,
   setGraph,
-  downloadAsSvg
+  downloadAsSvg,
+  updateObjectByUuid
 })
 </script>
 
