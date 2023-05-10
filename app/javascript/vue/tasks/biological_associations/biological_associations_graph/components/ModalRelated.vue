@@ -58,9 +58,25 @@
             >Biological relationships containing related CollectionObjects/OTUS
           </i>
         </p>
-        <table class="table-striped table-related-graph">
+        <VBtn
+          color="primary"
+          medium
+          @click="emit('add:biologicalAssociations', selectedIds)"
+          :disabled="!selectedIds.length"
+        >
+          Add
+        </VBtn>
+        <table
+          class="table-striped table-related-graph margin-small-top margin-small-bottom"
+        >
           <thead>
             <tr>
+              <th class="w-5">
+                <input
+                  v-model="toggleSelection"
+                  type="checkbox"
+                />
+              </th>
               <th>Object</th>
               <th>Relation</th>
               <th>Subject</th>
@@ -71,6 +87,13 @@
               v-for="item in biologicalAssociations"
               :key="item.id"
             >
+              <td>
+                <input
+                  type="checkbox"
+                  :value="item.id"
+                  v-model="selectedIds"
+                />
+              </td>
               <td
                 class="text-ellipsis half_width"
                 v-html="item.object.object_tag"
@@ -88,6 +111,14 @@
             </tr>
           </tbody>
         </table>
+        <VBtn
+          color="primary"
+          medium
+          @click="emit('add:biologicalAssociations', selectedIds)"
+          :disabled="!selectedIds.length"
+        >
+          Add
+        </VBtn>
       </div>
     </template>
   </VModal>
@@ -99,7 +130,7 @@ import VModal from 'components/ui/Modal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import { ref, onBeforeMount } from 'vue'
+import { ref, onBeforeMount, computed } from 'vue'
 import {
   BiologicalAssociation,
   BiologicalAssociationGraph
@@ -118,10 +149,20 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['select:graph'])
+const emit = defineEmits(['select:graph', 'add:biologicalAssociations'])
 const biologicalAssociations = ref([])
 const graphs = ref([])
 const isLoading = ref(false)
+const selectedIds = ref([])
+
+const toggleSelection = computed({
+  get: () => biologicalAssociations.value.length === selectedIds.value.length,
+  set(value) {
+    selectedIds.value = value
+      ? biologicalAssociations.value.map((item) => item.id)
+      : []
+  }
+})
 
 function makeObjectIdPayload() {
   const otuIds = []

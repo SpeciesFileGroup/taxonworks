@@ -1,6 +1,6 @@
 <template>
   <FacetContainer>
-    <h3>BybTeX type</h3>
+    <h3>BibTeX type</h3>
     <div class="field">
       <ul class="no_bullets">
         <li
@@ -12,7 +12,7 @@
               type="checkbox"
               :value="type"
               v-model="params.bibtex_type"
-            >
+            />
             {{ type }}
           </label>
         </li>
@@ -54,7 +54,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const urlParams = URLParamsToJSON(location.href)

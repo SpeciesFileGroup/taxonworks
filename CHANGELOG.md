@@ -7,11 +7,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- `Add` button to add biological associations from `Related` modal in new biological associations task
+
+### Fixed
+
+- BibTeX typo [#3408]
+
+[#3408]: https://github.com/SpeciesFileGroup/taxonworks/issues/3408
 
 ## [0.32.3] - 2023-05-05
 
 ### Added
+
 - Add/move/return collection objects from collection object filter [#3387]
 - Interpretation help for `full name` facet in people filter [#3394]
 - Total individuals to loan show/recipient form [#3398]
@@ -23,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Caption and figure label editable in Depictions list in Radial annotator [#3396]
 
 ### Changed
+
 - Pagination headers are exposed via CORS [#3380]
 - Updated bundle gems
 - Ruby 3.2 is now required as minimum
@@ -33,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse OTU biological association table contains related modal
 
 ### Fixed
+
 - Global identifiers not appearing on community data [#3393]
 - Lag in selecting loan items on edit loan [#3399]
 - Collection object was loanable 2x in some cases
@@ -3577,7 +3588,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-
 [unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.3...development
 [0.32.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.2...v0.32.3
 [0.32.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.1...v0.32.2
