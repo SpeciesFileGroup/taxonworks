@@ -11,20 +11,14 @@
     </div>
   <% end %>
 
-  <div class="field">
-    <%= form.label :subject_otu_id %>
-    <%= render '/otus/otu_picker', otu: @otu_relationship.subject_otu, field_name: 'Subject OTU', object_method: :subject_otu_id, f: form -%>
-  </div>
+  <%= smart_selector model: :otus, target: :OtuRelationship, field_property: :subject_otu_id, field_object: :otu_relationship, title: 'OTU subject', current: @otu_relationship.subject_otu %>
 
   <div class="field">
     <%= form.label :type %>
     <%= form.select :type, options: %w{OtuRelationship::Disjoint OtuRelationship::Equal OtuRelationship::ProperPartInverse OtuRelationship::ProperPart OtuRelationship::PartiallyOverlapping } %>
   </div>
 
-  <div class="field">
-    <%= form.label :object_otu_id %>
-    <%= render '/otus/otu_picker', otu: @otu_relationship.object_otu, field_name: 'Object OTU',  object_method: :object_otu_id, f: form -%>
-  </div>
+  <%= smart_selector model: :otus, target: :OtuRelationship, field_property: :object_otu_id, field_object: :otu_relationship, title: 'OTU object', current: @otu_relationship.object_otu %>
 
   <div class="actions">
     <%= form.submit %>
