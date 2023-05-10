@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - BibTeX typo [#3408]
+- Includes `type material` and `type material observations` don't work in Filter images
 
 [#3408]: https://github.com/SpeciesFileGroup/taxonworks/issues/3408
 
