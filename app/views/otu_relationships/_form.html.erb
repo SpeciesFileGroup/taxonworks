@@ -1,0 +1,32 @@
+<%= form_with(model: otu_relationship.metamorphosize) do |form| %>
+  <% if otu_relationship.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(otu_relationship.errors.count, "error") %> prohibited this otu_relationship from being saved:</h2>
+
+      <ul>
+        <% otu_relationship.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :subject_otu_id %>
+    <%= render '/otus/otu_picker', otu: @otu_relationship.subject_otu, field_name: 'Subject OTU', object_method: :subject_otu_id, f: form -%>
+  </div>
+
+  <div class="field">
+    <%= form.label :type %>
+    <%= form.select :type, options: %w{OtuRelationship::Disjoint OtuRelationship::Equal OtuRelationship::ProperPartInverse OtuRelationship::ProperPart OtuRelationship::PartiallyOverlapping } %>
+  </div>
+
+  <div class="field">
+    <%= form.label :object_otu_id %>
+    <%= render '/otus/otu_picker', otu: @otu_relationship.object_otu, field_name: 'Object OTU',  object_method: :object_otu_id, f: form -%>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

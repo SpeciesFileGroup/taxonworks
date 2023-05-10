@@ -502,7 +502,7 @@ resources :notes, except: [:show] do
 end
 
 resources :otus do
-  concerns [:data_routes ]
+  concerns [:data_routes]
   resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
   resources :asserted_distributions, shallow: true, only: [:index], defaults: {format: :json}
   resources :common_names, shallow: true, only: [:index], defaults: {format: :json}
@@ -548,6 +548,13 @@ resources :otu_page_layouts do
   member do
     get 'related'
   end
+end
+
+resources :otu_relationships do
+  collection do
+    get :list
+  end
+  concerns [:data_routes]
 end
 
 resources :organizations do
