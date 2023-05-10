@@ -717,6 +717,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Recent predicate list
+- Recent languages list
+- People autocomplete
 - Remove search box in observation matrix hub [#3032]
 - Type material form allows multiple type species in comprehensive task. [#2584]
 - Updated Ruby gems.
