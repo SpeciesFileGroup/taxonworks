@@ -183,6 +183,7 @@ export default {
       Object.assign(metadata.extraction_patterns, {
         none: {
           layout: 'none',
+          boundary_finder: {},
           metadata_map: {
             0: 'stage'
           }
