@@ -113,12 +113,12 @@ module Queries
       table.join(parent).on(table[:parent_id].eq(parent[:id])).join_sources
     end
 
-    # Match at two levels, for example, 'wa te" will match "Washington Co., Texas"
+    # Match at two levels, for example, 'te wa" will match "Texas, Washington Co."
     # @return [Arel::Nodes::Grouping]
     def parent_child_where
       a,b = query_string.split(/\s+/, 2)
       return table[:id].eq(-1) if a.nil? || b.nil?
-      table[:name].matches("#{a}%").and(parent[:name].matches("#{b}%"))
+      parent[:name].matches("#{a}%").and(table[:name].matches("#{b}%"))
     end
 
     # @return [Arel::Nodes, nil]
