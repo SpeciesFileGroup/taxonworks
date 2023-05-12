@@ -15,7 +15,7 @@
 
   <div class="field">
     <%= form.label :type %>
-    <%= form.select :type, options: %w{OtuRelationship::Disjoint OtuRelationship::Equal OtuRelationship::ProperPartInverse OtuRelationship::ProperPart OtuRelationship::PartiallyOverlapping } %>
+    <%= form.select :type, options: %w{OtuRelationship;:Intersecting OtuRelationship::Disjoint OtuRelationship::Equal OtuRelationship::ProperPartInverse OtuRelationship::ProperPart OtuRelationship::PartiallyOverlapping } %>
   </div>
 
   <%= smart_selector model: :otus, target: :OtuRelationship, field_property: :object_otu_id, field_object: :otu_relationship, title: 'OTU object', current: @otu_relationship.object_otu %>
