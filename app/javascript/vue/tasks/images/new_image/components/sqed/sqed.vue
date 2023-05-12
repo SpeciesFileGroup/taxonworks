@@ -15,6 +15,7 @@
         <div>
           <color-component
             :colors="colors"
+            :disabled="isNone"
             v-model="sqed_depiction_attributes.boundary_color"
           />
           <div class="separate-top">
@@ -22,6 +23,7 @@
               <input
                 v-model="sqed_depiction_attributes.has_border"
                 type="checkbox"
+                :disabled="isNone"
               />
               Has border
             </label>
@@ -147,6 +149,10 @@ export default {
       return this.metadata?.boundary_colors || []
     },
 
+    isNone() {
+      return this.layoutName === 'NoneLayout'
+    },
+
     pattern: {
       get() {
         return this.sqed_depiction_attributes
@@ -176,6 +182,15 @@ export default {
     }
   },
 
+  watch: {
+    isNone(newVal) {
+      if (newVal) {
+        this.sqed_depiction_attributes.boundary_color = undefined
+        this.sqed_depiction_attributes.has_border = undefined
+      }
+    }
+  },
+
   created() {
     SqedDepiction.metadata().then(({ body }) => {
       const metadata = body
@@ -185,7 +200,7 @@ export default {
           layout: 'none',
           boundary_finder: {},
           metadata_map: {
-            0: 'stage'
+            0: 'none'
           }
         }
       })
