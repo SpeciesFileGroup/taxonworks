@@ -2,6 +2,14 @@
   <div class="panel content flex-column draw__toolbar">
     <button
       type="button"
+      title="Move"
+      @click="SVGBoard.apiSetMode(drawMode.MOVE)"
+    >
+      <VIcon name="move" />
+    </button>
+    <button
+      type="button"
+      title="Circle"
       @click="SVGBoard.apiSetMode(drawMode.CIRCLE)"
     >
       <svg
@@ -24,6 +32,7 @@
     </button>
     <button
       type="button"
+      title="Rectangle"
       @click="SVGBoard.apiSetMode(drawMode.RECTANGLE)"
     >
       <VIcon name="square" />
