@@ -269,7 +269,7 @@ module CollectionObjectsHelper
     total_index = {}
 
     scope.each do |n|
-      a = ::Queries::CollectionObject::Filter.new(project_id: sessions_current_project_id, taxon_name_id:  n.id, descendants: true,  collection_object_type: 'Specimen').all
+      a = ::Queries::CollectionObject::Filter.new(project_id: sessions_current_project_id, taxon_name_id: n.id, descendants: true,  collection_object_type: 'Specimen').all
       b = ::Queries::CollectionObject::Filter.new(project_id: sessions_current_project_id, taxon_name_id: n.id, descendants: true, collection_object_type: 'Lot').all
 
       ts = CollectionObject.where(id: a).calculate(:sum, :total)
