@@ -326,10 +326,10 @@ module Queries
         @collectors = boolean_param(params, :collectors)
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
-        @collection_object_type = (params[:collection_object_type].presence)
+        @collection_object_type = params[:collection_object_type].presence
         @current_determinations = boolean_param(params, :current_determinations)
         @current_repository = boolean_param(params, :current_repository)
-        @current_repository_id = (params[:current_repository_id].presence)
+        @current_repository_id = params[:current_repository_id].presence
         @dates = boolean_param(params, :dates)
         @descendants = boolean_param(params, :descendants)
         @deaccessioned = boolean_param(params, :deaccessioned)
