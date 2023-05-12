@@ -1,91 +1,77 @@
 module Queries
-  module Confidence 
+  module Confidence
+    class Filter < Query::Filter
+      include Concerns::Polymorphic
+      polymorphic_klass(::Confidence)
 
-    # !! does not inherit from base query
-    class Filter 
+      PARAMS = [
+        *::Confidence.related_foreign_keys.map(&:to_sym),
+        :confidence_id,
+        :confidence_level_id,
+        :confidence_object_type,
+        confidence_id: [],
+        confidence_level_id: [],
+        confidence_object_type: [],
+      ].freeze
 
-      # Params specific to Confidence 
+      # @return Array
+      attr_accessor :confidence_id
 
-      # General annotator options handling 
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      attr_accessor :options
+      # @return Array
+      attr_accessor :confidence_level_id
 
-      # Array, Integer
-      attr_accessor :confidence_level_id, :object_global_id, :confidence_object_type
+      # @return Array
+      attr_accessor :confidence_object_type
+
+      # @return Array
+      attr_accessor :confidence_object_id
 
       # @params params [ActionController::Parameters]
-      def initialize(params)
+      def initialize(query_params)
+        super
+        @confidence_id = params[:confidence_id]
         @confidence_level_id = [params[:confidence_level_id]].flatten.compact
-        @object_global_id = params[:object_global_id]
         @confidence_object_type = params[:confidence_object_type]
-        @options = params
+        @confidence_object_id = params[:confidence_object_id]
+
+        set_polymorphic_params(params)
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = [
-          ::Queries::Annotator.annotator_params(options, ::Confidence),
-          matching_confidence_level_id,
-          matching_confidence_object_type,
-          matching_object,
-        ].compact
-
-        return nil if clauses.empty? 
-        
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+      def confidence_id
+        [@confidence_id].flatten.compact.uniq
       end
 
-      # @return [ActiveRecord object, nil]
-      # TODO: DRY
-      def object_for
-        if o = GlobalID::Locator.locate(object_global_id)
-          o
-        else
-          nil
-        end
+      def confidence_object_type
+        [@confidence_object_type].flatten.compact
       end
 
-      # TODO: Dry
-      # @return [Arel::Node, nil]
-      def matching_object
-        if o = object_for
-          table["confidence_object_id"].eq(o.id).and(
-              table["confidence_object_type"].eq(o.metamorphosize.class.name)
-          )
-        else
-          nil
-        end
+      def confidence_object_id
+        [@confidence_object_id].flatten.compact
       end
 
       # @return [Arel::Node, nil]
-      def matching_confidence_level_id
+      def confidence_level_id_facet
         !confidence_level_id.blank? ? table[:confidence_level_id].eq_any(confidence_level_id)  : nil
       end
 
       # @return [Arel::Node, nil]
-      def matching_confidence_object_type
+      def confidence_object_type_facet
         !confidence_object_type.blank? ? table[:confidence_object_type].eq(confidence_object_type)  : nil
       end
 
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::Confidence.where(and_clauses).distinct
-        else
-          ::Confidence.all
-        end
+      # @return [Arel::Node, nil]
+      def confidence_object_id_facet
+        confidence_object_id.empty? ? nil : table[:confidence_object_id].eq_any(confidence_object_id)
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Confidence.arel_table
+      def and_clauses
+        [
+          confidence_level_id_facet,
+          confidence_object_id_facet,
+          confidence_object_type_facet,
+        ]
       end
+
     end
   end
 end

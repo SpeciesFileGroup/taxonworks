@@ -20,17 +20,21 @@ module Shared::Taxonomy
 
     protected
 
+    # TODO: analyze and optimize for n+1
     def set_taxonomy
       c = case self.class.base_class.name
           when 'CollectionObject'
             a = current_taxon_name
-            
+
             # If we have no name, see if there is a Type reference and use it as proxy
             # !! Careful/TODO this is an arbitrary choice, technically can be only one primary, but not restricted in DB yet
-            a ||= type_designations.primary.first&.protonym
+            a ||= type_materials.primary.first&.protonym
           when 'Otu'
             taxon_name&.valid_taxon_name
+          when 'AssertedDistribution'
+            otu.taxon_name&.valid_taxon_name
           end
+
       if c
         @taxonomy = c.full_name_hash
         # Check for required 'Kingdom'
@@ -51,7 +55,6 @@ module Shared::Taxonomy
               # if c.rank_class::KINGDOM.size == 1
               #   @taxonomy['kingdom'] = c.rank_class::KINGDOM.first
               # end
-
 
             end
           end

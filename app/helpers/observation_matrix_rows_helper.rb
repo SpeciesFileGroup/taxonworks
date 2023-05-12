@@ -21,8 +21,10 @@ module ObservationMatrixRowsHelper
   def observation_matrix_row_label_tnt(observation_matrix_row)
     return observation_matrix_row.name unless observation_matrix_row.name.blank?
     o = observation_matrix_row.observation_object
-    s = label_for(o)
-    s.gsub!(/[^\w]/, '_').gsub('__', '_')
+    s = label_for(o).to_s
+    s.gsub!(/[^\w]/, '_')
+    s = '_' if s.blank?
+    s.gsub!(/_+/, '_')
     #s[0..11] + "_#{o.id}"
   end
 
@@ -30,7 +32,9 @@ module ObservationMatrixRowsHelper
     return observation_matrix_row.name unless observation_matrix_row.name.blank?
     o = observation_matrix_row.observation_object
     s = label_for(o)
-    s.gsub!(/[^\w]/, '_').gsub('__', '_')
+    s.gsub!(/[^\w]/, '_').to_s
+    s = '_' if s.blank?
+    s.gsub!(/_+/, '_')
   end
 
   def observation_matrix_row_label_nexml(observation_matrix_row)

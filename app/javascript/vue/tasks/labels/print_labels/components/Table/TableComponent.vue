@@ -45,7 +45,14 @@
             >
           </td>
           <td>
-            <pre v-html="item.label"/>
+            <div
+              v-if="item.is_generated"
+              v-html="item.label"
+            />
+            <pre
+              v-else
+              v-html="item.label"
+            />
           </td>
           <td v-html="item.total"/>
           <td>
@@ -159,7 +166,7 @@ export default {
 
     removeRow (label) {
       if (window.confirm("You're trying to delete this label. Are you sure want to proceed?")) {
-        this.$emit('onRemove', label)
+        this.$emit('onRemove', label.id)
       }
     },
 

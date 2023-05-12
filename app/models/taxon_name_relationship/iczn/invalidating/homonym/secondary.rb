@@ -44,7 +44,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary < TaxonNameR
     s = subject_taxon_name
     o = object_taxon_name
     if !s.original_genus.nil? && s.original_genus == o.original_genus
-      soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} species described in the same original genus #{s.original_genus}, they are primary homonyms")
+      soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} species described in the same original genus #{s.original_genus.cached_html}, they are primary homonyms")
     end
   end
 
@@ -73,7 +73,22 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary < TaxonNameR
   end
 
   def sv_not_specific_relationship
-    true
+    if self.source && self.source.year < 1961
+      soft_validations.add(
+        :type, "The relationship should change to the 'Secondary homonym replaced before 1961'",
+        success_message: "The relationship updated to 'Secondary homonym replaced before 1961'",
+        failure_message:  'Failed to update the homonym relationship')
+    end
+  end
+
+  def sv_fix_not_specific_relationship
+    new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
+    if new_relationship_name && self.type_name != new_relationship_name
+      self.type = new_relationship_name
+      self.save
+      return true
+    end
+    false
   end
 
   def sv_synonym_relationship

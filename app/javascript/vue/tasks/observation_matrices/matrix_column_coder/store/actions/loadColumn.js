@@ -9,19 +9,20 @@ import makeColumnObject from '../../helpers/makeColumnObject'
 export default async ({ dispatch, state }, id) => {
   ObservationMatrix.objectsByColumnId(id).then(({ body }) => {
     state.observationMatrix = body.observation_matrix
+    state.observationColumnId = id
     state.descriptor = makeDescriptor(body.descriptor)
     state.previousColumn = makeColumnObject(body.previous_column || {})
     state.nextColumn = makeColumnObject(body.next_column || {})
-    state.rowObjects = [
-      ...body.otus,
-      ...body.collection_objects
-    ].map(o => makeRowObject(o))
+    state.rowObjects = body.rows.map((o) => makeRowObject(o))
 
-    state.rowObjects.forEach(rowObject => {
-      state.observations = [...state.observations, ...makeEmptyObservationsFor(state.descriptor, rowObject)]
+    state.rowObjects.forEach((rowObject) => {
+      state.observations = [
+        ...state.observations,
+        ...makeEmptyObservationsFor(state.descriptor, rowObject)
+      ]
     })
 
-    dispatch(ActionNames.LoadObservations, getObservationParameters(state.descriptor))
+    dispatch(ActionNames.LoadObservations, getObservationParameters(state))
   })
 }
 
@@ -34,11 +35,11 @@ const DescriptorTypesToComponentNames = {
   [DescriptorTypes.Presence]: ComponentNames.Presence
 }
 
-function getComponentNameForDescriptorType (descriptorData) {
+function getComponentNameForDescriptorType(descriptorData) {
   return DescriptorTypesToComponentNames[descriptorData.type]
 }
 
-function makeDescriptor (descriptorData) {
+function makeDescriptor(descriptorData) {
   const descriptor = {
     id: descriptorData.id,
     componentName: getComponentNameForDescriptorType(descriptorData),
@@ -47,16 +48,23 @@ function makeDescriptor (descriptorData) {
     type: getComponentNameForDescriptorType(descriptorData)
   }
 
+  if (descriptorData.default_unit) {
+    Object.assign(descriptor, { defaultUnit: descriptorData.default_unit })
+  }
+
   if (descriptor.type === ComponentNames.Qualitative) {
-    Object.assign(descriptor, { characterStates: descriptorData.character_states })
+    Object.assign(descriptor, {
+      characterStates: descriptorData.character_states
+    })
   }
 
   return descriptor
 }
 
-function getObservationParameters (descriptor) {
+function getObservationParameters({ descriptor, observationMatrix }) {
   const payload = {
     descriptor_id: descriptor.id,
+    observation_matrix_id: observationMatrix.id,
     per: 5000
   }
 

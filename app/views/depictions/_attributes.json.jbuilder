@@ -3,6 +3,7 @@ json.extract! depiction, :id, :depiction_object_id, :depiction_object_type,
 :caption, :figure_label, :is_metadata_depiction,
 :sled_image_id, :sled_image_x_position, :sled_image_y_position,
 :svg_view_box,
+:position,
 :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 
 json.partial! '/shared/data/all/metadata', object: depiction

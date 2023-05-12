@@ -57,6 +57,11 @@ class DwcOccurrence < ApplicationRecord
 
   attr_accessor :occurrence_identifier
 
+
+  def self.annotates?
+    false 
+  end
+
   # TODO: will need similar join for AssertedDistribution, or any object
   # that matches, consider moving to Shared
   # @return [ActiveRecord::Relation]
@@ -87,7 +92,7 @@ class DwcOccurrence < ApplicationRecord
   # @return [Array]
   #   of column names as symbols that are blank in *ALL* projects (not just this one)
   def self.empty_fields
-    empty_in_all_projects =  ActiveRecord::Base.connection.execute("select attname
+    empty_in_all_projects = ActiveRecord::Base.connection.execute("select attname
     from pg_stats
     where tablename = 'dwc_occurrences'
     and most_common_vals is null
@@ -133,11 +138,14 @@ class DwcOccurrence < ApplicationRecord
         return 'PreservedSpecimen'
       end
     when 'AssertedDistribution'
-      case dwc_occurrence_object.source.try(:type)
+      # Used to fork b/b Source::Human and Source::Bibtex:
+      case dwc_occurrence_object.source&.type || dwc_occurrence_object.sources.order(cached_nomenclature_date: :DESC).first.type
       when 'Source::Bibtex'
-        return 'Occurrence'
-      when 'Source::Human'
+        return 'MaterialCitation'
+      when 'Source::Human'  
         return 'HumanObservation'
+      else # Not recommended at this point
+        return 'Occurrence'
       end
     end
     'Undefined'
@@ -193,7 +201,6 @@ class DwcOccurrence < ApplicationRecord
       project_id: dwc_occurrence_object&.project_id, # Current.project_id,  # revisit, why required?
       is_generated: true)
   end
-
 
   def set_metadata_attributes
     write_attribute( :basisOfRecord, basis)

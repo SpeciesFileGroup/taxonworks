@@ -1,48 +1,37 @@
-import { Citation, TaxonName } from "routes/endpoints"
-import { chunkArray } from "helpers/arrays.js"
-import { TAXON_NAME, TAXON_NAME_CLASSIFICATION } from "constants/index.js"
+import { Citation, TaxonName } from 'routes/endpoints'
+import { TAXON_NAME } from 'constants/index.js'
 import extend from '../../const/extendRequest.js'
 
-const MAX_PER_REQUEST = 25
+export default async ({ state }, payload) => {
+  const { sourceId, type, page, per } = payload
 
-export default ({ state }, payload) => {
-  const {
-    sourceId,
-    type,
-    page,
-    per
-  } = payload
-
-  const requestCitations = Citation.where({
+  const citationResponse = await Citation.where({
     citation_object_type: type,
     source_id: sourceId,
     extend,
     page,
-    per,
-  })
-  
-  requestCitations.then(async ({ body }) => {
-    if (type === TAXON_NAME) {
-      state.citations[type] = await loadTaxonNamesIntoList(body)
-    } else {
-      state.citations[type] = body
-    }
+    per
   })
 
-  return requestCitations
+  if (type === TAXON_NAME) {
+    state.citations[type] = await loadTaxonNamesIntoList(citationResponse.body)
+  } else {
+    state.citations[type] = citationResponse.body
+  }
+
+  return citationResponse
 }
 
-const loadTaxonNamesIntoList = list => 
-  new Promise((resolve, reject) => {
-    const arrIds = chunkArray(list.map(item => item.citation_object_id), MAX_PER_REQUEST)
-    const requestTaxons = arrIds.map(ids => TaxonName.where({ taxon_name_id: ids }))
-
-    Promise.all(requestTaxons).then(responses => {
-      const taxonList = [].concat(...responses.map(r => r.body))
-
-      resolve(list.map(item => ({
-        ...item,
-        citation_object: taxonList.find(taxon => taxon.id === item.citation_object_id) || citation_object
-      })))
-    })
+async function loadTaxonNamesIntoList(list) {
+  const taxonIds = list.map((item) => item.citation_object_id)
+  const { body } = await TaxonName.all({
+    taxon_name_id: taxonIds
   })
+
+  return list.map((item) => ({
+    ...item,
+    citation_object:
+      body.find((taxon) => taxon.id === item.citation_object_id) ||
+      item.citation_object
+  }))
+}

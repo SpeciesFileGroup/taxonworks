@@ -4,21 +4,11 @@
       <h1>New source</h1>
       <ul class="context-menu">
         <li>
-          <autocomplete
-            url="/sources/autocomplete"
-            param="term"
-            placeholder="Search a source..."
-            label="label_html"
-            clear-after
-            @get-item="loadSource($event.id)"
-          />
-        </li>
-        <li>
           <label>
             <input
               type="checkbox"
               v-model="settings.sortable"
-            >
+            />
             Reorder fields
           </label>
         </li>
@@ -111,13 +101,13 @@
         </div>
       </div>
     </nav-bar>
-    <source-type class="margin-medium-bottom" />
     <recent-component
       v-if="showRecent"
       @close="showRecent = false"
     />
     <div class="horizontal-left-content align-start">
-      <div class="full_width">
+      <div class="full_width panel content">
+        <source-type class="margin-medium-bottom" />
         <component :is="section" />
       </div>
       <right-section class="margin-medium-left" />
@@ -133,14 +123,13 @@
     <spinner-component
       v-if="settings.isConverting"
       :full-screen="true"
-      :logo-size="{ width: '100px', height: '100px'}"
+      :logo-size="{ width: '100px', height: '100px' }"
       legend="Converting verbatim to BiBTeX..."
     />
   </div>
 </template>
 
 <script>
-
 import SourceType from './components/sourceType'
 import RecentComponent from './components/recent'
 import SpinnerComponent from 'components/spinner'
@@ -152,7 +141,6 @@ import Bibtex from './components/bibtex/main'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 import AddSource from 'components/addToProjectSource'
-import Autocomplete from 'components/ui/Autocomplete'
 import CloneSource from './components/cloneSource'
 import VIcon from 'components/ui/VIcon/index.vue'
 
@@ -171,7 +159,6 @@ export default {
   name: 'NewSource',
 
   components: {
-    Autocomplete,
     CloneSource,
     RadialAnnotator,
     RadialObject,
@@ -190,7 +177,7 @@ export default {
   },
 
   computed: {
-    shortcuts () {
+    shortcuts() {
       const keys = {}
 
       keys[`${platformKey()}+s`] = this.saveSource
@@ -199,31 +186,31 @@ export default {
       return keys
     },
 
-    section () {
+    section() {
       const type = this.$store.getters[GetterNames.GetType]
       return type ? type.split('::')[1] : undefined
     },
 
-    source () {
+    source() {
       return this.$store.getters[GetterNames.GetSource]
     },
 
     settings: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSettings]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
 
-    unsave () {
+    unsave() {
       const settings = this.$store.getters[GetterNames.GetSettings]
       return settings.lastSave < settings.lastEdit
     }
   },
 
-  data () {
+  data() {
     return {
       showModal: false,
       showBibtex: false,
@@ -233,7 +220,7 @@ export default {
 
   watch: {
     source: {
-      handler (newVal, oldVal) {
+      handler(newVal, oldVal) {
         if (newVal.id === oldVal.id) {
           this.settings.lastEdit = Date.now()
         }
@@ -242,10 +229,22 @@ export default {
     }
   },
 
-  mounted () {
-    TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New source')
-    TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'New', 'New source')
-    TW.workbench.keyboard.createLegend(`${platformKey()}+c`, 'Clone source', 'New source')
+  mounted() {
+    TW.workbench.keyboard.createLegend(
+      `${platformKey()}+s`,
+      'Save',
+      'New source'
+    )
+    TW.workbench.keyboard.createLegend(
+      `${platformKey()}+n`,
+      'New',
+      'New source'
+    )
+    TW.workbench.keyboard.createLegend(
+      `${platformKey()}+c`,
+      'Clone source',
+      'New source'
+    )
 
     const urlParams = new URLSearchParams(window.location.search)
     const sourceId = urlParams.get('source_id')
@@ -254,51 +253,49 @@ export default {
       this.$store.dispatch(ActionNames.LoadSource, sourceId)
     }
 
-    User.preferences().then(response => {
+    User.preferences().then((response) => {
       this.$store.commit(MutationNames.SetPreferences, response.body)
     })
   },
 
   methods: {
-    reset () {
+    reset() {
       this.$store.dispatch(ActionNames.ResetSource)
     },
-    saveSource () {
-      if (this.source.type === 'Source::Bibtex' && !this.source.bibtex_type) return
+    saveSource() {
+      if (this.source.type === 'Source::Bibtex' && !this.source.bibtex_type)
+        return
       this.$store.dispatch(ActionNames.SaveSource)
     },
-    cloneSource () {
+    cloneSource() {
       this.$store.dispatch(ActionNames.CloneSource)
     },
-    convert () {
+    convert() {
       this.$store.dispatch(ActionNames.ConvertToBibtex)
-    },
-    loadSource (sourceId) {
-      this.$store.dispatch(ActionNames.LoadSource, sourceId)
     }
   }
 }
 </script>
 <style scoped>
-  .button-size {
-    width: 100px;
-  }
+.button-size {
+  width: 100px;
+}
 
+.nav__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: end;
+  align-items: center;
+}
+
+@media (min-width: 1520px) {
   .nav__buttons {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    justify-content: end;
-    align-items: center;
+    min-width: 800px;
   }
 
-  @media (min-width: 1520px) {
-    .nav__buttons {
-      min-width: 800px;
-    }
-
-    .nav__source-buttons {
-      min-width: 150px;
-    }
+  .nav__source-buttons {
+    min-width: 150px;
   }
+}
 </style>

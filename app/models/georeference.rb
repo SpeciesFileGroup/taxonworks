@@ -88,7 +88,7 @@ class Georeference < ApplicationRecord
   acts_as_list scope: [:collecting_event_id, :project_id], add_new_at: :top
 
   belongs_to :collecting_event, inverse_of: :georeferences
-  belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id, inverse_of: :georeferences_through_error_geographic_item
+  belongs_to :error_geographic_item, class_name: 'GeographicItem', inverse_of: :georeferences_through_error_geographic_item
   belongs_to :geographic_item, inverse_of: :georeferences
 
   has_many :collection_objects, through: :collecting_event, inverse_of: :georeferences
@@ -130,6 +130,12 @@ class Georeference < ApplicationRecord
   attr_accessor :no_cached
 
   after_save :set_cached, unless: -> { self.no_cached }
+
+  after_destroy :set_cached_collecting_event
+
+  def set_cached_collecting_event
+    collecting_event.send(:set_cached)
+  end
 
   def self.point_type
     joins(:geographic_item).where(geographic_items: {type: 'GeographicItem::Point'})
@@ -187,7 +193,7 @@ class Georeference < ApplicationRecord
   # geographic_areas as a GeographicArea
   # TODO: or, (in the future) a string matching a geographic_area.name
   def self.with_geographic_area(geographic_area)
-    partials = CollectingEvent.where(geographic_area: geographic_area)
+    partials = CollectingEvent.where(geographic_area:)
     partial_gr = Georeference.where('collecting_event_id in (?)', partials.pluck(:id))
     partial_gr
   end
@@ -386,11 +392,11 @@ class Georeference < ApplicationRecord
     # case 2
     retval = true
     # if !error_radius.blank? && geographic_item && geographic_item.geo_object
-    unless error_radius.blank?
-      unless geographic_item.blank?
-        unless geographic_item.geo_object.blank?
+    if error_radius.present?
+      if geographic_item.present?
+        if geographic_item.geo_object.present?
           val = error_box
-          unless val.blank?
+          if val.present?
             retval = val.contains?(geographic_item.geo_object)
           end
         end
@@ -421,7 +427,7 @@ class Georeference < ApplicationRecord
     if collecting_event
       ga_gi = collecting_event.geographic_area_default_geographic_item
       eb = error_box
-      unless error_radius.blank? # rubocop:disable Style/IfUnlessModifier
+      if error_radius.present? # rubocop:disable Style/IfUnlessModifier
         retval = ga_gi.contains?(eb) if ga_gi && eb
       end
     end
@@ -553,7 +559,7 @@ class Georeference < ApplicationRecord
   end
 
   def geographic_item_present_if_error_radius_provided
-    if !error_radius.blank? &&
+    if error_radius.present? &&
         geographic_item_id.blank? && # provide existing
         geographic_item.blank? # provide new
       errors.add(:error_radius, 'can only be provided when geographic item is provided')

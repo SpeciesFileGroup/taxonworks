@@ -3,11 +3,11 @@ module Shared::IsDwcOccurrence
   extend ActiveSupport::Concern
 
   # These probably belong in a global helper
-  DWC_DELIMITER = ' | '
+  DWC_DELIMITER = ' | '.freeze
 
   VIEW_EXCLUSIONS = [
     :footprintWKT
-  ]
+  ].freeze
 
   included do
     delegate :persisted?, to: :dwc_occurrence, prefix: :dwc_occurrence, allow_nil: true
@@ -45,6 +45,7 @@ module Shared::IsDwcOccurrence
     end
   end
 
+  # TODO: wrap in generic (reindex_dwc_occurrences method for use in InternalAttribute and elsewhere)
   # @return [DwcOccurrence]
   #   always touches the database
   def set_dwc_occurrence

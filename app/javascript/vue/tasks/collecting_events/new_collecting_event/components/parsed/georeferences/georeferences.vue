@@ -70,6 +70,8 @@
               :draw-polyline="false"
               :cut-polygon="false"
               :removal-mode="false"
+              tooltips
+              actions
               @geoJsonLayersEdited="updateGeoreference($event)"
               @geoJsonLayerCreated="addGeoreference($event)"/>
           </div>

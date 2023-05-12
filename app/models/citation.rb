@@ -19,7 +19,7 @@
 #
 # @!attribute pages
 #   @return [String, nil]
-#     a specific location/localization for the data in the Source, if you lead with an integer seperated by space or punctation that
+#     a specific location/localization for the data in the Source, if you lead with an integer separated by space or punctation that
 #     integer will be returned as the "first" page and usable in direct linkouts to Documents if available
 #
 # @!attribute is_original
@@ -71,6 +71,27 @@ class Citation < ApplicationRecord
   after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
 
   soft_validate(:sv_page_range, set: :page_range)
+
+  def self.batch_create(params)
+    ids = params[:citation_object_id]
+    params.delete(:citation_object_id)
+
+    citations = []
+    Citation.transaction do
+      begin
+        ids.each do |id|
+          citations.push Citation.create!(
+            params.merge(
+              citation_object_id: id
+            )
+          )
+        end
+      rescue ActiveRecord::RecordInvalid
+        return false
+      end
+    end
+    citations
+  end
 
   # TODO: deprecate
   # @return [Scope of matching sources]
@@ -149,9 +170,12 @@ class Citation < ApplicationRecord
               cached: t.get_full_name,
               cached_html: t.get_full_name_html,
               cached_valid_taxon_name_id: vn.id)
+
+            # @proceps: This and below is not updating cached names.  Is this required because timing (new dates) may change synonymy?
             t.combination_list_self.each do |c|
               c.update_column(:cached_valid_taxon_name_id, vn.id)
             end
+
 
             vn.list_of_invalid_taxon_names.each do |s|
               s.update_column(:cached_valid_taxon_name_id, vn.id)

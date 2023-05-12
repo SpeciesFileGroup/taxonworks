@@ -226,7 +226,7 @@ export default {
     }
 
     BiologicalAssociation.where({
-      subject_global_id: this.globalId,
+      subject_object_global_id: this.globalId,
       extend: EXTEND_PARAMS
     }).then(({ body }) => {
       this.list = body

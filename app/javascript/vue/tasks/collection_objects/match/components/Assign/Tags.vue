@@ -7,7 +7,7 @@
     <h2>Tags</h2>
     <smart-selector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-      :autocomplete-params="{'type[]' : 'Keyword'}"
+      :autocomplete-params="{ 'type[]': 'Keyword' }"
       get-url="/controlled_vocabulary_terms/"
       model="keywords"
       klass="Tag"
@@ -37,7 +37,6 @@
 </template>
 
 <script>
-
 import SmartSelector from 'components/ui/SmartSelector'
 import SpinnerComponent from 'components/spinner'
 import DisplayList from 'components/displayList.vue'
@@ -57,7 +56,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       view: undefined,
       maxPerCall: 5,
@@ -67,15 +66,15 @@ export default {
   },
 
   methods: {
-    addTag (tag) {
+    addTag(tag) {
       this.tags.push(tag)
     },
 
-    setTags () {
-      const promises = this.tags.map(tag =>
+    setTags() {
+      const promises = this.tags.map((tag) =>
         Tag.createBatch({
           keyword_id: tag.id,
-          object_ids: this.ids,
+          object_id: this.ids,
           object_type: 'CollectionObject'
         })
       )
@@ -84,7 +83,10 @@ export default {
 
       Promise.allSettled(promises).then(() => {
         this.isSaving = false
-        TW.workbench.alert.create('Tag items was successfully created.', 'notice')
+        TW.workbench.alert.create(
+          'Tag items was successfully created.',
+          'notice'
+        )
       })
     }
   }

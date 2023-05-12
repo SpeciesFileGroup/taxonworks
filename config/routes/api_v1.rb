@@ -12,17 +12,18 @@ namespace :api, defaults: {format: :json} do
     get :ping, controller: 'ping'
     get :pingz, controller: 'ping'
 
+    # not authenticated
+    get '/sources', to: '/sources#api_index'
+    get '/sources/autocomplete', to: '/sources#autocomplete'
+    get '/sources/:id', to: '/sources#api_show'
+
+    get '/people', to: '/people#api_index'
+    get '/people/autocomplete', to: '/people#autocomplete'
+    get '/people/:id', to: '/people#api_show'
+
     # authenticated by user_token
     defaults authenticate_user: true do
       get '/user_authenticated', to: 'base#index'
-
-      get '/sources', to: '/sources#api_index'
-      get '/sources/autocomplete', to: '/sources#autocomplete'
-      get '/sources/:id', to: '/sources#api_show'
-
-      get '/people', to: '/people#api_index'
-      get '/people/autocomplete', to: '/people#autocomplete'
-      get '/people/:id', to: '/people#api_show'
     end
 
     # authenticated by project token
@@ -58,6 +59,7 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names', to: '/taxon_names#api_index'
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/parse', to: '/taxon_names#parse'
+      get '/taxon_names/:id/inventory/catalog', to: '/taxon_names#api_catalog'
       get '/taxon_names/:id/inventory/summary', to: '/taxon_names#api_summary'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 

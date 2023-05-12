@@ -16,10 +16,12 @@
     <div class="horizontal-left-content align-start">
       <div class="full_width">
         <LabelList class="margin-medium-bottom" />
-        <CollectionObjectList />
+        <CollectionObjectList v-if="selectedLabel" />
       </div>
 
-      <div class="margin-medium-left">
+      <div
+        id="right-column"
+        class="margin-medium-left">
         <CuttoffInput class="margin-medium-bottom" />
         <TaxonDetermination />
       </div>
@@ -38,7 +40,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import TaxonDetermination from './components/TaxonDetermination.vue'
 import CollectionObjectList from './components/CollectionObject/CollectionObjectList.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
@@ -56,6 +58,8 @@ const {
   createDeterminations,
   collectionObjects,
   taxonDetermination,
+  loadCollectionObjects,
+  ghostCount,
   selectedCOIds
 } = useStore()
 
@@ -69,6 +73,7 @@ const handleClick = async () => {
       message: 'This will add the current taxon determination to all collection object selected. Are you sure you want to proceed?',
       confirmationWord: 'CREATE',
       okButton: 'Create',
+      cancelButton: 'Cancel',
       typeButton: 'submit'
     })
 
@@ -77,6 +82,19 @@ const handleClick = async () => {
   }
 }
 
+watch(
+  selectedLabel,
+  label => {
+    if (label) {
+      loadCollectionObjects(1).then(_ => {
+        if (ghostCount.value) {
+          TW.workbench.alert.create(`Warning, ${ghostCount.value} additional specimens identical except for whitepace are included`, 'notice')
+        }
+      })
+    }
+  }
+)
+
 </script>
 
 <script>
@@ -84,3 +102,9 @@ export default {
   name: 'StepwiseDeterminations'
 }
 </script>
+
+<style scoped>
+#right-column {
+  width: 600px;
+}
+</style>

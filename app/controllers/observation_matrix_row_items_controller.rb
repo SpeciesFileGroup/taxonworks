@@ -90,7 +90,7 @@ class ObservationMatrixRowItemsController < ApplicationController
 
   def filter_params
     params.permit(
-      :observation_matrix_id, :otu_id, :controlled_vocabulary_term_id, :collection_object_id, :type, :taxon_name_id)
+      :observation_matrix_id, :otu_id, :controlled_vocabulary_term_id, :collection_object_id, :type, :taxon_name_id, :observation_object_id, :observation_object_type)
   end
 
   def set_observation_matrix_row_item

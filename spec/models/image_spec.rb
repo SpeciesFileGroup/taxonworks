@@ -126,7 +126,7 @@ describe Image, type: :model, group: [:images] do
   specify 'is the missing image jpg path set & present' do
     # TODO we'll need to test that this actually works like we think it does.
     # I believe that paperclip just looks for that path as stated in the const.
-    expect(File.exists?(Rails.root.to_s + Image::MISSING_IMAGE_PATH)).to be_truthy
+    expect(File.exist?(Rails.root.to_s + Image::MISSING_IMAGE_PATH)).to be_truthy
   end
 
   context 'concerns' do

@@ -16,14 +16,22 @@
         <tr
           v-for="item in list"
           :key="item.id"
-          class="list-complete-item">
+          class="list-complete-item"
+        >
           <td>{{ item.id }}</td>
-          <td class="word-keep-all">{{ isTmpWkt(item) || isTempGeolocate(item) ? '' : getGeoJsonType(item) }}</td>
+          <td class="word-keep-all">
+            {{
+              isTmpWkt(item) || isTempGeolocate(item)
+                ? ''
+                : getGeoJsonType(item)
+            }}
+          </td>
           <td>{{ getCoordinatesByType(item) }}</td>
           <td class="line-nowrap">
             <edit-in-place
               v-model="item.error_radius"
-              @end="$emit('update', item)"/>
+              @end="$emit('update', item)"
+            />
           </td>
           <td class="word-keep-all">{{ item.type }}</td>
           <td>
@@ -47,11 +55,13 @@
             <div class="vue-table-options">
               <radial-annotator
                 v-if="item.global_id"
-                :global-id="item.global_id"/>
+                :global-id="item.global_id"
+              />
               <span
                 v-if="destroy"
                 class="circle-button btn-delete"
-                @click="deleteItem(item)">Remove
+                @click="deleteItem(item)"
+                >Remove
               </span>
             </div>
           </td>
@@ -61,15 +71,12 @@
   </div>
 </template>
 <script>
-
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import EditInPlace from 'components/editInPlace'
 import DateComponent from 'components/ui/Date/DateFields.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
-import {
-  GEOREFERENCE_GEOLOCATE,
-  GEOREFERENCE_WKT
-} from 'constants/index.js'
+import { convertToLatLongOrder } from 'helpers/geojson'
+import { GEOREFERENCE_GEOLOCATE, GEOREFERENCE_WKT } from 'constants/index.js'
 
 export default {
   components: {
@@ -105,44 +112,55 @@ export default {
     }
   },
 
-  emits: [
-    'delete',
-    'update',
-    'dateChanged'
-  ],
+  emits: ['delete', 'update', 'dateChanged'],
 
   methods: {
-    deleteItem (item) {
+    deleteItem(item) {
       if (this.deleteWarning) {
-        if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+        if (
+          window.confirm(
+            "You're trying to delete this record. Are you sure want to proceed?"
+          )
+        ) {
           this.$emit('delete', item)
         }
       } else {
         this.$emit('delete', item)
       }
     },
-    getCoordinates (coordinates) {
-      return coordinates.map(coordinate => Array.isArray(coordinate) ? coordinate.map(item => item.slice(0, 2)) : coordinate)
+    getCoordinates(coordinates) {
+      const flatten = coordinates.flat(1)
+
+      if (typeof flatten[0] === 'number') {
+        console.log(coordinates)
+        return convertToLatLongOrder(coordinates)
+      } else {
+        return flatten.map((arr) => convertToLatLongOrder(arr))
+      }
     },
-    geojsonObject (object) {
-      return object.geo_json ? object.geo_json : JSON.parse(object.geographic_item_attributes.shape)
+    geojsonObject(object) {
+      return object.geo_json
+        ? object.geo_json
+        : JSON.parse(object.geographic_item_attributes.shape)
     },
-    getGeoJsonType (object) {
+    getGeoJsonType(object) {
       return this.geojsonObject(object).geometry.type
     },
-    isTmpWkt (object) {
+    isTmpWkt(object) {
       return object.type === GEOREFERENCE_WKT && object.tmpId
     },
-    isTempGeolocate (object) {
+    isTempGeolocate(object) {
       return object.type === GEOREFERENCE_GEOLOCATE && object.tmpId
     },
-    getCoordinatesByType (object) {
+    getCoordinatesByType(object) {
       if (this.isTmpWkt(object)) {
         return object.wkt
       } else if (this.isTempGeolocate(object)) {
         return object.iframe_response
       } else {
-        return this.getCoordinates(this.geojsonObject(object).geometry.coordinates)
+        return this.getCoordinates(
+          this.geojsonObject(object).geometry.coordinates
+        )
       }
     }
   }

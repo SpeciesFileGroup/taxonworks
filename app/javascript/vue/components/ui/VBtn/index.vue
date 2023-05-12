@@ -6,24 +6,20 @@
     :download="download"
     :href="href"
     type="button"
-    @click="$emit('click')"
+    @click="$emit('click', $event)"
   >
     <slot />
   </component>
 </template>
 
 <script>
-
 import mixinSizes from '../mixins/sizes.js'
 import mixinColor from '../mixins/colors.js'
 
 export default {
   name: 'VBtn',
 
-  mixins: [
-    mixinSizes,
-    mixinColor
-  ],
+  mixins: [mixinSizes, mixinColor],
 
   props: {
     disabled: {
@@ -33,7 +29,7 @@ export default {
 
     download: {
       type: [Boolean, String],
-      default: false
+      default: undefined
     },
 
     href: {
@@ -60,27 +56,26 @@ export default {
   emits: ['click'],
 
   computed: {
-    tag () {
+    tag() {
       return this.href ? 'a' : 'button'
     },
 
-    buttonSize () {
+    buttonSize() {
       return this.circle
         ? `btn-${this.semanticSize}-circle`
         : `btn-${this.semanticSize}-size`
     },
 
-    buttonClasses () {
+    buttonClasses() {
       const isLink = !!this.href
 
       return [
         'button',
         `btn-${this.color}`,
         isLink ? 'btn-link' : 'btn',
-        this.buttonSize,
+        this.buttonSize
       ]
     }
   }
 }
-
 </script>

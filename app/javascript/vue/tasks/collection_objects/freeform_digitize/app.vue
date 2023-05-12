@@ -11,7 +11,7 @@
       <div class="horizontal-left-content align-start">
         <div
           class="horizontal-left-content align-start"
-          style="width: 50%;"
+          style="width: 50%"
         >
           <DrawControls class="margin-medium-right" />
           <DrawBoard
@@ -21,7 +21,7 @@
         </div>
         <div
           class="margin-medium-left"
-          style="width: 50%;"
+          style="width: 50%"
         >
           <switch-component
             v-model="view"
@@ -56,7 +56,6 @@
 </template>
 
 <script>
-
 import { GetImage, GetSledImage } from './request/resource'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
@@ -94,35 +93,35 @@ export default {
     DrawControls
   },
   computed: {
-    disabledPanel () {
+    disabledPanel() {
       const sled = this.$store.getters[GetterNames.GetSledImage]
 
       return sled?.summary && sled.summary.length > 0
     },
-    componentSelected () {
+    componentSelected() {
       return `${this.view.toPascalCase().replace(' ', '')}Component`
     },
     sledImage: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSledImage]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSledImage, value)
       }
     },
     image: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetImage]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetImage, value)
       }
     },
-    identifier () {
+    identifier() {
       return this.$store.getters[GetterNames.GetIdentifier]
     }
   },
-  data () {
+  data() {
     return {
       vlines: [],
       hlines: [],
@@ -135,7 +134,7 @@ export default {
       view: 'Assign'
     }
   },
-  created () {
+  created() {
     const urlParams = new URLSearchParams(window.location.search)
     const sledId = urlParams.get('sled_image_id')
 
@@ -145,84 +144,89 @@ export default {
   },
 
   methods: {
-    createImage (imageId) {
-      this.loadImage(imageId).then(response => {
+    createImage(imageId) {
+      this.loadImage(imageId).then((response) => {
         this.loadSled(response.sled_image_id)
       })
     },
-    processCells (cells) {
+    processCells(cells) {
       if (this.sledImage.summary.length) return
       this.sledImage.metadata = cells
     },
-    createSled (load = false, id = undefined) {
+    createSled(load = false, id = undefined) {
       this.isSaving = true
-      this.$store.dispatch(ActionNames.UpdateSled).then(() => {
-        this.isSaving = false
-        if (load) {
-          SetParam('/tasks/collection_objects/grid_digitize/index', 'sled_image_id', id)
-          this.$store.dispatch(ActionNames.ResetStore)
-        }
-      }, () => {
-        this.isSaving = false
-      })
+      this.$store
+        .dispatch(ActionNames.UpdateSled)
+        .then(() => {
+          if (load) {
+            this.$store.dispatch(ActionNames.ResetStore)
+          }
+        })
+        .finally(() => {
+          this.isSaving = false
+        })
     },
-    setGrid (grid) {
+    setGrid(grid) {
       if (this.sledImage.summary.length) return
 
       this.vlines = grid.vlines
       this.hlines = grid.hlines
     },
-    loadSled (sledId) {
+    loadSled(sledId) {
       return new Promise((resolve, reject) => {
-        GetSledImage(sledId).then(response => {
-          SetParam('/tasks/collection_objects/grid_digitize/index', 'sled_image_id', sledId)
-          if(response.body.metadata.length) {
-            this.sledImage = response.body
-          }
-          else {
-            response.body.metadata = this.sledImage.metadata
-            this.sledImage = response.body
-          }
+        GetSledImage(sledId).then(
+          (response) => {
+            if (response.body.metadata.length) {
+              this.sledImage = response.body
+            } else {
+              response.body.metadata = this.sledImage.metadata
+              this.sledImage = response.body
+            }
 
-          this.isLoading = false
-          resolve(response)
-        }, (resolve) => {
-          reject(resolve)
-        })
+            this.isLoading = false
+            resolve(response)
+          },
+          (resolve) => {
+            reject(resolve)
+          }
+        )
       })
     },
-    loadImage (imageId) {
+    loadImage(imageId) {
       return new Promise((resolve, reject) => {
         this.isLoading = true
-        GetImage(imageId).then(response => {
-          const ajaxRequest = new XMLHttpRequest()
+        GetImage(imageId).then(
+          (response) => {
+            const ajaxRequest = new XMLHttpRequest()
 
-          this.image = response.body
-          ajaxRequest.open('GET', response.body.image_display_url)
-          ajaxRequest.responseType = 'blob'
-          ajaxRequest.onload = () => {
-            const blob = ajaxRequest.response
-            const fr = new FileReader()
+            this.image = response.body
+            ajaxRequest.open('GET', response.body.image_display_url)
+            ajaxRequest.responseType = 'blob'
+            ajaxRequest.onload = () => {
+              const blob = ajaxRequest.response
+              const fr = new FileReader()
 
-            fr.onloadend = () => {
-              const dataUrl = fr.result
-              const image = new Image
+              fr.onloadend = () => {
+                const dataUrl = fr.result
+                const image = new Image()
 
-              image.onload = () => {
-                this.fileImage = dataUrl
-                this.isLoading = false
-                resolve(response.body)
+                image.onload = () => {
+                  this.fileImage = dataUrl
+                  this.isLoading = false
+                  resolve(response.body)
+                }
+
+                image.src = dataUrl
               }
-
-              image.src = dataUrl
+              fr.readAsDataURL(blob)
             }
-            fr.readAsDataURL(blob)
+            ajaxRequest.send()
+          },
+          () => {
+            this.isLoading = false
+            reject()
           }
-          ajaxRequest.send()
-        }, () => {
-          this.isLoading = false
-          reject()
-        })
+        )
       })
     }
   }

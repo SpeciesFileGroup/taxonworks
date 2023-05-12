@@ -14,7 +14,7 @@
           v-if="editType"
           class="horizontal-left-content">
           <span>
-            <span v-html="GetRelationshipsCreated[0].object_status_tag"/>
+            <span v-html="GetRelationshipsCreated[0].object_tag"/>
             <a
               v-html="GetRelationshipsCreated[0].subject_object_tag"
               :href="`/tasks/nomenclature/browse?taxon_name_id=${GetRelationshipsCreated[0].subject_taxon_name_id}`"/>
@@ -89,7 +89,7 @@
       </div>
       <list-entrys
         :list="GetRelationshipsCreated"
-        :display="['subject_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"
+        :display="[{ link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}, 'subject_status_tag', 'object_object_tag']"
         edit
         @delete="removeType"
         @edit="setEdit"

@@ -52,7 +52,10 @@ export const CollectionObject = {
 
   dwc: (id) => AjaxCall('get', `/${controller}/${id}/dwc`),
 
-  reportDwc: (params) => AjaxCall('get', '/tasks/accessions/report/dwc.json', { params }),
+  dwca: (id) => AjaxCall('get', `/${controller}/${id}/dwca`),
+
+  reportDwc: (params) =>
+    AjaxCall('get', '/tasks/accessions/report/dwc.json', { params }),
 
   dwcIndex: (params) => AjaxCall('get', `/${controller}/dwc_index`, { params }),
 
@@ -60,5 +63,21 @@ export const CollectionObject = {
 
   metadataBadge: (id) => AjaxCall('get', `/${controller}/${id}/metadata_badge`),
 
-  stepwiseDeterminations: (params) => AjaxCall('get', '/tasks/collection_objects/stepwise/determinations/data.json', { params })
+  navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
+
+  stepwiseDeterminations: (params) =>
+    AjaxCall(
+      'get',
+      '/tasks/collection_objects/stepwise/determinations/data.json',
+      { params }
+    ),
+
+  timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline`),
+
+  sqedFilter: (params) =>
+    AjaxCall(
+      'get',
+      '/tasks/accessions/breakdown/sqed_depiction/todo_map.json',
+      { params }
+    )
 }

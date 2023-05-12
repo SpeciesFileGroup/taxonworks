@@ -1,1 +1,1 @@
-json.array! @labels, partial: 'labels/label', as: :label
+json.array! @labels, partial: '/labels/label', as: :label

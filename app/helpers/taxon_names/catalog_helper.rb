@@ -176,11 +176,7 @@ module TaxonNames::CatalogHelper
       b = source_author_year_tag(c.source)
 
       tn = t.type == 'Combination' ? t.protonyms.last : t
-      if tn.nomenclatural_code == :icn
-        in_str = ' ex '
-      else
-        in_str = ' in '
-      end
+      in_str = ' in '
 
       if a != b || i.from_relationship?
         content_tag(:em, in_str) + link_to(content_tag(:span, b, title: strip_tags(c.source.cached), class: :history__subject_original_citation), send(:nomenclature_by_source_task_path, source_id: c.source.id) )

@@ -2,7 +2,8 @@ const ActionNames = {
   CreateNewColumn: 'createNewColumn',
   CreateObservation: 'createObservation',
   LoadObservationMatrix: 'loadObservationMatrix',
-  LoadOtuDepictions: 'loadOtuDepictions'
+  LoadOtuDepictions: 'loadOtuDepictions',
+  MoveDepiction: 'moveDepiction'
 }
 
 export default ActionNames

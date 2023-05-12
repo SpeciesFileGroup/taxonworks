@@ -1,9 +1,9 @@
 <template>
   <div>
     <block-layout
-      anchor="original-combination"
+      anchor="manage-synonymy"
       v-if="isInvalid && validTaxon && childrenList.length"
-      v-help.section.originalCombination.container>
+    >
       <template #header>
         <h3>Manage synonymy</h3>
       </template>
@@ -61,11 +61,14 @@
                     :add-params="{ type: 'Protonym', 'nomenclature_group[]': 'Genus' }"
                     :placeholder="validTaxon.name"/>
                 </td>
-                <td class="horizontal-left-content">
-                  <span
-                    class="circle-button btn-edit"
-                    @click="loadTaxon(child.id)"/>
-                  <radial-annotator :global-id="child.global_id"/>
+                <td>
+                  <div class="horizontal-left-content">
+                    <span
+                      class="circle-button btn-edit"
+                      @click="loadTaxon(child.id)"
+                    />
+                    <radial-annotator :global-id="child.global_id" />
+                  </div>
                 </td>
                 <td>
                   <input

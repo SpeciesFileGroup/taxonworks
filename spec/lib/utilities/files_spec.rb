@@ -12,10 +12,10 @@ describe 'Utilities::Files' do
     begin
       Utilities::Files.replace(a, b)
       expect(File.read(a)).to match('b') 
-      expect(File.exists?(b)).to be_falsey
+      expect(File.exist?(b)).to be_falsey
     ensure
-      File.delete(a) if File.exists?(a)
-      File.delete(b) if File.exists?(b)
+      File.delete(a) if File.exist?(a)
+      File.delete(b) if File.exist?(b)
     end
   end
 

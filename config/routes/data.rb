@@ -9,11 +9,11 @@ concern :data_routes do |options|
     post 'batch_preview'
     get 'batch_load'
     get 'autocomplete'
-    get 'search'
+    get 'search' # TODO: deprecate/remove
   end
 
   member do
-    get 'related'
+    get 'related' # TODO: remove or redirect here to Task route
   end
 end
 
@@ -33,6 +33,7 @@ resources :asserted_distributions do
   collection do
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
+    match :filter, to: 'asserted_distributions#index', via: [:get, :post]
   end
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
@@ -45,6 +46,9 @@ end
 
 resources :biological_associations do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'biological_associations#index', via: [:get, :post]
+  end
 end
 
 resources :biological_associations_graphs do
@@ -69,6 +73,9 @@ resources :citation_topics, only: [:create, :update, :destroy]
 
 resources :citations do # except: [:show]
   concerns [:data_routes]
+  collection do
+    post :batch_create, defaults: {format: :json}
+  end
 end
 
 get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
@@ -94,6 +101,12 @@ resources :collection_objects do
   resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
 
   member do
+    scope :inventory do
+      get :images, action: :images, defaults: {format: :json}
+    end
+
+    get :timeline, defaults: {format: :json}
+
     # pseudo shallow
     get 'biocuration_classifications', defaults: {format: :json}
 
@@ -107,7 +120,8 @@ resources :collection_objects do
   end
 
   collection do
-    match 'filter', to: 'collection_objects#dwc_index', via: [:get, :post]
+    get :index_metadata, defaults: {format: :json}
+    match :filter, to: 'collection_objects#index', via: [:get, :post]
     get :dwc_index, defaults: {format: :json}
     get :report, defaults: {format: :json}
     post :preview_castor_batch_load # should be get
@@ -143,7 +157,7 @@ resources :collecting_events do
   end
 
   collection do
-    match 'filter', to: 'collecting_events#index', via: [:get, :post]
+    match :filter, to: 'collecting_events#index', via: [:get, :post]
     get :attributes, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
     get :parse_verbatim_label, defaults: {format: :json}
@@ -156,13 +170,10 @@ resources :collecting_events do
   end
 end
 
-resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
+resources :combinations, only: [:create, :edit, :update, :destroy, :new, :show] do
   concerns [:data_routes]
   collection do
     get :index, defaults: {format: :json}
-  end
-  member do
-    get :show, defaults: {format: :json}
   end
 end
 
@@ -182,6 +193,7 @@ end
 resources :contents do
   concerns [:data_routes]
   collection do
+    match :filter, to: 'contents#index', via: [:get, :post]
     get :select_options, defaults: {format: :json}
   end
 end
@@ -199,6 +211,7 @@ resources :data_attributes, except: [:show] do
   concerns [:data_routes]
 
   collection do
+    post :batch_create, defaults: {format: :json}
     get 'value_autocomplete', defaults: {format: :json}
   end
 end
@@ -216,6 +229,7 @@ resources :descriptors do
     get :annotations, defaults: {format: :json}
   end
   collection do
+    match :filter, to: 'descriptors#index', via: [:get, :post]
     get :units
     post :preview_modify_gene_descriptor_batch_load
     post :create_modify_gene_descriptor_batch_load
@@ -258,7 +272,7 @@ end
 resources :extracts do
   concerns [:data_routes]
   collection do
-    match 'filter', to: 'extracts#index', via: [:get, :post]
+    match :filter, to: 'extracts#index', via: [:get, :post]
     get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
   end
@@ -330,7 +344,7 @@ resources :images do
     patch 'rotate', action: 'rotate'
   end
   collection do
-    match 'filter', to: 'images#index', via: [:get, :post]
+    match :filter, to: 'images#index', via: [:get, :post]
     get :select_options, defaults: {format: :json}
   end
 end
@@ -358,6 +372,9 @@ end
 resources :labels do
   collection do
     get :list
+    scope :factory do
+      post :unit_tray_header1, controller: 'labels/factory', defaults: {format: :json}
+    end
   end
   # is data?
 end
@@ -378,14 +395,19 @@ resources :loans do
   end
 
   collection do
+    get :attributes, defaults: {format: :json}
+    match :filter, to: 'loans#index', via: [:get, :post]
     get :select_options, defaults: {format: :json}
   end
 end
 
 resources :loan_items do
   concerns [:data_routes]
+
   collection do
     post :batch_create
+    post :batch_return
+    post :batch_move
   end
 end
 
@@ -464,7 +486,10 @@ end
 resources :observations do
   concerns [:data_routes]
   collection do
+    match :filter, to: 'observations#index', via: [:get, :post]
     delete :destroy_row, defaults: {format: :json}
+    delete :destroy_column, defaults: {format: :json}
+    post :code_column, defaults: {format: :json}
   end
 
   member do
@@ -486,6 +511,7 @@ resources :otus do
   resources :contents, only: [:index]
 
   collection do
+    match :filter, to: 'otus#index', via: [:get, :post]
     # TODO: this is get
     post :preview_data_attributes_batch_load
     post :create_data_attributes_batch_load
@@ -542,8 +568,8 @@ resources :people do
   concerns [:data_routes]
 
   collection do
-    match 'filter', to: 'people#index', via: [:get, :post]
     get :select_options, defaults: {format: :json}
+    match :filter, to: 'people#index', via: [:get, :post]
   end
 
   member do
@@ -642,7 +668,7 @@ end
 resources :sources do
   concerns [:data_routes]
   collection do
-    match 'filter', to: 'sources#index', via: [:get, :post]
+    match :filter, to: 'sources#index', via: [:get, :post]
     get :attributes, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
     post :preview_bibtex_batch_load # should be get
@@ -695,8 +721,9 @@ resources :taxon_names do
   resources :taxon_name_relationships, shallow: true, only: [:index], defaults: {format: :json}, param: :subject_taxon_name_id
 
   collection do
-    match 'filter', to: 'taxon_names#index', via: [:get, :post]
     get :select_options, defaults: {format: :json}
+    match :filter, to: 'taxon_names#index', via: [:get, :post]
+
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
     get :ranks, {format: :json}
@@ -716,13 +743,13 @@ resources :taxon_names do
   end
 end
 
-resources :taxon_name_classifications, except: [:show] do
+resources :taxon_name_classifications do
   concerns [:data_routes]
   collection do
     get :taxon_name_classification_types
   end
   member do
-    get :show, {format: :json}
+    get :show
   end
 end
 
@@ -750,5 +777,3 @@ resources :type_materials do
     get :type_types, {format: :json}
   end
 end
-
-

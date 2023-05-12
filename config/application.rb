@@ -64,7 +64,7 @@ module TaxonWorks
       config.default = RGeo::Geographic.projected_factory(
         srid:                    4326,
         projection_srid:         4326,
-        projection_proj4:        "EPSG:4326",
+        projection_proj4:        'EPSG:4326',
         uses_lenient_assertions: true,
         has_z_coordinate:        true,
         wkb_parser:              {support_ewkb: true},
@@ -73,24 +73,6 @@ module TaxonWorks
 
     # config.logger = Logger.new(STDOUT)
     # config.logger = Log4r::Logger.new('Application Log')
-
-    config.middleware.insert_before 0, Rack::Cors, debug: true, logger: (-> {Rails.logger}) do
-      allow do
-        origins '*'
-
-        resource '/cors',
-          headers: :any,
-          methods: [:post],
-          credentials: false, # true,
-          max_age: 0
-
-        resource '*',
-          headers: :any,
-          methods: [:get, :post, :delete, :put, :patch, :options, :head],
-          max_age: 0,
-          credentials: false
-      end
-    end
 
     config.autoloader = :classic
   end

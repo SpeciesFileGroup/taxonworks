@@ -1,75 +1,85 @@
 <template>
-  <div class="vue-otu-picker">
+  <div class="vue-otu-picker gap-small">
     <autocomplete
       :input-id="inputId"
       url="/otus/autocomplete"
-      class="separate-right"
       label="label_html"
       min="2"
       display="label"
-      @getItem="emitOtu"
-      @getInput="callbackInput"
-      @found="found = $event"
       :clear-after="clearAfter"
+      :input-attributes="inputAttributes"
       placeholder="Select an OTU"
-      param="term"/>
+      param="term"
+      @found="($event) => (found = $event)"
+      @get-item="emitOtu"
+      @get-input="callbackInput"
+    />
     <div class="flex-wrap-column create-otu-panel">
       <match-taxon-name
         v-if="!found"
         class="panel content match-otu-box"
-        @createNew="create = true"
+        @create-new="() => (create = true)"
         :otu-name="otu.name"
-        @selected="createWith"/>
+        @selected="createWith"
+      />
       <div
         v-if="create"
-        class="new-otu-panel panel content">
+        class="new-otu-panel panel content"
+      >
         <span
           class="close-panel small-icon"
           data-icon="close"
-          @click="create = false"/>
+          @click="() => (create = false)"
+        />
         <div class="field label-above">
           <label>Name</label>
           <input
             type="text"
             class="full_width"
-            v-model="otu.name">
+            v-model="otu.name"
+          />
         </div>
         <div class="field label-above">
           <label>Taxon name</label>
           <div
             v-if="taxon"
-            class="flex-separate middle">
+            class="flex-separate middle"
+          >
             <span
               class="margin-small-right"
-              v-html="taxonLabel"/>
+              v-html="taxonLabel"
+            />
             <span
               class="button circle-button btn-undo button-default"
-              @click="taxon = undefined"/>
+              @click="taxon = undefined"
+            />
           </div>
           <template v-else>
             <autocomplete
               url="/taxon_names/autocomplete"
-              :autofocus="true"
+              autofocus
               label="label"
               min="2"
-              :clear-after="true"
-              @getItem="setTaxon"
+              clear-after
+              @get-item="setTaxon"
               placeholder="Select a taxon name"
-              param="term"/>
+              param="term"
+            />
           </template>
         </div>
         <button
           class="button normal-input button-submit"
           :disabled="!validateFields"
           @click="createOtu"
-          type="button">Create
+          type="button"
+        >
+          Create
         </button>
       </div>
     </div>
   </div>
 </template>
 <script>
-
 import Autocomplete from 'components/ui/Autocomplete.vue'
 import MatchTaxonName from './matchTaxonNames'
 import { Otu } from 'routes/endpoints'
@@ -88,25 +98,26 @@ export default {
     clearAfter: {
       type: Boolean,
       default: false
+    },
+    inputAttributes: {
+      type: Object,
+      default: () => ({})
     }
   },
 
-  emits: [
-    'getItem',
-    'getInput'
-  ],
+  emits: ['getItem', 'getInput'],
 
   computed: {
-    validateFields () {
+    validateFields() {
       return this.otu.name
     },
 
-    taxonLabel () {
+    taxonLabel() {
       return this.taxon?.label_html || this.taxon?.object_tag
     }
   },
 
-  data () {
+  data() {
     return {
       found: true,
       create: false,
@@ -120,7 +131,7 @@ export default {
   },
 
   watch: {
-    type (newVal, oldVal) {
+    type(newVal, oldVal) {
       if (newVal != oldVal) {
         this.resetPicker()
         this.otu.name = newVal
@@ -131,18 +142,18 @@ export default {
   },
 
   methods: {
-    resetPicker () {
+    resetPicker() {
       this.otu.name = undefined
       this.otu.taxon_name_id = undefined
       this.create = false
     },
 
-    createOtu () {
+    createOtu() {
       if (this.taxon) {
         this.otu.taxon_name_id = this.taxon.id
       }
 
-      Otu.create({ otu: this.otu }).then(response => {
+      Otu.create({ otu: this.otu }).then((response) => {
         this.emitOtu(response.body)
         this.create = false
         this.found = true
@@ -153,16 +164,16 @@ export default {
       this.$emit('getItem', otu)
     },
 
-    callbackInput (event) {
+    callbackInput(event) {
       this.type = event
       this.$emit('getInput', event)
     },
 
-    setTaxon (taxon) {
+    setTaxon(taxon) {
       this.taxon = taxon
     },
 
-    createWith (data) {
+    createWith(data) {
       this.taxon = data.taxon
       this.otu.name = data.otuName
       this.createOtu()
@@ -194,7 +205,8 @@ export default {
   .match-otu-box {
     position: relative;
   }
-  &:focus-within, &:hover {
+  &:focus-within,
+  &:hover {
     .create-otu-panel {
       display: flex;
     }

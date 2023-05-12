@@ -319,6 +319,20 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_life_stage).to eq('adult')
     end
 
+    specify '#dwc_associated_taxa' do
+      g = Predicate.create!(
+        name: 'Associated Taxa',
+        definition: 'When one (living) thing hangs out with another',
+        uri: 'http://rs.tdwg.org/dwc/terms/associatedTaxa' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
+      )
+
+      s = Specimen.create!
+      InternalAttribute.create!(predicate: g, attribute_subject: s, value: 'Space alien')
+
+      expect(s.dwc_associated_taxa).to eq('Space alien')
+      expect(s.dwc_occurrence.associatedTaxa).to eq('Space alien')
+    end
+
     specify '#dwc_water_body' do
       a = Predicate.create!(
         name: 'water body',
@@ -353,7 +367,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     specify '#dwc_maximum_dpeth_in_meters' do
       d = 2.1
       a = Predicate.create!(
-        name: "wet toes?",
+        name: 'wet toes?',
         definition: 'number in metric m, not that other standard',
         uri: 'http://rs.tdwg.org/dwc/terms/maximumDepthInMeters' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
       )
@@ -369,7 +383,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     specify '#dwc_minimum_dpeth_in_meters' do
       d = 2.1
       a = Predicate.create!(
-        name: "wet toes?",
+        name: 'wet toes?',
         definition: 'number in metric m, not that other standard',
         uri: 'http://rs.tdwg.org/dwc/terms/minimumDepthInMeters' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
       )

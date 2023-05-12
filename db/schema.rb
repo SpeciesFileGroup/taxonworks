@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_27_165828) do
+ActiveRecord::Schema.define(version: 2023_03_07_041322) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -132,6 +132,7 @@ ActiveRecord::Schema.define(version: 2022_08_27_165828) do
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
     t.string "name"
+    t.jsonb "layout"
     t.index ["created_by_id"], name: "index_biological_associations_graphs_on_created_by_id"
     t.index ["project_id"], name: "index_biological_associations_graphs_on_project_id"
     t.index ["updated_by_id"], name: "index_biological_associations_graphs_on_updated_by_id"
@@ -274,6 +275,7 @@ ActiveRecord::Schema.define(version: 2022_08_27_165828) do
     t.string "lithology"
     t.decimal "max_ma"
     t.decimal "min_ma"
+    t.boolean "meta_prioritize_geographic_area"
     t.index ["created_at"], name: "index_collecting_events_on_created_at"
     t.index ["created_by_id"], name: "index_collecting_events_on_created_by_id"
     t.index ["geographic_area_id"], name: "index_collecting_events_on_geographic_area_id"
@@ -956,6 +958,7 @@ ActiveRecord::Schema.define(version: 2022_08_27_165828) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.string "type", null: false
+    t.decimal "cached_total_area"
     t.index "st_centroid(\nCASE type\n    WHEN 'GeographicItem::MultiPolygon'::text THEN (multi_polygon)::geometry\n    WHEN 'GeographicItem::Point'::text THEN (point)::geometry\n    WHEN 'GeographicItem::LineString'::text THEN (line_string)::geometry\n    WHEN 'GeographicItem::Polygon'::text THEN (polygon)::geometry\n    WHEN 'GeographicItem::MultiLineString'::text THEN (multi_line_string)::geometry\n    WHEN 'GeographicItem::MultiPoint'::text THEN (multi_point)::geometry\n    WHEN 'GeographicItem::GeometryCollection'::text THEN (geometry_collection)::geometry\n    ELSE NULL::geometry\nEND)", name: "idx_centroid", using: :gist
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
     t.index ["geometry_collection"], name: "geometry_collection_gix", using: :gist
@@ -1013,7 +1016,9 @@ ActiveRecord::Schema.define(version: 2022_08_27_165828) do
     t.string "identifier_object_type", null: false
     t.string "relation"
     t.integer "position"
+    t.float "cached_numeric_identifier"
     t.index ["cached"], name: "index_identifiers_on_cached"
+    t.index ["cached_numeric_identifier"], name: "index_identifiers_on_cached_numeric_identifier"
     t.index ["created_at"], name: "index_identifiers_on_created_at"
     t.index ["created_by_id"], name: "index_identifiers_on_created_by_id"
     t.index ["identifier"], name: "index_identifiers_on_identifier"
@@ -1908,6 +1913,7 @@ ActiveRecord::Schema.define(version: 2022_08_27_165828) do
     t.string "cached_original_combination"
     t.date "cached_nomenclature_date"
     t.boolean "cached_is_valid"
+    t.string "cached_author"
     t.index ["cached"], name: "index_taxon_names_on_cached"
     t.index ["cached_is_valid"], name: "index_taxon_names_on_cached_is_valid"
     t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"

@@ -3,9 +3,10 @@
 <table class="tablesorter">
   <thead>
   <tr>
+    <%= fancy_th_tag(name: 'Label (Show)') -%>
     <%= fancy_th_tag(name: 'Taxon name') -%>
-    <%= fancy_th_tag(name: 'Type') -%>
     <%= fancy_th_tag(name: 'NOMEN id') -%>
+    <%= fancy_th_tag(name: 'Type') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -14,9 +15,10 @@
   <tbody>
   <% @taxon_name_classifications.each do |taxon_name_classification| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
+          <td><%= link_to(taxon_name_classification.classification_label, taxon_name_classification.metamorphosize) %></td>
           <td><%= taxon_name_link(taxon_name_classification.taxon_name.metamorphosize) %></td>
-          <td><%= taxon_name_classification.classification_label %></td>
           <td><%= taxon_name_classification.nomen_id %> </td>
+          <td><%= taxon_name_classification.type %> </td>
           <%= fancy_metadata_cells_tag(taxon_name_classification) -%>
       <% end %>
   <% end %>

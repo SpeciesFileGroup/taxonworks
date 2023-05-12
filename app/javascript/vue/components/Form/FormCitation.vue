@@ -3,11 +3,13 @@
     <legend>Source</legend>
     <div class="horizontal-left-content align-start">
       <SmartSelector
+        class="full_width"
         model="sources"
         :target="target"
         :klass="klass"
         pin-section="Sources"
         pin-type="Source"
+        :shorten="100"
         label="cached"
         v-model="source"
         @selected="setSource"
@@ -33,7 +35,7 @@
             class="normal-input inline pages"
             placeholder="pages"
             @input="setPage"
-          >
+          />
         </li>
         <li v-if="!original">
           <label>
@@ -41,7 +43,7 @@
               v-model="citation.is_original"
               type="checkbox"
               @change="setIsOriginal"
-            >
+            />
             Is original
           </label>
         </li>
@@ -51,7 +53,7 @@
               v-model="isAbsent"
               type="checkbox"
               @change="setIsOriginal"
-            >
+            />
             Is absent
           </label>
         </li>
@@ -73,7 +75,7 @@
         medium
         @click="setLastCitation"
       >
-        Clone previous created
+        Clone last citation
       </VBtn>
       <slot name="footer" />
     </div>
@@ -89,6 +91,7 @@ import SmartSelector from 'components/ui/SmartSelector.vue'
 import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VLock from 'components/ui/VLock'
+import { getCurrentUserId } from 'helpers/user'
 
 const STORAGE = {
   lock: 'radialObject::source::lock',
@@ -150,12 +153,12 @@ const emit = defineEmits([
 
 const citation = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const isAbsent = computed({
   get: () => props.absent,
-  set: value => emit('update:absent', value)
+  set: (value) => emit('update:absent', value)
 })
 
 const isLocked = ref(false)
@@ -163,68 +166,60 @@ const isLocked = ref(false)
 const sourceId = computed(() => props.modelValue.source_id)
 const source = ref(undefined)
 
-watch(
-  sourceId,
-  async (newId, oldId) => {
-    if (newId) {
-      if (newId !== oldId && newId !== source.value?.id) {
-        source.value = (await Source.find(newId)).body
-      }
-    } else {
-      source.value = undefined
+watch(sourceId, async (newId, oldId) => {
+  if (newId) {
+    if (newId !== oldId && newId !== source.value?.id) {
+      source.value = (await Source.find(newId)).body
+      citation.value._label = source.value.cached
     }
+  } else {
+    source.value = undefined
   }
-)
+})
 
-watch(
-  isAbsent,
-  newVal => {
-    sessionStorage.setItem(STORAGE.isAbsent, newVal)
-  }
-)
+watch(isAbsent, (newVal) => {
+  sessionStorage.setItem(STORAGE.isAbsent, newVal)
+})
 
-watch(
-  isLocked,
-  newVal => {
-    sessionStorage.setItem(STORAGE.lock, newVal)
-    emit('lock', newVal)
-  }
-)
+watch(isLocked, (newVal) => {
+  sessionStorage.setItem(STORAGE.lock, newVal)
+  emit('lock', newVal)
+})
 
-function setSource (value) {
+function setSource(value) {
   source.value = value
   sessionStorage.setItem(STORAGE.sourceId, value.id)
   citation.value.source_id = value.id
+  citation.value._label = value.cached
 
   emit('source', value)
 }
 
-function setPage (e) {
+function setPage(e) {
   sessionStorage.setItem(STORAGE.pages, e.target.value)
 }
 
-function setIsOriginal (e) {
+function setIsOriginal(e) {
   sessionStorage.setItem(STORAGE.isOriginal, e.target.value)
 }
 
-function setLastCitation () {
-  Citation.where({ recent: true, per: 1 }).then(({ body }) => {
-    const [mostRecentCitation] = body
+function setLastCitation() {
+  Citation.where({ recent: true, per: 1, user_id: getCurrentUserId() }).then(
+    ({ body }) => {
+      const [mostRecentCitation] = body
 
-    if (mostRecentCitation) {
-      Object.assign(
-        citation.value,
-        {
+      if (mostRecentCitation) {
+        Object.assign(citation.value, {
           pages: mostRecentCitation.pages,
           source_id: mostRecentCitation.source_id,
           is_original: mostRecentCitation.is_original
-        }
-      )
+        })
+      }
     }
-  })
+  )
 }
 
-function init () {
+function init() {
   const lockStoreValue = convertType(sessionStorage.getItem(STORAGE.lock))
 
   if (lockStoreValue) {
@@ -232,13 +227,16 @@ function init () {
   }
 
   if (props.lockButton && lockStoreValue) {
-    citation.value.source_id = convertType(sessionStorage.getItem(STORAGE.sourceId))
-    citation.value.is_original = convertType(sessionStorage.getItem(STORAGE.isOriginal))
+    citation.value.source_id = convertType(
+      sessionStorage.getItem(STORAGE.sourceId)
+    )
+    citation.value.is_original = convertType(
+      sessionStorage.getItem(STORAGE.isOriginal)
+    )
     citation.value.pages = convertType(sessionStorage.getItem(STORAGE.pages))
     isAbsent.value = convertType(sessionStorage.getItem(STORAGE.isAbsent))
   }
 }
 
 onMounted(() => init())
-
 </script>

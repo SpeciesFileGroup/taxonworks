@@ -2,6 +2,7 @@ class AssertedDistributionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_asserted_distribution, only: [:show, :edit, :update, :destroy, :api_show]
+  after_action -> { set_pagination_headers(:asserted_distributions) }, only: [:index, :api_index], if: :json_request?
 
   # GET /asserted_distributions
   # GET /asserted_distributions.json
@@ -14,11 +15,11 @@ class AssertedDistributionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @asserted_distributions = Queries::AssertedDistribution::Filter.new(filter_params)
+        @asserted_distributions = Queries::AssertedDistribution::Filter.new(params)
           .all
           .where(project_id: sessions_current_project_id)
           .page(params[:page])
-          .per(params[:per] || 500)
+          .per(params[:per])
       }
     end
   end
@@ -141,12 +142,12 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def api_index
-    @asserted_distributions = Queries::AssertedDistribution::Filter.new(api_params)
+    @asserted_distributions = Queries::AssertedDistribution::Filter.new(params.merge!(api: true))
       .all
       .where(project_id: sessions_current_project_id)
       .order('asserted_distributions.id')
       .page(params[:page])
-      .per(params[:per] || 100)
+      .per(params[:per])
     render '/asserted_distributions/api/v1/index'
   end
 
@@ -176,14 +177,5 @@ class AssertedDistributionsController < ApplicationController
   def batch_params
     params.permit(:data_origin, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
-
-  def filter_params
-    params.permit(:otu_id, :geographic_area_id, :recent, otu_id: [], geographic_area_id: [])
-  end
-
-  def api_params
-    params.permit(:otu_id, :geographic_area_id, :recent, :geo_json)
-  end
-
 
 end

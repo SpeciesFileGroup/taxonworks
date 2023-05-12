@@ -1,23 +1,15 @@
 module Queries
 
-  class Repository::Autocomplete < Queries::Query
+  class Repository::Autocomplete < Query::Autocomplete
 
     include Queries::Concerns::AlternateValues
+    include Queries::Concerns::Identifiers
 
     # @param [Hash] args
     def initialize(string, **params)
-      set_identifier(params)
+      set_identifier_params(params)
       set_alternate_value(params)
       super
-    end
-
-    # @return [Arel::Table]
-    def table
-      ::Repository.arel_table
-    end
-
-    def base_query
-      ::Repository.select('repositories.*')
     end
 
     # @return [Scope]
@@ -47,10 +39,10 @@ module Queries
       return [] if query_string.blank?
       queries = [
         [autocomplete_exact_id, nil ],
-        [autocomplete_exactly_named, nil],
-        [autocomplete_exact_acronym, nil],
+        [autocomplete_exactly_named, true],
+        [autocomplete_exact_acronym, true],
         [autocomplete_identifier_identifier_exact, nil],
-        [autocomplete_acronym_match.limit(5), nil],
+        [autocomplete_acronym_match.limit(10), true],
         [autocomplete_named, true ],
         [autocomplete_alternate_values_acronym.limit(20), true ],
         [autocomplete_alternate_values_name.limit(20), true ]
@@ -60,17 +52,15 @@ module Queries
 
       result = []
 
+      pr_id = project_id.join(',') if project_id
       queries.each do |q, scope|
         a = q
         if project_id && scope
-          # TODO: there are now 2 repository references, see also current_repository_id
-          a = a.select('repositories.*, COUNT(collection_objects.id) AS use_count, NULLIF(collection_objects.project_id, NULL) as in_project')
-            .left_outer_joins(:collection_objects)
-            .where('collection_objects.project_id = ? OR collection_objects.project_id IS DISTINCT FROM ?', project_id, project_id)
-            .group('repositories.id, collection_objects.project_id')
-            .order('use_count DESC')
+          a = a.select("repositories.*, COUNT(collection_objects.id) AS use_count, CASE WHEN collection_objects.project_id IN (#{pr_id}) THEN collection_objects.project_id ELSE NULL END AS in_project")
+             .joins('LEFT OUTER JOIN collection_objects ON (repositories.id = collection_objects.repository_id OR repositories.id = collection_objects.current_repository_id)')
+             .group('repositories.id, collection_objects.project_id')
+             .order('in_project, use_count DESC')
         end
-
         a ||= q
 
         result += a.to_a

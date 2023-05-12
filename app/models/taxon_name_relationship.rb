@@ -1,4 +1,4 @@
-require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'  
+require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
 
 # A NOMEN https://github.com/SpeciesFileGroup/nomen relationship between two Protonyms.
 #
@@ -58,12 +58,14 @@ class TaxonNameRelationship < ApplicationRecord
   after_save :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
   after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
 
+  # TODO: remove, it's required by STI
   validates_presence_of :type, message: 'Relationship type should be specified'
+
   validates_presence_of :subject_taxon_name, message: 'Missing taxon name on the left side'
   validates_presence_of :object_taxon_name, message: 'Missing taxon name on the right side'
 
-  validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
-  validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id], unless: :is_combination?
+  validates_uniqueness_of :object_taxon_name_id, scope: [:type, :project_id], if: :is_combination?
+  validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id, :project_id], unless: :is_combination?
 
   validate :validate_type, :validate_subject_and_object_are_not_identical
 
@@ -142,6 +144,12 @@ class TaxonNameRelationship < ApplicationRecord
     set: :validate_priority,
     name: 'Priority validation',
     description: 'Junior synonym should be younger than senior synonym' )
+
+  soft_validate(
+    :sv_validate_seniority,
+    set: :validate_seniority,
+    name: 'Seniority validation',
+    description: 'Of two synonyms described in the same paper, one described at a higher rank has a priority' )
 
   soft_validate(
     :sv_coordinated_taxa,
@@ -321,6 +329,7 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def validate_type
+    # TODO: Remove, handled by STI
     if type && !TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)
       errors.add(:type, "'#{type}' is not a valid taxon name relationship")
     elsif self.type_class && object_taxon_name.class.to_s == 'Protonym' && !self.type_class.valid_object_ranks.include?(object_taxon_name.rank_string)
@@ -388,7 +397,7 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   ##### Protonym historically could be listed as a synonym to different taxa
-  #def validate_uniqueness_of_synonym_subject 
+  #def validate_uniqueness_of_synonym_subject
   #  if !self.type.nil? && /Synonym/.match(self.type_name) && !TaxonNameRelationship.where(subject_taxon_name_id: self.subject_taxon_name_id).with_type_contains('Synonym').not_self(self).empty?
   #    errors.add(:subject_taxon_name_id, 'Only one synonym relationship is allowed')
   #  end
@@ -422,7 +431,7 @@ class TaxonNameRelationship < ApplicationRecord
       TaxonName.transaction do
         if is_invalidating?
           t = subject_taxon_name
-          
+
           if type_name =~/Misspelling/
             t.update_column(:cached_misspelling, t.get_cached_misspelling)
             t.update_columns(
@@ -538,7 +547,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def sv_synonym_linked_to_valid_name
     #synonyms and misspellings should be linked to valid names
-    if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
+    if ::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
       obj = self.object_taxon_name
       subj = self.subject_taxon_name
       if subj.rank_class.try(:nomenclatural_code) == :iczn && (obj.parent_id != subj.parent_id || obj.rank_class != subj.rank_class) &&  subj.cached_valid_taxon_name_id == obj.cached_valid_taxon_name_id
@@ -576,12 +585,16 @@ class TaxonNameRelationship < ApplicationRecord
     true # all validations moved to subclasses
   end
 
+  def sv_validate_seniority
+    true # all validations moved to subclasses
+  end
+
   def sv_coordinated_taxa
     s = subject_taxon_name
     o = object_taxon_name
     s_new = s.lowest_rank_coordinated_taxon
     if s != s_new
-      soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s.cached_html}",
+      soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s_new.cached_html}",
                            success_message: "Relationship moved to  #{s_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end
   end
@@ -590,8 +603,8 @@ class TaxonNameRelationship < ApplicationRecord
     s = subject_taxon_name
     o = object_taxon_name
     o_new = o.lowest_rank_coordinated_taxon
-    if o != o_new && type_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
-      soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o.cached_html}",
+    if o != o_new
+      soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o_new.cached_html}",
                            success_message: "Relationship moved to  #{o_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end
   end

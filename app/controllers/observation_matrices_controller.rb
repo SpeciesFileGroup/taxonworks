@@ -16,7 +16,10 @@ class ObservationMatricesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @observation_matrices = ObservationMatrix.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
+        @observation_matrices = ::Queries::ObservationMatrix::Filter.new(params).all
+          .where(project_id: sessions_current_project_id)
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
@@ -110,7 +113,6 @@ class ObservationMatricesController < ApplicationController
   def column_labels
   end
 
-
   # TODO export formats can move to a concern controller
 
   def nexml
@@ -191,7 +193,6 @@ class ObservationMatricesController < ApplicationController
     @observation_matrix_column = ObservationMatrixColumn.where(project_id: sessions_current_project_id).find(params.require(:observation_matrix_column_id))
   end
 
-
   def download
     send_data Export::Download.generate_csv(ObservationMatrix.where(project_id: sessions_current_project_id)), type: 'text', filename: "observation_matrices_#{DateTime.now}.csv"
   end
@@ -216,9 +217,10 @@ class ObservationMatricesController < ApplicationController
 
   # GET /api/v1/observation_matrices
   def api_index
-    @observation_matrices = Queries::ObservationMatrix::Filter.new(api_params).all
+    @observation_matrices = Queries::ObservationMatrix::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
-      .page(params[:page]).per(params[:per])
+      .page(params[:page])
+      .per(params[:per])
     render '/observation_matrices/api/v1/index'
   end
 
@@ -228,13 +230,6 @@ class ObservationMatricesController < ApplicationController
   end
 
   private
-
-  def api_params
-    params.permit(
-      :observation_matrix_id,
-      observation_matrix_id: []
-    )
-  end
 
   # TODO: Not all params are supported yet.
   def nexml_params

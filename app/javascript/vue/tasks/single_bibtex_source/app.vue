@@ -8,12 +8,16 @@
         data-icon="reset">Reset
       </span>
     </div>
+    <div class="feedback feedback-warning">
+      This task is deprecated. <a href="/tasks/sources/new_source">New source</a> now provides the same functionality and includes parse error reporting.
+    </div>
     <a href="/tasks/sources/hub/index">Back to source hub</a>
     <spinner
       v-if="isLoading"
       :full-screen="true"
       legend="Loading..."
-      :logo-size="{ width: '100px', height: '100px'}"/>
+      :logo-size="{ width: '100px', height: '100px'}"
+    />
 
     <p> <i> Creates a single record. For multiple records use a Source batch loader.</i> </p>
     <div class="flexbox">

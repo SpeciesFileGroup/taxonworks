@@ -3,8 +3,8 @@
     <input
       type="checkbox"
       v-model="onlyUnsecored"
-    >
-    Display only unsecored rows
+    />
+    Display only unscored columns
   </label>
 </template>
 
@@ -18,11 +18,11 @@ const store = useStore()
 
 const onlyUnsecored = computed({
   get: () => {
-    return store.getters[GetterNames.GetDisplayUnsecoredRows]
+    return store.getters[GetterNames.GetDisplayUnscoredRows]
   },
 
-  set: value => {
-    store.commit(MutationNames.SetDisplayOnlyUnsecored, value)
+  set: (value) => {
+    store.commit(MutationNames.SetDisplayOnlyUnscored, value)
   }
 })
 </script>

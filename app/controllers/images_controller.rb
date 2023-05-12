@@ -13,9 +13,9 @@ class ImagesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @images = Queries::Image::Filter.new(filter_params).all
+        @images = Queries::Image::Filter.new(params).all
           .where(project_id: sessions_current_project_id)
-          .all.page(params[:page]).per(params[:per] || 50)
+          .page(params[:page]).per(params[:per])
       }
     end
   end
@@ -37,7 +37,7 @@ class ImagesController < ApplicationController
 
   # GET /api/v1/images
   def api_index
-    @images = Queries::Image::Filter.new(api_params).all
+    @images = Queries::Image::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .page(params[:page]).per(params[:per])
     render '/images/api/v1/index'
@@ -175,67 +175,6 @@ class ImagesController < ApplicationController
   end
 
   private
-
-  def filter_params
-    params.permit(
-        :ancestor_id_target,
-        :biocuration_class_id,
-        :collection_object_id,
-        :depiction,
-        :identifier,
-        :identifier_end,
-        :identifier_exact,
-        :identifier_start,
-        :image_id,
-        :otu_id,
-        :sled_image_id,
-        :taxon_name_id,
-        :user_date_end,
-        :user_date_start,
-        :user_id, # user
-        :user_target,
-        biocuration_class_id: [],
-        collection_object_id: [],
-        image_id: [],
-        keyword_id_and: [],
-        keyword_id_or: [],
-        otu_id: [],
-        sled_image_id: [],
-        taxon_name_id: [],
-        otu_scope: [],
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-  end
-
-  # TODO: need `is_public` here
-  def api_params
-    params.permit(
-      :ancestor_id_target,
-      :biocuration_class_id,
-      :collection_object_id,
-      :depiction,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :image_id,
-      :otu_id,
-      :sled_image_id,
-      :taxon_name_id,
-      :user_date_end,
-      :user_date_start,
-      :user_id, # user
-      :user_target,
-      biocuration_class_id: [],
-      collection_object_id: [],
-      image_id: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      otu_id: [],
-      sled_image_id: [],
-      taxon_name_id: [],
-      otu_scope: [],
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-  end
 
   def set_image
     @image = Image.with_project_id(sessions_current_project_id).find(params[:id])

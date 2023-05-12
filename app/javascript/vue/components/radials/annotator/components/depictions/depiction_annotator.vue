@@ -1,0 +1,324 @@
+<template>
+  <div class="depiction_annotator">
+    <div
+      class="field"
+      v-if="depiction"
+    >
+      <div class="separate-bottom">
+        <img
+          :src="depiction.image.alternatives.medium.image_file_url"
+          :style="{
+            width: `${depiction.image.alternatives.medium.width}px`,
+            height: `${depiction.image.alternatives.medium.height}px`
+          }"
+        />
+      </div>
+      <div class="field">
+        <input
+          class="normal-input"
+          type="text"
+          v-model="depiction.figure_label"
+          placeholder="Label"
+        />
+      </div>
+      <div class="field">
+        <textarea
+          class="normal-input full_width margin-small-top margin-small-bottom padding-medium"
+          rows="5"
+          type="text"
+          v-model="depiction.caption"
+          placeholder="Caption"
+        />
+      </div>
+      <label>
+        <input
+          type="checkbox"
+          v-model="depiction.is_metadata_depiction"
+        />
+        Is data depiction
+      </label>
+      <div class="separate-top separate-bottom">
+        <h4>Move to</h4>
+        <ul class="no_bullets">
+          <li
+            v-for="type in objectTypes"
+            :key="type.value"
+          >
+            <label>
+              <input
+                type="radio"
+                name="depiction-type"
+                v-model="selectedType"
+                :value="type"
+              />
+              {{ type.label }}
+            </label>
+          </li>
+        </ul>
+        <div
+          v-if="selectedType && !selectedObject"
+          class="separate-top"
+        >
+          <autocomplete
+            v-if="selectedType.value != 'Otu'"
+            :disabled="!selectedType"
+            :url="selectedType.url"
+            label="label_html"
+            :placeholder="`Select a ${selectedType.label.toLowerCase()}`"
+            :clear-after="true"
+            @getItem="selectedObject = $event"
+            param="term"
+          />
+          <otu-picker
+            v-else
+            :clear-after="true"
+            @getItem="selectedObject = $event"
+          />
+        </div>
+        <div
+          v-if="selectedObject"
+          class="horizontal-left-content"
+        >
+          <span v-html="selectedObject.label_html" />
+          <span
+            class="circle-button button-default btn-undo"
+            @click="selectedObject = undefined"
+          />
+        </div>
+      </div>
+
+      <div>
+        <button
+          type="button"
+          class="normal-input button button-submit margin-small-right"
+          @click="updateFigure()"
+        >
+          Update
+        </button>
+        <button
+          type="button"
+          class="normal-input button button-default"
+          @click="depiction = undefined"
+        >
+          Back
+        </button>
+      </div>
+    </div>
+    <div v-else>
+      <smart-selector
+        model="images"
+        :autocomplete="false"
+        :search="false"
+        :target="objectType"
+        :add-tabs="['new', 'filter']"
+        pin-section="Images"
+        @selected="createDepiction"
+      >
+        <template #new>
+          <dropzone
+            class="dropzone-card separate-bottom"
+            @vdropzone-sending="sending"
+            @vdropzone-success="success"
+            ref="figure"
+            url="/depictions"
+            :use-custom-dropzone-options="true"
+            :dropzone-options="dropzone"
+          />
+        </template>
+        <template #filter>
+          <div class="horizontal-left-content align-start">
+            <FilterImage @parameters="loadList" />
+            <div class="margin-small-left flex-wrap-row">
+              <div
+                v-for="image in filterList"
+                :key="image.id"
+                class="thumbnail-container margin-small cursor-pointer"
+                @click="createDepiction(image)"
+              >
+                <img
+                  :width="image.alternatives.thumb.width"
+                  :height="image.alternatives.thumb.height"
+                  :src="image.alternatives.thumb.image_file_url"
+                />
+              </div>
+            </div>
+          </div>
+        </template>
+      </smart-selector>
+      <label>
+        <input
+          type="checkbox"
+          v-model="isDataDepiction"
+        />
+        Is data depiction
+      </label>
+      <DepictionList
+        class="margin-large-top"
+        :list="list"
+        @delete="removeItem"
+        @selected="(item) => (depiction = item)"
+        @update:caption="updateDepiction"
+        @update:label="updateDepiction"
+      />
+    </div>
+  </div>
+</template>
+<script>
+import CRUD from '../../request/crud.js'
+import Dropzone from 'components/dropzone.vue'
+import annotatorExtend from '../../components/annotatorExtend.js'
+import Autocomplete from 'components/ui/Autocomplete'
+import OtuPicker from 'components/otu/otu_picker/otu_picker'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import FilterImage from 'tasks/images/filter/components/filter'
+import SmartSelector from 'components/ui/SmartSelector'
+import DepictionList from './DepictionList.vue'
+import { addToArray } from 'helpers/arrays'
+import { Depiction, Image } from 'routes/endpoints'
+
+export default {
+  mixins: [CRUD, annotatorExtend],
+
+  components: {
+    Dropzone,
+    Autocomplete,
+    FilterImage,
+    OtuPicker,
+    SmartSelector,
+    DepictionList
+  },
+
+  computed: {
+    updateObjectType() {
+      return this.selectedObject && this.selectedType
+    }
+  },
+
+  data() {
+    return {
+      depiction: undefined,
+      dropzone: {
+        paramName: 'depiction[image_attributes][image_file]',
+        url: '/depictions',
+        headers: {
+          'X-CSRF-Token': document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute('content')
+        },
+        dictDefaultMessage: 'Drop images here to add figures',
+        acceptedFiles: 'image/*,.heic'
+      },
+      objectTypes: [
+        {
+          value: 'Otu',
+          label: 'Otu',
+          url: '/otus/autocomplete'
+        },
+        {
+          value: 'CollectingEvent',
+          label: 'Collecting event',
+          url: '/collecting_events/autocomplete'
+        },
+        {
+          value: 'CollectionObject',
+          label: 'Collection object',
+          url: '/collection_objects/autocomplete'
+        },
+        {
+          value: 'TaxonName',
+          label: 'Taxon name',
+          url: '/taxon_names/autocomplete'
+        },
+        {
+          value: 'Person',
+          label: 'Person',
+          url: '/people/autocomplete'
+        }
+      ],
+      isDataDepiction: false,
+      selectedType: undefined,
+      selectedObject: undefined,
+      filterList: []
+    }
+  },
+
+  mounted() {
+    this.$options.components.RadialAnnotator = RadialAnnotator
+  },
+
+  methods: {
+    success(file, response) {
+      this.list.push(response)
+      this.$refs.figure.removeFile(file)
+    },
+
+    sending(file, xhr, formData) {
+      formData.append(
+        'depiction[annotated_global_entity]',
+        decodeURIComponent(this.globalId)
+      )
+      formData.append('depiction[is_metadata_depiction]', this.isDataDepiction)
+    },
+
+    updateFigure() {
+      if (this.updateObjectType) {
+        this.depiction.depiction_object_type = this.selectedType.value
+        this.depiction.depiction_object_id = this.selectedObject.id
+      }
+
+      Depiction.update(this.depiction.id, { depiction: this.depiction }).then(
+        (response) => {
+          const index = this.list.findIndex(
+            (element) => this.depiction.id === element.id
+          )
+
+          if (this.updateObjectType) {
+            this.list.splice(index, 1)
+          } else {
+            this.list[index] = response.body
+          }
+          this.depiction = undefined
+
+          TW.workbench.alert.create(
+            'Depiction was successfully updated.',
+            'notice'
+          )
+        }
+      )
+    },
+
+    updateDepiction(depiction) {
+      Depiction.update(depiction.id, { depiction }).then(({ body }) => {
+        addToArray(this.list, body)
+
+        TW.workbench.alert.create(
+          'Depiction was successfully updated.',
+          'notice'
+        )
+      })
+    },
+
+    createDepiction(image) {
+      const depiction = {
+        image_id: image.id,
+        annotated_global_entity: this.globalId,
+        is_metadata_depiction: this.isDataDepiction
+      }
+
+      Depiction.create({ depiction }).then(({ body }) => {
+        this.list.push(body)
+        TW.workbench.alert.create(
+          'Depiction was successfully created.',
+          'notice'
+        )
+      })
+    },
+
+    loadList(params) {
+      Image.filter(params).then(({ body }) => {
+        this.filterList = body
+      })
+    }
+  }
+}
+</script>

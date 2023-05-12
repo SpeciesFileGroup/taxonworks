@@ -7,18 +7,29 @@
         type="text"
         placeholder="Pages"
         @input="autosaveCitation"
-      >
+      />
     </td>
     <td>
       <input
         v-model="citation.is_original"
         type="checkbox"
         @change="updateCitation"
-      >
+      />
     </td>
     <td class="full_width">
-      <a :href="`/tasks/nomenclature/browse?taxon_name_id=${citation.citation_object_id}`">
-        <span v-html="citation.citation_object.original_combination" /> {{ isInvalid(citation.citation_object) }}
+      <a
+        :href="`/tasks/nomenclature/browse?taxon_name_id=${citation.citation_object_id}`"
+      >
+        <span
+          v-html="
+            citation.citation_object?.original_combination ||
+            [
+              citation.citation_object.cached_html,
+              citation.citation_object.cached_author_year
+            ].join(' ')
+          "
+        />
+        {{ isInvalid(citation.citation_object) }}
       </a>
     </td>
     <td>
@@ -41,7 +52,6 @@
 </template>
 
 <script setup>
-
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import ConfidenceButton from 'components/defaultConfidence.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
@@ -55,19 +65,15 @@ const props = defineProps({
   }
 })
 
-const {
-  removeCitation,
-  autosaveCitation,
-  updateCitation
-} = useRow(props.citation)
+const { removeCitation, autosaveCitation, updateCitation } = useRow(
+  props.citation
+)
 
-const isInvalid = taxon => {
+const isInvalid = (taxon) => {
   if (taxon.type === COMBINATION) {
     return '[c]'
   }
 
-  return (taxon.cached_is_valid)
-    ? '✓'
-    : '❌'
+  return taxon.cached_is_valid ? '✓' : '❌'
 }
 </script>

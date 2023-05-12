@@ -14,7 +14,7 @@
           cx="12"
           cy="12"
           fill="none"
-          r="10"
+          r="11"
           stroke-width="2"
           stroke="currentColor"
           stroke-linecap="round"
@@ -53,7 +53,7 @@
     <input
       type="color"
       v-model="color"
-    >
+    />
   </div>
 </template>
 
@@ -68,13 +68,9 @@ const store = useStore()
 const SVGBoard = computed(() => store.getters[GetterNames.GetSVGBoard])
 const color = ref('#000000')
 
-watch(
-  color,
-  (newVal) => {
-    SVGBoard.value.apiStroke(newVal)
-  }
-)
-
+watch(color, (newVal) => {
+  SVGBoard.value.apiStroke(newVal)
+})
 </script>
 
 <style scoped lang="scss">
@@ -84,7 +80,7 @@ watch(
   button {
     background-color: transparent;
     border: none;
-    padding: .5rem;
+    padding: 0.5rem;
     cursor: pointer;
   }
 

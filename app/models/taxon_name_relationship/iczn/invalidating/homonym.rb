@@ -35,9 +35,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
 
   end
 
-#  def self.disjoint_object_classes
-#    self.parent.disjoint_object_classes
-#  end
+  def self.disjoint_object_classes
+    self.parent.disjoint_object_classes +
+      self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable)
+  end
 
   def subject_properties
     [ TaxonNameClassification::Iczn::Available::Invalid::Homonym ]
@@ -100,7 +101,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
   end
 
   def sv_not_specific_relationship
-    if SPECIES_RANK_NAMES_ICZN.include?(self.subject_taxon_name.rank_string)
+    if self.subject_taxon_name.is_species_rank?
       soft_validations.add(
         :type, 'Please specify if this is a primary or secondary homonym',
         success_message: 'Homonym updated to being primary or secondary',
@@ -120,15 +121,16 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
       new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
     end
     if new_relationship_name && self.type_name != new_relationship_name
-      self.update_columns(type: new_relationship_name)
+      self.type = new_relationship_name
+      self.save
       return true
     end
     false
   end
 
   def sv_validate_priority
-    date1 = self.subject_taxon_name.nomenclature_date
-    date2 = self.object_taxon_name.nomenclature_date
+    date1 = self.subject_taxon_name.cached_nomenclature_date
+    date2 = self.object_taxon_name.cached_nomenclature_date
     if !!date1 && !!date2 && date2 > date1 && subject_invalid_statuses.empty?
       soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}")
     end

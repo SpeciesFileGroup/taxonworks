@@ -16,6 +16,23 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   let(:t2) { Protonym.create(name: 'Aus', parent: t1, rank_class: Ranks.lookup(:iczn, :genus) ) }
   let(:t3) { Protonym.create(name: 'bus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) ) }
 
+  specify '#params, ActionController::Parameters, array' do
+    ce.images << i1
+    h = {collecting_event_query: {collecting_event_id: [ce.id]}}
+    p = ActionController::Parameters.new( h  )
+    query = Queries::Image::Filter.new(p) 
+    expect(query.params).to eq(h)
+  end
+
+  specify '#collection_object_scope :observations' do
+    t = FactoryBot.create(:valid_observation, observation_object: co)
+    t.images << i1
+    i2 # not this one
+    q.collection_object_id = co.id
+    q.collection_object_scope = [:observations]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
   specify '#otu_scope :type_material_observations' do
     t = FactoryBot.create(:valid_type_material)
 
@@ -51,7 +68,6 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.coordinate_otu_ids).to contain_exactly(o.id, o1.id)
   end
 
-
   specify '#otu_scope :coordinate_otus, :collection_object_observations' do
     # First image, on valid
     o.update!(taxon_name: t3)
@@ -85,7 +101,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     t = Protonym.create(name: 'cus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) )
     t.synonymize_with(t3)
 
-    o.update(taxon_name: t3)
+    o.update!(taxon_name: t3)
 
     o1 = Otu.create!(taxon_name: t)
     o1.images << i2
@@ -105,7 +121,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     t = Protonym.create(name: 'cus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) )
     t.synonymize_with(t3)
 
-    o.update(taxon_name: t3)
+    o.update!(taxon_name: t3)
     o1 = Otu.create!(taxon_name: t)
 
     td = TaxonDetermination.create!(otu: o1, biological_collection_object: Specimen.create!)
@@ -125,7 +141,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     t = Protonym.create(name: 'cus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) )
     t.synonymize_with(t3)
 
-    o.update(taxon_name: t3)
+    o.update!(taxon_name: t3)
     o1 = Otu.create!(taxon_name: t)
 
     o1.images << i2
@@ -214,13 +230,13 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
 
   specify '#collecting_event_id id' do
     ce.images << i1
-    q.collecting_event_id = ce.id
+    q.collecting_event_query = ::Queries::CollectingEvent::Filter.new(collecting_event_id: ce.id)
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
   specify '#collecting_event_id array' do
     ce.images << i1
-    q.collecting_event_id = [ce.id]
+    q.collecting_event_query = ::Queries::CollectingEvent::Filter.new(collecting_event_id: [ce.id])
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
@@ -265,15 +281,15 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
-  specify '#depiction false' do
+  specify '#depictions false' do
     i1
     i2
-    q.depiction = false
+    q.depictions = false
     expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id)
   end
 
   specify '#depiction true' do
-    q.depiction = true
+    q.depictions = true
     o.images << i1
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
@@ -300,7 +316,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
-  specify '#taxon_name_id, #ancestor_id_target' do
+  specify '#taxon_name_id, #taxon_name_id_target' do
     # Collection object
     o.update!(taxon_name: t3)
     co.images << i1
@@ -310,7 +326,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     o.images << i2
 
     q.taxon_name_id = [t2.id]
-    q.ancestor_id_target = 'CollectionObject'
+    q.taxon_name_id_target = 'CollectionObject'
 
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
@@ -325,7 +341,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     o.images << i2
 
     q.taxon_name_id = [t2.id]
-    q.depiction = true
+    q.depictions = true
     q.image_id = [i1.id]
 
     expect(q.all.map(&:id)).to contain_exactly(i1.id)

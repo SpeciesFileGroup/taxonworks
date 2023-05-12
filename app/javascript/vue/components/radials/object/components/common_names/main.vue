@@ -5,41 +5,51 @@
       <input
         type="text"
         placeholder="Name"
-        v-model="common_name.name">
+        v-model="common_name.name"
+      />
     </div>
 
     <fieldset>
       <legend>Geographic area</legend>
-      <smart-selector
+      <SmartSelector
         model="geographic_areas"
         klass="CollectingEvent"
         target="CollectingEvent"
         pin-section="GeographicAreas"
+        label="name"
+        :add-tabs="['map']"
         pin-type="GeographicArea"
-        @selected="selectedGeographic = $event"
-      />
+        @selected="() => (selectedGeographic = $event)"
+      >
+        <template #map>
+          <GeographicAreaMapPicker
+            @select="() => (selectedGeographic = $event)"
+          />
+        </template>
+      </SmartSelector>
       <div>
-        <smart-selector-item
+        <SmartSelectorItem
           :item="selectedGeographic"
           label="name"
-          @unset="selectedGeographic = null"
+          @unset="() => (selectedGeographic = null)"
         />
       </div>
     </fieldset>
 
     <fieldset>
       <legend>Language</legend>
-      <smart-selector
+      <SmartSelector
         model="languages"
         klass="AlternateValue"
         pin-section="Languages"
         pin-type="Language"
-        @selected="selectedLanguage = $event"
+        label="english_name"
+        @selected="() => (selectedLanguage = $event)"
       />
-      <smart-selector-item
+      <SmartSelectorItem
         :item="selectedLanguage"
         label="english_name"
-        @unset="selectedLanguage = null"
+        @unset="() => (selectedLanguage = null)"
       />
     </fieldset>
 
@@ -52,7 +62,7 @@
         v-model="common_name.start_year"
         min="1600"
         max="3000"
-      >
+      />
     </div>
 
     <div class="field">
@@ -64,7 +74,7 @@
         v-model="common_name.end_year"
         min="1600"
         max="3000"
-      >
+      />
     </div>
 
     <div class="margin-medium-bottom">
@@ -89,8 +99,14 @@
 
     <table-list
       label="object_tag"
-      :header="['Name', 'Geographic area', 'Language', 'Start', 'End','']"
-      :attributes="['name', ['geographic_area', 'object_tag'], 'language_tag', 'start_year', 'end_year']"
+      :header="['Name', 'Geographic area', 'Language', 'Start', 'End', '']"
+      :attributes="[
+        'name',
+        ['geographic_area', 'object_tag'],
+        'language_tag',
+        'start_year',
+        'end_year'
+      ]"
       :list="list"
       edit
       @edit="setCommonName"
@@ -101,13 +117,13 @@
 </template>
 
 <script>
-
 import CRUD from '../../request/crud.js'
 import annotatorExtend from '../../components/annotatorExtend.js'
 import TableList from 'components/table_list.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
 import makeCommonName from 'factory/CommonName.js'
+import GeographicAreaMapPicker from 'components/ui/SmartSelector/GeographicAreaMapPicker.vue'
 import { addToArray } from 'helpers/arrays.js'
 import { CommonName } from 'routes/endpoints'
 import VBtn from 'components/ui/VBtn/index.vue'
@@ -119,16 +135,17 @@ export default {
     TableList,
     SmartSelector,
     SmartSelectorItem,
+    GeographicAreaMapPicker,
     VBtn
   },
 
   computed: {
-    validate () {
-      return (this.common_name.name.length > 2 && this.common_name.otu_id)
+    validate() {
+      return this.common_name.name.length > 2 && this.common_name.otu_id
     }
   },
 
-  data () {
+  data() {
     return {
       common_name: makeCommonName(this.metadata.object_id),
       selectedGeographic: null,
@@ -136,18 +153,18 @@ export default {
     }
   },
 
-  mounted () {
+  mounted() {
     this.urlList = `/common_names.json?otu_id=${this.metadata.object_it}`
   },
 
   methods: {
-    reset () {
+    reset() {
       this.common_name = makeCommonName(this.metadata.object_id)
       this.selectedGeographic = null
       this.selectedLanguage = null
     },
 
-    createNew () {
+    createNew() {
       const dataRequest = {
         ...this.common_name,
         geographic_area_id: this.selectedGeographic?.id || null,
@@ -158,13 +175,13 @@ export default {
         ? CommonName.update(this.common_name.id, { common_name: dataRequest })
         : CommonName.create({ common_name: dataRequest })
 
-      saveRequest.then(response => {
+      saveRequest.then((response) => {
         addToArray(this.list, response.body)
         this.reset()
       })
     },
 
-    setCommonName (common) {
+    setCommonName(common) {
       this.common_name.id = common.id
       this.common_name.name = common.name
       this.common_name.start_year = common.start_year
@@ -203,4 +220,3 @@ export default {
   }
 }
 </style>
-
