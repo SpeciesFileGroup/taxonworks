@@ -15,8 +15,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - BibTeX typo [#3408]
 - Includes `type material` and `type material observations` don't work in Filter images
+- Changing the number of items per page or the page shows loan items that are not from the current loan in New/edit loan task [#3413]
 
 [#3408]: https://github.com/SpeciesFileGroup/taxonworks/issues/3408
+[#3413]: https://github.com/SpeciesFileGroup/taxonworks/issues/3413
 
 ## [0.32.3] - 2023-05-05
 
