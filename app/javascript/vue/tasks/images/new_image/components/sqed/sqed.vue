@@ -197,7 +197,7 @@ export default {
 
       Object.assign(metadata.extraction_patterns, {
         none: {
-          layout: 'none',
+          layout: 'stage',
           boundary_finder: {},
           metadata_map: {
             0: 'none'
