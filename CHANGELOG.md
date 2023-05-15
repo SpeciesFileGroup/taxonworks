@@ -11,7 +11,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - `Add` button to add biological associations from `Related` modal in new biological associations task
 
+### Changed
+
+- Recent predicate list
+- Recent languages list
+- People autocomplete
+- GeographicArea autocomplete (exact match on alternate value)
+
 ### Fixed
+- Bug with interactive keys [#3416]
 - Collection object classification summary [#3412]
 - BibTeX typo [#3408]
 - Includes `type material` and `type material observations` don't work in Filter images
@@ -718,12 +726,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Added 'electronic only' field for the source to flag sources published in electronic only format
 - Default `collectionCode` namespace mappings as falback when `institutionCode`:`collectionCode` mappings do not contain a match in DwC occurrences importer.
 
-### Changed
-
-- Recent predicate list
-- Recent languages list
-- People autocomplete
-- GeographicArea autocomplete (exact match on alternate value)
 - Remove search box in observation matrix hub [#3032]
 - Type material form allows multiple type species in comprehensive task. [#2584]
 - Updated Ruby gems.Yes
@@ -733,7 +735,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
-- Bug with interactive keys [#3416]
 - Object global id param in identifiers API/filter
 - Bad logic check on adding new user to project
 - Dependency loop problem in DwC checklist importer
