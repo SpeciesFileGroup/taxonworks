@@ -733,6 +733,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Bug with interactive keys [#3416]
 - Object global id param in identifiers API/filter
 - Bad logic check on adding new user to project
 - Dependency loop problem in DwC checklist importer
