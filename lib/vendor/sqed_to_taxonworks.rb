@@ -236,8 +236,8 @@ module SqedToTaxonworks
 
     def large_dimensions_for(layout_section_type)
       c = coords_for(layout_section_type)
-      return nil if c == [] || (c[2] == 0 and c[3] == 0)
-      "0, 0, 400, #{(c[3].to_f / (c[2].to_f / 400)).to_i}"
+      return nil if c.blank? || c[2] == 0 || c[3] == 0
+      "0, 0, 400, #{( c[3].to_f / (c[2].to_f / 400)).to_i}"
     end
 
     def image_unavailable?
