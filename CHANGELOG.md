@@ -9,6 +9,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- New stage-only staged image type [#3400]
+- New left-t stage layout [#3367]
 - `Add` button to add biological associations from `Related` modal in new biological associations task
 
 ### Changed
@@ -19,12 +21,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - GeographicArea autocomplete (exact match on alternate value)
 
 ### Fixed
+
+- Staged image processing when boundaries fail to be calculated 
 - Bug with interactive keys [#3416]
 - Collection object classification summary [#3412]
 - BibTeX typo [#3408]
 - Includes `type material` and `type material observations` don't work in Filter images
 - Changing the number of items per page or the page shows loan items that are not from the current loan in New/edit loan task [#3413]
 
+[#3367]: https://github.com/SpeciesFileGroup/taxonworks/issues/3367
+[#3400]: https://github.com/SpeciesFileGroup/taxonworks/issues/3400
+[#3416]: https://github.com/SpeciesFileGroup/taxonworks/issues/3416
 [#3412]: https://github.com/SpeciesFileGroup/taxonworks/issues/3412
 [#3408]: https://github.com/SpeciesFileGroup/taxonworks/issues/3408
 [#3413]: https://github.com/SpeciesFileGroup/taxonworks/issues/3413
