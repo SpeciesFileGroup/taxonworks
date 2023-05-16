@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - GeographicArea autocomplete (exact match on alternate value)
 
 ### Fixed
+- PublicContent missing is_community? method preventing reporting.
 - Loans dashboard fails to render when no loans are present 
 - Staged image processing when boundaries fail to be calculated and calculate incorrectly 
 - Bug with engine in interactive keys [#3416]
