@@ -25,12 +25,13 @@
   <FacetPreparationTypes v-model="params" />
   <FacetTypeMaterial v-model="params" />
   <FacetInRelationship v-model="params" />
+  <FacetImportDataset v-model="params" />
   <FacetLoan v-model="params" />
   <FacetUsers v-model="params" />
   <FacetTags
-     v-model="params"
-     target="CollectionObject"
-   />
+    v-model="params"
+    target="CollectionObject"
+  />
   <FacetNotes v-model="params" />
   <FacetBuffered v-model="params" />
   <FacetProtocol v-model="params" />
@@ -69,6 +70,7 @@ import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribu
 import FacetWKT from 'components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetProtocol from 'components/Filter/Facets/Extract/FacetProtocol.vue'
+import FacetImportDataset from 'components/Filter/Facets/CollectionObject/FacetImportDataset.vue'
 
 const WITH_PARAMS = [
   'biological_associations',
