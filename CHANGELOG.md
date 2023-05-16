@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - `Add` button to add biological associations from `Related` modal in new biological associations task
+- ImportDataset facet in Filter collection objects [#3419]
 
 ### Changed
 
@@ -19,15 +20,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - GeographicArea autocomplete (exact match on alternate value)
 
 ### Fixed
+
 - Bug with interactive keys [#3416]
 - Collection object classification summary [#3412]
 - BibTeX typo [#3408]
 - Includes `type material` and `type material observations` don't work in Filter images
 - Changing the number of items per page or the page shows loan items that are not from the current loan in New/edit loan task [#3413]
 
-[#3412]: https://github.com/SpeciesFileGroup/taxonworks/issues/3412
 [#3408]: https://github.com/SpeciesFileGroup/taxonworks/issues/3408
+[#3412]: https://github.com/SpeciesFileGroup/taxonworks/issues/3412
 [#3413]: https://github.com/SpeciesFileGroup/taxonworks/issues/3413
+[#3419]: https://github.com/SpeciesFileGroup/taxonworks/issues/3419
 
 ## [0.32.3] - 2023-05-05
 
