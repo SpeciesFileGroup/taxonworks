@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - BibTeX typo [#3408]
 - Includes `type material` and `type material observations` don't work in Filter images
 - Changing the number of items per page or the page shows loan items that are not from the current loan in New/edit loan task [#3413]
+- Sort by name gives an wrong order in filter nomenclature task
 
 [#3408]: https://github.com/SpeciesFileGroup/taxonworks/issues/3408
 [#3412]: https://github.com/SpeciesFileGroup/taxonworks/issues/3412
