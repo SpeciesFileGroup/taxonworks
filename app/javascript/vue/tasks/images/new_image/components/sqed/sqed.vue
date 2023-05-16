@@ -78,6 +78,7 @@ import NewObject from './newObject'
 import EqualCrossLayout from './layouts/equal_cross'
 import CrossLayout from './layouts/cross'
 import RightTLayout from './layouts/right_t'
+import LeftTLayout from './layouts/left_t'
 import HorizontalSplitLayout from './layouts/horizontal_split'
 import HorizontalOffsetCrossLayout from './layouts/horizontal_offset_cross'
 import VerticalOffsetCrossLayout from './layouts/vertical_offset_cross'
@@ -115,6 +116,7 @@ export default {
     TagsComponent,
     DataAttributes,
     LepStage2Layout,
+    LeftTLayout,
     TLayout,
     InvertedTLayout,
     NoneLayout
