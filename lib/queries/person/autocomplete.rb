@@ -146,11 +146,11 @@ module Queries
                 #     .order('in_project, use_count DESC')
               end
             end
-
-            updated_queries[i] = a
           end
+          updated_queries[i] = a
         end
         result = []
+        updated_queries.compact!
         updated_queries.each do |q|
           result += q.to_a
           result.uniq!
