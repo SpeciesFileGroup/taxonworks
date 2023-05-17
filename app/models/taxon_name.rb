@@ -1288,7 +1288,7 @@ class TaxonName < ApplicationRecord
     when :icn
       ay = icn_author_and_year(taxon)
     else
-      ay = ([author_string] + [cached_nomenclature_date.year]).compact.join(' ')
+      ay = ([author_string] + [cached_nomenclature_date&.year]).compact.join(' ')
     end
     (ay.presence)
   end
@@ -1367,8 +1367,8 @@ class TaxonName < ApplicationRecord
           ay = '(' + ay + ')' if !ay.empty? && og.normalized_genus.id != cg.normalized_genus.id
         end
       end
-    elsif FAMILY_RANK_NAMES_ICZN.include?(taxon.rank_string) && !y.empty? && cached_nomenclature_date.year != y.first
-      ay = ay + ' [' + cached_nomenclature_date.year.to_s + ']'
+    elsif FAMILY_RANK_NAMES_ICZN.include?(taxon.rank_string) && !y.empty? && cached_nomenclature_date&.year != y.first
+      ay = ay + ' [' + cached_nomenclature_date&.year.to_s + ']'
     end
 
     unless misapplication.empty? || obj.author_string.blank?
@@ -1396,7 +1396,7 @@ class TaxonName < ApplicationRecord
 
   # @return [Boolean]
   def parent_is_set?
-    !parent_id.nil? || (parent && parent.persisted?)
+    !parent_id.nil? || (parent&.persisted?)
   end
 
   # TODO: this should be paginated, not all IDs!
