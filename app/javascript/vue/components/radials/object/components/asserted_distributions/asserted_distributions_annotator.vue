@@ -21,6 +21,7 @@
         :target="ASSERTED_DISTRIBUTION"
         absent-field
         lock-button
+        use-session
         @lock="lock.source = $event"
       />
       <button
