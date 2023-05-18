@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Biological associations can now be depicted
 - Data depiction facets
 - Biological associations filter annotation-based facets
 - New stage-only staged image type [#3400]
