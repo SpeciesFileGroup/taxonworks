@@ -326,7 +326,7 @@ class ObservationMatrix < ApplicationRecord
     begin
       o = ObservationMatrix.create!(params.require(:observation_matrix).permit(:name))
     rescue ActiveRecord::RecordInvalid => e
-      return e.errors
+      return o.errors.full_messages
     end
     o.batch_populate(params)
   end
