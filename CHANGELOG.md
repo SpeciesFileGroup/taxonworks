@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+
 - Biological associations can now be depicted
 - Data depiction facets
 - Biological associations filter annotation-based facets
@@ -25,6 +26,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - GeographicArea autocomplete (exact match on alternate value)
 
 ### Fixed
+
+- Year import in NOMEN (was "castor") import [#3411]
 - PublicContent missing is_community? method preventing reporting.
 - Loans dashboard fails to render when no loans are present 
 - Staged image processing when boundaries fail to be calculated and calculate incorrectly 
@@ -35,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changing the number of items per page or the page shows loan items that are not from the current loan in New/edit loan task [#3413]
 - Sort by name gives an wrong order in filter nomenclature task
 
+[#3411]: https://github.com/SpeciesFileGroup/taxonworks/issues/3411
 [#3367]: https://github.com/SpeciesFileGroup/taxonworks/issues/3367
 [#3400]: https://github.com/SpeciesFileGroup/taxonworks/issues/3400
 [#3416]: https://github.com/SpeciesFileGroup/taxonworks/issues/3416
