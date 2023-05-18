@@ -296,7 +296,7 @@ class ObservationMatrix < ApplicationRecord
       collection_objects = ::Queries::CollectionObject::Filter.new(observation_query: params[:observation_query]).all
       extracts = ::Queries::Extract::Filter.new(observation_query: params[:observation_query]).all
     when 'collection_object_query'
-      collection_objects = ::Queries::CollectionObject::Filter.new(collection_object_query: params[:collection_object_query]).all
+      collection_objects = ::Queries::CollectionObject::Filter.new(params[:collection_object_query]).all
     when 'extract_query'
       extracts = ::Queries::Extract::Filter.new(params[:extract_query]).all
     end
