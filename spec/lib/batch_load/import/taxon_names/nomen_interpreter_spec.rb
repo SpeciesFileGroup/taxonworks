@@ -2,64 +2,94 @@ require 'rails_helper'
 
 describe BatchLoad::Import::TaxonNames::NomenInterpreter, type: :model do
 
-  let(:file_name) { 'spec/files/batch/otu/OtuTest.tsv' }
+  let(:file_name) { 'spec/files/batch/taxon_name/NomenTest.tab' }
   let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
 
-  let(:setup) {
-    csv1 = CSV.read(file_name,
-      headers:           true,
-      header_converters: :downcase,
-      col_sep:           "\t",
-      encoding:          'UTF-8')
+  let(:root_taxon_name) { FactoryBot.create(:root_taxon_name) }
 
-  # csv1.each do |row|
-  #   ident = row[0]
-  #   case ident
-  #   when 'americana' # create an otu to find later
-  #     Otu.create(name: ident)
-  #   else
-  #   end
-  # end
+  let(:setup) {
+    csv1 = CSV.read(
+      file_name,
+      headers: true,
+      header_converters: :downcase,
+      col_sep: "\t",
+      encoding: 'UTF-8')
   }
 
   let(:import) { BatchLoad::Import::TaxonNames::NomenInterpreter.new(
+    parent_taxon_name_id: root_taxon_name.id,
+    nomenclature_code: 'iczn',
     project_id:,
     user_id:,
     file: upload_file)
   }
 
-  before { setup }
-
-
-  specify '.new succeeds' do
-    expect(import).to be_truthy
+  specify '.also_create_otu' do
+    expect(import.also_create_otu).to be_falsey
   end
 
-  specify '#processed_rows' do
-    expect(import.processed_rows.count).to eq(7) # now skips empties
+  specify '#year_of_publication 1' do
+    expect(import.send(:year_of_publication, 'Smith, 1999')).to eq('1999')
   end
 
-  specify '#processed_rows' do
-    expect(import.create_attempted).to eq(false)
+  specify '#year_of_publication 2' do
+    expect(import.send(:year_of_publication, '(Smith, 1999)')).to eq('1999')
   end
 
-  context 'after .create' do
-    before { import.create }
-  
-    specify '#create_attempted' do
-      expect(import.create_attempted).to eq(true)
-    end
- 
-    specify '#valid_objects' do
-      expect(import.valid_objects.count).to eq(7)
+  context 'with setup' do
+    before { setup }
+
+    specify '.new succeeds' do
+      expect(import).to be_truthy
     end
 
-    specify '#successful_rows' do
-      expect(import.successful_rows).to be_truthy
+    specify '#processed_rows' do
+      expect(import.processed_rows.count).to eq(10) # now skips empties
     end
 
-    specify '#total_records_created' do
-      expect(import.total_records_created).to eq(7)
+    specify '#processed_rows' do
+      expect(import.create_attempted).to eq(false)
+    end
+
+    context 'after .create' do
+      before { import.create }
+
+      specify '#create_attempted' do
+        expect(import.create_attempted).to eq(true)
+      end
+
+      specify '#valid_objects (after save)' do
+        expect(import.valid_objects.count).to eq(16)
+      end
+
+      specify '#successful_rows' do
+        expect(import.successful_rows).to be_truthy
+      end
+
+      specify '#total_records_created' do
+        expect(import.total_records_created).to eq(16)
+      end
+
+      specify 'creates taxon names' do
+        expect(TaxonName.all.count).to eq(11) # batch + 1 root
+      end
+
+      specify 'creates relationships' do
+        expect(TaxonNameRelationship.all.count).to eq(4)
+      end
+
+      specify 'creates classifications' do
+        expect(TaxonNameClassification.all.count).to eq(2) # not added to total, nested
+      end
+
+      specify 'creates otus' do
+        expect(Otu.all.count).to eq(2)
+      end
+
+      specify 'creates identifiers' do
+        expect(Identifier.all.count).to eq(1) # not added to total
+      end
+
     end
   end
 

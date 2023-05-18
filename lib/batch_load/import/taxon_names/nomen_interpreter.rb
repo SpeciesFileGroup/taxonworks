@@ -10,7 +10,7 @@ module BatchLoad
     # The default parent if otherwise not provided
     attr_accessor :base_taxon_name_id
 
-    # The code (Rank Class) that new names will use
+    # The code (Rank Class) that new names will use. Required.
     attr_accessor :nomenclature_code
 
     # @return Boolean
@@ -128,6 +128,7 @@ module BatchLoad
                 taxon_name_relationship = related_name_nomen_class.new(
                   subject_taxon_name: p, object_taxon_name: taxon_names[related_name_id]
                 )
+                
                 parse_result.objects[:taxon_name_relationship].push taxon_name_relationship
               end
             rescue NameError
@@ -144,7 +145,7 @@ module BatchLoad
             end
           end
 
-          # There is an OTU linked to the taxon name
+          # There is an OTU linked to the taxon name.
           if row['taxon_concept_name'].present? || row['guid'].present?
             taxon_concept_identifier_nomen = {}
 
@@ -158,10 +159,11 @@ module BatchLoad
 
             parse_result.objects[:otu].push(otu)
           else
+            
             # Note we are not technically using the param like TaxonName.new(), so we can't just set the attribute
             # So we hack in the OTUs 'manually".  This also lets us see them in the result
             if also_create_otu
-              parse_result.objects[:otu].push( Otu.new(taxon_name: p) )
+              parse_result.objects[:otu].push Otu.new(taxon_name: p)
             end
           end
 
@@ -188,11 +190,10 @@ module BatchLoad
     # @return [String, nil]
     def year_of_publication(author_year)
       return nil if author_year.blank?
-      split_author_year = author_year.split(' ')
-      year = split_author_year[split_author_year.length - 1]
-      year =~ /\A\d+\z/ ? year : ''
+      author_year&.match(/\d\d\d\d/)&.to_s
     end
 
+    # TODO: unify parsing to somewhere else
     # @param [String] author_year
     # @return [String, nil] just the author name, wiht parens left on
     def verbatim_author(author_year)
