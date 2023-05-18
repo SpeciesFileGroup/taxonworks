@@ -66,6 +66,7 @@ function addToMatrix() {
       `${body.rows} rows and ${body.columns} columns were successfully created.`,
       'notice'
     )
+    matrixName.value = ''
     created.value = body
   })
 }
