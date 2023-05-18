@@ -8,7 +8,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-
+- Data depiction facets
+- Biological associations filter annotation-based facets
 - New stage-only staged image type [#3400]
 - New left-t stage layout [#3367]
 - `Add` button to add biological associations from `Related` modal in new biological associations task
