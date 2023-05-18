@@ -1,9 +1,11 @@
 <template>
   <div>
+    <VSpinner v-if="isSaving" />
     <VAutocomplete
       url="/observation_matrices/autocomplete"
       label="label_html"
       placeholder="Search an observation matrix"
+      param="term"
       clear-after
       @get-item="(item) => (matrix = item)"
     />
@@ -43,6 +45,7 @@
 <script setup>
 import VAutocomplete from 'components/ui/Autocomplete.vue'
 import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import VSpinner from 'components/spinner.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import { RouteNames } from 'routes/routes'
 import { ObservationMatrix } from 'routes/endpoints'
@@ -57,6 +60,7 @@ const props = defineProps({
 
 const matrix = ref()
 const created = ref(undefined)
+const isSaving = ref(false)
 
 function addToMatrix() {
   const payload = {
@@ -65,13 +69,19 @@ function addToMatrix() {
     observation_matrix_id: matrix.value.id
   }
 
-  ObservationMatrix.addBatch(payload).then(({ body }) => {
-    created.value = body
-    TW.workbench.alert.create(
-      `${body.rows} rows and ${body.columns} columns were successfully created.`,
-      'notice'
-    )
-    created.value = body
-  })
+  isSaving.value = true
+
+  ObservationMatrix.addBatch(payload)
+    .then(({ body }) => {
+      created.value = body
+      TW.workbench.alert.create(
+        `${body.rows} rows and ${body.columns} columns were successfully created.`,
+        'notice'
+      )
+      created.value = body
+    })
+    .finally(() => {
+      isSaving.value = false
+    })
 }
 </script>

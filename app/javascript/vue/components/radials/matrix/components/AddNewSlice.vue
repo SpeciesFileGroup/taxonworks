@@ -1,5 +1,6 @@
 <template>
   <div>
+    <VSpinner v-if="isSaving" />
     <div class="field label-above">
       <input
         type="text"
@@ -38,6 +39,7 @@
 
 <script setup>
 import VBtn from 'components/ui/VBtn/index.vue'
+import VSpinner from 'components/spinner.vue'
 import { RouteNames } from 'routes/routes'
 import { ObservationMatrix } from 'routes/endpoints'
 import { ref } from 'vue'
@@ -51,6 +53,7 @@ const props = defineProps({
 
 const matrixName = ref('')
 const created = ref(undefined)
+const isSaving = ref(false)
 
 function addToMatrix() {
   const payload = {
@@ -60,14 +63,20 @@ function addToMatrix() {
     }
   }
 
-  ObservationMatrix.createBatch(payload).then(({ body }) => {
-    created.value = body
-    TW.workbench.alert.create(
-      `${body.rows} rows and ${body.columns} columns were successfully created.`,
-      'notice'
-    )
-    matrixName.value = ''
-    created.value = body
-  })
+  isSaving.value = true
+
+  ObservationMatrix.createBatch(payload)
+    .then(({ body }) => {
+      created.value = body
+      TW.workbench.alert.create(
+        `${body.rows} rows and ${body.columns} columns were successfully created.`,
+        'notice'
+      )
+      matrixName.value = ''
+      created.value = body
+    })
+    .finally(() => {
+      isSaving.value = false
+    })
 }
 </script>
