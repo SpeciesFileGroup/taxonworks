@@ -84,19 +84,21 @@ class ObservationMatricesController < ApplicationController
 
   # .json
   def batch_create
-    if o = ObservationMatrix.batch_create(params.merge(project_id: sessions_current_project_id))
+    o = ObservationMatrix.batch_create(params.merge(project_id: sessions_current_project_id))
+    if o.kind_of?(Hash)
       render json: o
     else
-      render json: o, status: :unprocessable_content
+      render json: o, status: :unprocessable_entity
     end
   end
 
   # .json
   def batch_add
-    if o = ObservationMatrix.batch_add(params.merge(project_id: sessions_current_project_id))
+    o = ObservationMatrix.batch_add(params.merge(project_id: sessions_current_project_id))
+    if o.kind_of?(Hash)
       render json: o
     else
-      render json: o, status: :unprocessable_content
+      render json: o, status: :unprocessable_entity
     end
   end
 
