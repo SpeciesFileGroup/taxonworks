@@ -25,7 +25,6 @@
   <FacetPreparationTypes v-model="params" />
   <FacetTypeMaterial v-model="params" />
   <FacetInRelationship v-model="params" />
-  <FacetImportDataset v-model="params" />
   <FacetLoan v-model="params" />
   <FacetUsers v-model="params" />
   <FacetTags
