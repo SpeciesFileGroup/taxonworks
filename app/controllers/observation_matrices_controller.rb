@@ -72,6 +72,34 @@ class ObservationMatricesController < ApplicationController
     end
   end
 
+  # DELETE /observation_matrices/1
+  # DELETE /observation_matrices/1.json
+  def destroy
+    @observation_matrix.destroy
+    respond_to do |format|
+      format.html { redirect_to observation_matrices_url, notice: 'Matrix was successfully destroyed.' }
+      format.json { head :no_content }
+    end
+  end
+
+  # .json
+  def batch_create
+    if o = ObservationMatrix.batch_create(params.merge(project_id: sessions_current_project_id))
+      render json: o
+    else
+      render json: {success: false}
+    end
+  end
+
+  # .json
+  def batch_add
+    if o = ObservationMatrix.batch_add(params.merge(project_id: sessions_current_project_id))
+      render json: o
+    else
+      render json: {success: false}
+    end
+  end
+
   def reorder_rows
     if @observation_matrix.reorder_rows(params.require(:by))
       render json: :success
@@ -82,16 +110,6 @@ class ObservationMatricesController < ApplicationController
 
   def reorder_columns
     @observation_matrix.reorder_columns(params.require(:by))
-  end
-
-  # DELETE /observation_matrices/1
-  # DELETE /observation_matrices/1.json
-  def destroy
-    @observation_matrix.destroy
-    respond_to do |format|
-      format.html { redirect_to observation_matrices_url, notice: 'Matrix was successfully destroyed.' }
-      format.json { head :no_content }
-    end
   end
 
   def autocomplete
@@ -203,7 +221,7 @@ class ObservationMatricesController < ApplicationController
 
   def otus_used_in_matrices
     # ObservationMatrix.with_otu_ids_array([13597, 25680])
-    if !params[:otu_ids].blank?
+    if params[:otu_ids].present?
       p = ObservationMatrix.with_otu_id_array(params[:otu_ids].split('|')).pluck(:id)
       if p.nil?
         render json: {otus_used_in_matrices: ''}.to_json
