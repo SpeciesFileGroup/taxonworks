@@ -1,5 +1,5 @@
 module BatchLoad
-  class Import::TaxonNames::CastorInterpreter < BatchLoad::Import
+  class Import::TaxonNames::NomenInterpreter < BatchLoad::Import
 
     # The parent for the top level names
     attr_accessor :parent_taxon_name
@@ -10,7 +10,7 @@ module BatchLoad
     # The default parent if otherwise not provided
     attr_accessor :base_taxon_name_id
 
-    # The code (Rank Class) that new names will use
+    # The code (Rank Class) that new names will use. Required.
     attr_accessor :nomenclature_code
 
     # @return Boolean
@@ -42,9 +42,7 @@ module BatchLoad
     end
 
     # @return [Integer]
-    def parent_taxon_name_id
-      parent_taxon_name.id
-    end
+    delegate :id, to: :parent_taxon_name, prefix: true
 
     # rubocop:disable Metrics/MethodLength
     # @return [Integer]
@@ -72,7 +70,7 @@ module BatchLoad
             year_of_publication: year_of_publication(row['author_year']),
             rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['rank']),
             by: user,
-            project: project,
+            project:,
             verbatim_author: verbatim_author(row['author_year']),
             taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
           }
@@ -85,7 +83,7 @@ module BatchLoad
               rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['original_rank']),
               parent: parent_taxon_name,
               by: user,
-              project: project,
+              project:,
               verbatim_author: verbatim_author(row['author_year']),
               taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
             }
@@ -118,18 +116,19 @@ module BatchLoad
 
           # TaxonNameRelationship
           related_name_id = row['related_name_id']
-          
-          if !taxon_names[related_name_id].blank?
+
+          if taxon_names[related_name_id].present?
             related_name_nomen_class = nil
 
             begin
               related_name_nomen_class = row['related_name_nomen_class'].safe_constantize
 
               if related_name_nomen_class.ancestors.include?(TaxonNameRelationship)
-                
+
                 taxon_name_relationship = related_name_nomen_class.new(
                   subject_taxon_name: p, object_taxon_name: taxon_names[related_name_id]
                 )
+                
                 parse_result.objects[:taxon_name_relationship].push taxon_name_relationship
               end
             rescue NameError
@@ -146,24 +145,25 @@ module BatchLoad
             end
           end
 
-          # There is an OTU linked to the taxon name
-          if !row['taxon_concept_name'].blank? || !row['guid'].blank?
-            taxon_concept_identifier_castor = {}
+          # There is an OTU linked to the taxon name.
+          if row['taxon_concept_name'].present? || row['guid'].present?
+            taxon_concept_identifier_nomen = {}
 
-            if !row['guid'].blank?
-              taxon_concept_identifier_castor = {
+            if row['guid'].present?
+              taxon_concept_identifier_nomen = {
                 type: 'Identifier::Global::Uri',
                 identifier: row['guid'] }
             end
 
-            otu = Otu.new(name: row['taxon_concept_name'], taxon_name: p, identifiers_attributes: [taxon_concept_identifier_castor] )
+            otu = Otu.new(name: row['taxon_concept_name'], taxon_name: p, identifiers_attributes: [taxon_concept_identifier_nomen] )
 
             parse_result.objects[:otu].push(otu)
           else
+            
             # Note we are not technically using the param like TaxonName.new(), so we can't just set the attribute
             # So we hack in the OTUs 'manually".  This also lets us see them in the result
-            if also_create_otu 
-              parse_result.objects[:otu].push( Otu.new(taxon_name: p) )
+            if also_create_otu
+              parse_result.objects[:otu].push Otu.new(taxon_name: p)
             end
           end
 
@@ -190,11 +190,10 @@ module BatchLoad
     # @return [String, nil]
     def year_of_publication(author_year)
       return nil if author_year.blank?
-      split_author_year = author_year.split(' ')
-      year = split_author_year[split_author_year.length - 1]
-      year =~ /\A\d+\z/ ? year : ''
+      author_year&.match(/\d\d\d\d/)&.to_s
     end
 
+    # TODO: unify parsing to somewhere else
     # @param [String] author_year
     # @return [String, nil] just the author name, wiht parens left on
     def verbatim_author(author_year)
@@ -234,7 +233,7 @@ module BatchLoad
         first_name = split_author_info[1]
       end
 
-      { last_name: last_name, first_name: first_name, suffix: 'suffix' }
+      { last_name:, first_name:, suffix: 'suffix' }
     end
   end
 end

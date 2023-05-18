@@ -64,6 +64,9 @@ class TaxonNameRelationship < ApplicationRecord
   validates_presence_of :subject_taxon_name, message: 'Missing taxon name on the left side'
   validates_presence_of :object_taxon_name, message: 'Missing taxon name on the right side'
 
+  validates_associated :subject_taxon_name
+  validates_associated :object_taxon_name
+
   validates_uniqueness_of :object_taxon_name_id, scope: [:type, :project_id], if: :is_combination?
   validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id, :project_id], unless: :is_combination?
 
