@@ -87,7 +87,7 @@ class ObservationMatricesController < ApplicationController
     if o = ObservationMatrix.batch_create(params.merge(project_id: sessions_current_project_id))
       render json: o
     else
-      render json: {success: false}
+      render json: o, status: :unprocessable_content
     end
   end
 
@@ -96,7 +96,7 @@ class ObservationMatricesController < ApplicationController
     if o = ObservationMatrix.batch_add(params.merge(project_id: sessions_current_project_id))
       render json: o
     else
-      render json: {success: false}
+      render json: o, status: :unprocessable_content
     end
   end
 
