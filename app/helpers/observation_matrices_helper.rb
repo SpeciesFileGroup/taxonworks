@@ -25,7 +25,7 @@ module ObservationMatricesHelper
     '32' => 'X',
     '33' => 'Y',
     '34' => 'Z',
-  }
+  }.freeze
 
   def observation_matrix_tag(observation_matrix)
     return nil if observation_matrix.nil?
@@ -76,7 +76,7 @@ module ObservationMatricesHelper
 
     case observations_hash[descriptor.id][hash_index].size
     when 0
-      "?"
+      '?'
     when 1
       o = observations_hash[descriptor.id][hash_index][0]
       s = observation_export_value(o)
@@ -122,9 +122,9 @@ module ObservationMatricesHelper
       observation.converted_value.to_s
     when 'Observation::Sample'
       if observation.sample_max && observation.sample_max && observation.sample_max.to_f != observation.sample_min.to_f
-        ("%g" % observation.sample_min).to_s + '-' + ("%g" % observation.sample_max).to_s
+        ('%g' % observation.sample_min).to_s + '-' + ('%g' % observation.sample_max).to_s
       elsif observation.sample_min
-        ("%g" % observation.sample_min).to_s
+        ('%g' % observation.sample_min).to_s
       else
         '?'
       end
