@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Source and People API endpoints don't try to authenticate [#3407]
 - Date range in filter Collection Object not being applied [#3418]
 - Year import in NOMEN (was "castor") import [#3411]
 - PublicContent missing is_community? method preventing reporting.
@@ -40,7 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changing the number of items per page or the page shows loan items that are not from the current loan in New/edit loan task [#3413]
 - Sort by name gives an wrong order in filter nomenclature task
 
-
+[#3407]: https://github.com/SpeciesFileGroup/taxonworks/issues/3407
 [#3418]: https://github.com/SpeciesFileGroup/taxonworks/issues/3418
 [#3415]: https://github.com/SpeciesFileGroup/taxonworks/issues/3415
 [#3411]: https://github.com/SpeciesFileGroup/taxonworks/issues/3411
