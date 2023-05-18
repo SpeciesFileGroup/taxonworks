@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Date range in filter Collection Object not being applied [#3418]
 - Year import in NOMEN (was "castor") import [#3411]
 - PublicContent missing is_community? method preventing reporting.
 - Loans dashboard fails to render when no loans are present 
@@ -39,6 +40,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changing the number of items per page or the page shows loan items that are not from the current loan in New/edit loan task [#3413]
 - Sort by name gives an wrong order in filter nomenclature task
 
+
+[#3418]: https://github.com/SpeciesFileGroup/taxonworks/issues/3418
 [#3415]: https://github.com/SpeciesFileGroup/taxonworks/issues/3415
 [#3411]: https://github.com/SpeciesFileGroup/taxonworks/issues/3411
 [#3367]: https://github.com/SpeciesFileGroup/taxonworks/issues/3367

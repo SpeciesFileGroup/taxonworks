@@ -14,6 +14,8 @@ module Queries
 
       PARAMS = [
         *::Queries::CollectingEvent::Filter::BASE_PARAMS,
+        *Queries::Concerns::DateRanges.params, # Fead to CE query. Revisit possibly.
+
         :biological_association_id,
         :biological_associations,
         :biological_relationship_id,
@@ -311,15 +313,14 @@ module Queries
       attr_accessor :dates
 
       # rubocop:disable Metric/MethodLength
-      # @param [Hash] args are permitted params
       def initialize(query_params)
         super
 
         # Only CollectingEvent fields are permitted, for advanced nesting (e.g. tags on CEs), use collecting_event_query
-        collecting_event_params = ::Queries::CollectingEvent::Filter.base_params
+        collecting_event_params = ::Queries::CollectingEvent::Filter.base_params + Queries::Concerns::DateRanges.params
 
         @base_collecting_event_query = ::Queries::CollectingEvent::Filter.new(
-          params.select { |a, b| collecting_event_params.include?(a) } # maintain this to avoid sub query initialization for now
+          params.select{ |a, b| collecting_event_params.include?(a) } # maintain this to avoid sub query initialization for now
         )
 
         @biological_association_id = params[:biological_association_id]
