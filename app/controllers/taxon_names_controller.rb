@@ -185,23 +185,23 @@ class TaxonNamesController < ApplicationController
     render :batch_load
   end
 
-  def preview_castor_batch_load
+  def preview_nomen_batch_load
     if params[:file]
-      @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(**batch_params)
+      @result = BatchLoad::Import::TaxonNames::NomenInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :nomen_taxon_names_md5)
-      render 'taxon_names/batch_load/castor/preview'
+      render 'taxon_names/batch_load/nomen/preview'
     else
       flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
 
-  def create_castor_batch_load
+  def create_nomen_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :nomen_taxon_names_md5)
-      @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(**batch_params)
+      @result = BatchLoad::Import::TaxonNames::NomenInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
-        render 'taxon_names/batch_load/castor/create' and return
+        render 'taxon_names/batch_load/nomen/create' and return
       else
         flash[:alert] = 'Batch import failed.'
       end
@@ -307,4 +307,4 @@ class TaxonNamesController < ApplicationController
 
 end
 
-require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/castor_interpreter.rb'
+require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/nomen_interpreter.rb'
