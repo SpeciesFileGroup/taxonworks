@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+
 - Unified filter to observation matrix integration [#3415]
 - Biological associations can now be depicted
 - Data depiction facets
@@ -37,7 +38,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Includes `type material` and `type material observations` don't work in Filter images
 - Changing the number of items per page or the page shows loan items that are not from the current loan in New/edit loan task [#3413]
 - Sort by name gives an wrong order in filter nomenclature task
-
 
 [#3415]: https://github.com/SpeciesFileGroup/taxonworks/issues/3415
 [#3411]: https://github.com/SpeciesFileGroup/taxonworks/issues/3411
