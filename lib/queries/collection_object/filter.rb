@@ -39,6 +39,7 @@ module Queries
         :exact_buffered_other_labels,
         :extract_id,
         :georeferences,
+        :import_dataset_id,
         :loaned,
         :never_loaned,
         :on_loan,
@@ -65,12 +66,18 @@ module Queries
         determiner_id: [],
         extract_id: [],
         geographic_area_id: [],
+        import_dataset_id: [],
         is_type: [],
         loan_id: [],
         otu_id: [],
         preparation_type_id: [],
         taxon_name_id: [],
       ].inject([{}]) { |ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary }.freeze
+
+
+      # @return [Array]
+      #   of ImportDataset ids
+      attr_accessor :import_dataset_id
 
       # @return [True, False, nil]
       #   true - has collecting event that has  geographic_area
@@ -344,6 +351,7 @@ module Queries
         @extract_id = params[:extract_id]
         @geographic_area = boolean_param(params, :geographic_area)
         @georeferences = boolean_param(params, :georeferences)
+        @import_dataset_id = params[:import_dataset_id]
         @is_type = params[:is_type] || []
         @loan_id = params[:loan_id]
         @loaned = boolean_param(params, :loaned)
@@ -398,18 +406,6 @@ module Queries
         [@biological_association_id].flatten.compact.uniq
       end
 
-      def extract_id
-        [@extract_id].flatten.compact.uniq
-      end
-
-      def taxon_name_id
-        [@taxon_name_id].flatten.compact.uniq
-      end
-
-      def otu_id
-        [@otu_id].flatten.compact.uniq
-      end
-
       def biocuration_class_id
         [@biocuration_class_id].flatten.compact.uniq
       end
@@ -430,8 +426,24 @@ module Queries
         [@determiner_id].flatten.compact.uniq
       end
 
+      def extract_id
+        [@extract_id].flatten.compact.uniq
+      end
+
+      def import_dataset_id
+        [@import_dataset_id].flatten.compact
+      end
+
+      def otu_id
+        [@otu_id].flatten.compact.uniq
+      end
+
       def preparation_type_id
         [@preparation_type_id].flatten.compact.uniq
+      end
+
+      def taxon_name_id
+        [@taxon_name_id].flatten.compact.uniq
       end
 
       def collection_object_id_facet
@@ -441,6 +453,12 @@ module Queries
 
       def loan_id
         [@loan_id].flatten.compact
+      end
+
+      def import_dataset_id_facet
+        return nil if import_dataset_id.blank?
+        ::CollectionObject.joins(:related_origin_relationships)
+        .where(origin_relationships: {old_object_id: import_dataset_id, old_object_type: 'ImportDataset'})
       end
 
       def extract_id_facet
@@ -947,6 +965,7 @@ module Queries
       def merge_clauses
         [
 
+          import_dataset_id_facet,
           observation_query_facet,
           biological_association_id_facet,
           base_collecting_event_query_facet,
