@@ -15,6 +15,18 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialMatrix
+          :parameters="parameters"
+          :object-type="EXTRACT"
+        />
+      </template>
+      <template #nav-right>
+        <RadialMatrix
+          :ids="selectedIds"
+          :object-type="EXTRACT"
+        />
+      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -40,6 +52,7 @@
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/Filter.vue'
 import FilterList from 'components/layout/Filter/FilterList.vue'
+import RadialMatrix from 'components/radials/matrix/radial.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import extend from 'tasks/extracts/new_extract/const/extendRequest'
