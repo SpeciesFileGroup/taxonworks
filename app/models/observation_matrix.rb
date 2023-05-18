@@ -290,14 +290,15 @@ class ObservationMatrix < ApplicationRecord
     when 'descriptor_query'
       descriptors = ::Queries::Descriptor::Filter.new(params[:descriptor_query]).all
     when 'observation_query'
+
       otus = ::Queries::Otu::Filter.new(observation_query: params[:observation_query]).all
-      descriptors = ::Queries::Descriptor::Filter.new(descriptor_query: params[:descriptor_query]).all
-      collection_objects = ::Queries::CollectionObject::Filter.new(collection_object_query: params[:collection_object_query]).all
-      extracts = ::Queries::Extract::Filter.new(extract_query: params[:extract_object_query]).all
+      descriptors = ::Queries::Descriptor::Filter.new(observation_query: params[:observation_query]).all
+      collection_objects = ::Queries::CollectionObject::Filter.new(observation_query: params[:observation_query]).all
+      extracts = ::Queries::Extract::Filter.new(observation_query: params[:observation_query]).all
     when 'collection_object_query'
       collection_objects = ::Queries::CollectionObject::Filter.new(collection_object_query: params[:collection_object_query]).all
     when 'extract_query'
-      extracts = ::Queries::Extract::Filter.new(extract_query: params[:extract_object_query]).all
+      extracts = ::Queries::Extract::Filter.new(params[:extract_query]).all
     end
 
     [otus, collection_objects, extracts].each do |t|
@@ -323,12 +324,12 @@ class ObservationMatrix < ApplicationRecord
   end
 
   def self.batch_create(params)
-    begin
-      o = ObservationMatrix.create!(params.require(:observation_matrix).permit(:name))
-    rescue ActiveRecord::RecordInvalid => e
-      return o.errors.full_messages
+    o = ObservationMatrix.create(params.require(:observation_matrix).permit(:name))
+    if o.persisted?
+      o.batch_populate(params)
+    else
+      o.errors.full_messages
     end
-    o.batch_populate(params)
   end
 
 end
