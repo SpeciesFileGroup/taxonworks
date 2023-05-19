@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.33.0] - 2023-05-19
+
 ### Added
 
 - Basic RCC5 support (= OtuRelationship) [#257]
@@ -3626,7 +3630,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.3...development
+
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.33.0...development
+[0.33.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.3...v0.33.0
 [0.32.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.2...v0.32.3
 [0.32.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.1...v0.32.2
 [0.32.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.0...v0.32.1
