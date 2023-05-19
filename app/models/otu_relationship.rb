@@ -1,7 +1,4 @@
-# TODO: controller spec refactor 
-#   
-#
-# An OtuRelationhip links two OTUs in a euler/rcc5 relatinship.
+# An OtuRelationhip links two OTUs in a euler/rcc5 relationship.
 #
 # # @!attribute subject_otu_id
 #   @return [integer]
@@ -35,6 +32,8 @@ class OtuRelationship < ApplicationRecord
 
   validates_presence_of :subject_otu
   validates_presence_of :object_otu
+
+  validates_uniqueness_of :subject_otu_id, scope: [:type, :object_otu_id]
 
 
 end
