@@ -64,12 +64,12 @@ module Queries::Concerns::Depictions
   end
 
   def data_depiction_facet
-    return nil if depictions.blank?
+    return nil if data_depictions.blank?
     if data_depictions
-      referenced_klass.joins(:depictions).where(data_depictions: true).distinct
+      referenced_klass.joins(:depictions).where(depictions: {is_metadata_depiction: true}).distinct
     else
       a = referenced_klass.where.missing(:depictions)
-      b = referenced_klass.joins(:depictions).where.not(depictions: {data_depiction: true})
+      b = referenced_klass.joins(:depictions).where.not(depictions: {is_metadata_depiction: true})
 
       referenced_klass_union([a,b]).distinct
     end

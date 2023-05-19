@@ -62,11 +62,11 @@ import { computed } from 'vue'
 
 const WITH_PARAMS = [
 'citations',
-'origin_citation',
-'depictions',
 'data_depictions',
+'depictions',
 'notes',
-'tags'
+'origin_citation',
+'tags',
 ]
 
 const props = defineProps({

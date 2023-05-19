@@ -65,13 +65,17 @@ const WITH_PARAMS = [
   'collection_objects',
   'collectors',
   'data_attributes',
+  'data_depictions',
   'depictions',
   'geographic_area',
   'georeferences',
+  'global_identifiers',
   'identifiers',
   'local_identifiers',
-  'global_identifiers',
-  'origin_citation'
+  'notes',
+  'origin_citation',
+  'protocols',
+  'tags',
 ]
 
 const emit = defineEmits(['update:modelValue'])

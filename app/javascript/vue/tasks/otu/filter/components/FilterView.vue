@@ -59,6 +59,7 @@ const WITH_PARAMS = [
   'collection_objects',
   'contents,',
   'depictions',
+  'data_depictions',
   'determinations',
   'observations',
   'origin_citation',
