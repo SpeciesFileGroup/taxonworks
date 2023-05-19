@@ -42,7 +42,8 @@
         circle
         color="radial"
         :disabled="
-          !ids.length && !Object.keys(params[QUERY_PARAM[objectType]]).length
+          disabled ||
+          (!ids.length && !Object.keys(params[QUERY_PARAM[objectType]]).length)
         "
         @click="isModalVisible = true"
       >
@@ -82,6 +83,11 @@ const props = defineProps({
   ids: {
     type: Array,
     default: () => []
+  },
+
+  disabled: {
+    type: Boolean,
+    default: false
   },
 
   parameters: {

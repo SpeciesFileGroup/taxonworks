@@ -18,6 +18,7 @@
       <template #nav-query-right>
         <RadialMatrix
           :parameters="parameters"
+          :disabled="!list.length"
           :object-type="OTU"
         />
       </template>
@@ -25,6 +26,7 @@
         <div class="horizontal-right-content">
           <RadialMatrix
             :object-type="OTU"
+            :disabled="!list.length"
             :ids="selectedIds"
           />
         </div>

@@ -40,7 +40,7 @@
         title="Radial Loan"
         circle
         color="radial"
-        :disabled="!ids.length && !Object.keys(params).length"
+        :disabled="disabled || (!ids.length && !Object.keys(params).length)"
         @click="isModalVisible = true"
       >
         <VIcon
@@ -74,6 +74,11 @@ const props = defineProps({
   ids: {
     type: Array,
     default: () => []
+  },
+
+  disabled: {
+    type: Boolean,
+    default: false
   },
 
   parameters: {

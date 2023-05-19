@@ -17,17 +17,25 @@
       @reset="resetFilter"
     >
       <template #nav-query-right>
-        <RadialLoan :parameters="parameters" />
+        <RadialLoan
+          :disabled="!list.length"
+          :parameters="parameters"
+        />
         <RadialMatrix
+          :disabled="!list.length"
           :parameters="parameters"
           :object-type="COLLECTION_OBJECT"
         />
       </template>
       <template #nav-right>
         <div class="horizontal-right-content">
-          <RadialLoan :ids="selectedIds" />
+          <RadialLoan
+            :disabled="!list.length"
+            :ids="selectedIds"
+          />
           <RadialMatrix
             :ids="selectedIds"
+            :disabled="!list.length"
             :object-type="COLLECTION_OBJECT"
           />
           <DeleteCollectionObjects

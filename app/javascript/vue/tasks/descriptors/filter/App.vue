@@ -16,6 +16,7 @@
     >
       <template #nav-query-right>
         <RadialMatrix
+          :disabled="!list.length"
           :parameters="parameters"
           :object-type="DESCRIPTOR"
         />
@@ -23,6 +24,7 @@
       <template #nav-right>
         <RadialMatrix
           :ids="selectedIds"
+          :disabled="!list.length"
           :object-type="DESCRIPTOR"
         />
       </template>

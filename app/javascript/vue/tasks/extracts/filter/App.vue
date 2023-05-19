@@ -18,12 +18,14 @@
       <template #nav-query-right>
         <RadialMatrix
           :parameters="parameters"
+          :disabled="!list.length"
           :object-type="EXTRACT"
         />
       </template>
       <template #nav-right>
         <RadialMatrix
           :ids="selectedIds"
+          :disabled="!list.length"
           :object-type="EXTRACT"
         />
       </template>
