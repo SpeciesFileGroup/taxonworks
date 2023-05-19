@@ -1,9 +1,10 @@
 <template>
   <div class="panel panel-section">
-    <spinner-component 
+    <spinner-component
       :show-spinner="false"
       legend="Clear the list of depict some or select only one collection object."
-      v-if="disabledSection"/>
+      v-if="disabledSection"
+    />
     <div class="content">
       <h2>Staged image</h2>
       <div class="flex-separate">
@@ -14,6 +15,7 @@
         <div>
           <color-component
             :colors="colors"
+            :disabled="isNone"
             v-model="sqed_depiction_attributes.boundary_color"
           />
           <div class="separate-top">
@@ -21,7 +23,8 @@
               <input
                 v-model="sqed_depiction_attributes.has_border"
                 type="checkbox"
-              >
+                :disabled="isNone"
+              />
               Has border
             </label>
           </div>
@@ -32,28 +35,34 @@
             :is="layoutName"
             :layout-types="metadata.layout_section_types"
             v-model="sqed_depiction_attributes.metadata_map"
-            :style="{ 'background-color': sqed_depiction_attributes.boundary_color }"
+            :style="{
+              'background-color': sqed_depiction_attributes.boundary_color
+            }"
             :class="{ hasBorder: sqed_depiction_attributes.has_border }"
           />
           <div
             v-else
-            class="panel horizontal-center-content middle pattern-box">
+            class="panel horizontal-center-content middle pattern-box"
+          >
             <h3>Choose a pattern</h3>
           </div>
         </div>
       </div>
-      <div class="margin-large-top separate-bottom horizontal-left-content align-start">
-        <new-object/>
+      <div
+        class="margin-large-top separate-bottom horizontal-left-content align-start"
+      >
+        <new-object />
         <div class="full_width separate-left">
-          <tags-component class="panel-section"/>
-          <data-attributes class="panel-section separate-top"/>
+          <tags-component class="panel-section" />
+          <data-attributes class="panel-section separate-top" />
         </div>
       </div>
       <div class="separate-top">
         <button
           type="button"
           class="button normal-input button-default"
-          @click="resetSqed">
+          @click="resetSqed"
+        >
           Reset
         </button>
       </div>
@@ -62,7 +71,6 @@
 </template>
 
 <script>
-
 import PatternComponent from './pattern'
 import ColorComponent from './color'
 import NewObject from './newObject'
@@ -70,6 +78,7 @@ import NewObject from './newObject'
 import EqualCrossLayout from './layouts/equal_cross'
 import CrossLayout from './layouts/cross'
 import RightTLayout from './layouts/right_t'
+import LeftTLayout from './layouts/left_t'
 import HorizontalSplitLayout from './layouts/horizontal_split'
 import HorizontalOffsetCrossLayout from './layouts/horizontal_offset_cross'
 import VerticalOffsetCrossLayout from './layouts/vertical_offset_cross'
@@ -79,6 +88,7 @@ import LepStage2Layout from './layouts/lep_stage2'
 import TLayout from './layouts/t.vue'
 import InvertedTLayout from './layouts/t_inverted.vue'
 import VerticalSplitLayout from './layouts/vertical_split'
+import NoneLayout from './layouts/none.vue'
 import SpinnerComponent from 'components/spinner'
 
 import TagsComponent from '../sqed/tags'
@@ -106,68 +116,103 @@ export default {
     TagsComponent,
     DataAttributes,
     LepStage2Layout,
+    LeftTLayout,
     TLayout,
-    InvertedTLayout
+    InvertedTLayout,
+    NoneLayout
   },
 
   computed: {
-    componentExist () {
+    componentExist() {
       return !!this.$options.components[this.layoutName]
     },
 
-    disabledSection () {
+    disabledSection() {
       const objects = this.$store.getters[GetterNames.GetObjectsForDepictions]
-      return objects.length > 1 || objects.find(item => item.base_class !== 'CollectionObject')
+      return (
+        objects.length > 1 ||
+        objects.find((item) => item.base_class !== 'CollectionObject')
+      )
     },
 
-    layoutName () {
+    layoutName() {
       return this.sqed_depiction_attributes.layout
-        ? `${this.sqed_depiction_attributes.layout.toPascalCase().replace(/_/g, '')}Layout`
+        ? `${this.sqed_depiction_attributes.layout
+            .toPascalCase()
+            .replace(/_/g, '')}Layout`
         : undefined
     },
 
-    extractionPatterns () {
+    extractionPatterns() {
       return this.metadata?.extraction_patterns || {}
     },
 
-    colors () {
+    colors() {
       return this.metadata?.boundary_colors || []
     },
 
+    isNone() {
+      return this.layoutName === 'NoneLayout'
+    },
+
     pattern: {
-      get () {
+      get() {
         return this.sqed_depiction_attributes
       },
-      set (value) {
+      set(value) {
         value.boundary_finder = 'Sqed::BoundaryFinder::ColorLineFinder'
-        this.sqed_depiction_attributes = Object.assign(this.sqed_depiction_attributes, value)
+        this.sqed_depiction_attributes = Object.assign(
+          this.sqed_depiction_attributes,
+          value
+        )
       }
     },
 
     sqed_depiction_attributes: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSqed]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSqed, value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       metadata: {}
     }
   },
 
-  created () {
-    SqedDepiction.metadata().then(response => {
-      this.metadata = response.body
+  watch: {
+    isNone(newVal) {
+      if (newVal) {
+        this.sqed_depiction_attributes.boundary_color = undefined
+        this.sqed_depiction_attributes.has_border = undefined
+      }
+    }
+  },
+
+  created() {
+    SqedDepiction.metadata().then(({ body }) => {
+      const metadata = body
+
+      Object.assign(metadata.extraction_patterns, {
+        none: {
+          layout: 'stage',
+          boundary_finder: {},
+          metadata_map: {
+            0: 'none'
+          }
+        }
+      })
+
+      this.metadata = metadata
     })
   },
 
   methods: {
-    resetSqed () {
+    resetSqed() {
       this.$store.commit(MutationNames.SetSqed, {
         id: undefined,
         boundary_color: undefined,
@@ -182,16 +227,16 @@ export default {
 </script>
 
 <style scoped>
-  .hasBorder {
-    border: 4px solid gray
-  }
-  .pattern-box {
-    height: 200px;
-    width: 500px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #F5F5F5;
-    border-radius: 3px;
-  }
+.hasBorder {
+  border: 4px solid gray;
+}
+.pattern-box {
+  height: 200px;
+  width: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #f5f5f5;
+  border-radius: 3px;
+}
 </style>

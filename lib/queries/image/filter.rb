@@ -409,9 +409,9 @@ module Queries
         if q1 && q2
           ::Image.from("((#{q1.to_sql}) UNION (#{q2.to_sql})) as images")
         elsif q1
-          q1
+          q1.distinct
         else
-          q2
+          q2.distinct
         end
       end
 
@@ -430,7 +430,7 @@ module Queries
           .joins("JOIN #{n} as #{n}1 on depictions.depiction_object_id = #{n}1.id AND depictions.depiction_object_type = '#{name.treetop_camelize}'")
           .to_sql
 
-        ::Image.from('(' + s + ') as images')
+        ::Image.from('(' + s + ') as images').distinct
       end
 
       def merge_clauses

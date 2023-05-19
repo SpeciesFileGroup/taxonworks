@@ -98,6 +98,12 @@
               v-if="showModalRelated"
               :current-graph="currentGraph"
               :relations="graph.getBiologicalRelationships().value"
+              @add:biological-associations="
+                (ids) => {
+                  addBiologicalAssociationsToGraph(ids)
+                  showModalRelated = false
+                }
+              "
               @select:graph="
                 ($event) => {
                   loadGraph($event.id)
@@ -230,6 +236,16 @@ function saveGraph() {
       })
     }
   })
+}
+
+function addBiologicalAssociationsToGraph(ids) {
+  const { loadBiologicalAssociations, updateObjectByUuid } = graph.value
+
+  loadBiologicalAssociations(ids).then((biologicalAssociations) =>
+    biologicalAssociations.forEach(({ uuid }) => {
+      updateObjectByUuid(uuid, { isUnsaved: true })
+    })
+  )
 }
 
 function reset() {

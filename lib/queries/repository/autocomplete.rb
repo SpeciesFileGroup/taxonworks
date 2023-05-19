@@ -58,7 +58,6 @@ module Queries
         if project_id && scope
           a = a.select("repositories.*, COUNT(collection_objects.id) AS use_count, CASE WHEN collection_objects.project_id IN (#{pr_id}) THEN collection_objects.project_id ELSE NULL END AS in_project")
              .joins('LEFT OUTER JOIN collection_objects ON (repositories.id = collection_objects.repository_id OR repositories.id = collection_objects.current_repository_id)')
-             .where("collection_objects.project_id IN (#{pr_id}) OR collection_objects.project_id NOT IN (#{pr_id}) OR collection_objects.project_id IS NULL")
              .group('repositories.id, collection_objects.project_id')
              .order('in_project, use_count DESC')
         end

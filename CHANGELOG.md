@@ -9,9 +9,62 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.33.0] - 2023-05-19
+
+### Added
+
+- Basic RCC5 support (= OtuRelationship) [#257]
+- Unified filter to observation matrix integration [#3415]
+- Biological associations can now be depicted
+- Data depiction facets
+- Biological associations filter annotation-based facets
+- New stage-only staged image type [#3400]
+- New left-t stage layout [#3367]
+- `Add` button to add biological associations from `Related` modal in new biological associations task
+- ImportDataset facet in Filter collection objects [#3419]
+
+### Changed
+
+- Updated author and year string for family-group names
+- Recent predicate list
+- Recent languages list
+- People autocomplete
+- GeographicArea autocomplete (exact match on alternate value)
+
+### Fixed
+
+- Nomen (was "castor") batch load was not assigning parent correctly [#3409]
+- Source and People API endpoints don't try to authenticate [#3407]
+- Date range in filter Collection Object not being applied [#3418]
+- Year import in NOMEN (was "castor") import [#3411]
+- PublicContent missing is_community? method preventing reporting.
+- Loans dashboard fails to render when no loans are present 
+- Staged image processing when boundaries fail to be calculated and calculate incorrectly 
+- Bug with engine in interactive keys [#3416]
+- Collection object classification summary [#3412]
+- BibTeX typo [#3408]
+- Includes `type material` and `type material observations` don't work in Filter images
+- Changing the number of items per page or the page shows loan items that are not from the current loan in New/edit loan task [#3413]
+- Sort by name gives an wrong order in filter nomenclature task
+
+[#257]: https://github.com/SpeciesFileGroup/taxonworks/issues/257
+[#3367]: https://github.com/SpeciesFileGroup/taxonworks/issues/3367
+[#3400]: https://github.com/SpeciesFileGroup/taxonworks/issues/3400
+[#3407]: https://github.com/SpeciesFileGroup/taxonworks/issues/3407
+[#3408]: https://github.com/SpeciesFileGroup/taxonworks/issues/3408
+[#3409]: https://github.com/SpeciesFileGroup/taxonworks/issues/3409
+[#3411]: https://github.com/SpeciesFileGroup/taxonworks/issues/3411
+[#3412]: https://github.com/SpeciesFileGroup/taxonworks/issues/3412
+[#3413]: https://github.com/SpeciesFileGroup/taxonworks/issues/3413
+[#3415]: https://github.com/SpeciesFileGroup/taxonworks/issues/3415
+[#3416]: https://github.com/SpeciesFileGroup/taxonworks/issues/3416
+[#3418]: https://github.com/SpeciesFileGroup/taxonworks/issues/3418
+[#3419]: https://github.com/SpeciesFileGroup/taxonworks/issues/3419
+
 ## [0.32.3] - 2023-05-05
 
 ### Added
+
 - Add/move/return collection objects from collection object filter [#3387]
 - Interpretation help for `full name` facet in people filter [#3394]
 - Total individuals to loan show/recipient form [#3398]
@@ -23,6 +76,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Caption and figure label editable in Depictions list in Radial annotator [#3396]
 
 ### Changed
+
 - Pagination headers are exposed via CORS [#3380]
 - Updated bundle gems
 - Ruby 3.2 is now required as minimum
@@ -33,6 +87,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse OTU biological association table contains related modal
 
 ### Fixed
+
 - Global identifiers not appearing on community data [#3393]
 - Lag in selecting loan items on edit loan [#3399]
 - Collection object was loanable 2x in some cases
@@ -703,11 +758,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Added 'electronic only' field for the source to flag sources published in electronic only format
 - Default `collectionCode` namespace mappings as falback when `institutionCode`:`collectionCode` mappings do not contain a match in DwC occurrences importer.
 
-### Changed
-
 - Remove search box in observation matrix hub [#3032]
 - Type material form allows multiple type species in comprehensive task. [#2584]
-- Updated Ruby gems.
+- Updated Ruby gems.Yes
 - wikidata-client dependency is now fetching from RubyGems rather than custom fork.
 - serrano has been changed to a new custom branch which is identical to official gem except `thor` dependency has been downgraded for TW compatibility.
 - DwC occurrences importer mappings are not sorted by `institutionCode`:`collectionCode`
@@ -3578,7 +3631,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.33.0...development
+[0.33.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.3...v0.33.0
 [0.32.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.2...v0.32.3
 [0.32.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.1...v0.32.2
 [0.32.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.0...v0.32.1

@@ -224,19 +224,29 @@ export function useGraph() {
   }
 
   async function loadBiologicalAssociations(ids) {
-    return BiologicalAssociation.where({
+    const { body } = await BiologicalAssociation.where({
       biological_association_id: ids,
       extend: EXTEND_BA
-    }).then(async ({ body }) => {
-      for (const item of body) {
-        const ba = await makeBiologicalAssociation(item)
-
-        addObject(ba.subject)
-        addObject(ba.object)
-
-        state.biologicalAssociations.push(ba)
-      }
     })
+
+    for (const item of body) {
+      const ba = await makeBiologicalAssociation(item)
+
+      addObject(ba.subject)
+      addObject(ba.object)
+
+      state.biologicalAssociations.push(ba)
+    }
+
+    return state.biologicalAssociations.filter((ba) =>
+      body.find((item) => item.id === ba.id)
+    )
+  }
+
+  function updateObjectByUuid(uuid, objProps) {
+    const obj = getObjectByUuid(uuid)
+
+    Object.assign(obj, objProps)
   }
 
   function getSourceIds() {
@@ -450,6 +460,7 @@ export function useGraph() {
     saveGraph,
     setGraphName,
     setNodePosition,
+    updateObjectByUuid,
     ...toRefs(state)
   }
 }
