@@ -27,11 +27,13 @@ Object.assign(TW.views.shared.show, {
   },
 
   bindShortcut: function () {
+    const actionKey = navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt'
+
     TW.workbench.keyboard.createShortcut(
-      'alt+left',
+      `${actionKey}+left`,
       'Go to previous',
       'Taxon names browse',
-      function () {
+      () => {
         const elements = document.querySelectorAll(
           '[data-arrow="back"], [data-button="back"]'
         )
@@ -43,10 +45,10 @@ Object.assign(TW.views.shared.show, {
     )
 
     TW.workbench.keyboard.createShortcut(
-      'alt+right',
+      `${actionKey}+right`,
       'Go to next',
       'Taxon names browse',
-      function () {
+      () => {
         const elements = document.querySelectorAll(
           '[data-arrow="next"], [data-button="next"]'
         )
@@ -57,10 +59,10 @@ Object.assign(TW.views.shared.show, {
       }
     )
     TW.workbench.keyboard.createShortcut(
-      (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + '+p',
+      `${actionKey}+p`,
       'Pinboard',
       'Add to pinboard',
-      function () {
+      () => {
         const element =
           document.querySelector('.pin-button') ||
           document.querySelector('.unpin-button')
