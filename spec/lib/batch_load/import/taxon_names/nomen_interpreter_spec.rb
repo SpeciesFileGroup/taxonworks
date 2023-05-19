@@ -16,13 +16,35 @@ describe BatchLoad::Import::TaxonNames::NomenInterpreter, type: :model do
       encoding: 'UTF-8')
   }
 
-  let(:import) { BatchLoad::Import::TaxonNames::NomenInterpreter.new(
-    parent_taxon_name_id: root_taxon_name.id,
-    nomenclature_code: 'iczn',
-    project_id:,
-    user_id:,
-    file: upload_file)
+  let(:import_params) {
+    {
+      parent_taxon_name_id: root_taxon_name.id,
+      nomenclature_code: 'iczn',
+      project_id:,
+      user_id:,
+      file: upload_file }
   }
+
+  let(:import) { BatchLoad::Import::TaxonNames::NomenInterpreter.new( **import_params ) }
+
+
+  specify 'parent_taxon_name_id (provided)' do
+    g = Protonym.create!(parent: root_taxon_name, name: 'Orderum', rank_class: Ranks.lookup(:iczn, :order))
+    i = BatchLoad::Import::TaxonNames::NomenInterpreter.new( **import_params.merge(parent_taxon_name_id: g.id) )
+    i.create
+    expect(TaxonName.find_by(name: 'Aidae').parent_id).to eq(g.id)
+    expect(TaxonName.find_by(name: 'Bidae').parent_id).to eq(g.id)
+  end
+
+  specify 'parent_taxon_name_id (provided)' do
+    g = Protonym.create!(parent: root_taxon_name, name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus))
+    i = BatchLoad::Import::TaxonNames::NomenInterpreter.new( **import_params.merge(parent_taxon_name_id: g.id) )
+    expect(i.parent_taxon_name_id).to eq(g.id)
+  end
+
+  specify 'parent_taxon_name_id (root)' do
+    expect(import.parent_taxon_name_id).to eq(root_taxon_name.id)
+  end
 
   specify '.also_create_otu' do
     expect(import.also_create_otu).to be_falsey

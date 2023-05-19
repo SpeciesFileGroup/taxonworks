@@ -1,9 +1,6 @@
 module BatchLoad
   class Import::TaxonNames::NomenInterpreter < BatchLoad::Import
 
-    # The parent for the top level names
-    attr_accessor :parent_taxon_name
-
     # The id of the parent taxon name, computed automatically as Root if not provided
     attr_accessor :parent_taxon_name_id
 
@@ -31,18 +28,23 @@ module BatchLoad
       super(**args)
     end
 
+    def parent_taxon_name_id
+      @parent_taxon_name_id || root_taxon_name.id
+    end
+
     def also_create_otu
       return true if [1, '1', true].include?(@also_create_otu)
       false
     end
 
     # @return [String]
-    def parent_taxon_name
+    def root_taxon_name
       Project.find(@project_id).root_taxon_name
     end
 
+
     # @return [Integer]
-    delegate :id, to: :parent_taxon_name, prefix: true
+    # delegate :id, to: :parent_taxon_name, prefix: true
 
     # rubocop:disable Metrics/MethodLength
     # @return [Integer]
@@ -75,43 +77,48 @@ module BatchLoad
             taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
           }
 
-          if row['original_name']
-            original_protonym_attributes = {
-              verbatim_name: row['original_name'],
-              name: row['original_name'].split(' ')[-1],
-              year_of_publication: year_of_publication(row['author_year']),
-              rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['original_rank']),
-              parent: parent_taxon_name,
-              by: user,
-              project:,
-              verbatim_author: verbatim_author(row['author_year']),
-              taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
-            }
+        # Not implemented
 
-            original_protonym = Protonym.new(original_protonym_attributes)
+        # if row['original_name']
+        #   original_protonym_attributes = {
+        #     verbatim_name: row['original_name'],
+        #     name: row['original_name'].split(' ')[-1],
+        #     year_of_publication: year_of_publication(row['author_year']),
+        #     rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['original_rank']),
+        #     parent: parent_taxon_name,
+        #     by: user,
+        #     project:,
+        #     verbatim_author: verbatim_author(row['author_year']),
+        #     taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
+        #   }
 
-            if row['original_rank'] == 'genus'
-              protonym_attributes[:original_genus] = original_protonym
-            elsif row['original_rank'] == 'subgenus'
-              protonym_attributes[:original_subgenus] = original_protonym
-            elsif row['original_rank'] == 'species'
-              protonym_attributes[:original_species] = original_protonym
-            elsif row['original_rank'] == 'subspecies'
-              protonym_attributes[:original_subspecies] = original_protonym
-            end
+        #   original_protonym = Protonym.new(original_protonym_attributes)
 
-            parse_result.objects[:original_taxon_name].push original_protonym
-          end
+        #   if row['original_rank'] == 'genus'
+        #     protonym_attributes[:original_genus] = original_protonym
+        #   elsif row['original_rank'] == 'subgenus'
+        #     protonym_attributes[:original_subgenus] = original_protonym
+        #   elsif row['original_rank'] == 'species'
+        #     protonym_attributes[:original_species] = original_protonym
+        #   elsif row['original_rank'] == 'subspecies'
+        #     protonym_attributes[:original_subspecies] = original_protonym
+        #   end
+
+        #   parse_result.objects[:original_taxon_name].push original_protonym
+        # end
 
           p = Protonym.new(protonym_attributes)
+
+          # row data
           taxon_name_id = row['id']
-          parent_taxon_name_id = row['parent_id']
+          parent_id = row['parent_id']
+
           taxon_names[taxon_name_id] = p
 
-          if taxon_names[parent_taxon_name_id].nil?
-            p.parent = parent_taxon_name
+          if taxon_names[parent_id].nil?
+            p.parent_id = parent_taxon_name_id
           else
-            p.parent = taxon_names[parent_taxon_name_id]
+            p.parent = taxon_names[parent_id]
           end
 
           # TaxonNameRelationship
@@ -128,7 +135,7 @@ module BatchLoad
                 taxon_name_relationship = related_name_nomen_class.new(
                   subject_taxon_name: p, object_taxon_name: taxon_names[related_name_id]
                 )
-                
+
                 parse_result.objects[:taxon_name_relationship].push taxon_name_relationship
               end
             rescue NameError
@@ -159,7 +166,7 @@ module BatchLoad
 
             parse_result.objects[:otu].push(otu)
           else
-            
+
             # Note we are not technically using the param like TaxonName.new(), so we can't just set the attribute
             # So we hack in the OTUs 'manually".  This also lets us see them in the result
             if also_create_otu
