@@ -44,17 +44,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Sort by name gives an wrong order in filter nomenclature task
 
 [#257]: https://github.com/SpeciesFileGroup/taxonworks/issues/257
-[#3409]: https://github.com/SpeciesFileGroup/taxonworks/issues/3409
-[#3407]: https://github.com/SpeciesFileGroup/taxonworks/issues/3407
-[#3418]: https://github.com/SpeciesFileGroup/taxonworks/issues/3418
-[#3415]: https://github.com/SpeciesFileGroup/taxonworks/issues/3415
-[#3411]: https://github.com/SpeciesFileGroup/taxonworks/issues/3411
 [#3367]: https://github.com/SpeciesFileGroup/taxonworks/issues/3367
 [#3400]: https://github.com/SpeciesFileGroup/taxonworks/issues/3400
-[#3416]: https://github.com/SpeciesFileGroup/taxonworks/issues/3416
+[#3407]: https://github.com/SpeciesFileGroup/taxonworks/issues/3407
 [#3408]: https://github.com/SpeciesFileGroup/taxonworks/issues/3408
+[#3409]: https://github.com/SpeciesFileGroup/taxonworks/issues/3409
+[#3411]: https://github.com/SpeciesFileGroup/taxonworks/issues/3411
 [#3412]: https://github.com/SpeciesFileGroup/taxonworks/issues/3412
 [#3413]: https://github.com/SpeciesFileGroup/taxonworks/issues/3413
+[#3415]: https://github.com/SpeciesFileGroup/taxonworks/issues/3415
+[#3416]: https://github.com/SpeciesFileGroup/taxonworks/issues/3416
+[#3418]: https://github.com/SpeciesFileGroup/taxonworks/issues/3418
 [#3419]: https://github.com/SpeciesFileGroup/taxonworks/issues/3419
 
 ## [0.32.3] - 2023-05-05
