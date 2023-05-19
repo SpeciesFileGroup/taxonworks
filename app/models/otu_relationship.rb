@@ -36,4 +36,5 @@ class OtuRelationship < ApplicationRecord
   validates_presence_of :subject_otu
   validates_presence_of :object_otu
 
+
 end

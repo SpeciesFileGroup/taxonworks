@@ -15,7 +15,7 @@
   <% @otu_relationships.each do |otu_relationship| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= otu_tag( otu_relationship.subject_otu ) %></td>
-          <td><%= otu_relationship.type_name %></td>
+          <td><%= otu_relationship_type_label(otu_relationship) %></td>
           <td><%= otu_tag( otu_relationship.object_otu ) %></td>
           <%= fancy_metadata_cells_tag(otu_relationship) -%>
       <% end %>

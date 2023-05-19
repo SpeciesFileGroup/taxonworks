@@ -48,7 +48,7 @@ class OtuRelationshipsController < ApplicationController
     respond_to do |format|
       if @otu_relationship.save
         format.html { redirect_to otu_relationship_url(@otu_relationship), notice: 'Otu relationship was successfully created.' }
-        format.json { render :show, status: :created, location: @otu_relationship }
+        format.json { render :show, status: :created, location: @otu_relationship.metamorphosize }
       else
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @otu_relationship.errors, status: :unprocessable_entity }

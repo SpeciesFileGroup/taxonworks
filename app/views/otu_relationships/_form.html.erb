@@ -13,12 +13,18 @@
 
   <%= smart_selector model: :otus, target: :OtuRelationship, field_property: :subject_otu_id, field_object: :otu_relationship, title: 'OTU subject', current: @otu_relationship.subject_otu %>
 
+  <br>
+
   <div class="field">
-    <%= form.label :type %>
+    <%= form.label :type %><br>
     <%= form.select :type, options: %w{OtuRelationship;:Intersecting OtuRelationship::Disjoint OtuRelationship::Equal OtuRelationship::ProperPartInverse OtuRelationship::ProperPart OtuRelationship::PartiallyOverlapping } %>
   </div>
 
+  <br>
+
+  <div>
   <%= smart_selector model: :otus, target: :OtuRelationship, field_property: :object_otu_id, field_object: :otu_relationship, title: 'OTU object', current: @otu_relationship.object_otu %>
+  </div>
 
   <div class="actions">
     <%= form.submit %>
