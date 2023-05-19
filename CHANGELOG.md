@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Basic RCC5 support (= OtuRelationship) [#257]
 - Unified filter to observation matrix integration [#3415]
 - Biological associations can now be depicted
 - Data depiction facets
@@ -42,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changing the number of items per page or the page shows loan items that are not from the current loan in New/edit loan task [#3413]
 - Sort by name gives an wrong order in filter nomenclature task
 
+[#257]: https://github.com/SpeciesFileGroup/taxonworks/issues/257
 [#3409]: https://github.com/SpeciesFileGroup/taxonworks/issues/3409
 [#3407]: https://github.com/SpeciesFileGroup/taxonworks/issues/3407
 [#3418]: https://github.com/SpeciesFileGroup/taxonworks/issues/3418
