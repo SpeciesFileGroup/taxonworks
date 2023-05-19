@@ -53,7 +53,7 @@ module SqedToTaxonworks
           @depiction.depiction_object.notes.build()
           @depiction.depiction_object.tags.build()
           @depiction.depiction_object.identifiers.build(
-            type: "Identifier::Local::CatalogNumber",
+            type: 'Identifier::Local::CatalogNumber',
             namespace: (namespace_locked? ? Namespace.find(namespace_id) : nil),
           )
         rescue ActiveRecord::RecordNotFound
@@ -77,23 +77,31 @@ module SqedToTaxonworks
     def sqed_result
       begin
         @sqed_result ||= sqed.result
-      rescue NoMethodError # TODO - better handling in Sqed
+
+      rescue Sqed::Error
         @sqed_result = false
+
+        # rescue NoMethodError # TODO - better handling in Sqed
+        #  @sqed_result = false
+
+        # TODO: likely remove TypeError
       rescue TypeError
         @sqed_result = false
+
       rescue Magick::ImageMagickError => e
-        if e.message.include?("unable to open image")
+        if e.message.include?('unable to open image')
           @sqed_result = false
         else
           raise
         end
       rescue RuntimeError => e
-        if e.message.include?("ImageMagick library function failed to return a result.")
+        if e.message.include?('ImageMagick library function failed to return a result.')
           @sqed_result = false
         else
           raise
         end
       end
+
       @sqed_result
     end
 
@@ -101,7 +109,7 @@ module SqedToTaxonworks
       begin
         @original_image ||= Magick::Image.read(depiction.image.image_file.path(:original)).first
       rescue Magick::ImageMagickError => e
-        if e.message.include?("unable to open image")
+        if e.message.include?('unable to open image')
           @original_image = nil
         else
           raise
@@ -124,12 +132,8 @@ module SqedToTaxonworks
     def cache_boundaries
       begin
         sqed_depiction.update_column(:result_boundary_coordinates, sqed.boundaries.coordinates)
-      rescue RuntimeError => e
-        if e.message.include?("No image provided")
-          sqed_depiction.update_column(:result_boundary_coordinates, nil)
-        else
-          raise
-        end
+      rescue Sqed::Error
+        sqed_depiction.update_column(:result_boundary_coordinates, nil)
       end
     end
 
@@ -146,7 +150,7 @@ module SqedToTaxonworks
     def ocr_for(layout_section_type)
       index = sqed_depiction.extraction_metadata[:metadata_map].key(layout_section_type)
       if ocr_cached?
-        sqed_depiction.result_ocr[layout_section_type.to_s] && sqed_depiction.result_ocr[layout_section_type.to_s]["text"]
+        sqed_depiction.result_ocr[layout_section_type.to_s] && sqed_depiction.result_ocr[layout_section_type.to_s]['text']
       else
         sqed_result
         cache_all
@@ -232,8 +236,8 @@ module SqedToTaxonworks
 
     def large_dimensions_for(layout_section_type)
       c = coords_for(layout_section_type)
-      return nil if c == [] || (c[2] == 0 and c[3] == 0)
-      "0, 0, 400, #{(c[3].to_f / (c[2].to_f / 400)).to_i}"
+      return nil if c.blank? || c[2] == 0 || c[3] == 0
+      "0, 0, 400, #{( c[3].to_f / (c[2].to_f / 400)).to_i}"
     end
 
     def image_unavailable?

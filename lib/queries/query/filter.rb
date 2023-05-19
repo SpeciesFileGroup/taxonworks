@@ -40,7 +40,7 @@ module Queries
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
       content: [:source, :otu, :taxon_name, :image],
       descriptor: [:source, :observation, :otu],
-      extract: [:source, :otu, :collection_object],
+      extract: [:source, :otu, :collection_object, :observation],
       image: [:content, :collection_object, :collecting_event, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
       observation: [:collection_object, :descriptor, :image, :otu, :source, :taxon_name],

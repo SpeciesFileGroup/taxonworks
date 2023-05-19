@@ -48,7 +48,7 @@ class ImagesController < ApplicationController
     @image = Image.where(project_id: sessions_current_project_id).find_by(id: params[:id])
     @image ||= Image.where(project_id: sessions_current_project_id).find_by(image_file_fingerprint: params[:id])
 
-    render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: 404 and return if @image.nil?
+    render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: :not_found and return if @image.nil?
 
     render '/images/api/v1/show'
   end

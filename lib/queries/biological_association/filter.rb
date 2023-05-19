@@ -5,6 +5,7 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
       include Queries::Concerns::Citations
+      include Queries::Concerns::Depictions
 
       PARAMS = [
         :biological_association_id,
@@ -176,9 +177,10 @@ module Queries
         @taxon_name_id_mode = boolean_param(params, :taxon_name_id_mode)
         @wkt = params[:wkt]
 
-        set_citations_params(params)
         set_notes_params(params)
         set_tags_params(params)
+        set_citations_params(params)
+        set_depiction_params(params)
       end
 
       def biological_association_id

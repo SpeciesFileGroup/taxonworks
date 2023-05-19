@@ -15,6 +15,9 @@
       />
     </td>
     <td>
+      <RadialAnnotator :global-id="depiction.image.global_id" />
+    </td>
+    <td>
       <div class="flex-wrap-column gap-small">
         <RadialAnnotator :global-id="depiction.global_id" />
         <VBtn

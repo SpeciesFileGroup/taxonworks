@@ -188,6 +188,7 @@ module LoansHelper
   end
 
   def arrayed_loan_year_hash(start_year, end_year)
+    return {} if start_year.blank? || end_year.blank?
     years = {}
     (start_year..end_year).to_a.each do |y|
       years[y] = []
@@ -197,6 +198,7 @@ module LoansHelper
   end
 
   def zeroed_loan_year_hash(start_year, end_year)
+    return {} if start_year.blank? || end_year.blank?
     years = {}
     (start_year..end_year).to_a.each do |y|
       years[y] = 0
@@ -256,7 +258,7 @@ module LoansHelper
 
         tag.tr( tag.td('Year start (date sent)')+ tag.td(start_year) ),
         tag.tr( tag.td('Year end (date sent)')+ tag.td(end_year) ),
-        tag.tr( tag.td('Year span')+ tag.td(end_year - start_year) ),
+        tag.tr( tag.td('Year span')+ tag.td( [end_year, start_year].compact.size == 1 ? (end_year - start_year) : 0) ),
 
         tag.tr( tag.td('Overdue') + tag.td( loans.overdue.count ) ),
         tag.tr( tag.td('Not overdue') + tag.td( loans.not_overdue.count) ),

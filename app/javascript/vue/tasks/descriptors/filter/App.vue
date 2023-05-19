@@ -14,6 +14,18 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialMatrix
+          :parameters="parameters"
+          :object-type="DESCRIPTOR"
+        />
+      </template>
+      <template #nav-right>
+        <RadialMatrix
+          :ids="selectedIds"
+          :object-type="DESCRIPTOR"
+        />
+      </template>
       <template #facets>
         <FilterView v-model="parameters" />
       </template>
@@ -39,6 +51,7 @@
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from 'components/layout/Filter/FilterList.vue'
+import RadialMatrix from 'components/radials/matrix/radial.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import { listParser } from './utils/listParser'

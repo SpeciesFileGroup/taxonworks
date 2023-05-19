@@ -6,7 +6,7 @@
 
   <% if @result -%>
     <div class="field">
-      <%= label_tag "Attaching to:" %> <%= tag.strong taxon_name_tag(@result.parent_taxon_name) %>
+      <%= label_tag "Attaching to:" %> <%= tag.strong taxon_name_tag(TaxonName.find(@result.parent_taxon_name_id)) %>
       <%= hidden_field_tag :parent_taxon_name_id, @result.parent_taxon_name_id -%>
     </div>
 

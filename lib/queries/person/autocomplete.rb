@@ -134,17 +134,23 @@ module Queries
                 a = a.left_outer_joins(:roles)
                 .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
                 .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
-                .select("people.*, COUNT(roles.id) AS use_count, CASE WHEN MAX(roles.project_id) IN (#{pr_id}) THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS in_project")
-                .where("roles.project_id IN (#{pr_id}) OR project_sources.project_id IN (#{pr_id}) OR (roles.project_id NOT IN (#{pr_id}) AND project_sources.project_id NOT IN (#{pr_id})) OR (roles.project_id IS NULL AND project_sources.project_id IS NULL)")
-                .group('people.id')
+                .select("people.*, COUNT(roles.id) AS use_count, CASE WHEN roles.project_id IN (#{pr_id}) THEN roles.project_id WHEN project_sources.project_id IN (#{pr_id}) THEN project_sources.project_id ELSE NULL END AS in_project")
+                .group('people.id, roles.project_id, project_sources.project_id')
                 .order('in_project, use_count DESC')
+                #a = a.left_outer_joins(:roles)
+                #     .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
+                #     .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
+                #     .select("people.*, COUNT(roles.id) AS use_count, CASE WHEN MAX(roles.project_id) IN (#{pr_id}) THEN MAX(roles.project_id) WHEN MAX(project_sources.project_id) IN (#{pr_id}) THEN MAX(project_sources.project_id) ELSE NULL END AS in_project")
+                #     .where("roles.project_id IN (#{pr_id}) OR project_sources.project_id IN (#{pr_id}) OR ( (roles.project_id NOT IN (#{pr_id}) OR roles.project_id IS NULL) AND (project_sources.project_id NOT IN (#{pr_id}) OR project_sources.project_id IS NULL))")
+                #     .group('people.id')
+                #     .order('in_project, use_count DESC')
               end
             end
-
-            updated_queries[i] = a
           end
+          updated_queries[i] = a
         end
         result = []
+        updated_queries.compact!
         updated_queries.each do |q|
           result += q.to_a
           result.uniq!

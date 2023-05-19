@@ -452,6 +452,9 @@ resources :observation_matrices do
 
   collection do
     get :otus_used_in_matrices, {format: :json}
+
+    post :batch_create, {format: :json}
+    post :batch_add, {format: :json}
   end
 end
 
@@ -735,8 +738,8 @@ resources :taxon_names do
     post :create_simple_batch_load
     get :ranks, {format: :json}
 
-    post :preview_castor_batch_load
-    post :create_castor_batch_load
+    post :preview_nomen_batch_load
+    post :create_nomen_batch_load
 
     get :parse, defaults: {format: :json}
     get :random

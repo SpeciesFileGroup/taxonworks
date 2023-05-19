@@ -15,6 +15,20 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialMatrix
+          :parameters="parameters"
+          :object-type="OTU"
+        />
+      </template>
+      <template #nav-right>
+        <div class="horizontal-right-content">
+          <RadialMatrix
+            :object-type="OTU"
+            :ids="selectedIds"
+          />
+        </div>
+      </template>
       <template #facets>
         <FilterView v-model="parameters" />
       </template>
@@ -42,6 +56,7 @@ import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from 'components/layout/Filter/FilterList.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
+import RadialMatrix from 'components/radials/matrix/radial.vue'
 import VSpinner from 'components/spinner.vue'
 import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'

@@ -633,7 +633,7 @@ class TaxonName < ApplicationRecord
   # @return String, nil
   #   virtual attribute, to ultimately be fixed in db
   def get_author
-    cached_author_year&.gsub(/,\s\d+/, '')&.gsub(/[\(\)]/, '')
+    cached_author_year&.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '')
   end
 
   # !! Overrides Shared::Citations#nomenclature_date
@@ -1270,7 +1270,6 @@ class TaxonName < ApplicationRecord
   # return [String]
   #   the author and year of the name, adds parenthesis where asserted
   def get_author_and_year
-    # TODO: Isolate to Combination
     if self.type == 'Combination'
       c = protonyms_by_rank
       return nil if c.empty?
@@ -1289,7 +1288,7 @@ class TaxonName < ApplicationRecord
     when :icn
       ay = icn_author_and_year(taxon)
     else
-      ay = ([author_string] + [year_integer]).compact.join(' ') # TODO: !! cached_nomenclature_date is set here already, don't recalculate !!
+      ay = ([author_string] + [cached_nomenclature_date&.year]).compact.join(' ')
     end
     (ay.presence)
   end
@@ -1368,6 +1367,8 @@ class TaxonName < ApplicationRecord
           ay = '(' + ay + ')' if !ay.empty? && og.normalized_genus.id != cg.normalized_genus.id
         end
       end
+    elsif FAMILY_RANK_NAMES_ICZN.include?(taxon.rank_string) && !y.empty? && cached_nomenclature_date&.year != y.first
+      ay = ay + ' [' + cached_nomenclature_date&.year.to_s + ']'
     end
 
     unless misapplication.empty? || obj.author_string.blank?
@@ -1395,7 +1396,7 @@ class TaxonName < ApplicationRecord
 
   # @return [Boolean]
   def parent_is_set?
-    !parent_id.nil? || (parent && parent.persisted?)
+    !parent_id.nil? || (parent&.persisted?)
   end
 
   # TODO: this should be paginated, not all IDs!
