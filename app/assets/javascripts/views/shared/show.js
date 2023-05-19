@@ -5,13 +5,17 @@ TW.views.shared.show = TW.views.shared.show || {}
 
 Object.assign(TW.views.shared.show, {
   init: function () {
-    document.querySelector('[view-bottom]')?.addEventListener('click', () => {
-      const elements = document.querySelectorAll('[data-view="development"]')
+    const viewButton = document.querySelector('[view-bottom]')
 
-      for (const element of elements) {
-        element.classList.toggle('d-block')
-      }
-    })
+    if (viewButton) {
+      viewButton.addEventListener('click', () => {
+        const elements = document.querySelectorAll('[data-view="development"]')
+
+        for (const element of elements) {
+          element.classList.toggle('d-block')
+        }
+      })
+    }
 
     const menuDropElements = document.querySelectorAll('.menu-drop')
 
