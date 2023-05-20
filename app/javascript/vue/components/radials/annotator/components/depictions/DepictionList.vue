@@ -6,7 +6,8 @@
         <th>Is data</th>
         <th>Label</th>
         <th>Caption</th>
-        <th />
+        <th class="w-4">Img</th>
+        <th class="w-4" />
       </tr>
     </thead>
     <tbody>

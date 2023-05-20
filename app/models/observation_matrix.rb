@@ -267,4 +267,69 @@ class ObservationMatrix < ApplicationRecord
     h
   end
 
+  def batch_populate(params)
+    queries = params.keys.select{|a| a =~ /_query/ }
+    return false if queries.size != 1
+
+    result = {
+      rows: 0,
+      columns: 0,
+      observation_matrix_id: id,
+      observation_matrix_name: name
+    }
+
+    otus = []
+    descriptors = []
+    collection_objects = []
+    extracts = []
+
+    case queries[0]
+
+    when 'otu_query'
+      otus = ::Queries::Otu::Filter.new(params[:otu_query]).all
+    when 'descriptor_query'
+      descriptors = ::Queries::Descriptor::Filter.new(params[:descriptor_query]).all
+    when 'observation_query'
+
+      otus = ::Queries::Otu::Filter.new(observation_query: params[:observation_query]).all
+      descriptors = ::Queries::Descriptor::Filter.new(observation_query: params[:observation_query]).all
+      collection_objects = ::Queries::CollectionObject::Filter.new(observation_query: params[:observation_query]).all
+      extracts = ::Queries::Extract::Filter.new(observation_query: params[:observation_query]).all
+    when 'collection_object_query'
+      collection_objects = ::Queries::CollectionObject::Filter.new(params[:collection_object_query]).all
+    when 'extract_query'
+      extracts = ::Queries::Extract::Filter.new(params[:extract_query]).all
+    end
+
+    [otus, collection_objects, extracts].each do |t|
+      t.each do |i|
+        # Fail silently
+        j = ObservationMatrixRowItem::Single.create(observation_matrix: self, observation_object: i)
+        result[:rows] += 1 if j.persisted?
+      end
+    end
+
+    descriptors.each do |d|
+      j = ObservationMatrixColumnItem::Single::Descriptor.create(observation_matrix: self, descriptor: d)
+      result[:columns] += 1 if j.persisted?
+    end
+
+    result
+  end
+
+  def self.batch_add(params)
+    return false if params[:observation_matrix_id].blank?
+    o = ObservationMatrix.find_by(project_id: params[:project_id], id: params[:observation_matrix_id])
+    o.batch_populate(params)
+  end
+
+  def self.batch_create(params)
+    o = ObservationMatrix.create(params.require(:observation_matrix).permit(:name))
+    if o.persisted?
+      o.batch_populate(params)
+    else
+      o.errors.full_messages
+    end
+  end
+
 end

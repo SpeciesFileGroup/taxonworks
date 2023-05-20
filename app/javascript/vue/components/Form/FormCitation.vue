@@ -117,6 +117,11 @@ const props = defineProps({
     default: false
   },
 
+  useSession: {
+    type: Boolean,
+    default: false
+  },
+
   absentField: {
     type: Boolean,
     default: false
@@ -178,17 +183,23 @@ watch(sourceId, async (newId, oldId) => {
 })
 
 watch(isAbsent, (newVal) => {
-  sessionStorage.setItem(STORAGE.isAbsent, newVal)
+  if (props.useSession) {
+    sessionStorage.setItem(STORAGE.isAbsent, newVal)
+  }
 })
 
 watch(isLocked, (newVal) => {
-  sessionStorage.setItem(STORAGE.lock, newVal)
+  if (props.useSession) {
+    sessionStorage.setItem(STORAGE.lock, newVal)
+  }
   emit('lock', newVal)
 })
 
 function setSource(value) {
   source.value = value
-  sessionStorage.setItem(STORAGE.sourceId, value.id)
+  if (props.useSession) {
+    sessionStorage.setItem(STORAGE.sourceId, value.id)
+  }
   citation.value.source_id = value.id
   citation.value._label = value.cached
 
@@ -196,11 +207,15 @@ function setSource(value) {
 }
 
 function setPage(e) {
-  sessionStorage.setItem(STORAGE.pages, e.target.value)
+  if (props.useSession) {
+    sessionStorage.setItem(STORAGE.pages, e.target.value)
+  }
 }
 
 function setIsOriginal(e) {
-  sessionStorage.setItem(STORAGE.isOriginal, e.target.value)
+  if (props.useSession) {
+    sessionStorage.setItem(STORAGE.isOriginal, e.target.value)
+  }
 }
 
 function setLastCitation() {
@@ -220,13 +235,14 @@ function setLastCitation() {
 }
 
 function init() {
-  const lockStoreValue = convertType(sessionStorage.getItem(STORAGE.lock))
+  const lockStoreValue =
+    props.useSession && convertType(sessionStorage.getItem(STORAGE.lock))
 
   if (lockStoreValue) {
     isLocked.value = lockStoreValue
   }
 
-  if (props.lockButton && lockStoreValue) {
+  if (props.lockButton && lockStoreValue && props.useSession) {
     citation.value.source_id = convertType(
       sessionStorage.getItem(STORAGE.sourceId)
     )

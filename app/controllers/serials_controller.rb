@@ -1,7 +1,6 @@
 class SerialsController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :require_sign_in
   before_action :set_serial, only: [:show, :edit, :update, :destroy]
 
   # GET /serials

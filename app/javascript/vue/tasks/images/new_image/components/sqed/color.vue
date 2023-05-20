@@ -4,13 +4,16 @@
     <ul class="no_bullets">
       <li
         v-for="color in colors"
-        :key="color">
+        :key="color"
+      >
         <label class="capitalize">
           <input
             type="radio"
             name="sqed-color"
+            :disabled="disabled"
             :value="color"
-            v-model="selected">
+            v-model="selected"
+          />
           {{ color }}
         </label>
       </li>
@@ -22,7 +25,13 @@
 export default {
   props: {
     modelValue: {
-      type: String
+      type: String,
+      default: undefined
+    },
+
+    disabled: {
+      type: Boolean,
+      default: false
     },
 
     colors: {
@@ -35,10 +44,10 @@ export default {
 
   computed: {
     selected: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }

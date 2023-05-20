@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_05_08_200437) do
+ActiveRecord::Schema.define(version: 2023_05_09_185624) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -1450,6 +1450,22 @@ ActiveRecord::Schema.define(version: 2023_05_08_200437) do
     t.index ["updated_by_id"], name: "index_otu_page_layouts_on_updated_by_id"
   end
 
+  create_table "otu_relationships", force: :cascade do |t|
+    t.integer "subject_otu_id", null: false
+    t.string "type", null: false
+    t.integer "object_otu_id", null: false
+    t.bigint "project_id"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_by_id"], name: "index_otu_relationships_on_created_by_id"
+    t.index ["object_otu_id"], name: "index_otu_relationships_on_object_otu_id"
+    t.index ["project_id"], name: "index_otu_relationships_on_project_id"
+    t.index ["subject_otu_id"], name: "index_otu_relationships_on_subject_otu_id"
+    t.index ["updated_by_id"], name: "index_otu_relationships_on_updated_by_id"
+  end
+
   create_table "otus", id: :serial, force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -2286,6 +2302,11 @@ ActiveRecord::Schema.define(version: 2023_05_08_200437) do
   add_foreign_key "otu_page_layouts", "projects", name: "otu_page_layouts_project_id_fkey"
   add_foreign_key "otu_page_layouts", "users", column: "created_by_id", name: "otu_page_layouts_created_by_id_fkey"
   add_foreign_key "otu_page_layouts", "users", column: "updated_by_id", name: "otu_page_layouts_updated_by_id_fkey"
+  add_foreign_key "otu_relationships", "otus", column: "object_otu_id"
+  add_foreign_key "otu_relationships", "otus", column: "subject_otu_id"
+  add_foreign_key "otu_relationships", "projects"
+  add_foreign_key "otu_relationships", "users", column: "created_by_id"
+  add_foreign_key "otu_relationships", "users", column: "updated_by_id"
   add_foreign_key "otus", "projects", name: "otus_project_id_fkey"
   add_foreign_key "otus", "taxon_names", name: "otus_taxon_name_id_fkey"
   add_foreign_key "otus", "users", column: "created_by_id", name: "otus_created_by_id_fkey"

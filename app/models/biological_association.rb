@@ -36,6 +36,7 @@ class BiologicalAssociation < ApplicationRecord
   include Shared::Confidences
   include Shared::Notes
   include Shared::Confidences
+  include Shared::Depictions
   include Shared::IsData
 
   belongs_to :biological_relationship, inverse_of: :biological_associations

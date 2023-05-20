@@ -3,16 +3,16 @@
     <spinner-component
       :full-screen="true"
       :legend="'Saving...'"
-      :logo-size="{ width: '100px', height: '100px'}"
+      :logo-size="{ width: '100px', height: '100px' }"
       v-if="isSaving"
     />
     <div class="flex-separate middle">
-      <h1>Task: New images</h1>
+      <h1>New image</h1>
       <span
         data-icon="reset"
         class="cursor-pointer"
         @click="resetStore"
-      >Reset
+        >Reset
       </span>
     </div>
     <div class="panel content separate-bottom">
@@ -32,7 +32,9 @@
       <div class="flexbox separate-bottom">
         <pixels-unit class="margin-medium-right" />
         <depic-some class="panel-section separate-right" />
-        <depiction-component class="panel-section separate-left separate-right" />
+        <depiction-component
+          class="panel-section separate-left separate-right"
+        />
         <panel-tag class="panel-section separate-left" />
       </div>
     </div>
@@ -43,7 +45,6 @@
 </template>
 
 <script>
-
 import SpinnerComponent from 'components/spinner'
 import ImageDropzone from './components/images/imageDropzone'
 import ApplyAttributes from './components/applyAttributes'
@@ -98,11 +99,11 @@ export default {
 </script>
 
 <style lang="scss">
-  #vue-task-images-new {
-    .panel-section {
-      flex-grow: 1;
-      flex-shrink: 1;
-      flex-basis: 0;
-    }
+#vue-task-images-new {
+  .panel-section {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
   }
+}
 </style>

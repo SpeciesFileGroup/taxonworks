@@ -60,7 +60,14 @@ import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import { OTU, COLLECTION_OBJECT } from 'constants/index.js'
 import { computed } from 'vue'
 
-const WITH_PARAMS = ['citations', 'origin_citation']
+const WITH_PARAMS = [
+'citations',
+'data_depictions',
+'depictions',
+'notes',
+'origin_citation',
+'tags',
+]
 
 const props = defineProps({
   modelValue: {

@@ -3,7 +3,7 @@ module Queries
     class Filter < Query::Filter
 
       # Params exists for all CollectingEvent attributes except these.
-      # collecting_event_id is excluded because we handle it specially in conjunction with `geographic_area_mode``
+      # geographic_area_id is excluded because we handle it specially in conjunction with `geographic_area_mode``
       # Definition must preceed include.
       ATTRIBUTES = (::CollectingEvent.core_attributes - %w{geographic_area_id}).map(&:to_sym).freeze
 
@@ -35,6 +35,7 @@ module Queries
         :collection_objects,
         :collector_id,
         :collector_id_or,
+        :collecting_event_id,
         :determiner_name_regex,
         :geo_json,
         :geographic_area,

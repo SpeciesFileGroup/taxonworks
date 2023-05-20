@@ -55,7 +55,7 @@ class Otu < ApplicationRecord
 
   belongs_to :taxon_name, inverse_of: :otus
 
-  # Why? Could be Combination too.
+  # Why?  Could be combination too.
   belongs_to :protonym, -> { where(type: 'Protonym') }, foreign_key: :taxon_name_id
 
   has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error
@@ -80,6 +80,9 @@ class Otu < ApplicationRecord
   has_many :georeferences, through: :collecting_events
 
   has_many :content_topics, through: :contents, source: :topic
+
+  has_many :otu_relationships, foreign_key: :subject_otu_id
+  has_many :related_otu_relationships, class_name: 'OtuRelationship', foreign_key: :object_otu_id
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
   scope :with_name, -> (name) { where(name:) }

@@ -460,6 +460,9 @@ resources :observation_matrices do
 
   collection do
     get :otus_used_in_matrices, {format: :json}
+
+    post :batch_create, {format: :json}
+    post :batch_add, {format: :json}
   end
 end
 
@@ -510,7 +513,7 @@ resources :notes, except: [:show] do
 end
 
 resources :otus do
-  concerns [:data_routes ]
+  concerns [:data_routes]
   resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
   resources :asserted_distributions, shallow: true, only: [:index], defaults: {format: :json}
   resources :common_names, shallow: true, only: [:index], defaults: {format: :json}
@@ -556,6 +559,13 @@ resources :otu_page_layouts do
   member do
     get 'related'
   end
+end
+
+resources :otu_relationships do
+  collection do
+    get :list
+  end
+  concerns [:data_routes]
 end
 
 resources :organizations do
@@ -736,8 +746,8 @@ resources :taxon_names do
     post :create_simple_batch_load
     get :ranks, {format: :json}
 
-    post :preview_castor_batch_load
-    post :create_castor_batch_load
+    post :preview_nomen_batch_load
+    post :create_nomen_batch_load
 
     get :parse, defaults: {format: :json}
     get :random

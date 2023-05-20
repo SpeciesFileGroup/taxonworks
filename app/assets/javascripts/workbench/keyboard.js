@@ -16,11 +16,10 @@ TW.workbench = TW.workbench || {}
 TW.workbench.keyboard = TW.workbench.keyboard || {}
 
 Object.assign(TW.workbench.keyboard, {
-
   keyCode: ['UP', 'DOWN', 'LEFT', 'RIGHT', 'COMMAND'],
   keyCodeReplace: ['↑', '↓', '←', '→', '⌘'],
 
-  init_keyShortcuts () {
+  init_keyShortcuts() {
     const keyboardTable = document.querySelector('#keyShortcuts')
 
     if (keyboardTable) {
@@ -40,14 +39,32 @@ Object.assign(TW.workbench.keyboard, {
     this.handleEvents()
   },
 
-  generalShortcuts () {
-    const platformKey = (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
+  generalShortcuts() {
+    const platformKey = navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt'
 
-    this.createLegend(`${platformKey}+h`, 'Go to hub', 'General shortcuts', true)
-    this.createLegend(`${platformKey}+?`, 'Show/hide help', 'General shortcuts', true)
+    this.createShortcut(
+      `${platformKey}+h`,
+      'Go to hub',
+      'General shortcuts',
+      function () {
+        const element = document.querySelector('.hub_project_name')
+        element.click()
+      },
+      true
+    )
+    this.createShortcut(
+      `${platformKey}+?`,
+      'Show/hide help',
+      'General shortcuts',
+      function () {
+        const element = document.querySelector('.help-button')
+        element.click()
+      },
+      true
+    )
   },
 
-  createTable () {
+  createTable() {
     const divContainer = document.createElement('div')
 
     divContainer.id = 'keyShortcuts'
@@ -73,15 +90,20 @@ Object.assign(TW.workbench.keyboard, {
     return divContainer
   },
 
-  createShortcut (key, description, section, func, isLeft = false) {
-    const legendElement = this.createLegendElement(key, description, section, isLeft)
+  createShortcut(key, description, section, func, isLeft = false) {
+    const legendElement = this.createLegendElement(
+      key,
+      description,
+      section,
+      isLeft
+    )
 
-    function customFunction (event) {
+    function customFunction(event) {
       event.preventDefault()
       func(event)
     }
 
-  	Mousetrap.bind(key, customFunction)
+    Mousetrap.bind(key, customFunction)
     document.body.append(legendElement)
   },
 
@@ -97,8 +119,13 @@ Object.assign(TW.workbench.keyboard, {
     return legendElement
   },
 
-  createLegend (key, description, section, isLeft = false) {
-    const legendElement = this.createLegendElement(key, description, section, isLeft)
+  createLegend(key, description, section, isLeft = false) {
+    const legendElement = this.createLegendElement(
+      key,
+      description,
+      section,
+      isLeft
+    )
 
     document.body.append(legendElement)
     if (!this.isShortcutInTable(key)) {
@@ -106,27 +133,34 @@ Object.assign(TW.workbench.keyboard, {
     }
   },
 
-  fillTable () {
-    document.querySelectorAll('[data-shortcut-key]').forEach(element => {
+  fillTable() {
+    document.querySelectorAll('[data-shortcut-key]').forEach((element) => {
       const key = element.getAttribute('data-shortcut-key')
 
       if (!this.isShortcutInTable(key)) {
-        TW.workbench.keyboard.addNewShortcut(TW.workbench.keyboard.checkReplaceKeyCode(element))
+        TW.workbench.keyboard.addNewShortcut(
+          TW.workbench.keyboard.checkReplaceKeyCode(element)
+        )
       }
     })
   },
 
-  checkReplaceKeyCode (element) {
+  checkReplaceKeyCode(element) {
     const shortcut = element.getAttribute('data-shortcut-key').toUpperCase()
-    const index = TW.workbench.keyboard.keyCode.findIndex(item => item === shortcut)
+    const index = TW.workbench.keyboard.keyCode.findIndex(
+      (item) => item === shortcut
+    )
 
     if (index > -1) {
-      element.setAttribute('data-shortcut-key', TW.workbench.keyboard.keyCodeReplace[index])
+      element.setAttribute(
+        'data-shortcut-key',
+        TW.workbench.keyboard.keyCodeReplace[index]
+      )
     }
     return element
   },
 
-  createSection (name) {
+  createSection(name) {
     const theadElement = document.createElement('thead')
     const tbodyElement = document.createElement('tbody')
     const columnName = document.createElement('th')
@@ -140,7 +174,7 @@ Object.assign(TW.workbench.keyboard, {
     return [theadElement, tbodyElement]
   },
 
-  addRowShortcut (shortcutKey, description) {
+  addRowShortcut(shortcutKey, description) {
     const rowElement = document.createElement('tr')
     const shortcutColumn = document.createElement('td')
     const descriptionColumn = document.createElement('td')
@@ -158,42 +192,47 @@ Object.assign(TW.workbench.keyboard, {
     return rowElement
   },
 
-  isShortcutInTable (shortcutKey) {
+  isShortcutInTable(shortcutKey) {
     return document.querySelector(`[data-table-shortcut-key="${shortcutKey}"]`)
   },
 
-  addNewShortcut (element) {
+  addNewShortcut(element) {
     const sectionName = element.getAttribute('data-shortcut-section')
     const shortcutKey = element.getAttribute('data-shortcut-key')
-    const shortcutDescription = element.getAttribute('data-shortcut-description')
+    const shortcutDescription = element.getAttribute(
+      'data-shortcut-description'
+    )
     const isLeftTable = element.getAttribute('data-shortcut-left') === 'true'
     const queryString = `.list table tbody[data-shortcut-section="${sectionName}"`
-    const tableClass = isLeftTable
-      ? '.page-default'
-      : '.page-shortcuts'
+    const tableClass = isLeftTable ? '.page-default' : '.page-shortcuts'
 
     let sectionElement = this.keyShortcutElement.querySelector(queryString)
 
     if (!sectionElement) {
-      this.keyShortcutElement.querySelector(`.list ${tableClass} table`).append(...this.createSection(sectionName))
+      this.keyShortcutElement
+        .querySelector(`.list ${tableClass} table`)
+        .append(...this.createSection(sectionName))
       sectionElement = this.keyShortcutElement.querySelector(queryString)
     }
 
     sectionElement.append(this.addRowShortcut(shortcutKey, shortcutDescription))
   },
 
-  openViewPanel () {
+  openViewPanel() {
     this.keyShortcutsPanel.classList.add('active')
   },
 
-  closeViewPanel () {
+  closeViewPanel() {
     this.keyShortcutsPanel.classList.remove('active')
   },
 
-  handleEvents () {
+  handleEvents() {
     this.legendLink.addEventListener('click', this.openViewPanel.bind(this))
     this.btnClose.addEventListener('click', this.closeViewPanel.bind(this))
-    this.helpBackground.addEventListener('click', this.closeViewPanel.bind(this))
+    this.helpBackground.addEventListener(
+      'click',
+      this.closeViewPanel.bind(this)
+    )
   }
 })
 
