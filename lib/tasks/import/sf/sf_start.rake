@@ -907,7 +907,7 @@ namespace :tw do
 
           path = @args[:data_directory] + 'tblAuthUsers.txt'
           logger.info "Creating users\n"
-          raise "file #{path} not found" if not File.exists?(path)
+          raise "file #{path} not found" if not File.exist?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           error_counter = 0

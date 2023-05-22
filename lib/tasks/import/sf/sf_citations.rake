@@ -331,7 +331,7 @@ namespace :tw do
 
           path = @args[:data_directory] + 'tblSpeciesNames.txt'
           print "\ntblSpeciesNames.txt\n"
-          raise "file #{path} not found" if not File.exists?(path)
+          raise "file #{path} not found" if not File.exist?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           # SpeciesNameID
@@ -349,7 +349,7 @@ namespace :tw do
 
           path = @args[:data_directory] + 'tblGenusNames.txt'
           print "\ntblGenusNames.txt\n"
-          raise "file #{path} not found" if not File.exists?(path)
+          raise "file #{path} not found" if not File.exist?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           # GenusNameID
@@ -367,7 +367,7 @@ namespace :tw do
 
           path = @args[:data_directory] + 'tblNomenclator.txt'
           print "\ntblNomenclator.txt\n"
-          raise "file #{path} not found" if not File.exists?(path)
+          raise "file #{path} not found" if not File.exist?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           # NomenclatorID
@@ -503,7 +503,7 @@ namespace :tw do
 
               path = @args[:data_directory] + 'sfCites.txt'
               print "\nsfCites.txt Working on: #{rank_pass}\n"
-              raise "file #{path} not found" if not File.exists?(path)
+              raise "file #{path} not found" if not File.exist?(path)
               file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
               # TaxonNameID
