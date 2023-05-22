@@ -7,12 +7,12 @@ import componentNames from '../const/componentNames'
 function makeInitialState() {
   return {
     loadState: {
-      assertedDistribution: true,
+      assertedDistribution: false,
       biologicalAssociations: true,
       collectionObjects: true,
-      descendants: true,
-      descendantsDistribution: true,
-      distribution: true
+      descendants: false,
+      descendantsDistribution: false,
+      distribution: false
     },
     preferences: {
       preferenceSchema: 20210715,

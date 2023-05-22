@@ -74,7 +74,8 @@
     </template>
     <search-otu
       v-else
-      @select="loadOtu"
+      class="container"
+      @onOtuSelect="loadOtu"
     />
   </div>
 </template>
@@ -164,7 +165,7 @@ export default {
   watch: {
     otus: {
       handler(newVal) {
-        this.$store.dispatch(ActionNames.LoadInformation, newVal)
+        //this.$store.dispatch(ActionNames.LoadInformation, newVal)
       },
       deep: true
     },
