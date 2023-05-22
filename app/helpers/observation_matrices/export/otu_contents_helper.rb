@@ -19,13 +19,13 @@ module ObservationMatrices::Export::OtuContentsHelper
       csv << ['otu_id', 'topic', 'text']
 
       if options[:taxon_name] == 'true'
-        protonyms = Protonym.select('taxon_names.*, observation_matrix_rows.id AS row_id').
+        protonyms = Protonym.select('taxon_names.*, otus.name AS otu_name, observation_matrix_rows.id AS row_id').
           joins(:otus).joins('INNER JOIN observation_matrix_rows ON observation_matrix_rows.observation_object_id = otus.id').
           where("observation_matrix_rows.observation_object_type = 'Otu'").
           where('otus.id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
           order(:observation_object_id)
         protonyms.each do |p|
-          csv << ['row_' + p.row_id.to_s, 'Taxon name', p.cached_html ]
+          csv << ['row_' + p.row_id.to_s, 'Taxon name', [p.otu_name, p.cached_html].compact.join(': ') ]
         end
         protonyms.each do |p|
           csv << ['row_' + p.row_id.to_s, 'Authority', p.cached_author_year ]
@@ -137,9 +137,9 @@ module ObservationMatrices::Export::OtuContentsHelper
               lbl = lbl.compact.join('; ')
 
               if im.image_hash[depiction[:image_id]][:image_file_content_type] == 'image/tiff'
-                href = im.image_hash[depiction[:image_id]][:medium]
+                href = im.image_hash[depiction[:image_id]][:medium_url]
               else
-                href = im.image_hash[depiction[:image_id]][:original]
+                href = im.image_hash[depiction[:image_id]][:original_url]
               end
 
               list += "<span class='tw_depiction'><br>\n"

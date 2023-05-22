@@ -1,13 +1,25 @@
 module Queries
   module ProtocolRelationship
-    class Filter
+    class Filter < Query::Filter
 
-      # TODO: revisit for permitted params
-      # General annotator options handling
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      attr_accessor :options
+      include Concerns::Polymorphic
+      polymorphic_klass(::ProtocolRelationship)
+
+      PARAMS = [
+        *::ProtocolRelationship.related_foreign_keys.map(&:to_sym),
+        :protocol_id,
+        :protocol_relationship_id,
+
+        :protocol_relationship_object_id,
+        :protocol_relationship_object_type,
+        protocol_relationship_id: [],
+        protocol_relationship_object_id: [],
+        protocol_id: []
+      ].freeze
+      
+      # @param [Array, Integer]
+      # @return Array
+      attr_accessor :protocol_relationship_id
 
       # @param [Array, Integer]
       # @return Array
@@ -20,15 +32,19 @@ module Queries
       # @return String, nil
       attr_accessor :protocol_relationship_object_type
 
-      # TODO: object_global_id
-
       # TODO: See ::Queries::Annotator params - move to permitted section in controller likely.
       # @params params [ActionController::Parameters]
-      def initialize(params)
-        @options = params
+      def initialize(query_params)
+        super
         @protocol_relationship_object_id = params[:protocol_relationship_object_id]
         @protocol_relationship_object_type = params[:protocol_relationship_object_type]
         @protocol_id = params[:protocol_id]
+        @protocol_relationhip_id = params[:protocol_relationship_id]
+        set_polymorphic_params(params)
+      end
+
+      def protocol_relationship_id
+        [@protocol_relationship_id].flatten.compact
       end
 
       def protocol_id
@@ -41,11 +57,6 @@ module Queries
 
       def protocol_relationship_object_type
         [@protocol_relationship_object_type].flatten.compact
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::ProtocolRelationship.arel_table
       end
 
       def protocol_id_facet
@@ -63,31 +74,13 @@ module Queries
         table[:protocol_relationship_object_type].eq_any(protocol_relationship_object_type)
       end
 
-      # @return [ActiveRecord::Relation]
       def and_clauses
-        clauses = [
+         [
           protocol_id_facet,
           protocol_relationship_object_id_facet,
           protocol_relationship_object_type_facet,
-          ::Queries::Annotator.annotator_params(options, ::ProtocolRelationship),
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+        ]
       end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::ProtocolRelationship.where(and_clauses)
-        else
-          ::ProtocolRelationship.all
-        end
-      end
-
     end
   end
 end

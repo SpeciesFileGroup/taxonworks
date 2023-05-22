@@ -15,7 +15,9 @@
               :depiction="element"
             >
               <template #thumbfooter>
-                <div class="horizontal-left-content">
+                <div
+                  class="horizontal-left-content padding-xsmall-bottom padding-xsmall-top"
+                >
                   <radial-annotator
                     type="annotations"
                     :global-id="element.image.global_id"
@@ -39,7 +41,6 @@
 </template>
 
 <script>
-
 import DraggableComponent from 'vuedraggable'
 import VIcon from 'components/ui/VIcon/index.vue'
 import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
@@ -64,25 +65,28 @@ export default {
 
     depictions: {
       type: Array,
-      default: () => ([])
+      default: () => []
     }
   },
 
   methods: {
-    setObservationDragged (event) {
-      this.$store.commit(MutationNames.SetDepictionMoved, this.depictions[event.oldIndex])
+    setObservationDragged(event) {
+      this.$store.commit(
+        MutationNames.SetDepictionMoved,
+        this.depictions[event.oldIndex]
+      )
     }
   }
 }
 </script>
 
 <style scoped>
-  .drag-container {
-    padding-top: 0.5em;
-  }
+.drag-container {
+  padding-top: 0.5em;
+}
 
-  .matrix-image-draggable {
-    min-height: 100px;
-    box-sizing: content-box;
-  }
+.matrix-image-draggable {
+  min-height: 100px;
+  box-sizing: content-box;
+}
 </style>

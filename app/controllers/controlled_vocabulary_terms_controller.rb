@@ -100,7 +100,7 @@ class ControlledVocabularyTermsController < ApplicationController
   def autocomplete
     @controlled_vocabulary_terms = Queries::ControlledVocabularyTerm::Autocomplete.new(
       params.require(:term),
-      type: filter_params[:type],
+      controlled_vocabulary_term_type: filter_params[:type],
       project_id: sessions_current_project_id
     ).all
   end
@@ -129,6 +129,7 @@ class ControlledVocabularyTermsController < ApplicationController
     params.require(:controlled_vocabulary_term).permit(:type, :name, :definition, :uri, :uri_relation, :css_color)
   end
 
+  # ! No corresponding filter.rb
   def filter_params
     params.permit(
       type: [],

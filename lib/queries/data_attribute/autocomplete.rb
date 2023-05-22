@@ -1,6 +1,6 @@
 module Queries
   module DataAttribute
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       attr_accessor :term_key, :term_value
 
@@ -82,7 +82,7 @@ module Queries
 
         updated_queries = []
         queries.each_with_index do |q ,i|
-          a = q.where(with_project_id.to_sql) if project_id 
+          a = q.where(with_project_id.to_sql) if project_id.present? 
           a ||= q
           updated_queries[i] = a
         end
@@ -97,17 +97,9 @@ module Queries
       end
 
       # @return [Arel::Table]
-      def table
-        ::DataAttribute.arel_table
-      end
-
-      # @return [Arel::Table]
       def predicate_table
         ::Predicate.arel_table
       end
-
-
-
 
     end
   end

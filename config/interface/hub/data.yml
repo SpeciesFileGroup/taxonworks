@@ -5,8 +5,10 @@
 #   status - one of [complete, stable, prototype, unknown (default) ] (see user_tasks.yml)
 #   categories - an array of one or more of [CollectingEvent, CollectionObject, Source, TaxonName]
 #   hide - default false
-#   description - 
+#   description -
 #   related_models - an array of similar models
+#
+# See lib/hub/data.rb for integration (or CONFIG_DATA)
 #
 ---
 Core: # a Section
@@ -26,11 +28,11 @@ Core: # a Section
       - TaxonNameRelationship
   CollectingEvent:
     status: :prototype
-    categories: 
+    categories:
       - collecting_event
     related_models:
       - Georeference
-  CollectionObject: 
+  CollectionObject:
     status: :stable
     categories:
       - collection_object
@@ -40,14 +42,14 @@ Core: # a Section
       - TaxonDetermination
       - Repository
   Descriptor:
-    categories: 
+    categories:
       - matrix
       - dna
-    related_models: 
+    related_models:
       - ObservationMatrix
     status: :prototype
   Observation:
-    categories: 
+    categories:
       - matrix
       - collection_object
     related_models:
@@ -62,7 +64,7 @@ Core: # a Section
     status: :stable
     shared: true
     categories:
-      - source 
+      - source
     related_models:
       - Serial
       - People
@@ -70,14 +72,14 @@ Core: # a Section
     status: :stable
     related_models:
       - Source
-      - Person 
+      - Person
     categories:
       - source
   BiologicalAssociation:
     status: :prototype
     related_models:
       - BiologicalRelationship
-    categories: 
+    categories:
       - biology
   Sequence:
     status: :prototype
@@ -89,12 +91,12 @@ Supporting:
   AssertedDistribution:
     status: :prototype
     categories:
-      - source 
+      - source
   BiologicalAssociationsGraph:
     status: :prototype
     related_models:
       - Source
-    categories: 
+    categories:
       - biology
   BiologicalRelationship:
     status: :prototype
@@ -108,7 +110,7 @@ Supporting:
       - matrix
   CollectionProfile:
     status: :prototype
-    categories: 
+    categories:
       - collection_object
   CollectionObjectObservation:
     status: :prototype
@@ -145,7 +147,7 @@ Supporting:
   Documentation:
     status: :prototype
     related_models:
-      - Document 
+      - Document
   ImportDataset:
     status: :stable
   Depiction:
@@ -161,7 +163,7 @@ Supporting:
     status: :prototype
     related_models:
       - BiologicalRelationship
-    categories: 
+    categories:
       - biology
       - dna
   GeneAttribute:
@@ -175,7 +177,7 @@ Supporting:
   Georeference:
     status: :prototype
     categories:
-      - collecting_event 
+      - collecting_event
   GeographicArea:
     status: :stable
     shared: true
@@ -222,18 +224,18 @@ Supporting:
       - Loan
       - CollectionObject
       - Otu
-  ObservationMatrixColumn: 
-    categories: 
+  ObservationMatrixColumn:
+    categories:
       - matrix
-    related_models: 
+    related_models:
       - ObservationMatrix
       - Descriptor
     status: :prototype
     hide: true
-  ObservationMatrixColumnItem: 
-    categories: 
+  ObservationMatrixColumnItem:
+    categories:
       - matrix
-    related_models: 
+    related_models:
       - ObservationMatrix
       - Descriptor
     status: :prototype
@@ -249,7 +251,7 @@ Supporting:
     categories:
       - matrix
     related_models:
-      - ObservationMatrix   
+      - ObservationMatrix
   OriginRelationship:
     catgories:
       - collection_object
@@ -262,6 +264,12 @@ Supporting:
     status: :prototype
     related_models:
       - ControlledVocabularyTerm
+  OtuRelationship:
+    status: :prototype
+    categories:
+      - biology
+    related_models:
+      - Otu
   Organization:
     status: :stable
     shared: true
@@ -299,9 +307,9 @@ Supporting:
       - CollectingObject
   Serial:
     status: :prototype
-    shared: true 
+    shared: true
     categories:
-      - source 
+      - source
     related_models:
       - Source
       - Person
@@ -316,26 +324,26 @@ Supporting:
     categories:
       - collection_object
     related_models:
-      - Otu 
+      - Otu
       - CollectionObject
   TaxonNameClassification:
     status: :stable
     categories:
-      - nomenclature 
+      - nomenclature
     related_models:
       - TaxonName
       - TaxonNameRelationship
   TaxonNameRelationship:
     status: :stable
     categories:
-      - nomenclature 
+      - nomenclature
     related_model:
       - TaxonName
       - TaxonNameClassification
   TypeMaterial:
     status: :prototype
     categories:
-      - nomenclature 
+      - nomenclature
       - collection_object
 Annotations:
   Attribution:
@@ -345,7 +353,7 @@ Annotations:
   Citation:
     status: :stable
     categories:
-      - source 
+      - source
   Confidence:
     status: prototype
   DataAttribute:

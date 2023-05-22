@@ -126,10 +126,12 @@ class CollectionObject < ApplicationRecord
   belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
   belongs_to :repository, inverse_of: :collection_objects
-  belongs_to :current_repository, class_name: 'Repository', foreign_key: :current_repository_id, inverse_of: :collection_objects
+  belongs_to :current_repository, class_name: 'Repository', inverse_of: :collection_objects
 
   has_many :georeferences, through: :collecting_event
   has_many :geographic_items, through: :georeferences
+
+  has_many :collectors, through: :collecting_event
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
@@ -152,7 +154,7 @@ class CollectionObject < ApplicationRecord
     name: 'Missing deaccesson fields',
     description: 'Date, recipient, or reason are not specified')
 
-  scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
+  scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name:}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
 
   has_many :extracts, through: :origin_relationships, source: :new_object, source_type: 'Extract'
@@ -282,8 +284,8 @@ class CollectionObject < ApplicationRecord
   # TODO: this should be refactored to be collection object centric AFTER
   # it is spec'd
   def self.earliest_date(project_id)
-    a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:start_date_year)
-    b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:end_date_year)
+    a = CollectingEvent.joins(:collection_objects).where(project_id:).minimum(:start_date_year)
+    b = CollectingEvent.joins(:collection_objects).where(project_id:).minimum(:end_date_year)
 
     return EARLIEST_DATE if a.nil? && b.nil?  # 1700-01-01
 
@@ -302,8 +304,8 @@ class CollectionObject < ApplicationRecord
   # TODO: this should be refactored to be collection object centric AFTER
   # it is spec'd
   def self.latest_date(project_id)
-    a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:start_date_year)
-    b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:end_date_year)
+    a = CollectingEvent.joins(:collection_objects).where(project_id:).maximum(:start_date_year)
+    b = CollectingEvent.joins(:collection_objects).where(project_id:).maximum(:end_date_year)
 
     c = Time.now.strftime('%Y-%m-%d')
 
@@ -366,14 +368,14 @@ class CollectionObject < ApplicationRecord
   # decode which headers to be displayed for collecting events
   def self.ce_headers(project_id)
     CollectionObject.selected_column_names
-    cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
+    cvt_list = InternalAttribute.where(project_id:, attribute_subject_type: 'CollectingEvent')
       .distinct
       .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
     ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
       @selected_column_names[:ce][:in][column_name] = {checked: '0'}
     }
-    ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
+    ImportAttribute.where(project_id:, attribute_subject_type: 'CollectingEvent')
       .pluck(:import_predicate).uniq.sort.each { |column_name|
         @selected_column_names[:ce][:im][column_name] = {checked: '0'}
       }
@@ -426,14 +428,14 @@ class CollectionObject < ApplicationRecord
   # decode which headers to be displayed for collection objects
   def self.co_headers(project_id)
     CollectionObject.selected_column_names
-    cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
+    cvt_list = InternalAttribute.where(project_id:, attribute_subject_type: 'CollectionObject')
       .distinct
       .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
     ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
       @selected_column_names[:co][:in][column_name] = {checked: '0'}
     }
-    ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
+    ImportAttribute.where(project_id:, attribute_subject_type: 'CollectionObject')
       .pluck(:import_predicate).uniq.sort.each { |column_name|
         @selected_column_names[:co][:im][column_name] = {checked: '0'}
       }
@@ -489,7 +491,7 @@ class CollectionObject < ApplicationRecord
   def self.bc_headers(project_id)
     CollectionObject.selected_column_names
     # add selectable column names (unselected) to the column name list list
-    BiocurationClass.where(project_id: project_id).map(&:name).each { |column_name|
+    BiocurationClass.where(project_id:).map(&:name).each { |column_name|
       @selected_column_names[:bc][:in][column_name] = {checked: '0'}
     }
     @selected_column_names
@@ -551,7 +553,7 @@ class CollectionObject < ApplicationRecord
   def self.in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
     allow_partial = (partial_overlap.downcase == 'off' ? false : true) # TODO: Just get the correct values from the form!
     q = Queries::CollectingEvent::Filter.new(start_date: search_start_date, end_date: search_end_date, partial_overlap_dates: allow_partial)
-    joins(:collecting_event).where(q.between_date_range.to_sql)
+    joins(:collecting_event).where(q.between_date_range_facet.to_sql)
   end
 
   # @param used_on [String] required, one of `TaxonDetermination`, `BiologicalAssociation`
@@ -573,7 +575,7 @@ class CollectionObject < ApplicationRecord
         when 'BiologicalAssociation'
           t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
             .where(
-              t['updated_at'].gt(1.weeks.ago).and(
+              t['updated_at'].gt(1.week.ago).and(
                 t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
               )
             )
@@ -582,7 +584,7 @@ class CollectionObject < ApplicationRecord
               .order(t['updated_at'].desc)
         else
           t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
-            .where(t['updated_at'].gt( 1.weeks.ago ))
+            .where(t['updated_at'].gt( 1.week.ago ))
             .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
@@ -609,18 +611,18 @@ class CollectionObject < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: CollectionObject.pinned_by(user_id).where(project_id: project_id).to_a,
+      pinboard: CollectionObject.pinned_by(user_id).where(project_id:).to_a,
       recent: []
     }
 
     if target && !r.empty?
       n = target.tableize.to_sym
       h[:recent] = CollectionObject.where('"collection_objects"."id" IN (?)', r.first(10) ).to_a
-      h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  +
+      h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a  +
                    CollectionObject.where('"collection_objects"."id" IN (?)', r.first(4) ).to_a).uniq
     else
-      h[:recent] = CollectionObject.where(project_id: project_id, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
-      h[:quick] = CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+      h[:recent] = CollectionObject.where(project_id:, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
+      h[:quick] = CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a
     end
 
     h
@@ -679,7 +681,7 @@ class CollectionObject < ApplicationRecord
   end
 
   def sv_missing_deaccession_fields
-    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank?
+    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && self.deaccession_reason.present?
     soft_validations.add(:base, 'Recipient is not selected') if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
     soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
   end
@@ -713,7 +715,7 @@ class CollectionObject < ApplicationRecord
   end
 
   def check_that_both_of_category_and_total_are_not_present
-    errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
+    errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if ranged_lot_category_id.present? && total.present?
   end
 
   def check_that_either_total_or_ranged_lot_category_id_is_present
@@ -725,7 +727,7 @@ class CollectionObject < ApplicationRecord
       self.type = 'Specimen'
     elsif self.total.to_i > 1
       self.type = 'Lot'
-    elsif total.nil? && !ranged_lot_category_id.blank?
+    elsif total.nil? && ranged_lot_category_id.present?
       self.type = 'RangedLot'
     end
     true
@@ -733,8 +735,8 @@ class CollectionObject < ApplicationRecord
 
   def reject_collecting_event(attributed)
     reject = true
-    CollectingEvent.data_attributes.each do |a|
-      if !attributed[a].blank?
+    CollectingEvent.core_attributes.each do |a|
+      if attributed[a].present?
         reject = false
         break
       end

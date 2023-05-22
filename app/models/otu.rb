@@ -51,17 +51,17 @@ class Otu < ApplicationRecord
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]
 
   belongs_to :taxon_name, inverse_of: :otus
+
+  # Why?  Could be combination too.
   belongs_to :protonym, -> { where(type: 'Protonym') }, foreign_key: :taxon_name_id
 
   has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error
-
-  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject, dependent: :restrict_with_error
-  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation', dependent: :restrict_with_error
 
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
   has_many :type_materials, through: :protonym
 
+  # TODO: no longer true since they can come through Otu as well
   has_many :extracts, through: :collection_objects, source: :extracts
   has_many :sequences, through: :extracts, source: :derived_sequences
 
@@ -78,8 +78,11 @@ class Otu < ApplicationRecord
 
   has_many :content_topics, through: :contents, source: :topic
 
-  scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
-  scope :with_name, -> (name) { where(name: name) }
+  has_many :otu_relationships, foreign_key: :subject_otu_id
+  has_many :related_otu_relationships, class_name: 'OtuRelationship', foreign_key: :object_otu_id
+
+  scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
+  scope :with_name, -> (name) { where(name:) }
 
   validate :check_required_fields
 
@@ -135,8 +138,8 @@ class Otu < ApplicationRecord
     end
   end
 
-  # TODO: This is coordinate otus with children,
-  #       It should probably be renamed coordinate
+  # TODO: This is coordinate_otus with children,
+  #       it should probably be renamed coordinate.
   # @return [Otu::ActiveRecordRelation]
   #   all OTUs linked to the taxon_name_id, it descendants, and
   #   any synonym of any of the previous
@@ -144,7 +147,9 @@ class Otu < ApplicationRecord
   #   !! Invalid taxon_name_ids return nothing
   #   !! Taxon names with synonyms return the OTUs of their synonyms
   # @param taxon_name_id [The id of a valid TaxonName]
-  def self.descendant_of_taxon_name(taxon_name_id)
+  def self.descendant_of_taxon_name(taxon_name_id = [])
+    ids = [taxon_name_id].flatten.compact.uniq
+
     o = Otu.arel_table
     t = TaxonName.arel_table
     h = TaxonNameHierarchy.arel_table
@@ -154,7 +159,7 @@ class Otu < ApplicationRecord
       .join(h, Arel::Nodes::InnerJoin).on(
         t[:cached_valid_taxon_name_id].eq(h[:descendant_id]))
 
-    Otu.joins(q.join_sources).where(h[:ancestor_id].eq(taxon_name_id).to_sql)
+    Otu.joins(q.join_sources).where(h[:ancestor_id].eq_any(ids).to_sql)
   end
 
   # return [Scope] the Otus bound to that taxon name and its descendants
@@ -219,7 +224,7 @@ class Otu < ApplicationRecord
         when 'BiologicalAssociation'
           t.project(t['biological_association_object_id'], t['updated_at']).from(t)
             .where(
-              t['updated_at'].gt(1.weeks.ago).and(
+              t['updated_at'].gt(1.week.ago).and(
                 t['biological_association_object_type'].eq('Otu')
               )
             )
@@ -228,7 +233,7 @@ class Otu < ApplicationRecord
               .order(t['updated_at'].desc)
         else
           t.project(t['otu_id'], t['updated_at']).from(t)
-            .where(t['updated_at'].gt( 1.weeks.ago ))
+            .where(t['updated_at'].gt( 1.week.ago ))
             .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
@@ -254,23 +259,23 @@ class Otu < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
+      pinboard: Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
       recent: []
     }
 
     if target && !r.empty?
       h[:recent] = (
         Otu.where('"otus"."id" IN (?)', r.first(10) ).to_a +
-        Otu.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
+        Otu.where(project_id:, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
         .order('updated_at DESC')
         .limit(3).to_a
       ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
       h[:quick] = (
-        Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a +
+        Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a +
         Otu.where('"otus"."id" IN (?)', r.first(4) ).to_a).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
     else
-      h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
-      h[:quick] = Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+      h[:recent] = Otu.where(project_id:).order('updated_at DESC').limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+      h[:quick] = Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
     end
 
     h
@@ -283,12 +288,12 @@ class Otu < ApplicationRecord
   # @return [Boolean]
   #   whether or not this otu is coordinate (see coordinate_otus) with this otu
   def coordinate_with?(otu_id)
-    Otu.coordinate_otus(otu_id).where(otus: {id: id}).any?
+    Otu.coordinate_otus(otu_id).where(otus: {id:}).any?
   end
 
   # TODO: Deprecate for helper method, HTML does not belong here
   def otu_name
-    if !name.blank?
+    if name.present?
       name
     elsif !taxon_name_id.nil?
       taxon_name.cached_html_name_and_author_year
@@ -383,16 +388,17 @@ class Otu < ApplicationRecord
     end
   end
 
+  # TODO: Re/move
   # temporary method to gent list of taxa from a geographic area and save it to csv file
   def taxa_by_geographic_area
     area = 'China'
     file_name1 = '/tmp/' + area + '_geographic_area_' + Time.now.to_i.to_s + '.csv'
     file_name2 = '/tmp/' + area + '_collection_object_' + Time.now.to_i.to_s + '.csv'
     c1 = GeographicArea.where(name: area).pluck(:id)
-    c2 = GeographicArea.where("parent_id in (?)", c1).pluck(:id)
-    c3 = GeographicArea.where("parent_id in (?)", c2).pluck(:id)
+    c2 = GeographicArea.where('parent_id in (?)', c1).pluck(:id)
+    c3 = GeographicArea.where('parent_id in (?)', c2).pluck(:id)
     c = c1 + c2 + c3
-    ad = AssertedDistribution.where("geographic_area_id in (?)", c)
+    ad = AssertedDistribution.where('geographic_area_id in (?)', c)
 
     CSV.open(file_name1, 'w') do |csv|
       csv << ['genus', 'species', 'geographic_area']
@@ -417,7 +423,7 @@ class Otu < ApplicationRecord
       end
     end
 
-    co = CollectionObject.joins(:collecting_event).where("collecting_events.geographic_area_id in (?)", c)
+    co = CollectionObject.joins(:collecting_event).where('collecting_events.geographic_area_id in (?)', c)
 
     CSV.open(file_name2, 'w') do |csv|
       csv << ['genus', 'species', 'geographic_area', 'lat', 'long']
@@ -465,7 +471,7 @@ class Otu < ApplicationRecord
 
   def sv_duplicate_otu
     unless Otu.with_taxon_name_id(taxon_name_id).with_name(name).not_self(self).with_project_id(project_id).empty?
-      m = "Another OTU with an identical nomenclature (taxon name) and name exists in this project"
+      m = 'Another OTU with an identical nomenclature (taxon name) and name exists in this project'
       soft_validations.add(:base, m )
     end
   end

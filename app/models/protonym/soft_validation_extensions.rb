@@ -1309,8 +1309,8 @@ module Protonym::SoftValidationExtensions
 
         if !is_higher_rank? && parent && rank_group == parent.rank_class.parent
           unless !is_valid? #  unavailable_or_invalid?
-            date1 = self.nomenclature_date
-            date2 = parent.nomenclature_date
+            date1 = self.cached_nomenclature_date
+            date2 = parent.cached_nomenclature_date
             unless date1.nil? || date2.nil?
               if date1 < date2
                 soft_validations.add(:base, "#{self.rank_class.rank_name.capitalize} #{self.cached_html_name_and_author_year} should not be older than parent #{parent.rank_class.rank_name} #{parent.cached_html_name_and_author_year}")
@@ -1530,7 +1530,7 @@ module Protonym::SoftValidationExtensions
 
     def sv_person_vs_year_of_publication
       if self.cached_nomenclature_date
-        year = self.cached_nomenclature_date.year
+        year = self.cached_nomenclature_date&.year
         self.taxon_name_author_roles.each do |r|
           person = r.person
           if person.year_died && year > person.year_died + 2
@@ -1648,7 +1648,7 @@ module Protonym::SoftValidationExtensions
       if is_genus_or_species_rank? && is_valid? && self.id == self.lowest_rank_coordinated_taxon.id && !cached_original_combination.nil? && cached != cached_original_combination
         unless Combination.where("cached = ? AND cached_valid_taxon_name_id = ?", cached, cached_valid_taxon_name_id).any?
           soft_validations.add(
-            :base, "Protonym #{self.cached_html} missing corresponding subsequent combination. Current classification of the taxon is different from original combination. (Fix will create a new combination)",
+            :base, "Protonym #{self.cached_html} missing corresponding subsequent combination. Current classification of the taxon is different from original combination. (Fix will try to create a new combination if possible)",
             success_message: "Combination #{self.cached_html} was successfully create",
             failure_message:  'Failed to create a new combination')
         end

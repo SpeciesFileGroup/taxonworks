@@ -1,15 +1,11 @@
 module Queries
   module Organization
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
       
       # @params string [String]
       # @params [Hash] args
       def initialize(string)
         super
-      end
-
-      def base_query
-        ::Organization.select('organizations.*')
       end
 
       def autocomplete_name_wildcard_end
@@ -36,11 +32,6 @@ module Queries
           break if result.count > 39 
         end
         result[0..39]
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Organization.arel_table
       end
 
     end

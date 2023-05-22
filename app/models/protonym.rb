@@ -266,9 +266,9 @@ class Protonym < TaxonName
 
   def is_available?(refresh = false)
     if !refresh
-      @is_available ||= !has_misspelling_relationship? && !name_is_misapplied? && !classification_invalid_or_unavailable?
+      @is_available ||= !has_misspelling_or_misapplication_relationship? && !classification_unavailable?
     else
-      @is_available = !has_misspelling_relationship? && !name_is_misapplied? && !classification_invalid_or_unavailable?
+      @is_available = !has_misspelling_or_misapplication_relationship? && !classification_unavailable?
     end
     @is_available
   end
@@ -405,7 +405,7 @@ class Protonym < TaxonName
       if z.rank_string == 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
         if z.cached_is_valid
           a[year][:valid] = a[year][:valid] += 1
-        elsif TaxonNameRelationship.where_subject_is_taxon_name(z.id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).any?
+        elsif TaxonNameRelationship.where_subject_is_taxon_name(z.id).with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).any?
           a[year][:synonyms] = a[year][:synonyms] += 1
         end
       end
@@ -475,9 +475,9 @@ class Protonym < TaxonName
     # Is faster than above?
     #    return true if rank_string =~ /Icnp/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
 
-    return true if is_family_rank? && !(taxon_name_relationships.collect{|i| i.type} & TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).empty?
-    return true unless (taxon_name_classifications.collect{|i| i.type} & EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?
-    return true unless (taxon_name_relationships.collect{|i| i.type} & TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).empty?
+    return true if is_family_rank? && !(taxon_name_relationships.collect{|i| i.type} & ::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).empty?
+    return true unless (taxon_name_classifications.collect{|i| i.type} & ::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?
+    return true unless (taxon_name_relationships.collect{|i| i.type} & ::TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).empty?
     false
   end
 
@@ -489,6 +489,11 @@ class Protonym < TaxonName
   #   whether this name has one of the TaxonNameRelationships which justify wrong form of the name
   def has_misspelling_relationship?
     taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).any?
+  end
+
+  # @return [Boolean]
+  def has_misspelling_or_misapplication_relationship?
+    taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
   end
 
   # Same as is_original_name?!
@@ -521,7 +526,6 @@ class Protonym < TaxonName
   end
 
   # @return Boolean
-  #   could also be determined by parens in cached_author year
   def is_original_name?
     cached_author_year =~ /\(/ ? false : true
   end
@@ -531,9 +535,9 @@ class Protonym < TaxonName
     list1 = list.select{|s| s.id == s.lowest_rank_coordinated_taxon.id}
     list1.reject!{|s| self.cached_valid_taxon_name_id == s.cached_valid_taxon_name_id} unless list1.empty?
     unless list1.empty?
-      date1 = self.nomenclature_date
+      date1 = self.cached_nomenclature_date
       unless date1.nil?
-        list1.reject!{|s| date1 < (s.year_of_publication ? s.nomenclature_date : Time.utc(1))}
+        list1.reject!{|s| date1 < (s.cached_nomenclature_date ? s.cached_nomenclature_date : Time.utc(1))}
       end
     end
     list1
@@ -965,14 +969,15 @@ class Protonym < TaxonName
     end
   end
 
-  # This is a *very* expensive soft validation, it should be fragemented into individual parts likely
+  # This is a *very* expensive soft validation, it should be fragemented into individual parts likely.
   # It should also not be necessary by default our code should be good enough to handle these
   # issues in the long run.
   # DD: rules for cached tend to evolve, what was good in the past, may not be true today
+  # MJY: If the meaning of cached changes then it should be removed, not changed.
   def sv_cached_names # this cannot be moved to soft_validation_extensions
   is_cached = true
   is_cached = false if cached_author_year != get_author_and_year
-
+  is_cached = false if cached_author != get_author
   if is_cached && (
       cached_valid_taxon_name_id != get_valid_taxon_name.id ||
       cached_is_valid != !unavailable_or_invalid? || # Do not change this, we want the calculated value.

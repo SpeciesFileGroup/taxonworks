@@ -32,7 +32,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         legal = ['vitis', 'a-nigrum']
         legal.each do |l|
           specify l do
-            s.name = l 
+            s.name = l
             s.soft_validate(only_sets: :validate_name)
             expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
           end
@@ -40,10 +40,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
       end
 
       context 'illegal forms' do
-        illegal = ['aus-aus'] 
+        illegal = ['aus-aus']
         illegal.each do |l|
           specify l do
-            s.name = l 
+            s.name = l
             s.soft_validate(only_sets: :validate_name)
             expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
           end
@@ -142,7 +142,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         @species.soft_validate(only_sets: :missing_fields)
         expect(@species.soft_validations.messages_on(:etymology).empty?).to be_truthy
       end
-      
+
       specify 'author and year are missing' do
         @kingdom.soft_validate(only_sets: :missing_fields)
         #        expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
@@ -193,7 +193,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         @genus.soft_validate(only_sets: :year_is_not_required)
         expect(@genus.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
       end
-      
+
       specify 'author is not required' do
         @genus.verbatim_author = 'Green'
         person= FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald')
@@ -595,6 +595,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         subgenus.soft_validate(only_sets: :parent_priority)
         expect(subgenus.soft_validations.messages_on(:base).size).to eq(1)
         subgenus.year_of_publication = 2000
+        subgenus.save
         subgenus.soft_validate(only_sets: :parent_priority)
         expect(subgenus.soft_validations.messages_on(:base).empty?).to be_truthy
       end
@@ -640,10 +641,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         expect(g2.save).to be_truthy
         g1.soft_validate(only_sets: :homotypic_synonyms)
         expect(g1.soft_validations.messages_on(:base)).to include(msg)
-      
+
         #  g1.iczn_set_as_unnecessary_replaced_name = g2
         #  if it has relatinship, then it shouldn't get the type relationship
-         TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName.create(subject_taxon_name: g1, object_taxon_name: g2) 
+         TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName.create(subject_taxon_name: g1, object_taxon_name: g2)
 
         #  at this point g1 is INVALID
          g1.reload
@@ -651,7 +652,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         g1.soft_validate(only_sets: :homotypic_synonyms)
         expect(g1.soft_validations.messages_on(:base)).to_not include(msg)
       end
-      
+
       specify 'same type specimen' do
         s1 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)
         s2 = FactoryBot.create(:relationship_species, name: 'cus', parent: @genus)
@@ -663,8 +664,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         expect(s1.soft_validations.messages_on(:base).size).to eq(1)
 
         s1.iczn_set_as_unjustified_emendation_of = s2
-        # TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation.create(subject_taxon_name: s1, object_taxon_name: s2) 
-       
+        # TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation.create(subject_taxon_name: s1, object_taxon_name: s2)
+
         expect(s1.save).to be_truthy
         s1.soft_validate(only_sets: :homotypic_synonyms)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_truthy
@@ -701,7 +702,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         s.soft_validate(only_sets: :potential_homonyms)
         expect(s.soft_validations.messages_on(:base).empty?).to be_truthy
       end
-      
+
       specify 'secondary homonym' do
         s1 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)
         s2 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)

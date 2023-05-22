@@ -28,7 +28,7 @@
       />
     </div>
     <div v-else>
-      <citation-topic-component
+      <TopicForm
         v-if="!disabledFor.includes(objectType)"
         :object-type="objectType"
         :global-id="globalId"
@@ -56,11 +56,19 @@
                 @update="updateCitation"
               />
             </td>
-            <td class="horizontal-right-content">
-              <span
-                class="button circle-button btn-delete"
-                @click="deleteTopic(item)"
-              />
+            <td>
+              <div class="horizontal-right-content">
+                <VBtn
+                  circle
+                  color="destroy"
+                  @click="() => deleteTopic(item)"
+                >
+                  <VIcon
+                    x-small
+                    name="trash"
+                  />
+                </VBtn>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -76,15 +84,15 @@
   </div>
 </template>
 <script>
-
 import CRUD from '../../request/crud.js'
 import annotatorExtend from '../annotatorExtend.js'
 import TableList from './table.vue'
 import FormCitation from 'components/Form/FormCitation.vue'
-import CitationTopicComponent from './topic.vue'
+import TopicForm from './topic.vue'
 import TopicPages from './pagesUpdate'
 import HandleCitations from './handleOriginalModal'
 import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 import makeCitation from 'factory/Citation'
 import { Citation, CitationTopic } from 'routes/endpoints'
 import { addToArray } from 'helpers/arrays'
@@ -94,23 +102,24 @@ const EXTEND_PARAMS = ['source', 'citation_topics']
 export default {
   mixins: [CRUD, annotatorExtend],
   components: {
-    CitationTopicComponent,
+    TopicForm,
     TableList,
     TopicPages,
     HandleCitations,
     FormCitation,
-    VBtn
+    VBtn,
+    VIcon
   },
   computed: {
-    validateFields () {
+    validateFields() {
       return this.citation.source_id
     },
 
-    originalCitation () {
-      return this.list.find(c => c.is_original)
+    originalCitation() {
+      return this.list.find((c) => c.is_original)
     }
   },
-  data () {
+  data() {
     return {
       list: [],
       citation: this.newCitation(),
@@ -124,7 +133,7 @@ export default {
     }
   },
 
-  created () {
+  created() {
     Citation.where({
       citation_object_id: this.metadata.object_id,
       citation_object_type: this.metadata.object_type,
@@ -135,19 +144,19 @@ export default {
   },
 
   methods: {
-    setCitation (citation) {
+    setCitation(citation) {
       this.resetCitations()
       this.citation = citation
       this.loadObjectsList()
     },
 
-    resetCitations () {
+    resetCitations() {
       this.showModal = false
       this.currentCitation = undefined
       this.existingOriginal = []
     },
 
-    newCitation () {
+    newCitation() {
       return {
         ...makeCitation(),
         citation_object_id: this.metadata.object_id,
@@ -156,48 +165,58 @@ export default {
       }
     },
 
-    newTopic () {
+    newTopic() {
       return {
         topic_id: undefined,
         pages: undefined
       }
     },
 
-    deleteTopic (topic) {
+    deleteTopic(topic) {
       const citation = {
         id: this.citation.id,
-        citation_topics_attributes: [{
-          id: topic.id,
-          _destroy: true
-        }]
+        citation_topics_attributes: [
+          {
+            id: topic.id,
+            _destroy: true
+          }
+        ]
       }
-      Citation.update(citation.id, { citation, extend: EXTEND_PARAMS }).then(_ => {
-        this.citation.citation_topics.splice(
-          this.citation.citation_topics.findIndex(element => element.id === topic.id), 1)
-      })
+      Citation.update(citation.id, { citation, extend: EXTEND_PARAMS }).then(
+        (_) => {
+          this.citation.citation_topics.splice(
+            this.citation.citation_topics.findIndex(
+              (element) => element.id === topic.id
+            ),
+            1
+          )
+        }
+      )
     },
 
-    saveCitation (citation) {
+    saveCitation(citation) {
       const payload = {
-        ...citation,
-        citation_object_type: this.objectType,
-        citation_object_id: this.metadata.object_id,
+        citation: {
+          ...citation,
+          citation_object_type: this.objectType,
+          citation_object_id: this.metadata.object_id
+        },
         extend: EXTEND_PARAMS
       }
 
       if (
-        payload.is_original &&
+        citation.is_original &&
         this.originalCitation &&
-        this.originalCitation.id !== payload.id
+        this.originalCitation.id !== citation.id
       ) {
         this.showModal = true
 
         return
       }
 
-      const request = payload.id
-        ? Citation.update(payload.id, { citation: payload })
-        : Citation.create({ citation: payload })
+      const request = citation.id
+        ? Citation.update(citation.id, payload)
+        : Citation.create(payload)
 
       request.then(({ body }) => {
         addToArray(this.list, body)
@@ -206,8 +225,8 @@ export default {
       })
     },
 
-    updateTopic (citation_topic) {
-      CitationTopic.update(citation_topic.id, { citation_topic }).then(_ => {
+    updateTopic(citation_topic) {
+      CitationTopic.update(citation_topic.id, { citation_topic }).then((_) => {
         TW.workbench.alert.create('Topic was successfully updated.', 'notice')
       })
     }
@@ -215,22 +234,23 @@ export default {
 }
 </script>
 <style lang="scss">
-  .radial-annotator {
-    .citation_annotator {
-      overflow-y: scroll;
+.radial-annotator {
+  .citation_annotator {
+    overflow-y: scroll;
 
-      textarea {
-        padding-top: 14px;
-        padding-bottom: 14px;
-        width: 100%;
-        height: 100px;
-      }
-      .pages {
-        width: 86px;
-      }
-      .vue-autocomplete-input, .vue-autocomplete {
-        width: 400px;
-      }
+    textarea {
+      padding-top: 14px;
+      padding-bottom: 14px;
+      width: 100%;
+      height: 100px;
+    }
+    .pages {
+      width: 86px;
+    }
+    .vue-autocomplete-input,
+    .vue-autocomplete {
+      width: 400px;
     }
   }
+}
 </style>

@@ -16,7 +16,11 @@ class OtusController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @otus = Queries::Otu::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        @otus = ::Queries::Otu::Filter.new(params).all
+          .page(params[:page])
+          .per(params[:per])
+          .eager_load(:taxon_name)
+          .order('taxon_names.cached, otus.name')
       }
     end
   end
@@ -209,7 +213,7 @@ class OtusController < ApplicationController
       digest_cookie(params[:file].tempfile, :data_attributes_batch_load_otus_md5)
       render 'otus/batch_load/data_attributes/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
@@ -250,10 +254,11 @@ class OtusController < ApplicationController
 
   # GET /api/v1/otus
   def api_index
-    @otus = Queries::Otu::Filter.new(api_params).all
+    @otus = Queries::Otu::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('otus.id')
-      .page(params[:page]).per(params[:per])
+      .page(params[:page])
+      .per(params[:per])
     render '/otus/api/v1/index'
   end
 
@@ -310,7 +315,7 @@ class OtusController < ApplicationController
   private
 
   def set_otu
-    @otu = Otu.where(project_id: sessions_current_project_id).find(params[:id])
+    @otu = Otu.where(project_id: sessions_current_project_id).eager_load(:taxon_name).find(params[:id])
     @recent_object = @otu
   end
 
@@ -328,27 +333,6 @@ class OtusController < ApplicationController
         project_id: sessions_current_project_id)
       .to_h
       .symbolize_keys
-  end
-
-  def filter_params
-    params.permit(
-      :taxon_name_id, :otu_id,
-      biological_association_ids: [], taxon_name_ids: [], otu_ids: [],
-      taxon_name_relationship_ids: [],taxon_name_classification_ids: [],
-      asserted_distribution_ids: [],
-      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
-    )
-  end
-
-  def api_params
-    params.permit(
-      :name,
-      :taxon_name_id, :otu_id,
-      biological_association_ids: [], taxon_name_ids: [], otu_ids: [],
-      taxon_name_relationship_ids: [],taxon_name_classification_ids: [],
-      asserted_distribution_ids: [],
-      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
-    )
   end
 
   def user_map

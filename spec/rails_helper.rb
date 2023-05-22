@@ -26,3 +26,4 @@ Dir[Rails.root.join('spec/support/**/*.rb')].sort.reverse.each { |f| require f }
 ApplicationRecord.connection.tables.each { |t| ApplicationRecord.connection.reset_pk_sequence!(t) }
 
 FactoryBot.use_parent_strategy = false
+

@@ -7,6 +7,13 @@ module OtusHelper
     content_tag(:span, a.compact.join(' ').html_safe, class: :otu_tag)
   end
 
+  def label_for_otu(otu)
+    return nil if otu.nil?
+    [otu.name,
+     label_for_taxon_name(otu.taxon_name)
+    ].compact.join(': ')
+  end
+
   def otu_tag_elements(otu)
     return nil if otu.nil?
     [
@@ -27,13 +34,6 @@ module OtusHelper
   def otu_link(otu)
     return nil if otu.nil?
     link_to(otu_tag_elements(otu).join(' ').html_safe, otu)
-  end
-
-  def label_for_otu(otu)
-    return nil if otu.nil?
-    [otu.name,
-     label_for_taxon_name(otu.taxon_name)
-    ].compact.join(': ')
   end
 
   def otus_search_form

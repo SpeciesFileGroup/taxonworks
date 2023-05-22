@@ -208,17 +208,17 @@ describe Tag, type: :model, group: [:annotators, :tags] do
     let(:o3) { Otu.create(name: 'b')}
 
     specify 'params' do
-      expect(Tag.batch_create(object_type: 'Otu', object_ids: [o1.id, o2.id, o3.id], keyword_id: k1.id)).to be_truthy
+      expect(Tag.batch_create(object_type: 'Otu', object_id: [o1.id, o2.id, o3.id], keyword_id: k1.id)).to be_truthy
     end
 
     specify 'creates' do
-      Tag.batch_create(object_type: 'Otu', object_ids: [o1.id, o2.id, o3.id], keyword_id: k1.id)
+      Tag.batch_create(object_type: 'Otu', object_id: [o1.id, o2.id, o3.id], keyword_id: k1.id)
       expect(Tag.count).to eq(3)
     end
 
     specify 'existing tags do not raise' do
       Tag.create!(tag_object: o1, keyword: k1)
-      Tag.batch_create(object_type: 'Otu', object_ids: [o1.id, o2.id, o3.id], keyword_id: k1.id)
+      Tag.batch_create(object_type: 'Otu', object_id: [o1.id, o2.id, o3.id], keyword_id: k1.id)
       expect(Tag.count).to eq(3)
     end
   end

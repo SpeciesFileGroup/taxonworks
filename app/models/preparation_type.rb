@@ -20,4 +20,7 @@ class PreparationType < ApplicationRecord
   has_many :collection_objects, dependent: :restrict_with_error
   validates_presence_of :name, :definition
 
+  validates_uniqueness_of :name
+  validates_uniqueness_of :definition
+
 end

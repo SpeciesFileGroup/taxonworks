@@ -5,6 +5,7 @@ namespace :tw do
 
     namespace :images do
 
+      # TODO: Capture raises on frequency stats vi Sqed::Error hopefully.
       # rake tw:maintenance:images:recalculate_sqed_boundaries project_id=20 id_start=1 id_end=999999
       desc 'Re-calculate the boundaries for Sqed depictions'
       task recalculate_sqed_boundaries: [:environment, :project_id, :id_start, :id_end] do |t|
@@ -85,7 +86,7 @@ namespace :tw do
                 FileUtils.cp(temp_original, original_file)
                 raise
               ensure
-                File.delete(temp_original) if File.exists?(temp_original)
+                File.delete(temp_original) if File.exist?(temp_original)
               end
 
               i.image_file.reprocess!

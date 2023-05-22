@@ -3,25 +3,23 @@ import { MutationNames } from '../mutations/mutations'
 import { TaxonName } from 'routes/endpoints'
 
 export default ({ dispatch, commit, state }, otus) => {
-  const otuIds = otus.map(otu => otu.id)
+  const otuIds = otus.map((otu) => otu.id)
 
-  function loadOtuInformation (otu) {
-    const promises = []
-    return new Promise((resolve, reject) => {
-
-      promises.push(dispatch(ActionNames.LoadBiologicalAssociations, otu.global_id))
-      promises.push(dispatch(ActionNames.LoadDepictions, otu.id))
-      promises.push(dispatch(ActionNames.LoadCommonNames, otu.id))
-
-      Promise.all(promises).then(() => {
-        resolve()
-      })
-    })
+  async function loadOtuInformation(otu) {
+    await Promise.all([
+      dispatch(ActionNames.LoadBiologicalAssociations, otu.global_id),
+      dispatch(ActionNames.LoadDepictions, otu.id),
+      dispatch(ActionNames.LoadCommonNames, otu.id)
+    ])
   }
+
   if (state.currentOtu.taxon_name_id) {
     dispatch(ActionNames.LoadTaxonName, state.currentOtu.taxon_name_id)
   }
-  TaxonName.where({ taxon_name_id: [...new Set(otus.map(otu => otu.taxon_name_id))] }).then(response => {
+
+  TaxonName.all({
+    taxon_name_id: [...new Set(otus.map((otu) => otu.taxon_name_id))]
+  }).then((response) => {
     commit(MutationNames.SetTaxonNames, response.body)
   })
 
@@ -42,5 +40,8 @@ export default ({ dispatch, commit, state }, otus) => {
     state.loadState.assertedDistribution = false
   }
   processArray(otus)
-  dispatch(ActionNames.LoadAssertedDistributions, state.otus.map(otu => otu.id))
+  dispatch(
+    ActionNames.LoadAssertedDistributions,
+    state.otus.map((otu) => otu.id)
+  )
 }

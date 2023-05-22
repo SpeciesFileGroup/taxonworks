@@ -10,6 +10,4 @@ class ApiController < ActionController::API
   include RequestType
   include PaginationHeaders
 
-  protected
-
 end

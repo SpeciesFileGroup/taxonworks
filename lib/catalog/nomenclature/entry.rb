@@ -32,7 +32,7 @@ class Catalog::Nomenclature < Catalog
             object: t,
             base_object: t,
             citation: nil,
-            nomenclature_date: t.nomenclature_date,
+            nomenclature_date: t.cached_nomenclature_date,
             year_suffix: nil,
             pages: nil,
             current_target: matches_target)
@@ -58,7 +58,7 @@ class Catalog::Nomenclature < Catalog
               object: r,
               base_object: r.subject_taxon_name,
               citation: nil,
-              nomenclature_date: r.subject_taxon_name.nomenclature_date,
+              nomenclature_date: r.subject_taxon_name.cached_nomenclature_date,
               year_suffix: nil,
               pages: nil,
               current_target: matches_target
@@ -70,7 +70,7 @@ class Catalog::Nomenclature < Catalog
               object: r,
               base_object: r.subject_taxon_name,
               citation: c,
-              nomenclature_date: (c.try(:source).try(:cached_nomenclature_date) || r.subject_taxon_name.nomenclature_date),
+              nomenclature_date: (c.try(:source).try(:cached_nomenclature_date) || r.subject_taxon_name.cached_nomenclature_date),
               year_suffix: (c.try(:source).try(:year_suffix) || nil),
               pages: (c.try(:source).try(:pages) || nil),
               current_target: matches_target
@@ -108,7 +108,7 @@ class Catalog::Nomenclature < Catalog
     #   sorted by date, then taxon name name as rendered for this item
     def ordered_by_nomenclature_date
       now = Time.now
-      items.sort{|a,b| [(a.nomenclature_date || now), a.year_suffix.to_s + 'z', a.pages.to_s + 'z', a.object_class, a.base_object.cached_original_combination.to_s ] <=> [(b.nomenclature_date || now), b.year_suffix.to_s + 'z', b.pages.to_s + 'z', b.object_class, b.base_object.cached_original_combination.to_s ] }
+      items.sort{|a,b| [(a.nomenclature_date&.to_time || now), a.year_suffix.to_s + 'z', a.pages.to_s + 'z', a.object_class, a.base_object.cached_original_combination.to_s ] <=> [(b.nomenclature_date&.to_time || now), b.year_suffix.to_s + 'z', b.pages.to_s + 'z', b.object_class, b.base_object.cached_original_combination.to_s ] }
     end
 
     # @return [Array]

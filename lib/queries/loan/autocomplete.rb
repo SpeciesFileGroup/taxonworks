@@ -1,7 +1,8 @@
 # TaxonNameAutocompleteQuery
 module Queries
   module Loan 
-    class Autocomplete < Queries::Query
+
+    class Autocomplete < Query::Autocomplete
 
       # @param [Hash] args
       def initialize(string, project_id: nil)
@@ -33,7 +34,7 @@ module Queries
         updated_queries = []
         queries.each_with_index do |q,i|
           a = q
-          a = q.where(project_id: project_id) if project_id
+          a = q.where(project_id: project_id) if project_id.present?
           updated_queries[i] = a
         end
 
@@ -71,16 +72,6 @@ module Queries
         r = ::Person.arel_table
         o = r[:cached].matches('%' + query_string + '%')
         ::Loan.joins(:people).where(roles: { type: ['LoanRecipient', 'LoanSupervisor']}).where(o.to_sql)
-      end
-
-      # @return [Scope]
-      def base_query
-        ::Loan.select('loans.*')
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Loan.arel_table
       end
 
     end

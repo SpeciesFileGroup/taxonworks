@@ -1,20 +1,31 @@
 module Queries
-  module Download 
-    class Filter < Queries::Query 
+  module Download
+    class Filter < Query::Filter
+
+      PARAMS = [
+        :download_id,
+        :download_type,
+        download_id: [],
+        download_type: [],
+      ].freeze
 
       # TODO: Add date/expiry facets
+
+      attr_accessor :download_id
 
       # @param download_type [Array. String]
       #   like 'Download::DwcArchive', one of the models in app/models/download
       attr_accessor :download_type
 
       # @params params [ActionController::Parameters]
-      def initialize(params)
+      def initialize(query_params)
+        super
         @download_type = params[:download_type]
+        @download_Id = params[:download_id]
       end
 
-      def table
-        ::Download.arel_table
+      def download_id
+        [@download_id].flatten.compact
       end
 
       def download_type
@@ -26,32 +37,12 @@ module Queries
         table[:type].eq_any(download_type)
       end
 
-      # @return [ActiveRecord::Relation]
       def and_clauses
-        clauses = [
+        [
           download_type_facet
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+        ]
       end
 
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::Download.where(and_clauses)
-        else
-          ::Download.all
-        end
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Download.arel_table
-      end
     end
   end
 end
