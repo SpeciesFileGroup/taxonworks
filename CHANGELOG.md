@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Observation matrix facet doesn't work in Filter descriptors
 
 ## [0.33.0] - 2023-05-19
 
@@ -38,8 +40,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Date range in filter Collection Object not being applied [#3418]
 - Year import in NOMEN (was "castor") import [#3411]
 - PublicContent missing is_community? method preventing reporting.
-- Loans dashboard fails to render when no loans are present 
-- Staged image processing when boundaries fail to be calculated and calculate incorrectly 
+- Loans dashboard fails to render when no loans are present
+- Staged image processing when boundaries fail to be calculated and calculate incorrectly
 - Bug with engine in interactive keys [#3416]
 - Collection object classification summary [#3412]
 - BibTeX typo [#3408]
@@ -3630,7 +3632,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-
 [unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.33.0...development
 [0.33.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.3...v0.33.0
 [0.32.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.2...v0.32.3
