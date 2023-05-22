@@ -88,7 +88,7 @@ const collectionObjects = computed(
 const isLoading = computed(() => {
   const loadState = store.getters[GetterNames.GetLoadState]
 
-  return loadState.distribution && loadState.descendantsDistribution
+  return loadState.distribution //&& loadState.descendantsDistribution
 })
 
 const collectingEvents = computed({
