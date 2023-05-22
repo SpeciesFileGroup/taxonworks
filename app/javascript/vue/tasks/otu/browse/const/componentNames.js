@@ -1,6 +1,6 @@
 export default () => {
   return {
-    NomenclatureHistory: {
+    /* NomenclatureHistory: {
       title: 'Timeline',
       status: 'stable'
     },
@@ -53,7 +53,7 @@ export default () => {
     AnnotationsComponent: {
       title: 'Annotations',
       status: 'prototype'
-    },
+    }, */
     CollectingEvents: {
       title: 'Distribution',
       status: 'prototype'
