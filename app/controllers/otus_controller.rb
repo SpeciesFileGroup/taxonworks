@@ -317,6 +317,12 @@ class OtusController < ApplicationController
     render '/otus/api/v1/distribution'
   end
 
+
+  def distribution
+    # TODO: update
+    render '/otus/api/v1/distribution'
+  end
+
   private
 
   def set_otu

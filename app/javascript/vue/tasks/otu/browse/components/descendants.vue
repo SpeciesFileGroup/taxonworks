@@ -4,14 +4,17 @@
     :status="status"
     :title="title"
     menu
-    @menu="showModal = true">
+    @menu="showModal = true"
+  >
     <tree-view
       :current-taxon-id="otu.taxon_name_id"
       :only-valid="onlyValid"
-      :list="childOfCurrentName"/>
+      :list="childOfCurrentName"
+    />
     <modal-component
       v-if="showModal"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>Filter</h3>
       </template>
@@ -21,7 +24,8 @@
             <label>
               <input
                 v-model="onlyChildrens"
-                type="checkbox">
+                type="checkbox"
+              />
               Show children only
             </label>
           </li>
@@ -29,7 +33,8 @@
             <label>
               <input
                 v-model="onlyValid"
-                type="checkbox">
+                type="checkbox"
+              />
               Show only valid names
             </label>
           </li>
@@ -40,7 +45,6 @@
 </template>
 
 <script>
-
 import SectionPanel from './shared/sectionPanel'
 import ModalComponent from 'components/ui/Modal'
 import TreeView from './TreeView'
@@ -61,8 +65,14 @@ export default {
     }
   },
   computed: {
-    childOfCurrentName () {
-      return (this.onlyChildrens ? this.children.filter(child => this.otu.taxon_name_id === child.parent_id) : this.children).sort((a, b) => {
+    childOfCurrentName() {
+      return (
+        this.onlyChildrens
+          ? this.children.filter(
+              (child) => this.otu.taxon_name_id === child.parent_id
+            )
+          : this.children
+      ).sort((a, b) => {
         if (a.cached > b.cached) {
           return 1
         }
@@ -72,14 +82,14 @@ export default {
         return 0
       })
     },
-    children () {
+    children() {
       return this.$store.getters[GetterNames.GetDescendants].taxon_names
     },
-    isLoading () {
+    isLoading() {
       return this.$store.getters[GetterNames.GetLoadState].descendants
     }
   },
-  data () {
+  data() {
     return {
       onlyChildrens: true,
       onlyValid: true,
@@ -89,8 +99,8 @@ export default {
     }
   },
   methods: {
-    showChildrensOf (taxon) {
-      return this.children.filter(item => { return taxon.id === item.parent_id })
+    showChildrensOf(taxon) {
+      return this.children.filter((item) => taxon.id === item.parent_id)
     }
   }
 }

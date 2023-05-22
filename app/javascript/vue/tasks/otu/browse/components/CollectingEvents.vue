@@ -2,16 +2,18 @@
   <section-panel
     :status="status"
     :title="title"
-    :spinner="isLoading">
+    :spinner="isLoading"
+  >
     <ul>
       <template
         v-for="(item, index) in collectingEvents"
-        :key="item.id">
-        <li
-          v-if="index < MAX_LIST || showAll">
+        :key="item.id"
+      >
+        <li v-if="index < MAX_LIST || showAll">
           <a
             :href="`/collecting_events/${item.id}`"
-            v-html="item.object_tag"/>
+            v-html="item.object_tag"
+          />
         </li>
       </template>
     </ul>
@@ -19,27 +21,30 @@
       <a
         v-if="!showAll"
         class="cursor-pointer"
-        @click="showAll = true">Show all
+        @click="showAll = true"
+        >Show all
       </a>
       <a
         v-else
         class="cursor-pointer"
-        @click="showAll = false">Show less
+        @click="showAll = false"
+        >Show less
       </a>
     </template>
-    <switch-component
+    <!--     <switch-component
       :options="TABS"
-      v-model="view"/>
+      v-model="view"
+    /> -->
     <map-component
       width="100%"
       :zoom="2"
       :zoom-on-click="false"
-      :geojson="shapes"/>
+      :geojson="shapes"
+    />
   </section-panel>
 </template>
 
 <script setup>
-
 import SectionPanel from './shared/sectionPanel'
 import MapComponent from 'components/georeferences/map.vue'
 import SwitchComponent from 'components/switch.vue'
@@ -68,11 +73,17 @@ const props = defineProps({
   }
 })
 
-const georeferences = computed(() => store.getters[GetterNames.GetGeoreferences])
+const georeferences = computed(
+  () => store.getters[GetterNames.GetGeoreferences]
+)
 
-const descedantsGeoreferences = computed(() => store.getters[GetterNames.GetDescendants].georeferences)
+const descedantsGeoreferences = computed(
+  () => store.getters[GetterNames.GetDescendants].georeferences
+)
 
-const collectionObjects = computed(() => store.getters[GetterNames.GetCollectionObjects])
+const collectionObjects = computed(
+  () => store.getters[GetterNames.GetCollectionObjects]
+)
 
 const isLoading = computed(() => {
   const loadState = store.getters[GetterNames.GetLoadState]
@@ -81,10 +92,10 @@ const isLoading = computed(() => {
 })
 
 const collectingEvents = computed({
-  get () {
+  get() {
     return store.getters[GetterNames.GetCollectingEvents]
   },
-  set (value) {
+  set(value) {
     store.commit(MutationNames.SetCollectingEvents, value)
   }
 })
@@ -93,21 +104,14 @@ const assertedDistributions = computed(() => {
   const ADs = store.getters[GetterNames.GetAssertedDistributions]
   const uniqueADs = nonReactiveStore.geographicAreas
 
-  return uniqueADs.map(shape => {
+  return uniqueADs.map((shape) => {
     shape.properties.is_absent = shape.is_absent
 
     return shape
   })
 })
 const shapes = computed(() => {
-  switch (view.value) {
-    case 'both':
-      return [].concat(assertedDistributions.value, geojson.value.features)
-    case 'georeferences':
-      return geojson.value.features
-    default:
-      return assertedDistributions.value
-  }
+  return georeferences.value?.features || []
 })
 
 const showAll = ref(false)
@@ -116,23 +120,30 @@ const geojson = ref({
   features: []
 })
 
-watch(georeferences, newVal => {
+watch(georeferences, (newVal) => {
   if (newVal) {
     populateShapes()
   }
 })
 
-watch(descedantsGeoreferences, newVal => {
-  if (newVal) {
-    populateShapes()
-  }
-}, { deep: true })
+watch(
+  descedantsGeoreferences,
+  (newVal) => {
+    if (newVal) {
+      populateShapes()
+    }
+  },
+  { deep: true }
+)
 
 const populateShapes = () => {
-  const georeferencesArray = [].concat(descedantsGeoreferences.value, georeferences.value)
+  const georeferencesArray = [].concat(
+    descedantsGeoreferences.value,
+    georeferences.value
+  )
   geojson.value.features = []
 
-  georeferencesArray.forEach(geo => {
+  georeferencesArray.forEach((geo) => {
     const popup = composePopup(geo)
 
     if (geo.error_radius != null) {
@@ -146,18 +157,31 @@ const populateShapes = () => {
   })
 }
 
-const getCollectionObjectByGeoId = georeference => collectionObjects.value.filter(co => co.collecting_event_id === getCEByGeo(georeference).id)
+const getCollectionObjectByGeoId = (georeference) =>
+  collectionObjects.value.filter(
+    (co) => co.collecting_event_id === getCEByGeo(georeference).id
+  )
 
-const composePopup = geo => {
+const composePopup = (geo) => {
   const ce = getCEByGeo(geo)
   if (ce) {
     return `<h4><b>Collection objects</b></h4>
-      ${getCollectionObjectByGeoId(geo).map(item => `<a href="/tasks/collection_objects/browse?collection_object_id=${item.id}">${item.object_tag}</a>`).join('<br>')}
+      ${getCollectionObjectByGeoId(geo)
+        .map(
+          (item) =>
+            `<a href="/tasks/collection_objects/browse?collection_object_id=${item.id}">${item.object_tag}</a>`
+        )
+        .join('<br>')}
       <h4><b>Collecting event</b></h4>
-      <a href="/tasks/collecting_events/browse?collecting_event_id=${ce.id}">${ce.object_tag}</a>`
+      <a href="/tasks/collecting_events/browse?collecting_event_id=${ce.id}">${
+      ce.object_tag
+    }</a>`
   }
   return undefined
 }
 
-const getCEByGeo = georeference => collectingEvents.value.find(ce => ce.id === georeference.collecting_event_id)
+const getCEByGeo = (georeference) =>
+  collectingEvents.value.find(
+    (ce) => ce.id === georeference.collecting_event_id
+  )
 </script>
