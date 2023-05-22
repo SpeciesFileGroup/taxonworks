@@ -512,6 +512,8 @@ resources :notes, except: [:show] do
   concerns [:data_routes]
 end
 
+
+
 resources :otus do
   concerns [:data_routes]
   resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
@@ -547,6 +549,8 @@ resources :otus do
     get :navigation, defaults: {format: :json}
     get :breadcrumbs, defaults: {format: :json}
     get :coordinate, defaults: {format: :json}
+
+    get 'inventory/distribution', action: :distribution, defaults: {format: :json}
   end
 
 end
