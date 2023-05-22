@@ -12,7 +12,7 @@ function makeInitialState() {
       collectionObjects: true,
       descendants: false,
       descendantsDistribution: false,
-      distribution: false
+      distribution: true
     },
     preferences: {
       preferenceSchema: 20210715,
