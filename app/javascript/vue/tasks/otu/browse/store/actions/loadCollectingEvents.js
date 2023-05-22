@@ -11,17 +11,17 @@ export default ({ state, commit }, otusId) =>
       .then(
         (response) => {
           const CEs = response.body
-          const CEIds = chunkArray(
+          /* const CEIds = chunkArray(
             CEs.map((ce) => ce.id),
             maxCEPerCall
-          )
-          const promises = []
+          ) */
+          //const promises = []
 
           commit(
             MutationNames.SetCollectingEvents,
             state.collectingEvents.concat(CEs)
           )
-          if (CEs.length) {
+          /*           if (CEs.length) {
             CEIds.forEach((idGroup) => {
               promises.push(Georeference.all({ collecting_event_id: idGroup }))
             })
@@ -39,7 +39,7 @@ export default ({ state, commit }, otusId) =>
             })
           } else {
             resolve(CEs)
-          }
+          } */
         },
         (error) => {
           reject(error)

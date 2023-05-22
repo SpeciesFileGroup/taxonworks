@@ -534,6 +534,8 @@ resources :otus do
     get :navigation, defaults: {format: :json}
     get :breadcrumbs, defaults: {format: :json}
     get :coordinate, defaults: {format: :json}
+
+    get 'inventory/distribution', action: :distribution, defaults: {format: :json}
   end
 
 end

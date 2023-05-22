@@ -13,7 +13,7 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(params).all
+        @taxon_names = ::Queries::TaxonName::Filter.new(params).all
         .page(params[:page])
         .per(params[:per])
       }
@@ -226,7 +226,7 @@ class TaxonNamesController < ApplicationController
 
   # GET /api/v1/taxon_names
   def api_index
-    @taxon_names = Queries::TaxonName::Filter.new(params.merge!(api: true)).all
+    @taxon_names = ::Queries::TaxonName::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('taxon_names.id')
       .page(params[:page])
