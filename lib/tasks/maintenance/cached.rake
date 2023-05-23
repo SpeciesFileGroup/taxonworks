@@ -6,6 +6,8 @@ namespace :tw do
       task parallel_create_cached_map_from_georeferences: [:environment] do |t|
         q = Georeference.where.missing(:cached_map_register)
 
+        puts "Caching #{q.all.size} georeferences records."
+
         cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
 
         Parallel.each(q.find_each, progress: 'build_cached_map_from_georeferences', in_processes: cached_rebuild_processes ) do |g|
@@ -20,11 +22,15 @@ namespace :tw do
           end
           true
         end
+
+        puts 'Done.'
       end
 
       desc 'build CachedMapItems for AssertedDistributions that do not have them'
       task parallel_create_cached_map_from_asserted_distributions: [:environment] do |t|
         q = AssertedDistribution.joins(:geographic_items).where.missing(:cached_map_register)
+
+        puts "Caching #{q.all.size} AssertedDistribution records."
 
         cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
 
@@ -40,6 +46,9 @@ namespace :tw do
           end
           true
         end
+
+        puts'Done.'
+
       end
 
       desc 'forces rebuild of all GeographicItem cached fields'

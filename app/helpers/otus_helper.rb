@@ -176,20 +176,7 @@ module OtusHelper
     }
 
     if otu.taxon_name && otu.taxon_name.is_protonym? && !otu.taxon_name.is_species_rank?
-      if g = aggregate_geo_json(otu, h)
-
-        t = {
-          'id' => otu.id,
-          'type' => 'Otu',
-          'label' => label_for_otu(otu)
-        }
-
-        g['properties'] = {}
-
-        g['properties']['target'] = t
-        h['features'].push g
-      end
-
+      add_aggregate_geo_json(otu, h)
     else
       otus.each do |o|
         add_distribution_geo_json(o, h)
@@ -199,43 +186,65 @@ module OtusHelper
     h
   end
 
+  def add_aggregate_geo_json(otu, target)
+    h = target
+
+    if g = aggregate_geo_json(otu, h)
+      t = {
+        'id' => otu.id,
+        'type' => 'Otu',
+        'label' => label_for_otu(otu)
+      }
+
+      g['properties'] = {'aggregate': true}
+
+      g['properties']['target'] = t
+      h['features'].push g
+    end
+
+    h
+  end
+
+  # Caching the cached map
+  def otu_cached_map(otu, target, cached_map_type = 'CachedMapItem::WebLevel1', cache = true, force = false)
+    r = nil
+    if force
+      r = aggregate_geo_json(otu, target, cached_map_type)
+    else
+      # Check for map
+
+      # TODO: extend with synced check
+      if a = CachedMap.where(project_id: sessions_current_project_id).where(otu_id: otu.id, cached_map_type:  )
+      end
+    end
+  end
+
   def aggregate_geo_json(otu, target, cached_map_type = 'CachedMapItem::WebLevel1')
     h = target
 
-    a = ::Queries::Otu::Filter.new(taxon_name_id: otu.taxon_name_id, descendants: true).all.to_sql
-    b = ::Queries::Otu::Filter.new(taxon_name_id: otu.taxon_name_id).all.to_sql
-    c = Otu.from("((#{a}) UNION (#{b})) as otus").select('id')
+    if gj = otu.cached_map_json(cached_map_type)
 
-    i = ::GeographicItem.select("#{GeographicItem::GEOMETRY_SQL.to_sql}")
-      .joins('JOIN cached_maps cm on cm.geographic_item_id = geographic_items.id')
-      .joins('JOIN otu_scope AS otu_scope1 on otu_scope1.id = cm.otu_id')
+#      byebug
 
-    s = "WITH otu_scope AS (#{c.to_sql}) " + i.to_sql
-
-    sql = "SELECT ST_AsGeoJSON(ST_Union(geom_array)) AS geojson
-    FROM (
-      SELECT ARRAY(
-        #{s}
-      ) AS geom_array
-    ) AS subquery;"
-
-    result = ActiveRecord::Base.connection.execute(sql)
-    gj = JSON.parse(result[0]['geojson'])
-
-    return {
-      'type' => gj['type'],  # 'Feature',
-      'coordinates' => gj['coordinates'],
-      'properties' => {
-        'base' => {
-          'type' => 'Otu',
-          'id' => otu.id,
-          'label' => label_for_otu(otu) },
-        'shape' => {
-          'type' => cached_map_type,
-          'id' => nil },
-       'updated_at' => 'foo' # last updated at on CachedMapItem scope, possibly
+      return {
+        'type' => gj['type'],  # 'Feature',
+        'coordinates' => gj['coordinates'], # was 'coordinates' TODO: might not work
+        
+        'properties' => {
+          'base' => {
+            'type' => 'Otu',
+            'id' => otu.id,
+            'label' => label_for_otu(otu) },
+          'shape' => {
+            'type' => cached_map_type,
+            'id' => 99999 }, # was nil
+         'updated_at' => 'foo' # last updated at on CachedMapItem scope, possibly
+        }
       }
-    }
+
+    else
+      nil
+    end
   end
 
   def add_distribution_geo_json(otu, target)

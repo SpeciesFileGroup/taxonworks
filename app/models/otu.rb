@@ -43,15 +43,13 @@ class Otu < ApplicationRecord
 
   include Shared::MatrixHooks::Member
   include Otu::MatrixHooks
+  include Otu::Maps
 
   include Shared::IsData
 
   is_origin_for 'Sequence', 'Extract'
 
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes].freeze
-
-  has_one :cached_map, dependent: :destroy
-  has_many :cached_map_items, dependent: :destroy
 
   belongs_to :taxon_name, inverse_of: :otus
 

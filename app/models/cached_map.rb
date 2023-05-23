@@ -5,14 +5,32 @@ class CachedMap < ApplicationRecord
 
   belongs_to :otu
 
-  has_many :cached_map_items
+  has_many :cached_map_items, through: :otu
 
   validates_presence_of :otu
   validates_presence_of :geometry
   validates_presence_of :reference_count
 
   def synced?
-    #  sum reference_count of cached_map_items && most recent item date is <= this update date
+    cached_map_items_reference_total == reference_count && latest_cached_map_item.created_at <= created_at 
+  end
+
+  def latest_cached_map_item 
+
+    cached_map_items.order(:updated_at).first
+
+  end
+
+  def cached_map_items_reference_total
+    CachedMapItem.where(otu: otu_scope).sum(:reference_count)
+  end
+
+  def otu_scope
+    if otu.taxon_name
+      Otu.descendant_of_taxon_name(otu.taxon_name_id) 
+    else
+      Otu.coordinate_otus(otu.id)
+    end
   end
 
 end

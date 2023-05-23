@@ -1,1 +1,26 @@
 <div id="vue-task-otu-browse"></div>
+
+////
+<%= otu_tag(@otu) %>
+,,,,
+
+<%= @otu.taxon_name_id %> <br>
+
+<% q = ::Queries::TaxonName::Filter.new(taxon_name_id: @otu.taxon_name_id, descendants: true) %>
+
+
+<% o = ::Queries::Otu::Filter.new(taxon_name_id: @otu.taxon_name_id, descendants: true) %>
+
+<% c = ::Queries::CollectionObject::Filter.new(taxon_name_id: @otu.taxon_name_id, descendants: true) %>
+
+<% a = ::Queries::AssertedDistribution::Filter.new(taxon_name_id: @otu.taxon_name_id, descendants: true) %>
+
+tn - <%= q.all.count %> <br>
+co - <%= c.all.count %> <br>
+ad - <%= a.all.count %> <br>
+
+cmi - <%= CachedMapItem.where(otu: o.all).count %>
+
+<br>
+---
+---

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_05_09_185624) do
+ActiveRecord::Schema.define(version: 2023_05_22_144810) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -220,6 +220,7 @@ ActiveRecord::Schema.define(version: 2023_05_09_185624) do
     t.bigint "project_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "cached_map_type", null: false
     t.index ["otu_id"], name: "index_cached_maps_on_otu_id"
     t.index ["project_id"], name: "index_cached_maps_on_project_id"
   end
