@@ -114,7 +114,7 @@ module Queries
       def observation_matrix_id_facet
         return nil if observation_matrix_id.blank?
         ::Descriptor.joins(:observation_matrices)
-          .where(observation_matrices: {id: :observation_matrix_id})
+          .where(observation_matrices: { id: observation_matrix_id }).distinct
       end
 
       def descriptor_type_facet
@@ -125,7 +125,7 @@ module Queries
       def observation_matrices_facet
         return nil if observation_matrices.nil?
         if observation_matrices
-          ::Descriptor.joins(:observation_matrices)
+          ::Descriptor.joins(:observation_matrices).distinct
         else
           ::Descriptor.where.missing(:observation_matrices)
         end
