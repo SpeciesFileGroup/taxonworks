@@ -12,14 +12,9 @@ module Otu::Maps
 
     # Check for existing map
 
-    # TODO: 
-    if force || m = cached_maps.where(cached_map_type:).first
-      # byebug
-      # m.geometry.to_json
-      #
-      # TODO: almost certainly very dumb dec/re/encoding going on here.
-      #  Or select just the value as geojson directly as below
-      JSON.parse(  RGeo::GeoJSON.encode(m.geometry).to_json )
+    if force || m = cached_maps.where(cached_map_type:).select('ST_AsGeoJSON(geometry) geo_json').first
+      # !! TODO: almost certainly very dumb dec/re/encoding going on here.
+      JSON.parse( m['geo_json']) #  RGeo::GeoJSON.encode(m.geometry).to_json )
     else
 
       # TODO: a,b,c is just Otu.descendant_of_taxon_name probably.
@@ -31,7 +26,7 @@ module Otu::Maps
 
       i = ::GeographicItem.select("#{GeographicItem::GEOMETRY_SQL.to_sql}")
         .joins('JOIN cached_map_items cmi on cmi.geographic_item_id = geographic_items.id')
-        .joins('JOIN otu_scope AS otu_scope1 on otu_scope1.id = cmi.otu_id')
+        .joins('JOIN otu_scope AS otu_scope1 on otu_scope1.id = cmi.otu_id').distinct
 
       s = "WITH otu_scope AS (#{c.to_sql}) " + i.to_sql
 
