@@ -379,7 +379,7 @@ class TaxonNameRelationship < ApplicationRecord
     end
 
     unless self.type_class.blank? # only validate if it is set
-      if object_taxon_name
+      if object_taxon_name && object_taxon_name.rank_class
         if object_taxon_name.type == 'Protonym' || object_taxon_name.type == 'Hybrid'
           unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_string)
             errors.add(:object_taxon_name_id, "#{self.object_taxon_name.rank_class.rank_name.capitalize} rank of #{self.object_taxon_name.cached_html} is not compatible with the #{self.subject_status} relationship")

@@ -36,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Email errors on taxon_name.rank_name and paper_catalogue.combination
 - Nomen (was "castor") batch load was not assigning parent correctly [#3409]
 - Source and People API endpoints don't try to authenticate [#3407]
 - Date range in filter Collection Object not being applied [#3418]

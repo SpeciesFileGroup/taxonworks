@@ -71,8 +71,10 @@ module TaxonNames::PaperCatalogHelper
   def paper_header_prefix(taxon_name, options)
     r = nil
     if options[:nest_rank_headers]
-      if taxon_name.is_species_rank?
-        r= :species
+      if taxon_name.type == 'Combination'
+        r = :combination
+      elsif taxon_name.is_species_rank?
+        r = :species
       elsif taxon_name.is_genus_rank?
         r = :genus
       elsif taxon_name.is_family_rank?
