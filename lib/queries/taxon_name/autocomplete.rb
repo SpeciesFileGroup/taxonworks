@@ -286,7 +286,7 @@ module Queries
           autocomplete_exact_id,
           autocomplete_exact_cached,
           autocomplete_exact_cached_original_combination,
-          autocomplete_identifier_cached_exact, 
+          autocomplete_identifier_cached_exact,
           autocomplete_exact_name_and_year,
           autocomplete_identifier_identifier_exact,
           autocomplete_top_name,
@@ -295,7 +295,7 @@ module Queries
           autocomplete_genus_species1(z),           # not tested
           autocomplete_genus_species2(z),           # not tested
           autocomplete_cached_end_wildcard,
-          autocomplete_identifier_cached_like,
+          # autocomplete_identifier_cached_like, # this query take much longer to complete than any other
           autocomplete_cached_name_end_wildcard,
           autocomplete_cached_wildcard_whitespace,
           autocomplete_name_author_year_fragment,

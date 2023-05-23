@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- autocomplete requests optimized by speed
 - Updated author and year string for family-group names
 - Recent predicate list
 - Recent languages list
