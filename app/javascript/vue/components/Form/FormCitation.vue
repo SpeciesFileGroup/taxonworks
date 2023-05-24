@@ -41,6 +41,7 @@
           <label>
             <input
               v-model="citation.is_original"
+              :value="citation.is_original"
               type="checkbox"
               @change="setIsOriginal"
             />
@@ -51,6 +52,7 @@
           <label>
             <input
               v-model="isAbsent"
+              :value="isAbsent"
               type="checkbox"
               @change="setIsAbsent"
             />
