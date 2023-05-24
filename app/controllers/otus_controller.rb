@@ -307,19 +307,13 @@ class OtusController < ApplicationController
     end
   end
 
+  # GET /otus/:id/inventory/distribution.json
+  # GET /otus/:id/inventory/distribution.geojson
   def distribution
-    # TODO: update
-    render '/otus/api/v1/distribution'
   end
 
   # GET /api/v1/otus/:id/inventory/distribution
   def api_distribution
-    render '/otus/api/v1/distribution'
-  end
-
-
-  def distribution
-    # TODO: update
     render '/otus/api/v1/distribution'
   end
 
@@ -328,6 +322,13 @@ class OtusController < ApplicationController
   def set_otu
     @otu = Otu.where(project_id: sessions_current_project_id).eager_load(:taxon_name).find(params[:id])
     @recent_object = @otu
+  end
+
+  def set_cached_map
+    @cached_map = @otu.cached_maps.where(cached_map_type: params[:cached_map_type] || 'CachedMapItem::WebLevel1').first
+    if @cached_map.blank?
+
+    end
   end
 
   def otu_params

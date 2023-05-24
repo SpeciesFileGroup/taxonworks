@@ -205,6 +205,7 @@ module OtusHelper
     h
   end
 
+  # NOT USED
   # Caching the cached map
   def otu_cached_map(otu, target, cached_map_type = 'CachedMapItem::WebLevel1', cache = true, force = false)
     r = nil
@@ -219,32 +220,42 @@ module OtusHelper
     end
   end
 
+  # TODO: cleanup
   def aggregate_geo_json(otu, target, cached_map_type = 'CachedMapItem::WebLevel1')
     h = target
 
-    if gj = otu.cached_map_json(cached_map_type)
+    if gj = otu.cached_map_geo_json(cached_map_type)
 
-#      byebug
-
-      return {
-        'type' => gj['type'],  # 'Feature',
-        'coordinates' => gj['coordinates'], # was 'coordinates' TODO: might not work
+     i = 
+       {
+         **gj,
+        # 'type' => gj['type'],  # 'Feature',
         
         'properties' => {
           'base' => {
             'type' => 'Otu',
             'id' => otu.id,
             'label' => label_for_otu(otu) },
-          'shape' => {
-            'type' => cached_map_type,
-            'id' => 99999 }, # was nil
+    #     'shape' => {
+    #       'type' => cached_map_type,
+    #       'id' => 99999 }, # was nil
          'updated_at' => 'foo' # last updated at on CachedMapItem scope, possibly
         }
       }
 
+     
+     if gj.keys.include?('coordinates')
+       i['coordinates'] = gj['coordinates'] # was 'coordinates' TODO: might not work
+     elsif gj.keys.include?('geometries')
+       i['geometries'] = gj['geometries'] # was 'coordinates' TODO: might not work
+     end
+
+      i
+
     else
       nil
     end
+
   end
 
   def add_distribution_geo_json(otu, target)

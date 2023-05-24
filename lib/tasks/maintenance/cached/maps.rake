@@ -1,13 +1,13 @@
 namespace :tw do
   namespace :maintenance do
     namespace :cached do
- 
-      # !! These tasks only build new records.  They will not refresh and clean/remove stale data. !! 
+
+      # !! These tasks only build new records.  They will not refresh and clean/remove stale data. !!
       #
       # The index is build in two tasks:
       #
-      # rake tw:maintenance:cached:maps:parallel_create_cached_map_from_asserted_distributions cached_rebuild_processes=4 
-      # rake tw:maintenance:cached:maps:parallel_create_cached_map_from_georeferences cached_rebuild_processes=4 
+      # rake tw:maintenance:cached:maps:parallel_create_cached_map_from_asserted_distributions cached_rebuild_processes=4
+      # rake tw:maintenance:cached:maps:parallel_create_cached_map_from_georeferences cached_rebuild_processes=4
       #
       # They can be started or stopped at any point.
       #
@@ -17,7 +17,6 @@ namespace :tw do
       #
       namespace :maps do
 
- 
         desc 'build CachedMapItems for an OTU'
         task parallel_create_cached_map_for_otu: [:environment] do |t|
 
@@ -29,7 +28,7 @@ namespace :tw do
 
           if otu.taxon_name_id
             otus = Otu.descendant_of_taxon_name(otu.taxon_name_id)
-          else 
+          else
             otus = Otu.where(id: otu.id)
           end
 
@@ -66,7 +65,7 @@ namespace :tw do
           end
           puts 'Done.'
         end
- 
+
         desc 'build CachedMapItems for Georeferences that do not have them'
         task parallel_create_cached_map_from_georeferences: [:environment] do |t|
           q = Georeference.where.missing(:cached_map_register)
