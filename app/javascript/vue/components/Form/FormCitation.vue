@@ -52,7 +52,7 @@
             <input
               v-model="isAbsent"
               type="checkbox"
-              @change="setIsOriginal"
+              @change="setIsAbsent"
             />
             Is absent
           </label>
@@ -215,6 +215,12 @@ function setPage(e) {
 function setIsOriginal(e) {
   if (props.useSession) {
     sessionStorage.setItem(STORAGE.isOriginal, e.target.value)
+  }
+}
+
+function setIsAbsent(e) {
+  if (props.useSession) {
+    sessionStorage.setItem(STORAGE.isAbsent, e.target.value)
   }
 }
 
