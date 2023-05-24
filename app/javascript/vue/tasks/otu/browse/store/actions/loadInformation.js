@@ -2,7 +2,8 @@ import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
 import { TaxonName } from 'routes/endpoints'
 
-export default ({ dispatch, commit, state }, otus) => {
+export default async ({ dispatch, commit, state }, otus) => {
+  const { currentOtu } = state
   const otuIds = otus.map((otu) => otu.id)
 
   async function loadOtuInformation(otu) {
@@ -14,10 +15,12 @@ export default ({ dispatch, commit, state }, otus) => {
   }
 
   if (state.currentOtu.taxon_name_id) {
-    dispatch(ActionNames.LoadTaxonName, state.currentOtu.taxon_name_id)
+    await dispatch(ActionNames.LoadTaxonName, state.currentOtu.taxon_name_id)
   }
 
-  TaxonName.all({
+  dispatch(ActionNames.LoadDistribution, currentOtu.id)
+
+  /*   TaxonName.all({
     taxon_name_id: [...new Set(otus.map((otu) => otu.taxon_name_id))]
   }).then((response) => {
     commit(MutationNames.SetTaxonNames, response.body)
@@ -43,5 +46,5 @@ export default ({ dispatch, commit, state }, otus) => {
   dispatch(
     ActionNames.LoadAssertedDistributions,
     state.otus.map((otu) => otu.id)
-  )
+  ) */
 }

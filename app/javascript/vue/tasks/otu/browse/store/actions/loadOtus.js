@@ -3,13 +3,6 @@ import { MutationNames } from '../mutations/mutations'
 
 export default ({ commit, state }, id) => {
   return new Promise((resolve, reject) => {
-    Otu.distribution(id)
-      .then((response) => {
-        commit(MutationNames.SetGeoreferences, response.body)
-      })
-      .finally((_) => {
-        state.loadState.distribution = false
-      })
     Otu.coordinate(id).then(
       (response) => {
         commit(

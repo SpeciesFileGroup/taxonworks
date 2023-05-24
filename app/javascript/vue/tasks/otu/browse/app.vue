@@ -165,7 +165,7 @@ export default {
   watch: {
     otus: {
       handler(newVal) {
-        //this.$store.dispatch(ActionNames.LoadInformation, newVal)
+        this.$store.dispatch(ActionNames.LoadInformation, newVal)
       },
       deep: true
     },

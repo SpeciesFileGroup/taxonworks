@@ -18,7 +18,11 @@ export const Otu = {
 
   coordinate: (id) => AjaxCall('get', `/otus/${id}/coordinate`),
 
-  distribution: (id) => AjaxCall('get', `/otus/${id}/inventory/distribution`),
+  distribution: (id) =>
+    AjaxCall('get', `/otus/${id}/inventory/distribution.json`),
+
+  geoJsonDistribution: (id) =>
+    AjaxCall('get', `/otus/${id}/inventory/distribution.geojson`),
 
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 
