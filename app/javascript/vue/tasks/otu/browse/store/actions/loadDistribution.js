@@ -4,15 +4,20 @@ import { TAXON_RANK_SPECIES_GROUP } from 'constants/index.js'
 
 export default async ({ state, commit }, otuId) => {
   const taxonRank = state.taxonName?.rank_string
+  const isSpeciesGroup =
+    taxonRank && isRankGrpup(TAXON_RANK_SPECIES_GROUP, taxonRank)
+  const { body } = isSpeciesGroup
+    ? await Otu.geoJsonDistribution(otuId)
+    : await Otu.distribution(otuId)
 
-  if (taxonRank && isRankGrpup(TAXON_RANK_SPECIES_GROUP, taxonRank)) {
-    const { body } = Otu.distribution(otuId)
+  if (isSpeciesGroup) {
     commit(MutationNames.SetGeoreferences, body)
   } else {
-    const { body } = await Otu.geoJsonDistribution(otuId)
-
-    commit(MutationNames.SetGeoreferences, body)
+    commit(MutationNames.SetGeoreferences, {
+      features: [JSON.parse(body.geo_json)]
+    })
   }
+
   state.loadState.distribution = false
 }
 
