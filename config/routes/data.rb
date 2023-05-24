@@ -62,14 +62,7 @@ resources :biological_relationships do
   end
 end
 
-resources :cached_maps do
-  collection do
-    get :index
-    get 'png', defaults: {format: :json}
-    get 'geo_json', defaults: {format: :json}
-    get 'svg', defaults: {format: :json}
-  end
-
+resources :cached_maps, only: [:show], defaults: {format: :json} do 
 end
 
 resources :character_states do

@@ -2,10 +2,13 @@ class CachedMap < ApplicationRecord
   include Housekeeping::Projects
   include Housekeeping::Timestamps
   include Shared::IsData
-
+  
   belongs_to :otu
 
-  has_many :cached_map_items, through: :otu
+  # All cached_map items used to compose this cached_map.
+  def cached_map_items
+    CachedMapItem.where(type: cached_map_type, otu: otu_scope)
+  end
 
   validates_presence_of :otu
   validates_presence_of :geometry
@@ -16,9 +19,7 @@ class CachedMap < ApplicationRecord
   end
 
   def latest_cached_map_item 
-
     cached_map_items.order(:updated_at).first
-
   end
 
   def cached_map_items_reference_total
@@ -27,7 +28,7 @@ class CachedMap < ApplicationRecord
 
   def otu_scope
     if otu.taxon_name
-      Otu.descendant_of_taxon_name(otu.taxon_name_id) 
+      Otu.descendant_of_taxon_name(otu.taxon_name_id)
     else
       Otu.coordinate_otus(otu.id)
     end

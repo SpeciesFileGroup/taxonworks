@@ -310,6 +310,15 @@ class OtusController < ApplicationController
   # GET /otus/:id/inventory/distribution.json
   # GET /otus/:id/inventory/distribution.geojson
   def distribution
+    respond_to do |format|
+      format.json do
+        @cached_map_type = params[:cached_map_type] || 'CachedMapItem::WebLevel1'
+        @cached_map = @otu.cached_map(@cached_map_type)
+   
+        render json: { error: 'no map available'}, status: :not_found unless @cached_map.present? and return 
+      end
+    end
+
   end
 
   # GET /api/v1/otus/:id/inventory/distribution
@@ -324,12 +333,12 @@ class OtusController < ApplicationController
     @recent_object = @otu
   end
 
-  def set_cached_map
-    @cached_map = @otu.cached_maps.where(cached_map_type: params[:cached_map_type] || 'CachedMapItem::WebLevel1').first
-    if @cached_map.blank?
+# def set_cached_map
+#   @cached_map = @otu.cached_maps.where(cached_map_type: params[:cached_map_type] || 'CachedMapItem::WebLevel1').first
+#   if @cached_map.blank?
 
-    end
-  end
+#   end
+# end
 
   def otu_params
     params.require(:otu).permit(:name, :taxon_name_id)
