@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Observation matrix facet doesn't work in Filter descriptors
+- lock Is original and Is absent chekcboxes in citation form
 
 ## [0.33.0] - 2023-05-19
 

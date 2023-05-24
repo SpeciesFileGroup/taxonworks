@@ -1,7 +1,11 @@
 <template>
   <tr>
     <td>
-      <BiologicalAssociationRelated :biological-associations="relatedSubject" />
+      <BiologicalAssociationRelated
+        :item-id="row.subjectId"
+        :item-type="row.subjectType"
+        :current="row"
+      />
     </td>
     <td v-html="row.subjectOrder" />
     <td v-html="row.subjectFamily" />
@@ -25,7 +29,11 @@
     </td>
 
     <td>
-      <BiologicalAssociationRelated :biological-associations="relatedObject" />
+      <BiologicalAssociationRelated
+        :item-id="row.objectId"
+        :item-type="row.objectType"
+        :current="row"
+      />
     </td>
     <td v-html="row.objectOrder" />
     <td v-html="row.objectFamily" />
@@ -61,18 +69,4 @@ const props = defineProps({
 })
 
 const store = useStore()
-
-const relatedSubject = computed(() =>
-  store.getters[GetterNames.GetRelatedBiologicalAssociations]({
-    id: props.row.subjectId,
-    type: props.row.subjectType
-  }).filter((item) => item.id !== props.row.id)
-)
-
-const relatedObject = computed(() =>
-  store.getters[GetterNames.GetRelatedBiologicalAssociations]({
-    id: props.row.objectId,
-    type: props.row.objectType
-  }).filter((item) => item.id !== props.row.id)
-)
 </script>
