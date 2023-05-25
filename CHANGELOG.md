@@ -7,10 +7,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+
+- NOMEN batch importer treats authors only as verbvatim, Roles are no longer created
+
 ### Fixed
 
+- Verbatim name contained 'Suffix' [#3425]
 - Observation matrix facet doesn't work in Filter descriptors
 - lock Is original and Is absent chekcboxes in citation form
+
+[3425]: https://github.com/SpeciesFileGroup/taxonworks/issues/3425
 
 ## [0.33.0] - 2023-05-19
 

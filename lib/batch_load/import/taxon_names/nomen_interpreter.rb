@@ -74,38 +74,40 @@ module BatchLoad
             by: user,
             project:,
             verbatim_author: verbatim_author(row['author_year']),
-            taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
+
+            # People are not created at this point
+            #  taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
           }
 
-        # Not implemented
+          # Not implemented
 
-        # if row['original_name']
-        #   original_protonym_attributes = {
-        #     verbatim_name: row['original_name'],
-        #     name: row['original_name'].split(' ')[-1],
-        #     year_of_publication: year_of_publication(row['author_year']),
-        #     rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['original_rank']),
-        #     parent: parent_taxon_name,
-        #     by: user,
-        #     project:,
-        #     verbatim_author: verbatim_author(row['author_year']),
-        #     taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
-        #   }
+          # if row['original_name']
+          #   original_protonym_attributes = {
+          #     verbatim_name: row['original_name'],
+          #     name: row['original_name'].split(' ')[-1],
+          #     year_of_publication: year_of_publication(row['author_year']),
+          #     rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['original_rank']),
+          #     parent: parent_taxon_name,
+          #     by: user,
+          #     project:,
+          #     verbatim_author: verbatim_author(row['author_year']),
+          #     taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
+          #   }
 
-        #   original_protonym = Protonym.new(original_protonym_attributes)
+          #   original_protonym = Protonym.new(original_protonym_attributes)
 
-        #   if row['original_rank'] == 'genus'
-        #     protonym_attributes[:original_genus] = original_protonym
-        #   elsif row['original_rank'] == 'subgenus'
-        #     protonym_attributes[:original_subgenus] = original_protonym
-        #   elsif row['original_rank'] == 'species'
-        #     protonym_attributes[:original_species] = original_protonym
-        #   elsif row['original_rank'] == 'subspecies'
-        #     protonym_attributes[:original_subspecies] = original_protonym
-        #   end
+          #   if row['original_rank'] == 'genus'
+          #     protonym_attributes[:original_genus] = original_protonym
+          #   elsif row['original_rank'] == 'subgenus'
+          #     protonym_attributes[:original_subgenus] = original_protonym
+          #   elsif row['original_rank'] == 'species'
+          #     protonym_attributes[:original_species] = original_protonym
+          #   elsif row['original_rank'] == 'subspecies'
+          #     protonym_attributes[:original_subspecies] = original_protonym
+          #   end
 
-        #   parse_result.objects[:original_taxon_name].push original_protonym
-        # end
+          #   parse_result.objects[:original_taxon_name].push original_protonym
+          # end
 
           p = Protonym.new(protonym_attributes)
 
@@ -208,39 +210,39 @@ module BatchLoad
       author_year.gsub(/\,+\s*\d\d\d\d/, '')
     end
 
-    # @param [String] author_info
-    # @return [Array]
-    def taxon_name_authors_attributes(author_info)
-      return [] if author_info.blank?
-      multiple_author_query = 'and'
-      multiple_author_index = author_info.index(multiple_author_query)
-      split_author_info = multiple_author_index.nil? ? [author_info] : author_info.split(multiple_author_query)
-      author_infos = []
-
-      split_author_info.each do |author_str|
-        author_infos.push(author_info(author_str)) if author_str != 'NA' && author_str != 'unpublished'
-      end
-
-      author_infos
-    end
+    # # @param [String] author_info
+    # # @return [Array]
+    # def taxon_name_authors_attributes(author_info)
+    #   return [] if author_info.blank?
+    #   multiple_author_query = 'and'
+    #   multiple_author_index = author_info.index(multiple_author_query)
+    #   split_author_info = multiple_author_index.nil? ? [author_info] : author_info.split(multiple_author_query)
+    #   author_infos = []
+    #
+    #   split_author_info.each do |author_str|
+    #     author_infos.push(author_info(author_str)) if author_str != 'NA' && author_str != 'unpublished'
+    #   end
+    #
+    #   author_infos
+    # end
 
     # @param [String] author_string
     # @return [Hash]
-    def author_info(author_string)
-      seperator_query = ' '
-      separator_index = author_string.index(seperator_query)
-
-      last_name = author_string
-      first_name = ''
-
-      if !separator_index.nil?
-        separator_index += seperator_query.length
-        split_author_info = author_string.split(seperator_query)
-        last_name = split_author_info[0]
-        first_name = split_author_info[1]
-      end
-
-      { last_name:, first_name:, suffix: 'suffix' }
-    end
+    #  def author_info(author_string)
+    #  seperator_query = ' '
+    #  separator_index = author_string.index(seperator_query)
+    #
+    #  last_name = author_string
+    #  first_name = ''
+    #
+    #  if !separator_index.nil?
+    #    separator_index += seperator_query.length
+    #    split_author_info = author_string.split(seperator_query)
+    #    last_name = split_author_info[0]
+    #    first_name = split_author_info[1]
+    #  end
+    #
+    #  { last_name:, first_name: }
+    #end
   end
 end
