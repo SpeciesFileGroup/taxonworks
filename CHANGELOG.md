@@ -19,12 +19,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Descriptors facets referencing observation/matrix presence/absence
-- Email errors on taxon_name.rank_name and paper_catalogue.combination
+- Errors on taxon_name.rank_name and paper_catalogue.combination
 - Documents facet in Source filter
 - Documents from other projects appearing in count on radial annotator [#3348]
 - Verbatim name contained 'Suffix' [#3425]
 - Observation matrix facet doesn't work in Filter descriptors
-- lock Is original and Is absent checkboxes in citation form
+- Lock Is original and Is absent checkboxes in citation form
 - Pagination doesn't work correctly in Filter biological associations [#3426]
 - Records per page doesn't work on page change in Citations by source task
 
