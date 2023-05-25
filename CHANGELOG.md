@@ -13,11 +13,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
-- autocomplete requests optimized by speed
+- Autocomplete requests optimized by speed
 - NOMEN batch importer treats authors only as verbvatim, Roles are no longer created.
 
 ### Fixed
 
+- Descriptors facets referencing observation/matrix presence/absence
 - Email errors on taxon_name.rank_name and paper_catalogue.combination
 - Documents facet in Source filter
 - Documents from other projects appearing in count on radial annotator [#3348]
