@@ -43,9 +43,14 @@ import FacetObservationType from 'components/Filter/Facets/Observation/FacetObse
 import FacetObservationObjectType from 'components/Filter/Facets/Observation/FacetObservationObjectType.vue'
 
 const WITH_PARAMS = [
-  'depictions',
+  'citations',
+  'data_attributes',
   'data_depictions',
-  'notes'
+  'depictions',
+  'identifiers',
+  'notes',
+  'protocols',
+  'tags',
 ]
 
 const props = defineProps({

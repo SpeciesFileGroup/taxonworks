@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - NOMEN batch importer error handling/reporting improvements [#3427]
+- More annotation-related facets to Observations filter
 
 ### Changed
 
@@ -18,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Without depictions filter facets
 - Descriptors facets referencing observation/matrix presence/absence
 - Errors on taxon_name.rank_name and paper_catalogue.combination
 - Documents facet in Source filter
