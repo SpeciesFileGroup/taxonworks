@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Observation matrix facet doesn't work in Filter descriptors
 - lock Is original and Is absent chekcboxes in citation form
 - Pagination doesn't work correctly in Filter biological associations [#3426]
+- Records per page doesn't work on page change in Citations by source task
 
 [#3425]: https://github.com/SpeciesFileGroup/taxonworks/issues/3425
 [#3426]: https://github.com/SpeciesFileGroup/taxonworks/issues/3426
