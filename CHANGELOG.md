@@ -17,15 +17,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Documents facet in Source filter
+- Documents from other projects appearing in count on radial annotator [#3348]
 - Verbatim name contained 'Suffix' [#3425]
 - Observation matrix facet doesn't work in Filter descriptors
 - lock Is original and Is absent chekcboxes in citation form
 - Pagination doesn't work correctly in Filter biological associations [#3426]
 - Records per page doesn't work on page change in Citations by source task
 
-[#3427]: https://github.com/SpeciesFileGroup/taxonworks/issues/3427
+[#3348]: https://github.com/SpeciesFileGroup/taxonworks/issues/3348
 [#3425]: https://github.com/SpeciesFileGroup/taxonworks/issues/3425
 [#3426]: https://github.com/SpeciesFileGroup/taxonworks/issues/3426
+[#3427]: https://github.com/SpeciesFileGroup/taxonworks/issues/3427
 
 ## [0.33.0] - 2023-05-19
 

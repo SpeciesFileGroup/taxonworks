@@ -358,11 +358,12 @@ module Queries
         return nil if documents.nil?
 
         if documents
-          ::Source.joins(:documents).distinct
+          ::Source.joins(:documents, :project_sources).where(project_sources: {project_id:}).distinct
         else
-          ::Source.left_outer_joins(:documents)
-            .where(documents: {id: nil})
-            .distinct
+          a = ::Source.where.missing(:documents).distinct
+          b = ::Source.joins(:project_sources).where(project_sources: {project_id: }).where.missing(:documentation).distinct
+
+          ::Source.from("((#{a.to_sql}) UNION (#{b.to_sql})) as sources")
         end
       end
 

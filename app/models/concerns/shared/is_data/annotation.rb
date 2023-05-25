@@ -24,7 +24,7 @@ module Shared::IsData::Annotation
     def annotates?
       self < Shared::PolymorphicAnnotator ? true : false
     end
-    
+
     # Determines whether the class can be annotated
     # in one of the following ways
     ::ANNOTATION_TYPES.each do |t|
@@ -69,20 +69,34 @@ module Shared::IsData::Annotation
 
   # @return [Hash]
   def annotation_metadata(project_id = nil)
-   h = (available_annotation_types - [:attribution, :identifiers]).inject({}){|hsh, a| hsh.merge!(a => {total: send(a).count})}
-   if has_attribution?
-     h[:attribution] = {total: (send(:attribution).present? ? 1 : 0)}
-   end
+    h = {}
 
-   if has_identifiers?
-     if project_id
-       h[:identifiers] = {total: ( send(:identifiers).visible(project_id).count)}
-     else
-       h[:identifiers] = {total: ( send(:identifiers).count) }
-     end
-   end
+    # Use a fixed order for UI stability
+    ANNOTATION_TYPES.each do |t|
+      next unless available_annotation_types.include?(t)
+      case t
+      when :documentation
 
-   h
+        if project_id
+          h[:documentation] = {total: documentation.where(documentation: {project_id:}).count}
+        else
+          h[:documentation] = {total: ( send(:documentation).count) }
+        end
+
+      when :attribution
+        h[:attribution] = {total: (send(:attribution).present? ? 1 : 0)}
+      when :identifiers
+
+        if project_id
+          h[:identifiers] = {total: ( send(:identifiers).visible(project_id).count)}
+        else
+          h[:identifiers] = {total: ( send(:identifiers).count) }
+        end
+      else
+        h[t] = { total: send(t).count }
+      end
+    end
+    h
   end
 
   protected
