@@ -21,9 +21,9 @@ module BatchLoad
 
     # @param [Hash] args
     def initialize(nomenclature_code: nil, parent_taxon_name_id: nil, also_create_otu: false, **args)
-      @nomenclature_code = nomenclature_code
-      @parent_taxon_name_id = parent_taxon_name_id
-      @also_create_otu = also_create_otu
+      @nomenclature_code = nomenclature_code.presence
+      @parent_taxon_name_id = parent_taxon_name_id.presence
+      @also_create_otu = also_create_otu.presence
 
       super(**args)
     end
@@ -42,7 +42,6 @@ module BatchLoad
       Project.find(@project_id).root_taxon_name
     end
 
-
     # @return [Integer]
     # delegate :id, to: :parent_taxon_name, prefix: true
 
@@ -53,10 +52,11 @@ module BatchLoad
       i = 0
       taxon_names = {}
 
-      csv.each do |row|
-        i += 1
+      csv.each_with_index do |row, i|
 
         parse_result = BatchLoad::RowParse.new
+        parse_result.row_number = i # check vs. header etc.
+
         parse_result.objects[:original_taxon_name] = []
         parse_result.objects[:taxon_name] = []
         parse_result.objects[:taxon_name_relationship] = []
@@ -67,10 +67,14 @@ module BatchLoad
         begin
           next if ['complex', 'species group', 'series', 'variety', 'unidentified'].include?(row['rank'])
 
+          rank = Ranks.lookup(@nomenclature_code.to_sym, row['rank'])
+
+          parse_result.parse_errors.push 'Unknown rank.' if rank.blank?
+
           protonym_attributes = {
             name: row['taxon_name'],
             year_of_publication: year_of_publication(row['author_year']),
-            rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['rank']),
+            rank_class: rank,
             by: user,
             project:,
             verbatim_author: verbatim_author(row['author_year']),
@@ -117,10 +121,14 @@ module BatchLoad
 
           taxon_names[taxon_name_id] = p
 
-          if taxon_names[parent_id].nil?
+          if parent_id.blank?
             p.parent_id = parent_taxon_name_id
           else
-            p.parent = taxon_names[parent_id]
+            if taxon_names[parent_id]
+              p.parent = taxon_names[parent_id]
+            else
+              parse_result.parse_errors.push 'Parent ID is not defined at this point! Row out of order?'
+            end
           end
 
           # TaxonNameRelationship
@@ -141,6 +149,7 @@ module BatchLoad
                 parse_result.objects[:taxon_name_relationship].push taxon_name_relationship
               end
             rescue NameError
+              parse_result.parse_errors.push 'Unknown taxon name relationship'
             end
           end
 
@@ -148,9 +157,12 @@ module BatchLoad
 
           # TODO: add to index, not here
           if name_nomen_classification = row['name_nomen_classification']
-            if c = name_nomen_classification.safe_constantize
-              # if EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(name_nomen_classification)
-              p.taxon_name_classifications_attributes = [ {type: name_nomen_classification} ]
+            begin
+              if c = name_nomen_classification.safe_constantize
+                p.taxon_name_classifications_attributes = [ {type: name_nomen_classification} ]
+              end
+            rescue NameError
+              parse_result.parse_errors.push 'Unknown taxon name classification'
             end
           end
 

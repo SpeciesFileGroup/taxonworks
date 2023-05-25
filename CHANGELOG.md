@@ -7,9 +7,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- NOMEN batch importer error handling/reporting improvements [#3427]
+
 ### Changed
 
-- NOMEN batch importer treats authors only as verbvatim, Roles are no longer created
+- NOMEN batch importer treats authors only as verbvatim, Roles are no longer created.
 
 ### Fixed
 
@@ -19,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pagination doesn't work correctly in Filter biological associations [#3426]
 - Records per page doesn't work on page change in Citations by source task
 
+[#3427]: https://github.com/SpeciesFileGroup/taxonworks/issues/3427
 [#3425]: https://github.com/SpeciesFileGroup/taxonworks/issues/3425
 [#3426]: https://github.com/SpeciesFileGroup/taxonworks/issues/3426
 

@@ -22,11 +22,11 @@
         <%= batch_line_link_td(i) -%>
         <%= batch_all_objects_count_td(rp) -%>
         <td>
-          <%= rp.objects[:taxon_name].each_with_index.collect{|n, i| "#{i + 1}: " +  n.get_full_name.to_s }.join('<br>').html_safe -%>
+          <%= nomen_row_object_preview(rp.objects[:taxon_name]) %>
         </td>
         <%= batch_data_errors_td(rp) -%>
         <%= batch_parse_errors_td(rp) -%>
-      </tr>
+      /tr>
     <% end -%>
   </table>
 <% end %>
