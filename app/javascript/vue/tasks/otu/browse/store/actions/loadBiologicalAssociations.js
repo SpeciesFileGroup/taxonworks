@@ -74,6 +74,4 @@ export default async ({ state, commit, dispatch }, globalId) => {
     MutationNames.SetBiologicalAssociations,
     state.biologicalAssociations.concat(data)
   )
-
-  await dispatch(ActionNames.LoadRelatedBAs, data)
 }

@@ -957,7 +957,7 @@ class Protonym < TaxonName
 
   def validate_parent_rank_is_higher
     if parent && !rank_class.blank? && rank_string != 'NomenclaturalRank'
-      if RANKS.index(rank_string) <= RANKS.index(parent.rank_string)
+      if RANKS.index(rank_string).to_i <= RANKS.index(parent.rank_string).to_i
         errors.add(:parent_id, "The parent rank (#{parent.rank_class.rank_name}) is not higher than the rank (#{rank_name}) of this taxon")
       end
     end

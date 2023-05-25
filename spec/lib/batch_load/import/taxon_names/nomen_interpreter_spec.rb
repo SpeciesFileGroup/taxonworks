@@ -27,6 +27,16 @@ describe BatchLoad::Import::TaxonNames::NomenInterpreter, type: :model do
 
   let(:import) { BatchLoad::Import::TaxonNames::NomenInterpreter.new( **import_params ) }
 
+ #specify 'handle parent recursion errors gracefully' do
+ #  f =  Rack::Test::UploadedFile.new('spec/files/batch/taxon_name/NomenTestRecursive.tab')
+ #  p = import_params
+ #  p[:file] = f
+ #
+ #  i =  BatchLoad::Import::TaxonNames::NomenInterpreter.new( **p )
+
+ #  i.build
+ #  expect(i.create).to be_truthy
+ #end
 
   specify 'parent_taxon_name_id (provided)' do
     g = Protonym.create!(parent: root_taxon_name, name: 'Orderum', rank_class: Ranks.lookup(:iczn, :order))
