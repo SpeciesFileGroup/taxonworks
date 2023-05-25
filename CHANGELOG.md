@@ -13,15 +13,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- autocomplete requests optimized by speed
 - NOMEN batch importer treats authors only as verbvatim, Roles are no longer created.
 
 ### Fixed
 
+- Email errors on taxon_name.rank_name and paper_catalogue.combination
 - Documents facet in Source filter
 - Documents from other projects appearing in count on radial annotator [#3348]
 - Verbatim name contained 'Suffix' [#3425]
 - Observation matrix facet doesn't work in Filter descriptors
-- lock Is original and Is absent chekcboxes in citation form
+- lock Is original and Is absent checkboxes in citation form
 - Pagination doesn't work correctly in Filter biological associations [#3426]
 - Records per page doesn't work on page change in Citations by source task
 
@@ -46,7 +48,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
-- autocomplete requests optimized by speed
 - Updated author and year string for family-group names
 - Recent predicate list
 - Recent languages list
@@ -55,7 +56,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
-- Email errors on taxon_name.rank_name and paper_catalogue.combination
 - Nomen (was "castor") batch load was not assigning parent correctly [#3409]
 - Source and People API endpoints don't try to authenticate [#3407]
 - Date range in filter Collection Object not being applied [#3418]
