@@ -182,7 +182,7 @@ export default {
         (item) =>
           item.geographic_area.id ===
             this.asserted_distribution.geographic_area_id &&
-          !!this.asserted_distribution.is_absent !== !!item.geographic_area.id
+          !!this.asserted_distribution.is_absent === !!item.is_absent
       )
       const params = {
         asserted_distribution: {
