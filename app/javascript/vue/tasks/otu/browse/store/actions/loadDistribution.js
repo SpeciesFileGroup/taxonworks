@@ -13,9 +13,10 @@ export default async ({ state, commit }, otuId) => {
   if (isSpeciesGroup) {
     commit(MutationNames.SetGeoreferences, body)
   } else {
-    commit(MutationNames.SetGeoreferences, {
-      features: [JSON.parse(body.geo_json)]
-    })
+    const geojson = JSON.parse(body.geo_json)
+
+    geojson.properties = { aggregate: true }
+    commit(MutationNames.SetGeoreferences, { features: [geojson] })
   }
 
   state.loadState.distribution = false
