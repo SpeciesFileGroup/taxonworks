@@ -317,6 +317,9 @@ class OtusController < ApplicationController
    
         render json: { error: 'no map available'}, status: :not_found unless @cached_map.present? and return 
       end
+
+      format.geojson do
+      end
     end
 
   end
