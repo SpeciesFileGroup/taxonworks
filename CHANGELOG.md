@@ -12,6 +12,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Error on catalog_helper: history_other_name
 - Error on taxon_name_relationship on rank_name.
 - Create new asserted distribution when `is_absent` is checked in New asserted distribution task
+- Repository selection does not appear in Filter Collection Objects [#3430]
+
+[#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430
 
 ## [0.33.1] - 2023-05-25
 
