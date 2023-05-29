@@ -9,6 +9,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Error on catalog_helper: history_other_name
+- Error on taxon_name_relationship on rank_name.
 - Create new asserted distribution when `is_absent` is checked in New asserted distribution task
 
 ## [0.33.1] - 2023-05-25
