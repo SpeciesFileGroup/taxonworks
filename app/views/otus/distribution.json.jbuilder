@@ -1,2 +1,6 @@
 json.otu_id @otu.id
-json.geo_json @otu.cached_map_string(@cached_map_type)
+
+json.cached_map do
+  json.id @quicker_cached_map.id
+  json.geo_json @quicker_cached_map.geo_json_to_s
+end

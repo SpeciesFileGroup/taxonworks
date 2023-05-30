@@ -2,7 +2,21 @@ class CachedMap < ApplicationRecord
   include Housekeeping::Projects
   include Housekeeping::Timestamps
   include Shared::IsData
-  
+
+  # @param GeoJSON in string form
+  attr_writer :geo_json_string
+
+  # @return Boolean, nil
+  attr_accessor :force_rebuild
+
+  before_validation :rebuild, if: :force_rebuild, on: [ :update ]
+
+  def rebuild
+    if !synced?
+      self.geo_json_string = CachedMap.calculate_union(otu, cached_map_type: )
+    end
+  end
+
   belongs_to :otu
 
   # All cached_map items used to compose this cached_map.
@@ -14,11 +28,19 @@ class CachedMap < ApplicationRecord
   validates_presence_of :geometry
   validates_presence_of :reference_count
 
-  def synced?
-    cached_map_items_reference_total == reference_count && latest_cached_map_item.created_at <= created_at 
+  def geo_json_string=(value)
+    # Would be nice to write as string and convert in a hook after save so that
+    # we don't have to decode Ruby side.
+    # self.foo = "ST_GeomFromGeoJSON('#{value}')"
+    self.geometry = RGeo::GeoJSON.decode(value, json_parser: :json)
   end
 
-  def latest_cached_map_item 
+  def synced?
+    cached_map_items_reference_total == reference_count && latest_cached_map_item.created_at <= created_at
+  end
+
+
+  def latest_cached_map_item
     cached_map_items.order(:updated_at).first
   end
 
@@ -33,5 +55,39 @@ class CachedMap < ApplicationRecord
       Otu.coordinate_otus(otu.id)
     end
   end
+
+  def geo_json_to_s
+    if respond_to?(:geo_json) # loaded as string in query in prior use
+      geo_json
+    else
+      CachedMap.select('ST_AsGeoJSON(geometry) geo_json').find(id).geo_json
+    end
+  end
+
+  def self.calculate_union(otu_scope, cached_map_type = 'CachedMapItem::WebLevel1')
+    i = ::GeographicItem.select("#{GeographicItem::GEOMETRY_SQL.to_sql}")
+      .joins('JOIN cached_map_items cmi on cmi.geographic_item_id = geographic_items.id')
+      .joins('JOIN otu_scope AS otu_scope1 on otu_scope1.id = cmi.otu_id').distinct
+
+    s = "WITH otu_scope AS (#{otu_scope.to_sql}) " + i.to_sql
+
+    sql = "SELECT
+             ST_AsGeoJSON(
+               ST_CollectionHomogenize (
+                 ST_CollectionExtract(
+                   ST_Union(geom_array)
+                 )
+               )
+            ) AS geojson
+          FROM (
+            SELECT ARRAY(
+              #{s}
+            ) AS geom_array
+          ) AS subquery;"
+
+    r = ActiveRecord::Base.connection.execute(sql)
+    r[0]['geojson']
+  end
+
 
 end

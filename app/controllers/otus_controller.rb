@@ -307,23 +307,33 @@ class OtusController < ApplicationController
     end
   end
 
+  # TODO: Redirect to json if too big?
   # GET /otus/:id/inventory/distribution.json
   # GET /otus/:id/inventory/distribution.geojson
   def distribution
     respond_to do |format|
       format.json do
         @cached_map_type = params[:cached_map_type] || 'CachedMapItem::WebLevel1'
-        @cached_map = @otu.cached_map(@cached_map_type)
-   
-        render json: { error: 'no map available'}, status: :not_found unless @cached_map.present? and return 
+        @quicker_cached_map = @otu.quicker_cached_map(@cached_map_type)
+
+        render json: { error: 'no map available'}, status: :not_found unless @quicker_cached_map.present? and return
       end
 
       format.geojson do
       end
     end
-
   end
 
+  # TODO: Considerations
+  # .json
+  #   * Scope Genus, Family by default
+  #   *
+  #   * 404 when no CachedMap computable
+  #
+  # .geo_json
+  #   * Always returns result, could be empty
+  #
+  #
   # GET /api/v1/otus/:id/inventory/distribution
   def api_distribution
     render '/otus/api/v1/distribution'

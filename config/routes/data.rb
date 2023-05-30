@@ -62,7 +62,7 @@ resources :biological_relationships do
   end
 end
 
-resources :cached_maps, only: [:show], defaults: {format: :json} do 
+resources :cached_maps, only: [:show, :update], defaults: {format: :json} do
 end
 
 resources :character_states do

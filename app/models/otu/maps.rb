@@ -2,12 +2,10 @@ module Otu::Maps
 
   extend ActiveSupport::Concern
 
-
-  included do  
+  included do
     has_many :cached_maps, dependent: :destroy
     has_many :cached_map_items, dependent: :destroy
   end
-
 
   #
   # TODO: If:
@@ -15,52 +13,27 @@ module Otu::Maps
   #       Should, in theory, speed-up higher level maps
   #
   def create_cached_map(cached_map_type = 'CachedMapItem::WebLevel1', force = false)
+
     if force
       cached_map = cached_maps.where(cached_map_type:)
       cached_map&.destroy
     end
 
-    q = nil
+    # All the OTUs feeding into this map.
+    otu_scope = nil
 
-    if taxon_name_id.present?
-      q = Otu.select(:id).descendant_of_taxon_name(taxon_name_id)
+    if self.taxon_name_id.present?
+      otu_scope = Otu.select(:id).descendant_of_taxon_name(taxon_name_id)
     else
-      q = Otu.select(:id).where(id: id)
+      otu_scope = Otu.select(:id).where(id:)
     end
 
-    i = ::GeographicItem.select("#{GeographicItem::GEOMETRY_SQL.to_sql}")
-      .joins('JOIN cached_map_items cmi on cmi.geographic_item_id = geographic_items.id')
-      .joins('JOIN otu_scope AS otu_scope1 on otu_scope1.id = cmi.otu_id').distinct
-
-    s = "WITH otu_scope AS (#{q.to_sql}) " + i.to_sql
-
-    sql = "SELECT
-              ST_AsGeoJSON(
-                ST_CollectionHomogenize (
-                  ST_CollectionExtract(
-                    ST_Union(geom_array)
-                  )
-                )
-            ) AS geojson
-          FROM (
-            SELECT ARRAY(
-              #{s}
-            ) AS geom_array
-          ) AS subquery;"
-
-    r = ActiveRecord::Base.connection.execute(sql)
-
-    # TODO: maybe we don't have to decode before write
-    gj = r[0]['geojson']
-
-    if gj
-      g = RGeo::GeoJSON.decode(gj, json_parser: :json)
-
+    if gj = CachedMap.calculate_union(otu_scope, cached_map_type:)
       map = CachedMap.create!(
         otu: self,
-        geometry: g,
+        geo_json_string: gj, # Geometry conversion here
         cached_map_type:,
-        reference_count: CachedMapItem.where(otu: q, type: cached_map_type).sum(:reference_count)
+        reference_count: CachedMapItem.where(otu: otu_scope, type: cached_map_type).sum(:reference_count)
       )
 
       map
@@ -70,9 +43,10 @@ module Otu::Maps
   end
 
   # @return CachedMap
+  #   !! Geometry is included in these objects
   def cached_map(cached_map_type = 'CachedMapItem::WebLevel1')
     m = cached_maps.where(cached_map_type:).first
-    m ||= create_cached_map 
+    m ||= create_cached_map
     m
   end
 
@@ -83,7 +57,7 @@ module Otu::Maps
   end
 
   # @return GeoJSON
-  #   A hash (JSON) formmated version of the geo-json
+  #   A hash (JSON) formated version of the geo-json
   def cached_map_geo_json(cached_map_type = 'CachedMapItem::WebLevel1')
     JSON.parse( cached_map_string(cached_map_type) )
   end
@@ -92,9 +66,19 @@ module Otu::Maps
   #   A string representation of the geo json
   def cached_map_string(cached_map_type = 'CachedMapItem::WebLevel1')
     mid = cached_map_id # don't load the whole object
-    mid ||= cached_map.id # cneed to create the object first
+
+    # Takes a long time.
+    mid ||= cached_map.id # need to create the object first
 
     CachedMap.select('ST_AsGeoJSON(geometry) geo_json').where(id: mid).first.geo_json
+  end
+
+  # Prioritize an existing version
+  #   !! Always builds
+  def quicker_cached_map(cached_map_type = 'CachedMapItem::WebLevel1')
+    m = cached_maps.select('id, otu_id, reference_count, project_id, created_at, updated_at, cached_map_type, ST_AsGeoJSON(geometry) geo_json').where(cached_map_type:).first
+    m ||= create_cached_map
+    m
   end
 
   #  def png
