@@ -1,4 +1,8 @@
+# A CachedMapItemTranslation records the translation of an ID of a GeographicItem in one scheme
+# to an ID in a corresponding mapping scheme.
 #
+# @param cached_map_type
+#   The type of map the translation is relevant for.
 #
 class CachedMapItemTranslation < ApplicationRecord
   include Housekeeping::Timestamps
