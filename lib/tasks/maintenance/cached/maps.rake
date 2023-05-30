@@ -68,7 +68,7 @@ namespace :tw do
 
         desc 'build CachedMapItems for Georeferences that do not have them'
         task parallel_create_cached_map_from_georeferences: [:environment] do |t|
-          q = Georeference.where.missing(:cached_map_register)
+          q = Georeference.joins(:otus).where.missing(:cached_map_register).distinct
 
           puts "Caching #{q.all.size} georeferences records."
 

@@ -94,6 +94,10 @@ module Shared::Maps
       Behavior::Maps::DEFAULT_CACHED_BUILD_TYPES.each do |map_type|
         stubs = CachedMapItem.stubs(self, map_type)
 
+        # Georeferences with no CollectionObjects will hit here
+        #  TODO: do we still register this?
+        return true if stubs[:otu_id].empty?
+
         stubs[:geographic_item_id].each do |geographic_item_id|
           name_hierarchy = CachedMapItem.cached_map_name_hierarchy(geographic_item_id)
           stubs[:otu_id].each do |otu_id|
