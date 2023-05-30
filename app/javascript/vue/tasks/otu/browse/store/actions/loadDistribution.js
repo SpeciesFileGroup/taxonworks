@@ -11,16 +11,18 @@ export default async ({ state, commit }, otuId) => {
 
   function loadDistribution() {
     Otu.distribution(otuId)
-      .then(({ body }) => {
-        const geojson = JSON.parse(body.cached_map.geo_json)
+      .then((response) => {
+        if (response.status === 404) return
+        const geojson = JSON.parse(response.body.cached_map.geo_json)
 
         geojson.properties = { aggregate: true }
         commit(MutationNames.SetGeoreferences, { features: [geojson] })
 
-        CachedMap.find(body.cached_map.id).then((response) => {
+        CachedMap.find(response.body.cached_map.id).then((response) => {
           state.cachedMap = response.body
         })
       })
+      .catch(() => {})
       .finally((_) => {
         state.loadState.distribution = false
       })
@@ -32,7 +34,9 @@ export default async ({ state, commit }, otuId) => {
         commit(MutationNames.SetGeoreferences, response.body)
         state.loadState.distribution = false
       })
-      .catch(() => loadDistribution())
+      .catch(() => {
+        loadDistribution()
+      })
   } else {
     loadDistribution()
   }

@@ -111,7 +111,7 @@ function makeInitialState() {
     collectingEvents: [],
     collectionObjects: [],
     otus: [],
-    georeferences: [],
+    georeferences: { features: [] },
     typeMaterials: [],
     depictions: [],
     commonNames: [],
