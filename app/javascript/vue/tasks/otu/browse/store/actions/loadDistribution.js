@@ -13,7 +13,7 @@ export default async ({ state, commit }, otuId) => {
   if (isSpeciesGroup) {
     commit(MutationNames.SetGeoreferences, body)
   } else {
-    const geojson = JSON.parse(body.geo_json)
+    const geojson = JSON.parse(body.cached_map.geo_json)
 
     geojson.properties = { aggregate: true }
     commit(MutationNames.SetGeoreferences, { features: [geojson] })
