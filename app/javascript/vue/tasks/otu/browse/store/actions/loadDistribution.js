@@ -6,17 +6,24 @@ export default async ({ state, commit }, otuId) => {
   const taxonRank = state.taxonName?.rank_string
   const isSpeciesGroup =
     taxonRank && isRankGrpup(TAXON_RANK_SPECIES_GROUP, taxonRank)
-  const { body } = isSpeciesGroup
-    ? await Otu.geoJsonDistribution(otuId)
-    : await Otu.distribution(otuId)
+
+  function loadDistribution() {
+    Otu.distribution(otuId).then(({ body }) => {
+      const geojson = JSON.parse(body.cached_map.geo_json)
+
+      geojson.properties = { aggregate: true }
+      commit(MutationNames.SetGeoreferences, { features: [geojson] })
+    })
+  }
 
   if (isSpeciesGroup) {
-    commit(MutationNames.SetGeoreferences, body)
+    Otu.geoJsonDistribution(otuId)
+      .then((response) => {
+        commit(MutationNames.SetGeoreferences, response.body)
+      })
+      .catch(() => loadDistribution())
   } else {
-    const geojson = JSON.parse(body.cached_map.geo_json)
-
-    geojson.properties = { aggregate: true }
-    commit(MutationNames.SetGeoreferences, { features: [geojson] })
+    loadDistribution()
   }
 
   state.loadState.distribution = false
