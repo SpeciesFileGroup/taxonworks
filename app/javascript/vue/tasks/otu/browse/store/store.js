@@ -121,7 +121,8 @@ function makeInitialState() {
       georeferences: []
     },
     observationsDepictions: [],
-    userId: undefined
+    userId: undefined,
+    cachedMap: undefined
   }
 }
 

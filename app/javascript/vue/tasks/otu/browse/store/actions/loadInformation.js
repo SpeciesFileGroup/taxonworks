@@ -20,7 +20,7 @@ export default async ({ dispatch, commit, state }, otus) => {
 
   dispatch(ActionNames.LoadDistribution, currentOtu.id)
 
-  /*   TaxonName.all({
+  TaxonName.all({
     taxon_name_id: [...new Set(otus.map((otu) => otu.taxon_name_id))]
   }).then((response) => {
     commit(MutationNames.SetTaxonNames, response.body)
@@ -46,5 +46,5 @@ export default async ({ dispatch, commit, state }, otus) => {
   dispatch(
     ActionNames.LoadAssertedDistributions,
     state.otus.map((otu) => otu.id)
-  ) */
+  )
 }

@@ -35,12 +35,18 @@
       :options="TABS"
       v-model="view"
     /> -->
-    <map-component
-      width="100%"
-      :zoom="2"
-      :zoom-on-click="false"
-      :geojson="shapes"
-    />
+    <div class="relative">
+      <map-component
+        width="100%"
+        :zoom="2"
+        :zoom-on-click="false"
+        :geojson="shapes"
+      />
+      <CachedMap
+        v-if="cachedMap"
+        :cached-map="cachedMap"
+      />
+    </div>
   </section-panel>
 </template>
 
@@ -53,6 +59,7 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
+import CachedMap from './CachedMap.vue'
 
 const MAX_LIST = 10
 const TABS = ['georeferences', 'asserted distributions', 'both']
@@ -76,6 +83,8 @@ const props = defineProps({
 const georeferences = computed(
   () => store.getters[GetterNames.GetGeoreferences]
 )
+
+const cachedMap = computed(() => store.getters[GetterNames.GetCachedMap])
 
 const descedantsGeoreferences = computed(
   () => store.getters[GetterNames.GetDescendants].georeferences
