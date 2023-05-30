@@ -129,7 +129,7 @@ module Queries
               a = a.joins(:roles).where(role_match.to_sql)
             end
 
-            if q[1] # do not use extended query for identifiers
+            if q[1] && query_string.length > 1 # do not use extended query for identifiers
               if project_id.present?
                 a = a.left_outer_joins(:roles)
                 .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")

@@ -41,6 +41,7 @@
           <label>
             <input
               v-model="citation.is_original"
+              :value="citation.is_original"
               type="checkbox"
               @change="setIsOriginal"
             />
@@ -51,8 +52,9 @@
           <label>
             <input
               v-model="isAbsent"
+              :value="isAbsent"
               type="checkbox"
-              @change="setIsOriginal"
+              @change="setIsAbsent"
             />
             Is absent
           </label>
@@ -215,6 +217,12 @@ function setPage(e) {
 function setIsOriginal(e) {
   if (props.useSession) {
     sessionStorage.setItem(STORAGE.isOriginal, e.target.value)
+  }
+}
+
+function setIsAbsent(e) {
+  if (props.useSession) {
+    sessionStorage.setItem(STORAGE.isAbsent, e.target.value)
   }
 }
 

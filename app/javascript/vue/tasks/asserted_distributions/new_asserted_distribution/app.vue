@@ -216,9 +216,11 @@ export default {
           otu_id: assertedDistribution.otu_id,
           geographic_area_id: assertedDistribution.geographic_area_id,
           extend
-        }).then(response => {
-          if (response.body.length) {
-            assertedDistribution.id = response.body[0].id
+        }).then(({ body }) => {
+          const record = body.find(item => !!item.is_absent === !!assertedDistribution.is_absent)
+
+          if (record) {
+            assertedDistribution.id = record.id
             this.updateRecord(assertedDistribution)
           } else {
             this.createRecord(assertedDistribution)

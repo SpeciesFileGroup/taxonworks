@@ -29,9 +29,8 @@ module BatchLoad::BatchLoadHelper
   end
 
   def batch_data_errors_td(rp, sep = '; ')
-
     errors = {}
-    rp.objects.each do |klass, objs| 
+    rp.objects.each do |klass, objs|
       objs.each do |o|
         if !o.valid?
           errors[klass] ||= []
@@ -54,7 +53,13 @@ module BatchLoad::BatchLoadHelper
   end
 
   def batch_parse_errors_td(rp, sep = '; ')
-    content_tag(:td, rp.parse_errors.join(sep).html_safe)
+    if rp.parse_errors.present?
+      tag.td(
+        tag.span(rp.parse_errors.join(sep).html_safe, class: [:feedback,'feedback-thin', 'feedback-danger'])
+      )
+    else
+      tag.td
+    end
   end
 
   def batch_valid_objects_td(rp)

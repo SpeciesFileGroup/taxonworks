@@ -1066,12 +1066,15 @@ class TaxonName < ApplicationRecord
   end
 
 
-  # Returns an Array of ancestors
-  #   same as self.ancestors, but also works
-  #   for new records when parents specified
+  # @return [Array]
+  #   of TaxonName 
+  #   same as self.ancestors.to_a, but also works
+  #    for new records when parents specified
   def ancestors_through_parents(result = [self], start = self)
     if start.parent.nil?
       return result.reverse
+    elsif result.include?(start.parent)
+      raise  TaxonWorks::Error, 'parents contain infinfinte loop'
     else
       result << start.parent
       ancestors_through_parents(result, start.parent)
@@ -1143,6 +1146,7 @@ class TaxonName < ApplicationRecord
 
     # !! TODO: create a persisted only version of this for speed
     # !! You can not use self.self_and_ancestors because (this) record is not saved off.
+
     safe_self_and_ancestors.each do |i|
       rank = i.rank
       gender = i.gender_name if rank == 'genus'

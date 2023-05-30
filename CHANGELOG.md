@@ -9,7 +9,42 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Error on catalog_helper: history_other_name
+- Error on taxon_name_relationship on rank_name.
+- Create new asserted distribution when `is_absent` is checked in New asserted distribution task
+- Repository selection does not appear in Filter Collection Objects [#3430]
+
+[#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430
+
+## [0.33.1] - 2023-05-25
+
+### Added
+
+- NOMEN batch importer error handling/reporting improvements [#3427]
+- More annotation-related facets to Observations filter
+
+### Changed
+
+- Autocomplete requests optimized by speed
+- NOMEN batch importer treats authors only as verbvatim, Roles are no longer created.
+
+### Fixed
+
+- Without depictions filter facets
+- Descriptors facets referencing observation/matrix presence/absence
+- Errors on taxon_name.rank_name and paper_catalogue.combination
+- Documents facet in Source filter
+- Documents from other projects appearing in count on radial annotator [#3348]
+- Verbatim name contained 'Suffix' [#3425]
 - Observation matrix facet doesn't work in Filter descriptors
+- Lock Is original and Is absent checkboxes in citation form
+- Pagination doesn't work correctly in Filter biological associations [#3426]
+- Records per page doesn't work on page change in Citations by source task
+
+[#3348]: https://github.com/SpeciesFileGroup/taxonworks/issues/3348
+[#3425]: https://github.com/SpeciesFileGroup/taxonworks/issues/3425
+[#3426]: https://github.com/SpeciesFileGroup/taxonworks/issues/3426
+[#3427]: https://github.com/SpeciesFileGroup/taxonworks/issues/3427
 
 ## [0.33.0] - 2023-05-19
 
@@ -3632,7 +3667,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.33.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.33.1...development
+[0.33.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.33.0...v0.33.1
 [0.33.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.3...v0.33.0
 [0.32.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.2...v0.32.3
 [0.32.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.1...v0.32.2

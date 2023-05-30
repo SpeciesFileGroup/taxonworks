@@ -17,7 +17,6 @@ ActiveRecord::Schema.define(version: 2023_05_22_144810) do
   enable_extension "hstore"
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "postgis_raster"
   enable_extension "tablefunc"
 
   create_table "alternate_values", id: :serial, force: :cascade do |t|
@@ -172,6 +171,7 @@ ActiveRecord::Schema.define(version: 2023_05_22_144810) do
     t.index ["updated_by_id"], name: "bio_rel_updated_by"
   end
 
+<<<<<<< HEAD
   create_table "cached_map_item_translations", force: :cascade do |t|
     t.bigint "geographic_item_id"
     t.bigint "translated_geographic_item_id"
@@ -225,6 +225,8 @@ ActiveRecord::Schema.define(version: 2023_05_22_144810) do
     t.index ["project_id"], name: "index_cached_maps_on_project_id"
   end
 
+=======
+>>>>>>> development
   create_table "character_states", id: :serial, force: :cascade do |t|
     t.string "name", null: false
     t.string "label", null: false
@@ -2123,9 +2125,6 @@ ActiveRecord::Schema.define(version: 2023_05_22_144810) do
   add_foreign_key "biological_relationships", "projects", name: "biological_relationships_project_id_fkey"
   add_foreign_key "biological_relationships", "users", column: "created_by_id", name: "biological_relationships_created_by_id_fkey"
   add_foreign_key "biological_relationships", "users", column: "updated_by_id", name: "biological_relationships_updated_by_id_fkey"
-  add_foreign_key "cached_map_item_translations", "geographic_items"
-  add_foreign_key "cached_map_item_translations", "geographic_items", column: "translated_geographic_item_id"
-  add_foreign_key "cached_map_registers", "projects"
   add_foreign_key "character_states", "descriptors"
   add_foreign_key "character_states", "projects"
   add_foreign_key "character_states", "users", column: "created_by_id"

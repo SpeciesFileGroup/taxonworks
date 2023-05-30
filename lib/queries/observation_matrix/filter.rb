@@ -3,7 +3,8 @@ module Queries
     class Filter < Query::Filter
 
       PARAMS = [
-        :observation_matrix_id
+        :observation_matrix_id,
+        observation_matrix_id: []
       ].freeze
 
       attr_accessor :observation_matrix_id

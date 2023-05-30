@@ -10,7 +10,6 @@ import loadPreferences from './loadPreferences'
 import loadAssertedDistributions from './loadAssertedDistributions'
 import loadDescendants from './loadDescendants'
 import loadTaxonName from './loadTaxonName'
-import loadRelatedBAs from './loadRelatedBAs'
 import loadObservationDepictions from './loadObservationDepictions'
 import loadOtus from './loadOtus'
 import resetStore from './resetStore'
@@ -28,7 +27,6 @@ const ActionFunctions = {
   [ActionNames.LoadObservationDepictions]: loadObservationDepictions,
   [ActionNames.LoadOtus]: loadOtus,
   [ActionNames.LoadPreferences]: loadPreferences,
-  [ActionNames.LoadRelatedBAs]: loadRelatedBAs,
   [ActionNames.LoadTaxonName]: loadTaxonName,
   [ActionNames.ResetStore]: resetStore
 }

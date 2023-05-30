@@ -75,9 +75,9 @@ module Queries::Concerns::Protocols
   def protocols_facet
     return nil if protocols.nil?
     if protocols
-      referenced_table.joins(:protocols).distinct
+      referenced_klass.joins(:protocols).distinct
     else
-      referenced_table.where.mising(:protocols)
+      referenced_klass.where.missing(:protocols)
     end
   end
 

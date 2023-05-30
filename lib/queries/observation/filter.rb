@@ -6,6 +6,9 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
       include Queries::Concerns::Depictions
+      include Queries::Concerns::DataAttributes
+      include Queries::Concerns::Protocols
+      include Queries::Concerns::Notes
       include Queries::Concerns::Citations
 
       PARAMS = [
@@ -79,6 +82,8 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @descendants = boolean_param(params, :descendants)
 
+        set_data_attributes_params(params)
+        set_protocols_params(params)
         set_citations_params(params)
         set_depiction_params(params)
         set_tags_params(params)

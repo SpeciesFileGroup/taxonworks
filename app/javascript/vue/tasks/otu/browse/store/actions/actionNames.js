@@ -10,7 +10,6 @@ const ActionNames = {
   LoadAssertedDistributions: 'loadAssertedDistributions',
   LoadDescendants: 'loadDescendants',
   LoadTaxonName: 'loadTaxonName',
-  LoadRelatedBAs: 'loadRelatedBAs',
   LoadObservationDepictions: 'loadObservationDepictions',
   LoadOtus: 'loadOtus',
   ResetStore: 'resetStore'
