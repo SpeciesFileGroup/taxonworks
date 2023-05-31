@@ -106,9 +106,8 @@ jobs:
           return context.ref.startsWith('refs/tags/v') ? context.ref.replace('refs/tags/v', '') : 'latest'
 
     - name: Push image to DockerHub
-      if: ${{ github.event_name != 'pull_request' }}
       env:
-        DOCKER_TAG: '${{steps.docker_tag.outputs.result}}'
+        DOCKER_TAG: '3010_low_res_presence_absence'
       run: |
         docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG
         docker push sfgrp/taxonworks:$DOCKER_TAG
