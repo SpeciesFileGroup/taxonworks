@@ -22,6 +22,7 @@
     <table>
       <tr><td>Total</td><td><%= tag.strong AssertedDistribution.count %></td></tr>
       <tr><td>Unregistered</td><td><%= tag.strong AssertedDistribution.where.missing(:cached_map_register).count %></td></tr>
+      <tr><td>Registered</td><td><%= tag.strong AssertedDistribution.joins(:cached_map_register).count %></td></tr>
     </table>
   </div>
 </div>
@@ -33,6 +34,7 @@
       <tr><td>Total</td><td><%= tag.strong Georeference.count %></td></tr>
       <tr><td>Total with OTUs</td><td><%= tag.strong Georeference.joins(:otus).distinct.count %></td></tr>
       <tr><td>Unregistered</td><td><%= tag.strong Georeference.joins(:otus).where.missing(:cached_map_register).distinct.count %></td></tr>
+      <tr><td>Registered</td><td><%= tag.strong Georeference.joins(:cached_map_register).distinct.count %></td></tr>
       <tr><td>Unused (no OTUs)</td><td><%= tag.strong Georeference.where.missing(:otus).distinct.count %></td></tr>
     </table>
   </div>

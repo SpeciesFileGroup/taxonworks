@@ -17,6 +17,51 @@ namespace :tw do
       #
       namespace :maps do
 
+        desc 'destroy all cached map references'
+        task nuke_cached_maps: [:environment] do |t|
+          puts 'Nuking cached maps'
+          CachedMap.delete_all
+          CachedMapRegister.delete_all
+          CachedMapItemTranslation.delete_all
+          CachedMapItem.delete_all
+          puts 'Done.'
+        end
+
+
+        desc 'create and label a full index run'
+        task full_index: [:parallel_create_cached_map_from_asserted_distributions, :parallel_create_cached_map_from_georeferences, :parallel_label_cached_map_items] do |t|
+          puts 'Done full index.'
+        end
+
+        desc 'label cached_map_items'
+        task parallel_label_cached_map_items: [:environment] do |t|
+
+          cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
+
+          items = CachedMapItem.select(:geographic_item_id).where(
+            level0_geographic_name: nil,
+            level1_geographic_name: nil,
+            level2_geographic_name: nil
+          ).distinct
+
+          puts "Labelling #{items.count} CachedMapItems."
+
+          Parallel.each(items.each, progress: 'labelling_geographic_items', in_processes: cached_rebuild_processes ) do |o|
+            h =  CachedMapItem.cached_map_name_hierarchy(o.geographic_item_id)
+            CachedMapItem.where(geographic_item_id: o.geographic_item_id)
+              .where.not(untranslated: true)
+              .update_all(
+                level0_geographic_name: h[:country],
+                level1_geographic_name: h[:state],
+                level2_geographic_name: h[:county]
+              )
+              puts o.geographic_item_id
+            puts h
+          end
+          puts 'Done labelling cached map items.'
+        end
+
+        # NOT considered a batch = true method (labels as it builds)
         desc 'build CachedMapItems for an OTU'
         task parallel_create_cached_map_for_otu: [:environment] do |t|
 
@@ -78,7 +123,7 @@ namespace :tw do
             begin
               CachedMapItem.transaction do
                 reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
-                g.send(:create_cached_map_items)
+                g.send(:create_cached_map_items, true)
               end
               true
             rescue => exception
@@ -92,7 +137,7 @@ namespace :tw do
 
         desc 'build CachedMapItems for AssertedDistributions that do not have them'
         task parallel_create_cached_map_from_asserted_distributions: [:environment] do |t|
-          q = AssertedDistribution.joins(:geographic_items).where.missing(:cached_map_register)
+          q = AssertedDistribution.joins(:geographic_items).where.missing(:cached_map_register).distinct
 
           puts "Caching #{q.all.size} AssertedDistribution records."
 
@@ -102,7 +147,7 @@ namespace :tw do
             begin
               CachedMapItem.transaction do
                 reconnected ||= AssertedDistribution.connection.reconnect! || true # https://github.com/grosser/parallel
-                ad.send(:create_cached_map_items)
+                ad.send(:create_cached_map_items, true)
               end
               true
             rescue => exception

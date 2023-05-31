@@ -1,6 +1,6 @@
 # TODO:
 # - provide 2 shapes, absent/present when both there
-# - resolve "untranslatable" when rendering
+# - resolve "untranslated" when rendering
 # - add integrity check - sum(reference_total) == CachedMapRegister.all.size
 # - callbacks in all potentially altering models:
 #   * AssertedDistribution (geographic_area_id change, otu_id change)
@@ -40,7 +40,7 @@
 #      the number of Georeferences + AssertedDistributions that
 #   reference this OTU/shape combination. . . . .
 #
-# @!attribute untranslatable
+# @!attribute untranslated
 #   @return [Boolean, nil]
 #     if True then the the shape could not be mapped, by any translation method, to a shape allowable
 #     for this CachedMapItemType
@@ -69,7 +69,7 @@ class CachedMapItem < ApplicationRecord
   belongs_to :otu
   belongs_to :geographic_item
 
-  validates_uniqueness_of :otu_id, scope: %i[type geographic_item_id]
+  validates_uniqueness_of :otu_id, scope: [:type, :geographic_item_id]
   validates_presence_of :otu, :geographic_item, :type
 
   # @return Hash
@@ -77,15 +77,17 @@ class CachedMapItem < ApplicationRecord
   #  Check to see if a record is already present rather than-recalculate spatially
   #  CONSIDER: Use Reddis store to cache these results and look them up from there.
   def self.cached_map_name_hierarchy(geographic_item_id)
-    h =
-      CachedMapItem
+    h = CachedMapItem
         .select(
           'level0_geographic_name country, level1_geographic_name state, level2_geographic_name county'
         )
-        .find_by(geographic_item_id:)
+        .where('level0_geographic_name IS NOT NULL OR level1_geographic_name IS NOT NULL OR level2_geographic_name IS NOT NULL')
+        .find_by(geographic_item_id:) # finds first
         &.attributes
         &.compact
+
     return h if h.present?
+
     GeographicItem.find(geographic_item_id).quick_geographic_name_hierarchy
   end
 
@@ -226,22 +228,26 @@ class CachedMapItem < ApplicationRecord
 
   # @return [Array]
   # TODO: revisit cuttoff default
-  def self.translate_geographic_item_id(geographic_item_id, data_origin = nil, percent_overlap_cutoff: 50.0)
+  def self.translate_geographic_item_id(geographic_item_id, origin_type = nil, data_origin = nil, percent_overlap_cutoff: 50.0)
     return nil if data_origin.blank?
 
     cached_map_type = types_by_data_origin(data_origin)
 
-    a = translate_by_geographic_item_translation(geographic_item_id, cached_map_type)
+    a = nil
+
+    if origin_type == 'AssertedDistribution'
+      a = translate_by_geographic_item_translation(geographic_item_id, cached_map_type)
+      return a if a.present?
+
+      a = translate_by_data_origin(geographic_item_id, data_origin)
+      return a if a.present?
+
+      a = translate_by_alternate_shape(geographic_item_id, data_origin)
+      return a if a.present?
+
+      a = translate_by_cached_map_usage(geographic_item_id, cached_map_type)
      return a if a.present?
-
-    a = translate_by_data_origin(geographic_item_id, data_origin)
-    return a if a.present?
-
-    a = translate_by_cached_map_usage(geographic_item_id, cached_map_type)
-   return a if a.present?
-
-    a = translate_by_alternate_shape(geographic_item_id, data_origin)
-    return a if a.present?
+    end
 
     a, debug = translate_by_spatial_overlap(geographic_item_id, data_origin, percent_overlap_cutoff)
     return a if a.present?
@@ -266,27 +272,30 @@ class CachedMapItem < ApplicationRecord
     name_hierarchy = nil
     otu_id = nil
 
-    case o.class.base_class.name
+    base_class_name = o.class.base_class.name
+
+    case base_class_name
     when 'AssertedDistribution'
-      geographic_item_id = o.geographic_area.default_geographic_item_id # default_geographic_item.select('geographic_items.id')
+      geographic_item_id = o.geographic_area.default_geographic_item_id
       otu_id = [o.otu_id]
     when 'Georeference'
-      geographic_item_id = o.geographic_item.id
+      geographic_item_id = o.geographic_item_id
       otu_id = o.otus.where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
     end
 
-    # Some AssertedDistributions don't have shapes
+    # Some AssertedDistribution don't have shapes
     if geographic_item_id
       h[:origin_geographic_item_id] = geographic_item_id
 
       h[:geographic_item_id] = translate_geographic_item_id(
         geographic_item_id,
+        base_class_name,
         cached_map_type.safe_constantize::SOURCE_GAZETEERS
       )
 
       if h[:geographic_item_id].blank?
         h[:geographic_item_id] = [geographic_item_id]
-        h[:untranslatable] = true
+        h[:untranslated] = true
       end
 
     end

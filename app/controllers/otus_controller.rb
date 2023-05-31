@@ -334,9 +334,23 @@ class OtusController < ApplicationController
   #   * Always returns result, could be empty
   #
   #
-  # GET /api/v1/otus/:id/inventory/distribution
+  # GET /api/v1/otus/:id/inventory/distribution.json
+  # GET /api/v1/otus/:id/inventory/distribution.geojson
   def api_distribution
-    render '/otus/api/v1/distribution'
+    respond_to do |format|
+      format.json do
+        @cached_map_type = params[:cached_map_type] || 'CachedMapItem::WebLevel1'
+        @quicker_cached_map = @otu.quicker_cached_map(@cached_map_type)
+        if @quicker_cached_map.blank?
+          render json: { error: 'no map available'}, status: :not_found and return
+        end
+        render '/otus/api/v1/inventory/distribution'
+      end
+      format.geojson do
+        render '/otus/api/v1/inventory/distribution'
+      end
+    end
+
   end
 
   private

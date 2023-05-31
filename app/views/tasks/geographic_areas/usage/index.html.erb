@@ -51,7 +51,7 @@ AssertedDistribution: <% a = GeographicArea.inferred_as_country.joins(:asserted_
   <h4> By spatial overlap </h4>
 
   <% a, debug = CachedMap.translate_by_spatial_overlap(@geographic_item.id, CachedMapItem::WebLevel1::SOURCE_GAZETEERS, 50.0) %>
-  <%= tag.div('untranslatable', class: [:feedback, 'feedback-danger', 'feedback-narrow'] ) if a.blank? %>
+  <%= tag.div('untranslated', class: [:feedback, 'feedback-danger', 'feedback-narrow'] ) if a.blank? %>
 
   <% a.each do |b| %>
     <%= b %> - <%= GeographicItem.find(b).geographic_areas.collect{|c| geographic_area_link(c).html_safe}.join('; ').html_safe %><br/>

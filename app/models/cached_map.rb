@@ -57,7 +57,7 @@ class CachedMap < ApplicationRecord
   end
 
   def geo_json_to_s
-    if respond_to?(:geo_json) # loaded as string in query in prior use
+    if respond_to?(:geo_json) # loaded as string in query
       geo_json
     else
       CachedMap.select('ST_AsGeoJSON(geometry) geo_json').find(id).geo_json
@@ -67,16 +67,25 @@ class CachedMap < ApplicationRecord
   def self.calculate_union(otu_scope, cached_map_type = 'CachedMapItem::WebLevel1')
     i = ::GeographicItem.select("#{GeographicItem::GEOMETRY_SQL.to_sql}")
       .joins('JOIN cached_map_items cmi on cmi.geographic_item_id = geographic_items.id')
-      .joins('JOIN otu_scope AS otu_scope1 on otu_scope1.id = cmi.otu_id').distinct
+      .joins('JOIN otu_scope AS otu_scope1 on otu_scope1.id = cmi.otu_id')
+      .where('cmi.untranslated IS NULL OR cmi.untranslated <> true')
+      .distinct
 
     s = "WITH otu_scope AS (#{otu_scope.to_sql}) " + i.to_sql
 
+    # TODO: with untranslated handled we probable don't need Homogenize?
+    # TODO: explore simplification optimization
+    #   - 0.01 drops the number of points by > 5x
+
     sql = "SELECT
              ST_AsGeoJSON(
-               ST_CollectionHomogenize (
-                 ST_CollectionExtract(
-                   ST_Union(geom_array)
-                 )
+              ST_SimplifyPreserveTopology(
+                 ST_CollectionHomogenize (
+                   ST_CollectionExtract(
+                     ST_Union(geom_array)
+                   )
+                 ),
+                 0.01
                )
             ) AS geojson
           FROM (

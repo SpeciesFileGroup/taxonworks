@@ -80,6 +80,8 @@ namespace :api, defaults: {format: :json} do
       get '/identifiers/autocomplete', to: '/identifiers#api_autocomplete'
       get '/identifiers/:id', to: '/identifiers#api_show'
 
+      get '/cached_maps/:id', to: '/cached_maps#api_show'
+
       get '/collecting_events', to: '/collecting_events#api_index'
       get '/collecting_events/autocomplete', to: '/collecting_events#api_autocomplete'
       get '/collecting_events/:id', to: '/collecting_events#api_show'

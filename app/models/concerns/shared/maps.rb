@@ -1,5 +1,3 @@
-
-
 ## Shared code for extending models that impact CachedMap (e.g. AssertedDistribution, Georeference)
 #
 module Shared::Maps
@@ -39,6 +37,7 @@ module Shared::Maps
       @cached_map_registered ||= cached_map_register.present?
     end
 
+    # TODO: deprecate for total rebuild approach (likely)
     # @return Array
     #   of CachedMapItem
     def cached_map_items_to_clean
@@ -58,7 +57,7 @@ module Shared::Maps
                   type: map_type,
                   otu_id:,
                   geographic_item_id:,
-                  untranslated: stubs[:untranslatable],
+                  untranslated: stubs[:untranslated],
                   project_id: stubs[:origin_object].project_id,
                   level0_geographic_name: name_hierarchy[:country],
                   level1_geographic_name: name_hierarchy[:state],
@@ -90,7 +89,7 @@ module Shared::Maps
     # * Assumes this is the first time CachedMapItem is being indexed for this object.
     # * Does NOT check register.
     #
-    def create_cached_map_items
+    def create_cached_map_items(batch = false)
       Behavior::Maps::DEFAULT_CACHED_BUILD_TYPES.each do |map_type|
         stubs = CachedMapItem.stubs(self, map_type)
 
@@ -98,8 +97,9 @@ module Shared::Maps
         #  TODO: do we still register this?
         return true if stubs[:otu_id].empty?
 
+        name_hierarchy = {}
+
         stubs[:geographic_item_id].each do |geographic_item_id|
-          name_hierarchy = CachedMapItem.cached_map_name_hierarchy(geographic_item_id)
           stubs[:otu_id].each do |otu_id|
             begin
               CachedMapItem.transaction do
@@ -109,14 +109,24 @@ module Shared::Maps
                     geographic_item_id:,
                     project_id: stubs[:origin_object].project_id,
                     # TODO: is_absent:  !!!
-                    level0_geographic_name: name_hierarchy[:country],
-                    level1_geographic_name: name_hierarchy[:state],
-                    level2_geographic_name: name_hierarchy[:county]
+                    # level0_geographic_name: name_hierarchy[:country],
+                    # level1_geographic_name: name_hierarchy[:state],
+                    # level2_geographic_name: name_hierarchy[:county]
                   )
 
                 if a.persisted?
                   a.increment!(:reference_count)
                 else
+
+                  unless batch
+                    name_hierarchy[geographic_item_id] ||= CachedMapItem.cached_map_name_hierarchy(geographic_item_id)
+                    a.level0_geographic_name = name_hierarchy[geographic_item_id][:country],
+                    a.level1_geographic_name = name_hierarchy[geographic_item_id][:state],
+                    a.level2_geographic_name = name_hierarchy[geographic_item_id][:county]
+                  end
+
+                  a.untranslated = stubs[:untranslated]
+
                   a.reference_count = 1
                   a.save!
                 end
@@ -124,7 +134,6 @@ module Shared::Maps
                 # There is little or no point to logging translations
                 # for Georeferences, i.e. overhead with no benefit.
                 unless self.kind_of?(Georeference)
-
                   # We could call this if !a.persisted,
                   # but there are sync issues potentially
                   #
@@ -141,6 +150,8 @@ module Shared::Maps
                   project_id:
                 )
               end
+
+
             rescue ActiveRecord::RecordInvalid => e
               logger.debug 'invalid'
 

@@ -1,9 +1,13 @@
 class CachedMapsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_cached_map, only: [:show, :update]
+  before_action :set_cached_map, only: [:show, :api_show, :update]
 
   def show
+  end
+
+  def api_show
+    render '/cached_maps/api/v1/show'
   end
 
   def update

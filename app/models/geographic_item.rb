@@ -870,11 +870,11 @@ class GeographicItem < ApplicationRecord
   # equally refined, this might not be the case in the future because
   # of how the GeographicArea gazetteer is indexed.
   def quick_geographic_name_hierarchy
-    if a = geographic_areas.first
-      a.geographic_name_classification # not quick enough
-    else
-      {}
+    geographic_areas.order(:id).each do |ga|
+      h = ga.geographic_name_classification # not quick enough
+      return h if h.present?
     end
+   return  {}
   end
 
   # @return [Hash]
