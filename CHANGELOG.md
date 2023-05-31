@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Autocomplete requests optimized by speed
 - NOMEN batch importer treats authors only as verbvatim, Roles are no longer created.
+- Upgraded to Node 18 LTS
 
 ### Fixed
 
@@ -40,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock Is original and Is absent checkboxes in citation form
 - Pagination doesn't work correctly in Filter biological associations [#3426]
 - Records per page doesn't work on page change in Citations by source task
+- Docker pointing to outdated base image.
 
 [#3348]: https://github.com/SpeciesFileGroup/taxonworks/issues/3348
 [#3425]: https://github.com/SpeciesFileGroup/taxonworks/issues/3425
