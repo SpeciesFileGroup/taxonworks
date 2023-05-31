@@ -2,18 +2,35 @@ namespace :tw do
   namespace :maintenance do
     namespace :cached do
 
-      # !! These tasks only build new records.  They will not refresh and clean/remove stale data. !!
+      # !! These tasks only build new records.  They will not syncronize/refresh. !!
       #
-      # The index is build in two tasks:
+      # The index can be built all at once with
+      #
+      #  rake tw:maintenance:cached:maps:full_index
+      #
+      # This fires three tasks that can be run individually, and idempotently, though the last ("label") should be run
+      # at the completion of of the cache build.
       #
       # rake tw:maintenance:cached:maps:parallel_create_cached_map_from_asserted_distributions cached_rebuild_processes=4
       # rake tw:maintenance:cached:maps:parallel_create_cached_map_from_georeferences cached_rebuild_processes=4
-      #
-      # They can be started or stopped at any point.
+      # rake tw:maintenance:cached:maps:parallel_label_cached_map_items cached_rebuild_processes=4
       #
       # You can target a build for a specific OTU with:
       #
       #  rake tw:maintenance:cached:maps:parallel_create_cached_map_for_otu otu_id=123 cached_rebuild_processes=4
+      #
+      # You can destroy *everything* related to CachedMap<X> with
+      #
+      # rake tw:maintenance:cached:maps:rake tw:maintenance:cached:maps:full_index
+      #
+      # Other helpfull bits when debuggin:
+      #
+      # In the console you can erase the cached CacheMap (this does not destroy the underlying index, only the data
+      # used in subsequent calls to return the aggregate map) with:
+      #
+      # ```
+      # CachedMap.delete_all
+      # ```
       #
       namespace :maps do
 
@@ -26,7 +43,6 @@ namespace :tw do
           CachedMapItem.delete_all
           puts 'Done.'
         end
-
 
         desc 'create and label a full index run'
         task full_index: [:parallel_create_cached_map_from_asserted_distributions, :parallel_create_cached_map_from_georeferences, :parallel_label_cached_map_items] do |t|
