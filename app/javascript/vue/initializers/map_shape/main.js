@@ -3,8 +3,8 @@ import VMap from 'components/georeferences/map.vue'
 
 function init(element) {
   const geojsonObj = element.getAttribute('data-geojson-object')
-  const geojsonString = JSON.parse(element.getAttribute('data-geojson-string'))
-  const geojsonData = geojsonObj || geojsonString
+  const geojsonString = element.getAttribute('data-geojson-string')
+  const geojsonData = JSON.parse(geojsonObj || geojsonString)
   const geojson = geojsonData.feature
     ? [geojsonData]
     : [
