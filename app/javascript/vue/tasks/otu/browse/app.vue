@@ -75,7 +75,7 @@
     <search-otu
       v-else
       class="container"
-      @onOtuSelect="loadOtu"
+      @select="loadOtu"
     />
   </div>
 </template>
