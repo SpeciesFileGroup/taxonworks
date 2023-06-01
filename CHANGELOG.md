@@ -7,12 +7,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+
+- Updated Ruby gems
+
 ### Fixed
 
 - Error on catalog_helper: history_other_name
 - Error on taxon_name_relationship on rank_name.
 - Create new asserted distribution when `is_absent` is checked in New asserted distribution task
 - Repository selection does not appear in Filter Collection Objects [#3430]
+- Docker pointing to outdated base image.
 
 [#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430
 
@@ -41,7 +46,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock Is original and Is absent checkboxes in citation form
 - Pagination doesn't work correctly in Filter biological associations [#3426]
 - Records per page doesn't work on page change in Citations by source task
-- Docker pointing to outdated base image.
 
 [#3348]: https://github.com/SpeciesFileGroup/taxonworks/issues/3348
 [#3425]: https://github.com/SpeciesFileGroup/taxonworks/issues/3425
