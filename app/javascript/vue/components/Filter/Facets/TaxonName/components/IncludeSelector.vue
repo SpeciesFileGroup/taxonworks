@@ -9,10 +9,12 @@
         <label>
           <input
             type="radio"
-            :checked="params.ancestors == ancestors && params.descendants == descendants"
-            :disabled="!params.taxon_name_id?.length"
+            :checked="
+              params.ancestors == ancestors && params.descendants == descendants
+            "
+            :disabled="!taxonNameId.length"
             @click="Object.assign(params, { ancestors, descendants })"
-          >
+          />
           {{ label }}
         </label>
       </li>
@@ -49,7 +51,14 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
+const taxonNameId = computed(() => {
+  if (!params.value.taxon_name_id) return []
+
+  return Array.isArray(params.value.taxon_name_id)
+    ? params.value.taxon_name_id
+    : [params.value.taxon_name_id]
+})
 </script>
