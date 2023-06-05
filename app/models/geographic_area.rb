@@ -163,6 +163,10 @@ class GeographicArea < ApplicationRecord
     end
   }
 
+  scope :with_data_origin, -> (data_origin) {
+    where(data_origin: data_origin) unless data_origin.blank?
+  }
+
   scope :ordered_by_area, -> (direction = :ASC) { joins(:geographic_items).order("geographic_items.cached_total_area #{direction || 'ASC'}") }
 
   # Same results as descendant_of but starts with Array of IDs
