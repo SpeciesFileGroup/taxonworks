@@ -42,8 +42,25 @@ module TypeMaterials::CatalogHelper
       end
     end
 
-    v.push type_material_collecting_event_label(type_material.collection_object.collecting_event, verbose)
+    if l = type_material_collecting_event_label(ce, verbose)
+      v.push l
+    else
+      v.push catalog_object_locality_label(co)
+    end
+
     v.compact.join('; ')
+  end
+
+  # TODO: move to collection object catalog helper when that is developed
+  #   leverage DwC index methods
+  def catalog_object_locality_label(collection_object)
+    o = collection_object.dwc_occurrence
+    [
+      o.country,
+      o.stateProvince,
+      o.county,
+      o.verbatimLocality,
+    ].compact.join(': ')
   end
 
   # @return [String]
@@ -54,7 +71,7 @@ module TypeMaterials::CatalogHelper
       if ce.document_label
         return ::Utilities::Strings.linearize(ce.document_label)
       elsif ce.verbatim_label
-        return  ::Utilities::Strings.linearize(ce.verbatim_label)
+        return ::Utilities::Strings.linearize(ce.verbatim_label)
       end
     end
     verbose ? missing : nil
