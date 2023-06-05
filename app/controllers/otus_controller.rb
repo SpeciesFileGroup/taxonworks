@@ -116,15 +116,19 @@ class OtusController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to(otus_path,
-                  alert: 'You must select an item from the list with a click or tab press before clicking show.')
+      redirect_to(
+        otus_path,
+        alert: 'You must select an item from the list with a click or tab press before clicking show.')
     else
       redirect_to otu_path(params[:id])
     end
   end
 
   def autocomplete
-    @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
+    @otus = Queries::Otu::Autocomplete.new(
+      params.require(:term),
+      project_id: sessions_current_project_id
+    ).autocomplete
   end
 
   def batch_load
@@ -267,12 +271,14 @@ class OtusController < ApplicationController
     render '/otus/api/v1/show'
   end
 
+  # GET /api/v1/otus/autocomplete
   def api_autocomplete
     @otus = Queries::Otu::Autocomplete.new(
       params.require(:term),
       project_id: sessions_current_project_id,
-      having_taxon_name_only: params[:having_taxon_name_only]
-    ).autocomplete
+      # having_taxon_name_only: params[:having_taxon_name_only]
+    ).api_autocomplete
+
     render '/otus/api/v1/autocomplete'
   end
 
@@ -359,13 +365,6 @@ class OtusController < ApplicationController
     @otu = Otu.where(project_id: sessions_current_project_id).eager_load(:taxon_name).find(params[:id])
     @recent_object = @otu
   end
-
-# def set_cached_map
-#   @cached_map = @otu.cached_maps.where(cached_map_type: params[:cached_map_type] || 'CachedMapItem::WebLevel1').first
-#   if @cached_map.blank?
-
-#   end
-# end
 
   def otu_params
     params.require(:otu).permit(:name, :taxon_name_id)

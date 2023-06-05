@@ -94,7 +94,7 @@ class TaxonNamesController < ApplicationController
 
   def autocomplete
     render json: {} and return if params[:term].blank?
-    @taxon_names = Queries::TaxonName::Autocomplete.new(
+    @taxon_names = ::Queries::TaxonName::Autocomplete.new(
       params[:term],
       **autocomplete_params
     ).autocomplete
@@ -138,7 +138,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def rank_table
-    @query = Queries::TaxonName::Tabular.new(
+    @query = ::Queries::TaxonName::Tabular.new(
       ancestor_id: params.require(:ancestor_id),
       ranks: params.require(:ranks),
       fieldsets: params[:fieldsets],
