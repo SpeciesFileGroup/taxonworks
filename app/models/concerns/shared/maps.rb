@@ -8,7 +8,6 @@ module Shared::Maps
     attr_accessor :cached_map_registered
 
     after_save :cue_process_cached_maps
-
     after_destroy :cleanup_cached_map
 
     def cue_process_cached_maps
@@ -37,6 +36,7 @@ module Shared::Maps
       @cached_map_registered ||= cached_map_register.present?
     end
 
+    # Presently unused.
     # TODO: deprecate for total rebuild approach (likely)
     # @return Array
     #   of CachedMapItem
@@ -46,10 +46,10 @@ module Shared::Maps
       Behavior::Maps::DEFAULT_CACHED_BUILD_TYPES.each do |map_type|
         if stubs = CachedMapItem.stubs(self, map_type)
           stubs[:geographic_item_id].each do |geographic_item_id|
-            name_hierarchy =
-              GeographicItem.find(
-                geographic_item_id
-              ).quick_geographic_name_hierarchy
+          # name_hierarchy =
+          #   GeographicItem.find(
+          #     geographic_item_id
+          #   ).quick_geographic_name_hierarchy
 
             stubs[:otu_id].each do |otu_id|
               maps +=
@@ -59,9 +59,9 @@ module Shared::Maps
                   geographic_item_id:,
                   untranslated: stubs[:untranslated],
                   project_id: stubs[:origin_object].project_id,
-                  level0_geographic_name: name_hierarchy[:country],
-                  level1_geographic_name: name_hierarchy[:state],
-                  level2_geographic_name: name_hierarchy[:county]
+                   #  level0_geographic_name: name_hierarchy[:country],
+                   #  level1_geographic_name: name_hierarchy[:state],
+                   #  level2_geographic_name: name_hierarchy[:county]
                 ).all
             end
           end
@@ -72,23 +72,9 @@ module Shared::Maps
 
     private
 
-    #  def syncronize_cached_map_register
-    #    return true if cached_map_registered
-
-    #    a = CachedMapRegister.find_or_initialize_by(cached_map_register_object: self, project_id:)
-    #    if a.persisted?
-    #      a.touch
-    #    else
-    #      a.save!
-    #    end
-    #  end
-
-    #  Creates or increments a CachedMapItem and creates a CachedMapRegister for this object.
-    #
-    # NOTE!
-    # * Assumes this is the first time CachedMapItem is being indexed for this object.
-    # * Does NOT check register.
-    #
+    # Creates or increments a CachedMapItem and creates a CachedMapRegister for this object.
+    # * !! Assumes this is the first time CachedMapItem is being indexed for this object.
+    # * !! Does NOT check register.
     def create_cached_map_items(batch = false)
       Behavior::Maps::DEFAULT_CACHED_BUILD_TYPES.each do |map_type|
         stubs = CachedMapItem.stubs(self, map_type)
@@ -108,16 +94,14 @@ module Shared::Maps
                     otu_id:,
                     geographic_item_id:,
                     project_id: stubs[:origin_object].project_id,
-                    # TODO: is_absent:  !!!
-                    # level0_geographic_name: name_hierarchy[:country],
-                    # level1_geographic_name: name_hierarchy[:state],
-                    # level2_geographic_name: name_hierarchy[:county]
                   )
 
                 if a.persisted?
                   a.increment!(:reference_count)
                 else
 
+                  # When running in batch mode we assume we will use the label rake task to update
+                  # en-masse after processing.
                   unless batch
                     name_hierarchy[geographic_item_id] ||= CachedMapItem.cached_map_name_hierarchy(geographic_item_id)
                     a.level0_geographic_name = name_hierarchy[geographic_item_id][:country],
@@ -132,11 +116,8 @@ module Shared::Maps
                 end
 
                 # There is little or no point to logging translations
-                # for Georeferences, i.e. overhead with no benefit.
+                # for Georeferences, i.e. it is overhead with no benefit.
                 unless self.kind_of?(Georeference)
-                  # We could call this if !a.persisted,
-                  # but there are sync issues potentially
-                  #
                   # !! If the cache gets out of sync this may not be cached!
                   CachedMapItemTranslation.find_or_create_by!(
                     cached_map_type: map_type,
@@ -153,20 +134,14 @@ module Shared::Maps
 
 
             rescue ActiveRecord::RecordInvalid => e
-              logger.debug 'invalid'
-
+              logger.debug e
+              # logger.debug 'source: ' + ap(self.to_s)
+              # logger.debug @cm&.errors&.full_messages
+              # logger.debug @cmit&.errors&.full_messages
+            rescue PG::UniqueViolation
+              logger.debug 'pg unique violation'
               # TODO: disable
-             logger.debug e
-            # logger.debug 'source: ' + ap(self.to_s)
-            # logger.debug @cm&.errors&.full_messages
-            # logger.debug @cmit&.errors&.full_messages
- #           retry
-          rescue PG::UniqueViolation
-            logger.debug 'pg unique violation'
-
-              # TODO: disable
-              logger.debug ap(self)
- #retry
+              # logger.debug ap(self)
             end
           end
         end
