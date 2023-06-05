@@ -198,15 +198,15 @@ export default {
         this.navigate = response.body
       })
     } else if (taxonId) {
-      TaxonName.otus(taxonId).then((response) => {
-        if (response.body.length > 1) {
-          this.otuList = response.body
+      TaxonName.otus(taxonId).then(({ body }) => {
+        if (!body.length) return
+
+        if (body.length > 1) {
+          this.otuList = body
         } else {
-          this.$store
-            .dispatch(ActionNames.LoadOtus, response.body[0].id)
-            .then(() => {
-              this.isLoading = false
-            })
+          this.$store.dispatch(ActionNames.LoadOtus, body[0].id).then(() => {
+            this.isLoading = false
+          })
         }
       })
     } else {
