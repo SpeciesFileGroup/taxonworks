@@ -18,7 +18,10 @@ json.timeline do
 end
 
 json.sources do
-  json.array! @data[:sources].collect{|s| source_tag(s)}
+  json.array! @data[:sources].each do |s|
+    json.cached s.cached
+    json.url s.url
+  end
 end
 
 json.distribution @data[:distribution]
