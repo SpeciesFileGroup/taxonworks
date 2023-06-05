@@ -236,11 +236,39 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             identifier_object: collecting_event
           }.merge!(identifier_attributes)) unless identifier_attributes.nil?
 
-          Georeference::VerbatimData.create!({
-            collecting_event: collecting_event,
-            error_radius: get_field_value("coordinateUncertaintyInMeters"),
-            no_cached: true
-          }.merge(attributes[:georeference])) if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
+          data_origin = self.import_dataset.metadata['import_settings']['geographic_area_data_origin'] if self.import_dataset.metadata['import_settings'].include? 'geographic_area_data_origin'
+          if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
+            Georeference::VerbatimData.create!({
+              collecting_event: collecting_event,
+              error_radius: get_field_value("coordinateUncertaintyInMeters"),
+              no_cached: true
+            }.merge(attributes[:georeference]))
+            location_levels = [collecting_event[:cached_level2_geographic_name], collecting_event[:cached_level1_geographic_name], collecting_event[:cached_level0_geographic_name]].compact
+          else
+            county = get_field_value(:county)
+            state_province = get_field_value(:stateProvince)
+            country = get_field_value(:country)
+            country_code = get_field_value(:countryCode)
+            if country.blank? and !country_code.blank?
+              if country_code.size == 2
+                country = GeographicArea.find_by(iso_3166_a2: country_code, data_origin: 'country_names_and_code_elements')['name']
+              elsif country_code.size == 3  # there are no GAs with alpha3 presently
+                country = GeographicArea.find_by(iso_3166_a3: country_code, data_origin: 'country_names_and_code_elements')['name']
+              end
+            end
+
+            location_levels = [county, state_province, country].compact
+          end
+
+          unless location_levels.size == 0
+            geographic_areas = GeographicArea.with_name_and_parent_names(location_levels).with_data_origin(data_origin)
+
+            # If no GA is found, attempts to drop the finest geographical level (county or potentially state/provence) and searches again
+            geographic_areas = GeographicArea.with_name_and_parent_names(location_levels.drop(1)).with_data_origin(data_origin) if geographic_areas.size == 0
+          end
+
+          collecting_event.geographic_area_id = geographic_areas[0].id if geographic_areas.size > 0
+          collecting_event.save!
         end
 
         DwcOccurrenceUpsertJob.perform_later(specimen)
