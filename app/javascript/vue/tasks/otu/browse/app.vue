@@ -199,7 +199,13 @@ export default {
       })
     } else if (taxonId) {
       TaxonName.otus(taxonId).then(({ body }) => {
-        if (!body.length) return
+        if (!body.length) {
+          TW.workbench.alert.create(
+            `No page available. There is no OTU for this taxon name.`,
+            'notice'
+          )
+          return
+        }
 
         if (body.length > 1) {
           this.otuList = body
