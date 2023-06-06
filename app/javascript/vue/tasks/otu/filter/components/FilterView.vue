@@ -57,14 +57,14 @@ const WITH_PARAMS = [
   'biological_associations',
   'citations',
   'collection_objects',
-  'contents,',
+  'contents',
   'data_depictions',
   'depictions',
   'determinations',
   'observations',
   'origin_citation',
   'taxon_name',
-  'with_name',
+  'with_name'
 ]
 
 const emit = defineEmits(['update:modelValue'])
