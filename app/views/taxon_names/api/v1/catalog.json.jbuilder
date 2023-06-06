@@ -24,6 +24,9 @@ json.sources do
   end
 end
 
+json.stats taxon_name_inventory_stats(@taxon_name)
+
+## TODO: Why is this here?
 json.distribution @data[:distribution]
 
 json.repositories do

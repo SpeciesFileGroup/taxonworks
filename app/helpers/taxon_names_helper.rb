@@ -121,7 +121,7 @@ module TaxonNamesHelper
   def taxon_name_short_status(taxon_name)
     if taxon_name.is_combination?
       n = taxon_name.finest_protonym
-      s = ["This name is subsequent combination of"]
+      s = ['This name is subsequent combination of']
       if n.is_valid?
         s += [
           link_to(original_taxon_name_tag(n), browse_nomenclature_task_path(taxon_name_id: n.id)),
@@ -132,7 +132,7 @@ module TaxonNamesHelper
         s += [
           original_taxon_name_tag(n),
           history_author_year_tag(n),
-          "whose valid/accepted name is",
+          'whose valid/accepted name is',
           link_to(taxon_name_tag(v), browse_nomenclature_task_path(taxon_name_id: v.id) ),
           v.cached_author_year
         ]
@@ -363,6 +363,21 @@ module TaxonNamesHelper
     else
       content_tag(:em, 'There are no Otus linked to this name.')
     end
+  end
+
+  def taxon_name_inventory_stats(taxon_name)
+    return {
+      taxa: {
+        species: ::Queries::Otu::Filter.new(taxon_name_query: {validity: true, descendants: true, taxon_name_id: taxon_name.id, nomenclature_group: 'Species', taxon_name_type: 'Protonym'} ).all.count,
+        genera: ::Queries::Otu::Filter.new(taxon_name_query: {validity: true, descendants: true, taxon_name_id: taxon_name.id, nomenclature_group: 'Genus', taxon_name_type: 'Protonym'} ).all.count,
+        families: ::Queries::Otu::Filter.new(taxon_name_query: {validity: true, descendants: true, taxon_name_id: taxon_name.id, nomenclature_group: 'Family', taxon_name_type: 'Protonym'} ).all.count,
+       },
+       names: {
+        species: ::Queries::Otu::Filter.new(taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, nomenclature_group: 'Species', taxon_name_type: 'Protonym'} ).all.count,
+        genera: ::Queries::Otu::Filter.new(taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, nomenclature_group: 'Genus', taxon_name_type: 'Protonym'} ).all.count,
+        families: ::Queries::Otu::Filter.new(taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, nomenclature_group: 'Family', taxon_name_type: 'Protonym'} ).all.count,
+       }
+    }
   end
 
   protected

@@ -61,6 +61,11 @@ module Queries
         type: [],
       ].freeze
 
+      # @param ancestors [Boolean, 'true', 'false', nil]
+      # @return Boolean
+      #   Ignored when taxon_name_id[].empty?  Works as AND clause with descendants :(
+      attr_accessor :ancestors
+
       # @param collection_object_id[String, Array]
       # @return Array
       attr_accessor :collection_object_id
@@ -140,22 +145,20 @@ module Queries
       #   Return the taxon names with this/these parent_ids
       attr_accessor :parent_id
 
+      # @param descendants [Boolean, 'true', 'false', nil]
+      # @return [Boolean]
+      #   true - only descendants
+      #   false - self and descendants
+      #   nil - ignored
+      #   Ignored when taxon_name_id[].empty? Return descendants of parents as well.
+      attr_accessor :descendants
+
       # @param descendants_max_depth [Integer]
       # @return [Integer, nil]
       # A positive integer indicating how many levels deep of descendants to retrieve.
       #   Ignored when descentants is false/unspecified.
       #   Defaults to nil
       attr_accessor :descendants_max_depth
-
-      # @param ancestors [Boolean, 'true', 'false', nil]
-      # @return Boolean
-      #   Ignored when taxon_name_id[].empty?  Works as AND clause with descendants :(
-      attr_accessor :ancestors
-
-      # @param descendants [Boolean, 'true', 'false', nil]
-      # @return [Boolean]
-      #   Ignored when taxon_name_id[].empty? Return descendants of parents as well.
-      attr_accessor :descendants
 
       # @param synonymify [Boolean]
       #   true - extend result to include all Synonyms of any member of the list
@@ -432,19 +435,28 @@ module Queries
       #   match only names that are a descendant of some taxon_name_id
       # A merge facet.
       def descendant_facet
-        return nil if taxon_name_id.empty? || !(descendants == true)
+        return nil if taxon_name_id.empty? || descendants.nil?
 
-        descendants_subquery = ::TaxonNameHierarchy.where(
-          ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
-            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id)
+        if descendants
+          descendants_subquery = ::TaxonNameHierarchy.where(
+            ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
+              ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id)
+            )
           )
-        )
 
-        if descendants_max_depth.present?
-          descendants_subquery = descendants_subquery.where(::TaxonNameHierarchy.arel_table[:generations].lteq(descendants_max_depth.to_i))
+          if descendants_max_depth.present?
+            descendants_subquery = descendants_subquery.where(::TaxonNameHierarchy.arel_table[:generations].lteq(descendants_max_depth.to_i))
+          end
+
+          ::TaxonName.where(descendants_subquery.arel.exists)
+        else
+          q = ::TaxonName.joins('JOIN taxon_name_hierarchies ON taxon_name_hierarchies.descendant_id = taxon_names.id')
+            .where(taxon_name_hierarchies: {ancestor_id: taxon_name_id})
+           if descendants_max_depth.present?
+             q = q.where(::TaxonNameHierarchy.arel_table[:generations].lteq(descendants_max_depth.to_i))
+           end
+           q
         end
-
-        ::TaxonName.where(descendants_subquery.arel.exists)
       end
 
       # @return Scope
@@ -792,7 +804,7 @@ module Queries
 
       # Overrides base class
       def model_id_facet
-        return nil if taxon_name_id.empty? || descendants || ancestors
+        return nil if taxon_name_id.empty? || !descendants.nil? || ancestors
         table[:id].eq_any(taxon_name_id)
       end
 
