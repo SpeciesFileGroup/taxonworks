@@ -1,6 +1,6 @@
 <template>
     <div class="field ">
-        <label>Geographical Area Data Origin: </label>
+        <label>Require geographical area data origin: </label>
         <select v-model="geographicAreaDataOrigin">
             <option
                 v-for="data_origin in data_origins"

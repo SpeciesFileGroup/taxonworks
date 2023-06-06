@@ -167,6 +167,13 @@ class GeographicArea < ApplicationRecord
     where(data_origin: data_origin) unless data_origin.blank?
   }
 
+  scope :has_shape, -> (has_shape) {
+    if has_shape
+      joins("left join geographic_areas_geographic_items gagi on geographic_areas.id = gagi.geographic_area_id")
+        .where("gagi.id is not null")
+    end
+  }
+
   scope :ordered_by_area, -> (direction = :ASC) { joins(:geographic_items).order("geographic_items.cached_total_area #{direction || 'ASC'}") }
 
   # Same results as descendant_of but starts with Array of IDs

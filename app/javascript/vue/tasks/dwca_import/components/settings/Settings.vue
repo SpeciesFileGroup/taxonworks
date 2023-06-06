@@ -21,7 +21,6 @@
       <template #body>
         <div>
           <nomenclature-code class="margin-medium-bottom" />
-          <geographic-area class="margin-medium-bottom" />
 
           <div class="field">
             <containerize-checkbox />
@@ -29,7 +28,14 @@
             <require-type-material-success-checkbox />
           </div>
 
+            <h3>Geographic Areas</h3>
+            <div class="field">
+              <geographic-area-data-origin class="margin-medium-bottom" />
+              <require-geographic-area-has-shape-checkbox />
+            </div>
+
           <CatalogNumberMain />
+
         </div>
       </template>
     </modal-component>
@@ -43,7 +49,8 @@ import ContainerizeCheckbox from './Containerize'
 import RestrictToNomenclatureCheckbox from './RestrictToNomenclature'
 import RequireTypeMaterialSuccessCheckbox from './RequireTypeMaterialSuccess'
 import NomenclatureCode from './NomenclatureCode.vue'
-import GeographicArea from './GeographicArea.vue'
+import GeographicAreaDataOrigin from './GeographicAreaDataOrigin.vue'
+import RequireGeographicAreaHasShapeCheckbox from './RequireGeographicAreaHasShapeCheckbox.vue'
 import CatalogNumberMain from './CatalogNumber/CatalogNumberMain.vue'
 
 const showModal = ref(false)

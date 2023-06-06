@@ -236,6 +236,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             identifier_object: collecting_event
           }.merge!(identifier_attributes)) unless identifier_attributes.nil?
 
+
+          has_shape = self.import_dataset.metadata['import_settings']['require_geographic_area_has_shape'] if self.import_dataset.metadata['import_settings'].include? 'require_geographic_area_has_shape'
           data_origin = self.import_dataset.metadata['import_settings']['geographic_area_data_origin'] if self.import_dataset.metadata['import_settings'].include? 'geographic_area_data_origin'
           if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
             Georeference::VerbatimData.create!({
@@ -261,10 +263,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           end
 
           unless location_levels.size == 0
-            geographic_areas = GeographicArea.with_name_and_parent_names(location_levels).with_data_origin(data_origin)
+            geographic_areas = GeographicArea.with_name_and_parent_names(location_levels).with_data_origin(data_origin).has_shape(has_shape)
 
             # If no GA is found, attempts to drop the finest geographical level (county or potentially state/provence) and searches again
-            geographic_areas = GeographicArea.with_name_and_parent_names(location_levels.drop(1)).with_data_origin(data_origin) if geographic_areas.size == 0
+            geographic_areas = GeographicArea.with_name_and_parent_names(location_levels.drop(1)).with_data_origin(data_origin).has_shape(has_shape) if geographic_areas.size == 0
           end
 
           collecting_event.geographic_area_id = geographic_areas[0].id if geographic_areas.size > 0
