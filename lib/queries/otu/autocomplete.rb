@@ -42,9 +42,9 @@ module Queries
         .order('sml DESC, cached')
       end
 
-
       def api_autocomplete
         taxon_names = Queries::TaxonName::Autocomplete.new(query_string, project_id:).autocomplete_combined_gin
+        .where(project_id:)
 
         # Valid only tns don't need to map to invalid OTUs
 
