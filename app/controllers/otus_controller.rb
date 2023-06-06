@@ -4,7 +4,9 @@ class OtusController < ApplicationController
   before_action :set_otu, only: [
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
     :breadcrumbs, :timeline, :coordinate, :distribution,
-    :api_show, :api_taxonomy_inventory, :api_type_material_inventory, :api_nomenclature_citations, :api_distribution, :api_content ]
+    :api_show, :api_taxonomy_inventory, :api_type_material_inventory,
+    :api_nomenclature_citations, :api_distribution, :api_content, :api_dwc_inventory ]
+
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request?
 
   # GET /otus
@@ -116,9 +118,8 @@ class OtusController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to(
-        otus_path,
-        alert: 'You must select an item from the list with a click or tab press before clicking show.')
+      redirect_to(otus_path,
+                 alert: 'You must select an item from the list with a click or tab press before clicking show.')
     else
       redirect_to otu_path(params[:id])
     end
@@ -287,9 +288,14 @@ class OtusController < ApplicationController
     render '/otus/api/v1/inventory/taxonomy'
   end
 
+  # GET /api/v1/otus/:id/inventory/dwc
+  def api_dwc_inventory
+    send_data Export::Download.generate_csv(
+      DwcOccurrence.scoped_by_otu(@otu), header_converters: []), type: 'text', filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.csv"
+  end
+
   # GET /api/v1/otus/:id/inventory/content
   def api_content
-
     topic_ids = [params[:topic_id]].flatten.compact.uniq
 
     @public_content =  PublicContent.where(otu: @otu, project_id: sessions_current_project_id)
@@ -365,6 +371,13 @@ class OtusController < ApplicationController
     @otu = Otu.where(project_id: sessions_current_project_id).eager_load(:taxon_name).find(params[:id])
     @recent_object = @otu
   end
+
+# def set_cached_map
+#   @cached_map = @otu.cached_maps.where(cached_map_type: params[:cached_map_type] || 'CachedMapItem::WebLevel1').first
+#   if @cached_map.blank?
+
+#   end
+# end
 
   def otu_params
     params.require(:otu).permit(:name, :taxon_name_id)
