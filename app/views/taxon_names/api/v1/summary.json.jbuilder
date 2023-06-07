@@ -17,7 +17,8 @@ json.global_id @taxon_name.to_global_id.to_s
 json.parent do
   json.full_name label_for_taxon_name(@taxon_name.parent)
   json.author @taxon_name.parent&.author_string
-  json.global_id @taxon_name.parent.to_global_id.to_s
+  json.global_id @taxon_name.parent&.to_global_id.to_s
+  json.rank @taxon_name.parent&.rank
 end
 
 if extend_response_with('name_elements')
