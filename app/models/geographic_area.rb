@@ -166,10 +166,10 @@ class GeographicArea < ApplicationRecord
   scope :with_data_origin, -> (data_origin) {
     unless data_origin.blank?
       if data_origin == 'tdwg'
-        where('data_origin LIKE ?' , 'tdwg_%')
+        where('geographic_areas.data_origin LIKE ?' , 'tdwg_%')
           .order(data_origin: :desc)
       elsif data_origin == 'ne'
-        where('data_origin LIKE ?', 'ne_%')
+        where('geographic_areas.data_origin LIKE ?', 'ne_%')
           .order(data_origin: :desc)
       else
         where(data_origin:)
@@ -180,7 +180,6 @@ class GeographicArea < ApplicationRecord
   scope :has_shape, -> (has_shape) {
     if has_shape
       joins(:geographic_areas_geographic_items)
-        .where("gagi.id is not null")
     end
   }
 
