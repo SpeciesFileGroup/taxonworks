@@ -172,14 +172,14 @@ class GeographicArea < ApplicationRecord
         where('data_origin LIKE ?', 'ne_%')
           .order(data_origin: :desc)
       else
-        where(data_origin: data_origin)
+        where(data_origin:)
       end
     end
   }
 
   scope :has_shape, -> (has_shape) {
     if has_shape
-      joins("left join geographic_areas_geographic_items gagi on geographic_areas.id = gagi.geographic_area_id")
+      joins(:geographic_areas_geographic_items)
         .where("gagi.id is not null")
     end
   }
