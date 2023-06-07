@@ -164,7 +164,17 @@ class GeographicArea < ApplicationRecord
   }
 
   scope :with_data_origin, -> (data_origin) {
-    where(data_origin: data_origin) unless data_origin.blank?
+    unless data_origin.blank?
+      if data_origin == 'tdwg'
+        where('data_origin LIKE ?' , 'tdwg_%')
+          .order(data_origin: :desc)
+      elsif data_origin == 'ne'
+        where('data_origin LIKE ?', 'ne_%')
+          .order(data_origin: :desc)
+      else
+        where(data_origin: data_origin)
+      end
+    end
   }
 
   scope :has_shape, -> (has_shape) {
