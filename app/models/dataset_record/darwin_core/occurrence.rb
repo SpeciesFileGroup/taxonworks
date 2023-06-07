@@ -261,6 +261,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             location_levels = [county, state_province, country].compact
           end
 
+          geographic_areas = []
           unless location_levels.size == 0
             geographic_areas = GeographicArea.with_name_and_parent_names(location_levels).with_data_origin(data_origin).has_shape(has_shape)
 
@@ -286,7 +287,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         messages: invalid.record.errors.messages
       }
     rescue StandardError => e
-      raise if Rails.env.development?
+      raise #if Rails.env.development?
       self.status = "Failed"
       self.metadata["error_data"] = {
         exception: {
