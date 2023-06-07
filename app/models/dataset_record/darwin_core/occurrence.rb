@@ -287,7 +287,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         messages: invalid.record.errors.messages
       }
     rescue StandardError => e
-      raise #if Rails.env.development?
+      raise if Rails.env.development?
       self.status = "Failed"
       self.metadata["error_data"] = {
         exception: {
