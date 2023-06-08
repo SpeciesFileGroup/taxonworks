@@ -163,6 +163,26 @@ class GeographicArea < ApplicationRecord
     end
   }
 
+  scope :with_data_origin, -> (data_origin) {
+    unless data_origin.blank?
+      if data_origin == 'tdwg'
+        where('geographic_areas.data_origin LIKE ?' , 'tdwg_%')
+          .order(data_origin: :desc)
+      elsif data_origin == 'ne'
+        where('geographic_areas.data_origin LIKE ?', 'ne_%')
+          .order(data_origin: :desc)
+      else
+        where(data_origin:)
+      end
+    end
+  }
+
+  scope :has_shape, -> (has_shape = true) {
+    if has_shape
+      joins(:geographic_areas_geographic_items)
+    end
+  }
+
   scope :ordered_by_area, -> (direction = :ASC) { joins(:geographic_items).order("geographic_items.cached_total_area #{direction || 'ASC'}") }
 
   # Same results as descendant_of but starts with Array of IDs
