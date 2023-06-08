@@ -15,10 +15,26 @@
   <p><%= similarly_named_records_list(@geographic_area) -%> </p>
 
   <p><strong> Children: </strong>
-  <%= geographic_area_link_list(@geographic_area.children) -%>
+    <%= geographic_area_link_list(@geographic_area.children) -%>
+    <%= tag.em('None') if @geographic_area.children.empty? -%>
   </p>
+
+  <h3> WebLevel1 map </h3>
+  <p><em> This geographic area translates to this shape in the aggregate WebLevel1 map. </em></p>
+
+  <div>
+    GeographicItem ID: <%= a = CachedMapItem.translate_geographic_item_id(
+      @geographic_area.default_geographic_item_id,
+      'AssertedDistribution',
+      ['ne_countries', 'ne_states'],
+      percent_overlap_cutoff: 50.0) %>
+
+    <%= simple_map( GeographicItem.where(id: a) ) %>
+  </div>
 
 <% end %>
 
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @geographic_area}) -%>
+
+

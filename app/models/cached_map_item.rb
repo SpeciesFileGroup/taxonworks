@@ -228,6 +228,12 @@ class CachedMapItem < ApplicationRecord
 
   # @return [Array]
   # TODO: revisit cuttoff default
+  # @param origin_type
+  #   'AssertedDistribution' or 'Georeference'
+  #
+  # @param data_origin Array, String
+  #   like `ne_states` or ['ne_states, 'ne_countries']
+  #
   def self.translate_geographic_item_id(geographic_item_id, origin_type = nil, data_origin = nil, percent_overlap_cutoff: 50.0)
     return nil if data_origin.blank?
 
