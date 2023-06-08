@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Updated Ruby gems
+- Add hyperlinks to OTU labels in Filter biological associations table [#3444]
 
 ### Fixed
 
@@ -21,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Docker pointing to outdated base image.
 
 [#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430
+[#3444]: https://github.com/SpeciesFileGroup/taxonworks/issues/3444
 
 ## [0.33.1] - 2023-05-25
 
