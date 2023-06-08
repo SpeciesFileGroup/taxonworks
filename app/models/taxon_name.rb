@@ -633,7 +633,9 @@ class TaxonName < ApplicationRecord
   # @return String, nil
   #   virtual attribute, to ultimately be fixed in db
   def get_author
-    cached_author_year&.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '')
+    a = cached_author_year.to_s.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '')
+    a = a.gsub('(', '') if a.starts_with?('(') && !a.include?(')')
+    a
   end
 
   # !! Overrides Shared::Citations#nomenclature_date
@@ -1067,7 +1069,7 @@ class TaxonName < ApplicationRecord
 
 
   # @return [Array]
-  #   of TaxonName 
+  #   of TaxonName
   #   same as self.ancestors.to_a, but also works
   #    for new records when parents specified
   def ancestors_through_parents(result = [self], start = self)
