@@ -177,7 +177,7 @@ class GeographicArea < ApplicationRecord
     end
   }
 
-  scope :has_shape, -> (has_shape) {
+  scope :has_shape, -> (has_shape = true) {
     if has_shape
       joins(:geographic_areas_geographic_items)
     end
