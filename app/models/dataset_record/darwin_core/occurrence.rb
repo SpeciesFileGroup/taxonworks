@@ -261,12 +261,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             location_levels = [county, state_province, country].compact
           end
 
+          # try to find geographic areas until no location levels are left
           geographic_areas = []
-          unless location_levels.size == 0
+          while location_levels.size > 0 and geographic_areas.size == 0
             geographic_areas = GeographicArea.with_name_and_parent_names(location_levels).with_data_origin(data_origin).has_shape(has_shape)
-
-            # If no GA is found, attempts to drop the finest geographical level (county or potentially state/provence) and searches again
-            geographic_areas = GeographicArea.with_name_and_parent_names(location_levels.drop(1)).with_data_origin(data_origin).has_shape(has_shape) if geographic_areas.size == 0
+            location_levels = location_levels.drop(1)
           end
 
           collecting_event.geographic_area_id = geographic_areas[0].id if geographic_areas.size > 0
