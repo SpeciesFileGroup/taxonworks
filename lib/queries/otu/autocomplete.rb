@@ -42,6 +42,7 @@ module Queries
         .order('sml DESC, cached')
       end
 
+      # TODO: must include OTU name, leaves, etc. considerations to not break existing API functionality
       def api_autocomplete
         taxon_names = Queries::TaxonName::Autocomplete.new(query_string, project_id:).autocomplete_combined_gin
         .where(project_id:)

@@ -35,7 +35,6 @@ module Queries::Concerns::DataAttributes
   #  -- list 2 (a second list)
   #  Objects with value [] | "With value (any predicate)" | `data_attribute_exact_value`|`data_attribute_wildcard_value` -> <type value> "Add", Exact []
 
-
   extend ActiveSupport::Concern
 
   included do
