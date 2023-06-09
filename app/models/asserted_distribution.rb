@@ -126,7 +126,7 @@ class AssertedDistribution < ApplicationRecord
     a = Queries::AssertedDistribution::Filter.new(params[:asserted_distribution_query])
 
     return false if a.all.count == 0
-    return false if a.select(:geographic_area_id).uniq.size != 1
+    return false if a.all.select(:geographic_area_id).uniq.size != 1
 
     moved = []
     unmoved = []
