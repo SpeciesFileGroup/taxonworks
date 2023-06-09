@@ -117,7 +117,7 @@ class AssertedDistributionsController < ApplicationController
 
   # POST /asserted_distributions/batch_move.json?asserted_distribution_query=<>&geographic_area_id
   def batch_move
-    if @asserted_distributions = AssertedDistribution.batch_move(batch_params)[:moved]
+    if @asserted_distributions = AssertedDistribution.batch_move(params)[:moved]
       render :index
     else
       render json: {success: false}
