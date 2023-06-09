@@ -1042,7 +1042,7 @@ class CollectingEvent < ApplicationRecord
 
     begin
       a.all.each do |o|
-        o.update!(params[:collecting_event] )
+        o.update!( params[:collecting_event] )
         updated.push o
       end
 

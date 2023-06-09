@@ -128,11 +128,11 @@ class CollectingEventsController < ApplicationController
 
   # POST /collecting_events/batch_update.json?collecting_event_query=<>&collecting_event={}
   def batch_update
-    if @collecting_events = CollectingEvent.batch_update(
+    if c = CollectingEvent.batch_update(
         collecting_event: collecting_event_params,
         collecting_event_query: params[:collecting_event_query]
       )
-      @collecting_events = @collecting_events[:updated]
+      @collecting_events = c[:updated]
       render :index
     else
       render json: {success: false}
