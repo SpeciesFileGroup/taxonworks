@@ -119,6 +119,29 @@ class AssertedDistribution < ApplicationRecord
     geographic_area.geographic_items.any?
   end
 
+  # @return [Hash]
+  def self.batch_move(params)
+    return false if params[:geographic_area_id].blank?
+
+    a = Queries::AssertedDistribution::Filter.new(params[:asserted_distribution_query])
+    return false if a.all.count == 0
+
+    moved = []
+    unmoved = []
+
+    begin
+      a.all.each do |co|
+        a.update!(geographic_area_id: params[:geographic_area_id] )
+        moved.push a
+      end
+
+    rescue ActiveRecord::RecordInvalid => e
+      unmoved.push a
+    end
+
+    return { moved:, unmoved: }
+  end
+
   protected
 
   # @return [Boolean]

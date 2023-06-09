@@ -115,6 +115,15 @@ class AssertedDistributionsController < ApplicationController
   def batch_load
   end
 
+  # POST /asserted_distributions/batch_move.json?asserted_distribution_query=<>&geographic_area_id
+  def batch_move
+    if @asserted_distributions = AssertedDistribution.batch_move(batch_params)[:moved]
+      render :index
+    else
+      render json: {success: false}
+    end
+  end
+
   def preview_simple_batch_load
     if params[:file]
       @result =  BatchLoad::Import::AssertedDistributions.new(**batch_params)

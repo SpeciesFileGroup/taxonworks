@@ -31,6 +31,7 @@ end
 resources :asserted_distributions do
   concerns [:data_routes]
   collection do
+    post :batch_move
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
     match :filter, to: 'asserted_distributions#index', via: [:get, :post]
