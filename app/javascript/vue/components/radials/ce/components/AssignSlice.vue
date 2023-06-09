@@ -4,6 +4,7 @@
       <legend>Geographic area</legend>
       <SmartSelector
         model="geographic_areas"
+        label="name"
         :target="COLLECTING_EVENT"
         :klass="COLLECTING_EVENT"
         @selected="(item) => (geographicArea = item)"
