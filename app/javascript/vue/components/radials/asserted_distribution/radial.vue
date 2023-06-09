@@ -58,7 +58,7 @@ import MoveSlice from './components/MoveSlice.vue'
 import { computed, ref } from 'vue'
 import { removeEmptyProperties } from 'helpers/objects.js'
 
-const EXCLUDE_PARAMETERS = ['per']
+const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 const SLICES = {
   Move: MoveSlice
 }
@@ -87,7 +87,7 @@ const currentSlice = ref(Object.keys(SLICES)[0])
 const params = computed(() => {
   const parameters = removeEmptyProperties({
     ...props.parameters,
-    collection_object_id: props.ids
+    asserted_distribution_id: props.ids
   })
 
   EXCLUDE_PARAMETERS.forEach((param) => {
