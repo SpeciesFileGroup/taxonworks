@@ -15,6 +15,18 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialAssertedDistribution
+          :disabled="!list.length"
+          :parameters="parameters"
+        />
+      </template>
+      <template #nav-right>
+        <RadialAssertedDistribution
+          :disabled="!list.length"
+          :ids="selectedIds"
+        />
+      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -42,6 +54,7 @@ import FilterComponent from './components/FilterView.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import FilterList from 'components/layout/Filter/FilterList.vue'
+import RadialAssertedDistribution from 'components/radials/asserted_distribution/radial.vue'
 import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
 import { AssertedDistribution } from 'routes/endpoints'
