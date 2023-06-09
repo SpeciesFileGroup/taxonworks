@@ -75,18 +75,21 @@ module Queries
         queries = []
 
         # queries << autocomplete_exactly_named unless having_taxon_name_only
+
         queries = [
           autocomplete_exact_id,
           autocomplete_identifier_cached_exact,
           autocomplete_identifier_identifier_exact,
         ]
+
         # queries << autocomplete_named unless having_taxon_name_only
+
         queries += [
           autocomplete_name_only_cutoff(1),
           autocomplete_taxon_name_cached_cutoff(2),
-          # autocomplete_name_only(3), <- always returns some record
+          # autocomplete_name_only(3), <- always returns some record, which prevents New OTU
 
-        #  autocomplete_via_taxon_name_autocomplete,
+          # autocomplete_via_taxon_name_autocomplete,
           # autocomplete_identifier_cached_like, # this query takes 20 time longer to complete than any other.
           # autocomplete_common_name_exact,
           # autocomplete_common_name_like
