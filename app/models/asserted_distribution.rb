@@ -29,6 +29,7 @@ class AssertedDistribution < ApplicationRecord
   include Shared::Confidences
   include Shared::OriginRelationship
   include Shared::Identifiers
+  include Shared::HasPapertrail
   include Shared::IsData
 
   include Shared::Taxonomy # at present must be before IsDwcOccurence
@@ -126,19 +127,19 @@ class AssertedDistribution < ApplicationRecord
     a = Queries::AssertedDistribution::Filter.new(params[:asserted_distribution_query])
 
     return false if a.all.count == 0
-    return false if a.all.select(:geographic_area_id).uniq.size != 1
+    return false if a.all.pluck(:geographic_area_id).uniq.size != 1
 
     moved = []
     unmoved = []
 
     begin
-      a.all.each do |co|
-        a.update!(geographic_area_id: params[:geographic_area_id] )
-        moved.push a
+      a.all.each do |o|
+        o.update!(geographic_area_id: params[:geographic_area_id] )
+        moved.push o
       end
 
     rescue ActiveRecord::RecordInvalid => e
-      unmoved.push a
+      unmoved.push o
     end
 
     return { moved:, unmoved: }
