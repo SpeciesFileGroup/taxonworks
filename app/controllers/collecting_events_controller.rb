@@ -125,6 +125,20 @@ class CollectingEventsController < ApplicationController
     @collecting_events = Queries::CollectingEvent::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
   end
 
+
+  # POST /collecting_events/batch_update.json?collecting_event_query=<>&collecting_event={}
+  def batch_update
+    if @collecting_events = CollectingEvent.batch_update(
+        collecting_event: collecting_event_params,
+        collecting_event_query: params[:collecting_event_query]
+      )
+      @collecting_events = @collecting_events[:updated]
+      render :index
+    else
+      render json: {success: false}
+    end
+  end
+
   # GET /collecting_events/autocomplete_collecting_event_verbatim_locality?term=asdf
   # see rails-jquery-autocomplete
   def autocomplete_collecting_event_verbatim_locality
@@ -214,7 +228,7 @@ class CollectingEventsController < ApplicationController
       render 'collecting_events/batch_load/gpx/preview'
       # render '/shared/data/all/batch_load/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end

@@ -167,6 +167,8 @@ resources :collecting_events do
 
     post :preview_gpx_batch_load
     post :create_gpx_batch_load
+
+    post :batch_update
   end
 end
 
