@@ -1026,6 +1026,31 @@ class CollectingEvent < ApplicationRecord
     nil
   end
 
+  # @return [Hash]
+  def self.batch_update(params)
+    return false if params[:collecting_event].blank?
+
+    a = Queries::CollectingEvent::Filter.new(params[:collecting_event_query])
+
+    return false if a.all.count == 0
+
+    updated = []
+    not_updated = []
+
+    begin
+      a.all.each do |o|
+        o.update!( params[:collecting_event] )
+        updated.push o
+      end
+
+    rescue ActiveRecord::RecordInvalid => e
+      not_updated.push o
+    end
+
+    return { updated:, not_updated: }
+  end
+
+
   protected
 
   def set_cached_geographic_names

@@ -236,11 +236,45 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             identifier_object: collecting_event
           }.merge!(identifier_attributes)) unless identifier_attributes.nil?
 
-          Georeference::VerbatimData.create!({
-            collecting_event: collecting_event,
-            error_radius: get_field_value("coordinateUncertaintyInMeters"),
-            no_cached: true
-          }.merge(attributes[:georeference])) if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
+          has_shape = self.import_dataset.metadata.dig('import_settings', 'require_geographic_area_has_shape')
+          data_origin = self.import_dataset.metadata.dig('import_settings', 'geographic_area_data_origin')
+          disable_recursive_search = self.import_dataset.metadata.dig('import_settings', 'require_geographic_area_exact_match')
+          if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
+            Georeference::VerbatimData.create!({
+              collecting_event: collecting_event,
+              error_radius: get_field_value("coordinateUncertaintyInMeters"),
+              no_cached: true
+            }.merge(attributes[:georeference]))
+            location_levels = collecting_event.values_at(:cached_level2_geographic_name, :cached_level1_geographic_name, :cached_level0_geographic_name).compact
+          else
+            county = get_field_value(:county)
+            state_province = get_field_value(:stateProvince)
+            country = get_field_value(:country)
+            country_code = get_field_value(:countryCode)
+            if country.blank? && country_code.present?
+              if country_code.size == 2
+                country = GeographicArea.find_by(iso_3166_a2: country_code, data_origin: 'country_names_and_code_elements').name
+              elsif country_code.size == 3  # there are no GAs with alpha3 presently
+                country = GeographicArea.find_by(iso_3166_a3: country_code, data_origin: 'country_names_and_code_elements').name
+              end
+            end
+
+            location_levels = [county, state_province, country].compact
+          end
+
+          # try to find geographic areas until no location levels are left
+          geographic_areas = []
+          if disable_recursive_search
+            geographic_areas = GeographicArea.with_name_and_parent_names(location_levels).with_data_origin(data_origin).has_shape(has_shape)
+          else
+            while location_levels.size > 0 and geographic_areas.size == 0
+              geographic_areas = GeographicArea.with_name_and_parent_names(location_levels).with_data_origin(data_origin).has_shape(has_shape)
+              location_levels = location_levels.drop(1)
+            end
+          end
+
+          collecting_event.geographic_area_id = geographic_areas[0].id if geographic_areas.size > 0
+          collecting_event.save!
         end
 
         DwcOccurrenceUpsertJob.perform_later(specimen)
@@ -428,6 +462,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # basisOfRecord: [Check it is 'PreservedSpecimen', 'FossilSpecimen']
     basis = get_field_value(:basisOfRecord)
+    basis = basis.downcase.camelize if basis.include? '_' # Reformat GBIF occurrence download basis of records (e.g., PRESERVED_SPECIMEN to PreservedSpecimen)
     if 'FossilSpecimen'.casecmp(basis) == 0
       fossil_biocuration = BiocurationClass.find_by(uri: DWC_FOSSIL_URI)
 

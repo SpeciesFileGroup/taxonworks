@@ -42,6 +42,7 @@ export default function (service, { listParser, initParameters } = {}) {
           state.list = result
         }
 
+        state.selectedIds = []
         state.pagination = getPagination(response)
         state.urlRequest = response.request.url
         setRequestUrl(response.request.responseURL, payload)
