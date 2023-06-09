@@ -107,7 +107,7 @@ class CollectingEventsController < ApplicationController
 
   def attributes
     render json: ::CollectingEvent.columns.select{
-      |a| Queries::CollectingEvent::Filter::ATTRIBUTES.include?(
+      |a| ([:cached_level0_geographic_name, :cached_level1_geographic_name, :cached_level2_geographic_name ] + Queries::CollectingEvent::Filter::ATTRIBUTES).include?(
         a.name.to_sym)
     }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
