@@ -31,6 +31,7 @@
         <RadialCollectingEvent
           :disabled="!list.length"
           :parameters="parameters"
+          :count="pagination?.total || 0"
         />
       </template>
 
@@ -39,6 +40,7 @@
           <RadialCollectingEvent
             :disabled="!list.length"
             :ids="selectedIds"
+            :count="selectedIds.length"
           />
           <RadialFilter
             object-type="CollectingEvent"

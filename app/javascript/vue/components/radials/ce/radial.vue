@@ -30,6 +30,7 @@
                 :is="SLICES[currentSlice]"
                 :ids="ids"
                 :parameters="params"
+                :count="count"
               />
             </div>
           </div>
@@ -81,6 +82,11 @@ const props = defineProps({
   parameters: {
     type: Object,
     default: () => ({})
+  },
+
+  count: {
+    type: Number,
+    default: 0
   }
 })
 
