@@ -269,7 +269,7 @@ module Queries
         ]
       end
 
-      # TODO: deprecate, it unused as of the gin refactor.
+      # TODO: Deprecate, it unused as of the gin refactor.
       def comprehensive_autocomplete
         z = genus_species
         queries = [

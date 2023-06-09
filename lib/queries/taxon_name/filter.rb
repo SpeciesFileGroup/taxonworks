@@ -657,9 +657,9 @@ module Queries
       def validity_facet
         return nil if validity.nil?
         if validity
-          table[:id].eq(table[:cached_valid_taxon_name_id])
+          table[:cached_is_valid].eq(true)
         else
-          table[:id].not_eq(table[:cached_valid_taxon_name_id])
+          table[:cached_is_valid].eq(false)
         end
       end
 

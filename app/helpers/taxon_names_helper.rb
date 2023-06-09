@@ -366,18 +366,23 @@ module TaxonNamesHelper
   end
 
   def taxon_name_inventory_stats(taxon_name)
-    return {
-      taxa: {
-        species: ::Queries::Otu::Filter.new(taxon_name_query: {validity: true, descendants: true, taxon_name_id: taxon_name.id, nomenclature_group: 'Species', taxon_name_type: 'Protonym'} ).all.count,
-        genera: ::Queries::Otu::Filter.new(taxon_name_query: {validity: true, descendants: true, taxon_name_id: taxon_name.id, nomenclature_group: 'Genus', taxon_name_type: 'Protonym'} ).all.count,
-        families: ::Queries::Otu::Filter.new(taxon_name_query: {validity: true, descendants: true, taxon_name_id: taxon_name.id, nomenclature_group: 'Family', taxon_name_type: 'Protonym'} ).all.count,
-       },
-       names: {
-        species: ::Queries::Otu::Filter.new(taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, nomenclature_group: 'Species', taxon_name_type: 'Protonym'} ).all.count,
-        genera: ::Queries::Otu::Filter.new(taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, nomenclature_group: 'Genus', taxon_name_type: 'Protonym'} ).all.count,
-        families: ::Queries::Otu::Filter.new(taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, nomenclature_group: 'Family', taxon_name_type: 'Protonym'} ).all.count,
-       }
+
+    d = {
+      taxa: {},
+      names: {}
     }
+
+    ::Queries::TaxonName::Filter.new(synonymify: true, descendants: true, taxon_name_id: taxon_name.id).all.select(:rank_klass).distinct.pluck(:rank_class).compact.each do |r|
+      n = r.safe_constantize.rank_name.to_sym
+      d[:names][n] = {}
+
+      d[:names][n][:valid] = ::Queries::TaxonName::Filter.new(validity: true, descendants: true, synonymify: true, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
+      d[:names][n][:invalid] = ::Queries::TaxonName::Filter.new(validity: false, descendants: true, synonymify: true, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
+
+      d[:taxa].merge!(n => ::Queries::Otu::Filter.new(taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym'} ).all.count  )
+    end
+
+    d
   end
 
   protected
