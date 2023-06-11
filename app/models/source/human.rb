@@ -14,7 +14,7 @@ class Source::Human < Source
   IGNORE_SIMILAR = IGNORE_IDENTICAL.dup.freeze
 
   has_many :source_source_roles, -> { order('roles.position ASC') }, class_name: 'SourceSource',
-           as: :role_object, validate: true
+           as: :role_object, validate: true, inverse_of: :role_object
 
   has_many :people, -> { order('roles.position ASC') },
            through: :source_source_roles, source: :person, validate: true
