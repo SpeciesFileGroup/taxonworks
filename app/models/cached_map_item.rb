@@ -11,13 +11,11 @@
 #   * TaxonDetermination (otu_id change, position change)
 #   * GeographicArea - !?!@# (new/altered gazetters)
 #
+# = Debug delayedJob
 # - write re-indexer methods
 # - update to use delayed jobs (remember to not trigger DWC updates)?
 # - consider manual (re)-build triggers?
 # - add svg map option to paper Catalog
-# -
-# - Otu.joins(:asserted_distributions).select('otus.id, COUNT(asserted_distributions.id) ad_count').group('otus.id').limit(10000).collect{|a| [a.ad_count, a.id]}.sort
-# - Otu.joins(:georeferences).select('otus.id, COUNT(georeferences.id) ad_count').group('otus.id').limit(10000).collect{|a| [a.ad_count, a.id]}.sort
 #
 # Summarize data from Georeferences and AssertedDistributions for mapping/visualization purposes.
 # All data are `cached` sensu TaxonWorks, i.e. derived from underlying data elsewhere.  The intent is *not*
@@ -124,7 +122,9 @@ class CachedMapItem < ApplicationRecord
     end
   end
 
-  # Check CachedMapItemTranslation for previous translations
+
+  # Check CachedMapItemTranslation for previous translations and use
+  #   that if possible
   def self.translate_by_geographic_item_translation(geographic_item_id, cached_map_type)
     a = CachedMapItemTranslation.find_by(
         cached_map_type:,
@@ -135,7 +135,7 @@ class CachedMapItem < ApplicationRecord
   end
 
   # @return [Array]
-  # Return the geographic_item_id if it is already of the requested origin
+  #   Return the geographic_item_id if it is already of the requested origin
   def self.translate_by_data_origin(geographic_item_id, data_origin)
     if ::GeographicAreasGeographicItem.where(
          geographic_item_id:,
@@ -164,7 +164,7 @@ class CachedMapItem < ApplicationRecord
            .geographic_areas
            .joins(:geographic_items)
            .where(geographic_areas: { data_origin: })
-           .order(cached_total_area: :ASC)
+           .order(cached_total_area: :ASC) # smallest first
            .first
            &.id
       return [a]
