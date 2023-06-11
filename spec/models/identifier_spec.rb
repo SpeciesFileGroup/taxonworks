@@ -35,9 +35,11 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
         # this eliminate all model based validation requirements
         identifier.type = 'Identifier::Local::CatalogNumber'
         identifier.namespace_id = FactoryBot.create(:valid_namespace).id
-        identifier.identifier   = '123'
+        identifier.identifier = '123'
+        expect(identifier.save).to be_falsey
 
-        expect { identifier.save }.to raise_error ActiveRecord::StatementInvalid
+        # Now catches that object is missing
+        # expect { identifier.save }.to raise_error ActiveRecord::StatementInvalid
       end
 
       specify 'identifier' do

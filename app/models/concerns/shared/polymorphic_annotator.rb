@@ -13,12 +13,6 @@
 #  Tag.related_foreign_keys.push self.name.foreign_key
 #
 #
-# TODO: sometime way down the line revisit this
-# !! This should be fine when inverse_of: attributes are added !!
-# Please DO NOT include the following:
-#   validates :<foo>_object, presence: true
-#   validates_presence_of :<foo>_object_type, :<foo>_object_id
-#
 module Shared::PolymorphicAnnotator
   extend ActiveSupport::Concern
 
@@ -47,18 +41,32 @@ module Shared::PolymorphicAnnotator
 
     # @return Array of class names can be cited
     def related_klasses
-      related_foreign_keys.sort{|a,b| a.to_s <=> b.to_s}.collect{|k| k.to_s.gsub('_id', '').camelize } 
+      related_foreign_keys.sort{|a,b| a.to_s <=> b.to_s}.collect{|k| k.to_s.gsub('_id', '').camelize }
     end
   end
 
   included do
+
     # Concern implementation macro
     def self.polymorphic_annotates(polymorphic_belongs, foreign_key = nil) # , inverse_of = nil)
+
       # inverse_of ||= self.table_name.to_sym
-      belongs_to polymorphic_belongs.to_sym, polymorphic: true, foreign_key: (foreign_key.nil? ? (polymorphic_belongs.to_s + '_id').to_s : polymorphic_belongs.to_s) # TODO: add for validation , inverse_of: inverse_of # polymorphic_belongs.to_sym
+      belongs_to polymorphic_belongs.to_sym, polymorphic: true, foreign_key: (foreign_key.nil? ? (polymorphic_belongs.to_s + '_id').to_s : polymorphic_belongs.to_s),
+        inverse_of: self.name.underscore.pluralize # TODO: add for validation , inverse_of: inverse_of # polymorphic_belongs.to_sym
+
       alias_attribute :annotated_object, polymorphic_belongs.to_sym
 
       define_singleton_method(:annotator_reflection){polymorphic_belongs.to_s}
+
+      validates polymorphic_belongs.to_sym, presence: true
+#
+# TODO: sometime way down the line revisit this
+# !! This should be fine when inverse_of: attributes are added !!
+# Please DO NOT include the following:
+#   validates :<foo>_object, presence: true
+#   validates_presence_of :<foo>_object_type, :<foo>_object_id
+#
+
     end
 
     # @return [Array]
