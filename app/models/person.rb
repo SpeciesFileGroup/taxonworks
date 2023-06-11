@@ -128,7 +128,7 @@ class Person < ApplicationRecord
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
   scope :ordered_by_last_name, -> { order(:last_name) }
 
-  scope :used_in_project, -> (project_id) { joins(:roles).where( roles: { project_id: project_id } ) }
+  scope :used_in_project, -> (project_id) { joins(:roles).where( roles: { project_id: } ) }
 
   # Apply a "proper" case to all strings
   def namecase_names
@@ -147,8 +147,8 @@ class Person < ApplicationRecord
   # @return Boolean
   #   whether or not this Person is linked to any data in the project
   def used_in_project?(project_id)
-    Role.where(person_id: id, project_id: project_id).any? ||
-      Source.joins(:project_sources, :roles).where(roles: {person_id: id}, project_sources: { project_id: project_id }).any?
+    Role.where(person_id: id, project_id:).any? ||
+      Source.joins(:project_sources, :roles).where(roles: {person_id: id}, project_sources: { project_id: }).any?
   end
 
   # @return [String]
@@ -161,13 +161,13 @@ class Person < ApplicationRecord
   def bibtex_name
     out = ''
 
-    out << prefix + ' ' unless prefix.blank?
-    out << last_name unless last_name.blank?
+    out << prefix + ' ' if prefix.present?
+    out << last_name if last_name.present?
     out << ', ' unless out.blank? || (first_name.blank? && suffix.blank?)
-    out << suffix unless suffix.blank?
+    out << suffix if suffix.present?
 
     out << ', ' unless out.end_with?(', ') || first_name.blank? || out.blank?
-    out << first_name unless first_name.blank?
+    out << first_name if first_name.present?
     out.strip
   end
 
@@ -187,9 +187,11 @@ class Person < ApplicationRecord
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
   #
-  # No person is destroyed, see `hard_merge`.  self is intended to be kept.
+  # No person is destroyed, see `hard_merge`.
+
   #
   # r_person is merged into l_person (self)
+  # !! the intent is to keep self and remove target
   #
   def merge_with(person_id)
     return false if person_id == id
@@ -209,7 +211,7 @@ class Person < ApplicationRecord
 
           l_person_hash = annotations_hash
 
-          unless r_person.first_name.blank?
+          if r_person.first_name.present?
             if first_name.blank?
               update(first_name: r_person.first_name)
             else
@@ -237,7 +239,7 @@ class Person < ApplicationRecord
             end
           end
 
-          unless r_person.last_name.blank?
+          if r_person.last_name.present?
             if last_name.blank?
               self.update(last_name: r_person.last_name) # NameCase() ?
             else
@@ -323,7 +325,7 @@ class Person < ApplicationRecord
           if false && prefix.blank? ## DD: do not change the name of verified person
             write_attribute(:prefix, r_person.prefix)
           else
-            unless r_person.prefix.blank?
+            if r_person.prefix.present?
               # What to do when both have some content?
             end
           end
@@ -331,7 +333,7 @@ class Person < ApplicationRecord
           if false && suffix.blank? ## DD: do not change the name of verified person
             self.suffix = r_person.suffix
           else
-            unless r_person.suffix.blank?
+            if r_person.suffix.present?
               # What to do when both have some content?
             end
           end
@@ -459,7 +461,7 @@ class Person < ApplicationRecord
 
     # i is a select manager
     i = t.project(t['person_id'], t['type'], t['updated_at']).from(t)
-      .where(t['updated_at'].gt(1.weeks.ago))
+      .where(t['updated_at'].gt(1.week.ago))
       .where(t['updated_by_id'].eq(user_id))
       .where(t['type'].eq(role_type))
       .order(t['updated_at'].desc)
@@ -478,16 +480,16 @@ class Person < ApplicationRecord
     r = used_recently(user_id, role_type)
     h = {
       quick: [],
-      pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
+      pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
       recent: []
     }
 
     if r.empty?
-      h[:quick] = Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
+      h[:quick] = Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a
     else
       h[:recent] = Person.where('"people"."id" IN (?)', r.first(10) ).to_a
       h[:quick] = (
-        Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
+        Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a +
         Person.where('"people"."id" IN (?)', r.first(4) ).to_a
       ).uniq
     end
