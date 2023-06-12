@@ -26,9 +26,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     end
 
     specify '#name without space' do
-      taxon_name.name = 'with space'
-      taxon_name.valid?
-      expect(taxon_name.errors[:name]).to_not be_empty
+      @species.name = 'with space'
+      @species.valid?
+      expect(@species.errors[:name]).to_not be_empty
     end
 
     context '#year_of_publication' do
@@ -1048,11 +1048,11 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     #  end
 
     specify 'ensure combination is not in scope 1' do
-      expect(genus1.descendants.to_a).to_not include(c1, c2, c3) 
+      expect(genus1.descendants.to_a).to_not include(c1, c2, c3)
     end
 
     specify 'ensure combination is not in scope 2' do
-      expect(genus2.descendants.to_a).to_not include(c1, c2) 
+      expect(genus2.descendants.to_a).to_not include(c1, c2)
     end
 
     specify '#out_of_scope_combinations 1' do
