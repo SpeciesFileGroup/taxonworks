@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Added ranks for viruses
+
 ### Changed
 
 - Updated Ruby gems
