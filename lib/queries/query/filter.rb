@@ -78,6 +78,7 @@ module Queries
       collection_object_query: '::Queries::CollectionObject::Filter',
       content_query: '::Queries::Content::Filter',
       descriptor_query: '::Queries::Descriptor::Filter',
+      dwc_occurrence_query: '::Queries::DwcOccurrence::Filter',
       extract_query: '::Queries::Extract::Filter',
       image_query: '::Queries::Image::Filter',
       loan_query: '::Queries::Loan::Filter',
