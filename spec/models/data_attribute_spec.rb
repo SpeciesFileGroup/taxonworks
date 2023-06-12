@@ -14,7 +14,7 @@ describe DataAttribute, type: :model, group: :annotators do
         attribute.type = 'ImportAttribute'
         attribute.value = 'asdf'
         attribute.import_predicate = 'jkl'
-        expect{attribute.save}.to raise_error ActiveRecord::StatementInvalid
+        expect(attribute.valid?).to be_falsey
       end
 
       specify 'value' do
@@ -137,7 +137,13 @@ describe DataAttribute, type: :model, group: :annotators do
 
       context 'using nested attributes' do
         specify 'for community data' do
-          s = Serial.new(name: 'Blorf', data_attributes_attributes: [{predicate: p, value: '6', type: 'InternalAttribute', attribute_subject: s, is_community_annotation: true}])  
+          s = Serial.new(name: 'Blorf', data_attributes_attributes: [
+            {
+              predicate: p,
+              value: '6',
+              type: 'InternalAttribute',
+              attribute_subject: s,
+              is_community_annotation: true}])  
           expect(s.save!).to be_truthy
           expect(s.data_attributes.size).to eq(1)
           expect(s.data_attributes.first.project_id).to eq(nil)
