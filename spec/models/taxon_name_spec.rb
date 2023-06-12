@@ -26,9 +26,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     end
 
     specify '#name without space' do
-      @species.name = 'with space'
-      @species.valid?
-      expect(@species.errors[:name]).to_not be_empty
+      s1 = FactoryBot.build(:relationship_species, name: 'with space', parent: @genus)
+      s1.valid?
+      expect(s1.errors[:name]).to_not be_empty
     end
 
     context '#year_of_publication' do
@@ -95,9 +95,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         #expect(variety.cached_author_year).to eq('(Linnaeus) McAtee')
       end
 
-      xspecify 'ICN author' do # TODO: Re-enable this after discussion with @mjy @proceps
+      specify 'ICN author' do
         t = FactoryBot.create(:icn_kingdom, verbatim_author: '(Seub.) Lowden')
-        expect(t.original_author_year).to eq('(Seub.) Lowden')
+        expect(t.original_author_year).to eq('Seub.')
       end
     end
 
