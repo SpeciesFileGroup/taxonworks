@@ -14,14 +14,15 @@
       <br />
     </template>
 
-    <form-citation
+    <FormCitation
       v-model="citation"
       :klass="BIOLOGICAL_ASSOCIATION"
       lock-button
       use-session
       @lock="lockSource = $event"
     />
-    <display-list
+
+    <DisplayList
       v-if="createdBiologicalAssociation"
       edit
       class="margin-medium-top"
@@ -44,26 +45,26 @@
           "
         />
 
-        <v-btn
+        <VBtn
           v-if="biologicalRelationship.inverted_name"
           color="primary"
           @click="flip = !flip"
         >
           Flip
-        </v-btn>
+        </VBtn>
 
-        <v-btn
+        <VBtn
           class="margin-small-left margin-small-right"
           color="primary"
           circle
           @click="unsetBiologicalRelationship"
         >
-          <v-icon
+          <VIcon
             name="undo"
             small
           />
-        </v-btn>
-        <lock-component v-model="lockRelationship" />
+        </VBtn>
+        <LockComponent v-model="lockRelationship" />
       </h3>
       <h3
         class="subtle relationship-title"
@@ -77,17 +78,17 @@
         class="relation-title middle"
       >
         <span v-html="displayRelated" />
-        <v-btn
+        <VBtn
           class="margin-small-left"
           color="primary"
           circle
           @click="biologicalRelation = undefined"
         >
-          <v-icon
+          <VIcon
             name="undo"
             small
           />
-        </v-btn>
+        </VBtn>
       </h3>
       <h3
         v-else
@@ -118,7 +119,7 @@
       </button>
     </div>
 
-    <table-list
+    <TableList
       class="separate-top"
       :list="list"
       :metadata="metadata"
@@ -127,6 +128,7 @@
     />
   </div>
 </template>
+
 <script>
 import CRUD from '../../request/crud.js'
 import AnnotatorExtend from '../annotatorExtend.js'
@@ -214,6 +216,16 @@ export default {
         'radialObject::biologicalRelationship::lock',
         newVal
       )
+    },
+
+    biologicalRelation(newVal) {
+      if (
+        newVal?.id &&
+        this.citation.source_id &&
+        this.biologicalRelationship?.id
+      ) {
+        this.saveAssociation()
+      }
     }
   },
 
