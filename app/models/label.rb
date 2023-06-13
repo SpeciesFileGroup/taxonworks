@@ -37,7 +37,7 @@ class Label < ApplicationRecord
   include Shared::PolymorphicAnnotator
   include Shared::IsData
 
-  polymorphic_annotates('label_object')
+  polymorphic_annotates('label_object', nil, nil, false)
 
   ignore_whitespace_on(:text)
 

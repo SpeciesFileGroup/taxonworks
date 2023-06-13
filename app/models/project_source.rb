@@ -15,8 +15,9 @@ class ProjectSource < ApplicationRecord
   belongs_to :project, inverse_of: :project_sources
   belongs_to :source, inverse_of: :project_sources
 
-  # source presence validation is handled in PG, as per accepts_nested_attributes constraints
-  #
+  validates :source, presence: true
+  validates :project, presence: true
+
   validates_uniqueness_of :source_id, scope: [:project_id]
   before_destroy :check_for_use
 

@@ -10,9 +10,9 @@ module Shared::Attributions
   included do
     ::Attribution.related_foreign_keys.push self.name.foreign_key
 
-    has_one :attribution, as: :attribution_object, validate: false, dependent: :destroy
+    has_one :attribution, as: :attribution_object, validate: false, dependent: :destroy, inverse_of: :attribution_object
 
-    scope :without_attribution, -> {includes(:attribution).where(attributions: {id: nil})}
+    scope :without_attribution, -> { where.missing(:attribution) }
     scope :with_attribution, -> { joins(:attribution) }
 
     accepts_nested_attributes_for :attribution, reject_if: :reject_attribution, allow_destroy: true
@@ -21,10 +21,7 @@ module Shared::Attributions
     validates_associated :attribution
   end
 
-  class_methods do
-  end
-
-  def attributed? 
+  def attributed?
     self.attribution.present?
   end
 

@@ -13,11 +13,8 @@ class Source::Human < Source
 
   IGNORE_SIMILAR = IGNORE_IDENTICAL.dup.freeze
 
-  has_many :source_source_roles, -> { order('roles.position ASC') }, class_name: 'SourceSource',
-           as: :role_object, validate: true, inverse_of: :role_object
-
-  has_many :people, -> { order('roles.position ASC') },
-           through: :source_source_roles, source: :person, validate: true
+  has_many :source_source_roles, class_name: 'SourceSource', as: :role_object, dependent: :destroy, inverse_of: :role_object
+  has_many :people, -> { order('roles.position ASC') }, through: :source_source_roles, source: :person, inverse_of: :authored_sources
 
   accepts_nested_attributes_for :people, :source_source_roles, allow_destroy: true
 
@@ -26,7 +23,7 @@ class Source::Human < Source
   # @return [String]
   def authority_name
     Utilities::Strings.authorship_sentence(
-      people.collect { |p| p.last_name }
+      people.pluck(:last_name)
     )
   end
 

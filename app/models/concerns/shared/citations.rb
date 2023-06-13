@@ -13,17 +13,18 @@ module Shared::Citations
 
     Citation.related_foreign_keys.push self.name.foreign_key
 
-    has_many :citations, as: :citation_object, validate: false, dependent: :destroy
+    has_many :citations, as: :citation_object, validate: false, dependent: :destroy, inverse_of: :citation_object
     has_many :citation_topics, through: :citations
     has_many :topics, through: :citation_topics
 
     has_many :subsequent_citations, -> { where(is_original: nil) }, as: :citation_object, class_name: 'Citation'
 
-    has_many :sources, -> { distinct }, through: :citations
+    has_many :sources, -> { distinct }, through: :citations, inverse_of: :citations
     has_many :subsequent_sources, -> { distinct },  through: :subsequent_citations, source: :source
 
-    has_one :origin_citation, -> {where(is_original: true)}, as: :citation_object, class_name: 'Citation'
-    has_one :source, through: :origin_citation
+    has_one :origin_citation, -> {where(is_original: true)}, as: :citation_object, class_name: 'Citation', inverse_of: :citation_object
+
+    has_one :source, through: :origin_citation, inverse_of: :origin_citations
 
     scope :without_citations, -> {includes(:citations).where(citations: {id: nil})}
 
@@ -130,7 +131,7 @@ module Shared::Citations
   end
 
   def sources_by_topic_id(topic_id)
-    Source.joins(:citation_topics).where(citations: {citation_object: self}, citation_topics: {topic_id: topic_id}) 
+    Source.joins(:citation_topics).where(citations: {citation_object: self}, citation_topics: {topic_id:})
   end
 
   # @return [Boolean]

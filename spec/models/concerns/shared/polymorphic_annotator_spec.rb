@@ -56,9 +56,13 @@ describe 'Shared::PolymorphicAnnotator', type: :model do
   end
 end
 
+class Otu
+  has_many :test_polymorphic_annotators
+end
+
 class TestPolymorphicAnnotator < ApplicationRecord
   include FakeTable
   include Shared::PolymorphicAnnotator
-  polymorphic_annotates(:sti)
+  polymorphic_annotates(:sti, nil )
 end
 

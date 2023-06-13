@@ -48,25 +48,21 @@ module Shared::PolymorphicAnnotator
   included do
 
     # Concern implementation macro
-    def self.polymorphic_annotates(polymorphic_belongs, foreign_key = nil) # , inverse_of = nil)
+    def self.polymorphic_annotates(polymorphic_belongs, foreign_key = nil, inverse_of = nil, validate_presence = true)
 
-      # inverse_of ||= self.table_name.to_sym
-      belongs_to polymorphic_belongs.to_sym, polymorphic: true, foreign_key: (foreign_key.nil? ? (polymorphic_belongs.to_s + '_id').to_s : polymorphic_belongs.to_s),
-        inverse_of: self.name.underscore.pluralize # TODO: add for validation , inverse_of: inverse_of # polymorphic_belongs.to_sym
+      inverse_of ||= self.name.underscore.pluralize
+
+      belongs_to(polymorphic_belongs.to_sym, polymorphic: true, foreign_key: (foreign_key.nil? ? (polymorphic_belongs.to_s + '_id').to_s : polymorphic_belongs.to_s),
+        inverse_of:)
 
       alias_attribute :annotated_object, polymorphic_belongs.to_sym
 
       define_singleton_method(:annotator_reflection){polymorphic_belongs.to_s}
 
-      validates polymorphic_belongs.to_sym, presence: true
-#
-# TODO: sometime way down the line revisit this
-# !! This should be fine when inverse_of: attributes are added !!
-# Please DO NOT include the following:
-#   validates :<foo>_object, presence: true
-#   validates_presence_of :<foo>_object_type, :<foo>_object_id
-#
-
+      # Label does not require object to be present
+      if validate_presence
+        validates polymorphic_belongs.to_sym, presence: true
+      end
     end
 
     # @return [Array]

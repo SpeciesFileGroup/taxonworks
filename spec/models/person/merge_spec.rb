@@ -65,10 +65,6 @@ describe Person, type: :model, group: :people do
 
   context 'identifiers' do
 
-    before do
-
-    end
-
     specify 'multiple identifiers' do
       i = 'Q123123'
       j = 'http://orcid.org/0000-0002-0554-1354'
@@ -83,16 +79,14 @@ describe Person, type: :model, group: :people do
       person1.merge_with(person1b.id)
       expect(person1.identifiers.reload.pluck(:identifier)).to contain_exactly(i, j)
     end
-
   end
-
 
   context 'roles' do
     before do
-      gr2.georeferencers << person1
+      gr1.georeference_authors << person1b
+      gr2.georeference_authors << person1
       tn1.taxon_name_authors << person1b
       tn2.taxon_name_authors << person1b
-      gr1.georeferencers << person1b
     end
 
     specify 'exist' do
