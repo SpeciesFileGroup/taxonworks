@@ -37,6 +37,10 @@ const INCLUDE_OPTIONS = {
   Descendants: {
     descendants: true,
     ancestors: undefined
+  },
+  'Self and descendants': {
+    descendants: false,
+    ancestors: undefined
   }
 }
 
