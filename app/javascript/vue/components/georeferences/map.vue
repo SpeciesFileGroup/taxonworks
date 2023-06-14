@@ -349,7 +349,10 @@ const addGeoJsonLayer = (geoJsonLayers) => {
       }
     },
     filter: (feature) => {
-      if (feature.properties?.geographic_area) {
+      if (
+        feature.properties?.geographic_area ||
+        feature.properties?.aggregate
+      ) {
         geographicArea.addLayer(
           L.GeoJSON.geometryToLayer(
             feature,

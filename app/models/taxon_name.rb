@@ -222,7 +222,6 @@ class TaxonName < ApplicationRecord
   validates_presence_of :type, message: 'is not specified'
 
   validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}, allow_nil: true
-  validates :name, format: { without: /\s/ }
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
 

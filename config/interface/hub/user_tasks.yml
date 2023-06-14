@@ -824,3 +824,10 @@ loan_dashboard_task:
     - loan
   status: prototype
   description: 'Summarize various loan-related statistics.'
+geographic_area_usage_task:
+  hub: true
+  name: 'Geographic area usage'
+  related:
+  categories:
+  status: prototype
+  description: 'Summarize this projects geographic area usage'

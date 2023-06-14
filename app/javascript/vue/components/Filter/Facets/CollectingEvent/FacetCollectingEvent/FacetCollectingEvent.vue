@@ -110,11 +110,16 @@ watch(
 )
 
 onBeforeMount(() => {
-  params.value.collecting_event_id?.forEach((id) => {
-    CollectingEvent.find(id).then((response) => {
-      addCe(response.body)
+  const idParam = params.value?.collecting_event_id
+  const ids = idParam && [idParam].flat()
+
+  if (ids) {
+    ids.forEach((id) => {
+      CollectingEvent.find(id).then((response) => {
+        addCe(response.body)
+      })
     })
-  })
+  }
 })
 
 const addCe = (ce) => {

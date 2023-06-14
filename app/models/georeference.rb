@@ -81,7 +81,10 @@ class Georeference < ApplicationRecord
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Confidences # qualitative, not spatial
+  include Shared::Maps
   include Shared::IsData
+
+  include Shared::Maps
 
   attr_accessor :iframe_response # used to handle the geolocate from Tulane response
 
@@ -92,8 +95,8 @@ class Georeference < ApplicationRecord
   belongs_to :geographic_item, inverse_of: :georeferences
 
   has_many :collection_objects, through: :collecting_event, inverse_of: :georeferences
+  has_many :otus, through: :collection_objects
 
-  # TODO: This is a complete refactor
   has_many :georeferencer_roles, class_name: 'Georeferencer', as: :role_object, dependent: :destroy, inverse_of: :role_object
   has_many :georeference_authors, -> { order('roles.position ASC') }, through: :georeferencer_roles, source: :person # , inverse_of: :georeferences
 

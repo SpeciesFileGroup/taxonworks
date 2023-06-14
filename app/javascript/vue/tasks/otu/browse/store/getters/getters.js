@@ -1,4 +1,5 @@
 import getBiologicalAssociations from './getBiologicalAssociations'
+import getCachedMap from './getCachedMap'
 import getCollectingEvents from './getCollectingEvents'
 import getCollectionObjects from './getCollectionObjects'
 import getCommonNames from './getCommonNames'
@@ -18,6 +19,7 @@ import getRelatedBiologicalAssociations from './getRelatedBiologicalAssociations
 
 const GetterNames = {
   GetBiologicalAssociations: 'getBiologicalAssociations',
+  GetCachedMap: 'getCachedMap',
   GetCollectionObjects: 'getCollectionObjects',
   GetCollectingEvents: 'getCollectingEvents',
   GetCommonNames: 'getCommonNames',
@@ -38,6 +40,7 @@ const GetterNames = {
 
 const GetterFunctions = {
   [GetterNames.GetBiologicalAssociations]: getBiologicalAssociations,
+  [GetterNames.GetCachedMap]: getCachedMap,
   [GetterNames.GetCollectingEvents]: getCollectingEvents,
   [GetterNames.GetCollectionObjects]: getCollectionObjects,
   [GetterNames.GetCommonNames]: getCommonNames,

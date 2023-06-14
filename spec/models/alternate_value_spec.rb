@@ -172,6 +172,7 @@ describe AlternateValue, group: :annotators do
         expect(alternate_value.project_id).to eq(nil)
       end
 
+      # TODO: remove Current.project_id
       specify 'when using <<' do
         o    = FactoryBot.create(:valid_serial, name: 'The Serial')
         altv = AlternateValue.new(

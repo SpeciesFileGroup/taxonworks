@@ -37,13 +37,19 @@ const params = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
+const taxonNameId = computed(() => {
+  if (!params.value.taxon_name_id) return []
+
+  return Array.isArray(params.value.taxon_name_id)
+    ? params.value.taxon_name_id
+    : [params.value.taxon_name_id]
+})
+
 const isInputEnable = computed(
   () =>
-    [
-      ...(params.value.taxon_name_id || []),
-      ...(params.value.subject_taxon_name_id || []),
-      ...(params.value.object_taxon_name_id || [])
-    ].length > 1
+    taxonNameId.value.length ||
+    (params.value.subject_taxon_name_id || []).length ||
+    (params.value.object_taxon_name_id || []).length
 )
 
 watch(isInputEnable, (newVal, oldVal) => {

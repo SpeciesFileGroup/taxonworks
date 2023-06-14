@@ -11,10 +11,6 @@ module Queries
         super
       end
 
-      def base_query
-        ::CollectingEvent.select('collecting_events.*')
-      end
-
       def autocomplete_verbatim_label_md5
         return nil if query_string.to_s.length < 4
         md5 = Utilities::Strings.generate_md5(query_string)
@@ -105,7 +101,7 @@ module Queries
         updated_queries = []
 
         queries.each_with_index do |q ,i|
-          a = q.where(project_id: project_id) if project_id.present?
+          a = q.where(project_id:) if project_id.present?
           a ||= q
           updated_queries[i] = a
         end

@@ -10,7 +10,7 @@
     <td v-html="row.subjectOrder" />
     <td v-html="row.subjectFamily" />
     <td v-html="row.subjectGenus" />
-    <td v-html="row.subjectLabel" />
+    <td v-html="row.subjectTag" />
     <td>
       <a
         :href="`/biological_associations/${row.id}`"
@@ -38,7 +38,7 @@
     <td v-html="row.objectOrder" />
     <td v-html="row.objectFamily" />
     <td v-html="row.objectGenus" />
-    <td v-html="row.objectLabel" />
+    <td v-html="row.objectTag" />
     <td>
       <template
         v-for="(citation, index) in row.citations"
@@ -56,12 +56,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { useStore } from 'vuex'
-import { GetterNames } from '../../store/getters/getters'
 import BiologicalAssociationRelated from './BiologicalAssociationRelated.vue'
 
-const props = defineProps({
+defineProps({
   row: {
     type: Object,
     required: true

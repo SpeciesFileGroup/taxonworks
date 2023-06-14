@@ -7,9 +7,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Added ranks for viruses
+
 ### Changed
 
 - Updated Ruby gems
+- Added date format recognition ####-##-## [#3453]
 - Add hyperlinks to OTU labels in Filter biological associations table [#3444]
 
 ### Fixed

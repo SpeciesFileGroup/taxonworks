@@ -61,7 +61,7 @@ import VModal from 'components/ui/Modal'
 import YearPicker from './timeline/TimelineYearsPick.vue'
 import FilterList from './biologicalAssociations/filterList'
 import BiologicalAssociationsList from './biologicalAssociations/BiologicalAssociationsTable.vue'
-import { getUnique } from 'helpers/arrays.js'
+import { getUnique, sortArray } from 'helpers/arrays.js'
 import { GetterNames } from '../store/getters/getters'
 
 export default {
@@ -92,64 +92,62 @@ export default {
       return this.biologicalAssociations.filter(
         (biological) =>
           (this.yearFilter
-            ? biological.citations.find(
+            ? biological.citations.some(
                 (citation) => citation.source.year === this.yearFilter
               )
             : true) &&
-          (this.checkExist(this.otusFilter, biological.object, 'id') ||
-            this.checkExist(this.otusFilter, biological.subject, 'id')) &&
-          this.checkExist(
-            this.relationsFilter,
-            biological.biological_relationship,
-            'id'
-          ) &&
+          (!this.otusFilter.length ||
+            this.otusFilter.includes(biological.subjectId) ||
+            this.otusFilter.includes(biological.objectId)) &&
+          (!this.relationsFilter.length ||
+            this.relationsFilter.includes(
+              biological.biologicalRelationshipId
+            )) &&
           this.checkExist(this.sourcesFilter, biological.citations, 'source_id')
       )
     },
     relationList() {
       return getUnique(
-        this.biologicalAssociations.map((item) => item.biological_relationship),
+        this.biologicalAssociations.map((item) => ({
+          id: item.biologicalRelationshipId,
+          label: item.biologicalRelationship
+        })),
         'id'
       )
     },
     otusList() {
-      return getUnique(
-        [].concat(
-          ...this.biologicalAssociations.map((item) => [
-            item.subject,
-            item.object
-          ])
+      return sortArray(
+        getUnique(
+          [].concat(
+            ...this.biologicalAssociations.map((item) => [
+              { label: item.subjectLabel, id: item.subjectId },
+              {
+                label: item.objectTag,
+                objectLabel: item.objectLabel,
+                id: item.objectId
+              }
+            ])
+          ),
+          'id'
         ),
-        'id'
-      ).sort((a, b) => {
-        if (a.object_label < b.object_label) {
-          return -1
-        }
-        if (a.object_label > b.object_label) {
-          return 1
-        } else {
-          return 0
-        }
-      })
+        'objectLabel'
+      )
     },
     sourcesList() {
-      return getUnique(
-        [].concat(
-          ...this.biologicalAssociations.map((biological) =>
-            biological.citations.map((citation) => citation.source)
-          )
+      return sortArray(
+        getUnique(
+          [].concat(
+            ...this.biologicalAssociations.map((biological) =>
+              biological.citations.map((citation) => ({
+                label: citation.source.object_tag,
+                id: citation.source_id
+              }))
+            )
+          ),
+          'id'
         ),
-        'id'
-      ).sort((a, b) => {
-        if (a.cached < b.cached) {
-          return -1
-        }
-        if (a.cached > b.cached) {
-          return 1
-        } else {
-          return 0
-        }
-      })
+        'label'
+      )
     }
   },
   data() {

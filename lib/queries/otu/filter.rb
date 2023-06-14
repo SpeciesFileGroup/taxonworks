@@ -28,6 +28,7 @@ module Queries
         :radius,
         :taxon_name,
         :taxon_name_id,
+        :with_name,
         :wkt,
 
         collecting_event_id: [],
@@ -54,6 +55,12 @@ module Queries
       # @return Boolean
       #   if true then match on `name` exactly
       attr_accessor :name_exact
+
+      # @return Boolean
+      #   true - has name
+      #   false - has no name
+      #   nil - both
+      attr_accessor :with_name
 
       # @param otu_id [Integer, Array]
       # @return Array
@@ -181,6 +188,7 @@ module Queries
         @radius = params[:radius].presence || 100.0
         @taxon_name = boolean_param(params, :taxon_name)
         @taxon_name_id = params[:taxon_name_id]
+        @with_name = boolean_param(params, :with_name)
         @wkt = params[:wkt]
 
         set_notes_params(params)
@@ -277,6 +285,15 @@ module Queries
           ::Otu.joins(:asserted_distributions)
         else
           ::Otu.where.missing(:asserted_distributions)
+        end
+      end
+
+      def with_name_facet
+        return nil if with_name.nil?
+        if with_name
+          ::Otu.where.not(name: nil)
+        else
+          ::Otu.where(name: nil)
         end
       end
 
@@ -585,6 +602,7 @@ module Queries
           geographic_area_id_facet,
           observations_facet,
           taxon_name_id_facet,
+          with_name_facet,
           wkt_facet,
         ].compact
       end

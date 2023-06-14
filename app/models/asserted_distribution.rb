@@ -1,5 +1,5 @@
-# An AssertedDistribution is the source-backed assertion that a taxon (OTU) is present in some *spatial area*.  It requires a Citation indicating where/who made the assertion.
-# In TaxonWorks the areas are drawn from GeographicAreas, which essentially represent a gazeteer of 3 levels of subdivision (e.g. country, state, county).
+# An AssertedDistribution is the Source-backed assertion that a taxon (OTU) is present in some *spatial area*. It requires a Citation indicating where/who made the assertion.
+# In TaxonWorks the areas are drawn from GeographicAreas.
 #
 # AssertedDistributions can be asserts that the source indicates that a taxon is NOT present in an area.  This is a "positive negative" in , i.e. the Source can be thought of recording evidence that a taxon is not present. TaxonWorks does not differentiate between types of negative evidence.
 #
@@ -29,11 +29,14 @@ class AssertedDistribution < ApplicationRecord
   include Shared::Confidences
   include Shared::OriginRelationship
   include Shared::Identifiers
+  include Shared::HasPapertrail
   include Shared::IsData
 
   include Shared::Taxonomy # at present must be before IsDwcOccurence
   include Shared::IsDwcOccurrence
   include AssertedDistribution::DwcExtensions
+
+  include Shared::Maps
 
   originates_from 'Specimen', 'Lot'
 
@@ -115,6 +118,31 @@ class AssertedDistribution < ApplicationRecord
 
   def has_shape?
     geographic_area.geographic_items.any?
+  end
+
+  # @return [Hash]
+  def self.batch_move(params)
+    return false if params[:geographic_area_id].blank?
+
+    a = Queries::AssertedDistribution::Filter.new(params[:asserted_distribution_query])
+
+    return false if a.all.count == 0
+    return false if a.all.pluck(:geographic_area_id).uniq.size != 1
+
+    moved = []
+    unmoved = []
+
+    begin
+      a.all.each do |o|
+        o.update!(geographic_area_id: params[:geographic_area_id] )
+        moved.push o
+      end
+
+    rescue ActiveRecord::RecordInvalid => e
+      unmoved.push o
+    end
+
+    return { moved:, unmoved: }
   end
 
   protected

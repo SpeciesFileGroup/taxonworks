@@ -2,8 +2,38 @@ namespace :tw do
   namespace :maintenance do
     namespace :cached do
 
+      desc 'forces rebuild of all GeographicItem cached fields'
+      task parallel_reset_geographic_item_cached_ids: [:environment] do |t|
+
+        cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 16
+
+        q = GeographicItem.all
+
+        Parallel.each(q.find_each, progress: 'update_geographic_item_cached_fields', in_processes: cached_rebuild_processes ) do |gi|
+            begin
+              gi.set_cached
+            rescue => exception
+              puts Rainbow(" FAILED #{exception}").red.bold
+            end
+          end
+      end
+
+      desc 'forces rebuild of all GeographicItem cached fields'
+      task parallel_reset_geographic_item_cached_ids: [:environment] do |t|
+
+        q = GeographicItem.all
+
+        Parallel.each(q.limit(100).find_each, progress: 'update_geographic_item_cached_fields', in_processes: cached_rebuild_processes ) do |gi|
+            begin
+              gi.set_cached
+            rescue => exception
+              puts Rainbow(" FAILED #{exception}").red.bold
+            end
+          end
+      end
+
       # If force = 'true' then re-do records that already have cached set
-      desc 'rake tw:maintenance:cached:parallel_rebuild_cached_author force=true cached_rebuild_processes=4' 
+      desc 'rake tw:maintenance:cached:parallel_rebuild_cached_author force=true cached_rebuild_processes=4'
       task parallel_rebuild_cached_author: [:environment] do |t|
 
         a = TaxonName.where.not(verbatim_author: nil)
@@ -50,6 +80,7 @@ namespace :tw do
           begin
             n.update_cached_original_combinations
           rescue => exception
+            puts Rainbow(" FAILED #{exception}").red.bold
             puts Rainbow(" FAILED #{exception}").red.bold
           end
           true
