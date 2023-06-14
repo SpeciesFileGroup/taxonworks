@@ -1,11 +1,10 @@
 scope :tasks do
-    scope :observations do
-      scope :filter, controller: 'tasks/observations/filter' do
-        get '/', as: 'filter_observations_task', action: :index
-      end
+  scope :observations do
+    scope :filter, controller: 'tasks/observations/filter' do
+      get '/', as: 'filter_observations_task', action: :index
     end
+  end
 
-  
   scope :shared do
     scope :related_data, controller: 'tasks/shared/related_data' do
       get '/', action: :index, as: 'related_data_task'
@@ -47,9 +46,9 @@ scope :tasks do
   end
 
   scope :asserted_distributions do
-      scope :filter, controller: 'tasks/asserted_distributions/filter' do
-        get '/', as: 'filter_asserted_distributions_task', action: :index
-      end
+    scope :filter, controller: 'tasks/asserted_distributions/filter' do
+      get '/', as: 'filter_asserted_distributions_task', action: :index
+    end
 
     scope :basic_endemism, controller: 'tasks/asserted_distributions/basic_endemism' do
       get '/', action: :index, as: 'asserted_distributions_basic_endemism_task'
@@ -139,9 +138,9 @@ scope :tasks do
   end
 
   scope :descriptors do
-      scope :filter, controller: 'tasks/descriptors/filter' do
-        get '/', action: :index, as: 'filter_descriptors_task'
-      end
+    scope :filter, controller: 'tasks/descriptors/filter' do
+      get '/', action: :index, as: 'filter_descriptors_task'
+    end
 
     scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
       get '(:descriptor_id)', action: :index, as: 'new_descriptor_task'
@@ -257,13 +256,16 @@ scope :tasks do
   end
 
   scope :collection_objects do
+    scope :outdated_names, controller: 'tasks/collection_objects/outdated_names' do
+      get '/', action: :index, as: 'collection_object_outdated_names_task'
+    end
 
-   scope :table, controller: 'tasks/collection_objects/table' do
-     get '/', action: :index, as: 'collection_object_table_task'
-   end
+    scope :table, controller: 'tasks/collection_objects/table' do
+      get '/', action: :index, as: 'collection_object_table_task'
+    end
 
      scope :chronology, controller: 'tasks/collection_objects/chronology' do
-      get '/', action: :index, as: 'collection_object_chronology_task'
+       get '/', action: :index, as: 'collection_object_chronology_task'
      end
 
     scope :stepwise do
@@ -346,9 +348,9 @@ scope :tasks do
   end
 
   scope :biological_associations do
-      scope :biological_associations_graph, controller: 'tasks/biological_associations/biological_associations_graph' do
-        get '/', action: :index, as: 'edit_biological_associations_graph_task'
-      end
+    scope :biological_associations_graph, controller: 'tasks/biological_associations/biological_associations_graph' do
+      get '/', action: :index, as: 'edit_biological_associations_graph_task'
+    end
 
     scope :filter, controller: 'tasks/biological_associations/filter' do
       get '/', action: :index, as: 'filter_biological_associations_task'
@@ -505,7 +507,7 @@ scope :tasks do
     end
 
     scope :filter, controller: 'tasks/otus/filter' do
-      get '/', action: :index, as: 'filter_otus_task' 
+      get '/', action: :index, as: 'filter_otus_task'
 
   # TODO: remove all
   #   get 'find', as: 'find_otus_task' # 'find_area_and_date_task'

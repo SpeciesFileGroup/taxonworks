@@ -18,7 +18,7 @@ module Shared::Maps
 
     def cleanup_cached_map
       return true if observation_objects.count == 0
-      ObservationMatrixRow.where(observation_matrix: observation_matrix, observation_object: observation_objects).each do |mr|
+      ObservationMatrixRow.where(observation_matrix:, observation_object: observation_objects).each do |mr|
         decrement_matrix_row_reference_count(mr)
       end
       true

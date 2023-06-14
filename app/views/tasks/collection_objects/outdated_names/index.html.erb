@@ -1,0 +1,29 @@
+<h1> Task - COL Name mappage </h1>
+
+<table>
+
+<% @collection_objects.each do |co| %>
+  <% n = collection_object_scientific_name(co)  %>
+  <% r = ::Colrapi.nameusage_search(q: n, dataset_id: ::TaxonWorks::Vendor::Colrapi::DATASETS[:col], rank: 'species') %>
+  <% d = ::TaxonWorks::Vendor::Colrapi.name_status(co, r ) %>
+
+  <tr>
+    <td> <%= co.id %> </td>
+    <td> <%= n %> </td>
+  </tr>
+
+  <% d[:col_usages].each do |u| %>
+    <tr>
+      <td> <%= u.dig :usage, :name %></td>
+      <td> <%= u.dig :usage, :status %></td>
+      <td> <%= u.dig :accepted, :name %> </td>
+      <td> <%= u.dig :accepted, :status %> </td>
+    </tr>
+  <% end %>
+
+  <tr><td colspan="2"> --- </td></tr>
+
+<% end %>
+
+</table>
+
