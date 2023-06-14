@@ -16,4 +16,8 @@ RSpec.describe CachedMap, type: :model do
     expect(m.geometry).to be_truthy
   end
 
+  specify 'Factory test' do
+    expect(FactoryBot.create(:valid_cached_map)).to be_truthy
+  end
+
 end

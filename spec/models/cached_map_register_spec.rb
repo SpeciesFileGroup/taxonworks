@@ -1,5 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe CachedMapRegister, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  specify 'Factory test' do
+    expect(FactoryBot.create(:valid_cached_map_register)).to be_truthy
+  end
+
 end
