@@ -39,12 +39,9 @@ class Role < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData
-
   include Shared::PolymorphicAnnotator
 
-  # TODO: failing only because of author create
-  polymorphic_annotates(:role_object, nil, nil, false)
-
+  polymorphic_annotates(:role_object, presence_validate: false)
   acts_as_list scope: [:type, :role_object_type, :role_object_id]
 
   after_save :update_cached
@@ -58,9 +55,7 @@ class Role < ApplicationRecord
 
   validates :person, presence: true, unless: Proc.new { organization.present? }
   validates :organization, presence: true, unless: Proc.new { person.present? }
-
   validates_presence_of :type
-
   validate :only_one_agent, :agent_is_legal #, :agent_present
 
   # Overrode in Roles::Organization

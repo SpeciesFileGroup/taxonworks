@@ -15,7 +15,7 @@ class Attribution < ApplicationRecord
   include Shared::Tags
   include Shared::IsData
   include Shared::PolymorphicAnnotator
-  polymorphic_annotates('attribution_object', nil, :attribution)
+  polymorphic_annotates('attribution_object', inverse_of: :attribution)
 
   # TODO: Consider DRYing with Source roles.
 

@@ -46,8 +46,8 @@ class OriginRelationship < ApplicationRecord
   include Shared::IsData
   include Shared::PolymorphicAnnotator
 
-  polymorphic_annotates('old_object', nil, nil, false)
-  polymorphic_annotates('new_object', nil, nil, false)
+  polymorphic_annotates('old_object', presence_validate: false)
+  polymorphic_annotates('new_object', presence_validate: false)
 
   acts_as_list scope: [:project_id, :old_object_id, :old_object_type]
 

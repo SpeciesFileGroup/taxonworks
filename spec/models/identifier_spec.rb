@@ -14,6 +14,13 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
     expect(i.valid?).to be_falsey 
   end
 
+  specify 'over-ride validate annotated_object' do
+    p = FactoryBot.create(:valid_person)
+    p.destroy
+    i = Identifier::Global::Wikidata.new(identifier_object: p, identifier: 'Q1234', annotator_batch_mode: true)
+    expect(i.valid?).to be_truthy
+  end
+
   specify '.prefer 1' do
     c =  'Identifier::Local::CatalogNumber'
     specimen1.identifiers << FactoryBot.build(:valid_identifier_local, type: c)

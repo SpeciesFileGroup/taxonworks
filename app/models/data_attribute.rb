@@ -33,7 +33,7 @@ class DataAttribute < ApplicationRecord
   # include Shared::Protocol
   include Shared::IsData
   include Shared::PolymorphicAnnotator
-  polymorphic_annotates('attribute_subject', nil, :data_attributes)
+  polymorphic_annotates('attribute_subject', inverse_of: :data_attributes)
 
   belongs_to :predicate, foreign_key: 'controlled_vocabulary_term_id', class_name: 'Predicate', inverse_of: :internal_attributes
 

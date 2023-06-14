@@ -12,7 +12,6 @@
 #
 #  Tag.related_foreign_keys.push self.name.foreign_key
 #
-#
 module Shared::PolymorphicAnnotator
   extend ActiveSupport::Concern
 
@@ -48,7 +47,17 @@ module Shared::PolymorphicAnnotator
   included do
 
     # Concern implementation macro
-    def self.polymorphic_annotates(polymorphic_belongs, foreign_key = nil, inverse_of = nil, presence_validate = true)
+    #
+    # @param foreign_key [String, nil]
+    #   If the FK is not inferable in a Rails convention (adding `_id`) provide it here
+    #
+    # @param inverse_of [Symbol, nil]
+    #   If the inverse_of is not the class name underscored and pluralized provide it here
+    #
+    # @param presence_validate [Boolean, nil]
+    #   When true then add validation checks on annotated_object
+    #
+    def self.polymorphic_annotates(polymorphic_belongs, foreign_key: nil, inverse_of: nil, presence_validate: true)
 
       inverse_of ||= self.name.underscore.pluralize
 
@@ -64,7 +73,7 @@ module Shared::PolymorphicAnnotator
         validates_presence_of polymorphic_belongs.to_sym #, presence: true
         validates_associated polymorphic_belongs.to_sym
 
-        validate :annotated_object_is_persisted?
+        validate :annotated_object_is_persisted?, unless: Proc.new { annotator_batch_mode }
       end
     end
 
@@ -73,6 +82,13 @@ module Shared::PolymorphicAnnotator
     @related_foreign_keys = []
 
     attr_accessor :annotated_global_entity
+
+    # @param Boolean, nil
+    #   true - skip DB check of annotated_object presence
+    #   false, nil - ignored
+    #
+    # Tested in /app/models/identifier_spec.rb
+    attr_accessor :annotator_batch_mode
 
     # @return [String]
     #   the global_id of the annotated object
@@ -93,21 +109,23 @@ module Shared::PolymorphicAnnotator
 
   private
 
+  # Since we can't FK on polymorphics we use this
+  # to test that the annotated_object actually is
+  # present in the database.
   def annotated_object_is_persisted?
     if annotated_object
-      # We can't test persisted? since destroyed in memory objectts
-      # will interfere.
+      # We can't test `persisted?` since destroyed in-memory objects will
+      # be interfered with.
       if !annotated_object.id.nil?
         begin
-          # !! do not use annotate_object.reload as it resets
-          # the object in memory !!
+          # !! Do not use annotate_object.reload as it resets
+          # the object in memory. !!
           annotated_object.class.find(annotated_object.id)
         rescue ActiveRecord::RecordNotFound
-
           errors.add(:base, 'annotated object no longer exists')
         end
+      end
     end
-   end
   end
 
 end

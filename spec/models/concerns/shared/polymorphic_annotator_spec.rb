@@ -63,6 +63,6 @@ end
 class TestPolymorphicAnnotator < ApplicationRecord
   include FakeTable
   include Shared::PolymorphicAnnotator
-  polymorphic_annotates(:sti, nil )
+  polymorphic_annotates(:sti)
 end
 
