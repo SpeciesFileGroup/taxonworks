@@ -59,7 +59,7 @@ class AssertedDistribution < ApplicationRecord
   validate :new_records_include_citation
 
   # TODO: deprecate scopes referencing single wheres
-  scope :with_otu_id, -> (otu_id) { where(otu_id: otu_id) }
+  scope :with_otu_id, -> (otu_id) { where(otu_id:) }
 
   scope :with_is_absent, -> { where('is_absent = true') }
 
@@ -126,10 +126,6 @@ class AssertedDistribution < ApplicationRecord
     end
   end
 
-  # @return [Nil]
-  def new_records_include_otu
-  end
-
   # @return [Boolean]
   def sv_conflicting_geographic_area
     unless geographic_area.nil?
@@ -138,12 +134,12 @@ class AssertedDistribution < ApplicationRecord
         presence = AssertedDistribution
           .without_is_absent
           .with_geographic_area_array(areas)
-          .where(otu_id: otu_id)
+          .where(otu_id:)
         soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.geographic_area.name}") unless presence.empty?
       else
         presence = AssertedDistribution
           .with_is_absent
-          .where(otu_id: otu_id)
+          .where(otu_id:)
           .with_geographic_area_array(areas)
         soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.geographic_area.name}") unless presence.empty?
       end

@@ -918,7 +918,8 @@ class Source::Bibtex < Source
           author_roles.build(person: p)
         end
       end
-    rescue
+
+    rescue ActiveRecord::RecordInvalid
       errors.add(:base, 'invalid author parameters')
     end
   end

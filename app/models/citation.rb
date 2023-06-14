@@ -174,7 +174,6 @@ class Citation < ApplicationRecord
               c.update_column(:cached_valid_taxon_name_id, vn.id)
             end
 
-
             vn.list_of_invalid_taxon_names.each do |s|
               s.update_column(:cached_valid_taxon_name_id, vn.id)
               s.combination_list_self.each do |c|

@@ -75,14 +75,14 @@ class GeographicArea < ApplicationRecord
    18 => 'Province',
    33 => 'County',
    63 => 'State'
-  }
+  }.freeze
 
   before_destroy :check_for_children
 
   belongs_to :geographic_area_type, inverse_of: :geographic_areas
-  belongs_to :level0, class_name: 'GeographicArea', foreign_key: :level0_id
-  belongs_to :level1, class_name: 'GeographicArea', foreign_key: :level1_id
-  belongs_to :level2, class_name: 'GeographicArea', foreign_key: :level2_id
+  belongs_to :level0, class_name: 'GeographicArea'
+  belongs_to :level1, class_name: 'GeographicArea'
+  belongs_to :level2, class_name: 'GeographicArea'
 
   has_many :asserted_distributions, inverse_of: :geographic_area
   has_many :collecting_events, inverse_of: :geographic_area
@@ -164,7 +164,7 @@ class GeographicArea < ApplicationRecord
   }
 
   scope :with_data_origin, -> (data_origin) {
-    unless data_origin.blank?
+    if data_origin.present?
       if data_origin == 'tdwg'
         where('geographic_areas.data_origin LIKE ?' , 'tdwg_%')
           .order(data_origin: :desc)
@@ -295,7 +295,7 @@ class GeographicArea < ApplicationRecord
 
      # TODO: Wrap this a pre-loading constant. This makes specs very fragile.
 
-     unless Rails.env == 'test'
+     unless Rails.env.test?
        n = CACHED_GEOGRAPHIC_AREA_TYPES[geographic_area_type_id]
      end
 
@@ -316,10 +316,10 @@ class GeographicArea < ApplicationRecord
   # Hack.  If TDWG Gazetteer data are eliminated this needs to be removed.
   def categorize_tdwg
     if g = GeographicArea
-      .where(name: name) # shares the same name
+      .where(name:) # shares the same name
       .where('level0_id = parent_id') # parent is a country
       .where.not(geographic_area_type: [111,112]).any? # not another TDWG record
-    return {state: name}
+      return {state: name}
     end
 
     # !! Do not use ::Utilities::Geo::DICTIONARY here, this is particular to TDWG's names
@@ -331,7 +331,7 @@ class GeographicArea < ApplicationRecord
     return {country: 'Chile'} if name =~ /Chile.Central/
 
     if g = GeographicArea
-        .where(name: name) # shares the same name
+        .where(name:) # shares the same name
         .where('level0_id = id') # self is a country
         .where.not(geographic_area_type: [111,112]).any? # not another TDWG record
       return {country: name}
@@ -534,7 +534,7 @@ class GeographicArea < ApplicationRecord
           t = CollectingEvent.arel_table
           # i is a select manager
           i = t.project(t['geographic_area_id'], t['updated_at']).from(t)
-                  .where(t['updated_at'].gt(1.weeks.ago))
+                  .where(t['updated_at'].gt(1.week.ago))
                   .where(t['updated_by_id'].eq(user_id))
                   .where(t['project_id'].eq(project_id))
                   .order(t['updated_at'].desc)
@@ -549,7 +549,7 @@ class GeographicArea < ApplicationRecord
           t = Citation.arel_table
           # i is a select manager
           i = t.project(t['citation_object_id'], t['citation_object_type'], t['created_at']).from(t)
-                  .where(t['created_at'].gt(1.weeks.ago))
+                  .where(t['created_at'].gt(1.week.ago))
                   .where(t['created_by_id'].eq(user_id))
                   .where(t['project_id'].eq(project_id))
                   .order(t['created_at'].desc)
@@ -570,12 +570,12 @@ class GeographicArea < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: GeographicArea.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
+      pinboard: GeographicArea.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
       recent: []
     }
 
     if r.empty?
-      h[:quick] = GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
+      h[:quick] = GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a
     else
       case target
         when 'CollectingEvent'
@@ -583,7 +583,7 @@ class GeographicArea < ApplicationRecord
         when 'AssertedDistribution'
           h[:recent] = GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(15) ).order(:name).to_a
       end
-      h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
+      h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a +
           GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(5) ).order(:name).to_a).uniq
     end
 

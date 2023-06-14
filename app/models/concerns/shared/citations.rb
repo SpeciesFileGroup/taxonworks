@@ -13,9 +13,10 @@ module Shared::Citations
 
     Citation.related_foreign_keys.push self.name.foreign_key
 
-    has_many :citations, as: :citation_object, validate: false, dependent: :destroy, inverse_of: :citation_object
-    has_many :citation_topics, through: :citations
-    has_many :topics, through: :citation_topics
+    # !! Validate: true assigns housekeeping where needed (!don't make this self-referential!)
+    has_many :citations, as: :citation_object, dependent: :destroy, inverse_of: :citation_object, validate: true
+    has_many :citation_topics, through: :citations, validate: true
+    has_many :topics, through: :citation_topics, validate: true
 
     has_many :subsequent_citations, -> { where(is_original: nil) }, as: :citation_object, class_name: 'Citation'
 
@@ -101,8 +102,9 @@ module Shared::Citations
 
     validate :origin_citation_source_id, if: -> {!new_record?}
 
-    # Required to drigger validat callbacks, which in turn set user_id related housekeeping
-    validates_associated :citations
+    # !! use validate: true in associations settings to trigger this as needed
+    # Required to trigger validate callbacks, which in turn set user_id related housekeeping
+    # validates_associated :citations
   end
 
   class_methods do

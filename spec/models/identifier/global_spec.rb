@@ -101,10 +101,11 @@ describe Identifier::Global, type: :model, group: :identifiers do
     end
 
     specify 'non-responding URI' do
-      global_identifier.identifier = 'http://sandbox.speciesfile.org/object/a9bdc16d-c9ba-4e32-9311-d5250af2b5ac'
+      global_identifier.identifier = 'http://speciesfile.org/object/a9bdc16d-c9ba-4e32-9311-d5250af2b5ac'
       VCR.use_cassette('non-responding URI') do
         global_identifier.soft_validate(only_sets: [:resolved])
       end
+      
       expect(global_identifier.soft_validations.messages_on(:identifier).count).to eq(1)
     end
   end

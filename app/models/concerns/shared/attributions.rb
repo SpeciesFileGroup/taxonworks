@@ -10,7 +10,7 @@ module Shared::Attributions
   included do
     ::Attribution.related_foreign_keys.push self.name.foreign_key
 
-    has_one :attribution, as: :attribution_object, validate: false, dependent: :destroy, inverse_of: :attribution_object
+    has_one :attribution, as: :attribution_object, dependent: :destroy, inverse_of: :attribution_object, validate: true
 
     scope :without_attribution, -> { where.missing(:attribution) }
     scope :with_attribution, -> { joins(:attribution) }
@@ -18,7 +18,7 @@ module Shared::Attributions
     accepts_nested_attributes_for :attribution, reject_if: :reject_attribution, allow_destroy: true
 
     # Required to trigger validate callbacks, which in turn set user_id related housekeeping
-    validates_associated :attribution
+    # validates_associated :attribution
   end
 
   def attributed?

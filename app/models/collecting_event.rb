@@ -572,7 +572,7 @@ class CollectingEvent < ApplicationRecord
         end
         return a
       end
-    rescue ActiveRecord::RecordInvalid # TODO: rescue only something!!
+    rescue ActiveRecord::RecordInvalid
       raise
     end
     false

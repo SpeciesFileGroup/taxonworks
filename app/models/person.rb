@@ -113,12 +113,9 @@ class Person < ApplicationRecord
   has_many :authored_sources, class_name: 'Source::Bibtex', through: :author_roles, source: :role_object, source_type: 'Source', inverse_of: :authors
   has_many :edited_sources, class_name: 'Source::Bibtex', through: :editor_roles, source: :role_object, source_type: 'Source', inverse_of: :editors
   has_many :human_sources, class_name: 'Source::Bibtex', through: :source_roles, source: :role_object, source_type: 'Source', inverse_of: :people
-
   has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName', class_name: 'Protonym', inverse_of: :taxon_name_authors
   has_many :collecting_events, through: :collector_roles, source: :role_object, inverse_of: :collectors # , source_type: 'CollectingEvent'
-
   has_many :georeferences, through: :georeferencer_roles, source: :role_object, inverse_of: :georeference_authors # source_type: 'Georeference'
-
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, inverse_of: :determiners # , source_type: 'TaxonDetermination'
 
   # TODO: !?

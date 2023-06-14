@@ -41,11 +41,12 @@ class Role < ApplicationRecord
   include Shared::IsData
 
   include Shared::PolymorphicAnnotator
-  polymorphic_annotates(:role_object)
+
+  # TODO: failing only because of author create
+  polymorphic_annotates(:role_object, nil, nil, false)
 
   acts_as_list scope: [:type, :role_object_type, :role_object_id]
 
-  # BAAAADD
   after_save :update_cached
 
   belongs_to :organization, inverse_of: :roles
