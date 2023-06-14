@@ -41,17 +41,15 @@ class Citation < ApplicationRecord
 
   polymorphic_annotates('citation_object')
 
+  # belongs_to :source, inverse_of: :origin_citations
   belongs_to :source, inverse_of: :citations
 
   has_many :citation_topics, inverse_of: :citation, dependent: :destroy
   has_many :topics, through: :citation_topics, inverse_of: :citations
   has_many :documents, through: :source
 
-  # TODO: This is wrong, should be source
-  validates_presence_of  :source_id
-
+  validates_presence_of :source
   validates_uniqueness_of :source_id, scope: [:citation_object_id, :citation_object_type, :pages]
-
   validates_uniqueness_of :is_original, scope: [:citation_object_type, :citation_object_id], message: 'origin can only be assigned once', allow_nil: true, if: :is_original?
 
   accepts_nested_attributes_for :citation_topics, allow_destroy: true, reject_if: :reject_citation_topics
@@ -129,7 +127,7 @@ class Citation < ApplicationRecord
   protected
 
   def add_source_to_project
-    !!ProjectSource.find_or_create_by(project: project, source: source)
+    !!ProjectSource.find_or_create_by(project:, source:)
   end
 
   def reject_citation_topics(attributed)
@@ -176,7 +174,6 @@ class Citation < ApplicationRecord
               c.update_column(:cached_valid_taxon_name_id, vn.id)
             end
 
-
             vn.list_of_invalid_taxon_names.each do |s|
               s.update_column(:cached_valid_taxon_name_id, vn.id)
               s.combination_list_self.each do |c|
@@ -195,7 +192,7 @@ class Citation < ApplicationRecord
   def sv_page_range
     if pages.blank?
       soft_validations.add(:pages, 'Citation pages are not provided')
-    elsif !source.pages.blank?
+    elsif source.pages.present?
       matchdata1 = pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
       if matchdata1
         citMinP = matchdata1[1] ? matchdata1[1].to_i : matchdata1[3].to_i

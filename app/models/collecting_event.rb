@@ -231,7 +231,7 @@ class CollectingEvent < ApplicationRecord
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
 
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
-  has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy
+  has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy, inverse_of: :role_object
   has_many :collectors, through: :collector_roles, source: :person, inverse_of: :collecting_events
   has_many :dwc_occurrences, through: :collection_objects, inverse_of: :collecting_event
 
@@ -572,7 +572,7 @@ class CollectingEvent < ApplicationRecord
         end
         return a
       end
-    rescue ActiveRecord::RecordInvalid # TODO: rescue only something!!
+    rescue ActiveRecord::RecordInvalid
       raise
     end
     false

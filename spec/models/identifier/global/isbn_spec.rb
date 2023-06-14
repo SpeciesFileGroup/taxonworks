@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Identifier::Global::Isbn, type: :model, group: :identifiers do
   context 'ISBN' do
-    let(:id) { FactoryBot.build(:identifier_global_isbn) }
+    let(:id) { Identifier::Global::Isbn.new(identifier_object: FactoryBot.build(:valid_source)) }
 
     context '#identifier is validly formatted' do
 
@@ -13,35 +13,35 @@ describe Identifier::Global::Isbn, type: :model, group: :identifiers do
       end
 
       specify 'any old word' do
-        phrase        = Faker::Lorem.unique.word
+        phrase = Faker::Lorem.unique.word
         id.identifier = phrase
         expect(id.valid?).to be_falsey
         expect(id.errors.messages[:identifier][0]).to eq("'#{phrase}' is an improperly formed ISBN.")
       end
 
       specify 'ISBN-10: 978-0-59652-068-7' do
-        phrase        = 'ISBN-10: 978-0-59652-068-7'
+        phrase = 'ISBN-10: 978-0-59652-068-7'
         id.identifier = phrase
         expect(id.valid?).to be_falsey
         expect(id.errors.messages[:identifier][0]).to eq("'#{phrase}' has the wrong number of digits.")
       end
 
       specify 'ISBN-10: 978-0-596-52068-7' do
-        phrase        = 'ISBN-10: 978-0-596-52068-7'
+        phrase = 'ISBN-10: 978-0-596-52068-7'
         id.identifier = phrase
         expect(id.valid?).to be_falsey
         expect(id.errors.messages[:identifier][0]).to eq("'#{phrase}' has the wrong number of digits.")
       end
 
       specify 'ISBN-13: 0-596-52068-7' do
-        phrase        = 'ISBN-13: 0-596-52068-7'
+        phrase = 'ISBN-13: 0-596-52068-7'
         id.identifier = phrase
         expect(id.valid?).to be_falsey
         expect(id.errors.messages[:identifier][0]).to eq("'#{phrase}' has the wrong number of digits.")
       end
 
       specify '69780596520687' do
-        phrase        = '69780596520687'
+        phrase = '69780596520687'
         id.identifier = phrase
         expect(id.valid?).to be_falsey
         expect(id.errors.messages[:identifier][0]).to eq("'#{phrase}' has the wrong number of digits.")
@@ -60,7 +60,7 @@ describe Identifier::Global::Isbn, type: :model, group: :identifiers do
       # 0-596-52068-9
 
       specify 'isbn 978-0-596-52068-7' do
-        phrase        = 'isbn 978-0-596-52068-7'
+        phrase = 'isbn 978-0-596-52068-7'
         id.identifier = phrase
         expect(id.valid?).to be_truthy
       end

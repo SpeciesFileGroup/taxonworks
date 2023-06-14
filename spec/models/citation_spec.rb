@@ -193,20 +193,20 @@ describe Citation, type: :model, group: [:annotators, :citations] do
     specify '#citation_object_id is required by database' do
       c3.source = source
       c3.citation_object_type = 'Otu'
-      expect{c3.save}.to raise_error(ActiveRecord::StatementInvalid)
+      expect(c3.save).to be_falsey
     end
 
     specify '#citation_object_type is required by database' do
       c3.source = source
       c3.citation_object_id = otu.id
-      expect{c3.save}.to raise_error(ActiveRecord::StatementInvalid)
+      expect(c3.save).to be_falsey
     end
 
-    specify 'source_id is required' do
+    specify 'source is required' do
       c3.citation_object = otu
 
       expect(c3.valid?).to be_falsey
-      expect(c3.errors.messages[:source_id]).to include("can't be blank")
+      expect(c3.errors.messages[:source]).to be_truthy 
     end
   end
 

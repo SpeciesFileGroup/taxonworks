@@ -164,7 +164,7 @@ class GeographicArea < ApplicationRecord
   }
 
   scope :with_data_origin, -> (data_origin) {
-    unless data_origin.blank?
+    if data_origin.present?
       if data_origin == 'tdwg'
         where('geographic_areas.data_origin LIKE ?' , 'tdwg_%')
           .order(data_origin: :desc)

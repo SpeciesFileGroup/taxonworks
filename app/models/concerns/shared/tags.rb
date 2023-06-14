@@ -7,7 +7,7 @@ module Shared::Tags
   included do
     Tag.related_foreign_keys.push self.name.foreign_key
 
-    has_many :tags, as: :tag_object, dependent: :destroy
+    has_many :tags, as: :tag_object, dependent: :destroy, inverse_of: :tag_object
     has_many :keywords, through: :tags
 
     scope :with_tags, -> { joins(:tags) }
@@ -39,11 +39,11 @@ module Shared::Tags
   # @return [Boolean]
   #   true if the object has a tak with this keyword
   def tagged_with?(keyword_id)
-    tags.where(keyword_id: keyword_id).any?
+    tags.where(keyword_id:).any?
   end
 
   def tag_with(keyword_id)
-    tags << Tag.new(keyword_id: keyword_id)
+    tags << Tag.new(keyword_id:)
   end
 
   module ClassMethods
@@ -56,7 +56,7 @@ module Shared::Tags
     # @return [Scope]
     #    only those instances with tags that use the kewyord
     def tagged_with_keyword(keyword)
-      joins(:tags).where(tags: {keyword: keyword})
+      joins(:tags).where(tags: {keyword:})
     end
   end
 

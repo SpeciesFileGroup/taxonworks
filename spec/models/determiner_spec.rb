@@ -1,22 +1,17 @@
 require 'rails_helper'
 
+# Determiner is a *Role*, not a person
 describe Determiner, type: :model do
   let(:determiner) {Determiner.new}
-
   context 'associations' do
     context 'has_many' do
-      specify 'taxon_determinations' do
-        expect(determiner).to respond_to(:taxon_determinations)
+      specify 'taxon_determination' do
+        expect(determiner).to respond_to(:taxon_determination)
       end
 
-      specify 'determined_otus' do
-        expect(determiner).to respond_to(:taxon_determinations)
-      end
-
-      specify 'determined_biological_collection_objects' do
-        # skip
+      specify 'determined_otu' do
+        expect(determiner).to respond_to(:otu)
       end
     end
   end
-
 end

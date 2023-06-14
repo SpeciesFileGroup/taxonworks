@@ -12,13 +12,6 @@
 #
 #  Tag.related_foreign_keys.push self.name.foreign_key
 #
-#
-# TODO: sometime way down the line revisit this
-# !! This should be fine when inverse_of: attributes are added !!
-# Please DO NOT include the following:
-#   validates :<foo>_object, presence: true
-#   validates_presence_of :<foo>_object_type, :<foo>_object_id
-#
 module Shared::PolymorphicAnnotator
   extend ActiveSupport::Concern
 
@@ -47,18 +40,41 @@ module Shared::PolymorphicAnnotator
 
     # @return Array of class names can be cited
     def related_klasses
-      related_foreign_keys.sort{|a,b| a.to_s <=> b.to_s}.collect{|k| k.to_s.gsub('_id', '').camelize } 
+      related_foreign_keys.sort{|a,b| a.to_s <=> b.to_s}.collect{|k| k.to_s.gsub('_id', '').camelize }
     end
   end
 
   included do
+
     # Concern implementation macro
-    def self.polymorphic_annotates(polymorphic_belongs, foreign_key = nil) # , inverse_of = nil)
-      # inverse_of ||= self.table_name.to_sym
-      belongs_to polymorphic_belongs.to_sym, polymorphic: true, foreign_key: (foreign_key.nil? ? (polymorphic_belongs.to_s + '_id').to_s : polymorphic_belongs.to_s) # TODO: add for validation , inverse_of: inverse_of # polymorphic_belongs.to_sym
+    #
+    # @param foreign_key [String, nil]
+    #   If the FK is not inferable in a Rails convention (adding `_id`) provide it here
+    #
+    # @param inverse_of [Symbol, nil]
+    #   If the inverse_of is not the class name underscored and pluralized provide it here
+    #
+    # @param presence_validate [Boolean, nil]
+    #   When true then add validation checks on annotated_object
+    #
+    def self.polymorphic_annotates(polymorphic_belongs, foreign_key: nil, inverse_of: nil, presence_validate: true)
+
+      inverse_of ||= self.name.underscore.pluralize
+
+      belongs_to(polymorphic_belongs.to_sym, polymorphic: true, foreign_key: (foreign_key.nil? ? (polymorphic_belongs.to_s + '_id').to_s : polymorphic_belongs.to_s),
+        inverse_of:)
+
       alias_attribute :annotated_object, polymorphic_belongs.to_sym
 
       define_singleton_method(:annotator_reflection){polymorphic_belongs.to_s}
+
+      # Label does not require object to be present
+      if presence_validate
+        validates_presence_of polymorphic_belongs.to_sym #, presence: true
+        validates_associated polymorphic_belongs.to_sym
+
+        validate :annotated_object_is_persisted?, unless: Proc.new { annotator_batch_mode }
+      end
     end
 
     # @return [Array]
@@ -66,6 +82,13 @@ module Shared::PolymorphicAnnotator
     @related_foreign_keys = []
 
     attr_accessor :annotated_global_entity
+
+    # @param Boolean, nil
+    #   true - skip DB check of annotated_object presence
+    #   false, nil - ignored
+    #
+    # Tested in /app/models/identifier_spec.rb
+    attr_accessor :annotator_batch_mode
 
     # @return [String]
     #   the global_id of the annotated object
@@ -81,6 +104,27 @@ module Shared::PolymorphicAnnotator
       write_attribute(self.class.annotator_id, o.id)
       write_attribute(self.class.annotator_type, o.class.base_class)
       true
+    end
+  end
+
+  private
+
+  # Since we can't FK on polymorphics we use this
+  # to test that the annotated_object actually is
+  # present in the database.
+  def annotated_object_is_persisted?
+    if annotated_object
+      # We can't test `persisted?` since destroyed in-memory objects will
+      # be interfered with.
+      if !annotated_object.id.nil?
+        begin
+          # !! Do not use annotate_object.reload as it resets
+          # the object in memory. !!
+          annotated_object.class.find(annotated_object.id)
+        rescue ActiveRecord::RecordNotFound
+          errors.add(:base, 'annotated object no longer exists')
+        end
+      end
     end
   end
 

@@ -39,30 +39,24 @@ class Role < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData
-
   include Shared::PolymorphicAnnotator
-  polymorphic_annotates(:role_object)
 
+  polymorphic_annotates(:role_object, presence_validate: false)
   acts_as_list scope: [:type, :role_object_type, :role_object_id]
-
-  belongs_to :organization, inverse_of: :roles, validate: true
-  belongs_to :person, inverse_of: :roles, validate: true
-  belongs_to :role_object, polymorphic: :true #, validate: true
 
   after_save :update_cached
 
-  validates_presence_of :type
-  validate :agent_present,
-    :only_one_agent,
-    :agent_is_legal
-
-  # validates_uniqueness_of :person_id, scope: [:project_id, :role_object_type, :role_object_id]
-
-  # role_object presence is a database constraint level
-  # validates :role_object, presence: true
+  belongs_to :organization, inverse_of: :roles
+  belongs_to :person, inverse_of: :roles
 
   # Must come after belongs_to associations
+  # !! This is only code isolation, not a shared library, probably should be removed
   include Roles::Person
+
+  validates :person, presence: true, unless: Proc.new { organization.present? }
+  validates :organization, presence: true, unless: Proc.new { person.present? }
+  validates_presence_of :type
+  validate :only_one_agent, :agent_is_legal #, :agent_present
 
   # Overrode in Roles::Organization
   def organization_allowed?
@@ -93,6 +87,7 @@ class Role < ApplicationRecord
     end
   end
 
+  # TODO: redundant?
   def only_one_agent
     if person && organization
       errors.add(:person_id, 'organization is also selected')
@@ -101,7 +96,6 @@ class Role < ApplicationRecord
   end
 
   def update_cached
-    # TODO: optimize, perhaps on set_author_year
     role_object.send(:set_cached) if role_object.respond_to?(:set_cached, true)
   end
 

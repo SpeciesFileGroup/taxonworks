@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Identifier::Global::Lsid, type: :model, group: :identifier do
   context 'LSID' do
-    let(:id) { FactoryBot.build(:identifier_global_lsid) }
+    let(:id) { Identifier::Global::Lsid.new(identifier_object: FactoryBot.build(:valid_otu)) }
 
     context '#identifier is validly formatted' do
 

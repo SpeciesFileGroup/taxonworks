@@ -154,10 +154,6 @@ class AssertedDistribution < ApplicationRecord
     end
   end
 
-  # @return [Nil]
-  def new_records_include_otu
-  end
-
   # @return [Boolean]
   def sv_conflicting_geographic_area
     unless geographic_area.nil?
