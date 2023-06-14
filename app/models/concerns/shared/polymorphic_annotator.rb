@@ -48,7 +48,7 @@ module Shared::PolymorphicAnnotator
   included do
 
     # Concern implementation macro
-    def self.polymorphic_annotates(polymorphic_belongs, foreign_key = nil, inverse_of = nil, validate_presence = true)
+    def self.polymorphic_annotates(polymorphic_belongs, foreign_key = nil, inverse_of = nil, presence_validate = true)
 
       inverse_of ||= self.name.underscore.pluralize
 
@@ -60,8 +60,11 @@ module Shared::PolymorphicAnnotator
       define_singleton_method(:annotator_reflection){polymorphic_belongs.to_s}
 
       # Label does not require object to be present
-      if validate_presence
-        validates polymorphic_belongs.to_sym, presence: true
+      if presence_validate
+        validates_presence_of polymorphic_belongs.to_sym #, presence: true
+        validates_associated polymorphic_belongs.to_sym
+
+        validate :annotated_object_is_persisted?
       end
     end
 
@@ -86,6 +89,25 @@ module Shared::PolymorphicAnnotator
       write_attribute(self.class.annotator_type, o.class.base_class)
       true
     end
+  end
+
+  private
+
+  def annotated_object_is_persisted?
+    if annotated_object
+      # We can't test persisted? since destroyed in memory objectts
+      # will interfere.
+      if !annotated_object.id.nil?
+        begin
+          # !! do not use annotate_object.reload as it resets
+          # the object in memory !!
+          annotated_object.class.find(annotated_object.id)
+        rescue ActiveRecord::RecordNotFound
+
+          errors.add(:base, 'annotated object no longer exists')
+        end
+    end
+   end
   end
 
 end
