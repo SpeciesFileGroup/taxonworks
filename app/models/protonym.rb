@@ -482,7 +482,7 @@ class Protonym < TaxonName
   end
 
   def is_latin?
-    !NOT_LATIN.match(name) || has_latinized_exceptions?
+    !NOT_LATIN.match(name) || has_latinized_exceptions? || rank_string =~ /Icvcn::Species/
   end
 
   # @return [Boolean]

@@ -1,5 +1,20 @@
 class NomenclaturalRank::Icvcn::Family < NomenclaturalRank::Icvcn
 
+  # realm “‑viria”
+  # subrealm “‑vira”
+  # kingdom “‑virae”
+  # subkingdom “‑virites”
+  # phylum “‑viricota”
+  # subphylum “‑viricotina”
+  # class “‑viricetes”
+  # subclass “‑viricetidae”
+  # order “‑virales”
+  # suborder “‑virineae”
+  # family “‑viridae”
+  # subfamily “‑virinae”
+  # genus “‑virus”
+  # subgenus “‑virus”
+
   def self.parent_rank
     NomenclaturalRank::Icvcn::Order
   end
