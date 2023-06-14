@@ -36,13 +36,17 @@
         </template>
       </VModal>
       <VBtn
+        class="circle-button"
         title="Radial Asserted Distribution"
         circle
         color="radial"
         :disabled="disabled || (!ids.length && !Object.keys(params).length)"
         @click="isModalVisible = true"
       >
-        AD
+        <VIcon
+          name="batch"
+          x-small
+        />
       </VBtn>
     </div>
   </div>
