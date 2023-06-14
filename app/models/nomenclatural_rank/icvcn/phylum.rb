@@ -1,4 +1,4 @@
-class NomenclaturalRank::Icvcn::Order < NomenclaturalRank::Icvcn
+class NomenclaturalRank::Icvcn::Phylum < NomenclaturalRank::Icvcn
 
   # realm “‑viria”
   # subrealm “‑vira”
@@ -16,21 +16,21 @@ class NomenclaturalRank::Icvcn::Order < NomenclaturalRank::Icvcn
   # subgenus “‑virus”
 
   def self.parent_rank
-    NomenclaturalRank::Icvcn::ClassRank
+    NomenclaturalRank::Icvcn::Kingdom
   end
 
   def self.validate_name_format(taxon_name)
     return true if taxon_name.name.length < 2
     taxon_name.errors.add(:name, 'name must be capitalized') unless  !taxon_name.name.blank? && taxon_name.name == taxon_name.name.capitalize
-    taxon_name.errors.add(:name, 'name must end in -virales') if not(taxon_name.name =~ /.*(virales)\Z/)
+    taxon_name.errors.add(:name, 'name must end in -viricota') if not(taxon_name.name =~ /.*(viricota)\Z/)
   end
 
   def self.valid_name_ending
-    'virales'
+    'viricota'
   end
 
-  def self.abbreviation
-    'ord.'
-  end
+  #def self.abbreviation
+  #  'ord.'
+  #end
 
 end
