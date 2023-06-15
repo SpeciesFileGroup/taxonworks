@@ -31,10 +31,6 @@
         >Show less
       </a>
     </template>
-    <!--     <switch-component
-      :options="TABS"
-      v-model="view"
-    /> -->
     <div class="relative">
       <map-component
         width="100%"
@@ -53,7 +49,6 @@
 <script setup>
 import SectionPanel from './shared/sectionPanel'
 import MapComponent from 'components/georeferences/map.vue'
-import SwitchComponent from 'components/switch.vue'
 import nonReactiveStore from '../store/nonReactiveStore.js'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
