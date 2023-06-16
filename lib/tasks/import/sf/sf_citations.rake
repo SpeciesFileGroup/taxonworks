@@ -729,7 +729,7 @@ namespace :tw do
                       pr.rank_class = protonym.rank_class
                       pr.save
                       tr = pr.taxon_name_relationships.create(object_taxon_name: protonym, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
-                      byebug if tr.id.nil?
+                      logger.error "Line #{__LINE__}", [pr, pr.errors.messages, protonym, protonym.errors.messages, tr, tr.errors.messages, row] if tr.id.nil?
                       protonym = pr
                       taxon_name_id = pr.id
                       tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s] = protonym.id if tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s]
@@ -752,7 +752,7 @@ namespace :tw do
                       pr.rank_class = protonym.rank_class
                       pr.save
                       tr = pr.taxon_name_relationships.create(object_taxon_name: protonym, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
-                      byebug if tr.id.nil?
+                      logger.error "Line #{__LINE__}", [pr, pr.errors.messages, protonym, protonym.errors.messages, tr, tr.errors.messages, row] if tr.id.nil?
                       protonym = pr
                       taxon_name_id = pr.id
                       tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s] = protonym.id if tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s].nil?
@@ -809,7 +809,7 @@ namespace :tw do
                           pr.rank_class = protonym.rank_class
                           pr.save
                           tr = pr.taxon_name_relationships.create(object_taxon_name: protonym, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
-                          byebug if tr.id.nil?
+                          logger.error "Line #{__LINE__}", [pr, pr.errors.messages, protonym, protonym.errors.messages, tr, tr.errors.messages, row] if tr.id.nil?
                           protonym = pr
                           taxon_name_id = pr.id
                           tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s] = protonym.id if tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s].nil?
@@ -860,7 +860,7 @@ namespace :tw do
                         pr.rank_class = protonym.rank_class
                         pr.save
                         tr = pr.taxon_name_relationships.create(object_taxon_name: protonym, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
-                        byebug if tr.id.nil?
+                        logger.error "Line #{__LINE__}", [pr, pr.errors.messages, protonym, protonym.errors.messages, tr, tr.errors.messages, row] if tr.id.nil?
                         protonym = pr
                         taxon_name_id = pr.id
                         tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s] = protonym.id if tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s].nil?
@@ -1140,7 +1140,7 @@ namespace :tw do
                   end
 
                   tr = TaxonNameRelationship.create(subject_taxon_name: p, object_taxon_name: protonym, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
-                  byebug if tr.id.nil?
+                  logger.error "Line #{__LINE__}", [p, p.errors.messages, protonym, protonym.errors.messages, tr, tr.errors.messages, row] if tr.id.nil?
                   if nomenclator_is_synonym
                     protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid', project_id: project_id) if protonym.id == protonym.cached_valid_taxon_name_id
                     p1 = p
@@ -1160,7 +1160,7 @@ namespace :tw do
                     skip_citation = true if tr.try(:id)
                   end
 
-                  byebug if tr.id.nil?
+                  logger.error "Line #{__LINE__}", [p1, p1.errors.messages, protonym, protonym.errors.messages, tr, tr.errors.messages, row] if tr.id.nil?
                   p.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum', project_id: project_id) if row['NewNameStatusID'] == '6'
                   p.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium', project_id: project_id) if row['NewNameStatusID'] == '7'
 
