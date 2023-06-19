@@ -160,7 +160,7 @@ namespace :tw do
 
             time_with_no_backup += (end_time - start_time)
 
-            if time_with_no_backup >= ENV["BACKUP_MINUTES_INTERVAL"].to_i*60
+            if (time_with_no_backup >= ENV["BACKUP_MINUTES_INTERVAL"].to_i*60) || (index == tasks.count)
               path = "#{@args[:backup_directory]}/#{"%02d" % index}_after_#{task.gsub(':', '_')}/"
               FileUtils.mkdir_p(path)
               db_config = Support::Database.pg_env_args
