@@ -12,7 +12,7 @@ namespace :tw do
           excluded_taxa = import.get('ExcludedTaxa')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
-          get_project_website_name = Project.all.map { |p| [p.id, p.name.scan(/^[^_]+/).first] }.to_h
+          get_project_website_name = Project.where(id: get_tw_project_id.values.map(&:to_i)).map { |p| [p.id, p.name.scan(/^[^_]+/).first] }.to_h
 
           path = @args[:data_directory] + 'tblImages.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
@@ -71,7 +71,7 @@ namespace :tw do
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # an ill-formed SF taxon name
           get_sf_source_metadata = import.get('SFSourceMetadata')
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
-          get_project_website_name = Project.all.map { |p| [p.id, p.name.scan(/^[^_]+/).first] }.to_h
+          get_project_website_name = Project.where(id: get_tw_project_id.values.map(&:to_i)).map { |p| [p.id, p.name.scan(/^[^_]+/).first] }.to_h
 
           source_reports = Set[]
           verbatim_sources = {}
@@ -392,8 +392,9 @@ namespace :tw do
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # an ill-formed SF taxon name
-          get_project_website_name = Project.all.map { |p| [p.id, p.name.scan(/^[^_]+/).first] }.to_h
+          get_project_website_name = Project.where(id: get_tw_project_id.values.map(&:to_i)).map { |p| [p.id, p.name.scan(/^[^_]+/).first] }.to_h
 
+          # TODO: Add [Has sound] tag to OTU
           CSV.foreach(@args[:data_directory] + 'tblSounds.txt', col_sep: "\t", headers: true, encoding: 'BOM|UTF-8') do |row|
             link = "* [#{row['Description']}](http://#{get_project_website_name[get_tw_project_id[row['FileID']].to_i]}.speciesfile.org/Common/basic/PlaySound.aspx?TaxonNameID=#{row['TaxonNameID']}&SoundID=#{row['SoundID']})\n"
             project_id = get_tw_project_id[row['FileID']]

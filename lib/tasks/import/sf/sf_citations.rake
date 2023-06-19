@@ -304,7 +304,7 @@ namespace :tw do
 
           print "\nMaking list of taxa from the DB, 1st pass\n"
           i = 0
-          Protonym.find_each do |t|
+          Protonym.where(project_id: get_tw_project_id.values.map(&:to_i)).find_each do |t|
             i += 1
             print "\r#{i}"
             if t.rank_class.to_s == 'NomenclaturalRank::Iczn::GenusGroup::Genus' || t.rank_class.to_s == 'NomenclaturalRank::Iczn::GenusGroup::Subgenus'
@@ -318,7 +318,7 @@ namespace :tw do
           end
           print "\nMaking list of taxa from the DB, 2nd pass\n"
           i = 0
-          Protonym.find_each do |t|
+          Protonym.where(project_id: get_tw_project_id.values.map(&:to_i)).find_each do |t|
             i += 1
             print "\r#{i}"
             if t.rank_class.to_s == 'NomenclaturalRank::Iczn::GenusGroup::Genus' || t.rank_class.to_s == 'NomenclaturalRank::Iczn::GenusGroup::Subgenus'
