@@ -819,7 +819,7 @@ namespace :tw do
             else
               life_zone_text = Utilities::Numbers.get_bits(life_zones).collect { |i| life_zone_map[i] }.compact.join(', ')
             end
-            ecology_text = life_zone_text
+            ecology_text = life_zone_text.capitalize
             ecology_text += ". #{row['Ecology']}" unless row['Ecology'].blank?
 
             life_zone_predicate = Predicate.create_with(
