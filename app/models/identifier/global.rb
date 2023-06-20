@@ -43,10 +43,7 @@ class Identifier::Global < Identifier
   end
 
   def sv_resolves?
-    responded = false
-    unless identifier.nil?
-      responded = Utilities::Net.resolves?(identifier)
-    end
+    responded = identifier.present? && (Utilities::Net.resolves?(identifier) rescue false)
     soft_validations.add(:identifier, "Identifier '#{identifier}' does not resolve.") unless responded
     responded
   end
