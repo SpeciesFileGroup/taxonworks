@@ -43,10 +43,7 @@ class Identifier::Global < Identifier
 
   # TODO: add a resolution method so that this works on theings like wikidata Q numbers 
   def sv_resolves?
-    responded = false
-    unless identifier.nil?
-      responded = Utilities::Net.resolves?(identifier)
-    end
+    responded = identifier.present? && (Utilities::Net.resolves?(identifier) rescue false)
     soft_validations.add(:identifier, "Identifier '#{identifier}' does not resolve.") unless responded
     responded
   end
