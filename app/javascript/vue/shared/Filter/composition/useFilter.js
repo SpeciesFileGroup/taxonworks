@@ -13,6 +13,7 @@ export default function (service, { listParser, initParameters } = {}) {
     selectedIds: [],
     list: [],
     isLoading: false,
+    initParameters,
     urlRequest: ''
   })
 
@@ -82,6 +83,7 @@ export default function (service, { listParser, initParameters } = {}) {
 
     makeFilterRequest({
       ...state.parameters,
+      ...state.initParameters,
       ...params
     })
   }

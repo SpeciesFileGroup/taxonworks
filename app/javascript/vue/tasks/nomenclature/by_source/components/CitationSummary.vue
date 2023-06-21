@@ -16,9 +16,9 @@
       v-if="pagination"
       class="flex-separate margin-medium-bottom"
     >
-      <VPagination 
+      <VPagination
         :pagination="pagination"
-        @next-page="requestCitations"
+        @next-page="({ page }) => requestCitations({ page, per })"
       />
       <VPaginationCount
         :pagination="pagination"
@@ -59,7 +59,7 @@ const props = defineProps({
 
 const emit = defineEmits(['summarize'])
 
-const { 
+const {
   isLoading,
   citations,
   requestCitations,
@@ -67,5 +67,4 @@ const {
   pagination,
   per
 } = useCitation(props.type)
-
 </script>

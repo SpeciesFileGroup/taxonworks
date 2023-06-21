@@ -39,9 +39,9 @@ const params = computed({
 })
 
 const selectedDescriptorTypes = computed({
-  get: () => props.modelValue.descriptor_types || [],
+  get: () => props.modelValue.descriptor_type || [],
   set: (value) => {
-    params.value.descriptor_types = value
+    params.value.descriptor_type = value
   }
 })
 </script>

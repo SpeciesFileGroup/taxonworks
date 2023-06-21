@@ -23,7 +23,7 @@ module Queries
         queries << autocomplete_named unless having_taxon_name_only
         queries += [
           autocomplete_via_taxon_name_autocomplete,
-          autocomplete_identifier_cached_like,
+          # autocomplete_identifier_cached_like, # this query takes 20 time longer to complete than any other.
           autocomplete_common_name_exact,
           autocomplete_common_name_like
         ]

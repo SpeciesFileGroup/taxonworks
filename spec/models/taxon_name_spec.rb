@@ -6,7 +6,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
   let(:taxon_name) { TaxonName.new }
 
   context 'using before :all' do
-
     before(:all) do
       @subspecies = FactoryBot.create(:iczn_subspecies)
       @species = @subspecies.ancestor_at_rank('species')
@@ -1075,6 +1074,16 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     specify '#out_of_scope_combinations 2' do
       expect(family1.out_of_scope_combinations).to contain_exactly(c2) # c1 is present because of parenthood
     end
+  end
+
+  specify '#ancestors_through_parents (unsaved, recursion check)' do
+
+    a = Protonym.new(name: 'foo')
+    b = Protonym.new(name: 'bar', parent: a)
+    c = Protonym.new(name: 'bar', parent: b)
+    a.parent = c
+
+    expect{b.ancestors_through_parents}.to raise_error TaxonWorks::Error
   end
 
   context 'concerns' do

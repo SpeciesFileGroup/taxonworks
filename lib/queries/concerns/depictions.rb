@@ -55,7 +55,7 @@ module Queries::Concerns::Depictions
 
   # !! Duplicate with images
   def depictions_facet
-    return nil if depictions.blank?
+    return nil if depictions.nil?
     if depictions
       referenced_klass.joins(:depictions).distinct
     else
@@ -64,7 +64,7 @@ module Queries::Concerns::Depictions
   end
 
   def data_depiction_facet
-    return nil if data_depictions.blank?
+    return nil if data_depictions.nil?
     if data_depictions
       referenced_klass.joins(:depictions).where(depictions: {is_metadata_depiction: true}).distinct
     else
@@ -78,9 +78,9 @@ module Queries::Concerns::Depictions
   def images_facet
     return nil if images.nil?
     if images
-      return referenced_klass.joins(:depictions).distinct
+      referenced_klass.joins(:depictions).distinct
     else
-      return referenced_klass.where.missing(:depictions)
+      referenced_klass.where.missing(:depictions)
     end
   end
 
