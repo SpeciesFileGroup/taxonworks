@@ -229,7 +229,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         else
           collecting_event = CollectingEvent.create!({
             collection_objects: [specimen],
-            no_dwc_occurrence: true
+            no_dwc_occurrence: true,
+            no_cached: true
           }.merge!(attributes[:collecting_event]))
 
           identifier_type.create!({
