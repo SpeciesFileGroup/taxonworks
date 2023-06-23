@@ -18,7 +18,7 @@ module Shared::IsDwcOccurrence
     #   when true prevents automatic dwc_index from being created
     attr_accessor :no_dwc_occurrence
 
-    has_one :dwc_occurrence, as: :dwc_occurrence_object, inverse_of: :dwc_occurrence_object
+    has_one :dwc_occurrence, as: :dwc_occurrence_object, dependent: :destroy, inverse_of: :dwc_occurrence_object
 
     after_save :set_dwc_occurrence, unless: -> { no_dwc_occurrence }
 

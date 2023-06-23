@@ -84,7 +84,8 @@ class GeographicItem < ApplicationRecord
   # ANTI_MERIDIAN = '0X0102000020E61000000200000000000000008066400000000000405640000000000080664000000000004056C0'
   ANTI_MERIDIAN = 'LINESTRING (180 89.0, 180 -89)'.freeze
 
-  has_one :cached_map
+  has_one :cached_map, inverse_of: :geographic_item
+  has_many :cached_map_items, inverse_of: :geographic_item
 
   has_many :geographic_areas_geographic_items, dependent: :destroy, inverse_of: :geographic_item
   has_many :geographic_areas, through: :geographic_areas_geographic_items
