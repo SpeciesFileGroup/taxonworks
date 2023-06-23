@@ -405,7 +405,7 @@ const changeTab = (e) => {
   if (e.key !== actionKey) return
   const element = tabselectorRef.value.$el
 
-  element.querySelector('input:checked').focus()
+  element.querySelector('input:checked')?.focus()
 }
 
 function setTab(tab) {
