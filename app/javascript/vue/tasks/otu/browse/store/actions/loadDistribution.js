@@ -1,11 +1,9 @@
 import { Otu, CachedMap } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
-import { TAXON_RANK_SPECIES_GROUP } from 'constants/index.js'
+import { GetterNames } from '../getters/getters'
 
-export default async ({ state, commit }, otuId) => {
-  const taxonRank = state.taxonName?.rank_string
-  const isSpeciesGroup =
-    taxonRank && isRankGrpup(TAXON_RANK_SPECIES_GROUP, taxonRank)
+export default async ({ state, commit, getters }, otuId) => {
+  const isSpeciesGroup = getters[GetterNames.IsSpeciesGroup]
 
   state.loadState.distribution = true
 
@@ -31,7 +29,12 @@ export default async ({ state, commit }, otuId) => {
   if (isSpeciesGroup) {
     Otu.geoJsonDistribution(otuId)
       .then((response) => {
-        commit(MutationNames.SetGeoreferences, response.body)
+        const features = response.body.features.map((item) => {
+          item.properties.type = item.properties.shape.type
+
+          return item
+        })
+        commit(MutationNames.SetGeoreferences, { features })
         state.loadState.distribution = false
       })
       .catch(() => {
@@ -40,10 +43,4 @@ export default async ({ state, commit }, otuId) => {
   } else {
     loadDistribution()
   }
-}
-
-function isRankGrpup(compareRank, rank) {
-  const rankGroup = rank.split('::').at(2)
-
-  return rankGroup === compareRank
 }

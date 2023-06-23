@@ -643,6 +643,7 @@ class TaxonName < ApplicationRecord
   #   effective date of publication, used to determine nomenclatural priority
   def nomenclature_date
     return nil if !persisted?
+    #return nil if TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING).any?
     family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
 
     # family_before_1961 = taxon_name_relationships.with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
@@ -1372,7 +1373,7 @@ class TaxonName < ApplicationRecord
           ay = '(' + ay + ')' if !ay.empty? && og.normalized_genus.id != cg.normalized_genus.id
         end
       end
-    elsif FAMILY_RANK_NAMES_ICZN.include?(taxon.rank_string) && !y.empty? && cached_nomenclature_date&.year != y.first
+    elsif FAMILY_RANK_NAMES_ICZN.include?(taxon.rank_string) && !y.empty? && cached_nomenclature_date&.year != y.first && !mobj.present?
       ay = ay + ' [' + cached_nomenclature_date&.year.to_s + ']'
     end
 

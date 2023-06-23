@@ -31,8 +31,13 @@
         >Show less
       </a>
     </template>
+    <SwitchComponent
+      v-if="isSpeciesGroup"
+      :options="TABS"
+      v-model="view"
+    />
     <div class="relative">
-      <map-component
+      <MapComponent
         width="100%"
         :zoom="2"
         :zoom-on-click="false"
@@ -49,11 +54,12 @@
 <script setup>
 import SectionPanel from './shared/sectionPanel'
 import MapComponent from 'components/georeferences/map.vue'
-import nonReactiveStore from '../store/nonReactiveStore.js'
+import SwitchComponent from 'components/switch.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
+import { GEOREFERENCE, ASSERTED_DISTRIBUTION } from 'constants/index.js'
 import CachedMap from './CachedMap.vue'
 
 const MAX_LIST = 10
@@ -79,6 +85,8 @@ const georeferences = computed(
   () => store.getters[GetterNames.GetGeoreferences]
 )
 
+const isSpeciesGroup = computed(() => store.getters[GetterNames.IsSpeciesGroup])
+
 const cachedMap = computed(() => store.getters[GetterNames.GetCachedMap])
 
 const descedantsGeoreferences = computed(
@@ -92,7 +100,7 @@ const collectionObjects = computed(
 const isLoading = computed(() => {
   const loadState = store.getters[GetterNames.GetLoadState]
 
-  return loadState.distribution //&& loadState.descendantsDistribution
+  return loadState.distribution
 })
 
 const collectingEvents = computed({
@@ -104,18 +112,21 @@ const collectingEvents = computed({
   }
 })
 
-const assertedDistributions = computed(() => {
-  const ADs = store.getters[GetterNames.GetAssertedDistributions]
-  const uniqueADs = nonReactiveStore.geographicAreas
-
-  return uniqueADs.map((shape) => {
-    shape.properties.is_absent = shape.is_absent
-
-    return shape
-  })
-})
 const shapes = computed(() => {
-  return georeferences.value?.features || []
+  switch (view.value) {
+    case 'both':
+      return [].concat(georeferences.value?.features || [])
+    case 'georeferences':
+      return (
+        georeferences.value?.features.filter(
+          (item) => item.properties.type === GEOREFERENCE
+        ) || []
+      )
+    default:
+      return georeferences.value?.features.filter(
+        (item) => item.properties.base.type === ASSERTED_DISTRIBUTION
+      )
+  }
 })
 
 const showAll = ref(false)

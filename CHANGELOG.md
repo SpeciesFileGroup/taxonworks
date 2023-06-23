@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Create new asserted distribution when `is_absent` is checked in New asserted distribution task
 - Repository selection does not appear in Filter Collection Objects [#3430]
 - Docker pointing to outdated base image.
+- Global identifiers resolve check not honouring HTTPS
 
 [#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430
 [#3444]: https://github.com/SpeciesFileGroup/taxonworks/issues/3444
