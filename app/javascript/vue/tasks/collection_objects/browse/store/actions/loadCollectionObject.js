@@ -27,9 +27,11 @@ export default ({ state, dispatch }, coId) => {
       state.biologicalAssociations = body
     })
 
-    Container.for(co.globalId).then(({ body }) => {
-      state.container = body
-    })
+    Container.for(co.globalId)
+      .then(({ body }) => {
+        state.container = body
+      })
+      .catch(() => {})
 
     if (co.repositoryId) {
       Repository.find(co.repositoryId).then(({ body }) => {
