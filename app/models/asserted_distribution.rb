@@ -21,20 +21,20 @@
 #
 class AssertedDistribution < ApplicationRecord
   include Housekeeping
-  include Shared::Notes
   include SoftValidation
+  include Shared::Notes
   include Shared::Tags
   include Shared::DataAttributes # why?
+  include Shared::CitationRequired # !! must preceed Shared::Citations
   include Shared::Citations
   include Shared::Confidences
   include Shared::OriginRelationship
   include Shared::Identifiers
   include Shared::HasPapertrail
-  include Shared::IsData
-
-  include Shared::Taxonomy # at present must be before IsDwcOccurence
+  include Shared::Taxonomy # at present must preceed IsDwcOccurence
   include Shared::IsDwcOccurrence
   include AssertedDistribution::DwcExtensions
+  include Shared::IsData
 
   include Shared::Maps
 
@@ -52,22 +52,15 @@ class AssertedDistribution < ApplicationRecord
   has_many :geographic_items, through: :geographic_area
 
   validates_presence_of :geographic_area_id, message: 'geographic area is not selected'
-
-  # Might not be able to do these for nested attributes
   validates :geographic_area, presence: true
   validates :otu, presence: true
-
   validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id, :is_absent], message: 'this geographic_area, OTU and present/absent combination already exists'
-
   validate :new_records_include_citation
 
   # TODO: deprecate scopes referencing single wheres
   scope :with_otu_id, -> (otu_id) { where(otu_id:) }
-
   scope :with_is_absent, -> { where('is_absent = true') }
-
   scope :with_geographic_area_array, -> (geographic_area_array) { where('geographic_area_id IN (?)', geographic_area_array) }
-
   scope :without_is_absent, -> { where('is_absent = false OR is_absent is Null') }
 
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
@@ -97,8 +90,8 @@ class AssertedDistribution < ApplicationRecord
   # @return [Hash] GeoJSON feature
   def to_geo_json_feature
     retval = {
-      'type'       => 'Feature',
-      'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
+      'type' => 'Feature',
+      'geometry' => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
       'properties' => {'asserted_distribution' => {'id' => self.id}}
     }
     retval

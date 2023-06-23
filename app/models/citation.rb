@@ -141,8 +141,9 @@ class Citation < ApplicationRecord
   def update_related_cached_values
     if is_original != @old_is_original || citation_object_id != @old_citation_object_id || source_id != @old_source_id
       if citation_object_type == 'TaxonName'
-        citation_object.update_columns(cached_author_year: citation_object.get_author_and_year,
-                                       cached_nomenclature_date: citation_object.nomenclature_date)  if citation_object.persisted?
+        citation_object.update_columns(
+          cached_author_year: citation_object.get_author_and_year,
+          cached_nomenclature_date: citation_object.nomenclature_date)  if citation_object.persisted?
       end
     end
     true
@@ -150,9 +151,11 @@ class Citation < ApplicationRecord
 
   # TODO: modify for asserted distributions and other origin style relationships
   def prevent_if_required
-    if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations.reload.count == 1
-      errors.add(:base, 'at least one citation is required')
-      throw :abort
+    unless citation_object && citation_object.respond_to?(:ignore_citation_restriction) && citation_object.ignore_citation_restriction
+      if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations.count == 1
+        errors.add(:base, 'at least one citation is required')
+        throw :abort
+      end
     end
   end
 

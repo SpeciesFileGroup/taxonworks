@@ -1,4 +1,4 @@
-# Methods that recieve or generate a String. This methods in this library should be completely independant (i.e. ultimately gemifiable) from TaxonWorks.
+# Methods that receive or generate a String. This methods in this library should be completely independant (i.e. ultimately gemifiable) from TaxonWorks.
 module Utilities::Strings
 
   # @return String, nil
@@ -7,8 +7,8 @@ module Utilities::Strings
     return nil if string.to_s.length == 0
 
     string.gsub!(/<br>/, "\n")
-    string.gsub!(/<i>|<\/i>/, "_")
-    string.gsub!(/<b>|<\/b>/, "**")
+    string.gsub!(/<i>|<\/i>/, '_')
+    string.gsub!(/<b>|<\/b>/, '**')
     string
   end
 
