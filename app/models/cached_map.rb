@@ -1,3 +1,6 @@
+# A CachedMap is a OTU specific map derived from AssertedDistribution and Georeference data via
+# aggregation of the intermediate CachedMapItem level.
+#
 class CachedMap < ApplicationRecord
   include Housekeeping::Projects
   include Housekeeping::Timestamps
@@ -11,13 +14,24 @@ class CachedMap < ApplicationRecord
 
   before_validation :rebuild, if: :force_rebuild, on: [ :update ]
 
+  # TODO:
+  # Current production strategy is to present "out of date" when
+  # visualizing a CacheMap, then do complete rebuilds.
+  #
+  # This strategy can change when if/when
+  # we manage to get a comprehensive number of hooks into models
+  # such that state can be maintained.
+  #
+  # Since all hooks are syncronized through a change in a CachedMapItem
+  # we can trigger syncronizations that Update CachedMaps with callback hooks here, in theory.
+
   def rebuild
     if !synced?
       self.geo_json_string = CachedMap.calculate_union(otu, cached_map_type: )
     end
   end
 
-  belongs_to :otu
+  belongs_to :otu, inverse_of: :cached_maps
 
   # All cached_map items used to compose this cached_map.
   def cached_map_items
@@ -38,7 +52,6 @@ class CachedMap < ApplicationRecord
   def synced?
     cached_map_items_reference_total == reference_count && latest_cached_map_item.created_at <= created_at
   end
-
 
   def latest_cached_map_item
     cached_map_items.order(:updated_at).first
@@ -97,6 +110,5 @@ class CachedMap < ApplicationRecord
     r = ActiveRecord::Base.connection.execute(sql)
     r[0]['geojson']
   end
-
 
 end

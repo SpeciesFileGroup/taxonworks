@@ -3,8 +3,8 @@ module Otu::Maps
   extend ActiveSupport::Concern
 
   included do
-    has_many :cached_maps, dependent: :destroy
-    has_many :cached_map_items, dependent: :destroy
+    has_many :cached_maps, dependent: :destroy, inverse_of: :otu
+    has_many :cached_map_items, dependent: :destroy, inverse_of: :otu
   end
 
   #
@@ -44,6 +44,7 @@ module Otu::Maps
 
   # @return CachedMap
   #   !! Geometry is included in these objects
+  # If the CachedMap is not yet built it is built here.
   def cached_map(cached_map_type = 'CachedMapItem::WebLevel1')
     m = cached_maps.where(cached_map_type:).first
     m ||= create_cached_map

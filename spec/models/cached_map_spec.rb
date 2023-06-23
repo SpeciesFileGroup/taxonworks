@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe CachedMap, type: :model do
+RSpec.describe CachedMap, type: :model, group: [:geo, :cached_map] do
 
   let(:cached_map) { CachedMap.new }
 

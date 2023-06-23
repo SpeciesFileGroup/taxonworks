@@ -1,11 +1,15 @@
 require 'rails_helper'
 
-RSpec.describe CachedMapItem, type: :model do
+RSpec.describe CachedMapItem, type: :model, group: [:geo, :cached_map] do
 
-  let(:cached_map_item) { CachedMap.new }
+  include_context 'cached map scenario'
 
-  specify 'Factory test' do
-    expect(FactoryBot.create(:valid_cached_map_item)).to be_truthy
+  specify '#translate_geographic_item_id' do
+    expect(CachedMapItem.translate_geographic_item_id(gi2.id, 'AssertedDistribution',  ['ne_countries'])).to contain_exactly(gi1.id)
+  end
+
+  specify '#translate_geographic_item_id' do
+    expect(CachedMapItem.translate_geographic_item_id(gi3.id, 'AssertedDistribution', ['ne_countries'])).to contain_exactly(gi1.id)
   end
 
 end
