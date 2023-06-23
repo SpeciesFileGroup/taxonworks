@@ -2,7 +2,7 @@
 #
 # @!attribute date_requested
 #   @return [DateTime]
-#     date request was recieved by lender
+#     date request was received by lender
 #
 # @!attribute request_method
 #   @return [String]
