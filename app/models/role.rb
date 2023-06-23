@@ -96,7 +96,10 @@ class Role < ApplicationRecord
   end
 
   def update_cached
-    role_object.send(:set_cached) if role_object.respond_to?(:set_cached, true)
+    if role_object.respond_to?(:set_cached, true)
+      return true if role_object.respond_to?(:no_cached, true) && role_object.no_cached == true
+      role_object.send(:set_cached) 
+    end
   end
 
   def is_last_role?
