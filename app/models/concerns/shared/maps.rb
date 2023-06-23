@@ -1,36 +1,36 @@
-## Shared code for extending models that impact CachedMap (e.g. AssertedDistribution, Georeference)
+## Shared code for extending models that impact CachedMap creation (at present AssertedDistribution, Georeference).
+#
+# TODO:
+# - callbacks in all potentially altering models, e.g.: 
+#   * AssertedDistribution (geographic_area_id change, otu_id change)
+#   * GeographicItem (shape change) ?! necessary or we destroy/update !?
+#   * CollectionObject (collecting_event_id change)
+#   * Georeference (geographic_item change, position_change, collecting_event_id change)
+#   * OTU change (taxon_name_id change)
+#   * TaxonDetermination (otu_id change, position change)
+#   * GeographicArea - !?!@# (new/altered gazetters)
+#
+# - provide 2 shapes, absent/present when both there
+# - resolve "untranslated" when rendering 
 #
 module Shared::Maps
   extend ActiveSupport::Concern
 
   included do
-
     attr_accessor :cached_map_registered
-
-    after_save :cue_process_cached_maps
-    after_destroy :cleanup_cached_map
-
-    def cue_process_cached_maps
-      delay.syncronize_cached_maps
-    end
-
-    def syncronize_cached_maps
-      if cached_map_registered
-        cleanup_cached_map # wipe on prior
-        created_cached_map_items
-      else
-        create_cached_map_items
-      end
-    end
 
     has_one :cached_map_register, as: :cached_map_register_object, dependent: :delete
 
-    def cached_map_status
-      return {
-         registered: cached_map_registered,
-         cached_map_items_to_clean: cached_map_items_to_clean.count,
-      }
-    end
+    after_create :initialize_cached_map_items
+    before_destroy :remove_from_cached_map_items
+
+    # after_update :syncronize_cached_map_items
+
+    # !! This should only impacts the CachedMapItem layer. See CachedMapItem for
+    # triggers that will propagate to CachedMap.
+    # def syncronize_cached_map_items
+      # delay.coordinate_cached_map_items
+    # end
 
     def cached_map_registered
       @cached_map_registered ||= cached_map_register.present?
@@ -46,11 +46,6 @@ module Shared::Maps
       Behavior::Maps::DEFAULT_CACHED_BUILD_TYPES.each do |map_type|
         if stubs = CachedMapItem.stubs(self, map_type)
           stubs[:geographic_item_id].each do |geographic_item_id|
-          # name_hierarchy =
-          #   GeographicItem.find(
-          #     geographic_item_id
-          #   ).quick_geographic_name_hierarchy
-
             stubs[:otu_id].each do |otu_id|
               maps +=
                 CachedMapItem.where(
@@ -59,9 +54,6 @@ module Shared::Maps
                   geographic_item_id:,
                   untranslated: stubs[:untranslated],
                   project_id: stubs[:origin_object].project_id,
-                   #  level0_geographic_name: name_hierarchy[:country],
-                   #  level1_geographic_name: name_hierarchy[:state],
-                   #  level2_geographic_name: name_hierarchy[:county]
                 ).all
             end
           end
@@ -71,6 +63,14 @@ module Shared::Maps
     end
 
     private
+
+    def initialize_cached_map_items
+      delay.create_cached_map_items
+    end
+
+    def remove_from_cached_map_items
+      delay.deduct_from_cached_map_items
+    end
 
     # Creates or increments a CachedMapItem and creates a CachedMapRegister for this object.
     # * !! Assumes this is the first time CachedMapItem is being indexed for this object.
@@ -118,7 +118,6 @@ module Shared::Maps
                 # There is little or no point to logging translations
                 # for Georeferences, i.e. it is overhead with no benefit.
                 unless self.kind_of?(Georeference)
-                  # !! If the cache gets out of sync this may not be cached!
                   CachedMapItemTranslation.find_or_create_by!(
                     cached_map_type: map_type,
                     geographic_item_id: stubs[:origin_geographic_item_id],
@@ -132,16 +131,10 @@ module Shared::Maps
                 )
               end
 
-
             rescue ActiveRecord::RecordInvalid => e
               logger.debug e
-              # logger.debug 'source: ' + ap(self.to_s)
-              # logger.debug @cm&.errors&.full_messages
-              # logger.debug @cmit&.errors&.full_messages
             rescue PG::UniqueViolation
               logger.debug 'pg unique violation'
-              # TODO: disable
-              # logger.debug ap(self)
             end
           end
         end
@@ -149,15 +142,27 @@ module Shared::Maps
       true
     end
 
-    def cleanup_cached_map
-      cached_map_items_to_clean.each do |m|
-        if m.reference_count == 1
-          m.delete
+    def deduct_from_cached_map_items
+      cached_map_items_to_clean.each do |cmi|
+        if cmi.reference_count == 1
+          cmi.delete
         else
-          m.decrement!(:reference_count)
+          cmi.decrement!(:reference_count)
         end
       end
       true
     end
+
+    # def coordinate_cached_map_items
+    #   if cached_map_registered
+    #     # Wipe existing reference
+    #     cleanup_cached_map_items # wipe on prior
+    #     create_cached_map_items
+    #   else
+    #     create_cached_map_items
+    #   end
+    #   true
+    # end
+
   end
 end
