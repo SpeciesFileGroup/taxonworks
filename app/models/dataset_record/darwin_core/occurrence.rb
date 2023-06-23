@@ -154,7 +154,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           delete_namespace_prefix!(attributes.dig(:catalog_number, :identifier), namespace)
 
           identifier = Identifier::Local::CatalogNumber
-            .create_with(identifier_object: specimen)
+            .create_with(identifier_object: specimen, annotator_batch_mode: true)
             .find_or_create_by!(attributes[:catalog_number])
           object = identifier.identifier_object
 
@@ -173,7 +173,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         Identifier::Local::Import::Dwc.create!(
           namespace: import_dataset.get_core_record_identifier_namespace,
           identifier_object: specimen,
-          identifier: get_field_value(:occurrenceID)
+          identifier: get_field_value(:occurrenceID),
+          annotator_batch_mode: true
         ) unless get_field_value(:occurrenceID).nil? || import_dataset.get_core_record_identifier_namespace.nil?
 
         specimen.taxon_determinations.create!({
@@ -234,7 +235,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           }.merge!(attributes[:collecting_event]))
 
           identifier_type.create!({
-            identifier_object: collecting_event
+            identifier_object: collecting_event,
+            annotator_batch_mode: true
           }.merge!(identifier_attributes)) unless identifier_attributes.nil?
 
           has_shape = self.import_dataset.metadata.dig('import_settings', 'require_geographic_area_has_shape')
@@ -362,7 +364,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           OriginRelationship.where(old_object: self.import_dataset)
         ).first ||
         Person::Unvetted.create!(attributes.merge({
-          related_origin_relationships: [OriginRelationship.new(old_object: self.import_dataset)]
+          related_origin_relationships: [OriginRelationship.new(old_object: self.import_dataset, annotator_batch_mode: true)]
         }))
       end
     end
@@ -577,7 +579,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # occurrenceRemarks: [specimen note]
     note = get_field_value(:occurrenceRemarks)
-    Utilities::Hashes::set_unless_nil(res[:specimen], :notes_attributes, [{text: note}]) if note
+    Utilities::Hashes::set_unless_nil(res[:specimen], :notes_attributes, [{text: note, annotator_batch_mode: true}]) if note
 
     res
   end
@@ -686,7 +688,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # eventRemarks: [collecting event note]
     note = get_field_value(:eventRemarks)
-    Utilities::Hashes::set_unless_nil(collecting_event, :notes_attributes, [{text: note}]) if note
+    Utilities::Hashes::set_unless_nil(collecting_event, :notes_attributes, [{text: note, annotator_batch_mode: true}]) if note
 
     { collecting_event: collecting_event }
   end
@@ -801,7 +803,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         InternalAttribute.new(
           type: 'InternalAttribute',
           predicate: predicate,
-          value: georeferenced_by
+          value: georeferenced_by,
+          annotator_batch_mode: true
         )
       ]
     end
@@ -816,7 +819,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # georeferenceRemarks: [georeference note]
     note = get_field_value(:georeferenceRemarks)
-    georeference[:notes_attributes] = [{text: note}] if note
+    georeference[:notes_attributes] = [{text: note, annotator_batch_mode: true}] if note
 
     {
       collecting_event: collecting_event,
@@ -877,7 +880,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # identificationRemarks: Note for taxon determination
     note = get_field_value(:identificationRemarks)
-    taxon_determination[:notes_attributes] = [{text: note}] if note
+    taxon_determination[:notes_attributes] = [{text: note, annotator_batch_mode: true}] if note
 
     {
       taxon_determination: taxon_determination,
@@ -1131,7 +1134,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       raise DarwinCore::InvalidData.new({ tag[:field] => ["Tag with #{tag[:selector]} URI or name not found"] }) unless keyword
 
       if value.downcase == "true" || value == "1"
-        tags.append({keyword: keyword})
+        tags.append({keyword: keyword, annotator_batch_mode: true})
         return
       end
 
@@ -1153,7 +1156,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       attributes << {
         type: 'InternalAttribute',
         predicate: predicate,
-        value: value
+        value: value,
+        annotator_batch_mode: true
       }
     end
   end
@@ -1235,7 +1239,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     attributes << {
       type: 'InternalAttribute',
       predicate: predicate,
-      value: value
+      value: value,
+      annotator_batch_mode: true
     } if value
   end
 
