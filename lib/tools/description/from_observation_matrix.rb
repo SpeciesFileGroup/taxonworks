@@ -106,24 +106,25 @@ class Tools::Description::FromObservationMatrix
   attr_accessor :keyword_ids
 
   def initialize( observation_matrix_id: nil,
-                 project_id: nil,
-                 include_descendants: nil,
-                 language_id: nil,
-                 keyword_ids: nil,
-                 observation_matrix_row_id: nil,
-                 otu_id: nil,
-                 similar_objects: [])
+                  project_id: nil,
+                  include_descendants: nil,
+                  language_id: nil,
+                  keyword_ids: nil,
+                  observation_matrix_row_id: nil,
+                  otu_id: nil,
+                  similar_objects: {})
+
+    return false if project_id.blank? || (observation_matrix_id.blank? && observation_matrix_row_id.blank? && otu_id.blank?)
+
+    @project_id = project_id
 
     @keyword_ids = keyword_ids
 
-
     # !! You can skip all this if there are no Observations.
-
-    # raise if observation_matrix_id.blank? || project_id.blank?
+    
     @observation_matrix_id = observation_matrix_id
-    @project_id = project_id
     @observation_matrix_row_id = observation_matrix_row_id
-    @observation_matrix = find_matrix
+   
     @include_descendants = include_descendants
     @language_to_use = language_to_use
     @descriptor_available_keywords = descriptor_available_keywords
@@ -145,16 +146,20 @@ class Tools::Description::FromObservationMatrix
     @descriptor_hash = nil
   end
 
-  def find_matrix
-    return nil if (@observation_matrix_id.blank? || @observation_matrix_id.to_s == '0') && @observation_matrix_row_id.blank?
-    if @observation_matrix_row_id.blank?
-      m = ObservationMatrix.where(project_id:).find(@observation_matrix_id)
-    else
-      m = ObservationMatrixRow.where(project_id:).find(@observation_matrix_row_id)&.observation_matrix
-      @observation_matrix_id = m&.id.to_s
-      @project_id = m&.project_id.to_s
-    end
-    m
+  def observation_matrix
+    @observation_matrix ||= ObservationMatrix.where(project_id:).find(observation_matrix_id)
+    @observation_matrix ||= observation_matrix_row.observation_matrix
+    @observation_matrix
+  end
+
+  def observation_matrix_row
+    return nil if @observation_matrix_row_id.blank?
+    ObservationMatrixRow.where(project_id:).find(@observation_matrix_row_id)
+  end
+
+  def observation_matrix_id
+    @observation_matrix_id ||= observation_matrix_row&.observation_matrix_id
+    @observation_matrix_id
   end
 
   def descriptor_available_languages
@@ -309,7 +314,7 @@ class Tools::Description::FromObservationMatrix
 
       char_states.each do |cs|
         if (cs.r_obj_type == 'Otu' && !descriptor_hash[cs.d_id][:similar_otu_ids].include?(cs.r_obj_id)) ||
-          (cs.r_obj_type == 'CollectionObject' && !descriptor_hash[cs.d_id][:similar_collection_object_ids].include?(cs.r_obj_id))
+            (cs.r_obj_type == 'CollectionObject' && !descriptor_hash[cs.d_id][:similar_collection_object_ids].include?(cs.r_obj_id))
           if cs.r_obj_type == 'Otu' && (descriptor_hash[cs.d_id][:char_states_ids].include?(cs.cs_id) || cs.o_id.nil?)
             descriptor_hash[cs.d_id][:similar_otu_ids].append(cs.r_obj_id)
             otu_ids_count[cs.r_obj_id] = otu_ids_count[cs.r_obj_id].to_i + 1
@@ -332,7 +337,7 @@ class Tools::Description::FromObservationMatrix
         where('observation_matrices.id = ?', @observation_matrix_id)
       observations.each do |o|
         if (o.r_obj_type == 'Otu' && !descriptor_hash[o.d_id][:similar_otu_ids].include?(o.r_obj_id)) ||
-          (o.r_obj_type == 'CollectionObject' && !descriptor_hash[o.d_id][:similar_collection_object_ids].include?(o.r_obj_id))
+            (o.r_obj_type == 'CollectionObject' && !descriptor_hash[o.d_id][:similar_collection_object_ids].include?(o.r_obj_id))
           yes = false
           if o.continuous_value.nil? && o.sample_min.nil? && o.o_presence.nil?
             yes = true
