@@ -16,6 +16,9 @@ module Shared::CitationRequired
     end
   end
 
-  class_methods do
+  # @return [True]
+  def requires_citation?
+    true
   end
+
 end
