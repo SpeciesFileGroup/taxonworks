@@ -55,6 +55,7 @@ module TypeMaterials::CatalogHelper
   #   leverage DwC index methods
   def catalog_object_locality_label(collection_object)
     o = collection_object.dwc_occurrence
+    
     [
       o.country,
       o.stateProvince,
