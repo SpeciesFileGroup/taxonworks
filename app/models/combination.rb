@@ -444,7 +444,7 @@ class Combination < TaxonName
   end
 
   def sv_combination_duplicates
-    duplicate = Combination.not_self(self).where(cached: cached, cached_author_year: cached_author_year)
+    duplicate = Combination.not_self(self).where(cached: cached, cached_author_year: cached_author_year, project_id: self.project_id)
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
   end
 
