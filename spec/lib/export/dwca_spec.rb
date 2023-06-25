@@ -1,6 +1,7 @@
 require 'rails_helper'
 require 'export/dwca'
 
+# TODO: replace Current.project_id with @project_id
 describe Export::Dwca, type: :model, group: :darwin_core do
 
   # specify "stores a compressed file in rails' temp directory" do

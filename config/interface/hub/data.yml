@@ -87,6 +87,7 @@ Core: # a Section
       - SequenceRelationship
     categories:
       - dna
+      - matrix
 Supporting:
   AssertedDistribution:
     status: :prototype
@@ -166,6 +167,7 @@ Supporting:
     categories:
       - biology
       - dna
+      - matrix
   GeneAttribute:
     status: :prototype
     related_models:

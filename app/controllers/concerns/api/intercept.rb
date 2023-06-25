@@ -1,14 +1,14 @@
 module Api
-  module Intercept 
+  module Intercept
 
     extend ActiveSupport::Concern
-   
+
     include ActionController::HttpAuthentication::Token::ControllerMethods
     # include ActionController::HttpAuthentication::Token
 
-    include TokenAuthentication 
+    include TokenAuthentication
 
-    # Handle CORS here as well likely 
+    # Handle CORS here as well likely
 
     # headers['Access-Control-Allow-Origin'] = '*'
     # headers['Access-Control-Allow-Methods'] = 'POST, PUT, DELETE, GET, OPTIONS'
@@ -20,7 +20,7 @@ module Api
     end
 
     # @return [True, render]
-    #   If authentication is requried, as defined in the routes, 
+    #   If authentication is requried, as defined in the routes,
     #   then it must pass here.
     def intercept_api
       @api_request = true

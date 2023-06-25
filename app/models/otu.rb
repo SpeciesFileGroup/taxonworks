@@ -24,7 +24,7 @@
 class Otu < ApplicationRecord
   include Housekeeping
   include SoftValidation
-  # include Shared::AlternateValues   # No alternate values on Name!! Consequences - search cumbersome, names not unified and controllable ... others?
+  # include Shared::AlternateValues # No alternate values on Name!! Consequences - search cumbersome, names not unified and controllable ... others?
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Identifiers
@@ -43,12 +43,13 @@ class Otu < ApplicationRecord
 
   include Shared::MatrixHooks::Member
   include Otu::MatrixHooks
+  include Otu::Maps
 
   include Shared::IsData
 
   is_origin_for 'Sequence', 'Extract'
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes].freeze
 
   belongs_to :taxon_name, inverse_of: :otus
 

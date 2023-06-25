@@ -7,4 +7,4 @@
 Mime::Type.register 'applicaiton/rfd+xml', :rdf
 Mime::Type.register 'image/svg+xml', :svg
 Mime::Type.register 'application/x-bibtex', :bib
-
+Mime::Type.register 'application/geo+json', :geojson

@@ -106,7 +106,7 @@ class Protonym < TaxonName
   end
 
   # TODO: remove
-  scope :named, -> (name) {where(name: name)}
+  scope :named, -> (name) {where(name:)}
 
   scope :with_name_in_array, -> (array) {where(name: array) }
 
@@ -132,7 +132,7 @@ class Protonym < TaxonName
   scope :with_secondary_homonym_alternative_spelling, -> (secondary_homonym_alternative_spelling) {where(cached_secondary_homonym_alternative_spelling: secondary_homonym_alternative_spelling)}
 
   # TODO, move to IsData or IsProjectData
-  scope :with_project, -> (project_id) {where(project_id: project_id)}
+  scope :with_project, -> (project_id) {where(project_id:)}
 
   scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
   scope :is_genus_group, -> { where("rank_class ILIKE '%genusgroup%'") }
@@ -149,7 +149,7 @@ class Protonym < TaxonName
   # @return [Protonym]
   #   a name ready to become the root
   def self.stub_root(project_id: nil, by: nil)
-    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id: project_id, by: by)
+    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id:, by:)
   end
 
   def self.family_group_base(name_string)
@@ -245,8 +245,8 @@ class Protonym < TaxonName
           search_name = nil
         end
 
-        #        r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
-        #        if !search_name.nil? && r.empty?
+        #  r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
+        #  if !search_name.nil? && r.empty?
         if !search_name.nil? && is_available?
           list = Protonym
             .ancestors_and_descendants_of(self)
@@ -305,7 +305,7 @@ class Protonym < TaxonName
         return false
       end
 
-      genus = genus.name unless genus.blank?
+      genus = genus.name if genus.present?
       return nil if genus.blank?
     end
 
@@ -380,7 +380,7 @@ class Protonym < TaxonName
       else
         Ranks.lookup(ncode, 'family').constantize.valid_parents.each do |r1|
           r2 = r1.constantize
-          if !r2.valid_name_ending.blank? && child_string.end_with?(r2.valid_name_ending) && r2.typical_use && RANKS.index(r1) > RANKS.index(parent_rank)
+          if r2.valid_name_ending.present? && child_string.end_with?(r2.valid_name_ending) && r2.typical_use && RANKS.index(r1) > RANKS.index(parent_rank)
             r = r1
             break
           end
@@ -401,7 +401,7 @@ class Protonym < TaxonName
     descendants.find_each do |z|
       year = z.year_integer
       year = 0 if year.nil?
-      a[year] = {:valid => 0, :synonyms => 0} unless a[year]
+      a[year] = {valid: 0, synonyms: 0} unless a[year]
       if z.rank_string == 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
         if z.cached_is_valid
           a[year][:valid] = a[year][:valid] += 1
@@ -411,7 +411,7 @@ class Protonym < TaxonName
       end
     end
     for i in 1758..Time.now.year do
-      a[i] = {:valid => 0, :synonyms => 0} unless a[i]
+      a[i] = {valid: 0, synonyms: 0} unless a[i]
     end
     b = a.sort.to_h
     CSV.open(file_name, 'w') do |csv|
@@ -704,7 +704,7 @@ class Protonym < TaxonName
     p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) }
 
     s = p.flatten.compact.join(' ')
-    s.blank? ? nil : s
+    (s.presence)
   end
 
   # @return [Hash]
@@ -791,15 +791,15 @@ class Protonym < TaxonName
   def get_original_combination_html
     return  "\"<i>Candidatus</i> #{get_original_combination}\"" if is_candidatus?
     v = get_original_combination
-    if !v.blank? && is_hybrid?
+    if v.present? && is_hybrid?
       w = v.split(' ')
       w[-1] = ('×' + w[-1]).gsub('×(', '(×').gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))')
       v = w.join(' ')
     end
-    v = v.gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))') if !v.blank?
+    v = v.gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))') if v.present?
 
     v = Utilities::Italicize.taxon_name(v) if is_genus_or_species_rank?
-    v = '† ' + v if !v.blank? && is_fossil?
+    v = '† ' + v if v.present? && is_fossil?
     v
   end
 
@@ -929,7 +929,7 @@ class Protonym < TaxonName
 
   def new_parent_taxon_name
     r = self.iczn_uncertain_placement_relationship
-    unless r.blank?
+    if r.present?
       if self.parent != r.object_taxon_name
         errors.add(:parent_id, "Taxon has an 'Incertae sedis' relationship, which prevent the parent modifications, change the relationship to 'Source classified as' before updating the parent")
       end
@@ -941,7 +941,7 @@ class Protonym < TaxonName
   end
 
   def validate_child_rank_is_equal_or_lower
-    if parent && !rank_class.blank? && rank_string != 'NomenclaturalRank'
+    if parent && rank_class.present? && rank_string != 'NomenclaturalRank'
       if rank_class_changed?
         a = children.where(type: 'Protonym').pluck(:rank_class)
         v = RANKS.index(rank_string)
@@ -975,7 +975,7 @@ class Protonym < TaxonName
   # DD: rules for cached tend to evolve, what was good in the past, may not be true today
   # MJY: If the meaning of cached changes then it should be removed, not changed.
   def sv_cached_names # this cannot be moved to soft_validation_extensions
-  is_cached = true
+    is_cached = true
   is_cached = false if cached_author_year != get_author_and_year
   is_cached = false if cached_author != get_author
   if is_cached && (

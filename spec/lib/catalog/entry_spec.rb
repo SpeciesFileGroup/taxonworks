@@ -9,7 +9,7 @@ describe Catalog::Entry, group: :catalogs, type: :spinup do
   let!(:topic2) { FactoryBot.create(:valid_topic, name: 'Syrup') }
   let!(:citation) { Citation.create!(is_original: true, source:, citation_object: o, citation_topics_attributes: [{topic: topic1}, {topic: topic2} ]) }
 
-  let(:catalog_entry) { Catalog::Entry.new(o) }
+  let(:catalog_entry) { Catalog::Entry.new(o.reload) }
 
   specify '#items' do
     expect(catalog_entry.items.count).to eq(1)

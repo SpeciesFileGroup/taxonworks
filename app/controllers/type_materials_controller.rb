@@ -29,7 +29,6 @@ class TypeMaterialsController < ApplicationController
 
   # GET /type_materials/1/edit
   def edit
-    @type_material.source = Source.new if !@type_material.source
   end
 
   # POST /type_materials

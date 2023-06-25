@@ -7,11 +7,6 @@ module Queries
         super
       end
 
-      # @return [Scope]
-      def base_query
-        ::Serial.select('serials.*')
-      end
-
       # @return [Array]
       def autocomplete
         queries = [

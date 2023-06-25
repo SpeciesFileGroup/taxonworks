@@ -232,6 +232,7 @@ describe Otu, type: :model, group: :otu do
     let(:s) { FactoryBot.create(:valid_specimen) }
     let!(:content) { FactoryBot.create(:valid_content, otu: otu) }
     let!(:biological_association) { FactoryBot.create(:valid_biological_association, biological_association_subject: o2, biological_association_object: otu) }
+    
     let!(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution, otu: otu) }
 
     specify ".used_recently('Content')" do

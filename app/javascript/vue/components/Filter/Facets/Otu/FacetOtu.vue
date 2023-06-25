@@ -12,7 +12,7 @@
     <DisplayList
       v-if="otusStore.length"
       :list="otusStore"
-      label="object_label"
+      label="object_tag"
       :delete-warning="false"
       @delete="removeFromArray(otusStore, $event)"
     />

@@ -50,8 +50,8 @@ class ObservationMatrixRow < ApplicationRecord
   # are not never created directly
   def observation_object_is_unique_in_matrix
     if ObservationMatrixRow.where(
-        observation_matrix_id: observation_matrix_id,
-        observation_object: observation_object).where.not(id: id).any?
+        observation_matrix_id:,
+        observation_object:).where.not(id:).any?
       errors.add(:observation_object, 'already exists in this matrix')
     end
   end
@@ -61,12 +61,12 @@ class ObservationMatrixRow < ApplicationRecord
   def observations
     observation_object.observations
       .joins(descriptor: [:observation_matrix_columns])
-      .where(observation_matrix_columns: {observation_matrix_id: observation_matrix_id})
+      .where(observation_matrix_columns: {observation_matrix_id:})
       .order('observation_matrix_columns.position ASC')
   end
 
   def observation_matrix_columns
-    ObservationMatrixColumn.where(observation_matrix_id: observation_matrix_id)
+    ObservationMatrixColumn.where(observation_matrix_id:)
   end
 
   soft_validate(
@@ -80,7 +80,7 @@ class ObservationMatrixRow < ApplicationRecord
   #   incrementally sort the supplied ids
   def self.sort(array)
     array.each_with_index do |id, index|
-      ObservationMatrixRow.where(id: id).update_all(position: index + 1)
+      ObservationMatrixRow.where(id:).update_all(position: index + 1)
     end
     true
   end
@@ -116,17 +116,20 @@ class ObservationMatrixRow < ApplicationRecord
 
   # TODO: belongs in helpers
   def next_row
-    observation_matrix.observation_matrix_rows.where("position > ?", position).order(:position).first
+    observation_matrix.observation_matrix_rows.where('position > ?', position).order(:position).first
   end
 
   def previous_row
-    observation_matrix.observation_matrix_rows.where("position < ?", position).order('position DESC').first
+    observation_matrix.observation_matrix_rows.where('position < ?', position).order('position DESC').first
   end
 
   private
 
   def sv_cannot_be_separated
-    description = Tools::Description::FromObservationMatrix.new(observation_matrix_row_id: self.id)
+    description = Tools::Description::FromObservationMatrix.new(
+      observation_matrix_row_id: self.id,
+      project_id: self.project_id
+      )
     if description && description.generated_description.blank?
       soft_validations.add(:base, 'No observations!')
     elsif description && description.generated_diagnosis == 'Cannot be separated from other rows in the matrix!'

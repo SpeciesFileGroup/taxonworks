@@ -301,9 +301,7 @@ require 'namecase'
 #
 class Source::Bibtex < Source
 
-  # Type will change
-  DEFAULT_CSL_STYLE = 'taxonworks'
-  #DEFAULT_CSL_STYLE = 'zootaxa'
+  DEFAULT_CSL_STYLE = 'taxonworks'.freeze
 
   attr_accessor :authors_to_create
 
@@ -314,7 +312,7 @@ class Source::Bibtex < Source
   is_origin_for 'Source::Bibtex', 'Source::Verbatim'
   originates_from 'Source::Bibtex', 'Source::Verbatim'
 
-  GRAPH_ENTRY_POINTS = [:origin_relationships]
+  GRAPH_ENTRY_POINTS = [:origin_relationships].freeze
 
   # Used in soft validation
   BIBTEX_REQUIRED_FIELDS = {
@@ -332,7 +330,7 @@ class Source::Bibtex < Source
     proceedings: [:title, :year],
     techreport: [:author,:title,:institution, :year],
     unpublished: [:author, :title, :note]
-  }
+  }.freeze
 
   # TW required fields (must have one of these fields filled in)
   # either year or stated_year is acceptable
@@ -343,21 +341,21 @@ class Source::Bibtex < Source
 
   belongs_to :serial, inverse_of: :sources
 
-  # handle conflict with BibTex language field.
+  # Handle conflict with BibTex language field.
   belongs_to :source_language, class_name: 'Language', foreign_key: :language_id, inverse_of: :sources
 
-  has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor',
-    as: :role_object, validate: true
+  has_many :author_roles, class_name: 'SourceAuthor', as: :role_object, dependent: :destroy, inverse_of: :role_object #  , -> { order('roles.position ASC') }
+  has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person, inverse_of: :authored_sources
 
-  has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person, validate: true
+  has_many :editor_roles, class_name: 'SourceEditor', as: :role_object, dependent: :destroy, inverse_of: :role_object #, -> { order('roles.position ASC') }
+  has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, inverse_of: :edited_sources
 
-  has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor',
-    as: :role_object, validate: true
-  has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
+  # TODO: human roles
 
   accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, :serial, allow_destroy: true
 
   before_validation :create_authors, if: -> { !authors_to_create.nil? }
+
   before_validation :check_has_field
 
   validates_inclusion_of :bibtex_type,
@@ -365,7 +363,7 @@ class Source::Bibtex < Source
     message: '"%{value}" is not a valid source type'
 
   validates_presence_of :year,
-    if: -> { !month.blank? || !stated_year.blank? },
+    if: -> { month.present? || stated_year.present? },
     message: 'is required when month or stated_year is provided'
 
   validates :year, date_year: {
@@ -466,7 +464,7 @@ class Source::Bibtex < Source
     s.data_attributes_attributes = import_attributes
 
     # See issn=() for code matching to existing serials that preceeds this logic
-    if s.serial_id.blank? && !bibtex_entry.fields[:journal].to_s.blank? && !bibtex_entry.fields[:issn].to_s.blank?
+    if s.serial_id.blank? && bibtex_entry.fields[:journal].to_s.present? && bibtex_entry.fields[:issn].to_s.present?
       a = {
         name: bibtex_entry.fields[:journal].to_s,
         publisher: bibtex_entry.fields[:publisher].to_s,
@@ -570,7 +568,7 @@ class Source::Bibtex < Source
   # @return [String]
   def note=(value)
     write_attribute(:note, value)
-    if !self.note.blank? && self.new_record?
+    if self.note.present? && self.new_record?
       if value.include?('||')
         a = value.split(/||/)
         a.each do |n|
@@ -586,7 +584,7 @@ class Source::Bibtex < Source
   # @return [String]
   def isbn=(value)
     write_attribute(:isbn, value)
-    unless value.blank?
+    if value.present?
       if tw_isbn = self.identifiers.where(type: 'Identifier::Global::Isbn').first
         if tw_isbn.identifier != value
           tw_isbn.destroy!
@@ -607,7 +605,7 @@ class Source::Bibtex < Source
   # @return [String]
   def doi=(value)
     write_attribute(:doi, value)
-    unless value.blank?
+    if value.present?
       if tw_doi = self.identifiers.where(type: 'Identifier::Global::Doi').first
         if tw_doi.identifier != value
           tw_doi.destroy!
@@ -631,7 +629,7 @@ class Source::Bibtex < Source
     # It is likely that most ISSN belong on Serials
     unless %w{article inbook phdthesis inproceedings}.include?(bibtex_type)
       write_attribute(:issn, value)
-      unless value.blank?
+      if value.present?
         tw_issn = self.identifiers.where(type: 'Identifier::Global::Issn').first
         unless tw_issn.nil? || tw_issn.identifier != value
           tw_issn.destroy
@@ -682,7 +680,7 @@ class Source::Bibtex < Source
   # @return [Boolean]
   # is there a bibtex author or author roles?
   def has_authors?
-    return true if !author.blank?
+    return true if author.present?
     return false if new_record?
     # self exists in the db
     authors.count > 0 ? true : false
@@ -730,18 +728,18 @@ class Source::Bibtex < Source
   #   !! Entry equivalent to self, this should round-trip with no changes.
   def to_bibtex
     return false if bibtex_type.nil?
-    b = BibTeX::Entry.new(bibtex_type: bibtex_type)
+    b = BibTeX::Entry.new(bibtex_type:)
 
     ::BIBTEX_FIELDS.each do |f|
       next if f == :bibtex_type
       v = send(f)
-      if !v.blank?
+      if v.present?
         b[f] = v
       end
     end
 
-    b[:keywords] = verbatim_keywords unless verbatim_keywords.blank?
-    b[:note] = concatenated_notes_string unless concatenated_notes_string.blank?
+    b[:keywords] = verbatim_keywords if verbatim_keywords.present?
+    b[:note] = concatenated_notes_string if concatenated_notes_string.present?
 
     unless serial.nil?
       b[:journal] = serial.name
@@ -795,15 +793,15 @@ class Source::Bibtex < Source
     ::BIBTEX_FIELDS.each do |f|
       next if f == :bibtex_type
       v = send(f)
-      if !v.blank? && (v.to_s =~ /\A{(.*)}\z/)
+      if v.present? && (v.to_s =~ /\A{(.*)}\z/)
         a[f.to_s] = {literal: $1}
       end
     end
 
-    a['year-suffix'] = year_suffix unless year_suffix.blank?
-    a['original-date'] = {"date-parts" => [[ stated_year ]]} if !stated_year.blank? && stated_year.to_s != year.to_s
+    a['year-suffix'] = year_suffix if year_suffix.present?
+    a['original-date'] = {'date-parts' => [[ stated_year ]]} if stated_year.present? && stated_year.to_s != year.to_s
     a['language'] = Language.find(language_id).english_name.to_s unless language_id.nil?
-    a['translated-title'] = alternate_values.where(type: "AlternateValue::Translation", alternate_value_object_attribute: 'title').pluck(:value).first
+    a['translated-title'] = alternate_values.where(type: 'AlternateValue::Translation', alternate_value_object_attribute: 'title').pluck(:value).first
     a['note'] = note
     a.reject! { |k| k == 'note' } if note.blank?
     a
@@ -817,7 +815,7 @@ class Source::Bibtex < Source
     if a.any?
       get_bibtex_names('author')
     else
-      author.blank? ? nil : author
+      (author.presence)
     end
   end
 
@@ -833,7 +831,7 @@ class Source::Bibtex < Source
   #   this source, rendered in the provided CSL style, as text
   def render_with_style(style = 'vancouver', format = 'text', normalize_names = true)
     s = ::TaxonWorks::Vendor::BibtexRuby.get_style(style)
-    cp = CiteProc::Processor.new(style: s, format: format)
+    cp = CiteProc::Processor.new(style: s, format:)
     b = to_bibtex
     ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(b) if normalize_names
     cp.import( [to_citeproc(normalize_names)] )
@@ -847,7 +845,6 @@ class Source::Bibtex < Source
   def cached_string(format = 'text')
     return nil unless (format == 'text') || (format == 'html')
     str = render_with_style(DEFAULT_CSL_STYLE, format)
-    #str.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
   end
 
   # @return [String, nil]
@@ -856,6 +853,7 @@ class Source::Bibtex < Source
   #   !! This is NOT a legal BibTeX format  !!
   def authority_name(reload = true)
     reload ? authors.reload : authors.load
+
     if !authors.any? # no normalized people, use string, !! not .any? because of in-memory setting?!
       if author.blank?
         return nil
@@ -865,32 +863,36 @@ class Source::Bibtex < Source
         return Utilities::Strings.authorship_sentence(b.author.tokens.collect{ |t| t.last })
       end
     else # use normalized records
-      #      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.full_last_name })
-      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.last_name })
+      # return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.full_last_name })
+      return Utilities::Strings.authorship_sentence(authors.pluck(:last_name))
     end
   end
 
   # TODO: Replace with taxonworks.csl.  Move unsupported fields to
-  # wrappers in vue rendering.
-  # set cached values and copies active record relations into bibtex values
-  # @return [Ignored]
+  #   wrappers in vue rendering.
+  # Set cached values and copies active record relations into bibtex values.
+  #
+  # @return [Boolean]
   def set_cached
     if errors.empty?
       attributes_to_update = {}
+
       attributes_to_update[:author] = get_bibtex_names('author') if authors.reload.size > 0
       attributes_to_update[:editor] = get_bibtex_names('editor') if editors.reload.size > 0
+
       attributes_to_update.merge!(
         cached: get_cached,
         cached_nomenclature_date: nomenclature_date,
         cached_author_string: authority_name(false)
       )
-      update_columns(attributes_to_update)
+
+      self.reload.update_columns(attributes_to_update)
     end
   end
 
   def get_cached
     if errors.empty?
-      c = cached_string('html') # preserves our convention of <i>
+      c = cached_string('html') # preserves TaxonWorks convention of <i>
       return c
     end
     nil
@@ -916,7 +918,8 @@ class Source::Bibtex < Source
           author_roles.build(person: p)
         end
       end
-    rescue
+
+    rescue ActiveRecord::RecordInvalid
       errors.add(:base, 'invalid author parameters')
     end
   end
@@ -927,9 +930,9 @@ class Source::Bibtex < Source
     a = get_author
     unless year_suffix.blank? || year.blank? || a.blank?
       if new_record?
-        s = Source.where(author: a, year: year, year_suffix: year_suffix).first
+        s = Source.where(author: a, year:, year_suffix:).first
       else
-        s = Source.where(author: a, year: year, year_suffix: year_suffix).not_self(self).first
+        s = Source.where(author: a, year:, year_suffix:).not_self(self).first
       end
       errors.add(:year_suffix, " '#{year_suffix}' is already used for #{a} #{year}") unless s.nil?
     end
@@ -948,15 +951,18 @@ class Source::Bibtex < Source
   def check_has_field
     valid = false
     TW_REQUIRED_FIELDS.each do |i|
-      if !self[i].blank?
+      if self[i].present?
         valid = true
         break
       end
     end
-    #TODO This test for auth doesn't work with a new record.
+
+    # TODO This test for auth doesn't work with a new record.
+
     if (self.authors.count > 0 || self.editors.count > 0 || !self.serial.nil?)
       valid = true
     end
+
     if !valid
       errors.add(
         :base,
@@ -968,8 +974,8 @@ class Source::Bibtex < Source
   def sv_cached_names # this cannot be moved to soft_validation_extensions
     is_cached = true
 
-    if (author.to_s != get_bibtex_names('author') && !get_bibtex_names('author').blank?) ||
-        (editor.to_s != get_bibtex_names('editor') && !get_bibtex_names('editor').blank?) ||
+    if (author.to_s != get_bibtex_names('author') && get_bibtex_names('author').present?) ||
+        (editor.to_s != get_bibtex_names('editor') && get_bibtex_names('editor').present?) ||
         cached != get_cached ||
         cached_nomenclature_date != nomenclature_date ||
         cached_author_string.to_s != authority_name(false)
@@ -981,15 +987,4 @@ class Source::Bibtex < Source
       success_message: 'Cached values were updated',
       failure_message:  'Failed to update cached values') if !is_cached
   end
-end
-
-
-### to be deleted
-def aaa
-  ids = []
-  Source.joins(:project_sources).where('project_sources.project_id = 13').first(100).each do |s|
-    s.soft_validate
-    ids.append(s.id) if s.soft_validations.messages.include?('Cached values should be updated')
-  end
-  ids
 end

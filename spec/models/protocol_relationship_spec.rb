@@ -5,35 +5,27 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
   let(:protocol) { FactoryBot.create(:valid_protocol) }
 
   context 'validations' do
-
-    context 'adds error' do
-      before(:each){
-        protocol_relationship.valid?
-      }
-
-      specify 'protocol_id' do
-        expect(protocol_relationship.errors.include?(:protocol_id)).to be_truthy
-      end
-    end
-    context 'raises for polymorphic fields' do
-
-      before{protocol_relationship.protocol = FactoryBot.create(:valid_protocol)}
-
-      specify '#protocol_relationship_object_type' do
-        protocol_relationship.protocol_relationship_object_id = 1  
-        expect{protocol_relationship.save}.to raise_error ActiveRecord::StatementInvalid
-      end
-
-      specify '#protocol_relationship_object_id' do
-        protocol_relationship.protocol_relationship_object_type = 'Image' 
-        expect{protocol_relationship.save}.to raise_error ActiveRecord::StatementInvalid 
-      end
+    specify 'protocol_id' do
+      protocol_relationship.valid?
+      expect(protocol_relationship.errors.include?(:protocol)).to be_truthy
     end
 
-    context 'passes when given' do
-      specify 'protocol_id and protocol_relationship_object_id and protocol_relationship_object_type' do
-        expect(FactoryBot.build(:valid_protocol_relationship).valid?).to be_truthy
-      end
+    specify '#protocol_relationship_object_type' do
+      protocol_relationship.protocol = protocol
+      protocol_relationship.protocol_relationship_object_id = 1  
+      protocol_relationship.valid?
+      expect(protocol_relationship.errors.include?(:protocol_relationship_object)).to be_truthy
+    end
+
+    specify '#protocol_relationship_object_id' do
+      protocol_relationship.protocol = protocol
+      protocol_relationship.protocol_relationship_object_type = 'Image' 
+      protocol_relationship.valid?
+      expect(protocol_relationship.errors.include?(:protocol_relationship_object)).to be_truthy
+    end
+
+    specify 'protocol_id and protocol_relationship_object_id and protocol_relationship_object_type' do
+      expect(FactoryBot.build(:valid_protocol_relationship).valid?).to be_truthy
     end
   end
 end

@@ -106,7 +106,7 @@ module LoansHelper
     Keyword.joins(:tags).where(project_id: sessions_current_project_id).where(tags: {tag_object_type: ['Container', 'Otu', 'CollectionObject']}).distinct.all
   end
 
-  # date_loan_requested, date_recieved, date_return_expected, date_closed
+  # date_loan_requested, date_received, date_return_expected, date_closed
   def loans_per_year(loans, target = :date_sent )
     s,e = loans_start_end_year(loans, target)
     return {} if s.nil? && e.nil?

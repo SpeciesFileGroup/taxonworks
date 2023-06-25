@@ -44,5 +44,8 @@ const permitParams = {
 export const AssertedDistribution = {
   ...baseCRUD(controller, permitParams),
 
-  filter: params => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
+  moveBatch: (params) =>
+    AjaxCall('post', `/${controller}/batch_move.json`, params)
 }

@@ -231,11 +231,12 @@ class CollectingEvent < ApplicationRecord
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
 
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
-  has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy
-  has_many :collectors, through: :collector_roles, source: :person, inverse_of: :collecting_events
+  has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy, inverse_of: :role_object
+  has_many :collectors, -> { order('roles.position ASC') }, through: :collector_roles, source: :person, inverse_of: :collecting_events
+
   has_many :dwc_occurrences, through: :collection_objects, inverse_of: :collecting_event
 
-  # see also app/models/colelcting_event/georeference.rb for more has_many
+  # see also app/models/collecting_event/georeference.rb for more has_many
 
   has_many :otus, through: :collection_objects
 
@@ -572,7 +573,7 @@ class CollectingEvent < ApplicationRecord
         end
         return a
       end
-    rescue ActiveRecord::RecordInvalid # TODO: rescue only something!!
+    rescue ActiveRecord::RecordInvalid
       raise
     end
     false
@@ -769,10 +770,7 @@ class CollectingEvent < ApplicationRecord
   def get_geographic_name_classification
     case geographic_name_classification_method
     when :preferred_georeference
-      # quick
-      r = preferred_georeference.geographic_item.quick_geographic_name_hierarchy # almost never the case, UI not setup to do this
-      # slow
-      r = preferred_georeference.geographic_item.inferred_geographic_name_hierarchy if r == {} # therefor defaults to slow
+      r = preferred_georeference.geographic_item.geographic_name_hierarchy
     when :geographic_area_with_shape # geographic_area.try(:has_shape?)
       # very quick
       r = geographic_area.geographic_name_classification # do not round trip to the geographic_item, it just points back to the geographic area

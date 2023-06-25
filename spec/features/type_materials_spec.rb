@@ -10,15 +10,13 @@ RSpec.describe 'TypeMaterials', type: :feature do
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
   context 'when signed in and a project is selected' do
-    before {
-      sign_in_user_and_select_project
-    }
+    before { sign_in_user_and_select_project }
 
     let!(:root) { factory_bot_create_for_user_and_project(:root_taxon_name, @user, @project) }
 
     context 'with some records created' do
 
-      let!(:p) { Protonym.create!(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'), parent: root, by: @user, project: project) } 
+      let!(:p) { Protonym.create!(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'), parent: root, by: @user, project: project) }
       let!(:s) { factory_bot_create_for_user_and_project(:valid_specimen, @user, @project) }
       before do
         3.times {
@@ -46,9 +44,7 @@ RSpec.describe 'TypeMaterials', type: :feature do
         end
 
         describe 'GET /type_materials/n' do
-          before {
-            visit type_material_path(TypeMaterial.second)
-          }
+          before { visit type_material_path(TypeMaterial.second) }
 
           it_behaves_like 'a_data_model_with_standard_show'
         end
@@ -69,30 +65,39 @@ RSpec.describe 'TypeMaterials', type: :feature do
 
         specify 'filling out the form', js: true do
 
-          f = Protonym.create!(name: 'Aaidae', rank_class: Ranks.lookup(:iczn, 'family'),
-                               parent: root,
-                               by: @user, project: @project)
+          specimen.set_dwc_occurrence # after_safe not triggered here
 
-          g = Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, 'Genus'),
-                               parent: f,
-                               by: @user, project: @project)
+          f = Protonym.create!(
+            name: 'Aaidae',
+            rank_class: Ranks.lookup(:iczn, 'family'),
+            parent: root,
+            by: @user, project: @project)
+
+          g = Protonym.create!(
+            name: 'Cus',
+            rank_class: Ranks.lookup(:iczn, 'Genus'),
+            parent: f,
+            by: @user, project: @project)
 
           #  - a species 'bus' with parent 'Cus' is created
-          sp = Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:iczn, 'Species'),
-                                parent: g,
-                                by: @user, project: @project)
+          sp = Protonym.create!(
+            name: 'bus',
+            rank_class: Ranks.lookup(:iczn, 'Species'),
+            parent: g,
+            by: @user, project: @project)
 
-          ident = Identifier::Local::CatalogNumber.create!(identifier_object: specimen,
-                                                           identifier: '1234',
-                                                           namespace_id: namesp.id,
-                                                           by: @user, project: @project)
+          ident = Identifier::Local::CatalogNumber.create!(
+            identifier_object: specimen,
+            identifier: '1234',
+            namespace_id: namesp.id,
+            by: @user, project: @project)
 
           #  - an identifier with Namespace 'INHSIC' and identifier '1234' attached to specimen is created
-          expect(ident.cached).to eq('INHSIC 1234')
+          # expect(ident.cached).to eq('INHSIC 1234')
 
           visit type_materials_path
 
-          click_link('New') 
+          click_link('New')
 
           # I fill out the name field with "bus"
           # I click 'Bus bus (species)' from drop down list

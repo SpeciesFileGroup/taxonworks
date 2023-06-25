@@ -105,6 +105,7 @@ describe Identifier::Global, type: :model, group: :identifiers do
       VCR.use_cassette('non-responding URI') do
         global_identifier.soft_validate(only_sets: [:resolved])
       end
+      
       expect(global_identifier.soft_validations.messages_on(:identifier).count).to eq(1)
     end
   end

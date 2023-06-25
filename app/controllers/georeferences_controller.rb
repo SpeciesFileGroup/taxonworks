@@ -62,7 +62,7 @@ class GeoreferencesController < ApplicationController
   #        }
   #        format.json { render action: 'show', status: :created }
   #      else
-  #  
+  #
   #        format.html {
   #          if @georeference.method_name
   #            render "/georeferences/#{@georeference.method_name}/new"
@@ -70,11 +70,11 @@ class GeoreferencesController < ApplicationController
   #            if @georeference.collecting_event
   #              redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference not created, check verbatim values of collecting event'
   #            else
-  #              redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you recieved this message.'
+  #              redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you receive this message.'
   #            end
   #          end
   #        }
-  #  
+  #
   #        format.json { render json: @georeference.errors, status: :unprocessable_entity }
   #      end
   #    end

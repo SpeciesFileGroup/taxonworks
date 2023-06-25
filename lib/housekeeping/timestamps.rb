@@ -100,13 +100,13 @@ module Housekeeping::Timestamps
 
       if this_month > 0
         data.push({
-                    name: name.to_s.humanize,
-                    data: {
-                      'this week'  => this_week,
-                      today:       today,
-                      'this month' => this_month
-                    }
-                  })
+          name: name.to_s.humanize,
+          data: {
+            'this week'  => this_week,
+            today:       today,
+            'this month' => this_month
+          }
+        })
       end
     end
     data

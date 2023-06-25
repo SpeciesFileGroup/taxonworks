@@ -100,26 +100,26 @@ class Person < ApplicationRecord
 
   has_one :user, dependent: :restrict_with_error, inverse_of: :person
 
-  has_many :roles, dependent: :restrict_with_error, inverse_of: :person #, before_remove: :set_cached_for_related
+  has_many :roles, dependent: :restrict_with_error, inverse_of: :person # before_remove: :set_cached_for_related
 
   has_many :author_roles, class_name: 'SourceAuthor', dependent: :restrict_with_error, inverse_of: :person #, before_remove: :set_cached_for_related
-  has_many :editor_roles, class_name: 'SourceEditor', dependent: :restrict_with_error, inverse_of: :person
-  has_many :source_roles, class_name: 'SourceSource', dependent: :restrict_with_error, inverse_of: :person
   has_many :collector_roles, class_name: 'Collector', dependent: :restrict_with_error, inverse_of: :person
   has_many :determiner_roles, class_name: 'Determiner', dependent: :restrict_with_error, inverse_of: :person
-  has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', dependent: :restrict_with_error, inverse_of: :person
+  has_many :editor_roles, class_name: 'SourceEditor', dependent: :restrict_with_error, inverse_of: :person
   has_many :georeferencer_roles, class_name: 'Georeferencer', dependent: :restrict_with_error, inverse_of: :person
+  has_many :source_roles, class_name: 'SourceSource', dependent: :restrict_with_error, inverse_of: :person
+  has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', dependent: :restrict_with_error, inverse_of: :person
 
-  has_many :sources, through: :roles, source: :role_object, source_type: 'Source' # Editor or Author or Person
-
-  has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source'
-  has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source'
-  has_many :human_sources, through: :source_roles, source: :role_object, source_type: 'Source'
-
+  has_many :authored_sources, class_name: 'Source::Bibtex', through: :author_roles, source: :role_object, source_type: 'Source', inverse_of: :authors
+  has_many :edited_sources, class_name: 'Source::Bibtex', through: :editor_roles, source: :role_object, source_type: 'Source', inverse_of: :editors
+  has_many :human_sources, class_name: 'Source::Bibtex', through: :source_roles, source: :role_object, source_type: 'Source', inverse_of: :people
+  has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName', class_name: 'Protonym', inverse_of: :taxon_name_authors
   has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent', inverse_of: :collectors
+  has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference', inverse_of: :georeference_authors
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination', inverse_of: :determiners
-  has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName', inverse_of: :taxon_name_authors
-  has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference', inverse_of: :georeferencers
+
+  # TODO: !?
+  has_many :sources, through: :roles, source: :role_object, source_type: 'Source' # Editor or Author or Person
 
   has_many :collection_objects, through: :collecting_events
   has_many :dwc_occurrences, through: :collection_objects
