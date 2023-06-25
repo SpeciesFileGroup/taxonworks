@@ -33,7 +33,6 @@ class TaxonNameRelationshipsController < ApplicationController
 
   # GET /taxon_name_relationships/1/edit
   def edit
-    @taxon_name_relationship.source = Source.new if !@taxon_name_relationship.source
   end
 
   # POST /taxon_name_relationships

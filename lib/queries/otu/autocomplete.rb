@@ -27,6 +27,13 @@ module Queries
         .limit(10)
       end
 
+      def autocomplete_name_cutoff(rank = 1)
+        ::Otu
+        .select("otus.*, #{rank} AS rank, similarity('#{query_string}\', name) AS sml")
+        .where('name % ?', query_string)
+        .order('sml DESC, name')
+      end
+
       def autocomplete_name_only_cutoff(rank = 1)
         ::Otu
         .select("otus.*, #{rank} AS rank, similarity('#{query_string}\', name) AS sml")
@@ -85,7 +92,8 @@ module Queries
         # queries << autocomplete_named unless having_taxon_name_only
 
         queries += [
-          autocomplete_name_only_cutoff(1),
+          autocomplete_name_cutoff(1),
+          # autocomplete_name_only_cutoff(1),
           autocomplete_taxon_name_cached_cutoff(2),
 
           # autocomplete_name_only(3), <- always returns some record, which prevents New OTU

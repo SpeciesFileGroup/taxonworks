@@ -232,10 +232,11 @@ class CollectingEvent < ApplicationRecord
 
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy, inverse_of: :role_object
-  has_many :collectors, through: :collector_roles, source: :person, inverse_of: :collecting_events
+  has_many :collectors, -> { order('roles.position ASC') }, through: :collector_roles, source: :person, inverse_of: :collecting_events
+
   has_many :dwc_occurrences, through: :collection_objects, inverse_of: :collecting_event
 
-  # see also app/models/colelcting_event/georeference.rb for more has_many
+  # see also app/models/collecting_event/georeference.rb for more has_many
 
   has_many :otus, through: :collection_objects
 

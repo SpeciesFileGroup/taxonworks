@@ -32,7 +32,6 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/1/edit
   def edit
-    @taxon_name.source = Source.new if !@taxon_name.source
   end
 
   # POST /taxon_names

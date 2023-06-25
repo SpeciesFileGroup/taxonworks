@@ -1,5 +1,5 @@
 # A CachedMapItem is a summary of data from Georeferences and AssertedDistributions for mapping/visualization purposes.
-# 
+#
 # All data are `cached` sensu TaxonWorks, i.e. derived from underlying data elsewhere.  The intent is *not*
 # to preserve the origin of the data, but rather provide a tool to summarize in (at present) a *simple* visualization.
 #
