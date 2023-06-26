@@ -6,8 +6,10 @@ import deleteLoanItem from './deleteLoanItem'
 import loadLoan from './loadLoan'
 import loadLoanItems from './loadLoanItems'
 import updateLoanItem from './updateLoanItem'
+import cloneFrom from './cloneFrom'
 
 const ActionFunctions = {
+  [ActionNames.CloneFrom]: cloneFrom,
   [ActionNames.CreateLoan]: createLoan,
   [ActionNames.CreateBatchLoad]: createBatchLoad,
   [ActionNames.DeleteLoanItem]: deleteLoanItem,

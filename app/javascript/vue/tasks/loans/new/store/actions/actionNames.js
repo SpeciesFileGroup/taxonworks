@@ -1,4 +1,5 @@
 const ActionNames = {
+  CloneFrom: 'cloneFrom',
   LoadLoan: 'loadLoan',
   LoadLoanItems: 'loadLoanItems',
   CreateBatchLoad: 'createBatchLoad',

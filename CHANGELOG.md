@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add hyperlinks to OTU labels in Filter biological associations table [#3444]
 - Updated many relationships to validate based on presence of objects, rather than parameters [# ]
 - Simplified behavior of Otu and TaxonName autocomplete to use new fuzzier indicies
+- Clone loan button redirects to new loan task [#3462]
 
 ### Fixed
 
@@ -43,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3444]: https://github.com/SpeciesFileGroup/taxonworks/issues/3444
 [#3445]: https://github.com/SpeciesFileGroup/taxonworks/issues/3445
 [#3469]: https://github.com/SpeciesFileGroup/taxonworks/issues/3469
+[#3462]: https://github.com/SpeciesFileGroup/taxonworks/issues/3462
 
 ## [0.33.1] - 2023-05-25
 
