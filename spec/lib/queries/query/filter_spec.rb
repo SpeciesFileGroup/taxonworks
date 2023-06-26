@@ -8,7 +8,7 @@ end
 describe Queries::Query::Filter do
 
   let(:query) { Queries::Query::Filter.new({}) }
-  filters = ::Queries::Query::Filter.descendants 
+  filters = ::Queries::Query::Filter.descendants
 
   context 'PARAMS defined' do
     filters.each do |f|
@@ -18,7 +18,7 @@ describe Queries::Query::Filter do
     end
   end
 
-  # Check that the query cross-referencing in SUBQUERIES has
+  # Check that the query cross-referencing in SUBQUERY has
   # corresponding query facets in the filters.
   #
   # Inverse of below
@@ -36,7 +36,7 @@ describe Queries::Query::Filter do
   end
 
   # Check that the query methods in filters have
-  # corresponding references in SUBQUERIES
+  # corresponding references in SUBQUERY
   # Inverse of above
   context '_query_facet referenced in SUBQUERIES' do
     filters.each do |f|
@@ -58,7 +58,7 @@ describe Queries::Query::Filter do
 
       puts n
 
-      filter_name = n.split('.').first.tableize.singularize.to_sym 
+      filter_name = n.split('.').first.tableize.singularize.to_sym
 
       models = File.read(file)
       models =~ /.*\[(.*)\]/m
@@ -66,9 +66,12 @@ describe Queries::Query::Filter do
 
       # Ensure all Model.js constants match what is asserted in SUBQUERIES
       specify "#{n}" do
-        a = *::Queries::Query::Filter.inverted_subqueries[filter_name]  
+        a = *::Queries::Query::Filter.inverted_subqueries[filter_name]
         a.delete(:biological_associations_graph) if a # There is no BiologicalAssociationsGraph UI
-        a.delete(:dwc_occurrence) if a # ... or  DwcOccurrence 
+        a.delete(:dwc_occurrence) if a # ... or  DwcOccurrence
+        a.delete(:data_attribute) if a # etc
+        a.delete(:controlled_vocabulary_term) if a
+
         expect( query_names ).to contain_exactly( *a )
       end
     end

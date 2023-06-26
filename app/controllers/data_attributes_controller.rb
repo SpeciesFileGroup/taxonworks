@@ -20,6 +20,21 @@ class DataAttributesController < ApplicationController
     end
   end
 
+  def brief
+    q = ::Queries::DataAttribute::Filter.new(params)
+
+    @data = q.all.pluck('attribute_subject_id as object_id, controlled_vocabulary_term_id, value')
+    cols = @data.collect{|a| a[1]}.uniq
+    @columns = Predicate.where(project_id: sessions_current_project_id, id: cols).order(:name).pluck(:id, :name).inject([]){|ary, a| ary.push(a[0] => a[1]); ary}
+
+
+
+    # @columns = ::Queries::ControlledVocabularyTerm::Filter.new(
+    #  {data_attribute_query: q.params})
+    #  .all
+    #  .pluck(:id, :name)
+  end
+
   def api_index
     @data_attributes = Queries::DataAttribute::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
@@ -85,7 +100,7 @@ class DataAttributesController < ApplicationController
   # /data_attributes/batch_create.json?attribute_subject_type=Otu&attribute_subject_id[]=123&value=456
   def batch_create
     @data_attributes = InternalAttribute.batch_create(batch_data_attribute_params)
-    if @data_attributes.present? 
+    if @data_attributes.present?
       render '/data_attributes/index'
     else
       render json: { failed: true, status: :unprocessable_entity}
@@ -126,15 +141,15 @@ class DataAttributesController < ApplicationController
   end
 
   private
-  
+
   def value_autocomplete_params
     params.permit(:predicate_id).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def set_data_attribute
     @data_attribute = DataAttribute.find(params[:id])
-    if !@data_attribute.project_id.blank? && (sessions_current_project_id != @data_attribute.project_id)
-      render status: 404 and return
+    if @data_attribute.project_id.present? && (sessions_current_project_id != @data_attribute.project_id)
+      render status: :not_found and return
     end
   end
 
@@ -150,12 +165,12 @@ class DataAttributesController < ApplicationController
   end
 
   def batch_data_attribute_params
-    p = base_params 
+    p = base_params
     p << {attribute_subject_id: []}
     params.require(:data_attribute).permit(p)
   end
 
   def data_attribute_params
-    params.require(:data_attribute).permit(base_params) 
+    params.require(:data_attribute).permit(base_params)
   end
 end

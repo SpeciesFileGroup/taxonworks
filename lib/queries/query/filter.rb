@@ -13,6 +13,8 @@ module Queries
   #
   # Test coverage is currently in /spec/lib/queries/otu/filter_spec.rb.
   #
+  # !! When adding a new query tests do some linting of parameters, constants etc. Run them early and often !!
+  #
   class Query::Filter < Queries::Query
 
     include Queries::Concerns::Users
@@ -39,6 +41,8 @@ module Queries
       collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name],
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
       content: [:source, :otu, :taxon_name, :image],
+      controlled_vocabulary_term: [:data_attribute],
+      data_attribute: [:collection_object],
       dwc_occurrence: [:asserted_distribution, :collection_object],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
@@ -77,6 +81,8 @@ module Queries
       collecting_event_query: '::Queries::CollectingEvent::Filter',
       collection_object_query: '::Queries::CollectionObject::Filter',
       content_query: '::Queries::Content::Filter',
+      controlled_vocabulary_term_query: '::Queries::ControlledVocabularyTerm::Filter',
+      data_attribute_query: '::Queries::DataAttribute::Filter',
       descriptor_query: '::Queries::Descriptor::Filter',
       dwc_occurrence_query: '::Queries::DwcOccurrence::Filter',
       extract_query: '::Queries::Extract::Filter',
@@ -117,6 +123,9 @@ module Queries
     # @return [Query::BiologicalAssociationsGraph::Filter, nil]
     attr_accessor :biological_associations_graph_query
 
+    # @return [Query::ControlledVocabularyTerm::Filter, nil]
+    attr_accessor :controlled_vocabulary_term_query
+
     # @return [Query::TaxonName::Filter, nil]
     attr_accessor :collection_object_query
 
@@ -125,6 +134,9 @@ module Queries
 
     # @return [Query::Content::Filter, nil]
     attr_accessor :content_query
+
+    # @return [Query::DataAttribute::Filter, nil]
+    attr_accessor :data_attribute_query
 
     # @return [Query::Descriptor::Filter, nil]
     attr_accessor :descriptor_query
