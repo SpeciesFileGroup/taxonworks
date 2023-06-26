@@ -15,7 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Administrator dashboard for CachedMap status
 - New indices for some name/cached related fields (Otu, TaxonName, Source)
 - Batch update Geographic area radial to filter collecting events
-- Customized API version of  OTU autocomplete
+- Customized API version of OTU autocomplete
 
 ### Changed
 
@@ -36,11 +36,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Global identifiers resolve check not honouring HTTPS
 - Interactive keys were not properly scoping to projects in some cases
 - Annotations were sometimes added to objects that no longer existed [#3445]
+- Disable editing of imported rows in DwC importer task [#3469]
 
 [#3010]: https://github.com/SpeciesFileGroup/taxonworks/issues/3010
 [#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430
 [#3444]: https://github.com/SpeciesFileGroup/taxonworks/issues/3444
 [#3445]: https://github.com/SpeciesFileGroup/taxonworks/issues/3445
+[#3469]: https://github.com/SpeciesFileGroup/taxonworks/issues/3469
 
 ## [0.33.1] - 2023-05-25
 
