@@ -10,12 +10,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Added ranks for viruses
+- CachedMap framework - compute low-resolution maps quickly [#3010]
+- .json and .geojson endpoints implement CachedMaps at `/api/v1/otus/:id/inventory/distribution`
+- Administrator dashboard for CachedMap status
+- New indices for some name/cached related fields (Otu, TaxonName, Source)
+- Batch update Geographic area radial to filter collecting events
+- Customized API version of  OTU autocomplete
 
 ### Changed
 
 - Updated Ruby gems
 - Added date format recognition ####-##-## [#3453]
 - Add hyperlinks to OTU labels in Filter biological associations table [#3444]
+- Updated many relationships to validate based on presence of objects, rather than parameters [# ]
+- Simplified behavior of Otu and TaxonName autocomplete to use new fuzzier indicies
 
 ### Fixed
 
@@ -26,9 +34,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Repository selection does not appear in Filter Collection Objects [#3430]
 - Docker pointing to outdated base image.
 - Global identifiers resolve check not honouring HTTPS
+- Interactive keys were not properly scoping to projects in some cases
+- Annotations were sometimes added to objects that no longer existed [#3445]
 
+[#3010]: https://github.com/SpeciesFileGroup/taxonworks/issues/3010
 [#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430
 [#3444]: https://github.com/SpeciesFileGroup/taxonworks/issues/3444
+[#3445]: https://github.com/SpeciesFileGroup/taxonworks/issues/3445
 
 ## [0.33.1] - 2023-05-25
 
