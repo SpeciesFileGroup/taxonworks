@@ -58,6 +58,7 @@ scope :administration, controller: :administration do
   get 'data_health'
   get 'data_reindex'
   get 'data_class_summary'
+  get 'cached_maps_status'
 end
 
 resources :project_members, except: [:index] do

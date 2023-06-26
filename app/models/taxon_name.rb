@@ -222,7 +222,6 @@ class TaxonName < ApplicationRecord
   validates_presence_of :type, message: 'is not specified'
 
   validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}, allow_nil: true
-  validates :name, format: { without: /\s/ }
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
 
@@ -246,7 +245,7 @@ class TaxonName < ApplicationRecord
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error, inverse_of: :object_taxon_name
 
-  has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
+  has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy, inverse_of: :role_object
   has_many :taxon_name_authors, -> { order('roles.position ASC') }, through: :taxon_name_author_roles, source: :person
 
   # TODO: Combinations shouldn't have classifications or relationships?  Move to Protonym?
@@ -281,7 +280,7 @@ class TaxonName < ApplicationRecord
       )
   end
 
-  scope :with_type, -> (type) {where(type: type)}
+  scope :with_type, -> (type) {where(type:)}
   scope :descendants_of, -> (taxon_name) { with_ancestor(taxon_name )}
 
   scope :ancestors_of, -> (taxon_name) {
@@ -355,8 +354,8 @@ class TaxonName < ApplicationRecord
   }
 
   # TODO: deprecate all of these for where()
-  scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
-  scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
+  scope :with_parent_id, -> (parent_id) {where(parent_id:)}
+  scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id:)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
 
   scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
@@ -549,7 +548,7 @@ class TaxonName < ApplicationRecord
   # @see .out_of_scope_combinations
   def out_of_scope_combinations
     ::TaxonName
-      .where(project_id: project_id)
+      .where(project_id:)
       .out_of_scope_combinations(id)
   end
 
@@ -633,7 +632,9 @@ class TaxonName < ApplicationRecord
   # @return String, nil
   #   virtual attribute, to ultimately be fixed in db
   def get_author
-    cached_author_year&.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '')
+    a = cached_author_year.to_s.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '')
+    a = a.gsub('(', '') if a.starts_with?('(') && !a.include?(')')
+    return a
   end
 
   # !! Overrides Shared::Citations#nomenclature_date
@@ -642,6 +643,7 @@ class TaxonName < ApplicationRecord
   #   effective date of publication, used to determine nomenclatural priority
   def nomenclature_date
     return nil if !persisted?
+    #return nil if TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING).any?
     family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
 
     # family_before_1961 = taxon_name_relationships.with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
@@ -1067,7 +1069,7 @@ class TaxonName < ApplicationRecord
 
 
   # @return [Array]
-  #   of TaxonName 
+  #   of TaxonName
   #   same as self.ancestors.to_a, but also works
   #    for new records when parents specified
   def ancestors_through_parents(result = [self], start = self)
@@ -1371,7 +1373,7 @@ class TaxonName < ApplicationRecord
           ay = '(' + ay + ')' if !ay.empty? && og.normalized_genus.id != cg.normalized_genus.id
         end
       end
-    elsif FAMILY_RANK_NAMES_ICZN.include?(taxon.rank_string) && !y.empty? && cached_nomenclature_date&.year != y.first
+    elsif FAMILY_RANK_NAMES_ICZN.include?(taxon.rank_string) && !y.empty? && cached_nomenclature_date&.year != y.first && !mobj.present?
       ay = ay + ' [' + cached_nomenclature_date&.year.to_s + ']'
     end
 
@@ -1405,7 +1407,7 @@ class TaxonName < ApplicationRecord
 
   # TODO: this should be paginated, not all IDs!
   def next_sibling
-    if siblings.where(project_id: project_id).any?
+    if siblings.where(project_id:).any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
       s = sibs.index(id)
       TaxonName.find(sibs[ s + 1] ) if s < sibs.length - 1
@@ -1416,7 +1418,7 @@ class TaxonName < ApplicationRecord
 
   # TODO: this should be paginated, not all IDs!
   def previous_sibling
-    if siblings.where(project_id: project_id).any?
+    if siblings.where(project_id:).any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
 
       s = sibs.index(id)
@@ -1427,13 +1429,13 @@ class TaxonName < ApplicationRecord
   end
 
   def create_otu
-    Otu.create(by: creator, project_id: project_id, taxon_name_id: id)
+    Otu.create(by: creator, project_id:, taxon_name_id: id)
   end
 
   # @return [Scope]
   #   All taxon names attached to relationships recently created by user
   def self.used_recently_in_classifications(user_id, project_id)
-    TaxonName.where(project_id: project_id, updated_by_id: user_id)
+    TaxonName.where(project_id:, updated_by_id: user_id)
       .joins(:taxon_name_classifications)
       .includes(:taxon_name_classifications)
       .where(taxon_name_classifications: { updated_at: 1.week.ago..Time.now } )
@@ -1455,7 +1457,7 @@ class TaxonName < ApplicationRecord
            .or( t2[:updated_at].between( 1.week.ago..Time.now ) ).to_sql
 
          TaxonName.with_taxon_name_relationships
-           .where(taxon_names: {project_id: project_id})
+           .where(taxon_names: {project_id:})
            .where(sql2)
            .where(sql)
            .order('taxon_names.updated_at DESC') ## needs optimisation. Does not sort by TNR date
@@ -1466,12 +1468,12 @@ class TaxonName < ApplicationRecord
     klass, a,b,c = nil, nil, nil, nil
     if target == 'TypeMaterial'
       klass = Protonym
-      a = klass.is_species_group.touched_by(user_id).where(project_id: project_id).order(updated_at: :desc).limit(6).to_a
+      a = klass.is_species_group.touched_by(user_id).where(project_id:).order(updated_at: :desc).limit(6).to_a
       b = used_recently_in_classifications(user_id, project_id).is_species_group.where(type: klass.name).limit(6).to_a
       c = used_recently_in_relationships(user_id, project_id).is_species_group.where(type: klass.name).limit(6).to_a
     else
       klass = TaxonName
-      a = klass.touched_by(user_id).where(project_id: project_id).order(updated_at: :desc).limit(6).to_a
+      a = klass.touched_by(user_id).where(project_id:).order(updated_at: :desc).limit(6).to_a
       b = used_recently_in_classifications(user_id, project_id).where(type: klass.name).limit(6).to_a
       c = used_recently_in_relationships(user_id, project_id).where(type: klass.name).limit(6).to_a
     end
@@ -1496,7 +1498,7 @@ class TaxonName < ApplicationRecord
   # the hash corresponding to the keyword used in this tag if it exists
   # !! Assumes it can only be in one matrix, this is wrong !!
   def matrix_row_item
-    mri = ObservationMatrixRowItem::TaxonNameRowItem.where(taxon_name_id: id, project_id: project_id).limit(1)
+    mri = ObservationMatrixRowItem::TaxonNameRowItem.where(taxon_name_id: id, project_id:).limit(1)
 
     if mri.any?
       return { matrix_row_item: mri.first, object: taxon_name }
@@ -1522,7 +1524,7 @@ class TaxonName < ApplicationRecord
     @result = {
       failed: 0,
       passed: 0,
-      kind: kind
+      kind:
     }
 
     case kind
@@ -1572,7 +1574,7 @@ class TaxonName < ApplicationRecord
 
   def validate_one_root_per_project
     if new_record? || parent_id_changed? # project_id !?@
-      if !parent_is_set? && TaxonName.where(parent_id: nil, project_id: project_id).count > 0
+      if !parent_is_set? && TaxonName.where(parent_id: nil, project_id:).count > 0
         errors.add(:parent_id, 'should not be empty/only one root is allowed per project')
       end
     end

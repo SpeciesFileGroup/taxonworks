@@ -7,7 +7,42 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- Added ranks for viruses
+- CachedMap framework - compute low-resolution maps quickly [#3010]
+- .json and .geojson endpoints implement CachedMaps at `/api/v1/otus/:id/inventory/distribution`
+- Administrator dashboard for CachedMap status
+- New indices for some name/cached related fields (Otu, TaxonName, Source)
+- Batch update Geographic area radial to filter collecting events
+- Customized API version of OTU autocomplete
+
+### Changed
+
+- Updated Ruby gems
+- Added date format recognition ####-##-## [#3453]
+- Add hyperlinks to OTU labels in Filter biological associations table [#3444]
+- Updated many relationships to validate based on presence of objects, rather than parameters [# ]
+- Simplified behavior of Otu and TaxonName autocomplete to use new fuzzier indicies
+
+### Fixed
+
+- DWCA Importer: Geographic Areas not imported [#1852]
+- Error on catalog_helper: history_other_name
+- Error on taxon_name_relationship on rank_name.
+- Create new asserted distribution when `is_absent` is checked in New asserted distribution task
+- Repository selection does not appear in Filter Collection Objects [#3430]
+- Docker pointing to outdated base image.
+- Global identifiers resolve check not honouring HTTPS
+- Interactive keys were not properly scoping to projects in some cases
+- Annotations were sometimes added to objects that no longer existed [#3445]
+- Disable editing of imported rows in DwC importer task [#3469]
+
+[#3010]: https://github.com/SpeciesFileGroup/taxonworks/issues/3010
+[#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430
+[#3444]: https://github.com/SpeciesFileGroup/taxonworks/issues/3444
+[#3445]: https://github.com/SpeciesFileGroup/taxonworks/issues/3445
+[#3469]: https://github.com/SpeciesFileGroup/taxonworks/issues/3469
 
 ## [0.33.1] - 2023-05-25
 
@@ -20,6 +55,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Autocomplete requests optimized by speed
 - NOMEN batch importer treats authors only as verbvatim, Roles are no longer created.
+- Upgraded to Node 18 LTS
 
 ### Fixed
 
@@ -3660,7 +3696,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-
 [unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.33.1...development
 [0.33.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.33.0...v0.33.1
 [0.33.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.3...v0.33.0

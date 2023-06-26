@@ -26,12 +26,28 @@
           </label>
         </li>
       </template>
-      <template #nav-right>
-        <RadialFilter
-          object-type="CollectingEvent"
-          :disabled="!selectedIds.length"
-          :parameters="{ collecting_event_id: selectedIds }"
+
+      <template #nav-query-right>
+        <RadialCollectingEvent
+          :disabled="!list.length"
+          :parameters="parameters"
+          :count="pagination?.total || 0"
         />
+      </template>
+
+      <template #nav-right>
+        <div class="horizontal-right-content">
+          <RadialCollectingEvent
+            :disabled="!list.length"
+            :ids="selectedIds"
+            :count="selectedIds.length"
+          />
+          <RadialFilter
+            object-type="CollectingEvent"
+            :disabled="!selectedIds.length"
+            :parameters="{ collecting_event_id: selectedIds }"
+          />
+        </div>
       </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
@@ -71,6 +87,7 @@ import RadialFilter from 'components/radials/linker/radial.vue'
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
+import RadialCollectingEvent from 'components/radials/ce/radial.vue'
 import { COLLECTING_EVENT } from 'constants/index.js'
 import { computed, ref, reactive } from 'vue'
 import { chunkArray, sortArray } from 'helpers/arrays'

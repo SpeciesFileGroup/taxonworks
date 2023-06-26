@@ -27,7 +27,7 @@ RSpec.describe Documentation, type: :model, group: :documentation do
 
       specify 'invalid documentation_object params are caught by #around_save' do
         expect(documentation.save).to be_falsey
-        expect(documentation.errors.include?(:base)).to be_truthy
+        expect(documentation.errors.include?(:documentation_object)).to be_truthy
       end
     end
   end

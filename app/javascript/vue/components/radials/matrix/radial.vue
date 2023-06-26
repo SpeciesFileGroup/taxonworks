@@ -7,7 +7,7 @@
         @close="closeModal()"
       >
         <template #header>
-          <h3>Radial matrix</h3>
+          <h3>Add selected/results to a matrix</h3>
         </template>
         <template #body>
           <div class="flex-separate">
@@ -71,8 +71,8 @@ import { ID_PARAM_FOR } from 'components/radials/filter/constants/idParams.js'
 
 const EXCLUDE_PARAMETERS = ['per', 'extend', 'page']
 const SLICES = {
-  Add: AddSlice,
-  New: AddNewSlice
+  'Add to an existing matrix': AddSlice,
+  'Add to a new matrix': AddNewSlice
 }
 
 defineOptions({

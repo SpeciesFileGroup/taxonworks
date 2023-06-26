@@ -55,7 +55,7 @@ describe AlternateValue, group: :annotators do
         alternate_value.type = 'AlternateValue::Abbreviation'
         alternate_value.value = 'asdf'
         alternate_value.alternate_value_object_attribute = 'name'
-        expect{alternate_value.save}.to raise_error ActiveRecord::StatementInvalid
+        expect(alternate_value.valid?).to be_falsey
       end
 
       specify 'alternate_value_object_attribute' do
@@ -172,6 +172,7 @@ describe AlternateValue, group: :annotators do
         expect(alternate_value.project_id).to eq(nil)
       end
 
+      # TODO: remove Current.project_id
       specify 'when using <<' do
         o    = FactoryBot.create(:valid_serial, name: 'The Serial')
         altv = AlternateValue.new(

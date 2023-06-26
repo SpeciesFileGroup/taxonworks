@@ -9,18 +9,21 @@ module Queries
     attr_accessor :project_id
 
     # @return [String, nil]
-    #   the initial, unparsed value
+    #   the initial, unparsed value, sanitized
     attr_accessor :query_string
 
     # Unused, to be used in future
     # limit based on size and potentially properties of terms
     attr_accessor :dynamic_limit
 
+    # TODO: add mode
+    # attr_accessor :mode
+
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
       @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
       @project_id = project_id
-      build_terms
+      build_terms # TODO - should remove this for accessors
     end
 
     def project_id
@@ -140,6 +143,8 @@ module Queries
         nil
       end
     end
+
+
 
     # @return [Arel::Nodes::Matches]
     def named
@@ -279,6 +284,19 @@ module Queries
       return nil if no_terms?
       base_query.joins(:common_names).where(common_name_wild_pieces.to_sql).limit(5)
     end
+
+    # TODO: not used
+    # @return [Arel:Nodes]
+    # def or_and
+    #   a = or_clauses
+    #   b = and_clauses
+
+    #   if a && b
+    #     a.and(b)
+    #   else
+    #     a
+    #   end
+    # end
 
   end
 end

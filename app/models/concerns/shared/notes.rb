@@ -7,7 +7,7 @@ module Shared::Notes
     Note.related_foreign_keys.push self.name.foreign_key
 
     # Validation happens on the parent side!
-    has_many :notes, as: :note_object, validate: true, dependent: :destroy
+    has_many :notes, as: :note_object, validate: true, dependent: :destroy, inverse_of: :note_object
 
     accepts_nested_attributes_for :notes, reject_if: :reject_notes, allow_destroy: true
   end

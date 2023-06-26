@@ -55,7 +55,6 @@
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RowItem from 'components/Filter/Facets/shared/RowItem.vue'
 import DisplayList from 'components/displayList.vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { TaxonName } from 'routes/endpoints'
 import { ref, computed, onBeforeMount, watch } from 'vue'
 import { removeFromArray } from 'helpers/arrays'
@@ -95,8 +94,16 @@ const subjectIds = computed({
   }
 })
 
+const taxonNameId = computed(() => {
+  if (!params.value.taxon_name_id) return []
+
+  return Array.isArray(params.value.taxon_name_id)
+    ? params.value.taxon_name_id
+    : [params.value.taxon_name_id]
+})
+
 const bothIds = computed({
-  get: () => params.value.taxon_name_id || [],
+  get: () => taxonNameId.value,
   set: (value) => {
     params.value.taxon_name_id = value
   }
@@ -141,21 +148,19 @@ function removeTaxonName(taxonName) {
 }
 
 onBeforeMount(() => {
-  const urlParams = URLParamsToJSON(location.href)
-
-  urlParams.subject_taxon_name_id?.forEach((id) => {
+  params.value.subject_taxon_name_id?.forEach((id) => {
     TaxonName.find(id).then(({ body }) => {
       addTaxonName({ ...body, isSubject: true })
     })
   })
 
-  urlParams.object_taxon_name_id?.forEach((id) => {
+  params.value.object_taxon_name_id?.forEach((id) => {
     TaxonName.find(id).then(({ body }) => {
       addTaxonName({ ...body, isSubject: false })
     })
   })
 
-  urlParams.taxon_name_id?.forEach((id) => {
+  taxonNameId.value.forEach((id) => {
     TaxonName.find(id).then(({ body }) => {
       addTaxonName({ ...body, isSubject: undefined })
     })

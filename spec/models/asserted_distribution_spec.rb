@@ -7,6 +7,11 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
   let(:otu) { FactoryBot.create(:valid_otu) }
   let(:geographic_area) { FactoryBot.create(:valid_geographic_area) }
 
+  specify '#destroy' do
+    a = FactoryBot.create(:valid_asserted_distribution)
+    expect(a.destroy).to be_truthy
+  end
+
   context 'associations' do
     context 'belongs_to' do
       specify 'otu' do
@@ -33,10 +38,10 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     end
 
     context 'a citation is required' do
-      before {
+      before do
         asserted_distribution.geographic_area = geographic_area
         asserted_distribution.otu = otu
-      }
+      end
 
       specify 'absence of #source, #origin_citation, #citations invalidates' do
         expect(asserted_distribution.valid?).to be_falsey
@@ -50,33 +55,33 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       end
 
       specify 'providing #origin_citation validates' do
-        asserted_distribution.origin_citation = Citation.new(source: source)
+        asserted_distribution.origin_citation = Citation.new(source:)
         expect(asserted_distribution.save).to be_truthy
         expect(asserted_distribution.citations.count).to eq(1)
       end
 
       specify 'providing a citation with #citations_attributes validates' do
-        asserted_distribution.citations_attributes = [{source: source}]
+        asserted_distribution.citations_attributes = [{source:}]
         expect(asserted_distribution.save).to be_truthy
         expect(asserted_distribution.citations.count).to eq(1)
       end
 
       specify 'providing a citation with #citations.build validates' do
-        asserted_distribution.citations.build(source: source)
+        asserted_distribution.citations.build(source:)
         expect(asserted_distribution.save).to be_truthy
         expect(asserted_distribution.citations.count).to eq(1)
       end
 
       specify 'providing a citation with #citations <<  validates' do
-        asserted_distribution.citations << Citation.new(source: source)
+        asserted_distribution.citations << Citation.new(source:)
         expect(asserted_distribution.save).to be_truthy
         expect(asserted_distribution.citations.count).to eq(1)
       end
 
       specify 'all attributes with #new validates' do
         a = AssertedDistribution.new(
-          otu: otu,
-          geographic_area: geographic_area,
+          otu:,
+          geographic_area:,
           citations_attributes: [{source_id: source.id}])
         expect(a.save).to be_truthy
         expect(a.citations.count).to eq(1)
@@ -91,7 +96,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         end
 
         specify 'when citation is not origin citation' do
-          asserted_distribution.citations << Citation.new(source: source)
+          asserted_distribution.citations << Citation.new(source:)
           expect(asserted_distribution.save).to be_truthy
           expect(asserted_distribution.citations.count).to eq(1)
           expect(asserted_distribution.citations.reload.first.destroy).to be_falsey
@@ -113,17 +118,16 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     context 'is_absent' do
       before do
         asserted_distribution.update!(
-          otu: otu,
-          geographic_area: geographic_area,
+          otu:,
+          geographic_area:,
           citations_attributes: [{source_id: source.id}]
         )
       end
 
       specify 'is allowed with identical' do
-        expect( AssertedDistribution.create!(otu: otu, geographic_area: geographic_area, is_absent: true, citations_attributes: [{source_id: source.id}])).to be_truthy
+        expect( AssertedDistribution.create!(otu:, geographic_area:, is_absent: true, citations_attributes: [{source_id: source.id}])).to be_truthy
       end
     end
-
   end
 
   context 'soft validation' do

@@ -8,7 +8,7 @@ module Shared::Labels
     ::Label.related_foreign_keys.push self.name.foreign_key
 
     # Validation happens on the parent side!
-    has_many :labels, as: :label_object, validate: true, dependent: :destroy
+    has_many :labels, as: :label_object, validate: true, dependent: :destroy, inverse_of: :label_object
     accepts_nested_attributes_for :labels, reject_if: :reject_labels, allow_destroy: true
 
     protected

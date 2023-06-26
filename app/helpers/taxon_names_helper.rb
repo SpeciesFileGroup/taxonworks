@@ -25,6 +25,7 @@ module TaxonNamesHelper
       taxon_name_parent_tag(taxon_name),
       taxon_name_original_combination_tag(taxon_name),
       taxon_name_type_short_tag(taxon_name)
+      # " [#{taxon_name.sml_t}]"
     ].compact.join('&nbsp;').html_safe
   end
 
@@ -70,7 +71,7 @@ module TaxonNamesHelper
   # @return [String]
   #  the name in original combination, with author year, with HTML
   def full_original_taxon_name_tag(taxon_name)
-    return nil if taxon_name.nil? 
+    return nil if taxon_name.nil?
     [ original_taxon_name_tag(taxon_name),
       history_author_year_tag(taxon_name)
     ].compact.join(' ').html_safe
@@ -78,12 +79,12 @@ module TaxonNamesHelper
 
   # @return [String, nil]
   #  if no cached_original_combination is defined return nothing
-  # !! This is used in taxon_name attributes now!   
+  # !! This is used in taxon_name attributes now!
   # TODO: Refactor our logic for display contexts and value contexts
   # to better reflect presence of data vs. utility of report.
   def defined_full_original_taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?  || taxon_name.cached_original_combination_html.blank?
-    full_original_taxon_name_tag(taxon_name) 
+    full_original_taxon_name_tag(taxon_name)
   end
 
   # @return [String]
@@ -120,7 +121,7 @@ module TaxonNamesHelper
   def taxon_name_short_status(taxon_name)
     if taxon_name.is_combination?
       n = taxon_name.finest_protonym
-      s = ["This name is subsequent combination of"]
+      s = ['This name is subsequent combination of']
       if n.is_valid?
         s += [
           link_to(original_taxon_name_tag(n), browse_nomenclature_task_path(taxon_name_id: n.id)),
@@ -131,7 +132,7 @@ module TaxonNamesHelper
         s += [
           original_taxon_name_tag(n),
           history_author_year_tag(n),
-          "whose valid/accepted name is",
+          'whose valid/accepted name is',
           link_to(taxon_name_tag(v), browse_nomenclature_task_path(taxon_name_id: v.id) ),
           v.cached_author_year
         ]
@@ -362,6 +363,26 @@ module TaxonNamesHelper
     else
       content_tag(:em, 'There are no Otus linked to this name.')
     end
+  end
+
+  def taxon_name_inventory_stats(taxon_name)
+
+    d = {
+      taxa: {},
+      names: {}
+    }
+
+    ::Queries::TaxonName::Filter.new(synonymify: true, descendants: true, taxon_name_id: taxon_name.id).all.select(:rank_klass).distinct.pluck(:rank_class).compact.each do |r|
+      n = r.safe_constantize.rank_name.to_sym
+      d[:names][n] = {}
+
+      d[:names][n][:valid] = ::Queries::TaxonName::Filter.new(validity: true, descendants: true, synonymify: true, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
+      d[:names][n][:invalid] = ::Queries::TaxonName::Filter.new(validity: false, descendants: true, synonymify: true, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
+
+      d[:taxa].merge!(n => ::Queries::Otu::Filter.new(taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym'} ).all.count  )
+    end
+
+    d
   end
 
   protected
