@@ -91,6 +91,11 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
       end
       oc_index = records_lut[record[:src_data]['originalNameUsageID']][:index]
 
+      # misspellings are treated as separate protonyms, so don't bundle them in original combination with the correct spelling
+      if record[:src_data]['taxonomicStatus'] == 'misspelling'
+        oc_index = index
+      end
+
       original_combination_groups[oc_index] ||= []
       original_combination_groups[oc_index] << index
 
