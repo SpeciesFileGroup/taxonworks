@@ -579,7 +579,7 @@ namespace :tw do
 
             # project = Project.new(name: "#{website_name}_species_file(#{Time.now})", without_root_taxon_name: true)
             project = Project.new(
-                name: "#{website_name}_species_file(#{Time.now})"
+                name: "#{website_name}_species_file(#{ENV['DATA_TIMESTAMP'] || Time.now})"
             )
 
             # byebug
