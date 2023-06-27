@@ -4,7 +4,7 @@ json.partial! '/shared/data/all/metadata', object: collection_object
 
 if extend_response_with('dwc_occurrence')
   json.dwc_occurrence do
-    json.merge!(collection_object.dwc_occurrence_attributes.select{|k,v| v.present?} )
+    json.merge!(collection_object.dwc_occurrence.attributes.select{|k,v| v.present?} )
   end
 end
 
