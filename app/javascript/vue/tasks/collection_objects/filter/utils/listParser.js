@@ -22,7 +22,7 @@ export async function listParser(list, { parameters }) {
   const { body } = await DataAttribute.brief({
     collection_object_query: {
       ...rest,
-      pagination: true
+      paginate: true
     }
   })
 
