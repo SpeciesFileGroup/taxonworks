@@ -42,7 +42,7 @@ module Queries
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
       content: [:source, :otu, :taxon_name, :image],
       controlled_vocabulary_term: [:data_attribute],
-      data_attribute: [:collection_object],
+      data_attribute: [:collection_object, :collecting_event, :taxon_name],
       dwc_occurrence: [:asserted_distribution, :collection_object],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
@@ -595,7 +595,7 @@ module Queries
       end
 
       if paginate
-        q = q.order(:id).page(page).per(per)
+        q = q.page(page).per(per)
       end
 
       q
