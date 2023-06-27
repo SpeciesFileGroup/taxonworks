@@ -5,11 +5,33 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
+  context 'pagination' do
+    before { 3.times { FactoryBot.create(:valid_specimen) } }
+
+    specify 'paginate' do
+      h = { paginate: nil, per: 1 }
+      q = Queries::CollectionObject::Filter.new(h)
+      expect(q.all.size).to eq(3) # no pagination, get everything
+    end
+
+   specify 'page 1' do
+      h = { paginate: true, per: 1, page: 3}
+      q = Queries::CollectionObject::Filter.new(h)
+      expect(q.all.order(:id).all.last).to eq(Specimen.last)
+    end
+
+    specify 'per' do
+      h = { paginate: true, per: 1 }
+      q = Queries::CollectionObject::Filter.new(h)
+      expect(q.all.size).to eq(1)
+    end
+  end
+
   specify 'CollectingEvent params are permitted' do
     h = {geographic_area_id: 1 }
     p = ActionController::Parameters.new(h)
     q = Queries::CollectionObject::Filter.new(p)
-    
+
     expect(q.base_collecting_event_query.geographic_area_id).to eq([1])
   end
 
@@ -544,7 +566,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       co1.set_dwc_occurrence
       query.dwc_indexed = true
       query.user_date_end = 1.day.ago.to_date.to_s
-      query.user_date_start = 2.day.ago.to_date.to_s
+      query.user_date_start = 2.days.ago.to_date.to_s
       expect(query.all.pluck(:id)).to contain_exactly()
     end
 
@@ -575,7 +597,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       let!(:point_georeference) {
         Georeference::VerbatimData.create!(
           collecting_event: ce1,
-          geographic_item: geographic_item,
+          geographic_item:,
         )
       }
 

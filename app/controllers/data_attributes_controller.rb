@@ -27,8 +27,6 @@ class DataAttributesController < ApplicationController
     cols = @data.collect{|a| a[1]}.uniq
     @columns = Predicate.where(project_id: sessions_current_project_id, id: cols).order(:name).pluck(:id, :name).inject([]){|ary, a| ary.push(a[0] => a[1]); ary}
 
-
-
     # @columns = ::Queries::ControlledVocabularyTerm::Filter.new(
     #  {data_attribute_query: q.params})
     #  .all

@@ -99,6 +99,20 @@ module Queries
     # @param project_id [Array, Integer]
     attr_accessor :project_id
 
+    # Apply pagination within Filter scope
+    #   true - apply per and page
+    #   false, nil - ignored
+    attr_accessor :paginate
+
+    # @return Integer, nil
+    #   required if paginate == true
+    attr_accessor :page
+
+    # @return Integer, nil
+    #   paginate must equal true
+    #   page must be !nil?
+    attr_accessor :per
+
     # @return [Array]
     # @params object_global_id
     #   Rails global ids.
@@ -190,6 +204,10 @@ module Queries
        # Ideally we'd have a global class param that stores this that all Filters would have access to,
        # rather than an instance variable.
       @project_id = query_params[:project_id] || Current.project_id
+
+      @paginate = boolean_param(query_params, :paginate)
+      @per = query_params[:per]
+      @page = query_params[:page]
 
       # After this point, if you started with ActionController::Parameters,
       # then all values have been explicitly permitted.
@@ -359,7 +377,6 @@ module Queries
           h.last.delete_if{|k,v| a == k }
         end
       end
-
 
       h
     end
@@ -569,6 +586,11 @@ module Queries
       if recent
         q = referenced_klass.from(q.all, table.name).order(updated_at: :desc)
       end
+
+      if paginate
+        q = q.page(page).per(per)
+      end
+
       q
     end
 
