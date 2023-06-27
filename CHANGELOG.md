@@ -38,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Interactive keys were not properly scoping to projects in some cases
 - Annotations were sometimes added to objects that no longer existed [#3445]
 - Disable editing of imported rows in DwC importer task [#3469]
+- Fixed URL hostname string matching in some places.
 
 [#3010]: https://github.com/SpeciesFileGroup/taxonworks/issues/3010
 [#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430

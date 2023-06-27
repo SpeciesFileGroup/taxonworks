@@ -48,7 +48,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
           uri = klass.nomen_uri
           expect(uri.empty?).to be_falsey, "NOMEN_URI for #{klass.name} is empty!"
           expect(nomen_uris.include?(uri)).to be(false), "#{uri} from #{klass.name} is duplicated!"
-          expect(uri).to match(/http:\/\/purl.obolibrary.org\/obo\/NOMEN/), "#{uri} from #{klass.name} is invalid!"
+          expect(uri).to match(/^http:\/\/purl\.obolibrary\.org\/obo\/NOMEN\/?/), "#{uri} from #{klass.name} is invalid!"
           nomen_uris.push uri
         end
       end
