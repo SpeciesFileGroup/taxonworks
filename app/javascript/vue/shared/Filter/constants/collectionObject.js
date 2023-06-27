@@ -7,7 +7,5 @@ export const COLLECTION_OBJECT_PROPERTIES = [
   'buffered_other_labels',
   'accessioned_at',
   'deaccession_reason',
-  'deaccessioned_at',
-  'object_tag',
-  'object_label'
+  'deaccessioned_at'
 ]
