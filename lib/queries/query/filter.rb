@@ -315,7 +315,7 @@ module Queries
     # That profile is then used in the actual .permit() call.
     #
     # An alternate solution, first tried, is to permit the params directly
-    # during inspection for subquries.  This also would work, however there are
+    # during inspection for subqueries.  This also would work, however there are
     # some nice benefits to having a profile of the allowed params available as an Array,
     # for example we can use it for API documentation a little easier(?!).
     #
@@ -331,6 +331,9 @@ module Queries
     # any parameter set for the query.
     def permitted_params(hsh)
       h = self.class::PARAMS.deep_dup
+      h.unshift(:per)
+      h.unshift(:page)
+      h.unshift(:paginate)
 
       if !h.last.kind_of?(Hash)
         h << {}
@@ -354,6 +357,10 @@ module Queries
 
         q = FILTER_QUERIES[a].safe_constantize
         p = q::PARAMS.deep_dup
+
+        p.unshift(:per)
+        p.unshift(:page)
+        p.unshift(:paginate)
 
         if !p.last.kind_of?(Hash)
           p << {}

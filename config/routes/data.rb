@@ -220,6 +220,7 @@ resources :data_attributes, except: [:show] do
     post :batch_create, defaults: {format: :json}
     get 'value_autocomplete', defaults: {format: :json}
     get :brief, defaults: {format: :json}
+    post :brief, defaults: {format: :json} # for length
   end
 end
 
