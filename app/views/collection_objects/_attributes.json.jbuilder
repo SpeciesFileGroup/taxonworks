@@ -8,7 +8,7 @@ if extend_response_with('dwc_occurrence')
   end
 end
 
-if extend_response_with('collecting_event')  && collection_object.collecting_event.present?
+if extend_response_with('collecting_event') && collection_object.collecting_event.present?
   json.collecting_event do
     json.partial! '/collecting_events/attributes', collecting_event: collection_object.collecting_event, extensions: false
   end
