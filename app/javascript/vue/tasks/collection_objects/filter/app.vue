@@ -11,8 +11,8 @@
       :extend-download="extendDownload"
       v-model="parameters"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -96,6 +96,8 @@ const extend = [
   'identifiers'
 ]
 
+const exclude = ['object_labels']
+
 const { currentLayout } = useLayoutConfiguration(LAYOUTS)
 
 const {
@@ -109,7 +111,10 @@ const {
   selectedIds,
   makeFilterRequest,
   resetFilter
-} = useFilter(CollectionObject, { initParameters: { extend }, listParser })
+} = useFilter(CollectionObject, {
+  initParameters: { extend, exclude },
+  listParser
+})
 
 const extendDownload = computed(() => [
   {
