@@ -18,5 +18,7 @@ export const DataAttribute = {
   ...baseCRUD(controller, permitParams),
 
   createBatch: (params) =>
-    ajaxCall('post', `/${controller}/batch_create`, params)
+    ajaxCall('post', `/${controller}/batch_create`, params),
+
+  brief: (params) => ajaxCall('get', `/${controller}/brief.json`, { params })
 }

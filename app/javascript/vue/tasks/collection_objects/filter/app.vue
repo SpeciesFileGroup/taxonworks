@@ -91,7 +91,6 @@ const extend = [
   'dwc_occurrence',
   'repository',
   'current_repository',
-  'data_attributes',
   'collecting_event',
   'taxon_determinations',
   'identifiers'

@@ -26,8 +26,10 @@ export default function (service, { listParser, initParameters } = {}) {
 
     return service
       .filter(payload)
-      .then((response) => {
-        const result = listParser ? listParser(response.body) : response.body
+      .then(async (response) => {
+        const result = listParser
+          ? await listParser(response.body, { parameters: state.parameters })
+          : response.body
 
         if (state.append) {
           let concat = result.concat(state.list)
