@@ -27,7 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clone loan button redirects to new loan task [#3462]
 
 ### Fixed
-
+- Going from Image filter to others could result in duplicated rows
 - DWCA Importer: Geographic Areas not imported [#1852]
 - Error on catalog_helper: history_other_name
 - Error on taxon_name_relationship on rank_name.
