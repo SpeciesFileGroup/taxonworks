@@ -23,14 +23,9 @@ class DataAttributesController < ApplicationController
   def brief
     q = ::Queries::DataAttribute::Filter.new(params)
 
-    @data = q.all.pluck('attribute_subject_id as object_id, controlled_vocabulary_term_id, value')
+    @data = q.all.pluck('data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, value')
     cols = @data.collect{|a| a[1]}.uniq
     @columns = Predicate.where(project_id: sessions_current_project_id, id: cols).order(:name).pluck(:id, :name).inject([]){|ary, a| ary.push(a[0] => a[1]); ary}
-
-    # @columns = ::Queries::ControlledVocabularyTerm::Filter.new(
-    #  {data_attribute_query: q.params})
-    #  .all
-    #  .pluck(:id, :name)
   end
 
   def api_index
