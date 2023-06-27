@@ -18,7 +18,7 @@ function getDataAttributesFor(data, objectId) {
 }
 
 export async function listParser(list, { parameters }) {
-  const { extend, ...rest } = parameters
+  const { extend, exclude, ...rest } = parameters
   const { body } = await DataAttribute.brief({
     collection_object_query: {
       ...rest,
