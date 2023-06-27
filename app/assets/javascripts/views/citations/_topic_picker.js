@@ -103,7 +103,7 @@ function remove_citation_topic_link() {
 
 function bind_topic_label_mirroring(form) {
   form.find(".citation_topic_picker_topic_form input").on("change keyup", function () {
-    form.find(".name_label").html(
+    form.find(".name_label").text(
       form.find(".name").val()
     );
   });
