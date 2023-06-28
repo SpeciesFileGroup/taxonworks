@@ -6,7 +6,7 @@
       ref="element"
     >
       <thead>
-        <tr v-if="headerGroups.length">
+        <tr v-if="headerGroups.length || dataAttributeHeaders.length">
           <template
             v-for="header in headerGroups"
             :key="header"
@@ -19,6 +19,19 @@
               {{ header.title }}
             </component>
           </template>
+          <td
+            v-if="!headerGroups.length"
+            :colspan="Object.keys(attributes).length + 2"
+          />
+
+          <th
+            v-if="dataAttributeHeaders.length"
+            :colspan="dataAttributeHeaders.length"
+            scope="colgroup"
+            class="cell-left-border"
+          >
+            Data attributes
+          </th>
         </tr>
         <tr>
           <th class="w-2">
@@ -36,14 +49,26 @@
           >
             {{ title }}
           </th>
+          <template v-if="dataAttributeHeaders.length">
+            <th
+              v-for="header in dataAttributeHeaders"
+              :key="header"
+              scope="colgroup"
+              class="cell-left-border"
+              @click="sortTable(`data_attributes.${header}`)"
+            >
+              {{ header }}
+            </th>
+          </template>
         </tr>
       </thead>
-      <tbody>
+      <tbody @mouseout="($event) => emit('mouseout:body', $event)">
         <tr
           v-for="(item, index) in list"
           :key="item.id"
           class="contextMenuCells"
           :class="{ even: index % 2 }"
+          @mouseover="() => emit('mouseover:row', { index, item })"
         >
           <td>
             <input
@@ -66,6 +91,12 @@
             v-for="(_, attr) in attributes"
             :key="attr"
             v-html="item[attr]"
+          />
+          <td
+            v-for="(predicateName, dIndex) in dataAttributeHeaders"
+            :key="predicateName"
+            :class="{ 'cell-left-border': dIndex === 0 }"
+            v-text="item.data_attributes[predicateName]"
           />
         </tr>
       </tbody>
@@ -109,7 +140,12 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['onSort', 'update:modelValue'])
+const emit = defineEmits([
+  'onSort',
+  'update:modelValue',
+  'mouseover:row',
+  'mouseout:body'
+])
 
 const element = ref(null)
 const ascending = ref(false)
@@ -124,6 +160,20 @@ const selectIds = computed({
 const ids = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
+})
+
+const dataAttributeHeaders = computed(() => {
+  const predicateNames = []
+
+  props.list.forEach((item) => {
+    Object.keys(item.data_attributes || {}).forEach((name) => {
+      if (!predicateNames.includes(name)) {
+        predicateNames.push(name)
+      }
+    })
+  })
+
+  return predicateNames.sort()
 })
 
 watch(
