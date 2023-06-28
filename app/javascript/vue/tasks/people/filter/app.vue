@@ -38,7 +38,7 @@
 <script setup>
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
-import FilterList from 'components/layout/Filter/FilterList.vue'
+import FilterList from 'components/Filter/Table/TableResults.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import { ATTRIBUTES } from './constants/attributes.js'

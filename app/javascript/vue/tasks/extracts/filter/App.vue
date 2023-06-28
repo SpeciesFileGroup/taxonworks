@@ -53,7 +53,7 @@
 <script setup>
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/Filter.vue'
-import FilterList from 'components/layout/Filter/FilterList.vue'
+import FilterList from 'components/Filter/Table/TableResults.vue'
 import RadialMatrix from 'components/radials/matrix/radial.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'

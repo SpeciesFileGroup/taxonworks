@@ -18,35 +18,23 @@ function getDataAttributesFor(data, objectId) {
 }
 
 function setCEWithGeoreferences(list, georeferences) {
-  return list.map((ce) => {
+  return list.map((item) => {
     const data = georeferences.filter(
-      (item) => item.collecting_event_id === ce.id
+      (georeference) =>
+        georeference.collecting_event_id === item.collecting_event.id
     )
 
     return {
-      ...ce,
-      georeferences: data,
-      georeferencesCount: data.length
+      ...item,
+      georeferences: data
     }
   })
-}
-
-function parseStartDate(ce) {
-  return [ce.start_date_day, ce.start_date_month, ce.start_date_year]
-    .filter((date) => date)
-    .join('/')
-}
-
-function parseEndDate(ce) {
-  return [ce.end_date_day, ce.end_date_month, ce.end_date_year]
-    .filter((date) => date)
-    .join('/')
 }
 
 async function loadGeoreferences(list = []) {
   const CHUNK_ARRAY_SIZE = 40
   const idLists = chunkArray(
-    list.map((ce) => ce.id),
+    list.map((item) => item.collecting_event.id),
     CHUNK_ARRAY_SIZE
   )
 
@@ -77,13 +65,14 @@ export async function listParser(list, { parameters }) {
       : [item.identifiers]
 
     return {
-      ...item,
-      roles: (item?.collector_roles || [])
-        .map((role) => role.person.cached)
-        .join('; '),
-      identifiers: identifiers.map((i) => i.cached).join('; '),
-      start_date: parseStartDate(item),
-      end_date: parseEndDate(item),
+      global_id: item.global_id,
+      collecting_event: {
+        ...item,
+        roles: (item?.collector_roles || [])
+          .map((role) => role.person.cached)
+          .join('; '),
+        identifiers: identifiers.map((i) => i.cached).join('; ')
+      },
       data_attributes: getDataAttributesFor(body, item.id)
     }
   })

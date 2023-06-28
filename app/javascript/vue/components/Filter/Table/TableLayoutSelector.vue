@@ -101,12 +101,12 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useTableLayoutConfiguration } from '../composables/useTableLayoutConfiguration.js'
+import { humanize } from 'helpers/strings.js'
 import VModal from 'components/ui/Modal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VueDraggable from 'vuedraggable'
 import VIcon from 'components/ui/VIcon/index.vue'
-import { useLayoutConfiguration } from './useLayoutConfiguration'
-import { humanize } from 'helpers/strings.js'
 
 const {
   currentLayout,
@@ -114,7 +114,7 @@ const {
   properties,
   includes,
   updatePropertiesPositions
-} = useLayoutConfiguration()
+} = useTableLayoutConfiguration()
 
 function openLayoutPreferences() {
   currentLayout.value = layouts.value.Custom

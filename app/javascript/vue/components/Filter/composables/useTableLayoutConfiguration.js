@@ -8,7 +8,7 @@ const state = reactive({
   includes: {}
 })
 
-export function useLayoutConfiguration(Layouts) {
+export function useTableLayoutConfiguration(Layouts) {
   if (Layouts) {
     const { All } = Layouts
 

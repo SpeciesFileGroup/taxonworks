@@ -47,8 +47,10 @@
             :disabled="!selectedIds.length"
             :parameters="{ collecting_event_id: selectedIds }"
           />
+          <TableLayoutSelector />
         </div>
       </template>
+
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -62,7 +64,7 @@
       <template #table>
         <FilterList
           v-model="selectedIds"
-          :attributes="ATTRIBUTES"
+          :layout="currentLayout"
           :list="list"
           @mouseover:row="setRowHover"
           @mouseout:body="() => (rowHover = null)"
@@ -85,18 +87,26 @@ import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import RadialCollectingEvent from 'components/radials/ce/radial.vue'
-import FilterList from 'components/layout/Filter/FilterList.vue'
-import { ATTRIBUTES } from './constants/attributes.js'
+import FilterList from 'components/Filter/Table/TableResults.vue'
+import TableLayoutSelector from 'components/Filter/Table/TableLayoutSelector.vue'
 import { listParser } from './utils/listParser.js'
 import { COLLECTING_EVENT } from 'constants/index.js'
-import { computed, ref, reactive } from 'vue'
+import { computed, ref, reactive, defineOptions } from 'vue'
 import { sortArray } from 'helpers/arrays'
 import { CollectingEvent } from 'routes/endpoints'
+import { LAYOUTS } from './constants/layouts.js'
+import { useTableLayoutConfiguration } from 'components/Filter/composables/useTableLayoutConfiguration.js'
+
+defineOptions({
+  name: 'FilterCollectingEvent'
+})
 
 const extend = ['roles']
 
+const { currentLayout } = useTableLayoutConfiguration(LAYOUTS)
+
 const geojson = computed(() => {
-  const hoverId = rowHover.value?.id
+  const hoverId = rowHover.value?.collecting_event?.id
   const hoverGeoreferences = georeferences.value.filter(
     (item) => item.collecting_event_id === hoverId
   )
