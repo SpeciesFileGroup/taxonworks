@@ -892,7 +892,7 @@ namespace :tw do
               if otu.save
                 logger.info "Note!! Created OTU for temporary or ill-formed taxon SF.TaxonNameID = #{sf_taxon_name_id}, otu.id = #{otu.id}"
 
-                otu.citations << Citation.new(source_id: get_tw_source_id[use_this_ref_id], is_original: true, project_id: project_id)
+                Citation.create(citation_object: otu, source_id: get_tw_source_id[use_this_ref_id], is_original: true, project_id: project_id)
                 # Note: If contained ref, no need to specify separate taxon_name_author for OTUs
 
                 get_tw_otu_id[row['TaxonNameID']] = otu.id.to_s
@@ -904,7 +904,7 @@ namespace :tw do
 
                 Content.create!(
                     topic_id: ecology_topic_ids[project_id],
-                    otu_id: otu.id,
+                    otu: otu,
                     project_id: project_id,
                     text: ecology_text)
 
