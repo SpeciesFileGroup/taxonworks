@@ -47,7 +47,9 @@
           <h3>Confirm delete</h3>
         </template>
         <template #body>
-          <div>Are you sure you want to delete <span v-html="loan.object_tag" />?</div>
+          <div>
+            Are you sure you want to delete <span v-html="loan.object_tag" />?
+          </div>
         </template>
         <template #footer>
           <button
@@ -158,7 +160,7 @@
           <div class="field">
             <label>People</label>
             <role-picker
-              v-model="rolesRecipient"
+              v-model="loan.loan_recipient_roles"
               role-type="LoanRecipient"
             />
           </div>
@@ -213,7 +215,7 @@
           <hr />
           <div class="field">
             <role-picker
-              v-model="rolesSupervisor"
+              v-model="loan.loan_supervisor_roles"
               role-type="LoanSupervisor"
             />
           </div>
@@ -261,9 +263,12 @@ export default {
       return this.$store.getters[GetterNames.GetLoanItems]
     },
 
-    getLoan: {
+    loan: {
       get() {
         return this.$store.getters[GetterNames.GetLoan]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetLoan, value)
       }
     },
 
@@ -291,29 +296,7 @@ export default {
       showModal: false,
       displayBody: true,
       roles_supervisor: [],
-      roles_recipient: [],
-      loan: {
-        loan_recipient_roles: [],
-        roles_attributes: [],
-        date_requested: undefined,
-        request_method: undefined,
-        date_sent: undefined,
-        date_received: undefined,
-        date_return_expected: undefined,
-        recipient_person_id: undefined,
-        recipient_address: undefined,
-        recipient_email: undefined,
-        recipient_phone: undefined,
-        recipient_country: undefined,
-        supervisor_person_id: undefined,
-        supervisor_email: undefined,
-        supervisor_phone: undefined,
-        date_closed: undefined,
-        recipient_honorific: undefined,
-        lender_address: undefined,
-        clone_from: undefined,
-        is_gift: undefined
-      }
+      roles_recipient: []
     }
   },
 
@@ -325,14 +308,13 @@ export default {
 
   methods: {
     update() {
-      this.loan.roles_attributes = this.roles_recipient.concat(this.roles_supervisor)
-      Loan.update(this.loan.id, { loan: this.loan, extend: ['roles'] }).then(() => {
-        TW.workbench.alert.create('Loan was successfully updated.', 'notice')
-      })
+      this.$store.dispatch(ActionNames.UpdateLoan, this.loan)
     },
 
     create() {
-      this.loan.roles_attributes = this.roles_recipient.concat(this.roles_supervisor)
+      this.loan.roles_attributes = this.roles_recipient.concat(
+        this.roles_supervisor
+      )
       this.$store.dispatch(ActionNames.CreateLoan, this.loan)
     },
 

@@ -7,6 +7,7 @@ import loadLoan from './loadLoan'
 import loadLoanItems from './loadLoanItems'
 import updateLoanItem from './updateLoanItem'
 import cloneFrom from './cloneFrom'
+import updateLoan from './updateLoan'
 
 const ActionFunctions = {
   [ActionNames.CloneFrom]: cloneFrom,
@@ -15,7 +16,8 @@ const ActionFunctions = {
   [ActionNames.DeleteLoanItem]: deleteLoanItem,
   [ActionNames.LoadLoan]: loadLoan,
   [ActionNames.LoadLoanItems]: loadLoanItems,
-  [ActionNames.UpdateLoanItem]: updateLoanItem
+  [ActionNames.UpdateLoanItem]: updateLoanItem,
+  [ActionNames.UpdateLoan]: updateLoan
 }
 
 export { ActionNames, ActionFunctions }

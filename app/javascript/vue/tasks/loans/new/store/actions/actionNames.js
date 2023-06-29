@@ -5,6 +5,7 @@ const ActionNames = {
   CreateBatchLoad: 'createBatchLoad',
   CreateLoan: 'createLoan',
   DeleteLoanItem: 'deleteLoanItem',
+  UpdateLoan: 'updateLoan',
   UpdateLoanItem: 'updateLoanItem'
 }
 
