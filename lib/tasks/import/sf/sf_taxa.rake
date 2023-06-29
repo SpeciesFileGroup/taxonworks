@@ -35,6 +35,8 @@ namespace :tw do
             taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']].to_i
             original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']].to_i
 
+            next if taxon_name_id == 0
+
             # pluck parent_id; thought I needed it for incertae sedis, but actually I don't
             # parent_id = TaxonName.where(id: taxon_name_id).pluck(:parent_id)[0]
 
