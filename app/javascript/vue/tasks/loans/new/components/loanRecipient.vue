@@ -248,6 +248,7 @@ import Expand from './expand.vue'
 import ActionNames from '../store/actions/actionNames'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 import { Loan } from 'routes/endpoints'
 
 export default {
@@ -270,33 +271,13 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetLoan, value)
       }
-    },
-
-    rolesRecipient: {
-      get() {
-        return this.loan.loan_recipient_roles
-      },
-      set(value) {
-        this.roles_recipient = value
-      }
-    },
-
-    rolesSupervisor: {
-      get() {
-        return this.loan.loan_supervisor_roles
-      },
-      set(value) {
-        this.roles_supervisor = value
-      }
     }
   },
 
   data() {
     return {
       showModal: false,
-      displayBody: true,
-      roles_supervisor: [],
-      roles_recipient: []
+      displayBody: true
     }
   },
 
@@ -312,9 +293,6 @@ export default {
     },
 
     create() {
-      this.loan.roles_attributes = this.roles_recipient.concat(
-        this.roles_supervisor
-      )
       this.$store.dispatch(ActionNames.CreateLoan, this.loan)
     },
 
