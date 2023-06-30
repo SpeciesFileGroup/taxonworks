@@ -40,3 +40,11 @@ if extend_response_with('roles')
     end
   end
 end
+
+if extend_response_with('geographic_area')
+  if collecting_event.geographic_area
+    json.geographic_area do
+      json.partial! '/geographic_areas/attributes', geographic_area: collecting_event.geographic_area, extensions: false
+    end
+  end
+end

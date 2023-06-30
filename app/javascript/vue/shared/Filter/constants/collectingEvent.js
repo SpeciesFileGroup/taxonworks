@@ -1,8 +1,9 @@
 export const COLLECTING_EVENT_PROPERTIES = [
-  'verbatim_locality',
   'verbatim_label',
-  'print_label',
-  'document_label',
+  'verbatim_locality',
+  'cached_level0_geographic_name',
+  'cached_level1_geographic_name',
+  'cached_level2_geographic_name',
   'verbatim_locality',
   'verbatim_longitude',
   'verbatim_latitude',
@@ -40,3 +41,4 @@ export const COLLECTING_EVENT_PROPERTIES = [
   'min_ma',
   'meta_prioritize_geographic_area'
 ]
+
