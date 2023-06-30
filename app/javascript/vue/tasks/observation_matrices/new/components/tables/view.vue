@@ -1,6 +1,10 @@
 <template>
-  <div class="horizontal-left-content align-start full_width">
-    <div class="matrix-tables full_width">
+  <TableGrid
+    class="full_width"
+    :columns="2"
+    :gap="4"
+  >
+    <div>
       <rows-table
         class="margin-medium-bottom"
         :list="rowsListDynamic"
@@ -10,29 +14,33 @@
         :global-id-path="['global_id']"
         @delete="removeRow($event.id)"
         edit
-        @order="updateRowsOrder"/>
+        @order="updateRowsOrder"
+      />
       <pagination-component
         v-if="fixedRowPagination"
         @nextPage="loadRowPage"
-        :pagination="fixedRowPagination"/>
+        :pagination="fixedRowPagination"
+      />
       <rows-table
         :list="rowsList"
         :matrix-id="matrixId"
         :header="['Rows (all)', '']"
-        :filter-remove="item => item.cached_observation_matrix_row_item_id"
+        :filter-remove="(item) => item.cached_observation_matrix_row_item_id"
         :attributes="['observation_object_label']"
         :global-id-path="['observation_object_global_id']"
         warning-message="You are trying to delete the OTU/collection object row from the matrix. Deleting the row from the matrix, does not delete OTU/collection object itself; it does not also delete the observations on this OTU. Are you sure you want to proceed?"
         @delete="removeRow($event.cached_observation_matrix_row_item_id)"
         edit
         code
-        @order="updateRowsOrder"/>
+        @order="updateRowsOrder"
+      />
       <pagination-component
         v-if="fixedRowPagination"
         @nextPage="loadRowPage"
-        :pagination="fixedRowPagination"/>
+        :pagination="fixedRowPagination"
+      />
     </div>
-    <div class="margin-medium-left matrix-tables full_width">
+    <div class="full_width">
       <columns-table
         class="margin-medium-bottom"
         :list="columnsListDynamic"
@@ -42,11 +50,13 @@
         :attributes="['object_tag']"
         :global-id-path="['global_id']"
         @delete="removeColumn($event.id)"
-        @order="updateColumnsOrder"/>
+        @order="updateColumnsOrder"
+      />
       <pagination-component
         v-if="fixedColumnPagination"
         @nextPage="loadColumnPage"
-        :pagination="fixedColumnPagination"/>
+        :pagination="fixedColumnPagination"
+      />
       <columns-table
         :list="columnsList"
         :matrix-id="matrixId"
@@ -55,21 +65,22 @@
         :header="['Columns (all)', '']"
         :attributes="[['descriptor', 'object_tag']]"
         :global-id-path="['descriptor', 'global_id']"
-        :filter-remove="item => item.cached_observation_matrix_column_item_id"
+        :filter-remove="(item) => item.cached_observation_matrix_column_item_id"
         code
         @delete="removeColumn($event.cached_observation_matrix_column_item_id)"
-        @order="updateColumnsOrder"/>
+        @order="updateColumnsOrder"
+      />
       <pagination-component
         v-if="fixedColumnPagination"
         @nextPage="loadColumnPage"
-        :pagination="fixedColumnPagination"/>
+        :pagination="fixedColumnPagination"
+      />
     </div>
-  </div>
+  </TableGrid>
 </template>
 <script>
-
 import TableComponent from './table.vue'
-
+import TableGrid from 'components/layout/Table/TableGrid.vue'
 import { SortRows, SortColumns } from '../../request/resources'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
@@ -79,10 +90,11 @@ export default {
   components: {
     RowsTable: TableComponent,
     ColumnsTable: TableComponent,
-    PaginationComponent
+    PaginationComponent,
+    TableGrid
   },
   computed: {
-    matrixId () {
+    matrixId() {
       return this.$store.getters[GetterNames.GetMatrix].id
     },
     columnsList() {
@@ -97,35 +109,41 @@ export default {
     rowsListDynamic() {
       return this.$store.getters[GetterNames.GetMatrixRowsDynamic]
     },
-    fixedRowPagination () {
+    fixedRowPagination() {
       return this.$store.getters[GetterNames.GetRowFixedPagination]
     },
-    fixedColumnPagination () {
+    fixedColumnPagination() {
       return this.$store.getters[GetterNames.GetColumnFixedPagination]
     }
   },
   methods: {
-    removeColumn (id) {
+    removeColumn(id) {
       this.$store.dispatch(ActionNames.RemoveColumn, id)
     },
-    removeRow (id) {
+    removeRow(id) {
       this.$store.dispatch(ActionNames.RemoveRow, id)
     },
-    updateRowsOrder (ids) {
+    updateRowsOrder(ids) {
       SortRows(ids).then(() => {
         this.$store.dispatch(ActionNames.GetMatrixObservationRows, { per: 500 })
       })
     },
-    updateColumnsOrder (ids) {
+    updateColumnsOrder(ids) {
       SortColumns(ids).then(() => {
-        this.$store.dispatch(ActionNames.GetMatrixObservationColumns, { per: 500 })
+        this.$store.dispatch(ActionNames.GetMatrixObservationColumns, {
+          per: 500
+        })
       })
     },
-    loadRowPage (event) {
-      this.$store.dispatch(ActionNames.GetMatrixObservationRows, { page: event.page })
+    loadRowPage(event) {
+      this.$store.dispatch(ActionNames.GetMatrixObservationRows, {
+        page: event.page
+      })
     },
-    loadColumnPage (event) {
-      this.$store.dispatch(ActionNames.GetMatrixObservationColumns, { page: event.page })
+    loadColumnPage(event) {
+      this.$store.dispatch(ActionNames.GetMatrixObservationColumns, {
+        page: event.page
+      })
     }
   }
 }
