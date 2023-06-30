@@ -65,6 +65,7 @@ export async function listParser(list, { parameters }) {
       : [item.identifiers]
 
     return {
+      id: item.id,
       global_id: item.global_id,
       collecting_event: {
         ...item,
