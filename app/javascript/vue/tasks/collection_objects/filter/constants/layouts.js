@@ -66,6 +66,30 @@ export const LAYOUTS = {
     includes: {}
   },
 
+  TaxonNames: {
+    properties: {
+      collection_object: [
+        'buffered_determinations'
+      ],
+      dwc_occurrence: [
+       'scientificName',
+       'scientificNameAuthorship',
+       'taxonRank',
+       'phylum',
+       'dwcClass',
+       'order',
+       'family',
+       'genus' ,
+       'specificEpithet',
+       'infraspecificEpithet',
+       'previousIdentifications',
+       'higherClassification',
+      ],
+      taxon_determinations: TAXON_DETERMINATION_PROPERTIES,
+    },
+    includes: {}
+  },
+
   Place: {
     properties: {
       dwc_occurrence: [
