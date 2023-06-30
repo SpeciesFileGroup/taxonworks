@@ -76,7 +76,7 @@ RSpec.describe DownloadsController, type: :controller, group: [:downloads] do
 
       it "sends the requested file" do
         get :file, params: {id: download.to_param}, session: valid_session
-        expect(response.body).to eq(IO.binread(download.file_path))
+        expect(response.body).to eq(File.binread(download.file_path))
       end
 
       it "increments the download counter" do
