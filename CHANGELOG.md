@@ -8,7 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-
+- DataAttribute columns for CollectingEvent and TaxonName filters
 - Added ranks for viruses
 - CachedMap framework - compute low-resolution maps quickly [#3010]
 - .json and .geojson endpoints implement CachedMaps at `/api/v1/otus/:id/inventory/distribution`
@@ -18,7 +18,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Customized API version of OTU autocomplete
 
 ### Changed
-
 - Updated Ruby gems
 - Added date format recognition ####-##-## [#3453]
 - Add hyperlinks to OTU labels in Filter biological associations table [#3444]
@@ -27,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clone loan button redirects to new loan task [#3462]
 
 ### Fixed
+- Speed response for Filter's returning DataAttributes [#3452]
 - Going from Image filter to others could result in duplicated rows
 - DWCA Importer: Geographic Areas not imported [#1852]
 - Error on catalog_helper: history_other_name
@@ -40,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Disable editing of imported rows in DwC importer task [#3469]
 - Fixed URL hostname string matching in some places.
 
+[#3452]: https://github.com/SpeciesFileGroup/taxonworks/issues/3452
 [#3010]: https://github.com/SpeciesFileGroup/taxonworks/issues/3010
 [#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430
 [#3444]: https://github.com/SpeciesFileGroup/taxonworks/issues/3444
