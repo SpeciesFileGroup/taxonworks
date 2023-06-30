@@ -27,16 +27,34 @@ export async function listParser(list, { parameters }) {
   })
 
   return list.map((item) => {
-    const baseAttributes = Object.assign(
+    const collection_object = Object.assign(
       {},
       ...COLLECTION_OBJECT_PROPERTIES.map((property) => ({
         [property]: item[property]
       }))
     )
 
+    const {
+      current_repository,
+      repository,
+      collecting_event,
+      taxon_determinations,
+      dwc_occurrence,
+      identifiers,
+      id,
+      global_id
+    } = item
+
     return {
-      ...item,
-      collection_object: baseAttributes,
+      id,
+      global_id,
+      collection_object,
+      current_repository,
+      repository,
+      collecting_event,
+      taxon_determinations,
+      dwc_occurrence,
+      identifiers,
       data_attributes: getDataAttributesFor(body, item.id)
     }
   })

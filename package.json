@@ -4,6 +4,8 @@
   "dependencies": {
     "@geoman-io/leaflet-geoman-free": "^2.14.2",
     "@ibm/plex": "^6.3.0",
+    "@json2csv/plainjs": "^7.0.1",
+    "@json2csv/transforms": "^7.0.1",
     "@sfgrp/gbifference": "^0.0.5",
     "@sfgrp/sled": "^1.0.3",
     "@sfgrp/svg-radial-menu": "^1.0.7",
@@ -13,7 +15,6 @@
     "dompurify": "^3.0.3",
     "easymde": "^2.18.0",
     "exif-js": "^2.3.0",
-    "json2csv": "^5.0.7",
     "leaflet": "^1.9.4",
     "leaflet.pattern": "^0.1.0",
     "marked": "^5.1.0",

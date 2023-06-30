@@ -20,7 +20,7 @@
 import { watch, ref } from 'vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
-import { parse } from 'json2csv'
+import { Parser } from '@json2csv/plainjs'
 
 const props = defineProps({
   list: {
@@ -72,7 +72,9 @@ watch(
 
 function parseJSONToCSV() {
   try {
-    csvFile.value = parse(props.list, props.options)
+    const parser = new Parser(props.options)
+
+    csvFile.value = parser.parse(props.list)
   } catch (err) {
     console.error(err)
   }
