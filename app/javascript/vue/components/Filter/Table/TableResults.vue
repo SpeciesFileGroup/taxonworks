@@ -266,7 +266,7 @@ const emit = defineEmits([
 
 const element = ref(null)
 const ascending = ref(false)
-const isLayoutConfig = computed(() => !!Object.keys(props.layout).length)
+const isLayoutConfig = computed(() => !!Object.keys(props.layout || {}).length)
 
 const selectIds = computed({
   get: () =>
