@@ -471,11 +471,11 @@ namespace :tw do
 
           no_nomenclator_keywords = {}
           get_tw_project_id.each_value do |project_id|
-            k = Keyword.create(
+            no_nomenclator_keywords[project_id] = Keyword.create!(
                 name: 'No NomenclatorID',
                 definition: 'No NomenclatorID is provided in the original SF database',
-                project_id: project_id)
-            no_nomenclator_keywords[project_id] = k
+                project_id: project_id
+              ).id
           end
 
 
