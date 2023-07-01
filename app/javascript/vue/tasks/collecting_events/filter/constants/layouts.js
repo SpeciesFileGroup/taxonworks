@@ -19,17 +19,16 @@ export const LAYOUTS = {
 
   Labels: {
     properties: {
-      collecting_event: [
-        'verbatim_label',
-        'print_label',
-        'document_label'
-      ],
+      collecting_event: ['verbatim_label', 'print_label', 'document_label']
+    },
+    includes: {
+      data_attributes: true
     }
   },
 
   Place: {
     properties: {
-    collecting_event: [
+      collecting_event: [
         'cached_level0_geographic_name',
         'cached_level1_geographic_name',
         'cached_level2_geographic_name',
@@ -38,8 +37,11 @@ export const LAYOUTS = {
         'verbatim_longitude',
         'verbatim_geolocation_uncertainty',
         'minimum_elevation',
-        'maximum_elevation',
-      ],
+        'maximum_elevation'
+      ]
+    },
+    includes: {
+      data_attributes: true
     }
   },
 
@@ -61,7 +63,10 @@ export const LAYOUTS = {
         'time_end_second',
         'max_ma',
         'min_ma'
-      ],
+      ]
+    },
+    includes: {
+      data_attributes: true
     }
   },
 
@@ -76,6 +81,8 @@ export const LAYOUTS = {
         'min_ma'
       ]
     },
-  },
-
+    includes: {
+      data_attributes: true
+    }
+  }
 }
