@@ -29,8 +29,13 @@ module Queries
         table[:verbatim_short_name].matches_any(terms)
       end
 
+      # override method, providing fields to search
+      def least_levenshtein
+        super([:name, :short_name, :verbatim_short_name], query_string)
+      end
+
       def all
-        ::Namespace.where(where_sql)
+        ::Namespace.where(where_sql).order(least_levenshtein)
       end
 
     end
