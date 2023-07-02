@@ -93,6 +93,8 @@ module CollectionObject::DwcExtensions
 
       occurrenceRemarks: :dwc_occurrence_remarks,
 
+      eventRemarks: :dwc_event_remarks
+
       # -- Core taxon? --
       # nomenclaturalCode
       # scientificName
@@ -159,6 +161,10 @@ module CollectionObject::DwcExtensions
   # https://dwc.tdwg.org/list/#dwc_georeferenceRemarks
   def dwc_occurrence_remarks
     notes.collect{|n| n.text}.join('|')
+  end
+
+  def dwc_event_remarks
+    collecting_event&.notes&.collect {|n| n.text}&.join('|')
   end
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
