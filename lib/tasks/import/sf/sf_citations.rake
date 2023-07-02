@@ -1238,8 +1238,9 @@ namespace :tw do
                         n.citations.create(source_id: citation.source_id, project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
                       end
                     end
-                  rescue ActiveRecord::RecordInvalid # citation not valid
+                  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotSaved => e # citation not valid
 
+                    logger.error "ActiveRecord::RecordNotSaved", [row, e.backtrace] if e.is_a?(ActiveRecord::RecordNotSaved)
 
                     # yes I know this is ugly but it works
                     if citation.errors.messages[:source_id].nil?
