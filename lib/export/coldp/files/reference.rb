@@ -7,21 +7,21 @@ module Export::Coldp::Files::Reference
   #
   # !! It is not integrated yet.
   # 
-  def self.generate(project_id)
+  def self.generate(project_id, project_members)
     CSV.generate do |csv|
       Source.joins(:project_sources).where(project_sources: {project_id: project_id} ).each do |source|
-        csv << ref_row(source)
+        csv << ref_row(source, project_members)
       end
     end
   end
     
-  def self.add_reference_rows(sources = [], reference_csv)
+  def self.add_reference_rows(sources = [], reference_csv, project_members)
     sources.each do |s|
-      reference_csv[s.id] = ref_row(s)   
+      reference_csv[s.id] = ref_row(s, project_members)
     end 
   end
 
-  def self.ref_row(source)
+  def self.ref_row(source, project_members)
     [
       source.id,
       source.cached,
@@ -29,7 +29,9 @@ module Export::Coldp::Files::Reference
 #     source.year,
 #     source.journal,                # source.source
 #     reference_details(source),     # details (pages, volume, year)
-      source.doi 
+      source.doi,
+      Export::Coldp.modified(source[:updated_at]),                        # modified
+      Export::Coldp.modified_by(source[:updated_by_id], project_members)  # modifiedBy 
     ]
   end
 
