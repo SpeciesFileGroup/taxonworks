@@ -180,7 +180,7 @@ class Person < ApplicationRecord
   # Return [String, nil]
   #   convenience, maybe a delegate: candidate
   def orcid
-    identifiers.where(type: 'Identifier::Global::Orcid').first&.cached
+    identifiers.where(type: 'Identifier::Global::Orcid').first&.identifier
   end
 
   # @param [Integer] person_id
