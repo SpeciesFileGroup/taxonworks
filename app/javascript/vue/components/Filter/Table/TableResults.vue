@@ -170,6 +170,7 @@
               v-html="item[attr]"
               @dblclick="
                 () => {
+                  scrollToTop()
                   filterValues[attr] = item[attr]
                 }
               "
@@ -187,6 +188,7 @@
               :class="{ 'cell-left-border': pIndex === 0 }"
               @dblclick="
                 () => {
+                  scrollToTop()
                   filterValues[`${key}.${property}`] = Array.isArray(item[key])
                     ? item[key].map((obj) => obj[property])
                     : item[key][property]
@@ -333,6 +335,10 @@ watch(
 function sortTable(sortProperty) {
   emit('onSort', sortArray(props.list, sortProperty, ascending.value))
   ascending.value = !ascending.value
+}
+
+function scrollToTop() {
+  window.scrollTo(0, 0)
 }
 </script>
 
