@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- modified and modifiedBy to the COL data package exporter [#3464]
 - DataAttribute columns for CollectingEvent and TaxonName filters
 - Added ranks for viruses
 - CachedMap framework - compute low-resolution maps quickly [#3010]
