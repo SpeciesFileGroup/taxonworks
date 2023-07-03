@@ -25,9 +25,8 @@ class CollectionObjectsController < ApplicationController
         @collection_objects = add_includes_to_filter_result(@collection_objects)
 
         @collection_objects = @collection_objects
-          .order('collection_objects.id')
-          .page(params[:page])
-          .per(params[:per])
+        .page(params[:page])
+        .per(params[:per])
       end
     end
   end

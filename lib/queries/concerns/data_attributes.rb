@@ -1,7 +1,6 @@
 # Linking DataAttribute to  queries that reference DataAttributes
 #
 # For filter queries:
-# !! requires a `base_query` method ?! ... or not
 # !! requires `set_data_attributes_params` be called in initialize()
 #
 module Queries::Concerns::DataAttributes
@@ -11,19 +10,19 @@ module Queries::Concerns::DataAttributes
     [
       :data_attributes,
 
-      :data_attribute_predicate_id,
-      :data_attribute_without_predicate_id,
-      :data_attribute_exact_value,
-      :data_attribute_wildcard_value,
       :data_attribute_exact_pair,
+      :data_attribute_exact_value,
+      :data_attribute_predicate_id,
       :data_attribute_wildcard_pair,
+      :data_attribute_wildcard_value,
+      :data_attribute_without_predicate_id,
 
-      data_attribute_predicate_id: [],
-      data_attribute_without_predicate_id: [],
-      data_attribute_exact_value: [],
-      data_attribute_wildcard_value: [],
       data_attribute_exact_pair: [],
+      data_attribute_exact_value: [],
+      data_attribute_predicate_id: [],
       data_attribute_wildcard_pair: [],
+      data_attribute_wildcard_value: [],
+      data_attribute_without_predicate_id: [],
     ]
   end
 
@@ -105,7 +104,7 @@ module Queries::Concerns::DataAttributes
       if @data_attribute_wildcard_pair.kind_of?(Hash)
         @data_attribute_wildcard_pair
       else
-        split_pairs([@data_attribute_exact_pair].flatten.compact)
+        split_pairs([@data_attribute_wildcard_pair].flatten.compact)
       end
     end
 
@@ -117,6 +116,7 @@ module Queries::Concerns::DataAttributes
       end
       h
     end
+
   end
 
   def set_data_attributes_params(params)

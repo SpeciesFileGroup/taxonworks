@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Customized API version of OTU autocomplete
 
 ### Changed
+
 - Updated Ruby gems
 - Added date format recognition ####-##-## [#3453]
 - Add hyperlinks to OTU labels in Filter biological associations table [#3444]
@@ -27,6 +28,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clone loan button redirects to new loan task [#3462]
 
 ### Fixed
+
+- DataAttribute filter facet not working for non-exact matches
 - Speed response for Filter's returning DataAttributes [#3452]
 - Going from Image filter to others could result in duplicated rows
 - DWCA Importer: Geographic Areas not imported [#1852]
@@ -40,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Annotations were sometimes added to objects that no longer existed [#3445]
 - Disable editing of imported rows in DwC importer task [#3469]
 - Fixed URL hostname string matching in some places.
+- Matrix Column Coder throws an error after autosave ends and observation to be saved no longer exists
 
 [#3452]: https://github.com/SpeciesFileGroup/taxonworks/issues/3452
 [#3010]: https://github.com/SpeciesFileGroup/taxonworks/issues/3010

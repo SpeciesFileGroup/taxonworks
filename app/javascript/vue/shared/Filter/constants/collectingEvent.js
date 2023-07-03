@@ -1,4 +1,5 @@
 export const COLLECTING_EVENT_PROPERTIES = [
+  'id',
   'verbatim_label',
   'verbatim_locality',
   'cached_level0_geographic_name',
@@ -41,4 +42,3 @@ export const COLLECTING_EVENT_PROPERTIES = [
   'min_ma',
   'meta_prioritize_geographic_area'
 ]
-
