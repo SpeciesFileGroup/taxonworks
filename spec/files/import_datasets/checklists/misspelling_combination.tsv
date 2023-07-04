@@ -1,0 +1,7 @@
+taxonID	parentNameUsageID	acceptedNameUsageID	scientificName	kingdom	class	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsageID	namePublishedInYear	nomenclaturalCode	TW:TaxonNameClassification:Latinized:Gender	TW:TaxonNameClassification:Latinized:PartOfSpeech	TW:TaxonNameRelationship:incertae_sedis_in_rank
+429349		429349	Formica	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Linnaeus, 1758	valid	429349	1758	ICZN	feminine
+429609		429609	Attini	Animalia	Insecta	Hymenoptera	Formicidae					Tribe	Smith, 1858	valid	429609	1858	ICZN
+429613	429609	429613	Atta	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Fabricius, 1804	valid	429613	1804	ICZN	feminine
+431467	429613	431467	Atta sexdens	Animalia	Insecta	Hymenoptera	Formicidae	Atta		sexdens		Species	(Linnaeus, 1758)	valid	456688	1758	ICZN
+431468	429613	431467	Atta sexdentata	Animalia	Insecta	Hymenoptera	Formicidae	Atta		sexdentata		Species	(Linnaeus, 1758)	misspelling	456688	1758	ICZN
+456688	429349	431467	Formica sexdens	Animalia	Insecta	Hymenoptera	Formicidae	Formica		sexdens		Species	Linnaeus, 1758	obsolete combination	456688	1758	ICZN
