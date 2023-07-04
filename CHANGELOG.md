@@ -8,7 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-
+- Pagination to Labels and TypeMaterial .json endpoints [#3472]
 - DataAttribute columns for CollectingEvent and TaxonName filters
 - Added ranks for viruses
 - CachedMap framework - compute low-resolution maps quickly [#3010]
@@ -45,6 +45,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fixed URL hostname string matching in some places.
 - Matrix Column Coder throws an error after autosave ends and observation to be saved no longer exists
 
+[#3472]: https://github.com/SpeciesFileGroup/taxonworks/issues/3472
 [#3452]: https://github.com/SpeciesFileGroup/taxonworks/issues/3452
 [#3010]: https://github.com/SpeciesFileGroup/taxonworks/issues/3010
 [#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430
