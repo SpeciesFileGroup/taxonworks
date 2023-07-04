@@ -844,7 +844,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     if type_status_parsed && scientific_name && type_scientific_name.present?
 
       # if type_scientific_name matches the current name of the occurrence, use that
-      if type_scientific_name&.delete_prefix!(scientific_name)&.match(/^\W*$/)
+      if type_scientific_name.delete_prefix(scientific_name)&.match(/^\W*$/)
         type_material = {
           type_type: type_status_parsed[:type].downcase
         }

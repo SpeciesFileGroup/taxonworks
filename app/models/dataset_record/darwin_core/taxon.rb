@@ -274,15 +274,18 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                                                             Available ancestors are #{available_parent_ranks}.".squish] })
                   end
 
+                  # Parent should be same as incertae sedis object_taxon
+                  # Supplying a parent taxonID with a different rank than the incertae sedis parent
+                  # will an original combination relationship with the old parent, which
+                  # the ui will render as [Aus] bus, (where the incertae sedis parent is Cus)
+                  taxon_name.parent = incertae_sedis_parent
+
                 else
                   # if parent has uncertain placement in rank, taxon's parent should be changed to whichever taxon the parent's UncertainRelationship is with
-                  #noinspection RubyResolve
-                  if (r = parent.iczn_uncertain_placement_relationship)
-                    incertae_sedis_parent = TaxonName.find(r.object_taxon_name_id)
-                  else
-                    # if parent doesn't have uncertain placement, make relationship with family or subfamily (FamilyGroup)
-                    incertae_sedis_parent = taxon_name.ancestors.with_base_of_rank_class('NomenclaturalRank::Iczn::FamilyGroup').first
-                  end
+                  incertae_sedis_parent = parent.iczn_uncertain_placement
+                  # if parent doesn't have uncertain placement, make relationship with family or subfamily (FamilyGroup)
+                  incertae_sedis_parent ||= taxon_name.ancestors.with_base_of_rank_class('NomenclaturalRank::Iczn::FamilyGroup').first
+
                   # Parent should be same as incertae sedis object_taxon
                   taxon_name.parent = incertae_sedis_parent
                 end
