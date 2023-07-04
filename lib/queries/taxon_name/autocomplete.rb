@@ -245,7 +245,7 @@ module Queries
       # Used in /otus/api/v1/autocomplete
       def autocomplete_combined_gin
         a = ::TaxonName.select(ApplicationRecord.sanitize_sql(["taxon_names.*, similarity(?, cached_author_year) AS sml_cay, similarity(?, cached) AS sml_c, similarity(?, cached_original_combination) AS sml_coc",
-          query_string, query_string, query_string]
+          query_string, query_string, query_string])
         ).where('cached_author_year % ? OR cached_original_combination % ? OR cached % ?', query_string, query_string, query_string)
 
         s = 'WITH tns AS (' + a.to_sql + ') ' +
