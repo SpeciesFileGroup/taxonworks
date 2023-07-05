@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- modified and modifiedBy to the COL data package exporter [#3464]
 - Pagination to Labels and TypeMaterial .json endpoints [#3472]
 - DataAttribute columns for CollectingEvent and TaxonName filters
 - Added ranks for viruses
@@ -46,7 +47,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fixed URL hostname string matching in some places.
 - Matrix Column Coder throws an error after autosave ends and observation to be saved no longer exists
 
-
+[#3464]: https://github.com/SpeciesFileGroup/taxonworks/issues/3464
 [#3438]: https://github.com/SpeciesFileGroup/taxonworks/issues/3438
 [#3472]: https://github.com/SpeciesFileGroup/taxonworks/issues/3472
 [#3452]: https://github.com/SpeciesFileGroup/taxonworks/issues/3452

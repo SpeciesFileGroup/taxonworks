@@ -6,6 +6,8 @@
 # area
 # sex
 # reference_id
+# modified
+# modifiedBy
 #
 module Export::Coldp::Files::VernacularName
 
@@ -39,7 +41,7 @@ module Export::Coldp::Files::VernacularName
     nil
   end
 
-  def self.generate(otus, reference_csv = nil )
+  def self.generate(otus, project_members, reference_csv = nil )
     CSV.generate(col_sep: "\t") do |csv|
 
       # TODO: Biocuration attributes on these two
@@ -53,6 +55,8 @@ module Export::Coldp::Files::VernacularName
         country
         area
         referenceID
+        modified
+        modifiedBy
       }
 
       otus.joins(:common_names).each do |o|
@@ -60,16 +64,18 @@ module Export::Coldp::Files::VernacularName
           sources = n.sources.load
 
           csv << [
-            o.id,
-            n.name,
-            transliteration(n),
-            n.language&.alpha_3_bibliographic,
-            n.geographic_area&.level0&.iso_3166_a2,
-            area(n),
-            sources.collect{|a| a.id}.join(',')  # reference_id
+            o.id,                                                          # taxon_id
+            n.name,                                                        # name
+            transliteration(n),                                            # transliteration
+            n.language&.alpha_3_bibliographic,                             # language
+            n.geographic_area&.level0&.iso_3166_a2,                        # country
+            area(n),                                                       # area
+            sources.collect{|a| a.id}.join(','),                           # reference_id
+            Export::Coldp.modified(n[:update_at]),                         # modified
+            Export::Coldp.modified_by(n[:updated_by_id], project_members)  # modified_by
           ]
 
-          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv && sources.any?
+          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv && sources.any?
         end
       end
     end
