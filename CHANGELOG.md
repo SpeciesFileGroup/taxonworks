@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - modified and modifiedBy to the COL data package exporter [#3464]
+- Pagination to Labels and TypeMaterial .json endpoints [#3472]
 - DataAttribute columns for CollectingEvent and TaxonName filters
 - Added ranks for viruses
 - CachedMap framework - compute low-resolution maps quickly [#3010]
@@ -19,7 +20,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Customized API version of OTU autocomplete
 
 ### Changed
-
+- Optimized `/api/v1/asserted_distribution`, also now uses `extend[]=geo_json` (disabled if > 50 records requested)
+- Updated `/api/v1/biological_associations` to report full `taxonomy` [#3438]
 - Updated Ruby gems
 - Added date format recognition ####-##-## [#3453]
 - Add hyperlinks to OTU labels in Filter biological associations table [#3444]
@@ -45,6 +47,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fixed URL hostname string matching in some places.
 - Matrix Column Coder throws an error after autosave ends and observation to be saved no longer exists
 
+[#3464]: https://github.com/SpeciesFileGroup/taxonworks/issues/3464
+[#3438]: https://github.com/SpeciesFileGroup/taxonworks/issues/3438
+[#3472]: https://github.com/SpeciesFileGroup/taxonworks/issues/3472
 [#3452]: https://github.com/SpeciesFileGroup/taxonworks/issues/3452
 [#3010]: https://github.com/SpeciesFileGroup/taxonworks/issues/3010
 [#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430

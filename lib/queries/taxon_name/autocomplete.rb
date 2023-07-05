@@ -225,27 +225,28 @@ module Queries
       # ---- gin methods
 
       def autocomplete_cached
-        ::TaxonName.where(project_id:).select("taxon_names.*, similarity('#{query_string}\', cached) AS sml")
+        ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(["taxon_names.*, similarity(?, cached) AS sml", query_string]))
         .where('cached % ?', query_string) # `%` in where means nothing < 0.3 (internal PG similarity value)
         .order('sml DESC, cached')
       end
 
       def autocomplete_original_combination
-        ::TaxonName.select("taxon_names.*, similarity('#{query_string}\', cached_original_combination) AS sml")
+        ::TaxonName.select(ApplicationRecord.sanitize_sql(["taxon_names.*, similarity(?, cached_original_combination) AS sml", query_string]))
         .where('cached_original_combination % ?', query_string)
         .order('sml DESC, cached_original_combination')
       end
 
       def autocomplete_cached_author_year
-        ::TaxonName.select("taxon_names.*, similarity('#{query_string}\', cached_author_year) AS sml")
+        ::TaxonName.select(ApplicationRecord.sanitize_sql(["taxon_names.*, similarity(?, cached_author_year) AS sml", query_string]))
         .where('cached_author_year % ?', query_string)
         .order('sml DESC, cached_author_year')
       end
 
       # Used in /otus/api/v1/autocomplete
       def autocomplete_combined_gin
-        a = ::TaxonName.select("taxon_names.*, similarity('#{query_string}\', cached_author_year) AS sml_cay, similarity('#{query_string}\', cached) AS sml_c, similarity('#{query_string}\', cached_original_combination) AS sml_coc")
-        .where('cached_author_year % ? OR cached_original_combination % ? OR cached % ?', query_string, query_string, query_string)
+        a = ::TaxonName.select(ApplicationRecord.sanitize_sql(["taxon_names.*, similarity(?, cached_author_year) AS sml_cay, similarity(?, cached) AS sml_c, similarity(?, cached_original_combination) AS sml_coc",
+          query_string, query_string, query_string])
+        ).where('cached_author_year % ? OR cached_original_combination % ? OR cached % ?', query_string, query_string, query_string)
 
         s = 'WITH tns AS (' + a.to_sql + ') ' +
             ::TaxonName
