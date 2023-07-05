@@ -33,14 +33,14 @@ module Export
         if pm.user.orcid.nil?
           project_members[pm.user_id] = pm.user.name
         else
-          project_members[pm.user_id] = pm.user.orcid.gsub('orcid.org/', '')  # orcid.org domain likely not expected by the checklistbank importer?
+          project_members[pm.user_id] = pm.user.orcid
         end
       end
       project_members
     end
 
     def self.modified(updated_at)
-      updated_at.iso8601()
+      updated_at.iso8601
     end
 
     def self.modified_by(updated_by_id, project_members)
