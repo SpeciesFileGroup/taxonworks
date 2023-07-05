@@ -15,7 +15,7 @@ module Export::Coldp::Files::Description
     nil
   end
 
-  def self.generate(otus, reference_csv = nil )
+  def self.generate(otus, project_members, reference_csv = nil )
     CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{ 
@@ -24,6 +24,8 @@ module Export::Coldp::Files::Description
         description
         language
         referenceID
+        modified
+        modifiedBy
       }
 
       otus.joins(:contents).each do |o|
@@ -35,10 +37,12 @@ module Export::Coldp::Files::Description
             c.topic_id, # TODO: refence EOL or related unitified topic DOIs
             c.text,
             c.language&.alpha_3_bibliographic,
-            sources.collect{|a| a.id}.join(',')
+            sources.collect{|a| a.id}.join(','),
+            Export::Coldp.modified(c[:updated_at]),                            # modified
+            Export::Coldp.modified_by(c[:updated_by_id], project_members)      # modifiedBy
           ]
 
-          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv
+          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
         end
       end
     end

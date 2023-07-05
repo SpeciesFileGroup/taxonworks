@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Extracts are citable
+- `modified` and `modifiedBy` fields to the COL data package exporter [#3464]
 - Pagination to Labels and TypeMaterial .json endpoints [#3472]
 - DataAttribute columns for CollectingEvent and TaxonName filters
 - Added ranks for viruses
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clone loan button redirects to new loan task [#3462]
 
 ### Fixed
+- Error rendering TNT matrix labels
 - Error with initializing new Extract when no Extracts present
 - DataAttribute filter facet not working for non-exact matches
 - Speed response for Filter's returning DataAttributes [#3452]
@@ -47,7 +49,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fixed URL hostname string matching in some places.
 - Matrix Column Coder throws an error after autosave ends and observation to be saved no longer exists
 
-
+[#3464]: https://github.com/SpeciesFileGroup/taxonworks/issues/3464
 [#3438]: https://github.com/SpeciesFileGroup/taxonworks/issues/3438
 [#3472]: https://github.com/SpeciesFileGroup/taxonworks/issues/3472
 [#3452]: https://github.com/SpeciesFileGroup/taxonworks/issues/3452
