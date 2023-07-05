@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Customized API version of OTU autocomplete
 
 ### Changed
+- Optimized `/api/v1/asserted_distribution`, also now uses `extend[]=geo_json` (disabled if > 50 records requested)
 - Updated `/api/v1/biological_associations` to report full `taxonomy` [#3438]
 - Updated Ruby gems
 - Added date format recognition ####-##-## [#3453]
