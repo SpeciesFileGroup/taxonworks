@@ -19,16 +19,18 @@ module ObservationMatrixRowsHelper
   end
 
   def observation_matrix_row_label_tnt(observation_matrix_row)
+    # TODO: this return is not guarunteed to be legal TNT
     return observation_matrix_row.name if observation_matrix_row.name.present?
     o = observation_matrix_row.observation_object
-    s = label_for(o).to_s
+    s = label_for(o)
     s.gsub!(/[^\w]/, '_')
-    s = '_' if s.blank?
     s.gsub!(/_+/, '_')
-    #s[0..11] + "_#{o.id}"
+    s = '_' if s.blank?
+    s + "_#{o.id}" # Code must return labels that will execute without error, ensure they are unique.
   end
 
   def observation_matrix_row_label_nexus(observation_matrix_row)
+    # TODO: this return is not guarunteed to be legal nexus
     return observation_matrix_row.name if observation_matrix_row.name.present?
     o = observation_matrix_row.observation_object
     s = label_for(o)
