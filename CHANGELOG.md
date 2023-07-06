@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+
 - Extracts are citable
 - `modified` and `modifiedBy` fields to the COL data package exporter [#3464]
 - Pagination to Labels and TypeMaterial .json endpoints [#3472]
@@ -19,8 +20,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New indices for some name/cached related fields (Otu, TaxonName, Source)
 - Batch update Geographic area radial to filter collecting events
 - Customized API version of OTU autocomplete
+- GBIF map tiles
 
 ### Changed
+
 - Optimized `/api/v1/asserted_distribution`, also now uses `extend[]=geo_json` (disabled if > 50 records requested)
 - Updated `/api/v1/biological_associations` to report full `taxonomy` [#3438]
 - Updated Ruby gems
@@ -31,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clone loan button redirects to new loan task [#3462]
 
 ### Fixed
+
 - Error rendering TNT matrix labels
 - Error with initializing new Extract when no Extracts present
 - DataAttribute filter facet not working for non-exact matches

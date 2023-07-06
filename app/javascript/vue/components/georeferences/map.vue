@@ -161,6 +161,13 @@ const tiles = {
       attribution: 'Google',
       maxZoom: 18
     }
+  ),
+  gbif: L.tileLayer(
+    'https://tile.gbif.org/3857/omt/{z}/{x}/{y}@1x.png?style=gbif-natural-en',
+    {
+      attribution: 'GBIF',
+      maxZoom: 18
+    }
   )
 }
 let observeMap
@@ -243,9 +250,10 @@ const addDrawControllers = () => {
       .layers(
         {
           OSM: tiles.osm,
+          GBIF: tiles.gbif,
           Google: tiles.google
         },
-        { 'Draw layers': drawnItems },
+        {},
         { position: 'topleft', collapsed: false }
       )
       .addTo(mapObject)
