@@ -60,7 +60,7 @@ const props = defineProps({
   },
   drawCircleMarker: {
     type: Boolean,
-    default: true
+    default: false
   },
   drawMarker: {
     type: Boolean,
