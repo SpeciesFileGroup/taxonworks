@@ -55,7 +55,7 @@ class PinboardItem < ApplicationRecord
     end
   end
 
-  def self.remove(klass: nil, user_id: nil, project_id: nil)
+  def self.clear(klass: nil, user_id: nil, project_id: nil)
     PinboardItem.where(user_id:, project_id:, pinned_object_type: klass).delete_all
   end
 
@@ -66,8 +66,6 @@ class PinboardItem < ApplicationRecord
   def is_cross_project?
     is_cross_project.present?
   end
-
-
 
   protected
 

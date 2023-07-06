@@ -34,9 +34,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clone loan button redirects to new loan task [#3462]
 
 ### Fixed
-
-- Error rendering TNT matrix labels
-- Error with initializing new Extract when no Extracts present
+- Clearing PinboardItems by class
+- Rendering TNT matrix labels
+- Initializing new Extract when no Extracts present
 - DataAttribute filter facet not working for non-exact matches
 - Speed response for Filter's returning DataAttributes [#3452]
 - Going from Image filter to others could result in duplicated rows
