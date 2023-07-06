@@ -3,21 +3,21 @@ TW.workbench = TW.workbench || {}
 TW.workbench.pinboard = TW.workbench.pinboard || {}
 
 Object.assign(TW.workbench.pinboard, {
-
   storage: undefined,
 
-  init () {
+  init() {
     this.storage = TW.workbench.storage.newStorage()
     this.storage.changeNamespace('/workbench/pinboard')
     this.toggleSectionEvent = this.toggleSection.bind(this)
-    this.removePinItemsFromSectionEvent = this.removePinItemsFromSection.bind(this)
+    this.removePinItemsFromSectionEvent =
+      this.removePinItemsFromSection.bind(this)
 
     this.loadHeaderStatus()
     this.setDefaultClass()
     this.handleEvents()
   },
 
-  createPinboardItem (pinObject) {
+  createPinboardItem(pinObject) {
     const template = document.createElement('template')
     template.innerHTML = `
       <li 
@@ -51,7 +51,9 @@ Object.assign(TW.workbench.pinboard, {
               data-remote="true"
               rel="nofollow"
               data-method="put"
-              href="/pinboard_items/${pinObject.id}?pinboard_item%5Bis_inserted%5D=true">
+              href="/pinboard_items/${
+                pinObject.id
+              }?pinboard_item%5Bis_inserted%5D=true">
               Make default
             </a>
           </div> 
@@ -62,9 +64,10 @@ Object.assign(TW.workbench.pinboard, {
     return template.content.firstChild
   },
 
-  createDocuments (pinObject) {
+  createDocuments(pinObject) {
     return pinObject.pinned_object_documents
-      ? pinObject.pinned_object_documents.map((document) => `
+      ? pinObject.pinned_object_documents.map(
+          (document) => `
         <span class="pdfviewerItem">
           <a
             class="circle-button"
@@ -73,11 +76,12 @@ Object.assign(TW.workbench.pinboard, {
             PDF Viewer
           </a>
         </span>
-        `)
+        `
+        )
       : ''
   },
 
-  createCategory (title) {
+  createCategory(title) {
     const template = document.createElement('template')
     template.innerHTML = `
       <div id="order_${title}">
@@ -94,11 +98,13 @@ Object.assign(TW.workbench.pinboard, {
     return template.content.firstChild
   },
 
-  toggleSection (event) {
+  toggleSection(event) {
     const element = event.target
 
     if (element.classList.contains('slide-panel-category-header')) {
-      const sectionElement = element.parentNode.querySelector('.slide-panel-category-content')
+      const sectionElement = element.parentNode.querySelector(
+        '.slide-panel-category-content'
+      )
       const sectionName = sectionElement.getAttribute('data-pinboard-section')
 
       this.storage.setItem(sectionName, !this.isExpanded(sectionName))
@@ -108,56 +114,83 @@ Object.assign(TW.workbench.pinboard, {
     }
   },
 
-  removePinItemsFromSection (event) {
-    const pinboardSection = event.target && event.target.getAttribute('data-delete-all-pinboard')
+  removePinItemsFromSection(event) {
+    const pinboardSection = event.target
 
-    if (pinboardSection) {
+    if (pinboardSection.getAttribute('data-delete-all-pinboard-section')) {
       event.preventDefault()
-      this.cleanPinboardItems(pinboardSection)
+      this.cleanPinboardItems({
+        type: pinboardSection.getAttribute('data-delete-all-pinboard-type'),
+        section: pinboardSection.getAttribute(
+          'data-delete-all-pinboard-section'
+        )
+      })
     }
   },
 
-  isExpanded (section) {
+  isExpanded(section) {
     return !!this.storage.getItem(section)
   },
 
-  cleanPinboardItems (klass) {
-    const section = document.querySelector(`[data-pinboard-section="${klass}"]`)
-    const elements = section.querySelectorAll('[data-method="delete"]')
+  cleanPinboardItems({ type, section }) {
+    console.log('SEESESEESE')
+    const CSRFToken = document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute('content')
+    const headers = { 'X-CSRF-Token': CSRFToken }
 
-    elements.forEach(element => {
+    fetch(`/pinboard_items/clear?klass=${type}`, { method: 'POST', headers })
+      .then((response) => response.json())
+      .then(() => {
+        const element = document.querySelector(
+          `[data-pinboard-section="${section}"]`
+        )
+
+        if (element) {
+          element.innerHTML = ''
+        }
+      })
+    /*     elements.forEach(element => {
       element.click()
-    })
+    }) */
   },
 
-  getInsertedPin (object) {
-    const section = document.querySelector(`[data-pinboard-section="${object.pinned_object_section}"]`)
+  getInsertedPin(object) {
+    const section = document.querySelector(
+      `[data-pinboard-section="${object.pinned_object_section}"]`
+    )
 
     return section && section.querySelector('[data-insert="true"]')
   },
 
-  setDefaultClass () {
-    document.querySelectorAll('[data-panel-name="pinboard"] [data-insert]').forEach(element => {
-      if (element.getAttribute('data-insert') === 'true') {
-        element.classList.add('pinboard-default-item')
-      } else {
-        element.classList.remove('pinboard-default-item')
-      }
-    })
+  setDefaultClass() {
+    document
+      .querySelectorAll('[data-panel-name="pinboard"] [data-insert]')
+      .forEach((element) => {
+        if (element.getAttribute('data-insert') === 'true') {
+          element.classList.add('pinboard-default-item')
+        } else {
+          element.classList.remove('pinboard-default-item')
+        }
+      })
   },
 
-  loadHeaderStatus () {
-    document.querySelectorAll('.slide-panel-category-header').forEach(element => {
-      const content = element.parentNode.querySelector('.slide-panel-category-content')
-      const sectionName = content.getAttribute('data-pinboard-section')
+  loadHeaderStatus() {
+    document
+      .querySelectorAll('.slide-panel-category-header')
+      .forEach((element) => {
+        const content = element.parentNode.querySelector(
+          '.slide-panel-category-content'
+        )
+        const sectionName = content.getAttribute('data-pinboard-section')
 
-      if (this.isExpanded(sectionName)) {
-        content.classList.toggle('hidden')
-      }
-    })
+        if (this.isExpanded(sectionName)) {
+          content.classList.toggle('hidden')
+        }
+      })
   },
 
-  removeItem (id) {
+  removeItem(id) {
     const element = document.querySelector(`[data-pinboard-item-id="${id}"]`)
     const section = element.parentNode
 
@@ -170,12 +203,18 @@ Object.assign(TW.workbench.pinboard, {
     this.eventPinboardRemove(id)
   },
 
-  addToPinboard (object) {
+  addToPinboard(object) {
     const insertedItem = this.getInsertedPin(object)
     const pinboardItemElement = this.createPinboardItem(object)
-    let sectionElement = document.querySelector(`[data-pinboard-section="${object.pinned_object_section}"]`)
+    let sectionElement = document.querySelector(
+      `[data-pinboard-section="${object.pinned_object_section}"]`
+    )
 
-    document.querySelectorAll('.slide-pinboard .empty-message').forEach(element => { element.remove() })
+    document
+      .querySelectorAll('.slide-pinboard .empty-message')
+      .forEach((element) => {
+        element.remove()
+      })
 
     if (insertedItem) {
       this.changeLink(insertedItem, false)
@@ -197,36 +236,48 @@ Object.assign(TW.workbench.pinboard, {
     }
   },
 
-  changeLink (pinElement, inserted) {
+  changeLink(pinElement, inserted) {
     pinElement.setAttribute('data-insert', inserted)
-    pinElement.querySelector('.itemOptions').replaceChild(this.createDefaultLink(pinElement.dataset.pinboardItemId, (!inserted)),
-      pinElement.querySelector('.itemOptions .option-default'))
+    pinElement
+      .querySelector('.itemOptions')
+      .replaceChild(
+        this.createDefaultLink(pinElement.dataset.pinboardItemId, !inserted),
+        pinElement.querySelector('.itemOptions .option-default')
+      )
   },
 
-  createDefaultLink (id, inserted) {
+  createDefaultLink(id, inserted) {
     const newEl = document.createElement('a')
 
     newEl.innerHTML = inserted ? 'Make default' : 'Disable default'
-    newEl.setAttribute('href', `/pinboard_items/${id}?pinboard_item%5Bis_inserted%5D=${inserted}`)
+    newEl.setAttribute(
+      'href',
+      `/pinboard_items/${id}?pinboard_item%5Bis_inserted%5D=${inserted}`
+    )
     newEl.setAttribute('data-remote', 'true')
     newEl.setAttribute('rel', 'nofollow')
     newEl.setAttribute('title', inserted ? 'Make default' : 'Disable default')
     newEl.setAttribute('data-method', 'put')
-    newEl.classList.add('circle-button', 'button-pinboard-default', (inserted ? 'button-submit' : 'button-delete'), 'option-default')
+    newEl.classList.add(
+      'circle-button',
+      'button-pinboard-default',
+      inserted ? 'button-submit' : 'button-delete',
+      'option-default'
+    )
 
     return newEl
   },
 
-  eventPinboardRemove (id) {
+  eventPinboardRemove(id) {
     const event = new CustomEvent('pinboard:remove', {
       detail: {
-        id: id
+        id
       }
     })
     document.dispatchEvent(event)
   },
 
-  eventPinboardAdd (object) {
+  eventPinboardAdd(object) {
     const event = new CustomEvent('pinboard:add', {
       detail: {
         id: object.id,
@@ -237,7 +288,7 @@ Object.assign(TW.workbench.pinboard, {
     document.dispatchEvent(event)
   },
 
-  eventPinboardInsert (object) {
+  eventPinboardInsert(object) {
     const event = new CustomEvent('pinboard:insert', {
       detail: {
         id: object.id,
@@ -249,14 +300,18 @@ Object.assign(TW.workbench.pinboard, {
     document.dispatchEvent(event)
   },
 
-  handleEvents () {
-    document.addEventListener('click', this.toggleSectionEvent)
-    document.addEventListener('click', this.removePinItemsFromSectionEvent)
+  handleEvents() {
+    const element = document.querySelector('[data-panel-name="pinboard"]')
+
+    element.addEventListener('click', this.toggleSectionEvent)
+    element.addEventListener('click', this.removePinItemsFromSectionEvent)
   },
 
-  removeEvents () {
-    document.removeEventListener('click', this.toggleSectionEvent)
-    document.removeEventListener('click', this.removePinItemsFromSectionEvent)
+  removeEvents() {
+    const element = document.querySelector('[data-panel-name="pinboard"]')
+
+    element.removeEventListener('click', this.toggleSectionEvent)
+    element.removeEventListener('click', this.removePinItemsFromSectionEvent)
   }
 })
 
