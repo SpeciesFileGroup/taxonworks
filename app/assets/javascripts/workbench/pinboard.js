@@ -133,26 +133,36 @@ Object.assign(TW.workbench.pinboard, {
   },
 
   cleanPinboardItems({ type, section }) {
-    console.log('SEESESEESE')
     const CSRFToken = document
       .querySelector('meta[name="csrf-token"]')
       .getAttribute('content')
     const headers = { 'X-CSRF-Token': CSRFToken }
+    const dialogMessage = `You're trying to destroy all pinboard items of ${section} section. Are you sure want to proceed?`
 
-    fetch(`/pinboard_items/clear?klass=${type}`, { method: 'POST', headers })
-      .then((response) => response.json())
-      .then(() => {
-        const element = document.querySelector(
-          `[data-pinboard-section="${section}"]`
-        )
+    if (window.confirm(dialogMessage)) {
+      fetch(`/pinboard_items/clear?klass=${type}`, { method: 'POST', headers })
+        .then((response) => {
+          if (response.ok) {
+            return response.json()
+          }
 
-        if (element) {
-          element.innerHTML = ''
-        }
-      })
-    /*     elements.forEach(element => {
-      element.click()
-    }) */
+          throw response
+        })
+        .then(() => {
+          const element = document.querySelector(
+            `[data-pinboard-section="${section}"]`
+          )
+
+          if (element) {
+            element.parentElement.remove()
+            TW.workbench.alert.create(
+              'Pinboard Items were successfully destroyed',
+              'notice'
+            )
+          }
+        })
+        .catch(() => {})
+    }
   },
 
   getInsertedPin(object) {

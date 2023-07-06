@@ -24,8 +24,18 @@ var injectItem = `<li class="slide-panel-category-item" data-insert="<%= @pinboa
               </li>`
 
 if (!$('[data-pinboard-section="<%= @pinboard_item.pinned_object_type.pluralize -%>"]').length) {
-  var injectCategory = ` <div id="order_<%= @pinboard_item.pinned_object_type.pluralize -%>">
-                  <div class="slide-panel-category-header"><%= @pinboard_item.pinned_object_type.pluralize -%></div>
+  var injectCategory = `
+                <div id="order_<%= @pinboard_item.pinned_object_type.pluralize -%>">
+                  <div class="slide-panel-category-header flex-separate">
+                    <%= @pinboard_item.pinned_object_type.pluralize -%>
+                    <span 
+                      class="remove-all-pinned small-icon"
+                      data-icon="close"
+                      data-delete-all-pinboard-type="<%= @pinboard_item.pinned_object_type -%>"
+                      data-delete-all-pinboard-section="<%= @pinboard_item.pinned_object_type.pluralize -%>"
+                    >
+                    </span>
+                  </div>
                     <ul class="slide-panel-category-content"
                               data-pinboard-section="<%= @pinboard_item.pinned_object_type.pluralize -%>"
                               data-sortable
