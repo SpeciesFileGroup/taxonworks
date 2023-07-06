@@ -1,7 +1,12 @@
 <template>
   <div class="horizontal-left-content">
     <div class="page-navigator separate-right">
-      <span v-if="pagination?.previousPage !== 1">
+      <span
+        v-if="
+          pagination?.previousPage &&
+          pagination.paginationPage !== pagination.previousPage
+        "
+      >
         <a
           class="cursor-pointer"
           @click="sendPage(pagination.previousPage)"
@@ -72,7 +77,10 @@
         <a>« First</a>
       </span>
       <span
-        v-if="pagination.paginationPage != pagination.totalPages"
+        v-if="
+          pagination.paginationPage != pagination.totalPages &&
+          pagination.totalPages > 1
+        "
         @click="sendPage(pagination.totalPages)"
         class="last cursor-pointer"
       >
