@@ -381,7 +381,7 @@ module Queries
       if api
         self.class.api_excluded_params.each do |a|
           h.delete_if{|k,v| a == k}
- _         h.last.delete_if{|k,v| a == k }
+          h.last.delete_if{|k,v| a == k }
         end
       end
 
