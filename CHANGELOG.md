@@ -8,7 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-
+- `api/v1/controlled_vocabulary_terms` endpoint
 - Extracts are citable
 - `modified` and `modifiedBy` fields to the COL data package exporter [#3464]
 - Pagination to Labels and TypeMaterial .json endpoints [#3472]
