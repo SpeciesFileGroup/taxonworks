@@ -108,6 +108,7 @@ namespace :api, defaults: {format: :json} do
       get '/asserted_distributions/:id', to: '/asserted_distributions#api_show'
 
       get '/data_attributes', to: '/data_attributes#api_index'
+      get '/data_attributes/brief', to: '/data_attributes#api_brief'
       get '/data_attributes/:id', to: '/data_attributes#api_show'
 
       get '/depictions/:id', to: '/depictions#api_show'

@@ -28,6 +28,19 @@ class DataAttributesController < ApplicationController
     @columns = Predicate.where(project_id: sessions_current_project_id, id: cols).order(:name).pluck(:id, :name).inject([]){|ary, a| ary.push(a[0] => a[1]); ary}
   end
 
+  def api_brief
+    q = ::Queries::DataAttribute::Filter.new(params)
+
+    @data = q.all
+      .page(params[:page])
+      .per(params[:per])
+      .pluck('data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, value')
+    cols = @data.collect{|a| a[1]}.uniq
+    @columns = Predicate.where(project_id: sessions_current_project_id, id: cols).order(:name).pluck(:id, :name).inject([]){|ary, a| ary.push(a[0] => a[1]); ary}
+
+    render '/data_attributes/api/v1/brief'
+  end
+
   def api_index
     @data_attributes = Queries::DataAttribute::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
