@@ -5,7 +5,6 @@ export const COLLECTING_EVENT_PROPERTIES = [
   'cached_level0_geographic_name',
   'cached_level1_geographic_name',
   'cached_level2_geographic_name',
-  'verbatim_locality',
   'verbatim_longitude',
   'verbatim_latitude',
   'verbatim_geolocation_uncertainty',
