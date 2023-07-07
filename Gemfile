@@ -44,10 +44,6 @@ gem 'rgeo', '~> 3.0'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
 gem 'rgeo-proj4', '~> 4.0' #, '>= 3.0.1'
 
-
-
-
-
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # translate for geo

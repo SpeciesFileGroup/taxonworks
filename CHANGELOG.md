@@ -20,7 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New indices for some name/cached related fields (Otu, TaxonName, Source)
 - Batch update Geographic area radial to filter collecting events
 - Customized API version of OTU autocomplete
-- GBIF map tiles
+- GBIF map tiles as an option on maps
 
 ### Changed
 
@@ -34,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clone loan button redirects to new loan task [#3462]
 
 ### Fixed
+- Georeference parsing didn't handle new Z
 - Clearing PinboardItems by class
 - Rendering TNT matrix labels
 - Initializing new Extract when no Extracts present
