@@ -254,6 +254,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               excluded: 'TaxonNameClassification::Iczn::Unavailable::Excluded',
               'nomen nudum': 'TaxonNameClassification::Iczn::Unavailable::NomenNudum',
               ichnotaxon: 'TaxonNameClassification::Iczn::Fossil::Ichnotaxon',
+              fossil: 'TaxonNameClassification::Iczn::Fossil',
               'nomen dubium': 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium'
             }.freeze
 
@@ -293,6 +294,12 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                 taxon_name.taxon_name_relationships.find_or_initialize_by(
                   object_taxon_name: incertae_sedis_parent,
                   type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+
+                # possible to have both incertae sedis and fossil classification (since IS is a relationship, not classification)
+                if get_field_value('TW:TaxonNameClassification::Iczn::Fossil')
+                  taxon_name.taxon_name_classifications.find_or_initialize_by(type: 'TaxonNameClassification::Iczn::Fossil')
+                end
+
               else
                 type = status_types[status.to_sym]
 
