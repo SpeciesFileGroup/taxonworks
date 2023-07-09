@@ -161,9 +161,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                 ancestor_protonym = ancestor[:protonym].finest_protonym
               end
 
-                if (rank_in_type = ORIGINAL_COMBINATION_RANKS[rank&.downcase&.to_sym])
-                  taxon_name.save!
-                  TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor_protonym, object_taxon_name: taxon_name)
+              if (rank_in_type = ORIGINAL_COMBINATION_RANKS[rank&.downcase&.to_sym])
+                taxon_name.save!
+                TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor_protonym, object_taxon_name: taxon_name)
               end
             end
           end
@@ -337,6 +337,26 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             raise DarwinCore::InvalidData.new({ "TW:TaxonNameClassification:Latinized:": ["PartOfSpeech #{part_of_speech.downcase} is not one of: adjective, participle, noun in apposition, noun in genitive case."] }) if part_of_speech_classification.nil?
 
             taxon_name.taxon_name_classifications.find_or_initialize_by(type: part_of_speech_classification)
+
+            # if taxon has different original combination conjugation, and genus has gender, use OC name.
+            # It will be conjugated correctly with new genus and the original combination will use the correct conjugation
+
+            if oc_dataset_record_id != self.id &&
+              taxon_name.is_species_rank? &&
+              taxon_name.ancestor_at_rank('genus').gender_name
+
+              oc_name = import_dataset.core_records_fields
+                            .where(dataset_record_id: oc_dataset_record_id)
+                            .at(get_field_mapping(:scientificName))
+                            .pick(:value)
+
+              finest_oc_name = oc_name.split.last
+
+              # check if OC name is conjugated differently, then see if current name can be conjugated into oc name
+              if finest_oc_name != name and taxon_name.predict_three_forms.values.include?(finest_oc_name)
+                taxon_name.name = finest_oc_name
+              end
+            end
           end
 
         elsif metadata['type'] == 'combination'

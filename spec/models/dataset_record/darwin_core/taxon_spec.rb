@@ -916,6 +916,38 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
   end
 
+  context 'when importing species with different congugation' do
+    before(:all) { import_checklist_tsv('conjugated_species.tsv', 5) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:valid) { TaxonName.find_by(cached: 'Atta sexdens') }
+    let(:misspelling) { TaxonName.find_by({ name: 'sexdentata' }) }
+
+    it 'should create and import 5 records' do
+      verify_all_records_imported(5)
+    end
+
+    # Stenammini
+    # Veromessor
+    # Veromessor julianus
+    # Aphaenogaster
+    it 'should have four original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 4
+    end
+
+    it 'should have properly conjugated original combination' do
+      expect(TaxonName.find_by_cached_original_combination("Aphaenogaster juliana")).to_not be_nil
+    end
+
+    it 'should have properly conjugated valid name' do
+      expect(TaxonName.find_by_cached("Veromessor julianus")).to_not be_nil
+    end
+
+  end
+
   # TODO test missing parent
   #
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName
