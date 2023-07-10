@@ -50,7 +50,10 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="child in childrenList">
+              <tr
+                v-for="child in childrenList"
+                :key="child.id"
+              >
                 <td>
                   {{ child.name }}
                 </td>
@@ -64,7 +67,7 @@
                     param="term"
                     min="2"
                     label="label"
-                    @getItem="addPreSelected(child.id, $event.id)"
+                    @get-item="(parent) => addNewParent(child.id, parent.id)"
                     :add-params="{
                       type: 'Protonym',
                       'nomenclature_group[]': 'Genus'
@@ -141,6 +144,7 @@ import RadialAnnotator from 'components/radials/annotator/annotator'
 import BlockLayout from 'components/layout/BlockLayout'
 import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
+import { sortArray } from 'helpers/arrays.js'
 import Autocomplete from 'components/ui/Autocomplete'
 
 export default {
@@ -188,7 +192,9 @@ export default {
               per: 500,
               extend: ['parent']
             }).then((response) => {
-              this.childrenList = response.body.filter(
+              const taxonNames = sortArray(response.body, 'name')
+
+              this.childrenList = taxonNames.filter(
                 (item) => item.id !== this.taxon.id
               )
               this.isLoading = false
@@ -262,10 +268,10 @@ export default {
       )
     },
 
-    addPreSelected(childrenId, parentId) {
+    addNewParent(childrenId, parentId) {
       this.preSelected.push({
-        childrenId: childrenId,
-        parentId: parentId
+        childrenId,
+        parentId
       })
     }
   }
