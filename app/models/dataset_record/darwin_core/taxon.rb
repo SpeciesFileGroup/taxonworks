@@ -295,11 +295,6 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                   object_taxon_name: incertae_sedis_parent,
                   type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
 
-                # possible to have both incertae sedis and fossil classification (since IS is a relationship, not classification)
-                if get_field_value('TW:TaxonNameClassification::Iczn::Fossil')
-                  taxon_name.taxon_name_classifications.find_or_initialize_by(type: 'TaxonNameClassification::Iczn::Fossil')
-                end
-
               else
                 type = status_types[status.to_sym]
 
@@ -308,6 +303,11 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                 taxon_name.taxon_name_classifications.find_or_initialize_by(type: type)
               end
             end
+          end
+
+          # Taxon status might not be "fossil" if synonym, homonym, incertae sedis, etc.
+          if get_field_value('TW:TaxonNameClassification::Iczn::Fossil')
+            taxon_name.taxon_name_classifications.find_or_initialize_by(type: 'TaxonNameClassification::Iczn::Fossil')
           end
 
           # add gender or part of speech classification if given
