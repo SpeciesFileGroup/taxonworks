@@ -99,8 +99,7 @@ import platformKey from 'helpers/getPlatformKey'
 import FormCitation from 'components/Form/FormCitation.vue'
 import { smartSelectorRefresh } from 'helpers/smartSelector/index.js'
 import { ASSERTED_DISTRIBUTION } from 'constants/index.js'
-
-import { Source, AssertedDistribution } from 'routes/endpoints'
+import { AssertedDistribution } from 'routes/endpoints'
 
 const extend = [
   'citations',
@@ -279,14 +278,13 @@ export default {
     },
 
     setCitation (citation) {
-      Source.find(citation.source_id).then(response => {
+
         this.asserted_distribution.citation = {
           id: undefined,
-          source: response.body,
+          source_id: citation.source_id,
           is_original: citation.is_original,
           pages: citation.pages
         }
-      })
     }
   }
 }

@@ -30,7 +30,7 @@
       <ul class="context-menu no_bullets">
         <li>
           <input
-            v-model="citation.pages"
+            v-model="citationComputed.pages"
             type="text"
             class="normal-input inline pages"
             placeholder="pages"
@@ -40,8 +40,8 @@
         <li v-if="!original">
           <label>
             <input
-              v-model="citation.is_original"
-              :value="citation.is_original"
+              v-model="citationComputed.is_original"
+              :value="citationComputed.is_original"
               type="checkbox"
               @change="setIsOriginal"
             />
@@ -66,9 +66,9 @@
         v-if="submitButton"
         class="margin-small-right"
         :color="submitButton.color"
-        :disabled="!citation.source_id"
+        :disabled="!citationComputed.source_id"
         medium
-        @click="emit('submit', citation)"
+        @click="submitCitation"
       >
         {{ submitButton.label }}
       </VBtn>
@@ -106,7 +106,7 @@ const STORAGE = {
 const props = defineProps({
   modelValue: {
     type: Object,
-    default: () => makeCitation()
+    default: undefined
   },
 
   lockButton: {
@@ -158,9 +158,14 @@ const emit = defineEmits([
   'update:absent'
 ])
 
-const citation = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+const citation = ref(props.modelValue || makeCitation())
+
+const citationComputed = computed({
+  get: () => citation.value,
+  set: (value) => {
+    citation.value = value
+    emit('update:modelValue', value)
+  }
 })
 
 const isAbsent = computed({
@@ -170,19 +175,31 @@ const isAbsent = computed({
 
 const isLocked = ref(false)
 
-const sourceId = computed(() => props.modelValue.source_id)
+const sourceId = computed(() => citation.value.source_id)
 const source = ref(undefined)
 
 watch(sourceId, async (newId, oldId) => {
   if (newId) {
     if (newId !== oldId && newId !== source.value?.id) {
       source.value = (await Source.find(newId)).body
-      citation.value._label = source.value.cached
+      citationComputed.value._label = source.value.cached
     }
   } else {
     source.value = undefined
   }
 })
+
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (newVal) {
+      citation.value = newVal
+    } else {
+      citation.value = makeCitation()
+    }
+  },
+  { deep: true }
+)
 
 watch(isAbsent, (newVal) => {
   if (props.useSession) {
@@ -202,8 +219,8 @@ function setSource(value) {
   if (props.useSession) {
     sessionStorage.setItem(STORAGE.sourceId, value.id)
   }
-  citation.value.source_id = value.id
-  citation.value._label = value.cached
+  citationComputed.value.source_id = value.id
+  citationComputed.value._label = value.cached
 
   emit('source', value)
 }
@@ -242,6 +259,11 @@ function setLastCitation() {
   )
 }
 
+function submitCitation() {
+  emit('submit', citationComputed.value)
+  citation.value = { ...makeCitation() }
+}
+
 function init() {
   const lockStoreValue =
     props.useSession && convertType(sessionStorage.getItem(STORAGE.lock))
@@ -251,13 +273,15 @@ function init() {
   }
 
   if (props.lockButton && lockStoreValue && props.useSession) {
-    citation.value.source_id = convertType(
+    citationComputed.value.source_id = convertType(
       sessionStorage.getItem(STORAGE.sourceId)
     )
-    citation.value.is_original = convertType(
+    citationComputed.value.is_original = convertType(
       sessionStorage.getItem(STORAGE.isOriginal)
     )
-    citation.value.pages = convertType(sessionStorage.getItem(STORAGE.pages))
+    citationComputed.value.pages = convertType(
+      sessionStorage.getItem(STORAGE.pages)
+    )
     isAbsent.value = convertType(sessionStorage.getItem(STORAGE.isAbsent))
   }
 }

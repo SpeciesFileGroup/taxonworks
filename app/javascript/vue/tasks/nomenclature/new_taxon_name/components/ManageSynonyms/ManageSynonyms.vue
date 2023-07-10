@@ -24,29 +24,34 @@
             This name is invalid. The valid name is
             <span v-html="validTaxon.name" />
           </p>
-          <div class="horizontal-right-content">
-            <button
-              class="button normal-input button-default separate-right"
-              @click="selectAll"
-            >
-              All
-            </button>
-            <button
-              class="button normal-input button-default"
-              @click="selected = []"
-            >
-              None
-            </button>
+          <div class="flex-separate middle margin-medium-bottom">
+            <div>
+              <label class="display-block">
+                <input type="checkbox" />
+                Record previous combination
+              </label>
+              <label>
+                <input type="checkbox" />
+                Cite previous combination
+              </label>
+            </div>
+            <ManageSynonymsCitation v-model="citations" />
           </div>
+
           <table class="full_width margin-small-bottom margin-small-top">
             <thead>
               <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    v-model="selectAll"
+                  />
+                </th>
                 <th>Child</th>
                 <th>Valid</th>
                 <th>Current parent</th>
                 <th>New parent</th>
                 <th>Options</th>
-                <th>Select</th>
               </tr>
             </thead>
             <tbody>
@@ -54,6 +59,13 @@
                 v-for="child in childrenList"
                 :key="child.id"
               >
+                <td>
+                  <input
+                    :value="child.id"
+                    type="checkbox"
+                    v-model="selected"
+                  />
+                </td>
                 <td>
                   {{ child.name }}
                 </td>
@@ -83,13 +95,6 @@
                     />
                     <radial-annotator :global-id="child.global_id" />
                   </div>
-                </td>
-                <td>
-                  <input
-                    :value="child.id"
-                    type="checkbox"
-                    v-model="selected"
-                  />
                 </td>
               </tr>
             </tbody>
@@ -138,14 +143,15 @@
 </template>
 
 <script>
-import { GetterNames } from '../store/getters/getters'
+import { GetterNames } from '../../store/getters/getters'
 import { TaxonName } from 'routes/endpoints'
+import { sortArray } from 'helpers/arrays.js'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import BlockLayout from 'components/layout/BlockLayout'
 import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
-import { sortArray } from 'helpers/arrays.js'
 import Autocomplete from 'components/ui/Autocomplete'
+import ManageSynonymsCitation from './ManageSynonymsCitation.vue'
 
 export default {
   components: {
@@ -153,7 +159,8 @@ export default {
     RadialAnnotator,
     SpinnerComponent,
     Autocomplete,
-    BlockLayout
+    BlockLayout,
+    ManageSynonymsCitation
   },
   computed: {
     taxon() {
@@ -164,6 +171,18 @@ export default {
     },
     checkInput() {
       return this.moveInput.toUpperCase() !== 'MOVE'
+    },
+
+    selectAll: {
+      get() {
+        return (
+          this.selected.length === this.childrenList.length &&
+          this.selected.length > 0
+        )
+      },
+      set(value) {
+        this.selected = value ? this.childrenList.map((item) => item.id) : []
+      }
     }
   },
   data() {
@@ -176,7 +195,8 @@ export default {
       saving: false,
       preSelected: [],
       isLoading: false,
-      maxSelect: 10
+      maxSelect: 10,
+      citations: []
     }
   },
   watch: {
@@ -206,10 +226,6 @@ export default {
     }
   },
   methods: {
-    selectAll() {
-      this.selected = this.childrenList.map((children) => children.id)
-    },
-
     loadTaxon(id) {
       if (window.confirm('Are you sure you want to load this taxon name?')) {
         window.open(`/tasks/nomenclature/new_taxon_name/${id}`, `_self`)
