@@ -100,7 +100,7 @@ module Export::Coldp::Files::TypeMaterial
             nil,                                                           # sex
             nil,                                                           # link
             Export::Coldp.modified(c[:updated_at]),                        # modified
-            Export::Coldp.modified_by(c[:updated_by_id], project_members)  # modifiedBy
+            Export::Coldp.modified_by(c[:updated_by_id], project_members), # modifiedBy
             nil                                                            # remarks
           ]
 
