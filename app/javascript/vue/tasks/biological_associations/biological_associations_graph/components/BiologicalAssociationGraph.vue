@@ -331,8 +331,9 @@ const eventHandlers = {
 
 const confirmationModalRef = ref()
 
-async function handleRemoveNode(node) {
+async function handleRemoveNode({ nodeId, destroy }) {
   const ok =
+    !destroy ||
     !isCurrentNodeSaved.value ||
     (await confirmationModalRef.value.show({
       title: 'Destroy biological association',
@@ -344,12 +345,13 @@ async function handleRemoveNode(node) {
     }))
 
   if (ok) {
-    removeNode(node)
+    removeNode(nodeId, destroy)
   }
 }
 
-async function handleRemoveEdge(edgeId) {
+async function handleRemoveEdge({ edgeId, destroy }) {
   const ok =
+    !destroy ||
     !edges.value[edgeId].id ||
     (await confirmationModalRef.value.show({
       title: 'Destroy biological association',
@@ -361,7 +363,7 @@ async function handleRemoveEdge(edgeId) {
     }))
 
   if (ok) {
-    removeEdge(edgeId)
+    removeEdge(edgeId, destroy)
   }
 }
 

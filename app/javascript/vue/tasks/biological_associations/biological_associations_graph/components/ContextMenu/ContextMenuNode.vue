@@ -4,8 +4,19 @@
     <span>{{ node.name }}</span>
     <VBtn
       circle
-      :color="isSaved ? 'destroy' : 'primary'"
-      @click="() => emit('remove:node', nodeId)"
+      color="primary"
+      @click="() => emit('remove:node', { nodeId, destroy: false })"
+    >
+      <VIcon
+        x-small
+        name="trash"
+      />
+    </VBtn>
+    <VBtn
+      circle
+      v-if="isSaved"
+      color="destroy"
+      @click="() => emit('remove:node', { nodeId, destroy: true })"
     >
       <VIcon
         x-small
