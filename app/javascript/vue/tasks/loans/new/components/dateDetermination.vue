@@ -33,7 +33,7 @@
         v-else
         :clear-after="true"
         @get-item="
-          () => {
+          ($event) => {
             determination.otu_id = $event.id
             otuSelected = $event.label_html
           }

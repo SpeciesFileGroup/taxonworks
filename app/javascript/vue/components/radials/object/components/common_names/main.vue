@@ -19,11 +19,11 @@
         label="name"
         :add-tabs="['map']"
         pin-type="GeographicArea"
-        @selected="() => (selectedGeographic = $event)"
+        @selected="($event) => (selectedGeographic = $event)"
       >
         <template #map>
           <GeographicAreaMapPicker
-            @select="() => (selectedGeographic = $event)"
+            @select="($event) => (selectedGeographic = $event)"
           />
         </template>
       </SmartSelector>
@@ -44,7 +44,7 @@
         pin-section="Languages"
         pin-type="Language"
         label="english_name"
-        @selected="() => (selectedLanguage = $event)"
+        @selected="($event) => (selectedLanguage = $event)"
       />
       <SmartSelectorItem
         :item="selectedLanguage"
