@@ -12,10 +12,10 @@
       :created="props.created"
       @close="currentTab = TAB.common"
       @select="
-        () => {
+        ({ name, type }) => {
           emit('select', {
-            name: $event.name,
-            type: $event.type
+            name,
+            type
           })
           currentTab = TAB.common
         }
