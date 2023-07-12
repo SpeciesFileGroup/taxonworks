@@ -1,18 +1,14 @@
-import { convertToTwoDigits } from 'helpers/numbers'
+import { convertToTwoDigits } from '@/helpers/numbers'
 
-const parseDate = extract => {
-  return [
-     extract.year_made,
-     extract.month_made,
-     extract.day_made
-   ]
-   .filter(Boolean)
-   .map(d => convertToTwoDigits(d))
-   .join('/')
- }
+const parseDate = (extract) => {
+  return [extract.year_made, extract.month_made, extract.day_made]
+    .filter(Boolean)
+    .map((d) => convertToTwoDigits(d))
+    .join('/')
+}
 
 export default (extracts) =>
-  extracts.map(e => ({
+  extracts.map((e) => ({
     id: e.id,
     global_id: e.global_id,
     otus: e.otus.join(', '),

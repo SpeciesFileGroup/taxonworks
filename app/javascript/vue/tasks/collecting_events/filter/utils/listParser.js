@@ -1,5 +1,5 @@
-import { chunkArray } from 'helpers/arrays'
-import { DataAttribute, Georeference } from 'routes/endpoints'
+import { chunkArray } from '@/helpers/arrays'
+import { DataAttribute, Georeference } from '@/routes/endpoints'
 
 function makeDataAttributeObjectHeaders(data) {
   return Object.assign({}, ...data.index)

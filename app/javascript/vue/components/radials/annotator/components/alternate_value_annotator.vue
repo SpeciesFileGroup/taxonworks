@@ -10,12 +10,14 @@
     <ul class="no_bullets content">
       <li
         v-for="(item, key) in values"
-        :key="item">
+        :key="item"
+      >
         <label>
           <input
             type="radio"
             v-model="alternateValue.alternate_value_object_attribute"
-            :value="key">
+            :value="key"
+          />
           "{{ key }}" -> {{ item }}
         </label>
       </li>
@@ -28,7 +30,8 @@
         model="languages"
         klass="AlternateValue"
         label="english_name"
-        @selected="setLanguage"/>
+        @selected="setLanguage"
+      />
       <SmartSelectorItem
         :item="language"
         label="english_name"
@@ -41,7 +44,8 @@
         class="normal-input full_width"
         type="text"
         v-model="alternateValue.value"
-        placeholder="Value">
+        placeholder="Value"
+      />
     </div>
 
     <v-btn
@@ -49,13 +53,15 @@
       color="create"
       medium
       :disabled="!validateFields"
-      @click="saveAlternateValue">
+      @click="saveAlternateValue"
+    >
       Save
     </v-btn>
     <v-btn
       color="primary"
       medium
-      @click="reset">
+      @click="reset"
+    >
       New
     </v-btn>
   </div>
@@ -69,22 +75,21 @@
   />
 </template>
 <script>
-
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
-import SwitchComponent from 'components/switch.vue'
-import DisplayList from 'components/displayList.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import { addToArray } from 'helpers/arrays.js'
+import SwitchComponent from '@/components/switch.vue'
+import DisplayList from '@/components/displayList.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { addToArray } from '@/helpers/arrays.js'
 import {
   ALTERNATE_VALUE_ABBREVIATION,
   ALTERNATE_VALUE_ALTERNATE_SPELLING,
   ALTERNATE_VALUE_MISSPELLING,
   ALTERNATE_VALUE_TRANSLATION
-} from 'constants/index.js'
-import { AlternateValue, Language } from 'routes/endpoints'
+} from '@/constants/index.js'
+import { AlternateValue, Language } from '@/routes/endpoints'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -98,32 +103,38 @@ export default {
   },
 
   computed: {
-    validateFields () {
-      return this.alternateValue.value &&
+    validateFields() {
+      return (
+        this.alternateValue.value &&
         this.alternateValue.alternate_value_object_attribute
+      )
     },
 
-    tabs () {
+    tabs() {
       return Object.values(this.typeList)
     },
 
     alternateType: {
-      get () {
-        return Object.keys(this.typeList).findIndex(item => item === this.alternateValue.type)
+      get() {
+        return Object.keys(this.typeList).findIndex(
+          (item) => item === this.alternateValue.type
+        )
       },
-      set (value) {
+      set(value) {
         this.alternateValue.type = Object.keys(this.typeList)[value]
       }
     }
   },
 
-  created () {
-    this.getList(`/alternate_values/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
+  created() {
+    this.getList(
+      `/alternate_values/${encodeURIComponent(this.globalId)}/metadata`
+    ).then((response) => {
       this.values = response.body
     })
   },
 
-  data () {
+  data() {
     return {
       values: undefined,
       typeList: {
@@ -140,7 +151,7 @@ export default {
   },
 
   methods: {
-    newAlternate () {
+    newAlternate() {
       return {
         value: undefined,
         language_id: undefined,
@@ -149,7 +160,7 @@ export default {
       }
     },
 
-    saveAlternateValue () {
+    saveAlternateValue() {
       const alternate_value = {
         ...this.alternateValue,
         annotated_global_entity: decodeURIComponent(this.globalId)
@@ -159,24 +170,33 @@ export default {
         ? AlternateValue.update(alternate_value.id, { alternate_value })
         : AlternateValue.create({ alternate_value })
 
-      saveRequest.then(response => {
+      saveRequest.then((response) => {
         addToArray(this.list, response.body)
         this.reset()
-        TW.workbench.alert.create('Alternate value was successfully saved.', 'notice')
+        TW.workbench.alert.create(
+          'Alternate value was successfully saved.',
+          'notice'
+        )
       })
     },
 
-    reset () {
+    reset() {
       this.alternateValue = this.newAlternate()
       this.language = undefined
     },
 
-    setLanguage (language) {
+    setLanguage(language) {
       this.alternateValue.language_id = language?.id
       this.language = language
     },
 
-    loadAlternateValue ({ id, value, alternate_value_object_attribute, language_id, type }) {
+    loadAlternateValue({
+      id,
+      value,
+      alternate_value_object_attribute,
+      language_id,
+      type
+    }) {
       this.alternateValue = {
         id,
         value,

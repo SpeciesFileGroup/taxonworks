@@ -2,7 +2,8 @@
   <block-layout
     anchor="etymology"
     :spinner="!taxon.id"
-    v-help.section.etymology.container>
+    v-help.section.etymology.container
+  >
     <template #header>
       <h3>Etymology</h3>
     </template>
@@ -12,16 +13,16 @@
         class="edit-content"
         v-model="etymology"
         :configs="config"
-        ref="etymologyText"/>
+        ref="etymologyText"
+      />
     </template>
   </block-layout>
 </template>
 <script>
-
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import MarkdownEditor from 'components/markdown-editor.vue'
-import BlockLayout from'components/layout/BlockLayout'
+import MarkdownEditor from '@/components/markdown-editor.vue'
+import BlockLayout from '@/components/layout/BlockLayout'
 
 export default {
   components: {
@@ -30,18 +31,18 @@ export default {
   },
   computed: {
     etymology: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetEtymology]
       },
-      set (text) {
+      set(text) {
         this.$store.commit(MutationNames.SetEtymology, text)
       }
     },
-    taxon () {
+    taxon() {
       return this.$store.getters[GetterNames.GetTaxon]
     }
   },
-  data () {
+  data() {
     return {
       config: {
         status: false,
@@ -50,7 +51,7 @@ export default {
     }
   },
   methods: {
-    updateLastChange () {
+    updateLastChange() {
       this.$store.commit(MutationNames.UpdateLastChange)
     }
   }

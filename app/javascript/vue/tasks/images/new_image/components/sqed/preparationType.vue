@@ -3,8 +3,9 @@
     <legend>Preparation</legend>
     <div class="horizontal-left-content align-start">
       <ul
-        v-for="itemsGroup in coTypes.chunk(Math.ceil(coTypes.length/2))"
-        class="no_bullets full_width">
+        v-for="itemsGroup in coTypes.chunk(Math.ceil(coTypes.length / 2))"
+        class="no_bullets full_width"
+      >
         <li v-for="type in itemsGroup">
           <label>
             <input
@@ -12,7 +13,8 @@
               :checked="type.id == collectionObject.preparation_type_id"
               :value="type.id"
               v-model="collectionObject.preparation_type_id"
-              name="collection-object-type">
+              name="collection-object-type"
+            />
             {{ type.name }}
           </label>
         </li>
@@ -22,10 +24,9 @@
 </template>
 
 <script>
-
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { GetterNames } from '../../store/getters/getters.js'
-import { PreparationType } from 'routes/endpoints'
+import { PreparationType } from '@/routes/endpoints'
 
 export default {
   computed: {
@@ -39,14 +40,14 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       coTypes: []
     }
   },
 
-  created () {
-    PreparationType.all().then(response => {
+  created() {
+    PreparationType.all().then((response) => {
       this.coTypes = response.body
     })
   }

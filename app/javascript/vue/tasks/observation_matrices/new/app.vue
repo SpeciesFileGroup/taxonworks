@@ -116,10 +116,10 @@ import NewMatrix from './components/newMatrix/newMatrix'
 import TablesComponent from './components/tables/view'
 import RowsFixed from './components/rows/fixed'
 import columnsFixed from './components/columns/fixed'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import PinComponent from 'components/ui/Pinboard/VPin.vue'
-import SpinnerComponent from 'components/spinner'
-import RadialNavigation from 'components/radials/navigation/radial'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+import SpinnerComponent from '@/components/spinner'
+import RadialNavigation from '@/components/radials/navigation/radial'
 
 import RowsDynamic from './components/rows/dynamic'
 import ColumnsDynamic from './components/columns/dynamic'
@@ -127,7 +127,7 @@ import ColumnsDynamic from './components/columns/dynamic'
 import { SortMatrixByNomenclature } from './request/resources'
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
-import { RouteNames } from 'routes/routes'
+import { RouteNames } from '@/routes/routes'
 
 export default {
   name: 'NewObservationMatrix',

@@ -121,19 +121,19 @@
 
 <script setup>
 import BiologicalAssociationGraph from './components/BiologicalAssociationGraph.vue'
-import VNavbar from 'components/layout/NavBar'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import VAutocomplete from 'components/ui/Autocomplete.vue'
-import setParam from 'helpers/setParam.js'
+import VNavbar from '@/components/layout/NavBar'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import setParam from '@/helpers/setParam.js'
 import useHotkey from 'vue3-hotkey'
-import platformKey from 'helpers/getPlatformKey'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import platformKey from '@/helpers/getPlatformKey'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import ModalRelated from './components/ModalRelated.vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import { URLParamsToJSON } from '@/helpers/url/parse'
 import { onMounted, ref } from 'vue'
-import { CollectionObject, Otu } from 'routes/endpoints'
-import { RouteNames } from 'routes/routes.js'
+import { CollectionObject, Otu } from '@/routes/endpoints'
+import { RouteNames } from '@/routes/routes.js'
 
 const graph = ref()
 const hotkeys = ref([

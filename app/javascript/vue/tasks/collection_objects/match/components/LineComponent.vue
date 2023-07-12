@@ -13,7 +13,7 @@
                 type="radio"
                 :value="item"
                 v-model="view"
-              >
+              />
               {{ item }} ({{ listCount[item] }})
             </label>
           </li>
@@ -47,16 +47,21 @@
         class="panel content rounded-none"
       >
         <div class="flex-separate">
-          <template v-if="(Array.isArray(match) && match.length) || Object.keys(match).length">
-            <span><b>{{ recordId }}</b></span>
+          <template
+            v-if="
+              (Array.isArray(match) && match.length) ||
+              Object.keys(match).length
+            "
+          >
+            <span
+              ><b>{{ recordId }}</b></span
+            >
           </template>
           <template v-else>
             <span>
               <b>{{ recordId }}</b>
             </span>
-            <span>
-              Unmatched
-            </span>
+            <span> Unmatched </span>
           </template>
         </div>
         <ul v-if="match.length">
@@ -69,7 +74,7 @@
                 :value="record.id"
                 v-model="selected"
                 type="checkbox"
-              >
+              />
             </label>
             <a
               :href="`/tasks/collection_objects/browse?collection_object_id=${record.id}`"
@@ -83,9 +88,8 @@
 </template>
 
 <script>
-
 import CompareComponent from './CompareComponent'
-import NavbarComponent from 'components/layout/NavBar'
+import NavbarComponent from '@/components/layout/NavBar'
 
 export default {
   components: {
@@ -103,20 +107,28 @@ export default {
   emits: ['selected'],
 
   computed: {
-    compare () {
+    compare() {
       if (this.selected.length > 1) {
-        const list = [].concat(...Object.values(this.matchList).filter(item => Array.isArray(item)))
+        const list = [].concat(
+          ...Object.values(this.matchList).filter((item) => Array.isArray(item))
+        )
 
-        return list.filter(item => this.selected.includes(item.id))
+        return list.filter((item) => this.selected.includes(item.id))
       } else {
         return []
       }
     },
 
-    listCount () {
+    listCount() {
       const matchList = Object.values(this.matchList)
-      const matches = matchList.filter(match => (Array.isArray(match) && match.length) || Object.keys(match).length).length
-      const unmatched = matchList.filter(match => !(Array.isArray(match) && match.length) || !Object.keys(match).length).length
+      const matches = matchList.filter(
+        (match) =>
+          (Array.isArray(match) && match.length) || Object.keys(match).length
+      ).length
+      const unmatched = matchList.filter(
+        (match) =>
+          !(Array.isArray(match) && match.length) || !Object.keys(match).length
+      ).length
       const both = matches + unmatched
 
       return {
@@ -127,7 +139,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       selected: [],
       show: ['matches', 'unmatched', 'both'],
@@ -137,7 +149,7 @@ export default {
 
   watch: {
     selected: {
-      handler (newVal) {
+      handler(newVal) {
         this.$emit('selected', newVal)
       },
       deep: true
@@ -145,11 +157,15 @@ export default {
   },
 
   methods: {
-    selectAll () {
-      this.selected = [].concat(...Object.values(this.matchList).filter(item => Array.isArray(item))).map(item => item.id)
+    selectAll() {
+      this.selected = []
+        .concat(
+          ...Object.values(this.matchList).filter((item) => Array.isArray(item))
+        )
+        .map((item) => item.id)
     },
 
-    filterView (record) {
+    filterView(record) {
       switch (this.view) {
         case 'matches':
           return record.length

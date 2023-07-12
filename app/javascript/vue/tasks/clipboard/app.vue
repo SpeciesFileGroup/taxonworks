@@ -25,15 +25,15 @@
       </li>
     </ul>
     <p class="slide-panel-category-content">
-      Use <b class="capitalize">{{ actionKey }} + {{ keyCopy }} + Number</b> to copy a text to the
-      clipboard box
+      Use <b class="capitalize">{{ actionKey }} + {{ keyCopy }} + Number</b> to
+      copy a text to the clipboard box
     </p>
   </div>
 </template>
 <script setup>
 import { ref, onBeforeMount, onBeforeUnmount } from 'vue'
-import { ProjectMember } from 'routes/endpoints'
-import platformKey from 'helpers/getPlatformKey'
+import { ProjectMember } from '@/routes/endpoints'
+import platformKey from '@/helpers/getPlatformKey'
 import useHotkey from 'vue3-hotkey'
 
 const clipboard = ref({
@@ -87,7 +87,10 @@ onBeforeUnmount(() => {
 })
 
 function isInput() {
-  return document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA'
+  return (
+    document.activeElement.tagName === 'INPUT' ||
+    document.activeElement.tagName === 'TEXTAREA'
+  )
 }
 
 function pasteClipboard(clipboardIndex) {
@@ -96,7 +99,9 @@ function pasteClipboard(clipboardIndex) {
     const text = document.activeElement.value
 
     document.activeElement.value =
-      text.substr(0, position) + clipboard.value[clipboardIndex] + text.substr(position)
+      text.substr(0, position) +
+      clipboard.value[clipboardIndex] +
+      text.substr(position)
     document.activeElement.dispatchEvent(new CustomEvent('input'))
   }
 }
@@ -108,7 +113,9 @@ function saveClipboard() {
 }
 
 function setClipboard(index) {
-  const textSelected = isInput() ? document.activeElement.value : window.getSelection().toString()
+  const textSelected = isInput()
+    ? document.activeElement.value
+    : window.getSelection().toString()
 
   if (textSelected.length > 0) {
     clipboard.value[index] = textSelected

@@ -58,16 +58,16 @@
 </template>
 
 <script setup>
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import VModal from 'components/ui/Modal.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import AddSlice from './components/AddSlice.vue'
 import AddNewSlice from './components/AddNewSlice.vue'
-import { QUERY_PARAM } from 'components/radials/filter/constants/queryParam.js'
+import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam.js'
 import { computed, ref } from 'vue'
-import { removeEmptyProperties } from 'helpers/objects.js'
-import { ID_PARAM_FOR } from 'components/radials/filter/constants/idParams.js'
+import { removeEmptyProperties } from '@/helpers/objects.js'
+import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 
 const EXCLUDE_PARAMETERS = ['per', 'extend', 'page']
 const SLICES = {

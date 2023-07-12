@@ -20,11 +20,11 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { computed, ref } from 'vue'
-import { People } from 'routes/endpoints'
-import { URLParamsToJSON } from 'helpers/url/parse'
-import { humanize, toSnakeCase } from 'helpers/strings'
+import { People } from '@/routes/endpoints'
+import { URLParamsToJSON } from '@/helpers/url/parse'
+import { humanize, toSnakeCase } from '@/helpers/strings'
 
 const props = defineProps({
   modelValue: {

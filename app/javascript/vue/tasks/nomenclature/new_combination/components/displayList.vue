@@ -54,11 +54,11 @@
   </transition-group>
 </template>
 <script>
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import PlacementComponent from './placement.vue'
-import ConfidenceButton from 'components/defaultConfidence'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import ConfidenceButton from '@/components/defaultConfidence'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {

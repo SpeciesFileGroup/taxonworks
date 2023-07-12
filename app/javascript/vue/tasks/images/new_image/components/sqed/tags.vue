@@ -3,7 +3,7 @@
     <legend>Tags</legend>
     <smart-selector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-      :autocomplete-params="{'type[]' : 'Keyword'}"
+      :autocomplete-params="{ 'type[]': 'Keyword' }"
       get-url="/controlled_vocabulary_terms/"
       model="keywords"
       klass="Image"
@@ -23,9 +23,8 @@
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
-import TableList from 'components/table_list'
+import SmartSelector from '@/components/ui/SmartSelector'
+import TableList from '@/components/table_list'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 
@@ -37,24 +36,26 @@ export default {
 
   computed: {
     tags: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetTags]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetTags, value)
       }
     }
   },
 
   methods: {
-    addTag (tag) {
+    addTag(tag) {
       this.$store.commit(MutationNames.AddTag, tag)
     },
 
-    removeTag (tag) {
-      this.tags.splice(this.tags.findIndex(item => item.id === tag.id), 1)
+    removeTag(tag) {
+      this.tags.splice(
+        this.tags.findIndex((item) => item.id === tag.id),
+        1
+      )
     }
   }
-
 }
 </script>

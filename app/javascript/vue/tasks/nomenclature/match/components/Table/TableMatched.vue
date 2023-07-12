@@ -40,8 +40,8 @@
 </template>
 
 <script setup>
-import { RouteNames } from 'routes/routes'
-import { getTaxonNameStatus } from 'helpers/taxon_names.js'
+import { RouteNames } from '@/routes/routes'
+import { getTaxonNameStatus } from '@/helpers/taxon_names.js'
 defineProps({
   list: {
     type: Array,

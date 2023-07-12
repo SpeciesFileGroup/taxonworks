@@ -16,11 +16,11 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { TaxonName } from 'routes/endpoints'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { TaxonName } from '@/routes/endpoints'
 import { ref, computed, watch } from 'vue'
 
 const props = defineProps({
@@ -35,21 +35,21 @@ const emit = defineEmits(['update:modelValue'])
 const taxon = ref(undefined)
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
+})
+
+watch(taxon, (newVal) => {
+  params.value.ancestor_id = newVal?.id
 })
 
 watch(
-  taxon,
-  newVal => {
-    params.value.ancestor_id = newVal?.id
+  () => params.value.ancestor_id,
+  (newVal) => {
+    if (!newVal) {
+      taxon.value = undefined
+    }
   }
 )
-
-watch(() => params.value.ancestor_id, newVal => {
-  if (!newVal) {
-    taxon.value = undefined
-  }
-})
 
 const { ancestor_id } = URLParamsToJSON(location.href)
 
@@ -58,5 +58,4 @@ if (ancestor_id) {
     taxon.value = body
   })
 }
-
 </script>

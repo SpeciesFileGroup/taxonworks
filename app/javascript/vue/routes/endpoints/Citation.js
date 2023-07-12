@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import ajaxCall from 'helpers/ajaxCall'
+import ajaxCall from '@/helpers/ajaxCall'
 const controller = 'citations'
 const permitParams = {
   citation: {

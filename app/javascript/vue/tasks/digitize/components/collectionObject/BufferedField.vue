@@ -1,7 +1,7 @@
 <template>
   <div>
     <label>{{ title }}</label>
-    <br>
+    <br />
     <div class="horizontal-left-content align-start">
       <textarea
         class="full_width separate-right"
@@ -11,11 +11,13 @@
       <div>
         <lock-component
           v-model="locked"
-          class="margin-small-bottom"/>
+          class="margin-small-bottom"
+        />
         <v-btn
           type="button"
           @click="setInline(inputText)"
-          color="primary">
+          color="primary"
+        >
           Trim
         </v-btn>
       </div>
@@ -24,10 +26,9 @@
 </template>
 
 <script>
-
-import LockComponent from 'components/ui/VLock/index.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import { stringInline } from 'helpers/strings'
+import LockComponent from '@/components/ui/VLock/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { stringInline } from '@/helpers/strings'
 
 export default {
   components: {
@@ -50,36 +51,32 @@ export default {
       type: Boolean,
       required: true
     }
-
   },
 
-  emits: [
-    'update:modelValue',
-    'update:lock'
-  ],
+  emits: ['update:modelValue', 'update:lock'],
 
   computed: {
     inputText: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     },
 
     locked: {
-      get () {
+      get() {
         return this.lock
       },
-      set (value) {
+      set(value) {
         this.$emit('update:lock', value)
       }
     }
   },
 
   methods: {
-    setInline (text) {
+    setInline(text) {
       this.inputText = stringInline(text)
     }
   }

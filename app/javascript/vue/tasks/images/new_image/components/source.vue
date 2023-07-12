@@ -8,14 +8,16 @@
           model="sources"
           klass="Depiction"
           label="cached"
-          @selected="setSource"/>
+          @selected="setSource"
+        />
         <template v-if="source">
-          <hr>
+          <hr />
           <div class="middle">
-            <span v-html="source.cached"/>
+            <span v-html="source.cached" />
             <span
               @click="removeSource"
-              class="circle-button button-default btn-undo"/>
+              class="circle-button button-default btn-undo"
+            />
           </div>
         </template>
       </div>
@@ -24,8 +26,7 @@
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
+import SmartSelector from '@/components/ui/SmartSelector'
 import { GetterNames } from '../store/getters/getters.js'
 import { MutationNames } from '../store/mutations/mutations.js'
 
@@ -34,21 +35,21 @@ export default {
 
   computed: {
     source: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSource]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSource, value)
       }
     }
   },
 
   methods: {
-    setSource (value) {
+    setSource(value) {
       this.source = value
     },
 
-    removeSource () {
+    removeSource() {
       this.source = undefined
     }
   }

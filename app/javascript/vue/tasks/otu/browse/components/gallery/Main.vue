@@ -1,7 +1,8 @@
 <template>
   <section-panel
     :status="status"
-    :title="title">
+    :title="title"
+  >
     <div
       class="flex-wrap-row"
       v-if="imagesList.length"
@@ -18,8 +19,7 @@
 </template>
 
 <script>
-
-import ImageViewer from 'components/ui/ImageViewer/ImageViewer'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer'
 import SectionPanel from '../shared/sectionPanel'
 import extendSection from '../shared/extendSections'
 import { GetterNames } from '../../store/getters/getters'
@@ -33,15 +33,15 @@ export default {
   },
 
   computed: {
-    figuresList () {
+    figuresList() {
       return this.$store.getters[GetterNames.GetDepictions]
     },
 
-    observationsDepictions () {
+    observationsDepictions() {
       return this.$store.getters[GetterNames.GetObservationsDepictions]
     },
 
-    imagesList () {
+    imagesList() {
       return [].concat(this.figuresList, this.observationsDepictions)
     }
   }

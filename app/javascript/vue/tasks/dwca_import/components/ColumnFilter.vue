@@ -1,6 +1,5 @@
 <template>
-  <th
-    class="column-filter">
+  <th class="column-filter">
     <div class="flex-separate middle">
       <span v-help="`section|dwcTable|${title}`">{{ title }}</span>
       <div
@@ -24,7 +23,7 @@
       v-show="show && !disabled"
       class="panel content filter-container"
     >
-      <div class="horizontal-left-content" >
+      <div class="horizontal-left-content">
         <autocomplete
           ref="autocomplete"
           :url="`/import_datasets/${importId}/dataset_records/autocomplete_data_fields.json`"
@@ -52,12 +51,14 @@
           class="margin-small-right item"
           placeholder="Replace"
           type="text"
-          :disabled="!modelValue">
+          :disabled="!modelValue"
+        />
         <button
           type="button"
           class="button normal-input button-default"
           :disabled="!modelValue || !replace.length"
-          @click="emitReplace">
+          @click="emitReplace"
+        >
           OK
         </button>
       </div>
@@ -66,8 +67,7 @@
 </template>
 
 <script>
-
-import Autocomplete from 'components/ui/Autocomplete'
+import Autocomplete from '@/components/ui/Autocomplete'
 import { GetterNames } from '../store/getters/getters'
 import ColumnMixin from './shared/columnMixin.js'
 
@@ -98,15 +98,15 @@ export default {
   emits: ['replace'],
 
   computed: {
-    importId () {
+    importId() {
       return this.$store.getters[GetterNames.GetDataset].id
     },
-    paramsFilter () {
+    paramsFilter() {
       return this.$store.getters[GetterNames.GetParamsFilter]
     }
   },
 
-  data () {
+  data() {
     return {
       per: 25,
       show: false,
@@ -115,7 +115,7 @@ export default {
   },
 
   watch: {
-    filter (newVal) {
+    filter(newVal) {
       if (!newVal) {
         this.$refs.autocomplete.setText('')
       }
@@ -123,13 +123,13 @@ export default {
   },
 
   methods: {
-    applyFilter (value) {
+    applyFilter(value) {
       this.filter = value
     },
-    unselect () {
+    unselect() {
       this.filter = undefined
     },
-    emitReplace () {
+    emitReplace() {
       this.$emit('replace', {
         columnIndex: this.columnIndex,
         replaceValue: this.replace,

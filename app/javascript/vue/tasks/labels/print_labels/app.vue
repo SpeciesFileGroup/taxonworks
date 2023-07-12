@@ -5,7 +5,8 @@
       <ul class="no_bullets context-menu">
         <li
           v-for="(link, index) in links"
-          :key="index">
+          :key="index"
+        >
           <a :href="link.url">
             {{ link.label }}
           </a>
@@ -23,10 +24,12 @@
           :divisor="layout.divisor"
           :separator="layout.separator"
           :custom-style="customStyle"
-          :labels="selectedLabels"/>
+          :labels="selectedLabels"
+        />
         <label-form
           v-model="label"
-          @save="saveLabel"/>
+          @save="saveLabel"
+        />
       </div>
     </navbar-component>
     <block-layout class="margin-medium-bottom">
@@ -38,13 +41,15 @@
           <style-selector
             class="full_width"
             @onNewStyle="customStyle = $event"
-            v-model="styleSelected"/>
+            v-model="styleSelected"
+          />
           <layout-component
             class="full_width"
             @onRowsChange="layout.rows = $event"
             @onColumnsChange="layout.columns = $event"
             @onSeparatorChange="layout.separator = $event"
-            @onDivisorChange="layout.divisor = $event"/>
+            @onDivisorChange="layout.divisor = $event"
+          />
         </div>
       </template>
     </block-layout>
@@ -54,21 +59,21 @@
       @onRemove="removeLabel"
       @onRemoveAll="deleteLabels"
       @onEdit="editLabel"
-      @onUpdate="updateLabel"/>
+      @onUpdate="updateLabel"
+    />
   </div>
 </template>
 
 <script>
-
-import BlockLayout from 'components/layout/BlockLayout'
+import BlockLayout from '@/components/layout/BlockLayout'
 import StyleSelector from './components/StyleSelector'
 import LayoutComponent from './components/Layout'
 import TableComponent from './components/Table/TableComponent'
 import PreviewLabels from './components/PreviewLabels'
-import NavbarComponent from 'components/layout/NavBar'
+import NavbarComponent from '@/components/layout/NavBar'
 import LabelForm from './components/LabelForm'
-import { RouteNames } from 'routes/routes'
-import { Label } from 'routes/endpoints'
+import { RouteNames } from '@/routes/routes'
+import { Label } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -81,7 +86,7 @@ export default {
     LabelForm
   },
 
-  data () {
+  data() {
     return {
       label: undefined,
       labels: [],
@@ -93,33 +98,37 @@ export default {
         separator: '',
         divisor: false
       },
-      links: [{
-        label: 'New collecting event',
-        url: RouteNames.NewCollectingEvent
-      },
-      {
-        label: 'New collection object',
-        url: '/collection_objects/new'
-      }],
+      links: [
+        {
+          label: 'New collecting event',
+          url: RouteNames.NewCollectingEvent
+        },
+        {
+          label: 'New collection object',
+          url: '/collection_objects/new'
+        }
+      ],
       customStyle: ''
     }
   },
 
   computed: {
-    selectedLabels () {
-      return this.list.filter(item => this.labels.includes(item.id))
+    selectedLabels() {
+      return this.list.filter((item) => this.labels.includes(item.id))
     }
   },
 
-  created () {
+  created() {
     const urlParams = new URLSearchParams(window.location.search)
     const labelId = urlParams.get('label_id')
 
-    Label.all().then(response => {
+    Label.all().then((response) => {
       this.list = response.body
       if (/^\d+$/.test(labelId)) {
-        Label.find(labelId).then(r => {
-          const index = this.list.findIndex(item => item.id === Number(labelId))
+        Label.find(labelId).then((r) => {
+          const index = this.list.findIndex(
+            (item) => item.id === Number(labelId)
+          )
 
           if (index > -1) {
             this.list.splice(index, 1)
@@ -132,36 +141,48 @@ export default {
   },
 
   methods: {
-    removeLabel (labelId) {
+    removeLabel(labelId) {
       Label.destroy(labelId).then(() => {
-        this.list.splice(this.list.findIndex(item => item.id === labelId), 1)
-        TW.workbench.alert.create('Label item was successfully destroyed.', 'notice')
+        this.list.splice(
+          this.list.findIndex((item) => item.id === labelId),
+          1
+        )
+        TW.workbench.alert.create(
+          'Label item was successfully destroyed.',
+          'notice'
+        )
       })
     },
-    deleteLabels () {
-      this.labels.forEach(id => {
+    deleteLabels() {
+      this.labels.forEach((id) => {
         this.removeLabel(id)
       })
       this.labels = []
     },
-    createLabel (label) {
-      Label.create({ label }).then(response => {
+    createLabel(label) {
+      Label.create({ label }).then((response) => {
         this.list.unshift(response.body)
-        TW.workbench.alert.create('Label item was successfully created.', 'notice')
+        TW.workbench.alert.create(
+          'Label item was successfully created.',
+          'notice'
+        )
       })
     },
-    updateLabel (label) {
-      Label.update(label.id, { label }).then(response => {
-        const index = this.list.findIndex(item => item.id === label.id)
+    updateLabel(label) {
+      Label.update(label.id, { label }).then((response) => {
+        const index = this.list.findIndex((item) => item.id === label.id)
 
         this.list[index] = response.body
-        TW.workbench.alert.create('Label item was successfully updated.', 'notice')
+        TW.workbench.alert.create(
+          'Label item was successfully updated.',
+          'notice'
+        )
       })
     },
-    editLabel (label) {
+    editLabel(label) {
       this.label = label
     },
-    saveLabel (label) {
+    saveLabel(label) {
       if (label.id) {
         this.updateLabel(label)
       } else {

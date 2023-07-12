@@ -1,9 +1,7 @@
 <template>
   <div>
     <h2>Trip code</h2>
-    <div
-      class="flex-wrap-column middle align-start"
-    >
+    <div class="flex-wrap-column middle align-start">
       <div class="full_width">
         <fieldset>
           <legend>Namespace</legend>
@@ -43,12 +41,12 @@
           <input
             type="text"
             v-model="tripCode.identifier"
-          >
+          />
           <label>
             <input
               type="checkbox"
               v-model="incrementIdentifier"
-            >
+            />
             Increment
           </label>
         </div>
@@ -58,10 +56,9 @@
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
 import extendCE from '../mixins/extendCE'
-import { Namespace, Identifier } from 'routes/endpoints'
+import { Namespace, Identifier } from '@/routes/endpoints'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
@@ -74,39 +71,40 @@ export default {
 
   computed: {
     tripCode: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetIdentifier]
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetIdentifier, value)
       }
     },
 
     incrementIdentifier: {
-      get () {
-        return this.$store.getters[GetterNames.GetPreferences].incrementIdentifier
+      get() {
+        return this.$store.getters[GetterNames.GetPreferences]
+          .incrementIdentifier
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetIncrementIdentifier, value)
       }
     },
 
-    namespace_id () {
+    namespace_id() {
       return this.tripCode.namespace_id
     }
   },
 
-  data () {
+  data() {
     return {
-      namespace: undefined,
+      namespace: undefined
     }
   },
 
   watch: {
-    namespace_id (newVal) {
+    namespace_id(newVal) {
       if (newVal) {
-        Namespace.find(newVal).then(response => {
+        Namespace.find(newVal).then((response) => {
           this.namespace = response.body
         })
       } else {
@@ -116,17 +114,17 @@ export default {
   },
 
   methods: {
-    setNamespace (namespace) {
+    setNamespace(namespace) {
       this.tripCode.namespace_id = namespace.id
     },
 
-    unsetIdentifier () {
+    unsetIdentifier() {
       this.tripCode.namespace_id = undefined
       this.tripCode.identifier = undefined
       this.namespace = undefined
     },
 
-    removeIdentifier () {
+    removeIdentifier() {
       Identifier.destroy(this.tripCode.id).then(() => {
         this.unsetIdentifier()
       })

@@ -18,11 +18,11 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { Repository } from 'routes/endpoints'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { Repository } from '@/routes/endpoints'
 import { computed, ref, watch, onBeforeMount } from 'vue'
 
 const props = defineProps({

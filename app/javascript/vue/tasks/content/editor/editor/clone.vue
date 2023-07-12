@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ disabled : !contents.length }">
+  <div :class="{ disabled: !contents.length }">
     <div
       @click="showModal = !!contents.length"
       class="item flex-wrap-column middle menu-button"
@@ -37,10 +37,9 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
-import { Content } from 'routes/endpoints'
-import Modal from 'components/ui/Modal.vue'
+import { Content } from '@/routes/endpoints'
+import Modal from '@/components/ui/Modal.vue'
 
 export default {
   name: 'CloneConent',
@@ -49,7 +48,7 @@ export default {
 
   emits: ['addCloneCitation'],
 
-  data () {
+  data() {
     return {
       contents: [],
       showModal: false
@@ -57,21 +56,21 @@ export default {
   },
 
   computed: {
-    topic () {
+    topic() {
       return this.$store.getters[GetterNames.GetTopicSelected]
     },
 
-    otu () {
+    otu() {
       return this.$store.getters[GetterNames.GetOtuSelected]
     },
 
-    content () {
+    content() {
       return this.$store.getters[GetterNames.GetContentSelected]
     }
   },
 
   watch: {
-    topic (newVal, oldVal) {
+    topic(newVal, oldVal) {
       if (newVal?.id && newVal.id !== oldVal?.id) {
         this.loadContent()
       }
@@ -81,7 +80,7 @@ export default {
       }
     },
 
-    otu (newVal) {
+    otu(newVal) {
       if (newVal?.id && this.topic?.id) {
         this.loadContent()
       }
@@ -89,18 +88,18 @@ export default {
   },
 
   methods: {
-    loadContent () {
+    loadContent() {
       Content.where({
         topic_id: this.topic.id,
         extend: ['otu', 'topic']
       }).then(({ body }) => {
         this.contents = this.content?.id
-          ? body.filter(c => c.id !== this.content.id)
+          ? body.filter((c) => c.id !== this.content.id)
           : body
       })
     },
 
-    cloneCitation (text) {
+    cloneCitation(text) {
       this.$emit('addCloneCitation', text)
       this.showModal = false
     }

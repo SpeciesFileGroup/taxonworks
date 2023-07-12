@@ -23,10 +23,9 @@
 </template>
 
 <script>
-
-import SwitchComponent from 'components/switch'
-import RolePicker from 'components/role_picker'
-import Autocomplete from 'components/ui/Autocomplete'
+import SwitchComponent from '@/components/switch'
+import RolePicker from '@/components/role_picker'
+import Autocomplete from '@/components/ui/Autocomplete'
 
 export default {
   components: {
@@ -59,7 +58,7 @@ export default {
 
   emits: ['update:modelValue'],
 
-  data () {
+  data() {
     return {
       view: 'someone else',
       roles_attributes: []
@@ -68,14 +67,14 @@ export default {
 
   watch: {
     roles_attributes: {
-      handler (newVal) {
+      handler(newVal) {
         this.$emit('update:modelValue', newVal)
       },
       deep: true
     },
 
     modelValue: {
-      handler (newVal) {
+      handler(newVal) {
         this.roles_attributes = newVal
       },
       deep: true
@@ -83,20 +82,22 @@ export default {
   },
 
   methods: {
-    setOrganization (organization) {
-      this.roles_attributes = [{
-        type: this.roleType,
-        label: organization.label,
-        organization_id: organization.id
-      }]
+    setOrganization(organization) {
+      this.roles_attributes = [
+        {
+          type: this.roleType,
+          label: organization.label,
+          organization_id: organization.id
+        }
+      ]
     }
   }
 }
 </script>
 <style lang="scss">
-  .switch-radio {
-    label {
-      width: 100%;
-    }
+.switch-radio {
+  label {
+    width: 100%;
   }
+}
 </style>

@@ -3,11 +3,11 @@
     <h3>Identifiers</h3>
     <div class="field">
       <label>Identifier</label>
-      <br>
+      <br />
       <input
         type="text"
         v-model="params.identifier"
-      >
+      />
     </div>
     <div class="field">
       <ul class="no_bullets">
@@ -22,7 +22,7 @@
               :disabled="!params.identifier"
               v-model="params.identifier_exact"
               name="match-radio"
-            >
+            />
             {{ item.label }}
           </label>
         </li>
@@ -32,19 +32,19 @@
     <div class="horizontal-left-content">
       <div class="field separate-right">
         <label>Start:</label>
-        <br>
+        <br />
         <input
           type="text"
           v-model="params.identifier_start"
-        >
+        />
       </div>
       <div class="field">
         <label>End:</label>
-        <br>
+        <br />
         <input
           type="text"
           v-model="params.identifier_end"
-        >
+        />
       </div>
     </div>
     <h3>Namespace</h3>
@@ -69,11 +69,11 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
 import { watch, computed, ref, onBeforeMount } from 'vue'
-import { Namespace } from 'routes/endpoints'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { Namespace } from '@/routes/endpoints'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
 
 const MATCH_OPTIONS = [
   {
@@ -97,12 +97,12 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 watch(
   () => params.value.identifier,
-  newVal => {
+  (newVal) => {
     if (!newVal) {
       params.value.identifier_exact = undefined
     }
@@ -112,7 +112,7 @@ watch(
 
 const namespace = ref()
 
-const setNamespace = item => {
+const setNamespace = (item) => {
   namespace.value = item
   params.value.namespace_id = item.id
 }
@@ -131,16 +131,15 @@ onBeforeMount(() => {
   params.value.identifier_end = urlParams.identifier_end
 
   if (urlParams.namespace_id) {
-    Namespace.find(urlParams.namespace_id).then(response => {
+    Namespace.find(urlParams.namespace_id).then((response) => {
       setNamespace(response.body)
     })
   }
 })
-
 </script>
 
 <style scoped>
-  :deep(.vue-autocomplete-input) {
-    width: 100%
-  }
+:deep(.vue-autocomplete-input) {
+  width: 100%;
+}
 </style>

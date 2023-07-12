@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Relationships</h2>
-    <new-relationship @create="addRelationship"/>
+    <new-relationship @create="addRelationship" />
     <table class="full_width">
       <thead>
         <tr>
@@ -13,12 +13,14 @@
         <tr
           v-for="item in list"
           :key="item.id"
-          @click="$emit('selected', item)">
+          @click="$emit('selected', item)"
+        >
           <td>
             <span class="display-block">{{ item.name }}</span>
             <span
               v-if="item.definition"
-              class="margin-small-left subtle">
+              class="margin-small-left subtle"
+            >
               {{ item.definition }}
             </span>
           </td>
@@ -30,8 +32,7 @@
 </template>
 
 <script>
-
-import { BiologicalRelationship } from 'routes/endpoints'
+import { BiologicalRelationship } from '@/routes/endpoints'
 import { extend } from '../constants/extend.js'
 import NewRelationship from './NewRelationship'
 
@@ -42,21 +43,25 @@ export default {
 
   emits: ['selected'],
 
-  data () {
+  data() {
     return {
       list: []
     }
   },
 
-  created () {
-    BiologicalRelationship.where({ extend }).then(response => {
+  created() {
+    BiologicalRelationship.where({ extend }).then((response) => {
       const urlParams = new URLSearchParams(window.location.search)
-      const relationshipIdParam = Number(urlParams.get('biological_relationship_id'))
+      const relationshipIdParam = Number(
+        urlParams.get('biological_relationship_id')
+      )
 
       this.list = response.body
 
       if (/^\d+$/.test(relationshipIdParam)) {
-        const relationship = this.list.find(item => item.id === relationshipIdParam)
+        const relationship = this.list.find(
+          (item) => item.id === relationshipIdParam
+        )
         if (relationship) {
           this.$emit('selected', relationship)
         }
@@ -65,8 +70,8 @@ export default {
   },
 
   methods: {
-    addRelationship (relationship) {
-      const index = this.list.findIndex(item => item.id === relationship.id)
+    addRelationship(relationship) {
+      const index = this.list.findIndex((item) => item.id === relationship.id)
 
       if (index > -1) {
         this.list[index] = relationship

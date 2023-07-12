@@ -21,8 +21,8 @@
 
 <script setup>
 import { computed } from 'vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import observationTypes from 'tasks/observation_matrices/matrix_row_coder/store/helpers/ObservationTypes.js'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import observationTypes from '@/tasks/observation_matrices/matrix_row_coder/store/helpers/ObservationTypes.js'
 
 const props = defineProps({
   modelValue: {

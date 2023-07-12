@@ -7,12 +7,13 @@
       <div>
         <template
           v-for="o in observations"
-          :key="o.id || o.internalId">
+          :key="o.id || o.internalId"
+        >
           <SampleDescriptorObservation
             :observation="o"
             :descriptor="descriptor"
           />
-          <hr>
+          <hr />
         </template>
       </div>
       <v-btn
@@ -29,14 +30,13 @@
 <style src="./SampleDescriptor.styl" lang="stylus"></style>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { ActionNames } from '../../store/actions/actions'
 import SampleDescriptorObservation from './SampleDescriptorObservation.vue'
 import ObservationTypes from '../../store/helpers/ObservationTypes'
 import makeObservation from '../../store/helpers/makeObservation'
-import VBtn from 'components/ui/VBtn/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import SummaryView from '../SummaryView/SummaryView.vue'
 
 export default {
@@ -61,24 +61,29 @@ export default {
   },
 
   computed: {
-    observations () {
-      return this.$store.getters[GetterNames.GetObservations].filter(o => o.descriptorId === this.descriptor.id)
+    observations() {
+      return this.$store.getters[GetterNames.GetObservations].filter(
+        (o) => o.descriptorId === this.descriptor.id
+      )
     },
 
-    emptyObservation () {
+    emptyObservation() {
       return this.observations.find(({ id }) => !id)
     }
   },
 
-  created () {
+  created() {
     const descriptorId = this.descriptor.id
     const otuId = this.$store.state.taxonId
 
-    this.$store.dispatch(ActionNames.RequestObservations, { descriptorId, otuId })
+    this.$store.dispatch(ActionNames.RequestObservations, {
+      descriptorId,
+      otuId
+    })
   },
 
   methods: {
-    addEmptyObservation () {
+    addEmptyObservation() {
       const args = {
         type: ObservationTypes.Sample,
         descriptorId: this.descriptor.id,

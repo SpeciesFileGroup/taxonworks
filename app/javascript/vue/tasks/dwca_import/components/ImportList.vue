@@ -13,15 +13,15 @@
     <v-spinner
       v-if="isDeleting"
       full-screen
-      legend="Destroying dataset..."/>
+      legend="Destroying dataset..."
+    />
   </div>
 </template>
 
 <script>
-
 import { GetImports, DestroyDataset } from '../request/resources.js'
 import ImportCard from './ImportCard'
-import VSpinner from 'components/spinner.vue'
+import VSpinner from '@/components/spinner.vue'
 
 export default {
   components: {
@@ -36,24 +36,29 @@ export default {
     isDeleting: false
   }),
 
-  created () {
+  created() {
     GetImports().then((response) => {
       this.imports = response.body
     })
   },
 
   methods: {
-    removeDataset (dataset) {
+    removeDataset(dataset) {
       this.isDeleting = true
 
-      DestroyDataset(dataset.id).then(() => {
-        const index = this.imports.findIndex(({ id }) => dataset.id === id)
+      DestroyDataset(dataset.id)
+        .then(() => {
+          const index = this.imports.findIndex(({ id }) => dataset.id === id)
 
-        this.imports.splice(index, 1)
-        TW.workbench.alert.create('Dataset was successfully destroyed.', 'notice')
-      }).finally(() => {
-        this.isDeleting = false
-      })
+          this.imports.splice(index, 1)
+          TW.workbench.alert.create(
+            'Dataset was successfully destroyed.',
+            'notice'
+          )
+        })
+        .finally(() => {
+          this.isDeleting = false
+        })
     }
   }
 }

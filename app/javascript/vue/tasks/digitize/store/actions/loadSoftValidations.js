@@ -1,5 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
-import { SoftValidation } from 'routes/endpoints'
+import { SoftValidation } from '@/routes/endpoints'
 
 export default ({ commit, state }) => {
   const promises = []
@@ -18,23 +18,23 @@ export default ({ commit, state }) => {
     promises.push(SoftValidation.find(collecting_event.global_id))
   }
 
-  taxon_determinations.forEach(determination => {
+  taxon_determinations.forEach((determination) => {
     promises.push(SoftValidation.find(determination.global_id))
   })
 
-  materialTypes.forEach(typeMaterial => {
+  materialTypes.forEach((typeMaterial) => {
     promises.push(SoftValidation.find(typeMaterial.global_id))
   })
 
-  biologicalAssociations.forEach(biologicalAssociation => {
+  biologicalAssociations.forEach((biologicalAssociation) => {
     promises.push(SoftValidation.find(biologicalAssociation.global_id))
   })
 
-  georeferences.forEach(georeference => {
+  georeferences.forEach((georeference) => {
     promises.push(SoftValidation.find(georeference.global_id))
   })
 
-  Promise.all(promises).then(responses => {
+  Promise.all(promises).then((responses) => {
     const validations = {}
     const list = responses.filter(({ body }) => body.soft_validations.length)
 

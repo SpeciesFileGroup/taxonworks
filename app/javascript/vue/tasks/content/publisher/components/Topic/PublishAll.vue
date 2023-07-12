@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import VBtn from 'components/ui/VBtn/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { useStore } from '../../composables/useStore'
 
 defineProps({
@@ -20,5 +20,4 @@ defineProps({
 })
 
 const { publishAll } = useStore()
-
 </script>

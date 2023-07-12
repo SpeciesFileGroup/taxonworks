@@ -12,8 +12,8 @@ import {
   OTU,
   PEOPLE,
   SOURCE,
-  TAXON_NAME,
-} from 'constants/index.js'
+  TAXON_NAME
+} from '@/constants/index.js'
 
 export const ID_PARAM_FOR = {
   [ASSERTED_DISTRIBUTION]: 'asserted_distribution_id',
@@ -29,5 +29,5 @@ export const ID_PARAM_FOR = {
   [OTU]: 'otu_id',
   [PEOPLE]: 'person_id',
   [SOURCE]: 'source_id',
-  [TAXON_NAME]: 'taxon_name_id',
+  [TAXON_NAME]: 'taxon_name_id'
 }

@@ -26,8 +26,8 @@
 </template>
 
 <script>
-import Autocomplete from 'components/ui/Autocomplete'
-import { getCurrentUserId } from 'helpers/user.js'
+import Autocomplete from '@/components/ui/Autocomplete'
+import { getCurrentUserId } from '@/helpers/user.js'
 
 export default {
   components: {

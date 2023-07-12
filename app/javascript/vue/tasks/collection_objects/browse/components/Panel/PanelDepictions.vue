@@ -14,7 +14,7 @@
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters.js'
-import ImageViewer from 'components/ui/ImageViewer/ImageViewer'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer'
 import PanelContainer from './PanelContainer.vue'
 
 const store = useStore()

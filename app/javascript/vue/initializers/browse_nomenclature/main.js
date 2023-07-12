@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import App from './app.vue'
-import SoftValidation from 'tasks/nomenclature/browse/components/validations'
+import SoftValidation from '@/tasks/nomenclature/browse/components/validations'
 
 function initSearch() {
   const app = createApp(App)

@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import ajaxCall from 'helpers/ajaxCall.js'
+import ajaxCall from '@/helpers/ajaxCall.js'
 
 const controller = 'data_attributes'
 const permitParams = {

@@ -6,12 +6,12 @@
         class="full_width"
         type="text"
         v-model="params.note_text"
-      >
+      />
       <label>
         <input
           v-model="params.note_exact"
           type="checkbox"
-        >
+        />
         Exact
       </label>
     </div>
@@ -19,8 +19,8 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse'
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -33,21 +33,17 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
-  get () {
+  get() {
     return props.modelValue
   },
 
-  set (value) {
+  set(value) {
     emit('update:modelValue', value)
   }
 })
 
-const {
-  note_exact,
-  note_text
-} = URLParamsToJSON(location.href)
+const { note_exact, note_text } = URLParamsToJSON(location.href)
 
 params.value.note_exact = note_exact
 params.value.note_text = note_text
-
 </script>

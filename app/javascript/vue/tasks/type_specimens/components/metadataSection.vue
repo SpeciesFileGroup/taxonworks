@@ -27,7 +27,7 @@
                   type="radio"
                   name="typetype"
                   :value="key"
-                >
+                />
                 {{ key }}
               </label>
             </li>
@@ -61,14 +61,13 @@
 </template>
 
 <script>
-
-import Expand from 'components/expand.vue'
-import Spinner from 'components/spinner.vue'
-import SoftValidation from 'components/soft_validations/objectValidation.vue'
-import FormCitation from 'components/Form/FormCitation.vue'
+import Expand from '@/components/expand.vue'
+import Spinner from '@/components/spinner.vue'
+import SoftValidation from '@/components/soft_validations/objectValidation.vue'
+import FormCitation from '@/components/Form/FormCitation.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { Citation, TypeMaterial } from 'routes/endpoints'
+import { Citation, TypeMaterial } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -80,59 +79,60 @@ export default {
 
   computed: {
     citation: {
-      get () {
-        return this.$store.getters[GetterNames.GetTypeMaterial].origin_citation_attributes
+      get() {
+        return this.$store.getters[GetterNames.GetTypeMaterial]
+          .origin_citation_attributes
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetCitation, value)
       }
     },
 
     type: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetType]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetType, value)
       }
     },
 
-    taxon () {
+    taxon() {
       return this.$store.getters[GetterNames.GetTaxon]
     },
 
-    protonymId () {
+    protonymId() {
       return this.$store.getters[GetterNames.GetProtonymId]
     },
 
-    checkForTypeList () {
+    checkForTypeList() {
       return this.types && this.taxon
     },
 
-    typeMaterial () {
+    typeMaterial() {
       return this.$store.getters[GetterNames.GetTypeMaterial]
     },
 
-    citationCreated () {
+    citationCreated() {
       return !!this.typeMaterial?.origin_citation
     }
   },
 
-  data () {
+  data() {
     return {
       displayBody: true,
       types: undefined
     }
   },
 
-  created () {
-    TypeMaterial.types().then(response => {
+  created() {
+    TypeMaterial.types().then((response) => {
       this.types = response.body
     })
   },
 
   methods: {
-    removeCitation () {
+    removeCitation() {
       Citation.destroy(this.typeMaterial.origin_citation.id).then(() => {
         this.typeMaterial.origin_citation = undefined
       })

@@ -53,13 +53,13 @@
 
 <script setup>
 import SectionPanel from './shared/sectionPanel'
-import MapComponent from 'components/georeferences/map.vue'
-import SwitchComponent from 'components/switch.vue'
+import MapComponent from '@/components/georeferences/map.vue'
+import SwitchComponent from '@/components/switch.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
-import { GEOREFERENCE, ASSERTED_DISTRIBUTION } from 'constants/index.js'
+import { GEOREFERENCE, ASSERTED_DISTRIBUTION } from '@/constants/index.js'
 import CachedMap from './CachedMap.vue'
 
 const MAX_LIST = 10

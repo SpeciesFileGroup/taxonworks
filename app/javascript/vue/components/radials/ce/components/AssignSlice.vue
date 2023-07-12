@@ -34,12 +34,12 @@
 </template>
 
 <script setup>
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VSpinner from 'components/spinner.vue'
-import { COLLECTING_EVENT } from 'constants/index.js'
-import { CollectingEvent } from 'routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/spinner.vue'
+import { COLLECTING_EVENT } from '@/constants/index.js'
+import { CollectingEvent } from '@/routes/endpoints'
 import { ref } from 'vue'
 
 const props = defineProps({

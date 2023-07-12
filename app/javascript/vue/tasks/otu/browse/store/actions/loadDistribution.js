@@ -1,4 +1,4 @@
-import { Otu, CachedMap } from 'routes/endpoints'
+import { Otu, CachedMap } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 import { GetterNames } from '../getters/getters'
 

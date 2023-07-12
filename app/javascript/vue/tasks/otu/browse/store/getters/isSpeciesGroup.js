@@ -1,4 +1,4 @@
-import { TAXON_RANK_SPECIES_GROUP } from 'constants/index'
+import { TAXON_RANK_SPECIES_GROUP } from '@/constants/index'
 
 function isRankGrpup(compareRank, rank) {
   const rankGroup = rank.split('::').at(2)

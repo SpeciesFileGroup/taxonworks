@@ -17,13 +17,13 @@
 </template>
 
 <script setup>
-import SmartSelector from 'components/ui/SmartSelector'
-import VModal from 'components/ui/Modal.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import VModal from '@/components/ui/Modal.vue'
 import {
   BIOLOGICAL_ASSOCIATION,
   OTU,
   COLLECTION_OBJECT
-} from 'constants/index.js'
+} from '@/constants/index.js'
 import { makeNodeObject } from '../adapters'
 
 const props = defineProps({

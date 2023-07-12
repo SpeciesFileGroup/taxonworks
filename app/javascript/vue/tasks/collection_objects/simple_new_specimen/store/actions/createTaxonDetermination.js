@@ -1,4 +1,4 @@
-import { TaxonDetermination } from 'routes/endpoints'
+import { TaxonDetermination } from '@/routes/endpoints'
 
 export default function (coId) {
   const payload = {

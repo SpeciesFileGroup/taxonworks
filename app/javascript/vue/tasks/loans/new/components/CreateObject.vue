@@ -5,12 +5,13 @@
       <label
         v-for="(item, key) in loanItemTypes"
         :key="key"
-        class="label-flex">
+        class="label-flex"
+      >
         <input
           type="radio"
           v-model="typeSelected"
           :value="key"
-        >
+        />
         {{ item.label }}
       </label>
     </div>
@@ -25,14 +26,17 @@
         clear-after
         @getItem="setObjectSelected"
         :url="typeAutocomplete"
-        param="term"/>
+        param="term"
+      />
       <div
         v-else
-        class="horizontal-left-content middle">
-        <span v-html="objectSelected.label_html"/>
+        class="horizontal-left-content middle"
+      >
+        <span v-html="objectSelected.label_html" />
         <button
           type="button"
-          class="button circle-button button-default btn-undo"/>
+          class="button circle-button button-default btn-undo"
+        />
       </div>
     </div>
     <div v-if="isTypeOtu">
@@ -41,22 +45,24 @@
         <input
           v-model="total"
           class="normal-input"
-          type="text">
+          type="text"
+        />
       </div>
       <button
         class="normal-input button button-submit"
         type="button"
-        @click="createItem()">Create
+        @click="createItem()"
+      >
+        Create
       </button>
     </div>
   </div>
 </template>
 
 <script>
-
-import { LoanItem } from 'routes/endpoints'
+import { LoanItem } from '@/routes/endpoints'
 import { MutationNames } from '../store/mutations/mutations'
-import Autocomplete from 'components/ui/Autocomplete.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 import extend from '../const/extend.js'
 
 export default {
@@ -69,7 +75,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       objectSelected: undefined,
       typeSelected: 'CollectionObject',
@@ -92,33 +98,33 @@ export default {
   },
 
   computed: {
-    typeAutocomplete () {
+    typeAutocomplete() {
       return this.loanItemTypes[this.typeSelected].autocomplete
     },
 
-    isTypeOtu () {
+    isTypeOtu() {
       return this.typeSelected === 'Otu'
     }
   },
 
   watch: {
-    objectSelected (newVal) {
+    objectSelected(newVal) {
       if (newVal && !this.isTypeOtu) {
         this.createItem()
       }
     },
 
-    typeSelected () {
+    typeSelected() {
       this.objectSelected = undefined
     }
   },
 
   methods: {
-    setObjectSelected (item) {
+    setObjectSelected(item) {
       this.objectSelected = item
     },
 
-    createItem () {
+    createItem() {
       const data = {
         loan_id: this.loan.id,
         loan_item_object_id: this.objectSelected.id,
@@ -126,12 +132,17 @@ export default {
         total: this.isTypeOtu ? this.total : undefined
       }
 
-      LoanItem.create({ loan_item: data, extend }).then(response => {
-        this.$store.commit(MutationNames.AddLoanItem, response.body)
-        TW.workbench.alert.create('Loan item was successfully created.', 'notice')
-      }).finally(() => {
-        this.setObjectSelected(undefined)
-      })
+      LoanItem.create({ loan_item: data, extend })
+        .then((response) => {
+          this.$store.commit(MutationNames.AddLoanItem, response.body)
+          TW.workbench.alert.create(
+            'Loan item was successfully created.',
+            'notice'
+          )
+        })
+        .finally(() => {
+          this.setObjectSelected(undefined)
+        })
     }
   }
 }

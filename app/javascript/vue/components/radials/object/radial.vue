@@ -78,11 +78,11 @@
   </div>
 </template>
 <script>
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import ModalComponent from 'components/ui/Modal.vue'
-import SpinnerComponent from 'components/spinner.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import ModalComponent from '@/components/ui/Modal.vue'
+import SpinnerComponent from '@/components/spinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 import CRUD from './request/crud'
 
@@ -100,7 +100,7 @@ import extractsAnnotator from './components/extract/Main.vue'
 import shortcutsMixin from '../mixins/shortcuts'
 
 import Icons from './images/icons.js'
-import { Tag } from 'routes/endpoints'
+import { Tag } from '@/routes/endpoints'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 

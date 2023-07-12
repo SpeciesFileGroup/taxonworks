@@ -1,5 +1,5 @@
-import { COLLECTION_OBJECT_PROPERTIES } from 'shared/Filter/constants'
-import { DataAttribute } from 'routes/endpoints'
+import { COLLECTION_OBJECT_PROPERTIES } from '@/shared/Filter/constants'
+import { DataAttribute } from '@/routes/endpoints'
 
 function makeDataAttributeObjectHeaders(data) {
   return Object.assign({}, ...data.index)

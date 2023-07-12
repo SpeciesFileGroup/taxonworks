@@ -9,7 +9,7 @@
           class="full_width"
           :maxlength="4"
           v-model="params.year_start"
-        >
+        />
       </div>
       <div class="field label-above">
         <label>End year</label>
@@ -18,15 +18,15 @@
           :maxlength="4"
           class="full_width"
           v-model="params.year_end"
-        >
+        />
       </div>
     </div>
   </FacetContainer>
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { computed, onBeforeMount } from 'vue'
 
 const props = defineProps({

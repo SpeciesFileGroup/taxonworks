@@ -1,6 +1,6 @@
-import AjaxCall from 'helpers/ajaxCall'
-import getPagination from 'helpers/getPagination'
-import { isObject } from 'helpers/objects'
+import AjaxCall from '@/helpers/ajaxCall'
+import getPagination from '@/helpers/getPagination'
+import { isObject } from '@/helpers/objects'
 
 const BASE_PARAMS = {
   extend: Array,

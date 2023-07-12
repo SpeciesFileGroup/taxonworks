@@ -165,16 +165,16 @@
 </template>
 <script>
 import CRUD from '../../request/crud.js'
-import Dropzone from 'components/dropzone.vue'
+import Dropzone from '@/components/dropzone.vue'
 import annotatorExtend from '../../components/annotatorExtend.js'
-import Autocomplete from 'components/ui/Autocomplete'
-import OtuPicker from 'components/otu/otu_picker/otu_picker'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import FilterImage from 'tasks/images/filter/components/filter'
-import SmartSelector from 'components/ui/SmartSelector'
+import Autocomplete from '@/components/ui/Autocomplete'
+import OtuPicker from '@/components/otu/otu_picker/otu_picker'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import FilterImage from '@/tasks/images/filter/components/filter'
+import SmartSelector from '@/components/ui/SmartSelector'
 import DepictionList from './DepictionList.vue'
-import { addToArray } from 'helpers/arrays'
-import { Depiction, Image } from 'routes/endpoints'
+import { addToArray } from '@/helpers/arrays'
+import { Depiction, Image } from '@/routes/endpoints'
 
 export default {
   mixins: [CRUD, annotatorExtend],

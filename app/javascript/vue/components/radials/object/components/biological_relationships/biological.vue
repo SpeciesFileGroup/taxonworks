@@ -22,8 +22,7 @@
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
+import SmartSelector from '@/components/ui/SmartSelector'
 import CRUD from '../../request/crud.js'
 
 export default {
@@ -33,7 +32,7 @@ export default {
 
   emits: ['select'],
 
-  data () {
+  data() {
     return {
       list: {
         all: []
@@ -41,13 +40,13 @@ export default {
     }
   },
 
-  created () {
+  created() {
     this.loadTabList()
   },
 
   methods: {
-    loadTabList () {
-      this.getList('/biological_relationships.json').then(response => {
+    loadTabList() {
+      this.getList('/biological_relationships.json').then((response) => {
         this.list = { all: response.body }
       })
     }

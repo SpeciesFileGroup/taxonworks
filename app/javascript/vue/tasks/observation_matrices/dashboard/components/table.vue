@@ -42,7 +42,7 @@
             <input
               v-model="withOtus"
               type="checkbox"
-            >
+            />
             Show taxon names with OTUs only
           </label>
         </li>
@@ -79,9 +79,7 @@
             v-for="header in fieldset[selectedFieldset]"
             :key="header"
           >
-            <th
-              @click="sortBy(header)"
-            >
+            <th @click="sortBy(header)">
               <span v-html="header.replace('_', '<br>')" />
             </th>
           </template>
@@ -95,7 +93,7 @@
         >
           <tr
             class="contextMenuCells"
-            :class="{ even: (index % 2)}"
+            :class="{ even: index % 2 }"
           >
             <td>
               <input
@@ -103,11 +101,11 @@
                 :value="row.otu_id"
                 v-model="selectedIds"
                 type="checkbox"
-              >
+              />
             </td>
             <td v-html="otuLabel(row)" />
             <template
-              v-for="(header) in fieldset[selectedFieldset]"
+              v-for="header in fieldset[selectedFieldset]"
               :key="header"
             >
               <td>
@@ -128,11 +126,10 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
-import { RouteNames } from 'routes/routes'
+import { RouteNames } from '@/routes/routes'
 import ModalList from './modalList'
-import SpinnerComponent from 'components/spinner'
+import SpinnerComponent from '@/components/spinner'
 import AddToMatrix from './addToMatrix'
 import ButtonImageMatrix from './buttonImageMatrix.vue'
 import ButtonEditImageMatrix from './ButtonEditImageMatrix.vue'
@@ -161,21 +158,27 @@ export default {
   },
 
   computed: {
-    rankList () {
+    rankList() {
       return this.$store.getters[GetterNames.GetRanks]
     },
 
-    taxon () {
+    taxon() {
       return this.$store.getters[GetterNames.GetTaxon]
     },
 
-    renderList () {
-      const data = (this.withOtus
-        ? this.tableRanks.data.filter(item => item[4])
-        : this.tableRanks.data
-      ).map(row => Object.fromEntries(
-        row.map((value, index) => [this.tableRanks.column_headers[index], value])
-      ))
+    renderList() {
+      const data = (
+        this.withOtus
+          ? this.tableRanks.data.filter((item) => item[4])
+          : this.tableRanks.data
+      ).map((row) =>
+        Object.fromEntries(
+          row.map((value, index) => [
+            this.tableRanks.column_headers[index],
+            value
+          ])
+        )
+      )
 
       return {
         column_headers: this.tableRanks.column_headers,
@@ -184,7 +187,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       renderFromPosition: 6,
       rankNames: [],
@@ -192,7 +195,11 @@ export default {
         data: []
       },
       fieldset: {
-        observations: ['descriptors_scored_for_otus', 'otu_observation_count', 'otu_observation_depictions']
+        observations: [
+          'descriptors_scored_for_otus',
+          'otu_observation_count',
+          'otu_observation_depictions'
+        ]
       },
       selectedFieldset: 'observations',
       ascending: false,
@@ -204,14 +211,14 @@ export default {
 
   watch: {
     rankList: {
-      handler (newVal) {
+      handler(newVal) {
         this.rankNames = [...new Set(this.getRankNames(newVal))]
       },
       deep: true
     },
 
     tableList: {
-      handler (newVal) {
+      handler(newVal) {
         this.sorting = true
         this.selectedIds = []
         setTimeout(() => {
@@ -225,7 +232,7 @@ export default {
   },
 
   methods: {
-    getRankNames (list, nameList = []) {
+    getRankNames(list, nameList = []) {
       for (const key in list) {
         if (typeof list[key] === 'object') {
           this.getRankNames(list[key], nameList)
@@ -238,21 +245,29 @@ export default {
       return nameList
     },
 
-    getValueFromTable (header, rowIndex) {
-      const otuIndex = this.tableRanks.column_headers.findIndex(item => item === header)
+    getValueFromTable(header, rowIndex) {
+      const otuIndex = this.tableRanks.column_headers.findIndex(
+        (item) => item === header
+      )
 
       return this.tableRanks.data[rowIndex][otuIndex]
     },
 
-    sortBy (headerName) {
+    sortBy(headerName) {
       this.sorting = true
       setTimeout(() => {
-        const index = this.tableRanks.column_headers.findIndex(item => item === headerName)
+        const index = this.tableRanks.column_headers.findIndex(
+          (item) => item === headerName
+        )
 
         this.tableRanks.data.sort((a, b) => {
           return this.ascending
-            ? (a[index] === null) - (b[index] === null) || +(a[index] > b[index]) || -(a[index] < b[index])
-            : (a[index] === null) - (b[index] === null) || -(a[index] > b[index]) || +(a[index] < b[index])
+            ? (a[index] === null) - (b[index] === null) ||
+                +(a[index] > b[index]) ||
+                -(a[index] < b[index])
+            : (a[index] === null) - (b[index] === null) ||
+                -(a[index] > b[index]) ||
+                +(a[index] < b[index])
         })
         this.ascending = !this.ascending
 
@@ -262,26 +277,33 @@ export default {
       }, 50)
     },
 
-    unselect () {
+    unselect() {
       this.selectedIds = []
     },
 
-    selectAll () {
-      this.selectedIds = this.renderList.data.filter(column => column.otu_id).map(column => column.otu_id)
+    selectAll() {
+      this.selectedIds = this.renderList.data
+        .filter((column) => column.otu_id)
+        .map((column) => column.otu_id)
     },
 
-    openImageMatrix ({ matrixId, otuIds }) {
-      window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${matrixId}&edit=true&otu_filter=${otuIds.join('|')}`, '_blank')
+    openImageMatrix({ matrixId, otuIds }) {
+      window.open(
+        `${
+          RouteNames.ImageMatrix
+        }?observation_matrix_id=${matrixId}&edit=true&otu_filter=${otuIds.join(
+          '|'
+        )}`,
+        '_blank'
+      )
       this.showModal = false
     },
 
-    getValidMark (isValid) {
-      return isValid
-        ? '✓'
-        : '❌'
+    getValidMark(isValid) {
+      return isValid ? '✓' : '❌'
     },
 
-    otuLabel (row) {
+    otuLabel(row) {
       return `
         <a href="/tasks/otus/browse?otu_id=${row.otu_id}">
           <span class="otu_tag">

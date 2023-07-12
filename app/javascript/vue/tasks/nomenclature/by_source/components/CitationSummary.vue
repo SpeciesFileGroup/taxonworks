@@ -34,11 +34,11 @@
 </template>
 
 <script setup>
-import VSpinner from 'components/spinner.vue'
+import VSpinner from '@/components/spinner.vue'
 import TableCitation from './Table/TableCitation.vue'
 import useCitation from '../composables/useCitation.js'
-import VPagination from 'components/pagination.vue'
-import VPaginationCount from 'components/pagination/PaginationCount.vue'
+import VPagination from '@/components/pagination.vue'
+import VPaginationCount from '@/components/pagination/PaginationCount.vue'
 
 const props = defineProps({
   title: {

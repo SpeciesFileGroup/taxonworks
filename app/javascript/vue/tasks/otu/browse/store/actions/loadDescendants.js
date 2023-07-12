@@ -1,6 +1,6 @@
 import { MutationNames } from '../mutations/mutations'
-import { chunkArray } from 'helpers/arrays.js'
-import { Georeference, TaxonName, CollectingEvent } from 'routes/endpoints'
+import { chunkArray } from '@/helpers/arrays.js'
+import { Georeference, TaxonName, CollectingEvent } from '@/routes/endpoints'
 
 const MAX_PER_CALL = 50
 

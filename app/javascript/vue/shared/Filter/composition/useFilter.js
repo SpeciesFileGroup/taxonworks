@@ -1,7 +1,7 @@
 import { reactive, toRefs, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import { URLParamsToJSON } from '@/helpers/url/parse'
 import qs from 'qs'
-import getPagination from 'helpers/getPagination'
+import getPagination from '@/helpers/getPagination'
 
 export default function (service, { listParser, initParameters } = {}) {
   const state = reactive({

@@ -7,7 +7,8 @@
       <div class="horizontal-left-content">
         <div
           class="horizontal-left-content"
-          v-if="matrix">
+          v-if="matrix"
+        >
           <a
             class="margin-small-right"
             :href="`/tasks/observation_matrices/new_matrix/${matrix.id}`"
@@ -40,20 +41,20 @@
             class="margin-small-left"
             section="ObservationMatrices"
             type="ObservationMatrix"
-            @getId="loadMatrix"/>
+            @getId="loadMatrix"
+          />
         </div>
       </div>
     </template>
   </block-layout>
 </template>
 <script>
-
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import BlockLayout from 'components/layout/BlockLayout.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import DefaultPin from 'components/getDefaultPin'
-import { ObservationMatrix } from 'routes/endpoints'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import DefaultPin from '@/components/getDefaultPin'
+import { ObservationMatrix } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -75,16 +76,16 @@ export default {
 
   computed: {
     matrix: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
   },
 
-  created () {
+  created() {
     const urlParams = new URLSearchParams(window.location.search)
     const matrixId = urlParams.get('observation_matrix_id')
 
@@ -94,8 +95,8 @@ export default {
   },
 
   methods: {
-    loadMatrix (id) {
-      ObservationMatrix.find(id).then(response => {
+    loadMatrix(id) {
+      ObservationMatrix.find(id).then((response) => {
         this.matrix = response.body
       })
     }

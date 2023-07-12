@@ -3,14 +3,14 @@
     color="create"
     medium
     :disabled="!count"
-    @click="handleClick">
+    @click="handleClick"
+  >
     {{ label }} ({{ count }})
   </v-btn>
 </template>
 <script setup>
-
-import { getPastDateByDays } from 'helpers/dates.js'
-import VBtn from 'components/ui/VBtn/index.vue'
+import { getPastDateByDays } from '@/helpers/dates.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   label: {
@@ -38,5 +38,4 @@ const handleClick = () => {
     per: props.count
   })
 }
-
 </script>

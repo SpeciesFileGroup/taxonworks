@@ -3,7 +3,7 @@ import {
   BiologicalAssociation,
   BiologicalAssociationGraph,
   Citation
-} from 'routes/endpoints'
+} from '@/routes/endpoints'
 import {
   makeBiologicalAssociation,
   makeCitation,
@@ -23,7 +23,7 @@ import {
   isNetwork,
   getHexColorFromString
 } from '../utils'
-import { COLLECTION_OBJECT, BIOLOGICAL_ASSOCIATION } from 'constants/index.js'
+import { COLLECTION_OBJECT, BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 
 const EXTEND_GRAPH = [
   'biological_associations_biological_associations_graphs',

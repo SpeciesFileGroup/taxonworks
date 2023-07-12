@@ -5,18 +5,20 @@
     </div>
     <div class="body">
       <div>
-        <spinner-component v-if="loadingTag"/> 
+        <spinner-component v-if="loadingTag" />
         <fieldset class="separate-bottom">
           <legend>Tag/Keyword</legend>
           <smart-selector
             :options="smartOptions"
             v-model="view"
-            name="rows-smart"/>
-          <component 
+            name="rows-smart"
+          />
+          <component
             v-if="componentExist"
             @send="create"
             :list="selectorLists[view]"
-            :is="view + 'Component'"/>
+            :is="view + 'Component'"
+          />
           <autocomplete
             v-else
             url="/controlled_vocabulary_terms/autocomplete"
@@ -26,17 +28,18 @@
             placeholder="Search a keyword"
             @getItem="create"
             min="2"
-            />
+          />
         </fieldset>
       </div>
       <div>
-        <spinner-component v-if="loadingTaxon"/> 
+        <spinner-component v-if="loadingTaxon" />
         <fieldset>
           <legend>Taxon name</legend>
           <smart-selector
             :options="smartTaxon"
             v-model="viewTaxonName"
-            name="rows-smart-taxon"/>
+            name="rows-smart-taxon"
+          />
           <template v-if="smartTaxon.length">
             <smart-taxon-list
               class="no_bullets"
@@ -44,7 +47,8 @@
               :created-list="rowsListDynamic"
               :list="listTaxon[viewTaxonName]"
               @selected="createTaxon"
-              value-compare="taxon_name_id"/>
+              value-compare="taxon_name_id"
+            />
             <autocomplete
               v-else
               url="/taxon_names/autocomplete"
@@ -53,7 +57,8 @@
               :clear-after="true"
               placeholder="Search a taxon name"
               @getItem="createTaxon"
-              min="2"/>
+              min="2"
+            />
           </template>
         </fieldset>
       </div>
@@ -61,7 +66,6 @@
   </div>
 </template>
 <script>
-
 import smartSelector from '../shared/smartSelector'
 import {
   default as quickComponent,
@@ -70,13 +74,13 @@ import {
 } from '../shared/tag_list'
 
 import smartTaxonList from './dynamic/smartList'
-import Autocomplete from 'components/ui/Autocomplete'
-import SpinnerComponent from 'components/spinner'
+import Autocomplete from '@/components/ui/Autocomplete'
+import SpinnerComponent from '@/components/spinner'
 import { GetSmartSelector } from '../../request/resources'
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import ObservationTypes from '../../const/types.js'
-import { TAXON_NAME, CONTROLLED_VOCABULARY_TERM } from 'constants/index.js'
+import { TAXON_NAME, CONTROLLED_VOCABULARY_TERM } from '@/constants/index.js'
 
 export default {
   components: {
@@ -101,7 +105,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       smartOptions: ['quick', 'recent', 'pinboard', 'tag'],
       smartTaxon: [],
@@ -114,21 +118,25 @@ export default {
     }
   },
   mounted() {
-    GetSmartSelector('keywords').then(response => {
-      this.smartOptions = this.smartOptions.filter(value => Object.keys(response.body).includes(value))
+    GetSmartSelector('keywords').then((response) => {
+      this.smartOptions = this.smartOptions.filter((value) =>
+        Object.keys(response.body).includes(value)
+      )
       this.selectorLists = response.body
       this.loadingTag = false
       this.smartOptions.push('search')
     })
-    GetSmartSelector('taxon_names').then(response => {
-      this.smartTaxon = ['quick', 'recent', 'pinboard'].filter(value => Object.keys(response.body).includes(value))
+    GetSmartSelector('taxon_names').then((response) => {
+      this.smartTaxon = ['quick', 'recent', 'pinboard'].filter((value) =>
+        Object.keys(response.body).includes(value)
+      )
       this.smartTaxon.push('search')
       this.listTaxon = response.body
       this.loadingTaxon = false
     })
   },
   methods: {
-    create (item) {
+    create(item) {
       this.$store.dispatch(ActionNames.CreateRowItem, {
         observation_object_id: item.id,
         observation_object_type: CONTROLLED_VOCABULARY_TERM,
@@ -136,7 +144,7 @@ export default {
         type: ObservationTypes.Row.Tag
       })
     },
-    createTaxon (item) {
+    createTaxon(item) {
       this.$store.dispatch(ActionNames.CreateRowItem, {
         observation_object_id: item.id,
         observation_object_type: TAXON_NAME,

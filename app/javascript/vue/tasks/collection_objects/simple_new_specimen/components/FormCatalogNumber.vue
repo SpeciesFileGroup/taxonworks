@@ -39,12 +39,12 @@
           v-model="store.identifier"
           :data-locked="store.settings.lock.namespace"
           @input="checkIdentifier"
-        >
+        />
         <label>
           <input
             v-model="store.settings.increment"
             type="checkbox"
-          >
+          />
           Increment
         </label>
       </div>
@@ -55,9 +55,9 @@
         Namespace is needed.
       </span>
       <template v-if="store.createdIdentifiers.length">
-        <span
-          style="color: red"
-        >Identifier already exists, and it won't be saved:</span>
+        <span style="color: red"
+          >Identifier already exists, and it won't be saved:</span
+        >
         <a
           :href="store.createdIdentifiers[0].identifier_object.object_url"
           v-html="store.createdIdentifiers[0].identifier_object.object_tag"
@@ -71,15 +71,15 @@
 import { onMounted, ref, watch } from 'vue'
 import { useStore } from '../store/useStore'
 import SelectedItem from './SelectedItem.vue'
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import VLock from 'components/ui/VLock/index.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
+import VLock from '@/components/ui/VLock/index.vue'
 
 const autocompleteComponent = ref(null)
 const store = useStore()
 const DELAY = 1000
 let timeoutRequest
 
-function checkIdentifier () {
+function checkIdentifier() {
   clearTimeout(timeoutRequest)
 
   timeoutRequest = setTimeout(() => {
@@ -87,7 +87,7 @@ function checkIdentifier () {
   }, DELAY)
 }
 
-function unsetNamespace () {
+function unsetNamespace() {
   store.namespace = undefined
   store.identifier = undefined
 }
@@ -98,11 +98,10 @@ onMounted(() => {
 
 watch(
   () => store.settings.lock.namespace,
-  newVal => {
+  (newVal) => {
     if (!newVal) {
       unsetNamespace()
     }
   }
 )
-
 </script>

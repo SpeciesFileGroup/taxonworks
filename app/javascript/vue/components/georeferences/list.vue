@@ -71,12 +71,12 @@
 </template>
 
 <script setup>
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import EditInPlace from 'components/editInPlace'
-import DateComponent from 'components/ui/Date/DateFields.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import { convertToLatLongOrder } from 'helpers/geojson.js'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import EditInPlace from '@/components/editInPlace'
+import DateComponent from '@/components/ui/Date/DateFields.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { convertToLatLongOrder } from '@/helpers/geojson.js'
 
 const props = defineProps({
   list: {

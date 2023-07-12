@@ -1,6 +1,6 @@
-import { Loan } from 'routes/endpoints'
+import { Loan } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
-import { ROLE_LOAN_RECIPIENT, ROLE_LOAN_SUPERVISOR } from 'constants/index.js'
+import { ROLE_LOAN_RECIPIENT, ROLE_LOAN_SUPERVISOR } from '@/constants/index.js'
 
 export default ({ commit }, loanId) => {
   Loan.find(loanId, { extend: ['roles'] }).then(({ body }) => {

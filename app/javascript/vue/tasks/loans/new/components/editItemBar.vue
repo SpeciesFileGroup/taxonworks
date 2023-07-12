@@ -68,7 +68,7 @@ import ActionNames from '../store/actions/actionNames'
 import statusList from '../const/status.js'
 import expand from './expand.vue'
 import dateDetermination from './dateDetermination.vue'
-import BlockLayout from 'components/layout/BlockLayout.vue'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 
 const store = useStore()
 const date = ref()

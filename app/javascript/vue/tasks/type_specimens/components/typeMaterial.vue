@@ -81,15 +81,15 @@
 
 <script>
 import { GetterNames } from '../store/getters/getters'
-import { RouteNames } from 'routes/routes'
+import { RouteNames } from '@/routes/routes'
 import ActionNames from '../store/actions/actionNames'
-import RadialObject from 'components/radials/object/radial.vue'
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import Spinner from 'components/spinner.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import Spinner from '@/components/spinner.vue'
 import CollectionObject from './collectionObject.vue'
 import DepictionsSection from './depictions.vue'
-import SwitchComponent from 'components/switch.vue'
+import SwitchComponent from '@/components/switch.vue'
 
 const TAB = {
   edit: 'edit',

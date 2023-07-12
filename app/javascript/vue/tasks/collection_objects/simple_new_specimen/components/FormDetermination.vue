@@ -15,7 +15,9 @@
         :input-attributes="{
           'data-locked': store.settings.lock.otu
         }"
-        @get-item="store.otu = { ...$event, label: $event.name || $event.label }"
+        @get-item="
+          store.otu = { ...$event, label: $event.name || $event.label }
+        "
       />
       <VLock
         class="margin-small-left"
@@ -28,19 +30,18 @@
 <script setup>
 import { useStore } from '../store/useStore'
 import { watch } from 'vue'
-import OtuPicker from 'components/otu/otu_picker/otu_picker.vue'
+import OtuPicker from '@/components/otu/otu_picker/otu_picker.vue'
 import SelectedItem from './SelectedItem.vue'
-import VLock from 'components/ui/VLock/index.vue'
+import VLock from '@/components/ui/VLock/index.vue'
 
 const store = useStore()
 
 watch(
   () => store.settings.lock.otu,
-  newVal => {
+  (newVal) => {
     if (!newVal) {
       store.otu = undefined
     }
   }
 )
-
 </script>

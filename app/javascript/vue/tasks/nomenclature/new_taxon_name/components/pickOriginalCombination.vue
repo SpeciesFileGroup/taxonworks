@@ -118,9 +118,12 @@ import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import Draggable from 'vuedraggable'
 import OriginalCombination from './originalCombination.vue'
-import BlockLayout from 'components/layout/BlockLayout'
-import VBtn from 'components/ui/VBtn/index.vue'
-import { originalCombinationType, combinationIcnType } from '../const/combinationTypes'
+import BlockLayout from '@/components/layout/BlockLayout'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import {
+  originalCombinationType,
+  combinationIcnType
+} from '../const/combinationTypes'
 
 export default {
   components: {
@@ -142,11 +145,15 @@ export default {
     },
 
     isGenus() {
-      return this.$store.getters[GetterNames.GetTaxon].rank_string.split('::')[2] === 'GenusGroup'
+      return (
+        this.$store.getters[GetterNames.GetTaxon].rank_string.split('::')[2] ===
+        'GenusGroup'
+      )
     },
 
     softValidation() {
-      return this.$store.getters[GetterNames.GetSoftValidation].original_combination.list
+      return this.$store.getters[GetterNames.GetSoftValidation]
+        .original_combination.list
     },
 
     originalCombinations() {
@@ -158,11 +165,17 @@ export default {
     },
 
     types() {
-      return Object.assign({}, this.combinationRanks.genusGroup, this.combinationRanks.speciesGroup)
+      return Object.assign(
+        {},
+        this.combinationRanks.genusGroup,
+        this.combinationRanks.speciesGroup
+      )
     },
 
     combinationRanks() {
-      return this.taxon.nomenclatural_code === 'icn' ? combinationIcnType : originalCombinationType
+      return this.taxon.nomenclatural_code === 'icn'
+        ? combinationIcnType
+        : originalCombinationType
     }
   },
 
@@ -203,9 +216,14 @@ export default {
 
     removeAllCombinations() {
       if (window.confirm('Are you sure you want to remove all combinations?')) {
-        const combinations = this.$store.getters[GetterNames.GetOriginalCombination]
-        const deleteCombinations = Object.values(combinations).map((combination) =>
-          this.$store.dispatch(ActionNames.RemoveOriginalCombination, combination)
+        const combinations =
+          this.$store.getters[GetterNames.GetOriginalCombination]
+        const deleteCombinations = Object.values(combinations).map(
+          (combination) =>
+            this.$store.dispatch(
+              ActionNames.RemoveOriginalCombination,
+              combination
+            )
         )
 
         Promise.all(deleteCombinations).then(() => {

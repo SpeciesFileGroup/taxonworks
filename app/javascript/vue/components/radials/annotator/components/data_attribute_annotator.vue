@@ -59,13 +59,13 @@
   </div>
 </template>
 <script>
-import { addToArray } from 'helpers/arrays.js'
+import { addToArray } from '@/helpers/arrays.js'
 import CRUD from '../request/crud.js'
 import AnnotatorExtend from '../components/annotatorExtend.js'
-import VBtn from 'components/ui/VBtn/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import TableList from './shared/tableList'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 export default {
   mixins: [CRUD, AnnotatorExtend],

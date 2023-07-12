@@ -13,7 +13,7 @@ import {
   OBSERVATION,
   CONTENT,
   LOAN
-} from 'constants/index.js'
+} from '@/constants/index.js'
 
 const RouteNames = {
   // FilterAssertedDistribition: '/tasks/asserted_distributions/filter',

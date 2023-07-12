@@ -1,4 +1,4 @@
-import { DataAttribute } from 'routes/endpoints'
+import { DataAttribute } from '@/routes/endpoints'
 
 function makeDataAttributeObjectHeaders(data) {
   return Object.assign({}, ...data.index)

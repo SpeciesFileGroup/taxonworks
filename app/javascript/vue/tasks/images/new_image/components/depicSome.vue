@@ -5,14 +5,15 @@
       <ul class="no_bullets">
         <li
           v-for="item in objectTypes"
-          :key="item.key">
+          :key="item.key"
+        >
           <label>
             <input
               v-model="selectedType"
               type="radio"
               name="depicsome"
               :value="item"
-            >
+            />
             {{ item.label }}
           </label>
         </li>
@@ -24,7 +25,8 @@
         :model="selectedType.model"
         :klass="selectedType.key"
         target="Depiction"
-        @selected="addToList"/>
+        @selected="addToList"
+      />
     </div>
     <table-list
       :list="listCreated"
@@ -32,14 +34,14 @@
       :delete-warning="false"
       :annotator="false"
       @delete="removeItem"
-      :attributes="['label']"/>
+      :attributes="['label']"
+    />
   </div>
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
-import TableList from 'components/table_list'
+import SmartSelector from '@/components/ui/SmartSelector'
+import TableList from '@/components/table_list'
 
 import { GetterNames } from '../store/getters/getters.js'
 import { MutationNames } from '../store/mutations/mutations.js'
@@ -51,16 +53,16 @@ export default {
   },
 
   computed: {
-    listCreated () {
+    listCreated() {
       return this.$store.getters[GetterNames.GetObjectsForDepictions]
     },
 
-    isOtuType () {
+    isOtuType() {
       return this.selectedType?.key === 'Otu'
     }
   },
 
-  data () {
+  data() {
     return {
       objectTypes: [
         {
@@ -89,11 +91,11 @@ export default {
   },
 
   methods: {
-    removeItem (item) {
+    removeItem(item) {
       this.$store.commit(MutationNames.RemoveObjectForDepictions, item)
     },
 
-    addToList (item) {
+    addToList(item) {
       this.$store.commit(MutationNames.AddObjectForDepictions, {
         id: item.id,
         label: item.object_tag,
@@ -105,7 +107,7 @@ export default {
 </script>
 
 <style scoped>
-  li {
-    margin-bottom: 4px;
-  }
+li {
+  margin-bottom: 4px;
+}
 </style>

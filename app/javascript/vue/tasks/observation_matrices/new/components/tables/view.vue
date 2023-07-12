@@ -80,11 +80,11 @@
 </template>
 <script>
 import TableComponent from './table.vue'
-import TableGrid from 'components/layout/Table/TableGrid.vue'
+import TableGrid from '@/components/layout/Table/TableGrid.vue'
 import { SortRows, SortColumns } from '../../request/resources'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
-import PaginationComponent from 'components/pagination'
+import PaginationComponent from '@/components/pagination'
 
 export default {
   components: {

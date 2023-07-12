@@ -27,8 +27,10 @@
             color="primary"
             medium
             @click="
-              predicateParams.collection_object_predicate_id = collectionObjects.map(co => co.id);
-              predicateParams.collecting_event_predicate_id = collectingEvents.map(ce => ce.id)
+              predicateParams.collection_object_predicate_id =
+                collectionObjects.map((co) => co.id)
+              predicateParams.collecting_event_predicate_id =
+                collectingEvents.map((ce) => ce.id)
             "
           >
             Select all
@@ -37,7 +39,7 @@
             color="primary"
             medium
             @click="
-              predicateParams.collection_object_predicate_id = [];
+              predicateParams.collection_object_predicate_id = []
               predicateParams.collecting_event_predicate_id = []
             "
           >
@@ -52,7 +54,8 @@
                   <th>
                     <input
                       v-model="checkAllCe"
-                      type="checkbox">
+                      type="checkbox"
+                    />
                   </th>
                   <th class="full_width">Collecting events</th>
                 </tr>
@@ -60,12 +63,14 @@
               <tbody>
                 <tr
                   v-for="item in collectingEvents"
-                  :key="item.id">
+                  :key="item.id"
+                >
                   <td>
                     <input
                       type="checkbox"
                       :value="item.id"
-                      v-model="predicateParams.collecting_event_predicate_id">
+                      v-model="predicateParams.collecting_event_predicate_id"
+                    />
                   </td>
                   <td>
                     <span v-html="item.object_tag" />
@@ -75,14 +80,14 @@
             </table>
           </div>
           <div>
-            <table
-              v-if="collectionObjects.length">
+            <table v-if="collectionObjects.length">
               <thead>
                 <tr>
                   <th>
                     <input
                       v-model="checkAllCo"
-                      type="checkbox">
+                      type="checkbox"
+                    />
                   </th>
                   <th class="full_width">Collection objects</th>
                 </tr>
@@ -90,12 +95,14 @@
               <tbody>
                 <tr
                   v-for="item in collectionObjects"
-                  :key="item.id">
+                  :key="item.id"
+                >
                   <td>
                     <input
                       type="checkbox"
                       :value="item.id"
-                      v-model="predicateParams.collection_object_predicate_id">
+                      v-model="predicateParams.collection_object_predicate_id"
+                    />
                   </td>
                   <td>
                     <span v-html="item.object_tag" />
@@ -119,14 +126,13 @@
   </div>
 </template>
 <script setup>
-
 import { computed, reactive, ref, onBeforeMount, watch } from 'vue'
-import { RouteNames } from 'routes/routes.js'
-import { DwcOcurrence } from 'routes/endpoints'
-import { transformObjectToParams } from 'helpers/setParam.js'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VModal from 'components/ui/Modal.vue'
-import VSpinner from 'components/spinner.vue'
+import { RouteNames } from '@/routes/routes.js'
+import { DwcOcurrence } from '@/routes/endpoints'
+import { transformObjectToParams } from '@/helpers/setParam.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VSpinner from '@/components/spinner.vue'
 
 const props = defineProps({
   params: {
@@ -149,8 +155,10 @@ const predicateParams = reactive({
   collection_object_predicate_id: []
 })
 
-const getFilterParams = params => {
-  const entries = Object.entries({ ...params, ...predicateParams }).filter(([key, value]) => !Array.isArray(value) || value.length)
+const getFilterParams = (params) => {
+  const entries = Object.entries({ ...params, ...predicateParams }).filter(
+    ([key, value]) => !Array.isArray(value) || value.length
+  )
   const data = Object.fromEntries(entries)
 
   data.per = props.total
@@ -160,19 +168,23 @@ const getFilterParams = params => {
 }
 
 const checkAllCe = computed({
-  get: () => predicateParams.collecting_event_predicate_id.length === collectingEvents.value.length,
-  set: isChecked => {
+  get: () =>
+    predicateParams.collecting_event_predicate_id.length ===
+    collectingEvents.value.length,
+  set: (isChecked) => {
     predicateParams.collecting_event_predicate_id = isChecked
-      ? collectingEvents.value.map(co => co.id)
+      ? collectingEvents.value.map((co) => co.id)
       : []
   }
 })
 
 const checkAllCo = computed({
-  get: () => predicateParams.collection_object_predicate_id.length === collectionObjects.value.length,
-  set: isChecked => {
+  get: () =>
+    predicateParams.collection_object_predicate_id.length ===
+    collectionObjects.value.length,
+  set: (isChecked) => {
     predicateParams.collection_object_predicate_id = isChecked
-      ? collectionObjects.value.map(co => co.id)
+      ? collectionObjects.value.map((co) => co.id)
       : []
   }
 })
@@ -180,13 +192,17 @@ const checkAllCo = computed({
 const download = () => {
   const downloadParams = getFilterParams(props.params)
 
-  DwcOcurrence.generateDownload({ ...downloadParams }).then(_ => {
-    window.open(`${RouteNames.DwcDashboard}?${transformObjectToParams(downloadParams)}`)
+  DwcOcurrence.generateDownload({ ...downloadParams }).then((_) => {
+    window.open(
+      `${RouteNames.DwcDashboard}?${transformObjectToParams(downloadParams)}`
+    )
     setModalView(false)
   })
 }
 
-const setModalView = value => { showModal.value = value }
+const setModalView = (value) => {
+  showModal.value = value
+}
 
 onBeforeMount(() => {
   isLoading.value = true
@@ -198,18 +214,17 @@ onBeforeMount(() => {
   })
 })
 
-watch(showModal, newVal => {
+watch(showModal, (newVal) => {
   if (newVal) {
     predicateParams.collection_object_predicate_id = []
     predicateParams.collecting_event_predicate_id = []
   }
 })
-
 </script>
 <style>
-  .dwc-download-predicates {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1em;
-  }
+.dwc-download-predicates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+}
 </style>

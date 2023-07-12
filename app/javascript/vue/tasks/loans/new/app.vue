@@ -21,7 +21,7 @@ import loanRecipient from './components/loanRecipient.vue'
 import loanItems from './components/loanItems.vue'
 import editLoanItems from './components/editItemBar.vue'
 import LoanItemList from './components/LoanItemList.vue'
-import spinner from 'components/spinner.vue'
+import spinner from '@/components/spinner.vue'
 
 import ActionNames from './store/actions/actionNames'
 import { GetterNames } from './store/getters/getters'

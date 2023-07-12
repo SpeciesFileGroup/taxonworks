@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { computed, onBeforeMount } from 'vue'
 
 const OPTIONS = {

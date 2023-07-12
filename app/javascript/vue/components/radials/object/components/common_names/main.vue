@@ -119,14 +119,14 @@
 <script>
 import CRUD from '../../request/crud.js'
 import annotatorExtend from '../../components/annotatorExtend.js'
-import TableList from 'components/table_list.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import makeCommonName from 'factory/CommonName.js'
-import GeographicAreaMapPicker from 'components/ui/SmartSelector/GeographicAreaMapPicker.vue'
-import { addToArray } from 'helpers/arrays.js'
-import { CommonName } from 'routes/endpoints'
-import VBtn from 'components/ui/VBtn/index.vue'
+import TableList from '@/components/table_list.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import makeCommonName from '@/factory/CommonName.js'
+import GeographicAreaMapPicker from '@/components/ui/SmartSelector/GeographicAreaMapPicker.vue'
+import { addToArray } from '@/helpers/arrays.js'
+import { CommonName } from '@/routes/endpoints'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 export default {
   mixins: [CRUD, annotatorExtend],

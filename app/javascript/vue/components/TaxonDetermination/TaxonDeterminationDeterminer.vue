@@ -37,16 +37,15 @@
 </template>
 
 <script setup>
-
 import { computed, ref } from 'vue'
-import { ROLE_DETERMINER } from 'constants/index.js'
-import { findRole } from 'helpers/people/people.js'
-import makePerson from 'factory/Person'
-import makeTaxonDetermination from 'factory/TaxonDetermination.js'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import RolePicker from 'components/role_picker.vue'
-import VLock from 'components/ui/VLock/index.vue'
-import VSwitch from 'components/switch.vue'
+import { ROLE_DETERMINER } from '@/constants/index.js'
+import { findRole } from '@/helpers/people/people.js'
+import makePerson from '@/factory/Person'
+import makeTaxonDetermination from '@/factory/TaxonDetermination.js'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import RolePicker from '@/components/role_picker.vue'
+import VLock from '@/components/ui/VLock/index.vue'
+import VSwitch from '@/components/switch.vue'
 
 const props = defineProps({
   modelValue: {
@@ -65,36 +64,27 @@ const ROLE_TABS = {
   organization: 'Organization'
 }
 
-const emit = defineEmits([
-  'update:modelValue',
-  'update:lock'
-])
+const emit = defineEmits(['update:modelValue', 'update:lock'])
 
 const roleView = ref(ROLE_TABS.people)
 
 const lockButton = computed({
   get: () => props.lock,
-  set: value => emit('update:lock', value)
+  set: (value) => emit('update:lock', value)
 })
 
 const roles = computed({
   get: () => props.modelValue,
-  set (value) {
+  set(value) {
     emit('update:modelValue', value)
   }
 })
 
-const addPerson = role => {
+const addPerson = (role) => {
   if (!findRole(roles.value, role.id)) {
     roles.value.push(
-      makePerson(
-        role.first_name,
-        role.last_name,
-        role.id,
-        ROLE_DETERMINER
-      )
+      makePerson(role.first_name, role.last_name, role.id, ROLE_DETERMINER)
     )
   }
 }
-
 </script>

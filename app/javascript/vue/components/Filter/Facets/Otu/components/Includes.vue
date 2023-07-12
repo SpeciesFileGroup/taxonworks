@@ -20,7 +20,7 @@
 
 <script setup>
 import { computed, watch } from 'vue'
-import { humanize } from 'helpers/strings'
+import { humanize } from '@/helpers/strings'
 
 const props = defineProps({
   modelValue: {

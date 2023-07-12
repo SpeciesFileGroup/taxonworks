@@ -1,4 +1,4 @@
-import { TaxonDetermination } from 'routes/endpoints'
+import { TaxonDetermination } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 import { ActionNames } from './actions'
 

@@ -2,36 +2,38 @@
   <div>
     <spinner-component
       :show-legend="false"
-      v-if="isSearching"/>
-    <template
-      v-if="foundMatches">
+      v-if="isSearching"
+    />
+    <template v-if="foundMatches">
       <ul
         v-for="item in matches"
         :key="item.id"
-        class="no_bullets">
-        <li
-          class="margin-small-top">
+        class="no_bullets"
+      >
+        <li class="margin-small-top">
           <button
             class="button normal-input button-submit full_width"
             type="button"
-            @click="send({ otuName: undefined, taxon: item })">
-            Create and use OTU for taxon name <span v-html="item.cached_html"/>
+            @click="send({ otuName: undefined, taxon: item })"
+          >
+            Create and use OTU for taxon name <span v-html="item.cached_html" />
           </button>
         </li>
-        <li
-          class="margin-small-top">
+        <li class="margin-small-top">
           <button
             class="button normal-input button-submit full_width"
             type="button"
-            @click="send({ otuName: item.cached, taxon: item })">
-            Create and use OTU with name "<span v-html="item.cached_html"/>"
+            @click="send({ otuName: item.cached, taxon: item })"
+          >
+            Create and use OTU with name "<span v-html="item.cached_html" />"
           </button>
         </li>
         <li class="margin-small-top">
           <button
             @click="createNew"
             type="button"
-            class="button normal-input button-default full_width">
+            class="button normal-input button-default full_width"
+          >
             Customize a new OTU with name "{{ otuName }}"
           </button>
         </li>
@@ -39,12 +41,14 @@
     </template>
     <ul
       class="no_bullets"
-      v-else>
+      v-else
+    >
       <li class="margin-small-top">
         <button
           @click="createNew"
           type="button"
-          class="button normal-input button-default full_width">
+          class="button normal-input button-default full_width"
+        >
           Customize a new OTU with name "{{ otuName }}"
         </button>
       </li>
@@ -53,9 +57,8 @@
 </template>
 
 <script>
-
-import SpinnerComponent from 'components/spinner'
-import { TaxonName } from 'routes/endpoints'
+import SpinnerComponent from '@/components/spinner'
+import { TaxonName } from '@/routes/endpoints'
 
 export default {
   components: { SpinnerComponent },
@@ -67,12 +70,9 @@ export default {
     }
   },
 
-  emits: [
-    'selected',
-    'createNew'
-  ],
+  emits: ['selected', 'createNew'],
 
-  data () {
+  data() {
     return {
       matches: [],
       delay: 1000,
@@ -84,7 +84,7 @@ export default {
 
   watch: {
     otuName: {
-      handler (newVal) {
+      handler(newVal) {
         this.isSearching = true
         this.foundMatches = false
 
@@ -98,22 +98,22 @@ export default {
   },
 
   methods: {
-    searchByTaxonName () {
+    searchByTaxonName() {
       TaxonName.where({
         name: this.otuName,
         exact: true
-      }).then(response => {
+      }).then((response) => {
         this.matches = response.body
         this.isSearching = false
         this.foundMatches = response.body.length > 0
       })
     },
 
-    send (taxon) {
+    send(taxon) {
       this.$emit('selected', taxon)
     },
 
-    createNew () {
+    createNew() {
       this.$emit('createNew', true)
     }
   }

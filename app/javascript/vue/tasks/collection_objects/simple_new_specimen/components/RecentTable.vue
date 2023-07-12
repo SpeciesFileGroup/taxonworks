@@ -26,7 +26,7 @@
           v-for="(item, index) in store.recentList"
           :key="item.id"
           class="contextMenuCells"
-          :class="{ 'even': (index % 2 == 0) }"
+          :class="{ even: index % 2 == 0 }"
         >
           <td>
             <div class="horizontal-right-content">
@@ -71,16 +71,15 @@
 <script setup>
 import { ref } from 'vue'
 import { useStore } from '../store/useStore'
-import { removeFromArray } from 'helpers/arrays'
-import RadialNavigation from 'components/radials/navigation/radial.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialObject from 'components/radials/object/radial.vue'
-import TagButtom from 'components/defaultTag.vue'
-import VSpinner from 'components/spinner'
+import { removeFromArray } from '@/helpers/arrays'
+import RadialNavigation from '@/components/radials/navigation/radial.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
+import TagButtom from '@/components/defaultTag.vue'
+import VSpinner from '@/components/spinner'
 
 const store = useStore()
 const isLoading = ref(false)
-
 </script>
 
 <style scoped>

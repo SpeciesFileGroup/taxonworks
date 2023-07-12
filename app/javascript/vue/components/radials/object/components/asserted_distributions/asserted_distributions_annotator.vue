@@ -86,15 +86,15 @@
 import CRUD from '../../request/crud.js'
 import AnnotatorExtend from '../annotatorExtend.js'
 import TableList from './table.vue'
-import DisplayList from 'components/displayList.vue'
+import DisplayList from '@/components/displayList.vue'
 import GeographicArea from './geographicArea.vue'
-import Spinner from 'components/spinner.vue'
-import MapComponent from 'components/georeferences/map.vue'
+import Spinner from '@/components/spinner.vue'
+import MapComponent from '@/components/georeferences/map.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
-import FormCitation from 'components/Form/FormCitation.vue'
-import { ASSERTED_DISTRIBUTION } from 'constants/index'
-import { addToArray } from 'helpers/arrays.js'
-import { AssertedDistribution } from 'routes/endpoints'
+import FormCitation from '@/components/Form/FormCitation.vue'
+import { ASSERTED_DISTRIBUTION } from '@/constants/index'
+import { addToArray } from '@/helpers/arrays.js'
+import { AssertedDistribution } from '@/routes/endpoints'
 
 const EXTEND_PARAMS = {
   embed: ['shape'],

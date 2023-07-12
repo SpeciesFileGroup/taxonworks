@@ -2,9 +2,7 @@
   <table class="vue-table">
     <thead>
       <tr>
-        <th>
-          Determination
-        </th>
+        <th>Determination</th>
         <th>
           <div class="horizontal-right-content">
             <lock-component
@@ -19,7 +17,7 @@
     <draggable
       class="table-entrys-list"
       tag="tbody"
-      :item-key="item => item"
+      :item-key="(item) => item"
       v-model="determinationList"
       @end="updatePosition"
     >
@@ -76,14 +74,13 @@
 </template>
 
 <script setup>
-
 import { computed } from 'vue'
-import { RouteNames } from 'routes/routes'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import LockComponent from 'components/ui/VLock/index.vue'
+import { RouteNames } from '@/routes/routes'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import LockComponent from '@/components/ui/VLock/index.vue'
 import Draggable from 'vuedraggable'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   modelValue: {
@@ -97,27 +94,23 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits([
-  'update:modelValue',
-  'update:lock',
-  'edit',
-  'delete'
-])
+const emit = defineEmits(['update:modelValue', 'update:lock', 'edit', 'delete'])
 
 const lockButton = computed({
   get: () => props.lock,
-  set: value => emit('update:lock', value)
+  set: (value) => emit('update:lock', value)
 })
 
 const determinationList = computed({
   get: () => props.modelValue,
-  set: (value) => { emit('update:modelValue', value) }
+  set: (value) => {
+    emit('update:modelValue', value)
+  }
 })
 
 const updatePosition = () => {
   for (let i = 0; i < determinationList.value.length; i++) {
-    determinationList.value[i].position = (i + 1)
+    determinationList.value[i].position = i + 1
   }
 }
-
 </script>

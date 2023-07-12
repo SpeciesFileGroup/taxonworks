@@ -89,14 +89,14 @@ import TLayout from './layouts/t.vue'
 import InvertedTLayout from './layouts/t_inverted.vue'
 import VerticalSplitLayout from './layouts/vertical_split'
 import NoneLayout from './layouts/none.vue'
-import SpinnerComponent from 'components/spinner'
+import SpinnerComponent from '@/components/spinner'
 
 import TagsComponent from '../sqed/tags'
 import DataAttributes from '../dataAttributes'
 
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
-import { SqedDepiction } from 'routes/endpoints'
+import { SqedDepiction } from '@/routes/endpoints'
 
 export default {
   components: {

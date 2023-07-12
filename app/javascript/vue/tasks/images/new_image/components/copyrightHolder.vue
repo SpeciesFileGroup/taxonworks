@@ -30,7 +30,7 @@
           <input
             type="number"
             v-model="year"
-          >
+          />
         </label>
       </div>
     </div>
@@ -38,10 +38,9 @@
 </template>
 
 <script>
-
-import SmartSelector from 'components/switch'
-import RolePicker from 'components/role_picker'
-import Autocomplete from 'components/ui/Autocomplete'
+import SmartSelector from '@/components/switch'
+import RolePicker from '@/components/role_picker'
+import Autocomplete from '@/components/ui/Autocomplete'
 import { GetterNames } from '../store/getters/getters.js'
 import { MutationNames } from '../store/mutations/mutations.js'
 
@@ -65,25 +64,25 @@ export default {
 
   computed: {
     roles_attributes: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetPeople].copyrightHolder
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetCopyrightHolder, value)
       }
     },
 
     year: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetYearCopyright]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetYearCopyright, value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       options: ['someone else', 'an organization'],
       view: 'someone else'
@@ -91,20 +90,22 @@ export default {
   },
 
   methods: {
-    setOrganization (organization) {
-      this.roles_attributes = [{
-        type: this.roleType,
-        label: organization.label,
-        organization_id: organization.id
-      }]
+    setOrganization(organization) {
+      this.roles_attributes = [
+        {
+          type: this.roleType,
+          label: organization.label,
+          organization_id: organization.id
+        }
+      ]
     }
   }
 }
 </script>
 <style lang="scss">
-  .switch-radio {
-    label {
-      width: 100%;
-    }
+.switch-radio {
+  label {
+    width: 100%;
   }
+}
 </style>

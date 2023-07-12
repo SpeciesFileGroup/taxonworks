@@ -28,11 +28,17 @@
 
 <script setup>
 import { computed } from 'vue'
-import { capitalize } from 'helpers/strings.js'
-import { getFullName } from 'helpers/people/people'
+import { capitalize } from '@/helpers/strings.js'
+import { getFullName } from '@/helpers/people/people'
 
-const ROLE_TYPES = ['creator_roles', 'owner_roles', 'copyright_holder_roles', 'editor_roles']
-const roleLabel = role => capitalize(role.replace('_roles', '').replaceAll('_', ' '))
+const ROLE_TYPES = [
+  'creator_roles',
+  'owner_roles',
+  'copyright_holder_roles',
+  'editor_roles'
+]
+const roleLabel = (role) =>
+  capitalize(role.replace('_roles', '').replaceAll('_', ' '))
 
 const props = defineProps({
   attributions: {
@@ -42,14 +48,16 @@ const props = defineProps({
 })
 
 const attributionsList = computed(() =>
-  props.attributions.map(attr =>
-    ROLE_TYPES
-      .map(role =>
-        attr[role]
-          ? `${roleLabel(role)}: <b>${attr[role].map(item => item?.person ? getFullName(item.person) : item.organization.name).join('; ')}</b>`
-          : []
-      )
-      .filter(arr => arr.length))
+  props.attributions.map((attr) =>
+    ROLE_TYPES.map((role) =>
+      attr[role]
+        ? `${roleLabel(role)}: <b>${attr[role]
+            .map((item) =>
+              item?.person ? getFullName(item.person) : item.organization.name
+            )
+            .join('; ')}</b>`
+        : []
+    ).filter((arr) => arr.length)
+  )
 )
-
 </script>

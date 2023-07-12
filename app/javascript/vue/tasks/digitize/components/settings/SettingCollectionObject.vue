@@ -9,7 +9,8 @@
   <v-modal
     v-if="showModal"
     @close="showModal = false"
-    :container-style="{ width: '500px' }">
+    :container-style="{ width: '500px' }"
+  >
     <template #header>
       <h3>Layout settings</h3>
     </template>
@@ -18,16 +19,20 @@
       <ul class="no_bullets">
         <li
           v-for="(label, key) in LAYOUT_SETTING"
-          :key="key">
+          :key="key"
+        >
           <label>
             <input
               :value="preferences[key]"
               :checked="!preferences[key]"
-              @click="store.dispatch(ActionNames.UpdateLayoutPreferences, {
-                key,
-                value: !preferences[key]
-              })"
-              type="checkbox">
+              @click="
+                store.dispatch(ActionNames.UpdateLayoutPreferences, {
+                  key,
+                  value: !preferences[key]
+                })
+              "
+              type="checkbox"
+            />
             {{ label }}
           </label>
         </li>
@@ -50,9 +55,9 @@ import {
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_REPOSITORY,
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CATALOG_NUMBER,
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_VALIDATIONS
-} from 'tasks/digitize/const/layout'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VModal from 'components/ui/Modal.vue'
+} from '@/tasks/digitize/const/layout'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VModal from '@/components/ui/Modal.vue'
 
 const LAYOUT_SETTING = {
   [COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_ATTRIBUTES]: 'Attributes',
@@ -66,7 +71,8 @@ const LAYOUT_SETTING = {
 }
 
 const store = useStore()
-const preferences = computed(() => store.getters[GetterNames.GetPreferences].layout)
+const preferences = computed(
+  () => store.getters[GetterNames.GetPreferences].layout
+)
 const showModal = ref(false)
-
 </script>

@@ -14,8 +14,7 @@
 <script setup>
 import { useStore } from 'vuex'
 import { ActionNames } from '../store/actions/actions'
-import VAutocomplete from 'components/ui/Autocomplete.vue'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
 
 const store = useStore()
-
 </script>

@@ -1,4 +1,4 @@
-import { Otu } from 'routes/endpoints'
+import { Otu } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default ({ commit, state }, id) => {

@@ -5,28 +5,31 @@
       bottom: '0px',
       zIndex: 200,
       margin: '0px'
-    }">
+    }"
+  >
     <div class="flex-separate middle">
       <div class="half_width text-ellipsis margin-small-right middle">
         <div class="margin-medium-right">
           <span :title="dataset.description">{{ dataset.description }}</span>
-          <br>
+          <br />
           <span v-if="pagination">{{ pagination.total }} records.</span>
         </div>
-        <reset-button/>
+        <reset-button />
       </div>
       <div class="full_width">
         <progress-bar
           class="full_width"
-          :progress="dataset.progress"/>
+          :progress="dataset.progress"
+        />
         <progress-list
           class="context-menu"
-          :progress="dataset.progress"/>
+          :progress="dataset.progress"
+        />
       </div>
       <div class="horizontal-right-content half_width">
-        <download-button class="margin-small-right"/>
-        <settings-component class="margin-small-right"/>
-        <import-modal/>
+        <download-button class="margin-small-right" />
+        <settings-component class="margin-small-right" />
+        <import-modal />
         <button
           type="button"
           class="button normal-input button-default margin-small-left"
@@ -40,8 +43,7 @@
 </template>
 
 <script>
-
-import NavbarComponent from 'components/layout/NavBar'
+import NavbarComponent from '@/components/layout/NavBar'
 import ImportModal from './ImportModal'
 import ProgressBar from './ProgressBar'
 import ProgressList from './ProgressList'
@@ -62,18 +64,18 @@ export default {
     ResetButton
   },
   computed: {
-    pagination () {
+    pagination() {
       return this.$store.getters[GetterNames.GetPagination]
     },
-    dataset () {
+    dataset() {
       return this.$store.getters[GetterNames.GetDataset]
     },
-    datasetRecords () {
+    datasetRecords() {
       return this.$store.getters[GetterNames.GetDatasetRecords]
     }
   },
   methods: {
-    reset () {
+    reset() {
       this.$store.dispatch(ActionNames.ResetState)
     }
   }

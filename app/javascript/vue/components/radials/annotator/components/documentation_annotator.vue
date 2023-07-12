@@ -130,12 +130,12 @@
 <script>
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import Dropzone from 'components/dropzone.vue'
-import PdfButton from 'components/pdfButton.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import VIcon from 'components/ui/VIcon/index'
-import VBtn from 'components/ui/VBtn/index'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
+import Dropzone from '@/components/dropzone.vue'
+import PdfButton from '@/components/pdfButton.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import VIcon from '@/components/ui/VIcon/index'
+import VBtn from '@/components/ui/VBtn/index'
 
 export default {
   mixins: [CRUD, annotatorExtend],

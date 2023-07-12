@@ -31,14 +31,13 @@
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
 import componentExtend from './mixins/componentExtend'
-import RolePicker from 'components/role_picker'
-import BlockLayout from 'components/layout/BlockLayout'
-import makePerson from 'factory/Person'
-import LockComponent from 'components/ui/VLock/index.vue'
-import { findRole } from 'helpers/people/people.js'
+import RolePicker from '@/components/role_picker'
+import BlockLayout from '@/components/layout/BlockLayout'
+import makePerson from '@/factory/Person'
+import LockComponent from '@/components/ui/VLock/index.vue'
+import { findRole } from '@/helpers/people/people.js'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
@@ -54,25 +53,21 @@ export default {
 
   computed: {
     roles: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetRoles]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetRoles, value)
       }
     }
   },
 
   methods: {
-    addRole (role) {
+    addRole(role) {
       if (!findRole(this.roles, role.id)) {
         this.roles.push(
-          makePerson(
-            role.first_name,
-            role.last_name,
-            role.id,
-            'Extractor'
-          ))
+          makePerson(role.first_name, role.last_name, role.id, 'Extractor')
+        )
       }
     }
   }

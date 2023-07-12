@@ -83,14 +83,14 @@
 <script>
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
-import { GeographicArea } from 'routes/endpoints'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import GeographicAreaMapPicker from 'components/ui/SmartSelector/GeographicAreaMapPicker.vue'
-import MetaPrioritizeGeographicArea from 'tasks/collecting_events/new_collecting_event/components/Meta/MetaPrioritizeGeographicArea.vue'
+import { GeographicArea } from '@/routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import GeographicAreaMapPicker from '@/components/ui/SmartSelector/GeographicAreaMapPicker.vue'
+import MetaPrioritizeGeographicArea from '@/tasks/collecting_events/new_collecting_event/components/Meta/MetaPrioritizeGeographicArea.vue'
 
-import convertDMS from 'helpers/parseDMS.js'
-import ModalComponent from 'components/ui/Modal'
+import convertDMS from '@/helpers/parseDMS.js'
+import ModalComponent from '@/components/ui/Modal'
 import extendCE from '../../mixins/extendCE.js'
 
 export default {

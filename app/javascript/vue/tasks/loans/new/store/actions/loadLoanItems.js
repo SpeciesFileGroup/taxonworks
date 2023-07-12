@@ -1,8 +1,8 @@
 import { MutationNames } from '../mutations/mutations'
-import { LoanItem } from 'routes/endpoints'
+import { LoanItem } from '@/routes/endpoints'
 import extend from '../../const/extend.js'
-import getPagination from 'helpers/getPagination'
-import { useRandomUUID } from 'helpers/random'
+import getPagination from '@/helpers/getPagination'
+import { useRandomUUID } from '@/helpers/random'
 
 export default ({ commit }, { loanId, page = 1, per = 50 }) => {
   const payload = {

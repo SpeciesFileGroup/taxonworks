@@ -125,17 +125,17 @@
 </template>
 
 <script setup>
-import VSpinner from 'components/spinner.vue'
-import VModal from 'components/ui/Modal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import VSpinner from '@/components/spinner.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import { ref, onBeforeMount, computed } from 'vue'
 import {
   BiologicalAssociation,
   BiologicalAssociationGraph
-} from 'routes/endpoints'
-import { OTU } from 'constants/index.js'
+} from '@/routes/endpoints'
+import { OTU } from '@/constants/index.js'
 
 const props = defineProps({
   relations: {

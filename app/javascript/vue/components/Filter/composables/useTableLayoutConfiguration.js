@@ -1,5 +1,5 @@
 import { reactive, toRefs } from 'vue'
-import { sortArrayByArray } from 'helpers/arrays.js'
+import { sortArrayByArray } from '@/helpers/arrays.js'
 
 const state = reactive({
   currentLayout: {},

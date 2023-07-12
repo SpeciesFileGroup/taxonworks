@@ -35,9 +35,8 @@
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
-import SwitchComponent from 'components/switch.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SwitchComponent from '@/components/switch.vue'
 
 import { GetterNames } from '../../store/getters/getters'
 
@@ -50,15 +49,15 @@ export default {
   emits: ['select'],
 
   computed: {
-    otuView () {
+    otuView() {
       return this.view === 'otu'
     },
-    lastSave () {
+    lastSave() {
       return this.$store.getters[GetterNames.GetLastSave]
     }
   },
 
-  data () {
+  data() {
     return {
       view: 'otu',
       tabOptions: ['otu', 'collection object']
@@ -66,7 +65,7 @@ export default {
   },
 
   methods: {
-    sendRelated (item) {
+    sendRelated(item) {
       item.type = item.base_class
       this.$emit('select', item)
     }

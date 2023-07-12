@@ -102,11 +102,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useTableLayoutConfiguration } from '../composables/useTableLayoutConfiguration.js'
-import { humanize } from 'helpers/strings.js'
-import VModal from 'components/ui/Modal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import { humanize } from '@/helpers/strings.js'
+import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import VueDraggable from 'vuedraggable'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const {
   currentLayout,

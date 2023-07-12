@@ -28,12 +28,11 @@
 </template>
 
 <script setup>
-
 import { computed, ref, watch } from 'vue'
-import { Otu } from 'routes/endpoints'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import LockComponent from 'components/ui/VLock/index.vue'
+import { Otu } from '@/routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import LockComponent from '@/components/ui/VLock/index.vue'
 
 const props = defineProps({
   modelValue: {
@@ -47,43 +46,35 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits([
-  'update:modelValue',
-  'update:lock',
-  'label'
-])
+const emit = defineEmits(['update:modelValue', 'update:lock', 'label'])
 
 const selectedOtu = ref(undefined)
 
 const otuId = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const lockButton = computed({
   get: () => props.lock,
-  set: value => emit('update:lock', value)
+  set: (value) => emit('update:lock', value)
 })
 
-watch(
-  otuId,
-  newId => {
-    if (newId) {
-      if (newId !== selectedOtu.value?.id) {
-        Otu.find(newId).then(({ body }) => {
-          setOtu(body)
-        })
-      }
-    } else {
-      selectedOtu.value = undefined
+watch(otuId, (newId) => {
+  if (newId) {
+    if (newId !== selectedOtu.value?.id) {
+      Otu.find(newId).then(({ body }) => {
+        setOtu(body)
+      })
     }
+  } else {
+    selectedOtu.value = undefined
   }
-)
+})
 
-const setOtu = otu => {
+const setOtu = (otu) => {
   selectedOtu.value = otu
   otuId.value = otu.id
   emit('label', otu.object_tag)
 }
-
 </script>

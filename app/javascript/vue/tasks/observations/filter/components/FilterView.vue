@@ -29,18 +29,18 @@
 
 <script setup>
 import { computed } from 'vue'
-import { OBSERVATION } from 'constants/index.js'
-import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
-import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
-import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
-import FacetObservationMatrix from 'components/Filter/Facets/shared/FacetObservationMatrix'
-import FacetNotes from 'components/Filter/Facets/shared/FacetNotes.vue'
-import FacetDescriptor from 'components/Filter/Facets/shared/FacetDescriptor.vue'
-import FacetCollectionObject from 'components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
-import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
-import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
-import FacetObservationType from 'components/Filter/Facets/Observation/FacetObservationType.vue'
-import FacetObservationObjectType from 'components/Filter/Facets/Observation/FacetObservationObjectType.vue'
+import { OBSERVATION } from '@/constants/index.js'
+import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
+import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetObservationMatrix from '@/components/Filter/Facets/shared/FacetObservationMatrix'
+import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
+import FacetDescriptor from '@/components/Filter/Facets/shared/FacetDescriptor.vue'
+import FacetCollectionObject from '@/components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
+import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
+import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
+import FacetObservationType from '@/components/Filter/Facets/Observation/FacetObservationType.vue'
+import FacetObservationObjectType from '@/components/Filter/Facets/Observation/FacetObservationObjectType.vue'
 
 const WITH_PARAMS = [
   'citations',
@@ -50,7 +50,7 @@ const WITH_PARAMS = [
   'identifiers',
   'notes',
   'protocols',
-  'tags',
+  'tags'
 ]
 
 const props = defineProps({

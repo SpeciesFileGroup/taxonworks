@@ -52,12 +52,12 @@
 </template>
 
 <script setup>
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import ConfidenceButton from 'components/defaultConfidence.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import ConfidenceButton from '@/components/defaultConfidence.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import useRow from '../../composables/useRow.js'
-import { COMBINATION } from 'constants/index.js'
+import { COMBINATION } from '@/constants/index.js'
 
 const props = defineProps({
   citation: {

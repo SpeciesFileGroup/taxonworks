@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import VNetworkGraph from 'v-network-graph'
 import 'v-network-graph/lib/style.css'
-import HelpSystem from 'plugins/help/help'
+import HelpSystem from '@/plugins/help/help'
 import en from './lang/help/en.js'
 
 function initApp(element) {

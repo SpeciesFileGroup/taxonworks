@@ -242,14 +242,14 @@
 </template>
 
 <script>
-import RolePicker from 'components/role_picker.vue'
-import Modal from 'components/ui/Modal.vue'
+import RolePicker from '@/components/role_picker.vue'
+import Modal from '@/components/ui/Modal.vue'
 import Expand from './expand.vue'
 import ActionNames from '../store/actions/actionNames'
-import BlockLayout from 'components/layout/BlockLayout.vue'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { Loan } from 'routes/endpoints'
+import { Loan } from '@/routes/endpoints'
 
 export default {
   components: {

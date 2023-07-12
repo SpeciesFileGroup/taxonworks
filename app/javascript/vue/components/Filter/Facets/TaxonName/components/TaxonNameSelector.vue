@@ -52,12 +52,12 @@
 </template>
 
 <script setup>
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import RowItem from 'components/Filter/Facets/shared/RowItem.vue'
-import DisplayList from 'components/displayList.vue'
-import { TaxonName } from 'routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import RowItem from '@/components/Filter/Facets/shared/RowItem.vue'
+import DisplayList from '@/components/displayList.vue'
+import { TaxonName } from '@/routes/endpoints'
 import { ref, computed, onBeforeMount, watch } from 'vue'
-import { removeFromArray } from 'helpers/arrays'
+import { removeFromArray } from '@/helpers/arrays'
 
 const props = defineProps({
   modelValue: {

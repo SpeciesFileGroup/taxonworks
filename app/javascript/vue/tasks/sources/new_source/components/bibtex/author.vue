@@ -37,12 +37,11 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import { findRole } from 'helpers/people/people.js'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import RolePicker from 'components/role_picker.vue'
+import { findRole } from '@/helpers/people/people.js'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import RolePicker from '@/components/role_picker.vue'
 
 export default {
   components: {
@@ -52,30 +51,32 @@ export default {
 
   computed: {
     source: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSource]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSource, value)
       }
     },
-    lastSave () {
+    lastSave() {
       return this.$store.getters[GetterNames.GetLastSave]
     },
     roleAttributes: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetRoleAttributes]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetRoles, value)
       }
     },
-    peopleIds () {
-      return this.roleAttributes.filter(item => item.person_id || item.person).map(item => item?.person_id || item.person.id)
+    peopleIds() {
+      return this.roleAttributes
+        .filter((item) => item.person_id || item.person)
+        .map((item) => item?.person_id || item.person.id)
     }
   },
 
-  data () {
+  data() {
     return {
       options: [],
       view: undefined
@@ -83,7 +84,7 @@ export default {
   },
 
   methods: {
-    addRole (person) {
+    addRole(person) {
       if (!findRole(this.source.roles_attributes, person.id)) {
         this.$refs.rolePicker.setPerson(person)
       }
