@@ -145,7 +145,7 @@ const props = defineProps({
 
   currentGraph: {
     type: Object,
-    required: true
+    default: () => ({})
   }
 })
 
@@ -167,9 +167,7 @@ const toggleSelection = computed({
 function makeObjectIdPayload() {
   const otuIds = []
   const coIds = []
-  const objects = [].concat(
-    ...props.relations.map((ba) => [ba.object, ba.subject])
-  )
+  const objects = props.relations
 
   objects.forEach(({ objectType, id }) => {
     if (objectType === OTU) {
@@ -204,12 +202,12 @@ function loadRelatedAssociations() {
 }
 
 function loadGraphs() {
-  const graphIds = props.relations.filter(({ id }) => !!id).map((ba) => ba.id)
+  const baIds = props.relations.filter(({ id }) => !!id).map((ba) => ba.id)
 
-  if (!graphIds.length) return
+  if (!baIds.length || !props.currentGraph?.id) return
 
   const payload = {
-    biological_association_id: graphIds
+    biological_association_id: baIds
   }
 
   return BiologicalAssociationGraph.where(payload).then(({ body }) => {

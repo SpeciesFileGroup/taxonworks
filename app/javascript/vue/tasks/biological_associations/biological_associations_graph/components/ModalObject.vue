@@ -8,7 +8,6 @@
         :model="MODEL_TYPE[props.type].model"
         :target="BIOLOGICAL_ASSOCIATION"
         :otu-picker="type === OTU"
-        :pin-section="MODEL_TYPE[props.type].section"
         autofocus
         @selected="($event) => emit('add:object', makeNodeObject($event))"
       />

@@ -23,6 +23,7 @@ import {
   isNetwork,
   getHexColorFromString
 } from '../utils'
+import { addToArray } from '@/helpers/arrays'
 import { COLLECTION_OBJECT, BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 
 const EXTEND_GRAPH = [
@@ -234,8 +235,7 @@ export function useGraph() {
 
       addObject(ba.subject)
       addObject(ba.object)
-
-      state.biologicalAssociations.push(ba)
+      addToArray(state.biologicalAssociations, ba)
     }
 
     return state.biologicalAssociations.filter((ba) =>

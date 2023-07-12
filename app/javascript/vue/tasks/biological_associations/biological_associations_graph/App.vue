@@ -97,7 +97,13 @@
             <ModalRelated
               v-if="showModalRelated"
               :current-graph="currentGraph"
-              :relations="graph.getBiologicalRelationships().value"
+              :relations="
+                [].concat(
+                  ...graph
+                    .getBiologicalRelationships()
+                    .value.map((ba) => [ba.object, ba.subject])
+                )
+              "
               @add:biological-associations="
                 (ids) => {
                   addBiologicalAssociationsToGraph(ids)

@@ -14,6 +14,12 @@
     </VBtn>
   </div>
   <div
+    class="graph-context-menu-list-item"
+    @click="() => emit('open:related')"
+  >
+    Add related
+  </div>
+  <div
     v-if="createButton"
     class="graph-context-menu-list-item"
     @click="() => emit('add:edge')"
@@ -65,5 +71,10 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['remove:node', 'add:edge', 'cite:edge'])
+const emit = defineEmits([
+  'remove:node',
+  'add:edge',
+  'cite:edge',
+  'open:related'
+])
 </script>
