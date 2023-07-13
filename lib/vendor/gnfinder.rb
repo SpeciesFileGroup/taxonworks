@@ -29,13 +29,24 @@ module Vendor
       opts[:language] = 'detect' if detect_language
       opts[:language] = language unless language.nil?
 
+      text = massage_text(text)
+
+      ::Vendor::Gnfinder::Result.new(finder.find_names(text, opts), project_id)
+    end
+
+    def self.massage_text(text)
       # TODO: add a flag to the report somewhere
       if !text.valid_encoding?
         text = text.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
       end
 
-      ::Vendor::Gnfinder::Result.new(finder.find_names(text, opts), project_id)
+      text.gsub!(/sp\.nov/, 'sp. nov') # Ensure there is a space b/w
+      text.gsub!(/sp\.nov\./, 'sp. nov. ') # Ensure there is space after
+      text.gsub!(/sp\.nov\./, ' sp. nov.') # Ensure there is space before
+
+      text
     end
+
   end
 
 end
