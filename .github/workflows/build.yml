@@ -85,7 +85,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          tmp/cache/webpacker
+          tmp/cache/shakapacker
           public/assets
           public/packs-test
         key: ${{ runner.os }}-assets-${{ steps.datetime.outputs.iso_date }}-${{ hashFiles('app/javascript/**', 'app/assets/**') }}
