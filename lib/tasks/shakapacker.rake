@@ -1,4 +1,4 @@
-namespace :webpacker do
+namespace :shakapacker do
   task :check_npm do
     begin
       npm_version = `npm --version`
@@ -10,7 +10,7 @@ namespace :webpacker do
       requirement = Gem::Requirement.new(npm_requirement)
 
       unless requirement.satisfied_by?(version)
-        $stderr.puts "Webpacker requires npm #{requirement} and you are using #{version}" && exit!
+        $stderr.puts "Shakapacker requires npm #{requirement} and you are using #{version}" && exit!
       end
     rescue Errno::ENOENT
       $stderr.puts 'npm not installed'
