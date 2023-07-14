@@ -3,6 +3,7 @@
     <h3>Matching identifiers</h3>
     <div class="field label-above">
       <textarea
+        v-tabkey
         class="full_width"
         v-model="matchIdentifiers"
         rows="5"
@@ -33,8 +34,8 @@
 
 <script setup>
 import { computed, ref, onBeforeMount } from 'vue'
+import { vTabkey } from '@/directives'
 import VToggle from '@/tasks/observation_matrices/new/components/newMatrix/switch.vue'
-import { URLParamsToJSON } from '@/helpers/url/parse'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const TYPE_PARAMETERS = {
@@ -49,8 +50,8 @@ const props = defineProps({
   }
 })
 
-const type = ref(TYPE_PARAMETERS.Internal)
-const delimiter = ref(',')
+const type = ref()
+const delimiter = ref()
 const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
@@ -80,6 +81,8 @@ const delimiterIdentifier = computed({
 
     if (!matchIdentifiers.value) {
       params.value.match_identifiers_delimiter = undefined
+    } else {
+      params.value.match_identifiers_delimiter = value
     }
   }
 })
@@ -96,11 +99,7 @@ const toggleType = computed({
 })
 
 onBeforeMount(() => {
-  const urlParams = URLParamsToJSON(location.href)
-
-  params.value.match_identifiers = urlParams.match_identifiers
-  params.value.match_identifiers_delimiter =
-    urlParams.match_identifiers_delimiter
-  params.value.match_identifiers_type = urlParams.match_identifiers_type
+  type.value = params.value.match_identifiers_type || TYPE_PARAMETERS.Internal
+  delimiter.value = params.value.match_identifiers_delimiter || ','
 })
 </script>

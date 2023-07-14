@@ -58,17 +58,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Disable editing of imported rows in DwC importer task [#3469]
 - Fixed URL hostname string matching in some places.
 - Matrix Column Coder throws an error after autosave ends and observation to be saved no longer exists
+- New line delimiter doesn't work in Filter collection object [#3480]
 
-[#3464]: https://github.com/SpeciesFileGroup/taxonworks/issues/3464
-[#3438]: https://github.com/SpeciesFileGroup/taxonworks/issues/3438
-[#3472]: https://github.com/SpeciesFileGroup/taxonworks/issues/3472
-[#3452]: https://github.com/SpeciesFileGroup/taxonworks/issues/3452
 [#3010]: https://github.com/SpeciesFileGroup/taxonworks/issues/3010
 [#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430
+[#3438]: https://github.com/SpeciesFileGroup/taxonworks/issues/3438
 [#3444]: https://github.com/SpeciesFileGroup/taxonworks/issues/3444
 [#3445]: https://github.com/SpeciesFileGroup/taxonworks/issues/3445
-[#3469]: https://github.com/SpeciesFileGroup/taxonworks/issues/3469
+[#3452]: https://github.com/SpeciesFileGroup/taxonworks/issues/3452
 [#3462]: https://github.com/SpeciesFileGroup/taxonworks/issues/3462
+[#3464]: https://github.com/SpeciesFileGroup/taxonworks/issues/3464
+[#3469]: https://github.com/SpeciesFileGroup/taxonworks/issues/3469
+[#3472]: https://github.com/SpeciesFileGroup/taxonworks/issues/3472
+[#3480]: https://github.com/SpeciesFileGroup/taxonworks/issues/3480
 
 ## [0.33.1] - 2023-05-25
 
