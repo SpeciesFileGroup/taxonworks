@@ -63,9 +63,9 @@ module Export::Coldp::Files::Distribution
             area,
             gazetteer,
             nil,
-            reference_ids.first,                                            # reference_id: only 1 distribution reference allowed
-            Export::Coldp.modified(n[:update_at]),                          # modified
-            Export::Coldp.modified_by(n[:updated_by_id], project_members),  # modified_by
+            reference_ids.first,                                             # reference_id: only 1 distribution reference allowed
+            Export::Coldp.modified(ad[:update_at]),                          # modified
+            Export::Coldp.modified_by(ad[:updated_by_id], project_members),  # modified_by
             nil
           ]
 
@@ -86,6 +86,8 @@ module Export::Coldp::Files::Distribution
           'text',
           nil,
           nil,
+          Export::Coldp.modified(o[:update_at]),
+          Export::Coldp.modified_by(o[:updated_by_id], project_members),
           nil
         ]
       end

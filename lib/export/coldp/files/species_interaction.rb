@@ -80,14 +80,14 @@ module Export::Coldp::Files::SpeciesInteraction
           reference_id = reference_ids.first
 
           csv << [
-            taxon_id,                                                      # taxonID
-            related_taxon_id,                                              # relatedTaxonID
-            related_taxon_scientific_name(related_taxon_id),               # relatedTaxonScientificName
-            species_interaction_type(ba),                                  # type
-            reference_id,                                                  # referenceID
-            Export::Coldp.modified(n[:update_at]),                         # modified
-            Export::Coldp.modified_by(n[:updated_by_id], project_members), # modified_by
-            nil                                                            # remarks
+            taxon_id,                                                       # taxonID
+            related_taxon_id,                                               # relatedTaxonID
+            related_taxon_scientific_name(related_taxon_id),                # relatedTaxonScientificName
+            species_interaction_type(ba),                                   # type
+            reference_id,                                                   # referenceID
+            Export::Coldp.modified(ba[:update_at]),                         # modified
+            Export::Coldp.modified_by(ba[:updated_by_id], project_members), # modified_by
+            nil                                                             # remarks
           ]
 
           Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv

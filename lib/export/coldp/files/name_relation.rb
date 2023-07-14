@@ -92,13 +92,13 @@ module Export::Coldp::Files::NameRelation
           reference_id = reference_ids.first
 
           csv << [
-            tnr.subject_taxon_name_id,                                     # nameID
-            tnr.object_taxon_name_id,                                      # relatedNameID
-            type(tnr),                                                     # type
-            reference_id,                                                  # referenceID
-            Export::Coldp.modified(n[:update_at]),                         # modified
-            Export::Coldp.modified_by(n[:updated_by_id], project_members), # modified_by
-            nil,                                                           # remarks
+            tnr.subject_taxon_name_id,                                       # nameID
+            tnr.object_taxon_name_id,                                        # relatedNameID
+            type(tnr),                                                       # type
+            reference_id,                                                    # referenceID
+            Export::Coldp.modified(tnr[:update_at]),                         # modified
+            Export::Coldp.modified_by(tnr[:updated_by_id], project_members), # modified_by
+            nil,                                                             # remarks
           ]
 
           Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv

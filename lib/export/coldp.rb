@@ -40,7 +40,11 @@ module Export
     end
 
     def self.modified(updated_at)
-      updated_at.iso8601
+      if updated_at.nil?
+        ''
+      else
+        updated_at&.iso8601
+      end
     end
 
     def self.modified_by(updated_by_id, project_members)

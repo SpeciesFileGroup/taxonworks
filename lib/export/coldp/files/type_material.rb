@@ -81,27 +81,27 @@ module Export::Coldp::Files::TypeMaterial
           reference_id = reference_ids.first
 
           csv << [
-            nil,                                                           # ID: don't expose TW internal type material ID
-            tm.protonym_id,                                                # nameID
-            co.buffered_collecting_event,                                  # citation
-            tm.type_type,                                                  # status
-            reference_id,                                                  # referenceID
-            locality(co),                                                  # locality
-            co.collecting_event&.cached_level0_geographic_name,            # country
-            co.dwc_decimal_latitude,                                       # latitude
-            co.dwc_decimal_longitude,                                      # longitude
-            co.dwc_verbatim_elevation,                                     # altitude
-            host(o, co),                                                   # host
-            date(co),                                                      # date
-            co.dwc_recorded_by,                                            # collector
-            co.dwc_institution_code,                                       # institutionCode
-            co.dwc_catalog_number,                                         # catalogNumber
-            nil,                                                           # associatedSequences: unclear what is wanted? https://github.com/CatalogueOfLife/coldp#associatedsequences
-            nil,                                                           # sex
-            nil,                                                           # link
-            Export::Coldp.modified(c[:updated_at]),                        # modified
-            Export::Coldp.modified_by(c[:updated_by_id], project_members), # modifiedBy
-            nil                                                            # remarks
+            nil,                                                            # ID: don't expose TW internal type material ID
+            tm.protonym_id,                                                 # nameID
+            co.buffered_collecting_event,                                   # citation
+            tm.type_type,                                                   # status
+            reference_id,                                                   # referenceID
+            locality(co),                                                   # locality
+            co.collecting_event&.cached_level0_geographic_name,             # country
+            co.dwc_decimal_latitude,                                        # latitude
+            co.dwc_decimal_longitude,                                       # longitude
+            co.dwc_verbatim_elevation,                                      # altitude
+            host(o, co),                                                    # host
+            date(co),                                                       # date
+            co.dwc_recorded_by,                                             # collector
+            co.dwc_institution_code,                                        # institutionCode
+            co.dwc_catalog_number,                                          # catalogNumber
+            nil,                                                            # associatedSequences: unclear what is wanted? https://github.com/CatalogueOfLife/coldp#associatedsequences
+            nil,                                                            # sex
+            nil,                                                            # link
+            Export::Coldp.modified(tm[:updated_at]),                        # modified
+            Export::Coldp.modified_by(tm[:updated_by_id], project_members), # modifiedBy
+            nil                                                             # remarks
           ]
 
           Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
