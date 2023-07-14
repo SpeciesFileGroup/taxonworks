@@ -60,9 +60,9 @@
 
 <script setup>
 import { ref } from 'vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const emit = defineEmits(['add'])
 const inputValue = ref('')

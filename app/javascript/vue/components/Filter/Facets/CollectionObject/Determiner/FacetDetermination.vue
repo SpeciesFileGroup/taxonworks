@@ -72,11 +72,11 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import Autocomplete from 'components/ui/Autocomplete'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import Autocomplete from '@/components/ui/Autocomplete'
 import FacetPeople from '../../shared/FacetPeople.vue'
-import { DETERMINER_SELECTOR } from 'constants/index.js'
-import { Otu } from 'routes/endpoints'
+import { DETERMINER_SELECTOR } from '@/constants/index.js'
+import { Otu } from '@/routes/endpoints'
 import { ref, computed, watch, onBeforeMount } from 'vue'
 
 const CURRENT_DETERMINATION_OPTIONS = [

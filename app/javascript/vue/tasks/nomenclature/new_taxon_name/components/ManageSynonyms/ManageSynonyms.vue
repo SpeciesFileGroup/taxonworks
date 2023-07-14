@@ -146,11 +146,11 @@
 import { GetterNames } from '../../store/getters/getters'
 import { TaxonName } from 'routes/endpoints'
 import { sortArray } from 'helpers/arrays.js'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import BlockLayout from 'components/layout/BlockLayout'
-import ModalComponent from 'components/ui/Modal'
-import SpinnerComponent from 'components/spinner'
-import Autocomplete from 'components/ui/Autocomplete'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import BlockLayout from '@/components/layout/BlockLayout'
+import ModalComponent from '@/components/ui/Modal'
+import SpinnerComponent from '@/components/spinner'
+import Autocomplete from '@/components/ui/Autocomplete'
 import ManageSynonymsCitation from './ManageSynonymsCitation.vue'
 
 export default {

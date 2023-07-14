@@ -1,4 +1,4 @@
-import incrementIdentifier from 'tasks/digitize/helpers/incrementIdentifier'
+import incrementIdentifier from '@/tasks/digitize/helpers/incrementIdentifier'
 
 export default function () {
   const { collectingEvent, ...rest } = this.settings.lock

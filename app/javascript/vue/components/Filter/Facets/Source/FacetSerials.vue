@@ -20,10 +20,10 @@
 </template>
 
 <script setup>
-import SmartSelector from 'components/ui/SmartSelector'
-import DisplayList from 'components/displayList'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import { Serial } from 'routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector'
+import DisplayList from '@/components/displayList'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import { Serial } from '@/routes/endpoints'
 import { computed, ref, watch, onMounted } from 'vue'
 
 const props = defineProps({
@@ -64,7 +64,7 @@ watch(
 )
 
 function addSerial(serial) {
-  if (!serials.value.some(s => s.id === serial.id)) {
+  if (!serials.value.some((s) => s.id === serial.id)) {
     serials.value.push(serial)
   }
 }

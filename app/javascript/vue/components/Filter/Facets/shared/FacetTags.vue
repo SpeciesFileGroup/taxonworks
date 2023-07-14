@@ -74,12 +74,12 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
 import RowItem from './RowItem'
-import VModal from 'components/ui/Modal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import { ControlledVocabularyTerm } from 'routes/endpoints'
+import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
 import { computed, ref, watch, onBeforeMount } from 'vue'
 
 const props = defineProps({

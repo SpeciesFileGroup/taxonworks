@@ -1,4 +1,4 @@
-import { COLLECTING_EVENT_PROPERTIES } from 'shared/Filter/constants'
+import { COLLECTING_EVENT_PROPERTIES } from '@/shared/Filter/constants'
 
 export const LAYOUTS = {
   All: {

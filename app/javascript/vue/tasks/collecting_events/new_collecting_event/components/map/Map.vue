@@ -1,9 +1,7 @@
 <template>
   <div>
     <div v-show="latitude && longitude">
-      <div style="height: 10%; overflow: auto;">
-        Map verification
-      </div>
+      <div style="height: 10%; overflow: auto">Map verification</div>
       <VMap
         width="100%"
         height="300px"
@@ -15,22 +13,42 @@
     </div>
 
     <div
-      v-if="(!latitude || !longitude) && (collectingEvent.verbatim_latitude || collectingEvent.verbatim_longitude)"
+      v-if="
+        (!latitude || !longitude) &&
+        (collectingEvent.verbatim_latitude ||
+          collectingEvent.verbatim_longitude)
+      "
       class="panel aligner middle"
-      style="height: 300px; align-items: center; width:100%; text-align: center;"
+      style="
+        height: 300px;
+        align-items: center;
+        width: 100%;
+        text-align: center;
+      "
     >
       <h3>
         <span class="soft_validation">
           <span data-icon="warning" />
-          <span>Verbatim latitude/longitude unparsable or incomplete, location preview unavailable.</span>
+          <span
+            >Verbatim latitude/longitude unparsable or incomplete, location
+            preview unavailable.</span
+          >
         </span>
       </h3>
     </div>
 
     <div
-      v-show="!collectingEvent.verbatim_latitude && !collectingEvent.verbatim_longitude"
+      v-show="
+        !collectingEvent.verbatim_latitude &&
+        !collectingEvent.verbatim_longitude
+      "
       class="panel aligner"
-      style="height: 300px; align-items: center; width:100%; text-align: center;"
+      style="
+        height: 300px;
+        align-items: center;
+        width: 100%;
+        text-align: center;
+      "
     >
       <h3>Provide verbatim latitude/longitude to preview location on map.</h3>
     </div>
@@ -38,10 +56,9 @@
 </template>
 
 <script>
-
-import convertDMS from 'helpers/parseDMS.js'
+import convertDMS from '@/helpers/parseDMS.js'
 import extendCE from '../mixins/extendCE'
-import VMap from 'components/georeferences/map.vue'
+import VMap from '@/components/georeferences/map.vue'
 
 export default {
   mixins: [extendCE],
@@ -51,26 +68,28 @@ export default {
   },
 
   computed: {
-    latitude () {
+    latitude() {
       return convertDMS(this.collectingEvent.verbatim_latitude)
     },
 
-    longitude () {
+    longitude() {
       return convertDMS(this.collectingEvent.verbatim_longitude)
     },
 
-    verbatimGeoJSON () {
+    verbatimGeoJSON() {
       if (this.latitude && this.longitude) {
-        return [{
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [this.longitude, this.latitude]
-          },
-          properties: {
-            name: 'Dinagat Islands'
+        return [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [this.longitude, this.latitude]
+            },
+            properties: {
+              name: 'Dinagat Islands'
+            }
           }
-        }]
+        ]
       } else {
         return []
       }

@@ -76,11 +76,11 @@
 </template>
 
 <script>
-import AjaxCall from 'helpers/ajaxCall'
-import SpinnerComponent from 'components/spinner'
-import ModalComponent from 'components/ui/Modal'
+import AjaxCall from '@/helpers/ajaxCall'
+import SpinnerComponent from '@/components/spinner'
+import ModalComponent from '@/components/ui/Modal'
 import { MutationNames } from '../store/mutations/mutations'
-import { Serial } from 'routes/endpoints'
+import { Serial } from '@/routes/endpoints'
 import { ActionNames } from '../store/actions/actions'
 
 export default {

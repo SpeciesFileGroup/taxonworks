@@ -11,7 +11,7 @@
             :value="option.value"
             v-model="params.nomenclature_group"
             type="radio"
-          >
+          />
           {{ option.label }}
         </label>
       </li>
@@ -19,7 +19,11 @@
 
     <div class="field label-above margin-medium-top">
       <label>Ranks</label>
-      <select @change="addToArray(selectedRanks, rankList[$event.target.value], 'rankClass')">
+      <select
+        @change="
+          addToArray(selectedRanks, rankList[$event.target.value], 'rankClass')
+        "
+      >
         <option
           disabled
           selected
@@ -47,12 +51,12 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import { TaxonName } from 'routes/endpoints'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import { TaxonName } from '@/routes/endpoints'
 import { computed, onBeforeMount, ref, watch } from 'vue'
-import DisplayList from 'components/displayList.vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { removeFromArray, addToArray } from 'helpers/arrays'
+import DisplayList from '@/components/displayList.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { removeFromArray, addToArray } from '@/helpers/arrays'
 
 const OPTIONS = [
   {
@@ -99,11 +103,11 @@ const rankList = computed(() => {
   const nomenclatureCodes = Object.keys(ranks.value)
   const list = []
 
-  nomenclatureCodes.forEach(code => {
+  nomenclatureCodes.forEach((code) => {
     const groups = Object.values(ranks.value[code])
 
-    groups.forEach(group => {
-      group.forEach(item => {
+    groups.forEach((group) => {
+      group.forEach((item) => {
         list.push({
           name: `${code.toUpperCase()} - ${item.name}`,
           rankClass: item.rank_class
@@ -117,8 +121,8 @@ const rankList = computed(() => {
 
 watch(
   selectedRanks,
-  newVal => {
-    params.value.rank = newVal.map(rank => rank.rankClass)
+  (newVal) => {
+    params.value.rank = newVal.map((rank) => rank.rankClass)
   },
   { deep: true }
 )
@@ -133,10 +137,12 @@ watch(
 )
 
 onBeforeMount(() => {
-  params.value.nomenclature_group = URLParamsToJSON(location.href).nomenclature_group
+  params.value.nomenclature_group = URLParamsToJSON(
+    location.href
+  ).nomenclature_group
 
-  TaxonName.ranks().then(
-    ({ body }) => { ranks.value = body }
-  )
+  TaxonName.ranks().then(({ body }) => {
+    ranks.value = body
+  })
 })
 </script>

@@ -21,8 +21,8 @@
 
 <script setup>
 import { computed } from 'vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import DescriptorTypes from 'tasks/descriptors/new/const/types.js'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import DescriptorTypes from '@/tasks/descriptors/new/const/types.js'
 
 const props = defineProps({
   modelValue: {

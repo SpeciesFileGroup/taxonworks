@@ -48,13 +48,13 @@
 </template>
 
 <script setup>
-import RowItem from 'components/Filter/Facets/shared/RowItem.vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import VAutocomplete from 'components/ui/Autocomplete.vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { ControlledVocabularyTerm } from 'routes/endpoints'
+import RowItem from '@/components/Filter/Facets/shared/RowItem.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
 import { ref, computed, watch } from 'vue'
-import { removeFromArray } from 'helpers/arrays'
+import { removeFromArray } from '@/helpers/arrays'
 
 const props = defineProps({
   modelValue: {

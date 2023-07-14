@@ -18,7 +18,7 @@
             v-model="inputValue"
             :placeholder="`Write ${confirmationWord} to continue`"
             @keydown.enter="isConfirmationWordTyped && _confirm()"
-          >
+          />
         </div>
       </div>
     </template>
@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 
 export default {
   name: 'ConfirmDialogue',
@@ -67,13 +67,16 @@ export default {
   }),
 
   computed: {
-    isConfirmationWordTyped () {
-      return !this.confirmationWord || this.confirmationWord?.toLowerCase() === this.inputValue?.toLowerCase()
+    isConfirmationWordTyped() {
+      return (
+        !this.confirmationWord ||
+        this.confirmationWord?.toLowerCase() === this.inputValue?.toLowerCase()
+      )
     }
   },
 
   methods: {
-    show (opts = {}) {
+    show(opts = {}) {
       this.title = opts.title
       this.message = opts.message
       this.okButton = opts.okButton || 'Accept'
@@ -95,12 +98,12 @@ export default {
       })
     },
 
-    _confirm () {
+    _confirm() {
       this.showModal = false
       this.resolvePromise(true)
     },
 
-    _cancel () {
+    _cancel() {
       this.showModal = false
       this.resolvePromise(false)
     }

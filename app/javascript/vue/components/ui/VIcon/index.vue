@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { onVisible } from 'helpers/observable.js'
+import { onVisible } from '@/helpers/observable.js'
 import mixinSizes from '../mixins/sizes.js'
 import mixinColors from '../mixins/colors.js'
 import * as Icons from './icons.js'

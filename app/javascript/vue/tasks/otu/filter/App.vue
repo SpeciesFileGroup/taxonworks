@@ -54,16 +54,16 @@
 </template>
 
 <script setup>
-import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
-import FilterList from 'components/Filter/Table/TableResults.vue'
-import useFilter from 'shared/Filter/composition/useFilter.js'
-import RadialMatrix from 'components/radials/matrix/radial.vue'
-import VSpinner from 'components/spinner.vue'
+import FilterList from '@/components/Filter/Table/TableResults.vue'
+import useFilter from '@/shared/Filter/composition/useFilter.js'
+import RadialMatrix from '@/components/radials/matrix/radial.vue'
+import VSpinner from '@/components/spinner.vue'
 import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
-import { OTU } from 'constants/index.js'
-import { Otu } from 'routes/endpoints'
+import { OTU } from '@/constants/index.js'
+import { Otu } from '@/routes/endpoints'
 
 const extend = ['taxonomy']
 

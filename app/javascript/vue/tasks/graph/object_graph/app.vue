@@ -85,14 +85,14 @@
 <script setup>
 import * as d3 from 'd3'
 import { ref, onMounted } from 'vue'
-import SetParam from 'helpers/setParam'
-import AjaxCall from 'helpers/ajaxCall'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialNavigation from 'components/radials/navigation/radial.vue'
-import VSpinner from 'components/spinner.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import { downloadTextFile } from 'helpers/files'
+import SetParam from '@/helpers/setParam'
+import AjaxCall from '@/helpers/ajaxCall'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigation from '@/components/radials/navigation/radial.vue'
+import VSpinner from '@/components/spinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { downloadTextFile } from '@/helpers/files'
 import * as shapes from './components/Svg'
 
 const size = 5

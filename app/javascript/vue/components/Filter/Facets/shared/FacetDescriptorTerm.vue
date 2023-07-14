@@ -8,12 +8,12 @@
         type="text"
         placeholder="Type..."
         v-model="params.term"
-      >
+      />
       <label>
         <input
           v-model="params.term_exact"
           type="checkbox"
-        >
+        />
         Exact
       </label>
     </div>
@@ -25,7 +25,7 @@
             type="radio"
             :value="undefined"
             v-model="params.term_target"
-          >
+          />
           All
         </label>
       </li>
@@ -33,14 +33,12 @@
         v-for="term in ATTRIBUTES"
         :key="term"
       >
-        <label
-          class="capitalize"
-        >
+        <label class="capitalize">
           <input
             type="radio"
             :value="term"
             v-model="params.term"
-          >
+          />
           {{ term.replaceAll('_', ' ') }}
         </label>
       </li>
@@ -50,7 +48,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const ATTRIBUTES = [
   'name',
@@ -71,9 +69,8 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => {
+  set: (value) => {
     emit('update:modelValue', value)
   }
 })
-
 </script>

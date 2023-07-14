@@ -6,14 +6,12 @@
     >
       <thead>
         <tr>
-          <th>
-            Biological assocations
-          </th>
+          <th>Biological assocations</th>
         </tr>
       </thead>
       <tbody>
         <tr
-          v-for="item, index in list"
+          v-for="(item, index) in list"
           :key="item.id"
           class="contextMenuCells"
           :class="{ even: index % 2 }"
@@ -27,8 +25,7 @@
 </template>
 
 <script>
-
-import { BiologicalAssociation } from 'routes/endpoints'
+import { BiologicalAssociation } from '@/routes/endpoints'
 import { extend } from '../constants/extend.js'
 
 export default {
@@ -47,20 +44,20 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       list: []
     }
   },
 
   watch: {
-    biologicalRelationship (newVal) {
+    biologicalRelationship(newVal) {
       if (newVal) {
         BiologicalAssociation.where({
           biological_relationship_id: newVal.id,
           per: 10,
           extend: [...extend, 'bioloical_relationship']
-        }).then(response => {
+        }).then((response) => {
           this.list = response.body
         })
       } else {
@@ -72,7 +69,7 @@ export default {
 </script>
 
 <style scoped>
-  td {
-    line-height: 1.75rem;
-  }
+td {
+  line-height: 1.75rem;
+}
 </style>

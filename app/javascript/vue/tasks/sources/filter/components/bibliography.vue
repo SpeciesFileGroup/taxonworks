@@ -80,16 +80,16 @@
 </template>
 
 <script>
-import ModalComponent from 'components/ui/Modal'
-import SpinnerComponent from 'components/spinner'
-import ClipboardButton from 'components/clipboardButton'
+import ModalComponent from '@/components/ui/Modal'
+import SpinnerComponent from '@/components/spinner'
+import ClipboardButton from '@/components/clipboardButton'
 
 import {
   GetBibliography,
   GetBibtexStyle,
   GetBibtex
 } from '../request/resources'
-import { downloadTextFile } from 'helpers/files.js'
+import { downloadTextFile } from '@/helpers/files.js'
 
 export default {
   components: {

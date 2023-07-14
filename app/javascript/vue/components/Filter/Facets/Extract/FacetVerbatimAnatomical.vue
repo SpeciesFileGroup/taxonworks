@@ -7,12 +7,12 @@
         type="text"
         class="full_width"
         v-model="params.verbatim_anatomical_origin"
-      >
+      />
       <label>
         <input
           type="checkbox"
           v-model="params.exact_verbatim_anatomical_origin"
-        >
+        />
         Exact
       </label>
     </div>
@@ -21,7 +21,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {
@@ -34,6 +34,6 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 </script>

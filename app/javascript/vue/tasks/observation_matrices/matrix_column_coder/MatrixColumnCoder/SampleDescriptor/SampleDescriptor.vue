@@ -13,7 +13,7 @@
             :observation="o"
             :row-object="rowObject"
           />
-          <hr>
+          <hr />
         </template>
       </div>
       <v-btn
@@ -28,13 +28,12 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import SampleDescriptorObservation from './SampleDescriptorObservation.vue'
 import ObservationTypes from '../../helpers/ObservationTypes'
 import makeObservation from '../../helpers/makeObservation'
-import VBtn from 'components/ui/VBtn/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import SummaryView from '../SummaryView/SummaryView.vue'
 
 export default {
@@ -64,20 +63,21 @@ export default {
   },
 
   computed: {
-    observations () {
-      return this.$store.getters[GetterNames.GetObservations].filter(o =>
-        o.rowObjectId === this.rowObject.id &&
-        o.rowObjectType === this.rowObject.type
+    observations() {
+      return this.$store.getters[GetterNames.GetObservations].filter(
+        (o) =>
+          o.rowObjectId === this.rowObject.id &&
+          o.rowObjectType === this.rowObject.type
       )
     },
 
-    emptyObservation () {
+    emptyObservation() {
       return this.observations.find(({ id }) => !id)
     }
   },
 
   methods: {
-    addEmptyObservation () {
+    addEmptyObservation() {
       const args = {
         type: ObservationTypes.Sample,
         rowObjectId: this.rowObject.id,

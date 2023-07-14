@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import { DATA_ATTRIBUTE_FILTER_PROPERTY } from 'constants/index.js'
+import { DATA_ATTRIBUTE_FILTER_PROPERTY } from '@/constants/index.js'
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -26,13 +26,11 @@ const attributes = computed(() => {
   return obj
 })
 
-function getFilterAttribute (attr) {
+function getFilterAttribute(attr) {
   return `${DATA_ATTRIBUTE_FILTER_PROPERTY}-${attr}`
 }
 
-function parseValue (value) {
-  return Array.isArray(value)
-    ? `[${value}]`
-    : value
+function parseValue(value) {
+  return Array.isArray(value) ? `[${value}]` : value
 }
 </script>

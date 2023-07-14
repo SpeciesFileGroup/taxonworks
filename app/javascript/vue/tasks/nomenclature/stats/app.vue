@@ -90,9 +90,9 @@ import JsonBar from './components/headerBar'
 import TaxonNameComponent from './components/filters/taxonName'
 import RanksFilter from './components/filters/ranks'
 import CombinationsFilter from './components/filters/combinations'
-import SpinnerComponent from 'components/spinner'
+import SpinnerComponent from '@/components/spinner'
 
-import { TaxonName } from 'routes/endpoints'
+import { TaxonName } from '@/routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 

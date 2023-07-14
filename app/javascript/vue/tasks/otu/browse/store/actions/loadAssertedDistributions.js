@@ -1,4 +1,4 @@
-import { AssertedDistribution } from 'routes/endpoints'
+import { AssertedDistribution } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 const embed = ['lavel_names']

@@ -5,7 +5,7 @@ import {
   OBSERVATION_MEDIA,
   OBSERVATION_PRESENCE,
   OBSERVATION_SAMPLE
-} from 'constants/index.js'
+} from '@/constants/index.js'
 
 const ObservationTypes = {
   Qualitative: OBSERVATION_QUALITATIVE,

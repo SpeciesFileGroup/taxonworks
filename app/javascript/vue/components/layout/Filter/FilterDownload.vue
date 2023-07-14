@@ -37,9 +37,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { flatten } from '@json2csv/transforms'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import csvButton from 'components/csvButton.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import csvButton from '@/components/csvButton.vue'
 
 const props = defineProps({
   list: {

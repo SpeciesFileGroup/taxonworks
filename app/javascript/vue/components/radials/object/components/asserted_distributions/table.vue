@@ -44,7 +44,7 @@
             <span
               class="circle-button btn-delete"
               @click="deleteItem(item)"
-            >Remove
+              >Remove
             </span>
           </td>
         </tr>
@@ -53,8 +53,7 @@
   </div>
 </template>
 <script>
-
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import CitationCount from '../shared/citationsCount.vue'
 
 export default {
@@ -70,14 +69,15 @@ export default {
     }
   },
 
-  emits: [
-    'delete',
-    'edit'
-  ],
+  emits: ['delete', 'edit'],
 
   methods: {
-    deleteItem (item) {
-      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+    deleteItem(item) {
+      if (
+        window.confirm(
+          "You're trying to delete this record. Are you sure want to proceed?"
+        )
+      ) {
         this.$emit('delete', item)
       }
     }
@@ -85,37 +85,38 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-  .vue-table-container {
-    padding: 0px;
-    position: relative;
-  }
+.vue-table-container {
+  padding: 0px;
+  position: relative;
+}
 
-  .vue-table {
-    width: 100%;
-    .vue-table-options {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-    }
-    tr {
-      cursor: default;
-    }
+.vue-table {
+  width: 100%;
+  .vue-table-options {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
   }
+  tr {
+    cursor: default;
+  }
+}
 
-  .list-complete-item {
-    justify-content: space-between;
-    transition: all 0.5s, opacity 0.2s;
-  }
+.list-complete-item {
+  justify-content: space-between;
+  transition: all 0.5s, opacity 0.2s;
+}
 
-  .list-complete-enter-active, .list-complete-leave-active {
-    opacity: 0;
-    font-size: 0px;
-    border: none;
-  }
-  .absent {
-    padding: 5px;
-    border-radius: 3px;
-    background-color: #000;
-    color: #FFF;
-  }
+.list-complete-enter-active,
+.list-complete-leave-active {
+  opacity: 0;
+  font-size: 0px;
+  border: none;
+}
+.absent {
+  padding: 5px;
+  border-radius: 3px;
+  background-color: #000;
+  color: #fff;
+}
 </style>

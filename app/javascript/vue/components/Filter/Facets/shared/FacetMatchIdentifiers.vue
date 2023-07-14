@@ -18,7 +18,7 @@
         v-model="delimiterIdentifier"
         type="text"
         class="full_width"
-      >
+      />
     </div>
 
     <div class="field horizontal-left-content middle">
@@ -33,9 +33,9 @@
 
 <script setup>
 import { computed, ref, onBeforeMount } from 'vue'
-import VToggle from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import VToggle from '@/tasks/observation_matrices/new/components/newMatrix/switch.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const TYPE_PARAMETERS = {
   Internal: 'internal',
@@ -55,12 +55,12 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const matchIdentifiers = computed({
   get: () => props.modelValue.match_identifiers,
-  set: value => {
+  set: (value) => {
     if (value) {
       params.value.match_identifiers = value
       params.value.match_identifiers_type = type.value
@@ -75,7 +75,7 @@ const matchIdentifiers = computed({
 
 const delimiterIdentifier = computed({
   get: () => props.modelValue.match_identifiers_delimiter,
-  set: value => {
+  set: (value) => {
     delimiter.value = value
 
     if (!matchIdentifiers.value) {
@@ -86,10 +86,8 @@ const delimiterIdentifier = computed({
 
 const toggleType = computed({
   get: () => type.value === TYPE_PARAMETERS.Identifier,
-  set: value => {
-    type.value = value
-      ? TYPE_PARAMETERS.Identifier
-      : TYPE_PARAMETERS.Internal
+  set: (value) => {
+    type.value = value ? TYPE_PARAMETERS.Identifier : TYPE_PARAMETERS.Internal
 
     if (matchIdentifiers.value) {
       params.value.match_identifiers_type = type.value
@@ -101,8 +99,8 @@ onBeforeMount(() => {
   const urlParams = URLParamsToJSON(location.href)
 
   params.value.match_identifiers = urlParams.match_identifiers
-  params.value.match_identifiers_delimiter = urlParams.match_identifiers_delimiter
+  params.value.match_identifiers_delimiter =
+    urlParams.match_identifiers_delimiter
   params.value.match_identifiers_type = urlParams.match_identifiers_type
 })
-
 </script>

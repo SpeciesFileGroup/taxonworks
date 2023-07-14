@@ -5,11 +5,12 @@
     time="0"
     placeholder="Search"
     @get-item="emit('select', $event)"
-    param="term"/>
+    param="term"
+  />
 </template>
 
 <script setup>
-import Autocomplete from 'components/ui/Autocomplete.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 
 const props = defineProps({
   lists: {

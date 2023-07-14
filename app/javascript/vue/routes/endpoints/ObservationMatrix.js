@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'observation_matrices'
 const permitParams = {

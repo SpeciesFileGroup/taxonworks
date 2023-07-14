@@ -1,5 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
-import { Loan } from 'routes/endpoints'
+import { Loan } from '@/routes/endpoints'
 import ActionNames from './actionNames'
 
 export default ({ commit, state, dispatch }, id) => {

@@ -40,7 +40,7 @@
 import SectionPanel from './shared/sectionPanel'
 import CollectionObjectRow from './specimens/CollectionObjectRow'
 import extendSection from './shared/extendSections'
-import { CollectionObject } from 'routes/endpoints'
+import { CollectionObject } from '@/routes/endpoints'
 
 export default {
   mixins: [extendSection],

@@ -1,6 +1,6 @@
 import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
-import { TaxonName } from 'routes/endpoints'
+import { TaxonName } from '@/routes/endpoints'
 
 export default async ({ dispatch, commit, state }, otus) => {
   const { currentOtu } = state

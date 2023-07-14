@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import Autocomplete from 'components/ui/Autocomplete.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 import SelectedItem from './SelectedItem.vue'
 import { useStore } from '../store/useStore'
 

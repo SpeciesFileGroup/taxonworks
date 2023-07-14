@@ -87,11 +87,11 @@
   </div>
 </template>
 <script>
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import modal from 'components/ui/Modal.vue'
-import spinner from 'components/spinner.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import modal from '@/components/ui/Modal.vue'
+import spinner from '@/components/spinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 import CRUD from './request/crud'
 
@@ -111,8 +111,8 @@ import verifiersAnnotator from './components/verifiers/Verifiers.vue'
 import ContextMenu from './components/contextMenu'
 import Icons from './images/icons.js'
 import shortcutsMixin from '../mixins/shortcuts'
-import { Tag } from 'routes/endpoints'
-import { RadialAnnotatorEventEmitter } from 'utils/index.js'
+import { Tag } from '@/routes/endpoints'
+import { RadialAnnotatorEventEmitter } from '@/utils/index.js'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 

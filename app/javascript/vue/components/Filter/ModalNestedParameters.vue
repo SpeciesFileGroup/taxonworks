@@ -50,12 +50,12 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { QUERY_PARAM } from 'components/radials/filter/constants/queryParam'
-import { FILTER_ROUTES } from 'routes/routes'
-import { isDeepEqual } from 'helpers/objects'
-import VModal from 'components/ui/Modal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
+import { FILTER_ROUTES } from '@/routes/routes'
+import { isDeepEqual } from '@/helpers/objects'
+import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import qs from 'qs'
 
 const props = defineProps({

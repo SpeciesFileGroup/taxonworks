@@ -51,16 +51,16 @@
 </template>
 
 <script setup>
-import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/Filter.vue'
-import FilterList from 'components/Filter/Table/TableResults.vue'
-import RadialMatrix from 'components/radials/matrix/radial.vue'
-import VSpinner from 'components/spinner.vue'
-import useFilter from 'shared/Filter/composition/useFilter.js'
-import extend from 'tasks/extracts/new_extract/const/extendRequest'
+import FilterList from '@/components/Filter/Table/TableResults.vue'
+import RadialMatrix from '@/components/radials/matrix/radial.vue'
+import VSpinner from '@/components/spinner.vue'
+import useFilter from '@/shared/Filter/composition/useFilter.js'
+import extend from '@/tasks/extracts/new_extract/const/extendRequest'
 import { ATTRIBUTES } from './constants/attributes'
-import { EXTRACT } from 'constants/index.js'
-import { Extract } from 'routes/endpoints'
+import { EXTRACT } from '@/constants/index.js'
+import { Extract } from '@/routes/endpoints'
 
 const {
   isLoading,

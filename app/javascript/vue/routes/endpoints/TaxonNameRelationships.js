@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const permitParams = {
   taxon_name_relationship: {
@@ -18,5 +18,6 @@ const permitParams = {
 
 export const TaxonNameRelationship = {
   ...baseCRUD('taxon_name_relationships', permitParams),
-  types: () => AjaxCall('get', '/taxon_name_relationships/taxon_name_relationship_types')
+  types: () =>
+    AjaxCall('get', '/taxon_name_relationships/taxon_name_relationship_types')
 }

@@ -83,12 +83,12 @@
 </template>
 
 <script>
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialObject from 'components/radials/navigation/radial.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/navigation/radial.vue'
 import Draggable from 'vuedraggable'
-import ObjectValidation from 'components/soft_validations/objectValidation.vue'
+import ObjectValidation from '@/components/soft_validations/objectValidation.vue'
 import { GetterNames } from '../../store/getters/getters'
-import { OTU, EXTRACT, DESCRIPTOR, SPECIMEN } from 'constants/index.js'
+import { OTU, EXTRACT, DESCRIPTOR, SPECIMEN } from '@/constants/index.js'
 
 export default {
   components: {

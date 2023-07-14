@@ -2,7 +2,7 @@ import {
   Depiction,
   TaxonDetermination,
   CollectionObject
-} from 'routes/endpoints'
+} from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 import validateSqed from '../../helpers/validateSqed'
 

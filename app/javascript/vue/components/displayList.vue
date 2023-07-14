@@ -61,10 +61,10 @@
   </transition-group>
 </template>
 <script>
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialObject from 'components/radials/navigation/radial.vue'
-import SoftValidation from 'components/soft_validations/objectValidation.vue'
-import PdfButton from 'components/pdfButton.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/navigation/radial.vue'
+import SoftValidation from '@/components/soft_validations/objectValidation.vue'
+import PdfButton from '@/components/pdfButton.vue'
 
 export default {
   components: {

@@ -1,7 +1,7 @@
 import { MutationNames } from '../mutations/mutations'
-import { CollectingEvent, Georeference } from 'routes/endpoints'
+import { CollectingEvent, Georeference } from '@/routes/endpoints'
 
-import { chunkArray } from 'helpers/arrays'
+import { chunkArray } from '@/helpers/arrays'
 
 const maxCEPerCall = 100
 

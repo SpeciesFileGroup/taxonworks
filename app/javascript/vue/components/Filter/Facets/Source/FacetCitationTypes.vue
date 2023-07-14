@@ -11,7 +11,7 @@
             type="checkbox"
             :value="type"
             v-model="selectedTypes"
-          >
+          />
           <span class="capitalize-first-letter">{{ decamelize(type) }}</span>
         </label>
       </li>
@@ -21,10 +21,10 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Source } from 'routes/endpoints'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import decamelize from 'helpers/decamelize'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { Source } from '@/routes/endpoints'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import decamelize from '@/helpers/decamelize'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {
@@ -42,16 +42,18 @@ const params = computed({
 
 const selectedTypes = computed({
   get: () => params.value.citation_object_type || [],
-  set: value => { params.value.citation_object_type = value }
+  set: (value) => {
+    params.value.citation_object_type = value
+  }
 })
 
 const types = ref([])
 
-Source.citationTypes().then(response => {
+Source.citationTypes().then((response) => {
   types.value = response.body
 })
 
 const urlParams = URLParamsToJSON(location.href)
 
-params.value.citation_object_type = (urlParams.citation_object_type ||= [])
+params.value.citation_object_type = urlParams.citation_object_type ||= []
 </script>

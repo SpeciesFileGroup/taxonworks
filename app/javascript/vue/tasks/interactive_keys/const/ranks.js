@@ -1,4 +1,4 @@
-import { RouteNames } from 'routes/routes'
+import { RouteNames } from '@/routes/routes'
 
 export default {
   otu: {

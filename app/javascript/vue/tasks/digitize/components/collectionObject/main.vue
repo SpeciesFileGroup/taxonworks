@@ -8,7 +8,8 @@
         <div
           v-if="collectionObject.id"
           v-hotkey="shortcuts"
-          class="horizontal-left-content">
+          class="horizontal-left-content"
+        >
           <radial-annotator :global-id="collectionObject.global_id" />
           <default-tag :global-id="collectionObject.global_id" />
           <radial-object :global-id="collectionObject.global_id" />
@@ -19,28 +20,28 @@
         <div id="collection-object-form">
           <catalogue-number
             v-if="showCatalogNumber"
-            class="panel content" />
+            class="panel content"
+          />
           <repository-component
             v-if="showRepository"
-            class="panel content" />
+            class="panel content"
+          />
           <preparation-type
             v-if="showPreparation"
-            class="panel content" />
+            class="panel content"
+          />
           <div
             v-if="showBuffered"
-            class="panel content">
-            <h2 class="flex-separate">
-              Buffered
-            </h2>
-            <buffered-component
-              class="field"/>
+            class="panel content"
+          >
+            <h2 class="flex-separate">Buffered</h2>
+            <buffered-component class="field" />
           </div>
           <div
             v-if="showDepictions"
-            class="panel content column-depictions">
-            <h2 class="flex-separate">
-              Depictions
-            </h2>
+            class="panel content column-depictions"
+          >
+            <h2 class="flex-separate">Depictions</h2>
             <depictions-component
               v-if="showDepictions"
               :object-value="collectionObject"
@@ -59,18 +60,16 @@
           />
           <div
             v-if="showCitations"
-            class="panel content column-citations">
-            <h2 class="flex-separate">
-              Citations
-            </h2>
-            <citation-component/>
+            class="panel content column-citations"
+          >
+            <h2 class="flex-separate">Citations</h2>
+            <citation-component />
           </div>
           <div
             v-if="showAttributes"
-            class="panel content column-attribute">
-            <h2 class="flex-separate">
-              Attributes
-            </h2>
+            class="panel content column-attribute"
+          >
+            <h2 class="flex-separate">Attributes</h2>
             <div>
               <spinner-component
                 v-if="!collectionObject.id"
@@ -79,18 +78,21 @@
                   color: '#444',
                   textAlign: 'center'
                 }"
-                legend="Locked until first save"/>
+                legend="Locked until first save"
+              />
               <predicates-component
                 v-if="projectPreferences"
                 :object-id="collectionObject.id"
                 object-type="CollectionObject"
                 model="CollectionObject"
-                :model-preferences="projectPreferences.model_predicate_sets.CollectionObject"
+                :model-preferences="
+                  projectPreferences.model_predicate_sets.CollectionObject
+                "
                 @onUpdate="setAttributes"
               />
             </div>
           </div>
-          <container-items class="row-item"/>
+          <container-items class="row-item" />
         </div>
       </template>
     </block-layout>
@@ -98,8 +100,7 @@
 </template>
 
 <script>
-
-import SpinnerComponent from 'components/spinner'
+import SpinnerComponent from '@/components/spinner'
 import ContainerItems from './containerItems.vue'
 import PreparationType from './preparationType.vue'
 import CatalogueNumber from '../catalogueNumber/catalogNumber.vue'
@@ -110,19 +111,16 @@ import CitationComponent from './Citation/CitationMain.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
-import BlockLayout from 'components/layout/BlockLayout.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialNavigation from 'components/radials/navigation/radial.vue'
-import RadialObject from 'components/radials/object/radial.vue'
-import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
-import DefaultTag from 'components/defaultTag.vue'
-import platformKey from 'helpers/getPlatformKey'
-import SoftValidations from 'components/soft_validations/panel.vue'
-import {
-  Depiction,
-  CollectionObject
-} from 'routes/endpoints'
-import { COLLECTION_OBJECT } from 'constants/index.js'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigation from '@/components/radials/navigation/radial.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
+import PredicatesComponent from '@/components/custom_attributes/predicates/predicates'
+import DefaultTag from '@/components/defaultTag.vue'
+import platformKey from '@/helpers/getPlatformKey'
+import SoftValidations from '@/components/soft_validations/panel.vue'
+import { Depiction, CollectionObject } from '@/routes/endpoints'
+import { COLLECTION_OBJECT } from '@/constants/index.js'
 import {
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CITATIONS,
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_ATTRIBUTES,
@@ -132,7 +130,7 @@ import {
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_REPOSITORY,
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CATALOG_NUMBER,
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_VALIDATIONS
-} from 'tasks/digitize/const/layout'
+} from '@/tasks/digitize/const/layout'
 
 export default {
   components: {
@@ -154,33 +152,33 @@ export default {
   },
 
   computed: {
-    projectPreferences () {
+    projectPreferences() {
       return this.$store.getters[GetterNames.GetProjectPreferences]
     },
 
     collectionObject: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetCollectionObject]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetCollectionObject, value)
       }
     },
 
-    collectionObjects () {
+    collectionObjects() {
       return this.$store.getters[GetterNames.GetCollectionObjects]
     },
 
     depictions: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetDepictions]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetDepictions, value)
       }
     },
 
-    shortcuts () {
+    shortcuts() {
       const keys = {}
 
       keys[`${platformKey()}+e`] = this.openBrowse
@@ -188,52 +186,50 @@ export default {
       return keys
     },
 
-    validations () {
+    validations() {
       const { Specimen } = this.$store.getters[GetterNames.GetSoftValidations]
 
-      return Specimen
-        ? { Specimen }
-        : {}
+      return Specimen ? { Specimen } : {}
     },
 
-    layout () {
+    layout() {
       return this.$store.getters[GetterNames.GetPreferences]?.layout || {}
     },
 
-    showAttributes () {
+    showAttributes() {
       return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_ATTRIBUTES]
     },
 
-    showBuffered () {
+    showBuffered() {
       return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_BUFFERED]
     },
 
-    showCitations () {
+    showCitations() {
       return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CITATIONS]
     },
 
-    showDepictions () {
+    showDepictions() {
       return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_DEPICTIONS]
     },
 
-    showPreparation () {
+    showPreparation() {
       return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_PREPARATION]
     },
 
-    showRepository () {
+    showRepository() {
       return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_REPOSITORY]
     },
 
-    showCatalogNumber () {
+    showCatalogNumber() {
       return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CATALOG_NUMBER]
     },
 
-    showValidations () {
+    showValidations() {
       return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_VALIDATIONS]
     }
   },
 
-  data () {
+  data() {
     return {
       types: [],
       labelRepository: undefined,
@@ -242,20 +238,20 @@ export default {
     }
   },
   watch: {
-    collectionObject (newVal) {
+    collectionObject(newVal) {
       if (newVal.id) {
         this.cloneDepictions(newVal)
       }
     }
   },
   methods: {
-    setAttributes (value) {
+    setAttributes(value) {
       this.collectionObject.data_attributes_attributes = value
     },
 
-    cloneDepictions (co) {
+    cloneDepictions(co) {
       const unique = new Set()
-      const depictionsRemovedDuplicate = this.depictions.filter(depiction => {
+      const depictionsRemovedDuplicate = this.depictions.filter((depiction) => {
         const key = depiction.image_id
         const isNew = !unique.has(key)
 
@@ -263,28 +259,34 @@ export default {
         return isNew
       })
 
-      const coDepictions = this.depictions.filter(depiction => depiction.depiction_object_id === co.id)
+      const coDepictions = this.depictions.filter(
+        (depiction) => depiction.depiction_object_id === co.id
+      )
 
-      depictionsRemovedDuplicate.forEach(depiction => {
-        if (!coDepictions.find(item => item.image_id === depiction.image_id)) {
+      depictionsRemovedDuplicate.forEach((depiction) => {
+        if (
+          !coDepictions.find((item) => item.image_id === depiction.image_id)
+        ) {
           this.saveDepiction(co.id, depiction)
         }
       })
     },
 
-    saveDepiction (coId, depiction) {
+    saveDepiction(coId, depiction) {
       const data = {
         depiction_object_id: coId,
         depiction_object_type: COLLECTION_OBJECT,
         image_id: depiction.image_id
       }
-      Depiction.create({ depiction: data }).then(response => {
+      Depiction.create({ depiction: data }).then((response) => {
         this.depictions.push(response.body)
       })
     },
 
-    createDepictionForAll (depiction) {
-      const coIds = this.collectionObjects.map((co) => co.id).filter(id => this.collectionObject.id !== id)
+    createDepictionForAll(depiction) {
+      const coIds = this.collectionObjects
+        .map((co) => co.id)
+        .filter((id) => this.collectionObject.id !== id)
 
       this.depictions.push(depiction)
       coIds.forEach((id) => {
@@ -292,13 +294,16 @@ export default {
       })
     },
 
-    removeAllDepictionsByImageId (depiction) {
+    removeAllDepictionsByImageId(depiction) {
       this.$store.dispatch(ActionNames.RemoveDepictionsByImageId, depiction)
     },
 
-    openBrowse () {
+    openBrowse() {
       if (this.collectionObject.id) {
-        window.open(`/tasks/collection_objects/browse?collection_object_id=${this.collectionObject.id}`, '_self')
+        window.open(
+          `/tasks/collection_objects/browse?collection_object_id=${this.collectionObject.id}`,
+          '_self'
+        )
       }
     }
   }
@@ -306,27 +311,27 @@ export default {
 </script>
 
 <style scoped>
-  #collection-object-form {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(250px, 1fr) );
-    gap: 0.5em;
-    grid-auto-flow: dense;
-  }
+#collection-object-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(250px, 1fr));
+  gap: 0.5em;
+  grid-auto-flow: dense;
+}
 
-  .depict-validation-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.5em;
-  }
+.depict-validation-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5em;
+}
 
-  .column-validation {
-    grid-column: 3 / 4;
-  }
+.column-validation {
+  grid-column: 3 / 4;
+}
 
-  .row-1-3 {
-    grid-column: 1 / 3;
-  }
-  .row-item {
-    grid-column: 1 / 4;
-  }
+.row-1-3 {
+  grid-column: 1 / 3;
+}
+.row-item {
+  grid-column: 1 / 4;
+}
 </style>

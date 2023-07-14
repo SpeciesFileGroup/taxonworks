@@ -39,10 +39,10 @@
 </template>
 
 <script setup>
-import VNavbar from 'components/layout/NavBar'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import VAutocomplete from 'components/ui/Autocomplete.vue'
+import VNavbar from '@/components/layout/NavBar'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import { useGraphStore } from '../store/useGraphStore.js'
 
 const store = useGraphStore()

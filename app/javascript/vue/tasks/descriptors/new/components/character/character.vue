@@ -3,41 +3,41 @@
     <h3>Character states</h3>
     <div class="horizontal-left-content align-start">
       <div class="field">
-        <label>Label</label><br>
+        <label>Label</label><br />
         <input
           class="character-input"
           maxlength="2"
           type="text"
           v-model="characterState.label"
-        >
+        />
       </div>
       <div class="field separate-left">
         <div class="separate-bottom">
-          <label>Name</label><br>
+          <label>Name</label><br />
           <input
             type="text"
             v-model="characterState.name"
-          >
+          />
         </div>
         <template v-if="show">
           <div class="separate-bottom">
-            <label>Description name</label><br>
+            <label>Description name</label><br />
             <input
               type="text"
               v-model="characterState.description_name"
-            >
+            />
           </div>
           <div>
-            <label>Key name</label><br>
+            <label>Key name</label><br />
             <input
               type="text"
               v-model="characterState.key_name"
-            >
+            />
           </div>
         </template>
       </div>
       <div class="field separate-left">
-        <br>
+        <br />
         <template v-if="characterState.id">
           <button
             :disabled="!validateFields"
@@ -66,12 +66,15 @@
         <a
           class="separate-left cursor-pointer"
           @click="show = !show"
-        > {{ show ? 'Hide' : 'Show more' }}</a>
+        >
+          {{ show ? 'Hide' : 'Show more' }}</a
+        >
       </div>
     </div>
     <ul
       v-if="list.length"
-      class="table-entrys-list">
+      class="table-entrys-list"
+    >
       <draggable
         v-model="list"
         item-key="id"
@@ -98,8 +101,7 @@
   </div>
 </template>
 <script>
-
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Draggable from 'vuedraggable'
 
 export default {
@@ -115,26 +117,27 @@ export default {
     }
   },
 
-  emits: [
-    'update:modelValue',
-    'save'
-  ],
+  emits: ['update:modelValue', 'save'],
 
   computed: {
-    validateFields () {
-      return this.characterState.label && this.characterState.name && this.descriptor.name
+    validateFields() {
+      return (
+        this.characterState.label &&
+        this.characterState.name &&
+        this.descriptor.name
+      )
     },
     descriptor: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set () {
+      set() {
         this.$emit('update:modelValue', this.value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       show: false,
       list: [],
@@ -144,27 +147,32 @@ export default {
 
   watch: {
     descriptor: {
-      handler (newVal, oldVal) {
-        if (JSON.stringify(newVal.character_states) !== JSON.stringify(oldVal.character_states)) { this.list = this.sortPosition(newVal.character_states) }
+      handler(newVal, oldVal) {
+        if (
+          JSON.stringify(newVal.character_states) !==
+          JSON.stringify(oldVal.character_states)
+        ) {
+          this.list = this.sortPosition(newVal.character_states)
+        }
       },
       deep: true
     }
   },
 
-  mounted () {
+  mounted() {
     if (this.descriptor.hasOwnProperty('character_states')) {
       this.list = this.sortPosition(this.descriptor.character_states)
     }
   },
 
   methods: {
-    createCharacter () {
+    createCharacter() {
       this.descriptor.character_states_attributes = [this.characterState]
       this.$emit('save', this.descriptor)
       this.resetInputs()
     },
 
-    newCharacter () {
+    newCharacter() {
       return {
         label: undefined,
         name: undefined,
@@ -174,18 +182,22 @@ export default {
       }
     },
 
-    resetInputs () {
+    resetInputs() {
       this.characterState = this.newCharacter()
     },
 
-    removeCharacter (index) {
-      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+    removeCharacter(index) {
+      if (
+        window.confirm(
+          "You're trying to delete this record. Are you sure want to proceed?"
+        )
+      ) {
         this.list[index]._destroy = true
         this.onSortable()
       }
     },
 
-    editCharacter (index) {
+    editCharacter(index) {
       this.characterState.id = this.list[index].id
       this.characterState.label = this.list[index].label
       this.characterState.name = this.list[index].name
@@ -193,8 +205,10 @@ export default {
       this.characterState.description_name = this.list[index].description_name
     },
 
-    updateCharacter () {
-      const index = this.list.findIndex((item) => item.id === this.characterState.id)
+    updateCharacter() {
+      const index = this.list.findIndex(
+        (item) => item.id === this.characterState.id
+      )
 
       if (index > -1) {
         this.descriptor.character_states_attributes = [this.characterState]
@@ -203,19 +217,19 @@ export default {
       this.resetInputs()
     },
 
-    onSortable () {
+    onSortable() {
       this.updateIndex()
       this.descriptor.character_states_attributes = this.list
       this.$emit('save', this.descriptor)
     },
 
-    updateIndex () {
+    updateIndex() {
       this.list.forEach((element, index) => {
-        this.list[index].position = (index + 1)
+        this.list[index].position = index + 1
       })
     },
 
-    sortPosition (list) {
+    sortPosition(list) {
       list.sort((a, b) => {
         if (a.position > b.position) {
           return 1
@@ -228,7 +242,7 @@ export default {
 }
 </script>
 <style scoped>
-  .character-input {
-    width: 40px !important;
-  }
+.character-input {
+  width: 40px !important;
+}
 </style>

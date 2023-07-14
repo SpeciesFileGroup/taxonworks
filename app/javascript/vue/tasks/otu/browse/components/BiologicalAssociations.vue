@@ -57,11 +57,11 @@
 <script>
 import SectionPanel from './shared/sectionPanel'
 import extendSection from './shared/extendSections'
-import VModal from 'components/ui/Modal'
+import VModal from '@/components/ui/Modal'
 import YearPicker from './timeline/TimelineYearsPick.vue'
 import FilterList from './biologicalAssociations/filterList'
 import BiologicalAssociationsList from './biologicalAssociations/BiologicalAssociationsTable.vue'
-import { getUnique, sortArray } from 'helpers/arrays.js'
+import { getUnique, sortArray } from '@/helpers/arrays.js'
 import { GetterNames } from '../store/getters/getters'
 
 export default {

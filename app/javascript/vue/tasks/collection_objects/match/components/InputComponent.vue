@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { URLParamsToJSON } from 'helpers/url/parse'
+import { URLParamsToJSON } from '@/helpers/url/parse'
 
 export default {
   emits: ['lines'],

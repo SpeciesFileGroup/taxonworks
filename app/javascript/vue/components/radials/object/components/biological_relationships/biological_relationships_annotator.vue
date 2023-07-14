@@ -135,16 +135,19 @@ import AnnotatorExtend from '../annotatorExtend.js'
 import Biological from './biological.vue'
 import Related from './related.vue'
 import TableList from './table.vue'
-import LockComponent from 'components/ui/VLock/index.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import FormCitation from 'components/Form/FormCitation.vue'
+import LockComponent from '@/components/ui/VLock/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import FormCitation from '@/components/Form/FormCitation.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
-import displayList from 'components/displayList.vue'
-import { convertType } from 'helpers/types'
-import { addToArray } from 'helpers/arrays.js'
-import { BiologicalAssociation, BiologicalRelationship } from 'routes/endpoints'
-import { BIOLOGICAL_ASSOCIATION } from 'constants/index.js'
+import displayList from '@/components/displayList.vue'
+import { convertType } from '@/helpers/types'
+import { addToArray } from '@/helpers/arrays.js'
+import {
+  BiologicalAssociation,
+  BiologicalRelationship
+} from '@/routes/endpoints'
+import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 
 const EXTEND_PARAMS = [
   'origin_citation',

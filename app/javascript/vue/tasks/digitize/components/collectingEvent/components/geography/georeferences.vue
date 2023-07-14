@@ -140,28 +140,28 @@
 </template>
 
 <script>
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
 import { ActionNames } from '../../../../store/actions/actions.js'
 
-import MapComponent from 'components/georeferences/map.vue'
-import SpinnerComponent from 'components/spinner.vue'
-import DisplayList from 'components/georeferences/list.vue'
-import ManuallyComponent from 'components/georeferences/manuallyComponent'
-import GeolocateComponent from 'components/georeferences/geolocateComponent'
-import DateComponent from 'components/ui/Date/DateFields.vue'
-import WtkComponent from 'tasks/collecting_events/new_collecting_event/components/parsed/georeferences/wkt.vue'
-import { Georeference } from 'routes/endpoints'
+import MapComponent from '@/components/georeferences/map.vue'
+import SpinnerComponent from '@/components/spinner.vue'
+import DisplayList from '@/components/georeferences/list.vue'
+import ManuallyComponent from '@/components/georeferences/manuallyComponent'
+import GeolocateComponent from '@/components/georeferences/geolocateComponent'
+import DateComponent from '@/components/ui/Date/DateFields.vue'
+import WtkComponent from '@/tasks/collecting_events/new_collecting_event/components/parsed/georeferences/wkt.vue'
+import { Georeference } from '@/routes/endpoints'
 import {
   GEOREFERENCE_GEOLOCATE,
   GEOREFERENCE_LEAFLET,
   GEOREFERENCE_VERBATIM,
   GEOREFERENCE_POINT
-} from 'constants/index.js'
-import { truncateDecimal } from 'helpers/math.js'
-import { addToArray } from 'helpers/arrays.js'
-import convertDMS from 'helpers/parseDMS.js'
+} from '@/constants/index.js'
+import { truncateDecimal } from '@/helpers/math.js'
+import { addToArray } from '@/helpers/arrays.js'
+import convertDMS from '@/helpers/parseDMS.js'
 
 export default {
   components: {

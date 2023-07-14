@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'asserted_distributions'
 const permitParams = {

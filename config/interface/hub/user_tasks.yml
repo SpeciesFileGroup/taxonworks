@@ -249,6 +249,7 @@ index_editor_task:
   name: 'Content editor'
   related:
   categories:
+    - new
     - source
   status: prototype
   description: 'Edit content (text) per subject, for example "Biology of Aus bus". Text can be cited and figured.'
@@ -813,7 +814,7 @@ edit_biological_associations_graph_task:
   name: 'New biological associations'
   related:
   categories:
-    - biology 
+    - biology
   status: prototype
   description: 'Create, edit, and cite biological associations and their inter-relationships.'
 loan_dashboard_task:

@@ -1,11 +1,13 @@
 <template>
-  <modal-component
-    @close="$emit('close')">
+  <modal-component @close="$emit('close')">
     <template #header>
       <h3>Select original citation</h3>
     </template>
     <template #body>
-      <p>A new citation is marked as original, but another original citation already exists. Select one of the following actions to proceed:</p>
+      <p>
+        A new citation is marked as original, but another original citation
+        already exists. Select one of the following actions to proceed:
+      </p>
       <ul class="no_bullets">
         <li>
           <label>
@@ -14,8 +16,11 @@
               type="radio"
               :value="true"
               v-model="keepOriginal"
+            />
+            <span
+              >Keep <b v-html="originalSource.cached" /> as original, save
+              <b v-html="currentSource.cached" /> as non original.</span
             >
-            <span>Keep <b v-html="originalSource.cached" /> as original, save <b v-html="currentSource.cached" /> as non original.</span>
           </label>
         </li>
         <li>
@@ -25,8 +30,11 @@
               type="radio"
               :value="false"
               v-model="keepOriginal"
+            />
+            <span
+              >Save <b v-html="currentSource.cached" /> as original
+              citation.</span
             >
-            <span>Save <b v-html="currentSource.cached" /> as original citation.</span>
           </label>
         </li>
       </ul>
@@ -44,8 +52,8 @@
 </template>
 
 <script>
-import { Citation, Source } from 'routes/endpoints'
-import ModalComponent from 'components/ui/Modal'
+import { Citation, Source } from '@/routes/endpoints'
+import ModalComponent from '@/components/ui/Modal'
 import CRUD from '../../request/crud.js'
 
 export default {
@@ -65,12 +73,9 @@ export default {
     }
   },
 
-  emits: [
-    'create',
-    'close'
-  ],
+  emits: ['create', 'close'],
 
-  data () {
+  data() {
     return {
       currentSource: {},
       originalSource: {},
@@ -78,33 +83,37 @@ export default {
     }
   },
 
-  async created () {
+  async created() {
     this.currentSource = (await Source.find(this.citation.source_id)).body
-    this.originalSource = (await Source.find(this.originalCitation.source_id)).body
+    this.originalSource = (
+      await Source.find(this.originalCitation.source_id)
+    ).body
   },
 
   methods: {
-    createNonOriginal () {
+    createNonOriginal() {
       const payload = { ...this.citation, is_original: false }
 
-      Citation.create({ citation: payload }).then(response => {
+      Citation.create({ citation: payload }).then((response) => {
         this.$emit('create', response.body)
         this.$emit('close')
       })
     },
 
-    changeOriginal () {
+    changeOriginal() {
       const payload = { ...this.originalCitation, is_original: false }
 
-      Citation.update(this.originalCitation.id, { citation: payload }).then(_ => {
-        Citation.create({ citation: this.citation }).then(response => {
-          this.$emit('create', response.body)
-          this.$emit('close')
-        })
-      })
+      Citation.update(this.originalCitation.id, { citation: payload }).then(
+        (_) => {
+          Citation.create({ citation: this.citation }).then((response) => {
+            this.$emit('create', response.body)
+            this.$emit('close')
+          })
+        }
+      )
     },
 
-    handleCitation () {
+    handleCitation() {
       if (this.keepOriginal) {
         this.createNonOriginal()
       } else {

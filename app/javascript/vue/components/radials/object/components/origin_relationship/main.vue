@@ -4,16 +4,19 @@
       <div>
         <span
           v-if="originOf"
-          v-html="originOf"/>
+          v-html="originOf"
+        />
         <span v-else>Select a origin</span>
       </div>
 
       <div class="margin-medium-left inline">
-        <span>is the origin of<br>
+        <span
+          >is the origin of<br />
           <div class="margin-medium-left">
             <span
               v-if="originFor"
-              v-html="originFor"/>
+              v-html="originFor"
+            />
             <span v-else>[Select a origin]</span>
           </div>
         </span>
@@ -21,20 +24,21 @@
           class="center-icon small-icon button circle-button button-default"
           data-icon="w-swap"
           type="button"
-          @click="flip = !flip">
+          @click="flip = !flip"
+        >
           Flip
         </button>
       </div>
       <div class="margin-medium-left">
         <div class="margin-xlarge-left">
-          a <select v-model="typeSelected">
-            <option :value="undefined">
-              Select type
-            </option>
+          a
+          <select v-model="typeSelected">
+            <option :value="undefined">Select type</option>
             <option
               v-for="(item, key) in typeList"
               :key="key"
-              :value="key">
+              :value="key"
+            >
               {{ key }}
             </option>
           </select>
@@ -53,7 +57,8 @@
         type="button"
         class="button normal-input button-submit"
         :disabled="!objectSelected"
-        @click="createOrigin">
+        @click="createOrigin"
+      >
         Create
       </button>
     </div>
@@ -71,15 +76,17 @@
         tag="tbody"
         item-key="id"
         v-model="list"
-        @end="onSortable">
+        @end="onSortable"
+      >
         <template #item="{ element, index }">
           <tr>
-            <td v-html="element.new_object_object_tag"/>
-            <td v-html="element.old_object_object_tag"/>
+            <td v-html="element.new_object_object_tag" />
+            <td v-html="element.old_object_object_tag" />
             <td>
               <span
                 class="circle-button btn-delete"
-                @click="removeOrigin(index)"/>
+                @click="removeOrigin(index)"
+              />
             </td>
           </tr>
         </template>
@@ -89,8 +96,7 @@
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
+import SmartSelector from '@/components/ui/SmartSelector'
 import CRUD from '../../request/crud'
 import annotatorExtend from '../annotatorExtend'
 import Draggable from 'vuedraggable'
@@ -111,7 +117,7 @@ export default {
     SmartSelector
   },
 
-  data () {
+  data() {
     return {
       objectSelected: undefined,
       originRelationship: undefined,
@@ -121,33 +127,42 @@ export default {
   },
 
   computed: {
-    typeList () {
+    typeList() {
       return this.metadata.endpoints.origin_relationships.origin_for
     },
 
-    originOf () {
-      return !this.flip ? this.metadata.object_tag : this.objectSelected?.object_tag
+    originOf() {
+      return !this.flip
+        ? this.metadata.object_tag
+        : this.objectSelected?.object_tag
     },
 
-    originFor () {
-      return this.flip ? this.metadata.object_tag : this.objectSelected?.object_tag
+    originFor() {
+      return this.flip
+        ? this.metadata.object_tag
+        : this.objectSelected?.object_tag
     },
 
-    modelSelected () {
+    modelSelected() {
       return controllerRoute[this.typeSelected]
     }
   },
 
   methods: {
-    setObject (item) {
-      this.objectSelected = this.modelSelected === controllerRoute.Specimen
-        ? Object.assign(item, { base_class: 'CollectionObject' })
-        : item
+    setObject(item) {
+      this.objectSelected =
+        this.modelSelected === controllerRoute.Specimen
+          ? Object.assign(item, { base_class: 'CollectionObject' })
+          : item
     },
 
-    createOrigin () {
-      const newObject = !this.flip ? this.objectSelected : { id: this.metadata.object_id, base_class: this.metadata.object_type }
-      const oldObject = this.flip ? this.objectSelected : { id: this.metadata.object_id, base_class: this.metadata.object_type }
+    createOrigin() {
+      const newObject = !this.flip
+        ? this.objectSelected
+        : { id: this.metadata.object_id, base_class: this.metadata.object_type }
+      const oldObject = this.flip
+        ? this.objectSelected
+        : { id: this.metadata.object_id, base_class: this.metadata.object_type }
       const originRelationship = {
         old_object_id: oldObject.id,
         old_object_type: oldObject.base_class,
@@ -155,26 +170,38 @@ export default {
         new_object_type: newObject.base_class
       }
 
-      this.create('/origin_relationships', { origin_relationship: originRelationship }).then(response => {
-        TW.workbench.alert.create('Origin relationship was successfully created.', 'notice')
+      this.create('/origin_relationships', {
+        origin_relationship: originRelationship
+      }).then((response) => {
+        TW.workbench.alert.create(
+          'Origin relationship was successfully created.',
+          'notice'
+        )
         this.list.unshift(response.body)
       })
     },
 
-    removeOrigin (index) {
-      this.destroy(`/origin_relationships/${this.list[index].id}.json`).then(({ body }) => {
-        TW.workbench.alert.create('Origin relationship was successfully destroyed.', 'notice')
-        this.list.splice(index, 1)
-      })
+    removeOrigin(index) {
+      this.destroy(`/origin_relationships/${this.list[index].id}.json`).then(
+        ({ body }) => {
+          TW.workbench.alert.create(
+            'Origin relationship was successfully destroyed.',
+            'notice'
+          )
+          this.list.splice(index, 1)
+        }
+      )
     },
 
-    onSortable ({ newIndex }) {
+    onSortable({ newIndex }) {
       const originRelationship = {
         id: this.list[newIndex].id,
         position: newIndex
       }
 
-      this.update(`/origin_relationships/${originRelationship.id}.json`, { origin_relationship: originRelationship }).then(({ body }) => {
+      this.update(`/origin_relationships/${originRelationship.id}.json`, {
+        origin_relationship: originRelationship
+      }).then(({ body }) => {
         this.list[newIndex] = body
       })
     }

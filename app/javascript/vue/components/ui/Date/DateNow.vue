@@ -9,8 +9,8 @@
 </template>
 
 <script setup>
-import { convertToTwoDigits } from 'helpers/numbers'
-import VBtn from 'components/ui/VBtn/index.vue'
+import { convertToTwoDigits } from '@/helpers/numbers'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const emit = defineEmits([
   'update:day',

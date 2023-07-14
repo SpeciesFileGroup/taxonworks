@@ -15,8 +15,8 @@
 </template>
 
 <script setup>
-import SmartSelector from 'components/ui/SmartSelector'
-import VModal from 'components/ui/Modal.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import VModal from '@/components/ui/Modal.vue'
 
 const emit = defineEmits(['add:relationship'])
 </script>

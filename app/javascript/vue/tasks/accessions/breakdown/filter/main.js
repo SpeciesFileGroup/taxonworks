@@ -1,8 +1,8 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import hotkey from 'plugins/v-hotkey'
+import hotkey from '@/plugins/v-hotkey'
 
-function initApp (element) {
+function initApp(element) {
   const app = createApp(App)
 
   app.directive('hotkey', hotkey)
@@ -12,5 +12,7 @@ function initApp (element) {
 document.addEventListener('turbolinks:load', () => {
   const el = document.querySelector('#vue-breakdown-sqed')
 
-  if (el) { initApp(el) }
+  if (el) {
+    initApp(el)
+  }
 })

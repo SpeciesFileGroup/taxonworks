@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { ProjectMember } from 'routes/endpoints'
+import { ProjectMember } from '@/routes/endpoints'
 
 export default {
   props: {
@@ -25,7 +25,7 @@ export default {
 
   emits: ['update:modelValue'],
 
-  data () {
+  data() {
     return {
       membersList: []
     }
@@ -33,25 +33,27 @@ export default {
 
   computed: {
     selectedMembers: {
-      get () {
+      get() {
         return this.modelValue
       },
 
-      set (value) {
+      set(value) {
         this.$emits('update:modelValue', value)
       }
     }
   },
 
-  created () {
-    ProjectMember.all().then(response => {
+  created() {
+    ProjectMember.all().then((response) => {
       this.membersList = response.body
     })
   },
 
   methods: {
-    selectMember (item) {
-      const index = this.selectedMembers.findIndex(memberId => memberId === item.user_id)
+    selectMember(item) {
+      const index = this.selectedMembers.findIndex(
+        (memberId) => memberId === item.user_id
+      )
 
       if (index > -1) {
         this.selectedMembers.splice(index, 1)

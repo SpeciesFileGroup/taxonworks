@@ -14,11 +14,10 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { ActionNames } from '../../store/actions/actions'
-import Autocomplete from 'components/ui/Autocomplete'
+import Autocomplete from '@/components/ui/Autocomplete'
 
 export default {
   components: { Autocomplete },
@@ -32,17 +31,17 @@ export default {
 
   computed: {
     list: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetDocumentations]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetDocumentations, value)
       }
     }
   },
 
   methods: {
-    createNew (document) {
+    createNew(document) {
       this.$store.dispatch(ActionNames.SaveDocumentation, {
         document_id: document.id,
         annotated_global_entity: decodeURIComponent(this.source.global_id)

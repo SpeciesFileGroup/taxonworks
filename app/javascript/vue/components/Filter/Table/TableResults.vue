@@ -218,14 +218,14 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { sortArray } from 'helpers/arrays.js'
-import { vResizeColumn } from 'directives/resizeColumn.js'
-import { humanize } from 'helpers/strings'
-import VBtn from 'components/ui/VBtn/index.vue'
+import { sortArray } from '@/helpers/arrays.js'
+import { vResizeColumn } from '@/directives/resizeColumn.js'
+import { humanize } from '@/helpers/strings'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import HandyScroll from 'vue-handy-scroll'
-import RadialNavigation from 'components/radials/navigation/radial.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialObject from 'components/radials/object/radial.vue'
+import RadialNavigation from '@/components/radials/navigation/radial.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
 
 const props = defineProps({
   list: {

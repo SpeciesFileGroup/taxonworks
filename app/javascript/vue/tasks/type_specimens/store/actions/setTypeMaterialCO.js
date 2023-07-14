@@ -1,6 +1,6 @@
 import { ActionNames } from './actions'
 import { MutationNames } from '../mutations/mutations'
-import { TypeMaterial } from 'routes/endpoints'
+import { TypeMaterial } from '@/routes/endpoints'
 import extend from '../../const/extendRequest.js'
 
 export default ({ state, commit, dispatch }, collectionObject) => {

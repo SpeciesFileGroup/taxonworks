@@ -1,5 +1,5 @@
 import baseCRUD, { annotations } from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'descriptors'
 const permitParams = {
@@ -41,5 +41,5 @@ export const Descriptor = {
 
   units: () => AjaxCall('get', `/${controller}/units`),
 
-  filter: params => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }

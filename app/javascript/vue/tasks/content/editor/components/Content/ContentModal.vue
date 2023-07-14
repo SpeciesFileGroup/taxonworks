@@ -26,9 +26,8 @@
 </template>
 
 <script>
-
-import VModal from 'components/ui/Modal.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
+import VModal from '@/components/ui/Modal.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
@@ -38,7 +37,7 @@ export default {
     VModal
   },
 
-  data () {
+  data() {
     return {
       isOpen: false
     }
@@ -46,23 +45,21 @@ export default {
 
   computed: {
     content: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetContentSelected]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetContentSelected, value)
       }
     },
 
-    buttonLabel () {
-      return this.content
-        ? 'Change Content'
-        : 'Content'
+    buttonLabel() {
+      return this.content ? 'Change Content' : 'Content'
     }
   },
 
   methods: {
-    selected (content) {
+    selected(content) {
       console.log(content)
       this.content = content
       this.isOpen = false

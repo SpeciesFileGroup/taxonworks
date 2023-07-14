@@ -17,11 +17,10 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
-import CustomAttributes from 'components/custom_attributes/predicates/predicates'
+import CustomAttributes from '@/components/custom_attributes/predicates/predicates'
 import componentExtend from './mixins/componentExtend'
-import BlockLayout from 'components/layout/BlockLayout'
+import BlockLayout from '@/components/layout/BlockLayout'
 
 export default {
   mixins: [componentExtend],
@@ -32,13 +31,17 @@ export default {
   },
 
   computed: {
-    projectPreferences () { return this.$store.getters[GetterNames.GetProjectPreferences] },
+    projectPreferences() {
+      return this.$store.getters[GetterNames.GetProjectPreferences]
+    },
 
-    extractId () { return this.$store.getters[GetterNames.GetExtract].id }
+    extractId() {
+      return this.$store.getters[GetterNames.GetExtract].id
+    }
   },
 
   methods: {
-    setAttributes (data) {
+    setAttributes(data) {
       this.extract.data_attributes_attributes = data
     }
   }

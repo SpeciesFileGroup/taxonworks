@@ -37,9 +37,9 @@
 </template>
 
 <script setup>
-import ConfirmationModal from 'components/ConfirmationModal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { ref } from 'vue'
 
 defineProps({

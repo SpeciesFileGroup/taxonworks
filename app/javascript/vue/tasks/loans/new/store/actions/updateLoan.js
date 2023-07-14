@@ -1,4 +1,4 @@
-import { Loan } from 'routes/endpoints'
+import { Loan } from '@/routes/endpoints'
 
 export default ({ commit, state }, loan) => {
   const payload = {

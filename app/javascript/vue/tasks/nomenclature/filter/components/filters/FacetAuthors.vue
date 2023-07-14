@@ -49,13 +49,13 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import DisplayList from 'components/displayList'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { People } from 'routes/endpoints'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import DisplayList from '@/components/displayList'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { People } from '@/routes/endpoints'
 import { computed, ref, watch, onBeforeMount } from 'vue'
-import { TAXON_NAME_AUTHOR_SELECTOR } from 'constants/index.js'
+import { TAXON_NAME_AUTHOR_SELECTOR } from '@/constants/index.js'
 
 const props = defineProps({
   modelValue: {

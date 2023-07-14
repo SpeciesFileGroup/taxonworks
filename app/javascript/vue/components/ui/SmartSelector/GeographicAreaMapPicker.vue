@@ -51,10 +51,10 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { GeographicArea } from 'routes/endpoints'
-import VSpinner from 'components/spinner.vue'
-import VMap from 'components/georeferences/map.vue'
-import { useRandomUUID } from 'helpers/random.js'
+import { GeographicArea } from '@/routes/endpoints'
+import VSpinner from '@/components/spinner.vue'
+import VMap from '@/components/georeferences/map.vue'
+import { useRandomUUID } from '@/helpers/random.js'
 
 const props = defineProps({
   modelValue: {

@@ -28,12 +28,12 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import DisplayList from 'components/displayList.vue'
-import { ControlledVocabularyTerm } from 'routes/endpoints'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import DisplayList from '@/components/displayList.vue'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
 import { computed, ref, watch, onBeforeMount } from 'vue'
-import { removeFromArray, addToArray } from 'helpers/arrays'
+import { removeFromArray, addToArray } from '@/helpers/arrays'
 
 const props = defineProps({
   modelValue: {

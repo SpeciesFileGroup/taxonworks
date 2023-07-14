@@ -36,10 +36,10 @@
 </template>
 
 <script>
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 import RanksList from '../const/ranks'
 import { GetterNames } from '../store/getters/getters'
-import { RouteNames } from 'routes/routes'
+import { RouteNames } from '@/routes/routes'
 
 export default {
   components: { ModalComponent },

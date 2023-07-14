@@ -29,9 +29,9 @@
 
 <script setup>
 import { computed } from 'vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import VLock from 'components/ui/VLock/index.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import VLock from '@/components/ui/VLock/index.vue'
 
 const props = defineProps({
   modelValue: {
@@ -45,25 +45,21 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits([
-  'update:modelValue',
-  'update:lock'
-])
+const emit = defineEmits(['update:modelValue', 'update:lock'])
 
 const otu = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const lock = computed({
   get: () => props.lock,
-  set: value => emit('update:lock', value)
+  set: (value) => emit('update:lock', value)
 })
-
 </script>
 
 <style scoped>
-  li {
-    margin-bottom: 8px;
-  }
+li {
+  margin-bottom: 8px;
+}
 </style>

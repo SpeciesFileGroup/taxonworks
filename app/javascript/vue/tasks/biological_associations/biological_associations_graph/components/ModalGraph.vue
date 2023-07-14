@@ -27,8 +27,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import VModal from 'components/ui/Modal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   graph: {

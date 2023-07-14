@@ -18,8 +18,8 @@
 
 <script setup>
 import { watch, ref } from 'vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { Parser } from '@json2csv/plainjs'
 
 const props = defineProps({

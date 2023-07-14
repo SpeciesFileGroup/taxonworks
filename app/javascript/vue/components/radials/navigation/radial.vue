@@ -58,17 +58,17 @@
 </template>
 
 <script setup>
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import Spinner from 'components/spinner.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import Spinner from '@/components/spinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import Icons from './images/icons.js'
 import DestroyConfirmation from './components/DestroyConfirmation'
 import AllTasks from './components/allTasks.vue'
-import ajaxCall from 'helpers/ajaxCall'
-import { PinboardItem } from 'routes/endpoints'
+import ajaxCall from '@/helpers/ajaxCall'
+import { PinboardItem } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
-import VModal from 'components/ui/Modal.vue'
+import VModal from '@/components/ui/Modal.vue'
 
 const DEFAULT_OPTIONS = {
   New: 'New',

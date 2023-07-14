@@ -2,11 +2,12 @@
   <div class="panel type-specimen-box">
     <div class="header flex-separate middle">
       <h3>Taxon name</h3>
-      <expand v-model="displayBody"/>
+      <expand v-model="displayBody" />
     </div>
     <div
       class="body"
-      v-if="displayBody">
+      v-if="displayBody"
+    >
       <div class="field">
         <label>Species name</label>
         <autocomplete
@@ -20,22 +21,23 @@
           :add-params="{
             'type[]': 'Protonym',
             'nomenclature_group[]': 'SpeciesGroup'
-        }"/>
+          }"
+        />
       </div>
       <display-list
         :list="typesMaterial"
         :annotator="true"
         @delete="removeTypeSpecimen"
-        label="object_tag"/>
+        label="object_tag"
+      />
     </div>
   </div>
 </template>
 
 <script>
-
-import Expand from 'components/expand.vue'
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import DisplayList from 'components/displayList.vue'
+import Expand from '@/components/expand.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
+import DisplayList from '@/components/displayList.vue'
 
 import { GetterNames } from '../store/getters/getters'
 import ActionNames from '../store/actions/actionNames'
@@ -47,7 +49,7 @@ export default {
     Expand
   },
   computed: {
-    typesMaterial () {
+    typesMaterial() {
       return this.$store.getters[GetterNames.GetTypeMaterials]
     }
   },
@@ -57,12 +59,12 @@ export default {
     }
   },
   methods: {
-    setTypeSpecimen (id) {
+    setTypeSpecimen(id) {
       this.$store.dispatch(ActionNames.LoadTaxonName, id).then(() => {
         this.$store.dispatch(ActionNames.LoadTypeMaterials, id)
       })
     },
-    removeTypeSpecimen (item) {
+    removeTypeSpecimen(item) {
       this.$store.dispatch(ActionNames.RemoveTypeSpecimen, item.id)
     }
   }

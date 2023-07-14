@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+
 - `api/v1/data_attributes/brief` endpoint
 - `api/v1/controlled_vocabulary_terms` endpoint
 - Extracts are citable
@@ -22,9 +23,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Batch update Geographic area radial to filter collecting events
 - Customized API version of OTU autocomplete
 - GBIF map tiles as an option on maps
+- `Add related` option to nodes in Biological associations graph task
 
 ### Changed
 
+- Optimized Gnfinder playground new-name detection
 - Optimized `/api/v1/asserted_distribution`, also now uses `extend[]=geo_json` (disabled if > 50 records requested)
 - Updated `/api/v1/biological_associations` to report full `taxonomy` [#3438]
 - Updated Ruby gems
@@ -35,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clone loan button redirects to new loan task [#3462]
 
 ### Fixed
+
 - Georeference parsing didn't handle new Z
 - Clearing PinboardItems by class
 - Rendering TNT matrix labels

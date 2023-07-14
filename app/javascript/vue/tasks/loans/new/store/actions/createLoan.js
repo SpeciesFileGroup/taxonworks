@@ -1,5 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
-import { Loan } from 'routes/endpoints'
+import { Loan } from '@/routes/endpoints'
 
 export default ({ commit }, loan) => {
   commit(MutationNames.SetSaving, true)

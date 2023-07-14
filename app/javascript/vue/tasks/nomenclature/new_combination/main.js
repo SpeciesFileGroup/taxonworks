@@ -1,10 +1,10 @@
 import { createApp } from 'vue'
-import HelpSystem from 'plugins/help/help'
+import HelpSystem from '@/plugins/help/help'
 import en from './lang/help/en'
-import hotkey from 'plugins/v-hotkey'
+import hotkey from '@/plugins/v-hotkey'
 import App from './app.vue'
 
-function init () {
+function init() {
   const app = createApp(App)
   app.directive('hotkey', hotkey)
   app.use(HelpSystem, {

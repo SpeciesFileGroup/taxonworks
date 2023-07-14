@@ -12,41 +12,68 @@
       <div v-if="!taxonRelation">
         <div
           v-if="editType"
-          class="horizontal-left-content">
+          class="horizontal-left-content"
+        >
           <span>
-            <span v-html="GetRelationshipsCreated[0].object_tag"/>
+            <span v-html="GetRelationshipsCreated[0].object_tag" />
             <a
               v-html="GetRelationshipsCreated[0].subject_object_tag"
-              :href="`/tasks/nomenclature/browse?taxon_name_id=${GetRelationshipsCreated[0].subject_taxon_name_id}`"/>
+              :href="`/tasks/nomenclature/browse?taxon_name_id=${GetRelationshipsCreated[0].subject_taxon_name_id}`"
+            />
           </span>
           <span
             class="button circle-button btn-undo button-default"
-            @click="editType = undefined"/>
+            @click="editType = undefined"
+          />
         </div>
         <quick-taxon-name
-          v-if="!showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon) && (!(GetRelationshipsCreated.length) || editType)"
+          v-if="
+            !showForThisGroup(
+              ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'],
+              taxon
+            ) &&
+            (!GetRelationshipsCreated.length || editType)
+          "
           @get-item="addTaxonType"
-          :group="childOfParent[getRankGroup.toLowerCase()]"/>
-        <template v-if="showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon)">
+          :group="childOfParent[getRankGroup.toLowerCase()]"
+        />
+        <template
+          v-if="
+            showForThisGroup(
+              ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'],
+              taxon
+            )
+          "
+        >
           <ul class="no_bullets context-menu">
             <li>
               <a
                 :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}`"
-                v-hotkey="shortcuts">Quick</a>
+                v-hotkey="shortcuts"
+                >Quick</a
+              >
             </li>
             <li>
-              <a :href="`/tasks/accessions/comprehensive?taxon_name_id=${taxon.id}`">Comprehensive</a>
+              <a
+                :href="`/tasks/accessions/comprehensive?taxon_name_id=${taxon.id}`"
+                >Comprehensive</a
+              >
             </li>
           </ul>
           <ul class="table-entrys-list">
             <li
               class="flex-separate list-complete-item"
               v-for="typeSpecimen in typeMaterialList"
-              :key="typeSpecimen.id">
+              :key="typeSpecimen.id"
+            >
               <a
                 :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}&type_material_id=${typeSpecimen.id}`"
-                v-html="typeSpecimen.object_tag"/>
-              <a :href="`/tasks/accessions/comprehensive?collection_object_id=${typeSpecimen.collection_object_id}`">Open comprehensive</a>
+                v-html="typeSpecimen.object_tag"
+              />
+              <a
+                :href="`/tasks/accessions/comprehensive?collection_object_id=${typeSpecimen.collection_object_id}`"
+                >Open comprehensive</a
+              >
             </li>
           </ul>
         </template>
@@ -70,12 +97,19 @@
         />
 
         <p class="inline">
-          <span v-html="taxonRelation.hasOwnProperty('label_html') ? taxonRelation.label_html : taxonRelation.object_tag"/>
+          <span
+            v-html="
+              taxonRelation.hasOwnProperty('label_html')
+                ? taxonRelation.label_html
+                : taxonRelation.object_tag
+            "
+          />
           <span
             type="button"
             title="Undo"
             class="circle-button button-default btn-undo"
-            @click="taxonRelation = undefined"/>
+            @click="taxonRelation = undefined"
+          />
         </p>
 
         <list-common
@@ -85,11 +119,20 @@
           :filter="true"
           @add-entry="addEntry"
           display="subject_status_tag"
-          :list-created="GetRelationshipsCreated"/>
+          :list-created="GetRelationshipsCreated"
+        />
       </div>
       <list-entrys
         :list="GetRelationshipsCreated"
-        :display="[{ link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}, 'subject_status_tag', 'object_object_tag']"
+        :display="[
+          {
+            link: '/tasks/nomenclature/browse?taxon_name_id=',
+            label: 'subject_object_tag',
+            param: 'subject_taxon_name_id'
+          },
+          'subject_status_tag',
+          'object_object_tag'
+        ]"
         edit
         @delete="removeType"
         @edit="setEdit"
@@ -100,22 +143,21 @@
   </block-layout>
 </template>
 <script>
-
 import showForThisGroup from '../helpers/showForThisGroup'
-import BlockLayout from 'components/layout/BlockLayout'
+import BlockLayout from '@/components/layout/BlockLayout'
 
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { TypeMaterial } from 'routes/endpoints'
+import { TypeMaterial } from '@/routes/endpoints'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import childOfParent from '../helpers/childOfParent'
 import QuickTaxonName from './quickTaxonName'
-import platformKey from 'helpers/getPlatformKey.js'
-import SwitchComponent from 'components/switch.vue'
+import platformKey from '@/helpers/getPlatformKey.js'
+import SwitchComponent from '@/components/switch.vue'
 
 export default {
   components: {
@@ -128,52 +170,59 @@ export default {
   },
 
   computed: {
-    treeList () {
+    treeList() {
       return this.$store.getters[GetterNames.GetRelationshipList]
     },
 
-    getRankGroup () {
+    getRankGroup() {
       return getRankGroup(this.$store.getters[GetterNames.GetTaxon].rank_string)
     },
 
-    taxon () {
+    taxon() {
       return this.$store.getters[GetterNames.GetTaxon]
     },
 
-    GetRelationshipsCreated () {
-      return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter((item) => item.type.split('::')[1] === 'Typification')
+    GetRelationshipsCreated() {
+      return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(
+        (item) => item.type.split('::')[1] === 'Typification'
+      )
     },
 
-    parent () {
+    parent() {
       return this.$store.getters[GetterNames.GetParent]
     },
 
-    softValidation () {
-      return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
+    softValidation() {
+      return this.$store.getters[GetterNames.GetSoftValidation]
+        .taxonRelationshipList.list
     },
 
-    checkValidation () {
-      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.instance.id)).length
+    checkValidation() {
+      return !!this.softValidation.filter((item) =>
+        this.GetRelationshipsCreated.find(
+          (created) => created.id === item.instance.id
+        )
+      ).length
     },
 
     taxonRelation: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetTaxonType]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetTaxonType, value)
       }
     },
 
-    nomenclaturalCode () {
+    nomenclaturalCode() {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]
     },
 
-    showModal () {
+    showModal() {
       return this.$store.getters[GetterNames.ActiveModalType]
     },
 
-    shortcuts () {
+    shortcuts() {
       const keys = {}
 
       keys[`${platformKey()}+m`] = this.switchTypeMaterial
@@ -188,7 +237,7 @@ export default {
     })
   },
 
-  data () {
+  data() {
     return {
       objectLists: this.makeLists(),
       showAdvance: false,
@@ -201,7 +250,7 @@ export default {
 
   watch: {
     parent: {
-      handler (newVal) {
+      handler(newVal) {
         if (newVal == null) return true
         this.refresh()
       },
@@ -209,9 +258,9 @@ export default {
     },
 
     taxon: {
-      handler (newVal, oldVal) {
+      handler(newVal, oldVal) {
         if (newVal.id && (!oldVal || newVal.id !== oldVal.id)) {
-          TypeMaterial.where({ protonym_id: newVal.id }).then(response => {
+          TypeMaterial.where({ protonym_id: newVal.id }).then((response) => {
             this.typeMaterialList = response.body
           })
         }
@@ -220,12 +269,20 @@ export default {
       deep: true
     }
   },
-  mounted () {
-    TW.workbench.keyboard.createLegend((platformKey() + '+' + 'm'), 'Go to new type material', 'New taxon name')
-    TW.workbench.keyboard.createLegend((platformKey() + '+' + 'c'), 'Go to comprehensive specimen digitization', 'New taxon name')
+  mounted() {
+    TW.workbench.keyboard.createLegend(
+      platformKey() + '+' + 'm',
+      'Go to new type material',
+      'New taxon name'
+    )
+    TW.workbench.keyboard.createLegend(
+      platformKey() + '+' + 'c',
+      'Go to comprehensive specimen digitization',
+      'New taxon name'
+    )
   },
   methods: {
-    setEdit (relationship) {
+    setEdit(relationship) {
       this.editType = relationship
       this.addTaxonType({
         id: relationship.subject_taxon_name_id,
@@ -233,15 +290,15 @@ export default {
       })
     },
 
-    loadTaxonRelationships () {
+    loadTaxonRelationships() {
       this.$store.dispatch(ActionNames.LoadTaxonRelationships, this.taxon.id)
     },
 
-    setType (item) {
+    setType(item) {
       this.$store.dispatch(ActionNames.UpdateTaxonRelationship, item)
     },
 
-    removeType (item) {
+    removeType(item) {
       this.$store.dispatch(ActionNames.RemoveTaxonRelationship, item)
       this.$store.commit(MutationNames.SetTaxon, {
         ...this.taxon,
@@ -249,41 +306,52 @@ export default {
       })
     },
 
-    refresh () {
-      this.objectLists.tree = this.filterList(this.addType(Object.assign({}, this.treeList.typification.all)), this.getRankGroup)
-      this.objectLists.common = this.filterList(this.addType(Object.assign({}, this.treeList.typification.common)), this.getRankGroup)
+    refresh() {
+      this.objectLists.tree = this.filterList(
+        this.addType(Object.assign({}, this.treeList.typification.all)),
+        this.getRankGroup
+      )
+      this.objectLists.common = this.filterList(
+        this.addType(Object.assign({}, this.treeList.typification.common)),
+        this.getRankGroup
+      )
     },
 
-    activeModal (value) {
+    activeModal(value) {
       this.$store.commit(MutationNames.SetModalType, value)
     },
 
-    makeLists () {
+    makeLists() {
       return {
         tree: undefined,
         common: undefined
       }
     },
 
-    addTaxonType (taxon) {
+    addTaxonType(taxon) {
       this.taxonRelation = taxon
-      if (this.getRankGroup == 'Family') { 
-        this.addEntry(this.objectLists.tree[Object.keys(this.objectLists.tree)[0]])
+      if (this.getRankGroup == 'Family') {
+        this.addEntry(
+          this.objectLists.tree[Object.keys(this.objectLists.tree)[0]]
+        )
       }
     },
 
-    addEntry (item) {
+    addEntry(item) {
       const saveRequest = this.editType
-        ? this.$store.dispatch(ActionNames.UpdateTaxonType, { ...item, id: this.editType.id })
+        ? this.$store.dispatch(ActionNames.UpdateTaxonType, {
+            ...item,
+            id: this.editType.id
+          })
         : this.$store.dispatch(ActionNames.AddTaxonType, item)
 
-      saveRequest.then(_ => {
+      saveRequest.then((_) => {
         this.$store.commit(MutationNames.UpdateLastChange)
         this.editType = undefined
       })
     },
 
-    filterList (list, filter) {
+    filterList(list, filter) {
       const tmp = {}
 
       for (const key in list) {
@@ -294,19 +362,25 @@ export default {
       return tmp
     },
 
-    addType (list) {
+    addType(list) {
       for (const key in list) {
         list[key].type = key
       }
       return list
     },
 
-    switchTypeMaterial () {
-      window.open(`/tasks/type_material/edit_type_material?taxon_name_id=${this.taxon.id}`, '_self')
+    switchTypeMaterial() {
+      window.open(
+        `/tasks/type_material/edit_type_material?taxon_name_id=${this.taxon.id}`,
+        '_self'
+      )
     },
 
-    switchComprehensive () {
-      window.open(`/tasks/accessions/comprehensive?taxon_name_id=${this.taxon.id}`, '_self')
+    switchComprehensive() {
+      window.open(
+        `/tasks/accessions/comprehensive?taxon_name_id=${this.taxon.id}`,
+        '_self'
+      )
     },
 
     showForThisGroup

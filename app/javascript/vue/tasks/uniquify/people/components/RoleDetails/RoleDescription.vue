@@ -13,7 +13,9 @@
           v-for="item in objects"
           :key="item.id"
           class="contextMenuCells row-role"
-          :class="classForRoleProject(roles.find(r => r.role_object_id === item.id))"
+          :class="
+            classForRoleProject(roles.find((r) => r.role_object_id === item.id))
+          "
         >
           <td v-html="item.object_tag" />
         </tr>
@@ -32,8 +34,8 @@
 <script setup>
 import { computed } from 'vue'
 import RoleLegend from './RoleLegend.vue'
-import VModal from 'components/ui/Modal.vue'
-import VSpinner from 'components/spinner.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VSpinner from '@/components/spinner.vue'
 import useRoleObjectRequest from '../../composables/useRoleObjectRequest.js'
 
 const props = defineProps({
@@ -58,13 +60,16 @@ const emit = defineEmits('close')
 const [isLoading, objects] = useRoleObjectRequest(props.roles)
 const nothingFound = computed(() => !isLoading.value && !objects.value.length)
 
-const classForRoleProject = role => {
-  if (!role.project_id) { return 'community' }
-  if (role.in_project) { return 'in-project' }
+const classForRoleProject = (role) => {
+  if (!role.project_id) {
+    return 'community'
+  }
+  if (role.in_project) {
+    return 'in-project'
+  }
 
   return 'no-in-project'
 }
-
 </script>
 
 <style lang="scss" scoped>

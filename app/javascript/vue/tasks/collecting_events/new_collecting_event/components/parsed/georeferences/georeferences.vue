@@ -3,17 +3,27 @@
     <button
       type="button"
       class="button normal-input button-default"
-      @click="showModal = !showModal">Georeference ({{ count }})</button>
+      @click="showModal = !showModal"
+    >
+      Georeference ({{ count }})
+    </button>
     <button
       v-if="!verbatimGeoreferenceAlreadyCreated"
       type="button"
       class="button normal-input button-submit margin-small-left"
       :disabled="!verbatimLat && !verbatimLat"
-      @click="createVerbatimShape">
+      @click="createVerbatimShape"
+    >
       Create georeference from verbatim
     </button>
     <template v-if="verbatimGeoreferenceAlreadyCreated">
-      <span>Lat: {{ georeferenceVerbatimLatitude }}, Long: {{ georeferenceVerbatimLongitude }}<span v-if="georeferenceVerbatimRadiusError">, Radius error: {{ georeferenceVerbatimRadiusError }}</span></span>
+      <span
+        >Lat: {{ georeferenceVerbatimLatitude }}, Long:
+        {{ georeferenceVerbatimLongitude
+        }}<span v-if="georeferenceVerbatimRadiusError"
+          >, Radius error: {{ georeferenceVerbatimRadiusError }}</span
+        ></span
+      >
     </template>
     <modal-component
       @close="showModal = false"
@@ -22,30 +32,36 @@
         maxHeight: '80vh',
         overflowY: 'scroll'
       }"
-      v-if="showModal">
+      v-if="showModal"
+    >
       <template #header>
         <h3>Georeferences</h3>
       </template>
       <template #body>
-        <div
-          style="overflow-y: scroll">
-          <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
+        <div style="overflow-y: scroll">
+          <div
+            class="horizontal-left-content margin-medium-top margin-medium-bottom"
+          >
             <wkt-component
               @create="addToQueue"
-              class="margin-small-right"/>
+              class="margin-small-right"
+            />
             <manually-component
               class="margin-small-right"
-              @create="addGeoreference($event, GEOREFERENCE_POINT)"/>
+              @create="addGeoreference($event, GEOREFERENCE_POINT)"
+            />
             <geolocate-component
               :disabled="!collectingEvent.id"
               class="margin-small-right"
-              @create="addToQueue"/>
+              @create="addToQueue"
+            />
             <button
               type="button"
               v-if="verbatimLat && verbatimLng"
               :disabled="verbatimGeoreferenceAlreadyCreated"
               @click="createVerbatimShape"
-              class="button normal-input button-submit">
+              class="button normal-input button-submit"
+            >
               Create georeference from verbatim
             </button>
           </div>
@@ -53,10 +69,12 @@
             :style="{
               height: height,
               width: width
-            }">
+            }"
+          >
             <spinner-component
               v-if="showSpinner"
-              legend="Saving..."/>
+              legend="Saving..."
+            />
             <map-component
               ref="leaflet"
               v-if="show"
@@ -73,7 +91,8 @@
               tooltips
               actions
               @geoJsonLayersEdited="updateGeoreference($event)"
-              @geoJsonLayerCreated="addGeoreference($event)"/>
+              @geoJsonLayerCreated="addGeoreference($event)"
+            />
           </div>
           <div class="margin-medium-top">
             <b>Georeference date</b>
@@ -83,33 +102,38 @@
               v-model:year="date.year_georeferenced"
             />
           </div>
-          <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
+          <div
+            class="horizontal-left-content margin-medium-top margin-medium-bottom"
+          >
             <wkt-component
               @create="addToQueue"
-              class="margin-small-right"/>
+              class="margin-small-right"
+            />
             <manually-component
               class="margin-small-right"
-              @create="addGeoreference($event, GEOREFERENCE_POINT)"/>
+              @create="addGeoreference($event, GEOREFERENCE_POINT)"
+            />
             <geolocate-component
               class="margin-small-right"
-              @create="addToQueue"/>
+              @create="addToQueue"
+            />
             <button
               type="button"
               v-if="verbatimLat && verbatimLng"
               :disabled="verbatimGeoreferenceAlreadyCreated"
               @click="createVerbatimShape"
-              class="button normal-input button-submit">
+              class="button normal-input button-submit"
+            >
               Create georeference from verbatim
             </button>
           </div>
           <display-list
-            :list="collectingEventId
-              ? georeferences
-              : queueGeoreferences"
+            :list="collectingEventId ? georeferences : queueGeoreferences"
             @delete="removeGeoreference"
             @update="updateRadius"
             @dateChanged="updateDate"
-            label="object_tag"/>
+            label="object_tag"
+          />
         </div>
       </template>
     </modal-component>
@@ -117,19 +141,18 @@
 </template>
 
 <script>
-
-import MapComponent from 'components/georeferences/map'
-import SpinnerComponent from 'components/spinner'
+import MapComponent from '@/components/georeferences/map'
+import SpinnerComponent from '@/components/spinner'
 import DisplayList from './list'
-import convertDMS from 'helpers/parseDMS.js'
-import ManuallyComponent from 'components/georeferences/manuallyComponent'
+import convertDMS from '@/helpers/parseDMS.js'
+import ManuallyComponent from '@/components/georeferences/manuallyComponent'
 import GeolocateComponent from './geolocate'
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 import extendCE from '../../mixins/extendCE'
 import WktComponent from './wkt'
-import DateComponent from 'components/ui/Date/DateFields.vue'
-import { Georeference } from 'routes/endpoints'
-import { truncateDecimal } from 'helpers/math.js'
+import DateComponent from '@/components/ui/Date/DateFields.vue'
+import { Georeference } from '@/routes/endpoints'
+import { truncateDecimal } from '@/helpers/math.js'
 import { GetterNames } from '../../../store/getters/getters'
 import { MutationNames } from '../../../store/mutations/mutations'
 import { ActionNames } from '../../../store/actions/actions'
@@ -140,7 +163,7 @@ import {
   GEOREFERENCE_VERBATIM,
   GEOREFERENCE_WKT,
   GEOREFERENCE_LEAFLET
-} from 'constants/index.js'
+} from '@/constants/index.js'
 
 export default {
   mixins: [extendCE],
@@ -186,58 +209,110 @@ export default {
   },
 
   computed: {
-    georeferenceVerbatimLatitude () {
-      return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal((this.verbatimGeoreferenceAlreadyCreated.geo_json ? this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry.coordinates[1] : JSON.parse(this.verbatimGeoreferenceAlreadyCreated.geographic_item_attributes.shape).geometry.coordinates[1]), 6) : undefined
+    georeferenceVerbatimLatitude() {
+      return this.verbatimGeoreferenceAlreadyCreated
+        ? truncateDecimal(
+            this.verbatimGeoreferenceAlreadyCreated.geo_json
+              ? this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry
+                  .coordinates[1]
+              : JSON.parse(
+                  this.verbatimGeoreferenceAlreadyCreated
+                    .geographic_item_attributes.shape
+                ).geometry.coordinates[1],
+            6
+          )
+        : undefined
     },
-    georeferenceVerbatimLongitude () {
-      return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal((this.verbatimGeoreferenceAlreadyCreated.geo_json ? this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry.coordinates[0] : JSON.parse(this.verbatimGeoreferenceAlreadyCreated.geographic_item_attributes.shape).geometry.coordinates[0]), 6) : undefined
+    georeferenceVerbatimLongitude() {
+      return this.verbatimGeoreferenceAlreadyCreated
+        ? truncateDecimal(
+            this.verbatimGeoreferenceAlreadyCreated.geo_json
+              ? this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry
+                  .coordinates[0]
+              : JSON.parse(
+                  this.verbatimGeoreferenceAlreadyCreated
+                    .geographic_item_attributes.shape
+                ).geometry.coordinates[0],
+            6
+          )
+        : undefined
     },
-    georeferenceVerbatimRadiusError () {
-      return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal((this.verbatimGeoreferenceAlreadyCreated.geo_json ? this.verbatimGeoreferenceAlreadyCreated.geo_json.properties.radius : JSON.parse(this.verbatimGeoreferenceAlreadyCreated.geographic_item_attributes.shape).error_radius), 6) : undefined
+    georeferenceVerbatimRadiusError() {
+      return this.verbatimGeoreferenceAlreadyCreated
+        ? truncateDecimal(
+            this.verbatimGeoreferenceAlreadyCreated.geo_json
+              ? this.verbatimGeoreferenceAlreadyCreated.geo_json.properties
+                  .radius
+              : JSON.parse(
+                  this.verbatimGeoreferenceAlreadyCreated
+                    .geographic_item_attributes.shape
+                ).error_radius,
+            6
+          )
+        : undefined
     },
-    verbatimGeoreferenceAlreadyCreated () {
-      return [].concat(this.georeferences, this.queueGeoreferences).find(item => item.type === GEOREFERENCE_VERBATIM || item.type === GEOREFERENCE_EXIF)
+    verbatimGeoreferenceAlreadyCreated() {
+      return []
+        .concat(this.georeferences, this.queueGeoreferences)
+        .find(
+          (item) =>
+            item.type === GEOREFERENCE_VERBATIM ||
+            item.type === GEOREFERENCE_EXIF
+        )
     },
-    mapGeoreferences () {
-      return [].concat(this.shapes.features, this.queueGeoreferences.filter(item => (item.type !== GEOREFERENCE_WKT && item.type !== GEOREFERENCE_GEOLOCATE) && item?.geographic_item_attributes?.shape).map(item => JSON.parse(item?.geographic_item_attributes?.shape)))
+    mapGeoreferences() {
+      return [].concat(
+        this.shapes.features,
+        this.queueGeoreferences
+          .filter(
+            (item) =>
+              item.type !== GEOREFERENCE_WKT &&
+              item.type !== GEOREFERENCE_GEOLOCATE &&
+              item?.geographic_item_attributes?.shape
+          )
+          .map((item) => JSON.parse(item?.geographic_item_attributes?.shape))
+      )
     },
-    geojson () {
-      return this.collectingEventId ? this.shapes.features : this.queueGeoreferences
+    geojson() {
+      return this.collectingEventId
+        ? this.shapes.features
+        : this.queueGeoreferences
     },
-    count () {
-      return this.geojson.filter(item => !item?.properties?.geographic_area).length
+    count() {
+      return this.geojson.filter((item) => !item?.properties?.geographic_area)
+        .length
     },
-    verbatimLat () {
+    verbatimLat() {
       return this.collectingEvent.verbatim_latitude
     },
-    verbatimLng () {
+    verbatimLng() {
       return this.collectingEvent.verbatim_longitude
     },
-    geographicArea () {
+    geographicArea() {
       return this.$store.getters[GetterNames.GetGeographicArea]?.shape
     },
-    GEOREFERENCE_POINT () {
+    GEOREFERENCE_POINT() {
       return GEOREFERENCE_POINT
     },
     georeferences: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetGeoreferences]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetGeoreferences, value)
       }
     },
     queueGeoreferences: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetQueueGeoreferences]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetQueueGeoreferences, value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       isProcessing: false,
       showSpinner: false,
@@ -257,14 +332,14 @@ export default {
 
   watch: {
     georeferences: {
-      handler () {
+      handler() {
         this.populateShapes()
       },
       deep: true
     },
 
     geographicArea: {
-      handler () {
+      handler() {
         this.populateShapes()
       },
       deep: true
@@ -272,19 +347,22 @@ export default {
   },
 
   methods: {
-    updateRadius (geo) {
-      const index = geo.id ? this.georeferences.findIndex(item => item.id === geo.id) : this.queueGeoreferences.findIndex(item => item.tmpId === geo.tmpId)
+    updateRadius(geo) {
+      const index = geo.id
+        ? this.georeferences.findIndex((item) => item.id === geo.id)
+        : this.queueGeoreferences.findIndex((item) => item.tmpId === geo.tmpId)
 
       if (geo.id) {
         this.georeferences[index].error_radius = geo.error_radius
-        this.georeferences[index].error_geographic_item_id = geo.geographic_item_id
+        this.georeferences[index].error_geographic_item_id =
+          geo.geographic_item_id
         this.queueGeoreferences.push(this.georeferences[index])
       } else {
         this.queueGeoreferences[index].error_radius = geo.error_radius
       }
     },
 
-    addGeoreference (shape, type = GEOREFERENCE_LEAFLET) {
+    addGeoreference(shape, type = GEOREFERENCE_LEAFLET) {
       this.queueGeoreferences.push({
         tmpId: Math.random().toString(36).substr(2, 5),
         geographic_item_attributes: { shape: JSON.stringify(shape) },
@@ -296,7 +374,7 @@ export default {
       this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
     },
 
-    updateGeoreference (shape, type = GEOREFERENCE_LEAFLET) {
+    updateGeoreference(shape, type = GEOREFERENCE_LEAFLET) {
       this.addToQueue({
         id: shape.properties.georeference.id,
         error_radius: shape.properties?.radius,
@@ -308,12 +386,12 @@ export default {
       this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
     },
 
-    populateShapes () {
+    populateShapes() {
       this.shapes.features = []
       if (this.geographicArea) {
         this.shapes.features.unshift(this.geographicArea)
       }
-      this.georeferences.forEach(geo => {
+      this.georeferences.forEach((geo) => {
         if (geo.error_radius != null) {
           geo.geo_json.properties.radius = geo.error_radius
         }
@@ -321,8 +399,10 @@ export default {
       })
     },
 
-    removeGeoreference (geo) {
-      const index = geo.id ? this.georeferences.findIndex(item => item.id === geo.id) : this.queueGeoreferences.findIndex(item => item.tmpId === geo.tmpId)
+    removeGeoreference(geo) {
+      const index = geo.id
+        ? this.georeferences.findIndex((item) => item.id === geo.id)
+        : this.queueGeoreferences.findIndex((item) => item.tmpId === geo.tmpId)
       if (geo.id) {
         Georeference.destroy(geo.id).then(() => {
           this.georeferences.splice(index, 1)
@@ -334,13 +414,16 @@ export default {
       }
     },
 
-    createVerbatimShape () {
+    createVerbatimShape() {
       const shape = {
         type: 'Feature',
         properties: {},
         geometry: {
           type: 'Point',
-          coordinates: [convertDMS(this.verbatimLng), convertDMS(this.verbatimLat)]
+          coordinates: [
+            convertDMS(this.verbatimLng),
+            convertDMS(this.verbatimLat)
+          ]
         }
       }
 
@@ -354,7 +437,7 @@ export default {
       this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
     },
 
-    updateDate (georeference) {
+    updateDate(georeference) {
       this.addToQueue(georeference)
       console.log(georeference)
       if (georeference.id) {
@@ -362,7 +445,7 @@ export default {
       }
     },
 
-    addToQueue (data) {
+    addToQueue(data) {
       this.$store.commit(MutationNames.AddGeoreferenceToQueue, data)
     }
   }

@@ -58,38 +58,31 @@
 </template>
 
 <script>
-
-import {
-  ObservationMatrixRow,
-  ObservationMatrix
-} from 'routes/endpoints'
-import { OTU } from 'constants/index.js'
-import { sortArray } from 'helpers/arrays'
+import { ObservationMatrixRow, ObservationMatrix } from '@/routes/endpoints'
+import { OTU } from '@/constants/index.js'
+import { sortArray } from '@/helpers/arrays'
 import extendButton from './shared/extendButton'
 
 export default {
   mixins: [extendButton],
 
   watch: {
-    async showModal (newVal) {
+    async showModal(newVal) {
       if (newVal) {
         this.isLoading = true
 
         Promise.all([
-          ObservationMatrix
-            .where({ per: 500 })
-            .then(({ body }) => {
-              this.observationMatrices = sortArray(body, 'name')
-            }),
+          ObservationMatrix.where({ per: 500 }).then(({ body }) => {
+            this.observationMatrices = sortArray(body, 'name')
+          }),
 
-          ObservationMatrixRow
-            .where({
-              observation_object_id_vector: this.otuIds.join('|'),
-              observation_object_type: OTU
-            }).then(({ body }) => {
-              this.matrixObservationRows = body
-            })
-        ]).then(_ => {
+          ObservationMatrixRow.where({
+            observation_object_id_vector: this.otuIds.join('|'),
+            observation_object_type: OTU
+          }).then(({ body }) => {
+            this.matrixObservationRows = body
+          })
+        ]).then((_) => {
           this.isLoading = false
         })
       }

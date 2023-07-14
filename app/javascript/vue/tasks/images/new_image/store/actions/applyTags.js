@@ -1,4 +1,4 @@
-import { Tag } from 'routes/endpoints'
+import { Tag } from '@/routes/endpoints'
 
 export default ({ state }, payload) => {
   const { objectType, objectIds } = payload

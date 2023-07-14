@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import LeafletMap from 'components/georeferences/map.vue'
+import LeafletMap from '@/components/georeferences/map.vue'
 
 export default {
   components: { LeafletMap },

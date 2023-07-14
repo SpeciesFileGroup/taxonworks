@@ -1,5 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
-import { BiologicalAssociation } from 'routes/endpoints'
+import { BiologicalAssociation } from '@/routes/endpoints'
 import ActionNames from './actionNames'
 
 const extend = [

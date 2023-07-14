@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { DATA_ATTRIBUTE_FILTER_PROPERTY } from 'constants/index.js'
+import { DATA_ATTRIBUTE_FILTER_PROPERTY } from '@/constants/index.js'
 
 const props = defineProps({
   items: {
@@ -47,12 +47,11 @@ const props = defineProps({
   }
 })
 const emit = defineEmits(['rowClick'])
-const getFilterAttribute = (atrr) => props.filterAttributes && `${DATA_ATTRIBUTE_FILTER_PROPERTY}-${atrr}`
-
+const getFilterAttribute = (atrr) =>
+  props.filterAttributes && `${DATA_ATTRIBUTE_FILTER_PROPERTY}-${atrr}`
 </script>
 
 <style lang="scss">
-
 .table-attributes {
   box-shadow: none;
 
@@ -61,7 +60,6 @@ const getFilterAttribute = (atrr) => props.filterAttributes && `${DATA_ATTRIBUTE
   }
 
   th {
-
     border-bottom: 2px solid #eaeaea;
   }
   .cell-value {

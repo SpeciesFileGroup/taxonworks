@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import { getCurrentProjectId } from 'helpers/project.js'
+import { getCurrentProjectId } from '@/helpers/project.js'
 import { computed } from 'vue'
 
 const props = defineProps({
