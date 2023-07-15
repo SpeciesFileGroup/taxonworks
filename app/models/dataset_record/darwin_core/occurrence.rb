@@ -827,16 +827,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     }
   end
 
-  def parse_identification_class
-    taxon_determination = {}
+  def parse_typestatus(type_status)
     type_material = nil
-
-    # identificationID: [Not mapped]
-
-    # identificationQualifier: [Mapped as part of otu name in parse_taxon_class]
-
-    # typeStatus: [Type material only if scientific name matches scientificName and type term is recognized by TW vocabulary]
-    type_status = get_field_value(:typeStatus)
     type_status_parsed = type_status&.match(/^(?<type>\w+)$/i) || type_status&.match(/(?<type>\w+)(\s+OF\s+(?<scientificName>.*))/i)
     scientific_name = get_field_value(:scientificName)&.gsub(/\s+/, ' ')
     type_scientific_name = (type_status_parsed&.[](:scientificName)&.gsub(/\s+/, ' ') rescue nil) || scientific_name
@@ -855,9 +847,24 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         }
       end
     end
+    type_material
+  end
 
-    if type_status && type_material.nil?
-      raise DarwinCore::InvalidData.new({ "typeStatus": ["Unprocessable typeStatus information"] }) if self.import_dataset.require_type_material_success?
+  def parse_identification_class
+    taxon_determination = {}
+    type_material = nil
+
+    # identificationID: [Not mapped]
+
+    # identificationQualifier: [Mapped as part of otu name in parse_taxon_class]
+
+    # typeStatus: [Type material only if scientific name matches scientificName and type term is recognized by TW vocabulary]
+    if (type_status = get_field_value(:typeStatus))
+      type_material = parse_typestatus(type_status)
+      if type_material.nil? && self.import_dataset.require_type_material_success?
+        # generic error message, nothing more specific provided
+        raise DarwinCore::InvalidData.new({ "typeStatus": ["Unprocessable typeStatus information"] })
+      end
     end
 
     # identifiedBy: determiners of taxon determination
