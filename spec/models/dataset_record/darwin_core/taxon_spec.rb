@@ -948,6 +948,29 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
+  context 'when importing a name classified in a subgenus later' do
+    before(:all) { import_checklist_tsv('younger_oc_subgenus.tsv', 3) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    it 'should create and import 3 records' do
+      verify_all_records_imported(3)
+    end
+
+    # Camponotus
+    # Camponotus (Myrmocladoecus) 2x
+    # Camponotus planus 2x
+    it 'should have five original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 5
+    end
+
+    it 'should not include the subgenus in the original combination' do
+      expect(TaxonName.find_by_name('planus').cached_original_combination).to eq "Camponotus planus"
+    end
+  end
+
   # TODO test missing parent
   #
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName

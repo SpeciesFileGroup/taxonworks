@@ -162,6 +162,13 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               end
 
               if (rank_in_type = ORIGINAL_COMBINATION_RANKS[rank&.downcase&.to_sym])
+
+                # if the subgenus is newer than taxon_name's authorship, skip it (the name must have been classified in the subgenus later)
+                next if rank&.downcase&.to_sym == :subgenus &&
+                  !ancestor_protonym.year_integer.nil? &&
+                  !taxon_name.year_integer.nil? &&
+                  ancestor_protonym.year_integer > taxon_name.year_integer
+
                 taxon_name.save!
                 TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor_protonym, object_taxon_name: taxon_name)
               end
