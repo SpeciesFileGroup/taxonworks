@@ -861,7 +861,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       # Try wildcard match on subgenus if not present
       type_name_elements = type_scientific_name.split
       if type_name_elements.length > 1 && type_name_elements[1].first != "(" && type_name_elements[1].last != ")"
-
+        type_name_elements.map! { |s| Regexp.escape(s) }
         # append subgenus wildcard to genus string
         type_name_elements[0] << '( \(\w+\))?'
         name_pattern = type_name_elements.join(" ")
