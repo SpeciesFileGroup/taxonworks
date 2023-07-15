@@ -830,21 +830,57 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   def parse_typestatus(type_status)
     type_material = nil
     type_status_parsed = type_status&.match(/^(?<type>\w+)$/i) || type_status&.match(/(?<type>\w+)(\s+OF\s+(?<scientificName>.*))/i)
+
+    # only nil if non-alphanumeric entry, or multiple words not matching "\w+ of \w+"
+    raise DarwinCore::InvalidData.new({ "typeStatus": ["Unprocessable typeStatus information"] }) unless type_status_parsed
+
+    code = get_field_value(:nomenclaturalCode)&.downcase&.to_sym || import_dataset.default_nomenclatural_code
+    unless TypeMaterial::legal_type_type(code, type_status_parsed[:type].downcase)
+      raise DarwinCore::InvalidData.new({ "typeStatus": ["could not extract legal type from typeStatus"] })
+    end
+
     scientific_name = get_field_value(:scientificName)&.gsub(/\s+/, ' ')
+
+    # if typeStatus is single word, assume the user wants the specimen name as the type name
     type_scientific_name = (type_status_parsed&.[](:scientificName)&.gsub(/\s+/, ' ') rescue nil) || scientific_name
 
-    if type_status_parsed && scientific_name && type_scientific_name.present?
-
+    if scientific_name && type_scientific_name.present?
       # if type_scientific_name matches the current name of the occurrence, use that
       if type_scientific_name.delete_prefix(scientific_name)&.match(/^\W*$/)
-        type_material = {
+        return {
           type_type: type_status_parsed[:type].downcase
         }
-      elsif (original_combination_protonym = Protonym.find_by(cached_original_combination: type_scientific_name, project_id: self.project_id))
-        type_material = {
+      end
+      if (original_combination_protonym = Protonym.find_by(cached_original_combination: type_scientific_name, project_id: self.project_id))
+        return {
           type_type: type_status_parsed[:type].downcase,
           protonym: original_combination_protonym
         }
+      end
+
+      # Try wildcard match on subgenus if not present
+      type_name_elements = type_scientific_name.split
+      if type_name_elements.length > 1 && type_name_elements[1].first != "(" && type_name_elements[1].last != ")"
+
+        # append subgenus wildcard to genus string
+        type_name_elements[0] << '( \(\w+\))?'
+        name_pattern = type_name_elements.join(" ")
+
+        wildcard_original_protonym = Protonym.where('cached_original_combination ~ :pat', pat: name_pattern)
+                                             .where(project_id: self.project_id)
+
+        if wildcard_original_protonym.count == 1
+          return {
+            type_type: type_status_parsed[:type].downcase,
+            protonym: wildcard_original_protonym.first
+          }
+        elsif wildcard_original_protonym.count > 1
+          matching_protonyms = wildcard_original_protonym.map{|p| "[id: #{p.id} #{p.cached_html_original_name_and_author_year}]"}
+                                                         .join(", ")
+          raise DarwinCore::InvalidData.new({ "typeStatus": ["could not find exact original combination match for typeStatus, and multiple names returned in wildcard search: #{matching_protonyms}"] })
+        else
+          raise DarwinCore::InvalidData.new({ "typeStatus": ["could not find exact original combination match for typeStatus, and no names returned in wildcard search"] })
+        end
       end
     end
     type_material
