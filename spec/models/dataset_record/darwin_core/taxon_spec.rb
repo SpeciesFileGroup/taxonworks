@@ -101,8 +101,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym')
     end
 
-    it 'should have 12 original combination relationships' do
-      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 12
+    it 'should have 11 original combination relationships' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 11
     end
 
     it 'should have Baroni Urbani as the author of the replacement species' do
