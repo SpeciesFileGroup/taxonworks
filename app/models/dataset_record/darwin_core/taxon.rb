@@ -383,28 +383,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
           else
             # parent is a protonym, look at parents in checklist to build combination
-
-            parents = [get_parent]
-
-            while (next_parent = find_by_taxonID(parents[-1].metadata['parent']))
-              parents << next_parent
-            end
-
-            # convert DatasetRecords into hash of rank, protonym pairs
-            parent_elements = parents.to_h do |p|
-              [
-                # Key is rank (as set in checklist file)
-                DatasetRecordField.where(dataset_record: p)
-                                  .at(get_field_mapping(:taxonRank))
-                  &.pick(:value)
-                  &.downcase&.to_sym,
-                # value is Protonym
-                TaxonName.find(p.metadata['imported_objects']['taxon_name']['id'])
-              ]
-
-            end
-
-            parent_elements.filter! { |p_rank, _| ORIGINAL_COMBINATION_RANKS.has_key?(p_rank) }
+            parent_elements = create_parent_element_hash
           end
 
           combination_attributes = { **parent_elements }
@@ -486,6 +465,33 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   end
 
   private
+
+  # Create a hash of parents from checklist
+  # @return [Hash{Symbol => TaxonName}] hash of ranks and TaxonNames of genus and species rank parents
+  def create_parent_element_hash
+    parents = [get_parent]
+
+    while (next_parent = find_by_taxonID(parents[-1].metadata['parent']))
+      parents << next_parent
+    end
+
+    # convert DatasetRecords into hash of rank, protonym pairs
+    parent_elements = parents.to_h do |p|
+      [
+        # Key is rank (as set in checklist file)
+        DatasetRecordField.where(dataset_record: p)
+                          .at(get_field_mapping(:taxonRank))
+          &.pick(:value)
+          &.downcase&.to_sym,
+        # value is Protonym
+        TaxonName.find(p.metadata['imported_objects']['taxon_name']['id'])
+      ]
+
+    end
+
+    parent_elements.filter! { |p_rank, _| ORIGINAL_COMBINATION_RANKS.has_key?(p_rank) }
+    parent_elements
+  end
 
   # @return Optional[DatasetRecord::DarwinCore::Taxon, Array<DatasetRecord::DarwinCore::Taxon>]
   def get_parent
