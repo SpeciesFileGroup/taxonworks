@@ -243,6 +243,32 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
               taxon_name.taxon_name_relationships.find_or_initialize_by(object_taxon_name: valid_name, type: type)
 
+              if status.to_s == 'synonym'
+                # if synonym and not same rank as valid, and not original combination,
+                # create a combination with the old parent and rank
+
+                if (old_rank = get_field_value('taxonRank').downcase) != rank.downcase &&
+                  metadata['original_combination'] != get_field_value('taxonID') &&
+                  ORIGINAL_COMBINATION_RANKS.has_key?(old_rank.downcase.to_sym)
+
+                  # save taxon so we can create a combination
+                  taxon_name.save
+
+                  # stolen from combination handling portion of code
+                  parent_elements = create_parent_element_hash
+
+                  combination_attributes = { **parent_elements }
+                  combination_attributes[old_rank.downcase] = taxon_name if old_rank
+
+                  # Can't use find_or_initialize_by because of dynamic parameters, causes query to fail because ranks are not columns in db
+                  # => PG::UndefinedTable: ERROR:  missing FROM-clause entry for table "genus"
+                  # LINE 1: ..."taxon_names" WHERE "taxon_names"."type" = $1 AND "genus"."i...
+
+                  taxon_combination_name = Combination.matching_protonyms(**combination_attributes.transform_values { |v| v.id }).first
+                  taxon_combination_name = Combination.create!(combination_attributes) if taxon_combination_name.nil?
+                end
+              end
+
               # Add homonym status (if applicable)
               if status == 'homonym'
                 taxon_name.taxon_name_classifications.find_or_initialize_by(type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym')

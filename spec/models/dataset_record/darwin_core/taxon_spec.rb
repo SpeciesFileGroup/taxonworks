@@ -432,10 +432,11 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       verify_all_records_imported(5)
     end
 
-    # Amblyopone australis cephalotes shouldn't be a combination, it's a synonym of Amblyopone australis so
-    # It makes/uses the protonym Amblyopone cephalotes instead
+    # Amblyopone australis cephalotes is a combination, and a synonym of Amblyopone australis so
+    # it should make the protonym Amblyopone cephalotes and the combination Amblyopone australis cephalotes
     it 'should have 1 Combination' do
-      expect(Combination.all.length).to eq 0
+      expect(Combination.all.length).to eq 1
+      expect(Combination.find_by_cached('Amblyopone australis cephalotes')).to_not be_nil
     end
 
     it 'cephalotes original combination should be Amblyopone cephalotes' do
@@ -968,6 +969,59 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
     it 'should not include the subgenus in the original combination' do
       expect(TaxonName.find_by_name('planus').cached_original_combination).to eq "Camponotus planus"
+    end
+  end
+
+  context 'when importing a synonym combination' do
+    # synonym should become combination
+    before(:all) { import_checklist_tsv('create_combination_for_moved_synonym.tsv', 5) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Odontomachus coquereli minor should be a combination, Champsomyrmex coquereli minor should be the original combination
+    # Champsomyrmex coquereli minor is a junior synonym of Odontomachus coquereli
+
+    it 'should import 6 records' do
+      verify_all_records_imported(6)
+    end
+
+    # Champsomyrmex
+    # Champsomyrmex coquereli (x2)
+    # Champsomyrmex coquereli minor (x3)
+    # Odontomachus
+
+    let(:Odontomachus) { TaxonName.find_by(name: 'Odontomachus') }
+    let(:Champsomyrmex) { TaxonName.find_by(name: 'Champsomyrmex') }
+    let(:minor) { TaxonName.find_by_name('minor') }
+    let(:coquereli) { TaxonName.find_by_name('coquereli') }
+
+    it 'should create 7 original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 7
+    end
+
+    it 'should have the correct original combination' do
+      expect(minor.cached_original_combination).to eq 'Champsomyrmex coquereli minor'
+    end
+
+
+    it 'should create a combination for the synonym' do
+      expect(Combination.find_by_cached('Odontomachus coquereli minor')).to_not be_nil
+    end
+
+    it 'should have the correct valid name' do
+      valid = TaxonName.find_by_cached('Odontomachus coquereli')
+      synonym = TaxonName.find_by(cached_original_combination: 'Champsomyrmex coquereli minor')
+
+      expect(synonym.valid_taxon_name).to eq valid
+    end
+
+    it 'should have a synonym relationship' do
+      valid = TaxonName.find_by_cached('Odontomachus coquereli')
+      synonym = TaxonName.find_by(cached_original_combination: 'Champsomyrmex coquereli minor')
+
+      expect_relationship(synonym, valid, 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
     end
   end
 
