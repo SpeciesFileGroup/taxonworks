@@ -154,17 +154,17 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
             original_combination_parents.each do |ancestor|
               ancestor_protonym = ancestor[:protonym]
-              rank = ancestor[:rank]
+              ancestor_rank = ancestor[:rank]
 
               # If OC parent is combination, need to create relationship for lowest element
               if ancestor_protonym.is_a?(Combination)
                 ancestor_protonym = ancestor[:protonym].finest_protonym
               end
 
-              if (rank_in_type = ORIGINAL_COMBINATION_RANKS[rank&.downcase&.to_sym])
+              if (rank_in_type = ORIGINAL_COMBINATION_RANKS[ancestor_rank&.downcase&.to_sym])
 
                 # if the subgenus is newer than taxon_name's authorship, skip it (the name must have been classified in the subgenus later)
-                next if rank&.downcase&.to_sym == :subgenus &&
+                next if ancestor_rank&.downcase&.to_sym == :subgenus &&
                   !ancestor_protonym.year_integer.nil? &&
                   !taxon_name.year_integer.nil? &&
                   ancestor_protonym.year_integer > taxon_name.year_integer
