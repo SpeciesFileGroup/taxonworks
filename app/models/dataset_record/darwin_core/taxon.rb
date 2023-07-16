@@ -266,6 +266,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                 # if user has provided a `TW:TaxonNameRelationship:incertae_sedis_in_rank` field, use that to determine
                 # which rank of parent should be used for I.S. relationship
                 if (verbatim_is_rank = get_field_value('TW:TaxonNameRelationship:incertae_sedis_in_rank'))
+                  # must save here so that `ancestor_at_rank` works
+                  # (otherwise could use `ancestors_through_parents` and check rank manually)
+                  taxon_name.save
                   incertae_sedis_parent = taxon_name.ancestor_at_rank(verbatim_is_rank.downcase)
 
                   if incertae_sedis_parent.nil?
