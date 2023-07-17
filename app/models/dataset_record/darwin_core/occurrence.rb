@@ -1025,6 +1025,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       {rank_class: Ranks.lookup(code, "family"), name: get_field_value(:family)}.tap { |h| names << h }.object_id
     ] = :family
 
+    origins[
+      {rank_class: Ranks.lookup(code, "subfamily"), name: get_field_value(:subfamily)}.tap { |h| names << h }.object_id
+    ] = :subfamily
+
     # genus: [Not mapped, extracted from scientificName instead]
 
     # subgenus: [Not mapped, extracted from scientificName instead]
