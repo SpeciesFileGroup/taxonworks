@@ -864,7 +864,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         type_name_elements.map! { |s| Regexp.escape(s) }
         # append subgenus wildcard to genus string
         type_name_elements[0] << '( \(\w+\))?'
-        name_pattern = type_name_elements.join(" ")
+        name_pattern = "^#{type_name_elements.join(" ")}$"
 
         wildcard_original_protonym = Protonym.where('cached_original_combination ~ :pat', pat: name_pattern)
                                              .where(project_id: self.project_id)
