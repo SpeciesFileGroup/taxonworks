@@ -896,6 +896,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         name_pattern = "^#{type_name_elements.join(" ")}$"
 
         wildcard_original_protonym = Protonym.where('cached_original_combination ~ :pat', pat: name_pattern)
+                                             .or(Protonym.where('cached ~ :pat', pat: name_pattern))
                                              .where(project_id: self.project_id)
 
         if wildcard_original_protonym.count == 1
