@@ -112,7 +112,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         attributes.deep_merge!(parse_occurrence_class)
         attributes.deep_merge!(parse_event_class)
         attributes.deep_merge!(parse_location_class)
-        attributes.deep_merge!(parse_identification_class)
+        attributes.deep_merge!(parse_identification_class(innermost_protonym))
 
         attributes.deep_merge!(parse_tw_collection_object_data_attributes)
         attributes.deep_merge!(parse_tw_collecting_event_data_attributes)
@@ -827,7 +827,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     }
   end
 
-  def parse_typestatus(type_status)
+  # @param [String] type_status
+  # @param [Protonym] taxon_protonym
+  # @return [Hash{Symbol=>String, TaxonName}, nil]
+  def parse_typestatus(type_status, taxon_protonym)
     type_material = nil
     type_status_parsed = type_status&.match(/^(?<type>\w+)$/i) || type_status&.match(/(?<type>\w+)(\s+OF\s+(?<scientificName>.*))/i)
 
@@ -855,6 +858,26 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         return {
           type_type: type_status_parsed[:type].downcase,
           protonym: original_combination_protonym
+        }
+      end
+
+      # See if name matches a synonym of taxon name
+      synonyms = taxon_protonym.synonyms
+      matching_synonyms = []
+      synonyms.each do |s|
+        if [s.cached, s.cached_original_combination].compact.include?(type_scientific_name)
+          if s.is_combination?
+            matching_synonyms << s.finest_protonym
+          else
+            matching_synonyms << s
+          end
+        end
+      end
+
+      if matching_synonyms.uniq.count == 1
+        return {
+          type_type: type_status_parsed[:type].downcase,
+          protonym: matching_synonyms.first
         }
       end
 
@@ -886,7 +909,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     type_material
   end
 
-  def parse_identification_class
+  def parse_identification_class(taxon_protonym)
     taxon_determination = {}
     type_material = nil
 
@@ -896,7 +919,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # typeStatus: [Type material only if scientific name matches scientificName and type term is recognized by TW vocabulary]
     if (type_status = get_field_value(:typeStatus))
-      type_material = parse_typestatus(type_status)
+      type_material = parse_typestatus(type_status, taxon_protonym)
       if type_material.nil? && self.import_dataset.require_type_material_success?
         # generic error message, nothing more specific provided
         raise DarwinCore::InvalidData.new({ "typeStatus": ["Unprocessable typeStatus information"] })
