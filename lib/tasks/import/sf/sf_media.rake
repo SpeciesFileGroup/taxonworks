@@ -34,7 +34,8 @@ namespace :tw do
             project_id = get_tw_project_id[row['FileID']].to_i
 
             begin
-              File.open("#{@args[:data_directory]}/images/#{row['ImageID']}") do |image_file|
+              base_path = "#{@args[:data_directory]}/images/#{row['ImageID']}"
+              File.open(Dir["#{base_path}.*"]&.first || base_path) do |image_file|
                 Image.create!({
                   image_file: image_file,
                   project_id: project_id,
