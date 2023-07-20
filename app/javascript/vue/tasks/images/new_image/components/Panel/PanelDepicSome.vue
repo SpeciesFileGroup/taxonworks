@@ -92,8 +92,8 @@ const selectedType = ref()
 function addToList(item) {
   store.commit(MutationNames.AddObjectForDepictions, {
     id: item.id,
-    label: item.object_tag,
-    base_class: selectedType.value.key
+    label: item.object_label,
+    base_class: selectedType.value.type
   })
 }
 </script>

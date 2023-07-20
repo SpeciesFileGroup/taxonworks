@@ -94,7 +94,9 @@ export default ({ state, commit }) => {
       promises.push(createCitation(item))
     }
 
-    if (state.license || attributionRoles.length) applyAttribution(item)
+    if (state.license || attributionRoles.length) {
+      promises.push(applyAttribution(item))
+    }
   })
 
   Promise.all(promises).then(() => {

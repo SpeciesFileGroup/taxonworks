@@ -48,7 +48,7 @@
           <button
             type="button"
             :disabled="
-              !(validateDepic || (validateSqedObject && areImagesCreated))
+              !(validateDepic && validateSqedObject) || !areImagesCreated
             "
             class="button normal-input button-submit separate-left"
             @click="applyDepic"
