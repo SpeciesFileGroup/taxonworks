@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Customized API version of OTU autocomplete
 - GBIF map tiles as an option on maps
 - `Add related` option to nodes in Biological associations graph task
+- Layout settings for New image task
 
 ### Changed
 

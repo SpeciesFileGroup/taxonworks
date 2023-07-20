@@ -8,34 +8,48 @@
     />
     <div class="flex-separate middle">
       <h1>New image</h1>
-      <span
-        data-icon="reset"
-        class="cursor-pointer"
-        @click="store.dispatch(ActionNames.ResetStore)"
-        >Reset
-      </span>
+      <div class="horizontal-left-content gap-small">
+        <LayoutSettings
+          v-model="layout"
+          :list="Object.values(PANEL_NAME)"
+        />
+        <VBtn
+          circle
+          medium
+          color="primary"
+          @click="store.dispatch(ActionNames.ResetStore)"
+        >
+          <VIcon
+            name="reset"
+            x-small
+          />
+        </VBtn>
+      </div>
     </div>
-    <ImageDropzone
-      v-model="images"
-      @delete="removeImage"
-      @on-clear="clearDataCreated"
-    />
-
-    <ApplyAttributes class="margin-medium-bottom margin-medium-top" />
-    <TableGrid
-      class="gap-medium margin-medium-bottom"
-      :columns="3"
-      :column-width="{
-        default: '1fr'
-      }"
-    >
-      <component
-        v-for="componentName in PANEL_NAME"
-        :key="componentName"
-        :is="PANEL_COMPONENTS[componentName]"
+    <div class="flex-wrap-column gap-medium">
+      <ImageDropzone
+        v-model="images"
+        @delete="removeImage"
+        @on-clear="clearDataCreated"
       />
-    </TableGrid>
-    <PanelSqed />
+
+      <ApplyAttributes />
+      <TableGrid
+        v-if="layout.panels.length"
+        class="gap-medium"
+        :columns="3"
+        :column-width="{
+          default: '1fr'
+        }"
+      >
+        <component
+          v-for="componentName in layout.panels"
+          :key="componentName"
+          :is="PANEL_COMPONENTS[componentName]"
+        />
+      </TableGrid>
+      <PanelSqed v-if="layout.isStagePanelVisible" />
+    </div>
   </div>
 </template>
 
@@ -45,16 +59,22 @@ import ImageDropzone from './components/images/imageDropzone'
 import ApplyAttributes from './components/ApplyAttributes'
 
 import PanelSqed from './components/Panel/PanelSqed/PanelSqed.vue'
-
+import LayoutSettings from './components/LayoutSettings.vue'
 import TableGrid from '@/components/layout/Table/TableGrid.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { PANEL_COMPONENTS, PANEL_NAME } from './const/layout'
 import { GetterNames } from './store/getters/getters.js'
 import { MutationNames } from './store/mutations/mutations.js'
 import { ActionNames } from './store/actions/actions.js'
 import { useStore } from 'vuex'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const store = useStore()
+const layout = ref({
+  panels: Object.values(PANEL_NAME),
+  isStagePanelVisible: true
+})
 
 const images = computed({
   get: () => store.getters[GetterNames.GetImagesCreated],

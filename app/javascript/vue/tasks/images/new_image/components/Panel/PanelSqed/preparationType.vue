@@ -6,7 +6,10 @@
         v-for="itemsGroup in coTypes.chunk(Math.ceil(coTypes.length / 2))"
         class="no_bullets full_width"
       >
-        <li v-for="type in itemsGroup">
+        <li
+          v-for="type in itemsGroup"
+          :key="type.id"
+        >
           <label>
             <input
               type="radio"

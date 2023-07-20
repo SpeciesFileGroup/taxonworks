@@ -5,7 +5,7 @@
     </template>
     <template #body>
       <RolePicker
-        v-model="roles_attributes"
+        v-model="rolesAttributes"
         :role-type="roleType"
       />
     </template>

@@ -34,16 +34,3 @@ export const PANEL_COMPONENTS = {
   [PANEL_NAME.PanelDepiction]: PanelDepiction,
   [PANEL_NAME.PanelTags]: PanelTags
 }
-
-/* 
-      <PanelAuthor />
-      <PanelEditor />
-      <PanelOwner />
-      <PanelLicenses />
-      <PanelSource />
-      <PanelCopyrightHolder />
-      <pixels-unit />
-      <depic-some />
-      <depiction-component />
-      <PanelTag />
-       */

@@ -14,7 +14,7 @@
         <RolePicker
           v-if="view === OPTIONS.People"
           v-model="rolesAttributes"
-          :role-type="roleType"
+          :role-type="ROLE_ATTRIBUTION_COPYRIGHT_HOLDER"
         />
         <VAutocomplete
           v-else

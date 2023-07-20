@@ -9,6 +9,7 @@
         model="sources"
         klass="Depiction"
         label="cached"
+        v-model="source"
         @selected="($event) => (source = $event)"
       />
       <SmartSelectorItem
