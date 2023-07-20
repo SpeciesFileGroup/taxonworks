@@ -16,8 +16,8 @@
 </template>
 
 <script>
-import { GetterNames } from '../../store/getters/getters.js'
-import { MutationNames } from '../../store/mutations/mutations'
+import { GetterNames } from '../../../store/getters/getters.js'
+import { MutationNames } from '../../../store/mutations/mutations'
 import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
 import DisplayList from '@/components/displayList.vue'
 import LockComponent from '@/components/ui/VLock/index.vue'

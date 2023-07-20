@@ -1,12 +1,15 @@
 <template>
-  <div class="panel panel-section">
-    <spinner-component
-      :show-spinner="false"
-      legend="Clear the list of depict some or select only one collection object."
-      v-if="disabledSection"
-    />
-    <div class="content">
-      <h2>Staged image</h2>
+  <BlockLayout>
+    <template #header>
+      <h3>Staged image</h3>
+    </template>
+    <template #body>
+      <spinner-component
+        :show-spinner="false"
+        legend="Clear the list of depict some or select only one collection object."
+        v-if="disabledSection"
+      />
+
       <div class="flex-separate">
         <pattern-component
           v-model="pattern"
@@ -66,11 +69,12 @@
           Reset
         </button>
       </div>
-    </div>
-  </div>
+    </template>
+  </BlockLayout>
 </template>
 
 <script>
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 import PatternComponent from './pattern'
 import ColorComponent from './color'
 import NewObject from './newObject'
@@ -91,11 +95,11 @@ import VerticalSplitLayout from './layouts/vertical_split'
 import NoneLayout from './layouts/none.vue'
 import SpinnerComponent from '@/components/spinner'
 
-import TagsComponent from '../sqed/tags'
-import DataAttributes from '../dataAttributes'
+import TagsComponent from './tags'
+import DataAttributes from '../../dataAttributes'
 
-import { GetterNames } from '../../store/getters/getters.js'
-import { MutationNames } from '../../store/mutations/mutations.js'
+import { GetterNames } from '../../../store/getters/getters.js'
+import { MutationNames } from '../../../store/mutations/mutations.js'
 import { SqedDepiction } from '@/routes/endpoints'
 
 export default {
@@ -119,7 +123,8 @@ export default {
     LeftTLayout,
     TLayout,
     InvertedTLayout,
-    NoneLayout
+    NoneLayout,
+    BlockLayout
   },
 
   computed: {

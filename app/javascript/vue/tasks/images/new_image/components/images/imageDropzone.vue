@@ -1,15 +1,15 @@
 <template>
-  <div class="image-container">
+  <div class="image-container panel content">
     <dropzone
-      class="dropzone-card separate-bottom"
+      class="dropzone-card"
       @vdropzone-success="success"
       ref="image"
       url="/images"
-      :use-custom-dropzone-options="true"
+      use-custom-dropzone-options
       :dropzone-options="dropzone"
     />
     <div
-      class="flex-wrap-row"
+      class="flex-wrap-row separate-top"
       v-if="figuresList.length"
     >
       <image-viewer

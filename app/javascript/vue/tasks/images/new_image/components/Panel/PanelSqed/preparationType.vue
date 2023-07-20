@@ -24,8 +24,8 @@
 </template>
 
 <script>
-import { MutationNames } from '../../store/mutations/mutations.js'
-import { GetterNames } from '../../store/getters/getters.js'
+import { MutationNames } from '../../../store/mutations/mutations.js'
+import { GetterNames } from '../../../store/getters/getters.js'
 import { PreparationType } from '@/routes/endpoints'
 
 export default {

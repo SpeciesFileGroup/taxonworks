@@ -1,4 +1,4 @@
-import SelectComponent from '../shared/select'
+import SelectComponent from './select'
 
 export default {
   components: { SelectComponent },
@@ -17,10 +17,10 @@ export default {
 
   computed: {
     newType: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }

@@ -4,23 +4,23 @@
     <ul class="no_bullets">
       <li>
         <label>
-          <input 
+          <input
             type="radio"
             :value="true"
             name="sqed-mode"
             v-model="newCO"
-          >
+          />
           New object
         </label>
       </li>
       <li>
         <label>
-          <input 
+          <input
             type="radio"
             name="sqed-mode"
             :value="false"
             v-model="newCO"
-          >
+          />
           Existing object
         </label>
       </li>
@@ -29,9 +29,8 @@
 </template>
 
 <script>
-
-import { GetterNames } from '../../store/getters/getters.js'
-import { MutationNames } from '../../store/mutations/mutations.js'
+import { GetterNames } from '../../../store/getters/getters.js'
+import { MutationNames } from '../../../store/mutations/mutations.js'
 
 export default {
   computed: {

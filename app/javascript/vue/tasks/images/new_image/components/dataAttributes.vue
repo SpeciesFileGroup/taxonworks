@@ -1,55 +1,34 @@
 <template>
   <fieldset>
     <legend>Data attributes</legend>
-    <switch-component
-      class="margin-medium-bottom"
-      v-model="view"
-      :options="tabs"
+    <SmartSelector
+      autocomplete-url="/controlled_vocabulary_terms/autocomplete"
+      :autocomplete-params="{ 'type[]': 'Predicate' }"
+      get-url="/controlled_vocabulary_terms/"
+      model="predicates"
+      buttons
+      inline
+      klass="DataAttribute"
+      :custom-list="{ all }"
+      :lock-view="false"
+      @selected="
+        (item) => {
+          setDataAttribute(item)
+        }
+      "
+      v-model="predicate"
     />
-    <template v-if="!selected">
-      <template v-if="lists && view == 'all'">
-        <div class="flex-wrap-row margin-medium-top">
-          <button
-            v-for="attr in lists['all']"
-            :key="attr.id"
-            @click="setDataAttribute(attr.id, attr.name)"
-            class="button normal-input margin-small-right margin-small-bottom"
-            :class="{
-              'button-default':
-                dataAttribute.controlled_vocabulary_term_id != attr.id
-            }"
-            type="button"
-          >
-            {{ attr.name }}
-          </button>
-        </div>
-      </template>
-      <autocomplete
-        v-else
-        url="/predicates/autocomplete"
-        label="label"
-        min="2"
-        placeholder="Select a predicate"
-        @getItem="setDataAttribute($event.id, $event.label)"
-        class="separate-bottom"
-        param="term"
-      />
-    </template>
-    <div
-      v-else
-      class="horizontal-left-content"
-    >
-      <span v-html="selected" />
-      <span
-        class="button circle-button btn-undo button-default"
-        @click="
-          () => {
-            selected = undefined
-            dataAttribute.controlled_vocabulary_term_id = undefined
-          }
-        "
-      />
-    </div>
+    <SmartSelectorItem
+      :item="predicate"
+      label="name"
+      @unset="
+        () => {
+          predicate = undefined
+          dataAttribute.controlled_vocabulary_term_id = undefined
+        }
+      "
+    />
+
     <label>Value</label>
     <textarea
       class="full_width"
@@ -64,116 +43,74 @@
     >
       Add
     </button>
-    <table-list
+    <TableList
       v-if="dataAttributes.length"
       :list="dataAttributes"
-      :header="['Predicate', 'Value', 'Remove']"
+      :header="['Predicate', 'Value', '']"
       :delete-warning="false"
       :annotator="false"
       row-key="controlled_vocabulary_term_id"
-      @delete="removeDataAttribute"
       :attributes="['label', 'value']"
+      @delete="(item) => store.commit(MutationNames.RemoveDataAttribute, item)"
     />
   </fieldset>
 </template>
 
-<script>
-import Autocomplete from '@/components/ui/Autocomplete'
-import TableList from '@/components/table_list'
-import SwitchComponent from '@/components/switch'
-
-import AjaxCall from '@/helpers/ajaxCall.js'
-
+<script setup>
+import { useStore } from 'vuex'
+import { ref, computed, onBeforeMount } from 'vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import TableList from '@/components/table_list'
+import AjaxCall from '@/helpers/ajaxCall.js'
 
-export default {
-  components: {
-    SwitchComponent,
-    TableList,
-    Autocomplete
-  },
+const store = useStore()
 
-  computed: {
-    dataAttributes: {
-      get() {
-        return this.$store.getters[GetterNames.GetDataAttributes]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetDataAttributes, value)
-      }
-    },
-    validateFields() {
-      return (
-        this.dataAttribute.controlled_vocabulary_term_id &&
-        this.dataAttribute.value
-      )
-    }
-  },
-
-  data() {
-    return {
-      tabs: ['all', 'search'],
-      view: 'search',
-      tabList: {},
-      lists: undefined,
-      dataAttribute: this.newDataAttribute(),
-      selected: undefined
-    }
-  },
-
-  mounted() {
-    this.loadTabList()
-  },
-
-  methods: {
-    loadTabList() {
-      const promises = []
-      let tabList
-      let allList
-
-      promises.push(
-        AjaxCall(
-          'get',
-          '/predicates/select_options?klass=CollectionObject'
-        ).then((response) => {
-          tabList = response.body
-        })
-      )
-      promises.push(
-        AjaxCall(
-          'get',
-          '/controlled_vocabulary_terms.json?type[]=Predicate'
-        ).then((response) => {
-          allList = response.body
-        })
-      )
-
-      Promise.all(promises).then(() => {
-        tabList['all'] = allList
-        this.lists = tabList
-      })
-    },
-
-    newDataAttribute() {
-      return {
-        label: undefined,
-        controlled_vocabulary_term_id: undefined,
-        type: 'InternalAttribute',
-        value: undefined
-      }
-    },
-
-    addDataAttribute() {
-      this.$store.commit(MutationNames.AddDataAttribute, this.dataAttribute)
-      this.dataAttribute = this.newDataAttribute()
-    },
-
-    setDataAttribute(id, label) {
-      this.selected = label
-      this.dataAttribute.label = label
-      this.dataAttribute.controlled_vocabulary_term_id = id
-    }
+const dataAttributes = computed({
+  get: () => store.getters[GetterNames.GetDataAttributes],
+  set(value) {
+    store.commit(MutationNames.SetDataAttributes, value)
   }
+})
+
+const validateFields = computed(
+  () =>
+    dataAttribute.value.controlled_vocabulary_term_id &&
+    dataAttribute.value.value
+)
+
+const all = ref([])
+const dataAttribute = ref(newDataAttribute())
+const predicate = ref()
+
+onBeforeMount(() => {
+  AjaxCall('get', `/controlled_vocabulary_terms.json?type[]=Predicate`).then(
+    (response) => {
+      all.value = response.body
+    }
+  )
+})
+
+function newDataAttribute() {
+  return {
+    label: undefined,
+    controlled_vocabulary_term_id: undefined,
+    type: 'InternalAttribute',
+    value: undefined
+  }
+}
+
+function addDataAttribute() {
+  store.commit(MutationNames.AddDataAttribute, dataAttribute.value)
+  dataAttribute.value = newDataAttribute()
+  predicate.value = undefined
+}
+
+function setDataAttribute(predicate) {
+  predicate.value = predicate
+  dataAttribute.value.label = predicate.name
+  dataAttribute.value.controlled_vocabulary_term_id = predicate.id
 }
 </script>

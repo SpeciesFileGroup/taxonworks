@@ -4,25 +4,25 @@
       <legend>New object attributes</legend>
       <div class="separate-bottom">
         <label>Total</label>
-        <input 
+        <input
           type="number"
-          v-model="collectionObject.total">
+          v-model="collectionObject.total"
+        />
       </div>
     </fieldset>
-    <repository-component/>
-    <preparation-type/>
-    <taxon-determination class="separate-top"/>
+    <repository-component />
+    <preparation-type />
+    <taxon-determination class="separate-top" />
   </div>
 </template>
 
 <script>
-
 import TaxonDetermination from './determination'
 import RepositoryComponent from './repository'
 import PreparationType from './preparationType'
 
-import { GetterNames } from '../../store/getters/getters.js'
-import { MutationNames } from '../../store/mutations/mutations.js'
+import { GetterNames } from '../../../store/getters/getters.js'
+import { MutationNames } from '../../../store/mutations/mutations.js'
 
 export default {
   components: {
@@ -44,7 +44,7 @@ export default {
 </script>
 
 <style scoped>
-  label {
-    display: block;
-  }
+label {
+  display: block;
+}
 </style>

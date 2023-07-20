@@ -1,7 +1,7 @@
-import { addToArray } from '@/helpers/arrays'
+import { removeFromArray } from '@/helpers/arrays'
 
 export default (state, dataAttribute) => {
-  addToArray(
+  removeFromArray(
     state.data_attributes,
     dataAttribute,
     'controlled_vocabulary_term_id'

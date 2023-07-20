@@ -429,7 +429,7 @@ watch(
 watch(
   () => props.model,
   () => {
-    refresh()
+    refresh(true)
   }
 )
 

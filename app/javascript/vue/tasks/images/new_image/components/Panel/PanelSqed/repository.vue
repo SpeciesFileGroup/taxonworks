@@ -30,8 +30,8 @@
 </template>
 
 <script>
-import { MutationNames } from '../../store/mutations/mutations'
-import { GetterNames } from '../../store/getters/getters'
+import { MutationNames } from '../../../store/mutations/mutations'
+import { GetterNames } from '../../../store/getters/getters'
 import SmartSelector from '@/components/ui/SmartSelector'
 import LockComponent from '@/components/ui/VLock/index.vue'
 

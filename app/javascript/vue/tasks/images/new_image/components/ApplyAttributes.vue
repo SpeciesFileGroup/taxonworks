@@ -1,15 +1,18 @@
 <template>
   <div class="panel content">
-    <h2>Use the options below to build attributions and depictions, then <i>Apply</i> them to your images.</h2>
-    <div class="flexbox align-end">
-      <div class="separate-right">
+    <h2>
+      Use the options below to build attributions and depictions, then
+      <i>Apply</i> them to your images.
+    </h2>
+    <div class="horizontal-left-content items-stretch">
+      <div class="separate-right full_width">
         <div class="horizontal-left-content">
           <input
             class="input-apply"
             disabled="true"
             :value="tagsLabel"
             type="text"
-          >
+          />
           <button
             type="button"
             :disabled="!tags.length || !areImagesCreated"
@@ -25,7 +28,7 @@
             disabled="true"
             :value="showPeopleAndLicense"
             type="text"
-          >
+          />
           <button
             type="button"
             :disabled="!validateAttr || !areImagesCreated"
@@ -41,10 +44,12 @@
             disabled="true"
             :value="objectsForDepictions"
             type="text"
-          >
+          />
           <button
             type="button"
-            :disabled="!(validateDepic || validateSqedObject && areImagesCreated)"
+            :disabled="
+              !(validateDepic || (validateSqedObject && areImagesCreated))
+            "
             class="button normal-input button-submit separate-left"
             @click="applyDepic"
           >
@@ -57,7 +62,7 @@
             disabled="true"
             :value="showPixelToCm"
             type="text"
-          >
+          />
           <button
             type="button"
             :disabled="!pixels || !areImagesCreated"
@@ -69,10 +74,22 @@
         </div>
       </div>
       <button
-        class="button normal-input button-submit item button-apply-both"
+        class="button normal-input button-submit button-apply-both"
         type="button"
-        :disabled="!((validateDepic || validateSqedObject && validateAttr) && areImagesCreated && pixels)"
-        @click="applyAttr(); applyDepic(); applyPxToCm()"
+        :disabled="
+          !(
+            (validateDepic || validateSqedObject || validateAttr || pixels) &&
+            areImagesCreated
+          )
+        "
+        @click="
+          () => {
+            applyTags()
+            applyAttr()
+            applyDepic()
+            applyPxToCm()
+          }
+        "
       >
         Apply all
       </button>
@@ -81,161 +98,171 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters.js'
 import { ActionNames } from '../store/actions/actions.js'
 import validateSqed from '../helpers/validateSqed'
 
 export default {
   computed: {
-    source () {
+    source() {
       return this.$store.getters[GetterNames.GetSource]
     },
 
-    tags () {
+    tags() {
       return this.$store.getters[GetterNames.GetTagsForImage]
     },
 
-    validateSqedObject () {
+    validateSqedObject() {
       return validateSqed(this.getSqed)
     },
 
-    getYear () {
+    getYear() {
       return this.$store.getters[GetterNames.GetYearCopyright]
     },
 
-    getSqed () {
+    getSqed() {
       return this.$store.getters[GetterNames.GetSqed]
     },
 
-    imagesCreated () {
+    imagesCreated() {
       return this.$store.getters[GetterNames.GetImagesCreated]
     },
 
-    areImagesCreated () {
+    areImagesCreated() {
       return this.$store.getters[GetterNames.GetImagesCreated].length > 0
     },
 
-    validateDepic () {
-      return (this.$store.getters[GetterNames.GetObjectsForDepictions].length > 0)
+    validateDepic() {
+      return this.$store.getters[GetterNames.GetObjectsForDepictions].length > 0
     },
 
-    validateAttr () {
-      return (this.imagesBy.length > 0 || this.license.length)
+    validateAttr() {
+      return this.imagesBy.length > 0 || this.license.length || this.source
     },
 
-    authors () {
+    authors() {
       return this.$store.getters[GetterNames.GetPeople].authors
     },
 
-    editors () {
+    editors() {
       return this.$store.getters[GetterNames.GetPeople].editors
     },
 
-    owners () {
+    owners() {
       return this.$store.getters[GetterNames.GetPeople].owners
     },
 
-    copyrightHolder () {
+    copyrightHolder() {
       return this.$store.getters[GetterNames.GetPeople].copyrightHolder
     },
 
-    license () {
-      const tmp = this.$store.getters[GetterNames.GetLicense]
+    license() {
+      const lic = this.$store.getters[GetterNames.GetLicense]
 
-      return (tmp ? `License: ${tmp}` : '')
+      return lic
+        ? `License: ${this.$store.getters[GetterNames.GetLicense]}`
+        : ''
     },
 
-    imagesBy () {
-      const people = [].concat(this.getNames(this.authors),
+    imagesBy() {
+      const people = [].concat(
+        this.getNames(this.authors),
         this.getNames(this.editors),
         this.getNames(this.owners),
         this.getNames(this.copyrightHolder)
       )
 
-      return people.length 
-        ? `Image(s) by ${people.join('; ')}.`
-        : ''
+      return people.length ? `Image(s) by ${people.join('; ')}.` : ''
     },
 
-    pixels () {
+    pixels() {
       return this.$store.getters[GetterNames.GetPixels]
     },
 
-    showPixelToCm () {
+    showPixelToCm() {
       return this.pixels
         ? `A scale of ${this.pixels} pixels per centimeter will be added`
         : 'The scale of pixels per centimeter will be displayed here when defined.'
     },
 
-    showPeopleAndLicense () {
+    showPeopleAndLicense() {
       if (this.imagesBy.length || this.license.length || this.source) {
-        return `${this.imagesBy}${this.imagesBy.length > 0 ? ' ' : ''}${this.license ? `${this.license}. ` : ''}${this.source ? `Source: ${this.source.object_tag}` : ''}${this.getYear ? ` Copyright year ${this.getYear}` : ''}`
+        return `${this.imagesBy}${this.imagesBy.length > 0 ? ' ' : ''}${
+          this.license ? `${this.license}. ` : ''
+        }${this.source ? `Source: ${this.source.cached}` : ''}${
+          this.getYear ? ` Copyright year ${this.getYear}` : ''
+        }`
       }
       return 'The attribution summary will be displayed here when defined.'
     },
 
-    objectsForDepictions () {
+    objectsForDepictions() {
       if (!this.validateDepic) {
         return 'A depiction summary will be displayed here when defined. Otherwise a new collection object will be created for each image.'
       }
 
-      const depìctObjects = this.$store.getters[GetterNames.GetObjectsForDepictions].map(item => item.label)
+      const depìctObjects = this.$store.getters[
+        GetterNames.GetObjectsForDepictions
+      ].map((item) => item.label)
 
       return depìctObjects.length
         ? `Depicts some: ${depìctObjects.join(', ')}`
         : 'A depiction summary will be displayed here when defined.'
     },
 
-    tagsLabel () {
+    tagsLabel() {
       return this.tags.length
-        ? this.tags.map(t => t.name).join('; ')
+        ? this.tags.map((t) => t.name).join('; ')
         : 'Tags summary will be displayed here when defined.'
     }
   },
   methods: {
-    getNames (list) {
-      return list.map(item => {
-        if (item.hasOwnProperty('label')) {
-          return item.label
+    getNames(list) {
+      return list.map((item) => {
+        if (item.hasOwnProperty('cached')) {
+          return item.cached
         } else if (item.hasOwnProperty('person_attributes')) {
-          return `${item.person_attributes.last_name}, ${item.person_attributes.first_name}`
+          return `${item.person_attributes?.last_name}, ${item.person_attributes?.first_name}`
         } else {
           return `${item.last_name}, ${item.first_name}`
         }
       })
     },
 
-    applyAttr () {
-      this.$store.dispatch(ActionNames.ApplyAttributions)
+    applyAttr() {
+      if (this.validateAttr) {
+        this.$store.dispatch(ActionNames.ApplyAttributions)
+      }
     },
 
-    applyDepic () {
-      this.$store.dispatch(ActionNames.ApplyDepictions)
+    applyDepic() {
+      if (this.validateDepic || this.validateSqedObject) {
+        this.$store.dispatch(ActionNames.ApplyDepictions)
+      }
     },
 
-    applyPxToCm () {
-      this.$store.dispatch(ActionNames.ApplyPixelToCentimeter)
+    applyPxToCm() {
+      if (this.pixels) {
+        this.$store.dispatch(ActionNames.ApplyPixelToCentimeter)
+      }
     },
 
-    applyTags () {
-      this.$store.dispatch(ActionNames.ApplyTags, {
-        objectIds: this.imagesCreated.map(image => image.id),
-        objectType: 'Image'
-      })
+    applyTags() {
+      if (this.tags.length) {
+        this.$store.dispatch(ActionNames.ApplyTags, {
+          objectIds: this.imagesCreated.map((image) => image.id),
+          objectType: 'Image'
+        })
+      }
     }
   }
 }
 </script>
 
 <style scoped>
-  .input-apply {
-    width: 100%;
-    font-size: 110%;
-    color: #000000;
-  }
-
-  .button-apply-both {
-    height: 97px;
-  }
+.input-apply {
+  width: 100%;
+  font-size: 110%;
+  color: #000000;
+}
 </style>
