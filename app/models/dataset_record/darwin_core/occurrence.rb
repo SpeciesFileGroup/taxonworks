@@ -44,23 +44,45 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       %I(name masculine_name feminine_name neuter_name).inject(nil) do |protonym, field|
         break protonym unless protonym.nil?
 
-        p = Protonym.find_by(name.slice(:rank_class).merge({field => name[:name], :parent => parent}))
+        potential_protonyms = Protonym.where(name.slice(:rank_class).merge({ field => name[:name], :parent => parent }))
+
+        # if multiple potential protonyms, this is a homonym situation
+        if potential_protonyms.count > 1
+          # verbatim author field (if present) applies to finest name only
+          if name[:verbatim_author]
+            # if only one result, everything's ok. Safe to take it as the protonym
+            if potential_protonyms.where(verbatim_author: name[:verbatim_author]).count == 1
+              potential_protonyms = potential_protonyms.where(verbatim_author: name[:verbatim_author])
+            else
+              potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }.join(', ')
+              raise DatasetRecord::DarwinCore::InvalidData.new(
+                  { "scientificName" => ["Multiple matches found for name #{name[:name]} and verbatim author #{name[:verbatim_author]}: #{potential_protonym_strings}"] }
+                )
+            end
+          else
+            # for intermediate homonyms, skip it, we don't have any info
+            return parent
+          end
+        end
+
+        p = potential_protonyms.first
 
         # Protonym might not exist, or might have intermediate parent not listed in file
         # if it exists, run more expensive query to see if it has an ancestor matching parent name and rank
-        if p.nil? && Protonym.where(name.slice(:rank_class).merge({field => name[:name]})).where(project_id: parent.project_id).exists?
-          potential_protonyms = Protonym.where(name.slice(:rank_class).merge!({field => name[:name]})).with_ancestor(parent)
+        if p.nil? && Protonym.where(name.slice(:rank_class).merge({ field => name[:name] })).where(project_id: parent.project_id).exists?
+          potential_protonyms = Protonym.where(name.slice(:rank_class).merge!({ field => name[:name] })).with_ancestor(parent)
           if potential_protonyms.count > 1
-            potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }
-            raise DatasetRecord::DarwinCore::InvalidData.new(
-              { "scientificName" => ["Intermediate name not present, and multiple matches found: #{potential_protonym_strings.join(', ')}"] }
-            )
+            return parent
+            # potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }
+            # raise DatasetRecord::DarwinCore::InvalidData.new(
+            #   { "scientificName" => ["Intermediate name not present, and multiple matches found: #{potential_protonym_strings.join(', ')}"] }
+            # )
           end
           p = potential_protonyms.first
           # check parent.cached_valid_taxon_name_id if not valid, can have obsolete subgenus Aus (Aus) bus -> Aus bus, bus won't have ancestor (Aus)
           if p.nil? && !parent.cached_is_valid
-            p = Protonym.where(name.slice(:rank_class).merge!({field => name[:name]})).with_ancestor(parent.valid_taxon_name).first
-        end
+            p = Protonym.where(name.slice(:rank_class).merge!({ field => name[:name] })).with_ancestor(parent.valid_taxon_name).first
+          end
 
         end
         p
