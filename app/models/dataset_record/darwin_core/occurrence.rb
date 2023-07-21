@@ -156,6 +156,18 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           identifier = Identifier::Local::CatalogNumber
             .create_with(identifier_object: specimen, annotator_batch_mode: true)
             .find_or_create_by!(attributes[:catalog_number])
+
+          # if desired, ensure that cached CO identifier will match verbatim catalogNumber
+          # this ensures that DwC exported records will have identical catalogNumbers as when they were imported
+          if self.import_dataset.require_catalog_number_match_verbatim? &&
+            identifier.cached != attributes.dig(:catalog_number, :identifier)
+
+            verbatim_catalog_number = attributes.dig(:catalog_number, :identifier)
+            error_message = "Computed catalog number #{identifier.cached} will not match verbatim #{verbatim_catalog_number}. "\
+                            "Verify the namespace delimiter is correct."
+            raise DarwinCore::InvalidData.new({"catalogNumber" => [error_message]})
+          end
+
           object = identifier.identifier_object
 
           unless object == specimen
@@ -195,8 +207,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           if identifier_type.nil?
             identifier_type = Identifier::Local::TripCode # TODO: Or maybe Identifier::Local::Import?
 
+            using_default_event_id = false
             if namespace.nil?
               namespace = import_dataset.get_event_id_namespace
+              using_default_event_id = true
             else
               namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(namespace)) # Case insensitive match
               raise DarwinCore::InvalidData.new({ "TW:Namespace:eventID" => ["Namespace not found"] }) unless namespace
@@ -205,6 +219,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             identifier_attributes[:namespace] = namespace
 
             delete_namespace_prefix!(event_id, namespace)
+
+            if !using_default_event_id && self.import_dataset.require_tripcode_match_verbatim?
+              if (cached_identifier = Identifier::Local.build_cached_prefix(namespace) + event_id) != get_field_value(:eventID)
+                error_message = "Computed TripCode #{cached_identifier} will not match verbatim #{get_field_value(:eventID)}. "\
+                            "Verify the namespace delimiter is correct." # TODO include link to namespace?
+                raise DarwinCore::InvalidData.new({"eventID" => [error_message]})
+              end
+            end
           end
 
           collecting_event = identifier_type.find_by(identifier_attributes)&.identifier_object
