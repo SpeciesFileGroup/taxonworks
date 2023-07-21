@@ -44,17 +44,45 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       %I(name masculine_name feminine_name neuter_name).inject(nil) do |protonym, field|
         break protonym unless protonym.nil?
 
-        p = Protonym.find_by(name.slice(:rank_class).merge({field => name[:name], :parent => parent}))
+        potential_protonyms = Protonym.where(name.slice(:rank_class).merge({ field => name[:name], :parent => parent }))
+
+        # if multiple potential protonyms, this is a homonym situation
+        if potential_protonyms.count > 1
+          # verbatim author field (if present) applies to finest name only
+          if name[:verbatim_author]
+            # if only one result, everything's ok. Safe to take it as the protonym
+            if potential_protonyms.where(verbatim_author: name[:verbatim_author]).count == 1
+              potential_protonyms = potential_protonyms.where(verbatim_author: name[:verbatim_author])
+            else
+              potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }.join(', ')
+              raise DatasetRecord::DarwinCore::InvalidData.new(
+                  { "scientificName" => ["Multiple matches found for name #{name[:name]} and verbatim author #{name[:verbatim_author]}: #{potential_protonym_strings}"] }
+                )
+            end
+          else
+            # for intermediate homonyms, skip it, we don't have any info
+            return parent
+          end
+        end
+
+        p = potential_protonyms.first
 
         # Protonym might not exist, or might have intermediate parent not listed in file
         # if it exists, run more expensive query to see if it has an ancestor matching parent name and rank
-        if p.nil? && Protonym.where(name.slice(:rank_class).merge({field => name[:name]})).where(project_id: parent.project_id).exists?
-          p = Protonym.where(name.slice(:rank_class).merge!({field => name[:name]})).with_ancestor(parent).first
-
+        if p.nil? && Protonym.where(name.slice(:rank_class).merge({ field => name[:name] })).where(project_id: parent.project_id).exists?
+          potential_protonyms = Protonym.where(name.slice(:rank_class).merge!({ field => name[:name] })).with_ancestor(parent)
+          if potential_protonyms.count > 1
+            return parent
+            # potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }
+            # raise DatasetRecord::DarwinCore::InvalidData.new(
+            #   { "scientificName" => ["Intermediate name not present, and multiple matches found: #{potential_protonym_strings.join(', ')}"] }
+            # )
+          end
+          p = potential_protonyms.first
           # check parent.cached_valid_taxon_name_id if not valid, can have obsolete subgenus Aus (Aus) bus -> Aus bus, bus won't have ancestor (Aus)
           if p.nil? && !parent.cached_is_valid
-            p = Protonym.where(name.slice(:rank_class).merge!({field => name[:name]})).with_ancestor(parent.valid_taxon_name).first
-        end
+            p = Protonym.where(name.slice(:rank_class).merge!({ field => name[:name] })).with_ancestor(parent.valid_taxon_name).first
+          end
 
         end
         p
@@ -112,7 +140,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         attributes.deep_merge!(parse_occurrence_class)
         attributes.deep_merge!(parse_event_class)
         attributes.deep_merge!(parse_location_class)
-        attributes.deep_merge!(parse_identification_class)
+        attributes.deep_merge!(parse_identification_class(innermost_protonym))
 
         attributes.deep_merge!(parse_tw_collection_object_data_attributes)
         attributes.deep_merge!(parse_tw_collecting_event_data_attributes)
@@ -827,7 +855,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     }
   end
 
-  def parse_typestatus(type_status)
+  # @param [String] type_status
+  # @param [Protonym] taxon_protonym
+  # @return [Hash{Symbol=>String, TaxonName}, nil]
+  def parse_typestatus(type_status, taxon_protonym)
     type_material = nil
     type_status_parsed = type_status&.match(/^(?<type>\w+)$/i) || type_status&.match(/(?<type>\w+)(\s+OF\s+(?<scientificName>.*))/i)
 
@@ -858,15 +889,36 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         }
       end
 
+      # See if name matches a synonym of taxon name
+      synonyms = taxon_protonym.synonyms
+      matching_synonyms = []
+      synonyms.each do |s|
+        if [s.cached, s.cached_original_combination].compact.include?(type_scientific_name)
+          if s.is_combination?
+            matching_synonyms << s.finest_protonym
+          else
+            matching_synonyms << s
+          end
+        end
+      end
+
+      if matching_synonyms.uniq.count == 1
+        return {
+          type_type: type_status_parsed[:type].downcase,
+          protonym: matching_synonyms.first
+        }
+      end
+
       # Try wildcard match on subgenus if not present
       type_name_elements = type_scientific_name.split
       if type_name_elements.length > 1 && type_name_elements[1].first != "(" && type_name_elements[1].last != ")"
         type_name_elements.map! { |s| Regexp.escape(s) }
         # append subgenus wildcard to genus string
         type_name_elements[0] << '( \(\w+\))?'
-        name_pattern = type_name_elements.join(" ")
+        name_pattern = "^#{type_name_elements.join(" ")}$"
 
         wildcard_original_protonym = Protonym.where('cached_original_combination ~ :pat', pat: name_pattern)
+                                             .or(Protonym.where('cached ~ :pat', pat: name_pattern))
                                              .where(project_id: self.project_id)
 
         if wildcard_original_protonym.count == 1
@@ -886,7 +938,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     type_material
   end
 
-  def parse_identification_class
+  def parse_identification_class(taxon_protonym)
     taxon_determination = {}
     type_material = nil
 
@@ -896,7 +948,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # typeStatus: [Type material only if scientific name matches scientificName and type term is recognized by TW vocabulary]
     if (type_status = get_field_value(:typeStatus))
-      type_material = parse_typestatus(type_status)
+      type_material = parse_typestatus(type_status, taxon_protonym)
       if type_material.nil? && self.import_dataset.require_type_material_success?
         # generic error message, nothing more specific provided
         raise DarwinCore::InvalidData.new({ "typeStatus": ["Unprocessable typeStatus information"] })
@@ -995,6 +1047,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     origins[
       {rank_class: Ranks.lookup(code, "family"), name: get_field_value(:family)}.tap { |h| names << h }.object_id
     ] = :family
+
+    origins[
+      {rank_class: Ranks.lookup(code, "subfamily"), name: get_field_value(:subfamily)}.tap { |h| names << h }.object_id
+    ] = :subfamily
 
     # genus: [Not mapped, extracted from scientificName instead]
 
