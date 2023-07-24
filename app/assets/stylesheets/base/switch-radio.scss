@@ -6,12 +6,12 @@
   }
 
   input {
-      position: absolute !important;
-      clip: rect(0, 0, 0, 0);
-      height: 1px;
-      width: 1px;
-      border: 0;
-      overflow: hidden;
+    position: absolute !important;
+    clip: rect(0, 0, 0, 0);
+    height: 1px;
+    width: 1px;
+    border: 0;
+    overflow: hidden;
   }
 
   label {
@@ -20,10 +20,10 @@
 
   label {
     display: inline-block;
-    width: 60px;
+    min-width: 60px;
     font-size: 12px;
     background-color: $color-secondary-2-4;
-    color: #FFFFFF;
+    color: #ffffff;
     border-right: 1px solid rgba(0, 0, 0, 0.2);
     font-weight: normal;
     text-align: center;
@@ -32,7 +32,7 @@
   }
 
   label:hover {
-      cursor: pointer;
+    cursor: pointer;
   }
 
   input:checked + label {
@@ -55,6 +55,4 @@
   label:last-of-type {
     border-radius: 0 3px 3px 0;
   }
-
-
 }
