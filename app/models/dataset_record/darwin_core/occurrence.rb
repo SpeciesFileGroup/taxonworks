@@ -188,11 +188,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           # if desired, ensure that cached CO identifier will match verbatim catalogNumber
           # this ensures that DwC exported records will have identical catalogNumbers as when they were imported
           if self.import_dataset.require_catalog_number_match_verbatim? &&
-            identifier.cached != attributes.dig(:catalog_number, :identifier)
+            identifier.cached != get_field_value(:catalogNumber)
 
-            verbatim_catalog_number = attributes.dig(:catalog_number, :identifier)
-            error_message = "Computed catalog number #{identifier.cached} will not match verbatim #{verbatim_catalog_number}. "\
-                            "Verify the namespace delimiter is correct."
+            error_message = "Computed catalog number #{identifier.cached} will not match verbatim #{get_field_value(:catalogNumber)}. "\
+                            "Verify the mapped namespace and namespace delimiter are correct."
             raise DarwinCore::InvalidData.new({"catalogNumber" => [error_message]})
           end
 
