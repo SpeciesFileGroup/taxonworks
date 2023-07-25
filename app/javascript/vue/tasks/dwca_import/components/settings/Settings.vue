@@ -35,6 +35,7 @@
             <geographic-area-data-origin class="margin-medium-bottom" />
             <require-geographic-area-has-shape-checkbox />
             <require-geographic-area-exact-match />
+            <require-geographic-area-exists />
           </div>
 
           <CatalogNumberMain />
@@ -56,6 +57,7 @@ import NomenclatureCode from './NomenclatureCode.vue'
 import GeographicAreaDataOrigin from './GeographicAreaDataOrigin.vue'
 import RequireGeographicAreaHasShapeCheckbox from './RequireGeographicAreaHasShapeCheckbox.vue'
 import RequireGeographicAreaExactMatch from './RequireGeographicAreaExactMatch.vue'
+import RequireGeographicAreaExists from './RequireGeographicAreaExists.vue'
 import CatalogNumberMain from './CatalogNumber/CatalogNumberMain.vue'
 
 const showModal = ref(false)

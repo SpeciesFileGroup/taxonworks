@@ -291,6 +291,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           has_shape = self.import_dataset.metadata.dig('import_settings', 'require_geographic_area_has_shape')
           data_origin = self.import_dataset.metadata.dig('import_settings', 'geographic_area_data_origin')
           disable_recursive_search = self.import_dataset.metadata.dig('import_settings', 'require_geographic_area_exact_match')
+          require_ga_found = self.import_dataset.metadata.dig('import_settings', 'require_geographic_area_exists')
+          should_check_ga_exists = false
+          location_hash = {}  # if requiring geographic area to exist, use hash of inputs for error message
+
           if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
             Georeference::VerbatimData.create!({
               collecting_event: collecting_event,
@@ -312,8 +316,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             end
 
             location_levels = [county, state_province, country].compact
-          end
 
+            if require_ga_found && location_levels.size > 0
+              location_hash = {county: county, state_province: state_province, country: country, country_code: country_code}
+              should_check_ga_exists = true
+            end
+          end
           # try to find geographic areas until no location levels are left
           geographic_areas = []
           if disable_recursive_search
@@ -323,6 +331,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
               geographic_areas = GeographicArea.with_name_and_parent_names(location_levels).with_data_origin(data_origin).has_shape(has_shape)
               location_levels = location_levels.drop(1)
             end
+          end
+
+          if should_check_ga_exists && geographic_areas.size == 0
+            levels = location_hash.to_a.filter{|_,v| !v.nil?}.map { |k,v| "#{k.to_s}:#{v}"}
+            error_message = "GeographicArea with location levels #{levels.join(", ")} not found."
+            raise DarwinCore::InvalidData.new({"country, stateProvince, county" => [error_message]})
           end
 
           collecting_event.geographic_area_id = geographic_areas[0].id if geographic_areas.size > 0
