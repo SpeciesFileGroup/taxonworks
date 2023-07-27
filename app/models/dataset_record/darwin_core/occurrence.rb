@@ -397,8 +397,38 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     value
   end
 
+  # Parse for names in a given field and find or create one or more Person::Unvetted (scoped to the import dataset).
+  # Also supports searching for an Organization, if the column value is an exact match for the Organization's name or alternate_name
   # NOTE: Sometimes an identifier/collector happens to be a non-person (like "ANSP Orthopterist"). Does TW (will) have something for this? Currently imported as an Unvetted Person.
-  def parse_people(field_name)
+  #
+  # @param [String, Symbol] field_name Field name (column) to parse for people in
+  # @param [Boolean] enable_organization_search Should we search for an organization whose name matches the field value
+  # @return [Array<Person::Unvetted, Organization>, nil]
+  def parse_people(field_name, enable_organization_search = false)
+    if enable_organization_search
+      # check if people name matches an organization
+      org_name = get_field_value(field_name)
+      if Organization.where(name: org_name).or(Organization.where(alternate_name: org_name)).exists?
+        possible_organizations = Organization.where(name: org_name).or(Organization.where(alternate_name: org_name))
+
+        if possible_organizations.count == 1
+          return [possible_organizations.first]
+
+        elsif possible_organizations.count > 1
+          matching_orgs = possible_organizations.map do |o|
+            str = "[id:#{o.id} #{o.name}"
+            unless o.alternate_name.blank?
+              str << " (AKA: #{o.alternate_name})"
+            end
+            str << "]"
+          end.join(", ")
+          # TODO how should the user disambiguate which organization they are referring to?
+          raise DarwinCore::InvalidData.new({ field_name => ["Multiple organizations matched name or alternate name '#{org_name}': #{matching_orgs}"] })
+        end
+      end
+    end
+
+    #noinspection RubyMismatchedReturnType
     Person.transaction(requires_new: true) do
       DwcAgent.parse(get_field_value(field_name)).map! { |n| DwcAgent.clean(n) }.map! do |name|
         attributes = {
@@ -553,7 +583,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # recordNumber: [Not mapped]
 
     # recordedBy: [collecting_event.collectors and collecting_event.verbatim_collectors]
-    Utilities::Hashes::set_unless_nil(res[:collecting_event], :collectors, (parse_people(:recordedBy) rescue nil))
+    Utilities::Hashes::set_unless_nil(res[:collecting_event], :collectors, (parse_people(:recordedBy, search_organizations=false) rescue nil))
     Utilities::Hashes::set_unless_nil(res[:collecting_event], :verbatim_collectors, get_field_value(:recordedBy))
 
     # individualCount: [specimen.total]
@@ -977,7 +1007,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     end
 
     # identifiedBy: determiners of taxon determination
-    Utilities::Hashes::set_unless_nil(taxon_determination, :determiners, parse_people(:identifiedBy))
+    determiners = parse_people(:identifiedBy, search_organization = self.import_dataset.enable_organization_determiners? )
+    unless determiners.nil?
+      if determiners.first.is_a?(Person)
+        taxon_determination[:determiners] = determiners
+      elsif determiners.first.is_a?(Organization)
+        taxon_determination[:determiners_organization] = determiners
+      end
+    end
 
     # dateIdentified: {year,month,day}_made of taxon determination
     start_date, end_date = parse_iso_date(:dateIdentified)

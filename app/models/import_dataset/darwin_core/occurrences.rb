@@ -235,6 +235,10 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     !!self.metadata.dig("import_settings", "require_catalog_number_match_verbatim")
   end
 
+  def enable_organization_determiners?
+    !!self.metadata.dig("import_settings", "enable_organization_determiners")
+  end
+
   private
 
   def get_catalog_number_namespace_mapping(institution_code, collection_code)
