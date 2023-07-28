@@ -239,6 +239,10 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     !!self.metadata.dig("import_settings", "enable_organization_determiners")
   end
 
+  def enable_organization_determiners_alt_name?
+    !!self.metadata.dig("import_settings", "enable_organization_determiners_alt_name")
+  end
+
   private
 
   def get_catalog_number_namespace_mapping(institution_code, collection_code)
