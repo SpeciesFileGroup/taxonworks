@@ -1025,6 +1025,24 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
   end
 
+  context 'when importing a record with mismatched authorship year data' do
+    before(:all) { import_checklist_tsv('error_tests/mismatched_year.tsv', 1) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:record) {DatasetRecord.first}
+    it 'should have an errored status' do
+
+      expect(record.status).to eq("Errored")
+    end
+    it 'should have the right error message' do
+
+      expect(record[:metadata].dig("error_data", "messages", "namePublishedInYear")).to_not be_nil
+    end
+  end
+
   # TODO test missing parent
   #
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName
