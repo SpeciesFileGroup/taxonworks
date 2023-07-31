@@ -1,2 +1,2 @@
-institution name short_name verbatim_short_name
-institution_a name_a short_name_a verbatim_short_name_a   
+institution	name	short_name	verbatim_short_name	delimiter
+institution_a	name_a	short_name_a	verbatim_short_name_a	NONE

@@ -11,7 +11,7 @@ module BatchLoad
       @total_data_lines = 0
       i = 0
 
-      namespaces = {};
+      namespaces = {}
 
       # loop through rows
       csv.each do |row|
@@ -27,8 +27,9 @@ module BatchLoad
             institution: row['institution'],
             name: row['name'],
             short_name: row['short_name'],
-            verbatim_short_name: row['verbatim_short_name']
-          };
+            verbatim_short_name: row['verbatim_short_name'],
+            delimiter: row['delimiter'] == '' ? nil : row['delimiter']
+          }
 
           namespace = Namespace.new(namespace_attributes)
           parse_result.objects[:namespaces].push namespace
