@@ -84,6 +84,7 @@
 import VModal from '@/components/ui/Modal'
 import VSpinner from '@/components/spinner'
 import ClipboardButton from '@/components/clipboardButton'
+import { sortArray } from '@/helpers/arrays.js'
 import { SOURCE_BIBTEX } from '@/constants'
 import { ref, watch, computed } from 'vue'
 
@@ -157,7 +158,9 @@ function loadBibtexStyle() {
     isLoading.value = true
     GetBibtexStyle()
       .then(({ body }) => {
-        bibtexStyle.value = Object.fromEntries(Object.entries(body).sort())
+        bibtexStyle.value = Object.fromEntries(
+          sortArray(Object.entries(body), '1')
+        )
       })
       .finally(() => {
         isLoading.value = false
