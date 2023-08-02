@@ -106,7 +106,7 @@ class Protonym < TaxonName
   end
 
   # TODO: remove
-  scope :named, -> (name) {where(name:)}
+  scope :named, -> (name) {where(name: name)}
 
   scope :with_name_in_array, -> (array) {where(name: array) }
 
@@ -132,7 +132,7 @@ class Protonym < TaxonName
   scope :with_secondary_homonym_alternative_spelling, -> (secondary_homonym_alternative_spelling) {where(cached_secondary_homonym_alternative_spelling: secondary_homonym_alternative_spelling)}
 
   # TODO, move to IsData or IsProjectData
-  scope :with_project, -> (project_id) {where(project_id:)}
+  scope :with_project, -> (project_id) {where(project_id: project_id)}
 
   scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
   scope :is_genus_group, -> { where("rank_class ILIKE '%genusgroup%'") }
@@ -149,7 +149,7 @@ class Protonym < TaxonName
   # @return [Protonym]
   #   a name ready to become the root
   def self.stub_root(project_id: nil, by: nil)
-    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id:, by:)
+    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id: project_id, by: by)
   end
 
   def self.family_group_base(name_string)
@@ -615,6 +615,8 @@ class Protonym < TaxonName
       m_name, f_name, n_name = name[0..-2] + 'is', name[0..-2] + 'is', name
     when /us$/
       m_name, f_name, n_name = name, name[0..-3] + 'a', name[0..-3] + 'um'
+    when /(fer|ger)$/
+      m_name, f_name, n_name = name, name + 'a', name + 'um'
     when /er$/
       m_name, f_name, n_name = name, name[0..-3] + 'ra', name[0..-3] + 'rum'
     when /(ferum|gerum)$/

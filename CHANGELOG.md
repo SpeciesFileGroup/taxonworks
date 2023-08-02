@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Predicted adjectives for the epithets ending with -ger and -fer
 - Optimized Gnfinder playground new-name detection
 - Optimized `/api/v1/asserted_distribution`, also now uses `extend[]=geo_json` (disabled if > 50 records requested)
 - Updated `/api/v1/biological_associations` to report full `taxonomy` [#3438]
