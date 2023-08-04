@@ -54,6 +54,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         authorship = parse_results_details.dig(:authorship, :normalized) || get_field_value('scientificNameAuthorship')
 
         author_name = nil
+        year = nil
 
         # split authorship into name and year
         if nomenclature_code == :iczn
@@ -75,7 +76,13 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           year = Utilities::Strings.year_of_publication(authorship)
         end
 
-        # TODO should a year provided in namePublishedInYear overwrite the parsed value?
+        if year && (name_published_in_year = get_field_value('namePublishedInYear')) &&
+          year != name_published_in_year
+          raise DarwinCore::InvalidData.new(
+            { "namePublishedInYear": ["parsed year from scientificName or scientificNameAuthorship (#{year}) "\
+                                      "does not match namePublishedInYear (#{name_published_in_year})"]
+            })
+        end
         year ||= get_field_value('namePublishedInYear')
 
         # TODO validate that rank is a real rank, otherwise Combination will crash on find_or_initialize_by
