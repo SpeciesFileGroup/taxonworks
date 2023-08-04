@@ -115,6 +115,16 @@ class AssertedDistributionsController < ApplicationController
   def batch_load
   end
 
+  # POST /asserted_distributions/batch_move.json?asserted_distribution_query=<>&geographic_area_id
+  def batch_move
+    if @asserted_distributions = AssertedDistribution.batch_move(params)
+      @asserted_distributions = @asserted_distributions[:moved]
+      render :index
+    else
+      render json: {success: false}
+    end
+  end
+
   def preview_simple_batch_load
     if params[:file]
       @result =  BatchLoad::Import::AssertedDistributions.new(**batch_params)
@@ -145,9 +155,15 @@ class AssertedDistributionsController < ApplicationController
     @asserted_distributions = Queries::AssertedDistribution::Filter.new(params.merge!(api: true))
       .all
       .where(project_id: sessions_current_project_id)
+      .includes(:citations, :otu, geographic_area: [:parent, :geographic_area_type], origin_citation: [:source])
       .order('asserted_distributions.id')
       .page(params[:page])
       .per(params[:per])
+
+      if @asserted_distributions.all.count > 50
+        params['extend'].delete('geo_json')
+      end
+
     render '/asserted_distributions/api/v1/index'
   end
 

@@ -14,7 +14,7 @@
               :value="key"
               name="nomenclature-code-type"
               v-model="nomenclatureCode"
-            >
+            />
             {{ key }}
           </label>
         </li>
@@ -36,7 +36,7 @@
               :value="type"
               name="type-type"
               type="checkbox"
-            >
+            />
             {{ type }}
           </label>
         </li>
@@ -47,9 +47,9 @@
 
 <script setup>
 import { computed, ref, watch, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { TypeMaterial } from 'routes/endpoints'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { TypeMaterial } from '@/routes/endpoints'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {
@@ -60,7 +60,7 @@ const props = defineProps({
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -68,19 +68,16 @@ const emit = defineEmits(['update:modelValue'])
 const nomenclatureCode = ref()
 const types = ref({})
 
-watch(
-  nomenclatureCode,
-  () => {
-    params.value.is_type = []
-  }
-)
+watch(nomenclatureCode, () => {
+  params.value.is_type = []
+})
 
 onBeforeMount(() => {
   const urlParams = URLParamsToJSON(location.href)
 
   params.value.is_type = urlParams.is_type || []
 
-  TypeMaterial.types().then(response => {
+  TypeMaterial.types().then((response) => {
     types.value = response.body
   })
 })

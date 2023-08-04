@@ -28,6 +28,7 @@ import setTaxonDetermination from './setTaxonDetermination'
 import setTaxonDeterminations from './setTaxonDeterminations'
 import setYearCopyright from './setYearCopyright'
 import setTagsForImage from './setTagsForImage'
+import removeDataAttribute from './removeDataAttribute'
 
 const MutationNames = {
   AddAttribution: 'addAttribution',
@@ -59,7 +60,8 @@ const MutationNames = {
   SetTaxonDetermination: 'setTaxonDetermination',
   SetTaxonDeterminations: 'setTaxonDeterminations',
   SetYearCopyright: 'setYearCopyright',
-  SetTagsForImage: 'setTagsForImage'
+  SetTagsForImage: 'setTagsForImage',
+  RemoveDataAttribute: 'removeDataAttribute'
 }
 
 const MutationFunctions = {
@@ -92,10 +94,8 @@ const MutationFunctions = {
   [MutationNames.SetTaxonDetermination]: setTaxonDetermination,
   [MutationNames.SetTaxonDeterminations]: setTaxonDeterminations,
   [MutationNames.SetYearCopyright]: setYearCopyright,
-  [MutationNames.SetTagsForImage]: setTagsForImage
+  [MutationNames.SetTagsForImage]: setTagsForImage,
+  [MutationNames.RemoveDataAttribute]: removeDataAttribute
 }
 
-export {
-  MutationNames,
-  MutationFunctions
-}
+export { MutationNames, MutationFunctions }

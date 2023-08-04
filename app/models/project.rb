@@ -103,6 +103,9 @@ class Project < ApplicationRecord
      DatasetRecordField
      DatasetRecord
      ImportDataset
+     CachedMapItem
+     CachedMapRegister
+     CachedMap
   }.freeze
 
   has_many :project_members, dependent: :restrict_with_error

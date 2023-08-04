@@ -8,9 +8,9 @@ import {
   TypeMaterial,
   GeographicArea,
   Repository
-} from 'routes/endpoints'
-import { makeCollectionObject } from 'adapters/index.js'
-import { COLLECTION_OBJECT, COLLECTING_EVENT } from 'constants/index.js'
+} from '@/routes/endpoints'
+import { makeCollectionObject } from '@/adapters/index.js'
+import { COLLECTION_OBJECT, COLLECTING_EVENT } from '@/constants/index.js'
 import ActionNames from './actionNames'
 
 export default ({ state, dispatch }, coId) => {
@@ -27,9 +27,11 @@ export default ({ state, dispatch }, coId) => {
       state.biologicalAssociations = body
     })
 
-    Container.for(co.globalId).then(({ body }) => {
-      state.container = body
-    })
+    Container.for(co.globalId)
+      .then(({ body }) => {
+        state.container = body
+      })
+      .catch(() => {})
 
     if (co.repositoryId) {
       Repository.find(co.repositoryId).then(({ body }) => {

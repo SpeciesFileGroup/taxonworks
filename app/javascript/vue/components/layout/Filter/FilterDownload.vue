@@ -36,14 +36,10 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import csvButton from 'components/csvButton.vue'
-
-const CSV_DOWNLOAD = {
-  label: 'CSV',
-  component: csvButton
-}
+import { flatten } from '@json2csv/transforms'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import csvButton from '@/components/csvButton.vue'
 
 const props = defineProps({
   list: {
@@ -51,7 +47,7 @@ const props = defineProps({
     default: () => []
   },
 
-  parameters: {
+  csvOptions: {
     type: Object,
     default: () => ({})
   },
@@ -61,6 +57,17 @@ const props = defineProps({
     default: () => []
   }
 })
+
+const CSV_DOWNLOAD = {
+  label: 'CSV',
+  component: csvButton,
+  bind: {
+    options: {
+      transforms: [flatten({ object: true, array: true, separator: '_' })],
+      ...props.csvOptions
+    }
+  }
+}
 
 const DOWNLOAD_LIST = computed(() => [CSV_DOWNLOAD, ...props.extendDownload])
 

@@ -8,7 +8,8 @@
             type="radio"
             name="step"
             v-model="sledImage.step_identifier_on"
-            :value="item.value">
+            :value="item.value"
+          />
           {{ item.label }}
         </label>
       </li>
@@ -19,20 +20,25 @@
         klass="CollectionObject"
         pin-section="Namespaces"
         pin-type="Namespace"
-        @selected="setValue"/>
+        @selected="setValue"
+      />
       <lock-component
         class="margin-small-left"
-        v-model="lock.identifier"/>
+        v-model="lock.identifier"
+      />
     </div>
     <p
       v-if="identifier.namespace_id"
-      class="middle">
+      class="middle"
+    >
       <span
         class="margin-small-right"
-        v-html="identifier.label"/>
+        v-html="identifier.label"
+      />
       <span
         class="button-circle button-default btn-undo"
-        @click="removeNamespace"/>
+        @click="removeNamespace"
+      />
     </p>
     <div class="horizontal-left-content">
       <div class="margin-small-top margin-small-right full_width">
@@ -40,7 +46,8 @@
         <input
           class="full_width"
           v-model="identifier.identifier"
-          type="number">
+          type="number"
+        />
       </div>
       <div class="margin-small-top margin-small-left full_width">
         <label class="display-block">End</label>
@@ -48,15 +55,15 @@
           class="full_width"
           :value="incremented"
           disabled="true"
-          type="number">
+          type="number"
+        />
       </div>
     </div>
   </fieldset>
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
+import SmartSelector from '@/components/ui/SmartSelector'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import SharedComponent from '../shared/lock.js'
@@ -68,35 +75,35 @@ export default {
   },
   computed: {
     identifier: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetIdentifier]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetIdentifier, value)
       }
     },
     sledImage: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSledImage]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSledImage, value)
       }
     },
-    incremented () {
-      if(!this.identifier.identifier) return undefined
+    incremented() {
+      if (!this.identifier.identifier) return undefined
 
       let inc = 0
 
-      this.sledImage.metadata.forEach(item => {
-        if(item.metadata == null) {
-          inc ++
+      this.sledImage.metadata.forEach((item) => {
+        if (item.metadata == null) {
+          inc++
         }
       })
-      return (Number(this.identifier.identifier) + inc + (inc == 0 ? 0 : -1))
+      return Number(this.identifier.identifier) + inc + (inc == 0 ? 0 : -1)
     }
   },
-  data () {
+  data() {
     return {
       tabs: [],
       lists: undefined,
@@ -118,22 +125,22 @@ export default {
     }
   },
   methods: {
-    setValue (value) {
+    setValue(value) {
       this.identifier.namespace_id = value.id
       this.identifier.label = value.name
     },
-    resetIdentifier () {
+    resetIdentifier() {
       this.identifier = {
         id: undefined,
         identifier: undefined,
         label: undefined,
         namespace_id: undefined,
-        type: "Identifier::Local::CatalogNumber",
+        type: 'Identifier::Local::CatalogNumber',
         identifier_object_id: undefined,
         identifier_object_type: 'CollectionObject'
       }
     },
-    removeNamespace () {
+    removeNamespace() {
       this.identifier.namespace_id = undefined
       this.identifier.label = undefined
     }

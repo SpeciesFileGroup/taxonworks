@@ -351,12 +351,12 @@ module Queries
 
       def otu_id_facet
         return nil if otu_id.empty?
-        ::CollectingEvent.joins(:otus).where(otus: {id: otu_id})
+        ::CollectingEvent.joins(:otus).where(otus: {id: otu_id}).distinct
       end
 
       def matching_collection_object_id
         return nil if collection_object_id.empty?
-        ::CollectingEvent.joins(:collection_objects).where(collection_objects: {id: collection_object_id})
+        ::CollectingEvent.joins(:collection_objects).where(collection_objects: {id: collection_object_id}).distinct
       end
 
       def collectors_facet

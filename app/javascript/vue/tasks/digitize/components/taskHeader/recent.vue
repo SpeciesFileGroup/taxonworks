@@ -3,15 +3,19 @@
     <button
       type="button"
       class="button normal-input button-default"
-      @click="showModal = true">Recent</button>
+      @click="showModal = true"
+    >
+      Recent
+    </button>
     <modal-component
       v-if="showModal"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>Recent collection objects</h3>
       </template>
       <template #body>
-        <spinner-component v-if="isLoading"/>
+        <spinner-component v-if="isLoading" />
         <table class="full_width">
           <thead>
             <tr>
@@ -35,15 +39,17 @@
               v-for="(item, index) in list"
               :key="item.id"
               class="contextMenuCells"
-              :class="{ 'even': (index % 2 == 0) }"
-              @click="sendCO(item)">
+              :class="{ even: index % 2 == 0 }"
+              @click="sendCO(item)"
+            >
               <td>{{ item.dwc_attributes.individualCount }}</td>
               <td>{{ item.dwc_attributes.family }}</td>
               <td>{{ item.dwc_attributes.genus }}</td>
               <td>{{ item.dwc_attributes.scientificName }}</td>
               <td
                 v-if="item.identifier_from_container"
-                v-html="item.object_tag"/>
+                v-html="item.object_tag"
+              />
               <td v-else>
                 {{ item.dwc_attributes.catalogNumber }}
               </td>
@@ -53,7 +59,7 @@
               <td>{{ item.dwc_attributes.county }}</td>
               <td>{{ item.dwc_attributes.verbatimLocality }}</td>
               <td>{{ item.dwc_attributes.eventDate }}</td>
-              <td v-html="item.container"/>
+              <td v-html="item.container" />
               <td>{{ item.updated_at }}</td>
             </tr>
           </tbody>
@@ -64,10 +70,9 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal'
-import SpinnerComponent from 'components/spinner'
-import { CollectionObject } from 'routes/endpoints'
+import ModalComponent from '@/components/ui/Modal'
+import SpinnerComponent from '@/components/spinner'
+import { CollectionObject } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -77,7 +82,7 @@ export default {
 
   emits: ['selected'],
 
-  data () {
+  data() {
     return {
       showModal: false,
       list: [],
@@ -86,10 +91,10 @@ export default {
   },
 
   watch: {
-    showModal (newVal) {
+    showModal(newVal) {
       if (newVal) {
         this.isLoading = true
-        CollectionObject.reportDwc({ per: 10 }).then(response => {
+        CollectionObject.reportDwc({ per: 10 }).then((response) => {
           this.list = response.body
           this.isLoading = false
         })
@@ -98,7 +103,7 @@ export default {
   },
 
   methods: {
-    sendCO (item) {
+    sendCO(item) {
       this.showModal = false
       this.$emit('selected', item)
     }

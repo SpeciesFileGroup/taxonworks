@@ -48,6 +48,7 @@ namespace :api, defaults: {format: :json} do
       get '/otus/:id/inventory/distribution', to: '/otus#api_distribution', as: :api_distribution
       get '/otus/:id/inventory/taxonomy', to: '/otus#api_taxonomy_inventory', as: :taxonomy_inventory
       get '/otus/:otu_id/inventory/images', to: '/images#api_image_inventory', as: :images_inventory
+      get '/otus/:id/inventory/dwc', to: '/otus#api_dwc_inventory', as: :dwc_inventory
       get '/otus/:id/inventory/type_material', to: '/otus#api_type_material_inventory', as: :type_material_inventory
       get '/otus/:id/inventory/nomenclature_citations', to: '/otus#api_nomenclature_citations', as: :nomenclature_citations_inventory
       get '/otus/:id', to: '/otus#api_show'
@@ -80,6 +81,8 @@ namespace :api, defaults: {format: :json} do
       get '/identifiers/autocomplete', to: '/identifiers#api_autocomplete'
       get '/identifiers/:id', to: '/identifiers#api_show'
 
+      get '/cached_maps/:id', to: '/cached_maps#api_show'
+
       get '/collecting_events', to: '/collecting_events#api_index'
       get '/collecting_events/autocomplete', to: '/collecting_events#api_autocomplete'
       get '/collecting_events/:id', to: '/collecting_events#api_show'
@@ -98,10 +101,14 @@ namespace :api, defaults: {format: :json} do
       get '/contents', to: '/contents#api_index'
       get '/contents/:id', to: '/contents#api_show'
 
+      get '/controlled_vocabulary_terms', to: '/controlled_vocabulary_terms#api_index'
+      get '/controlled_vocabulary_terms/:id', to: '/controlled_vocabulary_terms#api_show'
+
       get '/asserted_distributions', to: '/asserted_distributions#api_index'
       get '/asserted_distributions/:id', to: '/asserted_distributions#api_show'
 
       get '/data_attributes', to: '/data_attributes#api_index'
+      get '/data_attributes/brief', to: '/data_attributes#api_brief'
       get '/data_attributes/:id', to: '/data_attributes#api_show'
 
       get '/depictions/:id', to: '/depictions#api_show'
@@ -120,7 +127,6 @@ namespace :api, defaults: {format: :json} do
       get '/tags', to: '/tags#api_index'
       get '/tags/:id', to: '/tags#api_show'
 
-      # get '/controlled_vocabulary_terms'
     end
 
     # Authenticate membership at the data controller level

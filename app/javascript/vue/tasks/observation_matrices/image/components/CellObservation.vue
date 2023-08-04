@@ -68,20 +68,20 @@
 </template>
 
 <script setup>
-import DropzoneComponent from 'components/dropzone'
+import DropzoneComponent from '@/components/dropzone'
 import DraggableComponent from 'vuedraggable'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
-import SpinnerComponent from 'components/spinner'
-import VIcon from 'components/ui/VIcon/index.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
+import SpinnerComponent from '@/components/spinner'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import ButtonCitation from './ButtonCitation.vue'
 import { useStore } from 'vuex'
 import { ref, computed } from 'vue'
-import { Observation, Depiction } from 'routes/endpoints'
+import { Observation, Depiction } from '@/routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import { OBSERVATION_MEDIA } from 'constants/index'
+import { OBSERVATION_MEDIA } from '@/constants/index'
 
 const CSRF_TOKEN = document
   .querySelector('meta[name="csrf-token"]')

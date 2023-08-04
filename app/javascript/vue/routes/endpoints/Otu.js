@@ -1,5 +1,5 @@
 import baseCRUD, { annotations } from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'otus'
 const permitParams = {
@@ -18,9 +18,15 @@ export const Otu = {
 
   coordinate: (id) => AjaxCall('get', `/otus/${id}/coordinate`),
 
+  distribution: (id) =>
+    AjaxCall('get', `/otus/${id}/inventory/distribution.json`),
+
+  geoJsonDistribution: (id) =>
+    AjaxCall('get', `/otus/${id}/inventory/distribution.geojson`),
+
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 
   timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline`),
 
-  filter: params => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }

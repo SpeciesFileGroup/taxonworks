@@ -20,11 +20,11 @@
 
 <script setup>
 import { computed, ref, watch, onBeforeMount } from 'vue'
-import { ImportDataset } from 'routes/endpoints'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import VAutocomplete from 'components/ui/Autocomplete.vue'
-import DisplayList from 'components/displayList.vue'
-import { removeFromArray } from 'helpers/arrays'
+import { ImportDataset } from '@/routes/endpoints'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import DisplayList from '@/components/displayList.vue'
+import { removeFromArray } from '@/helpers/arrays'
 
 const props = defineProps({
   modelValue: {

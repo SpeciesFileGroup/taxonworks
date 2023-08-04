@@ -38,10 +38,10 @@
 </template>
 
 <script setup>
-import VBtn from 'components/ui/VBtn/index.vue'
-import VSpinner from 'components/spinner.vue'
-import { RouteNames } from 'routes/routes'
-import { ObservationMatrix } from 'routes/endpoints'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/spinner.vue'
+import { RouteNames } from '@/routes/routes'
+import { ObservationMatrix } from '@/routes/endpoints'
 import { ref } from 'vue'
 
 const props = defineProps({

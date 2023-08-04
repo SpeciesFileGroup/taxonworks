@@ -71,12 +71,12 @@
   </div>
 </template>
 <script>
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import EditInPlace from 'components/editInPlace'
-import DateComponent from 'components/ui/Date/DateFields.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import { convertToLatLongOrder } from 'helpers/geojson'
-import { GEOREFERENCE_GEOLOCATE, GEOREFERENCE_WKT } from 'constants/index.js'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import EditInPlace from '@/components/editInPlace'
+import DateComponent from '@/components/ui/Date/DateFields.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { convertToLatLongOrder } from '@/helpers/geojson'
+import { GEOREFERENCE_GEOLOCATE, GEOREFERENCE_WKT } from '@/constants/index.js'
 
 export default {
   components: {

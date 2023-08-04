@@ -31,9 +31,9 @@
 
 <script setup>
 import { ref } from 'vue'
-import VSpinner from 'components/spinner.vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import GeographicAreaMapPicker from 'components/ui/SmartSelector/GeographicAreaMapPicker.vue'
+import VSpinner from '@/components/spinner.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import GeographicAreaMapPicker from '@/components/ui/SmartSelector/GeographicAreaMapPicker.vue'
 
 const props = defineProps({
   sourceLock: {

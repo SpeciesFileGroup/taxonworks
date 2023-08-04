@@ -3,12 +3,14 @@
     <button
       type="button"
       class="button normal-input button-default"
-      @click="setModalView(true)">
+      @click="setModalView(true)"
+    >
       Add new label
     </button>
     <modal-component
       v-if="showModal"
-      @close="setModalView(false)">
+      @close="setModalView(false)"
+    >
       <template #header>
         <h3>Label form</h3>
       </template>
@@ -16,29 +18,32 @@
         <div>
           <div class="field">
             <label>Text</label>
-            <br>
+            <br />
             <textarea
               class="full_width"
               rows="10"
               type="text"
-              v-model="label.text"/>
+              v-model="label.text"
+            />
           </div>
           <div class="field">
             <label>Total</label>
-            <br>
+            <br />
             <input
               type="number"
               class="full_width"
-              v-model="label.total">
+              v-model="label.total"
+            />
           </div>
           <div class="field">
             <label>Style</label>
-            <br>
+            <br />
             <input
               type="text"
               class="full_width"
               disabled
-              v-model="label.style">
+              v-model="label.style"
+            />
           </div>
           <div class="field">
             <ul class="no_bullets">
@@ -47,7 +52,8 @@
                   <input
                     type="radio"
                     :value="type.value"
-                    v-model="label.type">
+                    v-model="label.type"
+                  />
                   {{ type.label }}
                 </label>
               </li>
@@ -57,7 +63,8 @@
             <label>
               <input
                 type="checkbox"
-                v-model="label.is_copy_edited">
+                v-model="label.is_copy_edited"
+              />
               Is copy edited
             </label>
           </div>
@@ -65,7 +72,8 @@
             <label>
               <input
                 type="checkbox"
-                v-model="label.is_printed">
+                v-model="label.is_printed"
+              />
               Is printed
             </label>
           </div>
@@ -76,15 +84,17 @@
           type="button"
           class="button normal-input button-submit"
           :disabled="!label.text.length"
-          @click="save">Save</button>
+          @click="save"
+        >
+          Save
+        </button>
       </template>
     </modal-component>
   </div>
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal.vue'
+import ModalComponent from '@/components/ui/Modal.vue'
 import Types from '../const/type'
 
 export default {
@@ -97,23 +107,20 @@ export default {
     }
   },
 
-  emits: [
-    'update:modelValue',
-    'save'
-  ],
+  emits: ['update:modelValue', 'save'],
 
   computed: {
     label: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       showModal: false,
       types: Types
@@ -122,7 +129,7 @@ export default {
 
   watch: {
     label: {
-      handler (newVal, oldVar) {
+      handler(newVal, oldVar) {
         if (newVal?.id && oldVar?.id !== newVal?.id) {
           this.showModal = true
         }
@@ -132,12 +139,12 @@ export default {
   },
 
   methods: {
-    save () {
+    save() {
       this.$emit('save', this.label)
       this.label = this.setModalView(false)
     },
 
-    newLabel () {
+    newLabel() {
       return {
         text: '',
         total: 0,
@@ -148,7 +155,7 @@ export default {
       }
     },
 
-    setModalView (value) {
+    setModalView(value) {
       this.label = !value ? undefined : this.newLabel()
       this.showModal = value
     }

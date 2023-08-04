@@ -16,10 +16,10 @@
       <h3>Clone source</h3>
     </template>
     <template #body>
+      <p>This will clone the current source.</p>
       <p>
-        This will clone the current source.
+        Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.
       </p>
-      <p>Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.</p>
       <input
         type="text"
         class="full_width"
@@ -27,7 +27,7 @@
         @keypress.enter.prevent="cloneSource()"
         ref="inputtext"
         :placeholder="`Write ${checkWord} to continue`"
-      >
+      />
     </template>
     <template #footer>
       <button
@@ -43,11 +43,10 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
-import ModalComponent from 'components/ui/Modal.vue'
-import platformKey from 'helpers/getPlatformKey'
+import ModalComponent from '@/components/ui/Modal.vue'
+import platformKey from '@/helpers/getPlatformKey'
 
 export default {
   components: {
@@ -55,15 +54,15 @@ export default {
   },
 
   computed: {
-    source () {
+    source() {
       return this.$store.getters[GetterNames.GetSource]
     },
 
-    isWordTyped () {
+    isWordTyped() {
       return this.inputValue.toUpperCase() === this.checkWord
     },
 
-    shortcuts () {
+    shortcuts() {
       const keys = {}
 
       keys[`${platformKey()}+c`] = this.openModal
@@ -72,7 +71,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       showModal: false,
       inputValue: '',
@@ -82,7 +81,7 @@ export default {
 
   watch: {
     showModal: {
-      handler (newVal) {
+      handler(newVal) {
         if (newVal) {
           this.$nextTick(() => {
             this.$refs.inputtext.focus()
@@ -93,11 +92,11 @@ export default {
   },
 
   methods: {
-    openModal () {
+    openModal() {
       this.showModal = true
     },
 
-    cloneSource () {
+    cloneSource() {
       if (!this.isWordTyped) return
       this.$store.dispatch(ActionNames.CloneSource)
       this.showModal = false
@@ -107,7 +106,7 @@ export default {
 </script>
 
 <style scoped>
-  .button-size {
-    width: 100px;
-  }
+.button-size {
+  width: 100px;
+}
 </style>

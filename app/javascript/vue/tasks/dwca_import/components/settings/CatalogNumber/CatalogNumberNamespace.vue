@@ -33,9 +33,9 @@ import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../../../store/getters/getters'
 import { ActionNames } from '../../../store/actions/actions'
-import Autocomplete from 'components/ui/Autocomplete'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import Autocomplete from '@/components/ui/Autocomplete'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   namespaceId: {
@@ -46,10 +46,14 @@ const props = defineProps({
 
 const emit = defineEmits('update')
 const store = useStore()
-const namespace = computed(() => store.getters[GetterNames.GetNamespaceFor](props.namespaceId))
+const namespace = computed(() =>
+  store.getters[GetterNames.GetNamespaceFor](props.namespaceId)
+)
 const namespaceLabel = computed(() => {
   return namespace.value
-    ? `${namespace.value.name || namespace.value.label} (${namespace.value.short_name})`
+    ? `${namespace.value.name || namespace.value.label} (${
+        namespace.value.short_name
+      })`
     : ''
 })
 
@@ -58,8 +62,7 @@ const setNamespace = ({ id }) => {
   updateCatalogNamespace(id)
 }
 
-const updateCatalogNamespace = namespaceId => {
+const updateCatalogNamespace = (namespaceId) => {
   emit('update', { namespaceId })
 }
-
 </script>

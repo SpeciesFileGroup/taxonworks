@@ -74,6 +74,7 @@
     </template>
     <search-otu
       v-else
+      class="container"
       @select="loadOtu"
     />
   </div>
@@ -81,7 +82,7 @@
 
 <script>
 import HeaderBar from './components/HeaderBar'
-import SpinnerComponent from 'components/spinner'
+import SpinnerComponent from '@/components/spinner'
 import ImageGallery from './components/gallery/Main'
 import ContentComponent from './components/Content'
 import AssertedDistribution from './components/AssertedDistribution'
@@ -95,16 +96,16 @@ import TypeSection from './components/TypeSection.vue'
 import CommonNames from './components/CommonNames'
 import DescriptionComponent from './components/Description.vue'
 import Descendants from './components/descendants'
-import Autocomplete from 'components/ui/Autocomplete'
+import Autocomplete from '@/components/ui/Autocomplete'
 import SearchOtu from './components/SearchOtu'
 import Draggable from 'vuedraggable'
 import SelectOtu from './components/selectOtu'
 import { ActionNames } from './store/actions/actions'
-import { TaxonName, Otu, User } from 'routes/endpoints'
+import { TaxonName, Otu, User } from '@/routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import COMPONENT_NAMES from './const/componentNames'
-import ShowForThisGroup from 'tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
+import ShowForThisGroup from '@/tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
 
 export default {
   components: {
@@ -197,15 +198,21 @@ export default {
         this.navigate = response.body
       })
     } else if (taxonId) {
-      TaxonName.otus(taxonId).then((response) => {
-        if (response.body.length > 1) {
-          this.otuList = response.body
+      TaxonName.otus(taxonId).then(({ body }) => {
+        if (!body.length) {
+          TW.workbench.alert.create(
+            `No page available. There is no OTU for this taxon name.`,
+            'notice'
+          )
+          return
+        }
+
+        if (body.length > 1) {
+          this.otuList = body
         } else {
-          this.$store
-            .dispatch(ActionNames.LoadOtus, response.body[0].id)
-            .then(() => {
-              this.isLoading = false
-            })
+          this.$store.dispatch(ActionNames.LoadOtus, body[0].id).then(() => {
+            this.isLoading = false
+          })
         }
       })
     } else {

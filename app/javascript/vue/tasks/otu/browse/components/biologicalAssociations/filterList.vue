@@ -24,7 +24,7 @@
             v-model="selected"
             class="button normal-input button-default"
           />
-          <span v-html="item.object_tag" />
+          <span v-html="item.label" />
         </label>
       </li>
     </ul>

@@ -13,7 +13,7 @@ module Ranks
   end
 
   # @param code [Symbol]
-  # @param rank [Symbol] 
+  # @param rank [Symbol, String]
   # @return [String] representing the name of the NomenclaturalRank class
   #   Ranks::lookup(:iczn, 'superfamily')   # => 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily'
   def self.lookup(code, rank)

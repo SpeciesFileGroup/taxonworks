@@ -1,20 +1,22 @@
 <template>
   <div>
     <h3>Determinations</h3>
-    <taxon-determination-form @onAdd="addDetermination"/>
+    <taxon-determination-form @onAdd="addDetermination" />
     <draggable
       class="table-entrys-list"
       element="ul"
       v-model="list"
-      @end="updatePosition">
+      @end="updatePosition"
+    >
       <template #item="{ element, index }">
         <li class="list-complete-item flex-separate middle">
-          <span v-html="element.object_tag"/>
+          <span v-html="element.object_tag" />
           <div class="horizontal-left-content">
             <span
               class="circle-button btn-delete"
               :class="{ 'button-default': !element.id }"
-              @click="removeTaxonDetermination(index)"/>
+              @click="removeTaxonDetermination(index)"
+            />
           </div>
         </li>
       </template>
@@ -23,10 +25,8 @@
 </template>
 
 <script>
-
-import TaxonDeterminationForm from 'components/TaxonDetermination/TaxonDeterminationForm.vue'
+import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
 import Draggable from 'vuedraggable'
-
 
 export default {
   components: {
@@ -45,27 +45,27 @@ export default {
 
   computed: {
     list: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
   },
 
   methods: {
-    addDetermination (taxonDetermination) {
+    addDetermination(taxonDetermination) {
       this.list.push(taxonDetermination)
     },
 
-    updatePosition () {
+    updatePosition() {
       for (let i = 0; i < this.list.length; i++) {
-        this.list[i].position = (i + 1)
+        this.list[i].position = i + 1
       }
     },
 
-    removeTaxonDetermination (index) {
+    removeTaxonDetermination(index) {
       this.list.splice(index, 1)
     }
   }

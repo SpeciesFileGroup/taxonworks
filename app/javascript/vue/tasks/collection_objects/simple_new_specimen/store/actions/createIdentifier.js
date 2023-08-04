@@ -1,8 +1,8 @@
-import { Identifier } from 'routes/endpoints'
+import { Identifier } from '@/routes/endpoints'
 import {
   IDENTIFIER_LOCAL_CATALOG_NUMBER,
   COLLECTION_OBJECT
-} from 'constants/index'
+} from '@/constants/index'
 
 export default function (coId) {
   const payload = {

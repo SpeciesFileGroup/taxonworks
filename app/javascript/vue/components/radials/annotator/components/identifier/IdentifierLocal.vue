@@ -24,7 +24,7 @@
           placeholder="Identifier"
           type="text"
           v-model="identifier"
-        >
+        />
       </div>
     </div>
     <button
@@ -40,8 +40,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 const props = defineProps({
   objectType: {
@@ -59,10 +59,8 @@ const namespace = ref(null)
 const identifier = ref(null)
 const emit = defineEmits(['create'])
 
-const validateFields = computed(() =>
-  identifier.value &&
-  namespace.value?.id &&
-  props.type
+const validateFields = computed(
+  () => identifier.value && namespace.value?.id && props.type
 )
 
 const emitCreate = () => {
@@ -71,5 +69,4 @@ const emitCreate = () => {
     identifier: identifier.value
   })
 }
-
 </script>

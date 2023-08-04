@@ -106,13 +106,13 @@
 </template>
 
 <script>
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 import ExtendResult from './extendResult'
 import RanksList from '../const/ranks'
-import ButtonImageMatrix from 'tasks/observation_matrices/dashboard/components/buttonImageMatrix.vue'
+import ButtonImageMatrix from '@/tasks/observation_matrices/dashboard/components/buttonImageMatrix.vue'
 import scrollToTop from '../utils/scrollToTop.js'
-import RadialMatrix from 'components/radials/matrix/radial.vue'
-import { OTU } from 'constants/index.js'
+import RadialMatrix from '@/components/radials/matrix/radial.vue'
+import { OTU } from '@/constants/index.js'
 import { MutationNames } from '../store/mutations/mutations'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'

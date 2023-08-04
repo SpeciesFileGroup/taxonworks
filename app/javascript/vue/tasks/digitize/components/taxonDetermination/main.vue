@@ -24,13 +24,12 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
-import TaxonDeterminationForm from 'components/TaxonDetermination/TaxonDeterminationForm.vue'
-import TaxonDeterminationList from 'components/TaxonDetermination/TaxonDeterminationList.vue'
-import BlockLayout from 'components/layout/BlockLayout.vue'
+import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
+import TaxonDeterminationList from '@/components/TaxonDetermination/TaxonDeterminationList.vue'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 
 export default {
   components: {
@@ -40,39 +39,39 @@ export default {
   },
 
   computed: {
-    collectionObject () {
+    collectionObject() {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
 
     locked: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetLocked]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetLocked, value)
       }
     },
 
     list: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetTaxonDeterminations]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetTaxonDeterminations, value)
       }
     }
   },
 
   methods: {
-    addDetermination (determination) {
+    addDetermination(determination) {
       this.$store.commit(MutationNames.AddTaxonDetermination, determination)
     },
 
-    removeTaxonDetermination (determination) {
+    removeTaxonDetermination(determination) {
       this.$store.dispatch(ActionNames.RemoveTaxonDetermination, determination)
     },
 
-    editTaxonDetermination (item) {
+    editTaxonDetermination(item) {
       this.$refs.taxonDeterminationComponent.setDetermination({
         id: item.id,
         uuid: item.uuid,
@@ -90,18 +89,17 @@ export default {
 </script>
 
 <style lang="scss">
-  #taxon-determination-digitize {
-    label {
-      display: block;
-    }
-    li label {
-      display: inline;
-    }
-    .role-picker {
-      .vue-autocomplete-input {
-        max-width: 150px;
-      }
+#taxon-determination-digitize {
+  label {
+    display: block;
+  }
+  li label {
+    display: inline;
+  }
+  .role-picker {
+    .vue-autocomplete-input {
+      max-width: 150px;
     }
   }
-
+}
 </style>

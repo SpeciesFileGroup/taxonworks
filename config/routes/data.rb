@@ -31,6 +31,7 @@ end
 resources :asserted_distributions do
   concerns [:data_routes]
   collection do
+    post :batch_move
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
     match :filter, to: 'asserted_distributions#index', via: [:get, :post]
@@ -60,6 +61,9 @@ resources :biological_relationships do
   collection do
     get :select_options, defaults: {format: :json}
   end
+end
+
+resources :cached_maps, only: [:show, :update], defaults: {format: :json} do
 end
 
 resources :character_states do
@@ -167,6 +171,8 @@ resources :collecting_events do
 
     post :preview_gpx_batch_load
     post :create_gpx_batch_load
+
+    post :batch_update
   end
 end
 
@@ -213,6 +219,8 @@ resources :data_attributes, except: [:show] do
   collection do
     post :batch_create, defaults: {format: :json}
     get 'value_autocomplete', defaults: {format: :json}
+    get :brief, defaults: {format: :json}
+    post :brief, defaults: {format: :json} # for length
   end
 end
 
@@ -281,7 +289,6 @@ resources :extracts do
 end
 
 resources :geographic_areas, only: [:index, :show] do
-
   collection do
     get 'download'
     get 'list'
@@ -297,7 +304,6 @@ resources :geographic_areas, only: [:index, :show] do
   member do
     get 'related'
   end
-
 end
 
 resources :gene_attributes do
@@ -504,6 +510,8 @@ resources :notes, except: [:show] do
   concerns [:data_routes]
 end
 
+
+
 resources :otus do
   concerns [:data_routes]
   resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
@@ -539,6 +547,8 @@ resources :otus do
     get :navigation, defaults: {format: :json}
     get :breadcrumbs, defaults: {format: :json}
     get :coordinate, defaults: {format: :json}
+
+    get 'inventory/distribution', action: :distribution, defaults: {format: :json}
   end
 
 end

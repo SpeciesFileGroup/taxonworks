@@ -73,12 +73,12 @@
 
 <script setup>
 import { ref } from 'vue'
-import { LoanItem } from 'routes/endpoints'
-import { LOAN_STATUS_LIST } from 'constants/index.js'
-import VDateNow from 'components/ui/Date/DateNow.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem'
+import { LoanItem } from '@/routes/endpoints'
+import { LOAN_STATUS_LIST } from '@/constants/index.js'
+import VDateNow from '@/components/ui/Date/DateNow.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem'
 
 const props = defineProps({
   parameters: {

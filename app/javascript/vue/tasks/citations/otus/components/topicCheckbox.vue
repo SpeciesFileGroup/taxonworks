@@ -5,24 +5,24 @@
         v-model="checked"
         type="checkbox"
         @click="setOrRemoveTopic()"
-        :disabled="disable">
+        :disabled="disable"
+      />
       {{ topic.name }}
     </label>
   </div>
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { CitationTopic } from 'routes/endpoints'
+import { CitationTopic } from '@/routes/endpoints'
 
 export default {
   computed: {
-    disable () {
+    disable() {
       return this.$store.getters[GetterNames.ObjectsSelected]
     },
-    topicsSelected () {
+    topicsSelected() {
       return this.$store.getters[GetterNames.GetSetTopics]
     }
   },
@@ -33,7 +33,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       checked: false,
       citation_topic: {
@@ -44,8 +44,8 @@ export default {
   },
 
   watch: {
-    topicsSelected:{
-      handler () {
+    topicsSelected: {
+      handler() {
         this.checkTopics()
       },
       deep: true
@@ -53,10 +53,10 @@ export default {
   },
 
   methods: {
-    checkTopics () {
+    checkTopics() {
       let checked = false
 
-      this.$store.getters[GetterNames.GetSetTopics].forEach(item => {
+      this.$store.getters[GetterNames.GetSetTopics].forEach((item) => {
         if (item.topic_id === this.topic.id) {
           checked = true
           this.citation_topic = item
@@ -65,26 +65,29 @@ export default {
 
       this.checked = checked
     },
-    setOrRemoveTopic () {
+    setOrRemoveTopic() {
       if (!this.checked) {
         this.createCitation()
       } else {
         this.removeCitationTopic()
       }
     },
-    createCitation () {
+    createCitation() {
       const citation_topic = {
         topic_id: this.topic.id,
         citation_id: this.$store.getters[GetterNames.GetCitationSelected].id
       }
 
-      CitationTopic.create({ citation_topic }).then(response => {
+      CitationTopic.create({ citation_topic }).then((response) => {
         this.$store.commit(MutationNames.AddTopicSelected, response.body)
       })
     },
-    removeCitationTopic () {
+    removeCitationTopic() {
       CitationTopic.destroy(this.citation_topic.id).then(() => {
-        this.$store.commit(MutationNames.RemoveTopicSelected, this.citation_topic.id)
+        this.$store.commit(
+          MutationNames.RemoveTopicSelected,
+          this.citation_topic.id
+        )
       })
     }
   }

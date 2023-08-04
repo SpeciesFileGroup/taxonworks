@@ -1,6 +1,6 @@
 <template>
   <div class="three_quarter_width margin-medium-left">
-    <spinner-component v-if="isLoading"/>
+    <spinner-component v-if="isLoading" />
     <table class="full_width">
       <thead>
         <tr>
@@ -16,7 +16,8 @@
       <tbody>
         <tr
           v-for="(item, index) in list"
-          :key="item.id">
+          :key="item.id"
+        >
           <td
             class="line-nowrap"
             v-html="item.object_tag"
@@ -29,7 +30,8 @@
           <td>
             <span
               class="button button-circle btn-edit"
-              @click="editItem(index)"/>
+              @click="editItem(index)"
+            />
           </td>
           <td>
             <pin-component
@@ -43,7 +45,8 @@
           <td>
             <span
               class="button button-circle btn-delete"
-              @click="removeCTV(index)"/>
+              @click="removeCTV(index)"
+            />
           </td>
         </tr>
       </tbody>
@@ -53,10 +56,9 @@
 </template>
 
 <script>
-
-import { ControlledVocabularyTerm } from 'routes/endpoints'
-import SpinnerComponent from 'components/spinner.vue'
-import PinComponent from 'components/ui/Pinboard/VPin.vue'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
+import SpinnerComponent from '@/components/spinner.vue'
+import PinComponent from '@/components/ui/Pinboard/VPin.vue'
 
 export default {
   components: {
@@ -72,7 +74,7 @@ export default {
 
   emits: ['edit'],
 
-  data () {
+  data() {
     return {
       list: [],
       isLoading: false,
@@ -82,13 +84,15 @@ export default {
 
   watch: {
     type: {
-      handler (newVal, oldVal) {
+      handler(newVal, oldVal) {
         if (newVal !== oldVal) {
           this.isLoading = true
-          ControlledVocabularyTerm.where({ 'type[]': newVal }).then(response => {
-            this.list = response.body
-            this.isLoading = false
-          })
+          ControlledVocabularyTerm.where({ 'type[]': newVal }).then(
+            (response) => {
+              this.list = response.body
+              this.isLoading = false
+            }
+          )
         }
       },
       immediate: true
@@ -96,23 +100,29 @@ export default {
   },
 
   methods: {
-    editItem (index) {
+    editItem(index) {
       this.$emit('edit', this.list[index])
     },
 
-    removeCTV (index) {
-      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+    removeCTV(index) {
+      if (
+        window.confirm(
+          "You're trying to delete this record. Are you sure want to proceed?"
+        )
+      ) {
         this.isLoading = true
-        ControlledVocabularyTerm.destroy(this.list[index].id).then(_ => {
-          this.list.splice(index, 1)
-        }).finally(_ => {
-          this.isLoading = false
-        })
+        ControlledVocabularyTerm.destroy(this.list[index].id)
+          .then((_) => {
+            this.list.splice(index, 1)
+          })
+          .finally((_) => {
+            this.isLoading = false
+          })
       }
     },
 
-    addCTV (item) {
-      const index = this.list.findIndex(ctv => ctv.id === item.id)
+    addCTV(item) {
+      const index = this.list.findIndex((ctv) => ctv.id === item.id)
 
       if (index > -1) {
         this.list[index] = item
@@ -121,13 +131,13 @@ export default {
       }
     },
 
-    sortTable (sortProperty) {
+    sortTable(sortProperty) {
       this.list.sort((a, b) => {
         if (a[sortProperty] < b[sortProperty]) {
-          return (this.ascending ? -1 : 1)
+          return this.ascending ? -1 : 1
         }
         if (a[sortProperty] > b[sortProperty]) {
-          return (this.ascending ? 1 : -1)
+          return this.ascending ? 1 : -1
         }
         return 0
       })

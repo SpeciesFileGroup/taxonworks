@@ -24,9 +24,9 @@
   </div>
 </template>
 <script setup>
-import ImageViewer from 'components/ui/ImageViewer/ImageViewer'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   depiction: {

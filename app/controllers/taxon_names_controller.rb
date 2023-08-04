@@ -13,7 +13,7 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(params).all
+        @taxon_names = ::Queries::TaxonName::Filter.new(params).all
         .page(params[:page])
         .per(params[:per])
       }
@@ -32,7 +32,6 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/1/edit
   def edit
-    @taxon_name.source = Source.new if !@taxon_name.source
   end
 
   # POST /taxon_names
@@ -94,7 +93,7 @@ class TaxonNamesController < ApplicationController
 
   def autocomplete
     render json: {} and return if params[:term].blank?
-    @taxon_names = Queries::TaxonName::Autocomplete.new(
+    @taxon_names = ::Queries::TaxonName::Autocomplete.new(
       params[:term],
       **autocomplete_params
     ).autocomplete
@@ -138,7 +137,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def rank_table
-    @query = Queries::TaxonName::Tabular.new(
+    @query = ::Queries::TaxonName::Tabular.new(
       ancestor_id: params.require(:ancestor_id),
       ranks: params.require(:ranks),
       fieldsets: params[:fieldsets],
@@ -226,7 +225,7 @@ class TaxonNamesController < ApplicationController
 
   # GET /api/v1/taxon_names
   def api_index
-    @taxon_names = Queries::TaxonName::Filter.new(params.merge!(api: true)).all
+    @taxon_names = ::Queries::TaxonName::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('taxon_names.id')
       .page(params[:page])

@@ -44,13 +44,13 @@
 </template>
 
 <script setup>
-import SpinnerComponent from 'components/spinner'
-import ModalComponent from 'components/ui/Modal'
+import SpinnerComponent from '@/components/spinner'
+import ModalComponent from '@/components/ui/Modal'
 import newSource from '../const/source'
-import setParam from 'helpers/setParam'
+import setParam from '@/helpers/setParam'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import { Source, Serial } from 'routes/endpoints'
+import { Source, Serial } from '@/routes/endpoints'
 import { ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 

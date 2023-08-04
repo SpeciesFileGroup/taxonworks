@@ -87,15 +87,15 @@
 import CRUD from '../../request/crud.js'
 import annotatorExtend from '../annotatorExtend.js'
 import TableList from './table.vue'
-import FormCitation from 'components/Form/FormCitation.vue'
+import FormCitation from '@/components/Form/FormCitation.vue'
 import TopicForm from './topic.vue'
 import TopicPages from './pagesUpdate'
 import HandleCitations from './handleOriginalModal'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import makeCitation from 'factory/Citation'
-import { Citation, CitationTopic } from 'routes/endpoints'
-import { addToArray } from 'helpers/arrays'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import makeCitation from '@/factory/Citation'
+import { Citation, CitationTopic } from '@/routes/endpoints'
+import { addToArray } from '@/helpers/arrays'
 
 const EXTEND_PARAMS = ['source', 'citation_topics']
 

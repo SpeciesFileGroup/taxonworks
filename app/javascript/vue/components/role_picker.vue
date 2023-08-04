@@ -150,14 +150,14 @@
 </template>
 
 <script>
-import Autocomplete from 'components/ui/Autocomplete.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 import Draggable from 'vuedraggable'
 import DefaultPin from './getDefaultPin'
-import OrganizationPicker from 'components/organizationPicker.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import { sortArray } from 'helpers/arrays'
-import { People } from 'routes/endpoints'
+import OrganizationPicker from '@/components/organizationPicker.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { sortArray } from '@/helpers/arrays'
+import { People } from '@/routes/endpoints'
 
 export default {
   components: {

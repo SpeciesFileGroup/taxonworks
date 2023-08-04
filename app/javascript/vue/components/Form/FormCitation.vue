@@ -77,7 +77,7 @@
         medium
         @click="setLastCitation"
       >
-        Clone last citation
+        Clone my last citation
       </VBtn>
       <slot name="footer" />
     </div>
@@ -85,15 +85,15 @@
 </template>
 
 <script setup>
-import { Source, Citation } from 'routes/endpoints'
+import { Source, Citation } from '@/routes/endpoints'
 import { computed, ref, watch, onMounted } from 'vue'
-import { convertType } from 'helpers/types'
-import makeCitation from 'factory/Citation'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VLock from 'components/ui/VLock'
-import { getCurrentUserId } from 'helpers/user'
+import { convertType } from '@/helpers/types'
+import makeCitation from '@/factory/Citation'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VLock from '@/components/ui/VLock'
+import { getCurrentUserId } from '@/helpers/user'
 
 const STORAGE = {
   lock: 'radialObject::source::lock',

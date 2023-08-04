@@ -24,9 +24,10 @@ class Topic < ControlledVocabularyTerm
 
   # TODO: Deprecate for CVT + params (if not already done)
   def self.find_for_autocomplete(params)
-    term = "#{params[:term]}%"
-    where_string = "name LIKE '#{term}' OR name ILIKE '%#{term}' OR name = '#{term}' OR definition ILIKE '%#{term}'"
-    ControlledVocabularyTerm.where(where_string).where(project_id: params[:project_id], type: 'Topic')
+    term = params[:term]
+    ControlledVocabularyTerm
+      .where('name ILIKE ? OR name = ? OR definition ILIKE ?', "%#{term}%", term, "%#{term}%")
+      .where(project_id: params[:project_id], type: 'Topic')
   end
 
   # @param used_on [String] one of `Citation` (default) or `Content`

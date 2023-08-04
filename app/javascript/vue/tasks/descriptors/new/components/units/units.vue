@@ -3,18 +3,20 @@
     <label>Default units</label>
     <select
       v-model="descriptor.default_unit"
-      class="normal-input">
+      class="normal-input"
+    >
       <option
         v-for="(label, key) in list"
         :key="key"
-        :value="key">{{ key }}: {{ label }}
+        :value="key"
+      >
+        {{ key }}: {{ label }}
       </option>
     </select>
   </div>
 </template>
 <script>
-
-import { Descriptor } from 'routes/endpoints'
+import { Descriptor } from '@/routes/endpoints'
 
 export default {
   props: {
@@ -25,28 +27,28 @@ export default {
   },
 
   computed: {
-    validateFields () {
+    validateFields() {
       return this.descriptor.name && this.descriptor.default_unit
     },
 
     descriptor: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set () {
+      set() {
         this.$emit('update:modelValue', this.value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       list: undefined
     }
   },
 
-  created () {
-    Descriptor.units().then(response => {
+  created() {
+    Descriptor.units().then((response) => {
       this.list = response.body
     })
   }

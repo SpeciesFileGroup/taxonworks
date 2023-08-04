@@ -1,10 +1,13 @@
 import { makeInitialState } from '../store'
 import { MutationNames } from '../mutations/mutations'
-import { RouteNames } from 'routes/routes'
-import SetParam from 'helpers/setParam'
-import incrementIdentifier from 'tasks/digitize/helpers/incrementIdentifier.js'
+import { RouteNames } from '@/routes/routes'
+import SetParam from '@/helpers/setParam'
+import incrementIdentifier from '@/tasks/digitize/helpers/incrementIdentifier.js'
 
-export default ({ state: { collectingEvent, tripCode, preferences }, commit }) => {
+export default ({
+  state: { collectingEvent, tripCode, preferences },
+  commit
+}) => {
   const newStore = {
     ...makeInitialState(),
     preferences

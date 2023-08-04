@@ -12,7 +12,10 @@ class TypeMaterialsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @type_materials = TypeMaterial.where(filter_params).with_project_id(sessions_current_project_id)
+        @type_materials = TypeMaterial.where(filter_params)
+        .with_project_id(sessions_current_project_id)
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -29,7 +32,6 @@ class TypeMaterialsController < ApplicationController
 
   # GET /type_materials/1/edit
   def edit
-    @type_material.source = Source.new if !@type_material.source
   end
 
   # POST /type_materials

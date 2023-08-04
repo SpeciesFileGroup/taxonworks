@@ -70,8 +70,8 @@
 
 <script setup>
 import { ref, watch, computed, onBeforeMount } from 'vue'
-import ajaxCall from 'helpers/ajaxCall'
-import AttributeForm from 'components/Filter/Facets/CollectingEvent/FacetCollectingEvent/AttributeForm.vue'
+import ajaxCall from '@/helpers/ajaxCall'
+import AttributeForm from '@/components/Filter/Facets/CollectingEvent/FacetCollectingEvent/AttributeForm.vue'
 
 const props = defineProps({
   modelValue: {

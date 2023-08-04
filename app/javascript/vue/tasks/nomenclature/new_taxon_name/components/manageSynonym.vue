@@ -11,23 +11,30 @@
         <spinner-component
           full-screen
           legend="Saving changes..."
-          :logo-size="{ width: '100px', height: '100px'}"
-          v-if="saving"/>
+          :logo-size="{ width: '100px', height: '100px' }"
+          v-if="saving"
+        />
         <spinner-component
           legend="Loading..."
-          :logo-size="{ width: '100px', height: '100px'}"
-          v-if="isLoading"/>
+          :logo-size="{ width: '100px', height: '100px' }"
+          v-if="isLoading"
+        />
         <div>
-          <p>This name is invalid. The valid name is <span v-html="validTaxon.name"/></p>
+          <p>
+            This name is invalid. The valid name is
+            <span v-html="validTaxon.name" />
+          </p>
           <div class="horizontal-right-content">
             <button
               class="button normal-input button-default separate-right"
-              @click="selectAll">
+              @click="selectAll"
+            >
               All
             </button>
             <button
               class="button normal-input button-default"
-              @click="selected = []">
+              @click="selected = []"
+            >
               None
             </button>
           </div>
@@ -50,7 +57,7 @@
                 <td>
                   {{ child.cached_is_valid ? 'Yes' : 'No' }}
                 </td>
-                <td v-html="child.parent.name"/>
+                <td v-html="child.parent.name" />
                 <td>
                   <autocomplete
                     url="/taxon_names/autocomplete"
@@ -58,8 +65,12 @@
                     min="2"
                     label="label"
                     @getItem="addPreSelected(child.id, $event.id)"
-                    :add-params="{ type: 'Protonym', 'nomenclature_group[]': 'Genus' }"
-                    :placeholder="validTaxon.name"/>
+                    :add-params="{
+                      type: 'Protonym',
+                      'nomenclature_group[]': 'Genus'
+                    }"
+                    :placeholder="validTaxon.name"
+                  />
                 </td>
                 <td>
                   <div class="horizontal-left-content">
@@ -74,7 +85,8 @@
                   <input
                     :value="child.id"
                     type="checkbox"
-                    v-model="selected">
+                    v-model="selected"
+                  />
                 </td>
               </tr>
             </tbody>
@@ -82,7 +94,8 @@
           <button
             class="button normal-input button-submit"
             :disabled="!selected.length"
-            @click="confirmSave">
+            @click="confirmSave"
+          >
             Save
           </button>
         </div>
@@ -90,26 +103,30 @@
     </block-layout>
     <modal-component
       v-if="showModal"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>Move taxon names</h3>
       </template>
       <template #body>
         <p>
-          This will change all taxon parents. Are you sure you want to proceed? Type "MOVE" to proceed.
+          This will change all taxon parents. Are you sure you want to proceed?
+          Type "MOVE" to proceed.
         </p>
         <input
           type="text"
           class="full_width"
           v-model="moveInput"
-          placeholder="Wirte MOVE to continue">
+          placeholder="Wirte MOVE to continue"
+        />
       </template>
       <template #footer>
         <button
           type="button"
           class="button normal-input button-submit"
           :disabled="checkInput"
-          @click="saveTaxonNames()">
+          @click="saveTaxonNames()"
+        >
           Move all
         </button>
       </template>
@@ -118,14 +135,13 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
-import { TaxonName } from 'routes/endpoints'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import BlockLayout from 'components/layout/BlockLayout'
-import ModalComponent from 'components/ui/Modal'
-import SpinnerComponent from 'components/spinner'
-import Autocomplete from 'components/ui/Autocomplete'
+import { TaxonName } from '@/routes/endpoints'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import BlockLayout from '@/components/layout/BlockLayout'
+import ModalComponent from '@/components/ui/Modal'
+import SpinnerComponent from '@/components/spinner'
+import Autocomplete from '@/components/ui/Autocomplete'
 
 export default {
   components: {
@@ -162,8 +178,8 @@ export default {
   watch: {
     taxon: {
       handler(newVal) {
-        if (newVal && !newVal.cached_is_valid) {
-          TaxonName.find(this.taxon.cached_valid_taxon_name_id).then(res => {
+        if (newVal?.id && !newVal.cached_is_valid) {
+          TaxonName.find(this.taxon.cached_valid_taxon_name_id).then((res) => {
             this.validTaxon = res.body
             this.isLoading = true
             TaxonName.where({
@@ -171,8 +187,10 @@ export default {
               taxon_name_type: 'Protonym',
               per: 500,
               extend: ['parent']
-            }).then(response => {
-              this.childrenList = response.body.filter(item => item.id !== this.taxon.id)
+            }).then((response) => {
+              this.childrenList = response.body.filter(
+                (item) => item.id !== this.taxon.id
+              )
               this.isLoading = false
             })
           })
@@ -182,17 +200,17 @@ export default {
     }
   },
   methods: {
-    selectAll () {
+    selectAll() {
       this.selected = this.childrenList.map((children) => children.id)
     },
 
-    loadTaxon (id) {
+    loadTaxon(id) {
       if (window.confirm('Are you sure you want to load this taxon name?')) {
-        window.open(`/tasks/nomenclature/new_taxon_name/${id}`,`_self`)
+        window.open(`/tasks/nomenclature/new_taxon_name/${id}`, `_self`)
       }
     },
 
-    confirmSave () {
+    confirmSave() {
       if (this.selected.length >= this.maxSelect) {
         this.showModal = true
       } else {
@@ -210,31 +228,41 @@ export default {
       this.moveInput = ''
 
       this.selected.forEach((id, index) => {
-        const findPreSelected = this.preSelected.find(children => {
+        const findPreSelected = this.preSelected.find((children) => {
           return children.childrenId === id
         })
 
-        promises.push(TaxonName.update(id, {
-          taxon_name: {
-            parent_id: findPreSelected
-              ? findPreSelected.parentId
-              : this.taxon.cached_valid_taxon_name_id
-          }
-        }))
+        promises.push(
+          TaxonName.update(id, {
+            taxon_name: {
+              parent_id: findPreSelected
+                ? findPreSelected.parentId
+                : this.taxon.cached_valid_taxon_name_id
+            }
+          })
+        )
       })
 
-      Promise.all(promises).then(() => {
-        this.childrenList = this.childrenList.filter(children => !this.selected.includes(children.id))
-        this.selected = []
-        this.preSelected = []
-        this.saving = false
-        TW.workbench.alert.create('Taxon name was successfully moved.', 'notice')
-      }, (response) => {
-        this.saving = false
-      })
+      Promise.all(promises).then(
+        () => {
+          this.childrenList = this.childrenList.filter(
+            (children) => !this.selected.includes(children.id)
+          )
+          this.selected = []
+          this.preSelected = []
+          this.saving = false
+          TW.workbench.alert.create(
+            'Taxon name was successfully moved.',
+            'notice'
+          )
+        },
+        (response) => {
+          this.saving = false
+        }
+      )
     },
 
-    addPreSelected (childrenId, parentId) {
+    addPreSelected(childrenId, parentId) {
       this.preSelected.push({
         childrenId: childrenId,
         parentId: parentId

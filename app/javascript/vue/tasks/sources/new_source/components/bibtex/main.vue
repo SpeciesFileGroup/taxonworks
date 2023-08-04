@@ -7,7 +7,7 @@
         v-for="(column, key) in columns"
         v-model="columns[key]"
         :key="key"
-        :item-key="element => element"
+        :item-key="(element) => element"
         :disabled="!sortable"
         :group="{ name: 'components' }"
         @end="updatePreferences"
@@ -25,7 +25,6 @@
 </template>
 
 <script>
-
 import BibtexType from './type'
 import BibtexTitle from './title'
 import BibtexAuthors from './author'
@@ -58,7 +57,7 @@ import Draggable from 'vuedraggable'
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import { User } from 'routes/endpoints'
+import { User } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -94,25 +93,55 @@ export default {
 
   computed: {
     preferences: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetPreferences]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetPreferences, value)
       }
     },
-    sortable () {
+    sortable() {
       return this.$store.getters[GetterNames.GetSettings].sortable
     }
   },
 
-  data () {
+  data() {
     return {
       disableDraggable: false,
       columns: {
-        componentsOrderOne: ['BibtexType', 'BibtexTitle', 'BibtexAuthors', 'BibtexDate', 'BibtexSerial', 'BibtexVolume', 'BibtexLanguageId', 'BibtexChapter', 'BibtexBookTitle', 'BibtexEdition', 'BibtexSeries'],
-        componentsOrderTwo: ['BibtexSourceEditor', 'BibtexOrganization', 'BibtexInstitution', 'BibtexHowpublished', 'BibtexPublisher', 'BibtexAddress', 'BibtexSchool', 'BibtexCopyright', 'BibtexTranslator', 'BibtexLanguage', 'BibtexAbstract', 'BibtexKey', 'BibtexUrl'],
-        componentsOrderThree: ['BibtexVerbatim', 'BibtexCrosslinks', 'BibtexTwAttributes']
+        componentsOrderOne: [
+          'BibtexType',
+          'BibtexTitle',
+          'BibtexAuthors',
+          'BibtexDate',
+          'BibtexSerial',
+          'BibtexVolume',
+          'BibtexLanguageId',
+          'BibtexChapter',
+          'BibtexBookTitle',
+          'BibtexEdition',
+          'BibtexSeries'
+        ],
+        componentsOrderTwo: [
+          'BibtexSourceEditor',
+          'BibtexOrganization',
+          'BibtexInstitution',
+          'BibtexHowpublished',
+          'BibtexPublisher',
+          'BibtexAddress',
+          'BibtexSchool',
+          'BibtexCopyright',
+          'BibtexTranslator',
+          'BibtexLanguage',
+          'BibtexAbstract',
+          'BibtexKey',
+          'BibtexUrl'
+        ],
+        componentsOrderThree: [
+          'BibtexVerbatim',
+          'BibtexCrosslinks',
+          'BibtexTwAttributes'
+        ]
       },
       keyStorage: 'tasks::newsource::bibtex'
     }
@@ -120,9 +149,16 @@ export default {
 
   watch: {
     preferences: {
-      handler () {
+      handler() {
         if (this.preferences.hasOwnProperty('layout')) {
-          if (this.preferences.layout[this.keyStorage] && Object.keys(this.columns).every((key) => Object.keys(this.preferences.layout[this.keyStorage]).includes(key)))
+          if (
+            this.preferences.layout[this.keyStorage] &&
+            Object.keys(this.columns).every((key) =>
+              Object.keys(this.preferences.layout[this.keyStorage]).includes(
+                key
+              )
+            )
+          )
             this.columns = this.preferences.layout[this.keyStorage]
         }
       },
@@ -132,12 +168,14 @@ export default {
   },
 
   methods: {
-    setDraggable (mode) {
+    setDraggable(mode) {
       this.disableDraggable = mode
     },
 
-    updatePreferences () {
-      User.update(this.preferences.id, { user: { layout: { [this.keyStorage]: this.columns } } }).then(response => {
+    updatePreferences() {
+      User.update(this.preferences.id, {
+        user: { layout: { [this.keyStorage]: this.columns } }
+      }).then((response) => {
         this.preferences.layout = response.body.preferences
         this.columns = response.body.preferences.layout[this.keyStorage]
       })
@@ -147,22 +185,22 @@ export default {
 </script>
 
 <style lang="scss">
-  .vue-new-source-task-bibtex {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
+.vue-new-source-task-bibtex {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
 
-    textarea {
-      width: 100%;
-      height: 80px;
-    }
-
-    > div {
-      margin-right: 14px;
-    }
-
-    input[type="text"] {
-      width: 100%;
-    }
+  textarea {
+    width: 100%;
+    height: 80px;
   }
+
+  > div {
+    margin-right: 14px;
+  }
+
+  input[type='text'] {
+    width: 100%;
+  }
+}
 </style>

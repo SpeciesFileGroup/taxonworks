@@ -1,4 +1,4 @@
-import { COMBINATION } from 'constants/index.js'
+import { COMBINATION } from '@/constants/index.js'
 
 export function getTaxonNameStatus(taxon) {
   if (taxon.type === COMBINATION) {

@@ -81,7 +81,10 @@ class Georeference < ApplicationRecord
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Confidences # qualitative, not spatial
+  include Shared::Maps
   include Shared::IsData
+
+  include Shared::Maps
 
   attr_accessor :iframe_response # used to handle the geolocate from Tulane response
 
@@ -92,14 +95,10 @@ class Georeference < ApplicationRecord
   belongs_to :geographic_item, inverse_of: :georeferences
 
   has_many :collection_objects, through: :collecting_event, inverse_of: :georeferences
+  has_many :otus, through: :collection_objects
 
-  has_many :georeferencer_roles, -> { order('roles.position ASC') },
-    class_name: 'Georeferencer',
-    as: :role_object, validate: true
-
-  has_many :georeferencers, -> { order('roles.position ASC') },
-    through: :georeferencer_roles,
-    source: :person, validate: true
+  has_many :georeferencer_roles, class_name: 'Georeferencer', as: :role_object, dependent: :destroy, inverse_of: :role_object
+  has_many :georeference_authors, -> { order('roles.position ASC') }, through: :georeferencer_roles, source: :person # , inverse_of: :georeferences
 
   validates :year_georeferenced, date_year: {min_year: 1000, max_year: Time.now.year }
   validates :month_georeferenced, date_month: true
@@ -129,7 +128,7 @@ class Georeference < ApplicationRecord
   #  When true, cascading cached values (e.g. in CollectingEvent) are not built
   attr_accessor :no_cached
 
-  after_save :set_cached, unless: -> { self.no_cached }
+  after_save :set_cached, unless: -> { self.no_cached || (self.collecting_event && self.collecting_event.no_cached == true) }
 
   after_destroy :set_cached_collecting_event
 
@@ -248,8 +247,8 @@ class Georeference < ApplicationRecord
   #   The interface to DwcOccurrence writiing for Georeference based values.
   #   See subclasses for super extensions.
   def dwc_georeference_attributes(h = {})
-    georeferenced_by = if georeferencers.any?
-                         georeferencers.collect{|a| a.cached}.join('|')
+    georeferenced_by = if georeference_authors.any?
+                         georeference_authors.collect{|a| a.cached}.join('|')
                        else
                          creator.name
                        end

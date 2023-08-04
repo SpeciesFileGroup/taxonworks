@@ -2,7 +2,8 @@
   <div class="panel">
     <modal
       v-if="showModal"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>Confirm delete</h3>
       </template>
@@ -13,20 +14,24 @@
         <button
           @click="deleteDescriptor()"
           type="button"
-          class="normal-input button button-delete align-end">Delete</button>
+          class="normal-input button button-delete align-end"
+        >
+          Delete
+        </button>
       </template>
     </modal>
     <div class="content">
       <div
         v-if="descriptor.id"
-        class="flex-separate middle">
+        class="flex-separate middle"
+      >
         <h3>{{ descriptor.object_tag }}</h3>
         <div class="descriptor-preview-options middle">
-          <radial-annotator
-            :global-id="descriptor.global_id"/>
+          <radial-annotator :global-id="descriptor.global_id" />
           <span
             @click="showModal = true"
-            class="circle-button btn-delete"/>
+            class="circle-button btn-delete"
+          />
         </div>
       </div>
       <p v-show="descriptor.description">{{ descriptor.description }}</p>
@@ -34,9 +39,8 @@
   </div>
 </template>
 <script>
-
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import Modal from 'components/ui/Modal.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import Modal from '@/components/ui/Modal.vue'
 
 export default {
   components: {
@@ -53,14 +57,14 @@ export default {
 
   emits: ['remove'],
 
-  data () {
+  data() {
     return {
       showModal: false
     }
   },
 
   methods: {
-    deleteDescriptor () {
+    deleteDescriptor() {
       this.$emit('remove', this.descriptor)
     }
   }
@@ -68,8 +72,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .descriptor-preview-options {
-    display: flex;
-    justify-content: space-between;
-  }
+.descriptor-preview-options {
+  display: flex;
+  justify-content: space-between;
+}
 </style>

@@ -72,14 +72,14 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { TaxonName } from 'routes/endpoints'
-import { getUnique } from 'helpers/arrays'
+import { TaxonName } from '@/routes/endpoints'
+import { getUnique } from '@/helpers/arrays'
 import TableMatched from './components/Table/TableMatched.vue'
 import TableUnmatched from './components/Table/TableUnmatched.vue'
 import InputComponent from './components/InputComponent.vue'
-import SpinnerComponent from 'components/spinner'
-import NavbarComponent from 'components/layout/NavBar'
-import CSVButton from 'components/csvButton.vue'
+import SpinnerComponent from '@/components/spinner'
+import NavbarComponent from '@/components/layout/NavBar'
+import CSVButton from '@/components/csvButton.vue'
 import Validity from './components/Validity.vue'
 
 const fields = [

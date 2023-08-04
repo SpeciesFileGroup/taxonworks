@@ -18,7 +18,7 @@
   </VModal>
 </template>
 <script setup>
-import VModal from 'components/ui/Modal.vue'
+import VModal from '@/components/ui/Modal.vue'
 
 defineProps({
   metadata: {

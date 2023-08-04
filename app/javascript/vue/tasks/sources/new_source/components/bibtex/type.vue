@@ -1,29 +1,30 @@
 <template>
   <div class="field">
     <label v-help.section.BibTeX.type>Type</label>
-    <br>
+    <br />
     <div class="horizontal-left-content">
       <select
         id="type"
         class="normal-input capitalize separate-right"
-        v-model="bibtexType">
+        v-model="bibtexType"
+      >
         <option
           v-for="item in list"
           :key="item"
-          :value="item">
+          :value="item"
+        >
           {{ item }}
         </option>
       </select>
-      <lock-component v-model="settings.lock.bibtex_type"/>
+      <lock-component v-model="settings.lock.bibtex_type" />
     </div>
   </div>
 </template>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import LockComponent from 'components/ui/VLock/index.vue'
+import LockComponent from '@/components/ui/VLock/index.vue'
 
 export default {
   components: {
@@ -31,23 +32,23 @@ export default {
   },
   computed: {
     bibtexType: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetBibtexType]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetBibtexType, value)
       }
     },
     settings: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSettings]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     }
   },
-  data () {
+  data() {
     return {
       list: [
         'article',
@@ -70,6 +71,4 @@ export default {
 }
 </script>
 
-<style>
-
-</style>
+<style></style>

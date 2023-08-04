@@ -1,3 +1,3 @@
-export default function (state, loan) {
-  state.loan = Object.assign({}, state.loan, loan)
-};
+export default (state, loan) => {
+  state.loan = loan
+}

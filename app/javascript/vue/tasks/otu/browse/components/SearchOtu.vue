@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import Autocomplete from 'components/ui/Autocomplete'
+import Autocomplete from '@/components/ui/Autocomplete'
 
 const emit = defineEmits(['select'])
 </script>

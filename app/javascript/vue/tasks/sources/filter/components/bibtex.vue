@@ -66,9 +66,9 @@
 </template>
 
 <script>
-import ModalComponent from 'components/ui/Modal'
-import SpinnerComponent from 'components/spinner'
-import ClipboardButton from 'components/clipboardButton'
+import ModalComponent from '@/components/ui/Modal'
+import SpinnerComponent from '@/components/spinner'
+import ClipboardButton from '@/components/clipboardButton'
 
 import { GetBibtex, GetGenerateLinks } from '../request/resources'
 

@@ -9,9 +9,16 @@
     >
       <template #content>
         <p>
-          {{ created ? 'Remove' : 'Create' }} confidence: {{ getDefaultElement().firstChild.firstChild.textContent }}.
-          <br>
-          {{ confidenceCount ? `Used already  on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects` : '' }}
+          {{ created ? 'Remove' : 'Create' }} confidence:
+          {{ getDefaultElement().firstChild.firstChild.textContent }}.
+          <br />
+          {{
+            confidenceCount
+              ? `Used already  on ${confidenceCount} ${
+                  confidenceCount > 200 ? 'or more' : ''
+                } objects`
+              : ''
+          }}
         </p>
       </template>
 
@@ -42,11 +49,10 @@
 </template>
 
 <script>
-
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { Tippy } from 'vue-tippy'
-import { Confidence } from 'routes/endpoints'
+import { Confidence } from '@/routes/endpoints'
 
 export default {
   name: 'ButtonConfidence',
@@ -74,7 +80,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       confidenceItem: undefined,
       keyId: this.getDefault(),
@@ -85,14 +91,14 @@ export default {
 
   watch: {
     count: {
-      handler (newVal) {
+      handler(newVal) {
         this.confidenceCount = newVal
       },
       immediate: true
     }
   },
 
-  mounted () {
+  mounted() {
     this.alreadyCreated()
     document.addEventListener('pinboard:insert', (event) => {
       const details = event.detail
@@ -105,16 +111,20 @@ export default {
   },
 
   methods: {
-    getDefault () {
+    getDefault() {
       const defaultConfidence = this.getDefaultElement()
-      return defaultConfidence ? defaultConfidence.getAttribute('data-pinboard-object-id') : undefined
+      return defaultConfidence
+        ? defaultConfidence.getAttribute('data-pinboard-object-id')
+        : undefined
     },
 
-    getDefaultElement () {
-      return document.querySelector('[data-pinboard-section="ConfidenceLevels"] [data-insert="true"]')
+    getDefaultElement() {
+      return document.querySelector(
+        '[data-pinboard-section="ConfidenceLevels"] [data-insert="true"]'
+      )
     },
 
-    alreadyCreated (element) {
+    alreadyCreated(element) {
       if (!this.keyId) return
 
       const params = {
@@ -122,7 +132,7 @@ export default {
         confidence_level_id: this.keyId
       }
 
-      Confidence.exists(params).then(response => {
+      Confidence.exists(params).then((response) => {
         if (response.body) {
           this.created = true
           this.confidenceItem = response.body
@@ -132,7 +142,7 @@ export default {
       })
     },
 
-    getCount () {
+    getCount() {
       if (!this.keyId) return
 
       const params = {
@@ -140,28 +150,34 @@ export default {
         per: 100
       }
 
-      Confidence.where(params).then(response => {
+      Confidence.where(params).then((response) => {
         this.confidenceCount = response.body.length
       })
     },
 
-    createConfidence () {
+    createConfidence() {
       const confidence = {
         confidence_level_id: this.keyId,
         annotated_global_entity: this.globalId
       }
 
-      Confidence.create({ confidence }).then(response => {
+      Confidence.create({ confidence }).then((response) => {
         this.confidenceItem = response.body
         this.created = true
-        TW.workbench.alert.create('Confidence item was successfully created.', 'notice')
+        TW.workbench.alert.create(
+          'Confidence item was successfully created.',
+          'notice'
+        )
       })
     },
 
-    deleteConfidence () {
+    deleteConfidence() {
       Confidence.destroy(this.confidenceItem.id).then(() => {
         this.created = false
-        TW.workbench.alert.create('Confidence item was successfully destroyed.', 'notice')
+        TW.workbench.alert.create(
+          'Confidence item was successfully destroyed.',
+          'notice'
+        )
       })
     }
   }

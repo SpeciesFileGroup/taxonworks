@@ -37,10 +37,10 @@
 </template>
 
 <script>
-import SmartSelector from 'components/ui/SmartSelector'
-import SpinnerComponent from 'components/spinner'
-import DisplayList from 'components/displayList.vue'
-import { Tag } from 'routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SpinnerComponent from '@/components/spinner'
+import DisplayList from '@/components/displayList.vue'
+import { Tag } from '@/routes/endpoints'
 
 export default {
   components: {

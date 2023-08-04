@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'biological_associations'
 const permitParams = {
@@ -32,5 +32,5 @@ const permitParams = {
 export const BiologicalAssociation = {
   ...baseCRUD(controller, permitParams),
 
-  filter: params => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }

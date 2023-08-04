@@ -387,6 +387,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         'glaber'    => 'glaber|glabra|glabrum',
         'glabra'    => 'glaber|glabra|glabrum',
         'glabrum'   => 'glaber|glabra|glabrum',
+        'lorifer'   => 'lorifer|lorifera|loriferum',
+        'albiger'   => 'albiger|albigera|albigerum',
         'ater'      => 'ater|atra|atrum',
         'atra'      => 'ater|atra|atrum',
         'atrum'     => 'ater|atra|atrum',

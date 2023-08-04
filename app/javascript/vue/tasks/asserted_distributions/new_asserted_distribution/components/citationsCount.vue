@@ -3,14 +3,18 @@
     <div
       v-if="citations.length"
       class="citation-count"
-      @click.prevent="setModalView(true)">
+      @click.prevent="setModalView(true)"
+    >
       <span class="circle-button btn-citation button-default">
-        <span class="circle-count button-data middle">{{ citations.length }} </span>
+        <span class="circle-count button-data middle"
+          >{{ citations.length }}
+        </span>
       </span>
     </div>
     <modal-component
       v-if="showCitations"
-      @close="setModalView(false)">
+      @close="setModalView(false)"
+    >
       <template #header>
         <h3>Citations</h3>
       </template>
@@ -20,14 +24,16 @@
           :validations="true"
           :label="['citation_source_body']"
           @delete="removeCitation"
-          :edit="false">
+          :edit="false"
+        >
           <template #options="slotProps">
             <div>
               <a
                 :title="slotProps.item.source.object_tag"
                 class="button-default circle-button btn-citation"
                 :href="`/tasks/nomenclature/by_source?source_id=${slotProps.item.source.id}`"
-                target="blank"/>
+                target="blank"
+              />
             </div>
           </template>
         </display-list>
@@ -37,9 +43,8 @@
 </template>
 
 <script>
-
-import DisplayList from 'components/displayList'
-import ModalComponent from 'components/ui/Modal'
+import DisplayList from '@/components/displayList'
+import ModalComponent from '@/components/ui/Modal'
 
 export default {
   components: {
@@ -54,14 +59,14 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       showCitations: false
     }
   },
 
   methods: {
-    setModalView (value) {
+    setModalView(value) {
       this.showCitations = value
     }
   }

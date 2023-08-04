@@ -28,13 +28,13 @@
 </template>
 
 <script setup>
-import { BiologicalAssociation } from 'routes/endpoints'
+import { BiologicalAssociation } from '@/routes/endpoints'
 import { ref, onBeforeMount, watch } from 'vue'
-import { OTU, COLLECTION_OBJECT } from 'constants/index.js'
-import VModal from 'components/ui/Modal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import getPagination from 'helpers/getPagination'
-import VSpinner from 'components/spinner.vue'
+import { OTU, COLLECTION_OBJECT } from '@/constants/index.js'
+import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import getPagination from '@/helpers/getPagination'
+import VSpinner from '@/components/spinner.vue'
 
 const param = {
   [OTU]: 'otu_id',

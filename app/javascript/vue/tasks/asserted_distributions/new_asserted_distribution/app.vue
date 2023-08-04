@@ -92,15 +92,15 @@
 import OtuComponent from './components/otu'
 import GeographicArea from './components/geographicArea'
 import TableComponent from './components/table'
-import LockComponent from 'components/ui/VLock/index.vue'
-import SpinnerComponent from 'components/spinner'
-import NavBarComponent from 'components/layout/NavBar'
-import platformKey from 'helpers/getPlatformKey'
-import FormCitation from 'components/Form/FormCitation.vue'
-import { smartSelectorRefresh } from 'helpers/smartSelector/index.js'
-import { ASSERTED_DISTRIBUTION } from 'constants/index.js'
+import LockComponent from '@/components/ui/VLock/index.vue'
+import SpinnerComponent from '@/components/spinner'
+import NavBarComponent from '@/components/layout/NavBar'
+import platformKey from '@/helpers/getPlatformKey'
+import FormCitation from '@/components/Form/FormCitation.vue'
+import { smartSelectorRefresh } from '@/helpers/smartSelector/index.js'
+import { ASSERTED_DISTRIBUTION } from '@/constants/index.js'
 
-import { Source, AssertedDistribution } from 'routes/endpoints'
+import { Source, AssertedDistribution } from '@/routes/endpoints'
 
 const extend = [
   'citations',
@@ -216,9 +216,11 @@ export default {
           otu_id: assertedDistribution.otu_id,
           geographic_area_id: assertedDistribution.geographic_area_id,
           extend
-        }).then(response => {
-          if (response.body.length) {
-            assertedDistribution.id = response.body[0].id
+        }).then(({ body }) => {
+          const record = body.find(item => !!item.is_absent === !!assertedDistribution.is_absent)
+
+          if (record) {
+            assertedDistribution.id = record.id
             this.updateRecord(assertedDistribution)
           } else {
             this.createRecord(assertedDistribution)

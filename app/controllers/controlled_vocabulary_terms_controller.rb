@@ -1,7 +1,7 @@
 class ControlledVocabularyTermsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_controlled_vocabulary_term, only: [:show, :edit, :update, :destroy, :depictions, :citations, :confidences]
+  before_action :set_controlled_vocabulary_term, only: [:show, :edit, :update, :destroy, :depictions, :citations, :confidences, :api_show]
 
   # GET /controlled_vocabulary_terms
   # GET /controlled_vocabulary_terms.json
@@ -116,6 +116,20 @@ class ControlledVocabularyTermsController < ApplicationController
   # GET /controlled_vocabulary_terms/1/tagged_objects
   def tagged_objects
     set_controlled_vocabulary_term
+  end
+
+  # GET /api/v1/controlled_vocabulary_terms
+  def api_index
+    @controlled_vocabulary_terms = Queries::ControlledVocabularyTerm::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .page(params[:page])
+      .per(params[:per])
+    render '/controlled_vocabulary_terms/api/v1/index'
+  end
+
+  # GET /api/v1/controlled_vocabulary_terms/:id
+  def api_show
+    render '/controlled_vocabulary_terms/api/v1/show'
   end
 
   private

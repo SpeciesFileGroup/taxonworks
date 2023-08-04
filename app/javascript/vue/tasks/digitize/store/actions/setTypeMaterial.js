@@ -1,4 +1,4 @@
-import { TaxonName } from 'routes/endpoints'
+import { TaxonName } from '@/routes/endpoints'
 
 export default ({ state }, typeMaterial) => {
   if (!typeMaterial.taxon) {

@@ -16,7 +16,7 @@ module Queries
         :data_attribute_id,
         controlled_vocabulary_term_id: [],
         data_attribute_id: []
-      ].freeze 
+      ].freeze
 
       # Params specific to DataAttribute
       attr_accessor :value
@@ -61,12 +61,12 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_attribute_subject_type
-        !attribute_subject_type.blank? ? table[:attribute_subject_type].eq(attribute_subject_type)  : nil
+        attribute_subject_type.present? ? table[:attribute_subject_type].eq(attribute_subject_type)  : nil
       end
 
       # @return [Arel::Node, nil]
       def matching_attribute_subject_id
-        !attribute_subject_id.blank? ? table[:attribute_subject_id].eq(attribute_subject_id)  : nil
+        attribute_subject_id.present? ? table[:attribute_subject_id].eq(attribute_subject_id)  : nil
       end
 
       # @return [Arel::Node, nil]
@@ -87,6 +87,48 @@ module Queries
       # @return [Arel::Node, nil]
       def matching_controlled_vocabulary_term_id
         controlled_vocabulary_term_id.empty? ? nil : table[:controlled_vocabulary_term_id].eq_any(controlled_vocabulary_term_id)
+      end
+
+
+      #
+      # TODO: generalize to a single method
+      #
+      def collection_object_query_facet
+        return nil if collection_object_query.nil?
+        s = 'WITH query_co_da AS (' + collection_object_query.all.to_sql + ') ' +
+            ::DataAttribute
+              .joins("JOIN query_co_da as query_co_da1 on data_attributes.attribute_subject_id = query_co_da1.id AND data_attributes.attribute_subject_type = 'CollectionObject'")
+              .to_sql
+
+        ::DataAttribute.from('(' + s + ') as data_attributes').distinct
+      end
+
+      def collecting_event_query_facet
+        return nil if collecting_event_query.nil?
+        s = 'WITH query_ce_da AS (' + collecting_event_query.all.to_sql + ') ' +
+            ::DataAttribute
+              .joins("JOIN query_ce_da as query_ce_da1 on data_attributes.attribute_subject_id = query_ce_da1.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
+              .to_sql
+
+        ::DataAttribute.from('(' + s + ') as data_attributes').distinct
+      end
+
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
+        s = 'WITH query_tn_da AS (' + taxon_name_query.all.to_sql + ') ' +
+            ::DataAttribute
+              .joins("JOIN query_tn_da as query_tn_da1 on data_attributes.attribute_subject_id = query_tn_da1.id AND data_attributes.attribute_subject_type = 'TaxonName'")
+              .to_sql
+
+        ::DataAttribute.from('(' + s + ') as data_attributes').distinct
+      end
+
+      def merge_clauses
+        [
+          taxon_name_query_facet,
+          collecting_event_query_facet,
+          collection_object_query_facet
+        ]
       end
 
       def and_clauses

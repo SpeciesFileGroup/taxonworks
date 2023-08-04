@@ -58,6 +58,7 @@ scope :administration, controller: :administration do
   get 'data_health'
   get 'data_reindex'
   get 'data_class_summary'
+  get 'cached_maps_status'
 end
 
 resources :project_members, except: [:index] do
@@ -75,6 +76,7 @@ resources :pinboard_items, only: [:create, :destroy, :update] do
   collection do
     post 'update_position'
     post 'update_type_position'
+    post 'clear', defaults: {format: :json}
   end
 end
 

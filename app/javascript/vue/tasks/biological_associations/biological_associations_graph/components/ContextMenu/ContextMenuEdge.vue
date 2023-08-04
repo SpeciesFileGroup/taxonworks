@@ -23,10 +23,25 @@
       </VBtn>
       <VBtn
         circle
-        :color="!!edges[edgeId].id ? 'destroy' : 'primary'"
+        color="primary"
         @click="
           () => {
-            emit('remove:edge', edgeId)
+            emit('remove:edge', { edgeId, destroy: false })
+          }
+        "
+      >
+        <VIcon
+          x-small
+          name="trash"
+        />
+      </VBtn>
+      <VBtn
+        v-if="!!edges[edgeId].id"
+        circle
+        color="destroy"
+        @click="
+          () => {
+            emit('remove:edge', { edgeId, destroy: true })
           }
         "
       >
@@ -46,8 +61,8 @@
 </template>
 
 <script setup>
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 defineProps({
   selectedEdgeIds: {

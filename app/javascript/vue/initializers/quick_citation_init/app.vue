@@ -3,11 +3,11 @@
     :id="id"
     :class="klass"
     :global-id="globalId"
-    :source-id="sourceId"/>
+    :source-id="sourceId"
+  />
 </template>
 <script>
-
-import QuickCitation from 'components/citations/quick.vue'
+import QuickCitation from '@/components/citations/quick.vue'
 
 export default {
   components: { QuickCitation },

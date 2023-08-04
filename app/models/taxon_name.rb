@@ -222,7 +222,6 @@ class TaxonName < ApplicationRecord
   validates_presence_of :type, message: 'is not specified'
 
   validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}, allow_nil: true
-  validates :name, format: { without: /\s/ }
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
 
@@ -246,7 +245,7 @@ class TaxonName < ApplicationRecord
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error, inverse_of: :object_taxon_name
 
-  has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
+  has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy, inverse_of: :role_object
   has_many :taxon_name_authors, -> { order('roles.position ASC') }, through: :taxon_name_author_roles, source: :person
 
   # TODO: Combinations shouldn't have classifications or relationships?  Move to Protonym?
@@ -633,7 +632,9 @@ class TaxonName < ApplicationRecord
   # @return String, nil
   #   virtual attribute, to ultimately be fixed in db
   def get_author
-    cached_author_year&.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '')
+    a = cached_author_year.to_s.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '')
+    a = a.gsub('(', '') if a.starts_with?('(') && !a.include?(')')
+    return a
   end
 
   # !! Overrides Shared::Citations#nomenclature_date
@@ -642,6 +643,7 @@ class TaxonName < ApplicationRecord
   #   effective date of publication, used to determine nomenclatural priority
   def nomenclature_date
     return nil if !persisted?
+    #return nil if TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING).any?
     family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
 
     # family_before_1961 = taxon_name_relationships.with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
@@ -1067,7 +1069,7 @@ class TaxonName < ApplicationRecord
 
 
   # @return [Array]
-  #   of TaxonName 
+  #   of TaxonName
   #   same as self.ancestors.to_a, but also works
   #    for new records when parents specified
   def ancestors_through_parents(result = [self], start = self)
@@ -1371,7 +1373,7 @@ class TaxonName < ApplicationRecord
           ay = '(' + ay + ')' if !ay.empty? && og.normalized_genus.id != cg.normalized_genus.id
         end
       end
-    elsif FAMILY_RANK_NAMES_ICZN.include?(taxon.rank_string) && !y.empty? && cached_nomenclature_date&.year != y.first
+    elsif FAMILY_RANK_NAMES_ICZN.include?(taxon.rank_string) && !y.empty? && cached_nomenclature_date&.year != y.first && !mobj.present?
       ay = ay + ' [' + cached_nomenclature_date&.year.to_s + ']'
     end
 

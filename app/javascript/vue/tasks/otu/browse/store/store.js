@@ -7,11 +7,11 @@ import componentNames from '../const/componentNames'
 function makeInitialState() {
   return {
     loadState: {
-      assertedDistribution: true,
+      assertedDistribution: false,
       biologicalAssociations: true,
       collectionObjects: true,
-      descendants: true,
-      descendantsDistribution: true,
+      descendants: false,
+      descendantsDistribution: false,
       distribution: true
     },
     preferences: {
@@ -111,7 +111,7 @@ function makeInitialState() {
     collectingEvents: [],
     collectionObjects: [],
     otus: [],
-    georeferences: [],
+    georeferences: { features: [] },
     typeMaterials: [],
     depictions: [],
     commonNames: [],
@@ -121,7 +121,8 @@ function makeInitialState() {
       georeferences: []
     },
     observationsDepictions: [],
-    userId: undefined
+    userId: undefined,
+    cachedMap: undefined
   }
 }
 

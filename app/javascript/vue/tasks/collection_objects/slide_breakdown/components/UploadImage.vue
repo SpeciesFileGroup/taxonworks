@@ -1,5 +1,5 @@
 <template>
-  <div class="panel  full-width">
+  <div class="panel full-width">
     <div class="content">
       <dropzone
         class="dropzone-card"
@@ -9,21 +9,21 @@
         ref="imageDropzone"
         url="/images"
         :use-custom-dropzone-options="true"
-        :dropzone-options="dropzone"/>
+        :dropzone-options="dropzone"
+      />
     </div>
   </div>
 </template>
 
 <script>
-
-import Dropzone from 'components/dropzone'
+import Dropzone from '@/components/dropzone'
 
 export default {
   components: { Dropzone },
 
   emits: ['created'],
 
-  data () {
+  data() {
     return {
       dropzone: {
         paramName: 'image[image_file]',
@@ -33,7 +33,9 @@ export default {
         parallelUploads: 1,
         timeout: 600000,
         headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          'X-CSRF-Token': document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute('content')
         },
         dictDefaultMessage: 'Drop image here',
         acceptedFiles: 'image/*,.heic'
@@ -42,14 +44,14 @@ export default {
     }
   },
   methods: {
-    success (file, response) {
+    success(file, response) {
       this.$refs.imageDropzone.removeFile(file)
       if (!this.firstUploaded) {
         this.firstUploaded = response
       }
     },
 
-    sending (file, xhr, formData) {
+    sending(file, xhr, formData) {
       formData.append('image[sled_image_attributes][metadata]', '[]')
     },
 

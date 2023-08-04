@@ -2,11 +2,11 @@
   <default-tag
     :count="count"
     show-count
-    :global-id="globalId"/>
+    :global-id="globalId"
+  />
 </template>
 <script>
-
-import DefaultTag from 'components/defaultTag.vue'
+import DefaultTag from '@/components/defaultTag.vue'
 
 export default {
   components: { DefaultTag },

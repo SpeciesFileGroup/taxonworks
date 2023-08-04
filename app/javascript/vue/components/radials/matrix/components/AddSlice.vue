@@ -40,12 +40,12 @@
 </template>
 
 <script setup>
-import VSpinner from 'components/spinner'
-import DefaultPin from 'components/getDefaultPin'
-import VBtn from 'components/ui/VBtn/index.vue'
-import { RouteNames } from 'routes/routes'
-import { ObservationMatrix } from 'routes/endpoints'
-import { sortArray } from 'helpers/arrays.js'
+import VSpinner from '@/components/spinner'
+import DefaultPin from '@/components/getDefaultPin'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { RouteNames } from '@/routes/routes'
+import { ObservationMatrix } from '@/routes/endpoints'
+import { sortArray } from '@/helpers/arrays.js'
 import { ref, computed, onBeforeMount } from 'vue'
 
 const props = defineProps({

@@ -36,14 +36,14 @@
 </template>
 
 <script setup>
-import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
-import FilterList from 'components/layout/Filter/FilterList.vue'
-import VSpinner from 'components/spinner.vue'
-import useFilter from 'shared/Filter/composition/useFilter.js'
+import FilterList from '@/components/Filter/Table/TableResults.vue'
+import VSpinner from '@/components/spinner.vue'
+import useFilter from '@/shared/Filter/composition/useFilter.js'
 import { ATTRIBUTES } from './constants/attributes.js'
-import { PEOPLE } from 'constants/index.js'
-import { People } from 'routes/endpoints'
+import { PEOPLE } from '@/constants/index.js'
+import { People } from '@/routes/endpoints'
 
 const {
   isLoading,

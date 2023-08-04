@@ -1,9 +1,9 @@
-json.extract! taxon_determination, :id, :biological_collection_object_id, :otu_id, 
-  :position, :year_made, :month_made, :day_made,
-  :print_label,
-  :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
+json.extract! taxon_determination, :id, :biological_collection_object_id, :otu_id,
+:position, :year_made, :month_made, :day_made,
+:print_label,
+:created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 
-json.partial! '/shared/data/all/metadata', object: taxon_determination
+json.partial!('/shared/data/all/metadata', object: taxon_determination)
 
 json.collection_object do
   json.partial! '/shared/data/all/metadata', object: taxon_determination.biological_collection_object, extensions: false
@@ -25,7 +25,7 @@ if taxon_determination.roles.any?
         end
       when :organization
         json.organization do
-          json.partial! '/organizations/attributes', organization: role.organization
+          json.partial! '/organizations/attributes', organization: role.organization, extensions: false
         end
       else
         json.error true

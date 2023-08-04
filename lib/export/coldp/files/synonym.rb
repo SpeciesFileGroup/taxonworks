@@ -26,10 +26,10 @@ module Export::Coldp::Files::Synonym
   end
 
   # This is currently factored to use *no* ActiveRecord instances
-  def self.generate(otus, reference_csv = nil)
+  def self.generate(otus, project_members, reference_csv = nil)
     CSV.generate(col_sep: "\t") do |csv|
 
-      csv << %w{taxonID nameID status remarks referenceID}
+      csv << %w{taxonID nameID status remarks referenceID modified modifiedBy}
 
       # Only valid otus with taxon names, see lib/export/coldp.rb#otus
       otus.select('otus.id id, taxon_names.cached cached, otus.taxon_name_id taxon_name_id')
@@ -60,7 +60,7 @@ module Export::Coldp::Files::Synonym
           #   .where(cached_valid_taxon_name_id: o[2]) # == .historical_taxon_names
           #   .where("( ((taxon_names.id != taxon_names.cached_valid_taxon_name_id) OR ((taxon_names.cached_original_combination != taxon_names.cached))) AND NOT (taxon_names.type = 'Combination' AND taxon_names.cached = ?))", o[1]) # see name.rb
 
-          c.pluck(:id, :cached, :cached_original_combination, :type, :rank_class, :cached_secondary_homonym)
+          c.pluck(:id, :cached, :cached_original_combination, :type, :rank_class, :cached_secondary_homonym, :updated_at, :updated_by_id)
             .each do |t|
               reified_id = ::Export::Coldp.reified_id(t[0], t[1], t[2])
 
@@ -88,11 +88,13 @@ module Export::Coldp::Files::Synonym
               end
 
               csv << [
-                o[0],           # taxonID attached to the current valid concept
-                reified_id,     # nameID
-                nil,            # Status TODO def status(taxon_name_id)
-                remarks_field,
-                nil,            # Unclear what this means in TW
+                o[0],                                             # taxonID attached to the current valid concept
+                reified_id,                                       # nameID
+                nil,                                              # status  TODO: def status(taxon_name_id)
+                remarks_field,                                    # remarks
+                nil,                                              # referenceID   Unclear what this means in TW
+                Export::Coldp.modified(t[6]),                     # modified
+                Export::Coldp.modified_by(t[7], project_members)  # modifiedBy
               ]
             end
         end
@@ -100,5 +102,5 @@ module Export::Coldp::Files::Synonym
   end
 
   # It is unclear what the relationship beyond "used" means. We likely need a sensu style model to record these assertions
-  # Export::Coldp::Files::Reference.add_reference_rows([], reference_csv) if reference_csv
+  # Export::Coldp::Files::Reference.add_reference_rows([], reference_csv, project_members) if reference_csv
 end

@@ -185,7 +185,7 @@ module GraphHelper
 
     c.georeferences.each do |r|
       g.add(r,c)
-      r.georeferencers.each do |p|
+      r.georeference_authors.each do |p|
         g.add(p,r)
       end
     end

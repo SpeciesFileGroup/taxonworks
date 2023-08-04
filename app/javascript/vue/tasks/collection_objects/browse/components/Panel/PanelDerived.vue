@@ -12,5 +12,5 @@
 <script setup>
 import PanelTimeline from './PanelTimeline.vue'
 import PanelDwc from './PanelDwc.vue'
-import TableGrid from 'components/layout/Table/TableGrid.vue'
+import TableGrid from '@/components/layout/Table/TableGrid.vue'
 </script>

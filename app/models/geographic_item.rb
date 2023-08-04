@@ -84,6 +84,9 @@ class GeographicItem < ApplicationRecord
   # ANTI_MERIDIAN = '0X0102000020E61000000200000000000000008066400000000000405640000000000080664000000000004056C0'
   ANTI_MERIDIAN = 'LINESTRING (180 89.0, 180 -89)'.freeze
 
+  has_one :cached_map, inverse_of: :geographic_item
+  has_many :cached_map_items, inverse_of: :geographic_item
+
   has_many :geographic_areas_geographic_items, dependent: :destroy, inverse_of: :geographic_item
   has_many :geographic_areas, through: :geographic_areas_geographic_items
   has_many :asserted_distributions, through: :geographic_areas
@@ -112,6 +115,18 @@ class GeographicItem < ApplicationRecord
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
 
   class << self
+
+    def aliased_geographic_sql(name = 'a')
+      "CASE #{name}.type \
+         WHEN 'GeographicItem::MultiPolygon' THEN #{name}.multi_polygon \
+         WHEN 'GeographicItem::Point' THEN #{name}.point \
+         WHEN 'GeographicItem::LineString' THEN #{name}.line_string \
+         WHEN 'GeographicItem::Polygon' THEN #{name}.polygon \
+         WHEN 'GeographicItem::MultiLineString' THEN #{name}.multi_line_string \
+         WHEN 'GeographicItem::MultiPoint' THEN #{name}.multi_point \
+         WHEN 'GeographicItem::GeometryCollection' THEN #{name}.geometry_collection \
+         END"
+  end
 
     def st_union(geographic_item_scope)
       GeographicItem.select("ST_Union(#{GeographicItem::GEOMETRY_SQL.to_sql}) as collection")
@@ -155,87 +170,6 @@ class GeographicItem < ApplicationRecord
       _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Intersects((SELECT single_geometry FROM (?) as ' \
                                                           'left_intersect), ST_GeogFromText(?)) as r;', GeographicItem.single_geometry_sql(*ids), ANTI_MERIDIAN])
       GeographicItem.find_by_sql(q1).first.r
-    end
-
-    # TODO: * rename to reflect either/or and what is being returned
-    # @param [Integer] geographic_area_ids
-    # @param [String] shape_in in JSON (POINT, POLYGON, MULTIPOLYGON), usually from GoogleMaps
-    # @param [String] search_object_class
-    # @param [Integer] project_id for search_object_class
-    # @return [Scope] of the requested search_object_type
-    def gather_geographic_area_or_shape_data(geographic_area_ids, shape_in, search_object_class, project_id)
-      if shape_in.blank?
-        # get the shape from the geographic area, if possible
-        finding = search_object_class.constantize
-        target_geographic_item_ids = []
-        if geographic_area_ids.blank?
-          found = finding.none
-        else
-          # now use method from collection_object_filter_query
-          geographic_area_ids.each do |gaid|
-            target_geographic_item_ids.push(GeographicArea.joins(:geographic_items)
-              .find(gaid)
-              .default_geographic_item.id)
-          end
-
-          # TODO: There probably is a better way to do this, but for now...
-          f1 = project_id.present? ? finding.with_project_id(project_id) : finding
-          case search_object_class
-          when /Collection/, /Collecting/
-            found = f1.joins(:geographic_items)
-              .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-          when /Asserted/
-            # TODO: Figure out how to see through this group of geographic_items to the ones which contain
-            # geographic_items which are associated with geographic_areas (as #default_geographic_items)
-            # which are associated with asserted_distributions
-            found = f1.joins(:geographic_area).joins(:geographic_items)
-              .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-          else
-          end
-        end
-      else
-        found = gather_map_data(shape_in, search_object_class, project_id)
-      end
-      found
-    end
-
-    # TODO: likely not ussed any more
-    #
-    # @param [String] feature in JSON, looks like '{"type":"Feature","geometry":{"type":"Polygon",
-    # "coordinates":[[[-40.078125,10.614539227964332],[-49.21875,-17.185577279306226],
-    # [-23.203125,-15.837353550148276],[-40.078125,10.614539227964332]]]},"properties":{}}'
-    # @param [String] search_object_class
-    # @param [Integer, Nil] project_id for search_object_class
-    # @return [Scope] of the requested search_object_type
-    #   This function takes a feature, i.e. a string that is the result
-    #   of drawing on a Google map, and submited as a form variable,
-    #   and translates that to a scope for a provided search_object_class.
-    #   e.g. Return all CollectionObjects in this drawn area
-    #        Return all CollectionObjects in the radius around this point
-    def gather_map_data(feature, search_object_class, project_id)
-      finding = search_object_class.constantize
-      g_feature = RGeo::GeoJSON.decode(feature, json_parser: :json)
-      if g_feature.nil?
-        finding.none
-      else
-        geometry = g_feature.geometry # isolate the WKT
-        shape_type = geometry.geometry_type.to_s.downcase
-        geometry = geometry.as_text
-        radius = g_feature['radius']
-
-        query = project_id.present? ?
-          finding.with_project_id(project_id).joins(:geographic_items) :
-          finding.joins(:geographic_items)
-
-        case shape_type
-        when 'point'
-          query.where(GeographicItem.within_radius_of_wkt_sql(geometry, radius)) # was interesecting version.
-        when 'polygon', 'multipolygon'
-          query.where(GeographicItem.contained_by_wkt_sql(geometry))
-        else
-          query
-        end
-      end
     end
 
     #
@@ -516,15 +450,15 @@ class GeographicItem < ApplicationRecord
     # Note: !! If the target GeographicItem#id crosses the anti-meridian then you may/will get unexpected results.
     def contained_by_where_sql(*geographic_item_ids)
       "ST_Contains(
-    #{GeographicItem.geometry_sql2(*geographic_item_ids)},
-    CASE geographic_items.type
-       WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
-       WHEN 'GeographicItem::Point' THEN point::geometry
-       WHEN 'GeographicItem::LineString' THEN line_string::geometry
-       WHEN 'GeographicItem::Polygon' THEN polygon::geometry
-       WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
-       WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
-    END)"
+        #{GeographicItem.geometry_sql2(*geographic_item_ids)},
+        CASE geographic_items.type
+          WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
+          WHEN 'GeographicItem::Point' THEN point::geometry
+          WHEN 'GeographicItem::LineString' THEN line_string::geometry
+          WHEN 'GeographicItem::Polygon' THEN polygon::geometry
+          WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
+          WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
+        END)"
     end
 
     # @param [RGeo:Point] rgeo_point
@@ -937,11 +871,11 @@ class GeographicItem < ApplicationRecord
   # equally refined, this might not be the case in the future because
   # of how the GeographicArea gazetteer is indexed.
   def quick_geographic_name_hierarchy
-    if a = geographic_areas.first
-      a.geographic_name_classification
-    else
-      {}
+    geographic_areas.order(:id).each do |ga|
+      h = ga.geographic_name_classification # not quick enough
+      return h if h.present?
     end
+   return  {}
   end
 
   # @return [Hash]
@@ -960,6 +894,12 @@ class GeographicItem < ApplicationRecord
     else
       {}
     end
+  end
+
+  def geographic_name_hierarchy
+    a = quick_geographic_name_hierarchy # quick; almost never the case, UI not setup to do this
+    return a if a.present?
+    inferred_geographic_name_hierarchy # slow
   end
 
   # @return [Scope]
@@ -1110,7 +1050,7 @@ class GeographicItem < ApplicationRecord
   # @param [geo_object, Double]
   # @return [Boolean]
   def near(target_geo_object, distance)
-    self.geo_object.buffer(distance).contains?(target_geo_object)
+    self.geo_object.unsafe_buffer(distance).contains?(target_geo_object)
   end
 
   # @param [geo_object, Double]
@@ -1165,7 +1105,7 @@ class GeographicItem < ApplicationRecord
   # @return [Boolean, RGeo object]
   def shape=(value)
     if value.present?
-      geom = RGeo::GeoJSON.decode(value, json_parser: :json)
+      geom = RGeo::GeoJSON.decode(value, json_parser: :json, geo_factory: Gis::FACTORY)
       this_type = JSON.parse(value)['geometry']['type']
 
       # TODO: isn't this set automatically? Or perhaps the callback isn't hit in this approach?
@@ -1202,6 +1142,19 @@ class GeographicItem < ApplicationRecord
   # return float, in meters, calculated, not from cached
   def area
     GeographicItem.where(id:).select("ST_Area(#{GeographicItem::GEOGRAPHY_SQL}, false) as area_in_meters").first['area_in_meters']
+  end
+
+  # @return [Float, false]
+  #    the value in square meters of the interesecting area of this and another GeographicItem
+  def intersecting_area(geographic_item_id)
+    a = GeographicItem.aliased_geographic_sql('a')
+    b = GeographicItem.aliased_geographic_sql('b')
+
+    c = GeographicItem.connection.execute("SELECT ST_Area(ST_Intersection(#{a}, #{b})) as intersecting_area
+      FROM geographic_items a, geographic_items b
+      WHERE a.id = #{id} AND b.id = #{geographic_item_id};"
+    ).first
+    c && c['intersecting_area'].to_f
   end
 
   private
@@ -1354,4 +1307,4 @@ class GeographicItem < ApplicationRecord
   end
 end
 
-    Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }
+Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }

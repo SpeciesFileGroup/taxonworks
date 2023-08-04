@@ -16,14 +16,11 @@ module Queries
       #   nil, false - ignored
       attr_accessor :in_project
 
-      # gets project_id from Query::Autocomplete
-
       # @param [Hash] args
+      #   !! project_id is required!!
       def initialize(string, **params)
         @role_type = params[:role_type]
         @in_project = boolean_param(params, :in_project)
-
-        # project_id is required!!
 
         set_tags_params(params)
         set_alternate_value(params)

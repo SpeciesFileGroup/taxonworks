@@ -57,12 +57,13 @@ class DwcOccurrence < ApplicationRecord
 
   attr_accessor :occurrence_identifier
 
-
   def self.annotates?
-    false 
+    false
   end
 
-  # TODO: will need similar join for AssertedDistribution, or any object
+  # TODO -
+  #   these can be deprecated for integration with Queries::DwcOccurrence::Filter
+
   # that matches, consider moving to Shared
   # @return [ActiveRecord::Relation]
   def self.collection_objects_join
@@ -70,6 +71,50 @@ class DwcOccurrence < ApplicationRecord
     b = ::CollectionObject.arel_table
     j = a.join(b).on(a[:dwc_occurrence_object_type].eq('CollectionObject').and(a[:dwc_occurrence_object_id].eq(b[:id])))
     joins(j.join_sources)
+  end
+
+  # that matches, consider moving to Shared
+  # @return [ActiveRecord::Relation]
+  def self.asserted_distributions_join
+    a = arel_table
+    b = ::AssertedDistribution.arel_table
+    j = a.join(b).on(a[:dwc_occurrence_object_type].eq('AssertedDistribution').and(a[:dwc_occurrence_object_id].eq(b[:id])))
+    joins(j.join_sources)
+  end
+
+  # ---
+
+  # @return [Scope]
+  #   all DwcOccurrences for the Otu
+  #   * Includes synonymy (coordinate OTUs).
+  def self.scoped_by_otu(otu)
+    a,b = nil, nil
+
+    if otu.taxon_name_id.present?
+      a = ::Queries::DwcOccurrence::Filter.new(
+        asserted_distribution_query: {
+          taxon_name_query: {
+            taxon_name_id: otu.taxon_name_id,
+            descendants: false,
+            synonymify: true } })
+
+      b = ::Queries::DwcOccurrence::Filter.new(
+        collection_object_query: {
+          taxon_name_query: {
+            taxon_name_id: otu.taxon_name_id,
+            descendants: false,
+            synonymify: true } })
+    else
+      a = ::Queries::DwcOccurrence::Filter.new(
+        asserted_distribution_query: {
+          otu_id: otu.id})
+
+      b = ::Queries::DwcOccurrence::Filter.new(
+        collection_object_query: {
+          otu_query: { otu_id: otu.id}})
+    end
+
+    from("((#{a.all.to_sql}) UNION (#{b.all.to_sql})) as dwc_occurrences")
   end
 
   # Return scopes by a collection object filter
@@ -83,7 +128,7 @@ class DwcOccurrence < ApplicationRecord
     k = ::CollectionObject.select('coscope.id').from( '(' + filter_scope.to_sql + ') as coscope ' )
 
     a = self.collection_objects_join
-      .where("dwc_occurrences.project_id = ?", project_id)
+      .where('dwc_occurrences.project_id = ?', project_id)
       .where(dwc_occurrence_object_id: k)
       .select(::DwcOccurrence.target_columns) # TODO !! Will have to change when AssertedDistribution and other types merge in
     a
@@ -142,7 +187,7 @@ class DwcOccurrence < ApplicationRecord
       case dwc_occurrence_object.source&.type || dwc_occurrence_object.sources.order(cached_nomenclature_date: :DESC).first.type
       when 'Source::Bibtex'
         return 'MaterialCitation'
-      when 'Source::Human'  
+      when 'Source::Human'
         return 'HumanObservation'
       else # Not recommended at this point
         return 'Occurrence'

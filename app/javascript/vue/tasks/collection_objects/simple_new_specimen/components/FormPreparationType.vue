@@ -9,11 +9,9 @@
         v-model="store.preparationTypeId"
         :data-locked="store.settings.lock.preparationTypeId"
       >
-        <option :value="undefined">
-          None
-        </option>
+        <option :value="undefined">None</option>
         <option
-          v-for="(item) in preparationTypes"
+          v-for="item in preparationTypes"
           :key="item.id"
           :value="item.id"
         >
@@ -30,9 +28,9 @@
 
 <script setup>
 import { ref } from 'vue'
-import { PreparationType } from 'routes/endpoints'
+import { PreparationType } from '@/routes/endpoints'
 import { useStore } from '../store/useStore.js'
-import VLock from 'components/ui/VLock/index.vue'
+import VLock from '@/components/ui/VLock/index.vue'
 
 const store = useStore()
 const preparationTypes = ref([])
@@ -46,5 +44,4 @@ PreparationType.where({}).then(({ body }) => {
     }
   ]
 })
-
 </script>

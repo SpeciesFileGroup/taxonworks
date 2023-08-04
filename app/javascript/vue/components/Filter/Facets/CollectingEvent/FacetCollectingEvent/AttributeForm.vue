@@ -34,7 +34,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const TYPES = {
   text: 'text',

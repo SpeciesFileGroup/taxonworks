@@ -24,11 +24,11 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import DisplayList from 'components/displayList'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { ControlledVocabularyTerm } from 'routes/endpoints'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import DisplayList from '@/components/displayList'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
 import { ref, computed, watch, onBeforeMount } from 'vue'
 
 const props = defineProps({

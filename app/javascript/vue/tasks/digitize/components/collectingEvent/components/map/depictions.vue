@@ -4,34 +4,34 @@
     object-type="CollectingEvent"
     default-message="Drop images or click here<br> to add collecting event figures"
     :get-depictions="GetCollectingEventDepictions"
-    action-save="SaveCollectingEvent"/>
+    action-save="SaveCollectingEvent"
+  />
 </template>
 
 <script>
-
 import DepictionComponent from '../../../shared/depictions'
 import { GetterNames } from '../../../../store/getters/getters.js'
-import { CollectingEvent } from 'routes/endpoints'
+import { CollectingEvent } from '@/routes/endpoints'
 
 export default {
   components: { DepictionComponent },
 
-  data () {
+  data() {
     return {
       GetCollectingEventDepictions: CollectingEvent.depictions
     }
   },
 
   computed: {
-    collectingEvent () {
+    collectingEvent() {
       return this.$store.getters[GetterNames.GetCollectingEvent]
     }
-  },
+  }
 }
 </script>
 
 <style scoped>
-  .vue-dropzone {
-    padding: 0px !important;
-  }
+.vue-dropzone {
+  padding: 0px !important;
+}
 </style>
