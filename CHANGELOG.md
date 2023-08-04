@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.34.0] - 2023-08-04
+
 ### Added
 
 - `api/v1/data_attributes/brief` endpoint
@@ -35,9 +39,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems
 - Added date format recognition ####-##-## [#3453]
 - Add hyperlinks to OTU labels in Filter biological associations table [#3444]
-- Updated many relationships to validate based on presence of objects, rather than parameters [# ]
+- Updated many relationships to validate based on presence of objects, rather than parameters
 - Simplified behavior of Otu and TaxonName autocomplete to use new fuzzier indicies
 - Clone loan button redirects to new loan task [#3462]
+- Multiple improvements in DwC importers
 
 ### Fixed
 
@@ -62,6 +67,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Matrix Column Coder throws an error after autosave ends and observation to be saved no longer exists
 - New line delimiter doesn't work in Filter collection object [#3480]
 
+[#1852]: https://github.com/SpeciesFileGroup/taxonworks/issues/1852
 [#3010]: https://github.com/SpeciesFileGroup/taxonworks/issues/3010
 [#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430
 [#3438]: https://github.com/SpeciesFileGroup/taxonworks/issues/3438
@@ -3726,7 +3732,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.33.1...development
+
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.0...development
+[0.34.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.0...v0.33.1
 [0.33.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.33.0...v0.33.1
 [0.33.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.3...v0.33.0
 [0.32.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.2...v0.32.3
