@@ -3,6 +3,7 @@
     v-model="owners"
     :role-type="ROLE_ATTRIBUTION_OWNER"
     title="Owner"
+    organization
   />
 </template>
 

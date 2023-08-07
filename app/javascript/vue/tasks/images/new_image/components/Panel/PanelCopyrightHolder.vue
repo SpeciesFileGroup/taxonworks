@@ -12,17 +12,9 @@
           v-model="view"
         />
         <RolePicker
-          v-if="view === OPTIONS.People"
           v-model="rolesAttributes"
           :role-type="ROLE_ATTRIBUTION_COPYRIGHT_HOLDER"
-        />
-        <VAutocomplete
-          v-else
-          placeholder="Select an organization"
-          url="/organizations/autocomplete"
-          param="term"
-          @get-item="setOrganization"
-          label="label_html"
+          :organization="view === OPTIONS.Organization"
         />
       </div>
       <div class="field label-above">
@@ -40,7 +32,6 @@
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import VSwitch from '@/components/switch'
 import RolePicker from '@/components/role_picker'
-import VAutocomplete from '@/components/ui/Autocomplete'
 import { ROLE_ATTRIBUTION_COPYRIGHT_HOLDER } from '@/constants'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
@@ -69,14 +60,4 @@ const year = computed({
 })
 
 const view = ref('Someone else')
-
-function setOrganization(organization) {
-  rolesAttributes.value = [
-    {
-      type: ROLE_ATTRIBUTION_COPYRIGHT_HOLDER,
-      label: organization.label,
-      organization_id: organization.id
-    }
-  ]
-}
 </script>

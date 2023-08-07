@@ -218,15 +218,14 @@ export default {
   },
   methods: {
     getNames(list) {
-      return list.map((item) => {
-        if (item.hasOwnProperty('cached')) {
-          return item.cached
-        } else if (item.hasOwnProperty('person_attributes')) {
-          return `${item.person_attributes?.last_name}, ${item.person_attributes?.first_name}`
-        } else {
-          return `${item.last_name}, ${item.first_name}`
-        }
-      })
+      return list.map(
+        (item) =>
+          item.cached ||
+          (item.person_attributes &&
+            `${item.person_attributes?.last_name}, ${item.person_attributes?.first_name}`) ||
+          item.name ||
+          `${item.last_name}, ${item.first_name}`
+      )
     },
 
     applyAttr() {
