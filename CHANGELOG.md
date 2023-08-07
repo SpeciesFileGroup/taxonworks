@@ -10,6 +10,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Missing organization tab in Owner panel on New image task
+- BibTeX download shows incorrect results on New source task [#3510]
+
+[#3510]: https://github.com/SpeciesFileGroup/taxonworks/issues/3510
 
 ## [0.34.0] - 2023-08-04
 
