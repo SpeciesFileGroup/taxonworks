@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Missing organization tab in Owner panel on New image task
 - BibTeX download shows incorrect results on New source task [#3510]
+- Asserted distribution API endpoint crashing when count is above 50
 
 [#3510]: https://github.com/SpeciesFileGroup/taxonworks/issues/3510
 
@@ -3737,6 +3738,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
+
 [unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.0...development
 [0.34.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.0...v0.33.1
 [0.33.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.33.0...v0.33.1
