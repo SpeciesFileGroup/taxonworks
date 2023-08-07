@@ -14,10 +14,9 @@ namespace :tw do
           'start:create_users',
           'start:create_projects',
           'start:list_excluded_taxa',
-          'media:image_files',
 
           'start:create_people',
-          'start:map_serials',
+          'start:map_serials', # TODO URGENT: Currently production is not matching sandcastle!!
           # '1_after_serials': 14m32.537s on 30 Oct 2018
           #
           'start:map_ref_links',
@@ -125,12 +124,13 @@ namespace :tw do
           # #
           # # Total run time ~ 65 hours
 
+          'media:image_files',
+          'media:image_data',
+          'media:sound_links',
+
           'specimens:set_dwc_occurrence',
 
-          'citations:soft_validation_fixes',
-
-          'media:image_data',
-          'media:sound_links'
+          'citations:soft_validation_fixes'
         ]
 
         tasks.each.with_index(1) do |task, index|
