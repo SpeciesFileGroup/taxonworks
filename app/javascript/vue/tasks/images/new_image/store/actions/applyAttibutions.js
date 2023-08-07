@@ -56,7 +56,7 @@ export default ({ state, commit }) => {
       license: state.license,
       attribution_object_type: item.base_class,
       attribution_object_id: item.id,
-      roles_attributes: roles
+      roles_attributes: attributionRoles
     }
 
     const attributionCreated = state.attributionsCreated.find(
@@ -67,8 +67,11 @@ export default ({ state, commit }) => {
       const createdRolesList = getRoleList(attributionCreated)
       const newRoles = attributionRoles.filter(
         (item) =>
-          !createdRolesList.find(
-            (role) => !!item?.person_id && role.person.id === item.person_id
+          !createdRolesList.some(
+            (role) =>
+              (!!item?.person_id && role.person?.id === item?.person_id) ||
+              (role.organization &&
+                role.organization.id === item.organization_id)
           )
       )
 
