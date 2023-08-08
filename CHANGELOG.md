@@ -11,6 +11,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - New species name button is now always visible in Type section on New taxon name task
 
+### Fixed
+- Fix coldp.rb undefined method `iso8601' for nil:NilClass [#3512]
+
 ## [0.34.1] - 2023-08-07
 
 ### Fixed
