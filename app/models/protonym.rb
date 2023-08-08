@@ -615,7 +615,7 @@ class Protonym < TaxonName
       m_name, f_name, n_name = name[0..-2] + 'is', name[0..-2] + 'is', name
     when /us$/
       m_name, f_name, n_name = name, name[0..-3] + 'a', name[0..-3] + 'um'
-    when /niger|integer$/
+    when /(niger|integer)$/
       m_name, f_name, n_name = name, name[0..-3] + 'ra', name[0..-3] + 'rum'
     when /(fer|ger)$/
       m_name, f_name, n_name = name, name + 'a', name + 'um'
