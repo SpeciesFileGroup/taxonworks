@@ -7,6 +7,22 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+
+- New species name button is now always visible in Type section on New taxon name task
+
+## [0.34.1] - 2023-08-07
+
+### Fixed
+
+- Missing organization tab in Owner panel on New image task
+- BibTeX download shows incorrect results on New source task [#3510]
+- Asserted distribution API endpoint crashing when count is above 50
+
+[#3510]: https://github.com/SpeciesFileGroup/taxonworks/issues/3510
+
+## [0.34.0] - 2023-08-04
+
 ### Added
 
 - `api/v1/data_attributes/brief` endpoint
@@ -24,17 +40,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Customized API version of OTU autocomplete
 - GBIF map tiles as an option on maps
 - `Add related` option to nodes in Biological associations graph task
+- Layout settings for New image task
 
 ### Changed
 
+- Predicted adjectives for the epithets ending with -ger and -fer
+- Optimized Gnfinder playground new-name detection
 - Optimized `/api/v1/asserted_distribution`, also now uses `extend[]=geo_json` (disabled if > 50 records requested)
 - Updated `/api/v1/biological_associations` to report full `taxonomy` [#3438]
 - Updated Ruby gems
 - Added date format recognition ####-##-## [#3453]
 - Add hyperlinks to OTU labels in Filter biological associations table [#3444]
-- Updated many relationships to validate based on presence of objects, rather than parameters [# ]
+- Updated many relationships to validate based on presence of objects, rather than parameters
 - Simplified behavior of Otu and TaxonName autocomplete to use new fuzzier indicies
 - Clone loan button redirects to new loan task [#3462]
+- Multiple improvements in DwC importers
 
 ### Fixed
 
@@ -57,17 +77,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Disable editing of imported rows in DwC importer task [#3469]
 - Fixed URL hostname string matching in some places.
 - Matrix Column Coder throws an error after autosave ends and observation to be saved no longer exists
+- New line delimiter doesn't work in Filter collection object [#3480]
 
-[#3464]: https://github.com/SpeciesFileGroup/taxonworks/issues/3464
-[#3438]: https://github.com/SpeciesFileGroup/taxonworks/issues/3438
-[#3472]: https://github.com/SpeciesFileGroup/taxonworks/issues/3472
-[#3452]: https://github.com/SpeciesFileGroup/taxonworks/issues/3452
+[#1852]: https://github.com/SpeciesFileGroup/taxonworks/issues/1852
 [#3010]: https://github.com/SpeciesFileGroup/taxonworks/issues/3010
 [#3430]: https://github.com/SpeciesFileGroup/taxonworks/issues/3430
+[#3438]: https://github.com/SpeciesFileGroup/taxonworks/issues/3438
 [#3444]: https://github.com/SpeciesFileGroup/taxonworks/issues/3444
 [#3445]: https://github.com/SpeciesFileGroup/taxonworks/issues/3445
-[#3469]: https://github.com/SpeciesFileGroup/taxonworks/issues/3469
+[#3452]: https://github.com/SpeciesFileGroup/taxonworks/issues/3452
 [#3462]: https://github.com/SpeciesFileGroup/taxonworks/issues/3462
+[#3464]: https://github.com/SpeciesFileGroup/taxonworks/issues/3464
+[#3469]: https://github.com/SpeciesFileGroup/taxonworks/issues/3469
+[#3472]: https://github.com/SpeciesFileGroup/taxonworks/issues/3472
+[#3480]: https://github.com/SpeciesFileGroup/taxonworks/issues/3480
 
 ## [0.33.1] - 2023-05-25
 
@@ -3721,7 +3744,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.33.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.1...development
+[0.34.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.0...v0.34.1
+[0.34.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.1...v0.34.0
 [0.33.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.33.0...v0.33.1
 [0.33.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.3...v0.33.0
 [0.32.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.32.2...v0.32.3

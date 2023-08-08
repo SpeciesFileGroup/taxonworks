@@ -1,5 +1,4 @@
 export * from './alternateValueTypes'
-export * from './attributionTypes'
 export * from './containerTypes'
 export * from './dataAttributes'
 export * from './descriptorTypes'

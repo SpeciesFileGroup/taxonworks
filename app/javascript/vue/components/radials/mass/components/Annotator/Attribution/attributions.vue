@@ -109,7 +109,7 @@ import { toSnakeCase } from '@/helpers/strings'
 import { Attribution } from '@/routes/endpoints'
 import { CreatePerson } from '@/helpers/people/createPerson'
 import {
-  ATTRIBUTION_COPYRIGHT_HOLDER,
+  ROLE_ATTRIBUTION_COPYRIGHT_HOLDER,
   ROLE_COLLECTOR
 } from '@/constants/index.js'
 import RolePicker from '@/components/role_picker'
@@ -208,7 +208,7 @@ const updateIndex = () => {
 const addOrganization = (organization) => {
   rolesList.copyright_organization_roles.push({
     organization_id: organization.id,
-    type: ATTRIBUTION_COPYRIGHT_HOLDER,
+    type: ROLE_ATTRIBUTION_COPYRIGHT_HOLDER,
     object_tag: organization?.object_tag || organization.label
   })
 }

@@ -84,7 +84,7 @@
         :send-label="labelEvent"
         placeholder="Select a collection event"
         @get-item="
-          () => {
+          ($event) => {
             eventId = $event.id
             labelEvent = $event.label
           }

@@ -1,0 +1,7 @@
+taxonID	parentNameUsageID	acceptedNameUsageID	scientificName	kingdom	lass	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsageID	namePublishedInYear	nomenclaturalCode	TW:TaxonNameClassification:Latinized:Gender
+430098		430098	Odontomachus	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Latreille, 1804	valid	430098	1804	ICZN	masculine
+430100		430098	Champsomyrmex	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Emery, 1892	synonym	430100	1892	ICZN	masculine
+442479	430098	442479	Odontomachus coquereli	Animalia	Insecta	Hymenoptera	Formicidae	Odontomachus		coquereli		Species	Roger, 1861	valid	442479	1861	ICZN
+442526	442479	442479	Odontomachus coquereli minor	Animalia	Insecta	Hymenoptera	Formicidae	Odontomachus		coquereli	minor	Subspecies	(Emery, 1899)	synonym	459047	1899	ICZN
+459047	476555	442479	Champsomyrmex coquereli minor	Animalia	Insecta	Hymenoptera	Formicidae	Champsomyrmex		coquereli	minor	Subspecies	Emery, 1899	obsolete combination	459047	1899	ICZN
+476555	430100	442479	Champsomyrmex coquereli	Animalia	Insecta	Hymenoptera	Formicidae	Champsomyrmex		coquereli		Species	(Roger, 1861)	obsolete combination	442479	1861	ICZN

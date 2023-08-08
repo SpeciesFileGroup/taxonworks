@@ -161,7 +161,7 @@ class AssertedDistributionsController < ApplicationController
       .per(params[:per])
 
       if @asserted_distributions.all.count > 50
-        params['extend'].delete('geo_json')
+        params['extend']&.delete('geo_json')
       end
 
     render '/asserted_distributions/api/v1/index'
