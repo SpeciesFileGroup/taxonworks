@@ -337,7 +337,8 @@ namespace :tw do
               source.save!
               source.data_attributes.create!(type: 'ImportAttribute', project_id: get_tw_project_id[row['FileID']], import_predicate: 'SF.RefID', value: ref_id)
 
-              puts "RefID = #{ref_id}, PubID = #{pub_id}, serial_id = #{get_tw_serial_id[pub_id]}"
+              logger.info "RefID = #{ref_id}, PubID = #{pub_id}, serial_id = #{get_tw_serial_id[pub_id]}"
+              logger.error "Serial for PubID #{pub_id} not found" unless get_tw_serial_id[pub_id]
 
               if row['ActualYear'].include?('-') or row['StatedYear'].include?('-')
                 source.data_attributes.create!(type: 'ImportAttribute', project_id: get_tw_project_id[row['FileID']], import_predicate: 'SF verbatim reference for year range', value: get_sf_verbatim_ref[ref_id])
