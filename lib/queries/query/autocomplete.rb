@@ -285,6 +285,15 @@ module Queries
       base_query.joins(:common_names).where(common_name_wild_pieces.to_sql).limit(5)
     end
 
+    # Calculate the levenshtein distance for a value across multiple columns, and keep the smallest.
+    #
+    # @param fields [Array] the table column names to take strings from
+    # @param value [String] the string to calculate distances to
+    def least_levenshtein(fields, value)
+      levenshtein_sql = fields.map {|f| levenshtein_distance(f, value).to_sql }
+      Arel.sql("least(#{levenshtein_sql.join(", ")})")
+    end
+
     # TODO: not used
     # @return [Arel:Nodes]
     # def or_and

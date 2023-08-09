@@ -21,11 +21,11 @@
 
 <script setup>
 import { ref, onUnmounted } from 'vue'
-import { Tag } from 'routes/endpoints'
-import { CONTROLLED_VOCABULARY_TERM } from 'constants/index'
-import VSpinner from 'components/spinner'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import { Tag } from '@/routes/endpoints'
+import { CONTROLLED_VOCABULARY_TERM } from '@/constants/index'
+import VSpinner from '@/components/spinner'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   ids: {

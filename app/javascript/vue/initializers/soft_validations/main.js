@@ -1,10 +1,14 @@
 import { createApp } from 'vue'
-import SoftValidation from 'tasks/nomenclature/browse/components/validations'
+import SoftValidation from '@/tasks/nomenclature/browse/components/validations'
 
-function initValidations (element) {
-  const softValidationElements = Array.from(document.querySelectorAll('#data-validation-panel [data-global-id]'))
+function initValidations(element) {
+  const softValidationElements = Array.from(
+    document.querySelectorAll('#data-validation-panel [data-global-id]')
+  )
   const globalIds = {
-    '': softValidationElements.map(node => node.getAttribute('data-global-id'))
+    '': softValidationElements.map((node) =>
+      node.getAttribute('data-global-id')
+    )
   }
 
   if (softValidationElements.length) {

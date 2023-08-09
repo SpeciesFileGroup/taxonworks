@@ -41,11 +41,11 @@
 
 <script>
 import ActionNames from '../../store/actions/actionNames'
-import ImageViewer from 'components/ui/ImageViewer/ImageViewer'
-import Dropzone from 'components/dropzone.vue'
-import { Depiction } from 'routes/endpoints'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer'
+import Dropzone from '@/components/dropzone.vue'
+import { Depiction } from '@/routes/endpoints'
 import ZoomImage from './zoomImage.vue'
-import { imageSVGViewBox } from 'helpers/images'
+import { imageSVGViewBox } from '@/helpers/images'
 
 export default {
   components: {

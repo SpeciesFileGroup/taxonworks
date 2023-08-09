@@ -13,7 +13,7 @@
               type="radio"
               v-model="typeMaterial.type"
               :value="key"
-            >
+            />
             {{ key }}
           </label>
         </li>
@@ -25,7 +25,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
-import { TypeMaterial } from 'routes/endpoints'
+import { TypeMaterial } from '@/routes/endpoints'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { GetterNames } from '../../store/getters/getters.js'
 
@@ -34,11 +34,12 @@ const typeList = ref({})
 
 const typeMaterial = computed({
   get: () => store.getters[GetterNames.GetTypeMaterial],
-  set: value => store.commit(MutationNames.SetTypeMaterial, value)
+  set: (value) => store.commit(MutationNames.SetTypeMaterial, value)
 })
 
 const nomenclatureCodeTypes = computed(() => {
-  const nomenclatureCode = store.getters[GetterNames.GetTypeMaterial].taxon?.nomenclatural_code
+  const nomenclatureCode =
+    store.getters[GetterNames.GetTypeMaterial].taxon?.nomenclatural_code
 
   return typeList.value[nomenclatureCode]
 })
@@ -46,5 +47,4 @@ const nomenclatureCodeTypes = computed(() => {
 TypeMaterial.types().then(({ body }) => {
   typeList.value = body
 })
-
 </script>

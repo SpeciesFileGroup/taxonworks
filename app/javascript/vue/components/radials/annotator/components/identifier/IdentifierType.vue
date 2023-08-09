@@ -17,7 +17,7 @@
               type="radio"
               v-model="type"
               :value="key"
-            >
+            />
             {{ item.label }}
           </label>
         </li>
@@ -35,7 +35,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import VSwitch from 'components/switch.vue'
+import VSwitch from '@/components/switch.vue'
 
 const props = defineProps({
   types: {
@@ -65,6 +65,6 @@ const emit = defineEmits(['update:modelValue'])
 
 const type = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 </script>

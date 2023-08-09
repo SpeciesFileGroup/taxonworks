@@ -3,6 +3,7 @@
     <h3>Matching identifiers</h3>
     <div class="field label-above">
       <textarea
+        v-tabkey
         class="full_width"
         v-model="matchIdentifiers"
         rows="5"
@@ -18,7 +19,7 @@
         v-model="delimiterIdentifier"
         type="text"
         class="full_width"
-      >
+      />
     </div>
 
     <div class="field horizontal-left-content middle">
@@ -33,9 +34,9 @@
 
 <script setup>
 import { computed, ref, onBeforeMount } from 'vue'
-import VToggle from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { vTabkey } from '@/directives'
+import VToggle from '@/tasks/observation_matrices/new/components/newMatrix/switch.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const TYPE_PARAMETERS = {
   Internal: 'internal',
@@ -49,18 +50,18 @@ const props = defineProps({
   }
 })
 
-const type = ref(TYPE_PARAMETERS.Internal)
-const delimiter = ref(',')
+const type = ref()
+const delimiter = ref()
 const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const matchIdentifiers = computed({
   get: () => props.modelValue.match_identifiers,
-  set: value => {
+  set: (value) => {
     if (value) {
       params.value.match_identifiers = value
       params.value.match_identifiers_type = type.value
@@ -75,21 +76,21 @@ const matchIdentifiers = computed({
 
 const delimiterIdentifier = computed({
   get: () => props.modelValue.match_identifiers_delimiter,
-  set: value => {
+  set: (value) => {
     delimiter.value = value
 
     if (!matchIdentifiers.value) {
       params.value.match_identifiers_delimiter = undefined
+    } else {
+      params.value.match_identifiers_delimiter = value
     }
   }
 })
 
 const toggleType = computed({
   get: () => type.value === TYPE_PARAMETERS.Identifier,
-  set: value => {
-    type.value = value
-      ? TYPE_PARAMETERS.Identifier
-      : TYPE_PARAMETERS.Internal
+  set: (value) => {
+    type.value = value ? TYPE_PARAMETERS.Identifier : TYPE_PARAMETERS.Internal
 
     if (matchIdentifiers.value) {
       params.value.match_identifiers_type = type.value
@@ -98,11 +99,7 @@ const toggleType = computed({
 })
 
 onBeforeMount(() => {
-  const urlParams = URLParamsToJSON(location.href)
-
-  params.value.match_identifiers = urlParams.match_identifiers
-  params.value.match_identifiers_delimiter = urlParams.match_identifiers_delimiter
-  params.value.match_identifiers_type = urlParams.match_identifiers_type
+  type.value = params.value.match_identifiers_type || TYPE_PARAMETERS.Internal
+  delimiter.value = params.value.match_identifiers_delimiter || ','
 })
-
 </script>

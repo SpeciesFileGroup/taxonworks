@@ -155,9 +155,15 @@ class AssertedDistributionsController < ApplicationController
     @asserted_distributions = Queries::AssertedDistribution::Filter.new(params.merge!(api: true))
       .all
       .where(project_id: sessions_current_project_id)
+      .includes(:citations, :otu, geographic_area: [:parent, :geographic_area_type], origin_citation: [:source])
       .order('asserted_distributions.id')
       .page(params[:page])
       .per(params[:per])
+
+      if @asserted_distributions.all.count > 50
+        params['extend']&.delete('geo_json')
+      end
+
     render '/asserted_distributions/api/v1/index'
   end
 

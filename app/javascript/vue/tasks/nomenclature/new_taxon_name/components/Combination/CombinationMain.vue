@@ -1,7 +1,8 @@
 <template>
   <block-layout
     :spinner="!taxon.id"
-    anchor="subsequent-combination">
+    anchor="subsequent-combination"
+  >
     <template #header>
       <h3>Subsequent combination</h3>
     </template>
@@ -30,14 +31,15 @@
       />
 
       <div class="original-combination margin-medium-top margin-medium-bottom">
-        <div class="rank-name-label"/>
-        <combination-verbatim v-model="currentCombination.verbatim_name"/>
+        <div class="rank-name-label" />
+        <combination-verbatim v-model="currentCombination.verbatim_name" />
       </div>
       <template v-if="Object.keys(combination).length">
         <combination-citation
           :taxon="taxon"
-          v-model="citationData"/>
-        <hr>
+          v-model="citationData"
+        />
+        <hr />
 
         <template v-if="isBotanyCode">
           <h3>Classification</h3>
@@ -72,11 +74,7 @@
           :disabled="!isCurrentTaxonInCombination"
           @click="saveCombination"
         >
-          {{
-            currentCombination.id
-              ? 'Update'
-              : 'Create'
-          }}
+          {{ currentCombination.id ? 'Update' : 'Create' }}
         </v-btn>
         <v-btn
           color="primary"
@@ -86,7 +84,7 @@
           New
         </v-btn>
       </div>
-      <hr>
+      <hr />
       <combination-list
         :list="combinationList"
         @edit="loadCombination"
@@ -97,7 +95,6 @@
 </template>
 
 <script setup>
-
 import { ref, computed, reactive, watch } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters.js'
@@ -106,43 +103,54 @@ import {
   subsequentCombinationType,
   combinationIcnType
 } from '../../const/combinationTypes'
-import {
-  COMBINATION,
-  NOMENCLATURE_CODE_BOTANY
-} from 'constants/index.js'
-import { addToArray, removeFromArray } from 'helpers/arrays.js'
-import { TaxonNameClassification } from 'routes/endpoints'
-import VBtn from 'components/ui/VBtn/index.vue'
-import BlockLayout from 'components/layout/BlockLayout.vue'
+import { COMBINATION, NOMENCLATURE_CODE_BOTANY } from '@/constants/index.js'
+import { addToArray, removeFromArray } from '@/helpers/arrays.js'
+import { TaxonNameClassification } from '@/routes/endpoints'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 import CombinationRank from './CombinationRank.vue'
 import CombinationCurrent from './CombinationCurrent.vue'
 import CombinationVerbatim from './CombinationVerbatim.vue'
 import CombinationCitation from './Author/AuthorMain.vue'
 import CombinationList from './CombinationList.vue'
 import ClassificationMain from '../Classification/ClassificationMain.vue'
-import makeCitationObject from 'factory/Citation.js'
-import DisplayList from 'components/displayList.vue'
+import makeCitationObject from '@/factory/Citation.js'
+import DisplayList from '@/components/displayList.vue'
 
 const store = useStore()
 const combination = ref({})
-const combinationList = computed(() => store.getters[GetterNames.GetCombinations])
+const combinationList = computed(
+  () => store.getters[GetterNames.GetCombinations]
+)
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 const currentCombination = ref({})
 const currentCombinationId = computed(() => currentCombination.value.id)
-const isCurrentTaxonInCombination = computed(() => !!Object.entries(combination.value).find(([_, protonym]) => protonym?.id === taxon.value.id))
-const isBotanyCode = computed(() => store.getters[GetterNames.GetTaxon].nomenclatural_code === NOMENCLATURE_CODE_BOTANY)
-const nomenclatureRanks = computed(() => isBotanyCode.value
-  ? combinationIcnType
-  : subsequentCombinationType
+const isCurrentTaxonInCombination = computed(
+  () =>
+    !!Object.entries(combination.value).find(
+      ([_, protonym]) => protonym?.id === taxon.value.id
+    )
 )
-const isGenusGroup = computed(() => Object.keys(nomenclatureRanks.value.genusGroup).includes(taxon.value.rank))
-const combinationRanks = computed(() => isGenusGroup.value
-  ? { genusGroup: nomenclatureRanks.value.genusGroup }
-  : nomenclatureRanks.value
+const isBotanyCode = computed(
+  () =>
+    store.getters[GetterNames.GetTaxon].nomenclatural_code ===
+    NOMENCLATURE_CODE_BOTANY
+)
+const nomenclatureRanks = computed(() =>
+  isBotanyCode.value ? combinationIcnType : subsequentCombinationType
+)
+const isGenusGroup = computed(() =>
+  Object.keys(nomenclatureRanks.value.genusGroup).includes(taxon.value.rank)
+)
+const combinationRanks = computed(() =>
+  isGenusGroup.value
+    ? { genusGroup: nomenclatureRanks.value.genusGroup }
+    : nomenclatureRanks.value
 )
 
 const saveCombination = () => {
-  const combObj = Object.assign({},
+  const combObj = Object.assign(
+    {},
     {
       id: currentCombination.value.id,
       verbatim_name: currentCombination.value.verbatim_name,
@@ -152,7 +160,7 @@ const saveCombination = () => {
     ...makeCombinationParams()
   )
 
-  store.dispatch(ActionNames.CreateCombination, combObj).then(body => {
+  store.dispatch(ActionNames.CreateCombination, combObj).then((body) => {
     combination.value = {}
     currentCombination.value = {}
     setCitationData()
@@ -160,7 +168,7 @@ const saveCombination = () => {
   })
 }
 
-const removeOldRelationships = protonyms => {
+const removeOldRelationships = (protonyms) => {
   const removeRanks = []
   const oldProtonyms = currentCombination.value.protonyms
 
@@ -181,7 +189,10 @@ const removeOldRelationships = protonyms => {
   return removeRanks
 }
 
-const makeCombinationParams = () => Object.entries(combination.value).map(([rank, taxon]) => ({ [`${rank}_id`]: taxon?.id || null }))
+const makeCombinationParams = () =>
+  Object.entries(combination.value).map(([rank, taxon]) => ({
+    [`${rank}_id`]: taxon?.id || null
+  }))
 
 const newCombination = () => {
   combination.value = {}
@@ -190,13 +201,13 @@ const newCombination = () => {
   setCitationData()
 }
 
-const loadCombination = data => {
+const loadCombination = (data) => {
   currentCombination.value = { ...data }
   combination.value = data.protonyms
   setCitationData(data)
 }
 
-const removeCombination = data => {
+const removeCombination = (data) => {
   if (data.id === currentCombination.value.id) {
     currentCombination.value = {}
     combination.value = {}
@@ -238,18 +249,20 @@ const setCitationData = (combination = {}) => {
 const classifications = ref([])
 const queueClassification = ref([])
 
-const addClassification = type => {
+const addClassification = (type) => {
   queueClassification.value.push(type)
 }
 
-const removeClassification = item => {
-  TaxonNameClassification.destroy(item.id).then(_ => {
+const removeClassification = (item) => {
+  TaxonNameClassification.destroy(item.id).then((_) => {
     removeFromArray(classifications.value, item)
   })
 }
 
-const processQueueCombination = combinationId => {
-  if (!queueClassification.value.length) { return }
+const processQueueCombination = (combinationId) => {
+  if (!queueClassification.value.length) {
+    return
+  }
 
   const promise = queueClassification.value.map(({ type }) =>
     TaxonNameClassification.create({
@@ -262,23 +275,26 @@ const processQueueCombination = combinationId => {
     })
   )
 
-  Promise.allSettled(promise).then(_ => {
+  Promise.allSettled(promise).then((_) => {
     queueClassification.value = []
   })
 }
 
-watch(queueClassification, _ => {
-  if (currentCombinationId.value) {
-    processQueueCombination(currentCombinationId.value)
-  }
-}, { deep: true })
+watch(
+  queueClassification,
+  (_) => {
+    if (currentCombinationId.value) {
+      processQueueCombination(currentCombinationId.value)
+    }
+  },
+  { deep: true }
+)
 
-watch(currentCombinationId, async newId => {
+watch(currentCombinationId, async (newId) => {
   classifications.value = newId
     ? (await TaxonNameClassification.where({ taxon_name_id: newId })).body
     : []
 
   queueClassification.value = []
 })
-
 </script>

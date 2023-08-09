@@ -33,10 +33,10 @@
 
 <script setup>
 import { computed } from 'vue'
-import GeographicAreaMapPicker from 'components/ui/SmartSelector/GeographicAreaMapPicker.vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import VLock from 'components/ui/VLock/index.vue'
+import GeographicAreaMapPicker from '@/components/ui/SmartSelector/GeographicAreaMapPicker.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import VLock from '@/components/ui/VLock/index.vue'
 
 const props = defineProps({
   modelValue: {

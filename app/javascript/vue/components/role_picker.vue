@@ -28,44 +28,46 @@
             @get-input="setInput"
             @get-item="addCreatedPerson"
           />
-          <default-pin
-            class="button-circle"
+          <DefaultPin
             type="People"
-            @get-item="addCreatedPerson({ object_id: $event.id })"
             section="People"
+            @get-item="addCreatedPerson({ object_id: $event.id })"
           />
         </div>
         <div
           class="flex-wrap-column separate-left"
           v-if="searchPerson.length > 0"
         >
-          <div>
+          <div class="flexbox gap-xsmall">
             <input
               class="normal-input"
               disabled
               :value="newNamePerson"
             />
-            <button
+            <VBtn
               type="button"
-              class="normal-input button button-submit"
+              color="create"
+              medium
               @click="createPerson()"
             >
               Add new
-            </button>
-            <button
+            </VBtn>
+            <VBtn
               type="button"
-              class="normal-input button button-default"
+              color="primary"
+              medium
               @click="switchName(newNamePerson)"
             >
               Switch
-            </button>
-            <button
+            </VBtn>
+            <VBtn
               type="button"
-              class="normal-input button button-default"
+              color="primary"
+              medium
               @click="expandPerson = !expandPerson"
             >
               Expand
-            </button>
+            </VBtn>
           </div>
           <hr />
           <div
@@ -150,14 +152,14 @@
 </template>
 
 <script>
-import Autocomplete from 'components/ui/Autocomplete.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 import Draggable from 'vuedraggable'
 import DefaultPin from './getDefaultPin'
-import OrganizationPicker from 'components/organizationPicker.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import { sortArray } from 'helpers/arrays'
-import { People } from 'routes/endpoints'
+import OrganizationPicker from '@/components/organizationPicker.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { sortArray } from '@/helpers/arrays'
+import { People } from '@/routes/endpoints'
 
 export default {
   components: {

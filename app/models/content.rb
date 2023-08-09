@@ -92,7 +92,7 @@ class Content < ApplicationRecord
   end
 
   def self.find_for_autocomplete(params)
-    where('text ILIKE ? OR text ILIKE ?', "#{params[:term]}%", "%#{params[:term]}%")
+    where('text ILIKE ?', "%#{params[:term]}%")
   end
 
   def self.used_recently(user_id, project_id)

@@ -31,10 +31,9 @@
 </template>
 
 <script>
-
 import TagItem from '../shared/item_tag.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import { BiologicalRelationship } from 'routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import { BiologicalRelationship } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -44,24 +43,24 @@ export default {
 
   emits: ['select'],
 
-  data () {
+  data() {
     return {
       view: undefined,
       allItems: {}
     }
   },
 
-  mounted () {
+  mounted() {
     this.loadTabList()
   },
 
   methods: {
-    loadTabList () {
-      BiologicalRelationship.all().then(response => {
+    loadTabList() {
+      BiologicalRelationship.all().then((response) => {
         this.allItems = response.body
       })
     },
-    setBiologicalAssociation (item) {
+    setBiologicalAssociation(item) {
       this.$emit('select', item)
     }
   }

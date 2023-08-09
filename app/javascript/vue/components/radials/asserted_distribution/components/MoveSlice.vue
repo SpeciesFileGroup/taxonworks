@@ -28,11 +28,11 @@
 </template>
 
 <script setup>
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import { AssertedDistribution } from 'routes/endpoints'
-import { ASSERTED_DISTRIBUTION } from 'constants/index.js'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { AssertedDistribution } from '@/routes/endpoints'
+import { ASSERTED_DISTRIBUTION } from '@/constants/index.js'
 import { ref } from 'vue'
 
 const props = defineProps({

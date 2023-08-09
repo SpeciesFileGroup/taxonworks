@@ -1,5 +1,5 @@
-import { COLLECTING_EVENT } from 'constants/index.js'
-import { Label } from 'routes/endpoints'
+import { COLLECTING_EVENT } from '@/constants/index.js'
+import { Label } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 import { ActionNames } from '../actions/actions'
 

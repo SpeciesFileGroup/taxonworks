@@ -3,11 +3,11 @@
     :id="id"
     :show-count="showCount"
     :global-id="globalId"
-    :pulse="pulse"/>
+    :pulse="pulse"
+  />
 </template>
 <script>
-
-import radialAnnotator from 'components/radials/annotator/annotator.vue'
+import radialAnnotator from '@/components/radials/annotator/annotator.vue'
 
 export default {
   components: { radialAnnotator },

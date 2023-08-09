@@ -14,8 +14,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Citation } from 'routes/endpoints'
-import FormCitation from 'components/Form/FormCitation.vue'
+import { Citation } from '@/routes/endpoints'
+import FormCitation from '@/components/Form/FormCitation.vue'
 
 const props = defineProps({
   ids: {

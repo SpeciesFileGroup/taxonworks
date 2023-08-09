@@ -59,9 +59,9 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { computed } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import { URLParamsToJSON } from '@/helpers/url/parse'
 
 const props = defineProps({
   modelValue: {

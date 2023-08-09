@@ -4,7 +4,8 @@
       class="button button-default normal-input"
       type="button"
       @click="showModal = true"
-      :disabled="!compare.length">
+      :disabled="!compare.length"
+    >
       Compare
     </button>
     <modal-component
@@ -33,7 +34,7 @@
           </thead>
           <tbody>
             <tr
-              v-for="(key) in Object.keys(renderType[0])"
+              v-for="key in Object.keys(renderType[0])"
               :key="key"
               class="contextMenuCells"
             >
@@ -81,12 +82,11 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal'
-import SwitchComponent from 'components/switch'
+import ModalComponent from '@/components/ui/Modal'
+import SwitchComponent from '@/components/switch'
 
 import { GetDWC } from '../request/resources'
-import { CollectingEvent } from 'routes/endpoints'
+import { CollectingEvent } from '@/routes/endpoints'
 
 const TABS_TYPE = {
   DETAILS: 'details',
@@ -107,14 +107,12 @@ export default {
   },
 
   computed: {
-    renderType () {
-      return this.view === TABS_TYPE.DWC
-        ? this.dwcTable
-        : this.compare
+    renderType() {
+      return this.view === TABS_TYPE.DWC ? this.dwcTable : this.compare
     }
   },
 
-  data () {
+  data() {
     return {
       showModal: false,
       compareCE: [],
@@ -126,7 +124,7 @@ export default {
   },
 
   watch: {
-    showModal (newVal) {
+    showModal(newVal) {
       if (newVal) {
         this.LoadDWC()
         this.getCEs()
@@ -135,38 +133,38 @@ export default {
   },
 
   methods: {
-    getCEs () {
-      const requests = this.compare.map(
-        co => co.collecting_event_id
+    getCEs() {
+      const requests = this.compare.map((co) =>
+        co.collecting_event_id
           ? CollectingEvent.find(co.collecting_event_id)
           : Promise.resolve({ body: {} })
       )
 
-      Promise.all(requests).then(responses => {
-        const collectingEvents = responses.map(r => r.body)
+      Promise.all(requests).then((responses) => {
+        const collectingEvents = responses.map((r) => r.body)
         console.log(collectingEvents)
 
         this.compareCE = collectingEvents
-        this.ceAttributes = Object.keys(collectingEvents.find(ce => ce.id) || {})
+        this.ceAttributes = Object.keys(
+          collectingEvents.find((ce) => ce.id) || {}
+        )
       })
     },
 
-    LoadDWC () {
-      const requests = this.compare.map(co => GetDWC(co.id))
+    LoadDWC() {
+      const requests = this.compare.map((co) => GetDWC(co.id))
 
-      Promise.all(requests).then(responses => {
-        this.dwcTable = responses.map(r => r.body)
+      Promise.all(requests).then((responses) => {
+        this.dwcTable = responses.map((r) => r.body)
       })
     }
   }
 }
 </script>
 <style scoped>
-
 :deep(.modal-container) {
   width: 80vw;
   overflow-y: scroll;
   max-height: 80vh;
 }
-
 </style>

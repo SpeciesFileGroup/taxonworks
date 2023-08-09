@@ -3,18 +3,29 @@
     <spinner
       legend="Saving new combination..."
       full-screen
-      :logo-size="{ width: '100px', height: '100px'}"
-      v-if="saving"/>
+      :logo-size="{ width: '100px', height: '100px' }"
+      v-if="saving"
+    />
     <spinner
       legend="Searching taxon names..."
-      :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}"
-      v-if="searching"/>
+      :legend-style="{
+        fontSize: '14px',
+        color: '#444',
+        textAlign: 'center',
+        paddingTop: '20px'
+      }"
+      v-if="searching"
+    />
     <div
       class="panel new-combination-box separate-bottom"
-      v-if="Object.keys(rankLists).length">
+      v-if="Object.keys(rankLists).length"
+    >
       <div
         class="header flex-separate middle"
-        :class="{ 'header-warning': !(rankLists['genus'] && rankLists['genus'].length) }">
+        :class="{
+          'header-warning': !(rankLists['genus'] && rankLists['genus'].length)
+        }"
+      >
         <h3>Combination</h3>
       </div>
 
@@ -23,17 +34,19 @@
           <preview-view
             @onVerbatimChange="newCombination.verbatim_name = $event"
             :combination="newCombination"
-            :incomplete="incompleteMatch"/>
+            :incomplete="incompleteMatch"
+          />
         </div>
 
         <div class="flexbox">
           <template
             v-for="(list, key, index) in rankLists"
-            :key="key">
+            :key="key"
+          >
             <list-group
               v-if="parseRanks[key]"
               class="item1"
-              :ref="(el) => listGroup[index] = el"
+              :ref="(el) => (listGroup[index] = el)"
               @onTaxonSelect="newCombination.protonyms[key] = $event"
               @addToList="addTaxonToList"
               :selected="newCombination.protonyms[key]"
@@ -44,11 +57,12 @@
             />
           </template>
         </div>
-        <hr>
+        <hr />
         <div class="content">
           <source-picker
             :citation="newCombination['origin_citation']"
-            @select="setSource"/>
+            @select="setSource"
+          />
         </div>
 
         <div class="content">
@@ -57,12 +71,15 @@
             @processing="saving = $event"
             @save="setSavedCombination($event)"
             ref="saveButton"
-            :new-combination="newCombination"/>
+            :new-combination="newCombination"
+          />
           <button
             class="normal-input button button-default margin-small-left"
             @click="expandAll()"
             tabindex="-1"
-            type="button"><span data-icon="reset">Unlock</span>
+            type="button"
+          >
+            <span data-icon="reset">Unlock</span>
           </button>
         </div>
       </div>
@@ -70,19 +87,21 @@
 
     <div
       class="panel new-combination-box separate-top"
-      v-if="existMatches">
-      <div
-        class="header flex-separate middle">
+      v-if="existMatches"
+    >
+      <div class="header flex-separate middle">
         <h3>Other matches</h3>
       </div>
       <div class="flexbox">
         <template
           v-for="(list, key) in otherMatches"
-          :key="key">
+          :key="key"
+        >
           <match-group
             v-if="list.length"
             :rank-name="key"
-            :list="list"/>
+            :list="list"
+          />
         </template>
       </div>
     </div>
@@ -90,14 +109,13 @@
 </template>
 
 <script>
-
 import ListGroup from './listGroup.vue'
 import SaveCombination from './saveCombination.vue'
 import PreviewView from './previewView.vue'
 import SourcePicker from './sourcePicker.vue'
-import Spinner from 'components/spinner.vue'
+import Spinner from '@/components/spinner.vue'
 import MatchGroup from './matchGroup.vue'
-import { Combination, TaxonName } from 'routes/endpoints'
+import { Combination, TaxonName } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -121,18 +139,16 @@ export default {
     }
   },
 
-  emits: [
-    'save',
-    'onSearchStart',
-    'onSearchEnd'
-  ],
+  emits: ['save', 'onSearchStart', 'onSearchEnd'],
 
   computed: {
-    enableEdit () {
-      return !Object.keys(this.rankLists).find((rank) => this.rankLists[rank] && this.rankLists[rank].length > 1)
+    enableEdit() {
+      return !Object.keys(this.rankLists).find(
+        (rank) => this.rankLists[rank] && this.rankLists[rank].length > 1
+      )
     },
 
-    existMatches () {
+    existMatches() {
       for (const key in this.otherMatches) {
         if (this.otherMatches[key].length) {
           return true
@@ -141,13 +157,15 @@ export default {
       return false
     },
 
-    incompleteMatch () {
-      const ranks = Object.entries(this.parseRanks).filter(([key, value]) => value).map(([key, value]) => key)
-      return !!ranks.find(rank => !this.newCombination.protonyms[rank])
+    incompleteMatch() {
+      const ranks = Object.entries(this.parseRanks)
+        .filter(([key, value]) => value)
+        .map(([key, value]) => key)
+      return !!ranks.find((rank) => !this.newCombination.protonyms[rank])
     }
   },
 
-  data () {
+  data() {
     return {
       rankLists: {},
       parseRanks: {},
@@ -160,15 +178,17 @@ export default {
   },
 
   watch: {
-    taxonName (newVal) {
+    taxonName(newVal) {
       this.newCombination = this.createNewCombination()
       this.otherMatches = {}
       if (newVal) {
-        this.setRankList(newVal).then(response => {
+        this.setRankList(newVal).then((response) => {
           if (response.body.data.existing_combination_id) {
-            Combination.find(response.body.data.existing_combination_id).then(response => {
-              this.newCombination = response.body
-            })
+            Combination.find(response.body.data.existing_combination_id).then(
+              (response) => {
+                this.newCombination = response.body
+              }
+            )
           }
         })
       } else {
@@ -178,23 +198,27 @@ export default {
   },
 
   methods: {
-    reset () {
+    reset() {
       this.otherMatches = []
       this.newCombination = this.createNewCombination()
       this.rankLists = {}
       this.parseRanks = {}
     },
 
-    setRankList (literalString, combination = undefined) {
+    setRankList(literalString, combination = undefined) {
       return new Promise((resolve, reject) => {
         this.$emit('onSearchStart', true)
         this.searching = true
-        TaxonName.parse({ query_string: literalString }).then(response => {
+        TaxonName.parse({ query_string: literalString }).then((response) => {
           if (combination) {
             const ranks = Object.keys(combination.protonyms)
-            ranks.forEach(rank => {
+            ranks.forEach((rank) => {
               const protonym = combination.protonyms[rank]
-              if (!response.body.data.protonyms[rank].find(item => item.id === protonym.id)) {
+              if (
+                !response.body.data.protonyms[rank].find(
+                  (item) => item.id === protonym.id
+                )
+              ) {
                 response.body.data.protonyms[rank].push(protonym)
               }
             })
@@ -218,35 +242,37 @@ export default {
       this.rankLists[event.rank].push(event.taxon)
     },
 
-    editCombination (literalString, combination) {
+    editCombination(literalString, combination) {
       this.newCombination = combination
       this.setRankList(literalString, combination)
     },
 
-    expandAll () {
-      this.listGroup.forEach(component => {
+    expandAll() {
+      this.listGroup.forEach((component) => {
         if (component) {
           component.expandList()
         }
       })
     },
 
-    setSavedCombination (combination) {
+    setSavedCombination(combination) {
       this.$emit('save', combination)
       this.setNewCombination(combination)
     },
 
-    setNewCombination (combination) {
-      const newCombination = Object.assign({},
+    setNewCombination(combination) {
+      const newCombination = Object.assign(
+        {},
         { id: combination.id },
         { origin_citation: combination?.origin_citation },
         { protonyms: combination.protonyms },
-        { verbatim_name: combination.verbatim_name })
+        { verbatim_name: combination.verbatim_name }
+      )
 
       this.newCombination = newCombination
     },
 
-    createNewCombination () {
+    createNewCombination() {
       return {
         verbatim_name: undefined,
         protonyms: {
@@ -258,38 +284,38 @@ export default {
       }
     },
 
-    setSource (citation) {
+    setSource(citation) {
       this.newCombination = Object.assign(this.newCombination, citation)
     },
 
-    isCombinationEmpty () {
-      return !Object.values(this.newCombination.protonyms).find(rank => rank)
+    isCombinationEmpty() {
+      return !Object.values(this.newCombination.protonyms).find((rank) => rank)
     }
   }
 }
 </script>
 <style scoped>
-  .create-new-combination {
-    min-width: 100px;
+.create-new-combination {
+  min-width: 100px;
+}
+.header {
+  padding: 1em;
+  padding-left: 1.5em;
+  border-bottom: 1px solid #f5f5f5;
+  border-left: 4px solid green;
+  h3 {
+    font-weight: 300;
   }
-  .header {
-    padding: 1em;
-    padding-left: 1.5em;
-    border-bottom: 1px solid #f5f5f5;
-    border-left:4px solid green;
-    h3 {
-      font-weight: 300;
-    }
-  }
-  .header-warning {
-    border-left: 4px solid #ff8c00 !important;
-  }
-  hr {
-    height: 1px;
-    color: #f5f5f5;
-    background: #f5f5f5;
-    font-size: 0;
-    margin: 15px;
-    border: 0;
-  }
+}
+.header-warning {
+  border-left: 4px solid #ff8c00 !important;
+}
+hr {
+  height: 1px;
+  color: #f5f5f5;
+  background: #f5f5f5;
+  font-size: 0;
+  margin: 15px;
+  border: 0;
+}
 </style>

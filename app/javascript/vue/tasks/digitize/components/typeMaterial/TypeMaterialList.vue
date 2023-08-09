@@ -19,7 +19,11 @@
             v-if="item.id"
             :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${item.protonymId}`"
           >
-            <span v-if="item.isUnsaved">{{ item.type }} of <span v-html="item.taxon.original_combination" /> (Changes unsaved)</span>
+            <span v-if="item.isUnsaved"
+              >{{ item.type }} of
+              <span v-html="item.taxon.original_combination" /> (Changes
+              unsaved)</span
+            >
             <span
               v-else
               v-html="item.label"
@@ -52,7 +56,11 @@
               <VBtn
                 color="destroy"
                 circle
-                @click="warningMessage(() => store.dispatch(ActionNames.RemoveTypeMaterial, item))"
+                @click="
+                  warningMessage(() =>
+                    store.dispatch(ActionNames.RemoveTypeMaterial, item)
+                  )
+                "
               >
                 <v-icon
                   x-small
@@ -99,17 +107,22 @@ import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import VIcon from 'components/ui/VIcon/index.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const store = useStore()
-const typeSpecimens = computed(() => store.getters[GetterNames.GetTypeSpecimens])
+const typeSpecimens = computed(
+  () => store.getters[GetterNames.GetTypeSpecimens]
+)
 
-function warningMessage (callback) {
-  if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+function warningMessage(callback) {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
     callback()
   }
 }
-
 </script>

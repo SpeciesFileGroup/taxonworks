@@ -1,4 +1,4 @@
-json.partial! '/biological_associations/base_attributes', biological_association: biological_association
+json.partial!('/biological_associations/base_attributes', biological_association:)
 json.partial! '/shared/data/all/metadata', object: biological_association
 
 if extend_response_with('biological_relationship')

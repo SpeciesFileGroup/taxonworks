@@ -1,7 +1,5 @@
 <template>
-  <VModal
-    :container-style="{ width: '800px' }"
-  >
+  <VModal :container-style="{ width: '800px' }">
     <template #header>
       <h3>DwC Attributes</h3>
     </template>
@@ -18,7 +16,7 @@
             v-for="(value, attr, index) in dwcAttributes"
             :key="attr"
             class="list-complete-item contextMenuCells"
-            :class="{ even: index % 2}"
+            :class="{ even: index % 2 }"
           >
             <td>{{ attr }}</td>
             <td>{{ value }}</td>
@@ -32,9 +30,9 @@
 
 <script setup>
 import { ref } from 'vue'
-import { CollectionObject } from 'routes/endpoints'
-import VModal from 'components/ui/Modal.vue'
-import VSpinner from 'components/spinner.vue'
+import { CollectionObject } from '@/routes/endpoints'
+import VModal from '@/components/ui/Modal.vue'
+import VSpinner from '@/components/spinner.vue'
 
 const props = defineProps({
   collectionObjectId: {
@@ -46,9 +44,10 @@ const props = defineProps({
 const isLoading = ref(true)
 const dwcAttributes = ref({})
 
-CollectionObject.find(props.collectionObjectId, { extend: ['dwc_fields'] }).then(({ body }) => {
+CollectionObject.find(props.collectionObjectId, {
+  extend: ['dwc_fields']
+}).then(({ body }) => {
   isLoading.value = false
   dwcAttributes.value = body.dwc
 })
-
 </script>

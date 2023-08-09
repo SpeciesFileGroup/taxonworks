@@ -11,7 +11,7 @@
             :value="option"
             v-model="params.taxon_name_type"
             type="radio"
-          >
+          />
           {{ option }}
         </label>
       </li>
@@ -20,15 +20,11 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { computed, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
 
-const TAXON_TYPES = [
-  'Protonym',
-  'Combination',
-  'Hybrid'
-]
+const TAXON_TYPES = ['Protonym', 'Combination', 'Hybrid']
 
 const props = defineProps({
   modelValue: {
@@ -41,7 +37,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 onBeforeMount(() => {

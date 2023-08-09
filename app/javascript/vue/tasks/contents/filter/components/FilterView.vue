@@ -26,13 +26,13 @@
 
 <script setup>
 import { computed } from 'vue'
-import { CONTENT } from 'constants/index.js'
-import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
-import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
-import FacetTopic from 'components/Filter/Facets/shared/FacetTopic.vue'
-import FacetNotes from 'components/Filter/Facets/shared/FacetNotes.vue'
-import FacetParamExact from 'components/Filter/Facets/shared/FacetParamExact.vue'
-import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
+import { CONTENT } from '@/constants/index.js'
+import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetTopic from '@/components/Filter/Facets/shared/FacetTopic.vue'
+import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
+import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
+import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 
 const WITH_PARAMS = ['citations', 'origin_citation', 'depictions']
 

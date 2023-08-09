@@ -1,5 +1,5 @@
-import { useRandomUUID } from 'helpers/random'
-import makeCitation from 'factory/Citation'
+import { useRandomUUID } from '@/helpers/random'
+import makeCitation from '@/factory/Citation'
 
 export default (typeData = {}) => ({
   id: typeData.id,
@@ -15,8 +15,9 @@ export default (typeData = {}) => ({
   isUnsaved: false
 })
 
-function getCitation (data) {
-  const citation = data.origin_citation_attributes || data.origin_citation || makeCitation()
+function getCitation(data) {
+  const citation =
+    data.origin_citation_attributes || data.origin_citation || makeCitation()
 
   if (citation.source) {
     citation.source_id = citation.source.id

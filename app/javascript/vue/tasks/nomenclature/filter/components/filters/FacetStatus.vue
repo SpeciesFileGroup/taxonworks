@@ -29,7 +29,7 @@
                 :value="key"
                 @click="addStatus(item)"
                 type="radio"
-              >
+              />
               {{ item.name }}
             </label>
           </li>
@@ -38,7 +38,9 @@
       <autocomplete
         v-if="view == smartOptions.advanced"
         url=""
-        :array-list="Object.keys(mergeLists.all).map(key => mergeLists.all[key])"
+        :array-list="
+          Object.keys(mergeLists.all).map((key) => mergeLists.all[key])
+        "
         label="name"
         :clear-after="true"
         min="3"
@@ -60,13 +62,13 @@
 </template>
 
 <script>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/switch'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelector from '@/components/switch'
 import TreeDisplay from '../treeDisplay'
-import Autocomplete from 'components/ui/Autocomplete'
-import DisplayList from 'components/displayList.vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { TaxonNameClassification } from 'routes/endpoints'
+import Autocomplete from '@/components/ui/Autocomplete'
+import DisplayList from '@/components/displayList.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { TaxonNameClassification } from '@/routes/endpoints'
 
 const OPTIONS = {
   common: 'common',
@@ -93,29 +95,29 @@ export default {
   emits: ['update:modelValue'],
 
   computed: {
-    smartOptions () {
+    smartOptions() {
       return OPTIONS
     },
 
     params: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     },
 
-    classifications () {
+    classifications() {
       return this.params.taxon_name_classification
     },
 
-    nomenclatureCode () {
+    nomenclatureCode() {
       return this.modelValue.nomenclature_code
     }
   },
 
-  data () {
+  data() {
     return {
       options: Object.values(OPTIONS),
       lists: [],
@@ -130,22 +132,24 @@ export default {
   },
 
   watch: {
-    classifications (newVal) {
+    classifications(newVal) {
       if (newVal?.length || !this.statusSelected.length) return
 
       this.statusSelected = []
     },
 
     statusSelected: {
-      handler (newVal) {
-        this.params.taxon_name_classification = newVal.map(status => status.type)
+      handler(newVal) {
+        this.params.taxon_name_classification = newVal.map(
+          (status) => status.type
+        )
       },
 
       deep: true
     },
 
     nomenclatureCode: {
-      handler () {
+      handler() {
         if (Object.keys(this.statusList).length) {
           this.merge()
         }
@@ -153,14 +157,14 @@ export default {
     }
   },
 
-  created () {
-    TaxonNameClassification.types().then(response => {
+  created() {
+    TaxonNameClassification.types().then((response) => {
       this.statusList = response.body
       this.merge()
 
       const params = URLParamsToJSON(location.href)
       if (params.taxon_name_classification) {
-        params.taxon_name_classification.forEach(classification => {
+        params.taxon_name_classification.forEach((classification) => {
           this.addStatus(this.mergeLists.all[classification])
         })
       }
@@ -168,7 +172,7 @@ export default {
   },
 
   methods: {
-    merge () {
+    merge() {
       const statusList = JSON.parse(JSON.stringify(this.statusList))
       const newList = {
         all: {},
@@ -179,41 +183,64 @@ export default {
         ? [this.nomenclatureCode.toLowerCase()]
         : Object.keys(statusList)
 
-      nomenclatureCodes.forEach(key => {
+      nomenclatureCodes.forEach((key) => {
         if (statusList[key]) {
-          newList.all = { ...newList.all, ...statusList[key].all, ...statusList?.latinized?.all }
-          newList.tree = { ...newList.tree, ...statusList[key].tree, ...statusList?.latinized?.tree }
-          for (const keyType in statusList[key].common) {
-            statusList[key].common[keyType].name = `${statusList[key].common[keyType].name} (${key})`
+          newList.all = {
+            ...newList.all,
+            ...statusList[key].all,
+            ...statusList?.latinized?.all
           }
-          newList.common = { ...newList.common, ...statusList[key].common, ...statusList?.latinized?.common }
+          newList.tree = {
+            ...newList.tree,
+            ...statusList[key].tree,
+            ...statusList?.latinized?.tree
+          }
+          for (const keyType in statusList[key].common) {
+            statusList[key].common[
+              keyType
+            ].name = `${statusList[key].common[keyType].name} (${key})`
+          }
+          newList.common = {
+            ...newList.common,
+            ...statusList[key].common,
+            ...statusList?.latinized?.common
+          }
         }
       })
       this.getTreeList(newList.tree, newList.all)
       this.mergeLists = newList
     },
 
-    getTreeList (list, ranksList) {
+    getTreeList(list, ranksList) {
       for (const key in list) {
         if (key in ranksList) {
-          Object.defineProperty(list[key], 'type', { writable: true, value: key })
-          Object.defineProperty(list[key], 'name', { writable: true, value: ranksList[key].name })
+          Object.defineProperty(list[key], 'type', {
+            writable: true,
+            value: key
+          })
+          Object.defineProperty(list[key], 'name', {
+            writable: true,
+            value: ranksList[key].name
+          })
         }
         this.getTreeList(list[key], ranksList)
       }
     },
 
-    removeItem (status) {
-      this.statusSelected.splice(this.statusSelected.findIndex(item => item.type === status.type), 1)
+    removeItem(status) {
+      this.statusSelected.splice(
+        this.statusSelected.findIndex((item) => item.type === status.type),
+        1
+      )
     },
 
-    addStatus (item) {
+    addStatus(item) {
       this.statusSelected.push(item)
       this.view = OPTIONS.common
     },
 
-    filterAlreadyPicked (type) {
-      return this.statusSelected.find(item => item.type === type)
+    filterAlreadyPicked(type) {
+      return this.statusSelected.find((item) => item.type === type)
     }
   }
 }

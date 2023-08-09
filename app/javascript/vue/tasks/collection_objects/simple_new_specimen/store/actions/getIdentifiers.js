@@ -1,5 +1,5 @@
-import { Identifier } from 'routes/endpoints'
-import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from 'constants/index'
+import { Identifier } from '@/routes/endpoints'
+import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from '@/constants/index'
 
 export default function () {
   if (!this.identifier || !this.namespace) {

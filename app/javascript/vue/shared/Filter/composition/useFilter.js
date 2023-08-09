@@ -1,7 +1,7 @@
 import { reactive, toRefs, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import { URLParamsToJSON } from '@/helpers/url/parse'
 import qs from 'qs'
-import getPagination from 'helpers/getPagination'
+import getPagination from '@/helpers/getPagination'
 
 export default function (service, { listParser, initParameters } = {}) {
   const state = reactive({
@@ -26,8 +26,10 @@ export default function (service, { listParser, initParameters } = {}) {
 
     return service
       .filter(payload)
-      .then((response) => {
-        const result = listParser ? listParser(response.body) : response.body
+      .then(async (response) => {
+        const result = listParser
+          ? await listParser(response.body, { parameters: state.parameters })
+          : response.body
 
         if (state.append) {
           let concat = result.concat(state.list)

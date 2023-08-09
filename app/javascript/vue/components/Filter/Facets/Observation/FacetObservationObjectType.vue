@@ -21,8 +21,8 @@
 
 <script setup>
 import { computed } from 'vue'
-import { EXTRACT, COLLECTION_OBJECT, OTU } from 'constants/index.js'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { EXTRACT, COLLECTION_OBJECT, OTU } from '@/constants/index.js'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const OPTIONS = {
   [EXTRACT]: 'Extract',

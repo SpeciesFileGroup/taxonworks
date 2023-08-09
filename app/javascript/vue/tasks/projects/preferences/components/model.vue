@@ -12,7 +12,7 @@
             name="model"
             :value="item"
             v-model="selected"
-          >
+          />
           {{ humanize(item) }}
         </label>
       </li>
@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { humanize } from 'helpers/strings'
+import { humanize } from '@/helpers/strings'
 import { computed } from 'vue'
 import {
   OTU,
@@ -29,7 +29,7 @@ import {
   COLLECTION_OBJECT,
   COLLECTING_EVENT,
   EXTRACT
-} from 'constants/index.js'
+} from '@/constants/index.js'
 
 const MODEL_TYPES = [
   OTU,
@@ -50,7 +50,6 @@ const emit = defineEmits(['update:modelValue'])
 
 const selected = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
-
 </script>

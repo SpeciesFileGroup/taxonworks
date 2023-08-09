@@ -1,4 +1,4 @@
-import ajaxCall from 'helpers/ajaxCall'
+import ajaxCall from '@/helpers/ajaxCall'
 
 const batchRemoveKeyword = function (id, type) {
   return ajaxCall('post', `/tags/batch_remove?keyword_id=${id}&klass=${type}`)
@@ -12,8 +12,4 @@ const getTagMetadata = function (id) {
   return ajaxCall('get', '/tasks/loans/edit_loan/loan_item_metadata')
 }
 
-export {
-  batchRemoveKeyword,
-  createBatchLoad,
-  getTagMetadata
-}
+export { batchRemoveKeyword, createBatchLoad, getTagMetadata }

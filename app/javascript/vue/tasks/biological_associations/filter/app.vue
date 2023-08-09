@@ -38,20 +38,17 @@
 </template>
 
 <script setup>
-import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
-import useFilter from 'shared/Filter/composition/useFilter.js'
-import VSpinner from 'components/spinner.vue'
-import FilterList from 'components/layout/Filter/FilterList.vue'
+import useFilter from '@/shared/Filter/composition/useFilter.js'
+import VSpinner from '@/components/spinner.vue'
+import FilterList from '@/components/Filter/Table/TableResults.vue'
 import { listParser } from './utils/listParser'
-import { BIOLOGICAL_ASSOCIATION } from 'constants/index.js'
-import { BiologicalAssociation } from 'routes/endpoints'
+import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
+import { BiologicalAssociation } from '@/routes/endpoints'
 import { ATTRIBUTES } from './constants/attributes.js'
 
 const HEADERS = [
-  {
-    colspan: 2
-  },
   {
     title: 'Subject',
     colspan: 5,

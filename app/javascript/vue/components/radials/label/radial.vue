@@ -43,11 +43,11 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import Modal from 'components/ui/Modal.vue'
-import AjaxCall from 'helpers/ajaxCall'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import Modal from '@/components/ui/Modal.vue'
+import AjaxCall from '@/helpers/ajaxCall'
 import * as SLICES from './model/index.js'
 
 const props = defineProps({

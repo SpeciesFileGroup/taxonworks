@@ -80,9 +80,9 @@
   </div>
 </template>
 <script>
-import Autocomplete from 'components/ui/Autocomplete.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 import MatchTaxonName from './matchTaxonNames'
-import { Otu } from 'routes/endpoints'
+import { Otu } from '@/routes/endpoints'
 
 export default {
   components: {

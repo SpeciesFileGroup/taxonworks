@@ -55,10 +55,10 @@
 </template>
 
 <script setup>
-import SmartSelector from 'components/ui/SmartSelector'
+import SmartSelector from '@/components/ui/SmartSelector'
 import { computed, ref } from 'vue'
-import { ControlledVocabularyTerm, DataAttribute } from 'routes/endpoints'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import { ControlledVocabularyTerm, DataAttribute } from '@/routes/endpoints'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 const props = defineProps({
   ids: {

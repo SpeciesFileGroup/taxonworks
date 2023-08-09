@@ -37,15 +37,15 @@
 </template>
 
 <script setup>
-import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import BibtexButton from './components/bibtex'
-import BibliographyButton from './components/bibliography.vue'
-import VSpinner from 'components/spinner.vue'
-import useFilter from 'shared/Filter/composition/useFilter.js'
-import { Source } from 'routes/endpoints'
-import { SOURCE } from 'constants/index.js'
+import BibliographyDownload from './components/BibliographyDownload.vue'
+import VSpinner from '@/components/spinner.vue'
+import useFilter from '@/shared/Filter/composition/useFilter.js'
+import { Source } from '@/routes/endpoints'
+import { SOURCE } from '@/constants/index.js'
 import { computed } from 'vue'
 
 const extend = ['documents']
@@ -75,7 +75,7 @@ const extendDownload = computed(() => [
   },
   {
     label: 'Download formatted',
-    component: BibliographyButton,
+    component: BibliographyDownload,
     bind: {
       selectedList: selectedIds.value,
       pagination: pagination.value,

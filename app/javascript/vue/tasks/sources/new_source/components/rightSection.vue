@@ -23,9 +23,8 @@
 </template>
 
 <script>
-
 import DocumentsComponent from './documents'
-import SoftValidation from 'components/soft_validations/panel'
+import SoftValidation from '@/components/soft_validations/panel'
 import MatchesComponent from './matches'
 import PanelSearch from './PanelSearch.vue'
 import { GetterNames } from '../store/getters/getters'
@@ -37,11 +36,11 @@ export default {
     PanelSearch
   },
   computed: {
-    validations () {
+    validations() {
       return this.$store.getters[GetterNames.GetSoftValidation]
     }
   },
-  data () {
+  data() {
     return {
       tabs: [
         {
@@ -56,21 +55,28 @@ export default {
       componentSelected: 'MatchesComponent'
     }
   },
-  mounted () {
+  mounted() {
     window.addEventListener('scroll', this.scrollBox)
     this.scrollBox()
   },
   methods: {
-    scrollBox () {
+    scrollBox() {
       const { documents, matches, section } = this.$refs
       const element = this.$el
       const sectionSize = section.getBoundingClientRect()
       const documentsSize = documents.$el.getBoundingClientRect()
       const matchesSize = matches.$el.getBoundingClientRect()
-      const validationsSize = document.querySelector('.soft-validation-panel')?.getBoundingClientRect()?.height || 0
+      const validationsSize =
+        document
+          .querySelector('.soft-validation-panel')
+          ?.getBoundingClientRect()?.height || 0
 
-      const totalHeight = documentsSize.height + validationsSize + matchesSize.height
-      const newHeight = (window.innerHeight - sectionSize.top) < totalHeight ? `${(window.innerHeight - sectionSize.top)}px` : 'auto'
+      const totalHeight =
+        documentsSize.height + validationsSize + matchesSize.height
+      const newHeight =
+        window.innerHeight - sectionSize.top < totalHeight
+          ? `${window.innerHeight - sectionSize.top}px`
+          : 'auto'
 
       if (element.offsetTop < document.documentElement.scrollTop + 50) {
         this.$refs.section.classList.add('float-box')
@@ -85,14 +91,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .right-section {
-    position: relative;
-    min-width: 400px;
-    max-width: 400px;
-  }
-  .float-box {
-    top: 80px;
-    width: 400px;
-    position: fixed;
-  }
+.right-section {
+  position: relative;
+  min-width: 400px;
+  max-width: 400px;
+}
+.float-box {
+  top: 80px;
+  width: 400px;
+  position: fixed;
+}
 </style>

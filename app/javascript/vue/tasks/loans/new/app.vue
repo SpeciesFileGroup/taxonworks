@@ -21,7 +21,7 @@ import loanRecipient from './components/loanRecipient.vue'
 import loanItems from './components/loanItems.vue'
 import editLoanItems from './components/editItemBar.vue'
 import LoanItemList from './components/LoanItemList.vue'
-import spinner from 'components/spinner.vue'
+import spinner from '@/components/spinner.vue'
 
 import ActionNames from './store/actions/actionNames'
 import { GetterNames } from './store/getters/getters'
@@ -37,6 +37,7 @@ onBeforeMount(() => {
   const id = location.pathname.split('/')[4]
   const urlParams = new URLSearchParams(window.location.search)
   const loanId = urlParams.get('loan_id')
+  const cloneFromId = urlParams.get('clone_from')
 
   if (/^\d+$/.test(loanId)) {
     store.dispatch(ActionNames.LoadLoan, loanId).catch(() => {
@@ -46,9 +47,12 @@ onBeforeMount(() => {
     store.dispatch(ActionNames.LoadLoan, id).catch(() => {
       window.location.href = '/tasks/loans/edit_loan/'
     })
+  } else if (/^\d+$/.test(cloneFromId)) {
+    store.dispatch(ActionNames.CloneFrom, cloneFromId)
   }
 })
 </script>
+
 <style lang="scss">
 #edit_loan_task {
   flex-direction: column-reverse;

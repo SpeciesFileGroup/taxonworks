@@ -1,6 +1,6 @@
 <template>
   <div>
-    <br>
+    <br />
     <autocomplete
       url="/taxon_names/autocomplete"
       placeholder="Select a taxon name"
@@ -9,19 +9,21 @@
       :input-style="{ width: '300px' }"
       @getItem="redirect"
       display="label"
-      label="label_html"/>
+      label="label_html"
+    />
     <label>
       <input
         v-model="validName"
-        type="checkbox"> Redirect to valid name
+        type="checkbox"
+      />
+      Redirect to valid name
     </label>
   </div>
 </template>
 
 <script>
-
-import Autocomplete from 'components/ui/Autocomplete'
-import { RouteNames } from 'routes/routes'
+import Autocomplete from '@/components/ui/Autocomplete'
+import { RouteNames } from '@/routes/routes'
 
 const SettingsStore = {
   redirectValid: 'browseNomenclature::redirectValid'
@@ -30,7 +32,7 @@ const SettingsStore = {
 export default {
   components: { Autocomplete },
 
-  data () {
+  data() {
     return {
       validName: true
     }
@@ -38,13 +40,13 @@ export default {
 
   watch: {
     validName: {
-      handler (newVal) {
+      handler(newVal) {
         sessionStorage.setItem(SettingsStore.redirectValid, newVal)
       }
     }
   },
 
-  mounted () {
+  mounted() {
     const value = sessionStorage.getItem(SettingsStore.redirectValid)
     if (value !== null) {
       this.validName = value === 'true'
@@ -52,8 +54,13 @@ export default {
   },
 
   methods: {
-    redirect (event) {
-      window.open(`${RouteNames.BrowseNomenclature}?taxon_name_id=${this.validName ? event.valid_taxon_name_id : event.id}`, '_self')
+    redirect(event) {
+      window.open(
+        `${RouteNames.BrowseNomenclature}?taxon_name_id=${
+          this.validName ? event.valid_taxon_name_id : event.id
+        }`,
+        '_self'
+      )
     }
   }
 }

@@ -89,16 +89,16 @@
 </template>
 
 <script setup>
-import SwitchComponent from 'components/switch'
-import Autocomplete from 'components/ui/Autocomplete'
-import GeoreferenceMap from 'components/georeferences/map'
-import RadialFilterAttribute from 'components/radials/linker/RadialFilterAttribute.vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import { GeographicArea } from 'routes/endpoints'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
+import SwitchComponent from '@/components/switch'
+import Autocomplete from '@/components/ui/Autocomplete'
+import GeoreferenceMap from '@/components/georeferences/map'
+import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttribute.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import { GeographicArea } from '@/routes/endpoints'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { computed, ref, watch, onBeforeMount } from 'vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const TABS = {
   Area: 'area',

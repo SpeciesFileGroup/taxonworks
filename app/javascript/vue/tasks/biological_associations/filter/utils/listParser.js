@@ -1,5 +1,5 @@
-import { OTU } from 'constants/index.js'
-import { RouteNames } from 'routes/routes'
+import { OTU } from '@/constants/index.js'
+import { RouteNames } from '@/routes/routes'
 
 function getBiologicalProperty(biologicalRelationshipTypes, type) {
   return biologicalRelationshipTypes.find((r) => r.target === type)

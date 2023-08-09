@@ -42,9 +42,9 @@
 
 <script>
 import DraggableComponent from 'vuedraggable'
-import VIcon from 'components/ui/VIcon/index.vue'
-import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import ButtonCitation from './ButtonCitation.vue'
 import { MutationNames } from '../store/mutations/mutations'
 

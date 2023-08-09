@@ -55,6 +55,10 @@ class PinboardItem < ApplicationRecord
     end
   end
 
+  def self.clear(klass: nil, user_id: nil, project_id: nil)
+    PinboardItem.where(user_id:, project_id:, pinned_object_type: klass).delete_all
+  end
+
   def is_inserted?
     is_inserted.present?
   end

@@ -64,10 +64,10 @@ import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import VPaginationCount from 'components/pagination/PaginationCount.vue'
-import VPagination from 'components/pagination.vue'
+import VPaginationCount from '@/components/pagination/PaginationCount.vue'
+import VPagination from '@/components/pagination.vue'
 import ActionNames from '../store/actions/actionNames'
-import BlockLayout from 'components/layout/BlockLayout.vue'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 import RowItem from './table/row'
 
 const store = useStore()

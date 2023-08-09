@@ -1,5 +1,5 @@
-import { Citation, TaxonName } from 'routes/endpoints'
-import { TAXON_NAME } from 'constants/index.js'
+import { Citation, TaxonName } from '@/routes/endpoints'
+import { TAXON_NAME } from '@/constants/index.js'
 import extend from '../../const/extendRequest.js'
 
 export default async ({ state }, payload) => {

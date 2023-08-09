@@ -47,8 +47,10 @@
             :disabled="!selectedIds.length"
             :parameters="{ collecting_event_id: selectedIds }"
           />
+          <TableLayoutSelector />
         </div>
       </template>
+
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -60,15 +62,13 @@
         />
       </template>
       <template #table>
-        <list-component
+        <FilterList
           v-model="selectedIds"
+          :layout="currentLayout"
           :list="list"
-          @on-row-hover="setRowHover"
-          @on-sort="
-            ($event) => {
-              list = $event
-            }
-          "
+          @mouseover:row="setRowHover"
+          @mouseout:body="() => (rowHover = null)"
+          @on-sort="($event) => (list = $event)"
         />
       </template>
     </FilterLayout>
@@ -81,23 +81,32 @@
 
 <script setup>
 import FilterComponent from './components/Filter.vue'
-import ListComponent from './components/List.vue'
 import MapComponent from './components/Map.vue'
-import RadialFilter from 'components/radials/linker/radial.vue'
-import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
-import VSpinner from 'components/spinner.vue'
-import useFilter from 'shared/Filter/composition/useFilter.js'
-import RadialCollectingEvent from 'components/radials/ce/radial.vue'
-import { COLLECTING_EVENT } from 'constants/index.js'
-import { computed, ref, reactive } from 'vue'
-import { chunkArray, sortArray } from 'helpers/arrays'
-import { CollectingEvent, Georeference } from 'routes/endpoints'
+import RadialFilter from '@/components/radials/linker/radial.vue'
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
+import VSpinner from '@/components/spinner.vue'
+import useFilter from '@/shared/Filter/composition/useFilter.js'
+import RadialCollectingEvent from '@/components/radials/ce/radial.vue'
+import FilterList from '@/components/Filter/Table/TableResults.vue'
+import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
+import { listParser } from './utils/listParser.js'
+import { COLLECTING_EVENT } from '@/constants/index.js'
+import { computed, ref, reactive, defineOptions } from 'vue'
+import { sortArray } from '@/helpers/arrays'
+import { CollectingEvent } from '@/routes/endpoints'
+import { LAYOUTS } from './constants/layouts.js'
+import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
 
-const CHUNK_ARRAY_SIZE = 40
+defineOptions({
+  name: 'FilterCollectingEvent'
+})
+
 const extend = ['roles']
 
+const { currentLayout } = useTableLayoutConfiguration(LAYOUTS)
+
 const geojson = computed(() => {
-  const hoverId = rowHover.value?.id
+  const hoverId = rowHover.value?.collecting_event?.id
   const hoverGeoreferences = georeferences.value.filter(
     (item) => item.collecting_event_id === hoverId
   )
@@ -138,73 +147,16 @@ const {
   resetFilter,
   parameters
 } = useFilter(CollectingEvent, {
-  listParser: parseList,
+  listParser,
   initParameters: { extend }
 })
 
 const rowHover = ref()
-const georeferences = ref([])
+const georeferences = computed(() =>
+  list.value.map((item) => item.georeferences).flat()
+)
 
-function parseList(list) {
-  const newList = list.map((item) => {
-    const identifiers = Array.isArray(item.identifiers)
-      ? item.identifiers
-      : [item.identifiers]
-
-    return {
-      ...item,
-      roles: (item?.collector_roles || [])
-        .map((role) => role.person.cached)
-        .join('; '),
-      identifiers: identifiers.map((i) => i.cached).join('; '),
-      start_date: parseStartDate(item),
-      end_date: parseEndDate(item)
-    }
-  })
-
-  loadGeoreferences(newList)
-
-  return newList
-}
-
-const loadGeoreferences = async (list = []) => {
-  const idLists = chunkArray(
-    list.map((ce) => ce.id),
-    CHUNK_ARRAY_SIZE
-  )
-  const promises = idLists.map((ids) =>
-    Georeference.where({ collecting_event_id: ids })
-  )
-
-  Promise.all(promises).then((responses) => {
-    const lists = responses.map((response) => response.body)
-
-    georeferences.value = lists.flat()
-    setCEWithGeoreferences()
-  })
-}
-
-const setRowHover = (item) => {
+const setRowHover = ({ item }) => {
   rowHover.value = item
-}
-
-const setCEWithGeoreferences = () => {
-  list.value.forEach((ce) => {
-    ce.georeferencesCount = georeferences.value.filter(
-      (item) => item.collecting_event_id === ce.id
-    ).length
-  })
-}
-
-const parseStartDate = (ce) => {
-  return [ce.start_date_day, ce.start_date_month, ce.start_date_year]
-    .filter((date) => date)
-    .join('/')
-}
-
-const parseEndDate = (ce) => {
-  return [ce.end_date_day, ce.end_date_month, ce.end_date_year]
-    .filter((date) => date)
-    .join('/')
 }
 </script>

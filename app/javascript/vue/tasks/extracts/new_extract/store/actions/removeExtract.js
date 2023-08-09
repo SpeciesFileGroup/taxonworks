@@ -1,5 +1,5 @@
-import { Extract } from 'routes/endpoints'
-import { removeFromArray } from 'helpers/arrays'
+import { Extract } from '@/routes/endpoints'
+import { removeFromArray } from '@/helpers/arrays'
 
 export default ({ state, commit }, extract) => {
   Extract.destroy(extract.id)

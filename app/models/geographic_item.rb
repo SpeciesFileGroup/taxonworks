@@ -1050,7 +1050,7 @@ class GeographicItem < ApplicationRecord
   # @param [geo_object, Double]
   # @return [Boolean]
   def near(target_geo_object, distance)
-    self.geo_object.buffer(distance).contains?(target_geo_object)
+    self.geo_object.unsafe_buffer(distance).contains?(target_geo_object)
   end
 
   # @param [geo_object, Double]
@@ -1105,7 +1105,7 @@ class GeographicItem < ApplicationRecord
   # @return [Boolean, RGeo object]
   def shape=(value)
     if value.present?
-      geom = RGeo::GeoJSON.decode(value, json_parser: :json)
+      geom = RGeo::GeoJSON.decode(value, json_parser: :json, geo_factory: Gis::FACTORY)
       this_type = JSON.parse(value)['geometry']['type']
 
       # TODO: isn't this set automatically? Or perhaps the callback isn't hit in this approach?

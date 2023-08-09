@@ -34,15 +34,14 @@
   </div>
 </template>
 <script>
-
 import CRUD from '../../request/crud.js'
 import AnnotatorExtend from '../../components/annotatorExtend.js'
-import TableList from 'components/table_list.vue'
+import TableList from '@/components/table_list.vue'
 import IdentifierList from './identifierList.vue'
 import IdentifierType from './IdentifierType.vue'
 import IdentifierLocal from './IdentifierLocal.vue'
 import IdentifierForm from './IdentifierForm.vue'
-import { Identifier } from 'routes/endpoints'
+import { Identifier } from '@/routes/endpoints'
 
 export default {
   mixins: [CRUD, AnnotatorExtend],
@@ -56,12 +55,12 @@ export default {
   },
 
   computed: {
-    isLocal () {
+    isLocal() {
       return this.listSelected === 'local'
     }
   },
 
-  data () {
+  data() {
     return {
       typeList: [],
       typeIdentifier: undefined,
@@ -69,17 +68,18 @@ export default {
     }
   },
 
-  created () {
+  created() {
     Identifier.types().then(({ body }) => {
       const list = body
       const keys = Object.keys(body)
 
-      keys.forEach(key => {
+      keys.forEach((key) => {
         const itemList = list[key]
         itemList.common = Object.fromEntries(
-          itemList.common.map(
-            item => ([item, Object.entries(itemList.all).find(([key]) => key === item)[1]])
-          )
+          itemList.common.map((item) => [
+            item,
+            Object.entries(itemList.all).find(([key]) => key === item)[1]
+          ])
         )
       })
 
@@ -88,13 +88,13 @@ export default {
   },
 
   watch: {
-    listSelected () {
+    listSelected() {
       this.typeIdentifier = undefined
     }
   },
 
   methods: {
-    saveIdentifier (params) {
+    saveIdentifier(params) {
       const identifier = {
         ...params,
         type: this.typeIdentifier,
@@ -102,7 +102,7 @@ export default {
         identifier_object_type: this.metadata.object_type
       }
 
-      Identifier.create({ identifier }).then(response => {
+      Identifier.create({ identifier }).then((response) => {
         this.list.push(response.body)
         this.listSelected = undefined
       })

@@ -44,10 +44,6 @@ gem 'rgeo', '~> 3.0'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
 gem 'rgeo-proj4', '~> 4.0' #, '>= 3.0.1'
 
-
-
-
-
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # translate for geo
@@ -91,7 +87,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem "shakapacker", '6.6.0'
+gem "shakapacker", '7.0.2'
 
 # BibTeX handling
 gem 'csl', '~> 1.6.0'

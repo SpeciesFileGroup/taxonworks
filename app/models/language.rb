@@ -52,8 +52,7 @@ class Language < ApplicationRecord
   end
 
   def self.find_for_autocomplete(params)
-    term = "#{params[:term]}%"
-    where('english_name ILIKE ? OR english_name = ?', term, params[:term])
+    where('english_name ILIKE ? OR english_name = ?', "#{params[:term]}%", params[:term])
   end
 
   # @param klass ['Source' || 'Serial']

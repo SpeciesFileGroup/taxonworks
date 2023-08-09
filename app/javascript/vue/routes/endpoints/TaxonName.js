@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const model = 'taxon_names'
 const permitParams = {
@@ -42,21 +42,32 @@ const permitParams = {
 export const TaxonName = {
   ...baseCRUD(model, permitParams),
 
-  filter: params => AjaxCall('post', `/${model}/filter.json`, params),
+  filter: (params) => AjaxCall('post', `/${model}/filter.json`, params),
 
   ranks: () => AjaxCall('get', `/${model}/ranks`),
 
   rankTable: (params) => AjaxCall('get', `/${model}/rank_table`, { params }),
 
-  classifications: id => AjaxCall('get', `/${model}/${id}/taxon_name_classifications`),
+  classifications: (id) =>
+    AjaxCall('get', `/${model}/${id}/taxon_name_classifications`),
 
-  relationships: (id, params) => AjaxCall('get', `/${model}/${id}/taxon_name_relationships.json`, { params }),
+  relationships: (id, params) =>
+    AjaxCall('get', `/${model}/${id}/taxon_name_relationships.json`, {
+      params
+    }),
 
-  originalCombination: id => AjaxCall('get', `/${model}/${id}/original_combination.json`),
+  originalCombination: (id) =>
+    AjaxCall('get', `/${model}/${id}/original_combination.json`),
 
   parse: (params) => AjaxCall('get', '/taxon_names/parse', { params }),
 
-  predictedRank: (parentId, name) => AjaxCall('get', `/${model}/predicted_rank`, { params: { parent_id: parentId, name } }),
+  predictedRank: (parentId, name) =>
+    AjaxCall('get', `/${model}/predicted_rank`, {
+      params: { parent_id: parentId, name }
+    }),
 
-  otus: id => AjaxCall('get', `/${model}/${id}/otus.json`, { headers: { 'Cache-Control': 'no-cache' } })
+  otus: (id) =>
+    AjaxCall('get', `/${model}/${id}/otus.json`, {
+      headers: { 'Cache-Control': 'no-cache' }
+    })
 }

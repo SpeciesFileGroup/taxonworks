@@ -49,14 +49,14 @@
 </template>
 
 <script setup>
-import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import SelectAll from 'tasks/collection_objects/filter/components/selectAll.vue'
-import VSpinner from 'components/spinner.vue'
-import useFilter from 'shared/Filter/composition/useFilter.js'
-import { IMAGE } from 'constants/index.js'
-import { Image } from 'routes/endpoints'
+import SelectAll from '@/tasks/collection_objects/filter/components/selectAll.vue'
+import VSpinner from '@/components/spinner.vue'
+import useFilter from '@/shared/Filter/composition/useFilter.js'
+import { IMAGE } from '@/constants/index.js'
+import { Image } from '@/routes/endpoints'
 
 const {
   isLoading,

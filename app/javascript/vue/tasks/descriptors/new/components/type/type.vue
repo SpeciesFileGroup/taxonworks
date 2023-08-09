@@ -7,14 +7,16 @@
       <ul class="no_bullets">
         <li
           v-for="(label, key) in TYPES"
-          :key="key">
+          :key="key"
+        >
           <label>
             <input
               :disabled="descriptorId"
               type="radio"
               v-model="selection"
               :value="key"
-              name="type-descriptor">
+              name="type-descriptor"
+            />
             {{ label }}
           </label>
         </li>
@@ -23,8 +25,7 @@
   </block-layout>
 </template>
 <script>
-
-import BlockLayout from 'components/layout/BlockLayout.vue'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 import TYPES from '../../const/types'
 
 export default {
@@ -46,16 +47,16 @@ export default {
 
   computed: {
     selection: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       TYPES
     }

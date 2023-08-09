@@ -43,12 +43,12 @@
 
 <script setup>
 import { computed, ref, watch, onBeforeMount } from 'vue'
-import { ControlledVocabularyTerm } from 'routes/endpoints'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
 import TablePredicate from './FacetDataAttribute/TablePredicate.vue'
 import TableValue from './FacetDataAttribute/TableValue.vue'
 import AddPredicate from './FacetDataAttribute/AddPredicate.vue'
 import AddValue from './FacetDataAttribute/AddValue.vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {

@@ -33,14 +33,14 @@
 </template>
 
 <script setup>
-import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import useFilter from 'shared/Filter/composition/useFilter.js'
-import VSpinner from 'components/spinner.vue'
-import { CollectionObject } from 'routes/endpoints'
+import useFilter from '@/shared/Filter/composition/useFilter.js'
+import VSpinner from '@/components/spinner.vue'
+import { CollectionObject } from '@/routes/endpoints'
 import { onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import { URLParamsToJSON } from '@/helpers/url/parse'
 
 const {
   isLoading,

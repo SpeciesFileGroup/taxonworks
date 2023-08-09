@@ -27,9 +27,8 @@
 </template>
 
 <script>
-
-import VModal from 'components/ui/Modal.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
+import VModal from '@/components/ui/Modal.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
@@ -39,7 +38,7 @@ export default {
     VModal
   },
 
-  data () {
+  data() {
     return {
       isOpen: false
     }
@@ -47,23 +46,21 @@ export default {
 
   computed: {
     otu: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetOtuSelected]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetOtuSelected, value)
       }
     },
 
-    buttonLabel () {
-      return this.otu
-        ? 'Change OTU'
-        : 'OTU'
+    buttonLabel() {
+      return this.otu ? 'Change OTU' : 'OTU'
     }
   },
 
   methods: {
-    selected (otu) {
+    selected(otu) {
       this.otu = otu
       this.isOpen = false
     }

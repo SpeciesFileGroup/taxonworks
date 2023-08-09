@@ -5,28 +5,28 @@
       <span
         data-icon="reset"
         class="cursor-pointer"
-        @click="resetFilter">Reset
+        @click="resetFilter"
+        >Reset
       </span>
     </div>
     <spinner-component
       v-if="searching"
       full-screen
       legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
+      :logo-size="{ width: '100px', height: '100px' }"
     />
     <div class="content">
-      <otu-component v-model="params.base.otu_id"/>
-      <nav-bar-component :otu-id="params.base.otu_id"/>
+      <otu-component v-model="params.base.otu_id" />
+      <nav-bar-component :otu-id="params.base.otu_id" />
     </div>
   </div>
 </template>
 
 <script>
-
 import OtuComponent from './filters/otu'
 import NavBarComponent from './navBar'
-import SpinnerComponent from 'components/spinner'
-import { AssertedDistribution } from 'routes/endpoints'
+import SpinnerComponent from '@/components/spinner'
+import { AssertedDistribution } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -35,7 +35,7 @@ export default {
     NavBarComponent
   },
 
-  data () {
+  data() {
     return {
       params: this.initParams(),
       result: [],
@@ -55,28 +55,30 @@ export default {
   },
 
   methods: {
-    resetFilter () {
+    resetFilter() {
       this.$emit('reset')
       this.params = this.initParams()
     },
 
-    search () {
+    search() {
       const params = { ...this.params.base }
 
       this.searching = true
-      AssertedDistribution.where(params).then(response => {
-        this.result = response.body
-        this.$emit('result', this.result)
-        this.$emit('urlRequest', response.request.responseURL)
-        if (this.result.length === 500) {
-          TW.workbench.alert.create('Results may be truncated.', 'notice')
-        }
-      }).finally(() => {
-        this.searching = false
-      })
+      AssertedDistribution.where(params)
+        .then((response) => {
+          this.result = response.body
+          this.$emit('result', this.result)
+          this.$emit('urlRequest', response.request.responseURL)
+          if (this.result.length === 500) {
+            TW.workbench.alert.create('Results may be truncated.', 'notice')
+          }
+        })
+        .finally(() => {
+          this.searching = false
+        })
     },
 
-    initParams () {
+    initParams() {
       return {
         base: {
           otu_id: undefined,
@@ -86,10 +88,10 @@ export default {
       }
     },
 
-    filterEmptyParams (object) {
+    filterEmptyParams(object) {
       const keys = Object.keys(object)
 
-      keys.forEach(key => {
+      keys.forEach((key) => {
         if (object[key] === '') {
           delete object[key]
         }
@@ -101,6 +103,6 @@ export default {
 </script>
 <style scoped>
 :deep(.btn-delete) {
-    background-color: #5D9ECE;
-  }
+  background-color: #5d9ece;
+}
 </style>

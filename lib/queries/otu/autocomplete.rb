@@ -21,7 +21,7 @@ module Queries
 
       def autocomplete_name_only(rank = 1)
         ::Otu
-        .select("otus.*, #{rank} AS rank, similarity('#{query_string}\', name) AS sml")
+        .select(ApplicationRecord.sanitize_sql(['otus.*, ? AS rank, similarity(?, name) AS sml', rank, query_string]))
         .where(taxon_name_id: nil)
         .order('sml DESC, name')
         .limit(10)
@@ -29,14 +29,14 @@ module Queries
 
       def autocomplete_name_cutoff(rank = 1)
         ::Otu
-        .select("otus.*, #{rank} AS rank, similarity('#{query_string}\', name) AS sml")
+        .select(ApplicationRecord.sanitize_sql(['otus.*, ? AS rank, similarity(?, name) AS sml', rank, query_string]))
         .where('name % ?', query_string)
         .order('sml DESC, name')
       end
 
       def autocomplete_name_only_cutoff(rank = 1)
         ::Otu
-        .select("otus.*, #{rank} AS rank, similarity('#{query_string}\', name) AS sml")
+        .select(ApplicationRecord.sanitize_sql(['otus.*, ? AS rank, similarity(?, name) AS sml', rank, query_string]))
         .where(taxon_name_id: nil)
         .where('name % ?', query_string)
         .order('sml DESC, name')
@@ -44,7 +44,7 @@ module Queries
 
       def autocomplete_taxon_name_cached_cutoff(rank = 1)
         ::Otu.joins(:taxon_name)
-        .select("otus.*, #{rank} AS rank, similarity('#{query_string}\', cached) AS sml")
+        .select(ApplicationRecord.sanitize_sql(['otus.*, ? AS rank, similarity(?, cached) AS sml', rank, query_string]))
         .where('cached % ?', query_string)
         .order('sml DESC, cached')
       end
@@ -133,7 +133,6 @@ module Queries
         taxon_names = Queries::TaxonName::Autocomplete.new(query_string, project_id:).autocomplete
 
         ( having_taxon_name_only ? base_query.joins(:taxon_name).where(otus: {name: nil}) : base_query.left_joins(:taxon_name)) # Otu.where(name: nil)
-          #.select("otus.*, similarity('#{query_string}\', taxon_names.cached) AS sml")
           .where(taxon_name: taxon_names)
           # .references(:taxon_names)
           # .limit(40)

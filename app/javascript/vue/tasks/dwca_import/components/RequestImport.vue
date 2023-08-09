@@ -2,18 +2,22 @@
   <div
     v-if="!datasetReady"
     class="full_width panel"
-    style="height: 50vh">
+    style="height: 50vh"
+  >
     <spinner-component
       :logo-size="{
         width: '100px',
         height: '100px'
       }"
-      :legend="`<h3>${disableStatus[dataset.status]}</h3> <span>Refresh in ${remain} seconds...</span>`"/>
+      :legend="`<h3>${
+        disableStatus[dataset.status]
+      }</h3> <span>Refresh in ${remain} seconds...</span>`"
+    />
   </div>
 </template>
 
 <script>
-import SpinnerComponent from 'components/spinner'
+import SpinnerComponent from '@/components/spinner'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import { disableStatus } from '../const/datasetStatus.js'
@@ -23,14 +27,14 @@ export default {
     SpinnerComponent
   },
   computed: {
-    dataset () {
+    dataset() {
       return this.$store.getters[GetterNames.GetDataset]
     },
-    datasetReady () {
+    datasetReady() {
       return !Object.keys(this.disableStatus).includes(this.dataset.status)
     }
   },
-  data () {
+  data() {
     return {
       reloadTime: 10,
       countdownProcess: undefined,
@@ -38,22 +42,24 @@ export default {
       disableStatus: disableStatus
     }
   },
-  mounted () {
+  mounted() {
     if (!this.datasetReady) {
       this.loadDataset()
     }
   },
   methods: {
-    loadDataset () {
-      this.$store.dispatch(ActionNames.LoadDataset, this.dataset.id).then(response => {
-        if (!this.datasetReady) {
-          this.countdown(this.reloadTime)
-        } else {
-          this.$store.dispatch(ActionNames.LoadDatasetRecords)
-        }
-      })
+    loadDataset() {
+      this.$store
+        .dispatch(ActionNames.LoadDataset, this.dataset.id)
+        .then((response) => {
+          if (!this.datasetReady) {
+            this.countdown(this.reloadTime)
+          } else {
+            this.$store.dispatch(ActionNames.LoadDatasetRecords)
+          }
+        })
     },
-    countdown (seconds) {
+    countdown(seconds) {
       this.remain = seconds
       if (seconds === 0) {
         this.loadDataset()
@@ -64,7 +70,7 @@ export default {
       }
     }
   },
-  destroyed () {
+  destroyed() {
     clearTimeout(this.countdownProcess)
   }
 }

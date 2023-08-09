@@ -36,12 +36,12 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { copyObjectByArray } from 'helpers/objects.js'
-import { ID_PARAM_FOR } from 'components/radials/filter/constants/idParams.js'
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import Modal from 'components/ui/Modal.vue'
+import { copyObjectByArray } from '@/helpers/objects.js'
+import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import Modal from '@/components/ui/Modal.vue'
 import getFilterAttributes from './composition/getFilterAttributes'
 import qs from 'qs'
 import * as LINKER_LIST from './links/index.js'

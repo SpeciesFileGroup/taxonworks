@@ -119,6 +119,13 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
   end
 =end
 
+    # TODO: remove, redundant with single Factory use
+    specify 'Two different object types share the same factory.' do
+      # r is the result of an intersection
+      # p16 uses the config.default factory
+      expect(r.factory.projection_factory).to eq(p16_on_a.factory.projection_factory)
+    end
+
     context 'STI' do
       context 'type is set before validation when column is provided (assumes type is null)' do
         GeographicItem::DATA_TYPES.each do |t|
@@ -176,7 +183,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       end
 
       specify 'One and only one of point, line_string, etc. is set.' do
-        geographic_item_with_point_a.polygon = geographic_item_with_point_a.point.buffer(10)
+        geographic_item_with_point_a.polygon = geographic_item_with_polygon.polygon
         expect(geographic_item_with_point_a.valid?).to be_falsey
       end
     end
@@ -279,10 +286,6 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
       specify 'Two polygons may have various adjacencies.' do
         expect(shapeE2.disjoint?(shapeE4)).to be_falsey
-      end
-
-      specify 'Two different object types have various intersections.' do
-        expect(r.factory.projection_factory).to eq(p16_on_a.factory.projection_factory)
       end
 
       specify 'Two different object types have various intersections.' do
@@ -473,9 +476,9 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
         specify 'for linestring' do
           object.shape = '{"type":"Feature","geometry":{"type":"LineString","coordinates":[' \
-                          '[-90.25122106075287,38.619731572825145],' \
-                          '[-86.12036168575287,39.77758382625017],' \
-                          '[-87.62384042143822,41.89478088863241]]},"properties":{}}'
+            '[-90.25122106075287,38.619731572825145],' \
+            '[-86.12036168575287,39.77758382625017],' \
+            '[-87.62384042143822,41.89478088863241]]},"properties":{}}'
           expect(object.valid?).to be_truthy
         end
 
@@ -522,7 +525,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
       specify '::geometry_sql' do
         test = 'select geom_alias_tbl.polygon::geometry from geographic_items geom_alias_tbl ' \
-                'where geom_alias_tbl.id = 2'
+          'where geom_alias_tbl.id = 2'
         expect(GeographicItem.geometry_sql(2, :polygon)).to eq(test)
       end
 
@@ -539,9 +542,9 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       end
 
       specify '::within_radius_of_item to find all objects which are within a specific ' \
-              'distance of a geographic item.' do
-        expect(GeographicItem).to respond_to(:within_radius_of_item)
-      end
+        'distance of a geographic item.' do
+          expect(GeographicItem).to respond_to(:within_radius_of_item)
+        end
 
       specify '::intersecting method to intersecting an \'or\' list of objects.' do
         expect(GeographicItem).to respond_to(:intersecting)
@@ -549,7 +552,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
       specify '::containing_sql' do
         test1 = 'ST_Contains(polygon::geometry, (select geom_alias_tbl.point::geometry from ' \
-                "geographic_items geom_alias_tbl where geom_alias_tbl.id = #{p1.id}))"
+          "geographic_items geom_alias_tbl where geom_alias_tbl.id = #{p1.id}))"
         expect(GeographicItem.containing_sql('polygon',
                                              p1.to_param, p1.geo_object_type)).to eq(test1)
       end
@@ -774,16 +777,16 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           end
 
           specify 'one thing (p19) inside a polygon (b) with interior, and another inside ' \
-                  'the interior which is NOT included (p18)' do
-            expect(GeographicItem.is_contained_by('any', b).not_including(b).to_a).to eq([p19])
-          end
+            'the interior which is NOT included (p18)' do
+              expect(GeographicItem.is_contained_by('any', b).not_including(b).to_a).to eq([p19])
+            end
 
           specify 'three things inside two things. Notice that the outer ring of b ' \
-                  'is co-incident with b1, and thus "contained".' do
-            expect(GeographicItem.is_contained_by('any',
-                                                  [b1, b2]).not_including([b1, b2]).to_a)
-              .to contain_exactly(p18, p19, b)
-          end
+            'is co-incident with b1, and thus "contained".' do
+              expect(GeographicItem.is_contained_by('any',
+                                                    [b1, b2]).not_including([b1, b2]).to_a)
+                .to contain_exactly(p18, p19, b)
+            end
 
           # other objects are returned as well, we just don't care about them
           # we want to find p19 inside b and b1, but returned only once
@@ -800,24 +803,24 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           specify 'drop specifc item[s] from any scope (list of objects.)' do
             # @p2 would have been in the list, except for the exclude
             expect(GeographicItem.not_including([p2])
-                     .ordered_by_shortest_distance_from('point', p3)
-                     .limit(3).to_a)
+              .ordered_by_shortest_distance_from('point', p3)
+              .limit(3).to_a)
               .to eq([p1, p4, p17])
           end
 
           specify 'drop specifc item[s] from any scope (list of objects.)' do
             # @p2 would *not* have been in the list anyway
             expect(GeographicItem.not_including([p2])
-                     .ordered_by_longest_distance_from('point', p3)
-                     .limit(3).to_a)
+              .ordered_by_longest_distance_from('point', p3)
+              .limit(3).to_a)
               .to eq([r2024, r2022, r2020])
           end
 
           specify 'drop specifc item[s] from any scope (list of objects.)' do
             # @r2022 would have been in the list, except for the exclude
             expect(GeographicItem.not_including([r2022])
-                     .ordered_by_longest_distance_from('point', p3)
-                     .limit(3).to_a)
+              .ordered_by_longest_distance_from('point', p3)
+              .limit(3).to_a)
               .to eq([r2024, r2020, p10])
           end
         end
@@ -832,31 +835,31 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
           specify ' orders objects by distance from passed object' do
             expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
-                     .limit(3).to_a)
+              .limit(3).to_a)
               .to eq([p2, p1, p4])
           end
 
           specify ' orders objects by distance from passed object' do
             expect(GeographicItem.ordered_by_shortest_distance_from('line_string', p3)
-                     .limit(3).to_a)
+              .limit(3).to_a)
               .to eq([outer_limits, l, f1])
           end
 
           specify ' orders objects by distance from passed object' do
             expect(GeographicItem.ordered_by_shortest_distance_from('polygon', p3)
-                     .limit(3).to_a)
+              .limit(3).to_a)
               .to eq([e5, e3, e4])
           end
 
           specify ' orders objects by distance from passed object' do
             expect(GeographicItem.ordered_by_shortest_distance_from('multi_point', p3)
-                     .limit(3).to_a)
+              .limit(3).to_a)
               .to eq([h, rooms])
           end
 
           specify ' orders objects by distance from passed object' do
             expect(GeographicItem.ordered_by_shortest_distance_from('multi_line_string', p3)
-                     .limit(3).to_a)
+              .limit(3).to_a)
               .to eq([f, c])
           end
 
@@ -868,7 +871,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
           specify ' orders objects by distance from passed object' do
             expect(GeographicItem.ordered_by_shortest_distance_from('geometry_collection', p3)
-                     .limit(3).to_a)
+              .limit(3).to_a)
               .to eq([e, j])
           end
         end
@@ -885,25 +888,25 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
           specify 'orders line_strings by distance from passed point' do
             expect(GeographicItem.ordered_by_longest_distance_from('line_string', p3)
-                     .limit(3).to_a)
+              .limit(3).to_a)
               .to eq([c3, c1, c2])
           end
 
           specify 'orders polygons by distance from passed point' do
             expect(GeographicItem.ordered_by_longest_distance_from('polygon', p3)
-                     .limit(4).to_a)
+              .limit(4).to_a)
               .to eq([g1, g2, g3, b2])
           end
 
           specify 'orders multi_points by distance from passed point' do
             expect(GeographicItem.ordered_by_longest_distance_from('multi_point', p3)
-                     .limit(3).to_a)
+              .limit(3).to_a)
               .to eq([rooms, h])
           end
 
           specify 'orders multi_line_strings by distance from passed point' do
             expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', p3)
-                     .limit(3).to_a)
+              .limit(3).to_a)
               .to eq([c, f])
           end
 
@@ -913,14 +916,14 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             # This seems to be the reason these two objects *might* be in either order. Thus, one of the two
             # is excluded to prevent it from confusing the order (farthest first) of the appearance of the objects.
             expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
-                     .not_including(new_box_e)
-                     .limit(3).to_a) # TODO: Limit is being called over an array. Check whether this is a gem/rails bug or we need to update code.
+              .not_including(new_box_e)
+              .limit(3).to_a) # TODO: Limit is being called over an array. Check whether this is a gem/rails bug or we need to update code.
               .to eq([g, new_box_a, new_box_b])
           end
 
           specify 'orders objects by distance from passed object geometry_collection' do
             expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', p3)
-                     .limit(3).to_a)
+              .limit(3).to_a)
               .to eq([j, e])
           end
         end
@@ -931,8 +934,8 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           specify "list of objects (uses 'and')." do
             expect(GeographicItem.disjoint_from('point',
                                                 [e1, e2, e3, e4, e5])
-                     .order(:id)
-                     .limit(1).to_a)
+              .order(:id)
+              .limit(1).to_a)
               .to contain_exactly(p_b)
           end
         end
@@ -942,7 +945,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
           specify 'returns objects within a specific distance of an object.' do
             pieces = GeographicItem.within_radius_of_item(p0.id, 1000000)
-                       .where(type: ['GeographicItem::Polygon'])
+              .where(type: ['GeographicItem::Polygon'])
             expect(pieces).to contain_exactly(err_b, e2, e3, e4, e5, item_a, item_b, item_c, item_d)
           end
 
@@ -961,40 +964,40 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           end
 
           specify '::select_distance_with_geo_object provides an extra column called ' \
-                '\'distance\' to the output objects' do
-            result = GeographicItem.select_distance_with_geo_object('point', r2020)
-                       .limit(3).order('distance')
-                       .where_distance_greater_than_zero('point', r2020).to_a
-            # get back these three points
-            expect(result).to eq([r2022, r2024, p14])
-          end
+            '\'distance\' to the output objects' do
+              result = GeographicItem.select_distance_with_geo_object('point', r2020)
+                .limit(3).order('distance')
+                .where_distance_greater_than_zero('point', r2020).to_a
+              # get back these three points
+              expect(result).to eq([r2022, r2024, p14])
+            end
 
           specify '::select_distance_with_geo_object provides an extra column called ' \
-                '\'distance\' to the output objects' do
-            result = GeographicItem.select_distance_with_geo_object('point', r2020)
-                       .limit(3).order('distance')
-                       .where_distance_greater_than_zero('point', r2020).to_a
-            # 5 meters
-            expect(result.first.distance).to be_within(0.1).of(5.008268179)
-          end
+            '\'distance\' to the output objects' do
+              result = GeographicItem.select_distance_with_geo_object('point', r2020)
+                .limit(3).order('distance')
+                .where_distance_greater_than_zero('point', r2020).to_a
+              # 5 meters
+              expect(result.first.distance).to be_within(0.1).of(5.008268179)
+            end
 
           specify '::select_distance_with_geo_object provides an extra column called ' \
-                '\'distance\' to the output objects' do
-            result = GeographicItem.select_distance_with_geo_object('point', r2020)
-                       .limit(3).order('distance')
-                       .where_distance_greater_than_zero('point', r2020).to_a
-            # 10 meters
-            expect(result[1].distance).to be_within(0.1).of(10.016536381)
-          end
+            '\'distance\' to the output objects' do
+              result = GeographicItem.select_distance_with_geo_object('point', r2020)
+                .limit(3).order('distance')
+                .where_distance_greater_than_zero('point', r2020).to_a
+              # 10 meters
+              expect(result[1].distance).to be_within(0.1).of(10.016536381)
+            end
 
           specify '::select_distance_with_geo_object provides an extra column called ' \
-                '\'distance\' to the output objects' do
-            result = GeographicItem.select_distance_with_geo_object('point', r2020)
-                       .limit(3).order('distance')
-                       .where_distance_greater_than_zero('point', r2020).to_a
-            # 5,862 km (3,642 miles)
-            expect(result[2].distance).to be_within(0.1).of(5862006.0029975)
-          end
+            '\'distance\' to the output objects' do
+              result = GeographicItem.select_distance_with_geo_object('point', r2020)
+                .limit(3).order('distance')
+                .where_distance_greater_than_zero('point', r2020).to_a
+              # 5,862 km (3,642 miles)
+              expect(result[2].distance).to be_within(0.1).of(5862006.0029975)
+            end
 
           specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
             expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
@@ -1045,10 +1048,10 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         end
       end
     end
-  end # end using ce_test_objects
+    end # end using ce_test_objects
 
-  context 'concerns' do
-    it_behaves_like 'is_data'
-  end
+    context 'concerns' do
+      it_behaves_like 'is_data'
+    end
 
-end
+    end

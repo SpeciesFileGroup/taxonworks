@@ -101,10 +101,14 @@ namespace :api, defaults: {format: :json} do
       get '/contents', to: '/contents#api_index'
       get '/contents/:id', to: '/contents#api_show'
 
+      get '/controlled_vocabulary_terms', to: '/controlled_vocabulary_terms#api_index'
+      get '/controlled_vocabulary_terms/:id', to: '/controlled_vocabulary_terms#api_show'
+
       get '/asserted_distributions', to: '/asserted_distributions#api_index'
       get '/asserted_distributions/:id', to: '/asserted_distributions#api_show'
 
       get '/data_attributes', to: '/data_attributes#api_index'
+      get '/data_attributes/brief', to: '/data_attributes#api_brief'
       get '/data_attributes/:id', to: '/data_attributes#api_show'
 
       get '/depictions/:id', to: '/depictions#api_show'
@@ -123,7 +127,6 @@ namespace :api, defaults: {format: :json} do
       get '/tags', to: '/tags#api_index'
       get '/tags/:id', to: '/tags#api_show'
 
-      # get '/controlled_vocabulary_terms'
     end
 
     # Authenticate membership at the data controller level

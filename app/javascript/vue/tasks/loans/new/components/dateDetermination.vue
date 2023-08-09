@@ -1,12 +1,13 @@
 <template>
   <div>
     <span><b>Update determinations</b></span>
-    <hr>
+    <hr />
     <div class="field">
       <label>Determiner</label>
       <role-picker
         v-model="roles"
-        role-type="Determiner"/>
+        role-type="Determiner"
+      />
     </div>
     <div class="field">
       <label>OTU</label>
@@ -16,15 +17,28 @@
       >
         <span
           v-html="otuSelected"
-          class="margin-small-right"/>
+          class="margin-small-right"
+        />
         <span
-          @click="otuSelected = undefined; determination.otu_id = undefined"
-          class="button button-circle btn-undo button-default"/>
+          @click="
+            () => {
+              otuSelected = undefined
+              determination.otu_id = undefined
+            }
+          "
+          class="button button-circle btn-undo button-default"
+        />
       </span>
       <otu-picker
         v-else
         :clear-after="true"
-        @getItem="determination.otu_id = $event.id; otuSelected = $event.label_html"/>
+        @get-item="
+          ($event) => {
+            determination.otu_id = $event.id
+            otuSelected = $event.label_html
+          }
+        "
+      />
     </div>
     <div class="field">
       <label>Date made</label>
@@ -38,18 +52,19 @@
       @click="setDeterminations()"
       class="button button-submit normal-input"
       :disabled="!validateFields"
-      type="button">Set determination
+      type="button"
+    >
+      Set determination
     </button>
   </div>
 </template>
 <script>
-
-import { COLLECTION_OBJECT, CONTAINER } from 'constants/index.js'
-import { TaxonDetermination, Container } from 'routes/endpoints'
+import { COLLECTION_OBJECT, CONTAINER } from '@/constants/index.js'
+import { TaxonDetermination, Container } from '@/routes/endpoints'
 import { MutationNames } from '../store/mutations/mutations'
-import DateFields from 'components/ui/Date/DateFields.vue'
-import rolePicker from 'components/role_picker.vue'
-import OtuPicker from 'components/otu/otu_picker/otu_picker'
+import DateFields from '@/components/ui/Date/DateFields.vue'
+import rolePicker from '@/components/role_picker.vue'
+import OtuPicker from '@/components/otu/otu_picker/otu_picker'
 
 export default {
   components: {
@@ -66,21 +81,20 @@ export default {
   },
 
   computed: {
-    validateFields () {
-      return this.determination.otu_id &&
-        this.list.length
+    validateFields() {
+      return this.determination.otu_id && this.list.length
     },
     roles: {
-      get () {
+      get() {
         return this.determination.roles_attributes
       },
-      set (value) {
+      set(value) {
         this.determination.roles_attributes = value
       }
     }
   },
 
-  data () {
+  data() {
     return {
       otuSelected: undefined,
       determination: {
@@ -95,29 +109,42 @@ export default {
   },
 
   methods: {
-    setDeterminations () {
+    setDeterminations() {
       const promises = []
 
       this.$store.commit(MutationNames.SetSaving, true)
-      this.list.forEach(item => {
+      this.list.forEach((item) => {
         if (item.loan_item_object_type === CONTAINER) {
-          this.getCollectionOjectsFromContainer(item.loan_item_object_id).then(ids => {
-            ids.forEach(id => {
-              promises.push(this.createDetermination({ biological_collection_object_id: id }))
-            })
-          })
+          this.getCollectionOjectsFromContainer(item.loan_item_object_id).then(
+            (ids) => {
+              ids.forEach((id) => {
+                promises.push(
+                  this.createDetermination({
+                    biological_collection_object_id: id
+                  })
+                )
+              })
+            }
+          )
         } else if (item.loan_item_object_type === COLLECTION_OBJECT) {
-          promises.push(this.createDetermination({ biological_collection_object_id: item.loan_item_object_id }))
+          promises.push(
+            this.createDetermination({
+              biological_collection_object_id: item.loan_item_object_id
+            })
+          )
         }
       })
 
       Promise.all(promises).then(() => {
         this.$store.commit(MutationNames.SetSaving, false)
-        TW.workbench.alert.create('Loan item was successfully updated.', 'notice')
+        TW.workbench.alert.create(
+          'Loan item was successfully updated.',
+          'notice'
+        )
       })
     },
 
-    createDetermination (params = {}) {
+    createDetermination(params = {}) {
       const payload = {
         ...this.determination,
         ...params
@@ -126,12 +153,16 @@ export default {
       return TaxonDetermination.create({ taxon_determination: payload })
     },
 
-    getCollectionOjectsFromContainer (containerId) {
+    getCollectionOjectsFromContainer(containerId) {
       return new Promise((resolve, reject) => {
         Container.find(containerId).then(({ body }) => {
           const containerItems = body.container_items
 
-          resolve(containerItems.map(item => item.container_item.contained_object_id))
+          resolve(
+            containerItems.map(
+              (item) => item.container_item.contained_object_id
+            )
+          )
         })
       })
     }

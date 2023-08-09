@@ -8,9 +8,9 @@ import {
   TypeMaterial,
   GeographicArea,
   Repository
-} from 'routes/endpoints'
-import { makeCollectionObject } from 'adapters/index.js'
-import { COLLECTION_OBJECT, COLLECTING_EVENT } from 'constants/index.js'
+} from '@/routes/endpoints'
+import { makeCollectionObject } from '@/adapters/index.js'
+import { COLLECTION_OBJECT, COLLECTING_EVENT } from '@/constants/index.js'
 import ActionNames from './actionNames'
 
 export default ({ state, dispatch }, coId) => {

@@ -86,7 +86,7 @@ class TypeMaterial < ApplicationRecord
     [source, protonym.try(:source), nil].compact.first
   end
 
-  def legal_type_type(code, type_type)
+  def self.legal_type_type(code, type_type)
     case code
     when :iczn
       ICZN_TYPES.keys.include?(type_type)
@@ -102,7 +102,7 @@ class TypeMaterial < ApplicationRecord
   def check_type_type
     if protonym
       code = protonym.rank_class.nomenclatural_code
-      errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') if !legal_type_type(code, type_type)
+      errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') unless TypeMaterial::legal_type_type(code, type_type)
     end
   end
 

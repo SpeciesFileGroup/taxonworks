@@ -19,11 +19,11 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { Repository } from 'routes/endpoints'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { Repository } from '@/routes/endpoints'
 import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
@@ -37,12 +37,12 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 watch(
   () => params.value.current_repository_id,
-  id => {
+  (id) => {
     if (!id) {
       unsetRepository()
     }
@@ -65,15 +65,14 @@ const unsetRepository = () => {
 const urlParams = URLParamsToJSON(location.href)
 
 if (urlParams.current_repository_id) {
-  Repository.find(urlParams.current_repository_id).then(response => {
+  Repository.find(urlParams.current_repository_id).then((response) => {
     setRepository(response.body)
   })
 }
-
 </script>
 
 <style scoped>
-  :deep(.vue-autocomplete-input) {
-    width: 100%
-  }
+:deep(.vue-autocomplete-input) {
+  width: 100%;
+}
 </style>

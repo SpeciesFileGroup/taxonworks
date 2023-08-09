@@ -7,7 +7,8 @@
         color="create"
         medium
         :disabled="!downloadCount"
-        @click="download({ per: downloadCount })">
+        @click="download({ per: downloadCount })"
+      >
         All ({{ downloadCount }})
       </v-btn>
     </div>
@@ -31,11 +32,10 @@
   </div>
 </template>
 <script setup>
-
-import { DwcOcurrence } from 'routes/endpoints'
+import { DwcOcurrence } from '@/routes/endpoints'
 import { inject, computed } from 'vue'
 import DownloadDateButton from './DownloadDateButton.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import FilterLink from '../FilterLink.vue'
 
 const DATE_BUTTONS = {
@@ -49,10 +49,16 @@ const useAction = inject('actions')
 const useState = inject('state')
 const downloadCount = computed(() => useState?.metadata?.index?.record_total)
 
-const getTotal = date => useState?.metadata?.index.freshness[`one_${date}`]
+const getTotal = (date) => useState?.metadata?.index.freshness[`one_${date}`]
 
-const download = async downloadParams => {
-  useAction.addDownloadRecord((await DwcOcurrence.generateDownload({ ...downloadParams, dwc_indexed: true })).body)
+const download = async (downloadParams) => {
+  useAction.addDownloadRecord(
+    (
+      await DwcOcurrence.generateDownload({
+        ...downloadParams,
+        dwc_indexed: true
+      })
+    ).body
+  )
 }
-
 </script>

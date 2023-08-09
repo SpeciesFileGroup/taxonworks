@@ -11,7 +11,7 @@
             :value="option.value"
             v-model="params.nomenclature_code"
             type="radio"
-          >
+          />
           {{ option.label }}
         </label>
       </li>
@@ -21,8 +21,8 @@
 
 <script setup>
 import { computed, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {
@@ -35,7 +35,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const OPTIONS = [
@@ -62,6 +62,8 @@ const OPTIONS = [
 ]
 
 onBeforeMount(() => {
-  params.value.nomenclature_code = URLParamsToJSON(location.href).nomenclature_code
+  params.value.nomenclature_code = URLParamsToJSON(
+    location.href
+  ).nomenclature_code
 })
 </script>

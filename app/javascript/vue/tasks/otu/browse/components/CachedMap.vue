@@ -36,8 +36,8 @@
 </template>
 <script setup>
 import { ref } from 'vue'
-import VModal from 'components/ui/Modal.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 defineProps({
   cachedMap: {

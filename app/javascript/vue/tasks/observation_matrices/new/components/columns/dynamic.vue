@@ -8,7 +8,7 @@
         <legend>Tag/Keyword</legend>
         <smart-selector
           autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-          :autocomplete-params="{'type[]' : 'Keyword'}"
+          :autocomplete-params="{ 'type[]': 'Keyword' }"
           get-url="/controlled_vocabulary_terms/"
           model="keywords"
           buttons
@@ -16,14 +16,14 @@
           klass="Tag"
           target="ObservationMatrixColumn"
           button-class="button-submit"
-          @selected="create"/>
+          @selected="create"
+        />
       </fieldset>
     </div>
   </div>
 </template>
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
+import SmartSelector from '@/components/ui/SmartSelector'
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import ObservationTypes from '../../const/types.js'
@@ -33,17 +33,15 @@ export default {
     SmartSelector
   },
   computed: {
-    matrixId () {
+    matrixId() {
       return this.$store.getters[GetterNames.GetMatrix].id
     }
   },
   data() {
-    return {
-
-    }
+    return {}
   },
   methods: {
-    create (item) {
+    create(item) {
       let data = {
         controlled_vocabulary_term_id: item.id,
         observation_matrix_id: this.matrixId,

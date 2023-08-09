@@ -1,15 +1,17 @@
-import { Image } from 'routes/endpoints'
+import { Image } from '@/routes/endpoints'
 
 export default ({ state }) => {
   const promises = []
 
-  state.imagesCreated.forEach(image => {
-    promises.push(Image.update(image.id, {
-      image: {
-        id: image.id,
-        pixels_to_centimeter: state.pixels_to_centimeter
-      }
-    }))
+  state.imagesCreated.forEach((image) => {
+    promises.push(
+      Image.update(image.id, {
+        image: {
+          id: image.id,
+          pixels_to_centimeter: state.pixels_to_centimeter
+        }
+      })
+    )
   })
 
   Promise.all(promises).then(() => {

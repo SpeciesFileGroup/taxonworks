@@ -27,11 +27,11 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { computed, watch, ref, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { CollectingEvent } from 'routes/endpoints'
-import SmartSelector from 'components/ui/SmartSelector'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { CollectingEvent } from '@/routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector'
 
 const props = defineProps({
   modelValue: {

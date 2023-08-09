@@ -26,7 +26,11 @@
             :key="item.id"
           >
             <v-btn
-              v-if="createdBiocurations.find(created => created.tag_object_id === item.id)"
+              v-if="
+                createdBiocurations.find(
+                  (created) => created.tag_object_id === item.id
+                )
+              "
               class="margin-small"
               color="destroy"
               :title="makeTooltip(item)"
@@ -54,9 +58,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import useStore from '../composables/useStore'
-import VModal from 'components/ui/Modal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import makeTooltip from '../utils/makeTooltip.js'
 
 const { getters } = useStore()
@@ -73,10 +77,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits([
-  'create',
-  'delete'
-])
+const emit = defineEmits(['create', 'delete'])
 
 const showModal = ref(false)
 const biocurationClasses = computed(() => getters.getBiocurationClasses())

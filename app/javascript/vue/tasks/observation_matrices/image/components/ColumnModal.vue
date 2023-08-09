@@ -7,16 +7,16 @@
       <div class="separate-top">
         <div class="field">
           <label>Name</label>
-          <br>
+          <br />
           <input
             v-model="descriptor.name"
             class="full_width"
             type="text"
-          >
+          />
         </div>
         <div class="field">
           <label>Description</label>
-          <br>
+          <br />
           <textarea
             class="full_width"
             v-model="descriptor.description"
@@ -37,8 +37,7 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal.vue'
+import ModalComponent from '@/components/ui/Modal.vue'
 import { ActionNames } from '../store/actions/actions'
 
 export default {
@@ -49,12 +48,12 @@ export default {
   emits: ['close'],
 
   computed: {
-    validateFields () {
+    validateFields() {
       return this.descriptor.name.length
     }
   },
 
-  data () {
+  data() {
     return {
       descriptor: {
         name: '',
@@ -64,11 +63,13 @@ export default {
   },
 
   methods: {
-    createColumn () {
-      this.$store.dispatch(ActionNames.CreateNewColumn, {
-        descriptorName: this.descriptor.name,
-        description: this.descriptor.description
-      }).then(_ => this.$emit('close'))
+    createColumn() {
+      this.$store
+        .dispatch(ActionNames.CreateNewColumn, {
+          descriptorName: this.descriptor.name,
+          description: this.descriptor.description
+        })
+        .then((_) => this.$emit('close'))
     }
   }
 }

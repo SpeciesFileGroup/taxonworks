@@ -93,7 +93,7 @@ module Queries::Concerns::Depictions
     .joins('JOIN query_images as query_images1 on depictions.image_id = query_images1.id')
     .to_sql
 
-    referenced_klass.from('(' + s + ') as ' + referenced_klass.name.tableize)
+    referenced_klass.from('(' + s + ') as ' + referenced_klass.name.tableize).distinct
   end
 
   def self.merge_clauses

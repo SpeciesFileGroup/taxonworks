@@ -1,5 +1,10 @@
-json.object_tag object_tag(object)
-json.object_label label_for(object)
+
+# TODO: A bandaid of sorts
+unless exclude_from_response('object_labels')
+  json.object_tag object_tag(object)
+  json.object_label label_for(object)
+end
+
 json.global_id object.persisted? ? object.to_global_id.to_s : nil
 json.base_class object.class.base_class.name
 json.url_for url_for(only_path: false, format: :json)
@@ -19,7 +24,7 @@ extensions = true if extensions.nil?
 if extensions
 
   if extend_response_with('pinboard_item')
-    json.partial! '/pinboard_items/pinned', object: object
+    json.partial! '/pinboard_items/pinned', object:
   end
 
   if extend_response_with('origin_citation')
@@ -44,7 +49,7 @@ if extensions
 
   if extend_response_with('citations')
     json.citations do
-      json.array! object.citations, partial: '/citations/attributes', as: :citation, extension: false
+      json.array! object.citations, partial: '/citations/attributes', as: :citation, extensions: false
     end
   end
 end

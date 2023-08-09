@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall.js'
+import AjaxCall from '@/helpers/ajaxCall.js'
 
 const controller = 'loans'
 const permitParams = {
@@ -53,7 +53,7 @@ const permitParams = {
 export const Loan = {
   ...baseCRUD(controller, permitParams),
 
-  filter: params => AjaxCall('post', `/${controller}/filter.json`, params),
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
 
   attributes: () => AjaxCall('get', `/${controller}/attributes`)
 }

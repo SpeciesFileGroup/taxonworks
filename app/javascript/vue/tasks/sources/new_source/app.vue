@@ -132,28 +132,28 @@
 <script>
 import SourceType from './components/sourceType'
 import RecentComponent from './components/recent'
-import SpinnerComponent from 'components/spinner'
+import SpinnerComponent from '@/components/spinner'
 
 import CrossRef from './components/crossRef'
 import BibtexButton from './components/bibtex'
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialObject from 'components/radials/navigation/radial'
-import AddSource from 'components/addToProjectSource'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialObject from '@/components/radials/navigation/radial'
+import AddSource from '@/components/addToProjectSource'
 import CloneSource from './components/cloneSource'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
-import PinComponent from 'components/ui/Pinboard/VPin.vue'
+import PinComponent from '@/components/ui/Pinboard/VPin.vue'
 
-import { User } from 'routes/endpoints'
+import { User } from '@/routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
 import { MutationNames } from './store/mutations/mutations'
 
 import RightSection from './components/rightSection'
-import NavBar from 'components/layout/NavBar'
-import platformKey from 'helpers/getPlatformKey'
+import NavBar from '@/components/layout/NavBar'
+import platformKey from '@/helpers/getPlatformKey'
 
 export default {
   name: 'NewSource',

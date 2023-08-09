@@ -13,7 +13,7 @@ import {
   OBSERVATION,
   LOAN,
   CONTENT
-} from 'constants/index.js'
+} from '@/constants/index.js'
 
 export const QUERY_PARAM = {
   [ASSERTED_DISTRIBUTION]: 'asserted_distribution_query',
