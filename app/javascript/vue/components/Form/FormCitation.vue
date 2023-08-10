@@ -37,7 +37,7 @@
             @input="setPage"
           />
         </li>
-        <li v-if="!original">
+        <li v-if="original">
           <label>
             <input
               v-model="citation.is_original"
@@ -146,7 +146,7 @@ const props = defineProps({
 
   original: {
     type: Boolean,
-    default: false
+    default: true
   }
 })
 

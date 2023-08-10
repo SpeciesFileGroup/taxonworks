@@ -1,9 +1,6 @@
 import ActionNames from './actionNames'
-import { TaxonName, Citation } from '@/routes/endpoints'
-import {
-  TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM,
-  TAXON_NAME_RELATIONSHIP
-} from '@/constants'
+import { TaxonName } from '@/routes/endpoints'
+import { TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM } from '@/constants'
 
 export default async ({ state, dispatch }, { name, citation }) => {
   const currentTaxon = state.taxon_name
@@ -12,6 +9,12 @@ export default async ({ state, dispatch }, { name, citation }) => {
     parent_id: currentTaxon.parent_id,
     rank_class: currentTaxon.rank_string,
     type: 'Protonym'
+  }
+
+  if (citation.source_id) {
+    Object.assign(payload, {
+      origin_citation_attributes: { ...citation, is_original: true }
+    })
   }
 
   try {
@@ -25,22 +28,8 @@ export default async ({ state, dispatch }, { name, citation }) => {
       subject_taxon_name_id: response.body.id
     })
 
-    taxonRelationship.then((relationship) => {
-      if (citation.source_id) {
-        createCitation(relationship.id)
-      }
-    })
-
     return taxonRelationship
-  } catch {}
-
-  function createCitation(id) {
-    const payload = {
-      ...citation,
-      citation_object_id: id,
-      citation_object_type: TAXON_NAME_RELATIONSHIP
-    }
-
-    Citation.create({ citation: payload }).catch((e) => {})
+  } catch (error) {
+    return error
   }
 }

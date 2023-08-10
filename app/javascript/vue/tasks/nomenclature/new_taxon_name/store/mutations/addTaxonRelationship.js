@@ -1,9 +1,5 @@
-export default (state, relationship) => {
-  const position = state.taxonRelationshipList.findIndex(item => item.id === relationship.id)
+import { addToArray } from '@/helpers/arrays'
 
-  if (position < 0) {
-    state.taxonRelationshipList.push(relationship)
-  } else {
-    state.taxonRelationshipList[position] = relationship
-  }
+export default (state, relationship) => {
+  addToArray(state.taxonRelationshipList, relationship)
 }

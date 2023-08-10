@@ -10,6 +10,7 @@
       <EditTaxonName
         v-if="relationship"
         :relationship="relationship"
+        @update:name="updateName"
         @reset="resetForm"
       />
       <div v-else>
@@ -27,35 +28,36 @@
             Clone from current
           </VBtn>
         </div>
-        <FormCitation v-model="citation" />
-        <div class="horizontal-left-content gap-small margin-medium-top">
-          <VBtn
-            color="create"
-            medium
-            :disabled="!name.length"
-            @click="() => addRelationship(name)"
-          >
-            Create
-          </VBtn>
-          <VBtn
-            color="primary"
-            medium
-            @click="resetForm"
-          >
-            New
-          </VBtn>
-        </div>
+        <FormCitation
+          :original="false"
+          v-model="citation"
+        />
       </div>
-
+      <div class="horizontal-left-content gap-small margin-medium-top">
+        <VBtn
+          v-if="!relationship"
+          color="create"
+          medium
+          :disabled="!name.length"
+          @click="() => addRelationship(name)"
+        >
+          Create
+        </VBtn>
+        <VBtn
+          color="primary"
+          medium
+          @click="resetForm"
+        >
+          New
+        </VBtn>
+      </div>
       <DisplayList
         edit
         annotator
-        label="object_tag"
+        label="subject_object_tag"
         :list="getRelationshipsCreated"
         @edit="(item) => (relationship = item)"
-        @delete="
-          (item) => store.dispatch(ActionNames.RemoveTaxonRelationship, item)
-        "
+        @delete="removeTaxonName"
       />
     </template>
   </block-layout>
@@ -66,7 +68,10 @@ import { TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM } from '../../const/relations
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { ActionNames } from '../../store/actions/actions'
+import { MutationNames } from '../../store/mutations/mutations.js'
 import { GetterNames } from '../../store/getters/getters'
+import { TaxonName } from '@/routes/endpoints'
+import { makeGlobalId } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import DisplayList from '@/components/displayList.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
@@ -82,9 +87,15 @@ const citation = ref({})
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 
 const getRelationshipsCreated = computed(() =>
-  store.getters[GetterNames.GetTaxonRelationshipList].filter(
-    (item) => item.type === TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM
-  )
+  store.getters[GetterNames.GetTaxonRelationshipList]
+    .filter((item) => item.type === TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM)
+    .map((item) => ({
+      ...item,
+      global_id: makeGlobalId({
+        type: 'Protonym',
+        id: item.subject_taxon_name_id
+      })
+    }))
 )
 
 function addRelationship(name) {
@@ -101,6 +112,30 @@ function addRelationship(name) {
         'notice'
       )
     })
+}
+
+function removeTaxonName(item) {
+  store.dispatch(ActionNames.RemoveTaxonRelationship, item).then((_) => {
+    TaxonName.destroy(item.subject_taxon_name_id).then((_) => {
+      TW.workbench.alert.create(
+        'Taxon name was successfully destroyed.',
+        'notice'
+      )
+
+      if (relationship.value?.id === item.id) {
+        resetForm()
+      }
+    })
+  })
+}
+
+function updateName(name) {
+  const payload = {
+    ...relationship.value,
+    subject_object_tag: name
+  }
+
+  store.commit(MutationNames.AddTaxonRelationship, payload)
 }
 
 function resetForm() {

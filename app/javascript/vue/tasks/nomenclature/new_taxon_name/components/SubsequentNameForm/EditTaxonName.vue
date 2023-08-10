@@ -1,20 +1,5 @@
 <template>
   <div>
-    <div>
-      Editing relationship:
-      <span v-html="relationship.object_tag" />
-      <VBtn
-        class="margin-small-left"
-        circle
-        color="primary"
-        @click="emit('reset')"
-      >
-        <VIcon
-          small
-          name="undo"
-        />
-      </VBtn>
-    </div>
     <div
       class="horizontal-left-content gap-small margin-medium-bottom margin-medium-top"
     >
@@ -36,19 +21,10 @@
         color: 'create',
         label: citation.id ? 'Update' : 'Add'
       }"
+      :original="false"
       v-model="citation"
       @submit="saveCitation"
     >
-      <template #footer>
-        <VBtn
-          class="margin-small-left"
-          color="primary"
-          medium
-          @click="citation = {}"
-        >
-          New
-        </VBtn>
-      </template>
     </FormCitation>
     <DisplayList
       edit
@@ -61,12 +37,10 @@
 </template>
 
 <script setup>
-import { TAXON_NAME_RELATIONSHIP } from '@/constants'
+import { TAXON_NAME } from '@/constants'
 import { TaxonName, Citation } from '@/routes/endpoints'
-import { ref, watch } from 'vue'
-import { addToArray, removeFromArray } from '@/helpers/arrays'
+import { ref, watch, computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import DisplayList from '@/components/displayList.vue'
 
@@ -82,17 +56,19 @@ const name = ref('')
 const citations = ref([])
 const citation = ref({})
 
+const taxonId = computed(() => props.relationship.subject_taxon_name_id)
+
 watch(
-  () => props.relationship.subject_taxon_name_id,
+  taxonId,
   (newVal) => {
     TaxonName.find(newVal).then(({ body }) => {
       name.value = body.name
     })
     Citation.where({
-      citation_object_type: TAXON_NAME_RELATIONSHIP,
-      citation_object_id: props.relationship.id
+      citation_object_type: TAXON_NAME,
+      citation_object_id: newVal
     }).then(({ body }) => {
-      citations.value = body
+      citation.value = body.find((item) => item.is_original) || {}
     })
   },
   { immediate: true }
@@ -103,11 +79,15 @@ function updateTaxonName() {
     name: name.value
   }
 
-  TaxonName.update(props.relationship.subject_taxon_name_id, {
+  TaxonName.update(taxonId.value, {
     taxon_name: payload
   })
-    .then((body) => {
+    .then(({ body }) => {
       emit('update:name', body.name)
+      TW.workbench.alert.create(
+        'Taxon name was successfully updated.',
+        'notice'
+      )
     })
     .catch((e) => {})
 }
@@ -115,21 +95,20 @@ function updateTaxonName() {
 async function saveCitation(citation) {
   const payload = {
     ...citation,
-    citation_object_type: TAXON_NAME_RELATIONSHIP,
-    citation_object_id: props.relationship.id
+    citation_object_type: TAXON_NAME,
+    citation_object_id: taxonId.value,
+    is_original: true
   }
   const response = citation.id
     ? await Citation.update(citation.id, { citation: payload })
     : await Citation.create({ citation: payload })
-
-  addToArray(citations.value, response.body)
 
   TW.workbench.alert.create('Citation was successfully saved.', 'notice')
 }
 
 function removeCitation(item) {
   Citation.destroy(item.id).then((_) => {
-    removeFromArray(citations.value, item)
+    citation.value = {}
     TW.workbench.alert.create('Citation was successfully destroyed.', 'notice')
   })
 }
