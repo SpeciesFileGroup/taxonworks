@@ -1,12 +1,18 @@
 import { TaxonNameRelationship } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
-import { TAXON_RELATIONSHIP_CURRENT_COMBINATION } from '@/constants/index.js'
+import {
+  TAXON_RELATIONSHIP_CURRENT_COMBINATION,
+  TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM
+} from '@/constants/index.js'
 
 export default ({ commit, state, dispatch }, id) =>
   new Promise((resolve, reject) => {
     const combinationRelationship = TaxonNameRelationship.where({
       object_taxon_name_id: id,
-      taxon_name_relationship_type: [TAXON_RELATIONSHIP_CURRENT_COMBINATION]
+      taxon_name_relationship_type: [
+        TAXON_RELATIONSHIP_CURRENT_COMBINATION,
+        TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM
+      ]
     })
 
     const taxonRelationships = TaxonNameRelationship.where({
