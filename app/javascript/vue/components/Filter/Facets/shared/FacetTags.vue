@@ -1,42 +1,40 @@
 <template>
   <FacetContainer>
     <h3>Tags</h3>
-    <fieldset>
-      <legend>Keywords</legend>
-      <smart-selector
-        ref="smartSelectorRef"
-        autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-        :autocomplete-params="{ 'type[]': 'Keyword' }"
-        get-url="/controlled_vocabulary_terms/"
-        model="keywords"
-        klass="Tags"
-        pin-section="Keywords"
-        pin-type="Keyword"
-        :add-tabs="['all']"
-        :target="target"
-        @selected="addKeyword"
-      >
-        <template #all>
-          <VModal @close="smartSelectorRef.setTab('quick')">
-            <template #header>
-              <h3>Tags - all</h3>
-            </template>
-            <template #body>
-              <VBtn
-                v-for="item in allFiltered"
-                :key="item.id"
-                class="margin-small-bottom margin-small-right"
-                color="primary"
-                pill
-                @click="addKeyword(item)"
-              >
-                {{ item.name }}
-              </VBtn>
-            </template>
-          </VModal>
-        </template>
-      </smart-selector>
-    </fieldset>
+
+    <SmartSelector
+      ref="smartSelectorRef"
+      autocomplete-url="/controlled_vocabulary_terms/autocomplete"
+      :autocomplete-params="{ 'type[]': 'Keyword' }"
+      get-url="/controlled_vocabulary_terms/"
+      model="keywords"
+      klass="Tags"
+      pin-section="Keywords"
+      pin-type="Keyword"
+      :add-tabs="['all']"
+      :target="target"
+      @selected="addKeyword"
+    >
+      <template #all>
+        <VModal @close="smartSelectorRef.setTab('quick')">
+          <template #header>
+            <h3>Tags - all</h3>
+          </template>
+          <template #body>
+            <VBtn
+              v-for="item in allFiltered"
+              :key="item.id"
+              class="margin-small-bottom margin-small-right"
+              color="primary"
+              pill
+              @click="addKeyword(item)"
+            >
+              {{ item.name }}
+            </VBtn>
+          </template>
+        </VModal>
+      </template>
+    </SmartSelector>
     <table
       v-if="keywords.length"
       class="vue-table"
@@ -56,7 +54,7 @@
           v-for="(item, index) in keywords"
           :key="index"
         >
-          <row-item
+          <RowItem
             class="list-complete-item"
             :item="item"
             label="object_tag"

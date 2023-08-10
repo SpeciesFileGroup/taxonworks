@@ -5,16 +5,13 @@
       label="label_html"
       display="label"
       min="3"
-      event-send="autocompleteType"
-      @getItem="$emit('getItem', $event)"
-      @found="nothing = !$event"
-      @getInput="name = $event"
       placeholder="Search taxon name for the new relationship..."
       :add-params="{ type: 'Protonym', 'nomenclature_group[]': group }"
       param="term"
+      @get-item="$emit('getItem', $event)"
+      @get-input="name = $event"
     />
     <button
-      v-if="nothing"
       type="button"
       @click="showModal = true"
       class="button normal-input button-default margin-small-left"
@@ -109,7 +106,6 @@ export default {
 
   data() {
     return {
-      nothing: false,
       ranksList: [],
       confirmInput: '',
       name: '',
