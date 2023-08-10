@@ -26,13 +26,6 @@
       @submit="saveCitation"
     >
     </FormCitation>
-    <DisplayList
-      edit
-      :list="citations"
-      label="citation_source_body"
-      @edit="(item) => (citation = item)"
-      @delete="removeCitation"
-    />
   </div>
 </template>
 
@@ -42,7 +35,6 @@ import { TaxonName, Citation } from '@/routes/endpoints'
 import { ref, watch, computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
-import DisplayList from '@/components/displayList.vue'
 
 const props = defineProps({
   relationship: {
@@ -53,7 +45,6 @@ const props = defineProps({
 
 const emit = defineEmits(['update:name', 'reset'])
 const name = ref('')
-const citations = ref([])
 const citation = ref({})
 
 const taxonId = computed(() => props.relationship.subject_taxon_name_id)
@@ -92,24 +83,20 @@ function updateTaxonName() {
     .catch((e) => {})
 }
 
-async function saveCitation(citation) {
+async function saveCitation(item) {
   const payload = {
-    ...citation,
+    ...item,
     citation_object_type: TAXON_NAME,
     citation_object_id: taxonId.value,
     is_original: true
   }
-  const response = citation.id
-    ? await Citation.update(citation.id, { citation: payload })
-    : await Citation.create({ citation: payload })
+  const response = item.id
+    ? Citation.update(item.id, { citation: payload })
+    : Citation.create({ citation: payload })
 
-  TW.workbench.alert.create('Citation was successfully saved.', 'notice')
-}
-
-function removeCitation(item) {
-  Citation.destroy(item.id).then((_) => {
-    citation.value = {}
-    TW.workbench.alert.create('Citation was successfully destroyed.', 'notice')
+  response.then(({ body }) => {
+    citation.value = body
+    TW.workbench.alert.create('Citation was successfully saved.', 'notice')
   })
 }
 </script>

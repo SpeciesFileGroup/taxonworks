@@ -54,7 +54,7 @@
       <DisplayList
         edit
         annotator
-        label="subject_object_tag"
+        label="label"
         :list="getRelationshipsCreated"
         @edit="(item) => (relationship = item)"
         @delete="removeTaxonName"
@@ -77,6 +77,7 @@ import DisplayList from '@/components/displayList.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 import EditTaxonName from './EditTaxonName'
 import FormCitation from '@/components/Form/FormCitation.vue'
+import { RouteNames } from '@/routes/routes.js'
 
 const store = useStore()
 
@@ -91,6 +92,7 @@ const getRelationshipsCreated = computed(() =>
     .filter((item) => item.type === TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM)
     .map((item) => ({
       ...item,
+      label: `<a href="${RouteNames.NewTaxonName}?taxon_name_id=${item.subject_taxon_name_id}">${item.subject_object_tag}</a>`,
       global_id: makeGlobalId({
         type: 'Protonym',
         id: item.subject_taxon_name_id
