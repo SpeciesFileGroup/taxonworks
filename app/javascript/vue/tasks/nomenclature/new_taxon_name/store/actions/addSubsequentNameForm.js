@@ -17,19 +17,13 @@ export default async ({ state, dispatch }, { name, citation }) => {
     })
   }
 
-  try {
-    const response = await TaxonName.create({
-      taxon_name: payload
-    })
-
-    const taxonRelationship = dispatch(ActionNames.AddTaxonRelationship, {
+  return TaxonName.create({
+    taxon_name: payload
+  }).then(({ body }) =>
+    dispatch(ActionNames.AddTaxonRelationship, {
       type: TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM,
       object_taxon_name_id: currentTaxon.id,
-      subject_taxon_name_id: response.body.id
+      subject_taxon_name_id: body.id
     })
-
-    return taxonRelationship
-  } catch (error) {
-    return error
-  }
+  )
 }

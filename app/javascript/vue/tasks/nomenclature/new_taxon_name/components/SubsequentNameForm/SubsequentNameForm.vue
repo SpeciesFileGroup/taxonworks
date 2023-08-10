@@ -114,6 +114,7 @@ function addRelationship(name) {
         'notice'
       )
     })
+    .catch(() => {})
 }
 
 function removeTaxonName(item) {
