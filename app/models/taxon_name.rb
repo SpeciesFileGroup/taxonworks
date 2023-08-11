@@ -259,7 +259,7 @@ class TaxonName < ApplicationRecord
 
   # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
   accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
-  accepts_nested_attributes_for :family_group_name_form_relationship, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['object_taxon_name_id'].blank? }
+  accepts_nested_attributes_for :family_group_name_form_relationship, allow_destroy: true, reject_if: proc { |attributes| attributes['object_taxon_name_id'].blank? }
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
