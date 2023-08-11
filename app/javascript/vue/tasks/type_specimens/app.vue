@@ -1,6 +1,6 @@
 <template>
   <div id="vue_type_specimens">
-    <spinner
+    <VSpinner
       v-if="settings.loading || settings.saving"
       :full-screen="true"
       :legend="settings.loading ? 'Loading...' : 'Saving...'"
@@ -8,19 +8,23 @@
     />
     <div class="flex-separate middle">
       <h1>{{ isNew }} type specimen</h1>
-      <span
+      <VBtn
+        circle
+        color="primary"
         @click="reloadApp"
-        data-icon="reset"
-        class="middle reload-app"
-        >Reset</span
       >
+        <VIcon
+          name="reset"
+          x-small
+        />
+      </VBtn>
     </div>
     <div>
       <div
         v-hotkey="shortcuts"
-        class="align-start"
+        class="align-start gap-medium"
       >
-        <div class="ccenter item separate-right">
+        <div class="item">
           <name-section
             class="separate-bottom"
             v-if="!taxon"
@@ -30,7 +34,7 @@
         </div>
         <div
           v-if="taxon"
-          class="cright item separate-left"
+          class="cright item"
         >
           <div id="cright-panel">
             <type-box class="separate-bottom" />
@@ -48,9 +52,11 @@ import nameSection from './components/nameSection.vue'
 import typeMaterialSection from './components/typeMaterial.vue'
 import metadataSection from './components/metadataSection.vue'
 import typeBox from './components/typeBox.vue'
-import spinner from '@/components/spinner.vue'
+import VSpinner from '@/components/spinner.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
 import setParamsId from '@/helpers/setParam.js'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 import ActionNames from './store/actions/actionNames'
 import { GetterNames } from './store/getters/getters'
@@ -65,7 +71,9 @@ export default {
     typeBox,
     typeMaterialSection,
     metadataSection,
-    spinner
+    VSpinner,
+    VIcon,
+    VBtn
   },
 
   computed: {

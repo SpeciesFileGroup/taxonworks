@@ -27,26 +27,38 @@
             />
           </td>
           <td>
-            <div class="horizontal-right-content middle">
+            <div class="horizontal-right-content middle gap-small">
               <a
                 class="button-default circle-button btn-citation"
                 :href="`/tasks/nomenclature/by_source?source_id=${item.source_id}`"
                 target="blank"
               />
-              <pdf-button
+              <PdfButton
                 v-if="item.hasOwnProperty('target_document')"
                 :pdf="item.target_document"
               />
-              <radial-annotator :global-id="item.global_id" />
-              <span
-                class="circle-button btn-edit"
+              <RadialAnnotator :global-id="item.global_id" />
+              <VBtn
+                circle
+                color="update"
                 @click="$emit('edit', Object.assign({}, item))"
-              />
-              <span
-                class="circle-button btn-delete"
+              >
+                <VIcon
+                  name="pencil"
+                  x-small
+                />
+              </VBtn>
+
+              <VBtn
+                circle
+                color="destroy"
                 @click="deleteItem(item)"
-                >Remove
-              </span>
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
             </div>
           </td>
         </tr>
@@ -58,12 +70,16 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import PdfButton from '@/components/pdfButton.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
     RadialAnnotator,
     SoftValidation,
-    PdfButton
+    PdfButton,
+    VIcon,
+    VBtn
   },
 
   props: {

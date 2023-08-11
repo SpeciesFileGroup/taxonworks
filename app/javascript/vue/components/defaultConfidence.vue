@@ -22,30 +22,30 @@
         </p>
       </template>
 
-      <v-btn
+      <VBtn
         circle
         :color="created ? 'destroy' : 'create'"
         @click="created ? deleteConfidence() : createConfidence()"
       >
-        <v-icon
+        <VIcon
           color="white"
           name="confidence"
           x-small
         />
-      </v-btn>
+      </VBtn>
     </tippy>
   </div>
-  <v-btn
+  <VBtn
     v-else
     circle
     color="disabled"
   >
-    <v-icon
+    <VIcon
       color="white"
       name="confidence"
       x-small
     />
-  </v-btn>
+  </VBtn>
 </template>
 
 <script>
