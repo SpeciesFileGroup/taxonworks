@@ -355,8 +355,7 @@ class Otu < ApplicationRecord
 
   # @return [Otu#id, nil, false]
   #  nil - there is no OTU parent with a valid taxon name possible
-  #  false - there is > 1 OTU parent with a valid taxon name possible
-  #  id - the (unambiguous) id of the nearest parent OTU attached to a valid taoxn name
+  #  id - the (unambiguous) id of the nearest parent OTU attached to a valid taxon name
   #
   #  Note this is used CoLDP export. Do not change without considerations there.
   def parent_otu_id(skip_ranks: [], prefer_unlabelled_otus: false)
@@ -377,10 +376,8 @@ class Otu < ApplicationRecord
       otus = Otu.where(taxon_name_id: candidates.first).to_a
       otus.select! { |o| o.name.nil? } if prefer_unlabelled_otus && otus.size > 1
 
-      if otus.size == 1
+      if otus.size > 0
         return otus.first.id
-      elsif otus.size > 1
-        return false
       else
         return nil
       end
