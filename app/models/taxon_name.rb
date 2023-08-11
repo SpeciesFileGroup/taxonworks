@@ -240,7 +240,7 @@ class TaxonName < ApplicationRecord
 
   has_one :family_group_name_form_relationship, -> {
     where(taxon_name_relationships: {type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'})
-  }, class_name: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm', foreign_key: :subject_taxon_name_id
+  }, class_name: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm', foreign_key: :subject_taxon_name_id, inverse_of: :subject_taxon_name
 
   has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name
 
