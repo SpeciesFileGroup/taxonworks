@@ -28,28 +28,32 @@
             Clone from current
           </VBtn>
         </div>
-        <FormCitation
-          :original="false"
-          v-model="citation"
-        />
-      </div>
-      <div class="horizontal-left-content gap-small margin-medium-top">
-        <VBtn
-          v-if="!relationship"
-          color="create"
-          medium
-          :disabled="!name.length"
-          @click="() => addRelationship(name)"
-        >
-          Create
-        </VBtn>
-        <VBtn
-          color="primary"
-          medium
-          @click="resetForm"
-        >
-          New
-        </VBtn>
+        <template v-if="name.length">
+          <FormCitation
+            v-if="name.length"
+            :original="false"
+            inline-clone
+            v-model="citation"
+          />
+          <div class="horizontal-left-content gap-small margin-medium-top">
+            <VBtn
+              v-if="!relationship"
+              color="create"
+              medium
+              :disabled="!name.length"
+              @click="() => addRelationship(name)"
+            >
+              Create
+            </VBtn>
+            <VBtn
+              color="primary"
+              medium
+              @click="resetForm"
+            >
+              New
+            </VBtn>
+          </div>
+        </template>
       </div>
       <DisplayList
         edit
@@ -58,7 +62,11 @@
         :list="getRelationshipsCreated"
         @edit="(item) => (relationship = item)"
         @delete="removeTaxonName"
-      />
+      >
+        <template #options="{ item }">
+          <VConfidence :global-id="item.global_id" />
+        </template>
+      </DisplayList>
     </template>
   </block-layout>
 </template>
@@ -72,12 +80,13 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 import { GetterNames } from '../../store/getters/getters'
 import { TaxonName } from '@/routes/endpoints'
 import { makeGlobalId } from '@/helpers'
+import { RouteNames } from '@/routes/routes.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import DisplayList from '@/components/displayList.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 import EditTaxonName from './EditTaxonName'
 import FormCitation from '@/components/Form/FormCitation.vue'
-import { RouteNames } from '@/routes/routes.js'
+import VConfidence from '@/components/defaultConfidence.vue'
 
 const store = useStore()
 

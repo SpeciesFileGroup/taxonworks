@@ -37,6 +37,9 @@
             @input="setPage"
           />
         </li>
+        <li v-if="inlineClone">
+          <FormCitationClone @clone="(item) => Object.assign(citation, item)" />
+        </li>
         <li v-if="original">
           <label>
             <input
@@ -72,20 +75,17 @@
       >
         {{ submitButton.label }}
       </VBtn>
-      <VBtn
-        color="primary"
-        medium
-        @click="setLastCitation"
-      >
-        Clone my last citation
-      </VBtn>
+      <FormCitationClone
+        v-if="!inlineClone"
+        @clone="(item) => Object.assign(citation, item)"
+      />
       <slot name="footer" />
     </div>
   </fieldset>
 </template>
 
 <script setup>
-import { Source, Citation } from '@/routes/endpoints'
+import { Source } from '@/routes/endpoints'
 import { computed, ref, watch, onMounted } from 'vue'
 import { convertType } from '@/helpers/types'
 import makeCitation from '@/factory/Citation'
@@ -93,7 +93,7 @@ import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VLock from '@/components/ui/VLock'
-import { getCurrentUserId } from '@/helpers/user'
+import FormCitationClone from './FormCitation/FormCitationClone.vue'
 
 const STORAGE = {
   lock: 'radialObject::source::lock',
@@ -125,6 +125,11 @@ const props = defineProps({
   },
 
   absentField: {
+    type: Boolean,
+    default: false
+  },
+
+  inlineClone: {
     type: Boolean,
     default: false
   },
@@ -224,22 +229,6 @@ function setIsAbsent(e) {
   if (props.useSession) {
     sessionStorage.setItem(STORAGE.isAbsent, e.target.value)
   }
-}
-
-function setLastCitation() {
-  Citation.where({ recent: true, per: 1, user_id: getCurrentUserId() }).then(
-    ({ body }) => {
-      const [mostRecentCitation] = body
-
-      if (mostRecentCitation) {
-        Object.assign(citation.value, {
-          pages: mostRecentCitation.pages,
-          source_id: mostRecentCitation.source_id,
-          is_original: mostRecentCitation.is_original
-        })
-      }
-    }
-  )
 }
 
 function init() {

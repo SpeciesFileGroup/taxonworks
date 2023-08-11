@@ -7,25 +7,31 @@
         type="text"
         v-model="name"
       />
+    </div>
+    <FormCitation
+      class="margin-medium-bottom"
+      :original="false"
+      v-model="citation"
+      inline-clone
+      @submit="updateTaxonName"
+    >
+    </FormCitation>
+    <div class="horizontal-left-content gap-small margin-medium-top">
       <VBtn
-        :disabled="!name.length"
-        color="update"
+        color="create"
         medium
         @click="updateTaxonName"
       >
-        Update name
+        Save
+      </VBtn>
+      <VBtn
+        color="primary"
+        medium
+        @click="emit('reset')"
+      >
+        New
       </VBtn>
     </div>
-    <FormCitation
-      :submit-button="{
-        color: 'create',
-        label: citation.id ? 'Update' : 'Add'
-      }"
-      :original="false"
-      v-model="citation"
-      @submit="saveCitation"
-    >
-    </FormCitation>
   </div>
 </template>
 
@@ -33,8 +39,8 @@
 import { TAXON_NAME } from '@/constants'
 import { TaxonName, Citation } from '@/routes/endpoints'
 import { ref, watch, computed } from 'vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   relationship: {
@@ -67,7 +73,16 @@ watch(
 
 function updateTaxonName() {
   const payload = {
-    name: name.value
+    name: name.value,
+    origin_citation_attributes: {}
+  }
+
+  if (citation.value.source_id) {
+    Object.assign(payload, {
+      origin_citation_attributes: {
+        ...citation.value
+      }
+    })
   }
 
   TaxonName.update(taxonId.value, {
