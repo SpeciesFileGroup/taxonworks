@@ -30,7 +30,7 @@ describe Otu, type: :model, group: :otu do
       o0 = Otu.create(taxon_name: t)
       o1 = Otu.create(taxon_name: t)
       o2 = Otu.create(taxon_name: t1)
-      expect(o2.parent_otu_id).to eq(false)
+      expect(o2.parent_otu_id).to eq(o0.id)
     end
 
     specify '#parent_otu_id 3' do
