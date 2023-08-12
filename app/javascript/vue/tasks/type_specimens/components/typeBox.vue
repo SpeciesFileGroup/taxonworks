@@ -14,25 +14,30 @@
             <span v-html="taxonNameAndAuthor" />
           </a>
           <div>
-            <div class="horizontal-right-content margin-small-bottom">
-              <otu-radial
+            <div class="horizontal-right-content margin-small-bottom gap-small">
+              <OtuRadial
                 ref="browseOtu"
                 :object-id="taxon.id"
                 :taxon-name="taxon.object_tag"
               />
-              <radial-annotator :global-id="taxon.global_id" />
-              <radial-object :global-id="taxon.global_id" />
+              <RadialAnnotator :global-id="taxon.global_id" />
+              <RadialObject :global-id="taxon.global_id" />
             </div>
-            <div class="horizontal-right-content">
-              <pin-component
-                class="circle-button"
+            <div class="horizontal-right-content gap-small">
+              <VPin
                 type="TaxonName"
                 :object-id="taxon.id"
               />
-              <a
-                class="circle-button btn-edit button-default"
+              <VBtn
+                circle
+                color="primary"
                 :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`"
-              />
+              >
+                <VIcon
+                  x-small
+                  name="pencil"
+                />
+              </VBtn>
             </div>
           </div>
         </h3>
@@ -88,21 +93,25 @@
   </div>
 </template>
 <script>
+import { RouteNames } from '@/routes/routes'
+import { GetterNames } from '../store/getters/getters'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
-import { GetterNames } from '../store/getters/getters'
 import ActionNames from '../store/actions/actionNames'
-import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+import VPin from '@/components/ui/Pinboard/VPin.vue'
 import OtuRadial from '@/components/otu/otu.vue'
 import platformKey from '@/helpers/getPlatformKey'
-import { RouteNames } from '@/routes/routes'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
     RadialAnnotator,
     RadialObject,
     OtuRadial,
-    PinComponent
+    VPin,
+    VBtn,
+    VIcon
   },
 
   computed: {
@@ -176,11 +185,6 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.taxon-options {
-  display: flex;
-  justify-content: space-between;
-}
-
 .taxonname {
   font-size: 14px;
 }

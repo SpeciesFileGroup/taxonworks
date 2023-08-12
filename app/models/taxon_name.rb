@@ -238,6 +238,10 @@ class TaxonName < ApplicationRecord
     where(taxon_name_relationships: {type: 'TaxonNameRelationship::SourceClassifiedAs'})
   }, class_name: 'TaxonNameRelationship::SourceClassifiedAs', foreign_key: :subject_taxon_name_id
 
+  has_one :family_group_name_form_relationship, -> {
+    where(taxon_name_relationships: {type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'})
+  }, class_name: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm', foreign_key: :subject_taxon_name_id, inverse_of: :subject_taxon_name
+
   has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name
 
   has_many :otus, inverse_of: :taxon_name, dependent: :restrict_with_error
@@ -252,8 +256,10 @@ class TaxonName < ApplicationRecord
   has_many :taxon_name_classifications, dependent: :destroy, inverse_of: :taxon_name
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :restrict_with_error, inverse_of: :subject_taxon_name
 
+
   # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
   accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
+  accepts_nested_attributes_for :family_group_name_form_relationship, allow_destroy: true, reject_if: proc { |attributes| attributes['object_taxon_name_id'].blank? }
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 

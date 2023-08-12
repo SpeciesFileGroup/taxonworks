@@ -110,7 +110,6 @@
   background-size: 10px !important;
 }
 .circle-button {
-  @extend .circle-button-margin;
   border-radius: 50%;
   display: block;
   width: 24px;

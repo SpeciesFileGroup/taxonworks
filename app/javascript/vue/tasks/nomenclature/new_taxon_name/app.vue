@@ -46,7 +46,7 @@
             <component
               v-if="visibleSection"
               class="margin-medium-bottom"
-              :is="`${componentName.replace(' ', '')}Section`"
+              :is="`${componentName.replaceAll(' ', '')}Section`"
             />
           </template>
         </div>
@@ -64,7 +64,7 @@
                 label="label_html"
                 placeholder="Search a taxon name..."
                 @getItem="loadTaxon"
-                :clearAfter="true"
+                clear-after
               />
             </div>
             <check-changes />
@@ -99,6 +99,7 @@ import ManagesynonymySection from './components/manageSynonym'
 import ClassificationSection from './components/classification.vue'
 import SoftValidation from '@/components/soft_validations/panel.vue'
 import SubsequentCombinationSection from './components/Combination/CombinationMain.vue'
+import SubsequentNameFormSection from './components/SubsequentNameForm/SubsequentNameForm.vue'
 import Spinner from '@/components/spinner.vue'
 import platformKey from '@/helpers/getPlatformKey'
 
@@ -127,7 +128,8 @@ export default {
     Spinner,
     StatusSection,
     TaxonNameBox,
-    TypeSection
+    TypeSection,
+    SubsequentNameFormSection
   },
   computed: {
     shortcuts() {
@@ -185,6 +187,10 @@ export default {
         ),
         'Subsequent Combination': showForThisGroup(
           ['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'],
+          this.getTaxon
+        ),
+        'Subsequent Name Form': showForThisGroup(
+          ['FamilyGroup'],
           this.getTaxon
         ),
         Classification: true,
