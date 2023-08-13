@@ -119,7 +119,6 @@ namespace :tw do
           # 187m21.639s on 1 June 2019; 183m35.099s on 18 July 2019; 185m41.408s on 10 Sep 2019
           #
           'specimens:extra_asserted_distributions',
-          'last:filter_users',
           # # '99_after_filter_users': 5m26.662s on 25 Feb 2019; 6m12.567s on 30 July 2019; 5m44.281s on 11 Aug 2019; 6m23.155s on 15 Sep 2019
           # #
           # # Total run time ~ 65 hours
@@ -127,6 +126,8 @@ namespace :tw do
           'media:image_files',
           'media:image_data',
           'media:sound_links',
+
+          'last:filter_users',
 
           'specimens:set_dwc_occurrence',
 
