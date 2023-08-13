@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- No parent Otu returned for TaxonName with more than 1 OTU [#3414]
 - Missing organization tab in Owner panel on New image task
 - BibTeX download shows incorrect results on New source task [#3510]
 - Asserted distribution API endpoint crashing when count is above 50
