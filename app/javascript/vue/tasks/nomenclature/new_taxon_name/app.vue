@@ -191,11 +191,11 @@ export default {
           ['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'],
           this.getTaxon
         ),
+        OriginalForm: showForThisGroup(['FamilyGroup'], this.getTaxon),
         'Subsequent Name Form': showForThisGroup(
           ['FamilyGroup'],
           this.getTaxon
         ),
-        OriginalForm: showForThisGroup(['FamilyGroup'], this.getTaxon),
         Classification: true,
         Gender: showForThisGroup(
           ['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'],
