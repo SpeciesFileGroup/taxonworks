@@ -84,7 +84,7 @@ module Export::Coldp::Files::Taxon
   #    Confidence level
   #       confidence_validated_at (last time this confidence level was deemed OK)
   def self.according_to_date(otu)
-    # a) Dynamic - !! most recent update_at stamp for *any* OTU tied data -> this is a big grind: if so add cached_touched_on_date to Otu
+    # a) Dynamic - !! most recent updated_at stamp for *any* OTU tied data -> this is a big grind: if so add cached_touched_on_date to Otu
     # b) modify Confidence level to include date
     # c) review what SFs does in their model
     nil

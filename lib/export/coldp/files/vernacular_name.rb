@@ -71,7 +71,7 @@ module Export::Coldp::Files::VernacularName
             n.geographic_area&.level0&.iso_3166_a2,                        # country
             area(n),                                                       # area
             sources.collect{|a| a.id}.join(','),                           # reference_id
-            Export::Coldp.modified(n[:update_at]),                         # modified
+            Export::Coldp.modified(n[:updated_at]),                        # modified
             Export::Coldp.modified_by(n[:updated_by_id], project_members)  # modified_by
           ]
 
