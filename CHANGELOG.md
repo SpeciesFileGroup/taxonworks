@@ -18,6 +18,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3460]: https://github.com/SpeciesFileGroup/taxonworks/issues/3460
 
+### Fixed
+- Combinations in COLDP exports lack rank [#3516]
+
 ## [0.34.1] - 2023-08-07
 
 ### Fixed
