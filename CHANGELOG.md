@@ -7,6 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Subsequent Name Form section in New taxon name
+- Original form section in New taxon name
+
 ### Changed
 
 - New species name button is now always visible in Type section on New taxon name task

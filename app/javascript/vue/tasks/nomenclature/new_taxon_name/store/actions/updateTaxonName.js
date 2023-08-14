@@ -17,6 +17,7 @@ export default ({ commit, state, dispatch }, taxon) => {
       masculine_name: taxon.masculine_name,
       neuter_name: taxon.neuter_name,
       roles_attributes: taxon.roles_attributes,
+      verbatim_name: taxon.verbatim_name,
       type: 'Protonym'
     }
 
