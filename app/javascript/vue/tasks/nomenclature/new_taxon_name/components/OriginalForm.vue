@@ -8,7 +8,10 @@
     </template>
     <template #body>
       <div class="field horizontal-left-content gap-small">
-        <EditInPlace v-model="verbatimName" />
+        <EditInPlace
+          legend="Click to edit verbatim"
+          v-model="verbatimName"
+        />
       </div>
     </template>
   </block-layout>
