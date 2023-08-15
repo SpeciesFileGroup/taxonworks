@@ -47,6 +47,10 @@ module Export
       project_members[updated_by_id]
     end
 
+    def self.sanitize_remarks(remarks)
+      remarks&.gsub('\r\n', ' ')&.gsub('\n', ' ')&.gsub('\t', ' ')&.gsub(/[ ]+/, ' ')
+    end
+
     def self.export(otu_id, prefer_unlabelled_otus: true)
       otus = otus(otu_id)
 

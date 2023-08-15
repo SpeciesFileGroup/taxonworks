@@ -91,7 +91,7 @@ module Export::Coldp::Files::Synonym
                 o[0],                                             # taxonID attached to the current valid concept
                 reified_id,                                       # nameID
                 nil,                                              # status  TODO: def status(taxon_name_id)
-                remarks_field,                                    # remarks
+                Export::Coldp.sanitize_remarks(remarks_field),    # remarks
                 nil,                                              # referenceID   Unclear what this means in TW
                 Export::Coldp.modified(t[6]),                     # modified
                 Export::Coldp.modified_by(t[7], project_members)  # modifiedBy
