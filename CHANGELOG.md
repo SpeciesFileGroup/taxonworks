@@ -18,6 +18,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Fix generation of Unit tray labels from Filter nomenclature
+- Object graph view failing to render (controller object no longer available!?)
 - People as sources missing missing relationship (broke object graph)
 - Combinations in COLDP exports lack rank [#3516]
 - Fix coldp.rb undefined method `iso8601` for nil:NilClass [#3512]

@@ -157,6 +157,7 @@ class TaxonName < ApplicationRecord
   include Shared::Confidences
   include Shared::AlternateValues
   include Shared::HasPapertrail
+  include Shared::Labels
   include SoftValidation
   include Shared::IsData
   include TaxonName::OtuSyncronization
