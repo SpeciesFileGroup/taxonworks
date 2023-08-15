@@ -1,8 +1,9 @@
+import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
 import { TaxonName, TaxonNameRelationship } from '@/routes/endpoints'
 import { TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM } from '@/constants'
 
-export default async ({ state, commit }, { name, citation }) => {
+export default async ({ state, commit, dispatch }, { name, citation }) => {
   const currentTaxon = state.taxon_name
   const payload = {
     name,
@@ -31,6 +32,8 @@ export default async ({ state, commit }, { name, citation }) => {
       body.forEach((item) => {
         commit(MutationNames.AddTaxonRelationship, item)
       })
+
+      dispatch(ActionNames.LoadSoftValidation, 'taxonRelationshipList')
     })
   )
 }
