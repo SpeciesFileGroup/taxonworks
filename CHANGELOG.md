@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - New species name button is now always visible in Type section on New taxon name task
+- Improve COLDP export delimiter usability [#3522] 
 
 [#3460]: https://github.com/SpeciesFileGroup/taxonworks/issues/3460
 
