@@ -7,17 +7,32 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Subsequent Name Form section in New taxon name [#3460]
+- Original form section in New taxon name
+
 ### Changed
 
 - New species name button is now always visible in Type section on New taxon name task
 
 ### Fixed
+
+- Combinations in COLDP exports lack rank [#3516]
 - Fix coldp.rb undefined method `iso8601' for nil:NilClass [#3512]
+- Improve TaxonName autocomplete result prioritization [#3509]
+- Clone button is not clearing input after cloning
+
+[#3512]: https://github.com/SpeciesFileGroup/taxonworks/issues/3512
+[#3516]: https://github.com/SpeciesFileGroup/taxonworks/issues/3516
+[#3509]: https://github.com/SpeciesFileGroup/taxonworks/issues/3509
+[#3460]: https://github.com/SpeciesFileGroup/taxonworks/issues/3460
 
 ## [0.34.1] - 2023-08-07
 
 ### Fixed
 
+- No parent Otu returned for TaxonName with more than 1 OTU [#3414]
 - Missing organization tab in Owner panel on New image task
 - BibTeX download shows incorrect results on New source task [#3510]
 - Asserted distribution API endpoint crashing when count is above 50

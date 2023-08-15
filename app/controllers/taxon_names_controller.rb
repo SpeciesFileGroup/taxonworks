@@ -287,6 +287,7 @@ class TaxonNamesController < ApplicationController
           :last_name, :first_name, :suffix, :prefix
         ]
       ],
+      family_group_name_form_relationship_attributes: [:id, :_destroy, :object_taxon_name_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
       taxon_name_classifications_attributes: [:id, :_destroy, :type]
     )

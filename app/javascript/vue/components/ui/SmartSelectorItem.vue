@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="item"
-    class="middle flex-separate"
+    class="middle flex-separate gap-small"
   >
     <p v-html="item[label]" />
     <v-btn
