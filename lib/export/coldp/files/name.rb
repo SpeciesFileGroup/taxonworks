@@ -227,8 +227,11 @@ module Export::Coldp::Files::Name
             uninomial = name_string
           end
 
-          # TODO: Combinations don't have rank BUT CoL importer can interpret, so we're OK here for now
-          rank = t.rank
+          if t.is_combination?
+            rank = t.protonyms_by_rank.keys.last
+          else
+            rank = t.rank
+          end
 
           # Set is: no original combination OR (valid or invalid higher, valid lower, past combinations)
           if t.cached_original_combination.blank? || higher || t.is_valid? || t.is_combination?
