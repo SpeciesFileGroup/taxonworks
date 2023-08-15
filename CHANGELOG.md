@@ -16,6 +16,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - New species name button is now always visible in Type section on New taxon name task
 
+### Fixed
+
+- Clone button is not clearing input after cloning
+
 [#3460]: https://github.com/SpeciesFileGroup/taxonworks/issues/3460
 
 ## [0.34.1] - 2023-08-07
