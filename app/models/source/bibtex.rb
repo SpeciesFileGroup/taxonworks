@@ -350,7 +350,8 @@ class Source::Bibtex < Source
   has_many :editor_roles, class_name: 'SourceEditor', as: :role_object, dependent: :destroy, inverse_of: :role_object #, -> { order('roles.position ASC') }
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, inverse_of: :edited_sources
 
-  # TODO: human roles
+  has_many :source_roles, class_name: 'SourceSource', as: :role_object, dependent: :destroy, inverse_of: :role_object #, -> { order('roles.position ASC') }
+  has_many :people, -> { order('roles.position ASC') }, through: :source_roles, source: :person, inverse_of: :human_sources
 
   accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, :serial, allow_destroy: true
 
