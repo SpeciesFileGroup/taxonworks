@@ -17,14 +17,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New species name button is now always visible in Type section on New taxon name task
 
 ### Fixed
+
+- Combinations in COLDP exports lack rank [#3516]
+- Fix coldp.rb undefined method `iso8601' for nil:NilClass [#3512]
 - Improve TaxonName autocomplete result prioritization [#3509]
 - Clone button is not clearing input after cloning
 
+[#3512]: https://github.com/SpeciesFileGroup/taxonworks/issues/3512
+[#3516]: https://github.com/SpeciesFileGroup/taxonworks/issues/3516
 [#3509]: https://github.com/SpeciesFileGroup/taxonworks/issues/3509
 [#3460]: https://github.com/SpeciesFileGroup/taxonworks/issues/3460
-
-### Fixed
-- Combinations in COLDP exports lack rank [#3516]
 
 ## [0.34.1] - 2023-08-07
 
