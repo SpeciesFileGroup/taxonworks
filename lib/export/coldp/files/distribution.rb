@@ -14,7 +14,7 @@ module Export::Coldp::Files::Distribution
     nil
   end
 
-  def self.generate(otus, reference_csv = nil )
+  def self.generate(otus, project_members, reference_csv = nil )
     CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{
@@ -24,6 +24,8 @@ module Export::Coldp::Files::Distribution
         gazetteer
         status
         referenceID
+        modified
+        modifiedBy
         remarks
       }
 
@@ -61,11 +63,13 @@ module Export::Coldp::Files::Distribution
             area,
             gazetteer,
             nil,
-            reference_ids.first,  # only 1 distribution reference allowed
+            reference_ids.first,                                             # reference_id: only 1 distribution reference allowed
+            Export::Coldp.modified(ad[:update_at]),                          # modified
+            Export::Coldp.modified_by(ad[:updated_by_id], project_members),  # modified_by
             nil
           ]
 
-          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv
+          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
         end
       end
 
@@ -82,6 +86,8 @@ module Export::Coldp::Files::Distribution
           'text',
           nil,
           nil,
+          Export::Coldp.modified(o[:update_at]),
+          Export::Coldp.modified_by(o[:updated_by_id], project_members),
           nil
         ]
       end
