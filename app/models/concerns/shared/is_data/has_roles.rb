@@ -4,9 +4,6 @@ module Shared::IsData::HasRoles
 
   extend ActiveSupport::Concern
   included do
-    related_class = self.name
-    related_table_name = self.table_name
-
     Role.related_foreign_keys.push self.name.foreign_key
 
     has_many :roles, -> { order(:position) }, as: :role_object, dependent: :destroy, inverse_of: :role_object
