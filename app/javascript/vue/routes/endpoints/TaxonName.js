@@ -35,6 +35,11 @@ const permitParams = {
       _destroy: Boolean,
       source_id: Number,
       pages: Number
+    },
+    family_group_name_form_relationship_attributes: {
+      id: Number,
+      object_taxon_name_id: Number,
+      _destroy: Boolean
     }
   }
 }

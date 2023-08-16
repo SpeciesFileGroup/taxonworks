@@ -38,7 +38,7 @@
           class="flex-wrap-column separate-left"
           v-if="searchPerson.length > 0"
         >
-          <div class="flexbox gap-xsmall">
+          <div class="flex-wrap-row gap-xsmall">
             <input
               class="normal-input"
               disabled

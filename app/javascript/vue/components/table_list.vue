@@ -24,7 +24,7 @@
             v-html="getValue(item, attr)"
           />
           <td>
-            <div class="horizontal-right-content">
+            <div class="horizontal-right-content gap-small">
               <slot
                 :item="item"
                 name="options"

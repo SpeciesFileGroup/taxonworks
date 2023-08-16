@@ -2,25 +2,29 @@
   <div class="presence-descriptor">
     <summary-view
       :descriptor="descriptor"
-      :index="index">
+      :index="index"
+    >
       <label>Free text</label>
-      <br>
-      <div class="horizontal-left-content">
+      <br />
+      <div class="horizontal-left-content gap-small">
         <textarea
           class="full_width"
           rows="5"
           :value="freeTextValue"
-          @input="updateFreeTextValue" >
+          @input="updateFreeTextValue"
+        >
         </textarea>
 
         <radial-annotator
           v-if="observationExist"
-          :global-id="observation.global_id"/>
+          :global-id="observation.global_id"
+        />
         <span
           v-if="observationExist"
           type="button"
           class="circle-button btn-delete"
-          @click="removeObservation">
+          @click="removeObservation"
+        >
           Remove
         </span>
       </div>
@@ -54,16 +58,18 @@ export default {
   },
 
   computed: {
-    isPresent () {
+    isPresent() {
       return this.$store.getters[GetterNames.GetPresenceFor](this.descriptor.id)
     },
-    freeTextValue () {
-      return this.$store.getters[GetterNames.GetFreeTextValueFor](this.descriptor.id)
+    freeTextValue() {
+      return this.$store.getters[GetterNames.GetFreeTextValueFor](
+        this.descriptor.id
+      )
     }
   },
 
   methods: {
-    updateFreeTextValue (event) {
+    updateFreeTextValue(event) {
       this.$store.commit(MutationNames.SetFreeTextValue, {
         descriptorId: this.descriptor.id,
         description: event.target.value

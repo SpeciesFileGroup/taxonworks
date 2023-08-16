@@ -33,7 +33,7 @@
               :key="item.id"
             >
               <td>
-                <div class="horizontal-left-content middle gap-2">
+                <div class="horizontal-left-content middle gap-small">
                   <VBtn
                     color="primary"
                     circle

@@ -43,32 +43,30 @@
           v-html="navigation.current_otu.object_label"
         />
       </ul>
-      <div class="horizontal-left-content middle">
+      <div class="horizontal-left-content middle gap-small">
         <h2 v-html="otu.object_tag" />
-        <div class="horizontal-left-content">
-          <browse-taxon
-            v-if="otu.taxon_name_id"
-            ref="browseTaxon"
-            :object-id="otu.taxon_name_id"
-          />
-          <radial-annotator
-            :global-id="otu.global_id"
-            type="annotations"
-          />
-          <radial-object
-            :global-id="otu.global_id"
-            type="annotations"
-          />
-          <quick-forms :global-id="otu.global_id" />
-          <button
-            v-if="isInvalid"
-            v-help.section.header.validButton
-            class="button button-default normal-input"
-            @click="openValid"
-          >
-            Browse current OTU
-          </button>
-        </div>
+        <browse-taxon
+          v-if="otu.taxon_name_id"
+          ref="browseTaxon"
+          :object-id="otu.taxon_name_id"
+        />
+        <radial-annotator
+          :global-id="otu.global_id"
+          type="annotations"
+        />
+        <radial-object
+          :global-id="otu.global_id"
+          type="annotations"
+        />
+        <quick-forms :global-id="otu.global_id" />
+        <button
+          v-if="isInvalid"
+          v-help.section.header.validButton
+          class="button button-default normal-input"
+          @click="openValid"
+        >
+          Browse current OTU
+        </button>
       </div>
       <ul class="context-menu no_bullets">
         <template

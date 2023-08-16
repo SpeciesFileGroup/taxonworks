@@ -55,6 +55,8 @@ class TaxonNameRelationship < ApplicationRecord
   belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id, inverse_of: :taxon_name_relationships # left side
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id, inverse_of: :related_taxon_name_relationships # right side
 
+  #has_one :family_group_name_form_relationship, -> {where(type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')}, as: :subject_taxon_name, class_name: 'TaxonNameRelationship', inverse_of: :subject_taxon_name
+
   after_save :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
   after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
 
