@@ -130,7 +130,7 @@ class AssertedDistribution < ApplicationRecord
         if o.update(geographic_area_id: params[:geographic_area_id] )
           moved.push o
         else
-          umoved.push o
+          unmoved.push o
         end
       end
     end

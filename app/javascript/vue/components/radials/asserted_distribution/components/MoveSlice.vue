@@ -24,6 +24,29 @@
     >
       Move
     </VBtn>
+
+    <div class="margin-large-top">
+      <template v-if="moveResponse.moved.length">
+        <h3>Moved</h3>
+        <ul>
+          <li
+            v-for="item in moveResponse.moved"
+            :key="item.id"
+            v-html="item.object_tag"
+          />
+        </ul>
+      </template>
+      <template v-if="moveResponse.unmoved.length">
+        <h3>Unmoved</h3>
+        <ul>
+          <li
+            v-for="item in moveResponse.unmoved"
+            :key="item.id"
+            v-html="item.object_tag"
+          />
+        </ul>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -43,7 +66,10 @@ const props = defineProps({
 })
 
 const geographicArea = ref()
-const created = ref([])
+const moveResponse = ref({
+  moved: [],
+  unmoved: []
+})
 
 function move() {
   const payload = {
@@ -52,9 +78,9 @@ function move() {
   }
 
   AssertedDistribution.moveBatch(payload).then(({ body }) => {
-    created.value = body
+    moveResponse.value = body
     TW.workbench.alert.create(
-      `${body.length} asserted distribution items were successfully updated.`,
+      `${body.moved.length} asserted distribution items were successfully updated.`,
       'notice'
     )
   })

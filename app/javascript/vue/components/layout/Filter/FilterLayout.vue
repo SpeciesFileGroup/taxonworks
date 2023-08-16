@@ -25,7 +25,7 @@
             </label>
           </div>
           <ModalNestedParameters :parameters="parameters" />
-          <div class="horizontal-left-content">
+          <div class="horizontal-left-content gap-small">
             <slot name="nav-query-left" />
             <RadialFilter
               v-if="objectType"
@@ -70,7 +70,7 @@
             :pagination="pagination"
             v-model="perValue"
           />
-          <div class="horizontal-right-content">
+          <div class="horizontal-right-content gap-small">
             <RadialFilter
               v-if="selectedIds"
               :ids="selectedIds"
