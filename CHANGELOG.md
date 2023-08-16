@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Role scoping broken, affecting things like Verifiers list [#3514]
 - `api/v1/citation` failing on last page of results [#3524]
 - Fix generation of Unit tray labels from Filter nomenclature
 - Object graph view failing to render (controller object no longer available!?)
@@ -29,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Improve TaxonName autocomplete result prioritization [#3509]
 - Clone button is not clearing input after cloning
 
+[#3514]: https://github.com/SpeciesFileGroup/taxonworks/issues/3514
 [#3524]: https://github.com/SpeciesFileGroup/taxonworks/issues/3524
 [#3512]: https://github.com/SpeciesFileGroup/taxonworks/issues/3512
 [#3516]: https://github.com/SpeciesFileGroup/taxonworks/issues/3516
