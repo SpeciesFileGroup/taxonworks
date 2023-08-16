@@ -6,9 +6,14 @@
       'summary-view--saved-at-least-once': savedAtLeastOnce
     }"
   >
+    <DescriptorModal
+      v-if="isModalVisible"
+      :row-object="rowObject"
+      @close="isModalVisible = false"
+    />
     <SpinnerComponent
       legend="Saving changes..."
-      :logo-size="{ width: '50px', height: '50px'}"
+      :logo-size="{ width: '50px', height: '50px' }"
       v-if="isSaving"
     />
     <div class="flex-separate middle">
@@ -50,10 +55,11 @@
 
 <script>
 import { GetterNames } from '../../store/getters/getters'
-import SpinnerComponent from 'components/spinner.vue'
+import SpinnerComponent from '@/components/spinner.vue'
 import SaveCountdown from '../SaveCountdown/SaveCountdown.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialObject from 'components/radials/navigation/radial'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialObject from '@/components/radials/navigation/radial'
+import DescriptorModal from '../DepictionModal/DepictionsContainer.vue'
 
 export default {
   name: 'SummaryView',
@@ -62,7 +68,8 @@ export default {
     SaveCountdown,
     RadialAnnotator,
     RadialObject,
-    SpinnerComponent
+    SpinnerComponent,
+    DescriptorModal
   },
 
   props: {
@@ -82,21 +89,25 @@ export default {
   }),
 
   computed: {
-    isUnsaved () {
-      return this.$store.getters[GetterNames.IsRowObjectUnsaved](this.rowObject.id)
+    isUnsaved() {
+      return this.$store.getters[GetterNames.IsRowObjectUnsaved](
+        this.rowObject.id
+      )
     },
 
-    savedAtLeastOnce () {
+    savedAtLeastOnce() {
       return this.rowObject.hasSavedAtLeastOnce
     },
 
-    isSaving () {
-      return this.$store.getters[GetterNames.IsRowObjectSaving](this.rowObject.id)
+    isSaving() {
+      return this.$store.getters[GetterNames.IsRowObjectSaving](
+        this.rowObject.id
+      )
     }
   },
 
   methods: {
-    returnTop () {
+    returnTop() {
       window.scrollTo(0, 0)
     }
   }

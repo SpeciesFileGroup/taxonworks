@@ -2,41 +2,54 @@
   <div v-hotkey="shortcuts">
     <modal-component
       @close="showModal = false"
-      v-if="showModal">
+      v-if="showModal"
+    >
       <template #header>
         <h3>Pinboard navigator - Browse tasks</h3>
       </template>
       <template #body>
         <ul
           v-if="Object.keys(defaultItems).length"
-          class="no_bullets">
+          class="no_bullets"
+        >
           <template
             v-for="(item, key) in sections"
-            :key="key">
+            :key="key"
+          >
             <li
               class="margin-small-bottom"
-              v-if="defaultItems[key]">
+              v-if="defaultItems[key]"
+            >
               <transition
                 v-if="selected && selected.klass == key"
                 name="bounce"
                 @after-enter="redirect"
-                appear>
+                appear
+              >
                 <div class="horizontal-left-content cursor-pointer">
-                  <div class="rounded-circle button-default horizontal-center-content circle-s middle margin-small-right">
-                    <span class="capitalize"><b>{{ item.shortcut }}</b></span>
+                  <div
+                    class="rounded-circle button-default horizontal-center-content circle-s middle margin-small-right"
+                  >
+                    <span class="capitalize"
+                      ><b>{{ item.shortcut }}</b></span
+                    >
                   </div>
-                  <span v-html="shorten(defaultItems[key].label, 38)"/>
+                  <span v-html="shorten(defaultItems[key].label, 38)" />
                 </div>
               </transition>
               <div
                 v-else
                 class="cursor-pointer dislay-inline-flex align-center"
-                @click="selectItem(key, defaultItems[key])">
+                @click="selectItem(key, defaultItems[key])"
+              >
                 <div
-                  class="rounded-circle button-default horizontal-center-content circle-s middle margin-small-right">
-                  <span class="capitalize"><b>{{ item.shortcut }}</b></span>
+                  class="rounded-circle button-default horizontal-center-content circle-s middle margin-small-right"
+                >
+                  <span class="capitalize"
+                    ><b>{{ item.shortcut }}</b></span
+                  >
                 </div>
-                <span v-html="shorten(defaultItems[key].label, 38)"/>
+                <span v-html="shorten(defaultItems[key].label, 38)" />
               </div>
             </li>
           </template>
@@ -48,11 +61,10 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 import Shortcuts from './const/shortcuts.js'
-import platformKey from 'helpers/getPlatformKey.js'
-import { shorten } from 'helpers/strings.js'
+import platformKey from '@/helpers/getPlatformKey.js'
+import { shorten } from '@/helpers/strings.js'
 
 export default {
   name: 'PinboardNavigator',
@@ -60,11 +72,13 @@ export default {
   components: { ModalComponent },
 
   computed: {
-    shortcuts () {
+    shortcuts() {
       const keys = {}
 
       for (const key in this.sections) {
-        keys[this.sections[key].shortcut] = () => { this.selectItem(key, this.defaultItems[key]) }
+        keys[this.sections[key].shortcut] = () => {
+          this.selectItem(key, this.defaultItems[key])
+        }
       }
 
       keys[`${platformKey()}+g`] = this.openModal
@@ -73,7 +87,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       showModal: false,
       sections: this.orderShortcuts(Shortcuts),
@@ -82,24 +96,31 @@ export default {
     }
   },
 
-  mounted () {
-    TW.workbench.keyboard.createLegend(`${platformKey()}+g`, 'Open pinboard navigator', 'Pinboard')
+  mounted() {
+    TW.workbench.keyboard.createLegend(
+      `${platformKey()}+g`,
+      'Open pinboard navigator',
+      'Pinboard'
+    )
   },
 
   methods: {
-    redirect () {
+    redirect() {
       const klass = this.selected.klass
 
-      window.open(`${this.sections[klass].path}?${this.sections[klass].param}=${this.selected.object.id}`, '_self')
+      window.open(
+        `${this.sections[klass].path}?${this.sections[klass].param}=${this.selected.object.id}`,
+        '_self'
+      )
     },
 
-    selectItem (key, item) {
+    selectItem(key, item) {
       this.selected = { klass: key, object: item }
     },
 
-    openModal () {
+    openModal() {
       this.defaultItems = {}
-      document.querySelectorAll('[data-pinboard-section]').forEach(node => {
+      document.querySelectorAll('[data-pinboard-section]').forEach((node) => {
         const element = node.querySelector('[data-insert="true"]')
         if (element) {
           this.defaultItems[node.getAttribute('data-pinboard-section')] = {
@@ -115,32 +136,34 @@ export default {
 
     shorten: shorten,
 
-    orderShortcuts (sections) {
+    orderShortcuts(sections) {
       const ordered = {}
-      Object.keys(sections).sort((a, b) => a.shortcut - b.shortcut).forEach(key => {
-        ordered[key] = sections[key]
-      })
+      Object.keys(sections)
+        .sort((a, b) => a.shortcut - b.shortcut)
+        .forEach((key) => {
+          ordered[key] = sections[key]
+        })
       return ordered
     }
   }
 }
 </script>
 <style scoped>
-  .bounce-enter-active {
-    animation: bounce-in 1s;
+.bounce-enter-active {
+  animation: bounce-in 1s;
+}
+.bounce-leave-active {
+  animation: bounce-in 1s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(1);
   }
-  .bounce-leave-active {
-    animation: bounce-in 1s reverse;
+  50% {
+    transform: scale(1.5) translateX(25%);
   }
-  @keyframes bounce-in {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.5) translateX(25%);
-    }
-    100% {
-      transform: scale(1);
-    }
+  100% {
+    transform: scale(1);
   }
+}
 </style>

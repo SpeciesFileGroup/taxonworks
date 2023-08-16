@@ -106,21 +106,25 @@ class Tools::Description::FromObservationMatrix
   attr_accessor :keyword_ids
 
   def initialize( observation_matrix_id: nil,
-                 project_id: nil,
-                 include_descendants: nil,
-                 language_id: nil,
-                 keyword_ids: nil,
-                 observation_matrix_row_id: nil,
-                 otu_id: nil,
-                 similar_objects: [])
+                  project_id: nil,
+                  include_descendants: nil,
+                  language_id: nil,
+                  keyword_ids: nil,
+                  observation_matrix_row_id: nil,
+                  otu_id: nil,
+                  similar_objects: {})
+
+    return false if project_id.blank? || (observation_matrix_id.blank? && observation_matrix_row_id.blank? && otu_id.blank?)
+
+    @project_id = project_id
 
     @keyword_ids = keyword_ids
 
-    # raise if observation_matrix_id.blank? || project_id.blank?
+    # !! You can skip all this if there are no Observations.
+    
     @observation_matrix_id = observation_matrix_id
-    @project_id = project_id
     @observation_matrix_row_id = observation_matrix_row_id
-    @observation_matrix = find_matrix
+   
     @include_descendants = include_descendants
     @language_to_use = language_to_use
     @descriptor_available_keywords = descriptor_available_keywords
@@ -142,16 +146,20 @@ class Tools::Description::FromObservationMatrix
     @descriptor_hash = nil
   end
 
-  def find_matrix
-    return nil if (@observation_matrix_id.blank? || @observation_matrix_id.to_s == '0') && @observation_matrix_row_id.blank?
-    if @observation_matrix_row_id.blank?
-      m = ObservationMatrix.where(project_id: @project_id).find(@observation_matrix_id)
-    else
-      m = ObservationMatrixRow.find(@observation_matrix_row_id)&.observation_matrix
-      @observation_matrix_id = m&.id.to_s
-      @project_id = m&.project_id.to_s
-    end
-    m
+  def observation_matrix
+    @observation_matrix ||= ObservationMatrix.where(project_id:).find(observation_matrix_id)
+    @observation_matrix ||= observation_matrix_row.observation_matrix
+    @observation_matrix
+  end
+
+  def observation_matrix_row
+    return nil if @observation_matrix_row_id.blank?
+    ObservationMatrixRow.where(project_id:).find(@observation_matrix_row_id)
+  end
+
+  def observation_matrix_id
+    @observation_matrix_id ||= observation_matrix_row&.observation_matrix_id
+    @observation_matrix_id
   end
 
   def descriptor_available_languages
@@ -176,7 +184,7 @@ class Tools::Description::FromObservationMatrix
 
   def descriptor_available_keywords
     descriptor_ids = descriptors.pluck(:id)
-    tags = Keyword.joins(:tags)
+    tags = Keyword.where(project_id:).joins(:tags)
       .where(tags: {tag_object_type: 'Descriptor'})
       .where('tags.tag_object_id IN (?)', descriptor_ids ).order('name').distinct.to_a
   end
@@ -184,9 +192,9 @@ class Tools::Description::FromObservationMatrix
   def descriptors
     t = ['Descriptor::Continuous', 'Descriptor::PresenceAbsence', 'Descriptor::Sample', 'Descriptor::Qualitative']
     if observation_matrix_id.blank?
-      Descriptor.not_weight_zero.where('type IN (?)', t).order(:position)
+      Descriptor.where(project_id:).not_weight_zero.where('type IN (?)', t).order(:position)
     else
-      Descriptor.select('descriptors.*, observation_matrix_columns.position AS column_position').
+      Descriptor.where(project_id:).select('descriptors.*, observation_matrix_columns.position AS column_position').
         joins(:observation_matrix_columns).
         not_weight_zero.
         where('type IN (?)', t).
@@ -197,15 +205,15 @@ class Tools::Description::FromObservationMatrix
 
   def descriptors_with_keywords
     if keyword_ids
-      descriptors.joins(:tags).where('tags.keyword_id IN (?)', keyword_ids.to_s.split('|').map(&:to_i) )
+      descriptors.joins(:tags).where(project_id:).where('tags.keyword_id IN (?)', keyword_ids.to_s.split('|').map(&:to_i) )
     else
       descriptors
     end
   end
 
   def otu_id_array
-    if !observation_matrix_row_id.blank?
-      a = ObservationMatrixRow.find(observation_matrix_row_id.to_i)
+    if observation_matrix_row_id.present?
+      a = ObservationMatrixRow.where(project_id:).find(observation_matrix_row_id.to_i)
       if a && a.observation_object_type == 'Otu'
         @otu_id = a.observation_object_id
       end
@@ -214,17 +222,17 @@ class Tools::Description::FromObservationMatrix
     if otu_id.blank?
       nil
     elsif include_descendants == 'true' # TODO: logic doesn't follow
-      ::Otu.self_and_descendants_of(otu_id.to_i).pluck(:id)
+      ::Otu.where(project_id:).self_and_descendants_of(otu_id.to_i).pluck(:id)
     else
       [otu_id]
     end
   end
 
   def collection_object_id_array
-    if include_descendants == 'true' && !otu_id_filter_array.blank? # Big bug here was = not ==
-      CollectionObject.joins(:taxon_determinations).where(taxon_determinations: {position: 1, otu_id: otu_id_filter_array}).pluck(:id)
-    elsif !observation_matrix_row_id.blank?
-      [ObservationMatrixRow.find(observation_matrix_row_id.to_i)&.observation_object_id.to_i]
+    if include_descendants == 'true' && otu_id_filter_array.present? # Big bug here was = not ==
+      CollectionObject.where(project_id:).joins(:taxon_determinations).where(taxon_determinations: {position: 1, otu_id: otu_id_filter_array}).pluck(:id)
+    elsif observation_matrix_row_id.present?
+      [ObservationMatrixRow.where(project_id:).find(observation_matrix_row_id.to_i)&.observation_object_id.to_i]
     else
       [0]
     end
@@ -248,7 +256,7 @@ class Tools::Description::FromObservationMatrix
       descriptor_hash[d.id][:presence] = nil if d.type == 'Descriptor::PresenceAbsence'
     end
 
-    char_states = CharacterState.joins(:observations)
+    char_states = CharacterState.where(project_id:).joins(:observations)
       .where(character_states: {descriptor_id: descriptor_ids})
       .where("( (observations.observation_object_type = 'Otu' and observations.observation_object_id IN (?)) OR (observations.observation_object_type = 'CollectionObject' and observations.observation_object_id IN (?)) )", otu_ids, collection_object_ids)
       .distinct # uniq
@@ -257,7 +265,7 @@ class Tools::Description::FromObservationMatrix
       descriptor_hash[cs.descriptor_id][:char_states_ids].append(cs.id)
     end
 
-    observations = Observation.where(type: t, descriptor_id: descriptor_ids)
+    observations = Observation.where(project_id:).where(type: t, descriptor_id: descriptor_ids)
       .where("((observation_object_type = 'Otu' AND observation_object_id IN (?)) OR (observation_object_type = 'CollectionObject' AND observation_object_id IN (?)) )", otu_ids, collection_object_ids)
       .distinct # was uniq
 
@@ -293,7 +301,7 @@ class Tools::Description::FromObservationMatrix
       collection_object_ids_count = {}
       t = ['Descriptor::Continuous', 'Descriptor::PresenceAbsence', 'Descriptor::Sample']
 
-      char_states = ObservationMatrix.
+      char_states = ObservationMatrix.where(project_id:).
         select('descriptors.id AS d_id, character_states.id AS cs_id, observations.id AS o_id, observations.observation_object_id AS o_obj_id, observations.observation_object_type AS o_obj_type, observation_matrix_rows.observation_object_id AS r_obj_id, observation_matrix_rows.observation_object_type AS r_obj_type, observations.character_state_id AS o_cs_id').
         left_outer_joins(:descriptors).
         left_outer_joins(:observation_matrix_rows).
@@ -306,7 +314,7 @@ class Tools::Description::FromObservationMatrix
 
       char_states.each do |cs|
         if (cs.r_obj_type == 'Otu' && !descriptor_hash[cs.d_id][:similar_otu_ids].include?(cs.r_obj_id)) ||
-          (cs.r_obj_type == 'CollectionObject' && !descriptor_hash[cs.d_id][:similar_collection_object_ids].include?(cs.r_obj_id))
+            (cs.r_obj_type == 'CollectionObject' && !descriptor_hash[cs.d_id][:similar_collection_object_ids].include?(cs.r_obj_id))
           if cs.r_obj_type == 'Otu' && (descriptor_hash[cs.d_id][:char_states_ids].include?(cs.cs_id) || cs.o_id.nil?)
             descriptor_hash[cs.d_id][:similar_otu_ids].append(cs.r_obj_id)
             otu_ids_count[cs.r_obj_id] = otu_ids_count[cs.r_obj_id].to_i + 1
@@ -318,6 +326,7 @@ class Tools::Description::FromObservationMatrix
       end
 
       observations = ObservationMatrix.
+        where(project_id:).
         select('descriptors.id AS d_id, observations.id AS o_id, observations.observation_object_id AS o_obj_id, observations.observation_object_type AS o_obj_type, observations.type, observations.continuous_value, observations.sample_min, observations.sample_max, observations.presence AS o_presence, observation_matrix_rows.observation_object_id AS r_obj_id, observation_matrix_rows.observation_object_type AS r_obj_type, observations.character_state_id AS o_cs_id').
         left_outer_joins(:descriptors).
         left_outer_joins(:observation_matrix_rows).
@@ -328,7 +337,7 @@ class Tools::Description::FromObservationMatrix
         where('observation_matrices.id = ?', @observation_matrix_id)
       observations.each do |o|
         if (o.r_obj_type == 'Otu' && !descriptor_hash[o.d_id][:similar_otu_ids].include?(o.r_obj_id)) ||
-          (o.r_obj_type == 'CollectionObject' && !descriptor_hash[o.d_id][:similar_collection_object_ids].include?(o.r_obj_id))
+            (o.r_obj_type == 'CollectionObject' && !descriptor_hash[o.d_id][:similar_collection_object_ids].include?(o.r_obj_id))
           yes = false
           if o.continuous_value.nil? && o.sample_min.nil? && o.o_presence.nil?
             yes = true
@@ -373,7 +382,7 @@ class Tools::Description::FromObservationMatrix
 
       if descriptor_name != descriptor_name_new
         descriptor_name = descriptor_name_new
-        str += '. ' unless str.blank?
+        str += '. ' if str.present?
         str += descriptor_name + ' '
       else
         str += ', '
@@ -388,21 +397,21 @@ class Tools::Description::FromObservationMatrix
         str += st_str.uniq.join(or_separator)
       when 'Descriptor::Continuous'
         if d_value[:min] == d_value[:max]
-          str += ["%g" % d_value[:min], d_value[:descriptor].default_unit].compact.join(' ')
+          str += ['%g' % d_value[:min], d_value[:descriptor].default_unit].compact.join(' ')
         else
-          str += ["%g" % d_value[:min] + '–' + "%g" % d_value[:max], d_value[:descriptor].default_unit].compact.join(' ')
+          str += ['%g' % d_value[:min] + '–' + '%g' % d_value[:max], d_value[:descriptor].default_unit].compact.join(' ')
         end
       when 'Descriptor::Sample'
         if d_value[:min] == d_value[:max]
-          str += ["%g" % d_value[:min], d_value[:descriptor].default_unit].compact.join(' ')
+          str += ['%g' % d_value[:min], d_value[:descriptor].default_unit].compact.join(' ')
         else
-          str += ["%g" % d_value[:min] + '–' + "%g" % d_value[:max], d_value[:descriptor].default_unit].compact.join(' ')
+          str += ['%g' % d_value[:min] + '–' + '%g' % d_value[:max], d_value[:descriptor].default_unit].compact.join(' ')
         end
       when 'Descriptor::PresenceAbsence'
         str += d_value[:presence].to_s
       end
     end
-    str += '.' unless str.blank?
+    str += '.' if str.present?
     str
   end
 
@@ -446,7 +455,7 @@ class Tools::Description::FromObservationMatrix
       descriptor_name_new = d_value[:descriptor].target_name(:description, language)
       if descriptor_name != descriptor_name_new
         descriptor_name = descriptor_name_new
-        str += '. ' unless str.blank?
+        str += '. ' if str.present?
         str += descriptor_name + ' '
       else
         str += ', '
@@ -460,15 +469,15 @@ class Tools::Description::FromObservationMatrix
         str += st_str.uniq.join(or_separator)
       when 'Descriptor::Continuous'
         if d_value[:min] == d_value[:max]
-          str += ["%g" % d_value[:min], d_value[:descriptor].default_unit].compact.join(' ')
+          str += ['%g' % d_value[:min], d_value[:descriptor].default_unit].compact.join(' ')
         else
-          str += ["%g" % d_value[:min] + '–' + "%g" % d_value[:max], d_value[:descriptor].default_unit].compact.join(' ')
+          str += ['%g' % d_value[:min] + '–' + '%g' % d_value[:max], d_value[:descriptor].default_unit].compact.join(' ')
         end
       when 'Descriptor::Sample'
         if d_value[:min] == d_value[:max]
-          str += ["%g" % d_value[:min], d_value[:descriptor].default_unit].compact.join(' ')
+          str += ['%g' % d_value[:min], d_value[:descriptor].default_unit].compact.join(' ')
         else
-          str += ["%g" % d_value[:min] + '–' + "%g" % d_value[:max], d_value[:descriptor].default_unit].compact.join(' ')
+          str += ['%g' % d_value[:min] + '–' + '%g' % d_value[:max], d_value[:descriptor].default_unit].compact.join(' ')
         end
       when 'Descriptor::PresenceAbsence'
         str += d_value[:presence].to_s
@@ -476,7 +485,7 @@ class Tools::Description::FromObservationMatrix
       break if remaining_otus.empty? && remaining_co.empty?
     end
     if remaining_otus.empty? && remaining_co.empty?
-      str += '.' unless str.blank?
+      str += '.' if str.present?
     else
       str = 'Cannot be separated from other rows in the matrix!'
     end

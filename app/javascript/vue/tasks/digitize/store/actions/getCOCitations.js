@@ -1,8 +1,11 @@
-import { Citation } from 'routes/endpoints'
+import { Citation } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
-import { COLLECTION_OBJECT } from 'constants/index.js'
+import { COLLECTION_OBJECT } from '@/constants/index.js'
 
-export default ({ state: { collection_object, settings, coCitations }, commit }) => {
+export default ({
+  state: { collection_object, settings, coCitations },
+  commit
+}) => {
   const lockCOCitations = settings.locked.coCitations
 
   Citation.where({
@@ -11,10 +14,14 @@ export default ({ state: { collection_object, settings, coCitations }, commit })
   }).then(({ body }) => {
     if (lockCOCitations) {
       const currentCitations = coCitations
-      const currentCitationsSourceId = currentCitations.map(citation => citation.source_id)
+      const currentCitationsSourceId = currentCitations.map(
+        (citation) => citation.source_id
+      )
 
-      body.forEach(citation => {
-        const index = currentCitationsSourceId.findIndex(id => id === citation.source_id)
+      body.forEach((citation) => {
+        const index = currentCitationsSourceId.findIndex(
+          (id) => id === citation.source_id
+        )
 
         if (index > -1) {
           currentCitations[index] = citation

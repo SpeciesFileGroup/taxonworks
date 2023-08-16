@@ -1,3 +1,4 @@
+import addNewColumn from './addNewColumn'
 import setObservationMatrix from './setObservationMatrix'
 import setObservations from './setObservations'
 import setObservationColumns from './setObservationColumns'
@@ -13,6 +14,7 @@ import removeOtuDepiction from './removeOtuDepiction'
 
 const MutationNames = {
   AddDepiction: 'addDepiction',
+  AddNewColumn: 'addNewColumn',
   SetObservationMatrix: 'setObservationMatrix',
   SetObservations: 'setObservations',
   SetObservationColumns: 'setObservationColumns',
@@ -28,6 +30,7 @@ const MutationNames = {
 
 const MutationFunctions = {
   [MutationNames.AddDepiction]: addDepiction,
+  [MutationNames.AddNewColumn]: addNewColumn,
   [MutationNames.SetObservationMatrix]: setObservationMatrix,
   [MutationNames.SetObservations]: setObservations,
   [MutationNames.SetObservationColumns]: setObservationColumns,

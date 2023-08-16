@@ -14,16 +14,15 @@
         use-index
         v-model="tabIndex"
       />
-      <component :is="componentName"/>
+      <component :is="componentName" />
     </template>
   </block-layout>
 </template>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters'
-import SwitchComponent from 'components/switch.vue'
-import BlockLayout from 'components/layout/BlockLayout'
+import SwitchComponent from '@/components/switch.vue'
+import BlockLayout from '@/components/layout/BlockLayout'
 import AuthorPerson from './AuthorPeople.vue'
 import AuthorSource from './AuthorSource.vue'
 import AuthorVerbatim from './AuthorVerbatim.vue'
@@ -34,12 +33,12 @@ const TAB = {
   Person: 'Person'
 }
 
-function getTabLabel (label, hasData) {
+function getTabLabel(label, hasData) {
   return label + (hasData ? ' ✓' : '')
 }
 
-function getTabIndex (tab) {
-  return Object.values(TAB).findIndex(value => value === tab)
+function getTabIndex(tab) {
+  return Object.values(TAB).findIndex((value) => value === tab)
 }
 
 export default {
@@ -51,37 +50,37 @@ export default {
     SwitchComponent
   },
   computed: {
-    componentName () {
+    componentName() {
       const tab = Object.keys(TAB)[this.tabIndex]
       return `Author${tab}`
     },
 
-    citation () {
+    citation() {
       return this.$store.getters[GetterNames.GetCitation]
     },
 
-    taxon () {
+    taxon() {
       return this.$store.getters[GetterNames.GetTaxon]
     },
 
-    verbatimFieldsWithData () {
+    verbatimFieldsWithData() {
       return this.taxon.verbatim_author || this.taxon.year_of_publication
     },
 
-    hasRoles () {
+    hasRoles() {
       return this.$store.getters[GetterNames.GetRoles].length
     },
 
-    sections () {
+    sections() {
       return [
-        getTabLabel(TAB.Source,this.citation),
+        getTabLabel(TAB.Source, this.citation),
         getTabLabel(TAB.Verbatim, this.verbatimFieldsWithData),
         getTabLabel(TAB.Person, this.hasRoles)
       ]
     }
   },
 
-  data () {
+  data() {
     return {
       tabIndex: 0
     }
@@ -89,7 +88,7 @@ export default {
 
   watch: {
     taxon: {
-      handler (newVal, oldVal) {
+      handler(newVal, oldVal) {
         if (newVal.id && !oldVal.id) {
           this.tabIndex = getTabIndex(TAB.Source)
         }
@@ -98,7 +97,7 @@ export default {
   },
 
   methods: {
-    setTabView () {
+    setTabView() {
       if (this.verbatimFieldsWithData) {
         return TAB.Verbatim
       } else if (this.hasCitation) {

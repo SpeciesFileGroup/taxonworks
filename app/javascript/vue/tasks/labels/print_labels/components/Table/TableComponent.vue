@@ -41,10 +41,18 @@
             <input
               type="checkbox"
               v-model="selected"
-              :value="item.id">
+              :value="item.id"
+            >
           </td>
           <td>
-            <pre v-html="item.label"/>
+            <div
+              v-if="item.is_generated"
+              v-html="item.label"
+            />
+            <pre
+              v-else
+              v-html="item.label"
+            />
           </td>
           <td v-html="item.total"/>
           <td>
@@ -129,8 +137,10 @@ export default {
         return this.list.length === this.selected.length
       },
 
-      set (value) {
-        this.selected = value ? this.list.slice(0) : []
+      set (isChecked) {
+        this.selected = isChecked
+          ? this.list.map(label => label.id)
+          : []
       }
     }
   },
@@ -156,7 +166,7 @@ export default {
 
     removeRow (label) {
       if (window.confirm("You're trying to delete this label. Are you sure want to proceed?")) {
-        this.$emit('onRemove', label)
+        this.$emit('onRemove', label.id)
       }
     },
 

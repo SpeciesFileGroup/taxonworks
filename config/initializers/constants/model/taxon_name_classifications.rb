@@ -66,6 +66,23 @@ TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID = [
   TaxonNameClassification::Icvcn::Valid::Unaccepted
 ].flatten.map(&:to_s).freeze
 
+# Array of all Unavailable and Invalid TaxonNameClassifications classes, as Strings
+TAXON_NAME_CLASS_NAMES_UNAVAILABLE = [
+  TaxonNameClassification::Iczn::Unavailable,
+  TaxonNameClassification::Iczn::Unavailable.descendants,
+  TaxonNameClassification::Iczn::CollectiveGroup,
+  TaxonNameClassification::Iczn::Fossil::Ichnotaxon,
+  TaxonNameClassification::Icn::NotEffectivelyPublished,
+  TaxonNameClassification::Icn::NotEffectivelyPublished.descendants,
+  TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
+  TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished.descendants,
+  TaxonNameClassification::Icnp::NotEffectivelyPublished,
+  TaxonNameClassification::Icnp::NotEffectivelyPublished.descendants,
+  TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished,
+  TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished.descendants
+].flatten.map(&:to_s).freeze
+
+
 TAXON_NAME_CLASS_NAMES_VALID = [
   TaxonNameClassification::Iczn::Available::Valid,
   TaxonNameClassification::Iczn::Available::Valid.descendants,

@@ -4,14 +4,15 @@
     <ul class="context-menu no_bullets">
       <li
         v-for="item in Object.keys(autocompleteType)"
-        :key="item">
+        :key="item"
+      >
         <label>
           <input
             type="radio"
             v-model="type"
             name="autocomplete_type"
             :value="item"
-          >
+          />
           {{ item }}
         </label>
       </li>
@@ -27,7 +28,7 @@
         min="2"
         :placeholder="`Select a ${type}`"
         label="label_html"
-        :clear-after="true"
+        clear-after
         @get-item="createRowItem"
         :url="autocompleteType[type]"
         param="term"
@@ -36,18 +37,13 @@
   </div>
 </template>
 <script>
-
-import Autocomplete from 'components/ui/Autocomplete.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 import ObservationTypes from '../../const/types.js'
-import OtuPicker from 'components/otu/otu_picker/otu_picker'
-import { 
-  COLLECTION_OBJECT,
-  OTU,
-  EXTRACT
-} from 'constants/index.js'
+import OtuPicker from '@/components/otu/otu_picker/otu_picker'
+import { COLLECTION_OBJECT, OTU, EXTRACT } from '@/constants/index.js'
 
 export default {
   components: {
@@ -56,16 +52,16 @@ export default {
   },
 
   computed: {
-    matrix () {
+    matrix() {
       return this.$store.getters[GetterNames.GetMatrix]
     },
 
-    isOtuType () {
+    isOtuType() {
       return this.type === OTU
     }
   },
 
-  data () {
+  data() {
     return {
       autocompleteType: {
         [OTU]: '/otus/autocomplete',
@@ -78,7 +74,7 @@ export default {
   },
 
   methods: {
-    createRowItem ({ id }) {
+    createRowItem({ id }) {
       const data = {
         observation_matrix_id: this.matrix.id,
         observation_object_id: id,

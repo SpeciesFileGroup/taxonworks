@@ -31,11 +31,10 @@
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import SpinnerComponent from 'components/spinner'
-import { CollectionObject } from 'routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import SpinnerComponent from '@/components/spinner'
+import { CollectionObject } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -51,7 +50,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       maxPerCall: 5,
       isSaving: false,
@@ -60,20 +59,28 @@ export default {
   },
 
   methods: {
-    setRepository (repositoryId = this.repository.id, arrayIds = this.ids.slice()) {
+    setRepository(
+      repositoryId = this.repository.id,
+      arrayIds = this.ids.slice()
+    ) {
       const ids = arrayIds.splice(0, this.maxPerCall)
-      const requests = ids.map(id => CollectionObject.update(id, {
-        collection_object: {
-          repository_id: repositoryId
-        }
-      }))
+      const requests = ids.map((id) =>
+        CollectionObject.update(id, {
+          collection_object: {
+            repository_id: repositoryId
+          }
+        })
+      )
 
       Promise.allSettled(requests).then(() => {
         if (arrayIds.length) {
           this.setRepository(repositoryId, arrayIds)
         } else {
           this.isSaving = false
-          TW.workbench.alert.create('Repository was successfully set.', 'notice')
+          TW.workbench.alert.create(
+            'Repository was successfully set.',
+            'notice'
+          )
         }
       })
     }

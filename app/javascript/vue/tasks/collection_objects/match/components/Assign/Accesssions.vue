@@ -2,31 +2,36 @@
   <div class="panel content">
     <spinner-component
       v-if="isSaving"
-      legend="Saving..."/>
+      legend="Saving..."
+    />
     <h2>Accessions/Deaccession</h2>
     <div class="field label-above">
       <label>Accesssioned at</label>
       <input
         type="date"
-        v-model="form.accessioned_at">
+        v-model="form.accessioned_at"
+      />
     </div>
     <div class="field label-above">
       <label>Deaccesssioned at</label>
       <input
         type="date"
-        v-model="form.deaccessioned_at">
+        v-model="form.deaccessioned_at"
+      />
     </div>
     <div class="field label-above">
       <label>Deaccession reason</label>
       <input
         type="text"
-        v-model="form.deaccession_reason">
+        v-model="form.deaccession_reason"
+      />
     </div>
     <div>
       <button
         type="button"
         class="button normal-input button-submit"
-        @click="updateCO()">
+        @click="updateCO()"
+      >
         Set
       </button>
     </div>
@@ -34,9 +39,8 @@
 </template>
 
 <script>
-
-import SpinnerComponent from 'components/spinner'
-import { CollectionObject } from 'routes/endpoints'
+import SpinnerComponent from '@/components/spinner'
+import { CollectionObject } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -50,7 +54,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       maxPerCall: 5,
       isSaving: false,
@@ -63,15 +67,16 @@ export default {
   },
 
   methods: {
-    updateCO (selectedTag, arrayIds = this.ids) {
+    updateCO(selectedTag, arrayIds = this.ids) {
       const ids = arrayIds.slice(0, 5)
       const nextIds = arrayIds.slice(5)
-      const promises = ids.map(id =>
+      const promises = ids.map((id) =>
         CollectionObject.update(id, {
           collection_object: {
             ...this.form
           }
-        }))
+        })
+      )
 
       this.isSaving = true
 
@@ -80,11 +85,13 @@ export default {
           this.updateCO(selectedTag, nextIds)
         } else {
           this.isSaving = false
-          TW.workbench.alert.create('Collection objects were successfully updated.', 'notice')
+          TW.workbench.alert.create(
+            'Collection objects were successfully updated.',
+            'notice'
+          )
         }
       })
     }
   }
 }
-
 </script>

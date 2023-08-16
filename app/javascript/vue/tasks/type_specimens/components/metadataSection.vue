@@ -3,27 +3,31 @@
     <spinner
       :show-spinner="false"
       :show-legend="false"
-      v-if="!protonymId"/>
+      v-if="!protonymId"
+    />
     <div class="header flex-separate middle">
       <h3>Metadata</h3>
-      <expand v-model="displayBody"/>
+      <expand v-model="displayBody" />
     </div>
     <div
       class="body"
-      v-if="displayBody">
+      v-if="displayBody"
+    >
       <label>Type</label>
       <div class="flex-wrap-row separate-top separate-bottom">
         <template v-if="checkForTypeList">
           <ul class="flex-wrap-column no_bullets">
             <li
               v-for="(item, key) in types[taxon.nomenclatural_code]"
-              :key="key">
+              :key="key"
+            >
               <label class="capitalize">
                 <input
                   v-model="type"
                   type="radio"
                   name="typetype"
-                  :value="key">
+                  :value="key"
+                />
                 {{ key }}
               </label>
             </li>
@@ -31,62 +35,25 @@
         </template>
       </div>
       <div class="field">
-        <fieldset v-if="!citationCreated">
-          <legend>Source</legend>
-          <smart-selector
-            model="sources"
-            klass="CollectionObject"
-            pin-section="Sources"
-            pin-type="Source"
-            label="cached"
-            @selected="selectSource"
-          >
-            <template #body>
-              <div>
-                <p
-                  v-if="showSource && citation.source_id"
-                  class="horizontal-left-content">
-                  <span v-html="showSource"/>
-                  <span
-                    class="circle-button button-default btn-undo"
-                    @click="resetCitation"/>
-                </p>
-              </div>
-            </template>
-            <template #footer>
-              <div>
-                <ul class="no_bullets context-menu">
-                  <li>
-                    <input
-                      type="text"
-                      v-model="citation.pages"
-                      placeholder="Pages">
-                  </li>
-                  <li>
-                    <label>
-                      <input
-                        type="checkbox"
-                        v-model="citation.is_original">
-                      Is original
-                    </label>
-                  </li>
-                </ul>
-              </div>
-            </template>
-          </smart-selector>
-        </fieldset>
+        <FormCitation
+          v-if="!citationCreated"
+          v-model="citation"
+        />
         <div
           v-else
-          class="horizontal-left-content">
+          class="horizontal-left-content"
+        >
           <span>
-            <span v-html="typeMaterial.origin_citation.object_tag"/>
+            <span v-html="typeMaterial.origin_citation.object_tag" />
             <soft-validation
               class="margin-small-left"
-              :global-id="typeMaterial.origin_citation.global_id"/>
+              :global-id="typeMaterial.origin_citation.global_id"
+            />
           </span>
           <span
             class="circle-button btn-delete"
-            @click="removeCitation"/>
+            @click="removeCitation"
+          />
         </div>
       </div>
     </div>
@@ -94,103 +61,81 @@
 </template>
 
 <script>
-
-import Expand from 'components/expand.vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import Spinner from 'components/spinner.vue'
-import SoftValidation from 'components/soft_validations/objectValidation.vue'
-
+import Expand from '@/components/expand.vue'
+import Spinner from '@/components/spinner.vue'
+import SoftValidation from '@/components/soft_validations/objectValidation.vue'
+import FormCitation from '@/components/Form/FormCitation.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { Source, Citation, TypeMaterial } from 'routes/endpoints'
+import { Citation, TypeMaterial } from '@/routes/endpoints'
 
 export default {
   components: {
     Spinner,
     Expand,
-    SmartSelector,
+    FormCitation,
     SoftValidation
   },
 
   computed: {
     citation: {
-      get () {
-        return this.$store.getters[GetterNames.GetTypeMaterial].origin_citation_attributes
+      get() {
+        return this.$store.getters[GetterNames.GetTypeMaterial]
+          .origin_citation_attributes
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetCitation, value)
       }
     },
+
     type: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetType]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetType, value)
       }
     },
-    taxon () {
+
+    taxon() {
       return this.$store.getters[GetterNames.GetTaxon]
     },
-    protonymId () {
+
+    protonymId() {
       return this.$store.getters[GetterNames.GetProtonymId]
     },
-    checkForTypeList () {
+
+    checkForTypeList() {
       return this.types && this.taxon
     },
-    typeMaterial () {
+
+    typeMaterial() {
       return this.$store.getters[GetterNames.GetTypeMaterial]
     },
-    citationCreated () {
+
+    citationCreated() {
       return !!this.typeMaterial?.origin_citation
     }
   },
 
-  data () {
+  data() {
     return {
       displayBody: true,
-      types: undefined,
-      showSource: undefined
+      types: undefined
     }
   },
 
-  watch: {
-    citation: {
-      handler (newVal, oldVal) {
-        if (newVal.source_id && newVal.source_id !== oldVal.source_id) {
-          Source.find(newVal.source_id).then(response => {
-            this.showSource = response.body.object_tag
-          })
-        }
-      },
-      deep: true
-    }
-  },
-
-  created () {
-    TypeMaterial.types().then(response => {
+  created() {
+    TypeMaterial.types().then((response) => {
       this.types = response.body
     })
   },
 
   methods: {
-    resetCitation () {
-      this.showSource = undefined
-      this.citation = {
-        source_id: undefined,
-        pages: undefined
-      }
-    },
-
-    removeCitation () {
+    removeCitation() {
       Citation.destroy(this.typeMaterial.origin_citation.id).then(() => {
         this.typeMaterial.origin_citation = undefined
       })
-    },
-
-    selectSource (source) {
-      this.citation.source_id = source.id
-      this.showSource = source.object_tag
     }
   }
 }

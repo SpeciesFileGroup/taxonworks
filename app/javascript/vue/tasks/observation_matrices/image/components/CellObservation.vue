@@ -1,22 +1,20 @@
 <template>
   <div title="Drop image here">
     <spinner-component
-      :legend="('Uploading...')"
+      :legend="'Uploading...'"
       v-if="isLoading"
     />
     <dropzone-component
       v-show="show"
       class="dropzone-card"
-      ref="dropzone"
+      ref="dropzoneElement"
       url="/observations"
       use-custom-dropzone-options
       @vdropzone-sending="sending"
       @vdropzone-success="success"
       @click="openInputFile"
       :dropzone-options="
-        existObservations
-          ? dropzoneDepiction
-          : dropzoneObservation
+        existObservations ? dropzoneDepiction : dropzoneObservation
       "
     >
       <draggable-component
@@ -39,7 +37,9 @@
               :depiction="element"
             >
               <template #thumbfooter>
-                <div class="horizontal-left-content margin-small-top">
+                <div
+                  class="horizontal-left-content padding-xsmall-bottom padding-xsmall-top"
+                >
                   <radial-annotator
                     type="annotations"
                     :global-id="element.image.global_id"
@@ -67,264 +67,245 @@
   </div>
 </template>
 
-<script>
-
-import DropzoneComponent from 'components/dropzone'
+<script setup>
+import DropzoneComponent from '@/components/dropzone'
 import DraggableComponent from 'vuedraggable'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
-import SpinnerComponent from 'components/spinner'
-import VIcon from 'components/ui/VIcon/index.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
+import SpinnerComponent from '@/components/spinner'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import ButtonCitation from './ButtonCitation.vue'
-import { Observation, Depiction } from 'routes/endpoints'
+import { useStore } from 'vuex'
+import { ref, computed } from 'vue'
+import { Observation, Depiction } from '@/routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
+import { OBSERVATION_MEDIA } from '@/constants/index'
 
-export default {
-  components: {
-    DropzoneComponent,
-    DraggableComponent,
-    SpinnerComponent,
-    ImageViewer,
-    VIcon,
-    RadialAnnotator,
-    ButtonCitation
+const CSRF_TOKEN = document
+  .querySelector('meta[name="csrf-token"]')
+  .getAttribute('content')
+
+const dropzoneObservation = {
+  paramName: 'observation[images_attributes][][image_file]',
+  url: '/observations',
+  autoProcessQueue: true,
+  parallelUploads: 1,
+  headers: {
+    'X-CSRF-Token': CSRF_TOKEN
+  },
+  acceptedFiles: 'image/*,.heic'
+}
+const dropzoneDepiction = {
+  paramName: 'depiction[image_attributes][image_file]',
+  url: '/depictions',
+  autoProcessQueue: true,
+  headers: {
+    'X-CSRF-Token': CSRF_TOKEN
+  },
+  acceptedFiles: 'image/*,.heic'
+}
+
+const props = defineProps({
+  columnIndex: {
+    type: Number,
+    required: true
   },
 
-  props: {
-    depictions: {
-      type: Array,
-      required: true
-    },
-
-    rowObject: {
-      type: Object,
-      required: true
-    },
-
-    column: {
-      type: Object,
-      required: true
-    },
-
-    show: {
-      type: Boolean,
-      default: true
-    }
+  depictions: {
+    type: Array,
+    required: true
   },
 
-  emits: [
-    'removeDepiction',
-    'addDepiction'
-  ],
-
-  computed: {
-    observationMoved: {
-      get () {
-        return this.$store.getters[GetterNames.GetObservationMoved]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetObservationMoved, value)
-      }
-    },
-
-    depictionMoved: {
-      get () {
-        return this.$store.getters[GetterNames.GetDepictionMoved]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetDepictionMoved, value)
-      }
-    },
-
-    existObservations () {
-      return this.depictions.length > 0
-    },
-
-    rowObjectId () {
-      return this.rowObject.observation_object_id || this.rowObject.id
-    },
-
-    rowObjectBaseCassParam () {
-      return this.rowObject.observation_object_type || this.rowObject.base_class
-    },
-
-    observationId () {
-      return this.depictions.length && this.depictions[0].depiction_object_id
-    }
+  rowObject: {
+    type: Object,
+    required: true
   },
 
-  data () {
-    return {
-      isLoading: false,
-      dropzoneObservation: {
-        paramName: 'observation[images_attributes][][image_file]',
-        url: '/observations',
-        autoProcessQueue: true,
-        parallelUploads: 1,
-        headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        acceptedFiles: 'image/*,.heic'
-      },
-      dropzoneDepiction: {
-        paramName: 'depiction[image_attributes][image_file]',
-        url: '/depictions',
-        autoProcessQueue: true,
-        headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        acceptedFiles: 'image/*,.heic'
-      }
-    }
+  rowIndex: {
+    type: Number,
+    required: true
   },
 
-  methods: {
-    movedDepiction (event) {
-      if (this.depictions.length === 1) {
-        const observation = {
-          descriptor_id: this.column.id,
-          type: 'Observation::Media',
-          observation_object_type: this.rowObjectBaseCassParam,
-          observation_object_id: this.rowObjectId
-        }
+  descriptorId: {
+    type: Number,
+    required: true
+  },
 
-        Observation.create({ observation, extend: ['depictions'] }).then(({ body }) => {
-          this.updateDepiction(body.id)
-        })
-      } else {
-        this.updateDepiction()
-      }
-    },
-
-    openInputFile () {
-      this.$refs.dropzone.$el.click()
-    },
-
-    updateDepiction (observationId) {
-      const depiction = {
-        id: this.depictionMoved.id,
-        depiction_object_id: observationId || this.observationId,
-        depiction_object_type: 'Observation'
-      }
-      const observation = {
-        id: this.observationMoved,
-        depictions_attributes: [depiction]
-      }
-
-      this.$store.commit(MutationNames.SetIsSaving, true)
-
-      const request = observation.id
-        ? Observation
-          .update(observation.id, { observation, extend: ['depictions'] })
-          .then(({ body }) => {
-            const existDepiction = body.depictions.find(d => d.depiction_object_id === this.observationMoved)
-
-            if (!existDepiction) {
-              Observation.destroy(body.id)
-            }
-
-            this.$emit('addDepiction', {
-              ...this.depictionMoved,
-              ...depiction
-            })
-          })
-        : Depiction.update(depiction.id, { depiction }).then(({ body }) => {
-          this.$emit('addDepiction', body)
-        })
-
-      request.finally(() => {
-        this.depictionMoved = undefined
-        this.observationMoved = undefined
-        this.$store.commit(MutationNames.SetIsSaving, false)
-      })
-    },
-
-    setObservationDragged (event) {
-      this.depictionMoved = this.depictions[event.oldIndex]
-      this.observationMoved = this.observationId
-    },
-
-    removeDepiction (depiction) {
-      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
-        this.$store.commit(MutationNames.SetIsSaving, true)
-        Depiction.destroy(depiction.id).then(() => {
-          const index = this.depictions.findIndex(item => item.id === depiction.id)
-
-          this.$emit('removeDepiction', index)
-          this.$store.commit(MutationNames.SetIsSaving, false)
-        })
-      }
-    },
-
-    success (file, response) {
-      if (!this.existObservations) {
-        this.$refs.dropzone.setOption('url', this.dropzoneDepiction.url)
-        this.$refs.dropzone.setOption('paramName', this.dropzoneDepiction.paramName)
-      }
-
-      this.$emit('addDepiction', response.base_class === 'Depiction' ? response : response.depictions[0])
-
-      this.$refs.dropzone.removeFile(file)
-      this.isLoading = false
-    },
-
-    sending (file, xhr, formData) {
-      if (this.existObservations) {
-        formData.append('depiction[depiction_object_id]', this.observationId)
-        formData.append('depiction[depiction_object_type]', 'Observation')
-      } else {
-        formData.append('observation[descriptor_id]', this.column.id)
-        formData.append('observation[type]', 'Observation::Media')
-        formData.append('observation[observation_object_id]', this.rowObjectId)
-        formData.append('observation[observation_object_type]', this.rowObjectBaseCassParam)
-        formData.append('extend[]', 'depictions')
-      }
-
-      this.isLoading = true
-    }
+  show: {
+    type: Boolean,
+    default: true
   }
+})
+
+const emit = defineEmits(['removeDepiction', 'addDepiction'])
+
+const store = useStore()
+const dropzoneElement = ref(null)
+
+const observationMoved = computed({
+  get: () => store.getters[GetterNames.GetObservationMoved],
+  set: (value) => store.commit(MutationNames.SetObservationMoved, value)
+})
+
+const depictionMoved = computed({
+  get: () => store.getters[GetterNames.GetDepictionMoved],
+  set: (value) => store.commit(MutationNames.SetDepictionMoved, value)
+})
+
+const existObservations = computed(() => props.depictions.length > 0)
+const rowObjectId = computed(
+  () => props.rowObject.observation_object_id || props.rowObject.id
+)
+const rowObjectType = computed(
+  () => props.rowObject.observation_object_type || props.rowObject.base_class
+)
+const observationId = computed(() => {
+  const depictions = props.depictions
+
+  return depictionMoved.value
+    ? depictions.find(
+        (d) =>
+          d.depiction_object_id !== depictionMoved.value.depiction_object_id
+      )?.depiction_object_id
+    : depictions[0].depiction_object_id
+})
+
+const isLoading = ref(false)
+
+function movedDepiction(_) {
+  if (props.depictions.length === 1) {
+    const observation = {
+      descriptor_id: props.descriptorId,
+      type: OBSERVATION_MEDIA,
+      observation_object_type: rowObjectType.value,
+      observation_object_id: rowObjectId.value
+    }
+
+    store.commit(MutationNames.SetIsSaving, true)
+
+    Observation.create({ observation })
+      .then(({ body }) => {
+        store.dispatch(ActionNames.MoveDepiction, {
+          columnIndex: props.columnIndex,
+          rowIndex: props.rowIndex,
+          observationId: body.id
+        })
+      })
+      .catch(() => store.commit(MutationNames.SetIsSaving, false))
+  } else {
+    store.dispatch(ActionNames.MoveDepiction, {
+      columnIndex: props.columnIndex,
+      rowIndex: props.rowIndex,
+      observationId: observationId.value
+    })
+  }
+}
+
+function openInputFile() {
+  dropzoneElement.value.$el.click()
+}
+
+function setObservationDragged(event) {
+  depictionMoved.value = props.depictions[event.oldIndex]
+  observationMoved.value = observationId.value
+}
+
+function removeDepiction(depiction) {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
+    store.commit(MutationNames.SetIsSaving, true)
+
+    Depiction.destroy(depiction.id).then(() => {
+      const index = props.depictions.findIndex(
+        (item) => item.id === depiction.id
+      )
+
+      emit('removeDepiction', index)
+      store.commit(MutationNames.SetIsSaving, false)
+    })
+  }
+}
+
+function success(file, response) {
+  if (!existObservations.value) {
+    dropzoneElement.value.setOption('url', dropzoneDepiction.url)
+    dropzoneElement.value.setOption('paramName', dropzoneDepiction.paramName)
+  }
+
+  addDepiction(
+    response.base_class === 'Depiction' ? response : response.depictions[0]
+  )
+
+  dropzoneElement.value.removeFile(file)
+  isLoading.value = false
+}
+
+function sending(file, xhr, formData) {
+  if (existObservations.value) {
+    formData.append('depiction[depiction_object_id]', observationId.value)
+    formData.append('depiction[depiction_object_type]', 'Observation')
+  } else {
+    formData.append('observation[descriptor_id]', props.descriptorId)
+    formData.append('observation[type]', OBSERVATION_MEDIA)
+    formData.append('observation[observation_object_id]', rowObjectId.value)
+    formData.append('observation[observation_object_type]', rowObjectType.value)
+    formData.append('extend[]', 'depictions')
+  }
+
+  isLoading.value = true
+}
+
+function addDepiction(depiction) {
+  store.commit(MutationNames.AddDepiction, {
+    columnIndex: props.columnIndex,
+    rowIndex: props.rowIndex,
+    depiction
+  })
 }
 </script>
 
 <style scoped>
-  .dropzone-card {
-    align-items: stretch;
-    flex: 1
-  }
+.dropzone-card {
+  align-items: stretch;
+  flex: 1;
+}
 
-  :deep(.dz-message) {
-    margin: 1em 0 !important;
-    font-size: 16px !important;
-    display: none !important;
-  }
+:deep(.dz-message) {
+  margin: 1em 0 !important;
+  font-size: 16px !important;
+  display: none !important;
+}
 
-  .matrix-image-draggable {
-    box-sizing: content-box;
-    align-items: stretch;
-    flex: 1;
-    height: 100%;
-    cursor: pointer;
-  }
+.matrix-image-draggable {
+  box-sizing: content-box;
+  align-items: stretch;
+  flex: 1;
+  height: 100%;
+  cursor: pointer;
+}
 
-  .vue-dropzone {
-    padding: 0px !important;
-    min-width: 100px;
-    cursor: pointer !important;
-    align-items: stretch;
-    flex: 1;
-  }
+.vue-dropzone {
+  padding: 0px !important;
+  min-width: 100px;
+  cursor: pointer !important;
+  align-items: stretch;
+  flex: 1;
+}
 
-  .dropzone {
-    height: 100%;
-  }
+.dropzone {
+  height: 100%;
+}
 
-  .image-draggable {
-    cursor: pointer;
-  }
+.image-draggable {
+  cursor: pointer;
+}
 
-  :deep(.dz-preview) {
-    display: none !important;
-  }
-
+:deep(.dz-preview) {
+  display: none !important;
+}
 </style>

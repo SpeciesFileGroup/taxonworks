@@ -43,6 +43,12 @@ module CollectionObject::DwcExtensions
       dateIdentified: :dwc_date_identified,
       nomenclaturalCode: :dwc_nomenclatural_code,
       kingdom: :dwc_kingdom,
+
+      phylum: :dwc_phylum,
+      dwcClass: :dwc_class,
+      order: :dwc_order,
+      higherClassification: :dwc_higher_classification,
+
       family: :dwc_family,
       genus: :dwc_genus,
       specificEpithet: :dwc_specific_epithet,
@@ -79,10 +85,15 @@ module CollectionObject::DwcExtensions
 
       occurrenceStatus: :dwc_occurrence_status,
 
-      # TODO: move to a proper extensions
+      # TODO: move to a proper extension(?)
       associatedMedia: :dwc_associated_media,
 
+      # TODO: move to a proper extension(?)
+      associatedTaxa: :dwc_associated_taxa,
+
       occurrenceRemarks: :dwc_occurrence_remarks,
+
+      eventRemarks: :dwc_event_remarks
 
       # -- Core taxon? --
       # nomenclaturalCode
@@ -152,9 +163,18 @@ module CollectionObject::DwcExtensions
     notes.collect{|n| n.text}.join('|')
   end
 
+  def dwc_event_remarks
+    collecting_event&.notes&.collect {|n| n.text}&.join('|')
+  end
+
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
   def dwc_associated_media
     images.collect{|i| api_image_link(i) }.join(CollectionObject::DWC_DELIMITER).presence
+  end
+
+  # https://dwc.tdwg.org/terms/#dwc:associatedtaxa
+  def dwc_associated_taxa
+    dwc_internal_attribute_for(:collection_object, :associatedTaxa)
   end
 
   # TODO: likeley a helper
@@ -334,8 +354,28 @@ module CollectionObject::DwcExtensions
     current_taxon_determination&.date.presence
   end
 
+  def dwc_higher_classification
+    v = taxonomy.values.collect{|a| a.kind_of?(Array) ? a.second : a}
+    v.shift
+    v.pop
+    v.compact
+    v.join(CollectionObject::DWC_DELIMITER)
+  end
+
   def dwc_kingdom
     taxonomy['kingdom']
+  end
+
+  def dwc_phylum
+    taxonomy['phylum']
+  end
+
+  def dwc_class
+    taxonomy['class']
+  end
+
+  def dwc_order
+    taxonomy['order']
   end
 
   # http://rs.tdwg.org/dwc/terms/family
@@ -459,11 +499,11 @@ module CollectionObject::DwcExtensions
     %w{start_time end_time}
       .map { |t| %w{hour minute second}
       .map { |p| collecting_event["#{t}_#{p}"] }
-      .map { |p| "%02d" % p if p } # At least two digits
+      .map { |p| '%02d' % p if p } # At least two digits
       }
         .map { |t| t.compact.join(':') }
         .reject(&:blank?)
-        .join("/").presence
+        .join('/').presence
   end
 
   def dwc_verbatim_event_date
@@ -476,11 +516,11 @@ module CollectionObject::DwcExtensions
     %w{start_date end_date}
       .map { |d| %w{year month day}
       .map { |p| collecting_event["#{d}_#{p}"] }
-      .map { |p| "%02d" % p if p } # At least two digits
+      .map { |p| '%02d' % p if p } # At least two digits
       }
         .map { |d| d.compact.join('-') }
         .reject(&:blank?)
-        .join("/").presence
+        .join('/').presence
   end
 
   def dwc_year

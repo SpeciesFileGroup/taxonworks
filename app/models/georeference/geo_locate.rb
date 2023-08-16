@@ -12,8 +12,8 @@ class Georeference::GeoLocate < Georeference
     h = {}
     super(h)
     h.merge!(
-      georeferenceSources: "GEOLocate ",
-      georeferenceRemarks: "Typically created by copy-pasting one or more values from a collecting event into a GEOLocate form.")
+      georeferenceSources: 'GEOLocate ',
+      georeferenceRemarks: 'Typically created by copy-pasting one or more values from a collecting event into a GEOLocate form.')
     h[:georeferenceProtocol] = 'Generated via a query through the GEOLocate web interface' if h[:georeferenceProtocol].blank?
     h
   end
@@ -32,7 +32,7 @@ class Georeference::GeoLocate < Georeference
     self.geographic_item = make_geographic_point(long, lat, '0.0') unless (lat.blank? && long.blank?)
     if uncertainty_points.nil?
       # make a circle from the geographic_item
-      unless error_radius.blank?
+      if error_radius.present?
         # q1 = "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f / 111319.444444444});"
         q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Buffer(?, ?);',
                                                            self.geographic_item.geo_object.to_s,
@@ -63,7 +63,7 @@ class Georeference::GeoLocate < Georeference
     # ActiveRecord::Base.send(:sanitize_sql_array, ['polygon = ST_GeographyFromText(?)', polygon.to_s])
     test_grs = GeographicItem::Polygon.where(['polygon = ST_GeographyFromText(?)', polygon.to_s])
     if test_grs.empty?
-      test_grs = [GeographicItem.new(polygon: polygon)]
+      test_grs = [GeographicItem.new(polygon:)]
     end
     if test_grs.first.new_record?
       test_grs.first.save

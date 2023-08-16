@@ -1,113 +1,63 @@
 <template>
   <button
     type="button"
-    class="button normal-input button-submit button-size margin-small-left"
+    class="button normal-input button-submit button-size"
     :disabled="!source.id"
     v-hotkey="shortcuts"
-    @click="showModal = true"
+    @click="cloneSource"
   >
     Clone
   </button>
-  <modal-component
-    v-show="showModal"
-    @close="showModal = false"
-  >
-    <template #header>
-      <h3>Clone source</h3>
-    </template>
-    <template #body>
-      <p>
-        This will clone the current source.
-      </p>
-      <p>Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.</p>
-      <input
-        type="text"
-        class="full_width"
-        v-model="inputValue"
-        @keypress.enter.prevent="cloneSource()"
-        ref="inputtext"
-        :placeholder="`Write ${checkWord} to continue`"
-      >
-    </template>
-    <template #footer>
-      <button
-        type="button"
-        class="button normal-input button-submit button-size"
-        :disabled="!isWordTyped"
-        @click="cloneSource()"
-      >
-        Clone
-      </button>
-    </template>
-  </modal-component>
+  <ConfirmationModal ref="confirmationModal" />
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
-import ModalComponent from 'components/ui/Modal.vue'
-import platformKey from 'helpers/getPlatformKey'
+import platformKey from '@/helpers/getPlatformKey'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
 export default {
   components: {
-    ModalComponent
+    ConfirmationModal
   },
 
   computed: {
-    source () {
+    source() {
       return this.$store.getters[GetterNames.GetSource]
     },
 
-    isWordTyped () {
-      return this.inputValue.toUpperCase() === this.checkWord
-    },
-
-    shortcuts () {
+    shortcuts() {
       const keys = {}
 
-      keys[`${platformKey()}+c`] = this.openModal
+      keys[`${platformKey()}+c`] = this.cloneSource
 
       return keys
     }
   },
 
-  data () {
-    return {
-      showModal: false,
-      inputValue: '',
-      checkWord: 'CLONE'
-    }
-  },
-
-  watch: {
-    showModal: {
-      handler (newVal) {
-        if (newVal) {
-          this.$nextTick(() => {
-            this.$refs.inputtext.focus()
-          })
-        }
-      }
-    }
-  },
-
   methods: {
-    openModal () {
-      this.showModal = true
-    },
+    async cloneSource() {
+      const ok = await this.$refs.confirmationModal.show({
+        title: 'Clone source',
+        message:
+          'This will clone the current source. Are you sure you want to proceed?',
+        confirmationWord: 'CLONE',
+        okButton: 'Clone',
+        cancelButton: 'Cancel',
+        typeButton: 'submit'
+      })
 
-    cloneSource () {
-      if (!this.isWordTyped) return
-      this.$store.dispatch(ActionNames.CloneSource)
-      this.showModal = false
+      if (ok) {
+        this.$store.dispatch(ActionNames.CloneSource)
+      }
     }
   }
 }
 </script>
 
 <style scoped>
-  .button-size {
-    width: 100px;
-  }
+.button-size {
+  width: 100px;
+}
 </style>

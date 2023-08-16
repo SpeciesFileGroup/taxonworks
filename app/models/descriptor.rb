@@ -47,6 +47,13 @@ class Descriptor < ApplicationRecord
     self.name.demodulize.humanize
   end
 
+  # @return String, nil
+  #   the corresponding Observation STI class name
+  def observation_type
+    return nil if type.blank?
+    'Observation::' + type.split('::').last
+  end
+
   # @return [String] name of the descriptor in a particular language
   # @params target [Symbol] one of :key, :description, nil
   def target_name(target, language_id)

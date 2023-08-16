@@ -38,10 +38,11 @@ class PinboardItem < ApplicationRecord
   acts_as_list scope: [:project_id, :pinned_object_type, :user_id]
 
   belongs_to :user
-  belongs_to :pinned_object, polymorphic: true, validate: true
+  belongs_to :pinned_object, polymorphic: true, validate: true, inverse_of: :pinboard_items
 
   before_validation  :validate_is_cross_project
-  validates_presence_of :user_id, :pinned_object_id, :pinned_object_type
+
+  validates_presence_of :user_id, :pinned_object
   validates_uniqueness_of :user_id, scope: [ :pinned_object_id, :pinned_object_type, :project_id ]
 
   after_save :update_insertable
@@ -54,24 +55,28 @@ class PinboardItem < ApplicationRecord
     end
   end
 
+  def self.clear(klass: nil, user_id: nil, project_id: nil)
+    PinboardItem.where(user_id:, project_id:, pinned_object_type: klass).delete_all
+  end
+
   def is_inserted?
-    !is_inserted.blank?
+    is_inserted.present?
   end
 
   def is_cross_project?
-    !is_cross_project.blank?
+    is_cross_project.present?
   end
 
   protected
 
   def update_insertable
     if is_inserted?
-      r = PinboardItem.where(project_id: project_id, pinned_object_type: pinned_object_type, user_id: user_id).where.not(id: id)
+      r = PinboardItem.where(project_id:, pinned_object_type:, user_id:).where.not(id:)
       if pinned_object_type == 'ControlledVocabularyTerm'
         n = pinned_object.class.name
         r.each do |i|
           i.update_column(:is_inserted, false) if i.pinned_object.type == n
-        end 
+        end
       else
         r.update_all(is_inserted: false)
       end

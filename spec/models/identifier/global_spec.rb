@@ -4,10 +4,20 @@ describe Identifier::Global, type: :model, group: :identifiers do
   let!(:otu) { FactoryBot.create(:valid_otu) }
   let(:global_identifier) { Identifier::Global.new }
 
+  specify 'community shared 1' do
+    o = FactoryBot.create(:valid_otu)
+    i = Identifier::Global::Uri.create!(identifier_object: o, identifier: 'http://abc.net/foo/1')
+    expect(i.project_id.blank?).to be_falsey
+  end
+
+  specify 'community shared 2' do
+    o = FactoryBot.create(:valid_source)
+    i = Identifier::Global::Uri.create!(identifier_object: o, identifier: 'http://abc.net/foo/1')
+    expect(i.project_id.blank?).to be_truthy
+  end
+
   context 'validation' do
-    before {
-      global_identifier.valid?
-    }
+    before { global_identifier.valid? }
 
     specify 'only one global identifier *without* a relation is allowed per identifier type' do
       expect(otu.identifiers.create(type: 'Identifier::Global::Uri', identifier: 'http://abc.net/foo/1')).to be_truthy
@@ -20,9 +30,10 @@ describe Identifier::Global, type: :model, group: :identifiers do
     specify 'more than one global identifier with a valid relation is allowed per identifier type' do
       expect(otu.identifiers << Identifier::Global::Uri.new(identifier: 'http://abc.net/bar/22')).to be_truthy
       otu.reload
-      i = Identifier::Global::Uri.new(identifier:        'http://abc.net/bar/29',
-                                      identifier_object: otu,
-                                      relation:          'skos:closeMatch')
+      i = Identifier::Global::Uri.new(
+        identifier: 'http://abc.net/bar/29',
+        identifier_object: otu,
+        relation: 'skos:closeMatch')
       expect(i.valid?).to be_truthy
     end
 
@@ -37,9 +48,10 @@ describe Identifier::Global, type: :model, group: :identifiers do
     specify 'identifer is unique within project (same type)' do
       expect(otu.identifiers << Identifier::Global::Uri.new(identifier: 'http://abc.net/bar/22')).to be_truthy
       otu.reload
-      i = Identifier::Global::Uri.new(identifier:        'http://abc.net/bar/22',
-                                      identifier_object: otu,
-                                      relation:          'skos:closeMatch')
+      i = Identifier::Global::Uri.new(
+        identifier: 'http://abc.net/bar/22',
+        identifier_object: otu,
+        relation: 'skos:closeMatch')
       expect(i.valid?).to be_falsey
       expect(i.errors.include?(:identifier)).to be_truthy
     end
@@ -89,10 +101,11 @@ describe Identifier::Global, type: :model, group: :identifiers do
     end
 
     specify 'non-responding URI' do
-      global_identifier.identifier = 'http://sandbox.speciesfile.org/object/a9bdc16d-c9ba-4e32-9311-d5250af2b5ac'
+      global_identifier.identifier = 'https://sandbox.speciesfile.org/object/a9bdc16d-c9ba-4e32-9311-d5250af2b5ac'
       VCR.use_cassette('non-responding URI') do
         global_identifier.soft_validate(only_sets: [:resolved])
       end
+      
       expect(global_identifier.soft_validations.messages_on(:identifier).count).to eq(1)
     end
   end

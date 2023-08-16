@@ -1,4 +1,5 @@
 module TypeMaterials::CatalogHelper
+  # TODO: we should, perhaps, drive this off dwc_occurrence
 
   # Return text only, no HTML.
   # To be used in paper catalogs, this is to be human readable.
@@ -19,7 +20,12 @@ module TypeMaterials::CatalogHelper
 
     # Holotype male, adult, INHS 12312, deposited: <repoo name>. <verbatim_label>.
 
-    v.push t.type_type.capitalize + (co.total > 1 ? " (n= #{co.total})" : '')
+    if co.ranged_lot_category.present?
+      v.push t.type_type.capitalize + "(n= #{ranged_lot_range(co.ranged_lot_category)})"
+    else
+      v.push t.type_type.capitalize + (co.total > 1 ? " (n= #{co.total})" : '')
+    end
+
     v.push co.biocuration_classes.collect{|a| a.name.downcase}.join(', ').presence
 
     # TODO: add verbose warning when missing any identifier
@@ -32,12 +38,30 @@ module TypeMaterials::CatalogHelper
       v.push "deposited at: #{d}"
     else
       if verbose
-        v.push "[TODO: Repository NOT PROVIDED]"
+        v.push '[TODO: Repository NOT PROVIDED]'
       end
     end
 
-    v.push type_material_collecting_event_label(type_material.collection_object.collecting_event, verbose)
+    if l = type_material_collecting_event_label(ce, verbose)
+      v.push l
+    else
+      v.push catalog_object_locality_label(co)
+    end
+
     v.compact.join('; ')
+  end
+
+  # TODO: move to collection object catalog helper when that is developed
+  #   leverage DwC index methods
+  def catalog_object_locality_label(collection_object)
+    o = collection_object.dwc_occurrence
+    
+    [
+      o.country,
+      o.stateProvince,
+      o.county,
+      o.verbatimLocality,
+    ].compact.join(': ')
   end
 
   # @return [String]
@@ -46,9 +70,9 @@ module TypeMaterials::CatalogHelper
     missing = '[TODO: A document (preferred) or verbatim label in a collecting event must be provided]'
     if ce = collecting_event
       if ce.document_label
-        return ::Utilities::Strings.linearize(document_label)
+        return ::Utilities::Strings.linearize(ce.document_label)
       elsif ce.verbatim_label
-        return  ::Utilities::Strings.linearize(ce.verbatim_label)
+        return ::Utilities::Strings.linearize(ce.verbatim_label)
       end
     end
     verbose ? missing : nil

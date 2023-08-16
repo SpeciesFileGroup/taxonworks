@@ -22,7 +22,7 @@ module SqedDepictionsHelper
         depiction_id: sqed_depiction.depiction.id,
       )
 
-     return image_tag(result.image_path_for_large_image(section), id: 'little1', class: 'little_image clickable')
+      return image_tag(result.image_path_for_large_image(section), id: 'little1', class: 'little_image clickable')
     rescue
       return content_tag(:div, link_to('Error parsing.', depiction_path(sqed_depiction.depiction)), class: :warning)
     end
@@ -123,7 +123,7 @@ module SqedDepictionsHelper
       .with_collection_object_data
       .order('collection_objects.updated_at')
       .first
-      content_tag(:span, ('Last update by you: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success', 'feedback-thin'])
+    content_tag(:span, ('Last update by you: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success', 'feedback-thin'])
     else
       nil
     end
@@ -152,29 +152,22 @@ module SqedDepictionsHelper
       meta.unshift a
     end
 
-    c = Waxy::Render::Svg::Canvas.new(600, 400)
-    c.body << Waxy::Render::Svg.rectangle(layout, meta, 9)
+    t = sqed_depictions.size.to_f
+    rows = t.divmod(10).first + 1
+    h = ((t.divmod(10).first + 1) * 40.0) 
+
+    c = Waxy::Render::Svg::Canvas.new(520, h.to_i)
+    c.body << Waxy::Render::Svg.rectangle(layout, meta, 9, rows )
     c.to_svg.html_safe
   end
 
-  # @return Array lenght 6
-  def sqed_waxy_metadata(sqed_depiction)
-    o = sqed_depiction.depiction_object
-    [
-      (o.identifiers.any? ? 1 : 0),
-      (o.buffered_collecting_event.blank? ? 0 : 1),
-      (o.buffered_determinations.blank? ? 0 : 1),
-      (o.buffered_other_labels.blank? ? 0 : 1),
-      (o.collecting_event_id ? 1 : 0),
-      (o.taxon_determinations.any? ? 1 : 0)
-    ]
-  end
+
 
   def sqed_waxy_legend_section_tag(position, label)
     layout = Waxy::Geometry::Layout.new(
       Waxy::Geometry::Orientation::LAYOUT_POINTY,
-      Waxy::Geometry::Point.new(15,15), # size
-      Waxy::Geometry::Point.new(15,15), # start
+      Waxy::Geometry::Point.new(10,10), # size
+      Waxy::Geometry::Point.new(10,10), # start
     )
 
     a = Waxy::Meta.new
@@ -185,28 +178,40 @@ module SqedDepictionsHelper
     c = Waxy::Render::Svg::Canvas.new(35, 35)
     c.body << Waxy::Render::Svg.rectangle(layout, meta)
 
-    content_tag(:figure) do
+    tag.figure do
       c.to_svg.html_safe +
-        content_tag(:figcaption, label)
+        tag.figcaption(label)
     end
+  end
+
+  # @return Array
+  def sqed_waxy_metadata(sqed_depiction)
+    o = sqed_depiction.depiction_object
+    [
+      (o.identifiers.local.any? ? 1 : 0),
+      (o.buffered_collecting_event.blank? ? 0 : 1),
+      (o.buffered_determinations.blank? ? 0 : 1),
+      (o.buffered_other_labels.blank? ? 0 : 1),
+      (o.collecting_event_id ? 1 : 0),
+      (o.taxon_determinations.any? ? 1 : 0)
+    ]
   end
 
   def sqed_waxy_legend_tag
     l = ''
-    {
-      0 => 'Identifier(s)',
-      1 => 'Buffered collecting event',
-      2 => 'Buffered determination',
-      3 => 'Buffered other labels',
-      4 => 'Collecting event',
-      5 => 'Taxon determination(s)'
-    }.each do |i,label|
-      l << sqed_waxy_legend_section_tag(i, label)
+    [
+      [ 0, 'Local identifier(s)' ],
+      [ 1, 'Buffered collecting event' ],
+      [ 2, 'Buffered determination' ],
+      [ 3, 'Buffered other labels' ],
+      [ 4, 'Collecting event' ],
+      [ 5, 'Taxon determination(s)']
+    ].each do |a|
+      l << sqed_waxy_legend_section_tag(a[0], a[1])
     end
-    content_tag(:div) do
-      content_tag(:h3, 'Legend') +
-        content_tag(:p, content_tag(:em, 'Triangle indicates data presence')) +
-        content_tag(:div, l.html_safe)
+    tag.div do
+      tag.h3('Legend') +
+        l.html_safe
     end
   end
 

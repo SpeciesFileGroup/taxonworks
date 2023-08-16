@@ -8,7 +8,8 @@
     <div
       v-help.section.status
       :class="{ [status]: status }"
-      class="header flex-separate middle">
+      class="header flex-separate middle"
+    >
       <div>
         <h3 class="section-title">{{ title }}</h3>
         <slot name="title" />
@@ -42,7 +43,7 @@
 </template>
 
 <script>
-import SpinnerComponent from 'components/spinner'
+import SpinnerComponent from '@/components/spinner'
 export default {
   components: {
     SpinnerComponent
@@ -74,12 +75,12 @@ export default {
   emits: ['menu'],
 
   computed: {
-    linkName () {
+    linkName() {
       return this.name || this.title
     }
   },
 
-  data () {
+  data() {
     return {
       hidden: false
     }
@@ -87,44 +88,44 @@ export default {
 }
 </script>
 <style scoped>
-  .option-box {
-    position: relative;
-    width: 24px;
-    height: 24px;
-    margin:0 auto;
-    margin-left: 4px;
-    padding: 0px;
-    background-position: center;
-    background-size: 14px;
-    border: 0px;
-  }
-  .hamburger-menu {
-    position: absolute;
-    left:50%;
-    top:50%;
-    transform: translate(-50%, -50%);
-  }
-  .hamburger-menu-bar {
-    width: 14px;
-    height: 2px;
-    background-color: #FFFFFF;
-    border-radius: 2px;
-    margin: 2px 0;
-  }
+.option-box {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  margin: 0 auto;
+  margin-left: 4px;
+  padding: 0px;
+  background-position: center;
+  background-size: 14px;
+  border: 0px;
+}
+.hamburger-menu {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.hamburger-menu-bar {
+  width: 14px;
+  height: 2px;
+  background-color: #ffffff;
+  border-radius: 2px;
+  margin: 2px 0;
+}
 
-  .unknown {
-    border-left-color: #bbbbbb;
-  }
+.unknown {
+  border-left-color: #bbbbbb;
+}
 
-  .stable {
-    border-left-color: #fdbd41;
-  }
+.stable {
+  border-left-color: #fdbd41;
+}
 
-  .prototype {
-    border-left-color: #fc615d;
-  }
+.prototype {
+  border-left-color: #fc615d;
+}
 
-  .basic-information {
-    border-top-left-radius: 0px;
-  }
+.basic-information {
+  border-top-left-radius: 0px;
+}
 </style>

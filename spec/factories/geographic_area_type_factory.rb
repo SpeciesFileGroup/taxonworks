@@ -1,5 +1,7 @@
-# Read about factories at https://github.com/thoughtbot/factory_bot
 
+# TODO: Create a YAML file (use a rake task to re/generate) and pre-load all types so 
+# that they are identical to the production constants 
+# we use.
 FactoryBot.define do
 
   trait :planet_gat do

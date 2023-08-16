@@ -1,77 +1,88 @@
 module Queries
-  module AlternateValue 
+  module AlternateValue
+    class Filter < Query::Filter
 
-    # !! does not inherit from base query
-    class Filter 
+      include Queries::Helpers
+      include Concerns::Polymorphic
+      polymorphic_klass(::AlternateValue)
 
-      # General annotator options handling 
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      attr_accessor :options
+      PARAMS = [
+        *::AlternateValue.related_foreign_keys.map(&:to_sym),
+        :alternate_value_id,
+        :value,
+        :language_id,
+        :type,
+        :alternate_value_object_attribute,
+        alternate_value_id: []
+      ].freeze
+
+      # @return [Array]
+      attr_accessor :alternate_value_id
 
       # Params specific to AlternateValue
       attr_accessor :value, :language_id, :type, :alternate_value_object_attribute
 
       # @params params [ActionController::Parameters]
-      def initialize(params)
-        @value = params[:value]
+      def initialize(query_params)
+        super
+        @alternate_value_id = params[:alternate_value_id]
+        @alternate_value_object_attribute = params[:alternate_value_object_attribute]
         @language_id = params[:language_id]
         @type = params[:type]
-        @alternate_value_object_attribute = params[:alternate_value_object_attribute]
-        @options = params 
+        @value = params[:value]
+        set_polymorphic_params(params)
       end
 
-      # @return [ActiveRecord::Relation]
+      def alternate_value_id
+        [@alternate_value_id].flatten.compact
+      end
+
+      def ignores_project?
+        ::AlternateValue::ALWAYS_COMMUNITY.include?( polymorphic_type )
+      end
+
+      def community_project_id_facet
+        return nil if project_id.empty?
+        if !ignores_project?
+          return table[:project_id].eq_any(project_id)
+        end
+        nil
+      end
+
+      def project_id_facet
+        nil
+      end
+
+      def value_facet
+        return nil if value.blank?
+        table[:value].eq(value)
+      end
+
+      def language_id_facet
+        return nil if language_id.blank?
+        table[:language_id].eq(language_id)
+      end
+
+      def type_facet
+        return nil if type.blank?
+        table[:type].eq(type)
+      end
+
+      # @return [Arel::Node, nil]
+      def alternate_value_object_attribute_facet
+        alternate_value_object_attribute.blank? ? nil : table[:alternate_value_object_attribute].eq(alternate_value_object_attribute)
+      end
+
       def and_clauses
-        clauses = [
-          Queries::Annotator.annotator_params(options, ::AlternateValue),
-          matching_value,
-          matching_language_id,
-          matching_type,
-          matching_alternate_value_object_attribute
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+        [
+          value_facet,
+          language_id_facet,
+          type_facet,
+          alternate_value_object_attribute_facet,
+          community_project_id_facet,
+        ]
       end
 
-      # @return [Arel::Node, nil]
-      def matching_value
-        value.blank? ? nil : table[:value].eq(value) 
-      end
-
-      # @return [Arel::Node, nil]
-      def matching_language_id
-        language_id.blank? ? nil : table[:language_id].eq(language_id) 
-      end
-
-      # @return [Arel::Node, nil]
-      def matching_type
-        type.blank? ? nil : table[:type].eq(type) 
-      end
-
-      # @return [Arel::Node, nil]
-      def matching_alternate_value_object_attribute
-        alternate_value_object_attribute.blank? ? nil : table[:alternate_value_object_attribute].eq(alternate_value_object_attribute) 
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::AlternateValue.where(and_clauses)
-        else
-          ::AlternateValue.none
-        end
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::AlternateValue.arel_table
-      end
     end
   end
 end

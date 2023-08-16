@@ -21,10 +21,16 @@ module ObservationMatrices::Export::NexmlHelper
                 if cs.depictions.load.any?
                   xml.state(id: "cs#{cs.id}", label: cs.target_name(:key, nil), symbol: "#{i}") do
                     cs.depictions.each do |d|
+                      img = d.image
+                      if img.image_file_content_type == 'image/tiff'
+                        href = img.image_file.url(:medium)
+                      else
+                        href = img.image_file.url(:original)
+                      end
                       xml.meta(
                         'xsi:type' => 'ResourceMeta',
                         'rel' => 'foaf:depiction',
-                        'href' => image_short_url(d.image), # see app/helpers/images_helper.rb
+                        'href' => short_url(href), # see app/helpers/images_helper.rb
                         'label' => c.target_name(:description, nil) + ' ' + cs.target_name(:description, nil)
                       )
                     end
@@ -100,7 +106,7 @@ module ObservationMatrices::Export::NexmlHelper
     q = m.observation_matrix_rows.order('observation_matrix_rows.position').collect{|i| i.observation_index } # could pluck this string concat from the db
 
     xml.matrix do
-      m.observation_matrix_rows.each do |r|
+      m.observation_matrix_rows.order('observation_matrix_rows.position').each do |r|
         xml.row(id: "multistate_row#{r.id}", otu: "row_#{r.id}") do |row| # use row_id to uniquely identify the row, Otu#id to uniquely id the row Otu
 
           # cell representation
@@ -149,10 +155,10 @@ module ObservationMatrices::Export::NexmlHelper
     # the matrix
     cells = m.observations_in_grid({})[:grid]
 
-    z = m.observation_matrix_rows.collect{|i| i.observation_index }
+    z = m.observation_matrix_rows.order('observation_matrix_rows.position').collect{|i| i.observation_index }
 
     xml.matrix do |mx|
-      m.observation_matrix_rows.each do |o|
+      m.observation_matrix_rows.order('observation_matrix_rows.position').each do |o|
         xml.row(id: "continuous_row#{o.id}", otu: "row_#{o.id}") do |r| # use Otu#id to uniquely id the row
 
           # cell representation
@@ -181,7 +187,7 @@ module ObservationMatrices::Export::NexmlHelper
       id: "otu_block_#{m.id}",
       label: "Otus for matrix #{m.name}"
     ) do
-      m.observation_matrix_rows.each do |r|
+      m.observation_matrix_rows.order('observation_matrix_rows.position').each do |r|
         xml.otu(
           id: "row_#{r.id}",
           about: "#row_#{r.id}", # technically only need this for proper RDFa extraction  !!! Might need this to be different, is it about row, or row object!
@@ -194,7 +200,13 @@ module ObservationMatrices::Export::NexmlHelper
           # * It draws images and data from all matrices, # not just this one
           # * Depictions are on Observation::Media, not OTU, i.e. we could be more granular throughout
           # * Citations are on Image, not Depiction
-          im = Tools::ImageMatrix.new(project_id: r.project_id, otu_filter: r.otu_id.to_s)
+
+          if r.observation_object_type == 'Otu'
+            otu_id = r.observation_object_id.to_s
+          else
+            otu_id = r.current_otu.id.to_s
+          end
+          im = Tools::ImageMatrix.new(project_id: r.project_id, otu_filter: otu_id)
           descriptors = im.list_of_descriptors.values
           if !im.blank? && !im.depiction_matrix.empty?
             object = im.depiction_matrix.first
@@ -212,11 +224,16 @@ module ObservationMatrices::Export::NexmlHelper
                 lbl.push(attribution_nexml_label(img_attr)) unless img_attr.nil?
                 lbl = lbl.compact.join('; ')
 
+                if im.image_hash[depiction[:image_id]][:image_file_content_type] == 'image/tiff'
+                  href = im.image_hash[depiction[:image_id]][:medium_url]
+                else
+                  href = im.image_hash[depiction[:image_id]][:original_url]
+                end
                 xml.meta(
                   'xsi:type' => 'ResourceMeta',
                   'rel' => 'foaf:depiction',
                   'about' => "row_#{r.id}",
-                  'href' => image_short_url( im.image_hash[depiction[:image_id]][:original_url] ),
+                  'href' => short_url(href),
                   'label' => lbl
                   #'object' => object[1][:object].otu_name,
                   #'label' => descriptors[index][:name], ###
@@ -236,7 +253,7 @@ module ObservationMatrices::Export::NexmlHelper
                 'xsi:type' => 'ResourceMeta',
                 'rel' => 'foaf:depiction',
                 'about' => "row_#{r.id}",
-                'href' => short_url(d.image.image_file.url),  #  root_url + im.image_hash[depiction[:image_id]][:original_url],
+                'href' => short_url(d.image.image_file.url),  #  root_url + im.image_hash[depiction[:image_id]][:original],
                 # 'object' => observation_matrix_row_label_nexml(r), # label_for_otu(o) #  o.otu.otu_name, #  object[1][:object].otu_name,  -- redundant with label=""
                 'description' => dscr, #  descriptors[index][:name],
                 'label' => lbl, # epiction[:figure_label],
@@ -274,6 +291,7 @@ module ObservationMatrices::Export::NexmlHelper
 
   #
   # NOT USED - current using inline approach to handle depictions
+=begin
   def nexml_otu_depictions(options = {})
     opt = {target:  '', descriptors: []}.merge!(options)
     xml = Builder::XmlMarkup.new(target: opt[:target])
@@ -284,7 +302,7 @@ module ObservationMatrices::Export::NexmlHelper
       otu_filter: m.otus.pluck(:id).join('|'),
       per: 1000000)
     descriptors = im.list_of_descriptors.values
-    row_hash = m.observation_matrix_rows.map{|i| [i.otu_id, i.id]}.to_h
+    row_hash = m.observation_matrix_rows.order('observation_matrix_rows.position').map{|i| [i.otu_id, i.id]}.to_h
 
     xml.otu_depictions do |d|
       im.depiction_matrix.each do |object|
@@ -295,7 +313,7 @@ module ObservationMatrices::Export::NexmlHelper
               'xsi:type' => 'ResourceMeta',
               'rel' => 'foaf:depiction',
               'about' => "row_#{row_hash[object[1][:otu_id].to_i].to_s}",
-              'href' => root_url + im.image_hash[depiction[:image_id]][:original_url],
+              'href' => root_url + im.image_hash[depiction[:image_id]][:original],
               'object' => object[1][:object].otu_name,
               'description' => descriptors[index][:caption],
               'label' => depiction[:figure_label],
@@ -307,7 +325,7 @@ module ObservationMatrices::Export::NexmlHelper
     end
     return opt[:target]
   end
-
+=end
 
   # TODO: if semantics change we can add them as block later.
   # This is just character state depictions for now.
@@ -325,11 +343,17 @@ module ObservationMatrices::Export::NexmlHelper
           label:  "Character state depictions for matrix #{m.name}"
         ) do
           ::Depiction.joins(image: [:character_states]).merge(m.character_states).each do |d|
+            img = d.image
+            if img.image_file_content_type == 'image/tiff'
+              href = img.image_file.url(:medium)
+            else
+              href = img.image_file.url(:original)
+            end
             xml.meta(
               'xsi:type' => 'ResourceMeta',
               'rel' => 'foaf:depiction',
               'about' => "cs#{d.depiction_object_id}",
-              'href' => short_url(d.image.image_file.url(:original)) # root_url + d.image.image_file.url(:original)[1..-1]
+              'href' => short_url(href)
             )
           end
         end

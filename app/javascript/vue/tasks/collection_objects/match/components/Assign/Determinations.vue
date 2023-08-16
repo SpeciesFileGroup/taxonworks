@@ -15,10 +15,9 @@
 </template>
 
 <script>
-
-import ListComponent from 'components/displayList'
-import TaxonDeterminationForm from 'components/TaxonDetermination/TaxonDeterminationForm.vue'
-import { TaxonDetermination } from 'routes/endpoints'
+import ListComponent from '@/components/displayList'
+import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
+import { TaxonDetermination } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -34,12 +33,12 @@ export default {
   },
 
   computed: {
-    validateCreation () {
+    validateCreation() {
       return this.ids.length && this.taxon_determinations.length
     }
   },
 
-  data () {
+  data() {
     return {
       taxon_determinations: [],
       isSaving: false
@@ -47,37 +46,48 @@ export default {
   },
 
   methods: {
-    addDetermination (taxonDetermination) {
-      if (this.taxon_determinations.find((determination) => determination.otu_id === taxonDetermination.otu_id)) { return }
+    addDetermination(taxonDetermination) {
+      if (
+        this.taxon_determinations.find(
+          (determination) => determination.otu_id === taxonDetermination.otu_id
+        )
+      ) {
+        return
+      }
       this.taxon_determinations.push(taxonDetermination)
 
       this.createTaxonDeterminations()
     },
 
-    createTaxonDeterminations (position = 0) {
+    createTaxonDeterminations(position = 0) {
       const promises = []
 
       if (position < this.ids.length) {
-        this.taxon_determinations.forEach(determination => {
+        this.taxon_determinations.forEach((determination) => {
           determination.biological_collection_object_id = this.ids[position]
-          promises.push(TaxonDetermination.create({ taxon_determination: determination }))
+          promises.push(
+            TaxonDetermination.create({ taxon_determination: determination })
+          )
         })
         position++
       }
 
-      Promise.allSettled(promises).then(response => {
+      Promise.allSettled(promises).then((response) => {
         if (position < this.ids.length) {
           this.createTaxonDeterminations(position)
         } else {
           this.isSaving = false
           if (this.taxon_determinations.length) {
-            TW.workbench.alert.create('Taxon determinations was successfully created.', 'notice')
+            TW.workbench.alert.create(
+              'Taxon determinations was successfully created.',
+              'notice'
+            )
           }
         }
       })
     },
 
-    removeTaxonDetermination (index) {
+    removeTaxonDetermination(index) {
       this.taxon_determinations.splice(index, 1)
     }
   }

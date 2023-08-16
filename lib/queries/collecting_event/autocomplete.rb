@@ -1,6 +1,6 @@
 module Queries
   module CollectingEvent
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       include ::Queries::Concerns::DateRanges
       include ::Queries::Concerns::Roles
@@ -9,10 +9,6 @@ module Queries
       # @params [Hash] args
       def initialize(string, project_id: nil)
         super
-      end
-
-      def base_query
-        ::CollectingEvent.select('collecting_events.*')
       end
 
       def autocomplete_verbatim_label_md5
@@ -105,7 +101,7 @@ module Queries
         updated_queries = []
 
         queries.each_with_index do |q ,i|
-          a = q.where(project_id: project_id) if project_id
+          a = q.where(project_id:) if project_id.present?
           a ||= q
           updated_queries[i] = a
         end
@@ -117,11 +113,6 @@ module Queries
           break if result.count > 29
         end
         result[0..39]
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::CollectingEvent.arel_table
       end
 
     end

@@ -6,7 +6,8 @@
         <tr>
           <th
             v-for="header in PROPERTIES"
-            :key="header">
+            :key="header"
+          >
             {{ humanize(header) }}
           </th>
           <th>Is public</th>
@@ -16,10 +17,12 @@
       <tbody>
         <tr
           v-for="(item, index) in useState.downloadList"
-          :key="item.id">
+          :key="item.id"
+        >
           <td
             v-for="property in PROPERTIES"
-            :key="property">
+            :key="property"
+          >
             {{ item[property] }}
           </td>
           <td>
@@ -27,7 +30,7 @@
               type="checkbox"
               :checked="item.is_public"
               @click="setIsPublic(item, index)"
-            >
+            />
           </td>
           <td>
             <v-btn
@@ -36,11 +39,7 @@
               :disabled="!item.ready"
               @click="downloadFile(item.file_url)"
             >
-              {{
-                item.ready
-                  ? 'Download'
-                  : 'Processing...'
-              }}
+              {{ item.ready ? 'Download' : 'Processing...' }}
             </v-btn>
           </td>
         </tr>
@@ -49,12 +48,11 @@
   </div>
 </template>
 <script setup>
-
 import { inject, onBeforeMount, watch } from 'vue'
-import { DOWNLOAD_DWC_ARCHIVE } from 'constants/index.js'
-import { Download } from 'routes/endpoints'
-import { humanize } from 'helpers/strings'
-import VBtn from 'components/ui/VBtn/index.vue'
+import { DOWNLOAD_DWC_ARCHIVE } from '@/constants/index.js'
+import { Download } from '@/routes/endpoints'
+import { humanize } from '@/helpers/strings'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const DEFAULT_WAIT_TIME = 60000
 const TIME_BY_RECORDS = {
@@ -73,10 +71,12 @@ const useState = inject('state')
 const useAction = inject('actions')
 const timeoutDownloadIds = []
 
-const refreshDownloadList = list => {
-  const notReadyList = list.filter(item => !item.ready && !timeoutDownloadIds.includes(item.id))
+const refreshDownloadList = (list) => {
+  const notReadyList = list.filter(
+    (item) => !item.ready && !timeoutDownloadIds.includes(item.id)
+  )
 
-  notReadyList.forEach(record => {
+  notReadyList.forEach((record) => {
     const timeRequest = getTimeByTotal(record.total_records)
 
     timeoutDownloadIds.push(record.id)
@@ -87,8 +87,12 @@ const refreshDownloadList = list => {
 const refreshDownloadRecord = async (record, timeRequest) => {
   Download.find(record.id).then(({ body }) => {
     if (body.ready) {
-      const index = useState.downloadList.findIndex(item => item.id === record.id)
-      const timeoutIndex = timeoutDownloadIds.findIndex(id => id === record.id)
+      const index = useState.downloadList.findIndex(
+        (item) => item.id === record.id
+      )
+      const timeoutIndex = timeoutDownloadIds.findIndex(
+        (id) => id === record.id
+      )
 
       useAction.setDownloadRecord({ index, record: body })
       timeoutDownloadIds.splice(timeoutIndex, 1)
@@ -98,8 +102,10 @@ const refreshDownloadRecord = async (record, timeRequest) => {
   })
 }
 
-const getTimeByTotal = recordTotal => {
-  const maxRecord = Object.keys(TIME_BY_RECORDS).find(recordCount => recordTotal < recordCount)
+const getTimeByTotal = (recordTotal) => {
+  const maxRecord = Object.keys(TIME_BY_RECORDS).find(
+    (recordCount) => recordTotal < recordCount
+  )
 
   return TIME_BY_RECORDS[maxRecord] || DEFAULT_WAIT_TIME
 }
@@ -118,21 +124,29 @@ const setIsPublic = ({ id, is_public }, index) => {
   })
 }
 
-const downloadFile = url => { window.open(url) }
+const downloadFile = (url) => {
+  window.open(url)
+}
 
-const sortByDate = list => list.sort((a, b) => {
-  const dateA = new Date(a.created_at).getTime()
-  const dateB = new Date(b.created_at).getTime()
+const sortByDate = (list) =>
+  list.sort((a, b) => {
+    const dateA = new Date(a.created_at).getTime()
+    const dateB = new Date(b.created_at).getTime()
 
-  return dateB - dateA
-})
+    return dateB - dateA
+  })
 
-watch(() => useState.downloadList, list => {
-  refreshDownloadList(list)
-}, { deep: true })
+watch(
+  () => useState.downloadList,
+  (list) => {
+    refreshDownloadList(list)
+  },
+  { deep: true }
+)
 
 onBeforeMount(async () => {
-  useState.downloadList = sortByDate((await Download.where({ download_type: DOWNLOAD_DWC_ARCHIVE })).body)
+  useState.downloadList = sortByDate(
+    (await Download.where({ download_type: DOWNLOAD_DWC_ARCHIVE })).body
+  )
 })
-
 </script>

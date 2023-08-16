@@ -1,7 +1,7 @@
 module Queries
-  module AssertedDistribution 
-    class Autocomplete < Queries::Query
-      
+  module AssertedDistribution
+    class Autocomplete < Query::Autocomplete
+
       def initialize(string, project_id: nil)
         super
       end
@@ -9,8 +9,8 @@ module Queries
       def otu_table
         ::Otu.arel_table
       end
-      
-      def taxon_name_table 
+
+      def taxon_name_table
         ::TaxonName.arel_table
       end
 
@@ -20,10 +20,6 @@ module Queries
 
       def source_table
         ::Source.arel_table
-      end
-
-      def base_query
-        ::AssertedDistribution.select('asserted_distributions.*')
       end
 
       def autocomplete_matching_otu_name
@@ -46,8 +42,8 @@ module Queries
       # @return [Array]
       def autocomplete
         queries = [
-          autocomplete_matching_source, 
-          autocomplete_matching_otu_name, 
+          autocomplete_matching_source,
+          autocomplete_matching_otu_name,
           autocomplete_matching_taxon_name,
           autocomplete_matching_geographic_area,
         ]
@@ -58,7 +54,7 @@ module Queries
         updated_queries = []
 
         queries.each_with_index do |q ,i|
-          a = q.where(asserted_distributions: {project_id: project_id})
+          a = q.where(asserted_distributions: {project_id:})
           updated_queries[i] = a
         end
 

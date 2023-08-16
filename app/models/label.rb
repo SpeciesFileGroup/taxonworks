@@ -37,7 +37,7 @@ class Label < ApplicationRecord
   include Shared::PolymorphicAnnotator
   include Shared::IsData
 
-  polymorphic_annotates('label_object')
+  polymorphic_annotates('label_object', presence_validate: false)
 
   ignore_whitespace_on(:text)
 
@@ -50,6 +50,10 @@ class Label < ApplicationRecord
   validates_presence_of :text, :total
 
   scope :unprinted, -> { where(is_printed: false) }
+
+  def is_generated?
+    false
+  end
 
   protected
 

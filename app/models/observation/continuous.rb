@@ -6,7 +6,8 @@ class Observation::Continuous < Observation
     message: "'%{value}' is not a valid unit" }, allow_nil: true
 
   validate :units_compatible
-  validates_uniqueness_of :descriptor_id, scope: [:continuous_value, :observation_object_id, :observation_object_type, :continuous_unit], message: 'the observation already exists'
+
+  validates_uniqueness_of :continuous_value, scope: [:descriptor_id, :observation_object_id, :observation_object_type, :continuous_unit], message: 'the observation already exists'
 
   # @return [Unit]
   #  and instance of ruby-unit

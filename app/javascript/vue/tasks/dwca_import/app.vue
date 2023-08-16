@@ -3,25 +3,25 @@
     <spinner-component
       :full-screen="true"
       legend="Loading records..."
-      v-if="isLoading"/>
+      v-if="isLoading"
+    />
     <h1>DwC-A Workbench</h1>
     <template v-if="dataset.id">
       <div class="position-relative">
-        <navbar-component/>
-        <request-import/>
-        <table-component v-if="!disableStatus.includes(dataset.status)"/>
+        <navbar-component />
+        <request-import />
+        <table-component v-if="!disableStatus.includes(dataset.status)" />
       </div>
-      <import-running/>
+      <import-running />
     </template>
     <template v-else>
-      <new-import @onCreate="loadDataset($event.id)"/>
-      <import-list @onSelect="loadDataset"/>
+      <new-import @onCreate="loadDataset($event.id)" />
+      <import-list @onSelect="loadDataset" />
     </template>
   </div>
 </template>
 
 <script>
-
 import NewImport from './components/NewImport'
 import ImportList from './components/ImportList'
 import TableComponent from './components/table'
@@ -33,7 +33,7 @@ import { ActionNames } from './store/actions/actions'
 import RequestImport from './components/RequestImport'
 import { disableStatus } from './const/datasetStatus'
 
-import SpinnerComponent from 'components/spinner'
+import SpinnerComponent from '@/components/spinner'
 
 export default {
   name: 'DWCImporter',
@@ -50,88 +50,99 @@ export default {
 
   computed: {
     datasetRecords: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetDatasetRecords]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetDatasetRecords, value)
       }
     },
 
-    dataset () {
+    dataset() {
       return this.$store.getters[GetterNames.GetDataset]
     },
 
     pagination: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetPagination]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetPagination, value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       isLoading: false,
       disableStatus: Object.keys(disableStatus)
     }
   },
 
-  mounted () {
-    const ID = new URLSearchParams(window.location.search).get('import_dataset_id')
+  mounted() {
+    const ID = new URLSearchParams(window.location.search).get(
+      'import_dataset_id'
+    )
     if (ID) {
       this.loadDataset(ID)
     }
-    document.addEventListener('turbolinks:load', () => { window.removeEventListener('scroll', this.checkScroll) })
+    document.addEventListener('turbolinks:load', () => {
+      window.removeEventListener('scroll', this.checkScroll)
+    })
     window.addEventListener('scroll', this.checkScroll)
   },
 
   methods: {
-    loadDataset (id) {
+    loadDataset(id) {
       this.$store.dispatch(ActionNames.LoadDataset, id).then(() => {
         this.$store.dispatch(ActionNames.LoadDatasetRecords)
       })
     },
-    checkScroll () {
-      const bottomOfTable = (document.documentElement.scrollTop + window.innerHeight) >= document.documentElement.offsetHeight
+    checkScroll() {
+      const bottomOfTable =
+        document.documentElement.scrollTop + window.innerHeight >=
+        document.documentElement.offsetHeight
 
       if (bottomOfTable && this.dataset.id) {
-        if (this.pagination.nextPage && this.pagination.nextPage > this.pagination.paginationPage) {
-          this.$store.dispatch(ActionNames.LoadDatasetRecords, this.pagination.nextPage)
+        if (
+          this.pagination.nextPage &&
+          this.pagination.nextPage > this.pagination.paginationPage
+        ) {
+          this.$store.dispatch(
+            ActionNames.LoadDatasetRecords,
+            this.pagination.nextPage
+          )
         }
       }
     },
-    unselectAll () {
+    unselectAll() {
       this.selectedIds = []
     }
   }
 }
 </script>
 <style lang="scss">
-  #vue-task-dwca-import-new {
-    .column-filter {
-      .filter-container {
-        min-width: 200px;
-        left:0;
-        position: absolute;
-      }
-      .vue-autocomplete-input {
-        width: 200px;
-      }
+#vue-task-dwca-import-new {
+  .column-filter {
+    .filter-container {
+      min-width: 200px;
+      left: 0;
+      position: absolute;
     }
-
-    .modal-mask {
-      z-index: 2102;
+    .vue-autocomplete-input {
+      width: 200px;
     }
   }
 
-  .dwc-table-help {
-    td {
-      color: initial;
-    }
-    font-weight: normal;
+  .modal-mask {
+    z-index: 2102;
   }
+}
 
+.dwc-table-help {
+  td {
+    color: initial;
+  }
+  font-weight: normal;
+}
 </style>

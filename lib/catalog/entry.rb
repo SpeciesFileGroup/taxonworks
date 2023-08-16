@@ -4,7 +4,7 @@
 # !! or `build` may not inherit correctly (would otherwise need to be above `def initialize`
 class Catalog::Entry
 
-  # The target object for this entry
+  # The target object(s) for this entry
   attr_accessor :object
 
   # @return [Array]
@@ -43,7 +43,7 @@ class Catalog::Entry
   end
 
   # Redefined in subclasses!
-  # !! This is default only, it should be defined in subclasses.
+  # !! This is default only, it should be (re)defined in subclasses.
   def build
     @items << Catalog::EntryItem.new(object: object, citation: object.origin_citation)
     true
@@ -131,13 +131,13 @@ class Catalog::Entry
     [dates.first, dates.last].compact
   end
 
-  # @return [Scope]
+  # @return [Array]
   def dates
     @dates ||= all_dates
     @dates
   end
 
-  # @return [Scope]
+  # @return [Array]
   def sources
     @sources ||= all_sources
     @sources
@@ -176,13 +176,18 @@ class Catalog::Entry
   protected
 
   # @return [Array of Source]
+  #
+  # Here .source is item.source, not item.object.source, i.e.
+  # it comes from a specific citation, not one of many citations
+  # for the object.
+  #
   # !! Redefined in some subclasses
   def all_sources
-    items.collect{|i| i.source} || []
+    items.collect{|i| i.source}.compact
   end
 
   def all_citations
-    items.map(&:citation) || []
+    items.map(&:citation).compact
   end
 
   # @return [Array]
@@ -212,3 +217,4 @@ end
 
 require_dependency Rails.root.to_s + '/lib/catalog/nomenclature/entry.rb'
 require_dependency Rails.root.to_s + '/lib/catalog/otu/entry.rb'
+require_dependency Rails.root.to_s + '/lib/catalog/distribution/entry.rb'

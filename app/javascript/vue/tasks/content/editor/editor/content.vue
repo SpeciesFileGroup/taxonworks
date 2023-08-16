@@ -1,7 +1,8 @@
 <template>
   <div
     class="panel content"
-    id="panel-editor">
+    id="panel-editor"
+  >
     <div class="flexbox">
       <div class="left">
         <div class="flex-separate">
@@ -10,14 +11,16 @@
               <span v-if="topic">{{ topic.name }}</span> -
               <span
                 v-if="otu"
-                v-html="otu.object_tag"/>
+                v-html="otu.object_tag"
+              />
             </span>
           </div>
           <div class="horizontal-left-content middle">
             <radial-annotator
               v-if="content"
               type="annotations"
-              :global-id="content.global_id"/>
+              :global-id="content.global_id"
+            />
             <otu-button
               v-if="otu"
               :otu="otu"
@@ -26,15 +29,18 @@
             />
             <radial-object
               v-if="otu"
-              :global-id="otu.global_id"/>
+              :global-id="otu.global_id"
+            />
             <select-topic-otu
               class="separate-left"
-              @close="$refs.contentText.setFocus()"/>
+              @close="$refs.contentText.setFocus()"
+            />
           </div>
         </div>
         <div
           v-if="disabled"
-          class="CodeMirror cm-s-paper CodeMirror-wrap"/>
+          class="CodeMirror cm-s-paper CodeMirror-wrap"
+        />
         <template v-else>
           <markdown-editor
             v-if="loadMarkwdown"
@@ -48,22 +54,26 @@
       </div>
       <div
         v-if="compareContent && !preview"
-        class="right">
+        class="right"
+      >
         <div class="title">
           <span>
-            <span v-html="compareContent.topic.object_tag"/> -
-            <span v-html="compareContent.otu.object_tag"/>
+            <span v-html="compareContent.topic.object_tag" /> -
+            <span v-html="compareContent.otu.object_tag" />
           </span>
         </div>
         <div class="compare-toolbar middle">
           <button
             class="button normal-input button-default"
-            @click="compareContent = undefined">Close compare
+            @click="compareContent = undefined"
+          >
+            Close compare
           </button>
         </div>
         <div
           class="compare"
-          @mouseup="copyCompareContent">
+          @mouseup="copyCompareContent"
+        >
           {{ compareContent.text }}
         </div>
       </div>
@@ -72,25 +82,31 @@
       <div
         class="item flex-wrap-column middle menu-item menu-button"
         @click="update"
-        :class="{ saving : autosave }">
+        :class="{ saving: autosave }"
+      >
         <span
           data-icon="savedb"
-          class="big-icon"/>
+          class="big-icon"
+        />
         <span class="tiny_space">Save</span>
       </div>
       <clone-content
         @addCloneCitation="addText"
-        class="item menu-item"/>
+        class="item menu-item"
+      />
       <compare-content
         class="item menu-item"
-        @showCompareContent="showCompare"/>
+        @showCompareContent="showCompare"
+      />
       <div
         class="item flex-wrap-column middle menu-item menu-button"
         @click="ChangeStateFigures()"
-        :class="{ active : activeFigures, disabled : !content }">
+        :class="{ active: activeFigures, disabled: !content }"
+      >
         <span
           data-icon="new"
-          class="big-icon"/>
+          class="big-icon"
+        />
         <span class="tiny_space">Figure</span>
       </div>
     </div>
@@ -101,13 +117,13 @@
 import CloneContent from './clone.vue'
 import CompareContent from './compare.vue'
 import SelectTopicOtu from './selectTopicOtu.vue'
-import MarkdownEditor from 'components/markdown-editor.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialObject from 'components/radials/navigation/radial'
-import OtuButton from 'components/otu/otu'
+import MarkdownEditor from '@/components/markdown-editor.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialObject from '@/components/radials/navigation/radial'
+import OtuButton from '@/components/otu/otu'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { Content } from 'routes/endpoints'
+import { Content } from '@/routes/endpoints'
 
 const extend = ['otu', 'topic']
 
@@ -122,7 +138,7 @@ export default {
     OtuButton
   },
 
-  data () {
+  data() {
     return {
       autosave: 0,
       firstInput: true,
@@ -138,56 +154,47 @@ export default {
         status: false,
         spellChecker: false
       }
-
     }
   },
 
   computed: {
-    topic () {
+    topic() {
       return this.$store.getters[GetterNames.GetTopicSelected]
     },
 
-    otu () {
+    otu() {
       return this.$store.getters[GetterNames.GetOtuSelected]
     },
 
-    content () {
+    content() {
       return this.$store.getters[GetterNames.GetContentSelected]
     },
 
-    disabled () {
+    disabled() {
       return !this.topic || !this.otu
     },
 
-    activeFigures () {
+    activeFigures() {
       return this.$store.getters[GetterNames.PanelFigures]
     }
   },
 
   watch: {
-    otu (newVal, oldVal) {
-      if (
-        newVal?.id &&
-        newVal.id !== oldVal?.id &&
-        this.topic?.id
-      ) {
+    otu(newVal, oldVal) {
+      if (newVal?.id && newVal.id !== oldVal?.id && this.topic?.id) {
         this.loadContent()
       }
     },
 
-    topic (newVal, oldVal) {
-      if (
-        newVal?.id &&
-        newVal.id !== oldVal?.id &&
-        this.otu?.id
-      ) {
+    topic(newVal, oldVal) {
+      if (newVal?.id && newVal.id !== oldVal?.id && this.otu?.id) {
         this.loadContent()
       }
     }
   },
 
   methods: {
-    initContent () {
+    initContent() {
       return {
         id: undefined,
         otu_id: undefined,
@@ -196,21 +203,21 @@ export default {
       }
     },
 
-    addText (text) {
+    addText(text) {
       this.record.content.text += text
       this.autoSave()
     },
 
-    showCompare (content) {
+    showCompare(content) {
       this.compareContent = content
       this.preview = false
     },
 
-    ChangeStateFigures () {
+    ChangeStateFigures() {
       this.$store.commit(MutationNames.ChangeStateFigures)
     },
 
-    copyCompareContent () {
+    copyCompareContent() {
       if (window.getSelection) {
         if (window.getSelection().toString().length > 0) {
           this.record.content.text += window.getSelection().toString()
@@ -219,7 +226,7 @@ export default {
       }
     },
 
-    handleInput () {
+    handleInput() {
       if (this.firstInput) {
         this.firstInput = false
       } else {
@@ -227,12 +234,12 @@ export default {
       }
     },
 
-    resetAutoSave () {
+    resetAutoSave() {
       clearTimeout(this.autosave)
       this.autosave = null
     },
 
-    autoSave () {
+    autoSave() {
       if (this.autosave) {
         this.resetAutoSave()
       }
@@ -241,22 +248,22 @@ export default {
       }, 3000)
     },
 
-    update () {
+    update() {
       this.resetAutoSave()
 
-      if (this.disabled || (this.record.content.text === '')) return
+      if (this.disabled || this.record.content.text === '') return
 
       if (this.record.content.id) {
         Content.update(this.record.content.id, { ...this.record, extend })
       } else {
-        Content.create({ ...this.record, extend }).then(response => {
+        Content.create({ ...this.record, extend }).then((response) => {
           this.record.content.id = response.body.id
           this.$store.commit(MutationNames.SetContentSelected, response.body)
         })
       }
     },
 
-    loadContent () {
+    loadContent() {
       if (this.disabled) return
 
       const params = {
@@ -268,7 +275,7 @@ export default {
       this.firstInput = true
       this.resetAutoSave()
 
-      Content.where(params).then(response => {
+      Content.where(params).then((response) => {
         if (response.body.length > 0) {
           const record = response.body[0]
 

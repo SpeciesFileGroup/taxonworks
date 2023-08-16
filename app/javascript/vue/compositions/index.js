@@ -1,7 +1,3 @@
-import { useScroll } from './useScroll'
-import { useWindowSize } from './useWindowSize'
-
-export {
-  useScroll,
-  useWindowSize
-}
+export * from './useOnResize'
+export * from './useScroll'
+export * from './useWindowSize'

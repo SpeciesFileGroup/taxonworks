@@ -1,4 +1,4 @@
-import { Otu, TaxonName, CollectionObject } from 'routes/endpoints'
+import { Otu, TaxonName, CollectionObject } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 const requestFunctions = {
@@ -7,7 +7,7 @@ const requestFunctions = {
   TaxonName
 }
 
-function requestDepictions (item) {
+function requestDepictions(item) {
   const type = item.observation_object_type || item.base_class
 
   return type in requestFunctions
@@ -16,13 +16,15 @@ function requestDepictions (item) {
 }
 
 export default ({ state: { observationRows }, commit }) => {
-  const promises = observationRows.map(item => requestDepictions(item.object))
+  const promises = observationRows.map((item) => requestDepictions(item.object))
 
-  Promise.all(promises).then(responses => {
-    commit(MutationNames.SetObservationRows,
+  Promise.all(promises).then((responses) => {
+    commit(
+      MutationNames.SetObservationRows,
       observationRows.map((row, index) => ({
         ...row,
         objectDepictions: responses[index].body
-      })))
+      }))
+    )
   })
 }

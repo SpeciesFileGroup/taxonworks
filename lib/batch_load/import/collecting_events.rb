@@ -59,7 +59,8 @@ module BatchLoad
                                                           end_date_year:                    row['end_date_year'],
                                                           verbatim_longitude:               long,
                                                           verbatim_latitude:                lat,
-                                                          verbatim_method:                  method)
+                                                          verbatim_method:                  method,
+                                                          verbatim_label:                   row['verbatim_label'])
         ce.save!
         case method.downcase
           when 'geolocate'

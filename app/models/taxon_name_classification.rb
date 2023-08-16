@@ -28,7 +28,7 @@ class TaxonNameClassification < ApplicationRecord
   before_validation :validate_uniqueness_of_latinized
   validates_presence_of :taxon_name
   validates_presence_of :type
-  validates_uniqueness_of :taxon_name_id, scope: :type
+  validates_uniqueness_of :taxon_name_id, scope: [:type, :project_id]
 
   validate :nomenclature_code_matches
 
@@ -40,6 +40,7 @@ class TaxonNameClassification < ApplicationRecord
 
   soft_validate(:sv_proper_classification,
                 set: :proper_classification,
+                fix: :sv_fix_proper_classification,
                 name: 'Applicable status',
                 description: 'Check the status applicability.' )
 
@@ -278,15 +279,26 @@ class TaxonNameClassification < ApplicationRecord
     if TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type)
       # self.type_class is a Class
       if not self.type_class.applicable_ranks.include?(self.taxon_name.rank_string)
-        soft_validations.add(:type, "The status '#{self.classification_label}' is unapplicable to the taxon #{self.taxon_name.cached_html} at the rank of #{self.taxon_name.rank_class.rank_name}")
+        soft_validations.add(:type, "The status '#{self.classification_label}' is not applicable to the taxon #{self.taxon_name.cached_html} at the rank of #{self.taxon_name.rank_class.rank_name}", success_message: 'The status was deleted', failure_message:  'Fail to delete the status')
       end
+    end
+  end
+
+  def sv_fix_proper_classification
+    begin
+      TaxonNameClassification.transaction do
+        self.destroy
+      end
+      return true
+    rescue
+      return false
     end
   end
 
   def sv_proper_year
     y = self.taxon_name.year_of_publication
     if !y.nil? && (y > self.type_class.code_applicability_end_year || y < self.type_class.code_applicability_start_year)
-      soft_validations.add(:type, "The status '#{self.classification_label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
+      soft_validations.add(:type, "The status '#{self.classification_label}' is not applicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
     end
   end
 
@@ -321,6 +333,7 @@ class TaxonNameClassification < ApplicationRecord
     end
   end
 
+  # TODO: unnecessary! Type handling will raise here
   def validate_taxon_name_classification
     errors.add(:type, 'Status not found') if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
   end

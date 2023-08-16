@@ -26,13 +26,12 @@
 </template>
 
 <script>
-
 import ActionNames from '../store/actions/actionNames'
 import { GetterNames } from '../store/getters/getters'
-import { CollectionObject, Depiction } from 'routes/endpoints'
+import { CollectionObject, Depiction } from '@/routes/endpoints'
 
-import Dropzone from 'components/dropzone.vue'
-import DepictionImage from 'components/depictions/depictionImage.vue'
+import Dropzone from '@/components/dropzone.vue'
+import DepictionImage from '@/components/depictions/depictionImage.vue'
 
 export default {
   components: {
@@ -41,16 +40,17 @@ export default {
   },
 
   computed: {
-    getTypeMaterial () {
+    getTypeMaterial() {
       return this.$store.getters[GetterNames.GetTypeMaterial]
     },
 
-    getImages () {
-      return this.$store.getters[GetterNames.GetTypeMaterial].collection_object.images
+    getImages() {
+      return this.$store.getters[GetterNames.GetTypeMaterial].collection_object
+        .images
     }
   },
 
-  data () {
+  data() {
     return {
       creatingType: false,
       displayBody: true,
@@ -60,7 +60,9 @@ export default {
         url: '/depictions',
         autoProcessQueue: false,
         headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          'X-CSRF-Token': document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute('content')
         },
         dictDefaultMessage: 'Drop images here to add figures',
         acceptedFiles: 'image/*,.heic'
@@ -69,13 +71,15 @@ export default {
   },
 
   watch: {
-    getTypeMaterial (newVal, oldVal) {
+    getTypeMaterial(newVal, oldVal) {
       if (newVal.id) {
         if (newVal.id !== oldVal.id) {
           this.$refs.depiction.setOption('autoProcessQueue', true)
-          CollectionObject.depictions(newVal.collection_object.id).then(response => {
-            this.figuresList = response.body
-          })
+          CollectionObject.depictions(newVal.collection_object.id).then(
+            (response) => {
+              this.figuresList = response.body
+            }
+          )
         }
       } else {
         this.figuresList = []
@@ -85,36 +89,48 @@ export default {
   },
 
   methods: {
-    success (file, response) {
+    success(file, response) {
       this.figuresList.push(response)
       this.$refs.depiction.removeFile(file)
     },
 
-    sending (file, xhr, formData) {
-      formData.append('depiction[depiction_object_id]', this.getTypeMaterial.collection_object.id)
+    sending(file, xhr, formData) {
+      formData.append(
+        'depiction[depiction_object_id]',
+        this.getTypeMaterial.collection_object.id
+      )
       formData.append('depiction[depiction_object_type]', 'CollectionObject')
     },
 
-    addedfile () {
+    addedfile() {
       if (!this.getTypeMaterial.id && !this.creatingType) {
         this.creatingType = true
-        this.$store.dispatch(ActionNames.CreateTypeMaterial).then(_ => {
-          setTimeout(() => {
-            this.$refs.depiction.setOption('autoProcessQueue', true)
-            this.$refs.depiction.processQueue()
+        this.$store.dispatch(ActionNames.CreateTypeMaterial).then(
+          (_) => {
+            setTimeout(() => {
+              this.$refs.depiction.setOption('autoProcessQueue', true)
+              this.$refs.depiction.processQueue()
+              this.creatingType = false
+            }, 500)
+          },
+          () => {
             this.creatingType = false
-          }, 500)
-        }, () => {
-          this.creatingType = false
-        })
+          }
+        )
       }
     },
 
-    removeDepiction (depiction) {
+    removeDepiction(depiction) {
       if (window.confirm('Are you sure want to proceed?')) {
         Depiction.destroy(depiction.id).then(() => {
-          TW.workbench.alert.create('Depiction was successfully deleted.', 'notice')
-          this.figuresList.splice(this.figuresList.findIndex((figure) => figure.id === depiction.id), 1)
+          TW.workbench.alert.create(
+            'Depiction was successfully deleted.',
+            'notice'
+          )
+          this.figuresList.splice(
+            this.figuresList.findIndex((figure) => figure.id === depiction.id),
+            1
+          )
         })
       }
     }
@@ -122,8 +138,8 @@ export default {
 }
 </script>
 <style scoped>
-  .depiction-container {
-    width: 500px;
-    max-width: 500px;
-  }
+.depiction-container {
+  width: 500px;
+  max-width: 500px;
+}
 </style>

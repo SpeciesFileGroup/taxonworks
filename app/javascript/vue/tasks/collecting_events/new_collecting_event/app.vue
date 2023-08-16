@@ -13,7 +13,7 @@
             <input
               type="checkbox"
               v-model="settings.sortable"
-            >
+            />
             Reorder fields
           </label>
         </li>
@@ -32,14 +32,6 @@
     <nav-bar v-hotkey="shortcuts">
       <div class="flex-separate full_width">
         <div class="middle margin-small-left">
-          <template v-if="collectingEvent.id">
-            <pin-component
-              :object-id="collectingEvent.id"
-              type="CollectingEvent"
-            />
-            <radial-annotator :global-id="collectingEvent.global_id" />
-            <radial-object :global-id="collectingEvent.global_id" />
-          </template>
           <span
             v-if="collectingEvent.id"
             class="margin-small-left"
@@ -51,6 +43,18 @@
           >
             New record
           </span>
+          <div
+            v-if="collectingEvent.id"
+            class="horizontal-left-content margin-small-left"
+          >
+            <pin-component
+              class="circle-button"
+              :object-id="collectingEvent.id"
+              type="CollectingEvent"
+            />
+            <radial-annotator :global-id="collectingEvent.global_id" />
+            <radial-object :global-id="collectingEvent.global_id" />
+          </div>
         </div>
         <ul class="context-menu no_bullets">
           <li class="horizontal-right-content">
@@ -97,7 +101,7 @@
           </li>
         </ul>
       </div>
-      <confirmation-modal ref="confirmationModal"/>
+      <confirmation-modal ref="confirmationModal" />
     </nav-bar>
     <recent-component
       v-if="showRecent"
@@ -126,9 +130,7 @@
               class="margin-small-right"
               :ce-id="collectingEvent.id"
             />
-            <parse-data
-              @on-parse="setCollectingEvent"
-            />
+            <parse-data @on-parse="setCollectingEvent" />
           </div>
         </div>
         <right-section
@@ -141,33 +143,32 @@
 </template>
 
 <script>
-
-import { RouteNames } from 'routes/routes'
-import Autocomplete from 'components/ui/Autocomplete'
+import { RouteNames } from '@/routes/routes'
+import Autocomplete from '@/components/ui/Autocomplete'
 
 import RecentComponent from './components/Recent'
 
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialObject from 'components/radials/navigation/radial'
-import platformKey from 'helpers/getPlatformKey'
-import SetParam from 'helpers/setParam'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialObject from '@/components/radials/navigation/radial'
+import platformKey from '@/helpers/getPlatformKey'
+import SetParam from '@/helpers/setParam'
 
-import PinComponent from 'components/ui/Pinboard/VPin.vue'
+import PinComponent from '@/components/ui/Pinboard/VPin.vue'
 import RightSection from './components/RightSection'
-import NavBar from 'components/layout/NavBar'
+import NavBar from '@/components/layout/NavBar'
 import ParseData from './components/parseData'
 
 import CollectingEventForm from './components/CollectingEventForm'
 import CollectionObjectsTable from './components/CollectionObjectsTable.vue'
 import NavigateComponent from './components/Navigate'
-import SpinnerComponent from 'components/spinner'
-import ConfirmationModal from 'components/ConfirmationModal.vue'
+import SpinnerComponent from '@/components/spinner'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
 import { ActionNames } from './store/actions/actions'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 
-import { CollectionObject } from 'routes/endpoints'
+import { CollectionObject } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -187,7 +188,7 @@ export default {
   },
 
   computed: {
-    shortcuts () {
+    shortcuts() {
       const keys = {}
 
       keys[`${platformKey()}+s`] = this.saveCollectingEvent
@@ -197,25 +198,25 @@ export default {
     },
 
     collectingEvent: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetCollectingEvent]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetCollectingEvent, value)
       }
     },
-    isUnsaved () {
+    isUnsaved() {
       return this.$store.getters[GetterNames.IsUnsaved]
     },
-    isLoading () {
+    isLoading() {
       return this.$store.getters[GetterNames.GetSettings].isLoading
     },
-    isSaving () {
+    isSaving() {
       return this.$store.getters[GetterNames.GetSettings].isSaving
     }
   },
 
-  data () {
+  data() {
     return {
       settings: {
         sortable: false
@@ -226,25 +227,33 @@ export default {
 
   watch: {
     collectingEvent: {
-      handler (_) {
+      handler(_) {
         this.$store.commit(MutationNames.UpdateLastChange)
       },
       deep: true
     }
   },
 
-  mounted () {
+  mounted() {
     const urlParams = new URLSearchParams(window.location.search)
     const collectingEventId = urlParams.get('collecting_event_id')
     const collectionObjectId = urlParams.get('collection_object_id')
 
-    TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New collecting event')
-    TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'New', 'New collecting event')
+    TW.workbench.keyboard.createLegend(
+      `${platformKey()}+s`,
+      'Save',
+      'New collecting event'
+    )
+    TW.workbench.keyboard.createLegend(
+      `${platformKey()}+n`,
+      'New',
+      'New collecting event'
+    )
 
     if (/^\d+$/.test(collectingEventId)) {
       this.loadCollectingEvent(collectingEventId)
     } else if (/^\d+$/.test(collectionObjectId)) {
-      CollectionObject.find(collectionObjectId).then(response => {
+      CollectionObject.find(collectionObjectId).then((response) => {
         const ceId = response.body.collecting_event_id
         if (ceId) {
           this.loadCollectingEvent(ceId)
@@ -254,12 +263,14 @@ export default {
   },
 
   methods: {
-    async cloneCE () {
+    async cloneCE() {
       const ok = await this.$refs.confirmationModal.show({
         title: 'Clone collecting event',
-        message: 'This will clone the current collecting event. Are you sure you want to proceed?',
+        message:
+          'This will clone the current collecting event. Are you sure you want to proceed?',
         confirmationWord: 'CLONE',
         okButton: 'Clone',
+        cancelButton: 'Cancel',
         typeButton: 'submit'
       })
 
@@ -268,30 +279,36 @@ export default {
       }
     },
 
-    reset () {
+    reset() {
       this.$store.dispatch(ActionNames.ResetStore)
       SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id')
       SetParam(RouteNames.NewCollectingEvent, 'collection_object_id')
     },
-    loadCollectingEvent (id) {
+    loadCollectingEvent(id) {
       this.$store.dispatch(ActionNames.LoadCollectingEvent, id)
     },
-    setCollectingEvent (ce) {
+    setCollectingEvent(ce) {
       this.collectingEvent = Object.assign({}, this.collectingEvent, ce)
-      SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id', this.collectingEvent.id)
+      SetParam(
+        RouteNames.NewCollectingEvent,
+        'collecting_event_id',
+        this.collectingEvent.id
+      )
     },
-    saveCollectingEvent () {
+    saveCollectingEvent() {
       this.$store.dispatch(ActionNames.SaveCollectingEvent)
     },
-    openComprehensive () {
-      window.open(`${RouteNames.DigitizeTask}?collecting_event_id=${this.collectingEvent.id}`, '_self')
+    openComprehensive() {
+      window.open(
+        `${RouteNames.DigitizeTask}?collecting_event_id=${this.collectingEvent.id}`,
+        '_self'
+      )
     }
   }
 }
 </script>
 <style scoped>
-  .button-size {
-    width: 100px;
-  }
-
+.button-size {
+  width: 100px;
+}
 </style>

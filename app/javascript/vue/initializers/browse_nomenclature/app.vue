@@ -1,11 +1,11 @@
 <template>
   <div>
-    <nomenclature-search/>
+    <nomenclature-search />
   </div>
 </template>
 
 <script>
-import NomenclatureSearch from 'tasks/nomenclature/browse/components/search'
+import NomenclatureSearch from '@/tasks/nomenclature/browse/components/search'
 export default {
   components: {
     NomenclatureSearch

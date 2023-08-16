@@ -1,11 +1,45 @@
 module Queries
   module Person
 
-    class Filter < Queries::Query
-      include Queries::Concerns::Tags
-      include Queries::Concerns::Users
-      include Queries::Concerns::Notes
+    class Filter < Query::Filter
       include Queries::Concerns::DataAttributes
+      include Queries::Concerns::Notes
+      include Queries::Concerns::Tags
+
+      PARAMS = [
+        :active_after_year,
+        :active_before_year,
+        :born_after_year,
+        :born_before_year,
+        :died_after_year,
+        :died_before_year,
+        :except_project_id,
+        :first_name,
+        :last_name,
+        :last_name_starts_with,
+        :levenshtein_cuttoff,
+        :name,
+        :only_project_id,
+        :person_id,
+        :prefix,
+        :regex, # !! DO NOT EXPOSE TO EXTERNAL API
+        :repeated_total,
+        :suffix,
+        :use_max,
+        :use_min,
+
+        exact: [],
+        except_project_id: [],
+        except_role: [],
+        only_project_id: [],
+        person_id: [],
+        role: [],
+        with: [],
+        without: [],
+      ].freeze
+
+      # @return [Array]
+      attr_accessor :person_id
 
       # @return [String, nil]
       attr_accessor :active_after_year
@@ -28,6 +62,10 @@ module Queries
       # @return [Array]
       #   only return people with roles in this project(s) or roles through Sources in ProjectSources
       attr_accessor :except_project_id
+
+      # @return [Array]
+      #   only return people with roles in this project(s) or roles through Sources in ProjectSources
+      attr_accessor :only_project_id
 
       # @return [Array]
       #   values are attributes that should be wildcarded:
@@ -64,10 +102,6 @@ module Queries
       #   also matches any AlternateValue
       attr_accessor :prefix
 
-      # @return [Array]
-      #   only return people with roles in this project(s) or roles through Sources in ProjectSources
-      attr_accessor :project_id
-
       # @return [String, nil]
       #   also matches any AlternateValue
       attr_accessor :suffix
@@ -88,11 +122,11 @@ module Queries
 
       # @return [String, nil]
       #   the maximum number of roles the Person must be in, further scoped to only counting `role` when provided
-      attr_accessor :role_total_max
+      attr_accessor :use_max
 
       # @return [String, nil]
       #   the minimum number of roles the Person must be in, further scoped to only counting `role` when provided
-      attr_accessor :role_total_min
+      attr_accessor :use_min
 
       # @return [Array]
       # @param with [Array of strings]
@@ -107,49 +141,43 @@ module Queries
       attr_accessor :without
 
       # @params params [ActionController::Parameters]
-      def initialize(params = {})
-
-        @role_total_min = params[:role_total_min]
-        @role_total_max = params[:role_total_max]
-
-        @role = params[:role]
-        @except_role = params[:except_role]
-
-        @first_name = params[:first_name]
-        @last_name = params[:last_name]
-
-        @name = params[:name]
-
-        @with = params[:with]
-        @without = params[:without]
-
-        @last_name_starts_with = params[:last_name_starts_with]
-
-        @exact = params[:exact]
-
-        @project_id = params[:project_id]
-        @except_project_id = params[:except_project_id]
-
-        @levenshtein_cuttoff = params[:levenshtein_cuttoff]
-
-        @regex = params[:regex]
-
-        @born_after_year = params[:born_after_year]
-        @born_before_year = params[:born_before_year]
+      def initialize(query_params = {})
+        super
 
         @active_after_year = params[:active_after_year]
         @active_before_year = params[:active_before_year]
-
+        @born_after_year = params[:born_after_year]
+        @born_before_year = params[:born_before_year]
         @died_after_year = params[:died_after_year]
         @died_before_year = params[:died_before_year]
-
+        @exact = params[:exact]
+        @except_project_id = params[:except_project_id]
+        @except_role = params[:except_role]
+        @first_name = params[:first_name]
+        @last_name = params[:last_name]
+        @last_name_starts_with = params[:last_name_starts_with]
+        @levenshtein_cuttoff = params[:levenshtein_cuttoff]
+        @name = params[:name]
+        @only_project_id = params[:only_project_id]
+        @regex = params[:regex]
         @repeated_total = params[:repeated_total]
+        @role = params[:role]
+        @use_max = params[:use_max]
+        @use_min = params[:use_min]
+        @with = params[:with]
+        @without = params[:without]
 
+        set_tags_params(params)
         set_data_attributes_params(params)
         set_notes_params(params)
-        set_identifier(params)
-        set_tags_params(params)
-        set_user_dates(params)
+      end
+
+      def self.api_except_params
+        [:regex]
+      end
+
+      def person_id
+        [@person_id].flatten.compact.uniq
       end
 
       def with
@@ -173,25 +201,16 @@ module Queries
       end
 
       # @return [Arel::Table]
-      def table
-        ::Person.arel_table
-      end
-
-      # @return [Arel::Table]
       def role_table
         ::Role.arel_table
       end
 
-      def base_query
-        ::Person.select('people.*')
-      end
-
-      def project_id
-        [@project_id].flatten.compact
-      end
-
       def except_project_id
         [@except_project_id].flatten.compact
+      end
+
+      def only_project_id
+        [@only_project_id].flatten.compact
       end
 
       def born_after_year_facet
@@ -255,7 +274,7 @@ module Queries
       end
 
       def name_facet
-        return nil if name.nil? || !levenshtein_cuttoff.blank?
+        return nil if name.nil? || levenshtein_cuttoff.present?
         if exact.include?('name')
           table[:cached].eq(name)
         else
@@ -264,13 +283,13 @@ module Queries
       end
 
       def last_name_starts_with_facet
-        return nil if last_name_starts_with.blank? || !levenshtein_cuttoff.blank?
+        return nil if last_name_starts_with.blank? || levenshtein_cuttoff.present?
         table[:last_name].matches(last_name_starts_with + '%')
       end
 
       def role_facet
         return nil if role.empty?
-        ::Person.joins(:roles).where( role_table[:type].eq_any(role) )
+        ::Person.joins(:roles).where( role_table[:type].eq_any(role) ).distinct
       end
 
       def except_role_facet
@@ -290,7 +309,7 @@ module Queries
           ).join_sources
         ).merge(
           ::Role.where(id: nil)
-        )
+        ).distinct
       end
 
       def repeated_total_facet
@@ -300,9 +319,9 @@ module Queries
         )
       end
 
-      def role_total_facet
-        return nil if (role_total_min.blank? && role_total_max.blank?)
-        min_max = [role_total_min&.to_i, role_total_max&.to_i ].compact
+      def use_facet
+        return nil if (use_min.blank? && use_max.blank?)
+        min_max = [use_min&.to_i, use_max&.to_i ].compact
 
         q = ::Person.joins(:roles)
           .select('people.*, COUNT(roles.person_id)')
@@ -316,7 +335,7 @@ module Queries
         # Untested
         q = q.having("COUNT(roles.person_id) <= #{min_max[1]}") if min_max[1]
 
-        q.distinct
+        ::Person.from('(' + q.to_sql + ') as people').distinct
       end
 
       def with_facet
@@ -342,26 +361,23 @@ module Queries
       end
 
       def levenshtein_facet
-        return nil unless levenshtein_cuttoff && (!name.blank?)
+        return nil unless levenshtein_cuttoff && (name.present?)
         ::Person.where(
           levenshtein_distance(:cached, name).lteq(levenshtein_cuttoff).to_sql
         )
       end
 
-      def project_id_facet
-        return nil unless !project_id.empty?
+      def only_project_id_facet
+        return nil if only_project_id.empty?
 
-        w1 = role_table[:project_id].eq_any(project_id)
-        w2 = ::ProjectSource.arel_table[:project_id].eq_any(project_id)
+        a = ::Person.joins(:roles).where(roles: {project_id: only_project_id})
+        b = ::Person.joins(sources: [:project_sources]).where( project_sources: {project_id: only_project_id})
 
-        a = ::Person.joins(:roles).where(w1.to_sql)
-        b = ::Person.joins(sources: [:project_sources]).where( w2.to_sql)
-
-        ::Person.from("((#{a.to_sql}) UNION (#{b.to_sql})) as people")
+        referenced_klass_union([a,b])
       end
 
       def except_project_id_facet
-        return nil unless !except_project_id.empty?
+        return nil if except_project_id.empty?
 
         w1 = role_table[:project_id].not_eq_any(except_project_id)
         w2 = ::ProjectSource.arel_table[:project_id].not_eq_any(except_project_id)
@@ -369,94 +385,44 @@ module Queries
         a = ::Person.joins(:roles).where(w1.to_sql)
         b = ::Person.joins(sources: [:project_sources]).where( w2.to_sql)
 
-        ::Person.from("((#{a.to_sql}) UNION (#{b.to_sql})) as people")
+        referenced_klass_union([a,b])
       end
 
-      # @return [ActiveRecord::Relation, nil]
+      # Applies specificly to model[:project_id], there is no such thing in Person
+      def project_id_facet
+        nil
+      end
+
       def and_clauses
         clauses = [
-          with_facet,
-          without_facet,
-          name_facet,
-          born_after_year_facet,
-          born_before_year_facet,
-
-          died_after_year_facet,
-          died_before_year_facet,
-
           active_after_year_facet,
           active_before_year_facet,
-
+          born_after_year_facet,
+          born_before_year_facet,
+          died_after_year_facet,
+          died_before_year_facet,
           last_name_starts_with_facet,
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+          name_facet,
+          with_facet,
+          without_facet,
+        ]
       end
 
       def merge_clauses
-        clauses = [
-          name_part_facet(:last_name),
-          name_part_facet(:first_name),
-          name_part_facet(:suffix),
-          name_part_facet(:prefix),
-
-          role_total_facet,
-          repeated_total_facet,
-          regex_facet,
-
-          except_role_facet,
-          role_facet,
-          levenshtein_facet,
-
-          identifier_between_facet,
-          identifier_facet,
-          identifier_namespace_facet,
-
-          note_text_facet,        # See Queries::Concerns::Notes
-          notes_facet,
-
-          data_attribute_predicate_facet,
-          data_attribute_value_facet,
-          data_attributes_facet,
-
-          keyword_id_facet,
-          tag_facet,
-
-          project_id_facet,
+        [
           except_project_id_facet,
-
-          created_updated_facet, # See Queries::Concerns::Users
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-
-        if a && b
-          b.where(a).distinct
-        elsif a
-          ::Person.where(a).distinct
-        elsif b
-          b.distinct
-        else
-          ::Person.all
-        end
+          except_role_facet,
+          levenshtein_facet,
+          name_part_facet(:first_name),
+          name_part_facet(:last_name),
+          name_part_facet(:prefix),
+          name_part_facet(:suffix),
+          only_project_id_facet,
+          regex_facet,
+          repeated_total_facet,
+          role_facet,
+          use_facet,
+        ]
       end
     end
   end

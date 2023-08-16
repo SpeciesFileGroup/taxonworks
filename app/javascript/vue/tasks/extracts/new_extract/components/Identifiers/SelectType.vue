@@ -4,18 +4,22 @@
     <switch-component
       class="margin-small-bottom"
       v-model="tabList"
-      :options="tabs"/>
+      :options="tabs"
+    />
     <ul
       v-if="tabList"
-      class="no_bullets capitalize">
+      class="no_bullets capitalize"
+    >
       <li
         v-for="(item, key) in list[tabList]"
-        :key="key">
+        :key="key"
+      >
         <label>
           <input
             v-model="typeSelected"
             :value="key"
-            type="radio">
+            type="radio"
+          />
           {{ item.label }}
         </label>
       </li>
@@ -24,8 +28,7 @@
 </template>
 
 <script>
-
-import SwitchComponent from 'components/switch'
+import SwitchComponent from '@/components/switch'
 
 export default {
   components: { SwitchComponent },
@@ -44,22 +47,22 @@ export default {
 
   emits: ['update:modelValue'],
 
-  data () {
+  data() {
     return {
       tabList: 'common'
     }
   },
 
   computed: {
-    tabs () {
+    tabs() {
       return Object.keys(this.list)
     },
 
     typeSelected: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }

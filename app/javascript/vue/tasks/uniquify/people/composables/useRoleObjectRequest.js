@@ -9,7 +9,7 @@ import {
   Source,
   TaxonDetermination,
   TaxonName
-} from 'routes/endpoints'
+} from '@/routes/endpoints'
 
 const requestObject = {
   Attribution,
@@ -23,20 +23,19 @@ const requestObject = {
   TaxonName
 }
 
-export default roles => {
+export default (roles) => {
   const roleObjects = ref([])
   const isLoading = ref(true)
-  const requests = roles.map(r => requestObject[r.role_object_type].find(r.role_object_id))
+  const requests = roles.map((r) =>
+    requestObject[r.role_object_type].find(r.role_object_id)
+  )
 
-  Promise.allSettled(requests).then(responses => {
+  Promise.allSettled(requests).then((responses) => {
     isLoading.value = false
     roleObjects.value = responses
-      .filter(r => r.status === 'fulfilled')
-      .map(r => r.value.body)
+      .filter((r) => r.status === 'fulfilled')
+      .map((r) => r.value.body)
   })
 
-  return [
-    isLoading,
-    roleObjects
-  ]
+  return [isLoading, roleObjects]
 }

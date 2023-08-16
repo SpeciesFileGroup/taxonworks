@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { DwcOcurrence } from 'routes/endpoints'
+import { DwcOcurrence } from '@/routes/endpoints'
 
 const state = reactive({
   metadata: undefined,
@@ -27,7 +27,4 @@ const actions = {
   setDownloadRecord
 }
 
-export {
-  actions,
-  state
-}
+export { actions, state }

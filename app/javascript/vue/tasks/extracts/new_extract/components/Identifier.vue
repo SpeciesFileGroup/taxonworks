@@ -14,10 +14,12 @@
               size="small"
               inertia
               arrow
-              content="Change">
+              content="Change"
+            >
               <button
                 class="button button-circle button-default btn-undo"
-                @click="typeListSelected = undefined"/>
+                @click="typeListSelected = undefined"
+              />
             </tippy>
           </div>
           <select-type
@@ -28,16 +30,18 @@
 
         <ul
           v-else
-          class="no_bullets">
+          class="no_bullets"
+        >
           <li
             v-for="(item, key) in typeList"
-            :key="key">
+            :key="key"
+          >
             <label class="capitalize">
               <input
                 type="radio"
                 v-model="typeListSelected"
                 :value="key"
-              >
+              />
               {{ key }}
             </label>
           </li>
@@ -47,10 +51,12 @@
           <namespace-component
             v-if="isTypeListLocal"
             v-model:lock="isNamespaceLocked"
-            v-model="namespace"/>
+            v-model="namespace"
+          />
           <identifier-component
             class="margin-small-bottom"
-            v-model="identifier"/>
+            v-model="identifier"
+          />
         </template>
 
         <div class="horizontal-left-content margin-small-top">
@@ -58,7 +64,13 @@
             type="button"
             class="button button-submit normal-input"
             :disabled="isMissingData"
-            @click="addIdentifier(); resetIdentifier()">
+            @click="
+              () => {
+                addIdentifier()
+                resetIdentifier()
+              }
+            "
+          >
             Add
           </button>
         </div>
@@ -73,8 +85,7 @@
 </template>
 
 <script>
-
-import { Identifier } from 'routes/endpoints'
+import { Identifier } from '@/routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { Tippy } from 'vue-tippy'
@@ -83,9 +94,9 @@ import componentExtend from './mixins/componentExtend'
 import SelectType from './Identifiers/SelectType'
 import NamespaceComponent from './Identifiers/Namespace'
 import IdentifierComponent from './Identifiers/Identifier'
-import DisplayList from 'components/displayList'
-import LockComponent from 'components/ui/VLock/index.vue'
-import BlockLayout from 'components/layout/BlockLayout'
+import DisplayList from '@/components/displayList'
+import LockComponent from '@/components/ui/VLock/index.vue'
+import BlockLayout from '@/components/layout/BlockLayout'
 
 export default {
   mixins: [componentExtend],
@@ -100,36 +111,36 @@ export default {
     BlockLayout
   },
 
-  data () {
+  data() {
     return {
       namespace: undefined,
       identifier: undefined,
       typeList: undefined,
       typeListSelected: undefined,
       typeSelected: undefined,
-      isNamespaceLocked: false,
+      isNamespaceLocked: false
     }
   },
 
   computed: {
     identifiers: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetIdentifiers]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetIdentifiers, value)
       }
     },
 
-    extractId () {
+    extractId() {
       return this.$store.getters[GetterNames.GetExtract].id
     },
 
-    isTypeListLocal () {
+    isTypeListLocal() {
       return this.typeListSelected === 'local'
     },
 
-    isMissingData () {
+    isMissingData() {
       if (this.typeListSelected === 'local') {
         return !this.namespace || !this.identifier
       } else if (this.typeListSelected === 'global') {
@@ -140,23 +151,30 @@ export default {
     }
   },
 
-  created () {
+  created() {
     Identifier.types().then(({ body }) => {
       const list = body
       const keys = Object.keys(body)
-      keys.forEach(key => {
+      keys.forEach((key) => {
         const itemList = list[key]
-        itemList.common = Object.fromEntries(itemList.common.map(item => ([item, Object.entries(itemList.all).find(([key, value]) => key === item)[1]])))
+        itemList.common = Object.fromEntries(
+          itemList.common.map((item) => [
+            item,
+            Object.entries(itemList.all).find(([key, value]) => key === item)[1]
+          ])
+        )
       })
       this.typeList = body
     })
   },
 
   methods: {
-    addIdentifier () {
+    addIdentifier() {
       const data = {
         namespace_id: this.namespace?.id,
-        object_tag: [this.namespace?.name || '', this.identifier].filter(item => item).join(' '),
+        object_tag: [this.namespace?.name || '', this.identifier]
+          .filter((item) => item)
+          .join(' '),
         identifier: this.identifier,
         type: this.typeSelected,
         identifier_object_type: 'Extract'
@@ -165,14 +183,14 @@ export default {
       this.$store.commit(MutationNames.AddIdentifier, data)
     },
 
-    resetIdentifier () {
+    resetIdentifier() {
       if (!this.isNamespaceLocked) {
         this.namespace = undefined
       }
       this.identifier = undefined
     },
 
-    removeIdentifier (index) {
+    removeIdentifier(index) {
       if (this.identifiers[index].id) {
         Identifier.destroy(this.identifiers[index].id)
       }
@@ -183,7 +201,7 @@ export default {
 </script>
 
 <style scoped>
-  .validate-identifier {
-    border: 1px solid red
-  }
+.validate-identifier {
+  border: 1px solid red;
+}
 </style>

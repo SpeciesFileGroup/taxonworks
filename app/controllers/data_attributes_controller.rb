@@ -14,15 +14,38 @@ class DataAttributesController < ApplicationController
       }
       format.json {
         @data_attributes = Queries::DataAttribute::Filter.new(params).all
-          .where(project_id: sessions_current_project_id).page(params[:page] || 1).per(params[:per] || 500)
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
 
+  def brief
+    q = ::Queries::DataAttribute::Filter.new(params)
+
+    @data = q.all.pluck('data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, value')
+    cols = @data.collect{|a| a[1]}.uniq
+    @columns = Predicate.where(project_id: sessions_current_project_id, id: cols).order(:name).pluck(:id, :name).inject([]){|ary, a| ary.push(a[0] => a[1]); ary}
+  end
+
+  def api_brief
+    q = ::Queries::DataAttribute::Filter.new(params)
+
+    @data = q.all
+      .page(params[:page])
+      .per(params[:per])
+      .pluck('data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, value')
+    cols = @data.collect{|a| a[1]}.uniq
+    @columns = Predicate.where(project_id: sessions_current_project_id, id: cols).order(:name).pluck(:id, :name).inject([]){|ary, a| ary.push(a[0] => a[1]); ary}
+
+    render '/data_attributes/api/v1/brief'
+  end
+
   def api_index
-    @data_attributes = Queries::DataAttribute::Filter.new(api_params).all
+    @data_attributes = Queries::DataAttribute::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
-      .page(params[:page]).per(params[:per])
+      .page(params[:page])
+      .per(params[:per])
     render '/data_attributes/api/v1/index'
   end
 
@@ -80,6 +103,16 @@ class DataAttributesController < ApplicationController
     end
   end
 
+  # /data_attributes/batch_create.json?attribute_subject_type=Otu&attribute_subject_id[]=123&value=456
+  def batch_create
+    @data_attributes = InternalAttribute.batch_create(batch_data_attribute_params)
+    if @data_attributes.present?
+      render '/data_attributes/index'
+    else
+      render json: { failed: true, status: :unprocessable_entity}
+    end
+  end
+
   def list
     @data_attributes = DataAttribute.where(project_id: sessions_current_project_id).order(:attribute_subject_type).page(params[:page])
   end
@@ -115,50 +148,35 @@ class DataAttributesController < ApplicationController
 
   private
 
-  def filter_params
-    params.permit(
-      :value,
-      :controlled_vocabulary_term_id,
-      :import_predicate,
-      :type,
-      :object_global_id,
-      :attribute_subject_type,
-      :attribute_subject_id
-    )
-  end
-
-  def api_params
-    params.permit(
-      :value,
-      :controlled_vocabulary_term_id,
-      :import_predicate,
-      :type,
-      :object_global_id,
-      :attribute_subject_type,
-      :attribute_subject_id
-    )
-  end
-
   def value_autocomplete_params
     params.permit(:predicate_id).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def set_data_attribute
     @data_attribute = DataAttribute.find(params[:id])
-    if !@data_attribute.project_id.blank? && (sessions_current_project_id != @data_attribute.project_id)
-      render status: 404 and return
+    if @data_attribute.project_id.present? && (sessions_current_project_id != @data_attribute.project_id)
+      render status: :not_found and return
     end
   end
 
-  def data_attribute_params
-    params.require(:data_attribute).permit(
-      :type,
+  def base_params
+    [ :type,
       :attribute_subject_id,
       :attribute_subject_type,
       :controlled_vocabulary_term_id,
       :import_predicate,
       :value,
       :annotated_global_entity
-    )
+    ]
+  end
+
+  def batch_data_attribute_params
+    p = base_params
+    p << {attribute_subject_id: []}
+    params.require(:data_attribute).permit(p)
+  end
+
+  def data_attribute_params
+    params.require(:data_attribute).permit(base_params)
   end
 end

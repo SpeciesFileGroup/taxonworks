@@ -1,7 +1,8 @@
 <template>
   <div
     class="panel content margin-medium-right margin-medium-bottom cursor-pointer import-card"
-    @click="$emit('onSelect', dataset.id)">
+    @click="$emit('onSelect', dataset.id)"
+  >
     <h2 class="flex-separate middle">
       <b
         class="text-ellipsis"
@@ -13,7 +14,9 @@
         <li>
           <a
             @click.stop=""
-            :href="dataset.source_file">Download original</a>
+            :href="dataset.source_file"
+            >Download original</a
+          >
         </li>
         <li>
           <button
@@ -24,23 +27,26 @@
       </ul>
     </h2>
     <span>DwC-A {{ dataset.type.split('::').pop() }}</span>
-    <span>Status: <b>{{ dataset.status }}</b></span>
-    <hr class="line full_width">
+    <span
+      >Status: <b>{{ dataset.status }}</b></span
+    >
+    <hr class="line full_width" />
     <progress-bar
       class="full_width"
-      :progress="dataset.progress"/>
+      :progress="dataset.progress"
+    />
     <progress-list
       table-mode
-      :progress="dataset.progress"/>
-    <confirmation-modal ref="confirmationModal"/>
+      :progress="dataset.progress"
+    />
+    <confirmation-modal ref="confirmationModal" />
   </div>
 </template>
 
 <script>
-
 import ProgressBar from './ProgressBar.vue'
 import ProgressList from './ProgressList'
-import ConfirmationModal from 'components/ConfirmationModal'
+import ConfirmationModal from '@/components/ConfirmationModal'
 
 export default {
   components: {
@@ -56,13 +62,10 @@ export default {
     }
   },
 
-  emits: [
-    'onRemove',
-    'onSelect'
-  ],
+  emits: ['onRemove', 'onSelect'],
 
   methods: {
-    async destroyDataset (dataset) {
+    async destroyDataset(dataset) {
       const hasImportedData = this.dataset?.progress?.Imported
       const ok = await this.$refs.confirmationModal.show({
         title: dataset.description,
@@ -70,6 +73,7 @@ export default {
           ? 'This will destroy the dataset that is partially imported, are you sure you want to proceed? Imported data will not be destroyed.'
           : 'This will destroy the dataset. Are you sure you want to proceed?.',
         typeButton: 'delete',
+        cancelButton: 'Cancel',
         confirmationWord: hasImportedData ? 'DESTROY' : undefined
       })
 

@@ -1,6 +1,6 @@
 <% a = collection_object_count_by_classification(@data) %>
 
-<%= column_chart a[:data], height: '400px', stacked: true, download: true, descrete: true, ytitle: 'Total', xtitle: 'Order', title: "Total enumerated by #{@rank.gsub('::', '').downcase}" %>
+<%= column_chart a[:data], height: '600px', stacked: true, download: true, descrete: true, ytitle: 'Total', xtitle: 'Order', title: "Total enumerated by #{@rank.gsub('::', '').downcase}" %>
 
 <div style=";">
   <% v = collection_object_preparation_by_classification(@data)  %>

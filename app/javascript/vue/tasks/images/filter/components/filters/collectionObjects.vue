@@ -14,11 +14,13 @@
         <li
           class="middle flex-separate list-complete-item"
           v-for="(otu, index) in coStore"
-          :key="otu.id">
-          <span v-html="otu.object_tag"/>
+          :key="otu.id"
+        >
+          <span v-html="otu.object_tag" />
           <span
             class="btn-delete button-circle button-default"
-            @click="removeCo(index)"/>
+            @click="removeCo(index)"
+          />
         </li>
       </ul>
     </div>
@@ -26,10 +28,9 @@
 </template>
 
 <script>
-
-import Autocomplete from 'components/ui/Autocomplete'
-import { CollectionObject } from 'routes/endpoints'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
+import Autocomplete from '@/components/ui/Autocomplete'
+import { CollectionObject } from '@/routes/endpoints'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
 
 export default {
   components: { Autocomplete },
@@ -43,32 +44,35 @@ export default {
 
   emits: ['update:modelValue'],
 
-  data () {
+  data() {
     return {
       coStore: []
     }
   },
 
   watch: {
-    coStore (newVal) {
-      this.$emit('update:modelValue', newVal.map(otu => otu.id))
+    coStore(newVal) {
+      this.$emit(
+        'update:modelValue',
+        newVal.map((otu) => otu.id)
+      )
     }
   },
 
-  created () {
+  created() {
     const params = URLParamsToJSON(location.href)
     if (params.collection_object_id) {
-      params.collection_object_id.forEach(id => {
+      params.collection_object_id.forEach((id) => {
         this.addCo(id)
       })
     }
   },
 
   methods: {
-    removeCo (index) {
+    removeCo(index) {
       this.coStore.splice(index, 1)
     },
-    addCo (id) {
+    addCo(id) {
       CollectionObject.find(id).then(({ body }) => {
         this.coStore.push(body)
       })

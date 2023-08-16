@@ -1,5 +1,27 @@
 scope :tasks do
+  scope :geographic_areas do
+    scope :usage, controller: 'tasks/geographic_areas/usage' do
+      get '/', action: :index, as: 'geographic_area_usage_task'
+    end
+  end
+
+  scope :observations do
+    scope :filter, controller: 'tasks/observations/filter' do
+      get '/', as: 'filter_observations_task', action: :index
+    end
+  end
+  
+  scope :shared do
+    scope :related_data, controller: 'tasks/shared/related_data' do
+      get '/', action: :index, as: 'related_data_task'
+    end
+  end
+
   scope :administrator do
+    scope :project_classification, controller: 'tasks/administrator/project_classification' do
+      get '/', as: 'project_classification_task', action: :index
+    end
+
     scope :batch_add_users, controller: 'tasks/administrator/batch_add_users' do
       get '/', as: 'batch_add_users_task', action: :index
     end
@@ -20,9 +42,9 @@ scope :tasks do
   end
 
   scope :extracts do
-      scope :filter, controller: 'tasks/extracts/filter' do
-        get '/', as: 'filter_extract_task', action: :index
-      end
+    scope :filter, controller: 'tasks/extracts/filter' do
+      get '/', as: 'filter_extract_task', action: :index
+    end
 
     scope :new_extract, controller: 'tasks/extracts/new_extract' do
       get '/', action: :index, as: 'new_extract_task'
@@ -30,6 +52,10 @@ scope :tasks do
   end
 
   scope :asserted_distributions do
+      scope :filter, controller: 'tasks/asserted_distributions/filter' do
+        get '/', as: 'filter_asserted_distributions_task', action: :index
+      end
+
     scope :basic_endemism, controller: 'tasks/asserted_distributions/basic_endemism' do
       get '/', action: :index, as: 'asserted_distributions_basic_endemism_task'
     end
@@ -56,10 +82,10 @@ scope :tasks do
   end
 
   scope :exports do
-      scope :taxonworks_project, controller: 'tasks/exports/taxonworks_project' do
-        get '/', action: :index, as: 'export_taxonworks_project_task'
-        get 'download', as: 'download_taxonworks_project_task'
-      end
+    scope :taxonworks_project, controller: 'tasks/exports/taxonworks_project' do
+      get '/', action: :index, as: 'export_taxonworks_project_task'
+      get 'download', as: 'download_taxonworks_project_task'
+    end
 
     scope :coldp, controller: 'tasks/exports/coldp' do
       get '/', action: :index, as: 'export_coldp_task'
@@ -95,17 +121,20 @@ scope :tasks do
   end
 
   scope :content do
-      scope :publisher, controller: 'tasks/content/publisher' do
-        get 'summary', as: :publisher_summary,  defaults: {format: :json}
-        get 'topic_table', as: :publisher_topic_table, defaults: {format: :json}
-        get '/', action: :index, as: 'publisher_task'
-        post 'publish_all', defaults: {format: :json}
-        post 'unpublish_all', defaults: {format: :json}
-      end
+    scope :filter, controller: 'tasks/contents/filter' do
+      get '/', action: :index, as: 'filter_contents_task'
+    end
+    scope :publisher, controller: 'tasks/content/publisher' do
+      get 'summary', as: :publisher_summary,  defaults: {format: :json}
+      get 'topic_table', as: :publisher_topic_table, defaults: {format: :json}
+      get '/', action: :index, as: 'publisher_task'
+      post 'publish_all', defaults: {format: :json}
+      post 'unpublish_all', defaults: {format: :json}
+    end
 
-      scope :by_nomenclature, controller: 'tasks/content/by_nomenclature' do
-        get '/', action: :index, as: 'content_by_nomenclature_task'
-      end
+    scope :by_nomenclature, controller: 'tasks/content/by_nomenclature' do
+      get '/', action: :index, as: 'content_by_nomenclature_task'
+    end
 
     scope :editor, controller: 'tasks/content/editor' do
       get 'index', as: 'index_editor_task'
@@ -115,6 +144,10 @@ scope :tasks do
   end
 
   scope :descriptors do
+      scope :filter, controller: 'tasks/descriptors/filter' do
+        get '/', action: :index, as: 'filter_descriptors_task'
+      end
+
     scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
       get '(:descriptor_id)', action: :index, as: 'new_descriptor_task'
     end
@@ -137,13 +170,17 @@ scope :tasks do
   end
 
   scope :loans do
+    scope :dashboard, controller: 'tasks/loans/dashboard' do
+      get '/', action: :index, as: 'loan_dashboard_task'
+    end
+
+    scope :filter, controller: 'tasks/loans/filter' do
+      get '/', action: :index, as: 'filter_loans_task'
+    end
+
     scope :edit_loan, controller: 'tasks/loans/edit_loan' do
       get 'loan_item_metadata', as: 'loan_item_metdata', defaults: {format: :json}
       get '(:id)', action: :index, as: 'edit_loan_task'
-    end
-
-    scope :overdue, controller: 'tasks/loans/overdue' do
-      get 'index', as: 'overdue_loans_task'
     end
   end
 
@@ -162,6 +199,10 @@ scope :tasks do
   end
 
   scope :sources do
+    scope :source_citation_totals, controller: 'tasks/sources/source_citation_totals' do
+      get '/', action: :index, as: 'source_citation_totals_task'
+    end
+
     scope :gnfinder, controller: 'tasks/sources/gnfinder' do
       get '/', action: :index, as: 'gnfinder_task'
     end
@@ -185,9 +226,9 @@ scope :tasks do
   end
 
   scope :collecting_events do
-      scope :new_collecting_event, controller: 'tasks/collecting_events/new_collecting_event' do
-        get '/', action: :index, as: 'new_collecting_event_task'
-      end
+    scope :new_collecting_event, controller: 'tasks/collecting_events/new_collecting_event' do
+      get '/', action: :index, as: 'new_collecting_event_task'
+    end
 
     scope :browse, controller: 'tasks/collecting_events/browse' do
       get '/', action: :index, as: 'browse_collecting_events_task'
@@ -221,6 +262,15 @@ scope :tasks do
   end
 
   scope :collection_objects do
+
+   scope :table, controller: 'tasks/collection_objects/table' do
+     get '/', action: :index, as: 'collection_object_table_task'
+   end
+
+     scope :chronology, controller: 'tasks/collection_objects/chronology' do
+      get '/', action: :index, as: 'collection_object_chronology_task'
+     end
+
     scope :stepwise do
       scope :determinations, controller: 'tasks/collection_objects/stepwise/determinations' do
         get '/', action: :index, as: 'stepwise_determinations_task'
@@ -301,6 +351,14 @@ scope :tasks do
   end
 
   scope :biological_associations do
+      scope :biological_associations_graph, controller: 'tasks/biological_associations/biological_associations_graph' do
+        get '/', action: :index, as: 'edit_biological_associations_graph_task'
+      end
+
+    scope :filter, controller: 'tasks/biological_associations/filter' do
+      get '/', action: :index, as: 'filter_biological_associations_task'
+    end
+
     scope :dot, controller: 'tasks/biological_associations/dot' do
       get 'by_project/:project_id', action: :project_dot_graph, as: :biological_associations_dot_graph_task
     end
@@ -363,15 +421,16 @@ scope :tasks do
     post 'batch_create_match_georeferences'
   end
 
-  scope :gis, controller: 'tasks/gis/drawable_map' do
-    get 'drawn_area_select'
-  end
-
   scope :gis, controller: 'tasks/gis/otu_distribution_data' do
     get 'otu_distribution_data', action: 'show', as: 'otu_distribution_data_task'
   end
 
   scope :nomenclature do
+    scope :paper_catalog, controller: 'tasks/nomenclature/paper_catalog' do
+      get '/', action: :index, as: 'paper_catalog_generator_task'
+      get :preview, as: 'paper_catalog_preview_task'
+    end
+
     scope :match, controller: 'tasks/nomenclature/match' do
       get :index, as: 'match_nomenclature_task'
     end
@@ -398,9 +457,9 @@ scope :tasks do
   end
 
   scope :observation_matrices do
-      scope :matrix_column_coder, controller: 'tasks/observation_matrices/matrix_column_coder' do
-        get :index, as: 'index_matrix_column_coder_task'
-      end
+    scope :matrix_column_coder, controller: 'tasks/observation_matrices/matrix_column_coder' do
+      get :index, as: 'index_matrix_column_coder_task'
+    end
 
     scope :dashboard, controller: 'tasks/observation_matrices/dashboard' do
       get '', as: 'observation_matrices_dashboard_task', action: :index
@@ -451,17 +510,19 @@ scope :tasks do
     end
 
     scope :filter, controller: 'tasks/otus/filter' do
-      get 'index', as: 'otus_filter_task' #'index_area_and_date_task'
-      get 'find', as: 'find_otus_task' # 'find_area_and_date_task'
-      get 'set_area', as: 'set_area_for_otu_filter'
-      get 'set_author', as: 'set_author_for_otu_filter'
-      get 'set_nomen', as: 'set_nomen_for_otu_filter'
-      get 'set_verbatim', as: 'set_verbatim_for_otu_filter'
+      get '/', action: :index, as: 'filter_otus_task' 
+
+  # TODO: remove all
+  #   get 'find', as: 'find_otus_task' # 'find_area_and_date_task'
+  #   get 'set_area', as: 'set_area_for_otu_filter'
+  #   get 'set_author', as: 'set_author_for_otu_filter'
+  #   get 'set_nomen', as: 'set_nomen_for_otu_filter'
+  #   get 'set_verbatim', as: 'set_verbatim_for_otu_filter'
       get 'download', action: 'download', as: 'download_otus_filter_result'
     end
   end
 
-  scope :people do 
+  scope :people do
     scope :author, controller: 'tasks/people/author' do
       get '/', action: :index, as: 'author_list_task'
       get 'source_list_for_author/:id', action: 'source_list_for_author', as: 'author_source_list_task'
@@ -482,11 +543,11 @@ scope :tasks do
   end
 
   scope :taxon_names do
-      scope :merge, controller: 'tasks/taxon_names/merge' do
-        get '/', action: :index, as: 'taxon_name_merge_task'
-        get 'report', as: 'taxon_name_merge_report'
-        post 'merge', as: 'taxon_name_merge'
-      end
+    scope :merge, controller: 'tasks/taxon_names/merge' do
+      get '/', action: :index, as: 'taxon_name_merge_task'
+      get 'report', as: 'taxon_name_merge_report'
+      post 'merge', as: 'taxon_name_merge'
+    end
 
     scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
       get 'index', as: 'syncronize_otus_to_nomenclature_task'

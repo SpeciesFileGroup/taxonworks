@@ -1,4 +1,3 @@
-
 br.clear_both {
   clear: both;
 }
@@ -15,7 +14,8 @@ br.clear_both {
   text-align: center;
 }
 
-.inline, .d-inline {
+.inline,
+.d-inline {
   display: inline;
 }
 
@@ -23,12 +23,16 @@ br.clear_both {
   display: inline-block;
 }
 
+.d-block {
+  display: block !important;
+}
+
 .d-none {
   display: none !important;
 }
 
 .middle_align {
-  vertical-align: middle
+  vertical-align: middle;
 }
 
 .position-relative {

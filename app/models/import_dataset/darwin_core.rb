@@ -145,7 +145,7 @@ class ImportDataset::DarwinCore < ImportDataset
       dwc_data_attributes = project.preferences["model_predicate_sets"].map do |model, predicate_ids|
         [model, Hash[
           *Predicate.where(id: predicate_ids)
-            .select { |p| /^http:\/\/rs.tdwg.org\/dwc\/terms\/.*/ =~ p.uri }
+            .select { |p| /^http:\/\/rs\.tdwg\.org\/dwc\/terms\/.*/ =~ p.uri }
             .map {|p| [p.uri.split('/').last, p]}
             .flatten
           ]

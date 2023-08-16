@@ -1,14 +1,15 @@
 <template>
   <v-btn
     medium
-    color="primary">
+    color="primary"
+  >
     DwC Filter
   </v-btn>
 </template>
 
 <script setup>
-import VBtn from 'components/ui/VBtn/index.vue'
-import { RouteNames } from 'routes/routes'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({
   params: {
@@ -20,5 +21,4 @@ const props = defineProps({
 const openFilter = () => {
   window.open(RouteNames.FilterCollectionObjects)
 }
-
 </script>

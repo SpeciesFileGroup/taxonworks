@@ -26,7 +26,7 @@
 import { GetterNames } from '../../../store/getters/getters.js'
 import { MutationNames } from '../../../store/mutations/mutations.js'
 import extendCO from '../mixins/extendCO.js'
-import SwitchComponent from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
+import SwitchComponent from '@/tasks/observation_matrices/new/components/newMatrix/switch.vue'
 import RepositorySelector from './RepositorySelector.vue'
 
 export default {
@@ -37,7 +37,7 @@ export default {
     RepositorySelector
   },
 
-  data () {
+  data() {
     return {
       switchOptions: ['Current', 'Repository'],
       isCurrent: false
@@ -46,10 +46,10 @@ export default {
 
   computed: {
     locked: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetLocked]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetLocked, value)
       }
     }

@@ -37,13 +37,15 @@
 #     a z coordinate for this item in its container
 #
 class ContainerItem < ApplicationRecord
+
   # @return class
   #   this method calls Module#module_parent
   # TODO: This method can be placed elsewhere inside this class (or even removed if not used)
   #       when https://github.com/ClosureTree/closure_tree/issues/346 is fixed.
-  def self.parent
-    self.module_parent
-  end
+  # TODO: issue is closed, testing.
+  # def self.parent
+  #   self.module_parent
+  # end
 
   has_closure_tree
 

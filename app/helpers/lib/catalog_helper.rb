@@ -12,22 +12,41 @@ module Lib::CatalogHelper
   end
 
   # @return [String, nil]
+  def paper_history_topics(citation)
+    return nil if citation.nil?
+    if s = citation.citation_topics.collect{|t| label_for_controlled_vocabulary_term(t.topic)}.join.html_safe
+      s
+    else
+      nil
+    end
+  end
+
+  # @return [String, nil]
   #    pages from the citation, with prefixed :
   def history_pages(citation)
     return nil if citation.nil?
     str = citation.source.year_suffix.to_s
     str += ": #{citation.pages}." if citation.pages
-#    content_tag(:span, str, class: 'history__pages') unless str.blank?
+    #    content_tag(:span, str, class: 'history__pages') unless str.blank?
     unless str.blank?
       link_to(content_tag(:span, str, title: strip_tags(citation.source.cached), class: 'history__pages'), send(:nomenclature_by_source_task_path, source_id: citation.source.id) )
     end
   end
 
   # @return [String, nil]
-  #   any Notes on the citation in question 
+  #    pages from the citation, with prefixed :
+  def paper_history_pages(citation)
+    return nil if citation.nil?
+    str = citation.source.year_suffix.to_s
+    str += ": #{citation.pages}." if citation.pages
+    str
+  end
+
+  # @return [String, nil]
+  #   any Notes on the citation in question
   def history_citation_notes(citation)
     return nil if citation.nil? || !citation.notes.any?
-    content_tag(:span, citation.notes.collect{|n| note_tag(n)}.join.html_safe, class: 'history__citation_notes') 
+    content_tag(:span, citation.notes.collect{|n| note_tag(n)}.join.html_safe, class: 'history__citation_notes')
   end
 
   def history_in(source)

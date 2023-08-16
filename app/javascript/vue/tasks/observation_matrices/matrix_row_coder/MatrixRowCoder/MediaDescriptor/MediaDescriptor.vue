@@ -26,7 +26,7 @@
         </template>
         <template #filter>
           <div class="horizontal-left-content align-start">
-            <filter-image @result="loadList" />
+            <FilterImage @parameters="loadList" />
             <div class="margin-small-left flex-wrap-row">
               <div
                 v-for="image in filterList"
@@ -38,15 +38,13 @@
                   :width="image.alternatives.thumb.width"
                   :height="image.alternatives.thumb.height"
                   :src="image.alternatives.thumb.image_file_url"
-                >
+                />
               </div>
             </div>
           </div>
         </template>
       </smart-selector>
-      <h3>
-        Created
-      </h3>
+      <h3>Created</h3>
       <ul class="no_bullets">
         <li
           v-for="observation in observations"
@@ -59,7 +57,9 @@
             :depiction="depiction"
           >
             <template #thumbfooter>
-              <div class="horizontal-left-content">
+              <div
+                class="horizontal-left-content padding-xsmall-bottom padding-xsmall-top"
+              >
                 <time-fields
                   :observation="observation"
                   :descriptor="descriptor"
@@ -88,14 +88,15 @@
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
+import { Image } from '@/routes/endpoints'
 import ObservationTypes from '../../store/helpers/ObservationTypes'
 import makeObservation from '../../store/helpers/makeObservation'
 import summaryView from '../SummaryView/SummaryView.vue'
-import FilterImage from 'tasks/images/filter/components/filter'
-import SmartSelector from 'components/ui/SmartSelector'
-import DropzoneComponent from 'components/dropzone'
-import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
+import FilterImage from '@/tasks/images/filter/components/filter'
+import SmartSelector from '@/components/ui/SmartSelector'
+import DropzoneComponent from '@/components/dropzone'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
 import TimeFields from '../Time/TimeFields.vue'
 
 export default {
@@ -123,7 +124,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       filterList: [],
       dropzoneObservation: {
@@ -131,7 +132,9 @@ export default {
         url: '/observations',
         autoProcessQueue: true,
         headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          'X-CSRF-Token': document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute('content')
         },
         dictDefaultMessage: 'Drop image here',
         acceptedFiles: 'image/*,.heic'
@@ -140,59 +143,71 @@ export default {
   },
 
   computed: {
-    matrixRow () {
+    matrixRow() {
       return this.$store.getters[GetterNames.GetMatrixRow]
     },
 
-    observations () {
-      return this.$store.getters[GetterNames.GetObservations].filter(o => o.descriptorId === this.descriptor.id)
+    observations() {
+      return this.$store.getters[GetterNames.GetObservations].filter(
+        (o) => o.descriptorId === this.descriptor.id
+      )
     }
   },
 
-  created () {
+  created() {
     const descriptorId = this.descriptor.id
     const otuId = this.matrixRow.observation_object.global_id
 
-    this.$store.dispatch(ActionNames.RequestObservations, { descriptorId, otuId })
-      .then(_ => this.$store.getters[GetterNames.GetObservationsFor](descriptorId))
+    this.$store
+      .dispatch(ActionNames.RequestObservations, { descriptorId, otuId })
+      .then((_) =>
+        this.$store.getters[GetterNames.GetObservationsFor](descriptorId)
+      )
   },
 
   methods: {
-    loadList (newList) {
-      this.filterList = newList
-    },
-
-    success (file, response) {
+    success(file, response) {
       this.addObservation(response)
       this.$refs.depictionObs.removeFile(file)
     },
 
-    sending (file, xhr, formData) {
+    sending(file, xhr, formData) {
       formData.append('observation[descriptor_id]', this.descriptor.id)
       formData.append('observation[type]', 'Observation::Media')
-      formData.append('observation[observation_object_type]', this.matrixRow.observation_object.base_class)
-      formData.append('observation[observation_object_id]', this.matrixRow.observation_object.id)
+      formData.append(
+        'observation[observation_object_type]',
+        this.matrixRow.observation_object.base_class
+      )
+      formData.append(
+        'observation[observation_object_id]',
+        this.matrixRow.observation_object.id
+      )
       formData.append('extend[]', 'depictions')
     },
 
-    createObservation (image) {
-      this.$store.state.request.createObservation({
-        observation: {
-          descriptor_id: this.descriptor.id,
-          depictions_attributes: [{
-            image_id: image.id
-          }],
-          type: ObservationTypes.Media,
-          observation_object_id: this.matrixRow.observation_object.id,
-          observation_object_type: this.matrixRow.observation_object.base_class
-        },
-        extend: ['depictions']
-      }).then(response => {
-        this.addObservation(response)
-      })
+    createObservation(image) {
+      this.$store.state.request
+        .createObservation({
+          observation: {
+            descriptor_id: this.descriptor.id,
+            depictions_attributes: [
+              {
+                image_id: image.id
+              }
+            ],
+            type: ObservationTypes.Media,
+            observation_object_id: this.matrixRow.observation_object.id,
+            observation_object_type:
+              this.matrixRow.observation_object.base_class
+          },
+          extend: ['depictions']
+        })
+        .then((response) => {
+          this.addObservation(response)
+        })
     },
 
-    addObservation (observation) {
+    addObservation(observation) {
       const args = {
         id: observation.id,
         type: ObservationTypes.Media,
@@ -203,10 +218,16 @@ export default {
       this.$store.commit(MutationNames.AddObservation, makeObservation(args))
     },
 
-    removeObservation (observation) {
+    removeObservation(observation) {
       this.$store.dispatch(ActionNames.RemoveObservation, {
         descriptorId: this.descriptor.id,
         obsId: observation.id
+      })
+    },
+
+    loadList(params) {
+      Image.filter(params).then(({ body }) => {
+        this.filterList = body
       })
     }
   }

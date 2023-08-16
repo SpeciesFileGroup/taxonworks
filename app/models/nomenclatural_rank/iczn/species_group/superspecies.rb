@@ -5,7 +5,7 @@ class NomenclaturalRank::Iczn::SpeciesGroup::Superspecies < NomenclaturalRank::I
   end
 
   def self.typical_use
-    true
+    false
   end
 
   def self.abbreviation

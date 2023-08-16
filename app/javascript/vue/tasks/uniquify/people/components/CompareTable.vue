@@ -31,9 +31,7 @@
       <div class="title-merge">
         <h2>Person to merge</h2>
         <template v-if="!isMergeEmpty">
-          <p data-icon="warning">
-            This person(s) will be deleted.
-          </p>
+          <p data-icon="warning">This person(s) will be deleted.</p>
           <switch-component
             v-model="personIndex"
             use-index
@@ -83,8 +81,9 @@
             v-if="!isNestedProperty(value)"
             class="contextMenuCells"
             :class="{
-              even: (index % 2 == 0),
-              repeated: (value !== selectedMergePerson[key]) && selectedMergePerson[key]
+              even: index % 2 == 0,
+              repeated:
+                value !== selectedMergePerson[key] && selectedMergePerson[key]
             }"
           >
             <td
@@ -135,14 +134,13 @@
 </template>
 
 <script>
-
 import TableAnnotations from './Table/TableAnnotations.vue'
 import TablePersonRoles from './Table/TableDescription.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import SwitchComponent from 'components/switch'
-import ConfirmationModal from 'components/ConfirmationModal.vue'
-import TableGrid from 'components/layout/Table/TableGrid.vue'
-import { capitalize, humanize } from 'helpers/strings'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import SwitchComponent from '@/components/switch'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import TableGrid from '@/components/layout/Table/TableGrid.vue'
+import { capitalize, humanize } from '@/helpers/strings'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 
@@ -158,57 +156,55 @@ export default {
     TableGrid
   },
 
-  emits: [
-    'merge',
-    'flip'
-  ],
+  emits: ['merge', 'flip'],
 
   computed: {
-    selectedEmpty () {
+    selectedEmpty() {
       return Object.keys(this.selected).length > 0
     },
 
-    isMergeEmpty () {
+    isMergeEmpty() {
       return this.mergeList.length === 0
     },
 
-    selectedMergePerson () {
+    selectedMergePerson() {
       return this.mergeList[this.personIndex] || {}
     },
 
-    peopleList () {
-      return this.mergeList.map(p => p.cached)
+    peopleList() {
+      return this.mergeList.map((p) => p.cached)
     },
 
-    mergeList () {
+    mergeList() {
       return this.$store.getters[GetterNames.GetMergePeople]
     },
 
-    selected () {
+    selected() {
       return this.$store.getters[GetterNames.GetSelectedPerson]
     }
   },
 
-  data () {
+  data() {
     return {
       personIndex: 0
     }
   },
 
   methods: {
-    isNestedProperty (value) {
+    isNestedProperty(value) {
       return (
-        Array.isArray(value) ||
-        (typeof value === 'object' && value != null)
+        Array.isArray(value) || (typeof value === 'object' && value != null)
       )
     },
 
-    async sendMerge () {
+    async sendMerge() {
       const confirmed = await this.$refs.confirmationModal.show({
         title: 'Merge people',
-        message: 'This will merge all selected match people to selected person.',
+        message:
+          'This will merge all selected match people to selected person.',
         okButton: 'Merge',
         confirmationWord: 'merge',
+        cancelButton: 'Cancel',
         typeButton: 'submit'
       })
 
@@ -217,11 +213,11 @@ export default {
       }
     },
 
-    humanizeValue (value) {
+    humanizeValue(value) {
       return capitalize(humanize(value))
     },
 
-    flipPeople () {
+    flipPeople() {
       this.$store.dispatch(ActionNames.FlipPeople, this.personIndex)
     }
   }
@@ -229,38 +225,40 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .repeated {
-    color: red
-  }
-  .no-difference {
-    display: none
-  }
-  .column-property {
-    min-width: 105px;
-  }
-  .column-buttons {
-    min-width: 136px;
-  }
-  .column-person, .column-merge {
-    min-width: 250px;
-  }
-  .title-merge, .title-person {
-    min-width: 250px;
-    padding-left: 1em;
-    padding-right: 1em;
-  }
-  .circle-info-project {
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-  }
-  .nulled {
-    background-color: #E5D2BE;
-  }
-  .in-project {
-    background-color: #5D9ECE;
-  }
-  .no-in-project {
-    background-color: #C38A8A;
-  }
+.repeated {
+  color: red;
+}
+.no-difference {
+  display: none;
+}
+.column-property {
+  min-width: 105px;
+}
+.column-buttons {
+  min-width: 136px;
+}
+.column-person,
+.column-merge {
+  min-width: 250px;
+}
+.title-merge,
+.title-person {
+  min-width: 250px;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+.circle-info-project {
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+}
+.nulled {
+  background-color: #e5d2be;
+}
+.in-project {
+  background-color: #5d9ece;
+}
+.no-in-project {
+  background-color: #c38a8a;
+}
 </style>

@@ -193,12 +193,7 @@ class Tools::InteractiveKey
     @remaining = remaining_taxa
     @eliminated = eliminated_taxa
     @list_of_descriptors = useful_descriptors
-
     ### delete temporary data
-
-    # @proceps this is very confusing to initialize a variable, but really not initialize it. If you are
-    # using these to initialize some other initialization then write seperate code to initialize only what is needed?
-
     @row_hash = nil #
     @descriptors_hash = nil
     @rows_with_filter = nil
@@ -300,6 +295,14 @@ class Tools::InteractiveKey
       h[d.id][:count] = 0
       h[d.id][:min] = 999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # min value used as continuous or sample
       h[d.id][:max] = -999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # max value used as continuous or sample
+      if d.type == 'Descriptor::PresenceAbsence'
+        h[d.id][:state_ids]['true'] = {}
+        h[d.id][:state_ids]['true'][:rows] = {}
+        h[d.id][:state_ids]['true'][:status] = 'useless'
+        h[d.id][:state_ids]['false'] = {}
+        h[d.id][:state_ids]['false'][:rows] = {}
+        h[d.id][:state_ids]['true'][:status] = 'useless'
+      end
       h[d.id][:observations] = {} # all observation for a particular
       h[d.id][:observation_hash] = {} ### state_ids, true/false for a particular descriptor/otu_id/catalog_id combination (for PresenceAbsence or Qualitative or Continuous)
       h[d.id][:status] = 'useless' ### 'used', 'useful', 'useless'
@@ -442,7 +445,11 @@ class Tools::InteractiveKey
     array_of_descriptors = []
 
     descriptors_hash.each do |d_key, d_value|
-      taxa_with_unknown_character_states = list_of_remaining_taxa if @eliminate_unknown == false
+      taxa_with_unknown_character_states = {}
+      list_of_remaining_taxa.each do |key, value|
+        taxa_with_unknown_character_states[key] = value
+      end
+      # taxa_with_unknown_character_states = list_of_remaining_taxa if @eliminate_unknown == false
       d_value[:observations].each do |otu_key, otu_value|
         otu_collection_object = otu_key
         if true #@row_hash[otu_collection_object]
@@ -458,8 +465,8 @@ class Tools::InteractiveKey
               end
             end
             unless o.presence.nil?
-              d_value[:state_ids][o.presence.to_s] = {} if d_value[:state_ids][o.presence.to_s].nil?
-              d_value[:state_ids][o.presence.to_s][:rows] = {} if d_value[:state_ids][o.presence.to_s][:rows].nil? ## rows which this state identifies
+              #d_value[:state_ids][o.presence.to_s] = {} if d_value[:state_ids][o.presence.to_s].nil?
+              #d_value[:state_ids][o.presence.to_s][:rows] = {} if d_value[:state_ids][o.presence.to_s][:rows].nil? ## rows which this state identifies
               d_value[:state_ids][o.presence.to_s][:rows][ @row_hash[otu_collection_object][:object_at_rank] ] = true if @row_hash[otu_collection_object][:status] != 'eliminated'
               if selected_descriptors_hash[d_key] && selected_descriptors_hash[d_key].include?(o.presence.to_s)
                 d_value[:state_ids][o.presence.to_s][:status] = 'used' ## 'used', 'useful', 'useless'
@@ -542,7 +549,7 @@ class Tools::InteractiveKey
         descriptor[:min] = d_value[:min]
         descriptor[:max] = d_value[:max]
         number_of_measurements = d_value[:count]
-        s = (d_value[:min] - (d_value[:min] / 10)) / (d_value[:max] - d_value[:min])
+        s = (d_value[:min] - (d_value[:min] / 10)) / (d_value[:max] + 0.0000001 - d_value[:min])
         descriptor[:usefulness] = number_of_taxa * s * (2 - (number_of_measurements / number_of_taxa)) if number_of_taxa > 0
         if descriptor[:status] != 'used' && descriptor[:min] != descriptor[:max]
           d_value[:status] = 'useful'
@@ -560,9 +567,9 @@ class Tools::InteractiveKey
         if d_value[:max] != d_value[:min] && number_of_measurements > 0
           d_value[:state_ids].each do |s_key, s_value|
             if s_value[:o_min] == s_value[:o_max] || s_value[:o_max].blank?
-              s += (s_value[:o_min] - (s_value[:o_min] / 10)) / number_of_measurements / (d_value[:max] - d_value[:min])
+              s += (s_value[:o_min] - (s_value[:o_min] / 10)) / number_of_measurements / (d_value[:max] + 0.0000001 - d_value[:min])
             else
-              s += (s_value[:o_max] - s_value[:o_min]) / number_of_measurements / (d_value[:max] - d_value[:min])
+              s += (s_value[:o_max] - s_value[:o_min]) / number_of_measurements / (d_value[:max] + 0.0000001 - d_value[:min])
             end
             if descriptor[:status] != 'used' && (s_value[:o_min] != d_value[:min] || (!s_value[:o_max].blank? && s_value[:o_max] != d_value[:max]))
               d_value[:status] = 'useful'
@@ -587,8 +594,9 @@ class Tools::InteractiveKey
             state[:status] = 'useless'
           else
             d_value[:status] = 'useful'
+            descriptor[:status] = 'useful'
           end
-          s = (number_of_taxa / number_of_states - s_value[:rows].count) ** 2
+          s += (number_of_taxa / number_of_states - s_value[:rows].count) ** 2
           descriptor[:states] += [state]
         end
         descriptor[:usefulness] = number_of_taxa / number_of_states + Math.sqrt(s) if number_of_states > 0
@@ -600,7 +608,6 @@ class Tools::InteractiveKey
       descriptor[:max] = "%g" % descriptor[:max] if descriptor[:max]
       array_of_descriptors += [descriptor]
     end
-
     case sorting
     when 'ordered'
       array_of_descriptors.sort_by!{|i| i[:position]}

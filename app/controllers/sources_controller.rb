@@ -13,11 +13,17 @@ class SourcesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @sources = Queries::Source::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per] || 500)
+        @sources = Queries::Source::Filter.new(params).all
+        .order(:cached)
+        .page(params[:page])
+        .per(params[:per])
       }
       format.bib {
         # TODO - handle count and download
-        @sources = Queries::Source::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per] || 2000)
+        @sources = Queries::Source::Filter.new(params).all
+        .order(:cached)
+        .page(params[:page])
+        .per(params[:per] || 2000)
       }
     end
   end
@@ -60,13 +66,15 @@ class SourcesController < ApplicationController
   def create
     @source = new_source
     respond_to do |format|
-      if @source&.save
+      # We must check for manually added errors first, as they
+      # are lost when .valid? is called during the callback chain.
+      if !@source.errors.any? && @source.save
         format.html { redirect_to url_for(@source.metamorphosize),
                       notice: "#{@source.type} successfully created." }
         format.json { render action: 'show', status: :created, location: @source.metamorphosize }
       else
         format.html { render action: 'new' }
-        format.json { render json: @source&.errors, status: :unprocessable_entity }
+        format.json { render json: @source.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -79,7 +87,7 @@ class SourcesController < ApplicationController
   def attributes
     render json: ::Source.columns.select{
       |a| Queries::Source::Filter::ATTRIBUTES.include?(
-        a.name)
+        a.name.to_sym)
     }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
 
@@ -98,19 +106,8 @@ class SourcesController < ApplicationController
   end
 
   def parse
-    error_message = 'Unknown'
-
-    begin
-      @source = new_source
-    rescue BibTeX::ParseError => e
-      error_message = e.message
-    end
-
-    if @source
-      render '/sources/show'
-    else
-      render json: { status: :failed, error: error_message }
-    end
+    @source = new_source
+    render '/sources/show'
   end
 
   # PATCH/PUT /sources/1
@@ -147,7 +144,7 @@ class SourcesController < ApplicationController
   end
 
   def autocomplete
-    @term = params.require(:term) 
+    @term = params.require(:term)
     @sources = Queries::Source::Autocomplete.new(
       @term,
       **autocomplete_params
@@ -219,7 +216,7 @@ class SourcesController < ApplicationController
 
   # GET /sources/generate.json?<filter params>
   def generate
-    sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 2000)
+    sources = Queries::Source::Filter.new(params).all.page(params[:page]).per(params[:per] || 2000)
     @download = ::Export::Bibtex.download(
       sources,
       request.url,
@@ -231,7 +228,7 @@ class SourcesController < ApplicationController
 
   # GET /api/v1/sources
   def api_index
-    @sources = Queries::Source::Filter.new(api_params).all
+    @sources = Queries::Source::Filter.new(params.merge!(api: true)).all
       .order('sources.id')
       .page(params[:page]).per(params[:per])
     render '/sources/api/v1/index'
@@ -245,103 +242,15 @@ class SourcesController < ApplicationController
   private
 
   def new_source
-    (params[:bibtex_input].blank? ? Source.new(source_params) : Source::Bibtex.new_from_bibtex_text(params[:bibtex_input])) || nil
+    if params[:bibtex_input].blank?
+      Source.new(source_params)
+    else
+      Source::Bibtex.new_from_bibtex_text(params[:bibtex_input])
+    end
   end
 
   def autocomplete_params
     params.permit(:limit_to_project).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
-  end
-
-  def filter_params
-    params[:project_id] = sessions_current_project_id
-    params.permit(
-      :author,
-      :ancestor_id,
-      :author_ids_or,
-      :citations,
-      :citations_on_otus,
-      :documents,
-      :exact_author,
-      :exact_title,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :in_project,
-      :namespace_id,
-      :nomenclature,
-      :notes,
-      :per,
-      :project_id,
-      :query_term,
-      :recent,
-      :roles,
-      :source_type,
-      :tags,
-      :title,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      :with_doi,
-      :year_end,
-      :year_start,
-      author_ids: [],
-      citation_object_type: [],
-      ids: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      topic_ids: [],
-      serial_ids: [],
-      empty: [],
-      not_empty: []
-    )
-  end
-
-  def api_params
-    params[:project_id] = sessions_current_project_id
-    params.permit(
-      :ancestor_id,
-      :author,
-      :author_ids_or,
-      :citations,
-      :citations_on_otus,
-      # :documents
-      :exact_author,
-      :exact_title,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :in_project,
-      :namespace_id,
-      :nomenclature,
-      :notes,
-      :per,
-      :project_id,
-      :query_term,
-      :recent,
-      :roles,
-      :source_type,
-      :tags,
-      :title,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      :with_doi,
-      :year_end,
-      :year_start,
-      ids: [],
-      author_ids: [],
-      citation_object_type: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      topic_ids: [],
-      serial_ids: [],
-      empty: [],
-      not_empty: []
-    )
   end
 
   def set_source

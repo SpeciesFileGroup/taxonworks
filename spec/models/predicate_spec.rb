@@ -14,16 +14,16 @@ describe Predicate, type: :model do
 
     let!(:data_attribute) { otu.data_attributes << InternalAttribute.new(predicate: predicate, value: '123') }
 
-    let!(:other_attribute) { specimen.data_attributes << InternalAttribute.new(predicate: other_predicate, value: '123', created_at: 4.years.ago) }
+    let!(:other_attribute) { specimen.data_attributes << InternalAttribute.new(predicate: other_predicate, value: '123', created_at: 4.years.ago, updated_at: 4.years.ago) }
 
 
     specify '.used_on_klass 1' do
       expect(Predicate.used_on_klass('Otu')).to contain_exactly(predicate)
-    end 
+    end
 
     specify '.used_on_klass 2' do
       expect(Predicate.used_on_klass('CollectionObject')).to contain_exactly(other_predicate)
-    end 
+    end
 
     specify '.used_recently' do
       expect(Predicate.used_recently(predicate.created_by_id, predicate.project_id, '')).to contain_exactly()

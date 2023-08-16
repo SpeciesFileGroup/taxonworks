@@ -6,7 +6,7 @@
     <spinner
       legend="Loading..."
       full-screen
-      :logo-size="{ width: '50px', height: '50px'}"
+      :logo-size="{ width: '50px', height: '50px' }"
       v-if="isLoading"
     />
     <NavigationMatrix class="margin-medium-bottom" />
@@ -19,9 +19,22 @@
           />
           <RadialNavigator :global-id="descriptor.globalId" />
         </div>
-        <div class="horizontal-right-content middle">
-          <NavigationColumn />
-          <RowObjectList class="margin-medium-left" />
+        <div
+          v-if="descriptor.id"
+          class="horizontal-right-content middle"
+        >
+          <OptionUnsecoredRows class="margin-medium-right" />
+          <template v-if="descriptor.type === componentName.Qualitative">
+            <OptionCharacterStatDisplay class="margin-small-right" />
+            <OptionCharacterStateFilter class="margin-small-right" />
+          </template>
+          <RowObjectList class="margin-small-right" />
+          <CodeColumn
+            class="margin-small-right"
+            :descriptor="descriptor"
+            :column-id="observationColumnId"
+          />
+          <ObservationRowDestroy />
         </div>
       </div>
     </navbar-component>
@@ -35,7 +48,7 @@
       >
         <component
           :is="descriptor.componentName"
-          :index="(index+1)"
+          :index="index + 1"
           :descriptor="descriptor"
           :row-object="rowObject"
         />
@@ -47,23 +60,24 @@
 <script>
 import { mapState } from 'vuex'
 import { ActionNames } from '../store/actions/actions'
+import { GetterNames } from '../store/getters/getters'
+import componentName from '../helpers/ComponentNames'
+import OptionUnsecoredRows from './Option/OptionUnsecoredRows.vue'
+import OptionCharacterStateFilter from './Option/OptionCharacterStateFilter.vue'
+import OptionCharacterStatDisplay from './Option/OptionCharacterStateDispaly.vue'
 import ContinuousDescriptor from './ContinuousDescriptor/ContinuousDescriptor.vue'
 import FreeTextDescriptor from './SingleObservationDescriptor/FreeText/FreeText.vue'
 import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor/PresenceDescriptor.vue'
 import SampleDescriptor from './SampleDescriptor/SampleDescriptor.vue'
 import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
 import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
-import Spinner from 'components/spinner'
-import NavbarComponent from 'components/layout/NavBar.vue'
+import Spinner from '@/components/spinner'
+import NavbarComponent from '@/components/layout/NavBar.vue'
 import NavigationMatrix from './Navigation/NavigationMatrix.vue'
-import NavigationColumn from './Navigation/NavigationColumn.vue'
-import RadialNavigator from 'components/radials/navigation/radial.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RowObjectList from './RowObjects/RowObjects.vue'
-
-const computed = mapState({
-  descriptor: state => state.descriptor,
-  rowObjects: state => state.rowObjects
-})
+import CodeColumn from './CodeColumn/CodeColumn.vue'
+import ObservationRowDestroy from './ObservationRow/ObservationRowDestroy.vue'
 
 export default {
   name: 'MatrixColumnCoder',
@@ -77,10 +91,14 @@ export default {
     SampleDescriptor,
     MediaDescriptor,
     NavigationMatrix,
-    NavigationColumn,
     RowObjectList,
     RadialNavigator,
-    Spinner
+    OptionUnsecoredRows,
+    OptionCharacterStateFilter,
+    OptionCharacterStatDisplay,
+    Spinner,
+    CodeColumn,
+    ObservationRowDestroy
   },
 
   props: {
@@ -90,29 +108,40 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
-      isLoading: false
+      isLoading: false,
+      componentName
     }
   },
 
-  computed,
+  computed: {
+    ...mapState({
+      descriptor: (state) => state.descriptor,
+      observations: (state) => state.observations,
+      onlyScoredRows: (state) => state.options.showOnlyUnscoredRows,
+      observationColumnId: (state) => state.observationColumnId
+    }),
+    rowObjects() {
+      return this.$store.getters[GetterNames.GetRowObjects]
+    }
+  },
 
   watch: {
     columnId: {
-      handler () {
+      handler() {
         this.loadMatrixColumn(this.columnId)
       },
       immediate: true
     }
   },
 
-  created () {
+  created() {
     this.$store.dispatch(ActionNames.LoadUnits)
   },
 
   methods: {
-    loadMatrixColumn (columnId) {
+    loadMatrixColumn(columnId) {
       this.isLoading = true
       this.$store.dispatch(ActionNames.LoadColumns, columnId).then(() => {
         this.isLoading = false

@@ -26,7 +26,7 @@ class PaperCatalog < Catalog::Nomenclature
 
   # @!taxon_name_filter
   #   @return [String or null]
-  # Optional attribute. Restrict output to particular taxon_name_ids "otu_filter=3|5|15".
+  # Optional attribute. Restrict output to particular taxon_name_ids "taxon_name_filter=3|5|15".
   attr_accessor :taxon_name_filter
 
   # @!accepted_only

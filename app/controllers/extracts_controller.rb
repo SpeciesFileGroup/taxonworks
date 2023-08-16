@@ -14,8 +14,9 @@ class ExtractsController < ApplicationController
       end
       format.json {
         @extracts = Queries::Extract::Filter
-          .new(filter_params).all.where(project_id: sessions_current_project_id)
-          .page(params[:page]).per(params[:per] || 500)
+          .new(params).all
+          .where(project_id: sessions_current_project_id)
+          .page(params[:page]).per(params[:per])
       }
     end
   end
@@ -101,39 +102,6 @@ class ExtractsController < ApplicationController
   private
   def set_extract
     @extract = Extract.where(project_id: sessions_current_project_id).find(params[:id])
-  end
-
-  def filter_params
-    params.permit(
-      :id,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifier_type,
-      :recent,
-      :otu_id,
-      :collection_object_id,
-      :repository_id,
-      :extract_start_date_range,
-      :extract_end_date_range,
-      :ancestor_id,
-      :sequences,
-      :extract_origin,
-      :verbatim_anatomical_origin,
-      :exact_verbatim_anatomical_origin,
-      :protocol_id,
-      collection_object_id: [],
-      otu_id: [],
-      protocol_id_and: [],
-      protocol_id_or: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      repository_id: [],
-    )
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

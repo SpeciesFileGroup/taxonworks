@@ -12,11 +12,10 @@
 </template>
 
 <script>
-
 import CRUD from '../../request/crud'
 import annotatorExtend from '../annotatorExtend'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import DisplayList from 'components/displayList.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import DisplayList from '@/components/displayList.vue'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -27,14 +26,11 @@ export default {
   },
 
   methods: {
-    createExtract (item) {
+    createExtract(item) {
       this.create({
-        extract: {
-
-        }
+        extract: {}
       })
     }
   }
-
 }
 </script>

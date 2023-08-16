@@ -1,5 +1,7 @@
 import baseCRUD from './base'
+import ajaxCall from '@/helpers/ajaxCall.js'
 
+const controller = 'data_attributes'
 const permitParams = {
   data_attribute: {
     annotated_global_entity: String,
@@ -13,5 +15,10 @@ const permitParams = {
 }
 
 export const DataAttribute = {
-  ...baseCRUD('data_attributes', permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  createBatch: (params) =>
+    ajaxCall('post', `/${controller}/batch_create`, params),
+
+  brief: (params) => ajaxCall('post', `/${controller}/brief.json`, params)
 }

@@ -3,7 +3,8 @@
     <div class="horizontal-left-content full_width">
       <fieldset
         v-help.section.BibTeX.serial
-        class="full_width">
+        class="full_width"
+      >
         <legend>Serial</legend>
         <div class="horizontal-left-content align-start">
           <smart-selector
@@ -16,26 +17,33 @@
             pin-section="Serials"
             pin-type="Serial"
             :filter-ids="serialId"
-            @selected="setSelected"/>
+            @selected="setSelected"
+          />
           <lock-component
             class="margin-small-left"
-            v-model="settings.lock.serial_id"/>
+            v-model="settings.lock.serial_id"
+          />
           <a
             class="margin-small-top margin-small-left"
             target="_blank"
-            href="/serials/new">New</a>
+            href="/serials/new"
+            >New</a
+          >
         </div>
         <div
           class="middle separate-top"
-          v-if="selected">
+          v-if="selected"
+        >
           <div class="horizontal-left-content">
             <span
               class="separate-right"
-              v-html="selected.name"/>
-            <radial-object :global-id="selected.global_id"/>
+              v-html="selected.name"
+            />
+            <radial-object :global-id="selected.global_id" />
             <span
               class="button-circle btn-undo button-default separate-left"
-              @click="unset"/>
+              @click="unset"
+            />
           </div>
         </div>
       </fieldset>
@@ -44,14 +52,13 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import { Serial } from 'routes/endpoints'
+import { Serial } from '@/routes/endpoints'
 
-import LockComponent from 'components/ui/VLock/index.vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import RadialObject from 'components/radials/navigation/radial'
+import LockComponent from '@/components/ui/VLock/index.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import RadialObject from '@/components/radials/navigation/radial'
 
 export default {
   components: {
@@ -62,37 +69,37 @@ export default {
 
   computed: {
     source: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSource]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSource, value)
       }
     },
 
     serialId: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSerialId]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSerialId, value)
       }
     },
 
     settings: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSettings]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
-    lastSave () {
+    lastSave() {
       return this.$store.getters[GetterNames.GetLastSave]
     }
   },
 
-  data () {
+  data() {
     return {
       selected: undefined
     }
@@ -100,15 +107,14 @@ export default {
 
   watch: {
     serialId: {
-      handler (newVal, oldVal) {
+      handler(newVal, oldVal) {
         if (newVal) {
           if (oldVal !== newVal) {
-            Serial.find(newVal).then(response => {
+            Serial.find(newVal).then((response) => {
               this.selected = response.body
             })
           }
-        }
-        else {
+        } else {
           this.selected = undefined
         }
       },
@@ -118,18 +124,18 @@ export default {
   },
 
   methods: {
-    setSelected (serial) {
+    setSelected(serial) {
       this.source.serial_id = serial.id
       this.selected = serial
     },
 
-    unset () {
+    unset() {
       this.selected = undefined
       this.source.serial_id = null
     },
 
-    getDefault (id) {
-      Serial.find(id).then(response => {
+    getDefault(id) {
+      Serial.find(id).then((response) => {
         this.selected = response.body
       })
     }

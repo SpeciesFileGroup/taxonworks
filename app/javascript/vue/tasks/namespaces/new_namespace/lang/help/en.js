@@ -9,7 +9,7 @@ export default {
       short_name: 'The literal, unchanging component of the identifier.  If virtual, then a mnemonic to that will aid in selection of the Namespace within the user-interface.',
       verbatim_short_name: 'If the short name is already selected, then an alternate short name must be provided.  The literal string, used in export, search, etc. is then placed here.',
       delimiter: 'The character(s) placed between the short name (unchanging) and the identifier.',
-      is_virtual: 'If a Namespace is virtual, then it is not included when exporting or "rendering" identifiers, only for creating sets of identifiers in TaxonWorks, and allowing things like "123" and "123" coming from differnt datasets to be kept seperate.',
+      is_virtual: 'If a Namespace is virtual, then it is not included when exporting or "rendering" identifiers, only for creating sets of identifiers in TaxonWorks, and allowing things like "123" and "123" coming from differnt datasets to be kept separate.',
     }
   }
 }

@@ -1,5 +1,6 @@
-import AjaxCall from 'helpers/ajaxCall'
-import { isObject } from 'helpers/objects'
+import AjaxCall from '@/helpers/ajaxCall'
+import getPagination from '@/helpers/getPagination'
+import { isObject } from '@/helpers/objects'
 
 const BASE_PARAMS = {
   extend: Array,
@@ -15,12 +16,14 @@ const filterParams = (params, allowParams) => {
     return params
   }
 
-  properties.forEach(property => {
+  properties.forEach((property) => {
     if (allowProperties.includes(property)) {
       const paramValue = params[property]
 
       if (Array.isArray(paramValue)) {
-        newObj[property] = paramValue.map(item => filterParams(item, allowParams[property]))
+        newObj[property] = paramValue.map((item) =>
+          filterParams(item, allowParams[property])
+        )
       } else if (isObject(paramValue)) {
         newObj[property] = filterParams(paramValue, allowParams[property])
       } else {
@@ -33,41 +36,87 @@ const filterParams = (params, allowParams) => {
 }
 
 export default (model, permitParams) => ({
-  all: params => AjaxCall('get', `/${model}.json`, { params }),
+  all: async (params = {}) => {
+    const url = `/${model}.json`
+    const maxPer = params.per || 500
+    const requests = [
+      await AjaxCall('get', url, {
+        params: {
+          ...params,
+          per: maxPer
+        }
+      })
+    ]
+    const { totalPages } = getPagination(requests[0])
 
-  create: (data, config) => AjaxCall('post', `/${model}.json`, filterParams(data, { ...BASE_PARAMS, ...permitParams }), config),
+    if (totalPages > 1) {
+      for (let page = 2; page <= totalPages; page++) {
+        requests.push(AjaxCall('get', url, { params: { ...params, page } }))
+      }
+    }
 
-  destroy: id => AjaxCall('delete', `/${model}/${id}.json`),
+    const responses = await Promise.all(requests)
 
-  find: (id, params, config) => AjaxCall('get', `/${model}/${id}.json`, { params }, config),
+    return {
+      body: [].concat(...responses.map(({ body }) => body))
+    }
+  },
 
-  update: (id, data, config) => AjaxCall('patch', `/${model}/${id}.json`, filterParams(data, { ...BASE_PARAMS, ...permitParams }), config),
+  create: (data, config) =>
+    AjaxCall(
+      'post',
+      `/${model}.json`,
+      filterParams(data, { ...BASE_PARAMS, ...permitParams }),
+      config
+    ),
 
-  where: (params, config) => AjaxCall('get', `/${model}.json`, { params }, config),
+  destroy: (id) => AjaxCall('delete', `/${model}/${id}.json`),
 
-  autocomplete: (params, config) => AjaxCall('get', `/${model}/autocomplete`, { params }, config)
+  find: (id, params, config) =>
+    AjaxCall('get', `/${model}/${id}.json`, { params }, config),
+
+  update: (id, data, config) =>
+    AjaxCall(
+      'patch',
+      `/${model}/${id}.json`,
+      filterParams(data, { ...BASE_PARAMS, ...permitParams }),
+      config
+    ),
+
+  where: (params, config) =>
+    AjaxCall('get', `/${model}.json`, { params }, config),
+
+  autocomplete: (params, config) =>
+    AjaxCall('get', `/${model}/autocomplete`, { params }, config)
 })
 
-export {
-  filterParams
-}
+export { filterParams }
 
-export const annotations = model => ({
-  attributions: (id, params) => AjaxCall('get', `/${model}/${id}/attributions.json`, { params }),
+export const annotations = (model) => ({
+  attributions: (id, params) =>
+    AjaxCall('get', `/${model}/${id}/attributions.json`, { params }),
 
-  citations: (id, params) => AjaxCall('get', `/${model}/${id}/citations.json`, { params }),
+  citations: (id, params) =>
+    AjaxCall('get', `/${model}/${id}/citations.json`, { params }),
 
-  dataAttributes: (id, params) => AjaxCall('get', `/${model}/${id}/data_attributes.json`, { params }),
+  dataAttributes: (id, params) =>
+    AjaxCall('get', `/${model}/${id}/data_attributes.json`, { params }),
 
-  depictions: (id, params) => AjaxCall('get', `/${model}/${id}/depictions.json`, { params }),
+  depictions: (id, params) =>
+    AjaxCall('get', `/${model}/${id}/depictions.json`, { params }),
 
-  documentation: (id, params) => AjaxCall('get', `/${model}/${id}/documentation.json`, { params }),
+  documentation: (id, params) =>
+    AjaxCall('get', `/${model}/${id}/documentation.json`, { params }),
 
-  identifiers: (id, params) => AjaxCall('get', `/${model}/${id}/identifiers.json`, { params }),
+  identifiers: (id, params) =>
+    AjaxCall('get', `/${model}/${id}/identifiers.json`, { params }),
 
-  notes: (id, params) => AjaxCall('get', `/${model}/${id}/notes.json`, { params }),
+  notes: (id, params) =>
+    AjaxCall('get', `/${model}/${id}/notes.json`, { params }),
 
-  tags: (id, params) => AjaxCall('get', `/${model}/${id}/tags.json`, { params }),
+  tags: (id, params) =>
+    AjaxCall('get', `/${model}/${id}/tags.json`, { params }),
 
-  protocolRelationships: (id, params) => AjaxCall('get', `/${model}/${id}/protocol_relationships.json`, { params })
+  protocolRelationships: (id, params) =>
+    AjaxCall('get', `/${model}/${id}/protocol_relationships.json`, { params })
 })

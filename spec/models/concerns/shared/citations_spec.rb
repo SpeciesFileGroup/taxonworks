@@ -318,4 +318,8 @@ end
 class TestCitable < ApplicationRecord
   include FakeTable
   include Shared::Citations
+
+  def ignore_citation_restriction
+  end
+
 end

@@ -9,7 +9,9 @@
       v-model="taxonDetermination.roles_attributes"
       v-model:lock="lockDet"
     />
-    <div class="horizontal-left-content date-fields separate-bottom separate-top align-end">
+    <div
+      class="horizontal-left-content date-fields separate-bottom separate-top align-end"
+    >
       <date-fields
         v-model:year="taxonDetermination.year_made"
         v-model:month="taxonDetermination.month_made"
@@ -33,7 +35,9 @@
       class="button normal-input button-submit separate-top"
       @click="addDetermination"
     >
-      {{ taxonDetermination.id || taxonDetermination.uuid ? 'Update' : 'Create' }}
+      {{
+        taxonDetermination.id || taxonDetermination.uuid ? 'Update' : 'Create'
+      }}
     </button>
     <button
       v-else
@@ -49,21 +53,15 @@
 </template>
 
 <script setup>
-import { EVENT_TAXON_DETERMINATION_FORM_RESET } from 'constants/index.js'
-import {
-  ref,
-  reactive,
-  computed,
-  onMounted,
-  onUnmounted
-} from 'vue'
+import { EVENT_TAXON_DETERMINATION_FORM_RESET } from '@/constants/index.js'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 
 import TaxonDeterminationOtu from './TaxonDeterminationOtu.vue'
 import TaxonDeterminationDeterminer from './TaxonDeterminationDeterminer.vue'
-import DateFields from 'components/ui/Date/DateFields.vue'
-import DateNow from 'components/ui/Date/DateToday.vue'
-import makeTaxonDetermination from 'factory/TaxonDetermination.js'
-import LockComponent from 'components/ui/VLock/index.vue'
+import DateFields from '@/components/ui/Date/DateFields.vue'
+import DateNow from '@/components/ui/Date/DateToday.vue'
+import makeTaxonDetermination from '@/factory/TaxonDetermination.js'
+import LockComponent from '@/components/ui/VLock/index.vue'
 
 const props = defineProps({
   createForm: {
@@ -96,46 +94,45 @@ const emit = defineEmits([
 
 const lockDet = computed({
   get: () => props.lockDeterminer,
-  set: value => emit('update:lockDeterminer', value)
+  set: (value) => emit('update:lockDeterminer', value)
 })
 
 const lockOTU = computed({
   get: () => props.lockOtu,
-  set: value => emit('update:lockOtu', value)
+  set: (value) => emit('update:lockOtu', value)
 })
 
 const lockTime = computed({
   get: () => props.lockDate,
-  set: value => emit('update:lockDate', value)
+  set: (value) => emit('update:lockDate', value)
 })
 
 const taxonDetermination = reactive(makeTaxonDetermination())
 const otuLabel = ref('')
 
-const dateString = ({
-  year_made: year,
-  month_made: month,
-  day_made: day
-}) => {
+const dateString = ({ year_made: year, month_made: month, day_made: day }) => {
   const date = [year, month, day].filter(Number).join('-')
 
-  return date
-    ? `on ${date}`
-    : ''
+  return date ? `on ${date}` : ''
 }
 
-const setDetermination = determination => {
+const setDetermination = (determination) => {
   Object.assign(taxonDetermination, makeTaxonDetermination(), determination)
 }
 
-const getRoleString = role =>
+const getRoleString = (role) =>
   role.organization_id
     ? role.name
     : role?.person?.last_name || role?.last_name || ''
 
 const addDetermination = () => {
-  const rolesString = taxonDetermination.roles_attributes.map(getRoleString).join('; ')
-  const label = `${otuLabel.value} by ${rolesString} ${dateString(taxonDetermination)}`
+  const rolesString = taxonDetermination.roles_attributes
+    .map(getRoleString)
+    .join('; ')
+  const rolesLabel = rolesString.length ? 'by ' + rolesString : ''
+  const label = `${otuLabel.value} ${rolesLabel} ${dateString(
+    taxonDetermination
+  )}`
 
   emit('onAdd', {
     uuid: crypto.randomUUID(),
@@ -166,12 +163,15 @@ const resetForm = () => {
   setDetermination(newDetermination)
 }
 
-onMounted(() => document.addEventListener(EVENT_TAXON_DETERMINATION_FORM_RESET, resetForm))
-onUnmounted(() => document.removeEventListener(EVENT_TAXON_DETERMINATION_FORM_RESET, resetForm))
+onMounted(() =>
+  document.addEventListener(EVENT_TAXON_DETERMINATION_FORM_RESET, resetForm)
+)
+onUnmounted(() =>
+  document.removeEventListener(EVENT_TAXON_DETERMINATION_FORM_RESET, resetForm)
+)
 
 defineExpose({
   setDetermination,
   resetForm
 })
-
 </script>

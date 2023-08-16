@@ -36,7 +36,7 @@ class GeographicAreasGeographicItem < ApplicationRecord
   belongs_to :geographic_item, inverse_of: :geographic_areas_geographic_items
 
   validates :geographic_area, presence: true
-  validates :geographic_item, presence: true unless ENV['NO_GEO_VALID']
+  validates :geographic_item, presence: true unless ENV["NO_GEO_VALID"]
 
   # # Postgis specific SQL
   # scope :ordered_by_data_origin, lambda {
@@ -60,27 +60,30 @@ class GeographicAreasGeographicItem < ApplicationRecord
     t = t.alias(table_alias) if !table_alias.blank?
 
     c = Arel::Nodes::Case.new(t[:data_origin])
-    c.when('ne_country').then(1)
-    c.when('ne_state').then(2)
-    c.when('gadm').then(3)
+    c.when("gadm").then(1)
+    c.when("ne_country").then(2)
+    c.when("ne_state").then(3)
+
     c.else(4)
     c
   end
 
   def self.default_geographic_item_data
-    q =  "WITH summary AS (
+    q =
+      "WITH summary AS (
              SELECT p.id,
                     p.geographic_area_id,
                     p.geographic_item_id,
                     ROW_NUMBER() OVER(
                       PARTITION BY p.geographic_area_id
-                      ORDER BY #{origin_order_clause('p').to_sql}) AS rk
+                      ORDER BY #{origin_order_clause("p").to_sql}) AS rk
              FROM geographic_areas_geographic_items p)
           SELECT s.*
             FROM summary s
             WHERE s.rk = 1"
 
-    GeographicAreasGeographicItem.joins("JOIN (#{q}) as z ON geographic_areas_geographic_items.id = z.id")
+    GeographicAreasGeographicItem.joins(
+      "JOIN (#{q}) as z ON geographic_areas_geographic_items.id = z.id"
+    )
   end
-
 end

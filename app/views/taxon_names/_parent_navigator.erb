@@ -51,7 +51,7 @@
 
       <ul class="tree descendent">
         <% 
-        taxon_name.children.order(:name).where(type: 'Protonym').sort_by{|a| RANKS.index(a.rank_string)}.each do |p| 
+        taxon_name.children.order(:name).where(type: 'Protonym').sort_by{|a| [RANKS.index(a.rank_string), a.cached, a.cached_author_year || '']}.each do |p|
         -%>
         <% if p.id == p.cached_valid_taxon_name_id %>
           <li>

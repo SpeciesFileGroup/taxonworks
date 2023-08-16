@@ -100,26 +100,26 @@ class Person < ApplicationRecord
 
   has_one :user, dependent: :restrict_with_error, inverse_of: :person
 
-  has_many :roles, dependent: :restrict_with_error, inverse_of: :person #, before_remove: :set_cached_for_related
+  has_many :roles, dependent: :restrict_with_error, inverse_of: :person # before_remove: :set_cached_for_related
 
   has_many :author_roles, class_name: 'SourceAuthor', dependent: :restrict_with_error, inverse_of: :person #, before_remove: :set_cached_for_related
-  has_many :editor_roles, class_name: 'SourceEditor', dependent: :restrict_with_error, inverse_of: :person
-  has_many :source_roles, class_name: 'SourceSource', dependent: :restrict_with_error, inverse_of: :person
   has_many :collector_roles, class_name: 'Collector', dependent: :restrict_with_error, inverse_of: :person
   has_many :determiner_roles, class_name: 'Determiner', dependent: :restrict_with_error, inverse_of: :person
-  has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', dependent: :restrict_with_error, inverse_of: :person
+  has_many :editor_roles, class_name: 'SourceEditor', dependent: :restrict_with_error, inverse_of: :person
   has_many :georeferencer_roles, class_name: 'Georeferencer', dependent: :restrict_with_error, inverse_of: :person
+  has_many :source_roles, class_name: 'SourceSource', dependent: :restrict_with_error, inverse_of: :person
+  has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', dependent: :restrict_with_error, inverse_of: :person
 
-  has_many :sources, through: :roles, source: :role_object, source_type: 'Source' # Editor or Author or Person
-
-  has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source'
-  has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source'
-  has_many :human_sources, through: :source_roles, source: :role_object, source_type: 'Source'
-
+  has_many :authored_sources, class_name: 'Source::Bibtex', through: :author_roles, source: :role_object, source_type: 'Source', inverse_of: :authors
+  has_many :edited_sources, class_name: 'Source::Bibtex', through: :editor_roles, source: :role_object, source_type: 'Source', inverse_of: :editors
+  has_many :human_sources, class_name: 'Source::Bibtex', through: :source_roles, source: :role_object, source_type: 'Source', inverse_of: :people
+  has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName', class_name: 'Protonym', inverse_of: :taxon_name_authors
   has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent', inverse_of: :collectors
+  has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference', inverse_of: :georeference_authors
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination', inverse_of: :determiners
-  has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName', inverse_of: :taxon_name_authors
-  has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference', inverse_of: :georeferencers
+
+  # TODO: !?
+  has_many :sources, through: :roles, source: :role_object, source_type: 'Source' # Editor or Author or Person
 
   has_many :collection_objects, through: :collecting_events
   has_many :dwc_occurrences, through: :collection_objects
@@ -128,7 +128,7 @@ class Person < ApplicationRecord
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
   scope :ordered_by_last_name, -> { order(:last_name) }
 
-  scope :used_in_project, -> (project_id) { joins(:roles).where( roles: { project_id: project_id } ) }
+  scope :used_in_project, -> (project_id) { joins(:roles).where( roles: { project_id: } ) }
 
   # Apply a "proper" case to all strings
   def namecase_names
@@ -147,8 +147,8 @@ class Person < ApplicationRecord
   # @return Boolean
   #   whether or not this Person is linked to any data in the project
   def used_in_project?(project_id)
-    Role.where(person_id: id, project_id: project_id).any? ||
-      Source.joins(:project_sources, :roles).where(roles: {person_id: id}, project_sources: { project_id: project_id }).any?
+    Role.where(person_id: id, project_id:).any? ||
+      Source.joins(:project_sources, :roles).where(roles: {person_id: id}, project_sources: { project_id: }).any?
   end
 
   # @return [String]
@@ -161,13 +161,13 @@ class Person < ApplicationRecord
   def bibtex_name
     out = ''
 
-    out << prefix + ' ' unless prefix.blank?
-    out << last_name unless last_name.blank?
+    out << prefix + ' ' if prefix.present?
+    out << last_name if last_name.present?
     out << ', ' unless out.blank? || (first_name.blank? && suffix.blank?)
-    out << suffix unless suffix.blank?
+    out << suffix if suffix.present?
 
     out << ', ' unless out.end_with?(', ') || first_name.blank? || out.blank?
-    out << first_name unless first_name.blank?
+    out << first_name if first_name.present?
     out.strip
   end
 
@@ -187,9 +187,11 @@ class Person < ApplicationRecord
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
   #
-  # No person is destroyed, see `hard_merge`.  self is intended to be kept.
+  # No person is destroyed, see `hard_merge`.
+
   #
   # r_person is merged into l_person (self)
+  # !! the intent is to keep self and remove target
   #
   def merge_with(person_id)
     return false if person_id == id
@@ -209,7 +211,7 @@ class Person < ApplicationRecord
 
           l_person_hash = annotations_hash
 
-          unless r_person.first_name.blank?
+          if r_person.first_name.present?
             if first_name.blank?
               update(first_name: r_person.first_name)
             else
@@ -237,7 +239,7 @@ class Person < ApplicationRecord
             end
           end
 
-          unless r_person.last_name.blank?
+          if r_person.last_name.present?
             if last_name.blank?
               self.update(last_name: r_person.last_name) # NameCase() ?
             else
@@ -267,7 +269,7 @@ class Person < ApplicationRecord
 
           r_person.annotations_hash.each do |r_kee, r_objects|
             r_objects.each do |r_o|
-              skip   = false
+              skip  = false
               l_test = l_person_hash[r_kee]
               if l_test.present?
                 l_test.each do |l_o| # only look at same-type annotations
@@ -323,7 +325,7 @@ class Person < ApplicationRecord
           if false && prefix.blank? ## DD: do not change the name of verified person
             write_attribute(:prefix, r_person.prefix)
           else
-            unless r_person.prefix.blank?
+            if r_person.prefix.present?
               # What to do when both have some content?
             end
           end
@@ -331,7 +333,7 @@ class Person < ApplicationRecord
           if false && suffix.blank? ## DD: do not change the name of verified person
             self.suffix = r_person.suffix
           else
-            unless r_person.suffix.blank?
+            if r_person.suffix.present?
               # What to do when both have some content?
             end
           end
@@ -458,11 +460,11 @@ class Person < ApplicationRecord
     p = Person.arel_table
 
     # i is a select manager
-    i = t.project(t['person_id'], t['type'], t['created_at']).from(t)
-      .where(t['created_at'].gt(1.weeks.ago))
-      .where(t['created_by_id'].eq(user_id))
+    i = t.project(t['person_id'], t['type'], t['updated_at']).from(t)
+      .where(t['updated_at'].gt(1.week.ago))
+      .where(t['updated_by_id'].eq(user_id))
       .where(t['type'].eq(role_type))
-      .order(t['created_at'].desc)
+      .order(t['updated_at'].desc)
 
     # z is a table alias
     z = i.as('recent_t')
@@ -478,16 +480,16 @@ class Person < ApplicationRecord
     r = used_recently(user_id, role_type)
     h = {
       quick: [],
-      pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
+      pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
       recent: []
     }
 
     if r.empty?
-      h[:quick] = Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
+      h[:quick] = Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a
     else
       h[:recent] = Person.where('"people"."id" IN (?)', r.first(10) ).to_a
       h[:quick] = (
-        Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
+        Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a +
         Person.where('"people"."id" IN (?)', r.first(4) ).to_a
       ).uniq
     end

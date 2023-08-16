@@ -1,74 +1,47 @@
-
+# Used to handle params from shallow routes like /otus/123/data_attributes 
+# These translate to `otu_id: 123`.
+# !! Only include in annotating filters.
 module Queries::Concerns::Polymorphic
   extend ActiveSupport::Concern
 
+  def self.params
+    [ 
+#     :polymorphic_id,
+#     :polymorphic_type
+    ] 
+  end
+
   included do
-    attr_accessor :polymorphic_ids
-
-    attr_accessor :object_global_id
-
-    attr_accessor :global_object
+    # @return [id, nil] 
+    attr_accessor :polymorphic_id
+ 
+    # @return [ `type` like 'CollectionObject, nil]
+    attr_accessor :polymorphic_type
 
     def self.polymorphic_klass(klass)
       define_singleton_method(:annotating_class){klass}
     end
 
-    def polymorphic_ids=(hash)
-      set_polymorphic_ids(hash)
-    end
+    # @params Hash, already permitted
+    def set_polymorphic_params(params)
+      h  = params.select{|k,v| self.class.annotating_class.related_foreign_keys.include?(k.to_s)} 
 
-    def object_global_id=(value)
-      @object_global_id = value
-    end
-  end
-
-  def set_polymorphic_ids(hash)
-    @polymorphic_ids = hash.select{|k,v| self.class.annotating_class.related_foreign_keys.include?(k.to_s)}
-    @polymorphic_ids ||= {}
-  end
-
-  # @return [ActiveRecord object, nil]
-  def object_for
-    if @global_object = GlobalID::Locator.locate(object_global_id)
-      @global_object
-    else
-      nil
+      # If it's coming in some other way it's not polymorphic/shallow route handling
+      return if h.size != 1
+      @polymorphic_id = h.values.first
+      
+      k = h.keys.first
+      @polymorphic_type = k.to_s.gsub('_id', '').camelize
     end
   end
 
-  def global_object_id
-    object_for&.id
+  def polymorphic_id_facet
+    return nil if polymorphic_id.blank?
+    table[referenced_klass.annotator_id].eq(polymorphic_id).and(table[referenced_klass.annotator_type].eq(polymorphic_type))
   end
 
-  def global_object_type
-    if object_for
-      object_for&.class.base_class.name
-    else
-      nil
-    end
-  end
-
-  # TODO: Dry with polymorphic_params
-  # @return [Arel::Node, nil]
-  def matching_polymorphic_ids
-    nodes = Queries::Annotator.polymorphic_nodes(polymorphic_ids, self.class.annotating_class)
-    return nil if nodes.nil?
-    a = nodes.shift
-    nodes.each do |b|
-      a = a.and(b)
-    end
-    a
-  end
-
-  # Not necessary, handled by splitting out id/type
-  # TODO: remove paradigm from Notes facets
-  def object_global_id_facet
-    return nil if object_global_id.nil?
-    o = GlobalID::Locator.locate(object_global_id)
-    k = o.class.base_class.name
-    id = o.id
-    t = self.class.annotating_class.table_name.singularize + '_object'
-    table["#{t}_id".to_sym].eq(o.id).and(table["#{t}_type".to_sym].eq(k))
+  def self.and_clauses
+    [ :polymorphic_id_facet ]
   end
 
 end

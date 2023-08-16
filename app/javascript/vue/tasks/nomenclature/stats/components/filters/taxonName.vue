@@ -6,7 +6,8 @@
         v-if="taxon && taxon.parent && checkRank(taxon.parent)"
         type="button"
         class="button normal-input button-default"
-        @click="getTaxon(taxon.parent)">
+        @click="getTaxon(taxon.parent)"
+      >
         Set to {{ taxon.parent.name }}
       </button>
     </div>
@@ -22,71 +23,79 @@
         :add-params="{
           'type[]': 'Protonym'
         }"
-        @getItem="getTaxon"/>
+        @getItem="getTaxon"
+      />
     </div>
-    <span 
+    <span
       v-if="taxon"
-      v-html="taxon.object_tag"/>
+      v-html="taxon.object_tag"
+    />
   </div>
 </template>
 
 <script>
-
-import Autocomplete from 'components/ui/Autocomplete'
+import Autocomplete from '@/components/ui/Autocomplete'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
-import { RouteNames } from 'routes/routes'
-import { TaxonName } from 'routes/endpoints'
+import { RouteNames } from '@/routes/routes'
+import { TaxonName } from '@/routes/endpoints'
 
 export default {
   components: { Autocomplete },
 
   computed: {
     taxon: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetTaxon]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetTaxon, value)
       }
     },
 
-    ranksList () {
+    ranksList() {
       return this.$store.getters[GetterNames.GetRanks]
     }
   },
 
-  mounted () {
+  mounted() {
     this.GetParams()
   },
 
   methods: {
-    GetParams () {
+    GetParams() {
       const urlParams = new URLSearchParams(window.location.search)
       const taxonId = urlParams.get('taxon_name_id')
 
-      if ((/^\d+$/).test(taxonId)) {
+      if (/^\d+$/.test(taxonId)) {
         this.getTaxon({ id: taxonId })
       }
     },
 
-    checkRank (taxon) {
+    checkRank(taxon) {
       const ranksFilter = [...new Set(this.getRankNames(this.ranksList))]
-      return ranksFilter.find(rank => taxon.rank === rank)
+      return ranksFilter.find((rank) => taxon.rank === rank)
     },
 
-    getTaxon (event) {
-      TaxonName.find(event.id).then(response => {
+    getTaxon(event) {
+      TaxonName.find(event.id).then((response) => {
         if (this.checkRank(response.body)) {
           this.taxon = response.body
-          history.pushState(null, null, `${RouteNames.NomenclatureStats}?taxon_name_id=${this.taxon.id}`)
+          history.pushState(
+            null,
+            null,
+            `${RouteNames.NomenclatureStats}?taxon_name_id=${this.taxon.id}`
+          )
         } else {
-          TW.workbench.alert.create('Please choose a taxon with a governed code of nomenclature.', 'alert')
+          TW.workbench.alert.create(
+            'Please choose a taxon with a governed code of nomenclature.',
+            'alert'
+          )
         }
       })
     },
 
-    getRankNames (list, nameList = []) {
+    getRankNames(list, nameList = []) {
       for (const key in list) {
         if (typeof list[key] === 'object') {
           this.getRankNames(list[key], nameList)
@@ -103,15 +112,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .field {
-    label {
-      display: block;
-    }
+.field {
+  label {
+    display: block;
   }
-  .field-year {
-    width: 60px;
-  }
-  :deep(.vue-autocomplete-list) {
-    min-width: 800px;
-  }
+}
+.field-year {
+  width: 60px;
+}
+:deep(.vue-autocomplete-list) {
+  min-width: 800px;
+}
 </style>

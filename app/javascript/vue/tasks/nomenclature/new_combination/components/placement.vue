@@ -2,14 +2,19 @@
   <button
     @click="create"
     type="button"
-    v-if="!combination.placement.same && taxon && parent && taxon.parent_id != parent.id"
-    class="button button-submit normal-input">
+    v-if="
+      !combination.placement.same &&
+      taxon &&
+      parent &&
+      taxon.parent_id != parent.id
+    "
+    class="button button-submit normal-input"
+  >
     Move {{ taxon.name }} to {{ parentName }}
   </button>
 </template>
 <script>
-
-import { TaxonName } from 'routes/endpoints'
+import { TaxonName } from '@/routes/endpoints'
 
 export default {
   props: {
@@ -22,19 +27,23 @@ export default {
   emits: ['created'],
 
   computed: {
-    parentName () {
+    parentName() {
       if (!this.parent) return
-      this.protonyms.some((item, index) => {
-        if (this.protonyms[index].rank === 'subgenus') {
-          this.protonyms[index].taxon.name = `(${this.protonyms[index].taxon.name})`
-          return true
+
+      this.protonyms.forEach((item, index) => {
+        if (item.rank === 'subgenus') {
+          item.taxon.name = `(${item.taxon.name})`
         }
-        return false
       })
-      return this.protonyms.slice(1).reverse().map(protonym => { return protonym.taxon.name }).join(' ')
+
+      return this.protonyms
+        .slice(1)
+        .reverse()
+        .map((protonym) => protonym.taxon.name)
+        .join(' ')
     }
   },
-  data () {
+  data() {
     return {
       taxon: undefined,
       parent: undefined,
@@ -42,7 +51,7 @@ export default {
       ranks: ['subspecies', 'species', 'subgenus', 'genus']
     }
   },
-  mounted () {
+  created() {
     this.orderRanks()
     this.taxon = this.protonyms[0].taxon
     if (this.protonyms[1]) {
@@ -50,26 +59,33 @@ export default {
     }
   },
   methods: {
-    create () {
+    create() {
       const data = {
         taxon_name: {
           id: this.taxon.id,
           parent_id: this.parent.id
-        }
+        },
+        extend: ['parent']
       }
-      TaxonName.update(this.taxon.id, data).then(response => {
-        TW.workbench.alert.create(`Updated parent of ${response.body.name} to ${response.body.parent.name}`, 'notice')
+      TaxonName.update(this.taxon.id, data).then((response) => {
+        TW.workbench.alert.create(
+          `Updated parent of ${response.body.name} to ${response.body.parent.object_label}`,
+          'notice'
+        )
         this.$emit('created', response.body)
       })
     },
-    orderRanks () {
-      this.ranks.forEach(rank => {
+    orderRanks() {
+      this.ranks.forEach((rank) => {
         if (this.combination.protonyms[rank]) {
-          this.protonyms.push({ rank: rank, taxon: this.combination.protonyms[rank] })
+          this.protonyms.push({
+            rank,
+            taxon: this.combination.protonyms[rank]
+          })
         }
       })
     },
-    mapOrder (array, order, key) {
+    mapOrder(array, order, key) {
       array.sort((a, b) => {
         const A = a[key]
         const B = b[key]

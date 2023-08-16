@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Identifier::Global::Wikidata, type: :model, group: :identifiers do
-  let(:id) { Identifier::Global::Wikidata.new }
+  let(:id) { Identifier::Global::Wikidata.new(identifier_object: FactoryBot.create(:valid_person)) }
 
   context 'looking for data', vcr: true do
     specify 'matches "namespace" 1' do

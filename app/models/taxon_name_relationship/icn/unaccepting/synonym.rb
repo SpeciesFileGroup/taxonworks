@@ -4,7 +4,9 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
-        self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting) +
+        self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting,
+                          TaxonNameRelationship::Icn::Unaccepting::OriginallyInvalid,
+                          TaxonNameRelationship::Icn::Unaccepting::Misapplication) +
         self.collect_descendants_to_s(TaxonNameRelationship::Icn::Unaccepting::Usage)
   end
 
@@ -33,9 +35,9 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::
   def sv_synonym_relationship
     if self.source
       date1 = self.source.cached_nomenclature_date.to_time
-      date2 = self.subject_taxon_name.nomenclature_date
+      date2 = self.subject_taxon_name.cached_nomenclature_date
       if !!date1 && !!date2
-        soft_validations.add(:base, "#{self.subject_taxon_name.cached_html_name_and_author_year} was not described at the time of citation (#{date1}") if date2 > date1
+        soft_validations.add(:base, "#{self.subject_taxon_name.cached_html_name_and_author_year} was not described at the time of citation (#{date1.to_date})") if date2.to_date > date1.to_date
       end
     else
       soft_validations.add(:base, 'The original publication is not selected')

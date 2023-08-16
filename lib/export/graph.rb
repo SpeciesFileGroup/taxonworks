@@ -18,7 +18,7 @@ class Export::Graph
     'Source' => '#2196F3',
     'AssertedDistribution' => '#FF9800',
     'Image' => '#CDDC39',
-  }
+  }.freeze
 
   NODE_SHAPES = {
     'Person' => 'person',
@@ -32,14 +32,14 @@ class Export::Graph
     'ControlledVocabularyTerm' => nil,
     'BiologicalRelationship' => 'square' ,
     'Observation' => 'square',
-    'Citation' => 'square',
     'Repository' => 'circle',
     'Georeference' => 'square',
     'Source' => 'pentagon',
     'Citation' => 'octagon',
     'AssertedDistribution' => 'pentagon',
-    'Image' => 'square'
-  }
+    'Image' => 'square',
+    'GeographicArea' => 'square'
+  }.freeze
 
   RENDERABLE_ANNOTATIONS = []
 
@@ -68,8 +68,8 @@ class Export::Graph
 
   def to_json(include_stats: true)
     h =  {
-      nodes: nodes,
-      edges: edges
+      nodes:,
+      edges:
     }
 
     h[:stats] = stats if include_stats
@@ -78,7 +78,7 @@ class Export::Graph
 
   def add(object, object_origin = nil, edge_label: nil, edge_link: nil)
     add_node(object)
-    add_edge(object_origin, object, edge_label: edge_label, edge_link: edge_link) if !object_origin.nil?
+    add_edge(object_origin, object, edge_label:, edge_link:) if !object_origin.nil?
   end
 
   # TODO factor view options out
@@ -111,7 +111,7 @@ class Export::Graph
   end
 
   def add_edge(object, object_origin = nil, edge_label: nil, edge_link: nil)
-    @edges.push graph_edge(object_origin, object, edge_label: edge_label, edge_link: edge_link)
+    @edges.push graph_edge(object_origin, object, edge_label:, edge_link:)
   end
 
   def graph_node(object, node_link: nil)
@@ -123,7 +123,7 @@ class Export::Graph
     }
 
     if b == 'ControlledVocabularyTerm'
-      object.css_color  || '#000000'
+      object.css_color || '#000000'
     else
       h[:color] = NODE_COLORS[b] || '#000000'
     end
@@ -141,8 +141,8 @@ class Export::Graph
     }
 
     # TODO: change label to name
-    h[:label] = edge_label unless edge_label.blank?
-    h[:link] = edge_link unless edge_link.blank?
+    h[:label] = edge_label if edge_label.present?
+    h[:link] = edge_link if edge_link.present?
     h
   end
 
@@ -173,7 +173,6 @@ class Export::Graph
       node_personability:  ( count_peopled_nodes.to_f / count_nodes.to_f * 100.0 ).round(2).to_s + '%',
       node_identifiability:  ( count_identified_nodes.to_f / count_nodes.to_f * 100.0).round(2).to_s + '%',
       identifier_saturation:  (count_identifiers.to_f / count_identified_nodes.to_f * 100.0).round(2).to_s + '% (total identifiers / identified nodes * 100)',
-
     }
   end
 

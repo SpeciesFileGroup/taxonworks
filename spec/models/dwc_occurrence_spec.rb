@@ -205,8 +205,8 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
           dwc_occurrence.valid?
         end
 
-        specify 'is set to "Occurrence"' do
-          expect(dwc_occurrence.basisOfRecord).to eq('Occurrence')
+        specify 'is set to "MaterialCitation"' do
+          expect(dwc_occurrence.basisOfRecord).to eq('MaterialCitation')
         end
       end
     end
@@ -240,3 +240,4 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   end
 
 end
+

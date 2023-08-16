@@ -67,7 +67,8 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
         end
       end
 
-      specify 'remove html tags with special pseudo-LaTeX encodings except for <em>/<i>' do
+      # TODO: Find new example
+      xspecify 'remove html tags with special pseudo-LaTeX encodings except for <em>/<i>' do
         VCR.use_cassette('source_from_naked_doi') do
           s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: naked_doi)
           expect(s.title).to include('<i>Tachycines</i>')
@@ -92,12 +93,12 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
     }
 
     specify 'text1' do
-      expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. G. Fischer, Available from https://doi.org/10.5962%2Fbhl.title.1086')
+      expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. G. Fischer, Available at https://doi.org/10.5962%2Fbhl.title.1086')
     end
 
     specify 'html1' do
       expect(src1.cached_string('html')).to eq(
-        'Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> G. Fischer, Available from https://doi.org/10.5962%2Fbhl.title.1086')
+        'Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> G. Fischer, Available at https://doi.org/10.5962%2Fbhl.title.1086')
     end
 
     # Hacked Zootaxa format

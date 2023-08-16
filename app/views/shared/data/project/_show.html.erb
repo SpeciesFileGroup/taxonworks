@@ -65,7 +65,6 @@
           <div id="show_report_dropdown" class="navigation-item menu-drop">
             <span data-icon="annotate" class="small-icon">Report</span>
             <ul class="dropdown">
-              <%= related_data_link_tag(object) -%>
               <%= papertrail_link_tag(object) %>
               <%= yield :report -%>
             </ul>

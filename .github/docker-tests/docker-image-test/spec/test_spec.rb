@@ -16,7 +16,7 @@ Capybara.register_driver :selenium do |app|
   options.profile = profile
   profile.proxy = proxy.selenium_proxy
 
-  options.headless!
+  options.add_argument('-headless')
 
   Capybara::Selenium::Driver.new(
     app,

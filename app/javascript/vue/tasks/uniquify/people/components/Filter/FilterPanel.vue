@@ -21,7 +21,7 @@
           Match people
         </button>
       </div>
-      <facet-in-project v-model="params.base.used_in_project_id" />
+      <facet-in-project v-model="params.base.only_project_id" />
       <h3>Person</h3>
       <facet-name-field
         title="Name"
@@ -55,13 +55,12 @@
 </template>
 
 <script>
-
 import FacetActive from './Facets/FacetActive.vue'
 import FacetBorn from './Facets/FacetBorn.vue'
 import FacetDied from './Facets/FacetDied.vue'
 import FacetRoleTypes from './Facets/FacetRoleType.vue'
-import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
-import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
+import KeywordsComponent from '@/components/Filter/Facets/shared/FacetTags.vue'
+import UsersComponent from '@/components/Filter/Facets/shared/FacetUsers.vue'
 import FacetLevenshteinCuttoff from './Facets/FacetLevenshteinCuttoff.vue'
 import FacetNameField from './Facets/FacetNameField.vue'
 import FacetInProject from './Facets/FacetInProject.vue'
@@ -86,19 +85,16 @@ export default {
     }
   },
 
-  emits: [
-    'findPeople',
-    'matchPeople'
-  ],
+  emits: ['findPeople', 'matchPeople'],
 
-  data () {
+  data() {
     return {
       params: this.initParams()
     }
   },
 
   computed: {
-    parsedParams () {
+    parsedParams() {
       return this.filterEmptyParams({
         ...this.params.base,
         ...this.params.keywords,
@@ -112,7 +108,7 @@ export default {
   },
 
   watch: {
-    levenshteinCuttoff (newVal) {
+    levenshteinCuttoff(newVal) {
       if (newVal !== 0) {
         this.params.base.first_name = undefined
         this.params.base.last_name = undefined
@@ -121,7 +117,7 @@ export default {
   },
 
   methods: {
-    initParams () {
+    initParams() {
       return {
         settings: {
           per: 100
@@ -132,7 +128,7 @@ export default {
           first_name: '',
           role: [],
           person_wildcard: [],
-          used_in_project_id: []
+          only_project_id: []
         },
         keywords: {
           keyword_id_and: [],
@@ -159,10 +155,10 @@ export default {
       }
     },
 
-    filterEmptyParams (object) {
+    filterEmptyParams(object) {
       const keys = Object.keys(object)
 
-      keys.forEach(key => {
+      keys.forEach((key) => {
         if (object[key] === '') {
           delete object[key]
         }
@@ -170,7 +166,7 @@ export default {
       return object
     },
 
-    resetFilter () {
+    resetFilter() {
       this.params = this.initParams()
     }
   }

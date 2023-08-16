@@ -1,5 +1,16 @@
-# Methods that recieve or generate a String. This methods in this library should be completely independant (i.e. ultimately gemifiable) from TaxonWorks.
+# Methods that receive or generate a String. This methods in this library should be completely independant (i.e. ultimately gemifiable) from TaxonWorks.
 module Utilities::Strings
+
+  # @return String, nil
+  #   replace <br>, <i>, <b> tags with their asciidoc equivalents
+  def self.asciify(string)
+    return nil if string.to_s.length == 0
+
+    string.gsub!(/<br>/, "\n")
+    string.gsub!(/<i>|<\/i>/, '_')
+    string.gsub!(/<b>|<\/b>/, '**')
+    string
+  end
 
   def self.linearize(string, separator = ' | ')
     return nil if string.to_s.length == 0
@@ -121,11 +132,13 @@ module Utilities::Strings
   # @param string [String]
   # @return [Array]
   #   whitespace and special character split, then any string containing a digit eliminated
+  # #alphanumeric allows searches by page number, year, etc.
   def self.alphabetic_strings(string)
     return [] if string.nil? || string.length == 0
     string.split(/[^[[:word:]]]+/).select { |b| !(b =~ /\d/) }.reject { |b| b.empty? }
   end
 
+  # alphanumeric allows searches by page number, year, etc.
   def self.alphanumeric_strings(string)
     return [] if string.nil? || string.length == 0
     string.split(/[^[[:word:]]]+/).reject { |b| b.empty? }

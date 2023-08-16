@@ -91,7 +91,6 @@ module CollectingEvent::Georeference
     end
   end
 
-
   # @return [Symbol, nil]
   #   the name of the method that will return an Rgeo object that represent
   #   the "preferred" centroid for this collecing event

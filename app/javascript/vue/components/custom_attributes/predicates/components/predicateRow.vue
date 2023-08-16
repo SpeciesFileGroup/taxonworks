@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="field"
-  >
+  <div class="field">
     <label v-html="predicateObject.object_tag" />
     <autocomplete
       :url="`/data_attributes/value_autocomplete`"
@@ -10,13 +8,13 @@
       :add-params="{
         predicate_id: this.predicateObject.id
       }"
-      param="term"/>
+      param="term"
+    />
   </div>
 </template>
 
 <script>
-
-import Autocomplete from 'components/ui/Autocomplete'
+import Autocomplete from '@/components/ui/Autocomplete'
 
 export default {
   components: {
@@ -45,25 +43,25 @@ export default {
 
   emits: ['onUpdate'],
 
-  data () {
+  data() {
     return {
       data_attribute: this.newDataAttribute()
     }
   },
 
   watch: {
-    existing (newVal) {
+    existing(newVal) {
       this.data_attribute = newVal || this.newDataAttribute()
     },
 
     data_attribute: {
-      handler () {
+      handler() {
         this.updatePredicate()
       },
       deep: true
     },
 
-    objectId (newVal) {
+    objectId(newVal) {
       if (!newVal) {
         this.data_attribute.value = undefined
       }
@@ -71,7 +69,7 @@ export default {
   },
 
   methods: {
-    newDataAttribute () {
+    newDataAttribute() {
       return {
         type: 'InternalAttribute',
         controlled_vocabulary_term_id: this.predicateObject.id,
@@ -81,7 +79,7 @@ export default {
       }
     },
 
-    updatePredicate () {
+    updatePredicate() {
       let data
 
       if (!this.data_attribute?.value?.length && this.data_attribute?.id) {
@@ -95,6 +93,5 @@ export default {
       this.$emit('onUpdate', data)
     }
   }
-
 }
 </script>

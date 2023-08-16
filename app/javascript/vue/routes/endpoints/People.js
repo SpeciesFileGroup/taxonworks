@@ -1,5 +1,5 @@
 import baseCRUD, { annotations } from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'people'
 const permitParams = {
@@ -23,7 +23,9 @@ export const People = {
 
   roleTypes: () => AjaxCall('get', `/${controller}/role_types.json`),
 
-  roles: id => AjaxCall('get', `/${controller}/${id}/roles.json`),
+  roles: (id) => AjaxCall('get', `/${controller}/${id}/roles.json`),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
 
   merge: (id, params) => AjaxCall('post', `/people/${id}/merge`, params)
 }

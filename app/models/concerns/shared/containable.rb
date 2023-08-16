@@ -13,8 +13,6 @@ module Shared::Containable
     has_one :container_item, as: :contained_object, dependent: :destroy
     has_one :parent_container_item, through: :container_item, source: :parent, class_name: 'ContainerItem'
     has_one :container, through: :parent_container_item, source: :contained_object, source_type: 'Container'
-
-    # has_many :containers, through: :container_item, source_type: 'Container', source: :contained_object
   end
 
   # What has been put in contained_in might be a container, or the id of a container:

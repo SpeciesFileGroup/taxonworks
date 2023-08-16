@@ -7,7 +7,6 @@
         :list="depictions"
         item-key="id"
         @choose="setObservationDragged"
-        @remove="removeDepiction"
       >
         <template #item="{ element }">
           <div class="drag-container">
@@ -16,10 +15,13 @@
               :depiction="element"
             >
               <template #thumbfooter>
-                <div class="horizontal-left-content">
+                <div
+                  class="horizontal-left-content padding-xsmall-bottom padding-xsmall-top"
+                >
                   <radial-annotator
                     type="annotations"
-                    :global-id="element.image.global_id"/>
+                    :global-id="element.image.global_id"
+                  />
                   <button-citation
                     :global-id="element.image.global_id"
                     :citations="element.image.citations"
@@ -39,11 +41,10 @@
 </template>
 
 <script>
-
 import DraggableComponent from 'vuedraggable'
-import VIcon from 'components/ui/VIcon/index.vue'
-import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import ButtonCitation from './ButtonCitation.vue'
 import { MutationNames } from '../store/mutations/mutations'
 
@@ -64,31 +65,28 @@ export default {
 
     depictions: {
       type: Array,
-      default: () => ([])
+      default: () => []
     }
   },
 
-  emits: ['removeDepiction'],
-
   methods: {
-    setObservationDragged (event) {
-      this.$store.commit(MutationNames.SetDepictionMoved, this.depictions[event.oldIndex])
-    },
-
-    removeDepiction ({ oldIndex }) {
-      this.$emit('removeDepiction', oldIndex)
+    setObservationDragged(event) {
+      this.$store.commit(
+        MutationNames.SetDepictionMoved,
+        this.depictions[event.oldIndex]
+      )
     }
   }
 }
 </script>
 
 <style scoped>
-  .drag-container {
-    padding-top: 0.5em;
-  }
+.drag-container {
+  padding-top: 0.5em;
+}
 
-  .matrix-image-draggable {
-    min-height: 100px;
-    box-sizing: content-box;
-  }
+.matrix-image-draggable {
+  min-height: 100px;
+  box-sizing: content-box;
+}
 </style>

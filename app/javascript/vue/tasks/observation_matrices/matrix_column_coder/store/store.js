@@ -13,7 +13,12 @@ const makeInitialState = () => ({
   observations: [],
   units: undefined,
   nextColumn: {},
-  previousColumn: {}
+  previousColumn: {},
+  options: {
+    showOnlyUnscoredRows: false,
+    showCharacterStates: [],
+    showScoredCharacterStates: []
+  }
 })
 
 const newStore = () => createStore({

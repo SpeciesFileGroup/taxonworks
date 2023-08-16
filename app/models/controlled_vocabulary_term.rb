@@ -25,7 +25,7 @@
 #     A SKOS relationship that defines/describes the relationship between the concept identified by the URI and the concept defined in the definition.
 #
 class ControlledVocabularyTerm < ApplicationRecord
-  # ControlledVocabularyTerms are NOT taggable
+  # ControlledVocabularyTerms are NOT Taggable (with 'Tag')
   include Housekeeping
   include Shared::AlternateValues
   include Shared::HasPapertrail
@@ -34,7 +34,6 @@ class ControlledVocabularyTerm < ApplicationRecord
 
   acts_as_list scope: [:project_id, :type]
 
-  # Class constants
   ALTERNATE_VALUES_FOR = [:name, :definition].freeze
 
   validates_presence_of :name, :definition, :type
@@ -50,7 +49,8 @@ class ControlledVocabularyTerm < ApplicationRecord
 
   has_many :observation_matrix_row_items, as: :observation_object, inverse_of: :observation_object,  class_name: 'ObservationMatrixRowItem::Dynamic::Tag', dependent: :destroy
   has_many :observation_matrix_column_items, inverse_of: :controlled_vocabulary_term, class_name: 'ObservationMatrixColumnItem::Dynamic::Tag', dependent: :destroy
-  
+
+  # TODO: this needs to come through columns rows
   has_many :observation_matrices, through: :observation_matrix_row_items
 
   scope :of_type, -> (type) { where(type: type.to_s.capitalize) } # TODO, capitalize is not the right method for things like `:foo_bar`
@@ -61,7 +61,6 @@ class ControlledVocabularyTerm < ApplicationRecord
   def uri_relation_is_a_skos_relation
     errors.add(:uri_relation, 'is not a valid uri relation') if !SKOS_RELATIONS.keys.include?(uri_relation)
   end
-
 end
 
 require_dependency 'biocuration_class'

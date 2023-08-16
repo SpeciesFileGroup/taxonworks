@@ -9,41 +9,54 @@
           <div class="horizontal-left-content middle margin-small-bottom">
             <switch-component
               v-model="tabSelected"
-              :options="Object.keys(smartTypes)"/>
+              :options="Object.keys(smartTypes)"
+            />
             <lock-component
               class="margin-small-left"
-              v-model="settings.lock.originRelationships"/>
+              v-model="settings.lock.originRelationships"
+            />
           </div>
 
           <smart-selector
             :model="smartTypes[tabSelected]"
             klass="Extract"
             target="Extract"
-            @selected="setOrigin"/>
+            @selected="setOrigin"
+          />
         </template>
 
         <div
           v-if="originRelationship.label"
-          class="horizontal-left-content">
-          <span v-html="originRelationship.label"/>
+          class="horizontal-left-content"
+        >
+          <span v-html="originRelationship.label" />
           <button
             class="button circle-button btn-undo button-default"
             type="button"
-            @click="store.commit(MutationNames.SetOriginRelationship, makeOriginRelationship())"/>
+            @click="
+              store.commit(
+                MutationNames.SetOriginRelationship,
+                makeOriginRelationship()
+              )
+            "
+          />
           <lock-component
             class="margin-small-left"
-            v-model="settings.lock.originRelationship"/>
+            v-model="settings.lock.originRelationship"
+          />
         </div>
 
         <div
           v-if="!isExtract"
-          class="field label-above margin-medium-top">
+          class="field label-above margin-medium-top"
+        >
           <label>Verbatim anatomical origin</label>
           <input
             type="text"
-            v-model="extract.verbatim_anatomical_origin">
+            v-model="extract.verbatim_anatomical_origin"
+          />
         </div>
-        
+
         <v-btn
           color="create"
           medium
@@ -63,19 +76,18 @@
 </template>
 
 <script setup>
-
-import SmartSelector from 'components/ui/SmartSelector'
-import SwitchComponent from 'components/switch'
-import LockComponent from 'components/ui/VLock/index.vue'
-import BlockLayout from 'components/layout/BlockLayout'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SwitchComponent from '@/components/switch'
+import LockComponent from '@/components/ui/VLock/index.vue'
+import BlockLayout from '@/components/layout/BlockLayout'
 import useSettings from '../composables/useSettings.js'
 import useExtract from '../composables/useExtract.js'
-import VBtn from 'components/ui/VBtn/index.vue'
-import DisplayList from 'components/displayList.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import DisplayList from '@/components/displayList.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import { COLLECTION_OBJECT, EXTRACT, OTU } from 'constants/index.js'
+import { COLLECTION_OBJECT, EXTRACT, OTU } from '@/constants/index.js'
 import { ref, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import makeOriginRelationship from '../helpers/makeOriginRelationship'
@@ -96,17 +108,17 @@ const isExtract = computed(() => tabSelected.value === EXTRACT)
 const list = computed(() => store.getters[GetterNames.GetOriginRelationships])
 
 const originRelationship = computed({
-  get () {
+  get() {
     return store.getters[GetterNames.GetOriginRelationship]
   },
-  set (value) {
+  set(value) {
     store.commit(MutationNames.SetOriginRelationship, value)
   }
 })
 
 watch(
   () => isExtract.value,
-  newVal => {
+  (newVal) => {
     if (newVal) {
       extract.value.verbatim_anatomical_origin = undefined
     }
@@ -137,8 +149,7 @@ const addOriginToList = () => {
   store.commit(MutationNames.SetOriginRelationship, makeOriginRelationship())
 }
 
-const removeOriginRelationship = relationship => {
+const removeOriginRelationship = (relationship) => {
   store.dispatch(ActionNames.RemoveOriginRelationship, relationship)
 }
-
 </script>

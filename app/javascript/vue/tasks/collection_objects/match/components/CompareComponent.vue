@@ -4,12 +4,14 @@
       class="button button-default normal-input"
       type="button"
       @click="showModal = true"
-      :disabled="!compare.length">
+      :disabled="!compare.length"
+    >
       Compare
     </button>
     <modal-component
       v-if="showModal"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>Compare collection objects</h3>
       </template>
@@ -18,54 +20,59 @@
           v-model="view"
           :options="tabs"
         />
-        <table class="full_width">
+        <table class="table-striped full_width">
           <thead>
             <tr>
               <th>CO Properties</th>
-              <th>
-                <span v-html="compare[0].object_tag"/>
-              </th>
-              <th>
-                <span v-html="compare[1].object_tag"/>
+              <th
+                v-for="item in compare"
+                :key="item.id"
+              >
+                <span v-html="item.object_tag" />
               </th>
             </tr>
           </thead>
           <tbody>
             <tr
-              v-for="(key, index) in Object.keys(renderType[0])"
+              v-for="key in Object.keys(renderType[0])"
               :key="key"
               class="contextMenuCells"
-              :class="{ even: index % 2 }">
+            >
               <td>{{ key }}</td>
-              <td v-html="renderType[0][key]"/>
-              <td v-html="renderType[1][key]"/>
+              <td
+                v-for="(item, index) in compare"
+                :key="item.id"
+                v-html="renderType[index][key]"
+              />
             </tr>
             <tr />
           </tbody>
           <thead>
             <tr>
-              <th>CE Properties</th>
-              <th>
-                <span 
-                  v-if="compareCE[0]"
-                  v-html="compareCE[0].object_tag"/>
-              </th>
-              <th>
+              <th>CE attributes</th>
+              <th
+                v-for="ce in compareCE"
+                :key="ce.id"
+              >
                 <span
-                  v-if="compareCE[1]"
-                  v-html="compareCE[1].object_tag"/>
+                  v-if="ce.id"
+                  v-html="ce.object_tag"
+                />
               </th>
             </tr>
           </thead>
           <tbody>
             <tr
-              v-for="(key, index) in ceProperties"
+              v-for="key in ceAttributes"
               :key="key"
               class="contextMenuCells"
-              :class="{ even: index % 2 }">
+            >
               <td>{{ key }}</td>
-              <td v-html="compareCE[0] ? compareCE[0][key] : ''"/>
-              <td v-html="compareCE[1] ? compareCE[1][key] : ''"/>
+              <td
+                v-for="ce in compareCE"
+                :key="ce.id"
+                v-html="ce[key] || ''"
+              />
             </tr>
           </tbody>
         </table>
@@ -75,12 +82,11 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal'
-import SwitchComponent from 'components/switch'
+import ModalComponent from '@/components/ui/Modal'
+import SwitchComponent from '@/components/switch'
 
 import { GetDWC } from '../request/resources'
-import { CollectingEvent } from 'routes/endpoints'
+import { CollectingEvent } from '@/routes/endpoints'
 
 const TABS_TYPE = {
   DETAILS: 'details',
@@ -101,16 +107,16 @@ export default {
   },
 
   computed: {
-    renderType () {
+    renderType() {
       return this.view === TABS_TYPE.DWC ? this.dwcTable : this.compare
     }
   },
 
-  data () {
+  data() {
     return {
       showModal: false,
       compareCE: [],
-      ceProperties: [],
+      ceAttributes: [],
       tabs: Object.values(TABS_TYPE),
       view: TABS_TYPE.DETAILS,
       dwcTable: {}
@@ -128,34 +134,37 @@ export default {
 
   methods: {
     getCEs() {
-      const ceId = this.compare[0]['collecting_event_id']
-      const ceId2 = this.compare[1]['collecting_event_id']
+      const requests = this.compare.map((co) =>
+        co.collecting_event_id
+          ? CollectingEvent.find(co.collecting_event_id)
+          : Promise.resolve({ body: {} })
+      )
 
-      if(ceId)
-        CollectingEvent.find(ceId).then(response => {
-          this.compareCE[0] = response.body
-          this.ceProperties = Object.keys(response.body)
-        })
-      if(ceId2)
-        CollectingEvent.find(ceId2).then(response => {
-          this.compareCE[1] = response.body
-          this.ceProperties = Object.keys(response.body)
-        })
+      Promise.all(requests).then((responses) => {
+        const collectingEvents = responses.map((r) => r.body)
+        console.log(collectingEvents)
+
+        this.compareCE = collectingEvents
+        this.ceAttributes = Object.keys(
+          collectingEvents.find((ce) => ce.id) || {}
+        )
+      })
     },
 
-    LoadDWC () {
-      GetDWC(this.compare[0].id).then(response => { this.dwcTable[0] = response.body })
-      GetDWC(this.compare[1].id).then(response => { this.dwcTable[1] = response.body })
+    LoadDWC() {
+      const requests = this.compare.map((co) => GetDWC(co.id))
+
+      Promise.all(requests).then((responses) => {
+        this.dwcTable = responses.map((r) => r.body)
+      })
     }
   }
 }
 </script>
 <style scoped>
-
 :deep(.modal-container) {
-  width: 1024px;
+  width: 80vw;
   overflow-y: scroll;
   max-height: 80vh;
 }
-
 </style>

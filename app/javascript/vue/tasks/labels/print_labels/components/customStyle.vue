@@ -3,22 +3,25 @@
     <button
       type="button"
       class="button normal-input button-default"
-      @click="showModal = true">
+      @click="showModal = true"
+    >
       Edit custom style
     </button>
     <modal-component
       v-if="showModal"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>Customize style</h3>
       </template>
       <template #body>
-        <div
-          class="preview-box horizontal-center-content middle">
-          <pre :style="customStyle">This is my label
+        <div class="preview-box horizontal-center-content middle">
+          <pre :style="customStyle">
+This is my label
 
 
- With a different style</pre>
+ With a different style</pre
+          >
         </div>
       </template>
       <template #footer>
@@ -29,7 +32,8 @@
               <input
                 type="text"
                 v-model="styleName"
-                placeholder="Style name...">
+                placeholder="Style name..."
+              />
             </div>
 
             <div class="margin-small-bottom">
@@ -54,19 +58,19 @@
                 class="d-none"
                 accept="text/json"
                 @change="loadStyle"
-              >
+              />
             </div>
           </div>
         </fieldset>
-        <div
-          class="options">
+        <div class="options">
           <div class="horizontal-left-content align-start">
             <fieldset>
               <legend>Font</legend>
               <label>Text align</label>
               <select
                 v-model="options.font.textAlign"
-                class="normal-input input-size">
+                class="normal-input input-size"
+              >
                 <option value="left">Left</option>
                 <option value="right">Right</option>
                 <option value="center">Center</option>
@@ -76,18 +80,21 @@
               <input
                 type="number"
                 v-model="options.font.size"
-                class="input-size">
+                class="input-size"
+              />
               <label>Line height</label>
               <input
                 type="number"
                 class="input-size"
                 min="0"
                 step="10"
-                v-model="options.font.lineHeight">
+                v-model="options.font.lineHeight"
+              />
               <label>Font weight</label>
               <select
                 v-model="options.font.weight"
-                class="normal-input input-size">
+                class="normal-input input-size"
+              >
                 <option value="100">Light</option>
                 <option value="500">Normal</option>
                 <option value="700">Bold</option>
@@ -95,11 +102,14 @@
               <label>Font family</label>
               <select
                 v-model="options.font.fontFamily"
-                class="normal-input input-size">
+                class="normal-input input-size"
+              >
                 <option
                   v-for="font in fontTypes"
                   :key="font"
-                  :value="font">{{ font }}
+                  :value="font"
+                >
+                  {{ font }}
                 </option>
               </select>
             </fieldset>
@@ -108,7 +118,8 @@
               <label>Style</label>
               <select
                 v-model="options.border.type"
-                class="normal-input input-size">
+                class="normal-input input-size"
+              >
                 <option value="dashed">Dashed</option>
                 <option value="double">Double</option>
                 <option value="solid">Solid</option>
@@ -118,18 +129,21 @@
                 type="number"
                 class="input-size"
                 min="0"
-                v-model="options.border.size">
+                v-model="options.border.size"
+              />
               <label>Radius</label>
               <input
                 type="number"
                 class="input-size"
                 min="0"
-                v-model="options.border.radius">
+                v-model="options.border.radius"
+              />
               <label>Color</label>
               <input
                 type="color"
                 class="input-size"
-                v-model="options.border.color">
+                v-model="options.border.color"
+              />
             </fieldset>
             <fieldset>
               <legend>Padding</legend>
@@ -140,7 +154,8 @@
                     type="number"
                     min="0"
                     v-model="options.padding.top"
-                    class="input-size">
+                    class="input-size"
+                  />
                 </div>
                 <div class="separate-right">
                   <label>Right</label>
@@ -148,7 +163,8 @@
                     type="number"
                     min="0"
                     v-model="options.padding.right"
-                    class="input-size">
+                    class="input-size"
+                  />
                 </div>
                 <div class="separate-right">
                   <label>Bottom</label>
@@ -156,7 +172,8 @@
                     type="number"
                     min="0"
                     v-model="options.padding.bottom"
-                    class="input-size">
+                    class="input-size"
+                  />
                 </div>
                 <div class="separate-right">
                   <label>Left</label>
@@ -164,7 +181,8 @@
                     type="number"
                     min="0"
                     v-model="options.padding.left"
-                    class="input-size">
+                    class="input-size"
+                  />
                 </div>
               </div>
             </fieldset>
@@ -180,10 +198,9 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal'
-import VBtn from 'components/ui/VBtn/index.vue'
-import { downloadTextFile } from 'helpers/files.js'
+import ModalComponent from '@/components/ui/Modal'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { downloadTextFile } from '@/helpers/files.js'
 
 export default {
   components: {
@@ -191,15 +208,14 @@ export default {
     VBtn
   },
 
-  emits: [
-    'newStyle',
-    'newName'
-  ],
+  emits: ['newStyle', 'newName'],
 
   computed: {
     customStyle() {
       const style = {}
-      style['border'] = `${this.options.border.size}px ${this.options.border.type} ${this.options.border.color}`
+      style[
+        'border'
+      ] = `${this.options.border.size}px ${this.options.border.type} ${this.options.border.color}`
       style['border-radius'] = `${this.options.border.radius}px`
 
       style['font-size'] = `${this.options.font.size}pt`
@@ -209,7 +225,9 @@ export default {
       style['line-height'] = `${this.options.font.lineHeight}%`
       style['text-align'] = this.options.font.textAlign
 
-      style['padding'] = `${this.options.padding.top}px ${this.options.padding.right}px ${this.options.padding.bottom}px ${this.options.padding.left}px`
+      style[
+        'padding'
+      ] = `${this.options.padding.top}px ${this.options.padding.right}px ${this.options.padding.bottom}px ${this.options.padding.left}px`
 
       return style
     },
@@ -226,15 +244,19 @@ export default {
       `
     },
 
-    jsonStyle () {
-      return JSON.stringify({
-        name: this.styleName,
-        style: this.options
-      }, null, 2)
+    jsonStyle() {
+      return JSON.stringify(
+        {
+          name: this.styleName,
+          style: this.options
+        },
+        null,
+        2
+      )
     }
   },
 
-  data () {
+  data() {
     return {
       styleName: '',
       options: {
@@ -264,33 +286,33 @@ export default {
   },
 
   watch: {
-    customStyle () {
+    customStyle() {
       this.setStyle()
     },
 
-    styleName () {
+    styleName() {
       this.$emit('newName', this.styleName)
     }
   },
 
   methods: {
-    setStyle () {
+    setStyle() {
       this.$emit('newStyle', this.cssFormat)
     },
 
-    exportStyle () {
+    exportStyle() {
       const fileName = this.styleName || 'customStyle.json'
 
       downloadTextFile(this.jsonStyle, 'text/json', `${fileName}.json`)
     },
 
-    loadStyle (e) {
+    loadStyle(e) {
       const files = e.target.files
 
       if (e.target.files.length) {
         const fr = new FileReader()
 
-        fr.onload = e => {
+        fr.onload = (e) => {
           const result = JSON.parse(e.target.result)
 
           this.options = {
@@ -309,22 +331,22 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  :deep(.modal-container) {
-   width: 600px;
+:deep(.modal-container) {
+  width: 600px;
+}
+.preview-box {
+  min-height: 200px;
+}
+pre {
+  background-color: #f5f5f5;
+  width: auto;
+}
+.options {
+  .input-size {
+    width: 70px;
   }
-  .preview-box {
-    min-height: 200px;
+  label {
+    display: block;
   }
-  pre {
-    background-color: #F5F5F5;
-    width: auto;
-  }
-  .options {
-    .input-size {
-      width: 70px;
-    }
-    label {
-      display: block;
-    }
-  }
+}
 </style>

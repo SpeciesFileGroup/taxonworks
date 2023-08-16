@@ -4,7 +4,9 @@ class  TaxonNameRelationship::Icn::Unaccepting::Homonym <  TaxonNameRelationship
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
-        self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting) +
+        self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting,
+                          TaxonNameRelationship::Icn::Unaccepting::OriginallyInvalid,
+                          TaxonNameRelationship::Icn::Unaccepting::Misapplication) +
         self.collect_descendants_to_s(TaxonNameRelationship::Icn::Unaccepting::Usage)
   end
 

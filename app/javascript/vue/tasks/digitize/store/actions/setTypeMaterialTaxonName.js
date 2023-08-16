@@ -1,4 +1,4 @@
-import { TaxonName } from 'routes/endpoints'
+import { TaxonName } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default async ({ commit, state }, taxonNameId) => {

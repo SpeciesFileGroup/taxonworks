@@ -3,28 +3,23 @@ module Roles::Person
 
   included do
 
-    with_options if: :person_role? do |p|
-      p.after_save :vet_person
-      p.after_save :update_person_year_metadata
+    with_options if: :person_role? do
+      after_save :vet_person
+      after_save :update_person_year_metadata
+
+      validates_uniqueness_of :person_id, scope: [:role_object_id, :role_object_type, :type], allow_nil: true
+      validates :person, presence: true
     end
 
     after_destroy :check_for_last
 
-    with_options if: :person_role? do |p|
-      p.validates_uniqueness_of :person_id, scope: [:role_object_id, :role_object_type, :type], allow_nil: true
-      p.validates :person, presence: true
-    end
-
     accepts_nested_attributes_for :person, reject_if: :all_blank, allow_destroy: true
-  end
-
-  class_methods do
   end
 
   protected
 
   def person_role?
-    person.present? && !organization
+    person.present? && organization.blank?
   end
 
   def check_for_last
@@ -48,7 +43,7 @@ module Roles::Person
   def vet_person
     # Check whether there are one or more *other* roles besides this one,
     # i.e. there are at least *2* for person_id
-    if Role.where(person_id: person_id).where.not(id: id).any?
+    if Role.where(person_id:).where.not(id:).any?
       person.update_column(:type, 'Person::Vetted')
     end
   end
@@ -66,11 +61,14 @@ module Roles::Person
   # Could be spun out to sublclasses but
   def update_person_year_metadata
     if y = year_active_year
-      person.year_active_start = [y, person.year_active_start].compact.map(&:to_i).min
-      person.year_active_end = [y, person.year_active_end].compact.map(&:to_i).max
+      yas = [y, person.year_active_start].compact.map(&:to_i).min
+      yae = [y, person.year_active_end].compact.map(&:to_i).max
+
+      person.year_active_start = yas
+      person.year_active_end = yae
 
       if person.valid?
-        person.save
+        person.update_columns(year_active_start: yas, year_active_end: yae)
       else
         person.year_active_start = person.year_active_start_before_last_save
         person.year_active_end = person.year_active_end_before_last_save

@@ -1,5 +1,6 @@
-import ajaxCall from 'helpers/ajaxCall'
+import ajaxCall from '@/helpers/ajaxCall'
 
 export const Annotation = {
-  metadata: globalId => ajaxCall('get', `/annotations/${encodeURIComponent(globalId)}/metadata`)
+  metadata: (globalId) =>
+    ajaxCall('get', `/annotations/${encodeURIComponent(globalId)}/metadata`)
 }

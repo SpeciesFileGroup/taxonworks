@@ -2,7 +2,8 @@
   <div class="content_annotator">
     <h3
       v-if="content.id"
-      v-html="content.object_tag"/>
+      v-html="content.object_tag"
+    />
     <h3 v-else>New record</h3>
     <fieldset class="margin-medium-bottom">
       <legend>Topic</legend>
@@ -10,7 +11,7 @@
         class="full_width margin-small-bottom"
         ref="smartSelector"
         autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-        :autocomplete-params="{'type[]' : 'Topic'}"
+        :autocomplete-params="{ 'type[]': 'Topic' }"
         get-url="/controlled_vocabulary_terms/"
         model="topics"
         target="Content"
@@ -27,7 +28,8 @@
           <a
             v-if="!allTopics.length"
             target="blank"
-            href="/controlled_vocabulary_terms/new">
+            href="/controlled_vocabulary_terms/new"
+          >
             Create a topic first.
           </a>
           <topic-item
@@ -39,7 +41,7 @@
           />
         </template>
       </smart-selector>
-      <hr>
+      <hr />
       <smart-selector-item
         :item="topic"
         label="name"
@@ -62,13 +64,15 @@
         type="button"
         :disabled="!validate"
         class="button normal-input button-submit margin-small-right"
-        @click="saveContent">
+        @click="saveContent"
+      >
         Save
       </button>
       <button
         type="button"
         class="button normal-input button-default"
-        @click="setContent(newContent())">
+        @click="setContent(newContent())"
+      >
         New
       </button>
     </div>
@@ -85,17 +89,16 @@
 </template>
 
 <script>
-
 import CRUD from '../../request/crud.js'
 import annotatorExtend from '../../components/annotatorExtend.js'
 import TopicItem from '../citations/topicItem.vue'
-import TableList from 'components/table_list.vue'
-import MarkdownEditor from 'components/markdown-editor.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import SpinnerComponent from 'components/spinner.vue'
-import { shorten } from 'helpers/strings.js'
-import { ControlledVocabularyTerm, Content } from 'routes/endpoints'
+import TableList from '@/components/table_list.vue'
+import MarkdownEditor from '@/components/markdown-editor.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import SpinnerComponent from '@/components/spinner.vue'
+import { shorten } from '@/helpers/strings.js'
+import { ControlledVocabularyTerm, Content } from '@/routes/endpoints'
 
 const extend = ['otu', 'topic']
 
@@ -113,7 +116,7 @@ export default {
     SpinnerComponent
   },
 
-  data () {
+  data() {
     return {
       view: '',
       options: [],
@@ -129,51 +132,57 @@ export default {
   },
 
   computed: {
-    validate () {
+    validate() {
       return this.content.text.length > 1 && this.content.topic_id
     },
 
-    shortList () {
-      return this.list.map(content => ({
+    shortList() {
+      return this.list.map((content) => ({
         ...content,
         text_for_list: shorten(content.text, 150)
       }))
     },
 
-    topicsAvailable () {
-      return this.allTopics.filter(topic => !this.list.find(item => item.topic_id === topic.id))
+    topicsAvailable() {
+      return this.allTopics.filter(
+        (topic) => !this.list.find((item) => item.topic_id === topic.id)
+      )
     }
   },
 
   watch: {
-    topic (newVal) {
+    topic(newVal) {
       this.content.topic_id = newVal?.id
     }
   },
 
-  async created () {
-    this.allTopics = (await ControlledVocabularyTerm.where({ type: ['Topic'] })).body
-    this.list = (await Content.where({
-      otu_id: this.metadata.object_id,
-      extend
-    })).body
+  async created() {
+    this.allTopics = (
+      await ControlledVocabularyTerm.where({ type: ['Topic'] })
+    ).body
+    this.list = (
+      await Content.where({
+        otu_id: this.metadata.object_id,
+        extend
+      })
+    ).body
   },
 
   methods: {
-    saveContent () {
+    saveContent() {
       const content = this.content
       const saveRecord = this.content.id
         ? Content.update(content.id, { content, extend })
         : Content.create({ content, extend })
 
-      saveRecord.then(response => {
+      saveRecord.then((response) => {
         this.addRecord(response.body)
         TW.workbench.alert.create('Content was successfully saved.', 'notice')
         this.content = this.newContent()
       })
     },
 
-    newContent () {
+    newContent() {
       return {
         text: '',
         topic_id: undefined,
@@ -182,12 +191,12 @@ export default {
       }
     },
 
-    setTopic (topic) {
+    setTopic(topic) {
       this.topic = topic
     },
 
-    addRecord (record) {
-      const index = this.list.findIndex(item => item.id === record.id)
+    addRecord(record) {
+      const index = this.list.findIndex((item) => item.id === record.id)
 
       if (index > -1) {
         this.list[index] = record
@@ -196,7 +205,7 @@ export default {
       }
     },
 
-    setContent (content) {
+    setContent(content) {
       this.content = content
       this.topic = content?.topic
     }

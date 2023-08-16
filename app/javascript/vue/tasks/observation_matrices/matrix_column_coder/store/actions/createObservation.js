@@ -1,16 +1,22 @@
 import getObservationFromArgs from '../../helpers/getObservationFromArgs'
 import ObservationTypes from '../../helpers/ObservationTypes'
 import { MutationNames } from '../mutations/mutations'
-import { Observation } from 'routes/endpoints'
+import { Observation } from '@/routes/endpoints'
+import {
+  setupContinuosPayload,
+  setupFreeTextPayload,
+  setupPresencePayload,
+  setupQualitativePayload,
+  setupSamplePayload
+} from '../../helpers/setupPayload'
 
 export default function ({ commit, state }, args) {
   const observation = getObservationFromArgs(state, args)
-  const {
-    rowObjectId,
-    rowObjectType
-  } = args
+  const { rowObjectId, rowObjectType } = args
 
-  if (observation?.id) { return Promise.resolve() }
+  if (observation?.id) {
+    return Promise.resolve()
+  }
 
   commit(MutationNames.SetRowObjectSaving, {
     rowObjectId,
@@ -20,18 +26,28 @@ export default function ({ commit, state }, args) {
 
   const payload = makeBasePayload()
 
-  if (observation.type === ObservationTypes.FreeText) { setupFreeTextPayload(payload) }
+  if (observation.type === ObservationTypes.FreeText) {
+    Object.assign(payload, setupFreeTextPayload(observation))
+  }
 
-  if (observation.type === ObservationTypes.Qualitative) { setupQualitativePayload(payload) }
+  if (observation.type === ObservationTypes.Qualitative) {
+    Object.assign(payload, setupQualitativePayload(args))
+  }
 
-  if (observation.type === ObservationTypes.Presence) { setupPresencePayload(payload) }
+  if (observation.type === ObservationTypes.Presence) {
+    Object.assign(payload, setupPresencePayload(observation))
+  }
 
-  if (observation.type === ObservationTypes.Sample) { setupSamplePayload(payload) }
+  if (observation.type === ObservationTypes.Sample) {
+    Object.assign(payload, setupSamplePayload(observation))
+  }
 
-  if (observation.type === ObservationTypes.Continuous) { setupContinuosPayload(payload) }
+  if (observation.type === ObservationTypes.Continuous) {
+    Object.assign(payload, setupContinuosPayload(observation))
+  }
 
-  return Observation.create({ observation: payload })
-    .then(({ body: responseData }) => {
+  return Observation.create({ observation: payload }).then(
+    ({ body: responseData }) => {
       commit(MutationNames.SetRowObjectSaving, {
         rowObjectId,
         rowObjectType,
@@ -48,7 +64,10 @@ export default function ({ commit, state }, args) {
       })
 
       if (isValidResponseData(responseData)) {
-        commit(MutationNames.SetObservationId, makeObservationIdArgs(responseData.id, responseData.global_id))
+        commit(
+          MutationNames.SetObservationId,
+          makeObservationIdArgs(responseData.id, responseData.global_id)
+        )
         commit(MutationNames.SetObservation, {
           ...observation,
           id: responseData.id,
@@ -57,7 +76,8 @@ export default function ({ commit, state }, args) {
         })
       }
       return true
-    }, _ => {
+    },
+    (_) => {
       commit(MutationNames.SetRowObjectSaving, {
         rowObjectId,
         rowObjectType,
@@ -65,49 +85,18 @@ export default function ({ commit, state }, args) {
       })
 
       return false
-    })
+    }
+  )
 
-  function isValidResponseData (data) {
+  function isValidResponseData(data) {
     return data && data.id
   }
 
-  function makeObservationIdArgs (observationId, globalId) {
+  function makeObservationIdArgs(observationId, globalId) {
     return Object.assign({}, args, { observationId, global_id: globalId })
   }
 
-  function setupFreeTextPayload (payload) {
-    return Object.assign(payload, { description: observation.description })
-  }
-
-  function setupQualitativePayload (payload) {
-    return Object.assign(payload, { character_state_id: args.characterStateId })
-  }
-
-  function setupPresencePayload (payload) {
-    return Object.assign(payload, { presence: observation.isChecked })
-  }
-
-  function setupContinuosPayload (payload) {
-    return Object.assign(payload, {
-      continuous_value: observation.continuousValue,
-      continuous_unit: observation.continuousUnit
-    })
-  }
-
-  function setupSamplePayload (payload) {
-    return Object.assign(payload, {
-      sample_n: observation.n,
-      sample_min: observation.min,
-      sample_max: observation.max,
-      sample_median: null,
-      sample_mean: null,
-      sample_units: observation.units,
-      sample_standard_deviation: null,
-      sample_standard_error: null
-    })
-  }
-
-  function makeBasePayload () {
+  function makeBasePayload() {
     return {
       descriptor_id: state.descriptor.id,
       observation_object_id: rowObjectId,

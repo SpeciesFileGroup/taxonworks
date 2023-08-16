@@ -2,11 +2,22 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
   include TaskControllerConfiguration
 
   before_action :set_sqed_depiction, except: [:todo_map]
+  after_action -> { set_pagination_headers(:sqed_depictions) }, only: [:todo_map], if: :json_request?
 
   # /tasks/accessions/breakdown/sqed_depiction/todo_map
   def todo_map
     SqedDepiction.clear_stale_progress
-    @sqed_depictions = SqedDepiction.where(project_id: sessions_current_project_id).order(:id).page(params[:page]).per(100)
+
+    @sqed_depictions = ::Queries::SqedDepiction::Filter.new(params).all
+      .where(project_id: sessions_current_project_id)
+      .order(:id)
+      .page(params[:page])
+      .per(params[:per])
+
+    respond_to do |format|
+      format.html {}
+      format.json {}
+    end
   end
 
   # GET /tasks/accession/breakdown/depiction/:id # id is a collection_object_id !!

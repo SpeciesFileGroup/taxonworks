@@ -11,10 +11,10 @@
 module Export::Coldp::Files::Taxon
 
   IRI_MAP = {
-    extinct: 'https://api.catalogue.life/datapackage#Taxon.extinct',                         # 1,0
-    temporal_range_end: 'https://api.catalogue.life/datapackage#Taxon.temporal_range_end',   # from https://api.catalogue.life/vocab/geotime
-    temporal_range_start: 'https://api.catalogue.life/datapackage#Taxon.temporal_range_end', # from https://api.catalogue.life/vocab/geotime
-    lifezone: 'https://api.catalogue.life/datapackage#Taxon.lifezone',                       # from https://api.catalogue.life/vocab/lifezone
+    extinct: 'https://api.checklistbank.org/datapackage#Taxon.extinct',                         # 1,0
+    temporal_range_end: 'https://api.checklistbank.org/datapackage#Taxon.temporal_range_end',   # from https://api.checklistbank.org/vocab/geotime
+    temporal_range_start: 'https://api.checklistbank.org/datapackage#Taxon.temporal_range_end', # from https://api.checklistbank.org/vocab/geotime
+    lifezone: 'https://api.checklistbank.org/datapackage#Taxon.lifezone',                       # from https://api.checklistbank.org/vocab/lifezone
   }
 
   SKIPPED_RANKS = %w{
@@ -41,6 +41,15 @@ module Export::Coldp::Files::Taxon
     # * if two OTUs for same name are in OTU set then both have to be provisional
     # * missaplication (?)
     nil
+  end
+
+
+  # Name phrase is for appended phrases like senso stricto and senso lato
+  def self.name_phrase(otu, vocab_id)
+    da = DataAttribute.find_by(type: 'InternalAttribute',
+                               controlled_vocabulary_term_id: vocab_id,
+                               attribute_subject_id: otu.id)
+    da&.value
   end
 
   # The scrutinizer concept is unused at present
@@ -75,7 +84,7 @@ module Export::Coldp::Files::Taxon
   #    Confidence level
   #       confidence_validated_at (last time this confidence level was deemed OK)
   def self.according_to_date(otu)
-    # a) Dynamic - !! most recent update_at stamp for *any* OTU tied data -> this is a big grind: if so add cached_touched_on_date to Otu
+    # a) Dynamic - !! most recent updated_at stamp for *any* OTU tied data -> this is a big grind: if so add cached_touched_on_date to Otu
     # b) modify Confidence level to include date
     # c) review what SFs does in their model
     nil
@@ -85,10 +94,9 @@ module Export::Coldp::Files::Taxon
     # API or public interface
   end
 
-  # TODO: flag/exclude ! is_public
-  def self.remarks(otu)
-    if otu.notes.load.any?
-      otu.notes.pluck(:text).join('|')
+  def self.remarks(otu, taxon_remarks_vocab)
+    if otu.data_attributes.where(controlled_vocabulary_term_id: taxon_remarks_vocab).any?
+      otu.data_attributes.where(controlled_vocabulary_term_id: taxon_remarks_vocab).pluck(:value).join('|')
     else
       nil
     end
@@ -102,7 +110,7 @@ module Export::Coldp::Files::Taxon
     nil
   end
 
-  def self.generate(otus, root_otu_id = nil, reference_csv = nil, prefer_unlabelled_otus: true)
+  def self.generate(otus, project_members, root_otu_id = nil, reference_csv = nil, prefer_unlabelled_otus: true)
 
     # Until we have RC5 articulations we are simplifying handling the fact
     # that one taxon name can be used for many OTUs. Track to see that
@@ -110,12 +118,16 @@ module Export::Coldp::Files::Taxon
     #   `taxon_name_id: nil`  - uniquify via Ruby hash keys
     observed_taxon_name_ids = { }
 
+    # TODO: optional Taxon.alternativeID field allows inclusion of external identifiers: https://github.com/CatalogueOfLife/coldp#alternativeid-1 https://github.com/CatalogueOfLife/coldp#identifiers
+    #   e.g., gbif:2704179,col:6W3C4,BOLD:AAJ2287,wikidata:Q157571
+
     CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{
         ID
         parentID
         nameID
+        namePhrase
         provisional
         accordingToID
         scrutinizer
@@ -125,10 +137,17 @@ module Export::Coldp::Files::Taxon
         extinct
         temporalRangeStart
         temporalRangeEnd
-        lifezone
+        environment
         link
         remarks
+        modified
+        modifiedBy
       }
+
+      taxon_remarks_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Taxon.remarks',
+                                                 project_id: otus[0]&.project_id)&.id
+      name_phrase_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Taxon.namePhrase',
+                                                 project_id: otus[0]&.project_id)&.id
 
       otus.each do |o|
         # !! When a name is a synonmy (combination), but that combination has no OTU
@@ -165,24 +184,27 @@ module Export::Coldp::Files::Taxon
         parent_id = (root_otu_id == o.id ? nil : parent_id )
 
         csv << [
-          o.id,                                      # ID (Taxon)
-          parent_id,                                 # parentID (Taxon)
-          o.taxon_name.id,                           # nameID (Name)
-          provisional(o),                            # provisional
-          according_to_id(o),                        # accordingToID
-          scrutinizer(o),                            # scrutinizer
-          scrutinizer_id(o),                         # scrutinizerID
-          scrutinizer_date(o),                       # scrutizinerDate
-          reference_id(sources),                     # referenceID
-          predicate_value(o, :extinct),              # extinct
-          predicate_value(o, :temporal_range_start), # temporalRangeStart
-          predicate_value(o, :temporal_range_end),   # temporalRangeEnd
-          predicate_value(o, :lifezone),             # lifezone
-          link(o),                                   # link
-          remarks(o)                                 # remarks
+          o.id,                                                                # ID (Taxon)
+          parent_id,                                                           # parentID (Taxon)
+          o.taxon_name.id,                                                     # nameID (Name)
+          name_phrase(o, name_phrase_vocab_id),                                # namePhrase
+          provisional(o),                                                      # provisional
+          according_to_id(o),                                                  # accordingToID
+          scrutinizer(o),                                                      # scrutinizer
+          scrutinizer_id(o),                                                   # scrutinizerID
+          scrutinizer_date(o),                                                 # scrutizinerDate
+          reference_id(sources),                                               # referenceID
+          predicate_value(o, :extinct),                                        # extinct
+          predicate_value(o, :temporal_range_start),                           # temporalRangeStart
+          predicate_value(o, :temporal_range_end),                             # temporalRangeEnd
+          predicate_value(o, :lifezone),                                       # environment (formerly named lifezone)
+          link(o),                                                             # link
+          Export::Coldp.sanitize_remarks(remarks(o, taxon_remarks_vocab_id)),  # remarks
+          Export::Coldp.modified(o[:updated_at]),                              # modified
+          Export::Coldp.modified_by(o[:updated_by_id], project_members)        # modifiedBy
         ]
 
-        Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv
+        Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
       end
     end
   end

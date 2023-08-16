@@ -8,7 +8,8 @@
       <strong>Is public: </strong>
       <input
         v-model="state.isPublic"
-        type="checkbox">
+        type="checkbox"
+      />
     </label>
     <div class="horizontal-left-content margin-medium-top">
       <v-btn
@@ -35,11 +36,10 @@
 </template>
 
 <script>
-
-import SpinnerComponent from 'components/spinner.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import SpinnerComponent from '@/components/spinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { reactive } from 'vue'
-import { Download } from 'routes/endpoints'
+import { Download } from '@/routes/endpoints'
 
 export default {
   name: 'Download',
@@ -60,7 +60,7 @@ export default {
     }
   },
 
-  setup (props) {
+  setup(props) {
     const state = reactive({
       isUpdating: false,
       isPublic: props.isPublic
@@ -72,7 +72,7 @@ export default {
       }
 
       state.isUpdating = true
-      Download.update(props.downloadId, { download }).then(_ => {
+      Download.update(props.downloadId, { download }).then((_) => {
         state.isUpdating = false
       })
     }

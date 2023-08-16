@@ -1,11 +1,12 @@
 <template>
   <div
     id="matrix-row-coder-app"
-    class="matrix-row-coder">
+    class="matrix-row-coder"
+  >
     <spinner
       legend="Loading..."
       full-screen
-      :logo-size="{ width: '50px', height: '50px'}"
+      :logo-size="{ width: '50px', height: '50px' }"
       v-if="isLoading"
     />
     <navbar-component>
@@ -15,15 +16,22 @@
           v-html="title"
         />
         <div class="horizontal-left-content">
-          <diagnosis-component class="margin-small-right"/>
-          <descriptors-list class="margin-small-right"/>
-          <description-main class="margin-small-right"/>
+          <ul class="context-menu">
+            <li>
+              <option-unscored-rows />
+            </li>
+            <li>
+              <diagnosis-component class="margin-small-right" />
+            </li>
+          </ul>
+          <descriptors-list class="margin-small-right" />
+          <description-main class="margin-small-right" />
           <clone-scoring
             class="margin-small-right"
             @on-copy="copyScorings"
             @on-clone="cloneScorings"
           />
-          <destroy-all-observations @on-confirm="destroyAllObservations"/>
+          <destroy-all-observations @on-confirm="destroyAllObservations" />
         </div>
       </div>
     </navbar-component>
@@ -33,11 +41,19 @@
         class="matrix-row-coder__descriptor-container"
         v-for="(descriptor, index) in descriptors"
         :key="descriptor.id"
-        :data-descriptor-id="descriptor.id">
+        :data-descriptor-id="descriptor.id"
+        v-show="
+          !onlyScoredRows ||
+          !observations.find(
+            (obs) => obs.descriptorId === descriptor.id && obs.id
+          )
+        "
+      >
         <component
           :is="descriptor.componentName"
-          :index="(index+1)"
-          :descriptor="descriptor"/>
+          :index="index + 1"
+          :descriptor="descriptor"
+        />
       </li>
     </ul>
   </div>
@@ -55,17 +71,20 @@ import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor
 import SampleDescriptor from './SampleDescriptor/SampleDescriptor.vue'
 import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
 import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
-import Spinner from 'components/spinner'
+import Spinner from '@/components/spinner'
 import CloneScoring from './Clone/Clone'
 import DestroyAllObservations from './ObservationRow/destroyObservationRow'
 import DescriptionMain from './Description/DescriptionMain.vue'
 import DescriptorsList from './Descriptors/DescriptorsList.vue'
 import DiagnosisComponent from './Diagnosis/Diagnosis.vue'
-import NavbarComponent from 'components/layout/NavBar.vue'
+import NavbarComponent from '@/components/layout/NavBar.vue'
+import OptionUnscoredRows from './Options/OptionUnscoredRows.vue'
 
 const computed = mapState({
-  title: state => state.taxonTitle,
-  descriptors: state => state.descriptors
+  title: (state) => state.taxonTitle,
+  descriptors: (state) => state.descriptors,
+  onlyScoredRows: (state) => state.options.showOnlyUnsecoredRows,
+  observations: (state) => state.observations
 })
 
 export default {
@@ -84,7 +103,8 @@ export default {
     Spinner,
     DestroyAllObservations,
     DescriptionMain,
-    DiagnosisComponent
+    DiagnosisComponent,
+    OptionUnscoredRows
   },
 
   props: {
@@ -94,7 +114,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       isLoading: false
     }
@@ -103,17 +123,17 @@ export default {
   computed,
 
   watch: {
-    rowId () {
+    rowId() {
       this.loadMatrixRow(this.rowId)
     }
   },
 
-  created () {
+  created() {
     this.$store.dispatch(ActionNames.RequestUnits)
   },
 
   methods: {
-    loadMatrixRow (matrixRow) {
+    loadMatrixRow(matrixRow) {
       this.$store.commit(MutationNames.ResetState)
       this.isLoading = true
       this.$store.dispatch(ActionNames.RequestMatrixRow, matrixRow).then(() => {
@@ -122,26 +142,31 @@ export default {
       this.$store.dispatch(ActionNames.RequestDescription, matrixRow)
     },
 
-    destroyAllObservations () {
-      this.$store.dispatch(ActionNames.RemoveObservationsRow, this.rowId).then(() => {
-        this.loadMatrixRow(this.rowId)
-      })
+    destroyAllObservations() {
+      this.$store
+        .dispatch(ActionNames.RemoveObservationsRow, this.rowId)
+        .then(() => {
+          this.loadMatrixRow(this.rowId)
+        })
     },
 
-    cloneScorings (args) {
+    cloneScorings(args) {
       this.isLoading = true
       this.$store.dispatch(ActionNames.CreateClone, args).finally(() => {
         this.isLoading = false
       })
     },
 
-    copyScorings (args) {
+    copyScorings(args) {
       this.isLoading = true
-      this.$store.dispatch(ActionNames.CreateClone, args).then(() => {
-        this.loadMatrixRow(this.rowId)
-      }).finally(() => {
-        this.isLoading = false
-      })
+      this.$store
+        .dispatch(ActionNames.CreateClone, args)
+        .then(() => {
+          this.loadMatrixRow(this.rowId)
+        })
+        .finally(() => {
+          this.isLoading = false
+        })
     }
   }
 }

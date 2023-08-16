@@ -6,12 +6,12 @@ describe Person, type: :model, group: :people do
   let(:tn1) { Protonym.create!(name: 'Aonedidae', parent: root_taxon_name, rank_class: Ranks.lookup(:iczn, :family)) }
   let(:tn2) { Protonym.create!(name: 'Atwodidae', parent: root_taxon_name, rank_class: Ranks.lookup(:iczn, :family)) }
 
-  let!(:person1) do 
+  let!(:person1) do
     FactoryBot.create(
       :person,
       first_name: 'January', last_name: 'Smith',
       prefix: 'Dr.', suffix: 'III')
-  end 
+  end
 
   let(:gr2) { FactoryBot.create(:valid_georeference) }
 
@@ -25,23 +25,23 @@ describe Person, type: :model, group: :people do
     name: ' Honorific',
     definition: 'People:Honorific imported from INHS FileMaker database.') }
 
-  let!(:person1b) do 
+  let!(:person1b) do
     FactoryBot.create(
       :person,
       first_name: 'January', last_name: 'Smith',
       prefix: 'Dr.', suffix: 'III',
       year_born: 2000, year_died: 2015,
       year_active_start: 2012, year_active_end: 2015)
-  end 
+  end
 
-  let(:person1c) do 
-     FactoryBot.create(
-      :person,
-      first_name: 'January', last_name: 'Smith',
-      prefix: 'Dr.', suffix: 'III',
-      year_born: 2000, year_died: 2015,
-      year_active_start: 2012, year_active_end: 2015)
-  end 
+  let(:person1c) do
+    FactoryBot.create(
+     :person,
+     first_name: 'January', last_name: 'Smith',
+     prefix: 'Dr.', suffix: 'III',
+     year_born: 2000, year_died: 2015,
+     year_active_start: 2012, year_active_end: 2015)
+  end
 
   let(:av1) { FactoryBot.create(:valid_alternate_value,
                                 value:                            'Jan',
@@ -56,20 +56,37 @@ describe Person, type: :model, group: :people do
   let(:id1) { FactoryBot.create(:valid_identifier) }
 
   let(:no1) { FactoryBot.create(:valid_note) }
-  
+
   let(:da2) { FactoryBot.create(:valid_data_attribute_internal_attribute,
                                 value:     'Mr.',
                                 predicate: cvt) }
 
-
   let(:gr1) { FactoryBot.create(:valid_georeference) }
 
+  context 'identifiers' do
+
+    specify 'multiple identifiers' do
+      i = 'Q123123'
+      j = 'http://orcid.org/0000-0002-0554-1354'
+      a = Identifier::Global::Wikidata.new(identifier: i)
+      b = Identifier::Global::Orcid.new(identifier: j)
+
+      person1b.identifiers << a
+      person1b.identifiers << b
+
+      expect(person1b.identifiers.reload.pluck(:identifier)).to contain_exactly(i, j)
+
+      person1.merge_with(person1b.id)
+      expect(person1.identifiers.reload.pluck(:identifier)).to contain_exactly(i, j)
+    end
+  end
+
   context 'roles' do
-    before do 
-      gr2.georeferencers << person1
-      tn1.taxon_name_authors << person1b 
-      tn2.taxon_name_authors << person1b 
-      gr1.georeferencers << person1b 
+    before do
+      gr1.georeference_authors << person1b
+      gr2.georeference_authors << person1
+      tn1.taxon_name_authors << person1b
+      tn2.taxon_name_authors << person1b
     end
 
     specify 'exist' do
@@ -188,7 +205,7 @@ describe Person, type: :model, group: :people do
 
     # @tuckerjd whitespace and blank are converted to nil
     # on save, i.e. previous tests in this block
-    # weren't doing anything new 
+    # weren't doing anything new
     specify 'source is nil' do
       person1.update(suffix: nil)
       # expect(person1.suffix).to eq(nil)
@@ -211,12 +228,6 @@ describe Person, type: :model, group: :people do
 
   end
 
-  specify 'identifiers' do
-    person1b.identifiers << id1
-    person1.merge_with(person1b.id)
-    expect(person1.identifiers.reload).to include(id1)
-  end
-
   specify 'notes' do
     person1b.notes << no1
     person1.merge_with(person1b.id)
@@ -224,6 +235,7 @@ describe Person, type: :model, group: :people do
   end
 
   context 'alternate values' do
+
     specify 'moving alternate value from one to another' do
       av1
       person1.merge_with(person1b.id)
@@ -323,13 +335,13 @@ describe Person, type: :model, group: :people do
   # When a source lists the same person 2x, and that person is merged
   context 'double authored sources' do
     let!(:role_object) { FactoryBot.create(:valid_source_bibtex) }
-    let!(:role1) { SourceAuthor.create(person: person1, role_object: role_object) }
-    let!(:role2) { SourceAuthor.create(person: person1b, role_object: role_object) }
+    let!(:role1) { SourceAuthor.create(person: person1, role_object:) }
+    let!(:role2) { SourceAuthor.create(person: person1b, role_object:) }
 
     specify 'can not be merged' do
       expect(person1.merge_with(person1b.id)).to be_falsey
     end
-  end 
+  end
 
   specify '#hard_merge, #first_name is preserved' do
     p_keep = Person.create!(first_name: 'Simon', last_name: 'Smith')
@@ -337,8 +349,8 @@ describe Person, type: :model, group: :people do
 
     p_keep.hard_merge(p_destroy.id)
     p_keep.reload
-    
+
     expect(p_keep.first_name).to eq('Simon')
   end
-  
+
 end
