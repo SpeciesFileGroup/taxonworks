@@ -42,6 +42,7 @@ import SmartSelector from '@/components/ui/SmartSelector.vue'
 import TableList from '@/components/table_list.vue'
 import { removeFromArray } from '@/helpers/arrays.js'
 import { Role } from '@/routes/endpoints'
+import { ROLE_VERIFIER } from '@/constants'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -67,7 +68,7 @@ export default {
 
   created() {
     Role.where({
-      role_type: ['Verifier'],
+      role_type: [ROLE_VERIFIER],
       role_object_id: this.metadata.object_id,
       role_object_type: this.objectType
     }).then(({ body }) => {
