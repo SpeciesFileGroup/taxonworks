@@ -127,15 +127,15 @@ class AssertedDistribution < ApplicationRecord
 
     begin
       a.all.each do |o|
-        o.update!(geographic_area_id: params[:geographic_area_id] )
-        moved.push o
+        if o.update(geographic_area_id: params[:geographic_area_id] )
+          moved.push o
+        else
+          umoved.push o
+        end
       end
-
-    rescue ActiveRecord::RecordInvalid => e
-      unmoved.push o
     end
 
-    return { moved:, unmoved: }
+    return { moved:, unmoved:, }
   end
 
   protected
@@ -183,5 +183,3 @@ class AssertedDistribution < ApplicationRecord
     result
   end
 end
-
-
