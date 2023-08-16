@@ -21,7 +21,6 @@ module Queries
       nodes
     end
 
-    # TODO: rename
     # @params params [ActionController::Parameters]
     #    from controller, MUST BE the full, pre-permitted set
     # @params klass [ ApplicationRecord subclass]
@@ -54,7 +53,7 @@ module Queries
     # @return Hash
     def self.shallow_id(params, klass)
       return {} unless params.class.name == 'ActionController::Parameters'
-      params.permit(klass.related_foreign_keys).to_h
+      params.permit(klass.related_foreign_keys).to_h # could be added into permit framework 
     end
 
     # @params params [ActionController::Parameters]
@@ -71,7 +70,7 @@ module Queries
       c.push t[:created_at].gteq(Date.new(*params[:created_after].split('-').map(&:to_i))) if params[:created_after]
 
       c.push t[klass.annotator_type].eq_any(params[:on]) if params[:on]
-      c.push t[:id].eq_any(params[:id]) if params[:id]
+      c.push t[:id].eq_any([params[:id]].flatten.compact.uniq) if params[:id]
       c.push t[:created_by_id].eq_any(params[:by]) if params[:by]
 
       c.compact!

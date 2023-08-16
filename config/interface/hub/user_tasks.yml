@@ -54,7 +54,7 @@ browse_annotations_task:
     - browse
   status: stable
   description: 'Filter data by annotations (e.g. Notes, Data attributes).  Delete or create additional annotations on filtered objects.  Generate JSON request based on annotations.'
-otus_filter_task:
+filter_otus_task:
   hub: true
   name: 'Filter OTUs'
   related:
@@ -193,9 +193,10 @@ author_list_task:
   status: stable
 sqed_depiction_breakdown_todo_map_task:
   hub: true
-  name: 'Collection object image breakdown TODO list'
-  description: 'Lists all collection objects currently being processed through depictions.  Indicates those that have transcribed provisional ("buffered") collecting event data.'
+  name: 'Filter staged images'
+  description: 'Filter staged images currently being processed. Visualize current data extracted from an image. Was "TODO list".'
   categories:
+    - filters
     - collecting_event
     - collection_object
     - image
@@ -248,6 +249,7 @@ index_editor_task:
   name: 'Content editor'
   related:
   categories:
+    - new
     - source
   status: prototype
   description: 'Edit content (text) per subject, for example "Biology of Aus bus". Text can be cited and figured.'
@@ -268,14 +270,6 @@ dates_index_task:
     - collecting_event
   status: prototype
   description: "Parse the collecting_events table's verbatim label for possible date combinations."
-overdue_loans_task:
-  hub: true
-  name: 'Overdue loans'
-  related:
-  categories:
-    - collection_object
-  status: prototype
-  description: 'List overdue loans.'
 browse_collection_objects_task:
   hub: true
   name: 'Browse collection objects'
@@ -405,8 +399,8 @@ new_source_task:
   name: 'New source'
   related:
   categories:
-   - source
-   - new
+    - source
+    - new
   status: stable
   description: 'Add a source (person, or reference to a book, serial, publication etc.) via a number of different methods including CrossRef lookup, DOI, or cut-paste of BibTeX.'
 new_bibtex_source_task:
@@ -533,7 +527,7 @@ export_basic_nomenclature_task:
   description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy'
 match_nomenclature_task:
   hub: true
-  name: 'Match names'
+  name: 'Nomenclature match'
   related:
   categories:
     - nomenclature
@@ -695,6 +689,7 @@ filter_people_task:
   name: 'Filter people'
   related:
   categories:
+    - filters
   status: prototype
   description: 'Filter people.'
 stepwise_determinations_task:
@@ -726,7 +721,7 @@ taxon_name_merge_task:
   name: 'Merge taxon names'
   related:
   categories:
-    - nomenclature 
+    - nomenclature
   status: prototype
   description: 'Basic tools that faclitate merging taxon names.'
 paper_catalog_generator_task:
@@ -738,3 +733,102 @@ paper_catalog_generator_task:
     - export
   status: prototype
   description: 'Experimenting with rendering nomenclature as a paper catalog'
+filter_biological_associations_task:
+  hub: true
+  name: 'Filter biological associations'
+  related:
+  categories:
+    - collection_object
+    - biology
+    - filters
+  status: prototype
+  description: 'Facet search on biological associations.'
+collection_object_chronology_task:
+  hub: true
+  name: 'Collection object chronology'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'All collection objects by year collected.'
+filter_asserted_distributions_task:
+  hub: true
+  name: 'Filter asserted distributions'
+  related:
+  categories:
+    - filters
+  status: prototype
+  description: 'Create sets of asserted distributions.'
+related_data_task:
+  hub: false
+  name: 'Related data task'
+  related:
+  categories:
+  status: prototype
+  description: 'Simple linear report of the data related to this object.'
+filter_descriptors_task:
+  hub: true
+  name: 'Filter descriptors'
+  related:
+  categories:
+    - matrix
+    - filters
+  status: prototype
+  description: 'Create sets of descriptors.'
+filter_loans_task:
+  hub: true
+  name: 'Filter loans'
+  related:
+  categories:
+    - filters
+    - loan
+  status: prototype
+  description: 'Filter loans'
+filter_observations_task:
+  hub: true
+  name: 'Filter observations'
+  related:
+  categories:
+    - filters
+    - matrix
+  status: prototype
+  description: 'Create sets of observations. See also the observation matrix hub and multi-key interfaces. '
+filter_contents_task:
+  hub: true
+  name: 'Filter contents'
+  related:
+  categories:
+    - source
+    - filters
+  status: prototype
+  description: 'Content is text blocks, with optional figures, per OTU. Search and return sets by text, topic, or OTU.'
+source_citation_totals_task:
+  hub: false
+  name: 'Source citation totals'
+  related:
+  categories:
+  status: prototype
+  description: 'Report a count per citation object type for each source in the result.'
+edit_biological_associations_graph_task:
+  hub: true
+  name: 'New biological associations'
+  related:
+  categories:
+    - biology
+  status: prototype
+  description: 'Create, edit, and cite biological associations and their inter-relationships.'
+loan_dashboard_task:
+  hub: true
+  name: 'Loans dashboard'
+  related:
+  categories:
+    - loan
+  status: prototype
+  description: 'Summarize various loan-related statistics.'
+geographic_area_usage_task:
+  hub: true
+  name: 'Geographic area usage'
+  related:
+  categories:
+  status: prototype
+  description: 'Summarize this projects geographic area usage'

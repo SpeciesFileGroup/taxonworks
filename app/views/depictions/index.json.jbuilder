@@ -1,3 +1,3 @@
 json.array!(@depictions) do |depiction|
-  json.partial! 'attributes', depiction: depiction 
+  json.partial! '/depictions/attributes', depiction: depiction
 end

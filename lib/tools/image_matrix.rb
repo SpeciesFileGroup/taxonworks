@@ -374,6 +374,7 @@ class Tools::ImageMatrix
     if observation_matrix_id.to_i == 0 && !otu_filter.blank?
       depictions = observation_depictions_from_otu_filter
     else
+      return h if observation_matrix.nil?
       depictions = observation_matrix.observation_depictions
     end
 

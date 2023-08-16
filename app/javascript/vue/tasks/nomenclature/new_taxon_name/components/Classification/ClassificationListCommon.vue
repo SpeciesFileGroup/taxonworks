@@ -4,7 +4,8 @@
     :object-lists="lists.common"
     display="name"
     @add-entry="emit('select', $event)"
-    :list-created="created"/>
+    :list-created="created"
+  />
 </template>
 
 <script setup>

@@ -14,6 +14,9 @@ class Catalog::EntryItem
   #   can be explicitly assigned, or derived from object.nomenclature_date if not provided
   # Date from the name perspective (e.g. sorted by original publication date)
   # See also citation_date
+  #
+  # !!TODO: change to _must be_ explicitly assigned
+  # Assignment must happen _outside_ this module.
   attr_accessor :nomenclature_date
 
   # @return [String]
@@ -28,9 +31,10 @@ class Catalog::EntryItem
   #   a pointer to a method in /app/helpers
   attr_accessor :to_html_method
 
-  #
+  ##
   # Computed/cached attributes, built on `build` of Entry
   #
+
   # @return [Boolean]
   #   See Catalog::Entry#first_item?
   attr_accessor :is_first
@@ -90,10 +94,14 @@ class Catalog::EntryItem
     citation&.source
   end
 
+  # !!TODO: we should not be checking at this point.
+  # Assignment must happen _outside_ this module.
   # @return [Date]
   def nomenclature_date
     return @nomenclature_date if @nomenclature_date
-    if object.respond_to?(:nomenclature_date)
+    if object.respond_to?(:cached_nomenclature_date)
+      object.cached_nomenclature_date
+    elsif object.respond_to?(:nomenclature_date)
       object.nomenclature_date
     else
       nil

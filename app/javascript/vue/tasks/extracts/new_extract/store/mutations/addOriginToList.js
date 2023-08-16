@@ -1,4 +1,4 @@
-import { addToArray } from "helpers/arrays"
+import { addToArray } from '@/helpers/arrays'
 
 export default (state, relationship) => {
   if (relationship.id) {

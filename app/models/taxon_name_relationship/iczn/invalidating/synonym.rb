@@ -17,7 +17,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
 
   def self.disjoint_object_classes
     self.parent.disjoint_object_classes +
-        self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Available::Invalid)
+        self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable,
+                                                 TaxonNameClassification::Iczn::Available::Invalid)
   end
 
   def object_status
@@ -49,10 +50,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
 
   def sv_synonym_relationship
     if self.source
-      date1 = self.source.nomenclature_date
-      date2 = self.subject_taxon_name.cached_nomenclature_date.nil? ? self.subject_taxon_name.nomenclature_date : self.subject_taxon_name.cached_nomenclature_date.to_time
+      date1 = self.source.cached_nomenclature_date.to_time
+      date2 = self.subject_taxon_name.cached_nomenclature_date
       if !!date1 && !!date2
-        soft_validations.add(:base, "#{self.subject_taxon_name.cached_html_name_and_author_year} was not described at the time of citation (#{date1}") if date2 > date1
+        soft_validations.add(:base, "#{self.subject_taxon_name.cached_html_name_and_author_year} was not described at the time of citation (#{date1.to_date})") if date2.to_date > date1.to_date
       end
     else
       soft_validations.add(:base, 'The original publication is not selected')

@@ -7,7 +7,7 @@
           v-for="(item, index) in annotationLists"
           :key="item.id"
           class="contextMenuCells"
-          :class="{ even: (index % 2 == 0) }"
+          :class="{ even: index % 2 == 0 }"
         >
           <td
             class="column-value"
@@ -20,9 +20,8 @@
 </template>
 
 <script>
-
-import AjaxCall from 'helpers/ajaxCall'
-import { Annotation } from 'routes/endpoints'
+import AjaxCall from '@/helpers/ajaxCall'
+import { Annotation } from '@/routes/endpoints'
 
 export default {
   props: {
@@ -37,7 +36,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       annotationLists: []
     }
@@ -45,7 +44,7 @@ export default {
 
   watch: {
     person: {
-      handler (newVal) {
+      handler(newVal) {
         if (newVal?.global_id) {
           this.getAnnotations(newVal.global_id)
         } else {
@@ -57,7 +56,7 @@ export default {
   },
 
   methods: {
-    getAnnotations (globalId) {
+    getAnnotations(globalId) {
       this.annotationLists = []
 
       Annotation.metadata(globalId).then(({ body }) => {
@@ -65,7 +64,7 @@ export default {
 
         endpoints.forEach(([endpoint, obj], index) => {
           if (obj.total > 0) {
-            AjaxCall('get', `${body.url}/${endpoint}.json`).then(response => {
+            AjaxCall('get', `${body.url}/${endpoint}.json`).then((response) => {
               this.annotationLists = this.annotationLists.concat(response.body)
             })
           }
@@ -76,10 +75,10 @@ export default {
 }
 </script>
 <style scoped>
-  .column-property {
-    min-width: 100px;
-  }
-  .column-value {
-    min-width: 600px;
-  }
+.column-property {
+  min-width: 100px;
+}
+.column-value {
+  min-width: 600px;
+}
 </style>

@@ -852,6 +852,12 @@ module Utilities::Dates
       date[:start_date_day] = matchdata1[2]
       date[:start_date_month] = matchdata1[1]
       date[:start_date_year] = matchdata1[3]
+      # 1947-6-29
+    elsif matchdata1 = text.match(/\W(\d{4})[-–—_\.,\/\s]\s?(\d\d?)[-–—_\.,\/\s]\s?(\d\d?)\W/)
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[3]
+      date[:start_date_month] = matchdata1[2]
+      date[:start_date_year] = matchdata1[1]
       # 6/29/47    6/29/'47    7.10.94    5-17-97
     elsif matchdata1 = text.match(/\W(\d\d?)[-–—_\.,\/\s]\s?(\d\d?)[-–—_\.,\/\s]\s?(['´`ʹʼˊ]?\s?\d{2})\W/)
       date[:verbatim_date] = matchdata1[0].strip

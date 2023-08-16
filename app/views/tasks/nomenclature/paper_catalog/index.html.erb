@@ -2,7 +2,7 @@
 
 <%= tag.span('EXPERIMENTAL ONLY.  Target formatting is asciidoc/asciidoctor.', class: [:feedback, 'feedback-thin', 'feedback-danger']) %>
 
-<%= tag.span('Please do not use, currently, with targets > 5000 taxa.', class: [:feedback, 'feedback-thin', 'feedback-warning']) %>
+<%= tag.span('Please do not use, currently, with targets > 10000 taxa.', class: [:feedback, 'feedback-thin', 'feedback-warning']) %>
 
 <%= form_tag paper_catalog_preview_task_path, method: :get, data: {turbolinks: false} do |f| %>
   <div class="field">
@@ -17,7 +17,7 @@
       display: nil,
       size: 60} %>
   </div>
-  
+
   <%= tag.input(type: 'submit', value: 'Preview', name: :submit, class: ['button', 'button-default'], ) %>
   <%= tag.input(type: 'submit', value: 'Download', name: :submit, class: ['button', 'button-default'], ) %>
 <% end %>

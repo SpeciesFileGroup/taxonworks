@@ -1,15 +1,11 @@
 module Queries
   module CollectionObject
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       # @params string [String]
       # @params [Hash] args
       def initialize(string, project_id: nil)
         super
-      end
-
-      def base_query
-        ::CollectionObject.select('collection_objects.*')
       end
 
       # @return [Arel::Table]
@@ -20,11 +16,6 @@ module Queries
       # @return [Arel::Table]
       def otu_table
         ::Otu.arel_table
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::CollectionObject.arel_table
       end
 
       # @return [Arel::Table]
@@ -49,7 +40,7 @@ module Queries
         ::CollectionObject.
           joins(taxon_determinations: [:otu]).
           where(t.to_sql).references(:taxon_determinations, :otus).
-          order('otus.name ASC').limit(10) 
+          order('otus.name ASC').limit(10)
       end
 
       def autocomplete_in_container_by_identifier_cached_exact
@@ -66,24 +57,24 @@ module Queries
 
       def base_queries
         queries = [
+          autocomplete_exact_id,
           autocomplete_identifier_cached_exact,
           autocomplete_in_container_by_identifier_cached_exact,
           autocomplete_identifier_identifier_exact,
-          autocomplete_exact_id, 
           autocomplete_in_container_by_identifier,
           autocomplete_taxon_name_determined_as,
           autocomplete_otu_determined_as,
           autocomplete_identifier_cached_like,
         ]
 
-        queries.compact! 
+        queries.compact!
 
         return [] if queries.nil?
         updated_queries = []
 
         queries.each_with_index do |q ,i|
-          a = q.where(project_id: project_id) if project_id
-          a ||= q 
+          a = q.where(project_id: project_id) if project_id.present?
+          a ||= q
           updated_queries[i] = a
         end
         updated_queries
@@ -98,7 +89,7 @@ module Queries
         updated_queries.each do |q|
           result += q.to_a
           result.uniq!
-          break if result.count > 39 
+          break if result.count > 39
         end
         result[0..39]
       end

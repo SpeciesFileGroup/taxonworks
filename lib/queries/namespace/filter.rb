@@ -1,111 +1,99 @@
 module Queries
+  module Namespace
+    class Filter < Query::Filter
 
-  class Namespace::Filter < Queries::Query
-    
-    # @param institution [String]
-    #   wildcarded to match institution 
-    attr_accessor :institution     
-  
-    # @param name [Array, String]
-    # @return [Array] 
-    attr_accessor :name               
+      PARAMS =  [
+        :institution,
+        :is_virtual,
+        :name,
+        :namespace_id,
+        :short_name,
+        :verbatim_name,
+        namespace_id: [],
+      ].freeze
 
-    # @param short_name [Array, String]
-    # @return [Array] 
-    attr_accessor :short_name         
-    
-    # @param verbatim_short_name [Array, String]
-    # @return [Array] 
-    attr_accessor :verbatim_short_name
+      attr_accessor :namespace_id
 
-    def initialize(params)
-      @institution = params[:institution]
-      @name = params[:name]
-      @short_name = params[:short_name]
-      @verbatim_short_name = params[:verbatim_short_name]
-    end
+      # @param institution [String]
+      #   wildcarded to match institution
+      attr_accessor :institution
 
-    def name 
-      [@name].flatten.compact
-    end
+      # @param name [Array, String]
+      # @return [Array]
+      attr_accessor :name
 
-    def short_name 
-      [@short_name].flatten.compact
-    end
+      # @param short_name [Array, String]
+      # @return [Array]
+      attr_accessor :short_name
 
-    def verbatim_short_name 
-      [@verbatim_short_name].flatten.compact
-    end
+      # @param verbatim_short_name [Array, String]
+      # @return [Array]
+      attr_accessor :verbatim_short_name
 
-    def table
-      ::Namespace.arel_table
-    end
+      # @return Boolean
+      attr_accessor :is_virtual
 
-    def matching_name
-      return nil if name.empty?
-      table[:name].eq_any(name)
-    end
-
-    def matching_short_name
-      return nil if short_name.empty?
-      table[:short_name].eq_any(short_name)
-    end
-
-    def matching_verbatim_name
-      return nil if verbatim_short_name.empty?
-      table[:verbatim_short_name].eq_any(verbatim_short_name)
-    end
-
-    def matching_institution
-      return nil if institution.nil?
-      table[:institution].matches('%' + insititution + '%')
-    end
-
-    # @return [ActiveRecord::Relation, nil]
-    def and_clauses
-      clauses = [
-        matching_name,
-        matching_short_name,
-        matching_verbatim_name, 
-
-        matching_institution,
-      ].compact
-
-      return nil if clauses.empty?
-
-      a = clauses.shift
-      clauses.each do |b|
-        a = a.and(b)
+      def initialize(query_params)
+        super
+        @institution = params[:institution]
+        @is_virtual = boolean_param(params, :is_virtual)
+        @name = params[:name]
+        @namespace_id = params[:namespace_id]
+        @short_name = params[:short_name]
+        @verbatim_short_name = params[:verbatim_short_name]
       end
-      a
-    end
 
-    def merge_clauses
-      clauses = [ ].compact
-
-      return nil if clauses.empty?
-
-      a = clauses.shift
-      clauses.each do |b|
-        a = a.merge(b)
+      def name
+        [@name].flatten.compact
       end
-      a
-    end
 
-    # @return [ActiveRecord::Relation]
-    def all
-      a = and_clauses
-      b = merge_clauses
-      if a && b
-        b.where(a).distinct
-      elsif a
-        ::Namespace.where(a).distinct
-      elsif b
-        b.distinct
-      else
-        ::Namespace.all
+      def namespace_id
+        [@namespace_id].flatten.compact
       end
-    end
 
+      def short_name
+        [@short_name].flatten.compact
+      end
+
+      def verbatim_short_name
+        [@verbatim_short_name].flatten.compact
+      end
+
+      def name_facet
+        return nil if name.empty?
+        table[:name].eq_any(name)
+      end
+
+      def short_name_facet
+        return nil if short_name.empty?
+        table[:short_name].eq_any(short_name)
+      end
+
+      def verbatim_name_facet
+        return nil if verbatim_short_name.empty?
+        table[:verbatim_short_name].eq_any(verbatim_short_name)
+      end
+
+      def institution_facet
+        return nil if institution.nil?
+        table[:institution].matches('%' + insititution + '%')
+      end
+
+      def is_virtual_facet
+        return nil if is_virtual.nil?
+        table[:is_virtual].eq(is_virtual)
+      end
+
+      def and_clauses
+        [
+          institution_facet,
+          is_virtual_facet,
+          name_facet,
+          short_name_facet,
+          verbatim_name_facet,
+        ]
+      end
+
+    end
   end
 end

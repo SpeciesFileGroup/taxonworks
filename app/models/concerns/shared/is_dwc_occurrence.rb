@@ -3,20 +3,22 @@ module Shared::IsDwcOccurrence
   extend ActiveSupport::Concern
 
   # These probably belong in a global helper
-  DWC_DELIMITER = ' | '
+  DWC_DELIMITER = ' | '.freeze
 
   VIEW_EXCLUSIONS = [
     :footprintWKT
-  ]
+  ].freeze
 
   included do
     delegate :persisted?, to: :dwc_occurrence, prefix: :dwc_occurrence, allow_nil: true
+
+    # TODO: do we need a ENV check option for disableing dwc_occurrence setting here as well?
 
     # @return Boolean, nil
     #   when true prevents automatic dwc_index from being created
     attr_accessor :no_dwc_occurrence
 
-    has_one :dwc_occurrence, as: :dwc_occurrence_object, inverse_of: :dwc_occurrence_object
+    has_one :dwc_occurrence, as: :dwc_occurrence_object, dependent: :destroy, inverse_of: :dwc_occurrence_object
 
     after_save :set_dwc_occurrence, unless: -> { no_dwc_occurrence }
 
@@ -45,6 +47,7 @@ module Shared::IsDwcOccurrence
     end
   end
 
+  # TODO: wrap in generic (reindex_dwc_occurrences method for use in InternalAttribute and elsewhere)
   # @return [DwcOccurrence]
   #   always touches the database
   def set_dwc_occurrence

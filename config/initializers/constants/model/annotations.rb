@@ -1,6 +1,6 @@
 ANNOTATION_TYPES = [
   :tags,
-  :citations,  
+  :citations,
   :alternate_values,
   :depictions,
   :confidences,

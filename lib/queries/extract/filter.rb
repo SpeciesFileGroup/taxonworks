@@ -1,19 +1,34 @@
 module Queries
   module Extract
 
-    class Filter < Queries::Query
+    class Filter < Query::Filter
+      include Queries::Concerns::Citations
+      include Queries::Concerns::Containable
+      include Queries::Concerns::DateRanges
+      include Queries::Concerns::Protocols
+      include Queries::Concerns::Tags
       include Queries::Helpers
 
-      include Queries::Concerns::Tags
-      include Queries::Concerns::Users
-      include Queries::Concerns::Protocols
-
-      # @param [String, nil]
-      #  'true' - order by updated_at
-      #  'false', nil - do not apply ordering
-      # @return [Boolen, nil]
-      # !! Likely doesn't do what we think it does when chained with other params
-      attr_accessor :recent
+      PARAMS = [
+        :collection_object_id,
+        :descendants,
+        :exact_verbatim_anatomical_origin,
+        :extract_end_date_range,
+        :extract_id,
+        :extract_origin,
+        :extract_start_date_range,
+        :otu_id,
+        :protocol_id,
+        :repository_id,
+        :sequences,
+        :taxon_name_id,
+        :verbatim_anatomical_origin,
+        collection_object_id: [],
+        extract_id: [],
+        otu_id: [],
+        repository_id: [],
+        taxon_name_id: [],
+      ].freeze
 
       # @return [Array of Repository#id]
       attr_accessor :repository_id
@@ -27,7 +42,8 @@ module Queries
       # @return [Protonym.id, nil]
       #   return all extracts linked to OTUs AND CollectionObject that is self or descendant linked
       #   to this TaxonName
-      attr_accessor :ancestor_id
+      attr_accessor :taxon_name_id
+      attr_accessor :descendants
 
       # @param extract_start_date_range [String]
       #  yyyy-mm-dd
@@ -57,33 +73,37 @@ module Queries
       #    'true', 'false', nil
       attr_accessor :exact_verbatim_anatomical_origin
 
+      # @return Array
+      # @param extract_id [Numeric, String, Array]
+      #   a set of extract#id
+      attr_accessor :extract_id
+
       # @param [Hash] args are permitted params
-      def initialize(params)
-        @ancestor_id = params[:ancestor_id]
+      def initialize(query_params)
+        super
+
         @collection_object_id = params[:collection_object_id]
+        @descendants = boolean_param(params, :descendants)
         @exact_verbatim_anatomical_origin = params[:exact_verbatim_anatomical_origin]
         @extract_end_date_range = params[:extract_end_date_range]
         @extract_origin = params[:extract_origin]
+        @extact_id = params[:extract_id]
         @extract_start_date_range = params[:extract_start_date_range]
         @otu_id = params[:otu_id]
-        @recent = boolean_param(params, :recent)
         @repository_id = params[:repository_id]
         @sequences = boolean_param(params, :sequences)
+        @taxon_name_id = params[:taxon_name_id]
         @verbatim_anatomical_origin = params[:verbatim_anatomical_origin]
 
-        set_identifier(params)
+        set_containable_params(params)
+        set_citations_params(params)
+        set_date_params(params)
         set_tags_params(params)
-        set_user_dates(params)
         set_protocols_params(params)
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Extract.arel_table
-      end
-
-      def base_query
-        ::Extract.select('extracts.*')
+      def extract_id
+        [@extract_id].flatten.compact
       end
 
       def repository_id
@@ -98,6 +118,15 @@ module Queries
         [@collection_object_id].flatten.compact
       end
 
+      def taxon_name_id
+        [@taxon_name_id].flatten.compact
+      end
+
+      def extract_id_facet
+        return nil if extract_id.empty?
+        table[:id].eq_any(extract_id)
+      end
+
       def repository_id_facet
         return nil if repository_id.empty?
         table[:repository_id].eq_any(repository_id)
@@ -107,8 +136,8 @@ module Queries
         return nil if otu_id.empty?
         a = ::Extract.joins(:origin_otus).where(otus: {id: otu_id})
         b = ::Extract.joins(origin_collection_objects: [:otus]).where(otus: {id: otu_id})
-        
-       ::Extract.from("((#{a.to_sql}) UNION (#{b.to_sql})) as extracts")
+
+        ::Extract.from("((#{a.to_sql}) UNION (#{b.to_sql})) as extracts")
       end
 
       def extract_origin_facet
@@ -124,27 +153,6 @@ module Queries
           .and(::OriginRelationship.arel_table[:new_object_type].eq('Sequence')))
           .arel.exists
         ::Extract.where(sequences ? subquery : subquery.not)
-      end
-
-      def extract_start_date_range
-        return nil if @extract_start_date_range.nil?
-        d = nil
-        begin
-          d = Date.parse(@extract_start_date_range)
-        rescue Date::Error
-        end
-        d
-      end
-
-      def extract_end_date_range
-        @extract_end_date_range ||= @extract_start_date_range
-        return nil if @extract_end_date_range.nil?
-        d = nil
-        begin
-          d = Date.parse(@extract_end_date_range)
-        rescue Date::Error
-        end
-        d
       end
 
       # TODO: Abstract to single date store range helper
@@ -188,93 +196,114 @@ module Queries
         ::Extract.joins(:origin_collection_objects).where(collection_objects: {id: collection_object_id})
       end
 
+      # TODO: with()
       # TODO: this is not a join, but an IN x2 UNION, i.e. there
       # is likely room for optimization via a join.
-      def ancestors_facet
-        return nil if ancestor_id.nil?
+      def taxon_name_id_facet
+        return nil if taxon_name_id.empty?
 
-        a = ::Extract.joins(:origin_otus).where(otus: ::Otu.descendant_of_taxon_name(ancestor_id))
-        b = ::Extract.joins(:origin_collection_objects).where(collection_objects: ::CollectionObject.joins(:otus).where(otus: ::Otu.descendant_of_taxon_name(ancestor_id)) )
+        o = nil
+        if descendants
+          o = ::Otu.descendant_of_taxon_name(taxon_name_id)
+        else
+          o = ::Otu.where(taxon_name_id:)
+        end
+
+        a = ::Extract.joins(:origin_otus).where(otus: o)
+        b = ::Extract.joins(:origin_collection_objects).where(collection_objects: ::CollectionObject.joins(:otus).where(otus: o))
 
         ::Extract.from("((#{a.to_sql}) UNION (#{b.to_sql})) as extracts")
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = base_and_clauses
+      # !! Targets origins of *both* Otu, and Determined specimens
+      def otu_query_facet
+        return nil if otu_query.nil?
+        w = 'WITH query_otu_exs_a AS (' + otu_query.all.to_sql + ') '
 
-        return nil if clauses.empty?
+        u1 = ::Extract
+          .joins(:origin_otus)
+          .joins('JOIN query_otu_exs_a as query_otu_exs_a1 on otus.id = query_otu_exs_a1.id')
+          .to_sql
 
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+        u2 = ::Extract
+          .joins(origin_collection_objects: [:taxon_determinations])
+          .joins('JOIN query_otu_exs_a as query_otu_exs_a2 on taxon_determinations.otu_id = query_otu_exs_a2.id')
+          .where('taxon_determinations.position = 1')
+          .to_sql
+
+        s = w + ::Extract.from("((#{u1}) UNION (#{u2})) as extracts").to_sql
+
+        ::Extract.from('(' + s + ') as extracts')
+      end
+
+      def collection_object_query_facet
+        return nil if collection_object_query.nil?
+        s = 'WITH query_co_exs AS (' + collection_object_query.all.to_sql + ') ' +
+          ::Extract
+          .joins(:origin_collection_objects)
+          .joins('JOIN query_co_exs as query_co_exs1 on collection_objects.id = query_co_exs1.id')
+          .to_sql
+
+        ::Extract.from('(' + s + ') as extracts')
+      end
+
+
+      def observation_query_facet
+        return nil if observation_query.nil?
+        s = 'WITH query_obs_extracts AS (' + observation_query.all.to_sql + ') ' +
+            ::Extract
+              .joins(:observations)
+              .joins('JOIN query_obs_extracts as query_obs_extracts1 on observations.id = query_obs_extracts1.id')
+              .to_sql
+
+        ::Extract.from('(' + s + ') as extracts').distinct
       end
 
       # @return [Array]
-      def base_and_clauses
-        clauses = [
-          repository_id_facet,
-          date_made_facet,
+      def and_clauses
+        [
+          extract_id_facet,
           attribute_exact_facet(:verbatim_anatomical_origin),
+          date_made_facet,
+          repository_id_facet,
         ]
-        clauses.compact!
-        clauses
       end
 
-      def base_merge_clauses
-        clauses = []
-
-        clauses += [
-          protocol_id_facet,      # See Queries::Concerns::Protocols
-          protocol_facet,
-          keyword_id_facet,       # See Queries::Concerns::Tags
-          created_updated_facet,  # See Queries::Concerns::Users
-          identifiers_facet,      # See Queries::Concerns::Identifiers
-          identifier_between_facet,
-          identifier_facet,
-          identifier_namespace_facet,
-          match_identifiers_facet,
-          collection_object_id_facet,
-          otu_id_facet,
-          ancestors_facet,
-          sequences_facet,
-          extract_origin_facet
-        ]
-
-        clauses.compact!
-        clauses
-      end
-
-      # @return [ActiveRecord::Relation]
       def merge_clauses
-        clauses = base_merge_clauses
-        return nil if clauses.empty?
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
+        [
+          observation_query_facet,
+          collection_object_query_facet,
+          otu_query_facet,
+
+          collection_object_id_facet,
+          extract_origin_facet,
+          otu_id_facet,
+          sequences_facet,
+          taxon_name_id_facet,
+        ]
       end
 
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-        # q = nil
-        if a && b
-          q = b.where(a).distinct
-        elsif a
-          q = ::Extract.where(a).distinct
-        elsif b
-          q = b.distinct
-        else
-          q = ::Extract.all
-        end
+      private
 
-        q = q.order(updated_at: :desc) if recent
-        q
+      def extract_start_date_range
+        return nil if @extract_start_date_range.nil?
+        d = nil
+        begin
+          d = Date.parse(@extract_start_date_range)
+        rescue Date::Error
+        end
+        d
+      end
+
+      def extract_end_date_range
+        @extract_end_date_range ||= @extract_start_date_range
+        return nil if @extract_end_date_range.nil?
+        d = nil
+        begin
+          d = Date.parse(@extract_end_date_range)
+        rescue Date::Error
+        end
+        d
       end
 
     end

@@ -1,4 +1,4 @@
-import { Namespace } from 'routes/endpoints'
+import { Namespace } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default async ({ state, commit }, namespaceId) => {

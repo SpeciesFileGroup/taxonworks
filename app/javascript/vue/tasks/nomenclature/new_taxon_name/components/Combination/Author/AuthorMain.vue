@@ -13,10 +13,12 @@
 </template>
 
 <script setup>
-
 import { computed, ref } from 'vue'
-import { NOMENCLATURE_CODE_BOTANY, NOMENCLATURE_CODE_ZOOLOGY } from 'constants/index.js'
-import SwitchComponent from 'components/switch.vue'
+import {
+  NOMENCLATURE_CODE_BOTANY,
+  NOMENCLATURE_CODE_ZOOLOGY
+} from '@/constants/index.js'
+import SwitchComponent from '@/components/switch.vue'
 import AuthorPerson from './AuthorPeople.vue'
 import AuthorSource from './AuthorSource.vue'
 import AuthorVerbatim from './AuthorVerbatim.vue'
@@ -27,7 +29,7 @@ const TAB = {
   Person: AuthorPerson
 }
 
-function getTabLabel (label, hasData) {
+function getTabLabel(label, hasData) {
   return label + (hasData ? ' ✓' : '')
 }
 
@@ -48,17 +50,22 @@ const emit = defineEmits(['update:modelValue'])
 const tabIndex = ref(0)
 const combination = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const componentName = computed(() => Object.values(TAB)[tabIndex.value])
 
-const verbatimFilled = computed(() => combination.value.verbatim_author || combination.value.verbatim_year)
+const verbatimFilled = computed(
+  () => combination.value.verbatim_author || combination.value.verbatim_year
+)
 const hasRoles = computed(() => combination.value.roles_attributes.length)
 const sections = computed(() =>
   props.taxon.nomenclatural_code === NOMENCLATURE_CODE_BOTANY
     ? [
-        getTabLabel('Source', combination.value.origin_citation_attributes.source_id),
+        getTabLabel(
+          'Source',
+          combination.value.origin_citation_attributes.source_id
+        ),
         getTabLabel('Verbatim', verbatimFilled.value),
         getTabLabel('Person', hasRoles.value)
       ]

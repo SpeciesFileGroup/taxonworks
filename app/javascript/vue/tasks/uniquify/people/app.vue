@@ -42,19 +42,18 @@
       v-if="requestState.isLoading || requestState.isMerging"
       full-screen
       :legend="spinnerMessage"
-      :logo-size="{ width: '100px', height: '100px'}"
+      :logo-size="{ width: '100px', height: '100px' }"
     />
   </div>
 </template>
 
 <script>
-
 import SettingsNavbar from './components/SettingsNavbar.vue'
 import FilterPanel from './components/Filter/FilterPanel.vue'
 import FoundPeople from './components/FoundPeople'
 import MatchPeople from './components/MatchPeople'
 import CompareTable from './components/CompareTable.vue'
-import VSpinner from 'components/spinner.vue'
+import VSpinner from '@/components/spinner.vue'
 import URLComponent from './components/URLComponent.vue'
 
 import { ActionNames } from './store/actions/actions'
@@ -76,41 +75,41 @@ export default {
 
   computed: {
     selectedPerson: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSelectedPerson]
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSelectedPerson, value)
       }
     },
 
     mergeList: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetMergePeople]
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetMergePeople, value)
       }
     },
 
-    settings () {
+    settings() {
       return this.$store.getters[GetterNames.GetSettings]
     },
 
-    requestState () {
+    requestState() {
       return this.$store.getters[GetterNames.GetRequestState]
     },
 
-    spinnerMessage () {
+    spinnerMessage() {
       return this.requestState.isLoading
         ? 'Loading...'
         : `Merging... ${this.mergeList.length} persons remaining...`
     }
   },
 
-  created () {
+  created() {
     const urlParams = new URLSearchParams(window.location.search)
     const lastName = urlParams.get('last_name')
     const personId = urlParams.get('person_id')
@@ -123,19 +122,19 @@ export default {
   },
 
   methods: {
-    findPeople (params) {
+    findPeople(params) {
       this.$store.dispatch(ActionNames.FindPeople, params)
     },
 
-    getMatchPeople (params) {
+    getMatchPeople(params) {
       this.$store.dispatch(ActionNames.FindMatchPeople, params)
     },
 
-    getPerson (id) {
+    getPerson(id) {
       this.$store.dispatch(ActionNames.AddSelectPerson, id)
     },
 
-    resetApp () {
+    resetApp() {
       this.$refs.filterPanel.resetFilter()
       this.$store.dispatch(ActionNames.ResetStore)
     }
@@ -153,5 +152,4 @@ export default {
     line-height: 2.5 !important;
   }
 }
-
 </style>

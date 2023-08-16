@@ -20,10 +20,10 @@ namespace :tw do
       geographic_items_file                  = "#{data_store}geographic_items.dump"
       geographic_areas_geographic_items_file = "#{data_store}geographic_areas_geographic_items.dump"
 
-      raise "Missing #{geographic_areas_file}, doing nothing.".red unless File.exists?(geographic_areas_file)
-      raise "Missing #{geographic_items_file}, doing nothing.".red unless File.exists?(geographic_items_file)
-      raise "Missing #{geographic_area_types_file}, doing nothing.".red unless File.exists?(geographic_area_types_file)
-      raise "Missing #{geographic_areas_geographic_items_file}, doing nothing.red" unless File.exists?(geographic_areas_geographic_items_file)
+      raise "Missing #{geographic_areas_file}, doing nothing.".red unless File.exist?(geographic_areas_file)
+      raise "Missing #{geographic_items_file}, doing nothing.".red unless File.exist?(geographic_items_file)
+      raise "Missing #{geographic_area_types_file}, doing nothing.".red unless File.exist?(geographic_area_types_file)
+      raise "Missing #{geographic_areas_geographic_items_file}, doing nothing.red" unless File.exist?(geographic_areas_geographic_items_file)
 
       puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_area_types_file}"
 

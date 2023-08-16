@@ -9,14 +9,9 @@
 </template>
 
 <script setup>
+import VBtn from '@/components/ui/VBtn/index.vue'
 
-import VBtn from 'components/ui/VBtn/index.vue'
-
-const emit = defineEmits([
-  'update:day',
-  'update:month',
-  'update:year'
-])
+const emit = defineEmits(['update:day', 'update:month', 'update:year'])
 
 const emitActualDate = () => {
   const today = new Date()

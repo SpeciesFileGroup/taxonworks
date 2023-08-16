@@ -1,9 +1,10 @@
 <template>
   <div
     class="figures-container"
-    :class="{ 'card-handle' : !edit }">
+    :class="{ 'card-handle': !edit }"
+  >
     <div class="figures-header">
-      <img :src="depiction.image.image_file_url">
+      <img :src="depiction.image.image_file_url" />
 
       <v-btn
         class="figures-delete"
@@ -37,9 +38,7 @@
         class="figures-edit"
         circle
         medium
-        :color="edit
-          ? 'update'
-          : 'primary'"
+        :color="edit ? 'update' : 'primary'"
         @click="editChange()"
       >
         <v-icon
@@ -53,7 +52,8 @@
         class="figures-label horizontal-center-content middle"
         v-if="edit"
         type="text"
-        v-model="depiction.figure_label">
+        v-model="depiction.figure_label"
+      />
       <div
         class="figures-label horizontal-center-content middle"
         v-else
@@ -71,11 +71,10 @@
   </div>
 </template>
 <script>
-
 import { MutationNames } from '../store/mutations/mutations'
-import { Depiction } from 'routes/endpoints'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import { Depiction } from '@/routes/endpoints'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
@@ -94,7 +93,7 @@ export default {
 
   emits: ['link'],
 
-  data () {
+  data() {
     return {
       depiction: undefined,
       edit: false
@@ -102,41 +101,44 @@ export default {
   },
 
   watch: {
-    figure (newVal) {
+    figure(newVal) {
       this.depiction = newVal
     }
   },
 
-  created () {
+  created() {
     this.depiction = this.figure
   },
 
   methods: {
-    deleteDepiction () {
+    deleteDepiction() {
       Depiction.destroy(this.depiction.id).then(() => {
         this.$store.commit(MutationNames.RemoveDepiction, this.depiction)
       })
     },
 
-    editChange () {
+    editChange() {
       if (this.edit) {
         this.update()
       }
       this.edit = !this.edit
     },
 
-    update () {
+    update() {
       const depiction = {
         caption: this.depiction.caption,
         figure_label: this.depiction.figure_label
       }
 
       Depiction.update(this.depiction.id, { depiction }).then(() => {
-        TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
+        TW.workbench.alert.create(
+          'Depiction was successfully updated.',
+          'notice'
+        )
       })
     },
 
-    linkDepiction () {
+    linkDepiction() {
       this.$emit('link', this.depiction)
     }
   }

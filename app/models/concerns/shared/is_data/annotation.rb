@@ -9,11 +9,20 @@ module Shared::IsData::Annotation
 
   # see config/initializes/constanst/model/annotations for types
 
-  module ClassMethods
+  included do
+
     # @return [Boolean]
     # true if model is an "annotator" (e.g. identifiers, tags, notes, data attributes, alternate values, citations), i.e. data that references another data element through STI
     def annotates?
       respond_to?(:annotated_object)
+    end
+  end
+
+
+  module ClassMethods
+
+    def annotates?
+      self < Shared::PolymorphicAnnotator ? true : false
     end
 
     # Determines whether the class can be annotated
@@ -23,6 +32,12 @@ module Shared::IsData::Annotation
         k = "Shared::#{t.to_s.singularize.classify.pluralize}".safe_constantize
         self < k ? true : false
       end
+    end
+
+    def available_annotation_types
+      ::ANNOTATION_TYPES.collect do |a|
+        self.send("has_#{a}?") ? a.to_s.classify : nil
+      end.compact
     end
   end
 
@@ -35,39 +50,53 @@ module Shared::IsData::Annotation
     end
   end
 
-  # Doesn't belong here
-  def has_loans?
-    self.class < Shared::Loanable ? true : false
-  end
-
-  # @return [#annotations_hash]
-  #   an accessor for the annotations_hash, overwritten by some inheriting classes
-  def annotations
-    annotations_hash
-  end
-
   def available_annotation_types
     ::ANNOTATION_TYPES.select do |a|
       self.send("has_#{a}?")
     end
   end
 
+  # Doesn't belong here
+  def has_loans?
+    self.class < Shared::Loanable ? true : false
+  end
+
+  # @return [Hash]
+  #   an accessor for the annotations_hash, overwritten by some inheriting classes
+  def annotations
+    annotations_hash
+  end
+
   # @return [Hash]
   def annotation_metadata(project_id = nil)
-   h = (available_annotation_types - [:attribution, :identifiers]).inject({}){|hsh, a| hsh.merge!(a => {total: send(a).count})}
-   if has_attribution?
-     h[:attribution] = {total: (send(:attribution).present? ? 1 : 0)}
-   end
+    h = {}
 
-   if has_identifiers?
-     if project_id
-       h[:identifiers] = {total: ( send(:identifiers).visible(project_id).count)}
-     else
-       h[:identifiers] = {total: ( send(:identifiers).count) }
-     end
-   end
+    # Use a fixed order for UI stability
+    ANNOTATION_TYPES.each do |t|
+      next unless available_annotation_types.include?(t)
+      case t
+      when :documentation
 
-   h
+        if project_id
+          h[:documentation] = {total: documentation.where(documentation: {project_id:}).count}
+        else
+          h[:documentation] = {total: ( send(:documentation).count) }
+        end
+
+      when :attribution
+        h[:attribution] = {total: (send(:attribution).present? ? 1 : 0)}
+      when :identifiers
+
+        if project_id
+          h[:identifiers] = {total: ( send(:identifiers).visible(project_id).count)}
+        else
+          h[:identifiers] = {total: ( send(:identifiers).count) }
+        end
+      else
+        h[t] = { total: send(t).count }
+      end
+    end
+    h
   end
 
   protected
@@ -86,9 +115,9 @@ module Shared::IsData::Annotation
     result['protocol relationships'] = protocols if has_protocol_relationships? && protocolled?
     result['alternate values'] = alternate_values if has_alternate_values? && alternate_values.load.any?
     result['attribution'] = attribution if has_attribution? && attribution.load.any?
+
+    result['verifiers'] = verifiers if has_verifiers? && verifiers.load.any?
     result
   end
 
 end
-
-

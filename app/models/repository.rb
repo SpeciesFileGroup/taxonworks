@@ -44,9 +44,9 @@ class Repository < ApplicationRecord
 
   has_many :collection_objects, inverse_of: :repository, dependent: :restrict_with_error
   has_many :current_collection_objects, class_name: 'CollectionObject', foreign_key: :current_repository_id, inverse_of: :current_repository, dependent: :restrict_with_error
-  
+
   has_many :extracts, inverse_of: :repository, dependent: :restrict_with_error
-  
+
   validates_presence_of :name, :acronym
 
   scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: project_id } ) }
@@ -56,11 +56,11 @@ class Repository < ApplicationRecord
     p = Repository.arel_table
 
     # i is a select manager
-    i = t.project(t['repository_id'], t['created_at']).from(t)
-            .where(t['created_at'].gt(4.weeks.ago))
-            .where(t['created_by_id'].eq(user_id))
+    i = t.project(t['repository_id'], t['updated_at']).from(t)
+            .where(t['updated_at'].gt(4.weeks.ago))
+            .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
-            .order(t['created_at'].desc)
+            .order(t['updated_at'].desc)
 
     # z is a table alias
     z = i.as('recent_t')

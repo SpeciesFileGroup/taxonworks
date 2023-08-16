@@ -22,3 +22,7 @@ if extend_response_with('roles')
     end
   end
 end
+
+if extend_response_with('bibtex') && source.is_bibtex?
+  json.bibtex source.to_bibtex.to_s
+end

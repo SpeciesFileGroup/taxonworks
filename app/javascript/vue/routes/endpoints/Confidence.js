@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'confidences'
 const permitParams = {
@@ -14,7 +14,7 @@ const permitParams = {
       name: String,
       definition: String,
       uri: String,
-      uri_relation: String,
+      uri_relation: String
     }
   }
 }

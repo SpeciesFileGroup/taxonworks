@@ -6,7 +6,8 @@ class TaxonNameRelationship::Icn::Unaccepting::Misapplication < TaxonNameRelatio
     self.parent.disjoint_taxon_name_relationships +
         self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting::Synonym,
             TaxonNameRelationship::Icn::Unaccepting::Homonym,
-            TaxonNameRelationship::Icn::Unaccepting::Usage)
+            TaxonNameRelationship::Icn::Unaccepting::Usage,
+            TaxonNameRelationship::Icn::Unaccepting::OriginallyInvalid)
   end
 
   def self.disjoint_subject_classes

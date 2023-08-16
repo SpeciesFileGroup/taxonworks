@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 
-gem 'rack-cors', '~> 1.1', require: 'rack/cors'
+gem 'rack-cors', '~> 2.0', require: 'rack/cors'
 
-ruby '>= 3.0', '< 3.2'
+ruby '>= 3.2', '< 3.3.0'
 
 gem 'bundler', '~> 2.0'
 
@@ -23,18 +23,27 @@ gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 3.3'
-gem 'rmagick', '~> 4.2', '>= 4.2.2'
+gem 'rmagick', '~> 5.1' # , '>= 4.2.2'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 gem 'net-smtp', '~> 0.3.1'
+gem 'mail', '~> 2.8', '>= 2.8.1'
 gem "matrix", "~> 0.4.2"
 
 # Geo
-gem 'ffi-geos', '~> 2.3.0'
+
 # gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
-gem 'rgeo', '~> 2.2'
+
+# gem 'ffi-geos', '~> 2.3.0'
+# gem 'rgeo', '~> 2.2'
+# gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
+# gem 'rgeo-proj4', '~> 3.0', '>= 3.0.1'
+
+gem 'ffi-geos', '~> 2.4.0'
+gem 'rgeo', '~> 3.0'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
-gem 'rgeo-proj4', '~> 3.0', '>= 3.0.1'
+gem 'rgeo-proj4', '~> 4.0' #, '>= 3.0.1'
+
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # translate for geo
@@ -62,7 +71,8 @@ gem 'acts_as_list', '~> 1.0'
 gem 'modularity', '~> 3.0.0' # TODO: Used!?
 gem 'paperclip', github: 'LocoDelAssembly/paperclip', branch: 'migration-fix' # gem 'paperclip', '~> 6.1.0'
 gem 'paperclip-meta', '~> 3.0' # TODO: kt-paperclip can be installed but because of this gem old paperclip is installed as well and deprecation warnings continue
-gem 'shortener', '~> 0.8.0'
+gem 'voight_kampff', github: 'LocoDelAssembly/Voight-Kampff'
+gem 'shortener', '~> 1.0.0'
 gem 'rails_or', '~> 1.1.8'
 
 # javascript
@@ -77,7 +87,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem "shakapacker", '~>6.3'
+gem "shakapacker", '7.0.3'
 
 # BibTeX handling
 gem 'csl', '~> 1.6.0'
@@ -96,7 +106,7 @@ gem 'kaminari', '~> 1.2.0'
 gem "best_in_place", git: "https://github.com/mmotherwell/best_in_place"
 gem 'redcarpet', '~> 3.4'
 gem 'sassc-rails', '~> 2.1.0'
-gem 'waxy', '~> 0.1'
+gem 'waxy', '~> 0.1.1'
 gem 'rgb', '~> 0.1'
 
 # Drawing
@@ -106,7 +116,7 @@ gem 'ruby-graphviz', '~> 1.2.5', require: false
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.6.0'
-gem 'sqed', '~>0.7.0'
+gem 'sqed', '~>0.8.1'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul' # '~> 1.1', '>= 1.1.2'
 gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'
@@ -135,7 +145,7 @@ gem 'asciidoctor', '~> 2.0'
 gem 'wikidata-client', '~> 0.1.0.pre.rc1', require: 'wikidata'
 
 # Maintenance
-gem 'parallel', '~> 1.22'
+gem 'parallel', '~> 1.23'
 gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
@@ -145,15 +155,17 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
   gem 'webdrivers', '~> 5.0', require: false
-  gem 'selenium-webdriver', '~> 4.2.0'
+  gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
   gem 'prawn', '~> 2.4.0'
-  gem 'puma', '~> 5.5'
+  gem 'puma', '~> 6.0'
 end
 
 gem 'parallel_tests', group: [:development, :test]
 
 group :development do
-# gem 'tunemygc'
+  gem "ruby-lsp", "~> 0.4.1", require: false
+  
+  # gem 'tunemygc'
   gem 'ruby-prof', '~> 1.2'
   gem 'better_errors', '~> 2.9'
   gem 'binding_of_caller'
@@ -191,3 +203,5 @@ group :production do
   gem 'execjs', '~> 2.8.1'
   gem 'passenger', '~> 6.0.2'
 end
+
+

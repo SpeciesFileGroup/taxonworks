@@ -7,9 +7,10 @@ export default ({ state, commit }) => {
   state.settings.lastEdit = 0
   state.settings.lastSave = 0
 
-  Object.keys(locked).forEach(key => {
+  Object.keys(locked).forEach((key) => {
     source[key] = locked[key] ? state.source[key] : undefined
   })
+
   if (!locked.type) {
     source.type = 'Source::Bibtex'
   }

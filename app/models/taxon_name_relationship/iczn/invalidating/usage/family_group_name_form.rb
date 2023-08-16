@@ -33,5 +33,4 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm < Ta
   def self.assignable
     true
   end
-
 end

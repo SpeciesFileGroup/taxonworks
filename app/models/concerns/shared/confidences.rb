@@ -7,11 +7,11 @@ module Shared::Confidences
   included do
     ::Confidence.related_foreign_keys.push self.name.foreign_key
 
-    has_many :confidences, as: :confidence_object, validate: true, dependent: :destroy
+    has_many :confidences, as: :confidence_object, validate: true, dependent: :destroy, inverse_of: :confidence_object
     has_many :confidence_levels, through: :confidences
 
     scope :with_confidences, -> { joins(:confidences) }
-    scope :without_confidences, -> { includes(:confidences).where(confidences: {id: nil}) }
+    scope :without_confidences, -> { where.missing(:confidences) }
 
     accepts_nested_attributes_for :confidences, reject_if: :reject_confidences, allow_destroy: true
 
@@ -31,7 +31,7 @@ module Shared::Confidences
 
   module ClassMethods
     def with_confidence_level(confidence_level)
-      joins(:confidence_levels).where(confidences: {confidence_level: confidence_level})
+      joins(:confidence_levels).where(confidences: {confidence_level:})
     end
   end
 

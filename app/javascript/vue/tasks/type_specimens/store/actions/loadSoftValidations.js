@@ -1,4 +1,4 @@
-import { SoftValidation } from 'routes/endpoints'
+import { SoftValidation } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default ({ commit, state }) => {
@@ -7,7 +7,7 @@ export default ({ commit, state }) => {
     SoftValidation.find(state.type_material.collection_object.global_id)
   ]
 
-  Promise.all(requests).then(responses => {
+  Promise.all(requests).then((responses) => {
     const validations = {}
     const list = responses.filter(({ body }) => body.soft_validations.length)
 

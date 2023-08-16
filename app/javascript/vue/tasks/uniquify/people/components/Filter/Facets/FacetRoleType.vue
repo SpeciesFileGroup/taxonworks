@@ -4,12 +4,14 @@
     <ul class="no_bullets">
       <li
         v-for="(label, key) in roleTypes"
-        :key="key">
+        :key="key"
+      >
         <label>
           <input
             type="checkbox"
             :value="key"
-            v-model="selected">
+            v-model="selected"
+          />
           {{ roleTypes[key] }}
         </label>
       </li>
@@ -18,8 +20,7 @@
 </template>
 
 <script>
-
-import { People } from 'routes/endpoints'
+import { People } from '@/routes/endpoints'
 
 export default {
   props: {
@@ -33,22 +34,22 @@ export default {
 
   computed: {
     selected: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
   },
 
-  created () {
-    People.roleTypes().then(response => {
+  created() {
+    People.roleTypes().then((response) => {
       this.roleTypes = response.body
     })
   },
 
-  data () {
+  data() {
     return {
       roleTypes: {}
     }

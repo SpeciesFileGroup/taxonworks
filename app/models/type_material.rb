@@ -86,7 +86,7 @@ class TypeMaterial < ApplicationRecord
     [source, protonym.try(:source), nil].compact.first
   end
 
-  def legal_type_type(code, type_type)
+  def self.legal_type_type(code, type_type)
     case code
     when :iczn
       ICZN_TYPES.keys.include?(type_type)
@@ -102,7 +102,7 @@ class TypeMaterial < ApplicationRecord
   def check_type_type
     if protonym
       code = protonym.rank_class.nomenclatural_code
-      errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') if !legal_type_type(code, type_type)
+      errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') unless TypeMaterial::legal_type_type(code, type_type)
     end
   end
 
@@ -128,9 +128,9 @@ class TypeMaterial < ApplicationRecord
     if %w(paralectotype neotype lectotype paralectotypes).include?(type_type)
       if source.nil?
         soft_validations.add(:base, "Source for #{type_type} designation is not selected ") if source.nil?
-      elsif !protonym.try(:source).nil? && source.nomenclature_date && protonym.nomenclature_date
+      elsif !protonym.try(:source).nil? && source.cached_nomenclature_date && protonym.cached_nomenclature_date
         soft_validations.add(:base, "#{type_type.capitalize} could not be designated in the original publication") if source == protonym.source
-        soft_validations.add(:base, "#{type_type.capitalize} could not be designated before taxon description") if source.nomenclature_date < protonym.nomenclature_date
+        soft_validations.add(:base, "#{type_type.capitalize} could not be designated before taxon description") if source.cached_nomenclature_date&.to_date < protonym.cached_nomenclature_date
       end
     end
   end

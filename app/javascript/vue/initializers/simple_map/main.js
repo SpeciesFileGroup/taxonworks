@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
-import VMap from 'components/georeferences/map.vue'
+import VMap from '@/components/georeferences/map.vue'
 
-function init (element) {
+function init(element) {
   const geojson = [JSON.parse(element.getAttribute('data-feature-collection'))]
   const props = {
     geojson,

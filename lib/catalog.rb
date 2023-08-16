@@ -1,4 +1,4 @@
-# A Catalog is a series of catalog entries, which in turn have entry items. The model more or less represents a two level 
+# A Catalog is a series of catalog entries, which in turn have entry items. The model more or less represents a two level
 class Catalog
 
   # Each Object is the basis for a Catalog::Entry
@@ -8,9 +8,9 @@ class Catalog
   attr_accessor :entries
 
   def initialize(targets:)
-    @catalog_targets = targets 
+    @catalog_targets = targets
     @entries = []
-    build 
+    build
   end
 
   # Handled in individual subclasses
@@ -69,7 +69,7 @@ class Catalog
     t = []
     entries.each do |e|
       t += e.topics
-    end   
+    end
     t.uniq
   end
 
@@ -102,14 +102,14 @@ class Catalog
   def sources_to_json
     h = {
       list: {},
-      year_metadata: ::Catalog.year_metadata(sources, items) 
+      year_metadata: ::Catalog.year_metadata(sources, items)
     }
-    
+
     sources.each do |s|
       h[:list][s.metamorphosize.to_global_id.to_s] = {
         cached: s.cached,
         year: s.cached_nomenclature_date&.year,
-        objects: objects_for_source(s).collect{|o| o.object.to_global_id.to_s } 
+        objects: objects_for_source(s).collect{|o| o.object.to_global_id.to_s }
       }
     end
     h
@@ -120,7 +120,7 @@ class Catalog
       list: {}
     }
 
-    year_data = ::Catalog.topic_year_metadata(items) 
+    year_data = ::Catalog.topic_year_metadata(items)
 
     topics.each do |t|
       id = t.metamorphosize.to_global_id.to_s

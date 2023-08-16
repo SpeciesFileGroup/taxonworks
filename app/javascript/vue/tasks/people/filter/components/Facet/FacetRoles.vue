@@ -1,5 +1,5 @@
 <template>
-  <div class="field">
+  <FacetContainer>
     <h3>{{ title }}</h3>
     <ul class="no_bullets">
       <li
@@ -10,23 +10,25 @@
           <input
             type="checkbox"
             :value="key"
-            v-model="selected[param]"
-          >
+            v-model="selectedRoles"
+          />
           {{ label }}
         </label>
       </li>
     </ul>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { computed, ref } from 'vue'
-import { People } from 'routes/endpoints'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import { People } from '@/routes/endpoints'
+import { URLParamsToJSON } from '@/helpers/url/parse'
+import { humanize, toSnakeCase } from '@/helpers/strings'
 
 const props = defineProps({
   modelValue: {
-    type: Array,
+    type: Object,
     required: true
   },
 
@@ -42,22 +44,29 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue'])
-const selected = computed({
-  get () {
-    return props.modelValue
-  },
-  set (value) {
-    emit('update:modelValue', value)
+
+const params = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value)
+})
+
+const selectedRoles = computed({
+  get: () => props.modelValue[props.param] || [],
+  set: (value) => {
+    params.value[props.param] = value
   }
 })
 
 const roleTypes = ref([])
 
-People.roleTypes().then(response => {
-  roleTypes.value = response.body
+People.roleTypes().then((response) => {
+  const arr = Object.entries(response.body)
+  roleTypes.value = Object.fromEntries(
+    arr.map(([key, _]) => [key, humanize(toSnakeCase(key))])
+  )
 })
 
 const { [props.param]: urlParam = [] } = URLParamsToJSON(location.href)
 
-selected.value[props.param] = urlParam
+selectedRoles.value = urlParam
 </script>

@@ -55,7 +55,7 @@
 
 <div class="flexbox">
   <div class="item item1">
-    <h2> Users per project ---</h2>
+    <h2> Users per project </h2>
     <%= column_chart Project.joins(:users).group(:id).count.to_a.sort_by(&:second).reverse!, xtitle: 'Project', ytitle: 'Number of users', discrete: true %>
   </div>
 </div>
@@ -67,4 +67,3 @@
     <%= column_chart User.group_by_day(:last_seen_at, format: "%a").count, xtitle: 'Day', ytitle: 'Number of users' %>
   </div>
 </div>
-

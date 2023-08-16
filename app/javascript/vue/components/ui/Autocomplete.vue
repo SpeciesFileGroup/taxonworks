@@ -1,25 +1,13 @@
-/*
-Parameters:
-
-          mim: Minimum input length needed before make a search query
-         time: Minimum time needed after a key pressed to make a search query
-          url: Ajax url request
-  placeholder: Input placeholder
-        label: name of the propierty displayed on the list, could be an array to reach the label
-    autofocus: set autofocus
-      display: Sets the label of the item selected to be display on the input field
-     getInput: Get the input text
-   clearAfter: Clear the input field after an item is selected
-       nested: Used to make a list of properties to reach the list
-      headers: Set the headers to be used in the call. Using it will override the common headers
-
-
-   :add-param: Send custom parameters
-
-  Example:
-    <autocomplete
-      url="/contents/filter.json"
-      param="hours_ago">
+/* Parameters: mim: Minimum input length needed before make a search query time:
+Minimum time needed after a key pressed to make a search query url: Ajax url
+request placeholder: Input placeholder label: name of the propierty displayed on
+the list, could be an array to reach the label autofocus: set autofocus display:
+Sets the label of the item selected to be display on the input field getInput:
+Get the input text clearAfter: Clear the input field after an item is selected
+nested: Used to make a list of properties to reach the list headers: Set the
+headers to be used in the call. Using it will override the common headers
+:add-param: Send custom parameters Example:
+<autocomplete url="/contents/filter.json" param="hours_ago">
     </autocomplete>
 */
 <template>
@@ -33,6 +21,7 @@ Parameters:
       :placeholder="placeholder"
       @input="checkTime(), sendType()"
       v-model="type"
+      v-bind="inputAttributes"
       @keydown.down="downKey"
       @keydown.up="upKey"
       @keydown.enter="enterKey"
@@ -40,37 +29,45 @@ Parameters:
       autocomplete="off"
       :autofocus="autofocus"
       :disabled="disabled"
-      :class="{'ui-autocomplete-loading' : spinner, 'vue-autocomplete-input-search' : !spinner }">
-    <ul 
+      :class="{
+        'ui-autocomplete-loading': spinner,
+        'vue-autocomplete-input-search': !spinner
+      }"
+    />
+    <ul
       class="vue-autocomplete-list"
       v-show="showList"
-      v-if="type && json.length">
+      v-if="type && json.length"
+    >
       <li
         v-for="(item, index) in limitList(json)"
         class="vue-autocomplete-item"
         :class="activeClass(index)"
         @mouseover="itemActive(index)"
-        @click.prevent="itemClicked(index)">
+        @click.prevent="itemClicked(index)"
+      >
         <span
-          v-if="(typeof label !== 'function')"
-          v-html="getNested(item, label)"/>
+          v-if="typeof label !== 'function'"
+          v-html="getNested(item, label)"
+        />
         <span
           v-else
-          v-html="label(item)"/>
+          v-html="label(item)"
+        />
       </li>
       <li v-if="json.length == 20">Results may be truncated</li>
     </ul>
     <ul
       v-if="type && searchEnd && !json.length"
-      class="vue-autocomplete-empty-list">
+      class="vue-autocomplete-empty-list"
+    >
       <li>--None--</li>
     </ul>
   </div>
 </template>
 
 <script>
-
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 import Qs from 'qs'
 
 export default {
@@ -121,7 +118,7 @@ export default {
     },
 
     label: {
-      type: [String, Array, Function],
+      type: [String, Array, Function]
     },
 
     display: {
@@ -167,6 +164,11 @@ export default {
     inputStyle: {
       type: Object,
       default: () => ({})
+    },
+
+    inputAttributes: {
+      type: Object,
+      default: () => ({})
     }
   },
 
@@ -179,7 +181,7 @@ export default {
     'select'
   ],
 
-  data () {
+  data() {
     return {
       spinner: false,
       showList: false,
@@ -192,50 +194,48 @@ export default {
     }
   },
 
-  mounted () {
+  mounted() {
     if (this.autofocus) {
       this.$refs.autofocus.focus()
     }
   },
 
   watch: {
-    modelValue (newVal) {
+    modelValue(newVal) {
       this.type = newVal
     },
-    type (newVal) {
+    type(newVal) {
       if (this.type?.length < Number(this.min)) {
         this.json = []
       }
       this.$emit('update:modelValue', newVal)
     },
-    sendLabel (val) {
+    sendLabel(val) {
       this.type = val || ''
     }
   },
 
   methods: {
-    downKey () {
-      if(this.showList && this.current < this.json.length)
-        this.current++
+    downKey() {
+      if (this.showList && this.current < this.json.length) this.current++
     },
 
-    upKey () {
-      if(this.showList && this.current > 0)
-        this.current--
+    upKey() {
+      if (this.showList && this.current > 0) this.current--
     },
 
-    enterKey () {
-      if(this.showList && this.current > -1 && this.current < this.json.length)
+    enterKey() {
+      if (this.showList && this.current > -1 && this.current < this.json.length)
         this.itemClicked(this.current)
     },
 
-    sendItem (item) {
+    sendItem(item) {
       this.$emit('update:modelValue', item)
       this.$emit('getItem', item)
       this.$emit('select', item)
     },
 
-    sendKeyEvent (e) {
+    sendKeyEvent(e) {
       this.$emit('keyEvent', e)
     },
 
@@ -243,44 +243,47 @@ export default {
       this.type = ''
     },
 
-    setText (value) {
+    setText(value) {
       this.type = value
     },
 
-    limitList (list) {
-      if (this.limit == 0) { return list }
+    limitList(list) {
+      if (this.limit == 0) {
+        return list
+      }
 
       return list.slice(0, this.limit)
     },
 
-    clearResults () {
+    clearResults() {
       this.json = []
     },
 
-    getNested (item, nested) {
-      if(nested) {
-        if(Array.isArray(nested)) {
+    getNested(item, nested) {
+      if (nested) {
+        if (Array.isArray(nested)) {
           let tmp = item
           this.nested.forEach((itemLabel) => {
             tmp = tmp[itemLabel]
           })
           return tmp
-        }
-        else if(typeof nested === 'string') {
+        } else if (typeof nested === 'string') {
           return item[nested]
-        }
-        else {
+        } else {
           return item
         }
-      }
-      else {
+      } else {
         return item
       }
     },
 
-    itemClicked (index) {
-      if (this.display.length) { this.type = (this.clearAfter ? '' : this.json[index][this.display]) } else {
-        this.type = (this.clearAfter ? '' : this.getNested(this.json[index], this.label))
+    itemClicked(index) {
+      if (this.display.length) {
+        this.type = this.clearAfter ? '' : this.json[index][this.display]
+      } else {
+        this.type = this.clearAfter
+          ? ''
+          : this.getNested(this.json[index], this.label)
       }
 
       if (this.autofocus) {
@@ -290,12 +293,13 @@ export default {
       this.showList = false
     },
 
-    itemActive (index) {
+    itemActive(index) {
       this.current = index
     },
 
-    ajaxUrl () {
-      var tempUrl = this.url + '?' + this.param + '=' + encodeURIComponent(this.type)
+    ajaxUrl() {
+      var tempUrl =
+        this.url + '?' + this.param + '=' + encodeURIComponent(this.type)
       var params = ''
       if (Object.keys(this.addParams).length) {
         params = `&${Qs.stringify(this.addParams, { arrayFormat: 'brackets' })}`
@@ -303,11 +307,11 @@ export default {
       return tempUrl + params
     },
 
-    sendType () {
+    sendType() {
       this.$emit('getInput', this.type)
     },
 
-    checkTime () {
+    checkTime() {
       this.current = -1
       this.searchEnd = false
       if (this.getRequest) {
@@ -318,13 +322,15 @@ export default {
       }, this.time)
     },
 
-    update () {
+    update() {
       if (this.type.length < Number(this.min)) return
 
       this.clearResults()
 
       if (this.arrayList) {
-        this.json = this.arrayList.filter(item => item[this.label].toLowerCase().includes(this.type.toLowerCase()))
+        this.json = this.arrayList.filter((item) =>
+          item[this.label].toLowerCase().includes(this.type.toLowerCase())
+        )
         this.searchEnd = true
         this.showList = this.json.length > 0
       } else {
@@ -335,7 +341,7 @@ export default {
         })
           .then(({ body }) => {
             this.json = this.getNested(body, this.nested)
-            this.showList = (this.json.length > 0)
+            this.showList = this.json.length > 0
             this.searchEnd = true
             this.$emit('found', this.showList)
           })
@@ -345,13 +351,13 @@ export default {
       }
     },
 
-    activeClass (index) {
+    activeClass(index) {
       return {
         active: this.current === index
       }
     },
 
-    setFocus () {
+    setFocus() {
       this.$refs.autofocus.focus()
     }
   }

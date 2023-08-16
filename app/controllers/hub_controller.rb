@@ -7,8 +7,12 @@ class HubController < ApplicationController
     handle_bad_tab_order
     respond_to do |format|
       format.html {}
-      format.js {
-        render partial: 'navigation_index' # layout: nil
+   # TODO not used?!
+   #  format.js {
+   #    render partial: 'navigation_index' # layout: nil
+   #  }
+      format.json{
+        render json: helpers.hub_json
       }
     end 
   end

@@ -1,35 +1,38 @@
 <template>
   <div class="margin-medium-top">
-    <h3 v-if="isPlant && !currentCombination">
-      Preferred name (optional)
-    </h3>
-    <h3 v-else>
-      Combinations
-    </h3>
+    <h3 v-if="isPlant && !currentCombination">Preferred name (optional)</h3>
+    <h3 v-else>Combinations</h3>
     <ul class="table-entrys-list">
       <li
         v-for="combination in list"
         :key="combination.id"
-        class="list-complete-item flex-separate middle">
+        class="list-complete-item flex-separate middle"
+      >
         <label>
           <input
             v-if="isPlant"
             type="radio"
-            :checked="currentCombination && combination.id === currentCombination.subject_taxon_name_id"
+            :checked="
+              currentCombination &&
+              combination.id === currentCombination.subject_taxon_name_id
+            "
             name="current-combination"
-            @click="saveRelationship(combination.id)">
+            @click="saveRelationship(combination.id)"
+          />
           <span v-html="combination.object_label" />
         </label>
         <div class="horizontal-left-content middle">
           <default-confidence
             class="circle-button"
-            :global-id="combination.global_id"/>
+            :global-id="combination.global_id"
+          />
           <radial-annotator :global-id="combination.global_id" />
           <v-btn
             class="circle-button"
             circle
             color="update"
-            @click="emit('edit', combination)">
+            @click="emit('edit', combination)"
+          >
             <v-icon
               x-small
               name="pencil"
@@ -39,7 +42,8 @@
             class="circle-button"
             circle
             color="destroy"
-            @click="deleteCombination(combination)">
+            @click="deleteCombination(combination)"
+          >
             <v-icon
               x-small
               name="trash"
@@ -51,12 +55,13 @@
     <div v-if="currentCombination">
       <h3>Preferred name</h3>
       <div class="flex-separate middle">
-        <span v-html="currentCombination.subject_object_tag"/>
+        <span v-html="currentCombination.subject_object_tag" />
         <v-btn
           class="circle-button"
           circle
           color="destroy"
-          @click="destroyRelationship">
+          @click="destroyRelationship"
+        >
           <v-icon
             x-small
             name="trash"
@@ -64,24 +69,23 @@
         </v-btn>
       </div>
     </div>
-    <v-confirmation ref="confirmationModal"/>
+    <v-confirmation ref="confirmationModal" />
   </div>
 </template>
 <script setup>
-
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters.js'
 import { ActionNames } from '../../store/actions/actions.js'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import DefaultConfidence from 'components/defaultConfidence.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import VConfirmation from 'components/ConfirmationModal.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import DefaultConfidence from '@/components/defaultConfidence.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VConfirmation from '@/components/ConfirmationModal.vue'
 import {
   TAXON_RELATIONSHIP_CURRENT_COMBINATION,
   NOMENCLATURE_CODE_BOTANY
-} from 'constants/index.js'
+} from '@/constants/index.js'
 
 const props = defineProps({
   list: {
@@ -92,13 +96,19 @@ const props = defineProps({
 const emit = defineEmits(['edit', 'delete'])
 
 const store = useStore()
-const currentCombination = computed(() => store.getters[GetterNames.GetTaxonRelationshipList].find(item => item.type === TAXON_RELATIONSHIP_CURRENT_COMBINATION))
+const currentCombination = computed(() =>
+  store.getters[GetterNames.GetTaxonRelationshipList].find(
+    (item) => item.type === TAXON_RELATIONSHIP_CURRENT_COMBINATION
+  )
+)
 const confirmationModal = ref(null)
 
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
-const isPlant = computed(() => taxon.value.nomenclatural_code === NOMENCLATURE_CODE_BOTANY)
+const isPlant = computed(
+  () => taxon.value.nomenclatural_code === NOMENCLATURE_CODE_BOTANY
+)
 
-const saveRelationship = combinationId => {
+const saveRelationship = (combinationId) => {
   const relationship = {
     id: currentCombination.value?.id,
     subject_taxon_name_id: combinationId,
@@ -118,20 +128,24 @@ const saveRelationship = combinationId => {
 const destroyRelationship = async () => {
   const ok = await confirmationModal.value.show({
     title: 'Destroy relationship',
-    message: 'Are you sure you want to delete the current combination relationship?',
+    message:
+      'Are you sure you want to delete the current combination relationship?',
     cancelButton: 'Cancel',
     typeButton: 'delete'
   })
 
   if (ok) {
-    store.dispatch(ActionNames.RemoveTaxonRelationship, currentCombination.value).then(_ => {
-      store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
-    })
+    store
+      .dispatch(ActionNames.RemoveTaxonRelationship, currentCombination.value)
+      .then((_) => {
+        store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
+      })
   }
 }
 
-const deleteCombination = async combination => {
-  const isCurrent = combination.id === currentCombination.value?.subject_taxon_name_id
+const deleteCombination = async (combination) => {
+  const isCurrent =
+    combination.id === currentCombination.value?.subject_taxon_name_id
   const ok = await confirmationModal.value.show({
     title: 'Destroy combination',
     message: isCurrent
@@ -143,14 +157,15 @@ const deleteCombination = async combination => {
 
   if (ok) {
     if (isCurrent) {
-      store.dispatch(ActionNames.RemoveTaxonRelationship, currentCombination.value).then(_ => {
-        store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
-        emit('delete', combination)
-      })
+      store
+        .dispatch(ActionNames.RemoveTaxonRelationship, currentCombination.value)
+        .then((_) => {
+          store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
+          emit('delete', combination)
+        })
     } else {
       emit('delete', combination)
     }
   }
 }
-
 </script>

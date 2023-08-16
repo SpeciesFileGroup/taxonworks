@@ -28,7 +28,6 @@ module BatchLoad
     # An attempt was made to create new records
     attr_accessor :create_attempted
 
-    # TODO: used?
     attr_accessor :project, :user
 
     # @return [Integer]
@@ -103,18 +102,19 @@ module BatchLoad
         @csv ||= CSV.parse(
           @file.tempfile.read.force_encoding('utf-8'), # force encoding is likely a very bad idea, but instructinos say "utf-8"
           headers: true,
-          header_converters: [:downcase,
-                              lambda { |h| h.strip },
-                              lambda { |h| user_map(h) }],
-        col_sep: "\t",
-        encoding: 'UTF-8',
-        skip_blanks: true)
+          header_converters: [
+            :downcase,
+            lambda { |h| h.strip },
+            lambda { |h| user_map(h) }],
+          col_sep: "\t",
+          encoding: 'UTF-8',
+          skip_blanks: true)
 
         #  rescue Encoding::UndefinedConversionError => e
 
       rescue ArgumentError => e
         @processed = false
-        @file_errors.push("error converting file. #{e}")
+        @file_errors.push("Error converting file. #{e}")
         return nil
       rescue CSV::MalformedCSVError => e
         @processed = false
@@ -178,6 +178,8 @@ module BatchLoad
     # @return [Boolean]
     def create
       @create_attempted = true
+
+
       if ready_to_create?
         # TODO: DRY
         if a = save_order
@@ -189,7 +191,9 @@ module BatchLoad
               end
             end
           end
+
         else
+
           sorted_processed_rows.each_value do |rp|
             rp.objects.each_value do |objs|
               objs.each do |o|
@@ -197,6 +201,7 @@ module BatchLoad
               end
             end
           end
+
         end
       else
         @errors << "Import level #{import_level} has prevented creation." unless import_level_ok?
@@ -238,7 +243,7 @@ module BatchLoad
     # return [Hash] processed rows, sorted by line number
     #  ?! key order might not persist ?!
     def sorted_processed_rows
-      @processed_rows.sort.to_h
+      processed_rows.sort.to_h
     end
 
     # return [Array] all objects (parsed records) that are .valid?

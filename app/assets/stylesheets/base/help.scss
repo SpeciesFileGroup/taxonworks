@@ -3,24 +3,21 @@
   position: fixed;
   z-index: 2102;
   top: calc(50vh + 130px);
-  right: -40px;
+  right: -27px;
   width: 55px;
   height: 55px;
   opacity: 0.4;
   border-radius: 50%;
-  background-color: #FF8F00;
-  background-image: image-url("help.svg");
+  background-color: #ff8f00;
+  background-image: image-url('help.svg');
   background-repeat: no-repeat;
   background-position: center;
   background-size: 35px;
   box-shadow: 0px 1px 2px 0px #444;
   transition: background-size 0.5s ease, opacity 0.3s ease;
-  transition: right 0.5s ease, left 0.5s ease,
-  background-position 0.5s ease,
-  background-size 0.5s ease,
-  width 0.5s ease,
-  height 0.5s ease,
-  opacity 0.5s ease;
+  transition: right 0.5s ease, left 0.5s ease, background-position 0.5s ease,
+    background-size 0.5s ease, width 0.5s ease, height 0.5s ease,
+    opacity 0.5s ease;
 }
 
 .help-button:hover {
@@ -43,15 +40,14 @@
   right: -10px;
   background-size: 35px;
   background-position: center;
-  transition: opacity 0.5s ease,
-  right 0.5s ease,
-  background-size 0.5s ease;
+  transition: opacity 0.5s ease, right 0.5s ease, background-size 0.5s ease;
 }
 
 .help-button-active:hover {
   background-size: 40px;
   background-position: center;
-  transition: opacity 0.5s ease, bottom 0.5s ease, right 0.5s ease, background-position 0.5s ease, background-size 0.5s ease;
+  transition: opacity 0.5s ease, bottom 0.5s ease, right 0.5s ease,
+    background-position 0.5s ease, background-size 0.5s ease;
 
   .help-button-description {
     display: none;
@@ -82,7 +78,7 @@
 .help-legend {
   display: none;
   border-radius: 2px;
-  padding: $standard_padding*0.5;
+  padding: $standard_padding * 0.5;
   padding-left: $standard_padding;
   padding-right: $standard_padding;
   box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
@@ -113,7 +109,7 @@
   font-weight: 300;
   position: absolute;
   white-space: nowrap;
-  padding: $standard_padding*0.5;
+  padding: $standard_padding * 0.5;
   background-color: $color-help-description;
   color: $color-help-text;
   box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
@@ -138,10 +134,10 @@
   height: 30px;
   position: absolute;
   left: -15px;
-  bottom: -15px;
+  top: -15px;
   border-radius: 50%;
   background-color: $color-help-bubbles;
-  color: #FFF;
+  color: #fff;
   font-weight: 300;
   box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
   opacity: 0.8;

@@ -7,17 +7,17 @@
         type="text"
         placeholder="Pages"
         @input="autosaveCitation"
-      >
+      />
     </td>
     <td>
       <input
         v-model="citation.is_original"
         type="checkbox"
         @change="updateCitation"
-      >
+      />
     </td>
     <td class="full_width">
-      <a 
+      <a
         :href="citation.citation_object.object_url"
         v-html="citation.citation_object.object_tag"
       />
@@ -41,9 +41,9 @@
 </template>
 
 <script setup>
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
 import useRow from '../../composables/useRow'
 
 const props = defineProps({
@@ -52,10 +52,7 @@ const props = defineProps({
   }
 })
 
-const {
-  removeCitation,
-  autosaveCitation,
-  updateCitation
-} = useRow(props.citation)
-
+const { removeCitation, autosaveCitation, updateCitation } = useRow(
+  props.citation
+)
 </script>
