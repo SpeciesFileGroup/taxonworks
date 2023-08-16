@@ -3,7 +3,7 @@ import {
   COLLECTING_EVENT,
   IDENTIFIER_LOCAL_CATALOG_NUMBER,
   IDENTIFIER_LOCAL_TRIP_CODE
-} from 'constants/index.js'
+} from '@/constants/index.js'
 import { createStore } from 'vuex'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
@@ -13,14 +13,14 @@ import {
   ComponentParse,
   ComponentVerbatim
 } from '../const/components'
-import makeCollectingEvent from 'factory/CollectingEvent.js'
-import makeCollectionObject from 'factory/CollectionObject.js'
-import makeLabel from 'factory/Label.js'
-import makeIdentifier from 'factory/Identifier.js'
+import makeCollectingEvent from '@/factory/CollectingEvent.js'
+import makeCollectionObject from '@/factory/CollectionObject.js'
+import makeLabel from '@/factory/Label.js'
+import makeIdentifier from '@/factory/Identifier.js'
 import makeTypeSpecimen from '../helpers/makeTypeSpecimen'
 import { reactive } from 'vue'
 
-function makeInitialState () {
+function makeInitialState() {
   return reactive({
     settings: {
       increment: false,
@@ -57,8 +57,14 @@ function makeInitialState () {
       },
       sortable: false
     },
-    identifier: makeIdentifier(IDENTIFIER_LOCAL_CATALOG_NUMBER, COLLECTION_OBJECT),
-    collectingEventIdentifier: makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT),
+    identifier: makeIdentifier(
+      IDENTIFIER_LOCAL_CATALOG_NUMBER,
+      COLLECTION_OBJECT
+    ),
+    collectingEventIdentifier: makeIdentifier(
+      IDENTIFIER_LOCAL_TRIP_CODE,
+      COLLECTING_EVENT
+    ),
     coCitations: [],
     collecting_event: makeCollectingEvent(),
     collection_object: makeCollectionObject(),
@@ -96,7 +102,7 @@ function makeInitialState () {
   })
 }
 
-function newStore () {
+function newStore() {
   return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
@@ -105,7 +111,4 @@ function newStore () {
   })
 }
 
-export {
-  newStore,
-  makeInitialState
-}
+export { newStore, makeInitialState }

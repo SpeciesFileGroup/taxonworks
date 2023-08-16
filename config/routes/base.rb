@@ -17,15 +17,19 @@ resource :hub, controller: 'hub', only: [:index] do
   get 'tasks', defaults: {format: :json}
 end
 
-scope :metadata, controller: 'metadata', only: [:index] do
+scope :metadata, controller: 'metadata' do
+  get :annotators, defaults: {format: :json}
+  get :related_summary
+  post :related_summary
   get 'object_radial/', action: :object_radial, defaults: {format: :json}
   get 'object_navigation/:global_id', action: :object_navigation, defaults: {format: :json}
   get '(/:klass)', action: :index, defaults: {format: :json}
 end
 
-scope :annotations, controller: :annotations do
-  get ':global_id/metadata', action: :metadata, defaults: {format: :json}
-  get :types, defaults: {format: :json}
+scope :annotations, controller: :annotations, defaults: {format: :json} do
+  get ':global_id/metadata', action: :metadata
+  get :types
+
 end
 
 scope :graph, controller: :graph do
@@ -37,7 +41,7 @@ resources :projects do
   collection do
     get 'list'
     get 'search'
-    get 'autocomplete' 
+    get 'autocomplete'
   end
 
   member do
@@ -54,6 +58,7 @@ scope :administration, controller: :administration do
   get 'data_health'
   get 'data_reindex'
   get 'data_class_summary'
+  get 'cached_maps_status'
 end
 
 resources :project_members, except: [:index] do
@@ -71,6 +76,7 @@ resources :pinboard_items, only: [:create, :destroy, :update] do
   collection do
     post 'update_position'
     post 'update_type_position'
+    post 'clear', defaults: {format: :json}
   end
 end
 

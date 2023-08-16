@@ -42,8 +42,8 @@
 #
 # @!attribute cached_numeric_identifier
 #   @return [Float, nil]
-#     If `identifier` contains a numeric string, then record this as a float.  
-#     !! This should never be exposed, it's used for internal next/previous options only. 
+#     If `identifier` contains a numeric string, then record this as a float.
+#     !! This should never be exposed, it's used for internal next/previous options only.
 #  See `build_cached_numeric_identifier`.
 #     This does account for identifiers like:
 #       123,123
@@ -54,7 +54,7 @@
 #       123,123a
 #       123a
 #       123.123a
-#        
+#
 class Identifier < ApplicationRecord
   acts_as_list scope: [:project_id, :identifier_object_type, :identifier_object_id ], add_new_at: :top
 
@@ -71,10 +71,6 @@ class Identifier < ApplicationRecord
 
   belongs_to :namespace, inverse_of: :identifiers  # only applies to Identifier::Local, here for create purposes
 
-  # Please DO NOT include the following:
-  # ADD when polymorphic_annotator is updated with inverse relationships
-  #   validates :identifier_object, presence: true
-  #   validates_presence_of :identifier_object_type, :identifier_object_id
   validates_presence_of :type, :identifier
 
   validates :identifier, presence: true
@@ -89,6 +85,9 @@ class Identifier < ApplicationRecord
   SQL
 
   scope :visible, -> (project_id) { where("identifiers.project_id = ? OR identifiers.type ILIKE 'Identifier::Global%'", project_id) }
+
+  scope :local, -> {where("identifiers.type ILIKE 'Identifier::Local%'") }
+  scope :global, -> {where("identifiers.type ILIKE 'Identifier::Global%'") }
 
   # @return [String, Identifer]
   def self.prototype_identifier(project_id, created_by_id)
@@ -110,15 +109,15 @@ class Identifier < ApplicationRecord
   end
 
   protected
- 
-  # See subclasses 
+
+  # See subclasses
   def build_cached
     nil
   end
 
   def build_cached_numeric_identifier
     return nil if is_global?
-    if a = identifier.match(/\A[\d\.\,]+\z/)  
+    if a = identifier.match(/\A[\d\.\,]+\z/)
       b = a.to_s.gsub(',', '')
       b.to_f
     else

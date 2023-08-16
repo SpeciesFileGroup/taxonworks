@@ -4,16 +4,21 @@
     <textarea
       rows="5"
       @blur="searchCE"
-      v-model="collectingEvent.verbatim_label"/>
-    <clone-label/>
+      v-model="collectingEvent.verbatim_label"
+    />
+    <clone-label />
     <modal-component
       v-if="showModal"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>Collecting events match</h3>
       </template>
       <template #body>
-        <i>As edited this Collecting Event is invalid: a matching verbatim label has been found.</i>
+        <i
+          >As edited this Collecting Event is invalid: a matching verbatim label
+          has been found.</i
+        >
         <table class="full_width">
           <thead>
             <tr>
@@ -24,12 +29,14 @@
           <tbody>
             <tr
               v-for="item in CEFounded"
-              :key="item.id">
-              <td v-html="item.object_tag"/>
+              :key="item.id"
+            >
+              <td v-html="item.object_tag" />
               <td class="horizontal-right-content">
                 <span
                   class="button btn-edit circle-button button-default"
-                  @click="loadCE(item)"/>
+                  @click="loadCE(item)"
+                />
               </td>
             </tr>
           </tbody>
@@ -40,12 +47,11 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
-import { CollectingEvent } from 'routes/endpoints'
+import { CollectingEvent } from '@/routes/endpoints'
 import CloneLabel from './cloneLabel'
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 import extendCE from '../../mixins/extendCE.js'
 
 export default {
@@ -56,15 +62,15 @@ export default {
   },
 
   computed: {
-    label () {
+    label() {
       return this.$store.getters[GetterNames.GetCollectingEvent].verbatim_label
     },
-    collectingEvent () {
+    collectingEvent() {
       return this.$store.getters[GetterNames.GetCollectingEvent]
     }
   },
 
-  data () {
+  data() {
     return {
       showModal: false,
       CEFounded: []
@@ -72,15 +78,17 @@ export default {
   },
 
   methods: {
-    searchCE () {
+    searchCE() {
       if (this.label) {
         CollectingEvent.where({
           md5_verbatim_label: true,
           in_labels: this.label
-        }).then(response => {
+        }).then((response) => {
           if (response.body.length) {
             this.CEFounded = response.body
-            if (!response.body.find(item => item.id === this.collectingEvent.id)) {
+            if (
+              !response.body.find((item) => item.id === this.collectingEvent.id)
+            ) {
               this.showModal = true
             }
           }
@@ -88,7 +96,7 @@ export default {
       }
     },
 
-    loadCE (ce) {
+    loadCE(ce) {
       this.$store.commit(MutationNames.SetCollectingEvent, ce)
       this.showModal = false
     }
@@ -96,7 +104,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-  :deep(.modal-container) {
-    max-width: 500px;
-  }
+:deep(.modal-container) {
+  max-width: 500px;
+}
 </style>

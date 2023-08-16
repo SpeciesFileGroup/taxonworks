@@ -1,13 +1,8 @@
-json.array! @otus do |t|
-  json.id t.id
-  json.label otu_autocomplete_selected_tag(t)
-  json.label_html otu_tag(t)
-  json.gid t.to_global_id.to_s
-
-  json.response_values do 
-    if params[:method]
-      json.set! params[:method], t.id
-    end
-  end 
+json.array! @otus do |o|
+  json.id o.id
+  json.label otu_autocomplete_selected_tag(o)
+  json.label_html otu_tag(o)
+  json.gid o.to_global_id.to_s
+  json.otu_valid_id o.otu_valid_id #
+  json.similarity o.sml_o_z
 end
-

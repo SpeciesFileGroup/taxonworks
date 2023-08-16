@@ -10,7 +10,32 @@ module Utilities
     # and are arbitrary decisions made by TaxonWorks collaborators.
     DICTIONARY = {
       'United States of America' => 'United States',
-    }
+    }.freeze
+
+    # TODO: move to /lib
+    # @return [Nil]
+    #  currently handling this client side
+    def gps_data
+      # if there is EXIF data, pulls out geographic coordinates & returns hash of lat/long in decimal degrees
+      # (5 digits after decimal point if available)
+      # EXIF gps information is in http://web.archive.org/web/20131018091152/http://exif.org/Exif2-2.PDF section 4.6.6
+      # note that cameras follow specifications, but EXIF data can be edited manually and may not follow specifications.
+
+      # check if gps data is in d m s (could be edited manually)
+      #   => format dd/1,mm/1,ss/1 or dd/1,mmmm/100,0/1 or 40/1, 5/1, 314437/10000
+      # N = +
+      # S = -
+      # E = +
+      # W = -
+      # Altitude should be based on reference of sea level
+      # GPSAltitudeRef is 0 for above sea level, and 1 for below sea level
+
+      # From discussion with Jim -
+      # create a utility library called "GeoConvert" and define single method
+      # that will convert from degrees min sec to decimal degree
+      # - maybe 2 versions? - one returns string, other decimal?
+    end
+
 
 =begin
 To add a new (discovered) symbol:
@@ -105,10 +130,10 @@ To add a new (discovered) symbol:
       /(?<ft>f[oe]*[t]*\.*)|(?<m>[^k]m(eters)*[\.]*)|(?<km>kilometer(s)*|k[m]*[\.]*)|(?<mi>mi(le(s)*)*)/ =~ pieces[piece]
       # scale = $&
 
-      scale = 1 unless m.blank?    # previously 1.0
-      scale = 0.3048 unless ft.blank?
-      scale = 1000 unless km.blank? # previously 1000.0
-      scale = 1_609.344 unless mi.blank?
+      scale = 1 if m.present?    # previously 1.0
+      scale = 0.3048 if ft.present?
+      scale = 1000 if km.present? # previously 1000.0
+      scale = 1_609.344 if mi.present?
 
       value_sig = significant_digits(value.to_s)
       if value_sig[0].include?('.')
@@ -151,35 +176,55 @@ To add a new (discovered) symbol:
     # Added Unicode right single (u2019) and double (u201D) quote as minutes seconds
     REGEXP_COORD   = {
       # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
-      dd1a: {reg: /(?<lat>\d+\.\d+\s*[NS])\s*(?<long>\d+\.\d+\s*[EW])/i,
-             hlp: 'decimal degrees, trailing ordinal, e.g. 23.23N  44.44W'},
+      dd1a: {
+        reg: /(?<lat>\d+\.\d+\s*[NS])\s*(?<long>\d+\.\d+\s*[EW])/i,
+        hlp: 'decimal degrees, trailing ordinal, e.g. 23.23N  44.44W'
+      },
 
-             dd1b: {reg: /(?<lat>[NS]\s*\d+\.\d+)\s*(?<long>[EW]\s*\d+\.\d+)/i,
-                    hlp: 'decimal degrees, leading ordinal, e.g. N23.23  W44.44'},
+      dd1b: {
+        reg: /(?<lat>[NS]\s*\d+\.\d+)\s*(?<long>[EW]\s*\d+\.\d+)/i,
+        hlp: 'decimal degrees, leading ordinal, e.g. N23.23  W44.44'
+      },
 
-                    dd2:  {reg: /(?<lat>\d+[\. ]\d+\u0027?\s*[NS]),?\s*(?<long>\d+[\. ]\d+\u0027?\s*[EW])/i,
-                           hlp: "decimal degrees, trailing ordinal, e.g. 43.836' N, 89.258' W"},
+      dd2:  {
+        reg: /(?<lat>\d+[\. ]\d+\u0027?\s*[NS]),?\s*(?<long>\d+[\. ]\d+\u0027?\s*[EW])/i,
+        hlp: "decimal degrees, trailing ordinal, e.g. 43.836' N, 89.258' W"
+      },
 
-                           dm1:  {reg: /(?<lat>\d+\s*[\*°o\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*[NS])[\.,;]?\s*(?<long>\d+\s*[\*°ºo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*[WE])/i,
-                                  hlp: "degrees, decimal minutes, trailing ordinal, e.g. 45 54.2'N, 78 43.5'E"},
+      dm1:  {
+        reg: /(?<lat>\d+\s*[\*°o\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*[NS])[\.,;]?\s*(?<long>\d+\s*[\*°ºo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*[WE])/i,
+        hlp: "degrees, decimal minutes, trailing ordinal, e.g. 45 54.2'N, 78 43.5'E"
+      },
 
-                                  dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA\u201D][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA\u2019]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA\u201D]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
-                                         hlp: "degrees, minutes, decimal seconds, leading ordinal, e.g. S42°5'18.1\" W88º11'43.3\""},
+      dms2: {
+        reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA\u201D][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA\u2019]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA\u201D]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
+        hlp: "degrees, minutes, decimal seconds, leading ordinal, e.g. S42°5'18.1\" W88º11'43.3\""
+      },
 
-                                         dm3:  {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA\u2019]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?)/i,
-                                                hlp: "degrees, decimal minutes, leading ordinal, e.g. S42º5.18' W88°11.43'"},
+      dm3:  {
+        reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA\u2019]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?)/i,
+        hlp: "degrees, decimal minutes, leading ordinal, e.g. S42º5.18' W88°11.43'"
+      },
 
-                                                dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*(\d+[\.,]\d+|\d+)["\u201D]?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*(\d+[\.,]\d+|\d+)+["\u201D]?\s*[EW])/i,
-                                                       hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
+      dms4: {
+        reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*(\d+[\.,]\d+|\d+)["\u201D]?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*(\d+[\.,]\d+|\d+)+["\u201D]?\s*[EW])/i,
+        hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"
+      },
 
-                                                       dd5:  {reg: /(?<lat>[NS]\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ])[\.,;]?\s*(?<long>([WE])\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]?)/i,
-                                                              hlp: 'decimal degrees, leading ordinal, e.g. S42.18° W88.34°'},
+      dd5:  {
+        reg: /(?<lat>[NS]\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ])[\.,;]?\s*(?<long>([WE])\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]?)/i,
+        hlp: 'decimal degrees, leading ordinal, e.g. S42.18° W88.34°'
+      },
 
-                                                              dd6:  {reg: /(?<lat>(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[NS])[\.,;]?\s*(?<long>(\d+[\.|,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[WE])/i,
-                                                                     hlp: 'decimal degrees, trailing ordinal, e.g. 42.18°S 88.43°W'},
+      dd6:  {
+        reg: /(?<lat>(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[NS])[\.,;]?\s*(?<long>(\d+[\.|,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[WE])/i,
+        hlp: 'decimal degrees, trailing ordinal, e.g. 42.18°S 88.43°W'
+      },
 
-                                                                     dd7:  {reg: /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i,
-                                                                            hlp: 'decimal degrees, no ordinal, specific format, e.g. [12.263, -49.398]'}
+      dd7:  {
+        reg: /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i,
+        hlp: 'decimal degrees, no ordinal, specific format, e.g. [12.263, -49.398]'
+      }
     }.freeze
     # @param [String] label
     # @param [String] filters
@@ -465,7 +510,7 @@ To add a new (discovered) symbol:
       if num.nil?
         raise
       end
-      dp = num.index(".")
+      dp = num.index('.')
       if dp.nil?
         intg = num
         intgl = intg.sub(/^[0]+/,'')  # strip lead zeros
@@ -480,7 +525,7 @@ To add a new (discovered) symbol:
       else
         # make sure truly numeric
         decimal_point = '.'
-        digits = num.split(".")
+        digits = num.split('.')
         if digits.length > 2
           raise   # or just ignore extra decimal point and beyond?
         else
@@ -577,10 +622,10 @@ To add a new (discovered) symbol:
     def self.coordinates_regex_from_verbatim_label(text)
       return nil if text.blank?
       text = text.gsub("''", '"')
-        .gsub("´´", '"')
-        .gsub("ʹʹ", '"')
-        .gsub("ʼʼ", '"')
-        .gsub("ˊˊ", '"')
+        .gsub('´´', '"')
+        .gsub('ʹʹ', '"')
+        .gsub('ʼʼ', '"')
+        .gsub('ˊˊ', '"')
         .squish
       text = ' ' + text + ' '
 
@@ -700,4 +745,29 @@ To add a new (discovered) symbol:
     end
 
   end
+
+  # @return [Nil]
+  #  currently handling this client side
+  def gps_data
+    # if there is EXIF data, pulls out geographic coordinates & returns hash of lat/long in decimal degrees
+    # (5 digits after decimal point if available)
+    # EXIF gps information is in http://web.archive.org/web/20131018091152/http://exif.org/Exif2-2.PDF section 4.6.6
+    # note that cameras follow specifications, but EXIF data can be edited manually and may not follow specifications.
+
+    # check if gps data is in d m s (could be edited manually)
+    #   => format dd/1,mm/1,ss/1 or dd/1,mmmm/100,0/1 or 40/1, 5/1, 314437/10000
+    # N = +
+    # S = -
+    # E = +
+    # W = -
+    # Altitude should be based on reference of sea level
+    # GPSAltitudeRef is 0 for above sea level, and 1 for below sea level
+
+    # From discussion with Jim -
+    # create a utility library called "GeoConvert" and define single method
+    # that will convert from degrees min sec to decimal degree
+    # - maybe 2 versions? - one returns string, other decimal?
+  end
+
+
 end

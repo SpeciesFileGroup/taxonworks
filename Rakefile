@@ -7,7 +7,7 @@ TaxonWorks::Application.load_tasks
 
 # Replace yarn with npm
 Rake::Task['yarn:install'].clear if Rake::Task.task_defined?('yarn:install')
-#Rake::Task['webpacker:yarn_install'].clear
-Rake::Task['webpacker:check_yarn'].clear
-Rake::Task.define_task('webpacker:verify_install' => ['webpacker:check_npm'])
-Rake::Task.define_task('webpacker:compile' => ['webpacker:npm_install'])
+Rake::Task['shakapacker:yarn_install'].clear
+Rake::Task['shakapacker:check_yarn'].clear
+Rake::Task.define_task('shakapacker:verify_install' => ['shakapacker:check_npm'])
+Rake::Task.define_task('shakapacker:compile' => ['shakapacker:npm_install'])

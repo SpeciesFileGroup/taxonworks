@@ -1,14 +1,16 @@
 <template>
   <a
     class="citation-count button-data circle-button btn-citation"
-    :href="`/tasks/nomenclature/by_source?source_id=${sourceId}`">
-    <span class="circle-count button-default middle">{{ citations.length }} </span>
+    :href="`/tasks/nomenclature/by_source?source_id=${sourceId}`"
+  >
+    <span class="circle-count button-default middle"
+      >{{ citations.length }}
+    </span>
   </a>
 </template>
 
 <script>
-
-import { Citation } from 'routes/endpoints'
+import { Citation } from '@/routes/endpoints'
 
 export default {
   props: {
@@ -24,14 +26,13 @@ export default {
     }
   },
 
-  mounted () {
-    if (this.sourceId)
-      this.loadCitations()
+  mounted() {
+    if (this.sourceId) this.loadCitations()
   },
 
   methods: {
-    loadCitations () {
-      Citation.where({ source_id: this.sourceId }).then(response => {
+    loadCitations() {
+      Citation.where({ source_id: this.sourceId }).then((response) => {
         this.citations = response.body
       })
     }

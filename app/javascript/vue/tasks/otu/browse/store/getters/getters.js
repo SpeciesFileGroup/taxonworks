@@ -1,4 +1,5 @@
 import getBiologicalAssociations from './getBiologicalAssociations'
+import getCachedMap from './getCachedMap'
 import getCollectingEvents from './getCollectingEvents'
 import getCollectionObjects from './getCollectionObjects'
 import getCommonNames from './getCommonNames'
@@ -14,9 +15,12 @@ import getTaxonName from './getTaxonName'
 import getTaxonNames from './getTaxonNames'
 import getOtus from './getOtus'
 import getObservationsDepictions from './getObservationsDepictions'
+import getRelatedBiologicalAssociations from './getRelatedBiologicalAssociations'
+import isSpeciesGroup from './isSpeciesGroup'
 
 const GetterNames = {
   GetBiologicalAssociations: 'getBiologicalAssociations',
+  GetCachedMap: 'getCachedMap',
   GetCollectionObjects: 'getCollectionObjects',
   GetCollectingEvents: 'getCollectingEvents',
   GetCommonNames: 'getCommonNames',
@@ -26,16 +30,19 @@ const GetterNames = {
   GetPreferences: 'getPreferences',
   GetUserId: 'getUserId',
   GetAssertedDistributions: 'getAssertedDistributions',
+  GetRelatedBiologicalAssociations: 'getRelatedBiologicalAssociations',
   GetObservationsDepictions: 'getObservationsDepictions',
   GetCurrentOtu: 'getCurrentOtu',
   GetLoadState: 'getLoadState',
   GetTaxonName: 'getTaxonName',
   GetTaxonNames: 'getTaxonNames',
-  GetOtus: 'getOtus'
+  GetOtus: 'getOtus',
+  IsSpeciesGroup: 'isSpeciesGroup'
 }
 
 const GetterFunctions = {
   [GetterNames.GetBiologicalAssociations]: getBiologicalAssociations,
+  [GetterNames.GetCachedMap]: getCachedMap,
   [GetterNames.GetCollectingEvents]: getCollectingEvents,
   [GetterNames.GetCollectionObjects]: getCollectionObjects,
   [GetterNames.GetCommonNames]: getCommonNames,
@@ -50,10 +57,10 @@ const GetterFunctions = {
   [GetterNames.GetTaxonName]: getTaxonName,
   [GetterNames.GetTaxonNames]: getTaxonNames,
   [GetterNames.GetOtus]: getOtus,
-  [GetterNames.GetObservationsDepictions]: getObservationsDepictions
+  [GetterNames.GetObservationsDepictions]: getObservationsDepictions,
+  [GetterNames.GetRelatedBiologicalAssociations]:
+    getRelatedBiologicalAssociations,
+  [GetterNames.IsSpeciesGroup]: isSpeciesGroup
 }
 
-export {
-  GetterNames,
-  GetterFunctions
-}
+export { GetterNames, GetterFunctions }

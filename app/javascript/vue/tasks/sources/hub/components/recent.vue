@@ -16,31 +16,33 @@
       </thead>
       <transition-group
         name="list-complete"
-        tag="tbody">
+        tag="tbody"
+      >
         <tr
           v-for="item in sources"
           :key="item.id"
-          class="list-complete-item">
+          class="list-complete-item"
+        >
           <td>
             <a
               :href="`/tasks/sources/new_source?source_id=${item.id}`"
-              v-html="item.object_tag"/>
+              v-html="item.object_tag"
+            />
           </td>
-          <td> {{ item.year }} </td>
+          <td>{{ item.year }}</td>
           <td>
             <div>
-              <citations-count :source-id="item.id"/>
+              <citations-count :source-id="item.id" />
             </div>
           </td>
           <td>
-            <documents-component :source-id="item.id"/>
+            <documents-component :source-id="item.id" />
           </td>
           <td>
-            <tags-component :source-id="item.id"/>
+            <tags-component :source-id="item.id" />
           </td>
           <td>
-            <radial-annotator
-              :global-id="item.global_id"/>
+            <radial-annotator :global-id="item.global_id" />
           </td>
           <td>
             <pin-component
@@ -51,7 +53,8 @@
           <td>
             <add-to-project-source
               :project-source-id="item.project_source_id"
-              :id="item.id"/>
+              :id="item.id"
+            />
           </td>
         </tr>
       </transition-group>
@@ -60,14 +63,13 @@
 </template>
 
 <script>
-
-import PinComponent from 'components/ui/Pinboard/VPin.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import AddToProjectSource from 'components/addToProjectSource.vue'
+import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import AddToProjectSource from '@/components/addToProjectSource.vue'
 import CitationsCount from './citationsCount'
 import DocumentsComponent from './documents'
 import TagsComponent from './tags'
-import { Source } from 'routes/endpoints'
+import { Source } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -78,13 +80,13 @@ export default {
     CitationsCount,
     DocumentsComponent
   },
-  data () {
+  data() {
     return {
       sources: []
     }
   },
-  mounted () {
-    Source.where({ per: 10, recent: true }).then(response => {
+  mounted() {
+    Source.where({ per: 10, recent: true }).then((response) => {
       this.sources = response.body
     })
   }

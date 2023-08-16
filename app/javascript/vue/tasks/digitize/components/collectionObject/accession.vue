@@ -3,50 +3,50 @@
     <button
       type="button"
       class="button normal-input button-default"
-      @click="setModalState(true)">
+      @click="setModalState(true)"
+    >
       Accession metadata
     </button>
     <modal-component
       v-if="showModal"
-      @close="setModalState(false)">
+      @close="setModalState(false)"
+    >
       <template #header>
         <h3>Accession metadata</h3>
       </template>
       <template #body>
         <div class="field">
-          <label>
-            Accessioned at
-          </label><br>
+          <label> Accessioned at </label><br />
           <input
             type="date"
             class="full_width"
             @change="unsaved = true"
-            v-model="collectionObject.accessioned_at">
+            v-model="collectionObject.accessioned_at"
+          />
         </div>
         <div class="field">
-          <label>
-            Deaccessioned at
-          </label><br>
+          <label> Deaccessioned at </label><br />
           <input
             type="date"
             class="full_width"
             @change="unsaved = true"
-            v-model="collectionObject.deaccessioned_at">
+            v-model="collectionObject.deaccessioned_at"
+          />
         </div>
         <div class="field">
-          <label>
-            Deaccession reason
-          </label><br>
+          <label> Deaccession reason </label><br />
           <input
             type="text"
             class="full_width"
             @change="unsaved = true"
-            v-model="collectionObject.deaccession_reason">
+            v-model="collectionObject.deaccession_reason"
+          />
         </div>
         <button
           type="button"
           @click="saveAccession"
-          class="button normal-input button-submit">
+          class="button normal-input button-submit"
+        >
           Save
         </button>
       </template>
@@ -55,8 +55,7 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 import { ActionNames } from '../../store/actions/actions'
 
 export default {
@@ -69,7 +68,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       showModal: false,
       unsaved: false
@@ -77,20 +76,28 @@ export default {
   },
 
   methods: {
-    saveAccession () {
-      this.$store.dispatch(ActionNames.SaveCollectionObject, this.collectionObject).then(() => {
-        TW.workbench.alert.create('Collection object was successfully saved.', 'notice')
-        this.unsaved = false
-      })
+    saveAccession() {
+      this.$store
+        .dispatch(ActionNames.SaveCollectionObject, this.collectionObject)
+        .then(() => {
+          TW.workbench.alert.create(
+            'Collection object was successfully saved.',
+            'notice'
+          )
+          this.unsaved = false
+        })
     },
 
-    checkUnsaved () {
-      if (this.unsaved && window.confirm('You have unsaved changes. Do you want to save it?')) {
+    checkUnsaved() {
+      if (
+        this.unsaved &&
+        window.confirm('You have unsaved changes. Do you want to save it?')
+      ) {
         this.saveAccession()
       }
     },
 
-    setModalState (value) {
+    setModalState(value) {
       this.checkUnsaved()
       this.showModal = value
     }
@@ -99,7 +106,7 @@ export default {
 </script>
 
 <style scoped>
-  :deep(.modal-container) {
-    width: 300px !important
-  }
+:deep(.modal-container) {
+  width: 300px !important;
+}
 </style>

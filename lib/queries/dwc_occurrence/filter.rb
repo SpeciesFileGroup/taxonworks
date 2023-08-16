@@ -1,33 +1,34 @@
 module Queries
   module DwcOccurrence
 
-
     # Keep this minimal, in pricinple filtering should be done on the base objects, not the core here.
-    class Filter < Queries::Query
-
+    class Filter < Query::Filter
       include Queries::Helpers
       include Queries::Concerns::Users
+
+      PARAMS = [
+        :dwc_occurrence_id,
+        :dwc_occurence_object_type,
+        :dwc_occurence_object_id,
+
+        dwc_occurence_object_type: [],
+        dwc_occurence_object_id: [],
+        dwc_occurrence_id: [],
+      ].freeze
 
       # @params dwc_occurrence_id [Integer, Array, nil]
       #   the TW native id, *not* the occurrenceID
       attr_accessor :dwc_occurrence_id
 
-      # These are both just and now, not paired
+      # Used independantly now, not paired
       attr_accessor :dwc_occurrence_object_id
       attr_accessor :dwc_occurrence_object_type
 
-      def initialize(params = {})
+      def initialize(query_params)
+        super
         @dwc_occurrence_id = params[:dwc_occurrence_id]
-        set_user_dates(params)
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::DwcOccurrence.arel_table
-      end
-
-      def base_query
-        ::DwcOccurrence.select('dwc_occurrences.*')
+        @dwc_occurrence_object_id = params[:dwc_occurrence_object_id]
+        @dwc_occurrence_object_type = params[:dwc_occurrence_object_type]
       end
 
       def dwc_occurrence_id
@@ -44,7 +45,7 @@ module Queries
 
       def dwc_occurrence_id_facet
         return nil if dwc_occurrence_id.empty?
-        table[:dwc_occurrence_id].eq_any
+        table[:dwc_occurrence_id].eq_any(dwc_occurrence_id)
       end
 
       def dwc_occurrence_object_id_facet
@@ -57,69 +58,43 @@ module Queries
         table[:dwc_occurrence_object_type].eq_any(dwc_occurrence_object_type)
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = base_and_clauses
+      def asserted_distribution_query_facet
+        return nil if asserted_distribution_query.nil?
+        s = 'WITH query_ad_dwco AS (' + asserted_distribution_query.all.to_sql + ') ' +
+            ::DwcOccurrence
+              .joins("JOIN query_ad_dwco as query_ad_dwco1 on dwc_occurrences.dwc_occurrence_object_id = query_ad_dwco1.id
+                      AND dwc_occurrences.dwc_occurrence_object_type = 'AssertedDistribution'")
+              .to_sql
 
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+        ::DwcOccurrence.from('(' + s + ') as dwc_occurrences').distinct
       end
 
-      # @return [Array]
-      def base_and_clauses
-        clauses = []
+      def collection_object_query_facet
+        return nil if collection_object_query.nil?
+        s = 'WITH query_co_dwco AS (' + collection_object_query.all.to_sql + ') ' +
+            ::DwcOccurrence
+              .joins("JOIN query_co_dwco as query_co_dwco1 on dwc_occurrences.dwc_occurrence_object_id = query_co_dwco1.id
+                      AND dwc_occurrences.dwc_occurrence_object_type = 'CollectionObject'")
+              .to_sql
 
-        clauses += [
-          dwc_occurrence_id_facet,
+        ::DwcOccurrence.from('(' + s + ') as dwc_occurrences').distinct
+      end
+
+      def merge_clauses
+        [
+          collection_object_query_facet,
+          asserted_distribution_query_facet,
+        ]
+      end
+
+
+      def and_clauses
+        [ dwc_occurrence_id_facet,
           dwc_occurrence_object_id_facet,
           dwc_occurrence_object_type_facet,
         ]
-
-        clauses.compact!
-        clauses
       end
 
-      def base_merge_clauses
-        clauses = []
-
-        clauses += [
-          created_updated_facet,  # See Queries::Concerns::Users
-        ]
-
-        clauses.compact!
-        clauses
-      end
-
-      # @return [ActiveRecord::Relation]
-      def merge_clauses
-        clauses = base_merge_clauses
-        return nil if clauses.empty?
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-        if a && b
-          b.where(a).distinct
-        elsif a
-          ::DwcOccurrence.where(a).distinct
-        elsif b
-          q = b.distinct
-        else
-          ::DwcOccurrence.all
-        end
-      end
     end
   end
 end

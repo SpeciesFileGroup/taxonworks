@@ -19,7 +19,7 @@
 #
 # @!attribute pages
 #   @return [String, nil]
-#     a specific location/localization for the data in the Source, if you lead with an integer seperated by space or punctation that
+#     a specific location/localization for the data in the Source, if you lead with an integer separated by space or punctation that
 #     integer will be returned as the "first" page and usable in direct linkouts to Documents if available
 #
 # @!attribute is_original
@@ -41,17 +41,15 @@ class Citation < ApplicationRecord
 
   polymorphic_annotates('citation_object')
 
+  # belongs_to :source, inverse_of: :origin_citations
   belongs_to :source, inverse_of: :citations
 
   has_many :citation_topics, inverse_of: :citation, dependent: :destroy
   has_many :topics, through: :citation_topics, inverse_of: :citations
   has_many :documents, through: :source
 
-  # TODO: This is wrong, should be source
-  validates_presence_of  :source_id
-
+  validates_presence_of :source
   validates_uniqueness_of :source_id, scope: [:citation_object_id, :citation_object_type, :pages]
-
   validates_uniqueness_of :is_original, scope: [:citation_object_type, :citation_object_id], message: 'origin can only be assigned once', allow_nil: true, if: :is_original?
 
   accepts_nested_attributes_for :citation_topics, allow_destroy: true, reject_if: :reject_citation_topics
@@ -71,6 +69,27 @@ class Citation < ApplicationRecord
   after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
 
   soft_validate(:sv_page_range, set: :page_range)
+
+  def self.batch_create(params)
+    ids = params[:citation_object_id]
+    params.delete(:citation_object_id)
+
+    citations = []
+    Citation.transaction do
+      begin
+        ids.each do |id|
+          citations.push Citation.create!(
+            params.merge(
+              citation_object_id: id
+            )
+          )
+        end
+      rescue ActiveRecord::RecordInvalid
+        return false
+      end
+    end
+    citations
+  end
 
   # TODO: deprecate
   # @return [Scope of matching sources]
@@ -108,7 +127,7 @@ class Citation < ApplicationRecord
   protected
 
   def add_source_to_project
-    !!ProjectSource.find_or_create_by(project: project, source: source)
+    !!ProjectSource.find_or_create_by(project:, source:)
   end
 
   def reject_citation_topics(attributed)
@@ -122,8 +141,9 @@ class Citation < ApplicationRecord
   def update_related_cached_values
     if is_original != @old_is_original || citation_object_id != @old_citation_object_id || source_id != @old_source_id
       if citation_object_type == 'TaxonName'
-        citation_object.update_columns(cached_author_year: citation_object.get_author_and_year,
-                                       cached_nomenclature_date: citation_object.nomenclature_date)  if citation_object.persisted?
+        citation_object.update_columns(
+          cached_author_year: citation_object.get_author_and_year,
+          cached_nomenclature_date: citation_object.nomenclature_date)  if citation_object.persisted?
       end
     end
     true
@@ -131,9 +151,11 @@ class Citation < ApplicationRecord
 
   # TODO: modify for asserted distributions and other origin style relationships
   def prevent_if_required
-    if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations.reload.count == 1
-      errors.add(:base, 'at least one citation is required')
-      throw :abort
+    unless citation_object && citation_object.respond_to?(:ignore_citation_restriction) && citation_object.ignore_citation_restriction
+      if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations.count == 1
+        errors.add(:base, 'at least one citation is required')
+        throw :abort
+      end
     end
   end
 
@@ -155,7 +177,6 @@ class Citation < ApplicationRecord
               c.update_column(:cached_valid_taxon_name_id, vn.id)
             end
 
-
             vn.list_of_invalid_taxon_names.each do |s|
               s.update_column(:cached_valid_taxon_name_id, vn.id)
               s.combination_list_self.each do |c|
@@ -174,7 +195,7 @@ class Citation < ApplicationRecord
   def sv_page_range
     if pages.blank?
       soft_validations.add(:pages, 'Citation pages are not provided')
-    elsif !source.pages.blank?
+    elsif source.pages.present?
       matchdata1 = pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
       if matchdata1
         citMinP = matchdata1[1] ? matchdata1[1].to_i : matchdata1[3].to_i

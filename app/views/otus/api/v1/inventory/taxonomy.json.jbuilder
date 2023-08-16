@@ -6,3 +6,12 @@ json.merge!(
     common_names: extend_response_with('common_names'),
     language_alpha2: ( extend_response_with('common_names') ? params[:common_name_language] : nil) )
 )
+
+if extend_response_with('common_names')
+  json.common_names do
+    json.array! @otu.common_names do |c|
+      json.name c.name
+      json.language c.language.alpha_2
+    end
+  end
+end

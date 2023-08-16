@@ -2,45 +2,66 @@
   <transition-group
     class="table-entrys-list"
     name="list-complete"
-    tag="ul">
+    tag="ul"
+  >
     <li
       v-for="item in list"
       :key="item.id"
       class="list-complete-item flex-separate middle"
-      :class="{ 'highlight': checkHighlight(item) }">
+      :class="{ highlight: checkHighlight(item) }"
+    >
       <span
         class="list-item"
-        v-html="displayName(item)"/>
-      <div class="list-controls">
-        <citations-count
+        v-html="displayName(item)"
+      />
+      <div class="horizontal-right-content">
+        <CitationsCount
           :target="targetCitations"
-          :object="item"/>
-        <radial-annotator
+          :object="item"
+        />
+        <RadialAnnotator
           v-if="annotator"
-          :global-id="item.global_id"/>
-        <span
+          :global-id="item.global_id"
+        />
+        <VBtn
           v-if="edit"
-          class="circle-button btn-edit"
-          @click="$emit('edit', Object.assign({}, item))">Edit
-        </span>
-        <span
+          circle
+          color="update"
+          @click="$emit('edit', Object.assign({}, item))"
+        >
+          <VIcon
+            name="pencil"
+            x-small
+          />
+        </VBtn>
+
+        <VBtn
           v-if="remove"
-          class="circle-button btn-delete"
-          @click="deleteItem(item)">Remove
-        </span>
+          circle
+          color="destroy"
+          @click="deleteItem(item)"
+        >
+          <VIcon
+            name="trash"
+            x-small
+          />
+        </VBtn>
       </div>
     </li>
   </transition-group>
 </template>
 <script>
-
 import RadialAnnotator from '../../annotator'
 import CitationsCount from './citationsCount'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
     RadialAnnotator,
-    CitationsCount
+    CitationsCount,
+    VIcon,
+    VBtn
   },
   props: {
     list: {
@@ -80,7 +101,7 @@ export default {
     this.$options.components['RadialAnnotator'] = RadialAnnotator
   },
   methods: {
-    displayName (item) {
+    displayName(item) {
       if (typeof this.label === 'string') {
         return item[this.label]
       } else {
@@ -91,7 +112,7 @@ export default {
         return tmp
       }
     },
-    checkHighlight (item) {
+    checkHighlight(item) {
       if (this.highlight) {
         if (this.highlight.key) {
           return item[this.highlight.key] == this.highlight.value
@@ -102,63 +123,14 @@ export default {
       return false
     },
     deleteItem(item) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+      if (
+        window.confirm(
+          `You're trying to delete this record. Are you sure want to proceed?`
+        )
+      ) {
         this.$emit('delete', item)
       }
     }
   }
 }
 </script>
-<style lang="scss" scoped>
-
-  .list-controls {
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    justify-content: flex-end;
-    .circle-button {
-      margin-left: 4px !important;
-    }
-  }
-
-  .highlight {
-    background-color: #E3E8E3;
-  }
-
-  .list-item {
-    white-space: normal;
-    a {
-      padding-left: 4px;
-      padding-right: 4px;
-    }
-  }
-
-  .table-entrys-list {
-    padding: 0px;
-    position: relative;
-
-    li {
-      margin: 0px;
-      padding: 1em 0;
-      border: 0px;
-      border-bottom: 1px solid #f5f5f5;
-    }
-  }
-
-  .list-complete-item {
-    justify-content: space-between;
-    transition: all 0.5s, opacity 0.2s;
-  }
-
-  .list-complete-enter, .list-complete-leave-to {
-    opacity: 0;
-    font-size: 0px;
-    border: none;
-    transform: scale(0.0);
-  }
-
-  .list-complete-leave-active {
-    width: 100%;
-    position: absolute;
-  }
-</style>

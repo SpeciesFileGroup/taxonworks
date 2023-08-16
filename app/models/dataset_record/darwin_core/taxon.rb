@@ -54,6 +54,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         authorship = parse_results_details.dig(:authorship, :normalized) || get_field_value('scientificNameAuthorship')
 
         author_name = nil
+        year = nil
 
         # split authorship into name and year
         if nomenclature_code == :iczn
@@ -75,7 +76,13 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           year = Utilities::Strings.year_of_publication(authorship)
         end
 
-        # TODO should a year provided in namePublishedInYear overwrite the parsed value?
+        if year && (name_published_in_year = get_field_value('namePublishedInYear')) &&
+          year != name_published_in_year
+          raise DarwinCore::InvalidData.new(
+            { "namePublishedInYear": ["parsed year from scientificName or scientificNameAuthorship (#{year}) "\
+                                      "does not match namePublishedInYear (#{name_published_in_year})"]
+            })
+        end
         year ||= get_field_value('namePublishedInYear')
 
         # TODO validate that rank is a real rank, otherwise Combination will crash on find_or_initialize_by
@@ -154,16 +161,23 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
             original_combination_parents.each do |ancestor|
               ancestor_protonym = ancestor[:protonym]
-              rank = ancestor[:rank]
+              ancestor_rank = ancestor[:rank]
 
               # If OC parent is combination, need to create relationship for lowest element
               if ancestor_protonym.is_a?(Combination)
                 ancestor_protonym = ancestor[:protonym].finest_protonym
               end
 
-                if (rank_in_type = ORIGINAL_COMBINATION_RANKS[rank&.downcase&.to_sym])
-                  taxon_name.save!
-                  TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor_protonym, object_taxon_name: taxon_name)
+              if (rank_in_type = ORIGINAL_COMBINATION_RANKS[ancestor_rank&.downcase&.to_sym])
+
+                # if the subgenus is newer than taxon_name's authorship, skip it (the name must have been classified in the subgenus later)
+                next if ancestor_rank&.downcase&.to_sym == :subgenus &&
+                  !ancestor_protonym.year_integer.nil? &&
+                  !taxon_name.year_integer.nil? &&
+                  ancestor_protonym.year_integer > taxon_name.year_integer
+
+                taxon_name.save!
+                TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor_protonym, object_taxon_name: taxon_name)
               end
             end
           end
@@ -236,6 +250,32 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
               taxon_name.taxon_name_relationships.find_or_initialize_by(object_taxon_name: valid_name, type: type)
 
+              if status.to_s == 'synonym'
+                # if synonym and not same rank as valid, and not original combination,
+                # create a combination with the old parent and rank
+
+                if (old_rank = get_field_value('taxonRank').downcase) != rank.downcase &&
+                  metadata['original_combination'] != get_field_value('taxonID') &&
+                  ORIGINAL_COMBINATION_RANKS.has_key?(old_rank.downcase.to_sym)
+
+                  # save taxon so we can create a combination
+                  taxon_name.save
+
+                  # stolen from combination handling portion of code
+                  parent_elements = create_parent_element_hash
+
+                  combination_attributes = { **parent_elements }
+                  combination_attributes[old_rank.downcase] = taxon_name if old_rank
+
+                  # Can't use find_or_initialize_by because of dynamic parameters, causes query to fail because ranks are not columns in db
+                  # => PG::UndefinedTable: ERROR:  missing FROM-clause entry for table "genus"
+                  # LINE 1: ..."taxon_names" WHERE "taxon_names"."type" = $1 AND "genus"."i...
+
+                  taxon_combination_name = Combination.matching_protonyms(**combination_attributes.transform_values { |v| v.id }).first
+                  taxon_combination_name = Combination.create!(combination_attributes) if taxon_combination_name.nil?
+                end
+              end
+
               # Add homonym status (if applicable)
               if status == 'homonym'
                 taxon_name.taxon_name_classifications.find_or_initialize_by(type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym')
@@ -254,6 +294,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               excluded: 'TaxonNameClassification::Iczn::Unavailable::Excluded',
               'nomen nudum': 'TaxonNameClassification::Iczn::Unavailable::NomenNudum',
               ichnotaxon: 'TaxonNameClassification::Iczn::Fossil::Ichnotaxon',
+              fossil: 'TaxonNameClassification::Iczn::Fossil',
               'nomen dubium': 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium'
             }.freeze
 
@@ -265,6 +306,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                 # if user has provided a `TW:TaxonNameRelationship:incertae_sedis_in_rank` field, use that to determine
                 # which rank of parent should be used for I.S. relationship
                 if (verbatim_is_rank = get_field_value('TW:TaxonNameRelationship:incertae_sedis_in_rank'))
+                  # must save here so that `ancestor_at_rank` works
+                  # (otherwise could use `ancestors_through_parents` and check rank manually)
+                  taxon_name.save
                   incertae_sedis_parent = taxon_name.ancestor_at_rank(verbatim_is_rank.downcase)
 
                   if incertae_sedis_parent.nil?
@@ -274,15 +318,18 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                                                             Available ancestors are #{available_parent_ranks}.".squish] })
                   end
 
+                  # Parent should be same as incertae sedis object_taxon
+                  # Supplying a parent taxonID with a different rank than the incertae sedis parent
+                  # will an original combination relationship with the old parent, which
+                  # the ui will render as [Aus] bus, (where the incertae sedis parent is Cus)
+                  taxon_name.parent = incertae_sedis_parent
+
                 else
                   # if parent has uncertain placement in rank, taxon's parent should be changed to whichever taxon the parent's UncertainRelationship is with
-                  #noinspection RubyResolve
-                  if (r = parent.iczn_uncertain_placement_relationship)
-                    incertae_sedis_parent = TaxonName.find(r.object_taxon_name_id)
-                  else
-                    # if parent doesn't have uncertain placement, make relationship with family or subfamily (FamilyGroup)
-                    incertae_sedis_parent = taxon_name.ancestors.with_base_of_rank_class('NomenclaturalRank::Iczn::FamilyGroup').first
-                  end
+                  incertae_sedis_parent = parent.iczn_uncertain_placement
+                  # if parent doesn't have uncertain placement, make relationship with family or subfamily (FamilyGroup)
+                  incertae_sedis_parent ||= taxon_name.ancestors.with_base_of_rank_class('NomenclaturalRank::Iczn::FamilyGroup').first
+
                   # Parent should be same as incertae sedis object_taxon
                   taxon_name.parent = incertae_sedis_parent
                 end
@@ -290,6 +337,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                 taxon_name.taxon_name_relationships.find_or_initialize_by(
                   object_taxon_name: incertae_sedis_parent,
                   type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+
               else
                 type = status_types[status.to_sym]
 
@@ -298,6 +346,11 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                 taxon_name.taxon_name_classifications.find_or_initialize_by(type: type)
               end
             end
+          end
+
+          # Taxon status might not be "fossil" if synonym, homonym, incertae sedis, etc.
+          if get_field_value('TW:TaxonNameClassification::Iczn::Fossil')
+            taxon_name.taxon_name_classifications.find_or_initialize_by(type: 'TaxonNameClassification::Iczn::Fossil')
           end
 
           # add gender or part of speech classification if given
@@ -327,6 +380,26 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             raise DarwinCore::InvalidData.new({ "TW:TaxonNameClassification:Latinized:": ["PartOfSpeech #{part_of_speech.downcase} is not one of: adjective, participle, noun in apposition, noun in genitive case."] }) if part_of_speech_classification.nil?
 
             taxon_name.taxon_name_classifications.find_or_initialize_by(type: part_of_speech_classification)
+
+            # if taxon has different original combination conjugation, and genus has gender, use OC name.
+            # It will be conjugated correctly with new genus and the original combination will use the correct conjugation
+
+            if oc_dataset_record_id != self.id &&
+              taxon_name.is_species_rank? &&
+              taxon_name.ancestor_at_rank('genus').gender_name
+
+              oc_name = import_dataset.core_records_fields
+                            .where(dataset_record_id: oc_dataset_record_id)
+                            .at(get_field_mapping(:scientificName))
+                            .pick(:value)
+
+              finest_oc_name = oc_name.split.last
+
+              # check if OC name is conjugated differently, then see if current name can be conjugated into oc name
+              if finest_oc_name != name and taxon_name.predict_three_forms.values.include?(finest_oc_name)
+                taxon_name.name = finest_oc_name
+              end
+            end
           end
 
         elsif metadata['type'] == 'combination'
@@ -343,28 +416,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
           else
             # parent is a protonym, look at parents in checklist to build combination
-
-            parents = [get_parent]
-
-            while (next_parent = find_by_taxonID(parents[-1].metadata['parent']))
-              parents << next_parent
-            end
-
-            # convert DatasetRecords into hash of rank, protonym pairs
-            parent_elements = parents.to_h do |p|
-              [
-                # Key is rank (as set in checklist file)
-                DatasetRecordField.where(dataset_record: p)
-                                  .at(get_field_mapping(:taxonRank))
-                  &.pick(:value)
-                  &.downcase&.to_sym,
-                # value is Protonym
-                TaxonName.find(p.metadata['imported_objects']['taxon_name']['id'])
-              ]
-
-            end
-
-            parent_elements.filter! { |p_rank, _| ORIGINAL_COMBINATION_RANKS.has_key?(p_rank) }
+            parent_elements = create_parent_element_hash
           end
 
           combination_attributes = { **parent_elements }
@@ -446,6 +498,33 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   end
 
   private
+
+  # Create a hash of parents from checklist
+  # @return [Hash{Symbol => TaxonName}] hash of ranks and TaxonNames of genus and species rank parents
+  def create_parent_element_hash
+    parents = [get_parent]
+
+    while (next_parent = find_by_taxonID(parents[-1].metadata['parent']))
+      parents << next_parent
+    end
+
+    # convert DatasetRecords into hash of rank, protonym pairs
+    parent_elements = parents.to_h do |p|
+      [
+        # Key is rank (as set in checklist file)
+        DatasetRecordField.where(dataset_record: p)
+                          .at(get_field_mapping(:taxonRank))
+          &.pick(:value)
+          &.downcase&.to_sym,
+        # value is Protonym
+        TaxonName.find(p.metadata['imported_objects']['taxon_name']['id'])
+      ]
+
+    end
+
+    parent_elements.filter! { |p_rank, _| ORIGINAL_COMBINATION_RANKS.has_key?(p_rank) }
+    parent_elements
+  end
 
   # @return Optional[DatasetRecord::DarwinCore::Taxon, Array<DatasetRecord::DarwinCore::Taxon>]
   def get_parent

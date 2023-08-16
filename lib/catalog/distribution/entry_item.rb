@@ -16,7 +16,7 @@ class Catalog::Distribution::EntryItem < ::Catalog::EntryItem
 
   # @return [Boolean]
   def linked_to_valid_taxon_name?
-    object.taxon_name&.is_valid? 
+    object.taxon_name&.is_valid?
   end
 
   def data_attributes
@@ -33,11 +33,11 @@ class Catalog::Distribution::EntryItem < ::Catalog::EntryItem
   def geographic_name_classification
     return @geographic_name_classification if @geographic_name_classification
     case object.class.base_class.name
-    when "AssertedDistribution"
+    when 'AssertedDistribution'
       @geographic_name_classification ||= object.geographic_area.geographic_name_classification
-    when "TypeMaterial"
+    when 'TypeMaterial'
       @geographic_name_classification ||= object.collection_object.geographic_name_classification
-    when "CollectionObject"
+    when 'CollectionObject'
       @geographic_name_classification ||= object.geographic_name_classification
     end
     @geographic_name_classification ||= {country: nil, state: nil, county: nil}

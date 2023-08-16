@@ -2,12 +2,14 @@
   <div>
     <button
       @click="openWindow"
-      class="button button-default normal-input">
+      class="button button-default normal-input"
+    >
       Create new
     </button>
     <modal
       v-if="showModal"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>New topic</h3>
       </template>
@@ -20,27 +22,30 @@
             <input
               type="text"
               v-model="topic.name"
-              placeholder="Name">
+              placeholder="Name"
+            />
             <input
               type="color"
-              v-model="topic.css_color">
+              v-model="topic.css_color"
+            />
           </div>
           <div class="field">
             <textarea
               v-model="topic.definition"
-              placeholder="Definition"/>
+              placeholder="Definition"
+            />
           </div>
         </form>
       </template>
       <template #footer>
-        <div
-          class="flex-separate">
+        <div class="flex-separate">
           <input
             class="button normal-input button-submit"
             type="submit"
             @click.prevent="createNewTopic"
-            :disabled="(topic.name.length < 2) || (topic.definition.length < 20)"
-            value="Create">
+            :disabled="topic.name.length < 2 || topic.definition.length < 20"
+            value="Create"
+          />
         </div>
       </template>
     </modal>
@@ -48,16 +53,15 @@
 </template>
 
 <script>
-
-import { ControlledVocabularyTerm } from 'routes/endpoints'
-import Modal from 'components/ui/Modal.vue'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
+import Modal from '@/components/ui/Modal.vue'
 
 export default {
   components: { Modal },
 
   emits: ['onCreate'],
 
-  data () {
+  data() {
     return {
       showModal: false,
       topic: this.newTopic()
@@ -65,20 +69,25 @@ export default {
   },
 
   methods: {
-    openWindow () {
+    openWindow() {
       this.topic = this.newTopic()
       this.showModal = true
     },
 
-    createNewTopic () {
-      ControlledVocabularyTerm.create({ controlled_vocabulary_term: this.topic }).then(({ body }) => {
-        TW.workbench.alert.create(`${body.name} was successfully created.`, 'notice')
+    createNewTopic() {
+      ControlledVocabularyTerm.create({
+        controlled_vocabulary_term: this.topic
+      }).then(({ body }) => {
+        TW.workbench.alert.create(
+          `${body.name} was successfully created.`,
+          'notice'
+        )
         this.$emit('onCreate', body)
       })
       this.showModal = false
     },
 
-    newTopic () {
+    newTopic() {
       return {
         name: '',
         definition: '',

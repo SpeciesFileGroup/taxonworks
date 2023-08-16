@@ -15,7 +15,8 @@
           vocab: 'pbdb',
           rank: 'group'
         }"
-        param="name"/>
+        param="name"
+      />
     </div>
     <div class="field">
       <label>Formation</label>
@@ -32,40 +33,44 @@
           vocab: 'pbdb',
           rank: 'formation'
         }"
-        param="name"/>
+        param="name"
+      />
     </div>
     <div class="field label-above">
       <label>Member</label>
       <input
         type="text"
-        v-model="collectingEvent.member">
+        v-model="collectingEvent.member"
+      />
     </div>
     <div class="field label-above">
       <label>Lithology</label>
       <input
         type="text"
-        v-model="collectingEvent.lithology">
+        v-model="collectingEvent.lithology"
+      />
     </div>
     <div class="horizontal-left-content ma-fields">
       <div class="separate-right label-above">
         <label>Minumum MA</label>
         <input
           type="text"
-          v-model="collectingEvent.min_ma">
+          v-model="collectingEvent.min_ma"
+        />
       </div>
       <div class="separate-left label-above">
         <label>Maximum MA</label>
         <input
           type="text"
-          v-model="collectingEvent.max_ma">
+          v-model="collectingEvent.max_ma"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-
-import Autocomplete from 'components/ui/Autocomplete.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 import extendCE from '../mixins/extendCE'
 
 export default {
@@ -85,9 +90,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .ma-fields {
-    input {
-      width: 60px;
-    }
+.ma-fields {
+  input {
+    width: 60px;
   }
+}
 </style>

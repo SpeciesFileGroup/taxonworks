@@ -1,4 +1,4 @@
-export function makeCollectionObject (coData) {
+export function makeCollectionObject (coData = {}) {
   return {
     id: coData.id,
     bufferedCollectingEvent: coData.buffered_collecting_event,

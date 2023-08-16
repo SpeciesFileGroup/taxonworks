@@ -4,13 +4,14 @@
     <ul class="no_bullets">
       <li
         v-for="(item, index) in labelTypes"
-        :key="index">
+        :key="index"
+      >
         <label>
           <input
             v-model="type"
             :value="item.value"
             type="radio"
-          >
+          />
           {{ item.label }}
         </label>
       </li>
@@ -19,12 +20,7 @@
 </template>
 
 <script>
-
-import {
-  LABEL,
-  LABEL_QR_CODE,
-  LABEL_CODE_128
-} from 'constants/index.js'
+import { LABEL, LABEL_QR_CODE, LABEL_CODE_128 } from '@/constants/index.js'
 
 export default {
   props: {
@@ -38,16 +34,16 @@ export default {
 
   computed: {
     type: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       labelTypes: [
         {

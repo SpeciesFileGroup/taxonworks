@@ -29,6 +29,7 @@ import setYearFor from './setYearFor'
 import setDisplayOnlyUnscored from './options/setDisplayOnlyUnscored'
 import setDisplayCharacterStates from './options/setDisplayCharacterStates'
 import setDisplayScoredCharacterStates from './options/setDisplayScoredCharacterStates'
+import observationSaved from './observationSaved'
 
 const MutationNames = {
   AddObservation: 'addObservation',
@@ -61,7 +62,8 @@ const MutationNames = {
   SetYearFor: 'setYearFor',
   SetDisplayOnlyUnscored: 'setDisplayOnlyUnscored',
   SetDisplayCharacterStates: 'setDisplayCharacterStates',
-  SetDisplayScoredCharacterStates: 'setDisplayScoredCharacterStates'
+  SetDisplayScoredCharacterStates: 'setDisplayScoredCharacterStates',
+  ObservationSaved: 'observationSaved'
 }
 
 const MutationFunctions = {
@@ -95,10 +97,9 @@ const MutationFunctions = {
   [MutationNames.SetYearFor]: setYearFor,
   [MutationNames.SetDisplayOnlyUnscored]: setDisplayOnlyUnscored,
   [MutationNames.SetDisplayCharacterStates]: setDisplayCharacterStates,
-  [MutationNames.SetDisplayScoredCharacterStates]: setDisplayScoredCharacterStates
+  [MutationNames.SetDisplayScoredCharacterStates]:
+    setDisplayScoredCharacterStates,
+  [MutationNames.ObservationSaved]: observationSaved
 }
 
-export {
-  MutationFunctions,
-  MutationNames
-}
+export { MutationFunctions, MutationNames }

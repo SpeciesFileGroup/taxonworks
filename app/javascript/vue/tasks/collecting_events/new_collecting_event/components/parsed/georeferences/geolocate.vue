@@ -2,10 +2,14 @@
   <div>
     <button
       class="button normal-input button-default"
-      @click="setModalView(true)">GEOLocate</button>
+      @click="setModalView(true)"
+    >
+      GEOLocate
+    </button>
     <modal-component
       v-if="show"
-      @close="setModalView(false)">
+      @close="setModalView(false)"
+    >
       <template #header>
         <h3>GEOLocate</h3>
       </template>
@@ -15,7 +19,8 @@
           <textarea
             class="full_width"
             rows="5"
-            v-model="iframe_response"/>
+            v-model="iframe_response"
+          />
         </div>
       </template>
       <template #footer>
@@ -23,7 +28,8 @@
           type="button"
           class="normal-input button button-submit"
           :disabled="!validateFields"
-          @click="createShape">
+          @click="createShape"
+        >
           Add
         </button>
       </template>
@@ -32,9 +38,8 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal'
-import { GEOREFERENCE_GEOLOCATE } from 'constants/index.js'
+import ModalComponent from '@/components/ui/Modal'
+import { GEOREFERENCE_GEOLOCATE } from '@/constants/index.js'
 
 export default {
   components: { ModalComponent },
@@ -42,12 +47,12 @@ export default {
   emits: ['create'],
 
   computed: {
-    validateFields () {
+    validateFields() {
       return this.iframe_response
     }
   },
 
-  data () {
+  data() {
     return {
       show: false,
       iframe_response: undefined
@@ -55,7 +60,7 @@ export default {
   },
 
   methods: {
-    createShape () {
+    createShape() {
       this.$emit('create', {
         tmpId: Math.random().toString(36).substr(2, 5),
         iframe_response: this.iframe_response,
@@ -65,11 +70,11 @@ export default {
       this.show = false
     },
 
-    resetShape () {
+    resetShape() {
       this.iframe_response = undefined
     },
 
-    setModalView (value) {
+    setModalView(value) {
       this.resetShape()
       this.show = value
     }

@@ -3,9 +3,7 @@
     <div class="horizontal-left-content middle">
       <h2>Select person</h2>
     </div>
-    <p v-if="displayCount">
-      {{ foundPeople.length }} people found
-    </p>
+    <p v-if="displayCount">{{ foundPeople.length }} people found</p>
     <div>
       <div class="horizontal-left-content">
         <autocomplete
@@ -52,13 +50,23 @@
               </td>
               <td>{{ person.cached }}</td>
               <td>
-                <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(person.year_born) }} - {{ yearValue(person.year_died) }}</span>
+                <span
+                  class="feedback feedback-secondary feedback-thin line-nowrap"
+                  >{{ yearValue(person.year_born) }} -
+                  {{ yearValue(person.year_died) }}</span
+                >
               </td>
               <td>
-                <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(person.year_active_start) }} - {{ yearValue(person.year_active_end) }}</span>
+                <span
+                  class="feedback feedback-secondary feedback-thin line-nowrap"
+                  >{{ yearValue(person.year_active_start) }} -
+                  {{ yearValue(person.year_active_end) }}</span
+                >
               </td>
               <td>
-                <span class="feedback feedback-thin feedback-primary">{{ person.roles ? person.roles.length : 0 }}</span>
+                <span class="feedback feedback-thin feedback-primary">{{
+                  person.roles ? person.roles.length : 0
+                }}</span>
               </td>
               <td>{{ getRoles(person) }}</td>
             </tr>
@@ -69,12 +77,11 @@
   </div>
 </template>
 <script>
-
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import { MutationNames } from '../store/mutations/mutations'
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import DefaultPin from 'components/getDefaultPin.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
+import DefaultPin from '@/components/getDefaultPin.vue'
 import getRoles from '../utils/getRoles'
 
 export default {
@@ -92,30 +99,30 @@ export default {
 
   computed: {
     selectedPerson: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSelectedPerson]
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSelectedPerson, value)
       }
     },
 
-    foundPeople () {
+    foundPeople() {
       return this.$store.getters[GetterNames.GetFoundPeopleList]
     },
 
-    matchPeople () {
+    matchPeople() {
       return this.$store.getters[GetterNames.GetMatchPeople]
     }
   },
 
   methods: {
-    addToList (person) {
+    addToList(person) {
       this.$store.dispatch(ActionNames.AddSelectPerson, person.id)
     },
 
-    yearValue (value) {
+    yearValue(value) {
       return value || '?'
     },
 

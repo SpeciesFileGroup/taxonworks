@@ -3,11 +3,8 @@
     <spinner-component
       v-if="isLoading || isSaving"
       full-screen
-      :legend="isSaving
-        ? 'Saving changes...'
-        : 'Loading observation matrix...'
-      "
-      :logo-size="{ width: '100px', height: '100px'}"
+      :legend="isSaving ? 'Saving changes...' : 'Loading observation matrix...'"
+      :logo-size="{ width: '100px', height: '100px' }"
     />
     <column-modal
       v-if="showColumnModal"
@@ -22,7 +19,7 @@
             <input
               v-model="editMode"
               type="checkbox"
-            >
+            />
             Edit mode
           </label>
         </li>
@@ -54,10 +51,14 @@
           </li>
         </template>
         <li>
-          <a :href="RouteNames.ObservationMatricesDashboard">Observation matrix dashboard</a>
+          <a :href="RouteNames.ObservationMatricesDashboard"
+            >Observation matrix dashboard</a
+          >
         </li>
         <li>
-          <a :href="RouteNames.ObservationMatricesHub">Observation matrix hub</a>
+          <a :href="RouteNames.ObservationMatricesHub"
+            >Observation matrix hub</a
+          >
         </li>
       </ul>
     </div>
@@ -93,16 +94,16 @@
 
 <script>
 import { GetterNames } from './store/getters/getters'
-import { RouteNames } from 'routes/routes'
+import { RouteNames } from '@/routes/routes'
 import { ActionNames } from './store/actions/actions'
 
 import MatrixTable from './components/MatrixTable.vue'
-import SpinnerComponent from 'components/spinner.vue'
+import SpinnerComponent from '@/components/spinner.vue'
 import ColumnModal from './components/ColumnModal.vue'
 import ViewComponent from './components/View/Main.vue'
-import setParam from 'helpers/setParam'
-import PaginationComponent from 'components/pagination.vue'
-import PaginationCount from 'components/pagination/PaginationCount.vue'
+import setParam from '@/helpers/setParam'
+import PaginationComponent from '@/components/pagination.vue'
+import PaginationCount from '@/components/pagination/PaginationCount.vue'
 
 export default {
   components: {
@@ -115,31 +116,31 @@ export default {
   },
 
   computed: {
-    isSaving () {
+    isSaving() {
       return this.$store.getters[GetterNames.GetIsSaving]
     },
-    isLoading () {
+    isLoading() {
       return this.$store.getters[GetterNames.GetIsLoading]
     },
-    matrixId () {
+    matrixId() {
       return this.observationMatrix?.id
     },
-    observationColumns () {
+    observationColumns() {
       return this.$store.getters[GetterNames.GetObservationColumns]
     },
-    observationMatrix () {
+    observationMatrix() {
       return this.$store.getters[GetterNames.GetObservationMatrix]
     },
-    observationRows () {
+    observationRows() {
       return this.$store.getters[GetterNames.GetObservationRows]
     },
-    pagination () {
+    pagination() {
       return this.$store.getters[GetterNames.GetPagination]
     },
     RouteNames: () => RouteNames
   },
 
-  data () {
+  data() {
     return {
       showColumnModal: false,
       maxPerPage: 3,
@@ -150,12 +151,12 @@ export default {
   },
 
   watch: {
-    per () {
+    per() {
       this.loadPage({ page: this.pagination.paginationPage })
     }
   },
 
-  created () {
+  created() {
     const urlParams = new URLSearchParams(window.location.search)
     const obsIdParam = urlParams.get('observation_matrix_id')
     const otuFilterParam = urlParams.get('otu_filter')
@@ -180,15 +181,15 @@ export default {
   },
 
   methods: {
-    resetTable () {
+    resetTable() {
       this.$refs.matrixTable.reset()
     },
 
-    collapseAll () {
+    collapseAll() {
       this.$refs.matrixTable.collapseAll()
     },
 
-    loadPage ({ page }) {
+    loadPage({ page }) {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, {
         observation_matrix_id: this.matrixId || 0,
         page,
@@ -198,7 +199,6 @@ export default {
       setParam(RouteNames.ImageMatrix, 'observation_matrix_id', this.matrixId)
       setParam(RouteNames.ImageMatrix, 'page', page)
     }
-
   }
 }
 </script>

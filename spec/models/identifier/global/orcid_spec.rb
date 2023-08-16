@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Identifier::Global::Orcid, type: :model, group: :identifiers do
   context 'Orcid' do
-    let(:id) { FactoryBot.build(:identifier_global_orcid) }
+    let(:id) {Identifier::Global::Orcid.new(identifier_object: FactoryBot.build(:valid_person)) }
 
     context '#identifier is validly formatted' do
 

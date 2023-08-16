@@ -1,4 +1,4 @@
-import { useRandomUUID } from "helpers/random"
+import { useRandomUUID } from '@/helpers/random'
 
 export default () => ({
   uuid: useRandomUUID(),

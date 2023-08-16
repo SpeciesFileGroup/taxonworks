@@ -2,7 +2,8 @@
   <div class="panel content">
     <spinner-component
       v-if="isLoading"
-      :show-spinner="false"/>
+      :show-spinner="false"
+    />
     <h2>Existing data</h2>
     <div style="overflow-x: scroll">
       <table>
@@ -31,18 +32,19 @@
             v-for="(item, index) in list"
             :key="item.id"
             class="contextMenuCells"
-            :class="{ 'even': (index % 2 == 0) }"
+            :class="{ even: index % 2 == 0 }"
           >
             <td>
-              <radial-annotator :global-id="item.global_id"/>
+              <radial-annotator :global-id="item.global_id" />
             </td>
             <td>
               <radial-object
                 button-class="btn-co-radial"
-                :global-id="item.global_id"/>
+                :global-id="item.global_id"
+              />
             </td>
             <td>
-              <radial-navigation :global-id="item.global_id"/>
+              <radial-navigation :global-id="item.global_id" />
             </td>
             <td>{{ item.dwc_attributes.individualCount }}</td>
             <td>{{ item.dwc_attributes.family }}</td>
@@ -50,15 +52,16 @@
             <td>{{ item.dwc_attributes.scientificName }}</td>
             <td
               v-if="item.identifier_from_container"
-              v-html="item.object_tag"/>
-            <td v-else>{{ item.dwc_attributes.catalogNumber}}</td>
+              v-html="item.object_tag"
+            />
+            <td v-else>{{ item.dwc_attributes.catalogNumber }}</td>
             <td>{{ item.biocuration }}</td>
             <td>{{ item.dwc_attributes.country }}</td>
             <td>{{ item.dwc_attributes.stateProvince }}</td>
             <td>{{ item.dwc_attributes.county }}</td>
             <td>{{ item.dwc_attributes.verbatimLocality }}</td>
             <td>{{ item.dwc_attributes.eventDate }}</td>
-            <td v-html="item.container"/>
+            <td v-html="item.container" />
             <td>{{ item.updated_at }}</td>
           </tr>
         </tbody>
@@ -68,13 +71,12 @@
 </template>
 
 <script>
-
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialNavigation from 'components/radials/navigation/radial'
-import RadialObject from 'components/radials/object/radial'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialNavigation from '@/components/radials/navigation/radial'
+import RadialObject from '@/components/radials/object/radial'
 import { Report } from '../request/resource'
 import { GetterNames } from '../store/getters/getters'
-import SpinnerComponent from 'components/spinner'
+import SpinnerComponent from '@/components/spinner'
 
 export default {
   components: {
@@ -85,26 +87,28 @@ export default {
   },
 
   computed: {
-    sledImage () {
+    sledImage() {
       return this.$store.getters[GetterNames.GetSledImage]
     }
   },
 
-  data () {
+  data() {
     return {
       list: [],
       isLoading: false
     }
   },
 
-  mounted () {
+  mounted() {
     if (this.sledImage.id) {
       this.isLoading = true
-      Report(this.sledImage.id).then(response => {
-        this.list = response.body
-      }).finally(_ => {
-        this.isLoading = false
-      })
+      Report(this.sledImage.id)
+        .then((response) => {
+          this.list = response.body
+        })
+        .finally((_) => {
+          this.isLoading = false
+        })
     }
   }
 }

@@ -20,13 +20,13 @@ cd ..
 [ ! -d libheif-* ] && \
   curl -sL $(curl -s https://api.github.com/repos/strukturag/libheif/releases/latest | jq --raw-output '.assets[0] | .browser_download_url') | tar xzf - && \
   cd libheif-* && \
-  ./autogen.sh && \
-  ./configure --disable-examples --disable-go && \
-  cd ..
-cd libheif-*
+  mkdir -p build && cd build && \
+  cmake .. && \
+  cd ../..
+cd libheif-*/build
 make -j${MAKE_JOBS-3}
 make install
-cd ..
+cd ../..
 
 [ ! -d ImageMagick-7* ] && curl -sL https://imagemagick.org/archive/ImageMagick.tar.gz | tar xzf - && \
   cd ImageMagick-7*

@@ -35,7 +35,6 @@ RSpec.describe ObservationMatrixRow, type: :model, group: :observation_matrix do
     let!(:r2) { FactoryBot.create(:valid_observation_matrix_row, observation_matrix: observation_matrix, observation_object: otu1) }
 
     specify '#observations' do
-      #  byebug
       expect(r.observations.map(&:id)).to contain_exactly(o.id)
     end
 

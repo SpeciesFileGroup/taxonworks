@@ -4,7 +4,8 @@
     <switch-component
       :options="tabOptions"
       v-model="view"
-      name="related"/>
+      name="related"
+    />
 
     <smart-selector
       v-if="otuView"
@@ -28,9 +29,8 @@
 </template>
 
 <script>
-
 import SwitchComponent from '../shared/switch.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
 import CRUD from '../../request/crud'
 
 const TAB = {
@@ -49,12 +49,12 @@ export default {
   emits: ['select'],
 
   computed: {
-    otuView () {
+    otuView() {
       return this.view === TAB.otu
     }
   },
 
-  data () {
+  data() {
     return {
       view: TAB.otu,
       tabOptions: Object.values(TAB)
@@ -62,7 +62,7 @@ export default {
   },
 
   methods: {
-    sendRelated (item) {
+    sendRelated(item) {
       this.$emit('select', {
         ...item,
         type: item.base_class

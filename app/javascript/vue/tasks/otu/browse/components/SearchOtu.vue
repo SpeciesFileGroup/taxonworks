@@ -1,27 +1,19 @@
 <template>
-  <div class="panel content full_width">
+  <div class="panel content">
     <autocomplete
+      class="full_width"
       url="/otus/autocomplete"
       placeholder="Search a otu"
       param="term"
-      @getItem="sendOtu"
-      :clear-after="true"
-      label="label_html"/>
+      clear-after="true"
+      label="label_html"
+      @get-item="($event) => emit('select', $event)"
+    />
   </div>
 </template>
 
-<script>
+<script setup>
+import Autocomplete from '@/components/ui/Autocomplete'
 
-import Autocomplete from 'components/ui/Autocomplete'
-
-export default {
-  components: {
-    Autocomplete
-  },
-  methods: {
-    sendOtu (otu) {
-      this.$emit('onOtuSelect', otu)
-    }
-  }
-}
+const emit = defineEmits(['select'])
 </script>

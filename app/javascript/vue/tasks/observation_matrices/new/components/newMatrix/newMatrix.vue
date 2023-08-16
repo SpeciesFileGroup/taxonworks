@@ -12,7 +12,7 @@
             autofocus
             class="full_width margin-small-right"
             type="text"
-          >
+          />
           <button
             v-if="!matrix.id"
             @click="create"
@@ -32,7 +32,7 @@
         </div>
       </div>
       <template v-if="matrix.id">
-        <hr>
+        <hr />
         <div>
           <switch-component
             class="margin-small-bottom"
@@ -50,11 +50,10 @@
 </template>
 
 <script>
-
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
-import { ObservationMatrix } from 'routes/endpoints'
+import { ObservationMatrix } from '@/routes/endpoints'
 
 import SwitchComponent from './switch.vue'
 
@@ -63,59 +62,69 @@ export default {
 
   computed: {
     matrixName: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetMatrix].name
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetMatrixName, value)
       }
     },
 
     matrix: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetMatrix]
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetMatrix, value)
       }
     },
 
     matrixView: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetMatrixView] === 'column'
       },
 
-      set (value) {
-        this.$store.commit(MutationNames.SetMatrixView, (value ? 'column' : 'row'))
+      set(value) {
+        this.$store.commit(
+          MutationNames.SetMatrixView,
+          value ? 'column' : 'row'
+        )
       }
     },
 
     matrixMode: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetMatrixMode] === 'fixed'
       },
 
-      set (value) {
-        this.$store.commit(MutationNames.SetMatrixMode, (value ? 'fixed' : 'dynamic'))
+      set(value) {
+        this.$store.commit(
+          MutationNames.SetMatrixMode,
+          value ? 'fixed' : 'dynamic'
+        )
       }
     },
 
-    validateData () {
-      return this.$store.getters[GetterNames.GetMatrix].name &&
-            !this.$store.getters[GetterNames.GetMatrix].id
+    validateData() {
+      return (
+        this.$store.getters[GetterNames.GetMatrix].name &&
+        !this.$store.getters[GetterNames.GetMatrix].id
+      )
     }
   },
 
   methods: {
-    create () {
-      ObservationMatrix.create({ observation_matrix: this.matrix }).then(response => {
-        this.matrix = response.body
-      })
+    create() {
+      ObservationMatrix.create({ observation_matrix: this.matrix }).then(
+        (response) => {
+          this.matrix = response.body
+        }
+      )
     },
 
-    updateMatrix () {
+    updateMatrix() {
       this.$store.dispatch(ActionNames.UpdateMatrix)
     }
   }

@@ -1,4 +1,4 @@
-require_dependency Rails.root.to_s + '/lib/queries/citation/filter'
+# require_dependency Rails.root.to_s + '/lib/queries/citation/filter'
 
 class CitationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
@@ -15,9 +15,11 @@ class CitationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @citations = Queries::Citation::Filter.new(params).all.where(project_id: sessions_current_project_id).includes(:source)
+        @citations = ::Queries::Citation::Filter.new(params).all
+          .where(project_id: sessions_current_project_id)
+          .eager_load(:source)
           .order(:source_id, :pages)
-          .page(params[:page]).per(params[:per] || 500)
+          .page(params[:page]).per(params[:per])
       }
     end
   end
@@ -52,6 +54,16 @@ class CitationsController < ApplicationController
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was NOT successfully created.')}
         format.json {render json: @citation.errors, status: :unprocessable_entity}
       end
+    end
+  end
+
+  # /citations/batch_create.json?citation_object_type=Otu&citation_object_id[]=123&source_id=456
+  def batch_create
+    @citations = Citation.batch_create(batch_citation_params)
+    if @citations.present?
+      render '/citations/index'
+    else
+      render json: { failed: true, status: :unprocessable_entity}
     end
   end
 
@@ -119,9 +131,10 @@ class CitationsController < ApplicationController
 
   def api_index
     @citations = Queries::Citation::Filter.new(params).all
-      .where(project_id: sessions_current_project_id).includes(:source)
-      .order('sources.cached, sources.pages')
-      .page(params[:page]).per(params[:per] || 50)     ### error when 500 !!
+      .where(project_id: sessions_current_project_id)
+      .includes(:source)
+      .order('sources.cached_nomenclature_date')
+      .page(params[:page]).per(params[:per] || 50)
 
     @verbose_object = params[:verbose_object]
     render '/citations/api/v1/index'
@@ -138,16 +151,25 @@ class CitationsController < ApplicationController
     @citation = Citation.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
-  def citation_params
-    params.require(:citation).permit(
-      :citation_object_type, :citation_object_id, :source_id, :pages, :is_original,
+  def base_params
+    [ :citation_object_type, :citation_object_id, :source_id, :pages, :is_original,
       :annotated_global_entity, :user_id,
       citation_topics_attributes: [
         :id, :_destroy, :pages, :topic_id,
         topic_attributes: [:id, :_destroy, :name, :definition]
       ],
       topics_attributes: [:name, :definition]
-    )
+    ]
+  end
+
+  def batch_citation_params
+    p = base_params
+    p.last.merge!(citation_object_id: [])
+    params.require(:citation).permit(p)
+  end
+
+  def citation_params
+    params.require(:citation).permit(base_params)
   end
 
 end

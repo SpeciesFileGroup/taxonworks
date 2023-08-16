@@ -1,7 +1,8 @@
 <template>
   <modal-component
     :container-style="{ width: '500px' }"
-    @close="$emit('close')">
+    @close="$emit('close')"
+  >
     <template #header>
       <h3>Data links</h3>
     </template>
@@ -9,17 +10,18 @@
       <ul class="no_bullets context-menu">
         <li
           v-for="button in links"
-          :key="button.label">
+          :key="button.label"
+        >
           <button
             type="button"
             class="button normal-input button-default"
-            @click="setSelected(button)">
+            @click="setSelected(button)"
+          >
             {{ button.label }}
           </button>
         </li>
       </ul>
-      <div
-        class="margin-medium-top">
+      <div class="margin-medium-top">
         <smart-selector
           target="Otu"
           :model="selected.model"
@@ -33,10 +35,9 @@
 </template>
 
 <script>
-
 import BUTTON_LINKS from './buttonLinks.js'
-import ModalComponent from 'components/ui/Modal'
-import SmartSelector from 'components/ui/SmartSelector'
+import ModalComponent from '@/components/ui/Modal'
+import SmartSelector from '@/components/ui/SmartSelector'
 
 export default {
   components: {
@@ -44,12 +45,9 @@ export default {
     SmartSelector
   },
 
-  emits: [
-    'selected',
-    'close'
-  ],
+  emits: ['selected', 'close'],
 
-  data () {
+  data() {
     return {
       links: BUTTON_LINKS,
       selected: BUTTON_LINKS[0]
@@ -57,16 +55,12 @@ export default {
   },
 
   methods: {
-    setSelected (item) {
+    setSelected(item) {
       this.selected = item
     },
 
-    sendObject (item) {
-      const {
-        labelFunction,
-        labelProperty,
-        model
-      } = this.selected
+    sendObject(item) {
+      const { labelFunction, labelProperty, model } = this.selected
 
       const label = labelFunction ? labelFunction(item) : item[labelProperty]
 

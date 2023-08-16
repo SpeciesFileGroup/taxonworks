@@ -2,7 +2,8 @@
   <div class="continuous-descriptor">
     <summary-view
       :index="index"
-      :descriptor="descriptor">
+      :descriptor="descriptor"
+    >
       <ContinousDescriptorObservation
         v-for="obs in observations"
         :key="obs.id || obs.internalId"
@@ -24,11 +25,10 @@
 <style lang="stylus" src="./ContinuousDescriptor.styl"></style>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { ActionNames } from '../../store/actions/actions'
-import VBtn from 'components/ui/VBtn/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import SummaryView from '../SummaryView/SummaryView.vue'
 import ContinousDescriptorObservation from './ContinuousDescriptorObservation.vue'
 import makeObservation from '../../store/helpers/makeObservation'
@@ -56,24 +56,29 @@ export default {
   },
 
   computed: {
-    observations () {
-      return this.$store.getters[GetterNames.GetObservations].filter(o => o.descriptorId === this.descriptor.id)
+    observations() {
+      return this.$store.getters[GetterNames.GetObservations].filter(
+        (o) => o.descriptorId === this.descriptor.id
+      )
     },
 
-    emptyObservation () {
+    emptyObservation() {
       return this.observations.find(({ id }) => !id)
     }
   },
 
-  created () {
+  created() {
     const descriptorId = this.descriptor.id
     const otuId = this.$store.state.taxonId
 
-    this.$store.dispatch(ActionNames.RequestObservations, { descriptorId, otuId })
+    this.$store.dispatch(ActionNames.RequestObservations, {
+      descriptorId,
+      otuId
+    })
   },
 
   methods: {
-    addEmptyObservation () {
+    addEmptyObservation() {
       const args = {
         type: ObservationTypes.Continuous,
         descriptorId: this.descriptor.id,

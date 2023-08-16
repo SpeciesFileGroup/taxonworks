@@ -14,7 +14,7 @@
             <input
               type="checkbox"
               v-model="settings.sortable"
-            >
+            />
             Reorder fields
           </label>
         </li>
@@ -23,8 +23,8 @@
     <spinner-component
       v-if="saving || loading"
       full-screen
-      :logo-size="{ width: '100px', height: '100px'}"
-      :legend="(saving ? 'Saving changes...' : 'Loading...')"
+      :logo-size="{ width: '100px', height: '100px' }"
+      :legend="saving ? 'Saving changes...' : 'Loading...'"
     />
     <task-header />
     <collection-object class="separate-bottom" />
@@ -33,7 +33,7 @@
         class="separate-right left-section"
         v-model="componentsOrder"
         :disabled="!settings.sortable"
-        :item-key="item => item"
+        :item-key="(item) => item"
         @end="updatePreferences"
       >
         <template #item="{ element }">
@@ -57,12 +57,12 @@ import TypeMaterial from './components/typeMaterial/TypeMaterialMain.vue'
 import BiologicalAssociation from './components/biologicalAssociation/main.vue'
 import SettingsCollectionObject from './components/settings/SettingCollectionObject.vue'
 import SortComponent from './components/shared/sortComponenets.vue'
-import { User, Project } from 'routes/endpoints'
+import { User, Project } from '@/routes/endpoints'
 import { MutationNames } from './store/mutations/mutations.js'
 import { ActionNames } from './store/actions/actions.js'
 import { GetterNames } from './store/getters/getters.js'
-import SpinnerComponent from 'components/spinner.vue'
-import platformKey from 'helpers/getPlatformKey.js'
+import SpinnerComponent from '@/components/spinner.vue'
+import platformKey from '@/helpers/getPlatformKey.js'
 import Draggable from 'vuedraggable'
 
 export default {
@@ -83,21 +83,21 @@ export default {
   },
 
   computed: {
-    saving () {
+    saving() {
       return this.$store.getters[GetterNames.IsSaving]
     },
-    loading () {
+    loading() {
       return this.$store.getters[GetterNames.IsLoading]
     },
     settings: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSettings]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
-    shortcuts () {
+    shortcuts() {
       const keys = {}
 
       keys[`${platformKey()}+l`] = this.setLockAll
@@ -106,14 +106,14 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       keyStorage: 'tasks::digitize::LeftColumnOrder',
       componentsSection: 'leftColumn'
     }
   },
 
-  mounted () {
+  mounted() {
     const coId = location.pathname.split('/')[4]
     const urlParams = new URLSearchParams(window.location.search)
     const coIdParam = urlParams.get('collection_object_id')
@@ -121,11 +121,11 @@ export default {
 
     this.addShortcutsDescription()
 
-    User.preferences().then(response => {
+    User.preferences().then((response) => {
       this.$store.commit(MutationNames.SetPreferences, response.body)
     })
 
-    Project.preferences().then(response => {
+    Project.preferences().then((response) => {
       this.$store.commit(MutationNames.SetProjectPreferences, response.body)
     })
 
@@ -143,56 +143,96 @@ export default {
   },
 
   methods: {
-    addShortcutsDescription () {
-      TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'Save and new', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${platformKey()}+p`, 'Add to container', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${platformKey()}+l`, 'Lock/Unlock all', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${platformKey()}+r`, 'Reset all', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${platformKey()}+e`, 'Browse collection object', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${platformKey()}+t`, 'Go to new taxon name task', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${platformKey()}+o`, 'Go to browse OTU', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${platformKey()}+m`, 'Go to new type material', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${platformKey()}+b`, 'Go to browse nomenclature', 'Comprehensive digitization task')
+    addShortcutsDescription() {
+      TW.workbench.keyboard.createLegend(
+        `${platformKey()}+s`,
+        'Save',
+        'Comprehensive digitization task'
+      )
+      TW.workbench.keyboard.createLegend(
+        `${platformKey()}+n`,
+        'Save and new',
+        'Comprehensive digitization task'
+      )
+      TW.workbench.keyboard.createLegend(
+        `${platformKey()}+p`,
+        'Add to container',
+        'Comprehensive digitization task'
+      )
+      TW.workbench.keyboard.createLegend(
+        `${platformKey()}+l`,
+        'Lock/Unlock all',
+        'Comprehensive digitization task'
+      )
+      TW.workbench.keyboard.createLegend(
+        `${platformKey()}+r`,
+        'Reset all',
+        'Comprehensive digitization task'
+      )
+      TW.workbench.keyboard.createLegend(
+        `${platformKey()}+e`,
+        'Browse collection object',
+        'Comprehensive digitization task'
+      )
+      TW.workbench.keyboard.createLegend(
+        `${platformKey()}+t`,
+        'Go to new taxon name task',
+        'Comprehensive digitization task'
+      )
+      TW.workbench.keyboard.createLegend(
+        `${platformKey()}+o`,
+        'Go to browse OTU',
+        'Comprehensive digitization task'
+      )
+      TW.workbench.keyboard.createLegend(
+        `${platformKey()}+m`,
+        'Go to new type material',
+        'Comprehensive digitization task'
+      )
+      TW.workbench.keyboard.createLegend(
+        `${platformKey()}+b`,
+        'Go to browse nomenclature',
+        'Comprehensive digitization task'
+      )
     },
 
-    setLockAll () {
+    setLockAll() {
       this.$store.commit(MutationNames.LockAll)
     }
   }
 }
 </script>
 <style lang="scss">
-  #vue-all-in-one {
-    hr {
-        height: 1px;
-        color: #f5f5f5;
-        background: #f5f5f5;
-        font-size: 0;
-        margin: 15px;
-        border: 0;
-    }
-    .modal-container {
-      width: 90vw;
-    }
-    .main-panel {
-      display: flex;
-    }
-    .left-section {
-      max-width: 25%;
-      min-width: 420px;
-    }
-    .ce-section {
-      display: flex;
-      flex-grow: 2;
-    }
-
-    .otu_tag_taxon_name {
-      white-space: pre-wrap !important;
-    }
-
-    textarea {
-      resize: vertical
-    }
+#vue-all-in-one {
+  hr {
+    height: 1px;
+    color: #f5f5f5;
+    background: #f5f5f5;
+    font-size: 0;
+    margin: 15px;
+    border: 0;
   }
+  .modal-container {
+    width: 90vw;
+  }
+  .main-panel {
+    display: flex;
+  }
+  .left-section {
+    max-width: 25%;
+    min-width: 420px;
+  }
+  .ce-section {
+    display: flex;
+    flex-grow: 2;
+  }
+
+  .otu_tag_taxon_name {
+    white-space: pre-wrap !important;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+}
 </style>

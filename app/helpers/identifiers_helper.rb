@@ -7,7 +7,7 @@ module IdentifiersHelper
       if identifier.namespace.is_virtual?
         [
           tag.span(identifier.namespace.short_name, class: [:feedback, 'feedback-thin', 'feedback-light']),
-          tag.span(identifier.cached, title: identifier.type.demodulize.titleize.humanize)
+          tag.span(identifier.identifier, title: identifier.type.demodulize.titleize.humanize)
         ].join('&nbsp;').html_safe
       else
         tag.span(identifier.cached, title: identifier.type.demodulize.titleize.humanize)
@@ -129,11 +129,15 @@ module IdentifiersHelper
 
   def visible_identifiers(object)
     if object.has_identifiers?
-      object.identifiers.visible(Current.project_id)
+
+      if controller
+        object.identifiers.visible(sessions_current_project_id)
+      else
+        object.identifiers.visible(nil)
+      end
     else
       ::Identifier.none
-    end 
+    end
   end
 
 end
-

@@ -4,19 +4,21 @@
       type="button"
       class="button normal-input button-default"
       @click="setModalView(true)"
-      :disabled="!collectingEvent.id">
+      :disabled="!collectingEvent.id"
+    >
       Navigate
     </button>
     <modal-component
       v-if="showModal"
       @close="setModalView(false)"
-      :container-style="{ width: '500px'}">
+      :container-style="{ width: '500px' }"
+    >
       <template #header>
         <h3>Navigate</h3>
       </template>
       <template #body>
-        <p>Current: <span v-html="collectingEvent.object_tag"/></p>
-        <spinner-component v-if="isLoading"/>
+        <p>Current: <span v-html="collectingEvent.object_tag" /></p>
+        <spinner-component v-if="isLoading" />
         <table class="full_width">
           <thead>
             <tr>
@@ -26,14 +28,18 @@
           </thead>
           <tbody>
             <tr
-              v-for="key in Object.keys(navigate.previous_by || navigate.next_by)"
-              :key="key">
+              v-for="key in Object.keys(
+                navigate.previous_by || navigate.next_by
+              )"
+              :key="key"
+            >
               <td>
                 <button
                   type="button"
                   class="button normal-input button-default"
                   :disabled="!navigate.previous_by[key]"
-                  @click="loadCE(navigate.previous_by[key])">
+                  @click="loadCE(navigate.previous_by[key])"
+                >
                   {{ key.replaceAll('_', ' ') }}
                 </button>
               </td>
@@ -42,7 +48,8 @@
                   class="button normal-input button-default"
                   type="button"
                   :disabled="!navigate.next_by[key]"
-                  @click="loadCE(navigate.next_by[key])">
+                  @click="loadCE(navigate.next_by[key])"
+                >
                   {{ key.replaceAll('_', ' ') }}
                 </button>
               </td>
@@ -55,10 +62,9 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal'
-import SpinnerComponent from 'components/spinner'
-import { CollectingEvent } from 'routes/endpoints'
+import ModalComponent from '@/components/ui/Modal'
+import SpinnerComponent from '@/components/spinner'
+import { CollectingEvent } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -76,12 +82,12 @@ export default {
   emits: ['select'],
 
   computed: {
-    collectingEventId () {
+    collectingEventId() {
       return this.collectingEvent.id
     }
   },
 
-  data () {
+  data() {
     return {
       isLoading: false,
       navigate: undefined,
@@ -90,24 +96,26 @@ export default {
   },
 
   watch: {
-    collectingEventId (newVal) {
+    collectingEventId(newVal) {
       if (newVal) {
         this.isLoading = true
-        CollectingEvent.navigation(this.collectingEvent.id).then(response => {
-          this.navigate = response.body
-        }).finally(() => {
-          this.isLoading = false
-        })
+        CollectingEvent.navigation(this.collectingEvent.id)
+          .then((response) => {
+            this.navigate = response.body
+          })
+          .finally(() => {
+            this.isLoading = false
+          })
       }
     }
   },
 
   methods: {
-    setModalView (value) {
+    setModalView(value) {
       this.showModal = value
     },
 
-    loadCE (id) {
+    loadCE(id) {
       this.$emit('select', id)
     }
   }

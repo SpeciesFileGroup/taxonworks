@@ -26,6 +26,11 @@ class BiologicalRelationshipType < ApplicationRecord
   validates_presence_of :type
   validates :biological_property, presence: true
   validates :biological_relationship, presence: true
+
+  def target
+    (self.type =~ /Subject/) ? 'subject' : 'object'
+  end
+
 end
 
 Dir[Rails.root.to_s + '/app/models/biological_relationship_type/**/*.rb'].each { |file| require_dependency file }

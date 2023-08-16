@@ -4,19 +4,24 @@
       <legend>Biocurations</legend>
       <template
         v-for="item in biocutarionsType"
-        :key="item.id">
+        :key="item.id"
+      >
         <template v-if="biologicalId">
           <button
             type="button"
             class="bottom button-submit normal-input biocuration-toggle-button"
             @click="addToQueue(item.id)"
-            v-if="!checkExist(item.id)">{{ item.name }}
+            v-if="!checkExist(item.id)"
+          >
+            {{ item.name }}
           </button>
           <button
             type="button"
             class="bottom button-delete normal-input biocuration-toggle-button"
             @click="removeEntry(item)"
-            v-else>{{ item.name }}
+            v-else
+          >
+            {{ item.name }}
           </button>
         </template>
 
@@ -25,27 +30,35 @@
             type="button"
             class="bottom button-submit normal-input biocuration-toggle-button"
             @click="addToQueue(item.id)"
-            v-if="!checkInQueue(item.id)">{{ item.name }}
+            v-if="!checkInQueue(item.id)"
+          >
+            {{ item.name }}
           </button>
           <button
             type="button"
             class="bottom button-delete normal-input biocuration-toggle-button"
             @click="removeFromQueue(item.id)"
-            v-else>{{ item.name }}
+            v-else
+          >
+            {{ item.name }}
           </button>
         </template>
       </template>
       <a
         v-if="!biocutarionsType.length"
-        :href="getBiocurationTaskRoute()">Manage biocuration classes</a>
+        :href="getBiocurationTaskRoute()"
+        >Manage biocuration classes</a
+      >
     </fieldset>
   </div>
 </template>
 
 <script>
-
-import { RouteNames } from 'routes/routes'
-import { BiocurationClassification, ControlledVocabularyTerm } from 'routes/endpoints'
+import { RouteNames } from '@/routes/routes'
+import {
+  BiocurationClassification,
+  ControlledVocabularyTerm
+} from '@/routes/endpoints'
 
 export default {
   props: {
@@ -55,7 +68,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       biocutarionsType: [],
       addQueue: [],
@@ -63,22 +76,26 @@ export default {
     }
   },
 
-  created () {
-    ControlledVocabularyTerm.where({ type: ['BiocurationClass'] }).then(response => {
-      this.biocutarionsType = response.body
-    })
+  created() {
+    ControlledVocabularyTerm.where({ type: ['BiocurationClass'] }).then(
+      (response) => {
+        this.biocutarionsType = response.body
+      }
+    )
   },
 
   watch: {
     biologicalId: {
-      handler (newVal, oldVal) {
+      handler(newVal, oldVal) {
         this.createdBiocutarions = []
         if (newVal && oldVal == undefined) {
           this.processQueue()
         }
         if (newVal != undefined && newVal != oldVal) {
           this.addQueue = []
-          BiocurationClassification.where({ biological_collection_object_id: newVal }).then(response => {
+          BiocurationClassification.where({
+            biological_collection_object_id: newVal
+          }).then((response) => {
             this.createdBiocutarions = response.body
           })
         }
@@ -87,7 +104,7 @@ export default {
     },
 
     addQueue: {
-      handler () {
+      handler() {
         if (this.biologicalId && this.addQueue.length) {
           this.processQueue()
         }
@@ -97,44 +114,55 @@ export default {
   },
 
   methods: {
-    getBiocurationTaskRoute () {
+    getBiocurationTaskRoute() {
       return RouteNames.ManageBiocurationTask
     },
 
-    addToQueue (biocuration) {
+    addToQueue(biocuration) {
       this.addQueue.push(biocuration)
     },
 
-    processQueue () {
+    processQueue() {
       this.addQueue.forEach((id) => {
-        BiocurationClassification.create(this.createBiocurationObject(id)).then(response => {
-          this.createdBiocutarions.push(response.body)
-        })
+        BiocurationClassification.create(this.createBiocurationObject(id)).then(
+          (response) => {
+            this.createdBiocutarions.push(response.body)
+          }
+        )
         this.addQueue = []
       })
     },
 
-    checkExist (id) {
-      return !!this.createdBiocutarions.find((bio) => id === bio.biocuration_class_id)
+    checkExist(id) {
+      return !!this.createdBiocutarions.find(
+        (bio) => id === bio.biocuration_class_id
+      )
     },
 
-    checkInQueue (id) {
+    checkInQueue(id) {
       return !!this.addQueue.find((biocurationId) => id === biocurationId)
     },
 
-    removeFromQueue (id) {
-      this.addQueue.splice(this.addQueue.findIndex((itemId) => itemId === id), 1)
+    removeFromQueue(id) {
+      this.addQueue.splice(
+        this.addQueue.findIndex((itemId) => itemId === id),
+        1
+      )
     },
 
-    removeEntry (biocurationClass) {
-      const index = this.createdBiocutarions.findIndex((item) => item.biocuration_class_id === biocurationClass.id)
+    removeEntry(biocurationClass) {
+      const index = this.createdBiocutarions.findIndex(
+        (item) => item.biocuration_class_id === biocurationClass.id
+      )
 
-      BiocurationClassification.destroy(this.createdBiocutarions[index].id).then(response => {
+      BiocurationClassification.destroy(
+        this.createdBiocutarions[index].id
+      ).then((response) => {
         this.createdBiocutarions.splice(index, 1)
       })
     },
 
-    createBiocurationObject (id) {
+    createBiocurationObject(id) {
       return {
         biocuration_classification: {
           biocuration_class_id: id,
@@ -147,12 +175,12 @@ export default {
 </script>
 
 <style>
-  .biocuration-toggle-button {
-    min-width: 60px;
-    border: 0px;
-    margin-right: 6px;
-    margin-bottom: 6px;
-    border-top-left-radius: 14px;
-    border-bottom-left-radius: 14px;
-  }
+.biocuration-toggle-button {
+  min-width: 60px;
+  border: 0px;
+  margin-right: 6px;
+  margin-bottom: 6px;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+}
 </style>

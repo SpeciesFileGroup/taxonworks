@@ -75,19 +75,20 @@ function bind_new_topic_link(form) {
 }
 
 function insert_new_topic(form) {
-  var base_class = 'citation'; 
-  var random_index = new Date().getTime(); 
-  var citation_topic_base = base_class + '[citation_topics_attributes][' + random_index + ']';
-  var topic_base = citation_topic_base + '[topic_attributes]'; 
-  var citation_topic_list = form.find(".citation_topic_list");
+  const base_class = 'citation'; 
+  const random_index = new Date().getTime(); 
+  const citation_topic_base = base_class + '[citation_topics_attributes][' + random_index + ']';
+  const topic_base = citation_topic_base + '[topic_attributes]'; 
+  const citation_topic_list = form.find(".citation_topic_list");
   
-  var name = form.find('.citation_topic_autocomplete').val();
+  const name = escapeHtml(form.find('.citation_topic_autocomplete').val());
+  const definition = escapeHtml(form.find(".definition").val())
 
   citation_topic_list.append(
       $('<li class="citation_topic_item" data-new-topic="true" data-topic-index="' + random_index + '" >')
       .append('<div><div>' + name + '</div><input name="' + citation_topic_base + '[pages]" placeholder="Pages"></div>')
-      .append( $('<input hidden name="' + topic_base + '[name]" value="' + name + '" >') )
-      .append( $('<input hidden name="' + topic_base + '[definition]" value="' + form.find(".definition").val() + '" >') )
+      .append($('<input hidden name="' + topic_base + '[name]" value="' + name + '" >'))
+      .append($('<input hidden name="' + topic_base + '[definition]" value="' + definition + '" >'))
 
       .append(remove_citation_topic_link())
       );
@@ -103,7 +104,7 @@ function remove_citation_topic_link() {
 
 function bind_topic_label_mirroring(form) {
   form.find(".citation_topic_picker_topic_form input").on("change keyup", function () {
-    form.find(".name_label").html(
+    form.find(".name_label").text(
       form.find(".name").val()
     );
   });

@@ -5,7 +5,7 @@
         v-model="selectedCOIds"
         :value="collectionObject.id"
         type="checkbox"
-      >
+      />
     </td>
     <td>
       {{ collectionObject.id }}
@@ -53,19 +53,34 @@
       <span v-html="collectionObject.object_tag" />
     </td>
     <td>
+      <div class="horizontal-left-content middle">
+        <span v-html="collectionObject.bufferedDeterminations" />
+        <VIcon
+          v-if="selectedLabel !== collectionObject.bufferedDeterminations"
+          class="margin-small-left"
+          title="Whitespace difference"
+          name="attention"
+          color="attention"
+          small
+        />
+      </div>
+    </td>
+    <td>
       <RadialNavigator :global-id="collectionObject.global_id" />
     </td>
   </tr>
 </template>
 
 <script setup>
-
 import { computed, ref } from 'vue'
+import useStore from '../../composables/useStore'
 import CollectionObjectDwc from './CollectionObjectDwc.vue'
-import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
-import RadialNavigator from 'components/radials/navigation/radial.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+
+const { selectedLabel } = useStore()
 
 const props = defineProps({
   modelValue: {
@@ -85,13 +100,12 @@ const isImageColumnVisible = ref(false)
 const isDwCVisible = ref(false)
 
 const selectedCOIds = computed({
-  get () {
+  get() {
     return props.modelValue
   },
 
-  set (value) {
+  set(value) {
     emit('update:modelValue', value)
   }
 })
-
 </script>

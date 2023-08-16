@@ -11,14 +11,18 @@
       </thead>
       <transition-group
         name="list-complete"
-        tag="tbody">
+        tag="tbody"
+      >
         <tr
           v-for="item in list"
           :key="item.id"
-          class="list-complete-item">
-          <td v-html="item.biological_association_object_id === metadata.object_id ? item.biological_relationship.inverted_name : item.biological_relationship.name"/>
-          <td v-html="getSubjectOrObject(item)"/>
-          <td>{{ item.biological_association_object_id === metadata.object_id }}</td>
+          class="list-complete-item"
+        >
+          <td v-html="item.biological_relationship.object_tag" />
+          <td v-html="getSubjectOrObject(item)" />
+          <td>
+            {{ item.biological_association_object_id === metadata.object_id }}
+          </td>
           <td>
             <div class="vue-table-options">
               <citation-count
@@ -28,11 +32,13 @@
               />
               <span
                 class="circle-button btn-edit"
-                @click="$emit('edit', item)"/>
-              <radial-annotator :global-id="item.global_id"/>
+                @click="$emit('edit', item)"
+              />
+              <radial-annotator :global-id="item.global_id" />
               <span
                 class="circle-button btn-delete"
-                @click="deleteItem(item)">Remove
+                @click="deleteItem(item)"
+                >Remove
               </span>
             </div>
           </td>
@@ -42,8 +48,7 @@
   </div>
 </template>
 <script>
-
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import CitationCount from '../shared/citationsCount.vue'
 
 export default {
@@ -63,23 +68,24 @@ export default {
     }
   },
 
-  emits: [
-    'delete',
-    'edit'
-  ],
+  emits: ['delete', 'edit'],
 
   methods: {
-    deleteItem (item) {
-      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+    deleteItem(item) {
+      if (
+        window.confirm(
+          "You're trying to delete this record. Are you sure want to proceed?"
+        )
+      ) {
         this.$emit('delete', item)
       }
     },
-    getSubjectOrObject (item) {
+    getSubjectOrObject(item) {
       return item.biological_association_object_id === this.metadata.object_id
         ? item.subject.object_tag
         : item.object.object_tag
     },
-    getCitationString (object) {
+    getCitationString(object) {
       if (object.hasOwnProperty('origin_citation')) {
         let citation = object.origin_citation.source.cached_author_string
         if (object.origin_citation.source.hasOwnProperty('year'))
@@ -92,27 +98,27 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-
-  .vue-table {
-    width: 100%;
-    .vue-table-options {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-    }
-    tr {
-      cursor: default;
-    }
+.vue-table {
+  width: 100%;
+  .vue-table-options {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
   }
-
-  .list-complete-item {
-    justify-content: space-between;
-    transition: all 0.5s, opacity 0.2s;
+  tr {
+    cursor: default;
   }
+}
 
-  .list-complete-enter-active, .list-complete-leave-active {
-    opacity: 0;
-    font-size: 0px;
-    border: none;
-  }
+.list-complete-item {
+  justify-content: space-between;
+  transition: all 0.5s, opacity 0.2s;
+}
+
+.list-complete-enter-active,
+.list-complete-leave-active {
+  opacity: 0;
+  font-size: 0px;
+  border: none;
+}
 </style>

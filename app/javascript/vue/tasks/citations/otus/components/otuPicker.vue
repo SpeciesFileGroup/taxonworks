@@ -10,7 +10,8 @@
     </div>
     <modal
       @close="showModal = false"
-      v-if="showModal">
+      v-if="showModal"
+    >
       <template #header>
         <h3>Select OTU</h3>
       </template>
@@ -22,7 +23,8 @@
           placeholder="Find OTU"
           @getItem="loadOtu($event.id)"
           label="label"
-          :autofocus="true"/>
+          :autofocus="true"
+        />
       </template>
     </modal>
   </div>
@@ -31,13 +33,13 @@
 <script>
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { Otu } from 'routes/endpoints'
+import { Otu } from '@/routes/endpoints'
 
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import Modal from 'components/ui/Modal.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
+import Modal from '@/components/ui/Modal.vue'
 
 export default {
-  data () {
+  data() {
     return {
       showModal: false
     }
@@ -49,12 +51,12 @@ export default {
   },
 
   computed: {
-    otu () {
+    otu() {
       return this.$store.getters[GetterNames.GetOtuSelected]
     }
   },
 
-  created () {
+  created() {
     const urlParams = new URLSearchParams(window.location.search)
     const otuId = urlParams.get('otu_id')
 
@@ -64,8 +66,8 @@ export default {
   },
 
   methods: {
-    loadOtu (id) {
-      Otu.find(id).then(response => {
+    loadOtu(id) {
+      Otu.find(id).then((response) => {
         this.$store.commit(MutationNames.SetOtuSelected, response.body)
         this.showModal = false
       })

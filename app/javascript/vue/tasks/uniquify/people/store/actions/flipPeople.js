@@ -1,4 +1,4 @@
-import { addToArray } from "helpers/arrays"
+import { addToArray } from '@/helpers/arrays'
 
 export default ({ dispatch, commit, state }, mergePersonIndex) => {
   const selected = Object.assign({}, state.selectedPerson)

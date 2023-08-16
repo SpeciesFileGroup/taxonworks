@@ -1,0 +1,34 @@
+<% content_for :warn_level do -%>
+  <%= warn_level_input(@result) -%>
+<% end %>
+
+<%= content_for :batch_form do -%>
+  <%= render partial: '/taxon_names/batch_load/nomen/form', locals: {url: create_nomen_batch_load_taxon_names_path, submit: :create} -%>
+<% end %>
+
+<%= content_for :line_breakdown do -%>
+  <%= content_tag :div, 'Parent related error messages can be (largely) ignored. The parent is dynamically set on create.', class: [:feedback, 'feedback-warning'] %>
+  <table class="top_align_text">
+    <tr>
+      <th class="four_character_width">Line</th>
+      <th class="four_character_width">Data count</th>
+      <th> Name(s) </th>
+      <th> Data errors* </th>
+      <th> Parse errrors </th>
+    </tr>
+
+    <% @result.sorted_processed_rows.each do |i, rp| -%>
+      <tr>
+        <%= batch_line_link_td(i) -%>
+        <%= batch_all_objects_count_td(rp) -%>
+        <td>
+          <%= nomen_row_object_preview(rp.objects[:taxon_name]) %>
+        </td>
+        <%= batch_data_errors_td(rp) -%>
+        <%= batch_parse_errors_td(rp) -%>
+      /tr>
+    <% end -%>
+  </table>
+<% end %>
+
+<%= render partial: '/shared/data/all/batch_load/preview' -%>

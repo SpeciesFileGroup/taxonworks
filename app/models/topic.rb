@@ -1,4 +1,4 @@
-# A Topic is a user defined subject.  It is used in conjuction with a citation on an OTU.  
+# A Topic is a user defined subject.  It is used in conjuction with a citation on an OTU.
 # Topics assert that "this source says something about this taxon on this topic."
 #
 class Topic < ControlledVocabularyTerm
@@ -24,9 +24,10 @@ class Topic < ControlledVocabularyTerm
 
   # TODO: Deprecate for CVT + params (if not already done)
   def self.find_for_autocomplete(params)
-    term = "#{params[:term]}%"
-    where_string = "name LIKE '#{term}' OR name ILIKE '%#{term}' OR name = '#{term}' OR definition ILIKE '%#{term}'"
-    ControlledVocabularyTerm.where(where_string).where(project_id: params[:project_id], type: 'Topic')
+    term = params[:term]
+    ControlledVocabularyTerm
+      .where('name ILIKE ? OR name = ? OR definition ILIKE ?', "%#{term}%", term, "%#{term}%")
+      .where(project_id: params[:project_id], type: 'Topic')
   end
 
   # @param used_on [String] one of `Citation` (default) or `Content`
@@ -43,11 +44,11 @@ class Topic < ControlledVocabularyTerm
     p = Topic.arel_table
 
     # i is a select manager
-    i = t.project(t['topic_id'], t['created_at']).from(t)
-      .where(t['created_at'].gt(10.weeks.ago))
-      .where(t['created_by_id'].eq(user_id))
+    i = t.project(t['topic_id'], t['updated_at']).from(t)
+      .where(t['updated_at'].gt(10.weeks.ago))
+      .where(t['updated_by_id'].eq(user_id))
       .where(t['project_id'].eq(project_id))
-      .order(t['created_at'].desc)
+      .order(t['updated_at'].desc)
 
     # z is a table alias
     z = i.as('recent_t')

@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'tags'
 const permitParams = {
@@ -23,7 +23,8 @@ const permitParams = {
 export const Tag = {
   ...baseCRUD(controller, permitParams),
 
-  createBatch: (params) => AjaxCall('post', `/${controller}/batch_create`, params),
+  createBatch: (params) =>
+    AjaxCall('post', `/${controller}/batch_create`, params),
 
   exists: (params) => AjaxCall('get', `/${controller}/exists`, { params })
 }

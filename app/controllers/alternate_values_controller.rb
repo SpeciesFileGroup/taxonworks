@@ -23,7 +23,8 @@ class AlternateValuesController < ApplicationController
         @alternate_values = Queries::AlternateValue::Filter.new(
           params.merge(project_id: sessions_current_project_id)
         )
-        .all.page(params[:page]).per(500)
+        .all.page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -117,7 +118,7 @@ class AlternateValuesController < ApplicationController
 
   def set_alternate_value
     @alternate_value = AlternateValue.find(params[:id])
-    render status: 404 if !@alternate_value.project_id.blank? && (sessions_current_project_id != @alternate_value.project_id)
+    render status: :not_found if @alternate_value.project_id.present? && (sessions_current_project_id != @alternate_value.project_id)
   end
 
   def alternate_value_params

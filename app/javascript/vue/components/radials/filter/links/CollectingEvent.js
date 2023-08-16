@@ -1,12 +1,18 @@
+// Update corresponding at SUBQUERIES in /lib/queries/query/filter.rb
+import {
+  FILTER_BIOLOGICAL_ASSOCIATION,
+  FILTER_COLLECTION_OBJECT,
+  FILTER_OTU,
+  FILTER_SOURCE,
+  FILTER_TAXON_NAME,
+  FILTER_IMAGE,
+} from '../constants/filterLinks'
+
 export const CollectingEvent = [
-  {
-    label: 'By collection object',
-    link: '/tasks/collecting_events/filter',
-    params: ['collection_object_id']
-  },
-  {
-    label: 'By geographic area',
-    link: '/tasks/collecting_events/filter',
-    params: ['geographic_area_id']
-  }
+  FILTER_BIOLOGICAL_ASSOCIATION,
+  FILTER_COLLECTION_OBJECT,
+  FILTER_OTU,
+  FILTER_SOURCE,
+  FILTER_TAXON_NAME,
+  FILTER_IMAGE,
 ]

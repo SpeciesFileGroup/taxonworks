@@ -30,7 +30,7 @@ describe Otu, type: :model, group: :otu do
       o0 = Otu.create(taxon_name: t)
       o1 = Otu.create(taxon_name: t)
       o2 = Otu.create(taxon_name: t1)
-      expect(o2.parent_otu_id).to eq(false)
+      expect(o2.parent_otu_id).to eq(o0.id)
     end
 
     specify '#parent_otu_id 3' do
@@ -232,6 +232,7 @@ describe Otu, type: :model, group: :otu do
     let(:s) { FactoryBot.create(:valid_specimen) }
     let!(:content) { FactoryBot.create(:valid_content, otu: otu) }
     let!(:biological_association) { FactoryBot.create(:valid_biological_association, biological_association_subject: o2, biological_association_object: otu) }
+    
     let!(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution, otu: otu) }
 
     specify ".used_recently('Content')" do

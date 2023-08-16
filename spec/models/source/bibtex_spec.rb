@@ -21,7 +21,6 @@ describe Source::Bibtex, type: :model, group: :sources do
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
   }
 
-
   specify '.new_from_bibtex with ISSN for serial and no matching Serial creates Serial and Identifier' do
     citation_string =  %q{@Article{Park2021a,
         author = {Kyu-Tek Park AND J. B. Heppner},
@@ -724,6 +723,8 @@ describe Source::Bibtex, type: :model, group: :sources do
         expect(Person.count).to eq(0)
       end
     end
+
+
   end
 
   context 'instance methods - ' do

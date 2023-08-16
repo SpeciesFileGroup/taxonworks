@@ -1,4 +1,4 @@
-import ParseDMS from 'helpers/parseDMS'
+import ParseDMS from '@/helpers/parseDMS'
 
 export default (longitude, latitude) => {
   return {

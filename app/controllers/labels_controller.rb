@@ -12,7 +12,10 @@ class LabelsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @labels = Label.where(filter_params).with_project_id(sessions_current_project_id)
+        @labels = Label.where(filter_params)
+        .with_project_id(sessions_current_project_id)
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -82,7 +85,7 @@ class LabelsController < ApplicationController
   end
 
   def filter_params
-    params.permit(:label_object_id, :label_object_type) 
+    params.permit(:label_object_id, :label_object_type)
   end
 
   def label_params

@@ -10,11 +10,15 @@
       arrow
     >
       <template #content>
-        <span>Create citation with: {{ getDefaultElement().firstChild.firstChild.textContent }}</span>
+        <span
+          >Create citation with:
+          {{ getDefaultElement().firstChild.firstChild.textContent }}</span
+        >
       </template>
       <div
         class="circle-button button-submit btn-citation"
-        @click="createCitation()"/>
+        @click="createCitation()"
+      />
     </tippy>
 
     <tippy
@@ -27,21 +31,25 @@
       arrow
     >
       <template #content>
-        <span>Remove citation: {{ getDefaultElement().firstChild.firstChild.textContent }}</span>
+        <span
+          >Remove citation:
+          {{ getDefaultElement().firstChild.firstChild.textContent }}</span
+        >
       </template>
       <div
         class="circle-button btn-delete btn-citation"
-        @click="deleteCitation()"/>
+        @click="deleteCitation()"
+      />
     </tippy>
   </div>
   <div
     v-else
-    class="btn-citation circle-button btn-disabled"/>
+    class="btn-citation circle-button btn-disabled"
+  />
 </template>
 
 <script>
-
-import { Citation } from 'routes/endpoints'
+import { Citation } from '@/routes/endpoints'
 import { Tippy } from 'vue-tippy'
 
 export default {
@@ -60,7 +68,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       citationItem: undefined,
       sourceId: this.getDefault(),
@@ -68,8 +76,10 @@ export default {
     }
   },
 
-  created () {
-    const citationCreated = this.citations.find(item => item.source_id === Number(this.sourceId))
+  created() {
+    const citationCreated = this.citations.find(
+      (item) => item.source_id === Number(this.sourceId)
+    )
     if (citationCreated) {
       this.citationItem = citationCreated
       this.created = true
@@ -83,30 +93,40 @@ export default {
   },
 
   methods: {
-    getDefault () {
+    getDefault() {
       const defaultSource = this.getDefaultElement()
-      return defaultSource ? defaultSource.getAttribute('data-pinboard-object-id') : undefined
+      return defaultSource
+        ? defaultSource.getAttribute('data-pinboard-object-id')
+        : undefined
     },
-    getDefaultElement () {
-      return document.querySelector('[data-pinboard-section="Sources"] [data-insert="true"]')
+    getDefaultElement() {
+      return document.querySelector(
+        '[data-pinboard-section="Sources"] [data-insert="true"]'
+      )
     },
-    createCitation () {
+    createCitation() {
       const citation = {
         source_id: this.sourceId,
         annotated_global_entity: this.globalId,
         is_original: true
       }
 
-      Citation.create({ citation }).then(response => {
+      Citation.create({ citation }).then((response) => {
         this.created = true
         this.citationItem = response.body
-        TW.workbench.alert.create('Citation item was successfully created.', 'notice')
+        TW.workbench.alert.create(
+          'Citation item was successfully created.',
+          'notice'
+        )
       })
     },
-    deleteCitation () {
+    deleteCitation() {
       Citation.destroy(this.citationItem.id).then(() => {
         this.created = false
-        TW.workbench.alert.create('Citation item was successfully destroyed.', 'notice')
+        TW.workbench.alert.create(
+          'Citation item was successfully destroyed.',
+          'notice'
+        )
       })
     }
   }

@@ -5,12 +5,14 @@
       class="button normal-input button-submit"
       :disabled="!taxon.id || isSaving"
       v-hotkey="shortcuts"
-      @click="showModal = true">
+      @click="showModal = true"
+    >
       Clone
     </button>
     <modal-component
       v-show="showModal"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>Clone taxon name</h3>
       </template>
@@ -21,32 +23,38 @@
         <ul class="no_bullets">
           <li
             v-for="field in fieldsToCopy"
-            :key="field.value">
+            :key="field.value"
+          >
             <label>
               <input
                 v-model="copyValues"
                 :value="field.value"
                 :disabled="field.lock"
-                type="checkbox">
+                type="checkbox"
+              />
               {{ field.label }}
             </label>
           </li>
         </ul>
-        <p>Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.</p>
+        <p>
+          Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.
+        </p>
         <input
           type="text"
           class="full_width"
           v-model="inputValue"
           @keypress.enter.prevent="cloneTaxon()"
           ref="inputtext"
-          :placeholder="`Write ${checkWord} to continue`">
+          :placeholder="`Write ${checkWord} to continue`"
+        />
       </template>
       <template #footer>
-        <button 
+        <button
           type="button"
           class="button normal-input button-submit"
           :disabled="checkInput"
-          @click="cloneTaxon()">
+          @click="cloneTaxon()"
+        >
           Clone
         </button>
       </template>
@@ -55,35 +63,36 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
-import ModalComponent from 'components/ui/Modal.vue'
-import platformKey from 'helpers/getPlatformKey'
+import ModalComponent from '@/components/ui/Modal.vue'
+import platformKey from '@/helpers/getPlatformKey'
 
 export default {
   components: {
     ModalComponent
   },
   computed: {
-    shortcuts () {
+    shortcuts() {
       const keys = {}
 
-      keys[`${platformKey()}+l`] = () => { this.showModal = this.taxon.id && !this.isSaving }
+      keys[`${platformKey()}+l`] = () => {
+        this.showModal = this.taxon.id && !this.isSaving
+      }
 
       return keys
     },
-    taxon () {
+    taxon() {
       return this.$store.getters[GetterNames.GetTaxon]
     },
-    checkInput () {
+    checkInput() {
       return this.inputValue.toUpperCase() !== this.checkWord
     },
-    isSaving () {
+    isSaving() {
       return this.$store.getters[GetterNames.GetSaving]
     }
   },
-  data () {
+  data() {
     return {
       showModal: false,
       inputValue: '',
@@ -150,7 +159,7 @@ export default {
 
   watch: {
     showModal: {
-      handler (newVal) {
+      handler(newVal) {
         if (newVal) {
           this.$nextTick(() => {
             this.$refs.inputtext.focus()
@@ -160,12 +169,14 @@ export default {
     }
   },
 
-  mounted () {
-    this.copyValues = this.fieldsToCopy.filter(item => item.default).map(item => item.value)
+  mounted() {
+    this.copyValues = this.fieldsToCopy
+      .filter((item) => item.default)
+      .map((item) => item.value)
   },
 
   methods: {
-    cloneTaxon () {
+    cloneTaxon() {
       if (!this.checkInput) {
         this.$store.dispatch(ActionNames.CloneTaxon, this.copyValues)
       }

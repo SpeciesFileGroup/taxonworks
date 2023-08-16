@@ -19,13 +19,15 @@ module Shared::OriginRelationship
   extend ActiveSupport::Concern
 
   included do
+    ::OriginRelationship.related_foreign_keys.push self.name.foreign_key
+
     related_class = self.name
 
     attr_accessor :origin
 
     # These are technically only necessary on the new side, but are OK to spam on the old side (some of which need it)
-    has_many :origin_relationships, as: :old_object, validate: true, dependent: :destroy
-    has_many :related_origin_relationships, class_name: 'OriginRelationship', as: :new_object, validate: true, dependent: :destroy
+    has_many :origin_relationships, as: :old_object, dependent: :destroy
+    has_many :related_origin_relationships, class_name: 'OriginRelationship', as: :new_object, dependent: :destroy
 
     accepts_nested_attributes_for :origin_relationships, reject_if: :reject_origin_relationships
 

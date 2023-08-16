@@ -2,10 +2,7 @@
   <div class="radial-annotator">
     <modal
       v-if="isVisible"
-      :container-style="{
-        backgroundColor: 'transparent',
-        boxShadow: 'none'
-      }"
+      transparent
       @close="closeModal"
     >
       <template #header>
@@ -18,7 +15,7 @@
         <div class="flex-separate">
           <div class="radial-annotator-menu">
             <div>
-              <radial-menu 
+              <radial-menu
                 :options="menuOptions"
                 @on-click="createLabels"
               />
@@ -29,14 +26,14 @@
     </modal>
     <VBtn
       class="circle-button"
-      color="primary"
-      title="Radial filter"
+      color="radial"
+      title="Radial label"
       circle
       :disabled="disabled"
       @click="openRadialMenu()"
     >
       <VIcon
-        title="Radial filter"
+        title="Radial label"
         name="label"
         x-small
       />
@@ -46,11 +43,11 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import Modal from 'components/ui/Modal.vue'
-import AjaxCall from 'helpers/ajaxCall'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import Modal from '@/components/ui/Modal.vue'
+import AjaxCall from '@/helpers/ajaxCall'
 import * as SLICES from './model/index.js'
 
 const props = defineProps({
@@ -73,7 +70,7 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 const menuOptions = computed(() => {
   const labels = SLICES[props.objectType]
-  const slices = labels.map(item => addSlice(item))
+  const slices = labels.map((item) => addSlice(item))
 
   return {
     width: 400,
@@ -95,7 +92,7 @@ const menuOptions = computed(() => {
 
 const isVisible = ref(false)
 
-function addSlice ({ label, link }) {
+function addSlice({ label, link }) {
   return {
     label,
     name: link,
@@ -105,24 +102,25 @@ function addSlice ({ label, link }) {
   }
 }
 
-function closeModal () {
+function closeModal() {
   isVisible.value = false
   emit('close')
 }
 
-function openRadialMenu () {
+function openRadialMenu() {
   isVisible.value = true
 }
 
-function createLabels ({ name }) {
-  const { link, param } = SLICES[props.objectType].find(slice => slice.link === name)
+function createLabels({ name }) {
+  const { link, param } = SLICES[props.objectType].find(
+    (slice) => slice.link === name
+  )
 
-  AjaxCall('post', link, { [param]: props.ids }).then(_ => {
+  AjaxCall('post', link, { [param]: props.ids }).then((_) => {
     TW.workbench.alert.create('Label was successfully created.', 'notice')
     closeModal()
   })
 }
-
 </script>
 
 <script>

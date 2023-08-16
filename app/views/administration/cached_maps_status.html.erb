@@ -1,0 +1,42 @@
+<%= content_for :head do -%>
+  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js",
+    "https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"  %>
+<% end %>
+
+<h1> Administration - Cached Map Status </h1>
+
+<%= link_to 'Back', administration_path() %>
+
+<div class="flexbox separate-bottom flex-wrap-row">
+  <div class="panel content">
+    <h2> Cached maps </h2>
+    <table>
+      <tr><td>Built</td><td><%= tag.strong CachedMap.count %></td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="flexbox separate-bottom flex-wrap-row">
+  <div class="panel content">
+    <h2> AssertedDistribution </h2>
+    <table>
+      <tr><td>Total</td><td><%= tag.strong AssertedDistribution.count %></td></tr>
+      <tr><td>Unregistered</td><td><%= tag.strong AssertedDistribution.where.missing(:cached_map_register).count %></td></tr>
+      <tr><td>Registered</td><td><%= tag.strong AssertedDistribution.joins(:cached_map_register).count %></td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="flexbox separate-bottom flex-wrap-row">
+  <div class="panel content">
+    <h2> Georeferences </h2>
+    <table>
+      <tr><td>Total</td><td><%= tag.strong Georeference.count %></td></tr>
+      <tr><td>Total with OTUs</td><td><%= tag.strong Georeference.joins(:otus).distinct.count %></td></tr>
+      <tr><td>Unregistered</td><td><%= tag.strong Georeference.joins(:otus).where.missing(:cached_map_register).distinct.count %></td></tr>
+      <tr><td>Registered</td><td><%= tag.strong Georeference.joins(:cached_map_register).distinct.count %></td></tr>
+      <tr><td>Unused (no OTUs)</td><td><%= tag.strong Georeference.where.missing(:otus).distinct.count %></td></tr>
+    </table>
+  </div>
+</div>
+
