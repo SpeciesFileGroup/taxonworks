@@ -5,26 +5,27 @@
       <legend>Keyword</legend>
       <smart-selector
         autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-        :autocomplete-params="{'type[]' : 'Keyword'}"
+        :autocomplete-params="{ 'type[]': 'Keyword' }"
         get-url="/controlled_vocabulary_terms/"
         model="keywords"
         klass="Tag"
         target="CollectingEvent"
-        @selected="addTag"/>
+        @selected="addTag"
+      />
       <display-list
         label="object_tag"
         :list="list"
         soft-delete
         :delete-warning="false"
-        @deleteIndex="removeTag"/>
+        @deleteIndex="removeTag"
+      />
     </fieldset>
   </div>
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
-import DisplayList from 'components/displayList'
+import SmartSelector from '@/components/ui/SmartSelector'
+import DisplayList from '@/components/displayList'
 
 export default {
   components: {
@@ -41,21 +42,21 @@ export default {
 
   computed: {
     list: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
   },
 
   methods: {
-    addTag (tag) {
+    addTag(tag) {
       this.list.push(tag)
     },
 
-    removeTag (index) {
+    removeTag(index) {
       this.list.splice(index, 1)
     }
   }

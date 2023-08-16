@@ -29,10 +29,11 @@ class Language < ApplicationRecord
   has_many :alternate_value_translations, class_name: 'AlternateValue::Translation'
 
   scope :used_recently_on_sources, -> { joins(sources: [:project_sources]).includes(sources: [:project_sources]).where(sources: { updated_at: 10.weeks.ago..Time.now } ).order('"sources"."updated_at" DESC') }
-  
- 
-  # TODO: dry 
+
+
+  # TODO: dry
   scope :used_recently_on_serials, -> { joins(:serials).includes(:serials).where(serials: { updated_at: 10.weeks.ago..Time.now } ).order('"serials"."updated_at" DESC') }
+  scope :used_recently_on_common_names, -> { joins(:common_names).includes(:common_names).where(common_names: { updated_at: 10.weeks.ago..Time.now } ).order('"serials"."updated_at" DESC') }
   scope :used_recently_on_alternate_values, -> { joins(:alternate_value_translations).includes(:alternate_value_translations).where(alternate_values: { updated_at: 10.weeks.ago..Time.now } ).order('"alternate_values"."updated_at" DESC') }
 
   scope :with_english_name_containing, ->(name) {where('english_name ILIKE ?', "%#{name}%")}  # non-case sensitive comparison
@@ -51,32 +52,27 @@ class Language < ApplicationRecord
   end
 
   def self.find_for_autocomplete(params)
-    term = "#{params[:term]}%"
-    where('english_name ILIKE ? OR english_name = ?', term, params[:term])
+    where('english_name ILIKE ? OR english_name = ?', "#{params[:term]}%", params[:term])
   end
 
   # @param klass ['Source' || 'Serial']
   def self.select_optimized(user_id, project_id, klass = 'Source')
-    recent = if klass == 'Source'
-               Language.used_recently_on_sources.where('project_sources.project_id = ? AND sources.updated_by_id = ?', project_id, user_id).distinct.limit(10)
-             elsif klass == 'Serial'
-               Language.used_recently_on_serials.where('serials.updated_by_id = ?', user_id).distinct.limit(10).to_a
-             end
+    language_ids = case klass
+                   when 'Source'
+                     Language.used_recently_on_sources.where('project_sources.project_id = ? AND sources.updated_by_id = ?', project_id, user_id).pluck(:id).uniq
+                   when 'Serial'
+                     Language.used_recently_on_serials.where('serials.updated_by_id = ?', user_id).pluck(:id).uniq
+                   when 'AlternateValue'
+                     Language.used_recently_on_alternate_values.where('alternate_values.updated_by_id = ?', user_id).pluck(:id).uniq
+                   when 'CommonNames'
+                     Language.used_recently_on_alternate_values.where('alternate_values.updated_by_id = ?', user_id).pluck(:id).uniq
+                   end
+
     h = {
-      recent: recent,
-      pinboard: Language.pinned_by(user_id).pinned_in_project(project_id).to_a
+      recent: Language.where(id: language_ids.first(10)).order(:english_name).to_a,
+      pinboard: Language.pinned_by(user_id).pinned_in_project(project_id).to_a,
+      quick: (Language.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a + Language.where(id: language_ids.first(4)).order(:english_name).to_a).uniq
     }
-
-    quick = if klass == 'Source'
-              Language.used_recently_on_sources.where('project_sources.project_id = ? AND sources.updated_by_id = ?', project_id, user_id).distinct.limit(4)
-            elsif klass == 'Serial'
-              Language.used_recently_on_serials.where('serials.updated_by_id = ?', user_id).distinct.limit(4).to_a
-            elsif klass == 'AlternateValue'
-              Language.used_recently_on_alternate_values.where('alternate_values.updated_by_id = ?', user_id).distinct.limit(4).to_a
-            end
-
-    h[:quick] = (Language.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + quick).uniq
     h
   end
-
 end

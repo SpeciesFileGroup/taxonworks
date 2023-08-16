@@ -1,9 +1,12 @@
 import { MutationNames } from '../mutations/mutations'
-import { Observation } from 'routes/endpoints'
+import { Observation } from '@/routes/endpoints'
 import ObservationTypes from '../../helpers/ObservationTypes'
 
-export default function ({ state, commit }, { rowObjectId, rowObjectType, observationId }) {
-  const observation = state.observations.find(o => o.id === observationId)
+export default function (
+  { state, commit },
+  { rowObjectId, rowObjectType, observationId }
+) {
+  const observation = state.observations.find((o) => o.id === observationId)
 
   commit(MutationNames.SetRowObjectSaving, {
     rowObjectId,
@@ -11,8 +14,10 @@ export default function ({ state, commit }, { rowObjectId, rowObjectType, observ
     isSaving: true
   })
 
-  return Observation.update(observation.id, { observation: makePayload(observation) })
-    .then(_ => {
+  return Observation.update(observation.id, {
+    observation: makePayload(observation)
+  }).then(
+    (_) => {
       commit(MutationNames.SetObservation, {
         ...observation,
         isUnsaved: false
@@ -34,17 +39,19 @@ export default function ({ state, commit }, { rowObjectId, rowObjectType, observ
         rowObjectType
       })
       return true
-    }, _ => {
+    },
+    (_) => {
       commit(MutationNames.SetRowObjectSaving, {
         rowObjectId,
         rowObjectType,
         isSaving: false
       })
       return false
-    })
+    }
+  )
 }
 
-function makePayload (observation) {
+function makePayload(observation) {
   const payload = {
     day_made: observation.day,
     month_made: observation.month,

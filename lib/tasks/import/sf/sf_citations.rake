@@ -319,7 +319,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           path = @args[:data_directory] + 'tblSpeciesNames.txt'
           print "\ntblSpeciesNames.txt\n"
-          raise "file #{path} not found" if not File.exists?(path)
+          raise "file #{path} not found" if not File.exist?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           # SpeciesNameID
@@ -337,7 +337,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           path = @args[:data_directory] + 'tblGenusNames.txt'
           print "\ntblGenusNames.txt\n"
-          raise "file #{path} not found" if not File.exists?(path)
+          raise "file #{path} not found" if not File.exist?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           # GenusNameID
@@ -355,7 +355,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           path = @args[:data_directory] + 'tblNomenclator.txt'
           print "\ntblNomenclator.txt\n"
-          raise "file #{path} not found" if not File.exists?(path)
+          raise "file #{path} not found" if not File.exist?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           # NomenclatorID
@@ -461,7 +461,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             path = @args[:data_directory] + 'tblCites.txt'
             print "\ntblCites.txt Working on: #{rank_pass}\n"
-            raise "file #{path} not found" if not File.exists?(path)
+            raise "file #{path} not found" if not File.exist?(path)
             file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
             # TaxonNameID

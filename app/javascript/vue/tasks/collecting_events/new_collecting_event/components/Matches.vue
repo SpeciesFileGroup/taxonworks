@@ -1,25 +1,27 @@
 <template>
   <div
     v-if="founded.length"
-    class="matches-panel panel content">
+    class="matches-panel panel content"
+  >
     <h3>Matches</h3>
     <spinner-component
       v-if="searching"
-      legend="Searching..."/>
+      legend="Searching..."
+    />
     <display-list
       :list="founded"
       label="object_tag"
       :remove="false"
       edit
-      @edit="$emit('select', $event)"/>
+      @edit="$emit('select', $event)"
+    />
   </div>
 </template>
 
 <script>
-
-import { CollectingEvent } from 'routes/endpoints'
-import DisplayList from 'components/displayList'
-import SpinnerComponent from 'components/spinner'
+import { CollectingEvent } from '@/routes/endpoints'
+import DisplayList from '@/components/displayList'
+import SpinnerComponent from '@/components/spinner'
 
 export default {
   components: {
@@ -37,16 +39,16 @@ export default {
   emits: ['select'],
 
   computed: {
-    verbatimLabel () {
+    verbatimLabel() {
       return this.collectingEvent.verbatim_label
     },
 
-    founded () {
-      return this.list.filter(item => item.id !== this.collectingEvent.id)
+    founded() {
+      return this.list.filter((item) => item.id !== this.collectingEvent.id)
     }
   },
 
-  data () {
+  data() {
     return {
       list: [],
       delay: 1000,
@@ -56,7 +58,7 @@ export default {
   },
 
   watch: {
-    verbatimLabel (newVal) {
+    verbatimLabel(newVal) {
       clearTimeout(this.timer)
       if (newVal && newVal.length) {
         this.timer = setTimeout(() => {
@@ -69,21 +71,26 @@ export default {
   },
 
   methods: {
-    getRecent () {
+    getRecent() {
       this.searching = true
       CollectingEvent.where({
         verbatim_label: this.verbatimLabel,
         per: 5
-      }).then(response => {
-        this.list = response.body
-        this.searching = false
-      }, () => { this.searching = false })
+      }).then(
+        (response) => {
+          this.list = response.body
+          this.searching = false
+        },
+        () => {
+          this.searching = false
+        }
+      )
     }
   }
 }
 </script>
 <style scoped>
-  .matches-panel {
-    min-height: 500px;
-  }
+.matches-panel {
+  min-height: 500px;
+}
 </style>

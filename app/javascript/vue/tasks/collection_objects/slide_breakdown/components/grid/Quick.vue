@@ -2,10 +2,14 @@
   <div class="position-absolute">
     <button
       @click="show = true"
-      class="button normal-input button-default grid-button">#</button>
+      class="button normal-input button-default grid-button"
+    >
+      #
+    </button>
     <modal-component
       v-if="show"
-      @close="show = false">
+      @close="show = false"
+    >
       <template #header>
         <h3>Quick grid</h3>
       </template>
@@ -19,29 +23,43 @@
                 <input
                   class="grid-input"
                   v-model="rows"
-                  type="number">
+                  type="number"
+                />
               </div>
               <div class="margin-small-right">
                 <label>Columns:</label>
                 <input
                   class="grid-input"
                   v-model="columns"
-                  type="number"> 
+                  type="number"
+                />
               </div>
               <button
                 class="button normal-input button-default"
-                @click="createGrid">Set</button>
+                @click="createGrid"
+              >
+                Set
+              </button>
             </div>
             <div class="horizontal-left-content margin-medium-left">
               <button
                 class="button normal-input button-default margin-small-right"
-                @click="setGrid(10, 2)">10x2</button>
+                @click="setGrid(10, 2)"
+              >
+                10x2
+              </button>
               <button
                 class="button normal-input button-default margin-small-right"
-                @click="setGrid(10, 3)">10x3</button>
-              <button 
+                @click="setGrid(10, 3)"
+              >
+                10x3
+              </button>
+              <button
                 class="button normal-input button-default"
-                @click="setGrid(1, 1)">1x1</button>
+                @click="setGrid(1, 1)"
+              >
+                1x1
+              </button>
             </div>
           </div>
         </fieldset>
@@ -51,8 +69,7 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 
 export default {
   components: { ModalComponent },
@@ -70,7 +87,7 @@ export default {
 
   emits: ['grid'],
 
-  data () {
+  data() {
     return {
       rows: 1,
       columns: 1,
@@ -79,7 +96,7 @@ export default {
   },
 
   methods: {
-    createGrid () {
+    createGrid() {
       const wSize = this.width / this.columns
       const hSize = this.height / this.rows
       const vlines = this.segments(wSize, this.columns)
@@ -88,7 +105,7 @@ export default {
       this.$emit('grid', { vlines, hlines })
     },
 
-    segments (size, parts) {
+    segments(size, parts) {
       const segments = []
 
       for (let i = 0; i <= parts; i++) {
@@ -97,7 +114,7 @@ export default {
       return segments
     },
 
-    setGrid (rows, columns) {
+    setGrid(rows, columns) {
       this.columns = columns
       this.rows = rows
       this.createGrid()
@@ -107,16 +124,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  :deep(.modal-container) {
-    width: 500px
-  }
-  .grid-button {
-    top: 10px;
-    width: 22px;
-    height: 22px;
-    text-align: center;
-  }
-  .grid-input {
-    width: 50px;
-  }
+:deep(.modal-container) {
+  width: 500px;
+}
+.grid-button {
+  top: 10px;
+  width: 22px;
+  height: 22px;
+  text-align: center;
+}
+.grid-input {
+  width: 50px;
+}
 </style>

@@ -1,5 +1,5 @@
-import setParamsId from 'helpers/setParam.js'
-import { RouteNames } from 'routes/routes'
+import setParamsId from '@/helpers/setParam.js'
+import { RouteNames } from '@/routes/routes'
 
 export default (state, material) => {
   setParamsId(RouteNames.TypeMaterial, 'type_material_id', material.id)
@@ -9,6 +9,7 @@ export default (state, material) => {
     pages: undefined
   }
 
-  state.type_material.collection_object_attributes.id = material?.collection_object?.id
+  state.type_material.collection_object_attributes.id =
+    material?.collection_object?.id
   state.type_material = Object.assign({}, state.type_material, material)
 }

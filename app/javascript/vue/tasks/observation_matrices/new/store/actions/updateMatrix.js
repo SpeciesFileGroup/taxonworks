@@ -1,4 +1,4 @@
-import { ObservationMatrix } from 'routes/endpoints'
+import { ObservationMatrix } from '@/routes/endpoints'
 
 export default ({ state }) =>
   new Promise((resolve, reject) => {
@@ -7,7 +7,9 @@ export default ({ state }) =>
       name: state.matrix.name
     }
 
-    ObservationMatrix.update(state.matrix.id, { observation_matrix: data }).then(response => {
+    ObservationMatrix.update(state.matrix.id, {
+      observation_matrix: data
+    }).then((response) => {
       TW.workbench.alert.create('Matrix was successfully updated.', 'notice')
       return resolve(response.body)
     })

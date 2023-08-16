@@ -38,14 +38,13 @@
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
+import SmartSelector from '@/components/ui/SmartSelector'
 import componentExtend from './mixins/componentExtend'
-import LockComponent from 'components/ui/VLock/index.vue'
+import LockComponent from '@/components/ui/VLock/index.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { Repository } from 'routes/endpoints'
-import BlockLayout from 'components/layout/BlockLayout'
+import { Repository } from '@/routes/endpoints'
+import BlockLayout from '@/components/layout/BlockLayout'
 
 export default {
   mixins: [componentExtend],
@@ -58,17 +57,17 @@ export default {
 
   computed: {
     repository: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetRepository]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetRepository, value)
       }
     }
   },
 
   watch: {
-    extract (newVal) {
+    extract(newVal) {
       if (newVal.repository_id) {
         Repository.find(newVal.repository_id).then(({ body }) => {
           this.setRepository(body)
@@ -78,7 +77,7 @@ export default {
   },
 
   methods: {
-    setRepository (repository) {
+    setRepository(repository) {
       this.repository = repository
     }
   }

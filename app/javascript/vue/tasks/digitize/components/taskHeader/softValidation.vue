@@ -15,7 +15,8 @@
           >
             <div
               class="hexagon-info-square margin-small-right"
-              :style="{ 'background-color': key }"/>
+              :style="{ 'background-color': key }"
+            />
             {{ segment }}
           </li>
         </ul>
@@ -23,7 +24,8 @@
     </div>
     <modal-component
       v-if="showValidation"
-      @close="showValidation = false">
+      @close="showValidation = false"
+    >
       <template #header>
         <h3>Soft validation</h3>
       </template>
@@ -36,13 +38,16 @@
           <ul class="no_bullets">
             <template
               v-for="(list, i) in typeValidation.list"
-              :key="i">
+              :key="i"
+            >
               <li
                 v-for="(item, index) in list.soft_validations"
-                :key="index">
+                :key="index"
+              >
                 <span
                   data-icon="warning"
-                  v-html="item.message"/>
+                  v-html="item.message"
+                />
               </li>
             </template>
           </ul>
@@ -53,29 +58,28 @@
 </template>
 
 <script>
-
-import { CollectionObject } from 'routes/endpoints'
+import { CollectionObject } from '@/routes/endpoints'
 import { GetterNames } from '../../store/getters/getters'
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 
 export default {
   components: { ModalComponent },
 
   computed: {
-    collectionObject () {
+    collectionObject() {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
 
-    lastSave () {
+    lastSave() {
       return this.$store.getters[GetterNames.GetSettings].lastSave
     },
 
-    softValidations () {
+    softValidations() {
       return this.$store.getters[GetterNames.GetSoftValidations]
     }
   },
 
-  data () {
+  data() {
     return {
       badge: undefined,
       showValidation: false,
@@ -92,7 +96,7 @@ export default {
 
   watch: {
     lastSave: {
-      handler (newVal) {
+      handler(newVal) {
         if (newVal && this.collectionObject.id) {
           this.getBadge(this.collectionObject.id)
         }
@@ -101,13 +105,13 @@ export default {
     }
   },
 
-  created () {
+  created() {
     this.getBadge(this.collectionObject.id)
   },
 
   methods: {
-    getBadge (id) {
-      CollectionObject.metadataBadge(id).then(response => {
+    getBadge(id) {
+      CollectionObject.metadataBadge(id).then((response) => {
         this.badge = response.body.svg
       })
     }
@@ -116,26 +120,26 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  :deep(.modal-container) {
-    max-width: 500px;
-  }
+:deep(.modal-container) {
+  max-width: 500px;
+}
 
-  .hexagon-validation {
-    position: relative;
-  }
-  .hexagon-validation:hover {
-    .hexagon-information {
-      display: block;
-    }
-  }
+.hexagon-validation {
+  position: relative;
+}
+.hexagon-validation:hover {
   .hexagon-information {
-    display: none;
-    position: absolute;
-    padding: 1em;
-    width: 170px;
+    display: block;
   }
-  .hexagon-info-square {
-    width: 8px;
-    height: 8px;
-  }
+}
+.hexagon-information {
+  display: none;
+  position: absolute;
+  padding: 1em;
+  width: 170px;
+}
+.hexagon-info-square {
+  width: 8px;
+  height: 8px;
+}
 </style>

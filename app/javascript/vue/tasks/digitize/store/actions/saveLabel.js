@@ -1,8 +1,8 @@
 import { MutationNames } from '../mutations/mutations'
-import { Label } from 'routes/endpoints'
+import { Label } from '@/routes/endpoints'
 import ValidateLabel from '../../validations/label'
 
-export default ({ commit, state: { label, collecting_event } }) => 
+export default ({ commit, state: { label, collecting_event } }) =>
   new Promise((resolve, reject) => {
     if (!ValidateLabel(label)) return
 
@@ -12,7 +12,7 @@ export default ({ commit, state: { label, collecting_event } }) =>
       ? Label.update(label.id, { label })
       : Label.create({ label })
 
-    saveLabel.then(response => {
+    saveLabel.then((response) => {
       commit(MutationNames.SetLabel, response.body)
       return resolve(response.body)
     })

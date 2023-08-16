@@ -11,21 +11,21 @@ describe Catalog::EntryItem, group: :catalogs, type: :spinup do
 
   specify '#html_helper' do
     expect(entry_item.html_helper).to eq(:object_tag)
-  end  
+  end
 
   specify '#cited?' do
     expect(entry_item.cited?).to be_falsey
-  end  
+  end
 
   specify '#source' do
     expect(entry_item.source).to eq(nil)
-  end  
+  end
 
   # Working because is_original: true in citation
   specify '#nomenclature_date' do
-    Citation.create!(citation_object: otu1, source: source, is_original: true) 
+    Citation.create!(citation_object: otu1, source:, is_original: true)
     expect(entry_item.nomenclature_date.year).to eq(1920)
-  end  
+  end
 
   specify '#object_class' do
     expect(entry_item.object_class).to eq('Otu')
@@ -36,12 +36,12 @@ describe Catalog::EntryItem, group: :catalogs, type: :spinup do
   end
 
   context 'citations' do
-    let!(:c) { Citation.create!(citation_object: otu1, source: source, is_original: true) }
+    let!(:c) { Citation.create!(citation_object: otu1, source:, is_original: true) }
     let(:entry_item2) { Catalog::EntryItem.new(object: otu1, base_object: otu2, citation: c) }
 
     specify '#source' do
       expect(entry_item2.source).to eq(c.source)
-    end  
+    end
 
     specify '#cited?' do
       expect(entry_item2.cited?).to be_truthy

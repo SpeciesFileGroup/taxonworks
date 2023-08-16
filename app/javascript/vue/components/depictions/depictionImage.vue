@@ -2,7 +2,8 @@
   <div class="depiction-thumb-container">
     <modal
       v-if="viewMode"
-      @close="viewMode = false">
+      @close="viewMode = false"
+    >
       <template #header>
         <h3>View</h3>
       </template>
@@ -11,11 +12,12 @@
           <div class="full_width">
             <img
               class="img-maxsize"
-              :src="depiction.image.image_file_url">
+              :src="depiction.image.image_file_url"
+            />
             <div class="horizontal-left-content">
-              <radial-annotator :global-id="depiction.image.global_id"/>
+              <radial-annotator :global-id="depiction.image.global_id" />
               Annotate image
-              <radial-navigation :global-id="depiction.image.global_id"/>
+              <radial-navigation :global-id="depiction.image.global_id" />
               Navigate image
             </div>
           </div>
@@ -26,20 +28,23 @@
               <input
                 v-model="depiction.figure_label"
                 type="text"
-                placeholder="Label">
+                placeholder="Label"
+              />
             </div>
             <div class="field separate-bottom label-above">
               <label>Caption</label>
               <markdown-editor
                 v-model="depiction.caption"
                 :configs="config"
-                ref="etymologyText"/>
+                ref="etymologyText"
+              />
             </div>
             <div class="margin-small-bottom">
               <label>
                 <input
                   v-model="depiction.is_metadata_depiction"
-                  type="checkbox">
+                  type="checkbox"
+                />
                 Is metadata
               </label>
             </div>
@@ -47,12 +52,17 @@
               <button
                 type="button"
                 @click="updateDepiction"
-                class="normal-input button button-submit">Save
+                class="normal-input button button-submit"
+              >
+                Save
               </button>
               <button
                 type="button"
                 @click="deleteDepiction"
-                class="normal-input button button-delete">Delete</button>
+                class="normal-input button button-delete"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>
@@ -63,24 +73,26 @@
       @click="viewMode = true"
       :src="depiction.image.alternatives.thumb.image_file_url"
       :height="depiction.image.alternatives.thumb.height"
-      :width="depiction.image.alternatives.thumb.width">
+      :width="depiction.image.alternatives.thumb.width"
+    />
     <div class="horizontal-left-content">
       <span
         class="circle-button btn-edit button-default"
-        @click="viewMode = true"/>
+        @click="viewMode = true"
+      />
       <span
         class="circle-button btn-delete"
-        @click="deleteDepiction"/>
+        @click="deleteDepiction"
+      />
     </div>
   </div>
 </template>
 <script>
-
-import { Depiction } from 'routes/endpoints'
-import Modal from 'components/ui/Modal.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialNavigation from 'components/radials/navigation/radial'
-import MarkdownEditor from 'components/markdown-editor.vue'
+import { Depiction } from '@/routes/endpoints'
+import Modal from '@/components/ui/Modal.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialNavigation from '@/components/radials/navigation/radial'
+import MarkdownEditor from '@/components/markdown-editor.vue'
 
 const Tabs = {
   MARKDOWN: 'markdown',
@@ -104,7 +116,7 @@ export default {
 
   emits: ['delete'],
 
-  data () {
+  data() {
     return {
       fullSizeImage: false,
       viewMode: false,
@@ -118,19 +130,22 @@ export default {
   },
 
   methods: {
-    updateDepiction () {
+    updateDepiction() {
       const depiction = {
         caption: this.depiction.caption,
         figure_label: this.depiction.figure_label,
         is_metadata_depiction: this.depiction.is_metadata_depiction
       }
 
-      Depiction.update(this.depiction.id, { depiction }).then(_ => {
-        TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
+      Depiction.update(this.depiction.id, { depiction }).then((_) => {
+        TW.workbench.alert.create(
+          'Depiction was successfully updated.',
+          'notice'
+        )
       })
     },
 
-    deleteDepiction () {
+    deleteDepiction() {
       this.$emit('delete', this.depiction)
     }
   }
@@ -139,7 +154,7 @@ export default {
 <style lang="scss">
 .depiction-thumb-container {
   .img-thumb {
-     cursor: pointer;
+    cursor: pointer;
   }
   .img-maxsize {
     transition: all 0.5s ease;
@@ -147,15 +162,16 @@ export default {
     max-height: 60vh;
   }
   .img-fullsize {
-    cursor: zoom-out
+    cursor: zoom-out;
   }
   .img-normalsize {
-    cursor: zoom-in
+    cursor: zoom-in;
   }
   .field {
-    input, textarea {
-     width: 100%
-   }
+    input,
+    textarea {
+      width: 100%;
+    }
   }
   .CodeMirror {
     min-height: 100px;

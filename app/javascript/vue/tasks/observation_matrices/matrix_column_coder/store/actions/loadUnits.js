@@ -1,7 +1,6 @@
-import { Descriptor } from 'routes/endpoints'
+import { Descriptor } from '@/routes/endpoints'
 
 export default ({ state }) =>
-  Descriptor.units()
-    .then(({ body }) => {
-      state.units = body
-    })
+  Descriptor.units().then(({ body }) => {
+    state.units = body
+  })

@@ -3,10 +3,10 @@ require 'rails_helper'
 describe TaxonNameRelationship, type: :model, group: [:nomenclature, :soft_validation] do
 
   let(:taxon_name_relationship) { TaxonNameRelationship.new }
-  let!(:species) { FactoryBot.create(:relationship_species) } 
-  let(:genus) { species.ancestor_at_rank('genus') } 
-  let(:family) { species.ancestor_at_rank('family') } 
-  let(:kingdom) { species.ancestor_at_rank('kingdom') } 
+  let!(:species) { FactoryBot.create(:relationship_species) }
+  let(:genus) { species.ancestor_at_rank('genus') }
+  let(:family) { species.ancestor_at_rank('family') }
+  let(:kingdom) { species.ancestor_at_rank('kingdom') }
 
   after(:all) {
     TaxonName.delete_all
@@ -324,7 +324,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature, :soft_valid
       r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: g2, type: 'TaxonNameRelationship::Typification::Genus')
       r1.soft_validate(only_sets: :not_specific_relationship)
       expect(r1.soft_validations.messages_on(:type).size).to eq(1)
-      
+
       r1.fix_soft_validations
       r1 = TaxonNameRelationship.find(r1.id)
       r1.soft_validate(only_sets: :not_specific_relationship)
@@ -502,6 +502,18 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature, :soft_valid
       r1.soft_validate(only_sets: :coordinated_taxa)
       expect(r1.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_truthy
       expect(r1.object_taxon_name_id).to eq(ssp.id)
+    end
+
+    specify 'seniority' do
+      s1_all.year_of_publication = 2000
+      s2_all.year_of_publication = 2000
+      s1_all.original_species = s1_all
+      s2_all.original_subspecies = s2_all
+      s1_all.save
+      s2_all.save
+      r1 = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1_all, object_taxon_name: s2_all, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+      r1.soft_validate(only_sets: :validate_seniority)
+      expect(r1.soft_validations.messages_on(:base).size).to eq(1)
     end
   end
 

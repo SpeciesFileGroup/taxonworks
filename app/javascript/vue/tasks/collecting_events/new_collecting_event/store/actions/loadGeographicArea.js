@@ -1,4 +1,4 @@
-import { GeographicArea } from 'routes/endpoints'
+import { GeographicArea } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default async ({ state, commit }, id = null) => {
@@ -7,7 +7,10 @@ export default async ({ state, commit }, id = null) => {
     : null
 
   if (state.collectingEvent.geographic_area_id !== geographicArea?.id) {
-    commit(MutationNames.SetCollectingEvent, { ...state.collectingEvent, geographic_area_id: id })
+    commit(MutationNames.SetCollectingEvent, {
+      ...state.collectingEvent,
+      geographic_area_id: id
+    })
   }
 
   if (!id) {

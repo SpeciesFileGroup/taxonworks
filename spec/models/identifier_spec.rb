@@ -7,6 +7,20 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
   let(:specimen2) { FactoryBot.create(:valid_specimen) }
   let(:serial) { FactoryBot.create(:valid_serial) }
 
+  specify 'validate annotated_object' do
+    p = FactoryBot.create(:valid_person)
+    p.destroy
+    i = Identifier::Global::Wikidata.new(identifier_object: p, identifier: 'Q1234')
+    expect(i.valid?).to be_falsey 
+  end
+
+  specify 'over-ride validate annotated_object' do
+    p = FactoryBot.create(:valid_person)
+    p.destroy
+    i = Identifier::Global::Wikidata.new(identifier_object: p, identifier: 'Q1234', annotator_batch_mode: true)
+    expect(i.valid?).to be_truthy
+  end
+
   specify '.prefer 1' do
     c =  'Identifier::Local::CatalogNumber'
     specimen1.identifiers << FactoryBot.build(:valid_identifier_local, type: c)
@@ -22,22 +36,21 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
     expect(specimen1.identifiers.prefer('Identifier::Global::Uri').first.type).to_not eq(c)
   end
 
-
   context 'validation' do
 
     context 'requires' do
-      before do
-        identifier.valid?
-      end
+      before { identifier.valid? }
 
       # !! This test fails not because of a validation, but because of a NOT NULL constraint. 
       specify 'identifier_object' do
         # this eliminate all model based validation requirements
         identifier.type = 'Identifier::Local::CatalogNumber'
         identifier.namespace_id = FactoryBot.create(:valid_namespace).id
-        identifier.identifier   = '123'
+        identifier.identifier = '123'
+        expect(identifier.save).to be_falsey
 
-        expect { identifier.save }.to raise_error ActiveRecord::StatementInvalid
+        # Now catches that object is missing
+        # expect { identifier.save }.to raise_error ActiveRecord::StatementInvalid
       end
 
       specify 'identifier' do
@@ -107,6 +120,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
       specify 'with new and build' do
         s = FactoryBot.build(:valid_specimen)
         s.identifiers.build(type: 'Identifier::Local::CatalogNumber', namespace: namespace, identifier: 456)
+        
         expect(s.save).to be_truthy
         expect(s.identifiers.count).to eq(1)
         expect(s.identifiers.first.creator.nil?).to be_falsey

@@ -2,12 +2,15 @@
   <div>
     <button
       class="button normal-input button-default"
-      @click="setModalView(true)">Parse from
+      @click="setModalView(true)"
+    >
+      Parse from
     </button>
     <modal-component
       v-if="showModal"
       @close="setModalView(false)"
-      :container-style="{ width: '800px' }">
+      :container-style="{ width: '800px' }"
+    >
       <template #header>
         <h3>Parse collection object buffered data</h3>
       </template>
@@ -23,10 +26,9 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal'
-import SmartSelector from 'components/ui/SmartSelector'
-import { CollectingEvent } from 'routes/endpoints'
+import ModalComponent from '@/components/ui/Modal'
+import SmartSelector from '@/components/ui/SmartSelector'
+import { CollectingEvent } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -34,7 +36,7 @@ export default {
     SmartSelector
   },
 
-  data () {
+  data() {
     return {
       collectionObject: undefined,
       parsableData: undefined,
@@ -45,20 +47,27 @@ export default {
   emits: ['onParse'],
 
   methods: {
-    setCollectionObject (co) {
+    setCollectionObject(co) {
       this.collectionObject = co
     },
 
-    parseData (co) {
-      CollectingEvent.parseVerbatimLabel({ verbatim_label: co.buffered_collecting_event }).then(response => {
+    parseData(co) {
+      CollectingEvent.parseVerbatimLabel({
+        verbatim_label: co.buffered_collecting_event
+      }).then((response) => {
         if (response.body) {
           this.parsableData = response.body
 
-          this.$emit('onParse', Object.assign({},
-            this.parsableData.date,
-            this.parsableData.geo.verbatim,
-            this.parsableData.elevation,
-            this.parsableData.collecting_method))
+          this.$emit(
+            'onParse',
+            Object.assign(
+              {},
+              this.parsableData.date,
+              this.parsableData.geo.verbatim,
+              this.parsableData.elevation,
+              this.parsableData.collecting_method
+            )
+          )
           TW.workbench.alert.create('Buffered value parsed.', 'notice')
           this.setModalView(false)
         } else {
@@ -67,7 +76,7 @@ export default {
       })
     },
 
-    setModalView (value) {
+    setModalView(value) {
       this.showModal = value
     }
   }

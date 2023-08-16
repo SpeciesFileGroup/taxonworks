@@ -83,7 +83,7 @@ module Dwca::GbifProfile
     # subject (http://purl.org/dc/terms/subject)
     #
     # @return [String]
-    # Semicolon seperated list of keywords. Can include a resource qualifier
+    # Semicolon separated list of keywords. Can include a resource qualifier
     # that specifies the relation of this reference to the taxon, e.g
     # namePublishedIn
     #

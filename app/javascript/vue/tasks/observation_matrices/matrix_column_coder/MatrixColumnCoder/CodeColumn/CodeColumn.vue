@@ -46,8 +46,8 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import VModal from 'components/ui/Modal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import ComponentName from '../../helpers/ComponentNames'
 import FormContinuousDescriptorObservation from '../Form/FormContinuousDescriptorObservation.vue'
 import FormSample from '../Form/FormSample.vue'
@@ -55,8 +55,8 @@ import FormFreeText from '../Form/FormFreeText.vue'
 import FormPresenceAbsent from '../Form/FormPresenceAbsent.vue'
 import FormQualitative from '../Form/FormQualitative.vue'
 import populateRows from './populateRows'
-import VSpinner from 'components/spinner.vue'
-import ConfirmationModal from 'components/ConfirmationModal.vue'
+import VSpinner from '@/components/spinner.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
 const components = {
   [ComponentName.Continuous]: FormContinuousDescriptorObservation,
@@ -86,7 +86,9 @@ const makeEmptyObservation = () => {
   } else if (props.descriptor.type === ComponentName.Sample) {
     Object.assign(emptyObservation, { units: props.descriptor.defaultUnit })
   } else if (props.descriptor.type === ComponentName.Continuous) {
-    Object.assign(emptyObservation, { continuousUnit: props.descriptor.defaultUnit })
+    Object.assign(emptyObservation, {
+      continuousUnit: props.descriptor.defaultUnit
+    })
   }
 
   return emptyObservation
@@ -96,7 +98,9 @@ const isPopulating = ref(false)
 const showModal = ref(false)
 const confirmationModal = ref(null)
 const observation = ref(makeEmptyObservation())
-const isObservationEmpty = computed(() => !Object.keys(observation.value).length)
+const isObservationEmpty = computed(
+  () => !Object.keys(observation.value).length
+)
 
 const handleClick = async () => {
   const ok = await confirmationModal.value.show({
@@ -108,7 +112,9 @@ const handleClick = async () => {
     typeButton: 'submit'
   })
 
-  if (!ok) { return }
+  if (!ok) {
+    return
+  }
 
   isPopulating.value = true
 

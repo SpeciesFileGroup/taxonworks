@@ -23,6 +23,7 @@ class Extract < ApplicationRecord
   include Shared::ProtocolRelationships
   include Shared::OriginRelationship
   include Shared::Containable
+  include Shared::Citations
   include Shared::DataAttributes
   include Shared::Observations
   include Shared::Tags
@@ -34,7 +35,7 @@ class Extract < ApplicationRecord
 
   belongs_to :repository, inverse_of: :extracts
 
-  has_many :extractor_roles, -> { order('roles.position ASC') }, class_name: 'Extractor', as: :role_object, dependent: :destroy, validate: true
+  has_many :extractor_roles, -> { order('roles.position ASC') }, class_name: 'Extractor', as: :role_object, dependent: :destroy, validate: true, inverse_of: :role_object
   has_many :extractors, -> { order('roles.position ASC') }, through: :extractor_roles, source: :person, validate: true
 
   # Upstream - aliases of `origin_otus` and `origin_collection_objects` TODO remove
@@ -88,17 +89,17 @@ class Extract < ApplicationRecord
         when 'BiologicalAssociation'
           t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
             .where(
-              t['updated_at'].gt(1.weeks.ago).and(
+              t['updated_at'].gt(1.week.ago).and(
                 t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
               )
             )
-              .where(t['created_by_id'].eq(user_id))
+              .where(t['updated_by_id'].eq(user_id))
               .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         else
           t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
-            .where(t['updated_at'].gt( 1.weeks.ago ))
-            .where(t['created_by_id'].eq(user_id))
+            .where(t['updated_at'].gt( 1.week.ago ))
+            .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         end
@@ -124,18 +125,18 @@ class Extract < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: Extract.pinned_by(user_id).where(project_id: project_id).to_a,
+      pinboard: Extract.pinned_by(user_id).where(project_id:).to_a,
       recent: []
     }
 
     if target && !r.empty?
       n = target.tableize.to_sym
       h[:recent] = Extract.where('"extracts"."id" IN (?)', r.first(10) ).to_a
-      h[:quick] = (Extract.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  +
+      h[:quick] = (Extract.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a  +
           Extract.where('"extracts"."id" IN (?)', r.first(4) ).to_a).uniq
     else
-      h[:recent] = Extract.where(project_id: project_id, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
-      h[:quick] = Extract.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+      h[:recent] = Extract.where(project_id:, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
+      h[:quick] = Extract.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a
     end
 
     h

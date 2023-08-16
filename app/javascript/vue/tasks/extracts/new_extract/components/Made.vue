@@ -19,12 +19,14 @@
           <button
             type="button"
             class="button normal-input button-default margin-small-left"
-            @click="setYear">
+            @click="setYear"
+          >
             This year
           </button>
           <lock-component
             v-model="settings.lock.made"
-            class="margin-small-left"/>
+            class="margin-small-left"
+          />
         </div>
       </div>
     </template>
@@ -32,12 +34,11 @@
 </template>
 
 <script>
-
-import LockComponent from 'components/ui/VLock/index.vue'
+import LockComponent from '@/components/ui/VLock/index.vue'
 import componentExtend from './mixins/componentExtend'
-import BlockLayout from 'components/layout/BlockLayout'
-import DateFields from 'components/ui/Date/DateFields.vue'
-import DateNow from 'components/ui/Date/DateToday.vue'
+import BlockLayout from '@/components/layout/BlockLayout'
+import DateFields from '@/components/ui/Date/DateFields.vue'
+import DateNow from '@/components/ui/Date/DateToday.vue'
 
 export default {
   mixins: [componentExtend],
@@ -50,10 +51,10 @@ export default {
   },
 
   methods: {
-    setYear () {
+    setYear() {
       this.extract.day_made = undefined
       this.extract.month_made = undefined
-      this.extract.year_made = (new Date()).getFullYear()
+      this.extract.year_made = new Date().getFullYear()
     }
   }
 }

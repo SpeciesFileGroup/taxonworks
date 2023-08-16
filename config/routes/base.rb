@@ -18,6 +18,7 @@ resource :hub, controller: 'hub', only: [:index] do
 end
 
 scope :metadata, controller: 'metadata' do
+  get :annotators, defaults: {format: :json}
   get :related_summary
   post :related_summary
   get 'object_radial/', action: :object_radial, defaults: {format: :json}
@@ -57,6 +58,7 @@ scope :administration, controller: :administration do
   get 'data_health'
   get 'data_reindex'
   get 'data_class_summary'
+  get 'cached_maps_status'
 end
 
 resources :project_members, except: [:index] do
@@ -74,6 +76,7 @@ resources :pinboard_items, only: [:create, :destroy, :update] do
   collection do
     post 'update_position'
     post 'update_type_position'
+    post 'clear', defaults: {format: :json}
   end
 end
 

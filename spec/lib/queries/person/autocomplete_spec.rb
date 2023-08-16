@@ -15,20 +15,30 @@ describe Queries::Person::Autocomplete, type: :model, group: :people do
     let!(:a2) { AlternateValue::Misspelling.create!(alternate_value_object: p4, alternate_value_object_attribute: :first_name, value: 'Geerge') }
     let!(:a3) { AlternateValue::AlternateSpelling.create!(alternate_value_object: p5, alternate_value_object_attribute: :last_name, value: 'Tartero') }
 
+    before { query.project_id = [project_id] }
+
     specify '1' do
       query.terms = 'S.'
-      expect(query.autocomplete_alternate_values_last_name.map(&:id)).to contain_exactly(p1.id) 
+      expect(query.autocomplete_alternate_values_last_name.map(&:id)).to contain_exactly(p1.id)
     end
 
     specify '2' do
       query.terms = 'Geerge'
-      expect(query.autocomplete_alternate_values_first_name.map(&:id)).to contain_exactly(p4.id) 
+      expect(query.autocomplete_alternate_values_first_name.map(&:id)).to contain_exactly(p4.id)
     end
 
     specify '3' do
       query.terms = 'Tartero'
-      expect(query.autocomplete.map(&:id)).to contain_exactly(p5.id) 
+      expect(query.autocomplete.map(&:id)).to contain_exactly(p5.id)
     end
+
+    specify 'in_project' do
+      tn = FactoryBot.create(:relationship_genus, taxon_name_author_roles_attributes: [ {person_id: p1.id}, {person_id: p3.id}])
+      query.terms = 'Smith'
+      query.project_id = [tn.project_id]
+      expect(query.autocomplete.map(&:in_project)).to contain_exactly(1, nil)
+    end
+
   end
 
   specify '#normalize 1' do
@@ -85,26 +95,26 @@ describe Queries::Person::Autocomplete, type: :model, group: :people do
 
     before do
       query.terms = 'Smith'
+      query.project_id = project_id  # always required now
     end
 
-    specify 'if no roles provided all for project' do
-      expect(query.autocomplete.map(&:id)).to contain_exactly(p1.id, p2.id) 
+    specify 'no roles, no in_project (everthing back)' do
+      expect(query.autocomplete.map(&:id)).to contain_exactly(p1.id, p2.id)
     end
 
-    specify 'project, no roles' do
-      query.project_id = 1     
-      expect(query.autocomplete.map(&:id)).to contain_exactly(p1.id, p2.id) 
+    specify 'no roles, no in_project' do
+      expect(query.autocomplete.map(&:id)).to contain_exactly(p1.id, p2.id)
     end
 
-    specify 'roles, no project' do
-      query.limit_to_roles = ['Collector']
-      expect(query.autocomplete.map(&:id)).to contain_exactly(p2.id) 
+    specify 'roles, no in_project' do
+      query.role_type = ['Collector']
+      expect(query.autocomplete.map(&:id)).to contain_exactly(p2.id)
     end
 
-    specify 'roles, project' do
-      query.project_id = 1     
-      query.limit_to_roles = ['Collector']
-      expect(query.autocomplete.map(&:id)).to contain_exactly(p2.id) 
+    specify 'roles, in_project (restrict to project_id)' do
+      query.role_type = ['Collector']
+      query.in_project = true
+      expect(query.autocomplete.map(&:id)).to contain_exactly(p2.id)
     end
   end
 end

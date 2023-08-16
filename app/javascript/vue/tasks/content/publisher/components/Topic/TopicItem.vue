@@ -19,10 +19,7 @@
             medium
             @click="isContentListVisible = !isContentListVisible"
           >
-            {{ isContentListVisible
-              ? 'Collapse'
-              : 'Expand'
-            }}
+            {{ isContentListVisible ? 'Collapse' : 'Expand' }}
           </VBtn>
         </li>
       </ul>
@@ -36,7 +33,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import PublishAll from './PublishAll.vue'
 import UnpublishAll from './UnpublishAll.vue'
 import ContentList from '../Content/ContentList.vue'
@@ -64,5 +61,4 @@ defineProps({
 })
 
 const isContentListVisible = ref(false)
-
 </script>

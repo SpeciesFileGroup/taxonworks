@@ -12,6 +12,14 @@ json.author @taxon_name.author_string
 json.year @taxon_name.cached_nomenclature_date&.year
 json.pages @taxon_name.origin_citation&.pages
 json.original_citation @taxon_name.source&.cached
+json.global_id @taxon_name.to_global_id.to_s
+
+json.parent do
+  json.full_name label_for_taxon_name(@taxon_name.parent)
+  json.author @taxon_name.parent&.author_string
+  json.global_id @taxon_name.parent&.to_global_id.to_s
+  json.rank @taxon_name.parent&.rank
+end
 
 if extend_response_with('name_elements')
   if @taxon_name.type == 'Protonym'
@@ -50,7 +58,7 @@ if !@taxon_name.cached_is_valid && !@taxon_name.is_ambiguously_invalid?
   end
 end
 
-if extend_response_with('taxon_name_classifications') 
+if extend_response_with('taxon_name_classifications')
   json.taxon_name_classifications( @taxon_name.taxon_name_classifications) do |cl|
     json.type cl.type
     json.nomen_uri cl.class.nomen_uri
@@ -64,7 +72,7 @@ if extend_response_with('taxon_name_classifications')
   end
 end
 
-if extend_response_with('taxon_name_relationships') 
+if extend_response_with('taxon_name_relationships')
   json.subject_taxon_name_relationships( @taxon_name.taxon_name_relationships.where(type: TAXON_NAME_RELATIONSHIP_NAMES_INVALID)) do |r|
     json.type r.type
     json.nomen_uri r.class.nomen_uri

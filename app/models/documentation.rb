@@ -16,7 +16,7 @@
 #   @return [String]
 #     the id of the Document
 #
-# @!attribute position 
+# @!attribute position
 #   @return [Integer]
 #     for acts as list, scopes to document
 #
@@ -37,7 +37,7 @@ class Documentation < ApplicationRecord
   # They can't be validated because we use accepts_nested_attributes
   # validates_presence_of :documentation_object_type, :documentation_object_id, :document_id
   # TODO: above is probably bs
-  # 
+  #
   # We catch invalid statements with this around:
   around_save :catch_statement_invalid
 
@@ -57,12 +57,12 @@ class Documentation < ApplicationRecord
 
   def check_for_projects_source
     ProjectSource.find_or_create_by(
-      project_id: project_id,
+      project_id:,
       source_id: documentation_object_id)
   end
 
   def destroy_document_if_last
-    document.destroy if Documentation.where(document: document).count == 0
+    document.destroy if Documentation.where(document:).count == 0
   end
 
   def catch_statement_invalid

@@ -190,14 +190,14 @@ class Source < ApplicationRecord
   include Housekeeping::Timestamps
   include Shared::AlternateValues
   include Shared::DataAttributes
+  include Shared::Documentation
   include Shared::Identifiers
   include Shared::Notes
   include Shared::SharedAcrossProjects
   include Shared::Tags
-  include Shared::Documentation
-  include Shared::IsData
   include Shared::HasPapertrail
   include SoftValidation
+  include Shared::IsData
 
   ignore_whitespace_on(:verbatim_contents)
 
@@ -205,17 +205,18 @@ class Source < ApplicationRecord
     :address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
     :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
 
-    # @return [Boolean]
-  #  When true, cached values are not built
+  # @return [Boolean, nil]
+  #   When true, cached values are not built
   attr_accessor :no_year_suffix_validation
 
   # Keep this order for citations/topics
   has_many :citations, inverse_of: :source, dependent: :restrict_with_error
+  has_many :origin_citations, -> {where(citations: {is_original: true})}, class_name: 'Citation', dependent: :restrict_with_error, inverse_of: :source
   has_many :citation_topics, through: :citations, inverse_of: :source
   has_many :topics, through: :citation_topics, inverse_of: :sources
 
   # !! must be below has_many :citations
-  has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
+  # has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
 
   has_many :project_sources, dependent: :destroy
   has_many :projects, through: :project_sources
@@ -233,6 +234,13 @@ class Source < ApplicationRecord
     fix: :sv_fix_cached_names,
     name: 'Cached names',
     description: 'Check if cached values need to be updated' )
+
+  soft_validate(
+    :sv_stated_year,
+    set: :stated_year,
+    fix: :sv_fix_stated_year,
+    name: 'Stated year',
+    description: "'Stated year' is not needed if identical to 'year'" )
 
   soft_validate(
     :sv_html_tags,
@@ -296,16 +304,16 @@ class Source < ApplicationRecord
 
   # @param used_on [String] a model name
   # @return [Scope]
-  #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used 
+  #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used
   def self.used_recently(user_id, project_id, used_on = 'TaxonName')
-   Source.select('sources.id').
-     joins(:citations)
-         .where(citations: {created_by_id: user_id,
-                project_id: project_id,
-                citation_object_type: used_on,
-                created_at: 1.week.ago..})
-        .order('citations.created_at DESC')
-      .pluck(:id).uniq
+    Source.select('sources.id').
+      joins(:citations)
+          .where(citations: {updated_by_id: user_id,
+                 project_id:,
+                 citation_object_type: used_on,
+                 updated_at: 1.week.ago..})
+         .order('citations.updated_at DESC')
+       .pluck(:id).uniq
   end
 
   # @params target [String] a citable model name
@@ -314,7 +322,7 @@ class Source < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: Source.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
+      pinboard: Source.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
       recent: []
     }
 
@@ -322,14 +330,14 @@ class Source < ApplicationRecord
       h[:recent] = Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
         .order('created_at DESC')
         .limit(5).order(:cached).to_a
-      h[:quick] = Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
+      h[:quick] = Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a
     else
       h[:recent] =
         (Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
         .order('created_at DESC')
         .limit(5).order(:cached).to_a +
       Source.where('"sources"."id" IN (?)', r.first(6) ).to_a).uniq
-      h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
+      h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a +
                    Source.where('"sources"."id" IN (?)', r.first(4) ).to_a).uniq
     end
 
@@ -371,7 +379,7 @@ class Source < ApplicationRecord
       s.title = m + title.to_s
     end
 
-    roles.each do |r|
+    roles.reload.each do |r|
       s.roles << Role.new(person: r.person, type: r.type, position: r.position )
     end
 
@@ -387,7 +395,7 @@ class Source < ApplicationRecord
   def set_cached
   end
 
-    #set in subclasses
+  # Defined in subclasses
   def get_cached
   end
 
@@ -404,7 +412,7 @@ class Source < ApplicationRecord
 
   def sv_fix_cached_names
     begin
-      TaxonName.transaction do
+      Source.transaction do
         self.set_cached
       end
       true
@@ -413,10 +421,30 @@ class Source < ApplicationRecord
     end
   end
 
+  def sv_stated_year
+    soft_validations.add(
+      :base, "'Stated year' is not needed if identical to 'year'; applying the Fix will delete it",
+      success_message: "'Stated year' was deleted",
+      failure_message:  "Failed to delete 'Stated year'") if year.to_s == stated_year.to_s
+  end
+
+  def sv_fix_stated_year
+    begin
+      Source.transaction do
+        self.stated_year = nil
+        self.save
+      end
+      true
+    rescue
+      false
+    end
+  end
+
+
   def sv_html_tags
-    unless title.blank?
+    if title.present?
       str = title.squish.gsub(/\<i>[^<>]*?<\/i>/, '')
       soft_validations.add(:title, 'The title contains unmatched html tags') if str.include?('<i>') || str.include?('</i>')
     end
-  end
+end
 end

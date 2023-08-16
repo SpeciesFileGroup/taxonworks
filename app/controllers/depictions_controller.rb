@@ -2,6 +2,7 @@ class DepictionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_depiction, only: [:show, :edit, :update, :destroy, :api_show]
+  after_action -> { set_pagination_headers(:depictions) }, only: [:index], if: :json_request?
 
   # GET /depictions
   # GET /depictions.json
@@ -14,7 +15,8 @@ class DepictionsController < ApplicationController
       format.json {
         @depictions = Depiction.where(project_id: sessions_current_project_id).where(
           Queries::Annotator::polymorphic_params(params, Depiction)
-        )
+       ).page(params[:page])
+       .per(params[:per])
       }
     end
   end
@@ -84,11 +86,11 @@ class DepictionsController < ApplicationController
   # PATCH /sort?depiction_ids[]=1&depiction_ids[]=2.json
   def sort
     respond_to do |format|
-      begin 
+      begin
         params.require(:depiction_ids).each_with_index do |d, i|
           Depiction.find(d).update_column(:position, i + 1)
         end
-      rescue ActionController::ParameterMissing  
+      rescue ActionController::ParameterMissing
         format.json { render json: {success: false}, status: :unprocessable_entity and return }
       rescue ActiveRecord::RecordInvalid
         format.json { render json: {success: false}, status: :unprocessable_entity and return }
@@ -104,7 +106,7 @@ class DepictionsController < ApplicationController
       Depiction.where(project_id: sessions_current_project_id)), type: 'text', filename: "depictions_#{DateTime.now}.csv"
   end
 
-  private 
+  private
 
   def set_depiction
     @depiction = Depiction.where(project_id: sessions_current_project_id).find(params[:id])

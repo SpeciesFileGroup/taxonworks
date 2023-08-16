@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const permitParams = {
   container: {
@@ -16,5 +16,6 @@ const permitParams = {
 export const Container = {
   ...baseCRUD('containers', permitParams),
 
-  for: (global_id) => AjaxCall('get', '/containers/for', { params: { global_id } })
+  for: (global_id) =>
+    AjaxCall('get', '/containers/for', { params: { global_id } })
 }

@@ -3,21 +3,26 @@
     v-if="citations.length"
     class="citation-count"
     @mouseover="showCitations = true"
-    @mouseout="showCitations = false">
+    @mouseout="showCitations = false"
+  >
     <span class="button-data circle-button btn-citation">
-      <span class="circle-count button-default middle">{{ citations.length }} </span>
+      <span class="circle-count button-default middle"
+        >{{ citations.length }}
+      </span>
     </span>
     <div
       v-show="showCitations"
-      class="citation-tooltip-list panel">
+      class="citation-tooltip-list panel"
+    >
       <display-list
         :list="citations"
         :label="['citation_source_body']"
         @delete="removeCitation"
-        :edit="false">
+        :edit="false"
+      >
         <template #options="slotProps">
           <div>
-            <display-source :source="slotProps.item.source"/>
+            <display-source :source="slotProps.item.source" />
           </div>
         </template>
       </display-list>
@@ -26,9 +31,8 @@
 </template>
 
 <script>
-
 import CRUD from '../../request/crud.js'
-import DisplayList from 'components/displayList'
+import DisplayList from '@/components/displayList'
 import DisplaySource from './displaySource'
 
 export default {
@@ -65,7 +69,7 @@ export default {
     document.addEventListener('radial:delete', this.refreshCitations)
   },
 
-  unmounted () {
+  unmounted() {
     document.removeEventListener('radial:post', this.refreshCitations)
     document.removeEventListener('radial:patch', this.refreshCitations)
     document.removeEventListener('radial:delete', this.refreshCitations)
@@ -73,22 +77,31 @@ export default {
 
   methods: {
     removeCitation(cite) {
-      this.destroy(`/citations/${cite.id}.json`).then(response => {
-        this.citations.splice(this.citations.findIndex(item => { return item.id == cite.id }), 1)
+      this.destroy(`/citations/${cite.id}.json`).then((response) => {
+        this.citations.splice(
+          this.citations.findIndex((item) => {
+            return item.id == cite.id
+          }),
+          1
+        )
       })
     },
 
     loadCitations() {
-      this.getList(`/${this.target}/${this.object.id}/citations.json`).then(response => {
-        this.citations = response.body
-      })
+      this.getList(`/${this.target}/${this.object.id}/citations.json`).then(
+        (response) => {
+          this.citations = response.body
+        }
+      )
     },
 
     refreshCitations(event) {
       if (event) {
-        if (event.detail.object.hasOwnProperty('citation') ||
-        (event.detail.object.hasOwnProperty('base_class') &&
-        event.detail.object.base_class == 'Citation')) {
+        if (
+          event.detail.object.hasOwnProperty('citation') ||
+          (event.detail.object.hasOwnProperty('base_class') &&
+            event.detail.object.base_class == 'Citation')
+        ) {
           this.loadCitations()
         }
       }

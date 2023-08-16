@@ -10,9 +10,8 @@
 </template>
 
 <script>
-
-import { Project } from 'routes/endpoints'
-import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
+import { Project } from '@/routes/endpoints'
+import PredicatesComponent from '@/components/custom_attributes/predicates/predicates'
 import extendCE from '../mixins/extendCE'
 
 export default {
@@ -22,20 +21,20 @@ export default {
     PredicatesComponent
   },
 
-  data () {
+  data() {
     return {
       projectPreferences: undefined
     }
   },
 
-  created () {
-    Project.preferences().then(response => {
+  created() {
+    Project.preferences().then((response) => {
       this.projectPreferences = response.body
     })
   },
 
   methods: {
-    setAttributes (dataAttributes) {
+    setAttributes(dataAttributes) {
       this.collectingEvent.data_attributes_attributes = dataAttributes
     }
   }

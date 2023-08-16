@@ -35,8 +35,8 @@ TaxonWorks::Application.configure do
   #config.assets.quiet = false # is true by default
   config.assets.raise_runtime_errors = true
 
-  # Needed to make webpacker not use yarn
-  config.webpacker.check_yarn_integrity = false
+  # Needed to make shakapacker not use yarn
+  config.shakapacker.check_yarn_integrity = false
 
   config.action_mailer.default_url_options = { host: 'localhost:3000' }
 

@@ -75,23 +75,34 @@ describe Identifier::Local, type: :model, group: :identifiers do
     end
   end
 
-  specify 'cache is populated' do
-    i1 = Identifier::Local::CatalogNumber.create(namespace: namespace, identifier_object: specimen1, identifier: 123)
-    expect(i1.cached).to eq("#{namespace.short_name} 123")
-  end
+  context 'cached' do
+    before{ namespace.update!(short_name: 'abc')}
 
-  specify 'virtual namespaces do not appear in cached' do
-    namespace.update!(is_virtual: true)
-    i1 = Identifier::Local::CatalogNumber.create(namespace: namespace, identifier_object: specimen1, identifier: 123)
-    expect(i1.cached).to eq('123')
-  end
+    specify 'cache is populated' do
+      i1 = Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: specimen1, identifier: 123)
+      expect(i1.cached).to eq("#{namespace.short_name} 123")
+    end
 
-  specify 'updating Namespace updates #cache' do
-    i = Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: specimen1, identifier: 123)
-    original = i.cached
-    namespace.update!(short_name: 'cache_test_short', verbatim_short_name: 'cache_test_verbatim_short', delimiter: ':delimiter-test:')
-    expect(i.reload.cached).to eq("cache_test_verbatim_short:delimiter-test:123")
-  end
+    specify 'virtual namespaces do not appear in cached' do
+      namespace.update!(is_virtual: true)
+      i1 = Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: specimen1, identifier: 123)
+      expect(i1.cached).to eq('123')
+    end
 
+    specify 'updating Namespace updates #cache 1' do
+      i = Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: specimen1, identifier: 123)
+      original = i.cached
+      namespace.update!(short_name: 'cache_test_short', verbatim_short_name: 'cache_test_verbatim_short', delimiter: ':delimiter-test:')
+      expect(i.reload.cached).to eq('cache_test_verbatim_short:delimiter-test:123')
+    end
+
+    specify 'updating Namespace updates #cache 2' do
+      i = Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: specimen1, identifier: 123)
+      original = i.cached
+      namespace.update!(short_name: 'cache_test_short', verbatim_short_name: 'cache_test_verbatim_short', delimiter: ':delimiter-test:', is_virtual: true)
+      expect(i.reload.cached).to eq('123')
+    end
+
+  end
 
 end

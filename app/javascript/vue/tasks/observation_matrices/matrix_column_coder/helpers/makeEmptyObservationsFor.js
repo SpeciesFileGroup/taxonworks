@@ -1,5 +1,5 @@
-import ComponentNames from 'tasks/observation_matrices/matrix_row_coder/store/helpers/ComponentNames'
-import ObservationTypes from 'tasks/observation_matrices/matrix_row_coder/store/helpers/ObservationTypes'
+import ComponentNames from '@/tasks/observation_matrices/matrix_row_coder/store/helpers/ComponentNames'
+import ObservationTypes from '@/tasks/observation_matrices/matrix_row_coder/store/helpers/ObservationTypes'
 import makeObservation from './makeObservation'
 
 const ComponentNamesToObservations = {
@@ -22,15 +22,25 @@ export default function (descriptor, rowObject) {
   }
 
   if (descriptor.componentName === ComponentNames.Qualitative) {
-    descriptor.characterStates.forEach(characterState => {
-      const emptyCharacterStateObservationData = Object.assign({}, emptyObservationData, { characterStateId: characterState.id })
+    descriptor.characterStates.forEach((characterState) => {
+      const emptyCharacterStateObservationData = Object.assign(
+        {},
+        emptyObservationData,
+        { characterStateId: characterState.id }
+      )
       observations.push(makeObservation(emptyCharacterStateObservationData))
     })
   } else if (
     descriptor.componentName === ComponentNames.Continuous ||
     descriptor.componentName === ComponentNames.Sample
   ) {
-    observations.push(makeObservation(Object.assign({}, emptyObservationData, { defaultUnit: descriptor.defaultUnit })))
+    observations.push(
+      makeObservation(
+        Object.assign({}, emptyObservationData, {
+          defaultUnit: descriptor.defaultUnit
+        })
+      )
+    )
   } else {
     observations.push(makeObservation(emptyObservationData))
   }

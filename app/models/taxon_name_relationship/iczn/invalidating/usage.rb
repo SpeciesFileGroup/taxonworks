@@ -28,4 +28,5 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage < TaxonNameRelationship::
   def sv_synonym_relationship
     true
   end
+
 end

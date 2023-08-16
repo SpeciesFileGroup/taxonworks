@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="item"
-    class="middle flex-separate"
+    class="middle flex-separate gap-small"
   >
     <p v-html="item[label]" />
     <v-btn
@@ -17,8 +17,8 @@
   </div>
 </template>
 <script setup>
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 defineProps({
   item: {
@@ -32,5 +32,4 @@ defineProps({
   }
 })
 const emit = defineEmits(['unset'])
-
 </script>

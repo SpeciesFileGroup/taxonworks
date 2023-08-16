@@ -1,7 +1,7 @@
 <template>
   <tr class="contextMenuCells">
     <td>
-      <span v-html="biocurationGroup.object_tag"/>
+      <span v-html="biocurationGroup.object_tag" />
     </td>
     <td>
       <v-btn
@@ -41,11 +41,10 @@
 </template>
 
 <script setup>
-
 import useBiocurationGroup from '../composables/useBiocurationGroup.js'
 import BiocurationModal from './BiocurationModal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import useStore from '../composables/useStore'
 import makeTooltip from '../utils/makeTooltip.js'
 
@@ -59,12 +58,9 @@ const props = defineProps({
 const emit = defineEmits(['delete'])
 const { getters } = useStore()
 
-const {
-  biologicalGroupClasses,
-  addBiocuration,
-  removeBiocuration
-} = useBiocurationGroup(props.biocurationGroup.id)
+const { biologicalGroupClasses, addBiocuration, removeBiocuration } =
+  useBiocurationGroup(props.biocurationGroup.id)
 
-const getBiologicalClassById = id => getters.getBiocurationClasses().find(item => item.id === id)
-
+const getBiologicalClassById = (id) =>
+  getters.getBiocurationClasses().find((item) => item.id === id)
 </script>

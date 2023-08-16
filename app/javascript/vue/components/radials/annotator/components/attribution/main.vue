@@ -2,30 +2,29 @@
   <div class="attribution_annotator">
     <div>
       <label>License</label>
-      <br>
+      <br />
       <select v-model="attribution.license">
         <option
-          v-for="(license) in licenses"
+          v-for="license in licenses"
           :key="license.key"
-          :value="license.key">
-          <span v-if="license.key != null">
-            {{ license.key }} :
-          </span>
+          :value="license.key"
+        >
+          <span v-if="license.key != null"> {{ license.key }} : </span>
           {{ license.label }}
         </option>
       </select>
     </div>
     <div class="separate-top separate-bottom">
       <label>Copyright year</label>
-      <br>
+      <br />
       <input
         class="input-year"
         v-model="attribution.copyright_year"
-        type="number">
+        type="number"
+      />
     </div>
     <div class="switch-radio separate-bottom">
-      <template
-        v-for="(item, index) in smartSelectorList">
+      <template v-for="(item, index) in smartSelectorList">
         <input
           @click="view = item"
           :value="item"
@@ -33,12 +32,28 @@
           :name="`switch-role-options`"
           type="radio"
           :checked="item === view"
-          class="normal-input button-active">
+          class="normal-input button-active"
+        />
         <label
           :for="`switch-role-${index}`"
-          class="capitalize">{{ item }}
-          <span v-if="rolesList[`${item.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`].length">
-            ({{ rolesList[`${item.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`].length }})
+          class="capitalize"
+          >{{ item }}
+          <span
+            v-if="
+              rolesList[
+                `${item
+                  .replace(/([a-z])([A-Z])/g, '$1_$2')
+                  .toLowerCase()}_roles`
+              ].length
+            "
+          >
+            ({{
+              rolesList[
+                `${item
+                  .replace(/([a-z])([A-Z])/g, '$1_$2')
+                  .toLowerCase()}_roles`
+              ].length
+            }})
           </span>
         </label>
       </template>
@@ -48,18 +63,21 @@
         class="margin-medium-bottom"
         v-model="copyrightHolderType"
         use-index
-        :options="copyrightHolderOptions"/>
+        :options="copyrightHolderOptions"
+      />
       <div v-if="copyrightHolderType">
-        <organization-picker @getItem="addOrganization"/>
+        <organization-picker @getItem="addOrganization" />
         <display-list
           label="object_tag"
           @delete="removeOrganization"
-          :list="organizationList"/>
+          :list="organizationList"
+        />
       </div>
       <role-picker
         v-else
         v-model="roleList"
-        :role-type="roleSelected"/>
+        :role-type="roleSelected"
+      />
     </template>
     <div v-else>
       <template v-if="view">
@@ -74,20 +92,23 @@
           }"
           label="cached"
           :autocomplete="false"
-          @selected="addRole">
+          @selected="addRole"
+        >
           <template #header>
             <role-picker
               :hidden-list="true"
               v-model="roleList"
               ref="rolepicker"
               :autofocus="false"
-              :role-type="roleSelected"/>
+              :role-type="roleSelected"
+            />
           </template>
           <role-picker
             :create-form="false"
             v-model="roleList"
             :autofocus="false"
-            :role-type="roleSelected"/>
+            :role-type="roleSelected"
+          />
         </smart-selector>
       </template>
     </div>
@@ -96,7 +117,8 @@
         type="button"
         @click="attribution.id ? updateAttribution() : createNew()"
         :disabled="!attribution.id && !validateFields"
-        class="button normal-input button-submit save-annotator-button">
+        class="button normal-input button-submit save-annotator-button"
+      >
         {{ attribution.id ? 'Update' : 'Create' }}
       </button>
     </div>
@@ -104,15 +126,14 @@
 </template>
 
 <script>
-
-import RolePicker from 'components/role_picker'
-import SwitchComponent from 'components/switch.vue'
+import RolePicker from '@/components/role_picker'
+import SwitchComponent from '@/components/switch.vue'
 import CRUD from '../../request/crud.js'
 import AnnotatorExtended from '../annotatorExtend.js'
-import OrganizationPicker from 'components/organizationPicker'
-import DisplayList from 'components/displayList'
-import SmartSelector from 'components/ui/SmartSelector'
-import { findRole } from 'helpers/people/people.js'
+import OrganizationPicker from '@/components/organizationPicker'
+import DisplayList from '@/components/displayList'
+import SmartSelector from '@/components/ui/SmartSelector'
+import { findRole } from '@/helpers/people/people.js'
 
 export default {
   mixins: [CRUD, AnnotatorExtended],
@@ -124,42 +145,61 @@ export default {
     SmartSelector
   },
   computed: {
-    validateFields () {
-      return this.attribution.license || this.attribution.copyright_year || [].concat.apply([], Object.values(this.rolesList)).length
+    validateFields() {
+      return (
+        this.attribution.license ||
+        this.attribution.copyright_year ||
+        [].concat.apply([], Object.values(this.rolesList)).length
+      )
     },
 
-    roleSelected () {
-      const index = this.smartSelectorList.findIndex((role) => role === this.view)
+    roleSelected() {
+      const index = this.smartSelectorList.findIndex(
+        (role) => role === this.view
+      )
 
       return this.roleTypes[index]
     },
 
     roleList: {
-      get () {
-        return this.rolesList[`${this.view.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`]
+      get() {
+        return this.rolesList[
+          `${this.view.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`
+        ]
       },
-      set (value) {
-        this.rolesList[`${this.view.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`] = value
+      set(value) {
+        this.rolesList[
+          `${this.view.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`
+        ] = value
       }
     },
 
-    organizationList () {
-      return this.rolesList.copyright_organization_roles.filter(item => !item?._destroy)
+    organizationList() {
+      return this.rolesList.copyright_organization_roles.filter(
+        (item) => !item?._destroy
+      )
     },
 
-    copyrightHolderList () {
-      return this.rolesList.copyright_holder_roles.filter(item => !item?._destroy)
+    copyrightHolderList() {
+      return this.rolesList.copyright_holder_roles.filter(
+        (item) => !item?._destroy
+      )
     },
 
-    copyrightHolderOptions () {
-      return ['person', 'organization'].map(label => {
-        const count = [].concat(this.rolesList.copyright_organization_roles, this.copyrightHolderList).filter(item => item.agent_type === label).length
+    copyrightHolderOptions() {
+      return ['person', 'organization'].map((label) => {
+        const count = []
+          .concat(
+            this.rolesList.copyright_organization_roles,
+            this.copyrightHolderList
+          )
+          .filter((item) => item.agent_type === label).length
         return label + (count ? ` (${count})` : '')
       })
     }
   },
 
-  data () {
+  data() {
     return {
       view: undefined,
       licenses: [],
@@ -186,9 +226,9 @@ export default {
     }
   },
 
-  mounted () {
-    this.getList('/attributions/licenses').then(response => {
-      this.licenses = Object.keys(response.body).map(key => ({
+  mounted() {
+    this.getList('/attributions/licenses').then((response) => {
+      this.licenses = Object.keys(response.body).map((key) => ({
         key: key,
         label: response.body[key]
       }))
@@ -199,25 +239,44 @@ export default {
       })
     })
 
-    this.getList('/attributions/role_types.json').then(response => {
+    this.getList('/attributions/role_types.json').then((response) => {
       this.roleTypes = response.body
       this.smartSelectorList = this.roleTypes.map((role) => role.substring(11))
     })
   },
 
   methods: {
-    setAttribution (attribution) {
+    setAttribution(attribution) {
       this.attribution.id = attribution.id
       this.attribution.copyright_year = attribution.copyright_year
       this.attribution.license = attribution.license
-      this.rolesList.creator_roles = (attribution?.creator_roles ? attribution.creator_roles : [])
-      this.rolesList.editor_roles = (attribution?.editor_roles ? attribution.editor_roles : [])
-      this.rolesList.owner_roles = (attribution?.owner_roles ? attribution.owner_roles : [])
-      this.rolesList.copyright_holder_roles = (attribution?.copyright_holder_roles ? attribution.copyright_holder_roles.filter(item => item.agent_type === 'person') : [])
-      this.rolesList.copyright_organization_roles = (attribution?.copyright_holder_roles ? attribution.copyright_holder_roles.filter(item => item.agent_type === 'organization').map(item => { item.object_tag = item.organization.object_tag; return item }) : [])
+      this.rolesList.creator_roles = attribution?.creator_roles
+        ? attribution.creator_roles
+        : []
+      this.rolesList.editor_roles = attribution?.editor_roles
+        ? attribution.editor_roles
+        : []
+      this.rolesList.owner_roles = attribution?.owner_roles
+        ? attribution.owner_roles
+        : []
+      this.rolesList.copyright_holder_roles =
+        attribution?.copyright_holder_roles
+          ? attribution.copyright_holder_roles.filter(
+              (item) => item.agent_type === 'person'
+            )
+          : []
+      this.rolesList.copyright_organization_roles =
+        attribution?.copyright_holder_roles
+          ? attribution.copyright_holder_roles
+              .filter((item) => item.agent_type === 'organization')
+              .map((item) => {
+                item.object_tag = item.organization.object_tag
+                return item
+              })
+          : []
     },
 
-    newAttribution () {
+    newAttribution() {
       return {
         id: undefined,
         copyright_year: undefined,
@@ -227,59 +286,84 @@ export default {
       }
     },
 
-    createNew () {
+    createNew() {
       this.setRolesAttributes()
-      this.create('/attributions', { attribution: this.attribution }).then(response => {
-        this.setAttribution(response.body)
-        TW.workbench.alert.create('Attribution was successfully created.', 'notice')
-      })
+      this.create('/attributions', { attribution: this.attribution }).then(
+        (response) => {
+          this.setAttribution(response.body)
+          TW.workbench.alert.create(
+            'Attribution was successfully created.',
+            'notice'
+          )
+        }
+      )
     },
 
-    updateAttribution () {
+    updateAttribution() {
       this.setRolesAttributes()
       if (!this.validateFields) {
         this.attribution._destroy = true
-        this.destroy(`/${this.type}s/${this.attribution.id}`, this.attribution).then(response => {
+        this.destroy(
+          `/${this.type}s/${this.attribution.id}`,
+          this.attribution
+        ).then((response) => {
           this.removeFromList(this.attribution.id)
-          TW.workbench.alert.create('Attribution was successfully destroyed.', 'notice')
+          TW.workbench.alert.create(
+            'Attribution was successfully destroyed.',
+            'notice'
+          )
           this.attribution = this.newAttribution()
         })
       } else {
-        this.update(`/attributions/${this.attribution.id}.json`, { attribution: this.attribution }).then(response => {
+        this.update(`/attributions/${this.attribution.id}.json`, {
+          attribution: this.attribution
+        }).then((response) => {
           this.setAttribution(response.body)
-          TW.workbench.alert.create('Attribution was successfully updated.', 'notice')
+          TW.workbench.alert.create(
+            'Attribution was successfully updated.',
+            'notice'
+          )
         })
       }
     },
 
-    setRolesAttributes () {
+    setRolesAttributes() {
       this.updateIndex()
-      this.attribution.roles_attributes = [].concat.apply([], Object.values(this.rolesList))
+      this.attribution.roles_attributes = [].concat.apply(
+        [],
+        Object.values(this.rolesList)
+      )
     },
 
     updateIndex() {
       let lengthArrays = 0
       for (const key in this.rolesList) {
         this.rolesList[key] = this.rolesList[key].map((item, index) => {
-          item.position = (index + 1) + lengthArrays
+          item.position = index + 1 + lengthArrays
           return item
         })
         lengthArrays = lengthArrays + this.rolesList[key].length
       }
     },
 
-    addOrganization (organization) {
+    addOrganization(organization) {
       this.rolesList.copyright_organization_roles.push({
         organization_id: organization.id,
         type: 'AttributionCopyrightHolder',
-        object_tag: organization?.object_tag ? organization.object_tag : organization.label
+        object_tag: organization?.object_tag
+          ? organization.object_tag
+          : organization.label
       })
     },
 
-    removeOrganization (organization) {
-      const index = organization?.id ?
-        this.rolesList.copyright_organization_roles.findIndex(item => item?.id === organization.id) :
-        this.rolesList.copyright_organization_roles.findIndex(item => item?.organization_id === organization.organization_id)
+    removeOrganization(organization) {
+      const index = organization?.id
+        ? this.rolesList.copyright_organization_roles.findIndex(
+            (item) => item?.id === organization.id
+          )
+        : this.rolesList.copyright_organization_roles.findIndex(
+            (item) => item?.organization_id === organization.organization_id
+          )
 
       if (this.rolesList.copyright_organization_roles[index]['id']) {
         this.rolesList.copyright_organization_roles[index]['_destroy'] = true
@@ -288,7 +372,7 @@ export default {
       }
     },
 
-    addRole (role) {
+    addRole(role) {
       if (!findRole(this.roleList, role.id)) {
         this.roleList.push({
           first_name: role.first_name,
@@ -297,20 +381,20 @@ export default {
           type: this.roleSelected
         })
       }
-    },
+    }
   }
 }
 </script>
 
 <style lang="scss">
-  .attribution_annotator {
-    .input-year {
-      width: 80px;
-    }
-    .switch-radio {
-      label {
-        width: 120px;
-      }
+.attribution_annotator {
+  .input-year {
+    width: 80px;
+  }
+  .switch-radio {
+    label {
+      width: 120px;
     }
   }
+}
 </style>

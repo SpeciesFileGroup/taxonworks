@@ -1,11 +1,13 @@
 <template>
   <ul
     v-if="inPlace"
-    class="no_bullets soft_validation list">
+    class="no_bullets soft_validation list"
+  >
     <li
       v-for="(validation, index) in validations"
-      :key="index">
-      <span v-html="validation"/>
+      :key="index"
+    >
+      <span v-html="validation" />
     </li>
   </ul>
 
@@ -23,7 +25,8 @@
       name="check"
       color="green"
       title="Validation passed."
-      class="cursor-pointer"/>
+      class="cursor-pointer"
+    />
     <v-icon
       v-else-if="validations.length"
       small
@@ -35,7 +38,8 @@
     />
     <modal-component
       v-if="showModal"
-      @close="setModalView(false)">
+      @close="setModalView(false)"
+    >
       <template #header>
         <h3>Soft validation</h3>
       </template>
@@ -43,7 +47,8 @@
         <ul class="no_bullets">
           <li
             v-for="(validation, index) in validations"
-            :key="index">
+            :key="index"
+          >
             <span>
               <v-icon
                 small
@@ -52,7 +57,8 @@
               />
               <span
                 class="margin-small-left"
-                v-html="validation"/>
+                v-html="validation"
+              />
             </span>
           </li>
         </ul>
@@ -62,10 +68,9 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal.vue'
-import { SoftValidation } from 'routes/endpoints'
-import VIcon from 'components/ui/VIcon/index.vue'
+import ModalComponent from '@/components/ui/Modal.vue'
+import { SoftValidation } from '@/routes/endpoints'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
@@ -90,7 +95,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       validations: [],
       showModal: false,
@@ -101,7 +106,7 @@ export default {
 
   watch: {
     validateObject: {
-      handler (newVal) {
+      handler(newVal) {
         if (newVal) {
           this.getSoftValidation()
         }
@@ -110,27 +115,35 @@ export default {
     }
   },
 
-  mounted () {
+  mounted() {
     this.getSoftValidation()
   },
 
   methods: {
-    getSoftValidation () {
+    getSoftValidation() {
       this.isLoading = true
-      SoftValidation.find(this.globalId, { cancelRequest: (c) => { this.cancelRequest = c } }).then(response => {
-        this.validations = response.body.soft_validations.map(validation => validation.message)
-      }).catch(_ => {})
+      SoftValidation.find(this.globalId, {
+        cancelRequest: (c) => {
+          this.cancelRequest = c
+        }
+      })
+        .then((response) => {
+          this.validations = response.body.soft_validations.map(
+            (validation) => validation.message
+          )
+        })
+        .catch((_) => {})
         .finally(() => {
           this.isLoading = false
         })
     },
 
-    setModalView (value) {
+    setModalView(value) {
       this.showModal = value
     }
   },
 
-  beforeUnmount () {
+  beforeUnmount() {
     this.cancelRequest()
   }
 }

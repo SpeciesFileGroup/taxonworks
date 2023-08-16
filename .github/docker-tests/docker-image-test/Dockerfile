@@ -1,4 +1,4 @@
-FROM ruby:3.1.2
+FROM ruby:3.2.1
 
 RUN apt-get update 
 RUN apt-get install -y curl bzip2 unzip default-jre \

@@ -16,31 +16,35 @@ module Export
       '2021-10-15 17:00:00.000000 -0500',    # Minor  Excludes footprintWKT, and references to GeographicArea in gazetteer; new form of media links
       '2021-11-04 17:00:00.000000 -0500',    # Minor  Removes '|', fixes some mappings
       '2021-11-08 13:00:00.000000 -0500',    # PENDING: Minor  Adds depth mappings
-      '2021-11-30 13:00:00.000000 -0500',    # Fix inverted long,lat 
+      '2021-11-30 13:00:00.000000 -0500',    # Fix inverted long,lat
       '2022-01-21 16:30:00.000000 -0500',    # basisOfRecord can now be FossilSpecimen; occurrenceId exporting; adds redundant time fields
       '2022-03-31 16:30:00.000000 -0500',    # collectionCode, occurrenceRemarks and various small fixes
       '2022-04-28 16:30:00.000000 -0500',    # add dwcOccurrenceStatus
-      '2022-09-28 16:30:00.000000 -0500'     # add phylum, class, order, higherClassification 
-    ]
+      '2022-09-28 16:30:00.000000 -0500',     # add phylum, class, order, higherClassification
+      '2023-04-03 16:30:00.000000 -0500'     # add associatedTaxa; updating InternalAttributes is now reflected in index
+    ].freeze
 
     # @param record_scope [ActiveRecord::Relation]
     #   a relation that returns DwcOccurrence records
+    # @param predicate_extension_params Hash
+    #    keys as _symbols_ => Array of Predicate ids
+    #    valid values are collecting_event_predicate_id: [], collection_object_predicate_id
     # @return [Download]
     #   the download object containing the archive
     def self.download_async(record_scope, request = nil, predicate_extension_params: {})
       name = "dwc-a_#{DateTime.now}.zip"
 
       download = ::Download::DwcArchive.create!(
-        name: "DwC Archive generated at #{Time.now}.",
+        name: "DwC Archive generated at #{Time.now.utc}.",
         description: 'A Darwin Core archive.',
         filename: name,
-        request: request,
+        request:,
         expires: 2.days.from_now,
         total_records: record_scope.size # Was haveing problems with count() TODO: increment after when extensions are allowed.
       )
 
       # Note we pass a string with the record scope
-      ::DwcaCreateDownloadJob.perform_later(download, core_scope: record_scope.to_sql, predicate_extension_params: predicate_extension_params)
+      ::DwcaCreateDownloadJob.perform_later(download, core_scope: record_scope.to_sql, predicate_extension_params:)
 
       download
     end

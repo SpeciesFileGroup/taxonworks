@@ -4,8 +4,8 @@ module Shared::IsData::HasRoles
 
   extend ActiveSupport::Concern
   included do
-    
-    has_many :roles, -> { order(:position) }, as: :role_object, dependent: :destroy
+
+    has_many :roles, -> { order(:position) }, as: :role_object, dependent: :destroy, inverse_of: :role_object
     # define has_many :people, through: <role_subclass>
 
     accepts_nested_attributes_for :roles, allow_destroy: true, reject_if: :all_blank

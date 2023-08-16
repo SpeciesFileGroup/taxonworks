@@ -1,7 +1,7 @@
-# Intent as a dictionary that ultimately lets us extend 
+# Intent as a dictionary that ultimately lets us extend
 # assertions beyond DWC to OWL/OBO URIs referenced in TaxonWorks Predicate (controlled vocabulary terms)
 
-DWC_ATTRIBUTE_URIS =  {
+DWC_ATTRIBUTE_URIS = {
   sex: [
     'http://rs.tdwg.org/dwc/terms/sex'
   ],
@@ -16,18 +16,21 @@ DWC_ATTRIBUTE_URIS =  {
 
   minimumDepthInMeters: [
     'http://rs.tdwg.org/dwc/terms/minimumDepthInMeters'
-  ], 
+  ],
 
   maximumDepthInMeters: [
     'http://rs.tdwg.org/dwc/terms/maximumDepthInMeters'
-  ], 
+  ],
 
   verbatimDepth: [
     'http://rs.tdwg.org/dwc/terms/verbatimDepth'
-  ] 
+  ] ,
 
-}
+  associatedTaxa: [
+    'http://rs.tdwg.org/dwc/terms/associatedTaxa'
+  ]
+}.freeze
 
 # Reference the same URI throughout
-DWC_FOSSIL_URI = 'http://rs.tdwg.org/dwc/terms/FossilSpecimen'
+DWC_FOSSIL_URI = 'http://rs.tdwg.org/dwc/terms/FossilSpecimen'.freeze
 

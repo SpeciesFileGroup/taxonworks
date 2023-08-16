@@ -9,14 +9,15 @@
 </template>
 
 <script setup>
-import { convertToTwoDigits } from 'helpers/numbers'
-import VBtn from 'components/ui/VBtn/index.vue'
+import { convertToTwoDigits } from '@/helpers/numbers'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const emit = defineEmits([
   'update:day',
   'update:month',
   'update:year',
-  'update:time'
+  'update:time',
+  'update:date'
 ])
 
 const setTime = () => {
@@ -31,6 +32,6 @@ const setTime = () => {
   emit('update:day', today.getDate())
   emit('update:month', today.getMonth() + 1)
   emit('update:year', today.getFullYear())
+  emit('update:date', today.toISOString().split('T')[0])
 }
-
 </script>

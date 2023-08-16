@@ -1,11 +1,23 @@
 module Queries
   module Tag
 
-    # !! does not inherit from base query
-    class Filter
+    class Filter < Query::Filter
 
       include Concerns::Polymorphic
       polymorphic_klass(::Tag)
+
+      PARAMS = [
+        *::Tag.related_foreign_keys.map(&:to_sym),
+        :keyword_id,
+        :tag_object_type,
+        :tag_object_id,
+        keyword_id: [],
+        tag_object_type: [],
+        tag_object_id: [],
+      ].freeze
+
+      # @return Array
+      attr_accessor :tag_id
 
       # Array, Integer
       attr_accessor :keyword_id
@@ -16,72 +28,54 @@ module Queries
       # Array, Integer
       attr_accessor :tag_object_id
 
-      # From concern
-      # attr_accessor :object_global_id
-
       # @params params [ActionController::Parameters]
-      def initialize(params)
-        @keyword_id = [params[:keyword_id]].flatten.compact
+      def initialize(query_params)
+        super
+
+        @tag_id = params[:tag_id]
+        @keyword_id = [params[:keyword_id]]
         @tag_object_type = params[:tag_object_type]
         @tag_object_id = params[:tag_object_id]
-        @object_global_id = params[:object_global_id]
 
-        set_polymorphic_ids(params)
+        set_polymorphic_params(params)
+      end
+
+      def tag_id
+        [@tag_id].flatten.compact.uniq
+      end
+
+      def keyword_id
+        [@keyword_id].flatten.compact.uniq
       end
 
       def tag_object_type
-        [@tag_object_type, global_object_type].flatten.compact
+        [@tag_object_type].flatten.compact
       end
 
       def tag_object_id
-        [@tag_object_id, global_object_id].flatten.compact
+        [@tag_object_id].flatten.compact
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = [
-          #  ::Queries::Annotator.annotator_params(options, ::Tag),
-          matching_keyword_id,
-          matching_polymorphic_ids,
-          matching_tag_object_id,
-          matching_tag_object_type,
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
-      # @return [Arel::Node, nil]
-      def matching_keyword_id
+      def keyword_id_facet
         !keyword_id.empty? ? table[:keyword_id].eq_any(keyword_id)  : nil
       end
 
-      # @return [Arel::Node, nil]
-      def matching_tag_object_id
+      def object_id_facet
         tag_object_id.empty? ? nil : table[:tag_object_id].eq_any(tag_object_id)
       end
 
-      # @return [Arel::Node, nil]
-      def matching_tag_object_type
+      def tag_object_type_facet
         tag_object_type.empty? ? nil : table[:tag_object_type].eq_any(tag_object_type)
       end
 
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::Tag.where(and_clauses).distinct
-        else
-          ::Tag.all
-        end
+      def and_clauses
+        [
+          keyword_id_facet,
+          object_id_facet,
+          tag_object_type_facet,
+        ]
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Tag.arel_table
-      end
     end
   end
 end

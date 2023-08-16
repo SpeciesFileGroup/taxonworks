@@ -28,7 +28,7 @@
 </template>
 
 <script>
-
+import { onVisible } from '@/helpers/observable.js'
 import mixinSizes from '../mixins/sizes.js'
 import mixinColors from '../mixins/colors.js'
 import * as Icons from './icons.js'
@@ -36,10 +36,7 @@ import * as Icons from './icons.js'
 export default {
   name: 'VIcon',
 
-  mixins: [
-    mixinSizes,
-    mixinColors
-  ],
+  mixins: [mixinSizes, mixinColors],
 
   props: {
     disabled: {
@@ -58,25 +55,25 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       viewbox: '0 0 12 12'
     }
   },
 
   computed: {
-    iconPaths () {
+    iconPaths() {
       return Icons[this.name]?.paths || []
     },
 
-    showTitle () {
-      return this.title || `${this.name} icon`
+    showTitle() {
+      return this.title
     }
   },
 
   watch: {
     name: {
-      handler () {
+      handler() {
         this.$nextTick(() => {
           this.viewbox = this.getViewboxSize()
         })
@@ -84,22 +81,36 @@ export default {
     }
   },
 
-  mounted () {
+  mounted() {
     this.$nextTick(() => {
       this.viewbox = this.getViewboxSize()
     })
+
+    const { observer } = onVisible(this.$el, (visible) => {
+      if (visible) {
+        this.$nextTick(() => {
+          this.viewbox = this.getViewboxSize()
+        })
+      }
+    })
+
+    this.observer = observer
+  },
+
+  unmounted() {
+    this.observer?.disconnect()
   },
 
   methods: {
-    getViewboxSize () {
+    getViewboxSize() {
       const refGroup = this.$refs.svggroup
 
       if (refGroup) {
         const groupSize = refGroup.getBBox()
-        const strokePaths = this.iconPaths.map(path => path['stroke-width']).filter(stroke => stroke)
-        const strokeWidth = strokePaths.length
-          ? Math.max(...strokePaths)
-          : 0
+        const strokePaths = this.iconPaths
+          .map((path) => path['stroke-width'])
+          .filter((stroke) => stroke)
+        const strokeWidth = strokePaths.length ? Math.max(...strokePaths) : 0
 
         return [
           groupSize.x - strokeWidth / 2,

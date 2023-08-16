@@ -53,4 +53,8 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961 < Tax
       soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should be accepted as a replacement name before 1961") if self.source.year > 1960
     end
   end
+
+  def sv_coordinated_taxa
+    true
+  end
 end

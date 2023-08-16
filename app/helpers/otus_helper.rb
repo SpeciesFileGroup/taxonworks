@@ -7,6 +7,13 @@ module OtusHelper
     content_tag(:span, a.compact.join(' ').html_safe, class: :otu_tag)
   end
 
+  def label_for_otu(otu)
+    return nil if otu.nil?
+    [otu.name,
+     label_for_taxon_name(otu.taxon_name)
+    ].compact.join(': ')
+  end
+
   def otu_tag_elements(otu)
     return nil if otu.nil?
     [
@@ -27,13 +34,6 @@ module OtusHelper
   def otu_link(otu)
     return nil if otu.nil?
     link_to(otu_tag_elements(otu).join(' ').html_safe, otu)
-  end
-
-  def label_for_otu(otu)
-    return nil if otu.nil?
-    [otu.name,
-     label_for_taxon_name(otu.taxon_name)
-    ].compact.join(': ')
   end
 
   def otus_search_form
@@ -66,15 +66,37 @@ module OtusHelper
   #   of OTUs
   def next_otus(otu)
     if otu.taxon_name_id
-      otu.taxon_name.next_sibling&.otus || []
+      o = []
+      t = otu.taxon_name.next_sibling
+      unless t.nil?
+        while o.empty?
+          o = t&.otus.to_a
+          break if t.nil?
+          t = t.next_sibling
+        end
+      end
+      o
     else
       Otu.where(project_id: otu.id).where('id > ?', otu.id).all
     end
   end
 
+  # @return [Array]
+  #   of OTUs
+  # Some OTUs don't have TaxonName, skip along
+  # until we hit one.
   def previous_otus(otu)
     if otu.taxon_name_id
-      otu.taxon_name.previous_sibling&.otus || []
+      o = []
+      t = otu.taxon_name.previous_sibling
+      unless t.nil?
+        while o.empty?
+          o = t&.otus.to_a
+          break if t.nil?
+          t = t.previous_sibling
+        end
+      end
+      o
     else
       Otu.where(project_id: otu.id).where('id < ?', otu.id).all
     end
@@ -133,20 +155,13 @@ module OtusHelper
   #     type
   #     id
   #
-  def otu_distribution(otu, children = true)
+  def otu_distribution(otu, children = true, cutoff = 200)
     return {} if otu.nil?
     otus = if children
              otu.coordinate_otus_with_children
            else
              Otu.coordinate_otus(otu.id)
            end
-
-    t = 40
-    if otus.size > t
-      return { request_too_large: true,
-               message: "The number of children (#{t}) of this OTU is too large to presently return."
-      }
-    end
 
     h = {
       'type' => 'FeatureCollection',
@@ -160,34 +175,118 @@ module OtusHelper
       }
     }
 
-    otus.each do |o|
+    if otu.taxon_name && otu.taxon_name.is_protonym? && !otu.taxon_name.is_species_rank?
+      add_aggregate_geo_json(otu, h)
+    else
+      otus.each do |o|
+        add_distribution_geo_json(o, h)
+      end
+    end
 
-      # internal target
+    h
+  end
+
+  def add_aggregate_geo_json(otu, target)
+    h = target
+
+    if g = aggregate_geo_json(otu, h)
       t = {
-        'id' => o.id,
+        'id' => otu.id,
         'type' => 'Otu',
         'label' => label_for_otu(otu)
       }
 
-      o.current_collection_objects.each do |c|
-        if g = collection_object_to_geo_json_feature(c)
-          g['properties']['target'] = t
-          h['features'].push g
-        end
-      end
+      g['properties'] = {'aggregate': true}
 
-      o.asserted_distributions.each do |a|
-        if g = asserted_distribution_to_geo_json_feature(a)
-          g['properties']['target'] = t
-          h['features'].push g
-        end
-      end
+      g['properties']['target'] = t
+      h['features'].push g
+    end
 
-      o.type_materials.each do |e|
-        if g = type_material_to_geo_json_feature(e)
-          g['properties']['target'] = t
-          h['features'].push g
-        end
+    h
+  end
+
+  # NOT USED
+  # Caching the cached map
+  def otu_cached_map(otu, target, cached_map_type = 'CachedMapItem::WebLevel1', cache = true, force = false)
+    r = nil
+    if force
+      r = aggregate_geo_json(otu, target, cached_map_type)
+    else
+      # Check for map
+
+      # TODO: extend with synced check
+      if a = CachedMap.where(project_id: sessions_current_project_id).where(otu_id: otu.id, cached_map_type:  )
+      end
+    end
+  end
+
+  # TODO: cleanup
+  def aggregate_geo_json(otu, target, cached_map_type = 'CachedMapItem::WebLevel1')
+    h = target
+
+    if gj = otu.cached_map_geo_json(cached_map_type)
+
+     i = 
+       {
+         **gj,
+        # 'type' => gj['type'],  # 'Feature',
+        
+        'properties' => {
+          'base' => {
+            'type' => 'Otu',
+            'id' => otu.id,
+            'label' => label_for_otu(otu) },
+    #     'shape' => {
+    #       'type' => cached_map_type,
+    #       'id' => 99999 }, # was nil
+         'updated_at' => 'foo' # last updated at on CachedMapItem scope, possibly
+        }
+      }
+
+     
+     if gj.keys.include?('coordinates')
+       i['coordinates'] = gj['coordinates'] # was 'coordinates' TODO: might not work
+     elsif gj.keys.include?('geometries')
+       i['geometries'] = gj['geometries'] # was 'coordinates' TODO: might not work
+     end
+
+      i
+
+    else
+      nil
+    end
+
+  end
+
+  def add_distribution_geo_json(otu, target)
+    h = target
+    o = otu
+
+    # internal target
+    t = {
+      'id' => o.id,
+      'type' => 'Otu',
+      'label' => label_for_otu(otu)
+    }
+
+    o.current_collection_objects.each do |c|
+      if g = collection_object_to_geo_json_feature(c)
+        g['properties']['target'] = t
+        h['features'].push g
+      end
+    end
+
+    o.asserted_distributions.each do |a|
+      if g = asserted_distribution_to_geo_json_feature(a)
+        g['properties']['target'] = t
+        h['features'].push g
+      end
+    end
+
+    o.type_materials.each do |e|
+      if g = type_material_to_geo_json_feature(e)
+        g['properties']['target'] = t
+        h['features'].push g
       end
     end
     h

@@ -1,12 +1,12 @@
 import { MutationNames } from '../mutations/mutations'
-import { TypeMaterial } from 'routes/endpoints'
+import { TypeMaterial } from '@/routes/endpoints'
 import makeTypeSpecimen from '../../helpers/makeTypeSpecimen'
 
 export default ({ commit, state }) => {
   const typeSpecimens = [...state.typeSpecimens]
   const promises = []
 
-  typeSpecimens.forEach(typeSpecimen => {
+  typeSpecimens.forEach((typeSpecimen) => {
     if (!typeSpecimen.isUnsaved) return
 
     const payload = {
@@ -20,13 +20,18 @@ export default ({ commit, state }) => {
 
     promises.push(saveRequest)
 
-    saveRequest.then(({ body }) => commit(MutationNames.AddTypeMaterial, makeTypeSpecimen({ ...typeSpecimen, ...body })))
+    saveRequest.then(({ body }) =>
+      commit(
+        MutationNames.AddTypeMaterial,
+        makeTypeSpecimen({ ...typeSpecimen, ...body })
+      )
+    )
   })
 
   return Promise.all(promises)
 }
 
-function makeTypeSpecimenPayback (state, typeSpecimen) {
+function makeTypeSpecimenPayback(state, typeSpecimen) {
   const payload = {
     id: typeSpecimen.id,
     protonym_id: typeSpecimen.protonymId,

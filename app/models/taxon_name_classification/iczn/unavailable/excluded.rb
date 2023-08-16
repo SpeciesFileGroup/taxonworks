@@ -100,6 +100,10 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
 
     extend InnerClass
 
+    def label
+      'not in published work'
+    end
+
     def classification_label
       'excluded: not in published work'
     end

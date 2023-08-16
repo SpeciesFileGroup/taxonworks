@@ -4,12 +4,14 @@
     <ul class="no_bullets">
       <li
         v-for="(option, index) in options"
-        :key="index">
+        :key="index"
+      >
         <label>
           <input
             type="radio"
             v-model="inputValue"
-            :value="option.value">
+            :value="option.value"
+          />
           {{ option.label }}
         </label>
       </li>
@@ -17,35 +19,36 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    modelValue: {
-      type: Array,
-      default: () => []
-    }
-  },
-  computed: {
-    inputValue: {
-      get () {
-        return this.modelValue
-      },
-      set (value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
-  },
-  data () {
-    return {
-      options: [{
-        label: 'Any',
-        value: []
-      },
-      {
-        label: 'Current',
-        value: [document.querySelector('[data-project-id]').getAttribute('data-project-id')]
-      }]
-    }
+<script setup>
+import { getCurrentProjectId } from '@/helpers/project.js'
+import { computed } from 'vue'
+
+const props = defineProps({
+  modelValue: {
+    type: Array,
+    default: () => []
   }
-}
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const inputValue = computed({
+  get() {
+    return props.modelValue
+  },
+  set(value) {
+    emit('update:modelValue', value)
+  }
+})
+
+const options = [
+  {
+    label: 'Any',
+    value: []
+  },
+  {
+    label: 'Current',
+    value: [getCurrentProjectId()]
+  }
+]
 </script>

@@ -12,7 +12,7 @@
 #
 # @!attribute api_access_token
 #   @return [String, nil]
-#      The token is not intended to be private.  Generating one is akin to indicating that your project's data are public, and they will be exposed in the general API to all.  The token is primarily for tracking "anonymous" use. 
+#      The token is not intended to be private.  Generating one is akin to indicating that your project's data are public, and they will be exposed in the general API to all.  The token is primarily for tracking "anonymous" use.
 #
 class Project < ApplicationRecord
   include Housekeeping::Users
@@ -23,19 +23,19 @@ class Project < ApplicationRecord
   attr_accessor :without_root_taxon_name
   attr_accessor :clear_api_access_token
   attr_accessor :set_new_api_access_token
-  
+
   # ORDER MATTERS
-  # Used in `nuke` order (not available in production UI), but 
+  # Used in `nuke` order (not available in production UI), but
   # ultimately also for dumping records.
   #
   # The intent is to use  `delete_all` for speed. This means
   # that callbacks are *not* fired (associated destroys).
   MANIFEST = %w{
-     Observation  
+     Observation
      CitationTopic
      Citation
-     Note   
-     CharacterState     
+     Note
+     CharacterState
      Protocol
      AlternateValue
      DataAttribute
@@ -88,13 +88,14 @@ class Project < ApplicationRecord
      SequenceRelationship
      Extract
      GeneAttribute
-     ObservationMatrixColumn 
+     ObservationMatrixColumn
      ObservationMatrixColumnItem
      ObservationMatrixRow
      ObservationMatrixRowItem
      ObservationMatrix
      CollectionObject
      Otu
+     OtuRelationship
      TaxonName
      Descriptor
      ProjectMember
@@ -102,8 +103,11 @@ class Project < ApplicationRecord
      DatasetRecordField
      DatasetRecord
      ImportDataset
-    }
-  
+     CachedMapItem
+     CachedMapRegister
+     CachedMap
+  }.freeze
+
   has_many :project_members, dependent: :restrict_with_error
 
   has_many :users, through: :project_members
@@ -126,6 +130,36 @@ class Project < ApplicationRecord
     return true if user.is_administrator? || project_administrators.include?(user)
     false
   end
+
+  # @return [Hash]
+  #   for each model in manifest list its annotators
+  def annotators
+    known = ApplicationRecord.subclasses.select {|a| a.column_names.include?('project_id')}.map(&:name)
+
+    known.each do |k|
+      next if k.safe_constantize.table_name == 'test_classes' # TODO: a kludge to ignore stubbed classes in testing
+      if !MANIFEST.include?(k)
+        raise "#{k} has not been added to annotators method ."
+      end
+    end
+
+    h = {}
+
+    begin
+      MANIFEST.each do |o|
+        klass = o.safe_constantize
+
+      end
+
+
+
+      true
+    rescue => e
+      raise e
+    end
+  end
+
+
 
   # !! This is not production ready.
   # @return [Boolean]
@@ -154,11 +188,14 @@ class Project < ApplicationRecord
     end
   end
 
+
+
+
   # TODO: boot load checks
   def root_taxon_name
     # Calling TaxonName is a hack to load the required has_many into Project,
     # "has_many :taxon_names" is invoked through TaxonName within Housekeeping::Project
-    # Within TaxonName closure_tree (appears to?) require a database connection. 
+    # Within TaxonName closure_tree (appears to?) require a database connection.
 
     # Since we shouldn't (can't?) initiate a connection prior to a require_dependency
     # we simply load TaxonName for the first time here.
@@ -185,7 +222,7 @@ class Project < ApplicationRecord
   end
 
   def destroy_api_access_token
-    self.api_access_token = nil 
+    self.api_access_token = nil
   end
 
 end

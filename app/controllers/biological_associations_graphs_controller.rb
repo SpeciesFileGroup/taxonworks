@@ -2,12 +2,22 @@ class BiologicalAssociationsGraphsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_biological_associations_graph, only: [:show, :edit, :update, :destroy]
+  after_action -> { set_pagination_headers(:biological_associations_graphs) }, only: [:index], if: :json_request?
 
   # GET /biological_associations_graphs
   # GET /biological_associations_graphs.json
   def index
-    @recent_objects = BiologicalAssociationsGraph.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = BiologicalAssociationsGraph.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @biological_associations_graphs = ::Queries::BiologicalAssociationsGraph::Filter.new(params).all
+          .page(params[:page])
+          .per(params[:per])
+      }
+    end
   end
 
   # GET /biological_associations_graphs/1
@@ -69,16 +79,24 @@ class BiologicalAssociationsGraphsController < ApplicationController
     end
   end
 
+  def autocomplete
+    @biological_associations_graphs = Queries::BiologicalAssociationsGraph::Autocomplete.new(
+      params.require(:term),
+      project_id: sessions_current_project_id
+    ).autocomplete
+  end
+
+  # TODO: remove!
   def search
     if params[:id].blank?
       redirect_to biological_associations_graphs_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
-      redirect_to biological_association_graph_path(params[:id])
+      redirect_to biological_associations_graph_path(params[:id])
     end
   end
-  
+
   private
-  
+
   def set_biological_associations_graph
     @biological_associations_graph = BiologicalAssociationsGraph.where(project_id: sessions_current_project_id).find(params[:id])
   end
@@ -86,7 +104,9 @@ class BiologicalAssociationsGraphsController < ApplicationController
   def biological_associations_graph_params
     params.require(:biological_associations_graph).permit(
       :name,
-      origin_citation_attributes: [:id, :_destroy, :source_id, :pages] 
+      :layout,
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages] ,
+      biological_associations_biological_associations_graphs_attributes: [:id, :_destroy, :biological_association_id]
     )
   end
 end

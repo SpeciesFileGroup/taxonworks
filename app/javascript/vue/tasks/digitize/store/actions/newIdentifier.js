@@ -2,13 +2,16 @@ import {
   COLLECTION_OBJECT,
   CONTAINER,
   IDENTIFIER_LOCAL_CATALOG_NUMBER
-} from 'constants/index.js'
+} from '@/constants/index.js'
 import { MutationNames } from '../mutations/mutations'
-import makeIdentifier from 'factory/Identifier.js'
+import makeIdentifier from '@/factory/Identifier.js'
 import IncrementIdentifier from '../../helpers/incrementIdentifier'
 
 export default ({ commit, state }) => {
-  const newIdentifier = makeIdentifier(IDENTIFIER_LOCAL_CATALOG_NUMBER, COLLECTION_OBJECT)
+  const newIdentifier = makeIdentifier(
+    IDENTIFIER_LOCAL_CATALOG_NUMBER,
+    COLLECTION_OBJECT
+  )
   const locked = state.settings.locked.identifier
   const identifier = state.identifier.identifier
 

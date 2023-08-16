@@ -1,14 +1,19 @@
 <template>
   <fieldset>
     <legend>Geographic area</legend>
-    <smart-selector
+    <SmartSelector
       ref="smartSelector"
       model="geographic_areas"
       target="CollectingEvent"
       label="name"
+      :add-tabs="['map']"
       klass="CollectingEvent"
       @selected="selectGeographicArea"
-    />
+    >
+      <template #map>
+        <GeographicAreaMapPicker @select="selectGeographicArea" />
+      </template>
+    </SmartSelector>
     <div v-if="areasByCoors.length">
       <h4>By coordinates</h4>
       <p>
@@ -17,7 +22,7 @@
             type="radio"
             :checked="areasByCoors[0].id == collectingEvent.geographic_area_id"
             @click="selectGeographicArea(areasByCoors[0])"
-          >
+          />
           <span v-html="areasByCoors[0].label_html" />
         </label>
       </p>
@@ -35,9 +40,7 @@
       @close="showModal = false"
     >
       <template #header>
-        <h3>
-          Select geographic area
-        </h3>
+        <h3>Select geographic area</h3>
       </template>
       <template #body>
         <ul class="no_bullets">
@@ -50,8 +53,13 @@
               <input
                 type="radio"
                 :checked="item.id == collectingEvent.geographic_area_id"
-                @click="selectGeographicArea(item); showModal = false"
-              >
+                @click="
+                  () => {
+                    selectGeographicArea(item)
+                    showModal = false
+                  }
+                "
+              />
               <span v-html="item.label_html" />
             </label>
           </li>
@@ -75,12 +83,13 @@
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
-import { GeographicArea } from 'routes/endpoints'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import convertDMS from 'helpers/parseDMS.js'
-import ModalComponent from 'components/ui/Modal'
+import { GeographicArea } from '@/routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import convertDMS from '@/helpers/parseDMS.js'
+import ModalComponent from '@/components/ui/Modal'
 import MetaPrioritizeGeographicArea from '../Meta/MetaPrioritizeGeographicArea.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import GeographicAreaMapPicker from '@/components/ui/SmartSelector/GeographicAreaMapPicker.vue'
 
 import extendCE from '../mixins/extendCE'
 
@@ -91,37 +100,38 @@ export default {
     SmartSelector,
     ModalComponent,
     MetaPrioritizeGeographicArea,
-    SmartSelectorItem
+    SmartSelectorItem,
+    GeographicAreaMapPicker
   },
 
   computed: {
-    geographicAreaId () {
+    geographicAreaId() {
       return this.collectingEvent.geographic_area_id
     },
 
-    verbatimLatitude () {
+    verbatimLatitude() {
       return this.collectingEvent.verbatim_latitude
     },
 
-    verbatimLongitude () {
+    verbatimLongitude() {
       return this.collectingEvent.verbatim_longitude
     },
 
-    geographicArea () {
+    geographicArea() {
       return this.$store.getters[GetterNames.GetGeographicArea]
     },
 
     collectingEvent: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetCollectingEvent]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetCollectingEvent, value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       selected: undefined,
       showModal: false,
@@ -133,36 +143,46 @@ export default {
   },
 
   watch: {
-    geographicAreaId (newVal) {
+    geographicAreaId(newVal) {
       this.$store.dispatch(ActionNames.LoadGeographicArea, newVal)
     },
 
-    verbatimLongitude () {
+    verbatimLongitude() {
       this.getGeographicByVerbatim()
     },
 
-    verbatimLatitude () {
+    verbatimLatitude() {
       this.getGeographicByVerbatim()
     }
   },
 
   methods: {
-    selectGeographicArea (item) {
+    selectGeographicArea(item) {
       this.$store.dispatch(ActionNames.LoadGeographicArea, item?.id)
     },
 
-    getByCoords (lat, long) {
-      GeographicArea.coordinates({ latitude: lat, longitude: long, embed: ['shape'] }).then(response => {
+    getByCoords(lat, long) {
+      GeographicArea.coordinates({
+        latitude: lat,
+        longitude: long,
+        embed: ['shape']
+      }).then((response) => {
         this.areasByCoors = response.body
       })
     },
 
-    getGeographicByVerbatim () {
+    getGeographicByVerbatim() {
       if (this.collectingEvent.geographic_area_id) return
-      if (convertDMS(this.verbatimLatitude) && convertDMS(this.verbatimLongitude)) {
+      if (
+        convertDMS(this.verbatimLatitude) &&
+        convertDMS(this.verbatimLongitude)
+      ) {
         clearTimeout(this.ajaxCall)
         this.ajaxCall = setTimeout(() => {
-          this.getByCoords(convertDMS(this.verbatimLatitude), convertDMS(this.verbatimLongitude))
+          this.getByCoords(
+            convertDMS(this.verbatimLatitude),
+            convertDMS(this.verbatimLongitude)
+          )
         }, this.delay)
       }
     }

@@ -1,6 +1,6 @@
 class RolesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  include ShallowPolymorphic
+ # include ShallowPolymorphic
 
   before_action :set_role, only: [:update, :destroy]
   after_action -> { set_pagination_headers(:roles) }, only: [:index, :api_index ], if: :json_request?
@@ -59,7 +59,7 @@ class RolesController < ApplicationController
 
   # # GET /api/v1/roles
   # def api_index
-  #   @roles = Queries::Role::Filter.new(api_params).all
+  #   @roles = Queries::Role::Filter.new(params.merge!(api: true)).all
   #     .order('roles.id')
   #     .page(params[:page])
   #     .per(params[:per])
@@ -78,6 +78,7 @@ class RolesController < ApplicationController
     @role = Role.find(params[:id])
   end
 
+  # TODO: move logic to Filter
   def filter_params
     add_project_id = false
     role_types = [params[:role_type]].flatten.compact.map(&:safe_constantize)

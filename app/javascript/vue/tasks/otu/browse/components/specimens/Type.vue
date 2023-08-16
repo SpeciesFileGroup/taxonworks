@@ -2,18 +2,25 @@
   <section-panel
     :status="status"
     :name="title"
-    :title="`${title} (${collectionObjects.length})`">
+    :title="`${title} (${collectionObjects.length})`"
+  >
     <div
       v-if="types.length"
-      class="separate-top">
-      <ul
-        class="no_bullets">
+      class="separate-top"
+    >
+      <ul class="no_bullets">
         <li
           v-for="co in collectionObjects"
-          :key="co.collection_objects_id">
+          :key="co.collection_objects_id"
+        >
           <type-information
-            :types="types.filter(item => co.collection_objects_id === item.collection_object_id)"
-            :specimen="co"/>
+            :types="
+              types.filter(
+                (item) => co.collection_objects_id === item.collection_object_id
+              )
+            "
+            :specimen="co"
+          />
         </li>
       </ul>
     </div>
@@ -21,10 +28,9 @@
 </template>
 
 <script>
-
 import SectionPanel from '../shared/sectionPanel'
 import { GetterNames } from '../../store/getters/getters'
-import { CollectionObject, TypeMaterial } from 'routes/endpoints'
+import { CollectionObject, TypeMaterial } from '@/routes/endpoints'
 import TypeInformation from './TypeInformation'
 import extendSection from '../shared/extendSections'
 
@@ -44,7 +50,7 @@ export default {
   },
 
   computed: {
-    typeMaterialList () {
+    typeMaterialList() {
       const output = this.types.reduce((acc, v) => {
         acc[v.collection_object_id] = acc[v.collection_object_id] || []
         acc[v.collection_object_id].push(v)
@@ -53,16 +59,16 @@ export default {
       return output
     },
 
-    taxonNames () {
+    taxonNames() {
       return this.$store.getters[GetterNames.GetTaxonNames]
     },
 
-    taxonName () {
+    taxonName() {
       return this.$store.getters[GetterNames.GetTaxonName]
     }
   },
 
-  data () {
+  data() {
     return {
       types: [],
       collectionObjects: []
@@ -71,17 +77,27 @@ export default {
 
   watch: {
     taxonNames: {
-      handler (newVal) {
+      handler(newVal) {
         if (newVal.length) {
-          const currentTaxon = newVal.find(taxon => this.otu.taxon_name_id === taxon.id)
-          const data = currentTaxon.cached_is_valid
-            ? newVal
-            : [currentTaxon]
+          const currentTaxon = newVal.find(
+            (taxon) => this.otu.taxon_name_id === taxon.id
+          )
+          const data = currentTaxon.cached_is_valid ? newVal : [currentTaxon]
 
-          data.forEach(taxon => {
-            CollectionObject.dwcIndex({ type_specimen_taxon_name_id: taxon.id, extend: ['origin_citation', 'citations', 'source'] }).then(response => {
-              this.collectionObjects = this.collectionObjects.concat(response.body.data.map((_, index) => this.createObject(response.body, index)))
-              TypeMaterial.where({ protonym_id: taxon.id, extend: ['origin_citation', 'citations', 'source'] }).then(response => {
+          data.forEach((taxon) => {
+            CollectionObject.dwcIndex({
+              type_specimen_taxon_name_id: taxon.id,
+              extend: ['origin_citation', 'citations', 'source']
+            }).then((response) => {
+              this.collectionObjects = this.collectionObjects.concat(
+                response.body.data.map((_, index) =>
+                  this.createObject(response.body, index)
+                )
+              )
+              TypeMaterial.where({
+                protonym_id: taxon.id,
+                extend: ['origin_citation', 'citations', 'source']
+              }).then((response) => {
                 this.types = this.types.concat(response.body)
               })
             })
@@ -93,7 +109,7 @@ export default {
   },
 
   methods: {
-    createObject (list, position) {
+    createObject(list, position) {
       const tmp = {}
 
       list.column_headers.forEach((item, index) => {
@@ -103,8 +119,10 @@ export default {
       return tmp
     },
 
-    getSpecimen (id) {
-      return this.collectionObjects.find(item => item.collection_objects_id === id)
+    getSpecimen(id) {
+      return this.collectionObjects.find(
+        (item) => item.collection_objects_id === id
+      )
     }
   }
 }

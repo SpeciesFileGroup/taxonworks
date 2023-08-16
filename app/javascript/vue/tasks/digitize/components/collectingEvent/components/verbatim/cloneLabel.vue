@@ -6,17 +6,20 @@
       :logo-size="{
         width: '14px',
         height: '14px'
-      }"/>
+      }"
+    />
     <button
       type="button"
       class="button normal-input button-default"
       @click="cloneLabel"
-      :disabled="!bufferedCollectingEvent">
+      :disabled="!bufferedCollectingEvent"
+    >
       Clone from specimen
     </button>
     <modal-component
       v-if="showModal"
-      @close="closeModal">
+      @close="closeModal"
+    >
       <template #header>
         <h3>Existing collecting events</h3>
       </template>
@@ -25,20 +28,22 @@
           <li
             v-for="ce in list"
             :key="ce.id"
-            class="separate-bottom">
-            <label
-              @click="selectedCE = ce">
+            class="separate-bottom"
+          >
+            <label @click="selectedCE = ce">
               <input
                 type="radio"
-                name="modal-ce">
-              <span v-html="ce.object_tag"/>
+                name="modal-ce"
+              />
+              <span v-html="ce.object_tag" />
             </label>
           </li>
           <button
             type="button"
             :disabled="!selectedCE"
             @click="setCE(selectedCE)"
-            class="button normal-input button-default">
+            class="button normal-input button-default"
+          >
             Set collecting event
           </button>
         </ul>
@@ -48,13 +53,12 @@
 </template>
 
 <script>
-
 import { ActionNames } from '../../../../store/actions/actions'
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
-import { CollectingEvent } from 'routes/endpoints'
-import ModalComponent from 'components/ui/Modal'
-import SpinnerComponent from 'components/spinner'
+import { CollectingEvent } from '@/routes/endpoints'
+import ModalComponent from '@/components/ui/Modal'
+import SpinnerComponent from '@/components/spinner'
 import extendCE from '../../mixins/extendCE.js'
 
 export default {
@@ -66,21 +70,22 @@ export default {
   },
 
   computed: {
-    bufferedCollectingEvent () {
-      return this.$store.getters[GetterNames.GetCollectionObject].buffered_collecting_event
+    bufferedCollectingEvent() {
+      return this.$store.getters[GetterNames.GetCollectionObject]
+        .buffered_collecting_event
     },
 
     collectingEvent: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetCollectingEvent]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetCollectingEvent, value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       selectedCE: undefined,
       showModal: false,
@@ -90,7 +95,7 @@ export default {
   },
 
   watch: {
-    searching (newVal) {
+    searching(newVal) {
       if (!newVal && this.list.length) {
         this.showModal = true
       } else {
@@ -100,12 +105,16 @@ export default {
   },
 
   methods: {
-    cloneLabel () {
+    cloneLabel() {
       this.searching = true
-      CollectingEvent.where({ verbatim_label: this.bufferedCollectingEvent }).then(response => {
+      CollectingEvent.where({
+        verbatim_label: this.bufferedCollectingEvent
+      }).then((response) => {
         this.list = response.body
         this.searching = false
-        CollectingEvent.parseVerbatimLabel({ verbatim_label: this.bufferedCollectingEvent }).then(response => {
+        CollectingEvent.parseVerbatimLabel({
+          verbatim_label: this.bufferedCollectingEvent
+        }).then((response) => {
           const parsed = response.body
 
           this.collectingEvent = Object.assign(
@@ -119,14 +128,14 @@ export default {
       })
     },
 
-    setCE (ce) {
+    setCE(ce) {
       this.collectingEvent = ce
       this.$store.dispatch(ActionNames.GetCollectingEvent, ce.id)
       this.$store.dispatch(ActionNames.GetLabels, ce.id)
       this.closeModal()
     },
 
-    closeModal () {
+    closeModal() {
       this.showModal = false
       this.selectedCE = false
     }

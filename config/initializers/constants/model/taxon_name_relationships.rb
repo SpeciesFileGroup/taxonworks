@@ -16,7 +16,7 @@ begin
 
       # @return [Hash]
       def self.collection(relationships)
-        relationships.select{|r| r.assignable }.inject({}) {|hsh, c| 
+        relationships.select{|r| r.assignable }.inject({}) {|hsh, c|
           hsh.merge!(
             c.name => attributes(c)
           )
@@ -27,7 +27,7 @@ begin
       def self.attributes(taxon_name_relationship_klass)
         k = taxon_name_relationship_klass
         n = k.new
-        return { 
+        return {
           subject_status_tag: n.subject_status_tag,
           object_status_tag:  n.object_status_tag,
           valid_object_ranks: k.valid_object_ranks,
@@ -42,7 +42,7 @@ begin
     end
 
     # All TaxonNameRelationship as Classes.
-    # 
+    #
     # !! NOT ALL CLASSES ARE ASSIGNABLE
     # !! (see TAXON_NAME_RELATIONSHIP_NAMES for the list of assignable ones)
     #
@@ -95,6 +95,7 @@ begin
         TaxonNameRelationship::Icvcn::Unaccepting) +
        %w{ TaxonNameRelationship::Iczn::Invalidating
        TaxonNameRelationship::Icn::Unaccepting
+       TaxonNameRelationship::Icn::Unaccepting::OriginallyInvalid
        TaxonNameRelationship::Icnp::Unaccepting
        TaxonNameRelationship::Icvcn::Unaccepting}.freeze
 
@@ -128,7 +129,7 @@ begin
       TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling
       TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling}.freeze
 
-    TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION = TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING + %w{
+    TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION = TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING + %w{
       TaxonNameRelationship::Icn::Unaccepting::Misapplication
       TaxonNameRelationship::Icnp::Unaccepting::Misapplication
       TaxonNameRelationship::Iczn::Invalidating::Misapplication}
@@ -214,5 +215,5 @@ begin
 
 rescue ActiveRecord::NoDatabaseError
   puts Rainbow('skipping taxon name relationships constants initialization (this is ok if you are migrating the database)').yellow.bold
-  true 
+  true
 end

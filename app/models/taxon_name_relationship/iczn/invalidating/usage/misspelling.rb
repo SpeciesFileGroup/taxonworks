@@ -49,7 +49,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling < TaxonNameR
 
   def sv_no_citation
     if self.citations.empty?
-      soft_validations.add(:base, "Citation for misspelling is not provided", success_message: 'Citation is added')
+      soft_validations.add(:base, "Citation for misspelling is not provided", success_message: 'Citation is added', failure_message:  'Failed to add a citation')
     end
   end
 

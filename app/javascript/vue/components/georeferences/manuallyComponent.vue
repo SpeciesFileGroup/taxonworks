@@ -2,10 +2,14 @@
   <div>
     <button
       class="button normal-input button-default"
-      @click="isModalVisible = true">Enter coordinates</button>
+      @click="isModalVisible = true"
+    >
+      Enter coordinates
+    </button>
     <modal-component
       v-if="isModalVisible"
-      @close="isModalVisible = false">
+      @close="isModalVisible = false"
+    >
       <template #header>
         <h3>Create georeference</h3>
       </template>
@@ -14,24 +18,28 @@
           <label>Latitude</label>
           <input
             type="text"
-            v-model="shape.lat">
+            v-model="shape.lat"
+          />
         </div>
         <div class="field label-above">
           <label>Longitude</label>
           <input
             type="text"
-            v-model="shape.long">
+            v-model="shape.long"
+          />
         </div>
         <div class="field label-above">
           <label>Range distance</label>
           <label
             v-for="range in RANGES"
-            :key="range">
+            :key="range"
+          >
             <input
               type="radio"
               name="georeference-distance"
               :value="range"
-              v-model="shape.range">
+              v-model="shape.range"
+            />
             {{ range }}
           </label>
         </div>
@@ -41,7 +49,8 @@
           type="button"
           class="normal-input button button-submit"
           :disabled="!validateFields"
-          @click="createShape">
+          @click="createShape"
+        >
           Add point
         </button>
       </template>
@@ -50,16 +59,17 @@
 </template>
 
 <script setup>
-
-import ModalComponent from 'components/ui/Modal'
-import convertDMS from 'helpers/parseDMS.js'
+import ModalComponent from '@/components/ui/Modal'
+import convertDMS from '@/helpers/parseDMS.js'
 import { computed, ref, watch } from 'vue'
 
 const RANGES = [0, 10, 100, 1000, 10000]
 
 const emit = defineEmits(['create'])
 
-const validateFields = computed(() => convertDMS(shape.value.lat) && convertDMS(shape.value.long))
+const validateFields = computed(
+  () => convertDMS(shape.value.lat) && convertDMS(shape.value.long)
+)
 const isModalVisible = ref(false)
 const shape = ref({})
 
@@ -77,23 +87,19 @@ const createShape = () => {
   isModalVisible.value = false
 }
 
-watch(
-  isModalVisible,
-  newVal => {
-    if (newVal) {
-      shape.value = {
-        lat: undefined,
-        long: undefined,
-        range: 0
-      }
+watch(isModalVisible, (newVal) => {
+  if (newVal) {
+    shape.value = {
+      lat: undefined,
+      long: undefined,
+      range: 0
     }
   }
-)
-
+})
 </script>
 
 <style lang="scss" scoped>
-  :deep(.modal-container) {
-    max-width: 300px;
-  }
+:deep(.modal-container) {
+  max-width: 300px;
+}
 </style>

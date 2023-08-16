@@ -1,0 +1,32 @@
+<%= form_with(model: otu_relationship.metamorphosize) do |form| %>
+  <% if otu_relationship.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(otu_relationship.errors.count, "error") %> prohibited this otu_relationship from being saved:</h2>
+
+      <ul>
+        <% otu_relationship.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= smart_selector model: :otus, target: :OtuRelationship, field_property: :subject_otu_id, field_object: :otu_relationship, title: 'OTU subject', current: @otu_relationship.subject_otu %>
+
+  <br>
+
+  <div class="field">
+    <%= form.label :type %><br>
+    <%= form.select :type, options: %w{OtuRelationship::Intersecting OtuRelationship::Disjoint OtuRelationship::Equal OtuRelationship::ProperPartInverse OtuRelationship::ProperPart OtuRelationship::PartiallyOverlapping } %>
+  </div>
+
+  <br>
+
+  <div>
+  <%= smart_selector model: :otus, target: :OtuRelationship, field_property: :object_otu_id, field_object: :otu_relationship, title: 'OTU object', current: @otu_relationship.object_otu %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

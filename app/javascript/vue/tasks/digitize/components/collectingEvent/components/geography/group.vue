@@ -16,7 +16,8 @@
             vocab: 'pbdb',
             rank: 'group'
           }"
-          param="name"/>
+          param="name"
+        />
       </div>
       <div class="field">
         <label>Formation</label>
@@ -33,21 +34,22 @@
             vocab: 'pbdb',
             rank: 'formation'
           }"
-          param="name"/>
+          param="name"
+        />
       </div>
       <div class="field">
         <label>Member</label>
         <input
           type="text"
           v-model="collectingEvent.member"
-        >
+        />
       </div>
       <div class="field">
         <label>Lithology</label>
         <input
           type="text"
           v-model="collectingEvent.lithology"
-        >
+        />
       </div>
     </div>
     <div class="horizontal-left-content ma-fields">
@@ -55,21 +57,22 @@
         <label>Minumum MA</label>
         <input
           type="text"
-          v-model="collectingEvent.min_ma">
+          v-model="collectingEvent.min_ma"
+        />
       </div>
       <div class="separate-left">
         <label>Maximum MA</label>
         <input
           type="text"
-          v-model="collectingEvent.max_ma">
+          v-model="collectingEvent.max_ma"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-
-import Autocomplete from 'components/ui/Autocomplete.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 import extendCE from '../../mixins/extendCE.js'
 
 export default {
@@ -80,7 +83,7 @@ export default {
   data() {
     return {
       externalHeaders: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json'
       }
     }
@@ -89,9 +92,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .ma-fields {
-    input {
-      width: 60px;
-    }
+.ma-fields {
+  input {
+    width: 60px;
   }
+}
 </style>

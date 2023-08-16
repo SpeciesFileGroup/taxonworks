@@ -1,0 +1,37 @@
+<h2> Task - Source citation totals </h2>
+
+<div> <%= link_to('Back to filter', filter_sources_task_path) %> </div>
+
+<% if @sources.count > 2000 %> 
+  Total <%= @sources.count %> is more than max allowed of 2000.  Please refine your search.
+<% else %> 
+  <% data = source_citation_totals(@sources) %>
+
+  <% if data[:data].empty? %>
+    <em> No citations! </em>
+  <% else %>
+
+    <table> 
+      <tr>
+        <th></th>
+        <%= data[:data].keys.collect{|k| tag.th(k) }.join.html_safe %>
+      </tr>
+
+      <% @sources.each_with_index do |s, i| %> 
+        <tr style="border-bottom: 1px solid gray">
+          <%= tag.td(
+            source_link(s),
+            class: ( data[:metadata][:ids_missing_data].include?(s.id) ? 'feedback-danger' : '')
+          ) %>
+        <%= data[:data].keys.collect{|j|
+          tag.td(
+            data[:data][j][i],
+            style: "color: white; background-color: #{ Utilities::Heatmap.heatmap_color_for(data[:data][j][i].to_f / data[:metadata][:max_total].to_f ) };"
+          )
+        }.join.html_safe %>
+        </tr>
+      <% end %>
+    </table>
+
+  <% end %> 
+<% end %>

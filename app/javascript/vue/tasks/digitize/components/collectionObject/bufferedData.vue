@@ -4,7 +4,7 @@
     class="buffered"
   >
     <buffered-field
-      title="Buffered determination"
+      title="Buffered determinations"
       v-model="collectionObject.buffered_determinations"
       v-model:lock="locked.collection_object.buffered_determinations"
     />
@@ -22,7 +22,6 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import BufferedField from './BufferedField.vue'
@@ -32,19 +31,19 @@ export default {
 
   computed: {
     locked: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetLocked]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetLocked, value)
       }
     },
 
     collectionObject: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetCollectionObject]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetCollectionObject, value)
       }
     }
@@ -53,9 +52,9 @@ export default {
 </script>
 
 <style scoped>
-  .buffered {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    gap: 0.5em;
-  }
+.buffered {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 0.5em;
+}
 </style>
