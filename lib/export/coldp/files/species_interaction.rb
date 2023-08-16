@@ -56,7 +56,7 @@ module Export::Coldp::Files::SpeciesInteraction
     species_interaction_type
   end
 
-  def self.generate(otus, reference_csv = nil )
+  def self.generate(otus, project_members, reference_csv = nil )
     CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{
@@ -65,6 +65,8 @@ module Export::Coldp::Files::SpeciesInteraction
         relatedTaxonScientificName
         type
         referenceID
+        modified
+        modifiedBy
         remarks
       }
 
@@ -78,15 +80,17 @@ module Export::Coldp::Files::SpeciesInteraction
           reference_id = reference_ids.first
 
           csv << [
-            taxon_id,                                                 # taxonID
-            related_taxon_id,                                         # relatedTaxonID
-            related_taxon_scientific_name(related_taxon_id),          # relatedTaxonScientificName
-            species_interaction_type(ba),                             # type
-            reference_id,                                             # referenceID
-            nil,                                                      # remarks
+            taxon_id,                                                       # taxonID
+            related_taxon_id,                                               # relatedTaxonID
+            related_taxon_scientific_name(related_taxon_id),                # relatedTaxonScientificName
+            species_interaction_type(ba),                                   # type
+            reference_id,                                                   # referenceID
+            Export::Coldp.modified(ba[:update_at]),                         # modified
+            Export::Coldp.modified_by(ba[:updated_by_id], project_members), # modified_by
+            nil                                                             # remarks
           ]
 
-          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv
+          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
         end
       end
     end
