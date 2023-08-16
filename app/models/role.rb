@@ -38,8 +38,8 @@
 class Role < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
+  include Shared::PolymorphicAnnotator # must be before Shared::IsData (for now)
   include Shared::IsData
-  include Shared::PolymorphicAnnotator
 
   polymorphic_annotates(:role_object, presence_validate: false)
   acts_as_list scope: [:type, :role_object_type, :role_object_id]
@@ -98,7 +98,7 @@ class Role < ApplicationRecord
   def update_cached
     if role_object.respond_to?(:set_cached, true)
       return true if role_object.respond_to?(:no_cached, true) && role_object.no_cached == true
-      role_object.send(:set_cached) 
+      role_object.send(:set_cached)
     end
   end
 

@@ -15,7 +15,7 @@
               />
             </span>
           </div>
-          <div class="horizontal-left-content middle">
+          <div class="horizontal-left-content middle gap-small">
             <radial-annotator
               v-if="content"
               type="annotations"
@@ -24,17 +24,13 @@
             <otu-button
               v-if="otu"
               :otu="otu"
-              class="separate-options"
               redirect
             />
             <radial-object
               v-if="otu"
               :global-id="otu.global_id"
             />
-            <select-topic-otu
-              class="separate-left"
-              @close="$refs.contentText.setFocus()"
-            />
+            <select-topic-otu @close="$refs.contentText.setFocus()" />
           </div>
         </div>
         <div

@@ -26,7 +26,9 @@
               v-html="source.cached"
             />
 
-            <div class="flex-wrap-row nav__source-buttons margin-small-left">
+            <div
+              class="flex-wrap-row nav__source-buttons margin-small-left gap-small"
+            >
               <pin-component
                 class="circle-button"
                 type="Source"
@@ -43,7 +45,7 @@
           <span v-else>New record</span>
         </div>
         <div
-          class="nav__buttons"
+          class="nav__buttons gap-small"
           v-hotkey="shortcuts"
         >
           <v-icon
@@ -55,7 +57,7 @@
           <button
             @click="saveSource"
             :disabled="source.type === 'Source::Bibtex' && !source.bibtex_type"
-            class="button normal-input button-submit button-size margin-small-left margin-small-top margin-small-bottom"
+            class="button normal-input button-submit button-size"
             type="button"
           >
             Save
@@ -63,7 +65,7 @@
           <clone-source />
           <button
             v-if="source.type === 'Source::Verbatim' && source.id"
-            class="button normal-input button-submit button-size margin-small-left margin-small-top margin-small-bottom"
+            class="button normal-input button-submit button-size"
             type="button"
             @click="convert"
           >
@@ -71,14 +73,14 @@
           </button>
           <button
             v-help.section.navBar.crossRef
-            class="button normal-input button-default button-size margin-small-left"
+            class="button normal-input button-default button-size"
             type="button"
             @click="showModal = true"
           >
             CrossRef
           </button>
           <button
-            class="button normal-input button-default button-size margin-small-left margin-small-top margin-small-bottom"
+            class="button normal-input button-default button-size"
             type="button"
             @click="showBibtex = true"
           >
@@ -86,14 +88,14 @@
           </button>
           <button
             @click="showRecent = true"
-            class="button normal-input button-default button-size margin-small-left"
+            class="button normal-input button-default button-size"
             type="button"
           >
             Recent
           </button>
           <button
             @click="reset"
-            class="button normal-input button-default button-size margin-small-left margin-small-top margin-small-bottom"
+            class="button normal-input button-default button-size"
             type="button"
           >
             New

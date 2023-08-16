@@ -7,7 +7,7 @@ class RolesController < ApplicationController
 
   # GET /roles.json
   def index
-    @roles = Queries::Role::Filter.new(filter_params)
+    @roles = Queries::Role::Filter.new(params)
       .all
       .page(params[:page])
       .per(params[:per])
@@ -89,6 +89,10 @@ class RolesController < ApplicationController
     h = params.permit(
       :role_type,
       :object_global_id,
+      :role_object_id,
+      :role_object_type,
+      role_object_id: [],
+      role_object_type: [],
       role_type: [])
 
     # If any role

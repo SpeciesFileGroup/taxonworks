@@ -45,7 +45,7 @@
           </span>
           <div
             v-if="collectingEvent.id"
-            class="horizontal-left-content margin-small-left"
+            class="horizontal-left-content margin-small-left gap-small"
           >
             <pin-component
               class="circle-button"

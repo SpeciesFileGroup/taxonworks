@@ -116,26 +116,26 @@ module Export::Coldp::Files::Name
     end
 
     csv << [
-      id,                                                            # ID
-      basionym_id,                                                   # basionymID
-      clean_sic(t.cached_original_combination),                      # scientificName
-      authorship_field(t, true),                                     # authorship
-      rank,                                                          # rank
-      uninomial,                                                     # uninomial
-      genus,                                                         # genus
-      subgenus,                                                      # subgenus (no parens)
-      species,                                                       # species
-      infraspecific_element ? infraspecific_element.last : nil,      # infraspecificEpithet
-      origin_citation&.source_id,                                    # referenceID    |
-      origin_citation&.pages,                                        # publishedInPage  | !! All origin citations get added to reference_csv via the main loop, not here
-      t.year_of_publication,                                         # publishedInYear  |
-      true,                                                          # original
-      code_field(t),                                                 # code
-      nil,                                                           # status https://api.checklistbank.org/vocab/nomStatus
-      nil,                                                           # link (probably TW public or API)
-      remarks(t, name_remarks_vocab_id),                             # remarks
-      Export::Coldp.modified(t[:updated_at]),                        # modified
-      Export::Coldp.modified_by(t[:updated_by_id], project_members)  # modifiedBy
+      id,                                                                 # ID
+      basionym_id,                                                        # basionymID
+      clean_sic(t.cached_original_combination),                           # scientificName
+      authorship_field(t, true),                                          # authorship
+      rank,                                                               # rank
+      uninomial,                                                          # uninomial
+      genus,                                                              # genus
+      subgenus,                                                           # subgenus (no parens)
+      species,                                                            # species
+      infraspecific_element ? infraspecific_element.last : nil,           # infraspecificEpithet
+      origin_citation&.source_id,                                         # referenceID    |
+      origin_citation&.pages,                                             # publishedInPage  | !! All origin citations get added to reference_csv via the main loop, not here
+      t.year_of_publication,                                              # publishedInYear  |
+      true,                                                               # original
+      code_field(t),                                                      # code
+      nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
+      nil,                                                                # link (probably TW public or API)
+      Export::Coldp.sanitize_remarks(remarks(t, name_remarks_vocab_id)),  # remarks
+      Export::Coldp.modified(t[:updated_at]),                             # modified
+      Export::Coldp.modified_by(t[:updated_by_id], project_members)       # modifiedBy
     ]
   end
 
@@ -227,32 +227,35 @@ module Export::Coldp::Files::Name
             uninomial = name_string
           end
 
-          # TODO: Combinations don't have rank BUT CoL importer can interpret, so we're OK here for now
-          rank = t.rank
+          if t.is_combination?
+            rank = t.protonyms_by_rank.keys.last
+          else
+            rank = t.rank
+          end
 
           # Set is: no original combination OR (valid or invalid higher, valid lower, past combinations)
           if t.cached_original_combination.blank? || higher || t.is_valid? || t.is_combination?
             csv << [
-              t.id,                                                          # ID
-              basionym_id,                                                   # basionymID
-              name_string,                                                   # scientificName  # should just be t.cached
-              t.cached_author_year,                                          # authorship
-              rank,                                                          # rank
-              uninomial,                                                     # uninomial   <- if genus here
-              generic_epithet,                                               # genus and below - IIF species or lower
-              infrageneric_epithet,                                          # infragenericEpithet
-              specific_epithet,                                              # specificEpithet
-              infraspecific_epithet,                                         # infraspecificEpithet
-              origin_citation&.source_id,                                    # publishedInID
-              origin_citation&.pages,                                        # publishedInPage
-              t.year_of_publication,                                         # publishedInYear
-              original,                                                      # original
-              code_field(t),                                                 # code
-              nom_status_field(t),                                           # nomStatus
-              nil,                                                           # link (probably TW public or API)
-              remarks(t, name_remarks_vocab_id),                             # remarks
-              Export::Coldp.modified(t[:updated_at]),                        # modified
-              Export::Coldp.modified_by(t[:updated_by_id], project_members)  # modifiedBy
+              t.id,                                                               # ID
+              basionym_id,                                                        # basionymID
+              name_string,                                                        # scientificName  # should just be t.cached
+              t.cached_author_year,                                               # authorship
+              rank,                                                               # rank
+              uninomial,                                                          # uninomial   <- if genus here
+              generic_epithet,                                                    # genus and below - IIF species or lower
+              infrageneric_epithet,                                               # infragenericEpithet
+              specific_epithet,                                                   # specificEpithet
+              infraspecific_epithet,                                              # infraspecificEpithet
+              origin_citation&.source_id,                                         # publishedInID
+              origin_citation&.pages,                                             # publishedInPage
+              t.year_of_publication,                                              # publishedInYear
+              original,                                                           # original
+              code_field(t),                                                      # code
+              nom_status_field(t),                                                # nomStatus
+              nil,                                                                # link (probably TW public or API)
+              Export::Coldp.sanitize_remarks(remarks(t, name_remarks_vocab_id)),  # remarks
+              Export::Coldp.modified(t[:updated_at]),                             # modified
+              Export::Coldp.modified_by(t[:updated_by_id], project_members)       # modifiedBy
             ]
           end
 

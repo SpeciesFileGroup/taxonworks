@@ -83,7 +83,7 @@
         <template #item="{ element, index }">
           <li class="flex-separate middle">
             <span> {{ element.object_tag }} </span>
-            <div class="horizontal-left-content middle">
+            <div class="horizontal-left-content middle gap-small">
               <span
                 class="circle-button btn-edit"
                 @click="editCharacter(index)"

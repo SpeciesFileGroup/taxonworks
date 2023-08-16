@@ -154,7 +154,7 @@
             />
           </td>
           <td>
-            <div class="horizontal-right-content">
+            <div class="horizontal-right-content gap-small">
               <RadialAnnotator :global-id="item.global_id" />
               <RadialObject
                 v-if="radialObject"

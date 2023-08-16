@@ -7,7 +7,7 @@
       />
     </td>
     <td>
-      <div class="horizontal-right-content">
+      <div class="horizontal-right-content gap-small">
         <radial-annotator :global-id="otu.global_id" />
         <otu-radial
           :taxon-id="otu.global_id"

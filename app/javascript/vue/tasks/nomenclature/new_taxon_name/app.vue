@@ -24,8 +24,8 @@
           :add-params="{ 'type[]': 'Protonym' }"
           label="label_html"
           placeholder="Search a taxon name..."
-          @getItem="loadTaxon"
-          :clearAfter="true"
+          clear-after
+          @get-item="loadTaxon"
         />
       </div>
     </div>
@@ -46,7 +46,7 @@
             <component
               v-if="visibleSection"
               class="margin-medium-bottom"
-              :is="`${componentName.replace(' ', '')}Section`"
+              :is="`${componentName.replaceAll(' ', '')}Section`"
             />
           </template>
         </div>
@@ -63,8 +63,8 @@
                 :add-params="{ 'type[]': 'Protonym' }"
                 label="label_html"
                 placeholder="Search a taxon name..."
-                @getItem="loadTaxon"
-                :clearAfter="true"
+                @get-item="loadTaxon"
+                clear-after
               />
             </div>
             <check-changes />
@@ -99,6 +99,8 @@ import ManagesynonymySection from './components/manageSynonym'
 import ClassificationSection from './components/classification.vue'
 import SoftValidation from '@/components/soft_validations/panel.vue'
 import SubsequentCombinationSection from './components/Combination/CombinationMain.vue'
+import SubsequentNameFormSection from './components/SubsequentNameForm/SubsequentNameForm.vue'
+import OriginalFormSection from './components/OriginalForm.vue'
 import Spinner from '@/components/spinner.vue'
 import platformKey from '@/helpers/getPlatformKey'
 
@@ -127,7 +129,9 @@ export default {
     Spinner,
     StatusSection,
     TaxonNameBox,
-    TypeSection
+    TypeSection,
+    SubsequentNameFormSection,
+    OriginalFormSection
   },
   computed: {
     shortcuts() {
@@ -187,6 +191,11 @@ export default {
           ['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'],
           this.getTaxon
         ),
+        OriginalForm: showForThisGroup(['FamilyGroup'], this.getTaxon),
+        'Subsequent Name Form': showForThisGroup(
+          ['FamilyGroup'],
+          this.getTaxon
+        ),
         Classification: true,
         Gender: showForThisGroup(
           ['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'],
@@ -199,11 +208,13 @@ export default {
       }
     }
   },
+
   data() {
     return {
       loading: true
     }
   },
+
   mounted() {
     const urlParams = new URLSearchParams(window.location.search)
     let taxonId = urlParams.get('taxon_name_id')
@@ -241,6 +252,7 @@ export default {
 
     this.addShortcutsDescription()
   },
+
   methods: {
     scrollBox(event) {
       const element = document.querySelector(
@@ -309,9 +321,9 @@ export default {
       )
     },
 
-    isMinor: function () {
-      let element = document.querySelector('#cright-panel')
-      let navBar = document.querySelector('#taxonNavBar')
+    isMinor() {
+      const element = document.querySelector('#cright-panel')
+      const navBar = document.querySelector('#taxonNavBar')
 
       if (element && navBar) {
         return element.offsetHeight + navBar.offsetHeight < window.innerHeight
@@ -319,19 +331,16 @@ export default {
         return true
       }
     },
-    showForThisGroup: showForThisGroup,
-    initLoad: function () {
-      let that = this
-      let actions = [
+    showForThisGroup,
+    initLoad() {
+      const actions = [
         this.$store.dispatch(ActionNames.LoadRanks),
         this.$store.dispatch(ActionNames.LoadStatus),
         this.$store.dispatch(ActionNames.LoadRelationships)
       ]
-      return new Promise(function (resolve, reject) {
-        Promise.all(actions).then(function () {
-          that.$store.commit(MutationNames.SetInitLoad, true)
-          return resolve(true)
-        })
+
+      return Promise.all(actions).then(() => {
+        this.$store.commit(MutationNames.SetInitLoad, true)
       })
     },
     loadTaxon(taxon) {

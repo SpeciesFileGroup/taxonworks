@@ -56,11 +56,10 @@
 
       <VBtn
         v-if="showBottom"
-        :title="buttonTitle"
-        class="circle-button"
-        :class="[pulse ? 'pulse-blue' : '']"
-        color="radial"
         circle
+        color="radial"
+        :title="buttonTitle"
+        :class="[pulse ? 'pulse-blue' : '']"
         :disabled="disabled"
         @contextmenu.prevent="loadContextMenu"
         @click="displayAnnotator()"

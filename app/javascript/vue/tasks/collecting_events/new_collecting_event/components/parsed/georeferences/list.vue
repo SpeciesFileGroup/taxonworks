@@ -52,7 +52,7 @@
             </div>
           </td>
           <td>
-            <div class="vue-table-options">
+            <div class="vue-table-options gap-small">
               <radial-annotator
                 v-if="item.global_id"
                 :global-id="item.global_id"

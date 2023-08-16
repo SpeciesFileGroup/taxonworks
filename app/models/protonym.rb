@@ -475,6 +475,7 @@ class Protonym < TaxonName
     # Is faster than above?
     #    return true if rank_string =~ /Icnp/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
 
+    return true if is_family_rank? && !family_group_name_form_relationship.nil?
     return true if is_family_rank? && !(taxon_name_relationships.collect{|i| i.type} & ::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).empty?
     return true unless (taxon_name_classifications.collect{|i| i.type} & ::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?
     return true unless (taxon_name_relationships.collect{|i| i.type} & ::TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).empty?
@@ -615,7 +616,7 @@ class Protonym < TaxonName
       m_name, f_name, n_name = name[0..-2] + 'is', name[0..-2] + 'is', name
     when /us$/
       m_name, f_name, n_name = name, name[0..-3] + 'a', name[0..-3] + 'um'
-    when /niger|integer$/
+    when /(niger|integer)$/
       m_name, f_name, n_name = name, name[0..-3] + 'ra', name[0..-3] + 'rum'
     when /(fer|ger)$/
       m_name, f_name, n_name = name, name + 'a', name + 'um'

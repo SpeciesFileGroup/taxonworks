@@ -41,7 +41,6 @@
       <VBtn
         v-if="showBottom"
         :title="buttonTitle"
-        class="circle-button"
         color="radial"
         circle
         :disabled="disabled"
