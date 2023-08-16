@@ -14,27 +14,38 @@
         class="list-item"
         v-html="displayName(item)"
       />
-      <div class="list-controls">
-        <citations-count
+      <div class="horizontal-right-content">
+        <CitationsCount
           :target="targetCitations"
           :object="item"
         />
-        <radial-annotator
+        <RadialAnnotator
           v-if="annotator"
           :global-id="item.global_id"
         />
-        <span
+        <VBtn
           v-if="edit"
-          class="circle-button btn-edit"
+          circle
+          color="update"
           @click="$emit('edit', Object.assign({}, item))"
-          >Edit
-        </span>
-        <span
+        >
+          <VIcon
+            name="pencil"
+            x-small
+          />
+        </VBtn>
+
+        <VBtn
           v-if="remove"
-          class="circle-button btn-delete"
+          circle
+          color="destroy"
           @click="deleteItem(item)"
-          >Remove
-        </span>
+        >
+          <VIcon
+            name="trash"
+            x-small
+          />
+        </VBtn>
       </div>
     </li>
   </transition-group>
@@ -42,11 +53,15 @@
 <script>
 import RadialAnnotator from '../../annotator'
 import CitationsCount from './citationsCount'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
     RadialAnnotator,
-    CitationsCount
+    CitationsCount,
+    VIcon,
+    VBtn
   },
   props: {
     list: {

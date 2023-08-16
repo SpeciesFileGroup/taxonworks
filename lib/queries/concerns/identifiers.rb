@@ -73,7 +73,7 @@ module Queries::Concerns::Identifiers
     attr_accessor :match_identifiers
 
     # @param match_identifiers_delimiter [String]
-    # A listr delimiter, defaults to ','.  Is applied to `match_identifiers` to build an Array.
+    # A list delimiter, defaults to ','.  Is applied to `match_identifiers` to build an Array.
     #    Any reference is possible.
     # '\t' is translated to "\t"
     # '\n' is translated to "\n"
@@ -99,9 +99,9 @@ module Queries::Concerns::Identifiers
       return ',' if @match_identifiers_delimiter.nil?
 
       case @match_identifiers_delimiter
-      when '\n'
+      when '\n', "\n"
         return "\n"
-      when '\t'
+      when '\t', "\t"
         return "\t"
       else
         return @match_identifiers_delimiter
@@ -118,6 +118,7 @@ module Queries::Concerns::Identifiers
   end
 
   def set_identifier_params(params)
+
     @global_identifiers = boolean_param(params, :global_identifiers)
     @identifier = params[:identifier]
     @identifier_end = params[:identifier_end]

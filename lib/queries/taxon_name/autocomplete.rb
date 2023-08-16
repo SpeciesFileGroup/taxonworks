@@ -35,6 +35,9 @@ module Queries
       #     if 'true' then only names with descendents will be returned
       attr_accessor :no_leaves
 
+      # As determined by GlobalNames parser
+      attr_accessor :authorship
+
       # @param [Hash] args
       def initialize(string, **params)
         @nomenclature_group = params[:nomenclature_group]
@@ -242,15 +245,28 @@ module Queries
         .order('sml DESC, cached_author_year')
       end
 
+      # Weights.  Theory (using this loosely) is that this
+      # will proportionally increase the importance in the list of the corresponding element.
+      # The tradeoff is subtle, but seems to work at first try.
+      CACHED_NAME_WEIGHT = 8.0
+      CACHED_AUTHOR_YEAR_WEIGHT = 6.0
+      CACHED_WEIGHT = 4.0
+      CACHED_ORIGINAL_COMBINATION_WEIGHT = 2.0
+
       # Used in /otus/api/v1/autocomplete
       def autocomplete_combined_gin
-        a = ::TaxonName.select(ApplicationRecord.sanitize_sql(["taxon_names.*, similarity(?, cached_author_year) AS sml_cay, similarity(?, cached) AS sml_c, similarity(?, cached_original_combination) AS sml_coc",
-          query_string, query_string, query_string])
+        a = ::TaxonName.select(ApplicationRecord.sanitize_sql(
+          ["taxon_names.*, similarity(?, name) AS sml_n, similarity(?, cached_author_year) AS sml_cay, similarity(?, cached) AS sml_c, similarity(?, cached_original_combination) AS sml_coc",
+          query_string, authorship, query_string, query_string])
         ).where('cached_author_year % ? OR cached_original_combination % ? OR cached % ?', query_string, query_string, query_string)
 
         s = 'WITH tns AS (' + a.to_sql + ') ' +
             ::TaxonName
-              .select(Arel.sql('taxon_names.*, ( (COALESCE(tns1.sml_cay,0) + COALESCE(tns1.sml_c,0) + COALESCE(tns1.sml_coc,0) ) / 3) sml_tn')) # max 3.0
+              .select(Arel.sql("taxon_names.*, (( COALESCE(tns1.sml_n,0) * #{CACHED_NAME_WEIGHT} + \
+                                                  COALESCE(tns1.sml_cay,0) * #{CACHED_AUTHOR_YEAR_WEIGHT} + \
+                                                  COALESCE(tns1.sml_c,0) * #{CACHED_WEIGHT} + \
+                                                  COALESCE(tns1.sml_coc,0) * #{CACHED_ORIGINAL_COMBINATION_WEIGHT} \
+                                                )) sml_tn"))
               .joins('JOIN tns as tns1  on tns1.id = taxon_names.id')
               .to_sql
 
@@ -373,9 +389,23 @@ module Queries
         table[:cached_author_year].matches_any(terms)
       end
 
-      # @return [String]
+      # @return [String] (including empty)
       def authorship
-        ::Biodiversity::Parser.parse(query_string).dig(:authorship, :normalized)
+        return @authorship if @authorship
+        a = ::Biodiversity::Parser.parse(query_string)
+
+        if a.dig(:parsed)
+          @authorship = a.dig(:authorship, :normalized)
+        else
+           # Gnparser doesn't parse with names like `aus Jones`, do a quick and dirty check for things like `foo Jones`
+           if a = query_string.match(/\A[a-z]+\s*\,?\s*(.*)\Z/)
+            @authorship = a[1]
+           else
+            @authorship = ""
+           end
+        end
+
+        @authorship
       end
 
       # Note this overwrites the commonly used Geo parent/child!

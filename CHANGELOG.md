@@ -7,9 +7,33 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Subsequent Name Form section in New taxon name [#3460]
+- Original form section in New taxon name
+
 ### Changed
 
 - New species name button is now always visible in Type section on New taxon name task
+- Improve COLDP export delimiter usability [#3522] 
+- Updated Node packages and Ruby gems
+
+### Fixed
+
+- `api/v1/citation` failing on last page of results [#3524]
+- Fix generation of Unit tray labels from Filter nomenclature
+- Object graph view failing to render (controller object no longer available!?)
+- People as sources missing missing relationship (broke object graph)
+- Combinations in COLDP exports lack rank [#3516]
+- Fix coldp.rb undefined method `iso8601` for nil:NilClass [#3512]
+- Improve TaxonName autocomplete result prioritization [#3509]
+- Clone button is not clearing input after cloning
+
+[#3524]: https://github.com/SpeciesFileGroup/taxonworks/issues/3524
+[#3512]: https://github.com/SpeciesFileGroup/taxonworks/issues/3512
+[#3516]: https://github.com/SpeciesFileGroup/taxonworks/issues/3516
+[#3509]: https://github.com/SpeciesFileGroup/taxonworks/issues/3509
+[#3460]: https://github.com/SpeciesFileGroup/taxonworks/issues/3460
 
 ## [0.34.1] - 2023-08-07
 

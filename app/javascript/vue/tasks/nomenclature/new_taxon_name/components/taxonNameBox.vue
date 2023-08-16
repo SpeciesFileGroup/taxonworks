@@ -36,35 +36,37 @@
             v-html="taxonNameAndAuthor"
           />
           <div class="flex-wrap-column">
-            <div class="horizontal-right-content">
-              <radial-annotator :global-id="taxon.global_id" />
-              <otu-radial
+            <div class="horizontal-right-content gap-small">
+              <RadialAnnotator :global-id="taxon.global_id" />
+              <OtuRadial
                 :object-id="taxon.id"
                 :redirect="false"
               />
-              <otu-radial
+              <OtuRadial
                 ref="browseOtu"
                 :object-id="taxon.id"
                 :taxon-name="taxon.object_tag"
               />
-              <radial-object :global-id="taxon.global_id" />
+              <RadialObject :global-id="taxon.global_id" />
             </div>
-            <div class="horizontal-right-content margin-small-top">
-              <pin-object
+            <div class="horizontal-right-content margin-small-top gap-small">
+              <PinObject
                 v-if="taxon.id"
-                class="circle-button"
                 :object-id="taxon.id"
                 type="TaxonName"
               />
-              <default-confidence
-                class="circle-button"
-                :global-id="taxon.global_id"
-              />
-              <span
+              <DefaultConfidence :global-id="taxon.global_id" />
+              <VBtn
                 v-if="taxon.id"
+                color="destroy"
+                circle
                 @click="showModal = true"
-                class="circle-button btn-delete"
-              />
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
             </div>
           </div>
         </div>
@@ -86,6 +88,8 @@ import DefaultConfidence from '@/components/defaultConfidence.vue'
 import PinObject from '@/components/ui/Pinboard/VPin.vue'
 import Modal from '@/components/ui/Modal.vue'
 import platformKey from '@/helpers/getPlatformKey'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { TaxonName } from '@/routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
@@ -97,7 +101,9 @@ export default {
     RadialObject,
     OtuRadial,
     PinObject,
-    DefaultConfidence
+    DefaultConfidence,
+    VBtn,
+    VIcon
   },
   data() {
     return {

@@ -51,11 +51,15 @@ module Export
       project_members[updated_by_id]
     end
 
+    def self.sanitize_remarks(remarks)
+      remarks&.gsub('\r\n', ' ')&.gsub('\n', ' ')&.gsub('\t', ' ')&.gsub(/[ ]+/, ' ')
+    end
+
     def self.export(otu_id, prefer_unlabelled_otus: true)
       otus = otus(otu_id)
 
       # source_id: [csv_array]
-      ref_csv = {}
+      ref_tsv = {}
 
       otu = ::Otu.find(otu_id)
       project = ::Project.find(otu.project_id)
@@ -81,25 +85,25 @@ module Export
       Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
         (FILETYPES - ['Name']).each do |ft|
           m = "Export::Coldp::Files::#{ft}".safe_constantize
-          zipfile.get_output_stream("#{ft}.csv") { |f| f.write m.generate(otus, project_members, ref_csv) }
+          zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
         end
 
-        zipfile.get_output_stream('Name.csv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_csv) }
-        zipfile.get_output_stream('Taxon.csv') do |f|
-          f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_csv)
+        zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
+        zipfile.get_output_stream('Taxon.tsv') do |f|
+          f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_tsv)
         end
 
         # Sort the refs by full citation string
-        sorted_refs = ref_csv.values.sort{|a,b| a[1] <=> b[1]}
+        sorted_refs = ref_tsv.values.sort{|a,b| a[1] <=> b[1]}
 
-        d = CSV.generate(col_sep: "\t") do |csv|
-          csv << %w{ID citation	doi modified modifiedBy} # author year source details
+        d = CSV.generate(col_sep: "\t") do |tsv|
+          tsv << %w{ID citation	doi modified modifiedBy} # author year source details
           sorted_refs.each do |r|
-            csv << r
+            tsv << r
           end
         end
 
-        zipfile.get_output_stream('References.csv') { |f| f.write d }
+        zipfile.get_output_stream('References.tsv') { |f| f.write d }
         zipfile.add("metadata.yaml", metadata_file.path)
       end
 
