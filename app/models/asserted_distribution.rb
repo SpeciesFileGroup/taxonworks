@@ -135,7 +135,7 @@ class AssertedDistribution < ApplicationRecord
       end
     end
 
-    return { moved:, unmoved:, }
+    return { moved:, unmoved: }
   end
 
   protected
