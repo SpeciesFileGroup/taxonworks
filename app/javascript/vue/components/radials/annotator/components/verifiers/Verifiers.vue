@@ -68,7 +68,8 @@ export default {
   created() {
     Role.where({
       role_type: ['Verifier'],
-      object_global_id: this.globalId
+      role_object_id: this.metadata.object_id,
+      role_object_type: this.objectType
     }).then(({ body }) => {
       this.list = body
     })
