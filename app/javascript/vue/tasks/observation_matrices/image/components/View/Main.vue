@@ -68,7 +68,7 @@
               />
             </tippy>
           </div>
-          <div class="otu-cell padding-small">
+          <div class="otu-cell padding-small gap-small">
             <cell-link
               :label="row.object.object_tag"
               :row-object="row.object"

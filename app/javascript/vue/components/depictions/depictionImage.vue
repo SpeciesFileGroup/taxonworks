@@ -75,7 +75,7 @@
       :height="depiction.image.alternatives.thumb.height"
       :width="depiction.image.alternatives.thumb.width"
     />
-    <div class="horizontal-left-content">
+    <div class="horizontal-left-content gap-small">
       <span
         class="circle-button btn-edit button-default"
         @click="viewMode = true"
