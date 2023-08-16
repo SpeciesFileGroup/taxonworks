@@ -26,7 +26,7 @@
         class="flex-separate middle"
       >
         <h3>{{ descriptor.object_tag }}</h3>
-        <div class="descriptor-preview-options middle">
+        <div class="descriptor-preview-options middle gap-small">
           <radial-annotator :global-id="descriptor.global_id" />
           <span
             @click="showModal = true"

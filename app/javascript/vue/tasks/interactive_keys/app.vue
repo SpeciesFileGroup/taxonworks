@@ -8,7 +8,7 @@
         >
       </h1>
       <div
-        class="horizontal-left-content middle margin-small-left"
+        class="horizontal-left-content middle margin-small-left gap-small"
         v-if="observationMatrix"
       >
         <span

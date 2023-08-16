@@ -33,7 +33,7 @@
       </a>
     </td>
     <td>
-      <div class="horizontal-right-content">
+      <div class="horizontal-right-content gap-small">
         <ConfidenceButton :global-id="citation.citation_object.global_id" />
         <RadialAnnotator :global-id="citation.citation_object.global_id" />
         <VBtn

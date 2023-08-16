@@ -48,53 +48,48 @@
       :height="image.alternatives.thumb.height"
       :width="image.alternatives.thumb.width"
     />
-    <div class="flex-separate">
+    <div class="flex-separate gap-small">
       <radial-annotator
         type="annotations"
         :global-id="image.global_id"
       />
       <radial-object :global-id="image.global_id" />
-      <span
-        class="circle-button btn-delete"
+      <VBtn
+        circle
+        color="destroy"
         @click="deleteImage"
-      />
+      >
+        <VIcon
+          x-small
+          name="trash"
+        />
+      </VBtn>
     </div>
   </div>
 </template>
-<script>
+<script setup>
+import { ref } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialObject from '@/components/radials/navigation/radial'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
-export default {
-  components: {
-    Modal,
-    RadialAnnotator,
-    RadialObject
-  },
+const props = defineProps({
+  image: {
+    type: Object,
+    required: true
+  }
+})
 
-  props: {
-    image: {
-      type: Object,
-      required: true
-    }
-  },
+const emit = defineEmits(['delete'])
 
-  emits: ['delete'],
+const fullSizeImage = ref(false)
+const viewMode = ref(false)
 
-  data() {
-    return {
-      fullSizeImage: false,
-      viewMode: false
-    }
-  },
-
-  methods: {
-    deleteImage() {
-      if (window.confirm('Are you sure you want to delete this image?')) {
-        this.$emit('delete', this.image)
-      }
-    }
+function deleteImage() {
+  if (window.confirm('Are you sure you want to delete this image?')) {
+    emit('delete', props.image)
   }
 }
 </script>

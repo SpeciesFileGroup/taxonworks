@@ -164,7 +164,7 @@
                   <td>
                     <div
                       v-if="item.global_id"
-                      class="horizontal-left-content"
+                      class="horizontal-left-content gap-small"
                     >
                       <radial-annotator :global-id="item.global_id" />
                       <radial-navigation :global-id="item.global_id" />

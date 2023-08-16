@@ -36,7 +36,7 @@
       </template>
 
       <template #nav-right>
-        <div class="horizontal-right-content">
+        <div class="horizontal-right-content gap-small">
           <RadialCollectingEvent
             :disabled="!list.length"
             :ids="selectedIds"

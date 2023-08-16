@@ -29,7 +29,7 @@
           :class="{ even: index % 2 == 0 }"
         >
           <td>
-            <div class="horizontal-right-content">
+            <div class="horizontal-right-content gap-small">
               <TagButtom
                 class="circle-button"
                 :global-id="item.global_id"
