@@ -17,7 +17,7 @@
       v-if="isSaving"
     />
     <div class="flex-separate middle">
-      <div class="horizontal-right-content">
+      <div class="horizontal-right-content gap-small">
         <h3 class="summary-view__title">
           <span
             class="link cursor-pointer"

@@ -36,7 +36,7 @@
             </div>
           </td>
           <td>
-            <div class="horizontal-left-content">
+            <div class="horizontal-left-content gap-small">
               <a
                 v-if="edit && !element.is_dynamic"
                 type="button"

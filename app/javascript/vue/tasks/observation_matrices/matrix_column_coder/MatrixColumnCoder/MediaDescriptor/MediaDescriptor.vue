@@ -17,7 +17,7 @@
             class="dropzone-card"
             ref="depictionObs"
             url="/observations"
-            :use-custom-dropzone-options="true"
+            use-custom-dropzone-options
             :dropzone-options="dropzoneObservation"
             @vdropzone-sending="sending"
             @vdropzone-success="success"
@@ -56,7 +56,7 @@
           >
             <template #thumbfooter>
               <div
-                class="horizontal-left-content padding-xsmall-bottom padding-xsmall-top"
+                class="horizontal-left-content padding-xsmall-bottom padding-xsmall-top gap-small"
               >
                 <time-fields
                   :observation="observation"

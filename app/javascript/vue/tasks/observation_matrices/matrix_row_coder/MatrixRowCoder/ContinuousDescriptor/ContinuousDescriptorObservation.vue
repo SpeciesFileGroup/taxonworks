@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="horizontal-left-content">
+    <div class="horizontal-left-content gap-small">
       <label>
         Amount:
         <input
@@ -9,10 +9,7 @@
           @input="updateContinuousValue"
         />
       </label>
-      <unit-selector
-        class="margin-small-right"
-        v-model="continuousUnit"
-      />
+      <unit-selector v-model="continuousUnit" />
       <TimeFields
         inline
         :descriptor="descriptor"
