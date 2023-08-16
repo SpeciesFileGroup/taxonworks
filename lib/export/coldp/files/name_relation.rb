@@ -68,7 +68,7 @@ module Export::Coldp::Files::NameRelation
   end
 
 
-  def self.generate(otus, reference_csv = nil )
+  def self.generate(otus, project_members, reference_csv = nil )
     Current.project_id = otus[0].project_id
     CSV.generate(col_sep: "\t") do |csv|
 
@@ -77,6 +77,8 @@ module Export::Coldp::Files::NameRelation
         relatedNameID
         type
         referenceID
+        modified
+        modifiedBy
         remarks
       }
 
@@ -90,14 +92,16 @@ module Export::Coldp::Files::NameRelation
           reference_id = reference_ids.first
 
           csv << [
-            tnr.subject_taxon_name_id,                                # nameID
-            tnr.object_taxon_name_id,                                 # relatedNameID
-            type(tnr),                                                # type
-            reference_id,                                             # referenceID
-            nil,                                                      # remarks
+            tnr.subject_taxon_name_id,                                       # nameID
+            tnr.object_taxon_name_id,                                        # relatedNameID
+            type(tnr),                                                       # type
+            reference_id,                                                    # referenceID
+            Export::Coldp.modified(tnr[:update_at]),                         # modified
+            Export::Coldp.modified_by(tnr[:updated_by_id], project_members), # modified_by
+            nil,                                                             # remarks
           ]
 
-          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv
+          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
 
         end
       end
