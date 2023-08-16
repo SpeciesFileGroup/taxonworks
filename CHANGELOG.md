@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Subsequent Name Form section in New taxon name [#3460]
 - Original form section in New taxon name
+- Distribution to Catalogue of Life data package exports [#3148]
 
 ### Changed
 
