@@ -1,4 +1,5 @@
 FROM sfgrp/taxonworks:0.34.2
 
-ADD lib/tasks/import/sf/ lib/logged_task.rb .
+ADD lib/tasks/import/sf lib/tasks/import/sf
+ADD lib/logged_task.rb lib/logged_task.rb
 
