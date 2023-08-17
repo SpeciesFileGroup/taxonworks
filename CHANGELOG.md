@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Reviewing and Organization's related data
 
 ## [0.34.2] - 2023-08-16
 
