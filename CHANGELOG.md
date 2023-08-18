@@ -9,10 +9,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- CollectingEvent filter fails on cached_geo_* fields [#3526]
 - Reviewing and Organization's related data
 - CollectionObject timeline didn't show loans when object containerized [#3528]
 
-[3528]: https://github.com/SpeciesFileGroup/taxonworks/issues/3528
+[#3526]: https://github.com/SpeciesFileGroup/taxonworks/issues/3526
+[#3528]: https://github.com/SpeciesFileGroup/taxonworks/issues/3528
+
 
 ## [0.34.2] - 2023-08-16
 
