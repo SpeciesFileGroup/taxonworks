@@ -145,7 +145,7 @@ class Catalog::CollectionObject < ::Catalog
         start_date: i.created_at)
     end
 
-    o.loan_items.each do |li|
+    o.all_loan_items.each do |li|
       data.items << Catalog::CollectionObject::EntryItem.new(
         type: :sent_for_loan,
         object: li.loan,

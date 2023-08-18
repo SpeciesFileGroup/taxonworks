@@ -10,6 +10,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Reviewing and Organization's related data
+- CollectionObject timeline didn't show loans when object containerized [#3528]
+
+[3528]: https://github.com/SpeciesFileGroup/taxonworks/issues/3528
 
 ## [0.34.2] - 2023-08-16
 
