@@ -7,12 +7,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- API for BiologicalRelationships -`api/v1/biological_relationships?extend[]=biological_property` [#3525] 
+
 ### Fixed
 
 - CollectingEvent filter fails on cached_geo_* fields [#3526]
 - Reviewing and Organization's related data
 - CollectionObject timeline didn't show loans when object containerized [#3528]
 
+[#3525]: https://github.com/SpeciesFileGroup/taxonworks/issues/3525
 [#3526]: https://github.com/SpeciesFileGroup/taxonworks/issues/3526
 [#3528]: https://github.com/SpeciesFileGroup/taxonworks/issues/3528
 
