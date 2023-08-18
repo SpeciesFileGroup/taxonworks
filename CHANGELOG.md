@@ -9,18 +9,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- API for BiologicalRelationships -`api/v1/biological_relationships?extend[]=biological_property` [#3525] 
+- API for BiologicalRelationships -`api/v1/biological_relationships?extend[]=biological_property` [#3525]
 
 ### Fixed
 
-- CollectingEvent filter fails on cached_geo_* fields [#3526]
+- CollectingEvent filter fails on cached*geo*\* fields [#3526]
 - Reviewing and Organization's related data
 - CollectionObject timeline didn't show loans when object containerized [#3528]
+- Browse Annotations "On" filter doesn't work [#3505]
 
+[#3505]: https://github.com/SpeciesFileGroup/taxonworks/issues/3505
 [#3525]: https://github.com/SpeciesFileGroup/taxonworks/issues/3525
 [#3526]: https://github.com/SpeciesFileGroup/taxonworks/issues/3526
 [#3528]: https://github.com/SpeciesFileGroup/taxonworks/issues/3528
-
 
 ## [0.34.2] - 2023-08-16
 
@@ -32,7 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - New species name button is now always visible in Type section on New taxon name task
-- Improve COLDP export delimiter usability [#3522] 
+- Improve COLDP export delimiter usability [#3522]
 - Updated Node packages and Ruby gems
 
 ### Fixed
@@ -3788,7 +3789,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-
 [unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.2...development
 [0.34.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.1...v0.34.2
 [0.34.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.0...v0.34.1
