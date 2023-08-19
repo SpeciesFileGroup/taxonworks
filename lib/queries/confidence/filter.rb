@@ -56,7 +56,7 @@ module Queries
 
       # @return [Arel::Node, nil]
       def confidence_object_type_facet
-        !confidence_object_type.blank? ? table[:confidence_object_type].eq(confidence_object_type)  : nil
+        !confidence_object_type.blank? ? table[:confidence_object_type].eq_any(confidence_object_type)  : nil
       end
 
       # @return [Arel::Node, nil]
