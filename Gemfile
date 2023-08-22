@@ -154,8 +154,8 @@ group :test, :development do
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
-  gem 'webdrivers', '~> 5.0', require: false
-  gem 'selenium-webdriver', '~> 4.11', '>= 4.11.0'
+  gem 'webdrivers', '~> 5.3', require: false
+  gem 'selenium-webdriver', '~> 4.10'
   gem 'prawn', '~> 2.4.0'
   gem 'puma', '~> 6.3' # If failing on OS X do `export PUMA_DISABLE_SSL=false` first
 end
