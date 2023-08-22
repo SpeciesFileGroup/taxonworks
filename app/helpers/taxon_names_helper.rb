@@ -376,9 +376,8 @@ module TaxonNamesHelper
       n = r.safe_constantize.rank_name.to_sym
       d[:names][n] = {}
 
-      d[:names][n][:valid] = ::Queries::TaxonName::Filter.new(validity: true, descendants: true, synonymify: true, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
-      d[:names][n][:invalid] = ::Queries::TaxonName::Filter.new(validity: false, descendants: true, synonymify: true, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
-
+      d[:names][n][:valid] = ::Queries::TaxonName::Filter.new(validity: true, descendants: true, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
+      d[:names][n][:invalid] = ::Queries::TaxonName::Filter.new(validity: false, descendants: true,  taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
       d[:taxa].merge!(n => ::Queries::Otu::Filter.new(taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym'} ).all.count  )
     end
 
