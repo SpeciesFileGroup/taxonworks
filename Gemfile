@@ -157,13 +157,13 @@ group :test, :development do
   gem 'webdrivers', '~> 5.0', require: false
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
   gem 'prawn', '~> 2.4.0'
-  gem 'puma', '~> 6.0'
+  gem 'puma', '~> 6.3'
 end
 
 gem 'parallel_tests', group: [:development, :test]
 
 group :development do
-  gem "ruby-lsp", "~> 0.4.1", require: false
+  # gem "ruby-lsp", "~> 0.4.1", require: false
   
   # gem 'tunemygc'
   gem 'ruby-prof', '~> 1.2'
