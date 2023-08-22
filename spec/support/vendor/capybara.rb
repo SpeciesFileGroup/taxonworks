@@ -23,7 +23,6 @@ Capybara.register_driver :selenium do |app|
 
   case Settings.selenium_settings[:browser]
 
-
   when 'chrome'
     require 'webdrivers/chromedriver'
 
@@ -44,10 +43,8 @@ Capybara.register_driver :selenium do |app|
     Capybara::Selenium::Driver.new(
       app,
       browser: :chrome,
-      prefs: prefs,
+      prefs:,
     )
-
-
 
   when 'firefox'
     require 'webdrivers/geckodriver'
@@ -74,19 +71,25 @@ Capybara.register_driver :selenium do |app|
     profile['browser.download.manager.showWhenStarting'] = false
     profile['browser.helperApps.neverAsk.saveToDisk'] = 'TEXT/PLAIN;application/zip;'
 
-    options = Selenium::WebDriver::Firefox::Options.new
-    options.profile = profile
 
-    options.headless! if Settings.selenium_settings[:headless]
+    options = nil
+    if Settings.selenium_settings[:headless]
+      options = Selenium::WebDriver::Options.firefox(args: ['--headless=new'])
+    else
+      options = Selenium::WebDriver::Options.firefox
+    end
+
+    # options = Selenium::WebDriver::Firefox::Options.new
+
+    options.profile = profile
 
     Capybara::Selenium::Driver.new(
       app,
       browser: :firefox,
-      options: options
+      options:
     )
 
   else
     raise 'Error in selenium settings.'
   end
 end
-
