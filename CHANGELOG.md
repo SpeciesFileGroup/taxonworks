@@ -14,11 +14,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Attribution displays owner/copyright holder Organization names [#3515]
 - CollectingEvent filter fails on cached*geo*\* fields [#3526]
 - Reviewing and Organization's related data
 - CollectionObject timeline didn't show loans when object containerized [#3528]
 - Browse Annotations "On" filter doesn't work [#3505]
 
+[#3515]: https://github.com/SpeciesFileGroup/taxonworks/issues/3515
 [#3505]: https://github.com/SpeciesFileGroup/taxonworks/issues/3505
 [#3525]: https://github.com/SpeciesFileGroup/taxonworks/issues/3525
 [#3526]: https://github.com/SpeciesFileGroup/taxonworks/issues/3526

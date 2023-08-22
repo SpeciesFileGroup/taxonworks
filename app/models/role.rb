@@ -64,13 +64,18 @@ class Role < ApplicationRecord
   end
 
   def agent_type
-    if person
+    if person_id
       :person
-    elsif organization
+    elsif organization_id
       :organization
     else
       nil
     end
+  end
+
+  def agent
+    return person if person_id
+    organization
   end
 
   protected
@@ -126,10 +131,11 @@ require_dependency 'loan_supervisor'
 require_dependency 'accession_provider'
 require_dependency 'deaccession_recipient'
 require_dependency 'verifier'
+
+# TODO: these are being used in Attribution, or not?
 require_dependency 'attribution_creator'
 require_dependency 'attribution_editor'
 
 # Person OR Organization roles
-
 require_dependency 'attribution_copyright_holder'
 require_dependency 'attribution_owner'
