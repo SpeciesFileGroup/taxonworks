@@ -24,8 +24,6 @@ Capybara.register_driver :selenium do |app|
   case Settings.selenium_settings[:browser]
 
   when 'chrome'
-    require 'webdrivers/chromedriver'
-
    # !! Untested !!
 
     # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {"binary" => <path to chrome (example: chrome portable)>})
@@ -47,7 +45,6 @@ Capybara.register_driver :selenium do |app|
     )
 
   when 'firefox'
-    require 'webdrivers/geckodriver'
     # https://github.com/SeleniumHQ/selenium/wiki/Ruby-Bindings#Tweaking_Firefox_preferences.md
     #
     # update config/application_settings test should look _LIKE_ (YRMV):
