@@ -74,7 +74,7 @@ Capybara.register_driver :selenium do |app|
 
     options = nil
     if Settings.selenium_settings[:headless]
-      options = Selenium::WebDriver::Options.firefox(args: ['--headless=new'])
+      options = Selenium::WebDriver::Options.firefox(args: ['--headless'])
     else
       options = Selenium::WebDriver::Options.firefox
     end
