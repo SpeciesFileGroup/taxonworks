@@ -70,7 +70,7 @@
           >
             <li
               v-show="filterSource(item)"
-              class="horizontal-left-content"
+              class="horizontal-left-content gap-small"
             >
               <label>
                 <input
