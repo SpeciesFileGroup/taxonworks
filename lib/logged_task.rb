@@ -44,7 +44,7 @@ module LoggedTask
     def initialize(task_full_name)
       names = task_full_name.split(':')
       task_name = names.pop
-      path = ENV['TASK_LOGGER_PATH'] || Rails.root.join('log', 'rake_tasks')
+      path = (ENV['TASK_LOGGER_PATH'] && Pathname(ENV['TASK_LOGGER_PATH'])) || Rails.root.join('log', 'rake_tasks')
 
       FileUtils.mkdir_p(path)
       time = Time.now.strftime('%Y-%m-%d_%H%M%S.%N')
