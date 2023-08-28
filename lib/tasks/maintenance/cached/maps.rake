@@ -21,9 +21,9 @@ namespace :tw do
       #
       # You can destroy *everything* related to CachedMap<X> with
       #
-      # rake tw:maintenance:cached:maps:rake tw:maintenance:cached:maps:full_index
+      # rake tw:maintenance:cached:maps:nuke_cached_maps
       #
-      # Other helpfull bits when debuggin:
+      # Other helpfull bits when debugging:
       #
       # In the console you can erase the cached CacheMap (this does not destroy the underlying index, only the data
       # used in subsequent calls to return the aggregate map) with:
