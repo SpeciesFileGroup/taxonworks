@@ -24,14 +24,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Reviewing and Organization's related data
 - CollectionObject timeline didn't show loans when object containerized [#3528]
 - Browse Annotations "On" filter doesn't work [#3505]
+- Georeferences are not cleaned after unset current collecting event in comprehensive specimen digitization task [#3533]
 
-[#3530]: https://github.com/SpeciesFileGroup/taxonworks/issues/3530
-[#3515]: https://github.com/SpeciesFileGroup/taxonworks/issues/3515
 [#3505]: https://github.com/SpeciesFileGroup/taxonworks/issues/3505
+[#3515]: https://github.com/SpeciesFileGroup/taxonworks/issues/3515
 [#3525]: https://github.com/SpeciesFileGroup/taxonworks/issues/3525
 [#3526]: https://github.com/SpeciesFileGroup/taxonworks/issues/3526
 [#3528]: https://github.com/SpeciesFileGroup/taxonworks/issues/3528
 [#3529]: https://github.com/SpeciesFileGroup/taxonworks/issues/3529
+[#3530]: https://github.com/SpeciesFileGroup/taxonworks/issues/3530
+[#3533]: https://github.com/SpeciesFileGroup/taxonworks/issues/3533
 
 ## [0.34.2] - 2023-08-16
 
