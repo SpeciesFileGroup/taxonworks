@@ -8,7 +8,7 @@
         <div
           v-if="collectionObject.id"
           v-hotkey="shortcuts"
-          class="horizontal-left-content"
+          class="horizontal-left-content gap-small"
         >
           <radial-annotator :global-id="collectionObject.global_id" />
           <default-tag :global-id="collectionObject.global_id" />
