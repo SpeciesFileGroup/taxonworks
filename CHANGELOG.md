@@ -14,10 +14,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Batch update of collecting event geographic areas is now run in the background, limited to 250 record [#3527]
 - Reverted index-based TaxonName autocomplete to comprehensive version
 
 ### Fixed
 
+- Fixed loan related links in several places [#3463]
 - Common name language ISO when no language [#3530]
 - Attribution displays owner/copyright holder Organization names [#3515]
 - CollectingEvent filter fails on cached*geo*\* fields [#3526]
@@ -26,6 +28,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse Annotations "On" filter doesn't work [#3505]
 - Georeferences are not cleaned after unset current collecting event in comprehensive specimen digitization task [#3533]
 
+[#3463]: https://github.com/SpeciesFileGroup/taxonworks/issues/3463
+[#3527]: https://github.com/SpeciesFileGroup/taxonworks/issues/3527
 [#3505]: https://github.com/SpeciesFileGroup/taxonworks/issues/3505
 [#3515]: https://github.com/SpeciesFileGroup/taxonworks/issues/3515
 [#3525]: https://github.com/SpeciesFileGroup/taxonworks/issues/3525
