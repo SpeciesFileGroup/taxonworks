@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Batch update of collecting event geographic areas is now run in the background, limited to 250 record [#3527]
 - Reverted index-based TaxonName autocomplete to comprehensive version
+- Upgraded docker env to Postgis 3.4
 
 ### Fixed
 
