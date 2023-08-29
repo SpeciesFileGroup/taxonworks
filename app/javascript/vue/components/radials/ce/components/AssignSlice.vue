@@ -4,34 +4,41 @@
       v-if="isUpdating"
       legend="Updating..."
     />
-    <h3 v-if="isCountExceeded">Too many records selected, maximum 250</h3>
-    <h3 v-else>{{ count }} records will be updated</h3>
-
-    <fieldset>
-      <legend>Geographic area</legend>
-      <SmartSelector
-        model="geographic_areas"
-        label="name"
-        :target="COLLECTING_EVENT"
-        :klass="COLLECTING_EVENT"
-        @selected="(item) => (geographicArea = item)"
-      />
-      <SmartSelectorItem
-        label="name"
-        :item="geographicArea"
-        @unset="geographicArea = undefined"
-      />
-    </fieldset>
-
-    <VBtn
-      class="margin-large-top"
-      color="create"
-      medium
-      :disabled="!geographicArea || isCountExceeded"
-      @click="update"
+    <div
+      v-if="isCountExceeded"
+      class="feedback feedback-danger"
     >
-      Update
-    </VBtn>
+      Too many records selected, maximum 250
+    </div>
+    <div v-else>
+      <h3>{{ count }} records will be updated</h3>
+
+      <fieldset>
+        <legend>Geographic area</legend>
+        <SmartSelector
+          model="geographic_areas"
+          label="name"
+          :target="COLLECTING_EVENT"
+          :klass="COLLECTING_EVENT"
+          @selected="(item) => (geographicArea = item)"
+        />
+        <SmartSelectorItem
+          label="name"
+          :item="geographicArea"
+          @unset="geographicArea = undefined"
+        />
+      </fieldset>
+
+      <VBtn
+        class="margin-large-top"
+        color="create"
+        medium
+        :disabled="!geographicArea || isCountExceeded"
+        @click="update"
+      >
+        Update
+      </VBtn>
+    </div>
   </div>
 </template>
 
