@@ -1027,30 +1027,30 @@ class CollectingEvent < ApplicationRecord
     nil
   end
 
+  class << self
   # @return [Hash]
-  def self.batch_update(params)
-    return false if params[:collecting_event].blank?
+    def batch_update(params)
+      return false if params[:collecting_event].blank?
+      a = Queries::CollectingEvent::Filter.new(params[:collecting_event_query])
+      c = a.all.count
+      return false if c == 0 || c > 250
 
-    a = Queries::CollectingEvent::Filter.new(params[:collecting_event_query])
-
-    return false if a.all.count == 0
-
-    updated = []
-    not_updated = []
-
-    begin
-      a.all.each do |o|
-        o.update!( params[:collecting_event] )
-        updated.push o
+      a.all.find_each do |e|
+        query_update(e, params[:collecting_event])
       end
 
-    rescue ActiveRecord::RecordInvalid => e
-      not_updated.push o
+      return true
     end
 
-    return { updated:, not_updated: }
-  end
+    def query_update(collecting_event, params)
+      begin
+        collecting_event.update!( params )
+      rescue ActiveRecord::RecordInvalid => e
+      end
+    end
 
+    handle_asynchronously :query_update, run_at: Proc.new { 1.second.from_now }, queue: :collecting_event_ui_batch_update
+  end
 
   protected
 
