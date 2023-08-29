@@ -82,8 +82,8 @@
               :width="width"
               :geojson="mapGeoreferences"
               :zoom="zoom"
-              :fit-bounds="true"
-              :resize="true"
+              fit-bounds
+              resize
               :draw-controls="true"
               :draw-polyline="false"
               :cut-polygon="false"
