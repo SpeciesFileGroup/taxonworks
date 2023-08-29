@@ -228,19 +228,19 @@ module Queries
       # ---- gin methods
 
       def autocomplete_cached
-        ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(["taxon_names.*, similarity(?, cached) AS sml", query_string]))
+        ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, cached) AS sml', query_string]))
         .where('cached % ?', query_string) # `%` in where means nothing < 0.3 (internal PG similarity value)
         .order('sml DESC, cached')
       end
 
       def autocomplete_original_combination
-        ::TaxonName.select(ApplicationRecord.sanitize_sql(["taxon_names.*, similarity(?, cached_original_combination) AS sml", query_string]))
+        ::TaxonName.select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, cached_original_combination) AS sml', query_string]))
         .where('cached_original_combination % ?', query_string)
         .order('sml DESC, cached_original_combination')
       end
 
       def autocomplete_cached_author_year
-        ::TaxonName.select(ApplicationRecord.sanitize_sql(["taxon_names.*, similarity(?, cached_author_year) AS sml", query_string]))
+        ::TaxonName.select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, cached_author_year) AS sml', query_string]))
         .where('cached_author_year % ?', query_string)
         .order('sml DESC, cached_author_year')
       end
@@ -256,7 +256,7 @@ module Queries
       # Used in /otus/api/v1/autocomplete
       def autocomplete_combined_gin
         a = ::TaxonName.select(ApplicationRecord.sanitize_sql(
-          ["taxon_names.*, similarity(?, name) AS sml_n, similarity(?, cached_author_year) AS sml_cay, similarity(?, cached) AS sml_c, similarity(?, cached_original_combination) AS sml_coc",
+          ['taxon_names.*, similarity(?, name) AS sml_n, similarity(?, cached_author_year) AS sml_cay, similarity(?, cached) AS sml_c, similarity(?, cached_original_combination) AS sml_coc',
           query_string, authorship, query_string, query_string])
         ).where('cached_author_year % ? OR cached_original_combination % ? OR cached % ?', query_string, query_string, query_string)
 
@@ -327,8 +327,10 @@ module Queries
 
       # @return [Array]
       def autocomplete
-        # TODO: switch to mode or individualize methods and feed to this
-        queries = (exact ? exact_autocomplete : unified_autocomplete )
+
+        # exact, unified, comprehensive
+
+        queries = (exact ? exact_autocomplete : comprehensive_autocomplete )
         queries.compact!
 
         result = []
@@ -398,11 +400,11 @@ module Queries
           @authorship = a.dig(:authorship, :normalized)
         else
            # Gnparser doesn't parse with names like `aus Jones`, do a quick and dirty check for things like `foo Jones`
-           if a = query_string.match(/\A[a-z]+\s*\,?\s*(.*)\Z/)
+          if a = query_string.match(/\A[a-z]+\s*\,?\s*(.*)\Z/)
             @authorship = a[1]
-           else
-            @authorship = ""
-           end
+          else
+            @authorship = ''
+          end
         end
 
         @authorship
