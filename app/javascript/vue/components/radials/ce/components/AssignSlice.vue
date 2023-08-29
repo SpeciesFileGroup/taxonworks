@@ -4,7 +4,9 @@
       v-if="isUpdating"
       legend="Updating..."
     />
-    <h3>{{ count }} records will be updated</h3>
+    <h3 v-if="isCountExceeded">Too many records selected, maximum 250</h3>
+    <h3 v-else>{{ count }} records will be updated</h3>
+
     <fieldset>
       <legend>Geographic area</legend>
       <SmartSelector
@@ -25,7 +27,7 @@
       class="margin-large-top"
       color="create"
       medium
-      :disabled="!geographicArea"
+      :disabled="!geographicArea || isCountExceeded"
       @click="update"
     >
       Update
@@ -40,7 +42,9 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/spinner.vue'
 import { COLLECTING_EVENT } from '@/constants/index.js'
 import { CollectingEvent } from '@/routes/endpoints'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+
+const MAX_LIMIT = 250
 
 const props = defineProps({
   parameters: {
@@ -56,6 +60,7 @@ const props = defineProps({
 
 const geographicArea = ref()
 const isUpdating = ref(false)
+const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 
 function update() {
   const payload = {
@@ -68,9 +73,9 @@ function update() {
   isUpdating.value = true
 
   CollectingEvent.updateBatch(payload)
-    .then(({ body }) => {
+    .then((_) => {
       TW.workbench.alert.create(
-        `${body.length} collecting event items were successfully updated.`,
+        `Update queued. Records will update in the background.`,
         'notice'
       )
     })
