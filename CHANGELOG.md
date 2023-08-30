@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Missing synonym record for basionym in COLDP export [#3482]
 - Fixed loan related links in several places [#3463]
 - Common name language ISO when no language [#3530]
 - Attribution displays owner/copyright holder Organization names [#3515]
