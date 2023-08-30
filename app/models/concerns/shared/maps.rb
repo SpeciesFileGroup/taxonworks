@@ -65,11 +65,11 @@ module Shared::Maps
     private
 
     def initialize_cached_map_items
-      delay.create_cached_map_items
+      delay.create_cached_map_items, queue: 'cached_map'
     end
 
     def remove_from_cached_map_items
-      delay.deduct_from_cached_map_items
+      delay.deduct_from_cached_map_items, queue: 'cached_map'
     end
 
     # Creates or increments a CachedMapItem and creates a CachedMapRegister for this object.
