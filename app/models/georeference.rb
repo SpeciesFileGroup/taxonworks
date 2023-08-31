@@ -132,10 +132,6 @@ class Georeference < ApplicationRecord
 
   after_destroy :set_cached_collecting_event
 
-  def set_cached_collecting_event
-    collecting_event.send(:set_cached)
-  end
-
   def self.point_type
     joins(:geographic_item).where(geographic_items: {type: 'GeographicItem::Point'})
   end
@@ -310,7 +306,7 @@ class Georeference < ApplicationRecord
       :sanitize_sql_array,
       ['SELECT ST_Buffer(?, ?)',
        geographic_item.geo_object.to_s,
-       (error_radius / 111_319.444444444)])
+       (error_radius / Utilities::Geo::ONE_WEST_MEAN)])
     value = GeographicItem.connection.select_all(sql_str).first['st_buffer']
     Gis::FACTORY.parse_wkb(value)
   end
@@ -350,11 +346,20 @@ class Georeference < ApplicationRecord
     }
   end
 
+  # Calculate the radius from error shapes
+  # !! Used to retroactively rebuild the radius from the polygon shape
+  def radius_from_error_shape
+    error_geographic_item&.radius
+  end
+
   protected
 
-  # @return [Hash] of names of geographic areas
+  def set_cached_collecting_event
+    collecting_event.send(:set_cached)
+  end
+
   def set_cached
-    collecting_event.send(:set_cached_geographic_names) # protected method
+    collecting_event.send(:set_cached_geographic_names)
   end
 
   # validation methods
