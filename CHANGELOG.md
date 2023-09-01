@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Error radius also captured as literal value in addition to conversion to error polygon [#3471]
 - Batch update of collecting event geographic areas is now run in the background, limited to 250 record [#3527]
 - Reverted index-based TaxonName autocomplete to comprehensive version
 - Upgraded docker env to Postgis 3.4
@@ -29,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse Annotations "On" filter doesn't work [#3505]
 - Georeferences are not cleaned after unset current collecting event in comprehensive specimen digitization task [#3533]
 
+[#3471]: https://github.com/SpeciesFileGroup/taxonworks/issues/3471
 [#3463]: https://github.com/SpeciesFileGroup/taxonworks/issues/3463
 [#3527]: https://github.com/SpeciesFileGroup/taxonworks/issues/3527
 [#3505]: https://github.com/SpeciesFileGroup/taxonworks/issues/3505

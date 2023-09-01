@@ -42,13 +42,14 @@ class Georeference::GeoLocate < Georeference
 
         q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Buffer(?, ?);',
           self.geographic_item.geo_object.to_s,
-          (response_radius.to_f / Utilities::Geo::ONE_WEST_MEAN)])
+          ((response_radius.to_f) / Utilities::Geo::ONE_WEST_MEAN)])
+
         value = GeographicItem.connection.select_all(q2).first['st_buffer']
 
         self.error_geographic_item = make_err_polygon(value)
       end
     else
-      make_error_geographic_item(uncertainty_points, response_radius)
+      make_error_geographic_item(uncertainty_points, response_radius.to_f)
     end
     self.geographic_item
   end
