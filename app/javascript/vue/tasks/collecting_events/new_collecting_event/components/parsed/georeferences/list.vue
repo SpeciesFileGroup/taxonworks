@@ -6,7 +6,9 @@
           <th class="word-keep-all line-nowrap">Georeference ID</th>
           <th class="word-keep-all">Shape</th>
           <th class="word-keep-all">Coordinates</th>
+          <th class="word-keep-all">Has error polygon</th>
           <th class="word-keep-all line-nowrap">Error radius</th>
+          <th class="word-keep-all">Inferred error radius</th>
           <th class="word-keep-all">Type</th>
           <th class="word-keep-all">Date</th>
           <th />
@@ -27,12 +29,14 @@
             }}
           </td>
           <td>{{ getCoordinatesByType(item) }}</td>
+          <td>{{ item.has_error_polygon ? 'Yes' : 'No' }}</td>
           <td class="line-nowrap">
             <edit-in-place
               v-model="item.error_radius"
               @end="$emit('update', item)"
             />
           </td>
+          <td>{{ item.inferred_error_radius }}</td>
           <td class="word-keep-all">{{ item.type }}</td>
           <td>
             <div class="horizontal-left-content">
