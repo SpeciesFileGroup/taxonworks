@@ -56,7 +56,7 @@ Capybara.register_driver :selenium do |app|
 
     p = Settings.selenium_settings[:firefox_binary_path]
     if p
-      Selenium::WebDriver::Firefox::Binary.path = p
+      Selenium::WebDriver::Firefox.path = p
     end
 
     profile = Selenium::WebDriver::Firefox::Profile.new
