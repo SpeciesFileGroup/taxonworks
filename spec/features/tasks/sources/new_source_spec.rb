@@ -25,7 +25,7 @@ describe 'New taxon name', type: :feature, group: :sources do
           find('li', text: 'Journal stuff and things').hover.click 
           click_button 'Save'
           expect(page).to_not have_text('New record')
-          expect(page).to have_text('Remove from project')
+          expect(page).to_not find('button[aria-label="Remove from project"]')
           expect(Source.last.serial).to eq(serial)
         end
       end

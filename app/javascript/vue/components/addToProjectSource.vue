@@ -4,6 +4,7 @@
     color="create"
     circle
     title="Add to project"
+    aria-label="Add to project"
     @click="addToProject"
   >
     <VIcon
@@ -17,6 +18,7 @@
     color="destroy"
     circle
     title="Remove from project"
+    aria-label="Remove from project"
     @click="removeFromProject"
   >
     <VIcon
