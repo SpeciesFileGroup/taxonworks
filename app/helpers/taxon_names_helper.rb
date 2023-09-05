@@ -434,14 +434,14 @@ module TaxonNamesHelper
 
     (min..max).each do |y|
 
-      i = ( invalid[y].present? ? invalid[y].to_i : 0 ) 
-      v = ( valid[y].present? ? invalid[y].to_i : 0  )
+      i = ( invalid[y].present? ? invalid[y].to_i : 0 )
+      v = ( valid[y].present? ? valid[y].to_i : 0  )
 
       invalid_total += i
       valid_total += v
 
-      invalid_data[y] = invalid_total 
-      valid_data[y] =  valid_total 
+      invalid_data[y] = invalid_total
+      valid_data[y] =  valid_total
     end
 
     return {
