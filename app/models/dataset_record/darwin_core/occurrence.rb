@@ -603,7 +603,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # recordNumber: [Not mapped]
 
     # recordedBy: [collecting_event.collectors and collecting_event.verbatim_collectors]
-    Utilities::Hashes::set_unless_nil(res[:collecting_event], :collectors, (parse_people(:recordedBy, search_organizations=false) rescue nil))
+    Utilities::Hashes::set_unless_nil(res[:collecting_event], :collectors, (parse_people(:recordedBy) rescue nil))
     Utilities::Hashes::set_unless_nil(res[:collecting_event], :verbatim_collectors, get_field_value(:recordedBy))
 
     # individualCount: [specimen.total]

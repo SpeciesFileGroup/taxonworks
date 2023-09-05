@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - API for BiologicalRelationships -`api/v1/biological_relationships?extend[]=biological_property` [#3525]
 - Organization to Attribution slice in Radial annotator [#3529]
 - Delayed job queue `cached`, currently used in Role-related updates [#3437]
+- Allow organization determiners in DwC occurrences importer
 
 ### Changed
 
