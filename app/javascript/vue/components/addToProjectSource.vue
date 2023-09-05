@@ -2,21 +2,27 @@
   <VBtn
     v-if="!createdSourceID"
     color="create"
-    class="btn-add-to-project circle-button"
+    circle
     title="Add to project"
     @click="addToProject"
   >
-    Add to project
+    <VIcon
+      name="folderArrowUp"
+      x-small
+    />
   </VBtn>
 
   <VBtn
     v-else
     color="destroy"
-    class="btn-remove-from-project circle-button"
+    circle
     title="Remove from project"
     @click="removeFromProject"
   >
-    Remove from project
+    <VIcon
+      name="folderArrowUp"
+      x-small
+    />
   </VBtn>
 </template>
 
@@ -24,6 +30,7 @@
 import { ref, watch } from 'vue'
 import { ProjectSource } from '@/routes/endpoints'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   id: {
