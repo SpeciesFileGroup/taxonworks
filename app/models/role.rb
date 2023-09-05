@@ -163,7 +163,6 @@ require_dependency 'source_author'
 require_dependency 'source_editor'
 require_dependency 'collector'
 require_dependency 'georeferencer'
-require_dependency 'determiner'
 require_dependency 'loan_recipient'
 require_dependency 'loan_supervisor'
 
@@ -180,3 +179,4 @@ require_dependency 'attribution_editor'
 # Person OR Organization roles
 require_dependency 'attribution_copyright_holder'
 require_dependency 'attribution_owner'
+require_dependency 'determiner'
