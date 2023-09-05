@@ -87,6 +87,7 @@ export default {
           data.forEach((taxon) => {
             CollectionObject.dwcIndex({
               type_specimen_taxon_name_id: taxon.id,
+              per: 500,
               extend: ['origin_citation', 'citations', 'source']
             }).then((response) => {
               this.collectionObjects = this.collectionObjects.concat(

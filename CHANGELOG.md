@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CollectionObject timeline didn't show loans when object containerized [#3528]
 - Browse Annotations "On" filter doesn't work [#3505]
 - Georeferences are not cleaned after unset current collecting event in comprehensive specimen digitization task [#3533]
+- Fix collection object pagination in Browse OTU
 
 [#3471]: https://github.com/SpeciesFileGroup/taxonworks/issues/3471
 [#3463]: https://github.com/SpeciesFileGroup/taxonworks/issues/3463
