@@ -30,6 +30,12 @@ class Georeference::GeoLocate < Georeference
   def iframe_response=(response_string)
     lat, long, response_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
 
+    if response_radius.present?
+      response_radius = response_radius.to_f
+    else
+      response_radius = nil
+    end
+
     self.geographic_item = make_geographic_point(long, lat, '0.0') unless (lat.blank? && long.blank?)
 
     if uncertainty_points.nil?
@@ -42,14 +48,14 @@ class Georeference::GeoLocate < Georeference
 
         q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Buffer(?, ?);',
           self.geographic_item.geo_object.to_s,
-          ((response_radius.to_f) / Utilities::Geo::ONE_WEST_MEAN)])
+          ((response_radius) / Utilities::Geo::ONE_WEST_MEAN)])
 
         value = GeographicItem.connection.select_all(q2).first['st_buffer']
 
         self.error_geographic_item = make_err_polygon(value)
       end
     else
-      make_error_geographic_item(uncertainty_points, response_radius.to_f)
+      make_error_geographic_item(uncertainty_points, response_radius)
     end
     self.geographic_item
   end
