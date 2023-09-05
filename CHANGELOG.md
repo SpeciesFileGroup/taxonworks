@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - API for BiologicalRelationships -`api/v1/biological_relationships?extend[]=biological_property` [#3525]
 - Organization to Attribution slice in Radial annotator [#3529]
+- Delayed job queue `cached`, currently used in Role-related updates [#3437]
 
 ### Changed
 
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse Annotations "On" filter doesn't work [#3505]
 - Georeferences are not cleaned after unset current collecting event in comprehensive specimen digitization task [#3533]
 
+[#3437]: https://github.com/SpeciesFileGroup/taxonworks/issues/3437
 [#3471]: https://github.com/SpeciesFileGroup/taxonworks/issues/3471
 [#3463]: https://github.com/SpeciesFileGroup/taxonworks/issues/3463
 [#3527]: https://github.com/SpeciesFileGroup/taxonworks/issues/3527

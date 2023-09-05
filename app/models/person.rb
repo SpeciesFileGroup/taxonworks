@@ -542,16 +542,36 @@ class Person < ApplicationRecord
   # @return [Ignored]
   def set_cached
     update_column(:cached, bibtex_name)
-    set_role_object_cached
+    set_role_cached
   end
 
   # @return [Ignored]
-  def set_role_object_cached
+  def set_role_cached
     if change_to_cached_attribute?
-      roles.reload.each do |r|
-        r.role_object.send(:set_cached) if r.role_object.respond_to?(:set_cached, true) # true -> check private methods
+      if roles.count > 25
+        delay(queue: :cache).update_role_cached
+      else
+        update_role_cached
       end
     end
+  end
+
+  # @return Integer
+  #   the total objects updated
+  def update_role_cached
+    # don't update the same object many times (e.g. CE of many COs?)
+    updated = {}
+    total = 0
+
+    roles.reload.find_each do |r|
+      i = r.role_object.class.base_class.to_s + r.role_object.to_param
+      next if updated[i]
+      r.send(:set_cached)
+      updated[i] = true
+      total += 1
+    end
+
+    total
   end
 
   # @return [Boolean]
@@ -562,4 +582,3 @@ class Person < ApplicationRecord
   end
 
 end
-

@@ -1074,9 +1074,12 @@ class CollectingEvent < ApplicationRecord
   end
 
   def set_cached
-    # TODO: Once caching is stabilized we can turn this back on
     set_cached_geographic_names # if saved_change_to_attribute?(:geographic_area_id)
+    set_cached_cached
+  end
 
+  # TODO: A time sync.
+  def set_cached_cached
     c = {}
     v = [verbatim_label, print_label, document_label].compact.first
 
@@ -1086,6 +1089,7 @@ class CollectingEvent < ApplicationRecord
       name = [ geographic_names[:country], geographic_names[:state], geographic_names[:county]].compact.join(': ')
       date = [start_date_string, end_date_string].compact.join('-')
       place_date = [verbatim_locality, date].compact.join(', ')
+      # TODO: When a method to reference Collector roles is created update Collector to trigger this cached method
       string = [name, place_date, verbatim_collectors, verbatim_method].reject{|a| a.blank? }.join("\n")
     end
 

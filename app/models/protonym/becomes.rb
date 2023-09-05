@@ -1,5 +1,5 @@
 
-# This module contains code that lets us convert Protonyms with very specific attributes into a Combination.  It is used almost exclusively during an import. 
+# This module contains code that lets us convert Protonyms with very specific attributes into a Combination.  It is used almost exclusively during an import.
 module Protonym::Becomes
   extend ActiveSupport::Concern
 
@@ -62,7 +62,7 @@ module Protonym::Becomes
       errors.add(:base, 'Protonym is missing original combination relationship to self.')
       false
     else
-      r 
+      r
     end
   end
 
@@ -71,7 +71,7 @@ module Protonym::Becomes
     a = nil
     return false unless a = becomes_test_for_relationship
     return false unless becomes_test_for_similarity(a)
-    return false unless becomes_test_for_original_genus 
+    return false unless becomes_test_for_original_genus
     return false unless becomes_test_classifications
     return false unless becomes_test_for_other_relationships
     return false unless original_relationships = becomes_test_for_original_relationships
@@ -84,7 +84,7 @@ module Protonym::Becomes
     a, original_relationships, c = nil, nil, nil
 
     if b = convertable_to_combination?
-      a, original_relationships = b 
+      a, original_relationships = b
     else
       return self
     end
@@ -102,7 +102,7 @@ module Protonym::Becomes
         c.clear_cached
 
         # Destroy invalidating relationship, but note
-        # what it references. 
+        # what it references.
         o = a.object_taxon_name
         a_id = a.id
         a.destroy!
@@ -115,13 +115,14 @@ module Protonym::Becomes
 
         original_relationships.each do |i|
           atr = { type: i.type.gsub(/TaxonNameRelationship::OriginalCombination::Original/, 'TaxonNameRelationship::Combination::' ) }
-          if i.object_taxon_name_id == i.subject_taxon_name_id 
+          if i.object_taxon_name_id == i.subject_taxon_name_id
             atr[:subject_taxon_name_id] = o.id
           end
 
           i.update_columns(atr)
         end
 
+        # Why?  Do something more specific, like
         c.save!
         c.disable_combination_relationship_check = false
         c
@@ -135,7 +136,7 @@ module Protonym::Becomes
       raise
     end
 
-    c 
+    c
     # TODO: This fixes ./spec/models/combination/combination_spec.rb:62. But is returning `self` (or `z`) when fails trustworthy?
     # self
   end
