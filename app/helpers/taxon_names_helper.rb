@@ -384,6 +384,101 @@ module TaxonNamesHelper
     d
   end
 
+  # Perhaps a /lib/catalog method
+  # @return Hash
+  def taxon_names_count_by_validity_and_year(scope = nil)
+    return {} if scope.nil?
+    invalid = taxon_names_by_year_count(scope.that_is_invalid)
+    valid = taxon_names_by_year_count(scope.that_is_valid)
+
+    min = [invalid.keys.sort.first, invalid.keys.sort.first].compact.sort.first || 0
+    max = [valid.keys.sort.last, valid.keys.sort.last].compact.sort.first || 0
+
+    min = 1759 if min < 1759
+    max = Time.current.year if max > Time.current.year
+
+    invalid_data = {}
+    valid_data = {}
+
+    (min..max).each do |y|
+      invalid_data[y] = invalid[y].present? ? invalid[y].to_i : 0
+      valid_data[y] = valid[y].present? ? valid[y].to_i : 0
+    end
+
+    return {
+      data: [
+        { name: 'Valid', data: valid_data},
+        { name: 'Invalid', data: invalid_data}
+      ]
+    }
+  end
+
+  # Perhaps a /lib/catalog method
+  # @return Hash
+  def taxon_names_cumulative_count_by_validity_and_year(scope = nil)
+    return {} if scope.nil?
+    invalid = taxon_names_by_year_count(scope.that_is_invalid)
+    valid = taxon_names_by_year_count(scope.that_is_valid)
+
+    min = [invalid.keys.sort.first, invalid.keys.sort.first].compact.sort.first || 0
+    max = [valid.keys.sort.last, valid.keys.sort.last].compact.sort.first || 0
+
+    min = 1759 if min < 1759
+    max = Time.current.year if max > Time.current.year
+
+    invalid_data = {}
+    valid_data = {}
+
+    invalid_total = 0
+    valid_total = 0
+
+    (min..max).each do |y|
+
+      i = ( invalid[y].present? ? invalid[y].to_i : 0 ) 
+      v = ( valid[y].present? ? invalid[y].to_i : 0  )
+
+      invalid_total += i
+      valid_total += v
+
+      invalid_data[y] = invalid_total 
+      valid_data[y] =  valid_total 
+    end
+
+    return {
+      data: [
+        { name: 'Valid', data: valid_data},
+        { name: 'Invalid', data: invalid_data}
+      ]
+    }
+  end
+
+  def taxon_names_per_year(totals)
+    min = totals.keys.sort.first || 0
+    max = totals.keys.sort.last || 0
+
+    min = 1759 if min < 1759
+    max = Time.current.year if max > Time.current.year
+
+    data = {}
+
+    (min..max).each do |y|
+      data[y] = totals[y].present? ? totals[y].to_i : 0
+    end
+
+    data
+  end
+
+  def taxon_names_by_year_count(names)
+    t = names.select('EXTRACT(YEAR FROM cached_nomenclature_date) AS year, COUNT(*) AS count').group('year').inject({}){|hsh, r| hsh[r.year.to_i] = r.count; hsh}
+    t
+  end
+
+  def document_names_per_year(names)
+    taxon_names_per_year(
+      taxon_names_by_year_count(names)
+    )
+  end
+
   protected
 
   def taxon_name_link_path(taxon_name, path)

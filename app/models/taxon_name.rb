@@ -1009,8 +1009,11 @@ class TaxonName < ApplicationRecord
     n = nil if is_combination?
 
     update_columns(
-      cached_html: get_full_name_html(n), # What is this
-      cached_nomenclature_date: nomenclature_date)
+      cached_html: get_full_name_html(n)
+    )
+
+    # one more query, but can be isolated now
+    set_cached_nomenclature_date
 
     # Dependent on TaxonNameClassification and TaxonNameRelationship
     # !! Technically these should not be here.
@@ -1023,6 +1026,10 @@ class TaxonName < ApplicationRecord
     set_cached_classified_as
 
     set_cached_author_columns
+  end
+
+  def set_cached_nomenclature_date
+    update_columns(cached_nomenclature_date: nomenclature_date)
   end
 
   # See TaxonNameAuthor

@@ -1,0 +1,21 @@
+<%= content_for :head do -%>
+  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js",
+    "https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"  %>
+<% end %>
+
+<%= tag.h1 'Task - Nomenclature by year', id: :top -%>
+
+<%= link_to('Back to filter', filter_taxon_names_task_path) %>
+
+<%= tag.p @taxon_names.where('taxon_names.cached_nomenclature_date is null').count.to_s + ' Taxon name records in this result do not have data computed, a cached rebuild may help.', class: [:feedback, 'feedback-warning', 'feedback-thin'] %>
+
+<div>
+<%= column_chart taxon_names_count_by_validity_and_year(@taxon_names)[:data], height: '600px', stacked: true, download: true, descrete: true, ytitle: 'Total', xtitle: 'Order', title: "Taxon names per cached nomenclature year" %>
+</div>
+
+<div>
+  <%= column_chart taxon_names_cumulative_count_by_validity_and_year(@taxon_names)[:data], height: '600px', stacked: true, download: true, descrete: true, ytitle: 'Total', xtitle: 'Order', title: "Taxon names per cached nomenclature year - cumulative" %>
+</div>
+
+
+

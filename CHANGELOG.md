@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Task - Nomenclature by year plots [#2472] 
 - API for BiologicalRelationships -`api/v1/biological_relationships?extend[]=biological_property` [#3525]
 - Organization to Attribution slice in Radial annotator [#3529]
 - Delayed job queue `cached`, currently used in Role-related updates [#3437]
@@ -33,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Georeferences are not cleaned after unset current collecting event in comprehensive specimen digitization task [#3533]
 - Fix collection object pagination in Browse OTU
 
+[#2472]: https://github.com/SpeciesFileGroup/taxonworks/issues/2472
 [#3437]: https://github.com/SpeciesFileGroup/taxonworks/issues/3437
 [#3471]: https://github.com/SpeciesFileGroup/taxonworks/issues/3471
 [#3463]: https://github.com/SpeciesFileGroup/taxonworks/issues/3463
