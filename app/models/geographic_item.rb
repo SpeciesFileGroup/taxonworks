@@ -924,6 +924,7 @@ class GeographicItem < ApplicationRecord
 
   # @return [Array]
   #   the lat, long, as STRINGs for the centroid of this geographic item
+  #   Meh- this: https://postgis.net/docs/en/ST_MinimumBoundingRadius.html
   def center_coords
     r = GeographicItem.find_by_sql(
       "Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}), " \
@@ -1155,6 +1156,15 @@ class GeographicItem < ApplicationRecord
       WHERE a.id = #{id} AND b.id = #{geographic_item_id};"
     ).first
     c && c['intersecting_area'].to_f
+  end
+
+  # TODO: This is bad, while internal use of ONE_WEST_MEAN is consistent it is in-accurate given the vast differences of radius vs. lat/long position.
+  # When we strike the error-polygon from radius we should remove this
+  #
+  # Use case is returning the radius from a circle we calculated via buffer for error-polygon creation.
+  def radius
+    r = ApplicationRecord.connection.execute( "SELECT ST_MinimumBoundingRadius( ST_Transform(  #{GeographicItem::GEOMETRY_SQL.to_sql}, 4326 )  ) AS radius from geographic_items where geographic_items.id = #{id}").first['radius'].split(',').last.chop.to_f
+    r = (r * Utilities::Geo::ONE_WEST_MEAN).to_i
   end
 
   private

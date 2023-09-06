@@ -89,7 +89,7 @@ module SourcesHelper
 
   def source_document_viewer_option_tag(source)
     return nil if !source.documents.load.any?
-    tag.span(class: 'pdfviewerItem') do
+    tag.span(class: 'pdfviewerItem flexbox gap-small') do
       source.documents.collect{|d| tag.a('View', class: 'circle-button', data: { pdfviewer: d.document_file(:original, false), sourceid: source.id})}.join.html_safe
     end.html_safe
   end

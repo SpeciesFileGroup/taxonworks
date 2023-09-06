@@ -18,7 +18,9 @@ export default async ({
         ? Georeference.update(georeference.id, { georeference })
         : Georeference.create({ georeference })
 
-      request.then(({ body }) => commit(MutationNames.AddGeoreference, body))
+      request
+        .then(({ body }) => commit(MutationNames.AddGeoreference, body))
+        .catch((_) => {})
 
       return request
     })

@@ -106,7 +106,7 @@ class Protonym < TaxonName
   end
 
   # TODO: remove
-  scope :named, -> (name) {where(name: name)}
+  scope :named, -> (name) {where(name:)}
 
   scope :with_name_in_array, -> (array) {where(name: array) }
 
@@ -132,7 +132,7 @@ class Protonym < TaxonName
   scope :with_secondary_homonym_alternative_spelling, -> (secondary_homonym_alternative_spelling) {where(cached_secondary_homonym_alternative_spelling: secondary_homonym_alternative_spelling)}
 
   # TODO, move to IsData or IsProjectData
-  scope :with_project, -> (project_id) {where(project_id: project_id)}
+  scope :with_project, -> (project_id) {where(project_id:)}
 
   scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
   scope :is_genus_group, -> { where("rank_class ILIKE '%genusgroup%'") }
@@ -149,7 +149,7 @@ class Protonym < TaxonName
   # @return [Protonym]
   #   a name ready to become the root
   def self.stub_root(project_id: nil, by: nil)
-    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id: project_id, by: by)
+    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id:, by:)
   end
 
   def self.family_group_base(name_string)
@@ -961,7 +961,7 @@ class Protonym < TaxonName
   end
 
   def validate_parent_rank_is_higher
-    if parent && !rank_class.blank? && rank_string != 'NomenclaturalRank'
+    if parent && rank_class.present? && rank_string != 'NomenclaturalRank'
       if RANKS.index(rank_string).to_i <= RANKS.index(parent.rank_string).to_i
         errors.add(:parent_id, "The parent rank (#{parent.rank_class.rank_name}) is not higher than the rank (#{rank_name}) of this taxon")
       end
@@ -1035,4 +1035,3 @@ class Protonym < TaxonName
     update_column(:cached_original_combination_html, get_original_combination_html)
   end
 end
-

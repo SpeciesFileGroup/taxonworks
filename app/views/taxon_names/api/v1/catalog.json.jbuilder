@@ -26,7 +26,7 @@ end
 
 json.stats taxon_name_inventory_stats(@taxon_name)
 
-## TODO: Why is this here?
+# !! Comes from Catalog/Data.  Likely should make this calculable on demand.
 json.distribution @data[:distribution]
 
 json.repositories do

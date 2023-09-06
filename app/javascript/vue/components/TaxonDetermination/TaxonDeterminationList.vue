@@ -37,14 +37,13 @@
             </div>
           </td>
           <td>
-            <div class="horizontal-right-content">
+            <div class="horizontal-right-content gap-small">
               <radial-annotator
                 v-if="element.global_id"
                 :global-id="element.global_id"
               />
 
               <v-btn
-                class="margin-small-right"
                 circle
                 :color="element.id ? 'update' : 'primary'"
                 @click="emit('edit', element)"
@@ -76,6 +75,7 @@
 <script setup>
 import { computed } from 'vue'
 import { RouteNames } from '@/routes/routes'
+import { TaxonDetermination } from '@/routes/endpoints'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import Draggable from 'vuedraggable'
@@ -94,7 +94,13 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'update:lock', 'edit', 'delete'])
+const emit = defineEmits([
+  'update:modelValue',
+  'update:lock',
+  'edit',
+  'delete',
+  'sort'
+])
 
 const lockButton = computed({
   get: () => props.lock,
@@ -108,9 +114,13 @@ const determinationList = computed({
   }
 })
 
-const updatePosition = () => {
-  for (let i = 0; i < determinationList.value.length; i++) {
-    determinationList.value[i].position = i + 1
+function updatePosition() {
+  const id = determinationList.value.map((item) => item.id).filter(Boolean)
+
+  if (id.length) {
+    TaxonDetermination.reorder({ id }).then(({ body }) => {
+      emit('sort', body)
+    })
   }
 }
 </script>

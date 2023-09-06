@@ -427,11 +427,25 @@ export default {
     },
 
     setTotal(total) {
-      this.metadata.endpoints[this.currentAnnotator].total = total
+      const sliceMetadata = this.metadata.endpoints[this.currentAnnotator]
+
+      if (total !== sliceMetadata.total) {
+        sliceMetadata.total = total
+        this.eventUpdate()
+      }
     },
 
     eventOpen() {
       const event = new CustomEvent('radialAnnotator:open', {
+        detail: {
+          metadata: this.metadata
+        }
+      })
+      document.dispatchEvent(event)
+    },
+
+    eventUpdate() {
+      const event = new CustomEvent('radialAnnotator:update', {
         detail: {
           metadata: this.metadata
         }

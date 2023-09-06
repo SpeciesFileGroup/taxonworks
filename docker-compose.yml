@@ -23,7 +23,7 @@ services:
     volumes:
       - pg:/var/lib/postgresql/data
   db:
-    image: postgis/postgis:12-3.0
+    image: postgis/postgis:12-3.4
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     ports:

@@ -287,7 +287,7 @@ class TaxonName < ApplicationRecord
       )
   end
 
-  scope :with_type, -> (type) {where(type: type)}
+  scope :with_type, -> (type) {where(type:)}
   scope :descendants_of, -> (taxon_name) { with_ancestor(taxon_name )}
 
   scope :ancestors_of, -> (taxon_name) {
@@ -361,8 +361,8 @@ class TaxonName < ApplicationRecord
   }
 
   # TODO: deprecate all of these for where()
-  scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
-  scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
+  scope :with_parent_id, -> (parent_id) {where(parent_id:)}
+  scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id:)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
 
   scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
@@ -555,7 +555,7 @@ class TaxonName < ApplicationRecord
   # @see .out_of_scope_combinations
   def out_of_scope_combinations
     ::TaxonName
-      .where(project_id: project_id)
+      .where(project_id:)
       .out_of_scope_combinations(id)
   end
 
@@ -997,25 +997,45 @@ class TaxonName < ApplicationRecord
     save if update
   end
 
+  # TODO: We need to isolate this into 2 subclasses,
+  # 1 - cached methods that touch author/year
+  # 2 - cached methods that do not
   def set_cached
-    n = get_full_name
+    n = get_full_name # memoize/var into taxonomy?
     update_column(:cached, n)
 
+    # Combination should have it's own cached setting methods
     # We can't use the in-memory cache approach for combination names, force reload each time
     n = nil if is_combination?
 
     update_columns(
-      cached_html: get_full_name_html(n),
-      cached_nomenclature_date: nomenclature_date)
+      cached_html: get_full_name_html(n)
+    )
 
-    set_cached_valid_taxon_name_id
-    set_cached_is_valid
+    # one more query, but can be isolated now
+    set_cached_nomenclature_date
+
+    # Dependent on TaxonNameClassification and TaxonNameRelationship
+    # !! Technically these should not be here.
 
     # TODO: Isolate and optimize. These an be isolated as they are not always pertinent to a generalized cascading cache setting
     # For example, when a TaxonName relationship forces a cached reload it may/not need to call these two things
+
+    set_cached_valid_taxon_name_id
+    set_cached_is_valid
+    set_cached_classified_as
+
+    set_cached_author_columns
+  end
+
+  def set_cached_nomenclature_date
+    update_columns(cached_nomenclature_date: nomenclature_date)
+  end
+
+  # See TaxonNameAuthor
+  def set_cached_author_columns
     # TODO: build author year from cached author and year, not the other way around
     #  * at this point we have already updated date
-    set_cached_classified_as
     set_cached_author_year
     set_cached_author # should be after the 'set_cached_author_year
   end
@@ -1073,7 +1093,6 @@ class TaxonName < ApplicationRecord
   def get_original_combination_html
     nil
   end
-
 
   # @return [Array]
   #   of TaxonName
@@ -1223,9 +1242,10 @@ class TaxonName < ApplicationRecord
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
 
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
-    (elements.presence)
+    elements.presence # nill on empty, false
   end
 
+  # @return String
   def get_full_name_html(name = nil)
     name = get_full_name if name.nil?
     return  "\"<i>Candidatus</i> #{name}\"" if is_candidatus?
@@ -1414,7 +1434,7 @@ class TaxonName < ApplicationRecord
 
   # TODO: this should be paginated, not all IDs!
   def next_sibling
-    if siblings.where(project_id: project_id).any?
+    if siblings.where(project_id:).any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
       s = sibs.index(id)
       TaxonName.find(sibs[ s + 1] ) if s < sibs.length - 1
@@ -1425,7 +1445,7 @@ class TaxonName < ApplicationRecord
 
   # TODO: this should be paginated, not all IDs!
   def previous_sibling
-    if siblings.where(project_id: project_id).any?
+    if siblings.where(project_id:).any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
 
       s = sibs.index(id)
@@ -1436,13 +1456,13 @@ class TaxonName < ApplicationRecord
   end
 
   def create_otu
-    Otu.create(by: creator, project_id: project_id, taxon_name_id: id)
+    Otu.create(by: creator, project_id:, taxon_name_id: id)
   end
 
   # @return [Scope]
   #   All taxon names attached to relationships recently created by user
   def self.used_recently_in_classifications(user_id, project_id)
-    TaxonName.where(project_id: project_id, updated_by_id: user_id)
+    TaxonName.where(project_id:, updated_by_id: user_id)
       .joins(:taxon_name_classifications)
       .includes(:taxon_name_classifications)
       .where(taxon_name_classifications: { updated_at: 1.week.ago..Time.now } )
@@ -1464,7 +1484,7 @@ class TaxonName < ApplicationRecord
            .or( t2[:updated_at].between( 1.week.ago..Time.now ) ).to_sql
 
          TaxonName.with_taxon_name_relationships
-           .where(taxon_names: {project_id: project_id})
+           .where(taxon_names: {project_id:})
            .where(sql2)
            .where(sql)
            .order('taxon_names.updated_at DESC') ## needs optimisation. Does not sort by TNR date
@@ -1475,12 +1495,12 @@ class TaxonName < ApplicationRecord
     klass, a,b,c = nil, nil, nil, nil
     if target == 'TypeMaterial'
       klass = Protonym
-      a = klass.is_species_group.touched_by(user_id).where(project_id: project_id).order(updated_at: :desc).limit(6).to_a
+      a = klass.is_species_group.touched_by(user_id).where(project_id:).order(updated_at: :desc).limit(6).to_a
       b = used_recently_in_classifications(user_id, project_id).is_species_group.where(type: klass.name).limit(6).to_a
       c = used_recently_in_relationships(user_id, project_id).is_species_group.where(type: klass.name).limit(6).to_a
     else
       klass = TaxonName
-      a = klass.touched_by(user_id).where(project_id: project_id).order(updated_at: :desc).limit(6).to_a
+      a = klass.touched_by(user_id).where(project_id:).order(updated_at: :desc).limit(6).to_a
       b = used_recently_in_classifications(user_id, project_id).where(type: klass.name).limit(6).to_a
       c = used_recently_in_relationships(user_id, project_id).where(type: klass.name).limit(6).to_a
     end
@@ -1505,7 +1525,7 @@ class TaxonName < ApplicationRecord
   # the hash corresponding to the keyword used in this tag if it exists
   # !! Assumes it can only be in one matrix, this is wrong !!
   def matrix_row_item
-    mri = ObservationMatrixRowItem::TaxonNameRowItem.where(taxon_name_id: id, project_id: project_id).limit(1)
+    mri = ObservationMatrixRowItem::TaxonNameRowItem.where(taxon_name_id: id, project_id:).limit(1)
 
     if mri.any?
       return { matrix_row_item: mri.first, object: taxon_name }
@@ -1531,7 +1551,7 @@ class TaxonName < ApplicationRecord
     @result = {
       failed: 0,
       passed: 0,
-      kind: kind
+      kind:
     }
 
     case kind
@@ -1581,7 +1601,7 @@ class TaxonName < ApplicationRecord
 
   def validate_one_root_per_project
     if new_record? || parent_id_changed? # project_id !?@
-      if !parent_is_set? && TaxonName.where(parent_id: nil, project_id: project_id).count > 0
+      if !parent_is_set? && TaxonName.where(parent_id: nil, project_id:).count > 0
         errors.add(:parent_id, 'should not be empty/only one root is allowed per project')
       end
     end

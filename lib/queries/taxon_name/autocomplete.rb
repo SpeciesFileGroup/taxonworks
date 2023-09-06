@@ -228,21 +228,21 @@ module Queries
       # ---- gin methods
 
       def autocomplete_cached
-        ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(["taxon_names.*, similarity(?, cached) AS sml", query_string]))
-        .where('cached % ?', query_string) # `%` in where means nothing < 0.3 (internal PG similarity value)
-        .order('sml DESC, cached')
+        ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, cached) AS sml', query_string]))
+          .where('cached % ?', query_string) # `%` in where means nothing < 0.3 (internal PG similarity value)
+          .order('sml DESC, cached')
       end
 
       def autocomplete_original_combination
-        ::TaxonName.select(ApplicationRecord.sanitize_sql(["taxon_names.*, similarity(?, cached_original_combination) AS sml", query_string]))
-        .where('cached_original_combination % ?', query_string)
-        .order('sml DESC, cached_original_combination')
+        ::TaxonName.select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, taxon_names.cached_original_combination) AS sml', query_string]))
+          .where('taxon_names.cached_original_combination % ?', query_string)
+          .order('sml DESC, taxon_names.cached_original_combination')
       end
 
       def autocomplete_cached_author_year
-        ::TaxonName.select(ApplicationRecord.sanitize_sql(["taxon_names.*, similarity(?, cached_author_year) AS sml", query_string]))
-        .where('cached_author_year % ?', query_string)
-        .order('sml DESC, cached_author_year')
+        ::TaxonName.select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, taxon_names.cached_author_year) AS sml', query_string]))
+          .where('taxon_names.cached_author_year % ?', query_string)
+          .order('sml DESC, taxon_names.cached_author_year')
       end
 
       # Weights.  Theory (using this loosely) is that this
@@ -256,19 +256,19 @@ module Queries
       # Used in /otus/api/v1/autocomplete
       def autocomplete_combined_gin
         a = ::TaxonName.select(ApplicationRecord.sanitize_sql(
-          ["taxon_names.*, similarity(?, name) AS sml_n, similarity(?, cached_author_year) AS sml_cay, similarity(?, cached) AS sml_c, similarity(?, cached_original_combination) AS sml_coc",
-          query_string, authorship, query_string, query_string])
-        ).where('cached_author_year % ? OR cached_original_combination % ? OR cached % ?', query_string, query_string, query_string)
+          ['taxon_names.*, similarity(?, name) AS sml_n, similarity(?, taxon_names.cached_author_year) AS sml_cay, similarity(?, cached) AS sml_c, similarity(?, taxon_names.cached_original_combination) AS sml_coc',
+           query_string, authorship, query_string, query_string])
+                              ).where('taxon_names.cached_author_year % ? OR taxon_names.cached_original_combination % ? OR cached % ?', query_string, query_string, query_string)
 
         s = 'WITH tns AS (' + a.to_sql + ') ' +
-            ::TaxonName
-              .select(Arel.sql("taxon_names.*, (( COALESCE(tns1.sml_n,0) * #{CACHED_NAME_WEIGHT} + \
+          ::TaxonName
+          .select(Arel.sql("taxon_names.*, (( COALESCE(tns1.sml_n,0) * #{CACHED_NAME_WEIGHT} + \
                                                   COALESCE(tns1.sml_cay,0) * #{CACHED_AUTHOR_YEAR_WEIGHT} + \
                                                   COALESCE(tns1.sml_c,0) * #{CACHED_WEIGHT} + \
                                                   COALESCE(tns1.sml_coc,0) * #{CACHED_ORIGINAL_COMBINATION_WEIGHT} \
                                                 )) sml_tn"))
-              .joins('JOIN tns as tns1  on tns1.id = taxon_names.id')
-              .to_sql
+          .joins('JOIN tns as tns1  on tns1.id = taxon_names.id')
+          .to_sql
 
         ::TaxonName.select('taxon_names.*, sml_tn as sml_t').from('(' + s + ') as taxon_names').order('sml_tn DESC').distinct
       end
@@ -290,45 +290,47 @@ module Queries
       def comprehensive_autocomplete
         z = genus_species
         queries = [
-           autocomplete_cached,
-           autocomplete_original_combination,
-           autocomplete_cached_author_year,
-           autocomplete_exact_id,
-           autocomplete_exact_cached,
-           autocomplete_exact_cached_original_combination,
-           autocomplete_identifier_cached_exact,
-           autocomplete_exact_name_and_year,
-           autocomplete_identifier_identifier_exact,
-           autocomplete_top_name,
-           autocomplete_top_cached,
-           autocomplete_top_cached_subgenus,  # not tested
-           autocomplete_genus_species1(z),    # not tested
-           autocomplete_genus_species2(z),    # not tested
-           autocomplete_cached_end_wildcard,
-           # autocomplete_identifier_cached_like, # this query take much longer to complete than any other
-           autocomplete_cached_name_end_wildcard,
-           autocomplete_cached_wildcard_whitespace,
-           autocomplete_name_author_year_fragment,
-           autocomplete_taxon_name_author_year_matches,
-           autocomplete_cached_author_year,
-           autocomplete_wildcard_joined_strings,
-           autocomplete_wildcard_author_year_joined_pieces,
-           autocomplete_wildcard_cached_original_combination
+          autocomplete_cached,
+          autocomplete_original_combination,
+          autocomplete_cached_author_year,
+          autocomplete_exact_id,
+          autocomplete_exact_cached,
+          autocomplete_exact_cached_original_combination,
+          autocomplete_identifier_cached_exact,
+          autocomplete_exact_name_and_year,
+          autocomplete_identifier_identifier_exact,
+          autocomplete_top_name,
+          autocomplete_top_cached,
+          autocomplete_top_cached_subgenus,  # not tested
+          autocomplete_genus_species1(z),    # not tested
+          autocomplete_genus_species2(z),    # not tested
+          autocomplete_cached_end_wildcard,
+          # autocomplete_identifier_cached_like, # this query take much longer to complete than any other
+          autocomplete_cached_name_end_wildcard,
+          autocomplete_cached_wildcard_whitespace,
+          autocomplete_name_author_year_fragment,
+          autocomplete_taxon_name_author_year_matches,
+          autocomplete_cached_author_year,
+          autocomplete_wildcard_joined_strings,
+          autocomplete_wildcard_author_year_joined_pieces,
+          autocomplete_wildcard_cached_original_combination
         ]
       end
 
       def unified_autocomplete
         [
-           autocomplete_exact_id,
-           autocomplete_combined_gin,
-           autocomplete_identifier_cached_exact,
+          autocomplete_exact_id,
+          autocomplete_combined_gin,
+          autocomplete_identifier_cached_exact,
         ]
       end
 
       # @return [Array]
       def autocomplete
-        # TODO: switch to mode or individualize methods and feed to this
-        queries = (exact ? exact_autocomplete : unified_autocomplete )
+
+        # exact, unified, comprehensive
+
+        queries = (exact ? exact_autocomplete : comprehensive_autocomplete )
         queries.compact!
 
         result = []
@@ -397,12 +399,12 @@ module Queries
         if a.dig(:parsed)
           @authorship = a.dig(:authorship, :normalized)
         else
-           # Gnparser doesn't parse with names like `aus Jones`, do a quick and dirty check for things like `foo Jones`
-           if a = query_string.match(/\A[a-z]+\s*\,?\s*(.*)\Z/)
+          # Gnparser doesn't parse with names like `aus Jones`, do a quick and dirty check for things like `foo Jones`
+          if a = query_string.match(/\A[a-z]+\s*\,?\s*(.*)\Z/)
             @authorship = a[1]
-           else
-            @authorship = ""
-           end
+          else
+            @authorship = ''
+          end
         end
 
         @authorship

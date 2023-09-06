@@ -81,7 +81,7 @@ To add a new (discovered) symbol:
     # DEGREES_PER_RADIAN = 180.0/::Math::PI
 
     ONE_WEST       = 111_319.490779206 # meters/degree
-    # ONE_WEST  = 111_319.444444444 # meters/degree (calculated mean)
+    ONE_WEST_MEAN  = 111_319.444444444 # meters/degree (calculated mean)
     ONE_NORTH      = 110_574.38855796 # meters/degree
 
     #
@@ -105,7 +105,7 @@ To add a new (discovered) symbol:
       end
     end
 
-    # 12345       (presume meters)
+    # 12345 (presume meters)
     # 123.45
     # 123 ft > 123 ft. > 123 feet > 1 foot > 123 f > 123 f.
     # 123 m > 123 meters > 123 m.

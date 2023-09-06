@@ -35,7 +35,8 @@ class LoansController < ApplicationController
 
   # GET /loans/new
   def new
-    @loan = Loan.new(params.permit(:clone_from))
+    redirect_to edit_loan_task_path
+    # @loan = Loan.new(params.permit(:clone_from))
   end
 
   # GET /loans/1/edit

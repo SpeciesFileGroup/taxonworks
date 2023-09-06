@@ -12,9 +12,13 @@ export const TASK_SOURCE_CITATION_TOTALS = {
   label: 'Citation totals',
   link: '/tasks/sources/source_citation_totals/'
 }
- 
+
 export const TASK_LOANS_DASHBOARD = {
   label: 'Loan dashboard',
   link: '/tasks/loans/dashboard/'
 }
-  
+
+export const TASK_TAXON_NAME_STATS = {
+  label: 'Chronology stats',
+  link: '/tasks/taxon_names/stats/'
+}

@@ -20,5 +20,11 @@ FactoryBot.define do
       association :role_object, factory: :valid_content
     end
 
+    factory :valid_collector do
+      type { 'Collector' } 
+      association :person, factory: :valid_person
+      association :role_object, factory: :valid_collecting_event
+    end
+
   end
 end

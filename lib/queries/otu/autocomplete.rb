@@ -49,33 +49,64 @@ module Queries
         .order('sml DESC, cached')
       end
 
-      # TODO: must include OTU name, leaves, etc. considerations to not break existing API functionality
+      # Major kludge, come back.
+      #   Maintains valid_taxon_name_id needed for API. Much over-kill on intermediate queries.
       def api_autocomplete
-        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, project_id:).autocomplete_combined_gin
-        .where(project_id:)
+        @having_taxon_name_only = true
 
-        # Valid only tns don't need to map to invalid OTUs
+        otus = autocomplete # array
+        otu_order = otus.map(&:id)
 
-        s = 'WITH tns AS (' + taxon_names.that_is_valid.to_sql + ') ' +
-            ::Otu.joins('JOIN tns AS tns_o ON tns_o.id = otus.taxon_name_id')
-              .select('otus.*, otus.id as otu_valid_id, tns_o.sml_t AS sml_o_x')
-              .to_sql
+        taxon_names = TaxonName.where(project_id:, id: otus.map(&:taxon_name_id)) # pertinent names
 
-         a = ::Otu.select('otus.*, sml_o_x as sml_o_z, otu_valid_id').from('(' + s + ') as otus')
+       s = 'WITH tns AS (' + taxon_names.that_is_valid.to_sql + ') ' +
+           ::Otu.joins('JOIN tns AS tns_o ON tns_o.id = otus.taxon_name_id')
+             .select('otus.*, otus.id as otu_valid_id')
+             .to_sql
 
-         # Invalid name matches
+        a = ::Otu.select('otus.*, otu_valid_id').from('(' + s + ') as otus')
 
-         t = 'WITH tns_invalid AS (' + taxon_names.that_is_invalid.to_sql + ') ' +
-         ::Otu.joins('JOIN tns_invalid as tns_invalid1 ON tns_invalid1.id = otus.taxon_name_id')
-            .joins('LEFT JOIN otus AS otus1 ON tns_invalid1.cached_valid_taxon_name_id = otus1.taxon_name_id')
-            .select('DISTINCT ON(otus1.id) otus.*, otus1.id AS otu_valid_id, tns_invalid1.sml_t AS sml_o_y ')
-            .to_sql
+        # Invalid name matches
+        t = 'WITH tns_invalid AS (' + taxon_names.that_is_invalid.to_sql + ') ' +
+        ::Otu.joins('JOIN tns_invalid as tns_invalid1 ON tns_invalid1.id = otus.taxon_name_id')
+           .joins('LEFT JOIN otus AS otus1 ON tns_invalid1.cached_valid_taxon_name_id = otus1.taxon_name_id')
+           .select('DISTINCT ON(otus1.id) otus.*, otus1.id AS otu_valid_id')
+           .to_sql
 
-        b = ::Otu.select('otus.*, sml_o_y as sml_o_z, otu_valid_id').from('(' + t + ') as otus')
+       b = ::Otu.select('otus.*, otu_valid_id').from('(' + t + ') as otus')
 
-        u = ::Otu.from("( (#{a.to_sql}) UNION (#{b.to_sql})) as otus")
+       u = ::Otu.from("( (#{a.to_sql}) UNION (#{b.to_sql})) as otus")
 
-        ::Otu.from('(' + u.to_sql + ') as otus').order('sml_o_z DESC').limit(20)
+       f =  ::Otu.from('(' + u.to_sql + ') as otus').sort_by.with_index { |item, index| [otu_order.index(item.id), index] }
+
+       f
+
+
+        # taxon_names = Queries::TaxonName::Autocomplete.new(query_string, project_id:).autocomplete_combined_gin
+        # .where(project_id:)
+
+        # # Valid only tns don't need to map to invalid OTUs
+
+        # s = 'WITH tns AS (' + taxon_names.that_is_valid.to_sql + ') ' +
+        #     ::Otu.joins('JOIN tns AS tns_o ON tns_o.id = otus.taxon_name_id')
+        #       .select('otus.*, otus.id as otu_valid_id, tns_o.sml_t AS sml_o_x')
+        #       .to_sql
+
+        #  a = ::Otu.select('otus.*, sml_o_x as sml_o_z, otu_valid_id').from('(' + s + ') as otus')
+
+        #  # Invalid name matches
+
+        #  t = 'WITH tns_invalid AS (' + taxon_names.that_is_invalid.to_sql + ') ' +
+        #  ::Otu.joins('JOIN tns_invalid as tns_invalid1 ON tns_invalid1.id = otus.taxon_name_id')
+        #     .joins('LEFT JOIN otus AS otus1 ON tns_invalid1.cached_valid_taxon_name_id = otus1.taxon_name_id')
+        #     .select('DISTINCT ON(otus1.id) otus.*, otus1.id AS otu_valid_id, tns_invalid1.sml_t AS sml_o_y ')
+        #     .to_sql
+
+        # b = ::Otu.select('otus.*, sml_o_y as sml_o_z, otu_valid_id').from('(' + t + ') as otus')
+
+        # u = ::Otu.from("( (#{a.to_sql}) UNION (#{b.to_sql})) as otus")
+
+        # ::Otu.from('(' + u.to_sql + ') as otus').order('sml_o_z DESC').limit(20)
       end
 
       def base_queries

@@ -11,7 +11,7 @@ if extend_response_with('common_names')
   json.common_names do
     json.array! @otu.common_names do |c|
       json.name c.name
-      json.language c.language.alpha_2
+      json.language c.language&.alpha_2
     end
   end
 end
