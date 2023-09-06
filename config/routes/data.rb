@@ -228,6 +228,7 @@ resources :depictions do
   concerns [:data_routes]
   collection do
     patch :sort
+    match :filter, to: 'depictions#index', via: [:get, :post]
   end
 end
 
