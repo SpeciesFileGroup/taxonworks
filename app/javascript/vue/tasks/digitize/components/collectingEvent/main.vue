@@ -37,7 +37,7 @@
         >
           <p v-html="collectingEvent.object_tag" />
           <div class="horizontal-left-content">
-            <div class="horizontal-left-content separate-right">
+            <div class="horizontal-left-content margin-small-right">
               <span v-if="collectingEvent.id"
                 >Sequential uses:
                 {{
@@ -46,7 +46,7 @@
               >
               <div
                 v-if="collectingEvent.id"
-                class="horizontal-left-content separate-left separate-right"
+                class="horizontal-left-content margin-small-left gap-small"
               >
                 <radial-annotator :global-id="collectingEvent.global_id" />
                 <radial-object :global-id="collectingEvent.global_id" />
@@ -64,14 +64,14 @@
             </div>
             <button
               type="button"
-              class="button normal-input button-default margin-small-left margin-small-right"
+              class="button normal-input button-default margin-small-right"
               @click="openBrowse"
             >
               Browse
             </button>
             <button
               type="button"
-              class="button normal-input button-submit margin-small-right"
+              class="button normal-input button-submit"
               @click="cloneCE"
             >
               Clone

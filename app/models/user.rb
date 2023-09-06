@@ -415,7 +415,7 @@ class User < ApplicationRecord
 
     User.reflect_on_all_associations(:has_many).each do |r|
       key = nil
-      puts r.name.to_s
+      # puts r.name.to_s
       if r.name.to_s =~ /created_/
         # puts "after created"
         key = :created

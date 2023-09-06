@@ -82,8 +82,8 @@
               :width="width"
               :geojson="mapGeoreferences"
               :zoom="zoom"
-              :fit-bounds="true"
-              :resize="true"
+              fit-bounds
+              resize
               :draw-controls="true"
               :draw-polyline="false"
               :cut-polygon="false"
@@ -439,7 +439,7 @@ export default {
 
     updateDate(georeference) {
       this.addToQueue(georeference)
-      console.log(georeference)
+
       if (georeference.id) {
         this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
       }
@@ -447,6 +447,7 @@ export default {
 
     addToQueue(data) {
       this.$store.commit(MutationNames.AddGeoreferenceToQueue, data)
+      this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
     }
   }
 }

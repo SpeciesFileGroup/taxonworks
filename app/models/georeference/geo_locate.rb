@@ -28,25 +28,34 @@ class Georeference::GeoLocate < Georeference
   # @param [String] response_string
   # @return [RGeo object]
   def iframe_response=(response_string)
-    lat, long, error_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
+    lat, long, response_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
+
+    if response_radius.present?
+      response_radius = response_radius.to_f
+    else
+      response_radius = nil
+    end
+
     self.geographic_item = make_geographic_point(long, lat, '0.0') unless (lat.blank? && long.blank?)
+
     if uncertainty_points.nil?
       # make a circle from the geographic_item
-      if error_radius.present?
-        # q1 = "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f / 111319.444444444});"
+      if response_radius.present?
+        # q1 = "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f /  Utilities::Geo::ONE_WEST_MEAN});"
+
+        self.error_radius = response_radius
+        # Why are we turning error radius into a polygon!?
+
         q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Buffer(?, ?);',
-                                                           self.geographic_item.geo_object.to_s,
-                                                           (error_radius.to_f / 111_319.444444444)])
+          self.geographic_item.geo_object.to_s,
+          ((response_radius) / Utilities::Geo::ONE_WEST_MEAN)])
+
         value = GeographicItem.connection.select_all(q2).first['st_buffer']
-        # circle                     = Gis::FACTORY.parse_wkb(value)
-        # make_error_geographic_item([[long, lat], [long, lat], [long, lat]], error_radius)
-        # a = GeographicItem.new(polygon: circle)
-        # b = make_err_polygon(value)
-        # self.error_geographic_item = a
+
         self.error_geographic_item = make_err_polygon(value)
       end
     else
-      make_error_geographic_item(uncertainty_points, error_radius)
+      make_error_geographic_item(uncertainty_points, response_radius)
     end
     self.geographic_item
   end
@@ -59,7 +68,7 @@ class Georeference::GeoLocate < Georeference
   # @param [String] wkb
   # @return [GeographicItem::Polygon] GeographicItem::Polygon, either found, or created
   def make_err_polygon(wkb)
-    polygon  = Gis::FACTORY.parse_wkb(wkb)
+    polygon = Gis::FACTORY.parse_wkb(wkb)
     # ActiveRecord::Base.send(:sanitize_sql_array, ['polygon = ST_GeographyFromText(?)', polygon.to_s])
     test_grs = GeographicItem::Polygon.where(['polygon = ST_GeographyFromText(?)', polygon.to_s])
     if test_grs.empty?
@@ -123,15 +132,16 @@ class Georeference::GeoLocate < Georeference
     self.error_radius = uncertainty_radius if !uncertainty_radius.nil?
     unless uncertainty_polygon.nil?
       err_array = []
+
       uncertainty_polygon.each { |point| err_array.push(Gis::FACTORY.point(point[0], point[1])) }
-      self.error_geographic_item =
-        GeographicItem.new(polygon: Gis::FACTORY.polygon(Gis::FACTORY.line_string(err_array)))
+
+      self.error_geographic_item = GeographicItem.new(polygon: Gis::FACTORY.polygon(Gis::FACTORY.line_string(err_array)))
     end
   end
 
   # @param [String] response_string from Tulane
   # @return [Array]
-  # parsing the four possible bits of a response into an array
+  #   parsing the four possible bits of a response into an array
   def self.parse_iframe_result(response_string)
     s = unify_response_string(response_string)
     lat, long, error_radius, uncertainty_polygon = s.split('|')

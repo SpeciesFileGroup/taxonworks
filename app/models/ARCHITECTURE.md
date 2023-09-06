@@ -1,6 +1,6 @@
 # Code Organization
 
-Our general approach to AR based models uses the pattern below.  Please use it. 
+Our general approach to AR based models uses the pattern below.  Please use it.
 
 
   ```
@@ -12,13 +12,20 @@ Our general approach to AR based models uses the pattern below.  Please use it.
     # acts_as, has_ etc. includes
     acts_as_nested_set
 
+    # If there are cached values to set they
+    # must be set *after* save.
+    after_save :set_cached
+
     # Aliases
 
     # Class constants
     BLORF = 123
 
-    # We do not use Class variables
-    # @@foo = 1
+    # We do not use Class variables in ApplicationRecord subclasses
+    # @@foo = 1  # NO
+
+    # We do not use Globals (anywhere)
+    $bar = 1 # NO
 
     # Instance variables
     attr_accessor :foo
@@ -30,8 +37,8 @@ Our general approach to AR based models uses the pattern below.  Please use it.
     belongs_to :source
     has_one :creator
     has_many :bars
-   
-    # nested_attributes 
+
+    # nested_attributes
     accepts_nested_attributes_for
 
     # Scopes, clustered by function
@@ -51,7 +58,7 @@ Our general approach to AR based models uses the pattern below.  Please use it.
     def wings
       # ...
     end
-   
+
     # Class methods
     def self.swim!
       # ...
@@ -61,7 +68,7 @@ Our general approach to AR based models uses the pattern below.  Please use it.
     def walk!
       # ...
     end
- 
+
     protected
 
     # Class methods
@@ -84,7 +91,20 @@ Our general approach to AR based models uses the pattern below.  Please use it.
       #...
     end
 
-  end 
+    # A manifest of all cache setting values.  Must be the only
+    # method called to set all.
+    def set_cached
+      cached_method1
+      cached_method2
+    end
+
+    # Cached setting methods must be isolated from set_cached
+    def cached_method1
+      # cache setting methods must not trigger ActiveRecord callbacks!
+      update_column()
+    end
+
+  end
 ```
 
 # Naming methods and variables
@@ -96,3 +116,4 @@ Our general approach to AR based models uses the pattern below.  Please use it.
 * Prefer inline commenting rather than begin/end
 * Use uppercase `TODO` when referencing
 * Do not use comments to define sections, rather organize code consistently as above
+

@@ -1,7 +1,5 @@
 # Shared code for a classes that are "data" sensu TaxonWorks (things like Projects, users, and preferences are not data).
 #
-# !! This module must in included last !!
-#
 module Shared::IsData::Metamorphosize
 
   extend ActiveSupport::Concern

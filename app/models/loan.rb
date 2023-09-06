@@ -236,10 +236,14 @@ class Loan < ApplicationRecord
   end
 
   def families
-
   end
 
   protected
+
+  # Not used externally
+  def return!
+    loan_items.update_all(date_returned: Time.current)
+  end
 
   def clone_attributes
     l = Loan.find(clone_from)

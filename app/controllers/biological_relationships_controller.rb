@@ -17,6 +17,11 @@ class BiologicalRelationshipsController < ApplicationController
     end
   end
 
+  def api_index
+    @biological_relationships = BiologicalRelationship.with_project_id(sessions_current_project_id).order(:name)
+    render '/biological_relationships/api/v1/index'
+  end
+
   # GET /biological_relationships/1
   # GET /biological_relationships/1.json
   def show

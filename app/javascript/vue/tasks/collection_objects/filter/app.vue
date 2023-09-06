@@ -28,7 +28,7 @@
         />
       </template>
       <template #nav-right>
-        <div class="horizontal-right-content">
+        <div class="horizontal-right-content gap-small">
           <RadialLoan
             :disabled="!list.length"
             :ids="selectedIds"

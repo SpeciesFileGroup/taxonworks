@@ -61,7 +61,7 @@
             </td>
             <td>{{ item.updated_at }}</td>
             <td>
-              <div class="flex-wrap-row">
+              <div class="flex-wrap-row gap-xsmall">
                 <radial-annotator :global-id="item.global_id" />
                 <pdf-button :pdf="item.document" />
                 <v-btn

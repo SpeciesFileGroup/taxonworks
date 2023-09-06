@@ -1,7 +1,7 @@
 <template>
   <div class="sample-descriptor">
-    <div class="horizontal-left-content margin-small-bottom">
-      <label class="separate-right">
+    <div class="horizontal-left-content margin-small-bottom gap-small">
+      <label>
         Min:
         <input
           type="number"
@@ -9,7 +9,7 @@
           v-model="sampleMin"
         />
       </label>
-      <label class="separate-left">
+      <label>
         Max:
         <input
           type="number"
@@ -20,7 +20,7 @@
 
       <unit-selector v-model="sampleUnit" />
 
-      <label class="separate-left">
+      <label>
         n:
         <input
           type="number"
@@ -43,8 +43,8 @@
       </template>
     </div>
 
-    <div class="margin-small-bottom">
-      <label class="separate-right">
+    <div class="horizontal-left-content gap-small margin-small-bottom">
+      <label>
         Mean:
         <input
           type="text"
@@ -52,7 +52,7 @@
           v-model="sampleMean"
         />
       </label>
-      <label class="separate-right">
+      <label>
         Median:
         <input
           type="text"
@@ -60,7 +60,7 @@
           v-model="sampleMedian"
         />
       </label>
-      <label class="separate-right">
+      <label>
         Standard deviation:
         <input
           type="text"
@@ -68,7 +68,7 @@
           v-model="sampleStandardDeviation"
         />
       </label>
-      <label class="separate-right">
+      <label>
         Standard error:
         <input
           type="text"
