@@ -95,6 +95,7 @@ class TaxonNamesController < ApplicationController
     render json: {} and return if params[:term].blank?
     @taxon_names = ::Queries::TaxonName::Autocomplete.new(
       params[:term],
+      exact: 'true',
       **autocomplete_params
     ).autocomplete
   end
