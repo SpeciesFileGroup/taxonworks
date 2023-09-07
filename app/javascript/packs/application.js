@@ -13,6 +13,8 @@ import 'regenerator-runtime/runtime' */
 import 'leaflet/dist/leaflet.css'
 import 'tippy.js/dist/tippy.css'
 
+require('../vanilla/initializers/copyTable.js')
+
 require('../vue/tasks/citations/otus/main.js')
 require('../vue/tasks/content/editor/main.js')
 require('../vue/tasks/nomenclature/new_taxon_name/main.js')

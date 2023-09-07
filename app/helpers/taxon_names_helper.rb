@@ -417,22 +417,28 @@ module TaxonNamesHelper
     }
   end
 
-  def taxon_name_year_data_table(data)
+  def taxon_name_year_data_table(data, *attributes)
     a = data[:data].first
     b = data[:data].second
 
-    tag.table do
+    content_tag(:table,
       safe_join([
-      tag.tr( safe_join [ tag.th('Year'), tag.th(a[:name]), tag.th(b[:name])]),
-      safe_join((data[:metadata][:min_year]..data[:metadata][:max_year]).collect{|y|
-        tag.tr(
-          safe_join([
-            tag.td(y),
-            tag.td(a[:data][y]),
-            tag.td(b[:data][y])
-          ]))
-      }) ])
-    end
+        tag.thead(
+          tag.tr(
+            safe_join [tag.th('Year'), tag.th(a[:name]), tag.th(b[:name])]
+          )
+        ),
+        safe_join((data[:metadata][:min_year]..data[:metadata][:max_year]).collect{|y|
+          tag.tr(
+            safe_join([
+              tag.td(y),
+              tag.td(a[:data][y]),
+              tag.td(b[:data][y])
+            ])
+          )
+        }) 
+      ]), *attributes
+    )
   end
 
   # Perhaps a /lib/catalog method
