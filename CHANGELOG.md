@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Image quick forms, add depictions in the context of an image [#3540]
 - Tables of data to nomenclature stats plots, with option to copy to clipboard
 - With/out nomenclature date facet on filter nomenclature
 
@@ -16,12 +17,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Made TaxonName autocmlete exact = true by default.
 
-
 ### Fixed
 
 - OTU API autocomplete fails to sort results
 - Duplicate type status per CollectionObject are not allowed [#3535]
 
+[#3540]: https://github.com/SpeciesFileGroup/taxonworks/issues/3540
 [#3535]: https://github.com/SpeciesFileGroup/taxonworks/issues/3535
 
 ## [0.34.3] - 2023-09-05
