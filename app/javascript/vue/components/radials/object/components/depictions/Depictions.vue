@@ -46,11 +46,7 @@
         :klass="objectType"
         :label="objectLabelProperty"
         :target="DEPICTION"
-        @selected="
-          (item) => {
-            selectedObject = item
-          }
-        "
+        @selected="setSelectedObject"
       />
       <SmartSelectorItem
         v-if="selectedObject"
@@ -58,7 +54,7 @@
         :label="objectLabelProperty"
         @unset="
           () => {
-            selectedObject = undefined
+            setSelectedObject()
           }
         "
       />
@@ -67,6 +63,7 @@
         <VBtn
           color="create"
           medium
+          :disabled="!depiction.objectId || !depiction.objectType"
           @click="
             () => {
               saveDepiction(makePayload(depiction))
@@ -156,6 +153,8 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['updateCount'])
+
 const selectedType = ref(null)
 const selectedObject = ref(undefined)
 const depiction = ref(makeDepiction())
@@ -196,8 +195,15 @@ function saveDepiction(depiction) {
   response.then(({ body }) => {
     addToArray(list.value, body)
     resetForm()
+    emit('updateCount', list.value.length)
     TW.workbench.alert.create('Depiction was successfully saved.', 'notice')
   })
+}
+
+function setSelectedObject(item) {
+  selectedObject.value = item
+  depiction.value.objectId = item?.id
+  depiction.value.objectType = selectedType.value?.value
 }
 
 function resetForm() {
@@ -209,6 +215,8 @@ function resetForm() {
 function removeDepiction(item) {
   Depiction.destroy(item.id).then((_) => {
     removeFromArray(list.value, item)
+    emit('updateCount', list.value.length)
+    TW.workbench.alert.create('Depiction was successfully removed.', 'notice')
   })
 }
 
