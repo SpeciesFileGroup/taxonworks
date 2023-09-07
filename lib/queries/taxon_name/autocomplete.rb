@@ -48,6 +48,7 @@ module Queries
 
         # TODO: move to mode
         @exact = boolean_param(params, :exact)
+        @exact = true if @exact.nil?
         super
       end
 
@@ -228,7 +229,7 @@ module Queries
       # ---- gin methods
 
       def autocomplete_cached
-        ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, cached) AS sml', query_string]))
+        ::TaxonName.where(project_id: project_id).select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, cached) AS sml', query_string]))
           .where('cached % ?', query_string) # `%` in where means nothing < 0.3 (internal PG similarity value)
           .order('sml DESC, cached')
       end
@@ -244,6 +245,8 @@ module Queries
           .where('taxon_names.cached_author_year % ?', query_string)
           .order('sml DESC, taxon_names.cached_author_year')
       end
+
+
 
       # Weights.  Theory (using this loosely) is that this
       # will proportionally increase the importance in the list of the corresponding element.
@@ -279,10 +282,17 @@ module Queries
           autocomplete_exact_id,
           autocomplete_exact_cached,
           autocomplete_exact_cached_original_combination,
+          autocomplete_identifier_cached_exact,
           autocomplete_exact_name_and_year,
-          autocomplete_top_name,
-          autocomplete_top_cached,
-          autocomplete_cached_end_wildcard
+          autocomplete_cached_end_wildcard,
+          autocomplete_cached_wildcard_whitespace,
+          autocomplete_name_author_year_fragment,
+          autocomplete_taxon_name_author_year_matches,
+          autocomplete_wildcard_joined_strings,
+          autocomplete_wildcard_author_year_joined_pieces,
+          autocomplete_wildcard_cached_original_combination,
+          #autocomplete_top_name,
+          #autocomplete_top_cached,
         ]
       end
 
@@ -306,7 +316,7 @@ module Queries
           autocomplete_genus_species2(z),    # not tested
           autocomplete_cached_end_wildcard,
           # autocomplete_identifier_cached_like, # this query take much longer to complete than any other
-          autocomplete_cached_name_end_wildcard,
+          autocomplete_cached_name_end_wildcard, #
           autocomplete_cached_wildcard_whitespace,
           autocomplete_name_author_year_fragment,
           autocomplete_taxon_name_author_year_matches,
@@ -337,7 +347,7 @@ module Queries
 
         queries.each_with_index do |q,i|
           a = q
-          a = q.where(project_id:) if project_id.present?
+          a = q.where(project_id: project_id) if project_id.present?
 
           a = a.where(and_clauses.to_sql) if and_clauses
 
