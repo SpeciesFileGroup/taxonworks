@@ -18,6 +18,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - OTU API autocomplete fails to sort results
+- Duplicate type status per CollectionObject are not allowed [#3535]
+
+[#3535]: https://github.com/SpeciesFileGroup/taxonworks/issues/3535
 
 ## [0.34.3] - 2023-09-05
 
