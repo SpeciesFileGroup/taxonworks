@@ -117,14 +117,22 @@ module Shared::Citations
     end
   end
 
-  # See Source::Bibtex for context
-  # !! Over-riden in various places.
   # @return [Time, nil]
+  # !! Over-riden in various places, but it shouldn't be
+  # See Source::Bibtex for context as to how this is built.
+  #
   def nomenclature_date
-    if source && source.is_bibtex?
-      source.nomenclature_date
-    end
+    #   if source && source.is_bibtex?
+    #     source.cached_nomenclature_date # was getter
+    #   end
+
+    self.class.joins(citations: [:source])
+    .where(citations: {citation_object: self, is_original: true})
+    .select('sources.cached_nomenclature_date')
+    .first&.cached_nomenclature_date
   end
+
+  alias_method :source_nomenclature_date, :nomenclature_date
 
   def origin_citation_source_id
     if origin_citation && origin_citation.source_id.blank?
