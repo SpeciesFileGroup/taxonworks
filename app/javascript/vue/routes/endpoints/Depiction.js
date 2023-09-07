@@ -40,5 +40,7 @@ const permitParams = {
 export const Depiction = {
   ...baseCRUD('depictions', permitParams),
 
-  sort: (data) => AjaxCall('patch', '/depictions/sort', data)
+  sort: (data) => AjaxCall('patch', '/depictions/sort', data),
+
+  filter: (params) => AjaxCall('post', '/depictions/filter', params)
 }

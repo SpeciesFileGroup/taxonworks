@@ -13,13 +13,16 @@ class DepictionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @depictions = Depiction.where(project_id: sessions_current_project_id).where(
-          Queries::Annotator::polymorphic_params(params, Depiction)
-       ).page(params[:page])
-       .per(params[:per])
+        @depictions = Queries::Depiction::Filter.new(params)
+        .all
+        .where(project_id: sessions_current_project_id)
+        .where(Queries::Annotator::polymorphic_params(params, Depiction))
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
+
 
   def list
     @depictions = Depiction.where(project_id: sessions_current_project_id).page(params[:page])
