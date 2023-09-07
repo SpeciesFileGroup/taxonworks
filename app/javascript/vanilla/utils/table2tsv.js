@@ -6,8 +6,6 @@ export function html2tsv(element) {
     throw new Error("Element doesn't exist")
   }
 
-  console.log(el)
-
   const thElements = [...el.querySelectorAll('th')]
   const trElements = [...el.querySelectorAll('tr')]
 
