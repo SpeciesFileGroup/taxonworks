@@ -23,12 +23,19 @@
 
 <div class="flexbox flex-middle">
   <div class="item">
-    <h2>Per year</h2>
-    <%= taxon_name_year_data_table(d1) %>
+    <h2>
+      Per year
+      <%= copy_table_to_clipboard('#table-per-year') %>
+    </h2>
+
+    <%= taxon_name_year_data_table(d1, id: 'table-per-year') %>
   </div>
 
   <div class="item">
-    <h2>Cumulative</h2>
-    <%= taxon_name_year_data_table(d2) %>
+    <h2>
+      Cumulative
+      <%= copy_table_to_clipboard('#table-cumulative') %>
+    </h2>
+    <%= taxon_name_year_data_table(d2, id: 'table-cumulative') %>
   </div>
 </div>
