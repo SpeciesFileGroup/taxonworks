@@ -423,15 +423,21 @@ module TaxonNamesHelper
 
     content_tag(:table,
       safe_join([
-      tag.tr( safe_join [ tag.th('Year'), tag.th(a[:name]), tag.th(b[:name])]),
-      safe_join((data[:metadata][:min_year]..data[:metadata][:max_year]).collect{|y|
-        tag.tr(
-          safe_join([
-            tag.td(y),
-            tag.td(a[:data][y]),
-            tag.td(b[:data][y])
-          ]))
-      }) ]), *attributes
+        tag.thead(
+          tag.tr(
+            safe_join [tag.th('Year'), tag.th(a[:name]), tag.th(b[:name])]
+          )
+        ),
+        safe_join((data[:metadata][:min_year]..data[:metadata][:max_year]).collect{|y|
+          tag.tr(
+            safe_join([
+              tag.td(y),
+              tag.td(a[:data][y]),
+              tag.td(b[:data][y])
+            ])
+          )
+        }) 
+      ]), *attributes
     )
   end
 
