@@ -9,9 +9,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- Tables of data to nomenclature stats plots
+- Tables of data to nomenclature stats plots, with option to copy to clipboard
+- With/out nomenclature date facet on filter nomenclature
 
 ### Changed
+
 
 ### Fixed
 

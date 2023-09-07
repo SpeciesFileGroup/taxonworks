@@ -83,20 +83,21 @@ const WITH_TITLES = {
 
 const WITH_PARAMS = [
   'authors',
-  'citations',
   'citation_documents',
+  'citations',
   'combinations',
   'data_attributes',
-  'depictions',
   'data_depictions',
+  'depictions',
   'etymology',
-  'notes',
-  'tags',
   'leaves',
+  'nomenclature_date',
   'not_specified',
+  'notes',
   'origin_citation',
   'original_combination',
   'otus',
+  'tags',
   'type_metadata'
 ]
 
