@@ -7,15 +7,28 @@
 
 <%= link_to('Back to filter', filter_taxon_names_task_path) %>
 
-<%= tag.p @taxon_names.where('taxon_names.cached_nomenclature_date is null').count.to_s + ' Taxon name records in this result do not have data computed, a cached rebuild may help.', class: [:feedback, 'feedback-warning', 'feedback-thin'] %>
+<%= tag.p @taxon_names.where('taxon_names.cached_nomenclature_date is null').count.to_s + ' Taxon name records in this result do not have data computed.', class: [:feedback, 'feedback-warning', 'feedback-thin'] %>
 
-<div>
-<%= column_chart taxon_names_count_by_validity_and_year(@taxon_names)[:data], height: '600px', stacked: true, download: true, descrete: true, ytitle: 'Total', xtitle: 'Order', title: "Taxon names per cached nomenclature year" %>
+<div style="width: 95%">
+  <% d1 = taxon_names_count_by_validity_and_year(@taxon_names) %>
+  <%= column_chart d1[:data], height: '600px', stacked: true, download: true, descrete: true, ytitle: 'Total', xtitle: 'Year', title: "Taxon names per cached nomenclature year" %>
 </div>
 
-<div>
-  <%= column_chart taxon_names_cumulative_count_by_validity_and_year(@taxon_names)[:data], height: '600px', stacked: true, download: true, descrete: true, ytitle: 'Total', xtitle: 'Order', title: "Taxon names per cached nomenclature year - cumulative" %>
+<div style="width: 95%">
+  <% d2 = taxon_names_cumulative_count_by_validity_and_year(@taxon_names) %>
+  <%= column_chart d2[:data], height: '600px', stacked: true, download: true, descrete: true, ytitle: 'Total', xtitle: 'Year', title: "Taxon names per cached nomenclature year - cumulative" %>
 </div>
 
+<hr>
 
+<div class="flexbox flex-middle">
+  <div class="item">
+    <h2>Per year</h2>
+    <%= taxon_name_year_data_table(d1) %>
+  </div>
 
+  <div class="item">
+    <h2>Cumulative</h2>
+    <%= taxon_name_year_data_table(d2) %>
+  </div>
+</div>

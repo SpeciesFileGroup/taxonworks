@@ -7,13 +7,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- Tables of data to nomenclature stats plots
+
+### Changed
+
+### Fixed
+
+- OTU API autocomplete fails to sort results
 
 ## [0.34.3] - 2023-09-05
 
 ### Added
 
-- Task - Nomenclature by year plots [#2472] 
+- Task - Nomenclature by year plots [#2472]
 - API for BiologicalRelationships -`api/v1/biological_relationships?extend[]=biological_property` [#3525]
 - Organization to Attribution slice in Radial annotator [#3529]
 - Delayed job queue `cached`, currently used in Role-related updates [#3437]
