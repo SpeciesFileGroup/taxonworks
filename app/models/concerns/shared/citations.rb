@@ -117,15 +117,11 @@ module Shared::Citations
     end
   end
 
-  # @return [Time, nil]
+  # @return [Date, nil]
   # !! Over-riden in various places, but it shouldn't be
   # See Source::Bibtex for context as to how this is built.
   #
   def nomenclature_date
-    #   if source && source.is_bibtex?
-    #     source.cached_nomenclature_date # was getter
-    #   end
-
     self.class.joins(citations: [:source])
     .where(citations: {citation_object: self, is_original: true})
     .select('sources.cached_nomenclature_date')
