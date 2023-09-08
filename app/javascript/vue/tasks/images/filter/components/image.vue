@@ -55,6 +55,9 @@
               <li>
                 <RadialNavigation :global-id="image.global_id" />
               </li>
+              <li>
+                <DepictionList :image-id="image.id" />
+              </li>
             </ul>
           </div>
         </div>
@@ -104,6 +107,7 @@ import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import DepictionList from './DepictionList.vue'
 
 const CONVERT_IMAGE_TYPES = ['image/tiff']
 const props = defineProps({
