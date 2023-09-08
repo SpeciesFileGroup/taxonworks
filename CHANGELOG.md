@@ -13,11 +13,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Image quick forms, add depictions in the context of an image [#3540]
 - Tables of data to nomenclature stats plots, with option to copy to clipboard
 - With/out nomenclature date facet on filter nomenclature
-- Image quick form radial [#3540]
 
 ### Changed
 
 - TaxonName autocomplete change to a strict match mode.
+- Bold geographic levels in Type specimen panel in Browse OTU [#3544]
 
 ### Fixed
 
@@ -26,9 +26,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Duplicate type status per CollectionObject are not allowed [#3535]
 
 [#3454]: https://github.com/SpeciesFileGroup/taxonworks/issues/3454
-[#3540]: https://github.com/SpeciesFileGroup/taxonworks/issues/3540
 [#3535]: https://github.com/SpeciesFileGroup/taxonworks/issues/3535
 [#3540]: https://github.com/SpeciesFileGroup/taxonworks/issues/3540
+[#3544]: https://github.com/SpeciesFileGroup/taxonworks/issues/3544
 
 ## [0.34.3] - 2023-09-05
 
