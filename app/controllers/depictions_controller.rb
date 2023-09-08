@@ -2,7 +2,7 @@ class DepictionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_depiction, only: [:show, :edit, :update, :destroy, :api_show]
-  after_action -> { set_pagination_headers(:depictions) }, only: [:index], if: :json_request?
+  after_action -> { set_pagination_headers(:depictions) }, only: [:index, :api_index, :api_gallery], if: :json_request?
 
   # GET /depictions
   # GET /depictions.json
@@ -36,6 +36,25 @@ class DepictionsController < ApplicationController
 
   def api_show
     render '/depictions/api/v1/show'
+  end
+
+  # GET /api/v1/otus
+  def api_index
+    @depictions = Queries::Depiction::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .order('depictions.id')
+      .page(params[:page])
+      .per(params[:per])
+    render '/depictions/api/v1/index'
+  end
+
+  def api_gallery
+    @depictions = Queries::Depiction::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .order('depictions.id')
+      .page(params[:page])
+      .per(params[:per])
+    render '/depictions/api/v1/gallery'
   end
 
   # GET /depictions/new

@@ -4,12 +4,15 @@ module Queries
       include Queries::Concerns::Tags
 
       PARAMS = [
+        :depiction_id,
+        :depiction_object_id,
+        :depiction_object_type,
+        :image_id,
+        depiction_id: [],
         depiction_object_id: [],
         depiction_object_type: [],
         image_id: [],
-        depiction_id: []
       ].freeze
-
 
       attr_accessor :depiction_id
 
@@ -47,7 +50,6 @@ module Queries
       def depiction_object_id
         [@depiction_object_id].flatten.compact
       end
-
 
       def depiction_id_facet
         return nil if depiction_id.empty?

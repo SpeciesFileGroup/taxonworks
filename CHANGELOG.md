@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- API gallery endpoint `/depictions/gallery`
 - Image quick forms, add depictions in the context of an image [#3540]
 - Tables of data to nomenclature stats plots, with option to copy to clipboard
 - With/out nomenclature date facet on filter nomenclature
