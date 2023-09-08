@@ -15,7 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
-- Made TaxonName autocmlete exact = true by default.
+- TaxonName autocomplete change to a strict match mode.
 
 ### Fixed
 

@@ -48,7 +48,6 @@ module Queries
 
         # TODO: move to mode
         @exact = boolean_param(params, :exact)
-        @exact = true if @exact.nil?
         super
       end
 
