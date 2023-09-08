@@ -6,7 +6,7 @@ module Queries
     class Autocomplete < Query::Autocomplete
 
       # @return Boolean
-      #   true - ignores search on Otu#name
+      #   true - only return Otus with `name` nil
       #   false,nil - no effect
       attr_accessor :having_taxon_name_only
 
