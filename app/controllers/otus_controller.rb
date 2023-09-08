@@ -259,7 +259,7 @@ class OtusController < ApplicationController
 
   # GET /api/v1/otus
   def api_index
-    @otus = Queries::Otu::Filter.new(params.merge!(api: true)).all
+    @otus = ::Queries::Otu::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('otus.id')
       .page(params[:page])
@@ -274,10 +274,10 @@ class OtusController < ApplicationController
 
   # GET /api/v1/otus/autocomplete
   def api_autocomplete
-    @otus = Queries::Otu::Autocomplete.new(
+    @otus = ::Queries::Otu::Autocomplete.new(
       params.require(:term),
       project_id: sessions_current_project_id,
-      # having_taxon_name_only: params[:having_taxon_name_only]
+      having_taxon_name_only: params[:having_taxon_name_only]
     ).api_autocomplete
 
     render '/otus/api/v1/autocomplete'
