@@ -39,11 +39,11 @@ const params = computed({
 })
 
 watch(taxon, (newVal) => {
-  params.value.ancestor_id = newVal?.id
+  params.value.taxon_name_id = newVal?.id
 })
 
 watch(
-  () => params.value.ancestor_id,
+  () => params.value.taxon_name_id,
   (newVal) => {
     if (!newVal) {
       taxon.value = undefined
@@ -51,10 +51,10 @@ watch(
   }
 )
 
-const { ancestor_id } = URLParamsToJSON(location.href)
+const { taxon_name_id } = URLParamsToJSON(location.href)
 
-if (ancestor_id) {
-  TaxonName.find(ancestor_id).then(({ body }) => {
+if (taxon_name_id) {
+  TaxonName.find(taxon_name_id).then(({ body }) => {
     taxon.value = body
   })
 }

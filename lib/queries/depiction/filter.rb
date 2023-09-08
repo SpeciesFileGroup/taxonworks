@@ -22,7 +22,6 @@ module Queries
 
       attr_accessor :depiction_object_type
 
-
       # @param params [Hash]
       def initialize(query_params)
         super
