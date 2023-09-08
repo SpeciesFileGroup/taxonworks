@@ -139,7 +139,7 @@ class TaxonNamesController < ApplicationController
 
   def rank_table
     @query = ::Queries::TaxonName::Tabular.new(
-      ancestor_id: params.require(:ancestor_id),
+      taxon_name_id: params.require(:taxon_name_id), # this is one of the few places
       ranks: params.require(:ranks),
       fieldsets: params[:fieldsets],
       limit: params[:limit],
