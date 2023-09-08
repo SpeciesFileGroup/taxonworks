@@ -11,11 +11,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Tables of data to nomenclature stats plots, with option to copy to clipboard
 - With/out nomenclature date facet on filter nomenclature
+- Image quick form radial [#3540]
 
 ### Changed
 
 - TaxonName autocomplete change to a strict match mode.
-
 
 ### Fixed
 
@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Duplicate type status per CollectionObject are not allowed [#3535]
 
 [#3535]: https://github.com/SpeciesFileGroup/taxonworks/issues/3535
+[#3540]: https://github.com/SpeciesFileGroup/taxonworks/issues/3540
 
 ## [0.34.3] - 2023-09-05
 
