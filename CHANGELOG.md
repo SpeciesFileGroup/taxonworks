@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Project data curation issue tracking URL field (and to base API response) [#3550]
 - Manual option to regenerate derivative images on Show Image
 - API gallery endpoint `/depictions/gallery`
 - Image quick forms, add depictions in the context of an image [#3540]
@@ -28,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - OTU API autocomplete fails to sort results
 - Duplicate type status per CollectionObject are not allowed [#3535]
 
+[#3550]: https://github.com/SpeciesFileGroup/taxonworks/issues/3550
 [#3070]: https://github.com/SpeciesFileGroup/taxonworks/issues/3070
 [#3454]: https://github.com/SpeciesFileGroup/taxonworks/issues/3454
 [#3535]: https://github.com/SpeciesFileGroup/taxonworks/issues/3535
