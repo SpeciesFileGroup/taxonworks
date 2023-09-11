@@ -37,7 +37,7 @@
             />
           </td>
           <td>
-            <div class="horizontal-left-content">
+            <div class="horizontal-left-content gap-small">
               <AddToProject
                 :id="item.id"
                 :project-source-id="item.project_source_id"
