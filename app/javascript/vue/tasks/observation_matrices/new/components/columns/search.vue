@@ -9,14 +9,14 @@
           label="label_html"
           @getItem="createColumnItem($event.id)"
           url="/descriptors/autocomplete"
-          param="term"/>
+          param="term"
+        />
       </div>
     </div>
   </div>
 </template>
 <script>
-
-import Autocomplete from 'components/ui/Autocomplete.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
@@ -31,14 +31,14 @@ export default {
       return this.$store.getters[GetterNames.GetMatrix]
     }
   },
-  data () {
+  data() {
     return {
       displayAutocomplete: undefined,
       objectId: undefined
     }
   },
   methods: {
-    createColumnItem (id) {
+    createColumnItem(id) {
       const data = {
         observation_matrix_id: this.matrix.id,
         descriptor_id: id,

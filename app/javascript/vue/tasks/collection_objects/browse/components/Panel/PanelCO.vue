@@ -27,5 +27,5 @@ import PanelBiocurations from './PanelBiocurations.vue'
 import PanelBiologicalAssociations from './PanelBiologicalAssociations.vue'
 import PanelTypeMaterial from './PanelTypeMaterial.vue'
 import PanelDisposition from './PanelDisposition.vue'
-import TableGrid from 'components/layout/Table/TableGrid.vue'
+import TableGrid from '@/components/layout/Table/TableGrid.vue'
 </script>

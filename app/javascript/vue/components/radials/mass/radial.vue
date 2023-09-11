@@ -27,10 +27,6 @@
             </div>
             <div
               class="radial-annotator-template panel"
-              :style="{
-                'max-height': windowHeight(),
-                'min-height': windowHeight()
-              }"
               v-if="currentAnnotator"
             >
               <h2 class="capitalize view-title">
@@ -60,6 +56,7 @@
       >
         <VIcon
           name="radialMassAnnotator"
+          title="Radial massive annoator"
           x-small
         />
       </VBtn>
@@ -68,15 +65,15 @@
 </template>
 
 <script setup>
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import VModal from 'components/ui/Modal.vue'
-import VSpinner from 'components/spinner.vue'
-import Icons from 'components/radials/annotator/images/icons.js'
-import VIcon from 'components/ui/VIcon/index.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import { RadialAnnotatorEventEmitter } from 'utils/index.js'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VSpinner from '@/components/spinner.vue'
+import Icons from '@/components/radials/annotator/images/icons.js'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { RadialAnnotatorEventEmitter } from '@/utils/index.js'
 import { ANNOTATORS } from './constants/annotators.js'
-import { Metadata, Tag } from 'routes/endpoints'
+import { Metadata, Tag } from '@/routes/endpoints'
 import { computed, ref, onBeforeMount } from 'vue'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
@@ -170,13 +167,6 @@ function selectComponent({ name }) {
 function closeModal() {
   isModalVisible.value = false
   emit('close')
-}
-
-function windowHeight() {
-  return (
-    (window.innerHeight - 100 > 650 ? 650 : window.innerHeight - 100) +
-    'px !important'
-  )
 }
 
 function createTag() {

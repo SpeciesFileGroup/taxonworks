@@ -5,11 +5,11 @@
     button-title="OTU quick forms"
     button-class="btn-hexagon-w button-default"
     :show-count="showCount"
-    :global-id="globalId"/>
+    :global-id="globalId"
+  />
 </template>
 <script>
-
-import OtuRadial from 'components/radials/object/radial.vue'
+import OtuRadial from '@/components/radials/object/radial.vue'
 
 export default {
   components: { OtuRadial },

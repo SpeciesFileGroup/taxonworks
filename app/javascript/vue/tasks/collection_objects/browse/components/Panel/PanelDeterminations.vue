@@ -13,7 +13,7 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters'
 import PanelContainer from './PanelContainer.vue'
-import RadialFilterAttribute from 'components/radials/linker/RadialFilterAttribute.vue'
+import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttribute.vue'
 import TableData from '../Table/TableData.vue'
 
 const HEADERS = ['OTU', 'Determiners', 'Date']
@@ -29,8 +29,8 @@ const parameters = computed(() => {
   return d
     ? {
         otu_id: [d.otu_id],
-        ancestor_id: d.otu.taxon_name_id,
         taxon_name_id: d.otu.taxon_name_id
+        // ancestor_id,
       }
     : {}
 })

@@ -110,8 +110,8 @@ module ProjectsHelper
   end
 
   def gb_per_year(sums)
-    min = sums.keys.sort.first
-    max = sums.keys.sort.last
+    min = sums.keys.sort.first || 0
+    max = sums.keys.sort.last || 0
 
     data = {}
 

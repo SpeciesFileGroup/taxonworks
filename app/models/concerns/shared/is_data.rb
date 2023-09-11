@@ -149,16 +149,18 @@ module Shared::IsData
   # @param user [user_id or User]
   #   an id or User object
   def is_destroyable?(user)
-    user = User.find(user) if !user.kind_of?(User)
-    return true if user.is_administrator?
+    u = user
+    u = User.find(user) if !user.kind_of?(User)
+    return true if u.is_administrator?
 
-    p = user.projects.pluck(:id)
+    p = u.projects.pluck(:id)
 
     self.class.reflect_on_all_associations(:has_many).each do |r|
+      # puts r.name
       if r.klass.column_names.include?('project_id')
         # If this has any related data in another project, we can't destroy it
         #    if !send(r.name).nil?
-        return false if send(r.name).where.not(project_id: p).count(:all) > 0
+        return false if send(r.name).where.not(project_id: p).any? # count(:all) > 0
         #     end
       end
     end
@@ -166,7 +168,7 @@ module Shared::IsData
     self.class.reflect_on_all_associations(:has_one).each do |r|
       if is_community? # *this* object is community, others we don't care about
         if o = send(r.name)
-          return false if o.respond_to?(:project_id) && !p.include?(o.project)
+          return false if o.respond_to?(:project_id) && !p.include?(o.project_id)
         end
       end
     end
@@ -174,9 +176,10 @@ module Shared::IsData
   end
 
   def is_editable?(user)
-    user = User.find(user) if !user.kind_of?(User)
-    return true if user.is_administrator? || is_community?
-    return false if !is_in_users_projects?(user)
+    u = user
+    u = User.find(user) if !user.kind_of?(User)
+    return true if u.is_administrator? || is_community?
+    return false if !is_in_users_projects?(u)
     true
   end
 

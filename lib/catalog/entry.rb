@@ -45,7 +45,7 @@ class Catalog::Entry
   # Redefined in subclasses!
   # !! This is default only, it should be (re)defined in subclasses.
   def build
-    @items << Catalog::EntryItem.new(object: object, citation: object.origin_citation)
+    @items << Catalog::EntryItem.new(object:, citation: object.origin_citation)
     true
   end
 
@@ -190,12 +190,12 @@ class Catalog::Entry
     items.map(&:citation).compact
   end
 
-  # @return [Array]
+  # @return [Array of Date] # !! not Time
   # Some duplication here
   def all_dates
     d = []
     sources.each do |s|
-      d.push s.nomenclature_date # was cached_nomenclature_date (a Date)
+      d.push s.cached_nomenclature_date
     end
 
     items.each do |i|

@@ -32,11 +32,11 @@
 </template>
 <script>
 import Draggable from 'vuedraggable'
-import Dropzone from 'components/dropzone.vue'
+import Dropzone from '@/components/dropzone.vue'
 import FigureItem from './figureItem.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { Content, Depiction } from 'routes/endpoints'
+import { Content, Depiction } from '@/routes/endpoints'
 
 export default {
   components: {

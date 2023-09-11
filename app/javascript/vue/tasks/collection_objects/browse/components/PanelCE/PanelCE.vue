@@ -6,9 +6,8 @@
         <RadialFilterAttribute
           :parameters="{ collecting_event_id: [collectingEvent.id] }"
         />
-        <div class="horizontal-right-content">
+        <div class="horizontal-right-content gap-small">
           <RadialAnnotator :global-id="collectingEvent.global_id" />
-          <RadialObject :global-id="collectingEvent.global_id" />
           <RadialNavigator :global-id="collectingEvent.global_id" />
         </div>
       </div>
@@ -32,13 +31,12 @@
 import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
-import BlockLayout from 'components/layout/BlockLayout.vue'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 import PanelCEAttributes from './PanelCEAttributes.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialObject from 'components/radials/object/radial.vue'
-import RadialNavigator from 'components/radials/navigation/radial.vue'
-import TableGrid from 'components/layout/Table/TableGrid.vue'
-import RadialFilterAttribute from 'components/radials/linker/RadialFilterAttribute.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import TableGrid from '@/components/layout/Table/TableGrid.vue'
+import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttribute.vue'
 import PanelCEModal from './PanelCEModal.vue'
 
 const notEditableFields = [

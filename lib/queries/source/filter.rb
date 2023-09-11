@@ -297,7 +297,7 @@ module Queries
 
       def topic_id_facet
         return nil if topic_id.empty?
-        ::Source.joins(:citation_topics).where(citation_topics: { topic_id: }).distinct
+        ::Source.joins(:citation_topics).where(citation_topics: { topic_id: topic_id}).distinct
       end
 
       def in_project_facet
@@ -305,7 +305,7 @@ module Queries
 
         if in_project
           ::Source.joins(:project_sources)
-            .where(project_sources: {project_id:})
+            .where(project_sources: {project_id: project_id})
         else
           ::Source.left_outer_joins(:project_sources)
             .where('project_sources.project_id != ? OR project_sources.id IS NULL', project_id) # TODO: probably project_id
@@ -358,11 +358,12 @@ module Queries
         return nil if documents.nil?
 
         if documents
-          ::Source.joins(:documents).distinct
+          ::Source.joins(:documents, :project_sources).where(project_sources: {project_id:}).distinct
         else
-          ::Source.left_outer_joins(:documents)
-            .where(documents: {id: nil})
-            .distinct
+          a = ::Source.where.missing(:documents).distinct
+          b = ::Source.joins(:project_sources).where(project_sources: {project_id: }).where.missing(:documentation).distinct
+
+          ::Source.from("((#{a.to_sql}) UNION (#{b.to_sql})) as sources")
         end
       end
 
@@ -379,7 +380,7 @@ module Queries
       def citation_object_type_facet
         return nil if citation_object_type.empty?
         ::Source.joins(:citations)
-          .where(citations: {citation_object_type:}).distinct
+          .where(citations: {citation_object_type: citation_object_type}).distinct
       end
 
       def nomenclature_facet

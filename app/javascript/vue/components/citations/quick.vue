@@ -4,12 +4,14 @@
       <input
         type="text"
         v-model="pages"
-        placeholder="Pages">
+        placeholder="Pages"
+      />
       <button
         class="button normal-input button-submit"
         :disabled="citation"
         @click="createCitation"
-        type="button">
+        type="button"
+      >
         Create
       </button>
     </template>
@@ -18,15 +20,15 @@
       class="button normal-input button-default"
       :disabled="citation"
       @click="pressed = true"
-      type="button">
+      type="button"
+    >
       {{ label }}
     </button>
   </div>
 </template>
 
 <script>
-
-import { Citation } from 'routes/endpoints'
+import { Citation } from '@/routes/endpoints'
 
 export default {
   props: {
@@ -41,7 +43,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       citation: undefined,
       pages: undefined,
@@ -51,18 +53,21 @@ export default {
   },
 
   methods: {
-    createCitation () {
+    createCitation() {
       Citation.create({
         citation: {
           source_id: this.sourceId,
           pages: this.pages,
           annotated_global_entity: this.globalId
         }
-      }).then(response => {
+      }).then((response) => {
         this.citation = response.body
         this.pressed = false
         this.label = 'Cited'
-        TW.workbench.alert.create('Citation was successfully created.', 'notice')
+        TW.workbench.alert.create(
+          'Citation was successfully created.',
+          'notice'
+        )
       })
     }
   }

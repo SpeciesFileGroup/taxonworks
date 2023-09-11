@@ -1,6 +1,11 @@
 # The result of parsing a row.
 class BatchLoad::RowParse
 
+
+  # @return [Integer]
+  #   The row this parse is from
+  attr_accessor :row_number
+
   # @return [Boolean]
   #   whether the row was parsed or not
   attr_accessor :parsed

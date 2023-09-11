@@ -14,22 +14,22 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   let(:protonym) { Protonym.new }
   let!(:root) { Protonym.create!(name: 'Root', rank_class: 'NomenclaturalRank')  }
 
-  let(:order) { Protonym.create!(name: 'Hymenoptera', parent: root, rank_class: Ranks.lookup(:iczn, :order ) ) } 
+  let(:order) { Protonym.create!(name: 'Hymenoptera', parent: root, rank_class: Ranks.lookup(:iczn, :order ) ) }
   let(:family) { Protonym.create!(name: 'Aidae', parent: order, rank_class: Ranks.lookup(:iczn, :family ) )  }
   let(:genus) { Protonym.create!(name: 'Aus', parent: family, rank_class: Ranks.lookup(:iczn, :genus ) )  }
 
   let(:alternate_genus) { Protonym.create!(name: 'Bus', parent: family, rank_class: Ranks.lookup(:iczn, :genus ) )  }
 
-  let(:species) { Protonym.create!(name: 'aus', parent: genus, rank_class: Ranks.lookup(:iczn, :species ) )  } 
+  let(:species) { Protonym.create!(name: 'aus', parent: genus, rank_class: Ranks.lookup(:iczn, :species ) )  }
 
-  let(:species_type_of_genus) { 
+  let(:species_type_of_genus) {
     FactoryBot.create(:taxon_name_relationship,
                       subject_taxon_name: species,
                       object_taxon_name: genus,
                       type: 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy')
   }
 
-  let(:genus_type_of_family) { 
+  let(:genus_type_of_family) {
     FactoryBot.create(:taxon_name_relationship,
                       subject_taxon_name: genus,
                       object_taxon_name: family,
@@ -38,7 +38,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
   context 'associations' do
     context 'has_many' do
-      specify 'original_combination_relationships' do 
+      specify 'original_combination_relationships' do
         expect(protonym).to respond_to(:original_combination_relationships)
       end
     end
@@ -54,11 +54,11 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     specify '#cached_original_combination is nil' do
       expect(species.cached_original_combination).to eq(nil)
-    end 
+    end
 
     specify '#cached_original_combination_html is nil' do
       expect(species.cached_original_combination).to eq(nil)
-    end 
+    end
 
   end
 
@@ -75,9 +75,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   end
 
   context '#cached_original_combination is updated when' do
-    before {
-      species.original_genus = alternate_genus
-    }
+    before { species.original_genus = alternate_genus }
 
     specify 'rebuild method is called on save' do
       expect(species).to receive(:set_cached_original_combination)
@@ -85,7 +83,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     specify '#original_combination_relationships maps object to related' do
-      expect(species.original_combination_relationships.reload.first.object_taxon_name).to eq(species) 
+      expect(species.original_combination_relationships.reload.first.object_taxon_name).to eq(species)
     end
 
     specify 'rebuild method is called on destroy' do
@@ -138,7 +136,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
   specify 'subgenus original combination' do
     alternate_genus.update(parent: genus, rank_class: Ranks.lookup(:iczn, :subgenus), original_genus: alternate_genus)
-    expect(alternate_genus.cached_original_combination).to eq('Bus') 
+    expect(alternate_genus.cached_original_combination).to eq('Bus')
   end
 
   specify 'incomplete relationship: missing original species' do

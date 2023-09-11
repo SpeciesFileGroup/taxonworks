@@ -1,6 +1,6 @@
-import { CollectionObject } from 'routes/endpoints'
+import { CollectionObject } from '@/routes/endpoints'
 
 export default ({ state }, coId) =>
-  CollectionObject.dwca(coId).then(({ body }) => {
+  CollectionObject.dwcVerbose(coId).then(({ body }) => {
     state.dwc = body
   })

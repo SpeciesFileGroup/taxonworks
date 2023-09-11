@@ -1,8 +1,6 @@
 <template>
   <FacetContainer>
-    <h3 class="flex-separate">
-      Housekeeping
-    </h3>
+    <h3 class="flex-separate">Housekeeping</h3>
     <div class="field">
       <select v-model="params.user_id">
         <option
@@ -26,7 +24,7 @@
               :value="item.value"
               v-model="params.user_target"
               type="radio"
-            >
+            />
             {{ item.label }}
           </label>
         </li>
@@ -36,22 +34,22 @@
     <div class="horizontal-left-content">
       <div class="field separate-right">
         <label>Start date:</label>
-        <br>
+        <br />
         <input
           type="date"
           class="date-input"
           v-model="params.user_date_start"
-        >
+        />
       </div>
       <div class="field">
         <label>End date:</label>
-        <br>
+        <br />
         <div class="horizontal-left-content">
           <input
             type="date"
             class="date-input"
             v-model="params.user_date_end"
-          >
+          />
           <button
             type="button"
             class="button normal-input button-default margin-small-left"
@@ -67,9 +65,9 @@
 
 <script setup>
 import { ref, computed, watch, onBeforeMount } from 'vue'
-import { ProjectMember } from 'routes/endpoints'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { ProjectMember } from '@/routes/endpoints'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const OPTIONS = [
   {
@@ -93,30 +91,24 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits([
-  'update:modelValue',
-  'onUserslist'
-])
+const emit = defineEmits(['update:modelValue', 'onUserslist'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const usersList = ref([])
 const startDate = computed(() => params.value.user_date_start)
 
-watch(
-  startDate,
-  newVal => {
-    if (!newVal) {
-      params.value.user_date_end = undefined
-    }
+watch(startDate, (newVal) => {
+  if (!newVal) {
+    params.value.user_date_end = undefined
   }
-)
+})
 
 onBeforeMount(() => {
-  ProjectMember.all().then(response => {
+  ProjectMember.all().then((response) => {
     usersList.value = response.body
     usersList.value.unshift({ user: { name: '--none--', id: undefined } })
   })

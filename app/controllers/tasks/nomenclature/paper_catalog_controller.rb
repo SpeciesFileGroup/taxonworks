@@ -11,10 +11,12 @@ class Tasks::Nomenclature::PaperCatalogController < ApplicationController
   end
 
   def preview
+    redirect_to action: :index, warning: 'You must (re)select a TaxonName for each of Preview/Download' and return if params[:taxon_name_id].blank?
+
     @taxon_name = TaxonName.where(project_id: sessions_current_project_id).find(params[:taxon_name_id])
 
     c = @taxon_name.descendants.that_is_valid.count
-    if c > 5000
+    if c > 10000
       redirect_to :index, message: "Export of #{c} is too presently too large." and return
     end
 

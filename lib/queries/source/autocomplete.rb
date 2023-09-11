@@ -232,16 +232,14 @@ module Queries
           end
 
           # Order results by number of times used *in this project*
-          if project_id.present? && scope
+          if project_id.present? && scope && query_string.length > 3
             a = a.left_outer_joins(:citations)
               .left_outer_joins(:project_sources)
               .select("sources.*, COUNT(citations.id) AS use_count, CASE WHEN project_sources.project_id IN (#{pr_id}) THEN project_sources.project_id ELSE NULL END AS in_project")
               .where('citations.project_id IN (?) OR citations.project_id NOT IN (?) OR citations.project_id IS NULL', pr_id, pr_id)
-              .where("project_sources.project_id IN (#{pr_id}) OR project_sources.project_id NOT IN (#{pr_id}) OR project_sources.project_id IS NULL")
               .group('sources.id, citations.project_id, project_sources.project_id')
               .order('in_project, use_count DESC')
           end
-
           a ||= q
           result += a.to_a
           result.uniq!

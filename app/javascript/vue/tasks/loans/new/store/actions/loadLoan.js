@@ -1,5 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
-import { Loan } from 'routes/endpoints'
+import { Loan } from '@/routes/endpoints'
 import ActionNames from './actionNames'
 
 export default ({ commit, state, dispatch }, id) => {
@@ -7,6 +7,6 @@ export default ({ commit, state, dispatch }, id) => {
   return Loan.find(id, { extend: ['roles'] }).then((response) => {
     commit(MutationNames.SetLoading, false)
     commit(MutationNames.SetLoan, response.body)
-    dispatch(ActionNames.LoadLoanItems, id)
+    dispatch(ActionNames.LoadLoanItems, { loanId: id })
   })
 }

@@ -3,12 +3,14 @@
     <button
       class="button normal-input button-submit"
       type="button"
-      @click="openModal">
+      @click="openModal"
+    >
       New
     </button>
     <modal-component
       v-if="showModal"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>Create property</h3>
       </template>
@@ -18,31 +20,36 @@
           <input
             class="full_width"
             v-model="controlVocabularyTerm.name"
-            type="text">
+            type="text"
+          />
         </div>
         <div class="field label-above">
           <label>Definition</label>
           <textarea
             class="full_width"
             v-model="controlVocabularyTerm.definition"
-            rows="5"/>
+            rows="5"
+          />
         </div>
         <div class="field label-above">
           <label>URI</label>
           <input
             class="full_width"
             v-model="controlVocabularyTerm.uri"
-            type="text">
+            type="text"
+          />
         </div>
         <div class="field label-above">
           <label>Label color</label>
           <input
             v-model="controlVocabularyTerm.css_color"
-            type="color">
+            type="color"
+          />
         </div>
         <button
           class="button normal-input button-submit"
-          @click="save">
+          @click="save"
+        >
           Save
         </button>
       </template>
@@ -51,21 +58,17 @@
 </template>
 
 <script>
-
-import { ControlledVocabularyTerm } from 'routes/endpoints'
-import ModalComponent from 'components/ui/Modal'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
+import ModalComponent from '@/components/ui/Modal'
 
 export default {
   components: {
     ModalComponent
   },
 
-  emits: [
-    'update:modelValue',
-    'save'
-  ],
+  emits: ['update:modelValue', 'save'],
 
-  data () {
+  data() {
     return {
       controlVocabularyTerm: this.resetCVT(),
       showModal: false
@@ -73,24 +76,28 @@ export default {
   },
 
   methods: {
-    openModal () {
+    openModal() {
       this.showModal = true
       this.controlVocabularyTerm = this.resetCVT()
     },
 
-    save () {
+    save() {
       const saveRecord = this.controlVocabularyTerm.id
-        ? ControlledVocabularyTerm.update(this.controlVocabularyTerm.id, { controlled_vocabulary_term: this.controlVocabularyTerm })
-        : ControlledVocabularyTerm.create({ controlled_vocabulary_term: this.controlVocabularyTerm })
+        ? ControlledVocabularyTerm.update(this.controlVocabularyTerm.id, {
+            controlled_vocabulary_term: this.controlVocabularyTerm
+          })
+        : ControlledVocabularyTerm.create({
+            controlled_vocabulary_term: this.controlVocabularyTerm
+          })
 
-      saveRecord.then(response => {
+      saveRecord.then((response) => {
         this.$emit('save', response.body)
         this.showModal = false
         this.controlVocabularyTerm = this.resetCVT()
       })
     },
 
-    resetCVT () {
+    resetCVT() {
       return {
         id: undefined,
         type: 'BiologicalProperty',
@@ -101,7 +108,7 @@ export default {
       }
     },
 
-    setProperty (property) {
+    setProperty(property) {
       this.controlVocabularyTerm = property
       this.showModal = true
     }

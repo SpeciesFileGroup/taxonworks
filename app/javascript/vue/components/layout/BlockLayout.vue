@@ -35,8 +35,8 @@
 </template>
 
 <script>
-import ExpandComponent from 'components/expand.vue'
-import SpinnerComponent from 'components/spinner.vue'
+import ExpandComponent from '@/components/expand.vue'
+import SpinnerComponent from '@/components/spinner.vue'
 
 export default {
   components: {
@@ -66,7 +66,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       expanded: true
     }
@@ -89,20 +89,21 @@ export default {
   display: flex;
   flex-direction: column;
   .header {
-    border-left:4px solid green;
+    border-left: 4px solid green;
     h3 {
-    font-weight: 300;
-  }
-  padding: 1em;
-  padding-left: 1.5em;
-  border-bottom: 1px solid #f5f5f5;
+      font-weight: 300;
+    }
+    padding: 1em;
+    padding-left: 1.5em;
+    border-bottom: 1px solid #f5f5f5;
   }
   .body {
     padding: 2em;
     padding-top: 1em;
     padding-bottom: 1em;
   }
-  .taxonName-input,#error_explanation {
+  .taxonName-input,
+  #error_explanation {
     width: 300px;
   }
 }

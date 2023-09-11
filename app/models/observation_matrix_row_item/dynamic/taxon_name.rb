@@ -1,14 +1,19 @@
-# The intent is to capture all OTUs, CollectionObjects (via Determinations), and Extracts (via ancestor_id) linked through a TaxonName Hierarchy
+# The intent is to capture all OTUs, CollectionObjects (via Determinations), and Extracts (via taxon_name_id) linked through a TaxonName Hierarchy
 class ObservationMatrixRowItem::Dynamic::TaxonName < ObservationMatrixRowItem::Dynamic
 
   validate :value_of_observation_object_type
   validate :taxon_name_is_unique
 
   def observation_objects
-    ::Otu.joins(:taxon_name).where(taxon_name: observation_object.self_and_descendants).to_a +
-      ::Queries::CollectionObject::Filter.new(ancestor_id: observation_object_id).all.to_a
-    # TODO: ON MERGE OF Extract extend with below: Reminder this chains a lot for extracts !!
-    #    ::Queries::Extract::Filter.new(ancestor_id: taxon_name_id).all.to_a +
+    a = ::Otu.joins(:taxon_name).where(taxon_name: observation_object.self_and_descendants)
+    b = ::Queries::CollectionObject::Filter.new(taxon_name_id: observation_object_id, descendants: true).all
+    c = ::Queries::Extract::Filter.new(taxon_name_id: observation_object_id, descendants: true).all
+
+    if a.count > 10000 or b.count > 10000 or c.count > 10000
+      return []
+    end
+
+    a.to_a + b.to_a + c.to_a
   end
 
   # @params taxon_name_id required
@@ -24,10 +29,10 @@ class ObservationMatrixRowItem::Dynamic::TaxonName < ObservationMatrixRowItem::D
   private
 
   def taxon_name_is_unique
-    errors.add(:observation_object, 'is already taken') if ObservationMatrixRowItem::Dynamic::TaxonName.where.not(id: id)
+    errors.add(:observation_object, 'is already taken') if ObservationMatrixRowItem::Dynamic::TaxonName.where.not(id:)
       .where(
-        observation_object: observation_object,
-        observation_matrix_id: observation_matrix_id,
+        observation_object:,
+        observation_matrix_id:,
       ).any?
   end
 

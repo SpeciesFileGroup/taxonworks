@@ -25,4 +25,8 @@
   </div>
 <% end %>
 
+<%= content_for :icon_navigation do -%>
+  <%= content_tag(:li, collection_object_radial_tag(@image) )   %>
+<% end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @image}) -%>

@@ -4,12 +4,14 @@
     :spinner="loadState.assertedDistribution"
     :title="title"
     menu
-    @menu="setModalView(true)">
+    @menu="setModalView(true)"
+  >
     <template #title>
       <a
         v-if="currentOtu"
         :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${currentOtu.id}`"
-      >Expand</a>
+        >Expand</a
+      >
     </template>
     <table class="full_width">
       <thead>
@@ -28,37 +30,45 @@
       <tbody>
         <tr
           v-for="assertedDistribution in filteredList"
-          :key="assertedDistribution.id">
+          :key="assertedDistribution.id"
+        >
           <td>{{ assertedDistribution.geographic_area.level0_name }}</td>
           <td>{{ assertedDistribution.geographic_area.level1_name }}</td>
           <td>{{ assertedDistribution.geographic_area.level2_name }}</td>
           <td>
             <a
               :href="`/asserted_distributions/${assertedDistribution.id}`"
-              title="Edit">
-              <span v-html="assertedDistribution.geographic_area.name"/>
+              title="Edit"
+            >
+              <span v-html="assertedDistribution.geographic_area.name" />
             </a>
           </td>
-          <td>{{ assertedDistribution.geographic_area.geographic_area_type.name }}</td>
+          <td>
+            {{ assertedDistribution.geographic_area.geographic_area_type.name }}
+          </td>
           <td>{{ assertedDistribution.is_absent ? '✕' : '✓' }}</td>
-          <td>{{ assertedDistribution.geographic_area.shape ? '✓' : '✕' }}</td>
+          <td>
+            {{ assertedDistribution.geographic_area.has_shape ? '✓' : '✕' }}
+          </td>
           <td>
             <a
               v-for="citation in assertedDistribution.citations"
               :key="citation.id"
               :href="`/tasks/nomenclature/by_source?source_id=${citation.source_id}`"
-              :title="citation.source.object_label">
-              <span v-html="citation.citation_source_body"/>&nbsp;
+              :title="citation.source.object_label"
+            >
+              <span v-html="citation.citation_source_body" />&nbsp;
             </a>
           </td>
-          <td v-html="assertedDistribution.otu.object_tag"/>
+          <td v-html="assertedDistribution.otu.object_tag" />
         </tr>
       </tbody>
     </table>
     <modal-component
       v-if="showModal"
       @close="setModalView(false)"
-      :containerStyle="{ width: '900px' }">
+      :containerStyle="{ width: '900px' }"
+    >
       <template #header>
         <h3>Filter</h3>
       </template>
@@ -69,21 +79,24 @@
             <filter-level
               class="overflow-y-scroll"
               :levels="level0List"
-              v-model="level0Filter"/>
+              v-model="level0Filter"
+            />
           </div>
           <div class="full_width margin-left-margin">
             <h4>Level 1</h4>
             <filter-level
               class="overflow-y-scroll"
               :levels="level1List"
-              v-model="level1Filter"/>
+              v-model="level1Filter"
+            />
           </div>
           <div class="full_width margin-left-margin">
             <h4>Level 2</h4>
             <filter-level
               class="overflow-y-scroll"
               :levels="level2List"
-              v-model="level2Filter"/>
+              v-model="level2Filter"
+            />
           </div>
         </div>
       </template>
@@ -92,12 +105,11 @@
 </template>
 
 <script>
-
 import SectionPanel from './shared/sectionPanel'
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 import extendSection from './shared/extendSections'
 import { GetterNames } from '../store/getters/getters'
-import { getUnique } from 'helpers/arrays'
+import { getUnique } from '@/helpers/arrays'
 import FilterLevel from './assertedDistribution/filterLevel'
 
 export default {
@@ -108,30 +120,52 @@ export default {
     FilterLevel
   },
   computed: {
-    assertedDistributions () {
-      return getUnique(this.$store.getters[GetterNames.GetAssertedDistributions], 'id')
+    assertedDistributions() {
+      return getUnique(
+        this.$store.getters[GetterNames.GetAssertedDistributions],
+        'id'
+      )
     },
-    currentOtu () {
+    currentOtu() {
       return this.$store.getters[GetterNames.GetCurrentOtu]
     },
-    level0List () {
-      return [...new Set(this.assertedDistributions.map(ad => ad.geographic_area.level0_name))].filter(level => level)
+    level0List() {
+      return [
+        ...new Set(
+          this.assertedDistributions.map((ad) => ad.geographic_area.level0_name)
+        )
+      ].filter((level) => level)
     },
-    level1List () {
-      return [...new Set(this.assertedDistributions.map(ad => ad.geographic_area.level1_name))].filter(level => level)
+    level1List() {
+      return [
+        ...new Set(
+          this.assertedDistributions.map((ad) => ad.geographic_area.level1_name)
+        )
+      ].filter((level) => level)
     },
-    level2List () {
-      return [...new Set(this.assertedDistributions.map(ad => ad.geographic_area.level2_name))].filter(level => level)
+    level2List() {
+      return [
+        ...new Set(
+          this.assertedDistributions.map((ad) => ad.geographic_area.level2_name)
+        )
+      ].filter((level) => level)
     },
-    filteredList () {
-      return this.assertedDistributions.filter(ad =>
-        ((this.level0Filter.length ? this.level0Filter.includes(ad.geographic_area.level0_name) : true) &&
-        (this.level1Filter.length ? this.level1Filter.includes(ad.geographic_area.level1_name) : true) &&
-        (this.level2Filter.length ? this.level2Filter.includes(ad.geographic_area.level2_name) : true))
+    filteredList() {
+      return this.assertedDistributions.filter(
+        (ad) =>
+          (this.level0Filter.length
+            ? this.level0Filter.includes(ad.geographic_area.level0_name)
+            : true) &&
+          (this.level1Filter.length
+            ? this.level1Filter.includes(ad.geographic_area.level1_name)
+            : true) &&
+          (this.level2Filter.length
+            ? this.level2Filter.includes(ad.geographic_area.level2_name)
+            : true)
       )
     }
   },
-  data () {
+  data() {
     return {
       showModal: false,
       level0Filter: [],
@@ -140,7 +174,7 @@ export default {
     }
   },
   methods: {
-    setModalView (value) {
+    setModalView(value) {
       this.showModal = value
     }
   }

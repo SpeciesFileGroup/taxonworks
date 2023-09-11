@@ -7,16 +7,16 @@
     >
       <ul>
         <li
-          class="horizontal-left-content middle qualitative-descriptor__descriptor-li"
+          class="horizontal-left-content middle qualitative-descriptor__descriptor-li gap-small"
           v-for="characterState in descriptor.characterStates"
           :key="characterState.id"
         >
-          <label class="margin-small-right middle">
+          <label class="middle">
             <input
               type="checkbox"
               :checked="isStateChecked(characterState.id)"
               @change="updateStateChecked(characterState.id, $event)"
-            >
+            />
             {{ characterState.label }}: {{ characterState.name }}
           </label>
 
@@ -26,7 +26,11 @@
               :descriptor="descriptor"
               :observation="getCharacterStateObservation(characterState.id)"
             />
-            <radial-annotator :global-id="getObservationFromCharacterId(characterState.id).global_id" />
+            <radial-annotator
+              :global-id="
+                getObservationFromCharacterId(characterState.id).global_id
+              "
+            />
           </template>
         </li>
       </ul>
@@ -42,7 +46,7 @@ import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 
 import summaryView from '../SummaryView/SummaryView.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
 import TimeFields from '../Time/TimeFields.vue'
 
 export default {
@@ -66,37 +70,42 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       observations: []
     }
   },
 
-  created () {
+  created() {
     const descriptorId = this.descriptor.id
     const otuId = this.$store.state.taxonId
 
-    this.$store.dispatch(ActionNames.RequestObservations, { descriptorId, otuId })
-      .then(_ => this.$store.getters[GetterNames.GetObservationsFor](descriptorId))
-      .then(observations => {
+    this.$store
+      .dispatch(ActionNames.RequestObservations, { descriptorId, otuId })
+      .then((_) =>
+        this.$store.getters[GetterNames.GetObservationsFor](descriptorId)
+      )
+      .then((observations) => {
         this.observations = observations
       })
   },
 
   methods: {
-    isStateChecked (characterStateId) {
+    isStateChecked(characterStateId) {
       return this.$store.getters[GetterNames.GetCharacterStateChecked]({
         descriptorId: this.descriptor.id,
         characterStateId
       })
     },
 
-    getCharacterStateObservation (characterStateId) {
-      const observations = this.$store.getters[GetterNames.GetObservationsFor](this.descriptor.id)
-      return observations.find(o => o.characterStateId === characterStateId)
+    getCharacterStateObservation(characterStateId) {
+      const observations = this.$store.getters[GetterNames.GetObservationsFor](
+        this.descriptor.id
+      )
+      return observations.find((o) => o.characterStateId === characterStateId)
     },
 
-    updateStateChecked (characterStateId, event) {
+    updateStateChecked(characterStateId, event) {
       this.$store.commit(MutationNames.SetCharacterStateChecked, {
         descriptorId: this.descriptor.id,
         characterStateId,
@@ -104,8 +113,10 @@ export default {
       })
     },
 
-    getObservationFromCharacterId (id) {
-      return this.observations.find(item => item.characterStateId === id && item.global_id)
+    getObservationFromCharacterId(id) {
+      return this.observations.find(
+        (item) => item.characterStateId === id && item.global_id
+      )
     }
   }
 }

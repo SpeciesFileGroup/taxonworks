@@ -1,5 +1,5 @@
 import baseCRUD, { annotations } from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'collection_objects'
 const permitParams = {
@@ -50,9 +50,13 @@ export const CollectionObject = {
   ...baseCRUD(controller, permitParams),
   ...annotations(controller),
 
-  dwc: (id) => AjaxCall('get', `/${controller}/${id}/dwc`),
+  dwc: (id, params = { rebuild: true }) =>
+    AjaxCall('get', `/${controller}/${id}/dwc`, { params }),
 
   dwca: (id) => AjaxCall('get', `/${controller}/${id}/dwca`),
+
+  dwcVerbose: (id, params = { rebuild: true }) =>
+    AjaxCall('get', `/${controller}/${id}/dwc_verbose`, { params }),
 
   reportDwc: (params) =>
     AjaxCall('get', '/tasks/accessions/report/dwc.json', { params }),

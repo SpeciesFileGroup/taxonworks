@@ -21,8 +21,7 @@
 </template>
 
 <script>
-
-import { Content } from 'routes/endpoints'
+import { Content } from '@/routes/endpoints'
 import SectionPanel from './shared/sectionPanel'
 import extendSection from './shared/extendSections'
 import EasyMDE from 'easymde/dist/easymde.min.js'
@@ -40,7 +39,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       contents: []
     }
@@ -48,13 +47,13 @@ export default {
 
   watch: {
     otu: {
-      handler (newVal) {
+      handler(newVal) {
         if (newVal) {
           Content.where({
             otu_id: this.otu.id,
             most_recent_updates: 100,
             extend: ['topic']
-          }).then(response => {
+          }).then((response) => {
             this.contents = response.body
           })
         }
@@ -64,7 +63,7 @@ export default {
   },
 
   methods: {
-    markdownToHtml (text) {
+    markdownToHtml(text) {
       const markdown = new EasyMDE()
       return DOMPurify.sanitize(markdown.options.previewRender(text))
     }
@@ -72,14 +71,14 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-  li {
-    border-bottom: 1px solid #F5F5F5;
-    margin-bottom: 12px;
-  }
-  li:last-child {
-    border-bottom: none;
-  }
-  .pre {
-    white-space: pre-wrap;
-  }
+li {
+  border-bottom: 1px solid #f5f5f5;
+  margin-bottom: 12px;
+}
+li:last-child {
+  border-bottom: none;
+}
+.pre {
+  white-space: pre-wrap;
+}
 </style>

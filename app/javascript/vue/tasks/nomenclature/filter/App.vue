@@ -5,12 +5,13 @@
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
-      v-model="parameters"
       :selected-ids="selectedIds"
       :object-type="TAXON_NAME"
       :list="list"
+      v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -42,16 +43,16 @@
   </div>
 </template>
 <script setup>
-import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
-import FilterList from 'components/layout/Filter/FilterList.vue'
-import VSpinner from 'components/spinner.vue'
-import useFilter from 'shared/Filter/composition/useFilter.js'
-import RadialLabel from 'components/radials/label/radial.vue'
+import FilterList from '@/components/Filter/Table/TableResults.vue'
+import VSpinner from '@/components/spinner.vue'
+import useFilter from '@/shared/Filter/composition/useFilter.js'
+import RadialLabel from '@/components/radials/label/radial.vue'
 import { ATTRIBUTES } from './constants/attributes.js'
 import { listParser } from './utils/listParser'
-import { TaxonName } from 'routes/endpoints'
-import { TAXON_NAME } from 'constants/index.js'
+import { TaxonName } from '@/routes/endpoints'
+import { TAXON_NAME } from '@/constants/index.js'
 
 const extend = ['parent']
 

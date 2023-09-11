@@ -10,7 +10,9 @@
         class="slide-panel-category-item"
       >
         <div class="full_width padding-large-right capitalize">
-          <p>Shortcut: <b>{{ actionKey }} + {{ keyPaste }} + {{ index }}</b></p>
+          <p>
+            Shortcut: <b>{{ actionKey }} + {{ keyPaste }} + {{ index }}</b>
+          </p>
           <div class="middle">
             <textarea
               class="full_width"
@@ -23,14 +25,15 @@
       </li>
     </ul>
     <p class="slide-panel-category-content">
-      Use <b class="capitalize">{{ actionKey }} + {{ keyCopy }} + Number</b> to copy a text to the clipboard box
+      Use <b class="capitalize">{{ actionKey }} + {{ keyCopy }} + Number</b> to
+      copy a text to the clipboard box
     </p>
   </div>
 </template>
 <script setup>
 import { ref, onBeforeMount, onBeforeUnmount } from 'vue'
-import { ProjectMember } from 'routes/endpoints'
-import platformKey from 'helpers/getPlatformKey'
+import { ProjectMember } from '@/routes/endpoints'
+import platformKey from '@/helpers/getPlatformKey'
 import useHotkey from 'vue3-hotkey'
 
 const clipboard = ref({
@@ -45,14 +48,14 @@ const actionKey = platformKey()
 const keyCopy = 'c'
 const keyPaste = 'v'
 
-function generateShortcuts () {
+function generateShortcuts() {
   const hotkeys = []
 
-  Object.keys(clipboard.value).forEach(slot => {
+  Object.keys(clipboard.value).forEach((slot) => {
     hotkeys.push({
       keys: [actionKey, keyPaste, slot],
       preventDefault: true,
-      handler () {
+      handler() {
         pasteClipboard(slot)
       }
     })
@@ -60,7 +63,7 @@ function generateShortcuts () {
     hotkeys.push({
       keys: [actionKey, keyCopy, slot],
       preventDefault: true,
-      handler () {
+      handler() {
         setClipboard(slot)
       }
     })
@@ -71,43 +74,45 @@ function generateShortcuts () {
 
 const hotkeys = ref(generateShortcuts())
 
-TW.workbench.keyboard.createLegend(`${platformKey()}+f`, 'Search', 'Filter sources')
-TW.workbench.keyboard.createLegend(`${platformKey()}+r`, 'Reset task', 'Filter sources')
-
 const stop = useHotkey(hotkeys.value)
 
 onBeforeMount(() => {
-  ProjectMember.clipboard().then(response => {
+  ProjectMember.clipboard().then((response) => {
     Object.assign(clipboard.value, response.body.clipboard)
   })
 })
 
 onBeforeUnmount(() => {
-  stop.forEach(hotkey => hotkey())
+  stop.forEach((hotkey) => hotkey())
 })
 
-function isInput () {
-  return document.activeElement.tagName === 'INPUT' ||
-      document.activeElement.tagName === 'TEXTAREA'
+function isInput() {
+  return (
+    document.activeElement.tagName === 'INPUT' ||
+    document.activeElement.tagName === 'TEXTAREA'
+  )
 }
 
-function pasteClipboard (clipboardIndex) {
+function pasteClipboard(clipboardIndex) {
   if (isInput() && clipboard.value[clipboardIndex]) {
     const position = document.activeElement.selectionStart
     const text = document.activeElement.value
 
-    document.activeElement.value = text.substr(0, position) + clipboard.value[clipboardIndex] + text.substr(position)
+    document.activeElement.value =
+      text.substr(0, position) +
+      clipboard.value[clipboardIndex] +
+      text.substr(position)
     document.activeElement.dispatchEvent(new CustomEvent('input'))
   }
 }
 
-function saveClipboard () {
-  ProjectMember.updateClipboard(clipboard.value).then(response => {
+function saveClipboard() {
+  ProjectMember.updateClipboard(clipboard.value).then((response) => {
     clipboard.value = response.body.clipboard
   })
 }
 
-function setClipboard (index) {
+function setClipboard(index) {
   const textSelected = isInput()
     ? document.activeElement.value
     : window.getSelection().toString()
@@ -117,7 +122,6 @@ function setClipboard (index) {
     saveClipboard()
   }
 }
-
 </script>
 
 <script>

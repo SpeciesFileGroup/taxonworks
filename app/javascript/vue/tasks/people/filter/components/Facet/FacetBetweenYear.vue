@@ -7,14 +7,14 @@
         <input
           type="number"
           v-model="params[beforeParam]"
-        >
+        />
       </div>
       <div>
         <label>After</label>
         <input
           type="number"
           v-model="params[afterParam]"
-        >
+        />
       </div>
     </div>
   </FacetContainer>
@@ -22,8 +22,8 @@
 
 <script setup>
 import { computed, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {
@@ -45,14 +45,13 @@ const props = defineProps({
     type: String,
     required: true
   }
-
 })
 
 const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 onBeforeMount(() => {

@@ -97,7 +97,9 @@ class CollectionObject < ApplicationRecord
   GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships, :extracts]
 
   # Identifier delegations
+  # .catalog_number_cached
   delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
+  # .catalog_number_namespace
   delegate :namespace, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
 
   # CollectingEvent delegations
@@ -750,4 +752,3 @@ end
 require_dependency 'specimen'
 require_dependency 'lot'
 require_dependency 'ranged_lot'
-

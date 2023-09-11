@@ -1,5 +1,5 @@
 import baseCRUD, { annotations } from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'collecting_events'
 const permitParams = {
@@ -73,7 +73,6 @@ const permitParams = {
       attribute_subject_type: String,
       value: String
     }
-
   }
 }
 
@@ -85,9 +84,13 @@ export const CollectingEvent = {
 
   clone: (id, params) => AjaxCall('post', `/${controller}/${id}/clone`, params),
 
-  filter: params => AjaxCall('post', `/${controller}/filter.json`, params),
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
 
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 
-  parseVerbatimLabel: (params) => AjaxCall('get', '/collecting_events/parse_verbatim_label', { params })
+  parseVerbatimLabel: (params) =>
+    AjaxCall('get', '/collecting_events/parse_verbatim_label', { params }),
+
+  updateBatch: (params) =>
+    AjaxCall('post', `/${controller}/batch_update `, params)
 }

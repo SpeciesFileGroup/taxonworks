@@ -3,8 +3,10 @@ class OtusController < ApplicationController
 
   before_action :set_otu, only: [
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
-    :breadcrumbs, :timeline, :coordinate,
-    :api_show, :api_taxonomy_inventory, :api_type_material_inventory, :api_nomenclature_citations, :api_distribution, :api_content ]
+    :breadcrumbs, :timeline, :coordinate, :distribution,
+    :api_show, :api_taxonomy_inventory, :api_type_material_inventory,
+    :api_nomenclature_citations, :api_distribution, :api_content, :api_dwc_inventory ]
+
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request?
 
   # GET /otus
@@ -117,14 +119,17 @@ class OtusController < ApplicationController
   def search
     if params[:id].blank?
       redirect_to(otus_path,
-                  alert: 'You must select an item from the list with a click or tab press before clicking show.')
+                 alert: 'You must select an item from the list with a click or tab press before clicking show.')
     else
       redirect_to otu_path(params[:id])
     end
   end
 
   def autocomplete
-    @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
+    @otus = Queries::Otu::Autocomplete.new(
+      params.require(:term),
+      project_id: sessions_current_project_id
+    ).autocomplete
   end
 
   def batch_load
@@ -213,7 +218,7 @@ class OtusController < ApplicationController
       digest_cookie(params[:file].tempfile, :data_attributes_batch_load_otus_md5)
       render 'otus/batch_load/data_attributes/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
@@ -254,7 +259,7 @@ class OtusController < ApplicationController
 
   # GET /api/v1/otus
   def api_index
-    @otus = Queries::Otu::Filter.new(params.merge!(api: true)).all
+    @otus = ::Queries::Otu::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('otus.id')
       .page(params[:page])
@@ -267,12 +272,13 @@ class OtusController < ApplicationController
     render '/otus/api/v1/show'
   end
 
+  # GET /api/v1/otus/autocomplete
   def api_autocomplete
-    @otus = Queries::Otu::Autocomplete.new(
+    @otus = ::Queries::Otu::Autocomplete.new(
       params.require(:term),
-      project_id: sessions_current_project_id,
-      having_taxon_name_only: params[:having_taxon_name_only]
-    ).autocomplete
+      project_id: sessions_current_project_id
+    ).api_autocomplete
+
     render '/otus/api/v1/autocomplete'
   end
 
@@ -281,9 +287,17 @@ class OtusController < ApplicationController
     render '/otus/api/v1/inventory/taxonomy'
   end
 
+  # GET /api/v1/otus/:id/inventory/dwc
+  def api_dwc_inventory
+    send_data Export::Download.generate_csv(
+      DwcOccurrence.scoped_by_otu(@otu),
+      exclude_columns: ['id', 'created_by_id', 'updated_by_id', 'project_id', 'updated_at']),
+      type: 'text',
+      filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.csv"
+  end
+
   # GET /api/v1/otus/:id/inventory/content
   def api_content
-
     topic_ids = [params[:topic_id]].flatten.compact.uniq
 
     @public_content =  PublicContent.where(otu: @otu, project_id: sessions_current_project_id)
@@ -307,9 +321,50 @@ class OtusController < ApplicationController
     end
   end
 
-  # GET /api/v1/otus/:id/inventory/distribution
+  # TODO: Redirect to json if too big?
+  # GET /otus/:id/inventory/distribution.json
+  # GET /otus/:id/inventory/distribution.geojson
+  def distribution
+    respond_to do |format|
+      format.json do
+        @cached_map_type = params[:cached_map_type] || 'CachedMapItem::WebLevel1'
+        @quicker_cached_map = @otu.quicker_cached_map(@cached_map_type)
+
+        render json: { error: 'no map available'}, status: :not_found unless @quicker_cached_map.present? and return
+      end
+
+      format.geojson do
+      end
+    end
+  end
+
+  # TODO: Considerations
+  # .json
+  #   * Scope Genus, Family by default
+  #   *
+  #   * 404 when no CachedMap computable
+  #
+  # .geo_json
+  #   * Always returns result, could be empty
+  #
+  #
+  # GET /api/v1/otus/:id/inventory/distribution.json
+  # GET /api/v1/otus/:id/inventory/distribution.geojson
   def api_distribution
-    render '/otus/api/v1/distribution'
+    respond_to do |format|
+      format.json do
+        @cached_map_type = params[:cached_map_type] || 'CachedMapItem::WebLevel1'
+        @quicker_cached_map = @otu.quicker_cached_map(@cached_map_type)
+        if @quicker_cached_map.blank?
+          render json: { error: 'no map available'}, status: :not_found and return
+        end
+        render '/otus/api/v1/inventory/distribution'
+      end
+      format.geojson do
+        render '/otus/api/v1/inventory/distribution'
+      end
+    end
+
   end
 
   private
@@ -318,6 +373,13 @@ class OtusController < ApplicationController
     @otu = Otu.where(project_id: sessions_current_project_id).eager_load(:taxon_name).find(params[:id])
     @recent_object = @otu
   end
+
+# def set_cached_map
+#   @cached_map = @otu.cached_maps.where(cached_map_type: params[:cached_map_type] || 'CachedMapItem::WebLevel1').first
+#   if @cached_map.blank?
+
+#   end
+# end
 
   def otu_params
     params.require(:otu).permit(:name, :taxon_name_id)

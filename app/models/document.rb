@@ -106,19 +106,19 @@ class Document < ApplicationRecord
 
   def initialize_start_page=(value)
     write_attribute(:page_map, get_page_map(value))
-    @initialize_start_page = value 
+    @initialize_start_page = value
   end
 
   def pdftotext
-    `pdftotext -layout #{document_file.path} -`  
+    `pdftotext -layout #{document_file.path} -`
   end
 
   protected
 
   def check_for_documentation
-    if documentation.count > 1 
+    if documentation.count > 1
       errors.add(:base, 'document is used in more than one place, remove documentation first')
-      throw :abort 
+      throw :abort
     end
   end
 

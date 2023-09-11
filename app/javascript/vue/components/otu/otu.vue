@@ -2,7 +2,7 @@
   <div class="otu-radial">
     <VBtn
       :title="redirect ? 'Browse OTUs' : 'OTU quick forms'"
-      :color="[emptyList ? 'create' : redirect ? 'primary' : 'radial']"
+      :color="emptyList ? 'create' : redirect ? 'primary' : 'radial'"
       circle
       @click="openApp()"
       @contextmenu.prevent="openApp(true)"
@@ -56,12 +56,12 @@
 </template>
 
 <script>
-import Modal from 'components/ui/Modal.vue'
-import Spinner from 'components/spinner.vue'
-import OtuRadial from 'components/radials/object/radial'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import { Otu, TaxonName } from 'routes/endpoints'
+import Modal from '@/components/ui/Modal.vue'
+import Spinner from '@/components/spinner.vue'
+import OtuRadial from '@/components/radials/object/radial'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { Otu, TaxonName } from '@/routes/endpoints'
 
 export default {
   components: {

@@ -35,10 +35,10 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { computed, ref, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { BiologicalRelationship } from 'routes/endpoints'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { BiologicalRelationship } from '@/routes/endpoints'
 
 const props = defineProps({
   modelValue: {

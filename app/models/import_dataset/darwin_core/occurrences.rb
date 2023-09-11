@@ -227,6 +227,22 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     !!self.metadata.dig("import_settings", "require_type_material_success")
   end
 
+  def require_tripcode_match_verbatim?
+    !!self.metadata.dig("import_settings", "require_tripcode_match_verbatim")
+  end
+
+  def require_catalog_number_match_verbatim?
+    !!self.metadata.dig("import_settings", "require_catalog_number_match_verbatim")
+  end
+
+  def enable_organization_determiners?
+    !!self.metadata.dig("import_settings", "enable_organization_determiners")
+  end
+
+  def enable_organization_determiners_alt_name?
+    !!self.metadata.dig("import_settings", "enable_organization_determiners_alt_name")
+  end
+
   private
 
   def get_catalog_number_namespace_mapping(institution_code, collection_code)

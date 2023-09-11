@@ -25,7 +25,8 @@
             </label>
           </div>
           <ModalNestedParameters :parameters="parameters" />
-          <div class="horizontal-left-content">
+          <div class="horizontal-left-content gap-small">
+            <slot name="nav-query-left" />
             <RadialFilter
               v-if="objectType"
               :parameters="parameters"
@@ -39,6 +40,7 @@
               :object-type="objectType"
               :disabled="!list.length"
             />
+            <slot name="nav-query-right" />
             <span class="separate-left separate-right">|</span>
             <VBtn
               color="primary"
@@ -68,7 +70,7 @@
             :pagination="pagination"
             v-model="perValue"
           />
-          <div class="horizontal-right-content">
+          <div class="horizontal-right-content gap-small">
             <RadialFilter
               v-if="selectedIds"
               :ids="selectedIds"
@@ -133,17 +135,17 @@
 <script setup>
 import FilterDownload from './FilterDownload.vue'
 import FilterJsonRequestPanel from './FilterJsonRequestPanel.vue'
-import PaginationComponent from 'components/pagination'
-import PaginationCount from 'components/pagination/PaginationCount'
-import NavBar from 'components/layout/NavBar.vue'
+import PaginationComponent from '@/components/pagination'
+import PaginationCount from '@/components/pagination/PaginationCount'
+import NavBar from '@/components/layout/NavBar.vue'
 import useHotkey from 'vue3-hotkey'
-import platformKey from 'helpers/getPlatformKey'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import RadialFilter from 'components/radials/filter/radial.vue'
-import ModalNestedParameters from 'components/Filter/ModalNestedParameters.vue'
-import RadialLinker from 'components/radials/linker/radial.vue'
-import RadialMassAnnotator from 'components/radials/mass/radial.vue'
+import platformKey from '@/helpers/getPlatformKey'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import RadialFilter from '@/components/radials/filter/radial.vue'
+import ModalNestedParameters from '@/components/Filter/ModalNestedParameters.vue'
+import RadialLinker from '@/components/radials/linker/radial.vue'
+import RadialMassAnnotator from '@/components/radials/mass/radial.vue'
 import FilterSettings from './FilterSettings.vue'
 import { ref, computed, onBeforeUnmount, reactive } from 'vue'
 
@@ -204,7 +206,7 @@ const emit = defineEmits([
   'reset',
   'filter',
   'nextpage',
-  'update:per',
+  'per',
   'update:modelValue',
   'update:append'
 ])
@@ -229,6 +231,7 @@ const perValue = computed({
   get: () => parameters.value.per,
   set: (value) => {
     parameters.value.per = value
+    emit('per', value)
   }
 })
 

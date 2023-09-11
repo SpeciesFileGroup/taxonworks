@@ -35,8 +35,14 @@ describe Tools::Description::FromObservationMatrix, type: :model, group: :observ
   end
 
   specify 'otu_diagnosis 2' do
-    row = r1.find_or_build_row(r1.observation_objects.first)
-    d = description.new(observation_matrix_row_id: row.id)
+    row = r1.find_or_build_row(
+      r1.observation_objects.first
+    )
+
+    d = description.new(
+      observation_matrix_row_id: row.id,
+      project_id: ) # project_id is a model getter
+
     #expect(description.similar_objects.first[:otu_id]).to eq(otu5.id)
     expect(d.similar_objects.first[:similarities]).to eq(6)
   end

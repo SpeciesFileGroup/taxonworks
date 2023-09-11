@@ -5,18 +5,19 @@
       :href="nomenclatureRoute()"
       target="blank"
       @mouseover="showSource = true"
-      @mouseout="showSource = false"/>
+      @mouseout="showSource = false"
+    />
     <div
       v-if="showSource"
-      class="source-information panel content">
-      <span v-html="source.object_tag"/>
+      class="source-information panel content"
+    >
+      <span v-html="source.object_tag" />
     </div>
   </div>
 </template>
 
 <script>
-
-import { RouteNames } from 'routes/routes'
+import { RouteNames } from '@/routes/routes'
 
 export default {
   props: {
@@ -25,13 +26,13 @@ export default {
       required: true
     }
   },
-  data () {
+  data() {
     return {
       showSource: false
     }
   },
   methods: {
-    nomenclatureRoute () {
+    nomenclatureRoute() {
       return `${RouteNames.NomenclatureBySource}?source_id=${this.source.id}`
     }
   }
@@ -39,10 +40,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .source-information {
-    transform: translateX(-100%), translateY(-50%);
-    position: fixed;
-    left:0px;
-    min-width: 400px;
-  }
+.source-information {
+  transform: translateX(-100%), translateY(-50%);
+  position: fixed;
+  left: 0px;
+  min-width: 400px;
+}
 </style>

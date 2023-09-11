@@ -22,12 +22,12 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { addToArray, removeFromArray } from 'helpers/arrays'
-import { URLParamsToJSON } from 'helpers/url/parse'
-import { CollectionObject } from 'routes/endpoints'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import DisplayList from 'components/displayList.vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { addToArray, removeFromArray } from '@/helpers/arrays'
+import { URLParamsToJSON } from '@/helpers/url/parse'
+import { CollectionObject } from '@/routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import DisplayList from '@/components/displayList.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import Includes from './components/Includes.vue'
 
 const props = defineProps({

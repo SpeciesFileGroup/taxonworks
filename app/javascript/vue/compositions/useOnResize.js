@@ -1,8 +1,10 @@
-import { onMounted, onUnmounted, reactive } from 'vue'
+import { onBeforeUnmount, onMounted, reactive } from 'vue'
 
-export function useOnResize (element) {
+export function useOnResize(element) {
   const elementSize = reactive({ width: 0, height: 0 })
+  const delay = 100
   let observeElement
+  let timeout
 
   const resizeListener = ({ width, height }) => {
     elementSize.width = width
@@ -10,16 +12,19 @@ export function useOnResize (element) {
   }
 
   onMounted(() => {
-    observeElement = new ResizeObserver(entries => {
+    observeElement = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect
 
-      resizeListener({ width, height })
+      clearTimeout(timeout)
+      timeout = setTimeout(() => {
+        resizeListener({ width, height })
+      }, delay)
     })
 
     observeElement.observe(element.value)
   })
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     observeElement.disconnect()
   })
 

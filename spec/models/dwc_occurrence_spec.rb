@@ -32,8 +32,8 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
       CSV.parse(content, col_sep: "\t", headers: true)
     end
 
-    s1 = Specimen.create!(collecting_event: collecting_event)
-    s2 = Specimen.create!(collecting_event: collecting_event)
+    s1 = Specimen.create!(collecting_event:)
+    s2 = Specimen.create!(collecting_event:)
     s3 = Specimen.create!
 
     ce1 = collecting_event
@@ -49,7 +49,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     p2_header = 'TW:DataAttribute:CollectionObject:' + p2.name
     p3_header = 'TW:DataAttribute:CollectingEvent:' + p3.name
 
-    scope = DwcOccurrence.where(project_id: project_id)
+    scope = DwcOccurrence.where(project_id:)
 
     predicate_extension_params = {
       collection_object_predicate_id: [p1.id, p2.id],
@@ -57,10 +57,10 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
     download = Export::Dwca.download_async(
       scope,
-      predicate_extension_params: predicate_extension_params
+      predicate_extension_params:
     )
 
-    ::DwcaCreateDownloadJob.perform_now(download, core_scope: scope, predicate_extension_params: predicate_extension_params)
+    ::DwcaCreateDownloadJob.perform_now(download, core_scope: scope, predicate_extension_params:)
 
     tbl = extract_data_csv_table(download.file_path)
 
@@ -92,7 +92,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     3.times { Specimen.create }
 
     # Failing without utc, what has changed?
-    f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.utc.to_date.to_s).all # Note the .all
+    f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.utc.to_date.to_s).all
 
     a = DwcOccurrence.by_collection_object_filter(
       filter_scope: f,
@@ -103,7 +103,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   end
 
   specify '.by_collection_object_filter 2' do
-    Specimen.create(created_at: 2.days.ago, updated_at: 2.days.ago)
+    Specimen.create!(created_at: 2.days.ago, updated_at: 2.days.ago)
     3.times { Specimen.create }
     f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.utc.to_date.to_s).all
     a = DwcOccurrence.by_collection_object_filter(
@@ -217,19 +217,36 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     expect(a.is_stale?).to be_falsey
   end
 
-  specify '#is_stale? 2' do
+  specify '#is_stale? 2 (update to collecting event)' do
     a = collection_object.get_dwc_occurrence
     a.update!(updated_at: 2.weeks.ago)
     collecting_event.update!(updated_at: 1.week.ago)
     expect(a.is_stale?).to be_truthy
   end
 
-  specify '#is_stale? 3' do
+  specify '#is_stale? 3 (new taxon determination)' do
     a = collection_object.get_dwc_occurrence
     a.update!(updated_at: 2.weeks.ago)
 
     b = TaxonDetermination.new(otu: FactoryBot.create(:valid_otu))
     collection_object.taxon_determinations << b
+
+    expect(a.is_stale?).to be_truthy
+  end
+
+  specify '#is_stale? 4 (reordered taxon determination, no timestamp)' do
+    a = collection_object.get_dwc_occurrence
+    a.update!(updated_at: 2.weeks.ago)
+
+    b = TaxonDetermination.new(otu: FactoryBot.create(:valid_otu))
+    collection_object.taxon_determinations << b
+
+    c = TaxonDetermination.new(otu: FactoryBot.create(:valid_otu))
+    collection_object.taxon_determinations << c
+
+    expect(a.is_stale?).to be_truthy
+
+    b.move_to_top
 
     expect(a.is_stale?).to be_truthy
   end
@@ -240,4 +257,3 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   end
 
 end
-

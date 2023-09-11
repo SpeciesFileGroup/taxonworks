@@ -8,7 +8,8 @@
     </button>
     <modal
       v-if="showModal"
-      @close="closeModal()">
+      @close="closeModal()"
+    >
       <template #header>
         <h3>Select</h3>
       </template>
@@ -24,9 +25,8 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
-import Modal from 'components/ui/Modal.vue'
+import Modal from '@/components/ui/Modal.vue'
 import TopicModal from '../components/Topic/TopicModal.vue'
 import OtuModal from '../components/Otu/OtuModal.vue'
 import ContentModal from '../components/Content/ContentModal.vue'
@@ -43,7 +43,7 @@ export default {
 
   emits: ['close'],
 
-  data () {
+  data() {
     return {
       showModal: true,
       selectedPanel: ''
@@ -51,23 +51,23 @@ export default {
   },
 
   computed: {
-    topic () {
+    topic() {
       return this.$store.getters[GetterNames.GetTopicSelected]
     },
 
-    otu () {
+    otu() {
       return this.$store.getters[GetterNames.GetOtuSelected]
     }
   },
 
   watch: {
-    topic (newVal) {
+    topic(newVal) {
       if (newVal && this.otu) {
         this.showModal = false
       }
     },
 
-    otu (newVal) {
+    otu(newVal) {
       if (newVal && this.topic) {
         this.showModal = false
       }
@@ -75,7 +75,7 @@ export default {
   },
 
   methods: {
-    closeModal () {
+    closeModal() {
       if (this.otu && this.topic) {
         this.showModal = false
         this.$emit('close')

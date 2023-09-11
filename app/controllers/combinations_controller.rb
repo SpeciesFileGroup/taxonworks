@@ -1,7 +1,6 @@
 class CombinationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :require_sign_in_and_project_selection
   before_action :set_combination, only: [:update, :edit, :update, :destroy, :show]
 
   # GET /combinations.json
@@ -68,7 +67,7 @@ class CombinationsController < ApplicationController
   private
   def set_combination
     @combination = Combination.with_project_id(sessions_current_project_id).find(params.require(:id))
-    @recent_object = @combination 
+    @recent_object = @combination
   end
 
   def combination_params

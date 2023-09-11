@@ -12,7 +12,8 @@
         roles: ['SourceEditor']
       }"
       :autocomplete="false"
-      @selected="addRole">
+      @selected="addRole"
+    >
       <template #header>
         <role-picker
           ref="rolePicker"
@@ -20,25 +21,26 @@
           v-model="roleAttributes"
           :autofocus="false"
           filter-by-role
-          role-type="SourceEditor"/>
+          role-type="SourceEditor"
+        />
       </template>
       <role-picker
         v-model="roleAttributes"
         :create-form="false"
         :autofocus="false"
         filter-by-role
-        role-type="SourceEditor"/>
+        role-type="SourceEditor"
+      />
     </smart-selector>
   </fieldset>
 </template>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import { findRole } from 'helpers/people/people.js'
-import RolePicker from 'components/role_picker.vue'
-import SmartSelector from 'components/ui/SmartSelector'
+import { findRole } from '@/helpers/people/people.js'
+import RolePicker from '@/components/role_picker.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
 
 export default {
   components: {
@@ -47,31 +49,33 @@ export default {
   },
   computed: {
     source: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSource]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSource, value)
       }
     },
-    lastSave () {
+    lastSave() {
       return this.$store.getters[GetterNames.GetLastSave]
     },
     roleAttributes: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetRoleAttributes]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetRoles, value)
       }
     },
-    peopleIds () {
-      return this.roleAttributes.filter(item => item.person_id || item.person).map(item => item.person_id ? item.person_id : item.person.id)
+    peopleIds() {
+      return this.roleAttributes
+        .filter((item) => item.person_id || item.person)
+        .map((item) => (item.person_id ? item.person_id : item.person.id))
     }
   },
 
   methods: {
-    addRole (person) {
+    addRole(person) {
       if (!findRole(this.source.roles_attributes, person.id)) {
         this.$refs.rolePicker.setPerson(person)
       }

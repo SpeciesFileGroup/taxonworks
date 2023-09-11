@@ -18,7 +18,7 @@ module LoansHelper
   def loan_recipients_tag(loan)
     return nil if loan.nil?
     recipients = loan.loan_recipients.collect{|lr| person_tag(lr)}.join.html_safe
-    recipients.blank? ? 'No recipients defined!' : recipients
+    (recipients.presence || 'No recipients defined!')
   end
 
   def loan_autocomplete_tag(loan)
@@ -44,7 +44,7 @@ module LoansHelper
       return tag.span("Due in #{distance_of_time_in_words_to_now(loan.date_return_expected)}", class: [:feedback, 'feedback-thin', 'feedback-information']) if loan.date_return_expected > Time.now
       return tag.span("#{distance_of_time_in_words(Time.now, loan.date_return_expected)} overdue", class: [:feedback, 'feedback-thin', 'feedback-danger']) if loan.date_return_expected < Time.now
     end
-    return tag.span("Lost/destroyed", class: [:feedback, 'feedback-thin', 'feedback-warning']) if loan.loan_items.count == loan.loan_items.where(disposition: ['Lost', 'Destroyed']).distinct.count
+    return tag.span('Lost/destroyed', class: [:feedback, 'feedback-thin', 'feedback-warning']) if loan.loan_items.count == loan.loan_items.where(disposition: ['Lost', 'Destroyed']).distinct.count
   end
 
   def loan_link(loan)
@@ -106,7 +106,7 @@ module LoansHelper
     Keyword.joins(:tags).where(project_id: sessions_current_project_id).where(tags: {tag_object_type: ['Container', 'Otu', 'CollectionObject']}).distinct.all
   end
 
-  # date_loan_requested, date_recieved, date_return_expected, date_closed
+  # date_loan_requested, date_received, date_return_expected, date_closed
   def loans_per_year(loans, target = :date_sent )
     s,e = loans_start_end_year(loans, target)
     return {} if s.nil? && e.nil?
@@ -188,6 +188,7 @@ module LoansHelper
   end
 
   def arrayed_loan_year_hash(start_year, end_year)
+    return {} if start_year.blank? || end_year.blank?
     years = {}
     (start_year..end_year).to_a.each do |y|
       years[y] = []
@@ -197,6 +198,7 @@ module LoansHelper
   end
 
   def zeroed_loan_year_hash(start_year, end_year)
+    return {} if start_year.blank? || end_year.blank?
     years = {}
     (start_year..end_year).to_a.each do |y|
       years[y] = 0
@@ -256,12 +258,20 @@ module LoansHelper
 
         tag.tr( tag.td('Year start (date sent)')+ tag.td(start_year) ),
         tag.tr( tag.td('Year end (date sent)')+ tag.td(end_year) ),
-        tag.tr( tag.td('Year span')+ tag.td(end_year - start_year) ),
+        tag.tr( tag.td('Year span')+ tag.td( [end_year, start_year].compact.size == 1 ? (end_year - start_year) : 0) ),
 
         tag.tr( tag.td('Overdue') + tag.td( loans.overdue.count ) ),
         tag.tr( tag.td('Not overdue') + tag.td( loans.not_overdue.count) ),
       ].join.html_safe
     end
+  end
+
+  def loan_total_individuals(loan)
+    total = 0
+    q = LoanItem.where(loan:)
+    from_otu = q.sum(:total)
+    from_collection_object = CollectionObject.joins(:loan_items).where(loan_items: {loan:}).sum('collection_objects.total')
+    from_otu + from_collection_object
   end
 
   def overdue_individuals(loans)

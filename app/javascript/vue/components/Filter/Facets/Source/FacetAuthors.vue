@@ -46,10 +46,10 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import DisplayList from 'components/displayList'
-import { People } from 'routes/endpoints'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import DisplayList from '@/components/displayList'
+import { People } from '@/routes/endpoints'
 import { computed, ref, watch, onBeforeMount } from 'vue'
 
 const props = defineProps({

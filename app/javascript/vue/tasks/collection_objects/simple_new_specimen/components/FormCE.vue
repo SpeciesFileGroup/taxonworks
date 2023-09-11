@@ -1,6 +1,6 @@
 <template>
   <div>
-    <hr>
+    <hr />
     <div class="flex-separate middle">
       <h3>Collecting event</h3>
       <VLock v-model="store.settings.lock.collectingEvent" />
@@ -21,7 +21,7 @@
         :data-locked="store.settings.lock.collectingEvent"
         v-model="store.collectingEvent.verbatim_locality"
         type="text"
-      >
+      />
     </div>
     <GeographicArea />
   </div>
@@ -31,15 +31,12 @@
 import { watch } from 'vue'
 import { useStore } from '../store/useStore'
 import GeographicArea from './GeographicArea.vue'
-import VLock from 'components/ui/VLock/index.vue'
+import VLock from '@/components/ui/VLock/index.vue'
 
 const store = useStore()
 
 watch(
-  [
-    () => store.geographicArea,
-    store.collectingEvent
-  ],
+  [() => store.geographicArea, store.collectingEvent],
   () => {
     store.createdCE = undefined
   },
@@ -48,7 +45,7 @@ watch(
 
 watch(
   () => store.settings.lock.collectingEvent,
-  newVal => {
+  (newVal) => {
     if (!newVal) {
       store.$patch({
         collectingEvent: {

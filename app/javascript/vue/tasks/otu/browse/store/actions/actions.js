@@ -5,6 +5,7 @@ import loadCollectionObjects from './loadCollectionObjects'
 import loadCollectingEvents from './loadCollectingEvents'
 import loadCommonNames from './loadCommonNames'
 import loadDepictions from './loadDepictions'
+import loadDistribution from './loadDistribution'
 import loadPreferences from './loadPreferences'
 import loadAssertedDistributions from './loadAssertedDistributions'
 import loadDescendants from './loadDescendants'
@@ -14,22 +15,20 @@ import loadOtus from './loadOtus'
 import resetStore from './resetStore'
 
 const ActionFunctions = {
+  [ActionNames.LoadAssertedDistributions]: loadAssertedDistributions,
   [ActionNames.LoadBiologicalAssociations]: loadBiologicalAssociations,
-  [ActionNames.LoadInformation]: loadInformation,
-  [ActionNames.LoadCollectionObjects]: loadCollectionObjects,
   [ActionNames.LoadCollectingEvents]: loadCollectingEvents,
+  [ActionNames.LoadCollectionObjects]: loadCollectionObjects,
   [ActionNames.LoadCommonNames]: loadCommonNames,
   [ActionNames.LoadDepictions]: loadDepictions,
-  [ActionNames.LoadPreferences]: loadPreferences,
-  [ActionNames.LoadAssertedDistributions]: loadAssertedDistributions,
   [ActionNames.LoadDescendants]: loadDescendants,
-  [ActionNames.LoadTaxonName]: loadTaxonName,
+  [ActionNames.LoadDistribution]: loadDistribution,
+  [ActionNames.LoadInformation]: loadInformation,
   [ActionNames.LoadObservationDepictions]: loadObservationDepictions,
   [ActionNames.LoadOtus]: loadOtus,
+  [ActionNames.LoadPreferences]: loadPreferences,
+  [ActionNames.LoadTaxonName]: loadTaxonName,
   [ActionNames.ResetStore]: resetStore
 }
 
-export {
-  ActionNames,
-  ActionFunctions
-}
+export { ActionNames, ActionFunctions }

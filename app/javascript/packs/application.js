@@ -13,6 +13,8 @@ import 'regenerator-runtime/runtime' */
 import 'leaflet/dist/leaflet.css'
 import 'tippy.js/dist/tippy.css'
 
+require('../vanilla/initializers/copyTable.js')
+
 require('../vue/tasks/citations/otus/main.js')
 require('../vue/tasks/content/editor/main.js')
 require('../vue/tasks/nomenclature/new_taxon_name/main.js')
@@ -29,8 +31,10 @@ require('../vue/initializers/tagButton/main.js')
 require('../vue/initializers/quick_citation_init/main.js')
 require('../vue/initializers/browse_nomenclature/main.js')
 require('../vue/initializers/pinboard_navigator/main.js')
+require('../vue/initializers/smart_selector/main.js')
 require('../vue/initializers/soft_validations/main.js')
 require('../vue/initializers/simple_map/main')
+require('../vue/initializers/map_shape/main.js')
 require('../vue/tasks/type_specimens/main.js')
 require('../vue/tasks/nomenclature/new_combination/main.js')
 require('../vue/tasks/browse_annotations/main.js')
@@ -88,3 +92,4 @@ require('../vue/tasks/descriptors/filter/main.js')
 require('../vue/tasks/loans/filter/main.js')
 require('../vue/tasks/observations/filter/main.js')
 require('../vue/tasks/contents/filter/main.js')
+require('../vue/tasks/biological_associations/biological_associations_graph/main.js')

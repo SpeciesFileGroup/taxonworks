@@ -113,29 +113,29 @@
   </div>
 </div>
 
-<div class="flexbox separate-bottom" >
-  <div class="panel content separate-left">
+<div class="flexbox flex-wrap-row gap-medium" >
+  <div class="panel content item">
     <h2> GB/Year Images </h2>
     <div style="width: 420px;">
       <%= column_chart(image_gb_per_year, xtitle: 'Year', ytitle: 'GB', discrete: true, height: '400px', download: true) %>
     </div>
   </div>
 
-  <div class="panel content separate-left">
+  <div class="panel content item">
     <h2> Cumulative GB/Year Images </h2>
     <div style="width: 420px;">
       <%= column_chart(image_cumulative_gb_per_year, xtitle: 'Year', ytitle: 'GB', discrete: true, height: '400px', download: true) %>
     </div>
   </div>
 
-  <div class="panel content separate-left">
+  <div class="panel content item">
     <h2> GB/Year Documents </h2>
     <div style="width: 420px;">
       <%= column_chart(document_gb_per_year, xtitle: 'Year', ytitle: 'GB', discrete: true, height: '400px', download: true) %>
     </div>
   </div>
 
-  <div class="panel content separate-left">
+  <div class="panel content item">
     <h2> Cumulative GB/Year Documents </h2>
     <div style="width: 420px;">
       <%= column_chart(document_cumulative_gb_per_year, xtitle: 'Year', ytitle: 'GB', discrete: true, height: '400px', download: true) %>
@@ -143,4 +143,4 @@
   </div>
 </div>
 
-
+<br>

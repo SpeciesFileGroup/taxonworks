@@ -7,14 +7,12 @@
         legend="Loading"
       />
       <div>
-        <div
-          class="separate-bottom horizontal-left-content"
-        >
+        <div class="separate-bottom horizontal-left-content">
           <input
             v-model="filterType"
             type="text"
             placeholder="Filter matrix"
-          >
+          />
           <default-pin
             section="ObservationMatrices"
             type="ObservationMatrix"
@@ -27,7 +25,11 @@
               <template v-for="item in alreadyInMatrices">
                 <li
                   :key="item.id"
-                  v-if="item.object_tag.toLowerCase().includes(filterType.toLowerCase())"
+                  v-if="
+                    item.object_tag
+                      .toLowerCase()
+                      .includes(filterType.toLowerCase())
+                  "
                 >
                   <button
                     class="button normal-input button-default margin-small-bottom"
@@ -41,7 +43,12 @@
               <template v-for="item in matrices">
                 <li
                   :key="item.id"
-                  v-if="item.object_tag.toLowerCase().includes(filterType.toLowerCase()) && !alreadyInMatrices.includes(item)"
+                  v-if="
+                    item.object_tag
+                      .toLowerCase()
+                      .includes(filterType.toLowerCase()) &&
+                    !alreadyInMatrices.includes(item)
+                  "
                 >
                   <button
                     class="button normal-input button-submit margin-small-bottom"
@@ -59,13 +66,16 @@
 </template>
 
 <script>
-
 import CRUD from '../../request/crud'
 import annotatorExtend from '../annotatorExtend'
-import SpinnerComponent from 'components/spinner'
-import DefaultPin from 'components/getDefaultPin'
-import { ObservationMatrix, ObservationMatrixRow, ObservationMatrixRowItem } from 'routes/endpoints'
-import { OBSERVATION_MATRIX_ROW_SINGLE } from 'constants/index'
+import SpinnerComponent from '@/components/spinner'
+import DefaultPin from '@/components/getDefaultPin'
+import {
+  ObservationMatrix,
+  ObservationMatrixRow,
+  ObservationMatrixRowItem
+} from '@/routes/endpoints'
+import { OBSERVATION_MATRIX_ROW_SINGLE } from '@/constants/index'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -75,22 +85,23 @@ export default {
     SpinnerComponent
   },
 
-  emits: [
-    'updateCount',
-    'close'
-  ],
+  emits: ['updateCount', 'close'],
 
   computed: {
-    alreadyInMatrices () {
-      return this.matrices.filter(item => this.rows.find(row => item.id === row.observation_matrix_id))
+    alreadyInMatrices() {
+      return this.matrices.filter((item) =>
+        this.rows.find((row) => item.id === row.observation_matrix_id)
+      )
     },
 
-    alreadyInCurrentMatrix () {
-      return this.rows.filter(row => this.selectedMatrix.id === row.observation_matrix_id)
+    alreadyInCurrentMatrix() {
+      return this.rows.filter(
+        (row) => this.selectedMatrix.id === row.observation_matrix_id
+      )
     }
   },
 
-  data () {
+  data() {
     return {
       show: false,
       matrices: [],
@@ -104,15 +115,15 @@ export default {
   },
 
   watch: {
-    alreadyInMatrices (newVal) {
+    alreadyInMatrices(newVal) {
       this.$emit('updateCount', newVal.length)
     }
   },
 
-  mounted () {
+  mounted() {
     this.loading = true
     this.show = true
-    ObservationMatrix.all({ per: 500 }).then(response => {
+    ObservationMatrix.all({ per: 500 }).then((response) => {
       this.matrices = response.body.sort((a, b) => {
         const compareA = a.object_tag
         const compareB = b.object_tag
@@ -129,13 +140,13 @@ export default {
     ObservationMatrixRow.where({
       observation_object_type: this.metadata.object_type,
       observation_object_id: this.metadata.object_id
-    }).then(response => {
+    }).then((response) => {
       this.rows = response.body
     })
   },
 
   methods: {
-    loadMatrix (matrix) {
+    loadMatrix(matrix) {
       this.selectedMatrix = matrix
       if (matrix.is_media_matrix) {
         this.openImageMatrix(matrix.id)
@@ -144,13 +155,13 @@ export default {
       }
     },
 
-    reset () {
+    reset() {
       this.selectedMatrix = undefined
       this.rows = []
       this.show = false
     },
 
-    async createRow () {
+    async createRow() {
       const data = {
         observation_matrix_id: this.selectedMatrix.id,
         observation_object_type: this.metadata.object_type,
@@ -158,48 +169,72 @@ export default {
         type: OBSERVATION_MATRIX_ROW_SINGLE
       }
 
-      await ObservationMatrixRowItem.create({ observation_matrix_row_item: data })
+      await ObservationMatrixRowItem.create({
+        observation_matrix_row_item: data
+      })
 
-      const rowList = (await ObservationMatrixRow.where({
+      const rowList = await ObservationMatrixRow.where({
         observation_object_id: this.metadata.object_id,
         observation_object_type: this.metadata.object_type
-      }))
+      })
 
       this.rows = rowList.body
 
       return rowList
     },
 
-    setMatrix (id) {
-      ObservationMatrix.find(id).then(response => {
+    setMatrix(id) {
+      ObservationMatrix.find(id).then((response) => {
         this.selectedMatrix = response.body
         this.loadMatrix(this.selectedMatrix)
       })
     },
 
-    getRowId (observationMatrixId) {
-      return this.rows.find(m => m.observation_matrix_id === observationMatrixId).id
+    getRowId(observationMatrixId) {
+      return this.rows.find(
+        (m) => m.observation_matrix_id === observationMatrixId
+      ).id
     },
 
-    openMatrixRowCoder (observationMatrixId) {
+    openMatrixRowCoder(observationMatrixId) {
       if (this.alreadyInCurrentMatrix.length) {
-        window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.getRowId(observationMatrixId)}`, '_blank')
+        window.open(
+          `/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.getRowId(
+            observationMatrixId
+          )}`,
+          '_blank'
+        )
         this.$emit('close')
       } else {
-        this.createRow().then(_ => {
-          window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.getRowId(observationMatrixId)}`, '_blank')
+        this.createRow().then((_) => {
+          window.open(
+            `/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.getRowId(
+              observationMatrixId
+            )}`,
+            '_blank'
+          )
           this.$emit('close')
         })
       }
     },
 
-    openImageMatrix (observationMatrixId) {
+    openImageMatrix(observationMatrixId) {
       if (this.alreadyInCurrentMatrix.length) {
-        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.getRowId(observationMatrixId)}&edit=true`, '_blank')
+        window.open(
+          `/tasks/matrix_image/matrix_image/index?observation_matrix_id=${
+            this.selectedMatrix.id
+          }&row_filter=${this.getRowId(observationMatrixId)}&edit=true`,
+          '_blank'
+        )
         this.$emit('close')
       } else {
         this.createRow().then(() => {
-          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.getRowId(observationMatrixId)}&edit=true`, '_blank')
+          window.open(
+            `/tasks/matrix_image/matrix_image/index?observation_matrix_id=${
+              this.selectedMatrix.id
+            }&row_filter=${this.getRowId(observationMatrixId)}&edit=true`,
+            '_blank'
+          )
           this.$emit('close')
         })
       }

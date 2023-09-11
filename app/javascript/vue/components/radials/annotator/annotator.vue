@@ -31,10 +31,6 @@
             </div>
             <div
               class="radial-annotator-template panel"
-              :style="{
-                'max-height': windowHeight(),
-                'min-height': windowHeight()
-              }"
               v-if="currentAnnotator"
             >
               <h2 class="capitalize view-title">
@@ -60,19 +56,16 @@
 
       <VBtn
         v-if="showBottom"
-        :title="globalId ? `${globalId.split('/')[3]} annotator` : buttonTitle"
-        class="circle-button"
-        :class="[pulse ? 'pulse-blue' : '']"
-        color="radial"
         circle
+        color="radial"
+        :title="buttonTitle"
+        :class="[pulse ? 'pulse-blue' : '']"
         :disabled="disabled"
         @contextmenu.prevent="loadContextMenu"
         @click="displayAnnotator()"
       >
         <VIcon
-          :title="
-            globalId ? `${globalId.split('/')[3]} annotator` : buttonTitle
-          "
+          :title="buttonTitle"
           name="radialAnnotator"
           x-small
         />
@@ -93,16 +86,16 @@
   </div>
 </template>
 <script>
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import modal from 'components/ui/Modal.vue'
-import spinner from 'components/spinner.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import modal from '@/components/ui/Modal.vue'
+import spinner from '@/components/spinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 import CRUD from './request/crud'
 
 import confidencesAnnotator from './components/confidence/confidence_annotator.vue'
-import depictionsAnnotator from './components/depiction_annotator.vue'
+import depictionsAnnotator from './components/depictions/depiction_annotator.vue'
 import documentationAnnotator from './components/documentation_annotator.vue'
 import identifiersAnnotator from './components/identifier/identifier_annotator.vue'
 import tagsAnnotator from './components/tag_annotator.vue'
@@ -117,8 +110,8 @@ import verifiersAnnotator from './components/verifiers/Verifiers.vue'
 import ContextMenu from './components/contextMenu'
 import Icons from './images/icons.js'
 import shortcutsMixin from '../mixins/shortcuts'
-import { Tag } from 'routes/endpoints'
-import { RadialAnnotatorEventEmitter } from 'utils/index.js'
+import { Tag } from '@/routes/endpoints'
+import { RadialAnnotatorEventEmitter } from '@/utils/index.js'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
@@ -434,11 +427,25 @@ export default {
     },
 
     setTotal(total) {
-      this.metadata.endpoints[this.currentAnnotator].total = total
+      const sliceMetadata = this.metadata.endpoints[this.currentAnnotator]
+
+      if (total !== sliceMetadata.total) {
+        sliceMetadata.total = total
+        this.eventUpdate()
+      }
     },
 
     eventOpen() {
       const event = new CustomEvent('radialAnnotator:open', {
+        detail: {
+          metadata: this.metadata
+        }
+      })
+      document.dispatchEvent(event)
+    },
+
+    eventUpdate() {
+      const event = new CustomEvent('radialAnnotator:update', {
         detail: {
           metadata: this.metadata
         }
@@ -453,13 +460,6 @@ export default {
         }
       })
       document.dispatchEvent(event)
-    },
-
-    windowHeight() {
-      return (
-        (window.innerHeight - 100 > 650 ? 650 : window.innerHeight - 100) +
-        'px !important'
-      )
     },
 
     createTag() {
@@ -545,27 +545,21 @@ export default {
     padding: 1em;
     width: 100%;
     max-width: 100%;
-    min-height: 600px;
+    height: 80vh;
     overflow-y: auto;
   }
 
   .radial-annotator-container {
     display: flex;
-    height: 600px;
+    height: 100%;
     flex-direction: column;
     overflow-y: scroll;
     position: relative;
   }
 
-  .radial-annotator-inner-modal {
-    height: 700px;
-  }
-
   .radial-annotator-menu {
-    padding-top: 1em;
-    padding-bottom: 1em;
     width: 700px;
-    min-height: 650px;
+    height: 90vh;
   }
 
   .annotator-buttons-list {

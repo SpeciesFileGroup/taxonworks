@@ -20,13 +20,9 @@ module Vendor
       end
 
       # Name helpers
-      def name
-        found.name
-      end
+      delegate :name, to: :found
 
-      def verbatim
-        found.verbatim
-      end
+      delegate :verbatim, to: :found
 
       def words_start
         found.start
@@ -85,8 +81,8 @@ module Vendor
 
       # @return Array of TaxonName
       def matches
-        TaxonName.where(project_id: project_id, cached: found.name)
-          .or( TaxonName.where(project_id: project_id, cached_original_combination: found.name))
+        TaxonName.where(project_id:, cached: found.name)
+          .or( TaxonName.where(project_id:, cached_original_combination: found.name))
       end
 
       def is_in_taxonworks?
@@ -107,7 +103,7 @@ module Vendor
         return nil unless taxonworks_parent_name
         TaxonName.find_by(
           name: taxonworks_parent_name,
-          project_id: project_id)
+          project_id:)
       end
     end
 

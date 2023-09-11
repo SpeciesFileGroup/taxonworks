@@ -2,7 +2,7 @@
 
 <div class="flexbox panels-container ">
   <div class="item panel separate-left separate-right">
-    <div class="title nav-line"> 
+    <div class="title nav-line">
       <span data-icon="folders">Projects</span>
     </div>
     <nav class="content">
@@ -15,7 +15,7 @@
   </div>
 
   <div class="item panel separate-left separate-right">
-    <div class="title nav-line"> 
+    <div class="title nav-line">
       <span data-icon="users">Users</span>
     </div>
     <div class="content">
@@ -29,7 +29,7 @@
   </div>
 
   <div class="item panel separate-left separate-right">
-    <div class="title nav-line"> 
+    <div class="title nav-line">
       <span data-icon="openFolder">Data</span>
     </div>
     <div class="content">
@@ -37,6 +37,8 @@
         <%= content_tag(:li, link_to("Overview", data_overview_path, data: { turbolinks: false })) -%>
         <%= content_tag(:li, link_to("Project classification", project_classification_task_path, data: { turbolinks: false })) -%>
         <%= content_tag(:li, link_to("Health", data_health_path, data: { turbolinks: false })) -%>
+        <%= content_tag(:li, link_to("Cached Map Status", cached_maps_status_path, data: { turbolinks: false })) -%>
+
         <%= content_tag(:li, link_to("Reindex", data_reindex_path, data: { turbolinks: false })) -%>
       </ul>
     </div>

@@ -19,12 +19,15 @@ class CollectionObjectsController < ApplicationController
           .limit(10)
         render '/shared/data/all/index'
       end
-      format.json {
+      format.json do
         @collection_objects = ::Queries::CollectionObject::Filter.new(params).all
-        .order('collection_objects.id')
+
+        @collection_objects = add_includes_to_filter_result(@collection_objects)
+
+        @collection_objects = @collection_objects
         .page(params[:page])
         .per(params[:per])
-      }
+      end
     end
   end
 
@@ -357,7 +360,7 @@ class CollectionObjectsController < ApplicationController
         project_id: sessions_current_project_id
       ).autocomplete
   end
-  
+
   # GET /api/v1/collection_objects
   def api_index
     @collection_objects = ::Queries::CollectionObject::Filter.new(params.merge!(api: true)).all
@@ -450,6 +453,34 @@ class CollectionObjectsController < ApplicationController
         'end_year'    => 'end_date_year'}
     }
   end
+
+  # An experiment to balance query/rendering times vs. extend[] requests
+  # Likely suggests we need some fundamental changes.
+  # @param CollectionObject::Filter.new() instance
+  def add_includes_to_filter_result(collection_objects)
+    a = %i(identifiers dwc_occurrence repository current_repository)
+
+    x = []
+    a.each do |e|
+      if helpers.extend_response_with(e.to_s)
+        x.push e
+      end
+    end
+
+    if x.any?
+      collection_objects = collection_objects.includes(*x)
+    end
+
+    if helpers.extend_response_with('collecting_event')
+      collection_objects = collection_objects.includes(collecting_event: [:identifiers])
+    end
+
+    if helpers.extend_response_with('taxon_determinations')
+      collection_objects = collection_objects.includes(taxon_determinations: [:otu, roles: [:person]])
+    end
+    collection_objects
+  end
+
 end
 
 require_dependency Rails.root.to_s + '/lib/batch_load/import/collection_objects/castor_interpreter.rb'

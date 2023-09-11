@@ -1,76 +1,84 @@
 <template>
-  <tr
-    class="list-complete-item">
+  <tr class="list-complete-item">
     <td>
       <input
         type="checkbox"
-        :value="{
-          id: item.id,
-          loan_item_object_type: item.loan_item_object_type,
-          loan_item_object_id: item.loan_item_object_id
-        }"
+        :value="item.id"
         v-model="editLoanItems"
-      >
+      />
     </td>
     <td>
-      <span v-html="item.loan_item_object.object_tag"/>
+      <span v-html="item.loan_item_object.object_tag" />
     </td>
     <td>
       <input
         v-model="itemDate"
-        type="date">
+        type="date"
+      />
     </td>
     <td>
       <select v-model="itemStatus">
         <option
           v-for="status in statusList"
           :key="status"
-          :value="status">
+          :value="status"
+        >
           {{ status }}
         </option>
       </select>
     </td>
-    <td
-      v-if="isOtu">
+    <td v-if="isOtu">
       <input
         class="input-xsmall-width"
         :value="item.total"
         @blur="updateTotal"
-        type="number">
+        type="number"
+      />
     </td>
     <td
       v-else
-      v-html="item.total"/>
+      v-html="item.total"
+    />
     <td>
-      <div class="horizontal-right-content">
+      <div class="horizontal-right-content gap-small">
         <pin-component
           :object-id="item.loan_item_object_id"
-          :type="item.loan_item_object_type"/>
+          :type="item.loan_item_object_type"
+        />
         <radial-annotator :global-id="item.global_id" />
         <radial-navigator :global-id="item.loan_item_object.global_id" />
-        <span
-          class="circle-button btn-delete"
-          @click="$emit('onDelete', item)">Remove
-        </span>
+        <VBtn
+          color="destroy"
+          circle
+          @click="$emit('onDelete', item)"
+        >
+          <VIcon
+            x-small
+            name="trash"
+          />
+        </VBtn>
       </div>
     </td>
   </tr>
 </template>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import statusList from '../../const/status.js'
-import PinComponent from 'components/ui/Pinboard/VPin.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialNavigator from 'components/radials/navigation/radial.vue'
+import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
     PinComponent,
     RadialAnnotator,
-    RadialNavigator
+    RadialNavigator,
+    VBtn,
+    VIcon
   },
 
   props: {
@@ -80,12 +88,9 @@ export default {
     }
   },
 
-  emits: [
-    'onDelete',
-    'onUpdate'
-  ],
+  emits: ['onDelete', 'onUpdate'],
 
-  data () {
+  data() {
     return {
       statusList
     }
@@ -93,39 +98,39 @@ export default {
 
   computed: {
     editLoanItems: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetEditLoanItems]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetEditLoanItems, value)
       }
     },
 
     itemStatus: {
-      get () {
+      get() {
         return this.item.disposition
       },
-      set (value) {
+      set(value) {
         this.$emit('onUpdate', { id: this.item.id, disposition: value })
       }
     },
 
     itemDate: {
-      get () {
+      get() {
         return this.item.date_returned
       },
-      set (value) {
+      set(value) {
         this.$emit('onUpdate', { id: this.item.id, date_returned: value })
       }
     },
 
-    isOtu () {
+    isOtu() {
       return this.item.loan_item_object_type === 'Otu'
     }
   },
 
   methods: {
-    updateTotal (event) {
+    updateTotal(event) {
       if (this.item.total !== Number(event.target.value)) {
         this.$emit('onUpdate', { id: this.item.id, total: event.target.value })
       }

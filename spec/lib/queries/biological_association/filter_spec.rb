@@ -19,15 +19,14 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
 
   specify 'collecting_event_query' do
     ce = FactoryBot.create(:valid_collecting_event)
-    o3.update!(collecting_event: ce) 
+    o3.update!(collecting_event: ce)
 
-    h = { 'collecting_event_query':  {'collecting_event_id': ce.id} } 
+    h = { 'collecting_event_query':  {'collecting_event_id': ce.id} }
     q = query.new(h)
 
     expect(q.all).to contain_exactly(ba2, ba3)
   end
-  
-  # TODO: meld with 
+
   context 'subqueries' do
     specify 'A->B->A params' do
       h = { 'collecting_event_query':  { 'biological_association_query': { 'taxon_name_id': ['99'], 'descendants':  'true'}} }
@@ -330,7 +329,7 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
   end
 
   specify '#object_taxon_name_id (CollectionObject)' do
-    g1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+     g1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
     s1 = Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
 
     g2 = Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
@@ -345,7 +344,7 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
    end
 
   specify '#subject_taxon_name_id (CollectionObject)' do
-    g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+     g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
     s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
 
     g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
@@ -374,7 +373,7 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(q.all.map(&:id)).to contain_exactly(ba1.id)
   end
 
-  specify '#biological_association_graph_id' do
+  specify '#biological_associations_graph_id' do
     g = FactoryBot.create(:valid_biological_associations_graph)
     g.biological_associations << ba1
     expect(query.new(biological_associations_graph_id: [g.id]).all.map(&:id)).to contain_exactly(ba1.id)

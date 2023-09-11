@@ -10,30 +10,27 @@
       <template v-if="displayBody">
         <SwitchComponent
           :options="typeList"
-          v-model="view"/>
+          v-model="view"
+        />
         <component
           :is="componentView"
-          :loan="loan"/>
+          :loan="loan"
+        />
       </template>
     </template>
   </block-layout>
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
 import CreateObject from './CreateObject'
 import CreateTag from './CreateTag'
 import CreatePinboard from './CreatePinboard'
 import ExpandComponent from './expand.vue'
-import SwitchComponent from 'components/switch'
-import BlockLayout from 'components/layout/BlockLayout.vue'
+import SwitchComponent from '@/components/switch'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 
-const typeList = [
-  'Object',
-  'Tag',
-  'Pinboard'
-]
+const typeList = ['Object', 'Tag', 'Pinboard']
 
 export default {
   components: {
@@ -46,16 +43,16 @@ export default {
   },
 
   computed: {
-    loan () {
+    loan() {
       return this.$store.getters[GetterNames.GetLoan]
     },
 
-    componentView () {
+    componentView() {
       return `Create${this.view}`
     }
   },
 
-  data () {
+  data() {
     return {
       maxItemsWarning: 100,
       typeList: typeList,
@@ -66,27 +63,27 @@ export default {
 }
 </script>
 <style lang="scss">
-  #edit_loan_task {
-    .label-flex {
-      display: flex;
-      align-items: center;
-    }
+#edit_loan_task {
+  .label-flex {
+    display: flex;
+    align-items: center;
+  }
 
-    .tag_list {
-      margin-top: 0.5em;
-      align-items: center;
-      text-align: right;
-      display: flex;
-      .tag_label {
-        width: 130px;
-        min-width: 130px;
-      }
-      .tag_total {
-        margin-left: 1em;
-        margin-right: 1em;
-        text-align: left;
-        min-width: 50px;
-      }
+  .tag_list {
+    margin-top: 0.5em;
+    align-items: center;
+    text-align: right;
+    display: flex;
+    .tag_label {
+      width: 130px;
+      min-width: 130px;
+    }
+    .tag_total {
+      margin-left: 1em;
+      margin-right: 1em;
+      text-align: left;
+      min-width: 50px;
     }
   }
+}
 </style>

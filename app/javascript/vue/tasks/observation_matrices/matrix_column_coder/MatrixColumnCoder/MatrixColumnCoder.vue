@@ -6,13 +6,13 @@
     <spinner
       legend="Loading..."
       full-screen
-      :logo-size="{ width: '50px', height: '50px'}"
+      :logo-size="{ width: '50px', height: '50px' }"
       v-if="isLoading"
     />
     <NavigationMatrix class="margin-medium-bottom" />
     <navbar-component>
       <div class="flex-separate middle">
-        <div class="horizontal-left-content middle">
+        <div class="horizontal-left-content middle gap-small">
           <h3
             class="matrix-row-coder__title"
             v-html="descriptor.title"
@@ -21,16 +21,15 @@
         </div>
         <div
           v-if="descriptor.id"
-          class="horizontal-right-content middle"
+          class="horizontal-right-content middle gap-small"
         >
-          <OptionUnsecoredRows class="margin-medium-right" />
+          <OptionUnsecoredRows />
           <template v-if="descriptor.type === componentName.Qualitative">
-            <OptionCharacterStatDisplay class="margin-small-right" />
-            <OptionCharacterStateFilter class="margin-small-right" />
+            <OptionCharacterStatDisplay />
+            <OptionCharacterStateFilter />
           </template>
-          <RowObjectList class="margin-small-right" />
+          <RowObjectList />
           <CodeColumn
-            class="margin-small-right"
             :descriptor="descriptor"
             :column-id="observationColumnId"
           />
@@ -48,7 +47,7 @@
       >
         <component
           :is="descriptor.componentName"
-          :index="(index + 1)"
+          :index="index + 1"
           :descriptor="descriptor"
           :row-object="rowObject"
         />
@@ -71,14 +70,13 @@ import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor
 import SampleDescriptor from './SampleDescriptor/SampleDescriptor.vue'
 import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
 import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
-import Spinner from 'components/spinner'
-import NavbarComponent from 'components/layout/NavBar.vue'
+import Spinner from '@/components/spinner'
+import NavbarComponent from '@/components/layout/NavBar.vue'
 import NavigationMatrix from './Navigation/NavigationMatrix.vue'
-import RadialNavigator from 'components/radials/navigation/radial.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RowObjectList from './RowObjects/RowObjects.vue'
 import CodeColumn from './CodeColumn/CodeColumn.vue'
 import ObservationRowDestroy from './ObservationRow/ObservationRowDestroy.vue'
-
 
 export default {
   name: 'MatrixColumnCoder',
@@ -109,7 +107,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       isLoading: false,
       componentName
@@ -118,31 +116,31 @@ export default {
 
   computed: {
     ...mapState({
-      descriptor: state => state.descriptor,
-      observations: state => state.observations,
-      onlyScoredRows: state => state.options.showOnlyUnscoredRows,
-      observationColumnId: state => state.observationColumnId
+      descriptor: (state) => state.descriptor,
+      observations: (state) => state.observations,
+      onlyScoredRows: (state) => state.options.showOnlyUnscoredRows,
+      observationColumnId: (state) => state.observationColumnId
     }),
-    rowObjects () {
+    rowObjects() {
       return this.$store.getters[GetterNames.GetRowObjects]
-    },
+    }
   },
 
   watch: {
     columnId: {
-      handler () {
+      handler() {
         this.loadMatrixColumn(this.columnId)
       },
       immediate: true
     }
   },
 
-  created () {
+  created() {
     this.$store.dispatch(ActionNames.LoadUnits)
   },
 
   methods: {
-    loadMatrixColumn (columnId) {
+    loadMatrixColumn(columnId) {
       this.isLoading = true
       this.$store.dispatch(ActionNames.LoadColumns, columnId).then(() => {
         this.isLoading = false

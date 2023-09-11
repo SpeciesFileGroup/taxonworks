@@ -81,25 +81,24 @@ class Georeference < ApplicationRecord
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Confidences # qualitative, not spatial
+  include Shared::Maps
   include Shared::IsData
+
+  include Shared::Maps
 
   attr_accessor :iframe_response # used to handle the geolocate from Tulane response
 
   acts_as_list scope: [:collecting_event_id, :project_id], add_new_at: :top
 
   belongs_to :collecting_event, inverse_of: :georeferences
-  belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id, inverse_of: :georeferences_through_error_geographic_item
+  belongs_to :error_geographic_item, class_name: 'GeographicItem', inverse_of: :georeferences_through_error_geographic_item
   belongs_to :geographic_item, inverse_of: :georeferences
 
   has_many :collection_objects, through: :collecting_event, inverse_of: :georeferences
+  has_many :otus, through: :collection_objects
 
-  has_many :georeferencer_roles, -> { order('roles.position ASC') },
-    class_name: 'Georeferencer',
-    as: :role_object, validate: true
-
-  has_many :georeferencers, -> { order('roles.position ASC') },
-    through: :georeferencer_roles,
-    source: :person, validate: true
+  has_many :georeferencer_roles, class_name: 'Georeferencer', as: :role_object, dependent: :destroy, inverse_of: :role_object
+  has_many :georeference_authors, -> { order('roles.position ASC') }, through: :georeferencer_roles, source: :person # , inverse_of: :georeferences
 
   validates :year_georeferenced, date_year: {min_year: 1000, max_year: Time.now.year }
   validates :month_georeferenced, date_month: true
@@ -129,13 +128,9 @@ class Georeference < ApplicationRecord
   #  When true, cascading cached values (e.g. in CollectingEvent) are not built
   attr_accessor :no_cached
 
-  after_save :set_cached, unless: -> { self.no_cached }
+  after_save :set_cached, unless: -> { self.no_cached || (self.collecting_event && self.collecting_event.no_cached == true) }
 
   after_destroy :set_cached_collecting_event
-
-  def set_cached_collecting_event
-    collecting_event.send(:set_cached)
-  end
 
   def self.point_type
     joins(:geographic_item).where(geographic_items: {type: 'GeographicItem::Point'})
@@ -193,7 +188,7 @@ class Georeference < ApplicationRecord
   # geographic_areas as a GeographicArea
   # TODO: or, (in the future) a string matching a geographic_area.name
   def self.with_geographic_area(geographic_area)
-    partials = CollectingEvent.where(geographic_area: geographic_area)
+    partials = CollectingEvent.where(geographic_area:)
     partial_gr = Georeference.where('collecting_event_id in (?)', partials.pluck(:id))
     partial_gr
   end
@@ -248,8 +243,8 @@ class Georeference < ApplicationRecord
   #   The interface to DwcOccurrence writiing for Georeference based values.
   #   See subclasses for super extensions.
   def dwc_georeference_attributes(h = {})
-    georeferenced_by = if georeferencers.any?
-                         georeferencers.collect{|a| a.cached}.join('|')
+    georeferenced_by = if georeference_authors.any?
+                         georeference_authors.collect{|a| a.cached}.join('|')
                        else
                          creator.name
                        end
@@ -311,7 +306,7 @@ class Georeference < ApplicationRecord
       :sanitize_sql_array,
       ['SELECT ST_Buffer(?, ?)',
        geographic_item.geo_object.to_s,
-       (error_radius / 111_319.444444444)])
+       (error_radius / Utilities::Geo::ONE_WEST_MEAN)])
     value = GeographicItem.connection.select_all(sql_str).first['st_buffer']
     Gis::FACTORY.parse_wkb(value)
   end
@@ -351,11 +346,20 @@ class Georeference < ApplicationRecord
     }
   end
 
+  # Calculate the radius from error shapes
+  # !! Used to retroactively rebuild the radius from the polygon shape
+  def radius_from_error_shape
+    error_geographic_item&.radius
+  end
+
   protected
 
-  # @return [Hash] of names of geographic areas
+  def set_cached_collecting_event
+    collecting_event.send(:set_cached)
+  end
+
   def set_cached
-    collecting_event.send(:set_cached_geographic_names) # protected method
+    collecting_event.send(:set_cached_geographic_names)
   end
 
   # validation methods
@@ -392,11 +396,11 @@ class Georeference < ApplicationRecord
     # case 2
     retval = true
     # if !error_radius.blank? && geographic_item && geographic_item.geo_object
-    unless error_radius.blank?
-      unless geographic_item.blank?
-        unless geographic_item.geo_object.blank?
+    if error_radius.present?
+      if geographic_item.present?
+        if geographic_item.geo_object.present?
           val = error_box
-          unless val.blank?
+          if val.present?
             retval = val.contains?(geographic_item.geo_object)
           end
         end
@@ -427,7 +431,7 @@ class Georeference < ApplicationRecord
     if collecting_event
       ga_gi = collecting_event.geographic_area_default_geographic_item
       eb = error_box
-      unless error_radius.blank? # rubocop:disable Style/IfUnlessModifier
+      if error_radius.present? # rubocop:disable Style/IfUnlessModifier
         retval = ga_gi.contains?(eb) if ga_gi && eb
       end
     end
@@ -559,7 +563,7 @@ class Georeference < ApplicationRecord
   end
 
   def geographic_item_present_if_error_radius_provided
-    if !error_radius.blank? &&
+    if error_radius.present? &&
         geographic_item_id.blank? && # provide existing
         geographic_item.blank? # provide new
       errors.add(:error_radius, 'can only be provided when geographic item is provided')

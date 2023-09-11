@@ -2,17 +2,22 @@
   <fieldset>
     <legend>Geographic area</legend>
     <div class="horizontal-left-content align-start">
-      <smart-selector
+      <SmartSelector
         v-model="geographicArea"
         class="full_width"
         model="geographic_areas"
         klass="AssertedDistribution"
         target="AssertedDistribution"
         label="name"
+        :add-tabs="['map']"
         pin-section="GeographicAreas"
         @selected="onSelect"
         pin-type="GeographicArea"
-      />
+      >
+        <template #map>
+          <GeographicAreaMapPicker @select="onSelect" />
+        </template>
+      </SmartSelector>
       <VLock
         v-model="lock"
         class="margin-small-left"
@@ -28,9 +33,10 @@
 
 <script setup>
 import { computed } from 'vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import VLock from 'components/ui/VLock/index.vue'
+import GeographicAreaMapPicker from '@/components/ui/SmartSelector/GeographicAreaMapPicker.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import VLock from '@/components/ui/VLock/index.vue'
 
 const props = defineProps({
   modelValue: {
@@ -44,23 +50,19 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits([
-  'update:modelValue',
-  'update:lock',
-  'selected'
-])
+const emit = defineEmits(['update:modelValue', 'update:lock', 'selected'])
 
 const geographicArea = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const lock = computed({
   get: () => props.lock,
-  set: value => emit('update:lock', value)
+  set: (value) => emit('update:lock', value)
 })
 
-const onSelect = geo => {
+const onSelect = (geo) => {
   geographicArea.value = geo
   emit('selected')
 }

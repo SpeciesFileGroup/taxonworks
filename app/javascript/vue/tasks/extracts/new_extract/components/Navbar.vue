@@ -2,16 +2,14 @@
   <navbar-component v-hotkey="shortcuts">
     <div class="flex-separate middle">
       <div
-        class="horizontal-left-content"
+        class="horizontal-left-content gap-small"
         v-if="extract.id"
       >
         <span v-html="extract.object_tag" />
         <radial-annotator :global-id="extract.global_id" />
         <radial-navigator :global-id="extract.global_id" />
       </div>
-      <span v-else>
-        New
-      </span>
+      <span v-else> New </span>
       <div class="horizontal-right-content">
         <tippy
           v-if="unsavedChanges"
@@ -45,13 +43,12 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
 import { Tippy } from 'vue-tippy'
-import NavbarComponent from 'components/layout/NavBar'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialNavigator from 'components/radials/navigation/radial.vue'
-import platformKey from 'helpers/getPlatformKey.js'
+import NavbarComponent from '@/components/layout/NavBar'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import platformKey from '@/helpers/getPlatformKey.js'
 
 export default {
   components: {
@@ -61,29 +58,26 @@ export default {
     RadialNavigator
   },
 
-  emits: [
-    'onSave',
-    'onReset'
-  ],
+  emits: ['onSave', 'onReset'],
 
   computed: {
-    extract () {
+    extract() {
       return this.$store.getters[GetterNames.GetExtract]
     },
 
-    lastChange () {
+    lastChange() {
       return this.$store.getters[GetterNames.GetLastChange]
     },
 
-    lastSave () {
+    lastSave() {
       return this.$store.getters[GetterNames.GetLastSave]
     },
 
-    unsavedChanges () {
+    unsavedChanges() {
       return this.lastChange > this.lastSave
     },
 
-    shortcuts () {
+    shortcuts() {
       const keys = {}
 
       keys[`${platformKey()}+s`] = this.emitSave
@@ -94,11 +88,11 @@ export default {
   },
 
   methods: {
-    emitSave () {
+    emitSave() {
       this.$emit('onSave')
     },
 
-    emitReset () {
+    emitReset() {
       this.$emit('onReset')
     }
   }

@@ -1,7 +1,6 @@
 class LoansController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :require_sign_in_and_project_selection
   before_action :set_loan, only: [:show, :edit, :update, :destroy, :recipient_form]
 
   after_action -> { set_pagination_headers(:loans) }, only: [:index], if: :json_request?
@@ -36,7 +35,8 @@ class LoansController < ApplicationController
 
   # GET /loans/new
   def new
-    @loan = Loan.new(params.permit(:clone_from))
+    redirect_to edit_loan_task_path
+    # @loan = Loan.new(params.permit(:clone_from))
   end
 
   # GET /loans/1/edit

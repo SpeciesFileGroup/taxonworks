@@ -1,10 +1,10 @@
 <template>
   <div class="switch-radio">
     <template
-      v-for="(item, index) in options.concat(addOption)"
-      :key="index">
-      <template
-        v-if="filter(item)">
+      v-for="(item, index) in options"
+      :key="index"
+    >
+      <template v-if="filter(item)">
         <input
           @click="emitEvent(index)"
           :value="useIndex ? index : item"
@@ -13,8 +13,12 @@
           :name="`switch-${name}-options`"
           type="radio"
           class="normal-input button-active"
+        />
+        <label
+          :for="`switch-${name}-${index}`"
+          :style="fullWidth && { width: '100%' }"
         >
-        <label :for="`switch-${name}-${index}`">{{ item }}
+          {{ item }}
         </label>
       </template>
     </template>
@@ -24,19 +28,13 @@
 export default {
   props: {
     options: {
-      type: Array,
+      type: [Array, Object],
       required: true
     },
 
     modelValue: {
       type: [String, Number],
       default: undefined
-    },
-
-    addOption: {
-      type: Array,
-      required: false,
-      default: () => []
     },
 
     name: {
@@ -53,35 +51,36 @@ export default {
     useIndex: {
       type: Boolean,
       required: false
+    },
+
+    fullWidth: {
+      type: Boolean,
+      default: false
     }
   },
 
-  emits: [
-    'update:modelValue',
-    'index'
-  ],
+  emits: ['update:modelValue', 'index'],
 
   computed: {
     inputValue: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
   },
 
   methods: {
-    emitEvent (index) {
+    emitEvent(index) {
       this.$emit('index', index)
     }
   }
 }
-
 </script>
 <style scoped>
-  label::first-letter {
-    text-transform: capitalize;
-  }
+label::first-letter {
+  text-transform: capitalize;
+}
 </style>

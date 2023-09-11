@@ -6,7 +6,6 @@
 </template>
 
 <script setup>
-
 import L from 'leaflet'
 import '@geoman-io/leaflet-geoman-free'
 import 'leaflet.pattern/src/Pattern'
@@ -19,8 +18,9 @@ import 'leaflet.pattern/src/PatternCircle'
 import iconRetina from 'leaflet/dist/images/marker-icon-2x.png'
 import iconUrl from 'leaflet/dist/images/marker-icon.png'
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
-import { Icon } from 'components/georeferences/icons'
+import { Icon } from '@/components/georeferences/icons'
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
+import { ASSERTED_DISTRIBUTION, GEOGRAPHIC_AREA } from '@/constants/index.js'
 
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
@@ -60,7 +60,7 @@ const props = defineProps({
   },
   drawCircleMarker: {
     type: Boolean,
-    default: true
+    default: false
   },
   drawMarker: {
     type: Boolean,
@@ -151,32 +151,50 @@ const emit = defineEmits([
 const leafletMap = ref(null)
 const tiles = {
   osm: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    attribution:
+      '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 18
   }),
-  google: L.tileLayer('http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
-    attribution: 'Google',
-    maxZoom: 18
-  })
+  google: L.tileLayer(
+    'http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}',
+    {
+      attribution: 'Google',
+      maxZoom: 18
+    }
+  ),
+  gbif: L.tileLayer(
+    'https://tile.gbif.org/3857/omt/{z}/{x}/{y}@1x.png?style=gbif-natural-en',
+    {
+      attribution: 'GBIF',
+      maxZoom: 18
+    }
+  )
 }
 let observeMap
 
-const fitBoundsOptions = computed(() =>
-  ({
-    maxZoom: props.zoomBounds,
-    zoom: {
-      animate: props.zoomAnimate
-    }
-  })
+const fitBoundsOptions = computed(() => ({
+  maxZoom: props.zoomBounds,
+  zoom: {
+    animate: props.zoomAnimate
+  }
+}))
+
+watch(
+  () => props.geojson,
+  (newVal) => {
+    drawnItems.clearLayers()
+    geographicArea.clearLayers()
+    geoJSON(newVal)
+  },
+  { deep: true }
 )
 
-watch(() => props.geojson, newVal => {
-  drawnItems.clearLayers()
-  geographicArea.clearLayers()
-  geoJSON(newVal)
-}, { deep: true })
-
-watch(() => props.zoom, newVal => { mapObject.setZoom(newVal) })
+watch(
+  () => props.zoom,
+  (newVal) => {
+    mapObject.setZoom(newVal)
+  }
+)
 
 onMounted(() => {
   mapObject = L.map(leafletMap.value, {
@@ -212,7 +230,7 @@ const resizeMap = () => {
 }
 
 const initEvents = () => {
-  observeMap = new ResizeObserver(entries => {
+  observeMap = new ResizeObserver((entries) => {
     const { width } = entries[0].contentRect
 
     resizeMap(width)
@@ -228,10 +246,17 @@ onUnmounted(() => {
 const addDrawControllers = () => {
   tiles.osm.addTo(mapObject)
   if (props.tilesSelection) {
-    L.control.layers({
-      OSM: tiles.osm,
-      Google: tiles.google
-    }, { 'Draw layers': drawnItems }, { position: 'topleft', collapsed: false }).addTo(mapObject)
+    L.control
+      .layers(
+        {
+          OSM: tiles.osm,
+          GBIF: tiles.gbif,
+          Google: tiles.google
+        },
+        {},
+        { position: 'topleft', collapsed: false }
+      )
+      .addTo(mapObject)
   }
 
   if (props.drawControls) {
@@ -253,13 +278,13 @@ const addDrawControllers = () => {
   }
 
   if (!props.actions) {
-    mapObject.pm.Toolbar.getControlOrder().forEach(control => {
+    mapObject.pm.Toolbar.getControlOrder().forEach((control) => {
       mapObject.pm.Toolbar.changeActionsOfControl(control, [])
     })
   }
 }
 const handleEvents = () => {
-  mapObject.on('pm:create', e => {
+  mapObject.on('pm:create', (e) => {
     const layer = e.layer
     const geoJsonLayer = convertGeoJSONWithPointRadius(layer)
 
@@ -273,14 +298,18 @@ const handleEvents = () => {
     drawnItems.removeLayer(layer)
   })
 
-  mapObject.on('pm:remove', e => {
+  mapObject.on('pm:remove', (e) => {
     const geoArray = []
     const layers = Object.keys(drawnItems.getLayers()[0]._layers)
 
-    layers.forEach(layerId => {
+    layers.forEach((layerId) => {
       if (Number(layerId) !== Number(e.layer._leaflet_id)) {
         if (drawnItems.getLayers()[0]._layers[layerId]) {
-          geoArray.push(convertGeoJSONWithPointRadius(drawnItems.getLayers()[0]._layers[layerId]))
+          geoArray.push(
+            convertGeoJSONWithPointRadius(
+              drawnItems.getLayers()[0]._layers[layerId]
+            )
+          )
         }
       }
     })
@@ -288,14 +317,14 @@ const handleEvents = () => {
   })
 }
 
-const editedLayer = e => {
+const editedLayer = (e) => {
   const layer = e.target
 
   emit('shapesEdited', layer)
   emit('geoJsonLayersEdited', convertGeoJSONWithPointRadius(layer))
 }
 
-const convertGeoJSONWithPointRadius = layer => {
+const convertGeoJSONWithPointRadius = (layer) => {
   const layerJson = layer.toGeoJSON()
 
   if (typeof layer.getRadius === 'function') {
@@ -305,26 +334,52 @@ const convertGeoJSONWithPointRadius = layer => {
   return layerJson
 }
 
-const addJsonCircle = layer => {
-  return L.circle([layer.geometry.coordinates[1], layer.geometry.coordinates[0]], Number(layer.properties.radius))
+const addJsonCircle = (layer) => {
+  return L.circle(
+    [layer.geometry.coordinates[1], layer.geometry.coordinates[0]],
+    Number(layer.properties.radius)
+  )
 }
 
-const geoJSON = geoJsonFeatures => {
-  if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
-  addGeoJsonLayer(geoJsonFeatures)
+const geoJSON = (geoJsonFeatures) => {
+  if (geoJsonFeatures?.length === 0) {
+    mapObject.setView([0, 0], props.zoom)
+  } else {
+    addGeoJsonLayer(geoJsonFeatures)
+  }
 }
 
-const addGeoJsonLayer = geoJsonLayers => {
+const addGeoJsonLayer = (geoJsonLayers) => {
   let index = -1
 
   L.geoJson(geoJsonLayers, {
-    style: (_) => {
+    style: (feature) => {
       index = index + 1
-      return randomShapeStyle(index)
+      return {
+        ...randomShapeStyle(index),
+        ...feature.properties?.style
+      }
     },
-    filter: feature => {
-      if (feature.properties?.geographic_area) {
-        geographicArea.addLayer(L.GeoJSON.geometryToLayer(feature, Object.assign({}, feature.properties?.is_absent ? stripeShapeStyle(index) : randomShapeStyle(index), { pmIgnore: true })))
+    filter: (feature) => {
+      if (
+        feature.properties?.geographic_area ||
+        feature.properties?.aggregate ||
+        feature.properties?.type === ASSERTED_DISTRIBUTION ||
+        feature.properties?.type === GEOGRAPHIC_AREA
+      ) {
+        geographicArea.addLayer(
+          L.GeoJSON.geometryToLayer(
+            feature,
+            Object.assign(
+              {},
+              feature.properties?.is_absent
+                ? stripeShapeStyle(-1)
+                : randomShapeStyle(-1),
+              { ...feature.properties?.style },
+              { pmIgnore: true }
+            )
+          )
+        )
         return false
       }
       return true
@@ -366,22 +421,24 @@ const createMarker = (feature, latlng) => {
   return marker
 }
 
-const generateHue = index => {
+const generateHue = (index) => {
   const PHI = (1 + Math.sqrt(5)) / 2
   const n = index * PHI - Math.floor(index * PHI)
 
-  return `hsl(${Math.floor(n * 256)}, ${Math.floor(n * 50) + 100}% , ${(Math.floor((n) + 1) * 60) + 10}%)`
+  return `hsl(${Math.floor(n * 256)}, ${Math.floor(n * 50) + 100}% , ${
+    Math.floor(n + 1) * 60 + 10
+  }%)`
 }
 
-const randomShapeStyle = index => ({
+const randomShapeStyle = (index) => ({
   weight: 1,
   color: generateHue(index + 6),
   dashArray: '3',
   dashOffset: '3',
-  fillOpacity: 0.5
+  fillOpacity: 0.25
 })
 
-const stripeShapeStyle = index => {
+const stripeShapeStyle = (index) => {
   const color = generateHue(index)
   const stripes = new L.StripePattern({
     patternContentUnits: 'objectBoundingBox',
@@ -418,7 +475,7 @@ const onMyFeatures = (feature, layer) => {
   layer.pm.disable()
 }
 
-const zoomToFeature = e => {
+const zoomToFeature = (e) => {
   if (!props.zoomOnClick) return
   const layer = e.target
   if (props.fitBounds) {
@@ -430,4 +487,17 @@ const zoomToFeature = e => {
   }
 }
 
+function getMapObject() {
+  return mapObject
+}
+
+defineExpose({
+  getMapObject
+})
 </script>
+
+<style>
+.leaflet-interactive:hover {
+  //filter: hue-rotate(90deg);
+}
+</style>

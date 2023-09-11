@@ -14,7 +14,6 @@ class CollectingEventsController < ApplicationController
       end
       format.json {
         @collecting_events = Queries::CollectingEvent::Filter.new(params).all
-        .where(project_id: sessions_current_project_id)
         .page(params[:page])
         .per(params[:per])
       }
@@ -107,7 +106,7 @@ class CollectingEventsController < ApplicationController
 
   def attributes
     render json: ::CollectingEvent.columns.select{
-      |a| Queries::CollectingEvent::Filter::ATTRIBUTES.include?(
+      |a| ([:cached_level0_geographic_name, :cached_level1_geographic_name, :cached_level2_geographic_name ] + Queries::CollectingEvent::Filter::ATTRIBUTES).include?(
         a.name.to_sym)
     }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
@@ -123,6 +122,18 @@ class CollectingEventsController < ApplicationController
 
   def autocomplete
     @collecting_events = Queries::CollectingEvent::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
+  end
+
+  # POST /collecting_events/batch_update.json?collecting_event_query=<>&collecting_event={}
+  def batch_update
+    if c = CollectingEvent.batch_update(
+        collecting_event: collecting_event_params.merge(by: sessions_current_user_id) ,
+        collecting_event_query: params[:collecting_event_query]
+     )
+      render json: {}, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
   end
 
   # GET /collecting_events/autocomplete_collecting_event_verbatim_locality?term=asdf
@@ -214,7 +225,7 @@ class CollectingEventsController < ApplicationController
       render 'collecting_events/batch_load/gpx/preview'
       # render '/shared/data/all/batch_load/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end

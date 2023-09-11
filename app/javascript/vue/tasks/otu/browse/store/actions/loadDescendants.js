@@ -1,6 +1,6 @@
 import { MutationNames } from '../mutations/mutations'
-import { chunkArray } from 'helpers/arrays.js'
-import { Georeference, TaxonName, CollectingEvent } from 'routes/endpoints'
+import { chunkArray } from '@/helpers/arrays.js'
+import { Georeference, TaxonName, CollectingEvent } from '@/routes/endpoints'
 
 const MAX_PER_CALL = 50
 
@@ -87,7 +87,7 @@ export default ({ commit, state }, otu) => {
         (tn) => tn.id !== otu.taxon_name_id
       )
 
-      getAllCollectingEvents(descendants.taxon_names).then(
+      /*       getAllCollectingEvents(descendants.taxon_names).then(
         (collectingEvents) => {
           descendants.collecting_events = collectingEvents
           getAllGeoreferences(collectingEvents.map((ce) => ce.id)).then(
@@ -98,7 +98,9 @@ export default ({ commit, state }, otu) => {
             }
           )
         }
-      )
+      ) */
+      commit(MutationNames.SetDescendants, descendants)
+      state.loadState.descendantsDistribution = false
     })
     .finally(() => {
       state.loadState.descendants = false

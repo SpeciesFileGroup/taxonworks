@@ -51,6 +51,19 @@ class PinboardItemsController < ApplicationController
     end
   end
 
+  def clear
+    if PinboardItem.clear(
+      **params.permit(:klass).to_h
+      .merge(
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
+        .symbolize_keys)
+      render json: {}, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
   private
   def set_pinboard_item
     @pinboard_item = PinboardItem.with_project_id(sessions_current_project_id).find(params[:id])

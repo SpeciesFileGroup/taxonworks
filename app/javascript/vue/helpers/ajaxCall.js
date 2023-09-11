@@ -21,12 +21,12 @@ const axios = Axios.create({
 const ajaxCall = (type, url, data = {}, config = {}) => {
   const cancelFunction = config.cancelRequest || data.cancelRequest
   const requestId = config.requestId || data.requestId
-  const CSRFToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+  const CSRFToken = document
+    .querySelector('meta[name="csrf-token"]')
+    .getAttribute('content')
   const defaultHeaders = { 'X-CSRF-Token': CSRFToken }
 
-  if (
-    type === REQUEST_TYPE.Get ||
-    type === REQUEST_TYPE.Delete) {
+  if (type === REQUEST_TYPE.Get || type === REQUEST_TYPE.Delete) {
     data = {
       headers: defaultHeaders,
       ...data
@@ -54,9 +54,7 @@ const ajaxCall = (type, url, data = {}, config = {}) => {
   if (cancelFunction) {
     const cancelToken = { cancelToken: new CancelToken(cancelFunction) }
 
-    if (
-      type === REQUEST_TYPE.Get ||
-      type === REQUEST_TYPE.Delete) {
+    if (type === REQUEST_TYPE.Get || type === REQUEST_TYPE.Delete) {
       Object.assign(data, cancelToken)
     } else {
       Object.assign(config, cancelToken)
@@ -67,42 +65,61 @@ const ajaxCall = (type, url, data = {}, config = {}) => {
   }
 
   return new Promise((resolve, reject) => {
-    axios[type](url, data, config).then(response => {
-      response = setDataProperty(response)
-      printDevelopmentResponse(response)
+    axios[type](url, data, config)
+      .then((response) => {
+        response = setDataProperty(response)
+        printDevelopmentResponse(response)
 
-      resolve(response)
-    }).catch(error => {
-      if (Axios.isCancel(error)) {
-        return reject(error)
-      }
+        resolve(response)
+      })
+      .catch((error) => {
+        if (Axios.isCancel(error)) {
+          return reject(error)
+        }
 
-      error.response = setDataProperty(error.response)
-      printDevelopmentResponse(error.response)
+        error.response = setDataProperty(error.response)
+        printDevelopmentResponse(error.response)
 
-      switch (error.response.status) {
-        case 404:
-          break
-        default:
-          handleError(error.response.body)
-      }
+        switch (error.response.status) {
+          case 404:
+            break
+          default:
+            handleError(error.response.body)
+        }
 
-      reject(error.response)
-    })
+        reject(error.response)
+      })
   })
 }
 
-const handleError = (json) => {
-  if (typeof json !== 'object') return
+const handleError = (error) => {
+  if (typeof error === 'object') {
+    TW.workbench.alert.create(createErrorList(error), 'error')
+  } else {
+    TW.workbench.alert.create(error, 'error')
+  }
+}
 
+function createErrorList(error) {
   const removeTitleFor = ['base']
 
-  TW.workbench.alert.create(Object.entries(json).map(([key, errors]) => `
-    ${removeTitleFor.includes(key) ? '' : `<span data-icon="warning">${key}:</span>`}
+  return Object.entries(error)
+    .map(
+      ([key, errors]) => `
+    ${
+      removeTitleFor.includes(key)
+        ? ''
+        : `<span data-icon="warning">${key}:</span>`
+    }
       <ul>
-        <li>${Array.isArray(errors) ? errors.map(line => capitalize(line)).join('</li><li>') : errors}</li>
+        <li>${
+          Array.isArray(errors)
+            ? errors.map((line) => capitalize(line)).join('</li><li>')
+            : errors
+        }</li>
       </ul>`
-  ).join(''), 'error')
+    )
+    .join('')
 }
 
 const setDataProperty = (response) => {

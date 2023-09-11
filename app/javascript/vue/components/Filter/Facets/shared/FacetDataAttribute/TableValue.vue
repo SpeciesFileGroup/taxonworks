@@ -40,8 +40,8 @@
 </template>
 
 <script setup>
-import VIcon from 'components/ui/VIcon/index.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 defineProps({
   values: {

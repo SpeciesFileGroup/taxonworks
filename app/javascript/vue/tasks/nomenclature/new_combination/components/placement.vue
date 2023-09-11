@@ -14,7 +14,7 @@
   </button>
 </template>
 <script>
-import { TaxonName } from 'routes/endpoints'
+import { TaxonName } from '@/routes/endpoints'
 
 export default {
   props: {

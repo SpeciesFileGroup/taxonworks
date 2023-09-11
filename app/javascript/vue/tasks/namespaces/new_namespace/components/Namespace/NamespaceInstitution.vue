@@ -1,21 +1,24 @@
 <template>
   <div
     class="field label-above"
-    v-help.namespace.form.institution>
-    <label>Institution (or person responsible for minting this namespace)</label>
+    v-help.namespace.form.institution
+  >
+    <label
+      >Institution (or person responsible for minting this namespace)</label
+    >
     <autocomplete
       param="term"
       url="/repositories/autocomplete"
       v-model="institution"
       label="label"
-      @getItem="setInstitution"/>
+      @getItem="setInstitution"
+    />
   </div>
 </template>
 
 <script setup>
-
 import { computed } from 'vue'
-import Autocomplete from 'components/ui/Autocomplete.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 
 const props = defineProps({
   modelValue: {
@@ -27,10 +30,10 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const institution = computed({
-  get () {
+  get() {
     return props.modelValue
   },
-  set (value) {
+  set(value) {
     emit('update:modelValue', value)
   }
 })

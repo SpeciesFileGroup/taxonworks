@@ -30,8 +30,8 @@
 import PredicateForm from './components/newPredicate'
 import ModelComponent from './components/model'
 import PredicatesComponent from './components/predicates'
-import { ControlledVocabularyTerm, Project } from 'routes/endpoints'
-import { addToArray } from 'helpers/arrays'
+import { ControlledVocabularyTerm, Project } from '@/routes/endpoints'
+import { addToArray } from '@/helpers/arrays'
 import { computed, ref } from 'vue'
 
 const modelList = computed(

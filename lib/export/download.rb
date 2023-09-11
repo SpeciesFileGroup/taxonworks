@@ -17,7 +17,7 @@ module Export::Download
     column_names = scope.columns_hash.keys
     column_names = sort_column_headers(column_names, column_order.map(&:to_s)) if column_order.any?
 
-    h = CSV.new(column_names.join(','), header_converters: header_converters, headers: true)
+    h = CSV.new(column_names.join(','), header_converters:, headers: true)
     h.read
 
     headers = CSV::Row.new(h.headers, h.headers, true).headers
@@ -27,7 +27,7 @@ module Export::Download
     # Pluck rows is from postgresql_cursor gem
     #puts Rainbow('preparing data: ' + (Benchmark.measure do
     scope.pluck_rows(*column_names).each do |o|
-        o.each_with_index do |value, index|
+      o.each_with_index do |value, index|
         tbl[index] << Utilities::Strings.sanitize_for_csv(value)
       end
       # If keys are not deterministic: .attributes.values_at(*column_names).collect{|v| Utilities::Strings.sanitize_for_csv(v) }
@@ -86,7 +86,7 @@ module Export::Download
     to_delete = []
 
     table.each_with_index do |col, index|
-      to_delete << index unless col.inject { |_, c| break true if !c.blank? }
+      to_delete << index unless col.inject { |_, c| break true if c.present? }
     end
 
     to_delete.each_with_index { |x, i| table.delete_at(x-i) }

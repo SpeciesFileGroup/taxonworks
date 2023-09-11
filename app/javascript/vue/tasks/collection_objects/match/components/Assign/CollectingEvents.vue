@@ -3,7 +3,8 @@
     <h2>Collecting events</h2>
     <spinner-component
       v-if="isSaving"
-      legend="Saving..."/>
+      legend="Saving..."
+    />
     <fieldset>
       <legend>Collecting events</legend>
       <smart-selector
@@ -16,11 +17,13 @@
       />
       <p
         v-if="collectingEvent"
-        class="horizontal-left-content">
-        <span v-html="collectingEventLabel"/>
-        <span 
+        class="horizontal-left-content"
+      >
+        <span v-html="collectingEventLabel" />
+        <span
           class="button btn-undo circle-button button-default"
-          @click="setCollectingEvent(undefined)"/>
+          @click="setCollectingEvent(undefined)"
+        />
       </p>
     </fieldset>
     <div class="margin-medium-top">
@@ -28,7 +31,8 @@
         type="button"
         class="button normal-input button-submit"
         :disabled="!validateFields"
-        @click="addCollectingEvent()">
+        @click="addCollectingEvent()"
+      >
         Set
       </button>
     </div>
@@ -36,10 +40,9 @@
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
-import SpinnerComponent from 'components/spinner'
-import { CollectionObject } from 'routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SpinnerComponent from '@/components/spinner'
+import { CollectionObject } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -55,17 +58,17 @@ export default {
   },
 
   computed: {
-    collectingEventLabel () {
+    collectingEventLabel() {
       if (!this.collectingEvent) return
       return this.collectingEvent?.object_tag || this.collectingEvent.html_label
     },
 
-    validateFields () {
+    validateFields() {
       return this.collectingEvent && this.ids.length
     }
   },
 
-  data () {
+  data() {
     return {
       collectingEvent: undefined,
       isSaving: false,
@@ -74,33 +77,44 @@ export default {
   },
 
   methods: {
-    setCollectingEvent (ce) {
+    setCollectingEvent(ce) {
       this.collectingEvent = ce
     },
 
-    addCollectingEvent (position = 0) {
+    addCollectingEvent(position = 0) {
       const promises = []
 
       for (let i = 0; i < this.maxPerCall; i++) {
         if (position < this.ids.length) {
-          promises.push(new Promise((resolve, reject) => {
-            const collection_object = { collecting_event_id: this.collectingEvent.id }
+          promises.push(
+            new Promise((resolve, reject) => {
+              const collection_object = {
+                collecting_event_id: this.collectingEvent.id
+              }
 
-            CollectionObject.update(this.ids[position], { collection_object }).then(response => {
-              resolve()
-            }, () => {
-              resolve()
+              CollectionObject.update(this.ids[position], {
+                collection_object
+              }).then(
+                (response) => {
+                  resolve()
+                },
+                () => {
+                  resolve()
+                }
+              )
             })
-          }))
+          )
           position++
         }
       }
-      Promise.all(promises).then(response => {
-        if (position < this.ids.length)
-          this.addCollectingEvent(position)
+      Promise.all(promises).then((response) => {
+        if (position < this.ids.length) this.addCollectingEvent(position)
         else {
           this.isSaving = false
-          TW.workbench.alert.create('Collection objects was successfully updated.', 'notice')
+          TW.workbench.alert.create(
+            'Collection objects was successfully updated.',
+            'notice'
+          )
         }
       })
     }

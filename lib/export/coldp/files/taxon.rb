@@ -84,7 +84,7 @@ module Export::Coldp::Files::Taxon
   #    Confidence level
   #       confidence_validated_at (last time this confidence level was deemed OK)
   def self.according_to_date(otu)
-    # a) Dynamic - !! most recent update_at stamp for *any* OTU tied data -> this is a big grind: if so add cached_touched_on_date to Otu
+    # a) Dynamic - !! most recent updated_at stamp for *any* OTU tied data -> this is a big grind: if so add cached_touched_on_date to Otu
     # b) modify Confidence level to include date
     # c) review what SFs does in their model
     nil
@@ -110,7 +110,7 @@ module Export::Coldp::Files::Taxon
     nil
   end
 
-  def self.generate(otus, root_otu_id = nil, reference_csv = nil, prefer_unlabelled_otus: true)
+  def self.generate(otus, project_members, root_otu_id = nil, reference_csv = nil, prefer_unlabelled_otus: true)
 
     # Until we have RC5 articulations we are simplifying handling the fact
     # that one taxon name can be used for many OTUs. Track to see that
@@ -140,6 +140,8 @@ module Export::Coldp::Files::Taxon
         environment
         link
         remarks
+        modified
+        modifiedBy
       }
 
       taxon_remarks_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Taxon.remarks',
@@ -182,25 +184,27 @@ module Export::Coldp::Files::Taxon
         parent_id = (root_otu_id == o.id ? nil : parent_id )
 
         csv << [
-          o.id,                                              # ID (Taxon)
-          parent_id,                                         # parentID (Taxon)
-          o.taxon_name.id,                                   # nameID (Name)
-          name_phrase(o, name_phrase_vocab_id),              # namePhrase
-          provisional(o),                                    # provisional
-          according_to_id(o),                                # accordingToID
-          scrutinizer(o),                                    # scrutinizer
-          scrutinizer_id(o),                                 # scrutinizerID
-          scrutinizer_date(o),                               # scrutizinerDate
-          reference_id(sources),                             # referenceID
-          predicate_value(o, :extinct),              # extinct
-          predicate_value(o, :temporal_range_start), # temporalRangeStart
-          predicate_value(o, :temporal_range_end),   # temporalRangeEnd
-          predicate_value(o, :lifezone),             # environment (formerly named lifezone)
-          link(o),                                   # link
-          remarks(o, taxon_remarks_vocab_id)         # remarks
+          o.id,                                                                # ID (Taxon)
+          parent_id,                                                           # parentID (Taxon)
+          o.taxon_name.id,                                                     # nameID (Name)
+          name_phrase(o, name_phrase_vocab_id),                                # namePhrase
+          provisional(o),                                                      # provisional
+          according_to_id(o),                                                  # accordingToID
+          scrutinizer(o),                                                      # scrutinizer
+          scrutinizer_id(o),                                                   # scrutinizerID
+          scrutinizer_date(o),                                                 # scrutizinerDate
+          reference_id(sources),                                               # referenceID
+          predicate_value(o, :extinct),                                        # extinct
+          predicate_value(o, :temporal_range_start),                           # temporalRangeStart
+          predicate_value(o, :temporal_range_end),                             # temporalRangeEnd
+          predicate_value(o, :lifezone),                                       # environment (formerly named lifezone)
+          link(o),                                                             # link
+          Export::Coldp.sanitize_remarks(remarks(o, taxon_remarks_vocab_id)),  # remarks
+          Export::Coldp.modified(o[:updated_at]),                              # modified
+          Export::Coldp.modified_by(o[:updated_by_id], project_members)        # modifiedBy
         ]
 
-        Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv
+        Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
       end
     end
   end

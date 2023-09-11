@@ -1,6 +1,6 @@
-import { DATA_ATTRIBUTE_FILTER_PROPERTY } from 'constants/index.js'
+import { DATA_ATTRIBUTE_FILTER_PROPERTY } from '@/constants/index.js'
 
-function toJSON (str) {
+function toJSON(str) {
   try {
     return JSON.parse(str)
   } catch (_) {
@@ -10,16 +10,18 @@ function toJSON (str) {
 
 export default () => {
   const parameters = {}
-  const elements = [...document.querySelectorAll('*')]
-    .filter(el => [...el.attributes].some(
-      attr => attr.name.startsWith(DATA_ATTRIBUTE_FILTER_PROPERTY)
-    ))
+  const elements = [...document.querySelectorAll('*')].filter((el) =>
+    [...el.attributes].some((attr) =>
+      attr.name.startsWith(DATA_ATTRIBUTE_FILTER_PROPERTY)
+    )
+  )
 
-  elements.forEach(el => {
-    const filterAttributes = el.getAttributeNames()
-      .filter(attr => attr.startsWith(DATA_ATTRIBUTE_FILTER_PROPERTY))
+  elements.forEach((el) => {
+    const filterAttributes = el
+      .getAttributeNames()
+      .filter((attr) => attr.startsWith(DATA_ATTRIBUTE_FILTER_PROPERTY))
 
-    filterAttributes.forEach(attr => {
+    filterAttributes.forEach((attr) => {
       const value = el.getAttribute(attr)
       const key = attr.substring(DATA_ATTRIBUTE_FILTER_PROPERTY.length + 1)
       const parameter = parameters[key]

@@ -13,7 +13,7 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(params).all
+        @taxon_names = ::Queries::TaxonName::Filter.new(params).all
         .page(params[:page])
         .per(params[:per])
       }
@@ -32,7 +32,6 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/1/edit
   def edit
-    @taxon_name.source = Source.new if !@taxon_name.source
   end
 
   # POST /taxon_names
@@ -94,8 +93,9 @@ class TaxonNamesController < ApplicationController
 
   def autocomplete
     render json: {} and return if params[:term].blank?
-    @taxon_names = Queries::TaxonName::Autocomplete.new(
+    @taxon_names = ::Queries::TaxonName::Autocomplete.new(
       params[:term],
+      exact: 'true',
       **autocomplete_params
     ).autocomplete
   end
@@ -133,13 +133,13 @@ class TaxonNamesController < ApplicationController
 
   def random
     redirect_to browse_nomenclature_task_path(
-      taxon_name_id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pluck(:id).first
+      taxon_name_id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pick(:id)
     )
   end
 
   def rank_table
-    @query = Queries::TaxonName::Tabular.new(
-      ancestor_id: params.require(:ancestor_id),
+    @query = ::Queries::TaxonName::Tabular.new(
+      taxon_name_id: params.require(:taxon_name_id), # this is one of the few places
       ranks: params.require(:ranks),
       fieldsets: params[:fieldsets],
       limit: params[:limit],
@@ -185,23 +185,23 @@ class TaxonNamesController < ApplicationController
     render :batch_load
   end
 
-  def preview_castor_batch_load
+  def preview_nomen_batch_load
     if params[:file]
-      @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(**batch_params)
+      @result = BatchLoad::Import::TaxonNames::NomenInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :nomen_taxon_names_md5)
-      render 'taxon_names/batch_load/castor/preview'
+      render 'taxon_names/batch_load/nomen/preview'
     else
       flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
 
-  def create_castor_batch_load
+  def create_nomen_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :nomen_taxon_names_md5)
-      @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(**batch_params)
+      @result = BatchLoad::Import::TaxonNames::NomenInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
-        render 'taxon_names/batch_load/castor/create' and return
+        render 'taxon_names/batch_load/nomen/create' and return
       else
         flash[:alert] = 'Batch import failed.'
       end
@@ -226,7 +226,7 @@ class TaxonNamesController < ApplicationController
 
   # GET /api/v1/taxon_names
   def api_index
-    @taxon_names = Queries::TaxonName::Filter.new(params.merge!(api: true)).all
+    @taxon_names = ::Queries::TaxonName::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('taxon_names.id')
       .page(params[:page])
@@ -245,6 +245,7 @@ class TaxonNamesController < ApplicationController
   end
 
   # GET /api/v1/taxon_names/:id/inventory/catalog
+  # Contains stats block
   def api_catalog
     @data = helpers.recursive_catalog_json(taxon_name: @taxon_name, target_depth: params[:target_depth] || 0 )
     render '/taxon_names/api/v1/catalog'
@@ -288,6 +289,7 @@ class TaxonNamesController < ApplicationController
           :last_name, :first_name, :suffix, :prefix
         ]
       ],
+      family_group_name_form_relationship_attributes: [:id, :_destroy, :object_taxon_name_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
       taxon_name_classifications_attributes: [:id, :_destroy, :type]
     )
@@ -307,4 +309,4 @@ class TaxonNamesController < ApplicationController
 
 end
 
-require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/castor_interpreter.rb'
+require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/nomen_interpreter.rb'

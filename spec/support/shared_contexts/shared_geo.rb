@@ -441,7 +441,9 @@ shared_context 'stuff for complex geo tests' do
                                                 RSPEC_GEO_FACTORY.point(-33, -23, 0.0),
                                                 RSPEC_GEO_FACTORY.point(-21, -23, 0.0),
                                                 RSPEC_GEO_FACTORY.point(-21, -11, 0.0),
-                                                RSPEC_GEO_FACTORY.point(-27, -13, 0.0)]) }
+                                                RSPEC_GEO_FACTORY.point(-27, -13, 0.0),
+                                                RSPEC_GEO_FACTORY.point(-33, -11, 0.0),
+  ]) }
 
   let(:shape_k) { RSPEC_GEO_FACTORY.polygon(list_k) }
 

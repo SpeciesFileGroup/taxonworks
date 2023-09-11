@@ -22,7 +22,7 @@
               :value="type.id"
               name="collection-object-type"
               @click="typeId = type.id"
-            >
+            />
             {{ type.name }}
           </label>
         </li>
@@ -42,10 +42,9 @@
 </template>
 
 <script>
-
-import SpinnerComponent from 'components/spinner'
-import { CollectionObject, PreparationType } from 'routes/endpoints'
-import { chunkArray } from 'helpers/arrays'
+import SpinnerComponent from '@/components/spinner'
+import { CollectionObject, PreparationType } from '@/routes/endpoints'
+import { chunkArray } from '@/helpers/arrays'
 
 export default {
   components: {
@@ -59,7 +58,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       maxPerCall: 5,
       isSaving: false,
@@ -69,12 +68,15 @@ export default {
   },
 
   computed: {
-    chunkList () {
-      return chunkArray(this.preparationList, Math.ceil(this.preparationList.length / 3))
+    chunkList() {
+      return chunkArray(
+        this.preparationList,
+        Math.ceil(this.preparationList.length / 3)
+      )
     }
   },
 
-  created () {
+  created() {
     PreparationType.all().then(({ body }) => {
       this.preparationList = [
         ...body,
@@ -87,20 +89,28 @@ export default {
   },
 
   methods: {
-    setPreparationType (preparationId = this.typeId, arrayIds = this.ids.slice()) {
+    setPreparationType(
+      preparationId = this.typeId,
+      arrayIds = this.ids.slice()
+    ) {
       const ids = arrayIds.splice(0, this.maxPerCall)
-      const requests = ids.map(id => CollectionObject.update(id, {
-        collection_object: {
-          preparation_type_id: preparationId
-        }
-      }))
+      const requests = ids.map((id) =>
+        CollectionObject.update(id, {
+          collection_object: {
+            preparation_type_id: preparationId
+          }
+        })
+      )
 
       Promise.allSettled(requests).then(() => {
         if (arrayIds.length) {
           this.setPreparationType(preparationId, arrayIds)
         } else {
           this.isSaving = false
-          TW.workbench.alert.create('Preparation type was successfully set.', 'notice')
+          TW.workbench.alert.create(
+            'Preparation type was successfully set.',
+            'notice'
+          )
         }
       })
     }

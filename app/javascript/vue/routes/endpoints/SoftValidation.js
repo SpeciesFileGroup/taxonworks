@@ -1,5 +1,5 @@
 import { filterParams } from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const permitParams = {
   only_sets: [],
@@ -9,7 +9,18 @@ const permitParams = {
 }
 
 export const SoftValidation = {
-  fix: (globalId, params) => AjaxCall('post', `/soft_validations/fix?global_id=${globalId}`, filterParams(params, permitParams)),
+  fix: (globalId, params) =>
+    AjaxCall(
+      'post',
+      `/soft_validations/fix?global_id=${globalId}`,
+      filterParams(params, permitParams)
+    ),
 
-  find: (globalId, config) => AjaxCall('get', '/soft_validations/validate', { params: { global_id: globalId } }, config)
+  find: (globalId, config) =>
+    AjaxCall(
+      'get',
+      '/soft_validations/validate',
+      { params: { global_id: globalId } },
+      config
+    )
 }

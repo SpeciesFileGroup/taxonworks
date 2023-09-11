@@ -95,12 +95,19 @@ module Queries
       end
 
       def annotated_class
-        ::Queries::Annotator.annotated_class(params, ::Identifier)
+        # !! May be some base-class requirements here?!
+        if identifier_object_type.present?
+          identifier_object_type
+        elsif polymorphic_type.present?
+          [polymorphic_type]
+        else
+          [::Queries::Annotator.annotated_class(params, ::Identifier)]
+        end
       end
 
       def ignores_project?
         # Use the same constant - TODO: move it dual annotator likely
-        ::Identifier::ALWAYS_COMMUNITY.include?( annotated_class )
+        ::Identifier::ALWAYS_COMMUNITY & annotated_class == annotated_class
       end
 
       # Ommits non community klasses of identifiers
@@ -143,7 +150,7 @@ module Queries
         o = table
         n = ::Namespace.arel_table
 
-        a = o.alias("a_")
+        a = o.alias('a_')
         b = o.project(a[Arel.star]).from(a)
 
         c = n.alias('n1')
@@ -161,6 +168,14 @@ module Queries
         b = b.as('z5_')
 
         ::Identifier.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+      end
+
+      def project_id_facet
+        if ignores_project?
+          nil
+       else
+         super
+       end
       end
 
       # @return [ActiveRecord::Relation]

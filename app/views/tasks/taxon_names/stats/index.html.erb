@@ -1,0 +1,41 @@
+<%= content_for :head do -%>
+  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js",
+    "https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"  %>
+<% end %>
+
+<%= tag.h1 'Task - Nomenclature by year', id: :top -%>
+
+<%= link_to('Back to filter', filter_taxon_names_task_path) %>
+
+<%= tag.p @taxon_names.where('taxon_names.cached_nomenclature_date is null').count.to_s + ' Taxon name records in this result do not have data computed.', class: [:feedback, 'feedback-warning', 'feedback-thin'] %>
+
+<div style="width: 95%">
+  <% d1 = taxon_names_count_by_validity_and_year(@taxon_names) %>
+  <%= column_chart d1[:data], height: '600px', stacked: true, download: true, descrete: true, ytitle: 'Total', xtitle: 'Year', title: "Taxon names per cached nomenclature year" %>
+</div>
+
+<div style="width: 95%">
+  <% d2 = taxon_names_cumulative_count_by_validity_and_year(@taxon_names) %>
+  <%= column_chart d2[:data], height: '600px', stacked: true, download: true, descrete: true, ytitle: 'Total', xtitle: 'Year', title: "Taxon names per cached nomenclature year - cumulative" %>
+</div>
+
+<hr>
+
+<div class="flexbox flex-middle">
+  <div class="item">
+    <h2>
+      Per year
+      <%= copy_table_to_clipboard('#table-per-year') %>
+    </h2>
+
+    <%= taxon_name_year_data_table(d1, id: 'table-per-year') %>
+  </div>
+
+  <div class="item">
+    <h2>
+      Cumulative
+      <%= copy_table_to_clipboard('#table-cumulative') %>
+    </h2>
+    <%= taxon_name_year_data_table(d2, id: 'table-cumulative') %>
+  </div>
+</div>

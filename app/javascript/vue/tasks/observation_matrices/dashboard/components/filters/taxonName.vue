@@ -13,25 +13,27 @@
         :add-params="{
           'type[]': 'Protonym'
         }"
-        @getItem="getTaxon"/>
+        @getItem="getTaxon"
+      />
     </div>
     <span
       class="horizontal-left-content"
-      v-if="modelValue">
-      <span v-html="modelValue.object_tag"/>
+      v-if="modelValue"
+    >
+      <span v-html="modelValue.object_tag" />
       <span
         class="button circle-button btn-undo button-default"
-        @click="$emit('update:modelValue', undefined)"/>
+        @click="$emit('update:modelValue', undefined)"
+      />
     </span>
   </div>
 </template>
 
 <script>
-
-import Autocomplete from 'components/ui/Autocomplete'
-import { TaxonName } from 'routes/endpoints'
+import Autocomplete from '@/components/ui/Autocomplete'
+import { TaxonName } from '@/routes/endpoints'
 import { MutationNames } from '../../store/mutations/mutations'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
 
 export default {
   components: { Autocomplete },
@@ -45,16 +47,16 @@ export default {
 
   emits: ['update:modelValue'],
 
-  mounted () {
+  mounted() {
     const params = URLParamsToJSON(location.href)
-    if (params.ancestor_id) {
-      this.getTaxon({ id: params.ancestor_id })
+    if (params.taxon_name_id) {
+      this.getTaxon({ id: params.taxon_name_id })
     }
   },
 
   methods: {
-    getTaxon (event) {
-      TaxonName.find(event.id).then(response => {
+    getTaxon(event) {
+      TaxonName.find(event.id).then((response) => {
         this.$store.commit(MutationNames.SetTaxon, response.body)
         this.$emit('update:modelValue', response.body)
       })
@@ -64,15 +66,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .field {
-    label {
-      display: block;
-    }
+.field {
+  label {
+    display: block;
   }
-  .field-year {
-    width: 60px;
-  }
-  :deep(.vue-autocomplete-list) {
-    min-width: 800px;
-  }
+}
+.field-year {
+  width: 60px;
+}
+:deep(.vue-autocomplete-list) {
+  min-width: 800px;
+}
 </style>

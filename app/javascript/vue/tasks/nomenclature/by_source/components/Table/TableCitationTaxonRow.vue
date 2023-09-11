@@ -22,19 +22,18 @@
       >
         <span
           v-html="
-            citation.citation_object.type === COMBINATION
-              ? [
-                  citation.citation_object.cached_html,
-                  citation.citation_object.cached_author_year
-                ].join(' ')
-              : citation.citation_object.original_combination
+            citation.citation_object?.original_combination ||
+            [
+              citation.citation_object.cached_html,
+              citation.citation_object.cached_author_year
+            ].join(' ')
           "
         />
         {{ isInvalid(citation.citation_object) }}
       </a>
     </td>
     <td>
-      <div class="horizontal-right-content">
+      <div class="horizontal-right-content gap-small">
         <ConfidenceButton :global-id="citation.citation_object.global_id" />
         <RadialAnnotator :global-id="citation.citation_object.global_id" />
         <VBtn
@@ -53,12 +52,12 @@
 </template>
 
 <script setup>
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import ConfidenceButton from 'components/defaultConfidence.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import ConfidenceButton from '@/components/defaultConfidence.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import useRow from '../../composables/useRow.js'
-import { COMBINATION } from 'constants/index.js'
+import { COMBINATION } from '@/constants/index.js'
 
 const props = defineProps({
   citation: {

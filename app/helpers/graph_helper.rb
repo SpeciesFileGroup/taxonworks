@@ -23,7 +23,35 @@ module GraphHelper
     when 'Image'
       image_graph(object, citations: true, depictions: true).to_json
     else
-      g = Export::Graph.new( object: object )
+      g = Export::Graph.new( object: )
+      g.to_json
+    end
+  end
+
+  def object_graph2(object)
+    return nil if object.nil?
+
+    case object.class.base_class.name
+    when 'CollectionObject'
+      collection_object_graph(object, collecting_event: true, taxon_determinations: true, biological_associations: true, images: true).to_json
+    when 'CollectingEvent'
+      collecting_event_graph(object, collection_objects: true).to_json
+    when 'TaxonName'
+      taxon_name_graph(object, children: true, parents: true, otus: true, synonymy: true).to_json
+    when 'Otu'
+      otu_graph(object, collection_objects: true, taxon_name: true, synonymy: true, biological_associations: true, asserted_distributions: true).to_json
+    when 'TaxonDetermination'
+      taxon_determination_graph(object, collection_object: true, taxon_names: true).to_json
+    when 'Person'
+      person_graph(object).to_json
+    when 'Citation'
+      citation_graph(object, source: true, citation_object: true, topics: true).to_json
+    when 'Source'
+      source_graph(object, citations: true, authors: true, editors: true).to_json
+    when 'Image'
+      image_graph(object, citations: true, depictions: true).to_json
+    else
+      g = Export::Graph.new( object: )
       g.to_json
     end
   end
@@ -157,7 +185,7 @@ module GraphHelper
 
     c.georeferences.each do |r|
       g.add(r,c)
-      r.georeferencers.each do |p|
+      r.georeference_authors.each do |p|
         g.add(p,r)
       end
     end
@@ -171,7 +199,7 @@ module GraphHelper
     g = initialize_graph(graph, o, target)
 
     if taxon_name
-      taxon_name_graph(o.taxon_name, graph: g, target: o, synonymy: synonymy, parents: true)
+      taxon_name_graph(o.taxon_name, graph: g, target: o, synonymy:, parents: true)
     end
 
     if collection_objects
@@ -191,7 +219,7 @@ module GraphHelper
       end
     end
 
-    if asserted_distributions 
+    if asserted_distributions
       o.asserted_distributions.each do |a|
 
         g.add_node(a)
@@ -256,9 +284,9 @@ module GraphHelper
     end
 
     if taxon_determinations
-    c.taxon_determinations.each do |d|
-        taxon_determination_graph(d, graph: g, target: c, taxon_names: true)
-      end
+      c.taxon_determinations.each do |d|
+          taxon_determination_graph(d, graph: g, target: c, taxon_names: true)
+        end
     end
 
     if biological_associations
@@ -304,7 +332,7 @@ module GraphHelper
     end
 
     if parents
-      taxon_name_graph(t.parent, graph: g, target: t, parents: parents)
+      taxon_name_graph(t.parent, graph: g, target: t, parents:)
     end
 
     g
@@ -315,7 +343,7 @@ module GraphHelper
   def initialize_graph(graph, object, target)
     g = graph
     if g.nil?
-      g = Export::Graph.new(object: object)
+      g = Export::Graph.new(object:)
     else
       g.add(object, target)
     end

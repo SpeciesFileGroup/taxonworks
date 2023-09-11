@@ -1,5 +1,5 @@
-# An AssertedDistribution is the source-backed assertion that a taxon (OTU) is present in some *spatial area*.  It requires a Citation indicating where/who made the assertion.
-# In TaxonWorks the areas are drawn from GeographicAreas, which essentially represent a gazeteer of 3 levels of subdivision (e.g. country, state, county).
+# An AssertedDistribution is the Source-backed assertion that a taxon (OTU) is present in some *spatial area*. It requires a Citation indicating where/who made the assertion.
+# In TaxonWorks the areas are drawn from GeographicAreas.
 #
 # AssertedDistributions can be asserts that the source indicates that a taxon is NOT present in an area.  This is a "positive negative" in , i.e. the Source can be thought of recording evidence that a taxon is not present. TaxonWorks does not differentiate between types of negative evidence.
 #
@@ -21,19 +21,22 @@
 #
 class AssertedDistribution < ApplicationRecord
   include Housekeeping
-  include Shared::Notes
   include SoftValidation
+  include Shared::Notes
   include Shared::Tags
   include Shared::DataAttributes # why?
+  include Shared::CitationRequired # !! must preceed Shared::Citations
   include Shared::Citations
   include Shared::Confidences
   include Shared::OriginRelationship
   include Shared::Identifiers
-  include Shared::IsData
-
-  include Shared::Taxonomy # at present must be before IsDwcOccurence
+  include Shared::HasPapertrail
+  include Shared::Taxonomy # at present must preceed IsDwcOccurence
   include Shared::IsDwcOccurrence
   include AssertedDistribution::DwcExtensions
+  include Shared::IsData
+
+  include Shared::Maps
 
   originates_from 'Specimen', 'Lot'
 
@@ -49,22 +52,15 @@ class AssertedDistribution < ApplicationRecord
   has_many :geographic_items, through: :geographic_area
 
   validates_presence_of :geographic_area_id, message: 'geographic area is not selected'
-
-  # Might not be able to do these for nested attributes
   validates :geographic_area, presence: true
   validates :otu, presence: true
-
   validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id, :is_absent], message: 'this geographic_area, OTU and present/absent combination already exists'
-
   validate :new_records_include_citation
 
   # TODO: deprecate scopes referencing single wheres
-  scope :with_otu_id, -> (otu_id) { where(otu_id: otu_id) }
-
+  scope :with_otu_id, -> (otu_id) { where(otu_id:) }
   scope :with_is_absent, -> { where('is_absent = true') }
-
   scope :with_geographic_area_array, -> (geographic_area_array) { where('geographic_area_id IN (?)', geographic_area_array) }
-
   scope :without_is_absent, -> { where('is_absent = false OR is_absent is Null') }
 
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
@@ -94,8 +90,8 @@ class AssertedDistribution < ApplicationRecord
   # @return [Hash] GeoJSON feature
   def to_geo_json_feature
     retval = {
-      'type'       => 'Feature',
-      'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
+      'type' => 'Feature',
+      'geometry' => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
       'properties' => {'asserted_distribution' => {'id' => self.id}}
     }
     retval
@@ -117,6 +113,31 @@ class AssertedDistribution < ApplicationRecord
     geographic_area.geographic_items.any?
   end
 
+  # @return [Hash]
+  def self.batch_move(params)
+    return false if params[:geographic_area_id].blank?
+
+    a = Queries::AssertedDistribution::Filter.new(params[:asserted_distribution_query])
+
+    return false if a.all.count == 0
+    return false if a.all.pluck(:geographic_area_id).uniq.size != 1
+
+    moved = []
+    unmoved = []
+
+    begin
+      a.all.each do |o|
+        if o.update(geographic_area_id: params[:geographic_area_id] )
+          moved.push o
+        else
+          unmoved.push o
+        end
+      end
+    end
+
+    return { moved:, unmoved: }
+  end
+
   protected
 
   # @return [Boolean]
@@ -124,10 +145,6 @@ class AssertedDistribution < ApplicationRecord
     if new_record? && source.blank? && origin_citation.blank? && !citations.any?
       errors.add(:base, 'required citation is not provided')
     end
-  end
-
-  # @return [Nil]
-  def new_records_include_otu
   end
 
   # @return [Boolean]
@@ -138,12 +155,12 @@ class AssertedDistribution < ApplicationRecord
         presence = AssertedDistribution
           .without_is_absent
           .with_geographic_area_array(areas)
-          .where(otu_id: otu_id)
+          .where(otu_id:)
         soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.geographic_area.name}") unless presence.empty?
       else
         presence = AssertedDistribution
           .with_is_absent
-          .where(otu_id: otu_id)
+          .where(otu_id:)
           .with_geographic_area_array(areas)
         soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.geographic_area.name}") unless presence.empty?
       end
@@ -166,5 +183,3 @@ class AssertedDistribution < ApplicationRecord
     result
   end
 end
-
-

@@ -19,7 +19,7 @@
       />
     </div>
     <template v-if="repositorySelected">
-      <hr>
+      <hr />
       <smart-selector-item
         :item="repositorySelected"
         @unset="setRepository(null)"
@@ -29,10 +29,10 @@
 </template>
 
 <script>
-import { Repository } from 'routes/endpoints'
-import SmartSelector from 'components/ui/SmartSelector'
-import LockComponent from 'components/ui/VLock/index.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import { Repository } from '@/routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector'
+import LockComponent from '@/components/ui/VLock/index.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 export default {
   components: {
@@ -55,7 +55,7 @@ export default {
 
   emits: ['update:lock', 'select'],
 
-  data () {
+  data() {
     return {
       repositorySelected: undefined
     }
@@ -63,10 +63,10 @@ export default {
 
   computed: {
     locked: {
-      get () {
+      get() {
         return this.lock
       },
-      set (value) {
+      set(value) {
         this.$emit('update:lock', value)
       }
     }
@@ -74,9 +74,9 @@ export default {
 
   watch: {
     repositoryId: {
-      handler (newVal) {
+      handler(newVal) {
         if (newVal) {
-          Repository.find(newVal).then(response => {
+          Repository.find(newVal).then((response) => {
             this.repositorySelected = response.body
           })
         } else {
@@ -88,7 +88,7 @@ export default {
   },
 
   methods: {
-    setRepository (repository) {
+    setRepository(repository) {
       this.$emit('select', repository?.id || null)
     }
   }

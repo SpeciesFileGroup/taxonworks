@@ -52,10 +52,10 @@ module Workbench::SessionsHelper
   # Project methods
 
   def set_project_from_params
-    # Ensure project_token and project_id are the same if provided.  
+    # Ensure project_token and project_id are the same if provided.
     # TODO: Community data considerations
     if sessions_current_project_id
-      respond_to do |format| 
+      respond_to do |format|
         format.html { redirect_to root_url, notice: 'Project token and project are not the same.'  }
         format.json { render(json: {success: false}, status: :bad_request) && return } # was unauthorized
       end
@@ -127,12 +127,16 @@ module Workbench::SessionsHelper
     sessions_signed_in? && ( is_administrator? || is_project_administrator? )
   end
 
-  def is_project_member_by_id?(user_id, project_id)
-    ProjectMember.where(user_id: user_id, project_id: project_id).any?
+  def is_project_member?(user, project)
+    project.project_members.include?(user) # TODO - change to ID
+  end
+
+  def is_project_member_by_id(user_id, project_id)
+    ProjectMember.where(user_id:, project_id:).any?
   end
 
   def authorize_project_selection(user, project)
-    project.project_members.where(user: user, project: project)
+    project.project_members.where(user:, project:)
   end
 
   def require_sign_in
@@ -144,7 +148,7 @@ module Workbench::SessionsHelper
   end
 
   def require_sign_in_and_project_selection
-    # TODO: account for permitted token based projects 
+    # TODO: account for permitted token based projects
     unless (sessions_signed_in? or @api_request) && sessions_project_selected?
       respond_to do |format|
         format.html { redirect_to root_url, notice: 'Whoa there, sign in and select a project first.'  }
@@ -175,7 +179,7 @@ module Workbench::SessionsHelper
     [
       project_settings_link,
       administration_link,
-      link_to('Account', sessions_current_user, data: { 
+      link_to('Account', sessions_current_user, data: {
         current_user_id: sessions_current_user.id.to_s,
         current_user_is_administrator: sessions_current_user.is_administrator,
       }),
@@ -188,9 +192,9 @@ module Workbench::SessionsHelper
   # @param [String]
   def favorite_page_link(kind, name)
     if favorites?(kind, name)
-      link_to('Unfavorite page', unfavorite_page_path(kind: kind, name: name), method: :post, remote: true, id: "unfavorite_link_#{kind}-#{name}", class: :unfavorite_link, title: 'Remove to favorite')
+      link_to('Unfavorite page', unfavorite_page_path(kind:, name:), method: :post, remote: true, id: "unfavorite_link_#{kind}-#{name}", class: :unfavorite_link, title: 'Remove to favorite')
     else
-      link_to('Favorite page', favorite_page_path(kind: kind, name: name), method: :post, remote: true, id: "favorite_link_#{kind}-#{name}", class: :favourite_link, title: 'Add to favorite.')
+      link_to('Favorite page', favorite_page_path(kind:, name:), method: :post, remote: true, id: "favorite_link_#{kind}-#{name}", class: :favourite_link, title: 'Add to favorite.')
     end
   end
 

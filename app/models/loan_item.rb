@@ -60,10 +60,12 @@ class LoanItem < ApplicationRecord
   validate :total_provided_only_when_otu
 
   validate :loan_object_is_loanable
- 
+
   validate :available_for_loan
 
-  validates_inclusion_of :disposition, in: STATUS, if: -> {!disposition.blank?}
+  validates_uniqueness_of :loan_id, scope: [:loan_item_object_id], if: -> { loan_item_object_type == 'CollectionObject' }
+
+  validates_inclusion_of :disposition, in: STATUS, if: -> {disposition.present?}
 
   def global_entity
     self.loan_item_object.to_global_id if self.loan_item_object.present?
@@ -82,7 +84,7 @@ class LoanItem < ApplicationRecord
   end
 
   def returned?
-    !date_returned.blank?
+    date_returned.present?
   end
 
   # @return [Integer, nil]
@@ -155,7 +157,111 @@ class LoanItem < ApplicationRecord
       batch_create_from_tags(params[:keyword_id], params[:klass], params[:loan_id])
     when 'pinboard'
       batch_create_from_pinboard(params[:loan_id], params[:project_id], params[:user_id], params[:klass])
+    when 'collection_object_filter'
+      batch_create_from_collection_object_filter(
+        params[:loan_id],
+        params[:project_id],
+        params[:user_id],
+        params[:collection_object_query])
     end
+  end
+
+  # @return [Hash]
+  def self.batch_move(params)
+    return false if params[:loan_id].blank? || params[:disposition].blank? || params[:user_id].blank? || params[:date_returned].blank?
+
+    a = Queries::CollectionObject::Filter.new(params[:collection_object_query])
+    return false if a.all.count == 0
+
+    moved = []
+    unmoved = []
+
+    begin
+      a.all.each do |co|
+        new_loan_item = nil
+
+        # Only match open loan items
+        if b = LoanItem.where(disposition: nil).find_by(loan_item_object: co, project_id: co.project_id)
+
+          new_loan_item = b.close_and_move(params[:loan_id], params[:date_returned], params[:disposition], params[:user_id])
+
+          if new_loan_item.nil?
+            unmoved.push b
+          else
+            moved.push new_loan_item
+          end
+        end
+      end
+
+    rescue ActiveRecord::RecordInvalid => e
+     # raise e
+    end
+
+    return { moved:, unmoved: }
+  end
+
+  # @param param[:collection_object_query] required
+  #
+  # Return all CollectionObjects matching the query. Does not yet work with OtuQuery
+  def self.batch_return(params)
+    a = Queries::CollectionObject::Filter.new(params[:collection_object_query])
+    return false if a.all.count == 0
+
+    returned = []
+    unreturned = []
+
+    begin
+      a.all.each do |co|
+        if b = LoanItem.where(disposition: nil).find_by(loan_item_object: co, project_id: co.project_id)
+          begin
+            b.update!(disposition: params[:disposition], date_returned: params[:date_returned])
+            returned.push b
+          rescue ActiveRecord::RecordInvalid
+            unreturned.push b
+          end
+        end
+      end
+    end
+    return {returned:, unreturned:}
+  end
+
+  def close_and_move(to_loan_id, date_returned, disposition, user_id)
+    return nil if to_loan_id.blank?
+
+    new_loan_item = nil
+    LoanItem.transaction do
+      begin
+        update!(date_returned:, disposition:)
+
+        new_loan_item = LoanItem.create!(
+          project_id:,
+          loan_item_object:,
+          loan_id: to_loan_id
+          )
+
+      rescue ActiveRecord::RecordInvalid => e
+        #raise e
+      end
+    end
+    new_loan_item
+  end
+
+  def self.batch_create_from_collection_object_filter(loan_id, project_id, user_id, collection_object_filter)
+    created = []
+    query = Queries::CollectionObject::Filter.new(collection_object_filter)
+    LoanItem.transaction do
+      begin
+        query.all.each do |co|
+          i = LoanItem.create!(loan_item_object: co, by: user_id, loan_id:, project_id:)
+          if i.persisted?
+            created.push i
+          end
+        end
+      rescue ActiveRecord::RecordInvalid => e
+        # raise e
+      end
+    end
+    return created
   end
 
   def self.batch_create_from_tags(keyword_id, klass, loan_id)
@@ -163,12 +269,12 @@ class LoanItem < ApplicationRecord
     LoanItem.transaction do
       begin
         if klass
-          klass.constantize.joins(:tags).where(tags: {keyword_id: keyword_id}).each do |o|
-            created.push LoanItem.create!(loan_item_object: o, loan_id: loan_id)
+          klass.constantize.joins(:tags).where(tags: {keyword_id:}).each do |o|
+            created.push LoanItem.create!(loan_item_object: o, loan_id:)
           end
         else
-          Tag.where(keyword_id: keyword_id).where(tag_object_type: ['Container', 'Otu', 'CollectionObject']).distinct.all.each do |o|
-            created.push LoanItem.create!(loan_item_object: o.tag_object, loan_id: loan_id)
+          Tag.where(keyword_id:).where(tag_object_type: ['Container', 'Otu', 'CollectionObject']).distinct.all.each do |o|
+            created.push LoanItem.create!(loan_item_object: o.tag_object, loan_id:)
           end
         end
       rescue ActiveRecord::RecordInvalid
@@ -185,12 +291,12 @@ class LoanItem < ApplicationRecord
     LoanItem.transaction do
       begin
         if klass
-          klass.constantize.joins(:pinboard_items).where(pinboard_items: {user_id: user_id, project_id: project_id, pinned_object_type: klass}).each do |o|
-            created.push LoanItem.create!(loan_item_object: o, loan_id: loan_id)
+          klass.constantize.joins(:pinboard_items).where(pinboard_items: {user_id:, project_id:, pinned_object_type: klass}).each do |o|
+            created.push LoanItem.create!(loan_item_object: o, loan_id:)
           end
         else
-          PinboardItem.where(project_id: project_id, user_id: user_id, pinned_object_type: ['Container', 'Otu', 'CollectionObject']).all.each do |o|
-            created.push LoanItem.create!(loan_item_object: o.pinned_object, loan_id: loan_id)
+          PinboardItem.where(project_id:, user_id:, pinned_object_type: ['Container', 'Otu', 'CollectionObject']).all.each do |o|
+            created.push LoanItem.create!(loan_item_object: o.pinned_object, loan_id:)
           end
         end
       rescue ActiveRecord::RecordInvalid
@@ -202,15 +308,13 @@ class LoanItem < ApplicationRecord
 
   protected
 
+  # Whether this class of objects is in fact loanable, not
+  # whether it's on loan or not.
   def object_loanable_check
     loan_item_object && loan_item_object.respond_to?(:is_loanable?)
   end
 
-  def total_provided_only_when_otu
-    errors.add(:total, 'only providable when item is an OTU.') if total && loan_item_object_type != 'Otu'
-  end
-
-  # Code, not out-on-loan check
+  # Code, not out-on-loan check!
   def loan_object_is_loanable
     if !persisted? # if it is, then this check should not be necessary
       if !object_loanable_check
@@ -219,14 +323,18 @@ class LoanItem < ApplicationRecord
     end
   end
 
+  def total_provided_only_when_otu
+    errors.add(:total, 'only providable when item is an OTU.') if total && loan_item_object_type != 'Otu'
+  end
+
   # Is not already in a loan item if CollectionObject/Container
   def available_for_loan
-    if !persisted? # if it is, then this check should not be necessary 
+    if !persisted? # if it is, then this check should not be necessary
       if object_loanable_check
         if loan_item_object_type == 'Otu'
           true
         else
-          if loan_item_object.on_loan? #loan_item_object.loan_items.where.not(id: id).any?
+          if loan_item_object.on_loan? # takes into account Containers!
             errors.add(:loan_item_object, 'is already on loan')
           end
         end

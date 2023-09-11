@@ -13,6 +13,7 @@ module Queries
         :descendants,
         :geo_json,
         :geographic_area_id,
+        :geographic_item_id,
         :geographic_area_mode,
         :otu_id,
         :presence,
@@ -21,6 +22,7 @@ module Queries
         :wkt,
         asserted_distribution_id: [],
         geographic_area_id: [],
+        geographic_item_id: [],
         otu_id: [],
         taxon_name_id: [],
       ].freeze
@@ -36,6 +38,10 @@ module Queries
       # @param geographic_area_id [Array, Integer, String]
       # @return [Array]
       attr_accessor :geographic_area_id
+
+      # @param geographic_item_id [Array, Integer, String]
+      # @return [Array]
+      attr_accessor :geographic_item_id
 
       # @return [Boolean, nil]
       #   How to treat GeographicAreas
@@ -74,6 +80,7 @@ module Queries
         @descendants = boolean_param(params, :descendants)
         @geo_json = params[:geo_json]
         @geographic_area_id = params[:geographic_area_id]
+        @geographic_item_id = params[:geographic_item_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
         @otu_id = params[:otu_id]
@@ -98,6 +105,10 @@ module Queries
 
       def geographic_area_id
         [@geographic_area_id].flatten.compact
+      end
+
+      def geographic_item_id
+        [@geographic_item_id].flatten.compact
       end
 
       def taxon_name_id
@@ -201,6 +212,13 @@ module Queries
         table[:otu_id].eq_any(otu_id)
       end
 
+      def geographic_item_id_facet
+        return nil if geographic_item_id.empty?
+        ::GeographicArea.joins(:geographic_areas_geographic_items).where(
+          geographic_areas_geographic_items: {geographic_item_id:}
+        )
+      end
+
       def taxon_name_id_facet
         return nil if taxon_name_id.empty?
         if descendants
@@ -265,6 +283,7 @@ module Queries
           taxon_name_query_facet,
 
           geographic_area_id_facet,
+          geographic_item_id_facet,
           taxon_name_id_facet,
           wkt_facet,
         ]

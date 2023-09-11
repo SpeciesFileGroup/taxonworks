@@ -23,10 +23,7 @@ Capybara.register_driver :selenium do |app|
 
   case Settings.selenium_settings[:browser]
 
-
   when 'chrome'
-    require 'webdrivers/chromedriver'
-
    # !! Untested !!
 
     # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {"binary" => <path to chrome (example: chrome portable)>})
@@ -44,13 +41,10 @@ Capybara.register_driver :selenium do |app|
     Capybara::Selenium::Driver.new(
       app,
       browser: :chrome,
-      prefs: prefs,
+      prefs:,
     )
 
-
-
   when 'firefox'
-    require 'webdrivers/geckodriver'
     # https://github.com/SeleniumHQ/selenium/wiki/Ruby-Bindings#Tweaking_Firefox_preferences.md
     #
     # update config/application_settings test should look _LIKE_ (YRMV):
@@ -62,7 +56,7 @@ Capybara.register_driver :selenium do |app|
 
     p = Settings.selenium_settings[:firefox_binary_path]
     if p
-      Selenium::WebDriver::Firefox::Binary.path = p
+      Selenium::WebDriver::Firefox.path = p
     end
 
     profile = Selenium::WebDriver::Firefox::Profile.new
@@ -74,19 +68,25 @@ Capybara.register_driver :selenium do |app|
     profile['browser.download.manager.showWhenStarting'] = false
     profile['browser.helperApps.neverAsk.saveToDisk'] = 'TEXT/PLAIN;application/zip;'
 
-    options = Selenium::WebDriver::Firefox::Options.new
-    options.profile = profile
 
-    options.headless! if Settings.selenium_settings[:headless]
+    options = nil
+    if Settings.selenium_settings[:headless]
+      options = Selenium::WebDriver::Options.firefox(args: ['--headless'])
+    else
+      options = Selenium::WebDriver::Options.firefox
+    end
+
+    # options = Selenium::WebDriver::Firefox::Options.new
+
+    options.profile = profile
 
     Capybara::Selenium::Driver.new(
       app,
       browser: :firefox,
-      options: options
+      options:
     )
 
   else
     raise 'Error in selenium settings.'
   end
 end
-

@@ -57,25 +57,31 @@
 </template>
 
 <script setup>
-import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
-import FacetIdentifiers from 'components/Filter/Facets/shared/FacetIdentifiers.vue'
-import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
+import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetRoles from './Facet/FacetRoles.vue'
-import FacetTotalUsed from 'components/Filter/Facets/shared/FacetTotalUsed.vue'
+import FacetTotalUsed from '@/components/Filter/Facets/shared/FacetTotalUsed.vue'
 import FacetPerson from './Facet/FacetPerson.vue'
 import FacetBetweenYear from './Facet/FacetBetweenYear.vue'
 import FacetTimesRepeated from './Facet/FacetTimesRepeated.vue'
 import FacetProjects from './Facet/FacetProjects.vue'
 import FacetRegex from './Facet/FacetRegex.vue'
-import FacetNotes from 'components/Filter/Facets/shared/FacetNotes.vue'
-import FacetDataAttributes from 'components/Filter/Facets/shared/FacetDataAttribute.vue'
+import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
+import FacetDataAttributes from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetWith from './Facet/FacetWith.vue'
-import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
-import WithComponent from 'components/Filter/Facets/shared/FacetWith.vue'
+import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
+import WithComponent from '@/components/Filter/Facets/shared/FacetWith.vue'
 import { computed } from 'vue'
 
 const withFilter = ['first_name', 'suffix', 'prefix']
-const WITH_PARAMS = ['identifiers', 'data_attributes', 'notes']
+const WITH_PARAMS = [
+  'identifiers',
+  'local_identifiers',
+  'global_identifiers',
+  'data_attributes',
+  'notes'
+]
 
 const props = defineProps({
   modelValue: {

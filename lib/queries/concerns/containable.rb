@@ -27,7 +27,7 @@ module Queries::Concerns::Containable
 
   def identified_containers
     # TODO: Ultimately replace with Containers filter
-    ::Container.joins(:identifiers).where(project_id: project_id)
+    ::Container.joins(:identifiers).where(project_id:)
   end
 
   # referenced_klass referenceable in any ContainerItem
@@ -49,7 +49,7 @@ module Queries::Concerns::Containable
 
   def identifier_namespace_container_match
     return nil if namespace_id.blank?
-    referenced_klass_container_identifiers.where(identifiers: {namespace_id: namespace_id})
+    referenced_klass_container_identifiers.where(identifiers: {namespace_id:})
   end
 
   def identifier_type_container_match
@@ -94,6 +94,25 @@ module Queries::Concerns::Containable
       q
     else
       # If we don't need to exclude objects from containers that don't have (local) identifiers.
+      nil
+    end
+  end
+
+  # Objects with/out global identifiers by proxy of
+  # of their containment.
+  def global_identifiers_container_match
+    return nil if global_identifiers.nil?
+
+    s = "WITH identified_containers AS (#{identified_containers.where("identifiers.type ILIKE 'Identifier::Global%'").to_sql}) "
+    s << referenced_klass_with_container_items
+      .joins("JOIN identified_containers AS identified_containers1 on identified_containers1.id = ci2.contained_object_id and ci2.contained_object_type = 'Container'").to_sql
+
+    q = referenced_klass.from( "(#{s}) as #{table.name}")
+
+    if global_identifiers
+      q
+    else
+      # If we don't need to exclude objects from containers that don't have (global) identifiers.
       nil
     end
   end

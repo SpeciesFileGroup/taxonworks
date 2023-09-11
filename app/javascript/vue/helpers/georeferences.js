@@ -1,11 +1,11 @@
-import { replaceAt } from 'helpers/strings.js'
+import { replaceAt } from '@/helpers/strings.js'
 
 const replaceCharacters = [
   ['ʺ', '"'],
   ['ʹ', "'"]
 ]
 
-function parseCoordinateCharacters (coordinate) {
+function parseCoordinateCharacters(coordinate) {
   replaceCharacters.forEach(([original, newChar]) => {
     const index = coordinate.indexOf(original)
 
@@ -15,6 +15,4 @@ function parseCoordinateCharacters (coordinate) {
   return coordinate
 }
 
-export {
-  parseCoordinateCharacters
-}
+export { parseCoordinateCharacters }

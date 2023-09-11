@@ -14,6 +14,20 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialMatrix
+          :disabled="!list.length"
+          :parameters="parameters"
+          :object-type="DESCRIPTOR"
+        />
+      </template>
+      <template #nav-right>
+        <RadialMatrix
+          :ids="selectedIds"
+          :disabled="!list.length"
+          :object-type="DESCRIPTOR"
+        />
+      </template>
       <template #facets>
         <FilterView v-model="parameters" />
       </template>
@@ -36,15 +50,16 @@
 </template>
 
 <script setup>
-import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
-import FilterList from 'components/layout/Filter/FilterList.vue'
-import VSpinner from 'components/spinner.vue'
-import useFilter from 'shared/Filter/composition/useFilter.js'
+import FilterList from '@/components/Filter/Table/TableResults.vue'
+import RadialMatrix from '@/components/radials/matrix/radial.vue'
+import VSpinner from '@/components/spinner.vue'
+import useFilter from '@/shared/Filter/composition/useFilter.js'
 import { listParser } from './utils/listParser'
 import { ATTRIBUTES } from './constants/attributes'
-import { Descriptor } from 'routes/endpoints'
-import { DESCRIPTOR } from 'constants/index.js'
+import { Descriptor } from '@/routes/endpoints'
+import { DESCRIPTOR } from '@/constants/index.js'
 
 const {
   isLoading,

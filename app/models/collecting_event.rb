@@ -231,11 +231,12 @@ class CollectingEvent < ApplicationRecord
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
 
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
-  has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy
-  has_many :collectors, through: :collector_roles, source: :person, inverse_of: :collecting_events
+  has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy, inverse_of: :role_object
+  has_many :collectors, -> { order('roles.position ASC') }, through: :collector_roles, source: :person, inverse_of: :collecting_events
+
   has_many :dwc_occurrences, through: :collection_objects, inverse_of: :collecting_event
 
-  # see also app/models/colelcting_event/georeference.rb for more has_many
+  # see also app/models/collecting_event/georeference.rb for more has_many
 
   has_many :otus, through: :collection_objects
 
@@ -572,7 +573,7 @@ class CollectingEvent < ApplicationRecord
         end
         return a
       end
-    rescue ActiveRecord::RecordInvalid # TODO: rescue only something!!
+    rescue ActiveRecord::RecordInvalid
       raise
     end
     false
@@ -769,10 +770,7 @@ class CollectingEvent < ApplicationRecord
   def get_geographic_name_classification
     case geographic_name_classification_method
     when :preferred_georeference
-      # quick
-      r = preferred_georeference.geographic_item.quick_geographic_name_hierarchy # almost never the case, UI not setup to do this
-      # slow
-      r = preferred_georeference.geographic_item.inferred_geographic_name_hierarchy if r == {} # therefor defaults to slow
+      r = preferred_georeference.geographic_item.geographic_name_hierarchy
     when :geographic_area_with_shape # geographic_area.try(:has_shape?)
       # very quick
       r = geographic_area.geographic_name_classification # do not round trip to the geographic_item, it just points back to the geographic area
@@ -1029,6 +1027,31 @@ class CollectingEvent < ApplicationRecord
     nil
   end
 
+  class << self
+  # @return [Hash]
+    def batch_update(params)
+      return false if params[:collecting_event].blank?
+      a = Queries::CollectingEvent::Filter.new(params[:collecting_event_query])
+      c = a.all.count
+      return false if c == 0 || c > 250
+
+      a.all.find_each do |e|
+        query_update(e, params[:collecting_event])
+      end
+
+      return true
+    end
+
+    def query_update(collecting_event, params)
+      begin
+        collecting_event.update!( params )
+      rescue ActiveRecord::RecordInvalid => e
+      end
+    end
+
+    handle_asynchronously :query_update, run_at: Proc.new { 1.second.from_now }, queue: :collecting_event_ui_batch_update
+  end
+
   protected
 
   def set_cached_geographic_names
@@ -1051,9 +1074,12 @@ class CollectingEvent < ApplicationRecord
   end
 
   def set_cached
-    # TODO: Once caching is stabilized we can turn this back on
     set_cached_geographic_names # if saved_change_to_attribute?(:geographic_area_id)
+    set_cached_cached
+  end
 
+  # TODO: A time sync.
+  def set_cached_cached
     c = {}
     v = [verbatim_label, print_label, document_label].compact.first
 
@@ -1063,6 +1089,7 @@ class CollectingEvent < ApplicationRecord
       name = [ geographic_names[:country], geographic_names[:state], geographic_names[:county]].compact.join(': ')
       date = [start_date_string, end_date_string].compact.join('-')
       place_date = [verbatim_locality, date].compact.join(', ')
+      # TODO: When a method to reference Collector roles is created update Collector to trigger this cached method
       string = [name, place_date, verbatim_collectors, verbatim_method].reject{|a| a.blank? }.join("\n")
     end
 

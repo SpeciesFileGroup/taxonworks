@@ -14,8 +14,7 @@
 </template>
 
 <script>
-
-import Dropzone from 'components/dropzone.vue'
+import Dropzone from '@/components/dropzone.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
@@ -35,7 +34,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       dropzone: {
         timeout: 0,
@@ -43,7 +42,9 @@ export default {
         paramName: 'documentation[document_attributes][document_file]',
         url: '/documentation',
         headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          'X-CSRF-Token': document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute('content')
         },
         dictDefaultMessage: 'Drop documents here',
         acceptedFiles: 'application/pdf, text/plain'
@@ -53,25 +54,34 @@ export default {
 
   computed: {
     list: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetDocumentations]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetDocumentations, value)
       }
     }
   },
 
   methods: {
-    success (file, response) {
+    success(file, response) {
       this.$store.commit(MutationNames.AddDocumentation, response)
-      TW.workbench.alert.create('Documentation was successfully created.', 'notice')
+      TW.workbench.alert.create(
+        'Documentation was successfully created.',
+        'notice'
+      )
       this.$refs.sourceDocument.removeFile(file)
     },
 
-    sending (file, xhr, formData) {
-      formData.append('documentation[annotated_global_entity]', decodeURIComponent(this.source.global_id))
-      formData.append('documentation[document_attributes][is_public]', this.isPublic)
+    sending(file, xhr, formData) {
+      formData.append(
+        'documentation[annotated_global_entity]',
+        decodeURIComponent(this.source.global_id)
+      )
+      formData.append(
+        'documentation[document_attributes][is_public]',
+        this.isPublic
+      )
     }
   }
 }

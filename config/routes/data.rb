@@ -9,11 +9,11 @@ concern :data_routes do |options|
     post 'batch_preview'
     get 'batch_load'
     get 'autocomplete'
-    get 'search'
+    get 'search' # TODO: deprecate/remove
   end
 
   member do
-    get 'related'
+    get 'related' # TODO: remove or redirect here to Task route
   end
 end
 
@@ -31,6 +31,7 @@ end
 resources :asserted_distributions do
   concerns [:data_routes]
   collection do
+    post :batch_move
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
     match :filter, to: 'asserted_distributions#index', via: [:get, :post]
@@ -60,6 +61,9 @@ resources :biological_relationships do
   collection do
     get :select_options, defaults: {format: :json}
   end
+end
+
+resources :cached_maps, only: [:show, :update], defaults: {format: :json} do
 end
 
 resources :character_states do
@@ -167,6 +171,8 @@ resources :collecting_events do
 
     post :preview_gpx_batch_load
     post :create_gpx_batch_load
+
+    post :batch_update
   end
 end
 
@@ -213,6 +219,8 @@ resources :data_attributes, except: [:show] do
   collection do
     post :batch_create, defaults: {format: :json}
     get 'value_autocomplete', defaults: {format: :json}
+    get :brief, defaults: {format: :json}
+    post :brief, defaults: {format: :json} # for length
   end
 end
 
@@ -220,6 +228,7 @@ resources :depictions do
   concerns [:data_routes]
   collection do
     patch :sort
+    match :filter, to: 'depictions#index', via: [:get, :post]
   end
 end
 
@@ -281,7 +290,6 @@ resources :extracts do
 end
 
 resources :geographic_areas, only: [:index, :show] do
-
   collection do
     get 'download'
     get 'list'
@@ -297,7 +305,6 @@ resources :geographic_areas, only: [:index, :show] do
   member do
     get 'related'
   end
-
 end
 
 resources :gene_attributes do
@@ -403,8 +410,11 @@ end
 
 resources :loan_items do
   concerns [:data_routes]
+
   collection do
     post :batch_create
+    post :batch_return
+    post :batch_move
   end
 end
 
@@ -449,6 +459,9 @@ resources :observation_matrices do
 
   collection do
     get :otus_used_in_matrices, {format: :json}
+
+    post :batch_create, {format: :json}
+    post :batch_add, {format: :json}
   end
 end
 
@@ -498,8 +511,10 @@ resources :notes, except: [:show] do
   concerns [:data_routes]
 end
 
+
+
 resources :otus do
-  concerns [:data_routes ]
+  concerns [:data_routes]
   resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
   resources :asserted_distributions, shallow: true, only: [:index], defaults: {format: :json}
   resources :common_names, shallow: true, only: [:index], defaults: {format: :json}
@@ -533,6 +548,8 @@ resources :otus do
     get :navigation, defaults: {format: :json}
     get :breadcrumbs, defaults: {format: :json}
     get :coordinate, defaults: {format: :json}
+
+    get 'inventory/distribution', action: :distribution, defaults: {format: :json}
   end
 
 end
@@ -545,6 +562,13 @@ resources :otu_page_layouts do
   member do
     get 'related'
   end
+end
+
+resources :otu_relationships do
+  collection do
+    get :list
+  end
+  concerns [:data_routes]
 end
 
 resources :organizations do
@@ -705,6 +729,7 @@ resources :tagged_section_keywords, only: [:create, :update, :destroy]
 resources :taxon_determinations do
   collection do
     post :batch_create, defaults: {format: :json}
+    patch :reorder, defaults: {format: :json}
   end
   concerns [:data_routes]
 end
@@ -725,8 +750,8 @@ resources :taxon_names do
     post :create_simple_batch_load
     get :ranks, {format: :json}
 
-    post :preview_castor_batch_load
-    post :create_castor_batch_load
+    post :preview_nomen_batch_load
+    post :create_nomen_batch_load
 
     get :parse, defaults: {format: :json}
     get :random

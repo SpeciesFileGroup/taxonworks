@@ -5,17 +5,15 @@ describe ProjectSource do
   let(:project_source) { FactoryBot.build(:project_source) }
 
   context 'validation' do
-    before(:each) {
-      project_source.valid?
-    }
+    before(:each) { project_source.valid? }
 
     context 'requires' do
       specify 'project' do
-        expect(project_source.errors.include?(:project)).to be_falsey # get's it from Housekeeping
+        expect(project_source.errors.include?(:project)).to be_falsey
       end
 
       specify 'source' do
-        expect{project_source.save!}.to raise_error ActiveRecord::StatementInvalid # ::PG::NotNullViolation  
+        expect(project_source.save).to be_falsey
       end
     end
   end

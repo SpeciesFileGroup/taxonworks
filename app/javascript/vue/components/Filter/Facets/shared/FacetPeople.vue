@@ -45,12 +45,12 @@
 </template>
 
 <script>
-import SwitchButtom from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import DisplayList from 'components/displayList'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import { People } from 'routes/endpoints'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
+import SwitchButtom from '@/tasks/observation_matrices/new/components/newMatrix/switch.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import DisplayList from '@/components/displayList'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import { People } from '@/routes/endpoints'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
 
 export default {
   components: {

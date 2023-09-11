@@ -1,6 +1,6 @@
 import { reactive, toRefs, computed } from 'vue'
-import { CollectionObject, TaxonDetermination } from 'routes/endpoints'
-import getPagination from 'helpers/getPagination'
+import { CollectionObject, TaxonDetermination } from '@/routes/endpoints'
+import getPagination from '@/helpers/getPagination'
 
 const state = reactive({
   isLoading: false,
@@ -23,9 +23,11 @@ const state = reactive({
   }
 })
 
-const updateBufferedTable = count => {
+const updateBufferedTable = (count) => {
   const { labels } = state
-  const index = labels.findIndex(label => label.buffered_determinations === state.selectedLabel)
+  const index = labels.findIndex(
+    (label) => label.buffered_determinations === state.selectedLabel
+  )
   const label = labels[index]
   const newCount = label.count_buffered - count
 
@@ -41,7 +43,7 @@ const updateBufferedTable = count => {
 }
 
 const actions = {
-  createDeterminations () {
+  createDeterminations() {
     const params = {
       taxon_determination: state.taxonDetermination,
       collection_object_id: state.selectedCOIds
@@ -49,12 +51,17 @@ const actions = {
 
     state.isCreating = true
 
-    TaxonDetermination.createBatch(params).then(_ => {
+    TaxonDetermination.createBatch(params).then((_) => {
       updateBufferedTable(state.selectedCOIds.length)
-      state.collectionObjects = state.collectionObjects.filter(({ id }) => !state.selectedCOIds.includes(id))
+      state.collectionObjects = state.collectionObjects.filter(
+        ({ id }) => !state.selectedCOIds.includes(id)
+      )
       state.selectedCOIds = []
       state.isCreating = false
-      TW.workbench.alert.create('Taxon determinations were successfully created.', 'notice')
+      TW.workbench.alert.create(
+        'Taxon determinations were successfully created.',
+        'notice'
+      )
     })
   },
 
@@ -67,7 +74,7 @@ const actions = {
 
     state.isLoading = true
 
-    request.then(response => {
+    request.then((response) => {
       state.labels = response.body
       state.pagination.stepwise = getPagination(response)
       state.isLoading = false
@@ -76,7 +83,7 @@ const actions = {
     return request
   },
 
-  loadCollectionObjects (page) {
+  loadCollectionObjects(page) {
     const params = {
       buffered_determinations: state.selectedLabel,
       exact_buffered_determinations: true,
@@ -89,7 +96,7 @@ const actions = {
 
     state.isLoading = true
 
-    request.then(response => {
+    request.then((response) => {
       state.collectionObjects = response.body
       state.pagination.collectionObjects = getPagination(response)
       state.isLoading = false
@@ -98,13 +105,13 @@ const actions = {
     return request
   },
 
-  setLabel (label) {
+  setLabel(label) {
     state.selectedLabel = label
     state.collectionObjects = []
     state.selectedCOIds = []
   },
 
-  setTaxonDetermination (determination) {
+  setTaxonDetermination(determination) {
     state.taxonDetermination = determination
   }
 }
@@ -113,7 +120,9 @@ const getters = {
   getPages: () => state.pagination,
 
   ghostCount: computed(() => {
-    const countBuffered = state.labels.find(label => label.buffered_determinations === state.selectedLabel)?.count_buffered
+    const countBuffered = state.labels.find(
+      (label) => label.buffered_determinations === state.selectedLabel
+    )?.count_buffered
 
     return state.pagination.collectionObjects.total - countBuffered
   })

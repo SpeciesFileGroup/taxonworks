@@ -49,9 +49,9 @@ module Queries
         nil
       end
 
-    # def project_id_facet
-    #   nil
-    # end
+      def project_id_facet
+        nil
+      end
 
       def value_facet
         return nil if value.blank?
