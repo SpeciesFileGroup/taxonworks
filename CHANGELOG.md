@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Manual option to regenerate derivative images on Show Image
 - API gallery endpoint `/depictions/gallery`
 - Image quick forms, add depictions in the context of an image [#3540]
 - Tables of data to nomenclature stats plots, with option to copy to clipboard
@@ -16,15 +17,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Derivative images strip EXIF and auto orient
 - TaxonName autocomplete change to a strict match mode.
 - Bold geographic levels in Type specimen panel in Browse OTU [#3544]
 
 ### Fixed
 
+- Sqed images that fail processing will try again with slower method automatically [#3070]
 - TaxonName dynamic observation matrix row not properly scoped [#3454]
 - OTU API autocomplete fails to sort results
 - Duplicate type status per CollectionObject are not allowed [#3535]
 
+[#3070]: https://github.com/SpeciesFileGroup/taxonworks/issues/3070
 [#3454]: https://github.com/SpeciesFileGroup/taxonworks/issues/3454
 [#3535]: https://github.com/SpeciesFileGroup/taxonworks/issues/3535
 [#3540]: https://github.com/SpeciesFileGroup/taxonworks/issues/3540

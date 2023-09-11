@@ -349,6 +349,7 @@ resources :images do
     get 'scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', action: :scale_to_box
     get 'ocr(/:x/:y/:width/:height)', action: :ocr
     patch 'rotate', action: 'rotate'
+    patch 'regenerate_derivative', action: 'regenerate_derivative'
   end
   collection do
     match :filter, to: 'images#index', via: [:get, :post]
