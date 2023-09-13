@@ -140,7 +140,7 @@ module Queries
       end
 
       # @return [Scope]
-      def autocomplete_top_name
+      def autocomplete_exact_name
         a = table[:name].eq(query_string)
         base_query.where(a.to_sql).order('cached_author_year ASC').limit(20)
       end
@@ -225,27 +225,32 @@ module Queries
         base_query.where(table[:cached_author_year].matches(a).to_sql).limit(10)
       end
 
+ #    def autocomplete_cached
+ #      base_query.where(table[:cached].eq(query_term))
+ #    end
+
       # ---- gin methods
 
       def autocomplete_cached
-        ::TaxonName.where(project_id: project_id).select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, cached) AS sml', query_string]))
+        ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, cached) AS sml', query_string]))
           .where('cached % ?', query_string) # `%` in where means nothing < 0.3 (internal PG similarity value)
+          .where(ApplicationRecord.sanitize_sql("similarity('#{query_string}', cached) > 0.6"))
           .order('sml DESC, cached')
       end
 
       def autocomplete_original_combination
         ::TaxonName.select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, taxon_names.cached_original_combination) AS sml', query_string]))
           .where('taxon_names.cached_original_combination % ?', query_string)
+          .where(ApplicationRecord.sanitize_sql("similarity('#{query_string}', cached_original_combination) > 0.6"))
           .order('sml DESC, taxon_names.cached_original_combination')
       end
 
       def autocomplete_cached_author_year
         ::TaxonName.select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, taxon_names.cached_author_year) AS sml', query_string]))
           .where('taxon_names.cached_author_year % ?', query_string)
+          .where(ApplicationRecord.sanitize_sql("similarity('#{query_string}', cached_author_year) > 0.6"))
           .order('sml DESC, taxon_names.cached_author_year')
       end
-
-
 
       # Weights.  Theory (using this loosely) is that this
       # will proportionally increase the importance in the list of the corresponding element.
@@ -276,6 +281,7 @@ module Queries
       end
 
       # Used in New taxon name task, for example
+      #  TODO: what is intent?
       def exact_autocomplete
         [
           autocomplete_exact_id,
@@ -283,6 +289,7 @@ module Queries
           autocomplete_exact_cached_original_combination,
           autocomplete_identifier_cached_exact,
           autocomplete_exact_name_and_year,
+
           autocomplete_cached_end_wildcard,
           autocomplete_cached_wildcard_whitespace,
           autocomplete_name_author_year_fragment,
@@ -290,26 +297,35 @@ module Queries
           autocomplete_wildcard_joined_strings,
           autocomplete_wildcard_author_year_joined_pieces,
           autocomplete_wildcard_cached_original_combination,
-          #autocomplete_top_name,
-          #autocomplete_top_cached,
+          # autocomplete_exact_name, # not exact enough, want the whole thing?
+          # autocomplete_top_cached, # not exact at all
         ]
       end
 
-      # TODO: Deprecate, it unused as of the gin refactor.
+      # TODO: Refactor to OTU approach?
       def comprehensive_autocomplete
         z = genus_species
         queries = [
-          autocomplete_cached,
-          autocomplete_original_combination,
-          autocomplete_cached_author_year,
-          autocomplete_exact_id,
           autocomplete_exact_cached,
           autocomplete_exact_cached_original_combination,
-          autocomplete_identifier_cached_exact,
           autocomplete_exact_name_and_year,
+          autocomplete_exact_name,
+
+          autocomplete_exact_id,
+          autocomplete_identifier_cached_exact,
           autocomplete_identifier_identifier_exact,
-          autocomplete_top_name,
-          autocomplete_top_cached,
+
+          #
+          # All exact should be before these?
+          #
+          # There are left in, but the cutoff
+          # is now 2x as high, i.e. more like wildcard matches we
+          # were originally used to.
+          autocomplete_cached, # sim
+          autocomplete_original_combination, # sim
+          autocomplete_cached_author_year, # sim
+
+          # autocomplete_top_cached, # Wildcard end
           autocomplete_top_cached_subgenus,  # not tested
           autocomplete_genus_species1(z),    # not tested
           autocomplete_genus_species2(z),    # not tested
@@ -346,7 +362,7 @@ module Queries
 
         queries.each_with_index do |q,i|
           a = q
-          a = q.where(project_id: project_id) if project_id.present?
+          a = q.where(project_id:) if project_id.present?
 
           a = a.where(and_clauses.to_sql) if and_clauses
 

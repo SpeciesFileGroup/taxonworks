@@ -1,4 +1,21 @@
 module Queries
+
+  # Requires significant refactor.
+  #
+  # To consider:
+  # In general our optimization follows this pattern:
+  #
+  # a: Names that match exactly, full string
+  # b: Names that match exactly, full Identifier (cached)
+  # c: Names that match start of string exactly (cached), wildcard end of string, minimum 2 characters
+  # d: Names that have a very high cuttoff            [good wildcard anywhere]
+  # ? d.1: Names that have wildcard either side (limit to 2 characters).  Are results optimally better than d?
+  # e: Names that have exact ID (internal) (will come to top automatically)
+  # f: Names that match some special pattern (e.g. First letter, second name in taxon name search).  These
+  #    may need higher priority in the stack.
+  #
+  # May also consider length, priority, similarity
+  #
   class Query::Autocomplete < Queries::Query
 
     include Arel::Nodes
@@ -144,8 +161,6 @@ module Queries
       end
     end
 
-
-
     # @return [Arel::Nodes::Matches]
     def named
       table[:name].matches_any(terms) if terms.any?
@@ -280,6 +295,7 @@ module Queries
       base_query.joins(:common_names).where(common_name_name.to_sql).limit(1)
     end
 
+    # TODO: GIN/similarity
     def autocomplete_common_name_like
       return nil if no_terms?
       base_query.joins(:common_names).where(common_name_wild_pieces.to_sql).limit(5)
