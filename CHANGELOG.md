@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - TaxonName dynamic observation matrix row not properly scoped [#3454]
 - OTU API autocomplete fails to sort results
 - Duplicate type status per CollectionObject are not allowed [#3535]
+- Edit/New taxon name: Author order for taxon name does not match author order of source [#3551]
 
 [#3550]: https://github.com/SpeciesFileGroup/taxonworks/issues/3550
 [#3070]: https://github.com/SpeciesFileGroup/taxonworks/issues/3070
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3535]: https://github.com/SpeciesFileGroup/taxonworks/issues/3535
 [#3540]: https://github.com/SpeciesFileGroup/taxonworks/issues/3540
 [#3544]: https://github.com/SpeciesFileGroup/taxonworks/issues/3544
+[#3551]: https://github.com/SpeciesFileGroup/taxonworks/issues/3551
 
 ## [0.34.3] - 2023-09-05
 
