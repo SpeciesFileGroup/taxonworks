@@ -1,5 +1,5 @@
 <template>
-  <nav-bar>
+  <nav-bar class="relative">
     <div class="flex-separate">
       <ul class="no_bullets context-menu">
         <template
