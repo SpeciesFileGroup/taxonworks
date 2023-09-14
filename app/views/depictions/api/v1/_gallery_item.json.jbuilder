@@ -21,8 +21,11 @@ json.figures do
   json.thumb depiction_tag(depiction, size: :thumb)
 end
 
+json.image do
+  json.partial! '/images/api/v1/attributes', image: depiction.image
+end
 
-json.original depiction.image.image_file.url(:original) # If timestamp becomes problem, timestamp: false
-json.thumb depiction.image.image_file.url(:thumb) # If timestamp becomes problem, timestamp: false
-json.medium depiction.image.image_file.url(:medium)
+#json.original depiction_tag(depiction, size: :medium) # If timestamp becomes problem, timestamp: false
+#json.thumb depiction.image.image_file.url(:thumb) # If timestamp becomes problem, timestamp: false
+#json.medium depiction.image.image_file.url(:medium)
 
