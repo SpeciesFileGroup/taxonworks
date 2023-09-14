@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Subqueries in unified filters were silently ignoring components of the query, e.g. fix spatial + subquery requests [#3552]
 - Geographic level names not displaying on Browse OTU [#3553]
 - Sqed images that fail processing will try again with slower method automatically [#3070]
 - TaxonName dynamic observation matrix row not properly scoped [#3454]
@@ -31,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Duplicate type status per CollectionObject are not allowed [#3535]
 - Edit/New taxon name: Author order for taxon name does not match author order of source [#3551]
 
+[#3552]: https://github.com/SpeciesFileGroup/taxonworks/issues/3552
 [#3553]: https://github.com/SpeciesFileGroup/taxonworks/issues/3553
 [#3550]: https://github.com/SpeciesFileGroup/taxonworks/issues/3550
 [#3070]: https://github.com/SpeciesFileGroup/taxonworks/issues/3070

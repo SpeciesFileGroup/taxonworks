@@ -28,7 +28,7 @@ module Shared::Loanable
     end
 
     def never_loaned
-      includes(:loan_items).where(loan_items: {id: nil})
+      where.missing(:loan_items)
     end
   end
 
