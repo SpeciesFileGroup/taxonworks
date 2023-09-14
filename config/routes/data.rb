@@ -221,6 +221,7 @@ resources :data_attributes, except: [:show] do
     get 'value_autocomplete', defaults: {format: :json}
     get :brief, defaults: {format: :json}
     post :brief, defaults: {format: :json} # for length
+    get :import_predicate_autocomplete, defaults: {format: :json}
   end
 end
 
