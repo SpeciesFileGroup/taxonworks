@@ -135,6 +135,18 @@ class DataAttributesController < ApplicationController
     ).autocomplete
   end
 
+  def import_predicate_autocomplete
+    @internal_attributes = ::DataAttribute
+    .where(project_id: sessions_current_project_id)
+    .where('import_predicate ilike ?', '%' + params[:term] + '%' )
+    .order(:import_predicate)
+    .distinct
+    .limit(20)
+    .pluck(:import_predicate)
+
+    render json: @internal_attributes
+  end
+
   def value_autocomplete
     render json: [] if params[:term].blank? || params[:predicate_id].blank?
     @values = ::Queries::DataAttribute::ValueAutocomplete.new(params[:term], **value_autocomplete_params).autocomplete
