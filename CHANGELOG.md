@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Updated Gemfile
 - Derivative images strip EXIF and auto orient
 - TaxonName autocomplete change to a strict match mode.
 - Bold geographic levels in Type specimen panel in Browse OTU [#3544]
