@@ -1,7 +1,7 @@
 import { AssertedDistribution } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
-const embed = ['lavel_names']
+const embed = ['level_names']
 const extend = [
   'citations',
   'geographic_area',
