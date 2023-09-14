@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- DataAttribute facet to filter sources
 - Project data curation issue tracking URL field (and to base API response) [#3550]
 - Manual option to regenerate derivative images on Show Image
 - API gallery endpoint `/depictions/gallery`
