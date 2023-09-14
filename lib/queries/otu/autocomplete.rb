@@ -68,11 +68,17 @@ module Queries
         base_query.where('otus.name ilike ?', query_string + '%')
       end
 
-      # All records that meet the similarity cuttoff (.3 by default)
+      # All records that meet the similarity cuttoff
+      # - this is intended as a generic replacement for wildcarded results
+      #
+      # Observations:
+      #   - was similarity(), experimenting with word_similarity
+      #   - 3 letter matches are going to be low probability, matches kick in at 4
+      #
       def otu_name_similarity
         base_query
         .where('otus.name % ?', query_string)
-        .where( ApplicationRecord.sanitize_sql("similarity('#{query_string}', otus.name) > 0.7"))
+          .where( ApplicationRecord.sanitize_sql("word_similarity('#{query_string}', otus.name) > 0.33"))
         .order('otus.name, length(otus.name)')
       end
 

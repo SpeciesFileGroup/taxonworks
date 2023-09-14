@@ -225,11 +225,12 @@ module Queries
         base_query.where(table[:cached_author_year].matches(a).to_sql).limit(10)
       end
 
- #    def autocomplete_cached
- #      base_query.where(table[:cached].eq(query_term))
- #    end
+      #    def autocomplete_cached
+      #      base_query.where(table[:cached].eq(query_term))
+      #    end
 
       # ---- gin methods
+      # Consider word_similarity()
 
       def autocomplete_cached
         ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, cached) AS sml', query_string]))
@@ -241,14 +242,14 @@ module Queries
       def autocomplete_original_combination
         ::TaxonName.select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, taxon_names.cached_original_combination) AS sml', query_string]))
           .where('taxon_names.cached_original_combination % ?', query_string)
-          .where(ApplicationRecord.sanitize_sql("similarity('#{query_string}', cached_original_combination) > 0.6"))
+          .where(ApplicationRecord.sanitize_sql("similarity('#{query_string}', taxon_names.cached_original_combination) > 0.6"))
           .order('sml DESC, taxon_names.cached_original_combination')
       end
 
       def autocomplete_cached_author_year
         ::TaxonName.select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, taxon_names.cached_author_year) AS sml', query_string]))
           .where('taxon_names.cached_author_year % ?', query_string)
-          .where(ApplicationRecord.sanitize_sql("similarity('#{query_string}', cached_author_year) > 0.6"))
+          .where(ApplicationRecord.sanitize_sql("similarity('#{query_string}', taxon_names.cached_author_year) > 0.6"))
           .order('sml DESC, taxon_names.cached_author_year')
       end
 
@@ -297,7 +298,7 @@ module Queries
           autocomplete_wildcard_joined_strings,
           autocomplete_wildcard_author_year_joined_pieces,
           autocomplete_wildcard_cached_original_combination,
-          # autocomplete_exact_name, # not exact enough, want the whole thing?
+          autocomplete_exact_name, # not exact enough, want the whole thing?
           # autocomplete_top_cached, # not exact at all
         ]
       end
@@ -315,7 +316,6 @@ module Queries
           autocomplete_identifier_cached_exact,
           autocomplete_identifier_identifier_exact,
 
-          #
           # All exact should be before these?
           #
           # There are left in, but the cutoff
@@ -325,17 +325,17 @@ module Queries
           autocomplete_original_combination, # sim
           autocomplete_cached_author_year, # sim
 
-          # autocomplete_top_cached, # Wildcard end
-          autocomplete_top_cached_subgenus,  # not tested
+          # Specialized results
           autocomplete_genus_species1(z),    # not tested
           autocomplete_genus_species2(z),    # not tested
-          autocomplete_cached_end_wildcard,
-          # autocomplete_identifier_cached_like, # this query take much longer to complete than any other
-          autocomplete_cached_name_end_wildcard, #
-          autocomplete_cached_wildcard_whitespace,
-          autocomplete_name_author_year_fragment,
-          autocomplete_taxon_name_author_year_matches,
-          autocomplete_cached_author_year,
+          autocomplete_top_cached_subgenus,  # not tested
+
+          # autocomplete_top_cached, # Wildcard end
+          # autocomplete_cached_end_wildcard,
+          # autocomplete_cached_name_end_wildcard,
+          # autocomplete_cached_wildcard_whitespace,
+          # autocomplete_name_author_year_fragment,
+          # autocomplete_taxon_name_author_year_matches,
           autocomplete_wildcard_joined_strings,
           autocomplete_wildcard_author_year_joined_pieces,
           autocomplete_wildcard_cached_original_combination

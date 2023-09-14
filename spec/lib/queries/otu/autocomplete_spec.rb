@@ -35,7 +35,7 @@ describe Queries::Otu::Autocomplete, type: :model do
 
   specify 'odd otus' do
     o = FactoryBot.create(:valid_otu, name: 'smorf')
-    q = Queries::Otu::Autocomplete.new('orf', project_id: project_id)
+    q = Queries::Otu::Autocomplete.new('morf', project_id: project_id)
     expect(q.autocomplete).to contain_exactly(o)
   end
 
