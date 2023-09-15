@@ -61,7 +61,16 @@ module Queries
     # @param queries Array of [nil, merge clauses]
     def referenced_klass_intersection(queries)
       q = queries.compact
-      referenced_klass.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' INTERSECT ')}) as #{table.name}")
+
+      # We can return this directly, though we get conflicts with `from:` on merge clauses
+      z = referenced_klass.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' INTERSECT ')}) as #{table.name}")
+
+      # Probably need a global counter, and this may not be needed
+      s = Utilities::Strings.random_string(string_length)
+      a = table.name + s
+
+      # Here we probably get conflicts with join: clauses
+      referenced_klass.joins("INNER JOIN ( #{z.to_sql}  ) AS #{a} ON #{a}.id = #{table.name}.id")
     end
 
     # @param query A query that returns referenced_klass records
