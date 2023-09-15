@@ -31,7 +31,7 @@ defineProps({
   },
 
   label: {
-    type: String,
+    type: [String, Boolean],
     default: 'object_tag'
   }
 })

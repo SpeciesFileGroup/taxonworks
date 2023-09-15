@@ -1,11 +1,12 @@
 <template>
   <div>
     <div class="field">
-      <label>Internal Predicate</label>
+      <label>Predicate</label>
       <VAutocomplete
         url="/data_attributes/import_predicate_autocomplete"
         param="term"
-        placeholder="Type an internal predicate..."
+        placeholder="Type a predicate..."
+        v-model="internalPredicate"
         @get-item="
           (item) => {
             internalPredicate = item
@@ -69,7 +70,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 
 const emit = defineEmits(['add'])
 const inputValue = ref('')
-const internalPredicate = ref('test')
+const internalPredicate = ref('')
 const exact = ref(false)
 
 function addInternalAttribute(params) {
