@@ -243,7 +243,7 @@ module Queries::Concerns::DataAttributes
     a,b = nil, nil
 
     if data_attribute_import_wildcard_value.present?
-      v = data_attribute_wildcard_value.collect{|z| wildcard_value(z) } # TODO: should be standardized much earlier on
+      v = data_attribute_import_wildcard_value.collect{|z| wildcard_value(z) } # TODO: should be standardized much earlier on
       a = data_attribute_table[:value].matches_any(v)
     end
 
