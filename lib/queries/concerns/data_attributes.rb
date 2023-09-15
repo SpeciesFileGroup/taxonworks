@@ -218,7 +218,7 @@ module Queries::Concerns::DataAttributes
     a,b = nil, nil
 
     if data_attribute_wildcard_value.present?
-      v = self.data_attribute_wildcard_value.collect{|a| wildcard_value(a) } # TODO: should be standardized much earlier on
+      v = data_attribute_wildcard_value.collect{|a| wildcard_value(a) } # TODO: should be standardized much earlier on
       a = data_attribute_table[:value].matches_any(v)
     end
 
@@ -238,18 +238,20 @@ module Queries::Concerns::DataAttributes
   end
 
   def import_value_facet
-    return nil if data_attribute_import_exact_value.blank?  && data_attribute_import_wildcard_value.blank?
+    return nil if data_attribute_import_exact_value.blank? && data_attribute_import_wildcard_value.blank?
 
     a,b = nil, nil
 
     if data_attribute_import_wildcard_value.present?
-      v = self.data_attribute_wildcard_value.collect{|a| wildcard_value(a) } # TODO: should be standardized much earlier on
+      v = data_attribute_wildcard_value.collect{|z| wildcard_value(z) } # TODO: should be standardized much earlier on
       a = data_attribute_table[:value].matches_any(v)
     end
 
     b = data_attribute_table[:value].eq_any(data_attribute_import_exact_value) if data_attribute_import_exact_value.present?
 
     q = referenced_klass.joins(:data_attributes)
+
+    byebug
 
     if a && b
       q.where(a.or(b))

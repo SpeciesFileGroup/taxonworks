@@ -137,7 +137,7 @@ class DataAttributesController < ApplicationController
 
   def import_predicate_autocomplete
 
-    render json: [] and return if param[:term].blank?
+    render json: [] and return if params[:term].blank?
 
     @internal_attributes = ::DataAttribute
     .where(project_id: sessions_current_project_id)
