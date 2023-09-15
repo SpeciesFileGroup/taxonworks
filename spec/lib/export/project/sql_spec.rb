@@ -1,7 +1,7 @@
 require 'rails_helper'
-require 'export/project'
+require 'export/project/sql'
 
-describe Export::Project do
+describe Export::Project::Sql do
 
   let(:hierarchy_tables) do
     ActiveRecord::Base.connection.tables.select { |t| t =~ /.*_hierarchies/ }

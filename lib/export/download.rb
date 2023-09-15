@@ -1,4 +1,5 @@
-# Code that translates scopes into downloadable tab-delimited CSV. Dependant on Postgresql.
+# Code that translates scopes into downloadable tab-delimited CSV.
+# !! Dependant on PostgreSQL.
 #
 module Export::Download
 
@@ -111,4 +112,3 @@ module Export::Download
 
 
 end
-

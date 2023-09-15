@@ -12,7 +12,7 @@ class AlternateValuesController < ApplicationController
         # !! This is project-only, it will be tricky to find all created at this point. We would have
         # to reference all project members and link through created/modified on all community opbjects.
         # These would show up throughout the Users project as well, confusing things across project.
-        @recent_objects = Queries::AlternateValue::Filter.new(params.merge(project_id: sessions_current_project_id))
+        @recent_objects = ::Queries::AlternateValue::Filter.new(params.merge(project_id: sessions_current_project_id))
           .all
           .order(updated_at: :desc).limit(10)
           render '/shared/data/all/index'
@@ -20,7 +20,7 @@ class AlternateValuesController < ApplicationController
       format.json {
         # !! You must merge project_id to handle community data exceptions.  This is a contrast to other filter patterns
         # where the project_id is scoped here.
-        @alternate_values = Queries::AlternateValue::Filter.new(
+        @alternate_values = ::Queries::AlternateValue::Filter.new(
           params.merge(project_id: sessions_current_project_id)
         )
         .all.page(params[:page])
