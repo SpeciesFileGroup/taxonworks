@@ -9,17 +9,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- DataAttribute facet to filter sources
+- ImportAttribute facets to various filters 
 - Project data curation issue tracking URL field (and to base API response) [#3550]
 - Manual option to regenerate derivative images on Show Image
 - API gallery endpoint `/depictions/gallery`
 - Image quick forms, add depictions in the context of an image [#3540]
 - Tables of data to nomenclature stats plots, with option to copy to clipboard
 - With/out nomenclature date facet on filter nomenclature
+- Determiners can be re-ordered (topmost, regardless of year, is preferred) [#1355]
 
 ### Changed
 
 - Updated Gemfile
+- Updated JS packages
 - Derivative images strip EXIF and auto orient
 - TaxonName autocomplete change to a strict match mode.
 - Bold geographic levels in Type specimen panel in Browse OTU [#3544]
@@ -33,7 +35,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - OTU API autocomplete fails to sort results
 - Duplicate type status per CollectionObject are not allowed [#3535]
 - Edit/New taxon name: Author order for taxon name does not match author order of source [#3551]
+- Some issues with order of roles (e.g. Determinations) in display [#1355]
 
+[#1355]: https://github.com/SpeciesFileGroup/taxonworks/issues/1355
 [#3443]: https://github.com/SpeciesFileGroup/taxonworks/issues/3443
 [#3552]: https://github.com/SpeciesFileGroup/taxonworks/issues/3552
 [#3553]: https://github.com/SpeciesFileGroup/taxonworks/issues/3553
