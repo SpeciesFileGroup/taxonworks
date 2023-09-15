@@ -30,7 +30,7 @@
     :exclude="['title', 'author', 'bibtex_type']"
   />
   <FacetDataAttribute v-model="params" />
-  <FacetInternalAttribute v-model="params" />
+  <FacetImportAttribute v-model="params" />
   <FacetUsers v-model="params" />
   <FacetSomeValue
     model="sources"
@@ -64,7 +64,7 @@ import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetBibtexType from '@/components/Filter/Facets/Source/FacetBibtexType.vue'
 import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
-import FacetInternalAttribute from '@/components/Filter/Facets/shared/FacetInternalAttribute/FacetInternalAttribute.vue'
+import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import CitationOnOtus from '@/components/Filter/Facets/Source/CitationOnOtus.vue'
 import FacetByAttribute from '@/components/Filter/Facets/shared/FacetByAttribute.vue'
 

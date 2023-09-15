@@ -39,6 +39,7 @@
     target="CollectionObject"
   />
   <FacetDataAttributes v-model="params" />
+  <FacetImportAttribute v-model="params" />
   <FacetIdentifiers v-model="params" />
   <FacetUsers v-model="params" />
   <FacetWith
@@ -71,6 +72,7 @@ import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetDataAttributes from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetWith from './Facet/FacetWith.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
+import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import WithComponent from '@/components/Filter/Facets/shared/FacetWith.vue'
 import { computed } from 'vue'
 
