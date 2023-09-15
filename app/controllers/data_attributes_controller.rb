@@ -136,6 +136,9 @@ class DataAttributesController < ApplicationController
   end
 
   def import_predicate_autocomplete
+
+    render json: [] and return if param[:term].blank?
+
     @internal_attributes = ::DataAttribute
     .where(project_id: sessions_current_project_id)
     .where('import_predicate ilike ?', '%' + params[:term] + '%' )
