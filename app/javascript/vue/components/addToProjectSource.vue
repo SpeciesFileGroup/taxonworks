@@ -8,7 +8,7 @@
     @click="addToProject"
   >
     <VIcon
-      name="folderArrowUp"
+      name="folderArrowDown"
       x-small
     />
   </VBtn>
