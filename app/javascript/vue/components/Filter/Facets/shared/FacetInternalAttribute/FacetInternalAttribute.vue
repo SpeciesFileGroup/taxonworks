@@ -101,7 +101,6 @@ watch(
     () => props.modelValue.data_attribute_import_predicate
   ],
   (newVals, oldVals) => {
-    console.log(newVals)
     if (
       newVals.every((value) => !value?.length) &&
       oldVals.some((value) => value?.length)
@@ -174,7 +173,6 @@ onBeforeMount(async () => {
   })
 
   predicateWithValues.forEach(([predicate, text]) => {
-    console.log(predicate)
     addPredicate({ predicate, name: predicate, text })
   })
 
