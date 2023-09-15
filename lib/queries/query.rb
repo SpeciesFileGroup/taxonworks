@@ -66,7 +66,7 @@ module Queries
       z = referenced_klass.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' INTERSECT ')}) as #{table.name}")
 
       # Probably need a global counter, and this may not be needed
-      s = Utilities::Strings.random_string(string_length)
+      s = Utilities::Strings.random_string(5)
       a = table.name + s
 
       # Here we probably get conflicts with join: clauses
