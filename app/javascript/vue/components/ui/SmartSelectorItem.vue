@@ -3,7 +3,11 @@
     v-if="item"
     class="middle flex-separate gap-small"
   >
-    <p v-html="item[label]" />
+    <p
+      v-if="label"
+      v-html="item[label]"
+    />
+    <p v-html="item" />
     <v-btn
       color="primary"
       circle
