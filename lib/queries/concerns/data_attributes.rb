@@ -251,8 +251,6 @@ module Queries::Concerns::DataAttributes
 
     q = referenced_klass.joins(:data_attributes)
 
-    byebug
-
     if a && b
       q.where(a.or(b))
     elsif a
