@@ -7,7 +7,10 @@
       v-if="label"
       v-html="item[label]"
     />
-    <p v-html="item" />
+    <p
+      v-else
+      v-html="item"
+    />
     <v-btn
       color="primary"
       circle
