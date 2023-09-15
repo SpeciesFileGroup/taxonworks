@@ -25,6 +25,7 @@ import { ROLE_TAXON_NAME_AUTHOR } from '@/constants/index.js'
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
+import { sortArray } from '@/helpers'
 import RolePicker from '@/components/role_picker.vue'
 
 export default {
@@ -69,18 +70,23 @@ export default {
 
   methods: {
     cloneFromSource() {
-      const personsIds = this.roles.map((role) => role.person.id)
+      const authors = []
+      const peopleIds = this.roles.map((role) => role.person.id)
+      const sourceAuthors = sortArray(
+        this.citation.source.author_roles,
+        'position'
+      )
 
-      const authorsPerson = this.citation.source.author_roles.map((author) => {
-        if (!personsIds.includes(Number(author.person.id))) {
-          return {
+      sourceAuthors.forEach((author) => {
+        if (!peopleIds.includes(Number(author.person.id))) {
+          authors.push({
             person_id: author.person.id,
             type: ROLE_TAXON_NAME_AUTHOR
-          }
+          })
         }
       })
 
-      this.roles = authorsPerson
+      this.roles = authors
       this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
     },
 

@@ -277,4 +277,73 @@ describe User, type: :model do
     it_behaves_like 'notable'
     # it_behaves_like 'random_token_fields'
   end
+
+  context 'user tranfers' do
+    let(:user) { FactoryBot.create(:valid_user) }
+    let(:target_user) { FactoryBot.create(:valid_user) }
+    let(:another_user) { FactoryBot.create(:valid_user) }
+
+    describe '#transfer_housekeeping' do
+      before do
+        4.times { FactoryBot.create(:valid_protonym, creator: user, updater: user) }
+        3.times { FactoryBot.create(:valid_geographic_area, creator: target_user, updater: user) }
+        5.times { FactoryBot.create(:valid_otu, creator: another_user, updater: another_user, updated_at: 1.week.ago) }
+        user.transfer_housekeeping(target_user)
+      end
+  
+      it 'removes user from housekeeping data' do
+        expect(TaxonName.where(created_by_id: user.id).or(TaxonName.where(updated_by_id: user.id))).to be_empty
+        expect(GeographicArea.where(created_by_id: user.id).or(GeographicArea.where(updated_by_id: user.id))).to be_empty
+      end
+  
+      it 'assigns user to housekeeping data' do
+        expect(TaxonName.where(created_by_id: target_user.id).or(TaxonName.where(updated_by_id: target_user.id)).count).to eq(4)
+        expect(GeographicArea.where(created_by_id: target_user.id).or(GeographicArea.where(updated_by_id: target_user.id)).count).to eq(3)
+      end
+  
+      it 'alters involved users only' do
+        expect(Otu.where(created_by_id: another_user.id).or(Otu.where(updated_by_id: another_user.id)).count).to eq(5)
+      end
+
+      it 'does not set updated at to current time' do
+        expect(Otu.where(updated_at: 1.day.ago..)).to be_empty
+      end
+    end
+
+    describe '#transfer_projects_membership' do
+      let(:common_project) { FactoryBot.create(:valid_project) }
+      let(:user_project) { FactoryBot.create(:valid_project) }
+      let(:target_user_project) { FactoryBot.create(:valid_project) }
+      let(:another_user_project) { FactoryBot.create(:valid_project) }
+      let!(:existing_membership) { ProjectMember.create!(project: common_project, user: target_user, is_project_administrator: false).reload }
+
+      before do
+        ProjectMember.create!(project: common_project, user: user, is_project_administrator: true)
+
+        ProjectMember.create!(project: user_project, user: user, is_project_administrator: true)
+        ProjectMember.create!(project: target_user_project, user: target_user, is_project_administrator: true)
+
+        ProjectMember.create!(project: another_user_project, user: another_user, is_project_administrator: true)
+
+        user.transfer_projects_membership(target_user)
+      end
+
+      it 'assigns all user projects to target user' do
+        expect(target_user.projects.count).to eq(3)
+      end
+
+      it 'retains memberships already existing in target user' do
+        members_attributes = common_project.project_members.map(&:attributes)
+        expect(members_attributes).to contain_exactly(existing_membership.attributes)
+      end
+
+      it 'removes user membership from all projects' do
+        expect(user.projects).to be_empty
+      end
+
+      it 'alters involved users only' do
+        expect(another_user.projects.count).to eq(1)
+      end
+    end
+  end
 end

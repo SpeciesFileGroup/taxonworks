@@ -1,13 +1,13 @@
 module Paperclip
   class Rotator < Thumbnail
     def initialize(file, options = {}, attachment = nil)
-      options[:auto_orient] = false
+      options[:auto_orient] = true
       super
     end
 
     def transformation_command
       if rotate_command
-        "#{rotate_command} #{super.join(' ')}"
+        "#{rotate_command} -strip #{super.join(' ')}"
       else
         super
       end

@@ -125,12 +125,7 @@ class OtusController < ApplicationController
     end
   end
 
-  def autocomplete
-    @otus = Queries::Otu::Autocomplete.new(
-      params.require(:term),
-      project_id: sessions_current_project_id
-    ).autocomplete
-  end
+
 
   def batch_load
     # see app/views/otus/batch_load.html.erb
@@ -259,7 +254,7 @@ class OtusController < ApplicationController
 
   # GET /api/v1/otus
   def api_index
-    @otus = Queries::Otu::Filter.new(params.merge!(api: true)).all
+    @otus = ::Queries::Otu::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('otus.id')
       .page(params[:page])
@@ -272,12 +267,21 @@ class OtusController < ApplicationController
     render '/otus/api/v1/show'
   end
 
-  # GET /api/v1/otus/autocomplete
-  def api_autocomplete
-    @otus = Queries::Otu::Autocomplete.new(
+  def autocomplete
+    @otus = ::Queries::Otu::Autocomplete.new(
       params.require(:term),
       project_id: sessions_current_project_id,
-      # having_taxon_name_only: params[:having_taxon_name_only]
+      with_taxon_name: params[:with_taxon_name],
+      having_taxon_name_only: params[:having_taxon_name_only],
+    ).autocomplete
+  end
+
+  # GET /api/v1/otus/autocomplete
+  def api_autocomplete
+    @otus = ::Queries::Otu::Autocomplete.new(
+      params.require(:term),
+      with_taxon_name: params[:with_taxon_name],
+      project_id: sessions_current_project_id,
     ).api_autocomplete
 
     render '/otus/api/v1/autocomplete'

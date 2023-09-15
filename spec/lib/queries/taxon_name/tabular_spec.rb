@@ -32,7 +32,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
   # display.  Reconcile this in the view, not result here.
   context 'column headers (shared)' do
     before do
-      query.ancestor_id = genus.id.to_s
+      query.taxon_name_id = genus.id.to_s
       query.ranks = ['genus', 'species']
       query.rank_data =  ['genus', 'species']
       query.fieldsets = ['nomenclatural_stats']
@@ -101,7 +101,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
   context 'column headers: observations' do
 
     before do
-      query.ancestor_id = genus.id.to_s
+      query.taxon_name_id = genus.id.to_s
       query.ranks = ['genus', 'species']
       query.fieldsets = ['observations']
       query.validity = false
@@ -152,7 +152,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
 
   context 'number of species: nomenclature stats' do
     before do
-      query.ancestor_id = genus.id.to_s
+      query.taxon_name_id = genus.id.to_s
       query.ranks = ['genus', 'species']
       query.rank_data =  ['genus', 'species']
       query.fieldsets = ['nomenclatural_stats']
@@ -248,7 +248,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
       # all TN with the TaxonNameClassification in the array: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
       # should be excluded from counting of valid names.
       tc = TaxonNameClassification::Iczn::Unavailable::NomenNudum.create!( taxon_name: species1 )
-      query.ancestor_id = genus.id.to_s
+      query.taxon_name_id = genus.id.to_s
       query.ranks = ['genus', 'species']
       query.rank_data =  ['genus', 'species']
       query.fieldsets = ['nomenclatural_stats']
@@ -303,7 +303,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
       FactoryBot.create(:valid_depiction, depiction_object: o2)
       FactoryBot.create(:valid_depiction, depiction_object: o4)
 
-      query.ancestor_id = genus.id.to_s
+      query.taxon_name_id = genus.id.to_s
       query.ranks = ['genus', 'species']
       query.rank_data =  ['genus', 'species']
       query.fieldsets = ['observations']

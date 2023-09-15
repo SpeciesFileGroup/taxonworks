@@ -113,6 +113,8 @@ namespace :api, defaults: {format: :json} do
       get '/data_attributes/brief', to: '/data_attributes#api_brief'
       get '/data_attributes/:id', to: '/data_attributes#api_show'
 
+      get '/depictions', to: '/depictions#api_index'
+      get '/depictions/gallery', to: '/depictions#api_gallery'
       get '/depictions/:id', to: '/depictions#api_show'
 
       get '/observations', to: '/observations#api_index'

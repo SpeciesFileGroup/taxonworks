@@ -49,8 +49,8 @@ export default {
 
   mounted() {
     const params = URLParamsToJSON(location.href)
-    if (params.ancestor_id) {
-      this.getTaxon({ id: params.ancestor_id })
+    if (params.taxon_name_id) {
+      this.getTaxon({ id: params.taxon_name_id })
     }
   },
 

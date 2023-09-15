@@ -9,7 +9,7 @@
     <ul>
     <% @image.depictions.each do |d| -%>
       <%= content_tag(:li, image_context_depiction_tag(d)) -%>
-    <% end %> 
+    <% end %>
     </ul>
   <% end %>
 <% end %>
@@ -23,6 +23,20 @@
       <%= f.submit :Rotate, data: {type: :submit}, class: [:actions, 'button-submit', :button] -%>
     <% end %>
   </div>
+
+  <div class="content">
+    <em> Regenerate derivatives (thumb, medium). Original image is untouched. </em>
+    <%= form_for(@image, url: regenerate_derivative_image_path(@image)) do |f| %>
+      <%= f.submit :Regenerate, data: {type: :submit}, class: [:actions, 'button-submit', :button] -%>
+    <% end %>
+  </div>
+
+
+
+<% end %>
+
+<%= content_for :icon_navigation do -%>
+  <%= content_tag(:li, collection_object_radial_tag(@image) )   %>
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @image}) -%>

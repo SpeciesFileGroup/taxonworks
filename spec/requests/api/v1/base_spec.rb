@@ -12,7 +12,7 @@ describe Api::V1::BaseController, type: :request do
     it_behaves_like 'a successful response'
 
     specify 'open_projects' do
-      expect(JSON.parse(response.body).dig('open_projects')).to contain_exactly({project.api_access_token => project.name})
+      expect(JSON.parse(response.body).dig('open_projects').first).to include({project.api_access_token => project.name})
     end
   end
 

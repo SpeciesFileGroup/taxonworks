@@ -406,11 +406,39 @@ module TaxonNamesHelper
     end
 
     return {
+      metadata: {
+        max_year: max,
+        min_year: min,
+      },
       data: [
         { name: 'Valid', data: valid_data},
         { name: 'Invalid', data: invalid_data}
       ]
     }
+  end
+
+  def taxon_name_year_data_table(data, *attributes)
+    a = data[:data].first
+    b = data[:data].second
+
+    content_tag(:table,
+      safe_join([
+        tag.thead(
+          tag.tr(
+            safe_join [tag.th('Year'), tag.th(a[:name]), tag.th(b[:name])]
+          )
+        ),
+        safe_join((data[:metadata][:min_year]..data[:metadata][:max_year]).collect{|y|
+          tag.tr(
+            safe_join([
+              tag.td(y),
+              tag.td(a[:data][y]),
+              tag.td(b[:data][y])
+            ])
+          )
+        }) 
+      ]), *attributes
+    )
   end
 
   # Perhaps a /lib/catalog method
@@ -445,6 +473,10 @@ module TaxonNamesHelper
     end
 
     return {
+      metadata: {
+        max_year: max,
+        min_year: min,
+      },
       data: [
         { name: 'Valid', data: valid_data},
         { name: 'Invalid', data: invalid_data}

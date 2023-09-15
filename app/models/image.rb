@@ -63,6 +63,8 @@ class Image < ApplicationRecord
 
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
 
+  GRAPH_ENTRY_POINTS = [:depictions]
+
   DEFAULT_SIZES = {
     thumb: { width: 100, height: 100 },
     medium: { width: 300, height: 300 }
