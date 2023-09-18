@@ -70,6 +70,10 @@ module Queries
         table[:depiction_object_id].eq_any(depiction_object_id)
       end
 
+      # If we add merge_clauses then we likely have
+      # to deal with excluding the `xml` field from distinct+intersection calls
+      # via a custom base_query field.
+
       def and_clauses
         [
           depiction_id_facet,
