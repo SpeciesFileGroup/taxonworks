@@ -7,7 +7,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+
+### Changed
+
+- Staged image metadata field format from JSON to JSONB [#3446]
+
+### Fixed
+
+- Staged image queries failing when multiple facets used [#3556]
+
+[#3556]: https://github.com/SpeciesFileGroup/taxonworks/issues/3556
 
 ## [0.34.4] - 2023-09-15
 
