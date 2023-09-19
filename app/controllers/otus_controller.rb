@@ -22,7 +22,7 @@ class OtusController < ApplicationController
           .page(params[:page])
           .per(params[:per])
           .eager_load(:taxon_name)
-          .order('taxon_names.cached, otus.name')
+          .order(:cached, 'otus.name')
       }
     end
   end

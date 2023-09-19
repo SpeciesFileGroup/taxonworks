@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Taxon name/otus filter order bug
 - Staged image queries failing when multiple facets used [#3556]
 
 [#3556]: https://github.com/SpeciesFileGroup/taxonworks/issues/3556
