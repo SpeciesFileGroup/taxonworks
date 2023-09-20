@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Taxon name/otus filter order bug
 - Staged image queries failing when multiple facets used [#3556]
 - Citations list is truncated in Radial Annotator [#3560]
+- DwC attributes are now showing in Stepwise determinations task
 
 [#3556]: https://github.com/SpeciesFileGroup/taxonworks/issues/3556
 
