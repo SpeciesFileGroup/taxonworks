@@ -7,6 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Depictions list on Filter image
 
 ### Changed
 
@@ -23,7 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- ImportAttribute facets to various filters 
+- ImportAttribute facets to various filters
 - Project data curation issue tracking URL field (and to base API response) [#3550]
 - Manual option to regenerate derivative images on Show Image
 - API gallery endpoint `/depictions/gallery`
