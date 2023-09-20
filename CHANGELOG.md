@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Cached map item report (linked from Filter OTUs)
 - Depictions list on Filter image
 
 ### Changed

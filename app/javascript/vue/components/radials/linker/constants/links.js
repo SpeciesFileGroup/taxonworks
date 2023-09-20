@@ -22,3 +22,8 @@ export const TASK_TAXON_NAME_STATS = {
   label: 'Chronology stats',
   link: '/tasks/taxon_names/stats/'
 }
+
+export const TASK_CACHED_MAP_ITEM = {
+  label: 'Cached map items',
+  link: '/tasks/cached_maps/report/items_by_otu'
+}
