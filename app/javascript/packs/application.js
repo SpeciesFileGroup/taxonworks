@@ -14,6 +14,7 @@ import 'leaflet/dist/leaflet.css'
 import 'tippy.js/dist/tippy.css'
 
 require('../vanilla/initializers/copyTable.js')
+require('../vue/initializers/issue_tracker/main.js')
 
 require('../vue/tasks/citations/otus/main.js')
 require('../vue/tasks/content/editor/main.js')
