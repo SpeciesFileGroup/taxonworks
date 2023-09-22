@@ -33,9 +33,9 @@ module Workbench::LayoutHelper
         'Issues', 
         'https://github.com/SpeciesFileGroup/taxonworks/issues',
         target: '_blank',
-        data: { 'curation-issue-tracker': sessions_current_project.data_curation_issue_tracker_url}
+        data: { 'curation-issue-tracker': sessions_current_project&.data_curation_issue_tracker_url }
       ),
-      sessions_current_project.data_curation_issue_tracker_url? ? content_tag('div','', id: 'curation-issue-tracker-container') : nil
+      (content_tag('div','', id: 'curation-issue-tracker-container') if sessions_current_project&.data_curation_issue_tracker_url)
     ].join().html_safe
   end
 
