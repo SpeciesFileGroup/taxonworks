@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Calls to `/api/v1` have a new key/value signature
 - Staged image metadata field format from JSON to JSONB [#3446]
+- Updated Ruby gems
 
 ### Fixed
 
