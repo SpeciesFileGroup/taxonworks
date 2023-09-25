@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Otu RCC5 relationships to the COLDP exporter [#3569]
 - Cached map item report (linked from Filter OTUs)
 - Depictions list on Filter image
 
