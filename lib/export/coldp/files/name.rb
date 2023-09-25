@@ -240,7 +240,7 @@ end
 
           original = Export::Coldp.original_field(t) # Protonym, no parens
 
-          basionym_id = t.reified_id
+          basionym_id = t.reified_id unless !t.is_combination? and t.is_family_rank?
 
           is_genus_species = t.is_genus_or_species_rank?
 
