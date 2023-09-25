@@ -195,6 +195,12 @@ module Queries::Concerns::DataAttributes
     referenced_klass.joins(:internal_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_predicate_id})
   end
 
+  def data_attribute_import_predicate_facet
+    return nil if data_attribute_import_predicate.empty?
+    referenced_klass.joins(:import_attributes).where(data_attributes: {import_predicate: data_attribute_import_predicate})
+  end
+
+
   def data_attribute_without_predicate_id_facet
     return nil if data_attribute_without_predicate_id.blank?
     not_these = referenced_klass.left_joins(:internal_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_without_predicate_id})
@@ -334,6 +340,7 @@ module Queries::Concerns::DataAttributes
     [
       :data_attribute_import_exact_pair_facet,
       :data_attribute_exact_pair_facet,
+      :data_attribute_import_predicate_facet,
       :data_attribute_predicate_id_facet,
       :data_attribute_wildcard_pair_facet,
       :data_attribute_import_wildcard_pair_facet,

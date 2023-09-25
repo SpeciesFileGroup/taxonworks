@@ -14,17 +14,24 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Calls to `/api/v1` have a new key/value signature
 - Staged image metadata field format from JSON to JSONB [#3446]
+- Updated Ruby gems
 
 ### Fixed
 
+- ImportAttribute facet not working on any predicate searches
 - Taxon name/otus filter order bug
 - Staged image queries failing when multiple facets used [#3556]
 - Citations list is truncated in Radial Annotator [#3560]
 - DwC attributes are now showing in Stepwise determinations task
 - Quick taxon name only works for species [#3554]
+- Filter Images: Change `per` doesn't update the table [#3566]
 
+[#3554]: https://github.com/SpeciesFileGroup/taxonworks/issues/3554
 [#3556]: https://github.com/SpeciesFileGroup/taxonworks/issues/3556
+[#3560]: https://github.com/SpeciesFileGroup/taxonworks/issues/3560
+[#3566]: https://github.com/SpeciesFileGroup/taxonworks/issues/3566
 
 ## [0.34.4] - 2023-09-15
 
