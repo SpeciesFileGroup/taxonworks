@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- ImportAttribute facet not working on any predicate searches
 - Taxon name/otus filter order bug
 - Staged image queries failing when multiple facets used [#3556]
 - Citations list is truncated in Radial Annotator [#3560]
