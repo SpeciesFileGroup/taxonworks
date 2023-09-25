@@ -23,8 +23,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Citations list is truncated in Radial Annotator [#3560]
 - DwC attributes are now showing in Stepwise determinations task
 - Quick taxon name only works for species [#3554]
+- Filter Images: Change `per` doesn't update the table [#3566]
 
+[#3554]: https://github.com/SpeciesFileGroup/taxonworks/issues/3554
 [#3556]: https://github.com/SpeciesFileGroup/taxonworks/issues/3556
+[#3560]: https://github.com/SpeciesFileGroup/taxonworks/issues/3560
+[#3566]: https://github.com/SpeciesFileGroup/taxonworks/issues/3566
 
 ## [0.34.4] - 2023-09-15
 
