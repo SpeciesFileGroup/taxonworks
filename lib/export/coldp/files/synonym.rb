@@ -75,8 +75,14 @@ module Export::Coldp::Files::Synonym
               end
 
               # skips including parent binomial as a synonym of autonym trinomial
+              # TODO: may need to handle cases in which the gender stems are not an exact match
+              matches = t[1].match(/([A-Z][a-z]+) \(.+\) ([a-z]+)/)
+              cached = t[1]
+              if matches&.size == 3
+                cached = "#{matches[1]} #{matches[2]}"
+              end
               unless t[5].nil?
-                if !t[1].nil? and t[1].include? t[5] and (t[4].match(/::Subspecies$/) or t[4].match(/::Form$/) or t[4].match(/::Variety$/))
+                if !t[1].nil? and cached.include? t[5] and (t[4].match(/::Subspecies$/) or t[4].match(/::Form$/) or t[4].match(/::Variety$/))
                   next
                 end
 
