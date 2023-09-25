@@ -225,6 +225,17 @@ end
           .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", name[1]) # This eliminates Combinations that are identical to the current placement.
           .find_each do |t|
 
+          # TODO: family-group cached original combinations do not get exported in either Name or Synonym tables
+          # exclude duplicate protonyms created for family group relationships
+          if !t.is_combination? and t.is_family_rank?
+            if t.taxon_name_relationships.any? {|tnr| tnr.type == 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'}
+              valid = TaxonName.find(t.cached_valid_taxon_name_id)
+              if valid.name == t.name and valid.cached_author = t.cached_author
+                next
+              end
+            end
+          end
+
           origin_citation = t.origin_citation
 
           original = Export::Coldp.original_field(t) # Protonym, no parens
