@@ -55,6 +55,34 @@ module Export::Coldp::Files::Name
     end
   end
 
+  def self.add_higher_original_name(t, csv, origin_citation, name_remarks_vocab_id, project_members)
+
+    id = t.reified_id
+
+    csv << [
+      id,                                                                 # ID
+      nil,                                                                # basionymID
+      clean_sic(t.cached_original_combination),                           # scientificName
+      authorship_field(t, true),                                          # authorship
+      t.rank,                                                             # rank
+      clean_sic(t.cached_original_combination),                           # uninomial
+      nil,                                                                # genus
+      nil,                                                                # subgenus (no parens)
+      nil,                                                                # species
+      nil,                                                                # infraspecificEpithet
+      origin_citation&.source_id,                                         # referenceID    |
+      origin_citation&.pages,                                             # publishedInPage  | !! All origin citations get added to reference_csv via the main loop, not here
+      t.year_of_publication,                                              # publishedInYear  |
+      true,                                                               # original
+      code_field(t),                                                      # code
+      nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
+      nil,                                                                # link (probably TW public or API)
+      Export::Coldp.sanitize_remarks(remarks(t, name_remarks_vocab_id)),  # remarks
+      Export::Coldp.modified(t[:updated_at]),                             # modified
+      Export::Coldp.modified_by(t[:updated_by_id], project_members)       # modifiedBy
+    ]
+  end
+
   # Invalid Protonyms are rendered only as their original Combination
   # @param t [Protonym]
   #    only place that var./frm can be handled.
@@ -263,6 +291,11 @@ module Export::Coldp::Files::Name
           if !t.cached_original_combination.blank? && (is_genus_species && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?))
             name_total += 1
             add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
+          end
+
+          # Here we add reified ID's for higher taxa in which cached != cached_original_combination (e.g., TaxonName stores both Lamotialnina and Lamotialnini so needs a reified ID)
+          if !t.cached_original_combination.blank? && t.is_family_rank? && t.cached != t.cached_original_combination
+            add_higher_original_name(t, csv, origin_citation, name_remarks_vocab_id, project_members)
           end
 
           Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation
