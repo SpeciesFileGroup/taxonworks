@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Batch import BibTeX failing on empty entries
 - Chronology stats report
 - ImportAttribute facet not working on any predicate searches
 - Taxon name/otus filter order bug
