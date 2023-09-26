@@ -261,8 +261,8 @@ module Queries
         c = ::Queries::CollectingEvent::Filter.new(wkt: wkt_shape, project_id:)
         a = ::Queries::AssertedDistribution::Filter.new(wkt: wkt_shape, project_id:)
 
-        q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all)
-        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all)
+        q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all, project_id:)
+        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all, project_id:)
 
         referenced_klass_union([q1, q2]).distinct
       end
@@ -273,8 +273,8 @@ module Queries
         c = ::Queries::CollectingEvent::Filter.new(geo_json:, project_id:, radius:)
         a = ::Queries::AssertedDistribution::Filter.new(geo_json:, project_id:, radius:)
 
-        q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all)
-        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all)
+        q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all, project_id:)
+        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all, project_id:)
 
         referenced_klass_union([q1, q2]).distinct
       end
