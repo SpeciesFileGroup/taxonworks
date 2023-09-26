@@ -56,50 +56,42 @@ class CachedMapItem < ApplicationRecord
   #   {country:, state:, county: }
   #  Check to see if a record is already present rather than-recalculate spatially
   #  CONSIDER: Use Reddis store to cache these results and look them up from there.
+  #
   def self.cached_map_name_hierarchy(geographic_item_id)
     h = CachedMapItem
-      .select(
-        'level0_geographic_name country, level1_geographic_name state, level2_geographic_name county'
-      )
+      .select('level0_geographic_name country, level1_geographic_name state, level2_geographic_name county')
         .where('level0_geographic_name IS NOT NULL OR level1_geographic_name IS NOT NULL OR level2_geographic_name IS NOT NULL')
         .find_by(geographic_item_id:) # finds first
         &.attributes
-        &.compact
+        &.compact!
 
-      return h if h.present?
+    return h.symbolize_keys if h.present?
 
-      GeographicItem.find(geographic_item_id).quick_geographic_name_hierarchy
+    GeographicItem.find(geographic_item_id).quick_geographic_name_hierarchy
   end
 
   def self.cached_map_geographic_items_by_otu(otu_scope = nil)
     return GeographicItem.none if otu_scope.nil?
 
-    s =
-      'WITH otu_scope AS (' + otu_scope.all.to_sql + ') ' +
+    s = 'WITH otu_scope AS (' + otu_scope.all.to_sql + ') ' +
       ::GeographicItem
-      .joins(
-        'JOIN cached_maps on cached_maps.geographic_item_id = geographic_items.id'
-      )
-        .joins(
-          'JOIN otu_scope as otu_scope1 on otu_scope1.id = cached_maps.otu_id'
-        )
-          .to_sql
+        .joins('JOIN cached_maps on cached_maps.geographic_item_id = geographic_items.id')
+        .joins( 'JOIN otu_scope as otu_scope1 on otu_scope1.id = cached_maps.otu_id').to_sql
 
-        ::GeographicItem.from('(' + s + ') as geographic_items').distinct
+    ::GeographicItem.from('(' + s + ') as geographic_items').distinct
   end
 
   # TODO: constantize
   def self.types_by_data_origin(data_origin = [])
     data_origin.each do |d|
-      a =
-        CachedMapItem
+      a = CachedMapItem
         .descendants
         .inject([]) do |ary, t|
           ary.push(t.name) if t::SOURCE_GAZETEERS.include?(d)
           ary
-        end
-          .compact
-          .uniq
+        end.compact!
+
+        a = a.uniq if a.present?
         return a if a.present?
     end
   end
@@ -148,7 +140,7 @@ class CachedMapItem < ApplicationRecord
       .order(cached_total_area: :ASC) # smallest first
       .first
       &.id
-    return [a]
+      return [a]
     else
       []
     end
@@ -160,15 +152,10 @@ class CachedMapItem < ApplicationRecord
     return [] if geographic_item_id.blank?
     b = GeographicItem
       .joins(:geographic_areas_geographic_items)
-      .where(
-        ::GeographicItem
-      .joins(:geographic_areas_geographic_items)
       .where(geographic_areas_geographic_items: { data_origin: })
-      .within_radius_of_item_sql(geographic_item_id, 0.0)
-      )
-        .where(geographic_areas_geographic_items: { data_origin: })
-        .order('geographic_items.cached_total_area ASC')
-        .pluck(:id, :cached_total_area)
+      .where( GeographicItem.within_radius_of_item_sql(geographic_item_id, 0.0) )
+      .order('geographic_items.cached_total_area ASC')
+      .pluck(:id, :cached_total_area)
 
       gi = GeographicItem.select(:id, :cached_total_area).find(geographic_item_id)
       original_area = gi.cached_total_area
@@ -237,6 +224,7 @@ class CachedMapItem < ApplicationRecord
     end
 
     a, debug = translate_by_spatial_overlap(geographic_item_id, data_origin, percent_overlap_cutoff)
+
     return a if a.present?
 
     []
@@ -284,11 +272,9 @@ class CachedMapItem < ApplicationRecord
         h[:geographic_item_id] = [geographic_item_id]
         h[:untranslated] = true
       end
-
     end
 
     h[:otu_id] = otu_id
-
     h
   end
 end

@@ -12,6 +12,14 @@
     <% end %>
     </ul>
   <% end %>
+
+  <% if @image.sqed_depiction -%>
+    <%= content_tag(:h3, 'SQED Depiction') -%>
+    <ul>
+    <%= tag.ul(tag.li(link_to 'Staged image', sqed_depiction_breakdown_task_path(id: @image.sqed_depiction))) %>
+    </ul>
+  <% end %>
+
 <% end %>
 
 <%= content_for :additional_navigation do %>
