@@ -69,7 +69,6 @@ module Export::Coldp::Files::NameRelation
 
 
   def self.generate(otus, project_members, reference_csv = nil )
-    Current.project_id = otus[0].project_id
     CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{
@@ -82,27 +81,28 @@ module Export::Coldp::Files::NameRelation
         remarks
       }
 
-      TaxonNameRelationship.where(project_id: Current.project_id).each do |tnr|
+      otus.each do |o|
+        o.taxon_name.taxon_name_relationships.each do |tnr|
 
-        # Combinations and OriginalCombinations are already handled in the Name module
-        unless BLOCKED.include? tnr.type
+          # Combinations and OriginalCombinations are already handled in the Name module
+          unless BLOCKED.include? tnr.type
 
-          sources = tnr.sources.load
-          reference_ids = sources.collect{|a| a.id}
-          reference_id = reference_ids.first
+            sources = tnr.sources.load
+            reference_ids = sources.collect{|a| a.id}
+            reference_id = reference_ids.first
 
-          csv << [
-            tnr.subject_taxon_name_id,                                       # nameID
-            tnr.object_taxon_name_id,                                        # relatedNameID
-            type(tnr),                                                       # type
-            reference_id,                                                    # referenceID
-            Export::Coldp.modified(tnr[:update_at]),                         # modified
-            Export::Coldp.modified_by(tnr[:updated_by_id], project_members), # modified_by
-            nil,                                                             # remarks
-          ]
+            csv << [
+              tnr.subject_taxon_name_id,                                       # nameID
+              tnr.object_taxon_name_id,                                        # relatedNameID
+              type(tnr),                                                       # type
+              reference_id,                                                    # referenceID
+              Export::Coldp.modified(tnr[:updated_at]),                         # modified
+              Export::Coldp.modified_by(tnr[:updated_by_id], project_members), # modified_by
+              nil,                                                             # remarks
+            ]
 
-          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
-
+            Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
+          end
         end
       end
     end
