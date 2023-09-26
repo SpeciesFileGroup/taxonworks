@@ -100,15 +100,12 @@ module Queries
         .order('id_order.row_num')
       end
 
-      # Maintains valid_taxon_name_id needed for API. Much over-kill on intermediate queries,
-      # needs refactor.
+      # Maintains valid_taxon_name_id needed for API.
       #
-      # TODO:
+      # Considerations:
       #   otus -> taxon names -> valid taxon name_id <- otu can return more OTUs than the original query
-      #      becuase there can be multiple OTUs for the valid name of an invalid original result
-      #
-      #  This means we can just go from an invalid otu to it's valid target, we'd have to select the first
-      #  target (distinct on).
+      #      because there can be multiple OTUs for the valid name of an invalid original result.
+      #      right now we pick the first valid OTU for the name with distinct on()
       #
       def api_autocomplete
         @with_taxon_name = true
@@ -118,31 +115,12 @@ module Queries
         # before priority ordering is applied. May require tuning.
         otus = compact_priorities( autocomplete_base.limit(30) )
 
-        otu_order = otus.map(&:id)
+        otu_order = otus.map(&:id).uniq
 
-        taxon_names = ::TaxonName.where(project_id:, id: otus.map(&:taxon_name_id).uniq) # pertinent names
-
-        s = 'WITH tns AS (' + taxon_names.that_is_valid.to_sql + ') ' +
-           ::Otu.joins('JOIN tns AS tns_o ON tns_o.id = otus.taxon_name_id')
-             .where(otus: {id: otu_order})
-             .select('DISTINCT ON(otus.id) otus.*, otus.id as otu_valid_id')
-             .to_sql
-
-        a = ::Otu.select('otus.*, otu_valid_id').from('(' + s + ') as otus')
-
-        # Invalid name matches
-        t = 'WITH tns_invalid AS (' + taxon_names.that_is_invalid.to_sql + ') ' +
-          ::Otu.joins('JOIN tns_invalid as tns_invalid1 ON tns_invalid1.id = otus.taxon_name_id')
-           .where(otus: {id: otu_order})
-           .joins('LEFT JOIN otus AS otus1 ON tns_invalid1.cached_valid_taxon_name_id = otus1.taxon_name_id')
-           .select('DISTINCT ON(otus1.id) otus.*, otus1.id AS otu_valid_id')
-           .to_sql
-
-        b = ::Otu.select('otus.*, otu_valid_id').from('(' + t + ') as otus')
-
-        # TODO? see alternate ordering approach in SQL in autocomplete_taxon_name
-        u = ::Otu.from("( (#{a.to_sql}) UNION (#{b.to_sql})) as otus")
-        f = ::Otu.from('(' + u.to_sql + ') as otus')
+        f = ::Otu.where(id: otu_order)
+              .joins('left join taxon_names t1 on otus.taxon_name_id = t1.id')
+              .joins('left join otus o2 on t1.cached_valid_taxon_name_id = o2.taxon_name_id AND t1.cached_is_valid = true')
+              .select('distinct on (otus.id) otus.id, otus.name, otus.taxon_name_id, COALESCE(o2.id, otus.id) as otu_valid_id')
 
         f.sort_by.with_index { |item, idx| [(otu_order.index(item.id) || 999), (idx || 999)] }
       end
