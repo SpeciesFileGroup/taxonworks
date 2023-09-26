@@ -64,9 +64,25 @@ module Export::Coldp::Files::Synonym
             .each do |t|
               reified_id = ::Export::Coldp.reified_id(t[0], t[1], t[2])
 
+              # skip duplicate protonyms created for family group relationships
+              if t[4]&.include? 'FamilyGroup'
+                tn = TaxonName.find(t[0])
+                if tn.taxon_name_relationships.any? {|tnr| tnr.type == 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'}
+                  if tn.name == o[1]  # only skip if it matches the accepted name, because there might be multiple protonyms added for family group relationships
+                    next
+                  end
+                end
+              end
+
               # skips including parent binomial as a synonym of autonym trinomial
+              # TODO: may need to handle cases in which the gender stems are not an exact match
+              matches = t[1].match(/([A-Z][a-z]+) \(.+\) ([a-z]+)/)
+              cached = t[1]
+              if matches&.size == 3
+                cached = "#{matches[1]} #{matches[2]}"
+              end
               unless t[5].nil?
-                if !t[1].nil? and t[1].include? t[5] and (t[4].match(/::Subspecies$/) or t[4].match(/::Form$/) or t[4].match(/::Variety$/))
+                if !t[1].nil? and cached.include? t[5] and (t[4].match(/::Subspecies$/) or t[4].match(/::Form$/) or t[4].match(/::Variety$/))
                   next
                 end
 
