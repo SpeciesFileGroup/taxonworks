@@ -48,12 +48,13 @@
       :height="image.alternatives.thumb.height"
       :width="image.alternatives.thumb.width"
     />
-    <div class="flex-separate gap-small">
-      <radial-annotator
+    <div class="flex-separate gap-xsmall">
+      <RadialAnnotator
         type="annotations"
         :global-id="image.global_id"
       />
-      <radial-object :global-id="image.global_id" />
+      <RadialObject :global-id="image.global_id" />
+      <RadialNavigator :global-id="image.global_id" />
       <VBtn
         circle
         color="destroy"
@@ -71,7 +72,8 @@
 import { ref } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
-import RadialObject from '@/components/radials/navigation/radial'
+import RadialObject from '@/components/radials/object/radial'
+import RadialNavigator from '@/components/radials/navigation/radial'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 

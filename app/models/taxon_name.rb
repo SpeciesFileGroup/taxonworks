@@ -635,7 +635,52 @@ class TaxonName < ApplicationRecord
     try(:source).try(:year)
   end
 
+  # @return Year,nil
+  #  based on TaxonNameRelationships only at present
+  def taxon_name_relationship_minimum_invalidating_year
+    a = taxon_name_relationships.includes(:source).order_by_oldest_source_first.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).first
+    if a
+      b = a.nomenclature_date&.year
+      if b == Date.current.year
+        return nil
+      else
+        b
+      end
+    else
+      nil
+    end
+  end
+
+  def taxon_name_classification_minimum_invalidating_year
+    a = taxon_name_classifications.includes(:source).order_by_oldest_source_first.with_type_array(::TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).first
+    if a
+      b = a.nomenclature_date&.year
+      if b == Date.current.year
+        return nil
+      else
+        b
+      end
+    else
+      nil
+    end
+  end
+
+  def minimum_invalidating_year
+    [ taxon_name_classification_minimum_invalidating_year, taxon_name_relationship_minimum_invalidating_year ].compact.sort.first
+  end
+
+  def minimum_years_valid
+    a = [year_integer, minimum_invalidating_year].compact
+    if a.size == 2
+      a.second - a.first
+    else
+      nil
+    end
+  end
+
   # TODO: cleanly isolate getters, setters, and cached builders
+  # TODO: remove, this is only used for a strange call in sv_checked cached.
+  #
   # @return String, nil
   #   virtual attribute, to ultimately be fixed in db
   def get_author
@@ -644,28 +689,35 @@ class TaxonName < ApplicationRecord
     return a
   end
 
-  # !! Overrides Shared::Citations#nomenclature_date
-  #
   # @return [Time]
   #   effective date of publication, used to determine nomenclatural priority
+  #
+  # !! Overrides *and* references Shared::Citations#nomenclature_date
   def nomenclature_date
     return nil if !persisted?
-    #return nil if TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING).any?
-    family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
 
-    # family_before_1961 = taxon_name_relationships.with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
+    if is_protonym?
+      if is_family_rank?
+        family_before_1961 = TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961.where_subject_is_taxon_name(self).first
+      end
+    end
+
     if family_before_1961.nil?
-      year = year_of_publication ? Time.utc(year_of_publication, 12, 31) : nil
-      self.source ? (self.source.cached_nomenclature_date ? self.source.nomenclature_date : year) : year
+      if a = source_nomenclature_date # Alias for nomenclature_date in shared/citations.rb
+        a
+      else
+        year_of_publication ? Time.utc(year_of_publication, 12, 31) : nil
+      end
     else
       obj = family_before_1961.object_taxon_name
       year = obj.year_of_publication ? Time.utc(obj.year_of_publication, 12, 31) : nil
-      obj.source ? (source.cached_nomenclature_date ? obj.source.nomenclature_date : year) : year
+      b = obj.source_nomenclature_date
+      b ? b : year
     end
   end
 
   # @return [array]
-  # returns array of hashes for history of taxon. Could be used for catalogue construction
+  # returns array of hashes for history of taxon. Could be used for catalogue construction.  Probably belongs in catatlog.
   def nomeclatural_history
     history = []
     TaxonName.where(cached_valid_taxon_name_id: self.id).order(:cached_nomenclature_date).each do |t|
@@ -1729,6 +1781,8 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # TODO: This can be made more specific, we don't need to call some of the methods in set_cached
+  # It also should never be required.
   def sv_fix_cached_names
     begin
       TaxonName.transaction do
@@ -1740,8 +1794,7 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # MY: does this make sense now, with #valid_taxon_name_id in place?
-  # DD: valid_taxon_name_id does not show if conflict exists
+  #  Required for synonyms of synomyms
   def sv_not_synonym_of_self
     if list_of_invalid_taxon_names.include?(self)
       soft_validations.add(:base, "Taxon has two conflicting relationships (invalidating and validating). To resolve a conflict, add a status 'Valid' to a valid taxon.")

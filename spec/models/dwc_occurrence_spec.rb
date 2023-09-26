@@ -114,14 +114,19 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     expect(a.size).to eq(3)
   end
 
+  # Presently unused pattern
   specify 'collection_object filter merge' do
-    a = ::Queries::CollectionObject::Filter.new(on_loan: 'true').all
+    a = ::Queries::CollectionObject::Filter.new(on_loan: true).all
+
     FactoryBot.create(:valid_loan_item, loan_item_object: collection_object)
 
     # A canary, shouldn't be present since not on loan
     c = FactoryBot.create(:valid_specimen, no_dwc_occurrence: false)
 
+    # A merge with two different from: targets fails no
+    #   if we come back to this see `.and()`
     b = DwcOccurrence.collection_objects_join.merge(a)
+
     expect(b.all.count).to eq(1)
   end
 

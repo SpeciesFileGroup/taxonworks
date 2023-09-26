@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Source, type: :model, group: :source do
+describe Source, type: :model, group: :sources do
   let(:source) { Source.new }
   after(:all) { Source.destroy_all }
 

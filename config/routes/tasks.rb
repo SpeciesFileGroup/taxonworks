@@ -1,4 +1,11 @@
 scope :tasks do
+
+  scope :cached_maps do
+    scope :report, controller: 'tasks/cached_maps/report' do
+      get :items_by_otu, as: 'cached_map_items_by_otus_task'
+    end
+  end
+
   scope :geographic_areas do
     scope :usage, controller: 'tasks/geographic_areas/usage' do
       get '/', action: :index, as: 'geographic_area_usage_task'
@@ -510,7 +517,7 @@ scope :tasks do
     end
 
     scope :filter, controller: 'tasks/otus/filter' do
-      get '/', action: :index, as: 'filter_otus_task' 
+      get '/', action: :index, as: 'filter_otus_task'
 
       # TODO: remove all
       #   get 'find', as: 'find_otus_task' # 'find_area_and_date_task'

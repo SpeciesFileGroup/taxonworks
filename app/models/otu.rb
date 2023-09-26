@@ -82,8 +82,8 @@ class Otu < ApplicationRecord
   has_many :otu_relationships, foreign_key: :subject_otu_id
   has_many :related_otu_relationships, class_name: 'OtuRelationship', foreign_key: :object_otu_id
 
-  scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
-  scope :with_name, -> (name) { where(name: name) }
+  scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
+  scope :with_name, -> (name) { where(name:) }
 
   validate :check_required_fields
 
@@ -163,6 +163,7 @@ class Otu < ApplicationRecord
     Otu.joins(q.join_sources).where(h[:ancestor_id].eq_any(ids).to_sql)
   end
 
+  # TODO: replace with filter
   # return [Scope] the Otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)
     if taxon_name.kind_of?(String) || taxon_name.kind_of?(Integer)
@@ -260,23 +261,23 @@ class Otu < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
+      pinboard: Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
       recent: []
     }
 
     if target && !r.empty?
       h[:recent] = (
         Otu.where('"otus"."id" IN (?)', r.first(10) ).to_a +
-        Otu.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(3).to_a
+        Otu.where(project_id:, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(3).to_a
       ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
       h[:quick] = (
-        Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a +
-        Otu.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(1).to_a +
+        Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a +
+        Otu.where(project_id:, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(1).to_a +
         Otu.where('"otus"."id" IN (?)', r.first(4) ).to_a
       ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
     else
-      h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
-      h[:quick] = Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+      h[:recent] = Otu.where(project_id:).order('updated_at DESC').limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+      h[:quick] = Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
     end
 
     h
@@ -289,7 +290,7 @@ class Otu < ApplicationRecord
   # @return [Boolean]
   #   whether or not this otu is coordinate (see coordinate_otus) with this otu
   def coordinate_with?(otu_id)
-    Otu.coordinate_otus(otu_id).where(otus: {id: id}).any?
+    Otu.coordinate_otus(otu_id).where(otus: {id:}).any?
   end
 
   # TODO: Deprecate for helper method, HTML does not belong here

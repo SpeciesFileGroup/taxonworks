@@ -58,8 +58,23 @@ module Queries
       referenced_klass.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' UNION ')}) as #{table.name}")
     end
 
+    # @param queries Array of [nil, merge clauses]
+    def referenced_klass_intersection(queries)
+      q = queries.compact
+
+      # We can return this directly, though we get conflicts with `from:` on merge clauses
+      z = referenced_klass.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' INTERSECT ')}) as #{table.name}")
+
+      # Probably need a global counter, and this may not be needed
+      s = Utilities::Strings.random_string(5)
+      a = table.name + s
+
+      # Here we probably get conflicts with join: clauses
+      referenced_klass.joins("INNER JOIN ( #{z.to_sql}  ) AS #{a} ON #{a}.id = #{table.name}.id")
+    end
+
     # @param query A query that returns referenced_klass records
-    # 
+    #
     # This is an exists equivalent to saying all referenced_klass except those
     #  in the related query
     def referenced_klass_except(query)
@@ -124,7 +139,7 @@ module Queries
     def levenshtein_distance(attribute, value)
       value = "'" + value.gsub(/'/, "''") + "'"
       a = ApplicationRecord.sanitize_sql(value)
-      Arel::Nodes::NamedFunction.new("levenshtein", [table[attribute], Arel::Nodes::SqlLiteral.new(a) ] )
+      Arel::Nodes::NamedFunction.new('levenshtein', [table[attribute], Arel::Nodes::SqlLiteral.new(a) ] )
     end
 
     #

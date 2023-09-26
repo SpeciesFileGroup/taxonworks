@@ -95,7 +95,7 @@ export default {
       handler(newVal) {
         this.ranks = []
         if (newVal) {
-          this.params.ancestor_id = newVal ? newVal.id : undefined
+          this.params.taxon_name_id = newVal ? newVal.id : undefined
           this.$emit('onTaxon', newVal)
         } else {
           return
@@ -118,7 +118,7 @@ export default {
   mounted() {
     const urlParams = URLParamsToJSON(location.href)
     if (Object.keys(urlParams).length) {
-      TaxonName.find(urlParams.ancestor_id).then((response) => {
+      TaxonName.find(urlParams.taxon_name_id).then((response) => {
         this.taxonName = response.body
         this.params = Object.assign({}, this.params, urlParams)
         this.sendParams()
@@ -133,12 +133,12 @@ export default {
 
     setTaxon(taxon) {
       this.taxonName = taxon
-      this.params.ancestor_id = taxon.id
+      this.params.taxon_name_id = taxon.id
     },
 
     initParams() {
       return {
-        ancestor_id: undefined,
+        taxon_name_id: undefined,
         ranks: [],
         validity: false,
         combination: undefined,

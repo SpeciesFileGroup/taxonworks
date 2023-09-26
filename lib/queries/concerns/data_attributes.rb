@@ -10,6 +10,12 @@ module Queries::Concerns::DataAttributes
     [
       :data_attributes,
 
+      :data_attribute_import_exact_pair,
+      :data_attribute_import_exact_value,
+      :data_attribute_import_predicate,
+      :data_attribute_import_wildcard_value,
+      :data_attribute_import_wildcard_pair,
+
       :data_attribute_exact_pair,
       :data_attribute_exact_value,
       :data_attribute_predicate_id,
@@ -23,6 +29,12 @@ module Queries::Concerns::DataAttributes
       data_attribute_wildcard_pair: [],
       data_attribute_wildcard_value: [],
       data_attribute_without_predicate_id: [],
+
+      data_attribute_import_wildcard_pair: [],
+      data_attribute_import_exact_pair: [],
+      data_attribute_import_exact_value: [],
+      data_attribute_import_predicate: [],
+      data_attribute_import_wildcard_value: [],
     ]
   end
 
@@ -37,6 +49,13 @@ module Queries::Concerns::DataAttributes
   extend ActiveSupport::Concern
 
   included do
+
+    # See corresponding versions for InternalAttributes
+    attr_accessor :data_attribute_import_exact_pair
+    attr_accessor :data_attribute_import_exact_value
+    attr_accessor :data_attribute_import_predicate
+    attr_accessor :data_attribute_import_wildcard_value
+    attr_accessor :data_attribute_wildcard_pair
 
     # @param data_attribute_predicate_id [Integer, String, Array] of Predicate (CVT) ids
     # @return Array
@@ -90,6 +109,10 @@ module Queries::Concerns::DataAttributes
       [@data_attribute_wildcard_value].flatten.compact
     end
 
+    def data_attribute_import_wildcard_value
+      [@data_attribute_import_wildcard_value].flatten.compact
+    end
+
     def data_attribute_exact_pair
       return {} if @data_attribute_exact_pair.blank?
       if @data_attribute_exact_pair.kind_of?(Hash)
@@ -108,6 +131,32 @@ module Queries::Concerns::DataAttributes
       end
     end
 
+    def data_attribute_import_wildcard_pair
+      return {} if @data_attribute_import_wildcard_pair.blank?
+      if @data_attribute_import_wildcard_pair.kind_of?(Hash)
+        @data_attribute_import_wildcard_pair
+      else
+        split_pairs([@data_attribute_import_wildcard_pair].flatten.compact)
+      end
+    end
+
+    def data_attribute_import_exact_value
+      [@data_attribute_import_exact_value].flatten.compact
+    end
+
+    def data_attribute_import_exact_pair
+      return {} if @data_attribute_import_exact_pair.blank?
+      if @data_attribute_import_exact_pair.kind_of?(Hash)
+        @data_attribute_import_exact_pair
+      else
+        split_pairs([@data_attribute_import_exact_pair].flatten.compact)
+      end
+    end
+
+    def data_attribute_import_predicate
+      [@data_attribute_import_predicate].flatten.compact
+    end
+
     def split_pairs(pairs)
       h = {}
       pairs.each do |p|
@@ -120,13 +169,19 @@ module Queries::Concerns::DataAttributes
   end
 
   def set_data_attributes_params(params)
+    @data_attribute_import_exact_pair = params[:data_attribute_import_exact_pair]
+    @data_attribute_import_exact_value = params[:data_attribute_import_exact_value]
+    @data_attribute_import_predicate = params[:data_attribute_import_predicate]
+    @data_attribute_import_wildcard_value = params[:data_attribute_import_wildcard_value]
+
     @data_attribute_predicate_id = params[:data_attribute_predicate_id]
     @data_attribute_without_predicate_id = params[:data_attribute_without_predicate_id]
     @data_attribute_exact_value = params[:data_attribute_exact_value]
     @data_attribute_wildcard_value = params[:data_attribute_wildcard_value]
+
     @data_attribute_exact_pair = params[:data_attribute_exact_pair]
     @data_attribute_wildcard_pair = params[:data_attribute_wildcard_pair]
-
+    @data_attribute_import_wildcard_pair = params[:data_attribute_import_wildcard_pair]
     @data_attributes = boolean_param(params, :data_attributes)
   end
 
@@ -137,12 +192,12 @@ module Queries::Concerns::DataAttributes
 
   def data_attribute_predicate_id_facet
     return nil if data_attribute_predicate_id.blank?
-    referenced_klass.joins(:data_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_predicate_id})
+    referenced_klass.joins(:internal_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_predicate_id})
   end
 
   def data_attribute_without_predicate_id_facet
     return nil if data_attribute_without_predicate_id.blank?
-    not_these = referenced_klass.left_joins(:data_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_without_predicate_id})
+    not_these = referenced_klass.left_joins(:internal_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_without_predicate_id})
 
     # a Not exists without using .exists
     s = 'WITH not_these AS (' + not_these.to_sql + ') ' +
@@ -163,13 +218,38 @@ module Queries::Concerns::DataAttributes
     a,b = nil, nil
 
     if data_attribute_wildcard_value.present?
-      v = self.data_attribute_wildcard_value.collect{|a| wildcard_value(a) } # TODO: should be standardized much earlier on
+      v = data_attribute_wildcard_value.collect{|a| wildcard_value(a) } # TODO: should be standardized much earlier on
       a = data_attribute_table[:value].matches_any(v)
     end
 
     b = data_attribute_table[:value].eq_any(data_attribute_exact_value) if data_attribute_exact_value.present?
 
-    q = referenced_klass.joins(:data_attributes)
+    q = referenced_klass.joins(:internal_attributes)
+
+    if a && b
+      q.where(a.or(b))
+    elsif a
+      q.where(a)
+    elsif b
+      q.where(b)
+    else
+      nil
+    end
+  end
+
+  def import_value_facet
+    return nil if data_attribute_import_exact_value.blank? && data_attribute_import_wildcard_value.blank?
+
+    a,b = nil, nil
+
+    if data_attribute_import_wildcard_value.present?
+      v = data_attribute_import_wildcard_value.collect{|z| wildcard_value(z) } # TODO: should be standardized much earlier on
+      a = data_attribute_table[:value].matches_any(v)
+    end
+
+    b = data_attribute_table[:value].eq_any(data_attribute_import_exact_value) if data_attribute_import_exact_value.present?
+
+    q = referenced_klass.joins(:import_attributes)
 
     if a && b
       q.where(a.or(b))
@@ -193,7 +273,21 @@ module Queries::Concerns::DataAttributes
       w = w.or(c)
     end
 
-    referenced_klass.joins(:data_attributes).where(w)
+    referenced_klass.joins(:internal_attributes).where(w)
+  end
+
+  def data_attribute_import_wildcard_pair_facet
+    return nil if data_attribute_import_wildcard_pair.blank?
+    a = []
+    data_attribute_import_wildcard_pair.each do |k,v|
+      a.push data_attribute_table[:import_predicate].eq(k).and( data_attribute_table[:value].matches(wildcard_value(v)) )
+    end
+    w = a.shift
+    a.each do |c|
+      w = w.or(c)
+    end
+
+    referenced_klass.joins(:internal_attributes).where(w)
   end
 
   def data_attribute_exact_pair_facet
@@ -207,7 +301,21 @@ module Queries::Concerns::DataAttributes
       w = w.or(c)
     end
 
-    referenced_klass.joins(:data_attributes).where(w)
+    referenced_klass.joins(:internal_attributes).where(w)
+  end
+
+  def data_attribute_import_exact_pair_facet
+    return nil if data_attribute_import_exact_pair.blank?
+    a = []
+    data_attribute_import_exact_pair.each do |k,v|
+      a.push data_attribute_table[:import_predicate].eq(k).and( data_attribute_table[:value].eq(v) )
+    end
+    w = a.shift
+    a.each do |c|
+      w = w.or(c)
+    end
+
+    referenced_klass.joins(:import_attributes).where(w)
   end
 
   def data_attributes_facet
@@ -224,12 +332,15 @@ module Queries::Concerns::DataAttributes
   #  that restricts the number of clauses
   def self.merge_clauses
     [
+      :data_attribute_import_exact_pair_facet,
       :data_attribute_exact_pair_facet,
       :data_attribute_predicate_id_facet,
       :data_attribute_wildcard_pair_facet,
+      :data_attribute_import_wildcard_pair_facet,
       :data_attribute_without_predicate_id_facet,
       :data_attributes_facet,
-      :value_facet
+      :value_facet,
+      :import_value_facet
     ]
   end
 

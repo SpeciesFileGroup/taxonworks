@@ -7,13 +7,75 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- Otu RCC5 relationships to the COLDP exporter [#3569]
+- Cached map item report (linked from Filter OTUs)
+- Depictions list on Filter image
+
+### Changed
+
+- Staged image metadata field format from JSON to JSONB [#3446]
+
+### Fixed
+
+- Taxon name/otus filter order bug
+- Staged image queries failing when multiple facets used [#3556]
+- Citations list is truncated in Radial Annotator [#3560]
+- DwC attributes are now showing in Stepwise determinations task
+- Quick taxon name only works for species [#3554]
+
+[#3556]: https://github.com/SpeciesFileGroup/taxonworks/issues/3556
+
+## [0.34.4] - 2023-09-15
+
+### Added
+
+- ImportAttribute facets to various filters
+- Project data curation issue tracking URL field (and to base API response) [#3550]
+- Manual option to regenerate derivative images on Show Image
+- API gallery endpoint `/depictions/gallery`
+- Image quick forms, add depictions in the context of an image [#3540]
+- Tables of data to nomenclature stats plots, with option to copy to clipboard
+- With/out nomenclature date facet on filter nomenclature
+- Determiners can be re-ordered (topmost, regardless of year, is preferred) [#1355]
+
+### Changed
+
+- Updated Gemfile
+- Updated JS packages
+- Derivative images strip EXIF and auto orient
+- TaxonName autocomplete change to a strict match mode.
+- Bold geographic levels in Type specimen panel in Browse OTU [#3544]
+
+### Fixed
+
+- Subqueries in unified filters were silently ignoring components of the query, e.g. fix spatial + subquery requests [#3552]
+- Geographic level names not displaying on Browse OTU [#3553]
+- Sqed images that fail processing will try again with slower method automatically [#3070] [#3443]
+- TaxonName dynamic observation matrix row not properly scoped [#3454]
+- OTU API autocomplete fails to sort results
+- Duplicate type status per CollectionObject are not allowed [#3535]
+- Edit/New taxon name: Author order for taxon name does not match author order of source [#3551]
+- Some issues with order of roles (e.g. Determinations) in display [#1355]
+
+[#1355]: https://github.com/SpeciesFileGroup/taxonworks/issues/1355
+[#3443]: https://github.com/SpeciesFileGroup/taxonworks/issues/3443
+[#3552]: https://github.com/SpeciesFileGroup/taxonworks/issues/3552
+[#3553]: https://github.com/SpeciesFileGroup/taxonworks/issues/3553
+[#3550]: https://github.com/SpeciesFileGroup/taxonworks/issues/3550
+[#3070]: https://github.com/SpeciesFileGroup/taxonworks/issues/3070
+[#3454]: https://github.com/SpeciesFileGroup/taxonworks/issues/3454
+[#3535]: https://github.com/SpeciesFileGroup/taxonworks/issues/3535
+[#3540]: https://github.com/SpeciesFileGroup/taxonworks/issues/3540
+[#3544]: https://github.com/SpeciesFileGroup/taxonworks/issues/3544
+[#3551]: https://github.com/SpeciesFileGroup/taxonworks/issues/3551
 
 ## [0.34.3] - 2023-09-05
 
 ### Added
 
-- Task - Nomenclature by year plots [#2472] 
+- Task - Nomenclature by year plots [#2472]
 - API for BiologicalRelationships -`api/v1/biological_relationships?extend[]=biological_property` [#3525]
 - Organization to Attribution slice in Radial annotator [#3529]
 - Delayed job queue `cached`, currently used in Role-related updates [#3437]
@@ -3820,7 +3882,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.4...development
+[0.34.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.3...v0.34.4
 [0.34.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.2...v0.34.3
 [0.34.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.1...v0.34.2
 [0.34.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.0...v0.34.1

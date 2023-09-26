@@ -25,6 +25,7 @@ module Queries
         :name,
         :name_exact,
         :nomenclature_code,
+        :nomenclature_date,
         :nomenclature_group, # !! different than autocomplete
         :not_specified,
         :original_combination,
@@ -110,6 +111,11 @@ module Queries
       #   "yyyy"
       # Matches against cached_author_year.
       attr_accessor :year
+
+      # @param ancestors [Boolean, 'true', 'false', nil]
+      # @return Boolean
+      #   with/out cached nomenclature date set
+      attr_accessor :nomenclature_date
 
       # @param year_start [String]
       #   "yyyy"
@@ -289,6 +295,7 @@ module Queries
         @leaves = boolean_param(params, :leaves)
         @name = params[:name]
         @name_exact = boolean_param(params, :name_exact)
+        @nomenclature_date = boolean_param(params, :nomenclature_date)
         @nomenclature_code = params[:nomenclature_code] if params[:nomenclature_code].present?
         @nomenclature_group = params[:nomenclature_group] if params[:nomenclature_group].present?
         @not_specified = boolean_param(params, :not_specified)
@@ -428,6 +435,15 @@ module Queries
           ::Protonym.joins(:original_combination_relationships)
         else
           ::Protonym.where.missing(:original_combination_relationships)
+        end
+      end
+
+      def nomenclature_date_facet
+        return nil if nomenclature_date.nil?
+        if nomenclature_date
+          table[:cached_nomenclature_date].not_eq(nil)
+        else
+          table[:cached_nomenclature_date].eq(nil)
         end
       end
 
@@ -755,6 +771,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       def and_clauses
         [
+          nomenclature_date_facet,
           author_facet,
           name_facet,
           parent_id_facet,

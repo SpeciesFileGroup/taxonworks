@@ -34,8 +34,8 @@
             ) &&
             (!GetRelationshipsCreated.length || editType)
           "
-          @get-item="addTaxonType"
           :group="childOfParent[getRankGroup.toLowerCase()]"
+          @get-item="addTaxonType"
         />
         <template
           v-if="

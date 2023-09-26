@@ -354,6 +354,11 @@ class GeographicArea < ApplicationRecord
 
   # @return [Hash]
   #   use the parent/child relationships of the this GeographicArea to return a country/state/county categorization
+  #   {
+  #     state: '',
+  #     country: '',
+  #     county: ''
+  #   }
   def geographic_name_classification
     v = {}
     self_and_ancestors.each do |a|
