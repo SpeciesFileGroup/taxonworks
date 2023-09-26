@@ -24,41 +24,40 @@ module Export::Coldp::Files::TaxonConceptRelation
   
   
     def self.generate(otus, project_members, reference_csv = nil )
-      Current.project_id = otus[0].project_id
-      CSV.generate(col_sep: "\t") do |csv|
-  
-        csv << %w{
-          taxonID
-          relatedTaxonID
-          sourceID
-          type
-          referenceID
-          remarks
-          modified
-          modifiedBy
-        }
-  
-        OtuRelationship.where(project_id: Current.project_id).each do |orel|
-  
-        sources = orel.sources.load
-        reference_ids = sources.collect{|a| a.id}
-        reference_id = reference_ids.first
+        CSV.generate(col_sep: "\t") do |csv|
+    
+            csv << %w{
+                taxonID
+                relatedTaxonID
+                sourceID
+                type
+                referenceID
+                remarks
+                modified
+                modifiedBy
+            } 
 
-        csv << [
-            orel.subject_otu_id,                                             # taxonID
-            orel.object_otu_id,                                              # relatedTaxonID
-            nil,                                                             # sourceID
-            type(orel),                                                      # type
-            reference_id,                                                    # referenceID
-            nil,                                                             # remarks
-            Export::Coldp.modified(orel[:updated_at]),                       # modified
-            Export::Coldp.modified_by(orel[:updated_by_id], project_members) # modified_by
-        ]
+            otus.each do |o|
+                o.otu_relationships.each do |orel|
+    
+                    sources = orel.sources.load
+                    reference_ids = sources.collect{|a| a.id}
+                    reference_id = reference_ids.first
 
-        Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
+                    csv << [
+                        orel.subject_otu_id,                                             # taxonID
+                        orel.object_otu_id,                                              # relatedTaxonID
+                        nil,                                                             # sourceID
+                        type(orel),                                                      # type
+                        reference_id,                                                    # referenceID
+                        nil,                                                             # remarks
+                        Export::Coldp.modified(orel[:updated_at]),                       # modified
+                        Export::Coldp.modified_by(orel[:updated_by_id], project_members) # modified_by
+                    ]
 
+                    Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
+                end
+            end
         end
-      end
     end
-  end
-  
+end
