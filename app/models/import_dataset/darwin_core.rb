@@ -257,9 +257,9 @@ class ImportDataset::DarwinCore < ImportDataset
       end
     elsif source.path =~ /\.(txt|tsv|xlsx?|ods)\z/i
       if source.path =~ /\.(txt|tsv)\z/i
-        records[:core] = CSV.read(source.path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8', header_converters: lambda {|f| f.strip}, converters: lambda {|f| f ? f.strip : nil})
+        records[:core] = CSV.read(source.path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8', header_converters: lambda {|f| f&.strip}, converters: lambda {|f| f&.strip})
       else
-        records[:core] = CSV.parse(Roo::Spreadsheet.open(source.path).to_csv, headers: true, header_converters: lambda {|f| f.strip}, converters: lambda {|f| f ? f.strip : nil})
+        records[:core] = CSV.parse(Roo::Spreadsheet.open(source.path).to_csv, headers: true, header_converters: lambda {|f| f&.strip}, converters: lambda {|f| f&.strip})
       end
       records[:core] = records[:core].map { |r| r.to_h }
       headers[:core] = records[:core].first.to_h.keys
