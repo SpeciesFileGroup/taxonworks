@@ -7,9 +7,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Filter images slice in radial linker [#3574]
+
 ### Fixed
 
 - New collecting event: georeference from verbatim button creates two identical georeferences [#3573]
+
+[#3573]: https://github.com/SpeciesFileGroup/taxonworks/issues/3573
+[#3574]: https://github.com/SpeciesFileGroup/taxonworks/issues/3574
 
 ## [0.34.5] - 2023-09-26
 
