@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- New collecting event: georeference from verbatim button creates two identical georeferences [#3573]
 
 ## [0.34.5] - 2023-09-26
 
