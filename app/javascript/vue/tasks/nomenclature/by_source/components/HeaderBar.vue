@@ -1,7 +1,7 @@
 <template>
   <NavBar>
     <template v-if="source.id">
-      <div class="source-text horizontal-left-content">
+      <div class="source-text horizontal-left-content gap-small">
         <span>
           <span v-html="source.cached" />
           <span class="separate-right"

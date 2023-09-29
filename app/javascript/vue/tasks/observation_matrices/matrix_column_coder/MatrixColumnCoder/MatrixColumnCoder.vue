@@ -12,7 +12,7 @@
     <NavigationMatrix class="margin-medium-bottom" />
     <navbar-component>
       <div class="flex-separate middle">
-        <div class="horizontal-left-content middle">
+        <div class="horizontal-left-content middle gap-small">
           <h3
             class="matrix-row-coder__title"
             v-html="descriptor.title"
@@ -21,16 +21,15 @@
         </div>
         <div
           v-if="descriptor.id"
-          class="horizontal-right-content middle"
+          class="horizontal-right-content middle gap-small"
         >
-          <OptionUnsecoredRows class="margin-medium-right" />
+          <OptionUnsecoredRows />
           <template v-if="descriptor.type === componentName.Qualitative">
-            <OptionCharacterStatDisplay class="margin-small-right" />
-            <OptionCharacterStateFilter class="margin-small-right" />
+            <OptionCharacterStatDisplay />
+            <OptionCharacterStateFilter />
           </template>
-          <RowObjectList class="margin-small-right" />
+          <RowObjectList />
           <CodeColumn
-            class="margin-small-right"
             :descriptor="descriptor"
             :column-id="observationColumnId"
           />

@@ -38,13 +38,13 @@
 class Role < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
+  include Shared::PolymorphicAnnotator # must be before Shared::IsData (for now)
   include Shared::IsData
-  include Shared::PolymorphicAnnotator
 
   polymorphic_annotates(:role_object, presence_validate: false)
   acts_as_list scope: [:type, :role_object_type, :role_object_id]
 
-  after_save :update_cached
+  after_save :set_cached
 
   belongs_to :organization, inverse_of: :roles
   belongs_to :person, inverse_of: :roles
@@ -64,20 +64,33 @@ class Role < ApplicationRecord
   end
 
   def agent_type
-    if person
+    if person_id
       :person
-    elsif organization
+    elsif organization_id
       :organization
     else
       nil
     end
   end
 
+  def agent
+    return person if person_id
+    organization
+  end
+
   protected
 
   def agent_present
-    if !person.present? && !organization.present?
+    if person.blank? && organization.blank?
       errors.add(:base, 'missing an agent (person or organization)')
+    end
+  end
+
+  # TODO: redundant?
+  def only_one_agent
+    if person && organization
+      errors.add(:person_id, 'organization is also selected')
+      errors.add(:organization_id, 'person is also selected')
     end
   end
 
@@ -87,24 +100,57 @@ class Role < ApplicationRecord
     end
   end
 
-  # TODO: redundant?
-  def only_one_agent
-    if person && organization
-      errors.add(:person_id, 'organization is also selected')
-      errors.add(:organization_id, 'organization is also selected')
-    end
-  end
-
-  def update_cached
-    if role_object.respond_to?(:set_cached, true)
-      return true if role_object.respond_to?(:no_cached, true) && role_object.no_cached == true
-      role_object.send(:set_cached) 
-    end
-  end
-
   def is_last_role?
     role_object.roles.count == 0
   end
+
+  #
+  # Cache related methods
+  #
+
+  # Optionally defined in subclasses to limit
+  # which cached (sub) methods should be called
+  #   base_class_name: [:method, :method, :method]
+  def cached_triggers
+    {}
+  end
+
+  # @return boolean
+  #   true in roles that should have no impact
+  #   in any cached value setting.  If false then `set_cached`
+  #   will be called unless cached_triggers.presence
+  def do_not_set_cached
+    false
+  end
+
+  def set_cached
+    set_role_object_cached
+  end
+
+  def set_role_object_cached
+    becomes(type.constantize).cached_trigger_methods(role_object).each do |m|
+      role_object.send(m)
+    end
+  end
+
+  def cached_trigger_methods(object)
+    k = object.class.base_class.name.to_sym
+    if cached_triggers[k]
+      cached_triggers[k]
+    elsif
+      object.respond_to?(:set_cached)
+      if do_not_set_cached
+        return []
+      elsif role_object.respond_to?(:no_cached) && role_object.no_cached
+        return []
+      else
+        return [:set_cached]
+      end
+    else
+      []
+    end
+  end
+
 end
 
 # This list can be reconsidered, but for now:
@@ -117,7 +163,6 @@ require_dependency 'source_author'
 require_dependency 'source_editor'
 require_dependency 'collector'
 require_dependency 'georeferencer'
-require_dependency 'determiner'
 require_dependency 'loan_recipient'
 require_dependency 'loan_supervisor'
 
@@ -126,10 +171,12 @@ require_dependency 'loan_supervisor'
 require_dependency 'accession_provider'
 require_dependency 'deaccession_recipient'
 require_dependency 'verifier'
+
+# TODO: these are being used in Attribution, or not?
 require_dependency 'attribution_creator'
 require_dependency 'attribution_editor'
 
 # Person OR Organization roles
-
 require_dependency 'attribution_copyright_holder'
 require_dependency 'attribution_owner'
+require_dependency 'determiner'

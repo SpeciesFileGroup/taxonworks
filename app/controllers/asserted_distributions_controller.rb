@@ -37,7 +37,6 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/1/edit
   def edit
-    @asserted_distribution.source = Source.new if !@asserted_distribution.source
   end
 
   # POST /asserted_distributions
@@ -117,9 +116,7 @@ class AssertedDistributionsController < ApplicationController
 
   # POST /asserted_distributions/batch_move.json?asserted_distribution_query=<>&geographic_area_id
   def batch_move
-    if @asserted_distributions = AssertedDistribution.batch_move(params)
-      @asserted_distributions = @asserted_distributions[:moved]
-      render :index
+    if @result = AssertedDistribution.batch_move(params)
     else
       render json: {success: false}
     end

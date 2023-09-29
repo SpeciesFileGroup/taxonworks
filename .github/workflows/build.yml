@@ -37,7 +37,7 @@ jobs:
 
     services:
       db:
-        image: postgis/postgis:12-3.0
+        image: postgis/postgis:12-3.4
         ports: ['5432:5432']
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -57,10 +57,8 @@ jobs:
     - name: Git checkout
       uses: actions/checkout@v3
     
-    - name: Set up Ruby 3.2
+    - name: Set up Ruby
       uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 3.2
         
     - name: Set up Ruby Bundler gems cache
       uses: actions/cache@v3

@@ -363,7 +363,7 @@ module Queries
         @preparation_type = boolean_param(params, :preparation_type)
         @preparation_type_id = params[:preparation_type_id]
         @repository = boolean_param(params, :repository)
-        @repository_id = (params[:repository_id].presence)
+        @repository_id = params[:repository_id]
         @sled_image_id = (params[:sled_image_id].presence)
         @taxon_determinations = boolean_param(params, :taxon_determinations)
         @taxon_name_id = params[:taxon_name_id]
@@ -435,6 +435,10 @@ module Queries
         [@import_dataset_id].flatten.compact
       end
 
+      def loan_id
+        [@loan_id].flatten.compact
+      end
+
       def otu_id
         [@otu_id].flatten.compact.uniq
       end
@@ -447,13 +451,13 @@ module Queries
         [@taxon_name_id].flatten.compact.uniq
       end
 
+      def repository_id
+        [@repository_id].flatten.compact.uniq
+      end
+
       def collection_object_id_facet
         return nil if collection_object_id.empty?
         table[:id].eq_any(collection_object_id)
-      end
-
-      def loan_id
-        [@loan_id].flatten.compact
       end
 
       def import_dataset_id_facet
@@ -683,7 +687,7 @@ module Queries
 
       def repository_id_facet
         return nil if repository_id.blank?
-        table[:repository_id].eq(repository_id)
+        table[:repository_id].eq_any(repository_id)
       end
 
       def current_repository_id_facet

@@ -301,27 +301,27 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
               error_radius: get_field_value("coordinateUncertaintyInMeters"),
               no_cached: true
             }.merge(attributes[:georeference]))
-            location_levels = collecting_event.values_at(:cached_level2_geographic_name, :cached_level1_geographic_name, :cached_level0_geographic_name).compact
-          else
-            county = get_field_value(:county)
-            state_province = get_field_value(:stateProvince)
-            country = get_field_value(:country)
-            country_code = get_field_value(:countryCode)
-            if country.blank? && country_code.present?
-              if country_code.size == 2
-                country = GeographicArea.find_by(iso_3166_a2: country_code, data_origin: 'country_names_and_code_elements').name
-              elsif country_code.size == 3  # there are no GAs with alpha3 presently
-                country = GeographicArea.find_by(iso_3166_a3: country_code, data_origin: 'country_names_and_code_elements').name
-              end
-            end
+          end
 
-            location_levels = [county, state_province, country].compact
-
-            if require_ga_found && location_levels.size > 0
-              location_hash = {county: county, state_province: state_province, country: country, country_code: country_code}
-              should_check_ga_exists = true
+          county = get_field_value(:county)
+          state_province = get_field_value(:stateProvince)
+          country = get_field_value(:country)
+          country_code = get_field_value(:countryCode)
+          if country.blank? && country_code.present?
+            if country_code.size == 2
+              country = GeographicArea.find_by(iso_3166_a2: country_code, data_origin: 'country_names_and_code_elements').name
+            elsif country_code.size == 3  # there are no GAs with alpha3 presently
+              country = GeographicArea.find_by(iso_3166_a3: country_code, data_origin: 'country_names_and_code_elements').name
             end
           end
+
+          location_levels = [county, state_province, country].compact
+
+          if require_ga_found && location_levels.size > 0
+            location_hash = {county: county, state_province: state_province, country: country, country_code: country_code}
+            should_check_ga_exists = true
+          end
+
           # try to find geographic areas until no location levels are left
           geographic_areas = []
           if disable_recursive_search
@@ -411,8 +411,44 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     value
   end
 
-  # NOTE: Sometimes an identifier/collector happens to be a non-person (like "ANSP Orthopterist"). Does TW (will) have something for this? Currently imported as an Unvetted Person.
+
+  # Search for an Organization by name or alternate name in the given field. If no organization found, find or create a
+  # Person::Unvetted, scoped to the import_dataset
+  #
+  # @param [String, Symbol] field_name Field name (column) to parse for people in
+  # @param [Boolean] search_alt_name Search by alternate_name in addition to name
+  # @return [Array<Organization, Person::Unvetted>, nil]
+  def parse_organizations_and_people(field_name, search_alt_name = false)
+    org_name = get_field_value(field_name)
+    possible_organizations = Organization.where(name: org_name)
+    if search_alt_name
+      possible_organizations = possible_organizations.or(Organization.where(alternate_name: org_name))
+    end
+    if possible_organizations.exists?
+      if possible_organizations.count == 1
+        return [possible_organizations.first]
+
+      elsif possible_organizations.count > 1
+        matching_orgs = possible_organizations.map do |o|
+          str = "[id:#{o.id} #{o.name}"
+          unless o.alternate_name.blank?
+            str << " (AKA: #{o.alternate_name})"
+          end
+          str << "]"
+        end.join(", ")
+        # TODO how should the user disambiguate which organization they are referring to?
+        raise DarwinCore::InvalidData.new({ field_name => ["Multiple organizations matched name or alternate name '#{org_name}': #{matching_orgs}"] })
+      end
+    end
+
+    parse_people(field_name)
+  end
+
+  # Parse for names in a given field and find or create one or more Person::Unvetted (scoped to the import dataset).
+  # @param [String, Symbol] field_name Field name (column) to parse for people in
+  # @return [Array<Person::Unvetted>, nil]
   def parse_people(field_name)
+    #noinspection RubyMismatchedReturnType
     Person.transaction(requires_new: true) do
       DwcAgent.parse(get_field_value(field_name)).map! { |n| DwcAgent.clean(n) }.map! do |name|
         attributes = {
@@ -991,7 +1027,20 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     end
 
     # identifiedBy: determiners of taxon determination
-    Utilities::Hashes::set_unless_nil(taxon_determination, :determiners, parse_people(:identifiedBy))
+    determiners = nil
+    if self.import_dataset.enable_organization_determiners?
+      determiners = parse_organizations_and_people(:identifiedBy,
+                                                   self.import_dataset.enable_organization_determiners_alt_name?)
+    else
+      determiners = parse_people(:identifiedBy)
+    end
+    unless determiners.nil?
+      if determiners.first.is_a?(Person)
+        taxon_determination[:determiners] = determiners
+      elsif determiners.first.is_a?(Organization)
+        taxon_determination[:determiners_organization] = determiners
+      end
+    end
 
     # dateIdentified: {year,month,day}_made of taxon determination
     start_date, end_date = parse_iso_date(:dateIdentified)

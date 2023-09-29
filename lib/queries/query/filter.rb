@@ -545,22 +545,22 @@ module Queries
     end
 
     # @return [Scope, nil]
+    #
+    # Of interest, the previous native `merge()` (and `and()``) make things complicated:
+    #
+    # For example a.merge(b) != b.merge(a) in some cases. This is because certain clauses
+    # are tossed without warning (notably `.from()`). See:
+    # - https://github.com/rails/rails/issues/33501#issuecomment-722700538
+    #  - https://www.bigbinary.com/blog/rails-7-adds-active-record-relation-structurally-compatible
+    #
+    # We presently use SQL with INTERSECTION to combine facets.
+    #
     def all_merge_clauses
       clauses = merge_clauses + annotator_merge_clauses
       clauses.compact!
 
       return nil if clauses.empty?
-
-      a = clauses.shift
-      clauses.each do |b|
-        #
-        # When `.distinct` is variably present
-        # in a merge clause then there can be issues with merge().
-        # For example a.merge(b) != b.merge(a) in some cases.
-        #
-        a = a.merge(b)
-      end
-      a
+      referenced_klass_intersection(clauses)
     end
 
     # @param nil_empty [Boolean]

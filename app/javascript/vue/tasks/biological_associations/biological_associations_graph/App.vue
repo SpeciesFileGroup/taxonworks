@@ -20,7 +20,9 @@
                 "
               />
               <template v-if="currentGraph.id">
-                <div class="horizontal-left-content margin-small-left">
+                <div
+                  class="horizontal-left-content margin-small-left gap-small"
+                >
                   <VBtn
                     color="primary"
                     circle

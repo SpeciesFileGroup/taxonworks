@@ -25,7 +25,7 @@ module PinboardItemsHelper
 
   def pinboard_item_options(pinboard_item)
     options = [
-      link_to('Remove', pinboard_item_path(pinboard_item), class: [ :remove, 'circle-button', 'button-delete' ], method: :delete, remote: true),
+      link_to('Remove', pinboard_item_path(pinboard_item), class: [ :remove, 'circle-button', 'button-delete', 'd-block' ], method: :delete, remote: true),
       insert_pinboard_item_link(pinboard_item)
     ]
     options.unshift(source_document_viewer_option_tag(pinboard_item.pinned_object)) if pinboard_item.pinned_object.kind_of?(Source)
@@ -34,7 +34,7 @@ module PinboardItemsHelper
       content_tag(:div, '', class: ['pinboard-menu-bar']) + 
         content_tag(:div, '', class: ['pinboard-menu-bar']) + 
         content_tag(:div, '', class: ['pinboard-menu-bar']) +
-        content_tag(:div, class: [ 'itemOptions', 'pinboard-dropdown-content']) do
+        content_tag(:div, class: [ 'itemOptions', 'pinboard-dropdown-content', 'gap-small']) do
           options.compact.join.html_safe
         end
     end.html_safe

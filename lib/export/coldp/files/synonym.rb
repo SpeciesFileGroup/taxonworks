@@ -75,12 +75,14 @@ module Export::Coldp::Files::Synonym
                 end
               end
 
-              matches = t[1].match(/([A-Z][a-z]+) \(.+\) ([a-z]+)/)
-              if matches&.size == 3
-                if t[5] == "#{matches[1]} #{matches[2]}" and t[2] != t[5]
-                  next
-                end
-              end
+              # TODO: This code block is erroneously removing basionyms from the synonyms section but we may need an improved form of it to remove duplicate synonyms (https://github.com/SpeciesFileGroup/taxonworks/issues/3482)
+              # matches = t[1].match(/([A-Z][a-z]+) \(.+\) ([a-z]+)/)
+              # 
+              # if matches&.size == 3        # cached_original_combination != cached_secondary_homonym
+              #   if t[5] == "#{matches[1]} #{matches[2]}" and t[2] != t[5]
+              #     next
+              #   end
+              # end
 
               # skips combinations including parent binomial as a synonym of autonym trinomial
               if t[3] == 'Combination' and o[1].include? t[1]

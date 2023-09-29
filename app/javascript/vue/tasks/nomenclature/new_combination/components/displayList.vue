@@ -16,16 +16,14 @@
       >
         <span v-html="composeName(item)" />
       </a>
-      <div class="horizontal-right-content">
+      <div class="horizontal-right-content gap-small">
         <placement-component
-          class="margin-small-right"
           @created="$emit('placement', item)"
           :combination="item"
         />
         <confidence-button :global-id="item.global_id" />
         <radial-annotator :global-id="item.global_id" />
         <v-btn
-          class="margin-small-right"
           color="update"
           circle
           @click="$emit('edit', Object.assign({}, item))"

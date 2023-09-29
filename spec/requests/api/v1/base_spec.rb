@@ -11,9 +11,18 @@ describe Api::V1::BaseController, type: :request do
 
     it_behaves_like 'a successful response'
 
-    specify 'open_projects' do
-      expect(JSON.parse(response.body).dig('open_projects')).to contain_exactly({project.api_access_token => project.name})
+    specify 'open_projects #name' do
+      expect(JSON.parse(response.body).dig('open_projects').first).to include({'name' => project.name})
     end
+
+    specify 'open_projects #project_token' do
+      expect(JSON.parse(response.body).dig('open_projects').first).to include({'project_token' => project.api_access_token})
+    end
+
+    specify 'open_projects #data_curation_issue_tracker_url' do
+      expect(JSON.parse(response.body).dig('open_projects').first).to include({'data_curation_issue_tracker_url' => nil})
+    end
+
   end
 
   context 'Invalid path' do

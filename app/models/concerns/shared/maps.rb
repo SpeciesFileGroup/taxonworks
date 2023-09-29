@@ -1,7 +1,7 @@
 ## Shared code for extending models that impact CachedMap creation (at present AssertedDistribution, Georeference).
 #
 # TODO:
-# - callbacks in all potentially altering models, e.g.: 
+# - callbacks in all potentially altering models, e.g.:
 #   * AssertedDistribution (geographic_area_id change, otu_id change)
 #   * GeographicItem (shape change) ?! necessary or we destroy/update !?
 #   * CollectionObject (collecting_event_id change)
@@ -11,7 +11,7 @@
 #   * GeographicArea - !?!@# (new/altered gazetters)
 #
 # - provide 2 shapes, absent/present when both there
-# - resolve "untranslated" when rendering 
+# - resolve "untranslated" when rendering
 #
 module Shared::Maps
   extend ActiveSupport::Concern
@@ -65,13 +65,17 @@ module Shared::Maps
     private
 
     def initialize_cached_map_items
-      delay.create_cached_map_items
+      delay(queue: 'cached_map').create_cached_map_items
     end
 
     def remove_from_cached_map_items
-      delay.deduct_from_cached_map_items
+      delay(queue: 'cached_map').deduct_from_cached_map_items
     end
 
+    # @param batch (Boolean)
+    #   true - skips setting geographic name labels (see followup tasks)
+    #   false - sets labels
+    #
     # Creates or increments a CachedMapItem and creates a CachedMapRegister for this object.
     # * !! Assumes this is the first time CachedMapItem is being indexed for this object.
     # * !! Does NOT check register.
@@ -104,8 +108,9 @@ module Shared::Maps
                   # en-masse after processing.
                   unless batch
                     name_hierarchy[geographic_item_id] ||= CachedMapItem.cached_map_name_hierarchy(geographic_item_id)
-                    a.level0_geographic_name = name_hierarchy[geographic_item_id][:country],
-                    a.level1_geographic_name = name_hierarchy[geographic_item_id][:state],
+
+                    a.level0_geographic_name = name_hierarchy[geographic_item_id][:country]
+                    a.level1_geographic_name = name_hierarchy[geographic_item_id][:state]
                     a.level2_geographic_name = name_hierarchy[geographic_item_id][:county]
                   end
 

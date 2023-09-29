@@ -255,6 +255,15 @@ describe Project, type: :model do
       expect(@project_build_err_msg.length).to eq(0), @project_build_err_msg
     end
 
+    specify 'MANIFEST is synchronized' do
+      actual_project_models = ActiveRecord::Base.connection.tables.map { |x| x.classify.safe_constantize }
+        .compact.select { |x| x.has_attribute?(:project_id) }.map(&:to_s)
+
+      diff = (actual_project_models - Project::MANIFEST) + (Project::MANIFEST - actual_project_models)
+
+      expect(diff).to be_empty
+    end
+
     context '#nuke' do
       before(:each) {
         p.nuke

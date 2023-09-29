@@ -6,7 +6,7 @@
         <RadialFilterAttribute
           :parameters="{ collecting_event_id: [collectingEvent.id] }"
         />
-        <div class="horizontal-right-content">
+        <div class="horizontal-right-content gap-small">
           <RadialAnnotator :global-id="collectingEvent.global_id" />
           <RadialNavigator :global-id="collectingEvent.global_id" />
         </div>

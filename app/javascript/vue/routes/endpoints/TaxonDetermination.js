@@ -39,5 +39,7 @@ export const TaxonDetermination = {
   ...annotations(controller),
 
   createBatch: (params) =>
-    AjaxCall('post', `/${controller}/batch_create`, params)
+    AjaxCall('post', `/${controller}/batch_create`, params),
+
+  reorder: (params) => AjaxCall('patch', `/${controller}/reorder`, params)
 }

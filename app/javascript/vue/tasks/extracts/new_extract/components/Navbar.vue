@@ -2,7 +2,7 @@
   <navbar-component v-hotkey="shortcuts">
     <div class="flex-separate middle">
       <div
-        class="horizontal-left-content"
+        class="horizontal-left-content gap-small"
         v-if="extract.id"
       >
         <span v-html="extract.object_tag" />

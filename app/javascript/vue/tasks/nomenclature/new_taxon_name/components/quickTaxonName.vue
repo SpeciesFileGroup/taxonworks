@@ -13,17 +13,25 @@
     />
     <button
       type="button"
-      @click="showModal = true"
       class="button normal-input button-default margin-small-left"
+      @click="
+        () => {
+          showModal = true
+        }
+      "
     >
       New
     </button>
     <modal-component
       v-if="showModal"
-      @close="showModal = false"
+      @close="
+        () => {
+          showModal = false
+        }
+      "
     >
       <template #header>
-        <h3>Create new species taxon name</h3>
+        <h3>Create new {{ group }} taxon name</h3>
       </template>
       <template #body>
         <div>
@@ -88,10 +96,10 @@ export default {
     ranks() {
       return this.$store.getters[GetterNames.GetRankList][this.nomenclatureCode]
     },
-    speciesRank() {
-      return this.ranksList.find((rank) => {
-        return rank.endsWith('::Species')
-      })
+    childRank() {
+      return this.ranksList.find((rank) =>
+        rank.endsWith(this.group === 'genus' ? '::Genus' : '::Species')
+      )
     },
     taxon() {
       return this.$store.getters[GetterNames.GetTaxon]
@@ -133,13 +141,15 @@ export default {
       TaxonName.create({
         taxon_name: {
           name: this.name,
-          rank_class: this.speciesRank,
+          rank_class: this.childRank,
           parent_id: this.taxon.id,
           type: 'Protonym'
         }
-      }).then((response) => {
-        this.$emit('getItem', response.body)
       })
+        .then((response) => {
+          this.$emit('getItem', response.body)
+        })
+        .catch(() => {})
     }
   }
 }

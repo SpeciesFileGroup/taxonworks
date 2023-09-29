@@ -156,7 +156,7 @@ module Shared::IsData
     p = u.projects.pluck(:id)
 
     self.class.reflect_on_all_associations(:has_many).each do |r|
-      puts r.name 
+      # puts r.name
       if r.klass.column_names.include?('project_id')
         # If this has any related data in another project, we can't destroy it
         #    if !send(r.name).nil?

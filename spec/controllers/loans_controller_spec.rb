@@ -63,9 +63,9 @@ describe LoansController, type: :controller do
   end
 
   describe 'GET new' do
-    it 'assigns a new loan as @loan' do
+    it 'redirects to edit loan task' do
       get :new, params: {}, session: valid_session
-      expect(assigns(:loan)).to be_a_new(Loan)
+      expect(response).to redirect_to(edit_loan_task_path)
     end
   end
 

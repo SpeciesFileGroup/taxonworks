@@ -1,39 +1,42 @@
 <h2> BibTeX Batch Load Preview </h2>
 
-<p> Import includes <%= @sources.count -%> records. </p>
+<p> Import includes <%= @sources.compact.size -%> records. </p>
 
 <p> To complete this import, select the file again and click create:
   <%= form_tag create_bibtex_batch_load_sources_path, multipart: true do -%>
-      <%= file_field_tag :file -%>
-      <%= submit_tag 'Create' -%>
+    <%= file_field_tag :file -%>
+    <%= submit_tag 'Create' -%>
   <% end %>
 </p>
 
 <p> <span style='color:green'>Green</span> lines will be imported. If there are soft validation errors
 they will appear below the green line in <span style="color:brown">brown</span>.
-  <span style="color:red">Red</span> lines will not be imported and are followed by a list of the associated errors.
+<span style="color:red">Red</span> lines will not be imported and are followed by a list of the associated errors.
 </p>
 
 <ol>
   <% @sources.each_with_index do |s, i| %>
+    <% if s.blank? %>
+      <%= tag.li(tag.span('Empty or errored entry', class: [:feedback, 'feedback-thin', 'feedback-warning'])) %>  
+    <% else %>
       <% if s.valid? %>
-          <%= content_tag(:li, s.cached_string('html').html_safe, class: 'green') -%>
-          <% if s.soft_validations.messages.count > 0 %>
-              <ul>
-                <% s.soft_validations.messages.each do |e| %>
-                    <%= content_tag(:li, e.to_s.html_safe, class: 'brown') -%>
-                <% end %>
-              </ul>
-          <% end %>
-      <% else %>
-          <%= content_tag(:li, s.cached_string('html').html_safe, class: 'red') -%>
+        <%= tag.li(s.cached_string('html').html_safe, class: 'green') -%>
+        <% if s.soft_validations.messages.count > 0 %>
           <ul>
-            <% s.errors.messages.each do |e| %>
-                <%= content_tag(:li, e.to_s.html_safe) -%>
+            <% s.soft_validations.messages.each do |e| %>
+              <%= tag.li( e.to_s.html_safe, class: 'brown') -%>
             <% end %>
           </ul>
-
-<% end %>
+        <% end %>
+      <% else %>
+        <%= tag.li(s.cached_string('html').html_safe, class: 'red') -%>
+        <ul>
+          <% s.errors.messages.each do |e| %>
+            <%= tag.li(e.to_s.html_safe) -%>
+          <% end %>
+        </ul>
+      <% end %>
+    <% end %>
   <% end %>
 </ol>
 

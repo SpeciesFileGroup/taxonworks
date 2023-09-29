@@ -415,7 +415,7 @@ class User < ApplicationRecord
 
     User.reflect_on_all_associations(:has_many).each do |r|
       key = nil
-      puts r.name.to_s
+      # puts r.name.to_s
       if r.name.to_s =~ /created_/
         # puts "after created"
         key = :created
@@ -481,6 +481,26 @@ class User < ApplicationRecord
       end
     end
     found
+  end
+
+  def transfer_housekeeping(target_user)
+    models = ApplicationEnumeration.superclass_models.select { |m| m < Housekeeping::Users }
+  
+    User.transaction do
+      models.each do |model| 
+        model.where(created_by_id: self.id).update_all(created_by_id: target_user.id)
+        model.where(updated_by_id: self.id).update_all(updated_by_id: target_user.id)
+      end
+    end
+  end
+
+  def transfer_projects_membership(target_user)
+    User.transaction do
+      ProjectMember.where(user_id: self.id)
+        .where.not(project_id: target_user.projects)
+        .update_all(user_id: target_user.id)
+      ProjectMember.where(user_id: self.id).delete_all
+    end
   end
 
   private

@@ -106,7 +106,7 @@ class Protonym < TaxonName
   end
 
   # TODO: remove
-  scope :named, -> (name) {where(name: name)}
+  scope :named, -> (name) {where(name:)}
 
   scope :with_name_in_array, -> (array) {where(name: array) }
 
@@ -132,7 +132,7 @@ class Protonym < TaxonName
   scope :with_secondary_homonym_alternative_spelling, -> (secondary_homonym_alternative_spelling) {where(cached_secondary_homonym_alternative_spelling: secondary_homonym_alternative_spelling)}
 
   # TODO, move to IsData or IsProjectData
-  scope :with_project, -> (project_id) {where(project_id: project_id)}
+  scope :with_project, -> (project_id) {where(project_id:)}
 
   scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
   scope :is_genus_group, -> { where("rank_class ILIKE '%genusgroup%'") }
@@ -149,7 +149,7 @@ class Protonym < TaxonName
   # @return [Protonym]
   #   a name ready to become the root
   def self.stub_root(project_id: nil, by: nil)
-    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id: project_id, by: by)
+    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id:, by:)
   end
 
   def self.family_group_base(name_string)
@@ -961,7 +961,7 @@ class Protonym < TaxonName
   end
 
   def validate_parent_rank_is_higher
-    if parent && !rank_class.blank? && rank_string != 'NomenclaturalRank'
+    if parent && rank_class.present? && rank_string != 'NomenclaturalRank'
       if RANKS.index(rank_string).to_i <= RANKS.index(parent.rank_string).to_i
         errors.add(:parent_id, "The parent rank (#{parent.rank_class.rank_name}) is not higher than the rank (#{rank_name}) of this taxon")
       end
@@ -974,6 +974,9 @@ class Protonym < TaxonName
     end
   end
 
+  # !! This has to go. A single method is meaningless to the user and to developers.  Which cached is the problem it the problem?
+  # We simply can't tell what went wrong in this case.
+  #
   # This is a *very* expensive soft validation, it should be fragemented into individual parts likely.
   # It should also not be necessary by default our code should be good enough to handle these
   # issues in the long run.
@@ -981,9 +984,11 @@ class Protonym < TaxonName
   # MJY: If the meaning of cached changes then it should be removed, not changed.
   def sv_cached_names # this cannot be moved to soft_validation_extensions
     is_cached = true
-  is_cached = false if cached_author_year != get_author_and_year
-  is_cached = false if cached_author != get_author
-  if is_cached && (
+
+    is_cached = false if cached_author_year != get_author_and_year
+    is_cached = false if cached_author != get_author
+
+    if is_cached && (
       cached_valid_taxon_name_id != get_valid_taxon_name.id ||
       cached_is_valid != !unavailable_or_invalid? || # Do not change this, we want the calculated value.
       cached_html != get_full_name_html ||
@@ -996,13 +1001,13 @@ class Protonym < TaxonName
       rank_string =~ /Species/ &&
       (cached_secondary_homonym != get_genus_species(:current, :self) ||
        cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative)))
-    is_cached = false
-  end
+      is_cached = false
+    end
 
-  soft_validations.add(
-    :base, 'Cached values should be updated',
-    success_message: 'Cached values were updated',
-    failure_message:  'Failed to update cached values') if !is_cached
+    soft_validations.add(
+      :base, 'Cached values should be updated',
+      success_message: 'Cached values were updated',
+      failure_message:  'Failed to update cached values') if !is_cached
   end
 
   def set_cached
@@ -1035,4 +1040,3 @@ class Protonym < TaxonName
     update_column(:cached_original_combination_html, get_original_combination_html)
   end
 end
-

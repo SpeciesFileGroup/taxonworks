@@ -5,12 +5,12 @@
 
 <p>
   <strong>Image:</strong>
-  <%= link_to( depiction_tag(@depiction, size: :original), @depiction.image.image_file.url ) %>
+  <%= link_to( depiction_tag(@depiction, size: :medium), @depiction.image.image_file.url ) %>
 </p>
 
 <p>
   <strong>Image id:</strong>
-  <%= @depiction.image.id %>
+  <%= link_to(@depiction.image_id.to_s, image_path(@depiction.image_id)) %>
 </p>
 
 <div class="attribute_set" data-title="Caption etc.">
@@ -42,10 +42,13 @@
   </p>
 </div>
 
+<% if @depiction.sled_image_id %>
 <div class="attribute_set" data-title="Sled">
   <p>
     <strong>Sled image id</strong>
-    <%= link_to(@depiction.sled_image_id, grid_digitize_task_path(sled_image_id: @depiction.sled_image_id)) -%>
+
+    <%= link_to(@depiction.sled_image_id.to_s, grid_digitize_task_path(sled_image_id: @depiction.sled_image_id)) -%>
+
   </p>
 
   <p>
@@ -57,6 +60,5 @@
     <strong>Sled image x position</strong>
     <%= @depiction.sled_image_y_position -%>
   </p>
-
 </div>
-
+<% end %>

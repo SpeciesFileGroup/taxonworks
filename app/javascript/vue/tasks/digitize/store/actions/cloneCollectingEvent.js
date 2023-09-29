@@ -19,6 +19,7 @@ export default ({ dispatch, commit }, collectingEventId) => {
         clonedCE?.identifiers[0] ||
           makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT)
       )
+      commit(MutationNames.SetGeoreferences, [])
       dispatch(ActionNames.LoadGeoreferences, clonedCE.id)
       dispatch(ActionNames.SaveDigitalization)
     }

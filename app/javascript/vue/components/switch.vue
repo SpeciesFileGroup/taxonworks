@@ -1,7 +1,7 @@
 <template>
   <div class="switch-radio">
     <template
-      v-for="(item, index) in options.concat(addOption)"
+      v-for="(item, index) in options"
       :key="index"
     >
       <template v-if="filter(item)">
@@ -28,19 +28,13 @@
 export default {
   props: {
     options: {
-      type: Array,
+      type: [Array, Object],
       required: true
     },
 
     modelValue: {
       type: [String, Number],
       default: undefined
-    },
-
-    addOption: {
-      type: Array,
-      required: false,
-      default: () => []
     },
 
     name: {

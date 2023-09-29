@@ -35,14 +35,13 @@
           </span>
         </td>
         <td>
-          <div class="horizontal-right-content">
+          <div class="horizontal-right-content gap-small">
             <template v-if="item.id">
               <radial-annotator
                 :global-id="item.globalId"
                 type="annotations"
               />
               <VBtn
-                class="margin-small-right"
                 color="primary"
                 circle
                 @click="store.dispatch(ActionNames.SetTypeMaterial, item)"
@@ -72,7 +71,6 @@
 
             <template v-else>
               <VBtn
-                class="margin-small-right"
                 color="primary"
                 circle
                 @click="store.dispatch(ActionNames.SetTypeMaterial, item)"

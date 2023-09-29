@@ -134,7 +134,7 @@ export default {
   },
 
   created() {
-    Citation.where({
+    Citation.all({
       citation_object_id: this.metadata.object_id,
       citation_object_type: this.metadata.object_type,
       extend: EXTEND_PARAMS

@@ -22,7 +22,7 @@
         <table class="full_width">
           <thead>
             <tr>
-              <th>Object tag</th>
+              <th class="full_width">Object tag</th>
               <th />
             </tr>
           </thead>
@@ -34,7 +34,7 @@
             >
               <td v-html="item.object_tag" />
               <td>
-                <div class="horizontal-left-content">
+                <div class="horizontal-left-content gap-small">
                   <span
                     class="button circle-button btn-edit"
                     @click="selectCollectingEvent(item)"

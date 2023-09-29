@@ -25,7 +25,7 @@
       >
         <template #item="{ element, index }">
           <div
-            class="horizontal-left-content middle"
+            class="horizontal-left-content middle gap-small"
             v-if="!element.value"
           >
             <autocomplete
@@ -48,7 +48,7 @@
             />
           </div>
           <div
-            class="original-combination-item horizontal-left-content middle"
+            class="original-combination-item horizontal-left-content middle gap-small"
             v-else
           >
             <div>

@@ -114,6 +114,8 @@ import PaginationComponent from '@/components/pagination'
 import GetPagination from '@/helpers/getPagination'
 
 export default {
+  name: 'BrowseAnnotations',
+
   components: {
     AnnotationBy,
     AnnotationTypes,
@@ -173,20 +175,23 @@ export default {
 
   methods: {
     processResult({ page } = {}) {
+      const type = this.filter.annotation_type.type
+      const objectType = `${type.slice(0, -1)}_object_type`
+
       const params = {
-        on: [this.filter.model],
+        [objectType]: [this.filter.model],
         by: this.filter.selected_by,
         created_after: this.filter.annotation_dates.after,
         created_before: this.filter.annotation_dates.before,
         per: this.per,
-        page
+        page,
+        extend: ['annotated_object']
       }
-      params[this.for[this.filter.annotation_type.type]] =
-        this.filter.selected_for
+      params[this.for[type]] = this.filter.selected_for
       this.isLoading = true
 
-      AjaxCall('get', `/${this.filter.annotation_type.type}.json`, {
-        params: params
+      AjaxCall('get', `/${type}.json`, {
+        params
       }).then((response) => {
         this.pagination = GetPagination(response)
         if (this.filter.annotation_logic === 'replace') {

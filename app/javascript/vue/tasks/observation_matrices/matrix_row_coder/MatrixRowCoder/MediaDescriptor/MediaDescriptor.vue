@@ -58,7 +58,7 @@
           >
             <template #thumbfooter>
               <div
-                class="horizontal-left-content padding-xsmall-bottom padding-xsmall-top"
+                class="horizontal-left-content padding-xsmall-bottom padding-xsmall-top gap-small"
               >
                 <time-fields
                   :observation="observation"

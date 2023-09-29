@@ -6,11 +6,41 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
   let(:otu) { Otu.create!(name: 'Foo')  }
   let(:specimen) { Specimen.create! }
 
+  specify 'after_save dwc_occurrence 1' do
+    o1 = Otu.create!(taxon_name: FactoryBot.create(:iczn_species, name: 'ploz') )
+    o2 = Otu.create!(taxon_name: FactoryBot.create(:iczn_species, name: 'froz') )
+
+    specimen.taxon_determinations << TaxonDetermination.new(otu: o1)
+    specimen.taxon_determinations << TaxonDetermination.new(otu: o2)
+
+    expect(specimen.dwc_occurrence.is_stale?).to be_truthy
+  end
+
+  specify 'during save dwc_occurrence 2' do
+    o1 = Otu.create!(taxon_name: FactoryBot.create(:iczn_species, name: 'ploz') )
+    o2 = Otu.create!(taxon_name: FactoryBot.create(:iczn_species, name: 'froz') )
+
+    s = Specimen.create!(taxon_determinations_attributes: [{otu: o1}, {otu: o2}])
+
+    # hmmm - why passing
+    expect(s.dwc_occurrence.reload.scientificName).to match(/froz/)
+  end
+
+  specify 'during save dwc_occurrence 3' do
+    o1 = Otu.create!(taxon_name: FactoryBot.create(:iczn_species, name: 'ploz') )
+    o2 = Otu.create!(taxon_name: FactoryBot.create(:iczn_species, name: 'froz') )
+    s = Specimen.create!(taxon_determinations_attributes: [{otu: o1}, {otu: o2}])
+
+    s.taxon_determinations.first.move_to_top # first is last (position)
+
+    expect(s.dwc_occurrence.is_stale?).to be_truthy
+  end
+
   specify '.batch_create' do
     params = {
       otu: FactoryBot.create(:valid_otu),
       by: user_id,
-      project_id: project_id
+      project_id:
     }
 
     s1 = FactoryBot.create(:valid_specimen)
@@ -24,7 +54,7 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
     params = {
       otu: nil,
       by: user_id,
-      project_id: project_id
+      project_id:
     }
 
     s1 = FactoryBot.create(:valid_specimen)
@@ -62,8 +92,8 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
   end
 
   context 'multiple determinations' do
-    let!(:a) {TaxonDetermination.create!(biological_collection_object: specimen, otu: otu) }
-    let!(:b) {TaxonDetermination.create!(biological_collection_object: specimen, otu: otu) }
+    let!(:a) {TaxonDetermination.create!(biological_collection_object: specimen, otu:) }
+    let!(:b) {TaxonDetermination.create!(biological_collection_object: specimen, otu:) }
 
     specify 'two determinations, one deleted other has position "1"' do
       a.destroy!
@@ -100,7 +130,7 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
     let(:otu2) { FactoryBot.create(:valid_otu) }
 
     before do
-      specimen.taxon_determinations << TaxonDetermination.new(otu: otu)
+      specimen.taxon_determinations << TaxonDetermination.new(otu:)
     end
 
     specify 'determinations are added to the bottom of the stack with <<' do

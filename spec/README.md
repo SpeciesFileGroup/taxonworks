@@ -43,7 +43,7 @@ Groups are named in the convention:
 * lowercase, singular 
 
 
-### Exisiting 
+### Existing 
 
 * `nomenclature` - nomenclature logic
 * `observation_matrix` - matrix logic

@@ -2,20 +2,11 @@
   <div class="horizontal-left-content item item1">
     <div
       id="taxonworks_left"
-      class="horizontal-left-content align-end">
-      <div id="taxonworks">
-        <%= link_to(content_tag(:div, '', class: :logo), root_path) -%> 
-      </div>
-      <div>
+      class="horizontal-left-content align-end gap-small">
+        <%= link_to(content_tag(:div, '', id: :taxonworks_logo), root_path) -%> 
         <%= taxonworks_version_tag -%>
         <%= sandbox_details_tag -%>
-        <a
-          class="margin-small-left"
-          href="https://github.com/SpeciesFileGroup/taxonworks/issues"
-          target="_blank">
-          Issues
-        </a>
-      </ul>
+        <%= issue_tracker_tag %>
     </div>
   </div>
 
