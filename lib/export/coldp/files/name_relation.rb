@@ -6,6 +6,8 @@
 #
 module Export::Coldp::Files::NameRelation
 
+  # Documentation: http://api.checklistbank.org/vocab/nomreltype
+
   # These concepts do not really fit with the CoL Name/NameRelation data model or are represented in a different way
   # TODO: SupressedSynony misspelled in TW models, which probably should be SupressedSynonym
   BLOCKED = %w[TaxonNameRelationship::CurrentCombination
