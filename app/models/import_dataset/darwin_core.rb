@@ -48,9 +48,9 @@ class ImportDataset::DarwinCore < ImportDataset
         end
       else
         if path =~ /\.(xlsx?|ods)\z/i
-          headers = CSV.parse(Roo::Spreadsheet.open(path).to_csv, headers: true).headers
+          headers = CSV.parse(Roo::Spreadsheet.open(path).to_csv, headers: true, header_converters: lambda {|f| f.strip}).headers
         else
-          headers = CSV.read(path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8').headers
+          headers = CSV.read(path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8', header_converters: lambda {|f| f.strip}).headers
         end
 
         row_type = params.dig(:import_settings, :row_type)
@@ -256,10 +256,11 @@ class ImportDataset::DarwinCore < ImportDataset
         headers[:extensions][type] = get_dwc_headers(extension)
       end
     elsif source.path =~ /\.(txt|tsv|xlsx?|ods)\z/i
+      # only strip whitespace on the headers with lambda functions because whitespace is stripped from the data elsewhere
       if source.path =~ /\.(txt|tsv)\z/i
-        records[:core] = CSV.read(source.path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8')
+        records[:core] = CSV.read(source.path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8', header_converters: lambda {|f| f&.strip})
       else
-        records[:core] = CSV.parse(Roo::Spreadsheet.open(source.path).to_csv, headers: true)
+        records[:core] = CSV.parse(Roo::Spreadsheet.open(source.path).to_csv, headers: true, header_converters: lambda {|f| f&.strip})
       end
       records[:core] = records[:core].map { |r| r.to_h }
       headers[:core] = records[:core].first.to_h.keys

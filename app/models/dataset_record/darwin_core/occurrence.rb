@@ -301,27 +301,27 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
               error_radius: get_field_value("coordinateUncertaintyInMeters"),
               no_cached: true
             }.merge(attributes[:georeference]))
-            location_levels = collecting_event.values_at(:cached_level2_geographic_name, :cached_level1_geographic_name, :cached_level0_geographic_name).compact
-          else
-            county = get_field_value(:county)
-            state_province = get_field_value(:stateProvince)
-            country = get_field_value(:country)
-            country_code = get_field_value(:countryCode)
-            if country.blank? && country_code.present?
-              if country_code.size == 2
-                country = GeographicArea.find_by(iso_3166_a2: country_code, data_origin: 'country_names_and_code_elements').name
-              elsif country_code.size == 3  # there are no GAs with alpha3 presently
-                country = GeographicArea.find_by(iso_3166_a3: country_code, data_origin: 'country_names_and_code_elements').name
-              end
-            end
+          end
 
-            location_levels = [county, state_province, country].compact
-
-            if require_ga_found && location_levels.size > 0
-              location_hash = {county: county, state_province: state_province, country: country, country_code: country_code}
-              should_check_ga_exists = true
+          county = get_field_value(:county)
+          state_province = get_field_value(:stateProvince)
+          country = get_field_value(:country)
+          country_code = get_field_value(:countryCode)
+          if country.blank? && country_code.present?
+            if country_code.size == 2
+              country = GeographicArea.find_by(iso_3166_a2: country_code, data_origin: 'country_names_and_code_elements').name
+            elsif country_code.size == 3  # there are no GAs with alpha3 presently
+              country = GeographicArea.find_by(iso_3166_a3: country_code, data_origin: 'country_names_and_code_elements').name
             end
           end
+
+          location_levels = [county, state_province, country].compact
+
+          if require_ga_found && location_levels.size > 0
+            location_hash = {county: county, state_province: state_province, country: country, country_code: country_code}
+            should_check_ga_exists = true
+          end
+
           # try to find geographic areas until no location levels are left
           geographic_areas = []
           if disable_recursive_search
