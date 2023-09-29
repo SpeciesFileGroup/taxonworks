@@ -11,6 +11,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Otu RCC5 relationships to the COLDP exporter [#3569]
 - Filter images slice in radial linker [#3574]
+- Name relations to Catalogue of Life data package exports [#1211]
+- Type Materials to Catalogue of Life data package exports [#3213]
 
 ### Fixed
 
@@ -144,7 +146,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Subsequent Name Form section in New taxon name [#3460]
 - Original form section in New taxon name
-- Type Materials to Catalogue of Life data package exports [#3213]
 
 ### Changed
 
