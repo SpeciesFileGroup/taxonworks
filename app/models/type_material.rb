@@ -62,6 +62,7 @@ class TypeMaterial < ApplicationRecord
 
   belongs_to :collection_object, foreign_key: :collection_object_id, class_name: 'CollectionObject', inverse_of: :type_materials
   belongs_to :protonym, inverse_of: :type_materials
+  has_many :otus, through: :protonym, inverse_of: :type_materials
 
   scope :where_protonym, -> (taxon_name) { where(protonym_id: taxon_name) }
   scope :with_type_string, -> (base_string) { where('type_type LIKE ?', "#{base_string}" ) }
