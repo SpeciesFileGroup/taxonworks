@@ -501,7 +501,7 @@ module TaxonNamesHelper
   end
 
   def taxon_names_by_year_count(names)
-    t = names.select('EXTRACT(YEAR FROM cached_nomenclature_date) AS year, COUNT(*) AS count').group('year').inject({}){|hsh, r| hsh[r.year.to_i] = r.count; hsh}
+    t = names.select('EXTRACT(YEAR FROM taxon_names.cached_nomenclature_date) AS year, COUNT(*) AS count').group('year').inject({}){|hsh, r| hsh[r.year.to_i] = r.count; hsh}
     t
   end
 

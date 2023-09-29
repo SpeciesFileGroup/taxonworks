@@ -27,3 +27,8 @@ export const TASK_CACHED_MAP_ITEM = {
   label: 'Cached map items',
   link: '/tasks/cached_maps/report/items_by_otu'
 }
+
+export const TASK_FILTER_IMAGES = {
+  label: 'Filter images',
+  link: '/tasks/images/filter'
+}

@@ -10,22 +10,45 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Otu RCC5 relationships to the COLDP exporter [#3569]
+- Filter images slice in radial linker [#3574]
+
+### Fixed
+
+- GeographicAreas not registering for some DWCA imports [#3575]
+- New collecting event: georeference from verbatim button creates two identical georeferences [#3573]
+
+[#3573]: https://github.com/SpeciesFileGroup/taxonworks/issues/3573
+[#3574]: https://github.com/SpeciesFileGroup/taxonworks/issues/3574
+
+## [0.34.5] - 2023-09-26
+
+### Added
+
 - Cached map item report (linked from Filter OTUs)
 - Depictions list on Filter image
 
 ### Changed
 
+- Calls to `/api/v1` have a new key/value signature
 - Staged image metadata field format from JSON to JSONB [#3446]
+- Updated Ruby gems
 
 ### Fixed
 
+- Batch import BibTeX failing on empty entries
+- Chronology stats report
+- ImportAttribute facet not working on any predicate searches
 - Taxon name/otus filter order bug
 - Staged image queries failing when multiple facets used [#3556]
 - Citations list is truncated in Radial Annotator [#3560]
 - DwC attributes are now showing in Stepwise determinations task
 - Quick taxon name only works for species [#3554]
+- Filter Images: Change `per` doesn't update the table [#3566]
 
+[#3554]: https://github.com/SpeciesFileGroup/taxonworks/issues/3554
 [#3556]: https://github.com/SpeciesFileGroup/taxonworks/issues/3556
+[#3560]: https://github.com/SpeciesFileGroup/taxonworks/issues/3560
+[#3566]: https://github.com/SpeciesFileGroup/taxonworks/issues/3566
 
 ## [0.34.4] - 2023-09-15
 
@@ -3881,7 +3904,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.4...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.5...development
+[0.34.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.4...v0.34.5
 [0.34.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.3...v0.34.4
 [0.34.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.2...v0.34.3
 [0.34.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.1...v0.34.2
