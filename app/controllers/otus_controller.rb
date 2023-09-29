@@ -294,11 +294,18 @@ class OtusController < ApplicationController
 
   # GET /api/v1/otus/:id/inventory/dwc
   def api_dwc_inventory
-    send_data Export::Download.generate_csv(
-      DwcOccurrence.scoped_by_otu(@otu),
-      exclude_columns: ['id', 'created_by_id', 'updated_by_id', 'project_id', 'updated_at']),
-      type: 'text',
-      filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.csv"
+    respond_to do |format|
+      format.csv do
+        send_data Export::Download.generate_csv(
+          DwcOccurrence.scoped_by_otu(@otu),
+          exclude_columns: ['id', 'created_by_id', 'updated_by_id', 'project_id', 'updated_at']),
+          type: 'text',
+          filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.csv"
+      end
+      format.json do
+        render json: DwcOccurrence.scoped_by_otu(@otu).to_json
+      end
+    end
   end
 
   # GET /api/v1/otus/:id/inventory/content
