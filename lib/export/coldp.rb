@@ -11,7 +11,7 @@ module Export
   # * Pending handling of both BibTeX and Verbatim
   module Coldp
 
-    FILETYPES = %w{Description Name Synonym VernacularName}.freeze
+    FILETYPES = %w{Description Name Synonym TaxonConceptRelation VernacularName}.freeze
 
     # @return [Scope]
     #  A full set of valid only Otus (= Taxa in CoLDP) that are to be sent.
