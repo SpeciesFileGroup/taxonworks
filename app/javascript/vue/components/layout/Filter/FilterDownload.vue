@@ -1,37 +1,40 @@
 <template>
-  <select
-    class="rounded-tr-none rounded-br-none"
-    v-model="selectedDownloadLabel"
-  >
-    <option
-      v-for="item in DOWNLOAD_LIST"
-      :key="item.label"
-      :value="item.label"
+  <div class="horizontal-left-content middle">
+    <select
+      class="rounded-tr-none rounded-br-none"
+      v-model="selectedDownloadLabel"
     >
-      {{ item.label }}
-    </option>
-  </select>
-  <component
-    :is="selectedDownloadItem.component"
-    :list="list"
-    v-bind="selectedDownloadItem.bind"
-    v-slot="{ action }"
-  >
-    <VBtn
-      class="rounded-tl-none rounded-bl-none"
-      medium
-      color="primary"
-      :title="selectedDownloadItem.label"
-      :disabled="!list.length"
-      @click="action"
+      <option
+        v-for="item in DOWNLOAD_LIST"
+        :key="item.label"
+        :value="item.label"
+      >
+        {{ item.label }}
+      </option>
+    </select>
+
+    <component
+      :is="selectedDownloadItem.component"
+      :list="list"
+      v-bind="selectedDownloadItem.bind"
+      v-slot="{ action }"
     >
-      <VIcon
-        name="download"
-        x-small
+      <VBtn
+        class="rounded-tl-none rounded-bl-none"
+        medium
+        color="primary"
         :title="selectedDownloadItem.label"
-      />
-    </VBtn>
-  </component>
+        :disabled="!list.length"
+        @click="action"
+      >
+        <VIcon
+          name="download"
+          x-small
+          :title="selectedDownloadItem.label"
+        />
+      </VBtn>
+    </component>
+  </div>
 </template>
 
 <script setup>

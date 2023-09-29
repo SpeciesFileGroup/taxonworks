@@ -13,23 +13,23 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
   context '.parse_iframe_result' do
     let(:p_tab) { "40.110588\t-88.20727" }
     let(:all_tab) { "40.110588\t-88.20727\t5592\t40.1274870207,-88.1855449175,40.1258740207,-88.1855149175,40.1258630207,-88.1852939175"}
-    let(:p_space) { "40.110588 -88.20727" }
-    let(:all_space) { "40.110588  -88.20727 5592     40.1274870207,-88.1855449175,40.1258740207,-88.1855149175,40.1258630207,-88.1852939175"}
+    let(:p_space) { '40.110588 -88.20727' }
+    let(:all_space) { '40.110588  -88.20727 5592     40.1274870207,-88.1855449175,40.1258740207,-88.1855149175,40.1258630207,-88.1852939175'}
 
     specify 'from copy-paste - tab' do
-      expect(Georeference::GeoLocate.parse_iframe_result(p_tab)).to contain_exactly("40.110588", "-88.20727", nil, nil)
+      expect(Georeference::GeoLocate.parse_iframe_result(p_tab)).to contain_exactly('40.110588', '-88.20727', nil, nil)
     end
 
     specify 'from copy-paste, error -tab' do
-      expect(Georeference::GeoLocate.parse_iframe_result(all_tab)).to contain_exactly( "40.110588", "-88.20727", "5592", [["-88.1852939175", "40.1258630207"], ["-88.1855149175", "40.1258740207"], ["-88.1855449175", "40.1274870207"]] )
+      expect(Georeference::GeoLocate.parse_iframe_result(all_tab)).to contain_exactly( '40.110588', '-88.20727', '5592', [['-88.1852939175', '40.1258630207'], ['-88.1855149175', '40.1258740207'], ['-88.1855449175', '40.1274870207']] )
     end
 
     specify 'from copy-paste - space' do
-      expect(Georeference::GeoLocate.parse_iframe_result(p_space)).to contain_exactly("40.110588", "-88.20727", nil, nil)
+      expect(Georeference::GeoLocate.parse_iframe_result(p_space)).to contain_exactly('40.110588', '-88.20727', nil, nil)
     end
 
     specify 'from copy-paste, error - space' do
-      expect(Georeference::GeoLocate.parse_iframe_result(all_space)).to contain_exactly( "40.110588", "-88.20727", "5592", [["-88.1852939175", "40.1258630207"], ["-88.1855149175", "40.1258740207"], ["-88.1855449175", "40.1274870207"]] )
+      expect(Georeference::GeoLocate.parse_iframe_result(all_space)).to contain_exactly( '40.110588', '-88.20727', '5592', [['-88.1852939175', '40.1258630207'], ['-88.1855149175', '40.1258740207'], ['-88.1855449175', '40.1274870207']] )
     end
 
   end
@@ -64,12 +64,13 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
       expect(Georeference::GeoLocate
         .parse_iframe_result(iframe_example_values[:drawn_point_with_polygon_and_uncertainty]))
         .to eq(['41.449859', '-98.220691', '9100',
-                [["-98.32855566566684", "41.53125216994986"], ["-98.11282633433316", "41.36846583005013"],
-                 ["-98.11282633433316", "41.53125216994986"], ["-98.32855566566684", "41.53125216994986"]]])
+                [['-98.32855566566684', '41.53125216994986'], ['-98.11282633433316', '41.36846583005013'],
+                 ['-98.11282633433316', '41.53125216994986'], ['-98.32855566566684', '41.53125216994986']]])
     end
   end
 
   context 'building a new instance from a copied iframe response' do
+
     specify 'is valid for a drawn point with no further metadata' do
       geo_locate.iframe_response = iframe_example_values[:drawn_point]
       expect(geo_locate.valid?).to be_truthy, geo_locate.errors.full_messages.join(' ')
@@ -108,6 +109,16 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
     specify 'has nil error_radius when not provided' do
       geo_locate.iframe_response = iframe_example_values[:drawn_point]
       expect(geo_locate.error_radius).to eq(nil)
+    end
+
+    specify 'sets error_radius when provided)' do
+      g = Georeference::GeoLocate.new(iframe_response: '40.440625	-79.995886	1175')
+      expect(g.error_radius).to eq(1175)
+    end
+
+    specify 'radius_from_error_shape' do
+      g = Georeference::GeoLocate.new(iframe_response: '40.440625	-79.995886	1175')
+      expect(g.radius_from_error_shape).to eq(1175)
     end
   end
 

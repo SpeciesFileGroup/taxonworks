@@ -221,6 +221,7 @@ resources :data_attributes, except: [:show] do
     get 'value_autocomplete', defaults: {format: :json}
     get :brief, defaults: {format: :json}
     post :brief, defaults: {format: :json} # for length
+    get :import_predicate_autocomplete, defaults: {format: :json}
   end
 end
 
@@ -228,6 +229,7 @@ resources :depictions do
   concerns [:data_routes]
   collection do
     patch :sort
+    match :filter, to: 'depictions#index', via: [:get, :post]
   end
 end
 
@@ -348,6 +350,7 @@ resources :images do
     get 'scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', action: :scale_to_box
     get 'ocr(/:x/:y/:width/:height)', action: :ocr
     patch 'rotate', action: 'rotate'
+    patch 'regenerate_derivative', action: 'regenerate_derivative'
   end
   collection do
     match :filter, to: 'images#index', via: [:get, :post]
@@ -728,6 +731,7 @@ resources :tagged_section_keywords, only: [:create, :update, :destroy]
 resources :taxon_determinations do
   collection do
     post :batch_create, defaults: {format: :json}
+    patch :reorder, defaults: {format: :json}
   end
   concerns [:data_routes]
 end

@@ -23,7 +23,7 @@
       />
     </td>
     <td>
-      <div class="horizontal-right-content">
+      <div class="horizontal-right-content gap-small">
         <RadialAnnotator :global-id="citation.citation_object.global_id" />
         <VBtn
           circle

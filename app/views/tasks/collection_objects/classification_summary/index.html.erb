@@ -10,14 +10,14 @@
 <div style="float: left;" class="padding-small">
   <%= form_tag classification_summary_report_path, method: :get, remote: true do |f| %>
     <%= hidden_field_tag(:rank, '::ClassRank') %>
-    <%= tag.input(type: 'submit', value: 'By class', class: ['button', 'button-default'], ) %> 
+    <%= tag.input(type: 'submit', value: 'By class', class: ['button', 'button-default'], ) %>
   <% end %>
 </div>
 
 <div style="float: left;" class="padding-small">
   <%= form_tag classification_summary_report_path, method: :get, remote: true do |f| %>
     <%= hidden_field_tag(:rank, '::Order') %>
-    <%= tag.input(type: 'submit', value: 'By order', class: ['button', 'button-default'], ) %> 
+    <%= tag.input(type: 'submit', value: 'By order', class: ['button', 'button-default'], ) %>
   <% end %>
 </div>
 
@@ -26,10 +26,10 @@
   <div class="field">
     <h3> By family for order </h3>
     <%= hidden_field_tag(:rank, '::Family') %>
-    <%= select_tag(:ancestor_id, options_from_collection_for_select( ::Queries::TaxonName::Filter.new(project_id: sessions_current_project_id, rank: '::Order').all.distinct.order(:cached), 'id', 'name'), include_blank: true) %>
+    <%= select_tag(:taxon_name_id, options_from_collection_for_select( ::Queries::TaxonName::Filter.new(project_id: sessions_current_project_id, rank: '::Order').all.distinct.order(:cached), 'id', 'name'), include_blank: true) %>
   </div>
 
-  <%= tag.input(type: 'submit', value: 'Report', class: ['button', 'button-default'], ) %> 
+  <%= tag.input(type: 'submit', value: 'Report', class: ['button', 'button-default'], ) %>
 <% end %>
 </div>
 

@@ -48,7 +48,7 @@
             Update
           </button>
           <button
-            class="button normal-input button-default"
+            class="button normal-input button-default margin-small-left"
             @click="resetInputs"
           >
             New
@@ -81,18 +81,30 @@
         @end="onSortable"
       >
         <template #item="{ element, index }">
-          <li class="flex-separate middle">
+          <li class="flex-separate middle margin-small-bottom">
             <span> {{ element.object_tag }} </span>
-            <div class="horizontal-left-content middle">
-              <span
-                class="circle-button btn-edit"
+            <div class="horizontal-left-content middle gap-xsmall">
+              <VBtn
+                circle
+                color="update"
                 @click="editCharacter(index)"
-              />
-              <radial-annotator :global-id="element.global_id" />
-              <span
-                class="circle-button btn-delete"
+              >
+                <VIcon
+                  name="pencil"
+                  x-small
+                />
+              </VBtn>
+              <RadialAnnotator :global-id="element.global_id" />
+              <VBtn
+                color="destroy"
+                circle
                 @click="removeCharacter(index)"
-              />
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
             </div>
           </li>
         </template>
@@ -103,11 +115,15 @@
 <script>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Draggable from 'vuedraggable'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
     Draggable,
-    RadialAnnotator
+    RadialAnnotator,
+    VBtn,
+    VIcon
   },
 
   props: {

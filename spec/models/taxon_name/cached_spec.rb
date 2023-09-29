@@ -6,7 +6,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
   after(:all) do
     TaxonNameRelationship.delete_all
-    TaxonName.delete_all 
+    TaxonName.delete_all
     TaxonNameHierarchy.delete_all
     # TODO: find out why this exists and resolve - presently leaving sources in the models
     Citation.delete_all
@@ -20,7 +20,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       name: 'vulnerata',
       rank_class: Ranks.lookup(:iczn, 'species'),
       parent: genus,
-      original_genus: original_genus,
+      original_genus:,
       verbatim_author: 'Fitch & Say',
       year_of_publication: 1800) }
 
@@ -102,7 +102,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             original_subspecies: subspecies
           )
         end
-        
+
         specify '#cached' do
           subspecies.save
           expect(subspecies.cached_original_combination).to eq('Aus aa bus')
@@ -115,12 +115,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         before do
           subspecies.update(
             name: 'zus',
-            original_genus: genus1, 
+            original_genus: genus1,
             original_species: subspecies2,
             original_form: subspecies,
           )
         end
-       
+
         specify '#cached_original_combiantion' do
           expect(subspecies.cached_original_combination).to eq('Aus gus f. zus')
         end
@@ -151,7 +151,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         let(:hybrid_genus) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:icn, :genus), parent: root) }
         let(:hybrid_species) { Protonym.create(name: 'aaa', rank_class: Ranks.lookup(:icn, :species), parent: hybrid_genus) }
 
-        before { TaxonNameClassification::Icn::Hybrid.create!(taxon_name: hybrid_species) } 
+        before { TaxonNameClassification::Icn::Hybrid.create!(taxon_name: hybrid_species) }
 
         specify '#cached_html' do
           expect(hybrid_species.cached_html).to eq('<i>Aus</i> ×<i>aaa</i>')
@@ -185,26 +185,26 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         specify '#cached' do
           expect(family.cached).to eq(family.name)
         end
-      
+
         specify '#cached_html' do
           expect(family.cached_html).to eq(family.name)
         end
       end
 
       context '#combination_verbatim_name' do
-        let(:c) {Combination.create(genus: genus1, species: species, verbatim_name: 'Aa aa')}
+        let(:c) {Combination.create(genus: genus1, species:, verbatim_name: 'Aa aa')}
 
         specify 'over-rides #cached when provided' do
           expect(c.cached).to eq('Aa aa')
-        end 
+        end
       end
 
       context '#set_cached_names_for_dependants_and_self' do
-        
+
         context 'species methods' do
-          before do 
+          before do
             species.update(original_genus: genus2, source_classified_as: family)
-          end 
+          end
 
           specify '#cached' do
             expect(species.cached).to eq('Aus aus')
@@ -222,19 +222,19 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(species.cached_html).to eq('<i>Aus aus</i>')
           end
 
-          specify '#cached_original_combination_html' do 
+          specify '#cached_original_combination_html' do
             expect(species.cached_original_combination_html).to eq('<i>Bus aus</i>')
           end
 
-          specify '#cached_original_combination' do 
+          specify '#cached_original_combination' do
             expect(species.cached_original_combination).to eq('Bus aus')
           end
 
           context 'changing the genus (parent) name' do
-            before do 
-              genus1.update(name: 'Cus') 
+            before do
+              genus1.update(name: 'Cus')
               species.reload
-            end 
+            end
 
             specify '#cached 1' do
               expect(genus1.cached).to eq('Cus')
@@ -271,7 +271,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               genus2.name = 'Dus'
               genus2.save
               species.reload
-            end 
+            end
 
             specify '#cached is not changed' do
               expect(species.cached).to eq('Aus aus')
@@ -291,10 +291,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           context 'changing classified as' do
-            before do 
-              family.update(name: 'Cicadellidae' ) 
+            before do
+              family.update(name: 'Cicadellidae' )
               species.reload
-            end 
+            end
 
             specify '#cached_classified_as' do
               expect(species.cached_classified_as).to eq(' (as Cicadellidae)')
@@ -311,20 +311,20 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           context 'species names, genus with gender change' do
             let(:species) {
-              FactoryBot.create(:relationship_species, 
-                                 name: 'aus', 
-                                 parent: genus1, 
-                                 verbatim_author: 'Linnaeus', 
-                                 year_of_publication: 1758, 
-                                 masculine_name: 'aus', 
-                                 feminine_name: 'aa', 
+              FactoryBot.create(:relationship_species,
+                                 name: 'aus',
+                                 parent: genus1,
+                                 verbatim_author: 'Linnaeus',
+                                 year_of_publication: 1758,
+                                 masculine_name: 'aus',
+                                 feminine_name: 'aa',
                                  neuter_name: 'aum')
             }
 
-            before do 
+            before do
               c1 = FactoryBot.create(:taxon_name_classification, taxon_name: genus1, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
               c2 = FactoryBot.create(:taxon_name_classification, taxon_name: genus3, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
-            end 
+            end
 
             specify 'case1 #cached_html' do
               expect(species.cached_html).to eq('<i>Aus aus</i>')
@@ -353,7 +353,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           context 'species names vs. gender of genus change' do
             let!(:c1) { FactoryBot.create(:taxon_name_classification, taxon_name: genus1, type: 'TaxonNameClassification::Latinized::Gender::Masculine')}
-            let!(:species) { FactoryBot.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758, masculine_name: 'aus', feminine_name: 'aa', neuter_name: 'aum')} 
+            let!(:species) { FactoryBot.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758, masculine_name: 'aus', feminine_name: 'aa', neuter_name: 'aum')}
 
             context 'masculine' do
               specify '#cached_html' do
@@ -366,7 +366,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             end
 
             context 'feminine' do
-              before do 
+              before do
                 c1.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
                 c1.save
                 species.save

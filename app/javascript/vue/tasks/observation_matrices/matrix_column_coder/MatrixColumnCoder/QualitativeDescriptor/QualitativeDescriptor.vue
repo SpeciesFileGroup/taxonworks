@@ -7,7 +7,7 @@
     >
       <ul>
         <li
-          class="horizontal-left-content middle qualitative-descriptor__descriptor-li"
+          class="horizontal-left-content middle qualitative-descriptor__descriptor-li gap-small"
           v-for="characterState in descriptor.characterStates"
           :key="characterState.id"
           v-show="
@@ -15,7 +15,7 @@
             showCharacterStates.includes(characterState.id)
           "
         >
-          <label class="margin-small-right middle">
+          <label class="middle">
             <input
               type="checkbox"
               :checked="isStateChecked(characterState.id)"

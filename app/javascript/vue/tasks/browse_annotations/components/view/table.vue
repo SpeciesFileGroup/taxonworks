@@ -20,16 +20,19 @@
         >
           <td
             v-for="attr in types[item.base_class].attributes"
+            :key="attr"
             v-html="getValue(item, attr)"
           />
-          <td class="vue-table-options">
-            <radial-annotator :global-id="item.annotated_object.global_id" />
-            <radial-object :global-id="item.annotated_object.global_id" />
-            <span
-              class="circle-button btn-delete"
-              @click="deleteObject(item)"
-              >Remove
-            </span>
+          <td>
+            <div class="horizontal-right-content gap-small">
+              <radial-annotator :global-id="item.annotated_object.global_id" />
+              <radial-object :global-id="item.annotated_object.global_id" />
+              <span
+                class="circle-button btn-delete"
+                @click="deleteObject(item)"
+                >Remove
+              </span>
+            </div>
           </td>
         </tr>
       </transition-group>

@@ -60,7 +60,7 @@ class TypeMaterial < ApplicationRecord
       'isosyntypes' => Lot
   }.freeze
 
-  belongs_to :collection_object, foreign_key: :collection_object_id, class_name: 'CollectionObject', inverse_of: :type_materials
+  belongs_to :collection_object, class_name: 'CollectionObject', inverse_of: :type_materials
   belongs_to :protonym, inverse_of: :type_materials
   has_many :otus, through: :protonym, inverse_of: :type_materials
 
@@ -74,6 +74,8 @@ class TypeMaterial < ApplicationRecord
 
   validate :check_type_type
   validate :check_protonym_rank
+
+  validates_uniqueness_of :type_type, scope: [:protonym_id, :collection_object_id]
 
   soft_validate(:sv_single_primary_type, set: :single_primary_type)
   soft_validate(:sv_type_source, set: :type_source)

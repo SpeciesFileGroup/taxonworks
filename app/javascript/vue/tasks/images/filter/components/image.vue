@@ -43,14 +43,20 @@
                 </v-btn>
               </li>
               <li>
-                <radial-annotator
+                <RadialAnnotator
                   type="annotations"
                   :global-id="image.global_id"
                   @close="loadData"
                 />
               </li>
               <li>
-                <radial-navigation :global-id="image.global_id" />
+                <RadialObject :global-id="image.global_id" />
+              </li>
+              <li>
+                <RadialNavigation :global-id="image.global_id" />
+              </li>
+              <li>
+                <DepictionList :image-id="[image.id]" />
               </li>
             </ul>
           </div>
@@ -98,8 +104,10 @@ import ModalComponent from '@/components/ui/Modal'
 import PinComponent from '@/components/ui/Pinboard/VPin.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import DepictionList from './DepictionList.vue'
 
 const CONVERT_IMAGE_TYPES = ['image/tiff']
 const props = defineProps({

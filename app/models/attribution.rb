@@ -19,6 +19,8 @@ class Attribution < ApplicationRecord
 
   # TODO: Consider DRYing with Source roles.
 
+  has_many :roles, as: :role_object, dependent: :destroy
+
   ATTRIBUTION_ROLES = [
     :creator,
     :editor,
@@ -29,12 +31,15 @@ class Attribution < ApplicationRecord
   ATTRIBUTION_ROLES.each do |r|
     role_name = "#{r}_roles".to_sym
     role_person = "attribution_#{r.to_s.pluralize}".to_sym
+    role_organization = "attribution_organization_#{r.to_s.pluralize}".to_sym
 
     has_many role_name, -> { order('roles.position ASC') }, class_name: "Attribution#{r.to_s.camelize}", as: :role_object, inverse_of: :role_object
     has_many role_person, -> { order('roles.position ASC') }, through: role_name, source: :person, validate: true
+    has_many role_organization, -> { order('roles.position ASC') }, through: role_name, source: :organization, validate: true
 
     accepts_nested_attributes_for role_name, allow_destroy: true
     accepts_nested_attributes_for role_person
+    accepts_nested_attributes_for role_organization
   end
 
   validates_uniqueness_of :attribution_object_id, scope: [:attribution_object_type, :project_id]
@@ -49,8 +54,17 @@ class Attribution < ApplicationRecord
 
   protected
 
+  def some_roles_present
+    ATTRIBUTION_ROLES.each do |r|
+      return true if send("#{r}_roles".to_sym).any?
+    end
+    false
+  end
+
   def some_data_provided
-    errors.add(:base, 'no attribution metadata') if license.blank? && copyright_year.blank? && !editor_roles.any? && !creator_roles.any? && !owner_roles.any? && !roles.any?
+    if license.blank? && copyright_year.blank? && !some_roles_present
+      errors.add(:base, 'no attribution metadata') 
+    end
   end
 
 end

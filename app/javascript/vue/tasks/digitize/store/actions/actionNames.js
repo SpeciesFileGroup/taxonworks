@@ -44,7 +44,8 @@ const ActionNames = {
   SaveIdentifier: 'saveIdentifier',
   SaveLabel: 'saveLabel',
   SaveTypeMaterial: 'saveTypeMaterial',
-  UpdateLayoutPreferences: 'updateLayoutPreferences'
+  UpdateLayoutPreferences: 'updateLayoutPreferences',
+  UpdateLastChange: 'updateLastChange'
 }
 
 export default ActionNames

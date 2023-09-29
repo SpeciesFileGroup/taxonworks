@@ -96,9 +96,9 @@ module Queries
       def collection_object_query_facet
         return nil if collection_object_query.nil?
         s = 'WITH query_co_da AS (' + collection_object_query.all.to_sql + ') ' +
-            ::DataAttribute
-              .joins("JOIN query_co_da as query_co_da1 on data_attributes.attribute_subject_id = query_co_da1.id AND data_attributes.attribute_subject_type = 'CollectionObject'")
-              .to_sql
+          ::DataAttribute
+          .joins("JOIN query_co_da as query_co_da1 on data_attributes.attribute_subject_id = query_co_da1.id AND data_attributes.attribute_subject_type = 'CollectionObject'")
+          .to_sql
 
         ::DataAttribute.from('(' + s + ') as data_attributes').distinct
       end
@@ -106,9 +106,9 @@ module Queries
       def collecting_event_query_facet
         return nil if collecting_event_query.nil?
         s = 'WITH query_ce_da AS (' + collecting_event_query.all.to_sql + ') ' +
-            ::DataAttribute
-              .joins("JOIN query_ce_da as query_ce_da1 on data_attributes.attribute_subject_id = query_ce_da1.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
-              .to_sql
+          ::DataAttribute
+          .joins("JOIN query_ce_da as query_ce_da1 on data_attributes.attribute_subject_id = query_ce_da1.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
+          .to_sql
 
         ::DataAttribute.from('(' + s + ') as data_attributes').distinct
       end
@@ -116,9 +116,9 @@ module Queries
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
         s = 'WITH query_tn_da AS (' + taxon_name_query.all.to_sql + ') ' +
-            ::DataAttribute
-              .joins("JOIN query_tn_da as query_tn_da1 on data_attributes.attribute_subject_id = query_tn_da1.id AND data_attributes.attribute_subject_type = 'TaxonName'")
-              .to_sql
+          ::DataAttribute
+          .joins("JOIN query_tn_da as query_tn_da1 on data_attributes.attribute_subject_id = query_tn_da1.id AND data_attributes.attribute_subject_type = 'TaxonName'")
+          .to_sql
 
         ::DataAttribute.from('(' + s + ') as data_attributes').distinct
       end

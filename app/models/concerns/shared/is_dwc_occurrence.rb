@@ -47,9 +47,9 @@ module Shared::IsDwcOccurrence
     end
   end
 
-  # TODO: wrap in generic (reindex_dwc_occurrences method for use in InternalAttribute and elsewhere)
+  # TODO: wrap in generic (reindex_dwc_occurrences method for use in InternalAttribute, TaxonDetermination, BiocurationClass and elsewhere)
   # @return [DwcOccurrence]
-  #   always touches the database
+  #   !! always touches the database
   def set_dwc_occurrence
     retried = false
     begin
@@ -91,7 +91,7 @@ module Shared::IsDwcOccurrence
       a[:created_by_id] = created_by_id
       a[:updated_by_id] = updated_by_id
 
-      a[:updated_at] = Time.now # !! Not applied via this key, but kept for reference, see `touch` in `set_dwc_occurrence`
+      # !! Do not set updated_at here !!
     end
 
     a

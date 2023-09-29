@@ -15,6 +15,7 @@
         <taxon-determination-list
           v-model="list"
           v-model:lock="locked.taxonDeterminations"
+          @sort="updateLastChange"
           @edit="editTaxonDetermination"
           @delete="removeTaxonDetermination"
         />
@@ -83,6 +84,10 @@ export default {
         position: item.position,
         roles_attributes: item?.determiner_roles || item.roles_attributes || []
       })
+    },
+
+    updateLastChange() {
+      this.$store.dispatch(ActionNames.UpdateLastChange)
     }
   }
 }

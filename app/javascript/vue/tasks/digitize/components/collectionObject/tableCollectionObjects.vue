@@ -41,7 +41,7 @@
         <td>
           <div
             v-if="collectionObject.id"
-            class="horizontal-right-content"
+            class="horizontal-right-content gap-small"
           >
             <accession-metadata :collection-object="collectionObject" />
             <radial-annotator :global-id="collectionObject.global_id" />
@@ -92,7 +92,7 @@
             />
           </td>
           <td>
-            <div class="horizontal-right-content">
+            <div class="horizontal-right-content gap-small">
               <accession-metadata :collection-object="item" />
               <radial-annotator :global-id="item.global_id" />
               <button

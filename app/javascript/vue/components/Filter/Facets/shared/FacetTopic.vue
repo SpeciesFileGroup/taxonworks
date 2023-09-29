@@ -12,7 +12,6 @@
         pin-section="Keywords"
         pin-type="Keyword"
         :target="target"
-        :custom-list="allFiltered"
         @selected="addToArray(topics, $event)"
       />
     </fieldset>

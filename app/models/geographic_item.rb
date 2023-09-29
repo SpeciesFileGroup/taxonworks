@@ -84,7 +84,6 @@ class GeographicItem < ApplicationRecord
   # ANTI_MERIDIAN = '0X0102000020E61000000200000000000000008066400000000000405640000000000080664000000000004056C0'
   ANTI_MERIDIAN = 'LINESTRING (180 89.0, 180 -89)'.freeze
 
-  has_one :cached_map, inverse_of: :geographic_item
   has_many :cached_map_items, inverse_of: :geographic_item
 
   has_many :geographic_areas_geographic_items, dependent: :destroy, inverse_of: :geographic_item
@@ -92,9 +91,7 @@ class GeographicItem < ApplicationRecord
   has_many :asserted_distributions, through: :geographic_areas
   has_many :geographic_area_types, through: :geographic_areas
   has_many :parent_geographic_areas, through: :geographic_areas, source: :parent
-  has_many :gadm_geographic_areas, class_name: 'GeographicArea', foreign_key: :gadm_geo_item_id
-  has_many :ne_geographic_areas, class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
-  has_many :tdwg_geographic_areas, class_name: 'GeographicArea', foreign_key: :tdwg_geo_item_id
+
   has_many :georeferences, inverse_of: :geographic_item
   has_many :georeferences_through_error_geographic_item,
     class_name: 'Georeference', foreign_key: :error_geographic_item_id, inverse_of: :error_geographic_item
@@ -872,7 +869,7 @@ class GeographicItem < ApplicationRecord
   # of how the GeographicArea gazetteer is indexed.
   def quick_geographic_name_hierarchy
     geographic_areas.order(:id).each do |ga|
-      h = ga.geographic_name_classification # not quick enough
+      h = ga.geographic_name_classification # not quick enough !!
       return h if h.present?
     end
    return  {}
@@ -924,6 +921,7 @@ class GeographicItem < ApplicationRecord
 
   # @return [Array]
   #   the lat, long, as STRINGs for the centroid of this geographic item
+  #   Meh- this: https://postgis.net/docs/en/ST_MinimumBoundingRadius.html
   def center_coords
     r = GeographicItem.find_by_sql(
       "Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}), " \
@@ -1155,6 +1153,15 @@ class GeographicItem < ApplicationRecord
       WHERE a.id = #{id} AND b.id = #{geographic_item_id};"
     ).first
     c && c['intersecting_area'].to_f
+  end
+
+  # TODO: This is bad, while internal use of ONE_WEST_MEAN is consistent it is in-accurate given the vast differences of radius vs. lat/long position.
+  # When we strike the error-polygon from radius we should remove this
+  #
+  # Use case is returning the radius from a circle we calculated via buffer for error-polygon creation.
+  def radius
+    r = ApplicationRecord.connection.execute( "SELECT ST_MinimumBoundingRadius( ST_Transform(  #{GeographicItem::GEOMETRY_SQL.to_sql}, 4326 )  ) AS radius from geographic_items where geographic_items.id = #{id}").first['radius'].split(',').last.chop.to_f
+    r = (r * Utilities::Geo::ONE_WEST_MEAN).to_i
   end
 
   private

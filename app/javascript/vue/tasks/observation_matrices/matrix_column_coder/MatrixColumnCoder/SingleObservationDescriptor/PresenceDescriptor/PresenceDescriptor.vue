@@ -4,36 +4,35 @@
       :row-object="rowObject"
       :index="index"
     >
-      <div class="horizontal-left-content middle">
-        <div class="margin-small-right">
-          <ul class="no_bullets">
-            <li>
-              <label>
-                <input
-                  :disabled="!observationExist"
-                  type="radio"
-                  :value="isPresent"
-                  :checked="isPresent === undefined"
-                  @click="removeObservation"
-                >
-                Not specified
-              </label>
-            </li>
-            <li
-              v-for="(value, key) in presenceOptions"
-              :key="key"
-            >
-              <label>
-                <input
-                  type="radio"
-                  v-model="isPresent"
-                  :value="value"
-                >
-                {{ key }}
-              </label>
-            </li>
-          </ul>
-        </div>
+      <div class="horizontal-left-content middle gap-small">
+        <ul class="no_bullets">
+          <li>
+            <label>
+              <input
+                :disabled="!observationExist"
+                type="radio"
+                :value="isPresent"
+                :checked="isPresent === undefined"
+                @click="removeObservation"
+              />
+              Not specified
+            </label>
+          </li>
+          <li
+            v-for="(value, key) in presenceOptions"
+            :key="key"
+          >
+            <label>
+              <input
+                type="radio"
+                v-model="isPresent"
+                :value="value"
+              />
+              {{ key }}
+            </label>
+          </li>
+        </ul>
+
         <radial-annotator
           v-if="observationExist"
           :global-id="observation.global_id"
@@ -53,7 +52,7 @@ export default {
 
   mixins: [SingleObservationDescriptor],
 
-  data () {
+  data() {
     return {
       presenceOptions: {
         Presence: true,
@@ -64,20 +63,20 @@ export default {
 
   computed: {
     isPresent: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetPresenceFor]({
           rowObjectId: this.rowObject.id,
           rowObjectType: this.rowObject.type
         })
       },
 
-      set (value) {
+      set(value) {
         this.updatePresence(value)
       }
     }
   },
   methods: {
-    updatePresence (presenceValue) {
+    updatePresence(presenceValue) {
       this.$store.commit(MutationNames.SetPresence, {
         rowObjectId: this.rowObject.id,
         rowObjectType: this.rowObject.type,

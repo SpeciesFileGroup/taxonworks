@@ -95,6 +95,7 @@ class TaxonNamesController < ApplicationController
     render json: {} and return if params[:term].blank?
     @taxon_names = ::Queries::TaxonName::Autocomplete.new(
       params[:term],
+      exact: 'true',
       **autocomplete_params
     ).autocomplete
   end
@@ -132,13 +133,13 @@ class TaxonNamesController < ApplicationController
 
   def random
     redirect_to browse_nomenclature_task_path(
-      taxon_name_id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pluck(:id).first
+      taxon_name_id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pick(:id)
     )
   end
 
   def rank_table
     @query = ::Queries::TaxonName::Tabular.new(
-      ancestor_id: params.require(:ancestor_id),
+      taxon_name_id: params.require(:taxon_name_id), # this is one of the few places
       ranks: params.require(:ranks),
       fieldsets: params[:fieldsets],
       limit: params[:limit],
@@ -244,6 +245,7 @@ class TaxonNamesController < ApplicationController
   end
 
   # GET /api/v1/taxon_names/:id/inventory/catalog
+  # Contains stats block
   def api_catalog
     @data = helpers.recursive_catalog_json(taxon_name: @taxon_name, target_depth: params[:target_depth] || 0 )
     render '/taxon_names/api/v1/catalog'

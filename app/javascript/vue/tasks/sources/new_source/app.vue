@@ -34,12 +34,12 @@
                 type="Source"
                 :object-id="source.id"
               />
-              <radial-annotator :global-id="source.global_id" />
-              <radial-object :global-id="source.global_id" />
               <add-source
                 :project-source-id="source.project_source_id"
                 :id="source.id"
               />
+              <radial-annotator :global-id="source.global_id" />
+              <radial-object :global-id="source.global_id" />
             </div>
           </template>
           <span v-else>New record</span>

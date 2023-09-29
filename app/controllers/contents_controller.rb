@@ -9,7 +9,7 @@ class ContentsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-        @recent_objects = Content.where(project_id: sessions_current_project_id).recently_updated.limit(10)
+        @recent_objects = ::Content.where(project_id: sessions_current_project_id).recently_updated.limit(10)
         render '/shared/data/all/index'
       end
       format.json {
@@ -25,7 +25,7 @@ class ContentsController < ApplicationController
 
   # GET /contents/new
   def new
-    @content = Content.new
+    @content = ::Content.new
   end
 
   # GET /contents/1/edit
@@ -35,7 +35,7 @@ class ContentsController < ApplicationController
   # POST /contents
   # POST /contents.json
   def create
-    @content = Content.new(content_params)
+    @content = ::Content.new(content_params)
 
     respond_to do |format|
       if @content.save
@@ -78,7 +78,7 @@ class ContentsController < ApplicationController
   end
 
   def list
-    @contents = Content.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
+    @contents = ::Content.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
   end
 
   def search
@@ -91,11 +91,11 @@ class ContentsController < ApplicationController
   end
 
   def select_options
-    @contents = Content.select_optimized(sessions_current_user_id, sessions_current_project_id)
+    @contents = ::Content.select_optimized(sessions_current_user_id, sessions_current_project_id)
   end
 
   def autocomplete
-    @contents = Content.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    @contents = ::Content.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
     data = @contents.collect do |t|
       {id: t.id,
        label: ApplicationController.helpers.taxon_works_content_tag(t),
@@ -112,7 +112,7 @@ class ContentsController < ApplicationController
   # GET /contents/download
   def download
     send_data(
-      Export::Download.generate_csv(Content.where(project_id: sessions_current_project_id)),
+      Export::Download.generate_csv(::Content.where(project_id: sessions_current_project_id)),
       type: 'text',
       filename: "contents_#{DateTime.now}.csv")
   end
@@ -134,7 +134,7 @@ class ContentsController < ApplicationController
   private
 
   def set_content
-    @content = Content.with_project_id(sessions_current_project_id).find(params[:id])
+    @content = ::Content.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @content
   end
 

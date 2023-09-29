@@ -832,3 +832,10 @@ geographic_area_usage_task:
   categories:
   status: prototype
   description: 'Summarize this projects geographic area usage'
+taxon_name_stats_task:
+  hub: false 
+  name: 'Taxon name stats'
+  related:
+  categories:
+  status: prototype
+  description: 'Plot stats / year for taxon name filter results.'

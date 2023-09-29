@@ -9,6 +9,139 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Otu RCC5 relationships to the COLDP exporter [#3569]
+- Filter images slice in radial linker [#3574]
+
+### Fixed
+
+- GeographicAreas not registering for some DWCA imports [#3575]
+- New collecting event: georeference from verbatim button creates two identical georeferences [#3573]
+
+[#3573]: https://github.com/SpeciesFileGroup/taxonworks/issues/3573
+[#3574]: https://github.com/SpeciesFileGroup/taxonworks/issues/3574
+
+## [0.34.5] - 2023-09-26
+
+### Added
+
+- Cached map item report (linked from Filter OTUs)
+- Depictions list on Filter image
+
+### Changed
+
+- Calls to `/api/v1` have a new key/value signature
+- Staged image metadata field format from JSON to JSONB [#3446]
+- Updated Ruby gems
+
+### Fixed
+
+- Batch import BibTeX failing on empty entries
+- Chronology stats report
+- ImportAttribute facet not working on any predicate searches
+- Taxon name/otus filter order bug
+- Staged image queries failing when multiple facets used [#3556]
+- Citations list is truncated in Radial Annotator [#3560]
+- DwC attributes are now showing in Stepwise determinations task
+- Quick taxon name only works for species [#3554]
+- Filter Images: Change `per` doesn't update the table [#3566]
+
+[#3554]: https://github.com/SpeciesFileGroup/taxonworks/issues/3554
+[#3556]: https://github.com/SpeciesFileGroup/taxonworks/issues/3556
+[#3560]: https://github.com/SpeciesFileGroup/taxonworks/issues/3560
+[#3566]: https://github.com/SpeciesFileGroup/taxonworks/issues/3566
+
+## [0.34.4] - 2023-09-15
+
+### Added
+
+- ImportAttribute facets to various filters
+- Project data curation issue tracking URL field (and to base API response) [#3550]
+- Manual option to regenerate derivative images on Show Image
+- API gallery endpoint `/depictions/gallery`
+- Image quick forms, add depictions in the context of an image [#3540]
+- Tables of data to nomenclature stats plots, with option to copy to clipboard
+- With/out nomenclature date facet on filter nomenclature
+- Determiners can be re-ordered (topmost, regardless of year, is preferred) [#1355]
+
+### Changed
+
+- Updated Gemfile
+- Updated JS packages
+- Derivative images strip EXIF and auto orient
+- TaxonName autocomplete change to a strict match mode.
+- Bold geographic levels in Type specimen panel in Browse OTU [#3544]
+
+### Fixed
+
+- Subqueries in unified filters were silently ignoring components of the query, e.g. fix spatial + subquery requests [#3552]
+- Geographic level names not displaying on Browse OTU [#3553]
+- Sqed images that fail processing will try again with slower method automatically [#3070] [#3443]
+- TaxonName dynamic observation matrix row not properly scoped [#3454]
+- OTU API autocomplete fails to sort results
+- Duplicate type status per CollectionObject are not allowed [#3535]
+- Edit/New taxon name: Author order for taxon name does not match author order of source [#3551]
+- Some issues with order of roles (e.g. Determinations) in display [#1355]
+
+[#1355]: https://github.com/SpeciesFileGroup/taxonworks/issues/1355
+[#3443]: https://github.com/SpeciesFileGroup/taxonworks/issues/3443
+[#3552]: https://github.com/SpeciesFileGroup/taxonworks/issues/3552
+[#3553]: https://github.com/SpeciesFileGroup/taxonworks/issues/3553
+[#3550]: https://github.com/SpeciesFileGroup/taxonworks/issues/3550
+[#3070]: https://github.com/SpeciesFileGroup/taxonworks/issues/3070
+[#3454]: https://github.com/SpeciesFileGroup/taxonworks/issues/3454
+[#3535]: https://github.com/SpeciesFileGroup/taxonworks/issues/3535
+[#3540]: https://github.com/SpeciesFileGroup/taxonworks/issues/3540
+[#3544]: https://github.com/SpeciesFileGroup/taxonworks/issues/3544
+[#3551]: https://github.com/SpeciesFileGroup/taxonworks/issues/3551
+
+## [0.34.3] - 2023-09-05
+
+### Added
+
+- Task - Nomenclature by year plots [#2472]
+- API for BiologicalRelationships -`api/v1/biological_relationships?extend[]=biological_property` [#3525]
+- Organization to Attribution slice in Radial annotator [#3529]
+- Delayed job queue `cached`, currently used in Role-related updates [#3437]
+- Allow organization determiners in DwC occurrences importer
+
+### Changed
+
+- Error radius also captured as literal value in addition to conversion to error polygon [#3471]
+- Batch update of collecting event geographic areas is now run in the background, limited to 250 record [#3527]
+- Reverted index-based TaxonName autocomplete to comprehensive version
+- Upgraded docker env to Postgis 3.4
+
+### Fixed
+
+- Missing synonym record for basionym in COLDP export [#3482]
+- Fixed loan related links in several places [#3463]
+- Common name language ISO when no language [#3530]
+- Attribution displays owner/copyright holder Organization names [#3515]
+- CollectingEvent filter fails on cached*geo*\* fields [#3526]
+- Reviewing and Organization's related data
+- CollectionObject timeline didn't show loans when object containerized [#3528]
+- Browse Annotations "On" filter doesn't work [#3505]
+- Georeferences are not cleaned after unset current collecting event in comprehensive specimen digitization task [#3533]
+- Fix collection object pagination in Browse OTU
+
+[#2472]: https://github.com/SpeciesFileGroup/taxonworks/issues/2472
+[#3437]: https://github.com/SpeciesFileGroup/taxonworks/issues/3437
+[#3471]: https://github.com/SpeciesFileGroup/taxonworks/issues/3471
+[#3463]: https://github.com/SpeciesFileGroup/taxonworks/issues/3463
+[#3527]: https://github.com/SpeciesFileGroup/taxonworks/issues/3527
+[#3505]: https://github.com/SpeciesFileGroup/taxonworks/issues/3505
+[#3515]: https://github.com/SpeciesFileGroup/taxonworks/issues/3515
+[#3525]: https://github.com/SpeciesFileGroup/taxonworks/issues/3525
+[#3526]: https://github.com/SpeciesFileGroup/taxonworks/issues/3526
+[#3528]: https://github.com/SpeciesFileGroup/taxonworks/issues/3528
+[#3529]: https://github.com/SpeciesFileGroup/taxonworks/issues/3529
+[#3530]: https://github.com/SpeciesFileGroup/taxonworks/issues/3530
+[#3533]: https://github.com/SpeciesFileGroup/taxonworks/issues/3533
+
+## [0.34.2] - 2023-08-16
+
+### Added
+
 - Subsequent Name Form section in New taxon name [#3460]
 - Original form section in New taxon name
 - Type Materials to Catalogue of Life data package exports [#3213]
@@ -16,11 +149,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - New species name button is now always visible in Type section on New taxon name task
-- Improve COLDP export delimiter usability [#3522] 
+- Improve COLDP export delimiter usability [#3522]
 - Updated Node packages and Ruby gems
 
 ### Fixed
 
+- Role scoping broken, affecting things like Verifiers list [#3514]
 - `api/v1/citation` failing on last page of results [#3524]
 - Fix generation of Unit tray labels from Filter nomenclature
 - Object graph view failing to render (controller object no longer available!?)
@@ -30,6 +164,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Improve TaxonName autocomplete result prioritization [#3509]
 - Clone button is not clearing input after cloning
 
+[#3514]: https://github.com/SpeciesFileGroup/taxonworks/issues/3514
 [#3524]: https://github.com/SpeciesFileGroup/taxonworks/issues/3524
 [#3512]: https://github.com/SpeciesFileGroup/taxonworks/issues/3512
 [#3516]: https://github.com/SpeciesFileGroup/taxonworks/issues/3516
@@ -3770,7 +3905,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.5...development
+[0.34.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.4...v0.34.5
+[0.34.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.3...v0.34.4
+[0.34.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.2...v0.34.3
+[0.34.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.1...v0.34.2
 [0.34.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.0...v0.34.1
 [0.34.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.31.1...v0.34.0
 [0.33.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.33.0...v0.33.1

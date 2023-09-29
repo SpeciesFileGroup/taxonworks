@@ -308,21 +308,23 @@ class LoanItem < ApplicationRecord
 
   protected
 
+  # Whether this class of objects is in fact loanable, not
+  # whether it's on loan or not.
   def object_loanable_check
     loan_item_object && loan_item_object.respond_to?(:is_loanable?)
   end
 
-  def total_provided_only_when_otu
-    errors.add(:total, 'only providable when item is an OTU.') if total && loan_item_object_type != 'Otu'
-  end
-
-  # Code, not out-on-loan check
+  # Code, not out-on-loan check!
   def loan_object_is_loanable
     if !persisted? # if it is, then this check should not be necessary
       if !object_loanable_check
         errors.add(:loan_item_object, 'is not loanble')
       end
     end
+  end
+
+  def total_provided_only_when_otu
+    errors.add(:total, 'only providable when item is an OTU.') if total && loan_item_object_type != 'Otu'
   end
 
   # Is not already in a loan item if CollectionObject/Container
@@ -332,7 +334,7 @@ class LoanItem < ApplicationRecord
         if loan_item_object_type == 'Otu'
           true
         else
-          if loan_item_object.on_loan? # loan_item_object.loan_items.where.not(id: id).any?
+          if loan_item_object.on_loan? # takes into account Containers!
             errors.add(:loan_item_object, 'is already on loan')
           end
         end

@@ -77,6 +77,14 @@ class TaxonDeterminationsController < ApplicationController
     end
   end
 
+  # PATCH /taxon_determinations/reorder?id[]=1
+  def reorder
+    params[:id].each do |taxon_determination_id|
+      TaxonDetermination.find(taxon_determination_id).move_to_top
+    end
+    render json: true
+  end
+
   # GET /taxon_determinations/search
   def search
     if params[:id].blank?
@@ -120,17 +128,17 @@ class TaxonDeterminationsController < ApplicationController
   end
 
   private
-    def set_taxon_determination
-      @taxon_determination = TaxonDetermination.with_project_id(sessions_current_project_id).find(params[:id])
-      @recent_object = @taxon_determination
-    end
+  def set_taxon_determination
+    @taxon_determination = TaxonDetermination.with_project_id(sessions_current_project_id).find(params[:id])
+    @recent_object = @taxon_determination
+  end
 
-    def taxon_determination_params
-      params.require(:taxon_determination).permit(
-        :biological_collection_object_id, :otu_id, :year_made, :month_made, :day_made, :position,
-        roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
-        otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
-      )
-    end
+  def taxon_determination_params
+    params.require(:taxon_determination).permit(
+      :biological_collection_object_id, :otu_id, :year_made, :month_made, :day_made, :position,
+      roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+      otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
+    )
+  end
 
 end

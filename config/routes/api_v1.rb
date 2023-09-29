@@ -95,6 +95,8 @@ namespace :api, defaults: {format: :json} do
       get '/biological_associations', to: '/biological_associations#api_index'
       get '/biological_associations/:id', to: '/biological_associations#api_show'
 
+      get '/biological_relationships', to: '/biological_relationships#api_index'
+
       get '/citations', to: '/citations#api_index'
       get '/citations/:id', to: '/citations#api_show'
 
@@ -111,6 +113,8 @@ namespace :api, defaults: {format: :json} do
       get '/data_attributes/brief', to: '/data_attributes#api_brief'
       get '/data_attributes/:id', to: '/data_attributes#api_show'
 
+      get '/depictions', to: '/depictions#api_index'
+      get '/depictions/gallery', to: '/depictions#api_gallery'
       get '/depictions/:id', to: '/depictions#api_show'
 
       get '/observations', to: '/observations#api_index'
@@ -135,5 +139,3 @@ namespace :api, defaults: {format: :json} do
     match '/:path', to: 'base#not_found', via: :all
   end
 end
-
-

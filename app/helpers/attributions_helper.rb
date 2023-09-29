@@ -53,7 +53,9 @@ module AttributionsHelper
 
   def attribution_copyright_tag(attribution)
     a = attribution.copyright_year
-    b = attribution.attribution_copyright_holders
+
+    b = attribution.copyright_holder_roles.eager_load(:organization, :person).collect{|b| b.agent}
+
     return nil unless a or b.any?
     s = '&#169;'
     s << [a, Utilities::Strings.authorship_sentence(b.collect{|c| c.name})].join(' ')
@@ -61,19 +63,19 @@ module AttributionsHelper
   end
 
   def attribution_creators_tag(attribution)
-    a = attribution.attribution_creators
+    a = attribution.creator_roles.eager_load(:organization, :person).collect{|b| b.agent}
     return nil unless a.any?
     ('Created by ' + Utilities::Strings.authorship_sentence(a.collect{|b| b.name})).html_safe
   end
 
   def attribution_editors_tag(attribution)
-    a = attribution.attribution_editors
+    a = attribution.editor_roles.eager_load(:organization, :person).collect{|b| b.agent}
     return nil unless a.any?
     ('Edited by ' + Utilities::Strings.authorship_sentence(a.collect{|b| b.name})).html_safe
   end
 
   def attribution_owners_tag(attribution)
-    a = attribution.attribution_owners
+    a = attribution.owner_roles.eager_load(:organization, :person).collect{|b| b.agent}
     return nil unless a.any?
     ('Owned by ' + Utilities::Strings.authorship_sentence(a.collect{|b| b.name})).html_safe
   end

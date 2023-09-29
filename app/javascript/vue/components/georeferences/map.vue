@@ -342,8 +342,11 @@ const addJsonCircle = (layer) => {
 }
 
 const geoJSON = (geoJsonFeatures) => {
-  if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
-  addGeoJsonLayer(geoJsonFeatures)
+  if (geoJsonFeatures?.length === 0) {
+    mapObject.setView([0, 0], props.zoom)
+  } else {
+    addGeoJsonLayer(geoJsonFeatures)
+  }
 }
 
 const addGeoJsonLayer = (geoJsonLayers) => {

@@ -93,7 +93,7 @@
           </td>
           <td>{{ item.updated_at }}</td>
           <td>
-            <div class="horizontal-right-content">
+            <div class="horizontal-right-content gap-xsmall">
               <radial-annotator :global-id="item.global_id" />
               <pdf-button :pdf="item.document" />
               <v-btn

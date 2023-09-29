@@ -8,6 +8,14 @@ describe TypeMaterial, type: :model, group: :nomenclature do
 
   let(:type_material) {TypeMaterial.new}
 
+  specify 'not duplicated on CollectionObject' do
+    s = Specimen.create!
+    type_material.update!(collection_object: s, type_type: 'paratype', protonym: species)
+    t = TypeMaterial.new(collection_object: s, type_type: 'paratype', protonym: species)
+    expect(t.valid?).to be_falsey
+  end
+
+
   context 'associations' do
     context 'belongs to' do
       specify 'protonym' do
@@ -179,4 +187,3 @@ describe TypeMaterial, type: :model, group: :nomenclature do
   end
 
 end
-
