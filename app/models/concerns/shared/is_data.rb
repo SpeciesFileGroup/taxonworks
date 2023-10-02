@@ -15,6 +15,7 @@ module Shared::IsData
     include Metamorphosize
     include HasRoles
     include Shared::Verifiers
+    include Merge
   end
 
   module ClassMethods

@@ -10,10 +10,12 @@ concern :data_routes do |options|
     get 'batch_load'
     get 'autocomplete'
     get 'search' # TODO: deprecate/remove
+
   end
 
   member do
     get 'related' # TODO: remove or redirect here to Task route
+    post 'merge/:taxon_name_id', defaults: {format: :json}
   end
 end
 
