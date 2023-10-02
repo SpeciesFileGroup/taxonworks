@@ -24,10 +24,15 @@ module AttributionsHelper
       attribution_creators_tag(attribution),
       attribution_editors_tag(attribution),
       attribution_owners_tag(attribution),
-      attribution.license,
+      attribution_license_tag(attribution),
     ]
 
     a.compact.join('. ').html_safe
+  end
+
+  def attribution_license_tag(attribution)
+    return nil if attribution.nil? || attribution.license.blank?
+    'License: ' + CREATIVE_COMMONS_LICENSES[attribution.license][:name]
   end
 
   # @return [String, nil]
@@ -35,8 +40,8 @@ module AttributionsHelper
     a = attribution.copyright_year
     b = attribution.attribution_copyright_holders
     return nil unless a or b.any?
-    s = '(c)'
-    s << [a, Utilities::Strings.authorship_sentence(b.collect{|c| c.name})].join(' ')
+    s = '©'
+    s << [a, Utilities::Strings.authorship_sentence(b.collect{|c| c.name})].compact.join(' ')
     s
   end
 

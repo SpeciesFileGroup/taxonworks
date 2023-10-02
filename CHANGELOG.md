@@ -16,9 +16,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Attribution rendering had cryptic license value [#3577]
 - GeographicAreas not registering for some DWCA imports [#3575]
 - New collecting event: georeference from verbatim button creates two identical georeferences [#3573]
 
+[#3577]: https://github.com/SpeciesFileGroup/taxonworks/issues/3577
 [#3573]: https://github.com/SpeciesFileGroup/taxonworks/issues/3573
 [#3574]: https://github.com/SpeciesFileGroup/taxonworks/issues/3574
 
