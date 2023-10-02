@@ -8,8 +8,7 @@
         :key="license.key"
         :value="license.key"
       >
-        <span v-if="license.key != null"> {{ license.key }} : </span>
-        {{ license.label }}
+        <span> {{ license.label }}</span>
       </option>
     </select>
     <VSpinner
@@ -43,7 +42,10 @@ onBeforeMount(() => {
   Attribution.licenses()
     .then(({ body }) => {
       licenses.value = [
-        ...Object.entries(body).map(([key, label]) => ({ key, label })),
+        ...Object.entries(body).map(([key, { name, link }]) => ({
+          key,
+          label: `${name}: ${link}`
+        })),
         {
           label: '-- None --',
           key: null
