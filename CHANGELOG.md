@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Change map position in Filter collecting events [#3571]
+- Add type material button is now blue [#3579]
 
 ### Fixed
 
@@ -28,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3573]: https://github.com/SpeciesFileGroup/taxonworks/issues/3573
 [#3574]: https://github.com/SpeciesFileGroup/taxonworks/issues/3574
 [#3577]: https://github.com/SpeciesFileGroup/taxonworks/issues/3577
+[#3579]: https://github.com/SpeciesFileGroup/taxonworks/issues/3579
 
 ## [0.34.5] - 2023-09-26
 
