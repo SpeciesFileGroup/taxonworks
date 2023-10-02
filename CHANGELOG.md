@@ -14,15 +14,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Name relations to Catalogue of Life data package exports [#1211]
 - Type Materials to Catalogue of Life data package exports [#3213]
 
+### Changed
+
+- Change map position in Filter collecting events [#3571]
+
 ### Fixed
 
 - Attribution rendering had cryptic license value [#3577]
 - GeographicAreas not registering for some DWCA imports [#3575]
 - New collecting event: georeference from verbatim button creates two identical georeferences [#3573]
 
-[#3577]: https://github.com/SpeciesFileGroup/taxonworks/issues/3577
+[#3571]: https://github.com/SpeciesFileGroup/taxonworks/issues/3571
 [#3573]: https://github.com/SpeciesFileGroup/taxonworks/issues/3573
 [#3574]: https://github.com/SpeciesFileGroup/taxonworks/issues/3574
+[#3577]: https://github.com/SpeciesFileGroup/taxonworks/issues/3577
 
 ## [0.34.5] - 2023-09-26
 
