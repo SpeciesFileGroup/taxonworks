@@ -9,9 +9,9 @@ describe ::Queries::Content::Filter, type: :model do
   let(:o1) { Otu.create!(name: 'T1') }
   let(:o2) { Otu.create!(name: 'T2') }
 
-  let!(:c1) { Content.create!(otu: o1, text: 'text 1 stuff', topic: t1) }
-  let!(:c2) { Content.create!(otu: o2, text: 'text 2 things', topic: t2) }
-  let!(:c3) { Content.create!(otu: o2, text: 'text 3 stuf', topic: t3) }
+  let!(:c1) {::Content.create!(otu: o1, text: 'text 1 stuff', topic: t1) }
+  let!(:c2) {::Content.create!(otu: o2, text: 'text 2 things', topic: t2) }
+  let!(:c3) {::Content.create!(otu: o2, text: 'text 3 stuf', topic: t3) }
 
   let(:query) { ::Queries::Content::Filter.new({}) }
 
