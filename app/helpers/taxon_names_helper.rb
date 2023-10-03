@@ -380,9 +380,6 @@ module TaxonNamesHelper
       .select(:rank_klass).distinct.pluck(:rank_class).compact.sort{|a,b| RANKS.index(a) <=> RANKS.index(b)}.each do |r|
 
       n = r.safe_constantize.rank_name.to_sym
-
-      puts Rainbow(n).orange
-
       j = i.deep_dup
 
       j[:rank] = n
