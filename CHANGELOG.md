@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- TaxonName stats metadata includes coordinate OTUs and synonyms of self 
 - Change map position in Filter collecting events [#3571]
 - Add type material button is now blue [#3579]
 
