@@ -1,0 +1,75 @@
+<template>
+  <div>
+    <fieldset>
+      <legend>Taxon name</legend>
+      <SmartSelector
+        model="taxon_names"
+        :klass="TAXON_NAME"
+        :target="TAXON_NAME"
+        @selected="(item) => (parent = item)"
+      />
+      <SmartSelectorItem
+        :item="parent"
+        label="name"
+        @unset="parent = undefined"
+      />
+    </fieldset>
+
+    <VBtn
+      class="margin-large-top"
+      color="create"
+      medium
+      :disabled="!parent"
+      @click="move"
+    >
+      Update
+    </VBtn>
+
+    <div class="margin-large-top">
+      <template v-if="taxonNameUpdated.length">
+        <h3>Updated</h3>
+        <ul>
+          <li
+            v-for="item in taxonNameUpdated"
+            :key="item.id"
+            v-html="item.object_tag"
+          />
+        </ul>
+      </template>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { TaxonName } from '@/routes/endpoints'
+import { TAXON_NAME } from '@/constants/index.js'
+import { ref } from 'vue'
+
+const props = defineProps({
+  parameters: {
+    type: Object,
+    required: true
+  }
+})
+
+const parent = ref()
+const taxonNameUpdated = ref([])
+
+function move() {
+  const payload = {
+    taxon_name_query: props.parameters,
+    parent_id: parent.value.id
+  }
+
+  TaxonName.moveBatch(payload).then(({ body }) => {
+    taxonNameUpdated.value = body
+    TW.workbench.alert.create(
+      `${body.length} taxon names were successfully updated.`,
+      'notice'
+    )
+  })
+}
+</script>
