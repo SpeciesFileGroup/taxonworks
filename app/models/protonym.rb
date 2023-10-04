@@ -903,13 +903,13 @@ class Protonym < TaxonName
 
     a = Queries::TaxonName::Filter.new(params[:taxon_name_query]).all.where(type: 'Protonym')
 
-    return false if a.all.count == 0
+    return false if a.count == 0
 
     moved = []
     unmoved = []
 
     begin
-      a.all.each do |o|
+      a.each do |o|
         if o.update(parent_id: params[:parent_id] )
           moved.push o
         else
