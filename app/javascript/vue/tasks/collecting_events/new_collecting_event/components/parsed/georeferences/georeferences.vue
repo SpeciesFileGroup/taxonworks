@@ -131,7 +131,7 @@
             :list="collectingEventId ? georeferences : queueGeoreferences"
             @delete="removeGeoreference"
             @update="updateRadius"
-            @dateChanged="updateDate"
+            @dateChanged="addToQueue"
             label="object_tag"
           />
         </div>
@@ -363,15 +363,13 @@ export default {
     },
 
     addGeoreference(shape, type = GEOREFERENCE_LEAFLET) {
-      this.queueGeoreferences.push({
+      this.addToQueue({
         tmpId: Math.random().toString(36).substr(2, 5),
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         error_radius: shape.properties?.radius,
         type,
         ...this.date
       })
-
-      this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
     },
 
     updateGeoreference(shape, type = GEOREFERENCE_LEAFLET) {
@@ -382,8 +380,6 @@ export default {
         collecting_event_id: this.collectingEventId,
         type
       })
-
-      this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
     },
 
     populateShapes() {
@@ -433,16 +429,6 @@ export default {
         type: GEOREFERENCE_VERBATIM,
         error_radius: this.collectingEvent.verbatim_geolocation_uncertainty
       })
-
-      this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
-    },
-
-    updateDate(georeference) {
-      this.addToQueue(georeference)
-
-      if (georeference.id) {
-        this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
-      }
     },
 
     addToQueue(data) {

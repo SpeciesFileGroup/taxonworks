@@ -76,27 +76,29 @@
       </div>
     </template>
   </VModal>
-  <select v-model="currentLayout">
-    <option
-      v-for="(item, key) in layouts"
-      :key="key"
-      :value="item"
-    >
-      {{ key }}
-    </option>
-  </select>
+  <div class="horizontal-left-content middle">
+    <select v-model="currentLayout">
+      <option
+        v-for="(item, key) in layouts"
+        :key="key"
+        :value="item"
+      >
+        {{ key }}
+      </option>
+    </select>
 
-  <VBtn
-    class="rounded-tl-none rounded-bl-none"
-    medium
-    color="primary"
-    @click="openLayoutPreferences"
-  >
-    <VIcon
-      name="pencil"
-      x-small
-    />
-  </VBtn>
+    <VBtn
+      class="rounded-tl-none rounded-bl-none"
+      medium
+      color="primary"
+      @click="openLayoutPreferences"
+    >
+      <VIcon
+        name="pencil"
+        x-small
+      />
+    </VBtn>
+  </div>
 </template>
 
 <script setup>

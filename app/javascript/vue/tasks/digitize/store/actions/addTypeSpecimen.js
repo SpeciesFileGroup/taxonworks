@@ -1,7 +1,8 @@
+import ActionNames from './actionNames'
 import makeTypeSpecimen from '../../helpers/makeTypeSpecimen'
 import { MutationNames } from '../mutations/mutations'
 
-export default ({ state, commit }) => {
+export default ({ state, commit, dispatch }) => {
   const { typeMaterial } = state
 
   commit(MutationNames.AddTypeMaterial, {
@@ -10,4 +11,6 @@ export default ({ state, commit }) => {
   })
 
   state.typeMaterial = makeTypeSpecimen()
+
+  dispatch(ActionNames.UpdateLastChange)
 }
