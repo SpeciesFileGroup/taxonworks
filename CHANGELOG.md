@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Reset forms for user preferences and project card favorites [#3545]
 - Otu RCC5 relationships to the COLDP exporter [#3569]
 - Filter images slice in radial linker [#3574]
 - Name relations to Catalogue of Life data package exports [#1211]
@@ -28,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - GeographicAreas not registering for some DWCA imports [#3575]
 - New collecting event: georeference from verbatim button creates two identical georeferences [#3573]
 
+[#3545]: https://github.com/SpeciesFileGroup/taxonworks/issues/3545
 [#3571]: https://github.com/SpeciesFileGroup/taxonworks/issues/3571
 [#3573]: https://github.com/SpeciesFileGroup/taxonworks/issues/3573
 [#3574]: https://github.com/SpeciesFileGroup/taxonworks/issues/3574
