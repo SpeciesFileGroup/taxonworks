@@ -16,9 +16,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
-- TaxonName stats metadata includes coordinate OTUs and synonyms of self 
+- TaxonName stats metadata includes coordinate OTUs and synonyms of self
 - Change map position in Filter collecting events [#3571]
 - Add type material button is now blue [#3579]
+- Radial navigator: close radial menu when slices are opened in a new tab/window clicking and pressing ctrl/shift/meta keys [#3582]
 
 ### Fixed
 
@@ -31,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3574]: https://github.com/SpeciesFileGroup/taxonworks/issues/3574
 [#3577]: https://github.com/SpeciesFileGroup/taxonworks/issues/3577
 [#3579]: https://github.com/SpeciesFileGroup/taxonworks/issues/3579
+[#3582]: https://github.com/SpeciesFileGroup/taxonworks/issues/3582
 
 ## [0.34.5] - 2023-09-26
 
