@@ -760,6 +760,8 @@ resources :taxon_names do
 
     get :rank_table, defaults: {format: :json}
     get :predicted_rank, {format: :json}
+
+    post :batch_move
   end
 
   member do

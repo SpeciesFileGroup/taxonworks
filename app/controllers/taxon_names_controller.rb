@@ -224,6 +224,14 @@ class TaxonNamesController < ApplicationController
   def original_combination
   end
 
+  # POST /taxon_names/batch_move.json?taxon_names_query=<>&parent_id=123
+  def batch_move
+    if @result = Protonym.batch_move(params)
+    else
+      render json: {success: false}
+    end
+  end
+
   # GET /api/v1/taxon_names
   def api_index
     @taxon_names = ::Queries::TaxonName::Filter.new(params.merge!(api: true)).all
