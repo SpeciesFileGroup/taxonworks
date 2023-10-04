@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- OTU API autocomplete not resolving to valid OTU
 - Attribution rendering had cryptic license value [#3577]
 - GeographicAreas not registering for some DWCA imports [#3575]
 - New collecting event: georeference from verbatim button creates two identical georeferences [#3573]

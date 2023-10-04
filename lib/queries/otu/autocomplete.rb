@@ -119,7 +119,7 @@ module Queries
 
         f = ::Otu.where(id: otu_order)
               .joins('left join taxon_names t1 on otus.taxon_name_id = t1.id')
-              .joins('left join otus o2 on t1.cached_valid_taxon_name_id = o2.taxon_name_id AND t1.cached_is_valid = true')
+              .joins('left join otus o2 on t1.cached_valid_taxon_name_id = o2.taxon_name_id')
               .select('distinct on (otus.id) otus.id, otus.name, otus.taxon_name_id, COALESCE(o2.id, otus.id) as otu_valid_id')
 
         f.sort_by.with_index { |item, idx| [(otu_order.index(item.id) || 999), (idx || 999)] }
