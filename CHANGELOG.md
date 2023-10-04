@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter images slice in radial linker [#3574]
 - Name relations to Catalogue of Life data package exports [#1211]
 - Type Materials to Catalogue of Life data package exports [#3213]
+- Filter list: Add border to highlight the last row where a radial was opened [#3583]
 
 ### Changed
 
@@ -33,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3577]: https://github.com/SpeciesFileGroup/taxonworks/issues/3577
 [#3579]: https://github.com/SpeciesFileGroup/taxonworks/issues/3579
 [#3582]: https://github.com/SpeciesFileGroup/taxonworks/issues/3582
+[#3583]: https://github.com/SpeciesFileGroup/taxonworks/issues/3583
 
 ## [0.34.5] - 2023-09-26
 
