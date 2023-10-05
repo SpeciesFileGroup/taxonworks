@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Browse nomenclature hierachy nav counts of invalid/valid link to filter
 - Reset forms for user preferences and project card favorites [#3545]
 - Otu RCC5 relationships to the COLDP exporter [#3569]
 - Filter images slice in radial linker [#3574]
