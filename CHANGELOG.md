@@ -9,6 +9,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Batch move taxon names to a new parent within TaxonName filter [#3584]
+- Batch update Source with a Serial within Source filter [#3561]
 - Browse nomenclature hierachy nav counts of invalid/valid link to filter
 - Reset forms for user preferences and project card favorites [#3545]
 - Otu RCC5 relationships to the COLDP exporter [#3569]
@@ -19,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Update Gemfile
 - TaxonName stats metadata includes coordinate OTUs and synonyms of self
 - Change map position in Filter collecting events [#3571]
 - Add type material button is now blue [#3579]
@@ -31,6 +34,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - GeographicAreas not registering for some DWCA imports [#3575]
 - New collecting event: georeference from verbatim button creates two identical georeferences [#3573]
 
+[#3561]: https://github.com/SpeciesFileGroup/taxonworks/issues/3584
+[#3561]: https://github.com/SpeciesFileGroup/taxonworks/issues/3561
 [#3545]: https://github.com/SpeciesFileGroup/taxonworks/issues/3545
 [#3571]: https://github.com/SpeciesFileGroup/taxonworks/issues/3571
 [#3573]: https://github.com/SpeciesFileGroup/taxonworks/issues/3573
