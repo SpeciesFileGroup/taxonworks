@@ -402,11 +402,11 @@ class Source::Bibtex < Source
 
     return false if a.count == 0 || a.count > 50
 
-    moved = []
-    unmoved = []
+    updated = []
+    not_updated = []
 
     begin
-      a.all.find_each do |o|
+      a.find_each do |o|
         if o.update(serial_id: params[:serial_id] )
           moved.push o
         else
@@ -415,7 +415,7 @@ class Source::Bibtex < Source
       end
     end
 
-    return { moved:, unmoved: }
+    return { updated:, not_updated: }
   end
 
   # @param [BibTeX::Name] bibtex_author
