@@ -82,7 +82,8 @@ gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
 gem 'uglifier', '~> 4.2'
 
 gem 'jquery-rails', '~> 4.4'
-gem 'jquery-ui-rails', '~> 6.0.1'
+# gem 'jquery-ui-rails', '~> 6.0.1'
+gem "jquery-ui-rails", :git => 'https://github.com/jquery-ui-rails/jquery-ui-rails.git'
 gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'

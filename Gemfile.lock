@@ -56,6 +56,13 @@ GIT
       thor (~> 1.2.0, >= 1.2.0)
 
 GIT
+  remote: https://github.com/jquery-ui-rails/jquery-ui-rails.git
+  revision: c7460b447589eb04aa948ecaf0d1245c88f6ff45
+  specs:
+    jquery-ui-rails (7.0.0)
+      railties (>= 3.2.16)
+
+GIT
   remote: https://github.com/mjy/rqrcode.git
   revision: 7dfe8f371ca74099148cb58d3c9054c7e39eb038
   branch: taxonworks
@@ -290,8 +297,6 @@ GEM
     jquery-turbolinks (2.1.0)
       railties (>= 3.1.0)
       turbolinks
-    jquery-ui-rails (6.0.1)
-      railties (>= 3.2.16)
     json (2.6.3)
     kaminari (1.2.2)
       activesupport (>= 4.1.0)
@@ -712,7 +717,7 @@ DEPENDENCIES
   jbuilder (~> 2.7)
   jquery-rails (~> 4.4)
   jquery-turbolinks (~> 2.1)
-  jquery-ui-rails (~> 6.0.1)
+  jquery-ui-rails!
   kaminari (~> 1.2.0)
   logic_tools
   logical_query_parser
