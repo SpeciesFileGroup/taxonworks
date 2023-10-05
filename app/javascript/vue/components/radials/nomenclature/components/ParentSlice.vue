@@ -26,11 +26,21 @@
     </VBtn>
 
     <div class="margin-large-top">
-      <template v-if="taxonNameUpdated.length">
-        <h3>Updated</h3>
+      <template v-if="taxonNameUpdated.moved.length">
+        <h3>Moved</h3>
         <ul>
           <li
-            v-for="item in taxonNameUpdated"
+            v-for="item in taxonNameUpdated.moved"
+            :key="item.id"
+            v-html="item.object_tag"
+          />
+        </ul>
+      </template>
+      <template v-if="taxonNameUpdated.unmoved.length">
+        <h3>Unmoved</h3>
+        <ul>
+          <li
+            v-for="item in taxonNameUpdated.unmoved"
             :key="item.id"
             v-html="item.object_tag"
           />
@@ -56,7 +66,7 @@ const props = defineProps({
 })
 
 const parent = ref()
-const taxonNameUpdated = ref([])
+const taxonNameUpdated = ref({ moved: [], unmoved: [] })
 
 function move() {
   const payload = {
@@ -67,7 +77,7 @@ function move() {
   TaxonName.moveBatch(payload).then(({ body }) => {
     taxonNameUpdated.value = body
     TW.workbench.alert.create(
-      `${body.length} taxon names were successfully updated.`,
+      `${body.moved.length} taxon names were successfully updated.`,
       'notice'
     )
   })
