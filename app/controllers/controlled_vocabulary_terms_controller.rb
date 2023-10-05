@@ -78,7 +78,7 @@ class ControlledVocabularyTermsController < ApplicationController
         from_id: params[:project_id],
         to_id: sessions_current_project_id,
         klass: params[:target])
-      render json: {}, status: :success
+      render json: {}, status: :ok
     else
       render json: {}, status: :unprocessable_entity
     end
