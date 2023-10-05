@@ -38,6 +38,9 @@ scope :graph, controller: :graph do
 end
 
 resources :projects do
+
+
+
   collection do
     get 'list'
     get 'search'
@@ -85,6 +88,8 @@ scope :s do
 end
 
 resources :users, except: :new do
+  resources :projects, only: [:index], defaults: {format: :json}, action: :user_projects
+
   collection do
     post 'batch_create'
     get :autocomplete, defaults: {format: :json}

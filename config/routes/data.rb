@@ -211,6 +211,11 @@ resources :controlled_vocabulary_terms do
     get 'tagged_objects'
     get 'select', defaults: {format: :json}
   end
+
+  collection do
+    post :clone_from_project, default: {format: :json}
+  end
+
 end
 
 resources :data_attributes, except: [:show] do
