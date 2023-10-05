@@ -408,9 +408,9 @@ class Source::Bibtex < Source
     begin
       a.find_each do |o|
         if o.update(serial_id: params[:serial_id] )
-          moved.push o
+          updated.push o
         else
-          unmoved.push o
+          not_updated.push o
         end
       end
     end
