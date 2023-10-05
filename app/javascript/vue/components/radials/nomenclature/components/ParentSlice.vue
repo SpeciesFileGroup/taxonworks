@@ -32,8 +32,12 @@
           <li
             v-for="item in taxonNameUpdated.moved"
             :key="item.id"
-            v-html="item.object_tag"
-          />
+          >
+            <a
+              :href="`${RouteNames.BrowseNomenclature}?taxon_name_id=${item.id}`"
+              v-html="item.object_tag"
+            />
+          </li>
         </ul>
       </template>
       <template v-if="taxonNameUpdated.unmoved.length">
@@ -42,8 +46,12 @@
           <li
             v-for="item in taxonNameUpdated.unmoved"
             :key="item.id"
-            v-html="item.object_tag"
-          />
+          >
+            <a
+              :href="`${RouteNames.BrowseNomenclature}?taxon_name_id=${item.id}`"
+              v-html="item.object_tag"
+            />
+          </li>
         </ul>
       </template>
     </div>
@@ -54,6 +62,7 @@
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import { RouteNames } from '@/routes/routes.js'
 import { TaxonName } from '@/routes/endpoints'
 import { TAXON_NAME } from '@/constants/index.js'
 import { ref } from 'vue'
