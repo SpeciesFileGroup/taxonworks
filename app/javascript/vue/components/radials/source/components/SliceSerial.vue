@@ -9,15 +9,15 @@
     <fieldset>
       <legend>Serial</legend>
       <SmartSelector
-        model="sources"
+        model="serials"
         :klass="SOURCE"
         :target="SOURCE"
-        label="cached"
+        label="name"
         @selected="(item) => (serial = item)"
       />
       <SmartSelectorItem
         :item="serial"
-        label="cached"
+        label="name"
         @unset="serial = undefined"
       />
     </fieldset>
