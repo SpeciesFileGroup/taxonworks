@@ -33,11 +33,11 @@
     </VBtn>
 
     <div class="margin-large-top">
-      <template v-if="sources.moved.length">
-        <h3>Moved</h3>
+      <template v-if="sources.updated.length">
+        <h3>Updated</h3>
         <ul>
           <li
-            v-for="item in sources.moved"
+            v-for="item in sources.updated"
             :key="item.id"
           >
             <a
@@ -47,11 +47,11 @@
           </li>
         </ul>
       </template>
-      <template v-if="sources.not_moved.length">
-        <h3>Not moved</h3>
+      <template v-if="sources.not_updated.length">
+        <h3>Not updated</h3>
         <ul>
           <li
-            v-for="item in sources.not_moved"
+            v-for="item in sources.not_updated"
             :key="item.id"
           >
             <a
@@ -89,7 +89,7 @@ const props = defineProps({
 })
 
 const serial = ref()
-const sources = ref({ moved: [], not_moved: [] })
+const sources = ref({ updated: [], not_updated: [] })
 
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 
