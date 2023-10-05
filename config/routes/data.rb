@@ -31,7 +31,7 @@ end
 resources :asserted_distributions do
   concerns [:data_routes]
   collection do
-    post :batch_move
+    patch :batch_move
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
     match :filter, to: 'asserted_distributions#index', via: [:get, :post]
@@ -705,6 +705,7 @@ resources :sources do
     get :citation_object_types, defaults: {format: :json}
     get :csl_types, defaults: {format: :json}
     get :generate, defaults: {format: :json}
+    patch :batch_update
   end
 
   member do

@@ -114,7 +114,7 @@ class AssertedDistributionsController < ApplicationController
   def batch_load
   end
 
-  # POST /asserted_distributions/batch_move.json?asserted_distribution_query=<>&geographic_area_id
+  # PATCH /asserted_distributions/batch_move.json?asserted_distribution_query=<>&geographic_area_id
   def batch_move
     if @result = AssertedDistribution.batch_move(params)
     else
