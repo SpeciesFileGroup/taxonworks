@@ -16,6 +16,19 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialSource
+          :disabled="!list.length"
+          :parameters="parameters"
+          :count="pagination?.total || 0"
+        />
+      </template>
+      <template #nav-right>
+        <RadialSource
+          :disabled="!list.length"
+          :ids="selectedIds"
+        />
+      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -42,6 +55,7 @@ import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import BibtexButton from './components/bibtex'
 import BibliographyDownload from './components/BibliographyDownload.vue'
+import RadialSource from '@/components/radials/source/radial.vue'
 import VSpinner from '@/components/spinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import { Source } from '@/routes/endpoints'

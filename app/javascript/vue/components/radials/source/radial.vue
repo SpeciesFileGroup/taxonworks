@@ -7,7 +7,7 @@
         @close="closeModal()"
       >
         <template #header>
-          <h3>Radial nomenclature</h3>
+          <h3>Radial Source</h3>
         </template>
         <template #body>
           <div class="flex-separate">
@@ -37,7 +37,7 @@
       </VModal>
       <VBtn
         class="circle-button"
-        title="Radial Nomenclature"
+        title="Radial Source"
         circle
         color="radial"
         :disabled="disabled || (!ids.length && !Object.keys(params).length)"
@@ -57,14 +57,14 @@ import RadialMenu from '@/components/radials/RadialMenu.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import ParentSlice from './components/ParentSlice.vue'
+import SliceSerial from './components/SliceSerial.vue'
 
 import { computed, ref } from 'vue'
 import { removeEmptyProperties } from '@/helpers/objects.js'
 
 const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 const SLICES = {
-  'Update parent': ParentSlice
+  Serial: SliceSerial
 }
 
 const props = defineProps({
@@ -81,6 +81,11 @@ const props = defineProps({
   parameters: {
     type: Object,
     default: () => ({})
+  },
+
+  count: {
+    type: Number,
+    default: 0
   }
 })
 
@@ -91,7 +96,7 @@ const currentSlice = ref(Object.keys(SLICES)[0])
 const params = computed(() => {
   const parameters = removeEmptyProperties({
     ...props.parameters,
-    taxon_name_id: props.ids
+    source_id: props.ids
   })
 
   EXCLUDE_PARAMETERS.forEach((param) => {
@@ -141,6 +146,6 @@ function closeModal() {
 
 <script>
 export default {
-  name: 'RadialNomenclature'
+  name: 'RadialSource'
 }
 </script>

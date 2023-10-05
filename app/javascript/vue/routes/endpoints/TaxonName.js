@@ -76,5 +76,5 @@ export const TaxonName = {
       headers: { 'Cache-Control': 'no-cache' }
     }),
 
-  moveBatch: (params) => AjaxCall('post', `/${model}/batch_move.json`, params)
+  moveBatch: (params) => AjaxCall('patch', `/${model}/batch_move.json`, params)
 }
