@@ -396,7 +396,7 @@ class Source::Bibtex < Source
   # @return [Hash, false]
   #
   def self.batch_update(params)
-    return false if params[:geographic_area_id].blank?
+    return false if params[:serial_id].blank?
 
     a = Queries::Source::Filter.new(params[:source_query]).all
 
