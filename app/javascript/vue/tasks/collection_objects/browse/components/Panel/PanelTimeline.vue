@@ -2,14 +2,17 @@
   <PanelContainer title="Timeline">
     <table>
       <thead>
-        <tr>
-          <th
-            v-for="item in HEADER"
-            :key="item"
-          >
-            {{ item }}
-          </th>
-        </tr>
+        <VDraggable
+          v-model="header"
+          tag="tr"
+          :item-key="(value) => value"
+        >
+          <template #item="{ element }">
+            <th>
+              {{ element }}
+            </th>
+          </template>
+        </VDraggable>
       </thead>
       <tbody>
         <tr
@@ -17,7 +20,7 @@
           :key="index"
         >
           <td
-            v-for="property in HEADER"
+            v-for="property in header"
             :key="property"
             v-html="item[property]"
           />
@@ -29,14 +32,15 @@
 
 <script setup>
 import { useStore } from 'vuex'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
+
+import VDraggable from 'vuedraggable'
 import PanelContainer from './PanelContainer.vue'
 
 const store = useStore()
 const timeline = computed(() => store.getters[GetterNames.GetTimeline])
-
-const HEADER = ['date', 'event', 'object', 'derived_from', 'object']
+const header = ref(['date', 'event', 'object', 'derived_from'])
 </script>
 
 <style scoped>
