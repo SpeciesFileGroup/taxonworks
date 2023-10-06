@@ -9,6 +9,7 @@ import {
   GeographicArea,
   Repository
 } from '@/routes/endpoints'
+import { sortArray } from '@/helpers'
 import { makeCollectionObject } from '@/adapters/index.js'
 import { COLLECTION_OBJECT, COLLECTING_EVENT } from '@/constants/index.js'
 import ActionNames from './actionNames'
@@ -60,7 +61,7 @@ export default ({ state, dispatch }, coId) => {
 
   TaxonDetermination.where({ biological_collection_object_id: [coId] }).then(
     ({ body }) => {
-      state.determinations = body
+      state.determinations = sortArray(body, 'position')
     }
   )
 
