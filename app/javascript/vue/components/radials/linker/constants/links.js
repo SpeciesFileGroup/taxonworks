@@ -8,6 +8,11 @@ export const TASK_COLLECTION_OBJECT_TABLE = {
   link: '/tasks/collection_objects/table'
 }
 
+export const TASK_COLLECTION_OBJECT_SUMMARY = {
+  label: 'Collection summary',
+  link: '/tasks/collection_objects/summary'
+}
+
 export const TASK_SOURCE_CITATION_TOTALS = {
   label: 'Citation totals',
   link: '/tasks/sources/source_citation_totals/'
