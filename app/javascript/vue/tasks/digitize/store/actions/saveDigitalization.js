@@ -29,8 +29,6 @@ export default ({ commit, dispatch, state }) =>
 
             Promise.allSettled(actions)
               .then((_) => {
-                state.settings.lastSave = Date.now()
-
                 dispatch(ActionNames.LoadSoftValidations)
 
                 CollectionObject.find(state.collection_object.id).then(
@@ -38,6 +36,8 @@ export default ({ commit, dispatch, state }) =>
                     state.collection_object.object_tag = body.object_tag
                   }
                 )
+
+                state.settings.lastSave = Date.now()
 
                 TW.workbench.alert.create(
                   'All records were successfully saved.',
