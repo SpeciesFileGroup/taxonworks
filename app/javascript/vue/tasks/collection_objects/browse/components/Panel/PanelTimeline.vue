@@ -36,7 +36,7 @@ import PanelContainer from './PanelContainer.vue'
 const store = useStore()
 const timeline = computed(() => store.getters[GetterNames.GetTimeline])
 
-const HEADER = ['event', 'object', 'derived_from', 'object']
+const HEADER = ['date', 'event', 'object', 'derived_from', 'object']
 </script>
 
 <style scoped>
@@ -51,7 +51,5 @@ tr {
 th {
   border-bottom: 2px solid #eaeaea;
   text-transform: uppercase;
-
 }
-
 </style>
