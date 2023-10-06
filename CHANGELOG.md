@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Clone ControlledVocabularies across projects [#3562]
 - Batch move taxon names to a new parent within TaxonName filter [#3584]
 - Batch update Source with a Serial within Source filter [#3561]
 - Browse nomenclature hierachy nav counts of invalid/valid link to filter
@@ -34,7 +35,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - GeographicAreas not registering for some DWCA imports [#3575]
 - New collecting event: georeference from verbatim button creates two identical georeferences [#3573]
 
-[#3561]: https://github.com/SpeciesFileGroup/taxonworks/issues/3584
+[#3562]: https://github.com/SpeciesFileGroup/taxonworks/issues/3562
+[#3584]: https://github.com/SpeciesFileGroup/taxonworks/issues/3584
 [#3561]: https://github.com/SpeciesFileGroup/taxonworks/issues/3561
 [#3545]: https://github.com/SpeciesFileGroup/taxonworks/issues/3545
 [#3571]: https://github.com/SpeciesFileGroup/taxonworks/issues/3571
