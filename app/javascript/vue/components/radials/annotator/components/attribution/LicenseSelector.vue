@@ -7,7 +7,7 @@
         :key="lic.key"
         :value="lic.key"
       >
-        <span v-if="lic.key != null">{{ lic.key }}: </span>{{ lic.label }}
+        <span>{{ lic.label }}</span>
       </option>
     </select>
   </div>
@@ -54,14 +54,14 @@ const inputYear = computed({
 
 onBeforeMount(() => {
   Attribution.licenses().then(({ body }) => {
-    licenses.value = Object.keys(body).map((key) => ({
+    licenses.value = Object.entries(body).map(([key, { name, link }]) => ({
       key,
-      label: body[key]
+      label: `${name}: ${link}`
     }))
 
     licenses.value.push({
-      label: '-- None --',
-      key: null
+      key: null,
+      label: '-- None --'
     })
   })
 })

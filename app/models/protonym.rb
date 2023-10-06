@@ -897,6 +897,30 @@ class Protonym < TaxonName
     is_genus_or_species_rank? && parent == protonym && parent.name == protonym.name
   end
 
+  # @return [Hash]
+  def self.batch_move(params)
+    return false if params[:parent_id].blank?
+
+    a = Queries::TaxonName::Filter.new(params[:taxon_name_query]).all.where(type: 'Protonym')
+
+    return false if a.count == 0
+
+    moved = []
+    unmoved = []
+
+    begin
+      a.each do |o|
+        if o.update(parent_id: params[:parent_id] )
+          moved.push o
+        else
+          unmoved.push o
+        end
+      end
+    end
+
+    return { moved:, unmoved: }
+  end
+
   protected
 
   def check_new_parent_class

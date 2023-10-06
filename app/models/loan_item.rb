@@ -95,7 +95,13 @@ class LoanItem < ApplicationRecord
       when 'Otu'
         total ? total : nil
       when 'Container'
-        loan_item_object.container_items.try(:count)
+        t = 0
+        loan_item_object.all_contained_objects.each do |o|
+          if o.kind_of?(::CollectionObject)
+            t += o.total
+          end
+        end
+        t
       when 'CollectionObject'
         loan_item_object.total.to_i
       else
@@ -104,7 +110,7 @@ class LoanItem < ApplicationRecord
   end
 
   # @return [Array]
-  #   all objects that can have a taxon determination applied to them for htis loan item
+  #   all objects that can have a taxon determination applied to them for this loan item
   def determinable_objects
     # this loan item which may be a container, an OTU, or a collection object
     case loan_item_object_type

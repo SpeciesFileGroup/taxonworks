@@ -2,6 +2,7 @@
   .slide-panel-category-item {
     position: relative;
     min-height: 28px;
+    word-break: break-all;
   }
 
   .pinboard-default-item {
@@ -22,15 +23,10 @@
     border-radius: 50%;
     width: 60px;
     height: 60px;
-    transition: border-radius 0.3s ease,
-    height 0.3s ease,
-    width 0.3s ease;
+    transition: border-radius 0.3s ease, height 0.3s ease, width 0.3s ease;
   }
   img:hover {
-
-    transition: border-radius 0.3s ease,
-    height 0.3s ease,
-    width 0.3s ease;
+    transition: border-radius 0.3s ease, height 0.3s ease, width 0.3s ease;
   }
 
   ul {
@@ -83,7 +79,7 @@
     align-items: center;
     padding-left: $standard_padding * 0.5;
     padding-right: $standard_padding * 0.5;
-    background-color: #FFF;
+    background-color: #fff;
   }
   .pinboard-menu-bar {
     width: 14px;
@@ -108,13 +104,13 @@
 
   li {
     position: relative;
-    border-bottom: 1px solid #FAFAFA;
+    border-bottom: 1px solid #fafafa;
     border-left: 5px solid transparent;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: $standard_padding*0.5;
-    padding-left: $standard_padding*2;
+    padding: $standard_padding * 0.5;
+    padding-left: $standard_padding * 2;
   }
   li:hover {
     opacity: 1;

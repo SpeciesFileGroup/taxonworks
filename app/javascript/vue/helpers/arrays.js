@@ -62,13 +62,19 @@ function sortArrayByArray(arr, sortingArr, asc) {
   return list
 }
 
-function addToArray(arr, obj, property = 'id') {
+function addToArray(arr, obj, opts = {}) {
+  const { property = 'id', prepend = false } = opts
+
   const index = arr.findIndex((item) => obj[property] === item[property])
 
   if (index > -1) {
     arr[index] = obj
   } else {
-    arr.push(obj)
+    if (prepend) {
+      arr.unshift(obj)
+    } else {
+      arr.push(obj)
+    }
   }
 }
 

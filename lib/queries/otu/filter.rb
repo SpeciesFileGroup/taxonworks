@@ -495,8 +495,8 @@ module Queries
         return nil if taxon_name_query.nil?
         s = 'WITH query_taxon_names AS (' + taxon_name_query.all.to_sql + ') ' +
             ::Otu
-              .joins(:taxon_name)
               .joins('JOIN query_taxon_names as query_taxon_names1 on otus.taxon_name_id = query_taxon_names1.id')
+              .where.not(taxon_name_id: nil) # .joins(:taxon_name)
               .to_sql
 
         ::Otu.from('(' + s + ') as otus').distinct

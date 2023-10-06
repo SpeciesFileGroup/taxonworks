@@ -66,6 +66,7 @@ export default {
   methods: {
     addDetermination(determination) {
       this.$store.commit(MutationNames.AddTaxonDetermination, determination)
+      this.updateLastChange()
     },
 
     removeTaxonDetermination(determination) {

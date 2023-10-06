@@ -22,7 +22,7 @@
   </div>
 
   <ul class="tree">
-  
+
     <% taxon_name.ancestor_protonyms.each do |p| -%>
     <li data-valid="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
       <span>
@@ -40,7 +40,7 @@
       </span>
 
       <% if taxon_name.id == taxon_name.cached_valid_taxon_name_id && taxon_name_synonyms_list(taxon_name).any? %>
-      <ul 
+      <ul
         class="list-synonym taxon-synonym"
         data-valid="invalid">
         <% taxon_name_synonyms_list(taxon_name).each do |syn| %>
@@ -50,22 +50,22 @@
       <% end %>
 
       <ul class="tree descendent">
-        <% 
+        <%
         taxon_name.children.order(:name).where(type: 'Protonym').sort_by{|a| [RANKS.index(a.rank_string), a.cached, a.cached_author_year || '']}.each do |p|
         -%>
         <% if p.id == p.cached_valid_taxon_name_id %>
           <li>
             <span data-valid="<%= p.cached_is_valid ? 'valid' : 'invalid' -%>">
               <%= taxon_name_parent_navigator_item_link(p, target) -%>
-              <span><%= p.cached_author_year -%></span>
+              <%= tag.span p.cached_author_year -%>
               <% v = p.descendants.that_is_valid.count -%>
               <% iv = p.descendants.that_is_invalid.count -%>
-              <%= content_tag(:span, v, class: [:feedback, 'feedback-thin', 'feedback-primary']) if v > 0  %>
-              <%= content_tag(:span, iv, class: [:feedback, 'feedback-thin', 'feedback-secondary']) if iv > 0  %>
+              <%= tag.span(link_to(v, filter_taxon_names_task_url(taxon_name_id: p.id, descendants: true, validity: true)), class: [:feedback, 'feedback-thin', 'feedback-primary']) if v > 0 %>
+              <%= tag.span(link_to(iv, filter_taxon_names_task_url(taxon_name_id: p.id, descendants: true, validity: false)), class: [:feedback, 'feedback-thin', 'feedback-secondary']) if iv > 0  %>
             </span>
 
             <% if p.id == p.cached_valid_taxon_name_id && taxon_name_synonyms_list(p).any? %>
-            <ul 
+            <ul
               class="list-synonym"
               data-valid="invalid">
               <% taxon_name_synonyms_list(p).each do |syn| %>
