@@ -31,11 +31,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Loans referencing containers have 'Total' properly calculated [#3035]
+- TaxonDetermination sort order on CollectionObject comprehensive/browse... again [#1355]
 - OTU API autocomplete not resolving to valid OTU
 - Attribution rendering had cryptic license value [#3577]
 - GeographicAreas not registering for some DWCA imports [#3575]
 - New collecting event: georeference from verbatim button creates two identical georeferences [#3573]
 
+
+[#3035]: https://github.com/SpeciesFileGroup/taxonworks/issues/3035
+[#1355]: https://github.com/SpeciesFileGroup/taxonworks/issues/1355
 [#3562]: https://github.com/SpeciesFileGroup/taxonworks/issues/3562
 [#3584]: https://github.com/SpeciesFileGroup/taxonworks/issues/3584
 [#3561]: https://github.com/SpeciesFileGroup/taxonworks/issues/3561
