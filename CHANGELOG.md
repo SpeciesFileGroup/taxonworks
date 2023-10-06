@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- WKT and GeoJSON endpoints for /geographic_items/123.wkt
 - Clone ControlledVocabularies across projects [#3562]
 - Batch move taxon names to a new parent within TaxonName filter [#3584]
 - Batch update Source with a Serial within Source filter [#3561]

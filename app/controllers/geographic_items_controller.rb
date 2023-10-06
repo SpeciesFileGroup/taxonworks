@@ -1,12 +1,26 @@
 class GeographicItemsController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
-  
+
   before_action :set_geographic_item, only: [:show, :edit, :update, :destroy]
 
   # GET /geographic_items/1
   # GET /geographic_items/1.json
+  # GET /geographic_items/1.wkt
   def show
+
+    respond_to do |format|
+      format.html {}
+      format.json {}
+      format.wkt {
+        render plain: @geographic_item.to_wkt, layout: false
+      }
+      format.geojson {
+        render json: @geographic_item.to_geo_json, layout: false
+      }
+    end
+
   end
+
 
 # # GET /geographic_items/1/edit
 # def edit
@@ -37,14 +51,13 @@ class GeographicItemsController < ApplicationController
 # end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_geographic_item
-      @geographic_item = GeographicItem.find(params[:id])
-      @recent_object = @geographic_item 
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def geographic_item_params
-      params.require(:geographic_item).permit(:point, :line_string, :polygon, :multi_point, :multi_line_string, :multi_polygon, :geometry_collection)
-    end
+  def set_geographic_item
+    @geographic_item = GeographicItem.find(params[:id])
+    @recent_object = @geographic_item
+  end
+
+  def geographic_item_params
+    params.require(:geographic_item).permit(:point, :line_string, :polygon, :multi_point, :multi_line_string, :multi_polygon, :geometry_collection)
+  end
 end
