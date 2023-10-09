@@ -7,7 +7,7 @@ module AttributionsHelper
       attribution_creators_tag(attribution),
       attribution_editors_tag(attribution),
       attribution_owners_tag(attribution),
-      attribution.license,
+      attribution_license_tag(attribution),
     ]
 
     a.compact.join('. ').html_safe
