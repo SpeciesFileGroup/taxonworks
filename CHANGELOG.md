@@ -7,7 +7,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+### Fixed
+
+- Organization name not displaying in attribution copyright *label*
+
+### Changed
+
+- Added `extend[]=attribution` to `/images/123.json`
 
 ## [0.34.6] - 2023-10-06
 
