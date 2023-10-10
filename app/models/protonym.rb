@@ -1035,13 +1035,15 @@ class Protonym < TaxonName
   end
 
   def set_cached
+    old_cached = cached_html
+
     super
-    set_cached_names_for_dependants
     set_cached_original_combination
     set_cached_original_combination_html
     set_cached_homonymy
     set_cached_species_homonym if is_species_rank?
     set_cached_misspelling
+    set_cached_names_for_dependants if id && TaxonName.find(id).cached_html != old_cached
   end
 
   def set_cached_homonymy
