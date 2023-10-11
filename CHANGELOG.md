@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Organization name not displaying in attribution copyright _label_
+- Manage Controlled vocabulary term: CVT list is not reloading after clone them from other project
 
 ### Changed
 

@@ -30,7 +30,14 @@
           >Manage biocuration classes and groups
         </a>
       </h3>
-      <CloneControlledVocabularyTerms :type="view" />
+      <CloneControlledVocabularyTerms
+        :type="view"
+        @clone="
+          () => {
+            loadCVTList(view)
+          }
+        "
+      />
     </div>
     <div class="flex-separate margin-medium-top">
       <div class="one_quarter_width">
@@ -94,10 +101,7 @@ watch(
   (newVal) => {
     cvt.value.type = newVal
     isLoading.value = true
-    ControlledVocabularyTerm.where({ 'type[]': newVal }).then(({ body }) => {
-      list.value = body
-      isLoading.value = false
-    })
+    loadCVTList(newVal)
   },
   {
     immediate: true
@@ -115,6 +119,13 @@ onBeforeMount(() => {
     })
   }
 })
+
+function loadCVTList(type) {
+  ControlledVocabularyTerm.where({ type: [type] }).then(({ body }) => {
+    list.value = body
+    isLoading.value = false
+  })
+}
 
 function createCTV() {
   const payload = {
