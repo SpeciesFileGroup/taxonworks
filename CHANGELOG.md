@@ -9,9 +9,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- CollectionObject type facet
+
 ### Fixed
 
-- Organization name not displaying in attribution copyright *label*
+- Organization name not displaying in attribution copyright _label_
 
 ### Changed
 
@@ -49,7 +51,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Attribution rendering had cryptic license value [#3577]
 - GeographicAreas not registering for some DWCA imports [#3575]
 - New collecting event: georeference from verbatim button creates two identical georeferences [#3573]
-
 
 [#3035]: https://github.com/SpeciesFileGroup/taxonworks/issues/3035
 [#1355]: https://github.com/SpeciesFileGroup/taxonworks/issues/1355
