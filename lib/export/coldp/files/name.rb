@@ -230,7 +230,7 @@ end
           if !t.is_combination? and t.is_family_rank?
             if t.taxon_name_relationships.any? {|tnr| tnr.type == 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'}
               valid = TaxonName.find(t.cached_valid_taxon_name_id)
-              if valid.name == t.name and valid.cached_author = t.cached_author
+              if valid.name == t.name and valid.cached_author = t.cached_author and t.id != valid.id
                 next
               end
             end
