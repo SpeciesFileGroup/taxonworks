@@ -102,7 +102,7 @@ function move() {
   Source.batchUpdate(payload).then(({ body }) => {
     sources.value = body
     TW.workbench.alert.create(
-      `${body.moved.length} sources were successfully updated.`,
+      `${body.updated.length} sources were successfully updated.`,
       'notice'
     )
   })

@@ -1038,7 +1038,7 @@ class Protonym < TaxonName
     set_cached_homonymy
     set_cached_species_homonym if is_species_rank?
     set_cached_misspelling
-    set_cached_names_for_dependants if id && TaxonName.find(id).cached_html != old_cached
+    set_cached_names_for_dependants if TaxonName.where(id: id).pluck(:cached_html).last != old_cached
   end
 
   def set_cached_homonymy
