@@ -20,7 +20,7 @@
       color="create"
       medium
       :disabled="!parent"
-      @click="move"
+      @click="handleUpdate"
     >
       Update
     </VBtn>
@@ -55,12 +55,14 @@
         </ul>
       </template>
     </div>
+    <ConfirmationModal ref="confirmationModalRef"/>
   </div>
 </template>
 
 <script setup>
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { RouteNames } from '@/routes/routes.js'
 import { TaxonName } from '@/routes/endpoints'
@@ -75,6 +77,7 @@ const props = defineProps({
 })
 
 const parent = ref()
+const confirmationModalRef = ref(null)
 const taxonNameUpdated = ref({ moved: [], unmoved: [] })
 
 function move() {
@@ -90,5 +93,23 @@ function move() {
       'notice'
     )
   })
+}
+
+
+async function handleUpdate() {
+  const ok =
+    (await confirmationModalRef.value.show({
+      title: 'Change parent ',
+      message:
+        'This will change the parent of the taxon names. Are you sure you want to proceed?',
+      confirmationWord: 'CHANGE',
+      okButton: 'Update',
+      cancelButton: 'Cancel',
+      typeButton: 'submit'
+    }))
+
+  if (ok) {
+    move()
+  }
 }
 </script>
