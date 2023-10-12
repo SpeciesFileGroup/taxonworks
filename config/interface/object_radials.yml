@@ -50,7 +50,7 @@ CollectionObject:
   tasks:
     - browse_collection_objects_task
     - comprehensive_collection_object_task
-    - collection_objects_filter_task
+    - filter_collection_objects_task
     - edit_biological_associations_graph_task
     - browse_collecting_events_task
     - new_taxon_name_task

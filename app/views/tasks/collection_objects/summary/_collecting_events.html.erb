@@ -1,0 +1,26 @@
+<h3> Collecting events </h3>
+
+<% collection_object_count = @collection_objects.count %>
+
+<table>
+  <tr><th></th><th>Count</th><th> % total </th> </tr>
+
+  <tr>
+    <td> Collecting events </td>
+    <td> <%= collecting_event_total = @collecting_events.count -%> </td>
+    <td> <%= 100 -%> </td>
+  </tr>
+
+  <tr>
+    <td> Collection objects without collecting events </td>
+    <td> <%= objects_without_collecting_events = @collection_objects.where.missing(:collecting_event).count -%> </td>
+    <td> <%= (100.0 * (objects_without_collecting_events.to_f / collection_object_count.to_f)).round(2) -%> </td>
+  </tr>
+
+  <tr>
+    <td> Collection objects with Georeferences</td>
+    <td> <%= collection_objects_with_georeferences = @collection_objects.joins(:georeferences).distinct.count -%> </td>
+    <td> <%= (100.0 * (collection_objects_with_georeferences.to_f / collection_object_count.to_f)).round(2) -%> </td>
+  </tr>
+ </table>
+

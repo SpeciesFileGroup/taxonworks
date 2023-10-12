@@ -459,7 +459,7 @@ index_browse_asserted_distributions_task:
     - browse
   status: prototype
   description: 'Browse through asserted distributions summarized by OTU.  Map, table, and CSV downloads.'
-collection_objects_filter_task:
+filter_collection_objects_task:
   hub: true
   name: 'Filter collection objects'
   related:
@@ -833,7 +833,7 @@ geographic_area_usage_task:
   status: prototype
   description: 'Summarize this projects geographic area usage'
 taxon_name_stats_task:
-  hub: false 
+  hub: false
   name: 'Taxon name stats'
   related:
   categories:
