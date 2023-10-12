@@ -39,9 +39,17 @@ namespace :api, defaults: {format: :json} do
     defaults authenticate_user: true, authenticate_project: true do
       # authenticated by user and project
       get '/both_authenticated', to: 'base#index'
+
+      post '/downloads/build', to: '/downloads#api_build', as: :download_build
+      delete '/downloads/:id', to: '/downloads#api_destroy', as: :download_destroy # validate type, etc.
     end
 
+    # There should be no post or delete in this section
     defaults authenticate_user_or_project: true do
+      get '/downloads/:id', to: '/downloads#api_show', as: :download_show
+      get '/downloads/:id/file', to: '/downloads#api_file', as: :download_file
+      get '/downloads', to: '/downloads#api_index'
+
       get '/otus', to: '/otus#api_index'
       get '/otus/autocomplete', to: '/otus#api_autocomplete'
       get '/otus/:id/inventory/content', to: '/otus#api_content', as: :api_content
@@ -52,10 +60,6 @@ namespace :api, defaults: {format: :json} do
       get '/otus/:id/inventory/type_material', to: '/otus#api_type_material_inventory', as: :type_material_inventory
       get '/otus/:id/inventory/nomenclature_citations', to: '/otus#api_nomenclature_citations', as: :nomenclature_citations_inventory
       get '/otus/:id', to: '/otus#api_show'
-
-      get '/downloads/:id', to: '/downloads#api_show'
-      get '/downloads', to: '/downloads#api_index'
-      get '/downloads/:id/file', to: '/downloads#api_file', as: :api_download_file
 
       get '/dwc_occurrences', to: '/dwc_occurrences#api_index'
 

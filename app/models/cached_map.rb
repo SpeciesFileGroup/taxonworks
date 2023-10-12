@@ -107,7 +107,12 @@ class CachedMap < ApplicationRecord
             ) AS geom_array
           ) AS subquery;"
 
-    r = ActiveRecord::Base.connection.execute(sql)
+    begin
+      r = ActiveRecord::Base.connection.execute(sql)
+    rescue PG::InternalError
+      return nil
+    end
+
     r[0]['geojson']
   end
 
