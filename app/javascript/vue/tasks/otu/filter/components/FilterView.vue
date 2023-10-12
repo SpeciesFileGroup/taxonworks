@@ -17,6 +17,7 @@
   <FacetBiologicalRelationship v-model="params" />
   <FacetDescriptor v-model="params" />
   <FacetDataAttribute v-model="params" />
+  <FacetImportAttribute v-model="params" />
   <FacetUsers v-model="params" />
   <FacetIdentifiers v-model="params" />
   <FacetTags
@@ -37,6 +38,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import FacetBiologicalRelationship from '@/components/Filter/Facets/BiologicalAssociation/FacetBiologicalRelationship.vue'
 import FacetCollectingEvent from '@/tasks/biological_associations/filter/components/Facet/FacetCollectingEvent.vue'
 import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'

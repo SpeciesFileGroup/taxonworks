@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_06_02_145414) do
+ActiveRecord::Schema.define(version: 2023_09_18_143352) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -1577,6 +1577,7 @@ ActiveRecord::Schema.define(version: 2023_06_02_145414) do
     t.integer "updated_by_id", null: false
     t.jsonb "preferences", default: "{}", null: false
     t.string "api_access_token"
+    t.string "data_curation_issue_tracker_url"
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
     t.index ["updated_by_id"], name: "index_projects_on_updated_by_id"
   end
@@ -1850,8 +1851,8 @@ ActiveRecord::Schema.define(version: 2023_06_02_145414) do
     t.integer "updated_by_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.json "result_boundary_coordinates"
-    t.json "result_ocr"
+    t.jsonb "result_boundary_coordinates"
+    t.jsonb "result_ocr"
     t.datetime "in_progress"
     t.index ["depiction_id"], name: "index_sqed_depictions_on_depiction_id"
     t.index ["project_id"], name: "index_sqed_depictions_on_project_id"

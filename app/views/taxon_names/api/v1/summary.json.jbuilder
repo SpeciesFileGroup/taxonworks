@@ -1,6 +1,7 @@
 json.extract! @taxon_name, :id, :parent_id, :name
 json.is_valid @taxon_name.cached_is_valid
 json.full_name label_for_taxon_name(@taxon_name)
+json.expanded_name @taxon_name.cached
 json.full_name_tag full_taxon_name_tag(@taxon_name)
 
 json.nomenclatural_code @taxon_name.nomenclatural_code
@@ -19,6 +20,7 @@ json.parent do
   json.author @taxon_name.parent&.author_string
   json.global_id @taxon_name.parent&.to_global_id.to_s
   json.rank @taxon_name.parent&.rank
+  json.expanded_name @taxon_name.parent&.cached
 end
 
 if extend_response_with('name_elements')

@@ -58,7 +58,7 @@ class SourcesController < ApplicationController
 
   # GET /sources/new
   def new
-    redirect_to new_source_task_path, notice: "Redirected to new interface."
+    redirect_to new_source_task_path, notice: 'Redirected to new interface.'
   end
 
   # POST /sources
@@ -162,6 +162,14 @@ class SourcesController < ApplicationController
 
   # GET /sources/batch_load
   def batch_load
+  end
+
+  # PATCH /sources/batch_update.json?source_query=<>&serial_id
+  def batch_update
+    if @result = Source::Bibtex.batch_update(params)
+    else
+      render json: {success: false}
+    end
   end
 
   def preview_bibtex_batch_load

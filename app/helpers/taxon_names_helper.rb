@@ -367,18 +367,32 @@ module TaxonNamesHelper
 
   def taxon_name_inventory_stats(taxon_name)
 
-    d = {
+    d = []
+
+    i = {
+      rank: nil,
       taxa: {},
       names: {}
     }
 
-    ::Queries::TaxonName::Filter.new(synonymify: true, descendants: true, taxon_name_id: taxon_name.id).all.select(:rank_klass).distinct.pluck(:rank_class).compact.each do |r|
-      n = r.safe_constantize.rank_name.to_sym
-      d[:names][n] = {}
+    ::Queries::TaxonName::Filter.new(synonymify: true, descendants: true, taxon_name_id: taxon_name.id).all
+      .where(type: 'Protonym')
+      .select(:rank_klass).distinct.pluck(:rank_class).compact.sort{|a,b| RANKS.index(a) <=> RANKS.index(b)}.each do |r|
 
-      d[:names][n][:valid] = ::Queries::TaxonName::Filter.new(validity: true, descendants: true, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
-      d[:names][n][:invalid] = ::Queries::TaxonName::Filter.new(validity: false, descendants: true,  taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
-      d[:taxa].merge!(n => ::Queries::Otu::Filter.new(taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym'} ).all.count  )
+      n = r.safe_constantize.rank_name.to_sym
+      j = i.deep_dup
+
+      j[:rank] = n
+      j[:names][:valid] = ::Queries::TaxonName::Filter.new(validity: true, descendants: true, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count +
+                          ::Queries::TaxonName::Filter.new(validity: true, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
+
+      j[:names][:invalid] = ::Queries::TaxonName::Filter.new(validity: false, descendants: true,  taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count +
+                            ::Queries::TaxonName::Filter.new(validity: false, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
+
+      # This is the number of OTUs behind the ranks at this concept, i.e. a measure of how partitioned the data are beyond valid/invalid categories.
+      j[:taxa] = ::Queries::Otu::Filter.new(coordinatify: true, taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, rank: r} ).all.count
+
+      d.push j
     end
 
     d
@@ -436,7 +450,7 @@ module TaxonNamesHelper
               tag.td(b[:data][y])
             ])
           )
-        }) 
+        })
       ]), *attributes
     )
   end
@@ -501,7 +515,7 @@ module TaxonNamesHelper
   end
 
   def taxon_names_by_year_count(names)
-    t = names.select('EXTRACT(YEAR FROM cached_nomenclature_date) AS year, COUNT(*) AS count').group('year').inject({}){|hsh, r| hsh[r.year.to_i] = r.count; hsh}
+    t = names.select('EXTRACT(YEAR FROM taxon_names.cached_nomenclature_date) AS year, COUNT(*) AS count').group('year').inject({}){|hsh, r| hsh[r.year.to_i] = r.count; hsh}
     t
   end
 

@@ -22,7 +22,7 @@ class OtusController < ApplicationController
           .page(params[:page])
           .per(params[:per])
           .eager_load(:taxon_name)
-          .order('taxon_names.cached, otus.name')
+          .order(:cached, 'otus.name')
       }
     end
   end
@@ -125,12 +125,7 @@ class OtusController < ApplicationController
     end
   end
 
-  def autocomplete
-    @otus = Queries::Otu::Autocomplete.new(
-      params.require(:term),
-      project_id: sessions_current_project_id
-    ).autocomplete
-  end
+
 
   def batch_load
     # see app/views/otus/batch_load.html.erb
@@ -257,14 +252,26 @@ class OtusController < ApplicationController
     @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
+  # GET /api/v1/otus.csv
   # GET /api/v1/otus
   def api_index
-    @otus = ::Queries::Otu::Filter.new(params.merge!(api: true)).all
+    q = ::Queries::Otu::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('otus.id')
-      .page(params[:page])
-      .per(params[:per])
-    render '/otus/api/v1/index'
+
+    respond_to do |format|
+      format.json {
+        @otus = q.page(params[:page]).per(params[:per])
+        render '/otus/api/v1/index'
+      }
+      format.csv {
+        @otus = q
+        send_data Export::Download.generate_csv(
+          @otus,
+          exclude_columns: %w{updated_by_id created_by_id project_id},
+        ), type: 'text', filename: "taxon_names_#{DateTime.now}.tsv"
+      }
+    end
   end
 
   # GET /api/v1/otus/:id
@@ -272,11 +279,21 @@ class OtusController < ApplicationController
     render '/otus/api/v1/show'
   end
 
+  def autocomplete
+    @otus = ::Queries::Otu::Autocomplete.new(
+      params.require(:term),
+      project_id: sessions_current_project_id,
+      with_taxon_name: params[:with_taxon_name],
+      having_taxon_name_only: params[:having_taxon_name_only],
+    ).autocomplete
+  end
+
   # GET /api/v1/otus/autocomplete
   def api_autocomplete
     @otus = ::Queries::Otu::Autocomplete.new(
       params.require(:term),
-      project_id: sessions_current_project_id
+      with_taxon_name: params[:with_taxon_name],
+      project_id: sessions_current_project_id,
     ).api_autocomplete
 
     render '/otus/api/v1/autocomplete'
@@ -289,11 +306,18 @@ class OtusController < ApplicationController
 
   # GET /api/v1/otus/:id/inventory/dwc
   def api_dwc_inventory
-    send_data Export::Download.generate_csv(
-      DwcOccurrence.scoped_by_otu(@otu),
-      exclude_columns: ['id', 'created_by_id', 'updated_by_id', 'project_id', 'updated_at']),
-      type: 'text',
-      filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.csv"
+    respond_to do |format|
+      format.csv do
+        send_data Export::Download.generate_csv(
+          DwcOccurrence.scoped_by_otu(@otu),
+          exclude_columns: ['id', 'created_by_id', 'updated_by_id', 'project_id', 'updated_at']),
+          type: 'text',
+          filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.csv"
+      end
+      format.json do
+        render json: DwcOccurrence.scoped_by_otu(@otu).to_json
+      end
+    end
   end
 
   # GET /api/v1/otus/:id/inventory/content

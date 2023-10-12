@@ -140,11 +140,9 @@ export default {
     },
 
     addDataAttribute(dataAttribute) {
-      addToArray(
-        this.data_attributes,
-        dataAttribute,
-        'controlled_vocabulary_term_id'
-      )
+      addToArray(this.data_attributes, dataAttribute, {
+        property: 'controlled_vocabulary_term_id'
+      })
       this.$emit('onUpdate', this.data_attributes)
     }
   }

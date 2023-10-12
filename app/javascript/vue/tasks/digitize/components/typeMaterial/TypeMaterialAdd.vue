@@ -1,6 +1,6 @@
 <template>
   <VBtn
-    color="create"
+    color="primary"
     medium
     :disabled="!isDataCompleted"
     @click="store.dispatch(ActionNames.AddTypeSpecimen)"

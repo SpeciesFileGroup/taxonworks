@@ -97,9 +97,6 @@ table {
   .contextMenuCells:hover {
     background-color: $color-complement-2;
     color: $default_text;
-    td {
-      border-left: 1px solid transparent;
-    }
   }
 
   .highlight {

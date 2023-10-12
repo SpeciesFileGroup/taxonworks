@@ -23,6 +23,11 @@
       <%= check_box_tag 'project[project_members_attributes][0][user_id]', sessions_current_user_id, true %> <%= f.label :add_yourself_to_project %><br>
     </div>
   <% end %>
+  
+  <div class="field">
+    <%= f.label :data_curation_issue_tracker_url %><br>
+    <%= f.text_field :data_curation_issue_tracker_url %>
+  </div>
 
   <div class="actions">
     <%= f.submit %>

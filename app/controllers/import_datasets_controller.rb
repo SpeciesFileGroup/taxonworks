@@ -89,22 +89,20 @@ class ImportDatasetsController < ApplicationController
 
   def list
     @import_datasets = ImportDataset.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
-  end  
+  end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_import_dataset
-      @import_dataset = ImportDataset.where(project_id: sessions_current_project_id).find(params[:id])
-    end
+  def set_import_dataset
+    @import_dataset = ImportDataset.where(project_id: sessions_current_project_id).find(params[:id])
+  end
 
-    # Only allow a list of trusted parameters through.
-    def import_dataset_params
-      params.require(:import_dataset).permit(
-        :source,
-        :description,
-        import_settings: [
-          :nomenclatural_code,
-          :row_type
-        ])
-    end
+  def import_dataset_params
+    params.require(:import_dataset).permit(
+      :source,
+      :description,
+      import_settings: [
+        :nomenclatural_code,
+        :row_type
+      ])
+  end
 end

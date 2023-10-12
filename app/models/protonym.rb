@@ -165,26 +165,21 @@ class Protonym < TaxonName
     end
   end
 
-  # @param rank ['speciesgroup' or 'genusgroup' or 'family']
+  # @param rank full String to match rank_class, like '%genusgroup%' or '%::Family'
   #    scope to names used in taxon determinations
-  def self.names_at_rank_group_for_collection_objects(rank = 'speciesgroup')
-    h = ::TaxonNameHierarchy.arel_table
-    t = ::TaxonName.arel_table
-    t1 = ::TaxonName.arel_table.alias('tndet')
-    d = ::TaxonDetermination.arel_table
-    o = ::Otu.arel_table
+  def self.names_at_rank_group_for_collection_objects(rank: nil, collection_object_query: nil)
 
-    q = t.join(h, Arel::Nodes::InnerJoin).on(
-      t[:id].eq(h[:ancestor_id])
-    ).join(t1, Arel::Nodes::InnerJoin).on(
-      h[:descendant_id].eq(t1[:id])
-    ).join(o, Arel::Nodes::InnerJoin).on(
-      t1[:id].eq(o[:id])
-    ).join(d, Arel::Nodes::InnerJoin).on(
-      o[:id].eq(d[:otu_id])
-    )
+    # Find all the names for the objects in question
+    names = ::Queries::TaxonName::Filter.new(collection_object_query:).all
 
-    joins(q.join_sources).where(t[:rank_class].matches('%' + rank + '%').to_sql).distinct
+    s = 'WITH q_co_names AS (' + names.distinct.all.to_sql + ') ' +
+        ::Protonym
+          .joins('JOIN taxon_name_hierarchies tnh on tnh.ancestor_id = taxon_names.id')
+          .joins('JOIN q_co_names as q_co1 on q_co1.id = tnh.descendant_id')
+          .where('taxon_names.rank_class ilike ?', rank)
+          .to_sql
+
+    ::Protonym.from('(' + s + ') as taxon_names').distinct
   end
 
   # A convenience method to make this
@@ -897,6 +892,30 @@ class Protonym < TaxonName
     is_genus_or_species_rank? && parent == protonym && parent.name == protonym.name
   end
 
+  # @return [Hash]
+  def self.batch_move(params)
+    return false if params[:parent_id].blank?
+
+    a = Queries::TaxonName::Filter.new(params[:taxon_name_query]).all.where(type: 'Protonym')
+
+    return false if a.count == 0
+
+    moved = []
+    unmoved = []
+
+    begin
+      a.each do |o|
+        if o.update(parent_id: params[:parent_id] )
+          moved.push o
+        else
+          unmoved.push o
+        end
+      end
+    end
+
+    return { moved:, unmoved: }
+  end
+
   protected
 
   def check_new_parent_class
@@ -1011,13 +1030,16 @@ class Protonym < TaxonName
   end
 
   def set_cached
+    old_cached = cached_html.to_s + ' | ' + cached_author_year.to_s
+
     super
-    set_cached_names_for_dependants
     set_cached_original_combination
     set_cached_original_combination_html
     set_cached_homonymy
     set_cached_species_homonym if is_species_rank?
     set_cached_misspelling
+    tn = TaxonName.find(id)
+    set_cached_names_for_dependants if tn.cached_html.to_s + ' | ' + tn.cached_author_year.to_s != old_cached
   end
 
   def set_cached_homonymy

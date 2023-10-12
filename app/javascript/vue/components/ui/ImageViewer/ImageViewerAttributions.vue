@@ -19,7 +19,8 @@
           Copyright year: <b>{{ attributions[index].copyright_year }}</b>
         </li>
         <li v-if="attributions[index].license">
-          License: <b>{{ attributions[index].license }}</b>
+          License:
+          <b>{{ CREATIVE_COMMONS_LICENSES[attributions[index].license] }}</b>
         </li>
       </ul>
     </template>
@@ -30,6 +31,16 @@
 import { computed } from 'vue'
 import { capitalize } from '@/helpers/strings.js'
 import { getFullName } from '@/helpers/people/people'
+
+const CREATIVE_COMMONS_LICENSES = {
+  Attribution: 'CC BY 4.0',
+  'Attribution-ShareAlike': 'CC BY-SA 4.0',
+  'Attribution-NoDerivs': 'CC BY-ND 4.0',
+  'Attribution-NonCommercial': 'CC BY-NC 4.0',
+  'Attribution-NonCommercial-ShareAlike': 'CC BY-NC-SA 4.0',
+  'Attribution-NonCommercial-NoDerivs': 'CC BY-NC-ND 4.0',
+  'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication': 'CC0 1.0'
+}
 
 const ROLE_TYPES = [
   'creator_roles',

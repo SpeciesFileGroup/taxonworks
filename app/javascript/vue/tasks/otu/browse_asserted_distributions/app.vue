@@ -79,7 +79,7 @@ import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import { AssertedDistribution } from '@/routes/endpoints'
 
-const embed = ['shape', 'lavel_names']
+const embed = ['shape', 'level_names']
 const extend = [
   'citations',
   'geographic_area',

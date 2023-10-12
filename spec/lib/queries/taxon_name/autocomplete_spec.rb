@@ -82,14 +82,26 @@ describe Queries::TaxonName::Autocomplete, type: :model do
     expect(query.autocomplete).to be_truthy
   end
 
-  specify '#autocomplete_top_name 1' do
+  # These specs were not top, they are exact 
+  
+  # specify '#autocomplete_top_name 1' do
+  #   query.terms = 'vulnerata'
+  #   expect(query.autocomplete_top_name.first).to eq(species)
+  # end
+
+  # specify '#autocomplete_top_name 2' do
+  #   query.terms = 'Erasmoneura'
+  #   expect(query.autocomplete_top_name.first).to eq(genus)
+  # end
+
+  specify '#autocomplete_exact_name 1' do
     query.terms = 'vulnerata'
-    expect(query.autocomplete_top_name.first).to eq(species)
+    expect(query.autocomplete_exact_name.first).to eq(species)
   end
 
-  specify '#autocomplete_top_name 2' do
+  specify '#autocomplete_exact_name 2' do
     query.terms = 'Erasmoneura'
-    expect(query.autocomplete_top_name.first).to eq(genus)
+    expect(query.autocomplete_exact_name.first).to eq(genus)
   end
 
   specify '#autocomplete_top_cached' do

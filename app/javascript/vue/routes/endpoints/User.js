@@ -18,5 +18,7 @@ const permitParams = {
 export const User = {
   ...baseCRUD('users', permitParams),
 
+  projects: (userId) => AjaxCall('get', `/users/${userId}/projects`),
+
   preferences: () => AjaxCall('get', '/preferences.json')
 }

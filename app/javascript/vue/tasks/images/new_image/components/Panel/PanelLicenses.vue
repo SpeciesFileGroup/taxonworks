@@ -16,7 +16,7 @@
               v-model="license"
               type="radio"
             />
-            <span v-if="lic.key != null">{{ lic.key }}: </span>{{ lic.label }}
+            <span>{{ lic.label }}</span>
           </label>
         </li>
       </ul>
@@ -45,9 +45,9 @@ const license = computed({
 
 onBeforeMount(() => {
   Attribution.licenses().then(({ body }) => {
-    licenses.value = Object.keys(body).map((key) => ({
+    licenses.value = Object.entries(body).map(([key, { name, link }]) => ({
       key,
-      label: body[key]
+      label: `${name}: ${link}`
     }))
 
     licenses.value.push({

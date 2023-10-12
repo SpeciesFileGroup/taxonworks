@@ -6,6 +6,7 @@
     coverage
     validity
   />
+  <FilterType v-model="params" />
   <FacetBiocurations v-model="params" />
   <FacetIdentifiers v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
@@ -20,6 +21,7 @@
     v-model="params"
   />
   <FacetDataAttribute v-model="params" />
+  <FacetImportAttribute v-model="params" />
   <FacetCurrentRepository v-model="params" />
   <FacetRepository v-model="params" />
   <FacetPreparationTypes v-model="params" />
@@ -69,7 +71,8 @@ import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttri
 import FacetWKT from '@/components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'
-import FacetImportDataset from '@/components/Filter/Facets/CollectionObject/FacetImportDataset.vue'
+import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
+import FilterType from '@/components/Filter/Facets/CollectionObject/FacetType.vue'
 
 const WITH_PARAMS = [
   'biological_associations',

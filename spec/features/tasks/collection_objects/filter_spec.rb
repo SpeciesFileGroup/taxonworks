@@ -6,7 +6,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
   context 'with properly built collection of objects', js: true do
     let(:page_title) { 'Filter collection objects' }
-    let(:index_path) { collection_objects_filter_task_path }
+    let(:index_path) { filter_collection_objects_task_path }
 
     it_behaves_like 'a_login_required_and_project_selected_controller'
 
