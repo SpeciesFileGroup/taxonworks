@@ -311,7 +311,7 @@ class User < ApplicationRecord
     k = options[:kind]
     u = hub_favorites.clone
 
-    u[p] = HUB_FAVORITES if !u[p]
+    u[p] = HUB_FAVORITES.clone if !u[p]
     u[p][k] = u[p][k].push(n).uniq[0..19].sort
 
     update_column(:hub_favorites, u)
