@@ -9,16 +9,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- CSV generating endpoints `/api/v1/taxon_names.csv` and `/api/v1/otus.csv`
+- Filter CollectionObject links to "Collection Summary" task [#3434]
 - CollectionObject type facet
+
+### Changed
+
+- Added `extend[]=attribution` to `/images/123.json`
 
 ### Fixed
 
 - Organization name not displaying in attribution copyright _label_
 - Manage Controlled vocabulary term: CVT list is not reloading after clone them from other project
 
-### Changed
+[#3434]: https://github.com/SpeciesFileGroup/taxonworks/issues/3434
 
-- Added `extend[]=attribution` to `/images/123.json`
 
 ## [0.34.6] - 2023-10-06
 
