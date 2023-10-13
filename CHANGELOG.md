@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Organization name not displaying in attribution copyright _label_
 - Manage Controlled vocabulary term: CVT list is not reloading after clone them from other project
 - Not possible to delete asserted distribution once added in radial object [#3591]
+- Manage controlled vocabulary: Delete button doesn't work [#3593]
 
 [#3594]: https://github.com/SpeciesFileGroup/taxonworks/issues/3594
 [#3590]: https://github.com/SpeciesFileGroup/taxonworks/issues/3590
