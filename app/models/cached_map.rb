@@ -107,7 +107,16 @@ class CachedMap < ApplicationRecord
             ) AS geom_array
           ) AS subquery;"
 
-    r = ActiveRecord::Base.connection.execute(sql)
+
+    begin
+      r = ActiveRecord::Base.connection.execute(sql)
+    rescue ActiveRecord::StatementInvalid => e
+      if e.message.include?("GEOSUnaryUnion")
+        return nil 
+      else
+        raise
+      end
+    end
     r[0]['geojson']
   end
 
