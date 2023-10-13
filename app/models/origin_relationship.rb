@@ -81,7 +81,7 @@ class OriginRelationship < ApplicationRecord
   end
 
   def not_a_clone
-    if (old_object == new_object) || ((old_object_type = new_object_type) && (old_object_id == new_object_id))
+    if (old_object == new_object) || ((old_object_type == new_object_type) && (old_object_id == new_object_id))
       errors.add(:old_object, 'objects can not be cloned (related to each other)')
     end
   end
