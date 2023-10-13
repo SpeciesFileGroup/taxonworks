@@ -38,7 +38,7 @@ class Topic < ControlledVocabularyTerm
         when 'Citation'
           CitationTopic.arel_table
         when 'Content'
-          Content.arel_table
+          ::Content.arel_table
         end
 
     p = Topic.arel_table
@@ -73,17 +73,17 @@ class Topic < ControlledVocabularyTerm
     r = used_recently(user_id, project_id, klass, target)
     h = {
         quick: [],
-        pinboard: Topic.pinned_by(user_id).where(project_id: project_id).to_a,
+        pinboard: Topic.pinned_by(user_id).where(project_id:).to_a,
         recent: []
     }
 
     if r.empty?
-      h[:quick] = Topic.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+      h[:quick] = Topic.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a
     else
       h[:recent] = Topic.where('"controlled_vocabulary_terms"."id" IN (?)', r.first(10) ).order(:name).to_a
-      h[:quick] = (Topic.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+      h[:quick] = (Topic.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a +
           Topic.where('"controlled_vocabulary_terms"."id" IN (?)', r.first(5) ).order(:name).to_a +
-          Topic.where(project_id: project_id, created_by_id: user_id, updated_at: (3.hours.ago..Time.now)).limit(5).to_a).uniq
+          Topic.where(project_id:, created_by_id: user_id, updated_at: (3.hours.ago..Time.now)).limit(5).to_a).uniq
     end
 
     h
