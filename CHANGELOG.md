@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Quote handling in API autocomplete calls
 - Organization name not displaying in attribution copyright _label_
 - Manage Controlled vocabulary term: CVT list is not reloading after clone them from other project
 - Not possible to delete asserted distribution once added in radial object [#3591]
