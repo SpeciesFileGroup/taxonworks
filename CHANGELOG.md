@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Not possible to delete asserted distribution once added in radial object [#3591]
 - Manage controlled vocabulary: Delete button doesn't work [#3593]
 
+[#3593]: https://github.com/SpeciesFileGroup/taxonworks/issues/3593
 [#3594]: https://github.com/SpeciesFileGroup/taxonworks/issues/3594
 [#3590]: https://github.com/SpeciesFileGroup/taxonworks/issues/3590
 [#3434]: https://github.com/SpeciesFileGroup/taxonworks/issues/3434
