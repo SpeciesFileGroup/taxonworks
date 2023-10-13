@@ -36,7 +36,7 @@ module ::Export::ProjectData::Sql
         generate_dump(project, zipfile)
       end
       buffer.flush
-      ::Download::ProjectDump::Sql.create!(
+      Download::ProjectDump::Sql.create!(
         name: "#{project.name} export on #{Time.now}.",
         description: 'A zip file containing SQL dump of community data + project-specific data',
         filename: Zaru::sanitize!("#{project.name}.zip").gsub(' ', '_').downcase,

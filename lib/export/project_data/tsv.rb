@@ -78,7 +78,7 @@ module ::Export::ProjectData::Tsv
 
   def self.stub_download(target_project)
 
-    t = ::Download::ProjectDump::Tsv.new(
+    t = Download::ProjectDump::Tsv.new(
        name: "#{target_project.name} export on #{Time.current}.",
        description: 'A zip file containing TSV dump of project-specific data.',
        filename: Zaru::sanitize!("#{target_project.name}_tsv.zip").gsub(' ', '_').downcase,
