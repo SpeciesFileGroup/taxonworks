@@ -1,4 +1,4 @@
-module Export::Project
+module ::Export::ProjectData
 
   # When adding a new table be sure to check there is nothing different compared to existing ones.
   HIERARCHIES = [
@@ -9,3 +9,5 @@ module Export::Project
 
   SPECIAL_TABLES = %w{spatial_ref_sys project users versions delayed_jobs imports}.freeze
 end
+
+
