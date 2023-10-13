@@ -29,6 +29,7 @@ class Extract < ApplicationRecord
   include Shared::Tags
   include SoftValidation
   include Shared::IsData
+  # TODO: make loanable
 
   is_origin_for 'Extract', 'Sequence'
   originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject'

@@ -393,6 +393,31 @@ class Source::Bibtex < Source
   # includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> { order(:cached_nomenclature_date) }
 
+  # @return [Hash, false]
+  #
+  def self.batch_update(params)
+    return false if params[:serial_id].blank?
+
+    a = Queries::Source::Filter.new(params[:source_query]).all
+
+    return false if a.count == 0 || a.count > 50
+
+    updated = []
+    not_updated = []
+
+    begin
+      a.find_each do |o|
+        if o.update(serial_id: params[:serial_id] )
+          updated.push o
+        else
+          not_updated.push o
+        end
+      end
+    end
+
+    return { updated:, not_updated: }
+  end
+
   # @param [BibTeX::Name] bibtex_author
   # @return [Person, Boolean] new person, or false
   def self.bibtex_author_to_person(bibtex_author)

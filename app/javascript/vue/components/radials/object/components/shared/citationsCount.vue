@@ -154,7 +154,7 @@ export default {
   justify-content: center;
 }
 .circle-count {
-  left: 15px;
+  right: -5px;
   bottom: -6px;
   justify-content: center;
   position: absolute;

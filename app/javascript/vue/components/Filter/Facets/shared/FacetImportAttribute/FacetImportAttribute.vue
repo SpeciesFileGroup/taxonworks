@@ -74,7 +74,7 @@ watch(
     params.value.data_attribute_import_exact_pair = newVal
       .filter((p) => !p.any && p.exact && p.text.length)
       .map((p) => `${p.predicate}:${p.text}`)
-    params.value.data_attribute_wildcard_pair = newVal
+    params.value.data_attribute_import_wildcard_pair = newVal
       .filter((p) => !p.any && !p.exact && p.text.length)
       .map((p) => `${p.predicate}:${p.text}`)
   },
@@ -97,9 +97,8 @@ watch(
 watch(
   [
     () => props.modelValue.data_attribute_import_exact_pair,
-    () => props.modelValue.data_attribute_import_exact_value,
-    () => props.modelValue.data_attribute_import_predicate,
-    () => props.modelValue.data_attribute_import_wildcard
+    () => props.modelValue.data_attribute_import_wildcard_pair,
+    () => props.modelValue.data_attribute_import_predicate
   ],
   (newVals, oldVals) => {
     if (
@@ -142,7 +141,7 @@ function parsedPredicateParam(param) {
   return param.map((value) => {
     const index = value.indexOf(':')
 
-    return [Number(value.slice(0, index)), value.slice(index + 1)]
+    return [value.slice(0, index), value.slice(index + 1)]
   })
 }
 
@@ -157,26 +156,28 @@ onBeforeMount(async () => {
     params.value.data_attribute_import_predicate || []
 
   values.value = [
-    ...(params.value.data_attribute_exact_value || []).map((text) => ({
+    ...(params.value.data_attribute_import_exact_value || []).map((text) => ({
       text,
       exact: true
     })),
-    ...(params.value.data_attribute_wildcard_value || []).map((text) => ({
-      text,
-      exact: false
-    }))
+    ...(params.value.data_attribute_import_wildcard_value || []).map(
+      (text) => ({
+        text,
+        exact: false
+      })
+    )
   ]
 
   predicateWithAnyValues.forEach((predicate) => {
-    addPredicate({ predicate, text: '', any: true })
+    addPredicate({ predicate, name: predicate, text: '', any: true })
   })
 
   predicateWithValues.forEach(([predicate, text]) => {
-    addPredicate({ predicate, text })
+    addPredicate({ predicate, name: predicate, text })
   })
 
   predicateWithValuesExact.forEach(([predicate, text]) => {
-    addPredicate({ predicate, text, exact: true })
+    addPredicate({ predicate, name: predicate, text, exact: true })
   })
 })
 </script>

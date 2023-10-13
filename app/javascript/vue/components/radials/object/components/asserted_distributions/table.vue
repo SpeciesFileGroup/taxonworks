@@ -30,57 +30,65 @@
           <td>
             <span> {{ item.geographic_area.parent.name }} </span>
           </td>
-          <td class="vue-table-options">
-            <citation-count
-              :object="item"
-              :values="item.citations"
-              target="asserted_distributions"
-            />
-            <radial-annotator :global-id="item.global_id" />
-            <span
-              class="circle-button btn-edit"
-              @click="$emit('edit', Object.assign({}, item))"
-            />
-            <span
-              class="circle-button btn-delete"
-              @click="deleteItem(item)"
-              >Remove
-            </span>
+          <td>
+            <div class="horizontal-right-content gap-xsmall">
+              <CitationCount
+                :object="item"
+                :values="item.citations"
+                target="asserted_distributions"
+              />
+              <RadialAnnotator :global-id="item.global_id" />
+              <VBtn
+                circle
+                color="update"
+                @click="emit('edit', Object.assign({}, item))"
+              >
+                <VIcon
+                  name="pencil"
+                  x-small
+                />
+              </VBtn>
+
+              <VBtn
+                circle
+                :color="softDelete ? 'primary' : 'destroy'"
+                @click="deleteItem(item, index)"
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
+            </div>
           </td>
         </tr>
       </transition-group>
     </table>
   </div>
 </template>
-<script>
+
+<script setup>
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import CitationCount from '../shared/citationsCount.vue'
 
-export default {
-  components: {
-    RadialAnnotator,
-    CitationCount
-  },
+defineProps({
+  list: {
+    type: Array,
+    default: () => []
+  }
+})
 
-  props: {
-    list: {
-      type: Array,
-      default: () => []
-    }
-  },
+const emit = defineEmits(['delete', 'edit'])
 
-  emits: ['delete', 'edit'],
-
-  methods: {
-    deleteItem(item) {
-      if (
-        window.confirm(
-          "You're trying to delete this record. Are you sure want to proceed?"
-        )
-      ) {
-        this.$emit('delete', item)
-      }
-    }
+function deleteItem(item) {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
+    emit('delete', item)
   }
 }
 </script>

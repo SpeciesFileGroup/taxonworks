@@ -76,7 +76,7 @@ import FacetLoanItemStatus from './Facet/FacetLoanItemStatus.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetPerson from './Facet/FacetPerson.vue'
 
-const WITH_PARAMS = ['overdue', 'documentation', 'identifiers']
+const WITH_PARAMS = [ 'documentation', 'identifiers']
 
 const OVERDUE_OPTIONS = [
   {

@@ -4,7 +4,7 @@
       <h3>DwC Attributes</h3>
     </template>
     <template #body>
-      <table class="full_width">
+      <table class="full_width table-striped">
         <thead>
           <tr>
             <th>Attribute</th>
@@ -13,13 +13,11 @@
         </thead>
         <tbody>
           <tr
-            v-for="(value, attr, index) in dwcAttributes"
-            :key="attr"
-            class="list-complete-item contextMenuCells"
-            :class="{ even: index % 2 }"
+            v-for="(value, index) in dwc?.column_headers"
+            :key="value"
           >
-            <td>{{ attr }}</td>
             <td>{{ value }}</td>
+            <td>{{ dwc.data[0][index] }}</td>
           </tr>
         </tbody>
       </table>
@@ -42,12 +40,15 @@ const props = defineProps({
 })
 
 const isLoading = ref(true)
-const dwcAttributes = ref({})
+const dwc = ref({})
 
-CollectionObject.find(props.collectionObjectId, {
-  extend: ['dwc_fields']
-}).then(({ body }) => {
-  isLoading.value = false
-  dwcAttributes.value = body.dwc
+CollectionObject.dwcIndex({
+  collection_object_id: [props.collectionObjectId]
 })
+  .then(({ body }) => {
+    dwc.value = body
+  })
+  .finally(() => {
+    isLoading.value = false
+  })
 </script>

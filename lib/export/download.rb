@@ -9,6 +9,7 @@ module Export::Download
   #   http://collectiveidea.com/blog/archives/2015/03/05/optimizing-rails-for-memory-usage-part-3-pluck-and-database-laziness
   # @param [Scope] scope
   # @param [Array] exclude_columns
+  #     strings
   # @param [Array] header_converters
   # @param [Boolean] trim_rows
   # @param [Boolean] trim_columns
@@ -67,13 +68,10 @@ module Export::Download
   # @return [Array]
   #   delete the specified columns
   def self.delete_columns(tbl, columns = [])
-    headers = tbl.collect { |c| c.first }
-    offset = 0
-
     columns.each do |col|
+      headers = tbl.collect { |c| c.first }
       if index = headers.index(col.to_s)
-        tbl.delete_at(index+offset)
-        offset -= 1
+        tbl.delete_at(index)
       end
     end
     tbl

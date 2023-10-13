@@ -43,33 +43,33 @@ class Catalog::CollectionObject < ::Catalog
   # Group the events so that they can be toggled
   FILTER_MAP = {
     born: :life,
-    died: :life, 
-    collected_on: :collecting_event, 
+    died: :life,
+    collected_on: :collecting_event,
     determined: :taxon_determinations,
     described: :observations,
     given_identifier: :annotations,
-    georeferenced: :collecting_event, 
+    georeferenced: :collecting_event,
     destroyed: :accessions,
-    placed_in_repository: :accessions, 
-    sent_for_loan: :loans, 
+    placed_in_repository: :accessions,
+    sent_for_loan: :loans,
     returned_from_loan: :loans,
-    updated_metadata: :annotations, 
-    added_note: :annotations, 
+    updated_metadata: :annotations,
+    added_note: :annotations,
     annotated: :annotations,
-    cited: :annotations, 
+    cited: :annotations,
     containerized: :accessions,
     extracted_from: :lab,
     sequenced: :lab,
     dissected: :lab,
     tagged: :annotations,
-    typified: nil, 
-    added_attribute: :annotations, 
+    typified: nil,
+    added_attribute: :annotations,
     biologically_classified: :biology,
-    fossilized_between:  :collecting_event, 
-    imaged: :images, 
-    metadata_depicted: :images, 
+    fossilized_between:  :collecting_event,
+    imaged: :images,
+    metadata_depicted: :images,
     collecting_event_metadata_depicted: :images,
-    collection_site_imaged: :collecting_event,  
+    collection_site_imaged: :collecting_event,
     biologically_associated: :biology,
     became_origin_of: :lab,
     originated_from: :lab,
@@ -130,7 +130,7 @@ class Catalog::CollectionObject < ::Catalog
     end
 
     o.type_materials.each do |t|
-      date = t&.source&.nomenclature_date
+      date = t&.source&.nomenclature_date&.to_time
       data.items << Catalog::CollectionObject::EntryItem.new(type: :typified, object: t, start_date: date)
     end
 

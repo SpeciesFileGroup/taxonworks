@@ -23,7 +23,9 @@ class DataAttributesController < ApplicationController
   def brief
     q = ::Queries::DataAttribute::Filter.new(params)
 
-    @data = q.all.pluck('data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, value')
+    render json: [], status: :unprocessable_entity and return if q.all.count > 30000
+
+    @data = q.all.pluck('data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, data_attributes.value')
     cols = @data.collect{|a| a[1]}.uniq
     @columns = Predicate.where(project_id: sessions_current_project_id, id: cols).order(:name).pluck(:id, :name).inject([]){|ary, a| ary.push(a[0] => a[1]); ary}
   end
@@ -34,7 +36,7 @@ class DataAttributesController < ApplicationController
     @data = q.all
       .page(params[:page])
       .per(params[:per])
-      .pluck('data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, value')
+      .pluck('data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, data_attributes.value')
     cols = @data.collect{|a| a[1]}.uniq
     @columns = Predicate.where(project_id: sessions_current_project_id, id: cols).order(:name).pluck(:id, :name).inject([]){|ary, a| ary.push(a[0] => a[1]); ary}
 
@@ -137,7 +139,7 @@ class DataAttributesController < ApplicationController
 
   def import_predicate_autocomplete
 
-    render json: [] and return if param[:term].blank?
+    render json: [] and return if params[:term].blank?
 
     @internal_attributes = ::DataAttribute
     .where(project_id: sessions_current_project_id)

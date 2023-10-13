@@ -7,7 +7,7 @@ module AttributionsHelper
       attribution_creators_tag(attribution),
       attribution_editors_tag(attribution),
       attribution_owners_tag(attribution),
-      attribution.license,
+      attribution_license_tag(attribution),
     ]
 
     a.compact.join('. ').html_safe
@@ -24,20 +24,15 @@ module AttributionsHelper
       attribution_creators_tag(attribution),
       attribution_editors_tag(attribution),
       attribution_owners_tag(attribution),
-      attribution.license,
+      attribution_license_tag(attribution),
     ]
 
     a.compact.join('. ').html_safe
   end
 
-  # @return [String, nil]
-  def attribution_copyright_label(attribution)
-    a = attribution.copyright_year
-    b = attribution.attribution_copyright_holders
-    return nil unless a or b.any?
-    s = '(c)'
-    s << [a, Utilities::Strings.authorship_sentence(b.collect{|c| c.name})].join(' ')
-    s
+  def attribution_license_tag(attribution)
+    return nil if attribution.nil? || attribution.license.blank?
+    'License: ' + CREATIVE_COMMONS_LICENSES[attribution.license][:name]
   end
 
   def attribution_nexml_label(attribution)
@@ -51,16 +46,32 @@ module AttributionsHelper
     a.compact.join(', ').html_safe
   end
 
-  def attribution_copyright_tag(attribution)
+  # @return [String, nil]
+  def attribution_copyright_label(attribution)
     a = attribution.copyright_year
-
-    b = attribution.copyright_holder_roles.eager_load(:organization, :person).collect{|b| b.agent}
+    b = copyright_agents(attribution)
 
     return nil unless a or b.any?
-    s = '&#169;'
-    s << [a, Utilities::Strings.authorship_sentence(b.collect{|c| c.name})].join(' ')
+    s = '©'
+    s << [a, Utilities::Strings.authorship_sentence(b.collect{|c| c.name})].compact.join(' ')
+    s
+  end
+
+  def attribution_copyright_tag(attribution)
+    a = attribution.copyright_year
+    b = copyright_agents(attribution)
+
+    return nil unless a or b.any?
+    s = '©'
+    s << [a, Utilities::Strings.authorship_sentence(b.collect{|c| c.name})].compact.join(' ')
     s.html_safe
   end
+
+  def copyright_agents(attribution)
+    return [] if attribution.blank?
+    attribution.copyright_holder_roles.eager_load(:organization, :person).collect{|b| b.agent}
+  end
+
 
   def attribution_creators_tag(attribution)
     a = attribution.creator_roles.eager_load(:organization, :person).collect{|b| b.agent}

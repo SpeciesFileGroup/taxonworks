@@ -8,7 +8,7 @@
       v-if="isCountExceeded"
       class="feedback feedback-danger"
     >
-      Too many records selected, maximum 250
+      Too many records selected, maximum {{ MAX_LIMIT }}
     </div>
     <div v-else>
       <h3>{{ count }} records will be updated</h3>

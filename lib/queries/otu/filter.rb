@@ -261,8 +261,8 @@ module Queries
         c = ::Queries::CollectingEvent::Filter.new(wkt: wkt_shape, project_id:)
         a = ::Queries::AssertedDistribution::Filter.new(wkt: wkt_shape, project_id:)
 
-        q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all)
-        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all)
+        q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all, project_id:)
+        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all, project_id:)
 
         referenced_klass_union([q1, q2]).distinct
       end
@@ -273,8 +273,8 @@ module Queries
         c = ::Queries::CollectingEvent::Filter.new(geo_json:, project_id:, radius:)
         a = ::Queries::AssertedDistribution::Filter.new(geo_json:, project_id:, radius:)
 
-        q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all)
-        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all)
+        q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all, project_id:)
+        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all, project_id:)
 
         referenced_klass_union([q1, q2]).distinct
       end
@@ -495,8 +495,8 @@ module Queries
         return nil if taxon_name_query.nil?
         s = 'WITH query_taxon_names AS (' + taxon_name_query.all.to_sql + ') ' +
             ::Otu
-              .joins(:taxon_name)
               .joins('JOIN query_taxon_names as query_taxon_names1 on otus.taxon_name_id = query_taxon_names1.id')
+              .where.not(taxon_name_id: nil) # .joins(:taxon_name)
               .to_sql
 
         ::Otu.from('(' + s + ') as otus').distinct

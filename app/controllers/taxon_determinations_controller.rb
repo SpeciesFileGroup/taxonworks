@@ -79,7 +79,7 @@ class TaxonDeterminationsController < ApplicationController
 
   # PATCH /taxon_determinations/reorder?id[]=1
   def reorder
-    params[:id].each do |taxon_determination_id|
+    params[:id].reverse.each do |taxon_determination_id|
       TaxonDetermination.find(taxon_determination_id).move_to_top
     end
     render json: true

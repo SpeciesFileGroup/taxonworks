@@ -4,7 +4,8 @@
       v-if="isModalVisible"
       @close="isModalVisible = false"
       :container-style="{
-        maxWidth: '700px'
+        maxWidth: '700px',
+        width: '700px'
       }"
     >
       <template #header>
@@ -55,6 +56,7 @@
     <VBtn
       medium
       color="primary"
+      :disabled="!imageId.length"
       @click="isModalVisible = true"
     >
       Depictions
@@ -78,8 +80,8 @@ import RadialNavigator from '@/components/radials/navigation/radial.vue'
 
 const props = defineProps({
   imageId: {
-    type: Number,
-    required: true
+    type: Array,
+    default: () => []
   }
 })
 
@@ -92,7 +94,7 @@ watch(isModalVisible, (newVal) => {
     isLoading.value = true
 
     Depiction.filter({
-      image_id: [props.imageId]
+      image_id: props.imageId
     })
       .then(({ body }) => {
         list.value = body

@@ -1,4 +1,11 @@
 scope :tasks do
+
+  scope :cached_maps do
+    scope :report, controller: 'tasks/cached_maps/report' do
+      get :items_by_otu, as: 'cached_map_items_by_otus_task'
+    end
+  end
+
   scope :geographic_areas do
     scope :usage, controller: 'tasks/geographic_areas/usage' do
       get '/', action: :index, as: 'geographic_area_usage_task'
@@ -268,7 +275,6 @@ scope :tasks do
   end
 
   scope :collection_objects do
-
     scope :table, controller: 'tasks/collection_objects/table' do
       get '/', action: :index, as: 'collection_object_table_task'
     end
@@ -299,10 +305,11 @@ scope :tasks do
 
     scope :summary, controller: 'tasks/collection_objects/summary' do
       get '/', action: :index, as: 'collection_object_summary_task'
+      get :report, as: 'collection_object_summary_report',  defaults: {format: :js}
     end
 
     scope :filter, controller: 'tasks/collection_objects/filter' do
-      get '/', as: 'collection_objects_filter_task', action: :index
+      get '/', as: 'filter_collection_objects_task', action: :index
     end
 
     scope :browse, controller: 'tasks/collection_objects/browse' do

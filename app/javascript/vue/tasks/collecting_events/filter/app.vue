@@ -91,7 +91,14 @@ import FilterList from '@/components/Filter/Table/TableResults.vue'
 import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
 import { listParser } from './utils/listParser.js'
 import { COLLECTING_EVENT } from '@/constants/index.js'
-import { computed, ref, reactive, defineOptions } from 'vue'
+import {
+  computed,
+  ref,
+  reactive,
+  defineOptions,
+  onMounted,
+  onBeforeMount
+} from 'vue'
 import { sortArray } from '@/helpers/arrays'
 import { CollectingEvent } from '@/routes/endpoints'
 import { LAYOUTS } from './constants/layouts.js'
@@ -151,12 +158,33 @@ const {
   initParameters: { extend }
 })
 
+const isMouseDown = ref(false)
 const rowHover = ref()
 const georeferences = computed(() =>
   list.value.map((item) => item.georeferences).flat()
 )
 
 const setRowHover = ({ item }) => {
-  rowHover.value = item
+  if (!isMouseDown.value) {
+    rowHover.value = item
+  }
 }
+
+function onMouseDown() {
+  isMouseDown.value = true
+}
+
+function onMouseUp() {
+  isMouseDown.value = false
+}
+
+onMounted(() => {
+  document.addEventListener('mousedown', onMouseDown)
+  document.addEventListener('mouseup', onMouseUp)
+})
+
+onBeforeMount(() => {
+  document.removeEventListener('mousedown', onMouseDown)
+  document.removeEventListener('mouseup', onMouseUp)
+})
 </script>

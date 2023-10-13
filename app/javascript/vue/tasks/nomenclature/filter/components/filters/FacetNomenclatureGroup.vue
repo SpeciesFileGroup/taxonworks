@@ -21,7 +21,9 @@
       <label>Ranks</label>
       <select
         @change="
-          addToArray(selectedRanks, rankList[$event.target.value], 'rankClass')
+          addToArray(selectedRanks, rankList[$event.target.value], {
+            property: 'rankClass'
+          })
         "
       >
         <option

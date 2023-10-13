@@ -12,6 +12,14 @@ class ProjectsController < ApplicationController
     @projects = Project.all
   end
 
+  # GET /users/1/projects
+  def user_projects
+    @projects = Project.joins(:project_members)
+      .where(project_members: {user_id: sessions_current_user_id})
+      .order('projects.name')
+     render :index
+  end
+
   # GET /projects/1
   # GET /projects/1.json
   def show

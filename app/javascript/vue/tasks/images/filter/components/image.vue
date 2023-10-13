@@ -56,7 +56,7 @@
                 <RadialNavigation :global-id="image.global_id" />
               </li>
               <li>
-                <DepictionList :image-id="image.id" />
+                <DepictionList :image-id="[image.id]" />
               </li>
             </ul>
           </div>

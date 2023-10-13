@@ -26,6 +26,7 @@
   <FacetUsers v-model="params" />
   <FacetCollectingEventAttributes v-model="params" />
   <FacetDataAttribute v-model="params" />
+  <FacetImportAttribute v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
     :key="param"
@@ -50,6 +51,7 @@ import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttri
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'
+import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import { computed } from 'vue'
 import { COLLECTOR_SELECTOR } from '@/constants/index.js'
 

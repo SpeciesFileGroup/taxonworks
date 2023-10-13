@@ -192,12 +192,18 @@ module Queries::Concerns::DataAttributes
 
   def data_attribute_predicate_id_facet
     return nil if data_attribute_predicate_id.blank?
-    referenced_klass.joins(:data_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_predicate_id})
+    referenced_klass.joins(:internal_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_predicate_id})
   end
+
+  def data_attribute_import_predicate_facet
+    return nil if data_attribute_import_predicate.empty?
+    referenced_klass.joins(:import_attributes).where(data_attributes: {import_predicate: data_attribute_import_predicate})
+  end
+
 
   def data_attribute_without_predicate_id_facet
     return nil if data_attribute_without_predicate_id.blank?
-    not_these = referenced_klass.left_joins(:data_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_without_predicate_id})
+    not_these = referenced_klass.left_joins(:internal_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_without_predicate_id})
 
     # a Not exists without using .exists
     s = 'WITH not_these AS (' + not_these.to_sql + ') ' +
@@ -218,13 +224,13 @@ module Queries::Concerns::DataAttributes
     a,b = nil, nil
 
     if data_attribute_wildcard_value.present?
-      v = self.data_attribute_wildcard_value.collect{|a| wildcard_value(a) } # TODO: should be standardized much earlier on
+      v = data_attribute_wildcard_value.collect{|a| wildcard_value(a) } # TODO: should be standardized much earlier on
       a = data_attribute_table[:value].matches_any(v)
     end
 
     b = data_attribute_table[:value].eq_any(data_attribute_exact_value) if data_attribute_exact_value.present?
 
-    q = referenced_klass.joins(:data_attributes)
+    q = referenced_klass.joins(:internal_attributes)
 
     if a && b
       q.where(a.or(b))
@@ -238,18 +244,18 @@ module Queries::Concerns::DataAttributes
   end
 
   def import_value_facet
-    return nil if data_attribute_import_exact_value.blank?  && data_attribute_import_wildcard_value.blank?
+    return nil if data_attribute_import_exact_value.blank? && data_attribute_import_wildcard_value.blank?
 
     a,b = nil, nil
 
     if data_attribute_import_wildcard_value.present?
-      v = self.data_attribute_wildcard_value.collect{|a| wildcard_value(a) } # TODO: should be standardized much earlier on
+      v = data_attribute_import_wildcard_value.collect{|z| wildcard_value(z) } # TODO: should be standardized much earlier on
       a = data_attribute_table[:value].matches_any(v)
     end
 
     b = data_attribute_table[:value].eq_any(data_attribute_import_exact_value) if data_attribute_import_exact_value.present?
 
-    q = referenced_klass.joins(:data_attributes)
+    q = referenced_klass.joins(:import_attributes)
 
     if a && b
       q.where(a.or(b))
@@ -273,7 +279,7 @@ module Queries::Concerns::DataAttributes
       w = w.or(c)
     end
 
-    referenced_klass.joins(:data_attributes).where(w)
+    referenced_klass.joins(:internal_attributes).where(w)
   end
 
   def data_attribute_import_wildcard_pair_facet
@@ -287,7 +293,7 @@ module Queries::Concerns::DataAttributes
       w = w.or(c)
     end
 
-    referenced_klass.joins(:data_attributes).where(w)
+    referenced_klass.joins(:internal_attributes).where(w)
   end
 
   def data_attribute_exact_pair_facet
@@ -301,7 +307,7 @@ module Queries::Concerns::DataAttributes
       w = w.or(c)
     end
 
-    referenced_klass.joins(:data_attributes).where(w)
+    referenced_klass.joins(:internal_attributes).where(w)
   end
 
   def data_attribute_import_exact_pair_facet
@@ -315,7 +321,7 @@ module Queries::Concerns::DataAttributes
       w = w.or(c)
     end
 
-    referenced_klass.joins(:data_attributes).where(w)
+    referenced_klass.joins(:import_attributes).where(w)
   end
 
   def data_attributes_facet
@@ -334,6 +340,7 @@ module Queries::Concerns::DataAttributes
     [
       :data_attribute_import_exact_pair_facet,
       :data_attribute_exact_pair_facet,
+      :data_attribute_import_predicate_facet,
       :data_attribute_predicate_id_facet,
       :data_attribute_wildcard_pair_facet,
       :data_attribute_import_wildcard_pair_facet,

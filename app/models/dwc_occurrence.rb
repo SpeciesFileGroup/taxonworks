@@ -61,6 +61,12 @@ class DwcOccurrence < ApplicationRecord
     d ? d : field
   end
 
+  # TODO: Consider using more broadly?
+  # Strip nils when `to_json` used
+  def as_json(options = {})
+    super(options.merge(except: attributes.keys.select { |key| self[key].nil? }))
+  end
+
   belongs_to :dwc_occurrence_object, polymorphic: true, inverse_of: :dwc_occurrence
   has_one :collecting_event, through: :dwc_occurrence_object, inverse_of: :dwc_occurrences
 

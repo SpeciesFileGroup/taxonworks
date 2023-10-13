@@ -210,7 +210,7 @@ class Otu < ApplicationRecord
         when 'AssertedDistribution'
           AssertedDistribution.arel_table
         when 'Content'
-          Content.arel_table
+          ::Content.arel_table
         when 'BiologicalAssociation'
           BiologicalAssociation.arel_table
         when 'TaxonDetermination'
