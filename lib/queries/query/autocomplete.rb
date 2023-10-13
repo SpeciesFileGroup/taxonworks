@@ -38,7 +38,11 @@ module Queries
 
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
+      byebug
       @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
+
+      @query_string.gsub("'", "''")
+
       @project_id = project_id
       build_terms # TODO - should remove this for accessors
     end
