@@ -47,12 +47,11 @@
               <VBtn
                 color="destroy"
                 circle
-                @click="editItem(index)"
+                @click="emit('remove', item)"
               >
                 <VIcon
                   name="trash"
                   x-small
-                  @click="removeCTV(index)"
                 />
               </VBtn>
             </div>
@@ -79,7 +78,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['edit', 'sort'])
+const emit = defineEmits(['edit', 'sort', 'remove'])
 
 const isLoading = ref(false)
 const ascending = ref(false)
