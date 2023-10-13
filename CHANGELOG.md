@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Without document facet 
 - Object cloning in OriginRelationship caused infinite loops [#3594]
 - Quote handling in API autocomplete calls
 - Organization name not displaying in attribution copyright _label_
@@ -30,7 +31,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3590]: https://github.com/SpeciesFileGroup/taxonworks/issues/3590
 [#3434]: https://github.com/SpeciesFileGroup/taxonworks/issues/3434
 [#3591]: https://github.com/SpeciesFileGroup/taxonworks/issues/3591
-
 
 ## [0.34.6] - 2023-10-06
 
