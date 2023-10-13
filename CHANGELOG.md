@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- CollectingEvent allowable max records made smart [#3590]
 - Added `extend[]=attribution` to `/images/123.json`
 
 ### Fixed
@@ -22,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Organization name not displaying in attribution copyright _label_
 - Manage Controlled vocabulary term: CVT list is not reloading after clone them from other project
 
+[#3590]: https://github.com/SpeciesFileGroup/taxonworks/issues/3590
 [#3434]: https://github.com/SpeciesFileGroup/taxonworks/issues/3434
 
 
