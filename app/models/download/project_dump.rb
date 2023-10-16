@@ -1,2 +1,2 @@
-class Download::ProjectDump < Download
+class Download::ProjectDump < ::Download
 end

@@ -106,7 +106,7 @@ class AssertedDistributionsController < ApplicationController
     send_data(
       Export::Download.generate_csv(AssertedDistribution.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "asserted_distributions_#{DateTime.now}.csv")
+      filename: "asserted_distributions_#{DateTime.now}.tsv")
   end
 
   # GET /asserted_distributions/batch_load

@@ -86,7 +86,7 @@ class PreparationTypesController < ApplicationController
   def download
     send_data(Export::Download.generate_csv(PreparationType.all),
               type: 'text',
-              filename: "preparation_types_#{DateTime.now}.csv")
+              filename: "preparation_types_#{DateTime.now}.tsv")
   end
 
   # def autocomplete

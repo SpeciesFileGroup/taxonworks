@@ -1,4 +1,4 @@
-class DownloadProjectTsvJob < ApplicationJob
+class DownloadProjectSqlJob < ApplicationJob
   queue_as :project_download
 
   def max_run_time
@@ -11,7 +11,7 @@ class DownloadProjectTsvJob < ApplicationJob
 
   def perform(target_project, download)
     begin
-      download.source_file_path = ::Export::ProjectData::Tsv.export(target_project)
+      download.source_file_path = ::Export::ProjectData::Sql.export(target_project)
       download.save!
       download
     rescue => ex

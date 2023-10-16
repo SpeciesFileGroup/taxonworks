@@ -1,28 +1,28 @@
-<%= tag.h1 "Tasks - Project data (export, download)" -%>
-<%= tag.h2 @project.name, id: :top %>
+<%= tag.h1 "Tasks - Project data (export, download)", id: :top -%>
 
-<%= tag.p 'Exports and downloads are also available in numerous other places, for example Filters, Hubs, other tasks.', class: [:feedback, 'feedback-info'] %>
+<%= tag.em 'Exports and downloads are also available in numerous other places, for example Filters, Hubs, other tasks.' %>
+<%= tag.p "Project wide downloads are generated in the background. You will be redirected to the Download that will contain the file.", class: [:feedback, 'feedback-warning'] %>
 
 <div class="flexbox separate-bottom">
   <div class="panel content">
     <h3> Export SQL </h3>
-   <p><em>Generate a downloadable copy of the database (PostgreSQL dump) with data from this project and community data (Sources, People, Repositories, etc.).</em>
-     <p> Restorable with <b>psql -U :username -d :database -f dump.sql</b>. Requires database to be created without tables (<b>rails db:create</b>) </p>
-   </p>
-   <div>
-     <%= form_tag(generate_sql_download_task_path, method: :get) do %>
-       <%= submit_tag :Download, class: ['normal-input', :button, 'button-default'] -%>
-     <% end %>
+    <p><em>Generate a downloadable copy of the database (PostgreSQL dump) with all data referenced in this project. Includes Community data like Sources, People, and Repositories.</em></p>
+    <p> Restorable with <b>psql -U :username -d :database -f dump.sql</b>. Requires database to be created without tables (<b>rails db:create</b>) </p>
+
+    <div>
+      <%= form_tag(generate_sql_download_task_path, method: :get) do %>
+        <%= submit_tag :Generate, class: ['normal-input', :button, 'button-default'] -%>
+      <% end %>
     </div>
   </div>
 
   <div class="panel content separate-left">
-  <h3> Export TSV </h3>
-   <p><em>Generate a <%= link_to 'Download', list_downloads_path %> of a zipped copy of all tables with a project_id in TSV format. Currently does *not* include community data (Sources, People, Repositories, etc.)</em></p>
-   <div>
-     <%= form_tag(generate_tsv_download_task_path, method: :get) do %>
-       <%= submit_tag :GenerateDownload, class: ['normal-input', :button, 'button-default'] -%>
-     <% end %>
+    <h3> Export TSV </h3>
+    <p><em>Generate a <%= link_to 'Download', list_downloads_path %> of a zipped copy of all tables with a project_id in TSV format. Currently does *not* include community data (Sources, People, Repositories, etc.).</em></p>
+    <div>
+      <%= form_tag(generate_tsv_download_task_path, method: :get) do %>
+        <%= submit_tag :Generate, class: ['normal-input', :button, 'button-default'] -%>
+      <% end %>
     </div>
   </div>
 </div>
@@ -30,34 +30,35 @@
 <div class="flexbox separate-bottom">
   <div class="panel content">
     <h3> Tables </h3>
-   <p><em>Download CSV 1:1 with tables.</em></p>
-   <div>
+    <p><em>Download tab-delimited text 1:1 with tables.</em></p>
+    <div>
 
- <table>
-  <% @project.has_many_relationships.each do |r| -%>
-    <% begin %>
-      <% a = @project.send(r)&.count %>
-      <% if a && a > 0 %>
+      <table>
+        <% @project.has_many_relationships.each do |r| -%>
+          <% begin %>
+            <% a = @project.send(r)&.count %>
+            <% if a && a > 0 %>
+              <tr>
+                <% b = "#{r.classify.pluralize}Controller".safe_constantize -%>
+                <% c = b&.new&.respond_to?(:download) ? true : false -%>
+                <%= tag.td r.to_s.humanize -%>
+                <%= tag.td a -%>
+                <%= tag.td (c ? link_to('Download', download_path_for_model(r.classify.safe_constantize)) : 'Unavailable') -%>
+              </tr>
+            <% end %>
+          <% rescue ActiveRecord::HasManyThroughOrderError %>
+          <% end %>
+        <% end %>
+
         <tr>
-          <% b = "#{r.classify.pluralize}Controller".safe_constantize -%>
-          <% c = b&.new&.respond_to?(:download) ? true : false -%>
-          <%= content_tag :td, r.to_s.humanize -%>
-          <%= content_tag :td, a -%>
-          <%= content_tag :td, (c ? link_to('Download', send("download_#{r.pluralize}_path")) : 'no download') -%>
+          <% b = SourcesController.new %>
+          <% c = b.respond_to?(:download) ? true : false -%>
+          <%= tag.td 'Sources' -%>
+          <%= tag.td( Source.joins(:project_sources).where(project_sources: {project_id: sessions_current_project_id}).count.to_s) -%>
+          <%= tag.td( c ? link_to('Download', download_sources_path) : 'Unavailable') -%>
         </tr>
-      <% end %>
-    <% rescue ActiveRecord::HasManyThroughOrderError %>
-    <% end %>
-  <% end %>
+      </table>
 
-  <tr>
-    <% b = SourcesController.new %>
-    <% c = b.respond_to?(:download) ? true : false -%>
-    <%= content_tag(:td, 'Sources') -%>
-    <%= content_tag(:td, Source.joins(:project_sources).where(project_sources: {project_id: sessions_current_project_id}).count.to_s) -%>
-    <%= content_tag(:td, (c ? link_to('Download', download_sources_path) : 'no download')) -%>
-  </tr>
-
-</table>
-</div>
+    </div>
+  </div>
 </div>

@@ -1,14 +1,14 @@
 require 'rails_helper'
-require 'export/project/sql'
+require 'export/project_data/sql'
 
-describe Export::Project::Sql do
+describe Export::ProjectData::Sql do
 
   let(:hierarchy_tables) do
     ActiveRecord::Base.connection.tables.select { |t| t =~ /.*_hierarchies/ }
   end
 
   let(:known_tables) do
-    Export::Project::HIERARCHIES.map(&:first)
+    Export::ProjectData::HIERARCHIES.map(&:first)
   end
 
   it 'is aware of all hierarchy tables' do
