@@ -105,6 +105,13 @@ scope :tasks do
     end
   end
 
+  scope :imports do
+    scope :checklistbank, controller: 'tasks/imports/checklistbank' do
+      get '/', action: :index, as: 'import_checklistbank_task'
+      post 'import', as: 'create_import_checklistbank_task'
+    end
+  end
+
   scope :matrix_image do
     scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
       get :index, as: 'index_matrix_image_task'
