@@ -6,6 +6,8 @@ export default async ({ dispatch, commit, state }, otus) => {
   const { currentOtu } = state
   const otuIds = otus.map((otu) => otu.id)
 
+  await dispatch(ActionNames.LoadPreferences)
+
   async function loadOtuInformation(otu) {
     await Promise.all([
       dispatch(ActionNames.LoadBiologicalAssociations, otu.global_id),
@@ -28,7 +30,6 @@ export default async ({ dispatch, commit, state }, otus) => {
 
   dispatch(ActionNames.LoadObservationDepictions, otus)
   dispatch(ActionNames.LoadDescendants, state.currentOtu)
-  dispatch(ActionNames.LoadPreferences)
 
   async function processArray(otus) {
     for (const item of otus) {
