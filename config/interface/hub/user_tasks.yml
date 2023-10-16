@@ -451,6 +451,14 @@ export_coldp_task:
     - nomenclature
   status: prototype
   description: 'Export a zip of text files in the Catalogue of Life CoLDP format.'
+import_checklistbank_task:
+  hub: true
+  name: 'Import from ChecklistBank'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Import nomenclature from ChecklistBank/Catalogue of Life.'
 index_browse_asserted_distributions_task:
   hub: true
   name: 'Browse asserted distributions'
