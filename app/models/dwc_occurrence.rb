@@ -118,14 +118,14 @@ class DwcOccurrence < ApplicationRecord
         asserted_distribution_query: {
           taxon_name_query: {
             taxon_name_id: otu.taxon_name_id,
-            descendants: false,
+            descendants: false, # include self
             synonymify: true } })
 
       b = ::Queries::DwcOccurrence::Filter.new(
         collection_object_query: {
           taxon_name_query: {
             taxon_name_id: otu.taxon_name_id,
-            descendants: false,
+            descendants: false, # include self
             synonymify: true } })
     else
       a = ::Queries::DwcOccurrence::Filter.new(
