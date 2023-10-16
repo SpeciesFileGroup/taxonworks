@@ -253,17 +253,6 @@ resources :descriptors do
   end
 end
 
-resources :documentation do
-  concerns [:data_routes]
-  collection do
-    patch :sort
-  end
-end
-
-resources :documents do
-  concerns [:data_routes]
-end
-
 resources :downloads, except: [:new, :create] do
   collection do
     get 'list'
@@ -271,6 +260,23 @@ resources :downloads, except: [:new, :create] do
   member do
     get 'file'
   end
+end
+
+resources :documentation, as: :documentation do
+  collection do
+    get 'download'
+    get 'list'
+
+    patch :sort
+  end
+
+  member do
+    get 'related'
+  end
+end
+
+resources :documents do
+  concerns [:data_routes]
 end
 
 # TODO: these should default json?
@@ -281,6 +287,7 @@ resources :dwc_occurrences, only: [:create] do
     get 'predicates', defaults: {format: :json}
     get 'status', defaults: {format: :json}
     get 'collector_id_metadata', defaults: {format: :json}
+    get 'download'
   end
 end
 

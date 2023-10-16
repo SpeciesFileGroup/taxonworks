@@ -104,7 +104,7 @@ class NotesController < ApplicationController
   def download
     send_data Export::Download.generate_csv(Note.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "notes_#{DateTime.now}.csv"
+      filename: "notes_#{DateTime.now}.tsv"
   end
 
   # GET /api/v1/notes

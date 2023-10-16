@@ -163,8 +163,6 @@ class Project < ApplicationRecord
     end
   end
 
-
-
   # !! This is not production ready.
   # @return [Boolean]
   #   based on whether the project has successfully been deleted.  Can also raise on detected problems with configuration.
@@ -191,9 +189,6 @@ class Project < ApplicationRecord
       raise e
     end
   end
-
-
-
 
   # TODO: boot load checks
   def root_taxon_name

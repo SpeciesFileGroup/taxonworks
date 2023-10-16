@@ -89,11 +89,6 @@ scope :tasks do
   end
 
   scope :exports do
-    scope :taxonworks_project, controller: 'tasks/exports/taxonworks_project' do
-      get '/', action: :index, as: 'export_taxonworks_project_task'
-      get 'download', as: 'download_taxonworks_project_task'
-    end
-
     scope :coldp, controller: 'tasks/exports/coldp' do
       get '/', action: :index, as: 'export_coldp_task'
       get 'download', as: 'download_coldp_task'
@@ -200,8 +195,19 @@ scope :tasks do
     scope :preferences, controller: 'tasks/projects/preferences' do
       get :index, as: 'project_preferences_task'
     end
+
+#   scope :taxonworks_project, controller: 'tasks/exports/taxonworks_project' do
+#     get '/', action: :index, as: 'export_taxonworks_project_task'
+#     get 'download', as: 'download_taxonworks_project_task'
+#   end
+
+    # Downloads here
     scope :data, controller: 'tasks/projects/data' do
       get '/', action: :index, as: 'project_data_task'
+
+      get 'tsv_download', as: 'generate_tsv_download_task'
+      get 'sql_download', as: 'generate_sql_download_task'
+
     end
   end
 

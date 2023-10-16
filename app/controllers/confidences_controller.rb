@@ -64,7 +64,7 @@ class ConfidencesController < ApplicationController
     end
   end
 
-  def confidence_object_update 
+  def confidence_object_update
     @confidence_object = confidence_object
     if @confidence_object.update(confidences_params)
       flash[:notice] = 'Successfully updated record.'
@@ -94,7 +94,7 @@ class ConfidencesController < ApplicationController
 
   # GET /confidences/download
   def download
-    send_data Export::Download.generate_csv(Confidence.where(project_id: sessions_current_project_id)), type: 'text', filename: "confidences_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Confidence.where(project_id: sessions_current_project_id)), type: 'text', filename: "confidences_#{DateTime.now}.tsv"
   end
 
   def exists

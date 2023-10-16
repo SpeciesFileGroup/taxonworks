@@ -219,7 +219,7 @@ class SourcesController < ApplicationController
       Source.joins(:project_sources)
       .where(project_sources: {project_id: sessions_current_project_id})
       .all),
-    type: 'text', filename: "sources_#{DateTime.now}.csv"
+    type: 'text', filename: "sources_#{DateTime.now}.tsv"
   end
 
   # GET /sources/generate.json?<filter params>

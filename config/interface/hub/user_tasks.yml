@@ -557,13 +557,6 @@ filter_sources_task:
     - filters
   status: prototype
   description: 'Filter and find sources then download or share bibliographies.'
-project_data_task:
-  hub: true
-  name: 'Project data overview and download'
-  related:
-  categories:
-  status: prototype
-  description: 'Quick stats and download options for the overall project.'
 gnfinder_task:
   hub: true
   name: 'Gnfinder playground'
@@ -600,13 +593,13 @@ filter_images_task:
     - filters
   status: prototype
   description: 'Filter images.'
-export_taxonworks_project_task:
+project_data_task:
   hub: true
-  name: 'Export project database'
+  name: 'Project data overview and download'
   related:
   categories:
   status: prototype
-  description: 'Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)'
+  description: 'Quick stats and download options for the overall project.'
 dwc_dashboard_task:
   hub: true
   name: 'DwC Dashboard'
