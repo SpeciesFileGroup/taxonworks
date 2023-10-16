@@ -1,5 +1,9 @@
 export default () => {
   return {
+    CoordinateOtus: {
+      title: 'Coordinate OTUs',
+      status: 'stable'
+    },
     NomenclatureHistory: {
       title: 'Timeline',
       status: 'stable'

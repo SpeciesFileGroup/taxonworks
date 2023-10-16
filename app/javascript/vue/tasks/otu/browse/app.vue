@@ -95,6 +95,7 @@ import TypeSpecimens from './components/specimens/Type'
 import TypeSection from './components/TypeSection.vue'
 import CommonNames from './components/CommonNames'
 import DescriptionComponent from './components/Description.vue'
+import CoordinateOtus from './components/coordinate/CoordinateOtus.vue'
 import Descendants from './components/descendants'
 import Autocomplete from '@/components/ui/Autocomplete'
 import SearchOtu from './components/SearchOtu'
@@ -127,7 +128,8 @@ export default {
     Draggable,
     Descendants,
     SelectOtu,
-    TypeSection
+    TypeSection,
+    CoordinateOtus
   },
   computed: {
     preferences: {
