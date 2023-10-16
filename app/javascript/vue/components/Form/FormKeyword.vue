@@ -52,7 +52,7 @@
       <button
         type="button"
         class="button normal-input button-default"
-        @click="newCTV"
+        @click="newCVT"
       >
         New
       </button>
@@ -73,15 +73,22 @@ const props = defineProps({
 
 const DEFINITION_MIN_LENGTH = 20
 
-const emit = defineEmits(['submit', 'update:modelValue'])
+const emit = defineEmits(['submit', 'update:modelValue', 'new'])
 
 const controlledVocabularyTerm = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
 })
 
-const emitCVT = (e) => {
+function emitCVT(e) {
   e.preventDefault()
   emit('submit', controlledVocabularyTerm.value)
+}
+
+function newCVT() {
+  const data = makeControlledVocabularyTerm()
+
+  controlledVocabularyTerm.value = data
+  emit('new', data)
 }
 </script>
