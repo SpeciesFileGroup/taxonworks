@@ -15,6 +15,7 @@ export default ({ state, commit }, otusId) =>
           MutationNames.SetCollectingEvents,
           state.collectingEvents.concat(CEs)
         )
+        state.loadState.collectingEvents = false
       },
       (error) => {
         reject(error)

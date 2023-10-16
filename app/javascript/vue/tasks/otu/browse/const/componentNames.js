@@ -58,7 +58,12 @@ export default () => {
       title: 'Annotations',
       status: 'prototype'
     },
-    CollectingEvents: {
+    CollectingEventSection: {
+      title: 'Collecting events',
+      status: 'prototype',
+      rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
+    },
+    Distribution: {
       title: 'Distribution',
       status: 'prototype'
     }

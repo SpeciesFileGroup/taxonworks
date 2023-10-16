@@ -9,13 +9,14 @@ function makeInitialState() {
     loadState: {
       assertedDistribution: false,
       biologicalAssociations: true,
+      collectingEvents: true,
       collectionObjects: true,
       descendants: false,
       descendantsDistribution: false,
       distribution: true
     },
     preferences: {
-      preferenceSchema: 20231016,
+      preferenceSchema: 20231017,
       sections: Object.keys(componentNames()),
       filterSections: {
         and: {

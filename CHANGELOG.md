@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CSV generating endpoints `/api/v1/taxon_names.csv` and `/api/v1/otus.csv`
 - Filter CollectionObject links to "Collection Summary" task [#3434]
 - CollectionObject type facet
+- Coordinate and collecting event sections in Browse OTUs
 
 ### Changed
 
@@ -24,7 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - TaxonName `descendants` facet always included self, it shouldn't have
-- Without document facet 
+- Without document facet
 - Object cloning in OriginRelationship caused infinite loops [#3594]
 - Quote handling in API autocomplete calls
 - Organization name not displaying in attribution copyright _label_
