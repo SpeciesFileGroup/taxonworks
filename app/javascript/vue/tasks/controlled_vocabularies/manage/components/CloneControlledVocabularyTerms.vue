@@ -85,6 +85,7 @@ function clone() {
   })
     .then(() => {
       emit('clone')
+      isModalVisible.value = false
     })
     .catch(() => {})
 }
