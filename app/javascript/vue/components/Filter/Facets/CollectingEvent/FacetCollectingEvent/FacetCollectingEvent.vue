@@ -62,10 +62,10 @@
 
 <script setup>
 import { ref, computed, watch, onBeforeMount } from 'vue'
-import { CollectingEvent } from 'routes/endpoints'
-import SmartSelector from 'components/ui/SmartSelector'
+import { CollectingEvent } from '@/routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector'
 import ByAttribute from '../../shared/ByAttribute.vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {
@@ -110,11 +110,16 @@ watch(
 )
 
 onBeforeMount(() => {
-  params.value.collecting_event_id?.forEach((id) => {
-    CollectingEvent.find(id).then((response) => {
-      addCe(response.body)
+  const idParam = params.value?.collecting_event_id
+  const ids = idParam && [idParam].flat()
+
+  if (ids) {
+    ids.forEach((id) => {
+      CollectingEvent.find(id).then((response) => {
+        addCe(response.body)
+      })
     })
-  })
+  }
 })
 
 const addCe = (ce) => {

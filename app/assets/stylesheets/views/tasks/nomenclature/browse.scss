@@ -1,7 +1,11 @@
-#browse-view {
-
+.browse-view {
   .filter-button-open {
     transform: rotate(180deg);
+  }
+
+  .switch-radio label {
+    width: 100%;
+    min-width: auto;
   }
 
   #vue-browse-validation-panel {
@@ -14,7 +18,7 @@
 
   .nav-column {
     width: 400px;
-    min-width: 270px
+    min-width: 270px;
   }
 
   .citations {
@@ -50,6 +54,10 @@
     margin-left: 5px;
   }
 
+  .history__record [data-radial-annotator] {
+    @extend .margin-small-left;
+  }
+
   .taxonomic_history,
   .citations {
     .annotation__note {
@@ -61,22 +69,22 @@
     width: 600px;
   }
   .history__origin {
-    color: #FFF;
+    color: #fff;
     padding-left: 7px;
     padding-right: 7px;
     margin-right: 4px;
     border-radius: 3px;
     &.protonym {
-      background-color: #7986CB;
+      background-color: #7986cb;
     }
     &.combination {
-      background-color: #FFB74D;
+      background-color: #ffb74d;
     }
     &.taxon_name_relationship {
-      background-color: #9575CD;
+      background-color: #9575cd;
     }
     &.error {
-      background-color: #A1887F;
+      background-color: #a1887f;
     }
   }
 

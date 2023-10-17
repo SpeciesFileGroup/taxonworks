@@ -1,21 +1,35 @@
 <template>
   <section-panel
     :status="status"
-    :title="title">
-    <table-display 
+    :title="title"
+  >
+    <table-display
       v-if="commonNames.length"
       :list="commonNames"
-      :header="['Name', 'Geographic area', 'Language', 'Start year', 'End year', '']"
+      :header="[
+        'Name',
+        'Geographic area',
+        'Language',
+        'Start year',
+        'End year',
+        ''
+      ]"
       :destroy="false"
-      :attributes="['object_tag', ['geographic_area', 'object_tag'], 'language_tag', 'start_year', 'end_year']"/>
+      :attributes="[
+        'object_tag',
+        ['geographic_area', 'object_tag'],
+        'language_tag',
+        'start_year',
+        'end_year'
+      ]"
+    />
   </section-panel>
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
 import SectionPanel from './shared/sectionPanel'
-import TableDisplay from 'components/table_list'
+import TableDisplay from '@/components/table_list'
 import extendSection from './shared/extendSections'
 
 export default {
@@ -25,14 +39,14 @@ export default {
     TableDisplay
   },
   computed: {
-    commonNames () {
+    commonNames() {
       return this.$store.getters[GetterNames.GetCommonNames]
     }
   }
 }
 </script>
 <style lang="scss" scoped>
-  li {
-    border-bottom: 1px solid #F5F5F5;
-  }
+li {
+  border-bottom: 1px solid #f5f5f5;
+}
 </style>

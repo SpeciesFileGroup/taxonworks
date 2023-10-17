@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import ajaxCall from 'helpers/ajaxCall.js'
+import ajaxCall from '@/helpers/ajaxCall.js'
 
 const controller = 'data_attributes'
 const permitParams = {
@@ -18,5 +18,7 @@ export const DataAttribute = {
   ...baseCRUD(controller, permitParams),
 
   createBatch: (params) =>
-    ajaxCall('post', `/${controller}/batch_create`, params)
+    ajaxCall('post', `/${controller}/batch_create`, params),
+
+  brief: (params) => ajaxCall('post', `/${controller}/brief.json`, params)
 }

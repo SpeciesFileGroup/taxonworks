@@ -1,26 +1,33 @@
 <template>
   <modal-component
     @close="closeModal"
-    :containerStyle="{ 'min-width': '300px', 'max-width': '400px' }">
+    :containerStyle="{ 'min-width': '300px', 'max-width': '400px' }"
+  >
     <template #header>
       <h3>Destroy record</h3>
     </template>
     <template #body>
-      <p>This will destroy the record. Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.</p>
+      <p>
+        This will destroy the record. Are you sure you want to proceed? Type "{{
+          checkWord
+        }}" to proceed.
+      </p>
       <input
         type="text"
         class="full_width"
         v-model="inputValue"
         @keypress.enter.prevent="emitConfirm()"
         ref="inputtext"
-        :placeholder="`Write ${checkWord} to continue`">
+        :placeholder="`Write ${checkWord} to continue`"
+      />
     </template>
     <template #footer>
       <button
         type="button"
         class="button normal-input button-delete"
         :disabled="checkInput"
-        @click="emitConfirm()">
+        @click="emitConfirm()"
+      >
         Destroy
       </button>
     </template>
@@ -28,8 +35,7 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal.vue'
+import ModalComponent from '@/components/ui/Modal.vue'
 
 export default {
   components: { ModalComponent },
@@ -41,18 +47,15 @@ export default {
     }
   },
 
-  emits: [
-    'confirm',
-    'close'
-  ],
+  emits: ['confirm', 'close'],
 
   computed: {
-    checkInput () {
+    checkInput() {
       return this.inputValue.toUpperCase() !== this.checkWord
     }
   },
 
-  data () {
+  data() {
     return {
       inputValue: '',
       checkWord: 'DELETE',
@@ -60,17 +63,17 @@ export default {
     }
   },
 
-  mounted () {
+  mounted() {
     this.$refs.inputtext.focus()
   },
 
   methods: {
-    emitConfirm () {
+    emitConfirm() {
       this.$emit('confirm', true)
       this.closeModal()
     },
 
-    closeModal () {
+    closeModal() {
       this.$emit('close')
     }
   }

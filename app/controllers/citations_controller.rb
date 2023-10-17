@@ -60,7 +60,7 @@ class CitationsController < ApplicationController
   # /citations/batch_create.json?citation_object_type=Otu&citation_object_id[]=123&source_id=456
   def batch_create
     @citations = Citation.batch_create(batch_citation_params)
-    if @citations.present? 
+    if @citations.present?
       render '/citations/index'
     else
       render json: { failed: true, status: :unprocessable_entity}
@@ -126,14 +126,15 @@ class CitationsController < ApplicationController
 
   # GET /citations/download
   def download
-    send_data Export::Download.generate_csv(Citation.where(project_id: sessions_current_project_id)), type: 'text', filename: "citations_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Citation.where(project_id: sessions_current_project_id)), type: 'text', filename: "citations_#{DateTime.now}.tsv"
   end
 
   def api_index
     @citations = Queries::Citation::Filter.new(params).all
-      .where(project_id: sessions_current_project_id).includes(:source)
-      .order('sources.cached, sources.pages')
-      .page(params[:page]).per(params[:per] || 50)     ### error when 500 !!
+      .where(project_id: sessions_current_project_id)
+      .includes(:source)
+      .order('sources.cached_nomenclature_date')
+      .page(params[:page]).per(params[:per] || 50)
 
     @verbose_object = params[:verbose_object]
     render '/citations/api/v1/index'
@@ -162,7 +163,7 @@ class CitationsController < ApplicationController
   end
 
   def batch_citation_params
-    p = base_params 
+    p = base_params
     p.last.merge!(citation_object_id: [])
     params.require(:citation).permit(p)
   end

@@ -3,7 +3,7 @@ module Queries
   module TaxonName
     class Autocomplete < Query::Autocomplete
 
-      # @return [Array, nil]
+      # @return [Array]
       #   &nomenclature_group[]=<<Iczn|Icnp|Icn>::<Higher|Family|Genus|Species>>
       attr_accessor :nomenclature_group
 
@@ -23,6 +23,8 @@ module Queries
       #   &parent_id[]=<int>&parent_id[]=<other_int> etc.
       attr_accessor :parent_id
 
+      # TODO: this should move to 'mode'
+
       # @return [Boolean]
       #   &exact=<"true"|"false">
       #   if 'true' then only #name = query_string results are returned (no fuzzy matching)
@@ -30,39 +32,35 @@ module Queries
 
       # @return [Boolean]
       #   &no_leaves=<"true"|"false">
-      #   if 'true' then only names with descendents will be returned
+      #     if 'true' then only names with descendents will be returned
       attr_accessor :no_leaves
 
+      # As determined by GlobalNames parser
+      attr_accessor :authorship
+
       # @param [Hash] args
-      def initialize(string, project_id: nil, valid: nil, exact: nil, no_leaves: nil, nomenclature_group: [], type: [], parent_id: [])
-        @nomenclature_group = nomenclature_group
-        @valid = valid == 'true' ? true : (valid == 'false' ? false : nil)
-        @type = type
-        @parent_id = parent_id
-        @no_leaves = no_leaves == 'true' ? true : (no_leaves == 'false' ? false : nil)
-        @exact = (exact == 'true' ? true : (exact == 'false' ? false : nil))
+      def initialize(string, **params)
+        @nomenclature_group = params[:nomenclature_group]
+        @valid = boolean_param(params, :valid)
+        @type = params[:type]
+        @parent_id = params[:parent_id]
+        @no_leaves = boolean_param(params, :no_leaves)
+
+        # TODO: move to mode
+        @exact = boolean_param(params, :exact)
         super
       end
 
-      # @return [Arel:Nodes]
-      def or_clauses
-        clauses = []
+      def nomenclature_group
+        [@nomenclature_group].flatten.compact.uniq.collect{|g| "%::#{g}%"}
+      end
 
-        clauses.push exactly_named if exact
+      def type
+        [@type].flatten.compact.uniq
+      end
 
-        clauses += [
-          only_ids,
-          cached_facet,
-          with_cached_author_year,
-        ] unless exact
-
-        clauses.compact!
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.or(b)
-        end
-        a
+      def parent_id
+        [@parent_id].flatten.compact.uniq
       end
 
       # @return [Arel:Nodes, nil]
@@ -81,23 +79,6 @@ module Queries
           a = a.and(b)
         end
         a
-      end
-
-      # @return [Arel:Nodes]
-      def or_and
-        a = or_clauses
-        b = and_clauses
-
-        if a && b
-          a.and(b)
-        else
-          a
-        end
-      end
-
-      # @return [String]
-      def where_sql
-        with_project_id.and(or_and).to_sql
       end
 
       # @return [Arel::Nodes::<>, nil]
@@ -126,22 +107,6 @@ module Queries
       def with_nomenclature_group
         return nil if nomenclature_group.empty?
         table[:rank_class].matches_any(nomenclature_group)
-      end
-
-      # and_clause
-      # @return [Array]
-      def nomenclature_group
-        @nomenclature_group.collect{|g| "%::#{g}%"}
-      end
-
-      # @return [Scope]
-      # !! TODO: should be autocomplete and array ...
-      def all
-        ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
-          includes(:ancestor_hierarchies).
-          where(where_sql).
-          references(:taxon_name_hierarchies).
-          limit(dynamic_limit).order('char_length(taxon_names.cached), taxon_names.cached').distinct.all
       end
 
       # @return [Scope]
@@ -175,14 +140,14 @@ module Queries
       end
 
       # @return [Scope]
-      def autocomplete_top_name
+      def autocomplete_exact_name
         a = table[:name].eq(query_string)
         base_query.where(a.to_sql).order('cached_author_year ASC').limit(20)
       end
 
       # @return [Scope]
       def autocomplete_top_cached
-        s = query_string.delete('\\')
+        s = query_string
         a = table[:cached].matches("#{s}%")
         base_query.where(a.to_sql).limit(1)
       end
@@ -239,12 +204,6 @@ module Queries
         end
       end
 
-      # @return [Scope]
-      def autocomplete_cached_author_year
-        a = table[:cached_author_year].matches("#{query_string.gsub(/[,\s]/, '%')}")
-        base_query.where(a.to_sql).order('cached ASC').limit(20)
-      end
-
       # @return [Scope, nil]
       def autocomplete_wildcard_author_year_joined_pieces
         return nil if pieces.empty?
@@ -266,68 +225,160 @@ module Queries
         base_query.where(table[:cached_author_year].matches(a).to_sql).limit(10)
       end
 
-      # Used in new taxon name, for example
+      #    def autocomplete_cached
+      #      base_query.where(table[:cached].eq(query_term))
+      #    end
+
+      # ---- gin methods
+      # Consider word_similarity()
+
+      def autocomplete_cached
+        ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, cached) AS sml', query_string]))
+          .where('cached % ?', query_string) # `%` in where means nothing < 0.3 (internal PG similarity value)
+          .where(ApplicationRecord.sanitize_sql_array(["similarity('%s', cached) > 0.6", query_string]))
+          .order('sml DESC, cached')
+      end
+
+      def autocomplete_original_combination
+        ::TaxonName.select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, taxon_names.cached_original_combination) AS sml', query_string]))
+          .where('taxon_names.cached_original_combination % ?', query_string)
+          .where(ApplicationRecord.sanitize_sql_array(["similarity('%s', taxon_names.cached_original_combination) > 0.6", query_string]))
+          .order('sml DESC, taxon_names.cached_original_combination')
+      end
+
+      def autocomplete_cached_author_year
+        ::TaxonName.select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, taxon_names.cached_author_year) AS sml', query_string]))
+          .where('taxon_names.cached_author_year % ?', query_string)
+          .where(ApplicationRecord.sanitize_sql(["similarity('%s', taxon_names.cached_author_year) > 0.6", query_string]))
+          .order('sml DESC, taxon_names.cached_author_year')
+      end
+
+      # Weights.  Theory (using this loosely) is that this
+      # will proportionally increase the importance in the list of the corresponding element.
+      # The tradeoff is subtle, but seems to work at first try.
+      CACHED_NAME_WEIGHT = 8.0
+      CACHED_AUTHOR_YEAR_WEIGHT = 6.0
+      CACHED_WEIGHT = 4.0
+      CACHED_ORIGINAL_COMBINATION_WEIGHT = 2.0
+
+      # Used in /otus/api/v1/autocomplete
+      def autocomplete_combined_gin
+        a = ::TaxonName.select(ApplicationRecord.sanitize_sql(
+          ['taxon_names.*, similarity(?, name) AS sml_n, similarity(?, taxon_names.cached_author_year) AS sml_cay, similarity(?, cached) AS sml_c, similarity(?, taxon_names.cached_original_combination) AS sml_coc',
+           query_string, authorship, query_string, query_string])
+                              ).where('taxon_names.cached_author_year % ? OR taxon_names.cached_original_combination % ? OR cached % ?', query_string, query_string, query_string)
+
+        s = 'WITH tns AS (' + a.to_sql + ') ' +
+          ::TaxonName
+          .select(Arel.sql("taxon_names.*, (( COALESCE(tns1.sml_n,0) * #{CACHED_NAME_WEIGHT} + \
+                                                  COALESCE(tns1.sml_cay,0) * #{CACHED_AUTHOR_YEAR_WEIGHT} + \
+                                                  COALESCE(tns1.sml_c,0) * #{CACHED_WEIGHT} + \
+                                                  COALESCE(tns1.sml_coc,0) * #{CACHED_ORIGINAL_COMBINATION_WEIGHT} \
+                                                )) sml_tn"))
+          .joins('JOIN tns as tns1  on tns1.id = taxon_names.id')
+          .to_sql
+
+        ::TaxonName.select('taxon_names.*, sml_tn as sml_t').from('(' + s + ') as taxon_names').order('sml_tn DESC').distinct
+      end
+
+      # Used in New taxon name task, for example
+      #  TODO: what is intent?
       def exact_autocomplete
         [
           autocomplete_exact_id,
           autocomplete_exact_cached,
           autocomplete_exact_cached_original_combination,
-          autocomplete_exact_name_and_year,
-          autocomplete_top_name,
-          autocomplete_top_cached,
-          autocomplete_cached_end_wildcard
-        ]
-      end
-
-      def comprehensive_autocomplete
-        z = genus_species
-
-        queries = [
-          autocomplete_exact_id,
-          autocomplete_exact_cached,
-          autocomplete_exact_cached_original_combination,
           autocomplete_identifier_cached_exact,
           autocomplete_exact_name_and_year,
-          autocomplete_identifier_identifier_exact,
-          autocomplete_top_name,
-          autocomplete_top_cached,
-          autocomplete_top_cached_subgenus,         # not tested
-          autocomplete_genus_species1(z),           # not tested
-          autocomplete_genus_species2(z),           # not tested
+
           autocomplete_cached_end_wildcard,
-          # autocomplete_identifier_cached_like, # this query take much longer to complete than any other
-          autocomplete_cached_name_end_wildcard,
           autocomplete_cached_wildcard_whitespace,
           autocomplete_name_author_year_fragment,
           autocomplete_taxon_name_author_year_matches,
-          autocomplete_cached_author_year,
+          autocomplete_wildcard_joined_strings,
+          autocomplete_wildcard_author_year_joined_pieces,
+          autocomplete_wildcard_cached_original_combination,
+          autocomplete_exact_name, # not exact enough, want the whole thing?
+          # autocomplete_top_cached, # not exact at all
+        ]
+      end
+
+      # TODO: Refactor to OTU approach?
+      def comprehensive_autocomplete
+        z = genus_species
+        queries = [
+          autocomplete_exact_cached,
+          autocomplete_exact_cached_original_combination,
+          autocomplete_exact_name_and_year,
+          autocomplete_exact_name,
+
+          autocomplete_exact_id,
+          autocomplete_identifier_cached_exact,
+          autocomplete_identifier_identifier_exact,
+
+          # All exact should be before these?
+          #
+          # There are left in, but the cutoff
+          # is now 2x as high, i.e. more like wildcard matches we
+          # were originally used to.
+          autocomplete_cached, # sim
+          autocomplete_original_combination, # sim
+          autocomplete_cached_author_year, # sim
+
+          # Specialized results
+          autocomplete_genus_species1(z),    # not tested
+          autocomplete_genus_species2(z),    # not tested
+          autocomplete_top_cached_subgenus,  # not tested
+
+          # autocomplete_top_cached, # Wildcard end
+          # autocomplete_cached_end_wildcard,
+          # autocomplete_cached_name_end_wildcard,
+          # autocomplete_cached_wildcard_whitespace,
+          # autocomplete_name_author_year_fragment,
+          # autocomplete_taxon_name_author_year_matches,
           autocomplete_wildcard_joined_strings,
           autocomplete_wildcard_author_year_joined_pieces,
           autocomplete_wildcard_cached_original_combination
         ]
       end
 
+      def unified_autocomplete
+        [
+          autocomplete_exact_id,
+          autocomplete_combined_gin,
+          autocomplete_identifier_cached_exact,
+        ]
+      end
+
       # @return [Array]
       def autocomplete
-        queries = (exact ? exact_autocomplete : comprehensive_autocomplete)
+
+        # exact, unified, comprehensive
+
+        queries = (exact ? exact_autocomplete : comprehensive_autocomplete )
         queries.compact!
 
         result = []
 
         queries.each_with_index do |q,i|
           a = q
-          a = q.where(project_id: project_id) if project_id.present?
-          a = a.where(and_clauses.to_sql) if and_clauses # TODO: duplicates clauses like exact!!
+          a = q.where(project_id:) if project_id.present?
+
+          a = a.where(and_clauses.to_sql) if and_clauses
+
           if !parent_id.empty?
             a = a.descendants_of(::TaxonName.where(id: parent_id))
           end
+
           a = a.not_leaves if no_leaves
-          result += a.to_a
+
+          result += a.limit(20).to_a
           break if result.count > 19
         end
 
         result.uniq!
-        result[0..19]
+        # result[0..19]
+        result
       end
 
       # @return [String, nil]
@@ -348,10 +399,11 @@ module Queries
       end
 
       # @return [Scope]
+      # TODO: this should deprecate for gin based approaches.
       def base_query
-        ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
-          includes(:ancestor_hierarchies).
-          order(Arel.sql('char_length(taxon_names.cached), taxon_names.cached ASC')) # TODO: add index to CHAR_LENGTH ?
+        ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)')
+          .includes(:ancestor_hierarchies)
+          .order(Arel.sql('char_length(taxon_names.cached), taxon_names.cached ASC'))
       end
 
       # @return [Arel::Table]
@@ -364,9 +416,23 @@ module Queries
         table[:cached_author_year].matches_any(terms)
       end
 
-      # @return [String]
+      # @return [String] (including empty)
       def authorship
-        ::Biodiversity::Parser.parse(query_string).dig(:authorship, :normalized)
+        return @authorship if @authorship
+        a = ::Biodiversity::Parser.parse(query_string)
+
+        if a.dig(:parsed)
+          @authorship = a.dig(:authorship, :normalized)
+        else
+          # Gnparser doesn't parse with names like `aus Jones`, do a quick and dirty check for things like `foo Jones`
+          if a = query_string.match(/\A[a-z]+\s*\,?\s*(.*)\Z/)
+            @authorship = a[1]
+          else
+            @authorship = ''
+          end
+        end
+
+        @authorship
       end
 
       # Note this overwrites the commonly used Geo parent/child!

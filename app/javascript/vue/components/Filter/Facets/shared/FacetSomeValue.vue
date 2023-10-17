@@ -2,9 +2,7 @@
   <FacetContainer>
     <h3>Some value in</h3>
     <select @change="addAttribute">
-      <option selected>
-        Select an attribute
-      </option>
+      <option selected>Select an attribute</option>
       <option
         v-for="name in filteredList"
         :key="name"
@@ -41,12 +39,11 @@
 </template>
 
 <script setup>
-
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 import { ref, computed, watch, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import RowItem from 'components/Filter/Facets/shared/RowItem.vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import RowItem from '@/components/Filter/Facets/shared/RowItem.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   model: {
@@ -67,21 +64,26 @@ const selectedAttributes = ref([])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const filteredList = computed(() =>
   attributes.value
-    .map(attr => attr.name)
-    .filter(attr =>
-      !selectedAttributes.value.find(({ name }) => name === attr)
-    ))
+    .map((attr) => attr.name)
+    .filter(
+      (attr) => !selectedAttributes.value.find(({ name }) => name === attr)
+    )
+)
 
 watch(
   selectedAttributes,
   () => {
-    params.value.empty = selectedAttributes.value.filter(attr => attr.empty).map(item => item.name)
-    params.value.not_empty = selectedAttributes.value.filter(attr => !attr.empty).map(item => item.name)
+    params.value.empty = selectedAttributes.value
+      .filter((attr) => attr.empty)
+      .map((item) => item.name)
+    params.value.not_empty = selectedAttributes.value
+      .filter((attr) => !attr.empty)
+      .map((item) => item.name)
   },
   { deep: true }
 )
@@ -91,14 +93,11 @@ onBeforeMount(async () => {
 
   attributes.value = (await AjaxCall('get', `/${props.model}/attributes`)).body
 
-  const {
-    empty = [],
-    not_empty = []
-  } = urlParams
+  const { empty = [], not_empty = [] } = urlParams
 
   selectedAttributes.value = [].concat(
-    empty.map(name => ({ name, empty: true })),
-    not_empty.map(name => ({ name, empty: false }))
+    empty.map((name) => ({ name, empty: true })),
+    not_empty.map((name) => ({ name, empty: false }))
   )
 })
 

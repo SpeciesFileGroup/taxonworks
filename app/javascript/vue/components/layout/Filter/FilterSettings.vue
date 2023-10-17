@@ -55,9 +55,9 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import VModal from 'components/ui/Modal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   filter: {

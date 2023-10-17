@@ -1,4 +1,4 @@
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 import baseCRUD from './base'
 
 const controller = 'dwc_occurrences'

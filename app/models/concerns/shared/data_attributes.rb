@@ -6,11 +6,15 @@ module Shared::DataAttributes
   included do
     DataAttribute.related_foreign_keys.push self.name.foreign_key
 
-    has_many :data_attributes, as: :attribute_subject, validate: true, dependent: :destroy
+    has_many :data_attributes, as: :attribute_subject, validate: true, dependent: :destroy, inverse_of: :attribute_subject
+
+    has_many :import_attributes, -> { where(data_attributes: {type: 'ImportAttribute'})} , as: :attribute_subject, class_name: 'DataAttribute'
+    has_many :internal_attributes, -> { where(data_attributes: {type: 'InternalAttribute'})}, as: :attribute_subject, class_name: 'DataAttribute'
+
     accepts_nested_attributes_for :data_attributes, allow_destroy: true, reject_if: :reject_data_attributes
   end
 
-  # TODO: move these scopes to has_many relationships
+  # These are instance methods, not class
 
   # @return [Scope]
   def internal_attributes

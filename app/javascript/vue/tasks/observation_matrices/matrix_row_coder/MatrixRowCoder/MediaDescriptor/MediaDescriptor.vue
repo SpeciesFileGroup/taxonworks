@@ -58,7 +58,7 @@
           >
             <template #thumbfooter>
               <div
-                class="horizontal-left-content padding-xsmall-bottom padding-xsmall-top"
+                class="horizontal-left-content padding-xsmall-bottom padding-xsmall-top gap-small"
               >
                 <time-fields
                   :observation="observation"
@@ -88,15 +88,15 @@
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import { Image } from 'routes/endpoints'
+import { Image } from '@/routes/endpoints'
 import ObservationTypes from '../../store/helpers/ObservationTypes'
 import makeObservation from '../../store/helpers/makeObservation'
 import summaryView from '../SummaryView/SummaryView.vue'
-import FilterImage from 'tasks/images/filter/components/filter'
-import SmartSelector from 'components/ui/SmartSelector'
-import DropzoneComponent from 'components/dropzone'
-import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
+import FilterImage from '@/tasks/images/filter/components/filter'
+import SmartSelector from '@/components/ui/SmartSelector'
+import DropzoneComponent from '@/components/dropzone'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
 import TimeFields from '../Time/TimeFields.vue'
 
 export default {

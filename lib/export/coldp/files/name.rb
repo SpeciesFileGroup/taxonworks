@@ -58,7 +58,7 @@ module Export::Coldp::Files::Name
   # Invalid Protonyms are rendered only as their original Combination
   # @param t [Protonym]
   #    only place that var./frm can be handled.
-  def self.add_original_combination(t, csv, origin_citation, name_remarks_vocab_id)
+  def self.add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
     e = t.original_combination_elements
 
     infraspecific_element = t.original_combination_infraspecific_element(e)
@@ -116,24 +116,26 @@ module Export::Coldp::Files::Name
     end
 
     csv << [
-      id,                                                        # ID
-      basionym_id,                                               # basionymID
-      clean_sic(t.cached_original_combination),                  # scientificName
-      authorship_field(t, true),                                 # authorship
-      rank,                                                      # rank
-      uninomial,                                                 # uninomial
-      genus,                                                     # genus
-      subgenus,                                                  # subgenus (no parens)
-      species,                                                   # species
-      infraspecific_element ? infraspecific_element.last : nil,  # infraspecificEpithet
-      origin_citation&.source_id,                                # referenceID    |
-      origin_citation&.pages,                                    # publishedInPage  | !! All origin citations get added to reference_csv via the main loop, not here
-      t.year_of_publication,                                     # publishedInYear  |
-      true,                                                      # original
-      code_field(t),                                             # code
-      nil,                                                       # status https://api.checklistbank.org/vocab/nomStatus
-      nil,                                                       # link (probably TW public or API)
-      remarks(t, name_remarks_vocab_id),                         # remarks
+      id,                                                                 # ID
+      basionym_id,                                                        # basionymID
+      clean_sic(t.cached_original_combination),                           # scientificName
+      authorship_field(t, true),                                          # authorship
+      rank,                                                               # rank
+      uninomial,                                                          # uninomial
+      genus,                                                              # genus
+      subgenus,                                                           # subgenus (no parens)
+      species,                                                            # species
+      infraspecific_element ? infraspecific_element.last : nil,           # infraspecificEpithet
+      origin_citation&.source_id,                                         # referenceID    |
+      origin_citation&.pages,                                             # publishedInPage  | !! All origin citations get added to reference_csv via the main loop, not here
+      t.year_of_publication,                                              # publishedInYear  |
+      true,                                                               # original
+      code_field(t),                                                      # code
+      nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
+      nil,                                                                # link (probably TW public or API)
+      Export::Coldp.sanitize_remarks(remarks(t, name_remarks_vocab_id)),  # remarks
+      Export::Coldp.modified(t[:updated_at]),                             # modified
+      Export::Coldp.modified_by(t[:updated_by_id], project_members)       # modifiedBy
     ]
   end
 
@@ -143,7 +145,7 @@ module Export::Coldp::Files::Name
 
   # @params otu [Otu]
   #   the top level OTU
-  def self.generate(otu, reference_csv = nil)
+  def self.generate(otu, project_members, reference_csv = nil)
      name_total = 0
     CSV.generate(col_sep: "\t") do |csv|
       csv << %w{
@@ -165,6 +167,8 @@ module Export::Coldp::Files::Name
         status
         link
         remarks
+        modified
+        modifiedBy
       }
 
       Current.project_id = otu.project_id
@@ -223,40 +227,45 @@ module Export::Coldp::Files::Name
             uninomial = name_string
           end
 
-          # TODO: Combinations don't have rank BUT CoL importer can interpret, so we're OK here for now
-          rank = t.rank
+          if t.is_combination?
+            rank = t.protonyms_by_rank.keys.last
+          else
+            rank = t.rank
+          end
 
           # Set is: no original combination OR (valid or invalid higher, valid lower, past combinations)
           if t.cached_original_combination.blank? || higher || t.is_valid? || t.is_combination?
             csv << [
-              t.id,                                     # ID
-              basionym_id,                              # basionymID
-              name_string,                              # scientificName  # should just be t.cached
-              t.cached_author_year,                     # authorship
-              rank,                                     # rank
-              uninomial,                                # uninomial   <- if genus here
-              generic_epithet,                          # genus and below - IIF species or lower
-              infrageneric_epithet,                     # infragenericEpithet
-              specific_epithet,                         # specificEpithet
-              infraspecific_epithet,                    # infraspecificEpithet
-              origin_citation&.source_id,               # publishedInID
-              origin_citation&.pages,                   # publishedInPage
-              t.year_of_publication,                    # publishedInYear
-              original,                                 # original
-              code_field(t),                            # code
-              nom_status_field(t),                      # nomStatus
-              nil,                                      # link (probably TW public or API)
-              remarks(t, name_remarks_vocab_id),        # remarks
+              t.id,                                                               # ID
+              basionym_id,                                                        # basionymID
+              name_string,                                                        # scientificName  # should just be t.cached
+              t.cached_author_year,                                               # authorship
+              rank,                                                               # rank
+              uninomial,                                                          # uninomial   <- if genus here
+              generic_epithet,                                                    # genus and below - IIF species or lower
+              infrageneric_epithet,                                               # infragenericEpithet
+              specific_epithet,                                                   # specificEpithet
+              infraspecific_epithet,                                              # infraspecificEpithet
+              origin_citation&.source_id,                                         # publishedInID
+              origin_citation&.pages,                                             # publishedInPage
+              t.year_of_publication,                                              # publishedInYear
+              original,                                                           # original
+              code_field(t),                                                      # code
+              nom_status_field(t),                                                # nomStatus
+              nil,                                                                # link (probably TW public or API)
+              Export::Coldp.sanitize_remarks(remarks(t, name_remarks_vocab_id)),  # remarks
+              Export::Coldp.modified(t[:updated_at]),                             # modified
+              Export::Coldp.modified_by(t[:updated_by_id], project_members)       # modifiedBy
             ]
           end
 
           # Here we truly want no higher
           if !t.cached_original_combination.blank? && (is_genus_species && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?))
             name_total += 1
-            add_original_combination(t, csv, origin_citation, name_remarks_vocab_id)
+            add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
           end
 
-          Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv) if reference_csv && origin_citation
+          Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation
         end
       end
     end

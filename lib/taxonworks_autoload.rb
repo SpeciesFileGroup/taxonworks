@@ -8,6 +8,7 @@ module TaxonWorksAutoload
     /lib/vendor/colrapi.rb
     /lib/vendor/**/*.rb
     /lib/analysis/**/*.rb
+    /config/behavior/**/*.rb
     /config/routes/api.rb
     /lib/catalog/**/*.rb
   }.each do |path|

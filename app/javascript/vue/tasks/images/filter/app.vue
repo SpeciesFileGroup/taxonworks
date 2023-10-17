@@ -11,6 +11,7 @@
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -19,8 +20,9 @@
           v-if="list.length"
           class="horizontal-right-content"
         >
-          <span>|</span>
-          <div class="margin-small-left">
+          <span class="margin-small-left margin-small-right">|</span>
+          <div class="horizontal-left-content gap-small margin-small-left">
+            <DepictionList :image-id="selectedIds" />
             <SelectAll
               v-model="selectedIds"
               :ids="list.map(({ id }) => id)"
@@ -49,14 +51,15 @@
 </template>
 
 <script setup>
-import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import SelectAll from 'tasks/collection_objects/filter/components/selectAll.vue'
-import VSpinner from 'components/spinner.vue'
-import useFilter from 'shared/Filter/composition/useFilter.js'
-import { IMAGE } from 'constants/index.js'
-import { Image } from 'routes/endpoints'
+import SelectAll from '@/tasks/collection_objects/filter/components/selectAll.vue'
+import VSpinner from '@/components/spinner.vue'
+import useFilter from '@/shared/Filter/composition/useFilter.js'
+import DepictionList from './components/DepictionList.vue'
+import { IMAGE } from '@/constants/index.js'
+import { Image } from '@/routes/endpoints'
 
 const {
   isLoading,

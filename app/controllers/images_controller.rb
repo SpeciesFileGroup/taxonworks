@@ -2,7 +2,7 @@ class ImagesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index, :api_image_inventory], if: :json_request?
 
-  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate]
+  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate, :regenerate_derivative]
 
   # GET /images
   # GET /images.json
@@ -129,7 +129,7 @@ class ImagesController < ApplicationController
     send_data(
       Export::Download.generate_csv(Image.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "images_#{DateTime.now}.csv")
+      filename: "images_#{DateTime.now}.tsv")
   end
 
   # GET /images/:id/extract/:x/:y/:height/:width
@@ -149,7 +149,7 @@ class ImagesController < ApplicationController
 
   # GET /images/:id/ocr/:x/:y/:height/:width
   def ocr
-    tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root}/public/images/tmp", encoding: 'utf-8')
+    tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root.join("public/images/tmp")}", encoding: 'utf-8')
     tempfile.write(Image.cropped_blob(params).force_encoding('utf-8'))
     tempfile.rewind
 
@@ -165,6 +165,16 @@ class ImagesController < ApplicationController
       flash[:notice] = 'Image rotated.'
     rescue ActionController::ParameterMissing
       flash[:notice] ='Select a rotation option.'
+    end
+    render :show
+  end
+
+  # !! This is a kludge until we get active storage working
+  # PATCH /images/123/regenerate_derivative
+  def regenerate_derivative
+    begin
+      @image.image_file.reprocess!
+      flash[:notice] = 'Image derivatives regenerated.'
     end
     render :show
   end

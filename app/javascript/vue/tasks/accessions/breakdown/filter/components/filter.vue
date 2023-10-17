@@ -10,9 +10,8 @@
 </template>
 
 <script setup>
-
-import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
-import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import { computed } from 'vue'
 
 const WITH_TITLE = {
@@ -42,7 +41,6 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
-
 </script>

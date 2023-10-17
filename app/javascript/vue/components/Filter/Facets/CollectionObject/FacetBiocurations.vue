@@ -31,9 +31,9 @@
 
 <script setup>
 import { computed, ref, onBeforeMount } from 'vue'
-import { ControlledVocabularyTerm } from 'routes/endpoints'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {

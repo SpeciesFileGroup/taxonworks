@@ -101,17 +101,17 @@ class CollectionObjectObservationsController < ApplicationController
   def download
     send_data(Export::Download.generate_csv(CollectionObjectObservation.where(project_id: sessions_current_project_id)),
               type: 'text',
-              filename: "collection_object_observations_#{DateTime.now}.csv")
+              filename: "collection_object_observations_#{DateTime.now}.tsv")
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
-    def set_collection_object_observation
-      @collection_object_observation = CollectionObjectObservation.where(project_id: sessions_current_project_id).find(params[:id])
-    end
+  def set_collection_object_observation
+    @collection_object_observation = CollectionObjectObservation.where(project_id: sessions_current_project_id).find(params[:id])
+  end
 
     # Never trust parameters from the scary internet, only allow the white list through.
-    def collection_object_observation_params
-      params.require(:collection_object_observation).permit(:data)
-    end
+  def collection_object_observation_params
+    params.require(:collection_object_observation).permit(:data)
+  end
 end

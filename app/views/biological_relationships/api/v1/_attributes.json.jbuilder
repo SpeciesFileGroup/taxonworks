@@ -3,10 +3,9 @@ json.extract! biological_relationship, :id, :name, :inverted_name, :is_transitiv
 json.partial! '/shared/data/all/metadata', object:  biological_relationship
 
 json.subject_biological_relationship_types(biological_relationship.subject_biological_relationship_types) do |p|
-  json.partial! '/biological_relationship_types/attributes', biological_relationship_type: p
+  json.partial! '/biological_relationship_types/api/v1/attributes', biological_relationship_type: p
 end
 
 json.object_biological_relationship_types(biological_relationship.object_biological_relationship_types) do |p|
-  json.partial! '/biological_relationship_types/attributes', biological_relationship_type: p
+  json.partial! '/biological_relationship_types/api/v1/attributes', biological_relationship_type: p
 end
-

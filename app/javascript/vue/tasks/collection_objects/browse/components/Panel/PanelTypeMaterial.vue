@@ -13,8 +13,10 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters'
 import PanelContainer from './PanelContainer.vue'
-import ListITems from 'components/displayList.vue'
+import ListITems from '@/components/displayList.vue'
 
 const store = useStore()
-const typeMaterials = computed(() => store.getters[GetterNames.GetTypeMaterials])
+const typeMaterials = computed(
+  () => store.getters[GetterNames.GetTypeMaterials]
+)
 </script>

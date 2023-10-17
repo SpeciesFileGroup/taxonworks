@@ -1,18 +1,18 @@
 #
 # docker-compose targets development only
 #
-version: "2"
+version: '2'
 services:
   app:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile.development
     environment:
-      - WEBPACKER_DEV_SERVER_HOST=webpack
+      - SHAKAPACKER_DEV_SERVER_HOST=webpack
     volumes: # mount root directory from this machine to the container itself (live development, e.g. Rails sees changes to files without rebuilding container0
       - .:/app
-    ports: 
-      - "127.0.0.1:3000:3000" # local:docker
+    ports:
+      - '127.0.0.1:3000:3000' # local:docker
     links:
       - db
       - postgres10_legacy
@@ -23,30 +23,29 @@ services:
     volumes:
       - pg:/var/lib/postgresql/data
   db:
-    image: postgis/postgis:12-3.0
+    image: postgis/postgis:12-3.4
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
-    ports: 
-      - "0.0.0.0:15432:5432"
+    ports:
+      - '0.0.0.0:15432:5432'
     volumes:
       - pg12:/var/lib/postgresql/data
   webpack:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile.development
     environment:
       - NODE_ENV=development
       - RAILS_ENV=development
-      - WEBPACKER_DEV_SERVER_HOST=0.0.0.0
-    command: bash -c "npm install && /app/bin/webpacker-dev-server"
-    volumes: 
+      - SHAKAPACKER_DEV_SERVER_HOST=0.0.0.0
+    command: bash -c "npm install && /app/bin/shakapacker-dev-server"
+    volumes:
       - .:/app
       - ./volumes/webpack_build:/mnt/rails/public/webpack
     ports:
       - '3035:3035'
 volumes:
-    pg:
-      external: false
-    pg12:
-      external: false
-
+  pg:
+    external: false
+  pg12:
+    external: false

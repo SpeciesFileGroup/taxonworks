@@ -1,4 +1,4 @@
-require 'rails_helper' 
+require 'rails_helper'
 describe Person, type: :model, group: [:sources, :people] do
 
   let(:person) { Person.new }
@@ -47,7 +47,7 @@ describe Person, type: :model, group: [:sources, :people] do
       person.update( first_name: 'Ki-Su', last_name: 'Ahn')
       expect(person.valid?).to be_truthy
     end
-    # ---- 
+    # ----
 
     context 'with roles' do
       before do
@@ -61,7 +61,7 @@ describe Person, type: :model, group: [:sources, :people] do
     end
   end
 
-  context 'select_optimized' do 
+  context 'select_optimized' do
     before do
       person.update!(last_name: 'Smith', first_name: 'Jones')
       source_bibtex.authors << person
@@ -86,7 +86,7 @@ describe Person, type: :model, group: [:sources, :people] do
       end
 
       context 'Collector' do
-        let!(:ce){ CollectingEvent.create!(verbatim_locality: 'Ocean', collector_roles_attributes: [{person: person}]) }
+        let!(:ce){ CollectingEvent.create!(verbatim_locality: 'Ocean', collector_roles_attributes: [{person:}]) }
         specify '.used_recently' do
           expect(Person.used_recently(Current.user_id,'Collector')).to contain_exactly(person.id)
         end
@@ -105,10 +105,10 @@ describe Person, type: :model, group: [:sources, :people] do
           expect(a[:quick].map(&:id)).to contain_exactly(person.id)
         end
       end
- 
-     # Should be identical, sanity check 
+
+     # Should be identical, sanity check
       context 'Determiner' do
-        let!(:td){ TaxonDetermination.create!(biological_collection_object: Specimen.create!, otu: Otu.create!(name: 'foo'), determiner_roles_attributes: [person: person]) }
+        let!(:td){ TaxonDetermination.create!(biological_collection_object: Specimen.create!, otu: Otu.create!(name: 'foo'), determiner_roles_attributes: [person:]) }
 
 #        specify '.used_recently' do
 #          expect( Person.joins(:roles).where(roles: {project_id: Current.project_id, updated_by_id: Current.user_id} ).used_recently('Determiner').limit(10).map(&:id)).to contain_exactly(person.id)
@@ -272,7 +272,7 @@ describe Person, type: :model, group: [:sources, :people] do
           :person,
           first_name: 'January', last_name: 'Smith',
           prefix: 'Dr.', suffix: 'III')
-        gr2.georeferencers << p
+        gr2.georeference_authors << p
         p.data_attributes << da1
         p
       }
@@ -292,7 +292,7 @@ describe Person, type: :model, group: [:sources, :people] do
           year_active_start: 2012, year_active_end: 2015)
         tn2.taxon_name_authors << p
         tn1.taxon_name_authors << p
-        gr1.georeferencers << p
+        gr1.georeference_authors << p
         p.data_attributes << da2
         p
       }
@@ -600,10 +600,10 @@ describe Person, type: :model, group: [:sources, :people] do
           taxon_name.taxon_name_authors << vp
           expect(vp.is_taxon_name_author?).to be_truthy
         end
-        
+
         specify 'is_georeferencer?' do
           expect(vp.is_georeferencer?).to be_falsey
-          gr1.georeferencers << vp
+          gr1.georeference_authors << vp
           expect(vp.is_georeferencer?).to be_truthy
           expect(vp.georeferencer_roles.first.created_by_id).to be_truthy
           expect(vp.georeferencer_roles.first.updated_by_id).to be_truthy

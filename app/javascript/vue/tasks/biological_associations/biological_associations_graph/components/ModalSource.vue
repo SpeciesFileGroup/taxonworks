@@ -25,9 +25,9 @@
 </template>
 
 <script setup>
-import VSpinner from 'components/spinner.vue'
-import VModal from 'components/ui/Modal'
-import { Source } from 'routes/endpoints'
+import VSpinner from '@/components/spinner.vue'
+import VModal from '@/components/ui/Modal'
+import { Source } from '@/routes/endpoints'
 import { ref, onBeforeMount } from 'vue'
 
 const props = defineProps({

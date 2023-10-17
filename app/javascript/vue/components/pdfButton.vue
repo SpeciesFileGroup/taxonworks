@@ -1,40 +1,36 @@
 <template>
-  <span
-    type="button"
+  <VBtn
+    color="primary"
+    circle
+    class="pdf-button"
+    title="Open PDF"
     @click="loadPDF"
-    class="circle-button pdf-button"/>
+  />
 </template>
 
-<script>
-export default {
-  props: {
-    pdf: {
-      type: Object,
-      required: true
-    }
-  },
+<script setup>
+import VBtn from '@/components/ui/VBtn/index.vue'
 
-  methods: {
-    loadPDF () {
-      let details
-      if (this.pdf.hasOwnProperty('file_url')) {
-        details = {
-          url: this.pdf.file_url
-        }
-      } else if (this.pdf.hasOwnProperty('document_file')) {
-        details = {
-          url: this.pdf.document_file
-        }
-      } else {
-        details = {
-          url: this.pdf.document.document_file,
-          pageNumber: this.pdf.target_page
-        }
-      }
-      document.dispatchEvent(new CustomEvent('pdfViewer:load', {
-        detail: details
-      }))
-    }
+const props = defineProps({
+  pdf: {
+    type: Object,
+    required: true
   }
+})
+
+function loadPDF() {
+  const detail = {
+    url:
+      props.pdf?.file_url ||
+      props.pdf?.document_file ||
+      props.pdf?.document.document_file,
+    pageNumber: props?.pdf?.target_page
+  }
+
+  document.dispatchEvent(
+    new CustomEvent('pdfViewer:load', {
+      detail
+    })
+  )
 }
 </script>

@@ -10,7 +10,7 @@ import {
   NOTE,
   TAG,
   VERIFIER
-} from 'constants/index.js'
+} from '@/constants/index.js'
 
 import AnnotatorTag from '../components/Annotator/AnnotatorTag.vue'
 import AnnotatorNote from '../components/Annotator/AnnotatorNote.vue'

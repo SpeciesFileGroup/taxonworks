@@ -13,13 +13,10 @@
 
 <script setup>
 import useStore from '../composables/useStore'
-import InputRange from 'components/ui/Input/InputRange.vue'
+import InputRange from '@/components/ui/Input/InputRange.vue'
 import { ref } from 'vue'
 
-const {
-  bufferedParams
-} = useStore()
+const { bufferedParams } = useStore()
 
 const cuttOffValue = ref(bufferedParams.value.count_cutoff)
-
 </script>

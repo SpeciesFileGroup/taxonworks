@@ -29,12 +29,12 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import DisplayList from 'components/displayList.vue'
-import { BiologicalRelationship } from 'routes/endpoints'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import DisplayList from '@/components/displayList.vue'
+import { BiologicalRelationship } from '@/routes/endpoints'
 import { ref, computed, watch, onBeforeMount } from 'vue'
-import { removeFromArray } from 'helpers/arrays'
+import { removeFromArray } from '@/helpers/arrays'
 
 const props = defineProps({
   modelValue: {

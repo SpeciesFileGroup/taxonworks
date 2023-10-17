@@ -13,6 +13,9 @@ import 'regenerator-runtime/runtime' */
 import 'leaflet/dist/leaflet.css'
 import 'tippy.js/dist/tippy.css'
 
+require('../vanilla/initializers/copyTable.js')
+require('../vue/initializers/issue_tracker/main.js')
+
 require('../vue/tasks/citations/otus/main.js')
 require('../vue/tasks/content/editor/main.js')
 require('../vue/tasks/nomenclature/new_taxon_name/main.js')
@@ -32,6 +35,7 @@ require('../vue/initializers/pinboard_navigator/main.js')
 require('../vue/initializers/smart_selector/main.js')
 require('../vue/initializers/soft_validations/main.js')
 require('../vue/initializers/simple_map/main')
+require('../vue/initializers/map_shape/main.js')
 require('../vue/tasks/type_specimens/main.js')
 require('../vue/tasks/nomenclature/new_combination/main.js')
 require('../vue/tasks/browse_annotations/main.js')

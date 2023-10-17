@@ -1,4 +1,4 @@
-import { convertToUnit } from 'helpers/style'
+import { convertToUnit } from '@/helpers/style'
 
 export default {
   props: {
@@ -33,7 +33,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       SIZE_MAP: {
         xSmall: '12px',
@@ -47,7 +47,7 @@ export default {
   },
 
   computed: {
-    explicitSize () {
+    explicitSize() {
       const sizes = {
         xSmall: this.xSmall,
         small: this.small,
@@ -56,15 +56,18 @@ export default {
         xLarge: this.xLarge
       }
 
-      return Object.keys(sizes).find(key => sizes[key])
+      return Object.keys(sizes).find((key) => sizes[key])
     },
 
-    semanticSize () {
+    semanticSize() {
       return this.explicitSize || 'default'
     },
 
-    elementSize () {
-      return (this.explicitSize && this.SIZE_MAP[this.explicitSize]) || convertToUnit(this.size)
+    elementSize() {
+      return (
+        (this.explicitSize && this.SIZE_MAP[this.explicitSize]) ||
+        convertToUnit(this.size)
+      )
     }
   }
 }

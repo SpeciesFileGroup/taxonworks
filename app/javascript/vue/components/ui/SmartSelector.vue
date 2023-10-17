@@ -116,15 +116,15 @@
 
 <script setup>
 import { ref, computed, watch, onUnmounted } from 'vue'
-import { useOnResize } from 'compositions/index'
-import { isMac } from 'helpers/os'
-import SwitchComponents from 'components/switch'
-import AjaxCall from 'helpers/ajaxCall'
-import Autocomplete from 'components/ui/Autocomplete'
-import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
-import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
-import DefaultPin from 'components/getDefaultPin'
-import OtuPicker from 'components/otu/otu_picker/otu_picker'
+import { useOnResize } from '@/compositions/index'
+import { isMac } from '@/helpers/os'
+import SwitchComponents from '@/components/switch'
+import AjaxCall from '@/helpers/ajaxCall'
+import Autocomplete from '@/components/ui/Autocomplete'
+import OrderSmart from '@/helpers/smartSelector/orderSmartSelector'
+import SelectFirst from '@/helpers/smartSelector/selectFirstSmartOption'
+import DefaultPin from '@/components/getDefaultPin'
+import OtuPicker from '@/components/otu/otu_picker/otu_picker'
 
 const props = defineProps({
   modelValue: {
@@ -405,7 +405,7 @@ const changeTab = (e) => {
   if (e.key !== actionKey) return
   const element = tabselectorRef.value.$el
 
-  element.querySelector('input:checked').focus()
+  element.querySelector('input:checked')?.focus()
 }
 
 function setTab(tab) {
@@ -429,7 +429,7 @@ watch(
 watch(
   () => props.model,
   () => {
-    refresh()
+    refresh(true)
   }
 )
 

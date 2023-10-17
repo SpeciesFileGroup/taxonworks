@@ -1,12 +1,9 @@
 <template>
   <div class="custom_attributes">
     <fieldset>
-      <spinner-component
-        v-if="loading"
-      />
+      <spinner-component v-if="loading" />
       <legend>Custom attributes</legend>
-      <template
-        v-if="predicatesList.length">
+      <template v-if="predicatesList.length">
         <predicate-row
           v-for="item in predicatesList"
           :key="item.id"
@@ -19,22 +16,22 @@
       </template>
       <a
         v-else
-        href="/tasks/projects/preferences/index">Select visible predicates
+        href="/tasks/projects/preferences/index"
+        >Select visible predicates
       </a>
     </fieldset>
   </div>
 </template>
 
 <script>
-
-import SpinnerComponent from 'components/spinner'
+import SpinnerComponent from '@/components/spinner'
 import PredicateRow from './components/predicateRow'
 import {
   Project,
   ControlledVocabularyTerm,
   DataAttribute
-} from 'routes/endpoints'
-import { addToArray } from 'helpers/arrays'
+} from '@/routes/endpoints'
+import { addToArray } from '@/helpers/arrays'
 
 export default {
   components: {
@@ -64,7 +61,7 @@ export default {
 
   emits: ['onUpdate'],
 
-  data () {
+  data() {
     return {
       loading: true,
       createdList: [],
@@ -77,14 +74,14 @@ export default {
   },
 
   watch: {
-    objectId (newVal) {
+    objectId(newVal) {
       if (newVal && this.objectType) {
         this.loading = true
         DataAttribute.where({
           attribute_subject_type: this.objectType,
           attribute_subject_id: this.objectId,
           type: 'InternalAttribute'
-        }).then(response => {
+        }).then((response) => {
           this.createdList = response.body
           this.loading = false
         })
@@ -94,32 +91,41 @@ export default {
     }
   },
 
-  created () {
+  created() {
     this.loadPreferences()
   },
 
   methods: {
-    loadPreferences () {
-      Project.preferences().then(response => {
-        this.modelPreferencesIds = response.body.model_predicate_sets[this.model]
-        this.sortedIds = response.body.model_predicate_sets?.predicate_index || []
+    loadPreferences() {
+      Project.preferences().then((response) => {
+        this.modelPreferencesIds =
+          response.body.model_predicate_sets[this.model]
+        this.sortedIds =
+          response.body.model_predicate_sets?.predicate_index || []
         this.loadPredicates(this.modelPreferencesIds)
       })
     },
 
-    async loadPredicates (ids) {
+    async loadPredicates(ids) {
       this.predicatesList = ids?.length
-        ? (await ControlledVocabularyTerm.where({ type: ['Predicate'], id: ids })).body
+        ? (
+            await ControlledVocabularyTerm.where({
+              type: ['Predicate'],
+              id: ids
+            })
+          ).body
         : []
 
-      this.predicatesList.sort((a, b) => this.sortedIds.indexOf(a.id) - this.sortedIds.indexOf(b.id))
+      this.predicatesList.sort(
+        (a, b) => this.sortedIds.indexOf(a.id) - this.sortedIds.indexOf(b.id)
+      )
 
       if (this.objectId) {
         await DataAttribute.where({
           attribute_subject_type: this.objectType,
           attribute_subject_id: this.objectId,
           type: 'InternalAttribute'
-        }).then(response => {
+        }).then((response) => {
           this.createdList = response.body
         })
       }
@@ -127,12 +133,16 @@ export default {
       this.loading = false
     },
 
-    findExisting (id) {
-      return this.createdList.find(item => item.controlled_vocabulary_term_id === id)
+    findExisting(id) {
+      return this.createdList.find(
+        (item) => item.controlled_vocabulary_term_id === id
+      )
     },
 
-    addDataAttribute (dataAttribute) {
-      addToArray(this.data_attributes, dataAttribute, 'controlled_vocabulary_term_id')
+    addDataAttribute(dataAttribute) {
+      addToArray(this.data_attributes, dataAttribute, {
+        property: 'controlled_vocabulary_term_id'
+      })
       this.$emit('onUpdate', this.data_attributes)
     }
   }
@@ -140,12 +150,12 @@ export default {
 </script>
 
 <style lang="scss">
-  .custom_attributes {
-    input {
-      width: 100%;
-    }
-    .vue-autocomplete-input {
-      width: 100% !important;
-    }
+.custom_attributes {
+  input {
+    width: 100%;
   }
+  .vue-autocomplete-input {
+    width: 100% !important;
+  }
+}
 </style>

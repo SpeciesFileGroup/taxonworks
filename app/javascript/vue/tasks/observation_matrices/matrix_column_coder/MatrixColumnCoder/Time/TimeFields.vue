@@ -38,13 +38,12 @@
 </template>
 
 <script>
-
 import { MutationNames } from '../../store/mutations/mutations'
-import DateFields from 'components/ui/Date/DateFields.vue'
-import DateToday from 'components/ui/Date/DateToday.vue'
-import DateNow from 'components/ui/Date/DateNow.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import DateFields from '@/components/ui/Date/DateFields.vue'
+import DateToday from '@/components/ui/Date/DateToday.vue'
+import DateNow from '@/components/ui/Date/DateNow.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
@@ -78,10 +77,10 @@ export default {
 
   computed: {
     day: {
-      get () {
+      get() {
         return this.observation.day
       },
-      set (day) {
+      set(day) {
         this.$store.commit(MutationNames.SetDayFor, {
           rowObjectId: this.rowObject.id,
           rowObjectType: this.rowObject.type,
@@ -92,10 +91,10 @@ export default {
     },
 
     month: {
-      get () {
+      get() {
         return this.observation.month
       },
-      set (month) {
+      set(month) {
         this.$store.commit(MutationNames.SetMonthFor, {
           rowObjectId: this.rowObject.id,
           rowObjectType: this.rowObject.type,
@@ -106,10 +105,10 @@ export default {
     },
 
     year: {
-      get () {
+      get() {
         return this.observation.year
       },
-      set (year) {
+      set(year) {
         this.$store.commit(MutationNames.SetYearFor, {
           rowObjectId: this.rowObject.id,
           rowObjectType: this.rowObject.type,
@@ -120,10 +119,10 @@ export default {
     },
 
     time: {
-      get () {
+      get() {
         return this.observation.time
       },
-      set (time) {
+      set(time) {
         this.$store.commit(MutationNames.SetTimeFor, {
           rowObjectId: this.rowObject.id,
           rowObjectType: this.rowObject.type,

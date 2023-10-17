@@ -23,8 +23,8 @@
 
 <script setup>
 import { computed } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const TYPES = [
   'article',

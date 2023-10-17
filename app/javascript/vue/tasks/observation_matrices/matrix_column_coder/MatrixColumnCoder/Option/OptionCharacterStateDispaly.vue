@@ -18,7 +18,7 @@
                 v-model="filterCharacterStates"
                 :value="characterState.id"
                 type="checkbox"
-              >
+              />
               {{ characterState.name }}
             </label>
           </li>
@@ -40,16 +40,15 @@ import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import VModal from 'components/ui/Modal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const store = useStore()
 const showModal = ref(false)
 const filterCharacterStates = computed({
   get: () => store.getters[GetterNames.GetDisplayCharacterStates],
-  set: value => store.commit(MutationNames.SetDisplayCharacterStates, value)
+  set: (value) => store.commit(MutationNames.SetDisplayCharacterStates, value)
 })
 
 const descriptor = computed(() => store.getters[GetterNames.GetDescriptor])
-
 </script>

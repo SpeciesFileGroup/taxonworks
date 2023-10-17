@@ -14,9 +14,7 @@
         <tr>
           <th>Count</th>
           <th />
-          <th class="full_width">
-            Label
-          </th>
+          <th class="full_width">Label</th>
         </tr>
       </thead>
       <tbody>
@@ -46,8 +44,8 @@
 <script setup>
 import { watch } from 'vue'
 import useStore from '../composables/useStore.js'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VPagination from 'components/pagination.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VPagination from '@/components/pagination.vue'
 
 const {
   loadBufferedPage,
@@ -58,11 +56,7 @@ const {
   getPages
 } = useStore()
 
-watch(
-  bufferedParams,
-  () => loadBufferedPage(1),
-  { deep: true }
-)
+watch(bufferedParams, () => loadBufferedPage(1), { deep: true })
 
 const pagination = getPages()
 

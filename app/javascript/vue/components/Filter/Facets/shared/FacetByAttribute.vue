@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import ByAttribute from './ByAttribute.vue'
 import { computed } from 'vue'
 

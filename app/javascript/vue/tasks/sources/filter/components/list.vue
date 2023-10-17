@@ -37,7 +37,7 @@
             />
           </td>
           <td>
-            <div class="horizontal-left-content">
+            <div class="horizontal-left-content gap-small">
               <AddToProject
                 :id="item.id"
                 :project-source-id="item.project_source_id"
@@ -79,13 +79,13 @@
 </template>
 
 <script setup>
-import RadialNavigation from 'components/radials/navigation/radial'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import PdfButton from 'components/pdfButton'
-import AddToProject from 'components/addToProjectSource'
-import PinComponent from 'components/ui/Pinboard/VPin.vue'
-import { sortArray } from 'helpers/arrays.js'
-import { vResizeColumn } from 'directives/resizeColumn'
+import RadialNavigation from '@/components/radials/navigation/radial'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import PdfButton from '@/components/pdfButton'
+import AddToProject from '@/components/addToProjectSource'
+import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+import { sortArray } from '@/helpers/arrays.js'
+import { vResizeColumn } from '@/directives/resizeColumn'
 import { computed, ref } from 'vue'
 
 const sort = ['id', 'cached', 'year', 'type', 'documents']

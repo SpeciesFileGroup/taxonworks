@@ -1,0 +1,82 @@
+
+<h1> Geographic area usage </h2>
+
+<h3> Unique use </h3>
+CollectingEvent:  <%= a = @geographic_areas.joins(:collecting_events).where(collecting_events: {project_id: sessions_current_project_id}).distinct.count %><br/>
+AssertedDistribution: <%= b = @geographic_areas.joins(:asserted_distributions).where(asserted_distributions: {project_id: sessions_current_project_id}).distinct.count %>
+
+<h3> Primary data_origin </h3>
+CollectingEvent:  <%= a = @geographic_areas.joins(:collecting_events).where(collecting_events: {project_id: sessions_current_project_id}).select(:data_origin).distinct.pluck(:data_origin).join(', ') %><br/>
+AssertedDistribution:  <%= a = @geographic_areas.joins(:asserted_distributions).where(asserted_distributions: {project_id: sessions_current_project_id}).select(:data_origin).distinct.pluck(:data_origin).join(', ') %><br/>
+
+<h3> Inferred countries </h3>
+CollectingEvent:  <%= a = @geographic_areas.inferred_as_country.joins(:collecting_events)
+                            .where(collecting_events: {project_id: sessions_current_project_id})
+                            .distinct.pluck(:name).sort.join(', ') %><br/>
+
+AssertedDistribution:  <%= a = @geographic_areas.inferred_as_country.joins(:asserted_distributions)
+                            .where(asserted_distributions: {project_id: sessions_current_project_id})
+                            .distinct.pluck(:name).sort.join(', ') %><br/>
+
+<h3> Without alternate data_origins </h3>
+
+CollectingEvent: <% a = GeographicArea.inferred_as_country.joins(:collecting_events)
+    .where(collecting_events: {project_id: sessions_current_project_id})
+    .joins(:geographic_items).group('geographic_areas.id').having('count(geographic_items.id) = 1').all %> <%= a.length %>: <%= a.order(:name).pluck(:name).join(', ') %><br/>
+
+AssertedDistribution: <% a = GeographicArea.inferred_as_country.joins(:asserted_distributions)
+    .where(asserted_distributions: {project_id: sessions_current_project_id})
+    .joins(:geographic_items).group('geographic_areas.id').having('count(geographic_items.id) = 1').all %>  <%= a.length %>: <%= a.order(:name).pluck(:name).join(', ') %> <br/>
+
+<br>
+<hr>
+<br>
+
+<h2> Details for </h2>
+<%= form_tag geographic_area_usage_task_path, method: :get do %>
+    geographic_area_id <%= number_field_tag 'geographic_area_id' %> <br>
+    geographic_item_id <%= number_field_tag 'geographic_item_id' %> <br>
+    <%= submit_tag 'Submit' %>
+ <% end %>
+
+<% if @geographic_area.present? %>
+  <h2> Geographic Area (<%= @geographic_area.id %>) </h2>
+<% end %>
+
+<% if @geographic_item.present? %>
+  <h2> Geographic Item (<%= @geographic_item.id %>) </h2>
+  GeographicArea use: <%= @geographic_item.geographic_areas.collect{|ga| geographic_area_link(ga).html_safe }.join('; ').html_safe  %>
+
+  <h3> CachedMap::Level1 Translations </h3>
+  <h4> By spatial overlap </h4>
+
+  <% a, debug = CachedMap.translate_by_spatial_overlap(@geographic_item.id, CachedMapItem::WebLevel1::SOURCE_GAZETEERS, 50.0) %>
+  <%= tag.div('untranslated', class: [:feedback, 'feedback-danger', 'feedback-narrow'] ) if a.blank? %>
+
+  <% a.each do |b| %>
+    <%= b %> - <%= GeographicItem.find(b).geographic_areas.collect{|c| geographic_area_link(c).html_safe}.join('; ').html_safe %><br/>
+  <% end %>
+
+ <table>
+    <tr>
+      <th>GeographicAreas</th>
+      <th>% intersection </th>
+      <th></th>
+      <th>geographic item id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+    <% debug.each do |r| %>
+      <tr> <%= tag.td GeographicItem.find(r[2]).geographic_areas.collect{|ga| geographic_area_link(ga)}.join('; ').html_safe %> <%= r.collect{|c| tag.td(c) }.join.html_safe %> </tr>
+    <% end %>
+  </table>
+
+<% end %>
+
+<% if @geographic_area.present? %>
+    <h2> Geographic Area </h2>
+    <% @geographic_item.geographic_areas.each do |ga| %>
+        <%= geographic_area_tag(ga) %><br>
+    <% end %>
+<% end %>

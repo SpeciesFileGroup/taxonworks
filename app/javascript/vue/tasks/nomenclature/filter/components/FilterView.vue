@@ -29,6 +29,7 @@
   <FacetUsers v-model="params" />
   <FacetUpdatedSince v-model="params" />
   <FacetDataAttribute v-model="params" />
+  <FacetImportAttribute v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
     :key="param"
@@ -49,23 +50,24 @@
 import FacetUpdatedSince from './filters/FacetUpdatedSince'
 import FacetValidity from './filters/FacetValidity.vue'
 import FacetRelationships from './filters/FacetRelationships.vue'
-import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
+import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetStatus from './filters/FacetStatus.vue'
 import FacetNomenclatureGroup from './filters/FacetNomenclatureGroup.vue'
 import FacetNomenclatureCode from './filters/FacetNomenclatureCode.vue'
 import FacetInRelationship from './filters/FacetInRelationship'
 import FacetTaxonNameType from './filters/FacetTaxonNameType.vue'
-import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
-import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
-import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
+import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetValidify from './filters/FacetValidify.vue'
 import FacetCombinationify from './filters/FacetCombinationify.vue'
 import FacetSynonymify from './filters/FacetSynonymify.vue'
 import FacetAuthors from './filters/FacetAuthors.vue'
-import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribute.vue'
-import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
-import FacetDateYear from 'components/Filter/Facets/Source/FacetDate.vue'
-import FacetParamExact from 'components/Filter/Facets/shared/FacetParamExact.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
+import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
+import FacetDateYear from '@/components/Filter/Facets/Source/FacetDate.vue'
+import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
+import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import { computed } from 'vue'
 
 const WITH_TITLES = {
@@ -83,20 +85,21 @@ const WITH_TITLES = {
 
 const WITH_PARAMS = [
   'authors',
-  'citations',
   'citation_documents',
+  'citations',
   'combinations',
   'data_attributes',
-  'depictions',
   'data_depictions',
+  'depictions',
   'etymology',
-  'notes',
-  'tags',
   'leaves',
+  'nomenclature_date',
   'not_specified',
+  'notes',
   'origin_citation',
   'original_combination',
   'otus',
+  'tags',
   'type_metadata'
 ]
 

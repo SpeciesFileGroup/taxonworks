@@ -1,4 +1,4 @@
-import { ATTR_CURRENT_PROJECT_ID } from 'constants/index.js'
+import { ATTR_CURRENT_PROJECT_ID } from '@/constants/index.js'
 
 export const getCurrentProjectId = () =>
   document

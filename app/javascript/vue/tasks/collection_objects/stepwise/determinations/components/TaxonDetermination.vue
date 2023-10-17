@@ -16,19 +16,14 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import TaxonDeterminationForm from 'components/TaxonDetermination/TaxonDeterminationForm.vue'
-import TaxonDeterminationList from 'components/TaxonDetermination/TaxonDeterminationList.vue'
+import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
+import TaxonDeterminationList from '@/components/TaxonDetermination/TaxonDeterminationList.vue'
 import useStore from '../composables/useStore'
 
-const {
-  setTaxonDetermination,
-  taxonDetermination
-} = useStore()
+const { setTaxonDetermination, taxonDetermination } = useStore()
 
 const determinationList = computed(() =>
-  taxonDetermination.value
-    ? [taxonDetermination.value]
-    : []
+  taxonDetermination.value ? [taxonDetermination.value] : []
 )
 
 const determinationForm = ref(null)

@@ -75,34 +75,37 @@ module SqedToTaxonworks
     # Minimize use of this if possible, depend on the cached values when possible.
     #
     def sqed_result
+      @sqed_result ||= process_result
+      @sqed_result = process_result(use_thumbnail: false) if @sqed_result == false
+      @sqed_result
+    end
+
+    # private
+    def process_result(use_thumbnail: true)
       begin
-        @sqed_result ||= sqed.result
-
+        sqed.use_thumbnail = use_thumbnail
+        r = sqed.result
       rescue Sqed::Error
-        @sqed_result = false
+        r = false
 
-        # rescue NoMethodError # TODO - better handling in Sqed
-        #  @sqed_result = false
-
-        # TODO: likely remove TypeError
+      # TODO: likely remove TypeError
       rescue TypeError
-        @sqed_result = false
+        r = false
 
       rescue Magick::ImageMagickError => e
         if e.message.include?('unable to open image')
-          @sqed_result = false
+          r = false
         else
           raise
         end
       rescue RuntimeError => e
         if e.message.include?('ImageMagick library function failed to return a result.')
-          @sqed_result = false
+          r = false
         else
           raise
         end
       end
-
-      @sqed_result
+      r
     end
 
     def original_image
@@ -141,6 +144,7 @@ module SqedToTaxonworks
       sqed_depiction.update_column(:result_ocr, (sqed_result || nil)&.text)
     end
 
+    # TODO: should be set_cached
     def cache_all
       cache_ocr
       cache_boundaries

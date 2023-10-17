@@ -4,6 +4,7 @@ module Queries
 
       ATTRIBUTES =  (::Source.core_attributes - %w{bibtex_type title author serial_id}).map(&:to_sym).freeze
 
+      include Queries::Concerns::DataAttributes
       include Queries::Concerns::Attributes
       include Queries::Concerns::Empty
       include Queries::Concerns::Notes
@@ -185,6 +186,7 @@ module Queries
 
         build_terms
 
+        set_data_attributes_params(params)
         set_attributes_params(params)
         set_empty_params(params)
         set_tags_params(params)
@@ -297,7 +299,7 @@ module Queries
 
       def topic_id_facet
         return nil if topic_id.empty?
-        ::Source.joins(:citation_topics).where(citation_topics: { topic_id: topic_id}).distinct
+        ::Source.joins(:citation_topics).where(citation_topics: { topic_id:}).distinct
       end
 
       def in_project_facet
@@ -305,7 +307,7 @@ module Queries
 
         if in_project
           ::Source.joins(:project_sources)
-            .where(project_sources: {project_id: project_id})
+            .where(project_sources: {project_id:})
         else
           ::Source.left_outer_joins(:project_sources)
             .where('project_sources.project_id != ? OR project_sources.id IS NULL', project_id) # TODO: probably project_id
@@ -380,7 +382,7 @@ module Queries
       def citation_object_type_facet
         return nil if citation_object_type.empty?
         ::Source.joins(:citations)
-          .where(citations: {citation_object_type: citation_object_type}).distinct
+          .where(citations: {citation_object_type:}).distinct
       end
 
       def nomenclature_facet

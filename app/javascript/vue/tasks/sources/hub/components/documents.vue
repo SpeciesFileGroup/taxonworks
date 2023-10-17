@@ -3,7 +3,8 @@
     <ul class="no_bullets">
       <li
         v-for="item in documents"
-        :key="item.id">
+        :key="item.id"
+      >
         <a
           class="btn-download circle-button"
           :href="item.document.file_url"
@@ -15,8 +16,7 @@
 </template>
 
 <script>
-
-import { Source } from 'routes/endpoints'
+import { Source } from '@/routes/endpoints'
 
 export default {
   props: {
@@ -25,14 +25,14 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       documents: []
     }
   },
 
-  mounted () {
-    Source.documentation(this.sourceId).then(response => {
+  mounted() {
+    Source.documentation(this.sourceId).then((response) => {
       this.documents = response.body
     })
   }

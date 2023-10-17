@@ -7,15 +7,16 @@ import componentNames from '../const/componentNames'
 function makeInitialState() {
   return {
     loadState: {
-      assertedDistribution: true,
+      assertedDistribution: false,
       biologicalAssociations: true,
+      collectingEvents: true,
       collectionObjects: true,
-      descendants: true,
-      descendantsDistribution: true,
+      descendants: false,
+      descendantsDistribution: false,
       distribution: true
     },
     preferences: {
-      preferenceSchema: 20210715,
+      preferenceSchema: 20231017,
       sections: Object.keys(componentNames()),
       filterSections: {
         and: {
@@ -111,7 +112,7 @@ function makeInitialState() {
     collectingEvents: [],
     collectionObjects: [],
     otus: [],
-    georeferences: [],
+    georeferences: { features: [] },
     typeMaterials: [],
     depictions: [],
     commonNames: [],
@@ -121,7 +122,8 @@ function makeInitialState() {
       georeferences: []
     },
     observationsDepictions: [],
-    userId: undefined
+    userId: undefined,
+    cachedMap: undefined
   }
 }
 

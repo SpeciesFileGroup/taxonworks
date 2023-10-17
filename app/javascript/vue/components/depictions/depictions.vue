@@ -3,7 +3,8 @@
     <spinner
       v-if="false"
       :show-spinner="false"
-      legend="Create a type specimen to upload images"/>
+      legend="Create a type specimen to upload images"
+    />
     <dropzone
       class="dropzone-card separate-bottom"
       @vdropzone-sending="sending"
@@ -13,25 +14,26 @@
       id="depiction"
       url="/depictions"
       :use-custom-dropzone-options="true"
-      :dropzone-options="dropzone"/>
+      :dropzone-options="dropzone"
+    />
     <div
       class="flex-wrap-row"
-      v-if="figuresList.length">
+      v-if="figuresList.length"
+    >
       <depictionImage
         v-for="item in figuresList"
         @delete="removeDepiction"
         :key="item.id"
-        :depiction="item"/>
+        :depiction="item"
+      />
     </div>
   </div>
-
 </template>
 
 <script>
-
-import { Depiction } from 'routes/endpoints'
-import Dropzone from 'components/dropzone.vue'
-import Spinner from 'components/spinner.vue'
+import { Depiction } from '@/routes/endpoints'
+import Dropzone from '@/components/dropzone.vue'
+import Spinner from '@/components/spinner.vue'
 import DepictionImage from './depictionImage.vue'
 
 export default {
@@ -54,7 +56,7 @@ export default {
 
   emits: ['created'],
 
-  data () {
+  data() {
     return {
       creatingType: false,
       displayBody: true,
@@ -64,7 +66,9 @@ export default {
         url: '/depictions',
         autoProcessQueue: false,
         headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          'X-CSRF-Token': document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute('content')
         },
         dictDefaultMessage: 'Drop images here to add figures',
         acceptedFiles: 'image/*,.heic'
@@ -72,10 +76,10 @@ export default {
     }
   },
   watch: {
-    getTypeMaterial (newVal, oldVal) {
-      if (newVal.id && (newVal.id != oldVal.id)) {
+    getTypeMaterial(newVal, oldVal) {
+      if (newVal.id && newVal.id != oldVal.id) {
         this.$refs.depiction.setOption('autoProcessQueue', true)
-        Depiction.find(newVal.collection_object.id).then(response => {
+        Depiction.find(newVal.collection_object.id).then((response) => {
           this.figuresList = response
         })
       } else {
@@ -85,28 +89,34 @@ export default {
     }
   },
   methods: {
-    success (file, response) {
+    success(file, response) {
       this.figuresList.push(response)
       this.$refs.depiction.removeFile(file)
       this.$emit('created', response)
     },
 
-    sending (file, xhr, formData) {
+    sending(file, xhr, formData) {
       formData.append('depiction[depiction_object_id]', this.objectId)
       formData.append('depiction[depiction_object_type]', this.objectType)
     },
 
-    addedfile () {
+    addedfile() {
       if (!this.getTypeMaterial.id && !this.creatingType) {
         this.creatingType = true
       }
     },
 
-    removeDepiction (depiction) {
+    removeDepiction(depiction) {
       if (window.confirm('Are you sure want to proceed?')) {
-        Depiction.destroy(depiction.id).then(_ => {
-          TW.workbench.alert.create('Depiction was successfully deleted.', 'notice')
-          this.figuresList.splice(this.figuresList.findIndex(figure => figure.id === depiction.id), 1)
+        Depiction.destroy(depiction.id).then((_) => {
+          TW.workbench.alert.create(
+            'Depiction was successfully deleted.',
+            'notice'
+          )
+          this.figuresList.splice(
+            this.figuresList.findIndex((figure) => figure.id === depiction.id),
+            1
+          )
         })
       }
     }

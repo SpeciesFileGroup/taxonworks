@@ -164,7 +164,7 @@
                   <td>
                     <div
                       v-if="item.global_id"
-                      class="horizontal-left-content"
+                      class="horizontal-left-content gap-small"
                     >
                       <radial-annotator :global-id="item.global_id" />
                       <radial-navigation :global-id="item.global_id" />
@@ -181,24 +181,24 @@
 </template>
 
 <script>
-import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from 'constants/index.js'
+import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from '@/constants/index.js'
 import BiocurationComponent from './Biocuration'
 import PreparationTypes from './PreparationTypes'
-import ModalComponent from 'components/ui/Modal'
-import SpinnerComponent from 'components/spinner'
+import ModalComponent from '@/components/ui/Modal'
+import SpinnerComponent from '@/components/spinner'
 import IdentifiersComponent from './Identifiers'
 import DeterminerComponent from './Determiner'
 import RepositoryComponent from './Repository'
 import LabelComponent from './Label'
 import TagComponent from './Tags'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialNavigation from 'components/radials/navigation/radial'
-import { RouteNames } from 'routes/routes'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialNavigation from '@/components/radials/navigation/radial'
+import { RouteNames } from '@/routes/routes'
 import {
   BiocurationClassification,
   CollectionObject,
   TaxonDetermination
-} from 'routes/endpoints'
+} from '@/routes/endpoints'
 
 const extend = ['taxon_determinations', 'identifiers']
 

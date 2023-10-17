@@ -46,10 +46,10 @@
 </template>
 
 <script setup>
-import VModal from 'components/ui/Modal'
-import FormCitation from 'components/Form/FormCitation.vue'
+import VModal from '@/components/ui/Modal'
+import FormCitation from '@/components/Form/FormCitation.vue'
 import TableCitation from './TableCitation.vue'
-import { BIOLOGICAL_ASSOCIATIONS_GRAPH } from 'constants/index.js'
+import { BIOLOGICAL_ASSOCIATIONS_GRAPH } from '@/constants/index.js'
 import { ref, computed } from 'vue'
 
 const props = defineProps({

@@ -38,6 +38,9 @@ class SqedDepiction < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
 
+  # True?!
+  include Shared::IsData
+
   attr_accessor :rebuild
 
   belongs_to :depiction

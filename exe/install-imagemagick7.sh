@@ -7,7 +7,7 @@ apt-get build-dep -y libmagickcore-dev
 
 cd /usr/src/
 
-[ ! -d libde265-* ] && curl -sL $(curl -s https://api.github.com/repos/strukturag/libde265/releases/latest | jq --raw-output '.assets[0] | .browser_download_url') | tar xzf - && \
+[ ! -d libde265-* ] && curl -sL $(curl -s https://api.github.com/repos/strukturag/libde265/releases/latest | jq --raw-output '.assets[1] | .browser_download_url') | tar xzf - && \
   cd libde265-* && \
   ./autogen.sh && \
   ./configure && \

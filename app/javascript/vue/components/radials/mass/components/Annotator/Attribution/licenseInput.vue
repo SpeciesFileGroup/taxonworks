@@ -8,8 +8,7 @@
         :key="license.key"
         :value="license.key"
       >
-        <span v-if="license.key != null"> {{ license.key }} : </span>
-        {{ license.label }}
+        <span> {{ license.label }}</span>
       </option>
     </select>
     <VSpinner
@@ -21,8 +20,8 @@
 
 <script setup>
 import { ref, computed, onBeforeMount } from 'vue'
-import { Attribution } from 'routes/endpoints'
-import VSpinner from 'components/spinner.vue'
+import { Attribution } from '@/routes/endpoints'
+import VSpinner from '@/components/spinner.vue'
 
 const props = defineProps({
   modelValue: {
@@ -43,7 +42,10 @@ onBeforeMount(() => {
   Attribution.licenses()
     .then(({ body }) => {
       licenses.value = [
-        ...Object.entries(body).map(([key, label]) => ({ key, label })),
+        ...Object.entries(body).map(([key, { name, link }]) => ({
+          key,
+          label: `${name}: ${link}`
+        })),
         {
           label: '-- None --',
           key: null

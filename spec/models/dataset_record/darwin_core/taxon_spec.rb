@@ -101,8 +101,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym')
     end
 
-    it 'should have 12 original combination relationships' do
-      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 12
+    it 'should have 11 original combination relationships' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 11
     end
 
     it 'should have Baroni Urbani as the author of the replacement species' do
@@ -432,10 +432,11 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       verify_all_records_imported(5)
     end
 
-    # Amblyopone australis cephalotes shouldn't be a combination, it's a synonym of Amblyopone australis so
-    # It makes/uses the protonym Amblyopone cephalotes instead
+    # Amblyopone australis cephalotes is a combination, and a synonym of Amblyopone australis so
+    # it should make the protonym Amblyopone cephalotes and the combination Amblyopone australis cephalotes
     it 'should have 1 Combination' do
-      expect(Combination.all.length).to eq 0
+      expect(Combination.all.length).to eq 1
+      expect(Combination.find_by_cached('Amblyopone australis cephalotes')).to_not be_nil
     end
 
     it 'cephalotes original combination should be Amblyopone cephalotes' do
@@ -875,6 +876,170 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
     it "should have cached original combination Smithistruma (Smithistruma)" do
       expect(synonym.cached_original_combination).to eq "Smithistruma (Smithistruma)"
+    end
+  end
+
+  context 'when importing a misspelling of a combination' do
+    before(:all) { import_checklist_tsv('misspelling_combination.tsv', 6, 'misspelling combination') }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:valid) { TaxonName.find_by(cached: 'Atta sexdens') }
+    let(:misspelling) { TaxonName.find_by({ name: 'sexdentata' }) }
+
+    it 'should create and import 6 records' do
+      verify_all_records_imported(6)
+    end
+
+    it 'should have a misspelling relationship ' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name_id: misspelling.id, object_taxon_name_id: valid.id })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+    end
+
+    # Atta
+    # Atta sexdens
+    # Atta sexdentata
+    # Formica
+    # Formica sexdens
+    # Formica sexdentata
+    it 'should have six original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 6
+    end
+
+    it 'should be cached invalid' do
+      expect(misspelling.cached_is_valid).to be false
+    end
+
+    it 'the synonym should have cached valid taxon id' do
+      expect(misspelling.cached_valid_taxon_name_id).to eq valid.id
+    end
+  end
+
+  context 'when importing species with different congugation' do
+    before(:all) { import_checklist_tsv('conjugated_species.tsv', 5) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:valid) { TaxonName.find_by(cached: 'Atta sexdens') }
+    let(:misspelling) { TaxonName.find_by({ name: 'sexdentata' }) }
+
+    it 'should create and import 5 records' do
+      verify_all_records_imported(5)
+    end
+
+    # Stenammini
+    # Veromessor
+    # Veromessor julianus
+    # Aphaenogaster
+    it 'should have four original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 4
+    end
+
+    it 'should have properly conjugated original combination' do
+      expect(TaxonName.find_by_cached_original_combination("Aphaenogaster juliana")).to_not be_nil
+    end
+
+    it 'should have properly conjugated valid name' do
+      expect(TaxonName.find_by_cached("Veromessor julianus")).to_not be_nil
+    end
+
+  end
+
+  context 'when importing a name classified in a subgenus later' do
+    before(:all) { import_checklist_tsv('younger_oc_subgenus.tsv', 3) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    it 'should create and import 3 records' do
+      verify_all_records_imported(3)
+    end
+
+    # Camponotus
+    # Camponotus (Myrmocladoecus) 2x
+    # Camponotus planus 2x
+    it 'should have five original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 5
+    end
+
+    it 'should not include the subgenus in the original combination' do
+      expect(TaxonName.find_by_name('planus').cached_original_combination).to eq "Camponotus planus"
+    end
+  end
+
+  context 'when importing a synonym combination' do
+    # synonym should become combination
+    before(:all) { import_checklist_tsv('create_combination_for_moved_synonym.tsv', 5) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Odontomachus coquereli minor should be a combination, Champsomyrmex coquereli minor should be the original combination
+    # Champsomyrmex coquereli minor is a junior synonym of Odontomachus coquereli
+
+    it 'should import 6 records' do
+      verify_all_records_imported(6)
+    end
+
+    # Champsomyrmex
+    # Champsomyrmex coquereli (x2)
+    # Champsomyrmex coquereli minor (x3)
+    # Odontomachus
+
+    let(:Odontomachus) { TaxonName.find_by(name: 'Odontomachus') }
+    let(:Champsomyrmex) { TaxonName.find_by(name: 'Champsomyrmex') }
+    let(:minor) { TaxonName.find_by_name('minor') }
+    let(:coquereli) { TaxonName.find_by_name('coquereli') }
+
+    it 'should create 7 original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 7
+    end
+
+    it 'should have the correct original combination' do
+      expect(minor.cached_original_combination).to eq 'Champsomyrmex coquereli minor'
+    end
+
+
+    it 'should create a combination for the synonym' do
+      expect(Combination.find_by_cached('Odontomachus coquereli minor')).to_not be_nil
+    end
+
+    it 'should have the correct valid name' do
+      valid = TaxonName.find_by_cached('Odontomachus coquereli')
+      synonym = TaxonName.find_by(cached_original_combination: 'Champsomyrmex coquereli minor')
+
+      expect(synonym.valid_taxon_name).to eq valid
+    end
+
+    it 'should have a synonym relationship' do
+      valid = TaxonName.find_by_cached('Odontomachus coquereli')
+      synonym = TaxonName.find_by(cached_original_combination: 'Champsomyrmex coquereli minor')
+
+      expect_relationship(synonym, valid, 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+  end
+
+  context 'when importing a record with mismatched authorship year data' do
+    before(:all) { import_checklist_tsv('error_tests/mismatched_year.tsv', 1) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:record) {DatasetRecord.first}
+    it 'should have an errored status' do
+
+      expect(record.status).to eq("Errored")
+    end
+    it 'should have the right error message' do
+
+      expect(record[:metadata].dig("error_data", "messages", "namePublishedInYear")).to_not be_nil
     end
   end
 

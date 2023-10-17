@@ -8,7 +8,7 @@
             type="radio"
             :value="undefined"
             v-model="params.extract_origin"
-          >
+          />
           All
         </label>
       </li>
@@ -21,7 +21,7 @@
             type="radio"
             v-model="params.extract_origin"
             :value="item"
-          >
+          />
           {{ item }}
         </label>
       </li>
@@ -30,8 +30,8 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse'
 import { computed } from 'vue'
 import {
   COLLECTION_OBJECT,
@@ -39,15 +39,9 @@ import {
   OTU,
   RANGED_LOT,
   LOT
-} from 'constants/index'
+} from '@/constants/index'
 
-const options = [
-  COLLECTION_OBJECT,
-  EXTRACT,
-  OTU,
-  RANGED_LOT,
-  LOT
-]
+const options = [COLLECTION_OBJECT, EXTRACT, OTU, RANGED_LOT, LOT]
 
 const props = defineProps({
   modelValue: {
@@ -60,9 +54,8 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 params.value.extract_origin = URLParamsToJSON(location.href).extract_origin
-
 </script>

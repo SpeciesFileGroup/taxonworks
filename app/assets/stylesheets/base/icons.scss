@@ -1,289 +1,297 @@
-    [data-icon] {
-      background-size: 14px 14px;
-      background-repeat: no-repeat;
-      background-position: left, center;
-      padding-left: 20px;
-      min-height: 16px;
-      align-items: center;
-    }
-    
-    .center-icon {
-      background-position: center;
-      padding-left: initial;
-      min-height: auto;
-    }
+[data-icon] {
+  background-size: 14px 14px;
+  background-repeat: no-repeat;
+  background-position: left, center;
+  padding-left: 20px;
+  min-height: 16px;
+  align-items: center;
+}
 
-    .small-icon {
-      background-size: 12px 12px;
-      padding-left: 18px;
-      min-height: 12px;
-    }
+.center-icon {
+  background-position: center;
+  padding-left: initial;
+  min-height: auto;
+}
 
-    .medium-icon {
-      background-size: 24px 24px;
-      padding-left: 24px;
-      min-height: 24px;
-    }  
+.small-icon {
+  background-size: 12px 12px;
+  padding-left: 18px;
+  min-height: 12px;
+}
 
-    .big-icon {
-      background-size: 30px 30px;
-      padding-left: 30px;
-      min-height: 30px;
-    }
+.medium-icon {
+  background-size: 24px 24px;
+  padding-left: 24px;
+  min-height: 24px;
+}
 
-    .icon-without-space {
-      padding-left: 14px;
-    }  
+.big-icon {
+  background-size: 30px 30px;
+  padding-left: 30px;
+  min-height: 30px;
+}
 
-    .icon-right { 
-      background-position: right, center;
-      padding-right: 20px;
-    }
+.icon-without-space {
+  padding-left: 14px;
+}
 
-    .cursor-pointer {
-      cursor: pointer;
-    }
+.icon-right {
+  background-position: right, center;
+  padding-right: 20px;
+}
 
-    [data-icon="biology"] {
-      background-image: image-url("biology.svg");
-    }         
+.cursor-pointer {
+  cursor: pointer;
+}
 
-    [data-icon="annotate"] {
-      background-image: image-url("annotate.svg");
-    } 
+.cursor-grab {
+  cursor: grab;
+}
 
-    [data-icon="batch"] {
-      background-image: image-url("batch_load.svg");
-    }     
+.cursor-grabbing {
+  cursor: grabbing;
+}
 
-    [data-icon="help"] {
-      background-image: image-url("help.svg");
-    }   
+[data-icon='biology'] {
+  background-image: image-url('biology.svg');
+}
 
-    [data-icon="b_help"] {
-      background-image: image-url("b_help.svg");
-    }           
+[data-icon='annotate'] {
+  background-image: image-url('annotate.svg');
+}
 
-    [data-icon="expand"] {
-      background-image: image-url("expand.svg");
-    }
+[data-icon='batch'] {
+  background-image: image-url('batch_load.svg');
+}
 
-    [data-icon="w_expand"] {
-      background-image: image-url("w_expand.svg");
-    }
+[data-icon='help'] {
+  background-image: image-url('help.svg');
+}
 
-    [data-icon="citation"] {
-      background-image: image-url("citation.svg");
-    }          
+[data-icon='b_help'] {
+  background-image: image-url('b_help.svg');
+}
 
-    [data-icon="clone"] {
-      background-image: image-url("clone.svg");
-    } 
+[data-icon='expand'] {
+  background-image: image-url('expand.svg');
+}
 
-    [data-icon="compare"] {
-      background-image: image-url("compare.svg");
-    }   
+[data-icon='w_expand'] {
+  background-image: image-url('w_expand.svg');
+}
 
-    [data-icon="contract"] {
-      background-image: image-url("contract.svg");
-    }
-    
-    [data-icon="w_contract"] {
-      background-image: image-url("w_contract.svg");
-    }    
+[data-icon='citation'] {
+  background-image: image-url('citation.svg');
+}
 
-    [data-icon="chain"] {
-      background-image: image-url("chain.svg");
-    }           
+[data-icon='clone'] {
+  background-image: image-url('clone.svg');
+}
 
-    [data-icon="drag"] {
-      background-image: image-url("drag.svg");
-    }
+[data-icon='compare'] {
+  background-image: image-url('compare.svg');
+}
 
-    [data-icon="link"] {
-      background-image: image-url("link.svg");
-    }      
+[data-icon='contract'] {
+  background-image: image-url('contract.svg');
+}
 
-    [data-icon="list"] {
-      background-image: image-url("list.svg");
-    }         
+[data-icon='w_contract'] {
+  background-image: image-url('w_contract.svg');
+}
 
-    [data-icon="scroll-v"] {
-      background-image: image-url("scroll-v.svg");
-    }
+[data-icon='chain'] {
+  background-image: image-url('chain.svg');
+}
 
-    [data-icon="w_scroll-v"] {
-      background-image: image-url("w_scroll-v.svg");
-    }
+[data-icon='drag'] {
+  background-image: image-url('drag.svg');
+}
 
-    [data-icon="scroll-h"] {
-      background-image: image-url("scroll-h.svg");
-    }         
+[data-icon='link'] {
+  background-image: image-url('link.svg');
+}
 
-    [data-icon="browse"] {
-      background-image: image-url("browse.svg");
-    }     
+[data-icon='list'] {
+  background-image: image-url('list.svg');
+}
 
-    [data-icon="download"] {
-      background-image: image-url("download.svg");
-    }     
+[data-icon='scroll-v'] {
+  background-image: image-url('scroll-v.svg');
+}
 
-    [data-icon="add"] {
-      background-image: image-url("add.svg");
-    }
+[data-icon='w_scroll-v'] {
+  background-image: image-url('w_scroll-v.svg');
+}
 
-    [data-icon="w_plus"] {
-      background-image: image-url("bplus.svg");
-    }
+[data-icon='scroll-h'] {
+  background-image: image-url('scroll-h.svg');
+}
 
-    [data-icon="w_less"] {
-      background-image: image-url("w_less.svg");
-    }
+[data-icon='browse'] {
+  background-image: image-url('browse.svg');
+}
 
-    [data-icon="icons"] {
-      background-image: image-url("icons.svg");
-    }          
+[data-icon='download'] {
+  background-image: image-url('download.svg');
+}
 
-    [data-icon="image"] {
-      background-image: image-url("image.svg");
-    }          
+[data-icon='add'] {
+  background-image: image-url('add.svg');
+}
 
-    [data-icon="pin"] {
-      background-image: image-url("pin.svg");
-    } 
+[data-icon='w_plus'] {
+  background-image: image-url('bplus.svg');
+}
 
-    [data-icon="preview"] {
-      background-image: image-url("preview.svg");
-    }     
+[data-icon='w_less'] {
+  background-image: image-url('w_less.svg');
+}
 
-    [data-icon="edit"] {
-      background-image: image-url("new.svg");
-    }      
+[data-icon='icons'] {
+  background-image: image-url('icons.svg');
+}
 
-    [data-icon="new"] {
-      background-image: image-url("new.svg");
-    }              
+[data-icon='image'] {
+  background-image: image-url('image.svg');
+}
 
-    [data-icon="trash"] {
-      background-image: image-url("trash.svg");
-    }      
+[data-icon='pin'] {
+  background-image: image-url('pin.svg');
+}
 
-    [data-icon="favorite"] {
-      background-image: image-url("star.svg");
-    }      
+[data-icon='preview'] {
+  background-image: image-url('preview.svg');
+}
 
-    [data-icon="arrow-right"] {
-      background-image: image-url("arrow-right.svg");
-    }     
+[data-icon='edit'] {
+  background-image: image-url('new.svg');
+}
 
-    [data-icon="arrow-left"] {
-      background-image: image-url("arrow-left.svg");
-    }
-    
-    [data-icon="arrow-up"] {
-      background-image: image-url("arrow-up.svg");
-    }
+[data-icon='new'] {
+  background-image: image-url('new.svg');
+}
 
-    [data-icon="arrow-down"] {
-      background-image: image-url("arrow-down.svg");
-    }
+[data-icon='trash'] {
+  background-image: image-url('trash.svg');
+}
 
-    [data-icon="w-arrow-right"] {
-      background-image: image-url("w-arrow-right.svg");
-    }     
+[data-icon='favorite'] {
+  background-image: image-url('star.svg');
+}
 
-    [data-icon="w-arrow-left"] {
-      background-image: image-url("w-arrow-left.svg");
-    }
-    
-    [data-icon="w-arrow-up"] {
-      background-image: image-url("w-arrow-up.svg");
-    }
+[data-icon='arrow-right'] {
+  background-image: image-url('arrow-right.svg');
+}
 
-    [data-icon="w-arrow-down"] {
-      background-image: image-url("w-arrow-down.svg");
-    }
+[data-icon='arrow-left'] {
+  background-image: image-url('arrow-left.svg');
+}
 
-    [data-icon="recent"] {
-      background-image: image-url("recent.svg");
-    }        
+[data-icon='arrow-up'] {
+  background-image: image-url('arrow-up.svg');
+}
 
-    [data-icon="reset"] {
-      background-image: image-url("restart.svg");
-    }
+[data-icon='arrow-down'] {
+  background-image: image-url('arrow-down.svg');
+}
 
-    [data-icon="w_reset"] {
-      background-image: image-url("w_restart.svg");
-    }
-    
-    [data-icon="swap"] {
-      background-image: image-url("swap.svg");
-    }  
+[data-icon='w-arrow-right'] {
+  background-image: image-url('w-arrow-right.svg');
+}
 
-    [data-icon="w-swap"] {
-      background-image: image-url("w_swap.svg");
-    }  
+[data-icon='w-arrow-left'] {
+  background-image: image-url('w-arrow-left.svg');
+}
 
-    [data-icon="task"] {
-      background-image: image-url("task.svg");
-    }            
+[data-icon='w-arrow-up'] {
+  background-image: image-url('w-arrow-up.svg');
+}
 
-    [data-icon="data"] {
-      background-image: image-url("data.svg");
-    }            
+[data-icon='w-arrow-down'] {
+  background-image: image-url('w-arrow-down.svg');
+}
 
-    [data-icon="related"] {
-      background-image: image-url("related.svg");
-    }                    
+[data-icon='recent'] {
+  background-image: image-url('recent.svg');
+}
 
-    [data-icon="show"] {
-      background-image: image-url("show.svg");
-    }
+[data-icon='reset'] {
+  background-image: image-url('restart.svg');
+}
 
-    [data-icon="hide"] {
-      background-image: image-url("hide.svg");
-    }  
+[data-icon='w_reset'] {
+  background-image: image-url('w_restart.svg');
+}
 
-    [data-icon="openFolder"] {
-      background-image: image-url("open_folder.svg");
-    }   
+[data-icon='swap'] {
+  background-image: image-url('swap.svg');
+}
 
-    [data-icon="users"] {
-      background-image: image-url("users.svg");
-    }       
+[data-icon='w-swap'] {
+  background-image: image-url('w_swap.svg');
+}
 
-    [data-icon="folders"] {
-      background-image: image-url("folders.svg");
-    }  
+[data-icon='task'] {
+  background-image: image-url('task.svg');
+}
 
-    [data-icon="options"] {
-      background-image: image-url("options.svg");
-    }   
+[data-icon='data'] {
+  background-image: image-url('data.svg');
+}
 
-    [data-icon="close"] {
-      background-image: image-url("close.svg");
-    }
+[data-icon='related'] {
+  background-image: image-url('related.svg');
+}
 
-    [data-icon="attention"] {
-      background-image: image-url("attention.svg");
-    }
+[data-icon='show'] {
+  background-image: image-url('show.svg');
+}
 
-    [data-icon="ok"] {
-      background-image: image-url("ok.svg");
-    }   
+[data-icon='hide'] {
+  background-image: image-url('hide.svg');
+}
 
-    [data-icon="savedb"] {
-      background-image: image-url("savedb.svg");
-    }
+[data-icon='openFolder'] {
+  background-image: image-url('open_folder.svg');
+}
 
-    [data-icon="warning"] {
-      background-image: image-url("attention.svg");
-    } 
+[data-icon='users'] {
+  background-image: image-url('users.svg');
+}
 
-    [data-icon="w_wrench"] {
-      background-image: image-url("w_wrench.svg");
-    }
+[data-icon='folders'] {
+  background-image: image-url('folders.svg');
+}
 
-    [data-icon="blue_wrench"] {
-      background-image: image-url("blue_wrench.svg");
-    }
+[data-icon='options'] {
+  background-image: image-url('options.svg');
+}
+
+[data-icon='close'] {
+  background-image: image-url('close.svg');
+}
+
+[data-icon='attention'] {
+  background-image: image-url('attention.svg');
+}
+
+[data-icon='ok'] {
+  background-image: image-url('ok.svg');
+}
+
+[data-icon='savedb'] {
+  background-image: image-url('savedb.svg');
+}
+
+[data-icon='warning'] {
+  background-image: image-url('attention.svg');
+}
+
+[data-icon='w_wrench'] {
+  background-image: image-url('w_wrench.svg');
+}
+
+[data-icon='blue_wrench'] {
+  background-image: image-url('blue_wrench.svg');
+}

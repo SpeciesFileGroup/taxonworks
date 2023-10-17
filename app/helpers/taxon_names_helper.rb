@@ -25,6 +25,7 @@ module TaxonNamesHelper
       taxon_name_parent_tag(taxon_name),
       taxon_name_original_combination_tag(taxon_name),
       taxon_name_type_short_tag(taxon_name)
+      # " [#{taxon_name.sml_t}]"
     ].compact.join('&nbsp;').html_safe
   end
 
@@ -70,7 +71,7 @@ module TaxonNamesHelper
   # @return [String]
   #  the name in original combination, with author year, with HTML
   def full_original_taxon_name_tag(taxon_name)
-    return nil if taxon_name.nil? 
+    return nil if taxon_name.nil?
     [ original_taxon_name_tag(taxon_name),
       history_author_year_tag(taxon_name)
     ].compact.join(' ').html_safe
@@ -78,12 +79,12 @@ module TaxonNamesHelper
 
   # @return [String, nil]
   #  if no cached_original_combination is defined return nothing
-  # !! This is used in taxon_name attributes now!   
+  # !! This is used in taxon_name attributes now!
   # TODO: Refactor our logic for display contexts and value contexts
   # to better reflect presence of data vs. utility of report.
   def defined_full_original_taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?  || taxon_name.cached_original_combination_html.blank?
-    full_original_taxon_name_tag(taxon_name) 
+    full_original_taxon_name_tag(taxon_name)
   end
 
   # @return [String]
@@ -120,7 +121,7 @@ module TaxonNamesHelper
   def taxon_name_short_status(taxon_name)
     if taxon_name.is_combination?
       n = taxon_name.finest_protonym
-      s = ["This name is subsequent combination of"]
+      s = ['This name is subsequent combination of']
       if n.is_valid?
         s += [
           link_to(original_taxon_name_tag(n), browse_nomenclature_task_path(taxon_name_id: n.id)),
@@ -131,7 +132,7 @@ module TaxonNamesHelper
         s += [
           original_taxon_name_tag(n),
           history_author_year_tag(n),
-          "whose valid/accepted name is",
+          'whose valid/accepted name is',
           link_to(taxon_name_tag(v), browse_nomenclature_task_path(taxon_name_id: v.id) ),
           v.cached_author_year
         ]
@@ -362,6 +363,165 @@ module TaxonNamesHelper
     else
       content_tag(:em, 'There are no Otus linked to this name.')
     end
+  end
+
+  def taxon_name_inventory_stats(taxon_name)
+
+    d = []
+
+    i = {
+      rank: nil,
+      taxa: {},
+      names: {}
+    }
+
+    # !! descendants: false is [self and desecendants]
+    ::Queries::TaxonName::Filter.new(synonymify: true, descendants: false, taxon_name_id: taxon_name.id).all
+      .where(type: 'Protonym')
+      .select(:rank_klass).distinct.pluck(:rank_class).compact.sort{|a,b| RANKS.index(a) <=> RANKS.index(b)}.each do |r|
+
+      n = r.safe_constantize.rank_name.to_sym
+      j = i.deep_dup
+
+      j[:rank] = n
+
+      j[:names][:valid] = ::Queries::TaxonName::Filter.new(validity: true, descendants: false, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
+      j[:names][:invalid] = ::Queries::TaxonName::Filter.new(validity: false, descendants: false,  taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
+
+      # This is the number of OTUs behind the ranks at this concept, i.e. a measure of how partitioned the data are beyond valid/invalid categories.
+      j[:taxa] = ::Queries::Otu::Filter.new(coordinatify: true, taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, rank: r} ).all.count
+
+      d.push j
+    end
+
+    d
+  end
+
+  # Perhaps a /lib/catalog method
+  # @return Hash
+  def taxon_names_count_by_validity_and_year(scope = nil)
+    return {} if scope.nil?
+    invalid = taxon_names_by_year_count(scope.that_is_invalid)
+    valid = taxon_names_by_year_count(scope.that_is_valid)
+
+    min = [invalid.keys.sort.first, invalid.keys.sort.first].compact.sort.first || 0
+    max = [valid.keys.sort.last, valid.keys.sort.last].compact.sort.first || 0
+
+    min = 1759 if min < 1759
+    max = Time.current.year if max > Time.current.year
+
+    invalid_data = {}
+    valid_data = {}
+
+    (min..max).each do |y|
+      invalid_data[y] = invalid[y].present? ? invalid[y].to_i : 0
+      valid_data[y] = valid[y].present? ? valid[y].to_i : 0
+    end
+
+    return {
+      metadata: {
+        max_year: max,
+        min_year: min,
+      },
+      data: [
+        { name: 'Valid', data: valid_data},
+        { name: 'Invalid', data: invalid_data}
+      ]
+    }
+  end
+
+  def taxon_name_year_data_table(data, *attributes)
+    a = data[:data].first
+    b = data[:data].second
+
+    content_tag(:table,
+      safe_join([
+        tag.thead(
+          tag.tr(
+            safe_join [tag.th('Year'), tag.th(a[:name]), tag.th(b[:name])]
+          )
+        ),
+        safe_join((data[:metadata][:min_year]..data[:metadata][:max_year]).collect{|y|
+          tag.tr(
+            safe_join([
+              tag.td(y),
+              tag.td(a[:data][y]),
+              tag.td(b[:data][y])
+            ])
+          )
+        })
+      ]), *attributes
+    )
+  end
+
+  # Perhaps a /lib/catalog method
+  # @return Hash
+  def taxon_names_cumulative_count_by_validity_and_year(scope = nil)
+    return {} if scope.nil?
+    invalid = taxon_names_by_year_count(scope.that_is_invalid)
+    valid = taxon_names_by_year_count(scope.that_is_valid)
+
+    min = [invalid.keys.sort.first, invalid.keys.sort.first].compact.sort.first || 0
+    max = [valid.keys.sort.last, valid.keys.sort.last].compact.sort.first || 0
+
+    min = 1759 if min < 1759
+    max = Time.current.year if max > Time.current.year
+
+    invalid_data = {}
+    valid_data = {}
+
+    invalid_total = 0
+    valid_total = 0
+
+    (min..max).each do |y|
+
+      i = ( invalid[y].present? ? invalid[y].to_i : 0 )
+      v = ( valid[y].present? ? valid[y].to_i : 0  )
+
+      invalid_total += i
+      valid_total += v
+
+      invalid_data[y] = invalid_total
+      valid_data[y] =  valid_total
+    end
+
+    return {
+      metadata: {
+        max_year: max,
+        min_year: min,
+      },
+      data: [
+        { name: 'Valid', data: valid_data},
+        { name: 'Invalid', data: invalid_data}
+      ]
+    }
+  end
+
+  def taxon_names_per_year(totals)
+    min = totals.keys.sort.first || 0
+    max = totals.keys.sort.last || 0
+
+    min = 1759 if min < 1759
+    max = Time.current.year if max > Time.current.year
+
+    data = {}
+
+    (min..max).each do |y|
+      data[y] = totals[y].present? ? totals[y].to_i : 0
+    end
+
+    data
+  end
+
+  def taxon_names_by_year_count(names)
+    t = names.select('EXTRACT(YEAR FROM taxon_names.cached_nomenclature_date) AS year, COUNT(*) AS count').group('year').inject({}){|hsh, r| hsh[r.year.to_i] = r.count; hsh}
+    t
+  end
+
+  def document_names_per_year(names)
+    taxon_names_per_year(
+      taxon_names_by_year_count(names)
+    )
   end
 
   protected

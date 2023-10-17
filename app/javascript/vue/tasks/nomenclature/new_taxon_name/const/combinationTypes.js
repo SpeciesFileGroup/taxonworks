@@ -7,7 +7,7 @@ import {
   TAXON_RELATIONSHIP_ORIGINAL_SUBFORM,
   TAXON_RELATIONSHIP_ORIGINAL_VARIETY,
   TAXON_RELATIONSHIP_ORIGINAL_SUBVARIETY
-} from 'constants/index.js'
+} from '@/constants/index.js'
 
 const genusGroup = {
   genus: TAXON_RELATIONSHIP_ORIGINAL_GENUS,
@@ -16,7 +16,7 @@ const genusGroup = {
 
 const speciesGroup = {
   species: TAXON_RELATIONSHIP_ORIGINAL_SPECIES,
-  subspecies: TAXON_RELATIONSHIP_ORIGINAL_SUBSPECIES,
+  subspecies: TAXON_RELATIONSHIP_ORIGINAL_SUBSPECIES
 }
 
 export const subsequentCombinationType = Object.freeze({

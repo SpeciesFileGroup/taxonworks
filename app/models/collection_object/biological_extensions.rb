@@ -4,7 +4,7 @@ module CollectionObject::BiologicalExtensions
 
   extend ActiveSupport::Concern
 
-  included do  
+  included do
 
     include Shared::BiologicalAssociations
 
@@ -31,7 +31,7 @@ module CollectionObject::BiologicalExtensions
     accepts_nested_attributes_for :otus, allow_destroy: true, reject_if: :reject_otus
     accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
 
-    # Note that this should not be a has_one because order is over-ridden on .first 
+    # Note that this should not be a has_one because order is over-ridden on .first
     # and can be lost when merged into other queries.
     def current_taxon_determination
       taxon_determinations.order(:position).first
@@ -69,4 +69,3 @@ module CollectionObject::BiologicalExtensions
   end
 
 end
-

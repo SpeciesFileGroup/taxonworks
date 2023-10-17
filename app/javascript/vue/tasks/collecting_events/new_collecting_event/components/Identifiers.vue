@@ -3,7 +3,9 @@
     <h3>Identifier</h3>
     <fieldset>
       <legend>Namespace</legend>
-      <div class="horizontal-left-content align-start separate-bottom full_width">
+      <div
+        class="horizontal-left-content align-start separate-bottom full_width"
+      >
         <smart-selector
           class="full_width"
           ref="smartSelector"
@@ -12,10 +14,13 @@
           klass="CollectionObject"
           pin-section="Namespaces"
           pin-type="Namespace"
-          @selected="setNamespace"/>
+          @selected="setNamespace"
+        />
         <a
           class="margin-small-top margin-small-left"
-          href="/namespaces/new">New</a>
+          href="/namespaces/new"
+          >New</a
+        >
       </div>
       <template v-if="identifier.namespace">
         <div class="middle separate-top">
@@ -38,7 +43,8 @@
         <input
           class="full_width"
           type="text"
-          v-model.number="identifier.start">
+          v-model.number="identifier.start"
+        />
       </div>
       <div class="field label-above margin-small-left full_width">
         <label>End</label>
@@ -46,15 +52,15 @@
           disabled
           class="full_width"
           :value="end"
-          type="text">
+          type="text"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
 
 export default {
   components: { SmartSelector },
@@ -74,33 +80,33 @@ export default {
   emits: ['update:modelValue'],
 
   computed: {
-    end () {
+    end() {
       return this.identifier.start + this.count - 1
     },
 
     identifier: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       start: null
     }
   },
 
   methods: {
-    setNamespace (namespace) {
+    setNamespace(namespace) {
       this.identifier.namespace = namespace
       this.namespace = namespace
     },
 
-    unset () {
+    unset() {
       this.identifier.namespace = undefined
       this.namespace = undefined
     }
@@ -109,7 +115,7 @@ export default {
 </script>
 
 <style scoped>
-  .validate-identifier {
-    border: 1px solid red
-  }
+.validate-identifier {
+  border: 1px solid red;
+}
 </style>

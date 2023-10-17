@@ -2,16 +2,16 @@
 #
 # Instantiating this class asserts that a namespace can not be determined.
 #
-# @!attribute identifier 
+# @!attribute identifier
 #   @return [String]
 #   The *verbatim* value of this identifier.
 class Identifier::Unknown < Identifier
 
-  validates_uniqueness_of :identifier
+  validates_uniqueness_of :identifier, scope: [:project_id]
 
   protected
 
   def set_cached
     update_column(:cached, identifier)
-  end 
+  end
 end

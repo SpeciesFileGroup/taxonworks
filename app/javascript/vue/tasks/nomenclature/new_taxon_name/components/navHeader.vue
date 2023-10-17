@@ -1,5 +1,5 @@
 <template>
-  <nav-bar>
+  <nav-bar navbar-class="panel content relative">
     <div class="flex-separate">
       <ul class="no_bullets context-menu">
         <template
@@ -58,10 +58,10 @@
 import SaveTaxonName from './saveTaxonName.vue'
 import CreateNewButton from './createNewButton.vue'
 import CloneTaxonName from './cloneTaxon'
-import NavBar from 'components/layout/NavBar'
+import NavBar from '@/components/layout/NavBar'
 import Autosave from './autosave'
 import { GetterNames } from '../store/getters/getters'
-import { RouteNames } from 'routes/routes'
+import { RouteNames } from '@/routes/routes'
 
 export default {
   components: {

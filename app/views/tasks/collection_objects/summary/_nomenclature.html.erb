@@ -1,0 +1,92 @@
+<h3> Taxonomic scope </h3>
+<table>
+  <tr><th></th><th>Count</th><th> Notes </th> <th> Filter </th> </tr>
+  <tr>
+    <td> Taxon concepts (OTUs) in determinations</td>
+    <td> <%= total_otus = ::Queries::Otu::Filter.new(collection_object_query: @collection_objects_query.params).all.count -%> </td>
+  </tr>
+
+  <tr>
+    <% total_families_query = ::Queries::CollectionObject::Filter.new(@collection_objects_query.params.merge(taxon_name_query: {taxon_name_type: 'Protonym', nomenclature_group: 'Family'}) ) -%>
+    <td> Objects determined to family level only </td>
+    <td> <%= total_families = total_families_query.all.count -%> </td>
+    <td></td>
+    <td> <%= link_to('Taxon names', filter_taxon_names_task_url(
+      collection_object_query: ::Queries::CollectionObject::Filter.new(@collection_objects_query.params).params,
+      taxon_name_type: 'Protonym',
+      nomenclature_group: 'Family'
+    )) -%>,
+
+    <%= link_to('Objects', filter_collection_objects_task_url(total_families_query.params)) %>
+    </td>
+  </tr>
+
+  <tr>
+    <% total_genera_query = ::Queries::CollectionObject::Filter.new(@collection_objects_query.params.merge(taxon_name_query: {taxon_name_type: 'Protonym', nomenclature_group: 'Genus'}) ) %>
+    <td> Objects determined to genus level only </td>
+    <td> <%= total_genera = total_genera_query.all.count -%> </td>
+    <td></td>
+    <td> <%= link_to('Taxon names', filter_taxon_names_task_url(
+      collection_object_query: ::Queries::CollectionObject::Filter.new(@collection_objects_query.params).params,
+      taxon_name_type: 'Protonym',
+      nomenclature_group: 'Genus'
+    )) -%>,
+
+    <%= link_to('Objects', filter_collection_objects_task_url(total_genera_query.params)) %>
+    </td>
+  </tr>
+
+  <tr>
+    <td> Objects determined to species level </td>
+    <td> <%= total_species = ::Queries::CollectionObject::Filter.new(@collection_objects_query.params.merge(taxon_name_query: {taxon_name_type: 'Protonym', nomenclature_group: 'Species'}) ).all.count -%> </td>
+  </tr>
+
+  <tr>
+    <td> Direct family group names (number of names in deteriminations at this level) </td>
+    <td> <%= direct_family_names = Protonym.joins(:collection_objects).where(collection_objects: @collection_objects).is_family_group.distinct.count -%> </td>
+  </tr>
+
+  <tr>
+    <td> Direct genus group names (number of names in deteriminations at this level) </td>
+    <td> <%= direct_genus_names = Protonym.joins(:collection_objects).where(collection_objects: @collection_objects).is_genus_group.distinct.count -%> </td>
+  </tr>
+
+  <tr>
+    <td> Family inferred (nomenclature, Family rank only) </td>
+    <td> <%= family_inferred = Protonym.names_at_rank_group_for_collection_objects(rank: '%::Family', collection_object_query: @collection_objects_query.params).count -%> </td>
+  </tr>
+
+  <tr>
+    <td> Genera inferred (nomenclature, Genus rank only) </td>
+    <td> <%= genera_inferred = Protonym.names_at_rank_group_for_collection_objects(rank: '%::Genus', collection_object_query: @collection_objects_query.params).count -%> </td>
+  </tr>
+
+  <tr>
+    <td> Species inferred (nomenclature, species group) </td>
+    <td> <%= species_inferred = Protonym.names_at_rank_group_for_collection_objects(rank: '%SpeciesGroup%', collection_object_query: @collection_objects_query.params).count -%> </td>
+  </tr>
+</table>
+
+<h3> Determinations </h3>
+<table>
+  <tr><th></th><th>Count</th><th> % total </th> <th> Filter </th> </tr>
+  <tr>
+    <td> Collection objects with determinations </td>
+    <td> <%= objects_with_determinations = @collection_objects.joins(:taxon_determinations).distinct.count -%> </td>
+    <td> <%= (100.0 * (objects_with_determinations.to_f / @collection_objects.count.to_f)).round(2) -%> </td>
+    <td> <%= link_to('Link', filter_collection_objects_task_url(
+      ::Queries::CollectionObject::Filter.new(@collection_objects_query.params.merge(taxon_determinations: true)).params
+    )) -%>
+    </td>
+  </tr>
+
+  <tr>
+    <td> Collection objects with determinations </td>
+    <td> <%= objects_without_determinations = @collection_objects.where.missing(:taxon_determinations).distinct.count -%> </td>
+    <td> <%= (100.0 * (objects_without_determinations.to_f / @collection_objects.count.to_f)).round(2) -%> </td>
+    <td> <%= link_to('Link', filter_collection_objects_task_url(
+      ::Queries::CollectionObject::Filter.new(@collection_objects_query.params.merge(taxon_determinations: false)).params
+    )) -%>
+    </td>
+  </tr>
+</table>

@@ -11,6 +11,8 @@ function makeInitialState() {
     },
     loan: {
       roles_attributes: [],
+      loan_recipient_roles: [],
+      loan_supervisor_roles: [],
       date_requested: undefined,
       request_method: undefined,
       date_sent: undefined,

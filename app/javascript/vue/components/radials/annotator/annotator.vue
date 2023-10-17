@@ -56,11 +56,10 @@
 
       <VBtn
         v-if="showBottom"
-        :title="buttonTitle"
-        class="circle-button"
-        :class="[pulse ? 'pulse-blue' : '']"
-        color="radial"
         circle
+        color="radial"
+        :title="buttonTitle"
+        :class="[pulse ? 'pulse-blue' : '']"
         :disabled="disabled"
         @contextmenu.prevent="loadContextMenu"
         @click="displayAnnotator()"
@@ -87,11 +86,11 @@
   </div>
 </template>
 <script>
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import modal from 'components/ui/Modal.vue'
-import spinner from 'components/spinner.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import modal from '@/components/ui/Modal.vue'
+import spinner from '@/components/spinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 import CRUD from './request/crud'
 
@@ -111,8 +110,8 @@ import verifiersAnnotator from './components/verifiers/Verifiers.vue'
 import ContextMenu from './components/contextMenu'
 import Icons from './images/icons.js'
 import shortcutsMixin from '../mixins/shortcuts'
-import { Tag } from 'routes/endpoints'
-import { RadialAnnotatorEventEmitter } from 'utils/index.js'
+import { Tag } from '@/routes/endpoints'
+import { RadialAnnotatorEventEmitter } from '@/utils/index.js'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
@@ -428,11 +427,25 @@ export default {
     },
 
     setTotal(total) {
-      this.metadata.endpoints[this.currentAnnotator].total = total
+      const sliceMetadata = this.metadata.endpoints[this.currentAnnotator]
+
+      if (total !== sliceMetadata.total) {
+        sliceMetadata.total = total
+        this.eventUpdate()
+      }
     },
 
     eventOpen() {
       const event = new CustomEvent('radialAnnotator:open', {
+        detail: {
+          metadata: this.metadata
+        }
+      })
+      document.dispatchEvent(event)
+    },
+
+    eventUpdate() {
+      const event = new CustomEvent('radialAnnotator:update', {
         detail: {
           metadata: this.metadata
         }

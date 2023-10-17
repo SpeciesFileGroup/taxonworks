@@ -142,7 +142,7 @@ class Combination < TaxonName
     }
 
     define_method("#{method}=") {|value|
-      if !value.blank?
+      if value.present?
         if n = Protonym.find(value)
           self.send("#{rank}=", n)
         end
@@ -255,7 +255,7 @@ class Combination < TaxonName
     c = Combination.arel_table
     r = TaxonNameRelationship.arel_table
 
-    a = c.alias("a_foo")
+    a = c.alias('a_foo')
 
     b = c.project(a[Arel.star]).from(a)
           .join(r)
@@ -275,7 +275,7 @@ class Combination < TaxonName
     end
 
     b = b.group(a['id']).having(r['object_taxon_name_id'].count.eq(keyword_args.keys.count))
-    b = b.as("z_bar")
+    b = b.as('z_bar')
 
     Combination.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(c['id']))))
   end
@@ -330,16 +330,16 @@ class Combination < TaxonName
       end
     end
     if data['genus'].nil?
-      data['genus'] = [nil, "[GENUS NOT SPECIFIED]"]
+      data['genus'] = [nil, '[GENUS NOT SPECIFIED]']
     end
     if data['species'].nil? && (!data['subspecies'].nil? || !data['variety'].nil? || !data['subvariety'].nil? || !data['form'].nil? || !data['subform'].nil?)
-      data['species'] = [nil, "[SPECIES NOT SPECIFIED]"]
+      data['species'] = [nil, '[SPECIES NOT SPECIFIED]']
     end
     if data['variety'].nil? && !data['subvariety'].nil?
-      data['variety'] = [nil, "[VARIETY NOT SPECIFIED]"]
+      data['variety'] = [nil, '[VARIETY NOT SPECIFIED]']
     end
     if data['form'].nil? && !data['subform'].nil?
-      data['form'] = [nil, "[FORM NOT SPECIFIED]"]
+      data['form'] = [nil, '[FORM NOT SPECIFIED]']
     end
 
     data
@@ -444,7 +444,7 @@ class Combination < TaxonName
   end
 
   def sv_combination_duplicates
-    duplicate = Combination.not_self(self).where(cached: cached, cached_author_year: cached_author_year)
+    duplicate = Combination.not_self(self).where(cached:, cached_author_year:, project_id: self.project_id)
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
   end
 

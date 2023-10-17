@@ -4,21 +4,24 @@
       <div
         class="flex-wrap-column full_width"
         v-for="(column, key, index) in componentsOrder"
-        :class="{ 'margin-medium-right': (index < lastColumn) }"
-        :key="key">
+        :class="{ 'margin-medium-right': index < lastColumn }"
+        :key="key"
+      >
         <h2 v-if="titleSection[key]">{{ titleSection[key] }}</h2>
         <draggable
           class="full_width"
           v-model="componentsOrder[key]"
-          :item-key="element => element"
+          :item-key="(element) => element"
           @end="updatePreferences"
-          :disabled="!sortable">
+          :disabled="!sortable"
+        >
           <template #item="{ element }">
             <component
               class="separate-bottom"
               v-model="collectingEvent"
               :components-order="componentsOrder"
-              :is="element"/>
+              :is="element"
+            />
           </template>
         </draggable>
       </div>
@@ -27,9 +30,8 @@
 </template>
 
 <script>
-
 import Draggable from 'vuedraggable'
-import { User } from 'routes/endpoints'
+import { User } from '@/routes/endpoints'
 
 import {
   ComponentMap,
@@ -57,21 +59,21 @@ export default {
   },
 
   computed: {
-    lastColumn () {
+    lastColumn() {
       return Object.keys(this.componentsOrder).length - 1
     },
 
     collectingEvent: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     },
 
     collectingEventId: {
-      get () {
+      get() {
         return this.collectingEvent.id
       }
     }
@@ -79,9 +81,14 @@ export default {
 
   watch: {
     preferences: {
-      handler () {
+      handler() {
         const store = this.preferences.layout[this.keyStorage]
-        if (store && Object.keys(this.componentsOrder).every(key => store[key].length === this.componentsOrder[key].length)) {
+        if (
+          store &&
+          Object.keys(this.componentsOrder).every(
+            (key) => store[key].length === this.componentsOrder[key].length
+          )
+        ) {
           this.componentsOrder = store
         }
       },
@@ -89,7 +96,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       componentsOrder: {
         componentVerbatim: Object.keys(ComponentVerbatim),
@@ -105,15 +112,17 @@ export default {
     }
   },
 
-  created () {
-    User.preferences().then(response => {
+  created() {
+    User.preferences().then((response) => {
       this.preferences = response.body
     })
   },
 
   methods: {
-    updatePreferences () {
-      User.update(this.preferences.id, { user: { layout: { [this.keyStorage]: this.componentsOrder } } }).then(response => {
+    updatePreferences() {
+      User.update(this.preferences.id, {
+        user: { layout: { [this.keyStorage]: this.componentsOrder } }
+      }).then((response) => {
         this.preferences.layout = response.body.preferences
         this.componentsOrder = response.body.preferences.layout[this.keyStorage]
       })

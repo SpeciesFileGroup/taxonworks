@@ -4,7 +4,7 @@ module Shared
 
     # Code to update (dynamic) matrix content based on what goes on with this instance.
     #
-    #  This code handles first creates and changes, not use increments nor destroys.  It ensures there 
+    #  This code handles first creates and changes, not use increments nor destroys.  It ensures there
     #  are rows/columns created when changes happens, that's it.
     #
     # This module handles a once-removed abstraction edge case.
@@ -72,7 +72,7 @@ module Shared
         in_scope_observation_matrix_column_items - (in_scope_observation_matrix_column_items & out_of_scope_observation_matrix_column_items)
       end
 
-      def dynamic_row_items_in 
+      def dynamic_row_items_in
         @dynamic_row_items_in ||= in_scope_observation_matrix_row_items
       end
 
@@ -86,7 +86,7 @@ module Shared
             p = mri.find_or_build_row(o)
             if p.persisted?
              #if p.observation_object == o
-             #  p.update_column(:reference_count,  p.reference_count + 1) 
+             #  p.update_column(:reference_count,  p.reference_count + 1)
              #end
             else
               p.reference_count = 1
@@ -104,7 +104,7 @@ module Shared
         end
       end
 
-      def dynamic_column_items_in 
+      def dynamic_column_items_in
         @dynamic_column_items_in ||= in_scope_observation_matrix_column_items
       end
 
@@ -118,9 +118,9 @@ module Shared
           mci.column_objects.each do |o|
             p = mci.find_or_build_column(o)
             if p.persisted?
-             # See row version.  
+             # See row version.
              #if p.descriptor == o
-             #  #p.update_column(:reference_count,  p.reference_count + 1) 
+             #  #p.update_column(:reference_count,  p.reference_count + 1)
              #end
               #  see "only added observation_matrix column is incremented" spec  # mci.increment_matrix_column_reference_count(p)
             else
@@ -149,24 +149,24 @@ module Shared
       end
 
       def prepare_matrix_items
-        # Rows 
-     
+        # Rows
+
         @dynamic_row_items_in = in_scope_observation_matrix_row_items
         @dynamic_row_items_out = out_of_scope_observation_matrix_row_items
 
-        # After save our out maps don't capture items that *were* there, 
+        # After save our out maps don't capture items that *were* there,
         # so we cache those records that need to be popped off the matrix row stack
         @dynamic_row_out_map = {}
         @dynamic_row_items_out.each do |mri|
           @dynamic_row_out_map[mri.id] = mri.observation_objects
         end
 
-        # Columns 
-       
+        # Columns
+
         @dynamic_column_items_in = in_scope_observation_matrix_column_items
         @dynamic_column_items_out = out_of_scope_observation_matrix_column_items
-        
-        # After save our out maps don't capture items that *were* there, 
+
+        # After save our out maps don't capture items that *were* there,
         # so we cache those records that need to be popped off the matrix column stack
         @dynamic_column_out_map = {}
         @dynamic_column_items_out.each do |mci|
@@ -176,9 +176,9 @@ module Shared
 
       def dynamic_inspect_matrices
         # TODO: strengthen checks for whether this is necessary
-        if ObservationMatrix.where(project_id: project_id).any?
+        if ObservationMatrix.where(project_id:).any?
           prepare_matrix_items
-        end      
+        end
       end
 
     end

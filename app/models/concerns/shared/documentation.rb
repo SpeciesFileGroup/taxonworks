@@ -33,7 +33,7 @@ module Shared::Documentation
   end
 
   def reject_documents(attributed)
-    attributed['document_file'].blank? 
+    attributed['document_file'].blank?
   end
 
 end

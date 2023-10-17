@@ -1,4 +1,4 @@
-import { CollectionObject } from 'routes/endpoints'
+import { CollectionObject } from '@/routes/endpoints'
 
 export default ({ state }, coId) =>
   CollectionObject.timeline(coId).then(({ body }) => {

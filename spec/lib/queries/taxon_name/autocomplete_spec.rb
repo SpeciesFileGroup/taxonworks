@@ -43,7 +43,7 @@ describe Queries::TaxonName::Autocomplete, type: :model do
   end
 
   specify '#autocomplete_exact_name_and_year 1' do
-    query.terms = 'vulnerata' 
+    query.terms = 'vulnerata'
     expect(query.autocomplete_exact_name_and_year).to eq(nil)
   end
 
@@ -53,7 +53,7 @@ describe Queries::TaxonName::Autocomplete, type: :model do
   end
 
   specify '#autocomplete_exact_cached' do
-    query.terms = name 
+    query.terms = name
     expect(query.autocomplete_exact_cached.all).to include(species)
   end
 
@@ -82,18 +82,30 @@ describe Queries::TaxonName::Autocomplete, type: :model do
     expect(query.autocomplete).to be_truthy
   end
 
-  specify '#autocomplete_top_name 1' do
-    query.terms = 'vulnerata' 
-    expect(query.autocomplete_top_name.first).to eq(species)
+  # These specs were not top, they are exact 
+  
+  # specify '#autocomplete_top_name 1' do
+  #   query.terms = 'vulnerata'
+  #   expect(query.autocomplete_top_name.first).to eq(species)
+  # end
+
+  # specify '#autocomplete_top_name 2' do
+  #   query.terms = 'Erasmoneura'
+  #   expect(query.autocomplete_top_name.first).to eq(genus)
+  # end
+
+  specify '#autocomplete_exact_name 1' do
+    query.terms = 'vulnerata'
+    expect(query.autocomplete_exact_name.first).to eq(species)
   end
 
-  specify '#autocomplete_top_name 2' do
-    query.terms = 'Erasmoneura' 
-    expect(query.autocomplete_top_name.first).to eq(genus) 
+  specify '#autocomplete_exact_name 2' do
+    query.terms = 'Erasmoneura'
+    expect(query.autocomplete_exact_name.first).to eq(genus)
   end
 
   specify '#autocomplete_top_cached' do
-    query.terms = name 
+    query.terms = name
     expect(query.autocomplete_top_cached.first).to eq(species)
   end
 
@@ -153,6 +165,17 @@ describe Queries::TaxonName::Autocomplete, type: :model do
   end
 
   context 'methods' do
+
+    specify '#authorship 0' do
+      query.query_string = 'bus Smith'
+      expect(query.authorship).to eq('Smith')
+    end
+
+    specify '#authorship 0' do
+      query.query_string = 'bus Smith 2010'
+      expect(query.authorship).to eq('Smith 2010')
+    end
+
     specify '#authorship 1' do
       query.query_string = 'Aus bus Smith'
       expect(query.authorship).to eq('Smith')

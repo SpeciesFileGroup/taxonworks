@@ -58,7 +58,7 @@ class SourcesController < ApplicationController
 
   # GET /sources/new
   def new
-    redirect_to new_source_task_path, notice: "Redirected to new interface."
+    redirect_to new_source_task_path, notice: 'Redirected to new interface.'
   end
 
   # POST /sources
@@ -164,6 +164,14 @@ class SourcesController < ApplicationController
   def batch_load
   end
 
+  # PATCH /sources/batch_update.json?source_query=<>&serial_id
+  def batch_update
+    if @result = Source::Bibtex.batch_update(params)
+    else
+      render json: {success: false}
+    end
+  end
+
   def preview_bibtex_batch_load
     file = params.require(:file)
     redirect_to batch_load_sources_path, notice: 'No file has been selected.' and return if file.blank?
@@ -211,7 +219,7 @@ class SourcesController < ApplicationController
       Source.joins(:project_sources)
       .where(project_sources: {project_id: sessions_current_project_id})
       .all),
-    type: 'text', filename: "sources_#{DateTime.now}.csv"
+    type: 'text', filename: "sources_#{DateTime.now}.tsv"
   end
 
   # GET /sources/generate.json?<filter params>

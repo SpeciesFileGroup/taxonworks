@@ -19,7 +19,7 @@
         @getId="setSource"
       />
     </div>
-    <hr>
+    <hr />
     <div v-if="citation">
       <div class="flex-separate middle">
         <p>
@@ -29,9 +29,10 @@
           />
           <soft-validation
             :validate-object="citation"
-            :global-id="citation.global_id"/>
+            :global-id="citation.global_id"
+          />
         </p>
-        <div class="horizontal-left-content">
+        <div class="horizontal-left-content gap-small">
           <citation-pages
             @setPages="addPages"
             @save="triggerSave"
@@ -41,9 +42,7 @@
             v-if="citation.hasOwnProperty('target_document')"
             :pdf="citation.target_document"
           />
-          <radial-object
-            :global-id="citation.source.global_id"
-          />
+          <radial-object :global-id="citation.source.global_id" />
           <radial-annotator
             type="annotations"
             :global-id="citation.source.global_id"
@@ -62,13 +61,13 @@ import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import DefaultElement from 'components/getDefaultPin.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialObject from 'components/radials/navigation/radial'
-import PdfButton from 'components/pdfButton'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
+import DefaultElement from '@/components/getDefaultPin.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/navigation/radial'
+import PdfButton from '@/components/pdfButton'
 import CitationPages from '../citationPages.vue'
-import SoftValidation from 'components/soft_validations/objectValidation.vue'
+import SoftValidation from '@/components/soft_validations/objectValidation.vue'
 
 export default {
   components: {
@@ -81,33 +80,33 @@ export default {
     SoftValidation
   },
 
-  data () {
+  data() {
     return {
       autosave: undefined
     }
   },
 
   computed: {
-    citation () {
+    citation() {
       return this.$store.getters[GetterNames.GetCitation]
     },
 
     taxon: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetTaxon]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetTaxon, value)
       }
     },
 
-    isAutosaveActive () {
+    isAutosaveActive() {
       return this.$store.getters[GetterNames.GetAutosave]
-    },
+    }
   },
 
   watch: {
-    lastSave () {
+    lastSave() {
       if (this.autosave) {
         clearTimeout(this.autosave)
         this.autosave = null
@@ -116,7 +115,7 @@ export default {
   },
 
   methods: {
-    setSource (source) {
+    setSource(source) {
       const newSource = {
         id: source?.id || source,
         pages: this.citation?.pages || null
@@ -125,7 +124,7 @@ export default {
       this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
     },
 
-    addPages (citation) {
+    addPages(citation) {
       const newSource = {
         id: citation.source_id,
         pages: citation?.pages || null
@@ -141,13 +140,17 @@ export default {
       }
     },
 
-    triggerSave (citation) {
+    triggerSave(citation) {
       clearTimeout(this.autosave)
       this.$store.dispatch(ActionNames.UpdateSource, citation)
     },
 
-    removeSource (id) {
-      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+    removeSource(id) {
+      if (
+        window.confirm(
+          "You're trying to delete this record. Are you sure want to proceed?"
+        )
+      ) {
         this.$store.dispatch(ActionNames.RemoveSource, id)
       }
     }

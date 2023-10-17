@@ -15,7 +15,7 @@
       max="4"
       step="0"
       v-model="optionValue"
-    >
+    />
     <div class="options-label">
       <span
         v-for="option in OPTIONS"
@@ -27,9 +27,9 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { computed, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
 
 const props = defineProps({
   modelValue: {
@@ -42,12 +42,19 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const optionValue = computed({
-  get: () => params.value.updated_since ? OPTIONS.findIndex(opt => opt.value === parseDateIntoDays(params.value.updated_since)) || 0 : 0,
-  set: value => { params.value.updated_since = setDays(OPTIONS[value].value) }
+  get: () =>
+    params.value.updated_since
+      ? OPTIONS.findIndex(
+          (opt) => opt.value === parseDateIntoDays(params.value.updated_since)
+        ) || 0
+      : 0,
+  set: (value) => {
+    params.value.updated_since = setDays(OPTIONS[value].value)
+  }
 })
 
 const OPTIONS = [
@@ -86,7 +93,7 @@ const parseDateIntoDays = (updateDate) => {
   return Math.floor(dffInDay)
 }
 
-const setDays = days => {
+const setDays = (days) => {
   const date = new Date()
 
   date.setDate(date.getDate() - days)
@@ -108,21 +115,20 @@ const setDays = days => {
     text-align: center;
     width: 1px;
     white-space: nowrap;
-    background: #D3D3D3;
+    background: #d3d3d3;
     height: 10px;
     line-height: 40px;
     margin: 0 0 20px 0;
   }
 }
-  datalist {
-    display: flex;
-    justify-content: space-between;
-    margin-top: -23px;
-    padding-top: 0px;
-    width: 300px;
-  }
-  input[type="range"] {
-    width: 300px;
-  }
-
+datalist {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -23px;
+  padding-top: 0px;
+  width: 300px;
+}
+input[type='range'] {
+  width: 300px;
+}
 </style>

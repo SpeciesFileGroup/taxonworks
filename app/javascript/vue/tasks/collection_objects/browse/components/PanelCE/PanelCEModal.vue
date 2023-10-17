@@ -61,15 +61,15 @@
 
 <script setup>
 import { ref } from 'vue'
-import { CollectionObject } from 'routes/endpoints'
+import { CollectionObject } from '@/routes/endpoints'
 import { useStore } from 'vuex'
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
-import VModal from 'components/ui/Modal.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VSpinner from 'components/spinner.vue'
-import ConfirmationModal from 'components/ConfirmationModal.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/spinner.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
 const props = defineProps({
   collectingEventId: {

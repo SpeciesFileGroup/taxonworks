@@ -17,7 +17,7 @@ module ApplicationEnumeration
     if object.class::ALTERNATE_VALUES_FOR.blank?
       raise("#{object.class} attempted to annotate a class without ALTERNATE_VALUES_FOR -  please inform the programmers")
     else
-      object.attributes.select{|k,v| !v.blank? && object.class::ALTERNATE_VALUES_FOR.include?(k.to_sym)}.keys.map(&:to_sym)
+      object.attributes.select{|k,v| v.present? && object.class::ALTERNATE_VALUES_FOR.include?(k.to_sym)}.keys.map(&:to_sym)
     end
   end
 
@@ -26,7 +26,7 @@ module ApplicationEnumeration
   #   a whitelist of the attributes of a given instance that may be annotated
   # !! Some models have blacklists (e.g. Serial)
   def self.annotatable_attributes(object)
-    object.attributes.select{|k,v| !v.blank? && !(k =~ /.*_id\z|cached_*.*/)}.keys.map(&:to_sym) - ( RESERVED_ATTRIBUTES - [:parent_id])
+    object.attributes.select{|k,v| v.present? && !(k =~ /.*_id\z|cached_*.*/)}.keys.map(&:to_sym) - ( RESERVED_ATTRIBUTES - [:parent_id])
   end
 
   # @return [Array]
@@ -39,6 +39,12 @@ module ApplicationEnumeration
   #   all models with a project_id attribute
   def self.project_data_classes
     superclass_models.select{|a| a.column_names.include?('project_id') }
+  end
+
+  # @return [Array of Classes]
+  #   data models that do not have a project_id attribute
+  def self.non_project_data_classes
+    data_models - project_data_classes
   end
 
   # @return [Array]
@@ -86,4 +92,3 @@ module ApplicationEnumeration
   end
 
 end
-

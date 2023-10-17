@@ -19,8 +19,8 @@
 
 <script setup>
 import { ref, onBeforeMount } from 'vue'
-import { ControlledVocabularyTerm, Confidence } from 'routes/endpoints'
-import SmartSelector from 'components/ui/SmartSelector.vue'
+import { ControlledVocabularyTerm, Confidence } from '@/routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
 
 const props = defineProps({
   ids: {

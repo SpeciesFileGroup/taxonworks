@@ -3,7 +3,7 @@ import {
   BiologicalAssociation,
   BiologicalAssociationGraph,
   Citation
-} from 'routes/endpoints'
+} from '@/routes/endpoints'
 import {
   makeBiologicalAssociation,
   makeCitation,
@@ -23,7 +23,8 @@ import {
   isNetwork,
   getHexColorFromString
 } from '../utils'
-import { COLLECTION_OBJECT, BIOLOGICAL_ASSOCIATION } from 'constants/index.js'
+import { addToArray } from '@/helpers/arrays'
+import { COLLECTION_OBJECT, BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 
 const EXTEND_GRAPH = [
   'biological_associations_biological_associations_graphs',
@@ -234,8 +235,7 @@ export function useGraph() {
 
       addObject(ba.subject)
       addObject(ba.object)
-
-      state.biologicalAssociations.push(ba)
+      addToArray(state.biologicalAssociations, ba)
     }
 
     return state.biologicalAssociations.filter((ba) =>
@@ -269,13 +269,13 @@ export function useGraph() {
     obj.citations.splice(index, 1)
   }
 
-  function removeEdge(edgeId) {
+  function removeEdge(edgeId, destroy) {
     const index = state.biologicalAssociations.findIndex(
       (ba) => ba.uuid === edgeId
     )
     const ba = state.biologicalAssociations[index]
 
-    if (ba.id) {
+    if (ba.id && destroy) {
       BiologicalAssociation.destroy(ba.id).then((_) => {
         TW.workbench.alert.create(
           'Biological association was successfully deleted.',
@@ -287,21 +287,23 @@ export function useGraph() {
     state.biologicalAssociations.splice(index, 1)
   }
 
-  function removeNode(nodeId) {
+  function removeNode(nodeId, destroy) {
     const biologicalAssociations = getBiologicalRelationshipsByNodeId(nodeId)
     const created = biologicalAssociations.filter(({ id }) => id)
     const nodeObject = parseNodeId(nodeId)
 
     biologicalAssociations.forEach((ba) => {
-      removeEdge(ba.uuid)
+      removeEdge(ba.uuid, destroy)
     })
 
-    const message =
-      created.length > 1
-        ? 'Biological association(s) were successfully deleted.'
-        : 'Biological association was successfully deleted.'
+    if (destroy) {
+      const message =
+        created.length > 1
+          ? 'Biological association(s) were successfully deleted.'
+          : 'Biological association was successfully deleted.'
 
-    TW.workbench.alert.create(message, 'notice')
+      TW.workbench.alert.create(message, 'notice')
+    }
 
     removeNodeObject(nodeObject)
 

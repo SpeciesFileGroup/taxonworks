@@ -28,7 +28,7 @@ class <Model>Helper
   #    taxon_name_link(@taxon_name)
   #
   # Since these object_ methods provide another level of indirection, they are primarily used when the class 
-  # of the object is not know, such as when one wishes to display a list of tags of differing classes 
+  # of the object is not known, such as when one wishes to display a list of tags of differing classes 
   # of objects. Tag.tag_object is a good example, since this entry can refer to almost any kind of object.
   
   #

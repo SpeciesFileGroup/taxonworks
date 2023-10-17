@@ -15,11 +15,21 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialNomenclature
+          :disabled="!list.length"
+          :parameters="parameters"
+        />
+      </template>
       <template #nav-right>
         <RadialLabel
           :object-type="TAXON_NAME"
           :ids="selectedIds"
           :disabled="!selectedIds.length"
+        />
+        <RadialNomenclature
+          :disabled="!list.length"
+          :ids="selectedIds"
         />
       </template>
       <template #facets>
@@ -43,16 +53,17 @@
   </div>
 </template>
 <script setup>
-import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
-import FilterList from 'components/layout/Filter/FilterList.vue'
-import VSpinner from 'components/spinner.vue'
-import useFilter from 'shared/Filter/composition/useFilter.js'
-import RadialLabel from 'components/radials/label/radial.vue'
+import FilterList from '@/components/Filter/Table/TableResults.vue'
+import VSpinner from '@/components/spinner.vue'
+import useFilter from '@/shared/Filter/composition/useFilter.js'
+import RadialLabel from '@/components/radials/label/radial.vue'
+import RadialNomenclature from '@/components/radials/nomenclature/radial.vue'
 import { ATTRIBUTES } from './constants/attributes.js'
 import { listParser } from './utils/listParser'
-import { TaxonName } from 'routes/endpoints'
-import { TAXON_NAME } from 'constants/index.js'
+import { TaxonName } from '@/routes/endpoints'
+import { TAXON_NAME } from '@/constants/index.js'
 
 const extend = ['parent']
 

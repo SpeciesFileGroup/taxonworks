@@ -33,7 +33,7 @@ module CollectionObjects::CatalogHelper
   end
 
   def collection_object_catalog_date_range(item)
-    d = [ item.start_date, item.end_date].compact.collect{|t| t.strftime('%F')}.join('-')
+    d = [ item.start_date, item.end_date].compact.collect{|t| t.strftime('%F')}.join('/')
     d.empty? ? tag.em('not provided') : d
   end
 

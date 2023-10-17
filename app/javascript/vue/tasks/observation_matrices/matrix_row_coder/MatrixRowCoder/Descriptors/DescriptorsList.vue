@@ -15,21 +15,26 @@
     <v-modal
       v-if="isVisible"
       @close="setModalView(false)"
-      :container-style="{ width: '800px' }">
+      :container-style="{ width: '800px' }"
+    >
       <template #header>
         <h3>Descriptors</h3>
       </template>
       <template #body>
-        <ul class="matrix-row-coder__descriptor-menu flex-wrap-column no_bullets">
-          <li 
+        <ul
+          class="matrix-row-coder__descriptor-menu flex-wrap-column no_bullets"
+        >
+          <li
             v-for="descriptor in descriptors"
-            :key="descriptor.id">
+            :key="descriptor.id"
+          >
             <div>
               <a
                 class="matrix-row-coder__descriptor-item"
                 :data-icon="observationsCount(descriptor.id) ? 'ok' : false"
                 @click="scrollToDescriptor(descriptor.id)"
-                v-html="descriptor.title"/>
+                v-html="descriptor.title"
+              />
             </div>
           </li>
         </ul>
@@ -41,13 +46,13 @@
 <script>
 import { mapState } from 'vuex'
 import { GetterNames } from '../../store/getters/getters'
-import VModal from 'components/ui/Modal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const computed = mapState({
-  title: state => state.taxonTitle,
-  descriptors: state => state.descriptors
+  title: (state) => state.taxonTitle,
+  descriptors: (state) => state.descriptors
 })
 
 export default {
@@ -57,7 +62,7 @@ export default {
     VIcon
   },
 
-  data () {
+  data() {
     return {
       isVisible: false
     }
@@ -66,18 +71,25 @@ export default {
   computed,
 
   methods: {
-    scrollToDescriptor (descriptorId) {
-      const top = document.querySelector(`[data-descriptor-id="${descriptorId}"]`).getBoundingClientRect().top + window.pageYOffset - 80
+    scrollToDescriptor(descriptorId) {
+      const top =
+        document
+          .querySelector(`[data-descriptor-id="${descriptorId}"]`)
+          .getBoundingClientRect().top +
+        window.pageYOffset -
+        80
 
       window.scrollTo({ top })
       this.setModalView(false)
     },
 
-    observationsCount (descriptorId) {
-      return this.$store.getters[GetterNames.GetObservationsFor](descriptorId).find(item => item.id != null)
+    observationsCount(descriptorId) {
+      return this.$store.getters[GetterNames.GetObservationsFor](
+        descriptorId
+      ).find((item) => item.id != null)
     },
 
-    setModalView (value) {
+    setModalView(value) {
       this.isVisible = value
     }
   }

@@ -13,7 +13,7 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(params).all
+        @taxon_names = ::Queries::TaxonName::Filter.new(params).all
         .page(params[:page])
         .per(params[:per])
       }
@@ -32,7 +32,6 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/1/edit
   def edit
-    @taxon_name.source = Source.new if !@taxon_name.source
   end
 
   # POST /taxon_names
@@ -94,8 +93,9 @@ class TaxonNamesController < ApplicationController
 
   def autocomplete
     render json: {} and return if params[:term].blank?
-    @taxon_names = Queries::TaxonName::Autocomplete.new(
+    @taxon_names = ::Queries::TaxonName::Autocomplete.new(
       params[:term],
+      exact: 'true',
       **autocomplete_params
     ).autocomplete
   end
@@ -108,7 +108,7 @@ class TaxonNamesController < ApplicationController
   def download
     send_data Export::Download.generate_csv(
       TaxonName.where(project_id: sessions_current_project_id)
-    ), type: 'text', filename: "taxon_names_#{DateTime.now}.csv"
+    ), type: 'text', filename: "taxon_names_#{DateTime.now}.tsv"
   end
 
   def batch_load
@@ -133,13 +133,13 @@ class TaxonNamesController < ApplicationController
 
   def random
     redirect_to browse_nomenclature_task_path(
-      taxon_name_id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pluck(:id).first
+      taxon_name_id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pick(:id)
     )
   end
 
   def rank_table
-    @query = Queries::TaxonName::Tabular.new(
-      ancestor_id: params.require(:ancestor_id),
+    @query = ::Queries::TaxonName::Tabular.new(
+      taxon_name_id: params.require(:taxon_name_id), # this is one of the few places
       ranks: params.require(:ranks),
       fieldsets: params[:fieldsets],
       limit: params[:limit],
@@ -224,14 +224,33 @@ class TaxonNamesController < ApplicationController
   def original_combination
   end
 
+  # POST /taxon_names/batch_move.json?taxon_names_query=<>&parent_id=123
+  def batch_move
+    if @result = Protonym.batch_move(params)
+    else
+      render json: {success: false}
+    end
+  end
+
   # GET /api/v1/taxon_names
   def api_index
-    @taxon_names = Queries::TaxonName::Filter.new(params.merge!(api: true)).all
+    q = ::Queries::TaxonName::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('taxon_names.id')
-      .page(params[:page])
-      .per(params[:per])
-    render '/taxon_names/api/v1/index'
+
+    respond_to do |format|
+      format.json {
+       @taxon_names = q.page(params[:page]).per(params[:per])
+       render '/taxon_names/api/v1/index'
+     }
+      format.csv {
+        @taxon_names = q
+        send_data Export::Download.generate_csv(
+          @taxon_names,
+          exclude_columns: %w{updated_by_id created_by_id project_id},
+        ), type: 'text', filename: "taxon_names_#{DateTime.now}.tsv"
+      }
+    end
   end
 
   # GET /api/v1/taxon_names/:id
@@ -245,6 +264,7 @@ class TaxonNamesController < ApplicationController
   end
 
   # GET /api/v1/taxon_names/:id/inventory/catalog
+  # Contains stats block
   def api_catalog
     @data = helpers.recursive_catalog_json(taxon_name: @taxon_name, target_depth: params[:target_depth] || 0 )
     render '/taxon_names/api/v1/catalog'
@@ -288,6 +308,7 @@ class TaxonNamesController < ApplicationController
           :last_name, :first_name, :suffix, :prefix
         ]
       ],
+      family_group_name_form_relationship_attributes: [:id, :_destroy, :object_taxon_name_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
       taxon_name_classifications_attributes: [:id, :_destroy, :type]
     )

@@ -63,10 +63,13 @@ class Image < ApplicationRecord
 
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
 
+  GRAPH_ENTRY_POINTS = [:depictions]
+
   DEFAULT_SIZES = {
     thumb: { width: 100, height: 100 },
     medium: { width: 300, height: 300 }
   }.freeze
+
 
   has_one :sled_image, dependent: :destroy
 
@@ -96,7 +99,11 @@ class Image < ApplicationRecord
 
   accepts_nested_attributes_for :sled_image, allow_destroy: true
 
-    # @return [Boolean]
+  def sqed_depiction
+    depictions.joins(:sqed_depiction).first&.sqed_depiction
+  end
+
+  # @return [Boolean]
   def has_duplicate?
     Image.where(image_file_fingerprint: self.image_file_fingerprint).count > 1
   end

@@ -1,11 +1,10 @@
-export default (state, determination) => {
-  const index = determination.id
-    ? state.taxon_determinations.findIndex(d => d.id === determination.id)
-    : state.taxon_determinations.findIndex(d => d.uuid === determination.uuid)
+import { addToArray } from '@/helpers'
 
-  if (index > -1) {
-    state.taxon_determinations[index] = determination
-  } else {
-    state.taxon_determinations.push(determination)
-  }
+export default (state, determination) => {
+  const property = determination.id ? 'id' : 'uuid'
+
+  addToArray(state.taxon_determinations, determination, {
+    property,
+    prepend: true
+  })
 }

@@ -31,7 +31,8 @@
         <button
           type="button"
           class="button normal-input button-default margin-small-left"
-          @click="cloneDate">
+          @click="cloneDate"
+        >
           Clone
         </button>
       </div>
@@ -40,10 +41,9 @@
 </template>
 
 <script>
-
 import extendCE from '../mixins/extendCE'
-import DateFields from 'components/ui/Date/DateFields.vue'
-import DateNow from 'components/ui/Date/DateToday.vue'
+import DateFields from '@/components/ui/Date/DateFields.vue'
+import DateNow from '@/components/ui/Date/DateToday.vue'
 
 export default {
   mixins: [extendCE],
@@ -54,9 +54,10 @@ export default {
   },
 
   methods: {
-    cloneDate () {
+    cloneDate() {
       this.collectingEvent.end_date_day = this.collectingEvent.start_date_day
-      this.collectingEvent.end_date_month = this.collectingEvent.start_date_month
+      this.collectingEvent.end_date_month =
+        this.collectingEvent.start_date_month
       this.collectingEvent.end_date_year = this.collectingEvent.start_date_year
     }
   }

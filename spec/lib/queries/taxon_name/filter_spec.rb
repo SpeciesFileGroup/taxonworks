@@ -206,16 +206,30 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(root.id)
   end
 
-  specify "#taxon_name_id[] 2" do
+  specify "#taxon_name_id[] 2 #descendants" do
     query.taxon_name_id = [genus.id]
-    query.descendants = true
+    query.descendants = true # only descendants
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
+  end
+
+  specify "#taxon_name_id[] 2 #descendants" do
+    query.taxon_name_id = [genus.id]
+    query.descendants = false # self and descendants
     expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id)
   end
 
   specify "#combinationify" do
     combination = Combination.create!(genus:, species:)
     query.taxon_name_id = [genus.id]
-    query.descendants = true
+    query.descendants = true # not self
+    query.combinationify = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id, combination.id)
+  end
+
+  specify "#combinationify" do
+    combination = Combination.create!(genus:, species:)
+    query.taxon_name_id = [genus.id]
+    query.descendants = false
     query.combinationify = true
     expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, combination.id)
   end
@@ -233,10 +247,26 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
 
     query.taxon_name_id = [genus.id]
     query.descendants = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id, species1.id)
+  end
+
+  specify "#taxon_name_id[] 2.2" do
+    species1 = Protonym.create!(
+      name: "atra",
+      rank_class: Ranks.lookup(:iczn, "species"),
+      parent: genus,
+      original_genus: original_genus,
+      verbatim_author: "Fitch & Say",
+      year_of_publication: 1800,
+    )
+    tr = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name_id: species1.id, object_taxon_name_id: species.id)
+
+    query.taxon_name_id = [genus.id]
+    query.descendants = false
     expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, species1.id)
   end
 
-  specify "#synonymify" do
+  specify "#synonymify 1" do
     genus1 = Protonym.create!(
       name: "Genus",
       rank_class: Ranks.lookup(:iczn, "genus"),
@@ -245,6 +275,19 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     tr = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name_id: genus1.id, object_taxon_name_id: genus.id)
     query.taxon_name_id = [genus.id]
     query.descendants = true
+    query.synonymify = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
+  end
+
+  specify "#synonymify 2" do
+    genus1 = Protonym.create!(
+      name: "Genus",
+      rank_class: Ranks.lookup(:iczn, "genus"),
+      parent_id: genus.parent_id,
+    )
+    tr = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name_id: genus1.id, object_taxon_name_id: genus.id)
+    query.taxon_name_id = [genus.id]
+    query.descendants = false
     query.synonymify = true
     expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, genus1.id)
   end
@@ -266,6 +309,13 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     query.taxon_name_id = [genus.id]
     query.ancestors = true
     query.descendants = true
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify "#taxon_name_id[] 5" do
+    query.taxon_name_id = [genus.id]
+    query.ancestors = true
+    query.descendants = false
     expect(query.all.map(&:id)).to contain_exactly(genus.id)
   end
 

@@ -21,6 +21,7 @@
             <spinner v-if="isLoading" />
             <RadialMenu
               v-if="metadata"
+              ref="radialElement"
               :options="menuOptions"
               @onClick="selectedRadialOption"
             />
@@ -41,7 +42,6 @@
       <VBtn
         v-if="showBottom"
         :title="buttonTitle"
-        class="circle-button"
         color="radial"
         circle
         :disabled="disabled"
@@ -58,17 +58,17 @@
 </template>
 
 <script setup>
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import Spinner from 'components/spinner.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import Spinner from '@/components/spinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import Icons from './images/icons.js'
 import DestroyConfirmation from './components/DestroyConfirmation'
 import AllTasks from './components/allTasks.vue'
-import ajaxCall from 'helpers/ajaxCall'
-import { PinboardItem } from 'routes/endpoints'
-import { computed, ref } from 'vue'
-import VModal from 'components/ui/Modal.vue'
+import ajaxCall from '@/helpers/ajaxCall'
+import { PinboardItem } from '@/routes/endpoints'
+import { computed, ref, watch } from 'vue'
+import VModal from '@/components/ui/Modal.vue'
 
 const DEFAULT_OPTIONS = {
   New: 'New',
@@ -223,6 +223,7 @@ const metadata = ref(undefined)
 const title = ref('Radial navigation')
 const deleted = ref(false)
 const showDestroyModal = ref(false)
+const radialElement = ref(null)
 const defaultSlicesTypes = [
   DEFAULT_OPTIONS.Related,
   DEFAULT_OPTIONS.New,
@@ -230,6 +231,21 @@ const defaultSlicesTypes = [
   DEFAULT_OPTIONS.Edit,
   DEFAULT_OPTIONS.Show
 ]
+
+watch(radialElement, (newVal) => {
+  if (newVal) {
+    newVal.$el.querySelectorAll('a').forEach((element) => {
+      element.addEventListener('click', (event) => {
+        const isShortcutKeyPressed =
+          event.ctrlKey || event.shiftKey || event.metaKey
+
+        if (isShortcutKeyPressed) {
+          isRadialOpen.value = false
+        }
+      })
+    })
+  }
+})
 
 function addSlice(type, attr) {
   return {

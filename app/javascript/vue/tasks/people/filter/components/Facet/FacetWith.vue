@@ -16,7 +16,7 @@
           <input
             type="radio"
             :checked="selectedOption === key"
-          >
+          />
           {{ key }}
         </label>
       </li>
@@ -25,9 +25,9 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { computed } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import { URLParamsToJSON } from '@/helpers/url/parse'
 
 const props = defineProps({
   modelValue: {
@@ -46,7 +46,7 @@ const emit = defineEmits(['update:modelValue'])
 const params = computed({
   get: () => props.modelValue,
 
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const selectedOption = computed(() => {
@@ -61,25 +61,30 @@ const selectedOption = computed(() => {
 
 const OPTIONS = {
   both: () => {
-    params.value.with = params.value?.with?.filter(item => item !== props.param)
-    params.value.without = params.value?.without?.filter(item => item !== props.param)
+    params.value.with = params.value?.with?.filter(
+      (item) => item !== props.param
+    )
+    params.value.without = params.value?.without?.filter(
+      (item) => item !== props.param
+    )
   },
 
   with: () => {
     params.value.with = [...new Set([...params.value.with, props.param])]
-    params.value.without = params.value?.without?.filter(item => item !== props.param)
+    params.value.without = params.value?.without?.filter(
+      (item) => item !== props.param
+    )
   },
 
   without: () => {
-    params.value.with = params.value?.with?.filter(item => item !== props.param)
+    params.value.with = params.value?.with?.filter(
+      (item) => item !== props.param
+    )
     params.value.without = [...new Set([...params.value.without, props.param])]
   }
 }
 
-const {
-  with: withParams = [],
-  without = []
-} = URLParamsToJSON(location.href)
+const { with: withParams = [], without = [] } = URLParamsToJSON(location.href)
 
 params.value.with = withParams
 params.value.without = without

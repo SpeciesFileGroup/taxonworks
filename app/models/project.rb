@@ -14,6 +14,10 @@
 #   @return [String, nil]
 #      The token is not intended to be private.  Generating one is akin to indicating that your project's data are public, and they will be exposed in the general API to all.  The token is primarily for tracking "anonymous" use.
 #
+# @!data_curation_issue_tracker_url
+#   @return [String, nil]
+#     The URL to an accessible issue tracker (e.g. Github repo issues) specific to data curation issues.
+#
 class Project < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
@@ -103,6 +107,9 @@ class Project < ApplicationRecord
      DatasetRecordField
      DatasetRecord
      ImportDataset
+     CachedMapItem
+     CachedMapRegister
+     CachedMap
   }.freeze
 
   has_many :project_members, dependent: :restrict_with_error
@@ -156,8 +163,6 @@ class Project < ApplicationRecord
     end
   end
 
-
-
   # !! This is not production ready.
   # @return [Boolean]
   #   based on whether the project has successfully been deleted.  Can also raise on detected problems with configuration.
@@ -184,9 +189,6 @@ class Project < ApplicationRecord
       raise e
     end
   end
-
-
-
 
   # TODO: boot load checks
   def root_taxon_name

@@ -15,6 +15,18 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialAssertedDistribution
+          :disabled="!list.length"
+          :parameters="parameters"
+        />
+      </template>
+      <template #nav-right>
+        <RadialAssertedDistribution
+          :disabled="!list.length"
+          :ids="selectedIds"
+        />
+      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -37,15 +49,16 @@
 </template>
 
 <script setup>
-import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
-import VSpinner from 'components/spinner.vue'
-import useFilter from 'shared/Filter/composition/useFilter.js'
-import FilterList from 'components/layout/Filter/FilterList.vue'
+import VSpinner from '@/components/spinner.vue'
+import useFilter from '@/shared/Filter/composition/useFilter.js'
+import FilterList from '@/components/Filter/Table/TableResults.vue'
+import RadialAssertedDistribution from '@/components/radials/asserted_distribution/radial.vue'
 import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
-import { AssertedDistribution } from 'routes/endpoints'
-import { ASSERTED_DISTRIBUTION } from 'constants/index.js'
+import { AssertedDistribution } from '@/routes/endpoints'
+import { ASSERTED_DISTRIBUTION } from '@/constants/index.js'
 
 const extend = ['otu', 'citations', 'geographic_area', 'taxonomy']
 

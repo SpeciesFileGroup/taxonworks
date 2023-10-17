@@ -52,8 +52,10 @@ class TaxonNameRelationship < ApplicationRecord
   #   When true, cached values are not built
   attr_accessor :no_cached
 
-  belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id, inverse_of: :taxon_name_relationships # left side
-  belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id, inverse_of: :related_taxon_name_relationships # right side
+  belongs_to :subject_taxon_name, class_name: 'TaxonName', inverse_of: :taxon_name_relationships # left side
+  belongs_to :object_taxon_name, class_name: 'TaxonName', inverse_of: :related_taxon_name_relationships # right side
+
+  #has_one :family_group_name_form_relationship, -> {where(type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')}, as: :subject_taxon_name, class_name: 'TaxonNameRelationship', inverse_of: :subject_taxon_name
 
   after_save :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
   after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
@@ -74,8 +76,8 @@ class TaxonNameRelationship < ApplicationRecord
 
   validate :subject_and_object_in_same_project
 
-  with_options unless: -> {!subject_taxon_name || !object_taxon_name} do |v|
-    v.validate :validate_subject_and_object_share_code,
+  with_options unless: -> {!subject_taxon_name || !object_taxon_name} do
+    validate :validate_subject_and_object_share_code,
       :validate_uniqueness_of_typification_object,
       #:validate_uniqueness_of_synonym_subject,
       :validate_object_and_subject_both_protonyms,
@@ -178,7 +180,7 @@ class TaxonNameRelationship < ApplicationRecord
   scope :with_type_contains, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "%#{base_string}%")}
 
   scope :with_two_type_bases, -> (base_string1, base_string2) {
-    where("taxon_name_relationships.type LIKE ? OR taxon_name_relationships.type LIKE ?", "#{base_string1}%", "#{base_string2}%") }
+    where('taxon_name_relationships.type LIKE ? OR taxon_name_relationships.type LIKE ?', "#{base_string1}%", "#{base_string2}%") }
 
   scope :homonym_or_suppressed, -> {where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total'") }
   scope :with_type_array, -> (base_array) {where('taxon_name_relationships.type IN (?)', base_array ) }
@@ -315,8 +317,9 @@ class TaxonNameRelationship < ApplicationRecord
 
   # @return [Time]
   #   effective date of publication, used to determine nomenclatural priorities
+  #   !! Careful, if no date is present the current year is given, rather than nil, @proceps is this a safe inference?
   def nomenclature_date
-    self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : Time.now) : Time.now
+    self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : Time.current) : Time.current
   end
 
   def is_combination?
@@ -358,7 +361,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def validate_subject_and_object_are_not_identical
     if !self.object_taxon_name_id.nil? && self.object_taxon_name == self.subject_taxon_name
-      errors.add(:object_taxon_name_id, "#{self.object_taxon_name.try(:cached_html).to_s} should not refer to itself") unless self.type =~ /OriginalCombination/
+      errors.add(:object_taxon_name_id, "#{self.object_taxon_name.try(:cached_html)} should not refer to itself") unless self.type =~ /OriginalCombination/
     end
   end
 
@@ -378,7 +381,7 @@ class TaxonNameRelationship < ApplicationRecord
       end
     end
 
-    unless self.type_class.blank? # only validate if it is set
+    if self.type_class.present? # only validate if it is set
       if object_taxon_name && object_taxon_name.rank_class
         if object_taxon_name.type == 'Protonym' || object_taxon_name.type == 'Hybrid'
           unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_string)

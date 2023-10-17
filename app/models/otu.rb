@@ -24,7 +24,7 @@
 class Otu < ApplicationRecord
   include Housekeeping
   include SoftValidation
-  # include Shared::AlternateValues   # No alternate values on Name!! Consequences - search cumbersome, names not unified and controllable ... others?
+  # include Shared::AlternateValues # No alternate values on Name!! Consequences - search cumbersome, names not unified and controllable ... others?
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Identifiers
@@ -43,12 +43,13 @@ class Otu < ApplicationRecord
 
   include Shared::MatrixHooks::Member
   include Otu::MatrixHooks
+  include Otu::Maps
 
   include Shared::IsData
 
   is_origin_for 'Sequence', 'Extract'
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes].freeze
 
   belongs_to :taxon_name, inverse_of: :otus
 
@@ -81,8 +82,8 @@ class Otu < ApplicationRecord
   has_many :otu_relationships, foreign_key: :subject_otu_id
   has_many :related_otu_relationships, class_name: 'OtuRelationship', foreign_key: :object_otu_id
 
-  scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
-  scope :with_name, -> (name) { where(name: name) }
+  scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
+  scope :with_name, -> (name) { where(name:) }
 
   validate :check_required_fields
 
@@ -162,6 +163,7 @@ class Otu < ApplicationRecord
     Otu.joins(q.join_sources).where(h[:ancestor_id].eq_any(ids).to_sql)
   end
 
+  # TODO: replace with filter
   # return [Scope] the Otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)
     if taxon_name.kind_of?(String) || taxon_name.kind_of?(Integer)
@@ -208,7 +210,7 @@ class Otu < ApplicationRecord
         when 'AssertedDistribution'
           AssertedDistribution.arel_table
         when 'Content'
-          Content.arel_table
+          ::Content.arel_table
         when 'BiologicalAssociation'
           BiologicalAssociation.arel_table
         when 'TaxonDetermination'
@@ -259,23 +261,23 @@ class Otu < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
+      pinboard: Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
       recent: []
     }
 
     if target && !r.empty?
       h[:recent] = (
         Otu.where('"otus"."id" IN (?)', r.first(10) ).to_a +
-        Otu.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(3).to_a
+        Otu.where(project_id:, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(3).to_a
       ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
       h[:quick] = (
-        Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a +
-        Otu.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(1).to_a +
+        Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a +
+        Otu.where(project_id:, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(1).to_a +
         Otu.where('"otus"."id" IN (?)', r.first(4) ).to_a
       ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
     else
-      h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
-      h[:quick] = Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+      h[:recent] = Otu.where(project_id:).order('updated_at DESC').limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+      h[:quick] = Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
     end
 
     h
@@ -288,7 +290,7 @@ class Otu < ApplicationRecord
   # @return [Boolean]
   #   whether or not this otu is coordinate (see coordinate_otus) with this otu
   def coordinate_with?(otu_id)
-    Otu.coordinate_otus(otu_id).where(otus: {id: id}).any?
+    Otu.coordinate_otus(otu_id).where(otus: {id:}).any?
   end
 
   # TODO: Deprecate for helper method, HTML does not belong here
@@ -354,8 +356,7 @@ class Otu < ApplicationRecord
 
   # @return [Otu#id, nil, false]
   #  nil - there is no OTU parent with a valid taxon name possible
-  #  false - there is > 1 OTU parent with a valid taxon name possible
-  #  id - the (unambiguous) id of the nearest parent OTU attached to a valid taoxn name
+  #  id - the (unambiguous) id of the nearest parent OTU attached to a valid taxon name
   #
   #  Note this is used CoLDP export. Do not change without considerations there.
   def parent_otu_id(skip_ranks: [], prefer_unlabelled_otus: false)
@@ -376,10 +377,8 @@ class Otu < ApplicationRecord
       otus = Otu.where(taxon_name_id: candidates.first).to_a
       otus.select! { |o| o.name.nil? } if prefer_unlabelled_otus && otus.size > 1
 
-      if otus.size == 1
+      if otus.size > 0
         return otus.first.id
-      elsif otus.size > 1
-        return false
       else
         return nil
       end

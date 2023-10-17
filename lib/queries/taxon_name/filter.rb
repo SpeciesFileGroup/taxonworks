@@ -25,6 +25,7 @@ module Queries
         :name,
         :name_exact,
         :nomenclature_code,
+        :nomenclature_date,
         :nomenclature_group, # !! different than autocomplete
         :not_specified,
         :original_combination,
@@ -60,6 +61,11 @@ module Queries
         taxon_name_relationship_type: [],
         type: [],
       ].freeze
+
+      # @param ancestors [Boolean, 'true', 'false', nil]
+      # @return Boolean
+      #   Ignored when taxon_name_id[].empty?  Works as AND clause with descendants :(
+      attr_accessor :ancestors
 
       # @param collection_object_id[String, Array]
       # @return Array
@@ -106,6 +112,11 @@ module Queries
       # Matches against cached_author_year.
       attr_accessor :year
 
+      # @param ancestors [Boolean, 'true', 'false', nil]
+      # @return Boolean
+      #   with/out cached nomenclature date set
+      attr_accessor :nomenclature_date
+
       # @param year_start [String]
       #   "yyyy"
       # Matches against cached_nomenclature_date
@@ -140,22 +151,21 @@ module Queries
       #   Return the taxon names with this/these parent_ids
       attr_accessor :parent_id
 
+      # @param descendants [Boolean, 'true', 'false', nil]
+      #   Read carefully! descendants = false is NOT no descendants, it's descendants and self
+      # @return [Boolean]
+      #   true - only descendants NOT SELF
+      #   false - self AND descendants
+      #   nil - ignored
+      #   Ignored when taxon_name_id[].empty?
+      attr_accessor :descendants
+
       # @param descendants_max_depth [Integer]
       # @return [Integer, nil]
       # A positive integer indicating how many levels deep of descendants to retrieve.
       #   Ignored when descentants is false/unspecified.
       #   Defaults to nil
       attr_accessor :descendants_max_depth
-
-      # @param ancestors [Boolean, 'true', 'false', nil]
-      # @return Boolean
-      #   Ignored when taxon_name_id[].empty?  Works as AND clause with descendants :(
-      attr_accessor :ancestors
-
-      # @param descendants [Boolean, 'true', 'false', nil]
-      # @return [Boolean]
-      #   Ignored when taxon_name_id[].empty? Return descendants of parents as well.
-      attr_accessor :descendants
 
       # @param synonymify [Boolean]
       #   true - extend result to include all Synonyms of any member of the list
@@ -286,6 +296,7 @@ module Queries
         @leaves = boolean_param(params, :leaves)
         @name = params[:name]
         @name_exact = boolean_param(params, :name_exact)
+        @nomenclature_date = boolean_param(params, :nomenclature_date)
         @nomenclature_code = params[:nomenclature_code] if params[:nomenclature_code].present?
         @nomenclature_group = params[:nomenclature_group] if params[:nomenclature_group].present?
         @not_specified = boolean_param(params, :not_specified)
@@ -428,23 +439,42 @@ module Queries
         end
       end
 
+      def nomenclature_date_facet
+        return nil if nomenclature_date.nil?
+        if nomenclature_date
+          table[:cached_nomenclature_date].not_eq(nil)
+        else
+          table[:cached_nomenclature_date].eq(nil)
+        end
+      end
+
       # @return Scope
       #   match only names that are a descendant of some taxon_name_id
-      # A merge facet.
       def descendant_facet
-        return nil if taxon_name_id.empty? || !(descendants == true)
+        return nil if taxon_name_id.empty? || descendants.nil?
 
-        descendants_subquery = ::TaxonNameHierarchy.where(
-          ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
-            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id)
-          )
-        )
+        h = ::TaxonNameHierarchy.arel_table
 
-        if descendants_max_depth.present?
-          descendants_subquery = descendants_subquery.where(::TaxonNameHierarchy.arel_table[:generations].lteq(descendants_max_depth.to_i))
+        if descendants
+          descendants_subquery = ::TaxonNameHierarchy.where(
+            h[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
+              h[:ancestor_id].in(taxon_name_id)
+            )
+          ).where(h[:ancestor_id].not_eq(h[:descendant_id]))
+
+          if descendants_max_depth.present?
+            descendants_subquery = descendants_subquery.where(::TaxonNameHierarchy.arel_table[:generations].lteq(descendants_max_depth.to_i))
+          end
+
+          ::TaxonName.where(descendants_subquery.arel.exists)
+        else
+          q = ::TaxonName.joins('JOIN taxon_name_hierarchies ON taxon_name_hierarchies.descendant_id = taxon_names.id')
+            .where(taxon_name_hierarchies: {ancestor_id: taxon_name_id})
+           if descendants_max_depth.present?
+             q = q.where(::TaxonNameHierarchy.arel_table[:generations].lteq(descendants_max_depth.to_i))
+           end
+           q
         end
-
-        ::TaxonName.where(descendants_subquery.arel.exists)
       end
 
       # @return Scope
@@ -645,9 +675,9 @@ module Queries
       def validity_facet
         return nil if validity.nil?
         if validity
-          table[:id].eq(table[:cached_valid_taxon_name_id])
+          table[:cached_is_valid].eq(true)
         else
-          table[:id].not_eq(table[:cached_valid_taxon_name_id])
+          table[:cached_is_valid].eq(false)
         end
       end
 
@@ -743,6 +773,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       def and_clauses
         [
+          nomenclature_date_facet,
           author_facet,
           name_facet,
           parent_id_facet,
@@ -792,7 +823,7 @@ module Queries
 
       # Overrides base class
       def model_id_facet
-        return nil if taxon_name_id.empty? || descendants || ancestors
+        return nil if taxon_name_id.empty? || !descendants.nil? || ancestors
         table[:id].eq_any(taxon_name_id)
       end
 

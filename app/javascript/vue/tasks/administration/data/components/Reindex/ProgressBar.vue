@@ -11,11 +11,10 @@
   </spinner-component>
 </template>
 <script setup>
-
 import { computed, ref, watch } from 'vue'
-import { DwcOcurrence } from 'routes/endpoints'
-import SpinnerComponent from 'components/spinner.vue'
-import CountDown from 'tasks/dwc/dashboard/components/Countdown/CountDown.vue'
+import { DwcOcurrence } from '@/routes/endpoints'
+import SpinnerComponent from '@/components/spinner.vue'
+import CountDown from '@/tasks/dwc/dashboard/components/Countdown/CountDown.vue'
 
 const CALL_DELAY = 2000
 const samplesToUpdate = ref([])
@@ -55,18 +54,22 @@ const checkSamplesUpdate = () => {
   if (samplesToUpdate.value.length) {
     const sampleGlobalId = samplesToUpdate.value[0]
 
-    DwcOcurrence.status({ object_global_id: sampleGlobalId }).then(({ body }) => {
-      const updateTime = new Date(body.updated_at).getTime()
+    DwcOcurrence.status({ object_global_id: sampleGlobalId }).then(
+      ({ body }) => {
+        const updateTime = new Date(body.updated_at).getTime()
 
-      if (sampleDate < updateTime) {
-        samplesToUpdate.value.splice(0, 1)
-        updateCountdown(updateTime)
-      }
+        if (sampleDate < updateTime) {
+          samplesToUpdate.value.splice(0, 1)
+          updateCountdown(updateTime)
+        }
 
-      if (samplesToUpdate.value.length) {
-        timeoutId = setTimeout(() => { checkSamplesUpdate() }, CALL_DELAY)
+        if (samplesToUpdate.value.length) {
+          timeoutId = setTimeout(() => {
+            checkSamplesUpdate()
+          }, CALL_DELAY)
+        }
       }
-    })
+    )
   }
 }
 
@@ -78,15 +81,17 @@ const updateCountdown = (updateTime) => {
 const calculateEstimatedTime = (updatedDate) => {
   const timeDiff = updatedDate - (previousDate || sampleDate) + CALL_DELAY
 
-  return sampleDate + (timeDiff * samplesToUpdate.value.length)
+  return sampleDate + timeDiff * samplesToUpdate.value.length
 }
 
-watch(() => props.reindex, reindex => {
-  previousDate = 0
-  sampleDate = new Date(reindex.start_time).getTime()
-  samplesToUpdate.value = reindex.sample.slice()
+watch(
+  () => props.reindex,
+  (reindex) => {
+    previousDate = 0
+    sampleDate = new Date(reindex.start_time).getTime()
+    samplesToUpdate.value = reindex.sample.slice()
 
-  checkSamplesUpdate()
-})
-
+    checkSamplesUpdate()
+  }
+)
 </script>

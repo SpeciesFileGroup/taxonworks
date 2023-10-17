@@ -25,7 +25,8 @@
         <li v-if="existLanguages">
           <language-component
             :language-list="observationMatrix.descriptor_available_languages"
-            v-model="filters.language_id" />
+            v-model="filters.language_id"
+          />
         </li>
         <li>
           <sorting-component />
@@ -40,25 +41,28 @@
             type="button"
             @click="setLayout(settings.gridLayout)"
             class="button normal-input button-default margin-small-left"
-            :class="layouts[settings.gridLayout]">
+            :class="layouts[settings.gridLayout]"
+          >
             <div class="i3-grid layout-mode-1 grid-icon">
-              <div class="descriptors-view grid-item"/>
-              <div class="taxa-remaining grid-item"/>
-              <div class="taxa-eliminated grid-item"/>
+              <div class="descriptors-view grid-item" />
+              <div class="taxa-remaining grid-item" />
+              <div class="taxa-eliminated grid-item" />
             </div>
           </button>
         </div>
         <button
           type="button"
           class="button normal-input button-default margin-small-right"
-          @click="resetView">
+          @click="resetView"
+        >
           Reset
         </button>
         <button
           v-if="observationMatrix"
           type="button"
           class="button normal-input button-default"
-          @click="proceed(observationMatrix.observation_matrix_id)">
+          @click="proceed(observationMatrix.observation_matrix_id)"
+        >
           Refresh
         </button>
       </div>
@@ -67,10 +71,9 @@
 </template>
 
 <script>
-
-import NavComponent from 'components/layout/NavBar'
-import Autocomplete from 'components/ui/Autocomplete'
-import SetParam from 'helpers/setParam'
+import NavComponent from '@/components/layout/NavBar'
+import Autocomplete from '@/components/ui/Autocomplete'
+import SetParam from '@/helpers/setParam'
 import SortingComponent from './Filters/Sorting.vue'
 import IdentifierRank from './Filters/IdentifierRank'
 import ErrorTolerance from './Filters/ErrorTolerance'
@@ -97,38 +100,38 @@ export default {
   },
 
   computed: {
-    observationMatrix () {
+    observationMatrix() {
       return this.$store.getters[GetterNames.GetObservationMatrix]
     },
 
-    existLanguages () {
+    existLanguages() {
       return !!this.observationMatrix?.descriptor_available_languages?.length
     },
 
-    existKeywords () {
+    existKeywords() {
       return !!this.observationMatrix?.descriptor_available_keywords?.length
     },
 
     settings: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSettings]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
 
     filters: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetParamsFilter]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetParamsFilter, value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       layouts: {
         'layout-mode-1': 'layout-mode-2',
@@ -138,13 +141,20 @@ export default {
   },
 
   methods: {
-    setLayout (layout) {
+    setLayout(layout) {
       this.settings.gridLayout = this.layouts[layout]
     },
 
-    loadMatrix (id) {
-      if (!this.observationMatrix || id !== this.observationMatrix?.observation_matrix_id) {
-        SetParam('/tasks/observation_matrices/interactive_key', 'observation_matrix_id', id)
+    loadMatrix(id) {
+      if (
+        !this.observationMatrix ||
+        id !== this.observationMatrix?.observation_matrix_id
+      ) {
+        SetParam(
+          '/tasks/observation_matrices/interactive_key',
+          'observation_matrix_id',
+          id
+        )
       }
       this.$store.commit(MutationNames.SetObservationMatrix, undefined)
       this.$store.commit(MutationNames.SetDescriptorsFilter, {})
@@ -152,15 +162,18 @@ export default {
       scrollToTop()
     },
 
-    proceed (id) {
+    proceed(id) {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
       scrollToTop()
     },
 
-    resetView () {
+    resetView() {
       this.$store.commit(MutationNames.SetDescriptorsFilter, {})
       this.$store.commit(MutationNames.SetRowFilter, [])
-      this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
+      this.$store.dispatch(
+        ActionNames.LoadObservationMatrix,
+        this.observationMatrix.observation_matrix_id
+      )
       scrollToTop()
     }
   }

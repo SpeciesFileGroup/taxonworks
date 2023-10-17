@@ -134,13 +134,13 @@
 </template>
 <script setup>
 import { computed, reactive, ref, onBeforeMount, watch } from 'vue'
-import { RouteNames } from 'routes/routes.js'
-import { DwcOcurrence } from 'routes/endpoints'
+import { RouteNames } from '@/routes/routes.js'
+import { DwcOcurrence } from '@/routes/endpoints'
 import { qs } from 'qs'
-import ConfirmationModal from 'components/ConfirmationModal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VModal from 'components/ui/Modal.vue'
-import VSpinner from 'components/spinner.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VSpinner from '@/components/spinner.vue'
 
 const props = defineProps({
   params: {

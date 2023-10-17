@@ -40,9 +40,9 @@
 import NewCombination from './components/newCombination.vue'
 import InputSearch from './components/inputSearch.vue'
 import DisplayList from './components/displayList.vue'
-import Spinner from 'components/spinner.vue'
-import { addToArray } from 'helpers/arrays.js'
-import { Combination, TaxonName } from 'routes/endpoints'
+import Spinner from '@/components/spinner.vue'
+import { addToArray } from '@/helpers/arrays.js'
+import { Combination, TaxonName } from '@/routes/endpoints'
 import { EXTEND_PARAMS } from './constants/extend'
 
 export default {

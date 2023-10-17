@@ -5,39 +5,48 @@
         <tr>
           <th
             v-for="item in header"
-            v-html="item"/>
+            v-html="item"
+          />
         </tr>
       </thead>
       <transition-group
         name="list-complete"
-        tag="tbody">
+        tag="tbody"
+      >
         <tr
           v-for="(item, index) in list"
           :key="rowKey ? item[rowKey] : item.id"
           class="list-complete-item contextMenuCells"
-          :class="{ even: index % 2 }">
+          :class="{ even: index % 2 }"
+        >
           <td
             v-for="attr in attributes"
-            v-html="getValue(item, attr)"/>
+            v-html="getValue(item, attr)"
+          />
           <td>
-            <div class="horizontal-right-content">
+            <div class="horizontal-right-content gap-small">
               <slot
                 :item="item"
-                name="options"/>
+                name="options"
+              />
               <pdf-component
                 v-if="pdf"
-                :pdf="item.document"/>
+                :pdf="item.document"
+              />
               <radial-annotator
                 v-if="annotator"
-                :global-id="item.global_id"/>
+                :global-id="item.global_id"
+              />
               <span
                 v-if="edit"
                 class="circle-button btn-edit"
-                @click="$emit('edit', Object.assign({}, item))"/>
+                @click="$emit('edit', Object.assign({}, item))"
+              />
               <span
                 v-if="destroy"
                 class="circle-button btn-delete"
-                @click="deleteItem(item)">Remove
+                @click="deleteItem(item)"
+                >Remove
               </span>
             </div>
           </td>
@@ -47,9 +56,8 @@
   </div>
 </template>
 <script>
-
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import PdfComponent from 'components/pdfButton'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import PdfComponent from '@/components/pdfButton'
 
 export default {
   components: {
@@ -101,40 +109,41 @@ export default {
 
   emits: ['delete'],
 
-  created () {
+  created() {
     this.$options.components['RadialAnnotator'] = RadialAnnotator
   },
 
   methods: {
-    getValue (object, attributes) {
+    getValue(object, attributes) {
       if (Array.isArray(attributes)) {
         let obj = object
 
         for (var i = 0; i < attributes.length; i++) {
           if (obj.hasOwnProperty(attributes[i])) {
             obj = obj[attributes[i]]
-          }
-          else {
+          } else {
             return null
           }
         }
         return obj
-      }
-      else {
-        if (attributes.substr(0,1) === "@") {
+      } else {
+        if (attributes.substr(0, 1) === '@') {
           return attributes.substr(1, attributes.length)
         }
       }
       return object[attributes]
     },
 
-    deleteItem (item) {
+    deleteItem(item) {
       if (this.deleteWarning) {
-        if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        if (
+          window.confirm(
+            `You're trying to delete this record. Are you sure want to proceed?`
+          )
+        ) {
           this.$emit('delete', item)
         }
-      }
-      else {
+      } else {
         this.$emit('delete', item)
       }
     }
@@ -142,31 +151,32 @@ export default {
 }
 </script>
 <style lang="scss">
-  .vue-table-container {
-    padding: 0px;
-    position: relative;
-  }
+.vue-table-container {
+  padding: 0px;
+  position: relative;
+}
 
-  .vue-table {
-    width: 100%;
-    .vue-table-options {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-    }
-    tr {
-      cursor: default;
-    }
+.vue-table {
+  width: 100%;
+  .vue-table-options {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
   }
+  tr {
+    cursor: default;
+  }
+}
 
-  .list-complete-item {
-    justify-content: space-between;
-    transition: all 0.5s, opacity 0.2s;
-  }
+.list-complete-item {
+  justify-content: space-between;
+  transition: all 0.5s, opacity 0.2s;
+}
 
-  .list-complete-enter-active, .list-complete-leave-active {
-    opacity: 0;
-    font-size: 0px;
-    border: none;
-  }
+.list-complete-enter-active,
+.list-complete-leave-active {
+  opacity: 0;
+  font-size: 0px;
+  border: none;
+}
 </style>

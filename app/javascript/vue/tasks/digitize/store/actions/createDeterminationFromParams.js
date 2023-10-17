@@ -1,4 +1,4 @@
-import { Otu } from 'routes/endpoints'
+import { Otu } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default async ({ state, commit }) => {
@@ -22,10 +22,12 @@ export default async ({ state, commit }) => {
     otu = (await Otu.create({ otu: { taxon_name_id: taxonId } })).body
   }
 
-  commit(MutationNames.SetTaxonDeterminations, [{
-    object_tag: otu.object_tag,
-    otu_id: otu.id,
-    roles_attributes: [],
-    uuid: crypto.randomUUID()
-  }])
+  commit(MutationNames.SetTaxonDeterminations, [
+    {
+      object_tag: otu.object_tag,
+      otu_id: otu.id,
+      roles_attributes: [],
+      uuid: crypto.randomUUID()
+    }
+  ])
 }

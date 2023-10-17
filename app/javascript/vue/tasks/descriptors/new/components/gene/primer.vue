@@ -13,16 +13,16 @@
       <template #search>
         <sequence-picker
           clear-after
-          @getItem="sendSelected($event.id)"/>
+          @getItem="sendSelected($event.id)"
+        />
       </template>
     </smart-selector>
   </fieldset>
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
-import SequencePicker from 'components/sequence/sequence_picker/sequence_picker.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SequencePicker from '@/components/sequence/sequence_picker/sequence_picker.vue'
 
 export default {
   components: {
@@ -39,7 +39,7 @@ export default {
 
   emits: ['selected'],
 
-  data () {
+  data() {
     return {
       lists: [],
       tabs: ['search'],
@@ -48,14 +48,14 @@ export default {
     }
   },
   methods: {
-    sendSelected (sequence) {
+    sendSelected(sequence) {
       this.$emit('selected', sequence)
     }
   }
 }
 </script>
 <style scoped>
-  :deep(.vue-autocomplete-input) {
-    width: 100%;
-  }
+:deep(.vue-autocomplete-input) {
+  width: 100%;
+}
 </style>

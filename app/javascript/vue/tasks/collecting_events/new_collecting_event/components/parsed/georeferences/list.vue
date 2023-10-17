@@ -6,7 +6,9 @@
           <th class="word-keep-all line-nowrap">Georeference ID</th>
           <th class="word-keep-all">Shape</th>
           <th class="word-keep-all">Coordinates</th>
+          <th class="word-keep-all">Has error polygon</th>
           <th class="word-keep-all line-nowrap">Error radius</th>
+          <th class="word-keep-all">Inferred error radius</th>
           <th class="word-keep-all">Type</th>
           <th class="word-keep-all">Date</th>
           <th />
@@ -27,12 +29,14 @@
             }}
           </td>
           <td>{{ getCoordinatesByType(item) }}</td>
+          <td>{{ item.has_error_polygon ? 'Yes' : 'No' }}</td>
           <td class="line-nowrap">
             <edit-in-place
               v-model="item.error_radius"
               @end="$emit('update', item)"
             />
           </td>
+          <td>{{ item.inferred_error_radius }}</td>
           <td class="word-keep-all">{{ item.type }}</td>
           <td>
             <div class="horizontal-left-content">
@@ -52,7 +56,7 @@
             </div>
           </td>
           <td>
-            <div class="vue-table-options">
+            <div class="vue-table-options gap-small">
               <radial-annotator
                 v-if="item.global_id"
                 :global-id="item.global_id"
@@ -71,12 +75,12 @@
   </div>
 </template>
 <script>
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import EditInPlace from 'components/editInPlace'
-import DateComponent from 'components/ui/Date/DateFields.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import { convertToLatLongOrder } from 'helpers/geojson'
-import { GEOREFERENCE_GEOLOCATE, GEOREFERENCE_WKT } from 'constants/index.js'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import EditInPlace from '@/components/editInPlace'
+import DateComponent from '@/components/ui/Date/DateFields.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { convertToLatLongOrder } from '@/helpers/geojson'
+import { GEOREFERENCE_GEOLOCATE, GEOREFERENCE_WKT } from '@/constants/index.js'
 
 export default {
   components: {

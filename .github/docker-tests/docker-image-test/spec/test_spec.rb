@@ -4,7 +4,7 @@ require 'webdrivers/geckodriver'
 require 'rspec/expectations'
 require 'capybara/rspec'
 
-server = BrowserMob::Proxy::Server.new("./browserup-proxy-2.0.1/bin/browserup-proxy")
+server = BrowserMob::Proxy::Server.new('./browserup-proxy-2.0.1/bin/browserup-proxy')
 server.start
 
 proxy = server.create_proxy
@@ -16,12 +16,12 @@ Capybara.register_driver :selenium do |app|
   options.profile = profile
   profile.proxy = proxy.selenium_proxy
 
-  options.headless!
+  options.add_argument('-headless')
 
   Capybara::Selenium::Driver.new(
     app,
     browser: :firefox,
-    options: options
+    options:
   )
 end
 
@@ -34,7 +34,7 @@ end
     proxy.new_har
 
 
-RSpec::Steps.steps "Login and change password", js: true do
+RSpec::Steps.steps 'Login and change password', js: true do
   before(:all) do
     visit '/'
 
@@ -47,16 +47,16 @@ RSpec::Steps.steps "Login and change password", js: true do
 
   before(:step) { visit '/' }
 
-    it "dashboard page > shows that the dashboard is for the logged in user" do
-      expect(page).to have_content("Dashboard for John Doe")
+    it 'dashboard page > shows that the dashboard is for the logged in user' do
+      expect(page).to have_content('Dashboard for John Doe')
     end
 
     it "dashboard page > shows the revision matching git HEAD short hash (#{ENV['REVISION']})" do
       expect(page).to have_content(ENV['REVISION'])
     end
 
-    it "dashboard page > has the test project visible" do
-      expect(page).to have_content("test_project")
+    it 'dashboard page > has the test project visible' do
+      expect(page).to have_content('test_project')
     end
 
     it 'when ColDP export is fired up > runs asynchronously' do

@@ -12,7 +12,10 @@
 <%= form_tag data_class_summary_path, method: :get, remote: true do |f| %>
   <div class="field">
     <h3> Plot data for </h3>
-    <%= select_tag :klass, options_for_select(ApplicationEnumeration.project_data_classes.select{|a| a.column_names.include?('created_at')}.collect{|b| b.name}.sort, include_blank: true) %>
+    <%= select_tag :klass, options_for_select(ApplicationEnumeration.project_data_classes
+        .select{|a| a.column_names.include?('created_at')}
+        .select{|a| a.column_names.include?('project_id')}
+        .collect{|b| b.name}.sort, include_blank: true) %>
   </div>
 
   <div class="field">
