@@ -18,6 +18,8 @@ export const CollectionObject = {
     TASK_COLLECTION_OBJECT_SUMMARY,
     TASK_COLLECTION_OBJECT_OUTDATED_NAMES
   ]
+}
+
   /*   per: [
     {
       label: 'By collecting event',
@@ -55,4 +57,4 @@ export const CollectionObject = {
       params: ['geographic_area_id']
     }
   ] */
-} from '../constants/links'
+

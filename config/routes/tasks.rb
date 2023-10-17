@@ -275,7 +275,7 @@ scope :tasks do
   end
 
   scope :collection_objects do
-<<<<<<< HEAD
+
     scope :outdated_names, controller: 'tasks/collection_objects/outdated_names' do
       get '/', action: :index, as: 'collection_object_outdated_names_task'
     end
@@ -284,18 +284,9 @@ scope :tasks do
       get '/', action: :index, as: 'collection_object_table_task'
     end
 
-     scope :chronology, controller: 'tasks/collection_objects/chronology' do
-       get '/', action: :index, as: 'collection_object_chronology_task'
-     end
-=======
-    scope :table, controller: 'tasks/collection_objects/table' do
-      get '/', action: :index, as: 'collection_object_table_task'
-    end
-
     scope :chronology, controller: 'tasks/collection_objects/chronology' do
       get '/', action: :index, as: 'collection_object_chronology_task'
     end
->>>>>>> development
 
     scope :stepwise do
       scope :determinations, controller: 'tasks/collection_objects/stepwise/determinations' do

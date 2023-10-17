@@ -11,6 +11,7 @@ export const TASK_COLLECTION_OBJECT_TABLE = {
 export const TASK_COLLECTION_OBJECT_OUTDATED_NAMES = {
   label: 'Outdated names (COL match)',
   link: '/tasks/collection_objects/outdated_names/'
+}
 
 export const TASK_COLLECTION_OBJECT_SUMMARY = {
   label: 'Collection summary',
@@ -41,4 +42,3 @@ export const TASK_FILTER_IMAGES = {
   label: 'Filter images',
   link: '/tasks/images/filter'
 }
-
