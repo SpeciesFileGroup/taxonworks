@@ -48,10 +48,14 @@ module TaxonWorks
 
         r = {
             taxonworks_name: collection_object_scientific_name(o),
-            col_usages: []
+            col_usages: [],
+            provisional_status: :accepted,
         }
 
-        return r if colrapi_result.dig('total') == 0
+        if colrapi_result.dig('total') == 0
+          r[:provisional_status] = :undeterminable
+          return r
+        end
 
         colrapi_result['result'].each do |u|
           i = u['usage']
@@ -61,12 +65,16 @@ module TaxonWorks
            accepted: {}
           }
 
-          d[:usage][:name] =  i.dig *%w{name scientificName}
+          d[:usage][:name] = i.dig *%w{name scientificName}
           d[:usage][:status] = i['status']
 
           if i['accepted']
             d[:accepted][:name] = i.dig *%w{accepted name scientificName}
             d[:accepted][:status] = i.dig *%w{accepted status}
+          end
+
+          if d[:usage][:status] == 'synonym' && (d[:usage][:name] == r[:taxonworks_name])
+            r[:provisional_status] = :synonym
           end
 
           r[:col_usages].push d
@@ -75,8 +83,9 @@ module TaxonWorks
       end
 
 
-  # Text only, taxon name cached or OTU name for the
-  # most recent determination
+     # Extend to buffered with GNA in middle layer?
+     # Text only, taxon name cached or OTU name for the
+     # most recent determination
       def self.collection_object_scientific_name(collection_object)
         return nil if collection_object.nil?
         if a = collection_object.taxon_determinations.order(:position)&.first
@@ -89,11 +98,7 @@ module TaxonWorks
           nil
         end
       end
-
     end
-
-
-
 
   end
 
