@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- TaxonNameClassification download
 - TaxonName `descendants` facet always included self, it shouldn't have
 - Without document facet
 - Object cloning in OriginRelationship caused infinite loops [#3594]

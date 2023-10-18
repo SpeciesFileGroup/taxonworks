@@ -659,7 +659,7 @@ GEM
     websocket-driver (0.7.6)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    wikidata-client (0.1.0.pre.rc1)
+    wikidata-client (0.1.0)
       excon (~> 0.92)
       faraday (~> 2.2)
       faraday-excon (~> 2.1)
