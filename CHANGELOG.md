@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Outdated names task for CollectionObjects (compare to COL) [#2585]
 - Unified project data download task [#1009], in part
 - Download project as zipped TSV tables in Download [#1009]
 - CSV generating endpoints `/api/v1/taxon_names.csv` and `/api/v1/otus.csv`
@@ -33,6 +34,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Not possible to delete asserted distribution once added in radial object [#3591]
 - Manage controlled vocabulary: Delete button doesn't work [#3593]
 
+
+[#2585]: https://github.com/SpeciesFileGroup/taxonworks/issues/2585
 [#1009]: https://github.com/SpeciesFileGroup/taxonworks/issues/1009
 [#3593]: https://github.com/SpeciesFileGroup/taxonworks/issues/3593
 [#3594]: https://github.com/SpeciesFileGroup/taxonworks/issues/3594
