@@ -1,0 +1,72 @@
+<h1> Import nomenclature and classification from ChecklistBank </h1>
+<div> 
+
+  <p>This import tool is intended only for importing small groups of taxa (&lt;2000 species), because it will send a lot of API requests.</p>
+
+  <%= form_tag(create_import_checklistbank_task_path, method: :post) do %>
+
+    <%= hidden_field_tag :prefer_clb_nom_code, false %>
+    <%= hidden_field_tag :recursive, false %>
+    <%= hidden_field_tag :also_create_otu, false %>
+
+
+    <div class="field">
+      <%= label_tag :taxon_name, 'Parent', data: {help: 'Select a parent taxon name for the imported taxa. Type in Root if you are importing into a new project.'} %> <br>
+      <%= render partial: 'workbench/elements/forms/ajax_select', locals: {
+        controller: '/taxon_names',
+        object: 'taxon_name',
+        method: 'parent_id',
+        tag_id: 'parent_id_for_name',
+        display: nil,
+        size: '50%'} %>
+    </div>
+
+    <p>
+      <b><u>Important</u></b>: There are 4 types of datasets in ChecklistBank: datasets (origin="external"), 
+      projects (origin="project"), releases (origin="release"), and extended releases (origin="xrelease"). 
+      Catalogue of Life is a project with the dataset_id=3, but using dataset_id=3 would import from the 
+      working draft of the project, which is a bad idea because errors can be temporarily introduced while 
+      assembling datasets for release. Instead the recommended best practice is to use dataset_id=col2023 
+      to select data from the Catalogue of Life  Annual Checklist 2023 (replacing year with whichever year you want), or 
+      dataset_id=3LR to import data from the latest release. <b>Monthly releases are deleted 
+      eventually, so it is recommended to use Annual Checklists for COL.</b> Extended releases are currently 
+      under development and essentially will attempt to add missing names to Catalogue of Life automatically.
+    </p>
+
+    <div class="field">
+      <%= label_tag :taxon_name, 'ChecklistBank Dataset ID', data: {help: 'Use 3LR for the latest release of COL or search for other datasets at: https://www.checklistbank.org/dataset'} %> <br>
+      <%= text_field_tag :dataset_id, '', size: '50%' %>
+    </div>
+
+    <div class="field">
+      <%= label_tag :taxon_name, 'Taxon ID', data: {help: 'Use 3LR for the latest release of COL or search for other datasets at: https://www.checklistbank.org/dataset'} %> <br>
+      <%= text_field_tag :taxon_id, '', size: '50%' %>
+    </div>
+
+    <div class="field">
+      <%= check_box_tag :recursive, true, checked: true %>
+      <%= label_tag :recursive, 'Import the above taxon and its children recursively.' %>
+    </div>
+
+    <div class="field">
+      <%= label_tag :nomenclature_code, 'Nomenclature Code' %><br/>
+      <%= radio_button_tag 'nomenclature_code', 'icn' -%> Botanical (ICN) <br/>
+      <%= radio_button_tag 'nomenclature_code', 'icnp' -%> Prokaryotes (ICN) <br/>
+      <%= radio_button_tag 'nomenclature_code', 'icvcn' -%> Viral (ICVCN) <br/>
+      <%= radio_button_tag 'nomenclature_code', 'iczn' -%> Zoological (ICZN) <br/>
+    </div>
+
+    <div class="field">
+      <%= check_box_tag :prefer_clb_nom_code, true %>
+      <%= label_tag :prefer_clb_nom_code, 'Prefer the ChecklistBank taxon name\'s nomenclatural code, if provided.' %>
+    </div>
+
+    <div class="field">
+      <%= check_box_tag :also_create_otu, true, checked: true %>
+      <%= label_tag :also_create_otu, 'Automatically create OTUs' %>
+    </div>
+
+    <br>
+    <%= submit_tag :Import, class: ['normal-input', :button, 'button-default'] -%>
+  <% end %>
+</div>
