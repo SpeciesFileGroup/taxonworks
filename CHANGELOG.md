@@ -9,6 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+### Fixed
+
+- Clone moved CVT, not cloned project
+
 ## [0.35.0] - 2023-10-19
 
 ### Added

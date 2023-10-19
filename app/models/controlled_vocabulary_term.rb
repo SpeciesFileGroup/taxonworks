@@ -68,7 +68,7 @@ class ControlledVocabularyTerm < ApplicationRecord
     k = klass.safe_constantize
     k.where(project_id: from_id, type: klass).find_each do |cvt|
       begin
-        i = cvt.clone
+        i = cvt.dup
         i.project_id = to_id
         i.save!
       rescue ActiveRecord::RecordInvalid
