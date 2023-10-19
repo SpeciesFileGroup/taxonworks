@@ -230,10 +230,10 @@ describe ::TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature
         context 'match author year' do
           let!(:species3) { Protonym.create(
             name: 'bus',
-            year_of_publication: '1920', 
+            year_of_publication: '1920',
             verbatim_author: 'Smith and Jones',
-            parent: genus1, 
-              rank_class: Ranks.lookup(:iczn, :species) 
+            parent: genus1,
+              rank_class: Ranks.lookup(:iczn, :species)
           ) }
 
           before do
@@ -250,6 +250,67 @@ describe ::TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature
             expect(result.grouped_protonyms(:species)).to contain_exactly(species3)
           end
         end 
+
+        context 'match author year in ranked mode' do
+          let!(:species3) { Protonym.create(
+            name: 'bus',
+            year_of_publication: '1920',
+            verbatim_author: 'Smith and Jones',
+            parent: genus1,
+              rank_class: Ranks.lookup(:iczn, :species) 
+          ) }
+          let!(:species4) { Protonym.create(
+            name: 'bus',
+            year_of_publication: '1921',
+            verbatim_author: 'Jones and Smith',
+            parent: genus1,
+              rank_class: Ranks.lookup(:iczn, :species)
+          ) }
+
+          before do
+            result.mode = :ranked
+            result.name = 'Aus bus Smith and Jones, 1920'
+            result.parse
+            result.build_result
+          end
+
+          specify '#is_unambiguous? (still)' do
+            expect(result.is_unambiguous?).to eq(true)
+          end
+
+          specify '#ranked_protonyms1' do
+            expect(result.ranked_protonyms(:species)).to contain_exactly(species3)
+          end
+        end
+
+        context 'strictly match author year in ranked mode' do
+          let!(:species3) { Protonym.create(
+            name: 'bus',
+            year_of_publication: '1920', 
+            verbatim_author: 'Smith and Jones',
+            parent: genus1, 
+              rank_class: Ranks.lookup(:iczn, :species) 
+          ) }
+          let!(:species5) { Protonym.create(
+            name: 'bus',
+            year_of_publication: '1922', 
+            verbatim_author: 'Smith and Jones',
+            parent: genus1, 
+              rank_class: Ranks.lookup(:iczn, :species) 
+          ) }
+
+          before do
+            result.mode = :ranked
+            result.author_mode = :strict
+            result.name = 'Aus bus Smith and Jones, 1921'
+            result.parse
+            result.build_result
+          end
+
+          specify '#ranked_protonyms_strict_match_size' do
+            expect(result.ranked_protonyms(:species).size).to equal(0)
+          end
+        end
 
         context 'infraspecifics' do
           specify '#string 1' do

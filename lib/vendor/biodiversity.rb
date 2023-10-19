@@ -15,10 +15,15 @@ module TaxonWorks
         # query string
         attr_accessor :name
 
-        # how to match
+        # how to match on rank
         #   `ranked`: return names at that queried rank only (e.g. only match a subgenus to rank subgenus
         #   `groups`: return names at Group level (species or genus), i.e. a subgenus name in query will match genus OR subgenus in database
         attr_accessor :mode
+
+        # how to match on authorship/year
+        #   `strict`: return only names that exactly match the authorship/year
+        #   `flexible`: return names that match the authorship/year if possible, but falls back to providing any matching name
+        attr_accessor :author_mode
 
         # project to query against
         attr_accessor :project_id
@@ -56,11 +61,12 @@ module TaxonWorks
         #   a memoized combiantion with only unambiguous elements 
         attr_reader :combination
 
-       def initialize(query_string: nil, project_id: nil, code: :iczn, match_mode: :groups)
+       def initialize(query_string: nil, project_id: nil, code: :iczn, match_mode: :groups, author_match_mode: :flexible)
           @project_id = project_id
           @name = query_string
           @nomenclature_code = code
           @mode = match_mode
+          @author_mode = author_match_mode
 
           parse if !query_string.blank?
         end
@@ -278,7 +284,8 @@ module TaxonWorks
         # @return [Scope]
         #    Protonyms at a given rank
         def ranked_protonyms(rank)
-          basic_scope(rank).where(rank_class: Ranks.lookup(nomenclature_code, rank))
+          s = basic_scope(rank).where(rank_class: Ranks.lookup(nomenclature_code, rank))
+          (is_authored? && finest_rank == rank) ? scope_to_author_year(s) : s
         end
 
         # @return [Scope]
@@ -302,7 +309,11 @@ module TaxonWorks
         #     ignore the author year
         def scope_to_author_year(scope)
           t = scope.where('(cached_author_year = ? OR cached_author_year = ?)', author_year, author_year.gsub(' & ', ' and '))
-          t.count > 0 ? t : scope
+          if @author_mode == :flexible
+            t.count > 0 ? t : scope
+          else
+            t
+          end
         end
 
         # @return [Hash]

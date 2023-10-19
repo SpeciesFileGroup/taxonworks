@@ -84,12 +84,10 @@ class Tasks::Imports::ChecklistbankController < ApplicationController
         parent_id = accepted_parent_id
 
         query_string = [c['name']['scientificName'], c['name']['authorship']].join(' ')
-        parser = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: query_string, code: nomenclature_code.to_sym, match_mode: :ranked, project_id: Current.project_id)
+        parser = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: query_string, code: nomenclature_code.to_sym, match_mode: :ranked, author_match_mode: :strict, project_id: Current.project_id)
         parser.parse
         parser.build_result
 
-        # TODO: Synergus australis Hartig, 1843 gets the wrong protonym because there is australis Hartig, 1843 and australis (Mayr, 1882)
-        #         biodiversity gem does not take authorship/year into consideration
         # TODO: works for exact protonym matches only, need to modify biodiversity gem to do stemmed protonym search instead
         if c['name'].include? 'authorship' and (c['name']['authorship'].include? '(' or c['name']['authorship'].include? ')')  # handle subsequent combinations
           combo_ids = {}
@@ -154,7 +152,7 @@ class Tasks::Imports::ChecklistbankController < ApplicationController
       clb_synonyms['heterotypic'].each do |c|
 
         query_string = [c['name']['scientificName'], c['name']['authorship']].join(' ')
-        parser = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: query_string, code: nomenclature_code.to_sym, match_mode: :ranked, project_id: Current.project_id)
+        parser = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: query_string, code: nomenclature_code.to_sym, match_mode: :ranked, author_match_mode: :strict, project_id: Current.project_id)
         parser.parse
         parser.build_result
         
