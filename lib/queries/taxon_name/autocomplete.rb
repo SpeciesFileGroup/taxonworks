@@ -235,21 +235,21 @@ module Queries
       def autocomplete_cached
         ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, cached) AS sml', query_string]))
           .where('cached % ?', query_string) # `%` in where means nothing < 0.3 (internal PG similarity value)
-          .where(ApplicationRecord.sanitize_sql("similarity('#{query_string}', cached) > 0.6"))
+          .where(ApplicationRecord.sanitize_sql_array(["similarity('%s', cached) > 0.6", query_string]))
           .order('sml DESC, cached')
       end
 
       def autocomplete_original_combination
         ::TaxonName.select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, taxon_names.cached_original_combination) AS sml', query_string]))
           .where('taxon_names.cached_original_combination % ?', query_string)
-          .where(ApplicationRecord.sanitize_sql("similarity('#{query_string}', taxon_names.cached_original_combination) > 0.6"))
+          .where(ApplicationRecord.sanitize_sql_array(["similarity('%s', taxon_names.cached_original_combination) > 0.6", query_string]))
           .order('sml DESC, taxon_names.cached_original_combination')
       end
 
       def autocomplete_cached_author_year
         ::TaxonName.select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, taxon_names.cached_author_year) AS sml', query_string]))
           .where('taxon_names.cached_author_year % ?', query_string)
-          .where(ApplicationRecord.sanitize_sql("similarity('#{query_string}', taxon_names.cached_author_year) > 0.6"))
+          .where(ApplicationRecord.sanitize_sql(["similarity('%s', taxon_names.cached_author_year) > 0.6", query_string]))
           .order('sml DESC, taxon_names.cached_author_year')
       end
 

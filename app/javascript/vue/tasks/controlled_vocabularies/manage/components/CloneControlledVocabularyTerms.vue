@@ -58,6 +58,8 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['clone'])
+
 const list = ref([])
 const projectId = ref()
 const isModalVisible = ref(false)
@@ -81,5 +83,10 @@ function clone() {
     target: props.type,
     project_id: projectId.value
   })
+    .then(() => {
+      emit('clone')
+      isModalVisible.value = false
+    })
+    .catch(() => {})
 }
 </script>

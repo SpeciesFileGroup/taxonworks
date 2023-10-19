@@ -9,6 +9,45 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.35.0] - 2023-10-19
+
+### Added
+
+- Outdated names task for CollectionObjects (compare to COL) [#2585]
+- Unified project data download task [#1009], in part
+- Download project as zipped TSV tables in Download [#1009]
+- CSV generating endpoints `/api/v1/taxon_names.csv` and `/api/v1/otus.csv`
+- Filter CollectionObject links to "Collection Summary" task [#3434]
+- CollectionObject type facet
+- Coordinate and collecting event sections in Browse OTUs
+
+### Changed
+
+- Download routes now name files as `.tsv`
+- CollectingEvent allowable max records made smart [#3590]
+- Added `extend[]=attribution` to `/images/123.json`
+
+### Fixed
+
+- TaxonNameClassification download
+- TaxonName `descendants` facet always included self, it shouldn't have
+- Without document facet
+- Object cloning in OriginRelationship caused infinite loops [#3594]
+- Quote handling in API autocomplete calls
+- Organization name not displaying in attribution copyright _label_
+- Manage Controlled vocabulary term: CVT list is not reloading after clone them from other project
+- Not possible to delete asserted distribution once added in radial object [#3591]
+- Manage controlled vocabulary: Delete button doesn't work [#3593]
+
+
+[#2585]: https://github.com/SpeciesFileGroup/taxonworks/issues/2585
+[#1009]: https://github.com/SpeciesFileGroup/taxonworks/issues/1009
+[#3593]: https://github.com/SpeciesFileGroup/taxonworks/issues/3593
+[#3594]: https://github.com/SpeciesFileGroup/taxonworks/issues/3594
+[#3590]: https://github.com/SpeciesFileGroup/taxonworks/issues/3590
+[#3434]: https://github.com/SpeciesFileGroup/taxonworks/issues/3434
+[#3591]: https://github.com/SpeciesFileGroup/taxonworks/issues/3591
+
 ## [0.34.6] - 2023-10-06
 
 ### Added
@@ -41,7 +80,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Attribution rendering had cryptic license value [#3577]
 - GeographicAreas not registering for some DWCA imports [#3575]
 - New collecting event: georeference from verbatim button creates two identical georeferences [#3573]
-
 
 [#3035]: https://github.com/SpeciesFileGroup/taxonworks/issues/3035
 [#1355]: https://github.com/SpeciesFileGroup/taxonworks/issues/1355
@@ -3941,7 +3979,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.6...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.0...development
+[0.35.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.6...v0.35.0
 [0.34.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.5...v0.34.6
 [0.34.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.4...v0.34.5
 [0.34.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.3...v0.34.4

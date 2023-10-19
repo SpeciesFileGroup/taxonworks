@@ -6,3 +6,8 @@
   <strong>Object:</strong>
   <%= scrollable_div_tag(@geographic_item.geo_object.to_s[0, 50]) %> <!-- this breaks 3 column layout -->
 </div>
+
+<div>
+  <strong>Cached total area:</strong>
+  <%= @geographic_item.cached_total_area %>
+</div>

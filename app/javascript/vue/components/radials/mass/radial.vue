@@ -48,7 +48,7 @@
       </VModal>
       <VBtn
         class="circle-button"
-        title="Radial massive annoator"
+        title="Radial mass annoator"
         circle
         color="radial"
         :disabled="!ids.length"
@@ -56,7 +56,7 @@
       >
         <VIcon
           name="radialMassAnnotator"
-          title="Radial massive annoator"
+          title="Radial mass annoator"
           x-small
         />
       </VBtn>

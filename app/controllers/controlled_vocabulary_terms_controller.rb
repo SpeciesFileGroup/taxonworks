@@ -121,7 +121,7 @@ class ControlledVocabularyTermsController < ApplicationController
     send_data(
       Export::Download.generate_csv(ControlledVocabularyTerm.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "controlled_vocabulary_terms_#{DateTime.now}.csv")
+      filename: "controlled_vocabulary_terms_#{DateTime.now}.tsv")
   end
 
   # GET /controlled_vocabulary_terms/1/tagged_objects

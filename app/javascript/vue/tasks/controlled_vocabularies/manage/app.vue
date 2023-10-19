@@ -30,7 +30,14 @@
           >Manage biocuration classes and groups
         </a>
       </h3>
-      <CloneControlledVocabularyTerms :type="view" />
+      <CloneControlledVocabularyTerms
+        :type="view"
+        @clone="
+          () => {
+            loadCVTList(view)
+          }
+        "
+      />
     </div>
     <div class="flex-separate margin-medium-top">
       <div class="one_quarter_width">
@@ -69,7 +76,7 @@
 <script setup>
 import { computed, ref, watch, onBeforeMount } from 'vue'
 import { ControlledVocabularyTerm } from '@/routes/endpoints'
-import { addToArray } from '@/helpers'
+import { addToArray, removeFromArray } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import CVT_TYPES from './constants/controlled_vocabulary_term_types'
 import makeControlledVocabularyTerm from '@/factory/controlledVocabularyTerm'
@@ -94,10 +101,7 @@ watch(
   (newVal) => {
     cvt.value.type = newVal
     isLoading.value = true
-    ControlledVocabularyTerm.where({ 'type[]': newVal }).then(({ body }) => {
-      list.value = body
-      isLoading.value = false
-    })
+    loadCVTList(newVal)
   },
   {
     immediate: true
@@ -115,6 +119,13 @@ onBeforeMount(() => {
     })
   }
 })
+
+function loadCVTList(type) {
+  ControlledVocabularyTerm.where({ type: [type] }).then(({ body }) => {
+    list.value = body
+    isLoading.value = false
+  })
+}
 
 function createCTV() {
   const payload = {
@@ -158,17 +169,17 @@ function copyToClipboard() {
   })
 }
 
-function removeCTV(index) {
+function removeCTV(cvt) {
   if (
     window.confirm(
       "You're trying to delete this record. Are you sure want to proceed?"
     )
   ) {
     isLoading.value = true
-    ControlledVocabularyTerm.destroy(list.value[index].id)
+    ControlledVocabularyTerm.destroy(cvt.id)
       .then((_) => {
-        list.value.splice(index, 1)
-      })
+        removeFromArray(list.value, cvt)
+      }).catch(() => {})
       .finally((_) => {
         isLoading.value = false
       })

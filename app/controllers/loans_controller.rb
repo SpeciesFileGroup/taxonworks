@@ -115,7 +115,7 @@ class LoansController < ApplicationController
 
   # GET /loans/download
   def download
-    send_data Export::Download.generate_csv(Loan.where(project_id: sessions_current_project_id)), type: 'text', filename: "loans_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Loan.where(project_id: sessions_current_project_id)), type: 'text', filename: "loans_#{DateTime.now}.tsv"
   end
 
   # GET /loans/select_options

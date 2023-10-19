@@ -66,13 +66,13 @@ class ControlledVocabularyTerm < ApplicationRecord
     return false if from_id.blank? or to_id.blank? or klass.blank?
 
     k = klass.safe_constantize
-    begin
-      k.where(project_id: from_id, type: klass).find_each do |cvt|
+    k.where(project_id: from_id, type: klass).find_each do |cvt|
+      begin
         i = cvt.clone
         i.project_id = to_id
         i.save!
+      rescue ActiveRecord::RecordInvalid
       end
-    rescue ActiveRecord::RecordInvalid
     end
     true
   end

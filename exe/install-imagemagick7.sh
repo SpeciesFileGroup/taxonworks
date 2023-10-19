@@ -18,7 +18,7 @@ make install
 cd ..
 
 [ ! -d libheif-* ] && \
-  curl -sL $(curl -s https://api.github.com/repos/strukturag/libheif/releases/latest | jq --raw-output '.assets[1] | .browser_download_url') | tar xzf - && \
+  curl -sL $(curl -s https://api.github.com/repos/strukturag/libheif/releases/latest | jq --raw-output '.assets[0] | .browser_download_url') | tar xzf - && \
   cd libheif-* && \
   mkdir -p build && cd build && \
   cmake .. && \

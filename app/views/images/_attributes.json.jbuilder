@@ -29,3 +29,13 @@ end
 if image.sled_image
   json.sled_image_id image.sled_image.id
 end
+
+if extend_response_with('attribution')
+  json.attribution do
+    if image.attribution
+      json.partial ('/attribution/attributes'), attribution: image.attribution
+    else
+      json.not_provided true
+    end
+  end
+end

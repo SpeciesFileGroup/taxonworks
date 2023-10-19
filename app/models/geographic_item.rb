@@ -34,11 +34,12 @@ require 'rgeo'
 class GeographicItem < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
+  include Shared::HasPapertrail
   include Shared::IsData
   include Shared::SharedAcrossProjects
 
   # @return [Hash, nil]
-  # An internal variable for use in super calls, holds a Hash in GeoJSON format (temporarily)
+  #   An internal variable for use in super calls, holds a Hash in GeoJSON format (temporarily)
   attr_accessor :geometry
 
   # @return [Boolean, RGeo object]
@@ -81,7 +82,7 @@ class GeographicItem < ApplicationRecord
     WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection
     END".freeze
 
-  # ANTI_MERIDIAN = '0X0102000020E61000000200000000000000008066400000000000405640000000000080664000000000004056C0'
+    # ANTI_MERIDIAN = '0X0102000020E61000000200000000000000008066400000000000405640000000000080664000000000004056C0'
   ANTI_MERIDIAN = 'LINESTRING (180 89.0, 180 -89)'.freeze
 
   has_many :cached_map_items, inverse_of: :geographic_item
@@ -99,7 +100,7 @@ class GeographicItem < ApplicationRecord
   has_many :collecting_events_through_georeference_error_geographic_item,
     through: :georeferences_through_error_geographic_item, source: :collecting_event
 
-  # TODO: THIS IS NOT GOOD
+    # TODO: THIS IS NOT GOOD
   before_validation :set_type_if_geography_present
 
   validate :some_data_is_provided
@@ -123,7 +124,7 @@ class GeographicItem < ApplicationRecord
          WHEN 'GeographicItem::MultiPoint' THEN #{name}.multi_point \
          WHEN 'GeographicItem::GeometryCollection' THEN #{name}.geometry_collection \
          END"
-  end
+    end
 
     def st_union(geographic_item_scope)
       GeographicItem.select("ST_Union(#{GeographicItem::GEOMETRY_SQL.to_sql}) as collection")
@@ -198,19 +199,19 @@ class GeographicItem < ApplicationRecord
       v = (choice == :latitude ? 1 : 2)
       "CASE type
       WHEN 'GeographicItem::GeometryCollection' THEN split_part(ST_AsLatLonText(ST_Centroid" \
-      "(geometry_collection::geometry), #{f}), ' ', #{v})
+    "(geometry_collection::geometry), #{f}), ' ', #{v})
       WHEN 'GeographicItem::LineString' THEN split_part(ST_AsLatLonText(ST_Centroid(line_string::geometry), " \
-      "#{f}), ' ', #{v})
+    "#{f}), ' ', #{v})
       WHEN 'GeographicItem::MultiPolygon' THEN split_part(ST_AsLatLonText(" \
-      "ST_Centroid(multi_polygon::geometry), #{f}), ' ', #{v})
+    "ST_Centroid(multi_polygon::geometry), #{f}), ' ', #{v})
       WHEN 'GeographicItem::Point' THEN split_part(ST_AsLatLonText(" \
-      "ST_Centroid(point::geometry), #{f}), ' ', #{v})
+    "ST_Centroid(point::geometry), #{f}), ' ', #{v})
       WHEN 'GeographicItem::Polygon' THEN split_part(ST_AsLatLonText(" \
-      "ST_Centroid(polygon::geometry), #{f}), ' ', #{v})
+    "ST_Centroid(polygon::geometry), #{f}), ' ', #{v})
       WHEN 'GeographicItem::MultiLineString' THEN split_part(ST_AsLatLonText(" \
-      "ST_Centroid(multi_line_string::geometry), #{f} ), ' ', #{v})
+    "ST_Centroid(multi_line_string::geometry), #{f} ), ' ', #{v})
       WHEN 'GeographicItem::MultiPoint' THEN split_part(ST_AsLatLonText(" \
-      "ST_Centroid(multi_point::geometry), #{f}), ' ', #{v})
+    "ST_Centroid(multi_point::geometry), #{f}), ' ', #{v})
     END as #{choice}"
     end
 
@@ -856,30 +857,30 @@ class GeographicItem < ApplicationRecord
       AS g;", geographic_item_ids.flatten
       )
     end
-  end # class << self
+    end # class << self
 
-  # @return [Hash]
-  #    a geographic_name_classification or empty Hash
-  # This is a quick approach that works only when
-  # the geographic_item is linked explicitly to a GeographicArea.
-  #
-  # !! Note that it is not impossible for a GeographicItem to be linked
-  # to > 1 GeographicArea, in that case we are assuming that all are
-  # equally refined, this might not be the case in the future because
-  # of how the GeographicArea gazetteer is indexed.
+      # @return [Hash]
+      #    a geographic_name_classification or empty Hash
+      # This is a quick approach that works only when
+      # the geographic_item is linked explicitly to a GeographicArea.
+      #
+      # !! Note that it is not impossible for a GeographicItem to be linked
+      # to > 1 GeographicArea, in that case we are assuming that all are
+      # equally refined, this might not be the case in the future because
+      # of how the GeographicArea gazetteer is indexed.
   def quick_geographic_name_hierarchy
     geographic_areas.order(:id).each do |ga|
       h = ga.geographic_name_classification # not quick enough !!
       return h if h.present?
     end
-   return  {}
+    return  {}
   end
 
-  # @return [Hash]
-  #   a geographic_name_classification (see GeographicArea) inferred by
-  # finding the smallest area containing this GeographicItem, in the most accurate gazetteer
-  # and using it to return country/state/county. See also the logic in
-  # filling in missing levels in GeographicArea.
+      # @return [Hash]
+      #   a geographic_name_classification (see GeographicArea) inferred by
+      # finding the smallest area containing this GeographicItem, in the most accurate gazetteer
+      # and using it to return country/state/county. See also the logic in
+      # filling in missing levels in GeographicArea.
   def inferred_geographic_name_hierarchy
     if small_area = containing_geographic_areas
       .joins(:geographic_areas_geographic_items)
@@ -899,29 +900,29 @@ class GeographicItem < ApplicationRecord
     inferred_geographic_name_hierarchy # slow
   end
 
-  # @return [Scope]
-  #   the Geographic Areas that contain (gis) this geographic item
+      # @return [Scope]
+      #   the Geographic Areas that contain (gis) this geographic item
   def containing_geographic_areas
     GeographicArea.joins(:geographic_items).includes(:geographic_area_type)
       .joins("JOIN (#{GeographicItem.containing(id).to_sql}) j on geographic_items.id = j.id")
   end
 
-  # @return [Boolean]
-  #   whether stored shape is ST_IsValid
+      # @return [Boolean]
+      #   whether stored shape is ST_IsValid
   def valid_geometry?
     GeographicItem.with_is_valid_geometry_column(self).first['is_valid']
   end
 
-  # @return [Array of latitude, longitude]
-  #    the lat, lon of the first point in the GeoItem, see subclass for #st_start_point
+      # @return [Array of latitude, longitude]
+      #    the lat, lon of the first point in the GeoItem, see subclass for #st_start_point
   def start_point
     o = st_start_point
     [o.y, o.x]
   end
 
-  # @return [Array]
-  #   the lat, long, as STRINGs for the centroid of this geographic item
-  #   Meh- this: https://postgis.net/docs/en/ST_MinimumBoundingRadius.html
+      # @return [Array]
+      #   the lat, long, as STRINGs for the centroid of this geographic item
+      #   Meh- this: https://postgis.net/docs/en/ST_MinimumBoundingRadius.html
   def center_coords
     r = GeographicItem.find_by_sql(
       "Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}), " \
@@ -932,29 +933,29 @@ class GeographicItem < ApplicationRecord
     [r.latitude, r.longitude]
   end
 
-  # @return [RGeo::Geographic::ProjectedPointImpl]
-  #    representing the centroid of this geographic item
+      # @return [RGeo::Geographic::ProjectedPointImpl]
+      #    representing the centroid of this geographic item
   def centroid
     # Gis::FACTORY.point(*center_coords.reverse)
     return geo_object if type == 'GeographicItem::Point'
     return Gis::FACTORY.parse_wkt(self.st_centroid)
   end
 
-  # @param [Integer] geographic_item_id
-  # @return [Double] distance in meters (slower, more accurate)
+      # @param [Integer] geographic_item_id
+      # @return [Double] distance in meters (slower, more accurate)
   def st_distance(geographic_item_id) # geo_object
     q1 = "ST_Distance((#{GeographicItem.select_geography_sql(id)}), " \
       "(#{GeographicItem.select_geography_sql(geographic_item_id)})) as d"
-    _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance((?),(?)) as d',
-                                                        GeographicItem.select_geography_sql(self.id),
-                                                        GeographicItem.select_geography_sql(geographic_item_id)])
-    deg = GeographicItem.where(id:).pluck(Arel.sql(q1)).first
-    deg * Utilities::Geo::ONE_WEST
+  _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance((?),(?)) as d',
+                                                      GeographicItem.select_geography_sql(self.id),
+                                                      GeographicItem.select_geography_sql(geographic_item_id)])
+  deg = GeographicItem.where(id:).pluck(Arel.sql(q1)).first
+  deg * Utilities::Geo::ONE_WEST
   end
 
-  # @param [GeographicItem] geographic_item
-  # @return [Double] distance in meters
-  # Like st_distance but works with changed and non persisted objects
+      # @param [GeographicItem] geographic_item
+      # @return [Double] distance in meters
+      # Like st_distance but works with changed and non persisted objects
   def st_distance_to_geographic_item(geographic_item)
     unless !persisted? || changed?
       a = "(#{GeographicItem.select_geography_sql(id)})"
@@ -973,8 +974,8 @@ class GeographicItem < ApplicationRecord
 
   alias_method :distance_to, :st_distance
 
-  # @param [Integer] geographic_item_id
-  # @return [Double] distance in meters (faster, less accurate)
+      # @param [Integer] geographic_item_id
+      # @return [Double] distance in meters (faster, less accurate)
   def st_distance_spheroid(geographic_item_id)
     q1 = "ST_DistanceSpheroid((#{GeographicItem.select_geometry_sql(id)})," \
       "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
@@ -987,21 +988,21 @@ class GeographicItem < ApplicationRecord
     GeographicItem.where(id:).pluck(Arel.sql(q1)).first
   end
 
-  # @return [String]
-  #   a WKT POINT representing the centroid of the geographic item
+      # @return [String]
+      #   a WKT POINT representing the centroid of the geographic item
   def st_centroid
     GeographicItem.where(id: to_param).pluck(Arel.sql("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}))")).first.gsub(/SRID=\d*;/, '')
   end
 
-  # @return [Integer]
-  #   the number of points in the geometry
+      # @return [Integer]
+      #   the number of points in the geometry
   def st_npoints
     GeographicItem.where(id:).pluck(Arel.sql("ST_NPoints(#{GeographicItem::GEOMETRY_SQL.to_sql}) as npoints")).first
   end
 
-  # @return [Symbol]
-  #   the geo type (i.e. column like :point, :multipolygon).  References the first-found object,
-  # according to the list of DATA_TYPES, or nil
+      # @return [Symbol]
+      #   the geo type (i.e. column like :point, :multipolygon).  References the first-found object,
+      # according to the list of DATA_TYPES, or nil
   def geo_object_type
     if self.class.name == 'GeographicItem' # a proxy check for new records
       geo_type
@@ -1010,10 +1011,10 @@ class GeographicItem < ApplicationRecord
     end
   end
 
-  # !!TODO: migrate these to use native column calls
+      # !!TODO: migrate these to use native column calls
 
-  # @return [RGeo instance, nil]
-  #  the Rgeo shape (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
+      # @return [RGeo instance, nil]
+      #  the Rgeo shape (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
   def geo_object
     begin
       if r = geo_object_type # rubocop:disable Lint/AssignmentInCondition
@@ -1026,48 +1027,48 @@ class GeographicItem < ApplicationRecord
     end
   end
 
-  # @param [geo_object]
-  # @return [Boolean]
+      # @param [geo_object]
+      # @return [Boolean]
   def contains?(target_geo_object)
     return nil if target_geo_object.nil?
     self.geo_object.contains?(target_geo_object)
   end
 
-  # @param [geo_object]
-  # @return [Boolean]
+      # @param [geo_object]
+      # @return [Boolean]
   def within?(target_geo_object)
     self.geo_object.within?(target_geo_object)
   end
 
-  # @param [geo_object]
-  # @return [Boolean]
+      # @param [geo_object]
+      # @return [Boolean]
   def intersects?(target_geo_object)
     self.geo_object.intersects?(target_geo_object)
   end
 
-  # @param [geo_object, Double]
-  # @return [Boolean]
+      # @param [geo_object, Double]
+      # @return [Boolean]
   def near(target_geo_object, distance)
     self.geo_object.unsafe_buffer(distance).contains?(target_geo_object)
   end
 
-  # @param [geo_object, Double]
-  # @return [Boolean]
+      # @param [geo_object, Double]
+      # @return [Boolean]
   def far(target_geo_object, distance)
     !near(target_geo_object, distance)
   end
 
-  # @return [GeoJSON hash]
-  #    via Rgeo apparently necessary for GeometryCollection
+      # @return [GeoJSON hash]
+      #    via Rgeo apparently necessary for GeometryCollection
   def rgeo_to_geo_json
     RGeo::GeoJSON.encode(geo_object).to_json
   end
 
-  # @return [Hash]
-  #   in GeoJSON format
-  #   Computed via "raw" PostGIS (much faster). This
-  #   requires the geo_object_type and id.
-  #
+      # @return [Hash]
+      #   in GeoJSON format
+      #   Computed via "raw" PostGIS (much faster). This
+      #   requires the geo_object_type and id.
+      #
   def to_geo_json
     JSON.parse(
       GeographicItem.connection.select_one(
@@ -1075,15 +1076,15 @@ class GeographicItem < ApplicationRecord
         "FROM geographic_items WHERE id=#{id};")['a'])
   end
 
-  # We don't need to serialize to/from JSON
+      # We don't need to serialize to/from JSON
   def to_geo_json_string
     GeographicItem.connection.select_one(
       "SELECT ST_AsGeoJSON(#{geo_object_type}::geometry) a " \
       "FROM geographic_items WHERE id=#{id};")['a']
   end
 
-  # @return [Hash]
-  #   the shape as a GeoJSON Feature with some item metadata
+      # @return [Hash]
+      #   the shape as a GeoJSON Feature with some item metadata
   def to_geo_json_feature
     @geometry ||= to_geo_json
     {'type' => 'Feature',
@@ -1095,28 +1096,45 @@ class GeographicItem < ApplicationRecord
     }
   end
 
-  # '{"type":"Feature","geometry":{"type":"Point","coordinates":[2.5,4.0]},"properties":{"color":"red"}}'
-  # '{"type":"Feature","geometry":{"type":"Polygon","coordinates":"[[[-125.29394388198853, 48.584480409793],
-  # [-67.11035013198853, 45.09937589848195],[-80.64550638198853, 25.01924647619111],[-117.55956888198853,
-  # 32.5591595028449],[-125.29394388198853, 48.584480409793]]]"},"properties":{}}'
-  # @param [String] value
-  # @return [Boolean, RGeo object]
+      # @param value [String] like:
+      #   '{"type":"Feature","geometry":{"type":"Point","coordinates":[2.5,4.0]},"properties":{"color":"red"}}'
+      #
+      #   '{"type":"Feature","geometry":{"type":"Polygon","coordinates":"[[[-125.29394388198853, 48.584480409793],
+      #      [-67.11035013198853, 45.09937589848195],[-80.64550638198853, 25.01924647619111],[-117.55956888198853,
+      #      32.5591595028449],[-125.29394388198853, 48.584480409793]]]"},"properties":{}}'
+      #
+      #  '{"type":"Point","coordinates":[2.5,4.0]},"properties":{"color":"red"}}'
+      #
+      # @return [Boolean, RGeo object]
   def shape=(value)
+
     if value.present?
       geom = RGeo::GeoJSON.decode(value, json_parser: :json, geo_factory: Gis::FACTORY)
-      this_type = JSON.parse(value)['geometry']['type']
+      this_type = nil
 
-      # TODO: isn't this set automatically? Or perhaps the callback isn't hit in this approach?
+      if geom.respond_to?(:geometry_type)
+        this_type = geom.geometry_type.to_s
+      elsif geom.respond_to?(:geometry)
+        this_type = geom.geometry.geometry_type.to_s
+      else
+      end
+
       self.type = GeographicItem.eval_for_type(this_type) unless geom.nil?
 
-      raise('GeographicItem.type not set.') if type.blank?
+      if type.blank?
+        errors.add(:base, 'type is not set from shape')
+        return
+      end
+      # raise('GeographicItem.type not set.') if type.blank?
 
       object = nil
 
+      s = geom.respond_to?(:geometry) ? geom.geometry.to_s : geom.to_s
+
       begin
-        object = Gis::FACTORY.parse_wkt(geom.geometry.to_s)
+        object = Gis::FACTORY.parse_wkt(s)
       rescue RGeo::Error::InvalidGeometry
-        return false
+        errors.add(:self, 'Shape value is an Invalid Geometry')
       end
 
       write_attribute(this_type.underscore.to_sym, object)
@@ -1124,7 +1142,7 @@ class GeographicItem < ApplicationRecord
     end
   end
 
-  # @return [String]
+      # @return [String]
   def to_wkt
     #  10k  #<Benchmark::Tms:0x00007fb0dfd30fd0 @label="", @real=25.237487000005785, @cstime=0.0, @cutime=0.0, @stime=1.1704609999999995, @utime=5.507929999999988, @total=6.678390999999987>
     #  GeographicItem.select("ST_AsText( #{GeographicItem::GEOMETRY_SQL.to_sql}) wkt").where(id: id).first.wkt
@@ -1137,13 +1155,13 @@ class GeographicItem < ApplicationRecord
     end
   end
 
-  # return float, in meters, calculated, not from cached
+      # return float, in meters, calculated, not from cached
   def area
     GeographicItem.where(id:).select("ST_Area(#{GeographicItem::GEOGRAPHY_SQL}, false) as area_in_meters").first['area_in_meters']
   end
 
-  # @return [Float, false]
-  #    the value in square meters of the interesecting area of this and another GeographicItem
+      # @return [Float, false]
+      #    the value in square meters of the interesecting area of this and another GeographicItem
   def intersecting_area(geographic_item_id)
     a = GeographicItem.aliased_geographic_sql('a')
     b = GeographicItem.aliased_geographic_sql('b')
@@ -1151,30 +1169,30 @@ class GeographicItem < ApplicationRecord
     c = GeographicItem.connection.execute("SELECT ST_Area(ST_Intersection(#{a}, #{b})) as intersecting_area
       FROM geographic_items a, geographic_items b
       WHERE a.id = #{id} AND b.id = #{geographic_item_id};"
-    ).first
-    c && c['intersecting_area'].to_f
+                                         ).first
+                                         c && c['intersecting_area'].to_f
   end
 
-  # TODO: This is bad, while internal use of ONE_WEST_MEAN is consistent it is in-accurate given the vast differences of radius vs. lat/long position.
-  # When we strike the error-polygon from radius we should remove this
-  #
-  # Use case is returning the radius from a circle we calculated via buffer for error-polygon creation.
+      # TODO: This is bad, while internal use of ONE_WEST_MEAN is consistent it is in-accurate given the vast differences of radius vs. lat/long position.
+      # When we strike the error-polygon from radius we should remove this
+      #
+      # Use case is returning the radius from a circle we calculated via buffer for error-polygon creation.
   def radius
     r = ApplicationRecord.connection.execute( "SELECT ST_MinimumBoundingRadius( ST_Transform(  #{GeographicItem::GEOMETRY_SQL.to_sql}, 4326 )  ) AS radius from geographic_items where geographic_items.id = #{id}").first['radius'].split(',').last.chop.to_f
     r = (r * Utilities::Geo::ONE_WEST_MEAN).to_i
   end
 
-  private
+      private
 
   def set_cached
     update_column(:cached_total_area, area)
   end
 
-  protected
+      protected
 
-  # @return [Symbol]
-  #   returns the attribute (column name) containing data
-  #   nearly all methods should use #geo_object_type, not geo_type
+      # @return [Symbol]
+      #   returns the attribute (column name) containing data
+      #   nearly all methods should use #geo_object_type, not geo_type
   def geo_type
     DATA_TYPES.each { |item|
       return item if send(item)
@@ -1182,7 +1200,7 @@ class GeographicItem < ApplicationRecord
     nil
   end
 
-  # @return [Boolean, String] false if already set, or type to which it was set
+      # @return [Boolean, String] false if already set, or type to which it was set
   def set_type_if_geography_present
     if type.blank?
       column = geo_type
@@ -1190,23 +1208,23 @@ class GeographicItem < ApplicationRecord
     end
   end
 
-  # @param [RGeo::Point] point
-  # @return [Array] of a point
-  #   Longitude |, Latitude -
+      # @param [RGeo::Point] point
+      # @return [Array] of a point
+      #   Longitude |, Latitude -
   def point_to_a(point)
     data = []
     data.push(point.x, point.y)
     data
   end
 
-  # @param [RGeo::Point] point
-  # @return [Hash] of a point
+      # @param [RGeo::Point] point
+      # @return [Hash] of a point
   def point_to_hash(point)
     {points: [point_to_a(point)]}
   end
 
-  # @param [RGeo::MultiPoint] multi_point
-  # @return [Array] of points
+      # @param [RGeo::MultiPoint] multi_point
+      # @return [Array] of points
   def multi_point_to_a(multi_point)
     data = []
     multi_point.each { |point|
@@ -1215,14 +1233,14 @@ class GeographicItem < ApplicationRecord
     data
   end
 
-  # @return [Hash] of points
+      # @return [Hash] of points
   def multi_point_to_hash(_multi_point)
     # when we encounter a multi_point type, we only stick the points into the array, NOT it's identity as a group
     {points: multi_point_to_a(multi_point)}
   end
 
-  # @param [Reo::LineString] line_string
-  # @return [Array] of points in the line
+      # @param [Reo::LineString] line_string
+      # @return [Array] of points in the line
   def line_string_to_a(line_string)
     data = []
     line_string.points.each { |point|
@@ -1231,14 +1249,14 @@ class GeographicItem < ApplicationRecord
     data
   end
 
-  # @param [Reo::LineString] line_string
-  # @return [Hash] of points in the line
+      # @param [Reo::LineString] line_string
+      # @return [Hash] of points in the line
   def line_string_to_hash(line_string)
     {lines: [line_string_to_a(line_string)]}
   end
 
-  # @param [RGeo::Polygon] polygon
-  # @return [Array] of points in the polygon (exterior_ring ONLY)
+      # @param [RGeo::Polygon] polygon
+      # @return [Array] of points in the polygon (exterior_ring ONLY)
   def polygon_to_a(polygon)
     # TODO: handle other parts of the polygon; i.e., the interior_rings (if they exist)
     data = []
@@ -1248,14 +1266,14 @@ class GeographicItem < ApplicationRecord
     data
   end
 
-  # @param [RGeo::Polygon] polygon
-  # @return [Hash] of points in the polygon (exterior_ring ONLY)
+      # @param [RGeo::Polygon] polygon
+      # @return [Hash] of points in the polygon (exterior_ring ONLY)
   def polygon_to_hash(polygon)
     {polygons: [polygon_to_a(polygon)]}
   end
 
-  # @return [Array] of line_strings as arrays of points
-  # @param [RGeo::MultiLineString] multi_line_string
+      # @return [Array] of line_strings as arrays of points
+      # @param [RGeo::MultiLineString] multi_line_string
   def multi_line_string_to_a(multi_line_string)
     data = []
     multi_line_string.each { |line_string|
@@ -1268,13 +1286,13 @@ class GeographicItem < ApplicationRecord
     data
   end
 
-  # @return [Hash] of line_strings as hashes of points
+      # @return [Hash] of line_strings as hashes of points
   def multi_line_string_to_hash(_multi_line_string)
     {lines: to_a}
   end
 
-  # @param [RGeo::MultiPolygon] multi_polygon
-  # @return [Array] of arrays of points in the polygons (exterior_ring ONLY)
+      # @param [RGeo::MultiPolygon] multi_polygon
+      # @return [Array] of arrays of points in the polygons (exterior_ring ONLY)
   def multi_polygon_to_a(multi_polygon)
     data = []
     multi_polygon.each { |polygon|
@@ -1287,12 +1305,12 @@ class GeographicItem < ApplicationRecord
     data
   end
 
-  # @return [Hash] of hashes of points in the polygons (exterior_ring ONLY)
+      # @return [Hash] of hashes of points in the polygons (exterior_ring ONLY)
   def multi_polygon_to_hash(_multi_polygon)
     {polygons: to_a}
   end
 
-  # @return [Boolean] iff there is one and only one shape column set
+      # @return [Boolean] iff there is one and only one shape column set
   def some_data_is_provided
     data = []
 
@@ -1312,6 +1330,6 @@ class GeographicItem < ApplicationRecord
     end
     true
   end
-end
+ end
 
-Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }
+ Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }

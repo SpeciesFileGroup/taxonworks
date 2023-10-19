@@ -56,6 +56,7 @@
           v-model="selectedIds"
           :list="list"
           :layout="currentLayout"
+          radial-object
           @on-sort="list = $event"
         />
       </template>

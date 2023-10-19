@@ -89,12 +89,14 @@ import AssertedDistribution from './components/AssertedDistribution'
 import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
 import NomenclatureHistory from './components/timeline/Timeline.vue'
-import CollectingEvents from './components/CollectingEvents'
+import Distribution from './components/Distribution.vue'
+import CollectingEventSection from './components/collectingEvent/CollectingEventSection.vue'
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'
 import TypeSection from './components/TypeSection.vue'
 import CommonNames from './components/CommonNames'
 import DescriptionComponent from './components/Description.vue'
+import CoordinateOtus from './components/coordinate/CoordinateOtus.vue'
 import Descendants from './components/descendants'
 import Autocomplete from '@/components/ui/Autocomplete'
 import SearchOtu from './components/SearchOtu'
@@ -119,7 +121,7 @@ export default {
     BiologicalAssociations,
     AnnotationsComponent,
     NomenclatureHistory,
-    CollectingEvents,
+    CollectingEventSection,
     CollectionObjects,
     TypeSpecimens,
     CommonNames,
@@ -127,7 +129,9 @@ export default {
     Draggable,
     Descendants,
     SelectOtu,
-    TypeSection
+    TypeSection,
+    CoordinateOtus,
+    Distribution
   },
   computed: {
     preferences: {

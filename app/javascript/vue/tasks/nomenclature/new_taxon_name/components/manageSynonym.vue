@@ -73,7 +73,7 @@
                   />
                 </td>
                 <td>
-                  <div class="horizontal-left-content">
+                  <div class="horizontal-left-content gap-xsmall">
                     <span
                       class="circle-button btn-edit"
                       @click="loadTaxon(child.id)"
