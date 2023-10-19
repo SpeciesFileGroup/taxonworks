@@ -4,8 +4,13 @@ class Tasks::Exports::TaxonworksProjectController < ApplicationController
   def index
   end
 
-  def download
-    download = ::Export::Project.download(sessions_current_project)
+  def sql_download
+    download = ::Export::Project::Sql.download(sessions_current_project)
+    redirect_to download_path(download)
+  end
+
+  def csv_download
+    download = ::Export::Project::Csv.download(sessions_current_project)
     redirect_to download_path(download)
   end
 

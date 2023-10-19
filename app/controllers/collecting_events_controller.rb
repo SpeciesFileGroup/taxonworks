@@ -148,7 +148,7 @@ class CollectingEventsController < ApplicationController
   def download
     send_data(Export::Download.generate_csv(CollectingEvent.where(project_id: sessions_current_project_id)),
               type: 'text',
-              filename: "collecting_events_#{DateTime.now}.csv")
+              filename: "collecting_events_#{DateTime.now}.tsv")
   end
 
   # parse verbatim label, return date and coordinates

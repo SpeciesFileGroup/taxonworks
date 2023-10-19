@@ -8,6 +8,11 @@ export const TASK_COLLECTION_OBJECT_TABLE = {
   link: '/tasks/collection_objects/table'
 }
 
+export const TASK_COLLECTION_OBJECT_OUTDATED_NAMES = {
+  label: 'Outdated names (COL match)',
+  link: '/tasks/collection_objects/outdated_names/'
+}
+
 export const TASK_COLLECTION_OBJECT_SUMMARY = {
   label: 'Collection summary',
   link: '/tasks/collection_objects/summary'

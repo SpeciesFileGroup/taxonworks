@@ -1,0 +1,55 @@
+<h1> Task - Catalogue of Life Name Usage </h1>
+
+<%= tag.div(link_to('Back to filter', filter_collection_objects_task_url(@collection_objects_query.params) ) ) %>
+<%= tag.div(paginate @collection_objects) %>
+
+<% @collection_objects.find_each do |co| %>
+  <% n = collection_object_scientific_name(co)  %>
+  <% r = ::Colrapi.nameusage_search(q: n, dataset_id: ::TaxonWorks::Vendor::Colrapi::DATASETS[:col], rank: 'species') %>
+  <% d = ::TaxonWorks::Vendor::Colrapi.name_status(co, r) %>
+
+<table style="width: 50%;">
+
+<tr>
+<td colspan="4">
+  <ul class="horizontal_navbar no_bullets gap-small">
+    <%= tag.li collection_object_radial_tag(co) %>
+    <%= tag.li radial_navigation_tag(co) %>
+    <%= tag.li collection_object_tag(co) %>
+  </ul>
+</td>
+
+<% if n.blank? %>
+  <tr> <td> Target name not present. </td> </tr>
+  </table> <br>
+  <% next %>
+<% end %>
+
+  <tr>
+    <td> <%= colrapi_usage_status_tag(d) %> </td>
+    <td colspan="2"> Targeted name:  <%= n %> </td>
+    <td> <%= colrapi_filter_link(co, d) %> </td>
+  </tr>
+
+  <tr>
+    <th> Usage name  </th>
+    <th> Usage status </th>
+    <th> Accepted name  </th>
+    <th> Accepted status </th>
+  </tr>
+
+  <% d[:col_usages].each do |u| %>
+    <tr>
+      <td> <%= u.dig :usage, :name %></td>
+      <td> <%= u.dig :usage, :status %></td>
+      <td> <%= u.dig :accepted, :name %> </td>
+      <td> <%= u.dig :accepted, :status %> </td>
+    </tr>
+  <% end %>
+</table>
+
+<br>
+<% end %>
+
+
+

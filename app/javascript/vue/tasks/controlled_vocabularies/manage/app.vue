@@ -76,7 +76,7 @@
 <script setup>
 import { computed, ref, watch, onBeforeMount } from 'vue'
 import { ControlledVocabularyTerm } from '@/routes/endpoints'
-import { addToArray } from '@/helpers'
+import { addToArray, removeFromArray } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import CVT_TYPES from './constants/controlled_vocabulary_term_types'
 import makeControlledVocabularyTerm from '@/factory/controlledVocabularyTerm'
@@ -169,17 +169,17 @@ function copyToClipboard() {
   })
 }
 
-function removeCTV(index) {
+function removeCTV(cvt) {
   if (
     window.confirm(
       "You're trying to delete this record. Are you sure want to proceed?"
     )
   ) {
     isLoading.value = true
-    ControlledVocabularyTerm.destroy(list.value[index].id)
+    ControlledVocabularyTerm.destroy(cvt.id)
       .then((_) => {
-        list.value.splice(index, 1)
-      })
+        removeFromArray(list.value, cvt)
+      }).catch(() => {})
       .finally((_) => {
         isLoading.value = false
       })

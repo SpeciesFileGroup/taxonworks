@@ -1107,19 +1107,17 @@ class GeographicItem < ApplicationRecord
       #
       # @return [Boolean, RGeo object]
   def shape=(value)
+
     if value.present?
       geom = RGeo::GeoJSON.decode(value, json_parser: :json, geo_factory: Gis::FACTORY)
-
       this_type = nil
+
       if geom.respond_to?(:geometry_type)
         this_type = geom.geometry_type.to_s
-      elsif geom.respond_to(:geometry)
+      elsif geom.respond_to?(:geometry)
         this_type = geom.geometry.geometry_type.to_s
+      else
       end
-
-      # this_type = JSON.parse(value)['type'] || JSON.parse(value)['geometry']['type']
-
-      # TODO: isn't this set automatically? Or perhaps the callback isn't hit in this approach?
 
       self.type = GeographicItem.eval_for_type(this_type) unless geom.nil?
 

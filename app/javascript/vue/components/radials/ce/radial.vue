@@ -45,7 +45,7 @@
         @click="isModalVisible = true"
       >
         <VIcon
-          name="marker"
+          name="batch"
           x-small
         />
       </VBtn>

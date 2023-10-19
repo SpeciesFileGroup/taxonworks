@@ -38,9 +38,6 @@ scope :graph, controller: :graph do
 end
 
 resources :projects do
-
-
-
   collection do
     get 'list'
     get 'search'

@@ -88,7 +88,7 @@ function deleteItem(item) {
       "You're trying to delete this record. Are you sure want to proceed?"
     )
   ) {
-    this.$emit('delete', item)
+    emit('delete', item)
   }
 }
 </script>

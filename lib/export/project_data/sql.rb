@@ -1,17 +1,8 @@
-module Export::Project
-
-  # When adding a new table be sure to check there is nothing different compared to existing ones.
-  HIERARCHIES = [
-    ["container_item_hierarchies", "container_items"],
-    ["geographic_area_hierarchies", "geographic_areas"],
-    ["taxon_name_hierarchies", "taxon_names"]
-  ]
-
-  SPECIAL_TABLES = ['spatial_ref_sys', 'project', 'users', 'versions', 'delayed_jobs', 'imports']
+module ::Export::ProjectData::Sql
 
   # Restorable with psql -U :username -d :database -f dump.sql. Requires database to be created without tables (rails db:create)
   def self.generate_dump(project, file)
-    config = ActiveRecord::Base.connection_config
+    config = ActiveRecord::Base.connection_db_config.configuration_hash
 
     args = [
       ['-h', config[:host]],
@@ -27,36 +18,67 @@ module Export::Project
     split_point = schema.index(/\n(--[^\n]*\n)*\s*ALTER\s+TABLE/)
     schema_head, schema_tail = schema[0..split_point-1], schema[split_point..-1]
 
-    tables = (ActiveRecord::Base.connection.tables - SPECIAL_TABLES - HIERARCHIES.map(&:first)).sort
+    tables = (ActiveRecord::Base.connection.tables - Export::ProjectData::SPECIAL_TABLES - Export::ProjectData::HIERARCHIES.map(&:first)).sort
 
     file.puts schema_head
     file.write "\n-- DATA RESTORE\n\n"
     export_users(file, project)
     tables.each { |t| dump_table(t, file, project.id) }
     tables.each { |t| setup_pk_sequence(t, file) if get_table_cols(t).include?('"id"') }
-    HIERARCHIES.each { |p| dump_hierarchy_table(p, file, project.id) }
+    Export::ProjectData::HIERARCHIES.each { |p| dump_hierarchy_table(p, file, project.id) }
     file.puts schema_tail
   end
 
-  def self.download(project)
-    Tempfile.create do |file|
-      buffer = ::Zip::OutputStream.write_buffer(file) do |zipfile|
-        zipfile.put_next_entry('dump.sql')
-        generate_dump(project, zipfile)
+  # @return String
+  #   path to zipfile
+  def self.export(project)
+    zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_dump.sql"
+
+    Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
+      Tempfile.create(encoding: 'UTF-8') do |tempfile|
+        generate_dump(project, tempfile)
+        tempfile.flush
+        tempfile.rewind
+
+        # Needs rescoping if this is a Tempfile
+        # zipfile.add('dump.sql', tempfile.path)
+        #
+        # Dumps are very large, read them in blocks.
+        zipfile.get_output_stream('dump.sql') { |f| f.write(tempfile.read(1024)) until tempfile.eof? }
       end
-      buffer.flush
-      Download::SqlProjectDump.create!(
-        name: "#{project.name} export on #{Time.now}.",
-        description: 'A zip file containing SQL dump of community data + project-specific data',
-        filename: Zaru::sanitize!("#{project.name}.zip").gsub(' ', '_').downcase,
-        source_file_path: file.path,
-        expires: 2.days.from_now,
-        is_public: false
-      )
     end
+    zip_file_path
   end
 
-  private
+  # TODO - DRY with generic params passing
+  # @return Download
+  #   a completely built Download, but unsaved
+  def self.download(target_project)
+    file_path = export(target_project)
+
+    d = stub_download(target_project)
+    d.source_file_path = file_path
+    d
+  end
+
+  # @return Download
+  #   everything except source_file_path
+  def self.stub_download(target_project)
+    Download::ProjectDump::Sql.create!(
+      name: "#{target_project.name} export on #{Time.now}.",
+      description: 'A zip file containing SQL dump of community data + project-specific data',
+      filename: Zaru::sanitize!("#{target_project.name}.zip").gsub(' ', '_').downcase,
+      expires: 2.days.from_now,
+      is_public: false
+    )
+  end
+
+  # @return Download
+  def self.download_async(target_project)
+    d = stub_download(target_project)
+    DownloadProjectSqlJob.perform_later(target_project, d)
+    d
+  end
 
   def self.setup_pk_sequence(table, io)
     io.write("SELECT setval('public.#{table}_id_seq', (SELECT COALESCE(MAX(id), 0)+1 FROM public.#{table}));\n\n")
@@ -93,20 +115,20 @@ module Export::Project
                    "FROM #{table_pair.second} INNER JOIN "\
                        "#{table_pair.first} ON #{table_pair.second}.id IN ("\
                          "#{table_pair.first}.ancestor_id, #{table_pair.first}.descendant_id"\
-                       ") "\
-                   "WHERE project_id = #{project_id}"
+                       ') '\
+                   "WHERE project_id = #{project_id} LIMIT 2"
     copy_table(table_pair.first, io, cols_hierarchy, select_query)
   end
 
   def self.copy_table(table, io, cols, select_query)
     conn = get_connection
 
-    io.puts("COPY public.#{table} (#{cols.join(', ')}) FROM stdin;")
+    io.puts("COPY public.#{table} (#{cols.join(', ')}) FROM stdin WITH (ENCODING 'UTF8');")
 
     # TODO: Consider "WITH CSV HEADER" if dumping to a set of CSV files gets implemented
-    conn.copy_data("COPY (#{select_query}) TO STDOUT") do
+    conn.copy_data("COPY (#{select_query}) TO STDOUT WITH (ENCODING 'UTF8')") do
       while row = conn.get_copy_data
-        io.write(row)
+        io.write(row.force_encoding('UTF-8'))
       end
     end
 
@@ -115,10 +137,10 @@ module Export::Project
   end
 
   def self.export_users(io, project)
-    members = project.users.all
+    members = project.project_members.pluck(:user_id)
     conn = get_connection
 
-    User.all.each do |user|
+    User.all.find_each do |user|
       attributes = {
         id: user.id,
         password_digest: "'#{conn.escape_string(User.new(password: 'taxonworks').password_digest)}'",

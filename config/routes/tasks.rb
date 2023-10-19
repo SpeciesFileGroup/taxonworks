@@ -89,11 +89,6 @@ scope :tasks do
   end
 
   scope :exports do
-    scope :taxonworks_project, controller: 'tasks/exports/taxonworks_project' do
-      get '/', action: :index, as: 'export_taxonworks_project_task'
-      get 'download', as: 'download_taxonworks_project_task'
-    end
-
     scope :coldp, controller: 'tasks/exports/coldp' do
       get '/', action: :index, as: 'export_coldp_task'
       get 'download', as: 'download_coldp_task'
@@ -207,8 +202,19 @@ scope :tasks do
     scope :preferences, controller: 'tasks/projects/preferences' do
       get :index, as: 'project_preferences_task'
     end
+
+#   scope :taxonworks_project, controller: 'tasks/exports/taxonworks_project' do
+#     get '/', action: :index, as: 'export_taxonworks_project_task'
+#     get 'download', as: 'download_taxonworks_project_task'
+#   end
+
+    # Downloads here
     scope :data, controller: 'tasks/projects/data' do
       get '/', action: :index, as: 'project_data_task'
+
+      get 'tsv_download', as: 'generate_tsv_download_task'
+      get 'sql_download', as: 'generate_sql_download_task'
+
     end
   end
 
@@ -277,6 +283,10 @@ scope :tasks do
 
   scope :collection_objects do
 
+    scope :outdated_names, controller: 'tasks/collection_objects/outdated_names' do
+      get '/', action: :index, as: 'collection_object_outdated_names_task'
+    end
+
     scope :table, controller: 'tasks/collection_objects/table' do
       get '/', action: :index, as: 'collection_object_table_task'
     end
@@ -307,10 +317,11 @@ scope :tasks do
 
     scope :summary, controller: 'tasks/collection_objects/summary' do
       get '/', action: :index, as: 'collection_object_summary_task'
+      get :report, as: 'collection_object_summary_report',  defaults: {format: :js}
     end
 
     scope :filter, controller: 'tasks/collection_objects/filter' do
-      get '/', as: 'collection_objects_filter_task', action: :index
+      get '/', as: 'filter_collection_objects_task', action: :index
     end
 
     scope :browse, controller: 'tasks/collection_objects/browse' do

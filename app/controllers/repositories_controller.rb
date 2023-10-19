@@ -83,7 +83,7 @@ class RepositoriesController < ApplicationController
 
   # GET /repositories/download
   def download
-    send_data Export::Download.generate_csv(Repository.all), type: 'text', filename: "repositories_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Repository.all), type: 'text', filename: "repositories_#{DateTime.now}.tsv"
   end
 
   # GET /repositories/select_options

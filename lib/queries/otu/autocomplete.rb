@@ -78,7 +78,7 @@ module Queries
       def otu_name_similarity
         base_query
         .where('otus.name % ?', query_string)
-          .where( ApplicationRecord.sanitize_sql("word_similarity('#{query_string}', otus.name) > 0.33"))
+          .where( ApplicationRecord.sanitize_sql_array(["word_similarity('%s', otus.name) > 0.33", query_string]))
         .order('otus.name, length(otus.name)')
       end
 

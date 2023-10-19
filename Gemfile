@@ -28,7 +28,7 @@ gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 gem 'net-smtp', '~> 0.3.1'
 gem 'mail', '~> 2.8', '>= 2.8.1'
-gem "matrix", "~> 0.4.2"
+gem 'matrix', '~> 0.4.2'
 
 # Geo
 
@@ -104,7 +104,7 @@ gem 'chartkick', '~> 4.0'
 gem 'groupdate', '~> 5.2'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.2.0'
-gem "best_in_place", git: "https://github.com/mmotherwell/best_in_place"
+gem 'best_in_place', git: 'https://github.com/mmotherwell/best_in_place'
 gem 'redcarpet', '~> 3.4'
 gem 'sassc-rails', '~> 2.1.0'
 gem 'waxy', '~> 0.1.1'
@@ -123,6 +123,8 @@ gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul' # '
 gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 gem 'colrapi'
+
+gem 'colrapi', '~>0.1.1'
 
 # Global Names
 gem 'gnfinder', '~> 1.0'
@@ -190,7 +192,7 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'codecov', '~> 0.6.0'
-  gem 'simplecov', :require => false
+  gem 'simplecov', require: false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.8' # , '>= 3.6.2'
