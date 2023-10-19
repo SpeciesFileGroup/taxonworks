@@ -88,8 +88,10 @@ class Tasks::Imports::ChecklistbankController < ApplicationController
         parser.parse
         parser.build_result
 
+        # TODO: Synergus australis Hartig, 1843 gets the wrong protonym because there is australis Hartig, 1843 and australis (Mayr, 1882)
+        #         biodiversity gem does not take authorship/year into consideration
         # TODO: works for exact protonym matches only, need to modify biodiversity gem to do stemmed protonym search instead
-        if c['name']['authorship'].include? '(' or c['name']['authorship'].include? ')'  # handle subsequent combinations
+        if c['name'].include? 'authorship' and (c['name']['authorship'].include? '(' or c['name']['authorship'].include? ')')  # handle subsequent combinations
           combo_ids = {}
           %w[genus subgenus species subspecies variety form].each do |rank|
             unless parser.send(rank).nil?
