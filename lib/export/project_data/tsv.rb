@@ -20,10 +20,16 @@ module ::Export::ProjectData::Tsv
   end
 
   def self.copy_table(klass, zipfile, query)
-    Tempfile.create do |table_file|
-      query = "COPY ( #{query.to_sql} ) TO '#{table_file.path}' WITH (FORMAT CSV, DELIMITER E'\t', HEADER, ENCODING 'UTF8')"
+    conn = get_connection
 
-      klass.connection.execute(query)
+    Tempfile.create do |table_file|
+      query = "COPY ( #{query.to_sql} ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\t', HEADER, ENCODING 'UTF8')"
+
+      conn.copy_data(query) do
+        while row = conn.get_copy_data
+          table_file.write(row.force_encoding('UTF-8'))
+        end
+      end
 
       table_file.flush
       table_file.rewind
@@ -67,4 +73,10 @@ module ::Export::ProjectData::Tsv
        is_public: false
      )
   end
+
+  # TODO: move to ::Export module
+  def self.get_connection
+    ActiveRecord::Base.connection.raw_connection
+  end
+
 end
