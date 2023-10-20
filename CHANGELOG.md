@@ -7,12 +7,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
-
 ### Fixed
 
+- Reset project preferences [#3599]
 - Project TSV dump permissions on server side
 - Clone moved CVT, not cloned project
+
+[#3599]: https://github.com/SpeciesFileGroup/taxonworks/issues/3599
 
 ## [0.35.0] - 2023-10-19
 
