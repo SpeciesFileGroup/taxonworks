@@ -25,6 +25,11 @@ module TaxonWorks
         #   `flexible`: return names that match the authorship/year if possible, but falls back to providing any matching name
         attr_accessor :author_mode
 
+        # whether to match on stemmed protonyms at the finest rank
+        #   true: match on stemmed protonyms at the finest rank
+        #   false: match on exact protonyms only
+        attr_accessor :stemmed_mode
+
         # project to query against
         attr_accessor :project_id
 
@@ -61,12 +66,13 @@ module TaxonWorks
         #   a memoized combiantion with only unambiguous elements 
         attr_reader :combination
 
-       def initialize(query_string: nil, project_id: nil, code: :iczn, match_mode: :groups, author_match_mode: :flexible)
+       def initialize(query_string: nil, project_id: nil, code: :iczn, match_mode: :groups, stemmed_match_mode: false, author_match_mode: :flexible)
           @project_id = project_id
           @name = query_string
           @nomenclature_code = code
           @mode = match_mode
           @author_mode = author_match_mode
+          @stemmed_mode = stemmed_match_mode
 
           parse if !query_string.blank?
         end
@@ -124,6 +130,11 @@ module TaxonWorks
         # @return [String, nil]
         def species
           parse_result[:words]&.detect { |w| 'SPECIES' == w[:wordType] }&.dig(:normalized)
+        end
+
+        # @return [String, nil]
+        def stemmed_finest_rank
+          @parse_result[:canonical][:stemmed]&.split[-1]
         end
 
         # @return [String, nil]
@@ -262,10 +273,21 @@ module TaxonWorks
         # @return [Scope]
         # @param rank [Symbol] like `:genus` or `:species`
         def basic_scope(rank)
-          Protonym.where(
-            project_id: project_id,
-            name: string(rank)
-          )
+          if finest_rank == rank and @stemmed_mode
+
+            # gnparser suffixes from: https://github.com/gnames/gnparser/blob/111cc40afac8992a0d532838e1f03c4c1b59574a/ent/stemmer/stemmer.go#L106
+            suffixes = ["ibus", "ius", "ae", "am", "as", "em", "es", "ia", "is", "nt", "os", "ud", "um", "us", "a", "e", "ii", "i", "o", "u"]
+            potential_protonyms = suffixes.map {|suffix| stemmed_finest_rank + suffix}
+            
+            Protonym.where(
+              project_id: project_id
+            ).where('name IN (?)', potential_protonyms)
+          else
+            Protonym.where(
+              project_id: project_id,
+              name: string(rank)
+            )
+          end
         end
 
         # @return [Scope]

@@ -312,6 +312,50 @@ describe ::TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature
           end
         end
 
+        context 'strictly match author year in ranked mode with stemmed protonyms' do
+          let!(:species1) { Protonym.create(
+            name: 'aciculatibia',
+            year_of_publication: '1921',
+            verbatim_author: 'Smith',
+            parent: genus1,
+              rank_class: Ranks.lookup(:iczn, :species)
+          ) }
+          let!(:species2) { Protonym.create(
+            name: 'aciculatibus',
+            year_of_publication: '1920',
+            verbatim_author: 'Smith and Jones',
+            parent: genus1,
+              rank_class: Ranks.lookup(:iczn, :species)
+          ) }
+          let!(:species3) { Protonym.create(
+            name: 'aciculatum',
+            year_of_publication: '1921',
+            verbatim_author: 'Smith and Jones',
+            parent: genus1,
+              rank_class: Ranks.lookup(:iczn, :species)
+          ) }
+          let!(:species4) { Protonym.create(
+            name: 'aciculatud',
+            year_of_publication: '1923',
+            verbatim_author: 'Smith and Jones',
+            parent: genus1,
+              rank_class: Ranks.lookup(:iczn, :species)
+          ) }
+
+          before do
+            result.mode = :ranked
+            result.author_mode = :strict
+            result.stemmed_mode = true
+            result.name = 'Aus aciculatibus (Smith and Jones, 1921)'
+            result.parse
+            result.build_result
+          end
+
+          specify '#ranked_protonym_stemmed_match' do
+            expect(result.ranked_protonyms(:species)).to contain_exactly(species3)
+          end
+        end
+
         context 'infraspecifics' do
           specify '#string 1' do
             result.name = 'Aus bus form cus Smith and Jones, 1920'
