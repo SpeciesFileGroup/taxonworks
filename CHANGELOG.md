@@ -9,6 +9,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- TP stats ... maybe.
+- Images for OTU type material expanded to all protonyms
 - Reset project preferences [#3599]
 - Project TSV dump permissions on server side
 - Clone moved CVT, not cloned project

@@ -349,7 +349,7 @@ GEM
     namae (1.1.1)
     namecase (2.0.0)
     nenv (0.3.0)
-    net-imap (0.4.1)
+    net-imap (0.4.2)
       date
       net-protocol
     net-pop (0.1.2)
