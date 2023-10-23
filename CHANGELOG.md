@@ -9,6 +9,23 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.35.1] - 2023-10-23
+
+### Changed
+
+- Doubled the number of favoritable tasks to 40 [#3600]
+
+### Fixed
+
+- TaxonPage stats, maybe, who knows at this point.
+- Images for OTU type material expanded to all protonyms
+- Reset project preferences [#3599]
+- Project TSV dump permissions on server side
+- Clone moved CVT, not cloned project
+
+[#3600]: https://github.com/SpeciesFileGroup/taxonworks/issues/3600
+[#3599]: https://github.com/SpeciesFileGroup/taxonworks/issues/3599
+
 ## [0.35.0] - 2023-10-19
 
 ### Added
@@ -3979,7 +3996,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.1...development
+[0.35.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.6...v0.35.0
 [0.34.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.5...v0.34.6
 [0.34.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.4...v0.34.5
