@@ -311,7 +311,7 @@ class User < ApplicationRecord
     u = hub_favorites.dup
 
     u[p] = HUB_FAVORITES.dup if !u[p]
-    u[p][k] = u[p][k].push(n).uniq[0..19].sort
+    u[p][k] = u[p][k].push(n).uniq[0..39].sort
 
     update_column(:hub_favorites, u)
     true

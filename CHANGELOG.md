@@ -7,14 +7,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+
+- Doubled the number of favoritable tasks to 40 [#3600]
+
 ### Fixed
 
-- TP stats ... maybe.
+- TaxonPage stats, maybe, who knows at this point.
 - Images for OTU type material expanded to all protonyms
 - Reset project preferences [#3599]
 - Project TSV dump permissions on server side
 - Clone moved CVT, not cloned project
 
+[#3600]: https://github.com/SpeciesFileGroup/taxonworks/issues/3600
 [#3599]: https://github.com/SpeciesFileGroup/taxonworks/issues/3599
 
 ## [0.35.0] - 2023-10-19
