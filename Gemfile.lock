@@ -611,7 +611,6 @@ GEM
       rake (~> 13.0)
       rmagick (~> 5.2)
       rtesseract (~> 3.1)
-    strscan (3.0.4)
     sync (0.5.0)
     taxonifi (0.6.0)
       require_all (~> 3.0)
@@ -731,8 +730,6 @@ DEPENDENCIES
   matrix (~> 0.4.2)
   modularity (~> 3.0.0)
   namecase (~> 2.0)
-  net-imap
-  net-pop
   net-smtp (~> 0.3.1)
   os (~> 1.0, >= 1.0.1)
   paper_trail (~> 12.0)

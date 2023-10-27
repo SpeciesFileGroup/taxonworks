@@ -8,7 +8,6 @@ require 'rails/all'
 
 Bundler.require *Rails.groups
 
-
 module TaxonWorks
   class Application < Rails::Application
     # Via https://github.com/matthuhiggins/foreigner/pull/95
@@ -35,8 +34,10 @@ module TaxonWorks
     #Include separate assets
     config.assets.precompile += %w( separated_application.js )
 
-    # Breaks rake/loading becahse of existing Rails.application.eager_load! statements
-    config.eager_load_paths += config.autoload_paths
+    # Breaks rake/loading because of existing Rails.application.eager_load! statements
+
+    # zeitwerk not needed?
+    # config.eager_load_paths += config.autoload_paths
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
@@ -60,6 +61,8 @@ module TaxonWorks
     # config.logger = Logger.new(STDOUT)
     # config.logger = Log4r::Logger.new('Application Log')
 
+    config.autoloader = :zeitwerk
+
     config.middleware.insert_before 0, Rack::Cors, debug: true, logger: (-> {Rails.logger}) do
       allow do
         origins '*'
@@ -78,6 +81,5 @@ module TaxonWorks
       end
     end
 
-    config.autoloader = :zeitwerk
   end
 end
