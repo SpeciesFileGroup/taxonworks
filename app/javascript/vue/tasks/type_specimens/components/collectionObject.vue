@@ -5,21 +5,24 @@
       <textarea
         class="full_width"
         rows="5"
-        v-model="bufferedEvent"/>
+        v-model="bufferedEvent"
+      />
     </div>
     <div class="field label-above">
       <label>Buffered determinations</label>
       <textarea
         class="full_width"
         rows="5"
-        v-model="bufferedDeterminations"/>
+        v-model="bufferedDeterminations"
+      />
     </div>
     <div class="field label-above">
       <label>Buffered other labels</label>
       <textarea
         class="full_width"
         rows="5"
-        v-model="bufferedLabels"/>
+        v-model="bufferedLabels"
+      />
     </div>
     <div class="horizontal-left-content">
       <div class="field label-above">
@@ -27,18 +30,21 @@
         <input
           class="input-xsmall-width"
           type="number"
-          v-model="total">
+          v-model="total"
+        />
       </div>
       <div class="field label-above margin-small-left full_width">
         <label>Preparation type</label>
         <select
           v-model="preparationId"
-          class="normal-input full_width">
+          class="normal-input full_width"
+        >
           <option
             class="full_width"
             v-for="item in types"
             :key="item.id"
-            :value="item.id">
+            :value="item.id"
+          >
             {{ item.name }}
           </option>
         </select>
@@ -54,14 +60,17 @@
           klass="CollectionObject"
           pin-section="Repositories"
           pin-type="Repository"
-          @selected="setRepository"/>
+          @selected="setRepository"
+        />
         <p
           v-if="labelRepository"
-          class="horizontal-left-content">
-          <span v-html="labelRepository"/>
+          class="horizontal-left-content"
+        >
+          <span v-html="labelRepository" />
           <span
             class="button circle-button btn-delete button-default"
-            @click="unsetRepository"/>
+            @click="unsetRepository"
+          />
         </p>
       </fieldset>
     </div>
@@ -74,24 +83,33 @@
         label="label_html"
         :send-label="labelEvent"
         placeholder="Select a collection event"
-        @getItem="eventId = $event.id; labelEvent = $event.label"
+        @get-item="
+          ($event) => {
+            eventId = $event.id
+            labelEvent = $event.label
+          }
+        "
         display="label"
-        min="2"/>
+        min="2"
+      />
     </div>
     <div class="field">
-      <toggle-switch :biological-id="biologicalId"/>
+      <toggle-switch :biological-id="biologicalId" />
     </div>
   </div>
 </template>
 
 <script>
-
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import SmartSelector from 'components/ui/SmartSelector'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
 import ToggleSwitch from './toggleSwitch.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { CollectingEvent, Repository, PreparationType } from 'routes/endpoints'
+import {
+  CollectingEvent,
+  Repository,
+  PreparationType
+} from '@/routes/endpoints'
 
 export default {
   components: {
@@ -101,79 +119,98 @@ export default {
   },
 
   computed: {
-    typeMaterial () {
+    typeMaterial() {
       return this.$store.getters[GetterNames.GetTypeMaterial]
     },
 
-    biologicalId () {
+    biologicalId() {
       return this.$store.getters[GetterNames.GetBiologicalId]
     },
 
     repositoryId: {
-      get () {
-        return this.$store.getters[GetterNames.GetCollectionObject].repository_id
+      get() {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+          .repository_id
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetCollectionObjectRepositoryId, value)
       }
     },
 
     bufferedDeterminations: {
-      get () {
-        return this.$store.getters[GetterNames.GetCollectionObjectBufferedDeterminations]
+      get() {
+        return this.$store.getters[
+          GetterNames.GetCollectionObjectBufferedDeterminations
+        ]
       },
-      set (value) {
-        this.$store.commit(MutationNames.SetCollectionObjectBufferedDeterminations, value)
+      set(value) {
+        this.$store.commit(
+          MutationNames.SetCollectionObjectBufferedDeterminations,
+          value
+        )
       }
     },
 
     bufferedEvent: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetCollectionObjectBufferedEvent]
       },
-      set (value) {
-        this.$store.commit(MutationNames.SetCollectionObjectBufferedEvent, value)
+      set(value) {
+        this.$store.commit(
+          MutationNames.SetCollectionObjectBufferedEvent,
+          value
+        )
       }
     },
 
     bufferedLabels: {
-      get () {
-        return this.$store.getters[GetterNames.GetCollectionObjectBufferedLabels]
+      get() {
+        return this.$store.getters[
+          GetterNames.GetCollectionObjectBufferedLabels
+        ]
       },
-      set (value) {
-        this.$store.commit(MutationNames.SetCollectionObjectBufferedLabels, value)
+      set(value) {
+        this.$store.commit(
+          MutationNames.SetCollectionObjectBufferedLabels,
+          value
+        )
       }
     },
 
     eventId: {
-      get () {
-        return this.$store.getters[GetterNames.GetCollectionObjectCollectionEventId]
+      get() {
+        return this.$store.getters[
+          GetterNames.GetCollectionObjectCollectionEventId
+        ]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetCollectionObjectEventId, value)
       }
     },
 
     preparationId: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetCollectionObjectPreparationId]
       },
-      set (value) {
-        this.$store.commit(MutationNames.SetCollectionObjectPreparationId, value)
+      set(value) {
+        this.$store.commit(
+          MutationNames.SetCollectionObjectPreparationId,
+          value
+        )
       }
     },
 
     total: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetCollectionObjectTotal]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetCollectionObjectTotal, value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       types: [],
       labelRepository: undefined,
@@ -183,7 +220,7 @@ export default {
 
   watch: {
     biologicalId: {
-      handler (newVal) {
+      handler(newVal) {
         if (newVal) {
           this.updateLabels()
         }
@@ -191,8 +228,8 @@ export default {
     },
 
     repositoryId: {
-      handler (newVal) {
-        if(!newVal) {
+      handler(newVal) {
+        if (!newVal) {
           this.labelRepository = ''
         }
       },
@@ -200,42 +237,42 @@ export default {
     }
   },
 
-  mounted () {
+  mounted() {
     this.updateLabels()
-    PreparationType.all().then(response => {
+    PreparationType.all().then((response) => {
       this.types = response.body
     })
   },
 
   methods: {
-    updateLabels () {
+    updateLabels() {
       this.labelRepository = this.labelEvent = undefined
       this.setEventLabel(this.eventId)
       this.setRepositoryLabel(this.repositoryId)
     },
 
-    setEventLabel (id) {
+    setEventLabel(id) {
       if (id) {
-        CollectingEvent.find(id).then(response => {
+        CollectingEvent.find(id).then((response) => {
           this.labelEvent = response.body.verbatim_label
         })
       }
     },
 
-    setRepositoryLabel (id) {
+    setRepositoryLabel(id) {
       if (id) {
-        Repository.find(id).then(response => {
+        Repository.find(id).then((response) => {
           this.labelRepository = response.body.name
         })
       }
     },
 
-    setRepository (repository) {
+    setRepository(repository) {
       this.labelRepository = repository.name
       this.repositoryId = repository.id
     },
 
-    unsetRepository () {
+    unsetRepository() {
       this.labelRepository = null
       this.repositoryId = null
     }

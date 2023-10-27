@@ -41,7 +41,9 @@
           </li>
         </ul>
       </div>
-      <RadialFilterAttribute :parameters="{ collection_object_id: [collectionObject.id] }" />
+      <RadialFilterAttribute
+        :parameters="{ collection_object_id: [collectionObject.id] }"
+      />
     </div>
   </NavBar>
 </template>
@@ -50,20 +52,22 @@
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../store/getters/getters'
-import VBtn from 'components/ui/VBtn'
-import VIcon from 'components/ui/VIcon'
-import NavBar from 'components/layout/NavBar.vue'
+import VBtn from '@/components/ui/VBtn'
+import VIcon from '@/components/ui/VIcon'
+import NavBar from '@/components/layout/NavBar.vue'
 import CONavegation from './CONavegation.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialObject from 'components/radials/object/radial.vue'
-import RadialNavigator from 'components/radials/navigation/radial.vue'
-import RadialFilter from 'components/radials/filter/radial.vue'
-import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
-import BrowseOTU from 'components/otu/otu.vue'
-import { RouteNames } from 'routes/routes'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import RadialFilter from '@/components/radials/linker/radial.vue'
+import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttribute.vue'
+import BrowseOTU from '@/components/otu/otu.vue'
+import { RouteNames } from '@/routes/routes'
 
 const store = useStore()
-const collectionObject = computed(() => store.getters[GetterNames.GetCollectionObject])
+const collectionObject = computed(
+  () => store.getters[GetterNames.GetCollectionObject]
+)
 const otu = computed(() => {
   const determinations = store.getters[GetterNames.GetDeterminations]
   const d = determinations[0]

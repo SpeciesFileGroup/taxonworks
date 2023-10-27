@@ -4,8 +4,9 @@
   </a>
 </template>
 <script setup>
+import { RouteNames } from '@/routes/routes'
 
-import { RouteNames } from 'routes/routes'
-
-const link = `${RouteNames.FilterCollectionObjects}?${new URL(window.location.href).searchParams.toString()}`
+const link = `${RouteNames.FilterCollectionObjects}?${new URL(
+  window.location.href
+).searchParams.toString()}`
 </script>

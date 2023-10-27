@@ -21,7 +21,7 @@
       <div class="margin-medium-bottom">
         <autocomplete
           ref="autocompleteRef"
-          v-if="autocomplete"
+          v-if="autocomplete && !otuPicker"
           :id="`smart-selector-${model}-autocomplete`"
           :input-id="inputId"
           placeholder="Search..."
@@ -38,7 +38,7 @@
         <otu-picker
           v-if="otuPicker"
           :input-id="inputId"
-          :clear-after="true"
+          clear-after
           @get-item="getObject($event.id)"
         />
       </div>
@@ -55,7 +55,7 @@
               :width="image.alternatives.thumb.width"
               :height="image.alternatives.thumb.height"
               :src="image.alternatives.thumb.image_file_url"
-            >
+            />
           </div>
         </div>
       </template>
@@ -96,7 +96,7 @@
                     :value="item.id"
                     :checked="selectedItem && item.id === selectedItem.id"
                     type="radio"
-                  >
+                  />
                   <span
                     :title="item[label]"
                     v-html="item[label]"
@@ -116,15 +116,15 @@
 
 <script setup>
 import { ref, computed, watch, onUnmounted } from 'vue'
-import { useOnResize } from 'compositions/index'
-import { isMac } from 'helpers/os'
-import SwitchComponents from 'components/switch'
-import AjaxCall from 'helpers/ajaxCall'
-import Autocomplete from 'components/ui/Autocomplete'
-import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
-import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
-import DefaultPin from 'components/getDefaultPin'
-import OtuPicker from 'components/otu/otu_picker/otu_picker'
+import { useOnResize } from '@/compositions/index'
+import { isMac } from '@/helpers/os'
+import SwitchComponents from '@/components/switch'
+import AjaxCall from '@/helpers/ajaxCall'
+import Autocomplete from '@/components/ui/Autocomplete'
+import OrderSmart from '@/helpers/smartSelector/orderSmartSelector'
+import SelectFirst from '@/helpers/smartSelector/selectFirstSmartOption'
+import DefaultPin from '@/components/getDefaultPin'
+import OtuPicker from '@/components/otu/otu_picker/otu_picker'
 
 const props = defineProps({
   modelValue: {
@@ -240,7 +240,7 @@ const props = defineProps({
   name: {
     type: String,
     required: false,
-    default: () => (Math.random().toString(36).substr(2, 5))
+    default: () => Math.random().toString(36).substr(2, 5)
   },
 
   filterIds: {
@@ -274,15 +274,9 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits([
-  'update:modelValue',
-  'onTabSelected',
-  'selected'
-])
+const emit = defineEmits(['update:modelValue', 'onTabSelected', 'selected'])
 
-const actionKey = isMac()
-  ? 'Control'
-  : 'Alt'
+const actionKey = isMac() ? 'Control' : 'Alt'
 
 const autocompleteRef = ref(null)
 const tabselectorRef = ref(null)
@@ -301,33 +295,37 @@ const listStyle = computed(() => {
 })
 
 const selectedItem = computed({
-  get () {
+  get() {
     return props.modelValue
   },
-  set (value) {
+  set(value) {
     emit('update:modelValue', value)
   }
 })
 
 const isImageModel = computed(() => props.model === 'images')
 
-const getObject = id => {
+const getObject = (id) => {
   const params = {
     extend: props.extend
   }
 
-  AjaxCall('get', props.getUrl ? `${props.getUrl}${id}.json` : `/${props.model}/${id}.json`, { params }).then(response => {
+  AjaxCall(
+    'get',
+    props.getUrl ? `${props.getUrl}${id}.json` : `/${props.model}/${id}.json`,
+    { params }
+  ).then((response) => {
     sendObject(response.body)
   })
 }
 
-const sendObject = item => {
+const sendObject = (item) => {
   lastSelected.value = item
   selectedItem.value = item
   emit('selected', item)
 }
 
-const filterItem = item => {
+const filterItem = (item) => {
   if (props.filter) {
     return props.filter(item)
   }
@@ -346,18 +344,20 @@ const refresh = (forceUpdate = false) => {
     ...props.params
   }
 
-  AjaxCall('get', `/${props.model}/select_options`, { params }).then(response => {
-    lists.value = response.body
-    addCustomElements()
-    options.value = Object.keys(lists.value).concat(props.addTabs)
-    options.value = OrderSmart(options.value)
+  AjaxCall('get', `/${props.model}/select_options`, { params })
+    .then((response) => {
+      lists.value = response.body
+      addCustomElements()
+      options.value = Object.keys(lists.value).concat(props.addTabs)
+      options.value = OrderSmart(options.value)
 
-    view.value = SelectFirst(lists.value, options.value)
-  }).catch(() => {
-    options.value = []
-    lists.value = []
-    view.value = undefined
-  })
+      view.value = SelectFirst(lists.value, options.value)
+    })
+    .catch(() => {
+      options.value = []
+      lists.value = []
+      view.value = undefined
+    })
 }
 
 const addToList = (listName, item) => {
@@ -374,7 +374,7 @@ const addCustomElements = () => {
   const keys = Object.keys(props.customList)
 
   if (keys.length) {
-    keys.forEach(key => {
+    keys.forEach((key) => {
       lists.value[key] = props.customList[key]
 
       if (!lists.value[key]) {
@@ -390,7 +390,12 @@ const addCustomElements = () => {
 }
 
 const alreadyOnLists = () => {
-  return lastSelected.value && [].concat(...Object.values(lists.value)).find(item => item.id === lastSelected.value.id)
+  return (
+    lastSelected.value &&
+    []
+      .concat(...Object.values(lists.value))
+      .find((item) => item.id === lastSelected.value.id)
+  )
 }
 const setFocus = () => {
   autocompleteRef.value.setFocus()
@@ -400,23 +405,32 @@ const changeTab = (e) => {
   if (e.key !== actionKey) return
   const element = tabselectorRef.value.$el
 
-  element.querySelector('input:checked').focus()
+  element.querySelector('input:checked')?.focus()
 }
 
-watch(
-  view,
-  newVal => { emit('onTabSelected', newVal) }
-)
+function setTab(tab) {
+  if (options.value.includes(tab)) {
+    view.value = tab
+  }
+}
+
+watch(view, (newVal) => {
+  emit('onTabSelected', newVal)
+})
 
 watch(
   () => props.customList,
-  () => { addCustomElements() },
+  () => {
+    addCustomElements()
+  },
   { deep: true }
 )
 
 watch(
   () => props.model,
-  () => { refresh() }
+  () => {
+    refresh(true)
+  }
 )
 
 onUnmounted(() => {
@@ -428,17 +442,18 @@ document.addEventListener('smartselector:update', refresh)
 
 defineExpose({
   setFocus,
+  setTab,
   addToList
 })
 </script>
 <style scoped>
-  input:focus + span {
-    font-weight: bold;
-  }
-  .list__item {
-    padding:2px 0;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-  }
+input:focus + span {
+  font-weight: bold;
+}
+.list__item {
+  padding: 2px 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
 </style>

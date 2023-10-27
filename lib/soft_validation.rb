@@ -261,10 +261,6 @@ module SoftValidation
           end
         end
 
-        #  a.each do |b|
-        #    byebug if self.soft_validation_methods[self.name][b].nil?
-        #  end
-
         a.delete_if{|n| !self.soft_validation_methods[n].send(:matches?, fixable, include_flagged) }
         methods += a
       end

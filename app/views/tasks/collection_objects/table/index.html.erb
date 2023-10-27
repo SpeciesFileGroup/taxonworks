@@ -1,0 +1,10 @@
+<h2> Collection object table</h2>
+
+<%= link_to('Filter', filter_collection_objects_task_url(@collection_objects_query.params)) %>
+
+<p><em> This is a code example, a template of sorts, illustrating how to generate a report linked to the CollectionObject filter. </em></p>
+
+Total: <%= @collection_objects.count -%>
+
+<%= table_example(@collection_objects) %>
+

@@ -2,9 +2,9 @@
 # For helper methods that return individual instances based on some parameters see corresponding
 # helpers.
 module Workbench::NavigationHelper
-  
+
   NO_NEW_FORMS = %w{Confidence Attribution ObservationMatrixRowItem ObservationMatrixColumnItem ObservationMatrixRow ObservationMatrixColumn Note Tag
-  Citation Identifier DataAttribute AlternateValue 
+  Citation Identifier DataAttribute AlternateValue TaxonNameClassification
   GeographicArea ContainerItem ProtocolRelationship Download}.freeze
 
   NOT_DATA_PATHS = %w{/project /administration /user}.freeze
@@ -13,8 +13,8 @@ module Workbench::NavigationHelper
   def slideouts
     if sessions_current_project && sessions_signed_in? && on_workbench?
       [ slideout_pinboard,
-      slideout_pdf_viewer,
-      slideout_clipboard ].join.html_safe
+        slideout_pdf_viewer,
+        slideout_clipboard ].join.html_safe
     end
   end
 
@@ -120,7 +120,12 @@ module Workbench::NavigationHelper
   end
 
   def download_path_for_model(model)
-    send("download_#{model.name.tableize}_path")
+    if model.name == 'Documentation'
+      # some weirdness with ninflections
+      download_documentation_index_path
+    else
+      send("download_#{model.name.tableize}_path")
+    end
   end
 
   def object_link(object)
@@ -177,7 +182,7 @@ module Workbench::NavigationHelper
 
   def destroy_object_link(object)
     if object.is_destroyable?(sessions_current_user)
-      link_to(content_tag(:span, 'Destroy', 'data-icon' => 'trash', class: 'small-icon'), object.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'}, class: 'navigation-item')     
+      link_to(content_tag(:span, 'Destroy', 'data-icon' => 'trash', class: 'small-icon'), object.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'}, class: 'navigation-item')
     else
       content_tag(:div, content_tag(:span, 'Destroy', 'data-icon' => 'trash', class: 'small-icon'), class: 'navigation-item disable')
     end

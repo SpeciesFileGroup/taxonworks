@@ -48,7 +48,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
           uri = klass.nomen_uri
           expect(uri.empty?).to be_falsey, "NOMEN_URI for #{klass.name} is empty!"
           expect(nomen_uris.include?(uri)).to be(false), "#{uri} from #{klass.name} is duplicated!"
-          expect(uri).to match(/http:\/\/purl.obolibrary.org\/obo\/NOMEN/), "#{uri} from #{klass.name} is invalid!"
+          expect(uri).to match(/^http:\/\/purl\.obolibrary\.org\/obo\/NOMEN\/?/), "#{uri} from #{klass.name} is invalid!"
           nomen_uris.push uri
         end
       end
@@ -275,7 +275,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(s1.cached_author_year).to eq('(McAtee, 1900)')
       end
 
-      # TODO: notice that alone they pass, we need a seperate method for setting cached_classified_as, i.e. decouple it from original combination cache setting
+      # TODO: notice that alone they pass, we need a separate method for setting cached_classified_as, i.e. decouple it from original combination cache setting
       specify 'for cached_classified_as with original genus present' do
         s1.update(original_genus: g2)
         r2 = TaxonNameRelationship::SourceClassifiedAs.create!(subject_taxon_name: s1, object_taxon_name: family, type: 'TaxonNameRelationship::SourceClassifiedAs')

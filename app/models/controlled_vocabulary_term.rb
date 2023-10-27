@@ -25,7 +25,7 @@
 #     A SKOS relationship that defines/describes the relationship between the concept identified by the URI and the concept defined in the definition.
 #
 class ControlledVocabularyTerm < ApplicationRecord
-  # ControlledVocabularyTerms are NOT taggable
+  # ControlledVocabularyTerms are NOT Taggable (with 'Tag')
   include Housekeeping
   include Shared::AlternateValues
   include Shared::HasPapertrail
@@ -34,7 +34,6 @@ class ControlledVocabularyTerm < ApplicationRecord
 
   acts_as_list scope: [:project_id, :type]
 
-  # Class constants
   ALTERNATE_VALUES_FOR = [:name, :definition].freeze
 
   validates_presence_of :name, :definition, :type
@@ -62,6 +61,22 @@ class ControlledVocabularyTerm < ApplicationRecord
   def uri_relation_is_a_skos_relation
     errors.add(:uri_relation, 'is not a valid uri relation') if !SKOS_RELATIONS.keys.include?(uri_relation)
   end
+
+  def self.clone_from_project(from_id: nil, to_id: nil, klass: nil)
+    return false if from_id.blank? or to_id.blank? or klass.blank?
+
+    k = klass.safe_constantize
+    k.where(project_id: from_id, type: klass).find_each do |cvt|
+      begin
+        i = cvt.dup
+        i.project_id = to_id
+        i.save!
+      rescue ActiveRecord::RecordInvalid
+      end
+    end
+    true
+  end
+
 end
 
 require_dependency 'biocuration_class'
@@ -70,4 +85,3 @@ require_dependency 'keyword'
 require_dependency 'predicate'
 require_dependency 'topic'
 require_dependency 'confidence_level'
-

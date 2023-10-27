@@ -7,7 +7,8 @@
       placeholder="Select a protocol"
       @getItem="createNew($event.id)"
       class="separate-bottom"
-      param="term"/>
+      param="term"
+    />
     <list-items
       target="protocols"
       label="object_tag"
@@ -15,14 +16,14 @@
       target-citations="protocols"
       :list="list"
       @delete="removeItem"
-      class="list"/>
+      class="list"
+    />
   </div>
 </template>
 <script>
-
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
-import autocomplete from 'components/ui/Autocomplete.vue'
+import autocomplete from '@/components/ui/Autocomplete.vue'
 import ListItems from './shared/listItems'
 
 export default {
@@ -32,7 +33,7 @@ export default {
     autocomplete
   },
   computed: {
-    validateFields () {
+    validateFields() {
       return this.note.text
     }
   },
@@ -42,13 +43,15 @@ export default {
     }
   },
   methods: {
-    createNew (protocol_relationship_id) {
+    createNew(protocol_relationship_id) {
       let data = {
         protocol_id: protocol_relationship_id,
         annotated_global_entity: decodeURIComponent(this.globalId)
       }
 
-      this.create('/protocol_relationships', { protocol_relationship: data }).then(response => {
+      this.create('/protocol_relationships', {
+        protocol_relationship: data
+      }).then((response) => {
         this.list.push(response.body)
       })
     }
@@ -57,10 +60,10 @@ export default {
 </script>
 <style lang="scss">
 .radial-annotator {
-	.protocols_annotator {
-		.vue-autocomplete-input {
-			width: 100%;
-		}
-	}
+  .protocols_annotator {
+    .vue-autocomplete-input {
+      width: 100%;
+    }
+  }
 }
 </style>

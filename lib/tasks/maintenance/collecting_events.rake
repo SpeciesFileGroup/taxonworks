@@ -36,9 +36,11 @@ namespace :tw do
       #  end
 
       # export PARALLEL_PROCESSOR_COUNT=2 && rake tw:maintenance:collecting_events:tested_reindex_geographic_name_cached_values
-      desc 'check cached geographic names and re-indx where ncessary'
+      desc 'check cached geographic names and re-index where ncessary'
       task tested_reindex_geographic_name_cached_values: [:environment] do |t|
         updated = 0
+
+        puts Rainbow('Using ' + ENV['PARALLEL_PROCESSOR_COUNT'].to_s + 'processors.').yellow 
 
         GC.start
         Parallel.each(CollectingEvent.find_each, progress: 'testing_and_indexing_collecting_events', in_processes: ENV['PARALLEL_PROCESSOR_COUNT'].to_i || 0) do |ce|
@@ -58,9 +60,10 @@ namespace :tw do
                 cached_level1_geographic_name: b[:state],
                 cached_level2_geographic_name: b[:county],
               )
-            end
-            if updated != 0 && (updated % 100 == 0)
-              puts "Updated: #{updated}"
+
+              if updated != 0 && (updated % 100 == 0)
+                puts "Updated: #{updated}"
+              end
             end
           rescue => exception
             puts "Error - id: #{ce.id}"

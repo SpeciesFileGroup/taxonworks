@@ -14,7 +14,8 @@
       <tbody>
         <tr
           v-for="[id, collector] in list"
-          :key="id">
+          :key="id"
+        >
           <td>
             <a :href="peopleLink(id)">{{ collector }}</a>
           </td>
@@ -25,8 +26,8 @@
 </template>
 <script setup>
 import { computed, onBeforeMount, ref } from 'vue'
-import { DwcOcurrence } from 'routes/endpoints'
-import SwitchComponent from 'components/switch.vue'
+import { DwcOcurrence } from '@/routes/endpoints'
+import SwitchComponent from '@/components/switch.vue'
 
 const collectors = ref({})
 const TABS = {
@@ -36,9 +37,8 @@ const TABS = {
 const tabSelected = ref(TABS.With)
 
 const list = computed(() => {
-  const property = tabSelected.value === TABS.With
-    ? 'with_global_id'
-    : 'without_global_id'
+  const property =
+    tabSelected.value === TABS.With ? 'with_global_id' : 'without_global_id'
 
   return collectors.value[property] || {}
 })
@@ -47,6 +47,5 @@ onBeforeMount(async () => {
   collectors.value = (await DwcOcurrence.collectorMetadata()).body
 })
 
-const peopleLink = id => `/people/${id}`
-
+const peopleLink = (id) => `/people/${id}`
 </script>

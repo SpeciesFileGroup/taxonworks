@@ -1,29 +1,43 @@
-json.partial! '/biological_associations/base_attributes', biological_association: biological_association
+json.partial!('/biological_associations/base_attributes', biological_association:)
 json.partial! '/shared/data/all/metadata', object: biological_association
 
 if extend_response_with('biological_relationship')
   json.biological_relationship do
-    json.partial! '/biological_relationships/attributes', biological_relationship: biological_association.biological_relationship
+    json.partial! '/shared/data/all/metadata', object: biological_association.biological_relationship, extensions: false
+  end
+end
+
+if extend_response_with('biological_relationship_types')
+  json.biological_relationship_types do
+    json.array! biological_association.biological_relationship.biological_relationship_types do |biological_relationship_type|
+      json.extract! biological_relationship_type, :id, :type, :target
+      json.biological_property do
+        json.extract! biological_relationship_type.biological_property, :id, :name
+      end
+    end
   end
 end
 
 if extend_response_with('subject')
   json.subject do
+    json.id biological_association.biological_association_subject.id
     json.partial! '/shared/data/all/metadata', object: biological_association.biological_association_subject, extensions: false
-
-    if extend_response_with('family_names')
-      json.family_name biological_association.biological_association_subject.taxonomy['family']
+    if extend_response_with('taxonomy')
+      json.taxonomy do
+        json.merge! biological_association.biological_association_subject.taxonomy
+      end
     end
   end
 end
 
 if extend_response_with('object')
   json.object do
+    json.id biological_association.biological_association_object.id
     json.partial! '/shared/data/all/metadata', object: biological_association.biological_association_object, extensions: false
-
-    if extend_response_with('family_names')
-      json.family_name biological_association.biological_association_object.taxonomy['family']
+    if extend_response_with('taxonomy')
+      json.taxonomy do
+        json.merge! biological_association.biological_association_object.taxonomy
+      end
     end
   end
 end
-

@@ -28,7 +28,6 @@ module BatchLoad
     # An attempt was made to create new records
     attr_accessor :create_attempted
 
-    # TODO: used?
     attr_accessor :project, :user
 
     # @return [Integer]
@@ -115,7 +114,7 @@ module BatchLoad
 
       rescue ArgumentError => e
         @processed = false
-        @file_errors.push("error converting file. #{e}")
+        @file_errors.push("Error converting file. #{e}")
         return nil
       rescue CSV::MalformedCSVError => e
         @processed = false
@@ -179,6 +178,8 @@ module BatchLoad
     # @return [Boolean]
     def create
       @create_attempted = true
+
+
       if ready_to_create?
         # TODO: DRY
         if a = save_order
@@ -190,8 +191,9 @@ module BatchLoad
               end
             end
           end
-          
+
         else
+
           sorted_processed_rows.each_value do |rp|
             rp.objects.each_value do |objs|
               objs.each do |o|
@@ -199,6 +201,7 @@ module BatchLoad
               end
             end
           end
+
         end
       else
         @errors << "Import level #{import_level} has prevented creation." unless import_level_ok?

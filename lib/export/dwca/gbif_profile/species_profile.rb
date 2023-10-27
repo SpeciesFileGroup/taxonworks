@@ -130,7 +130,7 @@ module Export::Dwca::GbifProfile
     # habitat (http://rs.tdwg.org/dwc/terms/habitat)
     #
     # @return [String]
-    # Comma seperated list of mayor habitat classification as defined by IUCN in which a
+    # Comma separated list of mayor habitat classification as defined by IUCN in which a
     # species is known to exist: http://www.iucnredlist.org/static/major_habitats
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/iucn/habitat.xml
@@ -141,7 +141,7 @@ module Export::Dwca::GbifProfile
     # sex (http://rs.tdwg.org/dwc/terms/sex)
     #
     # @return [String]
-    # Comma seperated list of known sexes to exist for this organism. Recommended 
+    # Comma separated list of known sexes to exist for this organism. Recommended 
     # vocabulary is: http://rs.gbif.org/vocabulary/gbif/sex.xml
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/sex.xml

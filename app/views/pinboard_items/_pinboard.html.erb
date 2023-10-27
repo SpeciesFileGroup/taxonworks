@@ -3,7 +3,13 @@
     <%= content_tag :div, {id: "order_#{object_type.pluralize}" } do -%>
       <div class="slide-panel-category-header flex-separate">
         <%= object_type.pluralize -%> 
-        <span class="remove-all-pinned small-icon" data-icon="close" data-delete-all-pinboard="<%= object_type.pluralize -%>"></span>
+        <span 
+          class="remove-all-pinned small-icon" 
+          data-icon="close" 
+          data-delete-all-pinboard-type="<%= object_type -%>"
+          data-delete-all-pinboard-section="<%= object_type.pluralize -%>"
+        >
+        </span>
       </div>
         <ul class="slide-panel-category-content"
             data-sortable

@@ -4,15 +4,18 @@
     <div>
       <div v-for="group in biocurationGroups">
         <label>{{ group.name }}</label>
-        <br>
+        <br />
         <template
           v-for="item in group.list"
-          :key="item.id">
+          :key="item.id"
+        >
           <button
             class="bottom normal-input biocuration-toggle-button"
             type="button"
             :class="{ 'button-default': !biocurations.includes(item.id) }"
-            @click="toggleBiocuration(item)">{{ item.name }}
+            @click="toggleBiocuration(item)"
+          >
+            {{ item.name }}
           </button>
         </template>
       </div>
@@ -21,11 +24,7 @@
 </template>
 
 <script>
-
-import {
-  ControlledVocabularyTerm,
-  Tag
-} from 'routes/endpoints'
+import { ControlledVocabularyTerm, Tag } from '@/routes/endpoints'
 
 export default {
   props: {
@@ -39,31 +38,35 @@ export default {
 
   computed: {
     biocurations: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       biocurationTypes: [],
       biocurationGroups: []
     }
   },
 
-  async created () {
-    this.biocurationTypes = (await ControlledVocabularyTerm.where({ type: ['BiocurationClass'] })).body
-    this.biocurationGroups = (await ControlledVocabularyTerm.where({ type: ['BiocurationGroup'] })).body
+  async created() {
+    this.biocurationTypes = (
+      await ControlledVocabularyTerm.where({ type: ['BiocurationClass'] })
+    ).body
+    this.biocurationGroups = (
+      await ControlledVocabularyTerm.where({ type: ['BiocurationGroup'] })
+    ).body
     this.splitGroups()
   },
 
   methods: {
-    toggleBiocuration (biocuration) {
-      const index = this.biocurations.findIndex(id => id === biocuration.id)
+    toggleBiocuration(biocuration) {
+      const index = this.biocurations.findIndex((id) => id === biocuration.id)
 
       if (index > -1) {
         this.biocurations.splice(index, 1)
@@ -72,10 +75,14 @@ export default {
       }
     },
 
-    splitGroups () {
+    splitGroups() {
       this.biocurationGroups.forEach((item, index) => {
-        Tag.where({ keyword_id: item.id }).then(response => {
-          const list = this.biocurationTypes.filter(biocurationType => response.body.find(item => biocurationType.id === item.tag_object_id))
+        Tag.where({ keyword_id: item.id }).then((response) => {
+          const list = this.biocurationTypes.filter((biocurationType) =>
+            response.body.find(
+              (item) => biocurationType.id === item.tag_object_id
+            )
+          )
           this.biocurationGroups[index]['list'] = list
         })
       })
@@ -85,12 +92,12 @@ export default {
 </script>
 
 <style>
-  .biocuration-toggle-button {
-    min-width: 60px;
-    border: 0px;
-    margin-right: 6px;
-    margin-bottom: 6px;
-    border-top-left-radius: 14px;
-    border-bottom-left-radius: 14px;
-  }
+.biocuration-toggle-button {
+  min-width: 60px;
+  border: 0px;
+  margin-right: 6px;
+  margin-bottom: 6px;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+}
 </style>

@@ -89,7 +89,7 @@ module SourcesHelper
 
   def source_document_viewer_option_tag(source)
     return nil if !source.documents.load.any?
-    tag.span(class: 'pdfviewerItem') do
+    tag.span(class: 'pdfviewerItem flexbox gap-small') do
       source.documents.collect{|d| tag.a('View', class: 'circle-button', data: { pdfviewer: d.document_file(:original, false), sourceid: source.id})}.join.html_safe
     end.html_safe
   end
@@ -171,5 +171,45 @@ module SourcesHelper
   #   skip 'long string - <full author names> <editor indicator> <year> <title> <containing reference> <Full publication name> <Series> <Volume> <Issue> <Pages>'
   #   skip 'no publication long string -<full author names> <editor indicator> <year> <title> <containing reference> <Series> <Volume> <Issue> <Pages>'
   # end
+  #
 
+  # @return Hash
+  #   a vectorized count of totals per source
+  def source_citation_totals(sources)
+    data = {}
+    max_total = 0
+
+    Citation.related_klasses.each do |k|
+      row = []
+      sources.each do |s|
+        row.push Citation.where(project_id: sessions_current_project_id, source: s, citation_object_type: k).count 
+      end
+      if row.sum > 0
+        data[k] = row
+        max_total = row.sum if max_total < row.sum
+      end
+    end
+
+    ids_missing_data = []
+   
+    sources.each_with_index do |s, i| 
+      has_data = false
+      data.each do |k, v|
+        if data[k][i] > 0
+          has_data = true
+          break
+        end
+      end
+      ids_missing_data.push(s.id) unless has_data
+    end
+
+    return {
+      data: data,
+      metadata: {
+        ids_missing_data: ids_missing_data,
+        max_total: max_total
+      }
+    }
+
+  end
 end

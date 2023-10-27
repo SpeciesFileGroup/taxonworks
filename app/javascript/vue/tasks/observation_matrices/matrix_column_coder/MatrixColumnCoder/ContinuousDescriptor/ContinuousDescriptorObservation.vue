@@ -1,18 +1,15 @@
 <template>
   <div>
-    <div class="horizontal-left-content">
+    <div class="horizontal-left-content gap-small">
       <label>
         Amount:
         <input
           type="number"
           :value="continuousValue"
           @input="updateContinuousValue"
-        >
+        />
       </label>
-      <unit-selector
-        class="margin-small-right"
-        v-model="continuousUnit"
-      />
+      <unit-selector v-model="continuousUnit" />
       <TimeFields
         inline
         :row-object="rowObject"
@@ -39,9 +36,9 @@
 import { MutationNames } from '../../store/mutations/mutations'
 import { ActionNames } from '../../store/actions/actions'
 import UnitSelector from '../UnitSelector/UnitSelector.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import TimeFields from '../Time/TimeFields.vue'
 
 export default {
@@ -66,15 +63,15 @@ export default {
   },
 
   computed: {
-    continuousValue () {
+    continuousValue() {
       return this.observation.continuousValue
     },
 
     continuousUnit: {
-      get () {
+      get() {
         return this.observation.continuousUnit
       },
-      set (unit) {
+      set(unit) {
         this.$store.commit(MutationNames.SetContinuousUnit, {
           rowObjectId: this.rowObject.id,
           rowObjectType: this.rowObject.type,
@@ -86,7 +83,7 @@ export default {
   },
 
   methods: {
-    updateContinuousValue (event) {
+    updateContinuousValue(event) {
       this.$store.commit(MutationNames.SetContinuousValue, {
         rowObjectId: this.rowObject.id,
         rowObjectType: this.rowObject.type,
@@ -95,7 +92,7 @@ export default {
       })
     },
 
-    removeObservation () {
+    removeObservation() {
       this.$store.dispatch(ActionNames.RemoveObservation, {
         rowObjectId: this.rowObject.id,
         rowObjectType: this.rowObject.type,

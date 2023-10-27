@@ -1,12 +1,12 @@
-import { IDENTIFIER_LOCAL_TRIP_CODE } from 'constants/index.js'
+import { IDENTIFIER_LOCAL_TRIP_CODE } from '@/constants/index.js'
 import { createStore } from 'vuex'
 import { ActionFunctions } from './actions/actions'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 
-import makeCollectingEvent from 'factory/CollectingEvent.js'
-import makeLabel from 'factory/Label'
-import makeIdentifier from 'factory/Identifier.js'
+import makeCollectingEvent from '@/factory/CollectingEvent.js'
+import makeLabel from '@/factory/Label'
+import makeIdentifier from '@/factory/Identifier.js'
 
 const makeInitialState = () => {
   return {
@@ -38,7 +38,4 @@ const newStore = () =>
     actions: ActionFunctions
   })
 
-export {
-  newStore,
-  makeInitialState
-}
+export { newStore, makeInitialState }

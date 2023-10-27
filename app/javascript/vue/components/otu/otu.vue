@@ -1,13 +1,17 @@
 <template>
   <div class="otu-radial">
-    <span
-      class="circle-button"
+    <VBtn
       :title="redirect ? 'Browse OTUs' : 'OTU quick forms'"
-      :class="[{ 'button-submit': emptyList, 'button-default': !emptyList }, (redirect ? 'btn-hexagon-empty-w' : 'btn-hexagon-w')]"
+      :color="emptyList ? 'create' : redirect ? 'primary' : 'radial'"
+      circle
       @click="openApp()"
       @contextmenu.prevent="openApp(true)"
-    >Otu
-    </span>
+    >
+      <VIcon
+        :name="redirect ? 'radialOtuRedirect' : 'radialObject'"
+        x-small
+      />
+    </VBtn>
     <modal
       @close="modalOpen = false"
       v-if="modalOpen"
@@ -15,7 +19,8 @@
       <template #header>
         <h3>
           <span v-if="list.length">
-            <span v-html="taxonName" /> is linked to {{ list.length }} Otus, go to:
+            <span v-html="taxonName" /> is linked to {{ list.length }} Otus, go
+            to:
           </span>
           <span v-else>
             <span v-html="taxonName" /> is not linked to an OTU
@@ -51,17 +56,20 @@
 </template>
 
 <script>
-
-import Modal from 'components/ui/Modal.vue'
-import Spinner from 'components/spinner.vue'
-import OtuRadial from 'components/radials/object/radial'
-import { Otu, TaxonName } from 'routes/endpoints'
+import Modal from '@/components/ui/Modal.vue'
+import Spinner from '@/components/spinner.vue'
+import OtuRadial from '@/components/radials/object/radial'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { Otu, TaxonName } from '@/routes/endpoints'
 
 export default {
   components: {
     Modal,
     Spinner,
-    OtuRadial
+    OtuRadial,
+    VBtn,
+    VIcon
   },
 
   props: {
@@ -92,12 +100,12 @@ export default {
   },
 
   computed: {
-    emptyList () {
+    emptyList() {
       return !this.list.length
     }
   },
 
-  data () {
+  data() {
     return {
       globalId: '',
       modalOpen: false,
@@ -106,7 +114,7 @@ export default {
       list: []
     }
   },
-  mounted () {
+  mounted() {
     if (!this.otu && this.objectId) {
       this.getOtuList()
     } else {
@@ -114,31 +122,33 @@ export default {
       this.loaded = true
     }
     document.addEventListener('vue-otu:created', (event) => {
-      if (this.objectId === event.detail.id) { this.list = event.detail.list }
+      if (this.objectId === event.detail.id) {
+        this.list = event.detail.list
+      }
     })
   },
   methods: {
-    getOtuList () {
+    getOtuList() {
       if (this.klass === 'Otu') {
-        Otu.find(this.objectId).then(response => {
+        Otu.find(this.objectId).then((response) => {
           this.list.push(response.body)
           this.loaded = true
         })
       } else {
-        TaxonName.otus(this.objectId).then(response => {
+        TaxonName.otus(this.objectId).then((response) => {
           this.loaded = true
           this.list = response.body
-        })
+        }).catch(() => {})
       }
     },
 
-    openApp (newTab = false) {
+    openApp(newTab = false) {
       if (this.loaded) {
         if (this.emptyList) {
           const otu = { taxon_name_id: this.objectId }
           this.creatingOtu = true
 
-          Otu.create({ otu }).then(response => {
+          Otu.create({ otu }).then((response) => {
             this.list.push(response.body)
             this.sendCreatedEvent()
             this.processCall(response.body, newTab)
@@ -151,14 +161,14 @@ export default {
       }
     },
 
-    openRadial (otu) {
+    openRadial(otu) {
       this.globalId = otu.global_id
       this.$nextTick(() => {
-        this.$refs.annotator.displayAnnotator()
+        this.$refs.annotator.openRadialMenu()
       })
     },
 
-    sendCreatedEvent () {
+    sendCreatedEvent() {
       const event = new CustomEvent('vue-otu:created', {
         detail: {
           id: this.objectId,
@@ -168,7 +178,7 @@ export default {
       document.dispatchEvent(event)
     },
 
-    processCall (otu, newTab) {
+    processCall(otu, newTab) {
       if (this.redirect) {
         this.redirectTo(otu.id, newTab)
       } else {
@@ -176,16 +186,16 @@ export default {
       }
     },
 
-    redirectTo (id, newTab = false) {
+    redirectTo(id, newTab = false) {
       window.open(`/tasks/otus/browse/${id}`, `${newTab ? '_blank' : '_self'}`)
     }
   }
 }
 </script>
 <style lang="scss">
-  .otu-radial {
-    .circle-count {
-      bottom: -2px !important;
-    }
+.otu-radial {
+  .circle-count {
+    bottom: -2px !important;
   }
+}
 </style>

@@ -67,7 +67,8 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
         end
       end
 
-      specify 'remove html tags with special pseudo-LaTeX encodings except for <em>/<i>' do
+      # TODO: Find new example
+      xspecify 'remove html tags with special pseudo-LaTeX encodings except for <em>/<i>' do
         VCR.use_cassette('source_from_naked_doi') do
           s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: naked_doi)
           expect(s.title).to include('<i>Tachycines</i>')

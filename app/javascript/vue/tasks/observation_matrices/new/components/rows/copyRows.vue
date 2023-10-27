@@ -2,66 +2,86 @@
   <div>
     <modal-component
       v-if="showModal"
-      :container-style="{ width: '500px', 'overflow-y': 'scroll', 'max-height': '60vh' }"
-      @close="closeModal">
+      :container-style="{
+        width: '500px',
+        'overflow-y': 'scroll',
+        'max-height': '60vh'
+      }"
+      @close="closeModal"
+    >
       <template #header>
         <h3>Copy rows from matrix</h3>
       </template>
       <template #body>
         <spinner-component
           v-if="isLoading"
-          legend="Loading..."/>
+          legend="Loading..."
+        />
         <select
           class="full_width margin-medium-bottom"
-          v-model="matrixSelected">
+          v-model="matrixSelected"
+        >
           <option :value="undefined">Select a observation matrix</option>
           <option
             v-for="item in observationMatrices"
             :key="item.id"
-            :value="item">
+            :value="item"
+          >
             {{ item.name }}
           </option>
         </select>
         <div
           v-if="matrixSelected"
-          class="flex-separate margin-small-bottom">
+          class="flex-separate margin-small-bottom"
+        >
           <div>
             <button
               @click="addRows"
               :disabled="!rowsSelected.length"
-              class="button normal-input button-submit">
+              class="button normal-input button-submit"
+            >
               Add rows
             </button>
           </div>
           <div v-if="matrixSelected">
             <button
               class="button normal-input button-default"
-              @click="selectAll">
+              @click="selectAll"
+            >
               Select all
             </button>
             <button
               class="button normal-input button-default"
-              @click="unselectAll">
+              @click="unselectAll"
+            >
               Unselect all
             </button>
           </div>
         </div>
-        <ul
-          class="no_bullets">
+        <ul class="no_bullets">
           <li
             v-for="item in rows"
-            :key="item.observation_object.id">
+            :key="item.observation_object.id"
+          >
             <label>
               <input
                 type="checkbox"
                 :value="item"
                 v-model="rowsSelected"
-                :disabled="alreadyExist(item)">
+                :disabled="alreadyExist(item)"
+              />
               <span
                 class="disabled"
-                v-if="alreadyExist(item)"> <span v-html="item.observation_object.object_tag" /> ({{ item.observation_object.base_class }}) <span>(Already added)</span></span>
+                v-if="alreadyExist(item)"
+              >
+                <span v-html="item.observation_object.object_tag" /> ({{
+                  item.observation_object.base_class
+                }}) <span>(Already added)</span></span
+              >
               <span v-else>
-                <span v-html="item.observation_object.object_tag" /> ({{ item.observation_object.base_class }})
+                <span v-html="item.observation_object.object_tag" /> ({{
+                  item.observation_object.base_class
+                }})
               </span>
             </label>
           </li>
@@ -73,19 +93,22 @@
             <button
               @click="addRows"
               :disabled="!rowsSelected.length"
-              class="button normal-input button-submit">
+              class="button normal-input button-submit"
+            >
               Add rows
             </button>
           </div>
           <div v-if="matrixSelected">
             <button
               class="button normal-input button-default"
-              @click="selectAll">
+              @click="selectAll"
+            >
               Select all
             </button>
             <button
               class="button normal-input button-default"
-              @click="unselectAll">
+              @click="unselectAll"
+            >
               Unselect all
             </button>
           </div>
@@ -96,18 +119,14 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal'
-import SpinnerComponent from 'components/spinner'
-import getPagination from 'helpers/getPagination'
+import ModalComponent from '@/components/ui/Modal'
+import SpinnerComponent from '@/components/spinner'
+import getPagination from '@/helpers/getPagination'
 
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import { GetMatrixObservationRows } from '../../request/resources'
-import {
-  ObservationMatrix,
-  ObservationMatrixRowItem
-} from 'routes/endpoints'
+import { ObservationMatrix, ObservationMatrixRowItem } from '@/routes/endpoints'
 import ObservationTypes from '../../const/types.js'
 
 export default {
@@ -124,12 +143,12 @@ export default {
   },
 
   computed: {
-    existingRows () {
+    existingRows() {
       return this.$store.getters[GetterNames.GetMatrixRows]
     }
   },
 
-  data () {
+  data() {
     return {
       types: ObservationTypes.Row,
       isLoading: false,
@@ -144,11 +163,14 @@ export default {
 
   watch: {
     showModal: {
-      handler (newVal) {
+      handler(newVal) {
         if (newVal) {
           this.isLoading = true
-          ObservationMatrix.where({ per: 500 }).then(response => {
-            response.body.splice(response.body.findIndex(item => this.matrixId === item.id), 1)
+          ObservationMatrix.where({ per: 500 }).then((response) => {
+            response.body.splice(
+              response.body.findIndex((item) => this.matrixId === item.id),
+              1
+            )
             this.observationMatrices = response.body
             this.isLoading = false
           })
@@ -157,7 +179,7 @@ export default {
       immediate: true
     },
 
-    matrixSelected (newVal) {
+    matrixSelected(newVal) {
       if (newVal) {
         this.loadRows()
       } else {
@@ -166,23 +188,31 @@ export default {
     }
   },
 
-  mounted () {
-    document.addEventListener('turbolinks:load', () => { window.removeEventListener('scroll', this.checkScroll) })
-    this.$el.querySelector('.modal-container').addEventListener('scroll', this.checkScroll)
+  mounted() {
+    document.addEventListener('turbolinks:load', () => {
+      window.removeEventListener('scroll', this.checkScroll)
+    })
+    this.$el
+      .querySelector('.modal-container')
+      .addEventListener('scroll', this.checkScroll)
   },
 
   methods: {
-    loadRows (page = undefined) {
+    loadRows(page = undefined) {
       this.isLoading = true
-      GetMatrixObservationRows(this.matrixSelected.id, { per: 500, page: page, extend: ['observation_object'] }).then(response => {
+      GetMatrixObservationRows(this.matrixSelected.id, {
+        per: 500,
+        page: page,
+        extend: ['observation_object']
+      }).then((response) => {
         this.rows = this.rows.concat(response.body)
         this.pagination = getPagination(response)
         this.isLoading = false
       })
     },
-    addRows () {
+    addRows() {
       const index = this.existingRows.length
-      const data = this.rowsSelected.map(item => ({
+      const data = this.rowsSelected.map((item) => ({
         observation_matrix_id: this.matrixId,
         observation_object_id: item.observation_object.id,
         observation_object_type: item.observation_object.base_class,
@@ -192,33 +222,40 @@ export default {
 
       data.sort((a, b) => a - b)
 
-      const promises = data.map(row => ObservationMatrixRowItem.create({ observation_matrix_row_item: row }))
+      const promises = data.map((row) =>
+        ObservationMatrixRowItem.create({ observation_matrix_row_item: row })
+      )
 
       Promise.all(promises).then(() => {
         this.$store.dispatch(ActionNames.GetMatrixObservationRows)
         this.rowsSelected = []
-        TW.workbench.alert.create('Rows was successfully added to matrix.', 'notice')
+        TW.workbench.alert.create(
+          'Rows was successfully added to matrix.',
+          'notice'
+        )
         this.closeModal()
       })
     },
-    alreadyExist (item) {
-      return this.existingRows.find(row => item.observation_object.id === row.observation_object.id)
+    alreadyExist(item) {
+      return this.existingRows.find(
+        (row) => item.observation_object.id === row.observation_object.id
+      )
     },
-    closeModal () {
+    closeModal() {
       this.showModal = false
       this.$emit('close')
     },
-    selectAll () {
-      this.rowsSelected = this.rows.filter(item => !this.alreadyExist(item))
+    selectAll() {
+      this.rowsSelected = this.rows.filter((item) => !this.alreadyExist(item))
     },
-    unselectAll () {
+    unselectAll() {
       this.rowsSelected = []
     },
-    checkScroll (event) {
+    checkScroll(event) {
       const scrollPosition = event.target.clientHeight + event.target.scrollTop
       const listHeght = event.target.scrollHeight
 
-      const bottomOfTable = (scrollPosition >= listHeght)
+      const bottomOfTable = scrollPosition >= listHeght
       if (bottomOfTable && !this.isLoading) {
         if (this.pagination.nextPage) {
           this.loadRows(this.pagination.nextPage)

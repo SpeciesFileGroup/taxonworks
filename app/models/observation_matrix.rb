@@ -8,7 +8,9 @@ class ObservationMatrix < ApplicationRecord
   include Shared::Notes
   include Shared::DataAttributes
   include Shared::AlternateValues
-  include Shared::IsData # Hybrid of sorts, is also a layout engine, but people cite matrice so...
+  include Shared::IsData # Hybrid of sorts, is a layout engine, but people cite matrices ...
+
+  ALTERNATE_VALUES_FOR = [:name].freeze
 
   validates_presence_of :name
   validates_uniqueness_of :name, scope: [:project_id]
@@ -29,7 +31,7 @@ class ObservationMatrix < ApplicationRecord
   # TODO: restrict these- you can not directly create these!
   has_many :descriptors, -> { order('observation_matrix_columns.position') }, through: :observation_matrix_columns, inverse_of: :observation_matrices
 
-  scope :with_otu_id_array, ->  (otu_id_array) { joins('LEFT OUTER JOIN "observation_matrix_rows" ON "observation_matrix_rows"."observation_matrix_id" = "observation_matrices"."id"').where("otu_id in (?)", otu_id_array) }
+  scope :with_otu_id_array, ->  (otu_id_array) { joins('LEFT OUTER JOIN "observation_matrix_rows" ON "observation_matrix_rows"."observation_matrix_id" = "observation_matrices"."id"').where('otu_id in (?)', otu_id_array) }
 
   def qualitative_descriptors
     descriptors.where(type: 'Descriptor::Qualitative')
@@ -134,10 +136,10 @@ class ObservationMatrix < ApplicationRecord
   # TODO: Railsify
   def observation_depictions
     Depiction.select('depictions.*, observations.descriptor_id, observations.observation_object_id, observations.observation_object_type, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
-      .joins("INNER JOIN observations ON observations.id = depictions.depiction_object_id")
-      .joins("INNER JOIN images ON depictions.image_id = images.id")
+      .joins('INNER JOIN observations ON observations.id = depictions.depiction_object_id')
+      .joins('INNER JOIN images ON depictions.image_id = images.id')
       .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
-      .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
+      .joins('LEFT OUTER JOIN sources ON citations.source_id = sources.id')
       .where(depiction_object: media_observations).order('depictions.position')
   end
 
@@ -170,7 +172,7 @@ class ObservationMatrix < ApplicationRecord
     # Dump the observations into bins
     obs = Observation.by_matrix_and_position(self.id, opts)
       .select('omc.position as column_index, omr.position as row_index, observations.*')
-    
+
     rows, cols = [], []
 
     obs.each do |o|
@@ -186,7 +188,7 @@ class ObservationMatrix < ApplicationRecord
       end
     end
 
-    {grid: grid, rows: rows, cols: cols}
+    {grid:, rows:, cols:}
   end
 
   def reindex_row_order
@@ -195,7 +197,7 @@ class ObservationMatrix < ApplicationRecord
       o.update_column(:position, i)
       i += 1
     end
-    true 
+    true
   end
 
   def reindex_column_order
@@ -204,9 +206,9 @@ class ObservationMatrix < ApplicationRecord
       o.update_column(:position, i)
       i += 1
     end
-    true 
+    true
   end
-  
+
   # @return [Array]
   def empty_grid(opts)
     re = if opts[:row_end] == 'all'
@@ -233,7 +235,7 @@ class ObservationMatrix < ApplicationRecord
   def polymorphic_cells_for_descriptor(symbol_start: 0, descriptor_id:)
     symbol_start ||= 0
     cells = Hash.new{|hash, key| hash[key] = Array.new}
-    observations.where(descriptor_id: descriptor_id).each do |o|
+    observations.where(descriptor_id:).each do |o|
       g = "#{o.observation_object_type}|#{o.observation_object_id}"
       cells[g].push(
         o.qualitative? ? o.character_state_id : "#{o.descriptor_id}_#{o.presence_absence? ? '1' : '0'}"
@@ -263,6 +265,71 @@ class ObservationMatrix < ApplicationRecord
     observations.each {|o| h[o.descriptor_id][o.observation_object_type + o.observation_object_id.to_s].push(o) }
     #observations.each {|o| h[o.descriptor_id][o.observation_object_global_id].push(o) } ### potentially useful but extra compute slower
     h
+  end
+
+  def batch_populate(params)
+    queries = params.keys.select{|a| a =~ /_query/ }
+    return false if queries.size != 1
+
+    result = {
+      rows: 0,
+      columns: 0,
+      observation_matrix_id: id,
+      observation_matrix_name: name
+    }
+
+    otus = []
+    descriptors = []
+    collection_objects = []
+    extracts = []
+
+    case queries[0]
+
+    when 'otu_query'
+      otus = ::Queries::Otu::Filter.new(params[:otu_query]).all
+    when 'descriptor_query'
+      descriptors = ::Queries::Descriptor::Filter.new(params[:descriptor_query]).all
+    when 'observation_query'
+
+      otus = ::Queries::Otu::Filter.new(observation_query: params[:observation_query]).all
+      descriptors = ::Queries::Descriptor::Filter.new(observation_query: params[:observation_query]).all
+      collection_objects = ::Queries::CollectionObject::Filter.new(observation_query: params[:observation_query]).all
+      extracts = ::Queries::Extract::Filter.new(observation_query: params[:observation_query]).all
+    when 'collection_object_query'
+      collection_objects = ::Queries::CollectionObject::Filter.new(params[:collection_object_query]).all
+    when 'extract_query'
+      extracts = ::Queries::Extract::Filter.new(params[:extract_query]).all
+    end
+
+    [otus, collection_objects, extracts].each do |t|
+      t.each do |i|
+        # Fail silently
+        j = ObservationMatrixRowItem::Single.create(observation_matrix: self, observation_object: i)
+        result[:rows] += 1 if j.persisted?
+      end
+    end
+
+    descriptors.each do |d|
+      j = ObservationMatrixColumnItem::Single::Descriptor.create(observation_matrix: self, descriptor: d)
+      result[:columns] += 1 if j.persisted?
+    end
+
+    result
+  end
+
+  def self.batch_add(params)
+    return false if params[:observation_matrix_id].blank?
+    o = ObservationMatrix.find_by(project_id: params[:project_id], id: params[:observation_matrix_id])
+    o.batch_populate(params)
+  end
+
+  def self.batch_create(params)
+    o = ObservationMatrix.create(params.require(:observation_matrix).permit(:name))
+    if o.persisted?
+      o.batch_populate(params)
+    else
+      o.errors.full_messages
+    end
   end
 
 end

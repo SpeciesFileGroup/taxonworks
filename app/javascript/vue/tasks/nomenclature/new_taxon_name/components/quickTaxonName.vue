@@ -5,25 +5,33 @@
       label="label_html"
       display="label"
       min="3"
-      event-send="autocompleteType"
-      @getItem="$emit('getItem', $event)"
-      @found="nothing = !$event"
-      @getInput="name = $event"
       placeholder="Search taxon name for the new relationship..."
       :add-params="{ type: 'Protonym', 'nomenclature_group[]': group }"
-      param="term"/>
+      param="term"
+      @get-item="$emit('getItem', $event)"
+      @get-input="name = $event"
+    />
     <button
-      v-if="nothing"
       type="button"
-      @click="showModal = true"
-      class="button normal-input button-default margin-small-left">
+      class="button normal-input button-default margin-small-left"
+      @click="
+        () => {
+          showModal = true
+        }
+      "
+    >
       New
     </button>
     <modal-component
       v-if="showModal"
-      @close="showModal = false">
+      @close="
+        () => {
+          showModal = false
+        }
+      "
+    >
       <template #header>
-        <h3>Create new species taxon name</h3>
+        <h3>Create new {{ group }} taxon name</h3>
       </template>
       <template #body>
         <div>
@@ -31,23 +39,28 @@
           <input
             type="text"
             v-model="name"
-            class="full_width">
-          <p>Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.</p>
+            class="full_width"
+          />
+          <p>
+            Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.
+          </p>
           <input
             type="text"
             class="full_width"
             v-model="confirmInput"
             @keypress.enter.prevent="create()"
             ref="inputtext"
-            :placeholder="`Write ${checkWord} to continue`">
+            :placeholder="`Write ${checkWord} to continue`"
+          />
         </div>
       </template>
       <template #footer>
-        <button 
+        <button
           type="button"
           class="button normal-input button-submit"
           :disabled="!checkInput"
-          @click="create()">
+          @click="create()"
+        >
           Create
         </button>
       </template>
@@ -56,11 +69,10 @@
 </template>
 
 <script>
-
-import Autocomplete from 'components/ui/Autocomplete'
-import ModalComponent from 'components/ui/Modal'
+import Autocomplete from '@/components/ui/Autocomplete'
+import ModalComponent from '@/components/ui/Modal'
 import { GetterNames } from '../store/getters/getters'
-import { TaxonName } from 'routes/endpoints'
+import { TaxonName } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -78,26 +90,30 @@ export default {
   emits: ['getItem'],
 
   computed: {
-    nomenclatureCode () {
+    nomenclatureCode() {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]
     },
-    ranks () {
+    ranks() {
       return this.$store.getters[GetterNames.GetRankList][this.nomenclatureCode]
     },
-    speciesRank () {
-      return this.ranksList.find(rank => { return rank.endsWith('::Species') })
+    childRank() {
+      return this.ranksList.find((rank) =>
+        rank.endsWith(this.group === 'genus' ? '::Genus' : '::Species')
+      )
     },
-    taxon () {
+    taxon() {
       return this.$store.getters[GetterNames.GetTaxon]
     },
     checkInput() {
-      return this.name.length > 1 && this.checkWord === this.confirmInput.toUpperCase()
+      return (
+        this.name.length > 1 &&
+        this.checkWord === this.confirmInput.toUpperCase()
+      )
     }
   },
 
-  data () {
+  data() {
     return {
-      nothing: false,
       ranksList: [],
       confirmInput: '',
       name: '',
@@ -106,33 +122,34 @@ export default {
     }
   },
 
-  mounted () {
+  mounted() {
     this.ranksList = [].concat(...this.flatRankList(this.ranks))
   },
 
   methods: {
-    flatRankList (rank) {
+    flatRankList(rank) {
       if (Array.isArray(rank)) {
-        return rank.map(item => item.rank_class)
-      }
-      else {
+        return rank.map((item) => item.rank_class)
+      } else {
         const keys = Object.keys(rank)
 
-        return keys.map(key => this.flatRankList(rank[key]))
+        return keys.map((key) => this.flatRankList(rank[key]))
       }
     },
 
-    create () {
+    create() {
       TaxonName.create({
         taxon_name: {
           name: this.name,
-          rank_class: this.speciesRank,
+          rank_class: this.childRank,
           parent_id: this.taxon.id,
           type: 'Protonym'
         }
-      }).then(response => {
-        this.$emit('getItem', response.body)
       })
+        .then((response) => {
+          this.$emit('getItem', response.body)
+        })
+        .catch(() => {})
     }
   }
 }

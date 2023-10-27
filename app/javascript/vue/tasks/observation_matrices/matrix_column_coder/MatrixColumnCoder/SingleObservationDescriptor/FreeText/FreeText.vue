@@ -5,13 +5,14 @@
       :index="index"
     >
       <label>Free text</label>
-      <br>
-      <div class="horizontal-left-content">
+      <br />
+      <div class="horizontal-left-content gap-small">
         <textarea
           class="full_width"
           rows="5"
           :value="freeTextValue"
-          @input="updateFreeTextValue">
+          @input="updateFreeTextValue"
+        >
         </textarea>
 
         <radial-annotator
@@ -50,7 +51,7 @@ export default {
   mixins: [SingleObservationDescriptor],
 
   computed: {
-    freeTextValue () {
+    freeTextValue() {
       return this.$store.getters[GetterNames.GetFreeTextValueFor]({
         rowObjectId: this.rowObject.id,
         rowObjectType: this.rowObject.type
@@ -59,7 +60,7 @@ export default {
   },
 
   methods: {
-    updateFreeTextValue (event) {
+    updateFreeTextValue(event) {
       this.$store.commit(MutationNames.SetFreeTextValue, {
         rowObjectId: this.rowObject.id,
         rowObjectType: this.rowObject.type,

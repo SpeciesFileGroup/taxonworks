@@ -1,24 +1,16 @@
 module Queries
   module Source
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       # Either match against all Sources (default) or just those with ProjectSource
       # @return [Boolean]
       # @param limit_to_project [String] `true` or `false`
       attr_accessor :limit_to_project
 
-      # Comes from sessions_current_project_id in UI
-      attr_accessor :project_id
-
       # @param [Hash] args
       def initialize(string, project_id: nil, limit_to_project: false)
         @limit_to_project = limit_to_project
         super
-      end
-
-      # @return [Scope]
-      def base_query
-        ::Source #.select('sources.*')
       end
 
       # @return [ActiveRecord::Relation]
@@ -188,7 +180,7 @@ module Queries
 
       # @return [Arel::Nodes::Equatity]
       def member_of_project_id
-        project_sources_table[:project_id].eq(project_id)
+        project_sources_table[:project_id].eq_any(project_id)
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -230,36 +222,30 @@ module Queries
 
         result = []
 
+        pr_id = project_id.join(',') if project_id
         queries.each do |q, scope|
           a = q
 
           # Limit autocomplete to ONLY project sources if limit_to_project == true
-          if project_id && limit_to_project
+          if project_id.present? && limit_to_project
             a = a.joins(:project_sources).where(member_of_project_id.to_sql)
           end
 
           # Order results by number of times used *in this project*
-          if project_id && scope
+          if project_id.present? && scope && query_string.length > 3
             a = a.left_outer_joins(:citations)
               .left_outer_joins(:project_sources)
-              .select("sources.*, COUNT(citations.id) AS use_count, CASE WHEN project_sources.project_id = #{Current.project_id} THEN project_sources.project_id ELSE NULL END AS in_project")
-              .where('citations.project_id = ? OR citations.project_id IS DISTINCT FROM ?', project_id, project_id)
-              .where('project_sources.project_id = ? OR project_sources.project_id IS DISTINCT FROM ?', project_id, project_id)
+              .select("sources.*, COUNT(citations.id) AS use_count, CASE WHEN project_sources.project_id IN (#{pr_id}) THEN project_sources.project_id ELSE NULL END AS in_project")
+              .where('citations.project_id IN (?) OR citations.project_id NOT IN (?) OR citations.project_id IS NULL', pr_id, pr_id)
               .group('sources.id, citations.project_id, project_sources.project_id')
               .order('in_project, use_count DESC')
           end
-
           a ||= q
           result += a.to_a
           result.uniq!
           break if result.count > 19
         end
         result[0..19]
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Source.arel_table
       end
 
       # @return [Arel::Table]

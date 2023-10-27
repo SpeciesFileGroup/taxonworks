@@ -8,6 +8,14 @@ describe TypeMaterial, type: :model, group: :nomenclature do
 
   let(:type_material) {TypeMaterial.new}
 
+  specify 'not duplicated on CollectionObject' do
+    s = Specimen.create!
+    type_material.update!(collection_object: s, type_type: 'paratype', protonym: species)
+    t = TypeMaterial.new(collection_object: s, type_type: 'paratype', protonym: species)
+    expect(t.valid?).to be_falsey
+  end
+
+
   context 'associations' do
     context 'belongs to' do
       specify 'protonym' do
@@ -18,7 +26,7 @@ describe TypeMaterial, type: :model, group: :nomenclature do
       end
     end
 
-    context 'has_one' do 
+    context 'has_one' do
       specify 'source' do
         expect(type_material.source = Source::Bibtex.new).to be_truthy
       end
@@ -48,7 +56,7 @@ describe TypeMaterial, type: :model, group: :nomenclature do
 
   context 'general' do
     context 'Protonym restrictions and linkages' do
-      let(:iczn_type) { 
+      let(:iczn_type) {
         FactoryBot.build(:type_material, protonym: species)
       }
 
@@ -106,7 +114,7 @@ describe TypeMaterial, type: :model, group: :nomenclature do
     let!(:a) { TypeMaterial.create!(
       protonym: species,
       type_type: 'holotype',
-      collection_object_attributes: {total: 1, buffered_collecting_event: 'Not far from the moon.'}) 
+      collection_object_attributes: {total: 1, buffered_collecting_event: 'Not far from the moon.'})
     }
 
     specify 'creates collection object' do
@@ -122,7 +130,7 @@ describe TypeMaterial, type: :model, group: :nomenclature do
 
     context 'only one primary type' do
       specify 'for neotype' do
-        iczn_type.type_type = 'neotype' 
+        iczn_type.type_type = 'neotype'
         iczn_type.soft_validate(only_sets: :single_primary_type)
         expect(iczn_type.soft_validations.messages_on(:type_type).count).to eq(1)
       end
@@ -149,6 +157,8 @@ describe TypeMaterial, type: :model, group: :nomenclature do
       specify 'source is the same for lectotype' do
         iczn_lectotype.source = source1
         species.source = source1
+        iczn_lectotype.save
+        species.save
         iczn_lectotype.soft_validate(only_sets: :type_source)
         expect(iczn_lectotype.soft_validations.messages_on(:base).count).to eq(1)
       end
@@ -156,6 +166,8 @@ describe TypeMaterial, type: :model, group: :nomenclature do
       specify 'source is older for lectotype' do
         iczn_lectotype.source = source1
         species.source = source2
+        iczn_lectotype.save
+        species.save
         iczn_lectotype.soft_validate(only_sets: :type_source)
         expect(iczn_lectotype.soft_validations.messages_on(:base).count).to eq(1)
       end
@@ -175,4 +187,3 @@ describe TypeMaterial, type: :model, group: :nomenclature do
   end
 
 end
-

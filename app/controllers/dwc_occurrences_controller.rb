@@ -7,7 +7,7 @@ class DwcOccurrencesController < ApplicationController
 
   # .json only
   def index
-    @dwc_occurrences = Queries::DwcOccurrence::Filter.new(filter_params).all
+    @dwc_occurrences = Queries::DwcOccurrence::Filter.new(params).all
       .where(project_id: sessions_current_project_id)
       .page(params[:page])
       .per(params[:per] || 1)
@@ -51,45 +51,21 @@ class DwcOccurrencesController < ApplicationController
 
   # GET /api/v1/dwc_occurrences.json
   def api_index
-    @dwc_occurrences = Queries::DwcOccurrence::Filter
-      .new(api_params)
+    @dwc_occurrences = Queries::DwcOccurrence::Filter.new(params.merge!(api: true))
       .all
       .where(project_id: sessions_current_project_id)
       .page(params[:page]).per(params[:per] || 1)
     render '/dwc_occurrences/api/v1/index'
   end
 
+  # GET /dwc_occurence/download 
+  def download
+    send_data Export::Download.generate_csv(
+      DwcOccurrence.where(project_id: sessions_current_project_id)), type: 'text', filename: "dwc_occurrence_#{DateTime.now}.tsv"
+  end
+
   protected
-
-  def api_params
-    params.permit(
-      :user_date_end,
-      :user_date_start,
-
-      # TODO: not a major risk, but perhaps
-      # these need `token` proxy
-      # :user_id,
-      # :user_target,
-
-      dwc_occurrence_id: [],
-      dwc_occurrence_object_id: [],
-      dwc_occurrence_object_type: []
-    )
-  end
-
-  def filter_params
-    params.permit(
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      :dwc_occurrence_id,
-      dwc_occurrence_id: [],
-      dwc_occurrence_object_id: [],
-      dwc_occurrence_object_type: []
-    )
-  end
-
+  
   def set_object
     @object = GlobalID::Locator.locate(params[:object_global_id])
 

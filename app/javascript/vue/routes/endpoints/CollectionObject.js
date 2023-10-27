@@ -1,5 +1,5 @@
 import baseCRUD, { annotations } from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'collection_objects'
 const permitParams = {
@@ -50,11 +50,16 @@ export const CollectionObject = {
   ...baseCRUD(controller, permitParams),
   ...annotations(controller),
 
-  dwc: (id) => AjaxCall('get', `/${controller}/${id}/dwc`),
+  dwc: (id, params = { rebuild: true }) =>
+    AjaxCall('get', `/${controller}/${id}/dwc`, { params }),
 
   dwca: (id) => AjaxCall('get', `/${controller}/${id}/dwca`),
 
-  reportDwc: (params) => AjaxCall('get', '/tasks/accessions/report/dwc.json', { params }),
+  dwcVerbose: (id, params = { rebuild: true }) =>
+    AjaxCall('get', `/${controller}/${id}/dwc_verbose`, { params }),
+
+  reportDwc: (params) =>
+    AjaxCall('get', '/tasks/accessions/report/dwc.json', { params }),
 
   dwcIndex: (params) => AjaxCall('get', `/${controller}/dwc_index`, { params }),
 
@@ -62,11 +67,21 @@ export const CollectionObject = {
 
   metadataBadge: (id) => AjaxCall('get', `/${controller}/${id}/metadata_badge`),
 
-  navigation: id => AjaxCall('get', `/${controller}/${id}/navigation`),
+  navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 
-  stepwiseDeterminations: (params) => AjaxCall('get', '/tasks/collection_objects/stepwise/determinations/data.json', { params }),
+  stepwiseDeterminations: (params) =>
+    AjaxCall(
+      'get',
+      '/tasks/collection_objects/stepwise/determinations/data.json',
+      { params }
+    ),
 
   timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline`),
 
-  sqedFilter: (params) => AjaxCall('get', '/tasks/accessions/breakdown/sqed_depiction/todo_map.json', { params })
+  sqedFilter: (params) =>
+    AjaxCall(
+      'get',
+      '/tasks/accessions/breakdown/sqed_depiction/todo_map.json',
+      { params }
+    )
 }

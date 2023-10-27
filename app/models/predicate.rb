@@ -7,22 +7,23 @@ class Predicate < ControlledVocabularyTerm
   # @return [Scope]
   #    the max 10 most recently used predicates
   def self.used_recently(user_id, project_id, klass)
-    i = InternalAttribute.arel_table
+    t = InternalAttribute.arel_table
     p = Predicate.arel_table
 
     # i is a select manager
-    i = i.project(i['controlled_vocabulary_term_id'], i['updated_at']).from(i)
-      .where(i['updated_at'].gt( 10.weeks.ago ))
-      .where(i['updated_by_id'].eq(user_id))
-      .where(i['project_id'].eq(project_id))
-      .order(i['updated_at'].desc)
+    i = t.project(t['controlled_vocabulary_term_id'], t['updated_at']).from(t)
+      .where(t['updated_at'].gt( 10.weeks.ago ))
+      .where(t['updated_by_id'].eq(user_id))
+      .where(t['attribute_subject_type'].eq(klass))
+      .where(t['project_id'].eq(project_id))
+      .order(t['updated_at'].desc)
 
     # z is a table alias
     z = i.as('recent_t')
 
-    Predicate.used_on_klass(klass).joins(
+    Predicate.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['controlled_vocabulary_term_id'].eq(p['id'])))
-    ).select('distinct controlled_vocabulary_terms.id').pluck(:id)
+    ).pluck(:id).uniq
   end
 
   def self.select_optimized(user_id, project_id, klass)

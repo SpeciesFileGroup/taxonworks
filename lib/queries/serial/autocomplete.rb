@@ -1,15 +1,10 @@
 module Queries
   module Serial
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       # @param [Hash] args
       def initialize(string, project_id: nil)
         super
-      end
-
-      # @return [Scope]
-      def base_query
-        ::Serial.select('serials.*')
       end
 
       # @return [Array]
@@ -33,23 +28,23 @@ module Queries
 
         queries.compact!
 
-        updated_queries = []
-        queries.each_with_index do |q ,i|
-          a = q
-          if project_id
-            # a = q.joins(:project_sources).where(member_of_project_id.to_sql) if project_id && limit_to_project
-            a = a.select("serials.*, COUNT(project_sources.source_id) AS use_count, CASE WHEN project_sources.project_id = #{Current.project_id} THEN project_sources.project_id ELSE NULL END AS in_project")
-                 .left_outer_joins(:sources)
-                 .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
-                 .where('project_sources.project_id = ? OR project_sources.project_id IS DISTINCT FROM ?', project_id, project_id)
-                 .group('serials.id, project_sources.project_id')
-                 .order('in_project, use_count DESC')
-          end
-          a ||= q
-          updated_queries[i] = a
-        end
-
+       updated_queries = []
+       pr_id = project_id.join(',') if project_id
+       queries.each_with_index do |q ,i|
+         a = q
+         if project_id
+           a = a.select("serials.*, COUNT(project_sources.source_id) AS use_count, CASE WHEN project_sources.project_id IN (#{pr_id}) THEN project_sources.project_id ELSE NULL END AS in_project")
+                .left_outer_joins(:sources)
+                .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
+                .group('serials.id, project_sources.project_id')
+                .order('in_project, use_count DESC')
+         end
+         a ||= q
+         updated_queries[i] = a
+       end
         result = []
+
+
         updated_queries.each do |q|
           result += q.to_a
           result.uniq!
@@ -119,11 +114,6 @@ module Queries
       # @return [Arel::Table]
       def alternate_value_table
         ::AlternateValue.arel_table
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Serial.arel_table
       end
 
     end

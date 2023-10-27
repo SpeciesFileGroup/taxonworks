@@ -5,7 +5,8 @@
       <label>
         <input
           type="checkbox"
-          v-model="settings.sortable">
+          v-model="settings.sortable"
+        />
         Reorder fields
       </label>
     </div>
@@ -19,19 +20,19 @@
           class="full_width"
           v-model="componentsOrder"
           :disabled="!settings.sortable"
-          :item-key="item => item"
+          :item-key="(item) => item"
           @end="updatePreferences"
         >
           <template #item="{ element }">
             <component
               class="margin-medium-bottom"
-              :is="element"/>
+              :is="element"
+            />
           </template>
         </draggable>
       </div>
       <div class="item margin-medium-left">
-        <recent-component
-          @onLoad="loadExtract"/>
+        <recent-component @onLoad="loadExtract" />
         <soft-validation />
       </div>
     </div>
@@ -39,12 +40,11 @@
 </template>
 
 <script>
-
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
 import { VueComponent } from './const/components'
-import { User } from 'routes/endpoints'
+import { User } from '@/routes/endpoints'
 
 import NavbarComponent from './components/Navbar.vue'
 import Draggable from 'vuedraggable'
@@ -60,7 +60,7 @@ export default {
     ...VueComponent
   },
 
-  data () {
+  data() {
     return {
       componentsOrder: Object.keys(VueComponent),
       keyStorage: 'tasks::extract::componentsOrder'
@@ -69,49 +69,53 @@ export default {
 
   computed: {
     settings: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSettings]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
 
     preferences: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetUserPreferences]
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetUserPreferences, value)
       }
     },
 
-    extract () {
+    extract() {
       return this.$store.getters[GetterNames.GetExtract]
     }
   },
 
   watch: {
     preferences: {
-      handler () {
+      handler() {
         const newOrder = this.preferences.layout[this.keyStorage]
 
-        if (this.componentsOrder.every(componentName => newOrder?.includes(componentName))) {
+        if (
+          this.componentsOrder.every((componentName) =>
+            newOrder?.includes(componentName)
+          )
+        ) {
           this.componentsOrder = newOrder
         }
       },
       deep: true
     },
     extract: {
-      handler (newVal) {
+      handler(newVal) {
         this.$store.commit(MutationNames.SetLastChange, Date.now())
       },
       deep: true
     }
   },
 
-  created () {
+  created() {
     const urlParams = new URLSearchParams(window.location.search)
     const extractId = urlParams.get('extract_id')
 
@@ -124,13 +128,15 @@ export default {
   },
 
   methods: {
-    updatePreferences () {
-      User.update(this.preferences.id, { user: { layout: { [this.keyStorage]: this.componentsOrder } } }).then(response => {
+    updatePreferences() {
+      User.update(this.preferences.id, {
+        user: { layout: { [this.keyStorage]: this.componentsOrder } }
+      }).then((response) => {
         this.preferences = response.body.preferences
       })
     },
 
-    saveExtract () {
+    saveExtract() {
       const { dispatch } = this.$store
 
       dispatch(ActionNames.SaveExtract).then(() => {
@@ -150,18 +156,18 @@ export default {
       })
     },
 
-    resetState () {
+    resetState() {
       this.$store.dispatch(ActionNames.ResetState)
       this.$nextTick(() => {
         this.$store.commit(MutationNames.SetLastChange, 0)
       })
     },
 
-    removeRecent (extract) {
+    removeRecent(extract) {
       this.$store.dispatch(ActionNames.RemoveExtract, extract)
     },
 
-    loadExtract ({ id }) {
+    loadExtract({ id }) {
       this.$store.dispatch(ActionNames.LoadExtract, id).then(() => {
         this.$store.commit(MutationNames.SetLastChange, 0)
       })

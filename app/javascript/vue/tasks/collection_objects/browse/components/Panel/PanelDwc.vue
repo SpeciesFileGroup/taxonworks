@@ -22,14 +22,16 @@ import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
 import PanelContainer from './PanelContainer.vue'
 import TableAttributes from '../Table/TableAttributes.vue'
-import TableGbifference from 'components/ui/Table/TableGbifference.vue'
+import TableGbifference from '@/components/ui/Table/TableGbifference.vue'
 
 const store = useStore()
 const dwcItems = computed(() => store.getters[GetterNames.GetDwc])
 
 const dwcObject = computed(() => {
   const entries = Object.entries(dwcItems.value)
-  const filteredList = entries.filter(([property, _]) => !HIDE_ATTRIBUTES.includes(property))
+  const filteredList = entries.filter(
+    ([property, _]) => !HIDE_ATTRIBUTES.includes(property)
+  )
 
   filteredList.sort((a, b) => {
     const index1 = PRIORITIZE_ATTRIBUTES.indexOf(a[0])
@@ -42,13 +44,10 @@ const dwcObject = computed(() => {
 })
 
 const ocurrenceId = computed(() => dwcObject.value.occurrenceID)
-
 </script>
 
 <style scoped lang="scss">
-
 :deep(.table-gbifference) {
-
   table {
     box-shadow: none;
   }

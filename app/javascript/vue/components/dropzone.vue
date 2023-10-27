@@ -9,8 +9,7 @@
 </template>
 
 <script>
-
-import { isJSON } from 'helpers/objects'
+import { isJSON } from '@/helpers/objects'
 
 export default {
   props: {
@@ -70,12 +69,17 @@ export default {
         return {
           dictDefaultMessage: '<br>Drop files here to upload',
           dictCancelUpload: 'Cancel upload',
-          dictCancelUploadConfirmation: 'Are you sure you want to cancel this upload?',
-          dictFallbackMessage: 'Your browser does not support drag and drop file uploads.',
-          dictFallbackText: 'Please use the fallback form below to upload your files like in the olden days.',
-          dictFileTooBig: 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
-          dictInvalidFileType: 'You can\'t upload files of this type.',
-          dictMaxFilesExceeded: 'You can not upload any more files. (max: {{maxFiles}})',
+          dictCancelUploadConfirmation:
+            'Are you sure you want to cancel this upload?',
+          dictFallbackMessage:
+            'Your browser does not support drag and drop file uploads.',
+          dictFallbackText:
+            'Please use the fallback form below to upload your files like in the olden days.',
+          dictFileTooBig:
+            'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
+          dictInvalidFileType: "You can't upload files of this type.",
+          dictMaxFilesExceeded:
+            'You can not upload any more files. (max: {{maxFiles}})',
           dictRemoveFile: 'Remove',
           dictRemoveFileConfirmation: null,
           dictResponseError: 'Server responded with {{statusCode}} code.'
@@ -127,7 +131,7 @@ export default {
       }
     },
 
-    defaultConfiguration () {
+    defaultConfiguration() {
       return {
         maxFilesize: this.maxFileSizeInMB,
         timeout: this.timeout
@@ -137,16 +141,20 @@ export default {
 
   watch: {
     dropzoneOptions: {
-      handler (newVal) {
+      handler(newVal) {
         if (this.dropzone) {
-          Object.assign(this.dropzone.options, this.defaultConfiguration, this.dropzoneOptions)
+          Object.assign(
+            this.dropzone.options,
+            this.defaultConfiguration,
+            this.dropzoneOptions
+          )
         }
       },
       deep: true
     }
   },
 
-  mounted () {
+  mounted() {
     if (this.$isServer) {
       return
     }
@@ -166,10 +174,20 @@ export default {
         acceptedFiles: this.acceptedFileTypes,
         autoProcessQueue: this.autoProcessQueue,
         headers: this.headers,
-        previewTemplate: '<div class="dz-preview dz-file-preview">  <div class="dz-image" style="width:' + this.thumbnailWidth + 'px;height:' + this.thumbnailHeight + 'px"><img data-dz-thumbnail /></div>  <div class="dz-details">    <div class="dz-size"><span data-dz-size></span></div>    <div class="dz-filename"><span data-dz-name></span></div>  </div>  <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>  <div class="dz-error-message"><span data-dz-errormessage></span></div>  <div class="dz-success-mark">' + this.doneIcon + ' </div>  <div class="dz-error-mark">' + this.errorIcon + '</div></div>',
+        previewTemplate:
+          '<div class="dz-preview dz-file-preview">  <div class="dz-image" style="width:' +
+          this.thumbnailWidth +
+          'px;height:' +
+          this.thumbnailHeight +
+          'px"><img data-dz-thumbnail /></div>  <div class="dz-details">    <div class="dz-size"><span data-dz-size></span></div>    <div class="dz-filename"><span data-dz-name></span></div>  </div>  <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>  <div class="dz-error-message"><span data-dz-errormessage></span></div>  <div class="dz-success-mark">' +
+          this.doneIcon +
+          ' </div>  <div class="dz-error-mark">' +
+          this.errorIcon +
+          '</div></div>',
         dictDefaultMessage: this.cloudIcon + this.language.dictDefaultMessage,
         dictCancelUpload: this.language.dictCancelUpload,
-        dictCancelUploadConfirmation: this.language.dictCancelUploadConfirmation,
+        dictCancelUploadConfirmation:
+          this.language.dictCancelUploadConfirmation,
         dictFallbackMessage: this.language.dictFallbackMessage,
         dictFallbackText: this.language.dictFallbackText,
         dictFileTooBig: this.language.dictFileTooBig,
@@ -180,7 +198,10 @@ export default {
         dictResponseError: this.language.dictResponseError
       })
     } else {
-      this.dropzone = new Dropzone(element, Object.assign({}, this.defaultConfiguration, this.dropzoneOptions))
+      this.dropzone = new Dropzone(
+        element,
+        Object.assign({}, this.defaultConfiguration, this.dropzoneOptions)
+      )
     }
     // Handle the dropzone events
     const vm = this
@@ -202,7 +223,11 @@ export default {
     this.dropzone.on('error', function (file, error, xhr) {
       const errorElements = vm.$el.querySelectorAll('.dz-error-message span')
 
-      errorElements[errorElements.length - 1].innerHTML = isJSON(error) ? Object.entries(error).map(e => e.join(': ')).join('<br><br>') : error
+      errorElements[errorElements.length - 1].innerHTML = isJSON(error)
+        ? Object.entries(error)
+            .map((e) => e.join(': '))
+            .join('<br><br>')
+        : error
       vm.$emit('vdropzone-error', file, error, xhr)
     })
     this.dropzone.on('sending', function (file, xhr, formData) {
@@ -215,7 +240,7 @@ export default {
       vm.$emit('vdropzone-queue-complete', file, xhr, formData)
     })
   },
-  beforeUnmount () {
+  beforeUnmount() {
     this.dropzone.destroy()
   }
 }

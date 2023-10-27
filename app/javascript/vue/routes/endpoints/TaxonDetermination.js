@@ -1,5 +1,5 @@
 import baseCRUD, { annotations } from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'taxon_determinations'
 const permitParams = {
@@ -38,5 +38,8 @@ export const TaxonDetermination = {
 
   ...annotations(controller),
 
-  createBatch: (params) => AjaxCall('post', `/${controller}/batch_create`, params)
+  createBatch: (params) =>
+    AjaxCall('post', `/${controller}/batch_create`, params),
+
+  reorder: (params) => AjaxCall('patch', `/${controller}/reorder`, params)
 }

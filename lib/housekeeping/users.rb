@@ -6,8 +6,8 @@ module Housekeeping::Users
     related_instances = self.name.demodulize.underscore.pluralize.to_sym # if 'One::Two::Three' then :threes
     related_class = self.name
 
-    belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
-    belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
+    belongs_to :creator, foreign_key: :created_by_id, class_name: 'User', inverse_of: "created_#{related_instances}".to_sym
+    belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User', inverse_of: "updated_#{related_instances}".to_sym
 
 #   scope :created_by_user, ->(user) { where(created_by_id: User.get_user_id(user) ) }
 #   scope :updated_by_user, ->(user) { where(updated_by_id: User.get_user_id(user) ) }
@@ -30,8 +30,8 @@ module Housekeeping::Users
     # And extend User
     User.class_eval do
       raise 'Class name collision for User#has_many' if self.methods and self.methods.include?(:related_instances)
-      has_many "created_#{related_instances}".to_sym, class_name: related_class, foreign_key: :created_by_id, inverse_of: :creator, dependent: :restrict_with_error
-      has_many "updated_#{related_instances}".to_sym, class_name: related_class, foreign_key: :updated_by_id, inverse_of: :updater, dependent: :restrict_with_error
+      has_many "created_#{related_instances}".to_sym, class_name: related_class, foreign_key: :created_by_id, inverse_of: :creator, dependent: :restrict_with_error, validate: true
+      has_many "updated_#{related_instances}".to_sym, class_name: related_class, foreign_key: :updated_by_id, inverse_of: :updater, dependent: :restrict_with_error, validate: true
     end
   end
 

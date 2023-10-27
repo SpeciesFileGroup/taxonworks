@@ -18,12 +18,11 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
-import { Source } from 'routes/endpoints'
-import { RouteNames } from 'routes/routes.js'
-import DisplayList from 'components/displayList'
-import SpinnerComponent from 'components/spinner'
+import { Source } from '@/routes/endpoints'
+import { ActionNames } from '../store/actions/actions'
+import DisplayList from '@/components/displayList'
+import SpinnerComponent from '@/components/spinner'
 
 export default {
   components: {
@@ -32,16 +31,16 @@ export default {
   },
 
   computed: {
-    source () {
+    source() {
       return this.$store.getters[GetterNames.GetSource]
     },
 
-    saving () {
+    saving() {
       return this.$store.getters[GetterNames.GetSettings].saving
     }
   },
 
-  data () {
+  data() {
     return {
       founded: [],
       oldVal: undefined,
@@ -53,7 +52,7 @@ export default {
 
   watch: {
     source: {
-      handler (newVal) {
+      handler(newVal) {
         if (!newVal.title) {
           clearTimeout(this.timer)
           this.searching = false
@@ -61,7 +60,9 @@ export default {
         } else if (newVal.title !== this.oldVal) {
           this.searching = true
           clearTimeout(this.timer)
-          this.timer = setTimeout(() => { this.getRecent() }, this.delay)
+          this.timer = setTimeout(() => {
+            this.getRecent()
+          }, this.delay)
         }
         this.oldVal = newVal.title
       },
@@ -69,7 +70,7 @@ export default {
       immediate: true
     },
 
-    saving (newVal) {
+    saving(newVal) {
       if (!newVal) {
         this.getRecent()
       }
@@ -77,19 +78,21 @@ export default {
   },
 
   methods: {
-    getRecent () {
+    getRecent() {
       this.searching = true
-      Source.where({ query_term: this.source.title, per: 5 }).then(({ body }) => {
-        this.founded = this.source.id
-          ? body.filter(item => item.id !== this.source.id)
-          : body
-      }).finally(() => {
-        this.searching = false
-      })
+      Source.where({ query_term: this.source.title, per: 5 })
+        .then(({ body }) => {
+          this.founded = this.source.id
+            ? body.filter((item) => item.id !== this.source.id)
+            : body
+        })
+        .finally(() => {
+          this.searching = false
+        })
     },
 
-    loadSource (source) {
-      window.open(`${RouteNames.NewSource}?source_id=${source.id}`, '_self')
+    loadSource(source) {
+      this.$store.dispatch(ActionNames.LoadSource, source.id)
     }
   }
 }

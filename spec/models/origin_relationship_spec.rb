@@ -8,6 +8,13 @@ RSpec.describe OriginRelationship, type: :model do
 
   context 'validation' do
 
+    specify 'clones not allowed' do
+      origin_relationship.old_object = old_specimen
+      origin_relationship.new_object = old_specimen
+      origin_relationship.valid?
+      expect(origin_relationship.errors.include?(:old_object)).to be_truthy
+    end
+
     specify '#old_object is required' do
       origin_relationship.valid? 
       expect(origin_relationship.errors.include?(:old_object)).to be_truthy

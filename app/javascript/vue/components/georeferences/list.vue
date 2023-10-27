@@ -6,7 +6,9 @@
           <th class="word-keep-all line-nowrap">Georeference ID</th>
           <th class="word-keep-all">Shape</th>
           <th class="word-keep-all">Coordinates</th>
+          <th class="word-keep-all">Has error polygon</th>
           <th class="word-keep-all line-nowrap">Error radius</th>
+          <th class="word-keep-all">Inferred error radius</th>
           <th class="word-keep-all">Type</th>
           <th class="word-keep-all">Date</th>
           <th />
@@ -14,7 +16,8 @@
       </thead>
       <transition-group
         name="list-complete"
-        tag="tbody">
+        tag="tbody"
+      >
         <tr
           v-for="item in list"
           :key="item.id"
@@ -23,11 +26,14 @@
           <td>{{ item.id }}</td>
           <td class="word-keep-all">{{ item.geo_json.geometry.type }}</td>
           <td>{{ getCoordinates(item.geo_json.geometry.coordinates) }}</td>
+          <td>{{ item.has_error_polygon ? 'Yes' : 'No' }}</td>
           <td class="line-nowrap">
             <edit-in-place
               v-model="item.error_radius"
-              @end="emit('updateGeo', item)"/>
+              @end="emit('updateGeo', item)"
+            />
           </td>
+          <td>{{ item.inferred_error_radius }}</td>
           <td class="word-keep-all">{{ item.type }}</td>
           <td>
             <div class="horizontal-left-content">
@@ -48,8 +54,8 @@
             </div>
           </td>
           <td>
-            <div class="horizontal-right-content">
-              <radial-annotator :global-id="item.global_id"/>
+            <div class="horizontal-right-content gap-small">
+              <radial-annotator :global-id="item.global_id" />
               <v-btn
                 color="destroy"
                 circle
@@ -69,12 +75,12 @@
 </template>
 
 <script setup>
-
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import EditInPlace from 'components/editInPlace'
-import DateComponent from 'components/ui/Date/DateFields.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import EditInPlace from '@/components/editInPlace'
+import DateComponent from '@/components/ui/Date/DateFields.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { convertToLatLongOrder } from '@/helpers/geojson.js'
 
 const props = defineProps({
   list: {
@@ -83,23 +89,26 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits([
-  'update',
-  'dateChanged',
-  'delete',
-  'updateGeo'
-])
+const emit = defineEmits(['update', 'dateChanged', 'delete', 'updateGeo'])
 
-const deleteItem = item => {
-  if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+const deleteItem = (item) => {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
     emit('delete', item)
   }
 }
 
-const getCoordinates = coordinates =>
-  coordinates.map(coordinate => Array.isArray(coordinate)
-    ? coordinate.map(item => item.slice(0, 2))
-    : coordinate
-  )
+function getCoordinates(coordinates) {
+  const flatten = coordinates.flat(1)
 
+  if (typeof flatten[0] === 'number') {
+    console.log(coordinates)
+    return convertToLatLongOrder(coordinates)
+  } else {
+    return flatten.map((arr) => convertToLatLongOrder(arr))
+  }
+}
 </script>

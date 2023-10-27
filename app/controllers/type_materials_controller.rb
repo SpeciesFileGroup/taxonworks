@@ -12,7 +12,10 @@ class TypeMaterialsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @type_materials = TypeMaterial.where(filter_params).with_project_id(sessions_current_project_id)
+        @type_materials = TypeMaterial.where(filter_params)
+        .with_project_id(sessions_current_project_id)
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -29,7 +32,6 @@ class TypeMaterialsController < ApplicationController
 
   # GET /type_materials/1/edit
   def edit
-    @type_material.source = Source.new if !@type_material.source
   end
 
   # POST /type_materials
@@ -89,7 +91,7 @@ class TypeMaterialsController < ApplicationController
   end
 
   def autocomplete
-    @type_materials = Queries::TypeMaterialAutocompleteQuery.new(params[:term], project_id: sessions_current_project_id).all
+    @type_materials = Queries::TypeMaterial::Autocomplete.new(params[:term], project_id: sessions_current_project_id).all
 
     data = @type_materials.collect do |t|
       {id: t.id,
@@ -106,7 +108,7 @@ class TypeMaterialsController < ApplicationController
 
   # GET /type_materials/download
   def download
-    send_data Export::Download.generate_csv(TypeMaterial.where(project_id: sessions_current_project_id)), type: 'text', filename: "type_materials_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(TypeMaterial.where(project_id: sessions_current_project_id)), type: 'text', filename: "type_materials_#{DateTime.now}.tsv"
   end
 
   def type_types
@@ -118,6 +120,7 @@ class TypeMaterialsController < ApplicationController
 
   private
 
+  # No filter.rb available
   def filter_params
     params.permit(:protonym_id, :collection_object_id, :type_type)
   end

@@ -1,21 +1,20 @@
 <script>
-
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
-import { User } from 'routes/endpoints'
+import { User } from '@/routes/endpoints'
 
 export default {
   computed: {
     preferences: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetPreferences]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetPreferences, value)
       }
     }
   },
-  data () {
+  data() {
     return {
       componentsOrder: [],
       keyStorage: ''
@@ -23,15 +22,23 @@ export default {
   },
   watch: {
     preferences: {
-      handler (newVal) {
-        if (this.preferences.layout[this.keyStorage] && this.componentsOrder.length === this.preferences.layout[this.keyStorage].length) { this.componentsOrder = this.preferences.layout[this.keyStorage] }
+      handler(newVal) {
+        if (
+          this.preferences.layout[this.keyStorage] &&
+          this.componentsOrder.length ===
+            this.preferences.layout[this.keyStorage].length
+        ) {
+          this.componentsOrder = this.preferences.layout[this.keyStorage]
+        }
       },
       deep: true
     }
   },
   methods: {
-    updatePreferences () {
-      User.update(this.preferences.id, { user: { layout: { [this.keyStorage]: this.componentsOrder } } }).then(response => {
+    updatePreferences() {
+      User.update(this.preferences.id, {
+        user: { layout: { [this.keyStorage]: this.componentsOrder } }
+      }).then((response) => {
         this.preferences.layout = response.preferences
         this.componentsOrder = response.preferences.layout[this.keyStorage]
       })

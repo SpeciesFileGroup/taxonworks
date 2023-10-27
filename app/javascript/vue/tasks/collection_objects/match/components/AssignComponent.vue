@@ -12,8 +12,7 @@
 </template>
 
 <script>
-
-import SwitchComponent from 'components/switch'
+import SwitchComponent from '@/components/switch'
 import TagComponent from './Assign/Tags'
 import DeterminationComponent from './Assign/Determinations'
 import LoanComponent from './Assign/Loans'
@@ -41,7 +40,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       tabs: [
         'Accessions',

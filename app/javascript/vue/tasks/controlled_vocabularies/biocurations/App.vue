@@ -4,7 +4,9 @@
       <h1>Manage biocuration classes and groups</h1>
       <ul class="context-menu">
         <li>
-          <a :href="RouteNames.ManageControlledVocabularyTask">Manage controlled vocabulary terms</a>
+          <a :href="RouteNames.ManageControlledVocabularyTask"
+            >Manage controlled vocabulary terms</a
+          >
         </li>
       </ul>
     </div>
@@ -19,9 +21,7 @@
       <thead>
         <tr>
           <th>Group</th>
-          <th class="three_quarter_width">
-            Classes
-          </th>
+          <th class="three_quarter_width">Classes</th>
           <th />
         </tr>
       </thead>
@@ -41,10 +41,10 @@
 import { computed } from 'vue'
 import useStore from './composables/useStore.js'
 import BiocurationGroup from './components/BiocurationGroupRow.vue'
-import NavBar from 'components/layout/NavBar.vue'
+import NavBar from '@/components/layout/NavBar.vue'
 import BiocurationGroupNew from './components/BiocurationGroupNew.vue'
 import BiocurationClassNew from './components/BiocurationClassNew.vue'
-import { RouteNames } from 'routes/routes.js'
+import { RouteNames } from '@/routes/routes.js'
 
 const { getters, actions } = useStore()
 const biocurationGroups = computed(() => getters.getBiocurationGroups())
@@ -52,12 +52,15 @@ const biocurationGroups = computed(() => getters.getBiocurationGroups())
 actions.requestBiocurationGroups()
 actions.requestBiocurationClasses()
 
-const removeBiocurationGroup = group => {
-  if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+const removeBiocurationGroup = (group) => {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
     actions.destroyBiocurationGroup(group.id)
   }
 }
-
 </script>
 
 <script>

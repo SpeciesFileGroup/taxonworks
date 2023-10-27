@@ -1,4 +1,4 @@
-json.partial! '/images/api/v1/attributes', image: image
+json.partial!('/images/api/v1/attributes', image:)
 
 json.original short_url(image.image_file)
 json.thumb short_url(image.image_file.url(:thumb))
@@ -8,7 +8,7 @@ json.medium short_url(image.image_file.url(:medium))
 if extend_response_with('depictions')
   json.depictions image.depictions do |d|
     # TOOD: make a /brief. Consider using global_id
-    json.extract! d, :figure_label, :caption, :depiction_object_type, :depiction_object_id
+    json.extract! d, :figure_label, :caption, :depiction_object_type, :depiction_object_id, :position
     json.label label_for_depiction(d)
   end
 end
@@ -18,6 +18,7 @@ if extend_response_with('attribution')
     if image.attribution
       json.label label_for_attribution(image.attribution)
       json.id image.attribution.id
+      json.license CREATIVE_COMMONS_LICENSES[image.attribution.license]
       # json.partial! '/attributions/api/v1/attributes', attribution: image.attribution, extensions: false
     end
   end

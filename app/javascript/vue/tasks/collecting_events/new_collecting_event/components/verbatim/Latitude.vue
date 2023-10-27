@@ -4,25 +4,26 @@
     <input
       class="full_width"
       type="text"
-      v-model="latitude">
+      v-model="latitude"
+    />
   </div>
 </template>
 
 <script>
-
 import extendCE from '../mixins/extendCE'
-import { parseCoordinateCharacters } from 'helpers/georeferences'
+import { parseCoordinateCharacters } from '@/helpers/georeferences'
 
 export default {
   mixins: [extendCE],
 
   computed: {
     latitude: {
-      get () {
+      get() {
         return this.collectingEvent.verbatim_latitude
       },
-      set (value) {
-        this.collectingEvent.verbatim_latitude = parseCoordinateCharacters(value)
+      set(value) {
+        this.collectingEvent.verbatim_latitude =
+          parseCoordinateCharacters(value)
       }
     }
   }

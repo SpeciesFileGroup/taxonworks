@@ -40,12 +40,12 @@
 <script setup>
 import { computed } from 'vue'
 import { useStore } from 'vuex'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import { URLParamsToJSON } from '@/helpers/url/parse'
 import { ActionNames } from './store/actions/actions'
 import { GetterNames } from './store/getters/getters'
-import VAutocomplete from 'components/ui/Autocomplete.vue'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import COHeader from './components/COHeader.vue'
-import TableGrid from 'components/layout/Table/TableGrid.vue'
+import TableGrid from '@/components/layout/Table/TableGrid.vue'
 import PanelCE from './components/PanelCE/PanelCE.vue'
 import PanelCO from './components/Panel/PanelCO.vue'
 import ColumnThree from './components/ColumnThree.vue'
@@ -53,7 +53,9 @@ import PanelDerived from './components/Panel/PanelDerived.vue'
 import loadCO from './utils/loadCO.js'
 
 const store = useStore()
-const collectingEvent = computed(() => store.getters[GetterNames.GetCollectingEvent])
+const collectingEvent = computed(
+  () => store.getters[GetterNames.GetCollectingEvent]
+)
 const { collection_object_id: coId } = URLParamsToJSON(location.href)
 
 if (coId) {
@@ -63,7 +65,6 @@ if (coId) {
 
 <style lang="scss">
 #vue-browse-collection-object {
-
   .panel {
     border-radius: 0px;
     //box-shadow: 0 3 6 0 rgba(0,0,0, .18);

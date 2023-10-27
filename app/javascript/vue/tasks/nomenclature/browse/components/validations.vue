@@ -1,13 +1,13 @@
 <template>
   <soft-validations
     class="margin-medium-bottom full_width"
-    :validations="validations"/>
+    :validations="validations"
+  />
 </template>
 
 <script>
-
-import SoftValidations from 'components/soft_validations/panel'
-import { SoftValidation } from 'routes/endpoints'
+import SoftValidations from '@/components/soft_validations/panel'
+import { SoftValidation } from '@/routes/endpoints'
 
 export default {
   components: { SoftValidations },
@@ -19,25 +19,27 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       validations: {}
     }
   },
 
-  created () {
+  created() {
     const keys = Object.keys(this.globalIds)
 
-    keys.forEach(key => {
+    keys.forEach((key) => {
       const promises = []
       const section = this.globalIds[key]
 
-      section.forEach(globalId => {
+      section.forEach((globalId) => {
         promises.push(SoftValidation.find(globalId).then(({ body }) => body))
       })
 
-      Promise.all(promises).then(list => {
-        const validationList = list.filter(item => item.soft_validations.length)
+      Promise.all(promises).then((list) => {
+        const validationList = list.filter(
+          (item) => item.soft_validations.length
+        )
 
         if (validationList.length) {
           this.validations[key] = { list: validationList, title: key }
@@ -45,6 +47,5 @@ export default {
       })
     })
   }
-
 }
 </script>

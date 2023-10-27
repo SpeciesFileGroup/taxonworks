@@ -85,10 +85,15 @@ module CollectionObject::DwcExtensions
 
       occurrenceStatus: :dwc_occurrence_status,
 
-      # TODO: move to a proper extensions
+      # TODO: move to a proper extension(?)
       associatedMedia: :dwc_associated_media,
 
+      # TODO: move to a proper extension(?)
+      associatedTaxa: :dwc_associated_taxa,
+
       occurrenceRemarks: :dwc_occurrence_remarks,
+
+      eventRemarks: :dwc_event_remarks
 
       # -- Core taxon? --
       # nomenclaturalCode
@@ -158,9 +163,18 @@ module CollectionObject::DwcExtensions
     notes.collect{|n| n.text}.join('|')
   end
 
+  def dwc_event_remarks
+    collecting_event&.notes&.collect {|n| n.text}&.join('|')
+  end
+
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
   def dwc_associated_media
     images.collect{|i| api_image_link(i) }.join(CollectionObject::DWC_DELIMITER).presence
+  end
+
+  # https://dwc.tdwg.org/terms/#dwc:associatedtaxa
+  def dwc_associated_taxa
+    dwc_internal_attribute_for(:collection_object, :associatedTaxa)
   end
 
   # TODO: likeley a helper
@@ -485,11 +499,11 @@ module CollectionObject::DwcExtensions
     %w{start_time end_time}
       .map { |t| %w{hour minute second}
       .map { |p| collecting_event["#{t}_#{p}"] }
-      .map { |p| "%02d" % p if p } # At least two digits
+      .map { |p| '%02d' % p if p } # At least two digits
       }
         .map { |t| t.compact.join(':') }
         .reject(&:blank?)
-        .join("/").presence
+        .join('/').presence
   end
 
   def dwc_verbatim_event_date
@@ -502,11 +516,11 @@ module CollectionObject::DwcExtensions
     %w{start_date end_date}
       .map { |d| %w{year month day}
       .map { |p| collecting_event["#{d}_#{p}"] }
-      .map { |p| "%02d" % p if p } # At least two digits
+      .map { |p| '%02d' % p if p } # At least two digits
       }
         .map { |d| d.compact.join('-') }
         .reject(&:blank?)
-        .join("/").presence
+        .join('/').presence
   end
 
   def dwc_year

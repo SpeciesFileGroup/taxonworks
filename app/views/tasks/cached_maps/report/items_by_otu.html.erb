@@ -1,0 +1,40 @@
+<h1> Cached map items by OTU </h1>
+
+<%= tag.td(link_to('Back to Filter OTUs', filter_otus_task_path( ::Queries::Otu::Filter.new(params).params)) ) %>
+
+<%= tag.p 'This report lists individual items that make up one or more OTU cached maps', class: [:feedback, 'feedback-info'] %>
+
+<table>
+  <tr>
+    <%= tag.th('id') %>
+    <%= tag.th('OTU') %>
+    <%= tag.th('GeographicItem ID') %>
+    <%= tag.th('GeographicAreas (inferred!)') %>
+    <%= tag.th('Reference count') %>
+    <%= tag.th('Level 0 name') %>
+    <%= tag.th('Level 1 name') %>
+    <%= tag.th('Level 2 name') %>
+    <%# tag.th('recomputed - quick_cached_map_name_hierarchy') %>
+    <%# tag.th('recomputed - cached_map_name_hierarchy') %>
+    <%= tag.th('untranslated') %>
+    <%= tag.th('Is absent (not implemented)') %>
+  </tr>
+
+  <% @cached_map_items.find_each do |i| %>
+    <tr>
+      <%= tag.td(i.id) %>
+      <%= tag.td(link_to(otu_tag(i.otu), filter_otus_task_path(otu_id: i.otu_id) )) %>
+      <%= tag.td(link_to(i.geographic_item_id, geographic_item_path(i.geographic_item_id.to_s))) %>
+      <%= tag.td(i.geographic_item.geographic_areas.collect{|c| geographic_area_link(c)}.join.html_safe) %>
+      <%= tag.td(i.reference_count) %>
+
+      <%= tag.td(i.level0_geographic_name) %>
+      <%= tag.td(i.level1_geographic_name) %>
+      <%= tag.td(i.level2_geographic_name) %>
+      <%# tag.td(i.geographic_item.quick_geographic_name_hierarchy ) %>
+      <%# tag.td( CachedMapItem.cached_map_name_hierarchy(i.geographic_item_id)) %>
+      <%= tag.td(i.untranslated ? tag.em('True', class: [:feedback, 'feedback-thin', 'feedback-warning']) : nil  ) %>
+      <%= tag.td(i.is_absent) %>
+    </tr>
+  <% end %>
+</table>

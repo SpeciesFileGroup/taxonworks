@@ -5,8 +5,8 @@ class ImportDataset::DarwinCore < ImportDataset
 
   before_destroy :destroy_namespace
 
-  CHECKLIST_ROW_TYPE = "http://rs.tdwg.org/dwc/terms/Taxon"
-  OCCURRENCES_ROW_TYPE = "http://rs.tdwg.org/dwc/terms/Occurrence"
+  CHECKLIST_ROW_TYPE = 'http://rs.tdwg.org/dwc/terms/Taxon'.freeze
+  OCCURRENCES_ROW_TYPE = 'http://rs.tdwg.org/dwc/terms/Occurrence'.freeze
 
   def initialize(params)
     import_settings = params&.delete(:import_settings)
@@ -44,21 +44,21 @@ class ImportDataset::DarwinCore < ImportDataset
 
         ### Check all files are readable
         [dwc.core, *dwc.extensions].each do |table|
-          table.read { |data, errors| raise "Errors found when reading data" unless errors.empty? }
+          table.read { |data, errors| raise 'Errors found when reading data' unless errors.empty? }
         end
       else
         if path =~ /\.(xlsx?|ods)\z/i
-          headers = CSV.parse(Roo::Spreadsheet.open(path).to_csv, headers: true).headers
+          headers = CSV.parse(Roo::Spreadsheet.open(path).to_csv, headers: true, header_converters: lambda {|f| f.strip}).headers
         else
-          headers = CSV.read(path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8').headers
+          headers = CSV.read(path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8', header_converters: lambda {|f| f.strip}).headers
         end
 
         row_type = params.dig(:import_settings, :row_type)
         if row_type
           core_type = row_type
-        elsif headers.include? "occurrenceID"
+        elsif headers.include? 'occurrenceID'
           core_type = OCCURRENCES_ROW_TYPE
-        elsif headers.include? "taxonID"
+        elsif headers.include? 'taxonID'
           core_type = CHECKLIST_ROW_TYPE
         end
       end
@@ -88,7 +88,7 @@ class ImportDataset::DarwinCore < ImportDataset
       when 'Importing'
         self.metadata['import_uuid'] = SecureRandom.uuid if self.updated_at < 10.minutes.ago
       else
-        raise "Invalid initial state"
+        raise 'Invalid initial state'
       end
       save!
 
@@ -132,9 +132,9 @@ class ImportDataset::DarwinCore < ImportDataset
       retry_errored = self.metadata['import_retry_errored'] if retry_errored.nil?
       start_id = self.metadata['import_start_id'] if retry_errored
 
-      status = ["Ready"]
-      status << "Errored" if retry_errored
-      records = add_filters(core_records.where(status: status), filters).order(:id).limit(max_records) #.preload_fields
+      status = ['Ready']
+      status << 'Errored' if retry_errored
+      records = add_filters(core_records.where(status:), filters).order(:id).limit(max_records) #.preload_fields
 
       records = records.where(id: start_id..) if start_id
       records = core_records.where(id: record_id, status: %w{Ready Errored}) if record_id
@@ -142,10 +142,10 @@ class ImportDataset::DarwinCore < ImportDataset
       records = records.all
       start_time = Time.now - lock_time
 
-      dwc_data_attributes = project.preferences["model_predicate_sets"].map do |model, predicate_ids|
+      dwc_data_attributes = project.preferences['model_predicate_sets'].map do |model, predicate_ids|
         [model, Hash[
           *Predicate.where(id: predicate_ids)
-            .select { |p| /^http:\/\/rs.tdwg.org\/dwc\/terms\/.*/ =~ p.uri }
+            .select { |p| /^http:\/\/rs\.tdwg\.org\/dwc\/terms\/.*/ =~ p.uri }
             .map {|p| [p.uri.split('/').last, p]}
             .flatten
           ]
@@ -184,33 +184,33 @@ class ImportDataset::DarwinCore < ImportDataset
 
   # Stages DwC-A records into DB.
   def stage
-    if status == "Staging" # ActiveJob being retried could cause this state
+    if status == 'Staging' # ActiveJob being retried could cause this state
       transaction do
         core_records_fields.delete_all
         dataset_records.delete_all
       end
     end
 
-    update!(status: "Staging") if status == "Uploaded"
+    update!(status: 'Staging') if status == 'Uploaded'
 
-    if status != "Ready"
+    if status != 'Ready'
       perform_staging
-      update!(status: "Ready")
+      update!(status: 'Ready')
     end
   end
 
   # Sets import settings for this dataset
   def set_import_settings(import_settings)
-    metadata["import_settings"] ||= {}
-    import_settings.each { |k, v| metadata["import_settings"].merge!({k => v}) }
+    metadata['import_settings'] ||= {}
+    import_settings.each { |k, v| metadata['import_settings'].merge!({k => v}) }
 
-    metadata["import_settings"]
+    metadata['import_settings']
   end
 
   def get_core_record_identifier_namespace
-    id = metadata.dig("namespaces", "core")
+    id = metadata.dig('namespaces', 'core')
 
-    if id.nil? || (@core_record_identifier_namespace ||= Namespace.find_by(id: id)).nil?
+    if id.nil? || (@core_record_identifier_namespace ||= Namespace.find_by(id:)).nil?
       random = SecureRandom.hex(4)
       project_name = Project.find(Current.project_id).name
 
@@ -224,8 +224,8 @@ class ImportDataset::DarwinCore < ImportDataset
       )
 
       metadata.deep_merge!({
-        "namespaces" => {
-          "core" => @core_record_identifier_namespace.id
+        'namespaces' => {
+          'core' => @core_record_identifier_namespace.id
         }
       })
       save!
@@ -235,7 +235,7 @@ class ImportDataset::DarwinCore < ImportDataset
   end
 
   def default_nomenclatural_code
-    self.metadata.dig("import_settings", "nomenclatural_code")&.downcase&.to_sym || :iczn
+    self.metadata.dig('import_settings', 'nomenclatural_code')&.downcase&.to_sym || :iczn
   end
 
   protected
@@ -256,15 +256,16 @@ class ImportDataset::DarwinCore < ImportDataset
         headers[:extensions][type] = get_dwc_headers(extension)
       end
     elsif source.path =~ /\.(txt|tsv|xlsx?|ods)\z/i
+      # only strip whitespace on the headers with lambda functions because whitespace is stripped from the data elsewhere
       if source.path =~ /\.(txt|tsv)\z/i
-        records[:core] = CSV.read(source.path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8')
+        records[:core] = CSV.read(source.path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8', header_converters: lambda {|f| f&.strip})
       else
-        records[:core] = CSV.parse(Roo::Spreadsheet.open(source.path).to_csv, headers: true)
+        records[:core] = CSV.parse(Roo::Spreadsheet.open(source.path).to_csv, headers: true, header_converters: lambda {|f| f&.strip})
       end
       records[:core] = records[:core].map { |r| r.to_h }
       headers[:core] = records[:core].first.to_h.keys
     else
-      raise "Unsupported input format"
+      raise 'Unsupported input format'
     end
 
     return records, headers
@@ -273,7 +274,7 @@ class ImportDataset::DarwinCore < ImportDataset
   def get_dwc_headers(table)
     headers = []
 
-    headers[table.id[:index]] = "id" if table.id
+    headers[table.id[:index]] = 'id' if table.id
     table.fields.each { |f| headers[f[:index]] = get_normalized_dwc_term(f) if f[:index] }
 
     table.read_header.first.each_with_index { |f, i| headers[i] ||= f.strip }
@@ -305,7 +306,7 @@ class ImportDataset::DarwinCore < ImportDataset
   private
 
   def get_fields_mapping
-    @fields_mapping ||= metadata["core_headers"]
+    @fields_mapping ||= metadata['core_headers']
       .reject(&:nil?)
       .each.with_index.inject({}) { |m, (h, i)| m.merge({ h.downcase => i, i => h}) }
   end
@@ -322,7 +323,7 @@ class ImportDataset::DarwinCore < ImportDataset
   end
 
   def destroy_namespace
-    Namespace.find_by(id: metadata["identifier_namespace"])&.destroy # If in use or gone no deletion happens
+    Namespace.find_by(id: metadata['identifier_namespace'])&.destroy # If in use or gone no deletion happens
   end
 
   def add_filters(records, filters)

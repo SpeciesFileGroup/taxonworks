@@ -1,5 +1,5 @@
 import baseCRUD, { annotations } from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const model = 'sources'
 const permitParams = {
@@ -73,7 +73,20 @@ export const Source = {
 
   clone: (id, params) => AjaxCall('post', `/${model}/${id}/clone`, params),
 
-  filter: params => AjaxCall('post', `/${model}/filter.json`, params),
+  filter: (params) => AjaxCall('post', `/${model}/filter.json`, params),
 
-  parse: params => AjaxCall('get', `/${model}/parse.json`, { params })
+  parse: (params) => AjaxCall('get', `/${model}/parse.json`, { params }),
+
+  citationTypes: () => AjaxCall('get', `/${model}/citation_object_types.json`),
+
+  bibtex: (params) => AjaxCall('get', '/sources.bib', params),
+
+  bibtexStyle: () => AjaxCall('get', `/${model}/csl_types`),
+
+  bibliography: (params) => AjaxCall('get', `/${model}/generate.json`, params),
+
+  generateLinks: (params) => AjaxCall('get', `/${model}/generate`, { params }),
+
+  batchUpdate: (params) =>
+    AjaxCall('patch', `/${model}/batch_update.json`, params)
 }

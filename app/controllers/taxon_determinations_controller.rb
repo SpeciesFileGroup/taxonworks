@@ -12,7 +12,9 @@ class TaxonDeterminationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @taxon_determinations = Queries::TaxonDetermination::Filter.new(filter_params).all.with_project_id(sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        @taxon_determinations = Queries::TaxonDetermination::Filter.new(params).all
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -75,6 +77,14 @@ class TaxonDeterminationsController < ApplicationController
     end
   end
 
+  # PATCH /taxon_determinations/reorder?id[]=1
+  def reorder
+    params[:id].reverse.each do |taxon_determination_id|
+      TaxonDetermination.find(taxon_determination_id).move_to_top
+    end
+    render json: true
+  end
+
   # GET /taxon_determinations/search
   def search
     if params[:id].blank?
@@ -103,7 +113,7 @@ class TaxonDeterminationsController < ApplicationController
   def download
     send_data Export::Download.generate_csv(TaxonDetermination.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "taxon_determinations_#{DateTime.now}.csv"
+      filename: "taxon_determinations_#{DateTime.now}.tsv"
   end
 
   # POST /taxon_determinations/batch_create
@@ -119,19 +129,16 @@ class TaxonDeterminationsController < ApplicationController
 
   private
   def set_taxon_determination
-      @taxon_determination = TaxonDetermination.with_project_id(sessions_current_project_id).find(params[:id])
-      @recent_object = @taxon_determination
-    end
+    @taxon_determination = TaxonDetermination.with_project_id(sessions_current_project_id).find(params[:id])
+    @recent_object = @taxon_determination
+  end
 
-    def taxon_determination_params
-      params.require(:taxon_determination).permit(
-        :biological_collection_object_id, :otu_id, :year_made, :month_made, :day_made, :position,
-        roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
-        otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
-      )
-    end
+  def taxon_determination_params
+    params.require(:taxon_determination).permit(
+      :biological_collection_object_id, :otu_id, :year_made, :month_made, :day_made, :position,
+      roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+      otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
+    )
+  end
 
-    def filter_params
-      params.permit(:collection_object_id, :otu_id, otu_ids: [], determiner_ids: [], biological_collection_object_ids: [])
-    end
 end

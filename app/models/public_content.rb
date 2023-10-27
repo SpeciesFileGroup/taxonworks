@@ -37,4 +37,8 @@ class PublicContent < ApplicationRecord
     content.text == text 
   end
 
+  def self.is_community?
+    false
+  end
+
 end

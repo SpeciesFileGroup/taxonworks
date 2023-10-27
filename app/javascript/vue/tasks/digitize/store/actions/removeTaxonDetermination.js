@@ -1,5 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
-import { TaxonDetermination } from 'routes/endpoints'
+import { TaxonDetermination } from '@/routes/endpoints'
 
 export default ({ commit, state: { taxon_determinations } }, determination) =>
   new Promise((resolve, reject) => {
@@ -9,6 +9,10 @@ export default ({ commit, state: { taxon_determinations } }, determination) =>
       })
     } else {
       taxon_determinations.splice(
-        taxon_determinations.findIndex(det => det.otu_id === determination.otu_id), 1)
+        taxon_determinations.findIndex(
+          (det) => det.otu_id === determination.otu_id
+        ),
+        1
+      )
     }
   })

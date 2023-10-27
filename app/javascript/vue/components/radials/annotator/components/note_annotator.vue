@@ -1,6 +1,6 @@
 <template>
   <div class="notes_annotator">
-    <textarea 
+    <textarea
       class="separate-bottom"
       v-model="note.text"
       rows="10"
@@ -12,7 +12,8 @@
         color="create"
         medium
         :disabled="!validateFields"
-        @click="updateNote()">
+        @click="updateNote()"
+      >
         Update
       </v-btn>
       <v-btn
@@ -33,21 +34,20 @@
         Create
       </v-btn>
     </div>
-    <display-list 
-      label="text" 
-      :list="list" 
-      edit 
-      @edit="note = $event" 
-      @delete="removeItem" 
+    <display-list
+      label="text"
+      :list="list"
+      edit
+      @edit="note = $event"
+      @delete="removeItem"
     />
   </div>
 </template>
 <script>
-
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
-import DisplayList from 'components/displayList.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import DisplayList from '@/components/displayList.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -56,7 +56,7 @@ export default {
     VBtn
   },
   computed: {
-    validateFields () {
+    validateFields() {
       return this.note.text
     }
   },
@@ -67,27 +67,30 @@ export default {
     }
   },
   methods: {
-    newNote () {
+    newNote() {
       return {
         text: null,
         annotated_global_entity: decodeURIComponent(this.globalId)
       }
     },
-    createNew () {
-      this.create('/notes', { note: this.note }).then(response => {
+    createNew() {
+      this.create('/notes', { note: this.note }).then((response) => {
         this.list.push(response.body)
         this.note = this.newNote()
       })
     },
-    updateNote () {
-      this.update(`/notes/${this.note.id}`, { note: this.note }).then(response => {
-        const index = this.list.findIndex(element => element.id === this.note.id)
+    updateNote() {
+      this.update(`/notes/${this.note.id}`, { note: this.note }).then(
+        (response) => {
+          const index = this.list.findIndex(
+            (element) => element.id === this.note.id
+          )
 
-        this.list[index] = response.body
-        this.note = this.newNote()
-      })
+          this.list[index] = response.body
+          this.note = this.newNote()
+        }
+      )
     }
   }
 }
 </script>
-

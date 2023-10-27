@@ -1,17 +1,17 @@
-/*
-	target: sets the parent DOM Element
-	logoSize: sets the size of the logo
-	legend: sets the legend description
-	showSpinner: disable the spinner animation
-	show-legend: activate the legend
-*/
+/* target: sets the parent DOM Element logoSize: sets the size of the logo
+legend: sets the legend description showSpinner: disable the spinner animation
+show-legend: activate the legend */
 
 <template>
   <transition name="fade">
-    <div class="middle box-spinner mx-spinner" :style="cssProperties">
+    <div
+      class="middle box-spinner mx-spinner"
+      :style="cssProperties"
+    >
       <div
         class="tw-spinner"
-        :class="[`tw-spinner-${spinnerPosition}`]">
+        :class="[`tw-spinner-${spinnerPosition}`]"
+      >
         <svg
           v-if="showSpinner"
           id="tw-spinner-logo"
@@ -22,8 +22,9 @@
           x="0px"
           y="0px"
           viewBox="0 0 194.6 200"
-          style="enable-background:new 0 0 194.6 200;"
-          xml:space="preserve">
+          style="enable-background: new 0 0 194.6 200"
+          xml:space="preserve"
+        >
           <path
             class="st0"
             id="LeftTop"
@@ -31,7 +32,8 @@
                               c0-0.1,0-0.1,0-0.2c0.3-2-0.8-4-2.7-4.8l0,0c-3.1-1.1-5.9-3-8-5.6c-6.4-7.4-3-17,4.5-23.6c-3.5-4-8-8.7-12-10.8
                               c-8.7-4.6-15.7,2.6-16.2,3.2L18.7,40c-0.6,0.8-1.2,1.6-1.8,2.5l-0.1,0.1c-0.6,0.9-1.2,1.8-1.8,2.7L15,45.4c-0.5,0.8-1,1.6-1.5,2.4
                               l-0.3,0.5c-1,1.8-2,3.6-3,5.5L10,54.3c-0.4,0.9-0.9,1.8-1.3,2.7l-0.1,0.1C8.2,58,7.8,59,7.4,59.9l-0.2,0.5c-0.3,0.8-0.6,1.5-0.9,2.3
-                              l-0.2,0.6c-0.4,1-0.7,1.9-1,2.9L5,66.7c-0.1,0.3-0.2,0.5-0.2,0.8C7.1,64.7,10.5,63.1,14.2,63.1z"/>
+                              l-0.2,0.6c-0.4,1-0.7,1.9-1,2.9L5,66.7c-0.1,0.3-0.2,0.5-0.2,0.8C7.1,64.7,10.5,63.1,14.2,63.1z"
+          />
           <path
             id="Head"
             class="st0"
@@ -43,7 +45,8 @@
                               c-1.6-1.3-3.1-2.7-4.3-4.4c-9-12.6-32.2-17.9-32.2-17.9l0,0C97.5-2.6,74.3,0.1,54,10.2l0,0c-6.9,3.5-13.5,7.7-19.4,12.7l-0.8,0.6
                               c-1.4,1.2-2.8,2.5-4.2,3.8l0,0c-0.8,0.8-1.6,1.5-2.3,2.3l0,0c-1.5,1.6-3,3.2-4.4,4.9l-0.2,0.2l-0.4,0.5C25.2,32.8,29.6,30.9,36.2,33
                               z M145.8,33.9c3.9-1.7,8.5,0.1,10.2,4c0.6,1.3,0.8,2.7,0.6,4c-2.5,1.2-5.5,0.9-7.7-0.9C146.5,39.5,145.3,36.7,145.8,33.9L145.8,33.9
-                              z"/>
+                              z"
+          />
           <path
             id="LeftMid"
             class="st0"
@@ -51,14 +54,16 @@
                               c-7-10.8-16.8,0.9-17.8,7.2c0,0.3-0.1,0.5-0.1,0.7c-0.1,0.6-0.2,1.3-0.3,1.9C1,83.1,1,83.4,1,83.6c-0.1,0.8-0.2,1.6-0.3,2.3
                               c0,0.3-0.1,0.5-0.1,0.8c-0.1,1-0.2,2.1-0.3,3.1c0,0.1,0,0.2,0,0.3c-0.1,0.9-0.2,1.9-0.2,2.8c0,0.3,0,0.6,0,0.9C0,94.9,0,95.8,0,96.7
                               c0,0.1,0,0.2,0,0.3s0,0.1,0,0.1s0,0.1,0,0.1c0,0.4,0,0.8,0,1.2s0,0.8,0,1.2c0,0.6,0,1.2,0.1,1.7c0,0.2,0,0.5,0,0.7
-                              c1.5,30.7,17.5,58.9,43,76c-8-7.8-12.7-17.8-12.7-28.6c0-13.4,7.3-26,19.1-34.4C52,113.2,53.5,110.1,53.2,106.9z"/>
+                              c1.5,30.7,17.5,58.9,43,76c-8-7.8-12.7-17.8-12.7-28.6c0-13.4,7.3-26,19.1-34.4C52,113.2,53.5,110.1,53.2,106.9z"
+          />
           <path
             id="LeftBottom"
             class="st0"
             d="M128.3,170c-5.8,2.4-12,3.9-18.3,4.4c-1.1,0.1-2.2,0.1-3.3,0.1c-12.3,0-28.4-4.8-40.7-25.3
                               l-1.6-2.7c-1.9,2.7-2.9,6-2.9,9.3c0,13.9,16.6,26.5,36.7,26.5c5.4,0.1,10.7-0.6,15.9-2c-4.6,2.9-13.8,5.6-21.9,5.6
                               C69.2,186,50,170.8,50,152.7c0.1-6.3,2.1-12.5,5.8-17.6c1.5-2.1,1.9-4.8,1.1-7.2l0,0c-10.5,6.1-17,15.4-17,26.6
-                              c0,17.2,15.3,31.9,37,37.9c1.2,0.3,2.5,0.5,3.7,0.7c15.6,2.6,29.5-0.1,38.9-9.1C123.5,180.1,126.5,175.3,128.3,170z"/>
+                              c0,17.2,15.3,31.9,37,37.9c1.2,0.3,2.5,0.5,3.7,0.7c15.6,2.6,29.5-0.1,38.9-9.1C123.5,180.1,126.5,175.3,128.3,170z"
+          />
           <path
             id="Tail"
             class="st0"
@@ -74,15 +79,15 @@
                               c1.5,4.5,3.2,8.9,5.2,13.2c0.9,1.7,1.8,3.4,2.8,5.1c9.2,15.3,21.5,23,36.6,23c1,0,2.1,0,3.2-0.1c7-0.6,13.9-2.5,20.2-5.6
                               c4.9-24.5-8.4-59.3-36.1-88.3C90,71.8,86,68,81.7,64.4c9.2,6.9,13.9,10.7,19.2,16.3c37.8,39.6,49.7,89.7,26.5,111.9
                               c-3.4,3.3-7.5,5.8-11.9,7.5c5.8-1.6,11.1-4.5,15.4-8.6c1.4-1.3,2.6-2.7,3.8-4.2c49.6-20.7,73-77.7,52.4-127.3
-                              C183.1,50.4,177.7,41.6,171,33.8z"/>
+                              C183.1,50.4,177.7,41.6,171,33.8z"
+          />
         </svg>
-        <div
-          :style="legendStyle">
+        <div :style="legendStyle">
           <span
             v-if="showLegend"
             v-html="legend"
           />
-          <slot/>
+          <slot />
         </div>
       </div>
     </div>
@@ -107,18 +112,23 @@ export default {
       default: 'Loading, please wait.'
     },
 
+    zIndex: {
+      type: [Number, String],
+      default: undefined
+    },
+
     resize: {
+      type: Boolean,
       default: true
     },
 
     legendStyle: {
       type: Object,
-      default: () =>
-        ({
-          color: '#444',
-          marginTop: '30px',
-          textAlign: 'center'
-        })
+      default: () => ({
+        color: '#444',
+        marginTop: '30px',
+        textAlign: 'center'
+      })
     },
 
     showLegend: {
@@ -156,34 +166,35 @@ export default {
     resizeInterval: undefined
   }),
 
-  mounted () {
+  mounted() {
     this.init()
     if (this.resize && !this.fullScreen) {
       this.checkResize()
     }
   },
 
-  unmounted () {
+  unmounted() {
     clearInterval(this.resizeInterval)
   },
 
   methods: {
-    outerWidth (el) {
+    outerWidth(el) {
       const style = getComputedStyle(el)
-      let width = el.offsetWidth
+      const width = el.offsetWidth
 
-      width += parseInt(style.marginLeft) + parseInt(style.marginRight)
-      return width
+      return width - parseInt(style.paddingLeft) - parseInt(style.paddingRight)
     },
-    outerHeight (el) {
+    outerHeight(el) {
       const style = getComputedStyle(el)
-      let height = el.offsetHeight
+      const height = el.offsetHeight
 
-      height += parseInt(style.marginTop) + parseInt(style.marginBottom)
-      return height
+      return height - parseInt(style.paddingTop) - parseInt(style.paddingBottom)
     },
-    init () {
-      const domElement = this.target != undefined ? this.loadElement(this.target) : this.$el.parentNode
+    init() {
+      const domElement =
+        this.target !== undefined
+          ? this.loadElement(this.target)
+          : this.$el.parentNode
       const copyCSS = Object.assign({}, this.cssProperties)
 
       if (this.fullScreen) {
@@ -193,18 +204,22 @@ export default {
         copyCSS.top = '0px'
         copyCSS.left = '0px'
       } else {
+        const elementBound = domElement.getBoundingClientRect()
+
         copyCSS.width = this.outerWidth(domElement) + 'px'
         copyCSS.height = this.outerHeight(domElement) + 'px'
-        copyCSS.top = domElement.getBoundingClientRect().top
-        copyCSS.left = domElement.getBoundingClientRect().left
+        copyCSS.top = elementBound.top
+        copyCSS.left = elementBound.left
       }
       if (!this.showSpinner) {
-        copyCSS.zIndex = (domElement.style.zIndex == '' ? 2 : (domElement.style.zIndex + 1))
+        copyCSS.zIndex =
+          this.zIndex ||
+          (domElement.style.zIndex === '' ? 2 : domElement.style.zIndex + 1)
       }
       this.cssProperties = copyCSS
     },
 
-    loadElement (el) {
+    loadElement(el) {
       let domElement
 
       switch (el.substring(0, 1)) {
@@ -220,7 +235,7 @@ export default {
       return domElement
     },
 
-    checkResize () {
+    checkResize() {
       this.resizeInterval = setInterval(() => {
         this.init()
       }, 500)
@@ -229,34 +244,35 @@ export default {
 }
 </script>
 <style>
-  .tw-spinner {
-    display: flex;
-    margin: 0 auto;
-    height: auto;
-    width: auto;
-    align-items: center;
-  }
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity .5s
-  }
-  .fade-enter, .fade-leave-to {
-    opacity: 0
-  }
+.tw-spinner {
+  display: flex;
+  margin: 0 auto;
+  height: auto;
+  width: auto;
+  align-items: center;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
 
-  .tw-spinner-left {
-    flex-direction: row;
-  }
+.tw-spinner-left {
+  flex-direction: row;
+}
 
-  .tw-spinner-right {
-    flex-direction: row-reverse;
-  }
+.tw-spinner-right {
+  flex-direction: row-reverse;
+}
 
-  .tw-spinner-top {
-    flex-direction: column;
-  }
+.tw-spinner-top {
+  flex-direction: column;
+}
 
-  .tw-spinner-bottom {
-    flex-direction: column-reverse;
-  }
-
+.tw-spinner-bottom {
+  flex-direction: column-reverse;
+}
 </style>

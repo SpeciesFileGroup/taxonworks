@@ -1,4 +1,3 @@
-
 <table class="tablesorter">
   <thead>
   <tr>
@@ -24,7 +23,7 @@
   </thead>
 
   <tbody>
-  <% @loans.each do |loan| %>
+  <% loans.each do |loan| %>
     <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= simple_identifier_list_tag(loan) %></td>
           <td><%= loan.date_requested %></td>

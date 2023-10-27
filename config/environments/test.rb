@@ -34,6 +34,9 @@ TaxonWorks::Application.configure do
   # ActionMailer::Base.deliveries array.
   config.action_mailer.delivery_method = :test
 
+  # Limit log size to 512 MB total
+  config.logger = ActiveSupport::Logger.new(config.paths['log'].first, 1, 256 * 1024 ** 2)
+
   # Use test queue to enable Active Job testing
   config.active_job.queue_adapter = :test
 

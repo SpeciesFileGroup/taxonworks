@@ -14,7 +14,10 @@ class PeopleController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @people = Queries::Person::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per])
+        @people = Queries::Person::Filter.new(params).all
+        .order(:cached)
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -117,7 +120,7 @@ class PeopleController < ApplicationController
 
   # GET /people/download
   def download
-    send_data Export::Download.generate_csv(Person.all), type: 'text', filename: "people_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Person.all), type: 'text', filename: "people_#{DateTime.now}.tsv"
   end
 
   # GET /people/123/roles
@@ -137,9 +140,10 @@ class PeopleController < ApplicationController
 
   # GET /api/v1/people
   def api_index
-    @people = Queries::Person::Filter.new(api_params).all
+    @people = Queries::Person::Filter.new(params.merge!(api: true)).all
       .order('people.id')
-      .page(params[:page]).per(params[:per])
+      .page(params[:page])
+      .per(params[:per])
     render '/people/api/v1/index'
   end
 
@@ -150,105 +154,12 @@ class PeopleController < ApplicationController
 
   private
 
-  def filter_params
-    params.permit(
-      :active_after_year, :active_before_year,
-      :born_after_year, :born_before_year,
-      :data_attribute_exact_value,     # DataAttributes concern
-      :data_attributes, # DataAttributes concern
-      :died_before_year, :died_after_year,
-      :first_name,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :last_name,
-      :last_name_starts_with,
-      :levenshtein_cuttoff,
-      :name,
-      :note_exact,
-      :note_text,
-      :notes,
-      :prefix,
-      :regex, # !! DO NOT EXPOSE TO EXTERNAL API
-      :repeated_total,
-      :role_total_max,
-      :role_total_min,
-      :suffix,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      :match_identifiers,
-      :match_identifiers_delimiter,
-      :match_identifiers_type,
-      :tags,
-      data_attribute_predicate_id: [], # DataAttributes concern
-      data_attribute_value: [],        # DataAttributes concern
-      exact: [],
-      except_project_id: [],
-      except_role: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      project_id: [],
-      role: [],
-      used_in_project_id: [],
-      user_id: [],
-      with: [],
-      without: []
-    )
-  end
-
-  def api_params
-    params.permit(
-      # :regex, # !! DO NOT EXPOSE TO EXTERNAL API
-      :active_after_year, :active_before_year,
-      :born_after_year, :born_before_year,
-      :data_attribute_exact_value,     # DataAttributes concern
-      :died_before_year, :died_after_year,
-      :first_name,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :last_name,
-      :last_name_starts_with,
-      :levenshtein_cuttoff,
-      :name,
-      :note_exact,
-      :note_text,
-      :notes,
-      :prefix,
-      :repeated_total,
-      :role_total_max,
-      :role_total_min,
-      :suffix,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      :tags,
-      :match_identifiers,
-      :match_identifiers_delimiter,
-      :match_identifiers_type,
-      # user_id: [],
-      :data_attributes, # DataAttributes concern
-      data_attribute_predicate_id: [], # DataAttributes concern
-      data_attribute_value: [],        # DataAttributes concern
-      exact: [],
-      except_project_id: [],
-      except_role: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      project_id: [],
-      role: [],
-      user_id: [],
-      without: []
-    )
-  end
-
   def autocomplete_params
-    params.permit(roles: []).to_h.symbolize_keys
+    params.permit(
+      :in_project,
+      :role_type,
+      role_type: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def set_person

@@ -23,7 +23,7 @@ describe Queries::Person::Filter, type: :model, group: :people do
 
   let(:collecting_event) {
     CollectingEvent.create!(
-      verbatim_locality: 'Neverland',
+      verbatim_locality: 'Alwaysland',
       with_verbatim_data_georeference: true,
       verbatim_latitude: '10',
       verbatim_longitude: '10',
@@ -31,15 +31,15 @@ describe Queries::Person::Filter, type: :model, group: :people do
 
   let(:query) { Queries::Person::Filter.new() }
 
-  specify '#role_total_min' do
-    query.role_total_min = 2
+  specify '#use_min' do
+    query.use_min = 2
     expect(query.all.map(&:id)).to be_empty
   end
 
-  specify '#role_total_min 2' do
+  specify '#use_min 2' do
     collecting_event
     s = FactoryBot.create(:valid_source, authors: [p2]) # p1 an author, not eliminated
-    query.role_total_min = 2
+    query.use_min = 2
     expect(query.all.map(&:id)).to contain_exactly(p2.id)
   end
 
@@ -240,17 +240,20 @@ describe Queries::Person::Filter, type: :model, group: :people do
     expect(query.all.pluck(:id)).to contain_exactly(p2.id)
   end
 
-  specify '#project_id 1' do
-    query.project_id = [collecting_event.project_id] # Create the collector and reference project in one place
+  specify '#only_project_id 1' do
+    FactoryBot.create(:valid_person) # not this one 
+    query.only_project_id = [collecting_event.project_id] # Create the collector and reference project in one place
     expect(query.all.map(&:id)).to contain_exactly(p2.id)
   end
 
-  specify '#project_id 2' do
+  specify '#only_project_id 2' do
+    FactoryBot.create(:valid_person) # not this one 
+
     s = Source::Bibtex.create!(bibtex_type: :article, title: 'Title', year: 1293)
     s.authors << p3
-    c = ProjectSource.create!(source: s, project_id: Current.project_id)
+    c = ProjectSource.create!(source: s, project_id: project_id)
 
-    query.project_id = [collecting_event.project_id] # Create the collector and reference project in one place
+    query.only_project_id = [collecting_event.project_id] # Create the collector and reference project in one place
 
     expect(query.all.map(&:id)).to contain_exactly(p2.id, p3.id)
   end
@@ -265,7 +268,7 @@ describe Queries::Person::Filter, type: :model, group: :people do
 
     collecting_event # not this collector (p2)
 
-    query.except_project_id = [Current.project_id]
+    query.except_project_id = [project_id]
     expect(query.all.map(&:id)).to contain_exactly(p3.id)
   end
 
@@ -282,27 +285,27 @@ describe Queries::Person::Filter, type: :model, group: :people do
   context 'user (Queries::Concerns::Users)' do
 
     specify '#user_id' do
-      query.user_id = Current.user_id
+      query.user_id = user_id
       expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id, p3.id, p4.id)
     end
 
     specify '#user_start_date 1' do
       query.user_date_start = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       p1.update!(updated_at: '1999-01-01')
       expect(query.all.map(&:id)).to contain_exactly(p1.id)
     end
 
     specify '#user_start_date 2' do
       query.user_date_start = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       p1.update!(created_at: '1999-01-01')
       expect(query.all.map(&:id)).to contain_exactly(p1.id)
     end
 
     specify '#user_start_date 3' do
       query.user_date_start = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       p1.update!(created_at: '1999-01-01')
       p2.update!(updated_at: '1999-01-01')
       expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
@@ -310,21 +313,21 @@ describe Queries::Person::Filter, type: :model, group: :people do
 
     specify '#user_end_date 1' do
       query.user_date_end = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       p1.update!(updated_at: '1999-01-01')
       expect(query.all.map(&:id)).to contain_exactly(p1.id)
     end
 
     specify '#user_end_date 2' do
       query.user_date_end = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       p1.update!(created_at: '1999-01-01')
       expect(query.all.map(&:id)).to contain_exactly(p1.id)
     end
 
     specify '#user_end_date 3' do
       query.user_date_end = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       p1.update!(created_at: '1999-01-01')
       p2.update!(updated_at: '1999-01-01')
       expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
@@ -333,7 +336,7 @@ describe Queries::Person::Filter, type: :model, group: :people do
     specify '#user_start_date, #user_end_date' do
       query.user_date_start = '1998-01-01'
       query.user_date_end = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       p1.update!(created_at: '1998-01-01')
       p2.update!(updated_at: '1999-01-01')
       expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
@@ -342,7 +345,7 @@ describe Queries::Person::Filter, type: :model, group: :people do
     specify '#user_start_date, #user_end_date, #user_target' do
       query.user_date_start = '1998-01-01'
       query.user_date_end = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       query.user_target = 'updated'
       p1.update!(created_at: '1998-01-01')
       p2.update!(updated_at: '1999-01-01')

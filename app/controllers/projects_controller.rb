@@ -12,6 +12,14 @@ class ProjectsController < ApplicationController
     @projects = Project.all
   end
 
+  # GET /users/1/projects
+  def user_projects
+    @projects = Project.joins(:project_members)
+      .where(project_members: {user_id: sessions_current_user_id})
+      .order('projects.name')
+     render :index
+  end
+
   # GET /projects/1
   # GET /projects/1.json
   def show
@@ -133,7 +141,8 @@ class ProjectsController < ApplicationController
   end
 
   def project_params
-    params.require(:project).permit(:name, :set_new_api_access_token, :clear_api_access_token, Project.key_value_preferences, Project.array_preferences, Project.hash_preferences)
+    params.require(:project).permit(
+      :name, :set_new_api_access_token, :clear_api_access_token, :data_curation_issue_tracker_url, Project.key_value_preferences, Project.array_preferences, Project.hash_preferences)
   end
 
   def go_to

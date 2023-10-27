@@ -1,7 +1,7 @@
-<div class="panel content">
+<div class="panel content separate-left">
   <h2> Activity of past 24 hours</h2>
 
-<% d = User.where('last_seen_at > ?', 1.day.ago).order(:last_seen_at).pluck(:last_seen_at).collect{|t| ((Time.now - t) / 3600).to_i  }.inject(Hash.new(0)){|hsh, v| hsh[v] += 1; hsh} %><br>
+  <% d = User.where('last_seen_at > ?', 1.day.ago).order(:last_seen_at).pluck(:last_seen_at).collect{|t| ((Time.now - t) / 3600).to_i  }.inject(Hash.new(0)){|hsh, v| hsh[v] += 1; hsh} %><br>
 
   <div style="height: 280px; width: 420px;">
     <canvas id="myChart"></canvas>
@@ -48,8 +48,8 @@
     options: {
       scales: {
         r: {
-         ticks: {
-           stepSize: 2.0
+          ticks: {
+            stepSize: 2.0
           }
         }
       },

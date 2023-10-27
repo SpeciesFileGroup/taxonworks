@@ -1,15 +1,10 @@
 module Queries
   module Note
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       # @param [Hash] args
       def initialize(string, project_id: nil)
         super
-      end
-
-      # @return [Scope]
-      def base_query
-        ::Note.select('notes.*')
       end
 
       # @return [ActiveRecord::Relation]
@@ -65,7 +60,7 @@ module Queries
 
         updated_queries = []
         queries.each_with_index do |q ,i|
-          a = q.where(with_project_id.to_sql) if project_id 
+          a = q.where(with_project_id.to_sql) if project_id.present? 
           a ||= q
           updated_queries[i] = a
         end
@@ -79,10 +74,6 @@ module Queries
         result[0..40]
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Note.arel_table
-      end
     end
   end
 end

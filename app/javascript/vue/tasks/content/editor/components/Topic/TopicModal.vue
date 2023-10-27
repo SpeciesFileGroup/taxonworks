@@ -22,8 +22,7 @@
 </template>
 
 <script>
-
-import VModal from 'components/ui/Modal.vue'
+import VModal from '@/components/ui/Modal.vue'
 import TopicList from './TopicList.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
@@ -34,7 +33,7 @@ export default {
     VModal
   },
 
-  data () {
+  data() {
     return {
       isOpen: false
     }
@@ -42,23 +41,21 @@ export default {
 
   computed: {
     topic: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetTopicSelected]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetTopicSelected, value)
       }
     },
 
-    buttonLabel () {
-      return this.topic
-        ? 'Change Topic'
-        : 'Topic'
+    buttonLabel() {
+      return this.topic ? 'Change Topic' : 'Topic'
     }
   },
 
   methods: {
-    setTopic (topic) {
+    setTopic(topic) {
       this.topic = topic
       this.isOpen = false
     }

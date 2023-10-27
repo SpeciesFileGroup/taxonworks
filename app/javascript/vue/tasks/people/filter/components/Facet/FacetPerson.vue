@@ -1,19 +1,23 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Name</h3>
-    <div class="field">
+    <div
+      class="field"
+      v-help.facets.name.fullName
+    >
       <label class="display-block">Full name</label>
       <input
         class="full_width"
         v-model="params.name"
+        placeholder="von Smith III, Alex; prefix last name suffix, first name"
         type="text"
-      >
+      />
       <label>
         <input
           v-model="params.exact"
           type="checkbox"
           value="name"
-        >
+        />
         Exact
       </label>
     </div>
@@ -32,7 +36,7 @@
     </div>
     <h4>Parts</h4>
     <div
-      v-for="({ label, param }) in fields"
+      v-for="{ label, param } in fields"
       :key="param"
       class="field"
     >
@@ -41,23 +45,23 @@
         class="full_width"
         type="text"
         v-model="params[param]"
-      >
+      />
       <label>
         <input
           type="checkbox"
           :value="param"
           v-model="params.exact"
-        >
+        />
         Exact
       </label>
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { computed } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
-import InputRange from 'components/ui/Input/InputRange.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse'
 
 const props = defineProps({
   modelValue: {
@@ -88,13 +92,8 @@ const fields = [
 const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
-  get () {
-    return props.modelValue
-  },
-
-  set (value) {
-    emit('update:modelValue', value)
-  }
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value)
 })
 
 const urlParams = URLParamsToJSON(location.href)
@@ -105,7 +104,6 @@ Object.assign(params.value, {
   last_name: urlParams.last_name,
   suffix: urlParams.suffix,
   prefix: urlParams.prefix,
-  exact: urlParams.exact || []
+  exact: Array.isArray(urlParams.exact) ? urlParams.exact : []
 })
-
 </script>

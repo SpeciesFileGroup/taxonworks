@@ -13,7 +13,9 @@ class CollectingEventsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 50)
+        @collecting_events = Queries::CollectingEvent::Filter.new(params).all
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -104,8 +106,8 @@ class CollectingEventsController < ApplicationController
 
   def attributes
     render json: ::CollectingEvent.columns.select{
-      |a| Queries::CollectingEvent::Filter::ATTRIBUTES.include?(
-        a.name)
+      |a| ([:cached_level0_geographic_name, :cached_level1_geographic_name, :cached_level2_geographic_name ] + Queries::CollectingEvent::Filter::ATTRIBUTES).include?(
+        a.name.to_sym)
     }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
 
@@ -122,6 +124,18 @@ class CollectingEventsController < ApplicationController
     @collecting_events = Queries::CollectingEvent::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
   end
 
+  # POST /collecting_events/batch_update.json?collecting_event_query=<>&collecting_event={}
+  def batch_update
+    if c = CollectingEvent.batch_update(
+        collecting_event: collecting_event_params.merge(by: sessions_current_user_id) ,
+        collecting_event_query: params[:collecting_event_query]
+     )
+      render json: {}, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
   # GET /collecting_events/autocomplete_collecting_event_verbatim_locality?term=asdf
   # see rails-jquery-autocomplete
   def autocomplete_collecting_event_verbatim_locality
@@ -134,7 +148,7 @@ class CollectingEventsController < ApplicationController
   def download
     send_data(Export::Download.generate_csv(CollectingEvent.where(project_id: sessions_current_project_id)),
               type: 'text',
-              filename: "collecting_events_#{DateTime.now}.csv")
+              filename: "collecting_events_#{DateTime.now}.tsv")
   end
 
   # parse verbatim label, return date and coordinates
@@ -211,7 +225,7 @@ class CollectingEventsController < ApplicationController
       render 'collecting_events/batch_load/gpx/preview'
       # render '/shared/data/all/batch_load/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
@@ -237,7 +251,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def api_index
-    @collecting_events = Queries::CollectingEvent::Filter.new(api_params).all
+    @collecting_events = Queries::CollectingEvent::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('collecting_events.id')
       .page(params[:page]).per(params[:per])
@@ -293,100 +307,4 @@ class CollectingEventsController < ApplicationController
         user_id: sessions_current_user_id,
         project_id: sessions_current_project_id).to_h.symbolize_keys
   end
-
-  def filter_params
-    params.permit(
-      Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :collection_objects,
-      :collector_id,
-      :collector_ids_or,
-      :data_attribute_exact_value,  # DataAttributes concern
-      :data_attributes,             # DataAttributes concern
-      :depictions,
-      :determiner_name_regex,
-      :end_date,   # used in date range
-      :geo_json,
-      :geographic_area_id,
-      :georeferences,
-      :geographic_area,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifiers,
-      :in_labels,
-      :in_verbatim_locality,
-      :match_identifiers,
-      :match_identifiers_delimiter,
-      :match_identifiers_type,
-      :md5_verbatim_label,
-      :otu_id,
-      :partial_overlap_dates,
-      :radius,
-      :recent,
-      :spatial_geographic_areas,
-      :start_date, # used in date range
-      :user_date_end,
-      :user_date_start,
-      :user_target,
-      :user_id,
-      :wkt,
-      collection_object_id: [],
-      collecting_event_wildcards: [],
-      collector_id: [],
-      geographic_area_id: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      otu_id: [],
-      data_attribute_predicate_id: [], # DataAttributes concern
-      data_attribute_value: [],        # DataAttributes concern
-    )
-  end
-
-  def api_params
-    params.permit(
-      Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :collection_objects,
-      :collector_id,
-      :collector_ids_or,
-      :depictions,
-      :end_date, # used in date range
-      :geo_json,
-      :georeferences,
-      :geographic_area_id,
-      :geographic_area,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifiers,
-      :match_identifiers,
-      :match_identifiers_delimiter,
-      :match_identifiers_type,
-      :in_labels,
-      :in_verbatim_locality,
-      :md5_verbatim_label,
-      :partial_overlap_dates,
-      :otu_id,
-      :radius,
-      :recent,
-      :spatial_geographic_areas,
-      :start_date, # used in date range
-      :wkt,
-      :user_target,
-      :user_date_start,
-      :user_date_end,
-      :data_attribute_exact_value,  # DataAttributes concern
-      :data_attributes,             # DataAttributes concern
-      collection_object_id: [],
-      collector_id: [],
-      geographic_area_id: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      otu_id: [],
-      data_attribute_predicate_id: [], # DataAttributes concern
-      data_attribute_value: [],        # DataAttributes concern
-    )
-  end
-
 end

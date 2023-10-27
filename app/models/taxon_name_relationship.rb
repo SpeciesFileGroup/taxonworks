@@ -52,17 +52,22 @@ class TaxonNameRelationship < ApplicationRecord
   #   When true, cached values are not built
   attr_accessor :no_cached
 
-  belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id, inverse_of: :taxon_name_relationships # left side
-  belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id, inverse_of: :related_taxon_name_relationships # right side
+  belongs_to :subject_taxon_name, class_name: 'TaxonName', inverse_of: :taxon_name_relationships # left side
+  belongs_to :object_taxon_name, class_name: 'TaxonName', inverse_of: :related_taxon_name_relationships # right side
+
+  #has_one :family_group_name_form_relationship, -> {where(type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')}, as: :subject_taxon_name, class_name: 'TaxonNameRelationship', inverse_of: :subject_taxon_name
 
   after_save :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
   after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
 
   # TODO: remove, it's required by STI
   validates_presence_of :type, message: 'Relationship type should be specified'
-  
+
   validates_presence_of :subject_taxon_name, message: 'Missing taxon name on the left side'
   validates_presence_of :object_taxon_name, message: 'Missing taxon name on the right side'
+
+  validates_associated :subject_taxon_name
+  validates_associated :object_taxon_name
 
   validates_uniqueness_of :object_taxon_name_id, scope: [:type, :project_id], if: :is_combination?
   validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id, :project_id], unless: :is_combination?
@@ -71,8 +76,8 @@ class TaxonNameRelationship < ApplicationRecord
 
   validate :subject_and_object_in_same_project
 
-  with_options unless: -> {!subject_taxon_name || !object_taxon_name} do |v|
-    v.validate :validate_subject_and_object_share_code,
+  with_options unless: -> {!subject_taxon_name || !object_taxon_name} do
+    validate :validate_subject_and_object_share_code,
       :validate_uniqueness_of_typification_object,
       #:validate_uniqueness_of_synonym_subject,
       :validate_object_and_subject_both_protonyms,
@@ -146,6 +151,12 @@ class TaxonNameRelationship < ApplicationRecord
     description: 'Junior synonym should be younger than senior synonym' )
 
   soft_validate(
+    :sv_validate_seniority,
+    set: :validate_seniority,
+    name: 'Seniority validation',
+    description: 'Of two synonyms described in the same paper, one described at a higher rank has a priority' )
+
+  soft_validate(
     :sv_coordinated_taxa,
     set: :coordinated_taxa,
     fix: :sv_fix_coordinated_subject_taxa,
@@ -169,7 +180,7 @@ class TaxonNameRelationship < ApplicationRecord
   scope :with_type_contains, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "%#{base_string}%")}
 
   scope :with_two_type_bases, -> (base_string1, base_string2) {
-    where("taxon_name_relationships.type LIKE ? OR taxon_name_relationships.type LIKE ?", "#{base_string1}%", "#{base_string2}%") }
+    where('taxon_name_relationships.type LIKE ? OR taxon_name_relationships.type LIKE ?', "#{base_string1}%", "#{base_string2}%") }
 
   scope :homonym_or_suppressed, -> {where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total'") }
   scope :with_type_array, -> (base_array) {where('taxon_name_relationships.type IN (?)', base_array ) }
@@ -306,8 +317,9 @@ class TaxonNameRelationship < ApplicationRecord
 
   # @return [Time]
   #   effective date of publication, used to determine nomenclatural priorities
+  #   !! Careful, if no date is present the current year is given, rather than nil, @proceps is this a safe inference?
   def nomenclature_date
-    self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : Time.now) : Time.now
+    self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : Time.current) : Time.current
   end
 
   def is_combination?
@@ -349,7 +361,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def validate_subject_and_object_are_not_identical
     if !self.object_taxon_name_id.nil? && self.object_taxon_name == self.subject_taxon_name
-      errors.add(:object_taxon_name_id, "#{self.object_taxon_name.try(:cached_html).to_s} should not refer to itself") unless self.type =~ /OriginalCombination/
+      errors.add(:object_taxon_name_id, "#{self.object_taxon_name.try(:cached_html)} should not refer to itself") unless self.type =~ /OriginalCombination/
     end
   end
 
@@ -369,8 +381,8 @@ class TaxonNameRelationship < ApplicationRecord
       end
     end
 
-    unless self.type_class.blank? # only validate if it is set
-      if object_taxon_name
+    if self.type_class.present? # only validate if it is set
+      if object_taxon_name && object_taxon_name.rank_class
         if object_taxon_name.type == 'Protonym' || object_taxon_name.type == 'Hybrid'
           unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_string)
             errors.add(:object_taxon_name_id, "#{self.object_taxon_name.rank_class.rank_name.capitalize} rank of #{self.object_taxon_name.cached_html} is not compatible with the #{self.subject_status} relationship")
@@ -379,7 +391,7 @@ class TaxonNameRelationship < ApplicationRecord
         end
       end
 
-      if subject_taxon_name
+      if subject_taxon_name && subject_taxon_name.rank_class
         if subject_taxon_name.type == 'Protonym' || subject_taxon_name.type == 'Hybrid'
           unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_string)
             soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.rank_class.rank_name.capitalize} rank of #{self.subject_taxon_name.cached_html} is not compatible with the #{self.subject_status} relationship")
@@ -541,7 +553,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def sv_synonym_linked_to_valid_name
     #synonyms and misspellings should be linked to valid names
-    if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
+    if ::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
       obj = self.object_taxon_name
       subj = self.subject_taxon_name
       if subj.rank_class.try(:nomenclatural_code) == :iczn && (obj.parent_id != subj.parent_id || obj.rank_class != subj.rank_class) &&  subj.cached_valid_taxon_name_id == obj.cached_valid_taxon_name_id
@@ -579,6 +591,10 @@ class TaxonNameRelationship < ApplicationRecord
     true # all validations moved to subclasses
   end
 
+  def sv_validate_seniority
+    true # all validations moved to subclasses
+  end
+
   def sv_coordinated_taxa
     s = subject_taxon_name
     o = object_taxon_name
@@ -593,7 +609,7 @@ class TaxonNameRelationship < ApplicationRecord
     s = subject_taxon_name
     o = object_taxon_name
     o_new = o.lowest_rank_coordinated_taxon
-    if o != o_new && type_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+    if o != o_new
       soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o_new.cached_html}",
                            success_message: "Relationship moved to  #{o_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end

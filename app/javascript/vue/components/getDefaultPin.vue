@@ -1,22 +1,22 @@
 <template>
   <v-btn
-    v-if="!!getDefault"
+    :disabled="!getDefault"
     circle
     color="primary"
-    title="Use default pinned"
+    :title="buttonTitle"
     @click="sendDefault"
   >
     <v-icon
       small
       color="white"
       name="pin"
+      :title="buttonTitle"
     />
   </v-btn>
 </template>
 <script>
-
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
@@ -41,30 +41,34 @@ export default {
     }
   },
 
-  emits: [
-    'getId',
-    'getLabel',
-    'getItem'
-  ],
+  computed: {
+    buttonTitle() {
+      return this.getDefault
+        ? `Use [${this.getLabel}]`
+        : `Make default ${this.type} from pinboard to use it`
+    }
+  },
 
-  data () {
+  emits: ['getId', 'getLabel', 'getItem'],
+
+  data() {
     return {
       getDefault: undefined,
       getLabel: undefined
     }
   },
 
-  mounted () {
+  mounted() {
     this.checkForDefault()
     document.addEventListener('pinboard:insert', this.handleEvent)
   },
 
-  unmounted () {
+  unmounted() {
     document.removeEventListener('pinboard:insert', this.handleEvent)
   },
 
   methods: {
-    sendDefault () {
+    sendDefault() {
       if (this.getDefault) {
         this.$emit('getId', this.getDefault)
       }
@@ -76,15 +80,19 @@ export default {
       }
     },
 
-    checkForDefault () {
-      const defaultElement = document.querySelector(`[data-pinboard-section="${this.section}"] [data-insert="true"]`)
+    checkForDefault() {
+      const defaultElement = document.querySelector(
+        `[data-pinboard-section="${this.section}"] [data-insert="true"]`
+      )
 
       this.getDefault = defaultElement?.dataset?.pinboardObjectId
       this.getLabel = defaultElement?.querySelector('a')?.textContent
     },
 
-    handleEvent (event) {
-      if (event.detail.type === this.type) { this.checkForDefault() }
+    handleEvent(event) {
+      if (event.detail.type === this.type) {
+        this.checkForDefault()
+      }
     }
   }
 }

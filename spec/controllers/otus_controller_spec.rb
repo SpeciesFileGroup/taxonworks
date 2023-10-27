@@ -28,7 +28,6 @@ describe OtusController, type: :controller do
   # adjust the attributes here as well.
   let(:valid_attributes) { strip_housekeeping_attributes(FactoryBot.build(:valid_otu).attributes) }
 
-
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # OtusController. Be sure to keep this updated too.

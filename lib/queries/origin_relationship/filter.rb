@@ -1,21 +1,34 @@
 module Queries
   module OriginRelationship
-    class Filter < Queries::Query
+    class Filter < Query::Filter
 
       include Concerns::Polymorphic
       polymorphic_klass(::OriginRelationship)
 
-      # attr_accessor :object_global_id  from Queries::Concerns::Polymorphic
-      # attr_accessor :polymorphic_ids   from Queries::Concerns::Polymorphic
+      PARAMS = [
+        *::OriginRelationship.related_foreign_keys.map(&:to_sym), # TODO:!?!
+        :origin_relationship_id,
+        :new_object_global_id,
+        :old_object_global_id,
+        origin_relationship_id: []
+      ].freeze
 
+      attr_accessor :origin_relationship_id
       attr_accessor :new_object_global_id
       attr_accessor :old_object_global_id
 
-      def initialize(params)
+      def initialize(query_params)
+        super
+
+        @origin_relationship_id = params[:origin_relationship_id]
         @new_object_global_id = params[:new_object_global_id]
         @old_object_global_id = params[:old_object_global_id]
 
-        set_polymorphic_ids(params)
+        set_polymorphic_params(params)
+      end
+
+      def origin_relationship_id
+        [@origin_relationship_id].flatten.compact
       end
 
       def new_object
@@ -34,64 +47,29 @@ module Queries
         end
       end
 
-      def matching_new_object_facet
+      def new_object_facet
         return nil if new_object_global_id.nil?
         table[:new_object_type].eq(new_object.class.base_class)
-          .and(table[:new_object_id].eq(new_object.id))  
+          .and(table[:new_object_id].eq(new_object.id))
       end
 
-      def matching_old_object_facet
+      def old_object_facet
         return nil if old_object_global_id.nil?
         table[:old_object_type].eq(old_object.class.base_class)
-          .and(table[:old_object_id].eq(old_object.id))  
+          .and(table[:old_object_id].eq(old_object.id))
       end
 
-      # @return [ActiveRecord::Relation]
+
+      def polymorphic_id_facet
+        return nil if polymorphic_id.blank?
+        table[referenced_klass.annotator_id].eq(polymorphic_id).and(table[referenced_klass.annotator_type].eq(polymorphic_type))
+      end
+
       def and_clauses
-        clauses = [
-          matching_new_object_facet,
-          matching_old_object_facet,
-          matching_polymorphic_ids
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
-      def merge_clauses
-        clauses = [
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-        if a && b
-          b.where(a).distinct
-        elsif a
-          ::OriginRelationship.where(a).distinct
-        elsif b
-          b.distinct
-        else
-          ::OriginRelationship.all
-        end
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::OriginRelationship.arel_table
+        [
+          new_object_facet,
+          old_object_facet,
+        ]
       end
 
     end

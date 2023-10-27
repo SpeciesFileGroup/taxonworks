@@ -12,15 +12,17 @@
           klass="CollectionObject"
           pin-section="Repositories"
           pin-type="Repository"
-          @selected="setRepository"/>
+          @selected="setRepository"
+        />
       </div>
       <template v-if="repository">
         <div class="middle separate-top">
-          <span data-icon="ok"/>
+          <span data-icon="ok" />
           <span class="separate-right"> {{ repository.name }}</span>
           <span
             class="circle-button button-default btn-undo"
-            @click="unsetRepository"/>
+            @click="unsetRepository"
+          />
         </div>
       </template>
     </fieldset>
@@ -28,8 +30,7 @@
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
+import SmartSelector from '@/components/ui/SmartSelector'
 
 export default {
   components: { SmartSelector },
@@ -43,28 +44,28 @@ export default {
 
   computed: {
     repositoryId: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       repository: undefined
     }
   },
 
   methods: {
-    setRepository (repository) {
+    setRepository(repository) {
       this.repository = repository
       this.repositoryId = repository.id
     },
 
-    unsetRepository () {
+    unsetRepository() {
       this.repository = undefined
       this.repositoryId = undefined
     }

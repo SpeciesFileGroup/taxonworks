@@ -5,8 +5,30 @@ describe Citation, type: :model, group: [:annotators, :citations] do
   let(:otu) { FactoryBot.create(:valid_otu) }
   let(:source) { FactoryBot.create(:valid_source) }
   let(:topic) { FactoryBot.create(:valid_topic) }
-
   let(:pdf) { Rack::Test::UploadedFile.new( Spec::Support::Utilities::Files.generate_pdf(pages: 10) ) }
+
+
+  specify '.batch_create 1' do
+    o1 = FactoryBot.create(:valid_otu)
+    o2 = FactoryBot.create(:valid_otu)
+    
+    s = FactoryBot.create(:valid_source)
+
+    h = {
+      citation_object_id: [o1.id, o2.id],
+      citation_object_type: 'Otu',
+      pages: 22,
+      source_id: s.id
+    }
+
+    p = ActionController::Parameters.new(h)
+    p.permit!
+   
+    Citation.batch_create(p)
+    
+    expect(Citation.count).to eq(2)
+    expect(Citation.first.pages).to eq('22')
+  end
 
   context 'page links' do
     let!(:document) { Document.create!(
@@ -17,10 +39,11 @@ describe Citation, type: :model, group: [:annotators, :citations] do
     let!(:documentation) { Documentation.create!(documentation_object: source, document: document) }
 
     before do
-      citation.citation_object = otu
-      citation.source = source
-      citation.pages = '99'
-      citation.save
+      citation.update!(
+        citation_object: otu,
+        source: source,
+        pages: '99'
+      )
     end
 
     specify '#first_page 1' do
@@ -170,20 +193,20 @@ describe Citation, type: :model, group: [:annotators, :citations] do
     specify '#citation_object_id is required by database' do
       c3.source = source
       c3.citation_object_type = 'Otu'
-      expect{c3.save}.to raise_error(ActiveRecord::StatementInvalid)
+      expect(c3.save).to be_falsey
     end
 
     specify '#citation_object_type is required by database' do
       c3.source = source
       c3.citation_object_id = otu.id
-      expect{c3.save}.to raise_error(ActiveRecord::StatementInvalid)
+      expect(c3.save).to be_falsey
     end
 
-    specify 'source_id is required' do
+    specify 'source is required' do
       c3.citation_object = otu
 
       expect(c3.valid?).to be_falsey
-      expect(c3.errors.messages[:source_id]).to include("can't be blank")
+      expect(c3.errors.messages[:source]).to be_truthy 
     end
   end
 

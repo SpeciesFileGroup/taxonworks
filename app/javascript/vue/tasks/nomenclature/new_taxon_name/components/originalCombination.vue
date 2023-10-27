@@ -3,8 +3,9 @@
     <div class="flex-wrap-column rank-name-label">
       <label
         v-for="(item, index) in orderRank"
-        :class="{ 'new-position' : index == newPosition }"
-        class="row capitalize">
+        :class="{ 'new-position': index == newPosition }"
+        class="row capitalize"
+      >
         {{ item }}
       </label>
     </div>
@@ -20,11 +21,13 @@
         @end="onEnd"
         @add="onAdd"
         @update="onUpdate"
-        @start="onStart">
+        @start="onStart"
+      >
         <template #item="{ element, index }">
           <div
-            class="horizontal-left-content middle"
-            v-if="!element.value">
+            class="horizontal-left-content middle gap-small"
+            v-if="!element.value"
+          >
             <autocomplete
               url="/taxon_names/autocomplete"
               label="label_html"
@@ -32,29 +35,39 @@
               :disabled="disabled"
               clear-after
               @getItem="addOriginalCombination($event.id, index)"
-              :add-params="{ type: 'Protonym', 'nomenclature_group[]': nomenclatureGroup }"
-              param="term"/>
+              :add-params="{
+                type: 'Protonym',
+                'nomenclature_group[]': nomenclatureGroup
+              }"
+              param="term"
+            />
             <span
               class="handle button circle-button button-submit"
               title="Press and hold to drag input"
-              data-icon="w_scroll-v"/>
+              data-icon="w_scroll-v"
+            />
           </div>
           <div
-            class="original-combination-item horizontal-left-content middle"
-            v-else>
+            class="original-combination-item horizontal-left-content middle gap-small"
+            v-else
+          >
             <div>
-              <span class="vue-autocomplete-input normal-input combination middle">
-                <span v-html="element.value.subject_object_tag"/>
+              <span
+                class="vue-autocomplete-input normal-input combination middle"
+              >
+                <span v-html="element.value.subject_object_tag" />
               </span>
             </div>
             <span
               class="handle button circle-button button-submit"
               title="Press and hold to drag input"
-              data-icon="w_scroll-v"/>
-            <radialAnnotator :global-id="element.value.global_id"/>
+              data-icon="w_scroll-v"
+            />
+            <radialAnnotator :global-id="element.value.global_id" />
             <span
               class="circle-button btn-delete"
-              @click="removeCombination(element.value, index)"/>
+              @click="removeCombination(element.value, index)"
+            />
           </div>
         </template>
       </draggable>
@@ -62,12 +75,11 @@
   </div>
 </template>
 <script>
-
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Draggable from 'vuedraggable'
 
 export default {
@@ -78,10 +90,10 @@ export default {
   },
 
   computed: {
-    taxon () {
+    taxon() {
       return this.$store.getters[GetterNames.GetTaxon]
     },
-    originalCombination () {
+    originalCombination() {
       return this.$store.getters[GetterNames.GetOriginalCombination]
     }
   },
@@ -123,13 +135,9 @@ export default {
     }
   },
 
-  emits: [
-    'create',
-    'delete',
-    'processed'
-  ],
+  emits: ['create', 'delete', 'processed'],
 
-  data () {
+  data() {
     return {
       expanded: true,
       rankGroup: [],
@@ -141,22 +149,22 @@ export default {
   },
 
   watch: {
-    originalCombination () {
+    originalCombination() {
       this.loadOriginalCombinationList()
     }
   },
 
-  created () {
+  created() {
     this.init()
   },
 
   methods: {
-    init () {
+    init() {
       this.orderRank = Object.keys(this.relationships)
       this.originalTypes = Object.values(this.relationships)
     },
 
-    loadOriginalCombinationList () {
+    loadOriginalCombinationList() {
       this.rankGroup = this.orderRank.map((rank, index) => ({
         name: rank,
         value: this.GetOriginal(rank),
@@ -165,80 +173,96 @@ export default {
       this.copyRankGroup = this.rankGroup.splice()
     },
 
-    addOriginalCombination (elementId, index) {
+    addOriginalCombination(elementId, index) {
       const data = {
         type: this.originalTypes[index],
         id: elementId
       }
       return new Promise((resolve, reject) => {
-        this.$store.dispatch(ActionNames.AddOriginalCombination, data).then(response => {
-          this.rankGroup[index].value = response
-          this.$emit('create')
-          resolve(response)
-        })
+        this.$store
+          .dispatch(ActionNames.AddOriginalCombination, data)
+          .then((response) => {
+            this.rankGroup[index].value = response
+            this.$emit('create')
+            resolve(response)
+          })
       })
     },
 
-    GetOriginal (name) {
+    GetOriginal(name) {
       const key = 'original_' + name
 
       return this.originalCombination[key] || undefined
     },
 
-    removeCombination (value, index) {
+    removeCombination(value, index) {
       if (window.confirm('Are you sure you want to remove this combination?')) {
-        this.$store.dispatch(ActionNames.RemoveOriginalCombination, value).then(response => {
-          this.rankGroup[index] = response
-          this.$emit('delete', response)
-        })
+        this.$store
+          .dispatch(ActionNames.RemoveOriginalCombination, value)
+          .then((response) => {
+            this.rankGroup[index] = response
+            this.$emit('delete', response)
+          })
       }
     },
 
-    onMove (evt) {
+    onMove(evt) {
       this.newPosition = evt.draggedContext.futureIndex
       return !evt.related.classList.contains('item-filter')
     },
 
-    onAdd (evt) {
+    onAdd(evt) {
       let index = evt.newIndex
 
-      if ((this.rankGroup.length - 1) === evt.newIndex) {
-        this.rankGroup.splice((evt.newIndex - 1), 1)
+      if (this.rankGroup.length - 1 === evt.newIndex) {
+        this.rankGroup.splice(evt.newIndex - 1, 1)
         index = evt.newIndex - 1
       }
 
-      this.rankGroup.splice((evt.newIndex + 1), 1)
-      this.addOriginalCombination(this.rankGroup[index].value.subject_taxon_name_id, index).then(response => {
+      this.rankGroup.splice(evt.newIndex + 1, 1)
+      this.addOriginalCombination(
+        this.rankGroup[index].value.subject_taxon_name_id,
+        index
+      ).then((response) => {
         this.$emit('create')
       })
     },
 
-    onEnd (evt) {
+    onEnd(evt) {
       this.newPosition = -1
     },
 
-    onStart (evt) {
+    onStart(evt) {
       this.copyRankGroup = JSON.parse(JSON.stringify(this.rankGroup))
     },
 
-    async onUpdate (evt) {
+    async onUpdate(evt) {
       const positionChanged = this.changedElementPositions()
-      const deletePositions = positionChanged.filter(index => this.copyRankGroup[index].value)
-      const createRelationships = positionChanged.filter(index => this.rankGroup[index].value)
+      const deletePositions = positionChanged.filter(
+        (index) => this.copyRankGroup[index].value
+      )
+      const createRelationships = positionChanged.filter(
+        (index) => this.rankGroup[index].value
+      )
 
       await this.destroyRelationships(deletePositions)
       this.createRelationships(createRelationships)
     },
 
-    createRelationships (positions) {
-      const promises = positions.map(position => this.addOriginalCombination(this.rankGroup[position].value.subject_taxon_name_id, position))
+    createRelationships(positions) {
+      const promises = positions.map((position) =>
+        this.addOriginalCombination(
+          this.rankGroup[position].value.subject_taxon_name_id,
+          position
+        )
+      )
 
       Promise.all(promises).then(() => {
         this.$emit('create')
       })
     },
 
-    changedElementPositions () {
+    changedElementPositions() {
       const changedPositions = []
 
       this.copyRankGroup.forEach((item, index) => {
@@ -250,9 +274,14 @@ export default {
       return changedPositions
     },
 
-    destroyRelationships (positions) {
+    destroyRelationships(positions) {
       return new Promise((resolve, reject) => {
-        const promises = positions.map(position => this.$store.dispatch(ActionNames.RemoveOriginalCombination, this.copyRankGroup[position].value))
+        const promises = positions.map((position) =>
+          this.$store.dispatch(
+            ActionNames.RemoveOriginalCombination,
+            this.copyRankGroup[position].value
+          )
+        )
 
         Promise.all(promises).then(() => {
           resolve(promises)
@@ -263,22 +292,22 @@ export default {
 }
 </script>
 <style lang="scss">
-  .original-combination {
-    .new-position {
-      color: red;
-      font-weight: 900;
-    }
-    .original-combination-item {
-      min-height: 40px
-    }
-    .vue-autocomplete-input {
-      min-height: 28px;
-      min-width: 400px;
-      max-width: 500px;
-    }
-    .combination {
-      z-index:1;
-      background-color: #F5F5F5;
-    }
+.original-combination {
+  .new-position {
+    color: red;
+    font-weight: 900;
   }
+  .original-combination-item {
+    min-height: 40px;
+  }
+  .vue-autocomplete-input {
+    min-height: 28px;
+    min-width: 400px;
+    max-width: 500px;
+  }
+  .combination {
+    z-index: 1;
+    background-color: #f5f5f5;
+  }
+}
 </style>

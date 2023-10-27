@@ -3,7 +3,6 @@ module SqedToTaxonworks
 
   # Stores and handles metadata linking a TW depiction to the Sqed library.
   class Result
-
     SMALL_WIDTH = 100
     LARGE_WIDTH = 400
 
@@ -55,7 +54,7 @@ module SqedToTaxonworks
           @depiction.depiction_object.tags.build()
           @depiction.depiction_object.identifiers.build(
             type: 'Identifier::Local::CatalogNumber',
-            namespace: (namespace_locked? ? Namespace.find(namespace_id) : nil)
+            namespace: (namespace_locked? ? Namespace.find(namespace_id) : nil),
           )
         rescue ActiveRecord::RecordNotFound
           return false
@@ -76,24 +75,37 @@ module SqedToTaxonworks
     # Minimize use of this if possible, depend on the cached values when possible.
     #
     def sqed_result
+      @sqed_result ||= process_result
+      @sqed_result = process_result(use_thumbnail: false) if @sqed_result == false
+      @sqed_result
+    end
+
+    # private
+    def process_result(use_thumbnail: true)
       begin
-        @sqed_result ||= sqed.result
-      rescue NoMethodError # TODO - better handling in Sqed
-        @sqed_result = false
+        sqed.use_thumbnail = use_thumbnail
+        r = sqed.result
+      rescue Sqed::Error
+        r = false
+
+      # TODO: likely remove TypeError
+      rescue TypeError
+        r = false
+
       rescue Magick::ImageMagickError => e
         if e.message.include?('unable to open image')
-          @sqed_result = false
+          r = false
         else
           raise
         end
       rescue RuntimeError => e
-        if e.message.include?( 'ImageMagick library function failed to return a result.')
-          @sqed_result = false
+        if e.message.include?('ImageMagick library function failed to return a result.')
+          r = false
         else
           raise
         end
       end
-      @sqed_result
+      r
     end
 
     def original_image
@@ -123,12 +135,8 @@ module SqedToTaxonworks
     def cache_boundaries
       begin
         sqed_depiction.update_column(:result_boundary_coordinates, sqed.boundaries.coordinates)
-      rescue RuntimeError => e
-        if e.message.include?( 'No image provided')
-          sqed_depiction.update_column(:result_boundary_coordinates, nil)
-        else
-          raise
-        end
+      rescue Sqed::Error
+        sqed_depiction.update_column(:result_boundary_coordinates, nil)
       end
     end
 
@@ -136,6 +144,7 @@ module SqedToTaxonworks
       sqed_depiction.update_column(:result_ocr, (sqed_result || nil)&.text)
     end
 
+    # TODO: should be set_cached
     def cache_all
       cache_ocr
       cache_boundaries
@@ -201,7 +210,7 @@ module SqedToTaxonworks
 
     def small_dimensions_for(layout_section_type)
       c = coords_for(layout_section_type)
-      "0, 0, #{SMALL_WIDTH}, #{ (c[3].to_f / (c[2].to_f / SMALL_WIDTH)).to_i }"
+      "0, 0, #{SMALL_WIDTH}, #{(c[3].to_f / (c[2].to_f / SMALL_WIDTH)).to_i}"
     end
 
     def small_height_width(layout_section_type)
@@ -221,22 +230,22 @@ module SqedToTaxonworks
 
     def small_height_for(layout_section_type)
       c = coords_for(layout_section_type)
-     "#{(c[3].to_f / (c[2].to_f / SMALL_WIDTH)).to_i}"
+      "#{(c[3].to_f / (c[2].to_f / SMALL_WIDTH)).to_i}"
     end
 
     def large_height_for(layout_section_type)
       c = coords_for(layout_section_type)
-     "#{(c[3].to_f / (c[2].to_f / LARGE_WIDTH)).to_i}"
+      "#{(c[3].to_f / (c[2].to_f / LARGE_WIDTH)).to_i}"
     end
 
     def large_dimensions_for(layout_section_type)
       c = coords_for(layout_section_type)
-      return nil if c == [] || (c[2] == 0 and  c[3] == 0)
-      "0, 0, 400, #{ (c[3].to_f / (c[2].to_f / 400)).to_i }"
+      return nil if c.blank? || c[2] == 0 || c[3] == 0
+      "0, 0, 400, #{( c[3].to_f / (c[2].to_f / 400)).to_i}"
     end
 
     def image_unavailable?
-      return true if !File.exists?(depiction.image.image_file.path(:original))
+      return true if !File.exist?(depiction.image.image_file.path(:original))
       false
     end
 
@@ -246,12 +255,10 @@ module SqedToTaxonworks
       return false if sqed_depiction.result_boundary_coordinates.nil?
       zeroed = 0
       sqed_depiction.result_boundary_coordinates.each do |k, v|
-        zeroed += 1 if v == [0,0,0,0]
+        zeroed += 1 if v == [0, 0, 0, 0]
         return false if zeroed > 1
       end
       true
     end
-
   end
-
 end

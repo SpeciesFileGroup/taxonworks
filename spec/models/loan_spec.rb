@@ -77,9 +77,7 @@ describe Loan, type: :model, group: :loans do
     end
 
     context 'objects via containers' do
-      before {
-        loan.loan_items << LoanItem.new(loan_item_object: site)
-      }
+      before { loan.loan_items << LoanItem.new(loan_item_object: site) }
 
       specify '#collection_objects' do
         expect(loan.collection_objects).to contain_exactly(specimen)
@@ -98,8 +96,6 @@ describe Loan, type: :model, group: :loans do
         expect(loan.collection_objects).to contain_exactly(specimen)
       end
     end
-
-
 
   end
 

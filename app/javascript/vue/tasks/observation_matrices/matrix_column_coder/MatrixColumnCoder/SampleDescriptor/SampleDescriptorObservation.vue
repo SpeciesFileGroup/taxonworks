@@ -1,32 +1,32 @@
 <template>
   <div class="sample-descriptor">
-    <div class="horizontal-left-content margin-small-bottom">
-      <label class="separate-right">
+    <div class="horizontal-left-content margin-small-bottom gap-small">
+      <label>
         Min:
         <input
           type="number"
           size="8"
           v-model="sampleMin"
-        >
+        />
       </label>
-      <label class="separate-left">
+      <label>
         Max:
         <input
           type="number"
           size="8"
           v-model="sampleMax"
-        >
+        />
       </label>
 
       <unit-selector v-model="sampleUnit" />
 
-      <label class="separate-left">
+      <label>
         n:
         <input
           type="number"
           size="8"
           v-model="sampleN"
-        >
+        />
       </label>
       <template v-if="observation.id">
         <radial-annotator :global-id="observation.global_id" />
@@ -43,38 +43,38 @@
       </template>
     </div>
 
-    <div class="margin-small-bottom">
-      <label class="separate-right">
+    <div class="margin-small-bottom horizontal-left-content gap-small">
+      <label>
         Mean:
         <input
           type="text"
           size="8"
           v-model="sampleMean"
-        >
+        />
       </label>
-      <label class="separate-right">
+      <label>
         Median:
         <input
           type="text"
           size="8"
           v-model="sampleMedian"
-        >
+        />
       </label>
-      <label class="separate-right">
+      <label>
         Standard deviation:
         <input
           type="text"
           size="8"
           v-model="sampleStandardDeviation"
-        >
+        />
       </label>
-      <label class="separate-right">
+      <label>
         Standard error:
         <input
           type="text"
           size="8"
           v-model="sampleStandardError"
-        >
+        />
       </label>
     </div>
     <div>
@@ -90,10 +90,10 @@
 <script>
 import { MutationNames } from '../../store/mutations/mutations'
 import { ActionNames } from '../../store/actions/actions'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import UnitSelector from '../UnitSelector/UnitSelector.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import TimeFields from '../Time/TimeFields.vue'
 
 export default {
@@ -121,11 +121,11 @@ export default {
 
   computed: {
     sampleMin: {
-      get () {
+      get() {
         return this.observation.min
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSampleMinFor, {
           rowObjectId: this.rowObject.id,
           rowObjectType: this.rowObject.type,
@@ -136,11 +136,11 @@ export default {
     },
 
     sampleMax: {
-      get () {
+      get() {
         return this.observation.max
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSampleMaxFor, {
           rowObjectId: this.rowObject.id,
           rowObjectType: this.rowObject.type,
@@ -151,11 +151,11 @@ export default {
     },
 
     sampleN: {
-      get () {
+      get() {
         return this.observation.n
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSampleNFor, {
           rowObjectId: this.rowObject.id,
           rowObjectType: this.rowObject.type,
@@ -166,11 +166,11 @@ export default {
     },
 
     sampleUnit: {
-      get () {
+      get() {
         return this.observation.units
       },
 
-      set (unit) {
+      set(unit) {
         this.$store.commit(MutationNames.SetSampleUnitFor, {
           rowObjectId: this.rowObject.id,
           rowObjectType: this.rowObject.type,
@@ -181,11 +181,11 @@ export default {
     },
 
     sampleMean: {
-      get () {
+      get() {
         return this.observation.mean
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSampleStandardMean, {
           rowObjectId: this.rowObject.id,
           rowObjectType: this.rowObject.type,
@@ -193,15 +193,14 @@ export default {
           mean: value
         })
       }
-
     },
 
     sampleMedian: {
-      get () {
+      get() {
         return this.observation.median
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSampleMedian, {
           rowObjectId: this.rowObject.id,
           rowObjectType: this.rowObject.type,
@@ -212,11 +211,11 @@ export default {
     },
 
     sampleStandardDeviation: {
-      get () {
+      get() {
         return this.observation.standardDeviation
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSampleStandardDeviation, {
           rowObjectId: this.rowObject.id,
           rowObjectType: this.rowObject.type,
@@ -227,11 +226,11 @@ export default {
     },
 
     sampleStandardError: {
-      get () {
+      get() {
         return this.observation.standardError
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSampleStandardError, {
           rowObjectId: this.rowObject.id,
           rowObjectType: this.rowObject.type,
@@ -243,7 +242,7 @@ export default {
   },
 
   methods: {
-    removeObservation () {
+    removeObservation() {
       this.$store.dispatch(ActionNames.RemoveObservation, {
         rowObjectId: this.rowObject.id,
         rowObjectType: this.rowObject.type,

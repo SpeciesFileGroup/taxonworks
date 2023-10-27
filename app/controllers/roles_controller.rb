@@ -1,13 +1,13 @@
 class RolesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  include ShallowPolymorphic
+ # include ShallowPolymorphic
 
   before_action :set_role, only: [:update, :destroy]
   after_action -> { set_pagination_headers(:roles) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /roles.json
   def index
-    @roles = Queries::Role::Filter.new(filter_params)
+    @roles = Queries::Role::Filter.new(params)
       .all
       .page(params[:page])
       .per(params[:per])
@@ -54,12 +54,12 @@ class RolesController < ApplicationController
   # def download
   #   send_data Export::Download.generate_csv(Role.where(project_id: sessions_current_project_id)),
   #     type: 'text',
-  #     filename: "roles_#{DateTime.now}.csv"
+  #     filename: "roles_#{DateTime.now}.tsv"
   # end
 
   # # GET /api/v1/roles
   # def api_index
-  #   @roles = Queries::Role::Filter.new(api_params).all
+  #   @roles = Queries::Role::Filter.new(params.merge!(api: true)).all
   #     .order('roles.id')
   #     .page(params[:page])
   #     .per(params[:per])
@@ -78,16 +78,21 @@ class RolesController < ApplicationController
     @role = Role.find(params[:id])
   end
 
+  # TODO: move logic to Filter
   def filter_params
     add_project_id = false
     role_types = [params[:role_type]].flatten.compact.map(&:safe_constantize)
-    if !params[:object_global_id].blank?
+    if params[:object_global_id].present?
       role_types << GlobalID::Locator.locate(params[:object_global_id]).class
     end
 
     h = params.permit(
       :role_type,
       :object_global_id,
+      :role_object_id,
+      :role_object_type,
+      role_object_id: [],
+      role_object_type: [],
       role_type: [])
 
     # If any role

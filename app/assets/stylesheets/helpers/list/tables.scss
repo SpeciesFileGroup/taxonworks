@@ -1,4 +1,8 @@
 .table-striped {
+  tr {
+    border-bottom: 1px solid $navigation_border;
+  }
+
   tr:nth-of-type(even) {
     @extend .list_line_even;
   }
@@ -17,31 +21,31 @@ table {
   width: auto;
   border-spacing: 0;
   background-color: $panel_background;
-  border-collapse: collapse;  
+  border-collapse: collapse;
 
   .underlined_elements {
-      border-spacing: 0; 
+    border-spacing: 0;
   }
 
   .top_align_text {
     td {
-      vertical-align: top; 
+      vertical-align: top;
     }
   }
 
-  th.headerSortUp { 
+  th.headerSortUp {
     background-image: image-url('arrow-up.svg');
     background-position: right $standard_padding center;
     padding-right: $standard_padding;
     background-repeat: no-repeat;
-  } 
+  }
 
-  th.headerSortDown { 
+  th.headerSortDown {
     background-image: image-url('arrow-down.svg');
     background-position: right $standard_padding center;
     padding-right: $standard_padding;
-    background-repeat: no-repeat;  
-  } 
+    background-repeat: no-repeat;
+  }
 
   .table-options {
     display: none;
@@ -55,7 +59,7 @@ table {
 
   td {
     padding-left: $standard_padding;
-    padding-right: $standard_padding; 
+    padding-right: $standard_padding;
   }
 
   th:hover {
@@ -84,7 +88,7 @@ table {
     }
   }
 
-  .contextMenuCells { 
+  .contextMenuCells {
     td {
       border-bottom: 1px solid $navigation_border;
       border-left: 1px solid $navigation_border;
@@ -93,12 +97,9 @@ table {
   .contextMenuCells:hover {
     background-color: $color-complement-2;
     color: $default_text;
-    td {
-      border-left:1px solid transparent;
-    }
   }
 
   .highlight {
-    background-color: #E3E8E3 !important;
+    background-color: #e3e8e3 !important;
   }
 }

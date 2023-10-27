@@ -70,8 +70,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     end
 
     specify 'using just the sql, ordered' do
-      q = Queries::CollectingEvent::Filter.new(start_date: '2015-1-1', end_date: '2015-1-1', partial_overlap_dates: false) 
-      expect(CollectionObject.joins(:collecting_event).where(q.between_date_range.to_sql).where(project_id: 99).order(:id).count).to eq(0)
+      q = Queries::CollectingEvent::Filter.new(start_date: '2015-1-1', end_date: '2015-1-1', partial_overlap_dates: false)
+      expect(CollectionObject.joins(:collecting_event).where(q.between_date_range_facet.to_sql).where(project_id: 99).order(:id).count).to eq(0)
     end
   end
 
@@ -250,7 +250,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
       #  a b     c    d
       # -*-*-----s----e-----
-      context 'search range and record range completely seperate' do
+      context 'search range and record range completely separate' do
         let(:params) {
           {search_start_date: a, search_end_date: b, partial_overlap: 'off'}
         }
@@ -413,24 +413,24 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   context 'date formatting' do
     specify '#has_start_date?' do
       a = CollectingEvent.new(start_date_year: 2010, start_date_month: 2, start_date_day: 1)
-      expect(a.has_start_date?).to be_truthy 
+      expect(a.has_start_date?).to be_truthy
     end
 
     specify '#has_end_date?' do
       a = CollectingEvent.new(end_date_year: 2010, end_date_month: 2, end_date_day: 1)
-      expect(a.has_end_date?).to be_truthy 
+      expect(a.has_end_date?).to be_truthy
     end
 
     specify '#some_end_date?' do
       a = CollectingEvent.new(end_date_month: 2, end_date_day: 1)
-      expect(a.some_end_date?).to be_truthy 
+      expect(a.some_end_date?).to be_truthy
     end
 
     specify '#some_start_date?' do
       a = CollectingEvent.new(start_date_year: 2010)
-      expect(a.some_start_date?).to be_truthy 
+      expect(a.some_start_date?).to be_truthy
     end
-    
+
     specify '#some_start_date?' do
       a = CollectingEvent.new()
       expect(a.some_start_date?).to be_falsey
@@ -439,12 +439,12 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     specify '#start_date_string 1' do
       a = CollectingEvent.new(start_date_year: 2010, start_date_month: 2)
       expect(a.start_date_string).to eq('2010/02/??')
-    end 
+    end
 
     specify '#start_date_string 2' do
       a = CollectingEvent.new(start_date_month: 2)
       expect(a.start_date_string).to eq('????/02/??')
-    end 
+    end
 
     specify '#end_date_string 1' do
       a = CollectingEvent.new(end_date_year: 2010, end_date_month: 2)

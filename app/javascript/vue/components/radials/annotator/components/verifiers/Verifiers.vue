@@ -11,7 +11,8 @@
       }"
       :filter-ids="peopleIds"
       :autocomplete="false"
-      @selected="createRole($event.id)">
+      @selected="createRole($event.id)"
+    >
       <template #header>
         <role-picker
           ref="rolePicker"
@@ -20,7 +21,8 @@
           filter-by-role
           hidden-list
           role-type="Verifier"
-          @create="createRole($event.person_id)"/>
+          @create="createRole($event.person_id)"
+        />
       </template>
     </smart-selector>
     <table-list
@@ -33,14 +35,14 @@
 </template>
 
 <script>
-
 import CRUD from '../../request/crud.js'
 import annotatorExtend from '../../components/annotatorExtend.js'
-import RolePicker from 'components/role_picker.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import TableList from 'components/table_list.vue'
-import { removeFromArray } from 'helpers/arrays.js'
-import { Role } from 'routes/endpoints'
+import RolePicker from '@/components/role_picker.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import TableList from '@/components/table_list.vue'
+import { removeFromArray } from '@/helpers/arrays.js'
+import { Role } from '@/routes/endpoints'
+import { ROLE_VERIFIER } from '@/constants'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -52,29 +54,30 @@ export default {
   },
 
   computed: {
-    validateFields () {
+    validateFields() {
       return this.note.text
     }
   },
 
-  data () {
+  data() {
     return {
       loadOnMounted: false,
       roles: []
     }
   },
 
-  created () {
+  created() {
     Role.where({
-      role_type: ['Verifier'],
-      object_global_id: this.globalId
+      role_type: [ROLE_VERIFIER],
+      role_object_id: this.metadata.object_id,
+      role_object_type: this.objectType
     }).then(({ body }) => {
       this.list = body
     })
   },
 
   methods: {
-    createRole (id) {
+    createRole(id) {
       const role = {
         type: 'Verifier',
         person_id: id,
@@ -86,7 +89,7 @@ export default {
       })
     },
 
-    removeRole (role) {
+    removeRole(role) {
       Role.destroy(role.id)
       removeFromArray(this.list, role)
     }

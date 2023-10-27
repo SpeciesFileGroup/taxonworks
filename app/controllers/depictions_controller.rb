@@ -2,6 +2,7 @@ class DepictionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_depiction, only: [:show, :edit, :update, :destroy, :api_show]
+  after_action -> { set_pagination_headers(:depictions) }, only: [:index, :api_index, :api_gallery], if: :json_request?
 
   # GET /depictions
   # GET /depictions.json
@@ -12,12 +13,16 @@ class DepictionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @depictions = Depiction.where(project_id: sessions_current_project_id).where(
-          Queries::Annotator::polymorphic_params(params, Depiction)
-        )
+        @depictions = Queries::Depiction::Filter.new(params)
+        .all
+        .where(project_id: sessions_current_project_id)
+        .where(Queries::Annotator::polymorphic_params(params, Depiction))
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
+
 
   def list
     @depictions = Depiction.where(project_id: sessions_current_project_id).page(params[:page])
@@ -31,6 +36,25 @@ class DepictionsController < ApplicationController
 
   def api_show
     render '/depictions/api/v1/show'
+  end
+
+  # GET /api/v1/otus
+  def api_index
+    @depictions = Queries::Depiction::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .order('depictions.id')
+      .page(params[:page])
+      .per(params[:per])
+    render '/depictions/api/v1/index'
+  end
+
+  def api_gallery
+    @depictions = Queries::Depiction::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .order('depictions.id')
+      .page(params[:page])
+      .per(params[:per])
+    render '/depictions/api/v1/gallery'
   end
 
   # GET /depictions/new
@@ -84,11 +108,11 @@ class DepictionsController < ApplicationController
   # PATCH /sort?depiction_ids[]=1&depiction_ids[]=2.json
   def sort
     respond_to do |format|
-      begin 
+      begin
         params.require(:depiction_ids).each_with_index do |d, i|
           Depiction.find(d).update_column(:position, i + 1)
         end
-      rescue ActionController::ParameterMissing  
+      rescue ActionController::ParameterMissing
         format.json { render json: {success: false}, status: :unprocessable_entity and return }
       rescue ActiveRecord::RecordInvalid
         format.json { render json: {success: false}, status: :unprocessable_entity and return }
@@ -101,10 +125,10 @@ class DepictionsController < ApplicationController
   # GET /depictions/download
   def download
     send_data Export::Download.generate_csv(
-      Depiction.where(project_id: sessions_current_project_id)), type: 'text', filename: "depictions_#{DateTime.now}.csv"
+      Depiction.where(project_id: sessions_current_project_id)), type: 'text', filename: "depictions_#{DateTime.now}.tsv"
   end
 
-  private 
+  private
 
   def set_depiction
     @depiction = Depiction.where(project_id: sessions_current_project_id).find(params[:id])

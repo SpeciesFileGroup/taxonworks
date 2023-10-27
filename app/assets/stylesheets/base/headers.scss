@@ -6,27 +6,25 @@
   background-color: $color-header;
   height: 60px;
 
-  #taxonworks {
-    .logo {
-      width: 160px;
-      height: 20px;
-      background-image: image-url('taxonworks-white.svg');
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: left center;
-      padding: 0px;
-      text-decoration: none;
-    }
+  #taxonworks_logo {
+    width: 160px;
+    height: 20px;
+    background-image: image-url('taxonworks-white.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding: 0px;
+    text-decoration: none;
   }
 
   #taxonworks_left {
     flex-grow: 1;
-    line-height: $font_small;
+  }
 
-    a {
-      color: white;
-      text-decoration: none;
-    }
+  #taxonworks_left > a {
+    color: white;
+    text-decoration: none;
+    line-height: $font_small;
   }
 
   #taxonworks_version {
@@ -43,7 +41,7 @@
   .horizontal_navbar {
     a {
       padding: 0px;
-      color: #FFF;
+      color: #fff;
     }
     li {
       padding-left: $standard_padding;
@@ -69,4 +67,3 @@
   padding-left: $standard_padding;
   padding-right: $standard_padding;
 }
-

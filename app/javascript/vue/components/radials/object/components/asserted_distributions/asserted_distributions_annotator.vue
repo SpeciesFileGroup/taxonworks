@@ -21,6 +21,7 @@
         :target="ASSERTED_DISTRIBUTION"
         absent-field
         lock-button
+        use-session
         @lock="lock.source = $event"
       />
       <button
@@ -41,20 +42,26 @@
         @delete="removeCitation"
       />
       <div>
-        <spinner
-          v-if="!citation.source_id || asserted_distribution.id"
-          :show-legend="false"
-          :show-spinner="false"
-        />
-        <geographic-area
+        <GeographicArea
           class="separate-bottom"
           :source-lock="lock.source"
-          @select="asserted_distribution.geographic_area_id = $event; saveAssertedDistribution()"
+          :disabled="!citation.source_id || asserted_distribution.id"
+          @select="
+            ($event) => {
+              asserted_distribution.geographic_area_id = $event
+              saveAssertedDistribution()
+            }
+          "
         />
       </div>
     </div>
     <div class="horizontal-left-content">
+      <Spinner
+        v-if="isLoading"
+        legend="Loading..."
+      />
       <map-component
+        v-if="list.length"
         width="90%"
         height="300px"
         tooltips
@@ -76,26 +83,26 @@
   </div>
 </template>
 <script>
-
 import CRUD from '../../request/crud.js'
 import AnnotatorExtend from '../annotatorExtend.js'
 import TableList from './table.vue'
-import DisplayList from 'components/displayList.vue'
+import DisplayList from '@/components/displayList.vue'
 import GeographicArea from './geographicArea.vue'
-import Spinner from 'components/spinner.vue'
-import MapComponent from 'components/georeferences/map.vue'
+import Spinner from '@/components/spinner.vue'
+import MapComponent from '@/components/georeferences/map.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
-import FormCitation from 'components/Form/FormCitation.vue'
-import { ASSERTED_DISTRIBUTION } from 'constants/index'
-import { addToArray } from 'helpers/arrays.js'
-import { AssertedDistribution } from 'routes/endpoints'
+import FormCitation from '@/components/Form/FormCitation.vue'
+import { ASSERTED_DISTRIBUTION } from '@/constants/index'
+import { addToArray } from '@/helpers/arrays.js'
+import { AssertedDistribution } from '@/routes/endpoints'
 
 const EXTEND_PARAMS = {
   embed: ['shape'],
   extend: [
     'geographic_area',
     'geographic_area_type',
-    'parent', 'citations',
+    'parent',
+    'citations',
     'source'
   ]
 }
@@ -113,18 +120,15 @@ export default {
   },
 
   computed: {
-    validateFields () {
-      return this.asserted_distribution.geographic_area_id && this.asserted_distribution.source_id
+    validateFields() {
+      return (
+        this.asserted_distribution.geographic_area_id &&
+        this.asserted_distribution.source_id
+      )
     },
 
-    existingArea () {
-      return this.list.find(item =>
-        item.geographic_area_id === this.asserted_distribution.geographic_area_id &&
-        (item.is_absent === null ? false : item.is_absent) === (this.asserted_distribution.is_absent === null ? false : this.asserted_distribution.is_absent))
-    },
-
-    shapes () {
-      return this.list.map(item => {
+    shapes() {
+      return this.list.map((item) => {
         const shape = item.geographic_area.shape
         shape.properties.is_absent = item.is_absent
         return shape
@@ -132,12 +136,13 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       asserted_distribution: {},
       editTitle: undefined,
       editCitation: undefined,
       loadOnMounted: false,
+      isLoading: true,
 
       citation: makeEmptyCitation(),
 
@@ -149,19 +154,20 @@ export default {
     }
   },
 
-  created () {
+  created() {
     this.asserted_distribution = this.newAsserted()
-    AssertedDistribution.where({
+    AssertedDistribution.all({
       otu_id: this.metadata.object_id,
       ...EXTEND_PARAMS
     }).then(({ body }) => {
+      this.isLoading = false
       this.list = body
     })
     this.asserted_distribution.otu_id = this.metadata.object_id
   },
 
   methods: {
-    setCitation (citation) {
+    setCitation(citation) {
       this.citation = {
         id: citation.id,
         pages: citation.pages,
@@ -171,7 +177,13 @@ export default {
       this.editCitation = citation
     },
 
-    saveAssertedDistribution () {
+    saveAssertedDistribution() {
+      const createdObject = this.list.find(
+        (item) =>
+          item.geographic_area.id ===
+            this.asserted_distribution.geographic_area_id &&
+          !!this.asserted_distribution.is_absent === !!item.is_absent
+      )
       const params = {
         asserted_distribution: {
           ...this.asserted_distribution,
@@ -180,35 +192,38 @@ export default {
         ...EXTEND_PARAMS
       }
 
-      const saveRequest = !this.existingArea
-        ? AssertedDistribution.create(params)
-        : AssertedDistribution.update(this.existingArea.id, params)
+      const saveRequest = createdObject
+        ? AssertedDistribution.update(createdObject.id, params)
+        : AssertedDistribution.create(params)
 
       saveRequest.then(({ body }) => {
-        TW.workbench.alert.create('Asserted distribution was successfully saved.', 'notice')
+        TW.workbench.alert.create(
+          'Asserted distribution was successfully saved.',
+          'notice'
+        )
         this.addToList(body)
       })
     },
 
-    removeCitation (item) {
-      const asserted_distribution = {
-        citations_attributes: [{
-          id: item.id,
-          _destroy: true
-        }]
+    removeCitation(item) {
+      const payload = {
+        citations_attributes: [
+          {
+            id: item.id,
+            _destroy: true
+          }
+        ]
       }
 
-      AssertedDistribution.update(
-        this.asserted_distribution.id, {
-          asserted_distribution,
-          ...EXTEND_PARAMS
-        })
-        .then(({ body }) => {
-          this.addToList(body)
-        })
+      AssertedDistribution.update(this.asserted_distribution.id, {
+        asserted_distribution: payload,
+        ...EXTEND_PARAMS
+      }).then(({ body }) => {
+        this.addToList(body)
+      })
     },
 
-    addToList (item) {
+    addToList(item) {
       this.editTitle = item.object_tag
 
       AssertedDistribution.find(item.id, EXTEND_PARAMS).then(({ body }) => {
@@ -217,7 +232,7 @@ export default {
       })
     },
 
-    setDistribution (item) {
+    setDistribution(item) {
       this.resetForm()
       this.editTitle = item.object_tag
       this.asserted_distribution = {
@@ -225,26 +240,30 @@ export default {
         citations: item.citations,
         otu_id: item.otu_id,
         is_absent: item.is_absent,
-        geographic_area_id: item.geographic_area_id,
+        geographic_area_id: item.geographic_area_id
       }
 
       this.editCitation = undefined
     },
 
-    newAsserted () {
+    newAsserted() {
       return {
         id: undefined,
         otu_id: this.metadata.object_id,
-        geographic_area_id: this.lock.geo ? this.asserted_distribution.geographic_area_id : undefined,
+        geographic_area_id: this.lock.geo
+          ? this.asserted_distribution.geographic_area_id
+          : undefined,
         citations: [],
         is_absent: null
       }
     },
 
-    resetForm () {
+    resetForm() {
       this.asserted_distribution = {
         ...this.newAsserted(),
-        is_absent: this.lock.source ? this.asserted_distribution.is_absent : undefined
+        is_absent: this.lock.source
+          ? this.asserted_distribution.is_absent
+          : undefined
       }
       this.citation = {
         ...makeEmptyCitation(),
@@ -257,18 +276,18 @@ export default {
 }
 </script>
 <style lang="scss">
-  .radial-annotator {
-    .biological_relationships_annotator {
-      position: relative;
-      overflow-y: scroll;
+.radial-annotator {
+  .biological_relationships_annotator {
+    position: relative;
+    overflow-y: scroll;
 
-      .pages {
-        width: 86px;
-      }
-      .asserted-map-link {
-        position: absolute;
-        right:0px;
-      }
+    .pages {
+      width: 86px;
+    }
+    .asserted-map-link {
+      position: absolute;
+      right: 0px;
     }
   }
+}
 </style>

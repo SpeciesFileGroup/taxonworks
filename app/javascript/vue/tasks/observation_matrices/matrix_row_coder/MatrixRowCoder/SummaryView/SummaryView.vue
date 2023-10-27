@@ -1,7 +1,11 @@
 <template>
   <div
     class="summary-view"
-    :class="{ 'summary-view--unsaved': isUnsaved, 'summary-view--saved-at-least-once': savedAtLeastOnce }">
+    :class="{
+      'summary-view--unsaved': isUnsaved,
+      'summary-view--saved-at-least-once': savedAtLeastOnce
+    }"
+  >
     <DescriptorModal
       v-if="isModalVisible"
       :descriptor="descriptor"
@@ -9,11 +13,11 @@
     />
     <SpinnerComponent
       legend="Saving changes..."
-      :logo-size="{ width: '50px', height: '50px'}"
+      :logo-size="{ width: '50px', height: '50px' }"
       v-if="isSaving"
     />
     <div class="flex-separate middle">
-      <div class="horizontal-right-content">
+      <div class="horizontal-right-content gap-small">
         <h2 class="summary-view__title">
           <span
             class="link cursor-pointer"
@@ -51,10 +55,10 @@
 
 <script>
 import { GetterNames } from '../../store/getters/getters'
-import SpinnerComponent from 'components/spinner.vue'
+import SpinnerComponent from '@/components/spinner.vue'
 import SaveCountdown from '../SaveCountdown/SaveCountdown.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialObject from 'components/radials/navigation/radial'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialObject from '@/components/radials/navigation/radial'
 import DescriptorModal from '../DepictionModal/DepictionsContainer.vue'
 
 export default {
@@ -85,21 +89,25 @@ export default {
   }),
 
   computed: {
-    isUnsaved () {
-      return this.$store.getters[GetterNames.IsDescriptorUnsaved](this.$props.descriptor.id)
+    isUnsaved() {
+      return this.$store.getters[GetterNames.IsDescriptorUnsaved](
+        this.$props.descriptor.id
+      )
     },
 
-    savedAtLeastOnce () {
+    savedAtLeastOnce() {
       return this.$props.descriptor.hasSavedAtLeastOnce
     },
 
-    isSaving () {
-      return this.$store.getters[GetterNames.IsDescriptorSaving](this.$props.descriptor.id)
+    isSaving() {
+      return this.$store.getters[GetterNames.IsDescriptorSaving](
+        this.$props.descriptor.id
+      )
     }
   },
 
   methods: {
-    returnTop () {
+    returnTop() {
       window.scrollTo(0, 0)
     }
   }

@@ -1,9 +1,16 @@
 <template>
   <div
     v-if="item"
-    class="middle flex-separate"
+    class="middle flex-separate gap-small"
   >
-    <p v-html="item[label]" />
+    <p
+      v-if="label"
+      v-html="item[label]"
+    />
+    <p
+      v-else
+      v-html="item"
+    />
     <v-btn
       color="primary"
       circle
@@ -17,8 +24,8 @@
   </div>
 </template>
 <script setup>
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 defineProps({
   item: {
@@ -27,10 +34,9 @@ defineProps({
   },
 
   label: {
-    type: String,
+    type: [String, Boolean],
     default: 'object_tag'
   }
 })
 const emit = defineEmits(['unset'])
-
 </script>

@@ -1,9 +1,7 @@
 <template>
   <div>
     <h2>Match people</h2>
-    <p v-if="selectedPerson">
-      {{ matchList.length }}  matches found
-    </p>
+    <p v-if="selectedPerson">{{ matchList.length }} matches found</p>
     <div>
       <autocomplete
         url="/people/autocomplete"
@@ -20,7 +18,7 @@
               <input
                 v-model="selectAll"
                 type="checkbox"
-              >
+              />
             </th>
             <th>Cached</th>
             <th>Lived</th>
@@ -41,17 +39,23 @@
                   :value="person"
                   :disabled="isSelectedPerson(person.id)"
                   v-model="selectedMergePerson"
-                >
+                />
               </td>
               <td>{{ person.cached }}</td>
               <td>
-                <span class="feedback feedback-secondary feedback-thin line-nowrap">
-                  {{ yearValue(person.year_born) }} - {{ yearValue(person.year_died) }}
+                <span
+                  class="feedback feedback-secondary feedback-thin line-nowrap"
+                >
+                  {{ yearValue(person.year_born) }} -
+                  {{ yearValue(person.year_died) }}
                 </span>
               </td>
               <td>
-                <span class="feedback feedback-secondary feedback-thin line-nowrap">
-                  {{ yearValue(person.year_active_start) }} - {{ yearValue(person.year_active_end) }}
+                <span
+                  class="feedback feedback-secondary feedback-thin line-nowrap"
+                >
+                  {{ yearValue(person.year_active_start) }} -
+                  {{ yearValue(person.year_active_end) }}
                 </span>
               </td>
               <td>
@@ -68,65 +72,67 @@
   </div>
 </template>
 <script>
-
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import Autocomplete from 'components/ui/Autocomplete'
+import Autocomplete from '@/components/ui/Autocomplete'
 import getRoles from '../utils/getRoles.js'
 
 export default {
   components: { Autocomplete },
 
   computed: {
-    selectedPerson () {
+    selectedPerson() {
       return this.$store.getters[GetterNames.GetSelectedPerson]
     },
 
     matchList: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetMatchPeople]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetMatchPeople, value)
       }
     },
 
     selectedMergePerson: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetMergePeople]
       },
 
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetMergePeople, value)
       }
     },
 
     selectAll: {
-      get () {
-        return this.matchList.length && this.selectedMergePerson.length === this.matchList.length
+      get() {
+        return (
+          this.matchList.length &&
+          this.selectedMergePerson.length === this.matchList.length
+        )
       },
 
-      set (value) {
+      set(value) {
         this.selectedMergePerson = value
-          ? this.matchList.filter(item => item.id !== this.selectedPerson.id)
+          ? this.matchList.filter((item) => item.id !== this.selectedPerson.id)
           : []
       }
     }
   },
 
   methods: {
-    addToList (person) {
+    addToList(person) {
       this.$store.dispatch(ActionNames.AddMatchPerson, person)
     },
 
     getRoles,
 
-    yearValue (value) {
+    yearValue(value) {
       return value || '?'
     },
 
-    isSelectedPerson (id) {
+    isSelectedPerson(id) {
       return this.selectedPerson.id === id
     }
   }
@@ -138,5 +144,4 @@ export default {
   max-height: 500px;
   overflow-y: scroll;
 }
-
 </style>

@@ -3,35 +3,40 @@
     <spinner-component
       :show-spinner="false"
       :show-legend="false"
-      v-if="spinner"/>
+      v-if="spinner"
+    />
     <a
       v-if="anchor"
       :name="anchor"
-      class="anchor"/>
-    <div 
+      class="anchor"
+    />
+    <div
       class="header flex-separate middle"
-      :class="{ 'validation-warning': warning }">
+      :class="{ 'validation-warning': warning }"
+    >
       <slot name="header">
         <h3>Default title</h3>
       </slot>
       <div class="horizontal-left-content">
-        <slot name="options"/>
+        <slot name="options" />
         <expand-component
           v-if="expand"
-          v-model="expanded"/>
+          v-model="expanded"
+        />
       </div>
     </div>
     <div
       class="body"
-      v-show="expanded">
-      <slot name="body"/>
+      v-show="expanded"
+    >
+      <slot name="body" />
     </div>
   </div>
 </template>
 
 <script>
-import ExpandComponent from 'components/expand.vue'
-import SpinnerComponent from 'components/spinner.vue'
+import ExpandComponent from '@/components/expand.vue'
+import SpinnerComponent from '@/components/spinner.vue'
 
 export default {
   components: {
@@ -61,7 +66,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       expanded: true
     }
@@ -84,20 +89,21 @@ export default {
   display: flex;
   flex-direction: column;
   .header {
-    border-left:4px solid green;
+    border-left: 4px solid green;
     h3 {
-    font-weight: 300;
-  }
-  padding: 1em;
-  padding-left: 1.5em;
-  border-bottom: 1px solid #f5f5f5;
+      font-weight: 300;
+    }
+    padding: 1em;
+    padding-left: 1.5em;
+    border-bottom: 1px solid #f5f5f5;
   }
   .body {
     padding: 2em;
     padding-top: 1em;
     padding-bottom: 1em;
   }
-  .taxonName-input,#error_explanation {
+  .taxonName-input,
+  #error_explanation {
     width: 300px;
   }
 }

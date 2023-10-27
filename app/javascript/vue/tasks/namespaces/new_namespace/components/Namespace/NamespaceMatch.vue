@@ -1,7 +1,8 @@
 <template>
   <div
     v-if="matches.length"
-    class="panel content">
+    class="panel content"
+  >
     <h3>Match</h3>
     <ul class="no_bullets full_width">
       <li
@@ -12,16 +13,16 @@
         <span
           class="cursor-pointer"
           @click="getNamespace(item.id)"
-          v-html="item.label_html"/>
+          v-html="item.label_html"
+        />
       </li>
     </ul>
   </div>
 </template>
 
 <script setup>
-
 import { watch, ref } from 'vue'
-import { Namespace } from 'routes/endpoints'
+import { Namespace } from '@/routes/endpoints'
 
 const props = defineProps({
   name: {
@@ -35,20 +36,22 @@ const delay = 1000
 const matches = ref([])
 let requestTimeout
 
-watch(() => props.name, (currentValue) => {
-  clearTimeout(requestTimeout)
+watch(
+  () => props.name,
+  (currentValue) => {
+    clearTimeout(requestTimeout)
 
-  requestTimeout = setTimeout(async () => {
-    matches.value = currentValue.trim()
-      ? (await Namespace.autocomplete({ term: currentValue })).body
-      : []
-  }, delay)
-})
+    requestTimeout = setTimeout(async () => {
+      matches.value = currentValue.trim()
+        ? (await Namespace.autocomplete({ term: currentValue })).body
+        : []
+    }, delay)
+  }
+)
 
 const getNamespace = (id) => {
   Namespace.find(id).then(({ body }) => {
     emit('onSelect', body)
   })
 }
-
 </script>

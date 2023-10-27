@@ -12,7 +12,10 @@ class GeoreferencesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @georeferences = Queries::Georeference::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(50)
+        @georeferences = Queries::Georeference::Filter.new(params).all
+        .where(project_id: sessions_current_project_id)
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -59,7 +62,7 @@ class GeoreferencesController < ApplicationController
   #        }
   #        format.json { render action: 'show', status: :created }
   #      else
-  #  
+  #
   #        format.html {
   #          if @georeference.method_name
   #            render "/georeferences/#{@georeference.method_name}/new"
@@ -67,11 +70,11 @@ class GeoreferencesController < ApplicationController
   #            if @georeference.collecting_event
   #              redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference not created, check verbatim values of collecting event'
   #            else
-  #              redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you recieved this message.'
+  #              redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you receive this message.'
   #            end
   #          end
   #        }
-  #  
+  #
   #        format.json { render json: @georeference.errors, status: :unprocessable_entity }
   #      end
   #    end
@@ -135,17 +138,10 @@ class GeoreferencesController < ApplicationController
     send_data(
       Export::Download.generate_csv(Georeference.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "georeferences_#{DateTime.now}.csv")
+      filename: "georeferences_#{DateTime.now}.tsv")
   end
 
   private
-
-  def filter_params
-    params.permit(
-      :collecting_event_id,
-      collecting_event_ids: [],
-    )
-  end
 
   def set_georeference
     @georeference = Georeference.with_project_id(sessions_current_project_id).find(params[:id])

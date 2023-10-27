@@ -1,18 +1,19 @@
 <template>
   <ul class="annotations__tag_list">
-    <li 
+    <li
       v-for="tag in tags"
-      :key="tag.id">
+      :key="tag.id"
+    >
       <span
         class="annotation__tag"
-        v-html="tag.keyword.object_tag"/>
+        v-html="tag.keyword.object_tag"
+      />
     </li>
   </ul>
 </template>
 
 <script>
-
-import { Source } from 'routes/endpoints'
+import { Source } from '@/routes/endpoints'
 
 export default {
   props: {
@@ -21,14 +22,14 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       tags: []
     }
   },
 
-  mounted () {
-    Source.tags(this.sourceId).then(response => {
+  mounted() {
+    Source.tags(this.sourceId).then((response) => {
       this.tags = response.body
     })
   }

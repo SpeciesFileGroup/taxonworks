@@ -119,7 +119,7 @@ module TaxonNames::CatalogHelper
       elsif catalog_item.object.subject_status_tag == 'classified as'
         other_str = link_to(taxon_name_tag(catalog_item.other_name), browse_nomenclature_task_path(taxon_name_id: catalog_item.other_name.id) ) + ' ' + original_author_year(catalog_item.other_name)
       else
-        other_str = link_to(original_taxon_name_tag(catalog_item.other_name), browse_nomenclature_task_path(taxon_name_id: catalog_item.other_name.id) ) + ' ' + original_author_year(catalog_item.other_name)
+        other_str = link_to(original_taxon_name_tag(catalog_item.other_name), browse_nomenclature_task_path(taxon_name_id: catalog_item.other_name&.id) ) + ' ' + original_author_year(catalog_item.other_name)
       end
       content_tag(:span, " (#{catalog_item.object.subject_status_tag} #{other_str})#{soft_validation_alert_tag(catalog_item.object)}".html_safe, class: [:history__other_name])
     end
@@ -176,11 +176,7 @@ module TaxonNames::CatalogHelper
       b = source_author_year_tag(c.source)
 
       tn = t.type == 'Combination' ? t.protonyms.last : t
-      if tn&.nomenclatural_code == :icn
-        in_str = ' ex '
-      else
-        in_str = ' in '
-      end
+      in_str = ' in '
 
       if a != b || i.from_relationship?
         content_tag(:em, in_str) + link_to(content_tag(:span, b, title: strip_tags(c.source.cached), class: :history__subject_original_citation), send(:nomenclature_by_source_task_path, source_id: c.source.id) )

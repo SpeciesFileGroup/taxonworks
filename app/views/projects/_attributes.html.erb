@@ -12,6 +12,15 @@
   <% end%>
 </p>
 
+<p>
+<strong>Data curation issue tracker url:</strong>
+<% if @project.data_curation_issue_tracker_url.present? %>
+  <%= link_to(@project.data_curation_issue_tracker_url, @project.data_curation_issue_tracker_url)  %>
+<% else %>
+  <em> None </em>
+<% end %>
+</p>
+
 <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: @project} -%>
 
 

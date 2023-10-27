@@ -10,20 +10,25 @@
             klass="Source"
             label="english_name"
             :filter-ids="languageId"
-            @selected="setSelected"/>
+            @selected="setSelected"
+          />
           <lock-component
             class="margin-small-left"
-            v-model="settings.lock.language_id"/>
+            v-model="settings.lock.language_id"
+          />
         </div>
         <div
           class="middle separate-top"
-          v-if="selected">
+          v-if="selected"
+        >
           <span
             class="separate-right"
-            v-html="selected.english_name"/>
+            v-html="selected.english_name"
+          />
           <span
             class="button-circle btn-undo button-default separate-left"
-            @click="unset"/>
+            @click="unset"
+          />
         </div>
       </fieldset>
     </div>
@@ -31,12 +36,11 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import { Language } from 'routes/endpoints'
-import LockComponent from 'components/ui/VLock/index.vue'
-import SmartSelector from 'components/ui/SmartSelector'
+import { Language } from '@/routes/endpoints'
+import LockComponent from '@/components/ui/VLock/index.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
 
 export default {
   components: {
@@ -45,39 +49,39 @@ export default {
   },
   computed: {
     source: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSource]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSource, value)
       }
     },
     settings: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSettings]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
-    lastSave () {
+    lastSave() {
       return this.$store.getters[GetterNames.GetLastSave]
     },
     languageId: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetLanguageId]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetLanguageId, value)
       }
     }
   },
   watch: {
     source: {
-      handler (newVal, oldVal) {
+      handler(newVal, oldVal) {
         if (newVal && newVal.language_id) {
           if (!oldVal || oldVal.language_id !== newVal.language_id) {
-            Language.find(newVal.language_id).then(response => {
+            Language.find(newVal.language_id).then((response) => {
               this.selected = response.body
             })
           }
@@ -87,24 +91,24 @@ export default {
     },
 
     languageId: {
-      handler (newVal) {
-        if(!newVal) {
+      handler(newVal) {
+        if (!newVal) {
           this.selected = undefined
         }
       }
     }
   },
-  data () {
+  data() {
     return {
       selected: undefined
     }
   },
   methods: {
-    setSelected (language) {
+    setSelected(language) {
       this.source.language_id = language.id
       this.selected = language
     },
-    unset () {
+    unset() {
       this.selected = undefined
       this.source.language_id = null
     }

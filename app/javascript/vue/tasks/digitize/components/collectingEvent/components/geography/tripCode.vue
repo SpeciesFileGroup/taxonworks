@@ -14,12 +14,13 @@
         />
       </div>
       <template v-if="identifier.namespace_id">
-        <hr>
+        <hr />
         <div class="middle flex-separate">
-          <p
-            class="separate-right">
+          <p class="separate-right">
             <span data-icon="ok" />
-            <span v-html="namespaceSelected ? namespaceSelected : identifier.cached"/>
+            <span
+              v-html="namespaceSelected ? namespaceSelected : identifier.cached"
+            />
           </p>
           <span
             class="circle-button button-default btn-undo"
@@ -34,7 +35,7 @@
         <input
           type="text"
           v-model="identifier.identifier"
-        >
+        />
         <validate-component
           v-if="identifier.namespace_id"
           class="separate-left"
@@ -47,8 +48,7 @@
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
 
@@ -63,20 +63,23 @@ export default {
 
   computed: {
     identifier: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetCollectingEventIdentifier]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetCollectingEventIdentifier, value)
       }
     },
 
-    checkValidation () {
-      return !validateIdentifier({ namespace_id: this.identifier.namespace_id, identifier: this.identifier.identifier })
+    checkValidation() {
+      return !validateIdentifier({
+        namespace_id: this.identifier.namespace_id,
+        identifier: this.identifier.identifier
+      })
     }
   },
 
-  data () {
+  data() {
     return {
       delay: 1000,
       namespaceSelected: undefined
@@ -84,7 +87,7 @@ export default {
   },
 
   methods: {
-    setTripCode (identifier) {
+    setTripCode(identifier) {
       this.identifier.namespace_id = identifier.id
       this.namespaceSelected = identifier.name
     }
@@ -93,7 +96,7 @@ export default {
 </script>
 
 <style scoped>
-  .validate-identifier {
-    border: 1px solid red
-  }
+.validate-identifier {
+  border: 1px solid red;
+}
 </style>

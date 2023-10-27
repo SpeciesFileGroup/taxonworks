@@ -29,8 +29,8 @@ module TaxonWorks
     # Fix deprecation warning by adopting future Rails 6.1 behaviour
     config.action_dispatch.return_only_media_type_on_content_type = false
 
-    config.autoload_paths << "#{Rails.root}/lib"
-    config.autoload_paths << "#{Rails.root}/lib/vendor"
+    config.autoload_paths << "#{Rails.root.join("lib")}"
+    config.autoload_paths << "#{Rails.root.join("lib/vendor")}"
 
     #Include separate assets
     config.assets.precompile += %w( separated_application.js )
@@ -56,20 +56,6 @@ module TaxonWorks
     # config.active_record.raise_in_transactional_callbacks = true
 
     config.active_job.queue_adapter = :delayed_job
-
-    RGeo::ActiveRecord::SpatialFactoryStore.instance.tap do |config|
-      # config.default = RGeo::Geographic.projected_factory(
-      #   projection_proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
-      #   has_z_coordinate: true)
-      config.default = RGeo::Geographic.projected_factory(
-        srid:                    4326,
-        projection_srid:         4326,
-        projection_proj4:        "EPSG:4326",
-        uses_lenient_assertions: true,
-        has_z_coordinate:        true,
-        wkb_parser:              {support_ewkb: true},
-        wkb_generator:           {hex_format: true, emit_ewkb_srid: true})
-    end
 
     # config.logger = Logger.new(STDOUT)
     # config.logger = Log4r::Logger.new('Application Log')

@@ -24,10 +24,9 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import VBtn from 'components/ui/VBtn/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import SummaryView from '../SummaryView/SummaryView.vue'
 import ContinousDescriptorObservation from './ContinuousDescriptorObservation.vue'
 import makeObservation from '../../helpers/makeObservation'
@@ -60,20 +59,21 @@ export default {
   },
 
   computed: {
-    observations () {
-      return this.$store.getters[GetterNames.GetObservations].filter(o =>
-        o.rowObjectId === this.rowObject.id &&
-        o.rowObjectType === this.rowObject.type
+    observations() {
+      return this.$store.getters[GetterNames.GetObservations].filter(
+        (o) =>
+          o.rowObjectId === this.rowObject.id &&
+          o.rowObjectType === this.rowObject.type
       )
     },
 
-    emptyObservation () {
+    emptyObservation() {
       return this.observations.find(({ id }) => !id)
     }
   },
 
   methods: {
-    addEmptyObservation () {
+    addEmptyObservation() {
       const args = {
         type: ObservationTypes.Continuous,
         rowObjectType: this.rowObject.type,

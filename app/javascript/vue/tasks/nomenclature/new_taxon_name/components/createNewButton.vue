@@ -2,19 +2,25 @@
   <div>
     <modal
       v-if="showModal"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>Confirm</h3>
       </template>
       <template #body>
-        <div>Are you sure you want to create a new taxon name? All unsaved changes will be lost.</div>
+        <div>
+          Are you sure you want to create a new taxon name? All unsaved changes
+          will be lost.
+        </div>
       </template>
       <template #footer>
         <button
           id="confirm-create-newtaxonname"
           @click="reloadPage()"
           type="button"
-          class="normal-input button button-default">New
+          class="normal-input button button-default"
+        >
+          New
         </button>
       </template>
     </modal>
@@ -22,32 +28,36 @@
       type="button"
       class="normal-input button button-default"
       v-hotkey="shortcuts"
-      @click="createNew()">New
+      @click="createNew()"
+    >
+      New
     </button>
   </div>
 </template>
 <script>
-
 import { GetterNames } from '../store/getters/getters'
-import { RouteNames } from 'routes/routes'
-import Modal from 'components/ui/Modal.vue'
-import PlatformKey from 'helpers/getPlatformKey'
+import { RouteNames } from '@/routes/routes'
+import Modal from '@/components/ui/Modal.vue'
+import PlatformKey from '@/helpers/getPlatformKey'
 
 export default {
   components: {
     Modal
   },
   computed: {
-    unsavedChanges () {
-      return (this.$store.getters[GetterNames.GetLastChange] > this.$store.getters[GetterNames.GetLastSave])
+    unsavedChanges() {
+      return (
+        this.$store.getters[GetterNames.GetLastChange] >
+        this.$store.getters[GetterNames.GetLastSave]
+      )
     },
-    getParent () {
+    getParent() {
       return this.$store.getters[GetterNames.GetParent]
     },
-    getTaxon () {
+    getTaxon() {
       return this.$store.getters[GetterNames.GetTaxon]
     },
-    shortcuts () {
+    shortcuts() {
       const keys = {}
 
       keys[`${PlatformKey()}+p`] = this.createNewWithParent
@@ -57,7 +67,7 @@ export default {
       return keys
     }
   },
-  data () {
+  data() {
     return {
       showModal: false,
       url: RouteNames.NewTaxonName
@@ -65,7 +75,7 @@ export default {
   },
 
   watch: {
-    showModal (newVal) {
+    showModal(newVal) {
       if (newVal) {
         this.$nextTick(() => {
           document.querySelector('#confirm-create-newtaxonname').focus()
@@ -75,16 +85,18 @@ export default {
   },
 
   methods: {
-    reloadPage () {
+    reloadPage() {
       window.location.href = this.url
       this.url = RouteNames.NewTaxonName
     },
 
     loadWithParent() {
-      return ((this.getParent && this.getParent.hasOwnProperty('id')) ? `${RouteNames.NewTaxonName}?parent_id=${this.getParent.id}` : RouteNames.NewTaxonName)
+      return this.getParent && this.getParent.hasOwnProperty('id')
+        ? `${RouteNames.NewTaxonName}?parent_id=${this.getParent.id}`
+        : RouteNames.NewTaxonName
     },
 
-    createNew (newUrl = this.url) {
+    createNew(newUrl = this.url) {
       this.url = newUrl
       if (this.unsavedChanges) {
         this.showModal = true
@@ -94,11 +106,19 @@ export default {
     },
 
     createNewWithChild() {
-      this.createNew((this.getTaxon.id ? `${RouteNames.NewTaxonName}?parent_id=${this.getTaxon.id}` : RouteNames.NewTaxonName))
+      this.createNew(
+        this.getTaxon.id
+          ? `${RouteNames.NewTaxonName}?parent_id=${this.getTaxon.id}`
+          : RouteNames.NewTaxonName
+      )
     },
 
     createNewWithParent() {
-      this.createNew((this.getParent && this.getParent.hasOwnProperty('id') ? `${RouteNames.NewTaxonName}?parent_id=${this.getParent.id}` : RouteNames.NewTaxonName))
+      this.createNew(
+        this.getParent && this.getParent.hasOwnProperty('id')
+          ? `${RouteNames.NewTaxonName}?parent_id=${this.getParent.id}`
+          : RouteNames.NewTaxonName
+      )
     }
   }
 }

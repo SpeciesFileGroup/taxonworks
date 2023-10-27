@@ -2,28 +2,37 @@
   <VBtn
     v-if="!createdSourceID"
     color="create"
-    class="btn-add-to-project circle-button"
+    circle
     title="Add to project"
+    aria-label="Add to project"
     @click="addToProject"
   >
-    Add to project
+    <VIcon
+      name="folderArrowDown"
+      x-small
+    />
   </VBtn>
 
   <VBtn
     v-else
     color="destroy"
-    class="btn-remove-from-project circle-button"
+    circle
     title="Remove from project"
+    aria-label="Remove from project"
     @click="removeFromProject"
   >
-    Remove from project
+    <VIcon
+      name="folderArrowUp"
+      x-small
+    />
   </VBtn>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
-import { ProjectSource } from 'routes/endpoints'
-import VBtn from 'components/ui/VBtn/index.vue'
+import { ProjectSource } from '@/routes/endpoints'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   id: {
@@ -48,21 +57,28 @@ const addToProject = () => {
 
   ProjectSource.create(payload).then(({ body }) => {
     createdSourceID.value = body.id
-    TW.workbench.alert.create('Source was added to project successfully', 'notice')
+    TW.workbench.alert.create(
+      'Source was added to project successfully',
+      'notice'
+    )
   })
 }
 
 const removeFromProject = () => {
-  ProjectSource.destroy(createdSourceID.value).then(_ => {
+  ProjectSource.destroy(createdSourceID.value).then((_) => {
     createdSourceID.value = undefined
-    TW.workbench.alert.create('Source was removed from project successfully', 'notice')
+    TW.workbench.alert.create(
+      'Source was removed from project successfully',
+      'notice'
+    )
   })
 }
 
 watch(
   () => props.projectSourceId,
-  newVal => { createdSourceID.value = newVal },
+  (newVal) => {
+    createdSourceID.value = newVal
+  },
   { immediate: true }
 )
-
 </script>
