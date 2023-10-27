@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Task Biological associations graph: Save fails when trying to update a graph
 
 ## [0.35.1] - 2023-10-23
 
@@ -55,7 +57,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Manage Controlled vocabulary term: CVT list is not reloading after clone them from other project
 - Not possible to delete asserted distribution once added in radial object [#3591]
 - Manage controlled vocabulary: Delete button doesn't work [#3593]
-
 
 [#2585]: https://github.com/SpeciesFileGroup/taxonworks/issues/2585
 [#1009]: https://github.com/SpeciesFileGroup/taxonworks/issues/1009
