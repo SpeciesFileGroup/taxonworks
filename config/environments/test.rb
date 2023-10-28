@@ -11,7 +11,9 @@ TaxonWorks::Application.configure do
   # Do not eager load code on boot. This avoids loading your whole application
   # just for the purpose of running a single test. If you are using a tool that
   # preloads Rails for running tests, you may have to set it to true.
-  config.eager_load = true
+  # 
+  # !! Switched with zeitwerk to false
+  config.eager_load = false
 
   # Configure static asset server for tests with Cache-Control for performance.
   # config.serve_static_files                         = true
@@ -67,7 +69,7 @@ TaxonWorks::Application.configure do
 
   # See http://guides.rubyonrails.org/v5.1/configuring.html#custom-configuration
   config.x.test_user_password = 'taxonworks'.freeze
-  config.x.test_tmp_file_dir = "#{Rails.root}/spec/test_files/_#{ENV['TEST_ENV_NUMBER']&.+ '/'}"
+  config.x.test_tmp_file_dir = "#{Rails.root.join("spec/test_files/_#{ENV['TEST_ENV_NUMBER']&.+ '/'}")}"
 
   Paperclip::Attachment.default_options[:path] = "#{config.x.test_tmp_file_dir}:class/:id_partition/:style.:extension"
 end

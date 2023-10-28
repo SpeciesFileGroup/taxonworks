@@ -1,5 +1,4 @@
-require File.expand_path('../boot', __FILE__)
-
+require_relative 'boot'
 require 'rails/all'
 
 # Require the gems listed in Gemfile, including any gems
@@ -10,6 +9,10 @@ Bundler.require *Rails.groups
 
 module TaxonWorks
   class Application < Rails::Application
+
+    # This breaks housekeeping when on but might be needed
+    # config.load_defaults 6.1
+
     # Via https://github.com/matthuhiggins/foreigner/pull/95
     #  config.before_initialize do
     #    Foreigner::Adapter.register 'postgis', 'foreigner/connection_adapters/postgresql_adapter'
@@ -29,7 +32,7 @@ module TaxonWorks
     config.action_dispatch.return_only_media_type_on_content_type = false
 
     config.autoload_paths << "#{Rails.root.join("lib")}"
-    config.autoload_paths << "#{Rails.root.join("lib/vendor")}"
+    # config.autoload_paths << "#{Rails.root.join("lib/vendor")}"
 
     #Include separate assets
     config.assets.precompile += %w( separated_application.js )
@@ -61,25 +64,9 @@ module TaxonWorks
     # config.logger = Logger.new(STDOUT)
     # config.logger = Log4r::Logger.new('Application Log')
 
+
     config.autoloader = :zeitwerk
 
-    config.middleware.insert_before 0, Rack::Cors, debug: true, logger: (-> {Rails.logger}) do
-      allow do
-        origins '*'
-
-        resource '/cors',
-          headers: :any,
-          methods: [:post],
-          credentials: false, # true,
-          max_age: 0
-
-        resource '*',
-          headers: :any,
-          methods: [:get, :post, :delete, :put, :patch, :options, :head],
-          max_age: 0,
-          credentials: false
-      end
-    end
 
   end
 end
