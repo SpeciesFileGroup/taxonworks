@@ -63,7 +63,7 @@ class Identifier < ApplicationRecord
 
   polymorphic_annotates('identifier_object')
 
-  include Housekeeping # TODO: potential circular dependency constraint when this is before above.
+  include ::Housekeeping # TODO: potential circular dependency constraint when this is before above.
   include Shared::Labels
   include Shared::IsData
 
@@ -91,7 +91,7 @@ class Identifier < ApplicationRecord
 
   # @return [String, Identifer]
   def self.prototype_identifier(project_id, created_by_id)
-    identifiers = Identifier.where(project_id: project_id, created_by_id: created_by_id).limit(1)
+    identifiers = Identifier.where(project_id:, created_by_id:).limit(1)
     identifiers.empty? ? '12345678' : identifiers.last.identifier
   end
 
@@ -135,4 +135,6 @@ class Identifier < ApplicationRecord
 
 end
 
-Dir[Rails.root.to_s + '/app/models/identifier/**/*.rb'].sort.each{ |file| require_dependency file }
+Rails.application.reloader.to_prepare do
+#  Dir[Rails.root.to_s + '/app/models/identifier/**/*.rb'].sort.each{ |file| require_dependency file }
+end

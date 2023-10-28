@@ -5,34 +5,34 @@ namespace :tw do
     namespace :linting do
 
       desc 'check some nomenclatural constants for consistency'
-      task ensure_constants_reference_models: [:environment] do |t| 
-        Rails.application.eager_load!
+      task ensure_constants_reference_models: [:environment] do |t|
+        # Rails.application.eager_load!
         i = 0
         TAXON_NAME_RELATIONSHIP_NAMES.each do |r|
           if r.safe_constantize.nil?
             i += 1
             puts Rainbow(r).red
           end
-        end 
-        puts "All good" if i == 0
-      end 
+        end
+        puts 'All good' if i == 0
+      end
 
       desc 'check some nomenclatural data for consistency'
-      task ensure_taxon_name_relationship_type_reference_models: [:environment] do |t| 
-        Rails.application.eager_load!
+      task ensure_taxon_name_relationship_type_reference_models: [:environment] do |t|
+        # Rails.application.eager_load!
         i = 0
         TaxonNameRelationship.select(:type).distinct.pluck(:type).each do |r|
           if r.safe_constantize.nil?
             i += 1
             puts Rainbow(r).red
           end
-        end 
-        puts "All good" if i == 0
-      end 
+        end
+        puts 'All good' if i == 0
+      end
 
       desc 'list annotated models'
       task  list_annotated_models: [:environment] do |t|
-        Rails.application.eager_load!
+        # Rails.application.eager_load!
 
         annotations = ::ANNOTATION_TYPES.inject({}) {|hsh, a| hsh.merge!(a => [] )}
 
@@ -58,7 +58,7 @@ namespace :tw do
       # rake tw:development:linting:list_models_with_soft_validations
       desc 'list models with soft validations'
       task  list_models_with_soft_validations: [:environment] do |t|
-        Rails.application.eager_load!
+        # Rails.application.eager_load!
 
         annotations = []
         ApplicationRecord.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|

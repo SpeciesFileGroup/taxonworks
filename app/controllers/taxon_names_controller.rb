@@ -328,4 +328,7 @@ class TaxonNamesController < ApplicationController
 
 end
 
-require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/nomen_interpreter.rb'
+
+Rails.application.reloader.to_prepare do
+  require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/nomen_interpreter.rb'
+end

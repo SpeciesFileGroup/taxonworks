@@ -19,10 +19,10 @@ namespace :tw do
       password_confirmation = STDIN.noecho(&:gets).strip
       puts
 
-      u = User.create!(name:                  name,
-                      email:                 email,
-                      password:              password,
-                      password_confirmation: password_confirmation,
+      u = User.create!(name:,
+                      email:,
+                      password:,
+                      password_confirmation:,
                       is_administrator:      true,
                       self_created:          true)
 
@@ -35,7 +35,7 @@ namespace :tw do
     end
 
     task check_for_clean_database: [:environment] do |t|
-      Rails.application.eager_load!
+      # Rails.application.eager_load!
       errored = false
       ApplicationRecord.descendants.each do |klass|
         puts "#{klass.name}"
@@ -128,7 +128,7 @@ namespace :tw do
         user_data = YAML.load_file(file)
       else
         print "not found, skipping.\n"
-        next 
+        next
       end
 
       user_data.each do |k, v|

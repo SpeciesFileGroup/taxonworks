@@ -2,9 +2,9 @@ require 'rails_helper'
 
 describe Project, type: :model do
 
-  before(:all) {
-    Rails.application.eager_load!
-  }
+# before(:all) {
+#   Rails.application.eager_load!
+# }
 
   let(:project) { Project.new }
 
@@ -12,7 +12,7 @@ describe Project, type: :model do
     password:  'password',
     password_confirmation: 'password',
     email: 'user_model@example.com',
-    name: 'Bob', 
+    name: 'Bob',
     self_created: true
   ) }
 
@@ -21,7 +21,7 @@ describe Project, type: :model do
   end
 
   context 'nil globals' do
-    before do 
+    before do
       Current.user_id = nil
       Current.project_id = nil
     end
