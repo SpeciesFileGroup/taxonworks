@@ -31,8 +31,9 @@ module TaxonWorks
     # Fix deprecation warning by adopting future Rails 6.1 behaviour
     config.action_dispatch.return_only_media_type_on_content_type = false
 
+    # Zietwerk currently requires both, review
     config.autoload_paths << "#{Rails.root.join("lib")}"
-    # config.autoload_paths << "#{Rails.root.join("lib/vendor")}"
+    config.autoload_paths << "#{Rails.root.join("lib/vendor")}"
 
     #Include separate assets
     config.assets.precompile += %w( separated_application.js )

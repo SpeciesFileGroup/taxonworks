@@ -1,6 +1,7 @@
+require 'gpx_to_csv'
+
 module BatchLoad
   class Import::CollectingEvents::GPXInterpreter < BatchLoad::Import
-
     # SAVE_ORDER = [:georeference, :collecting_event]
 
     def initialize(**args)
@@ -13,7 +14,7 @@ module BatchLoad
     # methode override for GPX processing which is quite different from CSV
     # @return [Hash, nil]
     def csv
-      @csv = GPXToCSV.gpx_to_csv(GPX::GPXFile.new(gpx_file: @file.tempfile.path))
+      @csv = ::GPXToCSV.gpx_to_csv(GPX::GPXFile.new(gpx_file: @file.tempfile.path))
     end
 
     # TODO: update this
@@ -42,13 +43,13 @@ module BatchLoad
           verbatim_date += " to #{end_date}" if end_date.present?
 
           ce_attributes = {verbatim_label: row['name'],
-                           verbatim_date: verbatim_date,
+                           verbatim_date:,
                            minimum_elevation: min_elev,
                            maximum_elevation: max_elev}
 
           geo_json = row['geojson']
 
-          unless geo_json.blank?
+          if geo_json.present?
             ce_attributes[:gpx_georeferences_attributes] = [{geographic_item_attributes: {shape: geo_json}}]
           end
 

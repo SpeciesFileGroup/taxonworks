@@ -1,6 +1,5 @@
+# convert a GPX file to a bespoke tab-separated CSV file
 module GPXToCSV
-
-  # convert a GPX file to a bespoke tab-separated CSV file
 
   # @param [GPX::GPXFile] gpx_file
   # @param [Hash] csv_options

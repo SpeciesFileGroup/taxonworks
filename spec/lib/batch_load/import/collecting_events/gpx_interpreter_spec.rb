@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'batch_load/import/collecting_events/gpx_interpreter'
 
 describe BatchLoad::Import::CollectingEvents::GPXInterpreter, type: :model, group: [:geo, :collecting_events] do
 
@@ -11,7 +12,7 @@ describe BatchLoad::Import::CollectingEvents::GPXInterpreter, type: :model, grou
   # let(:setup) {
   #   gpx = GPX::GPXFile.new(file_name)
   # }
-
+            
   let(:import) { BatchLoad::Import::CollectingEvents::GPXInterpreter.new(
     project_id: project.id,
     user_id: user.id,
@@ -64,7 +65,7 @@ describe BatchLoad::Import::CollectingEvents::GPXInterpreter, type: :model, grou
       end
 
       specify 'georeferences' do
-        expect(Georeference::GPX.count).to eq(2)
+        expect(::Georeference::GPX.count).to eq(2)
       end
 
       context 'geographic_items' do
