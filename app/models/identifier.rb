@@ -63,7 +63,7 @@ class Identifier < ApplicationRecord
 
   polymorphic_annotates('identifier_object')
 
-  include ::Housekeeping # TODO: potential circular dependency constraint when this is before above.
+  include Housekeeping # TODO: potential circular dependency constraint when this is before above.
   include Shared::Labels
   include Shared::IsData
 
@@ -131,10 +131,8 @@ class Identifier < ApplicationRecord
       cached_numeric_identifier: build_cached_numeric_identifier
     )
   end
-
-
 end
 
-Rails.application.reloader.to_prepare do
-#  Dir[Rails.root.to_s + '/app/models/identifier/**/*.rb'].sort.each{ |file| require_dependency file }
-end
+#Rails.application.reloader.to_prepare do
+Dir[Rails.root.to_s + '/app/models/identifier/**/*.rb'].sort.each{ |file| require_dependency file }
+# aned
