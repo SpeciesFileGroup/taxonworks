@@ -43,7 +43,7 @@ module Shared::Maps
     def cached_map_items_to_clean
       maps = []
 
-      Behavior::Maps::DEFAULT_CACHED_BUILD_TYPES.each do |map_type|
+      ::DEFAULT_CACHED_MAP_BUILD_TYPES.each do |map_type|
         if stubs = CachedMapItem.stubs(self, map_type)
           stubs[:geographic_item_id].each do |geographic_item_id|
             stubs[:otu_id].each do |otu_id|
@@ -80,7 +80,7 @@ module Shared::Maps
     # * !! Assumes this is the first time CachedMapItem is being indexed for this object.
     # * !! Does NOT check register.
     def create_cached_map_items(batch = false)
-      Behavior::Maps::DEFAULT_CACHED_BUILD_TYPES.each do |map_type|
+      ::DEFAULT_CACHED_MAP_BUILD_TYPES.each do |map_type|
         stubs = CachedMapItem.stubs(self, map_type)
 
         # Georeferences with no CollectionObjects will hit here
