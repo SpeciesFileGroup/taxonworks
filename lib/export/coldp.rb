@@ -66,7 +66,7 @@ module Export
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
 
       metadata_path = Zaru::sanitize!("/tmp/#{project.name}_#{DateTime.now}_metadata.yaml").gsub(' ', '_').downcase
-      version = Taxonworks::VERSION
+      version = TaxonWorks::VERSION
       if Settings.sandbox_mode?
         version = Settings.sandbox_commit_sha
       end
