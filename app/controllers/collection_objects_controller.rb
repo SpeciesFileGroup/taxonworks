@@ -443,6 +443,11 @@ class CollectionObjectsController < ApplicationController
           :text_method,
           :total
         ]
+      ],
+      taxon_determinations_attributes: [
+        :id, :_destroy, :otu_id, :year_made, :month_made, :day_made, :position,
+        roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+        otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
       ]
     )
   end
