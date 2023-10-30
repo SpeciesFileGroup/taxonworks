@@ -22,7 +22,7 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
 
   # GET /tasks/accession/breakdown/depiction/:id # id is a collection_object_id !!
   def index
-    @result = Vendor::SqedToTaxonworks::Result.new(
+    @result = SqedToTaxonworks::Result.new(
       depiction_id: @sqed_depiction.depiction.id,
       namespace_id: params[:namespace_id]
     )
