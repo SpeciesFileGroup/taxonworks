@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Collection object summary report bad link
 - Task Biological associations graph: Save fails when trying to update a graph
 
 ## [0.35.1] - 2023-10-23
