@@ -121,6 +121,8 @@ resources :collection_objects do
     get 'dwca', defaults: {format: :json}
     get 'metadata_badge', defaults: {format: :json}
     get :navigation, defaults: {format: :json}
+
+    post :batch_update
   end
 
   collection do

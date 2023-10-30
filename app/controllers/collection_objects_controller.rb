@@ -389,6 +389,18 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
+  # POST /collection_objects/batch_update.json?collection_object_query=<>&collection_object={}
+  def batch_update
+    if c = CollectionObject.batch_update(
+        collection_object: collection_object_params.merge(by: sessions_current_user_id) ,
+        collection_object_query: params[:collection_object_query]
+     )
+      render json: {}, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def after_destroy_path
