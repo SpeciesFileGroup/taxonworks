@@ -9,45 +9,14 @@
     <div class="flex-separate">
       <div>
         <h3>Add</h3>
-        <div
+        <BiocurationGroup
           v-for="group in biocurationsGroups"
           :key="group.id"
+          :group="group"
           class="margin-small-bottom"
-        >
-          <span>{{ group.name }}</span>
-          <div class="flex-wrap-row gap-small">
-            <VBtn
-              v-for="item in group.list"
-              :key="item.id"
-              color="primary"
-              medium
-              @click="addBiocuration(item)"
-            >
-              {{ item.name }}
-            </VBtn>
-          </div>
-        </div>
-      </div>
-      <div>
-        <h3>Remove</h3>
-        <div
-          v-for="group in biocurationsGroups"
-          :key="group.id"
-          class="margin-small-bottom"
-        >
-          <span>{{ group.name }}</span>
-          <div class="flex-wrap-row gap-small">
-            <VBtn
-              v-for="item in group.list"
-              color="destroy"
-              medium
-              :key="item.id"
-              @click="removeBiocuration(item)"
-            >
-              {{ item.name }}
-            </VBtn>
-          </div>
-        </div>
+          color="submit"
+          @select="addBiocuration"
+        />
       </div>
     </div>
 
@@ -94,8 +63,8 @@ import {
   Tag
 } from '@/routes/endpoints'
 import { BIOCURATION_CLASS, BIOCURATION_GROUP } from '@/constants'
+import BiocurationGroup from './BiocurationGroup.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
 
 const MAX_LIMIT = 50
 

@@ -59,7 +59,7 @@ import VModal from '@/components/ui/Modal.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import SliceTaxonDetermination from './components/SliceTaxonDetermination.vue'
-import SliceBiocurations from './components/SliceBiocurations.vue'
+import SliceBiocurations from './components/SliceBiocurations/SliceBiocurations.vue'
 
 import { computed, ref } from 'vue'
 import { removeEmptyProperties } from '@/helpers/objects.js'
