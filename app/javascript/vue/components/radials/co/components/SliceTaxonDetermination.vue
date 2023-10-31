@@ -11,11 +11,11 @@
     </div>
 
     <div class="margin-large-top">
-      <template v-if="collectionObjects.updated.length">
+      <template v-if="collectionObjects.passed.length">
         <h3>Updated</h3>
         <ul>
           <li
-            v-for="item in collectionObjects.updated"
+            v-for="item in collectionObjects.passed"
             :key="item.id"
           >
             <a
@@ -25,11 +25,11 @@
           </li>
         </ul>
       </template>
-      <template v-if="collectionObjects.not_updated.length">
+      <template v-if="collectionObjects.failed.length">
         <h3>Not updated</h3>
         <ul>
           <li
-            v-for="item in collectionObjects.not_updated"
+            v-for="item in collectionObjects.failed"
             :key="item.id"
           >
             <a
@@ -63,38 +63,31 @@ const props = defineProps({
   }
 })
 
-const collectionObjects = ref({ updated: [], not_updated: [] })
+const collectionObjects = ref({ passed: [], failed: [] })
 
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 
-function addTaxonDetermination({
-  day_made,
-  month_made,
-  year_made,
-  otu_id,
-  roles_attributes
-}) {
+function addTaxonDetermination(determination) {
   const payload = {
     collection_object_query: props.parameters,
     collection_object: {
       taxon_determinations_attributes: [
         {
-          day_made,
-          month_made,
-          year_made,
-          otu_id,
-          roles_attributes
+          day_made: determination.day_made,
+          month_made: determination.month_made,
+          year_made: determination.year_made,
+          otu_id: determination.otu_id,
+          roles_attributes: determination.roles_attributes
         }
       ]
     }
   }
 
   CollectionObject.batchUpdate(payload).then(({ body }) => {
-    //sources.value = body
-    /* TW.workbench.alert.create(
-      `${body.updated.length} sources were successfully updated.`,
+    TW.workbench.alert.create(
+      `${body.passed.length} taxon determination(s) were successfully added.`,
       'notice'
-    ) */
+    )
   })
 }
 </script>
