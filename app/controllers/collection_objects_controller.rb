@@ -389,19 +389,16 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
-  # POST /collection_objects/batch_update.json?collection_object_query=<>&collection_object={}
-  def batch_update
-    if c = CollectionObject.query_batch_update({
-        collection_object: collection_object_params.merge(by: sessions_current_user_id) ,
+   # POST /collection_object/batch_update.json?collection_object_query=<>&collection_object={}
+   def batch_update
+    c = CollectionObject.query_batch_update({
+        collection_object: collection_object_params.merge(by: sessions_current_user_id),
         collection_object_query: params[:collection_object_query]
       })
-      render json: {}, status: :ok
-    else
-      render json: {}, status: :unprocessable_entity
-    end
-  end
+    render json: c[:result], status: c[:status]
+   end
 
-  private
+   private
 
   def after_destroy_path
     if request.referer =~ /tasks\/collection_objects\/browse/
