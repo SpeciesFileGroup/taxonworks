@@ -121,8 +121,6 @@ resources :collection_objects do
     get 'dwca', defaults: {format: :json}
     get 'metadata_badge', defaults: {format: :json}
     get :navigation, defaults: {format: :json}
-
-    post :batch_update
   end
 
   collection do
@@ -138,6 +136,8 @@ resources :collection_objects do
     post :create_simple_batch_load
     get :select_options, defaults: {format: :json}
     get :preview, defaults: {format: :json}
+
+    post :batch_update
   end
 
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
