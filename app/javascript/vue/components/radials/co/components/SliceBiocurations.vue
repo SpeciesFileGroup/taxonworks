@@ -56,12 +56,12 @@
         <h3>Passed</h3>
         <ul>
           <li
-            v-for="item in collectionObjects.passed"
-            :key="item.id"
+            v-for="id in collectionObjects.passed"
+            :key="id"
           >
             <a
-              :href="`${RouteNames.BrowseCollectionObject}?collection_object_id=${item.id}`"
-              v-html="item.object_tag"
+              :href="`${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`"
+              v-html="id"
             />
           </li>
         </ul>
@@ -71,11 +71,11 @@
         <ul>
           <li
             v-for="item in collectionObjects.failed"
-            :key="item.id"
+            :key="item"
           >
             <a
-              :href="`${RouteNames.BrowseCollectionObject}?collection_object_id=${item.id}`"
-              v-html="item.object_tag"
+              :href="`${RouteNames.BrowseCollectionObject}?collection_object_id=${item}`"
+              v-html="item"
             />
           </li>
         </ul>
@@ -112,7 +112,6 @@ const props = defineProps({
 })
 
 const collectionObjects = ref({ passed: [], failed: [] })
-const keywords = ref([])
 const biocurationsGroups = ref([])
 const biocutarionsType = ref([])
 const confirmationModalRef = ref(null)
@@ -165,13 +164,16 @@ async function addBiocuration(item) {
     const payload = {
       collection_object_query: props.parameters,
       collection_object: {
-        tags_attributes: [{ keyword_id: item.id }]
+        biocuration_classifications_attributes: [
+          { biocuration_class_id: item.id }
+        ]
       }
     }
 
     CollectionObject.batchUpdate(payload).then(({ body }) => {
+      Object.assign(collectionObjects.value, body)
       TW.workbench.alert.create(
-        `${body.updated.length} sources were successfully added.`,
+        `${body.passed.length} sources were successfully added.`,
         'notice'
       )
     })
@@ -192,9 +194,9 @@ async function removeBiocuration(item) {
     const payload = {
       collection_object_query: props.parameters,
       collection_object: {
-        tags_attributes: [
+        biocuration_classifications_attributes: [
           {
-            keyword_id: item.id,
+            biocuration_class_id: item.id,
             _destroy: true
           }
         ]
@@ -202,6 +204,7 @@ async function removeBiocuration(item) {
     }
 
     CollectionObject.batchUpdate(payload).then(({ body }) => {
+      Object.assign(collectionObjects.value, body)
       TW.workbench.alert.create(
         `${body.passed.length} biocuration(s) were successfully removed.`,
         'notice'
