@@ -28,9 +28,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Reset project preferences [#3599]
 - Project TSV dump permissions on server side
 - Clone moved CVT, not cloned project
+- Role picker doesn't show organization name when created [#3611]
 
 [#3600]: https://github.com/SpeciesFileGroup/taxonworks/issues/3600
 [#3599]: https://github.com/SpeciesFileGroup/taxonworks/issues/3599
+[#3611]: https://github.com/SpeciesFileGroup/taxonworks/issues/3611
+[#3612]: https://github.com/SpeciesFileGroup/taxonworks/issues/3612
 
 ## [0.35.0] - 2023-10-19
 

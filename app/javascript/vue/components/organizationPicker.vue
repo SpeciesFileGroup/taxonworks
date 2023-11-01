@@ -9,8 +9,8 @@
       placeholder="Search an organization"
       clear-after
       @found="nothing = !$event"
-      @get-input="organization.name = $event"
-      @get-item="setOrganization"
+      @get-input="(item) => (organization.name = item)"
+      @get-item="(item) => setOrganization({ id: item.id, name: item.label })"
     />
     <button
       v-if="nothing"
@@ -23,8 +23,8 @@
     <default-pin
       class="button-circle"
       type="Organization"
-      @get-item="setOrganization({ id: $event.id, label: $event.label })"
       section="Organizations"
+      @get-item="(item) => setOrganization({ id: item.id, name: item.label })"
     />
     <modal-component
       v-if="showModal"
