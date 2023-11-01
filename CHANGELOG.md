@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Doubled the number of favoritable tasks to 40 [#3600]
 - Browse OTU: Image gallery section is now available for all ranks [#3612]
+- Add record frame to Filter Source [#3615]
 
 ### Fixed
 
@@ -34,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3599]: https://github.com/SpeciesFileGroup/taxonworks/issues/3599
 [#3611]: https://github.com/SpeciesFileGroup/taxonworks/issues/3611
 [#3612]: https://github.com/SpeciesFileGroup/taxonworks/issues/3612
+[#3615]: https://github.com/SpeciesFileGroup/taxonworks/issues/3615
 
 ## [0.35.0] - 2023-10-19
 

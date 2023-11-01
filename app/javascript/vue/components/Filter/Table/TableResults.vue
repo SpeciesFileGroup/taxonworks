@@ -158,6 +158,10 @@
           </td>
           <td>
             <div class="horizontal-right-content gap-small">
+              <slot
+                name="buttons-left"
+                :item="item"
+              />
               <RadialAnnotator
                 :global-id="item.global_id"
                 @click="() => (lastRadialOpenedRow = item.id)"
@@ -174,17 +178,22 @@
             </div>
           </td>
           <template v-if="attributes">
-            <td
+            <slot
               v-for="(_, attr) in attributes"
               :key="attr"
-              v-html="item[attr]"
-              @dblclick="
-                () => {
-                  scrollToTop()
-                  filterValues[attr] = item[attr]
-                }
-              "
-            />
+              :name="attr"
+              :value="item[attr]"
+            >
+              <td
+                v-html="item[attr]"
+                @dblclick="
+                  () => {
+                    scrollToTop()
+                    filterValues[attr] = item[attr]
+                  }
+                "
+              />
+            </slot>
           </template>
 
           <template
