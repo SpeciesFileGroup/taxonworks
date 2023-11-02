@@ -137,7 +137,10 @@ export default {
     },
 
     validateAttr() {
-      return this.imagesBy.length > 0 || this.license.length || this.source
+      return (
+        (this.imagesBy.length && this.license.length) ||
+        (this.source && !this.imagesBy.length)
+      )
     },
 
     authors() {

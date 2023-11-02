@@ -19,10 +19,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Collection object summary report bad link
 - Task Biological associations graph: Save fails when trying to update a graph
 - Role picker doesn't show organization name when created [#3611]
+- Spinner hangs when apply fails in New Images task [#3620]
 
 [#3611]: https://github.com/SpeciesFileGroup/taxonworks/issues/3611
 [#3612]: https://github.com/SpeciesFileGroup/taxonworks/issues/3612
 [#3619]: https://github.com/SpeciesFileGroup/taxonworks/issues/3619
+[#3620]: https://github.com/SpeciesFileGroup/taxonworks/issues/3620
 
 ## [0.35.1] - 2023-10-23
 
