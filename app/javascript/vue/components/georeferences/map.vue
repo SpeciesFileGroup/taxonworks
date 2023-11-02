@@ -316,9 +316,9 @@ const handleEvents = () => {
 }
 
 function getDefaultTile() {
-  const defaultTile = localStorage.getItem(TILE_MAP_STORAGE_KEY) || 'OSM'
+  const defaultTile = localStorage.getItem(TILE_MAP_STORAGE_KEY)
 
-  return tiles[defaultTile]
+  return tiles[defaultTile] || tiles.OSM
 }
 
 const editedLayer = (e) => {
