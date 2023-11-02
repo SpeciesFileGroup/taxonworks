@@ -33,6 +33,8 @@ let drawnItems
 let mapObject
 let geographicArea
 
+const TILE_MAP_STORAGE_KEY = 'tw::map::tile'
+
 const props = defineProps({
   zoomAnimate: {
     type: Boolean,
@@ -150,19 +152,19 @@ const emit = defineEmits([
 
 const leafletMap = ref(null)
 const tiles = {
-  osm: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  OSM: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution:
       '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 18
   }),
-  google: L.tileLayer(
+  Google: L.tileLayer(
     'http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}',
     {
       attribution: 'Google',
       maxZoom: 18
     }
   ),
-  gbif: L.tileLayer(
+  GBIF: L.tileLayer(
     'https://tile.gbif.org/3857/omt/{z}/{x}/{y}@1x.png?style=gbif-natural-en',
     {
       attribution: 'GBIF',
@@ -244,18 +246,10 @@ onUnmounted(() => {
 })
 
 const addDrawControllers = () => {
-  tiles.osm.addTo(mapObject)
+  getDefaultTile().addTo(mapObject)
   if (props.tilesSelection) {
     L.control
-      .layers(
-        {
-          OSM: tiles.osm,
-          GBIF: tiles.gbif,
-          Google: tiles.google
-        },
-        {},
-        { position: 'topleft', collapsed: false }
-      )
+      .layers(tiles, {}, { position: 'topleft', collapsed: false })
       .addTo(mapObject)
   }
 
@@ -284,6 +278,10 @@ const addDrawControllers = () => {
   }
 }
 const handleEvents = () => {
+  mapObject.on('baselayerchange', (e) => {
+    localStorage.setItem(TILE_MAP_STORAGE_KEY, e.name)
+  })
+
   mapObject.on('pm:create', (e) => {
     const layer = e.layer
     const geoJsonLayer = convertGeoJSONWithPointRadius(layer)
@@ -315,6 +313,12 @@ const handleEvents = () => {
     })
     emit('geojson', geoArray)
   })
+}
+
+function getDefaultTile() {
+  const defaultTile = localStorage.getItem(TILE_MAP_STORAGE_KEY) || 'OSM'
+
+  return tiles[defaultTile]
 }
 
 const editedLayer = (e) => {

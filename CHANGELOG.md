@@ -7,19 +7,28 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+
+- Browse OTU: Image gallery section is now available for all ranks [#3612]
+- Map saves tile preferences [#3619]
+
 ### Fixed
 
 - CollectionObject summary report tab clicks
 - Cached map preview incorrect/default GeographicItem id for GeographicAreas
 - Collection object summary report bad link
 - Task Biological associations graph: Save fails when trying to update a graph
+- Role picker doesn't show organization name when created [#3611]
+
+[#3611]: https://github.com/SpeciesFileGroup/taxonworks/issues/3611
+[#3612]: https://github.com/SpeciesFileGroup/taxonworks/issues/3612
+[#3619]: https://github.com/SpeciesFileGroup/taxonworks/issues/3619
 
 ## [0.35.1] - 2023-10-23
 
 ### Changed
 
 - Doubled the number of favoritable tasks to 40 [#3600]
-- Browse OTU: Image gallery section is now available for all ranks [#3612]
 - Add record frame to Filter Source [#3615]
 
 ### Fixed
@@ -29,12 +38,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Reset project preferences [#3599]
 - Project TSV dump permissions on server side
 - Clone moved CVT, not cloned project
-- Role picker doesn't show organization name when created [#3611]
 
 [#3600]: https://github.com/SpeciesFileGroup/taxonworks/issues/3600
 [#3599]: https://github.com/SpeciesFileGroup/taxonworks/issues/3599
-[#3611]: https://github.com/SpeciesFileGroup/taxonworks/issues/3611
-[#3612]: https://github.com/SpeciesFileGroup/taxonworks/issues/3612
 [#3615]: https://github.com/SpeciesFileGroup/taxonworks/issues/3615
 
 ## [0.35.0] - 2023-10-19
