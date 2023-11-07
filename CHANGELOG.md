@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Update Gemfiles
 - CachedMap algorithm, now far more precise.
 - Browse OTU: Image gallery section is now available for all ranks [#3612]
 - Map saves tile preferences [#3619]
@@ -23,7 +24,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Task Biological associations graph: Save fails when trying to update a graph
 - Role picker doesn't show organization name when created [#3611]
 - Spinner hangs when apply fails in New Images task [#3620]
-
 
 [#3622]: https://github.com/SpeciesFileGroup/taxonworks/issues/3622
 [#3623]: https://github.com/SpeciesFileGroup/taxonworks/issues/3623
