@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- CachedMap algorithm, now far more precise.
 - Browse OTU: Image gallery section is now available for all ranks [#3612]
 - Map saves tile preferences [#3619]
 
