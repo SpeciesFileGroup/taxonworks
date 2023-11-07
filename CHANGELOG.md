@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Role callbacks interfered with creation of nested objects [#3622] !! Potentially breaking fix !!
 - Queries to `/api/v1/sources` not scoping to project when `project_token` used [#3623]
 - CollectionObject summary report tab clicks
 - Cached map preview incorrect/default GeographicItem id for GeographicAreas
@@ -23,6 +24,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Role picker doesn't show organization name when created [#3611]
 - Spinner hangs when apply fails in New Images task [#3620]
 
+
+[#3622]: https://github.com/SpeciesFileGroup/taxonworks/issues/3622
 [#3623]: https://github.com/SpeciesFileGroup/taxonworks/issues/3623
 [#3611]: https://github.com/SpeciesFileGroup/taxonworks/issues/3611
 [#3612]: https://github.com/SpeciesFileGroup/taxonworks/issues/3612
