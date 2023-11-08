@@ -83,5 +83,8 @@ export const CollectionObject = {
       'get',
       '/tasks/accessions/breakdown/sqed_depiction/todo_map.json',
       { params }
-    )
+    ),
+
+  batchUpdate: (params) =>
+    AjaxCall('post', `/${controller}/batch_update.json`, params)
 }

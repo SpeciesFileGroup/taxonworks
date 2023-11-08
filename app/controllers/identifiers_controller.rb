@@ -69,6 +69,7 @@ class IdentifiersController < ApplicationController
   # DELETE /identifiers/1.json
   def destroy
     @identifier.destroy
+
     respond_to do |format|
       format.html { destroy_redirect @identifier, notice: 'Identifier was successfully destroyed.' }
       format.json { head :no_content }
@@ -129,7 +130,15 @@ class IdentifiersController < ApplicationController
   private
 
   def set_identifier
-    @identifier = Identifier.with_project_id(sessions_current_project_id).find(params[:id])
+    @identifier = Identifier.find(params[:id])
+
+    if !@identifier.is_community_annotation?
+      if @identifier.project_id != sessions_current_project_id
+        return nil
+      end
+    end
+
+    @identifier
   end
 
   def identifier_params

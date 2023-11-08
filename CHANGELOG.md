@@ -9,11 +9,43 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.35.2] - 2023-11-07
+
+### Changed
+
+- Update Gemfiles
+- CachedMap algorithm, now far more precise.
+- Browse OTU: Image gallery section is now available for all ranks [#3612]
+- Map saves tile preferences [#3619]
+
+### Fixed
+
+- Anyone can destroy a Community (Global) identifier on a Community object [#3601]
+- Newfoundland/CAR mapping issue [#3588]
+- Role callbacks interfered with creation of nested objects [#3622] !! Potentially breaking fix !!
+- Queries to `/api/v1/sources` not scoping to project when `project_token` used [#3623]
+- CollectionObject summary report tab clicks
+- Cached map preview incorrect/default GeographicItem id for GeographicAreas
+- Collection object summary report bad link
+- Task Biological associations graph: Save fails when trying to update a graph
+- Role picker doesn't show organization name when created [#3611]
+- Spinner hangs when apply fails in New Images task [#3620]
+
+[#3601]: https://github.com/SpeciesFileGroup/taxonworks/issues/3601
+[#3588]: https://github.com/SpeciesFileGroup/taxonworks/issues/3588
+[#3622]: https://github.com/SpeciesFileGroup/taxonworks/issues/3622
+[#3623]: https://github.com/SpeciesFileGroup/taxonworks/issues/3623
+[#3611]: https://github.com/SpeciesFileGroup/taxonworks/issues/3611
+[#3612]: https://github.com/SpeciesFileGroup/taxonworks/issues/3612
+[#3619]: https://github.com/SpeciesFileGroup/taxonworks/issues/3619
+[#3620]: https://github.com/SpeciesFileGroup/taxonworks/issues/3620
+
 ## [0.35.1] - 2023-10-23
 
 ### Changed
 
 - Doubled the number of favoritable tasks to 40 [#3600]
+- Add record frame to Filter Source [#3615]
 
 ### Fixed
 
@@ -25,6 +57,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3600]: https://github.com/SpeciesFileGroup/taxonworks/issues/3600
 [#3599]: https://github.com/SpeciesFileGroup/taxonworks/issues/3599
+[#3615]: https://github.com/SpeciesFileGroup/taxonworks/issues/3615
 
 ## [0.35.0] - 2023-10-19
 
@@ -55,7 +88,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Manage Controlled vocabulary term: CVT list is not reloading after clone them from other project
 - Not possible to delete asserted distribution once added in radial object [#3591]
 - Manage controlled vocabulary: Delete button doesn't work [#3593]
-
 
 [#2585]: https://github.com/SpeciesFileGroup/taxonworks/issues/2585
 [#1009]: https://github.com/SpeciesFileGroup/taxonworks/issues/1009
@@ -3996,7 +4028,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.2...development
+[0.35.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.1...v0.35.2
 [0.35.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.6...v0.35.0
 [0.34.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.5...v0.34.6

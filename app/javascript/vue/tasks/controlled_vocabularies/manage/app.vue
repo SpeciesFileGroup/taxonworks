@@ -40,7 +40,10 @@
       />
     </div>
     <div class="flex-separate margin-medium-top">
-      <div class="one_quarter_width">
+      <NavBar
+        class="one_quarter_width"
+        navbar-class=""
+      >
         <div class="panel content margin-medium-bottom">
           <FormKeyword
             v-model="cvt"
@@ -58,7 +61,7 @@
             >{{ globalId }}</span
           >
         </div>
-      </div>
+      </NavBar>
       <ListComponent
         :list="list"
         @edit="setCTV"
@@ -86,6 +89,7 @@ import SpinnerComponent from '@/components/spinner'
 import FormKeyword from '@/components/Form/FormKeyword.vue'
 import CloneFromObject from '@/helpers/cloneFromObject'
 import CloneControlledVocabularyTerms from './components/CloneControlledVocabularyTerms.vue'
+import NavBar from '@/components/layout/NavBar.vue'
 
 const types = computed(() => Object.keys(CVT_TYPES))
 const globalId = computed(() => cvt.value?.global_id)
@@ -179,7 +183,8 @@ function removeCTV(cvt) {
     ControlledVocabularyTerm.destroy(cvt.id)
       .then((_) => {
         removeFromArray(list.value, cvt)
-      }).catch(() => {})
+      })
+      .catch(() => {})
       .finally((_) => {
         isLoading.value = false
       })

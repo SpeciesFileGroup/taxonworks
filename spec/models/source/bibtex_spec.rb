@@ -21,6 +21,54 @@ describe Source::Bibtex, type: :model, group: :sources do
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
   }
 
+  specify '#project_sources_attributes 3' do
+    params = {
+      'title' => 'asdfasfasf',
+      'type' => 'Source::Bibtex',
+      'bibtex_type' => 'article',
+      'project_sources_attributes' => [
+        { 'project_id' => project_id }
+      ],
+      'roles_attributes' => [
+      {
+        'type' => 'SourceAuthor',
+        'person_id' => FactoryBot.create(:valid_person).id,
+        'position' => 1
+      }
+      ]
+    }
+
+    s = ::Source.new(params)
+    s.save!
+    expect(Project.find(project_id).project_sources.first.source).to eq(s)
+  end
+
+  specify '#project_sources_attributes (without roles)' do
+    s = ::Source::Bibtex.new(
+      title: 'foo',
+      bibtex_type: 'article',
+      project_sources_attributes: [ {project_id: } ]
+    )
+
+    s.save!
+
+    expect(Project.find(project_id).project_sources.first.source).to eq(s)
+  end
+
+  specify '#project_sources_attributes (with roles)' do
+    s = ::Source::Bibtex.new(
+      title: 'foo',
+      bibtex_type: 'article',
+      author_roles_attributes: [{person_id: FactoryBot.create(:valid_person).id}],
+      project_sources_attributes: [ {project_id: } ]
+    )
+
+    s.save!
+
+    expect(s.authors.reload.count).to eq(1)
+    expect(Project.find(project_id).project_sources.first.source).to eq(s)
+  end
+
   specify '.new_from_bibtex with ISSN for serial and no matching Serial creates Serial and Identifier' do
     citation_string =  %q{@Article{Park2021a,
         author = {Kyu-Tek Park AND J. B. Heppner},

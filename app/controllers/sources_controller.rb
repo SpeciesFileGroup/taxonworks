@@ -64,11 +64,12 @@ class SourcesController < ApplicationController
   # POST /sources
   # POST /sources.json
   def create
+    params[:source].merge!( { project_sources_attributes: [{project_id: sessions_current_project_id}] } )
     @source = new_source
+
     respond_to do |format|
-      # We must check for manually added errors first, as they
-      # are lost when .valid? is called during the callback chain.
-      if !@source.errors.any? && @source.save
+
+      if @source.save
         format.html { redirect_to url_for(@source.metamorphosize),
                       notice: "#{@source.type} successfully created." }
         format.json { render action: 'show', status: :created, location: @source.metamorphosize }
@@ -76,6 +77,7 @@ class SourcesController < ApplicationController
         format.html { render action: 'new' }
         format.json { render json: @source.errors, status: :unprocessable_entity }
       end
+
     end
   end
 
@@ -270,7 +272,6 @@ class SourcesController < ApplicationController
   end
 
   def source_params
-    params['source'][:project_sources_attributes] = [{project_id: sessions_current_project_id.to_s}]
     params.require(:source).permit(
       :serial_id, :address, :annote, :author, :booktitle, :chapter,
       :crossref, :edition, :editor, :howpublished, :institution,
@@ -280,6 +281,7 @@ class SourcesController < ApplicationController
       :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
       :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type, :style_id,
       :convert_to_bibtex,
+      project_sources_attributes: [:project_id],
       roles_attributes: [
         :id,
         :_destroy,
@@ -289,8 +291,7 @@ class SourcesController < ApplicationController
         person_attributes: [
           :last_name, :first_name, :suffix, :prefix
         ]
-      ],
-      project_sources_attributes: [:project_id]
+      ]
     )
   end
 end
