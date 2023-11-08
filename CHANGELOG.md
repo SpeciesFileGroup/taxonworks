@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Duplicate CachedMapRegister rows being created per object
+
 
 ## [0.35.2] - 2023-11-07
 
