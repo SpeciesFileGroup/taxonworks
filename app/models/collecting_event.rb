@@ -1028,12 +1028,35 @@ class CollectingEvent < ApplicationRecord
   end
 
   class << self
-  # @return [Hash]
+
+    # @return [Hash, false]
     def batch_update(params)
       return false if params[:collecting_event].blank?
       a = Queries::CollectingEvent::Filter.new(params[:collecting_event_query])
       c = a.all.count
-      return false if c == 0 || c > 250
+
+      v = a.all.pluck(:geographic_area_id).uniq
+
+      cap = 0
+
+      case v.size
+      when 1
+        if v.first.nil?
+          cap = 10000
+        else
+          cap = 2000
+        end
+      when 2
+        if v.include?(nil)
+          cap = 2000
+        else
+          cap = 25
+        end
+      else
+        cap = 25
+      end
+
+      return false if c == 0 || c > cap
 
       a.all.find_each do |e|
         query_update(e, params[:collecting_event])
@@ -1049,7 +1072,7 @@ class CollectingEvent < ApplicationRecord
       end
     end
 
-    handle_asynchronously :query_update, run_at: Proc.new { 1.second.from_now }, queue: :collecting_event_ui_batch_update
+    handle_asynchronously :query_update, run_at: Proc.new { 1.second.from_now }, queue: :query_batch_update
   end
 
   protected

@@ -104,6 +104,6 @@ Object.assign(params.value, {
   last_name: urlParams.last_name,
   suffix: urlParams.suffix,
   prefix: urlParams.prefix,
-  exact: urlParams.exact || []
+  exact: Array.isArray(urlParams.exact) ? urlParams.exact : []
 })
 </script>

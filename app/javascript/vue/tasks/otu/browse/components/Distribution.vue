@@ -4,33 +4,6 @@
     :title="title"
     :spinner="isLoading"
   >
-    <ul>
-      <template
-        v-for="(item, index) in collectingEvents"
-        :key="item.id"
-      >
-        <li v-if="index < MAX_LIST || showAll">
-          <a
-            :href="`/collecting_events/${item.id}`"
-            v-html="item.object_tag"
-          />
-        </li>
-      </template>
-    </ul>
-    <template v-if="collectingEvents.length > MAX_LIST">
-      <a
-        v-if="!showAll"
-        class="cursor-pointer"
-        @click="showAll = true"
-        >Show all
-      </a>
-      <a
-        v-else
-        class="cursor-pointer"
-        @click="showAll = false"
-        >Show less
-      </a>
-    </template>
     <SwitchComponent
       v-if="isSpeciesGroup"
       :options="TABS"
@@ -62,11 +35,10 @@ import { useStore } from 'vuex'
 import { GEOREFERENCE, ASSERTED_DISTRIBUTION } from '@/constants/index.js'
 import CachedMap from './CachedMap.vue'
 
-const MAX_LIST = 10
 const TABS = ['georeferences', 'asserted distributions', 'both']
 
 const store = useStore()
-const props = defineProps({
+defineProps({
   status: {
     type: String,
     default: 'unknown'
@@ -129,7 +101,6 @@ const shapes = computed(() => {
   }
 })
 
-const showAll = ref(false)
 const view = ref('both')
 const geojson = ref({
   features: []

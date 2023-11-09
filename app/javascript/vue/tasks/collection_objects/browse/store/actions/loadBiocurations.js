@@ -6,15 +6,14 @@ import {
 import { BIOCURATION_GROUP } from '@/constants/index.js'
 
 export default async ({ state }, coId) => {
-  const biocurationGroups = (
-    await ControlledVocabularyTerm.where({ type: [BIOCURATION_GROUP] })
-  ).body
-  const biocurations = (
-    await BiocurationClassification.where({
-      biological_collection_object_id: coId
-    })
-  ).body
+  const { body: biocurationGroups } = await ControlledVocabularyTerm.where({
+    type: [BIOCURATION_GROUP]
+  })
+  const { body: biocurations } = await BiocurationClassification.where({
+    biological_collection_object_id: coId
+  })
   const groups = Object.assign(
+    {},
     ...biocurationGroups.map((item) => ({
       [item.id]: {
         name: item.name,

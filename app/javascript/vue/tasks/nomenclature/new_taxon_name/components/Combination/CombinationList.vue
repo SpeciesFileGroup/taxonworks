@@ -21,7 +21,7 @@
           />
           <span v-html="combination.object_label" />
         </label>
-        <div class="horizontal-left-content middle">
+        <div class="horizontal-left-content gap-xsmall middle">
           <default-confidence
             class="circle-button"
             :global-id="combination.global_id"

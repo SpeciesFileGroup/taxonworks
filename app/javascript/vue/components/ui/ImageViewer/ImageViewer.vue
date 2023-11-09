@@ -87,7 +87,6 @@
                       <radial-annotator
                         type="annotations"
                         :global-id="imageObject.global_id"
-                        @close="loadData"
                       />
                     </li>
                     <li>
@@ -264,10 +263,10 @@ const thumbUrlSrc = computed(() => {
 
 const loadAttributions = async () => {
   state.citations = (
-    await Image.citations(props.imageId, { extend: ['source'] })
+    await Image.citations(imageObject.value.id, { extend: ['source'] })
   ).body
   state.attributions = (
-    await Image.attributions(props.imageId, { extend: ['roles'] })
+    await Image.attributions(imageObject.value.id, { extend: ['roles'] })
   ).body
 }
 

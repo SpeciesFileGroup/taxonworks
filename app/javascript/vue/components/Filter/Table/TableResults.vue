@@ -142,7 +142,10 @@
           v-for="(item, index) in list"
           :key="item.id"
           class="contextMenuCells"
-          :class="{ even: index % 2 }"
+          :class="{
+            even: index % 2,
+            'cell-selected-border': item.id === lastRadialOpenedRow
+          }"
           v-show="rowHasCurrentValues(item)"
           @mouseover="() => emit('mouseover:row', { index, item })"
         >
@@ -155,26 +158,42 @@
           </td>
           <td>
             <div class="horizontal-right-content gap-small">
-              <RadialAnnotator :global-id="item.global_id" />
+              <slot
+                name="buttons-left"
+                :item="item"
+              />
+              <RadialAnnotator
+                :global-id="item.global_id"
+                @click="() => (lastRadialOpenedRow = item.id)"
+              />
               <RadialObject
                 v-if="radialObject"
                 :global-id="item.global_id"
+                @click="() => (lastRadialOpenedRow = item.id)"
               />
-              <RadialNavigation :global-id="item.global_id" />
+              <RadialNavigation
+                :global-id="item.global_id"
+                @click="() => (lastRadialOpenedRow = item.id)"
+              />
             </div>
           </td>
           <template v-if="attributes">
-            <td
+            <slot
               v-for="(_, attr) in attributes"
               :key="attr"
-              v-html="item[attr]"
-              @dblclick="
-                () => {
-                  scrollToTop()
-                  filterValues[attr] = item[attr]
-                }
-              "
-            />
+              :name="attr"
+              :value="item[attr]"
+            >
+              <td
+                v-html="item[attr]"
+                @dblclick="
+                  () => {
+                    scrollToTop()
+                    filterValues[attr] = item[attr]
+                  }
+                "
+              />
+            </slot>
           </template>
 
           <template
@@ -268,6 +287,7 @@ const emit = defineEmits([
 
 const element = ref(null)
 const ascending = ref(false)
+const lastRadialOpenedRow = ref(null)
 const isLayoutConfig = computed(() => !!Object.keys(props.layout || {}).length)
 
 const selectIds = computed({
@@ -345,5 +365,10 @@ function scrollToTop() {
 <style scoped>
 .cell-left-border {
   border-left: 3px #eaeaea solid;
+}
+
+.cell-selected-border {
+  outline: 2px solid var(--color-primary) !important;
+  outline-offset: -2px;
 }
 </style>

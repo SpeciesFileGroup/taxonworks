@@ -50,7 +50,7 @@ describe Otu, type: :model, group: :otu do
       end
 
       specify 'contents' do
-        expect(otu.contents << Content.new).to be_truthy
+        expect(otu.contents << ::Content.new).to be_truthy
       end
 
       specify 'topics' do
@@ -230,10 +230,10 @@ describe Otu, type: :model, group: :otu do
 
     let(:o2) { Otu.create(name: 'o2') }
     let(:s) { FactoryBot.create(:valid_specimen) }
-    let!(:content) { FactoryBot.create(:valid_content, otu: otu) }
+    let!(:content) { FactoryBot.create(:valid_content, otu:) }
     let!(:biological_association) { FactoryBot.create(:valid_biological_association, biological_association_subject: o2, biological_association_object: otu) }
-    
-    let!(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution, otu: otu) }
+
+    let!(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution, otu:) }
 
     specify ".used_recently('Content')" do
       expect(Otu.used_recently(otu.created_by_id, otu.project_id,'Content').to_a).to include(otu.id)

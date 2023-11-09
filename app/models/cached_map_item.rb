@@ -60,10 +60,10 @@ class CachedMapItem < ApplicationRecord
   def self.cached_map_name_hierarchy(geographic_item_id)
     h = CachedMapItem
       .select('level0_geographic_name country, level1_geographic_name state, level2_geographic_name county')
-        .where('level0_geographic_name IS NOT NULL OR level1_geographic_name IS NOT NULL OR level2_geographic_name IS NOT NULL')
-        .find_by(geographic_item_id:) # finds first
-        &.attributes
-        &.compact!
+      .where('level0_geographic_name IS NOT NULL OR level1_geographic_name IS NOT NULL OR level2_geographic_name IS NOT NULL')
+      .find_by(geographic_item_id:) # finds first
+      &.attributes
+      &.compact!
 
     return h.symbolize_keys if h.present?
 
@@ -75,8 +75,8 @@ class CachedMapItem < ApplicationRecord
 
     s = 'WITH otu_scope AS (' + otu_scope.all.to_sql + ') ' +
       ::GeographicItem
-        .joins('JOIN cached_maps on cached_maps.geographic_item_id = geographic_items.id')
-        .joins( 'JOIN otu_scope as otu_scope1 on otu_scope1.id = cached_maps.otu_id').to_sql
+      .joins('JOIN cached_maps on cached_maps.geographic_item_id = geographic_items.id')
+      .joins( 'JOIN otu_scope as otu_scope1 on otu_scope1.id = cached_maps.otu_id').to_sql
 
     ::GeographicItem.from('(' + s + ') as geographic_items').distinct
   end
@@ -103,7 +103,6 @@ class CachedMapItem < ApplicationRecord
       cached_map_type:,
       geographic_item_id:
     )&.translated_geographic_item_id
-
     a.present? ? [a] : []
   end
 
@@ -140,58 +139,88 @@ class CachedMapItem < ApplicationRecord
       .order(cached_total_area: :ASC) # smallest first
       .first
       &.id
-      return [a]
+    return [a]
     else
       []
     end
   end
 
-  # Go spatial
+  # Given a  set of target shapes, return those that intersect with the provided shape
+  #
+  # @param geographic_item_id [id]
+  #   the provide shape
+  #
+  # @return [Array]
+  #   of GeographicItem ids
+  #
   def self.translate_by_spatial_overlap(geographic_item_id, data_origin, percent_overlap_cutoff)
 
     return [] if geographic_item_id.blank?
+
+    # All intersecting candidates, from smallest to largest
     b = GeographicItem
       .joins(:geographic_areas_geographic_items)
       .where(geographic_areas_geographic_items: { data_origin: })
-      .where( GeographicItem.within_radius_of_item_sql(geographic_item_id, 0.0) )
+      .where( GeographicItem.within_radius_of_item_sql(geographic_item_id, 0.0000001) )
       .order('geographic_items.cached_total_area ASC')
       .pluck(:id, :cached_total_area)
 
-      gi = GeographicItem.select(:id, :cached_total_area).find(geographic_item_id)
-      original_area = gi.cached_total_area
+    gi = GeographicItem.select(:id, :cached_total_area).find(geographic_item_id)
 
-      # Point
-      if original_area == 0.0
-        return b.collect { |c| c.first }, []
+    original_area = gi.cached_total_area
 
-        # Polygon
-      else
-        # Calculate the % overlap of each possible match, and select all with > cuttoff overlap
-        overlap = []
+    # Points
+    if original_area == 0.0
+      return b.collect { |c| c.first }
 
-        raw = [] # debug
-        b.each do |id, candidate_area|
-          if intersecting_area = gi.intersecting_area(id)
-            # Other/future considerations (?)
-            #   * if the intersection is full *AND* the target size is within range
-            # p is debug only
-            p = ( ((candidate_area - intersecting_area) / original_area) * 100.0).to_f.round(4)
+      # Polygons
+    else
 
-            # Ensure there was enough intersection
-            o = ((intersecting_area / original_area) * 100.0).to_f.round(4)
-            overlap.push id if (o >= percent_overlap_cutoff)
+      # Break the candidates down into two sets, smaller than original, and larger than original
+      smaller = []
+      larger = []
 
-            # debug
-            raw.push [o, p, id, original_area, intersecting_area, candidate_area]
-          end
+      b.each do |id, candidate_area|
+        if candidate_area < original_area
+          smaller.push [id, candidate_area]
+        else
+          larger.push [id, candidate_area]
         end
-
-        raw.sort!.reverse!
-
-        logger.debug raw
-
-        return overlap, raw
       end
+
+      # Among those candidates larger than the original the first will completely surround the candidate, or not.
+      # If there isn't a single that fully surrounds, then all must intersect.  Use area comparison
+      # as a proxy for fully surrounds. TODO: check likely not necessary.
+      #
+      # !! Note that if the if the candidate set contains nested shapes (e.g. countries and states)
+      # !! then we need another step to only return the covering shapes, not covering and eclosed of the covering.
+      #
+      chosen_larger = []
+
+      if !larger.empty?
+        id = larger.first.first  # id of the smallest of the largest
+        intersecting_area = gi.intersecting_area( id )
+        if intersecting_area >= original_area # if the largest fully surrounds the original area select that, and exit, there should be no other results needed
+          chosen_larger.push id
+        else  # it must be intersecting all remaining target shapes, since we started with the smallest
+          chosen_larger += larger
+        end
+      end
+
+      # We need to "smooth" the smaller, more detailed shapes which may catch many overlaping areas slightly.
+      # Remove intersections of 10% or less.
+
+      chosen_smaller = []
+
+      smaller.each do |id, candidate_area|
+        intersecting_area = gi.intersecting_area(id)
+
+        o = (((candidate_area - intersecting_area) / candidate_area ) * 100.0 ).to_f.round(4)
+        chosen_smaller.push id if o <= percent_overlap_cutoff
+      end
+
+      return chosen_larger + chosen_smaller
+    end
   end
 
   # @return [Array]
@@ -201,15 +230,21 @@ class CachedMapItem < ApplicationRecord
   # @param data_origin Array, String
   #   like `ne_states` or ['ne_states, 'ne_countries']
   #
-  def self.translate_geographic_item_id(geographic_item_id, origin_type = nil, data_origin = nil, percent_overlap_cutoff: 50.0)
+  # @param percent_overlap_cutoff
+  #    Decimal, 0.0 - 100.0
+  #   a "smoothing" variable, if the intersection of the two compared shapes is < this target
+  #   (for example when edges of a precise shape clip surrounding less precise shapes) then
+  #   then we do not match them
+  #
+  def self.translate_geographic_item_id(geographic_item_id, origin_type = nil, data_origin = nil, percent_overlap_cutoff: 90.0)
     return nil if data_origin.blank?
 
     cached_map_type = types_by_data_origin(data_origin)
 
     a = nil
 
+    # All these methods depend on "prior knowledge" (not spatial calculations)
     if origin_type == 'AssertedDistribution'
-
       a = translate_by_geographic_item_translation(geographic_item_id, cached_map_type)
       return a if a.present?
 
@@ -223,11 +258,7 @@ class CachedMapItem < ApplicationRecord
       return a if a.present?
     end
 
-    a, debug = translate_by_spatial_overlap(geographic_item_id, data_origin, percent_overlap_cutoff)
-
-    return a if a.present?
-
-    []
+    translate_by_spatial_overlap(geographic_item_id, data_origin, percent_overlap_cutoff)
   end
 
   # @return [Hash, nil]

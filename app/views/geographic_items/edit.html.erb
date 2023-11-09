@@ -1,6 +1,30 @@
-<h1>Editing geographic item</h1>
+<h1>Editing geographic item <%= @geographic_item.id %></h1>
 
-<%= render 'form' %>
 
-<%= link_to 'Show', @geographic_item %>
+
+<% if @geographic_item.georeferences.any? %>
+  <%= tag.p 'May not be used to updated shapes that are used in georeferences.', class: [:feedback, 'feedback-danger'] %>
+<% else %>
+
+Used in: <%= @geographic_item.geographic_areas.collect{|g| geographic_area_link(g)}.join(', ').html_safe %>
+
+<br>
+
+  <%= form_for(@geographic_item.metamorphosize) do |f| %>
+
+    <div class="field">
+      <%= f.label 'shape' %>
+      <em>geoJSON format</em>
+      <br>
+      <%= f.text_area :shape, size: 60 %>
+    </div>
+
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+  <% end %>
+
+<% end %>
+
+<%= link_to 'Show', @geographic_item.metamorphosize %>
 

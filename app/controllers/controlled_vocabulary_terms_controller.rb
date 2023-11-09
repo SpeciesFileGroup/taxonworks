@@ -73,6 +73,17 @@ class ControlledVocabularyTermsController < ApplicationController
     end
   end
 
+  def clone_from_project
+    if ControlledVocabularyTerm.clone_from_project(
+        from_id: params[:project_id],
+        to_id: sessions_current_project_id,
+        klass: params[:target])
+      render json: {}, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
   def search
     if params[:id].blank?
       redirect_to controlled_vocabulary_term_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
@@ -110,7 +121,7 @@ class ControlledVocabularyTermsController < ApplicationController
     send_data(
       Export::Download.generate_csv(ControlledVocabularyTerm.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "controlled_vocabulary_terms_#{DateTime.now}.csv")
+      filename: "controlled_vocabulary_terms_#{DateTime.now}.tsv")
   end
 
   # GET /controlled_vocabulary_terms/1/tagged_objects

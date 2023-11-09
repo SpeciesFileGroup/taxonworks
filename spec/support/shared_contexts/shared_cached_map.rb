@@ -14,7 +14,7 @@ shared_context 'cached map scenario' do
 
   #
   # THese have to overlap by at least 50% total area with g1
-  # 
+  #
   let(:g2) { RSPEC_GEO_FACTORY.polygon(
     RSPEC_GEO_FACTORY.line_string(
       [RSPEC_GEO_FACTORY.point(1, 1, 0.0),
@@ -48,7 +48,7 @@ shared_context 'cached map scenario' do
     data_origin: 'ne_countries',
     geographic_area_type:,
     parent: FactoryBot.create(:earth_geographic_area),
-    geographic_areas_geographic_items_attributes: [ { geographic_item: gi1, data_origin: 'ne_countries' } ])
+    geographic_areas_geographic_items_attributes: [ { geographic_item: gi1, data_origin: 'ne_states' } ])
   }
 
   let!(:ga_offset) { GeographicArea.create!(
@@ -66,5 +66,5 @@ shared_context 'cached map scenario' do
     parent: FactoryBot.create(:earth_geographic_area),
     geographic_areas_geographic_items_attributes: [ { geographic_item: gi3, data_origin: 'foo' } ])
   }
-  
+
 end

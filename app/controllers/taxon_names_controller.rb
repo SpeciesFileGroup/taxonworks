@@ -108,7 +108,7 @@ class TaxonNamesController < ApplicationController
   def download
     send_data Export::Download.generate_csv(
       TaxonName.where(project_id: sessions_current_project_id)
-    ), type: 'text', filename: "taxon_names_#{DateTime.now}.csv"
+    ), type: 'text', filename: "taxon_names_#{DateTime.now}.tsv"
   end
 
   def batch_load
@@ -224,14 +224,33 @@ class TaxonNamesController < ApplicationController
   def original_combination
   end
 
+  # POST /taxon_names/batch_move.json?taxon_names_query=<>&parent_id=123
+  def batch_move
+    if @result = Protonym.batch_move(params)
+    else
+      render json: {success: false}
+    end
+  end
+
   # GET /api/v1/taxon_names
   def api_index
-    @taxon_names = ::Queries::TaxonName::Filter.new(params.merge!(api: true)).all
+    q = ::Queries::TaxonName::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('taxon_names.id')
-      .page(params[:page])
-      .per(params[:per])
-    render '/taxon_names/api/v1/index'
+
+    respond_to do |format|
+      format.json {
+       @taxon_names = q.page(params[:page]).per(params[:per])
+       render '/taxon_names/api/v1/index'
+     }
+      format.csv {
+        @taxon_names = q
+        send_data Export::Download.generate_csv(
+          @taxon_names,
+          exclude_columns: %w{updated_by_id created_by_id project_id},
+        ), type: 'text', filename: "taxon_names_#{DateTime.now}.tsv"
+      }
+    end
   end
 
   # GET /api/v1/taxon_names/:id

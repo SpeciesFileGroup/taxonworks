@@ -79,7 +79,7 @@ class TaxonDeterminationsController < ApplicationController
 
   # PATCH /taxon_determinations/reorder?id[]=1
   def reorder
-    params[:id].each do |taxon_determination_id|
+    params[:id].reverse.each do |taxon_determination_id|
       TaxonDetermination.find(taxon_determination_id).move_to_top
     end
     render json: true
@@ -113,7 +113,7 @@ class TaxonDeterminationsController < ApplicationController
   def download
     send_data Export::Download.generate_csv(TaxonDetermination.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "taxon_determinations_#{DateTime.now}.csv"
+      filename: "taxon_determinations_#{DateTime.now}.tsv"
   end
 
   # POST /taxon_determinations/batch_create

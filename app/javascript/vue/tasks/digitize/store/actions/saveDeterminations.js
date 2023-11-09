@@ -18,52 +18,50 @@ const makeOrganization = (role) => ({
   type: ROLE_DETERMINER
 })
 
-export default ({
-  commit,
-  dispatch,
-  state: { collection_object, taxon_determinations }
-}) =>
-  new Promise((resolve, reject) => {
-    const promises = taxon_determinations.map((determination) => {
-      const taxon_determination = {
-        ...determination,
-        biological_collection_object_id: collection_object.id,
-        position: undefined
-      }
+export default async ({ commit, state }) => {
+  const {
+    collection_object: collectionObject,
+    taxon_determinations: taxonDeterminations
+  } = state
 
-      if (!determination.id) {
-        taxon_determination.roles_attributes =
-          taxon_determination.roles_attributes.map((role) => ({
-            ...role,
-            id: undefined
-          }))
-      }
+  const promises = taxonDeterminations.map((determination) => {
+    const payload = {
+      ...determination,
+      biological_collection_object_id: collectionObject.id,
+      position: undefined
+    }
 
-      return determination.id
-        ? TaxonDetermination.update(determination.id, { taxon_determination })
-        : TaxonDetermination.create({ taxon_determination })
-    })
+    if (!determination.id) {
+      payload.roles_attributes = payload.roles_attributes.map((role) => ({
+        ...role,
+        id: undefined
+      }))
+    }
 
-    Promise.all(promises).then(
-      (responses) => {
-        commit(
-          MutationNames.SetTaxonDeterminations,
-          responses.map(({ body }) => {
-            const roles = (body?.determiner_roles || []).map((role) =>
-              role.organization ? makeOrganization(role) : makePerson(role)
-            )
+    return determination.id
+      ? TaxonDetermination.update(determination.id, {
+          taxon_determination: payload
+        })
+      : TaxonDetermination.create({ taxon_determination: payload })
+  })
 
-            return {
-              ...body,
-              roles_attributes: roles
-            }
-          })
+  const responses = Promise.all(promises)
+
+  responses.then((responses) => {
+    commit(
+      MutationNames.SetTaxonDeterminations,
+      responses.map(({ body }) => {
+        const roles = (body?.determiner_roles || []).map((role) =>
+          role.organization ? makeOrganization(role) : makePerson(role)
         )
 
-        resolve(promises)
-      },
-      (error) => {
-        reject(error)
-      }
+        return {
+          ...body,
+          roles_attributes: roles
+        }
+      })
     )
   })
+
+  return responses
+}

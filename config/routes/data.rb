@@ -31,7 +31,7 @@ end
 resources :asserted_distributions do
   concerns [:data_routes]
   collection do
-    post :batch_move
+    patch :batch_move
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
     match :filter, to: 'asserted_distributions#index', via: [:get, :post]
@@ -136,6 +136,8 @@ resources :collection_objects do
     post :create_simple_batch_load
     get :select_options, defaults: {format: :json}
     get :preview, defaults: {format: :json}
+
+    post :batch_update
   end
 
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
@@ -211,6 +213,11 @@ resources :controlled_vocabulary_terms do
     get 'tagged_objects'
     get 'select', defaults: {format: :json}
   end
+
+  collection do
+    post :clone_from_project, default: {format: :json}
+  end
+
 end
 
 resources :data_attributes, except: [:show] do
@@ -248,17 +255,6 @@ resources :descriptors do
   end
 end
 
-resources :documentation do
-  concerns [:data_routes]
-  collection do
-    patch :sort
-  end
-end
-
-resources :documents do
-  concerns [:data_routes]
-end
-
 resources :downloads, except: [:new, :create] do
   collection do
     get 'list'
@@ -266,6 +262,23 @@ resources :downloads, except: [:new, :create] do
   member do
     get 'file'
   end
+end
+
+resources :documentation, as: :documentation do
+  collection do
+    get 'download'
+    get 'list'
+
+    patch :sort
+  end
+
+  member do
+    get 'related'
+  end
+end
+
+resources :documents do
+  concerns [:data_routes]
 end
 
 # TODO: these should default json?
@@ -276,6 +289,7 @@ resources :dwc_occurrences, only: [:create] do
     get 'predicates', defaults: {format: :json}
     get 'status', defaults: {format: :json}
     get 'collector_id_metadata', defaults: {format: :json}
+    get 'download'
   end
 end
 
@@ -700,6 +714,7 @@ resources :sources do
     get :citation_object_types, defaults: {format: :json}
     get :csl_types, defaults: {format: :json}
     get :generate, defaults: {format: :json}
+    patch :batch_update
   end
 
   member do
@@ -760,6 +775,8 @@ resources :taxon_names do
 
     get :rank_table, defaults: {format: :json}
     get :predicted_rank, {format: :json}
+
+    post :batch_move
   end
 
   member do

@@ -1,43 +1,35 @@
 <%= content_for :associated do -%>
-
   <% if @geographic_area.geographic_items.count > 0 -%>
-    <p>
-    <strong>"Default" shape:</strong>
-    <%# link_to('(Collecting events within)', search_locality_task_path(spatial_geographic_area_ids: [@geographic_area.id])) %>
+    <p> <strong>"Default" shape:</strong></p>
     <%= simple_map([@geographic_area]) -%>
   <% end %>
 
   <p>
-  <strong> Geographic items (shape IDs): </strong>
+  <strong> GeographicItems (shape IDs): </strong>
   <%= geographic_item_links(@geographic_area.geographic_items) -%>
   </p>
 
   <p><%= similarly_named_records_list(@geographic_area) -%> </p>
 
   <p><strong> Children: </strong>
-  <%= geographic_area_link_list(@geographic_area.children) -%>
+  <%= geographic_area_link_list(@geographic_area.children.order(:name)) -%>
   <%= tag.em('None') if @geographic_area.children.empty? -%>
   </p>
 
-  <% dgi_id = @geographic_area.default_geographic_item_id %> 
+  <% dgi_id = @geographic_area.default_geographic_item_id %>
   <% if dgi_id %>
     <h3> WebLevel1 map </h3>
-    <p><em> This geographic area translates to this shape in the aggregate WebLevel1 map. </em></p>
+    <p><em> This geographic area translates to these corresponding areas in the aggregate WebLevel1 map. </em></p>
+
+    <% a = CachedMapItem.translate_geographic_item_id( dgi_id, 'AssertedDistribution', ['ne_states']) %>
 
     <div>
-      <ul>
-        <li>
-          GeographicItem ID(s): <%= a = CachedMapItem.translate_geographic_item_id(
-            dgi_id,
-            'AssertedDistribution',
-            ['ne_countries', 'ne_states'],
-            percent_overlap_cutoff: 50.0) %>
-        </li>
-
-        <li>Corresponding GeographicAreas: <%= geographic_area_link_list(GeographicArea.joins(:geographic_areas_geographic_items).where(geographic_areas_geographic_items: {geographic_item_id: a})) %> </li>
-
-      </ul>
       <%= simple_map( GeographicItem.where(id: a) ) %>
+      <ul>
+        <li> GeographicItem ID(s): <%= a.collect{|id| link_to(id, geographic_item_path(id) )}.join(', ').html_safe %> </li>
+        <li> Corresponding GeographicAreas: <%= GeographicArea.order(:name).joins(:geographic_areas_geographic_items).where(geographic_areas_geographic_items: {geographic_item_id: a}).collect{|g| link_to(g.name, geographic_area_path(g))}.join(', ').html_safe %> </li>
+      </ul>
+
     </div>
   <% end %>
 
@@ -45,5 +37,3 @@
 
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @geographic_area}) -%>
-
-

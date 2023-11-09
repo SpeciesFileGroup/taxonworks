@@ -152,11 +152,12 @@ module Queries
       attr_accessor :parent_id
 
       # @param descendants [Boolean, 'true', 'false', nil]
+      #   Read carefully! descendants = false is NOT no descendants, it's descendants and self
       # @return [Boolean]
-      #   true - only descendants
-      #   false - self and descendants
+      #   true - only descendants NOT SELF
+      #   false - self AND descendants
       #   nil - ignored
-      #   Ignored when taxon_name_id[].empty? Return descendants of parents as well.
+      #   Ignored when taxon_name_id[].empty?
       attr_accessor :descendants
 
       # @param descendants_max_depth [Integer]
@@ -449,16 +450,17 @@ module Queries
 
       # @return Scope
       #   match only names that are a descendant of some taxon_name_id
-      # A merge facet.
       def descendant_facet
         return nil if taxon_name_id.empty? || descendants.nil?
 
+        h = ::TaxonNameHierarchy.arel_table
+
         if descendants
           descendants_subquery = ::TaxonNameHierarchy.where(
-            ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
-              ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id)
+            h[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
+              h[:ancestor_id].in(taxon_name_id)
             )
-          )
+          ).where(h[:ancestor_id].not_eq(h[:descendant_id]))
 
           if descendants_max_depth.present?
             descendants_subquery = descendants_subquery.where(::TaxonNameHierarchy.arel_table[:generations].lteq(descendants_max_depth.to_i))

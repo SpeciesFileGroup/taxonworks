@@ -21,6 +21,54 @@ describe Source::Bibtex, type: :model, group: :sources do
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
   }
 
+  specify '#project_sources_attributes 3' do
+    params = {
+      'title' => 'asdfasfasf',
+      'type' => 'Source::Bibtex',
+      'bibtex_type' => 'article',
+      'project_sources_attributes' => [
+        { 'project_id' => project_id }
+      ],
+      'roles_attributes' => [
+      {
+        'type' => 'SourceAuthor',
+        'person_id' => FactoryBot.create(:valid_person).id,
+        'position' => 1
+      }
+      ]
+    }
+
+    s = ::Source.new(params)
+    s.save!
+    expect(Project.find(project_id).project_sources.first.source).to eq(s)
+  end
+
+  specify '#project_sources_attributes (without roles)' do
+    s = ::Source::Bibtex.new(
+      title: 'foo',
+      bibtex_type: 'article',
+      project_sources_attributes: [ {project_id: } ]
+    )
+
+    s.save!
+
+    expect(Project.find(project_id).project_sources.first.source).to eq(s)
+  end
+
+  specify '#project_sources_attributes (with roles)' do
+    s = ::Source::Bibtex.new(
+      title: 'foo',
+      bibtex_type: 'article',
+      author_roles_attributes: [{person_id: FactoryBot.create(:valid_person).id}],
+      project_sources_attributes: [ {project_id: } ]
+    )
+
+    s.save!
+
+    expect(s.authors.reload.count).to eq(1)
+    expect(Project.find(project_id).project_sources.first.source).to eq(s)
+  end
+
   specify '.new_from_bibtex with ISSN for serial and no matching Serial creates Serial and Identifier' do
     citation_string =  %q{@Article{Park2021a,
         author = {Kyu-Tek Park AND J. B. Heppner},
@@ -209,7 +257,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users. BibTeX Journal of {funny} Cháråcter$.')
         expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users. <i>BibTeX Journal of {funny} Cháråcter$</i>.')
 
-        # Note this was the original check (lower case editor in double quotes... seems like a massive edge case, so presently not allowing so that we can cleanup capitalization in general) 
+        # Note this was the original check (lower case editor in double quotes... seems like a massive edge case, so presently not allowing so that we can cleanup capitalization in general)
         # expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
         # expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). <i>BibTeX journal of {funny} cháråcter$</i>.')
       end
@@ -255,7 +303,7 @@ describe Source::Bibtex, type: :model, group: :sources do
   end
 
   context 'Ruby BibTeX related instance methods' do
-    let(:s) { Source::Bibtex.new_from_bibtex(gem_bibtex_entry1) } 
+    let(:s) { Source::Bibtex.new_from_bibtex(gem_bibtex_entry1) }
 
     context '.to_bibtex' do
       specify 'basic features' do
@@ -636,7 +684,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     end
 
     context '#url' do
-      let(:src) { Source::Bibtex.new } 
+      let(:src) { Source::Bibtex.new }
       specify 'validation 1' do
         src.valid?
         expect(src.errors.messages[:url]).to be_empty
@@ -652,7 +700,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       # tested in a generic library
       %w{http://speciesfile.org https://duckduckgo.com ftp://test.edu}.each do |u|
         specify "#{u} is valid" do
-          src.url = u 
+          src.url = u
           src.valid?
           expect(src.errors.messages[:url]).to be_empty
         end
@@ -730,11 +778,11 @@ describe Source::Bibtex, type: :model, group: :sources do
   context 'instance methods - ' do
     # before(:each) {
     #   # this is a TW Source::Bibtex - type article, with just a title
-    #   source_bibtex = 
+    #   source_bibtex =
     # }
 
 
-    let(:source_bibtex) { FactoryBot.build(:valid_source_bibtex) } 
+    let(:source_bibtex) { FactoryBot.build(:valid_source_bibtex) }
 
     context 'with an existing instance of Source::Bibtex' do
 
@@ -1036,8 +1084,8 @@ describe Source::Bibtex, type: :model, group: :sources do
             expect(bibtex.send(method)).to eq([])
             bibtex.title = 'valid record'
             bibtex.bibtex_type = 'book'
-            expect(bibtex.save).to be_truthy 
-            expect(bibtex.send(method) << vp1).to be_truthy 
+            expect(bibtex.save).to be_truthy
+            expect(bibtex.send(method) << vp1).to be_truthy
             expect(bibtex.send(method).first.id).to eq(vp1.id)
           end
 
@@ -1244,7 +1292,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       context 'with three authors, deleting the middle author role maintains position' do
         before { b.update(three_author_params) }
         let(:params) {
-          { author_roles_attributes: [{id: b.roles.second.id, _destroy: 1}]} 
+          { author_roles_attributes: [{id: b.roles.second.id, _destroy: 1}]}
         }
 
         specify 'three authors exist' do

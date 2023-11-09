@@ -114,7 +114,7 @@ class ContentsController < ApplicationController
     send_data(
       Export::Download.generate_csv(::Content.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "contents_#{DateTime.now}.csv")
+      filename: "contents_#{DateTime.now}.tsv")
   end
 
   # GET /api/v1/content

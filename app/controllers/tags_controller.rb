@@ -118,7 +118,7 @@ class TagsController < ApplicationController
   # GET /tags/download
   def download
     send_data Export::Download.generate_csv(Tag.where(project_id: sessions_current_project_id)),
-      type: 'text', filename: "tags_#{DateTime.now}.csv"
+      type: 'text', filename: "tags_#{DateTime.now}.tsv"
   end
 
   # POST /tags/batch_remove?keyword_id=123&klass=456
@@ -173,4 +173,3 @@ class TagsController < ApplicationController
   end
 
 end
-

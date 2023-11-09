@@ -138,7 +138,7 @@ export default {
         TaxonName.otus(this.objectId).then((response) => {
           this.loaded = true
           this.list = response.body
-        })
+        }).catch(() => {})
       }
     },
 

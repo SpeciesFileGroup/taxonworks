@@ -17,6 +17,11 @@
       @reset="resetFilter"
     >
       <template #nav-query-right>
+        <RadialCollectionObject
+          :disabled="!list.length"
+          :parameters="parameters"
+          :count="pagination?.total || 0"
+        />
         <RadialLoan
           :disabled="!list.length"
           :parameters="parameters"
@@ -29,6 +34,11 @@
       </template>
       <template #nav-right>
         <div class="horizontal-right-content gap-small">
+          <RadialCollectionObject
+            :disabled="!list.length"
+            :ids="selectedIds"
+            :count="selectedIds.length"
+          />
           <RadialLoan
             :disabled="!list.length"
             :ids="selectedIds"
@@ -56,6 +66,7 @@
           v-model="selectedIds"
           :list="list"
           :layout="currentLayout"
+          radial-object
           @on-sort="list = $event"
         />
       </template>
@@ -80,6 +91,7 @@ import VSpinner from '@/components/spinner.vue'
 import LayoutConfiguration from '@/components/Filter/Table/TableLayoutSelector.vue'
 import RadialLoan from '@/components/radials/loan/radial.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
+import RadialCollectionObject from '@/components/radials/co/radial.vue'
 import { computed } from 'vue'
 import { CollectionObject } from '@/routes/endpoints'
 import { COLLECTION_OBJECT } from '@/constants/index.js'

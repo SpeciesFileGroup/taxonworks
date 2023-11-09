@@ -42,13 +42,23 @@
   </div>
 
   <div class="item item2">
-
     <div class="content">
-      <p>
-      <strong>Preferences:</strong>
+      <h2>Preferences</h2>
+
+      <h3>General</h3>
+      <%= form_for @user, url: reset_preferences_user_path(@user), method: :patch do |f| %>
+        <%= f.submit "Reset" , class: 'button-submit' %> <%= tag.span 'Warning, this will reset all preferences aross all projects!', class: [:feedback, 'feedback-thin', 'feedback-danger'] %>
+      <% end %>
+
       <%= ap(@user.preferences).html_safe %>
-      </p>
+
+      <h3>Favorites</h3>
+      <% if sessions_current_project_id %>
+        <%= form_for @user, url: reset_hub_favorites_user_path(@user), method: :patch do |f| %>
+          <%= f.submit "Reset (for #{sessions_current_project.name})" , class: 'button-submit' %> <%= tag.span "Clears your favorite cards for this project", class: [:feedback, 'feedback-thin', 'feedback-info'] %>
+        <% end %>
+      <% end %>
+      <%= ap(@user.hub_favorites).html_safe %>
+    </div>
   </div>
-
 </div>
-

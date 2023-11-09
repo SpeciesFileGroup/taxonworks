@@ -16,15 +16,54 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialSource
+          :disabled="!list.length"
+          :parameters="parameters"
+          :count="pagination?.total || 0"
+        />
+      </template>
+      <template #nav-right>
+        <RadialSource
+          :disabled="!list.length"
+          :ids="selectedIds"
+          :count="selectedIds.length"
+        />
+      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
       <template #table>
-        <ListComponent
-          v-model="selectedIds"
+        <FilterList
           :list="list"
+          :attributes="ATTRIBUTES"
+          v-model="selectedIds"
+          radial-object
           @on-sort="list = $event"
-        />
+        >
+          <template #buttons-left="{ item }">
+            <AddToProject
+              :id="item.id"
+              :project-source-id="item.project_source_id"
+            />
+            <PinComponent
+              class="button button-circle"
+              :object-id="item.id"
+              :type="SOURCE"
+            />
+          </template>
+          <template #documents="{ value }">
+            <td>
+              <div class="flex-wrap-row gap-xsmall">
+                <PdfButton
+                  v-for="pdf in value"
+                  :key="pdf.id"
+                  :pdf="pdf"
+                />
+              </div>
+            </td>
+          </template>
+        </FilterList>
       </template>
     </FilterLayout>
     <VSpinner
@@ -39,13 +78,20 @@
 <script setup>
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
-import ListComponent from './components/list'
 import BibtexButton from './components/bibtex'
 import BibliographyDownload from './components/BibliographyDownload.vue'
+import RadialSource from '@/components/radials/source/radial.vue'
 import VSpinner from '@/components/spinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
+import FilterList from '@/components/Filter/Table/TableResults.vue'
+
+import PdfButton from '@/components/pdfButton'
+import AddToProject from '@/components/addToProjectSource'
+import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+
 import { Source } from '@/routes/endpoints'
 import { SOURCE } from '@/constants/index.js'
+import { ATTRIBUTES } from './constants/attributes.js'
 import { computed } from 'vue'
 
 const extend = ['documents']

@@ -16,3 +16,9 @@ $tw-colors: (
   'attention': #ffda44,
   'white': #ffffff
 );
+
+@each $key, $value in $tw-colors {
+  :root {
+    --color-#{$key}: #{$value};
+  }
+}

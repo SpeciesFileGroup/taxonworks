@@ -58,6 +58,12 @@ class DwcOccurrencesController < ApplicationController
     render '/dwc_occurrences/api/v1/index'
   end
 
+  # GET /dwc_occurence/download 
+  def download
+    send_data Export::Download.generate_csv(
+      DwcOccurrence.where(project_id: sessions_current_project_id)), type: 'text', filename: "dwc_occurrence_#{DateTime.now}.tsv"
+  end
+
   protected
   
   def set_object

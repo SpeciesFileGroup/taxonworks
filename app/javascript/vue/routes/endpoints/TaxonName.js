@@ -74,5 +74,7 @@ export const TaxonName = {
   otus: (id) =>
     AjaxCall('get', `/${model}/${id}/otus.json`, {
       headers: { 'Cache-Control': 'no-cache' }
-    })
+    }),
+
+  moveBatch: (params) => AjaxCall('post', `/${model}/batch_move.json`, params)
 }

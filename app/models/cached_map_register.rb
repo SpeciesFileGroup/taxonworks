@@ -7,6 +7,10 @@ class CachedMapRegister < ApplicationRecord
   include Shared::IsData
 
   belongs_to :cached_map_register_object, polymorphic: true
-  
+
   validates_presence_of :cached_map_register_object
+
+  # Should not do this for speed reasons, just fix algorithim
+  # validates_uniqueness_of :cached_map_register_object
+
 end

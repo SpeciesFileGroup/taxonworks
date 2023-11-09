@@ -1,5 +1,9 @@
 export default () => {
   return {
+    CoordinateOtus: {
+      title: 'Coordinate OTUs',
+      status: 'stable'
+    },
     NomenclatureHistory: {
       title: 'Timeline',
       status: 'stable'
@@ -11,8 +15,7 @@ export default () => {
     },
     ImageGallery: {
       title: 'Images',
-      status: 'prototype',
-      rankGroup: ['GenusGroup', 'SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
+      status: 'prototype'
     },
     CommonNames: {
       title: 'Common names',
@@ -54,7 +57,12 @@ export default () => {
       title: 'Annotations',
       status: 'prototype'
     },
-    CollectingEvents: {
+    CollectingEventSection: {
+      title: 'Collecting events',
+      status: 'prototype',
+      rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
+    },
+    Distribution: {
       title: 'Distribution',
       status: 'prototype'
     }

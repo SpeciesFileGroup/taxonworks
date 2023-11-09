@@ -431,9 +431,7 @@ class GeographicArea < ApplicationRecord
   end
 
   def default_geographic_item_id
-    GeographicAreasGeographicItem.where(geographic_area_id: id).default_geographic_item_data.pluck(:id).first
-
-    # default_geographic_area_geographic_item.pluck('geographic_items.id').first # &.geographic_item
+    GeographicAreasGeographicItem.where(geographic_area_id: self.id).default_geographic_item_data.pluck(:geographic_item_id).first
   end
 
   # @return [GeographicAreasGeographicItem, nil]

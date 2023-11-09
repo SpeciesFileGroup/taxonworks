@@ -238,13 +238,13 @@ class OtusController < ApplicationController
   def download
     send_data Export::Download.generate_csv(Otu.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "otus_#{DateTime.now}.csv"
+      filename: "otus_#{DateTime.now}.tsv"
   end
 
   # GET api/v1/otus/by_name/:name?token=:token&project_id=:id
   def by_name
     @otu_name = params.require(:name)
-    @otu_ids = Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
+    @otu_ids = ::Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
   end
 
   # GET /otus/select_options?target=TaxonDetermination
@@ -252,14 +252,26 @@ class OtusController < ApplicationController
     @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
+  # GET /api/v1/otus.csv
   # GET /api/v1/otus
   def api_index
-    @otus = ::Queries::Otu::Filter.new(params.merge!(api: true)).all
+    q = ::Queries::Otu::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('otus.id')
-      .page(params[:page])
-      .per(params[:per])
-    render '/otus/api/v1/index'
+
+    respond_to do |format|
+      format.json {
+        @otus = q.page(params[:page]).per(params[:per])
+        render '/otus/api/v1/index'
+      }
+      format.csv {
+        @otus = q
+        send_data Export::Download.generate_csv(
+          @otus,
+          exclude_columns: %w{updated_by_id created_by_id project_id},
+        ), type: 'text', filename: "taxon_names_#{DateTime.now}.tsv"
+      }
+    end
   end
 
   # GET /api/v1/otus/:id

@@ -29,7 +29,7 @@ module Shared::Maps
     # !! This should only impacts the CachedMapItem layer. See CachedMapItem for
     # triggers that will propagate to CachedMap.
     # def syncronize_cached_map_items
-      # delay.coordinate_cached_map_items
+    # delay.coordinate_cached_map_items
     # end
 
     def cached_map_registered
@@ -89,16 +89,18 @@ module Shared::Maps
 
         name_hierarchy = {}
 
-        stubs[:geographic_item_id].each do |geographic_item_id|
-          stubs[:otu_id].each do |otu_id|
-            begin
-              CachedMapItem.transaction do
+        CachedMapItem.transaction do
+
+          stubs[:geographic_item_id].each do |geographic_item_id|
+            stubs[:otu_id].each do |otu_id|
+              begin
+
                 a = CachedMapItem.find_or_initialize_by(
-                    type: map_type,
-                    otu_id:,
-                    geographic_item_id:,
-                    project_id: stubs[:origin_object].project_id,
-                  )
+                  type: map_type,
+                  otu_id:,
+                  geographic_item_id:,
+                  project_id: stubs[:origin_object].project_id,
+                )
 
                 if a.persisted?
                   a.increment!(:reference_count)
@@ -129,18 +131,21 @@ module Shared::Maps
                     translated_geographic_item_id: geographic_item_id
                   )
                 end
-
-                CachedMapRegister.create!(
-                  cached_map_register_object: self,
-                  project_id:
-                )
+              rescue ActiveRecord::RecordInvalid => e
+                logger.debug e
+              rescue PG::UniqueViolation
+                logger.debug 'pg unique violation'
               end
-
-            rescue ActiveRecord::RecordInvalid => e
-              logger.debug e
-            rescue PG::UniqueViolation
-              logger.debug 'pg unique violation'
             end
+          end
+
+          begin
+            CachedMapRegister.create!(
+              cached_map_register_object: self,
+              project_id:
+            )
+          rescue ActiveRecord::RecordInvalid => e
+            logger.debug e
           end
         end
       end

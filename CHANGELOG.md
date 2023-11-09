@@ -7,30 +7,144 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+- Duplicate CachedMapRegister rows being created per object
+
+
+## [0.35.2] - 2023-11-07
+
+### Changed
+
+- Update Gemfiles
+- CachedMap algorithm, now far more precise.
+- Browse OTU: Image gallery section is now available for all ranks [#3612]
+- Map saves tile preferences [#3619]
+
+### Fixed
+
+- Anyone can destroy a Community (Global) identifier on a Community object [#3601]
+- Newfoundland/CAR mapping issue [#3588]
+- Role callbacks interfered with creation of nested objects [#3622] !! Potentially breaking fix !!
+- Queries to `/api/v1/sources` not scoping to project when `project_token` used [#3623]
+- CollectionObject summary report tab clicks
+- Cached map preview incorrect/default GeographicItem id for GeographicAreas
+- Collection object summary report bad link
+- Task Biological associations graph: Save fails when trying to update a graph
+- Role picker doesn't show organization name when created [#3611]
+- Spinner hangs when apply fails in New Images task [#3620]
+
+[#3601]: https://github.com/SpeciesFileGroup/taxonworks/issues/3601
+[#3588]: https://github.com/SpeciesFileGroup/taxonworks/issues/3588
+[#3622]: https://github.com/SpeciesFileGroup/taxonworks/issues/3622
+[#3623]: https://github.com/SpeciesFileGroup/taxonworks/issues/3623
+[#3611]: https://github.com/SpeciesFileGroup/taxonworks/issues/3611
+[#3612]: https://github.com/SpeciesFileGroup/taxonworks/issues/3612
+[#3619]: https://github.com/SpeciesFileGroup/taxonworks/issues/3619
+[#3620]: https://github.com/SpeciesFileGroup/taxonworks/issues/3620
+
+## [0.35.1] - 2023-10-23
+
+### Changed
+
+- Doubled the number of favoritable tasks to 40 [#3600]
+- Add record frame to Filter Source [#3615]
+
+### Fixed
+
+- TaxonPage stats, maybe, who knows at this point.
+- Images for OTU type material expanded to all protonyms
+- Reset project preferences [#3599]
+- Project TSV dump permissions on server side
+- Clone moved CVT, not cloned project
+
+[#3600]: https://github.com/SpeciesFileGroup/taxonworks/issues/3600
+[#3599]: https://github.com/SpeciesFileGroup/taxonworks/issues/3599
+[#3615]: https://github.com/SpeciesFileGroup/taxonworks/issues/3615
+
+## [0.35.0] - 2023-10-19
+
 ### Added
 
+- Outdated names task for CollectionObjects (compare to COL) [#2585]
+- Unified project data download task [#1009], in part
+- Download project as zipped TSV tables in Download [#1009]
+- CSV generating endpoints `/api/v1/taxon_names.csv` and `/api/v1/otus.csv`
+- Filter CollectionObject links to "Collection Summary" task [#3434]
+- CollectionObject type facet
+- Coordinate and collecting event sections in Browse OTUs
+
+### Changed
+
+- Download routes now name files as `.tsv`
+- CollectingEvent allowable max records made smart [#3590]
+- Added `extend[]=attribution` to `/images/123.json`
+
+### Fixed
+
+- TaxonNameClassification download
+- TaxonName `descendants` facet always included self, it shouldn't have
+- Without document facet
+- Object cloning in OriginRelationship caused infinite loops [#3594]
+- Quote handling in API autocomplete calls
+- Organization name not displaying in attribution copyright _label_
+- Manage Controlled vocabulary term: CVT list is not reloading after clone them from other project
+- Not possible to delete asserted distribution once added in radial object [#3591]
+- Manage controlled vocabulary: Delete button doesn't work [#3593]
+
+[#2585]: https://github.com/SpeciesFileGroup/taxonworks/issues/2585
+[#1009]: https://github.com/SpeciesFileGroup/taxonworks/issues/1009
+[#3593]: https://github.com/SpeciesFileGroup/taxonworks/issues/3593
+[#3594]: https://github.com/SpeciesFileGroup/taxonworks/issues/3594
+[#3590]: https://github.com/SpeciesFileGroup/taxonworks/issues/3590
+[#3434]: https://github.com/SpeciesFileGroup/taxonworks/issues/3434
+[#3591]: https://github.com/SpeciesFileGroup/taxonworks/issues/3591
+
+## [0.34.6] - 2023-10-06
+
+### Added
+
+- WKT and GeoJSON endpoints for /geographic_items/123.wkt
+- Clone ControlledVocabularies across projects [#3562]
+- Batch move taxon names to a new parent within TaxonName filter [#3584]
+- Batch update Source with a Serial within Source filter [#3561]
+- Browse nomenclature hierachy nav counts of invalid/valid link to filter
+- Reset forms for user preferences and project card favorites [#3545]
 - Otu RCC5 relationships to the COLDP exporter [#3569]
 - Filter images slice in radial linker [#3574]
 - Name relations to Catalogue of Life data package exports [#1211]
 - Type Materials to Catalogue of Life data package exports [#3213]
+- Filter list: Add border to highlight the last row where a radial was opened [#3583]
 
 ### Changed
 
-- TaxonName stats metadata includes coordinate OTUs and synonyms of self 
+- Update Gemfile
+- TaxonName stats metadata includes coordinate OTUs and synonyms of self
 - Change map position in Filter collecting events [#3571]
 - Add type material button is now blue [#3579]
+- Radial navigator: close radial menu when slices are opened in a new tab/window clicking and pressing ctrl/shift/meta keys [#3582]
 
 ### Fixed
 
+- Loans referencing containers have 'Total' properly calculated [#3035]
+- TaxonDetermination sort order on CollectionObject comprehensive/browse... again [#1355]
+- OTU API autocomplete not resolving to valid OTU
 - Attribution rendering had cryptic license value [#3577]
 - GeographicAreas not registering for some DWCA imports [#3575]
 - New collecting event: georeference from verbatim button creates two identical georeferences [#3573]
 
+[#3035]: https://github.com/SpeciesFileGroup/taxonworks/issues/3035
+[#1355]: https://github.com/SpeciesFileGroup/taxonworks/issues/1355
+[#3562]: https://github.com/SpeciesFileGroup/taxonworks/issues/3562
+[#3584]: https://github.com/SpeciesFileGroup/taxonworks/issues/3584
+[#3561]: https://github.com/SpeciesFileGroup/taxonworks/issues/3561
+[#3545]: https://github.com/SpeciesFileGroup/taxonworks/issues/3545
 [#3571]: https://github.com/SpeciesFileGroup/taxonworks/issues/3571
 [#3573]: https://github.com/SpeciesFileGroup/taxonworks/issues/3573
 [#3574]: https://github.com/SpeciesFileGroup/taxonworks/issues/3574
 [#3577]: https://github.com/SpeciesFileGroup/taxonworks/issues/3577
 [#3579]: https://github.com/SpeciesFileGroup/taxonworks/issues/3579
+[#3582]: https://github.com/SpeciesFileGroup/taxonworks/issues/3582
+[#3583]: https://github.com/SpeciesFileGroup/taxonworks/issues/3583
 
 ## [0.34.5] - 2023-09-26
 
@@ -3916,7 +4030,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.5...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.2...development
+[0.35.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.1...v0.35.2
+[0.35.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.0...v0.35.1
+[0.35.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.6...v0.35.0
+[0.34.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.5...v0.34.6
 [0.34.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.4...v0.34.5
 [0.34.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.3...v0.34.4
 [0.34.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.2...v0.34.3
