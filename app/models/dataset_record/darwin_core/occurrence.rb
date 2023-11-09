@@ -50,9 +50,15 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         if potential_protonyms.count > 1
           # verbatim author field (if present) applies to finest name only
           if name[:verbatim_author]
+            potential_protonyms_narrowed = potential_protonyms.where(verbatim_author: name[:verbatim_author])
+
+            if name[:year_of_publication]
+              potential_protonyms_narrowed = potential_protonyms_narrowed.where(year_of_publication: name[:year_of_publication])
+            end
+
             # if only one result, everything's ok. Safe to take it as the protonym
-            if potential_protonyms.where(verbatim_author: name[:verbatim_author]).count == 1
-              potential_protonyms = potential_protonyms.where(verbatim_author: name[:verbatim_author])
+            if potential_protonyms_narrowed.count == 1
+              potential_protonyms = potential_protonyms_narrowed
             else
               potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }.join(', ')
               raise DatasetRecord::DarwinCore::InvalidData.new(
