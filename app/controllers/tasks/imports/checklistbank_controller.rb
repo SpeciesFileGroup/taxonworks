@@ -123,7 +123,7 @@ class Tasks::Imports::ChecklistbankController < ApplicationController
                 # TODO: handle multiple matches (or just skip?)
               else
                 protonym_name = parser.send(rank)
-                p_id = clb_import_protonym(protonym_name, TaxonName.find(parent_id)[:parent_id], rank, nomenclature_code)
+                p_id = clb_import_protonym(protonym_name, TaxonName.find(parent_id).id, rank, nomenclature_code)
                 TaxonNameRelationship.create(subject_taxon_name_id: p_id, object_taxon_name_id: tw_taxon_name_id, type: original_tnr_type[rank])
                 parent_id = p_id
               end
