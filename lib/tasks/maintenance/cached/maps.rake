@@ -10,14 +10,18 @@ namespace :tw do
       #
       #  The index can be built all at once, appending when not present, with:
       #
-      #  rake tw:maintenance:cached:maps:full_index
+      #  rake tw:maintenance:cached:maps:full_index cached_rebuild_processes=4
       #
       # This fires tasks that can be run individually, and idempotently, though the last ("label") should be run
-      # at the completion of of the cache build.
+      # at the completion of of the cache build:
       #
       # rake tw:maintenance:cached:maps:parallel_create_cached_map_item_translations_from_asserted_distributions cached_rebuild_processes=4
       # rake tw:maintenance:cached:maps:parallel_create_cached_map_from_asserted_distributions cached_rebuild_processes=4
+      #
+      # Either of these:
       # rake tw:maintenance:cached:maps:parallel_create_cached_map_from_georeferences cached_rebuild_processes=4
+      # rake tw:maintenance:cached:maps:parallel_create_cached_map_from_georeferences_by_area cached_rebuild_processes=4
+      #
       # rake tw:maintenance:cached:maps:parallel_label_cached_map_items cached_rebuild_processes=4
       #
       # You can target a build for a specific OTU with:
@@ -28,7 +32,7 @@ namespace :tw do
       #
       #   rake tw:maintenance:cached:maps:destroy_all
       #
-      # You shouldn't do that likely though, the Translation table is useful, so do: 
+      # You shouldn't do that likely though, the Translation table is useful, so do:
       #
       #   rake tw:maintenance:cached:maps:destroy_index
       #
