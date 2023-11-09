@@ -11,6 +11,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CachedMaps (WebLevel1) is now based on "State" shapes only, improving resolution
 - CachedMap build process adds pre-build step to greatly minimize overall number of spatial calculations
 - CachedMap spatial calculations use a intersection + "smoothing" approach
+- Also use year of publication to determine correct protonyn having homonyms [#3630]
+- Improved error message when `typeStatus` name is a homonym in DwC occurrences importer [#3632]
 
 ### Fixed
 
@@ -19,9 +21,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CachedMap indexing speedups failed to properly utilize prior work
 - Duplicate CachedMapRegister rows being created per object
 - New Image task, second "Apply" button is not working #3628 
+- ' [sic]' not removed when searching for synonyms in database to compare with `typeStatus` in DwC occurrence importer [#3633]
+
 
 [#3628]: https://github.com/SpeciesFileGroup/taxonworks/issues/3628
 [#3629]: https://github.com/SpeciesFileGroup/taxonworks/issues/3629
+[#3630]: https://github.com/SpeciesFileGroup/taxonworks/pull/3630
+[#3632]: https://github.com/SpeciesFileGroup/taxonworks/pull/3632
+[#3633]: https://github.com/SpeciesFileGroup/taxonworks/pull/3633
 
 ## [0.35.2] - 2023-11-07
 
