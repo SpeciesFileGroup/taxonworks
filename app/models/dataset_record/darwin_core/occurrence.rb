@@ -953,11 +953,17 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           type_type: type_status_parsed[:type].downcase
         }
       end
-      if (original_combination_protonym = Protonym.find_by(cached_original_combination: type_scientific_name, project_id: self.project_id))
+      original_combination_protonyms = Protonym.where(cached_original_combination: type_scientific_name, project_id: self.project_id)
+      if original_combination_protonyms.count == 1
         return {
           type_type: type_status_parsed[:type].downcase,
-          protonym: original_combination_protonym
+          protonym: original_combination_protonyms.first
         }
+      elsif original_combination_protonyms.count > 1
+        potential_protonym_strings = original_combination_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_original_combination_html}]" }.join(', ')
+        raise DatasetRecord::DarwinCore::InvalidData.new(
+          { "typeStatus" => ["Multiple matches found for name #{name[:name]}}: #{potential_protonym_strings}"] }
+        )
       end
 
       # See if name matches a synonym of taxon name
