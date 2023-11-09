@@ -14,9 +14,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- New source when cloned and saved is not added to the project sources [#3629]
 - Sequence display when not a Primer
 - CachedMap indexing speedups failed to properly utilize prior work
 - Duplicate CachedMapRegister rows being created per object
+
+[#3629]: https://github.com/SpeciesFileGroup/taxonworks/issues/3629
 
 ## [0.35.2] - 2023-11-07
 
