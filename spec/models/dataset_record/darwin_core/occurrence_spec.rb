@@ -62,7 +62,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/intermediate_protonym.tsv'), 'text/plain'),
         description: 'Missing Ancestor Protonym',
-        metadata: { 'import_settings' => { 'restrict_to_existing_nomenclature' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true}
       ).tap { |i| i.stage }
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
@@ -99,9 +99,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/type_material.tsv'), 'text/plain'),
         description: 'Type Material',
-        metadata: { 'import_settings' =>
-                      { 'restrict_to_existing_nomenclature' => true,
-                        'require_type_material_success' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
@@ -155,9 +154,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_original_misspelling.tsv'), 'text/plain'),
         description: 'Type Material Synonym',
-        metadata: { 'import_settings' =>
-                      { 'restrict_to_existing_nomenclature' => true,
-                        'require_type_material_success' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
@@ -215,9 +213,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_combination_misspelling.tsv'), 'text/plain'),
         description: 'Type Material Obsolete Combination Misspelling',
-        metadata: { 'import_settings' =>
-                      { 'restrict_to_existing_nomenclature' => true,
-                        'require_type_material_success' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
@@ -272,9 +269,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_synonym_misspelling.tsv'), 'text/plain'),
         description: 'Type Material Synonym Misspelling',
-        metadata: { 'import_settings' =>
-                      { 'restrict_to_existing_nomenclature' => true,
-                        'require_type_material_success' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
@@ -345,9 +341,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_subsequent_combination.tsv'), 'text/plain'),
         description: 'Type Material Subsequent Combination',
-        metadata: { 'import_settings' =>
-                      { 'restrict_to_existing_nomenclature' => true,
-                        'require_type_material_success' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
@@ -414,9 +409,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_wildcard_subgenus.tsv'), 'text/plain'),
         description: 'Type Material Wildcard Subgenus',
-        metadata: { 'import_settings' =>
-                      { 'restrict_to_existing_nomenclature' => true,
-                        'require_type_material_success' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
@@ -468,15 +462,10 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_unresolved_homonym.tsv'), 'text/plain'),
         description: 'Type Material Homonym',
-        metadata: { 'import_settings' =>
-                      { 'restrict_to_existing_nomenclature' => true,
-                        'require_type_material_success' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
-      @import_dataset.metadata.merge!({ 'import_settings' =>
-                                          { 'restrict_to_existing_nomenclature' => true,
-                                            'require_type_material_success' => true } })
-      @import_dataset.save!
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
