@@ -62,7 +62,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/intermediate_protonym.tsv'), 'text/plain'),
         description: 'Missing Ancestor Protonym',
-        metadata: { 'import_settings' => { 'restrict_to_existing_nomenclature' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true}
       ).tap { |i| i.stage }
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
@@ -99,9 +99,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/type_material.tsv'), 'text/plain'),
         description: 'Type Material',
-        metadata: { 'import_settings' =>
-                      { 'restrict_to_existing_nomenclature' => true,
-                        'require_type_material_success' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
@@ -155,9 +154,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_original_misspelling.tsv'), 'text/plain'),
         description: 'Type Material Synonym',
-        metadata: { 'import_settings' =>
-                      { 'restrict_to_existing_nomenclature' => true,
-                        'require_type_material_success' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
@@ -215,9 +213,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_combination_misspelling.tsv'), 'text/plain'),
         description: 'Type Material Obsolete Combination Misspelling',
-        metadata: { 'import_settings' =>
-                      { 'restrict_to_existing_nomenclature' => true,
-                        'require_type_material_success' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
@@ -272,9 +269,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_synonym_misspelling.tsv'), 'text/plain'),
         description: 'Type Material Synonym Misspelling',
-        metadata: { 'import_settings' =>
-                      { 'restrict_to_existing_nomenclature' => true,
-                        'require_type_material_success' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
@@ -345,9 +341,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_subsequent_combination.tsv'), 'text/plain'),
         description: 'Type Material Subsequent Combination',
-        metadata: { 'import_settings' =>
-                      { 'restrict_to_existing_nomenclature' => true,
-                        'require_type_material_success' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
@@ -408,15 +403,14 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   context 'when importing an occurrence with a type material without subgenus' do
     # This test is for when the original combination has a subgenus, but none is provided in the typeStatus field
-    
+
     before :all do
       DatabaseCleaner.start
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_wildcard_subgenus.tsv'), 'text/plain'),
         description: 'Type Material Wildcard Subgenus',
-        metadata: { 'import_settings' =>
-                      { 'restrict_to_existing_nomenclature' => true,
-                        'require_type_material_success' => true } }
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
@@ -452,6 +446,72 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
     it 'should have the correct spelling in the type material' do
       expect(TypeMaterial.first.protonym).to eq s_brounii
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+  end
+
+  context 'when importing an occurrence with a type material that is an unresolved homonym' do
+    # When the name is an unresolved homonym, but scientificNameAuthorship can differentiate the homonyms
+    # and the typeStatus is an exact match for scientificName, it should be possible to create the typeMaterial
+
+    before :all do
+      DatabaseCleaner.start
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_unresolved_homonym.tsv'), 'text/plain'),
+        description: 'Type Material Homonym',
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
+      ).tap { |i| i.stage }
+
+
+      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create(parent: family, name: "Formicinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+
+      g_camponotus = Protonym.create(parent: subfamily, name: "Camponotus", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_dendromyrmex = Protonym.create(parent: g_camponotus, name: "Dendromyrmex", rank_class: Ranks.lookup(:iczn, :subgenus), also_create_otu: true)
+      g_karavaievia = Protonym.create(parent: g_camponotus, name: "Karavaievia", rank_class: Ranks.lookup(:iczn, :subgenus), also_create_otu: true)
+
+      s_nigripes_dumpert = Protonym.create(parent: g_karavaievia, name: "nigripes", rank_class: Ranks.lookup(:iczn, :species),
+                                           verbatim_author: "Dumpert", year_of_publication: 1995, also_create_otu: true)
+
+      s_nidulans = Protonym.create(parent: g_camponotus, name: "nidulans", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_nigripes_wheeler = Protonym.create(parent: g_dendromyrmex, name: "nigripes", rank_class: Ranks.lookup(:iczn, :species),
+                                           verbatim_author: "Wheeler", year_of_publication: 1916, also_create_otu: true)
+
+      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_dendromyrmex, object_taxon_name: s_nigripes_wheeler)
+      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_nidulans, object_taxon_name: s_nigripes_wheeler)
+      TaxonNameRelationship::OriginalCombination::OriginalSubspecies.create!(subject_taxon_name: s_nigripes_wheeler, object_taxon_name: s_nigripes_wheeler)
+
+      TaxonNameRelationship::Iczn::Invalidating::Usage::Synonym.create!(subject_taxon_name: s_nigripes_wheeler, object_taxon_name: s_nidulans)
+
+      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_camponotus, object_taxon_name: s_nigripes_dumpert)
+      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_nigripes_dumpert, object_taxon_name: s_nigripes_dumpert)
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let!(:results) { @imported }
+    let!(:s_nigripes_wheeler) { TaxonName.find_by(name: "nigripes", cached_author_year: "(Wheeler, 1916)") }
+    let!(:s_nigripes_dumpert) { TaxonName.find_by(name: "nigripes", cached_author_year: "Dumpert, 1995") }
+
+    it "should import the record without failing" do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'should have 1 type material record' do
+      expect(TypeMaterial.count).to eq 1
+    end
+
+    it 'should have the correct spelling in the type material' do
+      expect(TypeMaterial.first.protonym).to eq s_nigripes_dumpert
     end
 
     after :all do
