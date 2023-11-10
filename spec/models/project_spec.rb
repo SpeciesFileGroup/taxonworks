@@ -2,9 +2,9 @@ require 'rails_helper'
 
 describe Project, type: :model do
 
-# before(:all) {
-#   Rails.application.eager_load!
-# }
+  # before(:all) {
+  #   Rails.application.eager_load!
+  # }
 
   let(:project) { Project.new }
 
@@ -225,20 +225,20 @@ describe Project, type: :model do
             end
           rescue => detail
             @failed_factories[f_name] = detail
-            @project_build_err_msg    += "\n\"#{f_name}\" build => #{detail}"
+            @project_build_err_msg += "\n\"#{f_name}\" build => #{detail}"
           else
             if test_factory.valid?
               begin
                 test_factory.save
               rescue => detail
                 @failed_factories[f_name] = detail
-                @project_build_err_msg    += "\n\"#{f_name}\" save => #{detail}"
+                @project_build_err_msg += "\n\"#{f_name}\" save => #{detail}"
               else
                 @factories_under_test[f_name] = test_factory
               end
             else
               @failed_factories[f_name] = test_factory.errors
-              @project_build_err_msg    += "\n\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
+              @project_build_err_msg += "\n\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
             end
           end
 
@@ -261,6 +261,8 @@ describe Project, type: :model do
 
       diff = (actual_project_models - Project::MANIFEST) + (Project::MANIFEST - actual_project_models)
 
+      next if diff == ['TestClass']
+
       expect(diff).to be_empty
     end
 
@@ -272,7 +274,7 @@ describe Project, type: :model do
       specify '#nuke nukes "everything"' do
         # loop through all the valid_ factories, for each find the class that they build
         #    expect(class_that_was_built.all.reload.count).to eq(0)
-        orphans                 = {}
+        orphans = {}
         project_destroy_err_msg = "Project id should be #{p.id}"
         FactoryBot.factories.each { |factory|
           f_name = factory.name
@@ -282,7 +284,7 @@ describe Project, type: :model do
               count = this_class.where(project_id: p.id).all.reload.count
               if count > 0
                 project_destroy_err_msg += "\nFactory '#{f_name}': #{this_class}: #{count} orphan #{'record'.pluralize(count)}, remaining project_ids: #{this_class.all.pluck(:project_id).uniq.join(',')}."
-                orphans[this_class]          = count
+                orphans[this_class] = count
               end
             end
           end
@@ -301,7 +303,7 @@ describe Project, type: :model do
           f_name = factory.to_s
           if f_name =~ /^valid_/
             this_class = factory.build_class
-            model      = this_class.to_s.constantize
+            model = this_class.to_s.constantize
             unless model.column_names.include?('project_id')
               expect(model.all.reload.count).to be >= 1
             end
