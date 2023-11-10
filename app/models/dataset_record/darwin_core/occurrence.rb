@@ -78,7 +78,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         if p.nil? && Protonym.where(name.slice(:rank_class).merge({ field => name[:name] })).where(project_id: parent.project_id).exists?
           potential_protonyms = Protonym.where(name.slice(:rank_class).merge!({ field => name[:name] })).with_ancestor(parent)
           if potential_protonyms.count > 1
-            return parent
+            # if multiple matches, then we need to narrow down with additional information
+            # TODO shouldn't we just use this to begin with?
+            potential_protonyms = Protonym.where(name.slice(:rank_class, :name, :verbatim_author, :year_of_publication)).with_ancestor(parent)
+            if potential_protonyms.count > 1
+              return parent
+            end
             # potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }
             # raise DatasetRecord::DarwinCore::InvalidData.new(
             #   { "scientificName" => ["Intermediate name not present, and multiple matches found: #{potential_protonym_strings.join(', ')}"] }
