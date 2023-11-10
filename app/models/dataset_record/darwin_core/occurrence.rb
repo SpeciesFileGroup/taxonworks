@@ -938,13 +938,24 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   def parse_typestatus(type_status, taxon_protonym)
     type_material = nil
     type_status_parsed = type_status&.match(/^(?<type>\w+)$/i) || type_status&.match(/(?<type>\w+)(\s+OF\s+(?<scientificName>.*))/i)
-
+    type_type = type_status_parsed[:type].downcase
     # only nil if non-alphanumeric entry, or multiple words not matching "\w+ of \w+"
     raise DarwinCore::InvalidData.new({ "typeStatus": ["Unprocessable typeStatus information"] }) unless type_status_parsed
 
     code = get_field_value(:nomenclaturalCode)&.downcase&.to_sym || import_dataset.default_nomenclatural_code
-    unless TypeMaterial::legal_type_type(code, type_status_parsed[:type].downcase)
+    unless TypeMaterial::legal_type_type(code, type_type)
       raise DarwinCore::InvalidData.new({ "typeStatus": ["could not extract legal type from typeStatus"] })
+    end
+
+    # Gets the correct spelling for a protonym, or returns the protonym if not a misspelling
+    # @param [Protonym] protonym the protonym to get correct spelling for
+    def get_correct_spelling(protonym)
+      if protonym.is_protonym? && protonym.has_misspelling_relationship?
+        return TaxonNameRelationship.where_subject_is_taxon_name(protonym)
+                                    .with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY)
+                                    .first.object_taxon_name
+      end
+      protonym
     end
 
     scientific_name = get_field_value(:scientificName)&.gsub(/\s+/, ' ')
@@ -956,7 +967,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       # if type_scientific_name matches the current name of the occurrence, use that
       if type_scientific_name.delete_prefix(scientific_name)&.match(/^\W*$/)
         return {
-          type_type: type_status_parsed[:type].downcase
+          type_type: type_type
         }
       end
       name_pattern = "^#{type_scientific_name.split.map { |n| "#{n}(?: \\[sic\\])?" }.join(" ")}$"
@@ -964,17 +975,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
                                                .where(project_id: self.project_id)
 
       if original_combination_protonyms.count == 1
-
         oc_protonym = original_combination_protonyms.first
-
-        if oc_protonym.has_misspelling_relationship?
-          correct_spelling = TaxonNameRelationship.where_subject_is_taxon_name(oc_protonym).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY).first.object_taxon_name
-          original_combination_protonyms = [correct_spelling]
-        end
-
         return {
-          type_type: type_status_parsed[:type].downcase,
-          protonym: original_combination_protonyms.first
+          type_type: type_type,
+          protonym: get_correct_spelling(oc_protonym)
         }
       elsif original_combination_protonyms.count > 1
         potential_protonym_strings = original_combination_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_original_combination_html}]" }.join(', ')
@@ -985,10 +989,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
       # See if name matches a synonym of taxon name
       synonyms = taxon_protonym.synonyms
-      matching_synonyms = []
+      matching_synonyms = Set[]
       synonyms.each do |s|
-        possible_names = [s.cached, s.cached_original_combination].compact
-        possible_names += possible_names.map { |n| n.gsub(" [sic]") }
+        possible_names = Set[s.cached, s.cached_original_combination].compact
+        possible_names += possible_names.map { |n| n.gsub(" [sic]", '') }
         if possible_names.include?(type_scientific_name)
           if s.is_combination?
             matching_synonyms << s.finest_protonym
@@ -998,9 +1002,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         end
       end
 
-      if matching_synonyms.uniq.count == 1
+      if matching_synonyms.map! { |s| get_correct_spelling(s) }.uniq.count == 1
         return {
-          type_type: type_status_parsed[:type].downcase,
+          type_type: type_type,
           protonym: matching_synonyms.first
         }
       end
@@ -1019,8 +1023,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         if wildcard_original_protonym.count == 1
           return {
-            type_type: type_status_parsed[:type].downcase,
-            protonym: wildcard_original_protonym.first
+            type_type: type_type,
+            protonym: get_correct_spelling(wildcard_original_protonym.first)
           }
         elsif wildcard_original_protonym.count > 1
           matching_protonyms = wildcard_original_protonym.map{|p| "[id: #{p.id} #{p.cached_html_original_name_and_author_year}]"}
