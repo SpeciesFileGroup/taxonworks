@@ -977,10 +977,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       matching_synonyms = []
       synonyms.each do |s|
         possible_names = [s.cached, s.cached_original_combination].compact
-        if s.has_misspelling_relationship?
-          extra = possible_names.map { |n| n.delete_suffix(" [sic]") }
-          possible_names += extra
-        end
+        possible_names += possible_names.map { |n| n.gsub(" [sic]") }
         if possible_names.include?(type_scientific_name)
           if s.is_combination?
             matching_synonyms << s.finest_protonym
