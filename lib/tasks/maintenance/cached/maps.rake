@@ -70,8 +70,8 @@ namespace :tw do
         task full_index: [
           :parallel_create_cached_map_item_translations_from_asserted_distributions,
           :parallel_create_cached_map_from_asserted_distributions,
-          # :parallel_create_cached_map_from_georeferences,
-          :parallel_create_cached_map_from_georeferences_by_area
+          :parallel_create_cached_map_from_georeferences,
+          # :parallel_create_cached_map_from_georeferences_by_area
         ] do |t|
           puts 'Done full index.'
         end
