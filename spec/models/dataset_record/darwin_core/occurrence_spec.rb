@@ -229,7 +229,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
       g_heteroponera = Protonym.create(parent: subfamily, name: "Heteroponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
       g_ectatomma = Protonym.create(parent: subfamily, name: "Ectatomma", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      # TODO should I include the subgenus (Acanthroponera) for brownii?
       s_brounii = Protonym.create(parent: g_heteroponera, name: "brounii", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
       s_brownii = Protonym.create(parent: g_heteroponera, name: "brownii", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
 
@@ -400,6 +399,59 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
     it 'should have the correct spelling in the type material' do
       expect(TypeMaterial.first.protonym).to eq s_brachynoda
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+  end
+
+  context 'when importing an occurrence with a type material without subgenus' do
+    # This test is for when the original combination has a subgenus, but none is provided in the typeStatus field
+    
+    before :all do
+      DatabaseCleaner.start
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_wildcard_subgenus.tsv'), 'text/plain'),
+        description: 'Type Material Wildcard Subgenus',
+        metadata: { 'import_settings' =>
+                      { 'restrict_to_existing_nomenclature' => true,
+                        'require_type_material_success' => true } }
+      ).tap { |i| i.stage }
+
+      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create(parent: family, name: "Ectatomminae", rank_class: Ranks.lookup(:iczn, :subfamily))
+
+      g_heteroponera = Protonym.create(parent: subfamily, name: "Heteroponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_ectatomma = Protonym.create(parent: subfamily, name: "Ectatomma", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_acanthoponera = Protonym.create(parent: g_ectatomma, name: "Acanthoponera", rank_class: Ranks.lookup(:iczn, :subgenus), also_create_otu: true)
+      s_brounii = Protonym.create(parent: g_heteroponera, name: "brounii", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+
+      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_ectatomma, object_taxon_name: s_brounii)
+      TaxonNameRelationship::OriginalCombination::OriginalSubgenus.create!(subject_taxon_name: g_acanthoponera, object_taxon_name: s_brounii)
+      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_brounii, object_taxon_name: s_brounii)
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let!(:results) { @imported }
+    let!(:s_brounii) { TaxonName.find_by_name("brounii") }
+
+    it "should import the record without failing" do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'should have 1 type material record' do
+      expect(TypeMaterial.count).to eq 1
+    end
+
+    it 'should have the correct spelling in the type material' do
+      expect(TypeMaterial.first.protonym).to eq s_brounii
     end
 
     after :all do
