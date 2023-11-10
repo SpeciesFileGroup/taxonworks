@@ -959,8 +959,19 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           type_type: type_status_parsed[:type].downcase
         }
       end
-      original_combination_protonyms = Protonym.where(cached_original_combination: type_scientific_name, project_id: self.project_id)
+      name_pattern = "^#{type_scientific_name.split.map { |n| "#{n}(?: \\[sic\\])?" }.join(" ")}$"
+      original_combination_protonyms = Protonym.where('cached_original_combination ~ :pat', pat: name_pattern)
+                                               .where(project_id: self.project_id)
+
       if original_combination_protonyms.count == 1
+
+        oc_protonym = original_combination_protonyms.first
+
+        if oc_protonym.has_misspelling_relationship?
+          correct_spelling = TaxonNameRelationship.where_subject_is_taxon_name(oc_protonym).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY).first.object_taxon_name
+          original_combination_protonyms = [correct_spelling]
+        end
+
         return {
           type_type: type_status_parsed[:type].downcase,
           protonym: original_combination_protonyms.first

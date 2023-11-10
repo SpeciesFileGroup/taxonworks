@@ -148,4 +148,62 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   end
 
+  context 'when import an occurrence with a type material matching a synonym of the current taxon name' do
+    before :all do
+      DatabaseCleaner.start
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_original_misspelling.tsv'), 'text/plain'),
+        description: 'Type Material Synonym',
+        metadata: { 'import_settings' =>
+                      { 'restrict_to_existing_nomenclature' => true,
+                        'require_type_material_success' => true } }
+      ).tap { |i| i.stage }
+
+      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create(parent: family, name: "Myrmicinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+
+      g_aphaenogaster = Protonym.create(parent: subfamily, name: "Aphaenogaster", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_ceratopheidole = Protonym.create(parent: subfamily, name: "Ceratopheidole", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      s_depressa = Protonym.create(parent: g_aphaenogaster, name: "depressa", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_perganderi = Protonym.create(parent: g_aphaenogaster, name: "perganderi", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_pergandei = Protonym.create(parent: g_aphaenogaster, name: "pergandei", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+
+
+      # Create original combination relationship for misspelling and correct spelling
+      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_ceratopheidole, object_taxon_name: s_perganderi)
+      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_perganderi, object_taxon_name: s_perganderi)
+
+      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_ceratopheidole, object_taxon_name: s_pergandei)
+      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_pergandei, object_taxon_name: s_pergandei)
+
+      # Create misspelling relationship with correct spelling
+      TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling.create!(subject_taxon_name: s_perganderi, object_taxon_name: s_pergandei)
+
+    end
+
+    let!(:results) { @import_dataset.import(5000, 100) }
+    let!(:s_pergandei) { TaxonName.find_by_name("pergandei") }
+
+    it "should import the record without failing" do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'should have 1 type material record' do
+      expect(TypeMaterial.count).to eq 1
+    end
+
+    it 'should have the correct spelling in the type material' do
+      expect(TypeMaterial.first.protonym).to eq s_pergandei
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+  end
+
 end
