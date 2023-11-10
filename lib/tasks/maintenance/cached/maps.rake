@@ -307,12 +307,14 @@ namespace :tw do
                   .joins(:geographic_item)
                   .where(geographic_item: {id: b })
                   .where.missing(:cached_map_register)
+                  .distinct
                   .pluck(:id, :project_id)
 
                 if r.any? # Do not repeat for already done Georeferences
                   o = Otu
                     .joins(:georeferences)
                     .where(georeferences: {id: r.map(&:first)})
+                    .distinct
                     .pluck(:id, :project_id)
 
                   CachedMapItem.batch_create_georeference_cached_map_items(
