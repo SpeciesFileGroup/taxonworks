@@ -3,11 +3,11 @@
   font-size: $font_small;
   padding: 0px;
   position: static;
-  padding-left: $standard_padding*0.9;
+  padding-left: $standard_padding * 0.9;
   border-radius: 2px;
   border: 1px solid $input-border-color;
   min-height: $normal-input-size;
-  background-color: #FFF;
+  background-color: #fff;
   box-sizing: border-box;
   padding-right: 24px;
   background-size: 18px;
@@ -17,16 +17,17 @@
 }
 
 .vue-autocomplete-input-search {
-  background-image: image-url("search.svg");
+  background-image: image-url('search.svg');
 }
 
 .vue-autocomplete {
+  position: relative;
   ul {
     max-height: 500px;
     overflow-y: scroll;
     z-index: 2001;
     display: none;
-    background-color: #FAFAFA;
+    background-color: #fafafa;
     margin: 0px;
     padding: 0px;
     list-style: none;
@@ -34,7 +35,7 @@
     min-width: 300px;
     //max-width: 500px;
     border: 1px solid $navigation_border;
-    box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
     border-top: none;
     border-bottom: 4px solid $navigation_border;
   }
@@ -46,7 +47,6 @@
   .active {
     background-color: $navigation_border;
   }
-
 }
 
 .vue-autocomplete input:focus ~ ul {

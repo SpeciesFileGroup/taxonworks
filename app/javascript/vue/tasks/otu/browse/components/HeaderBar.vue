@@ -1,10 +1,6 @@
 <template>
-  <div class="panel separate-bottom">
-    <div
-      class="content"
-      :class="{ 'feedback-warning': isInvalid }"
-      v-hotkey="shortcuts"
-    >
+  <NavBar :class="{ 'feedback-warning': isInvalid }">
+    <div v-hotkey="shortcuts">
       <ul
         v-if="navigation"
         class="breadcrumb_list"
@@ -83,7 +79,7 @@
         </template>
       </ul>
     </div>
-  </div>
+  </NavBar>
 </template>
 
 <script>
@@ -94,6 +90,7 @@ import BrowseTaxon from '@/components/taxon_names/browseTaxon.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
 import ShowForThisGroup from '@/tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
 import componentNames from '../const/componentNames.js'
+import NavBar from '@/components/layout/NavBar.vue'
 import { GetterNames } from '../store/getters/getters'
 import { RouteNames } from '@/routes/routes'
 import { Otu } from '@/routes/endpoints'
@@ -103,7 +100,8 @@ export default {
     RadialAnnotator,
     RadialObject,
     QuickForms,
-    BrowseTaxon
+    BrowseTaxon,
+    NavBar
   },
 
   props: {
@@ -237,9 +235,6 @@ export default {
 .container {
   margin: 0 auto;
   width: 1240px;
-}
-.breadcrumb_list {
-  margin-bottom: 32px;
 }
 
 .dropdown {

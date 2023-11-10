@@ -29,7 +29,7 @@ module Shared::Maps
     # !! This should only impacts the CachedMapItem layer. See CachedMapItem for
     # triggers that will propagate to CachedMap.
     # def syncronize_cached_map_items
-      # delay.coordinate_cached_map_items
+    # delay.coordinate_cached_map_items
     # end
 
     def cached_map_registered
@@ -73,8 +73,9 @@ module Shared::Maps
     end
 
     # @param batch (Boolean)
-    #   true - skips setting geographic name labels (see followup tasks)
-    #   false - sets labels
+    #   true - skips setting geographic name labels (see followup tasks) AND caching translations
+    #           i.e. assumes you have a completely built translation table
+    #   false - sets labels, and builds translations
     #
     # Creates or increments a CachedMapItem and creates a CachedMapRegister for this object.
     # * !! Assumes this is the first time CachedMapItem is being indexed for this object.
@@ -89,23 +90,25 @@ module Shared::Maps
 
         name_hierarchy = {}
 
-        stubs[:geographic_item_id].each do |geographic_item_id|
-          stubs[:otu_id].each do |otu_id|
-            begin
-              CachedMapItem.transaction do
+        CachedMapItem.transaction do
+
+          stubs[:geographic_item_id].each do |geographic_item_id|
+            stubs[:otu_id].each do |otu_id|
+              begin
+
                 a = CachedMapItem.find_or_initialize_by(
-                    type: map_type,
-                    otu_id:,
-                    geographic_item_id:,
-                    project_id: stubs[:origin_object].project_id,
-                  )
+                  type: map_type,
+                  otu_id:,
+                  geographic_item_id:,
+                  project_id: stubs[:origin_object].project_id,
+                )
 
                 if a.persisted?
                   a.increment!(:reference_count)
                 else
 
                   # When running in batch mode we assume we will use the label rake task to update
-                  # en-masse after processing.
+                  # en-masse after processing, and we assume we have pre-build translations
                   unless batch
                     name_hierarchy[geographic_item_id] ||= CachedMapItem.cached_map_name_hierarchy(geographic_item_id)
 
@@ -118,29 +121,38 @@ module Shared::Maps
 
                   a.reference_count = 1
                   a.save!
+
+                  # Assume in batch we're going to pre-translate records
+                  unless batch
+                    # There is little or no point to logging translations
+                    # for Georeferences, i.e. it is overhead with no benefit.
+                    # !! If we do log then we should SHA the wkt as a check and store that in the translation table
+                    unless self.kind_of?(Georeference)
+                      CachedMapItemTranslation.find_or_create_by!(
+                        cached_map_type: map_type,
+                        geographic_item_id: stubs[:origin_geographic_item_id],
+                        translated_geographic_item_id: geographic_item_id
+                      )
+                    end
+                  end
+
                 end
 
-                # There is little or no point to logging translations
-                # for Georeferences, i.e. it is overhead with no benefit.
-                unless self.kind_of?(Georeference)
-                  CachedMapItemTranslation.find_or_create_by!(
-                    cached_map_type: map_type,
-                    geographic_item_id: stubs[:origin_geographic_item_id],
-                    translated_geographic_item_id: geographic_item_id
-                  )
-                end
-
-                CachedMapRegister.create!(
-                  cached_map_register_object: self,
-                  project_id:
-                )
+              rescue ActiveRecord::RecordInvalid => e
+                logger.debug e
+              rescue PG::UniqueViolation
+                logger.debug 'pg unique violation'
               end
-
-            rescue ActiveRecord::RecordInvalid => e
-              logger.debug e
-            rescue PG::UniqueViolation
-              logger.debug 'pg unique violation'
             end
+          end
+
+          begin
+            CachedMapRegister.create!(
+              cached_map_register_object: self,
+              project_id:
+            )
+          rescue ActiveRecord::RecordInvalid => e
+            logger.debug e
           end
         end
       end

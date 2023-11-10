@@ -80,14 +80,18 @@ export default ({ state, commit }) => {
 
       return Attribution.update(attributionCreated.id, {
         attribution: payload
-      }).then(({ body }) => {
-        commit(MutationNames.AddAttribution, body)
       })
+        .then(({ body }) => {
+          commit(MutationNames.AddAttribution, body)
+        })
+        .catch(() => {})
     }
 
-    return Attribution.create({ attribution: payload }).then(({ body }) => {
-      commit(MutationNames.AddAttribution, body)
-    })
+    return Attribution.create({ attribution: payload })
+      .then(({ body }) => {
+        commit(MutationNames.AddAttribution, body)
+      })
+      .catch(() => {})
   }
 
   state.imagesCreated.forEach((item) => {
@@ -102,11 +106,14 @@ export default ({ state, commit }) => {
     }
   })
 
-  Promise.all(promises).then(() => {
-    state.settings.saving = false
-    TW.workbench.alert.create(
-      `Attribution(s) were successfully saved.`,
-      'notice'
-    )
-  })
+  Promise.all(promises)
+    .then(() => {
+      TW.workbench.alert.create(
+        `Attribution(s) were successfully saved.`,
+        'notice'
+      )
+    })
+    .finally(() => {
+      state.settings.saving = false
+    })
 }

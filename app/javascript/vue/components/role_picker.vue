@@ -425,7 +425,7 @@ export default {
       if (!alreadyExist) {
         this.roles_attributes.push({
           organization_id: organization.id,
-          name: organization.label,
+          name: organization.name,
           type: this.roleType
         })
         this.$emit('update:modelValue', this.roles_attributes)

@@ -5,6 +5,42 @@ require 'support/shared_contexts/shared_geo'
 describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_objects] do
   include_context 'stuff for complex geo tests'
 
+  specify '.query_batch_update() (async)' do
+    s1, s2 = Specimen.create!, Specimen.create!
+    o = FactoryBot.create(:valid_otu)
+
+    q = ::Queries::CollectionObject::Filter.new({})
+
+    params = {
+      collection_object: {taxon_determinations_attributes: [{otu_id: o.id}]}
+    }.merge(collection_object_query: q.params)
+
+    CollectionObject.query_batch_update(params, async_cutoff: 1)
+
+    sleep(2) # jobs trigger in 2 seconds
+    Delayed::Worker.new.work_off
+
+    expect(TaxonDetermination.all.count).to eq(2)
+  end
+
+  specify '.query_batch_update() (sync)' do
+    s1, s2 = Specimen.create!, Specimen.create!
+    o = FactoryBot.create(:valid_otu)
+
+    q = ::Queries::CollectionObject::Filter.new({})
+
+    params = {
+      collection_object: {taxon_determinations_attributes: [{otu_id: o.id}]}
+    }.merge(collection_object_query: q.params)
+
+    CollectionObject.query_batch_update(params)
+
+    # sleep(2) # jobs trigger in 2 seconds
+    # Delayed::Worker.new.work_off
+
+    expect(TaxonDetermination.all.count).to eq(2)
+  end
+
   context 'dwc_occurrence' do
     let(:collection_object) { CollectionObject.new() }
     specify 'saves' do

@@ -79,6 +79,7 @@ class CollectionObject < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::Observations
   include Shared::IsData
+  include Shared::QueryBatchUpdate
   include SoftValidation
 
   include CollectionObject::BiologicalExtensions

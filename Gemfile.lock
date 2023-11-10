@@ -158,7 +158,7 @@ GEM
       babel-source (>= 4.0, < 6)
       execjs (~> 2.0)
     barby (0.6.8)
-    base64 (0.1.1)
+    base64 (0.2.0)
     bcp47_spec (0.2.1)
     bcrypt (3.1.19)
     better_errors (2.10.1)
@@ -217,7 +217,7 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    date (3.3.3)
+    date (3.3.4)
     debug_inspector (1.1.0)
     delayed_job (4.1.11)
       activesupport (>= 3.0, < 8.0)
@@ -349,12 +349,12 @@ GEM
     namae (1.1.1)
     namecase (2.0.0)
     nenv (0.3.0)
-    net-imap (0.4.3)
+    net-imap (0.4.4)
       date
       net-protocol
     net-pop (0.1.2)
       net-protocol
-    net-protocol (0.2.1)
+    net-protocol (0.2.2)
       timeout
     net-smtp (0.3.3)
       net-protocol
@@ -405,7 +405,7 @@ GEM
     public_suffix (5.0.3)
     puma (6.4.0)
       nio4r (~> 2.0)
-    racc (1.7.1)
+    racc (1.7.3)
     rack (2.2.8)
     rack-cors (2.0.1)
       rack (>= 2.0.0)
@@ -571,7 +571,7 @@ GEM
       rdoc (>= 5.0)
     seedbank (0.5.0)
       rake (>= 10.0)
-    selenium-webdriver (4.14.0)
+    selenium-webdriver (4.15.0)
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
@@ -621,7 +621,7 @@ GEM
     tilt (2.3.0)
     timecop (0.9.8)
     timeliness (0.4.5)
-    timeout (0.4.0)
+    timeout (0.4.1)
     tins (1.32.1)
       sync
     treetop (1.6.12)

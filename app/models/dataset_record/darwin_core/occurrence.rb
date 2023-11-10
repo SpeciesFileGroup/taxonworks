@@ -50,9 +50,15 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         if potential_protonyms.count > 1
           # verbatim author field (if present) applies to finest name only
           if name[:verbatim_author]
+            potential_protonyms_narrowed = potential_protonyms.where(verbatim_author: name[:verbatim_author])
+
+            if name[:year_of_publication]
+              potential_protonyms_narrowed = potential_protonyms_narrowed.where(year_of_publication: name[:year_of_publication])
+            end
+
             # if only one result, everything's ok. Safe to take it as the protonym
-            if potential_protonyms.where(verbatim_author: name[:verbatim_author]).count == 1
-              potential_protonyms = potential_protonyms.where(verbatim_author: name[:verbatim_author])
+            if potential_protonyms_narrowed.count == 1
+              potential_protonyms = potential_protonyms_narrowed
             else
               potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }.join(', ')
               raise DatasetRecord::DarwinCore::InvalidData.new(
@@ -953,18 +959,26 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           type_type: type_status_parsed[:type].downcase
         }
       end
-      if (original_combination_protonym = Protonym.find_by(cached_original_combination: type_scientific_name, project_id: self.project_id))
+      original_combination_protonyms = Protonym.where(cached_original_combination: type_scientific_name, project_id: self.project_id)
+      if original_combination_protonyms.count == 1
         return {
           type_type: type_status_parsed[:type].downcase,
-          protonym: original_combination_protonym
+          protonym: original_combination_protonyms.first
         }
+      elsif original_combination_protonyms.count > 1
+        potential_protonym_strings = original_combination_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_original_combination_html}]" }.join(', ')
+        raise DatasetRecord::DarwinCore::InvalidData.new(
+          { "typeStatus" => ["Multiple matches found for name #{name[:name]}}: #{potential_protonym_strings}"] }
+        )
       end
 
       # See if name matches a synonym of taxon name
       synonyms = taxon_protonym.synonyms
       matching_synonyms = []
       synonyms.each do |s|
-        if [s.cached, s.cached_original_combination].compact.include?(type_scientific_name)
+        possible_names = [s.cached, s.cached_original_combination].compact
+        possible_names += possible_names.map { |n| n.gsub(" [sic]") }
+        if possible_names.include?(type_scientific_name)
           if s.is_combination?
             matching_synonyms << s.finest_protonym
           else

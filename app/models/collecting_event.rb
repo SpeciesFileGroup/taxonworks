@@ -1072,7 +1072,7 @@ class CollectingEvent < ApplicationRecord
       end
     end
 
-    handle_asynchronously :query_update, run_at: Proc.new { 1.second.from_now }, queue: :collecting_event_ui_batch_update
+    handle_asynchronously :query_update, run_at: Proc.new { 1.second.from_now }, queue: :query_batch_update
   end
 
   protected
