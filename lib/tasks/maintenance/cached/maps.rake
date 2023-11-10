@@ -325,7 +325,7 @@ namespace :tw do
                     }
                   )
 
-                  puts "#{a.id} #{j}: #{b.size} #{r.size} #{o.size}"
+                  puts "#{a.id} #{j}: #{b.size} #{r.size} #{o.size} "
 
                   true
                 end

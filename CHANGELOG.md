@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Duplicate loans appearing Loan filter [#3636]
 - New source when cloned and saved is not added to the project sources [#3629]
 - Sequence display when not a Primer
 - CachedMap indexing speedups failed to properly utilize prior work
@@ -24,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - ' [sic]' not removed when searching for synonyms in database to compare with `typeStatus` in DwC occurrence importer [#3633]
 
 
+[#3628]: https://github.com/SpeciesFileGroup/taxonworks/issues/3636
 [#3628]: https://github.com/SpeciesFileGroup/taxonworks/issues/3628
 [#3629]: https://github.com/SpeciesFileGroup/taxonworks/issues/3629
 [#3630]: https://github.com/SpeciesFileGroup/taxonworks/pull/3630
