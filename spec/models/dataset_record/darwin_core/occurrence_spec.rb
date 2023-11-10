@@ -519,4 +519,67 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
+  context 'when importing an occurrence with a type material and no type type provided' do
+    # typeStatus is just the name, with no "...type of" preceding it, but the name isn't an exact match for the scientificName
+    # This should raise an error
+
+    before :all do
+      DatabaseCleaner.start
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_bad_type.tsv'), 'text/plain'),
+        description: 'bad type material',
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true }
+      ).tap { |i| i.stage }
+
+
+      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create(parent: family, name: "Dolichoderinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+
+      g_forelius = Protonym.create(parent: subfamily, name: "Forelius", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_iridomyrmex = Protonym.create(parent: subfamily, name: "Iridomyrmex", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+
+      s_breviscapus = Protonym.create(parent: g_forelius, name: "breviscapus", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_mccooki = Protonym.create(parent: g_forelius, name: "mccooki", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      # should be obscurata, adjective
+      s_obscurata = Protonym.create(parent: g_forelius, name: "obscuratus", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+
+      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_iridomyrmex, object_taxon_name: s_mccooki)
+      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_mccooki, object_taxon_name: s_mccooki)
+
+      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_iridomyrmex, object_taxon_name: s_breviscapus)
+      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_mccooki, object_taxon_name: s_breviscapus)
+      TaxonNameRelationship::OriginalCombination::OriginalSubspecies.create!(subject_taxon_name: s_breviscapus, object_taxon_name: s_breviscapus)
+
+      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_iridomyrmex, object_taxon_name: s_obscurata)
+      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_breviscapus, object_taxon_name: s_obscurata)
+      TaxonNameRelationship::OriginalCombination::OriginalSubspecies.create!(subject_taxon_name: s_obscurata, object_taxon_name: s_obscurata)
+
+      TaxonNameRelationship::Iczn::Invalidating::Usage::Synonym.create!(subject_taxon_name: s_obscurata, object_taxon_name: s_breviscapus)
+
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let!(:results) { @imported }
+    let!(:s_breviscapus) { TaxonName.find_by(name: "breviscapus") }
+
+    it "should import the record without failing" do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Errored'))
+    end
+
+    it "should report the row's error as unprocessable typeStatus information" do
+      expect(results.first.metadata["error_data"]["messages"]["typeStatus"].first).to match(/Unprocessable typeStatus information/)
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+  end
+
 end
