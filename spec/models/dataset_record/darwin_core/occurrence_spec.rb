@@ -121,9 +121,10 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       # Create original combination relationship
       TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_pachycondyla, object_taxon_name: s_agnivo)
 
+      @imported = @import_dataset.import(5000, 100)
     end
 
-    let!(:results) { @import_dataset.import(5000, 100) }
+    let!(:results) { @imported }
 
     it "should import both records without failing" do
       expect(results.length).to eq(2)
@@ -183,9 +184,10 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       # Create misspelling relationship with correct spelling
       TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling.create!(subject_taxon_name: s_perganderi, object_taxon_name: s_pergandei)
 
+      @imported = @import_dataset.import(5000, 100)
     end
 
-    let!(:results) { @import_dataset.import(5000, 100) }
+    let!(:results) { @imported }
     let!(:s_pergandei) { TaxonName.find_by_name("pergandei") }
 
     it "should import the record without failing" do
