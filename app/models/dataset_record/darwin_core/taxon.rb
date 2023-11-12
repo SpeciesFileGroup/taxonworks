@@ -349,7 +349,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           end
 
           # Taxon status might not be "fossil" if synonym, homonym, incertae sedis, etc.
-          if get_field_value('TW:TaxonNameClassification::Iczn::Fossil')
+          if get_field_value('TW:TaxonNameClassification:Iczn:Fossil')
             taxon_name.taxon_name_classifications.find_or_initialize_by(type: 'TaxonNameClassification::Iczn::Fossil')
           end
 

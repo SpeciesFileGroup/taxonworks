@@ -1043,6 +1043,39 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
   end
 
+  context 'when importing a synonym that is a fossil' do
+    before(:all) { import_checklist_tsv('fossil_synonym.tsv', 4) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let!(:formicinae){ Protonym.find_by(name: 'Formicinae') }
+    let!(:rabidia) { Protonym.find_by(name: 'Rabidia') }
+    let!(:camponotites) { Protonym.find_by(name: 'Camponotites') }
+
+    it 'should import 3 records' do
+      verify_all_records_imported(3)
+    end
+
+    it 'the synonym have the fossil status' do
+      expect(rabidia.taxon_name_classifications.map { |c| c.type_name }).to include 'TaxonNameClassification::Iczn::Fossil'
+    end
+
+    it 'the valid should also have fossil status' do
+      expect(camponotites.taxon_name_classifications.map { |c| c.type_name }).to include 'TaxonNameClassification::Iczn::Fossil'
+    end
+
+    it 'the valid should be incertae sedis' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: camponotites, object_taxon_name: formicinae).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    end
+
+    it 'should be a synonym of the valid name' do
+      expect_relationship(rabidia, camponotites, 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+  end
+
   # TODO test missing parent
   #
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName
