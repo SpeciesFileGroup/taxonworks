@@ -1,5 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
-import { SledImage } from 'routes/endpoints'
+import { SledImage } from '@/routes/endpoints'
 
 export default ({ state, commit }) => {
   const co = { ...state.collection_object }
@@ -9,7 +9,8 @@ export default ({ state, commit }) => {
   if (
     identifier.namespace_id &&
     identifier.identifier &&
-    state.sled_image.step_identifier_on) {
+    state.sled_image.step_identifier_on
+  ) {
     co.identifiers_attributes = [identifier]
   }
 

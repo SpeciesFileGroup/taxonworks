@@ -71,7 +71,7 @@ import { GetterNames } from '../../store/getters/getters'
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { drawMode } from '@sfgrp/svg-detailer'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const store = useStore()
 const SVGBoard = computed(() => store.getters[GetterNames.GetSVGBoard])

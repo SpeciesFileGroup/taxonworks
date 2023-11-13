@@ -65,16 +65,15 @@ import DrawControls from './components/DrawBoard/DrawControls.vue'
 
 import AddLine from './components/AddLine'
 import RemoveLine from './components/grid/RemoveLine'
-import SwitchComponent from 'components/switch'
+import SwitchComponent from '@/components/switch'
 import AssignComponent from './components/Assign/Main'
 import UploadImage from './components/UploadImage'
 import ReviewComponent from './components/Review'
 import OverviewMetadataComponent from './components/Overview'
 import SummaryComponent from './components/Summary'
-import SpinnerComponent from 'components/spinner'
+import SpinnerComponent from '@/components/spinner'
 import QuickGrid from './components/grid/Quick'
 import NavBar from './components/NavBar'
-import SetParam from 'helpers/setParam.js'
 
 export default {
   components: {
