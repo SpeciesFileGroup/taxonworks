@@ -46,4 +46,8 @@ module Workbench::TableHelper
     end
   end
 
+  def copy_table_to_clipboard(selector)
+    content_tag(:button, 'Copy to clipboard', data: { 'clipboard-table-selector': selector }, type: 'button')
+  end
+
 end

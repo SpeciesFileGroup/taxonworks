@@ -44,7 +44,7 @@ import {
   BIOLOGICAL_ASSOCIATION,
   ASSERTED_DISTRIBUTION,
   OTU
-} from 'constants/index.js'
+} from '@/constants/index.js'
 
 const CITATION_BLOCKS = {
   [TAXON_NAME]: {

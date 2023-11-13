@@ -1,0 +1,5 @@
+var content;
+content = $('<%= escape_javascript(render(partial: @target, locals: {project: @project}) ) %>');
+$('#content').html(content);
+
+

@@ -18,9 +18,9 @@ module Queries
         :term,
         :term_exact,
         :term_target,
+        descriptor_id: [],
         descriptor_type: [],
         observation_matrix_id: [],
-        descriptor_id: [],
       ].freeze
 
       # @param name [String, Symbol]
@@ -112,9 +112,9 @@ module Queries
       end
 
       def observation_matrix_id_facet
-        return nil if observation_matrix_id.blank?
+        return nil if observation_matrix_id.empty?
         ::Descriptor.joins(:observation_matrices)
-          .where(observation_matrices: {id: :observation_matrix_id})
+          .where(observation_matrices: { id: observation_matrix_id }).distinct
       end
 
       def descriptor_type_facet
@@ -125,16 +125,16 @@ module Queries
       def observation_matrices_facet
         return nil if observation_matrices.nil?
         if observation_matrices
-          ::Descriptor.joins(:observation_matrices)
+          ::Descriptor.joins(:observation_matrices).distinct
         else
-          ::Descriptor.where.missing(:observation_matrices)
+          ::Descriptor.where.missing(:observation_matrices).distinct
         end
       end
 
       def observations_facet
-        return nil if observation_matrices.nil?
-        if observation_matrices
-          ::Descriptor.joins(:observations)
+        return nil if observations.nil?
+        if observations 
+          ::Descriptor.joins(:observations).distinct
         else
           ::Descriptor.where.missing(:observations)
         end

@@ -1,4 +1,4 @@
-import { Content } from 'routes/endpoints'
+import { Content } from '@/routes/endpoints'
 import { reactive, toRefs } from 'vue'
 
 const state = reactive({

@@ -4,11 +4,11 @@ json.partial! '/shared/data/all/metadata', object: collection_object
 
 if extend_response_with('dwc_occurrence')
   json.dwc_occurrence do
-    json.merge!(collection_object.dwc_occurrence_attributes.select{|k,v| v.present?} )
+    json.merge!(collection_object.dwc_occurrence&.attributes&.select{|k,v| v.present?} )
   end
 end
 
-if extend_response_with('collecting_event')  && collection_object.collecting_event.present?
+if extend_response_with('collecting_event') && collection_object.collecting_event.present?
   json.collecting_event do
     json.partial! '/collecting_events/attributes', collecting_event: collection_object.collecting_event, extensions: false
   end
@@ -28,7 +28,7 @@ end
 
 if extend_response_with('identifiers')
   json.identifiers do
-    json.array! collection_object.identifiers do |i|
+    json.array! collection_object.identifiers.each do |i|
       json.cached i.cached
     end
   end

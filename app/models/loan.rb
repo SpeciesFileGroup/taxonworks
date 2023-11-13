@@ -2,7 +2,7 @@
 #
 # @!attribute date_requested
 #   @return [DateTime]
-#     date request was recieved by lender
+#     date request was received by lender
 #
 # @!attribute request_method
 #   @return [String]
@@ -94,8 +94,8 @@ class Loan < ApplicationRecord
 
   has_many :loan_items, dependent: :restrict_with_error, inverse_of: :loan
 
-  has_many :loan_recipient_roles, class_name: 'LoanRecipient', as: :role_object
-  has_many :loan_supervisor_roles, class_name: 'LoanSupervisor', as: :role_object
+  has_many :loan_recipient_roles, class_name: 'LoanRecipient', as: :role_object, inverse_of: :role_object
+  has_many :loan_supervisor_roles, class_name: 'LoanSupervisor', as: :role_object, inverse_of: :role_object
 
   has_many :loan_recipients, through: :loan_recipient_roles, source: :person
   has_many :loan_supervisors, through: :loan_supervisor_roles, source: :person
@@ -236,10 +236,14 @@ class Loan < ApplicationRecord
   end
 
   def families
-
   end
 
   protected
+
+  # Not used externally
+  def return!
+    loan_items.update_all(date_returned: Time.current)
+  end
 
   def clone_attributes
     l = Loan.find(clone_from)

@@ -27,7 +27,6 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(q.all).to contain_exactly(ba2, ba3)
   end
 
-  # TODO: meld with
   context 'subqueries' do
     specify 'A->B->A params' do
       h = { 'collecting_event_query':  { 'biological_association_query': { 'taxon_name_id': ['99'], 'descendants':  'true'}} }
@@ -330,7 +329,7 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
   end
 
   specify '#object_taxon_name_id (CollectionObject)' do
-    g1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+     g1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
     s1 = Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
 
     g2 = Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
@@ -345,7 +344,7 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
    end
 
   specify '#subject_taxon_name_id (CollectionObject)' do
-    g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+     g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
     s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
 
     g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)

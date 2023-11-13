@@ -14,10 +14,13 @@
       <template #body>
         <div class="image-container">
           <img
-            :class="['img-maxsize', state.fullSizeImage ? 'img-fullsize' : 'img-normalsize']"
+            :class="[
+              'img-maxsize',
+              state.fullSizeImage ? 'img-fullsize' : 'img-normalsize'
+            ]"
             @click="state.fullSizeImage = !state.fullSizeImage"
             :src="urlSrc"
-          >
+          />
         </div>
 
         <template v-if="edit">
@@ -27,7 +30,7 @@
                 v-model="depiction.figure_label"
                 type="text"
                 placeholder="Label"
-              >
+              />
             </div>
             <div class="field separate-bottom">
               <textarea
@@ -84,13 +87,10 @@
                       <radial-annotator
                         type="annotations"
                         :global-id="imageObject.global_id"
-                        @close="loadData"
                       />
                     </li>
                     <li>
-                      <radial-navigation
-                        :global-id="imageObject.global_id"
-                      />
+                      <radial-navigation :global-id="imageObject.global_id" />
                     </li>
                   </ul>
                 </div>
@@ -118,7 +118,7 @@
             </div>
           </div>
         </template>
-        <hr>
+        <hr />
 
         <div class="flex-separate">
           <slot name="infoColumn" />
@@ -156,7 +156,7 @@
               :src="thumbUrlSrc"
               :height="imageObject.alternatives[thumbSize].height"
               :width="imageObject.alternatives[thumbSize].width"
-            >
+            />
           </div>
         </slot>
       </div>
@@ -165,16 +165,15 @@
   </div>
 </template>
 <script setup>
-
-import VModal from 'components/ui/Modal.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialNavigation from 'components/radials/navigation/radial.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import ImageViewerAttributions from './ImageViewerAttributions.vue'
 import ImageViewerCitations from './ImageViewerCitations.vue'
-import { Depiction, Image } from 'routes/endpoints'
-import { imageSVGViewBox, imageScale } from 'helpers/images'
+import { Depiction, Image } from '@/routes/endpoints'
+import { imageSVGViewBox, imageScale } from '@/helpers/images'
 import { computed, reactive, ref, watch } from 'vue'
 
 const CONVERT_IMAGE_TYPES = ['image/tiff']
@@ -216,7 +215,8 @@ const state = reactive({
 const image = computed(() =>
   state.fullSizeImage
     ? props.depiction?.image || props.image
-    : props.depiction?.image.alternatives.medium || props.image.alternatives.medium
+    : props.depiction?.image.alternatives.medium ||
+      props.image.alternatives.medium
 )
 
 const imageObject = computed(() => props.depiction?.image || props.image)
@@ -226,11 +226,21 @@ const urlSrc = computed(() => {
   const { width, height } = image.value
 
   if (hasSVGBox.value) {
-    return imageSVGViewBox(imageObject.value.id, depiction.svg_view_box, width, height)
+    return imageSVGViewBox(
+      imageObject.value.id,
+      depiction.svg_view_box,
+      width,
+      height
+    )
   }
 
   if (CONVERT_IMAGE_TYPES.includes(image.value.content_type)) {
-    return imageScale(imageObject.value.id, `0 0 ${width} ${height}`, width, height)
+    return imageScale(
+      imageObject.value.id,
+      `0 0 ${width} ${height}`,
+      width,
+      height
+    )
   }
 
   return image.value.image_file_url
@@ -243,17 +253,21 @@ const thumbUrlSrc = computed(() => {
 
   return props.hasSVGBox
     ? imageSVGViewBox(
-      imageObject.value.id,
-      depiction.svg_view_box,
-      IMG_MAX_SIZES[props.thumbSize],
-      IMG_MAX_SIZES[props.thumbSize]
-    )
+        imageObject.value.id,
+        depiction.svg_view_box,
+        IMG_MAX_SIZES[props.thumbSize],
+        IMG_MAX_SIZES[props.thumbSize]
+      )
     : imageObject.value.alternatives[props.thumbSize].image_file_url
 })
 
 const loadAttributions = async () => {
-  state.citations = (await Image.citations(props.imageId, { extend: ['source'] })).body
-  state.attributions = (await Image.attributions(props.imageId, { extend: ['roles'] })).body
+  state.citations = (
+    await Image.citations(imageObject.value.id, { extend: ['source'] })
+  ).body
+  state.attributions = (
+    await Image.attributions(imageObject.value.id, { extend: ['roles'] })
+  ).body
 }
 
 const updateDepiction = () => {
@@ -271,86 +285,82 @@ const openFullsize = () => {
   window.open(imageObject.value.image_file_url, '_blank')
 }
 
-watch(
-  isModalVisible,
-  newVal => {
-    if (newVal && !state.alreadyLoaded) {
-      loadAttributions()
-      state.alreadyLoaded = true
-    }
+watch(isModalVisible, (newVal) => {
+  if (newVal && !state.alreadyLoaded) {
+    loadAttributions()
+    state.alreadyLoaded = true
   }
-)
+})
 </script>
 
 <style lang="scss">
+.depiction-thumb-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  border: 1px solid black;
+  overflow: hidden;
+}
 
-  .depiction-thumb-image {
+.depiction-medium-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 300px;
+  height: 300px;
+  border: 1px solid black;
+}
+
+.depiction-thumb-container {
+  margin: 4px;
+
+  .modal-container {
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: auto;
+  }
+
+  .img-thumb {
+    cursor: pointer;
+  }
+
+  .img-maxsize {
+    transition: all 0.5s ease;
+    max-width: 100%;
+    max-height: 60vh;
+  }
+
+  .img-fullsize {
+    cursor: zoom-out;
+  }
+
+  .img-normalsize {
+    cursor: zoom-in;
+  }
+
+  .field {
+    input,
+    textarea {
+      width: 100%;
+    }
+  }
+
+  .image-container {
     display: flex;
-    align-items: center;
     justify-content: center;
-    width: 100px;
-    height: 100px;
-    border: 1px solid black;
-    overflow: hidden;
-  }
-
-  .depiction-medium-image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    max-width: 300px;
-    height: 300px;
-    border: 1px solid black;
-  }
-
-  .depiction-thumb-container {
-
-    margin: 4px;
-
-    .modal-container {
-      max-width: 90vw;
-      max-height: 90vh;
-      overflow: auto;
-    }
-
-    .img-thumb {
-      cursor: pointer;
-    }
-
-    .img-maxsize {
-      transition: all 0.5s ease;
-      max-width: 100%;
-      max-height: 60vh;
-    }
-
-    .img-fullsize {
-      cursor: zoom-out
-    }
-
-    .img-normalsize {
-      cursor: zoom-in
-    }
-
-    .field {
-      input, textarea {
-        width: 100%
-      }
-    }
-
-    .image-container {
-      display: flex;
-      justify-content: center;
-      img {
-        border: 1px solid black;
-      }
-    }
-    hr {
-        height: 1px;
-        color: #f5f5f5;
-        background: #f5f5f5;
-        font-size: 0;
-        margin: 15px;
-        border: 0;
+    img {
+      border: 1px solid black;
     }
   }
+  hr {
+    height: 1px;
+    color: #f5f5f5;
+    background: #f5f5f5;
+    font-size: 0;
+    margin: 15px;
+    border: 0;
+  }
+}
 </style>

@@ -1,4 +1,4 @@
-import { CollectionObject } from 'routes/endpoints'
+import { CollectionObject } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default ({ state, commit }, otuId) =>

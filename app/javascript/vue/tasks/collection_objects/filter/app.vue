@@ -11,17 +11,43 @@
       :extend-download="extendDownload"
       v-model="parameters"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
       <template #nav-query-right>
-        <RadialLoan :parameters="parameters" />
+        <RadialCollectionObject
+          :disabled="!list.length"
+          :parameters="parameters"
+          :count="pagination?.total || 0"
+        />
+        <RadialLoan
+          :disabled="!list.length"
+          :parameters="parameters"
+        />
+        <RadialMatrix
+          :disabled="!list.length"
+          :parameters="parameters"
+          :object-type="COLLECTION_OBJECT"
+        />
       </template>
       <template #nav-right>
-        <div class="horizontal-right-content">
-          <RadialLoan :ids="selectedIds" />
+        <div class="horizontal-right-content gap-small">
+          <RadialCollectionObject
+            :disabled="!list.length"
+            :ids="selectedIds"
+            :count="selectedIds.length"
+          />
+          <RadialLoan
+            :disabled="!list.length"
+            :ids="selectedIds"
+          />
+          <RadialMatrix
+            :ids="selectedIds"
+            :disabled="!list.length"
+            :object-type="COLLECTION_OBJECT"
+          />
           <DeleteCollectionObjects
             :ids="selectedIds"
             :disabled="!selectedIds.length"
@@ -36,10 +62,11 @@
         <FilterComponent v-model="parameters" />
       </template>
       <template #table>
-        <ListComponent
+        <TableResults
           v-model="selectedIds"
           :list="list"
           :layout="currentLayout"
+          radial-object
           @on-sort="list = $event"
         />
       </template>
@@ -54,19 +81,21 @@
 </template>
 
 <script setup>
-import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
-import useFilter from 'shared/Filter/composition/useFilter.js'
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
+import useFilter from '@/shared/Filter/composition/useFilter.js'
 import FilterComponent from './components/filter.vue'
-import ListComponent from './components/list'
+import TableResults from '@/components/Filter/Table/TableResults.vue'
 import DwcDownload from './components/dwcDownload.vue'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
-import VSpinner from 'components/spinner.vue'
-import LayoutConfiguration from './components/Layout/LayoutConfiguration.vue'
-import RadialLoan from 'components/radials/loan/radial.vue'
+import VSpinner from '@/components/spinner.vue'
+import LayoutConfiguration from '@/components/Filter/Table/TableLayoutSelector.vue'
+import RadialLoan from '@/components/radials/loan/radial.vue'
+import RadialMatrix from '@/components/radials/matrix/radial.vue'
+import RadialCollectionObject from '@/components/radials/co/radial.vue'
 import { computed } from 'vue'
-import { CollectionObject } from 'routes/endpoints'
-import { COLLECTION_OBJECT } from 'constants/index.js'
-import { useLayoutConfiguration } from './components/Layout/useLayoutConfiguration'
+import { CollectionObject } from '@/routes/endpoints'
+import { COLLECTION_OBJECT } from '@/constants/index.js'
+import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
 import { LAYOUTS } from './constants/layouts.js'
 import { listParser } from './utils/listParser.js'
 
@@ -74,13 +103,14 @@ const extend = [
   'dwc_occurrence',
   'repository',
   'current_repository',
-  'data_attributes',
   'collecting_event',
   'taxon_determinations',
   'identifiers'
 ]
 
-const { currentLayout } = useLayoutConfiguration(LAYOUTS)
+const exclude = ['object_labels']
+
+const { currentLayout } = useTableLayoutConfiguration(LAYOUTS)
 
 const {
   isLoading,
@@ -93,7 +123,10 @@ const {
   selectedIds,
   makeFilterRequest,
   resetFilter
-} = useFilter(CollectionObject, { initParameters: { extend }, listParser })
+} = useFilter(CollectionObject, {
+  initParameters: { extend, exclude },
+  listParser
+})
 
 const extendDownload = computed(() => [
   {

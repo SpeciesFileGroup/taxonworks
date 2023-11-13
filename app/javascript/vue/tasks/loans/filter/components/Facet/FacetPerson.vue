@@ -27,7 +27,7 @@
             :value="role"
             type="radio"
             v-model="selectedRoles"
-          >
+          />
           {{ label }}
         </label>
       </li>
@@ -36,18 +36,12 @@
 </template>
 <script setup>
 import { ref, computed, watch, onBeforeMount } from 'vue'
-import { People } from 'routes/endpoints'
-import {
-  ROLE_LOAN_RECIPIENT,
-  ROLE_LOAN_SUPERVISOR
-} from 'constants/index.js'
-import {
-  addToArray,
-  removeFromArray
-} from 'helpers/arrays'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import DisplayList from 'components/displayList.vue'
+import { People } from '@/routes/endpoints'
+import { ROLE_LOAN_RECIPIENT, ROLE_LOAN_SUPERVISOR } from '@/constants/index.js'
+import { addToArray, removeFromArray } from '@/helpers/arrays'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import DisplayList from '@/components/displayList.vue'
 
 const ROLE = {
   Recipient: ROLE_LOAN_RECIPIENT,
@@ -65,20 +59,22 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const selectedRoles = computed({
   get: () => params.value.role || [],
-  set: value => { params.value.role = value }
+  set: (value) => {
+    params.value.role = value
+  }
 })
 
 const people = ref([])
 
 watch(
   people,
-  newVal => {
-    params.value.person_id = newVal.map(p => p.id)
+  (newVal) => {
+    params.value.person_id = newVal.map((p) => p.id)
   },
   { deep: true }
 )
@@ -93,13 +89,12 @@ watch(
 )
 
 onBeforeMount(() => {
-  const ids = params.value?.person_id?.map(p => p.id) || []
+  const ids = params.value?.person_id?.map((p) => p.id) || []
 
-  ids.forEach(id => {
+  ids.forEach((id) => {
     People.find(id).then(({ body }) => {
       addToArray(people, body)
     })
   })
 })
-
 </script>

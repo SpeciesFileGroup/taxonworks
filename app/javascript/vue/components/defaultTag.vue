@@ -1,4 +1,3 @@
-
 <template>
   <div v-if="keyId">
     <tippy
@@ -9,9 +8,17 @@
       arrow
     >
       <template #content>
-        <p>{{ created ? 'Remove' : 'Create' }} tag: {{ getDefaultElement().firstChild.firstChild.textContent }}.
-          <br>
-          {{ showCount ? `Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects` : ''}}
+        <p>
+          {{ created ? 'Remove' : 'Create' }} tag:
+          {{ getDefaultElement().firstChild.firstChild.textContent }}.
+          <br />
+          {{
+            showCount
+              ? `Used already on ${countTag} ${
+                  countTag > 200 ? 'or more' : ''
+                } objects`
+              : ''
+          }}
         </p>
       </template>
 
@@ -42,11 +49,10 @@
 </template>
 
 <script>
-
 import { Tippy } from 'vue-tippy'
-import { Tag } from 'routes/endpoints'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import { Tag } from '@/routes/endpoints'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
@@ -71,7 +77,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       tagItem: undefined,
       keyId: this.getDefault(),
@@ -82,16 +88,16 @@ export default {
 
   watch: {
     count: {
-      handler (newVal) {
+      handler(newVal) {
         this.countTag = newVal
       },
       immediate: true
     }
   },
 
-  mounted () {
+  mounted() {
     this.alreadyTagged()
-    document.addEventListener('pinboard:insert', event => {
+    document.addEventListener('pinboard:insert', (event) => {
       const details = event.detail
 
       if (details.type === 'ControlledVocabularyTerm') {
@@ -105,57 +111,65 @@ export default {
   },
 
   methods: {
-    getDefault () {
+    getDefault() {
       const defaultTag = this.getDefaultElement()
       return defaultTag?.getAttribute('data-pinboard-object-id')
     },
 
-    getDefaultElement () {
-      return document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
+    getDefaultElement() {
+      return document.querySelector(
+        '[data-pinboard-section="Keywords"] [data-insert="true"]'
+      )
     },
 
-    alreadyTagged (element) {
+    alreadyTagged(element) {
       if (!this.keyId) return
 
       const params = {
         global_id: this.globalId,
         keyword_id: this.keyId
       }
-      Tag.exists(params).then(response => {
+      Tag.exists(params).then((response) => {
         this.created = !!response.body
         this.tagItem = response.body
       })
     },
 
-    getCount () {
+    getCount() {
       if (!this.keyId) return
       const params = {
         keyword_id: [this.keyId],
         per: 100
       }
 
-      Tag.where(params).then(response => {
+      Tag.where(params).then((response) => {
         this.countTag = response.body.length
       })
     },
 
-    createTag () {
+    createTag() {
       const tag = {
         keyword_id: this.keyId,
         annotated_global_entity: this.globalId
       }
 
-      Tag.create({ tag }).then(response => {
+      Tag.create({ tag }).then((response) => {
         this.tagItem = response.body
         this.created = true
-        TW.workbench.alert.create('Tag item was successfully created.', 'notice')
+        TW.workbench.alert.create(
+          'Tag item was successfully created.',
+          'notice'
+        )
       })
     },
 
-    deleteTag () {
+    deleteTag() {
       Tag.destroy(this.tagItem.id).then(() => {
         this.created = false
-        TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
+        TW.workbench.alert.create(
+          'Tag item was successfully destroyed.',
+          'notice'
+        )
       })
     }
   }

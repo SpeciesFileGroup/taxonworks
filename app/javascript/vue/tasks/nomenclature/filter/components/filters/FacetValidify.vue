@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { useYellowFacetCheckbox } from '../../utils/resetYellowFacets'
 
 const props = defineProps({

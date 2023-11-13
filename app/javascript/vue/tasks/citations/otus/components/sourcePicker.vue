@@ -10,13 +10,13 @@
     </div>
     <modal
       @close="showModal = false"
-      v-if="showModal">
+      v-if="showModal"
+    >
       <template #header>
         <h3>Select source</h3>
       </template>
       <template #body>
-        <div
-          id="source_panel">
+        <div id="source_panel">
           <autocomplete
             url="/sources/autocomplete"
             min="2"
@@ -24,7 +24,8 @@
             placeholder="Find source"
             @getItem="loadSource"
             label="label"
-            :autofocus="true"/>
+            :autofocus="true"
+          />
         </div>
       </template>
     </modal>
@@ -34,12 +35,12 @@
 <script>
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { Source } from 'routes/endpoints'
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import Modal from 'components/ui/Modal.vue'
+import { Source } from '@/routes/endpoints'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
+import Modal from '@/components/ui/Modal.vue'
 
 export default {
-  data () {
+  data() {
     return {
       showModal: false
     }
@@ -51,14 +52,14 @@ export default {
   },
 
   computed: {
-    source () {
+    source() {
       return this.$store.getters[GetterNames.GetSourceSelected]
     }
   },
 
   methods: {
-    loadSource (item) {
-      Source.find(item.id).then(response => {
+    loadSource(item) {
+      Source.find(item.id).then((response) => {
         this.$store.commit(MutationNames.SetSourceSelected, response.body)
         this.showModal = false
       })

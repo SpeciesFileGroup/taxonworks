@@ -4,25 +4,26 @@
     <input
       class="full_width"
       type="text"
-      v-model="longitude">
+      v-model="longitude"
+    />
   </div>
 </template>
 
 <script>
-
 import extendCE from '../mixins/extendCE'
-import { parseCoordinateCharacters } from 'helpers/georeferences'
+import { parseCoordinateCharacters } from '@/helpers/georeferences'
 
 export default {
   mixins: [extendCE],
 
-  computed:{
+  computed: {
     longitude: {
-      get () {
+      get() {
         return this.collectingEvent.verbatim_longitude
       },
-      set (value) {
-        this.collectingEvent.verbatim_longitude = parseCoordinateCharacters(value)
+      set(value) {
+        this.collectingEvent.verbatim_longitude =
+          parseCoordinateCharacters(value)
       }
     }
   }

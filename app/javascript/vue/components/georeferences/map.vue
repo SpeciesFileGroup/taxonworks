@@ -18,8 +18,9 @@ import 'leaflet.pattern/src/PatternCircle'
 import iconRetina from 'leaflet/dist/images/marker-icon-2x.png'
 import iconUrl from 'leaflet/dist/images/marker-icon.png'
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
-import { Icon } from 'components/georeferences/icons'
+import { Icon } from '@/components/georeferences/icons'
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
+import { ASSERTED_DISTRIBUTION, GEOGRAPHIC_AREA } from '@/constants/index.js'
 
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
@@ -31,6 +32,8 @@ L.Icon.Default.mergeOptions({
 let drawnItems
 let mapObject
 let geographicArea
+
+const TILE_MAP_STORAGE_KEY = 'tw::map::tile'
 
 const props = defineProps({
   zoomAnimate: {
@@ -59,7 +62,7 @@ const props = defineProps({
   },
   drawCircleMarker: {
     type: Boolean,
-    default: true
+    default: false
   },
   drawMarker: {
     type: Boolean,
@@ -149,15 +152,22 @@ const emit = defineEmits([
 
 const leafletMap = ref(null)
 const tiles = {
-  osm: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  OSM: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution:
       '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 18
   }),
-  google: L.tileLayer(
+  Google: L.tileLayer(
     'http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}',
     {
       attribution: 'Google',
+      maxZoom: 18
+    }
+  ),
+  GBIF: L.tileLayer(
+    'https://tile.gbif.org/3857/omt/{z}/{x}/{y}@1x.png?style=gbif-natural-en',
+    {
+      attribution: 'GBIF',
       maxZoom: 18
     }
   )
@@ -236,17 +246,10 @@ onUnmounted(() => {
 })
 
 const addDrawControllers = () => {
-  tiles.osm.addTo(mapObject)
+  getDefaultTile().addTo(mapObject)
   if (props.tilesSelection) {
     L.control
-      .layers(
-        {
-          OSM: tiles.osm,
-          Google: tiles.google
-        },
-        { 'Draw layers': drawnItems },
-        { position: 'topleft', collapsed: false }
-      )
+      .layers(tiles, {}, { position: 'topleft', collapsed: false })
       .addTo(mapObject)
   }
 
@@ -275,6 +278,10 @@ const addDrawControllers = () => {
   }
 }
 const handleEvents = () => {
+  mapObject.on('baselayerchange', (e) => {
+    localStorage.setItem(TILE_MAP_STORAGE_KEY, e.name)
+  })
+
   mapObject.on('pm:create', (e) => {
     const layer = e.layer
     const geoJsonLayer = convertGeoJSONWithPointRadius(layer)
@@ -308,6 +315,12 @@ const handleEvents = () => {
   })
 }
 
+function getDefaultTile() {
+  const defaultTile = localStorage.getItem(TILE_MAP_STORAGE_KEY)
+
+  return tiles[defaultTile] || tiles.OSM
+}
+
 const editedLayer = (e) => {
   const layer = e.target
 
@@ -333,8 +346,11 @@ const addJsonCircle = (layer) => {
 }
 
 const geoJSON = (geoJsonFeatures) => {
-  if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
-  addGeoJsonLayer(geoJsonFeatures)
+  if (geoJsonFeatures?.length === 0) {
+    mapObject.setView([0, 0], props.zoom)
+  } else {
+    addGeoJsonLayer(geoJsonFeatures)
+  }
 }
 
 const addGeoJsonLayer = (geoJsonLayers) => {
@@ -349,15 +365,20 @@ const addGeoJsonLayer = (geoJsonLayers) => {
       }
     },
     filter: (feature) => {
-      if (feature.properties?.geographic_area) {
+      if (
+        feature.properties?.geographic_area ||
+        feature.properties?.aggregate ||
+        feature.properties?.type === ASSERTED_DISTRIBUTION ||
+        feature.properties?.type === GEOGRAPHIC_AREA
+      ) {
         geographicArea.addLayer(
           L.GeoJSON.geometryToLayer(
             feature,
             Object.assign(
               {},
               feature.properties?.is_absent
-                ? stripeShapeStyle(index)
-                : randomShapeStyle(index),
+                ? stripeShapeStyle(-1)
+                : randomShapeStyle(-1),
               { ...feature.properties?.style },
               { pmIgnore: true }
             )

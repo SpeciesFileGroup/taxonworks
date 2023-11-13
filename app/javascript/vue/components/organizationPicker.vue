@@ -9,8 +9,8 @@
       placeholder="Search an organization"
       clear-after
       @found="nothing = !$event"
-      @get-input="organization.name = $event"
-      @get-item="setOrganization"
+      @get-input="(item) => (organization.name = item)"
+      @get-item="(item) => setOrganization({ id: item.id, name: item.label })"
     />
     <button
       v-if="nothing"
@@ -23,8 +23,8 @@
     <default-pin
       class="button-circle"
       type="Organization"
-      @get-item="setOrganization({ id: $event.id, label: $event.label })"
       section="Organizations"
+      @get-item="(item) => setOrganization({ id: item.id, name: item.label })"
     />
     <modal-component
       v-if="showModal"
@@ -41,14 +41,14 @@
               <input
                 type="text"
                 v-model="organization.name"
-              >
+              />
             </div>
             <div class="field">
               <label>Alternate name</label>
               <input
                 type="text"
                 v-model="organization.alternate_name"
-              >
+              />
             </div>
             <div class="field">
               <label>Description</label>
@@ -81,35 +81,35 @@
               <input
                 type="text"
                 v-model="organization.telephone"
-              >
+              />
             </div>
             <div class="field">
               <label>Email</label>
               <input
                 type="email"
                 v-model="organization.email"
-              >
+              />
             </div>
             <div class="field">
               <label>Duns</label>
               <input
                 type="text"
                 v-model="organization.duns"
-              >
+              />
             </div>
             <div class="field">
               <label>Global location number</label>
               <input
                 type="text"
                 v-model="organization.global_location_number"
-              >
+              />
             </div>
             <div class="field">
               <label>Legal name</label>
               <input
                 type="text"
                 v-model="organization.legal_name"
-              >
+              />
             </div>
           </div>
           <div>
@@ -174,11 +174,10 @@
 </template>
 
 <script>
-
-import Autocomplete from 'components/ui/Autocomplete'
-import ModalComponent from 'components/ui/Modal'
+import Autocomplete from '@/components/ui/Autocomplete'
+import ModalComponent from '@/components/ui/Modal'
 import DefaultPin from './getDefaultPin.vue'
-import { Organization } from 'routes/endpoints'
+import { Organization } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -189,7 +188,7 @@ export default {
 
   emits: ['getItem'],
 
-  data () {
+  data() {
     return {
       showModal: false,
       nothing: false,
@@ -198,7 +197,7 @@ export default {
   },
 
   watch: {
-    showModal (newVal) {
+    showModal(newVal) {
       if (!newVal) {
         this.organization = this.newOrganization()
       }
@@ -206,7 +205,7 @@ export default {
   },
 
   methods: {
-    newOrganization () {
+    newOrganization() {
       return {
         name: undefined,
         alternate_name: undefined,
@@ -225,16 +224,18 @@ export default {
       }
     },
 
-    createOrganization () {
-      Organization.create({ organization: this.organization }).then(response => {
-        this.setOrganization(response.body)
-        this.showModal = false
-        this.nothing = false
-        this.$refs.autocomplete.cleanInput()
-      })
+    createOrganization() {
+      Organization.create({ organization: this.organization }).then(
+        (response) => {
+          this.setOrganization(response.body)
+          this.showModal = false
+          this.nothing = false
+          this.$refs.autocomplete.cleanInput()
+        }
+      )
     },
 
-    setOrganization (organization) {
+    setOrganization(organization) {
       this.$emit('getItem', organization)
     }
   }
@@ -242,14 +243,14 @@ export default {
 </script>
 
 <style lang="scss">
-  .organization-picker {
-    label {
-      display: block;
-    }
-    .modal-container {
-      background-color: white !important;
-      min-width: auto !important;
-      width: 600px !important;
-    }
+.organization-picker {
+  label {
+    display: block;
   }
+  .modal-container {
+    background-color: white !important;
+    min-width: auto !important;
+    width: 600px !important;
+  }
+}
 </style>

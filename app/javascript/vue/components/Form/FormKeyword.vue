@@ -1,7 +1,8 @@
 <template>
   <form
     @submit="emitCVT"
-    class="label-above">
+    class="label-above"
+  >
     <div class="field">
       <label>Name</label>
       <input
@@ -9,7 +10,7 @@
         type="text"
         required
         v-model="controlledVocabularyTerm.name"
-      >
+      />
     </div>
 
     <div class="field">
@@ -29,7 +30,7 @@
       <input
         type="color"
         v-model="controlledVocabularyTerm.css_color"
-      >
+      />
     </div>
 
     <div class="field">
@@ -38,7 +39,7 @@
         type="text"
         class="full_width"
         v-model="controlledVocabularyTerm.uri"
-      >
+      />
     </div>
 
     <div class="flex-separate">
@@ -51,7 +52,8 @@
       <button
         type="button"
         class="button normal-input button-default"
-        @click="newCTV">
+        @click="newCVT"
+      >
         New
       </button>
     </div>
@@ -60,7 +62,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import makeControlledVocabularyTerm from 'factory/controlledVocabularyTerm.js'
+import makeControlledVocabularyTerm from '@/factory/controlledVocabularyTerm.js'
 
 const props = defineProps({
   modelValue: {
@@ -71,18 +73,22 @@ const props = defineProps({
 
 const DEFINITION_MIN_LENGTH = 20
 
-const emit = defineEmits([
-  'submit',
-  'update:modelValue'
-])
+const emit = defineEmits(['submit', 'update:modelValue', 'new'])
 
 const controlledVocabularyTerm = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
-const emitCVT = e => {
+function emitCVT(e) {
   e.preventDefault()
   emit('submit', controlledVocabularyTerm.value)
+}
+
+function newCVT() {
+  const data = makeControlledVocabularyTerm()
+
+  controlledVocabularyTerm.value = data
+  emit('new', data)
 }
 </script>

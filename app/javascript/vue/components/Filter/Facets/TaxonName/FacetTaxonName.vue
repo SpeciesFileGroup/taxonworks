@@ -27,14 +27,14 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import TaxonNameSelector from './components/TaxonNameSelector.vue'
 import IncludeSelector from './components/IncludeSelector.vue'
 import CoverageSelector from './components/ConverageSelector.vue'
 import ValiditySelector from './components/ValiditySelector.vue'
 import TaxonNameMode from './components/TaxonNameMode.vue'
 import { computed, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
 
 const props = defineProps({
   modelValue: {

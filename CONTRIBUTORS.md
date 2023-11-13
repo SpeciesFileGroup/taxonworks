@@ -1,6 +1,6 @@
 # Contributors
 
-_This is a list in progress, we apologize for errors of ommission, feel free to suggest additions._
+_This is a list in progress, we apologize for errors of omission, feel free to suggest additions._
 
 Contributors include: 
 
@@ -8,7 +8,7 @@ Contributors include:
 * [Contributors](https://github.com/SpeciesFileGroup) to code and resources in other modules spawned from this project
 * Anyone who has contributed an [Issue](https://github.com/SpeciesFileGroup/taxonworks/issues) or Comment on that issue
 
-* Contributors who have provided ideas, interfaces layouts, suggestions *but who have not otherwised been listed in the categories above*:
+* Contributors who have provided ideas, interfaces layouts, suggestions *but who have not otherwise been listed in the categories above*:
 
 ```
 Ed DeWalt

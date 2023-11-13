@@ -249,6 +249,7 @@ index_editor_task:
   name: 'Content editor'
   related:
   categories:
+    - new
     - source
   status: prototype
   description: 'Edit content (text) per subject, for example "Biology of Aus bus". Text can be cited and figured.'
@@ -458,7 +459,7 @@ index_browse_asserted_distributions_task:
     - browse
   status: prototype
   description: 'Browse through asserted distributions summarized by OTU.  Map, table, and CSV downloads.'
-collection_objects_filter_task:
+filter_collection_objects_task:
   hub: true
   name: 'Filter collection objects'
   related:
@@ -556,13 +557,6 @@ filter_sources_task:
     - filters
   status: prototype
   description: 'Filter and find sources then download or share bibliographies.'
-project_data_task:
-  hub: true
-  name: 'Project data overview and download'
-  related:
-  categories:
-  status: prototype
-  description: 'Quick stats and download options for the overall project.'
 gnfinder_task:
   hub: true
   name: 'Gnfinder playground'
@@ -599,13 +593,13 @@ filter_images_task:
     - filters
   status: prototype
   description: 'Filter images.'
-export_taxonworks_project_task:
+project_data_task:
   hub: true
-  name: 'Export project database'
+  name: 'Project data overview and download'
   related:
   categories:
   status: prototype
-  description: 'Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)'
+  description: 'Quick stats and download options for the overall project.'
 dwc_dashboard_task:
   hub: true
   name: 'DwC Dashboard'
@@ -829,3 +823,17 @@ loan_dashboard_task:
     - loan
   status: prototype
   description: 'Summarize various loan-related statistics.'
+geographic_area_usage_task:
+  hub: true
+  name: 'Geographic area usage'
+  related:
+  categories:
+  status: prototype
+  description: 'Summarize this projects geographic area usage'
+taxon_name_stats_task:
+  hub: false
+  name: 'Taxon name stats'
+  related:
+  categories:
+  status: prototype
+  description: 'Plot stats / year for taxon name filter results.'

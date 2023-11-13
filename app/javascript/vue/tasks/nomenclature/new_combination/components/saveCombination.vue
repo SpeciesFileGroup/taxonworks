@@ -5,15 +5,15 @@
     class="button normal-input button-submit create-new-combination"
     v-hotkey="shortcuts"
     :disabled="!validateCreate()"
-    @click="save()">
-    {{ (newCombination.hasOwnProperty('id') ? 'Update' : 'Create') }}
+    @click="save()"
+  >
+    {{ newCombination.hasOwnProperty('id') ? 'Update' : 'Create' }}
   </button>
 </template>
 <script>
-
-import { Combination } from 'routes/endpoints'
+import { Combination } from '@/routes/endpoints'
 import { EXTEND_PARAMS } from '../constants/extend.js'
-import platformKey from 'helpers/getPlatformKey'
+import platformKey from '@/helpers/getPlatformKey'
 
 export default {
   props: {
@@ -23,14 +23,10 @@ export default {
     }
   },
 
-  emits: [
-    'processing',
-    'save',
-    'success'
-  ],
+  emits: ['processing', 'save', 'success'],
 
   computed: {
-    shortcuts () {
+    shortcuts() {
       const keys = {}
       keys[`${platformKey()}+s`] = this.save
 
@@ -39,28 +35,30 @@ export default {
   },
 
   methods: {
-
-    validateCreate () {
+    validateCreate() {
       return this.newCombination.protonyms.genus
     },
 
-    setFocus () {
+    setFocus() {
       if (this.validateCreate()) {
         this.$refs.saveButton.focus()
       }
     },
 
-    save () {
+    save() {
       if (this.validateCreate()) {
-        (this.newCombination.hasOwnProperty('id') ? this.update(this.newCombination.id) : this.create())
+        this.newCombination.hasOwnProperty('id')
+          ? this.update(this.newCombination.id)
+          : this.create()
       }
     },
 
-    createRecordCombination () {
+    createRecordCombination() {
       const keys = Object.keys(this.newCombination.protonyms)
       const combination = {
         verbatim_name: this.newCombination.verbatim_name,
-        origin_citation_attributes: this.newCombination?.origin_citation_attributes
+        origin_citation_attributes:
+          this.newCombination?.origin_citation_attributes
       }
 
       keys.forEach((rank) => {
@@ -71,26 +69,43 @@ export default {
 
       return combination
     },
-    create () {
+    create() {
       this.$emit('processing', true)
-      Combination.create({ combination: this.createRecordCombination(), ...EXTEND_PARAMS }).then(response => {
-        this.$emit('save', response.body)
-        this.$emit('processing', false)
-        this.$emit('success', true)
-        TW.workbench.alert.create('New combination was successfully created.', 'notice')
-      }, (response) => {
-        this.$emit('processing', false)
-        TW.workbench.alert.create(`Something went wrong: ${JSON.stringify(response.body)}`, 'error')
-      })
+      Combination.create({
+        combination: this.createRecordCombination(),
+        ...EXTEND_PARAMS
+      }).then(
+        (response) => {
+          this.$emit('save', response.body)
+          this.$emit('processing', false)
+          this.$emit('success', true)
+          TW.workbench.alert.create(
+            'New combination was successfully created.',
+            'notice'
+          )
+        },
+        (response) => {
+          this.$emit('processing', false)
+          TW.workbench.alert.create(
+            `Something went wrong: ${JSON.stringify(response.body)}`,
+            'error'
+          )
+        }
+      )
     },
-    update (id) {
+    update(id) {
       this.$emit('processing', true)
-      Combination.update(id, { 
-        combination: this.createRecordCombination(), ...EXTEND_PARAMS }).then((response) => {
+      Combination.update(id, {
+        combination: this.createRecordCombination(),
+        ...EXTEND_PARAMS
+      }).then((response) => {
         this.$emit('save', response.body)
         this.$emit('processing', false)
         this.$emit('success', true)
-        TW.workbench.alert.create('New combination was successfully updated.', 'notice')
+        TW.workbench.alert.create(
+          'New combination was successfully updated.',
+          'notice'
+        )
       })
     }
   }

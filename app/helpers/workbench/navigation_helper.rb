@@ -13,8 +13,8 @@ module Workbench::NavigationHelper
   def slideouts
     if sessions_current_project && sessions_signed_in? && on_workbench?
       [ slideout_pinboard,
-      slideout_pdf_viewer,
-      slideout_clipboard ].join.html_safe
+        slideout_pdf_viewer,
+        slideout_clipboard ].join.html_safe
     end
   end
 
@@ -120,7 +120,12 @@ module Workbench::NavigationHelper
   end
 
   def download_path_for_model(model)
-    send("download_#{model.name.tableize}_path")
+    if model.name == 'Documentation'
+      # some weirdness with ninflections
+      download_documentation_index_path
+    else
+      send("download_#{model.name.tableize}_path")
+    end
   end
 
   def object_link(object)

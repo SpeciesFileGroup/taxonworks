@@ -12,7 +12,7 @@
     <DisplayList
       v-if="otusStore.length"
       :list="otusStore"
-      label="object_label"
+      label="object_tag"
       :delete-warning="false"
       @delete="removeFromArray(otusStore, $event)"
     />
@@ -26,12 +26,12 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { Otu } from 'routes/endpoints'
-import { addToArray, removeFromArray } from 'helpers/arrays'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import DisplayList from 'components/displayList.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { Otu } from '@/routes/endpoints'
+import { addToArray, removeFromArray } from '@/helpers/arrays'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import DisplayList from '@/components/displayList.vue'
 import VIncludes from './components/Includes.vue'
 import OtuCoordinate from './components/OtuCoordinate.vue'
 

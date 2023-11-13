@@ -92,13 +92,10 @@ module Queries::Concerns::Tags
 
   def tags_facet
     return nil if tags.nil?
-    k = table.name.classify.safe_constantize
-
     if tags
-      k.joins(:tags).distinct
+      referenced_klass.joins(:tags).distinct
     else
-      k.left_outer_joins(:tags)
-        .where(tags: {id: nil})
+      referenced_klass.where.missing(:tags)
     end
   end
 

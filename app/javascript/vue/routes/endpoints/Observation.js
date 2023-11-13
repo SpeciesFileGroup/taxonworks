@@ -1,5 +1,5 @@
 import baseCRUD, { annotations } from './base'
-import ajaxCall from 'helpers/ajaxCall.js'
+import ajaxCall from '@/helpers/ajaxCall.js'
 
 const controller = 'observations'
 const permitParams = {

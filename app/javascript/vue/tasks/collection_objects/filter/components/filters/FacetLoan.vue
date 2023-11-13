@@ -51,10 +51,10 @@
 
 <script setup>
 import { computed, ref, watch, onBeforeMount } from 'vue'
-import { Loan } from 'routes/endpoints'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import DisplayList from 'components/displayList.vue'
+import { Loan } from '@/routes/endpoints'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
+import DisplayList from '@/components/displayList.vue'
 
 const props = defineProps({
   modelValue: {

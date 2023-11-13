@@ -40,8 +40,14 @@ class SourcesController < ApplicationController
   # POST /sources/1/clone.json
   def clone
     respond_to do |format|
+
+      # Don't panic, this `clone` is custom, see source.rb
       @source = @source.clone
+
       if @source.valid?
+
+        @source.project_sources << ProjectSource.new(project_id: sessions_current_project_id)
+
         format.html { redirect_to edit_source_path(@source), notice: 'Clone successful, on new record.' }
         format.json { render :show }
       else
@@ -58,17 +64,18 @@ class SourcesController < ApplicationController
 
   # GET /sources/new
   def new
-    redirect_to new_source_task_path, notice: "Redirected to new interface."
+    redirect_to new_source_task_path, notice: 'Redirected to new interface.'
   end
 
   # POST /sources
   # POST /sources.json
   def create
+    params[:source].merge!( { project_sources_attributes: [{project_id: sessions_current_project_id}] } )
     @source = new_source
+
     respond_to do |format|
-      # We must check for manually added errors first, as they
-      # are lost when .valid? is called during the callback chain.
-      if !@source.errors.any? && @source.save
+
+      if @source.save
         format.html { redirect_to url_for(@source.metamorphosize),
                       notice: "#{@source.type} successfully created." }
         format.json { render action: 'show', status: :created, location: @source.metamorphosize }
@@ -76,6 +83,7 @@ class SourcesController < ApplicationController
         format.html { render action: 'new' }
         format.json { render json: @source.errors, status: :unprocessable_entity }
       end
+
     end
   end
 
@@ -164,6 +172,14 @@ class SourcesController < ApplicationController
   def batch_load
   end
 
+  # PATCH /sources/batch_update.json?source_query=<>&serial_id
+  def batch_update
+    if @result = Source::Bibtex.batch_update(params)
+    else
+      render json: {success: false}
+    end
+  end
+
   def preview_bibtex_batch_load
     file = params.require(:file)
     redirect_to batch_load_sources_path, notice: 'No file has been selected.' and return if file.blank?
@@ -211,7 +227,7 @@ class SourcesController < ApplicationController
       Source.joins(:project_sources)
       .where(project_sources: {project_id: sessions_current_project_id})
       .all),
-    type: 'text', filename: "sources_#{DateTime.now}.csv"
+    type: 'text', filename: "sources_#{DateTime.now}.tsv"
   end
 
   # GET /sources/generate.json?<filter params>
@@ -262,7 +278,6 @@ class SourcesController < ApplicationController
   end
 
   def source_params
-    params['source'][:project_sources_attributes] = [{project_id: sessions_current_project_id.to_s}]
     params.require(:source).permit(
       :serial_id, :address, :annote, :author, :booktitle, :chapter,
       :crossref, :edition, :editor, :howpublished, :institution,
@@ -272,6 +287,7 @@ class SourcesController < ApplicationController
       :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
       :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type, :style_id,
       :convert_to_bibtex,
+      project_sources_attributes: [:project_id],
       roles_attributes: [
         :id,
         :_destroy,
@@ -281,8 +297,7 @@ class SourcesController < ApplicationController
         person_attributes: [
           :last_name, :first_name, :suffix, :prefix
         ]
-      ],
-      project_sources_attributes: [:project_id]
+      ]
     )
   end
 end

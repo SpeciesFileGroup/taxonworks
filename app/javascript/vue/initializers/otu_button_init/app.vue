@@ -8,8 +8,7 @@
   />
 </template>
 <script>
-
-import OtuButton from 'components/otu/otu.vue'
+import OtuButton from '@/components/otu/otu.vue'
 
 export default {
   components: { OtuButton },

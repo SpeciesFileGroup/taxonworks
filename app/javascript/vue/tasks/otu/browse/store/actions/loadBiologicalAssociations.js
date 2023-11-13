@@ -1,5 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
-import { BiologicalAssociation } from 'routes/endpoints'
+import { BiologicalAssociation } from '@/routes/endpoints'
 import ActionNames from './actionNames'
 
 const extend = [
@@ -38,12 +38,14 @@ export function listAdapter(result) {
     subjectOrder: parseRank(item.subject?.taxonomy?.order),
     subjectFamily: parseRank(item.subject?.taxonomy?.family),
     subjectGenus: parseRank(item.subject?.taxonomy?.genus),
-    subjectLabel: item.subject.object_tag,
+    subjectLabel: item.subject.object_label,
+    subjectTag: item.subject.object_tag,
     biologicalPropertySubject: getBiologicalProperty(
       item.biological_relationship_types,
       'subject'
     ),
     biologicalRelationship: item.biological_relationship.object_tag,
+    biologicalRelationshipId: item.biological_relationship_id,
     biologicalPropertyObject: getBiologicalProperty(
       item.biological_relationship_types,
       'object'
@@ -53,7 +55,8 @@ export function listAdapter(result) {
     objectOrder: parseRank(item.object?.taxonomy?.order),
     objectFamily: parseRank(item.object?.taxonomy?.family),
     objectGenus: parseRank(item.object?.taxonomy?.genus),
-    objectLabel: item.object.object_tag,
+    objectLabel: item.object.object_label,
+    objectTag: item.object.object_tag,
     source: item.source,
     citations: item.citations.map((citation) => ({
       ...citation,
@@ -74,6 +77,4 @@ export default async ({ state, commit, dispatch }, globalId) => {
     MutationNames.SetBiologicalAssociations,
     state.biologicalAssociations.concat(data)
   )
-
-  await dispatch(ActionNames.LoadRelatedBAs, data)
 }

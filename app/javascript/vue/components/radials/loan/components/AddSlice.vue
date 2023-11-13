@@ -40,10 +40,10 @@
 </template>
 
 <script setup>
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import { LoanItem } from 'routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { LoanItem } from '@/routes/endpoints'
 import { ref } from 'vue'
 
 const props = defineProps({

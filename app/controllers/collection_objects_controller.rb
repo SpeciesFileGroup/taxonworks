@@ -19,12 +19,15 @@ class CollectionObjectsController < ApplicationController
           .limit(10)
         render '/shared/data/all/index'
       end
-      format.json {
+      format.json do
         @collection_objects = ::Queries::CollectionObject::Filter.new(params).all
-        .order('collection_objects.id')
+
+        @collection_objects = add_includes_to_filter_result(@collection_objects)
+
+        @collection_objects = @collection_objects
         .page(params[:page])
         .per(params[:per])
-      }
+      end
     end
   end
 
@@ -255,7 +258,7 @@ class CollectionObjectsController < ApplicationController
 
   # GET /collection_objects/download
   def download
-    send_data Export::Download.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now}.tsv"
   end
 
   # GET collection_objects/batch_load
@@ -357,7 +360,7 @@ class CollectionObjectsController < ApplicationController
         project_id: sessions_current_project_id
       ).autocomplete
   end
-  
+
   # GET /api/v1/collection_objects
   def api_index
     @collection_objects = ::Queries::CollectionObject::Filter.new(params.merge!(api: true)).all
@@ -386,7 +389,16 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
-  private
+   # POST /collection_object/batch_update.json?collection_object_query=<>&collection_object={}
+  def batch_update
+    c = CollectionObject.query_batch_update({
+        collection_object: collection_object_params.merge(by: sessions_current_user_id),
+        collection_object_query: params[:collection_object_query]
+      })
+   render json: c[:result], status: c[:status]
+  end
+
+   private
 
   def after_destroy_path
     if request.referer =~ /tasks\/collection_objects\/browse/
@@ -428,7 +440,16 @@ class CollectionObjectsController < ApplicationController
           :text_method,
           :total
         ]
+      ],
+      taxon_determinations_attributes: [
+        :id, :_destroy, :otu_id, :year_made, :month_made, :day_made, :position,
+        roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+        otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
+      ],
+      biocuration_classifications_attributes: [
+        :id, :_destroy, :biocuration_class_id
       ]
+
     )
   end
 
@@ -450,6 +471,34 @@ class CollectionObjectsController < ApplicationController
         'end_year'    => 'end_date_year'}
     }
   end
+
+  # An experiment to balance query/rendering times vs. extend[] requests
+  # Likely suggests we need some fundamental changes.
+  # @param CollectionObject::Filter.new() instance
+  def add_includes_to_filter_result(collection_objects)
+    a = %i(identifiers dwc_occurrence repository current_repository)
+
+    x = []
+    a.each do |e|
+      if helpers.extend_response_with(e.to_s)
+        x.push e
+      end
+    end
+
+    if x.any?
+      collection_objects = collection_objects.includes(*x)
+    end
+
+    if helpers.extend_response_with('collecting_event')
+      collection_objects = collection_objects.includes(collecting_event: [:identifiers])
+    end
+
+    if helpers.extend_response_with('taxon_determinations')
+      collection_objects = collection_objects.includes(taxon_determinations: [:otu, roles: [:person]])
+    end
+    collection_objects
+  end
+
 end
 
 require_dependency Rails.root.to_s + '/lib/batch_load/import/collection_objects/castor_interpreter.rb'

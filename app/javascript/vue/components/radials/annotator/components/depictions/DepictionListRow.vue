@@ -48,10 +48,10 @@
 </template>
 
 <script setup>
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import EditInPlace from 'components/editInPlace.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import EditInPlace from '@/components/editInPlace.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { watch, ref } from 'vue'
 
 const props = defineProps({

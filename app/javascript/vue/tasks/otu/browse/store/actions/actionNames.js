@@ -5,11 +5,11 @@ const ActionNames = {
   LoadCollectingEvents: 'loadCollectingEvents',
   LoadCommonNames: 'loadCommonNames',
   LoadDepictions: 'loadDepictions',
+  LoadDistribution: 'loadDistribution',
   LoadPreferences: 'loadPreferences',
   LoadAssertedDistributions: 'loadAssertedDistributions',
   LoadDescendants: 'loadDescendants',
   LoadTaxonName: 'loadTaxonName',
-  LoadRelatedBAs: 'loadRelatedBAs',
   LoadObservationDepictions: 'loadObservationDepictions',
   LoadOtus: 'loadOtus',
   ResetStore: 'resetStore'

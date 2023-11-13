@@ -25,7 +25,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {

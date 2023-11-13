@@ -18,8 +18,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Note } from 'routes/endpoints'
-import VBtn from 'components/ui/VBtn/index.vue'
+import { Note } from '@/routes/endpoints'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   objectType: {

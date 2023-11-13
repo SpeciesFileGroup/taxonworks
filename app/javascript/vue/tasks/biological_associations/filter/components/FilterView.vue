@@ -44,23 +44,30 @@
 </template>
 
 <script setup>
-import FacetGeographic from 'components/Filter/Facets/shared/FacetGeographic.vue'
-import FacetWKT from 'components/Filter/Facets/Otu/FacetWKT.vue'
-import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
-import FacetIdentifier from 'components/Filter/Facets/shared/FacetIdentifiers.vue'
-import FacetBiologicalRelationship from 'components/Filter/Facets/BiologicalAssociation/FacetBiologicalRelationship.vue'
-import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
-import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
-import FacetNotes from 'components/Filter/Facets/shared/FacetNotes.vue'
-import FacetCollectionObject from 'components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
+import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic.vue'
+import FacetWKT from '@/components/Filter/Facets/Otu/FacetWKT.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetIdentifier from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
+import FacetBiologicalRelationship from '@/components/Filter/Facets/BiologicalAssociation/FacetBiologicalRelationship.vue'
+import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
+import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
+import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
+import FacetCollectionObject from '@/components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
 import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
-import FacetBiologicalProperty from 'components/Filter/Facets/BiologicalAssociation/FacetBiologicalProperty.vue'
-import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
-import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
-import { OTU, COLLECTION_OBJECT } from 'constants/index.js'
+import FacetBiologicalProperty from '@/components/Filter/Facets/BiologicalAssociation/FacetBiologicalProperty.vue'
+import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
+import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
+import { OTU, COLLECTION_OBJECT } from '@/constants/index.js'
 import { computed } from 'vue'
 
-const WITH_PARAMS = ['citations', 'origin_citation']
+const WITH_PARAMS = [
+  'citations',
+  'data_depictions',
+  'depictions',
+  'notes',
+  'origin_citation',
+  'tags'
+]
 
 const props = defineProps({
   modelValue: {

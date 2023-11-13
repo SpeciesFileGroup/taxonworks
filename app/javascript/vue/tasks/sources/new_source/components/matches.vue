@@ -19,10 +19,10 @@
 
 <script>
 import { GetterNames } from '../store/getters/getters'
-import { Source } from 'routes/endpoints'
+import { Source } from '@/routes/endpoints'
 import { ActionNames } from '../store/actions/actions'
-import DisplayList from 'components/displayList'
-import SpinnerComponent from 'components/spinner'
+import DisplayList from '@/components/displayList'
+import SpinnerComponent from '@/components/spinner'
 
 export default {
   components: {

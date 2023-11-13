@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Source, type: :model, group: :source do
+describe Source, type: :model, group: :sources do
   let(:source) { Source.new }
   after(:all) { Source.destroy_all }
 
@@ -90,7 +90,7 @@ describe Source, type: :model, group: :source do
       context 'similar and identical' do
 
         # duplicate record
-        let!(:s1a) do 
+        let!(:s1a) do
           s = s1.dup
           s.save!
           s
@@ -132,18 +132,18 @@ describe Source, type: :model, group: :source do
 
   context 'validate' do
     let!(:person1) { Person.create!(last_name: 'Smith', first_name: 'Jones') }
-    let(:valid_attributes) { 
+    let(:valid_attributes) {
       {year: 1999,
        year_suffix: 'a',
        authors: [person1],
        bibtex_type: 'article'}
     }
 
-    let!(:source1) { Source::Bibtex.create!(valid_attributes) } 
-    let!(:source2) { Source::Bibtex.new( valid_attributes) } 
+    let!(:source1) { Source::Bibtex.create!(valid_attributes) }
+    let!(:source2) { Source::Bibtex.new( valid_attributes) }
 
     specify '#year_suffix different suffix 1' do
-      expect(source2.valid?).to be_falsey 
+      expect(source2.valid?).to be_falsey
     end
 
     specify '#year_suffix different suffix 2' do
@@ -163,7 +163,7 @@ describe Source, type: :model, group: :source do
     end
 
     specify '#year_suffix different years 1' do
-      source2.update(year: 2000) 
+      source2.update(year: 2000)
       expect(source2.valid?).to be_truthy
     end
 
@@ -174,7 +174,7 @@ describe Source, type: :model, group: :source do
   end
 
   specify '#verbatim_contents is not trimmed' do
-    s = " asdf sd  \n  asdfd \r\n" 
+    s = " asdf sd  \n  asdfd \r\n"
     source.verbatim_contents = s
     source.valid?
     expect(source.verbatim_contents).to eq(s)

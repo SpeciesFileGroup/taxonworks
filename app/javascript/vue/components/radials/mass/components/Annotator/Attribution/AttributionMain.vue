@@ -11,9 +11,9 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Attribution } from 'routes/endpoints'
+import { Attribution } from '@/routes/endpoints'
 import AttributionComponent from './attributions.vue'
-import VSpinner from 'components/spinner.vue'
+import VSpinner from '@/components/spinner.vue'
 
 const props = defineProps({
   ids: {

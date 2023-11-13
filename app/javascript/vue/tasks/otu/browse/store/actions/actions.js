@@ -5,11 +5,11 @@ import loadCollectionObjects from './loadCollectionObjects'
 import loadCollectingEvents from './loadCollectingEvents'
 import loadCommonNames from './loadCommonNames'
 import loadDepictions from './loadDepictions'
+import loadDistribution from './loadDistribution'
 import loadPreferences from './loadPreferences'
 import loadAssertedDistributions from './loadAssertedDistributions'
 import loadDescendants from './loadDescendants'
 import loadTaxonName from './loadTaxonName'
-import loadRelatedBAs from './loadRelatedBAs'
 import loadObservationDepictions from './loadObservationDepictions'
 import loadOtus from './loadOtus'
 import resetStore from './resetStore'
@@ -22,11 +22,11 @@ const ActionFunctions = {
   [ActionNames.LoadCommonNames]: loadCommonNames,
   [ActionNames.LoadDepictions]: loadDepictions,
   [ActionNames.LoadDescendants]: loadDescendants,
+  [ActionNames.LoadDistribution]: loadDistribution,
   [ActionNames.LoadInformation]: loadInformation,
   [ActionNames.LoadObservationDepictions]: loadObservationDepictions,
   [ActionNames.LoadOtus]: loadOtus,
   [ActionNames.LoadPreferences]: loadPreferences,
-  [ActionNames.LoadRelatedBAs]: loadRelatedBAs,
   [ActionNames.LoadTaxonName]: loadTaxonName,
   [ActionNames.ResetStore]: resetStore
 }

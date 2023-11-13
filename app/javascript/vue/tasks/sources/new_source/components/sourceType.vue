@@ -10,9 +10,12 @@
             v-model="sourceType"
             :value="type.value"
             name="source-type"
-            :disabled="source.id && (!type.available || !type.available.includes(source.type))"
+            :disabled="
+              source.id &&
+              (!type.available || !type.available.includes(source.type))
+            "
             type="radio"
-          >
+          />
           {{ type.label }}
         </label>
       </li>
@@ -24,11 +27,10 @@
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
-import LockComponent from 'components/ui/VLock/index.vue'
+import LockComponent from '@/components/ui/VLock/index.vue'
 import NewSource from '../const/source.js'
 
 export default {
@@ -38,35 +40,35 @@ export default {
 
   computed: {
     source: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSource]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSource, value)
       }
     },
 
     sourceType: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetType]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetType, value)
       }
     },
 
     settings: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSettings]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     }
   },
 
   watch: {
-    sourceType (newVal) {
+    sourceType(newVal) {
       if (!this.source.id) {
         const newSource = NewSource()
         newSource.type = newVal
@@ -75,7 +77,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       types: [
         {

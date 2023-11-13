@@ -23,7 +23,7 @@ import TripCode from '../components/collectingEvent/components/geography/tripCod
 
 import MapComponent from '../components/collectingEvent/components/map/map.vue'
 import PrintLabel from '../components/collectingEvent/components/map/printLabel'
-import SoftValidation from 'components/soft_validations/panel'
+import SoftValidation from '@/components/soft_validations/panel'
 import Depictions from '../components/collectingEvent/components/map/depictions'
 
 const ComponentVerbatim = {
@@ -38,7 +38,7 @@ const ComponentVerbatim = {
   Datum: 'Datum',
   Collectors: 'Collectors',
   Method: 'Method',
-  TripIdentifier: 'TripIdentifier',
+  TripIdentifier: 'TripIdentifier'
 }
 
 const ComponentParse = {
@@ -89,9 +89,4 @@ const VueComponents = {
   [ComponentMap.Depictions]: Depictions
 }
 
-export {
-  VueComponents,
-  ComponentVerbatim,
-  ComponentParse,
-  ComponentMap
-}
+export { VueComponents, ComponentVerbatim, ComponentParse, ComponentMap }

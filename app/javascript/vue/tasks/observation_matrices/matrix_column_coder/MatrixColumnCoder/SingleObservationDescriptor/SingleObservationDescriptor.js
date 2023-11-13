@@ -2,7 +2,7 @@ import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 
 import SummaryView from '../SummaryView/SummaryView.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
 
 export default {
   components: {
@@ -22,19 +22,19 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       observation: null
     }
   },
 
   computed: {
-    observationExist () {
-      return (this.observation && this.observation.global_id)
+    observationExist() {
+      return this.observation && this.observation.global_id
     }
   },
 
-  created () {
+  created() {
     const observations = this.$store.getters[GetterNames.GetObservationsFor]({
       rowObjectId: this.rowObject.id,
       rowObjectType: this.rowObject.type
@@ -49,7 +49,7 @@ export default {
   },
 
   methods: {
-    removeObservation () {
+    removeObservation() {
       this.$store.dispatch(ActionNames.RemoveObservation, {
         rowObjectId: this.rowObject.id,
         rowObjectType: this.rowObject.type

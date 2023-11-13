@@ -15,7 +15,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useStore } from '../../composables/useStore.js'
-import VToggle from 'components/ui/VToggle.vue'
+import VToggle from '@/components/ui/VToggle.vue'
 
 const props = defineProps({
   content: {
@@ -33,7 +33,7 @@ const store = useStore()
 const publishedValue = computed({
   get: () => props.content.published,
 
-  set: value => {
+  set: (value) => {
     store.updateContent({
       contentId: props.content.id,
       topicId: props.topicId,
@@ -41,5 +41,4 @@ const publishedValue = computed({
     })
   }
 })
-
 </script>

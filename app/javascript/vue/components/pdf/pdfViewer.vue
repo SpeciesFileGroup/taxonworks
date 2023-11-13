@@ -98,10 +98,10 @@
 <script setup>
 import PdfViewer from './components/pdfComponent'
 import ResizeHandle from '../resizeHandle'
-import IndexedDBStorage from 'storage/indexddb.js'
-import { getCurrentProjectId } from 'helpers/project.js'
-import { getCurrentUserId } from 'helpers/user.js'
-import { blobToArrayBuffer } from 'helpers/files.js'
+import IndexedDBStorage from '@/storage/indexddb.js'
+import { getCurrentProjectId } from '@/helpers/project.js'
+import { getCurrentUserId } from '@/helpers/user.js'
+import { blobToArrayBuffer } from '@/helpers/files.js'
 import { createLoadingTask } from './components/pdfLibraryComponents'
 import {
   computed,

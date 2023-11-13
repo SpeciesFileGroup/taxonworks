@@ -42,7 +42,7 @@ describe 'Roles::Person', type: :model do
   end
 
   specify '#active_start and Georeference updated on create' do
-    t = FactoryBot.create(:valid_georeference, georeferencers: [p1], year_georeferenced: 2021)
+    t = FactoryBot.create(:valid_georeference, georeference_authors: [p1], year_georeferenced: 2021)
     p1.reload
     expect(p1.year_active_start).to eq(2021)
     expect(p1.year_active_end).to eq(2021)

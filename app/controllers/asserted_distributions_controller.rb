@@ -15,7 +15,7 @@ class AssertedDistributionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @asserted_distributions = Queries::AssertedDistribution::Filter.new(params)
+        @asserted_distributions = ::Queries::AssertedDistribution::Filter.new(params)
           .all
           .where(project_id: sessions_current_project_id)
           .page(params[:page])
@@ -27,7 +27,6 @@ class AssertedDistributionsController < ApplicationController
   # GET /asserted_distributions/1
   # GET /asserted_distributions/1.json
   def show
-    # @asserted_distribution = AssertedDistribution.find(params[:id])
   end
 
   # GET /asserted_distributions/new
@@ -37,7 +36,6 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/1/edit
   def edit
-    @asserted_distribution.source = Source.new if !@asserted_distribution.source
   end
 
   # POST /asserted_distributions
@@ -91,7 +89,7 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def autocomplete
-    @asserted_distributions = Queries::AssertedDistribution::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
+    @asserted_distributions = ::Queries::AssertedDistribution::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
   end
 
   # TODO: deprecate
@@ -108,11 +106,19 @@ class AssertedDistributionsController < ApplicationController
     send_data(
       Export::Download.generate_csv(AssertedDistribution.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "asserted_distributions_#{DateTime.now}.csv")
+      filename: "asserted_distributions_#{DateTime.now}.tsv")
   end
 
   # GET /asserted_distributions/batch_load
   def batch_load
+  end
+
+  # PATCH /asserted_distributions/batch_move.json?asserted_distribution_query=<>&geographic_area_id
+  def batch_move
+    if @result = AssertedDistribution.batch_move(params)
+    else
+      render json: {success: false}
+    end
   end
 
   def preview_simple_batch_load
@@ -142,12 +148,18 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def api_index
-    @asserted_distributions = Queries::AssertedDistribution::Filter.new(params.merge!(api: true))
+    @asserted_distributions = ::Queries::AssertedDistribution::Filter.new(params.merge!(api: true))
       .all
       .where(project_id: sessions_current_project_id)
+      .includes(:citations, :otu, geographic_area: [:parent, :geographic_area_type], origin_citation: [:source])
       .order('asserted_distributions.id')
       .page(params[:page])
       .per(params[:per])
+
+      if @asserted_distributions.all.count > 50
+        params['extend']&.delete('geo_json')
+      end
+
     render '/asserted_distributions/api/v1/index'
   end
 

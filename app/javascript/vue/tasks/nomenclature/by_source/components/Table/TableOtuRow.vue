@@ -3,10 +3,11 @@
     <td>
       <a
         :href="`${routeNames.BrowseOtu}?otu_id=${otu.id}`"
-        v-html="otu.object_tag"/>
+        v-html="otu.object_tag"
+      />
     </td>
     <td>
-      <div class="horizontal-right-content">
+      <div class="horizontal-right-content gap-small">
         <radial-annotator :global-id="otu.global_id" />
         <otu-radial
           :taxon-id="otu.global_id"
@@ -23,10 +24,9 @@
   </tr>
 </template>
 <script>
-
-import { RouteNames } from 'routes/routes'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import OtuRadial from 'components/otu/otu'
+import { RouteNames } from '@/routes/routes'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import OtuRadial from '@/components/otu/otu'
 
 export default {
   components: {

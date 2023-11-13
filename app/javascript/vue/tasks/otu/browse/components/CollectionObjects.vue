@@ -40,7 +40,7 @@
 import SectionPanel from './shared/sectionPanel'
 import CollectionObjectRow from './specimens/CollectionObjectRow'
 import extendSection from './shared/extendSections'
-import { CollectionObject } from 'routes/endpoints'
+import { CollectionObject } from '@/routes/endpoints'
 
 export default {
   mixins: [extendSection],
@@ -70,7 +70,8 @@ export default {
         if (newVal) {
           CollectionObject.dwcIndex({
             otu_id: [newVal.id],
-            current_determinations: true
+            current_determinations: true,
+            per: 500
           }).then((response) => {
             this.collectionObjects = response.body.data.map((item, index) =>
               this.createObject(response.body, index)

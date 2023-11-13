@@ -20,7 +20,7 @@
           v-html="displayName(item)"
         />
       </span>
-      <div class="list-controls">
+      <div class="horizontal-right-content gap-small">
         <slot
           name="options"
           :item="item"
@@ -31,46 +31,60 @@
           :href="getPropertyValue(item, download)"
           download
         />
-        <pdf-button
+        <PdfButton
           v-if="pdf && pdfExist(item)"
           :pdf="pdfExist(item)"
         />
-        <radial-annotator
+        <RadialAnnotator
           v-if="annotator"
           :global-id="item.global_id"
         />
-        <radial-object
+        <RadialObject
           v-if="radialObject && item.hasOwnProperty('global_id')"
           :global-id="item.global_id"
         />
-        <span
+        <VBtn
           v-if="edit"
-          class="circle-button btn-edit"
+          circle
+          color="update"
           @click="$emit('edit', Object.assign({}, item))"
-          >Edit
-        </span>
-        <span
+        >
+          <VIcon
+            name="pencil"
+            x-small
+          />
+        </VBtn>
+
+        <VBtn
           v-if="remove"
-          class="circle-button btn-delete"
-          :class="{ 'button-default': softDelete }"
+          circle
+          :color="softDelete ? 'primary' : 'destroy'"
           @click="deleteItem(item, index)"
-          >Remove
-        </span>
+        >
+          <VIcon
+            name="trash"
+            x-small
+          />
+        </VBtn>
       </div>
     </li>
   </transition-group>
 </template>
 <script>
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialObject from 'components/radials/navigation/radial.vue'
-import SoftValidation from 'components/soft_validations/objectValidation.vue'
-import PdfButton from 'components/pdfButton.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/navigation/radial.vue'
+import SoftValidation from '@/components/soft_validations/objectValidation.vue'
+import PdfButton from '@/components/pdfButton.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
     RadialAnnotator,
     SoftValidation,
-    PdfButton
+    PdfButton,
+    VBtn,
+    VIcon
   },
 
   props: {

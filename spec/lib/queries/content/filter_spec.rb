@@ -1,19 +1,19 @@
 require 'rails_helper'
 
-describe Queries::Content::Filter, type: :model do
+describe ::Queries::Content::Filter, type: :model do
 
-  let(:t1) { FactoryBot.create(:valid_topic) } 
-  let(:t2) { FactoryBot.create(:valid_topic) } 
-  let(:t3) { FactoryBot.create(:valid_topic) } 
+  let(:t1) { FactoryBot.create(:valid_topic) }
+  let(:t2) { FactoryBot.create(:valid_topic) }
+  let(:t3) { FactoryBot.create(:valid_topic) }
 
   let(:o1) { Otu.create!(name: 'T1') }
   let(:o2) { Otu.create!(name: 'T2') }
 
-  let!(:c1) { Content.create!(otu: o1, text: 'text 1 stuff', topic: t1) } 
-  let!(:c2) { Content.create!(otu: o2, text: 'text 2 things', topic: t2) } 
-  let!(:c3) { Content.create!(otu: o2, text: 'text 3 stuf', topic: t3) } 
+  let!(:c1) {::Content.create!(otu: o1, text: 'text 1 stuff', topic: t1) }
+  let!(:c2) {::Content.create!(otu: o2, text: 'text 2 things', topic: t2) }
+  let!(:c3) {::Content.create!(otu: o2, text: 'text 3 stuf', topic: t3) }
 
-  let(:query) { Queries::Content::Filter.new({}) }
+  let(:query) { ::Queries::Content::Filter.new({}) }
 
   specify 'topic_id Integer' do
     query.topic_id = t1.id
@@ -42,7 +42,7 @@ describe Queries::Content::Filter, type: :model do
 
   specify 'text, exact' do
     query.text = c1.text
-    query.exact = true 
+    query.exact = true
     expect(query.all.map(&:id)).to contain_exactly(c1.id)
   end
 
@@ -54,7 +54,7 @@ describe Queries::Content::Filter, type: :model do
 
   specify 'images 2' do
     c1.depictions << Depiction.new(image: FactoryBot.create(:valid_image))
-    query.images = false 
+    query.images = false
     expect(query.all.map(&:id)).to contain_exactly(c2.id, c3.id)
   end
 
@@ -66,7 +66,7 @@ describe Queries::Content::Filter, type: :model do
 
   specify 'citations 2' do
     c1.citations << Citation.new(source: FactoryBot.create(:valid_source))
-    query.citations = false 
+    query.citations = false
     expect(query.all.map(&:id)).to contain_exactly(c2.id, c3.id)
   end
 

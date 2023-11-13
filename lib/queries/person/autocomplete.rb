@@ -16,14 +16,11 @@ module Queries
       #   nil, false - ignored
       attr_accessor :in_project
 
-      # gets project_id from Query::Autocomplete
-
       # @param [Hash] args
+      #   !! project_id is required!!
       def initialize(string, **params)
         @role_type = params[:role_type]
         @in_project = boolean_param(params, :in_project)
-
-        # project_id is required!!
 
         set_tags_params(params)
         set_alternate_value(params)
@@ -129,7 +126,7 @@ module Queries
               a = a.joins(:roles).where(role_match.to_sql)
             end
 
-            if q[1] # do not use extended query for identifiers
+            if q[1] && query_string.length > 1 # do not use extended query for identifiers
               if project_id.present?
                 a = a.left_outer_joins(:roles)
                 .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
@@ -146,11 +143,11 @@ module Queries
                 #     .order('in_project, use_count DESC')
               end
             end
-
-            updated_queries[i] = a
           end
+          updated_queries[i] = a
         end
         result = []
+        updated_queries.compact!
         updated_queries.each do |q|
           result += q.to_a
           result.uniq!

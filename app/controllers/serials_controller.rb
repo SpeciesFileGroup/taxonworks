@@ -1,7 +1,6 @@
 class SerialsController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :require_sign_in
   before_action :set_serial, only: [:show, :edit, :update, :destroy]
 
   # GET /serials
@@ -113,7 +112,7 @@ class SerialsController < ApplicationController
     send_data(
       Export::Download.generate_csv(Serial.all),
       type: 'text',
-      filename: "serials_#{DateTime.now}.csv")
+      filename: "serials_#{DateTime.now}.tsv")
   end
 
   private

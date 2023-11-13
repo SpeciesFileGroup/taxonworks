@@ -9,14 +9,13 @@
 </template>
 
 <script setup>
-
 import { useStore } from 'vuex'
 import { computed, ref, onUnmounted } from 'vue'
 import { GetterNames } from '../../../store/getters/getters'
 import { MutationNames } from '../../../store/mutations/mutations'
 import { ActionNames } from '../../../store/actions/actions'
 import CatalogNumberTable from './CatalogNumberTable.vue'
-import VSwitch from 'components/switch.vue'
+import VSwitch from '@/components/switch.vue'
 import CatalogNumberDefaultTable from './CatalogNumberDefaultTable.vue'
 
 const TABS = {
@@ -31,7 +30,7 @@ const tabSelected = ref(TABS.primaryMapping)
 const settings = computed({
   get: () => store.getters[GetterNames.GetSettings],
 
-  set: value => store.commit(MutationNames.SetSettings, value)
+  set: (value) => store.commit(MutationNames.SetSettings, value)
 })
 
 const reloadDataset = () => {
@@ -47,5 +46,4 @@ onUnmounted(() => {
 })
 
 store.dispatch(ActionNames.LoadDataset, dataset.value.id)
-
 </script>

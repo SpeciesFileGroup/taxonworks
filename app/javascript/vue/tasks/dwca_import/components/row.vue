@@ -3,24 +3,26 @@
     <td>
       <browse-button
         v-if="isImported"
-        :row="row"/>
+        :row="row"
+      />
       <import-row
         v-else
-        :row="row"/>
+        :row="row"
+      />
     </td>
-    <import-row-state :row="row"/>
+    <import-row-state :row="row" />
     <cell-component
       v-for="(data_field, index) in tableHeaders"
       :key="index"
       :cell="row.data_fields[index]"
       :cell-index="index"
-      :disabled="isProcessing"
-      @update="updateRecord"/>
+      :disabled="isProcessing || isImported"
+      @update="updateRecord"
+    />
   </tr>
 </template>
 
 <script>
-
 import ImportRowState from './ImportRowState'
 import CellComponent from './Cell'
 import ImportRow from './ImportRow'
@@ -44,27 +46,32 @@ export default {
   },
   computed: {
     selectedIds: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetSelectedRowIds]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetSelectedRowIds, value)
       }
     },
-    isImported () {
+    isImported() {
       return this.row.status === 'Imported'
     },
-    isProcessing () {
+    isProcessing() {
       return this.$store.getters[GetterNames.GetSettings].isProcessing
     },
-    tableHeaders () {
-      const { metadata: { core_headers: headers } } = this.$store.getters[GetterNames.GetDataset]
+    tableHeaders() {
+      const {
+        metadata: { core_headers: headers }
+      } = this.$store.getters[GetterNames.GetDataset]
       return headers
     }
   },
   methods: {
-    updateRecord (data) {
-      this.$store.dispatch(ActionNames.UpdateRow, { rowId: this.row.id, data_fields: JSON.stringify(data) })
+    updateRecord(data) {
+      this.$store.dispatch(ActionNames.UpdateRow, {
+        rowId: this.row.id,
+        data_fields: JSON.stringify(data)
+      })
     }
   }
 }

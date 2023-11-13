@@ -45,8 +45,9 @@
                 :url="url"
                 :metadata="metadata"
                 :global-id="globalId"
+                :object-id="metadata.object_id"
                 :object-type="metadata.object_type"
-                @updateCount="setTotal"
+                @update-count="setTotal"
                 @close="closeModal"
               />
             </div>
@@ -56,7 +57,6 @@
       <VBtn
         v-if="showBottom"
         :title="buttonTitle"
-        class="circle-button"
         color="radial"
         circle
         :disabled="disabled"
@@ -78,11 +78,11 @@
   </div>
 </template>
 <script>
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import ModalComponent from 'components/ui/Modal.vue'
-import SpinnerComponent from 'components/spinner.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import ModalComponent from '@/components/ui/Modal.vue'
+import SpinnerComponent from '@/components/spinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 import CRUD from './request/crud'
 
@@ -96,11 +96,12 @@ import taxon_determinationsAnnotator from './components/taxon_determinations/tax
 import observation_matricesAnnotator from './components/observation_matrices/main.vue'
 import collecting_eventAnnotator from './components/collecting_event/main.vue'
 import origin_relationshipsAnnotator from './components/origin_relationship/main'
+import depictionsAnnotator from './components/depictions/Depictions.vue'
 import extractsAnnotator from './components/extract/Main.vue'
 import shortcutsMixin from '../mixins/shortcuts'
 
 import Icons from './images/icons.js'
-import { Tag } from 'routes/endpoints'
+import { Tag } from '@/routes/endpoints'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
@@ -124,6 +125,7 @@ export default {
     observation_matricesAnnotator,
     collecting_eventAnnotator,
     origin_relationshipsAnnotator,
+    depictionsAnnotator,
     VBtn,
     VIcon
   },

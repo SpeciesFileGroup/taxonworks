@@ -40,7 +40,7 @@
   </transition-group>
 </template>
 <script>
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import CitationsCount from './citationsCount'
 
 export default {

@@ -1,7 +1,6 @@
 class LoansController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :require_sign_in_and_project_selection
   before_action :set_loan, only: [:show, :edit, :update, :destroy, :recipient_form]
 
   after_action -> { set_pagination_headers(:loans) }, only: [:index], if: :json_request?
@@ -36,7 +35,8 @@ class LoansController < ApplicationController
 
   # GET /loans/new
   def new
-    @loan = Loan.new(params.permit(:clone_from))
+    redirect_to edit_loan_task_path
+    # @loan = Loan.new(params.permit(:clone_from))
   end
 
   # GET /loans/1/edit
@@ -66,7 +66,7 @@ class LoansController < ApplicationController
 
   def attributes
     render json: ::Loan.columns.select{
-      |a| Queries::Loan::Filter::ATTRIBUTES.include?(
+      |a| ::Queries::Loan::Filter::ATTRIBUTES.include?(
         a.name.to_sym)
     }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
@@ -110,12 +110,12 @@ class LoansController < ApplicationController
   end
 
   def autocomplete
-    @loans = Queries::Loan::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
+    @loans = ::Queries::Loan::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
   end
 
   # GET /loans/download
   def download
-    send_data Export::Download.generate_csv(Loan.where(project_id: sessions_current_project_id)), type: 'text', filename: "loans_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Loan.where(project_id: sessions_current_project_id)), type: 'text', filename: "loans_#{DateTime.now}.tsv"
   end
 
   # GET /loans/select_options

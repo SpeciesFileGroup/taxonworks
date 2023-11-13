@@ -46,6 +46,7 @@ import saveLabel from './saveLabel'
 import saveTypeMaterial from './saveTypeMaterial'
 import saveBiologicalAssociations from './saveBiologicalAssociations'
 import updateLayoutPreferences from './updateLayoutPreferences'
+import updateLastChange from './updateLastChange'
 
 const ActionFunctions = {
   [ActionNames.AddToContainer]: addToContainer,
@@ -93,10 +94,8 @@ const ActionFunctions = {
   [ActionNames.LoadSoftValidations]: loadSoftValidations,
   [ActionNames.LoadBiologicalAssociations]: loadBiologicalAssociations,
   [ActionNames.LoadGeoreferences]: loadGeoreferences,
-  [ActionNames.UpdateLayoutPreferences]: updateLayoutPreferences
+  [ActionNames.UpdateLayoutPreferences]: updateLayoutPreferences,
+  [ActionNames.UpdateLastChange]: updateLastChange
 }
 
-export {
-  ActionNames,
-  ActionFunctions
-}
+export { ActionNames, ActionFunctions }

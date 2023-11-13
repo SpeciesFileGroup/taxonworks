@@ -247,6 +247,18 @@ module Queries
         ::Extract.from('(' + s + ') as extracts')
       end
 
+
+      def observation_query_facet
+        return nil if observation_query.nil?
+        s = 'WITH query_obs_extracts AS (' + observation_query.all.to_sql + ') ' +
+            ::Extract
+              .joins(:observations)
+              .joins('JOIN query_obs_extracts as query_obs_extracts1 on observations.id = query_obs_extracts1.id')
+              .to_sql
+
+        ::Extract.from('(' + s + ') as extracts').distinct
+      end
+
       # @return [Array]
       def and_clauses
         [
@@ -259,6 +271,7 @@ module Queries
 
       def merge_clauses
         [
+          observation_query_facet,
           collection_object_query_facet,
           otu_query_facet,
 

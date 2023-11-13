@@ -1,12 +1,16 @@
 <template>
   <tr>
     <td>
-      <BiologicalAssociationRelated :biological-associations="relatedSubject" />
+      <BiologicalAssociationRelated
+        :item-id="row.subjectId"
+        :item-type="row.subjectType"
+        :current="row"
+      />
     </td>
     <td v-html="row.subjectOrder" />
     <td v-html="row.subjectFamily" />
     <td v-html="row.subjectGenus" />
-    <td v-html="row.subjectLabel" />
+    <td v-html="row.subjectTag" />
     <td>
       <a
         :href="`/biological_associations/${row.id}`"
@@ -25,12 +29,16 @@
     </td>
 
     <td>
-      <BiologicalAssociationRelated :biological-associations="relatedObject" />
+      <BiologicalAssociationRelated
+        :item-id="row.objectId"
+        :item-type="row.objectType"
+        :current="row"
+      />
     </td>
     <td v-html="row.objectOrder" />
     <td v-html="row.objectFamily" />
     <td v-html="row.objectGenus" />
-    <td v-html="row.objectLabel" />
+    <td v-html="row.objectTag" />
     <td>
       <template
         v-for="(citation, index) in row.citations"
@@ -48,12 +56,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { useStore } from 'vuex'
-import { GetterNames } from '../../store/getters/getters'
 import BiologicalAssociationRelated from './BiologicalAssociationRelated.vue'
 
-const props = defineProps({
+defineProps({
   row: {
     type: Object,
     required: true
@@ -61,18 +67,4 @@ const props = defineProps({
 })
 
 const store = useStore()
-
-const relatedSubject = computed(() =>
-  store.getters[GetterNames.GetRelatedBiologicalAssociations]({
-    id: props.row.subjectId,
-    type: props.row.subjectType
-  }).filter((item) => item.id !== props.row.id)
-)
-
-const relatedObject = computed(() =>
-  store.getters[GetterNames.GetRelatedBiologicalAssociations]({
-    id: props.row.objectId,
-    type: props.row.objectType
-  }).filter((item) => item.id !== props.row.id)
-)
 </script>

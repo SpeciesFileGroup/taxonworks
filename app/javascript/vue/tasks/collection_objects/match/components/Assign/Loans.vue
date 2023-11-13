@@ -18,7 +18,8 @@
         type="button"
         class="button normal-input button-submit"
         :disabled="!validateFields"
-        @click="CreateLoanItems">
+        @click="CreateLoanItems"
+      >
         Create
       </button>
     </div>
@@ -26,10 +27,9 @@
 </template>
 
 <script>
-
-import { Loan } from 'routes/endpoints'
-import SmartSelector from 'components/ui/SmartSelector'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import { Loan } from '@/routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 export default {
   components: {
@@ -45,34 +45,39 @@ export default {
   },
 
   computed: {
-    loanLabel () {
+    loanLabel() {
       if (!this.loan) return
       return this.loan?.object_tag || this.loan.html_label
     },
-    validateFields () {
+    validateFields() {
       return this.ids.length
     }
   },
 
-  data () {
+  data() {
     return {
       loan: undefined
     }
   },
   methods: {
-    setLoan (loan) {
+    setLoan(loan) {
       this.loan = loan
     },
 
-    CreateLoanItems () {
-      const loan_items_attributes = this.ids.map(id => ({
+    CreateLoanItems() {
+      const loan_items_attributes = this.ids.map((id) => ({
         loan_item_object_id: id,
         loan_item_object_type: 'CollectionObject'
       }))
 
-      Loan.update(this.loan.id, { loan: { loan_items_attributes } }).then(_ => {
-        TW.workbench.alert.create('Loan items was successfully created.', 'notice')
-      })
+      Loan.update(this.loan.id, { loan: { loan_items_attributes } }).then(
+        (_) => {
+          TW.workbench.alert.create(
+            'Loan items was successfully created.',
+            'notice'
+          )
+        }
+      )
     }
   }
 }

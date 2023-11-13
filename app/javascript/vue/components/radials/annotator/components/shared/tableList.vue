@@ -5,6 +5,7 @@
         <tr>
           <th
             v-for="item in header"
+            :key="item.id"
             v-html="item"
           />
         </tr>
@@ -21,25 +22,39 @@
           <td
             v-for="attr in attributes"
             v-html="getValue(item, attr)"
+            :key="attr"
           />
           <td>
-            <div class="vue-table-options">
+            <div class="horizontal-right-content gap-small">
               <citations-count
                 :target="targetCitations"
                 :object="item"
               />
-              <radial-annotator :global-id="item.global_id" />
-              <span
+              <RadialAnnotator :global-id="item.global_id" />
+
+              <VBtn
                 v-if="edit"
-                class="circle-button btn-edit"
-                @click="emit('edit', Object.assign({}, item))"
-              />
-              <span
+                circle
+                color="update"
+                @click="$emit('edit', Object.assign({}, item))"
+              >
+                <VIcon
+                  name="pencil"
+                  x-small
+                />
+              </VBtn>
+
+              <VBtn
                 v-if="destroy"
-                class="circle-button btn-delete"
+                circle
+                color="destroy"
                 @click="deleteItem(item)"
-                >Remove
-              </span>
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
             </div>
           </td>
         </tr>
@@ -48,15 +63,15 @@
   </div>
 </template>
 <script setup>
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import CitationsCount from './citationsCount.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 defineProps({
   list: {
     type: Array,
-    default: () => {
-      return []
-    }
+    default: () => []
   },
   attributes: {
     type: Array,
@@ -64,9 +79,7 @@ defineProps({
   },
   header: {
     type: Array,
-    default: () => {
-      return []
-    }
+    default: () => []
   },
   destroy: {
     type: Boolean,
@@ -118,33 +131,3 @@ function deleteItem(item) {
   }
 }
 </script>
-<style lang="scss" scoped>
-.vue-table-container-shared {
-  padding: 0px;
-  position: relative;
-}
-
-.vue-table {
-  width: 100%;
-  .vue-table-options {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-  }
-  tr {
-    cursor: default;
-  }
-}
-
-.list-complete-item {
-  justify-content: space-between;
-  transition: all 0.5s, opacity 0.2s;
-}
-
-.list-complete-enter-active,
-.list-complete-leave-active {
-  opacity: 0;
-  font-size: 0px;
-  border: none;
-}
-</style>

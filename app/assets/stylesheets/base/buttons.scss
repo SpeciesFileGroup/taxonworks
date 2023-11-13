@@ -110,7 +110,6 @@
   background-size: 10px !important;
 }
 .circle-button {
-  @extend .circle-button-margin;
   border-radius: 50%;
   display: block;
   width: 24px;
@@ -248,11 +247,6 @@
 .btn-add-to-project {
   background-size: 14px, 16px;
   background-image: image-url('addtoproject.svg');
-}
-
-.btn-remove-from-project {
-  background-size: 14px, 16px;
-  background-image: image-url('removefromproject.svg');
 }
 
 .btn-create-child {

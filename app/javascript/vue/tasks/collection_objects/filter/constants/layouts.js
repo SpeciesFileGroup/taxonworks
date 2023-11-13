@@ -5,7 +5,7 @@ import {
   REPOSITORY_PROPERTIES,
   TAXON_DETERMINATION_PROPERTIES,
   IDENTIFIER_PROPERTIES
-} from 'shared/Filter/constants'
+} from '@/shared/Filter/constants'
 
 export const LAYOUTS = {
   All: {
@@ -48,7 +48,7 @@ export const LAYOUTS = {
 
   CollectingEvent: {
     properties: {
-      collecting_event: COLLECTING_EVENT_PROPERTIES,
+      collecting_event: COLLECTING_EVENT_PROPERTIES
     },
     includes: {}
   },
@@ -62,6 +62,28 @@ export const LAYOUTS = {
         'order',
         'family'
       ]
+    },
+    includes: {}
+  },
+
+  TaxonNames: {
+    properties: {
+      collection_object: ['buffered_determinations'],
+      dwc_occurrence: [
+        'scientificName',
+        'scientificNameAuthorship',
+        'taxonRank',
+        'phylum',
+        'dwcClass',
+        'order',
+        'family',
+        'genus',
+        'specificEpithet',
+        'infraspecificEpithet',
+        'previousIdentifications',
+        'higherClassification'
+      ],
+      taxon_determinations: TAXON_DETERMINATION_PROPERTIES
     },
     includes: {}
   },
@@ -176,8 +198,8 @@ export const LAYOUTS = {
       collection_object: [
         'accessioned_at',
         'deaccessioned_at',
-        'deaccession_reason',
-      ],
+        'deaccession_reason'
+      ]
     },
     includes: {}
   },
@@ -207,7 +229,14 @@ export const LAYOUTS = {
     properties: {
       collection_object: ['buffered_determinations'],
       collecting_event: ['verbatim_collectors'],
-      dwc_occurrence: ['recordedBy', 'recordedByID', 'identifiedBy', 'identifiedByID', 'scientificNameAuthorship', 'georeferencedBy'],
+      dwc_occurrence: [
+        'recordedBy',
+        'recordedByID',
+        'identifiedBy',
+        'identifiedByID',
+        'scientificNameAuthorship',
+        'georeferencedBy'
+      ]
     },
     includes: {}
   },
@@ -229,11 +258,9 @@ export const LAYOUTS = {
   },
 
   DataAttributes: {
-    properties: {
-    },
+    properties: {},
     includes: {
       data_attributes: true
     }
-  },
-
+  }
 }

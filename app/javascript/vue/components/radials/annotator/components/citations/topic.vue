@@ -44,8 +44,8 @@
 
 <script setup>
 import { onBeforeMount, ref } from 'vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import { ControlledVocabularyTerm } from 'routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
 
 const props = defineProps({
   globalId: {

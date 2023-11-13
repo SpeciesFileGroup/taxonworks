@@ -6,7 +6,9 @@
           <th class="word-keep-all line-nowrap">Georeference ID</th>
           <th class="word-keep-all">Shape</th>
           <th class="word-keep-all">Coordinates</th>
+          <th class="word-keep-all">Has error polygon</th>
           <th class="word-keep-all line-nowrap">Error radius</th>
+          <th class="word-keep-all">Inferred error radius</th>
           <th class="word-keep-all">Type</th>
           <th class="word-keep-all">Date</th>
           <th />
@@ -24,12 +26,14 @@
           <td>{{ item.id }}</td>
           <td class="word-keep-all">{{ item.geo_json.geometry.type }}</td>
           <td>{{ getCoordinates(item.geo_json.geometry.coordinates) }}</td>
+          <td>{{ item.has_error_polygon ? 'Yes' : 'No' }}</td>
           <td class="line-nowrap">
             <edit-in-place
               v-model="item.error_radius"
               @end="emit('updateGeo', item)"
             />
           </td>
+          <td>{{ item.inferred_error_radius }}</td>
           <td class="word-keep-all">{{ item.type }}</td>
           <td>
             <div class="horizontal-left-content">
@@ -50,7 +54,7 @@
             </div>
           </td>
           <td>
-            <div class="horizontal-right-content">
+            <div class="horizontal-right-content gap-small">
               <radial-annotator :global-id="item.global_id" />
               <v-btn
                 color="destroy"
@@ -71,12 +75,12 @@
 </template>
 
 <script setup>
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import EditInPlace from 'components/editInPlace'
-import DateComponent from 'components/ui/Date/DateFields.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import { convertToLatLongOrder } from 'helpers/geojson.js'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import EditInPlace from '@/components/editInPlace'
+import DateComponent from '@/components/ui/Date/DateFields.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { convertToLatLongOrder } from '@/helpers/geojson.js'
 
 const props = defineProps({
   list: {

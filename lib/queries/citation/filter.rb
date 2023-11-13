@@ -14,7 +14,7 @@ module Queries
         :citation_object_type,
         :source_id,
         :is_original,
-        citation_id: [],
+        role_id: [],
         citation_object_id: [],
         citation_object_type: [],
       ].freeze

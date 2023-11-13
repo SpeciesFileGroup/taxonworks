@@ -3,7 +3,9 @@
     <h3>Preparation</h3>
     <div class="flex-separate align-start">
       <template
-        v-for="(itemsGroup, index) in preparationTypes.chunk(Math.ceil(preparationTypes.length/2))"
+        v-for="(itemsGroup, index) in preparationTypes.chunk(
+          Math.ceil(preparationTypes.length / 2)
+        )"
         :key="index"
       >
         <ul class="no_bullets">
@@ -17,7 +19,7 @@
                 :value="type.id"
                 v-model="selectedTypes"
                 name="collection-object-type"
-              >
+              />
               {{ type.name }}
             </label>
           </li>
@@ -29,10 +31,10 @@
 
 <script setup>
 import { computed, ref, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { sortArray } from 'helpers/arrays'
-import { PreparationType } from 'routes/endpoints'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { sortArray } from '@/helpers/arrays'
+import { PreparationType } from '@/routes/endpoints'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {
@@ -45,12 +47,14 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const selectedTypes = computed({
   get: () => props.modelValue.preparation_type_id || [],
-  set: value => { params.value.preparation_type_id = value }
+  set: (value) => {
+    params.value.preparation_type_id = value
+  }
 })
 
 const preparationTypes = ref([])

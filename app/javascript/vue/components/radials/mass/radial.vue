@@ -48,7 +48,7 @@
       </VModal>
       <VBtn
         class="circle-button"
-        title="Radial massive annoator"
+        title="Radial mass annoator"
         circle
         color="radial"
         :disabled="!ids.length"
@@ -56,7 +56,7 @@
       >
         <VIcon
           name="radialMassAnnotator"
-          title="Radial massive annoator"
+          title="Radial mass annoator"
           x-small
         />
       </VBtn>
@@ -65,15 +65,15 @@
 </template>
 
 <script setup>
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import VModal from 'components/ui/Modal.vue'
-import VSpinner from 'components/spinner.vue'
-import Icons from 'components/radials/annotator/images/icons.js'
-import VIcon from 'components/ui/VIcon/index.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import { RadialAnnotatorEventEmitter } from 'utils/index.js'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VSpinner from '@/components/spinner.vue'
+import Icons from '@/components/radials/annotator/images/icons.js'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { RadialAnnotatorEventEmitter } from '@/utils/index.js'
 import { ANNOTATORS } from './constants/annotators.js'
-import { Metadata, Tag } from 'routes/endpoints'
+import { Metadata, Tag } from '@/routes/endpoints'
 import { computed, ref, onBeforeMount } from 'vue'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'

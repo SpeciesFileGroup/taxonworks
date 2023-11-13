@@ -1,15 +1,16 @@
 <template>
   <div
     v-if="validationSections.length"
-    class="panel content soft-validation-box validation-warning">
+    class="panel content soft-validation-box validation-warning"
+  >
     <div class="header flex-separate">
       <h3>Soft Validation</h3>
     </div>
-    <div
-      class="body overflow-y-auto">
+    <div class="body overflow-y-auto">
       <template
         v-for="(section, index) in validationSections"
-        :key="index">
+        :key="index"
+      >
         <div>
           <h3>
             <span v-if="section.title">{{ section.title }}</span>
@@ -17,39 +18,52 @@
               v-if="getFixPresent(section.list).length"
               type="button"
               class="button button-submit margin-small-left"
-              @click="runFix(getFixPresent(section.list))">
+              @click="runFix(getFixPresent(section.list))"
+            >
               <span>Fix all</span>
             </button>
           </h3>
           <ul
             v-for="list in section.list"
-            class="no_bullets">
+            class="no_bullets"
+          >
             <li
               class="horizontal-left-content align-start"
               v-for="(error, index) in list.soft_validations"
-              :key="index">
+              :key="index"
+            >
               <tippy
                 animation="scale"
                 placement="bottom"
                 size="small"
                 inertia
                 arrow
-                :content="error.description">
-                <span data-icon="warning"/>
+                :content="error.description"
+              >
+                <span data-icon="warning" />
               </tippy>
               <span>
                 <button
                   v-if="error.fixable"
                   type="button"
                   class="button button-submit"
-                  @click="runFix([{ global_id: list.instance.global_id, only_methods: [error.soft_validation_method] }])">
+                  @click="
+                    runFix([
+                      {
+                        global_id: list.instance.global_id,
+                        only_methods: [error.soft_validation_method]
+                      }
+                    ])
+                  "
+                >
                   Fix
                 </button>
                 <span>
                   <span v-html="error.message" />
                   <template
                     v-for="(resolution, rIndex) in error.resolution"
-                    :key="rIndex">
+                    :key="rIndex"
+                  >
                     <tippy
                       class="d-inline-block"
                       animation="scale"
@@ -57,7 +71,8 @@
                       size="small"
                       inertia
                       arrow
-                      content="Fixable here (may leave page)">
+                      content="Fixable here (may leave page)"
+                    >
                       <a :href="resolution">
                         <span
                           class="small-icon icon-without-space"
@@ -70,7 +85,7 @@
               </span>
             </li>
           </ul>
-          <hr v-if="index !== (validationSections.length-1)">
+          <hr v-if="index !== validationSections.length - 1" />
         </div>
       </template>
     </div>
@@ -78,8 +93,7 @@
 </template>
 
 <script>
-
-import { SoftValidation } from 'routes/endpoints'
+import { SoftValidation } from '@/routes/endpoints'
 import { Tippy } from 'vue-tippy'
 
 export default {
@@ -93,71 +107,77 @@ export default {
   },
 
   computed: {
-    validationSections () {
-      return Object.values(this.validations).filter(item => item.list.length)
+    validationSections() {
+      return Object.values(this.validations).filter((item) => item.list.length)
     }
   },
 
   methods: {
-    runFix (fixItems) {
-      const promises = fixItems.map(params => SoftValidation.fix(params.global_id, params))
+    runFix(fixItems) {
+      const promises = fixItems.map((params) =>
+        SoftValidation.fix(params.global_id, params)
+      )
 
-      Promise.all(promises).then(responses => {
-        const softValidations = responses.map(r => r.body.soft_validations)
-        const notFixed = [].concat(...softValidations).filter(validation => validation.fixed === 'fix_error')
+      Promise.all(promises).then((responses) => {
+        const softValidations = responses.map((r) => r.body.soft_validations)
+        const notFixed = []
+          .concat(...softValidations)
+          .filter((validation) => validation.fixed === 'fix_error')
 
         if (notFixed.length) {
-          TW.workbench.alert.create(notFixed.map(f => f.failure_message).join('; '), 'error')
+          TW.workbench.alert.create(
+            notFixed.map((f) => f.failure_message).join('; '),
+            'error'
+          )
         } else {
           location.reload()
         }
       })
     },
 
-    getFixPresent (list) {
-      return list.map(item =>
-        ({
+    getFixPresent(list) {
+      return list
+        .map((item) => ({
           global_id: item.instance.global_id,
           only_methods: item.soft_validations
-            .filter(v => v.fixable)
-            .map(item => item.soft_validation_method)
+            .filter((v) => v.fixable)
+            .map((item) => item.soft_validation_method)
         }))
-        .filter(item => item.only_methods.length)
+        .filter((item) => item.only_methods.length)
     }
   }
 }
 </script>
 <style lang="scss" scope>
-  .soft-validation-box.validation-warning {
-    border-left: 4px solid #ff8c00;
+.soft-validation-box.validation-warning {
+  border-left: 4px solid #ff8c00;
+}
+.soft-validation-box {
+  background-color: #fff9f9;
+  .body {
+    padding: 12px;
   }
-  .soft-validation-box {
-    background-color: #FFF9F9;
-    .body {
-      padding: 12px;
-    }
-    .header {
-      padding-left: 12px;
-      padding-right: 12px;
-    }
-    ul {
-      margin: 0px;
-      padding: 0px;
-    }
-    li {
-      margin-top: 12px;
-    }
-    li:first-letter {
-      text-transform: capitalize;
-    }
-    hr {
-        height: 1px;
-        color: #f5f5f5;
-        background: #f5f5f5;
-        font-size: 0;
-        margin: 15px;
-        border: 0;
-    }
+  .header {
+    padding-left: 12px;
+    padding-right: 12px;
   }
-
+  ul {
+    margin: 0px;
+    padding: 0px;
+  }
+  li {
+    margin-top: 12px;
+  }
+  li:first-letter {
+    text-transform: capitalize;
+  }
+  hr {
+    height: 1px;
+    color: #f5f5f5;
+    background: #f5f5f5;
+    font-size: 0;
+    margin: 15px;
+    border: 0;
+  }
+}
 </style>

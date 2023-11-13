@@ -25,13 +25,13 @@ module AnnotationsHelper
   # @return [String]
   # Assumes the context is the object, not a multi-object summary
   def annotations_summary_tag(object)
-    v = [citation_list_tag(object),
+    v = [confidence_list_tag(object),
+         citation_list_tag(object),
          identifier_list_tag(object),
          data_attribute_list_tag(object),
          note_list_tag(object),
          tag_list_tag(object),
          alternate_values_list_tag(object),
-         confidence_list_tag(object),
          attribution_list_tag(object)
     ].compact
 

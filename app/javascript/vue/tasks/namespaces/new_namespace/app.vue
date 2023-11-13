@@ -5,7 +5,8 @@
       <div class="flex-separate middle">
         <a
           v-if="namespace.id"
-          :href="`/namespaces/${namespace.id}`">
+          :href="`/namespaces/${namespace.id}`"
+        >
           {{ getPreview }}
         </a>
         <span v-else>{{ getPreview }}</span>
@@ -19,11 +20,13 @@
           <namespace-save
             class="margin-small-right"
             :namespace="namespace"
-            @onSave="setNamespace"/>
+            @onSave="setNamespace"
+          />
           <v-btn
             color="primary"
             medium
-            @click="resetForm">
+            @click="resetForm"
+          >
             New
           </v-btn>
         </div>
@@ -50,18 +53,17 @@
 </template>
 
 <script setup>
-
 import { ref, computed, onBeforeMount } from 'vue'
-import { Namespace } from 'routes/endpoints'
-import { RouteNames } from 'routes/routes'
+import { Namespace } from '@/routes/endpoints'
+import { RouteNames } from '@/routes/routes'
 import NamespaceForm from './components/Namespace/NamespaceForm.vue'
 import NamespaceMatch from './components/Namespace/NamespaceMatch.vue'
 import NamespaceSave from './components/Namespace/NamespaceSave.vue'
-import BlockLayout from 'components/layout/BlockLayout'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VPin from 'components/ui/Pinboard/VPin.vue'
-import VNavbar from 'components/layout/NavBar.vue'
-import SetParam from 'helpers/setParam'
+import BlockLayout from '@/components/layout/BlockLayout'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VPin from '@/components/ui/Pinboard/VPin.vue'
+import VNavbar from '@/components/layout/NavBar.vue'
+import SetParam from '@/helpers/setParam'
 import makeNamespace from './const/namespace.js'
 import Types from './const/types.js'
 
@@ -98,25 +100,26 @@ const setNamespace = (value) => {
   SetParam(RouteNames.NewNamespace, 'namespace_id', value.id)
 }
 
-const resetForm = () => { setNamespace(makeNamespace()) }
-
+const resetForm = () => {
+  setNamespace(makeNamespace())
+}
 </script>
 
 <script>
-  export default {
-    name: 'NewNamespace',
-  }
+export default {
+  name: 'NewNamespace'
+}
 </script>
 
 <style scoped lang="scss">
-  .namespace {
-    margin: 0 auto;
-    max-width: 1240px;
+.namespace {
+  margin: 0 auto;
+  max-width: 1240px;
 
-    &__layout {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1em;
-    }
+  &__layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1em;
   }
+}
 </style>

@@ -1,4 +1,4 @@
-import { SoftValidation } from 'routes/endpoints'
+import { SoftValidation } from '@/routes/endpoints'
 
 export default ({ state }, globalId) => {
   SoftValidation.find(globalId).then(({ body }) => {

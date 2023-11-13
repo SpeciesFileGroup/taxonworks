@@ -3,9 +3,9 @@ module Queries
     class Filter < Query::Filter
 
       # Params exists for all CollectingEvent attributes except these.
-      # collecting_event_id is excluded because we handle it specially in conjunction with `geographic_area_mode``
+      # geographic_area_id is excluded because we handle it specially in conjunction with `geographic_area_mode``
       # Definition must preceed include.
-      ATTRIBUTES = (::CollectingEvent.core_attributes - %w{geographic_area_id}).map(&:to_sym).freeze
+      ATTRIBUTES = (::CollectingEvent.core_attributes - %w{geographic_area_id} + %w(cached_level0_geographic_name cached_level1_geographic_name cached_level2_geographic_name)).map(&:to_sym).freeze
 
       include Queries::Concerns::Attributes
       include Queries::Concerns::Citations
@@ -35,6 +35,7 @@ module Queries
         :collection_objects,
         :collector_id,
         :collector_id_or,
+        :collecting_event_id,
         :determiner_name_regex,
         :geo_json,
         :geographic_area,
@@ -350,12 +351,12 @@ module Queries
 
       def otu_id_facet
         return nil if otu_id.empty?
-        ::CollectingEvent.joins(:otus).where(otus: {id: otu_id})
+        ::CollectingEvent.joins(:otus).where(otus: {id: otu_id}).distinct
       end
 
       def matching_collection_object_id
         return nil if collection_object_id.empty?
-        ::CollectingEvent.joins(:collection_objects).where(collection_objects: {id: collection_object_id})
+        ::CollectingEvent.joins(:collection_objects).where(collection_objects: {id: collection_object_id}).distinct
       end
 
       def collectors_facet

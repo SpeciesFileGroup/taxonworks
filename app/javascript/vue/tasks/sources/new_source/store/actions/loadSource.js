@@ -1,8 +1,8 @@
 import { ActionNames } from './actions'
 import { MutationNames } from '../mutations/mutations'
-import { Source } from 'routes/endpoints'
+import { Source } from '@/routes/endpoints'
 
-import setParam from 'helpers/setParam'
+import setParam from '@/helpers/setParam'
 
 export default ({ state, commit, dispatch }, id) => {
   dispatch(ActionNames.ResetSource)

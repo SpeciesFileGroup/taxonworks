@@ -29,6 +29,8 @@
     v-model="params"
     :exclude="['title', 'author', 'bibtex_type']"
   />
+  <FacetDataAttribute v-model="params" />
+  <FacetImportAttribute v-model="params" />
   <FacetUsers v-model="params" />
   <FacetSomeValue
     model="sources"
@@ -46,23 +48,25 @@
 
 <script setup>
 import { computed } from 'vue'
-import FacetTitle from 'components/Filter/Facets/Source/FacetTitle.vue'
-import FacetAuthors from 'components/Filter/Facets/Source/FacetAuthors.vue'
-import FacetDate from 'components/Filter/Facets/Source/FacetDate.vue'
-import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
-import FacetIdentifiers from 'components/Filter/Facets/shared/FacetIdentifiers.vue'
-import FacetCitationTypes from 'components/Filter/Facets/Source/FacetCitationTypes'
-import FacetSerials from 'components/Filter/Facets/Source/FacetSerials.vue'
-import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
-import FacetSourceType from 'components/Filter/Facets/Source/FacetSourceType'
-import FacetCitationTopics from 'components/Filter/Facets/Source/FacetCitationTopics'
-import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
-import FacetSomeValue from 'components/Filter/Facets/shared/FacetSomeValue.vue'
-import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
-import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
-import FacetBibtexType from 'components/Filter/Facets/Source/FacetBibtexType.vue'
-import CitationOnOtus from 'components/Filter/Facets/Source/CitationOnOtus.vue'
-import FacetByAttribute from 'components/Filter/Facets/shared/FacetByAttribute.vue'
+import FacetTitle from '@/components/Filter/Facets/Source/FacetTitle.vue'
+import FacetAuthors from '@/components/Filter/Facets/Source/FacetAuthors.vue'
+import FacetDate from '@/components/Filter/Facets/Source/FacetDate.vue'
+import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
+import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
+import FacetCitationTypes from '@/components/Filter/Facets/Source/FacetCitationTypes'
+import FacetSerials from '@/components/Filter/Facets/Source/FacetSerials.vue'
+import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
+import FacetSourceType from '@/components/Filter/Facets/Source/FacetSourceType'
+import FacetCitationTopics from '@/components/Filter/Facets/Source/FacetCitationTopics'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetSomeValue from '@/components/Filter/Facets/shared/FacetSomeValue.vue'
+import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
+import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
+import FacetBibtexType from '@/components/Filter/Facets/Source/FacetBibtexType.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
+import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
+import CitationOnOtus from '@/components/Filter/Facets/Source/CitationOnOtus.vue'
+import FacetByAttribute from '@/components/Filter/Facets/shared/FacetByAttribute.vue'
 
 const WITH_TITLES = {
   with_title: 'BibTeX title'

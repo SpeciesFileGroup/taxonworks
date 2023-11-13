@@ -120,7 +120,7 @@ class PeopleController < ApplicationController
 
   # GET /people/download
   def download
-    send_data Export::Download.generate_csv(Person.all), type: 'text', filename: "people_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Person.all), type: 'text', filename: "people_#{DateTime.now}.tsv"
   end
 
   # GET /people/123/roles

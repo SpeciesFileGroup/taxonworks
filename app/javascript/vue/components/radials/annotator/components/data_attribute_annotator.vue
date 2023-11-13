@@ -48,7 +48,7 @@
       </VBtn>
     </div>
     <TableList
-      :list="list"
+      :list="internalAttributes"
       :header="['Name', 'Value', '']"
       :attributes="['predicate_name', 'value']"
       edit
@@ -56,16 +56,32 @@
       @edit="setDataAttribute"
       @delete="removeItem"
     />
+
+    <div
+      v-if="importList.length"
+      class="margin-medium-top"
+    >
+      <h3>Import attributes</h3>
+      <TableList
+        :list="importList"
+        :header="['Name', 'Value', '']"
+        :attributes="['import_predicate', 'value']"
+        :destroy="false"
+      />
+    </div>
   </div>
 </template>
+
 <script>
-import { addToArray } from 'helpers/arrays.js'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
+import { IMPORT_ATTRIBUTE } from '@/constants'
+import { addToArray } from '@/helpers/arrays.js'
 import CRUD from '../request/crud.js'
 import AnnotatorExtend from '../components/annotatorExtend.js'
-import VBtn from 'components/ui/VBtn/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import TableList from './shared/tableList'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 export default {
   mixins: [CRUD, AnnotatorExtend],
@@ -80,6 +96,14 @@ export default {
   computed: {
     validateFields() {
       return this.predicate && this.value.length
+    },
+
+    importList() {
+      return this.list.filter((item) => item.base_class === IMPORT_ATTRIBUTE)
+    },
+
+    internalAttributes() {
+      return this.list.filter((item) => item.base_class !== IMPORT_ATTRIBUTE)
     }
   },
 
@@ -92,12 +116,10 @@ export default {
     }
   },
 
-  mounted() {
-    this.getList(`/controlled_vocabulary_terms.json?type[]=Predicate`).then(
-      (response) => {
-        this.all = response.body
-      }
-    )
+  created() {
+    ControlledVocabularyTerm.where({ type: ['Predicate'] }).then((response) => {
+      this.all = response.body
+    })
   },
 
   methods: {

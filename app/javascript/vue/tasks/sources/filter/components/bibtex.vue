@@ -1,15 +1,15 @@
 <template>
   <div>
     <spinner-component
-      :full-screen="true"
       v-if="isLoading"
+      full-screen
     />
     <slot :action="loadBibtex">
       <button
         type="button"
         class="button normal-input button-default"
         :disabled="
-          params.source_type != sourceType && params.source_type != undefined
+          params.source_type != SOURCE_BIBTEX && params.source_type != undefined
         "
         @click="loadBibtex"
       >
@@ -17,8 +17,8 @@
       </button>
     </slot>
     <modal-component
-      v-if="showModal"
-      @close="showModal = false"
+      v-if="isModalVisible"
+      @close="isModalVisible = false"
     >
       <template #header>
         <h3>Bibtex</h3>
@@ -34,7 +34,7 @@
           <button
             v-if="!links"
             type="button"
-            class="button normal-input button-default"
+            class="button normal-input button-default margin-small-right"
             @click="generateLinks"
           >
             Generate download
@@ -43,7 +43,7 @@
             <span>Share link:</span>
             <div class="middle">
               <pre class="margin-small-right">{{
-                links.api_file_url ? links.api_file_url : noApiMessage
+                links.api_file_url ? links.api_file_url : NO_API_MESSAGE
               }}</pre>
               <clipboard-button
                 v-if="links.api_file_url"
@@ -52,10 +52,10 @@
             </div>
           </template>
           <button
-            type="button"
-            @click="createDownloadLink()"
-            :disabled="!selectedList.length"
             class="button normal-input button-default"
+            type="button"
+            :disabled="!bibtex"
+            @click="downloadTextFile(bibtex, 'text/bib', 'source.bib')"
           >
             Download Bibtex
           </button>
@@ -65,109 +65,81 @@
   </div>
 </template>
 
-<script>
-import ModalComponent from 'components/ui/Modal'
-import SpinnerComponent from 'components/spinner'
-import ClipboardButton from 'components/clipboardButton'
-
+<script setup>
+import ModalComponent from '@/components/ui/Modal'
+import SpinnerComponent from '@/components/spinner'
+import ClipboardButton from '@/components/clipboardButton'
+import { SOURCE_BIBTEX } from '@/constants'
 import { GetBibtex, GetGenerateLinks } from '../request/resources'
+import { ref, watch, computed } from 'vue'
+import { downloadTextFile } from '@/helpers/files.js'
 
-export default {
-  components: {
-    ModalComponent,
-    SpinnerComponent,
-    ClipboardButton
+const NO_API_MESSAGE =
+  'To share your project administrator must create an API token.'
+
+const props = defineProps({
+  params: {
+    type: Object,
+    default: undefined
   },
 
-  props: {
-    params: {
-      type: Object,
-      default: undefined
-    },
-
-    pagination: {
-      type: Object,
-      default: undefined
-    },
-
-    selectedList: {
-      type: Array,
-      default: () => []
-    }
+  pagination: {
+    type: Object,
+    default: undefined
   },
 
-  data() {
-    return {
-      bibtex: undefined,
-      isLoading: false,
-      url: undefined,
-      showModal: false,
-      links: undefined,
-      sourceType: 'Source::Bibtex',
-      noApiMessage:
-        'To share your project administrator must create an API token.'
-    }
-  },
-
-  watch: {
-    params: {
-      handler() {
-        this.links = undefined
-      },
-      deep: true
-    }
-  },
-
-  methods: {
-    loadBibtex() {
-      this.showModal = true
-      this.isLoading = true
-      GetBibtex({
-        params: this.selectedList.length
-          ? { source_id: this.selectedList }
-          : this.params
-      }).then((response) => {
-        this.bibtex = response.body
-        this.isLoading = false
-      })
-    },
-
-    createDownloadLink() {
-      GetBibtex({
-        params: Object.assign(
-          this.selectedList.length
-            ? { source_id: this.selectedList }
-            : this.params,
-          { per: this.pagination.total }
-        ),
-        responseType: 'blob'
-      }).then(({ body }) => {
-        const downloadUrl = window.URL.createObjectURL(new Blob([body]))
-        const link = document.createElement('a')
-        link.href = downloadUrl
-        link.setAttribute('download', 'sources.bib')
-        document.body.appendChild(link)
-        link.click()
-        link.remove()
-      })
-    },
-
-    generateLinks() {
-      this.isLoading = true
-      GetGenerateLinks(
-        Object.assign(
-          {},
-          this.selectedList.length
-            ? { source_id: this.selectedList }
-            : this.params,
-          { is_public: true }
-        )
-      ).then((response) => {
-        this.links = response.body
-        this.isLoading = false
-      })
-    }
+  selectedList: {
+    type: Array,
+    default: () => []
   }
+})
+
+const isModalVisible = ref(false)
+const links = ref()
+const isLoading = ref(false)
+const bibtex = ref()
+
+watch(
+  [() => props.params, () => props.selectedList],
+  () => {
+    links.value = undefined
+  },
+  {
+    deep: true
+  }
+)
+
+const payload = computed(() =>
+  Object.assign(
+    {},
+    props.selectedList.length
+      ? { source_id: props.selectedList }
+      : props.params,
+    {
+      per: props.pagination.total
+    }
+  )
+)
+
+function loadBibtex() {
+  isModalVisible.value = true
+  isLoading.value = true
+
+  GetBibtex(payload.value)
+    .then(({ body }) => {
+      bibtex.value = body
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
+}
+
+function generateLinks() {
+  isLoading.value = true
+  GetGenerateLinks({ ...payload.value, is_public: true }).then((response) => {
+    links.value = response.body
+    isLoading.value = false
+  })
 }
 </script>
 <style scoped>

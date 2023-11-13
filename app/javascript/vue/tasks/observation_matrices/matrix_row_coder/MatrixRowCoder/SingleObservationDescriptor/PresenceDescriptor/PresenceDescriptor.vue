@@ -2,9 +2,10 @@
   <div class="presence-descriptor">
     <summary-view
       :descriptor="descriptor"
-      :index="index">
-      <div class="horizontal-left-content middle">
-        <div class="margin-small-right">
+      :index="index"
+    >
+      <div class="horizontal-left-content middle gap-small">
+        <div>
           <ul class="no_bullets">
             <li>
               <label>
@@ -13,18 +14,21 @@
                   type="radio"
                   :value="isPresent"
                   :checked="isPresent === undefined"
-                  @click="removeObservation">
+                  @click="removeObservation"
+                />
                 Not specified
               </label>
             </li>
             <li
               v-for="(value, key) in presenceOptions"
-              :key="key">
+              :key="key"
+            >
               <label>
                 <input
                   type="radio"
                   v-model="isPresent"
-                  :value="value" >
+                  :value="value"
+                />
                 {{ key }}
               </label>
             </li>
@@ -32,7 +36,8 @@
         </div>
         <radial-annotator
           v-if="observationExist"
-          :global-id="observation.global_id"/>
+          :global-id="observation.global_id"
+        />
       </div>
     </summary-view>
   </div>
@@ -48,8 +53,13 @@ import { MutationNames } from '../../../store/mutations/mutations'
 export default {
   mixins: [SingleObservationDescriptor],
   name: 'PresenceDescriptor',
-  props: ['index'],
-  data () {
+  props: {
+    index: {
+      type: Number,
+      required: true
+    }
+  },
+  data() {
     return {
       presenceOptions: {
         Presence: true,
@@ -59,16 +69,18 @@ export default {
   },
   computed: {
     isPresent: {
-      get () {
-        return this.$store.getters[GetterNames.GetPresenceFor](this.$props.descriptor.id)
+      get() {
+        return this.$store.getters[GetterNames.GetPresenceFor](
+          this.$props.descriptor.id
+        )
       },
-      set (value) {
+      set(value) {
         this.updatePresence(value)
       }
     }
   },
   methods: {
-    updatePresence (presenceValue) {
+    updatePresence(presenceValue) {
       this.$store.commit(MutationNames.SetPresence, {
         descriptorId: this.$props.descriptor.id,
         isChecked: presenceValue

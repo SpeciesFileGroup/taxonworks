@@ -34,7 +34,7 @@
     <modal-component
       v-if="isVisible"
       @close="isVisible = false"
-      :container-style="{ width: '500px'}"
+      :container-style="{ width: '500px' }"
     >
       <template #header>
         <h3>Navigate</h3>
@@ -50,7 +50,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="key in Object.keys(navigate.previous_by || navigate.next_by)"
+              v-for="key in Object.keys(
+                navigate.previous_by || navigate.next_by
+              )"
               :key="key"
             >
               <td>
@@ -82,23 +84,31 @@
 </template>
 
 <script setup>
-
 import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import { GetterNames } from '../store/getters/getters'
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 import loadCO from '../utils/loadCO.js'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const store = useStore()
 const navigate = computed(() => store.getters[GetterNames.GetNavigation])
-const collectionObject = computed(() => store.getters[GetterNames.GetCollectionObject])
+const collectionObject = computed(
+  () => store.getters[GetterNames.GetCollectionObject]
+)
 const currentNavigation = ref('identifier')
 
-const previousByCurrent = computed(() => navigate.value?.previous_by && navigate.value.previous_by[currentNavigation.value])
-const nextByCurrent = computed(() => navigate.value?.previous_by && navigate.value.next_by[currentNavigation.value])
+const previousByCurrent = computed(
+  () =>
+    navigate.value?.previous_by &&
+    navigate.value.previous_by[currentNavigation.value]
+)
+const nextByCurrent = computed(
+  () =>
+    navigate.value?.previous_by &&
+    navigate.value.next_by[currentNavigation.value]
+)
 
 const isVisible = ref(false)
-
 </script>

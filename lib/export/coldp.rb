@@ -11,7 +11,7 @@ module Export
   # * Pending handling of both BibTeX and Verbatim
   module Coldp
 
-    FILETYPES = %w{Description Name Synonym VernacularName}.freeze
+    FILETYPES = %w{Description Name Synonym NameRelation TaxonConceptRelation TypeMaterial VernacularName}.freeze
 
     # @return [Scope]
     #  A full set of valid only Otus (= Taxa in CoLDP) that are to be sent.
@@ -27,14 +27,40 @@ module Export
         .where('(otus.name IS NULL) OR (otus.name = taxon_names.cached)')
     end
 
+    def self.project_members(project_id)
+      project_members = {}
+      ProjectMember.where(project_id:).each do |pm|
+        if pm.user.orcid.nil?
+          project_members[pm.user_id] = pm.user.name
+        else
+          project_members[pm.user_id] = pm.user.orcid
+        end
+      end
+      project_members
+    end
+
+    def self.modified(updated_at)
+      updated_at.iso8601
+    end
+
+    def self.modified_by(updated_by_id, project_members)
+      project_members[updated_by_id]
+    end
+
+    def self.sanitize_remarks(remarks)
+      remarks&.gsub('\r\n', ' ')&.gsub('\n', ' ')&.gsub('\t', ' ')&.gsub(/[ ]+/, ' ')
+    end
+
+    # Return path to the data itself
     def self.export(otu_id, prefer_unlabelled_otus: true)
       otus = otus(otu_id)
 
       # source_id: [csv_array]
-      ref_csv = {}
+      ref_tsv = {}
 
       otu = ::Otu.find(otu_id)
       project = ::Project.find(otu.project_id)
+      project_members = project_members(otu.project_id)
 
       # TODO: This will likely have to change, it is renamed on serving the file.
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
@@ -56,26 +82,26 @@ module Export
       Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
         (FILETYPES - ['Name']).each do |ft|
           m = "Export::Coldp::Files::#{ft}".safe_constantize
-          zipfile.get_output_stream("#{ft}.csv") { |f| f.write m.generate(otus, ref_csv) }
+          zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
         end
 
-        zipfile.get_output_stream('Name.csv') { |f| f.write Export::Coldp::Files::Name.generate(otu, ref_csv) }
-        zipfile.get_output_stream('Taxon.csv') do |f|
-          f.write Export::Coldp::Files::Taxon.generate(otus, otu_id, ref_csv, prefer_unlabelled_otus: prefer_unlabelled_otus)
+        zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
+        zipfile.get_output_stream('Taxon.tsv') do |f|
+          f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_tsv)
         end
 
         # Sort the refs by full citation string
-        sorted_refs = ref_csv.values.sort{|a,b| a[1] <=> b[1]}
+        sorted_refs = ref_tsv.values.sort{|a,b| a[1] <=> b[1]}
 
-        d = CSV.generate(col_sep: "\t") do |csv|
-          csv << %w{ID citation	doi} # author year source details
+        d = CSV.generate(col_sep: "\t") do |tsv|
+          tsv << %w{ID citation	doi modified modifiedBy} # author year source details
           sorted_refs.each do |r|
-            csv << r
+            tsv << r
           end
         end
 
-        zipfile.get_output_stream('References.csv') { |f| f.write d }
-        zipfile.add("metadata.yaml", metadata_file.path)
+        zipfile.get_output_stream('References.tsv') { |f| f.write d }
+        zipfile.add('metadata.yaml', metadata_file.path)
       end
 
       zip_file_path
@@ -88,7 +114,7 @@ module Export
     def self.download(otu, request = nil, prefer_unlabelled_otus: true)
       file_path = ::Export::Coldp.export(
         otu.id,
-        prefer_unlabelled_otus: prefer_unlabelled_otus
+        prefer_unlabelled_otus:
       )
       name = "coldp_otu_id_#{otu.id}_#{DateTime.now}.zip"
 
@@ -97,7 +123,7 @@ module Export
         description: 'A zip file containing CoLDP formatted data.',
         filename: filename(otu),
         source_file_path: file_path,
-        request: request,
+        request:,
         expires: 2.days.from_now
       )
     end
@@ -107,11 +133,11 @@ module Export
         name: "ColDP Download for #{otu.otu_name} on #{Time.now}.",
         description: 'A zip file containing CoLDP formatted data.',
         filename: filename(otu),
-        request: request,
+        request:,
         expires: 2.days.from_now
       )
 
-      ColdpCreateDownloadJob.perform_later(otu, download, prefer_unlabelled_otus: prefer_unlabelled_otus)
+      ColdpCreateDownloadJob.perform_later(otu, download, prefer_unlabelled_otus:)
 
       download
     end

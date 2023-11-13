@@ -2,9 +2,10 @@ class Determiner < Role::ProjectRole
 
   include Roles::Organization
 
-  has_many :taxon_determinations # this won't work
-  has_many :determined_otus, through: :taxon_determinations, source: :otu
-  has_many :determined_biological_collection_objects, through: :taxon_determinations, source: :biological_collection_object
+  has_one :taxon_determination, as: :role_object, inverse_of: :determiner_roles
+
+  has_one :otu, through: :taxon_determination, source: :otu
+  has_one :biological_collection_object, through: :taxon_determination, source: :biological_collection_object
 
   def self.human_name
     'Determiner'

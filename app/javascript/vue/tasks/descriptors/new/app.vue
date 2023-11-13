@@ -2,12 +2,12 @@
   <div id="new_descriptor_task">
     <spinner
       :full-screen="true"
-      :legend="(loading ? 'Loading...' : 'Saving changes...')"
-      :logo-size="{ width: '100px', height: '100px'}"
+      :legend="loading ? 'Loading...' : 'Saving changes...'"
+      :logo-size="{ width: '100px', height: '100px' }"
       v-if="loading || saving"
     />
     <div class="flex-separate middle">
-      <h1>{{ (descriptor.id ? 'Edit' : 'New') }} descriptor</h1>
+      <h1>{{ descriptor.id ? 'Edit' : 'New' }} descriptor</h1>
       <ul class="context-menu">
         <li>
           <a :href="observationMatrixHubPath">Observation matrix hub</a>
@@ -17,7 +17,8 @@
             @click="resetDescriptor"
             data-icon="reset"
             class="middle cursor-pointer"
-          >Reset</span>
+            >Reset</span
+          >
         </li>
       </ul>
     </div>
@@ -30,7 +31,8 @@
           />
           <block-layout
             v-if="descriptor.type"
-            class="margin-medium-top">
+            class="margin-medium-top"
+          >
             <template #header>
               <h3>{{ sectionName }}</h3>
             </template>
@@ -56,11 +58,7 @@
                   :disabled="!descriptor.name"
                   @click="saveDescriptor(descriptor, false)"
                 >
-                  {{
-                    descriptor.id
-                      ? 'Update'
-                      : 'Create'
-                  }}
+                  {{ descriptor.id ? 'Update' : 'Create' }}
                 </v-btn>
                 <v-btn
                   v-if="matrix"
@@ -82,20 +80,21 @@
                   color="create"
                   medium
                   :disabled="!descriptor.name"
-                  @click="saveDescriptor(descriptor, false).then(_ => { resetDescriptor() })"
+                  @click="
+                    saveDescriptor(descriptor, false).then((_) => {
+                      resetDescriptor()
+                    })
+                  "
                 >
-                  {{
-                    descriptor.id
-                      ? 'Update and new'
-                      : 'Create and new'
-                  }}
+                  {{ descriptor.id ? 'Update and new' : 'Create and new' }}
                 </v-btn>
               </template>
             </template>
           </block-layout>
           <matrix-component
             class="margin-medium-top"
-            v-model="matrix" />
+            v-model="matrix"
+          />
         </div>
         <div
           id="cright-panel"
@@ -112,29 +111,25 @@
   </div>
 </template>
 <script>
-
-import Spinner from 'components/spinner.vue'
-import Autocomplete from 'components/ui/Autocomplete.vue'
+import Spinner from '@/components/spinner.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 import TypeComponent from './components/type/type.vue'
 import DefinitionComponent from './components/definition/definition.vue'
 import QualitativeComponent from './components/character/character.vue'
 import UnitComponent from './components/units/units.vue'
 import PreviewComponent from './components/preview/preview.vue'
 import GeneComponent from './components/gene/gene.vue'
-import setParam from 'helpers/setParam'
-import VBtn from 'components/ui/VBtn/index.vue'
-import makeDescriptor from 'factory/Descriptor.js'
+import setParam from '@/helpers/setParam'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import makeDescriptor from '@/factory/Descriptor.js'
 import MatrixComponent from './components/matrix/Matrix.vue'
-import BlockLayout from 'components/layout/BlockLayout.vue'
-import { RouteNames } from 'routes/routes'
-import {
-  Descriptor,
-  ObservationMatrixColumnItem
-} from 'routes/endpoints'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
+import { RouteNames } from '@/routes/routes'
+import { Descriptor, ObservationMatrixColumnItem } from '@/routes/endpoints'
 import {
   DESCRIPTOR_GENE,
   OBSERVATION_MATRIX_COLUMN_SINGLE_DESCRIPTOR
-} from 'constants/index.js'
+} from '@/constants/index.js'
 import DESCRIPTOR_TYPE from './const/types'
 
 export default {
@@ -154,32 +149,34 @@ export default {
   },
 
   computed: {
-    loadComponent () {
-      return this.descriptor.type ? this.descriptor.type.split('::')[1] : undefined
+    loadComponent() {
+      return this.descriptor.type
+        ? this.descriptor.type.split('::')[1]
+        : undefined
     },
 
-    existComponent () {
+    existComponent() {
       return this.$options.components[this.loadComponent + 'Component']
     },
 
-    matrixId () {
+    matrixId() {
       return this.matrix?.id
     },
 
-    sectionName () {
+    sectionName() {
       return DESCRIPTOR_TYPE[this.descriptor.type]
     },
 
-    hideSaveButton () {
+    hideSaveButton() {
       return this.hideSaveButtonFor.includes(this.descriptor.type)
     },
 
-    observationMatrixHubPath () {
+    observationMatrixHubPath() {
       return RouteNames.ObservationMatricesHub
     }
   },
 
-  data () {
+  data() {
     return {
       matrix: undefined,
       descriptor: makeDescriptor(),
@@ -191,16 +188,17 @@ export default {
 
   watch: {
     matrix: {
-      handler () {
+      handler() {
         this.setParameters()
       },
       deep: true
     }
   },
 
-  created () {
+  created() {
     const urlParams = new URLSearchParams(window.location.search)
-    const descriptorId = urlParams.get('descriptor_id') || location.pathname.split('/')[4]
+    const descriptorId =
+      urlParams.get('descriptor_id') || location.pathname.split('/')[4]
 
     if (/^\d+$/.test(descriptorId)) {
       this.loadDescriptor(descriptorId)
@@ -208,12 +206,12 @@ export default {
   },
 
   methods: {
-    resetDescriptor () {
+    resetDescriptor() {
       this.descriptor = makeDescriptor()
       this.setParameters()
     },
 
-    saveDescriptor (descriptor, redirect = true) {
+    saveDescriptor(descriptor, redirect = true) {
       const isUpdate = !!descriptor.id
       const saveRecord = isUpdate
         ? Descriptor.update(descriptor.id, { descriptor })
@@ -221,104 +219,127 @@ export default {
 
       this.saving = true
 
-      return saveRecord.then(async response => {
-        this.descriptor = response.body
+      return saveRecord
+        .then(async (response) => {
+          this.descriptor = response.body
 
-        if (this.matrix) {
-          if (!isUpdate) {
-            this.setParameters()
-            await this.addToMatrix(this.descriptor, redirect)
+          if (this.matrix) {
+            if (!isUpdate) {
+              this.setParameters()
+              await this.addToMatrix(this.descriptor, redirect)
+            }
+            if (redirect) {
+              window.open(
+                `/tasks/observation_matrices/new_matrix/${this.matrixId}`,
+                '_self'
+              )
+            }
           }
-          if (redirect) {
-            window.open(`/tasks/observation_matrices/new_matrix/${this.matrixId}`, '_self')
-          }
-        }
 
-        TW.workbench.alert.create(`Descriptor was successfully ${isUpdate ? 'updated' : 'created'}.`, 'notice')
-      }).finally(_ => {
-        this.saving = false
-      })
+          TW.workbench.alert.create(
+            `Descriptor was successfully ${isUpdate ? 'updated' : 'created'}.`,
+            'notice'
+          )
+        })
+        .finally((_) => {
+          this.saving = false
+        })
     },
 
-    removeDescriptor (descriptor) {
+    removeDescriptor(descriptor) {
       Descriptor.destroy(descriptor.id).then(() => {
         this.resetDescriptor()
         this.setParameters()
-        TW.workbench.alert.create('Descriptor was successfully deleted.', 'notice')
+        TW.workbench.alert.create(
+          'Descriptor was successfully deleted.',
+          'notice'
+        )
       })
     },
 
-    async addToMatrix (descriptor) {
+    async addToMatrix(descriptor) {
       const data = {
         descriptor_id: descriptor.id,
         observation_matrix_id: this.matrix.id,
         type: OBSERVATION_MATRIX_COLUMN_SINGLE_DESCRIPTOR
       }
 
-      return ObservationMatrixColumnItem.create({ observation_matrix_column_item: data }).then(() => {
-        TW.workbench.alert.create('Descriptor was successfully added to the matrix.', 'notice')
+      return ObservationMatrixColumnItem.create({
+        observation_matrix_column_item: data
+      }).then(() => {
+        TW.workbench.alert.create(
+          'Descriptor was successfully added to the matrix.',
+          'notice'
+        )
       })
     },
 
-    loadDescriptor (descriptorId) {
+    loadDescriptor(descriptorId) {
       this.loading = true
-      Descriptor.find(descriptorId).then(response => {
-        this.descriptor = response.body
-      }).finally(() => {
-        this.loading = false
-        this.setParameters()
-      })
+      Descriptor.find(descriptorId)
+        .then((response) => {
+          this.descriptor = response.body
+        })
+        .finally(() => {
+          this.loading = false
+          this.setParameters()
+        })
     },
 
-    setParameters () {
-      setParam('/tasks/descriptors/new_descriptor', { descriptor_id: this.descriptor.id, observation_matrix_id: this.matrixId })
+    setParameters() {
+      setParam('/tasks/descriptors/new_descriptor', {
+        descriptor_id: this.descriptor.id,
+        observation_matrix_id: this.matrixId
+      })
     }
   }
 }
 </script>
 <style lang="scss">
-  #new_descriptor_task {
-    flex-direction: column-reverse;
-    margin: 0 auto;
-    margin-top: 1em;
-    max-width: 1240px;
+#new_descriptor_task {
+  flex-direction: column-reverse;
+  margin: 0 auto;
+  margin-top: 1em;
+  max-width: 1240px;
 
-    input[type="text"], textarea {
-      width: 300px;
-    }
-
-    .cleft, .cright {
-      min-width: 350px;
-      max-width: 350px;
-      width: 300px;
-    }
-
-    #cright-panel {
-      width: 350px;
-      max-width: 350px;
-    }
-
-    .cright-fixed-top {
-      top:68px;
-      width: 1240px;
-      z-index:200;
-      position: fixed;
-    }
-
-    .anchor {
-       display:block;
-       height:65px;
-       margin-top:-65px;
-       visibility:hidden;
-    }
-
-    hr {
-        height: 1px;
-        color: #f5f5f5;
-        background: #f5f5f5;
-        font-size: 0;
-        margin: 15px;
-        border: 0;
-    }
+  input[type='text'],
+  textarea {
+    width: 300px;
   }
+
+  .cleft,
+  .cright {
+    min-width: 350px;
+    max-width: 350px;
+    width: 300px;
+  }
+
+  #cright-panel {
+    width: 350px;
+    max-width: 350px;
+  }
+
+  .cright-fixed-top {
+    top: 68px;
+    width: 1240px;
+    z-index: 200;
+    position: fixed;
+  }
+
+  .anchor {
+    display: block;
+    height: 65px;
+    margin-top: -65px;
+    visibility: hidden;
+  }
+
+  hr {
+    height: 1px;
+    color: #f5f5f5;
+    background: #f5f5f5;
+    font-size: 0;
+    margin: 15px;
+    border: 0;
+  }
+}
 </style>

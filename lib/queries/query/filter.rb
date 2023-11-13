@@ -13,6 +13,8 @@ module Queries
   #
   # Test coverage is currently in /spec/lib/queries/otu/filter_spec.rb.
   #
+  # !! When adding a new query tests do some linting of parameters, constants etc. Run them early and often !!
+  #
   class Query::Filter < Queries::Query
 
     include Queries::Concerns::Users
@@ -39,8 +41,11 @@ module Queries
       collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name],
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
       content: [:source, :otu, :taxon_name, :image],
+      controlled_vocabulary_term: [:data_attribute],
+      data_attribute: [:collection_object, :collecting_event, :taxon_name],
+      dwc_occurrence: [:asserted_distribution, :collection_object],
       descriptor: [:source, :observation, :otu],
-      extract: [:source, :otu, :collection_object],
+      extract: [:source, :otu, :collection_object, :observation],
       image: [:content, :collection_object, :collecting_event, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
       observation: [:collection_object, :descriptor, :image, :otu, :source, :taxon_name],
@@ -76,7 +81,10 @@ module Queries
       collecting_event_query: '::Queries::CollectingEvent::Filter',
       collection_object_query: '::Queries::CollectionObject::Filter',
       content_query: '::Queries::Content::Filter',
+      controlled_vocabulary_term_query: '::Queries::ControlledVocabularyTerm::Filter',
+      data_attribute_query: '::Queries::DataAttribute::Filter',
       descriptor_query: '::Queries::Descriptor::Filter',
+      dwc_occurrence_query: '::Queries::DwcOccurrence::Filter',
       extract_query: '::Queries::Extract::Filter',
       image_query: '::Queries::Image::Filter',
       loan_query: '::Queries::Loan::Filter',
@@ -90,6 +98,20 @@ module Queries
     # @return [Array]
     # @param project_id [Array, Integer]
     attr_accessor :project_id
+
+    # Apply pagination within Filter scope
+    #   true - apply per and page
+    #   false, nil - ignored
+    attr_accessor :paginate
+
+    # @return Integer, nil
+    #   required if paginate == true
+    attr_accessor :page
+
+    # @return Integer, nil
+    #   paginate must equal true
+    #   page must be !nil?
+    attr_accessor :per
 
     # @return [Array]
     # @params object_global_id
@@ -115,6 +137,9 @@ module Queries
     # @return [Query::BiologicalAssociationsGraph::Filter, nil]
     attr_accessor :biological_associations_graph_query
 
+    # @return [Query::ControlledVocabularyTerm::Filter, nil]
+    attr_accessor :controlled_vocabulary_term_query
+
     # @return [Query::TaxonName::Filter, nil]
     attr_accessor :collection_object_query
 
@@ -123,6 +148,9 @@ module Queries
 
     # @return [Query::Content::Filter, nil]
     attr_accessor :content_query
+
+    # @return [Query::DataAttribute::Filter, nil]
+    attr_accessor :data_attribute_query
 
     # @return [Query::Descriptor::Filter, nil]
     attr_accessor :descriptor_query
@@ -176,6 +204,10 @@ module Queries
        # Ideally we'd have a global class param that stores this that all Filters would have access to,
        # rather than an instance variable.
       @project_id = query_params[:project_id] || Current.project_id
+
+      @paginate = boolean_param(query_params, :paginate)
+      @per = query_params[:per]
+      @page = query_params[:page]
 
       # After this point, if you started with ActionController::Parameters,
       # then all values have been explicitly permitted.
@@ -283,7 +315,7 @@ module Queries
     # That profile is then used in the actual .permit() call.
     #
     # An alternate solution, first tried, is to permit the params directly
-    # during inspection for subquries.  This also would work, however there are
+    # during inspection for subqueries.  This also would work, however there are
     # some nice benefits to having a profile of the allowed params available as an Array,
     # for example we can use it for API documentation a little easier(?!).
     #
@@ -299,6 +331,9 @@ module Queries
     # any parameter set for the query.
     def permitted_params(hsh)
       h = self.class::PARAMS.deep_dup
+      h.unshift(:per)
+      h.unshift(:page)
+      h.unshift(:paginate)
 
       if !h.last.kind_of?(Hash)
         h << {}
@@ -323,6 +358,10 @@ module Queries
         q = FILTER_QUERIES[a].safe_constantize
         p = q::PARAMS.deep_dup
 
+        p.unshift(:per)
+        p.unshift(:page)
+        p.unshift(:paginate)
+
         if !p.last.kind_of?(Hash)
           p << {}
         end
@@ -345,7 +384,6 @@ module Queries
           h.last.delete_if{|k,v| a == k }
         end
       end
-
 
       h
     end
@@ -507,22 +545,22 @@ module Queries
     end
 
     # @return [Scope, nil]
+    #
+    # Of interest, the previous native `merge()` (and `and()``) make things complicated:
+    #
+    # For example a.merge(b) != b.merge(a) in some cases. This is because certain clauses
+    # are tossed without warning (notably `.from()`). See:
+    # - https://github.com/rails/rails/issues/33501#issuecomment-722700538
+    #  - https://www.bigbinary.com/blog/rails-7-adds-active-record-relation-structurally-compatible
+    #
+    # We presently use SQL with INTERSECTION to combine facets.
+    #
     def all_merge_clauses
       clauses = merge_clauses + annotator_merge_clauses
       clauses.compact!
 
       return nil if clauses.empty?
-
-      a = clauses.shift
-      clauses.each do |b|
-        #
-        # When `.distinct` is variably present
-        # in a merge clause then there can be issues with merge().
-        # For example a.merge(b) != b.merge(a) in some cases.
-        #
-        a = a.merge(b)
-      end
-      a
+      referenced_klass_intersection(clauses)
     end
 
     # @param nil_empty [Boolean]
@@ -555,6 +593,11 @@ module Queries
       if recent
         q = referenced_klass.from(q.all, table.name).order(updated_at: :desc)
       end
+
+      if paginate
+        q = q.page(page).per(per)
+      end
+
       q
     end
 

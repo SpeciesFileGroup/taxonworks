@@ -21,8 +21,8 @@
 
 <script setup>
 import { computed } from 'vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import DescriptorTypes from 'tasks/descriptors/new/const/types.js'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import DescriptorTypes from '@/tasks/descriptors/new/const/types.js'
 
 const props = defineProps({
   modelValue: {
@@ -39,9 +39,9 @@ const params = computed({
 })
 
 const selectedDescriptorTypes = computed({
-  get: () => props.modelValue.descriptor_types || [],
+  get: () => props.modelValue.descriptor_type || [],
   set: (value) => {
-    params.value.descriptor_types = value
+    params.value.descriptor_type = value
   }
 })
 </script>

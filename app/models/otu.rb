@@ -24,7 +24,7 @@
 class Otu < ApplicationRecord
   include Housekeeping
   include SoftValidation
-  # include Shared::AlternateValues   # No alternate values on Name!! Consequences - search cumbersome, names not unified and controllable ... others?
+  # include Shared::AlternateValues # No alternate values on Name!! Consequences - search cumbersome, names not unified and controllable ... others?
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Identifiers
@@ -43,15 +43,16 @@ class Otu < ApplicationRecord
 
   include Shared::MatrixHooks::Member
   include Otu::MatrixHooks
+  include Otu::Maps
 
   include Shared::IsData
 
   is_origin_for 'Sequence', 'Extract'
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes].freeze
 
   belongs_to :taxon_name, inverse_of: :otus
- 
+
   # Why?  Could be combination too.
   belongs_to :protonym, -> { where(type: 'Protonym') }, foreign_key: :taxon_name_id
 
@@ -78,8 +79,11 @@ class Otu < ApplicationRecord
 
   has_many :content_topics, through: :contents, source: :topic
 
-  scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
-  scope :with_name, -> (name) { where(name: name) }
+  has_many :otu_relationships, foreign_key: :subject_otu_id
+  has_many :related_otu_relationships, class_name: 'OtuRelationship', foreign_key: :object_otu_id
+
+  scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
+  scope :with_name, -> (name) { where(name:) }
 
   validate :check_required_fields
 
@@ -146,7 +150,7 @@ class Otu < ApplicationRecord
   # @param taxon_name_id [The id of a valid TaxonName]
   def self.descendant_of_taxon_name(taxon_name_id = [])
     ids = [taxon_name_id].flatten.compact.uniq
-  
+
     o = Otu.arel_table
     t = TaxonName.arel_table
     h = TaxonNameHierarchy.arel_table
@@ -159,6 +163,7 @@ class Otu < ApplicationRecord
     Otu.joins(q.join_sources).where(h[:ancestor_id].eq_any(ids).to_sql)
   end
 
+  # TODO: replace with filter
   # return [Scope] the Otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)
     if taxon_name.kind_of?(String) || taxon_name.kind_of?(Integer)
@@ -205,7 +210,7 @@ class Otu < ApplicationRecord
         when 'AssertedDistribution'
           AssertedDistribution.arel_table
         when 'Content'
-          Content.arel_table
+          ::Content.arel_table
         when 'BiologicalAssociation'
           BiologicalAssociation.arel_table
         when 'TaxonDetermination'
@@ -221,7 +226,7 @@ class Otu < ApplicationRecord
         when 'BiologicalAssociation'
           t.project(t['biological_association_object_id'], t['updated_at']).from(t)
             .where(
-              t['updated_at'].gt(1.weeks.ago).and(
+              t['updated_at'].gt(1.week.ago).and(
                 t['biological_association_object_type'].eq('Otu')
               )
             )
@@ -230,7 +235,7 @@ class Otu < ApplicationRecord
               .order(t['updated_at'].desc)
         else
           t.project(t['otu_id'], t['updated_at']).from(t)
-            .where(t['updated_at'].gt( 1.weeks.ago ))
+            .where(t['updated_at'].gt( 1.week.ago ))
             .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
@@ -240,14 +245,14 @@ class Otu < ApplicationRecord
 
     case used_on
     when 'BiologicalAssociation'
-      j = Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
-        z['biological_association_object_id'].eq(p['id'])
-      ))
+      Otu.joins(
+        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_association_object_id'].eq(p['id'])))
+      ).pluck(:id).uniq
     else
-      j = Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['otu_id'].eq(p['id'])))
+      Otu.joins(
+        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['otu_id'].eq(p['id'])))
+      ).pluck(:id).uniq
     end
-
-    Otu.joins(j).pluck(:id).uniq
   end
 
   # @params target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
@@ -256,23 +261,23 @@ class Otu < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
+      pinboard: Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
       recent: []
     }
 
     if target && !r.empty?
       h[:recent] = (
         Otu.where('"otus"."id" IN (?)', r.first(10) ).to_a +
-        Otu.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
-        .order('updated_at DESC')
-        .limit(3).to_a
+        Otu.where(project_id:, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(3).to_a
       ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
       h[:quick] = (
-        Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a +
-        Otu.where('"otus"."id" IN (?)', r.first(4) ).to_a).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
+        Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a +
+        Otu.where(project_id:, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(1).to_a +
+        Otu.where('"otus"."id" IN (?)', r.first(4) ).to_a
+      ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
     else
-      h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
-      h[:quick] = Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+      h[:recent] = Otu.where(project_id:).order('updated_at DESC').limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+      h[:quick] = Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
     end
 
     h
@@ -285,12 +290,12 @@ class Otu < ApplicationRecord
   # @return [Boolean]
   #   whether or not this otu is coordinate (see coordinate_otus) with this otu
   def coordinate_with?(otu_id)
-    Otu.coordinate_otus(otu_id).where(otus: {id: id}).any?
+    Otu.coordinate_otus(otu_id).where(otus: {id:}).any?
   end
 
   # TODO: Deprecate for helper method, HTML does not belong here
   def otu_name
-    if !name.blank?
+    if name.present?
       name
     elsif !taxon_name_id.nil?
       taxon_name.cached_html_name_and_author_year
@@ -351,8 +356,7 @@ class Otu < ApplicationRecord
 
   # @return [Otu#id, nil, false]
   #  nil - there is no OTU parent with a valid taxon name possible
-  #  false - there is > 1 OTU parent with a valid taxon name possible
-  #  id - the (unambiguous) id of the nearest parent OTU attached to a valid taoxn name
+  #  id - the (unambiguous) id of the nearest parent OTU attached to a valid taxon name
   #
   #  Note this is used CoLDP export. Do not change without considerations there.
   def parent_otu_id(skip_ranks: [], prefer_unlabelled_otus: false)
@@ -373,10 +377,8 @@ class Otu < ApplicationRecord
       otus = Otu.where(taxon_name_id: candidates.first).to_a
       otus.select! { |o| o.name.nil? } if prefer_unlabelled_otus && otus.size > 1
 
-      if otus.size == 1
+      if otus.size > 0
         return otus.first.id
-      elsif otus.size > 1
-        return false
       else
         return nil
       end
@@ -392,10 +394,10 @@ class Otu < ApplicationRecord
     file_name1 = '/tmp/' + area + '_geographic_area_' + Time.now.to_i.to_s + '.csv'
     file_name2 = '/tmp/' + area + '_collection_object_' + Time.now.to_i.to_s + '.csv'
     c1 = GeographicArea.where(name: area).pluck(:id)
-    c2 = GeographicArea.where("parent_id in (?)", c1).pluck(:id)
-    c3 = GeographicArea.where("parent_id in (?)", c2).pluck(:id)
+    c2 = GeographicArea.where('parent_id in (?)', c1).pluck(:id)
+    c3 = GeographicArea.where('parent_id in (?)', c2).pluck(:id)
     c = c1 + c2 + c3
-    ad = AssertedDistribution.where("geographic_area_id in (?)", c)
+    ad = AssertedDistribution.where('geographic_area_id in (?)', c)
 
     CSV.open(file_name1, 'w') do |csv|
       csv << ['genus', 'species', 'geographic_area']
@@ -420,7 +422,7 @@ class Otu < ApplicationRecord
       end
     end
 
-    co = CollectionObject.joins(:collecting_event).where("collecting_events.geographic_area_id in (?)", c)
+    co = CollectionObject.joins(:collecting_event).where('collecting_events.geographic_area_id in (?)', c)
 
     CSV.open(file_name2, 'w') do |csv|
       csv << ['genus', 'species', 'geographic_area', 'lat', 'long']
@@ -468,7 +470,7 @@ class Otu < ApplicationRecord
 
   def sv_duplicate_otu
     unless Otu.with_taxon_name_id(taxon_name_id).with_name(name).not_self(self).with_project_id(project_id).empty?
-      m = "Another OTU with an identical nomenclature (taxon name) and name exists in this project"
+      m = 'Another OTU with an identical nomenclature (taxon name) and name exists in this project'
       soft_validations.add(:base, m )
     end
   end

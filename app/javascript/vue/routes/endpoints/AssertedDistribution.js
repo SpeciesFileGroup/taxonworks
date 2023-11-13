@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'asserted_distributions'
 const permitParams = {
@@ -44,5 +44,8 @@ const permitParams = {
 export const AssertedDistribution = {
   ...baseCRUD(controller, permitParams),
 
-  filter: params => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
+  moveBatch: (params) =>
+    AjaxCall('patch', `/${controller}/batch_move.json`, params)
 }

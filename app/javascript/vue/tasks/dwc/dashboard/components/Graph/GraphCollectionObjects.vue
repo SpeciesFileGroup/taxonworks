@@ -5,15 +5,15 @@
       style="max-height: 500px"
       type="bar"
       :data="chartState.data"
-      :options="chartState.options"/>
+      :options="chartState.options"
+    />
   </div>
 </template>
 <script setup>
-
 import { reactive, ref, watch, onBeforeMount } from 'vue'
-import { DwcOcurrence } from 'routes/endpoints'
-import { randomHue } from 'helpers/colors.js'
-import VueChart from 'components/ui/Chart/index.vue'
+import { DwcOcurrence } from '@/routes/endpoints'
+import { randomHue } from '@/helpers/colors.js'
+import VueChart from '@/components/ui/Chart/index.vue'
 
 const DEFAULT_START_DATE = '2000-01-01'
 const DEFAULT_PARAMS = {
@@ -41,23 +41,28 @@ const chartState = reactive({
   }
 })
 
-watch(versionsResponse, data => {
-  const dates = [].concat(data.map(date => date.split(' ')[0]), [new Date().toISOString().split('T')[0]])
-  const coRequests = dates.map((date, index) => DwcOcurrence.where({
-    user_date_start: dates[index - 1] || DEFAULT_START_DATE,
-    user_date_end: date,
-    ...DEFAULT_PARAMS
-  }))
+watch(versionsResponse, (data) => {
+  const dates = [].concat(
+    data.map((date) => date.split(' ')[0]),
+    [new Date().toISOString().split('T')[0]]
+  )
+  const coRequests = dates.map((date, index) =>
+    DwcOcurrence.where({
+      user_date_start: dates[index - 1] || DEFAULT_START_DATE,
+      user_date_end: date,
+      ...DEFAULT_PARAMS
+    })
+  )
 
-  Promise.all(coRequests).then(responses => {
-    const counts = responses.map(r => Number(r.headers['pagination-total']))
+  Promise.all(coRequests).then((responses) => {
+    const counts = responses.map((r) => Number(r.headers['pagination-total']))
 
     chartState.data = {
       labels: dates,
       datasets: [
         {
           label: 'Collection objects',
-          data: counts.map(count => count),
+          data: counts.map((count) => count),
           backgroundColor: dates.map((_, index) => randomHue(index + 1))
         }
       ]
@@ -68,5 +73,4 @@ watch(versionsResponse, data => {
 onBeforeMount(async () => {
   versionsResponse.value = (await DwcOcurrence.indexVersion()).body
 })
-
 </script>

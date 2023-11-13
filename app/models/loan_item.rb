@@ -95,7 +95,13 @@ class LoanItem < ApplicationRecord
       when 'Otu'
         total ? total : nil
       when 'Container'
-        loan_item_object.container_items.try(:count)
+        t = 0
+        loan_item_object.all_contained_objects.each do |o|
+          if o.kind_of?(::CollectionObject)
+            t += o.total
+          end
+        end
+        t
       when 'CollectionObject'
         loan_item_object.total.to_i
       else
@@ -104,7 +110,7 @@ class LoanItem < ApplicationRecord
   end
 
   # @return [Array]
-  #   all objects that can have a taxon determination applied to them for htis loan item
+  #   all objects that can have a taxon determination applied to them for this loan item
   def determinable_objects
     # this loan item which may be a container, an OTU, or a collection object
     case loan_item_object_type
@@ -308,21 +314,23 @@ class LoanItem < ApplicationRecord
 
   protected
 
+  # Whether this class of objects is in fact loanable, not
+  # whether it's on loan or not.
   def object_loanable_check
     loan_item_object && loan_item_object.respond_to?(:is_loanable?)
   end
 
-  def total_provided_only_when_otu
-    errors.add(:total, 'only providable when item is an OTU.') if total && loan_item_object_type != 'Otu'
-  end
-
-  # Code, not out-on-loan check
+  # Code, not out-on-loan check!
   def loan_object_is_loanable
     if !persisted? # if it is, then this check should not be necessary
       if !object_loanable_check
         errors.add(:loan_item_object, 'is not loanble')
       end
     end
+  end
+
+  def total_provided_only_when_otu
+    errors.add(:total, 'only providable when item is an OTU.') if total && loan_item_object_type != 'Otu'
   end
 
   # Is not already in a loan item if CollectionObject/Container
@@ -332,7 +340,7 @@ class LoanItem < ApplicationRecord
         if loan_item_object_type == 'Otu'
           true
         else
-          if loan_item_object.on_loan? # loan_item_object.loan_items.where.not(id: id).any?
+          if loan_item_object.on_loan? # takes into account Containers!
             errors.add(:loan_item_object, 'is already on loan')
           end
         end

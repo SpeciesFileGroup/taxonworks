@@ -20,7 +20,7 @@ module Queries
 
       # @return [Integer]
       #   required, the id scoping the result set
-      attr_accessor :ancestor_id
+      attr_accessor :taxon_name_id
 
       # @return [Array]
       #   like 'family', 'genus', 'species'
@@ -51,7 +51,7 @@ module Queries
       #   if true then only include valid names
       attr_accessor :validity
 
-      ### Internal 
+      ### Internal
 
       # @return [ the build query ]
       attr_accessor :query
@@ -72,7 +72,7 @@ module Queries
       def initialize(params = {})
         super(nil, project_id: params[:project_id]) # We don't actually use project_id here
 
-        @ancestor_id = params[:ancestor_id]
+        @taxon_name_id = params[:taxon_name_id]
         @combinations = boolean_param(params, :combinations)
         @limit = params[:limit]
         @ranks = params[:ranks]
@@ -131,8 +131,8 @@ module Queries
       end
 
       def ancestor
-        return nil unless ancestor_id
-        @ancestor ||= ::Protonym.find(ancestor_id)
+        return nil unless taxon_name_id
+        @ancestor ||= ::Protonym.find(taxon_name_id)
       end
 
       def limit
@@ -153,7 +153,7 @@ module Queries
 
         # Scope all names in the result
         a = table[:id].eq(h[:descendant_id])
-          .and(h[:ancestor_id].eq(ancestor_id) )
+          .and(h[:ancestor_id].eq(taxon_name_id) )
         a = a.and(table[:cached_is_valid].eq(true)) if validity
         #a = a.and(table[:cached_valid_taxon_name_id].eq(table[:id])) if validity
 
@@ -234,7 +234,7 @@ module Queries
         ApplicationRecord.connection.execute(@query.to_sql)
       end
 
-      # Only calculates for OTUs, not through to 
+      # Only calculates for OTUs, not through to
       # get CollectionObjects, nor Extracts
       def observations_set(query)
         o = ::Observation.arel_table

@@ -49,11 +49,12 @@ class TaxonDetermination < ApplicationRecord
   ignore_whitespace_on(:print_label)
 
   belongs_to :otu, inverse_of: :taxon_determinations
-  belongs_to :biological_collection_object, class_name: 'CollectionObject', inverse_of: :taxon_determinations, foreign_key: :biological_collection_object_id
+  belongs_to :biological_collection_object, class_name: 'CollectionObject', inverse_of: :taxon_determinations
 
-  has_many :determiner_roles, class_name: 'Determiner', as: :role_object
-  has_many :determiners, through: :determiner_roles, source: :person
-  has_many :determiners_organization, through: :determiner_roles, source: :organization
+  has_many :determiner_roles, class_name: 'Determiner', as: :role_object, inverse_of: :role_object
+  has_many :determiners, through: :determiner_roles, source: :person, inverse_of: :taxon_determinations
+
+  has_many :determiners_organization, through: :determiner_roles, source: :organization, inverse_of: :taxon_determinations
 
   validates :biological_collection_object, presence: true
   validates :otu, presence: true
@@ -70,12 +71,12 @@ class TaxonDetermination < ApplicationRecord
   accepts_nested_attributes_for :determiner_roles, allow_destroy: true
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: :reject_otu
 
-  scope :current, -> { where(position: 1)} 
+  scope :current, -> { where(position: 1)}
   scope :historical, -> { where.not(position: 1)}
 
   # @params params [Hash]
   # @params collection_objectt_id [Array, Integer]
-  #   an Array or single id 
+  #   an Array or single id
   # @return Hash
   def self.batch_create(collection_object_id, params)
     collection_object_ids = [collection_object_id].flatten.compact.uniq

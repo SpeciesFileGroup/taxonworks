@@ -15,15 +15,17 @@
     <tbody>
       <tr
         v-for="item in list"
-        :key="item.id">
+        :key="item.id"
+      >
         <td>
           <a
             :href="browseOtu(item.otu_id)"
-            v-html="item.otu.object_tag"/>
+            v-html="item.otu.object_tag"
+          />
         </td>
-        <td v-html="item.geographic_area.name"/>
+        <td v-html="item.geographic_area.name" />
         <td v-if="item.citations.length > 1">
-          <citation-count :citations="item.citations"/>
+          <citation-count :citations="item.citations" />
         </td>
         <td v-else>
           <div class="middle">
@@ -31,15 +33,16 @@
               class="margin-small-right"
               target="blank"
               :href="nomenclatureBySourceRoute(item.citations[0].source_id)"
-              v-html="item.citations[0].citation_source_body"/>
-            <soft-validation
-              :global-id="item.global_id"/>
+              v-html="item.citations[0].citation_source_body"
+            />
+            <soft-validation :global-id="item.global_id" />
           </div>
         </td>
         <td>
-          <span 
+          <span
             class="button circle-button btn-delete"
-            @click="removeItem(item)"/>
+            @click="removeItem(item)"
+          />
         </td>
         <td>
           <radial-annotator
@@ -51,7 +54,8 @@
           <button
             class="button normal-input button-default"
             type="button"
-            @click="$emit('onSourceOtu', item)">
+            @click="$emit('onSourceOtu', item)"
+          >
             Clone
           </button>
         </td>
@@ -59,7 +63,8 @@
           <button
             class="button normal-input button-default"
             type="button"
-            @click="$emit('onSourceGeo', item)">
+            @click="$emit('onSourceGeo', item)"
+          >
             Clone
           </button>
         </td>
@@ -67,7 +72,8 @@
           <button
             class="button normal-input button-default"
             type="button"
-            @click="$emit('onOtuGeo', item)">
+            @click="$emit('onOtuGeo', item)"
+          >
             Load
           </button>
         </td>
@@ -77,11 +83,10 @@
 </template>
 
 <script>
-
-import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
 import CitationCount from './citationsCount'
-import { RouteNames } from 'routes/routes'
-import SoftValidation from 'components/soft_validations/objectValidation.vue'
+import { RouteNames } from '@/routes/routes'
+import SoftValidation from '@/components/soft_validations/objectValidation.vue'
 
 export default {
   components: {
@@ -96,31 +101,31 @@ export default {
     }
   },
 
-  emits: [
-    'onOtuGeo',
-    'onSourceGeo',
-    'onSourceOtu',
-    'remove'
-  ],
+  emits: ['onOtuGeo', 'onSourceGeo', 'onSourceOtu', 'remove'],
 
   methods: {
-    nomenclatureBySourceRoute (id) {
+    nomenclatureBySourceRoute(id) {
       return `${RouteNames.NomenclatureBySource}?source_id=${id}`
     },
-    removeItem (item) {
-      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+    removeItem(item) {
+      if (
+        window.confirm(
+          "You're trying to delete this record. Are you sure want to proceed?"
+        )
+      ) {
         this.$emit('remove', item)
       }
     },
-    browseOtu (id) {
+    browseOtu(id) {
       return `${RouteNames.BrowseOtu}?otu_id=${id}`
     }
   }
-
 }
 </script>
 <style scoped>
- table,td,tr {
-   position: relative !important;
- }
+table,
+td,
+tr {
+  position: relative !important;
+}
 </style>

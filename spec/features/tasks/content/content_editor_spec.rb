@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Content editor' do
+describe 'Content editor', type: :feature, group: :contents do
   context 'when signed in and a project is selected' do
     before { sign_in_user_and_select_project}
 

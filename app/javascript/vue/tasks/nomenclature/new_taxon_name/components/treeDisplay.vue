@@ -1,28 +1,28 @@
 <template>
   <modal
     class="transparent-modal"
-    @close="$emit('close', true)">
+    @close="$emit('close', true)"
+  >
     <template #header>
       <h3>{{ title }}</h3>
     </template>
     <template #body>
-      <div
-        class="tree-list">
+      <div class="tree-list">
         <recursive-list
           :created-list="createdList"
           :display="displayName"
           @selected="$emit('selected', $event)"
           :valid-property="validProperty"
           :object-list="list"
-          :taxon-rank="taxonRank"/>
+          :taxon-rank="taxonRank"
+        />
       </div>
     </template>
   </modal>
 </template>
 <script>
-
 import RecursiveList from './recursiveList.vue'
-import Modal from 'components/ui/Modal.vue'
+import Modal from '@/components/ui/Modal.vue'
 
 export default {
   name: 'TreeDisplay',

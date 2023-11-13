@@ -1,4 +1,21 @@
 module Queries
+
+  # Requires significant refactor.
+  #
+  # To consider:
+  # In general our optimization follows this pattern:
+  #
+  # a: Names that match exactly, full string
+  # b: Names that match exactly, full Identifier (cached)
+  # c: Names that match start of string exactly (cached), wildcard end of string, minimum 2 characters
+  # d: Names that have a very high cuttoff            [good wildcard anywhere]
+  # ? d.1: Names that have wildcard either side (limit to 2 characters).  Are results optimally better than d?
+  # e: Names that have exact ID (internal) (will come to top automatically)
+  # f: Names that match some special pattern (e.g. First letter, second name in taxon name search).  These
+  #    may need higher priority in the stack.
+  #
+  # May also consider length, priority, similarity
+  #
   class Query::Autocomplete < Queries::Query
 
     include Arel::Nodes
@@ -9,18 +26,22 @@ module Queries
     attr_accessor :project_id
 
     # @return [String, nil]
-    #   the initial, unparsed value
+    #   the initial, unparsed value, sanitized
     attr_accessor :query_string
 
     # Unused, to be used in future
     # limit based on size and potentially properties of terms
     attr_accessor :dynamic_limit
 
+    # TODO: add mode
+    # attr_accessor :mode
+
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
       @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
+
       @project_id = project_id
-      build_terms
+      build_terms # TODO - should remove this for accessors
     end
 
     def project_id
@@ -113,12 +134,12 @@ module Queries
       table.join(parent).on(table[:parent_id].eq(parent[:id])).join_sources
     end
 
-    # Match at two levels, for example, 'te wa" will match "Texas, Washington Co."
+    # Match at two levels, for example, 'wa te" will match "Washington Co., Texas"
     # @return [Arel::Nodes::Grouping]
     def parent_child_where
       a,b = query_string.split(/\s+/, 2)
       return table[:id].eq(-1) if a.nil? || b.nil?
-      parent[:name].matches("#{a}%").and(table[:name].matches("#{b}%"))
+      table[:name].matches("#{a}%").and(parent[:name].matches("#{b}%"))
     end
 
     # @return [Arel::Nodes, nil]
@@ -275,10 +296,33 @@ module Queries
       base_query.joins(:common_names).where(common_name_name.to_sql).limit(1)
     end
 
+    # TODO: GIN/similarity
     def autocomplete_common_name_like
       return nil if no_terms?
       base_query.joins(:common_names).where(common_name_wild_pieces.to_sql).limit(5)
     end
+
+    # Calculate the levenshtein distance for a value across multiple columns, and keep the smallest.
+    #
+    # @param fields [Array] the table column names to take strings from
+    # @param value [String] the string to calculate distances to
+    def least_levenshtein(fields, value)
+      levenshtein_sql = fields.map {|f| levenshtein_distance(f, value).to_sql }
+      Arel.sql("least(#{levenshtein_sql.join(", ")})")
+    end
+
+    # TODO: not used
+    # @return [Arel:Nodes]
+    # def or_and
+    #   a = or_clauses
+    #   b = and_clauses
+
+    #   if a && b
+    #     a.and(b)
+    #   else
+    #     a
+    #   end
+    # end
 
   end
 end

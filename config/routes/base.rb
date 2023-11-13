@@ -58,6 +58,7 @@ scope :administration, controller: :administration do
   get 'data_health'
   get 'data_reindex'
   get 'data_class_summary'
+  get 'cached_maps_status'
 end
 
 resources :project_members, except: [:index] do
@@ -75,6 +76,7 @@ resources :pinboard_items, only: [:create, :destroy, :update] do
   collection do
     post 'update_position'
     post 'update_type_position'
+    post 'clear', defaults: {format: :json}
   end
 end
 
@@ -83,6 +85,8 @@ scope :s do
 end
 
 resources :users, except: :new do
+  resources :projects, only: [:index], defaults: {format: :json}, action: :user_projects
+
   collection do
     post 'batch_create'
     get :autocomplete, defaults: {format: :json}
@@ -90,6 +94,8 @@ resources :users, except: :new do
   member do
     get 'recently_created_data'
     get 'recently_created_stats'
+    patch 'reset_preferences'
+    patch 'reset_hub_favorites'
   end
 end
 
@@ -111,4 +117,3 @@ match '/favorite_page/:kind/:name', to: 'user_preferences#favorite_page', as: :f
 match '/unfavorite_page/:kind/:name', to: 'user_preferences#unfavorite_page', as: :unfavorite_page, via: :post
 
 get '/crash_test/' => 'crash_test#index' unless Rails.env.production?
-

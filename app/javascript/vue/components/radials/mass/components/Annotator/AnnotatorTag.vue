@@ -25,9 +25,9 @@
 </template>
 
 <script setup>
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import { ControlledVocabularyTerm, Tag } from 'routes/endpoints'
-import { RouteNames } from 'routes/routes'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import { ControlledVocabularyTerm, Tag } from '@/routes/endpoints'
+import { RouteNames } from '@/routes/routes'
 import { ref, onBeforeMount } from 'vue'
 
 const props = defineProps({

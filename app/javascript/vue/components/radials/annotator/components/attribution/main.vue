@@ -1,316 +1,137 @@
 <template>
   <div class="attribution_annotator">
-    <div>
-      <label>License</label>
-      <br>
-      <select v-model="attribution.license">
-        <option
-          v-for="(license) in licenses"
-          :key="license.key"
-          :value="license.key">
-          <span v-if="license.key != null">
-            {{ license.key }} :
-          </span>
-          {{ license.label }}
-        </option>
-      </select>
-    </div>
-    <div class="separate-top separate-bottom">
-      <label>Copyright year</label>
-      <br>
-      <input
-        class="input-year"
-        v-model="attribution.copyright_year"
-        type="number">
-    </div>
-    <div class="switch-radio separate-bottom">
-      <template
-        v-for="(item, index) in smartSelectorList">
-        <input
-          @click="view = item"
-          :value="item"
-          :id="`switch-role-${index}`"
-          :name="`switch-role-options`"
-          type="radio"
-          :checked="item === view"
-          class="normal-input button-active">
-        <label
-          :for="`switch-role-${index}`"
-          class="capitalize">{{ item }}
-          <span v-if="rolesList[`${item.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`].length">
-            ({{ rolesList[`${item.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`].length }})
-          </span>
-        </label>
-      </template>
-    </div>
-    <template v-if="view === 'CopyrightHolder'">
-      <switch-component
-        class="margin-medium-bottom"
-        v-model="copyrightHolderType"
-        use-index
-        :options="copyrightHolderOptions"/>
-      <div v-if="copyrightHolderType">
-        <organization-picker @getItem="addOrganization"/>
-        <display-list
-          label="object_tag"
-          @delete="removeOrganization"
-          :list="organizationList"/>
-      </div>
-      <role-picker
-        v-else
-        v-model="roleList"
-        :role-type="roleSelected"/>
-    </template>
-    <div v-else>
-      <template v-if="view">
-        <smart-selector
-          ref="smartSelector"
-          model="people"
-          target="Collector"
-          klass="CollectingEvent"
-          :params="{ role_type: 'Collector' }"
-          :autocomplete-params="{
-            roles: ['Collector']
-          }"
-          label="cached"
-          :autocomplete="false"
-          @selected="addRole">
-          <template #header>
-            <role-picker
-              :hidden-list="true"
-              v-model="roleList"
-              ref="rolepicker"
-              :autofocus="false"
-              :role-type="roleSelected"/>
-          </template>
-          <role-picker
-            :create-form="false"
-            v-model="roleList"
-            :autofocus="false"
-            :role-type="roleSelected"/>
-        </smart-selector>
-      </template>
-    </div>
-    <div class="separate-top">
+    <LicenseSelector
+      v-model="attribution.license"
+      v-model:year="attribution.copyright_year"
+    />
+    <VSwitch
+      class="margin-medium-bottom"
+      :options="ROLE_TYPE_LIST"
+      use-index
+      v-model="roleType"
+    />
+
+    <PeopleSelector
+      :organization="typeHasOrganization"
+      :role-type="roleType"
+      v-model="roleList[roleType]"
+    />
+
+    <div class="margin-medium-top">
       <button
         type="button"
-        @click="attribution.id ? updateAttribution() : createNew()"
-        :disabled="!attribution.id && !validateFields"
-        class="button normal-input button-submit save-annotator-button">
+        :disabled="!validateFields"
+        class="button normal-input button-submit save-annotator-button"
+        @click="() => saveAttribution()"
+      >
         {{ attribution.id ? 'Update' : 'Create' }}
       </button>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import VSwitch from '@/components/switch.vue'
+import LicenseSelector from './LicenseSelector.vue'
+import PeopleSelector from './PeopleSelector.vue'
+import { Attribution } from '@/routes/endpoints'
+import { computed, ref, onBeforeMount } from 'vue'
+import {
+  ROLE_ATTRIBUTION_COPYRIGHT_HOLDER,
+  ROLE_ATTRIBUTION_CREATOR,
+  ROLE_ATTRIBUTION_EDITOR,
+  ROLE_ATTRIBUTION_OWNER
+} from '@/constants'
 
-import RolePicker from 'components/role_picker'
-import SwitchComponent from 'components/switch.vue'
-import CRUD from '../../request/crud.js'
-import AnnotatorExtended from '../annotatorExtend.js'
-import OrganizationPicker from 'components/organizationPicker'
-import DisplayList from 'components/displayList'
-import SmartSelector from 'components/ui/SmartSelector'
-import { findRole } from 'helpers/people/people.js'
+const props = defineProps({
+  metadata: {
+    type: Object,
+    required: true
+  }
+})
 
-export default {
-  mixins: [CRUD, AnnotatorExtended],
-  components: {
-    RolePicker,
-    SwitchComponent,
-    OrganizationPicker,
-    DisplayList,
-    SmartSelector
-  },
-  computed: {
-    validateFields () {
-      return this.attribution.license || this.attribution.copyright_year || [].concat.apply([], Object.values(this.rolesList)).length
-    },
+const emit = defineEmits(['updateCount'])
 
-    roleSelected () {
-      const index = this.smartSelectorList.findIndex((role) => role === this.view)
+const attribution = ref(makeAttribution())
+const roleList = ref({
+  [ROLE_ATTRIBUTION_CREATOR]: [],
+  [ROLE_ATTRIBUTION_EDITOR]: [],
+  [ROLE_ATTRIBUTION_OWNER]: [],
+  [ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]: []
+})
 
-      return this.roleTypes[index]
-    },
+const roleType = ref(ROLE_ATTRIBUTION_CREATOR)
 
-    roleList: {
-      get () {
-        return this.rolesList[`${this.view.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`]
-      },
-      set (value) {
-        this.rolesList[`${this.view.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`] = value
-      }
-    },
+const ROLE_TYPE_LIST = computed(() => ({
+  [ROLE_ATTRIBUTION_CREATOR]: `Creator (${getCount(roleList.value[ROLE_ATTRIBUTION_CREATOR])})`,
+  [ROLE_ATTRIBUTION_EDITOR]: `Editor (${getCount(roleList.value[ROLE_ATTRIBUTION_EDITOR])})`,
+  [ROLE_ATTRIBUTION_OWNER]: `Owner (${getCount(roleList.value[ROLE_ATTRIBUTION_OWNER])})`,
+  [ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]: `Copyright Holder (${getCount(roleList.value[ROLE_ATTRIBUTION_COPYRIGHT_HOLDER])})`
+}))
 
-    organizationList () {
-      return this.rolesList.copyright_organization_roles.filter(item => !item?._destroy)
-    },
+const typeHasOrganization = computed(
+  () =>
+    roleType.value === ROLE_ATTRIBUTION_OWNER ||
+    roleType.value === ROLE_ATTRIBUTION_COPYRIGHT_HOLDER
+)
 
-    copyrightHolderList () {
-      return this.rolesList.copyright_holder_roles.filter(item => !item?._destroy)
-    },
+function getCount(list) {
+  return list.filter((item) => !item._destroy).length
+}
 
-    copyrightHolderOptions () {
-      return ['person', 'organization'].map(label => {
-        const count = [].concat(this.rolesList.copyright_organization_roles, this.copyrightHolderList).filter(item => item.agent_type === label).length
-        return label + (count ? ` (${count})` : '')
-      })
-    }
-  },
+const validateFields = computed(
+  () =>
+    attribution.value.license ||
+    attribution.value.copyright_year ||
+    [].concat([], ...Object.values(roleList.value)).length
+)
 
-  data () {
-    return {
-      view: undefined,
-      licenses: [],
-      smartSelectorList: [],
-      roleTypes: [],
-      urlList: `${this.url}/${this.type}s.json`,
-      rolesList: {
-        creator_roles: [],
-        owner_roles: [],
-        editor_roles: [],
-        copyright_holder_roles: [],
-        copyright_organization_roles: []
-      },
-      attribution: this.newAttribution(),
-      copyrightHolderType: 0
-    }
-  },
+onBeforeMount(() => {
+  Attribution.where({
+    attribution_object_id: [props.metadata.object_id],
+    attribution_object_type: props.metadata.object_type
+  }).then(({ body }) => {
+    const [item] = body
 
-  watch: {
-    list(newVal) {
-      if (newVal.length) {
-        this.setAttribution(newVal[0])
-      }
-    }
-  },
+    attribution.value = makeAttribution(item)
+    roleList.value = makeRoleList(item)
+  })
+})
 
-  mounted () {
-    this.getList('/attributions/licenses').then(response => {
-      this.licenses = Object.keys(response.body).map(key => ({
-        key: key,
-        label: response.body[key]
-      }))
-
-      this.licenses.push({
-        label: '-- None --',
-        key: null
-      })
-    })
-
-    this.getList('/attributions/role_types.json').then(response => {
-      this.roleTypes = response.body
-      this.smartSelectorList = this.roleTypes.map((role) => role.substring(11))
-    })
-  },
-
-  methods: {
-    setAttribution (attribution) {
-      this.attribution.id = attribution.id
-      this.attribution.copyright_year = attribution.copyright_year
-      this.attribution.license = attribution.license
-      this.rolesList.creator_roles = (attribution?.creator_roles ? attribution.creator_roles : [])
-      this.rolesList.editor_roles = (attribution?.editor_roles ? attribution.editor_roles : [])
-      this.rolesList.owner_roles = (attribution?.owner_roles ? attribution.owner_roles : [])
-      this.rolesList.copyright_holder_roles = (attribution?.copyright_holder_roles ? attribution.copyright_holder_roles.filter(item => item.agent_type === 'person') : [])
-      this.rolesList.copyright_organization_roles = (attribution?.copyright_holder_roles ? attribution.copyright_holder_roles.filter(item => item.agent_type === 'organization').map(item => { item.object_tag = item.organization.object_tag; return item }) : [])
-    },
-
-    newAttribution () {
-      return {
-        id: undefined,
-        copyright_year: undefined,
-        license: null,
-        annotated_global_entity: this.globalId,
-        roles_attributes: []
-      }
-    },
-
-    createNew () {
-      this.setRolesAttributes()
-      this.create('/attributions', { attribution: this.attribution }).then(response => {
-        this.setAttribution(response.body)
-        TW.workbench.alert.create('Attribution was successfully created.', 'notice')
-      })
-    },
-
-    updateAttribution () {
-      this.setRolesAttributes()
-      if (!this.validateFields) {
-        this.attribution._destroy = true
-        this.destroy(`/${this.type}s/${this.attribution.id}`, this.attribution).then(response => {
-          this.removeFromList(this.attribution.id)
-          TW.workbench.alert.create('Attribution was successfully destroyed.', 'notice')
-          this.attribution = this.newAttribution()
-        })
-      } else {
-        this.update(`/attributions/${this.attribution.id}.json`, { attribution: this.attribution }).then(response => {
-          this.setAttribution(response.body)
-          TW.workbench.alert.create('Attribution was successfully updated.', 'notice')
-        })
-      }
-    },
-
-    setRolesAttributes () {
-      this.updateIndex()
-      this.attribution.roles_attributes = [].concat.apply([], Object.values(this.rolesList))
-    },
-
-    updateIndex() {
-      let lengthArrays = 0
-      for (const key in this.rolesList) {
-        this.rolesList[key] = this.rolesList[key].map((item, index) => {
-          item.position = (index + 1) + lengthArrays
-          return item
-        })
-        lengthArrays = lengthArrays + this.rolesList[key].length
-      }
-    },
-
-    addOrganization (organization) {
-      this.rolesList.copyright_organization_roles.push({
-        organization_id: organization.id,
-        type: 'AttributionCopyrightHolder',
-        object_tag: organization?.object_tag ? organization.object_tag : organization.label
-      })
-    },
-
-    removeOrganization (organization) {
-      const index = organization?.id ?
-        this.rolesList.copyright_organization_roles.findIndex(item => item?.id === organization.id) :
-        this.rolesList.copyright_organization_roles.findIndex(item => item?.organization_id === organization.organization_id)
-
-      if (this.rolesList.copyright_organization_roles[index]['id']) {
-        this.rolesList.copyright_organization_roles[index]['_destroy'] = true
-      } else {
-        this.rolesList.copyright_organization_roles.splice(index, 1)
-      }
-    },
-
-    addRole (role) {
-      if (!findRole(this.roleList, role.id)) {
-        this.roleList.push({
-          first_name: role.first_name,
-          last_name: role.last_name,
-          person_id: role.id,
-          type: this.roleSelected
-        })
-      }
-    },
+function makeAttribution(item) {
+  return {
+    id: item?.id,
+    copyright_year: item?.copyright_year,
+    license: item?.license || null
   }
 }
-</script>
 
-<style lang="scss">
-  .attribution_annotator {
-    .input-year {
-      width: 80px;
-    }
-    .switch-radio {
-      label {
-        width: 120px;
-      }
-    }
+function makeRoleList(item) {
+  return {
+    [ROLE_ATTRIBUTION_CREATOR]: item?.creator_roles || [],
+    [ROLE_ATTRIBUTION_EDITOR]: item?.editor_roles || [],
+    [ROLE_ATTRIBUTION_OWNER]: item?.owner_roles || [],
+    [ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]: item?.copyright_holder_roles || []
   }
-</style>
+}
+
+function saveAttribution() {
+  const payload = {
+    ...attribution.value,
+    attribution_object_id: props.metadata.object_id,
+    attribution_object_type: props.metadata.object_type,
+    roles_attributes: [].concat(...Object.values(roleList.value))
+  }
+
+  const response = payload.id
+    ? Attribution.update(payload.id, { attribution: payload })
+    : Attribution.create({ attribution: payload })
+
+  response.then(({ body }) => {
+    attribution.value = makeAttribution(body)
+    roleList.value = makeRoleList(body)
+    emit('updateCount', 1)
+    TW.workbench.alert.create('Attribution was successfully created.', 'notice')
+  })
+}
+</script>

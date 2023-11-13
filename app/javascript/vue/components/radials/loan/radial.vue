@@ -40,7 +40,7 @@
         title="Radial Loan"
         circle
         color="radial"
-        :disabled="!ids.length && !Object.keys(params).length"
+        :disabled="disabled || (!ids.length && !Object.keys(params).length)"
         @click="isModalVisible = true"
       >
         <VIcon
@@ -53,15 +53,15 @@
 </template>
 
 <script setup>
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import VModal from 'components/ui/Modal.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import AddSlice from './components/AddSlice.vue'
 import ReturnSlice from './components/ReturnSlice.vue'
 import ReturnAndAddSlice from './components/ReturnAndAddSlice.vue'
 import { computed, ref } from 'vue'
-import { removeEmptyProperties } from 'helpers/objects.js'
+import { removeEmptyProperties } from '@/helpers/objects.js'
 
 const EXCLUDE_PARAMETERS = ['per']
 const SLICES = {
@@ -74,6 +74,11 @@ const props = defineProps({
   ids: {
     type: Array,
     default: () => []
+  },
+
+  disabled: {
+    type: Boolean,
+    default: false
   },
 
   parameters: {

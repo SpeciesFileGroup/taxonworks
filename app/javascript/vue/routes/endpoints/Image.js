@@ -1,5 +1,5 @@
 import baseCRUD, { annotations } from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'images'
 const permitParams = {
@@ -29,5 +29,5 @@ export const Image = {
   ...baseCRUD(controller, permitParams),
   ...annotations(controller),
 
-  filter: params => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }

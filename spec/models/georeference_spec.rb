@@ -17,7 +17,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
     geographic_area_type: g_a_t,
     parent: earth)
   }
-  
+
   # this collecting event should produce a georeference.geographic_item.geo_object of 'Point(0.1 0.1 0.1)'
   let(:collecting_event_with_geographic_area) {
     CollectingEvent.create!(
@@ -54,11 +54,11 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
     let(:georeference) { FactoryBot.create(:valid_georeference) }
     specify 'with << and an existing object' do
       expect(georeference.roles.count).to eq(0)
-      georeference.georeferencers << Person.new(last_name: 'Smith')
+      georeference.georeference_authors << Person.new(last_name: 'Smith')
       expect(georeference.save).to be_truthy
 
-      expect(georeference.georeferencers.first.creator.nil?).to be_falsey
-      expect(georeference.georeferencers.first.updater.nil?).to be_falsey
+      expect(georeference.georeference_authors.first.creator.nil?).to be_falsey
+      expect(georeference.georeference_authors.first.updater.nil?).to be_falsey
 
       expect(georeference.roles.first.creator.nil?).to be_falsey
       expect(georeference.roles.first.updater.nil?).to be_falsey
@@ -127,10 +127,10 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
       end
 
       context 'allowed combinations of values' do
-        before do 
+        before do
           georeference.type  = 'Georeference::GoogleMap'
           georeference.collecting_event = collecting_event_without_geographic_area
-        end 
+        end
 
         specify 'geographic_item without error_radius, error_depth, or error_geographic_item' do
           georeference.geographic_item = GeographicItem.new(point: simple_shapes[:point])
@@ -205,10 +205,10 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
         let(:ce_e1) { CollectingEvent.new(geographic_area: ga_e1) }
         let(:ce_b1) { CollectingEvent.new(geographic_area: ga_b1) }
 
-        before do 
+        before do
           GeographicAreasGeographicItem.create!(geographic_area: ga_e1, geographic_item: gi_e1)
           GeographicAreasGeographicItem.create!(geographic_area: ga_b1, geographic_item: gi_b1)
-        end 
+        end
 
         specify 'errors which result from badly formed collecting_event area values and error_geographic_item' do
           # error_geographic_item exists,  but is not inside ce_e1
@@ -224,10 +224,10 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
 
         specify 'an error is added to #geographic_item if collecting_event.geographic_area.geo_object does ' \
           'not contain #geographic_item' do
-            g = Georeference::VerbatimData.new(
-              collecting_event: ce_e1, # p0 is outside of both e_g_i and ce.geographic_area
-              geographic_item: p0, # e_g_i is test_box_1
-              error_geographic_item: e_g_i)
+          g = Georeference::VerbatimData.new(
+            collecting_event: ce_e1, # p0 is outside of both e_g_i and ce.geographic_area
+            geographic_item: p0, # e_g_i is test_box_1
+            error_geographic_item: e_g_i)
             g.valid?
 
             expect(g.errors[:geographic_item]).to be_present
@@ -327,7 +327,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
         expect(georeference.error_box.geo_object.to_s).to eq(box_1.to_s)
       end
     end
-  
+
     context 'batch_create_from_georeference_matcher' do
       specify 'adding this georeference to two collecting events' do
         georeference = Georeference::VerbatimData.new(
@@ -362,7 +362,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
         .to contain_exactly(gr_poly, gr_point) # but specifically *not* gr1
     end
 
-    # TODO: doesn't belong in this mode, reference via CollectingEvent filter 
+    # TODO: doesn't belong in this mode, reference via CollectingEvent filter
     context '.with_locality_like(string)' do
       # Return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
       # includes String somewhere

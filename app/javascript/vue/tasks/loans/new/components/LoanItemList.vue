@@ -11,7 +11,11 @@
         <VPagination
           :pagination="pagination"
           @next-page="
-            store.dispatch(ActionNames.LoadLoanItems, { ...$event, per })
+            store.dispatch(ActionNames.LoadLoanItems, {
+              ...$event,
+              per,
+              loanId: loan.id
+            })
           "
         />
         <VPaginationCount
@@ -60,10 +64,10 @@ import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import VPaginationCount from 'components/pagination/PaginationCount.vue'
-import VPagination from 'components/pagination.vue'
+import VPaginationCount from '@/components/pagination/PaginationCount.vue'
+import VPagination from '@/components/pagination.vue'
 import ActionNames from '../store/actions/actionNames'
-import BlockLayout from 'components/layout/BlockLayout.vue'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 import RowItem from './table/row'
 
 const store = useStore()
@@ -71,6 +75,7 @@ const store = useStore()
 const per = ref(50)
 const list = computed(() => store.getters[GetterNames.GetLoanItems])
 const pagination = computed(() => store.getters[GetterNames.GetPagination])
+const loan = computed(() => store.getters[GetterNames.GetLoan])
 const editLoanItems = computed(
   () => store.getters[GetterNames.GetEditLoanItems]
 )
@@ -96,6 +101,9 @@ function deleteItem(item) {
 }
 
 watch(per, (newVal) =>
-  store.dispatch(ActionNames.LoadLoanItems, { per: newVal })
+  store.dispatch(ActionNames.LoadLoanItems, {
+    loanId: loan.value.id,
+    per: newVal
+  })
 )
 </script>

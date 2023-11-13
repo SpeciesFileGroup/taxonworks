@@ -50,12 +50,12 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { Protocol } from 'routes/endpoints'
-import { addToArray, removeFromArray } from 'helpers/arrays'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import RowItem from 'components/Filter/Facets/shared/RowItem.vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { Protocol } from '@/routes/endpoints'
+import { addToArray, removeFromArray } from '@/helpers/arrays'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import RowItem from '@/components/Filter/Facets/shared/RowItem.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {
@@ -68,18 +68,19 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const protocols = ref([])
 
 watch(
   () => props.modelValue,
-  newVal => {
+  (newVal) => {
     if (
       !newVal?.protocol_id_and?.length &&
       !newVal?.protocol_id_or?.length &&
-      protocols.value.length) {
+      protocols.value.length
+    ) {
       protocols.value = []
     }
   }
@@ -88,37 +89,35 @@ watch(
 watch(
   protocols,
   () => {
-    params.value.protocol_id_and = protocols.value.filter(protocol => protocol.and).map(protocol => protocol.id)
-    params.value.protocol_id_or = protocols.value.filter(protocol => !protocol.and).map(protocol => protocol.id)
+    params.value.protocol_id_and = protocols.value
+      .filter((protocol) => protocol.and)
+      .map((protocol) => protocol.id)
+    params.value.protocol_id_or = protocols.value
+      .filter((protocol) => !protocol.and)
+      .map((protocol) => protocol.id)
   },
   { deep: true }
 )
 
 const urlParams = URLParamsToJSON(location.href)
-const {
-  protocol_id_and = [],
-  protocol_id_or = []
-} = urlParams
+const { protocol_id_and = [], protocol_id_or = [] } = urlParams
 
-Promise
-  .all(protocol_id_and.map(id => Protocol.find(id)))
-  .then(responses => {
+Promise.all(protocol_id_and.map((id) => Protocol.find(id))).then(
+  (responses) => {
     responses.forEach(({ body }) => {
       addToArray(protocols.value, { ...body, and: true })
     })
-  })
+  }
+)
 
-Promise
-  .all(protocol_id_or.map(id => Protocol.find(id)))
-  .then(responses => {
-    responses.forEach(({ body }) => {
-      addToArray(protocols.value, { ...body, and: false })
-    })
+Promise.all(protocol_id_or.map((id) => Protocol.find(id))).then((responses) => {
+  responses.forEach(({ body }) => {
+    addToArray(protocols.value, { ...body, and: false })
   })
-
+})
 </script>
 <style scoped>
-  :deep(.vue-autocomplete-input) {
-    width: 100%
-  }
+:deep(.vue-autocomplete-input) {
+  width: 100%;
+}
 </style>

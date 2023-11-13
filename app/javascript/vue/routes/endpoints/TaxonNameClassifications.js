@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const permitParams = {
   taxon_name_classification: {
@@ -17,5 +17,9 @@ const permitParams = {
 
 export const TaxonNameClassification = {
   ...baseCRUD('taxon_name_classifications', permitParams),
-  types: () => AjaxCall('get', '/taxon_name_classifications/taxon_name_classification_types')
+  types: () =>
+    AjaxCall(
+      'get',
+      '/taxon_name_classifications/taxon_name_classification_types'
+    )
 }

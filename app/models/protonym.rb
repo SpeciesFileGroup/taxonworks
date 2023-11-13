@@ -165,26 +165,21 @@ class Protonym < TaxonName
     end
   end
 
-  # @param rank ['speciesgroup' or 'genusgroup' or 'family']
+  # @param rank full String to match rank_class, like '%genusgroup%' or '%::Family'
   #    scope to names used in taxon determinations
-  def self.names_at_rank_group_for_collection_objects(rank = 'speciesgroup')
-    h = ::TaxonNameHierarchy.arel_table
-    t = ::TaxonName.arel_table
-    t1 = ::TaxonName.arel_table.alias('tndet')
-    d = ::TaxonDetermination.arel_table
-    o = ::Otu.arel_table
+  def self.names_at_rank_group_for_collection_objects(rank: nil, collection_object_query: nil)
 
-    q = t.join(h, Arel::Nodes::InnerJoin).on(
-      t[:id].eq(h[:ancestor_id])
-    ).join(t1, Arel::Nodes::InnerJoin).on(
-      h[:descendant_id].eq(t1[:id])
-    ).join(o, Arel::Nodes::InnerJoin).on(
-      t1[:id].eq(o[:id])
-    ).join(d, Arel::Nodes::InnerJoin).on(
-      o[:id].eq(d[:otu_id])
-    )
+    # Find all the names for the objects in question
+    names = ::Queries::TaxonName::Filter.new(collection_object_query: collection_object_query).all
 
-    joins(q.join_sources).where(t[:rank_class].matches('%' + rank + '%').to_sql).distinct
+    s = 'WITH q_co_names AS (' + names.distinct.all.to_sql + ') ' +
+        ::Protonym
+          .joins('JOIN taxon_name_hierarchies tnh on tnh.ancestor_id = taxon_names.id')
+          .joins('JOIN q_co_names as q_co1 on q_co1.id = tnh.descendant_id')
+          .where('taxon_names.rank_class ilike ?', rank)
+          .to_sql
+
+    ::Protonym.from('(' + s + ') as taxon_names').distinct
   end
 
   # A convenience method to make this
@@ -245,8 +240,8 @@ class Protonym < TaxonName
           search_name = nil
         end
 
-        #        r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
-        #        if !search_name.nil? && r.empty?
+        #  r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
+        #  if !search_name.nil? && r.empty?
         if !search_name.nil? && is_available?
           list = Protonym
             .ancestors_and_descendants_of(self)
@@ -305,7 +300,7 @@ class Protonym < TaxonName
         return false
       end
 
-      genus = genus.name unless genus.blank?
+      genus = genus.name if genus.present?
       return nil if genus.blank?
     end
 
@@ -380,7 +375,7 @@ class Protonym < TaxonName
       else
         Ranks.lookup(ncode, 'family').constantize.valid_parents.each do |r1|
           r2 = r1.constantize
-          if !r2.valid_name_ending.blank? && child_string.end_with?(r2.valid_name_ending) && r2.typical_use && RANKS.index(r1) > RANKS.index(parent_rank)
+          if r2.valid_name_ending.present? && child_string.end_with?(r2.valid_name_ending) && r2.typical_use && RANKS.index(r1) > RANKS.index(parent_rank)
             r = r1
             break
           end
@@ -401,7 +396,7 @@ class Protonym < TaxonName
     descendants.find_each do |z|
       year = z.year_integer
       year = 0 if year.nil?
-      a[year] = {:valid => 0, :synonyms => 0} unless a[year]
+      a[year] = {valid: 0, synonyms: 0} unless a[year]
       if z.rank_string == 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
         if z.cached_is_valid
           a[year][:valid] = a[year][:valid] += 1
@@ -411,7 +406,7 @@ class Protonym < TaxonName
       end
     end
     for i in 1758..Time.now.year do
-      a[i] = {:valid => 0, :synonyms => 0} unless a[i]
+      a[i] = {valid: 0, synonyms: 0} unless a[i]
     end
     b = a.sort.to_h
     CSV.open(file_name, 'w') do |csv|
@@ -475,6 +470,7 @@ class Protonym < TaxonName
     # Is faster than above?
     #    return true if rank_string =~ /Icnp/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
 
+    return true if is_family_rank? && !family_group_name_form_relationship.nil?
     return true if is_family_rank? && !(taxon_name_relationships.collect{|i| i.type} & ::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).empty?
     return true unless (taxon_name_classifications.collect{|i| i.type} & ::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?
     return true unless (taxon_name_relationships.collect{|i| i.type} & ::TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).empty?
@@ -482,7 +478,7 @@ class Protonym < TaxonName
   end
 
   def is_latin?
-    !NOT_LATIN.match(name) || has_latinized_exceptions?
+    !NOT_LATIN.match(name) || has_latinized_exceptions? || rank_string =~ /Icvcn::Species/
   end
 
   # @return [Boolean]
@@ -615,6 +611,10 @@ class Protonym < TaxonName
       m_name, f_name, n_name = name[0..-2] + 'is', name[0..-2] + 'is', name
     when /us$/
       m_name, f_name, n_name = name, name[0..-3] + 'a', name[0..-3] + 'um'
+    when /(niger|integer)$/
+      m_name, f_name, n_name = name, name[0..-3] + 'ra', name[0..-3] + 'rum'
+    when /(fer|ger)$/
+      m_name, f_name, n_name = name, name + 'a', name + 'um'
     when /er$/
       m_name, f_name, n_name = name, name[0..-3] + 'ra', name[0..-3] + 'rum'
     when /(ferum|gerum)$/
@@ -704,7 +704,7 @@ class Protonym < TaxonName
     p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) }
 
     s = p.flatten.compact.join(' ')
-    s.blank? ? nil : s
+    (s.presence)
   end
 
   # @return [Hash]
@@ -791,15 +791,15 @@ class Protonym < TaxonName
   def get_original_combination_html
     return  "\"<i>Candidatus</i> #{get_original_combination}\"" if is_candidatus?
     v = get_original_combination
-    if !v.blank? && is_hybrid?
+    if v.present? && is_hybrid?
       w = v.split(' ')
       w[-1] = ('×' + w[-1]).gsub('×(', '(×').gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))')
       v = w.join(' ')
     end
-    v = v.gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))') if !v.blank?
+    v = v.gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))') if v.present?
 
     v = Utilities::Italicize.taxon_name(v) if is_genus_or_species_rank?
-    v = '† ' + v if !v.blank? && is_fossil?
+    v = '† ' + v if v.present? && is_fossil?
     v
   end
 
@@ -818,22 +818,13 @@ class Protonym < TaxonName
     )
   end
 
-  def set_cached_names_for_dependants
+  def set_cached_names_for_descendants
     dependants = []
-    related_through_original_combination_relationships = []
-    combination_relationships = []
 
     TaxonName.transaction_with_retry do
       if is_genus_or_species_rank?
         dependants = Protonym.unscoped.descendants_of(self).to_a
-        related_through_original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
-        combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
       end
-
-     #  dependants.push(self) # combination does hit here
-
-      # Combination can hit here
-      classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
 
       dependants.each do |i|
         n = i.get_full_name
@@ -851,6 +842,20 @@ class Protonym < TaxonName
 
         i.update_columns(columns_to_update)
       end
+    end
+  end
+
+  def set_cached_names_for_dependants
+    related_through_original_combination_relationships = []
+    combination_relationships = []
+
+    TaxonName.transaction_with_retry do
+      if is_genus_or_species_rank?
+        related_through_original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
+        combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
+      end
+
+      classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
 
       related_through_original_combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
         i.update_cached_original_combinations
@@ -892,6 +897,30 @@ class Protonym < TaxonName
     is_genus_or_species_rank? && parent == protonym && parent.name == protonym.name
   end
 
+  # @return [Hash]
+  def self.batch_move(params)
+    return false if params[:parent_id].blank?
+
+    a = Queries::TaxonName::Filter.new(params[:taxon_name_query]).all.where(type: 'Protonym')
+
+    return false if a.count == 0
+
+    moved = []
+    unmoved = []
+
+    begin
+      a.each do |o|
+        if o.update(parent_id: params[:parent_id] )
+          moved.push o
+        else
+          unmoved.push o
+        end
+      end
+    end
+
+    return { moved: moved, unmoved: unmoved}
+  end
+
   protected
 
   def check_new_parent_class
@@ -929,7 +958,7 @@ class Protonym < TaxonName
 
   def new_parent_taxon_name
     r = self.iczn_uncertain_placement_relationship
-    unless r.blank?
+    if r.present?
       if self.parent != r.object_taxon_name
         errors.add(:parent_id, "Taxon has an 'Incertae sedis' relationship, which prevent the parent modifications, change the relationship to 'Source classified as' before updating the parent")
       end
@@ -941,7 +970,7 @@ class Protonym < TaxonName
   end
 
   def validate_child_rank_is_equal_or_lower
-    if parent && !rank_class.blank? && rank_string != 'NomenclaturalRank'
+    if parent && rank_class.present? && rank_string != 'NomenclaturalRank'
       if rank_class_changed?
         a = children.where(type: 'Protonym').pluck(:rank_class)
         v = RANKS.index(rank_string)
@@ -956,8 +985,8 @@ class Protonym < TaxonName
   end
 
   def validate_parent_rank_is_higher
-    if parent && !rank_class.blank? && rank_string != 'NomenclaturalRank'
-      if RANKS.index(rank_string) <= RANKS.index(parent.rank_string)
+    if parent && rank_class.present? && rank_string != 'NomenclaturalRank'
+      if RANKS.index(rank_string).to_i <= RANKS.index(parent.rank_string).to_i
         errors.add(:parent_id, "The parent rank (#{parent.rank_class.rank_name}) is not higher than the rank (#{rank_name}) of this taxon")
       end
     end
@@ -969,16 +998,21 @@ class Protonym < TaxonName
     end
   end
 
+  # !! This has to go. A single method is meaningless to the user and to developers.  Which cached is the problem it the problem?
+  # We simply can't tell what went wrong in this case.
+  #
   # This is a *very* expensive soft validation, it should be fragemented into individual parts likely.
   # It should also not be necessary by default our code should be good enough to handle these
   # issues in the long run.
   # DD: rules for cached tend to evolve, what was good in the past, may not be true today
   # MJY: If the meaning of cached changes then it should be removed, not changed.
   def sv_cached_names # this cannot be moved to soft_validation_extensions
-  is_cached = true
-  is_cached = false if cached_author_year != get_author_and_year
-  is_cached = false if cached_author != get_author
-  if is_cached && (
+    is_cached = true
+
+    is_cached = false if cached_author_year != get_author_and_year
+    is_cached = false if cached_author != get_author
+
+    if is_cached && (
       cached_valid_taxon_name_id != get_valid_taxon_name.id ||
       cached_is_valid != !unavailable_or_invalid? || # Do not change this, we want the calculated value.
       cached_html != get_full_name_html ||
@@ -991,23 +1025,28 @@ class Protonym < TaxonName
       rank_string =~ /Species/ &&
       (cached_secondary_homonym != get_genus_species(:current, :self) ||
        cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative)))
-    is_cached = false
-  end
+      is_cached = false
+    end
 
-  soft_validations.add(
-    :base, 'Cached values should be updated',
-    success_message: 'Cached values were updated',
-    failure_message:  'Failed to update cached values') if !is_cached
+    soft_validations.add(
+      :base, 'Cached values should be updated',
+      success_message: 'Cached values were updated',
+      failure_message:  'Failed to update cached values') if !is_cached
   end
 
   def set_cached
+    old_cached_html = cached_html.to_s
+    old_cached_author_year = cached_author_year.to_s
+
     super
-    set_cached_names_for_dependants
     set_cached_original_combination
     set_cached_original_combination_html
     set_cached_homonymy
     set_cached_species_homonym if is_species_rank?
     set_cached_misspelling
+    tn = TaxonName.find(id)
+    set_cached_names_for_descendants if tn.cached_html != old_cached_html
+    set_cached_names_for_dependants if tn.cached_html.to_s != old_cached_html || tn.cached_author_year.to_s != old_cached_author_year
   end
 
   def set_cached_homonymy
@@ -1030,4 +1069,3 @@ class Protonym < TaxonName
     update_column(:cached_original_combination_html, get_original_combination_html)
   end
 end
-

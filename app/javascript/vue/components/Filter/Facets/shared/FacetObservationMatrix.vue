@@ -18,11 +18,11 @@
 
 <script setup>
 import { ref, computed, watch, onBeforeMount } from 'vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import DisplayList from 'components/displayList'
-import { ObservationMatrix } from 'routes/endpoints'
-import { removeFromArray } from 'helpers/arrays.js'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import DisplayList from '@/components/displayList'
+import { ObservationMatrix } from '@/routes/endpoints'
+import { removeFromArray } from '@/helpers/arrays.js'
 
 const props = defineProps({
   modelValue: {

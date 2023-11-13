@@ -1,0 +1,6 @@
+taxonID	parentNameUsageID	acceptedNameUsageID	scientificName	kingdom	lass	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsageID	namePublishedInYear	nomenclaturalCode	TW:TaxonNameClassification:Latinized:Gender	TW:TaxonNameClassification:Latinized:PartOfSpeech
+429639		429639	Stenammini	Animalia	Insecta	Hymenoptera	Formicidae					Tribe	Ashmead, 1905	valid	429639	1905	ICZN
+429830	429639	429830	Veromessor	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Forel, 1917	valid	429830	1917	ICZN	masculine
+429816	429639	429816	Aphaenogaster	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Mayr, 1853	valid	429816	1853	ICZN	feminine
+440100	429830	440100	Veromessor julianus	Animalia	Insecta	Hymenoptera	Formicidae	Veromessor		julianus		Species	(Pergande, 1894)	valid	458411	1894	ICZN		adjective
+458411	429816	440100	Aphaenogaster juliana	Animalia	Insecta	Hymenoptera	Formicidae	Aphaenogaster		juliana		Species	Pergande, 1894	obsolete combination	458411	1894	ICZN		adjective

@@ -2,25 +2,29 @@ module CollectionObjectsHelper
 
   def table_example(collection_objects)
     cols = %i{
-      class 
-      b
-      c
+      class
+      order
+      family
+      genus
+      scientificName
+      sex
     }
 
-    tag.table do 
-      tag.tr { cols.collect{|h| tag.td(h.to_s) }.join.html_safe } + 
+    tag.table do
+      tag.tr { cols.collect{|h| tag.th(h.to_s) }.join.html_safe } +
 
       collection_objects.collect{|co|
-        tag.tr +
-          tag.td( co.dwc_class) +
+        tag.tr do
+          (tag.td( co.dwc_class) +
           tag.td( co.dwc_order) +
           tag.td( co.dwc_family) +
-          tag.td( co.dwc_sex) 
-
+          tag.td( co.dwc_genus) +
+          tag.td( co.dwc_scientific_name) +
+          tag.td( co.dwc_sex)).html_safe
+        end
       }.join.html_safe
     end.html_safe
   end
-
 
   # Return [String, nil]
   #   a descriptor including the identifier and determination
@@ -70,6 +74,21 @@ module CollectionObjectsHelper
       collection_object_identifier_tag(collection_object),
       collection_object_taxon_determination_tag(collection_object)
     ].join(' ').html_safe
+  end
+
+  # Text only, taxon name cached or OTU name for the
+  # most recent determination
+  def collection_object_scientific_name(collection_object)
+    return nil if collection_object.nil?
+    if a = collection_object.taxon_determinations.order(:position)&.first
+      if a.otu.taxon_name
+        a.otu.taxon_name.cached
+      else
+        a.otu.name
+      end
+    else
+      nil
+    end
   end
 
   def collection_objects_search_form
@@ -227,7 +246,7 @@ module CollectionObjectsHelper
     a = Waxy::Meta.new
     a.size = s
     a.stroke = 'grey'
-    a.link_title = "#{o.id.to_s} created #{time_ago_in_words(o.created_at)} ago by #{user_tag(o.creator)}"
+    a.link_title = "#{o.id} created #{time_ago_in_words(o.created_at)} ago by #{user_tag(o.creator)}"
 
     c = Waxy::Render::Svg::Canvas.new(28, 28)
     c.body << Waxy::Render::Svg.rectangle(layout, [a], 0)
@@ -261,6 +280,7 @@ module CollectionObjectsHelper
   # Perhaps a /lib/catalog method
   # @return Hash
   def collection_object_count_by_classification(scope = nil)
+
     return [] if scope.nil?
     specimen_data = {}
     lot_data = {}
@@ -268,8 +288,8 @@ module CollectionObjectsHelper
     total_index = {}
 
     scope.each do |n|
-      a = ::Queries::CollectionObject::Filter.new(project_id: sessions_current_project_id, ancestor_id: n.id, collection_object_type: 'Specimen').all
-      b = ::Queries::CollectionObject::Filter.new(project_id: sessions_current_project_id, ancestor_id: n.id, collection_object_type: 'Lot').all
+      a = ::Queries::CollectionObject::Filter.new(project_id: sessions_current_project_id, taxon_name_id: n.id, descendants: true,  collection_object_type: 'Specimen').all
+      b = ::Queries::CollectionObject::Filter.new(project_id: sessions_current_project_id, taxon_name_id: n.id, descendants: true, collection_object_type: 'Lot').all
 
       ts = CollectionObject.where(id: a).calculate(:sum, :total)
       tl = CollectionObject.where(id: b).calculate(:sum, :total)
@@ -286,7 +306,7 @@ module CollectionObjectsHelper
     specimen_data = specimen_data.sort{|a,b| total_index[b[0]] <=> total_index[a[0]] }.to_h
 
     return {
-      total_index: total_index,
+      total_index:,
       data: [
         { name: 'Specimen', data: specimen_data},
         { name: 'Lot', data: lot_data}
@@ -310,7 +330,8 @@ module CollectionObjectsHelper
 
       a = ::Queries::CollectionObject::Filter.new(
         project_id: sessions_current_project_id,
-        ancestor_id: n.id
+        taxon_name_id:  n.id,
+        descendants: true
       )
 
       # Yes a custom query could do this much faster
@@ -340,9 +361,33 @@ module CollectionObjectsHelper
 
     return {
       labels: preparations.collect{|p| p.name} + ['Missing'],
-      data: data,
-      no_data: no_data
+      data:,
+      no_data:
     }
 
   end
+
+  def table_example(collection_objects)
+    cols = %i{
+      class
+      b
+      c
+    }
+
+    tag.table do
+      tag.tr { cols.collect{|h| tag.td(h.to_s) }.join.html_safe } +
+
+      collection_objects.collect{|co|
+        tag.tr +
+          tag.td( co.dwc_class) +
+          tag.td( co.dwc_order) +
+          tag.td( co.dwc_family) +
+          tag.td( co.dwc_sex)
+
+      }.join.html_safe
+    end.html_safe
+  end
+
+
+
 end

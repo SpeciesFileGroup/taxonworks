@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'observation_matrices'
 const permitParams = {
@@ -31,5 +31,10 @@ export const ObservationMatrix = {
     }),
 
   otusUseInMatrix: (params) =>
-    AjaxCall('get', `/${controller}/otus_used_in_matrices.json`, { params })
+    AjaxCall('get', `/${controller}/otus_used_in_matrices.json`, { params }),
+
+  addBatch: (params) => AjaxCall('post', `/${controller}/batch_add`, params),
+
+  createBatch: (params) =>
+    AjaxCall('post', `/${controller}/batch_create`, params)
 }

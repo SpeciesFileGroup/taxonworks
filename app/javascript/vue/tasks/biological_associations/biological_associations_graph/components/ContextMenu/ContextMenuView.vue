@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { COLLECTION_OBJECT, OTU } from 'constants/index.js'
+import { COLLECTION_OBJECT, OTU } from '@/constants/index.js'
 
 const emit = defineEmits(['add:node', 'cite:graph'])
 

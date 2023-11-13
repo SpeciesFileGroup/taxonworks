@@ -21,6 +21,7 @@
         :target="ASSERTED_DISTRIBUTION"
         absent-field
         lock-button
+        use-session
         @lock="lock.source = $event"
       />
       <button
@@ -85,15 +86,15 @@
 import CRUD from '../../request/crud.js'
 import AnnotatorExtend from '../annotatorExtend.js'
 import TableList from './table.vue'
-import DisplayList from 'components/displayList.vue'
+import DisplayList from '@/components/displayList.vue'
 import GeographicArea from './geographicArea.vue'
-import Spinner from 'components/spinner.vue'
-import MapComponent from 'components/georeferences/map.vue'
+import Spinner from '@/components/spinner.vue'
+import MapComponent from '@/components/georeferences/map.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
-import FormCitation from 'components/Form/FormCitation.vue'
-import { ASSERTED_DISTRIBUTION } from 'constants/index'
-import { addToArray } from 'helpers/arrays.js'
-import { AssertedDistribution } from 'routes/endpoints'
+import FormCitation from '@/components/Form/FormCitation.vue'
+import { ASSERTED_DISTRIBUTION } from '@/constants/index'
+import { addToArray } from '@/helpers/arrays.js'
+import { AssertedDistribution } from '@/routes/endpoints'
 
 const EXTEND_PARAMS = {
   embed: ['shape'],
@@ -123,18 +124,6 @@ export default {
       return (
         this.asserted_distribution.geographic_area_id &&
         this.asserted_distribution.source_id
-      )
-    },
-
-    existingArea() {
-      return this.list.find(
-        (item) =>
-          item.geographic_area_id ===
-            this.asserted_distribution.geographic_area_id &&
-          (item.is_absent === null ? false : item.is_absent) ===
-            (this.asserted_distribution.is_absent === null
-              ? false
-              : this.asserted_distribution.is_absent)
       )
     },
 
@@ -189,6 +178,12 @@ export default {
     },
 
     saveAssertedDistribution() {
+      const createdObject = this.list.find(
+        (item) =>
+          item.geographic_area.id ===
+            this.asserted_distribution.geographic_area_id &&
+          !!this.asserted_distribution.is_absent === !!item.is_absent
+      )
       const params = {
         asserted_distribution: {
           ...this.asserted_distribution,
@@ -197,9 +192,9 @@ export default {
         ...EXTEND_PARAMS
       }
 
-      const saveRequest = !this.existingArea
-        ? AssertedDistribution.create(params)
-        : AssertedDistribution.update(this.existingArea.id, params)
+      const saveRequest = createdObject
+        ? AssertedDistribution.update(createdObject.id, params)
+        : AssertedDistribution.create(params)
 
       saveRequest.then(({ body }) => {
         TW.workbench.alert.create(
@@ -211,7 +206,7 @@ export default {
     },
 
     removeCitation(item) {
-      const asserted_distribution = {
+      const payload = {
         citations_attributes: [
           {
             id: item.id,
@@ -221,7 +216,7 @@ export default {
       }
 
       AssertedDistribution.update(this.asserted_distribution.id, {
-        asserted_distribution,
+        asserted_distribution: payload,
         ...EXTEND_PARAMS
       }).then(({ body }) => {
         this.addToList(body)

@@ -59,9 +59,9 @@
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { computed } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import { URLParamsToJSON } from '@/helpers/url/parse'
 
 const props = defineProps({
   modelValue: {
@@ -104,6 +104,6 @@ Object.assign(params.value, {
   last_name: urlParams.last_name,
   suffix: urlParams.suffix,
   prefix: urlParams.prefix,
-  exact: urlParams.exact || []
+  exact: Array.isArray(urlParams.exact) ? urlParams.exact : []
 })
 </script>

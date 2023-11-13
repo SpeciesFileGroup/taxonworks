@@ -3,156 +3,191 @@
     <spinner-component
       v-if="isSaving"
       full-screen
-      legend="Saving..."/>
+      legend="Saving..."
+    />
 
     <div class="flex-separate middle">
       <h1>Manage controlled vocabulary</h1>
       <ul class="context-menu">
         <li>
-          <a :href="routeNames.ManageBiocurationTask">Manage biocuration classes and groups</a>
+          <a :href="RouteNames.ManageBiocurationTask"
+            >Manage biocuration classes and groups</a
+          >
         </li>
       </ul>
     </div>
 
-    <switch-component
+    <VSwitch
       v-model="view"
-      :options="types"/>
-    <h3>
-      {{ cvtTypes[view] }}
-      <a
-        v-if="linkFor.includes(view)"
-        href="/tasks/controlled_vocabularies/biocuration/build_collection">Manage biocuration classes and groups
-      </a>
-    </h3>
+      :options="types"
+    />
+    <div class="flex-separate middle">
+      <h3>
+        {{ CVT_TYPES[view] }}
+        <a
+          v-if="linkFor.includes(view)"
+          href="/tasks/controlled_vocabularies/biocuration/build_collection"
+          >Manage biocuration classes and groups
+        </a>
+      </h3>
+      <CloneControlledVocabularyTerms
+        :type="view"
+        @clone="
+          () => {
+            loadCVTList(view)
+          }
+        "
+      />
+    </div>
     <div class="flex-separate margin-medium-top">
-      <div class="one_quarter_width">
+      <NavBar
+        class="one_quarter_width"
+        navbar-class=""
+      >
         <div class="panel content margin-medium-bottom">
           <FormKeyword
-            v-model="controlled_vocabulary_term"
+            v-model="cvt"
             @submit="createCTV"
           />
         </div>
         <div
           v-if="globalId"
-          class="panel content">
+          class="panel content"
+        >
           <h3>Preview use</h3>
           <span
             class="link"
-            @click="copyToClipboard">{{ globalId }}</span>
+            @click="copyToClipboard"
+            >{{ globalId }}</span
+          >
         </div>
-      </div>
-      <list-component
-        ref="list"
+      </NavBar>
+      <ListComponent
+        :list="list"
         @edit="setCTV"
-        :type="controlled_vocabulary_term.type"/>
+        @remove="removeCTV"
+        @sort="
+          (data) => {
+            list = data
+          }
+        "
+      />
     </div>
   </div>
 </template>
 
-<script>
-
+<script setup>
+import { computed, ref, watch, onBeforeMount } from 'vue'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
+import { addToArray, removeFromArray } from '@/helpers'
+import { RouteNames } from '@/routes/routes'
 import CVT_TYPES from './constants/controlled_vocabulary_term_types'
-import makeControlledVocabularyTerm from 'factory/controlledVocabularyTerm'
-import { ControlledVocabularyTerm } from 'routes/endpoints'
-
-import SwitchComponent from 'components/switch.vue'
+import makeControlledVocabularyTerm from '@/factory/controlledVocabularyTerm'
+import VSwitch from '@/components/switch.vue'
 import ListComponent from './components/List.vue'
-import SpinnerComponent from 'components/spinner'
-import FormKeyword from 'components/Form/FormKeyword.vue'
+import SpinnerComponent from '@/components/spinner'
+import FormKeyword from '@/components/Form/FormKeyword.vue'
+import CloneFromObject from '@/helpers/cloneFromObject'
+import CloneControlledVocabularyTerms from './components/CloneControlledVocabularyTerms.vue'
+import NavBar from '@/components/layout/NavBar.vue'
 
-import CloneFromObject from 'helpers/cloneFromObject'
-import { RouteNames } from 'routes/routes'
+const types = computed(() => Object.keys(CVT_TYPES))
+const globalId = computed(() => cvt.value?.global_id)
+const cvt = ref(makeControlledVocabularyTerm())
+const isSaving = ref(false)
+const isLoading = ref(false)
+const view = ref('Keyword')
+const linkFor = ref(['BiocurationClass', 'BiocurationGroup'])
+const list = ref([])
 
-export default {
-  components: {
-    SwitchComponent,
-    ListComponent,
-    SpinnerComponent,
-    FormKeyword
+watch(
+  view,
+  (newVal) => {
+    cvt.value.type = newVal
+    isLoading.value = true
+    loadCVTList(newVal)
   },
+  {
+    immediate: true
+  }
+)
 
-  computed: {
-    types () {
-      return Object.keys(this.cvtTypes)
-    },
+onBeforeMount(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const ctvId = urlParams.get('controlled_vocabulary_term_id')
 
-    validateData () {
-      return (this.controlled_vocabulary_term.name.length > 0 && this.controlled_vocabulary_term.definition.length >= this.definitionLength)
-    },
+  if (/^\d+$/.test(ctvId)) {
+    ControlledVocabularyTerm.find(ctvId).then((response) => {
+      view.value = response.body.type
+      setCTV(response.body)
+    })
+  }
+})
 
-    globalId () {
-      return this.controlled_vocabulary_term?.global_id
-    },
+function loadCVTList(type) {
+  ControlledVocabularyTerm.where({ type: [type] }).then(({ body }) => {
+    list.value = body
+    isLoading.value = false
+  })
+}
 
-    routeNames () {
-      return RouteNames
-    }
-  },
+function createCTV() {
+  const payload = {
+    controlled_vocabulary_term: cvt.value
+  }
+  const request = cvt.value.id
+    ? ControlledVocabularyTerm.update(cvt.value.id, payload)
+    : ControlledVocabularyTerm.create(payload)
 
-  data () {
-    return {
-      cvtTypes: CVT_TYPES,
-      controlled_vocabulary_term: makeControlledVocabularyTerm(),
-      isSaving: false,
-      view: 'Keyword',
-      linkFor: ['BiocurationClass', 'BiocurationGroup'],
-      definitionLength: 20
-    }
-  },
+  isSaving.value = true
 
-  watch: {
-    view: {
-      handler(newVal) {
-        this.controlled_vocabulary_term.type = newVal
-      },
-      immediate: true
-    }
-  },
+  request
+    .then(({ body }) => {
+      TW.workbench.alert.create(
+        `${body.type} was successfully ${
+          cvt.value.id ? 'updated' : 'created'
+        }.`,
+        'notice'
+      )
 
-  created () {
-    const urlParams = new URLSearchParams(window.location.search)
-    const ctvId = urlParams.get('controlled_vocabulary_term_id')
+      addToArray(list.value, body, { prepend: true })
+      newCTV()
+    })
+    .finally(() => {
+      isSaving.value = false
+    })
+}
 
-    if (/^\d+$/.test(ctvId)) {
-      ControlledVocabularyTerm.find(ctvId).then(response => {
-        this.view = response.body.type
-        this.setCTV(response.body)
+function newCTV() {
+  cvt.value = makeControlledVocabularyTerm()
+  cvt.value.type = view.value
+}
+
+function setCTV(ctv) {
+  cvt.value = CloneFromObject(makeControlledVocabularyTerm(), ctv)
+}
+
+function copyToClipboard() {
+  navigator.clipboard.writeText(cvt.value.global_id).then(() => {
+    TW.workbench.alert.create('Copied to clipboard', 'notice')
+  })
+}
+
+function removeCTV(cvt) {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
+    isLoading.value = true
+    ControlledVocabularyTerm.destroy(cvt.id)
+      .then((_) => {
+        removeFromArray(list.value, cvt)
       })
-    }
-  },
-
-  methods: {
-    createCTV () {
-      const controlled_vocabulary_term = this.controlled_vocabulary_term
-      const savePromise = this.controlled_vocabulary_term.id
-        ? ControlledVocabularyTerm.update(controlled_vocabulary_term.id, { controlled_vocabulary_term })
-        : ControlledVocabularyTerm.create({ controlled_vocabulary_term })
-
-      this.isSaving = true
-
-      savePromise.then(({ body }) => {
-        TW.workbench.alert.create(`${body.type} was successfully ${this.controlled_vocabulary_term.id ? 'updated' : 'created'}.`, 'notice')
-        this.$refs.list.addCTV(body)
-        this.newCTV()
-      }).finally(() => {
-        this.isSaving = false
+      .catch(() => {})
+      .finally((_) => {
+        isLoading.value = false
       })
-    },
-
-    newCTV () {
-      this.controlled_vocabulary_term = makeControlledVocabularyTerm()
-      this.controlled_vocabulary_term.type = this.view
-    },
-
-    setCTV (ctv) {
-      this.controlled_vocabulary_term = CloneFromObject(makeControlledVocabularyTerm(), ctv)
-    },
-
-    copyToClipboard () {
-      navigator.clipboard.writeText(this.controlled_vocabulary_term.global_id).then(() => {
-        TW.workbench.alert.create('Copied to clipboard', 'notice')
-      })
-    }
   }
 }
 </script>

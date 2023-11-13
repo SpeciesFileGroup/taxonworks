@@ -3,11 +3,11 @@
     :id="id"
     type="graph"
     button-class="btn-co-radial"
-    :global-id="globalId"/>
+    :global-id="globalId"
+  />
 </template>
 <script>
-
-import CollectionObjectRadial from 'components/radials/object/radial.vue'
+import CollectionObjectRadial from '@/components/radials/object/radial.vue'
 
 export default {
   components: {

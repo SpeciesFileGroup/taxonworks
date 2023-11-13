@@ -7,7 +7,7 @@ module Shared::Tags
   included do
     Tag.related_foreign_keys.push self.name.foreign_key
 
-    has_many :tags, as: :tag_object, dependent: :destroy
+    has_many :tags, as: :tag_object, dependent: :destroy, inverse_of: :tag_object
     has_many :keywords, through: :tags
 
     scope :with_tags, -> { joins(:tags) }
@@ -16,16 +16,17 @@ module Shared::Tags
     accepts_nested_attributes_for :tags, reject_if: :reject_tags, allow_destroy: true
 
     # TODO: This should be a Tag validation!? (this is nested keywords)
-    validate :identical_new_keywords_are_prevented
+    validate :identical_nested_attribute_tags_are_prevented
 
     protected
 
-    def identical_new_keywords_are_prevented
+    def identical_nested_attribute_tags_are_prevented
       a = []
       tags.each do |t|
-        errors.add(:base, 'identical keyword attempt') if a.include?(id: t.keyword.id, name: t.keyword.name, definition: t.keyword.definition)
+        i = t.keyword&.id || t.keyword_id
+        errors.add(:base, 'identical keyword attempt') if a.include?(id: i)
         # t.keyword.attributes cannot be used, because the updated_at is truncated after save. The date is returned in different format.
-        a.push(id: t.keyword.id, name: t.keyword.name, definition: t.keyword.definition)
+        a.push(id: i)
       end
     end
   end
@@ -39,11 +40,11 @@ module Shared::Tags
   # @return [Boolean]
   #   true if the object has a tak with this keyword
   def tagged_with?(keyword_id)
-    tags.where(keyword_id: keyword_id).any?
+    tags.where(keyword_id:).any?
   end
 
   def tag_with(keyword_id)
-    tags << Tag.new(keyword_id: keyword_id)
+    tags << Tag.new(keyword_id:)
   end
 
   module ClassMethods
@@ -56,7 +57,7 @@ module Shared::Tags
     # @return [Scope]
     #    only those instances with tags that use the kewyord
     def tagged_with_keyword(keyword)
-      joins(:tags).where(tags: {keyword: keyword})
+      joins(:tags).where(tags: {keyword:})
     end
   end
 
