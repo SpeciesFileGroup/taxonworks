@@ -47,7 +47,7 @@ class Attribution < ApplicationRecord
   validates :license, inclusion: {in: CREATIVE_COMMONS_LICENSES.keys}, allow_nil: true
 
   validates :copyright_year, date_year: {
-    min_year: 1000, max_year: Time.now.year + 5,
+    min_year: 1000, max_year: Time.zone.now.year + 5,
     message: 'must be an integer greater than 999 and no more than 5 years in the future'}
 
   validate :some_data_provided
@@ -58,12 +58,19 @@ class Attribution < ApplicationRecord
     ATTRIBUTION_ROLES.each do |r|
       return true if send("#{r}_roles".to_sym).any?
     end
+
+    if self.roles.any?
+      self.roles.each do |r|
+        return true if r.type.present? && r.person_id.present?
+      end
+    end
+
     false
   end
 
   def some_data_provided
     if license.blank? && copyright_year.blank? && !some_roles_present
-      errors.add(:base, 'no attribution metadata') 
+      errors.add(:base, 'no attribution metadata')
     end
   end
 

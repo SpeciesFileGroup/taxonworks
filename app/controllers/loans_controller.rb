@@ -66,7 +66,7 @@ class LoansController < ApplicationController
 
   def attributes
     render json: ::Loan.columns.select{
-      |a| Queries::Loan::Filter::ATTRIBUTES.include?(
+      |a| ::Queries::Loan::Filter::ATTRIBUTES.include?(
         a.name.to_sym)
     }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
@@ -110,7 +110,7 @@ class LoansController < ApplicationController
   end
 
   def autocomplete
-    @loans = Queries::Loan::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
+    @loans = ::Queries::Loan::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
   end
 
   # GET /loans/download

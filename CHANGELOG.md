@@ -9,6 +9,38 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.35.3] - 2023-11-13
+
+### Added
+
+- Radial collection object: Add repository [#3637]
+
+### Changed
+
+- CachedMaps (WebLevel1) is now based on "State" shapes only, improving resolution
+- CachedMap build process adds pre-build step to greatly minimize overall number of spatial calculations
+- CachedMap spatial calculations use a intersection + "smoothing" approach
+- Also use year of publication to determine correct protonyn having homonyms [#3630]
+- Improved error message when `typeStatus` name is a homonym in DwC occurrences importer [#3632]
+
+### Fixed
+
+- Duplicate loans appearing Loan filter [#3636]
+- New source when cloned and saved is not added to the project sources [#3629]
+- Sequence display when not a Primer
+- CachedMap indexing speedups failed to properly utilize prior work
+- Duplicate CachedMapRegister rows being created per object
+- New Image task, second "Apply" button is not working #3628
+- ' [sic]' not removed when searching for synonyms in database to compare with `typeStatus` in DwC occurrence importer [#3633]
+
+[#3628]: https://github.com/SpeciesFileGroup/taxonworks/issues/3636
+[#3628]: https://github.com/SpeciesFileGroup/taxonworks/issues/3628
+[#3629]: https://github.com/SpeciesFileGroup/taxonworks/issues/3629
+[#3630]: https://github.com/SpeciesFileGroup/taxonworks/pull/3630
+[#3632]: https://github.com/SpeciesFileGroup/taxonworks/pull/3632
+[#3633]: https://github.com/SpeciesFileGroup/taxonworks/pull/3633
+[#3637]: https://github.com/SpeciesFileGroup/taxonworks/pull/3637
+
 ## [0.35.2] - 2023-11-07
 
 ### Changed
@@ -4028,7 +4060,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.3...development
+[0.35.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.2...v0.35.3
 [0.35.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.1...v0.35.2
 [0.35.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.6...v0.35.0
