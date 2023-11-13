@@ -7,7 +7,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Radial collection object: Add repository [#3637]
+
 ### Changed
+
 - CachedMaps (WebLevel1) is now based on "State" shapes only, improving resolution
 - CachedMap build process adds pre-build step to greatly minimize overall number of spatial calculations
 - CachedMap spatial calculations use a intersection + "smoothing" approach
@@ -21,9 +26,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Sequence display when not a Primer
 - CachedMap indexing speedups failed to properly utilize prior work
 - Duplicate CachedMapRegister rows being created per object
-- New Image task, second "Apply" button is not working #3628 
+- New Image task, second "Apply" button is not working #3628
 - ' [sic]' not removed when searching for synonyms in database to compare with `typeStatus` in DwC occurrence importer [#3633]
-
 
 [#3628]: https://github.com/SpeciesFileGroup/taxonworks/issues/3636
 [#3628]: https://github.com/SpeciesFileGroup/taxonworks/issues/3628
@@ -31,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3630]: https://github.com/SpeciesFileGroup/taxonworks/pull/3630
 [#3632]: https://github.com/SpeciesFileGroup/taxonworks/pull/3632
 [#3633]: https://github.com/SpeciesFileGroup/taxonworks/pull/3633
+[#3637]: https://github.com/SpeciesFileGroup/taxonworks/pull/3637
 
 ## [0.35.2] - 2023-11-07
 
