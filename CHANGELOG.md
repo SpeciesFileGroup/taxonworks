@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Radial AD: Quick/recent selector broken on "Move". [#3640]
+- New taxon name: Author panel overflow when source has a long link
 
 [#3640]: https://github.com/SpeciesFileGroup/taxonworks/issues/3640
 
