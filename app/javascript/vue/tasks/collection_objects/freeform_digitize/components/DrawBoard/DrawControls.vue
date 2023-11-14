@@ -67,14 +67,13 @@
 </template>
 
 <script setup>
-import { GetterNames } from '../../store/getters/getters'
 import { computed, ref, watch } from 'vue'
-import { useStore } from 'vuex'
 import { drawMode } from '@sfgrp/svg-detailer'
+import useStore from '../../store/store'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
 const store = useStore()
-const SVGBoard = computed(() => store.getters[GetterNames.GetSVGBoard])
+const SVGBoard = computed(() => store.SVGBoard)
 const color = ref('#000000')
 
 watch(color, (newVal) => {

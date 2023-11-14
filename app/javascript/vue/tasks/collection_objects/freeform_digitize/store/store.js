@@ -1,11 +1,10 @@
-import { createStore } from 'vuex'
-import { GetterFunctions } from './getters/getters'
-import { MutationFunctions } from './mutations/mutations'
-import { ActionFunctions } from './actions/actions'
-import SledImage from '../const/sledImage'
+import { defineStore } from 'pinia'
+import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from '@/constants'
+import { CollectionObject } from '@/routes/endpoints'
+import { SVGDraw } from '@sfgrp/svg-detailer'
 
-function makeInitialState () {
-  return {
+export default defineStore('freeform', {
+  state: () => ({
     settings: {
       lock: {
         notes_attributes: false,
@@ -27,38 +26,32 @@ function makeInitialState () {
       data_attributes_attributes: [],
       taxon_determinations_attributes: []
     },
-    sled_image: SledImage(),
     identifier: {
-      id: undefined,
-      namespace_id: undefined,
-      label: undefined,
-      identifier: undefined,
-      type: 'Identifier::Local::CatalogNumber',
-      identifier_object_id: undefined,
-      identifier_object_type: 'CollectionObject'
+      namespaceId: undefined,
+      identifier: undefined
     },
     image: undefined,
-    navigation: {
-      previous: undefined,
-      next: undefined
-    },
-    depiction: {
-      is_metadata_depiction: undefined
-    },
     SVGBoard: null
+  }),
+
+  actions: {
+    saveCollectionObject() {
+      const SVGData = this.SVGBoard.apiJsonSVG()
+      const payload = {
+        collection_object: {
+          total: 1,
+          depictions_attributes: {
+            svg_clip: SVGData.data.attributes,
+            //svg_view_box: 'test',
+            image_id: this.image.id
+          }
+        }
+      }
+      CollectionObject.create(payload)
+    },
+
+    createSVGBoard(element) {
+      this.SVGBoard = new SVGDraw(element)
+    }
   }
-}
-
-function newStore () {
-  return createStore({
-    state: makeInitialState(),
-    getters: GetterFunctions,
-    mutations: MutationFunctions,
-    actions: ActionFunctions
-  })
-}
-
-export {
-  newStore,
-  makeInitialState
-}
+})

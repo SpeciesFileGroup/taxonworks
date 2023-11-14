@@ -25,6 +25,16 @@ const permitParams = {
       type: String,
       value: String
     },
+    depictions_attributes: {
+      id: Number,
+      _destroy: Boolean,
+      svg_clip: String,
+      svg_view_box: String,
+      position: Number,
+      caption: String,
+      figure_label: String,
+      image_id: Number
+    },
     tags_attributes: {
       id: Number,
       _destroy: Boolean,

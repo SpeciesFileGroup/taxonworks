@@ -9,8 +9,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useStore } from 'vuex'
-import { ActionNames } from '../../store/actions/actions'
+import useStore from '../../store/store'
 
 const store = useStore()
 const elementBoard = ref(null)
@@ -23,6 +22,6 @@ defineProps({
 })
 
 onMounted(() => {
-  store.dispatch(ActionNames.CreateSVGBoard, elementBoard.value)
+  store.createSVGBoard(elementBoard.value)
 })
 </script>
