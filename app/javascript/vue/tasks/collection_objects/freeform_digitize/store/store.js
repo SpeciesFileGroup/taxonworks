@@ -31,7 +31,8 @@ export default defineStore('freeform', {
       identifier: undefined
     },
     image: undefined,
-    SVGBoard: null
+    SVGBoard: null,
+    SVGCurrentMode: null
   }),
 
   actions: {
@@ -42,7 +43,6 @@ export default defineStore('freeform', {
           total: 1,
           depictions_attributes: {
             svg_clip: SVGData.data.attributes,
-            //svg_view_box: 'test',
             image_id: this.image.id
           }
         }
@@ -52,6 +52,9 @@ export default defineStore('freeform', {
 
     createSVGBoard(element) {
       this.SVGBoard = new SVGDraw(element)
+      this.SVGBoard.on('changemode', ({ mode }) => {
+        this.SVGCurrentMode = mode
+      })
     }
   }
 })
