@@ -47,7 +47,7 @@ export default defineStore('freeform', {
           }
         }
       }
-      CollectionObject.create(payload)
+      CollectionObject.create(payload).catch(() => {})
     },
 
     createSVGBoard(element) {

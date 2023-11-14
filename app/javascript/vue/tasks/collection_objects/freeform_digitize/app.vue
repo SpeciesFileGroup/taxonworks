@@ -72,9 +72,9 @@ import NavBar from './components/NavBar'
 import useStore from './store/store.js'
 
 const TABS = {
-  Assign: AssignComponent,
+  /*   Assign: AssignComponent,
   'Overview metadata': OverviewMetadataComponent,
-  Review: ReviewComponent
+  Review: ReviewComponent */
 }
 
 const store = useStore()
