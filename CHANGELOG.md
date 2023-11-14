@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Radial AD: Quick/recent selector broken on "Move". [#3640]
+
+[#3640]: https://github.com/SpeciesFileGroup/taxonworks/issues/3640
 
 ## [0.35.3] - 2023-11-13
 
