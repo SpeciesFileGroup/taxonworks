@@ -1,20 +1,30 @@
 <template>
-  <div class="panel content flex-column draw__toolbar">
-    <button
-      type="button"
-      title="Move"
-      @click="SVGBoard.apiSetMode(drawMode.MOVE)"
+  <div class="panel flex-column draw__toolbar gap-medium padding-medium">
+    <VBtn
+      v-for="(item, key) in TOOLS"
+      class="no-padding"
+      circle
+      medium
+      :class="{ 'border-active': key === store.SVGCurrentMode }"
+      :key="key"
+      :title="item.title"
+      @click="item.action"
     >
-      <VIcon name="move" />
-    </button>
-    <button
+      <VIcon
+        small
+        :name="item.icon"
+      />
+    </VBtn>
+
+    <VBtn
       type="button"
       title="Circle"
+      class="no-padding"
       @click="SVGBoard.apiSetMode(drawMode.CIRCLE)"
     >
       <svg
-        width="24px"
-        height="24px"
+        width="16px"
+        height="16px"
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -29,35 +39,7 @@
           stroke-linejoin="round"
         />
       </svg>
-    </button>
-    <button
-      type="button"
-      title="Rectangle"
-      @click="SVGBoard.apiSetMode(drawMode.RECTANGLE)"
-    >
-      <VIcon name="square" />
-    </button>
-
-    <button
-      type="button"
-      @click="SVGBoard.apiSetMode(drawMode.POLYGON)"
-    >
-      <VIcon name="polyline" />
-    </button>
-
-    <button
-      type="button"
-      @click="SVGBoard.apiZoomIn()"
-    >
-      <VIcon name="zoomIn" />
-    </button>
-
-    <button
-      type="button"
-      @click="SVGBoard.apiZoomOut()"
-    >
-      <VIcon name="zoomOut" />
-    </button>
+    </VBtn>
 
     <input
       type="color"
@@ -71,10 +53,40 @@ import { computed, ref, watch } from 'vue'
 import { drawMode } from '@sfgrp/svg-detailer'
 import useStore from '../../store/store'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const store = useStore()
 const SVGBoard = computed(() => store.SVGBoard)
 const color = ref('#000000')
+
+const TOOLS = {
+  [drawMode.MOVE]: {
+    title: 'Move',
+    icon: 'move',
+    action: () => SVGBoard.value.apiSetMode(drawMode.MOVE)
+  },
+  [drawMode.RECTANGLE]: {
+    title: 'Rectangle',
+    icon: 'square',
+    action: () => SVGBoard.value.apiSetMode(drawMode.RECTANGLE)
+  },
+  [drawMode.POLYGON]: {
+    title: 'Polygon',
+    icon: 'polyline',
+    action: () => SVGBoard.value.apiSetMode(drawMode.POLYGON)
+  },
+
+  zoomIn: {
+    title: 'Zoom in',
+    icon: 'zoomIn',
+    action: () => SVGBoard.value.apiZoomIn()
+  },
+  zoomOut: {
+    title: 'Zoom out',
+    icon: 'zoomOut',
+    action: () => SVGBoard.value.apiZoomOut()
+  }
+}
 
 watch(color, (newVal) => {
   SVGBoard.value.apiStroke(newVal)
@@ -83,19 +95,21 @@ watch(color, (newVal) => {
 
 <style scoped lang="scss">
 .draw__toolbar {
-  width: 40px;
-
   button {
     background-color: transparent;
     border: none;
-    padding: 0.5rem;
     cursor: pointer;
   }
 
   input {
     border: none;
-    width: auto;
+    padding: 0;
+    width: 28px;
     cursor: pointer;
+  }
+
+  .border-active {
+    border: 2px solid var(--color-primary);
   }
 }
 </style>

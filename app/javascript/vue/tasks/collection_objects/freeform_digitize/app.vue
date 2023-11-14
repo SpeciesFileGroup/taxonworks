@@ -99,6 +99,8 @@ onBeforeMount(() => {
   const urlParams = new URLSearchParams(window.location.search)
   const coId = urlParams.get('collection_object_id')
 
+  loadImage(1044784)
+
   /*   if (coId && /^\d+$/.test(coId)) {
   } */
 })
