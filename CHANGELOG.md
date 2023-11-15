@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- TaxonName model to customize attributes.
+
 ### Fixed
 
 - Radial AD: Quick/recent selector broken on "Move". [#3640]
