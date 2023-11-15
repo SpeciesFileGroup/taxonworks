@@ -18,55 +18,30 @@
       Add
     </button>
     <list-component
-      v-if="collectionObject.notes_attributes.length"
-      :list="collectionObject.notes_attributes"
+      v-if="store.notes.length"
+      :list="store.notes"
       @delete="removeNote"
       :label="[]"
     />
   </fieldset>
 </template>
 
-<script>
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
+<script setup>
+import { ref } from 'vue'
 import ListComponent from '@/components/displayList'
-import SharedComponent from '../shared/lock.js'
+import useStore from '../../store/store'
+import useLockStore from '../../store/lock.js'
 
-export default {
-  mixins: [SharedComponent],
+const store = useStore()
+const lock = useLockStore()
+const text = ref('')
 
-  components: { ListComponent },
+function addNote() {
+  store.notes.push(text.value)
+  text.value = ''
+}
 
-  computed: {
-    collectionObject: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObject]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionObject, value)
-      }
-    }
-  },
-
-  data() {
-    return {
-      text: undefined
-    }
-  },
-
-  methods: {
-    addNote() {
-      this.collectionObject.notes_attributes.push(this.text)
-      this.text = undefined
-    },
-
-    removeNote(note) {
-      const index = this.collectionObject.notes_attributes.findIndex(
-        (item) => note === item
-      )
-
-      this.collectionObject.notes_attributes.splice(index, 1)
-    }
-  }
+function removeNote(note) {
+  store.notes = store.notes.filter((value) => value === note)
 }
 </script>

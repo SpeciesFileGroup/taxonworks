@@ -19,60 +19,32 @@
       />
     </div>
     <list-component
-      v-if="collectionObject.tags_attributes.length"
-      :list="collectionObject.tags_attributes"
+      v-if="store.tags.length"
+      :list="store.tags"
       @delete="removeTag"
       label="object_tag"
     />
   </fieldset>
 </template>
 
-<script>
+<script setup>
+import useLockStore from '../../store/lock.js'
+import useStore from '../../store/store.js'
 import SmartSelector from '@/components/ui/SmartSelector'
 import ListComponent from '@/components/displayList'
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
-import SharedComponent from '../shared/lock.js'
 
-export default {
-  mixins: [SharedComponent],
+const lock = useLockStore()
+const store = useStore()
 
-  components: {
-    SmartSelector,
-    ListComponent
-  },
-
-  computed: {
-    collectionObject: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObject]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionObject, value)
-      }
-    }
-  },
-
-  methods: {
-    addTag(tag) {
-      if (
-        this.collectionObject.tags_attributes.find(
-          (item) => tag.id === item.keyword_id
-        )
-      )
-        return
-      this.collectionObject.tags_attributes.push({
-        keyword_id: tag.id,
-        object_tag: tag.object_tag
-      })
-    },
-    removeTag(tag) {
-      const index = this.collectionObject.tags_attributes.findIndex(
-        (item) => item.keyword_id === tag.keyword_id
-      )
-
-      this.collectionObject.tags_attributes.splice(index, 1)
-    }
+function addTag(tag) {
+  if (!store.tags.find((item) => tag.id === item.keyword_id)) {
+    store.tags.push({
+      keyword_id: tag.id,
+      object_tag: tag.object_tag
+    })
   }
+}
+function removeTag(tag) {
+  store.tags = store.tags.filter((item) => item.keyword_id === tag.keyword_id)
 }
 </script>

@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from '@/constants'
 import { CollectionObject } from '@/routes/endpoints'
 import { SVGDraw } from '@sfgrp/svg-detailer'
 
@@ -14,7 +13,7 @@ export default defineStore('freeform', {
         preparation_type_id: false
       }
     },
-    collection_object: {
+    collectionObject: {
       id: undefined,
       total: 1,
       collecting_event_id: undefined,
@@ -30,6 +29,9 @@ export default defineStore('freeform', {
       namespaceId: undefined,
       identifier: undefined
     },
+    tags: [],
+    taxonDeterminations: [],
+    notes: [],
     image: undefined,
     SVGBoard: null,
     SVGCurrentMode: null
