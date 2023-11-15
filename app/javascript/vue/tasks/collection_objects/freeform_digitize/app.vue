@@ -23,10 +23,6 @@
           class="margin-medium-left"
           style="width: 50%"
         >
-          <switch-component
-            v-model="view"
-            :options="Object.keys(TABS)"
-          />
           <div class="flex-separate margin-large-top">
             <div class="full_width">
               <spinner-component
@@ -65,7 +61,6 @@ import SwitchComponent from '@/components/switch'
 import AssignComponent from './components/Assign/Main'
 import UploadImage from './components/UploadImage'
 import ReviewComponent from './components/Review'
-import OverviewMetadataComponent from './components/Overview'
 import SummaryComponent from './components/Summary'
 import SpinnerComponent from '@/components/spinner'
 import NavBar from './components/NavBar'
@@ -73,7 +68,6 @@ import useStore from './store/store.js'
 
 const TABS = {
   Assign: AssignComponent,
-  'Overview metadata': OverviewMetadataComponent,
   Review: ReviewComponent
 }
 

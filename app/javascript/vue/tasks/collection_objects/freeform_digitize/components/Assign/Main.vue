@@ -18,10 +18,10 @@ import CatalogNumber from './CatalogNumber'
 import NoteComponent from './Note'
 import TagComponent from './Tag'
 import TaxonDetermination from './TaxonDetermination'
-/*
 import CollectingEvent from './CollectingEvent'
 import RepositoryComponent from './Repository'
 import PreparationType from './PreparationType'
+/*
 import MetadataComponent from './Metadata' */
 
 export default {
@@ -29,11 +29,11 @@ export default {
     CatalogNumber,
     NoteComponent,
     TagComponent,
-    TaxonDetermination
-    /*
+    TaxonDetermination,
     CollectingEvent,
     RepositoryComponent,
-    PreparationType,
+    PreparationType
+    /*
     MetadataComponent */
   }
 }

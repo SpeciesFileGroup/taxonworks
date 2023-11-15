@@ -13,50 +13,35 @@
           <label>
             <input
               type="radio"
-              :checked="type.id == collectionObject.preparation_type_id"
+              :checked="type.id == store.collectionObject.preparation_type_id"
               :value="type.id"
-              v-model="collectionObject.preparation_type_id"
+              v-model="store.collectionObject.preparation_type_id"
               name="collection-object-type"
             />
             {{ type.name }}
           </label>
         </li>
       </ul>
-      <lock-component v-model="lock.preparation_type_id" />
+      <VLock v-model="lock.preparation_type_id" />
     </div>
   </fieldset>
 </template>
 
-<script>
-import { MutationNames } from '../../store/mutations/mutations.js'
-import { GetterNames } from '../../store/getters/getters.js'
+<script setup>
+import useLockStore from '../../store/lock.js'
+import useStore from '../../store/store.js'
+import VLock from '@/components/ui/VLock/index.vue'
 import { PreparationType } from '@/routes/endpoints'
-import SharedComponent from '../shared/lock.js'
+import { ref, onBeforeMount } from 'vue'
 
-export default {
-  mixins: [SharedComponent],
+const lock = useLockStore()
+const store = useStore()
 
-  computed: {
-    collectionObject: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObject]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionObject, value)
-      }
-    }
-  },
+const coTypes = ref([])
 
-  data() {
-    return {
-      coTypes: []
-    }
-  },
-
-  created() {
-    PreparationType.all().then((response) => {
-      this.coTypes = response.body
-    })
-  }
-}
+onBeforeMount(() => {
+  PreparationType.all().then((response) => {
+    coTypes.value = response.body
+  })
+})
 </script>

@@ -7,7 +7,7 @@
         klass="CollectingEvent"
         pin-section="CollectingEvents"
         pin-type="CollectingEvent"
-        @selected="setValue"
+        @selected="setCollectingEvent"
       />
       <VLock
         class="margin-small-left"
@@ -16,13 +16,13 @@
     </div>
     <SmartSelectorItem
       :item="collectingEvent"
-      @unset="collectingEvent = undefined"
+      @unset="setCollectingEvent"
     />
   </fieldset>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'
@@ -33,8 +33,8 @@ const lock = useLockStore()
 const store = useStore()
 const collectingEvent = ref(null)
 
-watch(collectingEvent, (newVal) => {
-  collectingEvent.value = newVal
-  store.collectionObject.collecting_event_id = newVal?.id
-})
+function setCollectingEvent(item) {
+  collectingEvent.value = item
+  store.collectionObject.collecting_event_id = item?.id
+}
 </script>
