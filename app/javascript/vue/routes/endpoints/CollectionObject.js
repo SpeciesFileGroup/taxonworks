@@ -17,6 +17,7 @@ const permitParams = {
     deaccessioned_at: String,
     deaccession_reason: String,
     contained_in: String,
+    notes_attributes: [],
     collecting_event_attributes: [],
     data_attributes_attributes: {
       id: Number,

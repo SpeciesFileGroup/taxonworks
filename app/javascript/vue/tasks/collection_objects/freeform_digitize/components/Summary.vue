@@ -22,16 +22,13 @@
 </template>
 
 <script setup>
-import useCOStore from '../store/store'
+import useStore from '../store/store'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import useLockStore from '../store/lock.js'
 
-const emit = defineEmits(['update'])
-const storeCO = useCOStore()
-const lock = useLockStore()
+const store = useStore()
 
 function resetCO() {
-  storeCO.$reset()
+  store.$reset()
 }
 </script>
 

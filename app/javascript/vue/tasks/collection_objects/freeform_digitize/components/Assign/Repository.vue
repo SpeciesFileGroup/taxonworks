@@ -1,20 +1,21 @@
 <template>
   <fieldset>
     <legend>Repository</legend>
-    <div class="horizontal-left-content align-start">
-      <SmartSelector
-        model="repositories"
-        klass="CollectionObject"
-        pin-section="Repositories"
-        pin-type="Repository"
-        v-model="store.repository"
-        @selected="setRepository"
-      />
-      <VLock
-        class="margin-small-left"
-        v-model="lock.repository_id"
-      />
-    </div>
+    <SmartSelector
+      model="repositories"
+      klass="CollectionObject"
+      pin-section="Repositories"
+      pin-type="Repository"
+      v-model="store.repository"
+      @selected="setRepository"
+    >
+      <template #tabs-right>
+        <VLock
+          class="margin-small-left"
+          v-model="lock.repository_id"
+        />
+      </template>
+    </SmartSelector>
     <SmartSelectorItem
       :item="store.repository"
       label="name"

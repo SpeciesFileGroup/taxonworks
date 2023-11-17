@@ -20,13 +20,7 @@ const store = useStore()
 const lock = useLockStore()
 
 function addDetermination(taxonDetermination) {
-  if (
-    !store.taxonDeterminations.find(
-      (determination) => determination.otu_id === taxonDetermination.otu_id
-    )
-  ) {
-    store.taxon_determinations_attributes.push(taxonDetermination)
-  }
+  store.addDetermination(taxonDetermination)
 }
 
 function removeTaxonDetermination(index) {

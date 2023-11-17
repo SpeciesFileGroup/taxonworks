@@ -1,23 +1,25 @@
 <template>
   <fieldset>
     <legend>Tag</legend>
-    <div class="align-start">
-      <SmartSelector
-        autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-        :autocomplete-params="{ 'type[]': 'Keyword' }"
-        get-url="/controlled_vocabulary_terms/"
-        model="keywords"
-        klass="CollectionObject"
-        target="CollectionObject"
-        pin-section="Keywords"
-        pin-type="Keyword"
-        @selected="addTag"
-      />
-      <VLock
-        class="margin-small-left"
-        v-model="lock.tags_attributes"
-      />
-    </div>
+    <SmartSelector
+      autocomplete-url="/controlled_vocabulary_terms/autocomplete"
+      :autocomplete-params="{ 'type[]': 'Keyword' }"
+      get-url="/controlled_vocabulary_terms/"
+      model="keywords"
+      klass="CollectionObject"
+      target="CollectionObject"
+      pin-section="Keywords"
+      pin-type="Keyword"
+      @selected="store.addTag"
+    >
+      <template #tabs-right>
+        <VLock
+          class="margin-small-left"
+          v-model="lock.tags_attributes"
+        />
+      </template>
+    </SmartSelector>
+
     <ListComponent
       v-if="store.tags.length"
       :list="store.tags"

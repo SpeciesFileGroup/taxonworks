@@ -1,19 +1,20 @@
 <template>
   <fieldset>
     <legend>Collecting Event</legend>
-    <div class="align-start">
-      <SmartSelector
-        model="collecting_events"
-        klass="CollectingEvent"
-        pin-section="CollectingEvents"
-        pin-type="CollectingEvent"
-        @selected="setCollectingEvent"
-      />
-      <VLock
-        class="margin-small-left"
-        v-model="lock.collecting_event_id"
-      />
-    </div>
+    <SmartSelector
+      model="collecting_events"
+      klass="CollectingEvent"
+      pin-section="CollectingEvents"
+      pin-type="CollectingEvent"
+      @selected="setCollectingEvent"
+    >
+      <template #tabs-right>
+        <VLock
+          class="margin-small-left"
+          v-model="lock.collecting_event_id"
+        />
+      </template>
+    </SmartSelector>
     <SmartSelectorItem
       :item="store.collectingEvent"
       @unset="setCollectingEvent"
