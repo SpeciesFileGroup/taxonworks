@@ -10,7 +10,6 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
 
-
       PARAMS = [
         *ATTRIBUTES,
         :source_id,
@@ -157,8 +156,6 @@ module Queries
       def initialize(query_params)
         super
 
-        @taxon_name_id = params[:taxon_name_id]
-        @descendants = boolean_param(params, :descendants)
         @author = params[:author]
         @author_id = params[:author_id]
         @author_id_or =  boolean_param(params,:author_id_or)
@@ -166,17 +163,19 @@ module Queries
         @citation_object_type = params[:citation_object_type]
         @citations = boolean_param(params,:citations) # TODO: rename coming to reflect conflict with Citations concern
         @citations_on_otus = boolean_param(params,:citations_on_otus)
+        @descendants = boolean_param(params, :descendants)
         @documents = boolean_param(params,:documents)
         @exact_author = boolean_param(params,:exact_author)
         @exact_title = boolean_param(params,:exact_title)
-        @source_id = params[:source_id]
         @in_project = boolean_param(params,:in_project)
         @nomenclature = boolean_param(params,:nomenclature)
         @query_string = params[:query_term]&.delete("\u0000") # TODO: likely remove with current permit() paradigm
         @roles = boolean_param(params,:roles)
         @serial = boolean_param(params,:serial)
         @serial_id = params[:serial_id]
+        @source_id = params[:source_id]
         @source_type = params[:source_type]
+        @taxon_name_id = params[:taxon_name_id]
         @title = params[:title]
         @topic_id = params[:topic_id]
         @with_doi = boolean_param(params, :with_doi)
@@ -303,7 +302,7 @@ module Queries
       end
 
       def in_project_facet
-        return nil if project_id.nil? || in_project.nil?
+        return nil if project_id.empty? || in_project.nil?
 
         if in_project
           ::Source.joins(:project_sources)

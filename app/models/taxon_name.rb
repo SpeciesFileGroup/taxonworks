@@ -1454,6 +1454,7 @@ class TaxonName < ApplicationRecord
       end
     elsif FAMILY_RANK_NAMES_ICZN.include?(taxon.rank_string) && !y.empty? && cached_nomenclature_date&.year != y.first && !mobj.present?
       ay = ay + ' [' + cached_nomenclature_date&.year.to_s + ']'
+      ay = ay.gsub(' []', '')
     end
 
     unless misapplication.empty? || obj.author_string.blank?

@@ -19,6 +19,9 @@ TaxonWorks::Application.configure do
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
 
+  # Limit log size to 512 MB total
+  config.logger = ActiveSupport::Logger.new(config.paths['log'].first, 1, 256 * 1024 ** 2)
+
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
 

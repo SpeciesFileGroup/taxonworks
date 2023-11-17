@@ -431,6 +431,8 @@ export function useGraph() {
         id: body.id,
         globalId: body.global_id,
         label: body.object_tag,
+        biologicalAssociationIds:
+          body.biological_associations_biological_associations_graphs,
         isUnsaved: false
       })
     })

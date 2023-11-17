@@ -125,7 +125,6 @@ class User < ApplicationRecord
 
   store :preferences, accessors: [:disable_chime], coder: JSON
 
-
   attr_accessor :set_new_api_access_token
   attr_accessor :self_created
 
@@ -309,10 +308,10 @@ class User < ApplicationRecord
     n = options[:name]
     p = options[:project_id].to_s
     k = options[:kind]
-    u = hub_favorites.clone
+    u = hub_favorites.dup
 
-    u[p] = HUB_FAVORITES.clone if !u[p]
-    u[p][k] = u[p][k].push(n).uniq[0..19].sort
+    u[p] = HUB_FAVORITES.dup if !u[p]
+    u[p][k] = u[p][k].push(n).uniq[0..39].sort
 
     update_column(:hub_favorites, u)
     true
@@ -323,7 +322,7 @@ class User < ApplicationRecord
   # @param [Hash] options
   def remove_page_from_favorites(options = {}) # name: nil, kind: nil, project_id: nil
     validate_favorite_options(options)
-    new_routes = hub_favorites.clone
+    new_routes = hub_favorites.dup
     new_routes[options['project_id'].to_s][options['kind']].delete(options['name'])
     update_column(:hub_favorites, new_routes)
   end
