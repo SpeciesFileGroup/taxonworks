@@ -64,7 +64,7 @@ module Export::Coldp::Files::Distribution
             gazetteer,
             nil,
             reference_ids.first,                                             # reference_id: only 1 distribution reference allowed
-            Export::Coldp.modified(ad[:update_at]),                          # modified
+            Export::Coldp.modified(ad[:updated_at]),                          # modified
             Export::Coldp.modified_by(ad[:updated_by_id], project_members),  # modified_by
             nil
           ]
@@ -75,7 +75,7 @@ module Export::Coldp::Files::Distribution
 
       otus.joins("INNER JOIN contents ON contents.otu_id = otus.id
                   INNER JOIN controlled_vocabulary_terms ON controlled_vocabulary_terms.id = contents.topic_id")
-          .select("otus.id, contents.text")
+          .select("otus.id, contents.text, contents.updated_at, contents.updated_by_id")
           .where("controlled_vocabulary_terms.name = 'Distribution text'").distinct.each do |o|
         area = o.text
 
@@ -86,8 +86,8 @@ module Export::Coldp::Files::Distribution
           'text',
           nil,
           nil,
-          Export::Coldp.modified(o[:update_at]),
-          Export::Coldp.modified_by(o[:updated_by_id], project_members),
+          Export::Coldp.modified(o.updated_at),
+          Export::Coldp.modified_by(o.updated_by_id, project_members),
           nil
         ]
       end
