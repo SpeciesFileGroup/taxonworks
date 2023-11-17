@@ -1,23 +1,38 @@
 <template>
   <div class="panel content">
     <h2>Summary</h2>
-    <div class="horizontal-left-content">
-      <button
+    <div class="horizontal-left-content gap-small">
+      <VBtn
+        color="create"
+        medium
         @click="store.saveCollectionObject()"
-        type="button"
-        class="button button-input button-submit margin-medium-right full_width"
       >
-        {{ 'Create' }}
-      </button>
+        Save
+      </VBtn>
+
+      <VBtn
+        color="create"
+        medium
+        @click="resetCO"
+      >
+        Save and new
+      </VBtn>
     </div>
   </div>
 </template>
 
 <script setup>
-import useStore from '../store/store'
+import useCOStore from '../store/store'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import useLockStore from '../store/lock.js'
 
 const emit = defineEmits(['update'])
-const store = useStore()
+const storeCO = useCOStore()
+const lock = useLockStore()
+
+function resetCO() {
+  storeCO.$reset()
+}
 </script>
 
 <style scoped>

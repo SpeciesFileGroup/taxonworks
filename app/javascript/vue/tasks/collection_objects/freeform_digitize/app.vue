@@ -7,7 +7,7 @@
     />
     <h1>Free form</h1>
     <nav-bar />
-    <template v-if="image">
+    <template v-if="imageStore.image">
       <div class="horizontal-left-content align-start">
         <div
           class="horizontal-left-content align-start"
@@ -15,8 +15,8 @@
         >
           <DrawControls class="margin-medium-right" />
           <DrawBoard
-            v-if="image"
-            :image="image"
+            v-if="imageStore.image"
+            :image="imageStore.image"
           />
         </div>
         <div
@@ -35,9 +35,6 @@
             <summary-component
               v-if="view != 'Review'"
               class="full_width margin-medium-left"
-              @update="createSled"
-              @update-new="createSled(true)"
-              @update-next="createSled(true, $event)"
             />
           </div>
         </div>
@@ -64,29 +61,22 @@ import ReviewComponent from './components/Review'
 import SummaryComponent from './components/Summary'
 import SpinnerComponent from '@/components/spinner'
 import NavBar from './components/NavBar'
-import useStore from './store/store.js'
+import useImageStore from './store/image.js'
 
 const TABS = {
   Assign: AssignComponent,
   Review: ReviewComponent
 }
 
-const store = useStore()
+const imageStore = useImageStore()
 
 const disabledPanel = computed(() => {
   return false
 })
 
 const componentSelected = computed(() => TABS[view.value])
-const image = computed({
-  get: () => store.image,
-  set: (value) => (store.image = value)
-})
-
 const isLoading = ref(false)
 const isSaving = ref(false)
-const fileImage = ref()
-
 const view = ref('Assign')
 
 onBeforeMount(() => {
@@ -103,29 +93,7 @@ function loadImage(imageId) {
   isLoading.value = true
   ImageService.find(imageId)
     .then((response) => {
-      const ajaxRequest = new XMLHttpRequest()
-
-      image.value = response.body
-      ajaxRequest.open('GET', response.body.image_display_url)
-      ajaxRequest.responseType = 'blob'
-      ajaxRequest.onload = () => {
-        const blob = ajaxRequest.response
-        const fr = new FileReader()
-
-        fr.onloadend = () => {
-          const dataUrl = fr.result
-          const image = new Image()
-
-          image.onload = () => {
-            fileImage.value = dataUrl
-            isLoading.value = false
-          }
-
-          image.src = dataUrl
-        }
-        fr.readAsDataURL(blob)
-      }
-      ajaxRequest.send()
+      imageStore.image = response.body
     })
     .finally(() => {
       isLoading.value = false

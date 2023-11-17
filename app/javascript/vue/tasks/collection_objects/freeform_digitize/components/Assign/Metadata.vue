@@ -1,30 +1,16 @@
 <template>
   <div>
-    <p>
-      <label>
-        <input
-          type="checkbox"
-          v-model="depiction.is_metadata_depiction">
-          Is metadata depiction
-      </label>
-    </p>
+    <label>
+      <input
+        type="checkbox"
+        v-model="store.isMetadataDepiction"
+      />
+      Is metadata depiction
+    </label>
   </div>
 </template>
 
-<script>
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
-
-export default {
-  computed: {
-    depiction: {
-      get () {
-        return this.$store.getters[GetterNames.GetDepiction]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetDepiction, value)
-      }
-    }
-  }
-}
+<script setup>
+import useStore from '../../store/store.js'
+const store = useStore()
 </script>

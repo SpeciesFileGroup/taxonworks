@@ -3,16 +3,16 @@
     <legend>Note</legend>
     <div class="align-start">
       <textarea
-        v-model="text"
+        v-model="store.text"
         class="full_width margin-small-right"
         rows="5"
       >
       </textarea>
-      <lock-component v-model="lock.notes_attributes" />
+      <VLock v-model="lock.notes_attributes" />
     </div>
     <button
       @click="addNote"
-      :disabled="!text"
+      :disabled="!store.text"
       class="button normal-input button-submit"
     >
       Add
@@ -27,18 +27,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import ListComponent from '@/components/displayList'
-import useStore from '../../store/store'
+import VLock from '@/components/ui/VLock/index.vue'
+import useStore from '../../store/notes'
 import useLockStore from '../../store/lock.js'
 
 const store = useStore()
 const lock = useLockStore()
-const text = ref('')
 
 function addNote() {
-  store.notes.push(text.value)
-  text.value = ''
+  store.notes.push(store.text)
+  store.text = ''
 }
 
 function removeNote(note) {

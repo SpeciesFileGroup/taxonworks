@@ -15,14 +15,13 @@
       />
     </div>
     <SmartSelectorItem
-      :item="collectingEvent"
+      :item="store.collectingEvent"
       @unset="setCollectingEvent"
     />
   </fieldset>
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'
@@ -31,10 +30,8 @@ import useStore from '../../store/store.js'
 
 const lock = useLockStore()
 const store = useStore()
-const collectingEvent = ref(null)
 
 function setCollectingEvent(item) {
-  collectingEvent.value = item
-  store.collectionObject.collecting_event_id = item?.id
+  store.collectingEvent = item
 }
 </script>

@@ -13,9 +13,9 @@
           <label>
             <input
               type="radio"
-              :checked="type.id == store.collectionObject.preparation_type_id"
+              :checked="type.id == store.collectionObject.preparationTypeId"
               :value="type.id"
-              v-model="store.collectionObject.preparation_type_id"
+              v-model="store.collectionObject.preparationTypeId"
               name="collection-object-type"
             />
             {{ type.name }}

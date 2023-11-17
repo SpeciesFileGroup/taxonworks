@@ -51,7 +51,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { drawMode } from '@sfgrp/svg-detailer'
-import useStore from '../../store/store'
+import useStore from '../../store/board.js'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
