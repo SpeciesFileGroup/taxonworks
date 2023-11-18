@@ -1076,6 +1076,42 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
+  context 'when importing an original misspelling' do
+    before(:all) { import_checklist_tsv('original_misspelling.tsv', 6, 'misspelling combination') }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:valid) { Protonym.find_by(cached: 'Polyrhachis (Myrma) olena') }
+    let(:misspelling) { Protonym.find_by({ name: 'olenus' }) }
+
+    it 'should create and import 5 records' do
+      verify_all_records_imported(6)
+    end
+
+    it 'should have a misspelling relationship ' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name_id: misspelling.id, object_taxon_name_id: valid.id })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling')
+    end
+
+    # Polyrhachis [1x]
+    # Myrma [1x]
+    # Polyrhachis (Myrma) olena [3x]
+    # Polyrhachis (Myrma) olenus [3x]
+    it 'should have eight original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 8
+    end
+
+    it 'should be cached invalid' do
+      expect(misspelling.cached_is_valid).to be false
+    end
+
+    it 'the synonym should have cached valid taxon id' do
+      expect(misspelling.cached_valid_taxon_name_id).to eq valid.id
+    end
+  end
+
   # TODO test missing parent
   #
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName

@@ -222,7 +222,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               iczn: {
                 synonym: 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
                 homonym: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym',
-                misspelling: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
+                misspelling: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
+                'original misspelling':  'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
               },
               # TODO support other nomenclatural codes
               # icnp: {
