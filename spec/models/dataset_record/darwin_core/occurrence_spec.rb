@@ -582,4 +582,103 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
+  context 'when importing an occurrence with a url for institutionCode' do
+
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('url_institution_code.tsv', import_settings: { 'restrict_to_existing_nomenclature' => false})
+
+      @repository = Repository.create!(name: 'California Academy of Sciences', acronym: 'CASC',
+                                       url: 'http://grbio.org/institution/california-academy-sciences')
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let!(:results) { @imported }
+    let!(:repository) { @repository }
+
+    it 'should import the record without failing' do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'the record should have the correct repository' do
+      expect(CollectionObject.first.repository).to eq repository
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+  end
+  
+  context 'when importing an occurrence with duplicate acronym institutionCode' do
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('acronym_institution_code.tsv', import_settings: { 'restrict_to_existing_nomenclature' => false,
+                                                                                                  'containerize_dup_cat_no' => false})
+
+      @repository = Repository.create!(name: 'Museum of Comparative Zoology, Harvard University, Cambridge, Massachusetts', acronym: 'MCZ')
+      @imported = @import_dataset.import(5000, 100)
+    end
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:imported) {@imported}
+
+    it 'should import fine when one institution has the specified acronym' do
+      expect(imported.length).to eq(1)
+      expect(imported.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'should match the correct institution' do
+      expect(CollectionObject.first.repository).to eq @repository
+    end
+  end
+
+
+  context 'when importing an occurrence with duplicate acronym institutionCode' do
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('acronym_institution_code.tsv',
+                                               import_settings: { 'restrict_to_existing_nomenclature' => false,
+                                                                  'containerize_dup_cat_no' => false })
+
+      Repository.create!(name: 'Museum of Comparative Zoology, Harvard University, Cambridge, Massachusetts', acronym: 'MCZ')
+      Repository.create!(name: 'Museum of Comparative Zoology', acronym: 'MCZ',
+                         url: 'http://grbio.org/institution/museum-comparative-zoology')
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:imported) {@imported}
+
+    it 'should error when multiple institutions have the same acronym' do
+      expect(imported.length).to eq(1)
+      expect(imported.map { |row| row.status }).to all(eq('Errored'))
+    end
+
+    it 'should report that there were multiple matching acronyms' do
+      error_messages = imported.first.metadata['error_data']['messages']['institutionCode']
+      expect(error_messages.first).to match(/Could not disambiguate repository name 'MCZ'/)
+      expect(error_messages.second).to match(/Multiple repositories with acronym MCZ found/)
+      expect(error_messages.third).to match(/No repositories match the name MCZ/)
+    end
+  end
+
+end
+
+# Set up DatabaseCleaner, stage tsv file for import
+# @param [String] file_name
+# @param [String, nil] description
+# @param [Hash] import_settings
+def prepare_occurrence_tsv(file_name, description = nil, import_settings: {})
+  DatabaseCleaner.start
+  ImportDataset::DarwinCore::Occurrences.create!(
+    source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/' + file_name), 'text/plain'),
+    description: description || file_name, # use file name as description if not given
+    import_settings: import_settings
+  ).tap { |i| i.stage }
+
 end
