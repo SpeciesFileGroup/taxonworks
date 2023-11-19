@@ -259,10 +259,10 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                   ORIGINAL_COMBINATION_RANKS.has_key?(old_rank.downcase.to_sym)
 
                   # save taxon so we can create a combination
-                  taxon_name.save
+                  taxon_name.save!
 
                   # stolen from combination handling portion of code
-                  parent_elements = create_parent_element_hash
+                  parent_elements = create_parent_element_hash.transform_values {|v| v.is_a?(Combination) ? v.finest_protonym : v}
 
                   combination_attributes = { **parent_elements }
                   combination_attributes[old_rank.downcase] = taxon_name if old_rank
