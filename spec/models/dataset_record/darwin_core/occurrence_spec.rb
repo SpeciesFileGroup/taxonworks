@@ -265,43 +265,39 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   context 'when importing an occurrence with a type material matching a misspelling of a synonym of the current taxon name' do
     before :all do
-      DatabaseCleaner.start
-      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_synonym_misspelling.tsv'), 'text/plain'),
-        description: 'Type Material Synonym Misspelling',
-        import_settings: { 'restrict_to_existing_nomenclature' => true,
-                           'require_type_material_success' => true }
-      ).tap { |i| i.stage }
+      @import_dataset = prepare_occurrence_tsv('typeStatus_synonym_misspelling.tsv',
+                                               import_settings: { 'restrict_to_existing_nomenclature' => true,
+                                                                  'require_type_material_success' => true })
 
-      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
-      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
-      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
-      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
-      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
-      subfamily = Protonym.create(parent: family, name: "Dorylinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: "Dorylinae", rank_class: Ranks.lookup(:iczn, :subfamily))
 
       g_liponera = Protonym.create(parent: subfamily, name: "Liponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
       g_cerapachys = Protonym.create(parent: subfamily, name: "Cerapachys", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
 
-      s_mayri = Protonym.create(parent: g_liponera, name: "mayri", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
-      s_brachynoda = Protonym.create(parent: g_liponera, name: "brachynoda", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_mayri = Protonym.create!(parent: g_liponera, name: "mayri", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_brachynoda = Protonym.create!(parent: g_liponera, name: "brachynoda", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
 
       TaxonNameClassification::Latinized::PartOfSpeech::Adjective.create!(:taxon_name_id =>  s_brachynoda.id)
       s_brachynoda.send(:set_cached)
 
-      s_brachinoda = Protonym.create(parent: g_liponera, name: "brachinoda", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_brachinoda = Protonym.create!(parent: g_liponera, name: "brachinoda", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
 
       # Create original combination relationship for misspelling and correct spelling
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_cerapachys, object_taxon_name: s_mayri)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_mayri, object_taxon_name: s_mayri)
+      s_mayri.original_genus = g_cerapachys
+      s_mayri.original_species = s_mayri
 
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_cerapachys, object_taxon_name: s_brachynoda)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_mayri, object_taxon_name: s_brachynoda)
-      TaxonNameRelationship::OriginalCombination::OriginalSubspecies.create!(subject_taxon_name: s_brachynoda, object_taxon_name: s_brachynoda)
+      s_brachynoda.original_genus = g_cerapachys
+      s_brachynoda.original_species = s_mayri
+      s_brachynoda.original_subspecies = s_brachynoda
 
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_cerapachys, object_taxon_name: s_brachinoda)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_mayri, object_taxon_name: s_brachinoda)
-      TaxonNameRelationship::OriginalCombination::OriginalSubspecies.create!(subject_taxon_name: s_brachinoda, object_taxon_name: s_brachinoda)
+      s_brachinoda.original_genus = g_cerapachys
+      s_brachinoda.original_species = s_mayri
+      s_brachinoda.original_subspecies = s_brachinoda
 
       # Create misspelling relationship with correct spelling
       TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling.create!(subject_taxon_name: s_brachinoda, object_taxon_name: s_brachynoda)
@@ -337,13 +333,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   context 'when importing an occurrence with a type material matching a subsequent combination of the current taxon name' do
     before :all do
-      DatabaseCleaner.start
-      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_subsequent_combination.tsv'), 'text/plain'),
-        description: 'Type Material Subsequent Combination',
-        import_settings: { 'restrict_to_existing_nomenclature' => true,
-                           'require_type_material_success' => true }
-      ).tap { |i| i.stage }
+      @import_dataset = prepare_occurrence_tsv('typeStatus_subsequent_combination.tsv', import_settings: { 'restrict_to_existing_nomenclature' => true,
+                                                                                                           'require_type_material_success' => true })
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
@@ -362,12 +353,12 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       s_brachynoda.send(:set_cached)
 
       # Create original combination relationship for misspelling and correct spelling
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_cerapachys, object_taxon_name: s_mayri)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_mayri, object_taxon_name: s_mayri)
+      s_mayri.original_genus = g_cerapachys
+      s_mayri.original_species = s_mayri
 
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_cerapachys, object_taxon_name: s_brachynoda)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_mayri, object_taxon_name: s_brachynoda)
-      TaxonNameRelationship::OriginalCombination::OriginalSubspecies.create!(subject_taxon_name: s_brachynoda, object_taxon_name: s_brachynoda)
+      s_brachynoda.original_genus = g_cerapachys
+      s_brachynoda.original_species = s_mayri
+      s_brachynoda.original_subspecies = s_brachynoda
 
 
       # Add synonym relationship
@@ -425,9 +416,9 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       g_acanthoponera = Protonym.create(parent: g_ectatomma, name: "Acanthoponera", rank_class: Ranks.lookup(:iczn, :subgenus), also_create_otu: true)
       s_brounii = Protonym.create(parent: g_heteroponera, name: "brounii", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
 
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_ectatomma, object_taxon_name: s_brounii)
-      TaxonNameRelationship::OriginalCombination::OriginalSubgenus.create!(subject_taxon_name: g_acanthoponera, object_taxon_name: s_brounii)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_brounii, object_taxon_name: s_brounii)
+      s_brounii.original_genus = g_ectatomma
+      s_brounii.original_subgenus = g_acanthoponera
+      s_brounii.original_species = s_brounii
 
       @imported = @import_dataset.import(5000, 100)
     end
@@ -485,14 +476,14 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       s_nigripes_wheeler = Protonym.create(parent: g_dendromyrmex, name: "nigripes", rank_class: Ranks.lookup(:iczn, :species),
                                            verbatim_author: "Wheeler", year_of_publication: 1916, also_create_otu: true)
 
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_dendromyrmex, object_taxon_name: s_nigripes_wheeler)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_nidulans, object_taxon_name: s_nigripes_wheeler)
-      TaxonNameRelationship::OriginalCombination::OriginalSubspecies.create!(subject_taxon_name: s_nigripes_wheeler, object_taxon_name: s_nigripes_wheeler)
+      s_nigripes_wheeler.original_genus = g_dendromyrmex
+      s_nigripes_wheeler.original_species = s_nidulans
+      s_nigripes_wheeler.original_subspecies = s_nigripes_wheeler
+
+      s_nigripes_dumpert.original_genus = g_camponotus
+      s_nigripes_dumpert.original_species = s_nigripes_dumpert
 
       TaxonNameRelationship::Iczn::Invalidating::Usage::Synonym.create!(subject_taxon_name: s_nigripes_wheeler, object_taxon_name: s_nidulans)
-
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_camponotus, object_taxon_name: s_nigripes_dumpert)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_nigripes_dumpert, object_taxon_name: s_nigripes_dumpert)
 
       @imported = @import_dataset.import(5000, 100)
     end
