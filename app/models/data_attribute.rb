@@ -57,4 +57,5 @@ class DataAttribute < ApplicationRecord
     type.start_with?('Im') ? import_predicate : predicate.name
   end
 
+
 end
