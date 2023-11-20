@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - TaxonName model to customize attributes.
+- Radial annotator: Duplicate buttons on citation form [#3652]
 
 ### Fixed
 
@@ -18,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New taxon name: Author panel overflow when source has a long link
 
 [#3640]: https://github.com/SpeciesFileGroup/taxonworks/issues/3640
+[#3652]: https://github.com/SpeciesFileGroup/taxonworks/issues/3652
 
 ## [0.35.3] - 2023-11-13
 
