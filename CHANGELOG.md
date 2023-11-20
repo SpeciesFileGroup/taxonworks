@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - TaxonName model to customize attributes.
+- TaxonNameRelationship model, added validation for the rank of type species and type genus.
 
 ### Changed
 
