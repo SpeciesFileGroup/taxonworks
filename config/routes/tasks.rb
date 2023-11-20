@@ -403,11 +403,9 @@ scope :tasks do
 
     scope :graph, controller: 'tasks/biological_associations/graph' do
       get '/', action: :index, as: 'biological_associations_graph_task'
-      post :data, defaults: {format: :json}
-      get :data, defaults: {format: :json}
+      post 'data', action: :data, defaults: {format: :json}
+      get  :data, defaults: {format: :json}
     end
-
-
   end
 
   scope :biological_relationships do
