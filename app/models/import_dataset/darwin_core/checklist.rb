@@ -30,10 +30,12 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
   def perform_staging
     records, headers = get_records(source)
 
-    update!(metadata: {
-      core_headers: headers[:core],
+    update!(metadata:
+      metadata.merge({
+         core_headers: headers[:core],
       extensions_headers: headers[:extensions]
-    })
+       })
+    )
 
     parse_results_ary = Biodiversity::Parser.parse_ary(records[:core].map { |r| r['scientificName'] || '' })
 
@@ -279,6 +281,10 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
   end
 
+  def use_existing_hierarchy?
+    !!self.metadata.dig("import_settings", "use_existing_taxon_hierarchy")
+  end
+
   private
 
   # @param [String, Symbol] column_name
@@ -294,4 +300,4 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     end
   end
 
-end
+  end
