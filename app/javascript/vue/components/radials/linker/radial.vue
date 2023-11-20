@@ -13,7 +13,10 @@
       </template>
       <template #body>
         <div class="horizontal-center-content">
-          <radial-menu :options="menuOptions" />
+          <radial-menu
+            :options="menuOptions"
+            @on-click="saveParams"
+          />
         </div>
       </template>
     </modal>
@@ -159,6 +162,7 @@ function addSlice({ label, link }) {
 
 function closeModal() {
   isVisible.value = false
+  sessionStorage.removeItem('linkerQuery')
   emit('close')
 }
 
@@ -178,6 +182,14 @@ function filterEmptyParams(object) {
   }
 
   return obj
+}
+
+function saveParams() {
+  const filteredParameters = filterEmptyParams(
+    isOnlyIds.value ? getParametersForId() : getParametersForAll()
+  )
+
+  sessionStorage.setItem('linkerQuery', filteredParameters)
 }
 
 watch(isVisible, (newVal) => {
