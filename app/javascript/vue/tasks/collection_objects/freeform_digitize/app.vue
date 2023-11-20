@@ -23,7 +23,11 @@
           class="margin-medium-left"
           style="width: 50%"
         >
-          <div class="flex-separate margin-large-top">
+          <VSwitch
+            :options="Object.keys(TABS)"
+            v-model="view"
+          />
+          <div class="flex-separate">
             <div class="full_width">
               <spinner-component
                 v-if="disabledPanel && view == 'Assign'"
@@ -54,10 +58,10 @@ import { computed, ref, onBeforeMount } from 'vue'
 import DrawBoard from './components/DrawBoard/DrawBoard.vue'
 import DrawControls from './components/DrawBoard/DrawControls.vue'
 
-import SwitchComponent from '@/components/switch'
+import VSwitch from '@/components/switch'
 import AssignComponent from './components/Assign/Main'
 import UploadImage from './components/UploadImage'
-import ReviewComponent from './components/Review'
+import ReviewComponent from './components/Review.vue'
 import SummaryComponent from './components/Summary'
 import SpinnerComponent from '@/components/spinner'
 import NavBar from './components/NavBar'

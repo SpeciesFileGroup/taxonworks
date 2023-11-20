@@ -1,9 +1,5 @@
 <template>
   <div class="panel content">
-    <spinner-component
-      v-if="isLoading"
-      :show-spinner="false"
-    />
     <h2>Existing data</h2>
     <div style="overflow-x: scroll">
       <table>
@@ -29,7 +25,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="(item, index) in list"
+            v-for="(item, index) in store.collectionObjects"
             :key="item.id"
             class="contextMenuCells"
             :class="{ even: index % 2 == 0 }"
@@ -70,45 +66,11 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigation from '@/components/radials/navigation/radial'
 import RadialObject from '@/components/radials/object/radial'
-import { Report } from '../request/resource'
-import SpinnerComponent from '@/components/spinner'
+import useStore from '../store/store.js'
 
-export default {
-  components: {
-    RadialNavigation,
-    RadialAnnotator,
-    SpinnerComponent,
-    RadialObject
-  },
-
-  computed: {
-    sledImage() {
-      return this.$store.getters[GetterNames.GetSledImage]
-    }
-  },
-
-  data() {
-    return {
-      list: [],
-      isLoading: false
-    }
-  },
-
-  mounted() {
-    if (this.sledImage.id) {
-      this.isLoading = true
-      Report(this.sledImage.id)
-        .then((response) => {
-          this.list = response.body
-        })
-        .finally((_) => {
-          this.isLoading = false
-        })
-    }
-  }
-}
+const store = useStore()
 </script>

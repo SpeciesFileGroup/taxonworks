@@ -4,7 +4,8 @@ import { SVGDraw } from '@sfgrp/svg-detailer'
 export default defineStore('board', {
   state: () => ({
     SVGBoard: null,
-    SVGCurrentMode: null
+    SVGCurrentMode: null,
+    layers: []
   }),
 
   actions: {
@@ -13,6 +14,10 @@ export default defineStore('board', {
       this.SVGBoard.on('changemode', ({ mode }) => {
         this.SVGCurrentMode = mode
       })
+    },
+
+    addLayer({ id, svg }) {
+      this.layers.push({ id, svg })
     }
   }
 })

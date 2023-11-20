@@ -36,13 +36,20 @@ export default defineStore('freeform', {
       this.taxonDeterminations.push(determination)
     },
 
+    loadReport(imageId) {
+      CollectionObject.report(imageId).then(({ body }) => {
+        this.collectionObjects = body
+      })
+    },
+
     async saveCollectionObject() {
       const { tags } = useTagStore()
-      const imageStore = useImageStore()
       const { notes } = useNoteStore()
+      const imageStore = useImageStore()
       const boardStore = useBoardStore()
 
       const SVGData = boardStore.SVGBoard.apiJsonSVG()
+      const SVGClip = SVGData.data.attributes
       const payload = {
         total: this.collectionObject.total,
         tags_attributes: tags.map((tag) => ({ keyword_id: tag.id })),
@@ -53,7 +60,7 @@ export default defineStore('freeform', {
         notes_attributes: notes,
         depictions_attributes: [
           {
-            svg_clip: SVGData.data.attributes,
+            svg_clip: SVGClip,
             image_id: imageStore.image.id
           }
         ]
@@ -65,9 +72,19 @@ export default defineStore('freeform', {
         ]
       }
 
-      return CollectionObject.create({ collection_object: payload }).catch(
-        () => {}
-      )
+      return CollectionObject.create({ collection_object: payload })
+        .then(({ body }) => {
+          boardStore.addLayer({
+            id: body.id,
+            svg: SVGClip
+          })
+          CollectionObject.report({ image_id: imageStore.image.id }).then(
+            ({ body }) => {
+              this.collectionObjects = body
+            }
+          )
+        })
+        .catch(() => {})
     }
   }
 })

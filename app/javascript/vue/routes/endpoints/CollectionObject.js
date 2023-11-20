@@ -72,6 +72,8 @@ export const CollectionObject = {
   reportDwc: (params) =>
     AjaxCall('get', '/tasks/accessions/report/dwc.json', { params }),
 
+  report: (params) => AjaxCall('get', `/${controller}/report.json`, { params }),
+
   dwcIndex: (params) => AjaxCall('get', `/${controller}/dwc_index`, { params }),
 
   filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),

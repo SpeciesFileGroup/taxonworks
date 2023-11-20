@@ -16,7 +16,7 @@
       </template>
     </SmartSelector>
     <SmartSelectorItem
-      :item="namespace"
+      :item="store.catalogNumber.namespace"
       @unset="store.catalogNumber.namespace = undefined"
     />
     <div class="horizontal-left-content">
