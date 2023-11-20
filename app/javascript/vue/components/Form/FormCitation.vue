@@ -38,6 +38,11 @@
       />
       <slot name="footer" />
     </div>
+    <SmartSelectorItem
+      :item="source"
+      label="cached"
+      @unset="setSource({})"
+    />
     <div class="margin-medium-bottom margin-medium-top">
       <ul class="context-menu no_bullets">
         <li>
@@ -76,11 +81,6 @@
         </li>
       </ul>
     </div>
-    <SmartSelectorItem
-      :item="source"
-      label="cached"
-      @unset="setSource({})"
-    />
   </fieldset>
 </template>
 
