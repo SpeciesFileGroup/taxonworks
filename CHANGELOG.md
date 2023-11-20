@@ -10,7 +10,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - TaxonName model to customize attributes.
-- Radial annotator: Duplicate buttons on citation form [#3652]
+
+### Changed
+
+- Radial annotator: Move selected source to the bottom in citation form [#3652]
 
 ### Fixed
 

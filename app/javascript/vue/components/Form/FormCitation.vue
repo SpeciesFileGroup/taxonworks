@@ -13,30 +13,7 @@
         label="cached"
         v-model="source"
         @selected="setSource"
-      >
-        <template
-          v-if="buttonsTop"
-          #body
-        >
-          <div class="horizontal-left-content margin-small-bottom">
-            <VBtn
-              v-if="submitButton"
-              class="margin-small-right"
-              :color="submitButton.color"
-              :disabled="!citation.source_id"
-              medium
-              @click="emit('submit', citation)"
-            >
-              {{ submitButton.label }}
-            </VBtn>
-            <FormCitationClone
-              v-if="!inlineClone"
-              @clone="(item) => Object.assign(citation, item)"
-            />
-            <slot name="footer" />
-          </div>
-        </template>
-      </SmartSelector>
+      />
       <slot name="smart-selector-right" />
       <VLock
         v-if="lockButton"
@@ -44,11 +21,6 @@
         v-model="isLocked"
       />
     </div>
-    <SmartSelectorItem
-      :item="source"
-      label="cached"
-      @unset="setSource({})"
-    />
     <div class="margin-medium-bottom margin-medium-top">
       <ul class="context-menu no_bullets">
         <li>
@@ -104,6 +76,11 @@
       />
       <slot name="footer" />
     </div>
+    <SmartSelectorItem
+      :item="source"
+      label="cached"
+      @unset="setSource({})"
+    />
   </fieldset>
 </template>
 
@@ -130,11 +107,6 @@ const props = defineProps({
   modelValue: {
     type: Object,
     default: () => makeCitation()
-  },
-
-  buttonsTop: {
-    type: Boolean,
-    default: false
   },
 
   lockButton: {
