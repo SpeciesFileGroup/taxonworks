@@ -1076,6 +1076,83 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
+  context 'when importing an original misspelling' do
+    before(:all) { import_checklist_tsv('original_misspelling.tsv', 6, 'misspelling combination') }
+
+    # Tetramorium rothneyi longi is a synonym of Tetramorium wroughtonii and has a different
+    # original combination (Rhoptromyrmex rothneyi longi). Because the valid rank is different and it is not the
+    # original combination, we need to create a subsequent combination for it.
+    # However, Tetramorium rothneyi is a subsequent combination (not a protonym) of Tetramorium wroughtonii rothneyi.
+    # This revealed a bug that subsequent combination generation for synonyms did not use the
+    # finest protonym for Combination ancestors.
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:valid) { Protonym.find_by(cached: 'Polyrhachis (Myrma) olena') }
+    let(:misspelling) { Protonym.find_by({ name: 'olenus' }) }
+
+    it 'should create and import 5 records' do
+      verify_all_records_imported(6)
+    end
+
+    it 'should have a misspelling relationship ' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name_id: misspelling.id, object_taxon_name_id: valid.id })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling')
+    end
+
+    # Polyrhachis [1x]
+    # Myrma [1x]
+    # Polyrhachis (Myrma) olena [3x]
+    # Polyrhachis (Myrma) olenus [3x]
+    it 'should have eight original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 8
+    end
+
+    it 'should be cached invalid' do
+      expect(misspelling.cached_is_valid).to be false
+    end
+
+    it 'the synonym should have cached valid taxon id' do
+      expect(misspelling.cached_valid_taxon_name_id).to eq valid.id
+    end
+  end
+  
+  context 'when importing a synonym with a combination parent' do
+    before(:all) { import_checklist_tsv('synonym_combination_parent.tsv', 9) }
+
+    # Tetramorium rothneyi longi is a synonym of Tetramorium wroughtonii and has a different
+    # original combination (Rhoptromyrmex rothneyi longi). Because the valid rank is different and it is not the
+    # original combination, we need to create a subsequent combination for it.
+    # However, Tetramorium rothneyi is a subsequent combination (not a protonym) of Tetramorium wroughtonii rothneyi.
+    # This revealed a bug that subsequent combination generation for synonyms did not use the
+    # finest protonym for Combination ancestors.
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:synonym_protonym) { Protonym.find_by(name: 'longi') }
+
+    it 'should create and import 11 records' do
+      verify_all_records_imported(11)
+    end
+
+    it 'the synonym should have species rank' do
+      expect(synonym_protonym.rank).to eq('species')
+    end
+
+    it 'the synonym should have the correct cached original combination' do
+      expect(synonym_protonym.cached_original_combination).to eq('Rhoptromyrmex rothneyi longi')
+    end
+
+    it 'the synonym subsequent combination should exist' do
+      expect(Combination.find_by(cached: 'Tetramorium rothneyi longi')).to be_truthy
+    end
+
+  end
+
 
   context 'when importing a second time that builds off the first import' do
     before(:all) do
