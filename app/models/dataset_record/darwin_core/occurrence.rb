@@ -542,24 +542,27 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     if institution_code
       repository = nil
       error_messages = []
-      acronym_repositories = Repository.where(acronym: institution_code)
-      if acronym_repositories.count == 1
-        repository = acronym_repositories.first
-      elsif acronym_repositories.count > 1
-        error_messages << "Multiple repositories with acronym #{institution_code} found."
-      else
-        error_messages << "No repositories with acronym #{institution_code} found."
+
+      if institution_code.starts_with?('http://') || institution_code.starts_with?('https://')
+        url_repositories = Repository.where(url: institution_code)
+        if url_repositories.count == 1
+          repository = url_repositories.first
+        elsif url_repositories.count > 1
+          error_messages << "Multiple repositories with url #{institution_code} found"
+        else
+          error_messages << "No repositories with url #{institution_code} found"
+        end
       end
 
-      if !repository && (institution_code.starts_with?('http://') || institution_code.starts_with?('https://'))
-        url_repositories = Repository.where(url: institution_code)
-          if url_repositories.count == 1
-            repository = url_repositories.first
-          elsif url_repositories.count > 1
-            error_messages << "Multiple repositories with url #{institution_code} found"
-          else
-            error_messages << "No repositories with url #{institution_code} found"
-          end
+      unless repository
+        acronym_repositories = Repository.where(acronym: institution_code)
+        if acronym_repositories.count == 1
+          repository = acronym_repositories.first
+        elsif acronym_repositories.count > 1
+          error_messages << "Multiple repositories with acronym #{institution_code} found."
+        else
+          error_messages << "No repositories with acronym #{institution_code} found."
+        end
       end
 
       # Some repositories may not have acronyms, in that case search by name as well
