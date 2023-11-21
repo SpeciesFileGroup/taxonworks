@@ -97,13 +97,16 @@ const edges = ref([])
 const parameters = ref({})
 
 function loadGraph(urlParameters) {
-  BiologicalAssociation.graph(urlParameters).then(async ({ body }) => {
-    stats.value = body.stats
-    nodes.value = body.nodes.map((node) => ({ ...node, x: null, y: null }))
-    edges.value = await makeEdges(body.edges, body.nodes)
-
-    isLoading.value = false
-  })
+  isLoading.value = true
+  BiologicalAssociation.graph(urlParameters)
+    .then(async ({ body }) => {
+      stats.value = body.stats
+      nodes.value = body.nodes.map((node) => ({ ...node, x: null, y: null }))
+      edges.value = await makeEdges(body.edges, body.nodes)
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
 }
 
 async function makeEdges(edges, nodes) {
