@@ -11,24 +11,21 @@ if extend_response_with('status')
 end
 
 if extend_response_with('roles') 
-  if loan.roles.any?
-    json.loan_recipient_roles do
-      json.array! loan.loan_recipient_roles.each do |role|
-        json.extract! role, :id, :position
-        json.person do
-          json.partial! '/people/base_attributes', person: role.person
-        end
+  json.loan_recipient_roles do
+    json.array! loan.loan_recipient_roles.each do |role|
+      json.extract! role, :id, :position
+      json.person do
+        json.partial! '/people/base_attributes', person: role.person
       end
     end
+  end
 
-    json.loan_supervisor_roles do
-      json.array! loan.loan_supervisor_roles.each do |role|
-        json.extract! role, :id, :position
-        json.person do
-          json.partial! '/people/base_attributes', person: role.person
-        end
+  json.loan_supervisor_roles do
+    json.array! loan.loan_supervisor_roles.each do |role|
+      json.extract! role, :id, :position
+      json.person do
+        json.partial! '/people/base_attributes', person: role.person
       end
     end
-  end 
-
+  end
 end
