@@ -189,7 +189,7 @@ function saveParams() {
     isOnlyIds.value ? getParametersForId() : getParametersForAll()
   )
 
-  sessionStorage.setItem('linkerQuery', filteredParameters)
+  sessionStorage.setItem('linkerQuery', JSON.stringify(filteredParameters))
 }
 
 watch(isVisible, (newVal) => {
