@@ -130,6 +130,7 @@ onMounted(() => {
   }
 
   parameters.value = urlParameters
+  sessionStorage.removeItem('linkerQuery')
 
   if (Object.keys(urlParameters).length) {
     loadGraph(urlParameters)
