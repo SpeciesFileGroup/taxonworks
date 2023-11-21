@@ -70,6 +70,7 @@
       :edges="edges"
       :nodes="nodes"
       :labels="showLabels"
+      edge-label
     />
   </div>
 </template>
@@ -83,11 +84,11 @@ import VSpinner from '@/components/spinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VGraph from '@/components/ui/VGraph/VGraph.vue'
+import { getHexColorFromString } from '@/tasks/biological_associations/biological_associations_graph/utils/index.js'
 import qs from 'qs'
 
 const stats = ref({})
 const graph = ref(null)
-const currentNode = ref(null)
 const isLoading = ref(false)
 const showLabels = ref(true)
 const nodes = ref([])
@@ -95,16 +96,31 @@ const edges = ref([])
 const parameters = ref({})
 
 function loadGraph(urlParameters) {
-  BiologicalAssociation.graph(urlParameters).then(({ body }) => {
+  BiologicalAssociation.graph(urlParameters).then(async ({ body }) => {
     stats.value = body.stats
     nodes.value = body.nodes.map((node) => ({ ...node, x: null, y: null }))
-    edges.value = body.edges.map((link) => ({
-      source: body.nodes.findIndex((node) => node.id === link.start_id),
-      target: body.nodes.findIndex((node) => node.id === link.end_id)
-    }))
+    edges.value = await makeEdges(body.edges, body.nodes)
 
     isLoading.value = false
   })
+}
+
+async function makeEdges(edges, nodes) {
+  const arr = []
+
+  for (const link of edges) {
+    const hexColor = await getHexColorFromString(link.label || '')
+
+    arr.push({
+      source: nodes.findIndex((node) => node.id === link.start_id),
+      target: nodes.findIndex((node) => node.id === link.end_id),
+      label: link.label,
+      stroke: hexColor,
+      color: hexColor
+    })
+  }
+
+  return arr
 }
 
 onMounted(() => {

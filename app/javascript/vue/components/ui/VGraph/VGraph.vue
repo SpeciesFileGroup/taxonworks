@@ -9,7 +9,10 @@
 <script setup>
 import * as d3 from 'd3'
 import * as shapes from './svg'
-import { ref, onMounted, watch, toRaw } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+
+const DEFAULT_LABEL_COLOR = '#000000'
+const DEFAULT_STROKE_COLOR = '#ccc'
 
 const size = 5
 
@@ -31,6 +34,11 @@ const props = defineProps({
   labels: {
     type: Boolean,
     default: false
+  },
+
+  edgeLabel: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -38,8 +46,6 @@ const emit = defineEmits(['node:dbclick'])
 
 let width = 0
 let height = 0
-/* let nodes = []
-let edges = [] */
 
 const svgElement = ref(null)
 
@@ -69,17 +75,36 @@ function initGraph({ nodes, edges }) {
     .force('link', d3.forceLink().links(edges).distance(150))
     .on('tick', ticked)
 
-  function createNodes() {
+  function createLinks() {
     graphContainer.append('g').attr('class', 'links')
 
-    graphContainer
+    const links = graphContainer
       .select('.links')
       .selectAll('line')
       .data(edges)
       .enter()
       .append('line')
-      .attr('stroke', '#ccc')
+      .attr('stroke', (d) => d.stroke || DEFAULT_STROKE_COLOR)
 
+    return links
+  }
+
+  function createLabels() {
+    graphContainer.append('g').attr('class', 'labels')
+
+    const labels = graphContainer
+      .selectAll('text')
+      .data(edges)
+      .enter()
+      .append('text')
+      .text((d) => d.label || '')
+      .attr('font-size', 12)
+      .attr('fill', (d) => d.color || DEFAULT_LABEL_COLOR)
+
+    return labels
+  }
+
+  function createNodes() {
     graphContainer.append('g').attr('class', 'nodes')
 
     const nodeGroup = graphContainer
@@ -97,9 +122,7 @@ function initGraph({ nodes, edges }) {
 
     nodeGroup
       .append('text')
-      .text(function (d) {
-        return d.name
-      })
+      .text((d) => d.name)
       .attr('dx', size * 2 + 4)
       .attr('dy', size / 2)
 
@@ -107,14 +130,21 @@ function initGraph({ nodes, edges }) {
       e.stopPropagation()
       emit('node:dbclick', d)
     })
+
+    return nodeGroup
   }
 
-  createNodes()
+  let labels
+  const links = createLinks()
+
+  if (props.edgeLabel) {
+    labels = createLabels()
+  }
+
+  const nodeGroup = createNodes()
 
   function updateNodes() {
-    graphContainer.selectAll('.node').attr('transform', function (d) {
-      return `translate(${d.x}, ${d.y})`
-    })
+    nodeGroup.attr('transform', (d) => `translate(${d.x}, ${d.y})`)
   }
 
   function drag(simulation) {
@@ -143,17 +173,26 @@ function initGraph({ nodes, edges }) {
   }
 
   function updateLinks() {
-    graphContainer
-      .selectAll('line')
+    links
       .attr('x1', (d) => d.source.x)
       .attr('y1', (d) => d.source.y)
       .attr('x2', (d) => d.target.x)
       .attr('y2', (d) => d.target.y)
   }
 
+  function updateLabels() {
+    labels
+      .attr('x', (d) => (d.source.x + d.target.x) / 2)
+      .attr('y', (d) => (d.source.y + d.target.y) / 2)
+  }
+
   function ticked() {
-    updateNodes()
     updateLinks()
+    updateNodes()
+
+    if (props.edgeLabel) {
+      updateLabels()
+    }
   }
 }
 
@@ -166,8 +205,8 @@ onMounted(() => {
   width = svgElement.value.clientWidth
 
   initGraph({
-    nodes: toRaw(props.nodes),
-    edges: toRaw(props.edges)
+    nodes: props.nodes.map((item) => ({ ...item })),
+    edges: props.edges.map((item) => ({ ...item }))
   })
 })
 
