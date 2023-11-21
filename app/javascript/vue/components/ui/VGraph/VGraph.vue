@@ -36,7 +36,12 @@ const props = defineProps({
     default: false
   },
 
-  edgeLabel: {
+  labelEdge: {
+    type: Boolean,
+    default: false
+  },
+
+  labelParallel: {
     type: Boolean,
     default: false
   }
@@ -57,6 +62,20 @@ watch([() => props.edges, () => props.nodes], () => {
     edges: props.edges.map((item) => ({ ...item }))
   })
 })
+
+function translateLabel(d) {
+  const dx = d.target.x - d.source.x
+  const dy = d.target.y - d.source.y
+  const angle = Math.atan2(dy, dx) * (180 / Math.PI)
+
+  return (
+    'translate(' +
+    [(d.source.x + d.target.x) / 2, (d.source.y + d.target.y) / 2] +
+    ') rotate(' +
+    angle +
+    ')'
+  )
+}
 
 function initGraph({ nodes, edges }) {
   const graph = d3.select(svgElement.value)
@@ -100,6 +119,9 @@ function initGraph({ nodes, edges }) {
       .text((d) => d.label || '')
       .attr('font-size', 12)
       .attr('fill', (d) => d.color || DEFAULT_LABEL_COLOR)
+      .attr('text-anchor', 'middle')
+      .attr('dy', -2)
+      .attr('transform', translateLabel)
 
     return labels
   }
@@ -137,7 +159,7 @@ function initGraph({ nodes, edges }) {
   let labels
   const links = createLinks()
 
-  if (props.edgeLabel) {
+  if (props.labelEdge) {
     labels = createLabels()
   }
 
@@ -181,16 +203,20 @@ function initGraph({ nodes, edges }) {
   }
 
   function updateLabels() {
-    labels
-      .attr('x', (d) => (d.source.x + d.target.x) / 2)
-      .attr('y', (d) => (d.source.y + d.target.y) / 2)
+    if (props.labelParallel) {
+      labels.attr('transform', translateLabel)
+    } else {
+      labels
+        .attr('x', (d) => (d.source.x + d.target.x) / 2)
+        .attr('y', (d) => (d.source.y + d.target.y) / 2)
+    }
   }
 
   function ticked() {
     updateLinks()
     updateNodes()
 
-    if (props.edgeLabel) {
+    if (props.labelEdge) {
       updateLabels()
     }
   }

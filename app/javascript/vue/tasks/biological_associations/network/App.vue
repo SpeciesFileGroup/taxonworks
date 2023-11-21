@@ -70,7 +70,8 @@
       :edges="edges"
       :nodes="nodes"
       :labels="showLabels"
-      edge-label
+      label-edge
+      label-parallel
     />
   </div>
 </template>
