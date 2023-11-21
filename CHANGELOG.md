@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial AD: Quick/recent selector broken on "Move". [#3640]
 - New taxon name: Author panel overflow when source has a long link
 - Edit Loan: Loans created without recipient or supervisor cannot be updated
+- Fixed bug in DwC importer background processor that was not dealing with errored records.
 
 [#3640]: https://github.com/SpeciesFileGroup/taxonworks/issues/3640
 [#3652]: https://github.com/SpeciesFileGroup/taxonworks/issues/3652
