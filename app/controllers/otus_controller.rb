@@ -282,6 +282,7 @@ class OtusController < ApplicationController
   def autocomplete
     @otus = ::Queries::Otu::Autocomplete.new(
       params.require(:term),
+      exact: 'true',
       project_id: sessions_current_project_id,
       with_taxon_name: params[:with_taxon_name],
       having_taxon_name_only: params[:having_taxon_name_only],
@@ -406,7 +407,7 @@ class OtusController < ApplicationController
 # end
 
   def otu_params
-    params.require(:otu).permit(:name, :taxon_name_id)
+    params.require(:otu).permit(:name, :taxon_name_id, :exact)
   end
 
   def batch_params

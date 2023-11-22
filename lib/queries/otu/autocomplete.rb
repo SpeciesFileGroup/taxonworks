@@ -21,6 +21,11 @@ module Queries
       #   nil - ignored
       attr_accessor :with_taxon_name
 
+      # @return [Boolean]
+      #   &exact=<"true"|"false">
+      #   if 'true' then only #name = query_string results are returned (no fuzzy matching)
+      attr_accessor :exact
+
       # Keys are method names. Existence of method is checked
       # before requesting the query
       QUERIES = {
@@ -48,10 +53,13 @@ module Queries
         # common_name_name_similarity: {priority: 200},
       }.freeze
 
-      def initialize(string, project_id: nil, having_taxon_name_only: false, with_taxon_name: nil)
+      def initialize(string, project_id: nil, having_taxon_name_only: false, with_taxon_name: nil, exact: 'false')
         super(string, project_id:)
         @having_taxon_name_only = boolean_param({having_taxon_name_only:}, :having_taxon_name_only)
         @with_taxon_name = boolean_param({with_taxon_name:}, :with_taxon_name)
+
+        # TODO: move to mode
+        @exact = boolean_param({exact:}, :exact)
       end
 
       def base_query
@@ -86,7 +94,7 @@ module Queries
       #   Pull the result of a TaxonName autocomplete. Maintain the order returned, and
       #   re-cast the result in terms of an OTU query. Expensive but maintain order is key.
       def autocomplete_taxon_name
-        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact: 'true', project_id:).autocomplete # an array, not a query
+        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact: exact, project_id:).autocomplete # an array, not a query
 
         ids = taxon_names.map(&:id) # maintain order
         return nil if ids.empty?
