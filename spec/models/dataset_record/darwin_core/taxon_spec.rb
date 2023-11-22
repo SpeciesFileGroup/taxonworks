@@ -1118,7 +1118,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(misspelling.cached_valid_taxon_name_id).to eq valid.id
     end
   end
-  
+
   context 'when importing a synonym with a combination parent' do
     before(:all) { import_checklist_tsv('synonym_combination_parent.tsv', 9) }
 
@@ -1151,6 +1151,20 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(Combination.find_by(cached: 'Tetramorium rothneyi longi')).to be_truthy
     end
 
+  end
+
+  context 'when importing a dataset without scientificNameAuthorship data' do
+    before(:all) { import_checklist_tsv('no_authorship.tsv', 2) }
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'should import both names' do
+      verify_all_records_imported(2)
+    end
+
+    it 'neither protonym should have authorship data' do
+      expect(Protonym.find_by(name: 'Formicidae').author_string).to be_nil
+      expect(Protonym.find_by(name: 'Calyptites').author_string).to be_nil
+    end
   end
 
 

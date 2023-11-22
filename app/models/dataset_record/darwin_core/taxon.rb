@@ -57,23 +57,25 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         year = nil
 
         # split authorship into name and year
-        if nomenclature_code == :iczn
-          if (authorship_matchdata = authorship.match(/\(?(?<author>.+),? (?<year>\d{4})?\)?/))
+        if authorship.present?
+          if nomenclature_code == :iczn
+            if (authorship_matchdata = authorship.match(/\(?(?<author>.+),? (?<year>\d{4})?\)?/))
 
-            # regex will include comma, no easy way around it
-            author_name = authorship_matchdata[:author].delete_suffix(',')
-            year = authorship_matchdata[:year]
+              # regex will include comma, no easy way around it
+              author_name = authorship_matchdata[:author].delete_suffix(',')
+              year = authorship_matchdata[:year]
 
-            # author name should be wrapped in parentheses if the verbatim authorship was
-            if authorship.start_with?('(') and authorship.end_with?(')')
-              author_name = '(' + author_name + ')'
+              # author name should be wrapped in parentheses if the verbatim authorship was
+              if authorship.start_with?('(') and authorship.end_with?(')')
+                author_name = '(' + author_name + ')'
+              end
             end
-          end
 
-        else
-          # Fall back to simple name + date parsing
-          author_name = Utilities::Strings.verbatim_author(authorship)
-          year = Utilities::Strings.year_of_publication(authorship)
+          else
+            # Fall back to simple name + date parsing if not iczn
+            author_name = Utilities::Strings.verbatim_author(authorship)
+            year = Utilities::Strings.year_of_publication(authorship)
+          end
         end
 
         if year && (name_published_in_year = get_field_value('namePublishedInYear')) &&
