@@ -1153,6 +1153,45 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
+
+  context 'when importing a second time that builds off the first import' do
+    before(:all) do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/' + 'two_part_upload/two_part_upload_1.tsv'), 'text/plain'),
+        description: "part 1",
+        import_settings: {'use_existing_taxon_hierarchy' => false}
+      ).tap { |i| i.stage }
+
+      1.times { |_|
+        import_dataset.import(5000, 100)
+      }
+
+      import_dataset2 = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/' + 'two_part_upload/two_part_upload_2.tsv'), 'text/plain'),
+        description: "part 2",
+        import_settings: {'use_existing_taxon_hierarchy' => true}
+      ).tap { |i| i.stage }
+
+      2.times { |_|
+        import_dataset2.import(5000, 100)
+      }
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    it 'should import 3 records' do
+      verify_all_records_imported(3)
+    end
+
+    it 'only two protonyms should be created' do
+      expect(TaxonName.where.not(name: 'Root').count).to eq 2
+    end
+
+  end
+
   # TODO test missing parent
   #
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName

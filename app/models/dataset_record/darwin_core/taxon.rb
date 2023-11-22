@@ -90,7 +90,30 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         is_hybrid = metadata['is_hybrid'] # TODO: NO...
 
         if metadata['parent'].nil?
-          parent = project.root_taxon_name
+          if self.import_dataset.use_existing_hierarchy?
+            protonym_attributes = { name: name,
+                                  cached: get_field_value(:scientificName),
+                                  rank_class: Ranks.lookup(nomenclature_code, rank),
+                                  verbatim_author: author_name,
+                                  year_of_publication: year,
+                                  project: project}
+            potential_protonyms = TaxonName.where(protonym_attributes)
+
+            if potential_protonyms.count == 1
+              parent = potential_protonyms.first.parent
+            elsif potential_protonyms.count > 1
+              matching_protonyms = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }.join(', ')
+              raise DarwinCore::InvalidData.new(
+                { "parentNameUsageID": ["parent ID is blank, 'use existing taxon hierarchy' is enabled in settings, " \
+                                          "and multiple TaxonNames matched #{protonym_attributes}: #{matching_protonyms}"] })
+            else
+              raise DarwinCore::InvalidData.new(
+                { "parentNameUsageID": ["parent ID is blank, 'use existing taxon hierarchy' is enabled in settings, " \
+                                          "and no TaxonNames matched #{protonym_attributes}"] })
+            end
+          else
+            parent = project.root_taxon_name
+          end
         else
           parent = TaxonName.find(get_parent.metadata['imported_objects']['taxon_name']['id'])
         end
@@ -115,11 +138,11 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             rank_class: Ranks.lookup(nomenclature_code, rank),
             # also_create_otu: false,
             verbatim_author: author_name,
-            year_of_publication: year
+            year_of_publication: year,
+            project: project
           }
 
-          taxon_name = Protonym.create_with(project: project)
-                               .find_or_initialize_by(protonym_attributes)
+          taxon_name = Protonym.find_or_initialize_by(protonym_attributes)
 
           unless taxon_name.persisted?
             taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
@@ -133,7 +156,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           end
 
           # make OC relationships to OC ancestors
-          unless parent == project.root_taxon_name # can't make original combination with Root
+          unless metadata['parent'].nil? # can't make original combination with Root or if matching pre-existing taxon name
 
             # loop through parents of original combination based on parentNameUsageID, not TW parent
             # this way we get the name as intended, not with any valid/current names
@@ -207,7 +230,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             # detect if current name rank is genus and original combination is with self at subgenus level, eg Aus (Aus)
             # if so, generate OC relationship with genus (since oc_protonym_rank will be subgenus)
             if oc_protonym_rank == :subgenus && get_field_value('taxonRank').downcase == "genus" &&
-              (get_original_combination.metadata['parent'] == get_field_value('taxonID'))
+              (get_original_combination&.metadata['parent'] == get_field_value('taxonID'))
               TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
                 type: ORIGINAL_COMBINATION_RANKS[:genus],
                 object_taxon_name: taxon_name)
@@ -503,7 +526,12 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   # Create a hash of parents from checklist
   # @return [Hash{Symbol => TaxonName}] hash of ranks and TaxonNames of genus and species rank parents
   def create_parent_element_hash
-    parents = [get_parent]
+    parent = get_parent
+
+    # if parent is root, return empty hash
+    return {} unless parent
+
+    parents = [parent]
 
     while (next_parent = find_by_taxonID(parents[-1].metadata['parent']))
       parents << next_parent
