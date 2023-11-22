@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - TaxonName model to customize attributes.
 - TaxonNameRelationship model, added validation for the rank of type species and type genus.
 - New source task: Person source
+- index view to API for /depictions
 
 ### Changed
 
