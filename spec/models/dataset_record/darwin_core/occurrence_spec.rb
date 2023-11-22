@@ -65,19 +65,21 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
         import_settings: { 'restrict_to_existing_nomenclature' => true}
       ).tap { |i| i.stage }
 
-      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
-      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
-      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
-      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
-      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
-      subfamily = Protonym.create(parent: family, name: "Ponerinae", rank_class: Ranks.lookup(:iczn, :subfamily))
-      tribe = Protonym.create(parent: subfamily, name: "Ponerini", rank_class: Ranks.lookup(:iczn, :tribe))
-      genus = Protonym.create(parent: tribe, name: "Bothroponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      species = Protonym.create(parent: genus, name: "cambouei", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: "Ponerinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+      tribe = Protonym.create!(parent: subfamily, name: "Ponerini", rank_class: Ranks.lookup(:iczn, :tribe))
+      genus = Protonym.create!(parent: tribe, name: "Bothroponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      species = Protonym.create!(parent: genus, name: "cambouei", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+
+      @imported = @import_dataset.import(5000, 100)
 
     end
 
-    let!(:results) { @import_dataset.import(5000, 100) }
+    let!(:results) { @imported }
 
     it "should import the record without failing" do
       expect(results.length).to eq(1)
@@ -103,19 +105,19 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                            'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
-      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
-      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
-      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
-      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
-      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
-      subfamily = Protonym.create(parent: family, name: "Ponerinae", rank_class: Ranks.lookup(:iczn, :subfamily))
-      tribe = Protonym.create(parent: subfamily, name: "Ponerini", rank_class: Ranks.lookup(:iczn, :tribe))
-      genus = Protonym.create(parent: tribe, name: "Bothroponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      Protonym.create(parent: genus, name: "cambouei", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: "Ponerinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+      tribe = Protonym.create!(parent: subfamily, name: "Ponerini", rank_class: Ranks.lookup(:iczn, :tribe))
+      genus = Protonym.create!(parent: tribe, name: "Bothroponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      Protonym.create!(parent: genus, name: "cambouei", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
 
-      g_pachycondyla = Protonym.create(parent: tribe, name: "Pachycondyla", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      g_euponera = Protonym.create(parent: tribe, name: "Euponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      s_agnivo = Protonym.create(parent: g_euponera, name: "agnivo", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      g_pachycondyla = Protonym.create!(parent: tribe, name: "Pachycondyla", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_euponera = Protonym.create!(parent: tribe, name: "Euponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      s_agnivo = Protonym.create!(parent: g_euponera, name: "agnivo", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
 
       # Create original combination relationship
       TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_pachycondyla, object_taxon_name: s_agnivo)
@@ -158,18 +160,18 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                            'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
-      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
-      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
-      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
-      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
-      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
-      subfamily = Protonym.create(parent: family, name: "Myrmicinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: "Myrmicinae", rank_class: Ranks.lookup(:iczn, :subfamily))
 
-      g_aphaenogaster = Protonym.create(parent: subfamily, name: "Aphaenogaster", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      g_ceratopheidole = Protonym.create(parent: subfamily, name: "Ceratopheidole", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      s_depressa = Protonym.create(parent: g_aphaenogaster, name: "depressa", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
-      s_perganderi = Protonym.create(parent: g_aphaenogaster, name: "perganderi", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
-      s_pergandei = Protonym.create(parent: g_aphaenogaster, name: "pergandei", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      g_aphaenogaster = Protonym.create!(parent: subfamily, name: "Aphaenogaster", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_ceratopheidole = Protonym.create!(parent: subfamily, name: "Ceratopheidole", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      s_depressa = Protonym.create!(parent: g_aphaenogaster, name: "depressa", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_perganderi = Protonym.create!(parent: g_aphaenogaster, name: "perganderi", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_pergandei = Protonym.create!(parent: g_aphaenogaster, name: "pergandei", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
 
 
       # Create original combination relationship for misspelling and correct spelling
@@ -217,17 +219,17 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                            'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
-      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
-      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
-      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
-      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
-      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
-      subfamily = Protonym.create(parent: family, name: "Ectatomminae", rank_class: Ranks.lookup(:iczn, :subfamily))
+      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: "Ectatomminae", rank_class: Ranks.lookup(:iczn, :subfamily))
 
-      g_heteroponera = Protonym.create(parent: subfamily, name: "Heteroponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      g_ectatomma = Protonym.create(parent: subfamily, name: "Ectatomma", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      s_brounii = Protonym.create(parent: g_heteroponera, name: "brounii", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
-      s_brownii = Protonym.create(parent: g_heteroponera, name: "brownii", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      g_heteroponera = Protonym.create!(parent: subfamily, name: "Heteroponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_ectatomma = Protonym.create!(parent: subfamily, name: "Ectatomma", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      s_brounii = Protonym.create!(parent: g_heteroponera, name: "brounii", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_brownii = Protonym.create!(parent: g_heteroponera, name: "brownii", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
 
       # Create original combination relationship for misspelling and correct spelling
       TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_ectatomma, object_taxon_name: s_brownii)
@@ -265,43 +267,39 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   context 'when importing an occurrence with a type material matching a misspelling of a synonym of the current taxon name' do
     before :all do
-      DatabaseCleaner.start
-      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_synonym_misspelling.tsv'), 'text/plain'),
-        description: 'Type Material Synonym Misspelling',
-        import_settings: { 'restrict_to_existing_nomenclature' => true,
-                           'require_type_material_success' => true }
-      ).tap { |i| i.stage }
+      @import_dataset = prepare_occurrence_tsv('typeStatus_synonym_misspelling.tsv',
+                                               import_settings: { 'restrict_to_existing_nomenclature' => true,
+                                                                  'require_type_material_success' => true })
 
-      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
-      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
-      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
-      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
-      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
-      subfamily = Protonym.create(parent: family, name: "Dorylinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: "Dorylinae", rank_class: Ranks.lookup(:iczn, :subfamily))
 
-      g_liponera = Protonym.create(parent: subfamily, name: "Liponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      g_cerapachys = Protonym.create(parent: subfamily, name: "Cerapachys", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_liponera = Protonym.create!(parent: subfamily, name: "Liponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_cerapachys = Protonym.create!(parent: subfamily, name: "Cerapachys", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
 
-      s_mayri = Protonym.create(parent: g_liponera, name: "mayri", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
-      s_brachynoda = Protonym.create(parent: g_liponera, name: "brachynoda", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_mayri = Protonym.create!(parent: g_liponera, name: "mayri", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_brachynoda = Protonym.create!(parent: g_liponera, name: "brachynoda", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
 
       TaxonNameClassification::Latinized::PartOfSpeech::Adjective.create!(:taxon_name_id =>  s_brachynoda.id)
       s_brachynoda.send(:set_cached)
 
-      s_brachinoda = Protonym.create(parent: g_liponera, name: "brachinoda", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_brachinoda = Protonym.create!(parent: g_liponera, name: "brachinoda", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
 
       # Create original combination relationship for misspelling and correct spelling
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_cerapachys, object_taxon_name: s_mayri)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_mayri, object_taxon_name: s_mayri)
+      s_mayri.original_genus = g_cerapachys
+      s_mayri.original_species = s_mayri
 
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_cerapachys, object_taxon_name: s_brachynoda)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_mayri, object_taxon_name: s_brachynoda)
-      TaxonNameRelationship::OriginalCombination::OriginalSubspecies.create!(subject_taxon_name: s_brachynoda, object_taxon_name: s_brachynoda)
+      s_brachynoda.original_genus = g_cerapachys
+      s_brachynoda.original_species = s_mayri
+      s_brachynoda.original_subspecies = s_brachynoda
 
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_cerapachys, object_taxon_name: s_brachinoda)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_mayri, object_taxon_name: s_brachinoda)
-      TaxonNameRelationship::OriginalCombination::OriginalSubspecies.create!(subject_taxon_name: s_brachinoda, object_taxon_name: s_brachinoda)
+      s_brachinoda.original_genus = g_cerapachys
+      s_brachinoda.original_species = s_mayri
+      s_brachinoda.original_subspecies = s_brachinoda
 
       # Create misspelling relationship with correct spelling
       TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling.create!(subject_taxon_name: s_brachinoda, object_taxon_name: s_brachynoda)
@@ -337,37 +335,32 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   context 'when importing an occurrence with a type material matching a subsequent combination of the current taxon name' do
     before :all do
-      DatabaseCleaner.start
-      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_subsequent_combination.tsv'), 'text/plain'),
-        description: 'Type Material Subsequent Combination',
-        import_settings: { 'restrict_to_existing_nomenclature' => true,
-                           'require_type_material_success' => true }
-      ).tap { |i| i.stage }
+      @import_dataset = prepare_occurrence_tsv('typeStatus_subsequent_combination.tsv', import_settings: { 'restrict_to_existing_nomenclature' => true,
+                                                                                                           'require_type_material_success' => true })
 
-      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
-      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
-      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
-      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
-      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
-      subfamily = Protonym.create(parent: family, name: "Dorylinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: "Dorylinae", rank_class: Ranks.lookup(:iczn, :subfamily))
 
-      g_liponera = Protonym.create(parent: subfamily, name: "Liponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      g_cerapachys = Protonym.create(parent: subfamily, name: "Cerapachys", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_liponera = Protonym.create!(parent: subfamily, name: "Liponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_cerapachys = Protonym.create!(parent: subfamily, name: "Cerapachys", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
 
-      s_mayri = Protonym.create(parent: g_liponera, name: "mayri", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
-      s_brachynoda = Protonym.create(parent: g_liponera, name: "brachynoda", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_mayri = Protonym.create!(parent: g_liponera, name: "mayri", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_brachynoda = Protonym.create!(parent: g_liponera, name: "brachynoda", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
 
       TaxonNameClassification::Latinized::PartOfSpeech::Adjective.create!(:taxon_name_id =>  s_brachynoda.id)
       s_brachynoda.send(:set_cached)
 
       # Create original combination relationship for misspelling and correct spelling
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_cerapachys, object_taxon_name: s_mayri)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_mayri, object_taxon_name: s_mayri)
+      s_mayri.original_genus = g_cerapachys
+      s_mayri.original_species = s_mayri
 
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_cerapachys, object_taxon_name: s_brachynoda)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_mayri, object_taxon_name: s_brachynoda)
-      TaxonNameRelationship::OriginalCombination::OriginalSubspecies.create!(subject_taxon_name: s_brachynoda, object_taxon_name: s_brachynoda)
+      s_brachynoda.original_genus = g_cerapachys
+      s_brachynoda.original_species = s_mayri
+      s_brachynoda.original_subspecies = s_brachynoda
 
 
       # Add synonym relationship
@@ -413,21 +406,21 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                            'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
-      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
-      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
-      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
-      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
-      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
-      subfamily = Protonym.create(parent: family, name: "Ectatomminae", rank_class: Ranks.lookup(:iczn, :subfamily))
+      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: "Ectatomminae", rank_class: Ranks.lookup(:iczn, :subfamily))
 
-      g_heteroponera = Protonym.create(parent: subfamily, name: "Heteroponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      g_ectatomma = Protonym.create(parent: subfamily, name: "Ectatomma", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      g_acanthoponera = Protonym.create(parent: g_ectatomma, name: "Acanthoponera", rank_class: Ranks.lookup(:iczn, :subgenus), also_create_otu: true)
-      s_brounii = Protonym.create(parent: g_heteroponera, name: "brounii", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      g_heteroponera = Protonym.create!(parent: subfamily, name: "Heteroponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_ectatomma = Protonym.create!(parent: subfamily, name: "Ectatomma", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_acanthoponera = Protonym.create!(parent: g_ectatomma, name: "Acanthoponera", rank_class: Ranks.lookup(:iczn, :subgenus), also_create_otu: true)
+      s_brounii = Protonym.create!(parent: g_heteroponera, name: "brounii", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
 
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_ectatomma, object_taxon_name: s_brounii)
-      TaxonNameRelationship::OriginalCombination::OriginalSubgenus.create!(subject_taxon_name: g_acanthoponera, object_taxon_name: s_brounii)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_brounii, object_taxon_name: s_brounii)
+      s_brounii.original_genus = g_ectatomma
+      s_brounii.original_subgenus = g_acanthoponera
+      s_brounii.original_species = s_brounii
 
       @imported = @import_dataset.import(5000, 100)
     end
@@ -467,32 +460,32 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       ).tap { |i| i.stage }
 
 
-      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
-      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
-      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
-      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
-      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
-      subfamily = Protonym.create(parent: family, name: "Formicinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: "Formicinae", rank_class: Ranks.lookup(:iczn, :subfamily))
 
-      g_camponotus = Protonym.create(parent: subfamily, name: "Camponotus", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      g_dendromyrmex = Protonym.create(parent: g_camponotus, name: "Dendromyrmex", rank_class: Ranks.lookup(:iczn, :subgenus), also_create_otu: true)
-      g_karavaievia = Protonym.create(parent: g_camponotus, name: "Karavaievia", rank_class: Ranks.lookup(:iczn, :subgenus), also_create_otu: true)
+      g_camponotus = Protonym.create!(parent: subfamily, name: "Camponotus", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_dendromyrmex = Protonym.create!(parent: g_camponotus, name: "Dendromyrmex", rank_class: Ranks.lookup(:iczn, :subgenus), also_create_otu: true)
+      g_karavaievia = Protonym.create!(parent: g_camponotus, name: "Karavaievia", rank_class: Ranks.lookup(:iczn, :subgenus), also_create_otu: true)
 
-      s_nigripes_dumpert = Protonym.create(parent: g_karavaievia, name: "nigripes", rank_class: Ranks.lookup(:iczn, :species),
+      s_nigripes_dumpert = Protonym.create!(parent: g_karavaievia, name: "nigripes", rank_class: Ranks.lookup(:iczn, :species),
                                            verbatim_author: "Dumpert", year_of_publication: 1995, also_create_otu: true)
 
-      s_nidulans = Protonym.create(parent: g_camponotus, name: "nidulans", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
-      s_nigripes_wheeler = Protonym.create(parent: g_dendromyrmex, name: "nigripes", rank_class: Ranks.lookup(:iczn, :species),
+      s_nidulans = Protonym.create!(parent: g_camponotus, name: "nidulans", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_nigripes_wheeler = Protonym.create!(parent: g_dendromyrmex, name: "nigripes", rank_class: Ranks.lookup(:iczn, :species),
                                            verbatim_author: "Wheeler", year_of_publication: 1916, also_create_otu: true)
 
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_dendromyrmex, object_taxon_name: s_nigripes_wheeler)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_nidulans, object_taxon_name: s_nigripes_wheeler)
-      TaxonNameRelationship::OriginalCombination::OriginalSubspecies.create!(subject_taxon_name: s_nigripes_wheeler, object_taxon_name: s_nigripes_wheeler)
+      s_nigripes_wheeler.original_genus = g_dendromyrmex
+      s_nigripes_wheeler.original_species = s_nidulans
+      s_nigripes_wheeler.original_subspecies = s_nigripes_wheeler
+
+      s_nigripes_dumpert.original_genus = g_camponotus
+      s_nigripes_dumpert.original_species = s_nigripes_dumpert
 
       TaxonNameRelationship::Iczn::Invalidating::Usage::Synonym.create!(subject_taxon_name: s_nigripes_wheeler, object_taxon_name: s_nidulans)
-
-      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_camponotus, object_taxon_name: s_nigripes_dumpert)
-      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_nigripes_dumpert, object_taxon_name: s_nigripes_dumpert)
 
       @imported = @import_dataset.import(5000, 100)
     end
@@ -533,20 +526,20 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       ).tap { |i| i.stage }
 
 
-      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
-      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
-      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
-      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
-      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
-      subfamily = Protonym.create(parent: family, name: "Dolichoderinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: "Dolichoderinae", rank_class: Ranks.lookup(:iczn, :subfamily))
 
-      g_forelius = Protonym.create(parent: subfamily, name: "Forelius", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      g_iridomyrmex = Protonym.create(parent: subfamily, name: "Iridomyrmex", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_forelius = Protonym.create!(parent: subfamily, name: "Forelius", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      g_iridomyrmex = Protonym.create!(parent: subfamily, name: "Iridomyrmex", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
 
-      s_breviscapus = Protonym.create(parent: g_forelius, name: "breviscapus", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
-      s_mccooki = Protonym.create(parent: g_forelius, name: "mccooki", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_breviscapus = Protonym.create!(parent: g_forelius, name: "breviscapus", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_mccooki = Protonym.create!(parent: g_forelius, name: "mccooki", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
       # should be obscurata, adjective
-      s_obscurata = Protonym.create(parent: g_forelius, name: "obscuratus", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      s_obscurata = Protonym.create!(parent: g_forelius, name: "obscuratus", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
 
       TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_iridomyrmex, object_taxon_name: s_mccooki)
       TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: s_mccooki, object_taxon_name: s_mccooki)
@@ -630,5 +623,104 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
 
   end
+
+  context 'when importing an occurrence with a url for institutionCode' do
+
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('url_institution_code.tsv', import_settings: { 'restrict_to_existing_nomenclature' => false})
+
+      @repository = Repository.create!(name: 'California Academy of Sciences', acronym: 'CASC',
+                                       url: 'http://grbio.org/institution/california-academy-sciences')
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let!(:results) { @imported }
+    let!(:repository) { @repository }
+
+    it 'should import the record without failing' do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'the record should have the correct repository' do
+      expect(CollectionObject.first.repository).to eq repository
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+  end
+  
+  context 'when importing an occurrence with duplicate acronym institutionCode' do
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('acronym_institution_code.tsv', import_settings: { 'restrict_to_existing_nomenclature' => false,
+                                                                                                  'containerize_dup_cat_no' => false})
+
+      @repository = Repository.create!(name: 'Museum of Comparative Zoology, Harvard University, Cambridge, Massachusetts', acronym: 'MCZ')
+      @imported = @import_dataset.import(5000, 100)
+    end
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:imported) {@imported}
+
+    it 'should import fine when one institution has the specified acronym' do
+      expect(imported.length).to eq(1)
+      expect(imported.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'should match the correct institution' do
+      expect(CollectionObject.first.repository).to eq @repository
+    end
+  end
+
+
+  context 'when importing an occurrence with duplicate acronym institutionCode' do
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('acronym_institution_code.tsv',
+                                               import_settings: { 'restrict_to_existing_nomenclature' => false,
+                                                                  'containerize_dup_cat_no' => false })
+
+      Repository.create!(name: 'Museum of Comparative Zoology, Harvard University, Cambridge, Massachusetts', acronym: 'MCZ')
+      Repository.create!(name: 'Museum of Comparative Zoology', acronym: 'MCZ',
+                         url: 'http://grbio.org/institution/museum-comparative-zoology')
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:imported) {@imported}
+
+    it 'should error when multiple institutions have the same acronym' do
+      expect(imported.length).to eq(1)
+      expect(imported.map { |row| row.status }).to all(eq('Errored'))
+    end
+
+    it 'should report that there were multiple matching acronyms' do
+      error_messages = imported.first.metadata['error_data']['messages']['institutionCode']
+      expect(error_messages.first).to match(/Could not disambiguate repository name 'MCZ'/)
+      expect(error_messages.second).to match(/Multiple repositories with acronym MCZ found/)
+      expect(error_messages.third).to match(/No repositories match the name MCZ/)
+    end
+  end
+
+end
+
+# Set up DatabaseCleaner, stage tsv file for import
+# @param [String] file_name
+# @param [String, nil] description
+# @param [Hash] import_settings
+def prepare_occurrence_tsv(file_name, description = nil, import_settings: {})
+  DatabaseCleaner.start
+  ImportDataset::DarwinCore::Occurrences.create!(
+    source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/' + file_name), 'text/plain'),
+    description: description || file_name, # use file name as description if not given
+    import_settings: import_settings
+  ).tap { |i| i.stage }
 
 end

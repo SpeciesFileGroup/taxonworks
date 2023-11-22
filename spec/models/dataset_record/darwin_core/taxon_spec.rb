@@ -1079,6 +1079,13 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   context 'when importing an original misspelling' do
     before(:all) { import_checklist_tsv('original_misspelling.tsv', 6, 'misspelling combination') }
 
+    # Tetramorium rothneyi longi is a synonym of Tetramorium wroughtonii and has a different
+    # original combination (Rhoptromyrmex rothneyi longi). Because the valid rank is different and it is not the
+    # original combination, we need to create a subsequent combination for it.
+    # However, Tetramorium rothneyi is a subsequent combination (not a protonym) of Tetramorium wroughtonii rothneyi.
+    # This revealed a bug that subsequent combination generation for synonyms did not use the
+    # finest protonym for Combination ancestors.
+
     after :all do
       DatabaseCleaner.clean
     end
@@ -1110,6 +1117,79 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     it 'the synonym should have cached valid taxon id' do
       expect(misspelling.cached_valid_taxon_name_id).to eq valid.id
     end
+  end
+  
+  context 'when importing a synonym with a combination parent' do
+    before(:all) { import_checklist_tsv('synonym_combination_parent.tsv', 9) }
+
+    # Tetramorium rothneyi longi is a synonym of Tetramorium wroughtonii and has a different
+    # original combination (Rhoptromyrmex rothneyi longi). Because the valid rank is different and it is not the
+    # original combination, we need to create a subsequent combination for it.
+    # However, Tetramorium rothneyi is a subsequent combination (not a protonym) of Tetramorium wroughtonii rothneyi.
+    # This revealed a bug that subsequent combination generation for synonyms did not use the
+    # finest protonym for Combination ancestors.
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:synonym_protonym) { Protonym.find_by(name: 'longi') }
+
+    it 'should create and import 11 records' do
+      verify_all_records_imported(11)
+    end
+
+    it 'the synonym should have species rank' do
+      expect(synonym_protonym.rank).to eq('species')
+    end
+
+    it 'the synonym should have the correct cached original combination' do
+      expect(synonym_protonym.cached_original_combination).to eq('Rhoptromyrmex rothneyi longi')
+    end
+
+    it 'the synonym subsequent combination should exist' do
+      expect(Combination.find_by(cached: 'Tetramorium rothneyi longi')).to be_truthy
+    end
+
+  end
+
+
+  context 'when importing a second time that builds off the first import' do
+    before(:all) do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/' + 'two_part_upload/two_part_upload_1.tsv'), 'text/plain'),
+        description: "part 1",
+        import_settings: {'use_existing_taxon_hierarchy' => false}
+      ).tap { |i| i.stage }
+
+      1.times { |_|
+        import_dataset.import(5000, 100)
+      }
+
+      import_dataset2 = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/' + 'two_part_upload/two_part_upload_2.tsv'), 'text/plain'),
+        description: "part 2",
+        import_settings: {'use_existing_taxon_hierarchy' => true}
+      ).tap { |i| i.stage }
+
+      2.times { |_|
+        import_dataset2.import(5000, 100)
+      }
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    it 'should import 3 records' do
+      verify_all_records_imported(3)
+    end
+
+    it 'only two protonyms should be created' do
+      expect(TaxonName.where.not(name: 'Root').count).to eq 2
+    end
+
   end
 
   # TODO test missing parent

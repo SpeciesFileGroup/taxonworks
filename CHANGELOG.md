@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - TaxonName model to customize attributes.
 - TaxonNameRelationship model, added validation for the rank of type species and type genus.
+- New source task: Person source
 
 ### Changed
 
@@ -21,6 +22,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Match TaxonName based on original combination [#3365]
 - Radial AD: Quick/recent selector broken on "Move". [#3640]
 - New taxon name: Author panel overflow when source has a long link
+- Edit Loan: Loans created without recipient or supervisor cannot be updated
+- Fixed bug in DwC importer background processor that was not dealing with errored records.
 
 [#3640]: https://github.com/SpeciesFileGroup/taxonworks/issues/3640
 [#3652]: https://github.com/SpeciesFileGroup/taxonworks/issues/3652

@@ -540,15 +540,51 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # institutionCode: [repository.acronym] # TODO: Use mappings like with namespaces here as well? (Although probably attempt guessing)
     institution_code = get_field_value(:institutionCode)
     if institution_code
-      repository = Repository.find_by(acronym: institution_code)
+      repository = nil
+      error_messages = []
+
+      if institution_code.starts_with?('http://') || institution_code.starts_with?('https://')
+        url_repositories = Repository.where(url: institution_code)
+        if url_repositories.count == 1
+          repository = url_repositories.first
+        elsif url_repositories.count > 1
+          error_messages << "Multiple repositories with url #{institution_code} found"
+        else
+          error_messages << "No repositories with url #{institution_code} found"
+        end
+      end
+
+      unless repository
+        acronym_repositories = Repository.where(acronym: institution_code)
+        if acronym_repositories.count == 1
+          repository = acronym_repositories.first
+        elsif acronym_repositories.count > 1
+          error_messages << "Multiple repositories with acronym #{institution_code} found."
+        else
+          error_messages << "No repositories with acronym #{institution_code} found."
+        end
+      end
 
       # Some repositories may not have acronyms, in that case search by name as well
       unless repository
         repository_results = Repository.where(Repository.arel_table['name'].matches(Repository.sanitize_sql_like(institution_code)))
-        raise DarwinCore::InvalidData.new({ "institutionCode": ["Multiple repositories match the name #{institution_code}. Please use the acronym instead."] }) if repository_results.count > 1
-        repository = repository_results.first
+        if repository_results.count == 1
+          repository = repository_results.first
+        elsif repository_results.count > 1
+          error_messages << "Multiple repositories match the name #{institution_code}."
+        else
+          error_messages << "No repositories match the name #{institution_code}"
+        end
+
+        unless repository
+          if error_messages
+            error_messages.unshift("Could not disambiguate repository name '#{institution_code}'.")
+          else
+            error_messages.unshift("Unknown #{institution_code} repository. If valid please register it using '#{institution_code}' as acronym or name.")
+          end
+          raise DarwinCore::InvalidData.new({ "institutionCode": error_messages })
+        end
       end
-      raise DarwinCore::InvalidData.new({ "institutionCode": ["Unknown #{institution_code} repository. If valid please register it using '#{institution_code}' as acronym or name."] }) unless repository
       Utilities::Hashes::set_unless_nil(res[:specimen], :repository, repository)
     end
 
