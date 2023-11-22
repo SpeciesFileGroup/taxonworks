@@ -26,10 +26,10 @@ module Queries
       QUERIES = {
         # OTU
         otu_name_exact: {priority: 1},
-        otu_name_start_match: {priority: 200},
-        otu_name_similarity: {priority: 220},
         autocomplete_exact_id: {priority: 1},
         autocomplete_identifier_cached_exact: {priority: 1},
+        otu_name_start_match: {priority: 200},
+        otu_name_similarity: {priority: 220},
 
         # TaxonName
         autocomplete_taxon_name: {priority: nil}, # Priority is slotted from 10 .. 20
@@ -86,7 +86,7 @@ module Queries
       #   Pull the result of a TaxonName autocomplete. Maintain the order returned, and
       #   re-cast the result in terms of an OTU query. Expensive but maintain order is key.
       def autocomplete_taxon_name
-        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, project_id:).autocomplete # an array, not a query
+        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact: 'true', project_id:).autocomplete # an array, not a query
 
         ids = taxon_names.map(&:id) # maintain order
         return nil if ids.empty?
