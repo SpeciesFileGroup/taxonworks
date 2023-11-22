@@ -575,6 +575,55 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
+  context 'when importing a specimen with missing intermediate ranks that needs an OTU created' do
+    before :all do
+      DatabaseCleaner.start
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/create_otu.tsv'), 'text/plain'),
+        description: 'create otu',
+        import_settings: { 'restrict_to_existing_nomenclature' => false }
+      ).tap { |i| i.stage }
+
+
+      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create(parent: family, name: "Myrmicinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+      tribe = Protonym.create(parent: subfamily, name: "Attini", rank_class: Ranks.lookup(:iczn, :tribe))
+
+      g_strumigenys = Protonym.create(parent: tribe, name: "Strumigenys", rank_class: Ranks.lookup(:iczn, :genus),
+                                      verbatim_author: "Smith", year_of_publication: 1860, also_create_otu: true)
+
+      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g_strumigenys, object_taxon_name: g_strumigenys)
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:results) {@imported}
+    let(:g_strumigenys) {Protonym.find_by(name: "Strumigenys", verbatim_author: "Smith", year_of_publication: 1860)}
+
+    it 'should import the record' do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'should reuse the existing genus protonym' do
+      expect(TaxonName.where(name: 'Strumigenys').count).to eq(1)
+    end
+
+    it 'should create an otu with the existing genus protonym' do
+      expect(Otu.where(name: "Strumigenys sphera_cf1").count).to eq(1)
+      expect(Otu.find_by(name: "Strumigenys sphera_cf1").taxon_name).to eq(g_strumigenys)
+    end
+
+  end
+
   context 'when importing an occurrence with a url for institutionCode' do
 
     before :all do
