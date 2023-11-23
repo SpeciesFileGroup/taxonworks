@@ -28,5 +28,7 @@ export const Otu = {
 
   timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline`),
 
-  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
+  moveBatch: (params) => AjaxCall('post', `/${controller}/batch_move.json`, params)
 }

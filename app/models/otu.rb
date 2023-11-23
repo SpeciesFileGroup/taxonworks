@@ -202,6 +202,30 @@ class Otu < ApplicationRecord
     new_otus
   end
 
+  # Change the TaxonName associated with multiple OTUs
+  # @return [FalseClass, Hash{Symbol=>Array}]
+  def self.batch_move(params)
+    return false if params[:taxon_name_id].blank?
+
+    a = Queries::Otu::Filter.new(params[:otu_query]).all
+
+    return false unless a&.count > 0
+
+    moved = []
+    unmoved = []
+
+    begin
+      a.each do |o|
+        if o.update(taxon_name_id: params[:taxon_name_id])
+          moved.push o
+        else
+          unmoved.push o
+        end
+      end
+    end
+    return { moved: moved, unmoved: unmoved}
+  end
+
   # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, `TaxonDetermination`
   # @return [Scope]
   #   the max 10 most recently used otus, as `used_on`

@@ -256,6 +256,28 @@ describe Otu, type: :model, group: :otu do
     end
   end
 
+  context '.batch_move' do
+
+    specify "moves multiple" do
+      t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
+      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
+      o0 = Otu.create!(taxon_name:t0, name: 'o1')
+      o1 = Otu.create!(taxon_name:t0, name: 'o2')
+
+      r = Otu.batch_move(
+        taxon_name_id: t.id,
+        otu_query: {otu_id: [o0.id, o1.id]}
+      )
+
+      expect(r[:moved].size).to eq(2)
+      expect(r[:unmoved].size).to eq(0)
+      Otu.all.reload
+
+      expect(o0.reload.taxon_name).to eq t
+      expect(o1.reload.taxon_name).to eq t
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'data_attributes'

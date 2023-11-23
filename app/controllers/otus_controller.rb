@@ -252,6 +252,14 @@ class OtusController < ApplicationController
     @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
+  # POST /otus/batch_move.json?otus_query=<>&taxon_name_id=123
+  def batch_move
+    if (@result = Otu.batch_move(params))
+    else
+      render json: {success: false}
+    end
+  end
+
   # GET /api/v1/otus.csv
   # GET /api/v1/otus
   def api_index

@@ -557,6 +557,8 @@ resources :otus do
     post :create_identifiers_batch_load
 
     get :select_options, defaults: {format: :json}
+
+    post :batch_move
   end
 
   member do
