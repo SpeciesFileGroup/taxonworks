@@ -989,7 +989,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       if protonym.is_protonym? && protonym.has_misspelling_relationship?
         return TaxonNameRelationship.where_subject_is_taxon_name(protonym)
                                     .with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY)
-                                    .first.object_taxon_name
+                                    .first&.object_taxon_name
       end
       protonym
     end
@@ -1009,6 +1009,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           type_type: type_type
         }
       end
+
       name_pattern = "^#{type_scientific_name.split.map { |n| "#{n}(?: \\[sic\\])?" }.join(" ")}$"
       original_combination_protonyms = Protonym.where('cached_original_combination ~ :pat', pat: name_pattern)
                                                .where(project_id: self.project_id)
@@ -1020,7 +1021,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           protonym: get_correct_spelling(oc_protonym)
         }
       elsif original_combination_protonyms.count > 1
-        potential_protonym_strings = original_combination_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_original_combination_html}]" }.join(', ')
+        potential_protonym_strings = original_combination_protonyms.map { |proto|
+          "[id: #{proto.id} #{proto.cached_original_combination_html}]"
+        }.join(', ')
         error_messages << "Multiple matches found for name #{type_scientific_name}}: #{potential_protonym_strings}"
       else
         error_messages << 'Could not find exact original combination match for typeStatus'
@@ -1071,7 +1074,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             protonym: get_correct_spelling(wildcard_original_protonym.first)
           }
         elsif wildcard_original_protonym.count > 1
-          matching_protonyms = wildcard_original_protonym.map{|p| "[id: #{p.id} #{p.cached_html_original_name_and_author_year}]"}
+          matching_protonyms = wildcard_original_protonym.map { |p| "[id: #{p.id} #{p.cached_html_original_name_and_author_year}]" }
                                                          .join(", ")
           error_messages << "Multiple names returned in wildcard search: #{matching_protonyms}"
         else
