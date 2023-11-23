@@ -513,14 +513,10 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
   context 'when importing an occurrence with a type material that is a resolved homonym' do
 
     before :all do
-      DatabaseCleaner.start
-      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/type_material_homonym.tsv'), 'text/plain'),
-        description: 'Type Material Homonym',
-        import_settings: { 'restrict_to_existing_nomenclature' => true,
-                           'require_type_material_success' => true }
-      ).tap { |i| i.stage }
-
+      @import_dataset = prepare_occurrence_tsv('type_material_homonym.tsv',
+                                               import_settings: { 'restrict_to_existing_nomenclature' => true,
+                                                                  'require_type_material_success' => true }
+      )
 
       kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
@@ -731,7 +727,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   context "when importing an occurrence with a type material, but typeStatus taxon doesn't exist" do
     before :all do
-      DatabaseCleaner.start
       @import_dataset = prepare_occurrence_tsv('type_material_homonym.tsv',
                                                import_settings: { 'restrict_to_existing_nomenclature' => true,
                                                                   'require_type_material_success' => true })
