@@ -146,8 +146,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     after :all do
       DatabaseCleaner.clean
     end
-
-
   end
 
   context 'when import an occurrence with a type material matching a synonym of the current taxon name' do
@@ -512,6 +510,73 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
+  context 'when importing an occurrence with a type material that is a resolved homonym' do
+
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('type_material_homonym.tsv',
+                                               import_settings: { 'restrict_to_existing_nomenclature' => true,
+                                                                  'require_type_material_success' => true }
+      )
+
+      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: "Formicinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+
+      g_camponotus = Protonym.create!(parent: subfamily, name: "Camponotus", rank_class: Ranks.lookup(:iczn, :genus))
+      g_formica = Protonym.create!(parent: subfamily, name: "Formica", rank_class: Ranks.lookup(:iczn, :genus))
+      g_atta = Protonym.create!(parent: family, name: "Atta", rank_class: Ranks.lookup(:iczn, :genus))
+
+      g_tanaemyrmex = Protonym.create!(parent: g_camponotus, name: 'Tanaemyrmex', rank_class: Ranks.lookup(:iczn, :subgenus))
+
+      # Camponotus (Tanaemyrmex) fervens (Smith, 1857) is a homonym replaced by Camponotus (Tanaemyrmex) fervidus Donisthorpe, 1943
+      s_fervens_smith = Protonym.create!(parent: g_tanaemyrmex, name: "fervens", rank_class: Ranks.lookup(:iczn, :species),
+                                            verbatim_author: "Smith", year_of_publication: 1857, also_create_otu: true)
+      s_fervens_smith.original_genus = g_formica
+      s_fervens_smith.original_species = s_fervens_smith
+
+      s_fervidus =  Protonym.create!(parent: g_tanaemyrmex, name: "fervidus", rank_class: Ranks.lookup(:iczn, :species),
+                                     verbatim_author: "Donisthorpe", year_of_publication: 1943, also_create_otu: true)
+      s_fervidus.original_genus = g_camponotus
+      s_fervidus.original_subgenus = g_tanaemyrmex
+      s_fervidus.original_species = s_fervidus
+      TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym.create!(subject_taxon_name: s_fervens_smith, object_taxon_name: s_fervidus)
+
+
+      # Atta fervens (Drury, 1782) [originally Formica fervens] is a synonym of Atta cephalotes
+      s_fervens_drury = Protonym.create!(parent: g_atta, name: "fervens", rank_class: Ranks.lookup(:iczn, :species),
+                                         verbatim_author: "Drury", year_of_publication: 1782, also_create_otu: true)
+      s_fervens_drury.original_genus = g_formica
+      s_fervens_drury.original_species = s_fervens_drury
+
+
+      s_cephalotes = Protonym.create!(parent: g_atta, name: "cephalotes", rank_class: Ranks.lookup(:iczn, :species),
+                                      verbatim_author: "Linnaeus", year_of_publication: 1758, also_create_otu: true)
+
+
+      TaxonNameRelationship::Iczn::Invalidating::Usage::Synonym.create!(subject_taxon_name: s_fervens_drury, object_taxon_name: s_cephalotes)
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:results) {@imported}
+
+    it "should import the record without failing" do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'should have 1 type material record' do
+      expect(TypeMaterial.count).to eq 1
+    end
+  end
+
   context 'when importing an occurrence with a type material and no type type provided' do
     # typeStatus is just the name, with no "...type of" preceding it, but the name isn't an exact match for the scientificName
     # This should raise an error
@@ -651,7 +716,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       DatabaseCleaner.clean
     end
   end
-  
+
   context 'when importing an occurrence with duplicate acronym institutionCode' do
     before :all do
       @import_dataset = prepare_occurrence_tsv('acronym_institution_code.tsv', import_settings: { 'restrict_to_existing_nomenclature' => false,
@@ -706,6 +771,56 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       expect(error_messages.first).to match(/Could not disambiguate repository name 'MCZ'/)
       expect(error_messages.second).to match(/Multiple repositories with acronym MCZ found/)
       expect(error_messages.third).to match(/No repositories match the name MCZ/)
+    end
+  end
+
+  context "when importing an occurrence with a type material, but typeStatus taxon doesn't exist" do
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('type_material_homonym.tsv',
+                                               import_settings: { 'restrict_to_existing_nomenclature' => true,
+                                                                  'require_type_material_success' => true })
+
+      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: "Formicinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+
+      g_camponotus = Protonym.create!(parent: subfamily, name: "Camponotus", rank_class: Ranks.lookup(:iczn, :genus))
+      g_formica = Protonym.create!(parent: subfamily, name: "Formica", rank_class: Ranks.lookup(:iczn, :genus))
+      g_atta = Protonym.create!(parent: family, name: "Atta", rank_class: Ranks.lookup(:iczn, :genus))
+
+      g_tanaemyrmex = Protonym.create!(parent: g_camponotus, name: 'Tanaemyrmex', rank_class: Ranks.lookup(:iczn, :subgenus))
+
+      s_fervidus =  Protonym.create!(parent: g_tanaemyrmex, name: "fervidus", rank_class: Ranks.lookup(:iczn, :species),
+                                     verbatim_author: "Donisthorpe", year_of_publication: 1943, also_create_otu: true)
+
+      s_fervidus.original_genus = g_camponotus
+      s_fervidus.original_subgenus = g_tanaemyrmex
+      s_fervidus.original_species = s_fervidus
+
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:results) {@imported}
+
+    it "the record should error" do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Errored'))
+    end
+
+    it 'should report that no names were retured in the wildcard search' do
+      error_messages = results.first.metadata['error_data']['messages']['typeStatus']
+      expect(error_messages.first).to match(/Could not identify or disambiguate name Formica fervens/)
+      expect(error_messages.second).to match(/Could not find exact original combination match for typeStatus/)
+      expect(error_messages.third).to match(/No names returned in subgenus wildcard search/)
+
     end
   end
 

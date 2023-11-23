@@ -989,7 +989,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       if protonym.is_protonym? && protonym.has_misspelling_relationship?
         return TaxonNameRelationship.where_subject_is_taxon_name(protonym)
                                     .with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY)
-                                    .first.object_taxon_name
+                                    .first&.object_taxon_name
       end
       protonym
     end
@@ -1000,12 +1000,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     type_scientific_name = (type_status_parsed&.[](:scientificName)&.gsub(/\s+/, ' ') rescue nil) || scientific_name
 
     if scientific_name && type_scientific_name.present?
+      # list of messages to help user debug why matching failed
+      error_messages = []
+
       # if type_scientific_name matches the current name of the occurrence, use that
       if type_scientific_name.delete_prefix(scientific_name)&.match(/^\W*$/)
         return {
           type_type: type_type
         }
       end
+
       name_pattern = "^#{type_scientific_name.split.map { |n| "#{n}(?: \\[sic\\])?" }.join(" ")}$"
       original_combination_protonyms = Protonym.where('cached_original_combination ~ :pat', pat: name_pattern)
                                                .where(project_id: self.project_id)
@@ -1017,13 +1021,15 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           protonym: get_correct_spelling(oc_protonym)
         }
       elsif original_combination_protonyms.count > 1
-        potential_protonym_strings = original_combination_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_original_combination_html}]" }.join(', ')
-        raise DatasetRecord::DarwinCore::InvalidData.new(
-          { "typeStatus" => ["Multiple matches found for name #{name[:name]}}: #{potential_protonym_strings}"] }
-        )
+        potential_protonym_strings = original_combination_protonyms.map { |proto|
+          "[id: #{proto.id} #{proto.cached_original_combination_html}]"
+        }.join(', ')
+        error_messages << "Multiple matches found for name #{type_scientific_name}}: #{potential_protonym_strings}"
+      else
+        error_messages << 'Could not find exact original combination match for typeStatus'
       end
 
-      # See if name matches a synonym of taxon name
+      # See if name matches a synonym of taxon name (ie any name linked to current taxon name)
       synonyms = taxon_protonym.synonyms
       matching_synonyms = Set[]
       synonyms.each do |s|
@@ -1038,11 +1044,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         end
       end
 
-      if matching_synonyms.map! { |s| get_correct_spelling(s) }.uniq.count == 1
+      matching_synonyms = matching_synonyms.map { |s| get_correct_spelling(s) }.uniq
+
+      if matching_synonyms.count == 1
         return {
           type_type: type_type,
           protonym: matching_synonyms.first
         }
+      elsif matching_synonyms.count > 1
+        synonym_strings = matching_synonyms.map { |proto| "[id: #{proto.id} #{proto.cached_original_combination_html}]" }.join(', ')
+        error_messages << "Multiple synonym matches found for name #{type_scientific_name}}: #{synonym_strings}"
       end
 
       # Try wildcard match on subgenus if not present
@@ -1063,13 +1074,20 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             protonym: get_correct_spelling(wildcard_original_protonym.first)
           }
         elsif wildcard_original_protonym.count > 1
-          matching_protonyms = wildcard_original_protonym.map{|p| "[id: #{p.id} #{p.cached_html_original_name_and_author_year}]"}
+          matching_protonyms = wildcard_original_protonym.map { |p| "[id: #{p.id} #{p.cached_html_original_name_and_author_year}]" }
                                                          .join(", ")
-          raise DarwinCore::InvalidData.new({ "typeStatus": ["could not find exact original combination match for typeStatus, and multiple names returned in wildcard search: #{matching_protonyms}"] })
+          error_messages << "Multiple names returned in wildcard search: #{matching_protonyms}"
         else
-          raise DarwinCore::InvalidData.new({ "typeStatus": ["could not find exact original combination match for typeStatus, and no names returned in wildcard search"] })
+          error_messages << 'No names returned in subgenus wildcard search'
         end
       end
+
+      # report errors
+      if error_messages
+        error_messages.unshift "Could not identify or disambiguate name #{type_scientific_name}."
+        raise DarwinCore::InvalidData.new({ "typeStatus": error_messages })
+      end
+
     end
     type_material
   end
