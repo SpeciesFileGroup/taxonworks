@@ -255,27 +255,61 @@ describe Otu, type: :model, group: :otu do
       expect(Otu.select_optimized(otu.created_by_id, otu.project_id, 'AssertedDistribution')[:quick].map(&:id)).to contain_exactly(otu.id, o2.id)
     end
   end
+  
+  context '.batch_update' do
+    let(:t0) {Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))}
+    let(:t) {Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)}
 
-  context '.batch_move' do
+    specify '(sync)' do
 
-    specify "moves multiple" do
-      t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
-      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
       o0 = Otu.create!(taxon_name:t0, name: 'o1')
       o1 = Otu.create!(taxon_name:t0, name: 'o2')
 
-      r = Otu.batch_move(
-        taxon_name_id: t.id,
-        otu_query: {otu_id: [o0.id, o1.id]}
-      )
+      q = ::Queries::Otu::Filter.new({otu_id: [o0.id, o1.id]})
 
-      expect(r[:moved].size).to eq(2)
-      expect(r[:unmoved].size).to eq(0)
-      Otu.all.reload
+      params = {
+        otu: { taxon_name_id: t.id },
+      }.merge(otu_query: q.params)
+
+      response = Otu.batch_update(params, async_cutoff: 3)
+
+      # sleep(2) # jobs trigger in 2 seconds
+      # Delayed::Worker.new.work_off
+
+      expect(response[:status]).to eq(:ok)
+      expect(response[:result][:total]).to eq(2)
+      expect(response[:result][:passed]).to include(o0.id, o1.id)
+      expect(response[:result][:failed]).to eq([])
+      # expect(response[:result][:eta]).to eq('Now')
+      # expect(response[:result][:queued]).to eq(false)
 
       expect(o0.reload.taxon_name).to eq t
       expect(o1.reload.taxon_name).to eq t
     end
+
+    specify '(async)' do
+      o0 = Otu.create!(taxon_name:t0, name: 'o1')
+      o1 = Otu.create!(taxon_name:t0, name: 'o2')
+
+      q = ::Queries::Otu::Filter.new({otu_id: [o0.id, o1.id]})
+
+      params = {
+        otu: { taxon_name_id: t.id },
+      }.merge(otu_query: q.params)
+
+      response = Otu.batch_update(params, async_cutoff: 1)
+
+      sleep(2) # jobs trigger in 2 seconds
+      Delayed::Worker.new.work_off
+
+      expect(response[:status]).to eq(:ok)
+      expect(response[:result][:total]).to eq(2)
+      expect(response[:result][:queued]).to eq(true)
+
+      expect(o0.reload.taxon_name).to eq t
+      expect(o1.reload.taxon_name).to eq t
+    end
+
   end
 
   context 'concerns' do

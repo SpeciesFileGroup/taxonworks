@@ -31,6 +31,7 @@
         <RadialOtu
           :disabled="!list.length"
           :ids="selectedIds"
+          :count="selectedIds.length"
         />
       </template>
       <template #facets>

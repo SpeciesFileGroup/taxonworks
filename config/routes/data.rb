@@ -558,7 +558,7 @@ resources :otus do
 
     get :select_options, defaults: {format: :json}
 
-    post :batch_move
+    post :batch_update
   end
 
   member do

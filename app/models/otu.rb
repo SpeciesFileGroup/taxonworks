@@ -47,6 +47,8 @@ class Otu < ApplicationRecord
 
   include Shared::IsData
 
+  include Shared::QueryBatchUpdate
+
   is_origin_for 'Sequence', 'Extract'
 
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes].freeze
@@ -202,28 +204,32 @@ class Otu < ApplicationRecord
     new_otus
   end
 
-  # Change the TaxonName associated with multiple OTUs
-  # @return [FalseClass, Hash{Symbol=>Array}]
-  def self.batch_move(params)
-    return false if params[:taxon_name_id].blank?
+  def self.batch_update(params, async_cutoff: 26)
+    a = Queries::Otu::Filter.new(params[:otu_query])
 
-    a = Queries::Otu::Filter.new(params[:otu_query]).all
+    v = a.all.select(:taxon_name_id).distinct.limit(2).pluck(:taxon_name_id)
 
-    return false unless a&.count > 0
-
-    moved = []
-    unmoved = []
-
-    begin
-      a.each do |o|
-        if o.update(taxon_name_id: params[:taxon_name_id])
-          moved.push o
-        else
-          unmoved.push o
-        end
+    cap = 0
+    case v.size
+    when 1
+      if v.first.nil?
+        cap = 10000
+      else
+        cap = 2000
       end
+    when 2
+      if v.include?(nil)
+        cap = 2000
+      else
+        cap = 25
+      end
+    else
+      cap = 25
     end
-    return { moved: moved, unmoved: unmoved}
+
+    Otu.query_batch_update(params,
+                           limit: cap,
+                           async_cutoff:)
   end
 
   # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, `TaxonDetermination`

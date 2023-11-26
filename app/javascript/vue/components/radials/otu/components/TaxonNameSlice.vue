@@ -1,61 +1,45 @@
 <template>
   <div>
-    <fieldset>
-      <legend>Taxon name</legend>
-      <SmartSelector
-        model="taxon_names"
-        :klass="TAXON_NAME"
-        :target="TAXON_NAME"
-        @selected="(item) => (taxon_name = item)"
-      />
-      <SmartSelectorItem
-        :item="taxon_name"
-        label="name"
-        @unset="taxon_name = undefined"
-      />
-    </fieldset>
-
-    <VBtn
-      class="margin-large-top"
-      color="create"
-      medium
-      :disabled="!taxon_name"
-      @click="handleUpdate"
+    <VSpinner
+      v-if="isUpdating"
+      legend="Updating..."
+    />
+    <div
+      v-if="isCountExceeded"
+      class="feedback feedback-danger"
     >
-      Update
-    </VBtn>
-
-    <div class="margin-large-top">
-      <template v-if="otuUpdated.moved.length">
-        <h3>Moved</h3>
-        <ul>
-          <li
-            v-for="item in otuUpdated.moved"
-            :key="item.id"
-          >
-            <a
-              :href="`${RouteNames.BrowseOtu}?otu_id=${item.id}`"
-              v-html="item.object_tag"
-            />
-          </li>
-        </ul>
-      </template>
-      <template v-if="otuUpdated.unmoved.length">
-        <h3>Unmoved</h3>
-        <ul>
-          <li
-            v-for="item in otuUpdated.unmoved"
-            :key="item.id"
-          >
-            <a
-              :href="`${RouteNames.BrowseOtu}?otu_id=${item.id}`"
-              v-html="item.object_tag"
-            />
-          </li>
-        </ul>
-      </template>
+      Too many records selected, maximum {{ MAX_LIMIT }}
     </div>
-    <ConfirmationModal ref="confirmationModalRef"/>
+    <div v-else>
+      <h3>{{ count }} records will be updated</h3>
+
+      <fieldset>
+        <legend>Taxon name</legend>
+        <SmartSelector
+          model="taxon_names"
+          :klass="TAXON_NAME"
+          :target="TAXON_NAME"
+          @selected="(item) => (taxon_name = item)"
+        />
+        <SmartSelectorItem
+          :item="taxon_name"
+          label="name"
+          @unset="taxon_name = undefined"
+        />
+      </fieldset>
+
+      <VBtn
+        class="margin-large-top"
+        color="create"
+        medium
+        :disabled="!taxon_name || isCountExceeded"
+        @click="handleUpdate"
+      >
+        Update
+      </VBtn>
+
+      <ConfirmationModal ref="confirmationModalRef"/>
+    </div>
   </div>
 </template>
 
@@ -67,31 +51,53 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import { RouteNames } from '@/routes/routes.js'
 import { Otu } from '@/routes/endpoints'
 import { TAXON_NAME } from '@/constants/index.js'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import VSpinner from '@/components/spinner.vue'
+
+const MAX_LIMIT = 250
 
 const props = defineProps({
   parameters: {
     type: Object,
+    required: true
+  },
+
+  count: {
+    type: Number,
     required: true
   }
 })
 
 const taxon_name = ref()
 const confirmationModalRef = ref(null)
-const otuUpdated = ref({ moved: [], unmoved: [] })
+const isUpdating = ref(false)
 
-function move() {
+const isCountExceeded = computed(() => props.count > MAX_LIMIT)
+
+
+function changeTaxonName() {
   const payload = {
     otu_query: props.parameters,
-    taxon_name_id: taxon_name.value.id
+    otu: {
+      taxon_name_id: taxon_name.value.id
+    },
   }
 
-  Otu.moveBatch(payload).then(({ body }) => {
-    otuUpdated.value = body
+  isUpdating.value = true
+
+  Otu.batchUpdate(payload).then(({ body }) => {
+    let message
+    if (body['queued'] === true) {
+      message = `${body.total} OTUs queued for updating.`
+    } else {
+      message = `${body.passed.length} OTUs were successfully updated.`
+    }
     TW.workbench.alert.create(
-      `${body.moved.length} OTUs were successfully updated.`,
+      message,
       'notice'
     )
+
+    isUpdating.value = false
   })
 }
 
@@ -109,7 +115,7 @@ async function handleUpdate() {
     }))
 
   if (ok) {
-    move()
+    changeTaxonName()
   }
 }
 </script>
