@@ -248,7 +248,10 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                 synonym: 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
                 homonym: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym',
                 misspelling: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
-                'original misspelling':  'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
+                'original misspelling':  'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
+
+                # invalid can be either a relationship or classification, depending on if 'has_external_accepted_name' is true or not
+                invalid: 'TaxonNameRelationship::Iczn::Invalidating'
               },
               # TODO support other nomenclatural codes
               # icnp: {
@@ -272,7 +275,10 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
               type = synonym_classes[nomenclature_code][status.to_sym]
 
-              raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["Status #{status} did not match synonym, homonym, invalid, unavailable, excluded"] }) if type.nil?
+
+              raise DarwinCore::InvalidData.new(
+                { "taxonomicStatus": ["acceptedNameUsageID refers to a different protonym, " \
+                  "but status #{status} did not match synonym, homonym, invalid, misspelling or original misspelling."] }) if type.nil?
 
               taxon_name.taxon_name_relationships.find_or_initialize_by(object_taxon_name: valid_name, type: type)
 
@@ -313,6 +319,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
             # if taxonomicStatus is a homonym, invalid, unavailable, excluded, create the status
             # if it's incertae sedis, create the relationship
+            # TODO why have an OR with nil? shouldn't the first condition check that?
           elsif get_field_value(:taxonomicStatus) != 'valid' || get_field_value(:taxonomicStatus).nil?
             status_types = {
               invalid: 'TaxonNameClassification::Iczn::Available::Invalid',
@@ -367,7 +374,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               else
                 type = status_types[status.to_sym]
 
-                raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["Couldn't find a status that matched #{status}"] }) if type.nil?
+                raise DarwinCore::InvalidData.new(
+                  { "taxonomicStatus": ["Couldn't find a status that matched #{status}.",
+                                        "Possible statuses: [#{status_types.keys.join(", ")}]"] }) if type.nil?
 
                 taxon_name.taxon_name_classifications.find_or_initialize_by(type: type)
               end
