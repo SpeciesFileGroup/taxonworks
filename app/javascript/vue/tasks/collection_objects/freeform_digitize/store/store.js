@@ -75,7 +75,7 @@ export default defineStore('freeform', {
       return CollectionObject.create({ collection_object: payload })
         .then(({ body }) => {
           boardStore.addLayer({
-            id: body.id,
+            collectionObjectId: body.id,
             svg: SVGClip
           })
           CollectionObject.report({ image_id: imageStore.image.id }).then(

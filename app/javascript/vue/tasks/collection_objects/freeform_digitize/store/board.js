@@ -3,6 +3,7 @@ import { SVGDraw } from '@sfgrp/svg-detailer'
 
 export default defineStore('board', {
   state: () => ({
+    currentLayer: null,
     SVGBoard: null,
     SVGCurrentMode: null,
     layers: []
@@ -17,7 +18,19 @@ export default defineStore('board', {
     },
 
     addLayer({ id, svg }) {
-      this.layers.push({ id, svg })
+      this.layers.push({ collectionObjectId: id, svg })
+    },
+
+    setLayer(id) {
+      const layer = this.layers.find((l) => l.collectionObjectId === id)
+
+      if (layer && this.currentLayer !== layer.layerId) {
+        const { layerId } = this.SVGBoard.apiLoadSVG(layer.svg, {
+          editable: false
+        })
+
+        layer.layerId = layerId
+      }
     }
   }
 })

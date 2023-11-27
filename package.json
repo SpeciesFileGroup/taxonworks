@@ -8,7 +8,7 @@
     "@json2csv/transforms": "^7.0.3",
     "@sfgrp/gbifference": "^0.0.5",
     "@sfgrp/sled": "^1.0.3",
-    "@sfgrp/svg-detailer": "^0.1.6",
+    "@sfgrp/svg-detailer": "^0.1.9",
     "@sfgrp/svg-radial-menu": "^1.0.7",
     "axios": "^1.6.1",
     "chart.js": "^4.4.0",
