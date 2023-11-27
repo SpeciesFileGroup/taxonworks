@@ -1206,6 +1206,38 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
+  context 'when importing a taxon with invalid as a classification' do
+    before(:all) { import_checklist_tsv('invalid_as_classification.tsv', 3) }
+    after(:all) { DatabaseCleaner.clean }
+
+    let(:taxon) { Protonym.find_by(name: 'Cynipidae') }
+
+    it 'should import the 1 row' do
+      verify_all_records_imported(1)
+    end
+
+    it "should set the taxon's status to invalid" do
+      expect(taxon.taxon_name_classifications.map { |c| c.type_name }).to include 'TaxonNameClassification::Iczn::Available::Invalid'
+    end
+  end
+
+  context 'when importing a taxon with invalid as a relationship' do
+    before(:all) { import_checklist_tsv('invalid_as_relationship.tsv', 3) }
+    after(:all) { DatabaseCleaner.clean }
+
+    let(:valid_protonym) { Protonym.find_by(name: 'Biorhiza') }
+    let(:invalid_protonym) { Protonym.find_by(name: 'Biorhyza') }
+
+    it 'should import the 3 rows' do
+      verify_all_records_imported(3)
+    end
+
+    it 'the invalid taxon should have an invalid relationship with the valid taxon' do
+      expect_relationship(invalid_protonym, valid_protonym, 'TaxonNameRelationship::Iczn::Invalidating')
+    end
+
+  end
+
   # TODO test missing parent
   #
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName
