@@ -5,7 +5,7 @@ const extend = ['protonyms', 'origin_citation', 'roles']
 const ranks = [
   ...Object.keys(combinationIcnType.genusGroup),
   ...Object.keys(combinationIcnType.speciesGroup)
-]
+].reverse()
 
 export default ({ state, dispatch }, id) => {
   TaxonName.where({ combination_taxon_name_id: [id] }).then(({ body }) => {
@@ -14,11 +14,9 @@ export default ({ state, dispatch }, id) => {
     Promise.all(requests).then((responses) => {
       const combinations = responses.map(({ body }) => body)
 
-      state.combinations = combinations.filter(({ protonyms }) => {
-        const lastRank = ranks.find((rank) => protonyms[rank])
-
-        return protonyms[lastRank].id === id
-      })
+      state.combinations = combinations.filter(({ protonyms }) =>
+        ranks.find((rank) => protonyms[rank]?.id === id)
+      )
 
       dispatch('loadSoftValidation', 'combinations')
     })
