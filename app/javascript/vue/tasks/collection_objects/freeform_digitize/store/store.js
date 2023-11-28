@@ -18,8 +18,24 @@ function makeIdentifierPayload(data) {
 function initialCO() {
   return {
     id: undefined,
-    total: 1,
-    preparationTypeId: undefined
+    total: 1
+  }
+}
+
+function initialCatalogNumber() {
+  return {
+    identifier: '',
+    namespace: undefined
+  }
+}
+
+function makeTaxonDeterminationPayload(data) {
+  return {
+    otu_id: data.otu_id,
+    roles_attributes: data.roles_attributes,
+    day_made: data.day_made,
+    month_made: data.month_made,
+    year_made: data.year_made
   }
 }
 
@@ -28,10 +44,8 @@ export default defineStore('freeform', {
     collectionObjects: [],
     taxonDeterminations: [],
     collectionObject: initialCO(),
-    catalogNumber: {
-      identifier: '',
-      namespace: undefined
-    },
+    preparationTypeId: undefined,
+    catalogNumber: initialCatalogNumber(),
     collectingEvent: undefined,
     repository: undefined
   }),
@@ -59,9 +73,11 @@ export default defineStore('freeform', {
         total: this.collectionObject.total,
         tags_attributes: tagStore.tags.map((tag) => ({ keyword_id: tag.id })),
         repository_id: this.repository?.id,
-        preparation_type_id: this.collectionObject.preparationTypeId,
+        preparation_type_id: this.preparationTypeId,
         collecting_event_id: this.collectingEvent?.id,
-        taxon_determinations_attributes: this.taxonDeterminations,
+        taxon_determinations_attributes: this.taxonDeterminations.map(
+          makeTaxonDeterminationPayload
+        ),
         notes_attributes: noteStore.notes,
         depictions_attributes: [
           {
@@ -95,7 +111,6 @@ export default defineStore('freeform', {
 
     reset() {
       const boardStore = useBoardStore()
-      const imageStore = useImageStore()
       const tagStore = useTagStore()
       const noteStore = useNoteStore()
       const lock = useLockStore()
@@ -111,7 +126,24 @@ export default defineStore('freeform', {
         this.collectingEvent = undefined
       }
 
+      if (!lock.repository) {
+        this.repository = undefined
+      }
+
+      if (!lock.repository) {
+        this.repository = undefined
+      }
+
+      if (!lock.preparationType) {
+        this.preparationTypeId = undefined
+      }
+
+      if (!lock.catalogNumber) {
+        this.catalogNumber = initialCatalogNumber()
+      }
+
       this.collectionObject = initialCO()
+      this.taxonDeterminations = []
 
       boardStore.SVGBoard.apiClearAll()
     }

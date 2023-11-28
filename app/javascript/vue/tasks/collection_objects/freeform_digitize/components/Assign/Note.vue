@@ -10,18 +10,19 @@
       </textarea>
       <VLock v-model="lock.notes" />
     </div>
-    <button
-      @click="addNote"
+    <VBtn
       :disabled="!store.text"
-      class="button normal-input button-submit"
+      color="primary"
+      class="margin-small-top"
+      @click="addNote"
     >
       Add
-    </button>
+    </VBtn>
     <list-component
       v-if="store.notes.length"
       :list="store.notes"
-      @delete="removeNote"
       :label="[]"
+      @delete="removeNote"
     />
   </fieldset>
 </template>
@@ -29,6 +30,7 @@
 <script setup>
 import ListComponent from '@/components/displayList'
 import VLock from '@/components/ui/VLock/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import useStore from '../../store/notes'
 import useLockStore from '../../store/lock.js'
 

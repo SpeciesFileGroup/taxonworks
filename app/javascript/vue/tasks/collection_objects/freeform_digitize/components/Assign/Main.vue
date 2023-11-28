@@ -2,7 +2,6 @@
   <div class="panel content gap-small">
     <h2>Object metadata</h2>
     <i>Added to all collection objects accordingly</i>
-    <MetadataComponent />
     <TotalComponent />
     <CatalogNumber />
     <RepositoryComponent />
@@ -23,7 +22,6 @@ import CollectingEvent from './CollectingEvent'
 import RepositoryComponent from './Repository'
 import PreparationType from './PreparationType'
 import TotalComponent from './Total.vue'
-import MetadataComponent from './Metadata'
 </script>
 
 <style lang="scss" scoped>

@@ -17,7 +17,6 @@ import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDetermi
 import ListComponent from '@/components/displayList'
 
 const store = useStore()
-const lock = useLockStore()
 
 function addDetermination(taxonDetermination) {
   store.addDetermination(taxonDetermination)

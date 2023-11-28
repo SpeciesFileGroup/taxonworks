@@ -12,7 +12,7 @@
       <template #tabs-right>
         <VLock
           class="margin-small-left"
-          v-model="lock.repository_id"
+          v-model="lock.repository"
         />
       </template>
     </SmartSelector>

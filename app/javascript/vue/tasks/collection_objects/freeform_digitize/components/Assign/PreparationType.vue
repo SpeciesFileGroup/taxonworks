@@ -22,7 +22,7 @@
           </label>
         </li>
       </ul>
-      <VLock v-model="lock.preparation_type_id" />
+      <VLock v-model="lock.preparationType" />
     </div>
   </fieldset>
 </template>

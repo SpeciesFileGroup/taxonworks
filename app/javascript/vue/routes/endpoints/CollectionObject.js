@@ -26,6 +26,20 @@ const permitParams = {
       type: String,
       value: String
     },
+    taxon_determinations_attributes: {
+      otu_id: Number,
+      year_made: Number,
+      month_made: Number,
+      day_made: Number,
+      position: Number,
+      roles_attributes: [],
+      otu_attributes: {
+        id: Number,
+        _destroy: Boolean,
+        name: String,
+        taxon_name_id: Number
+      }
+    },
     depictions_attributes: {
       id: Number,
       _destroy: Boolean,
