@@ -143,8 +143,9 @@ class Protonym < TaxonName
   scope :is_original_name, -> { where("cached_author_year NOT ILIKE '(%'") }
   scope :is_not_original_name, -> { where("cached_author_year ILIKE '(%'") }
 
+  # Deprecated, moved to TaxonName.  Combinations are rankless, but we need generic sort at TaxonName level
   # Protonym.order_by_rank(RANKS) or Protonym.order_by_rank(ICZN)
-  scope :order_by_rank, -> (code) {order(Arel.sql("position(taxon_names.rank_class in '#{code}')"))}
+  # scope :order_by_rank, -> (code) {order(Arel.sql("position(taxon_names.rank_class in '#{code}')"))}
 
   # @return [Protonym]
   #   a name ready to become the root
