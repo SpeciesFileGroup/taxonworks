@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Nulified cached values in Collecting Event, if Geographic area deleted [#3668]
 - Match TaxonName based on original combination [#3365]
 - Radial AD: Quick/recent selector broken on "Move". [#3640]
 - New taxon name: Author panel overflow when source has a long link
