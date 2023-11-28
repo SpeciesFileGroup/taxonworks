@@ -252,6 +252,15 @@ class OtusController < ApplicationController
     @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
+  # POST /otus/batch_update.json?otus_query=<>&otu={taxon_name_id=123}}
+  def batch_update
+    c = Otu.batch_update({
+                           otu: otu_params.merge(by: sessions_current_user_id),
+                           otu_query: params[:otu_query]
+                         })
+    render json: c[:result], status: c[:status]
+  end
+
   # GET /api/v1/otus.csv
   # GET /api/v1/otus
   def api_index

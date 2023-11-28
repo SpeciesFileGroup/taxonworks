@@ -255,6 +255,62 @@ describe Otu, type: :model, group: :otu do
       expect(Otu.select_optimized(otu.created_by_id, otu.project_id, 'AssertedDistribution')[:quick].map(&:id)).to contain_exactly(otu.id, o2.id)
     end
   end
+  
+  context '.batch_update' do
+    let(:t0) {Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))}
+    let(:t) {Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)}
+
+    specify '(sync)' do
+
+      o0 = Otu.create!(taxon_name:t0, name: 'o1')
+      o1 = Otu.create!(taxon_name:t0, name: 'o2')
+
+      q = ::Queries::Otu::Filter.new({otu_id: [o0.id, o1.id]})
+
+      params = {
+        otu: { taxon_name_id: t.id },
+      }.merge(otu_query: q.params)
+
+      response = Otu.batch_update(params, async_cutoff: 3)
+
+      # sleep(2) # jobs trigger in 2 seconds
+      # Delayed::Worker.new.work_off
+
+      expect(response[:status]).to eq(:ok)
+      expect(response[:result][:total]).to eq(2)
+      expect(response[:result][:passed]).to include(o0.id, o1.id)
+      expect(response[:result][:failed]).to eq([])
+      # expect(response[:result][:eta]).to eq('Now')
+      # expect(response[:result][:queued]).to eq(false)
+
+      expect(o0.reload.taxon_name).to eq t
+      expect(o1.reload.taxon_name).to eq t
+    end
+
+    specify '(async)' do
+      o0 = Otu.create!(taxon_name:t0, name: 'o1')
+      o1 = Otu.create!(taxon_name:t0, name: 'o2')
+
+      q = ::Queries::Otu::Filter.new({otu_id: [o0.id, o1.id]})
+
+      params = {
+        otu: { taxon_name_id: t.id },
+      }.merge(otu_query: q.params)
+
+      response = Otu.batch_update(params, async_cutoff: 1)
+
+      sleep(2) # jobs trigger in 2 seconds
+      Delayed::Worker.new.work_off
+
+      expect(response[:status]).to eq(:ok)
+      expect(response[:result][:total]).to eq(2)
+      expect(response[:result][:queued]).to eq(true)
+
+      expect(o0.reload.taxon_name).to eq t
+      expect(o1.reload.taxon_name).to eq t
+    end
+
+  end
 
   context 'concerns' do
     it_behaves_like 'citations'

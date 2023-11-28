@@ -47,6 +47,8 @@ class Otu < ApplicationRecord
 
   include Shared::IsData
 
+  include Shared::QueryBatchUpdate
+
   is_origin_for 'Sequence', 'Extract'
 
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes].freeze
@@ -200,6 +202,34 @@ class Otu < ApplicationRecord
       return false
     end
     new_otus
+  end
+
+  def self.batch_update(params, async_cutoff: 26)
+    a = Queries::Otu::Filter.new(params[:otu_query])
+
+    v = a.all.select(:taxon_name_id).distinct.limit(2).pluck(:taxon_name_id)
+
+    cap = 0
+    case v.size
+    when 1
+      if v.first.nil?
+        cap = 10000
+      else
+        cap = 2000
+      end
+    when 2
+      if v.include?(nil)
+        cap = 2000
+      else
+        cap = 25
+      end
+    else
+      cap = 25
+    end
+
+    Otu.query_batch_update(params,
+                           limit: cap,
+                           async_cutoff:)
   end
 
   # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, `TaxonDetermination`
