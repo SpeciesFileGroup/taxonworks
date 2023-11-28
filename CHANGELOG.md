@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- "Ancestrify" option to TaxonName filter (adds ancestors of filter result)
 - Auto UUIDs as new Identifier::Global::Uuid::Auto for models
 - Auto UUIDs are created for BiologicalAssociations and OTUs.
 - Maintainence Task to add UUIDs to objects that can have them but don't 
