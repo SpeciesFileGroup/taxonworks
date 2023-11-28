@@ -7,7 +7,37 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- TaxonName model to customize attributes.
+- TaxonNameRelationship model, added validation for the rank of type species and type genus.
+- New source task: Person source
+- index view to API for /depictions
+
 ### Changed
+
+- Radial annotator: Move selected source to the bottom in citation form [#3652]
+
+### Fixed
+
+- Match TaxonName based on original combination [#3365]
+- Radial AD: Quick/recent selector broken on "Move". [#3640]
+- New taxon name: Author panel overflow when source has a long link
+- Edit Loan: Loans created without recipient or supervisor cannot be updated
+- Fixed bug in DwC importer background processor that was not dealing with errored records.
+- Browse OTU: autocomplete overflow [#3667]
+
+[#3640]: https://github.com/SpeciesFileGroup/taxonworks/issues/3640
+[#3652]: https://github.com/SpeciesFileGroup/taxonworks/issues/3652
+
+## [0.35.3] - 2023-11-13
+
+### Added
+
+- Radial collection object: Add repository [#3637]
+
+### Changed
+
 - CachedMaps (WebLevel1) is now based on "State" shapes only, improving resolution
 - CachedMap build process adds pre-build step to greatly minimize overall number of spatial calculations
 - CachedMap spatial calculations use a intersection + "smoothing" approach
@@ -16,19 +46,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Duplicate loans appearing Loan filter [#3636]
 - New source when cloned and saved is not added to the project sources [#3629]
 - Sequence display when not a Primer
 - CachedMap indexing speedups failed to properly utilize prior work
 - Duplicate CachedMapRegister rows being created per object
-- New Image task, second "Apply" button is not working #3628 
+- New Image task, second "Apply" button is not working #3628
 - ' [sic]' not removed when searching for synonyms in database to compare with `typeStatus` in DwC occurrence importer [#3633]
 
-
+[#3628]: https://github.com/SpeciesFileGroup/taxonworks/issues/3636
 [#3628]: https://github.com/SpeciesFileGroup/taxonworks/issues/3628
 [#3629]: https://github.com/SpeciesFileGroup/taxonworks/issues/3629
 [#3630]: https://github.com/SpeciesFileGroup/taxonworks/pull/3630
 [#3632]: https://github.com/SpeciesFileGroup/taxonworks/pull/3632
 [#3633]: https://github.com/SpeciesFileGroup/taxonworks/pull/3633
+[#3637]: https://github.com/SpeciesFileGroup/taxonworks/pull/3637
 
 ## [0.35.2] - 2023-11-07
 
@@ -4049,7 +4081,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.3...development
+[0.35.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.2...v0.35.3
 [0.35.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.1...v0.35.2
 [0.35.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.6...v0.35.0

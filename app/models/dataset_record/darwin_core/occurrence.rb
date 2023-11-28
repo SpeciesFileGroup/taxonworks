@@ -76,7 +76,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         # Protonym might not exist, or might have intermediate parent not listed in file
         # if it exists, run more expensive query to see if it has an ancestor matching parent name and rank
         if p.nil? && Protonym.where(name.slice(:rank_class).merge({ field => name[:name] })).where(project_id: parent.project_id).exists?
-          potential_protonyms = Protonym.where(name.slice(:rank_class).merge!({ field => name[:name] })).with_ancestor(parent)
+          potential_protonyms = Protonym.where(name.slice(:rank_class, :verbatim_author, :year_of_publication).merge({ field => name[:name] }).compact).with_ancestor(parent)
           if potential_protonyms.count > 1
             return parent
             # potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }
@@ -540,15 +540,51 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # institutionCode: [repository.acronym] # TODO: Use mappings like with namespaces here as well? (Although probably attempt guessing)
     institution_code = get_field_value(:institutionCode)
     if institution_code
-      repository = Repository.find_by(acronym: institution_code)
+      repository = nil
+      error_messages = []
+
+      if institution_code.starts_with?('http://') || institution_code.starts_with?('https://')
+        url_repositories = Repository.where(url: institution_code)
+        if url_repositories.count == 1
+          repository = url_repositories.first
+        elsif url_repositories.count > 1
+          error_messages << "Multiple repositories with url #{institution_code} found"
+        else
+          error_messages << "No repositories with url #{institution_code} found"
+        end
+      end
+
+      unless repository
+        acronym_repositories = Repository.where(acronym: institution_code)
+        if acronym_repositories.count == 1
+          repository = acronym_repositories.first
+        elsif acronym_repositories.count > 1
+          error_messages << "Multiple repositories with acronym #{institution_code} found."
+        else
+          error_messages << "No repositories with acronym #{institution_code} found."
+        end
+      end
 
       # Some repositories may not have acronyms, in that case search by name as well
       unless repository
         repository_results = Repository.where(Repository.arel_table['name'].matches(Repository.sanitize_sql_like(institution_code)))
-        raise DarwinCore::InvalidData.new({ "institutionCode": ["Multiple repositories match the name #{institution_code}. Please use the acronym instead."] }) if repository_results.count > 1
-        repository = repository_results.first
+        if repository_results.count == 1
+          repository = repository_results.first
+        elsif repository_results.count > 1
+          error_messages << "Multiple repositories match the name #{institution_code}."
+        else
+          error_messages << "No repositories match the name #{institution_code}"
+        end
+
+        unless repository
+          if error_messages
+            error_messages.unshift("Could not disambiguate repository name '#{institution_code}'.")
+          else
+            error_messages.unshift("Unknown #{institution_code} repository. If valid please register it using '#{institution_code}' as acronym or name.")
+          end
+          raise DarwinCore::InvalidData.new({ "institutionCode": error_messages })
+        end
       end
-      raise DarwinCore::InvalidData.new({ "institutionCode": ["Unknown #{institution_code} repository. If valid please register it using '#{institution_code}' as acronym or name."] }) unless repository
       Utilities::Hashes::set_unless_nil(res[:specimen], :repository, repository)
     end
 
@@ -938,13 +974,24 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   def parse_typestatus(type_status, taxon_protonym)
     type_material = nil
     type_status_parsed = type_status&.match(/^(?<type>\w+)$/i) || type_status&.match(/(?<type>\w+)(\s+OF\s+(?<scientificName>.*))/i)
-
     # only nil if non-alphanumeric entry, or multiple words not matching "\w+ of \w+"
-    raise DarwinCore::InvalidData.new({ "typeStatus": ["Unprocessable typeStatus information"] }) unless type_status_parsed
+    raise DarwinCore::InvalidData.new({ "typeStatus": ["Unprocessable typeStatus information"] }) unless type_status_parsed && type_status_parsed[:type]
+    type_type = type_status_parsed[:type].downcase
 
     code = get_field_value(:nomenclaturalCode)&.downcase&.to_sym || import_dataset.default_nomenclatural_code
-    unless TypeMaterial::legal_type_type(code, type_status_parsed[:type].downcase)
+    unless TypeMaterial::legal_type_type(code, type_type)
       raise DarwinCore::InvalidData.new({ "typeStatus": ["could not extract legal type from typeStatus"] })
+    end
+
+    # Gets the correct spelling for a protonym, or returns the protonym if not a misspelling
+    # @param [Protonym] protonym the protonym to get correct spelling for
+    def get_correct_spelling(protonym)
+      if protonym.is_protonym? && protonym.has_misspelling_relationship?
+        return TaxonNameRelationship.where_subject_is_taxon_name(protonym)
+                                    .with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY)
+                                    .first&.object_taxon_name
+      end
+      protonym
     end
 
     scientific_name = get_field_value(:scientificName)&.gsub(/\s+/, ' ')
@@ -953,31 +1000,41 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     type_scientific_name = (type_status_parsed&.[](:scientificName)&.gsub(/\s+/, ' ') rescue nil) || scientific_name
 
     if scientific_name && type_scientific_name.present?
+      # list of messages to help user debug why matching failed
+      error_messages = []
+
       # if type_scientific_name matches the current name of the occurrence, use that
       if type_scientific_name.delete_prefix(scientific_name)&.match(/^\W*$/)
         return {
-          type_type: type_status_parsed[:type].downcase
+          type_type: type_type
         }
-      end
-      original_combination_protonyms = Protonym.where(cached_original_combination: type_scientific_name, project_id: self.project_id)
-      if original_combination_protonyms.count == 1
-        return {
-          type_type: type_status_parsed[:type].downcase,
-          protonym: original_combination_protonyms.first
-        }
-      elsif original_combination_protonyms.count > 1
-        potential_protonym_strings = original_combination_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_original_combination_html}]" }.join(', ')
-        raise DatasetRecord::DarwinCore::InvalidData.new(
-          { "typeStatus" => ["Multiple matches found for name #{name[:name]}}: #{potential_protonym_strings}"] }
-        )
       end
 
-      # See if name matches a synonym of taxon name
+      name_pattern = "^#{type_scientific_name.split.map { |n| "#{n}(?: \\[sic\\])?" }.join(" ")}$"
+      original_combination_protonyms = Protonym.where('cached_original_combination ~ :pat', pat: name_pattern)
+                                               .where(project_id: self.project_id)
+
+      if original_combination_protonyms.count == 1
+        oc_protonym = original_combination_protonyms.first
+        return {
+          type_type: type_type,
+          protonym: get_correct_spelling(oc_protonym)
+        }
+      elsif original_combination_protonyms.count > 1
+        potential_protonym_strings = original_combination_protonyms.map { |proto|
+          "[id: #{proto.id} #{proto.cached_original_combination_html}]"
+        }.join(', ')
+        error_messages << "Multiple matches found for name #{type_scientific_name}}: #{potential_protonym_strings}"
+      else
+        error_messages << 'Could not find exact original combination match for typeStatus'
+      end
+
+      # See if name matches a synonym of taxon name (ie any name linked to current taxon name)
       synonyms = taxon_protonym.synonyms
-      matching_synonyms = []
+      matching_synonyms = Set[]
       synonyms.each do |s|
-        possible_names = [s.cached, s.cached_original_combination].compact
-        possible_names += possible_names.map { |n| n.gsub(" [sic]") }
+        possible_names = [s.cached, s.cached_original_combination].compact.to_set
+        possible_names += possible_names.map { |n| n.gsub(" [sic]", '') }
         if possible_names.include?(type_scientific_name)
           if s.is_combination?
             matching_synonyms << s.finest_protonym
@@ -987,11 +1044,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         end
       end
 
-      if matching_synonyms.uniq.count == 1
+      matching_synonyms = matching_synonyms.map { |s| get_correct_spelling(s) }.uniq
+
+      if matching_synonyms.count == 1
         return {
-          type_type: type_status_parsed[:type].downcase,
+          type_type: type_type,
           protonym: matching_synonyms.first
         }
+      elsif matching_synonyms.count > 1
+        synonym_strings = matching_synonyms.map { |proto| "[id: #{proto.id} #{proto.cached_original_combination_html}]" }.join(', ')
+        error_messages << "Multiple synonym matches found for name #{type_scientific_name}}: #{synonym_strings}"
       end
 
       # Try wildcard match on subgenus if not present
@@ -1008,17 +1070,24 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         if wildcard_original_protonym.count == 1
           return {
-            type_type: type_status_parsed[:type].downcase,
-            protonym: wildcard_original_protonym.first
+            type_type: type_type,
+            protonym: get_correct_spelling(wildcard_original_protonym.first)
           }
         elsif wildcard_original_protonym.count > 1
-          matching_protonyms = wildcard_original_protonym.map{|p| "[id: #{p.id} #{p.cached_html_original_name_and_author_year}]"}
+          matching_protonyms = wildcard_original_protonym.map { |p| "[id: #{p.id} #{p.cached_html_original_name_and_author_year}]" }
                                                          .join(", ")
-          raise DarwinCore::InvalidData.new({ "typeStatus": ["could not find exact original combination match for typeStatus, and multiple names returned in wildcard search: #{matching_protonyms}"] })
+          error_messages << "Multiple names returned in wildcard search: #{matching_protonyms}"
         else
-          raise DarwinCore::InvalidData.new({ "typeStatus": ["could not find exact original combination match for typeStatus, and no names returned in wildcard search"] })
+          error_messages << 'No names returned in subgenus wildcard search'
         end
       end
+
+      # report errors
+      if error_messages
+        error_messages.unshift "Could not identify or disambiguate name #{type_scientific_name}."
+        raise DarwinCore::InvalidData.new({ "typeStatus": error_messages })
+      end
+
     end
     type_material
   end

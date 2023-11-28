@@ -48,5 +48,4 @@ class InternalAttribute < DataAttribute
     end
     internal_attributes
   end
-
 end

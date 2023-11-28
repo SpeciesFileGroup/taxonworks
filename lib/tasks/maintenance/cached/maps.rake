@@ -70,8 +70,8 @@ namespace :tw do
         task full_index: [
           :parallel_create_cached_map_item_translations_from_asserted_distributions,
           :parallel_create_cached_map_from_asserted_distributions,
-          # :parallel_create_cached_map_from_georeferences,
-          :parallel_create_cached_map_from_georeferences_by_area
+          :parallel_create_cached_map_from_georeferences,
+          # :parallel_create_cached_map_from_georeferences_by_area
         ] do |t|
           puts 'Done full index.'
         end
@@ -307,12 +307,14 @@ namespace :tw do
                   .joins(:geographic_item)
                   .where(geographic_item: {id: b })
                   .where.missing(:cached_map_register)
+                  .distinct
                   .pluck(:id, :project_id)
 
                 if r.any? # Do not repeat for already done Georeferences
                   o = Otu
                     .joins(:georeferences)
                     .where(georeferences: {id: r.map(&:first)})
+                    .distinct
                     .pluck(:id, :project_id)
 
                   CachedMapItem.batch_create_georeference_cached_map_items(
@@ -323,7 +325,7 @@ namespace :tw do
                     }
                   )
 
-                  puts "#{a.id} #{j}: #{b.size} #{r.size} #{o.size}"
+                  puts "#{a.id} #{j}: #{b.size} #{r.size} #{o.size} "
 
                   true
                 end

@@ -139,7 +139,7 @@ class CachedMapItem < ApplicationRecord
       .order(cached_total_area: :ASC) # smallest first
       .first
       &.id
-    return [a]
+      return [a]
     else
       []
     end
@@ -370,7 +370,7 @@ class CachedMapItem < ApplicationRecord
     begin
       CachedMapRegister.insert_all(registrations) if registrations.present?
     rescue
-      puts "!! Failed to register Georeferences in batch_create_georeference_cached_map_items."
+      puts '!! Failed to register Georeferences in batch_create_georeference_cached_map_items.'
     end
 
     true
