@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Taxonmy summary to CollectionObject summary report
 - Metadata summary report from Filter BiologicalAssociations
 - Simple table summary (with cliboard copy) from Filter BiologicalAssociations
 - GLOBI format table from Filter BiologicalAssociations (preliminary)
@@ -25,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Some CollectionObject summary values were not scoped to filter query
 - Filtering People returned duplicate values one name string searches
 - BiologicalAssociations passed to TaxonNames missed object names
 - Radial AD: Quick/recent selector broken on "Move". [#3640]

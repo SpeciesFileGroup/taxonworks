@@ -8,6 +8,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
   # /tasks/dwc/dashboard/generate_download.json
   # !! Run rails jobs:work in the terminal to complete builds
   def generate_download
+
     # TODO: to support scoping by other filters
     # we will have to scope all filter params throughout by their target base
     # e.g. collection_object[param]
@@ -28,12 +29,21 @@ class Tasks::Dwc::DashboardController < ApplicationController
       end
     end
 
-    @download = ::Export::Dwca.download_async(a, request.url, predicate_extension_params: predicate_extension_params )
+    byebug
+
+    @download = ::Export::Dwca.download_async(
+      a, request.url,
+      predicate_extensions: predicate_extension_params,
+      extension_scopes: {
+        biological_associations: params[:biological_associations_extension] ?
+        ::Queries::BiologicalAssociation::Filter.new(collection_object_query: q.params).all.to_sql : nil
+      }
+    )
     render '/downloads/show'
   end
 
+  # TODO: throttle to 5k.
   def create_index
-
     q = ::Queries::CollectionObject::Filter.new(params)
     q.project_id = nil
 
