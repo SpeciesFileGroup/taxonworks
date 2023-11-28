@@ -4,7 +4,7 @@
     <label>
       <input
         type="checkbox"
-        v-model="inputValue"
+        v-model="params.ancestrify"
       />
       Expand to include ancestors
     </label>
@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { useYellowFacetCheckbox } from '../../utils/resetYellowFacets'
+import { computed } from 'vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
@@ -21,7 +21,12 @@ const props = defineProps({
     default: () => ({})
   }
 })
-const emit = defineEmits('update:modelValue')
+const emit = defineEmits(['update:modelValue'])
 
-const inputValue = useYellowFacetCheckbox(props, emit, 'ancestrify')
+const params = computed({
+  get: () => props.modelValue,
+  set: (value) => {
+    emit('update:modelValue', value)
+  }
+})
 </script>
