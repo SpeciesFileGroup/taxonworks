@@ -9,13 +9,23 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Auto UUIDs as new Identifier::Global::Uuid::Auto for models
+- Auto UUIDs are created for BiologicalAssociations and OTUs.
+- Maintainence Task to add UUIDs to objects that can have them but don't 
+- Biological associations simple table preview, sortable columns [#1946]
 - TaxonName model to customize attributes.
 
 ### Fixed
 
+- BiologicalAssociations passed to TaxonNames missed object names
 - Radial AD: Quick/recent selector broken on "Move". [#3640]
 - New taxon name: Author panel overflow when source has a long link
 
+### Changed
+
+- Extracted CSV generating code to lib/export/csv
+
+[#1946]: https://github.com/SpeciesFileGroup/taxonworks/issues/1946
 [#3640]: https://github.com/SpeciesFileGroup/taxonworks/issues/3640
 
 ## [0.35.3] - 2023-11-13

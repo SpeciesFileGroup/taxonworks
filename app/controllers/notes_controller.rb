@@ -102,7 +102,7 @@ class NotesController < ApplicationController
 
   # GET /notes/download
   def download
-    send_data Export::Download.generate_csv(Note.where(project_id: sessions_current_project_id)),
+    send_data Export::Csv.generate_csv(Note.where(project_id: sessions_current_project_id)),
       type: 'text',
       filename: "notes_#{DateTime.now}.tsv"
   end

@@ -236,7 +236,7 @@ class OtusController < ApplicationController
 
   # GET /otus/download
   def download
-    send_data Export::Download.generate_csv(Otu.where(project_id: sessions_current_project_id)),
+    send_data Export::Csv.generate_csv(Otu.where(project_id: sessions_current_project_id)),
       type: 'text',
       filename: "otus_#{DateTime.now}.tsv"
   end
@@ -266,7 +266,7 @@ class OtusController < ApplicationController
       }
       format.csv {
         @otus = q
-        send_data Export::Download.generate_csv(
+        send_data Export::Csv.generate_csv(
           @otus,
           exclude_columns: %w{updated_by_id created_by_id project_id},
         ), type: 'text', filename: "taxon_names_#{DateTime.now}.tsv"
@@ -308,7 +308,7 @@ class OtusController < ApplicationController
   def api_dwc_inventory
     respond_to do |format|
       format.csv do
-        send_data Export::Download.generate_csv(
+        send_data Export::Csv.generate_csv(
           DwcOccurrence.scoped_by_otu(@otu),
           exclude_columns: ['id', 'created_by_id', 'updated_by_id', 'project_id', 'updated_at']),
           type: 'text',

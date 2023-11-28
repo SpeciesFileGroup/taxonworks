@@ -136,7 +136,7 @@ class GeoreferencesController < ApplicationController
   # GET /georeferences/download
   def download
     send_data(
-      Export::Download.generate_csv(Georeference.where(project_id: sessions_current_project_id)),
+      Export::Csv.generate_csv(Georeference.where(project_id: sessions_current_project_id)),
       type: 'text',
       filename: "georeferences_#{DateTime.now}.tsv")
   end
