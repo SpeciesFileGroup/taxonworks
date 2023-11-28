@@ -21,7 +21,7 @@ const props = defineProps({
     default: () => ({})
   }
 })
-const emit = defineEmits('update:modelValue')
+const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
