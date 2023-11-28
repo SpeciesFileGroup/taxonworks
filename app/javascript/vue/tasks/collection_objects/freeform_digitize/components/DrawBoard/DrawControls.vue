@@ -11,53 +11,30 @@
       @click="item.action"
     >
       <VIcon
+        v-if="typeof item.icon === 'string'"
         small
         :name="item.icon"
       />
-    </VBtn>
-
-    <VBtn
-      type="button"
-      title="Circle"
-      class="no-padding"
-      @click="SVGBoard.apiSetMode(drawMode.CIRCLE)"
-    >
-      <svg
-        width="16px"
-        height="16px"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle
-          cx="12"
-          cy="12"
-          fill="none"
-          r="11"
-          stroke-width="2"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
+      <IconCircle v-else />
     </VBtn>
 
     <input
       type="color"
-      v-model="color"
+      @change="(e) => SVGBoard.apiStroke(e.target.value)"
     />
   </div>
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { drawMode } from '@sfgrp/svg-detailer'
 import useStore from '../../store/board.js'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import IconCircle from '@/components/Icon/IconCircle.vue'
 
 const store = useStore()
 const SVGBoard = computed(() => store.SVGBoard)
-const color = ref('#000000')
 
 const TOOLS = {
   [drawMode.MOVE]: {
@@ -76,6 +53,12 @@ const TOOLS = {
     action: () => SVGBoard.value.apiSetMode(drawMode.POLYGON)
   },
 
+  [drawMode.CIRCLE]: {
+    title: 'Circle',
+    icon: IconCircle,
+    action: () => SVGBoard.value.apiSetMode(drawMode.CIRCLE)
+  },
+
   zoomIn: {
     title: 'Zoom in',
     icon: 'zoomIn',
@@ -87,10 +70,6 @@ const TOOLS = {
     action: () => SVGBoard.value.apiZoomOut()
   }
 }
-
-watch(color, (newVal) => {
-  SVGBoard.value.apiStroke(newVal)
-})
 </script>
 
 <style scoped lang="scss">

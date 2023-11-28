@@ -11,7 +11,7 @@
       <template #tabs-right>
         <VLock
           class="margin-small-left"
-          v-model="lock.collecting_event_id"
+          v-model="lock.collectingEvent"
         />
       </template>
     </SmartSelector>

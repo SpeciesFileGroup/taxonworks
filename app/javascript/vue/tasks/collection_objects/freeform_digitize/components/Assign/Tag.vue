@@ -15,7 +15,7 @@
       <template #tabs-right>
         <VLock
           class="margin-small-left"
-          v-model="lock.tags_attributes"
+          v-model="lock.tags"
         />
       </template>
     </SmartSelector>

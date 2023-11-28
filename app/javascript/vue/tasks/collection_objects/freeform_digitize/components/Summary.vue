@@ -5,6 +5,7 @@
       <VBtn
         color="create"
         medium
+        :disabled="!!store.collectionObject.id"
         @click="store.saveCollectionObject()"
       >
         Save
@@ -13,9 +14,18 @@
       <VBtn
         color="create"
         medium
-        @click="resetCO"
+        :disabled="!!store.collectionObject.id"
+        @click="saveAndNew"
       >
         Save and new
+      </VBtn>
+
+      <VBtn
+        color="primary"
+        medium
+        @click="resetStore"
+      >
+        New
       </VBtn>
     </div>
   </div>
@@ -27,8 +37,14 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 
 const store = useStore()
 
-function resetCO() {
-  store.$reset()
+function resetStore() {
+  store.reset()
+}
+
+function saveAndNew() {
+  store.saveCollectionObject().then(() => {
+    resetStore()
+  })
 }
 </script>
 

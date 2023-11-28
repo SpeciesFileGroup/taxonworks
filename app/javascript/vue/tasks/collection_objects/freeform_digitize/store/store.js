@@ -5,6 +5,7 @@ import useTagStore from './tags.js'
 import useNoteStore from './notes.js'
 import useImageStore from './image.js'
 import useBoardStore from './board.js'
+import useLockStore from './lock.js'
 
 function makeIdentifierPayload(data) {
   return {
@@ -14,15 +15,19 @@ function makeIdentifierPayload(data) {
   }
 }
 
+function initialCO() {
+  return {
+    id: undefined,
+    total: 1,
+    preparationTypeId: undefined
+  }
+}
+
 export default defineStore('freeform', {
   state: () => ({
     collectionObjects: [],
     taxonDeterminations: [],
-    collectionObject: {
-      id: undefined,
-      total: 1,
-      preparationTypeId: undefined
-    },
+    collectionObject: initialCO(),
     catalogNumber: {
       identifier: '',
       namespace: undefined
@@ -43,8 +48,8 @@ export default defineStore('freeform', {
     },
 
     async saveCollectionObject() {
-      const { tags } = useTagStore()
-      const { notes } = useNoteStore()
+      const tagStore = useTagStore()
+      const noteStore = useNoteStore()
       const imageStore = useImageStore()
       const boardStore = useBoardStore()
 
@@ -52,12 +57,12 @@ export default defineStore('freeform', {
       const SVGClip = SVGData.data.attributes
       const payload = {
         total: this.collectionObject.total,
-        tags_attributes: tags.map((tag) => ({ keyword_id: tag.id })),
+        tags_attributes: tagStore.tags.map((tag) => ({ keyword_id: tag.id })),
         repository_id: this.repository?.id,
         preparation_type_id: this.collectionObject.preparationTypeId,
         collecting_event_id: this.collectingEvent?.id,
         taxon_determinations_attributes: this.taxonDeterminations,
-        notes_attributes: notes,
+        notes_attributes: noteStore.notes,
         depictions_attributes: [
           {
             svg_clip: SVGClip,
@@ -67,13 +72,14 @@ export default defineStore('freeform', {
       }
 
       if (this.catalogNumber.namespace && this.catalogNumber.identifier) {
-        payload.identifiers_attributes = [
-          makeIdentifierPayload(this.catalogNumber)
-        ]
+        Object.assign(payload, {
+          identifiers_attributes: [makeIdentifierPayload(this.catalogNumber)]
+        })
       }
 
       return CollectionObject.create({ collection_object: payload })
         .then(({ body }) => {
+          this.collectionObject.id = body.id
           boardStore.addLayer({
             collectionObjectId: body.id,
             svg: SVGClip
@@ -85,6 +91,29 @@ export default defineStore('freeform', {
           )
         })
         .catch(() => {})
+    },
+
+    reset() {
+      const boardStore = useBoardStore()
+      const imageStore = useImageStore()
+      const tagStore = useTagStore()
+      const noteStore = useNoteStore()
+      const lock = useLockStore()
+
+      if (!lock.tags) {
+        tagStore.$reset()
+      }
+      if (!lock.notes) {
+        noteStore.$reset()
+      }
+
+      if (!lock.collectingEvent) {
+        this.collectingEvent = undefined
+      }
+
+      this.collectionObject = initialCO()
+
+      boardStore.SVGBoard.apiClearAll()
     }
   }
 })

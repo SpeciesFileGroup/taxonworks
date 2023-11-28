@@ -8,7 +8,7 @@
         rows="5"
       >
       </textarea>
-      <VLock v-model="lock.notes_attributes" />
+      <VLock v-model="lock.notes" />
     </div>
     <button
       @click="addNote"
