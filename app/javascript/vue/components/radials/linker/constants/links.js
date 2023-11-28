@@ -68,3 +68,10 @@ export const TASK_BIOLOGICAL_ASSOCIATION_GRAPH = {
   link: '/tasks/biological_associations/graph'
 }
 
+export const TASK_BIOLOGICAL_ASSOCIATION_SUMMARY = {
+  label: 'Summary (metadata)',
+  link: '/tasks/biological_associations/summary'
+}
+
+
+

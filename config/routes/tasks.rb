@@ -406,6 +406,13 @@ scope :tasks do
       post 'data', action: :data, defaults: {format: :json}
       get  :data, defaults: {format: :json}
     end
+
+    scope :summary, controller: 'tasks/biological_associations/summary' do
+      get '/', action: :index, as: 'biological_associations_graph_summary'
+      post 'data', action: :data, defaults: {format: :json}
+      get  :data, defaults: {format: :json}
+    end
+
   end
 
   scope :biological_relationships do

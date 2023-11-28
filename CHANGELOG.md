@@ -9,9 +9,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Metadata summary report from Filter BiologicalAssociations
+- Simple table summary (with cliboard copy) from Filter BiologicalAssociations
+- GLOBI format table from Filter BiologicalAssociations (preliminary)
+- Family by genera report from Filter BiologicalAssociations
+- DwC ResourceRelationship extension preview from Filter BiologicalAssociations
+- Visualize network from Filter BiologicalAssociations
+- BiologicalRelationship can have Identifiers
 - "Ancestrify" option to TaxonName filter (adds ancestors of filter result)
 - Auto UUIDs as new Identifier::Global::Uuid::Auto for models
-- Auto UUIDs are created for BiologicalAssociations and OTUs.
+- Auto UUIDs are created for BiologicalAssociations and OTUs
 - Maintainence Task to add UUIDs to objects that can have them but don't 
 - Biological associations simple table preview, sortable columns [#1946]
 - TaxonName model to customize attributes.
