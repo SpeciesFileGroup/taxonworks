@@ -29,7 +29,7 @@ class BiologicalAssociationsController < ApplicationController
 
   # GET /biological_associations/new
   def new
-    @biological_association = BiologicalAssociation.new
+    redirect_to edit_biological_associations_graph_task_path
   end
 
   # GET /biological_associations/1/edit

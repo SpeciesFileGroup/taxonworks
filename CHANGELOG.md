@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- New BiologicalAssociation defaults to task, not old form
 - Extracted CSV generating code to lib/export/csv
 
 [#1946]: https://github.com/SpeciesFileGroup/taxonworks/issues/1946
