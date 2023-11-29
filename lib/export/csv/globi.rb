@@ -1,6 +1,6 @@
 # CSV for for a ResourceRelationship based extension
 # 
-module Export::Csv::Globi
+module Export::CSV::Globi
 
   # See also  BiologicalAssociation::DwcExtensions::DWC_EXTENSION_MAP, the two play off each other.
   # Maintain this for order.

@@ -97,7 +97,7 @@ module Export::Dwca
     # @return [CSV]
     #   the data as a CSV object
     def csv
-      ::Export::Csv.generate_csv(
+      ::Export::CSV.generate_csv(
         core_scope.computed_columns,
         # TODO: check to see if we nee dthis
         exclude_columns: ::DwcOccurrence.excluded_columns,
@@ -343,7 +343,7 @@ module Export::Dwca
       if no_records?
         content = "\n"
       else
-        content = Export::Csv::Dwc::Extension::BiologicalAssociations.csv(biological_associations_extension)
+        content = Export::CSV::Dwc::Extension::BiologicalAssociations.csv(biological_associations_extension)
       end
 
       @biological_associations_resource_relationship.write(content)

@@ -1,6 +1,6 @@
 # Code that translates scopes into downloadable tab-delimited CSV. Dependant on Postgresql.
 #
-module ::Export::Csv
+module ::Export::CSV
 
   #   translate a scope into a CSV table, with optional tweaks to the data
   #
