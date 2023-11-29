@@ -181,7 +181,8 @@ class BiologicalAssociation < ApplicationRecord
 
           b.update!(
             biological_association_subject: o,
-            biological_association_object: s
+            biological_association_object: s,
+            by: params[:by]
           )
         end
 

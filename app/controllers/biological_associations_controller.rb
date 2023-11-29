@@ -101,6 +101,29 @@ class BiologicalAssociationsController < ApplicationController
     render '/biological_associations/api/v1/index'
   end
 
+  # POST /biological_associations/batch_update.json?biological_association_query=<>&biological_association={}
+  def batch_update
+    if c = BiologicalAssociation.batch_update(
+        biological_association: biological_association_params.merge(by: sessions_current_user_id) ,
+        biological_association_query: params[:biological_association_query]
+    )
+      render json: {}, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
+  # POST /biological_associations/batch_rotate.json?biological_association_query=<>&biological_association={}
+  def batch_rotate
+    if c = BiologicalAssociation.batch_rotate(
+        params.merge(by: sessions_current_user_id)
+    )
+      render json: {}, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def set_biological_association
