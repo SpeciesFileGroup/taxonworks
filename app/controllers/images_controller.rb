@@ -127,7 +127,7 @@ class ImagesController < ApplicationController
   # GET /images/download
   def download
     send_data(
-      Export::Download.generate_csv(Image.where(project_id: sessions_current_project_id)),
+      Export::Csv.generate_csv(Image.where(project_id: sessions_current_project_id)),
       type: 'text',
       filename: "images_#{DateTime.now}.tsv")
   end

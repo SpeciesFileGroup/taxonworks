@@ -122,7 +122,7 @@ RSpec.describe SledImage, type: :model, group: :image do
     end
 
     specify 'identifiers' do
-      expect(Identifier.all.count).to eq(9)
+      expect(Identifier.all.count).to eq(10) # +1 for Otu
     end
 
     specify 'notes' do

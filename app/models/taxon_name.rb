@@ -266,6 +266,9 @@ class TaxonName < ApplicationRecord
 
   has_many :classified_as_unavailable_or_invalid, -> { where type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }, class_name: 'TaxonNameClassification'
 
+  # Combinations are rankless, but we need this scope here for generic returns
+  scope :order_by_rank, -> (code) {order(Arel.sql("position(taxon_names.rank_class in '#{code}')"))}
+
   scope :with_same_cached_valid_id, -> { where(arel_table[:id].eq(arel_table[:cached_valid_taxon_name_id])) }
   scope :with_different_cached_valid_id, -> { where(arel_table[:id].not_eq(arel_table[:cached_valid_taxon_name_id])) } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#
 

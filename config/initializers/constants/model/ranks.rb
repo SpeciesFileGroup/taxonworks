@@ -19,6 +19,18 @@ Rails.application.reloader.to_prepare do
 
   # All assignable Rank Classes 
   RANKS = ( ['NomenclaturalRank'] + ICN + ICZN + ICNP + ICVCN).freeze
+  
+  RANK_SORT = RANKS.each_with_index.inject({}){|hsh, a| hsh[a.first] = a.last; hsh}.freeze
+  
+  ri = {}
+  
+  [['NomenclaturalRank'], ICN, ICZN, ICNP, ICVCN].each do |g|
+    g.each_with_index do |r, i|
+      ri[r] = i
+    end
+  end
+  
+  RANK_INDENT = ri.freeze
 
   # ICN Rank Classes in a Hash with keys being the "human" name
   # For example, to return the class for a plant family:

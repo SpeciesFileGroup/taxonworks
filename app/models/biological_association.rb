@@ -37,7 +37,11 @@ class BiologicalAssociation < ApplicationRecord
   include Shared::Notes
   include Shared::Confidences
   include Shared::Depictions
+  include Shared::AutoUuid
   include Shared::IsData
+
+  include BiologicalAssociation::GlobiExtensions
+  include BiologicalAssociation::DwcExtensions
 
   belongs_to :biological_relationship, inverse_of: :biological_associations
 
@@ -64,16 +68,6 @@ class BiologicalAssociation < ApplicationRecord
   attr_accessor :subject_global_id
   attr_accessor :object_global_id # TODO: this is badly named
 
-  # TODO: Why?! this is just biological_association.biological_association_subject_type
-  def subject_class_name
-    biological_association_subject.try(:class).base_class.name
-  end
-
-  # TODO: Why?! this is just biological_association.biological_association_object_type
-  def object_class_name
-    biological_association_object.try(:class).base_class.name
-  end
-
   def subject_global_id=(value)
     o = GlobalID::Locator.locate(value)
     write_attribute(:biological_association_subject_id, o.id)
@@ -93,6 +87,17 @@ class BiologicalAssociation < ApplicationRecord
    #  j = a.join(b).on(a[:biological_association_subject_type].eq('CollectionObject').and(a[:biological_association_subject_id].eq(b[:id])))
    #  joins(j.join_sources)
    #end
+
+  def self.dwc_extension_select
+
+    BiologicalAssociation
+      .joins("LEFT JOIN identifiers id_s ON id_s.identifier_object_type = biological_associations.biological_associations_subject_type AND ids_s.type = 'Identifier::Global::Uuid'" )
+      .joins("LEFT JOIN identifiers id_o ON id_o.identifier_object_type = biological_associations.biological_associations_object_type AND ids_o.type = 'Identifier::Global::Uuid'" )
+      .joins("LEFT JOIN identifiers id_r ON id_o.identifier_object_type = 'BiologicalRelationship' AND idr_.identifier_object_id = biological_associations.biological_relationship_id AND ids_r.type = 'Identifier::Global::Uri'" )
+
+
+  end
+
 
   # @return [ActiveRecord::Relation]
   def self.targeted_join(target: 'subject', target_class: ::Otu)
@@ -120,6 +125,18 @@ class BiologicalAssociation < ApplicationRecord
     j = a.join(b, Arel::Nodes::OuterJoin).on(a["biological_association_#{target}_type".to_sym].eq(target_class.name).and(a["biological_assoication_#{target}_id".to_sym].eq(b[:id])))
     joins(j.join_sources)
   end
+
+
+  # TODO: Why?! this is just biological_association.biological_association_subject_type
+  def subject_class_name
+    biological_association_subject.try(:class).base_class.name
+  end
+
+  # TODO: Why?! this is just biological_association.biological_association_object_type
+  def object_class_name
+    biological_association_object.try(:class).base_class.name
+  end
+
 
   private
 

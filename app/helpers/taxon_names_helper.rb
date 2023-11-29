@@ -524,6 +524,21 @@ module TaxonNamesHelper
     )
   end
 
+  # @return [String] with HTML
+  # @params selected_names [Scope]
+  #   optionally bold these names if found in names
+  # # !! Does not try to sort names, works best in combination with `ancestrify: true` in ::Queries::TaxonNames::Filter
+  def simple_hierarchy_tag(names, selected_names = nil)
+    n = names
+    if selected_names
+      m = selected_names.pluck(:id)
+    end
+
+    m ||= []
+
+    n.pluck(:id, :cached, :rank_class).collect{|a| '&nbsp;' * ::RANK_INDENT[a.last] + (m.include?(a.first) ? tag.b(a.second) : a.second) }.join('<br>').html_safe
+  end
+
   protected
 
   def taxon_name_link_path(taxon_name, path)

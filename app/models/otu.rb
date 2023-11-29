@@ -38,6 +38,7 @@ class Otu < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::OriginRelationship
 
+  include Shared::AutoUuid
   include Shared::Taxonomy
   include Otu::DwcExtensions
 
