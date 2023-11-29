@@ -264,7 +264,7 @@ module Queries
           w2 = a[:value].eq(v)
         end
 
-        q.where( w1.or(w2).to_sql )
+        q.where( w1.or(w2).to_sql ).distinct
       end
 
 

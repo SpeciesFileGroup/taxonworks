@@ -9,6 +9,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Taxonmy summary to CollectionObject summary report
+- Metadata summary report from Filter BiologicalAssociations
+- Simple table summary (with cliboard copy) from Filter BiologicalAssociations
+- GLOBI format table from Filter BiologicalAssociations (preliminary)
+- Family by genera report from Filter BiologicalAssociations
+- DwC ResourceRelationship extension preview from Filter BiologicalAssociations
+- Visualize network from Filter BiologicalAssociations
+- BiologicalRelationship can have Identifiers
+- "Ancestrify" option to TaxonName filter (adds ancestors of filter result)
+- Auto UUIDs as new Identifier::Global::Uuid::Auto for models
+- Auto UUIDs are created for BiologicalAssociations and OTUs
+- Maintainence Task to add UUIDs to objects that can have them but don't 
+- Biological associations simple table preview, sortable columns [#1946]
 - TaxonName model to customize attributes.
 - TaxonNameRelationship model, added validation for the rank of type species and type genus.
 - New source task: Person source
@@ -20,6 +33,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Some CollectionObject summary values were not scoped to filter query
+- Filtering People returned duplicate values one name string searches
+- BiologicalAssociations passed to TaxonNames missed object names
 - Nulified cached values in Collecting Event, if Geographic area deleted [#3668]
 - Match TaxonName based on original combination [#3365]
 - Radial AD: Quick/recent selector broken on "Move". [#3640]
@@ -28,6 +44,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fixed bug in DwC importer background processor that was not dealing with errored records.
 - Browse OTU: autocomplete overflow [#3667]
 
+### Changed
+
+- New BiologicalAssociation defaults to task, not old form
+- Extracted CSV generating code to lib/export/csv
+
+[#1946]: https://github.com/SpeciesFileGroup/taxonworks/issues/1946
 [#3640]: https://github.com/SpeciesFileGroup/taxonworks/issues/3640
 [#3652]: https://github.com/SpeciesFileGroup/taxonworks/issues/3652
 

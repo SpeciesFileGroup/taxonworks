@@ -160,7 +160,7 @@ class DataAttributesController < ApplicationController
 
   # GET /data_attributes/download
   def download
-    send_data Export::Download.generate_csv(DataAttribute.where(project_id: sessions_current_project_id)), type: 'text', filename: "data_attributes_#{DateTime.now}.tsv"
+    send_data Export::Csv.generate_csv(DataAttribute.where(project_id: sessions_current_project_id)), type: 'text', filename: "data_attributes_#{DateTime.now}.tsv"
   end
 
   private

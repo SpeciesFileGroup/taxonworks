@@ -26,6 +26,7 @@ class BiologicalRelationship < ApplicationRecord
   include Shared::Notes
   include Shared::Citations
   include Shared::DataAttributes
+  include Shared::Identifiers
   include Shared::IsData
 
   validates_presence_of :name

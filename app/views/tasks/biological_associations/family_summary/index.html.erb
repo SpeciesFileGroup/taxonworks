@@ -1,0 +1,26 @@
+<h1> Biological Associations - Genus by family summary </h1>
+
+<%= tag.div link_to('Back to filter', filter_biological_associations_task_path(@biological_associations_query.params)) %>
+<%= tag.div(paginate @biological_associations) %>
+<%= tag.span @biological_associations.count.to_param + ' records', class: [:feedback, 'feedback-thin', 'feedback-info'] %>
+<br>
+<%= copy_table_to_clipboard('#summary_table') %>
+<br><br>
+
+<table id="summary_table" class="tablesorter">
+  <thead>
+    <%= tag.tr(%w{Kingdom Genus Families}.collect{|c| fancy_th_tag(name: c)}.join.html_safe) %>
+  </thead>
+  <tbody>
+    <% @data.keys.sort.each do |k| %>
+      <% @data[k].keys.sort.each do |g| %>
+        <%= tag.tr(
+          [ k,
+            g,
+            @data[k][g].keys.sort.collect{|fk| @data[k][g][fk].keys.sort.collect{|f| "#{f} (#{@data[k][g][fk][f]})" }}.flatten.join(', ')
+          ].collect{|c| tag.td(c) }.join.html_safe
+        ) %>
+    <% end %>
+  <% end %>
+  <tbody>
+</table>

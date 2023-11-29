@@ -10,6 +10,9 @@ module Shared::Identifiers
     has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy, inverse_of: :identifier_object
     accepts_nested_attributes_for :identifiers, reject_if: :reject_identifiers, allow_destroy: true
 
+    has_many :uuids, -> { where('identifiers.type like ?', 'Identifier::Global::Uuid%').order(:position) }, class_name: 'Identifier', as: :identifier_object
+    has_many :uris, -> { where(type: 'Identifier::Global::Uri').order(:position) }, class_name: 'Identifier', as: :identifier_object
+
     scope :with_identifier_type, ->(identifier_type) { joins(:identifiers).where('identifiers.type = ?', identifier_type).references(:identifiers) }
     scope :with_identifier_namespace, ->(namespace_id) { joins(:identifiers).where('identifiers.namespace_id = ?', namespace_id).references(:identifiers) }
 
@@ -78,6 +81,14 @@ module Shared::Identifiers
       q = (!q.nil? ? q.with_identifiers_sorted(sorted) :  with_identifiers_sorted(sorted) ) if sorted.present?
       q
     end
+  end
+
+  def uri
+    uris.first&.cached
+  end
+
+  def uuid
+    uuids.first&.cached
   end
 
   def dwc_occurrence_id

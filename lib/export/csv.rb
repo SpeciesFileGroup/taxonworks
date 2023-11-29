@@ -1,6 +1,6 @@
 # Code that translates scopes into downloadable tab-delimited CSV. Dependant on Postgresql.
 #
-module ::Export::Download
+module ::Export::Csv
 
   #   translate a scope into a CSV table, with optional tweaks to the data
   #
@@ -53,7 +53,7 @@ module ::Export::Download
     (0..tbl.first.length-1).each do |row_index|
       row = tbl.collect { |c| c[row_index] }
       if trim_rows
-        next unless row.detect { |c| c.present? }
+        next unless row.detect { |c| c.present? } # Minimize checks by exiting ASAP.  Could benchmark vs. row.compact.blank?
       end
       output.puts CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
     end

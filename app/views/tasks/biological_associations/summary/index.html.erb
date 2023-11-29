@@ -1,0 +1,47 @@
+
+<%= content_for :head do -%>
+  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js",
+    "https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"  %>
+<% end %>
+
+<h1> Biological Associations - Summary </h1>
+
+<%= tag.div link_to('Back to filter', filter_biological_associations_task_path(@biological_associations_query.params)) %>
+<%= tag.span @biological_associations.count.to_param + ' records', class: [:feedback, 'feedback-thin', 'feedback-info'] %>
+
+<div class="flexbox flex-wrap-row gap-medium separate-bottom">
+  <div class="panel content item">
+    <% d1 = @biological_associations.group(:biological_relationship).count.inject({}){|hsh, a| hsh[a.first.name] = a.last; hsh}   %>
+    <div style="width: 400px;">
+      <%= pie_chart d1, height: '400px', stacked: true, download: true, title: "Proportion of use by relationship type" %>
+    </div>
+  </div>
+
+  <div class="panel content item">
+    <% d2 = @biological_associations.group(:biological_association_subject_type).count   %>
+    <div style="width: 300px;">
+      <%= pie_chart d2, height: '300px', stacked: true, download: true,  title: "Proportion by subject type" %>
+    </div>
+  </div>
+
+  <div class="panel content item">
+    <% d3 = @biological_associations.group(:biological_association_object_type).count   %>
+    <div style="width: 300px;">
+      <%= pie_chart d3, height: '300px', stacked: true, download: true,  title: "Proportion by object type" %>   
+    </div>
+  </div>
+</div>
+
+<h2> Taxonomic scope </h2>
+
+<% n = ::Queries::TaxonName::Filter.new(biological_association_query: @biological_associations_query.params, ancestrify: true).all %>
+<% m = ::Queries::TaxonName::Filter.new(biological_association_query: @biological_associations_query.params).all %>
+
+<ul> 
+  <li> <b> Bold means a record is linked directly to that taxon. </b> </li>
+  <li> <%= m.count %> taxon names referenced </li>
+</ul>
+
+<%= simple_hierarchy_tag(n, m) -%>
+
+
