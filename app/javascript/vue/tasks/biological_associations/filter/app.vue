@@ -15,6 +15,24 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialBiologicalAssociation
+          :disabled="!list.length"
+          :parameters="parameters"
+          :count="pagination?.total || 0"
+          @close="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+        />
+      </template>
+      <template #nav-right>
+        <div class="horizontal-right-content gap-small">
+          <RadialBiologicalAssociation
+            :disabled="!list.length"
+            :ids="selectedIds"
+            :count="selectedIds.length"
+            @close="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          />
+        </div>
+      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -43,6 +61,7 @@ import FilterComponent from './components/FilterView.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import VSpinner from '@/components/spinner.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import RadialBiologicalAssociation from '@/components/radials/BiologicalAssociation/radial.vue'
 import { listParser } from './utils/listParser'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 import { BiologicalAssociation } from '@/routes/endpoints'
