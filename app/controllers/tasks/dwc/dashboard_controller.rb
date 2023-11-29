@@ -29,8 +29,6 @@ class Tasks::Dwc::DashboardController < ApplicationController
       end
     end
 
-    byebug
-
     @download = ::Export::Dwca.download_async(
       a, request.url,
       predicate_extensions: predicate_extension_params,
