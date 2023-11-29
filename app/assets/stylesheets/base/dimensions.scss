@@ -1,4 +1,3 @@
-
 $viewport_height: 768px;
 $viewport_width: 1024px;
 
@@ -22,6 +21,10 @@ $viewport_width: 1024px;
   width: 100%;
 }
 
+.full_height {
+  height: 100%;
+}
+
 .width-auto {
   width: auto !important;
 }
@@ -38,15 +41,16 @@ $viewport_width: 1024px;
   width: 20%;
 }
 
-.one_third_width, .width-30 {
+.one_third_width,
+.width-30 {
   width: 30%;
 }
 
-.half_width { 
+.half_width {
   width: 50%;
 }
 
-.three_quarter_width { 
+.three_quarter_width {
   width: 75%;
 }
 
@@ -58,13 +62,11 @@ $viewport_width: 1024px;
   width: 40%;
 }
 
-
-
 // this might belong elsewhere
-.attributes  {
+.attributes {
   p {
-    width:100%;
-    word-wrap:break-word;
+    width: 100%;
+    word-wrap: break-word;
   }
 }
 
@@ -76,9 +78,10 @@ $viewport_width: 1024px;
   display: block;
 }
 
-p.list { margin-top: 0em;
-         margin-bottom: 0em;
-         margin-left: 1em;
+p.list {
+  margin-top: 0em;
+  margin-bottom: 0em;
+  margin-left: 1em;
 }
 
 .overflow-x-scroll {

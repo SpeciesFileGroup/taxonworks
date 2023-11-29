@@ -5,6 +5,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import useStore from '../../store/board.js'
+import useImageStore from '../../store/image'
 
 const props = defineProps({
   image: {
@@ -14,15 +15,27 @@ const props = defineProps({
 })
 
 const store = useStore()
+const imageStore = useImageStore()
 const elementBoard = ref(null)
 
 onMounted(() => {
+  const size = elementBoard.value.getBoundingClientRect()
+  const imageWidth = imageStore.image.width
+  const imageHeight = imageStore.image.height
+  const containerHeight = window.innerHeight - 250
+
+  console.log(size.height)
+
+  const width = imageWidth > size.width ? parseInt(size.width, 10) : imageWidth
+  const height = imageHeight > containerHeight ? containerHeight : imageHeight
+
   store.createSVGBoard({
     element: elementBoard.value,
     opts: {
       imageSrc: props.image.image_file_url,
-      width: 600,
-      height: 600
+      stroke: '#FFA500',
+      width,
+      height
     }
   })
 })

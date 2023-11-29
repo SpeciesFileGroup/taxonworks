@@ -1,5 +1,5 @@
 <template>
-  <div class="panel flex-column draw__toolbar gap-medium padding-medium">
+  <div class="horizontal-left-content draw__toolbar gap-medium">
     <VBtn
       v-for="(item, key) in TOOLS"
       class="no-padding"
@@ -20,13 +20,13 @@
 
     <input
       type="color"
-      @change="(e) => SVGBoard.apiStroke(e.target.value)"
+      v-model="color"
     />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { drawMode } from '@sfgrp/svg-detailer'
 import useStore from '../../store/board.js'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -34,6 +34,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import IconCircle from '@/components/Icon/IconCircle.vue'
 
 const store = useStore()
+const color = ref('#FFA500')
 const SVGBoard = computed(() => store.SVGBoard)
 
 const TOOLS = {
@@ -62,14 +63,16 @@ const TOOLS = {
   zoomIn: {
     title: 'Zoom in',
     icon: 'zoomIn',
-    action: () => SVGBoard.value.apiZoomIn()
+    action: () => SVGBoard.value.apiZoomIn(0.25)
   },
   zoomOut: {
     title: 'Zoom out',
     icon: 'zoomOut',
-    action: () => SVGBoard.value.apiZoomOut()
+    action: () => SVGBoard.value.apiZoomOut(0.25)
   }
 }
+
+watch(color, (newVal) => SVGBoard.value.apiStroke(newVal))
 </script>
 
 <style scoped lang="scss">
