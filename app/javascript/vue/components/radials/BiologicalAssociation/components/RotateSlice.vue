@@ -32,7 +32,7 @@ const batchResponse = ref({
 
 function rotateBiologicalAssociations() {
   const payload = {
-    biological_association_query: props.parameters
+    ...props.parameters
   }
 
   BiologicalAssociation.batchRotate(payload).then(({ body }) => {
