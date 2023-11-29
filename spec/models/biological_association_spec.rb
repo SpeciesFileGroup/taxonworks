@@ -63,6 +63,20 @@ describe BiologicalAssociation, type: :model do
     expect(r.biological_associations.count).to eq(2)
   end
 
+  specify '#batch_update preview' do
+    a = FactoryBot.create(:valid_biological_association)
+    b = FactoryBot.create(:valid_biological_association)
+    r = FactoryBot.create(:valid_biological_relationship)
+
+    BiologicalAssociation.batch_update(
+      preview: true,
+      biological_association: { biological_relationship_id: r.id},
+      biological_association_query: { }
+    )
+
+    expect(r.biological_associations.count).to eq(0)
+  end
+
   specify '#batch_rotate' do
     a = FactoryBot.create(:valid_biological_association)
 
@@ -76,7 +90,48 @@ describe BiologicalAssociation, type: :model do
     expect(a.biological_association_object).to eq(c)
   end
 
+  specify '#batch_rotate response' do
+    a = FactoryBot.create(:valid_biological_association)
 
+    c = a.subject
+    d = a.object
+
+    r = BiologicalAssociation.batch_rotate( {} )
+
+    expect(r.updated).to contain_exactly(a.id)
+    expect(r.not_updated).to eq([])
+    expect(r.errors).to eq([])
+  end
+
+    specify '#batch_rotate' do
+    a = FactoryBot.create(:valid_biological_association)
+
+    c = a.subject
+    d = a.object
+
+    BiologicalAssociation.batch_rotate( {} )
+
+    a.reload
+    expect(a.subject).to eq(d)
+    expect(a.biological_association_object).to eq(c)
+  end
+
+  specify '#batch_rotate preview' do
+    a = FactoryBot.create(:valid_biological_association)
+
+    c = a.subject
+    d = a.object
+
+    r = BiologicalAssociation.batch_rotate( { preview: true } )
+
+    expect(r.updated).to eq([a.id])
+    expect(r.not_updated).to eq([])
+    expect(r.preview).to be_truthy
+
+    a.reload
+    expect(a.subject).to eq(c)
+    expect(a.biological_association_object).to eq(d)
+  end
 
   context 'concerns' do
     it_behaves_like 'citations'
