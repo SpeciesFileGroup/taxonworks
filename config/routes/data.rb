@@ -49,6 +49,9 @@ resources :biological_associations do
   concerns [:data_routes]
   collection do
     match :filter, to: 'biological_associations#index', via: [:get, :post]
+
+    post :batch_rotate
+    post :batch_update
   end
 end
 
