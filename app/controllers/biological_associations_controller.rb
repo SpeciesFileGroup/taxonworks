@@ -122,7 +122,7 @@ class BiologicalAssociationsController < ApplicationController
       format.globi {
         if q.count < 1001
           send_data Export::Csv::Globi.csv(q.all),
-          type: 'text',
+            type: 'text',
             filename: "biological_associations_globi_#{DateTime.now}.tsv"
         else
           render json: { msg: 'At present this format is only allowed for 100 or less records.' }, status: :unprocessable_entity
@@ -138,7 +138,7 @@ class BiologicalAssociationsController < ApplicationController
           preview: params[:preview],
           biological_association: biological_association_params.merge(by: sessions_current_user_id) ,
           biological_association_query: params[:biological_association_query]
-      }
+        }
     )
       render json: r.to_json, status: :ok
     else

@@ -152,7 +152,8 @@ class BiologicalAssociation < ApplicationRecord
             r.updated.push b.id
           end
         rescue ActiveRecord::RecordInvalid => e
-          r.not_updated.push b.id
+          r.not_updated.push e.record.id
+          r.errors[e.message] += 1
         end
 
         raise ActiveRecord::Rollback if r.preview
@@ -215,7 +216,8 @@ class BiologicalAssociation < ApplicationRecord
           end
 
         rescue ActiveRecord::RecordInvalid => e
-          r.not_updated.push b.id
+          r.not_updated.push e.record.id
+          r.errors[e.message] += 1
         end
 
         raise ActiveRecord::Rollback if r.preview
