@@ -181,9 +181,9 @@ module Export::Dwca
       data = empty_hash.merge(data)
 
       # write rows to csv
-      headers = CSV::Row.new(used_predicates, used_predicates, true)
+      headers = ::CSV::Row.new(used_predicates, used_predicates, true)
 
-      tbl = CSV::Table.new([headers])
+      tbl = ::CSV::Table.new([headers])
 
       # Get order of ids that matches core records so we can align with csv
       dwc_id_order = collection_object_ids.map.with_index.to_h
@@ -193,7 +193,7 @@ module Export::Dwca
         row = row[1]
 
         # Create empty row, this way we can insert columns by their headers, not by order
-        csv_row = CSV::Row.new(used_predicates, [])
+        csv_row = ::CSV::Row.new(used_predicates, [])
 
         # Add each [header, value] pair to the row
         row.each do |column_pair|

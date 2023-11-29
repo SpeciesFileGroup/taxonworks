@@ -93,7 +93,7 @@ module Export
         # Sort the refs by full citation string
         sorted_refs = ref_tsv.values.sort{|a,b| a[1] <=> b[1]}
 
-        d = CSV.generate(col_sep: "\t") do |tsv|
+        d = ::CSV.generate(col_sep: "\t") do |tsv|
           tsv << %w{ID citation	doi modified modifiedBy} # author year source details
           sorted_refs.each do |r|
             tsv << r

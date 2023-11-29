@@ -69,7 +69,7 @@ module Export::CSV::Globi
 
     output = StringIO.new
     tbl.each do |row|
-      output.puts CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
+      output.puts ::CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
     end
 
     output.string
