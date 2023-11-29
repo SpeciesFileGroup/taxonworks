@@ -50,6 +50,34 @@ describe BiologicalAssociation, type: :model do
     )).to be_truthy
   end
 
+  specify '#batch_update' do
+    a = FactoryBot.create(:valid_biological_association)
+    b = FactoryBot.create(:valid_biological_association)
+    r = FactoryBot.create(:valid_biological_relationship)
+
+    BiologicalAssociation.batch_update(
+      biological_association: { biological_relationship_id: r.id},
+      biological_association_query: { }
+    )
+
+    expect(r.biological_associations.count).to eq(2)
+  end
+
+  specify '#batch_rotate' do
+    a = FactoryBot.create(:valid_biological_association)
+
+    c = a.subject
+    d = a.object
+
+    BiologicalAssociation.batch_rotate( {} )
+
+    a.reload
+    expect(a.subject).to eq(d)
+    expect(a.biological_association_object).to eq(c)
+  end
+
+
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'is_data'
