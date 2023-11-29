@@ -1,5 +1,3 @@
-require 'gpx_to_csv'
-
 module BatchLoad
   class Import::CollectingEvents::GPXInterpreter < BatchLoad::Import
     # SAVE_ORDER = [:georeference, :collecting_event]
@@ -14,7 +12,7 @@ module BatchLoad
     # methode override for GPX processing which is quite different from CSV
     # @return [Hash, nil]
     def csv
-      @csv = ::GPXToCSV.gpx_to_csv(GPX::GPXFile.new(gpx_file: @file.tempfile.path))
+      @csv = Vendor::GPXToCSV.gpx_to_csv(GPX::GPXFile.new(gpx_file: @file.tempfile.path))
     end
 
     # TODO: update this

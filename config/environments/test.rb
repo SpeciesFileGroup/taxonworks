@@ -65,7 +65,6 @@ TaxonWorks::Application.configure do
   Settings.load_mail_domain(config, 'example.com')
 
   require 'taxonworks'
-  require 'taxonworks/taxonworks_autoload'
 
   # See http://guides.rubyonrails.org/v5.1/configuring.html#custom-configuration
   config.x.test_user_password = 'taxonworks'.freeze

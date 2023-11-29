@@ -5,8 +5,8 @@
 
 <% @collection_objects.find_each do |co| %>
   <% n = collection_object_scientific_name(co)  %>
-  <% r = ::Colrapi.nameusage_search(q: n, dataset_id: ::TaxonWorks::Vendor::Colrapi::DATASETS[:col], rank: 'species') %>
-  <% d = ::TaxonWorks::Vendor::Colrapi.name_status(co, r) %>
+  <% r = ::Colrapi.nameusage_search(q: n, dataset_id: ::Vendor::Colrapi::DATASETS[:col], rank: 'species') %>
+  <% d = ::Vendor::Colrapi.name_status(co, r) %>
 
 <table style="width: 50%;">
 

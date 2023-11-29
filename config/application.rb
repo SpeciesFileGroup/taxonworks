@@ -33,7 +33,6 @@ module TaxonWorks
 
     # Zietwerk currently requires both, review
     config.autoload_paths << "#{Rails.root.join("lib")}"
-    config.autoload_paths << "#{Rails.root.join("lib/vendor")}"
 
     #Include separate assets
     config.assets.precompile += %w( separated_application.js )
@@ -41,7 +40,7 @@ module TaxonWorks
     # Breaks rake/loading because of existing Rails.application.eager_load! statements
 
     # zeitwerk not needed?
-    # config.eager_load_paths += config.autoload_paths
+    config.eager_load_paths += config.autoload_paths
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.

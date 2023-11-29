@@ -385,7 +385,7 @@ module Queries
       # @return [String, nil]
       #   parse and only return what is assumed to be genus/species, with a wildcard in front
       def genus_species
-        p = TaxonWorks::Vendor::Biodiversity::Result.new
+        p = Vendor::Biodiversity::Result.new
         p.name = query_string
         r = p.parse
 

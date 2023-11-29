@@ -48,7 +48,7 @@ class Tasks::Accessions::Breakdown::BufferedDataController < ApplicationControll
   def set_collection_object
     # collection object that has SqedDepiction
     @collection_object = CollectionObject.where(project_id: sessions_current_project_id).find(params[:id])
-    @result = SqedToTaxonworks::Result.new(
+    @result = Vendor::SqedToTaxonworks::Result.new(
       depiction_id: @collection_object.depictions.first.id,
     )
   end
