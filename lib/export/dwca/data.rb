@@ -53,8 +53,10 @@ module Export::Dwca
 
     # @param [Hash] args
     def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {} )
-      # raise ArgumentError, 'must pass a core_scope' if !record_core_scope.kind_of?( ActiveRecord::Relation )
+      raise ArgumentError, 'must pass a core_scope' if core_scope.nil?
+
       @core_scope = core_scope
+
       @biological_associations_extension = extension_scopes[:biological_associations] #! STring
       @media_extension = extension_scopes[:media] #  = get_scope(core_scope)
 
