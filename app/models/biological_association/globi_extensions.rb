@@ -79,10 +79,19 @@ module BiologicalAssociation::GlobiExtensions
     r
   end
 
+  # Don't use dwc_
+  def globi_extension_json
+    r = {} 
+    Export::Csv::Globi::HEADERS.each do |h|
+      if m = GLOBI_EXTENSION_MAP[h.to_sym]
+        r[h] = send(m)
+      end
+    end
+    r
+  end
+
   # TODO: use alias
   def globi_source_occurrence_id
-
-
     if biological_association_subject_type == 'CollectionObject'
       biological_association_object.dwc_occurrence_id
     end
@@ -207,7 +216,7 @@ module BiologicalAssociation::GlobiExtensions
     if biological_association_object_type == 'CollectionObject'
       biological_association_object.dwc_scientific_name
     else
-      dwc_/get
+      dwc_related_resource
     end
   end
 

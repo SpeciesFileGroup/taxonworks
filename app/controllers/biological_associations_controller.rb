@@ -1,7 +1,7 @@
 class BiologicalAssociationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_biological_association, only: [:show, :edit, :update, :destroy, :api_show]
+  before_action :set_biological_association, only: [:show, :edit, :update, :destroy, :api_show, :api_globi, :api_resource_relationship]
   after_action -> { set_pagination_headers(:biological_associations) }, only: [:index], if: :json_request?
 
   # GET /biological_associations
@@ -87,19 +87,51 @@ class BiologicalAssociationsController < ApplicationController
     end
   end
 
-
   def api_show
     render '/biological_associations/api/v1/show'
   end
 
+  def api_globi
+    render json:  @biological_association.globi_extension_json, status: :ok
+  end
+
+  def api_resource_relationship
+    render json:  @biological_association.globi_extension_json, status: :ok
+  end
+
+
   def api_index
-    @biological_associations = Queries::BiologicalAssociation::Filter.new(params.merge!(api: true)).all
+    q = ::Queries::BiologicalAssociation::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('biological_associations.id')
-      .page(params[:page])
-      .per(params[:per])
-    render '/biological_associations/api/v1/index'
+
+    respond_to do |format|
+      format.json {
+        @biological_associations = q.page(params[:page]).per(params[:per])
+        render '/biological_associations/api/v1/index'
+      }
+      format.csv {
+        @biological_associations = q
+        send_data Export::Csv.generate_csv(
+          @biological_associations,
+          exclude_columns: %w{updated_by_id created_by_id project_id},
+        ), type: 'text',
+       filename: "biological_associations_#{DateTime.now}.tsv"
+      }
+
+      format.globi {
+        if q.count < 1001
+          send_data Export::Csv::Globi.csv(q.all),
+          type: 'text',
+            filename: "biological_associations_globi_#{DateTime.now}.tsv"
+        else
+          render json: { msg: 'At present this format is only allowed for 100 or less records.' }, status: :unprocessable_entity
+        end
+      }
+    end
   end
+
+  
 
   # POST /biological_associations/batch_update.json?biological_association_query=<>&biological_association={}
   def batch_update
