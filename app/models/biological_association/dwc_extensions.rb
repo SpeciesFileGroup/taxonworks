@@ -23,6 +23,21 @@ module BiologicalAssociation::DwcExtensions
     Export::Csv::Dwc::Extension::BiologicalAssociations::HEADERS.collect{|h| send( DWC_EXTENSION_MAP[h.to_sym] )}
   end
 
+  # Don't use dwc_
+  def globi_extension_json
+    r = {} 
+     Export::Csv::Dwc::Extension::BiologicalAssociations::HEADERS.each do |h|
+      if m = DWC_EXTENSION_MAP[h.to_sym]
+        r[h] = send(m)
+      end
+    end
+    r
+  end
+
+  def darwin_core_extension_json
+
+  end
+
   def dwc_resource_relationship_id
     uuid || id
   end

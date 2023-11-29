@@ -91,7 +91,9 @@ namespace :api, defaults: {format: :json} do
       get '/collection_objects/autocomplete', to: '/collection_objects#api_autocomplete'
       get '/collection_objects/:id/dwc', to: '/collection_objects#api_dwc'
       get '/collection_objects/:id', to: '/collection_objects#api_show'
-
+ 
+      get '/biological_associations/:id/resource_relationship', to: '/biological_associations#api_resource_relationship'
+      get '/biological_associations/:id/globi', to: '/biological_associations#api_globi'     
       get '/biological_associations', to: '/biological_associations#api_index'
       get '/biological_associations/:id', to: '/biological_associations#api_show'
 

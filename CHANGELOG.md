@@ -9,6 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- `/api/v1/biological_associations/123/globi` (preview experiment)
+- `/api/v1/biological_associations/123/resource_relationship` (preview experiment)
+- BiologicalAssociations as raw TaxonWorks data`/api/v1/biological_associations.csv`
+- BiologicalRelationships as raw TaxonWorks data`/api/v1/biological_relationships.csv`
 - DwC ResourceRelationship extension (preview) [#2554]
 - Taxonmy summary to CollectionObject summary report
 - Metadata summary report from Filter BiologicalAssociations
