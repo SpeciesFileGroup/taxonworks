@@ -15,7 +15,10 @@
         small
         :name="item.icon"
       />
-      <IconCircle v-else />
+      <component
+        :is="item.icon"
+        v-else
+      />
     </VBtn>
 
     <input
@@ -32,6 +35,7 @@ import useStore from '../../store/board.js'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import IconCircle from '@/components/Icon/IconCircle.vue'
+import IconRubber from '@/components/Icon/IconRubber.vue'
 
 const store = useStore()
 const color = ref('#FFA500')
@@ -58,6 +62,12 @@ const TOOLS = {
     title: 'Circle',
     icon: IconCircle,
     action: () => SVGBoard.value.apiSetMode(drawMode.CIRCLE)
+  },
+
+  [drawMode.ERASER]: {
+    title: 'Rubber',
+    icon: IconRubber,
+    action: () => SVGBoard.value.apiSetMode(drawMode.ERASER)
   },
 
   zoomIn: {
@@ -91,7 +101,8 @@ watch(color, (newVal) => SVGBoard.value.apiStroke(newVal))
   }
 
   .border-active {
-    border: 2px solid var(--color-primary);
+    border-radius: 0.2rem;
+    background-color: rgba(0, 0, 0, 0.2);
   }
 }
 </style>
