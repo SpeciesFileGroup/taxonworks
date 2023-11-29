@@ -102,10 +102,20 @@ class BiologicalAssociation < ApplicationRecord
 
   class << self
 
+    # @return 
+
     def batch_update(params)
       return false if params[:biological_association].blank?
+
+      r = BatchResponse.new
+      r.method = 'batch_update'
+      r.klass = 'BiologicalAssociation'
+      r.preview = params[:preview]
+
       a = Queries::BiologicalAssociation::Filter.new(params[:biological_association_query])
       c = a.all.count
+
+      r.total_attempted = c
 
       v = a.all.pluck(:biological_relationship_id).uniq
 
@@ -128,28 +138,41 @@ class BiologicalAssociation < ApplicationRecord
         cap = 25
       end
 
-      return false if c == 0 || c > cap
+      r.cap = cap
 
-      begin
-
-        a.all.find_each do |b|
-          b.update!(params[:biological_association])
-        end
-
-      rescue ActiveRecord::RecordInvalid => e
-
+      if c == 0 || c > cap
+        r.cap_reason = 'Too many unique biological relationships.' 
+        return r 
       end
 
-      return true
+      BiologicalAssociation.transaction do |b|
+        begin
+          a.all.find_each do |b|
+            b.update!(params[:biological_association])
+            r.updated.push b.id
+          end
+        rescue ActiveRecord::RecordInvalid => e
+          r.not_updated.push b.id
+        end
 
+        raise ActiveRecord::Rollback if r.preview
+      end
 
+      return r
     end
 
 
     # Rotates subject and object
     def batch_rotate(params)
       a = Queries::BiologicalAssociation::Filter.new(params)
+
+      r = BatchResponse.new
+      r.method = 'batch_rotate'
+      r.klass = 'BiologicalAssociation'
+      r.preview = params[:preview]
+
       c = a.all.count
+
 
       v = a.all.pluck(:biological_relationship_id).uniq
 
@@ -172,24 +195,33 @@ class BiologicalAssociation < ApplicationRecord
         cap = 25
       end
 
-      return false if c == 0 || c > cap
-
-      begin
-        a.all.find_each do |b|
-          s = b.biological_association_subject
-          o = b.biological_association_object
-
-          b.update!(
-            biological_association_subject: o,
-            biological_association_object: s,
-            by: params[:by]
-          )
-        end
-
-      rescue ActiveRecord::RecordInvalid => e
+      if c == 0 || c > cap
+        r.cap_reason = 'Too many unique biological relationships.' 
+        return r 
       end
 
-      return true
+      BiologicalAssociation.transaction do |b|
+        begin
+          a.all.find_each do |b|
+            s = b.biological_association_subject
+            o = b.biological_association_object
+
+            b.update!(
+              biological_association_subject: o,
+              biological_association_object: s,
+              by: params[:by]
+            )
+            r.updated.push b.id
+          end
+
+        rescue ActiveRecord::RecordInvalid => e
+          r.not_updated.push b.id
+        end
+
+        raise ActiveRecord::Rollback if r.preview
+      end
+
+      return r 
     end
 
   end # end class methods

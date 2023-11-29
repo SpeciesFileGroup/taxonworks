@@ -92,7 +92,7 @@ module Queries::Concerns::Users
 
     q = nil
 
-    # hand date range
+    # handle date range
 
     # What date?
     if !user_date_start.nil? || !user_date_end.nil?
