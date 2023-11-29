@@ -9,9 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- DwC ResourceRelationship extension (preview) [#2554]
 - Taxonmy summary to CollectionObject summary report
 - Metadata summary report from Filter BiologicalAssociations
-- Simple table summary (with cliboard copy) from Filter BiologicalAssociations
+- Biological associations simple table preview, sortable columns [#1946]
 - GLOBI format table from Filter BiologicalAssociations (preliminary)
 - Family by genera report from Filter BiologicalAssociations
 - DwC ResourceRelationship extension preview from Filter BiologicalAssociations
@@ -21,11 +22,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Auto UUIDs as new Identifier::Global::Uuid::Auto for models
 - Auto UUIDs are created for BiologicalAssociations and OTUs
 - Maintainence Task to add UUIDs to objects that can have them but don't 
-- Biological associations simple table preview, sortable columns [#1946]
-- TaxonName model to customize attributes.
+- TaxonName model to customize attributes
 - TaxonNameRelationship model, added validation for the rank of type species and type genus.
 - New source task: Person source
-- index view to API for /depictions
+- Index view to API for /depictions
 
 ### Changed
 
@@ -50,8 +50,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Extracted CSV generating code to lib/export/csv
 
 [#1946]: https://github.com/SpeciesFileGroup/taxonworks/issues/1946
+[#2554]: https://github.com/SpeciesFileGroup/taxonworks/issues/2554
+[#3365]: https://github.com/SpeciesFileGroup/taxonworks/issues/3365
 [#3640]: https://github.com/SpeciesFileGroup/taxonworks/issues/3640
 [#3652]: https://github.com/SpeciesFileGroup/taxonworks/issues/3652
+[#3667]: https://github.com/SpeciesFileGroup/taxonworks/issues/3667
+[#3668]: https://github.com/SpeciesFileGroup/taxonworks/issues/3668
 
 ## [0.35.3] - 2023-11-13
 
