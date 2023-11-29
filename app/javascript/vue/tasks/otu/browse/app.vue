@@ -26,7 +26,7 @@
         </ul>
         <template v-if="otu">
           <autocomplete
-            class="float_right separate-left separate-right"
+            class="float_right separate-left separate-right autocomplete-search-bar"
             url="/otus/autocomplete"
             placeholder="Search a otu"
             param="term"
@@ -249,6 +249,11 @@ export default {
 
 <style lang="scss">
 #browse-otu {
+  .autocomplete-search-bar {
+    input {
+      width: 500px;
+    }
+  }
   .container {
     margin: 0 auto;
     width: 1240px;

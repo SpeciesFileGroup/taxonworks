@@ -645,10 +645,10 @@ module Queries
       def name_facet
         return nil if name.empty?
         if name_exact
-          table[:cached].eq_any(name)
+          table[:cached].eq_any(name).or(table[:cached_original_combination].eq_any(name))
           #  table[:cached].eq(name.strip).or(table[:cached_original_combination].eq(name.strip))
         else
-          table[:cached].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' })
+          table[:cached].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' }).or(table[:cached_original_combination].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' }))
         end
       end
 

@@ -16,12 +16,17 @@
       }"
     >
       <template #header>
-        <h3>Settings</h3>
+        <h2>Settings</h2>
       </template>
       <template #body>
         <div>
-          <nomenclature-code class="margin-medium-bottom" />
+          <nomenclature-code/>
+          <h3>DwC Checklist Import Settings</h3>
+          <div class="field">
+            <use-existing-taxon-hierarchy />
+          </div>
 
+          <h3>DwC Occurrence Import Settings</h3>
           <div class="field">
             <containerize-checkbox />
             <restrict-to-nomenclature-checkbox />
@@ -31,7 +36,7 @@
             <enable-organization-determiners />
           </div>
 
-          <h3>Geographic Areas</h3>
+          <h4>Geographic Areas</h4>
           <div class="field">
             <geographic-area-data-origin class="margin-medium-bottom" />
             <require-geographic-area-has-shape-checkbox />
@@ -61,6 +66,7 @@ import RequireGeographicAreaHasShapeCheckbox from './RequireGeographicAreaHasSha
 import RequireGeographicAreaExactMatch from './RequireGeographicAreaExactMatch.vue'
 import RequireGeographicAreaExists from './RequireGeographicAreaExists.vue'
 import CatalogNumberMain from './CatalogNumber/CatalogNumberMain.vue'
+import UseExistingTaxonHierarchy from './UseExistingTaxonHierarchy.vue'
 
 const showModal = ref(false)
 

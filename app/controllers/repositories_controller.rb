@@ -103,6 +103,6 @@ class RepositoriesController < ApplicationController
   end
 
   def repository_params
-    params.require(:repository).permit(:name, :url, :acronym, :status, :institutional_LSID, :is_index_herbarioum_record)
+    params.require(:repository).permit(:name, :url, :acronym, :status, :institutional_LSID, :is_index_herbariorum)
   end
 end

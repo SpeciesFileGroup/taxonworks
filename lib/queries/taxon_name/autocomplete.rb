@@ -289,6 +289,7 @@ module Queries
           autocomplete_exact_cached,
           autocomplete_exact_cached_original_combination,
           autocomplete_identifier_cached_exact,
+          autocomplete_identifier_identifier_exact,
           autocomplete_exact_name_and_year,
 
           autocomplete_cached_end_wildcard,

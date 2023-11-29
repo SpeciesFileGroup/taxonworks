@@ -23,14 +23,26 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Maintainence Task to add UUIDs to objects that can have them but don't 
 - Biological associations simple table preview, sortable columns [#1946]
 - TaxonName model to customize attributes.
+- TaxonNameRelationship model, added validation for the rank of type species and type genus.
+- New source task: Person source
+- index view to API for /depictions
+
+### Changed
+
+- Radial annotator: Move selected source to the bottom in citation form [#3652]
 
 ### Fixed
 
 - Some CollectionObject summary values were not scoped to filter query
 - Filtering People returned duplicate values one name string searches
 - BiologicalAssociations passed to TaxonNames missed object names
+- Nulified cached values in Collecting Event, if Geographic area deleted [#3668]
+- Match TaxonName based on original combination [#3365]
 - Radial AD: Quick/recent selector broken on "Move". [#3640]
 - New taxon name: Author panel overflow when source has a long link
+- Edit Loan: Loans created without recipient or supervisor cannot be updated
+- Fixed bug in DwC importer background processor that was not dealing with errored records.
+- Browse OTU: autocomplete overflow [#3667]
 
 ### Changed
 
@@ -39,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1946]: https://github.com/SpeciesFileGroup/taxonworks/issues/1946
 [#3640]: https://github.com/SpeciesFileGroup/taxonworks/issues/3640
+[#3652]: https://github.com/SpeciesFileGroup/taxonworks/issues/3652
 
 ## [0.35.3] - 2023-11-13
 
