@@ -37,6 +37,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- PENDING [buttons to remove BiologicalProperties in composer failing]
+- Could not destroy BiologicalRelaationship if properties attached
 - Some CollectionObject summary values were not scoped to filter query
 - Filtering People returned duplicate values one name string searches
 - BiologicalAssociations passed to TaxonNames missed object names

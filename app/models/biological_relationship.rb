@@ -32,8 +32,8 @@ class BiologicalRelationship < ApplicationRecord
   validates_presence_of :name
   has_many :biological_relationship_types, inverse_of: :biological_relationship
 
-  has_many :subject_biological_relationship_types, -> () {where(type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')}, class_name: 'BiologicalRelationshipType'
-  has_many :object_biological_relationship_types, -> () {where(type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')}, class_name: 'BiologicalRelationshipType'
+  has_many :subject_biological_relationship_types, -> () {where(type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')}, class_name: 'BiologicalRelationshipType', dependent: :destroy
+  has_many :object_biological_relationship_types, -> () {where(type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')}, class_name: 'BiologicalRelationshipType', dependent: :destroy
 
   has_many :biological_properties, through: :biological_relationship_types
   has_many :subject_biological_properties, through: :subject_biological_relationship_types, source: :biological_property
