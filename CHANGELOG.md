@@ -25,7 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - "Ancestrify" option to TaxonName filter (adds ancestors of filter result)
 - Auto UUIDs as new Identifier::Global::Uuid::Auto for models
 - Auto UUIDs are created for BiologicalAssociations and OTUs
-- Maintainence Task to add UUIDs to objects that can have them but don't 
+- Maintainence Task to add UUIDs to objects that can have them but don't
 - TaxonName model to customize attributes
 - TaxonNameRelationship model, added validation for the rank of type species and type genus.
 - New source task: Person source
@@ -37,7 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
-- PENDING [buttons to remove BiologicalProperties in composer failing]
+- Buttons to remove BiologicalProperties in composer failing [#3673]
 - Could not destroy BiologicalRelaationship if properties attached
 - Some CollectionObject summary values were not scoped to filter query
 - Filtering People returned duplicate values one name string searches
@@ -49,6 +49,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit Loan: Loans created without recipient or supervisor cannot be updated
 - Fixed bug in DwC importer background processor that was not dealing with errored records.
 - Browse OTU: autocomplete overflow [#3667]
+- Comprehensive: Relationship doesn't show up on biological associations list [#3671]
 
 ### Changed
 
@@ -62,6 +63,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3652]: https://github.com/SpeciesFileGroup/taxonworks/issues/3652
 [#3667]: https://github.com/SpeciesFileGroup/taxonworks/issues/3667
 [#3668]: https://github.com/SpeciesFileGroup/taxonworks/issues/3668
+[#3671]: https://github.com/SpeciesFileGroup/taxonworks/issues/3671
+[#3673]: https://github.com/SpeciesFileGroup/taxonworks/issues/3673
 
 ## [0.35.3] - 2023-11-13
 
