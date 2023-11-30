@@ -395,32 +395,35 @@ function destroyPin() {
 
 function destroyObject() {
   showDestroyModal.value = false
-  ajaxCall('delete', `${metadata.value.resource_path}.json`).then((_) => {
-    TW.workbench.alert.create(
-      `${metadata.value.type} was successfully destroyed.`,
-      'notice'
-    )
-    if (props.globalId === metadata.value.global_id) {
-      eventDestroy()
-      deleted.value = true
-    }
-    if (props.redirect) {
-      if (metadata.value.destroyed_redirect) {
-        window.open(metadata.value.destroyed_redirect, '_self')
-      } else if (window.location.pathname === metadata.value.resource_path) {
-        window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
-      } else {
-        window.open(
-          metadata.value.resource_path.substring(
-            0,
-            metadata.value.resource_path.lastIndexOf('/')
-          ),
-          '_self'
-        )
+  ajaxCall('delete', `${metadata.value.resource_path}.json`)
+    .then((_) => {
+      TW.workbench.alert.create(
+        `${metadata.value.type} was successfully destroyed.`,
+        'notice'
+      )
+      if (props.globalId === metadata.value.global_id) {
+        eventDestroy()
+        deleted.value = true
       }
-    }
-    emit('delete', metadata.value)
-  })
+      if (props.redirect) {
+        if (metadata.value.destroyed_redirect) {
+          window.open(metadata.value.destroyed_redirect, '_self')
+        } else if (window.location.pathname === metadata.value.resource_path) {
+          window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
+        } else {
+          window.open(
+            metadata.value.resource_path.substring(
+              0,
+              metadata.value.resource_path.lastIndexOf('/')
+            ),
+            '_self'
+          )
+        }
+      }
+      emit('delete', metadata.value)
+      closeModal()
+    })
+    .catch(() => {})
 }
 </script>
 
