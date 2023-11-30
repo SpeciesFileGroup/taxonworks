@@ -69,6 +69,7 @@
           @mouseover:row="setRowHover"
           @mouseout:body="() => (rowHover = null)"
           @on-sort="($event) => (list = $event)"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>

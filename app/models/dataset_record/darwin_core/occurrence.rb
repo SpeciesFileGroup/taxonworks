@@ -49,8 +49,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         # if multiple potential protonyms, this is a homonym situation
         if potential_protonyms.count > 1
           # verbatim author field (if present) applies to finest name only
-          if name[:verbatim_author]
-            potential_protonyms_narrowed = potential_protonyms.where(verbatim_author: name[:verbatim_author])
+          if name[:cached_author]
+            potential_protonyms_narrowed = potential_protonyms.where(cached_author: name[:cached_author])
 
             if name[:year_of_publication]
               potential_protonyms_narrowed = potential_protonyms_narrowed.where(year_of_publication: name[:year_of_publication])
@@ -62,7 +62,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             else
               potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }.join(', ')
               raise DatasetRecord::DarwinCore::InvalidData.new(
-                  { "scientificName" => ["Multiple matches found for name #{name[:name]} and verbatim author #{name[:verbatim_author]}: #{potential_protonym_strings}"] }
+                  { "scientificName" => ["Multiple matches found for name #{name[:name]} and author name #{name[:cached_author]}, year #{name[:year_of_publication]}: #{potential_protonym_strings}"] }
                 )
             end
           else
@@ -76,7 +76,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         # Protonym might not exist, or might have intermediate parent not listed in file
         # if it exists, run more expensive query to see if it has an ancestor matching parent name and rank
         if p.nil? && Protonym.where(name.slice(:rank_class).merge({ field => name[:name] })).where(project_id: parent.project_id).exists?
-          potential_protonyms = Protonym.where(name.slice(:rank_class, :verbatim_author, :year_of_publication).merge({ field => name[:name] }).compact).with_ancestor(parent)
+          potential_protonyms = Protonym.where(name.slice(:rank_class, :cached_author, :year_of_publication).merge({ field => name[:name] }).compact).with_ancestor(parent)
           if potential_protonyms.count > 1
             return parent
             # potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }
@@ -1333,7 +1333,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     begin
       author_name, year = Utilities::Strings.parse_authorship(get_field_value("scientificNameAuthorship"))
 
-      names.last&.merge!({ verbatim_author: author_name, year_of_publication: year })
+      names.last&.merge!({ cached_author: author_name, year_of_publication: year })
     end
 
     # vernacularName: [Not mapped]

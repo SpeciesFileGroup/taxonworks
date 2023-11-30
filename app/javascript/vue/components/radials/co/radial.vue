@@ -61,6 +61,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import SliceTaxonDetermination from './components/SliceTaxonDetermination.vue'
 import SliceBiocurations from './components/SliceBiocurations/SliceBiocurations.vue'
 import SliceRepository from './components/SliceRepository.vue'
+import DwcSlice from './components/DwCSlice.vue'
 
 import { computed, ref } from 'vue'
 import { removeEmptyProperties } from '@/helpers/objects.js'
@@ -69,7 +70,8 @@ const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 const SLICES = {
   'Add biocurations': SliceBiocurations,
   'Taxon determinations': SliceTaxonDetermination,
-  Repository: SliceRepository
+  Repository: SliceRepository,
+  'Regenerate DwC': DwcSlice
 }
 
 defineOptions({

@@ -2,7 +2,7 @@ json.extract! role, :id, :person_id, :role_object_id, :role_object_type, :type, 
 json.partial! '/shared/data/all/metadata', object: role, url_base: 'role'
 
 # Ugh, expensive, add a virtual attribute with coalesce etc.
-json.in_project Role.exists?(project_id: sessions_current_project_id, id: role.id)
+json.in_project role.project_id == sessions_current_project_id ? true : false
 
 if extend_response_with('role_object')
   json.role_object do

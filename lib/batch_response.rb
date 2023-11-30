@@ -22,8 +22,9 @@ class BatchResponse
   #   ids of the objects not update
   attr_accessor :not_updated
 
-  # @return list of unique Error messages
-  # encounterd, not per object!
+  # @return Hash
+  #   a list of error messages summarized by times encountered (not the objects they were on)
+  #
   attr_accessor :errors
 
   attr_accessor :total_attempted
@@ -39,7 +40,7 @@ class BatchResponse
     @not_updated = []
     @async = false
     @preview = false
-    @errors = []
+    @errors = Hash.new(0)
     @total_attempted = 0
   end
 

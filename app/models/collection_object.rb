@@ -182,6 +182,42 @@ class CollectionObject < ApplicationRecord
                ON  "sequences"."id" = "origin_relationships_extracts_join"."new_object_id"}
   end
 
+  # Rotates subject and object
+  def self.batch_update_dwc_occurrence(params)
+    q = Queries::CollectionObject::Filter.new(params)
+
+    r = BatchResponse.new
+    r.method = 'batch_update_dwc_occurrence'
+    r.klass = 'CollectionObject'
+
+    c = q.all.count
+
+    if c == 0 || c > 10000
+      r.cap_reason = 'Too many (or no) collection objects (max 10k)' 
+      return r 
+    end
+
+    if c < 51
+      q.each do |co|
+        co.set_dwc_occurrence
+        r.updated.push co.id
+      end  
+    else
+      r.async = true
+      q.each do |co|
+        dwc_occurrence_update_query(co)
+      end  
+    end
+
+    return r 
+  end
+
+  def dwc_occurrence_update_query(collection_object)
+    collection_object.set_dwc_occurrence
+  end
+
+  handle_asynchronously :dwc_occurrence_update_query, run_at: Proc.new { 1.second.from_now }, queue: :query_batch_update
+
   # TODO: move to a helper
   def self.breakdown_status(collection_objects)
     collection_objects = [collection_objects] if collection_objects.class != Array

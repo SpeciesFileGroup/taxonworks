@@ -22,6 +22,8 @@ module Shared::Maps
     has_one :cached_map_register, as: :cached_map_register_object, dependent: :delete
 
     after_create :initialize_cached_map_items
+    after_create :destroy_cached_map
+
     before_destroy :remove_from_cached_map_items
 
     # after_update :syncronize_cached_map_items
@@ -70,6 +72,26 @@ module Shared::Maps
 
     def remove_from_cached_map_items
       delay(queue: 'cached_map').deduct_from_cached_map_items
+    end
+
+    # Remove the pre-calculated map for the OTU
+    # Note that this doesn't resolve all issues, but at least
+    # new additions will be added on next build
+    def destroy_cached_map
+      delay(queue: 'cached_map').clear_cached_maps
+    end
+
+    def clear_cached_maps
+      case self.class.base_class.name
+      when 'AssertedDistribution'
+        ids = ::Queries::Otu::Filter.new(otu_id:, ancestrify: true).all.pluck(:id)
+        CachedMap.where(otu_id: ids).delete_all
+      when 'Georeference'
+        otu_ids = collecting_event.otus
+        ids = ::Queries::Otu::Filter.new(otu_id: otu_ids, ancestrify: true).all.pluck(:id)
+        CachedMap.where(otu: otus).delete_all
+      end
+      true
     end
 
     # @param batch (Boolean)

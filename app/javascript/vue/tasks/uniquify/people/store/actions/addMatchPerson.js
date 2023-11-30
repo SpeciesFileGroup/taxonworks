@@ -8,7 +8,7 @@ export default ({ state }, person) => {
   if (!isAlreadyInList) {
     person.cached = person.label
     state.requestState.isLoading = true
-    People.find(person.id, { extend: ['roles'] })
+    People.find(person.id, { extend: ['roles', 'role_counts'] })
       .then((response) => {
         state.matchPeople.push(response.body)
         state.mergeList.push(response.body)

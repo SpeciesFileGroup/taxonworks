@@ -433,6 +433,15 @@ class Person < ApplicationRecord
     collector_roles.any?
   end
 
+
+  def role_counts(project_id)
+    {
+      in_project: self.roles.where(project_id:).group(:type).count,
+      not_in_project: self.roles.where.not(project_id:).where.not(project_id: nil).group(:type).count,
+      community: self.roles.where(project_id: nil).group(:type).count
+    }
+  end
+
   # @param [String] name_string
   # @return [Array] of Hashes
   #   use citeproc to parse strings

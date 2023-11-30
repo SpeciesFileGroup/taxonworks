@@ -77,6 +77,21 @@ describe BiologicalAssociation, type: :model do
     expect(r.biological_associations.count).to eq(0)
   end
 
+  specify '#batch_update errors' do
+    r = FactoryBot.create(:valid_biological_relationship)
+    
+    a = FactoryBot.create(:valid_biological_association, biological_relationship: r)
+    b = FactoryBot.create(:valid_biological_association, biological_relationship: r, biological_association_subject: a.biological_association_subject)
+
+    m = BiologicalAssociation.batch_update(
+      biological_association: { biological_relationship_id: r.id, biological_association_object_id: a.biological_association_object_id},
+      biological_association_query: { biological_association_id: [  b.id ] }
+    )
+
+    expect(m.errors).to eq( { "Validation failed: Biological association subject has already been taken" => 1 } )
+  end
+
+
   specify '#batch_rotate' do
     a = FactoryBot.create(:valid_biological_association)
 
@@ -100,7 +115,7 @@ describe BiologicalAssociation, type: :model do
 
     expect(r.updated).to contain_exactly(a.id)
     expect(r.not_updated).to eq([])
-    expect(r.errors).to eq([])
+    expect(r.errors).to eq({})
   end
 
     specify '#batch_rotate' do
