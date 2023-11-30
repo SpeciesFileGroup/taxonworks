@@ -8,13 +8,20 @@
     <h1>Free form digitize</h1>
 
     <template v-if="imageStore.image">
-      <NavBar />
+      <NavBar>
+        <div class="full_width flex-separate middle">
+          <DrawControls v-show="view === 0" />
+          <div />
+          <SaveButtons />
+        </div>
+      </NavBar>
       <div class="horizontal-left-content align-start gap-medium">
         <DrawBoard
-          v-if="imageStore.image"
+          v-show="view === 0"
           :image="imageStore.image"
           class="full_width full_height"
         />
+        <LayerViewer v-show="view === 1" />
         <div class="right-panel">
           <VSwitch
             :options="tabMenu"
@@ -24,7 +31,7 @@
           <div class="flex-separate">
             <div class="full_width">
               <spinner-component
-                v-if="!!store.collectionObject.id && view == 'Assign'"
+                v-if="!!store.collectionObject.id && view === 0"
                 :show-legend="false"
                 :show-spinner="false"
               />
@@ -44,7 +51,6 @@
 
 <script setup>
 import { computed, ref, onBeforeMount } from 'vue'
-import DrawBoard from './components/DrawBoard/DrawBoard.vue'
 import VSwitch from '@/components/switch'
 import AssignComponent from './components/Assign/Main'
 import UploadImage from './components/UploadImage'
@@ -52,7 +58,11 @@ import ReviewComponent from './components/Review.vue'
 import SpinnerComponent from '@/components/spinner'
 import useImageStore from './store/image.js'
 import useStore from './store/store'
-import NavBar from './components/NavBar.vue'
+import NavBar from '@/components/layout/NavBar.vue'
+import LayerViewer from './components/LayerViewer.vue'
+import DrawBoard from './components/DrawBoard/DrawBoard.vue'
+import DrawControls from './components/DrawBoard/DrawControls.vue'
+import SaveButtons from './components/SaveButtons.vue'
 
 const TABS = [AssignComponent, ReviewComponent]
 

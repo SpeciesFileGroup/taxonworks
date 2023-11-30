@@ -17,8 +17,8 @@ export default defineStore('board', {
       })
     },
 
-    addLayer({ id, svg }) {
-      this.layers.push({ collectionObjectId: id, svg })
+    addLayer({ collectionObjectId, svg }) {
+      this.layers.push({ collectionObjectId, svg })
     },
 
     setLayer(id) {

@@ -1,6 +1,6 @@
 import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from '@/constants'
 import { defineStore } from 'pinia'
-import { CollectionObject } from '@/routes/endpoints'
+import { CollectionObject, Depiction } from '@/routes/endpoints'
 import useTagStore from './tags.js'
 import useNoteStore from './notes.js'
 import useImageStore from './image.js'
@@ -42,6 +42,7 @@ function makeTaxonDeterminationPayload(data) {
 export default defineStore('freeform', {
   state: () => ({
     collectionObjects: [],
+    selectedId: [],
     taxonDeterminations: [],
     collectionObject: initialCO(),
     preparationTypeId: undefined,
@@ -57,7 +58,28 @@ export default defineStore('freeform', {
 
     async loadReport(imageId) {
       return CollectionObject.report({ image_id: imageId }).then(({ body }) => {
+        const coIds = body.map((co) => co.id)
+
         this.collectionObjects = body
+
+        if (coIds.length) {
+          this.loadDepictions(coIds)
+        }
+      })
+    },
+
+    loadDepictions(coIds) {
+      const boardStore = useBoardStore()
+
+      Depiction.all({
+        depiction_object_id: coIds
+      }).then(({ body }) => {
+        body.forEach((item) => {
+          boardStore.addLayer({
+            collectionObjectId: item.depiction_object_id,
+            svg: item.svg_clip
+          })
+        })
       })
     },
 

@@ -5,7 +5,12 @@
       <table>
         <thead>
           <tr>
-            <th></th>
+            <th>
+              <input
+                type="checkbox"
+                v-model="toggleCheckbox"
+              />
+            </th>
             <th>Total</th>
             <th>Family</th>
             <th>Genus</th>
@@ -28,6 +33,13 @@
             class="contextMenuCells"
             :class="{ even: index % 2 == 0 }"
           >
+            <td>
+              <input
+                type="checkbox"
+                v-model="store.selectedId"
+                :value="item.id"
+              />
+            </td>
             <td>
               <div class="horizontal-left-content middle gap-small">
                 <RadialAnnotator :global-id="item.global_id" />
@@ -63,10 +75,19 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigation from '@/components/radials/navigation/radial'
 import RadialObject from '@/components/radials/object/radial'
 import useStore from '../store/store.js'
 
 const store = useStore()
+const toggleCheckbox = computed({
+  get: () => store.collectionObjects.length === store.selectedId.length,
+  set: (value) => {
+    store.selectedId = value
+      ? store.collectionObjects.map((item) => item.id)
+      : []
+  }
+})
 </script>
