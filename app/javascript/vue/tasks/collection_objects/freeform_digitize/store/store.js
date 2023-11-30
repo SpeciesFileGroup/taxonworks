@@ -55,8 +55,8 @@ export default defineStore('freeform', {
       this.taxonDeterminations.push(determination)
     },
 
-    loadReport(imageId) {
-      CollectionObject.report(imageId).then(({ body }) => {
+    async loadReport(imageId) {
+      return CollectionObject.report({ image_id: imageId }).then(({ body }) => {
         this.collectionObjects = body
       })
     },

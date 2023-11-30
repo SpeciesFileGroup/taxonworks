@@ -5,22 +5,20 @@
       :legend="isSaving ? 'Saving...' : 'Loading...'"
       v-if="isLoading || isSaving"
     />
-    <h1>Free form</h1>
+    <h1>Free form digitize</h1>
 
     <template v-if="imageStore.image">
       <NavBar />
-      <div class="horizontal-left-content align-start">
-        <div class="horizontal-left-content align-start full_width">
-          <DrawBoard
-            v-if="imageStore.image"
-            :image="imageStore.image"
-            class="full_width full_height"
-          />
-        </div>
+      <div class="horizontal-left-content align-start gap-medium">
+        <DrawBoard
+          v-if="imageStore.image"
+          :image="imageStore.image"
+          class="full_width full_height"
+        />
         <div class="right-panel">
-          <summary-component class="full_width" />
           <VSwitch
-            :options="Object.keys(TABS)"
+            :options="tabMenu"
+            use-index
             v-model="view"
           />
           <div class="flex-separate">
@@ -45,7 +43,6 @@
 </template>
 
 <script setup>
-import { Image as ImageService } from '@/routes/endpoints'
 import { computed, ref, onBeforeMount } from 'vue'
 import DrawBoard from './components/DrawBoard/DrawBoard.vue'
 import VSwitch from '@/components/switch'
@@ -57,38 +54,37 @@ import useImageStore from './store/image.js'
 import useStore from './store/store'
 import NavBar from './components/NavBar.vue'
 
-const TABS = {
-  Assign: AssignComponent,
-  Review: ReviewComponent
-}
+const TABS = [AssignComponent, ReviewComponent]
 
 const store = useStore()
 const imageStore = useImageStore()
 
-const componentSelected = computed(() => TABS[view.value])
 const isLoading = ref(false)
 const isSaving = ref(false)
-const view = ref('Assign')
+const view = ref(0)
+
+const componentSelected = computed(() => TABS[view.value])
+const tabMenu = computed(() => [
+  'Assign',
+  `Review (${store.collectionObjects.length})`
+])
 
 onBeforeMount(() => {
   const urlParams = new URLSearchParams(window.location.search)
   const imageId = urlParams.get('image_id')
 
-  //loadImage(1044784)
+  loadImage(1044784)
 
-  /*   if (/^\d+$/.test(imageId)) {
-  } */
+  if (/^\d+$/.test(imageId)) {
+    loadImage(imageId)
+  }
 })
 
-function loadImage(imageId) {
+async function loadImage(imageId) {
   isLoading.value = true
-  ImageService.find(imageId)
-    .then((response) => {
-      imageStore.image = response.body
-    })
-    .finally(() => {
-      isLoading.value = false
-    })
+  await imageStore.loadImage(imageId)
+  await store.loadReport(imageId)
+  isLoading.value = false
 }
 </script>
 

@@ -24,8 +24,6 @@ onMounted(() => {
   const imageHeight = imageStore.image.height
   const containerHeight = window.innerHeight - 250
 
-  console.log(size.height)
-
   const width = imageWidth > size.width ? parseInt(size.width, 10) : imageWidth
   const height = imageHeight > containerHeight ? containerHeight : imageHeight
 
@@ -34,6 +32,7 @@ onMounted(() => {
     opts: {
       imageSrc: props.image.image_file_url,
       stroke: '#FFA500',
+      strokeWidth: 2,
       width,
       height
     }

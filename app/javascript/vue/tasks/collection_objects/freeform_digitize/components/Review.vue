@@ -5,9 +5,7 @@
       <table>
         <thead>
           <tr>
-            <th>Radial annotator</th>
-            <th>Quick forms</th>
-            <th>Edit</th>
+            <th></th>
             <th>Total</th>
             <th>Family</th>
             <th>Genus</th>
@@ -31,16 +29,14 @@
             :class="{ even: index % 2 == 0 }"
           >
             <td>
-              <radial-annotator :global-id="item.global_id" />
-            </td>
-            <td>
-              <radial-object
-                button-class="btn-co-radial"
-                :global-id="item.global_id"
-              />
-            </td>
-            <td>
-              <radial-navigation :global-id="item.global_id" />
+              <div class="horizontal-left-content middle gap-small">
+                <RadialAnnotator :global-id="item.global_id" />
+                <RadialObject
+                  button-class="btn-co-radial"
+                  :global-id="item.global_id"
+                />
+                <RadialNavigation :global-id="item.global_id" />
+              </div>
             </td>
             <td>{{ item.dwc_attributes.individualCount }}</td>
             <td>{{ item.dwc_attributes.family }}</td>
