@@ -31,15 +31,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New source task: Person source
 - Index view to API for /depictions
 - Added extend[]=role_counts to /person/123.json
+- Batch update OTU taxon_name within OTU filter [#3656]
+- DwC Checklist importer: support "invalid", "incorrectOriginalSpelling" taxonomic Status
+- DwC Checklist importer: option to match and update existing names rather than create new hierarchy from Root
+- DwC Occurrence importer: search for repository URL
 
 ### Changed
 
 - Radial annotator: Move selected source to the bottom in citation form [#3652]
+- DwC Occurrence importer: more helpful protonym, institution error messages
 
 ### Fixed
 
 - Buttons to remove BiologicalProperties in composer failing [#3673]
-- Could not destroy BiologicalRelaationship if properties attached
+- Could not destroy BiologicalRelationship if properties attached
 - Some CollectionObject summary values were not scoped to filter query
 - Filtering People returned duplicate values one name string searches
 - BiologicalAssociations passed to TaxonNames missed object names
@@ -51,6 +56,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fixed bug in DwC importer background processor that was not dealing with errored records.
 - Browse OTU: autocomplete overflow [#3667]
 - Comprehensive: Relationship doesn't show up on biological associations list [#3671]
+- DwC Occurrence importer: protonyms could not be found if authorship information didn't match
+- DwC Checklist importer: empty `scientificNameAuthorship` field would cause row to error [#3660]
+- DwC Checklist importer: subsequent combinations with synonym status whose parents are synonyms would cause row to error
+- Could not set Repository Index Herbariorum flag in interface
 
 ### Changed
 
@@ -62,6 +71,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3365]: https://github.com/SpeciesFileGroup/taxonworks/issues/3365
 [#3640]: https://github.com/SpeciesFileGroup/taxonworks/issues/3640
 [#3652]: https://github.com/SpeciesFileGroup/taxonworks/issues/3652
+[#3656]: https://github.com/SpeciesFileGroup/taxonworks/issues/3656
+[#3660]: https://github.com/SpeciesFileGroup/taxonworks/issues/3660
 [#3667]: https://github.com/SpeciesFileGroup/taxonworks/issues/3667
 [#3668]: https://github.com/SpeciesFileGroup/taxonworks/issues/3668
 [#3671]: https://github.com/SpeciesFileGroup/taxonworks/issues/3671
