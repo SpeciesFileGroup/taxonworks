@@ -184,7 +184,7 @@ class CollectionObject < ApplicationRecord
 
   # Rotates subject and object
   def self.batch_update_dwc_occurrence(params)
-    q = Queries::CollectionObject::Filter.new(params)
+    q = Queries::CollectionObject::Filter.new(params).all
 
     r = BatchResponse.new
     r.method = 'batch_update_dwc_occurrence'
