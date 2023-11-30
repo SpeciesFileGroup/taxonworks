@@ -824,6 +824,43 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
+  context 'when importing an occurrence with scientificNameAuthorship' do
+
+    after(:all) { DatabaseCleaner.clean }
+
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('name_with_authorship.tsv', import_settings: { 'restrict_to_existing_nomenclature' => false })
+
+      @person = Person.create!(last_name: 'Forel', first_name: 'Auguste')
+
+      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: "Formicidae", rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: "Ponerinae", rank_class: Ranks.lookup(:iczn, :subfamily))
+      tribe = Protonym.create!(parent: subfamily, name: "Ponerini", rank_class: Ranks.lookup(:iczn, :tribe))
+      genus = Protonym.create!(parent: tribe, name: "Bothroponera", rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      @species = Protonym.create!(parent: genus, name: "cambouei", rank_class: Ranks.lookup(:iczn, :species),
+                                  year_of_publication: 1891, also_create_otu: true)
+
+      @species.taxon_name_authors << @person
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let!(:results) { @imported }
+
+    it 'should import the record without failing' do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'the record should have the correct determination' do
+      expect(CollectionObject.last.taxon_names).to include @species
+    end
+  end
+
 end
 
 # Set up DatabaseCleaner, stage tsv file for import
