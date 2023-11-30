@@ -31,6 +31,7 @@
                 :ids="ids"
                 :parameters="params"
                 :count="count"
+                @close="closeModal"
               />
             </div>
           </div>

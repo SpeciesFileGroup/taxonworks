@@ -39,11 +39,19 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['close'])
+
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 
 function regenerateDwC() {
-  CollectionObject
-    .batchUpdateDwcOccurrence(props.parameters)
+  CollectionObject.batchUpdateDwcOccurrence(props.parameters)
+    .then(({ body }) => {
+      TW.workbench.alert.create(
+        `${body.updated.length} collection object(s) were successfully updated.`,
+        'notice'
+      )
+      emit('close')
+    })
     .catch(() => {})
 }
 </script>

@@ -39,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- CachedMaps of ancestors are set for rebuild when a descendant Georeference or AssertedDistribution is created
 - Radial annotator: Move selected source to the bottom in citation form [#3652]
 - DwC Occurrence importer: more helpful protonym, institution error messages
 - Filter interfaces: remove items from list instead redirect to data view [#3659]
@@ -63,6 +64,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC Checklist importer: empty `scientificNameAuthorship` field would cause row to error [#3660]
 - DwC Checklist importer: subsequent combinations with synonym status whose parents are synonyms would cause row to error
 - Could not set Repository Index Herbariorum flag in interface
+- Uniquify People: autocomplete would not select people for merging if already present in Match people table
 
 ### Changed
 
