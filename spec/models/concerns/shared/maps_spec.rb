@@ -8,12 +8,12 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
 
   specify 'Delayed::Job is cued' do
     ad_offset.save!
-    expect(Delayed::Job.count).to eq(1)
+    expect(Delayed::Job.count).to eq(2) # Create items, clear CachedMap
   end
 
   specify 'Delayed::Job is cued and ran' do
     ad_offset.save!
-    expect(Delayed::Worker.new.work_off).to eq [1, 0] # Returns [successes, failures]
+    expect(Delayed::Worker.new.work_off).to eq [2, 0] # Returns [successes, failures]
   end
 
   context 'Delayed::Job(s) on create' do
