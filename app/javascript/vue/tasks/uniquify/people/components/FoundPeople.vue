@@ -65,10 +65,10 @@
               </td>
               <td>
                 <span class="feedback feedback-thin feedback-primary">{{
-                  person.roles ? person.roles.length : 0
+                  person.role_counts ? countUses(person) : 0
                 }}</span>
               </td>
-              <td>{{ getRoles(person) }}</td>
+              <td>{{ getRoleNames(person) }}</td>
             </tr>
           </template>
         </tbody>
@@ -82,7 +82,8 @@ import { ActionNames } from '../store/actions/actions'
 import { MutationNames } from '../store/mutations/mutations'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import DefaultPin from '@/components/getDefaultPin.vue'
-import getRoles from '../utils/getRoles'
+import getRoleNames from '../utils/getRoleNames'
+import countUses from '../utils/countUses'
 
 export default {
   components: {
@@ -126,7 +127,9 @@ export default {
       return value || '?'
     },
 
-    getRoles
+    getRoleNames,
+
+    countUses,
   }
 }
 </script>

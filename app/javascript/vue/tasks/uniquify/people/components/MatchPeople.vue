@@ -60,10 +60,10 @@
               </td>
               <td>
                 <span class="feedback feedback-thin feedback-primary">
-                  {{ person.roles ? person.roles.length : '?' }}
+                  {{ countUses(person) || '?'}}
                 </span>
               </td>
-              <td>{{ getRoles(person) }}</td>
+              <td>{{ getRoleNames(person) }}</td>
             </tr>
           </template>
         </tbody>
@@ -76,7 +76,8 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import Autocomplete from '@/components/ui/Autocomplete'
-import getRoles from '../utils/getRoles.js'
+import getRoleNames from '../utils/getRoleNames.js'
+import countUses from '../utils/countUses.js'
 
 export default {
   components: { Autocomplete },
@@ -126,7 +127,7 @@ export default {
       this.$store.dispatch(ActionNames.AddMatchPerson, person)
     },
 
-    getRoles,
+    getRoleNames,
 
     yearValue(value) {
       return value || '?'
@@ -134,7 +135,9 @@ export default {
 
     isSelectedPerson(id) {
       return this.selectedPerson.id === id
-    }
+    },
+
+    countUses
   }
 }
 </script>

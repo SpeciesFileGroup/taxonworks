@@ -7,6 +7,7 @@ if extend_response_with('roles')
       json.partial! '/roles/attributes', role: role
     end
   end
-elsif extend_response_with('role_counts')
+end
+if extend_response_with('role_counts')
   json.role_counts person.role_counts(sessions_current_project_id)
 end
