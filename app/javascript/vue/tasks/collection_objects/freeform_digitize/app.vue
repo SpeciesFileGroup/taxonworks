@@ -21,7 +21,7 @@
           :image="imageStore.image"
           class="full_width full_height"
         />
-        <LayerViewer v-show="view === 1" />
+        <LayerViewer v-if="view === 1" />
         <div class="right-panel">
           <VSwitch
             :options="tabMenu"

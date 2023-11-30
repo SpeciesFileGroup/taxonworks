@@ -1,8 +1,12 @@
 <template>
-  <div class="full_width full_height">
+  <div
+    class="full_width full_height"
+    ref="root"
+  >
     <SvgViewer
-      :width="imageStore.image.width"
-      :height="imageStore.image.height"
+      v-if="width && height"
+      :width="width"
+      :height="height"
       :groups="layers"
       :image="{
         url: imageStore.image.image_file_url,
@@ -18,11 +22,14 @@ import SvgViewer from '@/components/Svg/SvgViewer.vue'
 import useImageStore from '../store/image'
 import useBoardStore from '../store/board'
 import useStore from '../store/store'
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 
 const store = useStore()
 const imageStore = useImageStore()
 const boardStore = useBoardStore()
+const root = ref()
+const width = ref()
+const height = ref()
 
 const layers = computed(() =>
   boardStore.layers
@@ -31,4 +38,14 @@ const layers = computed(() =>
     )
     .map((l) => l.svg)
 )
+
+onMounted(() => {
+  const size = root.value.getBoundingClientRect()
+  const imageWidth = imageStore.image.width
+  const imageHeight = imageStore.image.height
+  const containerHeight = window.innerHeight - 250
+
+  width.value = imageWidth > size.width ? parseInt(size.width, 10) : imageWidth
+  height.value = imageHeight > containerHeight ? containerHeight : imageHeight
+})
 </script>
