@@ -536,7 +536,7 @@ module TaxonNamesHelper
 
     m ||= []
 
-    n.pluck(:id, :cached, :rank_class).collect{|a| '&nbsp;' * ::RANK_INDENT[a.last] + (m.include?(a.first) ? tag.b(a.second) : a.second) }.join('<br>').html_safe
+    n.pluck(:id, :cached, :rank_class).collect{|a| '&nbsp;' * (::RANK_INDENT[a.last] || 33)  + (m.include?(a.first) ? tag.b(a.second) : a.second) }.join('<br>').html_safe
   end
 
   protected

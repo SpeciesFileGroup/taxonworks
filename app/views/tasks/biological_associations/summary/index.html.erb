@@ -27,7 +27,7 @@
   <div class="panel content item">
     <% d3 = @biological_associations.group(:biological_association_object_type).count   %>
     <div style="width: 300px;">
-      <%= pie_chart d3, height: '300px', stacked: true, download: true,  title: "Proportion by object type" %>   
+      <%= pie_chart d3, height: '300px', stacked: true, download: true,  title: "Proportion by object type" %>
     </div>
   </div>
 </div>
@@ -37,7 +37,7 @@
 <% n = ::Queries::TaxonName::Filter.new(biological_association_query: @biological_associations_query.params, ancestrify: true).all %>
 <% m = ::Queries::TaxonName::Filter.new(biological_association_query: @biological_associations_query.params).all %>
 
-<ul> 
+<ul>
   <li> <b> Bold means a record is linked directly to that taxon. </b> </li>
   <li> <%= m.count %> taxon names referenced </li>
 </ul>
