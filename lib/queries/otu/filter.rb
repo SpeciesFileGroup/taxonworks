@@ -9,6 +9,7 @@ module Queries
       include Queries::Helpers
 
       PARAMS = [
+        :ancestrify,
         :asserted_distributions,
         :biological_association_id,
         :biological_associations,
@@ -38,6 +39,13 @@ module Queries
         otu_id: [],
         taxon_name_id: [],
       ].freeze
+
+      # @params ancestrify ['true', True, nil]
+      # @return Boolean
+      #    if true then, additionally, all coordinate otus for all inferred ancestors are included
+      #
+      # !! This param is not like the others. !!  See parallel in TaxonName filter 'ancestrify'.
+      attr_accessor :ancestrify
 
       # @params coordinatify ['true', True, nil]
       # @return Boolean
@@ -168,6 +176,7 @@ module Queries
       def initialize(query_params)
         super
 
+        @ancestrify = boolean_param(params, :ancestrify)
         @asserted_distributions = boolean_param(params, :asserted_distributions)
         @biological_association_id = params[:biological_association_id]
         @biological_associations = boolean_param(params, :biological_associations)
@@ -571,6 +580,26 @@ module Queries
         referenced_klass_union([a, b, q])
       end
 
+      # Goal is to get 
+      #  * all OTUs and their coordinates via nomenclature
+      def ancestrify_result(q)
+        r = ::Queries::TaxonName::Filter.new(
+          taxon_name_id: q.all.pluck(:taxon_name_id),
+          ancestrify: true
+        )
+
+        s = 'WITH tn_otu_anc AS (' + r.all.to_sql + ') ' +
+            ::Otu
+              .joins('JOIN tn_otu_anc AS tn_otu_anc1 on tn_otu_anc1.id = otus.taxon_name_id')
+              .to_sql
+
+        a = ::Otu.from('(' + s + ') as otus')
+   
+        c = coordinatify_result(a) 
+
+        c
+      end
+
       def and_clauses
         [
           name_facet,
@@ -611,6 +640,8 @@ module Queries
       def all(nil_empty = false)
         q = super
         q = coordinatify_result(q) if coordinatify
+        q = ancestrify_result(q) if ancestrify
+
         q
       end
     end

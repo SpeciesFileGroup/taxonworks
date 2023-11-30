@@ -22,7 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC ResourceRelationship extension preview from Filter BiologicalAssociations
 - Visualize network from Filter BiologicalAssociations
 - BiologicalRelationship can have Identifiers
-- "Ancestrify" option to TaxonName filter (adds ancestors of filter result)
+- "ancestrify" option to TaxonName and Otu filters (adds ancestors of filter result)
 - Auto UUIDs as new Identifier::Global::Uuid::Auto for models
 - Auto UUIDs are created for BiologicalAssociations and OTUs
 - Maintenance Task to add UUIDs to objects that can have them but don't
