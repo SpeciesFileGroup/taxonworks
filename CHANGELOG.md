@@ -58,6 +58,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse OTU: autocomplete overflow [#3667]
 - Comprehensive: Relationship doesn't show up on biological associations list [#3671]
 - DwC Occurrence importer: protonyms could not be found if authorship information didn't match
+- DwC Occurrence importer: protonyms could not be found if author was Person [#3677]
 - DwC Checklist importer: empty `scientificNameAuthorship` field would cause row to error [#3660]
 - DwC Checklist importer: subsequent combinations with synonym status whose parents are synonyms would cause row to error
 - Could not set Repository Index Herbariorum flag in interface
@@ -79,6 +80,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3668]: https://github.com/SpeciesFileGroup/taxonworks/issues/3668
 [#3671]: https://github.com/SpeciesFileGroup/taxonworks/issues/3671
 [#3673]: https://github.com/SpeciesFileGroup/taxonworks/issues/3673
+[#3677]: https://github.com/SpeciesFileGroup/taxonworks/issues/3677
 
 ## [0.35.3] - 2023-11-13
 
