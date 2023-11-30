@@ -14,7 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - BiologicalAssociations as raw TaxonWorks data`/api/v1/biological_associations.csv`
 - BiologicalRelationships as raw TaxonWorks data`/api/v1/biological_relationships.csv`
 - DwC ResourceRelationship extension (preview) [#2554]
-- Taxonmy summary to CollectionObject summary report
+- Taxonomy summary to CollectionObject summary report
 - Metadata summary report from Filter BiologicalAssociations
 - Biological associations simple table preview, sortable columns [#1946]
 - GLOBI format table from Filter BiologicalAssociations (preliminary)
@@ -25,11 +25,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - "Ancestrify" option to TaxonName filter (adds ancestors of filter result)
 - Auto UUIDs as new Identifier::Global::Uuid::Auto for models
 - Auto UUIDs are created for BiologicalAssociations and OTUs
-- Maintainence Task to add UUIDs to objects that can have them but don't
+- Maintenance Task to add UUIDs to objects that can have them but don't
 - TaxonName model to customize attributes
 - TaxonNameRelationship model, added validation for the rank of type species and type genus.
 - New source task: Person source
 - Index view to API for /depictions
+- Added extend[]=role_counts to /person/123.json
 
 ### Changed
 
