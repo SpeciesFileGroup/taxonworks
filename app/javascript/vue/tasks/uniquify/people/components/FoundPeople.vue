@@ -65,7 +65,7 @@
               </td>
               <td>
                 <span class="feedback feedback-thin feedback-primary">{{
-                  person.role_counts ? countUses(person) : 0
+                  person?.roles?.length ?? countUses(person)
                 }}</span>
               </td>
               <td>{{ getRoleNames(person) }}</td>
