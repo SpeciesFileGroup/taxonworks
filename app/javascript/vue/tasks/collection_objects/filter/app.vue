@@ -75,6 +75,7 @@
           :layout="currentLayout"
           radial-object
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>

@@ -40,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Radial annotator: Move selected source to the bottom in citation form [#3652]
 - DwC Occurrence importer: more helpful protonym, institution error messages
+- Filter interfaces: remove items from list instead redirect to data view [#3659]
 
 ### Fixed
 
@@ -72,6 +73,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3640]: https://github.com/SpeciesFileGroup/taxonworks/issues/3640
 [#3652]: https://github.com/SpeciesFileGroup/taxonworks/issues/3652
 [#3656]: https://github.com/SpeciesFileGroup/taxonworks/issues/3656
+[#3659]: https://github.com/SpeciesFileGroup/taxonworks/issues/3659
 [#3660]: https://github.com/SpeciesFileGroup/taxonworks/issues/3660
 [#3667]: https://github.com/SpeciesFileGroup/taxonworks/issues/3667
 [#3668]: https://github.com/SpeciesFileGroup/taxonworks/issues/3668

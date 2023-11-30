@@ -419,6 +419,7 @@ function destroyObject() {
         )
       }
     }
+    emit('delete', metadata.value)
   })
 }
 </script>

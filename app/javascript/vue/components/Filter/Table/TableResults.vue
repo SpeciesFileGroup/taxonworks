@@ -173,6 +173,8 @@
               />
               <RadialNavigation
                 :global-id="item.global_id"
+                :redirect="false"
+                @delete="emit('remove', { item, index })"
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
             </div>
