@@ -140,7 +140,7 @@ resources :collection_objects do
     get :select_options, defaults: {format: :json}
     get :preview, defaults: {format: :json}
 
-    patch :batch_update_dwc_occurrence
+    post :batch_update_dwc_occurrence
     post :batch_update
   end
 

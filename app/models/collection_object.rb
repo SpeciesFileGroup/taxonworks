@@ -183,16 +183,16 @@ class CollectionObject < ApplicationRecord
   end
 
   # Rotates subject and object
-  def batch_update_dwc_occurrence(params)
+  def self.batch_update_dwc_occurrence(params)
     q = Queries::CollectionObject::Filter.new(params)
 
     r = BatchResponse.new
     r.method = 'batch_update_dwc_occurrence'
     r.klass = 'CollectionObject'
 
-    c = a.all.count
+    c = q.all.count
 
-    if c == 0 || c > cap
+    if c == 0 || c > 10000
       r.cap_reason = 'Too many (or no) collection objects (max 10k)' 
       return r 
     end
@@ -203,7 +203,10 @@ class CollectionObject < ApplicationRecord
         r.updated.push co.id
       end  
     else
-
+      r.async = true
+      q.each do |co|
+        dwc_occurrence_update_query(co)
+      end  
     end
 
     return r 

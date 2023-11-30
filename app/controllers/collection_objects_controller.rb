@@ -389,9 +389,9 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
-  # POST /collection_object/batch_update_dwc_occurrence.json?<collection object query params>
+  # PATCH /collection_object/batch_update_dwc_occurrence.json?<collection object query params>
   def batch_update_dwc_occurrence
-    if c = CollectionObject.query_batch_update(params)
+    if c = CollectionObject.batch_update_dwc_occurrence(params)
       render json: c.to_json, status: :ok
     else
       render json: {}, status: :unprocessable_entity
