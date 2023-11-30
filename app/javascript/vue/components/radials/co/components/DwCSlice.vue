@@ -42,8 +42,8 @@ const props = defineProps({
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 
 function regenerateDwC() {
-  CollectionObject.batchUpdateDwcOccurrence({
-    collection_object_query: props.parameters
-  }).catch(() => {})
+  CollectionObject
+    .batchUpdateDwcOccurrence(props.parameters)
+    .catch(() => {})
 }
 </script>
