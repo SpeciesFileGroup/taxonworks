@@ -86,10 +86,10 @@ class DocumentationController < ApplicationController
     end
   end
 
-  # GET /documentation/download 
+  # GET /documentation/download
   #   documentation_download_index is the route name, for some inflection bug reason
   def download
-    send_data Export::Download.generate_csv(
+    send_data Export::Csv.generate_csv(
       Documentation.where(project_id: sessions_current_project_id)), type: 'text', filename: "documentation_#{DateTime.now}.tsv"
   end
 

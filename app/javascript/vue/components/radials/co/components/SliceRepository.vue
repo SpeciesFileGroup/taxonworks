@@ -104,7 +104,7 @@ function changeRepository() {
 
   CollectionObject.batchUpdate(payload).then(({ body }) => {
     TW.workbench.alert.create(
-      `${body.passed.length} taxon determination(s) were successfully added.`,
+      `${body.passed.length} collection object(s) were successfully added.`,
       'notice'
     )
   })

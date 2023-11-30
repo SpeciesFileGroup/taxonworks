@@ -5,6 +5,17 @@ require 'support/shared_contexts/shared_geo'
 describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_objects] do
   include_context 'stuff for complex geo tests'
 
+  specify '#is_image_stub? 1'  do
+    s = FactoryBot.create(:valid_specimen)
+    expect(s.is_image_stub?).to be_truthy
+  end
+
+  specify '#is_image_stub? 2'  do
+    s = FactoryBot.create(:valid_specimen)
+    FactoryBot.create(:valid_type_material, collection_object: s)
+    expect(s.is_image_stub?).to be_falsey
+  end
+
   specify '.query_batch_update() (async)' do
     s1, s2 = Specimen.create!, Specimen.create!
     o = FactoryBot.create(:valid_otu)

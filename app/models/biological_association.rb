@@ -37,7 +37,11 @@ class BiologicalAssociation < ApplicationRecord
   include Shared::Notes
   include Shared::Confidences
   include Shared::Depictions
+  include Shared::AutoUuid
   include Shared::IsData
+
+  include BiologicalAssociation::GlobiExtensions
+  include BiologicalAssociation::DwcExtensions
 
   belongs_to :biological_relationship, inverse_of: :biological_associations
 
@@ -64,16 +68,6 @@ class BiologicalAssociation < ApplicationRecord
   attr_accessor :subject_global_id
   attr_accessor :object_global_id # TODO: this is badly named
 
-  # TODO: Why?! this is just biological_association.biological_association_subject_type
-  def subject_class_name
-    biological_association_subject.try(:class).base_class.name
-  end
-
-  # TODO: Why?! this is just biological_association.biological_association_object_type
-  def object_class_name
-    biological_association_object.try(:class).base_class.name
-  end
-
   def subject_global_id=(value)
     o = GlobalID::Locator.locate(value)
     write_attribute(:biological_association_subject_id, o.id)
@@ -86,16 +80,171 @@ class BiologicalAssociation < ApplicationRecord
     write_attribute(:biological_association_object_type, o.metamorphosize.class.name)
   end
 
-  # @return [ActiveRecord::Relation]
-   #def self.collection_objects_subject_join
-   #  a = arel_table
-   #  b = ::CollectionObject.arel_table
-   #  j = a.join(b).on(a[:biological_association_subject_type].eq('CollectionObject').and(a[:biological_association_subject_id].eq(b[:id])))
-   #  joins(j.join_sources)
-   #end
+  # TODO: Why?! this is just biological_association.biological_association_subject_type
+  def subject_class_name
+    biological_association_subject.try(:class).base_class.name
+  end
+
+  # TODO: Why?! this is just biological_association.biological_association_object_type
+  def object_class_name
+    biological_association_object.try(:class).base_class.name
+  end
+
+  # !! You can not set with this method
+  def subject
+    biological_association_subject
+  end
+
+  # !! You can not set with this method
+  def object
+    biological_association_object
+  end
+
+  class << self
+
+    # @return 
+
+    def batch_update(params)
+      return false if params[:biological_association].blank?
+
+      r = BatchResponse.new
+      r.method = 'batch_update'
+      r.klass = 'BiologicalAssociation'
+      r.preview = params[:preview]
+
+      a = Queries::BiologicalAssociation::Filter.new(params[:biological_association_query])
+      c = a.all.count
+
+      r.total_attempted = c
+
+      v = a.all.pluck(:biological_relationship_id).uniq
+
+      cap = 0
+
+      case v.size
+      when 1
+        if v.first.nil?
+          cap = 10000
+        else
+          cap = 2000
+        end
+      when 2
+        if v.include?(nil)
+          cap = 2000
+        else
+          cap = 25
+        end
+      else
+        cap = 25
+      end
+
+      r.cap = cap
+
+      if c == 0 || c > cap
+        r.cap_reason = 'Too many unique biological relationships.' 
+        return r 
+      end
+
+      BiologicalAssociation.transaction do |b|
+        begin
+          a.all.find_each do |b|
+            b.update!(params[:biological_association])
+            r.updated.push b.id
+          end
+        rescue ActiveRecord::RecordInvalid => e
+          r.not_updated.push e.record.id
+          r.errors[e.message] += 1
+        end
+
+        raise ActiveRecord::Rollback if r.preview
+      end
+
+      return r
+    end
+
+
+    # Rotates subject and object
+    def batch_rotate(params)
+      a = Queries::BiologicalAssociation::Filter.new(params)
+
+      r = BatchResponse.new
+      r.method = 'batch_rotate'
+      r.klass = 'BiologicalAssociation'
+      r.preview = params[:preview]
+
+      c = a.all.count
+
+
+      v = a.all.pluck(:biological_relationship_id).uniq
+
+      cap = 0
+
+      case v.size
+      when 1
+        if v.first.nil?
+          cap = 10000
+        else
+          cap = 2000
+        end
+      when 2
+        if v.include?(nil)
+          cap = 2000
+        else
+          cap = 25
+        end
+      else
+        cap = 25
+      end
+
+      if c == 0 || c > cap
+        r.cap_reason = 'Too many unique biological relationships.' 
+        return r 
+      end
+
+      BiologicalAssociation.transaction do |b|
+        begin
+          a.all.find_each do |b|
+            s = b.biological_association_subject
+            o = b.biological_association_object
+
+            b.update!(
+              biological_association_subject: o,
+              biological_association_object: s,
+              by: params[:by]
+            )
+            r.updated.push b.id
+          end
+
+        rescue ActiveRecord::RecordInvalid => e
+          r.not_updated.push e.record.id
+          r.errors[e.message] += 1
+        end
+
+        raise ActiveRecord::Rollback if r.preview
+      end
+
+      return r 
+    end
+
+  end # end class methods
 
   # @return [ActiveRecord::Relation]
-  def self.targeted_join(target: 'subject', target_class: ::Otu)
+  #def self.collection_objects_subject_join
+  #  a = arel_table
+  #  b = ::CollectionObject.arel_table
+  #  j = a.join(b).on(a[:biological_association_subject_type].eq('CollectionObject').and(a[:biological_association_subject_id].eq(b[:id])))
+  #  joins(j.join_sources)
+  #end
+
+  def dwc_extension_select
+    BiologicalAssociation
+      .joins("LEFT JOIN identifiers id_s ON id_s.identifier_object_type = biological_associations.biological_associations_subject_type AND ids_s.type = 'Identifier::Global::Uuid'" )
+      .joins("LEFT JOIN identifiers id_o ON id_o.identifier_object_type = biological_associations.biological_associations_object_type AND ids_o.type = 'Identifier::Global::Uuid'" )
+      .joins("LEFT JOIN identifiers id_r ON id_o.identifier_object_type = 'BiologicalRelationship' AND idr_.identifier_object_id = biological_associations.biological_relationship_id AND ids_r.type = 'Identifier::Global::Uri'" )
+  end
+
+  # @return [ActiveRecord::Relation]
+  def targeted_join(target: 'subject', target_class: ::Otu)
     a = arel_table
     b = target_class.arel_table
 
@@ -104,7 +253,7 @@ class BiologicalAssociation < ApplicationRecord
   end
 
   # @return [ActiveRecord::Relation]
-  def self.targeted_join2(target: 'subject', target_class: ::Otu)
+  def targeted_join2(target: 'subject', target_class: ::Otu)
     a = arel_table
     b = target_class.arel_table
 
@@ -113,7 +262,7 @@ class BiologicalAssociation < ApplicationRecord
 
   # Not used
   # @return [ActiveRecord::Relation]
-  def self.targeted_left_join(target: 'subject', target_class: ::Otu )
+  def targeted_left_join(target: 'subject', target_class: ::Otu )
     a = arel_table
     b = target_class.arel_table
 
@@ -121,14 +270,15 @@ class BiologicalAssociation < ApplicationRecord
     joins(j.join_sources)
   end
 
-  private
-
-  def biological_association_subject_type_is_allowed
-    errors.add(:biological_association_subject_type, 'is not permitted') unless biological_association_subject && biological_association_subject.class.is_biologically_relatable?
-  end
-
-  def biological_association_object_type_is_allowed
-    errors.add(:biological_association_object_type, 'is not permitted') unless biological_association_object && biological_association_object.class.is_biologically_relatable?
-  end
-
 end
+
+private
+
+def biological_association_subject_type_is_allowed
+  errors.add(:biological_association_subject_type, 'is not permitted') unless biological_association_subject && biological_association_subject.class.is_biologically_relatable?
+end
+
+def biological_association_object_type_is_allowed
+  errors.add(:biological_association_object_type, 'is not permitted') unless biological_association_object && biological_association_object.class.is_biologically_relatable?
+end
+

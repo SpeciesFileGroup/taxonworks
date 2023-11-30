@@ -33,6 +33,7 @@
     :param="param"
     v-model="params"
   />
+  <FacetAncestrify v-model="params" />
   <FacetCoordinatify v-model="params" />
 </template>
 
@@ -53,6 +54,7 @@ import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
 import FacetCoordinatify from '@/components/Filter/Facets/Otu/FacetCoordinatify.vue'
+import FacetAncestrify from '@/components/Filter/Facets/shared/FacetAncestrify.vue'
 
 const WITH_PARAMS = [
   'asserted_distributions',

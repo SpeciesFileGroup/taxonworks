@@ -41,11 +41,7 @@
       </ul>
       <div class="horizontal-left-content middle gap-small">
         <h2 v-html="otu.object_tag" />
-        <browse-taxon
-          v-if="otu.taxon_name_id"
-          ref="browseTaxon"
-          :object-id="otu.taxon_name_id"
-        />
+        <quick-forms :global-id="otu.global_id" />
         <radial-annotator
           :global-id="otu.global_id"
           type="annotations"
@@ -54,7 +50,11 @@
           :global-id="otu.global_id"
           type="annotations"
         />
-        <quick-forms :global-id="otu.global_id" />
+        <browse-taxon
+          v-if="otu.taxon_name_id"
+          ref="browseTaxon"
+          :object-id="otu.taxon_name_id"
+        />
         <button
           v-if="isInvalid"
           v-help.section.header.validButton

@@ -40,6 +40,7 @@
           v-model="selectedIds"
           radial-object
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         >
           <template #buttons-left="{ item }">
             <AddToProject

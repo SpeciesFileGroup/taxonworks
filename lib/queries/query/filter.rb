@@ -199,10 +199,10 @@ module Queries
       @recent = boolean_param(query_params, :recent)
       @object_global_id = query_params[:object_global_id]
 
-       # !! This is the *only* place Current.project_id should be seen !! It's still not the best
-       # way to implement this, but we use it to optimize the scope of sub/nested-queries efficiently.
-       # Ideally we'd have a global class param that stores this that all Filters would have access to,
-       # rather than an instance variable.
+      # !! This is the *only* place Current.project_id should be seen !! It's still not the best
+      # way to implement this, but we use it to optimize the scope of sub/nested-queries efficiently.
+      # Ideally we'd have a global class param that stores this that all Filters would have access to,
+      # rather than an instance variable.
       @project_id = query_params[:project_id] || Current.project_id
 
       @paginate = boolean_param(query_params, :paginate)
@@ -411,9 +411,11 @@ module Queries
     # @params params [Hash]
     #   set all nested queries variables, e.g. @otu_filter_query
     # @return True
+    # TODO: when a nesting problem is found we need to flag the query as invalid
     def set_nested_queries(params)
+
       if n = params.select{|k, p| k.to_s =~ /_query/ }
-        return nil if n.keys.count != 1 # can't have multiple nested queries inside one level
+        return nil if n.keys.count != 1 # !!! can't have multiple nested queries inside one level !!! This lets us eliminate infinite loops at the cost of expressiveness?!
 
         query_name = n.first.first
 

@@ -183,7 +183,7 @@ class UsersController < ApplicationController
   def set_user
     own_id = (params[:id].to_i == sessions_current_user_id)
 
-    @user = User.find((is_superuser? || own_id) ? params[:id] : nil)
+    @user = User.find((is_administrator? || own_id) ? params[:id] : nil)
     @recent_object = @user
   end
 

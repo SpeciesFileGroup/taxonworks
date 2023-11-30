@@ -23,7 +23,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
       content = ''
       Zip::File.open(zip_path) do |zip_file|
         zip_file.each do |entry|
-          if entry.name == 'data.csv' && entry.file?
+          if entry.name == 'data.tsv' && entry.file?
             content = entry.get_input_stream.read
           end
         end
@@ -51,16 +51,16 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
     scope = DwcOccurrence.where(project_id:)
 
-    predicate_extension_params = {
+    predicate_extensions = {
       collection_object_predicate_id: [p1.id, p2.id],
       collecting_event_predicate_id: [p3.id] }
 
     download = Export::Dwca.download_async(
       scope,
-      predicate_extension_params:
+      predicate_extensions:
     )
 
-    ::DwcaCreateDownloadJob.perform_now(download, core_scope: scope, predicate_extension_params:)
+    ::DwcaCreateDownloadJob.perform_now(download, core_scope: scope, predicate_extensions:)
 
     tbl = extract_data_csv_table(download.file_path)
 

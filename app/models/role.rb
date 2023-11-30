@@ -131,7 +131,7 @@ class Role < ApplicationRecord
 
   def set_role_object_cached
     becomes(type.constantize).cached_trigger_methods(role_object).each do |m|
-      role_object.send(m)
+      role_object.send(m) unless role_object.destroyed?
     end
   end
 

@@ -40,6 +40,10 @@ module Shared::IsData
       self < Shared::BiologicalAssociations
     end
 
+    def auto_uuids?
+      self < Shared::AutoUuid
+    end
+
     # @return [Array of String]
     #   only the non-cached and non-housekeeping column names
     def core_attributes # was data_attributes

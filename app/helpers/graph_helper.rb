@@ -1,5 +1,22 @@
 module GraphHelper
 
+  def objects_graph(object_scope)
+    g = initialize_graph(nil, nil, nil)
+
+    object_scope.each do |o|
+
+      case o.class.base_class.name
+      when 'BiologicalAssociation'
+        biological_association_graph(o, graph: g)
+      else
+        next
+      end
+    end
+
+    g
+  end
+
+
   def object_graph(object)
     return nil if object.nil?
 
@@ -22,6 +39,8 @@ module GraphHelper
       source_graph(object, citations: true, authors: true, editors: true).to_json
     when 'Image'
       image_graph(object, citations: true, depictions: true).to_json
+    when 'BiologicalAssociation'
+      biological_association_graph(object).to_json
     else
       g = Export::Graph.new( object: )
       g.to_json
@@ -193,6 +212,19 @@ module GraphHelper
     g
   end
 
+  def biological_association_graph(biological_association, graph: nil, target: nil)
+    b = biological_association
+    return nil if b.nil?
+
+    g = initialize_graph(graph, nil, target)
+
+    g.add_node(b.biological_association_subject, citations: false)
+    g.add_node(b.biological_association_object, citations: false)
+
+    g.add_edge(b.biological_association_subject, b.biological_association_object, edge_label: b.biological_relationship.name)
+    g
+  end
+
   def otu_graph(otu, graph: nil, target: nil, collection_objects: false, taxon_name: true, synonymy: false, biological_associations: true, asserted_distributions: true )
     o = otu
     return nil if o.nil?
@@ -285,8 +317,8 @@ module GraphHelper
 
     if taxon_determinations
       c.taxon_determinations.each do |d|
-          taxon_determination_graph(d, graph: g, target: c, taxon_names: true)
-        end
+        taxon_determination_graph(d, graph: g, target: c, taxon_names: true)
+      end
     end
 
     if biological_associations

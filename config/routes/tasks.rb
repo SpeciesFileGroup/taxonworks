@@ -383,6 +383,39 @@ scope :tasks do
     scope :dot, controller: 'tasks/biological_associations/dot' do
       get 'by_project/:project_id', action: :project_dot_graph, as: :biological_associations_dot_graph_task
     end
+
+    scope :dwc_extension_preview, controller: 'tasks/biological_associations/dwc_extension_preview' do
+      get '/', action: :index, as: 'biological_associations_dwc_extension_preview_task'
+      post '/', action: :index
+    end
+
+    scope :simple_table, controller: 'tasks/biological_associations/simple_table' do
+      get '/', action: :index, as: 'biological_associations_simple_table_task'
+      post '/', action: :index
+    end
+
+    scope :globi_preview, controller: 'tasks/biological_associations/globi_preview' do
+      get '/', action: :index, as: 'biological_associations_globi_preview_task'
+      post '/', action: :index
+    end
+
+    scope :family_summary, controller: 'tasks/biological_associations/family_summary' do
+      get '/', action: :index, as: 'biological_associations_family_summary_task'
+      post '/', action: :index
+    end
+
+    scope :graph, controller: 'tasks/biological_associations/graph' do
+      get '/', action: :index, as: 'biological_associations_graph_task'
+      post 'data', action: :data, defaults: {format: :json}
+      get  :data, defaults: {format: :json}
+    end
+
+    scope :summary, controller: 'tasks/biological_associations/summary' do
+      get '/', action: :index, as: 'biological_associations_graph_summary'
+      post 'data', action: :data, defaults: {format: :json}
+      get  :data, defaults: {format: :json}
+    end
+
   end
 
   scope :biological_relationships do

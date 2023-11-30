@@ -403,7 +403,7 @@ module CollectionObject::DwcExtensions
 
   # Definition: A list (concatenated and separated) of names of people, groups, or organizations responsible for recording the original Occurrence. The primary collector or observer, especially one who applies a personal identifier (recordNumber), should be listed first.
   #
-  # This was interpreted as collectors (in the field in this context), not those who recorded other aspectes of the data.
+  # This was interpreted as collectors (in the field in this context), not those who recorded other aspects of the data.
   def dwc_recorded_by
     v = nil
     if collecting_event
@@ -418,8 +418,8 @@ module CollectionObject::DwcExtensions
   end
 
   # See dwc_recorded_by
+  # TODO: Expand to any GlobalIdentifier
   def dwc_recorded_by_id
-
     if collecting_event
       collecting_event.collectors
         .order('roles.position')
@@ -428,7 +428,6 @@ module CollectionObject::DwcExtensions
         .join(CollectionObject::DWC_DELIMITER)
         .presence
     end
-
   end
 
   def dwc_identified_by

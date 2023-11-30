@@ -1,6 +1,11 @@
 import { BiologicalAssociation } from '@/routes/endpoints'
 
-const extend = ['origin_citation', 'object', 'biological_relationship']
+const extend = [
+  'origin_citation',
+  'object',
+  'biological_relationship',
+  'biological_relationship_types'
+]
 
 export default ({
   commit,
@@ -16,11 +21,11 @@ export default ({
           subject_global_id: collection_object.global_id
         }
 
-        BiologicalAssociation.create({ biological_association, extend }).then(
-          (response) => {
+        BiologicalAssociation.create({ biological_association, extend })
+          .then((response) => {
             biologicalAssociations[index] = response.body
-          }
-        )
+          })
+          .catch(() => {})
       }
     })
 

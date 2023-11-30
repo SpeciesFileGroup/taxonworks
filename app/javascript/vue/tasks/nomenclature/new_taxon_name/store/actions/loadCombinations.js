@@ -1,5 +1,6 @@
-import { Combination, TaxonName } from '@/routes/endpoints'
+import { TaxonName } from '@/routes/endpoints'
 import { combinationIcnType } from '../../const/combinationTypes'
+import { COMBINATION } from '@/constants'
 
 const extend = ['protonyms', 'origin_citation', 'roles']
 const ranks = [
@@ -8,19 +9,26 @@ const ranks = [
 ].reverse()
 
 export default ({ state, dispatch }, id) => {
-  TaxonName.where({ combination_taxon_name_id: [id] }).then(({ body }) => {
-    const requests = body.map((taxon) => Combination.find(taxon.id, { extend }))
+  TaxonName.all({
+    combination_taxon_name_id: [id],
+    taxon_name_type: COMBINATION,
+    extend: ['protonyms']
+  }).then(({ body }) => {
+    const combinations = body.filter(({ protonyms }) => {
+      const lastRank = ranks.find((rank) => protonyms[rank])
 
-    Promise.all(requests).then((responses) => {
-      const combinations = responses.map(({ body }) => body)
-
-      state.combinations = combinations.filter(({ protonyms }) => {
-        const lastRank = ranks.find((rank) => protonyms[rank])
-
-        return protonyms[lastRank].id === id
-      })
-
-      dispatch('loadSoftValidation', 'combinations')
+      return protonyms[lastRank].id === id
     })
+
+    if (combinations.length) {
+      TaxonName.all({
+        taxon_name_id: combinations.map((c) => c.id),
+        taxon_name_type: COMBINATION,
+        extend
+      }).then(({ body }) => {
+        state.combinations = body
+        dispatch('loadSoftValidation', 'combinations')
+      })
+    }
   })
 }

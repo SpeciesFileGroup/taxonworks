@@ -19,7 +19,7 @@
 #
 # @!attribute translated_from_serial_id
 #   @return [Integer]
-#     the id of the serial that this serial is a direct translation of 
+#     the id of the serial that this serial is a direct translation of
 #
 # @!attribute publisher
 #   @return [String]
@@ -82,7 +82,7 @@ class Serial < ApplicationRecord
        compared_string[0..250]])
 
     Serial.where('id <> ?', self.to_param)
-      .order(Arel.sql(order_str)) 
+      .order(Arel.sql(order_str))
       .limit(limit)
   end
 
@@ -94,7 +94,7 @@ class Serial < ApplicationRecord
       ret_val = Serial.exists?(name: self.name)
     else
       name_str = ActiveRecord::Base.send(
-        :sanitize_sql_array, 
+        :sanitize_sql_array,
         ['name = ? AND NOT (id = ?)',
          Utilities::Strings.escape_single_quote(self.name),
          self.id])
@@ -162,7 +162,7 @@ class Serial < ApplicationRecord
 
     Serial.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['serial_id'].eq(p['id'])))
-    ).pluck(:id).uniq
+    ).pluck(:serial_id).uniq
   end
 
   def self.select_optimized(user_id, project_id)

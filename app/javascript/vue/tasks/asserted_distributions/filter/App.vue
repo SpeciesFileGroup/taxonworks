@@ -36,6 +36,7 @@
           :attributes="ATTRIBUTES"
           :list="list"
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>

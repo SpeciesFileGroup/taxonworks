@@ -7,7 +7,7 @@
       model="predicates"
       buttons
       inline
-      klass="DataAttribute"
+      :klass="objectType"
       :custom-list="{ all }"
       :lock-view="false"
       :filter-ids="list.map((item) => item.controlled_vocabulary_term_id)"

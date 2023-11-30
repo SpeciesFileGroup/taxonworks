@@ -6,7 +6,8 @@ const ActionNames = {
   FlipPeople: 'flipPeople',
   MergePeople: 'mergePeople',
   ProcessMerge: 'processMerge',
-  ResetStore: 'resetStore'
+  ResetStore: 'resetStore',
+  RemovePerson: 'removePerson'
 }
 
 export default ActionNames

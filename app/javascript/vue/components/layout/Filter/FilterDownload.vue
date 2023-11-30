@@ -43,6 +43,7 @@ import { flatten } from '@json2csv/transforms'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import csvButton from '@/components/csvButton.vue'
+import DOMPurify from 'dompurify'
 
 const props = defineProps({
   list: {
@@ -61,12 +62,37 @@ const props = defineProps({
   }
 })
 
+function stringFormatter(opts = {}) {
+  const quote = typeof opts.quote === 'string' ? opts.quote : '"'
+  const escapedQuote =
+    typeof opts.escapedQuote === 'string'
+      ? opts.escapedQuote
+      : `${quote}${quote}`
+
+  if (!quote || quote === escapedQuote) {
+    return (value) => sanatizeValue(value)
+  }
+
+  return (value) => {
+    if (value.includes(quote)) {
+      value = value.replace(new RegExp(quote, 'g'), escapedQuote)
+    }
+
+    return `${quote}${sanatizeValue(value)}${quote}`
+  }
+}
+
+function sanatizeValue(value) {
+  return DOMPurify.sanitize(value, { USE_PROFILES: { html: false } })
+}
+
 const CSV_DOWNLOAD = {
   label: 'CSV',
   component: csvButton,
   bind: {
     options: {
       transforms: [flatten({ object: true, array: true, separator: '_' })],
+      formatters: { string: stringFormatter() },
       ...props.csvOptions
     }
   }

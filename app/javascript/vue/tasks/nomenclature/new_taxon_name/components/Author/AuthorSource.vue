@@ -24,13 +24,15 @@
       <div class="flex-separate middle">
         <p>
           <span
-            target="_blank"
+            class="break_words"
             v-html="citation.source.cached"
           />
-          <soft-validation
-            :validate-object="citation"
-            :global-id="citation.global_id"
-          />
+          <span class="padding-xsmall">
+            <soft-validation
+              :validate-object="citation"
+              :global-id="citation.global_id"
+            />
+          </span>
         </p>
         <div class="horizontal-left-content gap-small">
           <citation-pages

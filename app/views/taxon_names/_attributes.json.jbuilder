@@ -60,3 +60,15 @@ if extend_response_with('type_taxon_name_relationship')
   end
 end
 
+if extend_response_with('protonyms')
+   if taxon_name.is_a?(Combination)
+    json.protonyms do
+      taxon_name.combination_relationships.each do |r|
+        json.set! r.rank_name do
+          json.taxon_name_relationship_id r.id
+          json.partial! '/taxon_names/attributes', taxon_name: r.subject_taxon_name 
+        end
+      end
+    end
+  end
+end
