@@ -39,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- CachedMaps of ancestors are set for rebuild when a descendant Georeference or AssertedDistribution is created
 - Radial annotator: Move selected source to the bottom in citation form [#3652]
 - DwC Occurrence importer: more helpful protonym, institution error messages
 - Filter interfaces: remove items from list instead redirect to data view [#3659]
