@@ -63,6 +63,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC Checklist importer: empty `scientificNameAuthorship` field would cause row to error [#3660]
 - DwC Checklist importer: subsequent combinations with synonym status whose parents are synonyms would cause row to error
 - Could not set Repository Index Herbariorum flag in interface
+- Uniquify People: autocomplete would not select people for merging if already present in Match people table
 
 ### Changed
 
