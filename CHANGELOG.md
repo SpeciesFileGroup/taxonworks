@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Staged image CollectionObjects are destroy if a) stubs and b) depictions are removed from them to another CollectionObject [#3172]
 - `/api/v1/biological_associations/123/globi` (preview experiment)
 - `/api/v1/biological_associations/123/resource_relationship` (preview experiment)
 - BiologicalAssociations as raw TaxonWorks data`/api/v1/biological_associations.csv`
@@ -68,6 +69,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New BiologicalAssociation defaults to task, not old form
 - Extracted CSV generating code to lib/export/csv
 
+[#3172]: https://github.com/SpeciesFileGroup/taxonworks/issues/3172
 [#1946]: https://github.com/SpeciesFileGroup/taxonworks/issues/1946
 [#2554]: https://github.com/SpeciesFileGroup/taxonworks/issues/2554
 [#3365]: https://github.com/SpeciesFileGroup/taxonworks/issues/3365

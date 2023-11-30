@@ -65,6 +65,8 @@ class Depiction < ApplicationRecord
   after_update :remove_media_observation2, if: Proc.new {|d| d.depiction_object_type_previously_was == 'Observation' && d.depiction_object.type_was == 'Observation::Media' }
   after_destroy :remove_media_observation, if: Proc.new {|d| d.depiction_object_type == 'Observation' && d.depiction_object.type == 'Observation::Media' }
 
+  after_update :destroy_image_stub_collection_object, if: Proc.new {|d| d.depiction_object_type_previously_was == 'CollectionObject' && d.depiction_object_type == 'CollectionObject' }
+
   def from_sled?
     !sled_image_id.nil?
   end
@@ -103,6 +105,17 @@ class Depiction < ApplicationRecord
   def remove_media_observation
     if depiction_object.depictions.size == 0
       depiction_object.destroy!
+    end
+  end
+
+  def destroy_image_stub_collection_object
+    if sqed_depiction.present? 
+      if v = depiction_object_id_previously_was
+        o = CollectionObject.find(v)
+        if o.is_image_stub?
+          o.destroy!
+        end
+      end
     end
   end
 

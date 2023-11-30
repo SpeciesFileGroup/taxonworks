@@ -264,62 +264,6 @@ class CollectionObject < ApplicationRecord
     breakdown
   end
 
-  # TODO: Deprecate.  Used?!
-  # @param [Scope] scope of selected CollectionObjects
-  # @param [Hash] col_defs selected headers and types
-  # @param [Hash] table_data (optional)
-  # @return [CSV] tab-separated data
-  # Generate the CSV (tab-separated) data for the file to be sent, substitute for new-lines and tabs
-  def self.generate_report_download(scope, col_defs, table_data = nil)
-    CSV.generate do |csv|
-      row = CO_OTU_HEADERS
-      unless col_defs.nil?
-        %w(ce co bc).each { |column_type|
-          items = []
-          unless col_defs[column_type.to_sym].nil?
-            unless col_defs[column_type.to_sym][:in].nil?
-              items.push(col_defs[column_type.to_sym][:in].keys)
-            end
-            unless col_defs[column_type.to_sym][:im].nil?
-              items.push(col_defs[column_type.to_sym][:im].keys)
-            end
-          end
-          row += items.flatten
-        }
-      end
-      csv << row
-      if table_data.nil?
-        scope.order(id: :asc).each do |c_o|
-          row = [c_o.otu_id,
-                 c_o.otu_name,
-                 c_o.name_at_rank_string(:family),
-                 c_o.name_at_rank_string(:genus),
-                 c_o.name_at_rank_string(:species),
-                 c_o.collecting_event.country_name,
-                 c_o.collecting_event.state_name,
-                 c_o.collecting_event.county_name,
-                 c_o.collecting_event.verbatim_locality,
-                 c_o.collecting_event.georeference_latitude.to_s,
-                 c_o.collecting_event.georeference_longitude.to_s
-          ]
-          row += ce_attributes(c_o, col_defs)
-          row += co_attributes(c_o, col_defs)
-          row += bc_attributes(c_o, col_defs)
-          csv << row.collect { |item|
-            item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-          }
-
-        end
-      else
-        table_data.each_value { |value|
-          csv << value.collect { |item|
-            item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-          }
-        }
-      end
-    end
-  end
-
   # TODO: this should be refactored to be collection object centric AFTER
   # it is spec'd
   def self.earliest_date(project_id)
@@ -744,6 +688,28 @@ class CollectionObject < ApplicationRecord
   def sv_missing_biocuration_classification
     # see biological_collection_object
   end
+
+  # See Depiction#destroy_image_stub_collection_object
+  # Used to determin if the CO can be
+  # destroy after moving an image off
+  # this object.
+  def is_image_stub?
+    r = [ 
+      collecting_event_id.blank?,
+      !depictions.reload.any?,
+      identifiers.count <= 1,
+      !taxon_determinations.any?,
+      !type_materials.any?,
+      !citations.any?,
+      !data_attributes.any?,
+      !notes.any?,
+      !observations.any?
+    ]
+
+   !r.include?(false)
+
+  end
+
 
   protected
 
