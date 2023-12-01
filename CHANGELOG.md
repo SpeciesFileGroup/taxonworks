@@ -47,6 +47,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial annotator: Move selected source to the bottom in citation form [#3652]
 - DwC Occurrence importer: more helpful protonym, institution error messages
 - Filter interfaces: remove items from list instead redirect to data view [#3659]
+- New BiologicalAssociation defaults to task, not old form
+- Extracted CSV generating code to lib/export/csv
 
 ### Fixed
 
@@ -69,11 +71,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC Checklist importer: subsequent combinations with synonym status whose parents are synonyms would cause row to error
 - Could not set Repository Index Herbariorum flag in interface
 - Uniquify People: autocomplete would not select people for merging if already present in Match people table
-
-### Changed
-
-- New BiologicalAssociation defaults to task, not old form
-- Extracted CSV generating code to lib/export/csv
 
 [#3172]: https://github.com/SpeciesFileGroup/taxonworks/issues/3172
 [#1946]: https://github.com/SpeciesFileGroup/taxonworks/issues/1946
