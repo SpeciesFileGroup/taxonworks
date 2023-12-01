@@ -46,29 +46,9 @@ function getAllCollectingEvents(taxonNames) {
   })
 }
 
-function getAllGeoreferences(CEIds) {
-  return new Promise((resolve, reject) => {
-    const chunks = chunkArray(CEIds, MAX_PER_CALL)
-    const georeferences = []
-    const promises = []
-
-    if (chunks.length) {
-      chunks.forEach((ids) => {
-        promises.push(
-          Georeference.all({ collecting_event_id: ids }).then((response) => {
-            georeferences.push(response.body)
-          })
-        )
-      })
-    }
-
-    Promise.all(promises).then(() => {
-      resolve([].concat(...georeferences))
-    })
-  })
-}
-
 export default ({ commit, state }, otu) => {
+  if (!otu.taxon_name_id) return
+
   const params = {
     taxon_name_id: [otu.taxon_name_id],
     descendants: true,
@@ -87,18 +67,6 @@ export default ({ commit, state }, otu) => {
         (tn) => tn.id !== otu.taxon_name_id
       )
 
-      /*       getAllCollectingEvents(descendants.taxon_names).then(
-        (collectingEvents) => {
-          descendants.collecting_events = collectingEvents
-          getAllGeoreferences(collectingEvents.map((ce) => ce.id)).then(
-            (georeferences) => {
-              state.loadState.descendantsDistribution = false
-              descendants.georeferences = georeferences
-              commit(MutationNames.SetDescendants, descendants)
-            }
-          )
-        }
-      ) */
       commit(MutationNames.SetDescendants, descendants)
       state.loadState.descendantsDistribution = false
     })

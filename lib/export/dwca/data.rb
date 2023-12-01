@@ -26,9 +26,17 @@ module Export::Dwca
 
     attr_accessor :zipfile
 
+    # @return [Scope]
+    #  Required.  Of DwcOccurrence
     attr_accessor :core_scope
 
-    attr_accessor :biological_extension_scope
+    # @return [Scope, nil]
+    #   Returning BiologicalAssociation
+    attr_accessor :biological_associations_extension
+
+    # @return [Scope, nil]
+    #   @return Image(?) 
+    attr_accessor :media_extension
 
     attr_accessor :total #TODO update
 
@@ -44,13 +52,39 @@ module Export::Dwca
     attr_accessor :all_data
 
     # @param [Hash] args
-    def initialize(core_scope: nil, extension_scopes: {}, predicate_extension_params: {} )
-      # raise ArgumentError, 'must pass a core_scope' if !record_core_scope.kind_of?( ActiveRecord::Relation )
-      @core_scope = get_scope(core_scope)
-      @biological_extension_scope = extension_scopes[:biological_extension_scope] #  = get_scope(core_scope)
+    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {} )
+      raise ArgumentError, 'must pass a core_scope' if core_scope.nil?
 
-      @data_predicate_ids = { collection_object_predicate_id: [], collecting_event_predicate_id: [] }.merge(predicate_extension_params)
+      @core_scope = core_scope
+
+      @biological_associations_extension = extension_scopes[:biological_associations] #! STring
+      @media_extension = extension_scopes[:media] #  = get_scope(core_scope)
+
+      @data_predicate_ids = { collection_object_predicate_id: [], collecting_event_predicate_id: [] }.merge(predicate_extensions)
     end
+
+    # !params core_scope [String, ActiveRecord::Relation]
+    #   String is fully formed SQL
+    def core_scope
+      if @core_scope.kind_of?(String)
+        ::DwcOccurrence.from('(' + @core_scope + ') as dwc_occurrences')
+      elsif @core_scope.kind_of?(ActiveRecord::Relation)
+        @core_scope
+      else
+        raise ArgumentError, 'Scope is not a SQL string or ActiveRecord::Relation'
+      end
+    end
+
+    def biological_associations_extension
+      return nil unless @biological_associations_extension.present?
+      if @biological_associations_extension.kind_of?(String)
+        ::BiologicalAssociation.from('(' + @biological_associations_extension + ') as biological_associations')
+      elsif @biological_associations_extension.kind_of?(ActiveRecord::Relation)
+        @biological_associations_extension
+      else
+        raise ArgumentError, 'Scope is not a SQL string or ActiveRecord::Relation'
+      end
+    end 
 
     def predicate_options_present?
       data_predicate_ids[:collection_object_predicate_id].present? || data_predicate_ids[:collecting_event_predicate_id].present?
@@ -63,7 +97,7 @@ module Export::Dwca
     # @return [CSV]
     #   the data as a CSV object
     def csv
-      ::Export::Download.generate_csv(
+      ::Export::Csv.generate_csv(
         core_scope.computed_columns,
         # TODO: check to see if we nee dthis
         exclude_columns: ::DwcOccurrence.excluded_columns,
@@ -90,7 +124,7 @@ module Export::Dwca
         content = csv
       end
 
-      @data = Tempfile.new('data.csv')
+      @data = Tempfile.new('data.tsv')
       @data.write(content)
       @data.flush
       @data.rewind
@@ -133,7 +167,7 @@ module Export::Dwca
 
       # if no predicate data found, return empty file
       if used_predicates.empty?
-        @predicate_data = Tempfile.new('predicate_data.csv')
+        @predicate_data = Tempfile.new('predicate_data.tsv')
         return @predicate_data
       end
 
@@ -173,7 +207,7 @@ module Export::Dwca
 
       content = tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
 
-      @predicate_data = Tempfile.new('predicate_data.csv')
+      @predicate_data = Tempfile.new('predicate_data.tsv')
       @predicate_data.write(content)
       @predicate_data.flush
       @predicate_data.rewind
@@ -184,7 +218,7 @@ module Export::Dwca
     def all_data
       return @all_data if @all_data
 
-      @all_data = Tempfile.new('data.csv')
+      @all_data = Tempfile.new('data.tsv')
 
       join_data = [data]
 
@@ -235,7 +269,7 @@ module Export::Dwca
         ) {
           xml.dataset {
             xml.alternateIdentifier identifier
-            xml.title("STUB YOUR TITLE HERE")['xmlns:lang'] = 'en'
+            xml.title('STUB YOUR TITLE HERE')['xmlns:lang'] = 'en'
             xml.creator {
               xml.individualName {
                 xml.givenName 'STUB'
@@ -284,7 +318,7 @@ module Export::Dwca
               xml.gbif {
                 xml.dateStamp DateTime.parse(Time.now.to_s).to_s
                 xml.hierarchyLevel 'dataset'
-                xml.citation("STUB DATASET")[:identifier] = 'Identifier STUB'
+                xml.citation('STUB DATASET')[:identifier] = 'Identifier STUB'
                 xml.resourceLogoUrl 'SOME RESOURCE LOGO URL'
                 xml.formationPeriod 'SOME FORMATION PERIOD'
                 xml.livingTimePeriod 'SOME LIVING TIME PERIOD'
@@ -300,27 +334,22 @@ module Export::Dwca
       @eml
     end
 
-    def biological_resource_relationship
-      return nil if biological_extension_scope.nil?
-      @biological_resource_relationship = Tempfile.new('biological_resource_relationship.xml')
+    def biological_associations_resource_relationship
+      return nil if biological_associations_extension.nil?
+      @biological_associations_resource_relationship = Tempfile.new('biological_resource_relationship.xml')
 
       content = nil
+
       if no_records?
         content = "\n"
       else
-        content = ::Export::Download.generate_csv(
-          biological_extension_scope.computed_columns,
-          #          exclude_columns: []
-          trim_columns: false,
-          trim_rows: false,
-          header_converters: []
-        )
+        content = Export::Csv::Dwc::Extension::BiologicalAssociations.csv(biological_associations_extension)
       end
 
-      @biological_resource_relationship.write(content)
-      @biological_resource_relationship.flush
-      @biological_resource_relationship.rewind
-      @biological_resource_relationship
+      @biological_associations_resource_relationship.write(content)
+      @biological_associations_resource_relationship.flush
+      @biological_associations_resource_relationship.rewind
+      @biological_associations_resource_relationship
     end
 
     # @return [Array]
@@ -343,7 +372,7 @@ module Export::Dwca
         xml.archive('xmlns' => 'http://rs.tdwg.org/dwc/text/') {
           xml.core(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/dwc/terms/Occurrence') {
             xml.files {
-              xml.location 'data.csv'
+              xml.location 'data.tsv'
             }
             xml.id(index: 0)
             meta_fields.each_with_index do |h,i|
@@ -368,7 +397,11 @@ module Export::Dwca
       Zip::OutputStream.open(t) { |zos| }
 
       Zip::File.open(t.path, Zip::File::CREATE) do |zip|
-        zip.add('data.csv', all_data.path)
+        zip.add('data.tsv', all_data.path)
+
+        zip.add('media.csv', media.path) if media_extension
+        zip.add('resource_relationships.tsv', biological_associations_resource_relationship.path) if biological_associations_extension
+
         zip.add('meta.xml', meta.path)
         zip.add('eml.xml', eml.path)
       end
@@ -402,6 +435,12 @@ module Export::Dwca
       eml.unlink
       data.close
       data.unlink
+    
+      if biological_associations_extension
+        biological_associations_resource_relationship.close
+        biological_associations_resource_relationship.unlink
+      end
+      
       if predicate_options_present?
         predicate_data.close
         predicate_data.unlink
@@ -409,18 +448,6 @@ module Export::Dwca
       all_data.close
       all_data.unlink
       true
-    end
-
-    # !params core_scope [String, ActiveRecord::Relation]
-    #   String is fully formed SQL
-    def get_scope(scope)
-      if scope.kind_of?(String)
-        DwcOccurrence.from('(' + scope + ') as dwc_occurrences')
-      elsif scope.kind_of?(ActiveRecord::Relation)
-        scope
-      else
-        raise ArgumentError, 'Scope is not a SQL string or ActiveRecord::Relation'
-      end
     end
 
     # @param download [Download instance]

@@ -82,9 +82,16 @@ module SourcesHelper
     #        return content_tag(:span,  content_tag(:em, ' in ') + b, class: [:history__in])
   end
 
+  # @return [String] no HTML
   def short_sources_tag(sources)
     return nil if !sources.load.any?
     sources.collect{|s| source_author_year_tag(s) }.join('; ')
+  end
+
+  # @return [String] no HTML
+  def short_sources_year_tag(sources)
+    return nil if !sources.load.any?
+    sources.collect{|s| s.year }.compact.sort.join('; ')
   end
 
   def source_document_viewer_option_tag(source)

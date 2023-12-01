@@ -4,7 +4,7 @@ import ActionNames from './actionNames'
 
 export default ({ commit, dispatch, state }, personId) => {
   state.requestState.isLoading = true
-  People.find(personId, { extend: ['roles'] })
+  People.find(personId, { extend: ['roles', 'role_counts'] })
     .then(({ body }) => {
       commit(MutationNames.SetSelectedPerson, body)
       commit(MutationNames.AddPersonToFoundList, body)

@@ -7,7 +7,7 @@ const permitParams = {
     acronym: String,
     status: String,
     institutional_LSID: String,
-    is_index_herbarioum_record: Boolean
+    is_index_herbariorum: Boolean
   }
 }
 

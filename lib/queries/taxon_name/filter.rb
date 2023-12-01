@@ -11,6 +11,7 @@ module Queries
 
       PARAMS = [
         :ancestors,
+        :ancestrify,
         :author,
         :author_exact,
         :authors,
@@ -66,6 +67,12 @@ module Queries
       # @return Boolean
       #   Ignored when taxon_name_id[].empty?  Works as AND clause with descendants :(
       attr_accessor :ancestors
+
+      # @param ancestrify [Boolean]
+      #   true - extend result to include all ancestors of names in the result along with the result
+      #   false/nil - ignore
+      # !! This parameter is not like the others, it is applied POST result, see also synonymify and validify, etc.
+      attr_accessor :ancestrify
 
       # @param collection_object_id[String, Array]
       # @return Array
@@ -281,6 +288,7 @@ module Queries
         super
 
         @ancestors = boolean_param(params, :ancestors)
+        @ancestrify = boolean_param(params, :ancestrify)
         @author = params[:author]
         @author_exact = boolean_param(params, :author_exact)
         @authors = boolean_param(params, :authors)
@@ -637,10 +645,10 @@ module Queries
       def name_facet
         return nil if name.empty?
         if name_exact
-          table[:cached].eq_any(name)
+          table[:cached].eq_any(name).or(table[:cached_original_combination].eq_any(name))
           #  table[:cached].eq(name.strip).or(table[:cached_original_combination].eq(name.strip))
         else
-          table[:cached].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' })
+          table[:cached].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' }).or(table[:cached_original_combination].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' }))
         end
       end
 
@@ -763,7 +771,7 @@ module Queries
 
         b = ::TaxonName
           .joins(:otus)
-          .joins("JOIN query_tn_ba as query_tn_ba2 on query_tn_ba2.biological_association_object_id = otus.id AND query_tn_ba2.biological_association_subject_type = 'Otu'").to_sql
+          .joins("JOIN query_tn_ba as query_tn_ba2 on query_tn_ba2.biological_association_object_id = otus.id AND query_tn_ba2.biological_association_object_type = 'Otu'").to_sql
 
         s << ::TaxonName.from("((#{a}) UNION (#{b})) as taxon_names").to_sql
 
@@ -859,6 +867,20 @@ module Queries
         referenced_klass_union([q, a])
       end
 
+      def ancestrify_result(q)
+        s = 'WITH tn_result_query_anc AS (' + q.to_sql + ') ' +
+            ::TaxonName
+              .joins('JOIN taxon_name_hierarchies tnh on tnh.ancestor_id = taxon_names.id')
+              .joins('JOIN tn_result_query_anc as tn_result_query_anc1 on tn_result_query_anc1.id = tnh.descendant_id')
+              .distinct
+              .to_sql
+
+        # !! Do not use .distinct here
+        a = ::TaxonName.from('(' + s + ') as taxon_names')
+
+        a
+      end
+
       def order_clause(query)
         case sort
         when 'alphabetical'
@@ -884,6 +906,9 @@ module Queries
         q = combinationify_result(q) if combinationify
         q = synonimify_result(q) if synonymify
         q = order_clause(q) if sort
+
+        q = ancestrify_result(q) if ancestrify
+
         q
       end
     end

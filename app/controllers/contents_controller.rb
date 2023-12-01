@@ -112,7 +112,7 @@ class ContentsController < ApplicationController
   # GET /contents/download
   def download
     send_data(
-      Export::Download.generate_csv(::Content.where(project_id: sessions_current_project_id)),
+      Export::Csv.generate_csv(::Content.where(project_id: sessions_current_project_id)),
       type: 'text',
       filename: "contents_#{DateTime.now}.tsv")
   end

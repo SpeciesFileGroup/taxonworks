@@ -1082,6 +1082,10 @@ class CollectingEvent < ApplicationRecord
     values = get_geographic_name_classification
 
     if values.empty?
+      update_columns(
+        cached_level0_geographic_name: nil,
+        cached_level1_geographic_name: nil,
+        cached_level2_geographic_name: nil)
       @geographic_names = {}
     else
       update_columns(

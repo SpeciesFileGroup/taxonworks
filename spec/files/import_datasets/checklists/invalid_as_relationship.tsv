@@ -1,0 +1,4 @@
+taxonID	parentNameUsageID	acceptedNameUsageID	originalNameUsageID	scientificNameID	datasetID	taxonomicStatus	taxonRank	scientificName	scientificNameAuthorship	col:notho	genericName	infragenericEpithet	specificEpithet	infraspecificEpithet	cultivarEpithet	nameAccordingTo	namePublishedIn	nomenclaturalCode	nomenclaturalStatus	taxonRemarks	dcterms:references
+4339		4339	4339	4339		valid	family	Cynipidae										ICZN
+1309638	4339	1309638	1309638	1309638		valid	genus	Biorhiza Westwood, 1840	Westwood, 1840		Biorhiza						Introd. class. Insect., 2, Syn.	ICZN
+4679634	4339	1309638	4679634	4679634		invalid	genus	Biorhyza Giraud, 1859	Giraud, 1859		Biorhyza						Verh. Zool.-bot. Ges. Wien, 9, Abh.	ICZN

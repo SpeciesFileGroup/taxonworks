@@ -14,8 +14,29 @@ module BiologicalAssociationsHelper
     #link_to(biological_association_tag(biological_association).html_safe, biological_association)
   end
 
-  # def biological_associations_search_form
-  #   render('/biological_associations/quick_search_form')
-  # end
+  def family_by_genus_summary(scope)
+    r = { }
+
+    scope.find_each do |o|
+      i = o.biological_association_subject.taxonomy
+
+      j = o.biological_association_object.taxonomy
+
+      gk = i['kingdom'] || 'unknown'
+      g = i['genus']&.compact&.join(' ') || 'unknown'
+
+      fk = j['kingdom'] || 'unknown'
+      f = j['family'] || 'unknown'
+
+      r[gk] ||= {}
+      r[gk][g] ||= {}
+      r[gk][g][fk] ||= {}
+      r[gk][g][fk][f] ||= 0
+      r[gk][g][fk][f] += 1
+    end
+
+    r
+  end
+
 
 end
