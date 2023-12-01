@@ -32,11 +32,9 @@ const width = ref()
 const height = ref()
 
 const layers = computed(() =>
-  boardStore.layers
-    .filter(({ collectionObjectId }) =>
-      store.selectedId.includes(collectionObjectId)
-    )
-    .map((l) => l.svg)
+  boardStore.layers.filter(({ collectionObjectId }) =>
+    store.selectedId.includes(collectionObjectId)
+  )
 )
 
 onMounted(() => {

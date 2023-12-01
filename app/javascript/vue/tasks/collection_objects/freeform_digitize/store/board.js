@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { SVGDraw } from '@sfgrp/svg-detailer'
+import { getHexColorFromString } from '@/tasks/biological_associations/biological_associations_graph/utils'
 
 export default defineStore('board', {
   state: () => ({
@@ -17,8 +18,15 @@ export default defineStore('board', {
       })
     },
 
-    addLayer({ collectionObjectId, svg }) {
-      this.layers.push({ collectionObjectId, svg })
+    async addLayer({ collectionObjectId, svg }) {
+      this.layers.push({
+        collectionObjectId,
+        g: svg,
+        attributes: {
+          fill: await getHexColorFromString(String(collectionObjectId)),
+          fillOpacity: 0.25
+        }
+      })
     },
 
     setLayer(id) {

@@ -18,7 +18,7 @@
         :xlink:href="image.url"
       ></image>
       <g
-        v-for="group in groups"
+        v-for="group in shapes"
         :key="group"
         v-html="group"
       ></g>
@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 const props = defineProps({
   image: {
@@ -42,6 +42,24 @@ const props = defineProps({
 
 const svgElement = ref()
 const scale = ref(1)
+const shapes = computed(() => {
+  return props.groups.map(({ g, attributes }) => {
+    const el = createGroupElement(g).firstChild
+    const shape = el.firstChild
+
+    shape.setAttribute('fill', attributes.fill)
+    shape.setAttribute('fill-opacity', attributes.fillOpacity)
+
+    return el.innerHTML
+  })
+})
+
+function createGroupElement(text) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  el.innerHTML = text
+
+  return el.firstChild
+}
 
 function updateScale() {
   const size = svgElement.value.getBoundingClientRect()
@@ -51,8 +69,6 @@ function updateScale() {
   const cAR = cWidth / cHeight
   const iAR = props.image.width / props.image.height
 
-  // scale to height if (similar aspect ratios AND image aspect ratio less than container's)
-  // OR the image is tall and the container is wide)
   if (
     (((cAR >= 1 && iAR >= 1) || (cAR <= 1 && iAR <= 1)) && iAR <= cAR) ||
     (iAR <= 1 && cAR >= 1)
