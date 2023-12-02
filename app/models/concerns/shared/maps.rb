@@ -87,9 +87,9 @@ module Shared::Maps
         ids = ::Queries::Otu::Filter.new(otu_id:, ancestrify: true).all.pluck(:id)
         CachedMap.where(otu_id: ids).delete_all
       when 'Georeference'
-        otu_ids = collecting_event.otus
+        otu_ids = collecting_event.otus.pluck(:id)
         ids = ::Queries::Otu::Filter.new(otu_id: otu_ids, ancestrify: true).all.pluck(:id)
-        CachedMap.where(otu: otus).delete_all
+        CachedMap.where(otu: ids).delete_all
       end
       true
     end
