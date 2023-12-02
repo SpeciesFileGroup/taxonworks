@@ -329,12 +329,20 @@ module Queries
           .where(otus: {id: otu_ids})
       end
 
+      # Find all TaxonNames, and their synonyms
       def otu_facet_type_material(otu_ids)
-        # Find all TaxonNames, and their synonyms
-        protonyms = ::Queries::TaxonName::Filter.new(
-          otu_query: { otu_id: otu_ids},
-          synonymify: true
-        ).all.where(type: 'Protonym')
+
+        # Double check that there are otu_ids,
+        #  this check exists in calling methods, but re-inforce here.
+        protonyms = if otu_ids.any?
+                      ::Queries::TaxonName::Filter.new(
+                        otu_query: { otu_id: otu_ids},
+                        synonymify: true,
+                        project_id:
+                      ).all.where(type: 'Protonym')
+                    else
+                      TaxonName.none
+                    end
 
         ::Image.joins(collection_objects: [type_materials: [:protonym]]).where(collection_objects: {type_materials: {protonym: protonyms}})
       end

@@ -328,10 +328,10 @@ module Queries
           ::Otu.from("((#{a.to_sql}) UNION (#{b.to_sql})) as otus")
         else
           ::Otu.where('NOT EXISTS (' + ::Otu.select('1').from( # not exists ( a select(1) from <opposite query>  )
-            ::Otu.from(
-              "((#{a.to_sql}) UNION (#{b.to_sql})) as ba_otus_join"
-            ).where('otus.id = ba_otus_join.id')
-          ).to_sql + ')')  # where includes in/out link
+                                                              ::Otu.from(
+                                                                "((#{a.to_sql}) UNION (#{b.to_sql})) as ba_otus_join"
+                                                              ).where('otus.id = ba_otus_join.id')
+                                                             ).to_sql + ')')  # where includes in/out link
         end
       end
 
@@ -435,9 +435,9 @@ module Queries
       def asserted_distribution_query_facet
         return nil if asserted_distribution_query.nil?
         s = 'WITH query_ad_otus AS (' + asserted_distribution_query.all.to_sql + ') ' +
-            ::Otu
-              .joins('JOIN query_ad_otus as query_ad_otus1 on otus.id = query_ad_otus1.otu_id')
-              .to_sql
+          ::Otu
+          .joins('JOIN query_ad_otus as query_ad_otus1 on otus.id = query_ad_otus1.otu_id')
+          .to_sql
 
         ::Otu.from('(' + s + ') as otus').distinct
       end
@@ -445,9 +445,9 @@ module Queries
       def content_query_facet
         return nil if content_query.nil?
         s = 'WITH query_con_otus AS (' + content_query.all.to_sql + ') ' +
-            ::Otu
-              .joins('JOIN query_con_otus as query_con_otus1 on otus.id = query_con_otus1.otu_id')
-              .to_sql
+          ::Otu
+          .joins('JOIN query_con_otus as query_con_otus1 on otus.id = query_con_otus1.otu_id')
+          .to_sql
 
         ::Otu.from('(' + s + ') as otus').distinct
       end
@@ -470,10 +470,10 @@ module Queries
       def collection_object_query_facet
         return nil if collection_object_query.nil?
         s = 'WITH query_co_otus AS (' + collection_object_query.all.to_sql + ') ' +
-            ::Otu
-              .joins(:collection_objects)
-              .joins('JOIN query_co_otus as query_co_otus1 on collection_objects.id = query_co_otus1.id')
-              .to_sql
+          ::Otu
+          .joins(:collection_objects)
+          .joins('JOIN query_co_otus as query_co_otus1 on collection_objects.id = query_co_otus1.id')
+          .to_sql
 
         ::Otu.from('(' + s + ') as otus').distinct
       end
@@ -481,10 +481,10 @@ module Queries
       def collecting_event_query_facet
         return nil if collecting_event_query.nil?
         s = 'WITH query_ce_otus AS (' + collecting_event_query.all.to_sql + ') ' +
-            ::Otu
-              .joins(:collecting_events)
-              .joins('JOIN query_ce_otus as query_ce_otus1 on collecting_events.id = query_ce_otus1.id')
-              .to_sql
+          ::Otu
+          .joins(:collecting_events)
+          .joins('JOIN query_ce_otus as query_ce_otus1 on collecting_events.id = query_ce_otus1.id')
+          .to_sql
 
         ::Otu.from('(' + s + ') as otus').distinct
       end
@@ -492,10 +492,10 @@ module Queries
       def extract_query_facet
         return nil if extract_query.nil?
         s = 'WITH query_ex_otus AS (' + extract_query.all.to_sql + ') ' +
-            ::Otu
-              .joins(:origin_relationships)
-              .joins("JOIN query_ex_otus as query_ex_otus1 on origin_relationships.new_object_id = query_ex_otus1.id and origin_relationships.new_object_type = 'Extract'")
-              .to_sql
+          ::Otu
+          .joins(:origin_relationships)
+          .joins("JOIN query_ex_otus as query_ex_otus1 on origin_relationships.new_object_id = query_ex_otus1.id and origin_relationships.new_object_type = 'Extract'")
+          .to_sql
 
         ::Otu.from('(' + s + ') as otus').distinct
       end
@@ -503,10 +503,10 @@ module Queries
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
         s = 'WITH query_taxon_names AS (' + taxon_name_query.all.to_sql + ') ' +
-            ::Otu
-              .joins('JOIN query_taxon_names as query_taxon_names1 on otus.taxon_name_id = query_taxon_names1.id')
-              .where.not(taxon_name_id: nil) # .joins(:taxon_name)
-              .to_sql
+          ::Otu
+          .joins('JOIN query_taxon_names as query_taxon_names1 on otus.taxon_name_id = query_taxon_names1.id')
+          .where.not(taxon_name_id: nil) # .joins(:taxon_name)
+          .to_sql
 
         ::Otu.from('(' + s + ') as otus').distinct
       end
@@ -514,10 +514,10 @@ module Queries
       def descriptor_query_facet
         return nil if descriptor_query.nil?
         s = 'WITH query_de_otus AS (' + descriptor_query.all.to_sql + ') ' +
-            ::Otu
-              .joins(:observations)
-              .joins('JOIN query_de_otus as query_de_otus1 on observations.descriptor_id = query_de_otus1.id')
-              .to_sql
+          ::Otu
+          .joins(:observations)
+          .joins('JOIN query_de_otus as query_de_otus1 on observations.descriptor_id = query_de_otus1.id')
+          .to_sql
 
         ::Otu.from('(' + s + ') as otus').distinct
       end
@@ -540,10 +540,10 @@ module Queries
       def observation_query_facet
         return nil if observation_query.nil?
         s = 'WITH query_obs_otus AS (' + observation_query.all.to_sql + ') ' +
-            ::Otu
-              .joins(:observations)
-              .joins('JOIN query_obs_otus as query_obs_otus1 on observations.id = query_obs_otus1.id')
-              .to_sql
+          ::Otu
+          .joins(:observations)
+          .joins('JOIN query_obs_otus as query_obs_otus1 on observations.id = query_obs_otus1.id')
+          .to_sql
 
         ::Otu.from('(' + s + ') as otus').distinct
       end
@@ -561,42 +561,50 @@ module Queries
 
         # Find valid for invalid
         s = 'WITH invalid_otu_result AS (' + i.to_sql + ') ' +
-            ::Otu
-              .joins('JOIN taxon_names tn1 on otus.taxon_name_id = tn1.cached_valid_taxon_name_id')
-              .joins('JOIN invalid_otu_result AS invalid_otu_result1 ON invalid_otu_result1.taxon_name_id = tn1.id') # invalid otus matching valid names
-              .to_sql
+          ::Otu
+          .joins('JOIN taxon_names tn1 on otus.taxon_name_id = tn1.cached_valid_taxon_name_id')
+          .joins('JOIN invalid_otu_result AS invalid_otu_result1 ON invalid_otu_result1.taxon_name_id = tn1.id') # invalid otus matching valid names
+          .to_sql
 
         a = ::Otu.from('(' + s + ') as otus')
 
         # Find invalid for valid
         t = 'WITH valid_otu_result AS (' + v.to_sql + ') ' +
-            ::Otu
-              .joins('JOIN taxon_names tn2 on otus.taxon_name_id = tn2.id')
-              .joins('JOIN valid_otu_result AS valid_otu_result1 ON valid_otu_result1.taxon_name_id = tn2.cached_valid_taxon_name_id') # valid otus matching invalid names
-              .to_sql
+          ::Otu
+          .joins('JOIN taxon_names tn2 on otus.taxon_name_id = tn2.id')
+          .joins('JOIN valid_otu_result AS valid_otu_result1 ON valid_otu_result1.taxon_name_id = tn2.cached_valid_taxon_name_id') # valid otus matching invalid names
+          .to_sql
 
         b = ::Otu.from('(' + t + ') as otus')
 
         referenced_klass_union([a, b, q])
       end
 
-      # Goal is to get 
+      # Goal is to get
       #  * all OTUs and their coordinates via nomenclature
       def ancestrify_result(q)
-        r = ::Queries::TaxonName::Filter.new(
-          taxon_name_id: q.all.pluck(:taxon_name_id),
-          ancestrify: true
-        )
+        ancestrify_taxon_name_ids = q.all.pluck(:taxon_name_id)
 
-        s = 'WITH tn_otu_anc AS (' + r.all.to_sql + ') ' +
+        if ancestrify_taxon_name_ids.any?
+          r = ::Queries::TaxonName::Filter.new(
+            taxon_name_id: ancestrify_taxon_name_ids,
+            ancestrify: true,
+            project_id:
+          )
+
+          s = 'WITH tn_otu_anc AS (' + r.all.to_sql + ') ' +
             ::Otu
-              .joins('JOIN tn_otu_anc AS tn_otu_anc1 on tn_otu_anc1.id = otus.taxon_name_id')
-              .to_sql
+            .joins('JOIN tn_otu_anc AS tn_otu_anc1 on tn_otu_anc1.id = otus.taxon_name_id')
+            .to_sql
 
-        a = ::Otu.from('(' + s + ') as otus')
-   
-        c = coordinatify_result(a) 
+          a = ::Otu.from('(' + s + ') as otus')
+        end
 
+        c = if a
+              c = coordinatify_result(a)
+            else
+              q
+            end
         c
       end
 
