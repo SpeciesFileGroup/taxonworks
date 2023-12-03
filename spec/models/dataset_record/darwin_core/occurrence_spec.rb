@@ -1080,6 +1080,65 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
+  context 'when importing an occurrence that is a homonym with same author' do
+    after(:all) { DatabaseCleaner.clean }
+
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('homonym_same_author.tsv', import_settings: { 'restrict_to_existing_nomenclature' => true })
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: 'Formicidae', rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: 'Pseudomyrmecinae', rank_class: Ranks.lookup(:iczn, :subfamily))
+      tribe = Protonym.create!(parent: subfamily, name: 'Pseudomyrmecini', rank_class: Ranks.lookup(:iczn, :tribe))
+      genus = Protonym.create!(parent: tribe, name: 'Pseudomyrmex', rank_class: Ranks.lookup(:iczn, :genus),
+                               verbatim_author: 'Lund', year_of_publication: 1830)
+      genus.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+
+      g_Pseudomyrma = Protonym.create!(parent: tribe, name: 'Pseudomyrma', rank_class: Ranks.lookup(:iczn, :genus),
+                                       verbatim_author: 'Guérin-Méneville', year_of_publication: 1844)
+      g_Pseudomyrma.synonymize_with(genus)
+      g_Pseudomyrma.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+
+      species = Protonym.create!(parent: genus, name: 'unicolor', rank_class: Ranks.lookup(:iczn, :species),
+                                 verbatim_author: '(Smith)', year_of_publication: 1855, also_create_otu: true)
+      create_original_combination!(species, {genus: g_Pseudomyrma, species: species})
+
+
+      s_mutilloides =  Protonym.create!(parent: genus, name: 'mutilloides', rank_class: Ranks.lookup(:iczn, :species),
+                                        verbatim_author: '(Emery)', year_of_publication: 1890, also_create_otu: true)
+      create_original_combination!(s_mutilloides, {genus: g_Pseudomyrma, species: s_mutilloides})
+      s_mutilloides.synonymize_with(species)
+
+      s_unicolor_1877 = Protonym.create!(parent: genus, name: 'unicolor', rank_class: Ranks.lookup(:iczn, :species),
+                                         verbatim_author: '(Smith)', year_of_publication: 1877, also_create_otu: true)
+      create_original_combination!(s_unicolor_1877, {genus: g_Pseudomyrma, species: s_unicolor_1877})
+
+      # replacement name for unicolor 1877
+      s_monochrous = Protonym.create!(parent: genus, name: 'monochroa', rank_class: Ranks.lookup(:iczn, :species),
+                                         verbatim_author: '(Dalla Torre)', year_of_publication: 1892, also_create_otu: true)
+      create_original_combination!(s_monochrous, {genus: g_Pseudomyrma, species: s_monochrous})
+      set_homonym_replacement_for!(s_unicolor_1877, s_monochrous)
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+
+    let!(:results) { @imported }
+    let(:errored_data) {results.second.metadata['error_data']['messages']['scientificName']}
+
+    it 'should import the first record without failing, and the second should fail' do
+      expect(results.length).to eq(2)
+      expect(results.map { |row| row.status }).to eq %w[Imported Errored]
+    end
+
+    it 'the second record should report that it found matches, but nothing with author and year' do
+      expect(errored_data.first).to include 'Multiple matches found for name unicolor'
+      expect(errored_data.second).to include 'No names matched author name'
+    end
+  end
+
 end
 
 

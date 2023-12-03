@@ -38,6 +38,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       protonym
     end
 
+    # @param [Protonym] parent
+    # @return [Protonym, nil]
     def get_protonym(parent, name)
       name = name.except(:rank_class) if name[:rank_class].nil?
 
@@ -67,11 +69,17 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             # if only one result, everything's ok. Safe to take it as the protonym
             if potential_protonyms_narrowed.count == 1
               potential_protonyms = potential_protonyms_narrowed
+            elsif potential_protonyms_narrowed.count == 0
+              potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }.join(', ')
+              error_message =
+                ["Multiple matches found for name #{name[:name]}, rank #{name[:rank_class]}, parent #{parent.id} #{parent.cached_html_name_and_author_year}: #{potential_protonym_strings}",
+                 "No names matched author name #{name[:verbatim_author]}#{(', year ' + name[:year_of_publication].to_s) if name[:year_of_publication]}: "]
+              raise DatasetRecord::DarwinCore::InvalidData.new({ 'scientificName' => error_message })
             else
               potential_protonym_strings = potential_protonyms_narrowed.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }.join(', ')
               raise DatasetRecord::DarwinCore::InvalidData.new(
-                  { 'scientificName' => ["Multiple matches found for name #{name[:name]} and author name #{name[:verbatim_author]}, year #{name[:year_of_publication]}: #{potential_protonym_strings}"] }
-                )
+                { 'scientificName' => ["Multiple matches found for name #{name[:name]} and author name #{name[:verbatim_author]}, year #{name[:year_of_publication]}: #{potential_protonym_strings}"] }
+              )
             end
           else
             # for intermediate homonyms, skip it, we don't have any info
