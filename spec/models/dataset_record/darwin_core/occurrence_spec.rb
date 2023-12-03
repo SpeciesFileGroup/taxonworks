@@ -907,7 +907,206 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       expect(TypeMaterial.first.protonym).to eq(Protonym.find_by(name: 'hesperius'))
     end
   end
+  context 'when importing a subsequent combination with authorship and missing subgenus' do
+    after(:all) { DatabaseCleaner.clean }
+
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('authorship_missing_subgenus.tsv', import_settings: { 'restrict_to_existing_nomenclature' => true })
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: 'Formicidae', rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: 'Formicinae', rank_class: Ranks.lookup(:iczn, :subfamily))
+      tribe = Protonym.create!(parent: subfamily, name: 'Camponotini', rank_class: Ranks.lookup(:iczn, :tribe))
+      genus = Protonym.create!(parent: tribe, name: 'Camponotus', rank_class: Ranks.lookup(:iczn, :genus),
+                               verbatim_author: 'Mayr', year_of_publication: 1861)
+      genus.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+
+      genus_formica = Protonym.create!(parent: subfamily, name: 'Formica', rank_class: Ranks.lookup(:iczn, :genus),
+                                       verbatim_author: 'Linnaeus', year_of_publication: 1758)
+
+      subgenus = Protonym.create!(parent: genus, name: 'Tanaemyrmex', rank_class: Ranks.lookup(:iczn, :subgenus),
+                                  verbatim_author: 'Ashmead', year_of_publication: 1905)
+
+      @species = Protonym.create!(parent: subgenus, name: 'maculata', rank_class: Ranks.lookup(:iczn, :species),
+                                           verbatim_author: '(Fabricius)', year_of_publication: 1782, also_create_otu: true)
+      @species.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+
+      make_original_combination_from_current!(genus)
+      make_original_combination_from_current!(genus_formica)
+      create_original_combination!(subgenus, { genus: subgenus})
+      create_original_combination!(@species, { genus: genus_formica, species: @species})
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let!(:results) { @imported }
+
+    it 'should import the record without failing' do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'should have the correct taxon name in its determinations' do
+      expect(CollectionObject.first.taxon_names).to include @species
+    end
+  end
+
+  context 'when importing an occurrence that is a homonym' do
+    after(:all) { DatabaseCleaner.clean }
+
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('homonym_name.tsv', import_settings: { 'restrict_to_existing_nomenclature' => true })
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: 'Formicidae', rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: 'Myrmicinae', rank_class: Ranks.lookup(:iczn, :subfamily))
+      tribe = Protonym.create!(parent: subfamily, name: 'Crematogastrini', rank_class: Ranks.lookup(:iczn, :tribe))
+      genus = Protonym.create!(parent: tribe, name: 'Carebara', rank_class: Ranks.lookup(:iczn, :genus),
+                               verbatim_author: 'Westwood', year_of_publication: 1840)
+
+      g_Oligomyrmex = Protonym.create!(parent: tribe, name: 'Oligomyrmex', rank_class: Ranks.lookup(:iczn, :genus),
+                                               verbatim_author: 'Mayr', year_of_publication: 1867)
+      g_Oligomyrmex.synonymize_with(genus)
+
+      arnoldi_forel =  Protonym.create!(parent: genus, name: 'arnoldi', rank_class: Ranks.lookup(:iczn, :species),
+                                        verbatim_author: '(Forel)', year_of_publication: 1913, also_create_otu: true)
+      create_original_combination!(arnoldi_forel, {genus: g_Oligomyrmex, species: arnoldi_forel})
+
+      arnoldi_santschi = Protonym.create!(parent: genus, name: 'arnoldi', rank_class: Ranks.lookup(:iczn, :species),
+                                          verbatim_author: '(Santschi)', year_of_publication: 1928, also_create_otu: true)
+
+      g_Pheidologeton = Protonym.create!(parent: tribe, name: 'Pheidologeton', rank_class: Ranks.lookup(:iczn, :genus),
+                                         verbatim_author: 'Mayr', year_of_publication: 1862)
+      g_Pheidologeton.synonymize_with(genus)
+      create_original_combination!(arnoldi_santschi, {genus: g_Pheidologeton, species: arnoldi_santschi})
+
+
+      # replacement name for arnoldi (Santschi)
+      s_kunensis = Protonym.create!(parent: genus, name: 'kunensis', rank_class: Ranks.lookup(:iczn, :species),
+                                    verbatim_author: '(Ettershank)', year_of_publication: 1966, also_create_otu: true)
+      create_original_combination!(s_kunensis, {genus: g_Pheidologeton, species: s_kunensis})
+      set_homonym_replacement_for!(arnoldi_santschi, s_kunensis)
+
+
+      #### Second name, [Tetraponera insularis Ward, 2022] is unresolved junior homonym of [Tetraponera nigra insularis (Emery, 1901)]
+      subfamily = Protonym.create!(parent: family, name: 'Pseudomyrmecinae', rank_class: Ranks.lookup(:iczn, :subfamily))
+      genus = Protonym.create!(parent: subfamily, name: 'Tetraponera', rank_class: Ranks.lookup(:iczn, :genus),
+                               verbatim_author: 'Smith', year_of_publication: 1852)
+
+      species = Protonym.create!(parent: genus, name: 'insularis', rank_class: Ranks.lookup(:iczn, :species),
+                                 verbatim_author: 'Ward', year_of_publication: 2022, also_create_otu: true)
+      make_original_combination_from_current!(genus)
+      make_original_combination_from_current!(species)
+
+      s_nigra = Protonym.create!(parent: genus, name: 'nigra', rank_class: Ranks.lookup(:iczn, :species),
+                                 verbatim_author: '(Jerdon)', year_of_publication: 1851)
+
+      ss_insularis = Protonym.create!(parent: s_nigra, name: 'insularis', rank_class: Ranks.lookup(:iczn, :subspecies),
+                                      verbatim_author: 'Emery', year_of_publication: 1901)
+
+      ss_insularis.synonymize_with(s_nigra)
+      g_Sima = Protonym.create!(parent: family, name: 'Sima', rank_class: Ranks.lookup(:iczn, :genus),
+                                verbatim_author: 'Roger', year_of_publication: 1863)
+
+      create_original_combination!(ss_insularis, {genus: g_Sima, species: s_nigra, subspecies: ss_insularis})
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+
+    let!(:results) { @imported }
+
+    it 'should import the record without failing' do
+      expect(results.length).to eq(2)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+  end
+
+  context 'when importing an occurrence with missing subgenus info' do
+
+    after(:all) { DatabaseCleaner.clean }
+
+    #  Formicidae › Formicinae › Camponotini › Camponotus › Camponotus (Tanaemyrmex) › Camponotus kugleri
+
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('missing_subgenus.tsv', import_settings: { 'restrict_to_existing_nomenclature' => false })
+
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: 'Formicidae', rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: 'Formicinae', rank_class: Ranks.lookup(:iczn, :subfamily))
+      tribe = Protonym.create!(parent: subfamily, name: 'Camponotini', rank_class: Ranks.lookup(:iczn, :tribe))
+      genus = Protonym.create!(parent: tribe, name: 'Camponotus', rank_class: Ranks.lookup(:iczn, :genus),
+                               verbatim_author: 'Mayr', year_of_publication: 1861)
+      genus.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+
+      genus_formica = Protonym.create!(parent: subfamily, name: 'Formica', rank_class: Ranks.lookup(:iczn, :genus),
+                                       verbatim_author: 'Linnaeus', year_of_publication: 1758)
+
+      subgenus = Protonym.create!(parent: genus, name: 'Myrmosericus', rank_class: Ranks.lookup(:iczn, :subgenus),
+                                  verbatim_author: 'Forel', year_of_publication: 1912)
+      species = Protonym.create!(parent: subgenus, name: 'vestita', rank_class: Ranks.lookup(:iczn, :species),
+                                     verbatim_author: '(Smith)', year_of_publication: 1858)
+      species.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+
+      @subspecies = Protonym.create!(parent: species, name: 'bombycinus', rank_class: Ranks.lookup(:iczn, :subspecies),
+                                  verbatim_author: 'Santschi', year_of_publication: 1930, also_create_otu: true)
+
+      
+      make_original_combination_from_current!(genus)
+      make_original_combination_from_current!(subgenus)
+      create_original_combination!(species, { genus: genus_formica, species: species})
+      make_original_combination_from_current!(@subspecies)
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let!(:results) { @imported }
+
+    it 'should import the record without failing' do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+  end
+
 end
+
+
+# @param [Protonym] object_taxon
+def make_original_combination_from_current!(object_taxon)
+  ancestors = Protonym.self_and_ancestors_of(object_taxon).map { |taxon| [taxon.rank&.to_sym, taxon] }.to_h
+  create_original_combination!(object_taxon, ancestors)
+end
+
+# @param [Protonym] object_taxon
+# @param [Hash{Symbol=>Protonym}] ranks
+def create_original_combination!(object_taxon, ranks)
+  original_combination_ranks = {
+    genus: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
+    subgenus: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus',
+    species: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
+    subspecies: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
+    variety: 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
+    form: 'TaxonNameRelationship::OriginalCombination::OriginalForm'
+  }.freeze
+
+  ranks.each_pair do |rank, subject|
+    rank_class = original_combination_ranks[rank]
+    TaxonNameRelationship.create!(type: rank_class, subject_taxon_name: subject, object_taxon_name: object_taxon) if rank_class
+  end
+end
+
+# @param [Protonym] subject The invalid homonym
+# @param [Protonym] replacement The replacement name
+def set_homonym_replacement_for!(subject, replacement)
+  TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym.create!(subject_taxon_name: subject, object_taxon_name: replacement)
+end
+
 
 # Set up DatabaseCleaner, stage tsv file for import
 # @param [String] file_name
