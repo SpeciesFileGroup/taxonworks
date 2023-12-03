@@ -1047,6 +1047,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
       genus_formica = Protonym.create!(parent: subfamily, name: 'Formica', rank_class: Ranks.lookup(:iczn, :genus),
                                        verbatim_author: 'Linnaeus', year_of_publication: 1758)
+      genus_formica.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+
 
       subgenus = Protonym.create!(parent: genus, name: 'Myrmosericus', rank_class: Ranks.lookup(:iczn, :subgenus),
                                   verbatim_author: 'Forel', year_of_publication: 1912)
@@ -1057,19 +1059,23 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @subspecies = Protonym.create!(parent: species, name: 'bombycinus', rank_class: Ranks.lookup(:iczn, :subspecies),
                                   verbatim_author: 'Santschi', year_of_publication: 1930, also_create_otu: true)
 
-      
       make_original_combination_from_current!(genus)
       make_original_combination_from_current!(subgenus)
       create_original_combination!(species, { genus: genus_formica, species: species})
       make_original_combination_from_current!(@subspecies)
+
+      s_cruentatus = Protonym.create!(parent: subgenus, name: 'cruentata', rank_class: Ranks.lookup(:iczn, :species),
+                                     verbatim_author: '(Latreille)', year_of_publication: 1802, also_create_otu: true)
+      s_cruentatus.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+      create_original_combination!(s_cruentatus, {genus: genus_formica, species: s_cruentatus})
 
       @imported = @import_dataset.import(5000, 100)
     end
 
     let!(:results) { @imported }
 
-    it 'should import the record without failing' do
-      expect(results.length).to eq(1)
+    it 'should import the 2 records without failing' do
+      expect(results.length).to eq(2)
       expect(results.map { |row| row.status }).to all(eq('Imported'))
     end
   end
