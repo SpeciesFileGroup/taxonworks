@@ -56,6 +56,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
         is_synonym: nil,
         has_external_accepted_name: nil, # could be homonym or synonym, either way protonym is not valid. will use taxonomicStatus to determine the kind of relationship
         original_combination: nil, # taxonID of original combination
+        create_original_combination: true,    # default to creating an original combination, is set to false if missing
         protonym_taxon_id: nil,
         parent: record['parentNameUsageID'],
         src_data: record
@@ -84,7 +85,8 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
       # TODO handle when originalNameUsageID is not present
 
       if record[:src_data]['originalNameUsageID'].blank?
-        add_error_message(record, :originalNameUsageID, 'originalNameUsageID must not be blank')
+        record[:src_data]['originalNameUsageID'] = record[:src_data]['taxonID']
+        record[:create_original_combination] = false # we assumed, don't make the relationship during import
       end
 
       if records_lut[record[:src_data]['originalNameUsageID']].nil?
