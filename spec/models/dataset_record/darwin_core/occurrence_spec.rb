@@ -861,6 +861,52 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
+  context 'when importing an occurrence whose type material is a subsequent combination and is missing subgenus' do
+    after(:all) { DatabaseCleaner.clean }
+
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('typeStatus_subsequent_combination_without_subgenus.tsv',
+                                               import_settings: { 'restrict_to_existing_nomenclature' => true,
+                                                                  'require_type_material_success' => true})
+
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: 'Formicidae', rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: 'Formicinae', rank_class: Ranks.lookup(:iczn, :subfamily))
+
+      genus = Protonym.create!(parent: subfamily, name: 'Camponotus', rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      subgenus = Protonym.create!(parent: genus, name: 'Tanaemyrmex', rank_class: Ranks.lookup(:iczn, :subgenus), also_create_otu: true)
+
+      s_atlantis = Protonym.create!(parent: subgenus, name: 'atlantis', rank_class: Ranks.lookup(:iczn, :species),
+                                      verbatim_author: 'Forel', year_of_publication: 1890, also_create_otu: true)
+      s_maculatus = Protonym.create!(parent: subgenus, name: 'maculatus', rank_class: Ranks.lookup(:iczn, :species),
+                                     verbatim_author: '(Fabricius)', year_of_publication: 1782, also_create_otu: true)
+
+      s_hesperius = Protonym.create!(parent: subgenus, name: 'hesperius', rank_class: Ranks.lookup(:iczn, :species),
+                                    verbatim_author: 'Emery', year_of_publication: 1893, also_create_otu: true)
+
+      s_hesperius.original_genus = genus
+      s_hesperius.original_species = s_maculatus
+      s_hesperius.original_subspecies = s_hesperius
+
+      Combination.create!(genus: genus, subgenus: subgenus, species: s_atlantis, subspecies: s_hesperius)
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let!(:results) { @imported }
+
+    it 'should import the record' do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'should have the correct type material' do
+      expect(TypeMaterial.first.protonym).to eq(Protonym.find_by(name: 'hesperius'))
+    end
+  end
 end
 
 # Set up DatabaseCleaner, stage tsv file for import

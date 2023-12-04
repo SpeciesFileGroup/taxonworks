@@ -144,7 +144,7 @@ module Queries
           .joins('JOIN taxon_names ON taxon_names.id = otus.id')
           .where(taxon_names: {id:  t})
 
-        e = ::Queries::Extract::Filter.new(taxon_name_id: taxon_name_id, descendants: descendants, project_id: project_id).all
+        e = ::Queries::Extract::Filter.new(taxon_name_id:, descendants:, project_id:).all
 
         c = ::Observation.joins("JOIN extracts ON observations.observation_object_id = extracts.id AND observations.observation_object_type = 'Extract'")
           .where(extracts: {id: e})
