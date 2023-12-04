@@ -99,7 +99,7 @@ export default {
       jsonUrl: '',
       activeJson: false,
       limit: 5000,
-      tableFilter: undefined
+      tableFilter: {}
     }
   },
 
@@ -130,20 +130,22 @@ export default {
         limit: this.limit
       }
 
-      TaxonName.rankTable({ ...data, ...params }).then((response) => {
-        const urlParams = new URLSearchParams(
-          response.request.responseURL.split('?')[1]
-        )
+      TaxonName.rankTable({ ...data, ...params, ...this.tableFilter }).then(
+        (response) => {
+          const urlParams = new URLSearchParams(
+            response.request.responseURL.split('?')[1]
+          )
 
-        this.jsonUrl = response.request.responseURL
-        this.rankTable = response.body
+          this.jsonUrl = response.request.responseURL
+          this.rankTable = response.body
 
-        history.pushState(
-          null,
-          null,
-          `/tasks/observation_matrices/dashboard?${urlParams.toString()}`
-        )
-      })
+          history.pushState(
+            null,
+            null,
+            `/tasks/observation_matrices/dashboard?${urlParams.toString()}`
+          )
+        }
+      )
     }
   }
 }
