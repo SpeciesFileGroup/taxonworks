@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- DwC-A checklist importer: fix importer crash caused by nil parent
 - `ancestrify` parameter for Otu queries not scoping to TaxonNames correctly
 
 ## [0.36.0] - 2023-11-30
