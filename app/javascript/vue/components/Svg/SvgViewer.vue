@@ -43,15 +43,21 @@ const props = defineProps({
 const svgElement = ref()
 const scale = ref(1)
 const shapes = computed(() => {
-  return props.groups.map(({ g, attributes }) => {
-    const el = createGroupElement(g).firstChild
-    const shape = el.firstChild
+  return props.groups
+    .map(({ g, attributes }) => {
+      const el = createGroupElement(g)
+      const shapes = [...el.children].map((child) => {
+        const shape = child.firstChild
 
-    shape.setAttribute('fill', attributes.fill)
-    shape.setAttribute('fill-opacity', attributes.fillOpacity)
+        shape.setAttribute('fill', attributes.fill)
+        shape.setAttribute('fill-opacity', attributes.fillOpacity)
 
-    return el.innerHTML
-  })
+        return child.innerHTML
+      })
+
+      return shapes
+    })
+    .flat()
 })
 
 function createGroupElement(text) {
