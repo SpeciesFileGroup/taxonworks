@@ -1238,8 +1238,21 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
-  # TODO test missing parent
-  #
+  context 'when importing a taxon with a missing parent' do
+    before(:all) { import_checklist_tsv('missing_parent.tsv', 3) }
+    after(:all) { DatabaseCleaner.clean }
+
+    let(:record) {DatasetRecord.last}
+    it 'should have an NotReady status' do
+      expect(record.status).to eq("NotReady")
+    end
+
+    # this currently will fail because I don't think there is a missingParent error message, the record has a NotReady status with no message modal in the UI
+    it 'should have the right error message' do
+      expect(record[:metadata].dig("error_data", "messages", "missingParent")).to_not be_nil
+    end
+  end
+  
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName
   #
   # TODO test importing multiple times
