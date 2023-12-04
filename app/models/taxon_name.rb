@@ -689,6 +689,7 @@ class TaxonName < ApplicationRecord
   def get_author
     a = cached_author_year.to_s.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '')
     a = a.gsub('(', '') if a.starts_with?('(') && !a.include?(')')
+    a = a.gsub('(', '').gsub(')', '') if a.starts_with?('(') && a.ends_with?(')')
     return a
   end
 
