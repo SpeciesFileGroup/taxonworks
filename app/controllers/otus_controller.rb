@@ -119,7 +119,7 @@ class OtusController < ApplicationController
   def search
     if params[:id].blank?
       redirect_to(otus_path,
-                 alert: 'You must select an item from the list with a click or tab press before clicking show.')
+                  alert: 'You must select an item from the list with a click or tab press before clicking show.')
     else
       redirect_to otu_path(params[:id])
     end
@@ -252,13 +252,17 @@ class OtusController < ApplicationController
     @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
-  # POST /otus/batch_update.json?otus_query=<>&otu={taxon_name_id=123}}
+  # PATCH /otus/batch_update.json?otus_query=<>&otu={taxon_name_id=123}}
   def batch_update
-    c = Otu.batch_update({
-                           otu: otu_params.merge(by: sessions_current_user_id),
-                           otu_query: params[:otu_query]
-                         })
-    render json: c[:result], status: c[:status]
+    if r = Otu.batch_update(
+        preview: params[:preview], 
+        otu: otu_params.merge(by: sessions_current_user_id),
+        otu_query: params[:otu_query].merge(by: sessions_current_user_id),
+    )
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
   end
 
   # GET /api/v1/otus.csv
@@ -321,8 +325,8 @@ class OtusController < ApplicationController
         send_data Export::Csv.generate_csv(
           DwcOccurrence.scoped_by_otu(@otu),
           exclude_columns: ['id', 'created_by_id', 'updated_by_id', 'project_id', 'updated_at']),
-          type: 'text',
-          filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.csv"
+        type: 'text',
+        filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.csv"
       end
       format.json do
         render json: DwcOccurrence.scoped_by_otu(@otu).to_json
@@ -408,12 +412,12 @@ class OtusController < ApplicationController
     @recent_object = @otu
   end
 
-# def set_cached_map
-#   @cached_map = @otu.cached_maps.where(cached_map_type: params[:cached_map_type] || 'CachedMapItem::WebLevel1').first
-#   if @cached_map.blank?
+  # def set_cached_map
+  #   @cached_map = @otu.cached_maps.where(cached_map_type: params[:cached_map_type] || 'CachedMapItem::WebLevel1').first
+  #   if @cached_map.blank?
 
-#   end
-# end
+  #   end
+  # end
 
   def otu_params
     params.require(:otu).permit(:name, :taxon_name_id, :exact)

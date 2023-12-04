@@ -398,13 +398,16 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
-  # POST /collection_object/batch_update.json?collection_object_query=<>&collection_object={}
+  # PATCH /collection_object/batch_update.json?collection_object_query=<>&collection_object={}
   def batch_update
-    c = CollectionObject.query_batch_update({
-      collection_object: collection_object_params.merge(by: sessions_current_user_id),
-      collection_object_query: params[:collection_object_query]
-    })
-    render json: c[:result], status: c[:status]
+    if c = CollectionObject.batch_update(
+        preview: params[:preview],
+        collection_object: collection_object_params.merge(by: sessions_current_user_id),
+        collection_object_query: params[:collection_object_query])
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
   end
 
   private

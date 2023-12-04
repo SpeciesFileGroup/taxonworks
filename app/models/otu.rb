@@ -205,32 +205,53 @@ class Otu < ApplicationRecord
     new_otus
   end
 
-  def self.batch_update(params, async_cutoff: 26)
-    a = Queries::Otu::Filter.new(params[:otu_query])
+  # Batch update
+
+  # @params params [Hash]
+  #   { otu_query: {},
+  #     otu_filter_query: {},
+  #     async_cutoff: 1
+  #   }
+  def self.batch_update(params)
+    request = QueryBatchRequest.new(
+      async_cutoff: params[:async_cutoff] || 26,
+      klass: 'Otu',
+      object_filter_params: params[:otu_query],
+      object_params: params[:otu],
+      preview: params[:preview],
+    )
+
+    a = request.filter
 
     v = a.all.select(:taxon_name_id).distinct.limit(2).pluck(:taxon_name_id)
 
     cap = 0
+
     case v.size
     when 1
       if v.first.nil?
         cap = 10000
+        request.cap_reason = 'Maximum allowed for empty records.'
       else
         cap = 2000
+        request.cap_reason = 'Maximum allowed for 1 unique taxon name id.'
       end
     when 2
       if v.include?(nil)
         cap = 2000
+        request.cap_reason = 'Maximum allowed for 1 unique taxon name id.'
       else
         cap = 25
+        request.cap_reason = '> 1 taxon name id'
       end
     else
       cap = 25
+      request.cap_reason = '> 1 taxon name id'
     end
 
-    Otu.query_batch_update(params,
-                           limit: cap,
-                           async_cutoff:)
+    request.cap = cap
+
+    query_batch_update(request)
   end
 
   # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, `TaxonDetermination`

@@ -174,9 +174,14 @@ class SourcesController < ApplicationController
 
   # PATCH /sources/batch_update.json?source_query=<>&serial_id
   def batch_update
-    if @result = Source::Bibtex.batch_update(params)
+    if r = Source::Bibtex.batch_update(
+        preview: params[:preview], 
+        source: source_params.merge(by: sessions_current_user_id),
+        source_query: params[:source_query].merge(by: sessions_current_user_id),
+    )
+      render json: r.to_json, status: :ok
     else
-      render json: {success: false}
+      render json: {}, status: :unprocessable_entity
     end
   end
 

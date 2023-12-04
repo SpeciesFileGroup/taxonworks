@@ -35,13 +35,13 @@ class BatchResponse
   # @return String
   attr_accessor :cap_reason
 
-  def initialize
-    @updated = []
-    @not_updated = []
-    @async = false
-    @preview = false
+  def initialize(params)
+    @updated = params[:updated] || []
+    @not_updated = params[:not_updated] || []
+    @async = params[:async] || false
+    @preview = params[:preview] || false
     @errors = Hash.new(0)
-    @total_attempted = 0
+    @total_attempted = params[:total_attempted] || 0
   end
 
   def to_json

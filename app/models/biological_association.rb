@@ -43,6 +43,8 @@ class BiologicalAssociation < ApplicationRecord
   include BiologicalAssociation::GlobiExtensions
   include BiologicalAssociation::DwcExtensions
 
+  include Shared::QueryBatchUpdate
+
   belongs_to :biological_relationship, inverse_of: :biological_associations
 
   has_many :subject_biological_relationship_types, through: :biological_relationship
@@ -102,108 +104,59 @@ class BiologicalAssociation < ApplicationRecord
 
   class << self
 
-    # @return 
-
-    def batch_update(params)
-      return false if params[:biological_association].blank?
-
-      r = BatchResponse.new
-      r.method = 'batch_update'
-      r.klass = 'BiologicalAssociation'
-      r.preview = params[:preview]
-
-      a = Queries::BiologicalAssociation::Filter.new(params[:biological_association_query])
-      c = a.all.count
-
-      r.total_attempted = c
-
-      v = a.all.pluck(:biological_relationship_id).uniq
+    def set_batch_cap(request)
+      a = request.filter
+      total = a.all.pluck(:biological_relationship_id).uniq
 
       cap = 0
 
-      case v.size
+      case total.size
       when 1
-        if v.first.nil?
-          cap = 10000
-        else
-          cap = 2000
-        end
+        cap = 5000
+        request.cap_reason = 'Maximum allowed.'
       when 2
-        if v.include?(nil)
-          cap = 2000
-        else
-          cap = 25
-        end
+        cap = 2000 
+        request.cap_reason = 'Maximum allowed when 2 biological relationships present.'
       else
         cap = 25
+        request.cap_reason = 'Maximum allowed when 3 or more biological relationships present.'
       end
-
-      r.cap = cap
-
-      if c == 0 || c > cap
-        r.cap_reason = 'Too many unique biological relationships.' 
-        return r 
-      end
-
-      BiologicalAssociation.transaction do |b|
-        begin
-          a.all.find_each do |b|
-            b.update!(params[:biological_association])
-            r.updated.push b.id
-          end
-        rescue ActiveRecord::RecordInvalid => e
-          r.not_updated.push e.record.id
-          r.errors[e.message] += 1
-        end
-
-        raise ActiveRecord::Rollback if r.preview
-      end
-
-      return r
+      
+      request.cap = cap
+      request
     end
 
+    def batch_update(params)
+      request = QueryBatchRequest.new(
+        klass: 'BiologicalAssociation',
+        object_filter_params: params[:biological_association_query],
+        object_params: params[:biological_association],
+        async_cutoff: (params[:async_cutoff] || 26),
+        preview: params[:preview]
+      )
+
+      set_batch_cap(request)
+      query_batch_update(request)
+    end
 
     # Rotates subject and object
     def batch_rotate(params)
-      a = Queries::BiologicalAssociation::Filter.new(params)
+      request = QueryBatchRequest.new(
+        klass: 'BiologicalAssociation',
+        object_filter_params: params[:biological_association_query],
+        preview: params[:preview],
+      )
 
-      r = BatchResponse.new
+      set_batch_cap(request)
+
+      r = request.stub_response
       r.method = 'batch_rotate'
-      r.klass = 'BiologicalAssociation'
-      r.preview = params[:preview]
 
-      c = a.all.count
-
-
-      v = a.all.pluck(:biological_relationship_id).uniq
-
-      cap = 0
-
-      case v.size
-      when 1
-        if v.first.nil?
-          cap = 10000
-        else
-          cap = 2000
-        end
-      when 2
-        if v.include?(nil)
-          cap = 2000
-        else
-          cap = 25
-        end
-      else
-        cap = 25
-      end
-
-      if c == 0 || c > cap
-        r.cap_reason = 'Too many unique biological relationships.' 
-        return r 
-      end
+      return r if request.capped?
 
       BiologicalAssociation.transaction do |b|
         begin
-          a.all.find_each do |b|
+          request.filter.all.find_each do |b|
             s = b.biological_association_subject
             o = b.biological_association_object
 
@@ -220,7 +173,7 @@ class BiologicalAssociation < ApplicationRecord
           r.errors[e.message] += 1
         end
 
-        raise ActiveRecord::Rollback if r.preview
+        raise ActiveRecord::Rollback if request.preview
       end
 
       return r 

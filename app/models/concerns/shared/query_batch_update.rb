@@ -1,3 +1,5 @@
+# Facilitate batch updates that use a BatchQueryRequest
+#
 module Shared::QueryBatchUpdate
 
   extend ActiveSupport::Concern
@@ -5,80 +7,68 @@ module Shared::QueryBatchUpdate
   included do
   end
 
-  def query_update(params, result)
+  # @params params [Hash]
+  #   the attributes to update
+  # @params result [BatchResponse]
+  def query_update(params, response)
     begin
       self.update!( params )
-      result[:result][:passed] += 1
+      response[:updated].push id
     rescue ActiveRecord::RecordInvalid => e
-      result[:result][:failed] += 1
+      response.not_updated.push e.record.id
+      response.errors[e.message] += 1
     end
     result
   end
 
+  # Called on Delayed::Job version
+  def query_update(params, response)
+    begin
+      update!( params )
+      response.updated.push object.id
+    rescue ActiveRecord::RecordInvalid => e
+      response.not_updated.push e.record.id
+      response.errors[e.message] += 1
+    end
+  end
+
   class_methods do
 
-    def query_update(object, params, result)
-      begin
-        object.update!( params )
-        result[:result][:passed].push object.id
-      rescue ActiveRecord::RecordInvalid => e
-        result[:result][:failed].push object.id
+    # @return [BatchResponse, false]
+    def query_batch_update(request)
+      return false if request.unprocessable?
+
+      r = request.stub_response
+      r.method = 'query_batch_update'
+
+      a = request.filter
+
+      if request.run_async? 
+        a.all.find_each do |o|
+          o.delay(run_at: Proc.new { 1.second.from_now }, queue: :query_batch_update).query_update(request.object_params, r)
+        end
+      else
+        self.transaction do
+          a.all.find_each do |o|
+            query_update(o, request.object_params, r)
+          end
+          raise ActiveRecord::Rollback if request.preview
+        end
       end
+
+      r
     end
 
-    # TODO: Should handle scope, not filter result (do that prior)
-    # @return [Hash]
-    def query_batch_update(params, limit: 100, async_cutoff: 26)
-      r = {
-        status: :ok,
-        result: {
-          queued: false,
-          eta: nil,
-          passed: [], # IDs that passed
-          failed: [], # IDs that failed
-          total: 0,
-        }
-      }
-
-      k = self.name.demodulize.underscore.to_sym
-      q = (k.to_s + '_query').to_sym
-
-      if params[k].blank?
-        r[:status] = :unprocessable_entity
-        return r
+    def query_update(object, params, response)
+      raise ArgumentError if object.nil? || response.nil? || params.empty?
+      begin
+        object.update!( params )
+        response.updated.push object.id
+      rescue ActiveRecord::RecordInvalid => e
+        response.not_updated.push e.record.id
+        response.errors[e.message] += 1
       end
-
-      query = "Queries::#{self.name}::Filter".safe_constantize
-
-      a = query.new(params[q])
-
-      c = a.all.count
-
-      r[:result][:total] = c
-
-      if c > limit
-        r[:status] = :unprocessable_entity
-        return r
-      end
-
-      if c < async_cutoff # Run sync
-        r[:result][:eta] = 'Now'
-
-        a.all.find_each do |o|
-          query_update(o, params[k], r)
-        end
-      else # Run async
-        r[:result][:queued] = true
-        r[:result][:eta] = ApplicationController.helpers.distance_of_time_in_words(c.seconds)
-
-        a.all.find_each do |o|
-          o.delay(run_at: Proc.new { 1.second.from_now }, queue: :query_batch_update).query_update(params[k], r)
-        end
-      end
-
-      return r
     end
 
   end
-
 end

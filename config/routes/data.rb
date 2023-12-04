@@ -50,8 +50,8 @@ resources :biological_associations do
   collection do
     match :filter, to: 'biological_associations#index', via: [:get, :post]
 
-    post :batch_rotate
-    post :batch_update
+    patch :batch_rotate
+    patch :batch_update
   end
 end
 
@@ -141,7 +141,7 @@ resources :collection_objects do
     get :preview, defaults: {format: :json}
 
     post :batch_update_dwc_occurrence
-    post :batch_update
+    patch :batch_update
   end
 
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
@@ -178,7 +178,7 @@ resources :collecting_events do
     post :preview_gpx_batch_load
     post :create_gpx_batch_load
 
-    post :batch_update
+    patch :batch_update
   end
 end
 
@@ -562,7 +562,7 @@ resources :otus do
 
     get :select_options, defaults: {format: :json}
 
-    post :batch_update
+    patch :batch_update
   end
 
   member do
