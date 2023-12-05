@@ -27,21 +27,21 @@
     </VBtn>
 
     <div class="margin-large-top">
-      <template v-if="moveResponse.moved.length">
-        <h3>Moved</h3>
+      <template v-if="moveResponse.updated.length">
+        <h3>Updated</h3>
         <ul>
           <li
-            v-for="item in moveResponse.moved"
+            v-for="item in moveResponse.updated"
             :key="item.id"
             v-html="item.object_tag"
           />
         </ul>
       </template>
-      <template v-if="moveResponse.unmoved.length">
-        <h3>Unmoved</h3>
+      <template v-if="moveResponse.not_updated.length">
+        <h3>Not updated</h3>
         <ul>
           <li
-            v-for="item in moveResponse.unmoved"
+            v-for="item in moveResponse.not_updated"
             :key="item.id"
             v-html="item.object_tag"
           />
@@ -68,8 +68,8 @@ const props = defineProps({
 
 const geographicArea = ref()
 const moveResponse = ref({
-  moved: [],
-  unmoved: []
+  updated: [],
+  not_updated: []
 })
 
 function move() {
@@ -78,10 +78,10 @@ function move() {
     geographic_area_id: geographicArea.value.id
   }
 
-  AssertedDistribution.moveBatch(payload).then(({ body }) => {
+  AssertedDistribution.batchUpdate(payload).then(({ body }) => {
     moveResponse.value = body
     TW.workbench.alert.create(
-      `${body.moved.length} asserted distribution items were successfully updated.`,
+      `${body.updated.length} asserted distribution items were successfully updated.`,
       'notice'
     )
   })
