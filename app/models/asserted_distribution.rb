@@ -132,10 +132,10 @@ class AssertedDistribution < ApplicationRecord
 
     if v1 > 1 && v2 > 1 # many otus, many geographic areas
       cap = 0
-      request.cap_reason = 'Record include multiple OTUs *and* multiple GeographicAreas.'
+      request.cap_reason = 'Records include multiple OTUs *and* multiple geographic areas.'
     elsif v1 > 1
       cap = 0
-      request.cap_reason = 'May not update multiple GeographicAreas to one.' # TODO: revist constraint
+      request.cap_reason = 'May not update multiple geographic areas to one.' # TODO: revist constraint
     else
       cap = 2000
     end

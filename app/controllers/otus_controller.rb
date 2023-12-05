@@ -257,7 +257,7 @@ class OtusController < ApplicationController
     if r = Otu.batch_update(
         preview: params[:preview], 
         otu: otu_params.merge(by: sessions_current_user_id),
-        otu_query: params[:otu_query].merge(by: sessions_current_user_id),
+        otu_query: params[:otu_query],
     )
       render json: r.to_json, status: :ok
     else

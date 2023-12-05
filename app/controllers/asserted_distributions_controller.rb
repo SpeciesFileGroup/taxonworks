@@ -118,7 +118,7 @@ class AssertedDistributionsController < ApplicationController
     if r = AssertedDistribution.batch_update(
         preview: params[:preview], 
         asserted_distribution: asserted_distribution_params.merge(by: sessions_current_user_id),
-        asserted_distribution_query: params[:asserted_distribution_query].merge(by: sessions_current_user_id),
+        asserted_distribution_query: params[:asserted_distribution_query,
     )
       render json: r.to_json, status: :ok
     else

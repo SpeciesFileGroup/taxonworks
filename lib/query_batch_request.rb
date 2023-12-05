@@ -51,6 +51,10 @@ class QueryBatchRequest
     @preview = params[:preview]
   end
 
+  def object_filter_params
+    filter.new(@object_filter_params).params
+  end
+
   def unprocessable?
     (!object_filter_params.any? || !object_params.any?) ||
       (run_async? && preview)
