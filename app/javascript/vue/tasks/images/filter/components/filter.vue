@@ -56,8 +56,11 @@ const props = defineProps({
 const WITH_PARAMS = [
   'citations',
   'depictions',
-  'type_material_depictions',
-  'origin_citation'
+  'freeform_svg',
+  'origin_citation',
+  'sled_image',
+  'sqed_image',
+  'type_material_depictions'
 ]
 
 const emit = defineEmits(['update:modelValue'])
