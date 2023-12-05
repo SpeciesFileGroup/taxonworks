@@ -125,8 +125,8 @@ class AssertedDistribution < ApplicationRecord
 
     a = request.filter
 
-    v1 = a.all.distinct.limit(2).pluck(:geographic_area_id)
-    v2 = a.all.distinct.limit(2).pluck(:otu_id)
+    v1 = a.all.distinct.limit(2).pluck(:geographic_area_id).uniq.count
+    v2 = a.all.distinct.limit(2).pluck(:otu_id).uniq.count
 
     cap = 0
 
