@@ -113,11 +113,16 @@ class AssertedDistributionsController < ApplicationController
   def batch_load
   end
 
-  # PATCH /asserted_distributions/batch_move.json?asserted_distribution_query=<>&geographic_area_id
-  def batch_move
-    if @result = AssertedDistribution.batch_move(params)
+  # PATCH /asserted_distributions/batch_update.json?asserted_distributions_query=<>&asserted_distribution={taxon_name_id=123}}
+  def batch_update
+    if r = AssertedDistribution.batch_update(
+        preview: params[:preview], 
+        asserted_distribution: asserted_distribution_params.merge(by: sessions_current_user_id),
+        asserted_distribution_query: params[:asserted_distribution_query].merge(by: sessions_current_user_id),
+    )
+      render json: r.to_json, status: :ok
     else
-      render json: {success: false}
+      render json: {}, status: :unprocessable_entity
     end
   end
 
