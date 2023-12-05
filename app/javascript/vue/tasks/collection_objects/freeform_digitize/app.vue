@@ -5,14 +5,19 @@
       :legend="isSaving ? 'Saving...' : 'Loading...'"
       v-if="isLoading || isSaving"
     />
-    <h1>Free form digitize</h1>
+    <div class="flex-separate middle">
+      <h1>Free form digitize</h1>
+      <RecentButton />
+    </div>
 
     <template v-if="imageStore.image">
       <NavBar>
         <div class="full_width flex-separate middle">
           <DrawControls v-show="view === 0" />
           <div />
-          <SaveButtons />
+          <div class="horizontal-right-content gap-small">
+            <SaveButtons />
+          </div>
         </div>
       </NavBar>
       <div class="horizontal-left-content align-start gap-medium">
@@ -63,6 +68,7 @@ import LayerViewer from './components/LayerViewer.vue'
 import DrawBoard from './components/DrawBoard/DrawBoard.vue'
 import DrawControls from './components/DrawBoard/DrawControls.vue'
 import SaveButtons from './components/SaveButtons.vue'
+import RecentButton from './components/Recent.vue'
 
 const TABS = [AssignComponent, ReviewComponent]
 
@@ -83,7 +89,7 @@ onBeforeMount(() => {
   const urlParams = new URLSearchParams(window.location.search)
   const imageId = urlParams.get('image_id')
 
-  //loadImage(1044784)
+  // loadImage(1044784)
 
   if (/^\d+$/.test(imageId)) {
     loadImage(imageId)
@@ -92,8 +98,10 @@ onBeforeMount(() => {
 
 async function loadImage(imageId) {
   isLoading.value = true
-  await imageStore.loadImage(imageId)
-  await store.loadReport(imageId)
+  try {
+    await imageStore.loadImage(imageId)
+    await store.loadReport(imageId)
+  } catch (e) {}
   isLoading.value = false
 }
 </script>
