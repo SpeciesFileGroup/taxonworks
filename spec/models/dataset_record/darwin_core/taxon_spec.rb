@@ -1238,6 +1238,21 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
+  context 'when staging a record with invalid parentNameUsageID' do
+    before(:all) { import_checklist_tsv('error_tests/invalid_parent_id.tsv', 1) }
+    after(:all) { DatabaseCleaner.clean }
+
+    let(:record) {DatasetRecord.first}
+
+    it 'the row should be marked as Failed' do
+      expect(record.status).to eq('Failed')
+    end
+
+    it 'the row should have the correct error message' do
+      expect(record[:metadata].dig('error_data', 'messages', 'parentNameUsageID')).to include 'parentNameUsageID not found in dataset'
+    end
+  end
+
   # TODO test missing parent
   #
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName

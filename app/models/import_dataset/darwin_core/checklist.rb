@@ -262,7 +262,11 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     core_records.each do |record|
       dwc_taxon = DatasetRecord::DarwinCore::Taxon.new(import_dataset: self)
       dwc_taxon.initialize_data_fields(record[:src_data].map { |_, v| v })
-      dwc_taxon.status = !record[:error_data] && record[:dependencies] == [] && record[:parent].nil? ? 'Ready' : 'NotReady'
+      if record[:error_data]
+        dwc_taxon.status = 'Failed'
+      else
+        dwc_taxon.status = record[:dependencies] == [] && record[:parent].nil? ? 'Ready' : 'NotReady'
+      end
       record.delete(:src_data)
       dwc_taxon.metadata = record
 
