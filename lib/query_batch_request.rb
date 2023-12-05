@@ -52,7 +52,7 @@ class QueryBatchRequest
   end
 
   def object_filter_params
-    filter.new(@object_filter_params).params
+    filter.params
   end
 
   def unprocessable?
