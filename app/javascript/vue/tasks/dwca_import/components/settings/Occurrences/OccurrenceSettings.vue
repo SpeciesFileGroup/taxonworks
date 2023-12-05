@@ -32,7 +32,7 @@ const OCCURRENCE_CHECKBOX_SETTINGS = {
   containerize_dup_cat_no:
     'Containerize specimen with existing ones when catalog number already exists',
   restrict_to_existing_nomenclature:
-    ' Restrict import to existing nomenclature only',
+    'Restrict import to existing nomenclature only',
   require_type_material_success:
     'Error records with unprocessable typeStatus information',
   require_tripcode_match_verbatim:

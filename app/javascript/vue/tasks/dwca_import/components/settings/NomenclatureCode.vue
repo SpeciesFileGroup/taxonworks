@@ -1,10 +1,10 @@
 <template>
-  <div class="field ">
+  <div class="field">
     <label>Nomenclature code: </label>
     <select v-model="nomenclatureCode">
       <option
-        v-for="code in codes"
-        :key="code"
+        v-for="(code, key) in CODES"
+        :key="key"
         :value="code"
       >
         {{ code.toUpperCase() }}
@@ -13,39 +13,13 @@
   </div>
 </template>
 
-<script>
-
-import { ActionNames } from '../../store/actions/actions'
-import { GetterNames } from '../../store/getters/getters'
-import { UpdateImportSettings } from '../../request/resources'
+<script setup>
+import { useImportSetting } from './useImportSetting.js'
 import CODES from '../../const/nomenclatureCodes.js'
 
-export default {
-  data () {
-    return {
-      codes: Object.values(CODES)
-    }
-  },
+const SETTING_PROPERTY = 'nomenclatural_code'
 
-  computed: {
-    nomenclatureCode: {
-      get () {
-        return this.$store.getters[GetterNames.GetDataset].metadata?.import_settings?.nomenclatural_code || CODES.ICZN
-      },
-      set (value) {
-        UpdateImportSettings({
-          import_dataset_id: this.dataset.id,
-          import_settings: {
-            nomenclatural_code: value
-          }
-        }).then(response => {
-          this.$store.dispatch(ActionNames.LoadDataset, this.dataset.id)
-        })
-      }
-    },
-    dataset () {
-      return this.$store.getters[GetterNames.GetDataset]
-    }
-  }
-}
+const nomenclatureCode = useImportSetting(SETTING_PROPERTY, {
+  defaultValue: CODES.ICZN
+})
 </script>
