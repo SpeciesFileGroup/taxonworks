@@ -6,7 +6,7 @@
     >
       Settings
     </button>
-    <modal-component
+    <VModal
       v-if="showModal"
       @close="setModalView(false)"
       :container-style="{
@@ -24,7 +24,7 @@
           <component :is="SETTING_TYPE_COMPONENT[datasetType]" />
         </div>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
@@ -32,7 +32,7 @@
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters'
-import ModalComponent from '@/components/ui/Modal'
+import VModal from '@/components/ui/Modal'
 import NomenclatureCode from './NomenclatureCode.vue'
 import OccurrenceSettings from './Occurrences/OccurrenceSettings.vue'
 import ChecklistSettings from './Checklist/ChecklistSettings'

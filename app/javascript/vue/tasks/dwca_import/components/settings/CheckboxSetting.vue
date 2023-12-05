@@ -11,11 +11,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useStore } from 'vuex'
-import { ActionNames } from '../../store/actions/actions'
-import { GetterNames } from '../../store/getters/getters'
-import { UpdateImportSettings } from '../../request/resources'
+import { useImportSetting } from './useImportSetting.js'
 
 const props = defineProps({
   label: {
@@ -29,25 +25,5 @@ const props = defineProps({
   }
 })
 
-const store = useStore()
-const dataset = computed(() => store.getters[GetterNames.GetDataset])
-
-const inputValue = computed({
-  get() {
-    return store.getters[GetterNames.GetDataset].metadata?.import_settings[
-      props.property
-    ]
-  },
-
-  set(value) {
-    UpdateImportSettings({
-      import_dataset_id: dataset.value.id,
-      import_settings: {
-        [props.property]: value
-      }
-    }).then((_) => {
-      store.dispatch(ActionNames.LoadDataset, dataset.value.id)
-    })
-  }
-})
+const inputValue = useImportSetting(props.property)
 </script>
