@@ -75,7 +75,9 @@ const moveResponse = ref({
 function move() {
   const payload = {
     asserted_distribution_query: props.parameters,
-    geographic_area_id: geographicArea.value.id
+    asserted_distribution: {
+      geographic_area_id: geographicArea.value.id
+    }
   }
 
   AssertedDistribution.batchUpdate(payload)
