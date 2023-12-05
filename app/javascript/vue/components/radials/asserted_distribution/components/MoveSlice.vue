@@ -78,12 +78,14 @@ function move() {
     geographic_area_id: geographicArea.value.id
   }
 
-  AssertedDistribution.batchUpdate(payload).then(({ body }) => {
-    moveResponse.value = body
-    TW.workbench.alert.create(
-      `${body.updated.length} asserted distribution items were successfully updated.`,
-      'notice'
-    )
-  })
+  AssertedDistribution.batchUpdate(payload)
+    .then(({ body }) => {
+      moveResponse.value = body
+      TW.workbench.alert.create(
+        `${body.updated.length} asserted distribution items were successfully updated.`,
+        'notice'
+      )
+    })
+    .catch(() => {})
 }
 </script>
