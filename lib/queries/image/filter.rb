@@ -10,6 +10,7 @@ module Queries
         :collection_object_scope,
         :depiction_object_type,
         :depictions,
+        :freeform_sfg,
         :image_id,
         :otu_id,
         :sled_image_id,
@@ -48,6 +49,11 @@ module Queries
       #   false - image is not used
       #   nil - either
       attr_accessor :depictions
+
+      # @return [Boolean, nil]
+      #   true - image is used (in a depiction) that has svg
+      #   nil, false - ignored
+      attr_accessor :freeform_sfg
 
       # @return [Array]
       # @param depiction_object_type
@@ -115,6 +121,7 @@ module Queries
         @collection_object_scope = params[:collection_object_scope]
         @depiction_object_type = params[:depiction_object_type]
         @depictions = boolean_param(params, :depictions)
+        @freeform_sfg = boolean_param(params, :freeform_sfg)
         @image_id = params[:image_id]
         @otu_id = params[:otu_id]
         @otu_scope = params[:otu_scope]&.map(&:to_sym)
@@ -218,6 +225,15 @@ module Queries
           ::Image.joins(:depictions)
         else
           ::Image.where.missing(:depictions)
+        end
+      end
+
+      def freeform_sfg_facet
+        return nil if freeform_sfg.nil?
+        if freeform_sfg
+          ::Image.joins(:depictions).where.not.null(:svg_clip)
+        else
+          nil
         end
       end
 
@@ -446,6 +462,7 @@ module Queries
           collection_object_scope_facet,
           depiction_object_type_facet,
           depictions_facet,
+          freeform_sfg_facet,
           otu_id_facet,
           otu_scope_facet,
           sled_image_facet,
