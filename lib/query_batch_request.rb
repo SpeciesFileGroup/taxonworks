@@ -62,7 +62,7 @@ class QueryBatchRequest
 
   def filter
     @filter ||= "Queries::#{klass}::Filter".safe_constantize.new(
-      object_filter_params
+      @object_filter_params
     )
     @filter
   end
