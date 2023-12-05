@@ -56,7 +56,7 @@ class QueryBatchRequest
   end
 
   def unprocessable?
-    (!object_filter_params.blank? || !object_params.blank?) ||
+    (object_filter_params.blank? || object_params.blank?) ||
       (run_async? && preview)
   end
 
