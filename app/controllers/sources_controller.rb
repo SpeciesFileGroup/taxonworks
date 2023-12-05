@@ -177,7 +177,7 @@ class SourcesController < ApplicationController
     if r = Source::Bibtex.batch_update(
         preview: params[:preview], 
         source: source_params.merge(by: sessions_current_user_id),
-        source_query: params[:source_query].merge(by: sessions_current_user_id),
+        source_query: params[:source_query],
     )
       render json: r.to_json, status: :ok
     else
