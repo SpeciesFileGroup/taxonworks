@@ -35,6 +35,7 @@
 
 <script setup>
 import { onMounted, onUnmounted } from 'vue'
+import { ModalEventStack } from '@/utils'
 
 defineProps({
   containerClass: {
@@ -53,6 +54,8 @@ defineProps({
   }
 })
 
+let listenerId
+
 const emit = defineEmits(['close'])
 
 const handleKeys = (e) => {
@@ -63,9 +66,12 @@ const handleKeys = (e) => {
 }
 
 onMounted(() => {
-  document.addEventListener('keydown', handleKeys)
+  listenerId = ModalEventStack.addListener(handleKeys, {
+    atStart: true,
+    stopPropagation: true
+  })
 })
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleKeys)
+  ModalEventStack.removeListener(listenerId)
 })
 </script>

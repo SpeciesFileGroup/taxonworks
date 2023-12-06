@@ -29,20 +29,12 @@
         Update
       </VBtn>
 
-      <VBtn
-        color="primary"
-        medium
+      <PreviewBatch
+        :batch-service="AssertedDistribution.batchUpdate"
+        :payload="payload"
         :disabled="!geographicArea"
-        @click="preview"
-      >
-        Preview
-      </VBtn>
+      />
     </div>
-
-    <PreviewBatch
-      v-if="response.preview"
-      :data="response"
-    />
   </div>
 </template>
 
@@ -54,7 +46,7 @@ import VSpinner from '@/components/spinner.vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import { AssertedDistribution } from '@/routes/endpoints'
 import { ASSERTED_DISTRIBUTION } from '@/constants/index.js'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const props = defineProps({
   parameters: {
@@ -70,21 +62,19 @@ const response = ref({
   not_updated: []
 })
 
-function makePayload() {
+const payload = computed(() => {
   return {
     asserted_distribution_query: props.parameters,
     asserted_distribution: {
-      geographic_area_id: geographicArea.value.id
+      geographic_area_id: geographicArea.value?.id
     }
   }
-}
+})
 
 async function update() {
-  const payload = makePayload()
-
   isLoading.value = true
-
-  await makeRequest(payload)
+  await makeRequest(payload.value)
+  isLoading.value = false
 
   TW.workbench.alert.create(
     `${response.value.updated.length} asserted distribution items were successfully updated.`,
@@ -93,24 +83,10 @@ async function update() {
 }
 
 async function makeRequest(payload) {
-  isLoading.value = true
-
   return AssertedDistribution.batchUpdate(payload)
     .then(({ body }) => {
       response.value = body
     })
     .catch(() => {})
-    .finally(() => {
-      isLoading.value = false
-    })
-}
-
-function preview() {
-  const payload = {
-    ...makePayload(),
-    preview: true
-  }
-
-  makeRequest(payload)
 }
 </script>
