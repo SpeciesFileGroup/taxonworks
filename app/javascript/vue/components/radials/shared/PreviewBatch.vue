@@ -1,70 +1,68 @@
 <template>
-  <table class="table-striped full_width">
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>Value</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="(value, key) in previewData"
-        :key="key"
-      >
-        <td>{{ humanize(key) }}</td>
-        <td>{{ value }}</td>
-      </tr>
-    </tbody>
-  </table>
-  <table
-    v-if="previewErrors.length"
-    class="table-striped full_width"
+  <VBtn
+    medium
+    color="primary"
+    :disabled="disabled"
+    @click="openModal"
   >
-    <thead>
-      <tr>
-        <th>Errors</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="item in previewErrors"
-        :key="item.label"
-      >
-        <td>{{ item.label }}</td>
-        <td>{{ item.total }}</td>
-      </tr>
-    </tbody>
-  </table>
+    Preview
+  </VBtn>
+  <VModal
+    v-if="isModalVisible"
+    @close="() => (isModalVisible = false)"
+  >
+    <template #header>
+      <h3>Preview</h3>
+    </template>
+    <template #body>
+      <VSpinner v-if="isLoading" />
+      <PreviewTable :data="data" />
+    </template>
+  </VModal>
 </template>
 
 <script setup>
-import { humanize } from '@/helpers'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import VModal from '@/components/ui/Modal.vue'
+import PreviewTable from './PreviewTable.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/spinner.vue'
 
 const props = defineProps({
-  data: {
+  payload: {
     type: Object,
     required: true
+  },
+
+  batchService: {
+    type: Function,
+    required: true
+  },
+
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 
-const previewData = computed(() => {
-  const { data } = props
+const data = ref(null)
+const isModalVisible = ref(false)
+const isLoading = ref(false)
 
-  return {
-    preview: data.preview ? 'Yes' : 'No',
-    async: data.async ? 'Yes' : 'No',
-    updated: data.updated.length,
-    not_updated: data.not_updated.length,
-    total_attempted: data.total_attempted
-  }
-})
+function makeBatchloadRequest() {
+  isLoading.value = true
+  props
+    .batchService({ ...props.payload, preview: true })
+    .then(({ body }) => {
+      data.value = body
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
+}
 
-const previewErrors = computed(() => {
-  return Object.entries(props.data.errors).map(([label, total]) => ({
-    label,
-    total
-  }))
-})
+function openModal() {
+  isModalVisible.value = true
+  makeBatchloadRequest()
+}
 </script>
