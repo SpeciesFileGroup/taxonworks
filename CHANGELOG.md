@@ -9,9 +9,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Citation topic whitespace for paper catalog [https://github.com/SpeciesFileGroup/taxonpages/issues/187][https://github.com/SpeciesFileGroup/taxonpages/issues/187]
 - Source filter with duplicate results when coming from another filter [#3696]
 - `ancestrify` parameter for Otu queries not scoping to TaxonNames correctly
-
 
 [#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696
 
