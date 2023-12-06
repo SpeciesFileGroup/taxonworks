@@ -9,7 +9,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Source filter with duplicate results when coming from another filter [#3696]
 - `ancestrify` parameter for Otu queries not scoping to TaxonNames correctly
+
+
+[#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696
+
+
 
 ## [0.36.0] - 2023-11-30
 
