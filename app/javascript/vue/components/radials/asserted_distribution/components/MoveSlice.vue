@@ -25,6 +25,7 @@
         :payload="payload"
         :disabled="!geographicArea"
         @update="updateMessage"
+        @close="emit('close')"
       />
 
       <PreviewBatch
@@ -56,6 +57,8 @@ const props = defineProps({
     required: true
   }
 })
+
+const emit = defineEmits('close')
 
 const updateBatchRef = ref(null)
 const geographicArea = ref()

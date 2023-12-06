@@ -56,7 +56,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update'])
+const emit = defineEmits(['update', 'close'])
 
 const data = ref(null)
 const isModalVisible = ref(false)
@@ -83,6 +83,7 @@ function openModal() {
 function closeModal() {
   isModalVisible.value = false
   data.value = null
+  emit('close')
 }
 
 defineExpose({
