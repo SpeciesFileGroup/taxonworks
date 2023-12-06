@@ -1,37 +1,25 @@
 <template>
   <VBtn
     medium
-    color="primary"
+    color="create"
     :disabled="disabled"
     @click="openModal"
   >
-    Preview
+    Update
   </VBtn>
   <VModal
     v-if="isModalVisible"
     @close="closeModal"
   >
     <template #header>
-      <h3>Preview response</h3>
+      <h3>Update response</h3>
     </template>
     <template #body>
       <VSpinner v-if="isLoading" />
       <PreviewTable :data="data" />
     </template>
     <template #footer>
-      <div class="flex-separate middle">
-        <VBtn
-          color="create"
-          medium
-          @click="
-            () => {
-              emit('finalize')
-              closeModal()
-            }
-          "
-        >
-          Finalize
-        </VBtn>
+      <div class="horizontal-right-content">
         <VBtn
           color="primary"
           medium
@@ -68,7 +56,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['finalize'])
+const emit = defineEmits(['update'])
 
 const data = ref(null)
 const isModalVisible = ref(false)
@@ -77,8 +65,9 @@ const isLoading = ref(false)
 function makeBatchloadRequest() {
   isLoading.value = true
   props
-    .batchService({ ...props.payload, preview: true })
+    .batchService(props.payload)
     .then(({ body }) => {
+      emit('update', body)
       data.value = body
     })
     .finally(() => {

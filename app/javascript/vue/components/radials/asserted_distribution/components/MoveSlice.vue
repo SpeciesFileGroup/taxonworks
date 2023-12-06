@@ -1,6 +1,5 @@
 <template>
   <div>
-    <VSpinner v-if="isLoading" />
     <fieldset>
       <legend>Geographic area</legend>
       <SmartSelector
@@ -20,19 +19,23 @@
     <div
       class="horizontal-left-content gap-small margin-large-top margin-large-bottom"
     >
-      <VBtn
-        color="create"
-        medium
+      <UpdateBatch
+        ref="updateBatchRef"
+        :batch-service="AssertedDistribution.batchUpdate"
+        :payload="payload"
         :disabled="!geographicArea"
-        @click="update"
-      >
-        Update
-      </VBtn>
+        @update="updateMessage"
+      />
 
       <PreviewBatch
         :batch-service="AssertedDistribution.batchUpdate"
         :payload="payload"
         :disabled="!geographicArea"
+        @finalize="
+          () => {
+            updateBatchRef.openModal()
+          }
+        "
       />
     </div>
   </div>
@@ -41,9 +44,8 @@
 <script setup>
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import VSpinner from '@/components/spinner.vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
+import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import { AssertedDistribution } from '@/routes/endpoints'
 import { ASSERTED_DISTRIBUTION } from '@/constants/index.js'
 import { ref, computed } from 'vue'
@@ -55,12 +57,8 @@ const props = defineProps({
   }
 })
 
-const isLoading = ref(false)
+const updateBatchRef = ref(null)
 const geographicArea = ref()
-const response = ref({
-  updated: [],
-  not_updated: []
-})
 
 const payload = computed(() => {
   return {
@@ -71,22 +69,10 @@ const payload = computed(() => {
   }
 })
 
-async function update() {
-  isLoading.value = true
-  await makeRequest(payload.value)
-  isLoading.value = false
-
+function updateMessage(data) {
   TW.workbench.alert.create(
-    `${response.value.updated.length} asserted distribution items were successfully updated.`,
+    `${data.updated.length} asserted distribution items were successfully updated.`,
     'notice'
   )
-}
-
-async function makeRequest(payload) {
-  return AssertedDistribution.batchUpdate(payload)
-    .then(({ body }) => {
-      response.value = body
-    })
-    .catch(() => {})
 }
 </script>
