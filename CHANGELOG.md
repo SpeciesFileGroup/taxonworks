@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Source filter with duplicate results when coming from another filter [#3696]
 - `ancestrify` parameter for Otu queries not scoping to TaxonNames correctly
 - Filter source: BibTeX type facet
+- Project data SQL export obfuscating all users instead of just non-members
 
 [#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
 [#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696
