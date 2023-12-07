@@ -174,11 +174,11 @@ class Protonym < TaxonName
     names = ::Queries::TaxonName::Filter.new(collection_object_query: collection_object_query).all
 
     s = 'WITH q_co_names AS (' + names.distinct.all.to_sql + ') ' +
-        ::Protonym
-          .joins('JOIN taxon_name_hierarchies tnh on tnh.ancestor_id = taxon_names.id')
-          .joins('JOIN q_co_names as q_co1 on q_co1.id = tnh.descendant_id')
-          .where('taxon_names.rank_class ilike ?', rank)
-          .to_sql
+      ::Protonym
+      .joins('JOIN taxon_name_hierarchies tnh on tnh.ancestor_id = taxon_names.id')
+      .joins('JOIN q_co_names as q_co1 on q_co1.id = tnh.descendant_id')
+      .where('taxon_names.rank_class ilike ?', rank)
+      .to_sql
 
     ::Protonym.from('(' + s + ') as taxon_names').distinct
   end
@@ -558,31 +558,31 @@ class Protonym < TaxonName
       n = n[0..-5] + 'ana' if n =~ /^[a-z]*iana$/ # -iana > -ana
       n = n.gsub('ae', 'e') if n =~ /^[a-z]*ae[a-z]+$/ # -ae-
       n = n.gsub('oe', 'e').
-            gsub('ai', 'i').
-            gsub('ei', 'i').
-            gsub('ej', 'i').
-            gsub('ii', 'i').
-            gsub('ij', 'i').
-            gsub('jj', 'i').
-            gsub('j', 'i').
-            gsub('y', 'i').
-            gsub('v', 'u').
-            gsub('rh', 'r').
-            gsub('th', 't').
-            gsub('k', 'c').
-            gsub('ch', 'c').
-            gsub('tt', 't').
-            gsub('bb', 'b').
-            gsub('rr', 'r').
-            gsub('nn', 'n').
-            gsub('mm', 'm').
-            gsub('pp', 'p').
-            gsub('ss', 's').
-            gsub('ff', 'f').
-            gsub('ll', 'l').
-            gsub('ct', 't').
-            gsub('ph', 'f').
-            gsub('-', '')
+        gsub('ai', 'i').
+        gsub('ei', 'i').
+        gsub('ej', 'i').
+        gsub('ii', 'i').
+        gsub('ij', 'i').
+        gsub('jj', 'i').
+        gsub('j', 'i').
+        gsub('y', 'i').
+        gsub('v', 'u').
+        gsub('rh', 'r').
+        gsub('th', 't').
+        gsub('k', 'c').
+        gsub('ch', 'c').
+        gsub('tt', 't').
+        gsub('bb', 'b').
+        gsub('rr', 'r').
+        gsub('nn', 'n').
+        gsub('mm', 'm').
+        gsub('pp', 'p').
+        gsub('ss', 's').
+        gsub('ff', 'f').
+        gsub('ll', 'l').
+        gsub('ct', 't').
+        gsub('ph', 'f').
+        gsub('-', '')
       n = n[0, 3] + n[3..-4].gsub('o', 'i') + n[-3, 3] if n.length > 6 # connecting vowel in the middle of the word (nigrocinctus vs. nigricinctus)
     elsif rank_string =~ /Family/
       n_base = Protonym.family_group_base(self.name)
@@ -922,6 +922,23 @@ class Protonym < TaxonName
     return { moved: moved, unmoved: unmoved}
   end
 
+  # @params params [Hash]
+  #   { taxon_name_query: {},
+  #     taxon_name_filter_query: {},
+  #     async_cutoff: 1
+  #   }
+  def self.batch_update(params)
+    request = QueryBatchRequest.new(
+      async_cutoff: params[:async_cutoff] || 50,
+      klass: 'TaxonName',
+      object_filter_params: params[:taxon_name_query],
+      object_params: params[:taxon_name],
+      preview: params[:preview],
+    )
+
+    query_batch_update(request)
+  end
+
   protected
 
   def check_new_parent_class
@@ -1008,12 +1025,12 @@ class Protonym < TaxonName
   # DD: rules for cached tend to evolve, what was good in the past, may not be true today
   # MJY: If the meaning of cached changes then it should be removed, not changed.
   def sv_cached_names # this cannot be moved to soft_validation_extensions
-    is_cached = true
+  is_cached = true
 
-    is_cached = false if cached_author_year != get_author_and_year
-    is_cached = false if cached_author != get_author
+  is_cached = false if cached_author_year != get_author_and_year
+  is_cached = false if cached_author != get_author
 
-    if is_cached && (
+  if is_cached && (
       cached_valid_taxon_name_id != get_valid_taxon_name.id ||
       cached_is_valid != !unavailable_or_invalid? || # Do not change this, we want the calculated value.
       cached_html != get_full_name_html ||
@@ -1026,13 +1043,13 @@ class Protonym < TaxonName
       rank_string =~ /Species/ &&
       (cached_secondary_homonym != get_genus_species(:current, :self) ||
        cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative)))
-      is_cached = false
-    end
+    is_cached = false
+  end
 
-    soft_validations.add(
-      :base, 'Cached values should be updated',
-      success_message: 'Cached values were updated',
-      failure_message:  'Failed to update cached values') if !is_cached
+  soft_validations.add(
+    :base, 'Cached values should be updated',
+    success_message: 'Cached values were updated',
+    failure_message:  'Failed to update cached values') if !is_cached
   end
 
   def set_cached
@@ -1069,4 +1086,4 @@ class Protonym < TaxonName
   def set_cached_original_combination_html
     update_column(:cached_original_combination_html, get_original_combination_html)
   end
-end
+  end
