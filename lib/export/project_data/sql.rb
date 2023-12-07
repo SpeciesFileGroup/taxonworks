@@ -151,7 +151,7 @@ module ::Export::ProjectData::Sql
         is_administrator: user.is_administrator || 'NULL',
         hub_tab_order: "'{#{conn.escape_string(user.hub_tab_order.join(','))}}'"
       }.merge!(
-        if members.include?(user)
+        if members.include?(user.id)
           {
             email: "'#{conn.escape_string(user.email)}'",
             name: "'#{conn.escape_string(user.name)}'"
