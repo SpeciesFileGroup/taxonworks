@@ -11,7 +11,7 @@
             <input
               type="checkbox"
               :value="type"
-              v-model="params.bibtex_type"
+              v-model="selectedTypes"
             />
             {{ type }}
           </label>
@@ -57,7 +57,14 @@ const params = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
+const selectedTypes = computed({
+  get: () => params.value.bibtex_type || [],
+  set: (value) => {
+    params.value.bibtex_type = value
+  }
+})
+
 const urlParams = URLParamsToJSON(location.href)
 
-params.value.bibtex_type = urlParams.bibtex_type || []
+selectedTypes.value = urlParams.bibtex_type || []
 </script>

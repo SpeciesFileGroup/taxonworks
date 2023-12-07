@@ -6,6 +6,7 @@
         model="geographic_areas"
         :klass="ASSERTED_DISTRIBUTION"
         :target="ASSERTED_DISTRIBUTION"
+        label="name"
         @selected="(item) => (geographicArea = item)"
       />
       <SmartSelectorItem

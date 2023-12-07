@@ -81,29 +81,29 @@ class CachedMapItem < ApplicationRecord
     ::GeographicItem.from('(' + s + ') as geographic_items').distinct
   end
 
-  # TODO: constantize
+  # @return Array
   def self.types_by_data_origin(data_origin = [])
-    data_origin.each do |d|
-      a = CachedMapItem
-        .descendants
-        .inject([]) do |ary, t|
-          ary.push(t.name) if t::SOURCE_GAZETEERS.include?(d)
-          ary
-        end.compact!
-
-        a = a.uniq if a.present?
-        return a if a.present?
+    types = []
+    data_origin.each do |o|
+      CachedMapItem.descendants.each do |d|
+        types.push d.name if d::SOURCE_GAZETEERS.include?(o)
+      end
     end
+
+    types.uniq!
+    types
   end
 
   # Check CachedMapItemTranslation for previous translations and use
   #   that if possible
   def self.translate_by_geographic_item_translation(geographic_item_id, cached_map_type)
-    a = CachedMapItemTranslation.find_by(
+    a = CachedMapItemTranslation.where(
       cached_map_type:,
       geographic_item_id:
-    )&.translated_geographic_item_id
-    a.present? ? [a] : []
+    ).pluck(:translated_geographic_item_id)
+      .uniq # Just in case we duplicate the index, hopefully not needed
+
+    (a.presence || [])
   end
 
   # @return [Array]
@@ -139,7 +139,7 @@ class CachedMapItem < ApplicationRecord
       .order(cached_total_area: :ASC) # smallest first
       .first
       &.id
-    return [a]
+      return [a]
     else
       []
     end
@@ -161,7 +161,7 @@ class CachedMapItem < ApplicationRecord
     b = GeographicItem
       .joins(:geographic_areas_geographic_items)
       .where(geographic_areas_geographic_items: { data_origin: })
-      .where( GeographicItem.within_radius_of_item_sql(geographic_item_id, 0.0000001) )
+      .where( GeographicItem.within_radius_of_item_sql(geographic_item_id, 0.0) )
       .order('geographic_items.cached_total_area ASC')
       .pluck(:id, :cached_total_area)
 
@@ -171,7 +171,7 @@ class CachedMapItem < ApplicationRecord
 
     # Points
     if original_area == 0.0
-      return b.collect { |c| c.first }
+      return b.collect{ |c| c.first }
 
       # Polygons
     else
@@ -203,13 +203,12 @@ class CachedMapItem < ApplicationRecord
         if intersecting_area >= original_area # if the largest fully surrounds the original area select that, and exit, there should be no other results needed
           chosen_larger.push id
         else  # it must be intersecting all remaining target shapes, since we started with the smallest
-          chosen_larger += larger
+          chosen_larger += larger.map(&:first)
         end
       end
 
       # We need to "smooth" the smaller, more detailed shapes which may catch many overlaping areas slightly.
       # Remove intersections of 10% or less.
-
       chosen_smaller = []
 
       smaller.each do |id, candidate_area|
@@ -286,7 +285,7 @@ class CachedMapItem < ApplicationRecord
       otu_id = [o.otu_id]
     when 'Georeference'
       geographic_item_id = o.geographic_item_id
-      otu_id = o.otus.where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
+      otu_id = o.otus.joins('LEFT JOIN taxon_determinations td on otus.id = td.otu_id').where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
     end
 
     # Some AssertedDistribution don't have shapes
@@ -308,4 +307,73 @@ class CachedMapItem < ApplicationRecord
     h[:otu_id] = otu_id
     h
   end
+
+
+  # Create breadth-first CachedMapItems
+  #   Only applicable to Georeferences.
+  #
+  # @params batch_stubs [Hash]
+  # {
+  #  map_type: ,
+  #  geographic_item_id: []
+  #  otu_id: [ [otu_id, :project_id], ... [] ],
+  #  georeference_id: [ [geoference_id, :project_id] ],
+  # }
+  #
+  #
+  def self.batch_create_georeference_cached_map_items(batch_stubs)
+    map_type = batch_stubs[:map_type]
+    j = batch_stubs[:geographic_item_id]
+    k = batch_stubs[:otu_id]
+
+    j.each do |geographic_item_id|
+      k.each do |otu_id|
+        otu_id = otu_id.first
+        project_id = otu_id.second
+
+        begin
+          a = CachedMapItem.find_or_initialize_by(
+            type: map_type,
+            otu_id:,
+            geographic_item_id:,
+            project_id:,
+          )
+
+          if a.persisted?
+            a.increment!(:reference_count)
+          else
+            a.reference_count = 1
+            a.save!
+          end
+
+        rescue ActiveRecord::RecordInvalid => e
+          logger.debug e
+        rescue PG::UniqueViolation
+          logger.debug 'pg unique violation'
+        end
+      end
+    end
+
+    # Register the Georeferences
+    registrations = []
+
+    batch_stubs[:georeference_id].each do |georeference_id, project_id|
+      registrations.push({
+        cached_map_register_object_type: 'Georeference',
+        cached_map_register_object_id: georeference_id,
+        project_id:,
+        created_at: Time.current,
+        updated_at: Time.current,
+      })
+    end
+
+    begin
+      CachedMapRegister.insert_all(registrations) if registrations.present?
+    rescue
+      puts '!! Failed to register Georeferences in batch_create_georeference_cached_map_items.'
+    end
+
+    true
+  end
+
 end

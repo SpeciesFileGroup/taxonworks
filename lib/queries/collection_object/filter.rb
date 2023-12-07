@@ -319,6 +319,7 @@ module Queries
         # Only CollectingEvent fields are permitted, for advanced nesting (e.g. tags on CEs), use collecting_event_query
         collecting_event_params = ::Queries::CollectingEvent::Filter.base_params + Queries::Concerns::DateRanges.params
 
+        # project_id is handled during use
         @base_collecting_event_query = ::Queries::CollectingEvent::Filter.new(
           params.select{ |a, b| collecting_event_params.include?(a) } # maintain this to avoid sub query initialization for now
         )

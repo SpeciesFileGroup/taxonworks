@@ -44,7 +44,7 @@ class DwcOccurrencesController < ApplicationController
         redirect_to browse_collection_objects_task_path(collection_object_id: @object.id)
       end
       format.json {
-        render status: 302 and return
+        render status: :found and return
       }
     end
   end
@@ -58,19 +58,19 @@ class DwcOccurrencesController < ApplicationController
     render '/dwc_occurrences/api/v1/index'
   end
 
-  # GET /dwc_occurence/download 
+  # GET /dwc_occurence/download
   def download
-    send_data Export::Download.generate_csv(
+    send_data Export::Csv.generate_csv(
       DwcOccurrence.where(project_id: sessions_current_project_id)), type: 'text', filename: "dwc_occurrence_#{DateTime.now}.tsv"
   end
 
   protected
-  
+
   def set_object
     @object = GlobalID::Locator.locate(params[:object_global_id])
 
     if @object.nil? || (@object.project_id != sessions_current_project_id)
-      render status: 404 and return
+      render status: :not_found and return
     end
   end
 

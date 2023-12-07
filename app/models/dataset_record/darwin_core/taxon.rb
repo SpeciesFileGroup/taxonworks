@@ -57,23 +57,25 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         year = nil
 
         # split authorship into name and year
-        if nomenclature_code == :iczn
-          if (authorship_matchdata = authorship.match(/\(?(?<author>.+),? (?<year>\d{4})?\)?/))
+        if authorship.present?
+          if nomenclature_code == :iczn
+            if (authorship_matchdata = authorship.match(/\(?(?<author>.+),? (?<year>\d{4})?\)?/))
 
-            # regex will include comma, no easy way around it
-            author_name = authorship_matchdata[:author].delete_suffix(',')
-            year = authorship_matchdata[:year]
+              # regex will include comma, no easy way around it
+              author_name = authorship_matchdata[:author].delete_suffix(',')
+              year = authorship_matchdata[:year]
 
-            # author name should be wrapped in parentheses if the verbatim authorship was
-            if authorship.start_with?('(') and authorship.end_with?(')')
-              author_name = '(' + author_name + ')'
+              # author name should be wrapped in parentheses if the verbatim authorship was
+              if authorship.start_with?('(') and authorship.end_with?(')')
+                author_name = '(' + author_name + ')'
+              end
             end
-          end
 
-        else
-          # Fall back to simple name + date parsing
-          author_name = Utilities::Strings.verbatim_author(authorship)
-          year = Utilities::Strings.year_of_publication(authorship)
+          else
+            # Fall back to simple name + date parsing if not iczn
+            author_name = Utilities::Strings.verbatim_author(authorship)
+            year = Utilities::Strings.year_of_publication(authorship)
+          end
         end
 
         if year && (name_published_in_year = get_field_value('namePublishedInYear')) &&
@@ -90,7 +92,30 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         is_hybrid = metadata['is_hybrid'] # TODO: NO...
 
         if metadata['parent'].nil?
-          parent = project.root_taxon_name
+          if self.import_dataset.use_existing_hierarchy?
+            protonym_attributes = { name: name,
+                                  cached: get_field_value(:scientificName),
+                                  rank_class: Ranks.lookup(nomenclature_code, rank),
+                                  verbatim_author: author_name,
+                                  year_of_publication: year,
+                                  project: project}
+            potential_protonyms = TaxonName.where(protonym_attributes)
+
+            if potential_protonyms.count == 1
+              parent = potential_protonyms.first.parent
+            elsif potential_protonyms.count > 1
+              matching_protonyms = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }.join(', ')
+              raise DarwinCore::InvalidData.new(
+                { "parentNameUsageID": ["parent ID is blank, 'use existing taxon hierarchy' is enabled in settings, " \
+                                          "and multiple TaxonNames matched #{protonym_attributes}: #{matching_protonyms}"] })
+            else
+              raise DarwinCore::InvalidData.new(
+                { "parentNameUsageID": ["parent ID is blank, 'use existing taxon hierarchy' is enabled in settings, " \
+                                          "and no TaxonNames matched #{protonym_attributes}"] })
+            end
+          else
+            parent = project.root_taxon_name
+          end
         else
           parent = TaxonName.find(get_parent.metadata['imported_objects']['taxon_name']['id'])
         end
@@ -115,11 +140,11 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             rank_class: Ranks.lookup(nomenclature_code, rank),
             # also_create_otu: false,
             verbatim_author: author_name,
-            year_of_publication: year
+            year_of_publication: year,
+            project: project
           }
 
-          taxon_name = Protonym.create_with(project: project)
-                               .find_or_initialize_by(protonym_attributes)
+          taxon_name = Protonym.find_or_initialize_by(protonym_attributes)
 
           unless taxon_name.persisted?
             taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
@@ -133,7 +158,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           end
 
           # make OC relationships to OC ancestors
-          unless parent == project.root_taxon_name # can't make original combination with Root
+          unless metadata['parent'].nil? # can't make original combination with Root or if matching pre-existing taxon name
 
             # loop through parents of original combination based on parentNameUsageID, not TW parent
             # this way we get the name as intended, not with any valid/current names
@@ -207,7 +232,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             # detect if current name rank is genus and original combination is with self at subgenus level, eg Aus (Aus)
             # if so, generate OC relationship with genus (since oc_protonym_rank will be subgenus)
             if oc_protonym_rank == :subgenus && get_field_value('taxonRank').downcase == "genus" &&
-              (get_original_combination.metadata['parent'] == get_field_value('taxonID'))
+              (get_original_combination&.metadata['parent'] == get_field_value('taxonID'))
               TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
                 type: ORIGINAL_COMBINATION_RANKS[:genus],
                 object_taxon_name: taxon_name)
@@ -222,7 +247,11 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               iczn: {
                 synonym: 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
                 homonym: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym',
-                misspelling: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
+                misspelling: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
+                'original misspelling':  'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
+
+                # invalid can be either a relationship or classification, depending on if 'has_external_accepted_name' is true or not
+                invalid: 'TaxonNameRelationship::Iczn::Invalidating'
               },
               # TODO support other nomenclatural codes
               # icnp: {
@@ -246,7 +275,10 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
               type = synonym_classes[nomenclature_code][status.to_sym]
 
-              raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["Status #{status} did not match synonym, homonym, invalid, unavailable, excluded"] }) if type.nil?
+
+              raise DarwinCore::InvalidData.new(
+                { "taxonomicStatus": ["acceptedNameUsageID refers to a different protonym, " \
+                  "but status #{status} did not match synonym, homonym, invalid, misspelling or original misspelling."] }) if type.nil?
 
               taxon_name.taxon_name_relationships.find_or_initialize_by(object_taxon_name: valid_name, type: type)
 
@@ -259,10 +291,10 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                   ORIGINAL_COMBINATION_RANKS.has_key?(old_rank.downcase.to_sym)
 
                   # save taxon so we can create a combination
-                  taxon_name.save
+                  taxon_name.save!
 
                   # stolen from combination handling portion of code
-                  parent_elements = create_parent_element_hash
+                  parent_elements = create_parent_element_hash.transform_values {|v| v.is_a?(Combination) ? v.finest_protonym : v}
 
                   combination_attributes = { **parent_elements }
                   combination_attributes[old_rank.downcase] = taxon_name if old_rank
@@ -287,6 +319,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
             # if taxonomicStatus is a homonym, invalid, unavailable, excluded, create the status
             # if it's incertae sedis, create the relationship
+            # TODO why have an OR with nil? shouldn't the first condition check that?
           elsif get_field_value(:taxonomicStatus) != 'valid' || get_field_value(:taxonomicStatus).nil?
             status_types = {
               invalid: 'TaxonNameClassification::Iczn::Available::Invalid',
@@ -341,7 +374,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               else
                 type = status_types[status.to_sym]
 
-                raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["Couldn't find a status that matched #{status}"] }) if type.nil?
+                raise DarwinCore::InvalidData.new(
+                  { "taxonomicStatus": ["Couldn't find a status that matched #{status}.",
+                                        "Possible statuses: [#{status_types.keys.join(", ")}]"] }) if type.nil?
 
                 taxon_name.taxon_name_classifications.find_or_initialize_by(type: type)
               end
@@ -349,7 +384,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           end
 
           # Taxon status might not be "fossil" if synonym, homonym, incertae sedis, etc.
-          if get_field_value('TW:TaxonNameClassification::Iczn::Fossil')
+          if get_field_value('TW:TaxonNameClassification:Iczn:Fossil')
             taxon_name.taxon_name_classifications.find_or_initialize_by(type: 'TaxonNameClassification::Iczn::Fossil')
           end
 
@@ -502,7 +537,12 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   # Create a hash of parents from checklist
   # @return [Hash{Symbol => TaxonName}] hash of ranks and TaxonNames of genus and species rank parents
   def create_parent_element_hash
-    parents = [get_parent]
+    parent = get_parent
+
+    # if parent is root, return empty hash
+    return {} unless parent
+
+    parents = [parent]
 
     while (next_parent = find_by_taxonID(parents[-1].metadata['parent']))
       parents << next_parent

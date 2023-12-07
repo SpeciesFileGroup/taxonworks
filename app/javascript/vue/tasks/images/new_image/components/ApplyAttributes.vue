@@ -138,8 +138,13 @@ export default {
 
     validateAttr() {
       return (
-        (this.imagesBy.length && this.license.length) ||
-        (this.source && !this.imagesBy.length)
+        this.areImagesCreated &&
+        (this.license.length ||
+          this.authors.length ||
+          this.owners.length ||
+          this.editors.length ||
+          this.copyrightHolder.length ||
+          this.getYear)
       )
     },
 

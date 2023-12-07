@@ -22,7 +22,24 @@
           v-if="isLoading"
           legend="Loading predicates..."
         />
-        <h3>Filter by predicates</h3>
+        <ul class="no_bullets">
+          <li
+            v-for="item in checkboxParameters"
+            :key="item.parameter"
+          >
+            <label>
+              <input
+                type="checkbox"
+                :disabled="item.disabled"
+                v-model="includeParameters[item.parameter]"
+              />
+              {{ item.label }}
+            </label>
+          </li>
+        </ul>
+        <div class="margin-small-top">
+          <h3>Filter by predicates</h3>
+        </div>
         <div>
           <v-btn
             class="margin-small-right"
@@ -136,11 +153,22 @@
 import { computed, reactive, ref, onBeforeMount, watch } from 'vue'
 import { RouteNames } from '@/routes/routes.js'
 import { DwcOcurrence } from '@/routes/endpoints'
-import { qs } from 'qs'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/spinner.vue'
+
+const checkboxParameters = [
+  {
+    label: 'Include biological associations as recource relationship',
+    parameter: 'biological_associations_extension'
+  },
+  {
+    label: 'Include media extension',
+    parameter: 'media_extension',
+    disabled: true
+  }
+]
 
 const props = defineProps({
   params: {
@@ -164,6 +192,7 @@ const showModal = ref(false)
 const isLoading = ref(false)
 const collectingEvents = ref([])
 const collectionObjects = ref([])
+const includeParameters = ref({})
 const predicateParams = reactive({
   collecting_event_predicate_id: [],
   collection_object_predicate_id: []
@@ -208,11 +237,13 @@ function download() {
     ? { collection_object_id: props.selectedIds }
     : getFilterParams(props.params)
 
-  DwcOcurrence.generateDownload({ ...downloadParams, ...predicateParams }).then(
-    (_) => {
-      openGenerateDownloadModal()
-    }
-  )
+  DwcOcurrence.generateDownload({
+    ...downloadParams,
+    ...includeParameters.value,
+    ...predicateParams
+  }).then((_) => {
+    openGenerateDownloadModal()
+  })
 }
 
 function setModalView(value) {

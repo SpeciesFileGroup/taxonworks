@@ -7,6 +7,7 @@ import findPeople from './findPeople.js'
 import flipPeople from './flipPeople.js'
 import processMerge from './processMerge.js'
 import resetStore from './resetStore.js'
+import removePerson from './removePerson.js'
 
 const ActionFunctions = {
   [ActionNames.AddMatchPerson]: addMatchPerson,
@@ -15,10 +16,8 @@ const ActionFunctions = {
   [ActionNames.FindPeople]: findPeople,
   [ActionNames.FlipPeople]: flipPeople,
   [ActionNames.ProcessMerge]: processMerge,
-  [ActionNames.ResetStore]: resetStore
+  [ActionNames.ResetStore]: resetStore,
+  [ActionNames.RemovePerson]: removePerson
 }
 
-export {
-  ActionFunctions,
-  ActionNames
-}
+export { ActionFunctions, ActionNames }

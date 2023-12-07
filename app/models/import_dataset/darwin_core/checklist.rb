@@ -30,10 +30,12 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
   def perform_staging
     records, headers = get_records(source)
 
-    update!(metadata: {
-      core_headers: headers[:core],
+    update!(metadata:
+      metadata.merge({
+         core_headers: headers[:core],
       extensions_headers: headers[:extensions]
-    })
+       })
+    )
 
     parse_results_ary = Biodiversity::Parser.parse_ary(records[:core].map { |r| r['scientificName'] || '' })
 
@@ -92,7 +94,8 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
       oc_index = records_lut[record[:src_data]['originalNameUsageID']][:index]
 
       # misspellings are treated as separate protonyms, so don't bundle them in original combination with the correct spelling
-      if record[:src_data]['taxonomicStatus'] == 'misspelling'
+      # "original misspelling" is also treated this way
+      if record[:src_data]['taxonomicStatus'].include?('misspelling')
         oc_index = index
       end
 
@@ -279,6 +282,10 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
   end
 
+  def use_existing_hierarchy?
+    !!self.metadata.dig("import_settings", "use_existing_taxon_hierarchy")
+  end
+
   private
 
   # @param [String, Symbol] column_name
@@ -294,4 +301,4 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     end
   end
 
-end
+  end

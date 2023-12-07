@@ -1,55 +1,64 @@
-var TW = TW || {};
-TW.views = TW.views || {};
-TW.views.shared = TW.views.shared || {};
-TW.views.shared.recent_updates = TW.views.shared.recent_updates || {};
+var TW = TW || {}
+TW.views = TW.views || {}
+TW.views.shared = TW.views.shared || {}
+TW.views.shared.recent_updates = TW.views.shared.recent_updates || {}
 
 Object.assign(TW.views.shared.recent_updates, {
+  init: function () {
+    const listElements = [...document.querySelectorAll('.recent_updates li')]
 
-	init: function() {
-		$(".recent_updates li").dblclick(function() {
-		  location.href = $(this).find("a").attr("href");
-		});
-		
-		this.opacityUpdates();
-		recentUpdatesContextMenu();
+    listElements.forEach((el) =>
+      el.addEventListener('dblclick', function (e) {
+        location.href = this.querySelector('a').getAttribute('href')
+      })
+    )
 
-		function recentUpdatesContextMenu() {
-		  	$.contextMenu('destroy', ".recent_updates li" );
-		    $.contextMenu({
-	          selector: '.recent_updates li', 
-		      autoHide: true,
-		      callback: function(key, options) {
-	            var m = "clicked: " + key;
-		          switch(key) {
-		            case "show":
-		            	location.href = $(this).children("a:nth-child(1)").attr('href');
-		          	break;
-		            case "edit":
-		            	location.href = $(this).children("a:nth-child(2)").attr('href');
-	              	break;                  
-		          }
-		      },
-		      items: {
-		        "show": {name: "Show", icon: "show"},
-		        "sep1": "---------",
-		        "edit": {name: "Edit", icon: "edit"},
-		      }
-		    });
-		}
-	},
+    this.opacityUpdates()
+    recentUpdatesContextMenu()
 
-	opacityUpdates: function() {
-		var childs = $(".recent_updates ul").children().length,
-			opacityValue = 1;
+    function recentUpdatesContextMenu() {
+      $.contextMenu('destroy', '.recent_updates li')
+      $.contextMenu({
+        selector: '.recent_updates li',
+        autoHide: true,
+        callback: function (key, options) {
+          console.log(options)
+          switch (key) {
+            case 'show':
+              location.href = options.$trigger
+                .find('div:nth-child(1) a:nth-child(1)')
+                .attr('href')
+              break
+            case 'edit':
+              location.href = options.$trigger
+                .find('div:nth-child(2) a:nth-child(1)')
+                .attr('href')
+          }
+        },
+        items: {
+          show: { name: 'Show', icon: 'show' },
+          sep1: '---------',
+          edit: { name: 'Edit', icon: 'edit' }
+        }
+      })
+    }
+  },
 
-		for(var i = 1; i <= childs; i++) {
-			$(".recent_updates li:nth-child("+(i)+")").css("opacity", (opacityValue-(i*0.1)));
-		}
-	}	
-});
+  opacityUpdates: function () {
+    var childs = $('.recent_updates ul').children().length,
+      opacityValue = 1
 
-$(document).on('turbolinks:load', function() {
-  if($("#model_index").length) {
-    TW.views.shared.recent_updates.init();
+    for (var i = 1; i <= childs; i++) {
+      $('.recent_updates li:nth-child(' + i + ')').css(
+        'opacity',
+        opacityValue - i * 0.1
+      )
+    }
   }
-});
+})
+
+$(document).on('turbolinks:load', function () {
+  if ($('#model_index').length) {
+    TW.views.shared.recent_updates.init()
+  }
+})

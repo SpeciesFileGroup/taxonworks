@@ -21,12 +21,32 @@
         v-model="isLocked"
       />
     </div>
+    <div
+      class="horizontal-left-content margin-medium-top"
+      :class="!source && 'margin-medium-bottom'"
+    >
+      <VBtn
+        v-if="submitButton"
+        class="margin-small-right"
+        :color="submitButton.color"
+        :disabled="!citation.source_id"
+        medium
+        @click="emit('submit', citation)"
+      >
+        {{ submitButton.label }}
+      </VBtn>
+      <FormCitationClone
+        v-if="!inlineClone"
+        @clone="(item) => Object.assign(citation, item)"
+      />
+      <slot name="footer" />
+    </div>
     <SmartSelectorItem
       :item="source"
       label="cached"
       @unset="setSource({})"
     />
-    <div class="margin-medium-bottom margin-medium-top">
+    <div>
       <ul class="context-menu no_bullets">
         <li>
           <input
@@ -63,23 +83,6 @@
           </label>
         </li>
       </ul>
-    </div>
-    <div class="horizontal-left-content">
-      <VBtn
-        v-if="submitButton"
-        class="margin-small-right"
-        :color="submitButton.color"
-        :disabled="!citation.source_id"
-        medium
-        @click="emit('submit', citation)"
-      >
-        {{ submitButton.label }}
-      </VBtn>
-      <FormCitationClone
-        v-if="!inlineClone"
-        @clone="(item) => Object.assign(citation, item)"
-      />
-      <slot name="footer" />
     </div>
   </fieldset>
 </template>

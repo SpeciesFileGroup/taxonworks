@@ -8,8 +8,125 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Fixed
-- Duplicate CachedMapRegister rows being created per object
 
+- Address rendering on loan form [#3645]
+- Citation topic whitespace for paper catalog [https://github.com/SpeciesFileGroup/taxonpages/issues/187][https://github.com/SpeciesFileGroup/taxonpages/issues/187]
+- Source filter with duplicate results when coming from another filter [#3696]
+- `ancestrify` parameter for Otu queries not scoping to TaxonNames correctly
+- Filter source: BibTeX type facet
+
+[#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
+[#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696
+
+## [0.36.0] - 2023-11-30
+
+### Added
+
+- Staged image CollectionObjects are destroy if a) stubs and b) depictions are removed from them to another CollectionObject [#3172]
+- `/api/v1/biological_associations/123/globi` (preview experiment)
+- `/api/v1/biological_associations/123/resource_relationship` (preview experiment)
+- BiologicalAssociations as raw TaxonWorks data`/api/v1/biological_associations.csv`
+- BiologicalRelationships as raw TaxonWorks data`/api/v1/biological_relationships.csv`
+- DwC ResourceRelationship extension (preview) [#2554]
+- Taxonomy summary to CollectionObject summary report
+- Metadata summary report from Filter BiologicalAssociations
+- Biological associations simple table preview, sortable columns [#1946]
+- GLOBI format table from Filter BiologicalAssociations (preliminary)
+- Family by genera report from Filter BiologicalAssociations
+- DwC ResourceRelationship extension preview from Filter BiologicalAssociations
+- Visualize network from Filter BiologicalAssociations
+- BiologicalRelationship can have Identifiers
+- "ancestrify" option to TaxonName and Otu filters (adds ancestors of filter result)
+- Auto UUIDs as new Identifier::Global::Uuid::Auto for models
+- Auto UUIDs are created for BiologicalAssociations and OTUs
+- Maintenance Task to add UUIDs to objects that can have them but don't
+- TaxonName model to customize attributes
+- TaxonNameRelationship model, added validation for the rank of type species and type genus.
+- New source task: Person source
+- Index view to API for /depictions
+- Added extend[]=role_counts to /person/123.json
+- Batch update OTU taxon_name within OTU filter [#3656]
+- DwC Checklist importer: support "invalid", "incorrectOriginalSpelling" taxonomic Status
+- DwC Checklist importer: option to match and update existing names rather than create new hierarchy from Root
+- DwC Occurrence importer: search for repository URL
+
+### Changed
+
+- CachedMaps of ancestors are set for rebuild when a descendant Georeference or AssertedDistribution is created
+- Radial annotator: Move selected source to the bottom in citation form [#3652]
+- DwC Occurrence importer: more helpful protonym, institution error messages
+- Filter interfaces: remove items from list instead redirect to data view [#3659]
+- New BiologicalAssociation defaults to task, not old form
+- Extracted CSV generating code to lib/export/csv
+
+### Fixed
+
+- Buttons to remove BiologicalProperties in composer failing [#3673]
+- Could not destroy BiologicalRelationship if properties attached
+- Some CollectionObject summary values were not scoped to filter query
+- Filtering People returned duplicate values one name string searches
+- BiologicalAssociations passed to TaxonNames missed object names
+- Nulified cached values in Collecting Event, if Geographic area deleted [#3668]
+- Match TaxonName based on original combination [#3365]
+- Radial AD: Quick/recent selector broken on "Move". [#3640]
+- New taxon name: Author panel overflow when source has a long link
+- Edit Loan: Loans created without recipient or supervisor cannot be updated
+- Fixed bug in DwC importer background processor that was not dealing with errored records.
+- Browse OTU: autocomplete overflow [#3667]
+- Comprehensive: Relationship doesn't show up on biological associations list [#3671]
+- DwC Occurrence importer: protonyms could not be found if authorship information didn't match
+- DwC Occurrence importer: protonyms could not be found if author was Person [#3677]
+- DwC Checklist importer: empty `scientificNameAuthorship` field would cause row to error [#3660]
+- DwC Checklist importer: subsequent combinations with synonym status whose parents are synonyms would cause row to error
+- Could not set Repository Index Herbariorum flag in interface
+- Uniquify People: autocomplete would not select people for merging if already present in Match people table
+
+[#3172]: https://github.com/SpeciesFileGroup/taxonworks/issues/3172
+[#1946]: https://github.com/SpeciesFileGroup/taxonworks/issues/1946
+[#2554]: https://github.com/SpeciesFileGroup/taxonworks/issues/2554
+[#3365]: https://github.com/SpeciesFileGroup/taxonworks/issues/3365
+[#3640]: https://github.com/SpeciesFileGroup/taxonworks/issues/3640
+[#3652]: https://github.com/SpeciesFileGroup/taxonworks/issues/3652
+[#3656]: https://github.com/SpeciesFileGroup/taxonworks/issues/3656
+[#3659]: https://github.com/SpeciesFileGroup/taxonworks/issues/3659
+[#3660]: https://github.com/SpeciesFileGroup/taxonworks/issues/3660
+[#3667]: https://github.com/SpeciesFileGroup/taxonworks/issues/3667
+[#3668]: https://github.com/SpeciesFileGroup/taxonworks/issues/3668
+[#3671]: https://github.com/SpeciesFileGroup/taxonworks/issues/3671
+[#3673]: https://github.com/SpeciesFileGroup/taxonworks/issues/3673
+[#3677]: https://github.com/SpeciesFileGroup/taxonworks/issues/3677
+
+## [0.35.3] - 2023-11-13
+
+### Added
+
+- Radial collection object: Add repository [#3637]
+
+### Changed
+
+- CachedMaps (WebLevel1) is now based on "State" shapes only, improving resolution
+- CachedMap build process adds pre-build step to greatly minimize overall number of spatial calculations
+- CachedMap spatial calculations use a intersection + "smoothing" approach
+- Also use year of publication to determine correct protonyn having homonyms [#3630]
+- Improved error message when `typeStatus` name is a homonym in DwC occurrences importer [#3632]
+
+### Fixed
+
+- Duplicate loans appearing Loan filter [#3636]
+- New source when cloned and saved is not added to the project sources [#3629]
+- Sequence display when not a Primer
+- CachedMap indexing speedups failed to properly utilize prior work
+- Duplicate CachedMapRegister rows being created per object
+- New Image task, second "Apply" button is not working #3628
+- ' [sic]' not removed when searching for synonyms in database to compare with `typeStatus` in DwC occurrence importer [#3633]
+
+[#3628]: https://github.com/SpeciesFileGroup/taxonworks/issues/3636
+[#3628]: https://github.com/SpeciesFileGroup/taxonworks/issues/3628
+[#3629]: https://github.com/SpeciesFileGroup/taxonworks/issues/3629
+[#3630]: https://github.com/SpeciesFileGroup/taxonworks/pull/3630
+[#3632]: https://github.com/SpeciesFileGroup/taxonworks/pull/3632
+[#3633]: https://github.com/SpeciesFileGroup/taxonworks/pull/3633
+[#3637]: https://github.com/SpeciesFileGroup/taxonworks/pull/3637
 
 ## [0.35.2] - 2023-11-07
 
@@ -4030,7 +4147,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.36.0...development
+[0.36.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.3...v0.36.0
+[0.35.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.2...v0.35.3
 [0.35.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.1...v0.35.2
 [0.35.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.34.6...v0.35.0

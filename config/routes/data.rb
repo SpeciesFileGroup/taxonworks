@@ -49,6 +49,9 @@ resources :biological_associations do
   concerns [:data_routes]
   collection do
     match :filter, to: 'biological_associations#index', via: [:get, :post]
+
+    post :batch_rotate
+    post :batch_update
   end
 end
 
@@ -137,6 +140,7 @@ resources :collection_objects do
     get :select_options, defaults: {format: :json}
     get :preview, defaults: {format: :json}
 
+    post :batch_update_dwc_occurrence
     post :batch_update
   end
 
@@ -557,6 +561,8 @@ resources :otus do
     post :create_identifiers_batch_load
 
     get :select_options, defaults: {format: :json}
+
+    post :batch_update
   end
 
   member do

@@ -35,8 +35,10 @@ class GeographicAreasGeographicItem < ApplicationRecord
   belongs_to :geographic_area, inverse_of: :geographic_areas_geographic_items
   belongs_to :geographic_item, inverse_of: :geographic_areas_geographic_items
 
+  has_many :cached_map_item_translations, primary_key: :geographic_item_id, foreign_key: :translated_geographic_item_id
+
   validates :geographic_area, presence: true
-  validates :geographic_item, presence: true unless ENV["NO_GEO_VALID"]
+  validates :geographic_item, presence: true unless ENV['NO_GEO_VALID']
 
   # # Postgis specific SQL
   # scope :ordered_by_data_origin, lambda {
@@ -57,12 +59,12 @@ class GeographicAreasGeographicItem < ApplicationRecord
 
   def self.origin_order_clause(table_alias = nil)
     t = arel_table
-    t = t.alias(table_alias) if !table_alias.blank?
+    t = t.alias(table_alias) if table_alias.present?
 
     c = Arel::Nodes::Case.new(t[:data_origin])
-    c.when("gadm").then(1)
-    c.when("ne_country").then(2)
-    c.when("ne_state").then(3)
+    c.when('gadm').then(1)
+    c.when('ne_country').then(2)
+    c.when('ne_state').then(3)
 
     c.else(4)
     c

@@ -45,31 +45,47 @@
         <tr v-if="selected.id">
           <td />
           <td>
-            <div class="horizontal-left-content">
+            <div class="horizontal-left-content gap-small">
               <a
                 target="_blank"
                 :href="`/people/${selected.id}`"
               >
                 {{ selected.cached }}
               </a>
-              <radial-annotator
-                v-if="selected.global_id"
-                :global-id="selected.global_id"
-              />
+              <template v-if="selectedMergePerson.global_id">
+                <RadialAnnotator :global-id="selected.global_id" />
+                <RadialNavigation
+                  :global-id="selected.global_id"
+                  :redirect="false"
+                  @delete="
+                    () => store.dispatch(ActionNames.RemovePerson, selected)
+                  "
+                />
+              </template>
             </div>
           </td>
           <td>
-            <div class="horizontal-left-content">
+            <div class="horizontal-left-content gap-small">
               <a
                 target="_blank"
                 :href="`/people/${selectedMergePerson.id}`"
               >
                 {{ selectedMergePerson.cached }}
               </a>
-              <radial-annotator
-                v-if="selectedMergePerson.global_id"
-                :global-id="selectedMergePerson.global_id"
-              />
+              <template v-if="selectedMergePerson.global_id">
+                <RadialAnnotator :global-id="selectedMergePerson.global_id" />
+                <RadialNavigation
+                  :global-id="selectedMergePerson.global_id"
+                  :redirect="false"
+                  @delete="
+                    () =>
+                      store.dispatch(
+                        ActionNames.RemovePerson,
+                        selectedMergePerson
+                      )
+                  "
+                />
+              </template>
             </div>
           </td>
         </tr>
@@ -133,94 +149,58 @@
   </div>
 </template>
 
-<script>
-import TableAnnotations from './Table/TableAnnotations.vue'
-import TablePersonRoles from './Table/TableDescription.vue'
-import RadialAnnotator from '@/components/radials/annotator/annotator'
-import SwitchComponent from '@/components/switch'
-import ConfirmationModal from '@/components/ConfirmationModal.vue'
-import TableGrid from '@/components/layout/Table/TableGrid.vue'
+<script setup>
+import { computed, ref } from 'vue'
 import { capitalize, humanize } from '@/helpers/strings'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
+import { useStore } from 'vuex'
+import TableAnnotations from './Table/TableAnnotations.vue'
+import TablePersonRoles from './Table/TableDescription.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialNavigation from '@/components/radials/navigation/radial.vue'
+import SwitchComponent from '@/components/switch'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import TableGrid from '@/components/layout/Table/TableGrid.vue'
 
-export default {
-  name: 'CompareComponent',
+const confirmationModal = ref(null)
+const personIndex = ref(0)
+const store = useStore()
 
-  components: {
-    TablePersonRoles,
-    TableAnnotations,
-    RadialAnnotator,
-    SwitchComponent,
-    ConfirmationModal,
-    TableGrid
-  },
+const selected = computed(() => store.getters[GetterNames.GetSelectedPerson])
+const selectedEmpty = computed(() => Object.keys(selected.value).length > 0)
+const isMergeEmpty = computed(() => mergeList.value.length === 0)
+const mergeList = computed(() => store.getters[GetterNames.GetMergePeople])
+const peopleList = computed(() => mergeList.value.map((p) => p.cached))
+const selectedMergePerson = computed(
+  () => mergeList.value[personIndex.value] || {}
+)
 
-  emits: ['merge', 'flip'],
+function isNestedProperty(value) {
+  return Array.isArray(value) || (typeof value === 'object' && value != null)
+}
 
-  computed: {
-    selectedEmpty() {
-      return Object.keys(this.selected).length > 0
-    },
+async function sendMerge() {
+  const confirmed = await confirmationModal.value.show({
+    title: 'Merge people',
+    message: 'This will merge all selected match people to selected person.',
+    okButton: 'Merge',
+    confirmationWord: 'merge',
+    cancelButton: 'Cancel',
+    typeButton: 'submit'
+  })
 
-    isMergeEmpty() {
-      return this.mergeList.length === 0
-    },
-
-    selectedMergePerson() {
-      return this.mergeList[this.personIndex] || {}
-    },
-
-    peopleList() {
-      return this.mergeList.map((p) => p.cached)
-    },
-
-    mergeList() {
-      return this.$store.getters[GetterNames.GetMergePeople]
-    },
-
-    selected() {
-      return this.$store.getters[GetterNames.GetSelectedPerson]
-    }
-  },
-
-  data() {
-    return {
-      personIndex: 0
-    }
-  },
-
-  methods: {
-    isNestedProperty(value) {
-      return (
-        Array.isArray(value) || (typeof value === 'object' && value != null)
-      )
-    },
-
-    async sendMerge() {
-      const confirmed = await this.$refs.confirmationModal.show({
-        title: 'Merge people',
-        message:
-          'This will merge all selected match people to selected person.',
-        okButton: 'Merge',
-        confirmationWord: 'merge',
-        cancelButton: 'Cancel',
-        typeButton: 'submit'
-      })
-
-      if (confirmed) {
-        this.$store.dispatch(ActionNames.ProcessMerge)
-      }
-    },
-
-    humanizeValue(value) {
-      return capitalize(humanize(value))
-    },
-
-    flipPeople() {
-      this.$store.dispatch(ActionNames.FlipPeople, this.personIndex)
-    }
+  if (confirmed) {
+    store.dispatch(ActionNames.ProcessMerge)
   }
+}
+
+function humanizeValue(value) {
+  return capitalize(humanize(value))
+}
+
+function flipPeople() {
+  store.dispatch(ActionNames.FlipPeople, personIndex.value)
 }
 </script>
 

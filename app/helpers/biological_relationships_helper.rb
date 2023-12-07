@@ -19,4 +19,17 @@ module BiologicalRelationshipsHelper
     render('/biological_relationships/quick_search_form')
   end
 
+  def biological_relationship_types(biological_relationship)
+    r = {
+      subject: [],
+      object: []
+    }
+
+    biological_relationship.biological_relationship_types.each do |p|
+      r[p.target.to_sym].push p.biological_property.name
+    end
+
+    r
+  end
+
 end

@@ -23,7 +23,7 @@ class Predicate < ControlledVocabularyTerm
 
     Predicate.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['controlled_vocabulary_term_id'].eq(p['id'])))
-    ).pluck(:id).uniq
+    ).pluck(:controlled_vocabulary_term_id).uniq
   end
 
   def self.select_optimized(user_id, project_id, klass)
@@ -46,5 +46,4 @@ class Predicate < ControlledVocabularyTerm
 
     h
   end
-
 end

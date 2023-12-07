@@ -54,6 +54,24 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
       end
 
+      context 'extension_scopes: [:biological_associations]' do
+        let(:biological_relationship) { FactoryBot.create(:valid_biological_relationship) } 
+        let!(:ba1) { BiologicalAssociation.create!(biological_relationship: biological_relationship, biological_association_subject: CollectionObject.first, biological_association_object: CollectionObject.last) }
+        let(:biological_association_scope) { BiologicalAssociation.all }
+
+        specify '#biological_associations_resource_relationship is a tempfile' do
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { biological_associations:  biological_association_scope  })
+          expect(d.biological_associations_resource_relationship).to be_kind_of(Tempfile) 
+        end
+
+        specify '#biological_associations_resource_relationship returns lines for specimens' do
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { biological_associations:  biological_association_scope  })
+          expect(d.biological_associations_resource_relationship.count).to eq(2)
+        end
+      end
+
       specify '#csv returns lines for specimens' do
         expect(csv.count).to eq(5)
       end

@@ -44,6 +44,7 @@
   <FacetValidify v-model="params" />
   <FacetCombinationify v-model="params" />
   <FacetSynonymify v-model="params" />
+  <FacetAncestrify v-model="params" />
 </template>
 
 <script setup>
@@ -62,6 +63,7 @@ import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetValidify from './filters/FacetValidify.vue'
 import FacetCombinationify from './filters/FacetCombinationify.vue'
 import FacetSynonymify from './filters/FacetSynonymify.vue'
+import FacetAncestrify from '@/components/Filter/Facets/shared/FacetAncestrify.vue'
 import FacetAuthors from './filters/FacetAuthors.vue'
 import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'

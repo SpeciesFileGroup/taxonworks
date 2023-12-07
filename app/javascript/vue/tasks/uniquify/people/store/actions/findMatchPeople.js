@@ -5,7 +5,7 @@ export default ({ state, commit }, params) => {
   state.requestState.isLoading = true
   state.mergeList = []
 
-  People.where({ ...params, extend: ['roles'] })
+  People.where({ ...params, extend: ['roles', 'role_counts'] })
     .then((response) => {
       commit(
         MutationNames.SetMatchPeople,

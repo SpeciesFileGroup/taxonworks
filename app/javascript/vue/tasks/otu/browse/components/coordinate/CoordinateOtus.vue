@@ -1,6 +1,6 @@
 <template>
   <section-panel
-    v-if="otus.length"
+    v-if="otus.filter((item) => item.id !== currentOtu?.id).length"
     :status="status"
     :title="title"
   >
@@ -53,4 +53,5 @@ defineProps({
 
 const store = useStore()
 const otus = computed(() => store.getters[GetterNames.GetOtus])
+const currentOtu = computed(() => store.getters[GetterNames.GetCurrentOtu])
 </script>

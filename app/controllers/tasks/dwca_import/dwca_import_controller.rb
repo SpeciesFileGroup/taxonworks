@@ -20,7 +20,7 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
 
   # POST
   def set_import_settings
-    import_dataset = ImportDataset::DarwinCore::Occurrences.find(params[:import_dataset_id])
+    import_dataset = ImportDataset::DarwinCore.find(params[:import_dataset_id])
     settings = import_dataset.set_import_settings(params[:import_settings])
     import_dataset.save!
 

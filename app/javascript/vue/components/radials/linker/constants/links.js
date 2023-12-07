@@ -42,3 +42,36 @@ export const TASK_FILTER_IMAGES = {
   label: 'Filter images',
   link: '/tasks/images/filter'
 }
+
+export const TASK_BIOLOGICAL_ASSOCIATION_EXTENSION = {
+  label: 'DwC Extension Preview',
+  link: '/tasks/biological_associations/dwc_extension_preview'
+}
+
+export const TASK_BIOLOGICAL_ASSOCIATION_TABLE = {
+  label: 'Simple table',
+  link: '/tasks/biological_associations/simple_table'
+}
+
+export const TASK_BIOLOGICAL_ASSOCIATION_GLOBI_TABLE = {
+  label: 'GLOBI preview',
+  link: '/tasks/biological_associations/globi_preview'
+}
+
+export const TASK_BIOLOGICAL_ASSOCIATION_FAMILY_SUMMARY = {
+  label: 'Genus by family summary',
+  link: '/tasks/biological_associations/family_summary'
+}
+
+export const TASK_BIOLOGICAL_ASSOCIATION_GRAPH = {
+  label: 'Visualize network',
+  link: '/tasks/biological_associations/graph'
+}
+
+export const TASK_BIOLOGICAL_ASSOCIATION_SUMMARY = {
+  label: 'Summary (metadata)',
+  link: '/tasks/biological_associations/summary'
+}
+
+
+

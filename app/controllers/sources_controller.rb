@@ -40,8 +40,14 @@ class SourcesController < ApplicationController
   # POST /sources/1/clone.json
   def clone
     respond_to do |format|
+
+      # Don't panic, this `clone` is custom, see source.rb
       @source = @source.clone
+
       if @source.valid?
+
+        @source.project_sources << ProjectSource.new(project_id: sessions_current_project_id)
+
         format.html { redirect_to edit_source_path(@source), notice: 'Clone successful, on new record.' }
         format.json { render :show }
       else
@@ -217,7 +223,7 @@ class SourcesController < ApplicationController
 
   # GET /sources/download
   def download
-    send_data Export::Download.generate_csv(
+    send_data Export::Csv.generate_csv(
       Source.joins(:project_sources)
       .where(project_sources: {project_id: sessions_current_project_id})
       .all),
