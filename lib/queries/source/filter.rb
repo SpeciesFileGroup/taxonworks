@@ -246,7 +246,7 @@ module Queries
 
         union = joins.collect{|j| '(' + ::Source.joins(:citations).joins( j.join_sources).to_sql + ')'}.join(' UNION ')
 
-        ::Source.from("( #{union} ) as sources")
+        ::Source.from("( #{union} ) as sources").distinct
       end
 
       def source_type_facet
@@ -293,7 +293,7 @@ module Queries
         b = b.having(a['id'].count.eq(author_id.length)) unless author_id_or
         b = b.as('aut_z1_')
 
-        ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+        ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id'])))).distinct
       end
 
       def topic_id_facet
@@ -319,16 +319,16 @@ module Queries
         return nil if identifier_type.empty? || with_doi
         q = referenced_klass.joins(:identifiers)
         w = identifier_table[:type].eq_any(identifier_type)
-        q.where(w)
+        q.where(w).distinct
       end
 
       # TODO: move to generalized code in Identifiers concern
       def with_doi_facet
         return nil if with_doi.nil?
         if with_doi
-          ::Source.joins(:identifiers).where(identifiers: {type: 'Identifier::Global::Doi'})
+          ::Source.joins(:identifiers).where(identifiers: {type: 'Identifier::Global::Doi'}).distinct
         else
-          ::Source.left_outer_joins(:identifiers).where("(identifiers.type != 'Identifier::Global::Doi') OR (identifiers.identifier_object_id is null)")
+          ::Source.left_outer_joins(:identifiers).where("(identifiers.type != 'Identifier::Global::Doi') OR (identifiers.identifier_object_id is null)").distinct
         end
       end
 
@@ -350,7 +350,7 @@ module Queries
           ::Source.joins(:roles).distinct
         else
           ::Source.left_outer_joins(:roles)
-            .where(roles: {id: nil})
+            .where(roles: {id: nil}).distinct
         end
       end
 
@@ -427,7 +427,7 @@ module Queries
           .joins("JOIN #{n} as #{n}1 on citations.citation_object_id = #{n}1.id AND citations.citation_object_type = '#{name.treetop_camelize}'")
           .to_sql
 
-        ::Source.from('(' + s + ') as sources')
+        ::Source.from('(' + s + ') as sources').distinct
       end
 
       def merge_clauses
