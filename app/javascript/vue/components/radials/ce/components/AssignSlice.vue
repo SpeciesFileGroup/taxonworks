@@ -29,15 +29,29 @@
         />
       </fieldset>
 
-      <VBtn
-        class="margin-large-top"
-        color="create"
-        medium
-        :disabled="!geographicArea || isCountExceeded"
-        @click="update"
+      <div
+        class="horizontal-left-content gap-small margin-large-top margin-large-bottom"
       >
-        Update
-      </VBtn>
+        <UpdateBatch
+          ref="updateBatchRef"
+          :batch-service="CollectingEvent.batchUpdate"
+          :payload="payload"
+          :disabled="!geographicArea || isCountExceeded"
+          @update="updateMessage"
+          @close="emit('close')"
+        />
+
+        <PreviewBatch
+          :batch-service="CollectingEvent.batchUpdate"
+          :payload="payload"
+          :disabled="!geographicArea || isCountExceeded"
+          @finalize="
+            () => {
+              updateBatchRef.openModal()
+            }
+          "
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -45,7 +59,8 @@
 <script setup>
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
+import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
+import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import VSpinner from '@/components/spinner.vue'
 import { COLLECTING_EVENT } from '@/constants/index.js'
 import { CollectingEvent } from '@/routes/endpoints'
@@ -68,26 +83,20 @@ const props = defineProps({
 const geographicArea = ref()
 const isUpdating = ref(false)
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
+const updateBatchRef = ref(null)
 
-function update() {
-  const payload = {
-    collecting_event_query: props.parameters,
-    collecting_event: {
-      geographic_area_id: geographicArea.value.id
-    }
+const payload = computed(() => ({
+  collecting_event_query: props.parameters,
+  collecting_event: {
+    geographic_area_id: geographicArea.value?.id
   }
+}))
 
-  isUpdating.value = true
+function updateMessage(data) {
+  const message = data.sync
+    ? `${data.updated.length} collection objects queued for updating.`
+    : `${data.updated.length} collection objects were successfully updated.`
 
-  CollectingEvent.updateBatch(payload)
-    .then((_) => {
-      TW.workbench.alert.create(
-        `Update queued. Records will update in the background.`,
-        'notice'
-      )
-    })
-    .finally((_) => {
-      isUpdating.value = false
-    })
+  TW.workbench.alert.create(message, 'notice')
 }
 </script>

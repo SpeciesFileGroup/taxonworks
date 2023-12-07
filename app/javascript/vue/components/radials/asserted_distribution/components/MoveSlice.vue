@@ -58,7 +58,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits('close')
+const emit = defineEmits(['close'])
 
 const updateBatchRef = ref(null)
 const geographicArea = ref()
