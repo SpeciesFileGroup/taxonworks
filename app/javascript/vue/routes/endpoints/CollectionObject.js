@@ -86,7 +86,7 @@ export const CollectionObject = {
     ),
 
   batchUpdate: (params) =>
-    AjaxCall('post', `/${controller}/batch_update.json`, params),
+    AjaxCall('patch', `/${controller}/batch_update.json`, params),
 
   batchUpdateDwcOccurrence: (params) =>
     AjaxCall('post', `/${controller}/batch_update_dwc_occurrence`, params)

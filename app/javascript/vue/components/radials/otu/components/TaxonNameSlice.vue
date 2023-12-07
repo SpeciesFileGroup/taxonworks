@@ -1,9 +1,5 @@
 <template>
   <div>
-    <VSpinner
-      v-if="isUpdating"
-      legend="Updating..."
-    />
     <div
       v-if="isCountExceeded"
       class="feedback feedback-danger"
@@ -19,26 +15,38 @@
           model="taxon_names"
           :klass="TAXON_NAME"
           :target="TAXON_NAME"
-          @selected="(item) => (taxon_name = item)"
+          @selected="(item) => (taxonName = item)"
         />
         <SmartSelectorItem
-          :item="taxon_name"
+          :item="taxonName"
           label="name"
-          @unset="taxon_name = undefined"
+          @unset="() => (taxonName = undefined)"
         />
       </fieldset>
 
-      <VBtn
-        class="margin-large-top"
-        color="create"
-        medium
-        :disabled="!taxon_name || isCountExceeded"
-        @click="handleUpdate"
+      <div
+        class="horizontal-left-content gap-small margin-large-top margin-large-bottom"
       >
-        Update
-      </VBtn>
+        <UpdateBatch
+          ref="updateBatchRef"
+          :batch-service="Otu.batchUpdate"
+          :payload="payload"
+          :disabled="!taxonName || isCountExceeded"
+          @update="updateMessage"
+          @close="emit('close')"
+        />
 
-      <ConfirmationModal ref="confirmationModalRef"/>
+        <PreviewBatch
+          :batch-service="Otu.batchUpdate"
+          :payload="payload"
+          :disabled="!taxonName || isCountExceeded"
+          @finalize="
+            () => {
+              updateBatchRef.openModal()
+            }
+          "
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -46,13 +54,11 @@
 <script setup>
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import ConfirmationModal from '@/components/ConfirmationModal.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import { RouteNames } from '@/routes/routes.js'
+import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
+import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import { Otu } from '@/routes/endpoints'
 import { TAXON_NAME } from '@/constants/index.js'
 import { computed, ref } from 'vue'
-import VSpinner from '@/components/spinner.vue'
 
 const MAX_LIMIT = 250
 
@@ -68,54 +74,24 @@ const props = defineProps({
   }
 })
 
-const taxon_name = ref()
-const confirmationModalRef = ref(null)
-const isUpdating = ref(false)
+const taxonName = ref()
+const updateBatchRef = ref(null)
+const emit = defineEmits(['close'])
 
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 
-
-function changeTaxonName() {
-  const payload = {
-    otu_query: props.parameters,
-    otu: {
-      taxon_name_id: taxon_name.value.id
-    },
+const payload = computed(() => ({
+  otu_query: props.parameters,
+  otu: {
+    taxon_name_id: taxonName.value?.id
   }
+}))
 
-  isUpdating.value = true
+function updateMessage(data) {
+  const message = data.sync
+    ? `${data.updated.length} OTUs queued for updating.`
+    : `${data.updated.length} asserted distribution items were successfully updated.`
 
-  Otu.batchUpdate(payload).then(({ body }) => {
-    let message
-    if (body['queued'] === true) {
-      message = `${body.total} OTUs queued for updating.`
-    } else {
-      message = `${body.passed.length} OTUs were successfully updated.`
-    }
-    TW.workbench.alert.create(
-      message,
-      'notice'
-    )
-
-    isUpdating.value = false
-  })
-}
-
-
-async function handleUpdate() {
-  const ok =
-    (await confirmationModalRef.value.show({
-      title: 'Change taxon name ',
-      message:
-        'This will change the taxon name for the selected OTUs. Are you sure you want to proceed?',
-      confirmationWord: 'CHANGE',
-      okButton: 'Update',
-      cancelButton: 'Cancel',
-      typeButton: 'submit'
-    }))
-
-  if (ok) {
-    changeTaxonName()
-  }
+  TW.workbench.alert.create(message, 'notice')
 }
 </script>

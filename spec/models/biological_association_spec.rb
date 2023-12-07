@@ -55,9 +55,9 @@ describe BiologicalAssociation, type: :model do
     b = FactoryBot.create(:valid_biological_association)
     r = FactoryBot.create(:valid_biological_relationship)
 
-    BiologicalAssociation.batch_update(
+    BiologicalAssociation.batch_update( 
       biological_association: { biological_relationship_id: r.id},
-      biological_association_query: { }
+      biological_association_query: { biological_association_id: [a.id, b.id] }
     )
 
     expect(r.biological_associations.count).to eq(2)
@@ -71,7 +71,7 @@ describe BiologicalAssociation, type: :model do
     BiologicalAssociation.batch_update(
       preview: true,
       biological_association: { biological_relationship_id: r.id},
-      biological_association_query: { }
+      biological_association_query: {  biological_association_id: [a.id, b.id] }
     )
 
     expect(r.biological_associations.count).to eq(0)
@@ -79,7 +79,7 @@ describe BiologicalAssociation, type: :model do
 
   specify '#batch_update errors' do
     r = FactoryBot.create(:valid_biological_relationship)
-    
+
     a = FactoryBot.create(:valid_biological_association, biological_relationship: r)
     b = FactoryBot.create(:valid_biological_association, biological_relationship: r, biological_association_subject: a.biological_association_subject)
 
@@ -91,14 +91,15 @@ describe BiologicalAssociation, type: :model do
     expect(m.errors).to eq( { "Validation failed: Biological association subject has already been taken" => 1 } )
   end
 
-
   specify '#batch_rotate' do
     a = FactoryBot.create(:valid_biological_association)
 
     c = a.subject
     d = a.object
 
-    BiologicalAssociation.batch_rotate( {} )
+    BiologicalAssociation.batch_rotate(
+      { biological_association_query: { }} 
+    )
 
     a.reload
     expect(a.subject).to eq(d)
@@ -108,23 +109,24 @@ describe BiologicalAssociation, type: :model do
   specify '#batch_rotate response' do
     a = FactoryBot.create(:valid_biological_association)
 
-    c = a.subject
-    d = a.object
-
-    r = BiologicalAssociation.batch_rotate( {} )
+    r = BiologicalAssociation.batch_rotate(
+      biological_association_query: {  biological_association_id: [a.id] }
+    )
 
     expect(r.updated).to contain_exactly(a.id)
     expect(r.not_updated).to eq([])
     expect(r.errors).to eq({})
   end
 
-    specify '#batch_rotate' do
+  specify '#batch_rotate' do
     a = FactoryBot.create(:valid_biological_association)
 
     c = a.subject
     d = a.object
 
-    BiologicalAssociation.batch_rotate( {} )
+    BiologicalAssociation.batch_rotate(
+      biological_association_query: { biological_association_id: [a.id] }
+    )
 
     a.reload
     expect(a.subject).to eq(d)
@@ -137,7 +139,10 @@ describe BiologicalAssociation, type: :model do
     c = a.subject
     d = a.object
 
-    r = BiologicalAssociation.batch_rotate( { preview: true } )
+    r = BiologicalAssociation.batch_rotate(
+      { biological_association_query: { biological_association_id: [a.id] },
+        preview: true }
+    )
 
     expect(r.updated).to eq([a.id])
     expect(r.not_updated).to eq([])
