@@ -22,11 +22,8 @@ const elementBoard = ref(null)
 onMounted(() => {
   const size = elementBoard.value.getBoundingClientRect()
   const containerHeight = window.innerHeight - 250
-
   const width = parseInt(size.width, 10)
   const height = containerHeight
-
-  console.log(height)
 
   store.createSVGBoard({
     element: elementBoard.value,

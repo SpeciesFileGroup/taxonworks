@@ -1,6 +1,6 @@
 <template>
-  <fieldset>
-    <legend>Collecting Event</legend>
+  <div>
+    <h3>Collecting Event</h3>
     <SmartSelector
       model="collecting_events"
       klass="CollectingEvent"
@@ -19,7 +19,7 @@
       :item="store.collectingEvent"
       @unset="setCollectingEvent"
     />
-  </fieldset>
+  </div>
 </template>
 
 <script setup>

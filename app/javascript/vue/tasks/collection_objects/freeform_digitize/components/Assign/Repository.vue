@@ -1,6 +1,6 @@
 <template>
-  <fieldset>
-    <legend>Repository</legend>
+  <div>
+    <h3>Repository</h3>
     <SmartSelector
       model="repositories"
       klass="CollectionObject"
@@ -21,7 +21,7 @@
       label="name"
       @unset="setRepository"
     />
-  </fieldset>
+  </div>
 </template>
 
 <script setup>

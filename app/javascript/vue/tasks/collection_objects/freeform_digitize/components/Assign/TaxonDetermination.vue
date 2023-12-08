@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h3>Taxon determination</h3>
     <TaxonDeterminationForm @on-add="addDetermination" />
     <list-component
       :list="store.taxonDeterminations"

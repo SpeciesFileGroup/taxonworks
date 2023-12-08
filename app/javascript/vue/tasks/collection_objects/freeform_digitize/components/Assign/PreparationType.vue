@@ -1,6 +1,6 @@
 <template>
-  <fieldset>
-    <legend>Preparation</legend>
+  <div>
+    <h3>Preparation</h3>
     <div class="horizontal-left-content align-start">
       <ul
         v-for="itemsGroup in coTypes.chunk(Math.ceil(coTypes.length / 2))"
@@ -24,7 +24,7 @@
       </ul>
       <VLock v-model="lock.preparationType" />
     </div>
-  </fieldset>
+  </div>
 </template>
 
 <script setup>

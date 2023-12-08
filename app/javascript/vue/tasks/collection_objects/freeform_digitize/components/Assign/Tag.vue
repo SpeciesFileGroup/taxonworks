@@ -1,6 +1,6 @@
 <template>
-  <fieldset>
-    <legend>Tag</legend>
+  <div>
+    <h3>Tag</h3>
     <SmartSelector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{ 'type[]': 'Keyword' }"
@@ -26,7 +26,7 @@
       @delete-index="store.removeTag"
       label="label"
     />
-  </fieldset>
+  </div>
 </template>
 
 <script setup>

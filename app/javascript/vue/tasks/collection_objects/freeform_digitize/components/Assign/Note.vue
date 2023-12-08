@@ -1,6 +1,6 @@
 <template>
-  <fieldset>
-    <legend>Note</legend>
+  <div>
+    <h3>Note</h3>
     <div class="align-start">
       <textarea
         v-model="store.text"
@@ -24,7 +24,7 @@
       :label="[]"
       @delete="removeNote"
     />
-  </fieldset>
+  </div>
 </template>
 
 <script setup>

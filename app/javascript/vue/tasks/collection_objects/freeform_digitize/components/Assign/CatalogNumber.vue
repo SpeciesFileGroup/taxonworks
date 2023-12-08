@@ -1,6 +1,6 @@
 <template>
-  <fieldset>
-    <legend>Catalogue numbers</legend>
+  <div>
+    <h3>Identifier</h3>
     <SmartSelector
       model="namespaces"
       :klass="COLLECTION_OBJECT"
@@ -29,7 +29,7 @@
         />
       </div>
     </div>
-  </fieldset>
+  </div>
 </template>
 
 <script setup>
