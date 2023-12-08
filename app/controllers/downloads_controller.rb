@@ -70,6 +70,7 @@ class DownloadsController < ApplicationController
   def file
     if @download.ready?
       @download.increment!(:times_downloaded)
+      response.headers["Content-Length"] = File.size(@download.file_path).to_s
       send_file @download.file_path
     else
       redirect_to download_url
