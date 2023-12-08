@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- DwC-A checklist importer: fix importer crash caused by nil parent
 - Address rendering on loan form [#3645]
 - Citation topic whitespace for paper catalog [https://github.com/SpeciesFileGroup/taxonpages/issues/187][https://github.com/SpeciesFileGroup/taxonpages/issues/187]
 - Source filter with duplicate results when coming from another filter [#3696]
