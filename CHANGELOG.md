@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+
+- Report file size to browser for downloads
+
 ### Fixed
 
 - Address rendering on loan form [#3645]

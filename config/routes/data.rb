@@ -50,7 +50,6 @@ resources :biological_associations do
   collection do
     match :filter, to: 'biological_associations#index', via: [:get, :post]
 
-    patch :batch_rotate
     patch :batch_update
   end
 end

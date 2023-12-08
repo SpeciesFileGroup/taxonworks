@@ -143,15 +143,6 @@ class BiologicalAssociationsController < ApplicationController
     end
   end
 
-  # PATCH /biological_associations/batch_rotate.json?biological_association_query=<>&biological_association={}
-  def batch_rotate
-    if r = BiologicalAssociation.batch_rotate( params.merge(by: sessions_current_user_id) )
-      render json: r.to_json, status: :ok
-    else
-      render json: {}, status: :unprocessable_entity
-    end
-  end
-
   private
 
   def set_biological_association
@@ -164,6 +155,7 @@ class BiologicalAssociationsController < ApplicationController
       :biological_association_object_id, :biological_association_object_type,
       :subject_global_id,
       :object_global_id,
+      :rotate,
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
       citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
     )

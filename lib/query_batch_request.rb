@@ -1,5 +1,7 @@
+# Facilitate Batch updates using the pattern of
+#   filter_query -> objects to update
+#   stub object -> attributes/params to update
 class QueryBatchRequest
-
 
   # @param object_params [Hash]
   #   update the records to these attributes
@@ -98,7 +100,7 @@ class QueryBatchRequest
 
   def run_async?
     if async_cutoff 
-     return total_attempted > async_cutoff
+      return total_attempted > async_cutoff
     end
   end
 

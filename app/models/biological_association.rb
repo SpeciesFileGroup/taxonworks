@@ -70,6 +70,16 @@ class BiologicalAssociation < ApplicationRecord
   attr_accessor :subject_global_id
   attr_accessor :object_global_id # TODO: this is badly named
 
+  attr_accessor :rotate
+
+  def rotate=(value)
+    s = self.biological_association_subject
+    o = self.biological_association_object
+
+    self.biological_association_subject = o
+    self.biological_association_object = s
+  end
+
   def subject_global_id=(value)
     o = GlobalID::Locator.locate(value)
     write_attribute(:biological_association_subject_id, o.id)
@@ -139,47 +149,7 @@ class BiologicalAssociation < ApplicationRecord
       query_batch_update(request)
     end
 
-    # Rotates subject and object
-    def batch_rotate(params)
-      request = QueryBatchRequest.new(
-        klass: 'BiologicalAssociation',
-        object_filter_params: params[:biological_association_query],
-        preview: params[:preview],
-      )
-
-      set_batch_cap(request)
-
-      r = request.stub_response
-      r.method = 'batch_rotate'
-
-      return r if request.capped?
-
-      BiologicalAssociation.transaction do |b|
-        begin
-          request.filter.all.find_each do |b|
-            s = b.biological_association_subject
-            o = b.biological_association_object
-
-            b.update!(
-              biological_association_subject: o,
-              biological_association_object: s,
-              by: params[:by]
-            )
-            r.updated.push b.id
-          end
-
-        rescue ActiveRecord::RecordInvalid => e
-          r.not_updated.push e.record.id
-          r.errors[e.message] += 1
-        end
-
-        raise ActiveRecord::Rollback if request.preview
-      end
-
-      return r 
-    end
-
-  end # end class methods
+  end
 
   # @return [ActiveRecord::Relation]
   #def self.collection_objects_subject_join

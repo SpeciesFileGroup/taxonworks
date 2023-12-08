@@ -91,56 +91,48 @@ describe BiologicalAssociation, type: :model do
     expect(m.errors).to eq( { "Validation failed: Biological association subject has already been taken" => 1 } )
   end
 
-  specify '#batch_rotate' do
-    a = FactoryBot.create(:valid_biological_association)
+  specify '#rotate' do
+    b = FactoryBot.create(:valid_biological_association)
 
-    c = a.subject
-    d = a.object
+    c = b.subject
+    d = b.object
 
-    BiologicalAssociation.batch_rotate(
-      { biological_association_query: { }} 
-    )
+    b.rotate = true
+    b.save!
 
-    a.reload
-    expect(a.subject).to eq(d)
-    expect(a.biological_association_object).to eq(c)
+    b.reload
+    expect(b.subject).to eq(d)
+    expect(b.biological_association_object).to eq(c)
   end
 
-  specify '#batch_rotate response' do
+  specify '#rotate with batch update (Hash params)' do
     a = FactoryBot.create(:valid_biological_association)
 
-    r = BiologicalAssociation.batch_rotate(
-      biological_association_query: {  biological_association_id: [a.id] }
+    b = a.subject
+    c = a.object
+
+    r = BiologicalAssociation.batch_update(
+      biological_association_query: {  biological_association_id: [a.id] },
+      biological_association: {rotate: true}
     )
 
     expect(r.updated).to contain_exactly(a.id)
     expect(r.not_updated).to eq([])
     expect(r.errors).to eq({})
-  end
-
-  specify '#batch_rotate' do
-    a = FactoryBot.create(:valid_biological_association)
-
-    c = a.subject
-    d = a.object
-
-    BiologicalAssociation.batch_rotate(
-      biological_association_query: { biological_association_id: [a.id] }
-    )
-
     a.reload
-    expect(a.subject).to eq(d)
-    expect(a.biological_association_object).to eq(c)
+    expect(a.biological_association_subject).to eq c
+    expect(a.biological_association_object).to eq b
   end
 
-  specify '#batch_rotate preview' do
+  specify '#batch_update, rotate, preview' do
     a = FactoryBot.create(:valid_biological_association)
 
     c = a.subject
     d = a.object
 
-    r = BiologicalAssociation.batch_rotate(
+    r = BiologicalAssociation.batch_update(
       { biological_association_query: { biological_association_id: [a.id] },
+        biological_association: {rotate: true},
         preview: true }
     )
 
