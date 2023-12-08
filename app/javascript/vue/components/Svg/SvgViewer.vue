@@ -25,7 +25,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { useOnResize } from '@/compositions'
+import { ref, onMounted, computed, watch } from 'vue'
 
 const props = defineProps({
   image: {
@@ -40,15 +41,18 @@ const props = defineProps({
 
 const svgElement = ref()
 const scale = ref(1)
+const size = useOnResize(svgElement)
+
 const shapes = computed(() => {
   return props.groups
-    .map(({ g, attributes }) => {
+    .map(({ g, attributes = {} }) => {
       const el = createGroupElement(g)
       const shapes = [...el.children].map((child) => {
         const shape = child.firstChild
 
-        shape.setAttribute('fill', attributes.fill)
-        shape.setAttribute('fill-opacity', attributes.fillOpacity)
+        Object.entries(attributes).forEach(([attribute, value]) => {
+          shape.setAttribute(attribute, value)
+        })
 
         return child.innerHTML
       })
@@ -82,6 +86,10 @@ function updateScale() {
     scale.value = size.width / props.image.width
   }
 }
+
+watch(size, () => {
+  updateScale()
+})
 
 onMounted(() => {
   updateScale()

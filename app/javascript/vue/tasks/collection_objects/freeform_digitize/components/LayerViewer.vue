@@ -39,8 +39,6 @@ const layers = computed(() =>
 
 onMounted(() => {
   const size = root.value.getBoundingClientRect()
-  const imageWidth = imageStore.image.width
-  const imageHeight = imageStore.image.height
   const containerHeight = window.innerHeight - 250
 
   width.value = parseInt(size.width, 10)
