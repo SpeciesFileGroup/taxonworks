@@ -116,7 +116,7 @@ module ::Export::ProjectData::Sql
                        "#{table_pair.first} ON #{table_pair.second}.id IN ("\
                          "#{table_pair.first}.ancestor_id, #{table_pair.first}.descendant_id"\
                        ') '\
-                   "WHERE project_id = #{project_id} LIMIT 2"
+                   "WHERE project_id = #{project_id}"
     copy_table(table_pair.first, io, cols_hierarchy, select_query)
   end
 

@@ -202,6 +202,8 @@ class CollectingEvent < ApplicationRecord
 
   include CollectingEvent::DwcSerialization
 
+  include Shared::QueryBatchUpdate
+
   ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
 
   NEARBY_DISTANCE = 5000
@@ -1031,48 +1033,18 @@ class CollectingEvent < ApplicationRecord
 
     # @return [Hash, false]
     def batch_update(params)
-      return false if params[:collecting_event].blank?
-      a = Queries::CollectingEvent::Filter.new(params[:collecting_event_query])
-      c = a.all.count
+      request = QueryBatchRequest.new(
+        klass: 'CollectingEvent',
+        object_filter_params: params[:collecting_event_query],
+        object_params: params[:collecting_event],
+        async_cutoff: params[:async_cutoff] || 26,
+        preview: params[:preview],
+      )
 
-      v = a.all.pluck(:geographic_area_id).uniq
-
-      cap = 0
-
-      case v.size
-      when 1
-        if v.first.nil?
-          cap = 10000
-        else
-          cap = 2000
-        end
-      when 2
-        if v.include?(nil)
-          cap = 2000
-        else
-          cap = 25
-        end
-      else
-        cap = 25
-      end
-
-      return false if c == 0 || c > cap
-
-      a.all.find_each do |e|
-        query_update(e, params[:collecting_event])
-      end
-
-      return true
+      request.cap = 1000
+      request.cap_reason = 'Max 1000 updated at a time.' 
+      query_batch_update(request)
     end
-
-    def query_update(collecting_event, params)
-      begin
-        collecting_event.update!( params )
-      rescue ActiveRecord::RecordInvalid => e
-      end
-    end
-
-    handle_asynchronously :query_update, run_at: Proc.new { 1.second.from_now }, queue: :query_batch_update
   end
 
   protected

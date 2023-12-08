@@ -16,17 +16,18 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     expect(s.is_image_stub?).to be_falsey
   end
 
-  specify '.query_batch_update() (async)' do
+  specify '.batch_update() (async)' do
     s1, s2 = Specimen.create!, Specimen.create!
     o = FactoryBot.create(:valid_otu)
 
-    q = ::Queries::CollectionObject::Filter.new({})
+    q = ::Queries::CollectionObject::Filter.new({collection_object_id: [ s1.id, s2.id ]})
 
     params = {
-      collection_object: {taxon_determinations_attributes: [{otu_id: o.id}]}
-    }.merge(collection_object_query: q.params)
-
-    CollectionObject.query_batch_update(params, async_cutoff: 1)
+      async_cutoff: 1,
+      collection_object: {taxon_determinations_attributes: [{otu_id: o.id} ] }
+    }.merge( collection_object_query: q.params )
+    
+    CollectionObject.batch_update(params)
 
     sleep(2) # jobs trigger in 2 seconds
     Delayed::Worker.new.work_off
@@ -34,20 +35,17 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     expect(TaxonDetermination.all.count).to eq(2)
   end
 
-  specify '.query_batch_update() (sync)' do
+  specify '.batch_update() (sync)' do
     s1, s2 = Specimen.create!, Specimen.create!
     o = FactoryBot.create(:valid_otu)
 
-    q = ::Queries::CollectionObject::Filter.new({})
+    q = ::Queries::CollectionObject::Filter.new({collection_object_id: [ s1.id, s2.id ]})
 
     params = {
       collection_object: {taxon_determinations_attributes: [{otu_id: o.id}]}
     }.merge(collection_object_query: q.params)
 
-    CollectionObject.query_batch_update(params)
-
-    # sleep(2) # jobs trigger in 2 seconds
-    # Delayed::Worker.new.work_off
+    CollectionObject.batch_update(params)
 
     expect(TaxonDetermination.all.count).to eq(2)
   end

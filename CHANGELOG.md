@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `ancestrify` parameter for Otu queries not scoping to TaxonNames correctly
 - Filter source: BibTeX type facet
 - Project data SQL export obfuscating all users instead of just non-members
+- Project data SQL export outputting only two rows per hierarchy-related tables
 
 [#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
 [#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696

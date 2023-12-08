@@ -1765,7 +1765,7 @@ class TaxonName < ApplicationRecord
             self.save
             res = true
           end
-        rescue
+        rescue # TODO: Qualify this!!
         end
       end
     end

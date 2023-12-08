@@ -224,11 +224,16 @@ class TaxonNamesController < ApplicationController
   def original_combination
   end
 
-  # POST /taxon_names/batch_move.json?taxon_names_query=<>&parent_id=123
-  def batch_move
-    if @result = Protonym.batch_move(params)
+  # PATCH /taxon_names/batch_update.json?taxon_names_query=<>&taxon_name={taxon_name_id=123}}
+  def batch_update
+    if r = Protonym.batch_update(
+        preview: params[:preview], 
+        taxon_name: taxon_name_params.merge(by: sessions_current_user_id),
+        taxon_name_query: params[:taxon_name_query].merge(by: sessions_current_user_id),
+    )
+      render json: r.to_json, status: :ok
     else
-      render json: {success: false}
+      render json: {}, status: :unprocessable_entity
     end
   end
 
