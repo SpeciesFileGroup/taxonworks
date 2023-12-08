@@ -1,6 +1,6 @@
 <template>
   <div
-    class="full_width full_height"
+    class="full_width full_height panel"
     ref="root"
   >
     <SvgViewer
@@ -43,7 +43,7 @@ onMounted(() => {
   const imageHeight = imageStore.image.height
   const containerHeight = window.innerHeight - 250
 
-  width.value = imageWidth > size.width ? parseInt(size.width, 10) : imageWidth
-  height.value = imageHeight > containerHeight ? containerHeight : imageHeight
+  width.value = parseInt(size.width, 10)
+  height.value = containerHeight
 })
 </script>

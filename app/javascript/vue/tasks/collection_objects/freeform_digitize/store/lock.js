@@ -7,6 +7,7 @@ export default defineStore('lock', {
     repository: false,
     identifier: false,
     preparationType: false,
-    collectingEvent: false
+    collectingEvent: false,
+    taxonDeterminations: false
   })
 })

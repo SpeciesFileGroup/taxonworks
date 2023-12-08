@@ -89,8 +89,6 @@ onBeforeMount(() => {
   const urlParams = new URLSearchParams(window.location.search)
   const imageId = urlParams.get('image_id')
 
-  loadImage(1044784)
-
   if (/^\d+$/.test(imageId)) {
     loadImage(imageId)
   }

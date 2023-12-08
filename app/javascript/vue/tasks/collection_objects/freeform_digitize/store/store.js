@@ -164,8 +164,11 @@ export default defineStore('freeform', {
         this.catalogNumber = initialCatalogNumber()
       }
 
+      if (!lock.taxonDeterminations) {
+        this.taxonDeterminations = []
+      }
+
       this.collectionObject = initialCO()
-      this.taxonDeterminations = []
 
       boardStore.SVGBoard.apiClearAll()
     }
