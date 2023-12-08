@@ -1,64 +1,72 @@
 <template>
-  <div>
-    <VBtn
-      color="create"
-      medium
-      @click="handleUpdate"
-    >
-      Rotate
-    </VBtn>
-    <ConfirmationModal ref="confirmationModalRef" />
+  <div
+    v-if="isCountExceeded"
+    class="feedback feedback-danger"
+  >
+    Too many records selected, maximum {{ MAX_LIMIT }}
+  </div>
+  <div
+    class="horizontal-left-content gap-small margin-large-top margin-large-bottom"
+  >
+    <UpdateBatch
+      ref="updateBatchRef"
+      :batch-service="BiologicalAssociation.batchUpdate"
+      :payload="payload"
+      :disabled="isCountExceeded"
+      @update="updateMessage"
+      @close="emit('close')"
+    />
+
+    <PreviewBatch
+      :batch-service="BiologicalAssociation.batchUpdate"
+      :payload="payload"
+      :disabled="isCountExceeded"
+      @finalize="
+        () => {
+          updateBatchRef.openModal()
+        }
+      "
+    />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
+import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import { BiologicalAssociation } from '@/routes/endpoints'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import { computed, ref } from 'vue'
+
+const MAX_LIMIT = 250
 
 const props = defineProps({
   parameters: {
     type: Object,
     required: true
+  },
+
+  count: {
+    type: Number,
+    required: true
   }
 })
 
-const confirmationModalRef = ref(null)
-const batchResponse = ref({
-  updated: [],
-  not_updated: []
-})
+const updateBatchRef = ref(null)
+const emit = defineEmits(['close'])
 
-function rotateBiologicalAssociations() {
-  const payload = {
-    ...props.parameters
+const isCountExceeded = computed(() => props.count > MAX_LIMIT)
+
+const payload = computed(() => ({
+  biological_association_query: props.parameters,
+  biological_association: {
+    rotate: true
   }
+}))
 
-  BiologicalAssociation.batchRotate(payload).then(({ body }) => {
-    const message = body.updated.length
-      ? `${body.updated.length} biological association(s) were successfully updated.`
-      : 'No biological associations were updated.'
+function updateMessage(data) {
+  const message = data.sync
+    ? `${data.updated.length} biological association queued for updating.`
+    : `${data.updated.length} biological associations were successfully updated.`
 
-    batchResponse.value = body
-
-    TW.workbench.alert.create(message, 'notice')
-  })
-}
-
-async function handleUpdate() {
-  const ok = await confirmationModalRef.value.show({
-    title: 'Rotate biological association',
-    message:
-      'This will change rotate the biological association. Are you sure you want to proceed?',
-    confirmationWord: 'ROTATE',
-    okButton: 'Update',
-    cancelButton: 'Cancel',
-    typeButton: 'submit'
-  })
-
-  if (ok) {
-    rotateBiologicalAssociations()
-  }
+  TW.workbench.alert.create(message, 'notice')
 }
 </script>
