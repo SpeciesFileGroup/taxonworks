@@ -94,9 +94,9 @@ module Queries
       #   Pull the result of a TaxonName autocomplete. Maintain the order returned, and
       #   re-cast the result in terms of an OTU query. Expensive but maintain order is key.
       def autocomplete_taxon_name
-        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact: exact, project_id:).autocomplete # an array, not a query
+        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:).autocomplete # an array, not a query
 
-        ids = taxon_names.map(&:id) # maintain order
+        ids = taxon_names.map(&:id) # TODO: Experiment with :cached_valid_taxon_name_id) # We assume we want to land on Valid OTUs, but see #
         return nil if ids.empty?
 
         min = 10.0

@@ -116,7 +116,7 @@ module ::Export::ProjectData::Sql
                        "#{table_pair.first} ON #{table_pair.second}.id IN ("\
                          "#{table_pair.first}.ancestor_id, #{table_pair.first}.descendant_id"\
                        ') '\
-                   "WHERE project_id = #{project_id} LIMIT 2"
+                   "WHERE project_id = #{project_id}"
     copy_table(table_pair.first, io, cols_hierarchy, select_query)
   end
 
@@ -151,7 +151,7 @@ module ::Export::ProjectData::Sql
         is_administrator: user.is_administrator || 'NULL',
         hub_tab_order: "'{#{conn.escape_string(user.hub_tab_order.join(','))}}'"
       }.merge!(
-        if members.include?(user)
+        if members.include?(user.id)
           {
             email: "'#{conn.escape_string(user.email)}'",
             name: "'#{conn.escape_string(user.name)}'"

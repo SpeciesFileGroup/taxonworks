@@ -43,6 +43,8 @@ class BiologicalAssociation < ApplicationRecord
   include BiologicalAssociation::GlobiExtensions
   include BiologicalAssociation::DwcExtensions
 
+  include Shared::QueryBatchUpdate
+
   belongs_to :biological_relationship, inverse_of: :biological_associations
 
   has_many :subject_biological_relationship_types, through: :biological_relationship
@@ -67,6 +69,16 @@ class BiologicalAssociation < ApplicationRecord
 
   attr_accessor :subject_global_id
   attr_accessor :object_global_id # TODO: this is badly named
+
+  attr_accessor :rotate
+
+  def rotate=(value)
+    s = self.biological_association_subject
+    o = self.biological_association_object
+
+    self.biological_association_subject = o
+    self.biological_association_object = s
+  end
 
   def subject_global_id=(value)
     o = GlobalID::Locator.locate(value)
@@ -102,131 +114,42 @@ class BiologicalAssociation < ApplicationRecord
 
   class << self
 
-    # @return 
+    def set_batch_cap(request)
+      a = request.filter
+      total = a.all.pluck(:biological_relationship_id).uniq
+
+      cap = 0
+
+      case total.size
+      when 1
+        cap = 5000
+        request.cap_reason = 'Maximum allowed.'
+      when 2
+        cap = 2000 
+        request.cap_reason = 'Maximum allowed when 2 biological relationships present.'
+      else
+        cap = 25
+        request.cap_reason = 'Maximum allowed when 3 or more biological relationships present.'
+      end
+      
+      request.cap = cap
+      request
+    end
 
     def batch_update(params)
-      return false if params[:biological_association].blank?
+      request = QueryBatchRequest.new(
+        klass: 'BiologicalAssociation',
+        object_filter_params: params[:biological_association_query],
+        object_params: params[:biological_association],
+        async_cutoff: (params[:async_cutoff] || 26),
+        preview: params[:preview]
+      )
 
-      r = BatchResponse.new
-      r.method = 'batch_update'
-      r.klass = 'BiologicalAssociation'
-      r.preview = params[:preview]
-
-      a = Queries::BiologicalAssociation::Filter.new(params[:biological_association_query])
-      c = a.all.count
-
-      r.total_attempted = c
-
-      v = a.all.pluck(:biological_relationship_id).uniq
-
-      cap = 0
-
-      case v.size
-      when 1
-        if v.first.nil?
-          cap = 10000
-        else
-          cap = 2000
-        end
-      when 2
-        if v.include?(nil)
-          cap = 2000
-        else
-          cap = 25
-        end
-      else
-        cap = 25
-      end
-
-      r.cap = cap
-
-      if c == 0 || c > cap
-        r.cap_reason = 'Too many unique biological relationships.' 
-        return r 
-      end
-
-      BiologicalAssociation.transaction do |b|
-        begin
-          a.all.find_each do |b|
-            b.update!(params[:biological_association])
-            r.updated.push b.id
-          end
-        rescue ActiveRecord::RecordInvalid => e
-          r.not_updated.push e.record.id
-          r.errors[e.message] += 1
-        end
-
-        raise ActiveRecord::Rollback if r.preview
-      end
-
-      return r
+      set_batch_cap(request)
+      query_batch_update(request)
     end
 
-
-    # Rotates subject and object
-    def batch_rotate(params)
-      a = Queries::BiologicalAssociation::Filter.new(params)
-
-      r = BatchResponse.new
-      r.method = 'batch_rotate'
-      r.klass = 'BiologicalAssociation'
-      r.preview = params[:preview]
-
-      c = a.all.count
-
-
-      v = a.all.pluck(:biological_relationship_id).uniq
-
-      cap = 0
-
-      case v.size
-      when 1
-        if v.first.nil?
-          cap = 10000
-        else
-          cap = 2000
-        end
-      when 2
-        if v.include?(nil)
-          cap = 2000
-        else
-          cap = 25
-        end
-      else
-        cap = 25
-      end
-
-      if c == 0 || c > cap
-        r.cap_reason = 'Too many unique biological relationships.' 
-        return r 
-      end
-
-      BiologicalAssociation.transaction do |b|
-        begin
-          a.all.find_each do |b|
-            s = b.biological_association_subject
-            o = b.biological_association_object
-
-            b.update!(
-              biological_association_subject: o,
-              biological_association_object: s,
-              by: params[:by]
-            )
-            r.updated.push b.id
-          end
-
-        rescue ActiveRecord::RecordInvalid => e
-          r.not_updated.push e.record.id
-          r.errors[e.message] += 1
-        end
-
-        raise ActiveRecord::Rollback if r.preview
-      end
-
-      return r 
-    end
-
-  end # end class methods
+  end
 
   # @return [ActiveRecord::Relation]
   #def self.collection_objects_subject_join

@@ -31,8 +31,8 @@
 <script setup>
 import { useStore } from 'vuex'
 import { computed } from 'vue'
-import { GetterNames } from '../../../store/getters/getters'
-import { ActionNames } from '../../../store/actions/actions'
+import { GetterNames } from '../../../../store/getters/getters'
+import { ActionNames } from '../../../../store/actions/actions'
 import Autocomplete from '@/components/ui/Autocomplete'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'

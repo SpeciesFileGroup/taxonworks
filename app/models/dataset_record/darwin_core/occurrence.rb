@@ -1034,6 +1034,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       matching_synonyms = Set[]
       synonyms.each do |s|
         possible_names = [s.cached, s.cached_original_combination].compact.to_set
+        # Try excluding subgenus
+        possible_names += possible_names.map {|n| n.sub(/\(\w+\) /, '')}
+        # Check for misspellings
         possible_names += possible_names.map { |n| n.gsub(" [sic]", '') }
         if possible_names.include?(type_scientific_name)
           if s.is_combination?
