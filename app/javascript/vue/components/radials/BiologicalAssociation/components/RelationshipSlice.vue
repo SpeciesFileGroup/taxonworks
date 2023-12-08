@@ -1,9 +1,5 @@
 <template>
   <div>
-    <VSpinner
-      v-if="isUpdating"
-      legend="Updating..."
-    />
     <div
       v-if="isCountExceeded"
       class="feedback feedback-danger"
@@ -28,17 +24,29 @@
         />
       </fieldset>
 
-      <VBtn
-        class="margin-large-top"
-        color="create"
-        medium
-        :disabled="!biologicalAssociation || isCountExceeded"
-        @click="handleUpdate"
+      <div
+        class="horizontal-left-content gap-small margin-large-top margin-large-bottom"
       >
-        Update
-      </VBtn>
+        <UpdateBatch
+          ref="updateBatchRef"
+          :batch-service="BiologicalAssociation.batchUpdate"
+          :payload="payload"
+          :disabled="!biologicalAssociation || isCountExceeded"
+          @update="updateMessage"
+          @close="emit('close')"
+        />
 
-      <ConfirmationModal ref="confirmationModalRef" />
+        <PreviewBatch
+          :batch-service="BiologicalAssociation.batchUpdate"
+          :payload="payload"
+          :disabled="!biologicalAssociation || isCountExceeded"
+          @finalize="
+            () => {
+              updateBatchRef.openModal()
+            }
+          "
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -46,9 +54,8 @@
 <script setup>
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import ConfirmationModal from '@/components/ConfirmationModal.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import VSpinner from '@/components/spinner.vue'
+import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
+import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import { BiologicalAssociation } from '@/routes/endpoints'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 import { computed, ref } from 'vue'
@@ -68,54 +75,23 @@ const props = defineProps({
 })
 
 const biologicalAssociation = ref()
-const confirmationModalRef = ref(null)
-const isUpdating = ref(false)
-const batchResponse = ref({
-  updated: [],
-  not_updated: []
-})
+const updateBatchRef = ref(null)
+const emit = defineEmits(['close'])
 
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 
-function changeRelationship() {
-  const payload = {
-    biological_association_query: props.parameters,
-    biological_association: {
-      biological_relationship_id: biologicalAssociation.value.id
-    }
+const payload = computed(() => ({
+  biological_association_query: props.parameters,
+  biological_association: {
+    biological_relationship_id: biologicalAssociation.value?.id
   }
+}))
 
-  isUpdating.value = true
+function updateMessage(data) {
+  const message = data.sync
+    ? `${data.updated.length} biological association queued for updating.`
+    : `${data.updated.length} biological associations were successfully updated.`
 
-  BiologicalAssociation.batchUpdate(payload)
-    .then(({ body }) => {
-      const message = body.updated.length
-        ? `${body.updated.length} biological association(s) were successfully updated.`
-        : 'No biological associations were updated.'
-
-      batchResponse.value = body
-
-      TW.workbench.alert.create(message, 'notice')
-    })
-    .catch(() => {})
-    .finally(() => {
-      isUpdating.value = false
-    })
-}
-
-async function handleUpdate() {
-  const ok = await confirmationModalRef.value.show({
-    title: 'Change relationship',
-    message:
-      'This will change the relationship for the selected biological associations. Are you sure you want to proceed?',
-    confirmationWord: 'CHANGE',
-    okButton: 'Update',
-    cancelButton: 'Cancel',
-    typeButton: 'submit'
-  })
-
-  if (ok) {
-    changeRelationship()
-  }
+  TW.workbench.alert.create(message, 'notice')
 }
 </script>

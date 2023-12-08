@@ -14,8 +14,8 @@ module Lib::CatalogHelper
   # @return [String, nil]
   def paper_history_topics(citation)
     return nil if citation.nil?
-    if s = citation.citation_topics.collect{|t| label_for_controlled_vocabulary_term(t.topic)}.join.html_safe
-      s
+    if s = citation.citation_topics.collect{|t| label_for_controlled_vocabulary_term(t.topic)}.join('; ').html_safe
+      ' ' + s # TODO: if paper_line_tag is refactored more consistently, remove space
     else
       nil
     end
@@ -28,7 +28,7 @@ module Lib::CatalogHelper
     str = citation.source.year_suffix.to_s
     str += ": #{citation.pages}." if citation.pages
     #    content_tag(:span, str, class: 'history__pages') unless str.blank?
-    unless str.blank?
+    if str.present?
       link_to(content_tag(:span, str, title: strip_tags(citation.source.cached), class: 'history__pages'), send(:nomenclature_by_source_task_path, source_id: citation.source.id) )
     end
   end

@@ -21,6 +21,24 @@ describe Source::Bibtex, type: :model, group: :sources do
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
   }
 
+  specify '.batch_update' do
+    s1 = FactoryBot.create(:valid_serial)
+    s2 = FactoryBot.create(:valid_serial)
+
+    sb =  FactoryBot.create(:valid_source_bibtex, serial: s1)
+
+    params = {
+      async_cutoff: 3,
+      source: { serial_id: s2.id },
+    }.merge(source_query: {source_id: [sb.id]})
+
+    response = Source::Bibtex.batch_update(params).to_json
+
+    expect(response[:updated]).to include(sb.id)
+    expect(response[:not_updated]).to eq([])
+    expect(sb.reload.serial).to eq s2
+  end
+
   specify '#project_sources_attributes 3' do
     params = {
       'title' => 'asdfasfasf',

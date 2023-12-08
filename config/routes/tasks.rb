@@ -411,7 +411,7 @@ scope :tasks do
     end
 
     scope :summary, controller: 'tasks/biological_associations/summary' do
-      get '/', action: :index, as: 'biological_associations_graph_summary'
+      get '/', action: :index, as: 'biological_associations_summary_task'
       post 'data', action: :data, defaults: {format: :json}
       get  :data, defaults: {format: :json}
     end
@@ -584,6 +584,12 @@ scope :tasks do
 
     scope :filter, controller: 'tasks/people/filter' do
       get '/', action: :index, as: :filter_people_task
+    end
+
+    scope :summary, controller: 'tasks/people/summary' do
+      get '/', action: :index, as: 'people_summary_task'
+      post 'data', action: :data, defaults: {format: :json}
+      get  :data, defaults: {format: :json}
     end
   end
 

@@ -209,8 +209,7 @@ export default {
       metadata: undefined,
       title: 'Radial annotator',
       defaultTag: undefined,
-      showContextMenu: false,
-      listenerId: undefined
+      showContextMenu: false
     }
   },
 

@@ -7,45 +7,41 @@
       Too many records selected, maximum {{ MAX_LIMIT }}
     </div>
     <div>
-      <TaxonDeterminationForm @on-add="addTaxonDetermination" />
+      <TaxonDeterminationForm
+        @on-add="(determination) => (taxonDetermination = determination)"
+      />
     </div>
 
-    <div class="margin-large-top">
-      <template v-if="collectionObjects.passed.length">
-        <h3>Updated</h3>
-        <ul>
-          <li
-            v-for="item in collectionObjects.passed"
-            :key="item.id"
-          >
-            <a
-              :href="`${RouteNames.BrowseCollectionObject}?collection_object_id=${item.id}`"
-              v-html="item.object_tag"
-            />
-          </li>
-        </ul>
-      </template>
-      <template v-if="collectionObjects.failed.length">
-        <h3>Not updated</h3>
-        <ul>
-          <li
-            v-for="item in collectionObjects.failed"
-            :key="item.id"
-          >
-            <a
-              :href="`${RouteNames.BrowseCollectionObject}?collection_object_id=${item.id}`"
-              v-html="item.object_tag"
-            />
-          </li>
-        </ul>
-      </template>
+    <div
+      class="horizontal-left-content gap-small margin-large-top margin-large-bottom"
+    >
+      <UpdateBatch
+        ref="updateBatchRef"
+        :batch-service="CollectionObject.batchUpdate"
+        :payload="payload"
+        :disabled="!taxonDetermination || isCountExceeded"
+        @update="updateMessage"
+        @close="emit('close')"
+      />
+
+      <PreviewBatch
+        :batch-service="CollectionObject.batchUpdate"
+        :payload="payload"
+        :disabled="!taxonDetermination || isCountExceeded"
+        @finalize="
+          () => {
+            updateBatchRef.openModal()
+          }
+        "
+      />
     </div>
   </div>
 </template>
 
 <script setup>
+import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
+import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import { computed, ref } from 'vue'
-import { RouteNames } from '@/routes/routes.js'
 import { CollectionObject } from '@/routes/endpoints'
 import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
 
@@ -63,31 +59,31 @@ const props = defineProps({
   }
 })
 
-const collectionObjects = ref({ passed: [], failed: [] })
+const emit = defineEmits(['close'])
 
+const taxonDetermination = ref(null)
+const updateBatchRef = ref(null)
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
-
-function addTaxonDetermination(determination) {
-  const payload = {
-    collection_object_query: props.parameters,
-    collection_object: {
-      taxon_determinations_attributes: [
-        {
-          day_made: determination.day_made,
-          month_made: determination.month_made,
-          year_made: determination.year_made,
-          otu_id: determination.otu_id,
-          roles_attributes: determination.roles_attributes
-        }
-      ]
-    }
+const payload = computed(() => ({
+  collection_object_query: props.parameters,
+  collection_object: {
+    taxon_determinations_attributes: [
+      {
+        day_made: taxonDetermination.value?.day_made,
+        month_made: taxonDetermination.value?.month_made,
+        year_made: taxonDetermination.value?.year_made,
+        otu_id: taxonDetermination.value?.otu_id,
+        roles_attributes: taxonDetermination.value?.roles_attributes
+      }
+    ]
   }
+}))
 
-  CollectionObject.batchUpdate(payload).then(({ body }) => {
-    TW.workbench.alert.create(
-      `${body.passed.length} taxon determination(s) were successfully added.`,
-      'notice'
-    )
-  })
+function updateMessage(data) {
+  const message = data.sync
+    ? `${data.updated.length} collection objects queued for updating.`
+    : `${data.updated.length} collection objects were successfully updated.`
+
+  TW.workbench.alert.create(message, 'notice')
 }
 </script>
