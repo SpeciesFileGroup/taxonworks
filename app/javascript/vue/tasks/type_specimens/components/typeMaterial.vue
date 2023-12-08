@@ -88,7 +88,7 @@ import Autocomplete from '@/components/ui/Autocomplete.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Spinner from '@/components/spinner.vue'
 import CollectionObject from './collectionObject.vue'
-import DepictionsSection from './depictions.vue'
+import DepictionsSection from './depictions/depictions.vue'
 import SwitchComponent from '@/components/switch.vue'
 
 const TAB = {

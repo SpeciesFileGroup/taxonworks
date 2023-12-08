@@ -275,6 +275,9 @@ scope :tasks do
   end
 
   scope :collection_objects do
+    scope :freeform_digitize, controller: 'tasks/collection_objects/freeform_digitize' do
+      get '/', action: :index, as: 'freeform_digitize_task'
+    end
 
     scope :outdated_names, controller: 'tasks/collection_objects/outdated_names' do
       get '/', action: :index, as: 'collection_object_outdated_names_task'

@@ -31,7 +31,10 @@
               @click="removeDepiction(item)"
               class="button circle-button btn-delete"
             />
-            <zoom-image :image-url="getImageDepictionUrl(item)" />
+            <zoom-image
+              :data="getImageDepictionUrl(item)"
+              :depiction="item"
+            />
           </div>
         </template>
       </image-viewer>
@@ -176,20 +179,33 @@ export default {
     },
 
     getImageDepictionUrl(depiction) {
-      const imageWidth = Math.floor(window.innerWidth * 0.75)
-      const imageHeight =
+      return depiction.svg_view_box
+        ? this.makeSVGViewbox(depiction)
+        : {
+            imageUrl: depiction.image.image_display_url,
+            width: depiction.image.width,
+            height: depiction.image.height
+          }
+    },
+
+    makeSVGViewbox(depiction) {
+      const width = Math.floor(window.innerWidth * 0.75)
+      const height =
         window.innerHeight * 0.4 < 400
           ? Math.floor(window.innerHeight * 0.4)
           : 400
+      const imageUrl = imageSVGViewBox(
+        depiction.image.id,
+        depiction.svg_view_box,
+        width,
+        height
+      )
 
-      return depiction.svg_view_box
-        ? imageSVGViewBox(
-            depiction.image.id,
-            depiction.svg_view_box,
-            imageWidth,
-            imageHeight
-          )
-        : depiction.image.image_display_url
+      return {
+        imageUrl,
+        width,
+        height
+      }
     }
   }
 }

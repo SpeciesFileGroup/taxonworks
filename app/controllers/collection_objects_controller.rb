@@ -440,6 +440,7 @@ class CollectionObjectsController < ApplicationController
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
       tags_attributes: [:id, :_destroy, :keyword_id],
+      depictions_attributes: [:id, :_destroy, :svg_clip, :svg_view_box, :position, :caption, :figure_label, :image_id],
       identifiers_attributes: [
         :id,
         :_destroy,

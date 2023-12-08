@@ -27,28 +27,33 @@
         v-model="lockTime"
       />
     </div>
-    <button
-      v-if="createForm"
-      type="button"
-      id="determination-add-button"
-      :disabled="!taxonDetermination.otu_id"
-      class="button normal-input button-submit separate-top"
-      @click="addDetermination"
-    >
-      {{
-        taxonDetermination.id || taxonDetermination.uuid ? 'Update' : 'Create'
-      }}
-    </button>
-    <button
-      v-else
-      type="button"
-      id="determination-add-button"
-      :disabled="!taxonDetermination.otu_id"
-      class="button normal-input button-default separate-top"
-      @click="addDetermination"
-    >
-      {{ taxonDetermination.id || taxonDetermination.uuid ? 'Update' : 'Add' }}
-    </button>
+    <div class="flex-separate middle">
+      <button
+        v-if="createForm"
+        type="button"
+        id="determination-add-button"
+        :disabled="!taxonDetermination.otu_id"
+        class="button normal-input button-submit separate-top"
+        @click="addDetermination"
+      >
+        {{
+          taxonDetermination.id || taxonDetermination.uuid ? 'Update' : 'Create'
+        }}
+      </button>
+      <button
+        v-else
+        type="button"
+        id="determination-add-button"
+        :disabled="!taxonDetermination.otu_id"
+        class="button normal-input button-default separate-top"
+        @click="addDetermination"
+      >
+        {{
+          taxonDetermination.id || taxonDetermination.uuid ? 'Update' : 'Add'
+        }}
+      </button>
+      <slot name="footer-right"></slot>
+    </div>
   </div>
 </template>
 

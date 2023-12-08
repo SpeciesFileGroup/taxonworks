@@ -10,10 +10,13 @@ module Queries
         :collection_object_scope,
         :depiction_object_type,
         :depictions,
+        :freeform_svg,
         :image_id,
         :otu_id,
+        :sled_image,
         :sled_image_id,
         :source_id,
+        :sqed_image,
         :taxon_name_id,
         :taxon_name_id_target,
         :type_material_depictions,
@@ -48,6 +51,12 @@ module Queries
       #   false - image is not used
       #   nil - either
       attr_accessor :depictions
+
+      # @return [Boolean, nil]
+      #   true - image is used (in a depiction) that has svg
+      #   false - is not a true image
+      #   nil - ignored
+      attr_accessor :freeform_svg
 
       # @return [Array]
       # @param depiction_object_type
@@ -94,8 +103,20 @@ module Queries
       # @return [Array]
       attr_accessor :sled_image_id
 
+      # @return [Boolean]
+      #   true - yes
+      #   false - is not
+      #   nil - ignored
+      attr_accessor :sled_image
+
       # @return [Array]
       attr_accessor :sqed_depiction_id
+
+      # @return [Boolean]
+      #   true - yes
+      #   false - is not
+      #   nil - ignored
+      attr_accessor :sqed_image
 
       # @return [Array]
       #   one or both of 'Otu', 'CollectionObject', defaults to both if nothing provided
@@ -115,11 +136,14 @@ module Queries
         @collection_object_scope = params[:collection_object_scope]
         @depiction_object_type = params[:depiction_object_type]
         @depictions = boolean_param(params, :depictions)
+        @freeform_svg = boolean_param(params, :freeform_svg)
         @image_id = params[:image_id]
         @otu_id = params[:otu_id]
         @otu_scope = params[:otu_scope]&.map(&:to_sym)
+        @sled_image = boolean_param(params, :sled_image)
         @sled_image_id = params[:sled_image_id]
         @sqed_depiction_id = params[:sqed_depiction_id]
+        @sqed_image = boolean_param(params, :sqed_image)
         @taxon_name_id = params[:taxon_name_id]
         @taxon_name_id_target = params[:taxon_name_id_target]
         @type_material_depictions = boolean_param(params, :type_material_depictions)
@@ -221,12 +245,44 @@ module Queries
         end
       end
 
+      def freeform_svg_facet
+        return nil if freeform_svg.nil?
+
+        q = ::Image.left_joins(depictions: [:sled_image, :sqed_depiction])
+        .where.missing(:sled_image)
+        .where.not(depictions: {svg_clip: nil}).distinct
+
+        if freeform_svg
+          q
+        else
+          ::Queries.except(::Image.where(project_id:), q)
+        end
+      end
+
+      def sqed_image_facet
+        return nil if sqed_image.nil?
+        if sqed_image
+          ::Image.joins(depictions: [:sqed_depiction]).distinct
+        else
+          ::Image.left_joins(depictions: [:sqed_depiction]).where(sqed_depiction: {id: nil}).distinct
+        end
+      end
+
       def sled_image_facet
+        return nil if sled_image.nil?
+        if sled_image
+          ::Image.joins(:sled_image).distinct
+        else
+          ::Image.where.missing(:sled_image).distinct
+        end
+      end
+
+      def sled_image_id_facet
         return nil if sled_image_id.empty?
         ::Image.joins(:sled_image).where(sled_images: {id: sled_image_id})
       end
 
-      def sqed_depiction_facet
+      def sqed_depiction_id_facet
         return nil if sqed_depiction_id.empty?
         ::Image.joins(depictions: [:sqed_depiction]).where(sqed_depictions: {id: sqed_depiction_id})
       end
@@ -454,10 +510,14 @@ module Queries
           collection_object_scope_facet,
           depiction_object_type_facet,
           depictions_facet,
+          freeform_svg_facet,
           otu_id_facet,
           otu_scope_facet,
           sled_image_facet,
-          sqed_depiction_facet,
+          sled_image_id_facet,
+          sqed_image_facet,
+          sqed_depiction_id_facet,
+          sqed_image_facet,
           taxon_name_id_facet,
           type_material_depictions_facet,
         ]
