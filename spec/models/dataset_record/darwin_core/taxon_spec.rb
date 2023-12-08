@@ -1239,17 +1239,19 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a taxon with a missing parent' do
-    before(:all) { import_checklist_tsv('missing_parent.tsv', 3) }
+    before(:all) { import_checklist_tsv('missing_parent.tsv', 4) }
     after(:all) { DatabaseCleaner.clean }
 
-    let(:record) {DatasetRecord.last}
-    it 'should have an NotReady status' do
-      expect(record.status).to eq("NotReady")
+    let(:valid_protonym) { Protonym.find_by(name: 'glandium') }
+    let(:original_genus) { Protonym.find_by(name: 'Andricus', rank_class: Ranks.lookup(:iczn, 'genus')) }
+
+    it 'should import the 5 rows' do
+      verify_all_records_imported(5)
     end
 
-    # this currently will fail because I don't think there is a missingParent error message, the record has a NotReady status with no message modal in the UI
-    it 'should have the right error message' do
-      expect(record[:metadata].dig("error_data", "messages", "missingParent")).to_not be_nil
+    # TODO: this will fail currently because there is no handling to try to make a connection for missing genera
+    it 'should setup the original genus relationship between the valid protonym and original genus' do
+      expect_relationship(original_genus, valid_protonym, 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
     end
   end
   
