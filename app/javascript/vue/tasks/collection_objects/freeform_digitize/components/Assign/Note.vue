@@ -22,6 +22,8 @@
       v-if="store.notes.length"
       :list="store.notes"
       :label="[]"
+      :warning="false"
+      soft-delete
       @delete="removeNote"
     />
   </div>

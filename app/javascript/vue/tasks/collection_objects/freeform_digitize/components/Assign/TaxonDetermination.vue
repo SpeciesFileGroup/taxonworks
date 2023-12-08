@@ -10,11 +10,11 @@
     </TaxonDeterminationForm>
     <list-component
       :list="store.taxonDeterminations"
-      @delete-index="removeTaxonDetermination"
-      soft-delete
       :warning="false"
+      soft-delete
       set-key="otu_id"
       label="object_tag"
+      @delete-index="removeTaxonDetermination"
     />
   </div>
 </template>

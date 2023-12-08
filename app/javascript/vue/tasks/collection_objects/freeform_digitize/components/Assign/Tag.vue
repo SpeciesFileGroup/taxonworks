@@ -23,8 +23,10 @@
     <ListComponent
       v-if="store.tags.length"
       :list="store.tags"
-      @delete-index="store.removeTag"
+      :warning="false"
+      soft-delete
       label="label"
+      @delete-index="store.removeTag"
     />
   </div>
 </template>
