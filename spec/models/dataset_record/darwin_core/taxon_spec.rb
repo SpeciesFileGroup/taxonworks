@@ -1238,8 +1238,23 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
-  # TODO test missing parent
-  #
+  context 'when importing a taxon with a missing parent' do
+    before(:all) { import_checklist_tsv('missing_parent.tsv', 4) }
+    after(:all) { DatabaseCleaner.clean }
+
+    let(:valid_protonym) { Protonym.find_by(name: 'glandium') }
+    let(:original_genus) { Protonym.find_by(name: 'Andricus', rank_class: Ranks.lookup(:iczn, 'genus')) }
+
+    it 'should import the 5 rows' do
+      verify_all_records_imported(5)
+    end
+
+    # TODO: this will fail currently because there is no handling to try to make a connection for missing genera
+    xit 'should setup the original genus relationship between the valid protonym and original genus' do
+      expect_relationship(original_genus, valid_protonym, 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+    end
+  end
+  
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName
   #
   # TODO test importing multiple times
