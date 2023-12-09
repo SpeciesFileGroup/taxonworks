@@ -9,16 +9,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Preview option and results reports for filter based batch updates [#3690]
 - Freeform digtization, draw shapes to stub CollectionObjects [#3113]
 
 ### Changed
 
+- Unifies all filter-originating batch updates to a common look and feel [#3690]
 - Report file size to browser for downloads
 
 ### Fixed
 
 - Address rendering on loan form [#3645]
-- Citation topic whitespace for paper catalog [https://github.com/SpeciesFileGroup/taxonpages/issues/187][https://github.com/SpeciesFileGroup/taxonpages/issues/187]
+- Citation topic whitespace for paper catalog [https://github.com/SpeciesFileGroup/taxonpages/issues/187](https://github.com/SpeciesFileGroup/taxonpages/issues/187)
 - Source filter with duplicate results when coming from another filter [#3696]
 - `ancestrify` parameter for Otu queries not scoping to TaxonNames correctly
 - Filter source: BibTeX type facet
@@ -27,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3113]: [#https://github.com/SpeciesFileGroup/taxonworks/issues/3113
 [#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
+[#3690]: https://github.com/SpeciesFileGroup/taxonworks/issues/3690
 [#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696
 
 ## [0.36.0] - 2023-11-30
