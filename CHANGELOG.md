@@ -7,12 +7,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Freeform digtization, draw shapes to stub CollectionObjects [#3113]
+
 ### Changed
 
 - Report file size to browser for downloads
 
 ### Fixed
 
+- DwC-A checklist importer: fix importer crash caused by nil parent
 - Address rendering on loan form [#3645]
 - Citation topic whitespace for paper catalog [https://github.com/SpeciesFileGroup/taxonpages/issues/187][https://github.com/SpeciesFileGroup/taxonpages/issues/187]
 - Source filter with duplicate results when coming from another filter [#3696]
@@ -21,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Project data SQL export obfuscating all users instead of just non-members
 - Project data SQL export outputting only two rows per hierarchy-related tables
 
+[#3113]: [#https://github.com/SpeciesFileGroup/taxonworks/issues/3113
 [#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
 [#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696
 

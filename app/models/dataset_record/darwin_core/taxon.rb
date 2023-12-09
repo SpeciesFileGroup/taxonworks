@@ -162,11 +162,13 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
             # loop through parents of original combination based on parentNameUsageID, not TW parent
             # this way we get the name as intended, not with any valid/current names
-            original_combination_parents = [find_by_taxonID(get_original_combination.metadata['parent'])]
+            original_combination_parents = [find_by_taxonID(get_original_combination.metadata['parent'])].compact
 
             # build list of parent DatasetRecords
-            while (next_parent = find_by_taxonID(original_combination_parents[-1].metadata['parent']))
-              original_combination_parents << next_parent
+            if original_combination_parents.size > 0
+              while (next_parent = find_by_taxonID(original_combination_parents[-1]&.metadata['parent']))
+                original_combination_parents << next_parent
+              end
             end
 
             # in cases where the taxon original combination is subgenus of self eg Sima (Sima), the first parent of the list
