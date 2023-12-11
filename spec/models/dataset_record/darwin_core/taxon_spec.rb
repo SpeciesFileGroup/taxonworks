@@ -1254,7 +1254,30 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect_relationship(original_genus, valid_protonym, 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
     end
   end
-  
+
+  context 'when importing a taxon without originalNameUsageID' do
+    before(:all) do
+      import_checklist_tsv('missing_original_name.tsv', 4)
+
+      TaxonName.find_each {|t| t.send(:set_cached)}
+
+    end
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'should import the 2 rows' do
+      verify_all_records_imported(2)
+    end
+
+    it 'should not create an original combination if missing originalNameUsageID' do
+      expect(Protonym.find_by(name: 'Formicidae').cached_original_combination).to be_nil
+    end
+
+    it 'should create an original combination when originalNameUsageID is present' do
+      expect(Protonym.find_by(name: 'Calyptites').cached_original_combination).to eq 'Calyptites'
+    end
+
+  end
+
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName
   #
   # TODO test importing multiple times
