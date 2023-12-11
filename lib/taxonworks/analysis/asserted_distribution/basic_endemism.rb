@@ -20,7 +20,7 @@ module TaxonWorks
             otu: otus
           ).find_each do |a|
             e = ::AssertedDistribution.where(project: taxon_name.project, otu: a.otu).where.not(geographic_area:).count
-            n = a.otu.taxon_name.valid_taxon_name
+            n = a.otu.taxon_name&.valid_taxon_name
             if e == 0 && !data[n]
               data[n] = false
             else
