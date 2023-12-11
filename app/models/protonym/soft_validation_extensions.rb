@@ -256,7 +256,8 @@ module Protonym::SoftValidationExtensions
         set: :single_sub_taxon,
         fix: :sv_fix_add_nominotypical_sub,
         name: 'Single sub-taxon',
-        description: 'When the name is a sub-taxon (for example a subgenus in genus) the parent taxon should have a nominotypical sub-taxon. When the nominotypical sub-taxon is missing, it could be automatically created using the Fix'
+        description: 'When the name is a sub-taxon (for example a subgenus in genus) the parent taxon should have a nominotypical sub-taxon. When the nominotypical sub-taxon is missing, it could be automatically created using the Fix',
+        flagged: true
       },
 
       sv_parent_priority: {
