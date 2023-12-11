@@ -3,7 +3,7 @@ class DataMigrateHerbariumRepositories < ActiveRecord::Migration[6.1]
  
    failed = [] 
 
-    Repository.where("acronym ILIKE '%<%IH%>%'").find_each do |r|
+    Repository.where("acronym ILIKE '%<IH>%'").find_each do |r|
       begin
         r.update!(
           is_index_herbariorum: true,
