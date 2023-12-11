@@ -67,15 +67,15 @@ module Otus::CatalogHelper
     language_alpha2: nil,
     max_descendants_depth: Float::INFINITY
   )
-    s = Otu.where(taxon_name: otu.taxon_name).where.not(id: otu.id).where.not(name: otu.name.present? ? otu.name : nil).to_a
+    s = Otu.where(taxon_name_id: otu.taxon_name_id).where.not(id: otu.id).where.not(name: (otu.name.presence)).to_a
 
     similar_otus += s.collect { |p| p.id }
 
-    synonyms = otu.taxon_name&.synonyms.where(type: 'Protonym').where.not(id: otu.taxon_name.id)&.order(:cached, :cached_author_year)
+    synonyms = otu.taxon_name&.synonyms.where(type: 'Protonym').where.not(id: otu.taxon_name_id)&.order(:cached, :cached_author_year)
 
     data = { otu_id: otu.id,
              name: a = full_taxon_name_tag(otu.taxon_name),
-             otu_clones: Otu.where(name: otu.name, taxon_name: otu.taxon_name).where.not(id: otu.id).pluck(:id),
+             otu_clones: Otu.where(name: otu.name, taxon_name_id: otu.taxon_name_id).where.not(id: otu.id).pluck(:id),
              similar_otus: s.inject({}){|hsh, n| hsh[n.id] = label_for_otu(n) ; hsh },
              nomenclatural_synonyms: ( (synonyms&.collect{|l| full_original_taxon_name_tag(l) || full_taxon_name_tag(l) } || []) - [a]).uniq, # This is labels, combinations can duplicate
              common_names: (common_names ? otu_inventory_common_names(otu, language_alpha2) : []),
@@ -88,8 +88,8 @@ module Otus::CatalogHelper
           if o = d.otus.order(name: 'DESC', id: 'ASC').first # arbitrary pick an OTU, prefer those without `name`. t since we summarize across identical OTUs, this is not an issue
             data[:descendants].push otu_descendants_and_synonyms(
               o,
-              data: data,
-              similar_otus: similar_otus,
+              data:,
+              similar_otus:,
               max_descendants_depth: max_descendants_depth - 1
             ) unless similar_otus.include?(o.id)
           end
@@ -104,8 +104,8 @@ module Otus::CatalogHelper
 
   def otu_inventory_common_names(otu, language_alpha_2)
     return nil if otu.nil?
-    o = CommonName.where(project_id: sessions_current_project_id, otu: otu)
-    o = o.where(language: Language.where(alpha_2: language_alpha_2.downcase)) unless language_alpha_2.blank?
+    o = CommonName.where(project_id: sessions_current_project_id, otu:)
+    o = o.where(language: Language.where(alpha_2: language_alpha_2.downcase)) if language_alpha_2.present?
     return o.collect{|a| {name: a.name, language: a&.language&.english_name } }
   end
 

@@ -127,7 +127,7 @@ namespace :tw do
 
           otu = Otu.find(ENV['otu_id'])
 
-          puts "Building for #{otu.name}: #{otu.taxon_name.cached} ..."
+          puts "Building for #{otu.name}: #{otu.taxon_name&.cached || otu.name} ..."
 
           if otu.taxon_name_id
             otus = Otu.descendant_of_taxon_name(otu.taxon_name_id)
