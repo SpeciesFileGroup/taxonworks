@@ -6,7 +6,7 @@ module RepositoriesHelper
      (repository.acronym ? "(#{repository.acronym})" : nil)
     ].join(' ').html_safe
   end
-  
+
   def label_for_repository(repository)
     return nil if repository.nil?
     repository_tag(repository) # identical for now
@@ -19,8 +19,9 @@ module RepositoriesHelper
 
   def repository_autocomplete_tag(repository)
     [repository.name,
-     content_tag(:span, repository.acronym, class: [:feedback, 'feedback-thin', 'feedback-secondary']),
-     content_tag(:span, repository.url, class: [:feedback, 'feedback-thin']),
+     tag.span(repository.acronym, class: [:feedback, 'feedback-thin', 'feedback-secondary']),
+     tag.span(repository.url, class: [:feedback, 'feedback-thin']),
+     (repository.is_index_herbariorum ? tag.span('Herbarium', class: [:feedback, 'feedback-info', 'feedback-thin']) : nil),
      repository_usage_tag(repository)
     ].compact.join(' ').html_safe
   end
