@@ -109,7 +109,7 @@ function GetMatches() {
     const request = TaxonName.where({
       name: line,
       name_exact: exact.value,
-      valid: valid.value
+      validity: valid.value
     })
 
     request.then((response) => {
