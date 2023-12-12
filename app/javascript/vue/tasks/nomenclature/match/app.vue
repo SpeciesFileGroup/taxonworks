@@ -63,15 +63,14 @@
         tableView === tableComponent.Matches ||
         tableView === tableComponent.Both
       "
-      :valid-names="validTaxonNames"
-      :list="matchesList"
+      :list="validTaxonNames"
       class="full_width"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
 import { getUnique } from '@/helpers/arrays'
 import TableMatched from './components/Table/TableMatched.vue'
@@ -104,20 +103,14 @@ const tableView = ref(tableComponent.Both)
 const validTaxonNames = ref({})
 const valid = ref(undefined)
 
-const matchesList = computed(() => {
-  if (valid.value === true) {
-    return matches.value.filter((item) => item.taxon.cached_is_valid)
-  } else if (valid.value === false) {
-    return matches.value.filter((item) => !item.taxon.cached_is_valid)
-  } else {
-    return matches.value
-  }
-})
-
 function GetMatches() {
   const lineRequests = {}
   const requests = lines.value.map((line) => {
-    const request = TaxonName.where({ name: line, name_exact: exact.value })
+    const request = TaxonName.where({
+      name: line,
+      name_exact: exact.value,
+      valid: valid.value
+    })
 
     request.then((response) => {
       lineRequests[line] = response.body
@@ -125,6 +118,8 @@ function GetMatches() {
 
     return request
   })
+
+  validTaxonNames.value = {}
 
   isLoading.value = true
   Promise.all(requests)
@@ -144,7 +139,17 @@ function GetMatches() {
         : []
 
       validNames.forEach((taxon) => {
-        validTaxonNames.value[taxon.id] = taxon
+        const entries = Object.entries(lineRequests).find(
+          ([_, value]) =>
+            value.filter((item) => item.cached_valid_taxon_name_id === taxon.id)
+              .length
+        )
+
+        validTaxonNames.value[taxon.id] = {
+          line: entries[0],
+          taxon: entries[1],
+          validTaxon: taxon
+        }
       })
 
       matches.value = uniqueList.map((taxon) => {
