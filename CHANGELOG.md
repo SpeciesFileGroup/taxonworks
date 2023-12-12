@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Project data SQL export obfuscating all users instead of just non-members
 - Project data SQL export outputting only two rows per hierarchy-related tables
 - AssertedDistributions API index call failed when OTU not linked to taxon name
+- Missing valid names in nomenclature match task
 
 [#3113]: [#https://github.com/SpeciesFileGroup/taxonworks/issues/3113
 [#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645

@@ -137,7 +137,7 @@ function GetMatches() {
 
       const validNames = validTaxonNameIDs.length
         ? (
-            await TaxonName.filter({
+            await TaxonName.all({
               taxon_name_id: [...new Set(validTaxonNameIDs)]
             })
           ).body
