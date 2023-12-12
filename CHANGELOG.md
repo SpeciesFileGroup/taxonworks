@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Preview option and results reports for filter based batch updates [#3690]
 - Freeform digtization, draw shapes to stub CollectionObjects [#3113]
+- `superfamily`, `tribe` and `subtribe` DwC terms now supported in occurrences importer [#3705]
 
 ### Changed
 

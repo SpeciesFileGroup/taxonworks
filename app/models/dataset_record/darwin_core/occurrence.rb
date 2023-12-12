@@ -1,6 +1,6 @@
 class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
-  DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order family} # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
+  DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order subperfamily family tribe subtribe} # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
   PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies)
 
   ACCEPTED_ATTRIBUTES = {
@@ -1236,14 +1236,30 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       {rank_class: Ranks.lookup(code, "order"), name: get_field_value(:order)}.tap { |h| names << h }.object_id
     ] = :order
 
+    # superfamily: [Superfamily protonym]
+    origins[
+      {rank_class: Ranks.lookup(code, "superfamily"), name: get_field_value(:superfamily)}.tap { |h| names << h }.object_id
+    ] = :superfamily
+
     # family: [Family protonym]
     origins[
       {rank_class: Ranks.lookup(code, "family"), name: get_field_value(:family)}.tap { |h| names << h }.object_id
     ] = :family
 
+    # subfamily: [Subfamily protonym]
     origins[
       {rank_class: Ranks.lookup(code, "subfamily"), name: get_field_value(:subfamily)}.tap { |h| names << h }.object_id
     ] = :subfamily
+
+    # tribe: [Tribe protonym]
+    origins[
+      {rank_class: Ranks.lookup(code, "tribe"), name: get_field_value(:tribe)}.tap { |h| names << h }.object_id
+    ] = :tribe
+
+    # subtribe: [Subtribe protonym]
+    origins[
+      {rank_class: Ranks.lookup(code, "subtribe"), name: get_field_value(:subtribe)}.tap { |h| names << h }.object_id
+    ] = :subtribe
 
     # genus: [Not mapped, extracted from scientificName instead]
 
