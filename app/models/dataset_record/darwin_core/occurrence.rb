@@ -1,6 +1,6 @@
 class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
-  DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order family} # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
+  DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order subperfamily family tribe subtribe} # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
   PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies)
 
   ACCEPTED_ATTRIBUTES = {
@@ -38,6 +38,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       protonym
     end
 
+    # @param [Protonym] parent
+    # @return [Protonym, nil]
     def get_protonym(parent, name)
       name = name.except(:rank_class) if name[:rank_class].nil?
 
@@ -49,8 +51,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         # if multiple potential protonyms, this is a homonym situation
         if potential_protonyms.count > 1
           # verbatim author field (if present) applies to finest name only
-          if name[:cached_author]
-            potential_protonyms_narrowed = potential_protonyms.where(cached_author: name[:cached_author])
+          if (cached_author = name[:verbatim_author])
+            # remove surrounding parentheses if present
+            if cached_author.start_with?('(') && cached_author.end_with?(')')
+              cached_author = cached_author.delete_prefix('(').delete_suffix(')')
+              potential_protonyms_narrowed = potential_protonyms.is_not_original_name
+            else
+              potential_protonyms_narrowed = potential_protonyms.is_original_name
+            end
+
+            potential_protonyms_narrowed = potential_protonyms_narrowed.where(cached_author:)
 
             if name[:year_of_publication]
               potential_protonyms_narrowed = potential_protonyms_narrowed.where(year_of_publication: name[:year_of_publication])
@@ -59,11 +69,17 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             # if only one result, everything's ok. Safe to take it as the protonym
             if potential_protonyms_narrowed.count == 1
               potential_protonyms = potential_protonyms_narrowed
-            else
+            elsif potential_protonyms_narrowed.count == 0
               potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }.join(', ')
+              error_message =
+                ["Multiple matches found for name #{name[:name]}, rank #{name[:rank_class]}, parent #{parent.id} #{parent.cached_html_name_and_author_year}: #{potential_protonym_strings}",
+                 "No names matched author name #{name[:verbatim_author]}#{(', year ' + name[:year_of_publication].to_s) if name[:year_of_publication]}: "]
+              raise DatasetRecord::DarwinCore::InvalidData.new({ 'scientificName' => error_message })
+            else
+              potential_protonym_strings = potential_protonyms_narrowed.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }.join(', ')
               raise DatasetRecord::DarwinCore::InvalidData.new(
-                  { "scientificName" => ["Multiple matches found for name #{name[:name]} and author name #{name[:cached_author]}, year #{name[:year_of_publication]}: #{potential_protonym_strings}"] }
-                )
+                { 'scientificName' => ["Multiple matches found for name #{name[:name]} and author name #{name[:verbatim_author]}, year #{name[:year_of_publication]}: #{potential_protonym_strings}"] }
+              )
             end
           else
             # for intermediate homonyms, skip it, we don't have any info
@@ -76,7 +92,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         # Protonym might not exist, or might have intermediate parent not listed in file
         # if it exists, run more expensive query to see if it has an ancestor matching parent name and rank
         if p.nil? && Protonym.where(name.slice(:rank_class).merge({ field => name[:name] })).where(project_id: parent.project_id).exists?
-          potential_protonyms = Protonym.where(name.slice(:rank_class, :cached_author, :year_of_publication).merge({ field => name[:name] }).compact).with_ancestor(parent)
+          if (cached_author = name[:verbatim_author])
+            # remove surrounding parentheses if present
+            if cached_author.start_with?('(') && cached_author.end_with?(')')
+              cached_author = cached_author.delete_prefix('(').delete_suffix(')')
+            end
+          end
+
+          potential_protonyms = Protonym.where(name.slice(:rank_class, :year_of_publication).merge({ field => name[:name], cached_author: }).compact).with_ancestor(parent)
           if potential_protonyms.count > 1
             return parent
             # potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }
@@ -1213,14 +1236,30 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       {rank_class: Ranks.lookup(code, "order"), name: get_field_value(:order)}.tap { |h| names << h }.object_id
     ] = :order
 
+    # superfamily: [Superfamily protonym]
+    origins[
+      {rank_class: Ranks.lookup(code, "superfamily"), name: get_field_value(:superfamily)}.tap { |h| names << h }.object_id
+    ] = :superfamily
+
     # family: [Family protonym]
     origins[
       {rank_class: Ranks.lookup(code, "family"), name: get_field_value(:family)}.tap { |h| names << h }.object_id
     ] = :family
 
+    # subfamily: [Subfamily protonym]
     origins[
       {rank_class: Ranks.lookup(code, "subfamily"), name: get_field_value(:subfamily)}.tap { |h| names << h }.object_id
     ] = :subfamily
+
+    # tribe: [Tribe protonym]
+    origins[
+      {rank_class: Ranks.lookup(code, "tribe"), name: get_field_value(:tribe)}.tap { |h| names << h }.object_id
+    ] = :tribe
+
+    # subtribe: [Subtribe protonym]
+    origins[
+      {rank_class: Ranks.lookup(code, "subtribe"), name: get_field_value(:subtribe)}.tap { |h| names << h }.object_id
+    ] = :subtribe
 
     # genus: [Not mapped, extracted from scientificName instead]
 
@@ -1336,7 +1375,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     begin
       author_name, year = Utilities::Strings.parse_authorship(get_field_value("scientificNameAuthorship"))
 
-      names.last&.merge!({ cached_author: author_name, year_of_publication: year })
+      names.last&.merge!({ verbatim_author: author_name, year_of_publication: year })
     end
 
     # vernacularName: [Not mapped]

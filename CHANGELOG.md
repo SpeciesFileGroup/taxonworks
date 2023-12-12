@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Preview option and results reports for filter based batch updates [#3690]
 - Freeform digtization, draw shapes to stub CollectionObjects [#3113]
+- `superfamily`, `tribe` and `subtribe` DwC terms now supported in occurrences importer [#3705]
 
 ### Changed
 
@@ -29,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Project data SQL export obfuscating all users instead of just non-members
 - Project data SQL export outputting only two rows per hierarchy-related tables
 - AssertedDistributions API index call failed when OTU not linked to taxon name
+- Missing valid names in nomenclature match task
 
 [#3113]: [#https://github.com/SpeciesFileGroup/taxonworks/issues/3113
 [#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
