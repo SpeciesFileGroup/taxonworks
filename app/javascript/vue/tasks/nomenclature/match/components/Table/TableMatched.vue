@@ -13,7 +13,15 @@
         v-for="data in list"
         :key="data.line"
       >
-        <td>{{ data.line }}</td>
+        <td>
+          <template
+            v-for="line in data.lines"
+            :key="line"
+          >
+            <span>{{ line }}</span
+            ><br />
+          </template>
+        </td>
         <td>
           <template
             v-for="taxon in data.taxon"

@@ -139,15 +139,22 @@ function GetMatches() {
         : []
 
       validNames.forEach((taxon) => {
-        const entries = Object.entries(lineRequests).find(
-          ([_, value]) =>
-            value.filter((item) => item.cached_valid_taxon_name_id === taxon.id)
-              .length
+        const taxonList = getUnique(
+          Object.values(lineRequests)
+            .flat()
+            .filter((item) => item.cached_valid_taxon_name_id === taxon.id),
+          'id'
         )
 
+        const lines = Object.entries(lineRequests)
+          .filter(([_, taxones]) =>
+            taxones.find((item) => item.cached_valid_taxon_name_id === taxon.id)
+          )
+          .map(([key, _]) => key)
+
         validTaxonNames.value[taxon.id] = {
-          line: entries[0],
-          taxon: entries[1],
+          lines,
+          taxon: taxonList,
           validTaxon: taxon
         }
       })
