@@ -529,14 +529,22 @@ module TaxonNamesHelper
   #   optionally bold these names if found in names
   # # !! Does not try to sort names, works best in combination with `ancestrify: true` in ::Queries::TaxonNames::Filter
   def simple_hierarchy_tag(names, selected_names = nil)
-    n = names
+    match = []
+
     if selected_names
-      m = selected_names.pluck(:id)
+      match = selected_names.pluck(:id)
     end
 
-    m ||= []
+    objects = names.select('id, parent_id, cached as label')
 
-    n.pluck(:id, :cached, :rank_class).collect{|a| '&nbsp;' * (::RANK_INDENT[a.last] || 33)  + (m.include?(a.first) ? tag.b(a.second) : a.second) }.join('<br>').html_safe
+    g = Utilities::Hierarchy.new(objects:, match:)
+
+
+    g.to_s.join('<br>').html_safe
+
+    # n.pluck(:id, :cached, :rank_class).collect{|a| '&nbsp;' * (::RANK_INDENT[a.last] || 33)  + (m.include?(a.first) ? tag.b(a.second) : a.second) }.join('<br>').html_safe
+
+    # n.pluck(:id, :cached, :rank_class).collect{|a| '&nbsp;' * (::RANK_INDENT[a.last] || 33)  + (m.include?(a.first) ? tag.b(a.second) : a.second) }.join('<br>').html_safe
   end
 
   protected

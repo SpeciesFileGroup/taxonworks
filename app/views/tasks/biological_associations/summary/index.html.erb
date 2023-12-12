@@ -37,6 +37,8 @@
 <% n = ::Queries::TaxonName::Filter.new(biological_association_query: @biological_associations_query.params, ancestrify: true).all %>
 <% m = ::Queries::TaxonName::Filter.new(biological_association_query: @biological_associations_query.params).all %>
 
+<%= n.collect{|z| z.cached}.join('; ') %>
+
 <ul>
   <li> <b> Bold means a record is linked directly to that taxon. </b> </li>
   <li> <%= m.count %> taxon names referenced </li>
