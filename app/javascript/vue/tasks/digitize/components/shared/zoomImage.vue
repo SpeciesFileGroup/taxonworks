@@ -68,7 +68,7 @@ const isVisible = ref(false)
 const flip = ref(false)
 
 const svgClip = computed(() => {
-  return props.depiction?.svg_clip
+  return props.depiction?.svg_clip && !props.depiction.svg_view_box
     ? [
         {
           g: props.depiction.svg_clip,
