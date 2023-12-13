@@ -1,0 +1,5 @@
+<%= link_to 'Back', observation_matrix_view_task_path(observation_matrix_id: @observation_matrix.id) -%>
+
+<div class="nexus">
+<%= render 'observation_matrices/export/nexml/nexml.rdf.builder', locals: { as_file: true } %> 
+</div>

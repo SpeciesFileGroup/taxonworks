@@ -13,7 +13,19 @@
       </template>
       <template #body>
         <div class="image-container">
+          <SvgViewer
+            v-if="svgClip"
+            class="img-maxsize full_width"
+            :height="depiction.image.height"
+            :groups="svgClip"
+            :image="{
+              url: depiction.image.image_file_url,
+              width: depiction.image.width,
+              height: depiction.image.height
+            }"
+          />
           <img
+            v-else
             :class="[
               'img-maxsize',
               state.fullSizeImage ? 'img-fullsize' : 'img-normalsize'
@@ -172,6 +184,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import ImageViewerAttributions from './ImageViewerAttributions.vue'
 import ImageViewerCitations from './ImageViewerCitations.vue'
+import SvgViewer from '@/components/Svg/SvgViewer.vue'
 import { Depiction, Image } from '@/routes/endpoints'
 import { imageSVGViewBox, imageScale } from '@/helpers/images'
 import { computed, reactive, ref, watch } from 'vue'
@@ -218,6 +231,17 @@ const image = computed(() =>
     : props.depiction?.image.alternatives.medium ||
       props.image.alternatives.medium
 )
+
+const svgClip = computed(() => {
+  return props.depiction?.svg_clip
+    ? [
+        {
+          g: props.depiction.svg_clip,
+          attributes: { fill: '#FFA500', 'fill-opacity': 0.25 }
+        }
+      ]
+    : null
+})
 
 const imageObject = computed(() => props.depiction?.image || props.image)
 

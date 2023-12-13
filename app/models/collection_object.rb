@@ -182,7 +182,20 @@ class CollectionObject < ApplicationRecord
                ON  "sequences"."id" = "origin_relationships_extracts_join"."new_object_id"}
   end
 
-  # Rotates subject and object
+  def self.batch_update(params)
+    request = QueryBatchRequest.new(
+      async_cutoff: params[:async_cutoff] || 50,
+      klass: 'CollectionObject',
+      object_filter_params: params[:collection_object_query],
+      object_params: params[:collection_object],
+      preview: params[:preview],
+    )
+
+    request.cap = 1000
+
+    query_batch_update(request)
+  end
+
   def self.batch_update_dwc_occurrence(params)
     q = Queries::CollectionObject::Filter.new(params).all
 

@@ -1,10 +1,5 @@
 <template>
   <div class="depiction-container">
-    <spinner
-      v-if="false"
-      :show-spinner="false"
-      legend="Create a type specimen to upload images"
-    />
     <dropzone
       class="dropzone-card separate-bottom"
       @vdropzone-sending="sending"
@@ -13,48 +8,58 @@
       ref="depiction"
       id="depiction"
       url="/depictions"
-      :use-custom-dropzone-options="true"
+      use-custom-dropzone-options
       :dropzone-options="dropzone"
     />
     <div
       class="flex-wrap-row"
       v-if="figuresList.length"
     >
-      <depictionImage
+      <ImageViewer
         v-for="item in figuresList"
-        @delete="removeDepiction"
         :key="item.id"
         :depiction="item"
-      />
+        edit
+        @delete="removeDepiction"
+      >
+        <template #thumbfooter>
+          <div
+            class="horizontal-left-content padding-xsmall-bottom padding-xsmall-top gap-small"
+          >
+            <button
+              @click="removeDepiction(item)"
+              class="button circle-button btn-delete"
+            />
+          </div>
+        </template>
+      </ImageViewer>
     </div>
   </div>
 </template>
 
 <script>
-import { Depiction } from '@/routes/endpoints'
+import ActionNames from '../../store/actions/actionNames'
+import { GetterNames } from '../../store/getters/getters'
+import { CollectionObject, Depiction } from '@/routes/endpoints'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
 import Dropzone from '@/components/dropzone.vue'
-import Spinner from '@/components/spinner.vue'
-import DepictionImage from './depictionImage.vue'
 
 export default {
   components: {
-    DepictionImage,
-    Dropzone,
-    Spinner
+    ImageViewer,
+    Dropzone
   },
 
-  props: {
-    objectId: {
-      type: [String, Number],
-      required: true
+  computed: {
+    getTypeMaterial() {
+      return this.$store.getters[GetterNames.GetTypeMaterial]
     },
-    objectType: {
-      type: String,
-      required: true
+
+    getImages() {
+      return this.$store.getters[GetterNames.GetTypeMaterial].collection_object
+        .images
     }
   },
-
-  emits: ['created'],
 
   data() {
     return {
@@ -75,40 +80,60 @@ export default {
       }
     }
   },
+
   watch: {
     getTypeMaterial(newVal, oldVal) {
-      if (newVal.id && newVal.id != oldVal.id) {
-        this.$refs.depiction.setOption('autoProcessQueue', true)
-        Depiction.find(newVal.collection_object.id).then((response) => {
-          this.figuresList = response
-        })
+      if (newVal.id) {
+        if (newVal.id !== oldVal.id) {
+          this.$refs.depiction.setOption('autoProcessQueue', true)
+          CollectionObject.depictions(newVal.collection_object.id).then(
+            (response) => {
+              this.figuresList = response.body
+            }
+          )
+        }
       } else {
         this.figuresList = []
         this.$refs.depiction.setOption('autoProcessQueue', false)
       }
     }
   },
+
   methods: {
     success(file, response) {
       this.figuresList.push(response)
       this.$refs.depiction.removeFile(file)
-      this.$emit('created', response)
     },
 
     sending(file, xhr, formData) {
-      formData.append('depiction[depiction_object_id]', this.objectId)
-      formData.append('depiction[depiction_object_type]', this.objectType)
+      formData.append(
+        'depiction[depiction_object_id]',
+        this.getTypeMaterial.collection_object.id
+      )
+      formData.append('depiction[depiction_object_type]', 'CollectionObject')
     },
 
     addedfile() {
       if (!this.getTypeMaterial.id && !this.creatingType) {
         this.creatingType = true
+        this.$store.dispatch(ActionNames.CreateTypeMaterial).then(
+          (_) => {
+            setTimeout(() => {
+              this.$refs.depiction.setOption('autoProcessQueue', true)
+              this.$refs.depiction.processQueue()
+              this.creatingType = false
+            }, 500)
+          },
+          () => {
+            this.creatingType = false
+          }
+        )
       }
     },
 
     removeDepiction(depiction) {
       if (window.confirm('Are you sure want to proceed?')) {
-        Depiction.destroy(depiction.id).then((_) => {
+        Depiction.destroy(depiction.id).then(() => {
           TW.workbench.alert.create(
             'Depiction was successfully deleted.',
             'notice'
@@ -123,3 +148,9 @@ export default {
   }
 }
 </script>
+<style scoped>
+.depiction-container {
+  width: 500px;
+  max-width: 500px;
+}
+</style>

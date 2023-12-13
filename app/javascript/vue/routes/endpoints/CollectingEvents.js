@@ -91,6 +91,6 @@ export const CollectingEvent = {
   parseVerbatimLabel: (params) =>
     AjaxCall('get', '/collecting_events/parse_verbatim_label', { params }),
 
-  updateBatch: (params) =>
-    AjaxCall('post', `/${controller}/batch_update `, params)
+  batchUpdate: (params) =>
+    AjaxCall('patch', `/${controller}/batch_update `, params)
 }

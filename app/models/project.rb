@@ -80,7 +80,6 @@ class Project < ApplicationRecord
      ProjectSource
      TaxonDetermination
      TypeMaterial
-     CollectingEvent
      RangedLotCategory
      Image
      CommonName
@@ -98,6 +97,7 @@ class Project < ApplicationRecord
      ObservationMatrixRowItem
      ObservationMatrix
      CollectionObject
+     CollectingEvent
      Otu
      OtuRelationship
      TaxonName
@@ -171,7 +171,7 @@ class Project < ApplicationRecord
 
     known.each do |k|
       next if k.constantize.table_name == 'test_classes' # TODO: a kludge to ignore stubbed classes in testing
-      if !MANIFEST.include?(k)
+      unless MANIFEST.include?(k)
         raise "#{k} has not been added to #nuke order."
       end
     end
@@ -179,7 +179,8 @@ class Project < ApplicationRecord
     begin
       MANIFEST.each do |o|
         klass = o.constantize
-        klass.where(project_id: id).delete_all
+        # `unscoped` disables default_scope, which would restrict which records in a project are deleted
+        klass.unscoped.where(project_id: id).delete_all
       end
 
       self.destroy

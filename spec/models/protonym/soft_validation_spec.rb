@@ -360,7 +360,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
     context 'missing relationships' do
       specify 'type genus and nominotypical subfamily' do
         #missing nominotypical subfamily
-        @subfamily.soft_validate(only_sets: :single_sub_taxon)
+        @subfamily.soft_validate(only_sets: :single_sub_taxon, include_flagged: true)
         expect(@subfamily.soft_validations.messages_on(:base).size).to eq(1)
         #missign type genus
         @subfamily.soft_validate(only_sets: :missing_relationships)
@@ -369,19 +369,19 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @subfamily, type: 'TaxonNameRelationship::Typification::Family' )
         person = FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald')
         @subfamily.taxon_name_authors << person
-        @subfamily.soft_validate
+        @subfamily.soft_validate(include_flagged: true)
         expect(@subfamily.soft_validations.messages_on(:base).count).to eq(3)
         @subfamily.fix_soft_validations
         @subfamily.reload
         expect(@subfamily.valid?).to be_truthy
         @subfamily.origin_citation.pages = 1 if !@subfamily.source.nil?
         @subfamily.save
-        @subfamily.soft_validate
+        @subfamily.soft_validate(include_flagged: true)
         expect(@subfamily.soft_validations.messages_on(:base).count).to eq(0)
       end
 
       specify 'only one subtribe in a tribe' do
-        @subtribe.soft_validate(only_sets: :single_sub_taxon)
+        @subtribe.soft_validate(only_sets: :single_sub_taxon, include_flagged: true)
         expect(@subtribe.soft_validations.messages_on(:base).empty?).to be_falsey
         other_subtribe = FactoryBot.create(:iczn_subtribe, name: 'Aina', parent: @tribe)
         expect(other_subtribe.valid?).to be_truthy
@@ -603,14 +603,14 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
 
     context 'single sub taxon in the nominal' do
       specify 'single nominotypical taxon' do
-        @subgenus.soft_validate(only_sets: :single_sub_taxon)
+        @subgenus.soft_validate(only_sets: :single_sub_taxon, include_flagged: true)
         #single subgenus in the nominal genus
         expect(@subgenus.soft_validations.messages_on(:base).size).to eq(1)
       end
       specify 'single non nominotypical taxon' do
         @subgenus.name = 'Cus'
         @subgenus.save
-        @subgenus.soft_validate(only_sets: :single_sub_taxon)
+        @subgenus.soft_validate(only_sets: :single_sub_taxon, include_flagged: true)
         expect(@subgenus.soft_validations.messages_on(:base).size).to eq(1)
         @subgenus.fix_soft_validations
         @subgenus.reload
