@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Ordering of descriptors in TNT format [#3711]
 - Some ObservationMatrix views/formats were broken or unavailable for preview
 - DwC-A checklist importer: fix importer crash caused by nil parent
 - Address rendering on loan form [#3645]
