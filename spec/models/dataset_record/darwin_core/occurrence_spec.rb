@@ -1139,6 +1139,51 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
+
+  context "when importing a taxon whose name has an incorrect spelling, but now matches the current name's conjugation" do
+    # Original misspelling is Stigmatomma elongata
+    # Correct original spelling is Stigmatomma elongatus
+    # Taxon was moved to Fulakora, so name is Fulakora elongata
+    # Misspelling name is now Fulakora elongata [sic], which get_protonym will match because it searches `name` before
+    # genderized names.
+
+    after(:all) { DatabaseCleaner.clean }
+    before(:all) do
+      @import_dataset = prepare_occurrence_tsv('conjugation_misspelling.tsv',
+                                               import_settings: { 'restrict_to_existing_nomenclature' => true})
+
+      family = Protonym.create!(parent: @root, name: 'Formicidae', rank_class: Ranks.lookup(:iczn, :family))
+      genus = Protonym.create!(parent: family, name: 'Fulakora', rank_class: Ranks.lookup(:iczn, :genus))
+      TaxonNameClassification::Latinized::Gender::Feminine.create!(taxon_name: genus)
+
+      old_genus = Protonym.create!(parent: family, name: 'Stigmatomma', rank_class: Ranks.lookup(:iczn, :genus))
+      TaxonNameClassification::Latinized::Gender::Masculine.create!(taxon_name: old_genus)
+
+
+      misspelling = Protonym.create!(parent: genus, name: 'elongata', rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      correct = Protonym.create!(parent: genus, name: 'elongatum', rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+      TaxonNameClassification::Latinized::PartOfSpeech::Adjective.create!(taxon_name: correct)
+
+      # Create misspelling relationship with correct spelling
+      TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling.create!(subject_taxon_name: misspelling, object_taxon_name: correct)
+
+      create_original_combination!(misspelling, {genus: old_genus, species: misspelling})
+      create_original_combination!(correct, {genus: old_genus, species: correct})
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let(:results) {@imported}
+
+    it 'should import the 1 row' do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'should have the valid protonym for its determination' do
+      expect(CollectionObject.last.taxon_names).to include Protonym.find_by(name: 'elongatum')
+    end
+  end
 end
 
 

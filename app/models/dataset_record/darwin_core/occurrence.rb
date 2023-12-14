@@ -114,6 +114,15 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           end
 
         end
+
+        if p&.cached_misspelling && p.has_misspelling_relationship?
+          correct_spelling = TaxonNameRelationship.where_subject_is_taxon_name(p)
+                                                  .with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY)
+                                                  .first&.object_taxon_name
+          if correct_spelling&.values_at(:name, :masculine_name, :feminine_name, :neuter_name).include?(name[:name])
+            return correct_spelling
+          end
+        end
         p
       end
     end
