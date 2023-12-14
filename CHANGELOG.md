@@ -35,15 +35,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Project data SQL export outputting only two rows per hierarchy-related tables
 - AssertedDistributions API index call failed when OTU not linked to taxon name
 - Missing valid names in nomenclature match task
-- DwC Occurrence Importer: prefer correct protonym spelling when misspelling matches current conjugation [#3707] 
+- DwC Occurrence Importer: prefer correct protonym spelling when misspelling matches current conjugation
 
-[#2749]: #https://github.com/SpeciesFileGroup/taxonworks/issues/2749
-[#3113]: #https://github.com/SpeciesFileGroup/taxonworks/issues/3113
+[#2749]: https://github.com/SpeciesFileGroup/taxonworks/issues/2749
+[#3113]: https://github.com/SpeciesFileGroup/taxonworks/issues/3113
 [#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
 [#3680]: https://github.com/SpeciesFileGroup/taxonworks/issues/3680 
 [#3690]: https://github.com/SpeciesFileGroup/taxonworks/issues/3690
 [#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696
-[#3707]: https://github.com/SpeciesFileGroup/taxonworks/pull/3707
 
 ## [0.36.0] - 2023-11-30
 
