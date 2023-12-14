@@ -9,12 +9,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- DwC `verbatimLabel` support [#2749]
 - Preview option and results reports for filter based batch updates [#3690]
 - Freeform digtization, draw shapes to stub CollectionObjects [#3113]
 - `superfamily`, `tribe` and `subtribe` DwC terms now supported in occurrences importer [#3705]
 
 ### Changed
 
+- Improved simplified taxonomy rendering
 - Unifies all filter-originating batch updates to a common look and feel [#3690]
 - Report file size to browser for downloads
 
@@ -33,7 +35,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - AssertedDistributions API index call failed when OTU not linked to taxon name
 - Missing valid names in nomenclature match task
 
-[#3113]: [#https://github.com/SpeciesFileGroup/taxonworks/issues/3113
+[#2749]: #https://github.com/SpeciesFileGroup/taxonworks/issues/2749
+[#3113]: #https://github.com/SpeciesFileGroup/taxonworks/issues/3113
 [#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
 [#3690]: https://github.com/SpeciesFileGroup/taxonworks/issues/3690
 [#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696

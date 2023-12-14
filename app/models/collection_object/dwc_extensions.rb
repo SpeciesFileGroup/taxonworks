@@ -93,7 +93,9 @@ module CollectionObject::DwcExtensions
 
       occurrenceRemarks: :dwc_occurrence_remarks,
 
-      eventRemarks: :dwc_event_remarks
+      eventRemarks: :dwc_event_remarks,
+
+      verbatimLabel: :dwc_verbatim_label,
 
       # -- Core taxon? --
       # nomenclaturalCode
@@ -104,6 +106,8 @@ module CollectionObject::DwcExtensions
       # taxonRank
       # namePublishedIn NOT DONE
     }.freeze
+
+    # verbatim label data
 
     attr_accessor :georeference_attributes
 
@@ -152,6 +156,14 @@ module CollectionObject::DwcExtensions
 
   def is_fossil?
     biocuration_classes.where(uri: DWC_FOSSIL_URI).any?
+  end
+
+  # use buffered if any
+  # if not check CE verbatim_label
+  def dwc_verbatim_label
+    b = [buffered_collecting_event, buffered_determinations, buffered_other_labels].compact
+    return  b.join("\n\n") if b.present?
+    collecting_event&.verbatim_label.presence
   end
 
   def dwc_occurrence_status

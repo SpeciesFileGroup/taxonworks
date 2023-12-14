@@ -21,7 +21,8 @@ module Export
       '2022-03-31 16:30:00.000000 -0500',    # collectionCode, occurrenceRemarks and various small fixes
       '2022-04-28 16:30:00.000000 -0500',    # add dwcOccurrenceStatus
       '2022-09-28 16:30:00.000000 -0500',    # add phylum, class, order, higherClassification
-      '2023-04-03 16:30:00.000000 -0500'     # add associatedTaxa; updating InternalAttributes is now reflected in index
+      '2023-04-03 16:30:00.000000 -0500',    # add associatedTaxa; updating InternalAttributes is now reflected in index
+      '2023-12-14 16:30:00.000000 -0500'     # add verbatimLabel 
     ].freeze
 
     # @param record_scope [ActiveRecord::Relation]
