@@ -6,6 +6,24 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
   let(:state) { county.parent }
   let(:country) { state.parent }
 
+  specify '.batch_update' do
+    c1 = FactoryBot.create(:valid_collecting_event)
+    c2 = FactoryBot.create(:valid_collecting_event)
+
+    l = 'The final frontier (psychiatrist).'
+
+    params = {
+      async_cutoff: 3,
+      collecting_event: { verbatim_locality: l },
+    }.merge( collecting_event_query: { collecting_event_id: [c1.id] })
+
+    response = CollectingEvent.batch_update(params).to_json
+
+    expect(response[:updated]).to include(c1.id)
+    expect(response[:not_updated]).to eq([])
+    expect(c1.reload.verbatim_locality).to eq(l)
+  end
+
   context 'validation' do
     context 'time start/end' do
       specify 'if time_start_minute provided time_start_hour_required' do

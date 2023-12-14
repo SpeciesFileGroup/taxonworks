@@ -182,7 +182,20 @@ class CollectionObject < ApplicationRecord
                ON  "sequences"."id" = "origin_relationships_extracts_join"."new_object_id"}
   end
 
-  # Rotates subject and object
+  def self.batch_update(params)
+    request = QueryBatchRequest.new(
+      async_cutoff: params[:async_cutoff] || 50,
+      klass: 'CollectionObject',
+      object_filter_params: params[:collection_object_query],
+      object_params: params[:collection_object],
+      preview: params[:preview],
+    )
+
+    request.cap = 1000
+
+    query_batch_update(request)
+  end
+
   def self.batch_update_dwc_occurrence(params)
     q = Queries::CollectionObject::Filter.new(params).all
 
@@ -193,23 +206,23 @@ class CollectionObject < ApplicationRecord
     c = q.all.count
 
     if c == 0 || c > 10000
-      r.cap_reason = 'Too many (or no) collection objects (max 10k)' 
-      return r 
+      r.cap_reason = 'Too many (or no) collection objects (max 10k)'
+      return r
     end
 
     if c < 51
       q.each do |co|
         co.set_dwc_occurrence
         r.updated.push co.id
-      end  
+      end
     else
       r.async = true
       q.each do |co|
         dwc_occurrence_update_query(co)
-      end  
+      end
     end
 
-    return r 
+    return r
   end
 
   def dwc_occurrence_update_query(collection_object)
@@ -694,7 +707,7 @@ class CollectionObject < ApplicationRecord
   # destroy after moving an image off
   # this object.
   def is_image_stub?
-    r = [ 
+    r = [
       collecting_event_id.blank?,
       !depictions.reload.any?,
       identifiers.count <= 1,

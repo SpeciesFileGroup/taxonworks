@@ -30,6 +30,7 @@
                 :is="SLICES[currentSlice]"
                 :ids="ids"
                 :parameters="params"
+                @close="closeModal"
               />
             </div>
           </div>

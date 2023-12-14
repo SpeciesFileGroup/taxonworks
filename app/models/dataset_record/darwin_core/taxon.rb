@@ -158,15 +158,19 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           end
 
           # make OC relationships to OC ancestors
-          unless metadata['parent'].nil? # can't make original combination with Root or if matching pre-existing taxon name
+          # can't make original combination with Root or if matching pre-existing taxon name
+          # Do not make original combination if we assumed the value.
+          if metadata['parent'].present? && (metadata.fetch('create_original_combination', true) == true)
 
             # loop through parents of original combination based on parentNameUsageID, not TW parent
             # this way we get the name as intended, not with any valid/current names
-            original_combination_parents = [find_by_taxonID(get_original_combination.metadata['parent'])]
+            original_combination_parents = [find_by_taxonID(get_original_combination.metadata['parent'])].compact
 
             # build list of parent DatasetRecords
-            while (next_parent = find_by_taxonID(original_combination_parents[-1].metadata['parent']))
-              original_combination_parents << next_parent
+            if original_combination_parents.size > 0
+              while (next_parent = find_by_taxonID(original_combination_parents[-1]&.metadata['parent']))
+                original_combination_parents << next_parent
+              end
             end
 
             # in cases where the taxon original combination is subgenus of self eg Sima (Sima), the first parent of the list
@@ -207,35 +211,40 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             end
           end
 
-          # when creating the OC record pointing to self,
-          # can't assume OC rank is same as valid rank, need to look at OC row to find real rank
-          # This is easier for the end-user than adding OC to protonym when importing the OC row,
-          # but might be more complex to code
+          # don't create OC relationship with self if OC was assumed, default to true for any datasets
+          # created before this feature existed (since creating OC was always expected then)
+          if metadata.fetch('create_original_combination', true)
 
-          # get OC dataset_record_id so we can pull the taxonRank from it.
-          oc_dataset_record_id = import_dataset.core_records_fields
-                                               .at(get_field_mapping(:taxonID))
-                                               .with_value(get_field_value(:originalNameUsageID))
-                                               .pick(:dataset_record_id)
+            # when creating the OC record pointing to self,
+            # can't assume OC rank is same as valid rank, need to look at OC row to find real rank
+            # This is easier for the end-user than adding OC to protonym when importing the OC row,
+            # but might be more complex to code
 
-          oc_protonym_rank = import_dataset.core_records_fields
-                                           .where(dataset_record_id: oc_dataset_record_id)
-                                           .at(get_field_mapping(:taxonRank))
-                                           .pick(:value)
-                                           .downcase.to_sym
+            # get OC dataset_record_id so we can pull the taxonRank from it.
+            oc_dataset_record_id = import_dataset.core_records_fields
+                                                 .at(get_field_mapping(:taxonID))
+                                                 .with_value(get_field_value(:originalNameUsageID))
+                                                 .pick(:dataset_record_id)
 
-          if ORIGINAL_COMBINATION_RANKS.has_key?(oc_protonym_rank)
-            TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
-              type: ORIGINAL_COMBINATION_RANKS[oc_protonym_rank],
-              object_taxon_name: taxon_name)
+            oc_protonym_rank = import_dataset.core_records_fields
+                                             .where(dataset_record_id: oc_dataset_record_id)
+                                             .at(get_field_mapping(:taxonRank))
+                                             .pick(:value)
+                                             .downcase.to_sym
 
-            # detect if current name rank is genus and original combination is with self at subgenus level, eg Aus (Aus)
-            # if so, generate OC relationship with genus (since oc_protonym_rank will be subgenus)
-            if oc_protonym_rank == :subgenus && get_field_value('taxonRank').downcase == "genus" &&
-              (get_original_combination&.metadata['parent'] == get_field_value('taxonID'))
+            if ORIGINAL_COMBINATION_RANKS.has_key?(oc_protonym_rank)
               TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
-                type: ORIGINAL_COMBINATION_RANKS[:genus],
+                type: ORIGINAL_COMBINATION_RANKS[oc_protonym_rank],
                 object_taxon_name: taxon_name)
+
+              # detect if current name rank is genus and original combination is with self at subgenus level, eg Aus (Aus)
+              # if so, generate OC relationship with genus (since oc_protonym_rank will be subgenus)
+              if oc_protonym_rank == :subgenus && get_field_value('taxonRank').downcase == "genus" &&
+                (get_original_combination&.metadata['parent'] == get_field_value('taxonID'))
+                TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
+                  type: ORIGINAL_COMBINATION_RANKS[:genus],
+                  object_taxon_name: taxon_name)
+              end
             end
           end
 

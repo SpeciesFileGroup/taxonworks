@@ -1238,8 +1238,46 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
-  # TODO test missing parent
-  #
+  context 'when importing a taxon with a missing parent' do
+    before(:all) { import_checklist_tsv('missing_parent.tsv', 4) }
+    after(:all) { DatabaseCleaner.clean }
+
+    let(:valid_protonym) { Protonym.find_by(name: 'glandium') }
+    let(:original_genus) { Protonym.find_by(name: 'Andricus', rank_class: Ranks.lookup(:iczn, 'genus')) }
+
+    it 'should import the 5 rows' do
+      verify_all_records_imported(5)
+    end
+
+    # TODO: this will fail currently because there is no handling to try to make a connection for missing genera
+    xit 'should setup the original genus relationship between the valid protonym and original genus' do
+      expect_relationship(original_genus, valid_protonym, 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+    end
+  end
+
+  context 'when importing a taxon without originalNameUsageID' do
+    before(:all) do
+      import_checklist_tsv('missing_original_name.tsv', 4)
+
+      TaxonName.find_each {|t| t.send(:set_cached)}
+
+    end
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'should import the 2 rows' do
+      verify_all_records_imported(2)
+    end
+
+    it 'should not create an original combination if missing originalNameUsageID' do
+      expect(Protonym.find_by(name: 'Formicidae').cached_original_combination).to be_nil
+    end
+
+    it 'should create an original combination when originalNameUsageID is present' do
+      expect(Protonym.find_by(name: 'Calyptites').cached_original_combination).to eq 'Calyptites'
+    end
+
+  end
+
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName
   #
   # TODO test importing multiple times

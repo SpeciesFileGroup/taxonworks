@@ -124,13 +124,13 @@ class CollectingEventsController < ApplicationController
     @collecting_events = Queries::CollectingEvent::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
   end
 
-  # POST /collecting_events/batch_update.json?collecting_event_query=<>&collecting_event={}
+  # PATCH /collecting_events/batch_update.json?collecting_event_query=<>&collecting_event={}
   def batch_update
-    if c = CollectingEvent.batch_update(
-        collecting_event: collecting_event_params.merge(by: sessions_current_user_id) ,
-        collecting_event_query: params[:collecting_event_query]
-     )
-      render json: {}, status: :ok
+    if r = CollectingEvent.batch_update(
+        preview: params[:preview],
+        collecting_event: collecting_event_params.merge(by: sessions_current_user_id),
+        collecting_event_query: params[:collecting_event_query])
+      render json: r.to_json, status: :ok
     else
       render json: {}, status: :unprocessable_entity
     end

@@ -6,7 +6,7 @@
     >
       Settings
     </button>
-    <modal-component
+    <VModal
       v-if="showModal"
       @close="setModalView(false)"
       :container-style="{
@@ -20,55 +20,37 @@
       </template>
       <template #body>
         <div>
-          <nomenclature-code/>
-          <h3>DwC Checklist Import Settings</h3>
-          <div class="field">
-            <use-existing-taxon-hierarchy />
-          </div>
-
-          <h3>DwC Occurrence Import Settings</h3>
-          <div class="field">
-            <containerize-checkbox />
-            <restrict-to-nomenclature-checkbox />
-            <require-type-material-success-checkbox />
-            <require-trip-code-match-verbatim-checkbox />
-            <require-catalog-number-match-verbatim-checkbox />
-            <enable-organization-determiners />
-          </div>
-
-          <h4>Geographic Areas</h4>
-          <div class="field">
-            <geographic-area-data-origin class="margin-medium-bottom" />
-            <require-geographic-area-has-shape-checkbox />
-            <require-geographic-area-exact-match />
-            <require-geographic-area-exists />
-          </div>
-
-          <CatalogNumberMain />
+          <NomenclatureCode />
+          <component :is="SETTING_TYPE_COMPONENT[datasetType]" />
         </div>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import ModalComponent from '@/components/ui/Modal'
-import ContainerizeCheckbox from './Containerize'
-import RestrictToNomenclatureCheckbox from './RestrictToNomenclature'
-import RequireTypeMaterialSuccessCheckbox from './RequireTypeMaterialSuccess'
-import RequireTripCodeMatchVerbatimCheckbox from './RequireTripCodeMatchVerbatim'
-import RequireCatalogNumberMatchVerbatimCheckbox from './RequireCatalogNumberMatchVerbatim.vue'
-import EnableOrganizationDeterminers from './EnableOrganizationDeterminers.vue'
+import { ref, computed } from 'vue'
+import { useStore } from 'vuex'
+import { GetterNames } from '../../store/getters/getters'
+import VModal from '@/components/ui/Modal'
 import NomenclatureCode from './NomenclatureCode.vue'
-import GeographicAreaDataOrigin from './GeographicAreaDataOrigin.vue'
-import RequireGeographicAreaHasShapeCheckbox from './RequireGeographicAreaHasShapeCheckbox.vue'
-import RequireGeographicAreaExactMatch from './RequireGeographicAreaExactMatch.vue'
-import RequireGeographicAreaExists from './RequireGeographicAreaExists.vue'
-import CatalogNumberMain from './CatalogNumber/CatalogNumberMain.vue'
-import UseExistingTaxonHierarchy from './UseExistingTaxonHierarchy.vue'
+import OccurrenceSettings from './Occurrences/OccurrenceSettings.vue'
+import ChecklistSettings from './Checklist/ChecklistSettings'
+
+import {
+  IMPORT_DATASET_DWC_CHECKLIST,
+  IMPORT_DATASET_DWC_OCCURRENCES
+} from '@/constants'
+
+const SETTING_TYPE_COMPONENT = {
+  [IMPORT_DATASET_DWC_CHECKLIST]: ChecklistSettings,
+  [IMPORT_DATASET_DWC_OCCURRENCES]: OccurrenceSettings
+}
 
 const showModal = ref(false)
+const store = useStore()
+
+const datasetType = computed(() => store.getters[GetterNames.GetDataset].type)
 
 const setModalView = (value) => {
   showModal.value = value

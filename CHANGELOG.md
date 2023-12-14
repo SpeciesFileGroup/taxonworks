@@ -9,6 +9,46 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.37.0] - 2023-12-14
+
+### Added
+
+- DwC `verbatimLabel` support [#2749]
+- Preview option and results reports for filter based batch updates [#3690]
+- Freeform digtization, draw shapes to stub CollectionObjects [#3113]
+- `superfamily`, `tribe` and `subtribe` DwC terms now supported in occurrences importer [#3705]
+
+### Changed
+
+- Improved simplified taxonomy rendering
+- Unifies all filter-originating batch updates to a common look and feel [#3690]
+- Report file size to browser for downloads
+- DwC Checklist Importer: blank `originalNameUsageID` skip original combination creation instead of erroring [#3680]
+
+### Fixed
+
+- Ordering of descriptors in TNT format [#3711]
+- Some ObservationMatrix views/formats were broken or unavailable for preview
+- DwC-A checklist importer: fix importer crash caused by nil parent
+- Address rendering on loan form [#3645]
+- Citation topic whitespace for paper catalog [#187]
+- Source filter with duplicate results when coming from another filter [#3696]
+- `ancestrify` parameter for Otu queries not scoping to TaxonNames correctly
+- Filter source: BibTeX type facet
+- Project data SQL export obfuscating all users instead of just non-members
+- Project data SQL export outputting only two rows per hierarchy-related tables
+- AssertedDistributions API index call failed when OTU not linked to taxon name
+- Missing valid names in nomenclature match task
+- DwC Occurrence Importer: prefer correct protonym spelling when misspelling matches current conjugation
+
+[#187]: https://github.com/SpeciesFileGroup/taxonpages/issues/187
+[#2749]: https://github.com/SpeciesFileGroup/taxonworks/issues/2749
+[#3113]: https://github.com/SpeciesFileGroup/taxonworks/issues/3113
+[#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
+[#3680]: https://github.com/SpeciesFileGroup/taxonworks/issues/3680 
+[#3690]: https://github.com/SpeciesFileGroup/taxonworks/issues/3690
+[#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696
+
 ## [0.36.0] - 2023-11-30
 
 ### Added
@@ -4138,7 +4178,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.36.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.0...development
+[0.37.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.3...v0.36.0
 [0.35.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.2...v0.35.3
 [0.35.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.1...v0.35.2

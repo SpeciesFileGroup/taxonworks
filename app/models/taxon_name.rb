@@ -687,9 +687,7 @@ class TaxonName < ApplicationRecord
   # @return String, nil
   #   virtual attribute, to ultimately be fixed in db
   def get_author
-    a = cached_author_year.to_s.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '')
-    a = a.gsub('(', '') if a.starts_with?('(') && !a.include?(')')
-    return a
+    cached_author_year.to_s.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '').gsub(') ', ', ').gsub('(', '').gsub(')', '')
   end
 
   # @return [Time]
@@ -1764,7 +1762,7 @@ class TaxonName < ApplicationRecord
             self.save
             res = true
           end
-        rescue
+        rescue # TODO: Qualify this!!
         end
       end
     end

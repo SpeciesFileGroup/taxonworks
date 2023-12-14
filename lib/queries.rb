@@ -23,4 +23,9 @@ module Queries
     target.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' UNION ')}) as #{table}")
   end
 
+  def self.except(target, query)
+    table = target.name.tableize
+    target.from("((#{target.to_sql}) EXCEPT (#{query.to_sql}) ) as #{table}")
+  end
+
 end

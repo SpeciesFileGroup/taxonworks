@@ -8,20 +8,18 @@
         <%= tag.li( @loan.recipient_email) if @loan.recipient_email -%>
         <%= tag.li( @loan.recipient_phone) if @loan.recipient_phone -%>
         <% @loan.loan_supervisors.each do |person| -%>
-            <%= tag.li person_tag(person) -%>
+          <%= tag.li person_tag(person) -%>
         <% end %>
 
         <% @loan.loan_recipients.each do |person| -%>
-            <%= tag.li person_tag(person) -%>
+          <%= tag.li person_tag(person) -%>
         <% end %>
 
-        <%= tag.li tag.span(@loan.recipient_address, class: :loan_address)  -%>
+        <%= tag.li(tag.pre(@loan.recipient_address, class: :address))  -%>
       </ul>
     </div>
     <div id="lender_details" class="item item2">
-      <ul>
-        <%= tag.li( tag.span(@loan.lender_address, class: :loan_address) ) -%>
-      </ul>
+        <%= tag.li( tag.pre(@loan.lender_address, class: :address) ) -%>
     </div>
   </div>
 
@@ -48,15 +46,15 @@
         </tbody>
       </table>
 
-      <br><strong> Compiled by:  </strong><%= tag.span((@loan.loan_items.collect{|a| [a.updater.name, a.creator.name]}.flatten.uniq.sort.join(', ')).html_safe) -%>
+      <br><strong> Compiled by: </strong><%= tag.span((@loan.loan_items.collect{|a| [a.updater.name, a.creator.name]}.flatten.uniq.sort.join(', ')).html_safe) -%>
 
 
-      <p>I agree to the terms of this loan.</p>
-      <div class="panels-container">
-        <p class="signature_line">Signature</p>
-        <p class="signature_line">Supervisor's signature</p>
-        <p class="signature_line">Date</p>
-      </div>
+    <p>I agree to the terms of this loan.</p>
+    <div class="panels-container">
+      <p class="signature_line">Signature</p>
+      <p class="signature_line">Supervisor's signature</p>
+      <p class="signature_line">Date</p>
+    </div>
     </div>
   </div>
 </div>
