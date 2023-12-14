@@ -1,6 +1,12 @@
 require 'rails_helper'
 describe CollectionObject::DwcExtensions, type: :model, group: [:collection_objects, :darwin_core] do
 
+  specify '#dwc_verbatim_label'  do
+    s = Specimen.create!(buffered_collecting_event: 'a', buffered_determinations: 'b', buffered_other_labels: 'c')
+
+    expect(s.dwc_verbatim_label).to eq("a\n\nb\n\nc")
+  end
+
   specify '#dwc_collection_code 1' do
     s = Specimen.create!
     n = FactoryBot.create(:valid_namespace, verbatim_short_name: 'DEF')
