@@ -75,10 +75,12 @@ export default defineStore('freeform', {
         depiction_object_id: coIds
       }).then(({ body }) => {
         body.forEach((item) => {
-          boardStore.addLayer({
-            collectionObjectId: item.depiction_object_id,
-            svg: item.svg_clip
-          })
+          if (item.svg_clip) {
+            boardStore.addLayer({
+              collectionObjectId: item.depiction_object_id,
+              svg: item.svg_clip
+            })
+          }
         })
       })
     },
