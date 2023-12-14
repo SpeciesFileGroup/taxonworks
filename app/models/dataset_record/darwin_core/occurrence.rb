@@ -1,6 +1,6 @@
 class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
-  DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order subperfamily family tribe subtribe} # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
+  DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order superfamily family tribe subtribe} # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
   PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies)
 
   ACCEPTED_ATTRIBUTES = {
@@ -113,6 +113,15 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             p = Protonym.where(name.slice(:rank_class).merge!({ field => name[:name] })).with_ancestor(parent.valid_taxon_name).first
           end
 
+        end
+
+        if p&.cached_misspelling && p.has_misspelling_relationship?
+          correct_spelling = TaxonNameRelationship.where_subject_is_taxon_name(p)
+                                                  .with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY)
+                                                  .first&.object_taxon_name
+          if correct_spelling&.values_at(:name, :masculine_name, :feminine_name, :neuter_name).include?(name[:name])
+            return correct_spelling
+          end
         end
         p
       end

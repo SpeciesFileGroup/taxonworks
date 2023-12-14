@@ -9,17 +9,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- DwC `verbatimLabel` support [#2749]
 - Preview option and results reports for filter based batch updates [#3690]
 - Freeform digtization, draw shapes to stub CollectionObjects [#3113]
 - `superfamily`, `tribe` and `subtribe` DwC terms now supported in occurrences importer [#3705]
 
 ### Changed
 
+- Improved simplified taxonomy rendering
 - Unifies all filter-originating batch updates to a common look and feel [#3690]
 - Report file size to browser for downloads
+- DwC Checklist Importer: blank `originalNameUsageID` skip original combination creation instead of erroring [#3680]
 
 ### Fixed
 
+- Ordering of descriptors in TNT format [#3711]
 - Some ObservationMatrix views/formats were broken or unavailable for preview
 - DwC-A checklist importer: fix importer crash caused by nil parent
 - Address rendering on loan form [#3645]
@@ -31,9 +35,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Project data SQL export outputting only two rows per hierarchy-related tables
 - AssertedDistributions API index call failed when OTU not linked to taxon name
 - Missing valid names in nomenclature match task
+- DwC Occurrence Importer: prefer correct protonym spelling when misspelling matches current conjugation
 
-[#3113]: [#https://github.com/SpeciesFileGroup/taxonworks/issues/3113
+[#2749]: https://github.com/SpeciesFileGroup/taxonworks/issues/2749
+[#3113]: https://github.com/SpeciesFileGroup/taxonworks/issues/3113
 [#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
+[#3680]: https://github.com/SpeciesFileGroup/taxonworks/issues/3680 
 [#3690]: https://github.com/SpeciesFileGroup/taxonworks/issues/3690
 [#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696
 

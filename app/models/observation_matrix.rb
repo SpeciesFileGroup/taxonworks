@@ -34,31 +34,31 @@ class ObservationMatrix < ApplicationRecord
   scope :with_otu_id_array, ->  (otu_id_array) { joins('LEFT OUTER JOIN "observation_matrix_rows" ON "observation_matrix_rows"."observation_matrix_id" = "observation_matrices"."id"').where('otu_id in (?)', otu_id_array) }
 
   def qualitative_descriptors
-    descriptors.where(type: 'Descriptor::Qualitative')
+    descriptors.where(type: 'Descriptor::Qualitative').order('observation_matrix_columns.position')
   end
 
   def presence_absence_descriptors
-    descriptors.where(type: 'Descriptor::PresenceAbsence')
+    descriptors.where(type: 'Descriptor::PresenceAbsence').order('observation_matrix_columns.position')
   end
 
   def continuous_descriptors
-    descriptors.where(type: 'Descriptor::Continuous')
+    descriptors.where(type: 'Descriptor::Continuous').order('observation_matrix_columns.position')
   end
 
   def sample_descriptors
-    descriptors.where(type: 'Descriptor::Sample')
+    descriptors.where(type: 'Descriptor::Sample').order('observation_matrix_columns.position')
   end
 
   def media_descriptors
-    descriptors.where(type: 'Descriptor::Media')
+    descriptors.where(type: 'Descriptor::Media').order('observation_matrix_columns.position')
   end
 
   def gene_descriptors
-    descriptors.where(type: 'Descriptor::Gene')
+    descriptors.where(type: 'Descriptor::Gene').order('observation_matrix_columns.position')
   end
 
   def working_descriptors
-    descriptors.where(type: 'Descriptor::Working')
+    descriptors.where(type: 'Descriptor::Working').order('observation_matrix_columns.position')
   end
 
   # As handled in export/parsing by external tools
