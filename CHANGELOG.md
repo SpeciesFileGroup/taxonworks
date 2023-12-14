@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.37.0] - 2023-12-14
+
 ### Added
 
 - DwC `verbatimLabel` support [#2749]
@@ -27,7 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Some ObservationMatrix views/formats were broken or unavailable for preview
 - DwC-A checklist importer: fix importer crash caused by nil parent
 - Address rendering on loan form [#3645]
-- Citation topic whitespace for paper catalog [https://github.com/SpeciesFileGroup/taxonpages/issues/187](https://github.com/SpeciesFileGroup/taxonpages/issues/187)
+- Citation topic whitespace for paper catalog [#187]
 - Source filter with duplicate results when coming from another filter [#3696]
 - `ancestrify` parameter for Otu queries not scoping to TaxonNames correctly
 - Filter source: BibTeX type facet
@@ -37,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing valid names in nomenclature match task
 - DwC Occurrence Importer: prefer correct protonym spelling when misspelling matches current conjugation
 
+[#187]: https://github.com/SpeciesFileGroup/taxonpages/issues/187
 [#2749]: https://github.com/SpeciesFileGroup/taxonworks/issues/2749
 [#3113]: https://github.com/SpeciesFileGroup/taxonworks/issues/3113
 [#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
@@ -4173,7 +4178,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.36.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.0...development
+[0.37.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.3...v0.36.0
 [0.35.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.2...v0.35.3
 [0.35.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.1...v0.35.2
