@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Improved simplified taxonomy rendering
 - Unifies all filter-originating batch updates to a common look and feel [#3690]
 - Report file size to browser for downloads
+- DwC Checklist Importer: blank `originalNameUsageID` skip original combination creation instead of erroring [#3680]
 
 ### Fixed
 
@@ -34,10 +35,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Project data SQL export outputting only two rows per hierarchy-related tables
 - AssertedDistributions API index call failed when OTU not linked to taxon name
 - Missing valid names in nomenclature match task
+- DwC Occurrence Importer: prefer correct protonym spelling when misspelling matches current conjugation
 
-[#2749]: #https://github.com/SpeciesFileGroup/taxonworks/issues/2749
-[#3113]: #https://github.com/SpeciesFileGroup/taxonworks/issues/3113
+[#2749]: https://github.com/SpeciesFileGroup/taxonworks/issues/2749
+[#3113]: https://github.com/SpeciesFileGroup/taxonworks/issues/3113
 [#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
+[#3680]: https://github.com/SpeciesFileGroup/taxonworks/issues/3680 
 [#3690]: https://github.com/SpeciesFileGroup/taxonworks/issues/3690
 [#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696
 
