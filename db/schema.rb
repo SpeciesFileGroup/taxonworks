@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_14_184428) do
+ActiveRecord::Schema.define(version: 2023_12_15_011844) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -378,6 +378,7 @@ ActiveRecord::Schema.define(version: 2023_12_14_184428) do
     t.index ["collecting_event_id"], name: "index_collection_objects_on_collecting_event_id"
     t.index ["created_at"], name: "index_collection_objects_on_created_at"
     t.index ["created_by_id"], name: "index_collection_objects_on_created_by_id"
+    t.index ["current_repository_id"], name: "index_collection_objects_on_current_repository_id"
     t.index ["preparation_type_id"], name: "index_collection_objects_on_preparation_type_id"
     t.index ["project_id"], name: "index_collection_objects_on_project_id"
     t.index ["ranged_lot_category_id"], name: "index_collection_objects_on_ranged_lot_category_id"
