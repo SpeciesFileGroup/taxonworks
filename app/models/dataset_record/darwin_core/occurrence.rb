@@ -1028,8 +1028,19 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     scientific_name = get_field_value(:scientificName)&.gsub(/\s+/, ' ')
 
+    # Run the name through the biodiversity parser to remove authorship info
+    parse_results = Biodiversity::Parser.parse((type_status_parsed&.[](:scientificName)&.gsub(/\s+/, ' ') rescue nil) || '')
+
+    type_author_name, type_year = nil
+    # Only use biodiversity parsed name if it has very high confidence
+    if parse_results[:quality] == 1
+      type_scientific_name = parse_results.dig(:canonical, :simple)
+      # Save authorship info for narrowing down potential protonyms
+      type_author_name, type_year = Utilities::Strings.parse_authorship(parse_results.dig(:authorship, :normalized))
+    end
+
     # if typeStatus is single word, assume the user wants the specimen name as the type name
-    type_scientific_name = (type_status_parsed&.[](:scientificName)&.gsub(/\s+/, ' ') rescue nil) || scientific_name
+    type_scientific_name ||= scientific_name
 
     if scientific_name && type_scientific_name.present?
       # list of messages to help user debug why matching failed
@@ -1102,6 +1113,18 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         wildcard_original_protonym = Protonym.where('cached_original_combination ~ :pat', pat: name_pattern)
                                              .or(Protonym.where('cached ~ :pat', pat: name_pattern))
                                              .where(project_id: self.project_id)
+
+        if type_author_name.present?
+          cached_author = type_author_name
+          if cached_author.starts_with?('(') && cached_author.end_with?(')')
+            cached_author.delete_prefix!('(').delete_suffix!(')')
+          end
+          wildcard_original_protonym = wildcard_original_protonym.where(cached_author:)
+        end
+
+        if type_year.present?
+          wildcard_original_protonym = wildcard_original_protonym.where(year_of_publication: type_year)
+        end
 
         if wildcard_original_protonym.count == 1
           return {

@@ -1184,6 +1184,119 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       expect(CollectionObject.last.taxon_names).to include Protonym.find_by(name: 'elongatum')
     end
   end
+
+  context 'when importing a specimen with authorship information in the type status field' do
+    after(:all) { DatabaseCleaner.clean }
+
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('type_material_authorship.tsv', import_settings:
+        { 'restrict_to_existing_nomenclature' => true,
+          'require_type_material_success' => true })
+
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: 'Formicidae', rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: 'Ponerinae', rank_class: Ranks.lookup(:iczn, :subfamily))
+      tribe = Protonym.create!(parent: subfamily, name: 'Ponerini', rank_class: Ranks.lookup(:iczn, :tribe))
+      genus = Protonym.create!(parent: tribe, name: 'Bothroponera', rank_class: Ranks.lookup(:iczn, :genus))
+      s_cambouei = Protonym.create!(parent: genus, name: 'cambouei', rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+
+      make_original_combination_from_current!(s_cambouei)
+
+      g_pachycondyla = Protonym.create!(parent: tribe, name: 'Pachycondyla', rank_class: Ranks.lookup(:iczn, :genus))
+      g_euponera = Protonym.create!(parent: tribe, name: 'Euponera', rank_class: Ranks.lookup(:iczn, :genus))
+      s_agnivo = Protonym.create!(parent: g_euponera, name: 'agnivo', rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+
+      # Create original combination relationship
+      create_original_combination!(s_agnivo, {genus: g_pachycondyla, species: s_agnivo})
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let!(:results) { @imported }
+
+    let(:s_cambouei) {Protonym.find_by(name: 'cambouei')}
+    let(:s_agnivo) {Protonym.find_by(name: 'agnivo')}
+
+    it 'should import both records without failing' do
+      expect(results.length).to eq(2)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'does not create any new protonyms' do
+      expect(Protonym.where(name: 'Bothroponera').count).to eq(1)
+      expect(Protonym.where(name: 'Euponera').count).to eq(1)
+      expect(Protonym.where(name: 'agnivo').count).to eq(1)
+      expect(Protonym.where(name: 'cambouei').count).to eq(1)
+    end
+
+    it 'should have 2 type material records' do
+      expect(TypeMaterial.count).to eq 2
+      ids = TypeMaterial.all.pluck(:protonym_id)
+      expect(ids).to include(s_cambouei.id)
+      expect(ids).to include(s_agnivo.id)
+    end
+  end
+
+  context 'when importing a specimen with type status homonyms that are also synonyms' do
+
+    # Pseudomyrmex triplaridis boxi (Wheeler, 1942) and
+    # Pseudomyrmex triplaridis boxi (Enzmann, 1944) are synonyms of Pseudomyrmex triplaridis.
+    #
+    # Pseudomyrmex triplaridis boxi (Enzmann, 1944) is an unresolved junior homonym, so the importer cannot use
+    # the valid scientificName to distinguish between them (they both would have the scientificName Pseudomyrmex triplaridis)
+
+    after(:all) { DatabaseCleaner.clean }
+
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('type_material_authorship_homonym.tsv', import_settings:
+        { 'restrict_to_existing_nomenclature' => true,
+          'require_type_material_success' => true })
+
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: 'Formicidae', rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: 'Pseudomyrmecinae', rank_class: Ranks.lookup(:iczn, :subfamily))
+      genus = Protonym.create!(parent: subfamily, name: 'Pseudomyrmex', rank_class: Ranks.lookup(:iczn, :genus))
+      s_triplaridis = Protonym.create!(parent: genus, name: 'triplaridis', rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+
+      g_pseudomyrma = Protonym.create!(parent: subfamily, name: 'Pseudomyrma', rank_class: Ranks.lookup(:iczn, :genus))
+      create_original_combination!(s_triplaridis, {genus: g_pseudomyrma, specimen: s_triplaridis})
+
+
+      boxi_wheeler = Protonym.create!(parent: s_triplaridis, name: 'boxi', rank_class: Ranks.lookup(:iczn, :subspecies), also_create_otu: true,
+                                      verbatim_author: '(Wheeler)', year_of_publication: 1942)
+
+      boxi_enzmann = Protonym.create!(parent: s_triplaridis, name: 'boxi', rank_class: Ranks.lookup(:iczn, :subspecies), also_create_otu: true,
+                                      verbatim_author: '(Enzmann)', year_of_publication: 1944)
+
+      create_original_combination!(boxi_wheeler, {genus: g_pseudomyrma, species: s_triplaridis, subspecies: boxi_wheeler})
+      create_original_combination!(boxi_enzmann, {genus: g_pseudomyrma, species: s_triplaridis, subspecies: boxi_enzmann})
+
+      TaxonNameRelationship::Iczn::Invalidating::Usage::Synonym.create!(subject_taxon_name: boxi_wheeler, object_taxon_name: s_triplaridis)
+      TaxonNameRelationship::Iczn::Invalidating::Usage::Synonym.create!(subject_taxon_name: boxi_enzmann, object_taxon_name: s_triplaridis)
+
+      TaxonNameClassification::Iczn::Available::Invalid::Homonym.create!(taxon_name: boxi_enzmann)
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let!(:results) { @imported }
+
+    it 'should import the record without failing' do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'should have 1 type material record' do
+      expect(TypeMaterial.count).to eq 1
+      expect(TypeMaterial.first.protonym).to eq(Protonym.find_by(name: 'boxi', year_of_publication: 1942))
+    end
+  end
 end
 
 
