@@ -11,6 +11,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - DwC Occurrence Importer: Parse authorship information in typeStatus field
 
+### Fixed
+
+- Update DwcOccurence index endpoint
+
 ## [0.37.0] - 2023-12-14
 
 ### Added
