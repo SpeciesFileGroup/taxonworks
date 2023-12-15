@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+
+- DwC Occurrence Importer: Parse authorship information in typeStatus field
 
 ## [0.37.0] - 2023-12-14
 
