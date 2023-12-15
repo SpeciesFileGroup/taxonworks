@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - DwC Occurrence Importer: Parse authorship information in typeStatus field
+- DwC Exporter: `recordedBy` and `identifiedBy` fields use `First Prefix Last Suffix` order
 
 ### Fixed
 
@@ -24,7 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - DwC `verbatimLabel` support [#2749]
 - Preview option and results reports for filter based batch updates [#3690]
-- Freeform digtization, draw shapes to stub CollectionObjects [#3113]
+- Freeform digitization, draw shapes to stub CollectionObjects [#3113]
 - `superfamily`, `tribe` and `subtribe` DwC terms now supported in occurrences importer [#3705]
 
 ### Changed
