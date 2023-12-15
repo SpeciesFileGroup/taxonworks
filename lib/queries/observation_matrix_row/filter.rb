@@ -65,11 +65,11 @@ module Queries
       end
 
       def matching_observation_matrix_id
-        observation_matrix_id.empty? ? nil : table[:observation_matrix_id].eq_any(observation_matrix_id)
+        observation_matrix_id.empty? ? nil : table[:observation_matrix_id].in(observation_matrix_id)
       end
 
       def matching_observation_object_id
-        observation_object_id.empty? ? nil : table[:observation_object_id].eq_any(observation_object_id)
+        observation_object_id.empty? ? nil : table[:observation_object_id].in(observation_object_id)
       end
 
       def matching_observation_object_type
@@ -99,7 +99,7 @@ module Queries
           q = ::ObservationMatrixRow.all
         end
 
-        q = q.where(project_id: project_id) if project_id
+        q = q.where(project_id:) if project_id
         q
       end
 

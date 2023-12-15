@@ -223,7 +223,7 @@ module Queries
 
       def bibtex_type_facet
         return nil if bibtex_type.empty?
-        table[:type].eq('Source::Bibtex').and(table[:bibtex_type].eq_any(bibtex_type))
+        table[:type].eq('Source::Bibtex').and(table[:bibtex_type].in(bibtex_type))
       end
 
       def taxon_name_id
@@ -265,7 +265,7 @@ module Queries
       end
 
       def serial_id_facet
-        serial_id.empty? ? nil : table[:serial_id].eq_any(serial_id)
+        serial_id.empty? ? nil : table[:serial_id].in(serial_id)
       end
 
       def author_id_facet
@@ -286,7 +286,7 @@ module Queries
           )
 
         e = c[:id].not_eq(nil)
-        f = c[:person_id].eq_any(author_id)
+        f = c[:person_id].in(author_id)
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
@@ -318,7 +318,7 @@ module Queries
       def identifier_type_facet
         return nil if identifier_type.empty? || with_doi
         q = referenced_klass.joins(:identifiers)
-        w = identifier_table[:type].eq_any(identifier_type)
+        w = identifier_table[:type].in(identifier_type)
         q.where(w).distinct
       end
 
@@ -473,7 +473,7 @@ module Queries
         c.join(o, Arel::Nodes::InnerJoin).on(
           o[:id].eq(c[:citation_object_id]).and(c[:citation_object_type].eq('Otu'))
         ).join(h, Arel::Nodes::InnerJoin).on(
-          o[:taxon_name_id].eq(h[:descendant_id]).and(h[:ancestor_id].eq_any(taxon_name_id))
+          o[:taxon_name_id].eq(h[:descendant_id]).and(h[:ancestor_id].in(taxon_name_id))
         )
       end
 
@@ -485,7 +485,7 @@ module Queries
         c.join(t, Arel::Nodes::InnerJoin).on(
           t[:id].eq(c[:citation_object_id]).and(c[:citation_object_type].eq('TaxonName'))
         ).join(h, Arel::Nodes::InnerJoin).on(
-          t[:id].eq(h[:descendant_id]).and(h[:ancestor_id].eq_any(taxon_name_id))
+          t[:id].eq(h[:descendant_id]).and(h[:ancestor_id].in(taxon_name_id))
         )
       end
 
@@ -499,7 +499,7 @@ module Queries
         c.join(t, Arel::Nodes::InnerJoin).on(
           t[:id].eq(c[:citation_object_id]).and(c[:citation_object_type].eq('TaxonNameClassification'))
         ).join(h, Arel::Nodes::InnerJoin).on(
-          t[:taxon_name_id].eq(h[:descendant_id]).and(h[:ancestor_id].eq_any(taxon_name_id))
+          t[:taxon_name_id].eq(h[:descendant_id]).and(h[:ancestor_id].in(taxon_name_id))
         )
       end
 
@@ -513,7 +513,7 @@ module Queries
         c.join(t, Arel::Nodes::InnerJoin).on(
           t[:id].eq(c[:citation_object_id]).and(c[:citation_object_type].eq('TaxonNameRelationship'))
         ).join(h, Arel::Nodes::InnerJoin).on(
-          t[join_on].eq(h[:descendant_id]).and(h[:ancestor_id].eq_any(taxon_name_id))
+          t[join_on].eq(h[:descendant_id]).and(h[:ancestor_id].in(taxon_name_id))
         )
       end
 

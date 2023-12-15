@@ -4,7 +4,7 @@ module Queries
   # Methods to facilitate permission and handling of polymorphic relationships
   module Annotator
     include Arel::Nodes
-    
+
     # @params hash [Hash]
     #   derived from permitted parameters
     # @return [Array of Arel::Nodes::And]
@@ -25,13 +25,13 @@ module Queries
     #    from controller, MUST BE the full, pre-permitted set
     # @params klass [ ApplicationRecord subclass]
     # @return [Arel::Nodes::And]
-    #   translates params from requests like `otus/123/data_attributes` to a 
+    #   translates params from requests like `otus/123/data_attributes` to a
     #   Arel::Nodes::And clause equvialent to `DataAttribute.where(attribute_subject_type: 'Otu', attribute_subject_id: 123)`
     def self.polymorphic_params(params, klass)
       t = klass.arel_table
 
-      h = shallow_id(params, klass) 
-      
+      h = shallow_id(params, klass)
+
       return nil if h.size != 1
 
       a = polymorphic_nodes(h, klass)
@@ -53,14 +53,14 @@ module Queries
     # @return Hash
     def self.shallow_id(params, klass)
       return {} unless params.class.name == 'ActionController::Parameters'
-      params.permit(klass.related_foreign_keys).to_h # could be added into permit framework 
+      params.permit(klass.related_foreign_keys).to_h # could be added into permit framework
     end
 
     # @params params [ActionController::Parameters]
     #    from controller
     # @params klass [ ApplicationRecord subclass]
     # @return [ Arel::Nodes::And ]
-    #   for use in SomeAnnotator.where() 
+    #   for use in SomeAnnotator.where()
     def self.annotator_params(params, klass)
       t = klass.arel_table
 
@@ -69,9 +69,9 @@ module Queries
       c.push t[:created_at].lteq(Date.new(*params[:created_before].split('-').map(&:to_i))) if params[:created_before]
       c.push t[:created_at].gteq(Date.new(*params[:created_after].split('-').map(&:to_i))) if params[:created_after]
 
-      c.push t[klass.annotator_type].eq_any(params[:on]) if params[:on]
-      c.push t[:id].eq_any([params[:id]].flatten.compact.uniq) if params[:id]
-      c.push t[:created_by_id].eq_any(params[:by]) if params[:by]
+      c.push t[klass.annotator_type].in(params[:on]) if params[:on]
+      c.push t[:id].in([params[:id]].flatten.compact.uniq) if params[:id]
+      c.push t[:created_by_id].in(params[:by]) if params[:by]
 
       c.compact!
 

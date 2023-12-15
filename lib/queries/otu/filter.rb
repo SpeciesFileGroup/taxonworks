@@ -242,7 +242,7 @@ module Queries
       def name_facet
         return nil if name.empty?
         if name_exact
-          table[:name].eq_any(name)
+          table[:name].in(name)
         else
           table[:name].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' })
         end
@@ -253,7 +253,7 @@ module Queries
         if descendants
           h = Arel::Table.new(:taxon_name_hierarchies)
           j = table.join(h, Arel::Nodes::InnerJoin).on(table[:taxon_name_id].eq(h[:descendant_id]))
-          z = h[:ancestor_id].eq_any(taxon_name_id)
+          z = h[:ancestor_id].in(taxon_name_id)
 
           ::Otu.joins(j.join_sources).where(z)
         else

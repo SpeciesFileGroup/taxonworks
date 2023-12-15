@@ -458,7 +458,7 @@ module Queries
 
       def collection_object_id_facet
         return nil if collection_object_id.empty?
-        table[:id].eq_any(collection_object_id)
+        table[:id].in(collection_object_id)
       end
 
       def import_dataset_id_facet
@@ -506,7 +506,7 @@ module Queries
           )
 
         e = c[:id].not_eq(nil)
-        f = c[:person_id].eq_any(determiner_id)
+        f = c[:person_id].in(determiner_id)
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
@@ -678,17 +678,17 @@ module Queries
 
       def collecting_event_id_facet
         return nil if collecting_event_id.empty?
-        table[:collecting_event_id].eq_any(collecting_event_id)
+        table[:collecting_event_id].in(collecting_event_id)
       end
 
       def preparation_type_id_facet
         return nil if preparation_type_id.empty?
-        table[:preparation_type_id].eq_any(preparation_type_id)
+        table[:preparation_type_id].in(preparation_type_id)
       end
 
       def repository_id_facet
         return nil if repository_id.blank?
-        table[:repository_id].eq_any(repository_id)
+        table[:repository_id].in(repository_id)
       end
 
       def current_repository_id_facet
@@ -711,7 +711,7 @@ module Queries
         return nil if is_type.empty?
 
         w = type_materials_table[:collection_object_id].eq(table[:id])
-          .and(type_materials_table[:type_type].eq_any(is_type))
+          .and(type_materials_table[:type_type].in(is_type))
 
         ::CollectionObject.where(
           ::TypeMaterial.where(w).arel.exists
@@ -733,7 +733,7 @@ module Queries
         return nil if otu_id.empty?
 
         w = taxon_determination_table[:biological_collection_object_id].eq(table[:id])
-          .and(taxon_determination_table[:otu_id].eq_any(otu_id))
+          .and(taxon_determination_table[:otu_id].in(otu_id))
 
         if current_determinations
           w = w.and(taxon_determination_table[:position].eq(1))
@@ -765,7 +765,7 @@ module Queries
           ).join(h, Arel::Nodes::InnerJoin).on(
             t[:id].eq(h[:descendant_id])
           )
-          z = h[:ancestor_id].eq_any(taxon_name_id)
+          z = h[:ancestor_id].in(taxon_name_id)
 
           if validity == true
             z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))

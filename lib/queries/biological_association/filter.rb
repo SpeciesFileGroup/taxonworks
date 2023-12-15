@@ -544,15 +544,15 @@ module Queries
       def biological_relationship_id_facet
         return nil if biological_relationship_id.empty?
         if exclude_taxon_name_relationship
-          table[:biological_relationship_id].not_eq_any(biological_relationship_id)
+          table[:biological_relationship_id].not_in(biological_relationship_id)
         else
-          table[:biological_relationship_id].eq_any(biological_relationship_id)
+          table[:biological_relationship_id].in(biological_relationship_id)
         end
       end
 
       def biological_association_id_facet
         return nil if biological_association_id.empty?
-        table[:id].eq_any(biological_association_id)
+        table[:id].in(biological_association_id)
       end
 
       def object_type_facet

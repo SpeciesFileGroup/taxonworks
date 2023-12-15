@@ -1,8 +1,8 @@
 # Architecture
 
 ## Filter
-Query logic within TaxonWorks has largely moved to filters. Filters correspond 1:1 with models in most cases. 
-Filters work by merging `and` (e.g. `table[:id].eq_any(otu_id)`) and `merge` (e.g. `::Otu.joins(:taxon_name).where(taxon_names: {name: 1})`) clauses together into multi-faceted quries. In many cases results of one Filter can be passed on to a next. 
+Query logic within TaxonWorks has largely moved to filters. Filters correspond 1:1 with models in most cases.
+Filters work by merging `and` (e.g. `table[:id].in(otu_id)`) and `merge` (e.g. `::Otu.joins(:taxon_name).where(taxon_names: {name: 1})`) clauses together into multi-faceted quries. In many cases results of one Filter can be passed on to a next.
 
 ### Conventions
 
@@ -11,11 +11,11 @@ Filters work by merging `and` (e.g. `table[:id].eq_any(otu_id)`) and `merge` (e.
 
 ### Default facets
 There are several near "global" facets that are applied to all filters for example
-`model_id_facet` takes all references to variables like `otu_id` and turns them into `table[:id].eq_any(otu_id)`,
+`model_id_facet` takes all references to variables like `otu_id` and turns them into `table[:id].in(otu_id)`,
 and `project_id_facet` applies project_id.  These defaults live in `Queries::Filter`.
 
 ### Concerns
-Filters have concerns where sharing facets is of use. `And` and `merge` clauses (sets of facets) are automatically applied to the filter result. 
+Filters have concerns where sharing facets is of use. `And` and `merge` clauses (sets of facets) are automatically applied to the filter result.
 These facets have corresponding UI elements.
 
 ###  Use of `.distinct`

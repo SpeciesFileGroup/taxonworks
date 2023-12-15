@@ -124,12 +124,12 @@ module Queries
 
       def extract_id_facet
         return nil if extract_id.empty?
-        table[:id].eq_any(extract_id)
+        table[:id].in(extract_id)
       end
 
       def repository_id_facet
         return nil if repository_id.empty?
-        table[:repository_id].eq_any(repository_id)
+        table[:repository_id].in(repository_id)
       end
 
       def otu_id_facet

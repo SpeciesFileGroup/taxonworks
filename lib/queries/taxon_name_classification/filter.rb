@@ -19,14 +19,14 @@ module Queries
       attr_accessor :taxon_name_id
 
       # @param taxon_name_classification_type [String, Array, nil]
-      #   the full class name like 'TaxonNameClassification::..etc.', or an Array of them 
+      #   the full class name like 'TaxonNameClassification::..etc.', or an Array of them
       attr_accessor :taxon_name_classification_type
 
       # @param taxon_name_classification_set [Array, String, nil]
-      #   one or more of 
+      #   one or more of
       #     'validating',
       #     `invalidating`,
-      #     `exceptions` 
+      #     `exceptions`
       attr_accessor :taxon_name_classification_set
 
       # @param params [Params]
@@ -69,17 +69,17 @@ module Queries
 
       def taxon_name_classification_set_facet
         return nil if taxon_name_classification_set.empty?
-        table[:type].eq_any(classification_types)
+        table[:type].in(classification_types)
       end
 
       def taxon_name_classification_type_facet
         return nil if taxon_name_classification_type.empty?
-        table[:type].eq_any(taxon_name_classification_type)
+        table[:type].in(taxon_name_classification_type)
       end
 
       def taxon_name_id_facet
         return nil if taxon_name_id.empty?
-        table[:taxon_name_id].eq_any(taxon_name_id)
+        table[:taxon_name_id].in(taxon_name_id)
       end
 
       def and_clauses
@@ -87,7 +87,7 @@ module Queries
           taxon_name_classification_type_facet,
           taxon_name_classification_set_facet,
         ]
-      end     
+      end
 
     end
 

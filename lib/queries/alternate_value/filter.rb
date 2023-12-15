@@ -44,7 +44,7 @@ module Queries
       def community_project_id_facet
         return nil if project_id.empty?
         if !ignores_project?
-          return table[:project_id].eq_any(project_id)
+          return table[:project_id].in(project_id)
         end
         nil
       end

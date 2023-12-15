@@ -119,7 +119,7 @@ module Queries
 
       def descriptor_type_facet
         return nil if descriptor_type.blank?
-        table[:type].eq_any(descriptor_type)
+        table[:type].in(descriptor_type)
       end
 
       def observation_matrices_facet
@@ -133,7 +133,7 @@ module Queries
 
       def observations_facet
         return nil if observations.nil?
-        if observations 
+        if observations
           ::Descriptor.joins(:observations).distinct
         else
           ::Descriptor.where.missing(:observations)
@@ -181,4 +181,3 @@ module Queries
     end
   end
 end
-
