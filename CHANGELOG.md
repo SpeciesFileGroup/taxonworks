@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Unifies all filter-originating batch updates to a common look and feel [#3690]
 - Report file size to browser for downloads
 - DwC Checklist Importer: blank `originalNameUsageID` skip original combination creation instead of erroring [#3680]
+- Header bar has different color for development and production
 
 ### Fixed
 
@@ -47,7 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2749]: https://github.com/SpeciesFileGroup/taxonworks/issues/2749
 [#3113]: https://github.com/SpeciesFileGroup/taxonworks/issues/3113
 [#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
-[#3680]: https://github.com/SpeciesFileGroup/taxonworks/issues/3680 
+[#3680]: https://github.com/SpeciesFileGroup/taxonworks/issues/3680
 [#3690]: https://github.com/SpeciesFileGroup/taxonworks/issues/3690
 [#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696
 
