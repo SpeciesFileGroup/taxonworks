@@ -71,7 +71,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
   context '#dwc_occurrence' do
     let!(:ce) { CollectingEvent.create!(start_date_year: '2010') }
     let!(:s) { Specimen.create!(collecting_event: ce) }
-    let(:p) { Person.create!(last_name: 'Smith', first_name: 'Sue') }
+    let(:p) { Person.create!(last_name: 'Smith', first_name: 'Sue', suffix: 'Jr.') }
     let(:o) { Otu.create!(name: 'Barney') }
 
     let(:root) { Project.find(Current.project_id).send(:create_root_taxon_name) }
@@ -185,7 +185,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     specify '#dwc_identified_by' do
       TaxonDetermination.create!(biological_collection_object: s, otu: o, determiners: [p]) # Bad mix of object/attributes now: roles_attributes: [{person: p, type: 'Determiner'}]
       s.reload
-      expect(s.dwc_identified_by).to eq('Smith, Sue')
+      expect(s.dwc_identified_by).to eq('Sue Smith Jr.')
     end
 
     specify '#dwc_date_identified' do
@@ -431,12 +431,12 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
         parent: root
       )
 
-      ce.update!(collectors_attributes: [{last_name: 'Doe', first_name: 'John'}])
+      ce.update!(collectors_attributes: [{last_name: 'Doe', first_name: 'John', prefix: 'von'}])
       TaxonDetermination.create!(biological_collection_object: s, otu: Otu.create!(taxon_name: p1), determiner_roles_attributes: [{person: p}] )
 
       s.reload
 
-      expect(s.dwc_recorded_by).to eq('Doe, John')
+      expect(s.dwc_recorded_by).to eq('John von Doe')
     end
 
     specify '#dwc_other_catalog_numbers' do

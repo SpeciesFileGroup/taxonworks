@@ -421,7 +421,7 @@ module CollectionObject::DwcExtensions
     if collecting_event
       v = collecting_event.collectors
         .order('roles.position')
-        .pluck(:cached)
+        .map(&:name)
         .join(CollectionObject::DWC_DELIMITER)
         .presence
       v = collecting_event.verbatim_collectors.presence if v.blank?
@@ -444,7 +444,7 @@ module CollectionObject::DwcExtensions
 
   def dwc_identified_by
     # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    current_taxon_determination&.determiners&.map(&:cached)&.join(CollectionObject::DWC_DELIMITER).presence
+    current_taxon_determination&.determiners&.map(&:name)&.join(CollectionObject::DWC_DELIMITER).presence
   end
 
   def dwc_identified_by_id
