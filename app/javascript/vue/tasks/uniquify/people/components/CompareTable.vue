@@ -52,7 +52,7 @@
               >
                 {{ selected.cached }}
               </a>
-              <template v-if="selectedMergePerson.global_id">
+              <template v-if="selected.global_id">
                 <RadialAnnotator :global-id="selected.global_id" />
                 <RadialNavigation
                   :global-id="selected.global_id"
