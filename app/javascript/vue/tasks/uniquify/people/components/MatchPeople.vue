@@ -8,6 +8,7 @@
         param="term"
         label="label_html"
         placeholder="Search a person..."
+        :excluded-ids="involvedIds"
         clear-after
         @get-item="addToList"
       />
@@ -119,6 +120,17 @@ export default {
           ? this.matchList.filter((item) => item.id !== this.selectedPerson.id)
           : []
       }
+    },
+
+    // IDs to hide in autocomplete, since they're already selected
+    involvedIds() {
+      const selectedIds = this.mergeList.map((p) => p.id)
+      if (this.selectedPerson?.id) selectedIds.push(this.selectedPerson.id)
+      return selectedIds
+    },
+
+    mergeList() {
+      return this.$store.getters[GetterNames.GetMergePeople]
     }
   },
 
