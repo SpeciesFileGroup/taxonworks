@@ -1,9 +1,10 @@
-<div id="header_bar" class="flexbox <%= sandbox_css -%>"> 
+<div id="header_bar" class="flexbox <%= navbar_css -%> <%= sandbox_css -%>"> 
   <div class="horizontal-left-content item item1">
     <div
       id="taxonworks_left"
       class="horizontal-left-content align-end gap-small">
         <%= link_to(content_tag(:div, '', id: :taxonworks_logo), root_path) -%> 
+        <%= development_header_tag -%>
         <%= taxonworks_version_tag -%>
         <%= sandbox_details_tag -%>
         <%= issue_tracker_tag %>

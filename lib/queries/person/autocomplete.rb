@@ -33,8 +33,8 @@ module Queries
 
       # @return [Arel::Nodes::Equatity]
       def role_match
-        a = roles_table[:type].eq_any(role_type)
-        a = a.and(roles_table[:project_id].eq_any(project_id)) if in_project
+        a = roles_table[:type].in(role_type)
+        a = a.and(roles_table[:project_id].in(project_id)) if in_project
         a
       end
 

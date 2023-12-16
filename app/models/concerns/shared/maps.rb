@@ -24,7 +24,7 @@ module Shared::Maps
     after_create :initialize_cached_map_items
     after_create :destroy_cached_map
 
-    before_destroy :remove_from_cached_map_items
+    # before_destroy :remove_from_cached_map_items
 
     # after_update :syncronize_cached_map_items
 

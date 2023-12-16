@@ -438,12 +438,12 @@ module Queries
     def model_id_facet
       m = (base_name + '_id').to_sym
       return nil if send(m).empty?
-      table[:id].eq_any(send(m))
+      table[:id].in(send(m))
     end
 
     def project_id_facet
       return nil if project_id.empty?
-      table[:project_id].eq_any(project_id)
+      table[:project_id].in(project_id)
     end
 
     def object_global_id_facet
@@ -456,7 +456,7 @@ module Queries
         ids.push g.model_id
       end
 
-      table[:id].eq_any(ids)
+      table[:id].in(ids)
     end
 
     # params attribute [Symbol]

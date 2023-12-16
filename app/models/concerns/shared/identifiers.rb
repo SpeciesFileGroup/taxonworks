@@ -65,7 +65,7 @@ module Shared::Identifiers
     def with_identifier(value)
       value = [value] if value.class == String
       t = Identifier.arel_table
-      a = t[:cached].eq_any(value)
+      a = t[:cached].in(value)
       self.joins(:identifiers).where(a.to_sql).references(:identifiers)
     end
 

@@ -86,7 +86,7 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_controlled_vocabulary_term_id
-        controlled_vocabulary_term_id.empty? ? nil : table[:controlled_vocabulary_term_id].eq_any(controlled_vocabulary_term_id)
+        controlled_vocabulary_term_id.empty? ? nil : table[:controlled_vocabulary_term_id].in(controlled_vocabulary_term_id)
       end
 
 

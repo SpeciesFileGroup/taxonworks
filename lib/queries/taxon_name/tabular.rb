@@ -197,7 +197,7 @@ module Queries
 
         # TODO: rank_classes getter should merge nil when combinations,
         # i.e. we likely don't need nil
-        w = table[:rank_class].eq_any(rank_classes)
+        w = table[:rank_class].in(rank_classes)
         w = w.or(table[:rank_class].eq(nil)) if combinations
 
         q = q.project(*projected_columns)

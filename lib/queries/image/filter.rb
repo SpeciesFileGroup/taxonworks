@@ -454,7 +454,7 @@ module Queries
             .join(b, Arel::Nodes::InnerJoin).on( a[:taxon_name_id].eq(b[:id]))
             .join(h_alias, Arel::Nodes::InnerJoin).on(b[:id].eq(h_alias[:descendant_id]))
 
-          z = h_alias[:ancestor_id].eq_any(taxon_name_id)
+          z = h_alias[:ancestor_id].in(taxon_name_id)
           q1 = ::Image.joins(j1.join_sources).where(z)
         end
 
@@ -471,7 +471,7 @@ module Queries
             .join(b, Arel::Nodes::InnerJoin).on( a[:taxon_name_id].eq(b[:id]))
             .join(h_alias, Arel::Nodes::InnerJoin).on(b[:id].eq(h_alias[:descendant_id]))
 
-          z = h_alias[:ancestor_id].eq_any(taxon_name_id)
+          z = h_alias[:ancestor_id].in(taxon_name_id)
           q2 = ::Image.joins(j2.join_sources).where(z)
         end
 

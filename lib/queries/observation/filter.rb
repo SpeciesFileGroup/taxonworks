@@ -183,28 +183,28 @@ module Queries
       # @return [Arel::Node, nil]
       def observation_type_facet
         return nil if observation_type.empty?
-        table[:type].eq_any(observation_type)
+        table[:type].in(observation_type)
       end
 
       # @return [Arel::Node, nil]
       def character_state_id_facet
         return nil if character_state_id.empty?
-        table[:character_state_id].eq_any(character_state_id)
+        table[:character_state_id].in(character_state_id)
       end
 
       def otu_id_facet
         return nil if otu_id.empty?
-        table[:observation_object_id].eq_any(otu_id).and(table[:observation_object_type].eq('Otu'))
+        table[:observation_object_id].in(otu_id).and(table[:observation_object_type].eq('Otu'))
       end
 
       def observation_object_type_facet
         return nil if observation_object_type.empty?
-        table[:observation_object_type].eq_any(observation_object_type)
+        table[:observation_object_type].in(observation_object_type)
       end
 
       def descriptor_id_facet
         return nil if descriptor_id.empty?
-        table[:descriptor_id].eq_any(descriptor_id)
+        table[:descriptor_id].in(descriptor_id)
       end
 
       def descriptor_query_facet

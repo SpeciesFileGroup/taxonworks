@@ -16,7 +16,7 @@ module Queries
         protocol_relationship_object_id: [],
         protocol_id: []
       ].freeze
-      
+
       # @param [Array, Integer]
       # @return Array
       attr_accessor :protocol_relationship_id
@@ -61,25 +61,25 @@ module Queries
 
       def protocol_id_facet
         return nil if protocol_id.empty?
-        table[:protocol_id].eq_any(protocol_id)
+        table[:protocol_id].in(protocol_id)
       end
 
       def protocol_relationship_object_id_facet
         return nil if protocol_relationship_object_id.empty?
-        table[:protocol_relationship_object_id].eq_any(protocol_relationship_object_id)
+        table[:protocol_relationship_object_id].in(protocol_relationship_object_id)
       end
 
       def protocol_relationship_object_type_facet
         return nil if protocol_relationship_object_type.empty?
-        table[:protocol_relationship_object_type].eq_any(protocol_relationship_object_type)
+        table[:protocol_relationship_object_type].in(protocol_relationship_object_type)
       end
 
       def and_clauses
-         [
-          protocol_id_facet,
-          protocol_relationship_object_id_facet,
-          protocol_relationship_object_type_facet,
-        ]
+        [
+         protocol_id_facet,
+         protocol_relationship_object_id_facet,
+         protocol_relationship_object_type_facet,
+       ]
       end
     end
   end

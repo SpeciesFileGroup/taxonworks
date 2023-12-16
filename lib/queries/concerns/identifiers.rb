@@ -328,7 +328,7 @@ module Queries::Concerns::Identifiers
   def identifier_type_facet
     return nil if identifier_type.empty?
     q = referenced_klass.joins(:identifiers)
-    w = identifier_table[:type].eq_any(identifier_type)
+    w = identifier_table[:type].in(identifier_type)
     a = q.where(w)
 
     a = referenced_klass_union([a, identifier_type_container_match ]) if referenced_klass.is_containable?

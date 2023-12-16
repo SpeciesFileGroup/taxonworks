@@ -92,14 +92,14 @@ module Queries
       # @return [Arel::Nodes::<>, nil]
       def is_type
         return nil if type.empty?
-        table[:type].eq_any(type)
+        table[:type].in(type)
       end
 
       # and clause, limit to ancestors or [ids]
       # @return [Arel::Nodes::<>, nil]
       def with_parent_id
         return nil if parent_id.empty?
-        taxon_name_hierarchies_table[:ancestor_id].eq_any(parent_id)
+        taxon_name_hierarchies_table[:ancestor_id].in(parent_id)
       end
 
       # @return [Arel::Nodes::Grouping, nil]
