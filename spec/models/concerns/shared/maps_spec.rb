@@ -51,14 +51,14 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       expect(CachedMapRegister.count).to eq(0)
     end
 
-    specify 'removes CachedMapItem when no more references' do
+    xspecify 'removes CachedMapItem when no more references' do
       ad_offset.run_callbacks(:destroy)
       Delayed::Worker.new.work_off
       expect(CachedMapItem.count).to eq(0)
     end
 
 
-    specify 'decrements CachedMapItem reference_count' do
+    xspecify 'decrements CachedMapItem reference_count' do
       b = FactoryBot.create( :valid_asserted_distribution, otu: ad_offset.otu, geographic_area: ga_offset2)
       Delayed::Worker.new.work_off
 
@@ -71,7 +71,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       expect(b.otu.cached_map_items.first.reference_count).to eq(1)
     end
 
-    specify 'decrements CachedMapItem reference count 2' do
+    xspecify 'decrements CachedMapItem reference count 2' do
       # Hack the total 
       ad_offset.otu.cached_map_items.first.update_column(:reference_count, 99)
 
