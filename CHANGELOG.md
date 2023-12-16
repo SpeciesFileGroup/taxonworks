@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Update DwcOccurence index endpoint
+- Uniquify people: Always show radials for selected person
 
 ## [0.37.0] - 2023-12-14
 
