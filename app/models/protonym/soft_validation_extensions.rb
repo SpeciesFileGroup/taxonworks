@@ -11,7 +11,8 @@ module Protonym::SoftValidationExtensions
       sv_missing_etymology: {
         set: :missing_fields,
         name: 'Missing etymology',
-        description: 'Etymology is not defined'
+        description: 'Etymology is not defined',
+        resolution:  [:new_taxon_name_task]
       },
 
       sv_validate_parent_rank: {
