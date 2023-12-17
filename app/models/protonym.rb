@@ -106,7 +106,7 @@ class Protonym < TaxonName
   end
 
   # TODO: remove
-  scope :named, -> (name) {where(name: name)}
+  scope :named, -> (name) {where(name:)}
 
   scope :with_name_in_array, -> (array) {where(name: array) }
 
@@ -132,7 +132,7 @@ class Protonym < TaxonName
   scope :with_secondary_homonym_alternative_spelling, -> (secondary_homonym_alternative_spelling) {where(cached_secondary_homonym_alternative_spelling: secondary_homonym_alternative_spelling)}
 
   # TODO, move to IsData or IsProjectData
-  scope :with_project, -> (project_id) {where(project_id: project_id)}
+  scope :with_project, -> (project_id) {where(project_id:)}
 
   scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
   scope :is_genus_group, -> { where("rank_class ILIKE '%genusgroup%'") }
@@ -150,7 +150,7 @@ class Protonym < TaxonName
   # @return [Protonym]
   #   a name ready to become the root
   def self.stub_root(project_id: nil, by: nil)
-    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id: project_id, by: by)
+    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id:, by:)
   end
 
   def self.family_group_base(name_string)
@@ -168,10 +168,11 @@ class Protonym < TaxonName
 
   # @param rank full String to match rank_class, like '%genusgroup%' or '%::Family'
   #    scope to names used in taxon determinations
+  #  !! Ensure collection_object_query is scoped to project
   def self.names_at_rank_group_for_collection_objects(rank: nil, collection_object_query: nil)
 
     # Find all the names for the objects in question
-    names = ::Queries::TaxonName::Filter.new(collection_object_query: collection_object_query).all
+    names = ::Queries::TaxonName::Filter.new(collection_object_query:).all
 
     s = 'WITH q_co_names AS (' + names.distinct.all.to_sql + ') ' +
       ::Protonym
@@ -919,7 +920,7 @@ class Protonym < TaxonName
       end
     end
 
-    return { moved: moved, unmoved: unmoved}
+    return { moved:, unmoved:}
   end
 
   # @params params [Hash]
@@ -1025,7 +1026,7 @@ class Protonym < TaxonName
   # DD: rules for cached tend to evolve, what was good in the past, may not be true today
   # MJY: If the meaning of cached changes then it should be removed, not changed.
   def sv_cached_names # this cannot be moved to soft_validation_extensions
-  is_cached = true
+    is_cached = true
 
   is_cached = false if cached_author_year != get_author_and_year
   is_cached = false if cached_author != get_author

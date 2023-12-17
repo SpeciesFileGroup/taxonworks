@@ -556,8 +556,9 @@ module Queries
       # The result can be used to, for example, get a comprehensive list of Sources for the concept,
       # or a comprehensive historical list of Specimens, etc.
       def coordinatify_result(q)
-        i = q.joins(:taxon_name).where('taxon_names.id != taxon_names.cached_valid_taxon_name_id')
-        v = q.joins(:taxon_name).where('taxon_names.id = taxon_names.cached_valid_taxon_name_id')
+
+        i = q.joins(:taxon_name).where('taxon_names.id != taxon_names.cached_valid_taxon_name_id').where(project_id:)
+        v = q.joins(:taxon_name).where('taxon_names.id = taxon_names.cached_valid_taxon_name_id').where(project_id:)
 
         # Find valid for invalid
         s = 'WITH invalid_otu_result AS (' + i.to_sql + ') ' +
