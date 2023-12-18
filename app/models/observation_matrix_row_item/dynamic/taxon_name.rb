@@ -6,8 +6,14 @@ class ObservationMatrixRowItem::Dynamic::TaxonName < ObservationMatrixRowItem::D
 
   def observation_objects
     a = ::Otu.joins(:taxon_name).where(taxon_name: observation_object.self_and_descendants)
-    b = ::Queries::CollectionObject::Filter.new(taxon_name_id: observation_object_id, descendants: true).all
-    c = ::Queries::Extract::Filter.new(taxon_name_id: observation_object_id, descendants: true).all
+    b = ::Queries::CollectionObject::Filter.new(
+      taxon_name_id: observation_object_id,
+      descendants: true,
+      project_id:).all
+    c = ::Queries::Extract::Filter.new(
+      taxon_name_id: observation_object_id,
+      descendants: true,
+      project_id:).all
 
     if a.count > 10000 or b.count > 10000 or c.count > 10000
       return []

@@ -84,11 +84,11 @@ module Shared::Maps
     def clear_cached_maps
       case self.class.base_class.name
       when 'AssertedDistribution'
-        ids = ::Queries::Otu::Filter.new(otu_id:, ancestrify: true).all.pluck(:id)
+        ids = ::Queries::Otu::Filter.new(otu_id:, ancestrify: true, project_id: ).all.pluck(:id)
         CachedMap.where(otu_id: ids).delete_all
       when 'Georeference'
         otu_ids = collecting_event.otus.pluck(:id)
-        ids = ::Queries::Otu::Filter.new(otu_id: otu_ids, ancestrify: true).all.pluck(:id)
+        ids = ::Queries::Otu::Filter.new(otu_id: otu_ids, ancestrify: true, project_id: ).all.pluck(:id)
         CachedMap.where(otu: ids).delete_all
       end
       true
