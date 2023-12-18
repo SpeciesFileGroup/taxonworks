@@ -19,12 +19,12 @@
 
   #taxonworks_left {
     flex-grow: 1;
+    line-height: $font_small;
   }
 
   #taxonworks_left > a {
     color: white;
     text-decoration: none;
-    line-height: $font_small;
   }
 
   #taxonworks_version {
