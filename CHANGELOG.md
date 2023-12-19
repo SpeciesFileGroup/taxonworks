@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC Exporter: export notes from most recent `TaxonDetermination` as `identificationRemarks`
 - Batch append collectors to Collecting Events within CE filter
 - `is_long_term_loan` boolean to Loan, Long-term loan checkbox in Loan task [#3746]
+- DwC `superfamily`, `subfamily`, `tribe`, `subtribe` export support
 
 ### Changed
 
