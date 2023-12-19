@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+
 - Added Emendavid status for ICN names [#3716]
 
 ### Changed
@@ -20,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Another project_id scope issue in Otu Filter
 - Update DwcOccurence index endpoint
 - Uniquify people: Always show radials for selected person
+- Remove property doesn't work on Biological relationship composer
 
 ## [0.37.0] - 2023-12-14
 
@@ -57,7 +59,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2749]: https://github.com/SpeciesFileGroup/taxonworks/issues/2749
 [#3113]: https://github.com/SpeciesFileGroup/taxonworks/issues/3113
 [#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
-[#3680]: https://github.com/SpeciesFileGroup/taxonworks/issues/3680 
+[#3680]: https://github.com/SpeciesFileGroup/taxonworks/issues/3680
 [#3690]: https://github.com/SpeciesFileGroup/taxonworks/issues/3690
 [#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696
 
