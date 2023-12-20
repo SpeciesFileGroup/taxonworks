@@ -21,21 +21,24 @@
         />
         Exact
       </label>
-      <label v-for="{ label, param } in aditionalCheckboxes">
+      <label
+        v-for="item in aditionalCheckboxes"
+        :key="item.param"
+      >
         <input
-          v-model="params[param]"
+          v-model="params[item.param]"
           type="checkbox"
-          :name="param"
+          :name="item.param"
         />
-        {{ label }}
+        {{ item.label }}
       </label>
     </div>
   </FacetContainer>
 </template>
 
 <script setup>
-import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { computed } from 'vue'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {

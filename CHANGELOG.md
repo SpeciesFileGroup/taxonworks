@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Added Emendavid status for ICN names [#3716]
 - "CONFIRM" screen when editing a collecting event with > 100 attached COs [#3727]
+- `epithet_only` parameter and facet to taxon name filter [#3589]
 
 ### Changed
 
