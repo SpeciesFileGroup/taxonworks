@@ -21,6 +21,7 @@ module Queries
         :combinationify,
         :descendants,
         :descendants_max_depth,
+        :epithet_only,
         :etymology,
         :leaves,
         :name,
@@ -73,6 +74,11 @@ module Queries
       #   false/nil - ignore
       # !! This parameter is not like the others, it is applied POST result, see also synonymify and validify, etc.
       attr_accessor :ancestrify
+
+      # @param epithet_only [Boolean]
+      #   true - use name property instead of cached to find taxon name
+      #   false/nil - ignore
+      attr_accessor :epithet_only
 
       # @param collection_object_id[String, Array]
       # @return Array
@@ -300,6 +306,7 @@ module Queries
         @descendants = boolean_param(params, :descendants)
         @descendants_max_depth = params[:descendants_max_depth]
         @etymology = boolean_param(params, :etymology)
+        @epithet_only = params[:epithet_only]
         @geo_json = params[:geo_json]
         @leaves = boolean_param(params, :leaves)
         @name = params[:name]
@@ -645,10 +652,18 @@ module Queries
       def name_facet
         return nil if name.empty?
         if name_exact
-          table[:cached].in(name).or(table[:cached_original_combination].in(name))
+          if (epithet_only)
+            table[:name].in(name)
+          else
+            table[:cached].in(name).or(table[:cached_original_combination].in(name))
+          end
           #  table[:cached].eq(name.strip).or(table[:cached_original_combination].eq(name.strip))
         else
-          table[:cached].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' }).or(table[:cached_original_combination].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' }))
+          if (epithet_only)
+            table[:name].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' })
+          else
+            table[:cached].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' }).or(table[:cached_original_combination].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' }))
+          end
         end
       end
 
