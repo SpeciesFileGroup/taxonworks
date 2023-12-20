@@ -5,6 +5,7 @@
       type="text"
       :value="longitude"
       @input="setLongitude"
+      @change="updateChange"
     />
     <span
       :class="{ red: !this.isCoordinate }"

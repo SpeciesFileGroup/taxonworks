@@ -47,6 +47,7 @@ import saveTypeMaterial from './saveTypeMaterial'
 import saveBiologicalAssociations from './saveBiologicalAssociations'
 import updateLayoutPreferences from './updateLayoutPreferences'
 import updateLastChange from './updateLastChange'
+import updateCEChange from './updateCEChange'
 
 const ActionFunctions = {
   [ActionNames.AddToContainer]: addToContainer,
@@ -95,7 +96,8 @@ const ActionFunctions = {
   [ActionNames.LoadBiologicalAssociations]: loadBiologicalAssociations,
   [ActionNames.LoadGeoreferences]: loadGeoreferences,
   [ActionNames.UpdateLayoutPreferences]: updateLayoutPreferences,
-  [ActionNames.UpdateLastChange]: updateLastChange
+  [ActionNames.UpdateLastChange]: updateLastChange,
+  [ActionNames.UpdateCEChange]: updateCEChange
 }
 
 export { ActionNames, ActionFunctions }

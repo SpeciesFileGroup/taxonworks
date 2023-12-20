@@ -9,7 +9,6 @@
           label="name"
           nested="records"
           :send-label="collectingEvent.group"
-          @getItem="collectingEvent.group = $event.name"
           :headers="externalHeaders"
           :add-params="{
             limit: 30,
@@ -17,6 +16,12 @@
             rank: 'group'
           }"
           param="name"
+          @get-item="
+            (item) => {
+              collectingEvent.group = item.name
+              updateChange()
+            }
+          "
         />
       </div>
       <div class="field">
@@ -27,7 +32,6 @@
           label="name"
           :send-label="collectingEvent.formation"
           nested="records"
-          @getItem="collectingEvent.formation = $event.name"
           :headers="externalHeaders"
           :add-params="{
             limit: 30,
@@ -35,6 +39,12 @@
             rank: 'formation'
           }"
           param="name"
+          @get-item="
+            (item) => {
+              collectingEvent.formation = item.name
+              updateChange()
+            }
+          "
         />
       </div>
       <div class="field">
@@ -42,6 +52,7 @@
         <input
           type="text"
           v-model="collectingEvent.member"
+          @change="updateChange"
         />
       </div>
       <div class="field">
@@ -49,6 +60,7 @@
         <input
           type="text"
           v-model="collectingEvent.lithology"
+          @change="updateChange"
         />
       </div>
     </div>
@@ -58,6 +70,7 @@
         <input
           type="text"
           v-model="collectingEvent.min_ma"
+          @change="updateChange"
         />
       </div>
       <div class="separate-left">
@@ -65,6 +78,7 @@
         <input
           type="text"
           v-model="collectingEvent.max_ma"
+          @change="updateChange"
         />
       </div>
     </div>

@@ -3,8 +3,9 @@
     <label>Label</label>
     <textarea
       rows="5"
-      @blur="searchCE"
       v-model="collectingEvent.verbatim_label"
+      @blur="searchCE"
+      @change="updateChange"
     />
     <clone-label />
     <modal-component

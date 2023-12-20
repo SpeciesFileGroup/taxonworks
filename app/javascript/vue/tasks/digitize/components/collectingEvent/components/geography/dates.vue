@@ -6,11 +6,13 @@
         v-model:year="collectingEvent.start_date_year"
         v-model:month="collectingEvent.start_date_month"
         v-model:day="collectingEvent.start_date_day"
+        @change="updateChange"
       />
       <date-now
         v-model:year="collectingEvent.start_date_year"
         v-model:month="collectingEvent.start_date_month"
         v-model:day="collectingEvent.start_date_day"
+        @click="updateChange"
       />
       <button
         type="button"
@@ -26,11 +28,13 @@
         v-model:year="collectingEvent.end_date_year"
         v-model:month="collectingEvent.end_date_month"
         v-model:day="collectingEvent.end_date_day"
+        @change="updateChange"
       />
       <date-now
         v-model:year="collectingEvent.end_date_year"
         v-model:month="collectingEvent.end_date_month"
         v-model:day="collectingEvent.end_date_day"
+        @click="updateChange"
       />
     </div>
   </div>

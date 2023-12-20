@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Added Emendavid status for ICN names [#3716]
+- "CONFIRM" screen when editing a collecting event with > 100 attached COs [#3727]
 
 ### Changed
 
@@ -22,6 +23,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Update DwcOccurence index endpoint
 - Uniquify people: Always show radials for selected person
 - Remove property doesn't work on Biological relationship composer
+
+[#3716]: https://github.com/SpeciesFileGroup/taxonworks/issues/3716
+[#3727]: https://github.com/SpeciesFileGroup/taxonworks/issues/3727
 
 ## [0.37.0] - 2023-12-14
 

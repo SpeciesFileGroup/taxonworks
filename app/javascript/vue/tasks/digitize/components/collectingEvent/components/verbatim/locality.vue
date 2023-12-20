@@ -4,12 +4,13 @@
     <textarea
       id="verbatim-locality"
       rows="5"
-      v-model="collectingEvent.verbatim_locality"/>
+      v-model="collectingEvent.verbatim_locality"
+      @change="updateChange"
+    />
   </div>
 </template>
 
 <script>
-
 import extendCE from '../../mixins/extendCE.js'
 
 export default {
