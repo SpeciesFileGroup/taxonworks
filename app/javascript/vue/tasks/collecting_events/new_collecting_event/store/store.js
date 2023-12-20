@@ -26,7 +26,8 @@ const makeInitialState = () => {
     tripCode: makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, 'CollectingEvent'),
     softValidations: {},
     queueGeoreferences: [],
-    unit: 'm'
+    unit: 'm',
+    totalCO: 0
   }
 }
 
