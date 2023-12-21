@@ -96,8 +96,12 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           expect(d.meta_fields).to contain_exactly(*headers)
         end
 
-        specify 'should have data in the row with an otu' do
+        specify 'should have the otu name in the correct extension file row' do
           expect(File.readlines(d.taxon_works_extension_data).last&.strip).to eq(o.name)
+        end
+
+        specify 'should have the otu name in the combined file' do
+          expect(File.readlines(d.all_data).last).to include(o.name)
         end
 
         context 'when no extensions are selected' do
