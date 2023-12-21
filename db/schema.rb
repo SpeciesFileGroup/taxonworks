@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_15_011844) do
+ActiveRecord::Schema.define(version: 2023_12_20_012709) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -908,6 +908,7 @@ ActiveRecord::Schema.define(version: 2023_12_15_011844) do
     t.string "identifiedByID"
     t.string "recordedByID"
     t.text "verbatimLabel"
+    t.string "caste"
     t.index ["created_at"], name: "index_dwc_occurrences_on_created_at"
     t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "dwc_occurrences_object_index"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"

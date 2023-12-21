@@ -326,6 +326,27 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_life_stage).to eq('adult')
     end
 
+    specify '#caste' do
+      g = BiocurationGroup.create!(
+        name: 'caste',
+        definition: 'Categorisation of individuals for eusocial species',
+        uri: 'http://rs.tdwg.org/dwc/terms/caste' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
+      )
+
+      a = BiocurationClass.create!(
+        name: 'ergatoid',
+        definition: 'permanently wingless',
+        )
+
+      Tag.create!(keyword: g, tag_object: a)
+
+      b = BiocurationClassification.create!(
+        biological_collection_object: s,
+        biocuration_class: a)
+
+      expect(s.dwc_caste).to eq('ergatoid')
+    end
+
     specify '#dwc_associated_taxa' do
       g = Predicate.create!(
         name: 'Associated Taxa',

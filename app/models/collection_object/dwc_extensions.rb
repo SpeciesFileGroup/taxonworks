@@ -16,6 +16,7 @@ module CollectionObject::DwcExtensions
       preparations: :dwc_preparations,
       lifeStage: :dwc_life_stage,
       sex: :dwc_sex,
+      caste: :dwc_caste,
       country: :dwc_country,
       stateProvince: :dwc_state_province,
       county: :dwc_county,
@@ -312,6 +313,11 @@ module CollectionObject::DwcExtensions
   def dwc_sex
     biocuration_classes.tagged_with_uri(::DWC_ATTRIBUTE_URIS[:sex])
       .pluck(:name)&.join(', ').presence
+  end
+
+  def dwc_caste
+    biocuration_classes.tagged_with_uri(::DWC_ATTRIBUTE_URIS[:caste])
+       .pluck(:name)&.join(', ').presence
   end
 
   def dwc_verbatim_coordinates
