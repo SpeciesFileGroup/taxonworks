@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - "CONFIRM" screen when editing a collecting event with > 100 attached COs [#3727]
 - `epithet_only` parameter and facet to taxon name filter [#3589]
 - Links for users profiles on project members list (only for administrators)
+- Cursor and text to reveal project preference predicates can be reordered [#3736]
 
 ### Changed
 
@@ -29,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3716]: https://github.com/SpeciesFileGroup/taxonworks/issues/3716
 [#3727]: https://github.com/SpeciesFileGroup/taxonworks/issues/3727
+[#3736]: https://github.com/SpeciesFileGroup/taxonworks/issues/3736
 
 ## [0.37.0] - 2023-12-14
 
