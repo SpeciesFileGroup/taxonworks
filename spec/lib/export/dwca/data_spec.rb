@@ -72,9 +72,9 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
       end
 
-      context 'taxon_works_extensions for internal attributes' do
+      context 'taxonworks_extensions for internal attributes' do
 
-        let(:d) {Export::Dwca::Data.new(core_scope: scope, taxon_works_extensions: {collection_object_extensions: [:otu_name]})}
+        let(:d) {Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: { collection_object_extensions: [:otu_name]})}
         let!(:o) {FactoryBot.create(:valid_otu)}
         let!(:det) {FactoryBot.create(:valid_taxon_determination, otu: o,
                                       biological_collection_object: DwcOccurrence.last.dwc_occurrence_object)}
@@ -84,11 +84,11 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
 
         specify '#taxon_works_extension_data is a tempfile' do
-          expect(d.taxon_works_extension_data).to be_kind_of(Tempfile)
+          expect(d.taxonworks_extension_data).to be_kind_of(Tempfile)
         end
 
-        specify '#taxon_works_extension_data returns lines for specimens' do
-          expect(d.taxon_works_extension_data.count).to eq(6)
+        specify '#taxonworks_extension_data returns lines for specimens' do
+          expect(d.taxonworks_extension_data.count).to eq(6)
         end
 
         specify 'should have the correct headers' do
@@ -97,7 +97,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
 
         specify 'should have the otu name in the correct extension file row' do
-          expect(File.readlines(d.taxon_works_extension_data).last&.strip).to eq(o.name)
+          expect(File.readlines(d.taxonworks_extension_data).last&.strip).to eq(o.name)
         end
 
         specify 'should have the otu name in the combined file' do
@@ -105,14 +105,14 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
 
         context 'when no extensions are selected' do
-          let(:empty_extension) { Export::Dwca::Data.new(core_scope: scope, taxon_works_extensions: {}) }
+          let(:empty_extension) { Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: {}) }
 
-          specify '#taxon_works_extension_data should be a tempfile' do
-            expect(empty_extension.taxon_works_extension_data).to be_kind_of(Tempfile)
+          specify '#taxonworks_extension_data should be a tempfile' do
+            expect(empty_extension.taxonworks_extension_data).to be_kind_of(Tempfile)
           end
 
           specify '#taxon_works_extension_data should generate a blank file' do
-            expect(empty_extension.taxon_works_extension_data.count).to eq(0)
+            expect(empty_extension.taxonworks_extension_data.count).to eq(0)
           end
 
           specify 'the datafile should have only the standard headers' do

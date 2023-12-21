@@ -32,7 +32,7 @@ module Export
     #    valid values are collecting_event_predicate_id: [], collection_object_predicate_id
     # @return [Download]
     #   the download object containing the archive
-    def self.download_async(record_scope, request = nil, extension_scopes: {}, predicate_extensions: {}, taxon_works_extensions: {})
+    def self.download_async(record_scope, request = nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: {})
       name = "dwc-a_#{DateTime.now}.zip"
 
       download = ::Download::DwcArchive.create!(
@@ -50,7 +50,7 @@ module Export
         core_scope: record_scope.to_sql,
         extension_scopes:,
         predicate_extensions:,
-        taxon_works_extensions:,
+        taxonworks_extensions:,
       )
 
       download

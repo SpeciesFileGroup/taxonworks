@@ -48,17 +48,17 @@ module Export::Dwca
     # collection_object_predicate_id: [], collecting_event_predicate_id: []
     attr_accessor :data_predicate_ids
 
-    attr_accessor :taxon_works_extension_data
+    attr_accessor :taxonworks_extension_data
 
     # @return Hash{Symbol=>Array<Symbol>}
     # collection_object_extensions: [], collecting_event_extensions: []
-    attr_accessor :taxon_works_extension_methods
+    attr_accessor :taxonworks_extension_methods
 
     # A Tempfile, core records and predicate data (and maybe more in future) joined together in one file
     attr_accessor :all_data
 
-    # @param [Hash{Symbol => Array<Symbol>}] taxon_works_extensions
-    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, taxon_works_extensions: {})
+    # @param [Hash{Symbol => Array<Symbol>}] taxonworks_extensions
+    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: {})
       raise ArgumentError, 'must pass a core_scope' if core_scope.nil?
 
       @core_scope = core_scope
@@ -68,7 +68,7 @@ module Export::Dwca
 
       @data_predicate_ids = { collection_object_predicate_id: [], collecting_event_predicate_id: [] }.merge(predicate_extensions)
 
-      @taxon_works_extension_methods = {collection_object_extensions: [], collecting_event_extensions: []}.merge(taxon_works_extensions)
+      @taxonworks_extension_methods = { collection_object_extensions: [], collecting_event_extensions: []}.merge(taxonworks_extensions)
     end
 
     # !params core_scope [String, ActiveRecord::Relation]
@@ -98,8 +98,8 @@ module Export::Dwca
       data_predicate_ids[:collection_object_predicate_id].present? || data_predicate_ids[:collecting_event_predicate_id].present?
     end
 
-    def taxon_works_options_present?
-      taxon_works_extension_methods[:collection_object_extensions].present? || taxon_works_extension_methods[:collection_object_extensions].present?
+    def taxonworks_options_present?
+      taxonworks_extension_methods[:collection_object_extensions].present? || taxonworks_extension_methods[:collection_object_extensions].present?
     end
 
     def total
@@ -143,21 +143,21 @@ module Export::Dwca
       @data
     end
 
-    def taxon_works_extension_data
-      return @taxon_works_extension_data if @taxon_works_extension_data
+    def taxonworks_extension_data
+      return @taxonworks_extension_data if @taxonworks_extension_data
 
       collection_object_ids = core_scope.select(:dwc_occurrence_object_id).pluck(:dwc_occurrence_object_id)
       collection_objects = CollectionObject.joins(:dwc_occurrence).where(id: core_scope.select(:dwc_occurrence_object_id))
 
       # select valid methods, generate frozen name string ahead of time
       # add TW prefix to names
-      object_methods = @taxon_works_extension_methods[:collection_object_extensions].filter_map { |sym|
+      object_methods = @taxonworks_extension_methods[:collection_object_extensions].filter_map { |sym|
         if (method = ::CollectionObject::EXTENSION_FIELDS_MAP[sym])
           [('TW:CollectionObject:' + sym.name).freeze, method]
         end
       }.to_h
 
-      event_methods = @taxon_works_extension_methods[:collecting_event_extensions].filter_map { |sym|
+      event_methods = @taxonworks_extension_methods[:collecting_event_extensions].filter_map { |sym|
         if (method = ::CollectionObject::EXTENSION_FIELDS_MAP[sym])
           [('TW:CollectingEvent:' + sym.name).freeze, method]
         end
@@ -167,8 +167,8 @@ module Export::Dwca
 
       # if no predicate data found, return empty file
       if used_extensions.empty?
-        @taxon_works_extension_data = Tempfile.new('tw_extension_data.tsv')
-        return @taxon_works_extension_data
+        @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
+        return @taxonworks_extension_data
       end
 
       object_extension_data = []
@@ -216,11 +216,11 @@ module Export::Dwca
 
       content = tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
 
-      @taxon_works_extension_data = Tempfile.new('tw_extension_data.tsv')
-      @taxon_works_extension_data.write(content)
-      @taxon_works_extension_data.flush
-      @taxon_works_extension_data.rewind
-      @taxon_works_extension_data
+      @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
+      @taxonworks_extension_data.write(content)
+      @taxonworks_extension_data.flush
+      @taxonworks_extension_data.rewind
+      @taxonworks_extension_data
 
 
     end
@@ -320,8 +320,8 @@ module Export::Dwca
         join_data.push(predicate_data)
       end
 
-      if taxon_works_options_present?
-        join_data.push(taxon_works_extension_data)
+      if taxonworks_options_present?
+        join_data.push(taxonworks_extension_data)
       end
 
       if join_data.size > 1
@@ -544,9 +544,9 @@ module Export::Dwca
         predicate_data.unlink
       end
 
-      if taxon_works_options_present?
-        taxon_works_extension_data.close
-        taxon_works_extension_data.unlink
+      if taxonworks_options_present?
+        taxonworks_extension_data.close
+        taxonworks_extension_data.unlink
       end
 
       all_data.close
