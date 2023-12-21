@@ -12,11 +12,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Added Emendavid status for ICN names [#3716]
 - "CONFIRM" screen when editing a collecting event with > 100 attached COs [#3727]
 - `epithet_only` parameter and facet to taxon name filter [#3589]
+- Links for users profiles on project members list (only for administrators)
 
 ### Changed
 
 - DwC Occurrence Importer: Parse authorship information in typeStatus field
 - DwC Exporter: `recordedBy` and `identifiedBy` fields use `First Prefix Last Suffix` order
+- Project member list now has links for users profiles (only for administrators)
 
 ### Fixed
 

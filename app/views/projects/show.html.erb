@@ -34,7 +34,13 @@
         <tbody>
           <% @project.project_members.includes(:user).order('users.name').each do |pm| -%>
             <tr>
-              <td> <%= pm.user.name -%> </td>
+              <td> 
+                <% if is_administrator? %>
+                  <%= link_to(pm.user.name, user_path(pm.user)) -%> 
+                <% else %>
+                  <%= pm.user.name -%> 
+                <% end%>
+              </td>
               <td> <%= time_ago_in_words(pm.created_at) -%> ago </td>
               <td> <%= user_last_seen_tag(pm.user) -%> </td>
               <td>
