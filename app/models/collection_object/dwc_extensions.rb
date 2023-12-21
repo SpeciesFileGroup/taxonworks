@@ -2,6 +2,8 @@ module CollectionObject::DwcExtensions
 
   extend ActiveSupport::Concern
 
+  include CollectionObject::DwcExtensions::TaxonworksExtensions
+
   included do
 
     # A current list of mappable values

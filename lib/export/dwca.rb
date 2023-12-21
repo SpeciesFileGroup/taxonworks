@@ -22,7 +22,7 @@ module Export
       '2022-04-28 16:30:00.000000 -0500',    # add dwcOccurrenceStatus
       '2022-09-28 16:30:00.000000 -0500',    # add phylum, class, order, higherClassification
       '2023-04-03 16:30:00.000000 -0500',    # add associatedTaxa; updating InternalAttributes is now reflected in index
-      '2023-12-14 16:30:00.000000 -0500'     # add verbatimLabel 
+      '2023-12-14 16:30:00.000000 -0500'     # add verbatimLabel
     ].freeze
 
     # @param record_scope [ActiveRecord::Relation]
@@ -32,7 +32,7 @@ module Export
     #    valid values are collecting_event_predicate_id: [], collection_object_predicate_id
     # @return [Download]
     #   the download object containing the archive
-    def self.download_async(record_scope, request = nil, extension_scopes: {}, predicate_extensions: {})
+    def self.download_async(record_scope, request = nil, extension_scopes: {}, predicate_extensions: {}, taxon_works_extensions: {})
       name = "dwc-a_#{DateTime.now}.zip"
 
       download = ::Download::DwcArchive.create!(
@@ -49,7 +49,8 @@ module Export
         download,
         core_scope: record_scope.to_sql,
         extension_scopes:,
-        predicate_extensions:, 
+        predicate_extensions:,
+        taxon_works_extensions:,
       )
 
       download
