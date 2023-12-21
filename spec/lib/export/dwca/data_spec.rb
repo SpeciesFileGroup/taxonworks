@@ -74,7 +74,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
       context 'taxonworks_extensions for internal attributes' do
 
-        let(:d) {Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: { collection_object_extensions: [:otu_name]})}
+        let(:d) {Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])}
         let!(:o) {FactoryBot.create(:valid_otu)}
         let!(:det) {FactoryBot.create(:valid_taxon_determination, otu: o,
                                       biological_collection_object: DwcOccurrence.last.dwc_occurrence_object)}
@@ -92,7 +92,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
 
         specify 'should have the correct headers' do
-          headers = %w[basisOfRecord individualCount occurrenceID occurrenceStatus TW:CollectionObject:otu_name]
+          headers = %w[basisOfRecord individualCount occurrenceID occurrenceStatus TW:Internal:otu_name]
           expect(d.meta_fields).to contain_exactly(*headers)
         end
 
@@ -105,7 +105,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
 
         context 'when no extensions are selected' do
-          let(:empty_extension) { Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: {}) }
+          let(:empty_extension) { Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: []) }
 
           specify '#taxonworks_extension_data should be a tempfile' do
             expect(empty_extension.taxonworks_extension_data).to be_kind_of(Tempfile)

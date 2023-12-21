@@ -50,25 +50,24 @@ module Export::Dwca
 
     attr_accessor :taxonworks_extension_data
 
-    # @return Hash{Symbol=>Array<Symbol>}
-    # collection_object_extensions: [], collecting_event_extensions: []
+    # @return Array<Symbol>
     attr_accessor :taxonworks_extension_methods
 
     # A Tempfile, core records and predicate data (and maybe more in future) joined together in one file
     attr_accessor :all_data
 
-    # @param [Hash{Symbol => Array<Symbol>}] taxonworks_extensions
-    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: {})
+    # @param [Array<Symbol>] taxonworks_extensions List of methods to perform on each CO
+    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: [])
       raise ArgumentError, 'must pass a core_scope' if core_scope.nil?
 
       @core_scope = core_scope
 
-      @biological_associations_extension = extension_scopes[:biological_associations] #! STring
+      @biological_associations_extension = extension_scopes[:biological_associations] #! String
       @media_extension = extension_scopes[:media] #  = get_scope(core_scope)
 
       @data_predicate_ids = { collection_object_predicate_id: [], collecting_event_predicate_id: [] }.merge(predicate_extensions)
 
-      @taxonworks_extension_methods = { collection_object_extensions: [], collecting_event_extensions: []}.merge(taxonworks_extensions)
+      @taxonworks_extension_methods = taxonworks_extensions
     end
 
     # !params core_scope [String, ActiveRecord::Relation]
@@ -99,7 +98,7 @@ module Export::Dwca
     end
 
     def taxonworks_options_present?
-      taxonworks_extension_methods[:collection_object_extensions].present? || taxonworks_extension_methods[:collection_object_extensions].present?
+      taxonworks_extension_methods.present?
     end
 
     def total
@@ -151,19 +150,13 @@ module Export::Dwca
 
       # select valid methods, generate frozen name string ahead of time
       # add TW prefix to names
-      object_methods = @taxonworks_extension_methods[:collection_object_extensions].filter_map { |sym|
+      methods = @taxonworks_extension_methods.filter_map { |sym|
         if (method = ::CollectionObject::EXTENSION_FIELDS_MAP[sym])
-          [('TW:CollectionObject:' + sym.name).freeze, method]
+          [('TW:Internal:' + sym.name).freeze, method]
         end
       }.to_h
 
-      event_methods = @taxonworks_extension_methods[:collecting_event_extensions].filter_map { |sym|
-        if (method = ::CollectionObject::EXTENSION_FIELDS_MAP[sym])
-          [('TW:CollectingEvent:' + sym.name).freeze, method]
-        end
-      }.to_h
-
-      used_extensions = (object_methods.keys + event_methods.keys).to_set
+      used_extensions = methods.keys
 
       # if no predicate data found, return empty file
       if used_extensions.empty?
@@ -171,21 +164,18 @@ module Export::Dwca
         return @taxonworks_extension_data
       end
 
-      object_extension_data = []
-      event_extension_data = []
+      extension_data = []
 
       collection_objects.find_each do |object|
-        object_methods.each_pair { |name, method| object_extension_data << [object.id, name, object.send(method)] }
-        event_methods.each_pair { |name, method| event_extension_data << [object.id, name, object.send(method)] }
+        methods.each_pair { |name, method| extension_data << [object.id, name, object.send(method)] }
       end
 
-
-      # Create hash with key: co_id, value [[extension_name, extension_value], ...]
+      # Create hash with key: co_id, value: [[extension_name, extension_value], ...]
       # prefill with empty values so we have the same number of rows as the main csv, even if some rows don't have
       # data attributes
       empty_hash = collection_object_ids.index_with { |_| []}
 
-      data = (object_extension_data + event_extension_data).group_by(&:shift)
+      data = extension_data.group_by(&:shift)
 
       data = empty_hash.merge(data)
 

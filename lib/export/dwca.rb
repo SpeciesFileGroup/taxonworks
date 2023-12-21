@@ -56,9 +56,9 @@ module Export
       download
     end
 
-    # @param klass [ActiveRecord class]
+    # @param klass [Class] [ActiveRecord class]
     #   e.g. CollectionObject
-    # @param record_scope [An ActiveRecord scope]
+    # @param record_scope [ActiveRecord::Relation] [An ActiveRecord scope]
     # @return Hash
     #   total: total records to expect
     #   start_time: the time indexing started
@@ -73,6 +73,7 @@ module Export
       index_metadata(klass, s)
     end
 
+    # @return [Hash{Symbol=>Integer, Time, Array}]
     def self.index_metadata(klass, record_scope)
       a = record_scope.first&.to_global_id&.to_s  # TODO: this should be UUID?
       b = record_scope.last&.to_global_id&.to_s # TODO: this should be UUID?
