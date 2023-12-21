@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `epithet_only` parameter and facet to taxon name filter [#3589]
 - Links for users profiles on project members list (only for administrators)
 - Cursor and text to reveal project preference predicates can be reordered [#3736]
+- DwC Exporter: export notes from most recent `TaxonDetermination` as `identificationRemarks`
 
 ### Changed
 
