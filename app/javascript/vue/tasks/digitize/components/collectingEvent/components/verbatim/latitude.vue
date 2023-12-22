@@ -5,6 +5,7 @@
       type="text"
       :value="collectingEvent.verbatim_latitude"
       @input="setLatitude"
+      @change="updateChange"
     />
     <span
       v-if="!isCoordinate"

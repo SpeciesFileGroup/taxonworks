@@ -1,6 +1,6 @@
 class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
-  DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order superfamily family tribe subtribe} # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
+  DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order superfamily family subfamily tribe subtribe} # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
   PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies)
 
   ACCEPTED_ATTRIBUTES = {

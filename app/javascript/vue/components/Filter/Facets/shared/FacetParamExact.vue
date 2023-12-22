@@ -21,14 +21,24 @@
         />
         Exact
       </label>
+      <label
+        v-for="item in aditionalCheckboxes"
+        :key="item.param"
+      >
+        <input
+          v-model="params[item.param]"
+          type="checkbox"
+          :name="item.param"
+        />
+        {{ item.label }}
+      </label>
     </div>
   </FacetContainer>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
-import { computed, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from '@/helpers/url/parse.js'
 
 const props = defineProps({
   modelValue: {
@@ -49,6 +59,11 @@ const props = defineProps({
   label: {
     type: String,
     default: ''
+  },
+
+  aditionalCheckboxes: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -57,12 +72,5 @@ const emit = defineEmits(['update:modelValue'])
 const params = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
-})
-
-onBeforeMount(() => {
-  const urlParams = URLParamsToJSON(location.href)
-
-  params.value[props.param] = urlParams[props.param]
-  params.value[`${props.param}_exact`] = urlParams[`${props.param}_exact`]
 })
 </script>

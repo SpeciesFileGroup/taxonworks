@@ -66,7 +66,7 @@ import platformKey from '@/helpers/getPlatformKey.js'
 import Draggable from 'vuedraggable'
 
 export default {
-  name: 'Comprehensive',
+  name: 'ComprehensiveSpecimenDigitization',
 
   mixins: [SortComponent],
 
@@ -211,9 +211,6 @@ export default {
     font-size: 0;
     margin: 15px;
     border: 0;
-  }
-  .modal-container {
-    width: 90vw;
   }
   .main-panel {
     display: flex;

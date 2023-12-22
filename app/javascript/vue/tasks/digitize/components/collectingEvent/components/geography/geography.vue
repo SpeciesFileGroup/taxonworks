@@ -76,6 +76,7 @@
     <MetaPrioritizeGeographicArea
       v-model="collectingEvent.meta_prioritize_geographic_area"
       :disabled="!geographicAreaShape"
+      @change="updateChange"
     />
   </fieldset>
 </template>
@@ -83,6 +84,7 @@
 <script>
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
+import { ActionNames } from '../../../../store/actions/actions'
 import { GeographicArea } from '@/routes/endpoints'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
@@ -105,21 +107,13 @@ export default {
   },
 
   computed: {
-    collectingEvent: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectingEvent]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectingEvent, value)
-      }
-    },
-
     geographicAreaShape: {
       get() {
         return this.$store.getters[GetterNames.GetGeographicArea]
       },
       set(value) {
         this.$store.commit(MutationNames.SetGeographicArea, value)
+        this.$store.dispatch(ActionNames.UpdateCEChange)
       }
     }
   },
@@ -178,10 +172,12 @@ export default {
       this.selected = undefined
       this.collectingEvent.geographic_area_id = null
       this.geographicAreaShape = undefined
+      this.$store.dispatch(ActionNames.UpdateCEChange)
     },
     selectGeographicArea(item) {
       this.selected = item
       this.collectingEvent.geographic_area_id = item.id
+      this.$store.dispatch(ActionNames.UpdateCEChange)
     },
     getByCoords(lat, long) {
       GeographicArea.coordinates({ latitude: lat, longitude: long }).then(

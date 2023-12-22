@@ -73,15 +73,6 @@ export default {
     bufferedCollectingEvent() {
       return this.$store.getters[GetterNames.GetCollectionObject]
         .buffered_collecting_event
-    },
-
-    collectingEvent: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectingEvent]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectingEvent, value)
-      }
     }
   },
 
@@ -100,6 +91,7 @@ export default {
         this.showModal = true
       } else {
         this.collectingEvent.verbatim_label = this.bufferedCollectingEvent
+        this.updateChange()
       }
     }
   },

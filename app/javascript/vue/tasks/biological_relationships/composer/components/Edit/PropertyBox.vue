@@ -6,9 +6,10 @@
     <draggable
       v-model="properties"
       :group="{ name: 'property', put: true }"
+      item-key="id"
       class="item item1 column-medium flex-wrap-column full_width"
     >
-      <template #item="{ element }">
+      <template #item="{ element, index }">
         <div
           v-if="!element._destroy"
           class="horizontal-left-content"
