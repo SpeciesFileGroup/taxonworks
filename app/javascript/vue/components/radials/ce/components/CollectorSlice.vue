@@ -14,19 +14,36 @@
       <h3>{{ count }} records will be updated</h3>
 
       <fieldset>
-        <legend>Geographic area</legend>
-        <SmartSelector
-          model="geographic_areas"
-          label="name"
-          :target="COLLECTING_EVENT"
-          :klass="COLLECTING_EVENT"
-          @selected="(item) => (geographicArea = item)"
-        />
-        <SmartSelectorItem
-          label="name"
-          :item="geographicArea"
-          @unset="geographicArea = undefined"
-        />
+        <legend>Collector</legend>
+        <smart-selector
+          ref="smartSelector"
+          model="people"
+          target="Collector"
+          klass="CollectingEvent"
+          :params="{ role_type: 'Collector' }"
+          :autocomplete-params="{
+        roles: ['Collector']
+      }"
+          label="cached"
+          :autocomplete="false"
+          @selected="addRole"
+        >
+          <template #header>
+            <role-picker
+              hidden-list
+              v-model="collectingEvent.roles_attributes"
+              ref="rolepicker"
+              :autofocus="false"
+              role-type="Collector"
+            />
+          </template>
+          <role-picker
+            :create-form="false"
+            v-model="collectingEvent.roles_attributes"
+            :autofocus="false"
+            role-type="Collector"
+          />
+        </smart-selector>
       </fieldset>
 
       <div
@@ -36,7 +53,7 @@
           ref="updateBatchRef"
           :batch-service="CollectingEvent.batchUpdate"
           :payload="payload"
-          :disabled="!geographicArea || isCountExceeded"
+          :disabled="!collectingEvent.roles_attributes || isCountExceeded"
           @update="updateMessage"
           @close="emit('close')"
         />
@@ -44,7 +61,7 @@
         <PreviewBatch
           :batch-service="CollectingEvent.batchUpdate"
           :payload="payload"
-          :disabled="!geographicArea || isCountExceeded"
+          :disabled="!collectingEvent.roles_attributes || isCountExceeded"
           @finalize="
             () => {
               updateBatchRef.openModal()
@@ -57,14 +74,13 @@
 </template>
 
 <script setup>
-import SmartSelector from '@/components/ui/SmartSelector.vue'
-import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import VSpinner from '@/components/spinner.vue'
-import { COLLECTING_EVENT } from '@/constants/index.js'
 import { CollectingEvent } from '@/routes/endpoints'
 import { ref, computed } from 'vue'
+import RolePicker from '@/components/role_picker.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
 
 const MAX_LIMIT = 250
 
@@ -81,15 +97,26 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close'])
-const geographicArea = ref()
 const isUpdating = ref(false)
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 const updateBatchRef = ref(null)
 
+const rolepicker = ref(null)
+const addRole = (role) => {
+  rolepicker.value.addCreatedPerson({
+    object_id: role.id,
+    label: role.cached
+  })
+}
+
+const collectingEvent = ref({ roles_attributes: [] })
+
 const payload = computed(() => ({
   collecting_event_query: props.parameters,
   collecting_event: {
-    geographic_area_id: geographicArea.value?.id
+    roles_attributes:
+      // remove position so roles are appended to end of list
+      collectingEvent.value.roles_attributes.map(({position, ...rest}) => rest)
   }
 }))
 
