@@ -59,13 +59,15 @@ import VModal from '@/components/ui/Modal.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import AssignSlice from './components/AssignSlice.vue'
+import CollectorSlice from './components/CollectorSlice.vue'
 
 import { computed, ref } from 'vue'
 import { removeEmptyProperties } from '@/helpers/objects.js'
 
 const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 const SLICES = {
-  'Assign/Move': AssignSlice
+  'Assign/Move': AssignSlice,
+  'Append New Collectors' : CollectorSlice
 }
 
 const props = defineProps({
