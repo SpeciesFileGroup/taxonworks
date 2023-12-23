@@ -49,7 +49,7 @@
       </VModal>
       <VBtn
         class="circle-button"
-        title="Radial collection object"
+        :title="title"
         circle
         color="radial"
         :disabled="disabled || (!ids.length && !Object.keys(params).length)"
