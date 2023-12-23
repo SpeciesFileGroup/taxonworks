@@ -122,8 +122,8 @@ const payload = computed(() => ({
 
 function updateMessage(data) {
   const message = data.sync
-    ? `${data.updated.length} collection objects queued for updating.`
-    : `${data.updated.length} collection objects were successfully updated.`
+    ? `${data.updated.length} collecting events queued for updating.`
+    : `${data.updated.length} collecting events were successfully updated.`
 
   TW.workbench.alert.create(message, 'notice')
 }
