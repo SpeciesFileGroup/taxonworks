@@ -28,7 +28,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Update DwcOccurence index endpoint
 - Uniquify people: Always show radials for selected person
 - Remove property doesn't work on Biological relationship composer
+- Feet to meter conversion does not work as expected [#2110]
 
+[#2110]: https://github.com/SpeciesFileGroup/taxonworks/issues/2110
 [#3716]: https://github.com/SpeciesFileGroup/taxonworks/issues/3716
 [#3727]: https://github.com/SpeciesFileGroup/taxonworks/issues/3727
 [#3736]: https://github.com/SpeciesFileGroup/taxonworks/issues/3736

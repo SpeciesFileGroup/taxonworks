@@ -21,14 +21,14 @@ export const parsedProperties = {
       .filter((arr) => arr.length)
       .join('\n'),
 
-  Elevation: ({ ce }) =>
+  Elevation: ({ ce, unit }) =>
     [
       ce.minimum_elevation,
       ce.maximum_elevation,
       ce.elevation_precision && `+/-${ce.elevation_precision}`
     ]
       .filter((item) => item)
-      .map((item) => `${item}m`)
+      .map((item) => `${item}${unit}`)
       .join(' '),
 
   Time: ({ ce }) =>
