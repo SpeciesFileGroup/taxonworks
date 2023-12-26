@@ -106,6 +106,25 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           end
         end
 
+        context 'exporting elevation_precision' do
+          let(:d) { Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:elevation_precision]) }
+          let(:ce) { FactoryBot.create(:valid_collecting_event, minimum_elevation: 100, elevation_precision: '10 m') }
+
+          before do
+            co = CollectionObject.last
+            co.collecting_event_id = ce.id
+            co.save!
+          end
+
+          specify 'should have the elevation precision in the correct extension file row' do
+            expect(File.readlines(d.taxonworks_extension_data).last&.strip).to eq(ce.elevation_precision)
+          end
+
+          specify 'should have the elevation precision in the combined file' do
+            expect(File.readlines(d.all_data).last).to include(ce.elevation_precision)
+          end
+        end
+
         context 'when no extensions are selected' do
           let(:empty_extension) { Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: []) }
 
