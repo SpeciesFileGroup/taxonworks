@@ -59,6 +59,9 @@
 # @!attribute is_gift
 #   @return [Boolean, nil]
 #     when true then no return is expected
+# @!attribute is_long_term_loan
+#   @return [Boolean, nil]
+#     when true then no return date is expected, but the loan may be recalled by the lender
 class Loan < ApplicationRecord
   include Housekeeping
   include Shared::DataAttributes
@@ -119,7 +122,8 @@ class Loan < ApplicationRecord
   validate :received_after_closed
   validate :received_after_expected
 
-  validate :gift_or_date_expected_required
+  validate :gift_or_long_term_loan_or_date_expected_required
+  validate :not_gift_and_long_term_loan
 
   soft_validate(
     :sv_missing_documentation,
@@ -260,8 +264,12 @@ class Loan < ApplicationRecord
     end
   end
 
-  def gift_or_date_expected_required
-    errors.add(:date_return_expected, ' or gift status is required') if is_gift.nil? && date_return_expected.nil?
+  def gift_or_long_term_loan_or_date_expected_required
+    errors.add(:date_return_expected, ' or gift status is required') if is_gift.nil? && is_long_term_loan.nil? && date_return_expected.nil?
+  end
+
+  def not_gift_and_long_term_loan
+    errors.add(:is_gift, 'cannot be true if long-term loan is true') if is_gift && is_long_term_loan
   end
 
   def requested_after_sent

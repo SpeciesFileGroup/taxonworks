@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Links for users profiles on project members list (only for administrators)
 - Cursor and text to reveal project preference predicates can be reordered [#3736]
 - Batch append collectors to Collecting Events within CE filter
+- `is_long_term_loan` boolean to Loan, Long-term loan checkbox in Loan task [#3746]
 
 ### Changed
 
@@ -34,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3716]: https://github.com/SpeciesFileGroup/taxonworks/issues/3716
 [#3727]: https://github.com/SpeciesFileGroup/taxonworks/issues/3727
 [#3736]: https://github.com/SpeciesFileGroup/taxonworks/issues/3736
+[#3746]: https://github.com/SpeciesFileGroup/taxonworks/issues/3746
 
 ## [0.37.0] - 2023-12-14
 
