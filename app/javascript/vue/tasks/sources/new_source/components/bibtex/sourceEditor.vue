@@ -58,8 +58,13 @@ const roleAttributes = computed({
 
 const peopleIds = computed(() =>
   roleAttributes.value
-    .filter((item) => item.person_id || item.person)
-    .map((item) => (item.person_id ? item.person_id : item.person.id))
+    .filter(
+      (item) =>
+        (item.person_id || item.person) &&
+        !item._destroy &&
+        item.type === ROLE_SOURCE_EDITOR
+    )
+    .map((item) => item?.person_id || item.person.id)
 )
 
 function addRole(person) {
