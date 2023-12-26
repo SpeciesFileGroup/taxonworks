@@ -3,83 +3,66 @@
     <legend>Editors</legend>
     <smart-selector
       model="people"
-      target="SourceEditor"
-      klass="Source"
       label="cached"
+      :target="ROLE_SOURCE_EDITOR"
+      :klass="SOURCE"
       :filter-ids="peopleIds"
-      :params="{ role_type: 'SourceEditor' }"
+      :params="{ role_type: ROLE_SOURCE_EDITOR }"
       :autocomplete-params="{
-        roles: ['SourceEditor']
+        roles: [ROLE_SOURCE_EDITOR]
       }"
       :autocomplete="false"
       @selected="addRole"
     >
       <template #header>
-        <role-picker
-          ref="rolePicker"
-          hidden-list
+        <RolePicker
           v-model="roleAttributes"
-          :autofocus="false"
+          ref="rolePicker"
           filter-by-role
-          role-type="SourceEditor"
+          hidden-list
+          :autofocus="false"
+          :role-type="ROLE_SOURCE_EDITOR"
         />
       </template>
-      <role-picker
+      <RolePicker
         v-model="roleAttributes"
         :create-form="false"
         :autofocus="false"
         filter-by-role
-        role-type="SourceEditor"
+        :role-type="ROLE_SOURCE_EDITOR"
       />
     </smart-selector>
   </fieldset>
 </template>
 
-<script>
+<script setup>
+import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import { findRole } from '@/helpers/people/people.js'
+import { ROLE_SOURCE_EDITOR, SOURCE } from '@/constants'
 import RolePicker from '@/components/role_picker.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 
-export default {
-  components: {
-    RolePicker,
-    SmartSelector
-  },
-  computed: {
-    source: {
-      get() {
-        return this.$store.getters[GetterNames.GetSource]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetSource, value)
-      }
-    },
-    lastSave() {
-      return this.$store.getters[GetterNames.GetLastSave]
-    },
-    roleAttributes: {
-      get() {
-        return this.$store.getters[GetterNames.GetRoleAttributes]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetRoles, value)
-      }
-    },
-    peopleIds() {
-      return this.roleAttributes
-        .filter((item) => item.person_id || item.person)
-        .map((item) => (item.person_id ? item.person_id : item.person.id))
-    }
-  },
+const store = useStore()
+const rolePicker = ref(null)
 
-  methods: {
-    addRole(person) {
-      if (!findRole(this.source.roles_attributes, person.id)) {
-        this.$refs.rolePicker.setPerson(person)
-      }
-    }
+const roleAttributes = computed({
+  get() {
+    return store.getters[GetterNames.GetRoleAttributes]
+  },
+  set(value) {
+    store.commit(MutationNames.SetRoles, value)
   }
+})
+
+const peopleIds = computed(() =>
+  roleAttributes.value
+    .filter((item) => item.person_id || item.person)
+    .map((item) => (item.person_id ? item.person_id : item.person.id))
+)
+
+function addRole(person) {
+  rolePicker.value.addPerson(person)
 }
 </script>

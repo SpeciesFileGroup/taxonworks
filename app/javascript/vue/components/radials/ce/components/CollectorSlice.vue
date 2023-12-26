@@ -18,30 +18,30 @@
         <smart-selector
           ref="smartSelector"
           model="people"
-          target="Collector"
-          klass="CollectingEvent"
-          :params="{ role_type: 'Collector' }"
+          :target="ROLE_COLLECTOR"
+          :klass="COLLECTING_EVENT"
+          :params="{ role_type: ROLE_COLLECTOR }"
           :autocomplete-params="{
-        roles: ['Collector']
-      }"
+            roles: [ROLE_COLLECTOR]
+          }"
           label="cached"
           :autocomplete="false"
           @selected="addRole"
         >
           <template #header>
             <role-picker
-              hidden-list
               v-model="collectingEvent.roles_attributes"
               ref="rolepicker"
+              hidden-list
               :autofocus="false"
-              role-type="Collector"
+              :role-type="ROLE_COLLECTOR"
             />
           </template>
           <role-picker
-            :create-form="false"
             v-model="collectingEvent.roles_attributes"
+            :create-form="false"
             :autofocus="false"
-            role-type="Collector"
+            :role-type="ROLE_COLLECTOR"
           />
         </smart-selector>
       </fieldset>
@@ -74,11 +74,12 @@
 </template>
 
 <script setup>
+import { CollectingEvent } from '@/routes/endpoints'
+import { ref, computed } from 'vue'
+import { COLLECTING_EVENT, ROLE_COLLECTOR } from '@/constants'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import VSpinner from '@/components/spinner.vue'
-import { CollectingEvent } from '@/routes/endpoints'
-import { ref, computed } from 'vue'
 import RolePicker from '@/components/role_picker.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 
@@ -100,15 +101,7 @@ const emit = defineEmits(['close'])
 const isUpdating = ref(false)
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 const updateBatchRef = ref(null)
-
 const rolepicker = ref(null)
-const addRole = (role) => {
-  rolepicker.value.addCreatedPerson({
-    object_id: role.id,
-    label: role.cached
-  })
-}
-
 const collectingEvent = ref({ roles_attributes: [] })
 
 const payload = computed(() => ({
@@ -116,9 +109,15 @@ const payload = computed(() => ({
   collecting_event: {
     roles_attributes:
       // remove position so roles are appended to end of list
-      collectingEvent.value.roles_attributes.map(({position, ...rest}) => rest)
+      collectingEvent.value.roles_attributes.map(
+        ({ position, ...rest }) => rest
+      )
   }
 }))
+
+function addRole(role) {
+  rolepicker.value.addPerson(role)
+}
 
 function updateMessage(data) {
   const message = data.sync

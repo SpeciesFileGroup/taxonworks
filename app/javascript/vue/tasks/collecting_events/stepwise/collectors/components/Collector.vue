@@ -9,8 +9,8 @@
         klass="CollectingEvent"
         :params="{ role_type: 'Collector' }"
         :autocomplete-params="{
-        roles: ['Collector']
-      }"
+          roles: ['Collector']
+        }"
         label="cached"
         :autocomplete="false"
         @selected="addRole"
@@ -41,16 +41,11 @@ import SmartSelector from '@/components/ui/SmartSelector.vue'
 import RolePicker from '@/components/role_picker.vue'
 import useStore from '@/tasks/collecting_events/stepwise/collectors/composables/useStore'
 
-
-const {
-  collectorRoleList
-} = useStore()
+const { collectorRoleList } = useStore()
 
 const rolepicker = ref(null)
-const addRole = (role) => {
-  rolepicker.value.addCreatedPerson({
-    object_id: role.id,
-    label: role.cached
-  })
+
+function addRole(role) {
+  rolepicker.value.addPerson(role)
 }
 </script>
