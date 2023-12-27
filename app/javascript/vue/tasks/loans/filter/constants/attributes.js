@@ -6,6 +6,7 @@ export const ATTRIBUTES = {
   date_received: 'Date received',
   date_return_expected: 'Date return expected',
   is_gift: 'Is gift',
+  is_long_term_loan: 'Is long term loan',
   recipient_address: 'Recipient address',
   recipient_email: 'Recipient email',
   recipient_phone: 'Recipient phone',

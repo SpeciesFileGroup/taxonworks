@@ -125,6 +125,15 @@
               Gift
             </label>
           </div>
+          <div class="field">
+            <label>
+              <input
+                v-model="loan.is_long_term_loan"
+                type="checkbox"
+              />
+              Long-term loan
+            </label>
+          </div>
           <div class="field label-above">
             <label>Date closed</label>
             <input
