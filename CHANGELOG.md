@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Links for users profiles on project members list (only for administrators)
 - Cursor and text to reveal project preference predicates can be reordered [#3736]
 - Batch append collectors to Collecting Events within CE filter
+- Custom attributes tab to Collection object match task [#3748]
 
 ### Changed
 
@@ -29,11 +30,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Uniquify people: Always show radials for selected person
 - Remove property doesn't work on Biological relationship composer
 - Feet to meter conversion does not work as expected [#2110]
+- OTUs autocomplete API endpoint ignoring `having_taxon_name_only` param
 
 [#2110]: https://github.com/SpeciesFileGroup/taxonworks/issues/2110
 [#3716]: https://github.com/SpeciesFileGroup/taxonworks/issues/3716
 [#3727]: https://github.com/SpeciesFileGroup/taxonworks/issues/3727
 [#3736]: https://github.com/SpeciesFileGroup/taxonworks/issues/3736
+[#3748]: https://github.com/SpeciesFileGroup/taxonworks/issues/3748
 
 ## [0.37.0] - 2023-12-14
 

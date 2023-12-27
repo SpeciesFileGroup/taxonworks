@@ -1,17 +1,18 @@
 <template>
   <div>
     <switch-component
-      :options="tabs"
+      :options="Object.keys(TABS)"
       v-model="view"
     />
     <component
       :ids="ids"
-      :is="`${view.replace(' ', '')}Component`"
+      :is="TABS[view]"
     />
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import SwitchComponent from '@/components/switch'
 import TagComponent from './Assign/Tags'
 import DeterminationComponent from './Assign/Determinations'
@@ -20,39 +21,25 @@ import CollectingEventComponent from './Assign/CollectingEvents'
 import AccessionsComponent from './Assign/Accesssions.vue'
 import RepositoryComponent from './Assign/Repository.vue'
 import PreparationComponent from './Assign/PreparationType.vue'
+import CustomAttributes from './Assign/CustomAttributes.vue'
 
-export default {
-  components: {
-    AccessionsComponent,
-    CollectingEventComponent,
-    DeterminationComponent,
-    LoanComponent,
-    PreparationComponent,
-    RepositoryComponent,
-    SwitchComponent,
-    TagComponent
-  },
-
-  props: {
-    ids: {
-      type: Array,
-      required: true
-    }
-  },
-
-  data() {
-    return {
-      tabs: [
-        'Accessions',
-        'Collecting Event',
-        'Determination',
-        'Loan',
-        'Preparation',
-        'Repository',
-        'Tag'
-      ],
-      view: 'Tag'
-    }
+const props = defineProps({
+  ids: {
+    type: Array,
+    required: true
   }
+})
+
+const TABS = {
+  Accessions: AccessionsComponent,
+  'Collecting Event': CollectingEventComponent,
+  'Custom attributes': CustomAttributes,
+  Determination: DeterminationComponent,
+  Loan: LoanComponent,
+  Preparation: PreparationComponent,
+  Repository: RepositoryComponent,
+  Tag: TagComponent
 }
+
+const view = ref('Tag')
 </script>
