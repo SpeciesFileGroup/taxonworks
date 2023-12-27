@@ -106,6 +106,23 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           end
         end
 
+        context 'exporting header with different api column name' do
+          let(:d) { Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:collection_object_id]) }
+
+          specify 'should have the correct headers' do
+            headers = %w[basisOfRecord individualCount occurrenceID occurrenceStatus TW:Internal:collection_object_id]
+            expect(d.meta_fields).to contain_exactly(*headers)
+          end
+
+          specify 'should have the collection_object_id in the correct extension file row' do
+            expect(File.readlines(d.taxonworks_extension_data).last&.strip).to eq(CollectionObject.last.id.to_s)
+          end
+
+          specify 'should have the collection_object_id in the combined file' do
+            expect(File.readlines(d.all_data).last).to include(CollectionObject.last.id.to_s)
+          end
+        end
+
         context 'exporting elevation_precision' do
           let(:d) { Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:elevation_precision]) }
           let(:ce) { FactoryBot.create(:valid_collecting_event, minimum_elevation: 100, elevation_precision: '10 m') }

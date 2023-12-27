@@ -148,24 +148,27 @@ module Export::Dwca
       collection_object_ids = core_scope.select(:dwc_occurrence_object_id).pluck(:dwc_occurrence_object_id)
       collection_objects = CollectionObject.joins(:dwc_occurrence).where(id: core_scope.select(:dwc_occurrence_object_id))
 
+      # hash of internal method name => csv header name
       methods = {}
+
+      # hash of column_name => csv header name
       ce_fields = {}
       co_fields = {}
 
       # select valid methods, generate frozen name string ahead of time
       # add TW prefix to names
       @taxonworks_extension_methods.each do |sym|
-        name = ('TW:Internal:' + sym.name).freeze
+        csv_header_name = ('TW:Internal:' + sym.name).freeze
         if (method = ::CollectionObject::EXTENSION_COMPUTED_FIELDS[sym])
-          methods[method] = name
-        elsif ::CollectionObject::EXTENSION_CE_FIELDS.include?(sym)
-          ce_fields[sym] = name
-        elsif ::CollectionObject::EXTENSION_CO_FIELDS.include?(sym)
-          co_fields[sym] = name
+          methods[method] = csv_header_name
+        elsif (column_name = ::CollectionObject::EXTENSION_CE_FIELDS[sym])
+          ce_fields[column_name] = csv_header_name
+        elsif (column_name =::CollectionObject::EXTENSION_CO_FIELDS[sym])
+          co_fields[column_name] = csv_header_name
         end
       end
 
-      used_extensions = methods.values + ce_fields.keys + co_fields.keys
+      used_extensions = methods.values + ce_fields.values + co_fields.values
 
       # if no predicate data found, return empty file
       if used_extensions.empty?
