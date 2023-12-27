@@ -3,9 +3,13 @@
 # If you wish to capture verbatim determinations then they should be added to CollectionObject#buffered_determinations,
 # i.e. TaxonDeterminations are fully "normalized".
 #
-# @!attribute biological_collection_object_id
+# @!attribute taxon_determination_object_id
 #   @return [Integer]
-#   BiologicalCollectionObject, the object being determined
+#     id of the object being determined
+#
+# @!attribute taxon_determination_object_type
+#   @return [Integer]
+#     type of the object being determined
 #
 # @!attribute otu_id
 #   @return [Integer]
@@ -34,7 +38,7 @@
 #   the project ID
 #
 class TaxonDetermination < ApplicationRecord
-  acts_as_list scope: [:biological_collection_object_id, :project_id], add_new_at: :top
+  acts_as_list scope: [:taxon_determination_object_id, :taxon_determination_object_type, :project_id], add_new_at: :top
 
   include Housekeeping
   include Shared::Citations
@@ -49,21 +53,21 @@ class TaxonDetermination < ApplicationRecord
   ignore_whitespace_on(:print_label)
 
   belongs_to :otu, inverse_of: :taxon_determinations
-  belongs_to :biological_collection_object, class_name: 'CollectionObject', inverse_of: :taxon_determinations
+  belongs_to :taxon_determination_object, polymorphic: true, inverse_of: :taxon_determinations
 
   has_many :determiner_roles, class_name: 'Determiner', as: :role_object, inverse_of: :role_object
   has_many :determiners, through: :determiner_roles, source: :person, inverse_of: :taxon_determinations
 
   has_many :determiners_organization, through: :determiner_roles, source: :organization, inverse_of: :taxon_determinations
 
-  validates :biological_collection_object, presence: true
+  validates :taxon_determination_object, presence: true
   validates :otu, presence: true
   validates :year_made, date_year: { min_year: 1757, max_year: -> {Time.now.year} }
   validates :month_made, date_month: true
   validates :day_made, date_day: {year_sym: :year_made, month_sym: :month_made}, unless: -> {year_made.nil? || month_made.nil?}
 
   # Careful, position must be reset with :update_column!
-  validates_uniqueness_of :position, scope: [:biological_collection_object_id, :project_id]
+  validates_uniqueness_of :position, scope: [:taxon_determination_object_id, :taxon_determination_object_type, :project_id]
 
   # TODO: Add uniquiness constraint that also checks roles
 
@@ -89,7 +93,8 @@ class TaxonDetermination < ApplicationRecord
       begin
         TaxonDetermination.create!(
           params.merge(
-            biological_collection_object_id: id
+            taxon_determination_object_id: id,
+            taxon_determination_object_type: 'CollectionObject'
           )
         )
 

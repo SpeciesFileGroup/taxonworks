@@ -62,7 +62,14 @@ class Otu < ApplicationRecord
   has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error
 
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change
-  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
+
+
+  # TODO: clarify with where clause!!
+  has_many :collection_objects, -> { where(taxon_determination_object: 'CollectionObject')}, through: :taxon_determinations, source: :taxoon_determinationn_object, inverse_of: :otus
+
+  # TODO: clarify with where clause!! ... or source type
+  has_many :field_occurrences, -> { where(taxon_determination_object: 'FieldOccurrence')}, through: :taxon_determinations, source: :taxoon_determinationn_object, inverse_of: :otus
+
   has_many :type_materials, through: :protonym
 
   # TODO: no longer true since they can come through Otu as well

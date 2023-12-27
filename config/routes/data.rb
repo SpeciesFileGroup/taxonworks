@@ -307,6 +307,13 @@ resources :extracts do
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
+resources :field_occurrences do
+  concerns [:data_routes]
+
+  collection do
+  end
+end
+
 resources :geographic_areas, only: [:index, :show] do
   collection do
     get 'download'

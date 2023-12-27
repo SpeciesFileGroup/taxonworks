@@ -1,6 +1,6 @@
 # This is all code that properly belongs in CollectionObject::BiologicalCollectionObject,
 # but because inheritance sucks sometimes we include it at the top level
-module CollectionObject::BiologicalExtensions
+module Shared::BiologicalExtensions
 
   extend ActiveSupport::Concern
 
@@ -12,7 +12,8 @@ module CollectionObject::BiologicalExtensions
     delegate :name, to: :current_otu, prefix: :otu, allow_nil: true # could be Otu#otu_name?
     delegate :id, to: :current_otu, prefix: :otu, allow_nil: true
 
-    has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object, dependent: :destroy
+    # TODO: polymorphic
+    has_many :taxon_determinations, as: :taxon_determination_object, dependent: :destroy, inverse_of: :taxon_determination_object
 
     # All determiners, regardless of what the taxon is
     has_many :determiners, through: :taxon_determinations, source: :determiners
