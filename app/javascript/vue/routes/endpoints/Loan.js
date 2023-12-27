@@ -22,7 +22,6 @@ const permitParams = {
     lender_address: String,
     clone_from: String,
     is_gift: Boolean,
-    is_long_term_loan: Boolean,
     loan_items_attributes: {
       _destroy: Boolean,
       id: Number,
