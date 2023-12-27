@@ -20,10 +20,6 @@ export default {
   components: { PredicatesComponent },
 
   computed: {
-    collectingEvent() {
-      return this.$store.getters[GetterNames.GetCollectingEvent]
-    },
-
     projectPreferences() {
       return this.$store.getters[GetterNames.GetProjectPreferences]
     }
@@ -32,6 +28,7 @@ export default {
   methods: {
     setAttributes(dataAttributes) {
       this.collectingEvent.data_attributes_attributes = dataAttributes
+      this.updateChange()
     }
   }
 }

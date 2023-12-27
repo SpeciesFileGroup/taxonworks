@@ -9,7 +9,9 @@
             type="number"
             min="0"
             max="23"
-            v-model="collectingEvent.time_start_hour">
+            v-model="collectingEvent.time_start_hour"
+            @change="updateChange"
+          />
         </div>
         <div class="separate-left separate-right">
           <label>Minute</label>
@@ -17,7 +19,9 @@
             type="number"
             min="0"
             max="60"
-            v-model="collectingEvent.time_start_minute">
+            v-model="collectingEvent.time_start_minute"
+            @change="updateChange"
+          />
         </div>
         <div class="separate-left">
           <label>Seconds</label>
@@ -25,7 +29,9 @@
             type="number"
             min="0"
             max="60"
-            v-model="collectingEvent.time_start_second">
+            v-model="collectingEvent.time_start_second"
+            @change="updateChange"
+          />
         </div>
       </div>
     </div>
@@ -38,7 +44,9 @@
             type="number"
             min="0"
             max="23"
-            v-model="collectingEvent.time_end_hour">
+            v-model="collectingEvent.time_end_hour"
+            @change="updateChange"
+          />
         </div>
         <div class="separate-left separate-right">
           <label>Minute</label>
@@ -46,7 +54,9 @@
             type="number"
             min="0"
             max="60"
-            v-model="collectingEvent.time_end_minute">
+            v-model="collectingEvent.time_end_minute"
+            @change="updateChange"
+          />
         </div>
         <div class="separate-left">
           <label>Seconds</label>
@@ -54,7 +64,9 @@
             type="number"
             min="0"
             max="60"
-            v-model="collectingEvent.time_end_second">
+            v-model="collectingEvent.time_end_second"
+            @change="updateChange"
+          />
         </div>
       </div>
     </div>
@@ -62,27 +74,15 @@
 </template>
 
 <script>
-
-import { GetterNames } from '../../../../store/getters/getters.js'
-import { MutationNames } from '../../../../store/mutations/mutations.js'
+import extendCE from '../../mixins/extendCE.js'
 
 export default {
-  computed: {
-    collectingEvent: {
-      get () {
-        return this.$store.getters[GetterNames.GetCollectingEvent]
-      },
-
-      set (value) {
-        this.$store.commit(MutationNames.SetCollectingEvent, value)
-      }
-    }
-  }
+  mixins: [extendCE]
 }
 </script>
 
 <style scoped>
-  input {
-    max-width: 60px;
-  }
+input {
+  max-width: 60px;
+}
 </style>

@@ -6,20 +6,26 @@
         <label>Minimum</label>
         <input
           type="text"
-          v-model="collectingEvent.minimum_elevation">
+          v-model="collectingEvent.minimum_elevation"
+          @change="updateChange"
+        />
       </div>
       <div class="separate-right separate-left">
         <label>Maximum</label>
         <input
           type="text"
-          v-model="collectingEvent.maximum_elevation">
+          v-model="collectingEvent.maximum_elevation"
+          @change="updateChange"
+        />
       </div>
       <div class="separate-right separate-left">
         <label>Precision</label>
         +/-
         <input
           type="text"
-          v-model="collectingEvent.elevation_precision">
+          v-model="collectingEvent.elevation_precision"
+          @change="updateChange"
+        />
       </div>
       <div>
         Unit
@@ -28,7 +34,9 @@
             v-model="collectingEvent.units"
             type="radio"
             :value="undefined"
-            name="elevation">
+            name="elevation"
+            @change="updateChange"
+          />
           Meters
         </label>
         <label>
@@ -36,7 +44,9 @@
             v-model="collectingEvent.units"
             value="ft"
             type="radio"
-            name="elevation">
+            name="elevation"
+            @change="updateChange"
+          />
           Feet
         </label>
       </div>
@@ -45,26 +55,15 @@
 </template>
 
 <script>
-
-import { GetterNames } from '../../../../store/getters/getters.js'
-import { MutationNames } from '../../../../store/mutations/mutations.js'
+import extendCE from '../../mixins/extendCE.js'
 
 export default {
-  computed: {
-    collectingEvent: {
-      get () {
-        return this.$store.getters[GetterNames.GetCollectingEvent]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetCollectingEvent, value)
-      }
-    }
-  }
+  mixins: [extendCE]
 }
 </script>
 
 <style scoped>
-  input {
-    max-width: 60px;
-  }
+input {
+  max-width: 60px;
+}
 </style>

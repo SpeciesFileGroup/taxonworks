@@ -160,12 +160,10 @@ export default {
       set(value) {
         this.$store.commit([MutationNames.SetLocked, value])
       }
-    }
-  },
+    },
 
-  data() {
-    return {
-      alreadyUsed: 0
+    alreadyUsed() {
+      return this.$store.getters[GetterNames.GetCETotalUsed]
     }
   },
 
@@ -173,13 +171,6 @@ export default {
     async collectingEvent(newVal, oldVal) {
       if (!(newVal?.id && oldVal?.id && newVal.id === oldVal.id)) {
         this.subsequentialUses = 0
-      }
-      if (newVal.id) {
-        this.alreadyUsed = (
-          await CollectionObject.where({ collecting_event_id: [newVal.id] })
-        ).body.length
-      } else {
-        this.alreadyUsed = 0
       }
     }
   },

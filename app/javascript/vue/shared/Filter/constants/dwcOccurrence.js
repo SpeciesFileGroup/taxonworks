@@ -7,6 +7,7 @@ export const DWC_OCCURRENCE_PROPERTIES = [
   'preparations',
   'lifeStage',
   'sex',
+  'caste',
   'country',
   'stateProvince',
   'county',

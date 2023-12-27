@@ -8,18 +8,33 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+
 - Added Emendavid status for ICN names [#3716]
+- "CONFIRM" screen when editing a collecting event with > 100 attached COs [#3727]
+- `epithet_only` parameter and facet to taxon name filter [#3589]
+- Links for users profiles on project members list (only for administrators)
+- Cursor and text to reveal project preference predicates can be reordered [#3736]
+- Batch append collectors to Collecting Events within CE filter
 
 ### Changed
 
 - DwC Occurrence Importer: Parse authorship information in typeStatus field
 - DwC Exporter: `recordedBy` and `identifiedBy` fields use `First Prefix Last Suffix` order
+- Project member list now has links for users profiles (only for administrators)
 
 ### Fixed
 
 - Another project_id scope issue in Otu Filter
 - Update DwcOccurence index endpoint
 - Uniquify people: Always show radials for selected person
+- Remove property doesn't work on Biological relationship composer
+- Feet to meter conversion does not work as expected [#2110]
+- OTUs autocomplete API endpoint ignoring `having_taxon_name_only` param
+
+[#2110]: https://github.com/SpeciesFileGroup/taxonworks/issues/2110
+[#3716]: https://github.com/SpeciesFileGroup/taxonworks/issues/3716
+[#3727]: https://github.com/SpeciesFileGroup/taxonworks/issues/3727
+[#3736]: https://github.com/SpeciesFileGroup/taxonworks/issues/3736
 
 ## [0.37.0] - 2023-12-14
 
@@ -57,7 +72,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2749]: https://github.com/SpeciesFileGroup/taxonworks/issues/2749
 [#3113]: https://github.com/SpeciesFileGroup/taxonworks/issues/3113
 [#3645]: https://github.com/SpeciesFileGroup/taxonworks/issues/3645
-[#3680]: https://github.com/SpeciesFileGroup/taxonworks/issues/3680 
+[#3680]: https://github.com/SpeciesFileGroup/taxonworks/issues/3680
 [#3690]: https://github.com/SpeciesFileGroup/taxonworks/issues/3690
 [#3696]: https://github.com/SpeciesFileGroup/taxonworks/issues/3696
 

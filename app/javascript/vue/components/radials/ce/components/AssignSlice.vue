@@ -80,6 +80,7 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['close'])
 const geographicArea = ref()
 const isUpdating = ref(false)
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)

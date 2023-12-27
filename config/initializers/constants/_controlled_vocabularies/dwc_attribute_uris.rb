@@ -10,6 +10,10 @@ DWC_ATTRIBUTE_URIS = {
     'http://rs.tdwg.org/dwc/terms/lifeStage'
   ],
 
+  caste: [
+    'http://rs.tdwg.org/dwc/terms/caste'
+  ],
+
   waterBody: [
     'http://rs.tdwg.org/dwc/terms/waterBody'
   ],

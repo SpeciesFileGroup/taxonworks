@@ -3,12 +3,13 @@
     <label>Date</label>
     <input
       type="text"
-      v-model="collectingEvent.verbatim_date">
+      v-model="collectingEvent.verbatim_date"
+      @change="updateChange"
+    />
   </div>
 </template>
 
 <script>
-
 import extendCE from '../../mixins/extendCE.js'
 
 export default {

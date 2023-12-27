@@ -34,10 +34,9 @@
 </template>
 
 <script>
+import { GetterNames } from '../../../../store/getters/getters.js'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import RolePicker from '@/components/role_picker.vue'
-import { findRole } from '@/helpers/people/people.js'
-import { GetterNames } from '../../../../store/getters/getters.js'
 import extendCE from '../../mixins/extendCE.js'
 
 export default {
@@ -56,12 +55,7 @@ export default {
 
   methods: {
     addRole(role) {
-      if (!findRole(this.collectingEvent.roles_attributes, role.id)) {
-        this.$refs.rolepicker.addCreatedPerson({
-          object_id: role.id,
-          label: role.cached
-        })
-      }
+      this.$refs.rolepicker.addPerson(role)
     }
   }
 }

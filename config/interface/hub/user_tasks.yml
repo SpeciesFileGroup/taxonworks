@@ -837,3 +837,12 @@ taxon_name_stats_task:
   categories:
   status: prototype
   description: 'Plot stats / year for taxon name filter results.'
+stepwise_collectors_task:
+  hub: true
+  name: 'Stepwise collectors'
+  related:
+  categories:
+    - collecting event
+    - people
+  status: prototype
+  description: 'Parse verbatim collectors into their semantic components.'

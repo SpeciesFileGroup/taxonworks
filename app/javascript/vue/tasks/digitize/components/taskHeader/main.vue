@@ -118,6 +118,7 @@
           <span>Reset</span>
         </div>
       </div>
+      <ConfirmationModal ref="confirmationModalRef" />
     </div>
   </nav-bar>
 </template>
@@ -127,6 +128,7 @@ import { Tippy } from 'vue-tippy'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { GetterNames } from '../../store/getters/getters.js'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import RecentComponent from './recent.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
@@ -134,13 +136,16 @@ import NavBar from '@/components/layout/NavBar'
 import AjaxCall from '@/helpers/ajaxCall'
 import SoftValidation from './softValidation'
 
+const MAX_CO_LIMIT = 100
+
 export default {
   components: {
     Autocomplete,
     RecentComponent,
     Tippy,
     NavBar,
-    SoftValidation
+    SoftValidation,
+    ConfirmationModal
   },
   computed: {
     identifier() {
@@ -171,6 +176,10 @@ export default {
       keys[`${platformKey()}+r`] = this.resetStore
 
       return keys
+    },
+
+    underThreshold() {
+      return this.$store.getters[GetterNames.GetCETotalUsed] < MAX_CO_LIMIT
     }
   },
   data() {
@@ -209,15 +218,28 @@ export default {
       deep: true
     },
     collectingEvent: {
-      handler(newVal) {
+      handler(_) {
         this.settings.lastChange = Date.now()
       },
       deep: true
     }
   },
   methods: {
-    saveDigitalization() {
-      this.$store.dispatch(ActionNames.SaveDigitalization)
+    async saveDigitalization() {
+      const ok =
+        this.underThreshold ||
+        !this.collectingEvent.isUpdated ||
+        (await this.$refs.confirmationModalRef.show({
+          title: 'Save',
+          message: `The collecting event was modified and is used by over ${MAX_CO_LIMIT}. Are you sure you want to proceed?`,
+          okButton: 'Save',
+          cancelButton: 'Cancel',
+          typeButton: 'submit'
+        }))
+
+      if (ok) {
+        this.$store.dispatch(ActionNames.SaveDigitalization)
+      }
     },
 
     resetStore() {

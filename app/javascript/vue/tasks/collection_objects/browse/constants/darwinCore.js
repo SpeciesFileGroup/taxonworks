@@ -21,6 +21,7 @@ export const PRIORITIZE_ATTRIBUTES = [
   'samplingProtocol',
   'lifeStage',
   'sex',
+  'caste',
   'preparations',
   'scientificName',
   'scientificNameAuthorship',

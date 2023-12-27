@@ -3,25 +3,16 @@
     <label>Elevation</label>
     <input
       type="text"
-      v-model="collectingEvent.verbatim_elevation">
+      v-model="collectingEvent.verbatim_elevation"
+      @change="updateChange"
+    />
   </div>
 </template>
 
 <script>
-
-import { GetterNames } from '../../../../store/getters/getters'
-import { MutationNames } from '../../../../store/mutations/mutations'
+import extendCE from '../../mixins/extendCE.js'
 
 export default {
-  computed: {
-    collectingEvent: {
-      get () {
-        return this.$store.getters[GetterNames.GetCollectingEvent]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetCollectingEvent, value)
-      }
-    }
-  }
+  mixins: [extendCE]
 }
 </script>

@@ -9,6 +9,7 @@ import getSettings from './getSettings'
 import getSoftValidations from './getSoftValidations'
 import getUnit from './getUnit'
 import isUnsaved from './isUnsaved'
+import getTotalCO from './getTotalCO.js'
 
 const GetterNames = {
   GetCELabel: 'getCELabel',
@@ -20,6 +21,7 @@ const GetterNames = {
   GetQueueGeoreferences: 'getQueueGeoreferences',
   GetSettings: 'getSetting',
   GetSoftValidations: 'getSoftValidations',
+  GetTotalCO: 'getTotalCO',
   GetUnit: 'getUnit',
   IsUnsaved: 'isUnsaved'
 }
@@ -32,13 +34,11 @@ const GetterFunctions = {
   [GetterNames.GetIdentifier]: getIdentifier,
   [GetterNames.GetPreferences]: getPreferences,
   [GetterNames.GetSettings]: getSettings,
+  [GetterNames.GetTotalCO]: getTotalCO,
   [GetterNames.GetQueueGeoreferences]: getQueueGeoreferences,
   [GetterNames.GetSoftValidations]: getSoftValidations,
   [GetterNames.GetUnit]: getUnit,
   [GetterNames.IsUnsaved]: isUnsaved
 }
 
-export {
-  GetterNames,
-  GetterFunctions
-}
+export { GetterNames, GetterFunctions }
