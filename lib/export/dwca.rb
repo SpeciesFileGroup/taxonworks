@@ -23,7 +23,7 @@ module Export
       '2022-09-28 16:30:00.000000 -0500',    # add phylum, class, order, higherClassification
       '2023-04-03 16:30:00.000000 -0500',    # add associatedTaxa; updating InternalAttributes is now reflected in index
       '2023-12-14 16:30:00.000000 -0500',    # add verbatimLabel
-      '2023-12-21 11:00:00.000000 -0500'     # add caste (via biocuration)
+      '2023-12-21 11:00:00.000000 -0500'     # add caste (via biocuration), identificationRemarks
     ].freeze
 
     # @param record_scope [ActiveRecord::Relation]
