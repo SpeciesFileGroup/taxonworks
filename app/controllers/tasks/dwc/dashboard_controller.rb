@@ -60,7 +60,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
   end
 
   def taxonworks_extension_methods
-    render json: ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS_MAP.keys, status: :ok
+    render json: ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS, status: :ok
   end
 
   private
