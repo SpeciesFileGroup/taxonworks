@@ -1213,7 +1213,6 @@ ActiveRecord::Schema.define(version: 2023_12_20_012709) do
     t.string "recipient_country"
     t.text "lender_address", null: false
     t.boolean "is_gift"
-    t.boolean "is_long_term_loan"
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
     t.index ["updated_at"], name: "index_loans_on_updated_at"

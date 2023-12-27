@@ -1,4 +1,4 @@
-json.extract! loan, :id, :lender_address, :date_requested, :request_method, :date_sent, :date_received, :date_return_expected, :is_gift, :is_long_term_loan, :recipient_address, :recipient_email, :recipient_phone, :recipient_country, :supervisor_email, :supervisor_phone, :date_closed,  :recipient_honorific, :created_at, :updated_at, :created_by_id, :updated_by_id
+json.extract! loan, :id, :lender_address, :date_requested, :request_method, :date_sent, :date_received, :date_return_expected, :is_gift, :recipient_address, :recipient_email, :recipient_phone, :recipient_country, :supervisor_email, :supervisor_phone, :date_closed,  :recipient_honorific, :created_at, :updated_at, :created_by_id, :updated_by_id
 
 json.partial! '/shared/data/all/metadata', object: loan
 
