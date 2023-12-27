@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Links for users profiles on project members list (only for administrators)
 - Cursor and text to reveal project preference predicates can be reordered [#3736]
 - DwC Exporter: export notes from most recent `TaxonDetermination` as `identificationRemarks`
+- Batch append collectors to Collecting Events within CE filter
 
 ### Changed
 
@@ -28,7 +29,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Update DwcOccurence index endpoint
 - Uniquify people: Always show radials for selected person
 - Remove property doesn't work on Biological relationship composer
+- Feet to meter conversion does not work as expected [#2110]
+- OTUs autocomplete API endpoint ignoring `having_taxon_name_only` param
 
+[#2110]: https://github.com/SpeciesFileGroup/taxonworks/issues/2110
 [#3716]: https://github.com/SpeciesFileGroup/taxonworks/issues/3716
 [#3727]: https://github.com/SpeciesFileGroup/taxonworks/issues/3727
 [#3736]: https://github.com/SpeciesFileGroup/taxonworks/issues/3736

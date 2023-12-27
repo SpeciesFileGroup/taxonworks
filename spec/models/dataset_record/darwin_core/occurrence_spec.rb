@@ -1297,6 +1297,34 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       expect(TypeMaterial.first.protonym).to eq(Protonym.find_by(name: 'boxi', year_of_publication: 1942))
     end
   end
+
+  context 'when importing a specimen with an identificationRemark' do
+    after(:all) { DatabaseCleaner.clean }
+
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('identification_remark.tsv',
+                                               import_settings: { 'restrict_to_existing_nomenclature' => false })
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let!(:results) { @imported }
+
+    it 'should import the record without failing' do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    context 'the TaxonDetermination' do
+      let(:d) { CollectionObject.last.current_taxon_determination }
+
+      it 'should have the note' do
+        expect(d).to_not be_nil
+        expect(d.notes.count).to eq(1)
+        expect(d.notes.first.text).to eq('identification note')
+      end
+    end
+  end
 end
 
 
