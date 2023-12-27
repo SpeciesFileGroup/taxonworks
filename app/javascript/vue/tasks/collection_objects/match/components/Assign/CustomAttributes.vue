@@ -1,6 +1,6 @@
 <template>
   <div class="panel content">
-    <spinner-component
+    <VSpinner
       v-if="isSaving"
       legend="Saving..."
     />
@@ -34,7 +34,7 @@
 import { ref } from 'vue'
 import { CollectionObject, Project } from '@/routes/endpoints'
 import { COLLECTION_OBJECT } from '@/constants'
-import SpinnerComponent from '@/components/spinner'
+import VSpinner from '@/components/spinner'
 import CustomAttributes from '@/components/custom_attributes/predicates/predicates.vue'
 
 const MAX_PER_CALL = 5
@@ -71,7 +71,10 @@ function setCustomAttributes(arrayIds = props.ids.slice()) {
       setCustomAttributes(dataAttributes.value, arrayIds)
     } else {
       isSaving.value = false
-      TW.workbench.alert.create('Repository was successfully set.', 'notice')
+      TW.workbench.alert.create(
+        'Custom attributes were successfully updated.',
+        'notice'
+      )
     }
   })
 }
