@@ -56,6 +56,54 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   end
 
+  context 'when not supplying custom namespaces for occurrenceID nor eventID' do
+    before :all do
+      DatabaseCleaner.start
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/auto_created_namespaces.tsv'), 'text/plain'),
+        description: 'occurrenceID and eventID namespaces test'
+      ).tap { |i| i.stage }
+      @imported = 3.times.map { @import_dataset.reload.import(5000, 1) }.flatten # WARN: Importing one at a time is deliberate 
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:collection_objects) do
+      @imported.map { |r| CollectionObject.find(r.metadata.dig('imported_objects','collection_object', 'id')) }
+    end
+    
+    let(:core_id_namespaces) { Namespace.where("name ILIKE 'occurrenceID namespace for%'") }
+    let(:event_id_namespaces) { Namespace.where("name ILIKE 'eventID namespace for%'") }
+    let(:occurrence_id_identifiers) do
+      Identifier::Local::Import::Dwc.where(identifier: (1..3).map { |n| "occurrence-#{n}"})
+    end
+    let(:event_id_identifiers) do
+      Identifier::Local::TripCode.where(identifier: (1..3).map { |n| "event-#{n}"})
+    end
+
+    it 'creates one collection object per record' do
+      expect(collection_objects.count).to eq(3)
+    end
+
+    it 'creates ONE namespace for occurrenceID' do
+      expect(core_id_namespaces.count).to eq(1)
+    end
+
+    it 'creates ONE namespace for eventID' do
+      expect(event_id_namespaces.count).to eq(1)
+    end
+
+    it 'creates the occurrenceID identifiers' do
+      expect(occurrence_id_identifiers.count).to eq(3)
+    end
+
+    it 'creates the eventID identifiers' do
+      expect(event_id_identifiers.count).to eq(2)
+    end
+  end
+
   context 'when importing an occurrence that is missing an intermediate protonym' do
     before :all do
       DatabaseCleaner.start

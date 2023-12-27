@@ -31,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove property doesn't work on Biological relationship composer
 - Feet to meter conversion does not work as expected [#2110]
 - OTUs autocomplete API endpoint ignoring `having_taxon_name_only` param
+- DwC importer creating multiple namespaces instead of just one for `occurrenceID` and `eventID`
 
 [#2110]: https://github.com/SpeciesFileGroup/taxonworks/issues/2110
 [#3716]: https://github.com/SpeciesFileGroup/taxonworks/issues/3716
