@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Uniquify people: Always show radials for selected person
 - Remove property doesn't work on Biological relationship composer
 - Feet to meter conversion does not work as expected [#2110]
+- OTUs autocomplete API endpoint ignoring `having_taxon_name_only` param
 
 [#2110]: https://github.com/SpeciesFileGroup/taxonworks/issues/2110
 [#3716]: https://github.com/SpeciesFileGroup/taxonworks/issues/3716
