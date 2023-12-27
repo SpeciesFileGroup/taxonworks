@@ -35,7 +35,7 @@ module Export::Dwca
     attr_accessor :biological_associations_extension
 
     # @return [Scope, nil]
-    #   @return Image(?) 
+    #   @return Image(?)
     attr_accessor :media_extension
 
     attr_accessor :total #TODO update
@@ -48,19 +48,26 @@ module Export::Dwca
     # collection_object_predicate_id: [], collecting_event_predicate_id: []
     attr_accessor :data_predicate_ids
 
+    attr_accessor :taxonworks_extension_data
+
+    # @return Array<Symbol>
+    attr_accessor :taxonworks_extension_methods
+
     # A Tempfile, core records and predicate data (and maybe more in future) joined together in one file
     attr_accessor :all_data
 
-    # @param [Hash] args
-    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {} )
+    # @param [Array<Symbol>] taxonworks_extensions List of methods to perform on each CO
+    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: [])
       raise ArgumentError, 'must pass a core_scope' if core_scope.nil?
 
       @core_scope = core_scope
 
-      @biological_associations_extension = extension_scopes[:biological_associations] #! STring
+      @biological_associations_extension = extension_scopes[:biological_associations] #! String
       @media_extension = extension_scopes[:media] #  = get_scope(core_scope)
 
       @data_predicate_ids = { collection_object_predicate_id: [], collecting_event_predicate_id: [] }.merge(predicate_extensions)
+
+      @taxonworks_extension_methods = taxonworks_extensions
     end
 
     # !params core_scope [String, ActiveRecord::Relation]
@@ -84,10 +91,14 @@ module Export::Dwca
       else
         raise ArgumentError, 'Scope is not a SQL string or ActiveRecord::Relation'
       end
-    end 
+    end
 
     def predicate_options_present?
       data_predicate_ids[:collection_object_predicate_id].present? || data_predicate_ids[:collecting_event_predicate_id].present?
+    end
+
+    def taxonworks_options_present?
+      taxonworks_extension_methods.present?
     end
 
     def total
@@ -101,7 +112,7 @@ module Export::Dwca
         core_scope.computed_columns,
         # TODO: check to see if we nee dthis
         exclude_columns: ::DwcOccurrence.excluded_columns,
-        column_order: ::CollectionObject::DWC_OCCURRENCE_MAP.keys, # TODO: add other maps here
+        column_order: ::CollectionObject::DWC_OCCURRENCE_MAP.keys + ::CollectionObject::EXTENSION_FIELDS_MAP.keys, # TODO: add other maps here
         trim_columns: true, # going to have to be optional
         trim_rows: false,
         header_converters: [:dwc_headers]
@@ -129,6 +140,79 @@ module Export::Dwca
       @data.flush
       @data.rewind
       @data
+    end
+
+    def taxonworks_extension_data
+      return @taxonworks_extension_data if @taxonworks_extension_data
+
+      collection_object_ids = core_scope.select(:dwc_occurrence_object_id).pluck(:dwc_occurrence_object_id)
+      collection_objects = CollectionObject.joins(:dwc_occurrence).where(id: core_scope.select(:dwc_occurrence_object_id))
+
+      # select valid methods, generate frozen name string ahead of time
+      # add TW prefix to names
+      methods = @taxonworks_extension_methods.filter_map { |sym|
+        if (method = ::CollectionObject::EXTENSION_FIELDS_MAP[sym])
+          [('TW:Internal:' + sym.name).freeze, method]
+        end
+      }.to_h
+
+      used_extensions = methods.keys
+
+      # if no predicate data found, return empty file
+      if used_extensions.empty?
+        @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
+        return @taxonworks_extension_data
+      end
+
+      extension_data = []
+
+      collection_objects.find_each do |object|
+        methods.each_pair { |name, method| extension_data << [object.id, name, object.send(method)] }
+      end
+
+      # Create hash with key: co_id, value: [[extension_name, extension_value], ...]
+      # prefill with empty values so we have the same number of rows as the main csv, even if some rows don't have
+      # data attributes
+      empty_hash = collection_object_ids.index_with { |_| []}
+
+      data = extension_data.group_by(&:shift)
+
+      data = empty_hash.merge(data)
+
+      # write rows to csv
+      headers = CSV::Row.new(used_extensions, used_extensions, true)
+
+      tbl = CSV::Table.new([headers])
+
+      # Get order of ids that matches core records so we can align with csv
+      dwc_id_order = collection_object_ids.map.with_index.to_h
+
+      data.sort_by {|k, _| dwc_id_order[k]}.each do |row|
+        # remove collection object id, select "value" from hash conversion
+        row = row[1]
+
+        # Create empty row, this way we can insert columns by their headers, not by order
+        csv_row = CSV::Row.new(used_extensions, [])
+
+        # Add each [header, value] pair to the row
+        row.each do |column_pair|
+          unless column_pair.empty?
+            csv_row[column_pair[0]] = Utilities::Strings.sanitize_for_csv(column_pair[1])
+          end
+        end
+
+        tbl << csv_row
+      end
+
+      content = tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
+
+      @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
+      @taxonworks_extension_data.write(content)
+      @taxonworks_extension_data.flush
+      @taxonworks_extension_data.rewind
+      @taxonworks_extension_data
+
+
     end
 
     def predicate_data
@@ -224,6 +308,10 @@ module Export::Dwca
 
       if predicate_options_present?
         join_data.push(predicate_data)
+      end
+
+      if taxonworks_options_present?
+        join_data.push(taxonworks_extension_data)
       end
 
       if join_data.size > 1
@@ -435,16 +523,22 @@ module Export::Dwca
       eml.unlink
       data.close
       data.unlink
-    
+
       if biological_associations_extension
         biological_associations_resource_relationship.close
         biological_associations_resource_relationship.unlink
       end
-      
+
       if predicate_options_present?
         predicate_data.close
         predicate_data.unlink
       end
+
+      if taxonworks_options_present?
+        taxonworks_extension_data.close
+        taxonworks_extension_data.unlink
+      end
+
       all_data.close
       all_data.unlink
       true
