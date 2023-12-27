@@ -52,7 +52,11 @@ module CollectionObject::DwcExtensions
       order: :dwc_order,
       higherClassification: :dwc_higher_classification,
 
+      superfamily: :dwc_superfamily,
       family: :dwc_family,
+      subfamily: :dwc_subfamily,
+      tribe: :dwc_tribe,
+      subtribe: :dwc_subtribe,
       genus: :dwc_genus,
       specificEpithet: :dwc_specific_epithet,
       infraspecificEpithet: :dwc_infraspecific_epithet,
@@ -405,9 +409,29 @@ module CollectionObject::DwcExtensions
     taxonomy['order']
   end
 
+  # http://rs.tdwg.org/dwc/terms/superfamily
+  def dwc_superfamily
+    taxonomy['superfamily']
+  end
+
   # http://rs.tdwg.org/dwc/terms/family
   def dwc_family
     taxonomy['family']
+  end
+
+  # http://rs.tdwg.org/dwc/terms/subfamily
+  def dwc_subfamily
+    taxonomy['subfamily']
+  end
+
+  # http://rs.tdwg.org/dwc/terms/tribe
+  def dwc_tribe
+    taxonomy['tribe']
+  end
+
+  # http://rs.tdwg.org/dwc/terms/subtribe
+  def dwc_subtribe
+    taxonomy['subtribe']
   end
 
   # http://rs.tdwg.org/dwc/terms/genus
