@@ -513,6 +513,37 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_associated_media).to eq("#{p}/#{a.image_file_fingerprint} | #{p}/#{b.image_file_fingerprint}")
     end
 
+    specify '#dwc_superfamily' do
+      p = FactoryBot.create(:relationship_family, name: 'Erythroneuroidea', rank_class: Ranks.lookup(:iczn, :superfamily))
+      c = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+
+      s.taxonomy(true)
+      expect(s.dwc_superfamily).to eq(p.name)
+    end
+
+    specify '#dwc_subfamily' do
+      p = FactoryBot.create(:relationship_family, name: 'Erythroneurinae', rank_class: Ranks.lookup(:iczn, :subfamily))
+      c = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+
+      s.taxonomy(true)
+      expect(s.dwc_subfamily).to eq(p.name)
+    end
+
+    specify '#dwc_tribe' do
+      p = FactoryBot.create(:relationship_family, name: 'Erythroneurini', rank_class: Ranks.lookup(:iczn, :tribe))
+      c = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+
+      s.taxonomy(true)
+      expect(s.dwc_tribe).to eq(p.name)
+    end
+
+    specify '#dwc_subtribe' do
+      p = FactoryBot.create(:relationship_family, name: 'Erythroneurina', rank_class: Ranks.lookup(:iczn, :subtribe))
+      c = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+
+      s.taxonomy(true)
+      expect(s.dwc_subtribe).to eq(p.name)
+    end
   end
 end
 
