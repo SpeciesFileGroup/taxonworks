@@ -82,6 +82,7 @@ scope :tasks do
     scope :dashboard, controller: 'tasks/dwc/dashboard' do
       get '/', action: :index, as: 'dwc_dashboard_task'
       get :index_versions, defaults: {format: :json}
+      get :taxonworks_extension_methods, defaults: {format: :json}
 
       post 'generate_download', as: 'generate_dwc_download_task', defaults: {format: :json}
       post :create_index, as: 'create_dwc_index_task', defaults: {format: :json}

@@ -2,6 +2,8 @@ module CollectionObject::DwcExtensions
 
   extend ActiveSupport::Concern
 
+  include CollectionObject::DwcExtensions::TaxonworksExtensions
+
   included do
 
     # A current list of mappable values
@@ -94,6 +96,8 @@ module CollectionObject::DwcExtensions
 
       occurrenceRemarks: :dwc_occurrence_remarks,
 
+      identificationRemarks: :dwc_identification_remarks,
+
       eventRemarks: :dwc_event_remarks,
 
       verbatimLabel: :dwc_verbatim_label,
@@ -173,11 +177,16 @@ module CollectionObject::DwcExtensions
 
   # https://dwc.tdwg.org/list/#dwc_georeferenceRemarks
   def dwc_occurrence_remarks
-    notes.collect{|n| n.text}.join('|')
+    notes.collect{|n| n.text}&.join(CollectionObject::DWC_DELIMITER)
+  end
+
+  # https://dwc.tdwg.org/list/#dwc_identificationRemarks
+  def dwc_identification_remarks
+    current_taxon_determination&.notes&.collect { |n| n.text }&.join(CollectionObject::DWC_DELIMITER)
   end
 
   def dwc_event_remarks
-    collecting_event&.notes&.collect {|n| n.text}&.join('|')
+    collecting_event&.notes&.collect {|n| n.text}&.join(CollectionObject::DWC_DELIMITER)
   end
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia

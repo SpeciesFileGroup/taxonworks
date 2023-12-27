@@ -16,6 +16,9 @@ export const DwcOcurrence = {
 
   predicates: () => AjaxCall('get', `/${controller}/predicates.json`),
 
+  taxonworksExtensionMethods: () =>
+    AjaxCall('get', '/tasks/dwc/dashboard/taxonworks_extension_methods'),
+
   indexVersion: () => AjaxCall('get', '/tasks/dwc/dashboard/index_versions'),
 
   generateDownload: (params) =>

@@ -21,7 +21,7 @@ import CollectingEventComponent from './Assign/CollectingEvents'
 import AccessionsComponent from './Assign/Accesssions.vue'
 import RepositoryComponent from './Assign/Repository.vue'
 import PreparationComponent from './Assign/PreparationType.vue'
-import CustomAttributes from './Assign/CustomAttributes.vue'
+//import CustomAttributes from './Assign/CustomAttributes.vue'
 
 const props = defineProps({
   ids: {
@@ -33,7 +33,7 @@ const props = defineProps({
 const TABS = {
   Accessions: AccessionsComponent,
   'Collecting Event': CollectingEventComponent,
-  'Custom attributes': CustomAttributes,
+  //'Custom attributes': CustomAttributes,
   Determination: DeterminationComponent,
   Loan: LoanComponent,
   Preparation: PreparationComponent,

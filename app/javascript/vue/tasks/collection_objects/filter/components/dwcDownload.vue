@@ -134,6 +134,38 @@
               </tbody>
             </table>
           </div>
+          <div>
+            <table v-if="extensionMethodNames.length">
+              <thead>
+                <tr>
+                  <th>
+                    <input
+                      v-model="checkAllExtensionMethods"
+                      type="checkbox"
+                    />
+                  </th>
+                  <th class="full_width">Internal values</th>
+                </tr>
+              </thead>
+              <tbody>
+              <tr
+                v-for="item in extensionMethodNames"
+                :key="item.id"
+              >
+                <td>
+                  <input
+                    type="checkbox"
+                    :value="item"
+                    v-model="selectedExtensionMethods.taxonworks_extension_methods"
+                  />
+                </td>
+                <td>
+                  <span v-html="item" />
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
         <div class="margin-medium-top">
           <VBtn
@@ -197,6 +229,10 @@ const predicateParams = reactive({
   collecting_event_predicate_id: [],
   collection_object_predicate_id: []
 })
+const extensionMethodNames = ref([])
+const selectedExtensionMethods = reactive({
+  taxonworks_extension_methods: []
+})
 
 const getFilterParams = (params) => {
   const entries = Object.entries({ ...params, ...predicateParams }).filter(
@@ -232,6 +268,17 @@ const checkAllCo = computed({
   }
 })
 
+const checkAllExtensionMethods = computed({
+  get: () =>
+    selectedExtensionMethods.taxonworks_extension_methods.length ===
+    extensionMethodNames.value.length,
+  set: (isChecked) => {
+      selectedExtensionMethods.taxonworks_extension_methods = isChecked
+        ? extensionMethodNames.value
+        : []
+  }
+})
+
 function download() {
   const downloadParams = props.selectedIds.length
     ? { collection_object_id: props.selectedIds }
@@ -240,7 +287,8 @@ function download() {
   DwcOcurrence.generateDownload({
     ...downloadParams,
     ...includeParameters.value,
-    ...predicateParams
+    ...predicateParams,
+    ...selectedExtensionMethods
   }).then((_) => {
     openGenerateDownloadModal()
   })
@@ -265,27 +313,32 @@ async function openGenerateDownloadModal() {
   setModalView(false)
 }
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
   isLoading.value = true
 
-  DwcOcurrence.predicates().then(({ body }) => {
-    isLoading.value = false
-    collectingEvents.value = body.collecting_event
-    collectionObjects.value = body.collection_object
-  })
+  const [predicates, extensions] = await Promise.all(
+    [DwcOcurrence.predicates(), DwcOcurrence.taxonworksExtensionMethods()])
+
+  isLoading.value = false
+
+  collectingEvents.value = predicates.body.collecting_event
+  collectionObjects.value = predicates.body.collection_object
+
+  extensionMethodNames.value = extensions.body
 })
 
 watch(showModal, (newVal) => {
   if (newVal) {
     predicateParams.collection_object_predicate_id = []
     predicateParams.collecting_event_predicate_id = []
+    selectedExtensionMethods.taxonworks_extension_methods = []
   }
 })
 </script>
 <style>
 .dwc-download-predicates {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 1em;
 }
 </style>
