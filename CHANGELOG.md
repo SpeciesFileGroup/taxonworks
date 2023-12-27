@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Cursor and text to reveal project preference predicates can be reordered [#3736]
 - DwC Exporter: export notes from most recent `TaxonDetermination` as `identificationRemarks`
 - Batch append collectors to Collecting Events within CE filter
+- DwC `superfamily`, `subfamily`, `tribe`, `subtribe` export support
 
 ### Changed
 
