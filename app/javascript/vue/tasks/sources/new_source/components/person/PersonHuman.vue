@@ -4,7 +4,7 @@
     <SmartSelector
       model="people"
       :target="ROLE_SOURCE_SOURCE"
-      klass="Source"
+      :klass="SOURCE"
       label="cached"
       :params="{ role_type: ROLE_SOURCE_SOURCE }"
       :autocomplete-params="{
@@ -37,12 +37,11 @@
 </template>
 
 <script setup>
-import { ROLE_SOURCE_SOURCE } from '@/constants'
+import { ROLE_SOURCE_SOURCE, SOURCE } from '@/constants'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import { findRole } from '@/helpers/people/people.js'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import RolePicker from '@/components/role_picker.vue'
 
@@ -65,9 +64,7 @@ const peopleIds = computed(() => {
 })
 
 function addRole(person) {
-  if (!findRole(roles.value, person.id)) {
-    rolePicker.value.setPerson(person)
-  }
+  rolePicker.value.addPerson(person)
 }
 </script>
 

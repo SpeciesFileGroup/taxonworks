@@ -272,6 +272,13 @@ scope :tasks do
         end
       end
     end
+
+    scope :stepwise do
+      scope :collectors, controller: 'tasks/collecting_events/stepwise/collectors' do
+        get '/', action: :index, as: 'stepwise_collectors_task'
+        get :data, defaults: {format: :json}
+      end
+    end
   end
 
   scope :collection_objects do
