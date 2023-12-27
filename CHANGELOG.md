@@ -16,7 +16,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Cursor and text to reveal project preference predicates can be reordered [#3736]
 - DwC Exporter: export notes from most recent `TaxonDetermination` as `identificationRemarks`
 - Batch append collectors to Collecting Events within CE filter
-- `is_long_term_loan` boolean to Loan, Long-term loan checkbox in Loan task [#3746]
 - DwC `superfamily`, `subfamily`, `tribe`, `subtribe` export support
 
 ### Changed
@@ -33,12 +32,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove property doesn't work on Biological relationship composer
 - Feet to meter conversion does not work as expected [#2110]
 - OTUs autocomplete API endpoint ignoring `having_taxon_name_only` param
+- DwC importer creating multiple namespaces instead of just one for `occurrenceID` and `eventID`
 
 [#2110]: https://github.com/SpeciesFileGroup/taxonworks/issues/2110
 [#3716]: https://github.com/SpeciesFileGroup/taxonworks/issues/3716
 [#3727]: https://github.com/SpeciesFileGroup/taxonworks/issues/3727
 [#3736]: https://github.com/SpeciesFileGroup/taxonworks/issues/3736
-[#3746]: https://github.com/SpeciesFileGroup/taxonworks/issues/3746
 
 ## [0.37.0] - 2023-12-14
 

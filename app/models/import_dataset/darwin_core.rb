@@ -159,6 +159,7 @@ class ImportDataset::DarwinCore < ImportDataset
       end
 
       if imported.any? && record_id.nil?
+        reload
         self.metadata.merge!({
           'import_start_id' => imported.last&.id + 1,
           'import_filters' => filters,
