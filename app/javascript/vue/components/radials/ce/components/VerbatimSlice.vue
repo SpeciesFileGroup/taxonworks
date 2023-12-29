@@ -11,7 +11,9 @@
       Too many records selected, maximum {{ MAX_LIMIT }}
     </div>
     <div v-else>
-      <h3>{{ count }} records will be updated</h3>
+      <h3>
+        {{ count }} {{ count === 1 ? 'record' : 'records' }} will be updated
+      </h3>
       <i>* Only fields that are checked will be updated.</i>
       <div
         v-for="(component, property) in VERBATIM_FIELDS"
@@ -116,7 +118,10 @@ const payload = computed(() => ({
   collecting_event_query: props.parameters,
   collecting_event: {
     ...Object.fromEntries(
-      updateFields.value.map((property) => [property, fields.value[property]])
+      updateFields.value.map((property) => [
+        property,
+        fields.value[property] || null
+      ])
     )
   }
 }))

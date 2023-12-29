@@ -11,142 +11,102 @@
       Too many records selected, maximum {{ MAX_LIMIT }}
     </div>
     <div v-else>
-      <h3>{{ count }} {{ (count === 1) ? "record" : "records" }} will be updated</h3>
-      <fieldset>
-        <legend>Date</legend>
+      <h3>
+        {{ count }} {{ count === 1 ? 'record' : 'records' }} will be updated
+      </h3>
+      * Only fields that are checked will be updated.
+
+      <div class="margin-xlarge-bottom margin-large-top">
+        <label class="separate-bottom">
+          <input
+            type="checkbox"
+            v-model="setStartDate"
+          />
+          <b>Start date</b>
+        </label>
+        <div
+          class="horizontal-left-content margin-small-bottom align-end padding-large-left"
+        >
+          <DateFields
+            v-model:year="startDate.start_date_year"
+            v-model:month="startDate.start_date_month"
+            v-model:day="startDate.start_date_day"
+            @input="() => (setStartDate = true)"
+          />
+          <DateNow
+            v-model:year="startDate.start_date_year"
+            v-model:month="startDate.start_date_month"
+            v-model:day="startDate.start_date_day"
+            @click="() => (setStartDate = true)"
+          />
+        </div>
         <div>
-          <div>
-            <label class="separate-bottom">
-              <input
-                type="checkbox"
-                v-model="setStartDate"
-              />
-              <b>Change Start date</b>
-            </label>
-            <div class="horizontal-left-content separate-bottom align-end">
-              <date-fields
-                v-model:year="startDate.start_date_year"
-                v-model:month="startDate.start_date_month"
-                v-model:day="startDate.start_date_day"
-              />
-              <date-now
-                v-model:year="startDate.start_date_year"
-                v-model:month="startDate.start_date_month"
-                v-model:day="startDate.start_date_day"
-              />
-            </div>
-          </div>
-          <div>
-            <label class="separate-bottom">
-              <input
-                type="checkbox"
-                v-model="setEndDate"
-              />
-              <b>Change End date</b></label>
-            <div class="horizontal-left-content separate-bottom align-end">
-              <date-fields
-                v-model:year="endDate.end_date_year"
-                v-model:month="endDate.end_date_month"
-                v-model:day="endDate.end_date_day"
-              />
-              <date-now
-                v-model:year="endDate.end_date_year"
-                v-model:month="endDate.end_date_month"
-                v-model:day="endDate.end_date_day"
-              />
-              <button
-                type="button"
-                class="button normal-input button-default margin-small-left"
-                @click="cloneDate"
-              >
-                Clone
-              </button>
-            </div>
+          <label>
+            <input
+              type="checkbox"
+              v-model="setEndDate"
+            />
+            <b>End date</b></label
+          >
+          <div
+            class="horizontal-left-content separate-bottom align-end padding-large-left"
+          >
+            <DateFields
+              v-model:year="endDate.end_date_year"
+              v-model:month="endDate.end_date_month"
+              v-model:day="endDate.end_date_day"
+              @input="() => (setEndDate = true)"
+            />
+            <DateNow
+              v-model:year="endDate.end_date_year"
+              v-model:month="endDate.end_date_month"
+              v-model:day="endDate.end_date_day"
+              @click="() => (setEndDate = true)"
+            />
+            <button
+              type="button"
+              class="button normal-input button-default margin-small-left"
+              @click="cloneDate"
+            >
+              Clone
+            </button>
           </div>
         </div>
-      </fieldset>
-      <fieldset>
-        <legend>Time</legend>
+      </div>
+
+      <div>
+        <label class="separate-bottom">
+          <input
+            type="checkbox"
+            v-model="setStartTime"
+          />
+          <b>Start time</b>
+        </label>
+        <DateTime
+          class="padding-large-left"
+          v-model:hour="startTime.time_start_hour"
+          v-model:minutes="startTime.time_start_minute"
+          v-model:seconds="startTime.time_start_second"
+          @input="() => (setStartTime = true)"
+        />
         <div>
-          <div>
-            <label class="separate-bottom">
-              <input
-                type="checkbox"
-                v-model="setStartTime"
-              />
-              <b>Start time</b>
-            </label>
-            <div class="horizontal-left-content separate-bottom">
-              <div class="margin-small-right label-above">
-                <label>
-                  Hour</label>
-                <input
-                  type="number"
-                  class="input-xsmall-width"
-                  min="0"
-                  max="23"
-                  v-model="startTime.time_start_hour">
-              </div>
-              <div class="margin-small-right label-above">
-                <label>Minute</label>
-                <input
-                  type="number"
-                  class="input-xsmall-width"
-                  min="0"
-                  max="60"
-                  v-model="startTime.time_start_minute">
-              </div>
-              <div class="label-above">
-                <label>Seconds</label>
-                <input
-                  type="number"
-                  class="input-xsmall-width"
-                  min="0"
-                  max="60"
-                  v-model="startTime.time_start_second">
-              </div>
-            </div>
-          </div>
-          <div>
-            <label class="separate-bottom">
-              <input
-                type="checkbox"
-                v-model="setEndTime"
-              />
-              <b>End time</b>
-            </label>
-            <div class="horizontal-left-content separate-bottom">
-              <div class="margin-small-right label-above">
-                <label>Hour</label>
-                <input
-                  type="number"
-                  class="input-xsmall-width"
-                  min="0"
-                  max="23"
-                  v-model="endTime.time_end_hour">
-              </div>
-              <div class="margin-small-right label-above">
-                <label>Minute</label>
-                <input
-                  type="number"
-                  class="input-xsmall-width"
-                  min="0"
-                  max="60"
-                  v-model="endTime.time_end_minute">
-              </div>
-              <div class="label-above">
-                <label>Seconds</label>
-                <input
-                  type="number"
-                  class="input-xsmall-width"
-                  min="0"
-                  max="60"
-                  v-model="endTime.time_end_second">
-              </div>
-            </div>
-          </div>
+          <label class="separate-bottom">
+            <input
+              type="checkbox"
+              v-model="setEndTime"
+            />
+            <b>End time</b>
+          </label>
+
+          <DateTime
+            class="padding-large-left"
+            v-model:hour="endTime.time_end_hour"
+            v-model:minutes="endTime.time_end_minute"
+            v-model:seconds="endTime.time_end_second"
+            @input="() => (setEndTime = true)"
+          />
         </div>
-      </fieldset>
+      </div>
 
       <div
         class="horizontal-left-content gap-small margin-large-top margin-large-bottom"
@@ -183,6 +143,7 @@ import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import VSpinner from '@/components/spinner.vue'
 import DateFields from '@/components/ui/Date/DateFields.vue'
 import DateNow from '@/components/ui/Date/DateToday.vue'
+import DateTime from '@/components/ui/Date/DateTime.vue'
 
 const MAX_LIMIT = 250
 
@@ -210,24 +171,24 @@ const setEndTime = ref(false)
 const startDate = reactive({
   start_date_year: null,
   start_date_month: null,
-  start_date_day: null,
+  start_date_day: null
 })
 const endDate = reactive({
   end_date_year: null,
   end_date_month: null,
-  end_date_day: null,
+  end_date_day: null
 })
 
 const startTime = reactive({
   time_start_hour: null,
   time_start_minute: null,
-  time_start_second: null,
+  time_start_second: null
 })
 
 const endTime = reactive({
   time_end_hour: null,
   time_end_minute: null,
-  time_end_second: null,
+  time_end_second: null
 })
 
 const payload = computed(() => {
@@ -235,7 +196,7 @@ const payload = computed(() => {
     ...(setStartDate.value ? startDate : {}),
     ...(setEndDate.value ? endDate : {}),
     ...(setStartTime.value ? startTime : {}),
-    ...(setEndTime.value ? endTime : {}),
+    ...(setEndTime.value ? endTime : {})
   }
   return {
     collecting_event_query: props.parameters,
@@ -244,7 +205,12 @@ const payload = computed(() => {
 })
 
 const anyFieldsSet = computed(() => {
-  return setStartDate.value || setEndDate.value || setStartTime.value || setEndTime.value
+  return (
+    setStartDate.value ||
+    setEndDate.value ||
+    setStartTime.value ||
+    setEndTime.value
+  )
 })
 
 function cloneDate() {

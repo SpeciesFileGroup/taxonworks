@@ -11,7 +11,9 @@
       Too many records selected, maximum {{ MAX_LIMIT }}
     </div>
     <div v-else>
-      <h3>{{ count }} records will be updated</h3>
+      <h3>
+        {{ count }} {{ count === 1 ? 'record' : 'records' }} will be updated
+      </h3>
 
       <fieldset>
         <legend>Collector</legend>
