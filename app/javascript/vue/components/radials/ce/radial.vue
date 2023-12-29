@@ -13,10 +13,12 @@ import { COLLECTING_EVENT } from '@/constants'
 import RadialBatch from '@/components/radials/shared/RadialBatch.vue'
 import AssignSlice from './components/AssignSlice.vue'
 import CollectorSlice from './components/CollectorSlice.vue'
+import DateTimeSlice from '@/components/radials/ce/components/DateTimeSlice.vue'
 
 const SLICES = {
   'Assign/Move': AssignSlice,
-  'Append New Collectors': CollectorSlice
+  'Append New Collectors': CollectorSlice,
+  'Set Collection Date/Time': DateTimeSlice
 }
 
 defineOptions({
