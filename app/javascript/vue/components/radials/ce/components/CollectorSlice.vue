@@ -1,9 +1,5 @@
 <template>
   <div>
-    <VSpinner
-      v-if="isUpdating"
-      legend="Updating..."
-    />
     <div
       v-if="isCountExceeded"
       class="feedback feedback-danger"
@@ -11,7 +7,9 @@
       Too many records selected, maximum {{ MAX_LIMIT }}
     </div>
     <div v-else>
-      <h3>{{ count }} records will be updated</h3>
+      <h3>
+        {{ count }} {{ count === 1 ? 'record' : 'records' }} will be updated
+      </h3>
 
       <fieldset>
         <legend>Collector</legend>
@@ -79,7 +77,6 @@ import { ref, computed } from 'vue'
 import { COLLECTING_EVENT, ROLE_COLLECTOR } from '@/constants'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
-import VSpinner from '@/components/spinner.vue'
 import RolePicker from '@/components/role_picker.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 
@@ -98,7 +95,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close'])
-const isUpdating = ref(false)
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 const updateBatchRef = ref(null)
 const rolepicker = ref(null)

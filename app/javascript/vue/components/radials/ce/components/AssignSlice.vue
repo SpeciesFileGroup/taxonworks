@@ -1,9 +1,5 @@
 <template>
   <div>
-    <VSpinner
-      v-if="isUpdating"
-      legend="Updating..."
-    />
     <div
       v-if="isCountExceeded"
       class="feedback feedback-danger"
@@ -11,7 +7,9 @@
       Too many records selected, maximum {{ MAX_LIMIT }}
     </div>
     <div v-else>
-      <h3>{{ count }} records will be updated</h3>
+      <h3>
+        {{ count }} {{ count === 1 ? 'record' : 'records' }} will be updated
+      </h3>
 
       <fieldset>
         <legend>Geographic area</legend>
@@ -57,14 +55,13 @@
 </template>
 
 <script setup>
+import { COLLECTING_EVENT } from '@/constants/index.js'
+import { CollectingEvent } from '@/routes/endpoints'
+import { ref, computed } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
-import VSpinner from '@/components/spinner.vue'
-import { COLLECTING_EVENT } from '@/constants/index.js'
-import { CollectingEvent } from '@/routes/endpoints'
-import { ref, computed } from 'vue'
 
 const MAX_LIMIT = 250
 
@@ -82,7 +79,6 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 const geographicArea = ref()
-const isUpdating = ref(false)
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 const updateBatchRef = ref(null)
 
@@ -95,8 +91,8 @@ const payload = computed(() => ({
 
 function updateMessage(data) {
   const message = data.sync
-    ? `${data.updated.length} collection objects queued for updating.`
-    : `${data.updated.length} collection objects were successfully updated.`
+    ? `${data.updated.length} collecting events queued for updating.`
+    : `${data.updated.length} collecting events were successfully updated.`
 
   TW.workbench.alert.create(message, 'notice')
 }

@@ -112,7 +112,7 @@ module Export::Dwca
         core_scope.computed_columns,
         # TODO: check to see if we nee dthis
         exclude_columns: ::DwcOccurrence.excluded_columns,
-        column_order: ::CollectionObject::DWC_OCCURRENCE_MAP.keys + ::CollectionObject::EXTENSION_FIELDS_MAP.keys, # TODO: add other maps here
+        column_order: ::CollectionObject::DWC_OCCURRENCE_MAP.keys + ::CollectionObject::EXTENSION_FIELDS, # TODO: add other maps here
         trim_columns: true, # going to have to be optional
         trim_rows: false,
         header_converters: [:dwc_headers]
@@ -148,15 +148,27 @@ module Export::Dwca
       collection_object_ids = core_scope.select(:dwc_occurrence_object_id).pluck(:dwc_occurrence_object_id)
       collection_objects = CollectionObject.joins(:dwc_occurrence).where(id: core_scope.select(:dwc_occurrence_object_id))
 
+      # hash of internal method name => csv header name
+      methods = {}
+
+      # hash of column_name => csv header name
+      ce_fields = {}
+      co_fields = {}
+
       # select valid methods, generate frozen name string ahead of time
       # add TW prefix to names
-      methods = @taxonworks_extension_methods.filter_map { |sym|
-        if (method = ::CollectionObject::EXTENSION_FIELDS_MAP[sym])
-          [('TW:Internal:' + sym.name).freeze, method]
+      @taxonworks_extension_methods.each do |sym|
+        csv_header_name = ('TW:Internal:' + sym.name).freeze
+        if (method = ::CollectionObject::EXTENSION_COMPUTED_FIELDS[sym])
+          methods[method] = csv_header_name
+        elsif (column_name = ::CollectionObject::EXTENSION_CE_FIELDS[sym])
+          ce_fields[column_name] = csv_header_name
+        elsif (column_name =::CollectionObject::EXTENSION_CO_FIELDS[sym])
+          co_fields[column_name] = csv_header_name
         end
-      }.to_h
+      end
 
-      used_extensions = methods.keys
+      used_extensions = methods.values + ce_fields.values + co_fields.values
 
       # if no predicate data found, return empty file
       if used_extensions.empty?
@@ -167,8 +179,23 @@ module Export::Dwca
       extension_data = []
 
       collection_objects.find_each do |object|
-        methods.each_pair { |name, method| extension_data << [object.id, name, object.send(method)] }
+        methods.each_pair { |method, name| extension_data << [object.id, name, object.send(method)] }
       end
+
+      # extract to ensure consistent order
+      co_columns = co_fields.keys
+      co_csv_names = co_columns.map { |sym| co_fields[sym] }
+      co_column_count = co_columns.size
+      # get all CO fields in one query, then split into triplets of [id, CSV column name, value]
+      extension_data += collection_objects.pluck(:id, *co_columns)
+                                          .flat_map { |id, *values| ([id] * co_column_count).zip(co_csv_names, values) }
+
+      ce_columns = ce_fields.keys
+      ce_csv_names = ce_columns.map { |sym| ce_fields[sym] }
+      ce_column_count = ce_columns.size
+      extension_data += collection_objects.joins(:collecting_event) # no point using left outer join, no event means all data is nil
+                                          .pluck(:id, *ce_columns)
+                                          .flat_map { |id, *values| ([id] * ce_column_count).zip(ce_csv_names, values) }
 
       # Create hash with key: co_id, value: [[extension_name, extension_value], ...]
       # prefill with empty values so we have the same number of rows as the main csv, even if some rows don't have

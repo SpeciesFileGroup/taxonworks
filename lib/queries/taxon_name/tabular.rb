@@ -307,7 +307,9 @@ module Queries
           end
         end
 
-        nomenclature_stats_column(query, 'combination', nil, i)
+        if combinations
+          nomenclature_stats_column(query, 'combination', nil, i)
+        end
 
         query
       end
