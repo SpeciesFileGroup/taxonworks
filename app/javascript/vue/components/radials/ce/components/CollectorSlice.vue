@@ -1,9 +1,5 @@
 <template>
   <div>
-    <VSpinner
-      v-if="isUpdating"
-      legend="Updating..."
-    />
     <div
       v-if="isCountExceeded"
       class="feedback feedback-danger"
@@ -81,7 +77,6 @@ import { ref, computed } from 'vue'
 import { COLLECTING_EVENT, ROLE_COLLECTOR } from '@/constants'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
-import VSpinner from '@/components/spinner.vue'
 import RolePicker from '@/components/role_picker.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 
@@ -100,7 +95,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close'])
-const isUpdating = ref(false)
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 const updateBatchRef = ref(null)
 const rolepicker = ref(null)

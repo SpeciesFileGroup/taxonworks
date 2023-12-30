@@ -1,9 +1,5 @@
 <template>
   <div>
-    <VSpinner
-      v-if="isUpdating"
-      legend="Updating..."
-    />
     <div
       v-if="isCountExceeded"
       class="feedback feedback-danger"
@@ -59,14 +55,13 @@
 </template>
 
 <script setup>
+import { COLLECTING_EVENT } from '@/constants/index.js'
+import { CollectingEvent } from '@/routes/endpoints'
+import { ref, computed } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
-import VSpinner from '@/components/spinner.vue'
-import { COLLECTING_EVENT } from '@/constants/index.js'
-import { CollectingEvent } from '@/routes/endpoints'
-import { ref, computed } from 'vue'
 
 const MAX_LIMIT = 250
 
@@ -84,7 +79,6 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 const geographicArea = ref()
-const isUpdating = ref(false)
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 const updateBatchRef = ref(null)
 

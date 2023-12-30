@@ -1,9 +1,5 @@
 <template>
   <div>
-    <VSpinner
-      v-if="isUpdating"
-      legend="Updating..."
-    />
     <div
       v-if="isCountExceeded"
       class="feedback feedback-danger"
@@ -140,7 +136,6 @@ import { CollectingEvent } from '@/routes/endpoints'
 import { computed, reactive, ref } from 'vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
-import VSpinner from '@/components/spinner.vue'
 import DateFields from '@/components/ui/Date/DateFields.vue'
 import DateNow from '@/components/ui/Date/DateToday.vue'
 import DateTime from '@/components/ui/Date/DateTime.vue'
@@ -160,7 +155,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close'])
-const isUpdating = ref(false)
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 const updateBatchRef = ref(null)
 const setStartDate = ref(false)

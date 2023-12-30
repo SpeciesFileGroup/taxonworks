@@ -1,9 +1,5 @@
 <template>
   <div>
-    <VSpinner
-      v-if="isUpdating"
-      legend="Updating..."
-    />
     <div
       v-if="isCountExceeded"
       class="feedback feedback-danger"
@@ -71,11 +67,10 @@
 
 <script setup>
 import { CollectingEvent } from '@/routes/endpoints'
-import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
-import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
-import VSpinner from '@/components/spinner.vue'
 import { ref, computed } from 'vue'
 import { addToArray, humanize } from '@/helpers'
+import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
+import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 
 const MAX_LIMIT = 250
 
@@ -110,7 +105,6 @@ const emit = defineEmits(['close'])
 
 const updateFields = ref([])
 const fields = ref({})
-const isUpdating = ref(false)
 const updateBatchRef = ref(null)
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 
