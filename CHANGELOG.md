@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- `dwc_occurrence_id` param to `/api/v1/dwc_occurrences`
 - Another project_id scope issue in Otu Filter
 - Update DwcOccurence index endpoint
 - Uniquify people: Always show radials for selected person

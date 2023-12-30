@@ -45,7 +45,7 @@ module Queries
 
       def dwc_occurrence_id_facet
         return nil if dwc_occurrence_id.empty?
-        table[:dwc_occurrence_id].in(dwc_occurrence_id)
+        table[:id].in(dwc_occurrence_id)
       end
 
       def dwc_occurrence_object_id_facet
