@@ -6,6 +6,21 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
 
   let(:ad_offset) { FactoryBot.build( :valid_asserted_distribution, geographic_area: ga_offset) }
 
+  specify '#destroy_cached_map' do
+    ad_offset.save!
+    Delayed::Worker.new.work_off # triggers cached map item build
+    expect(ad_offset.otu.cached_map).to be_truthy
+
+    a = FactoryBot.create(:valid_asserted_distribution, otu: ad_offset.otu)
+    Delayed::Worker.new.work_off # triggers cached map destroy
+
+    expect(ad_offset.otu.cached_maps).to be_empty
+  end
+
+  specify '#touched_cached_maps' do
+    expect(ad_offset.send(:touched_cached_maps).pluck(:id)).to eq([ad_offset.otu_id])
+  end
+
   specify 'Delayed::Job is cued' do
     ad_offset.save!
     expect(Delayed::Job.count).to eq(2) # Create items, clear CachedMap
@@ -17,7 +32,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
   end
 
   context 'Delayed::Job(s) on create' do
-    before do 
+    before do
       ad_offset.save!
       Delayed::Worker.new.work_off
     end
@@ -71,7 +86,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     end
 
     specify 'decrements CachedMapItem reference count 2' do
-      # Hack the total 
+      # Hack the total
       ad_offset.otu.cached_map_items.first.update_column(:reference_count, 99)
 
       ad_offset.run_callbacks(:destroy)

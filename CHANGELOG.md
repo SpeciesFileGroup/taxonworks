@@ -9,7 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- Added Emendavid status for ICN names [#3716]
+- `Emendavit` status for ICN names [#3716]
 - "CONFIRM" screen when editing a collecting event with > 100 attached COs [#3727]
 - `epithet_only` parameter and facet to taxon name filter [#3589]
 - Links for users profiles on project members list (only for administrators)
@@ -28,14 +28,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - `dwc_occurrence_id` param to `/api/v1/dwc_occurrences`
-- Another project_id scope issue in Otu Filter
+- Another `project_id` scope issue in Otu Filter
 - Update DwcOccurence index endpoint
 - Uniquify people: Always show radials for selected person
 - Remove property doesn't work on Biological relationship composer
 - Feet to meter conversion does not work as expected [#2110]
 - OTUs autocomplete API endpoint ignoring `having_taxon_name_only` param
 - DwC importer creating multiple namespaces instead of just one for `occurrenceID` and `eventID`
+- Combination always visible [#3366]
 
+[#3366]: https://github.com/SpeciesFileGroup/taxonworks/issues/3366
 [#2110]: https://github.com/SpeciesFileGroup/taxonworks/issues/2110
 [#3716]: https://github.com/SpeciesFileGroup/taxonworks/issues/3716
 [#3727]: https://github.com/SpeciesFileGroup/taxonworks/issues/3727
