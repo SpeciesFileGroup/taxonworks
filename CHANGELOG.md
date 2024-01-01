@@ -36,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - OTUs autocomplete API endpoint ignoring `having_taxon_name_only` param
 - DwC importer creating multiple namespaces instead of just one for `occurrenceID` and `eventID`
 - Combination always visible [#3366]
+- Copy text from PDF
 
 [#3366]: https://github.com/SpeciesFileGroup/taxonworks/issues/3366
 [#2110]: https://github.com/SpeciesFileGroup/taxonworks/issues/2110
