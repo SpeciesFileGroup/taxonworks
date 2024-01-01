@@ -32,6 +32,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
     @download = ::Export::Dwca.download_async(
       a, request.url,
       predicate_extensions: predicate_extension_params,
+      taxonworks_extensions: taxonworks_extension_params,
       extension_scopes: {
         biological_associations: params[:biological_associations_extension] ?
         ::Queries::BiologicalAssociation::Filter.new(collection_object_query: q.params).all.to_sql : nil
@@ -58,10 +59,18 @@ class Tasks::Dwc::DashboardController < ApplicationController
     render json: ::Export::Dwca::INDEX_VERSION, status: :ok
   end
 
+  def taxonworks_extension_methods
+    render json: ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS, status: :ok
+  end
+
   private
 
   def predicate_extension_params
     params.permit(collecting_event_predicate_id: [], collection_object_predicate_id: [] ).to_h.symbolize_keys
+  end
+
+  def taxonworks_extension_params
+    params.permit(taxonworks_extension_methods: []).dig(:taxonworks_extension_methods).map(&:to_sym)
   end
 
 end

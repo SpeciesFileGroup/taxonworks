@@ -2,6 +2,8 @@ module CollectionObject::DwcExtensions
 
   extend ActiveSupport::Concern
 
+  include CollectionObject::DwcExtensions::TaxonworksExtensions
+
   included do
 
     # A current list of mappable values
@@ -50,7 +52,11 @@ module CollectionObject::DwcExtensions
       order: :dwc_order,
       higherClassification: :dwc_higher_classification,
 
+      superfamily: :dwc_superfamily,
       family: :dwc_family,
+      subfamily: :dwc_subfamily,
+      tribe: :dwc_tribe,
+      subtribe: :dwc_subtribe,
       genus: :dwc_genus,
       specificEpithet: :dwc_specific_epithet,
       infraspecificEpithet: :dwc_infraspecific_epithet,
@@ -93,6 +99,8 @@ module CollectionObject::DwcExtensions
       associatedTaxa: :dwc_associated_taxa,
 
       occurrenceRemarks: :dwc_occurrence_remarks,
+
+      identificationRemarks: :dwc_identification_remarks,
 
       eventRemarks: :dwc_event_remarks,
 
@@ -173,11 +181,16 @@ module CollectionObject::DwcExtensions
 
   # https://dwc.tdwg.org/list/#dwc_georeferenceRemarks
   def dwc_occurrence_remarks
-    notes.collect{|n| n.text}.join('|')
+    notes.collect{|n| n.text}&.join(CollectionObject::DWC_DELIMITER)
+  end
+
+  # https://dwc.tdwg.org/list/#dwc_identificationRemarks
+  def dwc_identification_remarks
+    current_taxon_determination&.notes&.collect { |n| n.text }&.join(CollectionObject::DWC_DELIMITER)
   end
 
   def dwc_event_remarks
-    collecting_event&.notes&.collect {|n| n.text}&.join('|')
+    collecting_event&.notes&.collect {|n| n.text}&.join(CollectionObject::DWC_DELIMITER)
   end
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
@@ -396,9 +409,29 @@ module CollectionObject::DwcExtensions
     taxonomy['order']
   end
 
+  # http://rs.tdwg.org/dwc/terms/superfamily
+  def dwc_superfamily
+    taxonomy['superfamily']
+  end
+
   # http://rs.tdwg.org/dwc/terms/family
   def dwc_family
     taxonomy['family']
+  end
+
+  # http://rs.tdwg.org/dwc/terms/subfamily
+  def dwc_subfamily
+    taxonomy['subfamily']
+  end
+
+  # http://rs.tdwg.org/dwc/terms/tribe
+  def dwc_tribe
+    taxonomy['tribe']
+  end
+
+  # http://rs.tdwg.org/dwc/terms/subtribe
+  def dwc_subtribe
+    taxonomy['subtribe']
   end
 
   # http://rs.tdwg.org/dwc/terms/genus

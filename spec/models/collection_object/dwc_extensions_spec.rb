@@ -33,6 +33,39 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     expect(s.dwc_occurrence_remarks).to eq('text')
   end
 
+  context '#dwc_identification_remarks' do
+    let(:s) { Specimen.create! }
+
+    specify 'with no notes' do
+      FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+      expect(s.dwc_identification_remarks).to eq('')
+    end
+
+    specify 'with one note' do
+      d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+      d.notes << Note.new(text: 'text')
+      expect(s.dwc_identification_remarks).to eq('text')
+    end
+
+    specify 'with multiple notes' do
+      d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+      d.notes << Note.new(text: 'text1')
+      d.notes << Note.new(text: 'text2')
+      expect(s.dwc_identification_remarks).to eq('text1 | text2')
+    end
+
+    it 'should only include remarks for the latest determination' do
+      otu = FactoryBot.create(:valid_otu)
+      d1 = TaxonDetermination.create!(biological_collection_object: s, otu:)
+      d2 = TaxonDetermination.create!(biological_collection_object: s, otu:)
+
+      d1.notes << Note.new(text: 'd1 text')
+      d2.notes << Note.new(text: 'd2 text')
+
+      expect(s.dwc_identification_remarks).to eq('d2 text')
+    end
+  end
+
   specify '#dwc_georeference_protocol' do
     p = FactoryBot.create(:valid_protocol)
     g = FactoryBot.create(:valid_georeference, protocols: [p])
@@ -480,6 +513,37 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_associated_media).to eq("#{p}/#{a.image_file_fingerprint} | #{p}/#{b.image_file_fingerprint}")
     end
 
+    specify '#dwc_superfamily' do
+      p = FactoryBot.create(:relationship_family, name: 'Erythroneuroidea', rank_class: Ranks.lookup(:iczn, :superfamily))
+      c = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+
+      s.taxonomy(true)
+      expect(s.dwc_superfamily).to eq(p.name)
+    end
+
+    specify '#dwc_subfamily' do
+      p = FactoryBot.create(:relationship_family, name: 'Erythroneurinae', rank_class: Ranks.lookup(:iczn, :subfamily))
+      c = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+
+      s.taxonomy(true)
+      expect(s.dwc_subfamily).to eq(p.name)
+    end
+
+    specify '#dwc_tribe' do
+      p = FactoryBot.create(:relationship_family, name: 'Erythroneurini', rank_class: Ranks.lookup(:iczn, :tribe))
+      c = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+
+      s.taxonomy(true)
+      expect(s.dwc_tribe).to eq(p.name)
+    end
+
+    specify '#dwc_subtribe' do
+      p = FactoryBot.create(:relationship_family, name: 'Erythroneurina', rank_class: Ranks.lookup(:iczn, :subtribe))
+      c = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+
+      s.taxonomy(true)
+      expect(s.dwc_subtribe).to eq(p.name)
+    end
   end
 end
 

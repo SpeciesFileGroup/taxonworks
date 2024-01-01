@@ -17,6 +17,43 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     )
   }
 
+  context '#ancestrify' do
+    let!(:s_no) {
+      Protonym.create!(
+        name: "nox",
+        rank_class: Ranks.lookup(:iczn, "species"),
+        parent: genus,
+      )
+    }
+
+    let!(:g_no) {
+      Protonym.create!(name: "Bus", rank_class: Ranks.lookup(:iczn, "genus"), parent: root)
+    }
+
+    specify 'basic' do
+      query.ancestrify = true
+      query.taxon_name_id = species.id
+
+      expect(query.all.map(&:id)).to include(species.id, genus.id, root.id)
+    end
+
+    specify "not cross project" do
+      p2 = FactoryBot.create(:valid_project)
+
+      a = Protonym.create!(
+        name: "notme",
+        rank_class: Ranks.lookup(:iczn, "species"),
+        parent: p2.root_taxon_name,
+        project: p2
+      )
+
+      query.ancestrify = true
+      query.taxon_name_id = species.id
+
+      expect(query.all.map(&:id)).to_not include(a.id)
+    end
+  end
+
   specify "#not_specified 1" do
     query.not_specified = false
     species.update!(parent: root, original_genus: nil)

@@ -1,7 +1,7 @@
 <template>
   <div class="horizontal-left-content align-end">
     <div
-      v-for="(field, index) in inputFields"
+      v-for="(field, index) in dateFields"
       :key="field.property"
       class="margin-small-right"
       :class="{ 'label-above': !inline }"
@@ -14,6 +14,7 @@
         {{ field.property }}
       </label>
       <input
+        v-between-numbers="[field.min, field.max]"
         :type="field.type"
         :placeholder="placeholder ? field.property : ''"
         :ref="
@@ -32,25 +33,21 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
+import { vBetweenNumbers } from '@/directives/betweenNumbers'
 
 const props = defineProps({
-  day: {
+  hour: {
     type: [String, Number],
     default: ''
   },
 
-  month: {
+  minutes: {
     type: [String, Number],
     default: ''
   },
 
-  year: {
-    type: [String, Number],
-    default: ''
-  },
-
-  time: {
+  seconds: {
     type: [String, Number],
     default: ''
   },
@@ -72,49 +69,44 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-  'update:day',
-  'update:month',
-  'update:year',
-  'update:time',
+  'update:hour',
+  'update:minutes',
+  'update:seconds',
   'change',
   'input'
 ])
 
 const dateFields = [
   {
-    type: 'text',
-    property: 'year',
-    maxLength: 4
+    type: 'number',
+    property: 'hour',
+    maxLength: 2,
+    min: 0,
+    max: 23
   },
   {
-    type: 'text',
-    property: 'month',
-    maxLength: 2
+    type: 'number',
+    property: 'minutes',
+    maxLength: 2,
+    min: 0,
+    max: 59
   },
   {
-    type: 'text',
-    property: 'day',
-    maxLength: 2
+    type: 'number',
+    property: 'seconds',
+    maxLength: 2,
+    min: 0,
+    max: 59
   }
 ]
 
-const timeField = {
-  type: 'time',
-  property: 'time',
-  step: 2
-}
-
 const fieldsRef = ref([])
 
-const inputFields = computed(() =>
-  props.timeField ? [...dateFields, timeField] : dateFields
-)
-
-const autoAdvance = (e, index) => {
+function autoAdvance(e, index) {
   const element = fieldsRef.value[index]
-  const currentField = inputFields.value[index]
+  const currentField = dateFields[index]
 
-  emit(`update:${inputFields.value[index].property}`, e.target.value)
+  emit(`update:${dateFields[index].property}`, e.target.value)
   emit('input', e)
 
   index++
@@ -129,7 +121,7 @@ const autoAdvance = (e, index) => {
 </script>
 
 <style scoped>
-input[type='text'] {
+input[type='number'] {
   width: 60px;
 }
 </style>
