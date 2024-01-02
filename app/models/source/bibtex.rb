@@ -847,8 +847,6 @@ class Source::Bibtex < Source
   def render_with_style(style = 'vancouver', format = 'text', normalize_names = true)
     s = ::TaxonWorks::Vendor::BibtexRuby.get_style(style)
     cp = CiteProc::Processor.new(style: s, format:)
-    b = to_bibtex
-    ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(b) if normalize_names
     cp.import( [to_citeproc(normalize_names)] )
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
   end
