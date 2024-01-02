@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Batch append collectors to Collecting Events within CE filter
 - Batch set Collecting Event date and time within CE filter
 - DwC `superfamily`, `subfamily`, `tribe`, `subtribe` export support
+- Save user's custom layout tables [#3756]
 
 ### Changed
 
