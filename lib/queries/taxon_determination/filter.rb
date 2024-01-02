@@ -50,12 +50,12 @@ module Queries
 
       def otu_id_facet
         return nil if otu_id.empty?
-        table[:otu_id].eq_any(otu_id)
+        table[:otu_id].in(otu_id)
       end
 
       def collection_object_id_facet
         return nil if collection_object_id.empty?
-        table[:biological_collection_object_id].eq_any(collection_object_id)
+        table[:biological_collection_object_id].in(collection_object_id)
       end
 
       def determiner_id_facet

@@ -13,13 +13,13 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
   let(:small_polygon) { RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 ) }
   let(:big_polygon) { RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 ) }
 
-  let(:small_geo_area) do 
+  let(:small_geo_area) do
     a = FactoryBot.create(:level1_geographic_area)
     a.geographic_items << GeographicItem.create!( polygon: small_polygon)
     a
-  end 
+  end
 
-  let(:big_geo_area) do 
+  let(:big_geo_area) do
     b = FactoryBot.create(:level1_geographic_area)
     b.geographic_items << GeographicItem.create!( polygon: big_polygon)
     b
@@ -46,7 +46,7 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
 
     q.geographic_area_id = big_geo_area.parent.id
-    q.geographic_area_mode = false 
+    q.geographic_area_mode = false
 
     expect(q.all).to contain_exactly(b)
   end
@@ -65,7 +65,7 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
 
     q.geographic_area_id = big_geo_area.id
-    q.geographic_area_mode = true 
+    q.geographic_area_mode = true
 
     expect(q.all).to contain_exactly(a, b)
   end
@@ -75,7 +75,7 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
 
     q.geographic_area_id = small_geo_area.id
-    q.geographic_area_mode = true 
+    q.geographic_area_mode = true
 
     expect(q.all).to contain_exactly(a)
   end

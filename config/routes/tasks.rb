@@ -82,6 +82,7 @@ scope :tasks do
     scope :dashboard, controller: 'tasks/dwc/dashboard' do
       get '/', action: :index, as: 'dwc_dashboard_task'
       get :index_versions, defaults: {format: :json}
+      get :taxonworks_extension_methods, defaults: {format: :json}
 
       post 'generate_download', as: 'generate_dwc_download_task', defaults: {format: :json}
       post :create_index, as: 'create_dwc_index_task', defaults: {format: :json}
@@ -270,6 +271,13 @@ scope :tasks do
           get 'convert', as: 'lat_long_convert'
           get 'similar_labels', as: 'lat_long_similar_labels'
         end
+      end
+    end
+
+    scope :stepwise do
+      scope :collectors, controller: 'tasks/collecting_events/stepwise/collectors' do
+        get '/', action: :index, as: 'stepwise_collectors_task'
+        get :data, defaults: {format: :json}
       end
     end
   end

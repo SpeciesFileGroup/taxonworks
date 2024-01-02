@@ -39,11 +39,6 @@ const props = defineProps({
   resize: {
     type: Boolean,
     default: false
-  },
-
-  text: {
-    type: Boolean,
-    default: true
   }
 })
 
@@ -103,7 +98,7 @@ const loadPdf = async (pdfInstance) => {
     id: props.page,
     scale: props.scale,
     defaultViewport: pdfPage.getViewport({ scale: props.scale }),
-    textLayerMode: props.text ? 2 : 0,
+    textLayerMode: 1,
     eventBus
   })
 

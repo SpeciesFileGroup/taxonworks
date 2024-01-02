@@ -3,6 +3,12 @@
     v-model="params"
     param="name"
     title="Name"
+    :aditional-checkboxes="[
+      {
+        label: 'Epithet only',
+        param: 'epithet_only'
+      }
+    ]"
   />
   <FacetTaxonName
     :autocomplete-params="{

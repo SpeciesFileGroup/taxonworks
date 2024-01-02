@@ -61,17 +61,17 @@ module Queries
 
       def name_facet
         return nil if name.empty?
-        table[:name].eq_any(name)
+        table[:name].in(name)
       end
 
       def short_name_facet
         return nil if short_name.empty?
-        table[:short_name].eq_any(short_name)
+        table[:short_name].in(short_name)
       end
 
       def verbatim_name_facet
         return nil if verbatim_short_name.empty?
-        table[:verbatim_short_name].eq_any(verbatim_short_name)
+        table[:verbatim_short_name].in(verbatim_short_name)
       end
 
       def institution_facet

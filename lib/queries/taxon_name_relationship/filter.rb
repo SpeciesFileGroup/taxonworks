@@ -33,7 +33,7 @@ module Queries
       attr_accessor :as_subject
 
       # @param taxon_name_relationship_type [String, Array, nil]
-      #   the full class name like 'TaxonNameRelationship::..etc.', or an Array of them 
+      #   the full class name like 'TaxonNameRelationship::..etc.', or an Array of them
       attr_accessor :taxon_name_relationship_type
 
       # @params subject_taxon_name_id [String, Array, nil]
@@ -58,7 +58,7 @@ module Queries
       def initialize(query_params)
         super
 
-        @as_object = boolean_param(params, :as_object) 
+        @as_object = boolean_param(params, :as_object)
         @as_subject = boolean_param(params, :as_subject)
         @object_taxon_name_id = params[:object_taxon_name_id]
         @subject_taxon_name_id = params[:subject_taxon_name_id]
@@ -108,32 +108,32 @@ module Queries
 
       def taxon_name_relationship_set_facet
         return nil unless taxon_name_relationship_set && taxon_name_relationship_set.any?
-        table[:type].eq_any(relationship_types)
+        table[:type].in(relationship_types)
       end
 
       def taxon_name_relationship_type_facet
         return nil unless taxon_name_relationship_type && taxon_name_relationship_type.any?
-        table[:type].eq_any(taxon_name_relationship_type)
+        table[:type].in(taxon_name_relationship_type)
       end
 
       def taxon_name_id_facet
         return nil if taxon_name_id.empty?
-        table[:subject_taxon_name_id].eq_any(taxon_name_id)
+        table[:subject_taxon_name_id].in(taxon_name_id)
           .or(
-            table[:object_taxon_name_id].eq_any(taxon_name_id)
+            table[:object_taxon_name_id].in(taxon_name_id)
           )
       end
 
       # @return [ActiveRecord::Relation, nil]
       def as_subject_facet
         return nil if subject_taxon_name_id.empty?
-        table[:subject_taxon_name_id].eq_any(subject_taxon_name_id)
+        table[:subject_taxon_name_id].in(subject_taxon_name_id)
       end
 
       # @return [ActiveRecord::Relation, nil]
       def as_object_facet
         return nil if object_taxon_name_id.empty?
-        table[:object_taxon_name_id].eq_any(object_taxon_name_id)
+        table[:object_taxon_name_id].in(object_taxon_name_id)
       end
 
       def and_clauses
@@ -144,7 +144,7 @@ module Queries
           as_subject_facet,
           as_object_facet,
         ]
-      end     
+      end
     end
   end
 end

@@ -146,7 +146,7 @@ module Queries
     #   used in or_clauses
     def with_id
       if integers.any?
-        table[:id].eq_any(integers)
+        table[:id].in(integers)
       else
         nil
       end
@@ -182,7 +182,7 @@ module Queries
     # @return [Arel::Nodes::Equality]
     def with_project_id
       if project_id.present?
-        table[:project_id].eq_any(project_id)
+        table[:project_id].in(project_id)
       else
         nil
       end

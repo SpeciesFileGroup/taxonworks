@@ -9,6 +9,7 @@
     </button>
     <modal-component
       v-if="showModal"
+      :container-style="{ width: '90vw' }"
       @close="showModal = false"
     >
       <template #header>

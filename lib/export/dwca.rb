@@ -21,7 +21,9 @@ module Export
       '2022-03-31 16:30:00.000000 -0500',    # collectionCode, occurrenceRemarks and various small fixes
       '2022-04-28 16:30:00.000000 -0500',    # add dwcOccurrenceStatus
       '2022-09-28 16:30:00.000000 -0500',    # add phylum, class, order, higherClassification
-      '2023-04-03 16:30:00.000000 -0500'     # add associatedTaxa; updating InternalAttributes is now reflected in index
+      '2023-04-03 16:30:00.000000 -0500',    # add associatedTaxa; updating InternalAttributes is now reflected in index
+      '2023-12-14 16:30:00.000000 -0500',    # add verbatimLabel
+      '2023-12-21 11:00:00.000000 -0500'     # add caste (via biocuration), identificationRemarks
     ].freeze
 
     # @param record_scope [ActiveRecord::Relation]
@@ -31,7 +33,7 @@ module Export
     #    valid values are collecting_event_predicate_id: [], collection_object_predicate_id
     # @return [Download]
     #   the download object containing the archive
-    def self.download_async(record_scope, request = nil, extension_scopes: {}, predicate_extensions: {})
+    def self.download_async(record_scope, request = nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: {})
       name = "dwc-a_#{DateTime.now}.zip"
 
       download = ::Download::DwcArchive.create!(
@@ -48,15 +50,16 @@ module Export
         download,
         core_scope: record_scope.to_sql,
         extension_scopes:,
-        predicate_extensions:, 
+        predicate_extensions:,
+        taxonworks_extensions:,
       )
 
       download
     end
 
-    # @param klass [ActiveRecord class]
+    # @param klass [Class] [ActiveRecord class]
     #   e.g. CollectionObject
-    # @param record_scope [An ActiveRecord scope]
+    # @param record_scope [ActiveRecord::Relation] [An ActiveRecord scope]
     # @return Hash
     #   total: total records to expect
     #   start_time: the time indexing started
@@ -71,6 +74,7 @@ module Export
       index_metadata(klass, s)
     end
 
+    # @return [Hash{Symbol=>Integer, Time, Array}]
     def self.index_metadata(klass, record_scope)
       a = record_scope.first&.to_global_id&.to_s  # TODO: this should be UUID?
       b = record_scope.last&.to_global_id&.to_s # TODO: this should be UUID?

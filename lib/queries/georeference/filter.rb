@@ -31,7 +31,7 @@ module Queries
 
       def collecting_event_id_facet
         return nil if collecting_event_id.empty?
-        table[:collecting_event_id].eq_any(collecting_event_id)
+        table[:collecting_event_id].in(collecting_event_id)
       end
 
       def and_clauses

@@ -87,6 +87,7 @@ function makeInitialState() {
     project_preferences: undefined,
     softValidations: [],
     subsequentialUses: 0,
+    ceTotalUsed: 0,
     taxon_determinations: [],
     typeSpecimens: [],
     componentsOrder: {

@@ -51,17 +51,17 @@ module Queries
 
       # @return [Arel::Node, nil]
       def confidence_level_id_facet
-        !confidence_level_id.blank? ? table[:confidence_level_id].eq_any(confidence_level_id)  : nil
+        confidence_level_id.present? ? table[:confidence_level_id].in(confidence_level_id)  : nil
       end
 
       # @return [Arel::Node, nil]
       def confidence_object_type_facet
-        !confidence_object_type.blank? ? table[:confidence_object_type].eq_any(confidence_object_type)  : nil
+        confidence_object_type.present? ? table[:confidence_object_type].in(confidence_object_type)  : nil
       end
 
       # @return [Arel::Node, nil]
       def confidence_object_id_facet
-        confidence_object_id.empty? ? nil : table[:confidence_object_id].eq_any(confidence_object_id)
+        confidence_object_id.empty? ? nil : table[:confidence_object_id].in(confidence_object_id)
       end
 
       def and_clauses

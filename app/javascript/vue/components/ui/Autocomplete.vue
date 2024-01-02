@@ -136,6 +136,11 @@ export default {
       default: undefined
     },
 
+    excludedIds: {
+      type: Array,
+      default: undefined
+    },
+
     min: {
       type: [String, Number],
       default: 1
@@ -341,6 +346,9 @@ export default {
         })
           .then(({ body }) => {
             this.json = this.getNested(body, this.nested)
+            if (this.excludedIds) {
+              this.json = this.json.filter((item) => !this.excludedIds.includes(item.id))
+            }
             this.showList = this.json.length > 0
             this.searchEnd = true
             this.$emit('found', this.showList)

@@ -81,17 +81,28 @@ module Shared::Maps
       delay(queue: 'cached_map').clear_cached_maps
     end
 
+    # TODO: use JOINS not IN
     def clear_cached_maps
+      s = 'WITH otu_clear_maps AS (' + touched_cached_maps.to_sql + ') ' +
+        ::CachedMap
+        .joins('JOIN otu_clear_maps as otu_clear_maps1 on otu_clear_maps1.otu_id = cached_maps.id')
+        .to_sql
+
+      b = ::CachedMap.from('(' + s + ') as cached_maps')
+
+      b.delete_all
+
+      true
+    end
+
+    def touched_cached_maps
       case self.class.base_class.name
       when 'AssertedDistribution'
-        ids = ::Queries::Otu::Filter.new(otu_id:, ancestrify: true).all.pluck(:id)
-        CachedMap.where(otu_id: ids).delete_all
+        return ::Queries::Otu::Filter.new(otu_id:, coordinatify: true, ancestrify: true, project_id: ).all
       when 'Georeference'
-        otu_ids = collecting_event.otus.pluck(:id)
-        ids = ::Queries::Otu::Filter.new(otu_id: otu_ids, ancestrify: true).all.pluck(:id)
-        CachedMap.where(otu: ids).delete_all
+        otu_ids = collecting_event.otus.distinct.pluck(:id)
+        return ::Queries::Otu::Filter.new(otu_id: otu_ids, coordinatify: true, ancestrify: true, project_id: ).all
       end
-      true
     end
 
     # @param batch (Boolean)
