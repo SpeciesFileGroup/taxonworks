@@ -891,9 +891,7 @@ module Queries
               .to_sql
 
         # !! Do not use .distinct here
-        a = ::TaxonName.from('(' + s + ') as taxon_names')
-
-        a
+        ::TaxonName.from('(' + s + ') as taxon_names')
       end
 
       def order_clause(query)
@@ -917,12 +915,17 @@ module Queries
       # @return [ActiveRecord::Relation]
       def all(nil_empty = false)
         q = super
+
+        # Order matters, use this first to go up
+        q = ancestrify_result(q) if ancestrify
+
+        # Then out in various ways
         q = validify_result(q) if validify
         q = combinationify_result(q) if combinationify
         q = synonimify_result(q) if synonymify
-        q = order_clause(q) if sort
 
-        q = ancestrify_result(q) if ancestrify
+        # Then sort
+        q = order_clause(q) if sort
 
         q
       end

@@ -112,9 +112,9 @@ class CachedMap < ApplicationRecord
       r = ActiveRecord::Base.connection.execute(sql)
     rescue ActiveRecord::StatementInvalid => e
       if e.message.include?("GEOSUnaryUnion")
-        return nil 
+        return nil
       else
-        raise
+        raise e
       end
     end
     r[0]['geojson']

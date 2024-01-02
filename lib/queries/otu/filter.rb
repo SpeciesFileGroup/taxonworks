@@ -43,6 +43,7 @@ module Queries
       # @params ancestrify ['true', True, nil]
       # @return Boolean
       #    if true then, additionally, all coordinate otus for all inferred ancestors are included
+      #    the param adds to the result by going "up" (to root) _then_ "out"
       #
       # !! This param is not like the others. !!  See parallel in TaxonName filter 'ancestrify'.
       attr_accessor :ancestrify
@@ -578,35 +579,21 @@ module Queries
 
         b = ::Otu.from('(' + t + ') as otus')
 
-        referenced_klass_union([a, b, q])
+        referenced_klass_union([a, b, q]).distinct # Unions shouldn't need distinct
       end
 
-      # Goal is to get
-      #  * all OTUs and their coordinates via nomenclature
       def ancestrify_result(q)
-        ancestrify_taxon_name_ids = q.all.pluck(:taxon_name_id)
+        a = q
 
-        if ancestrify_taxon_name_ids.any?
-          r = ::Queries::TaxonName::Filter.new(
-            taxon_name_id: ancestrify_taxon_name_ids,
-            ancestrify: true,
-            project_id:
-          )
+        s = 'WITH otu_base AS (' + a.all.to_sql + ') ' +
+          ::Otu
+          .joins('JOIN taxon_name_hierarchies tnh on tnh.ancestor_id = otus.taxon_name_id')
+          .joins('JOIN otu_base as otu_base1 on otu_base1.taxon_name_id = tnh.descendant_id')
+          .to_sql
 
-          s = 'WITH tn_otu_anc AS (' + r.all.to_sql + ') ' +
-            ::Otu
-            .joins('JOIN tn_otu_anc AS tn_otu_anc1 on tn_otu_anc1.id = otus.taxon_name_id')
-            .to_sql
+        b = ::Otu.from('(' + s + ') as otus')
 
-          a = ::Otu.from('(' + s + ') as otus')
-        end
-
-        c = if a
-              c = coordinatify_result(a)
-            else
-              q
-            end
-        c
+        referenced_klass_union([a, b])
       end
 
       def and_clauses
@@ -648,8 +635,10 @@ module Queries
       # @return [ActiveRecord::Relation]
       def all(nil_empty = false)
         q = super
-        q = coordinatify_result(q) if coordinatify
+
+        # Order matters, coordinatify should be last as its "out"
         q = ancestrify_result(q) if ancestrify
+        q = coordinatify_result(q) if coordinatify
 
         q
       end
