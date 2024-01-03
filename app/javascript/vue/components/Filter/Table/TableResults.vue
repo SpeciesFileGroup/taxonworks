@@ -354,6 +354,14 @@ watch(
   { immediate: true }
 )
 
+watch(
+  () => props.layout,
+  () => {
+    HandyScroll.EventBus.emit('update', { sourceElement: element.value })
+  },
+  { deep: true }
+)
+
 function sortTable(sortProperty) {
   emit('onSort', sortArray(props.list, sortProperty, ascending.value))
   ascending.value = !ascending.value

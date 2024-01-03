@@ -192,7 +192,6 @@ export const LAYOUTS = {
         'verbatim_method',
         'verbatim_elevation',
         'verbatim_habitat',
-        'verbatim_habitat',
         'verbatim_datum',
         'verbatim_date',
         'md5_of_verbatim_label'
