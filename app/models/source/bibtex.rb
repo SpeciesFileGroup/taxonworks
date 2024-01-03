@@ -758,14 +758,6 @@ class Source::Bibtex < Source
 
     unless serial.nil?
       b[:journal] = serial.name
-      issns  = serial.identifiers.where(type: 'Identifier::Global::Issn')
-      unless issns.empty?
-        b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
-      end
-    end
-
-    unless serial.nil?
-      b[:journal] = serial.name
       issns = serial.identifiers.where(type: 'Identifier::Global::Issn')
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
@@ -847,8 +839,6 @@ class Source::Bibtex < Source
   def render_with_style(style = 'vancouver', format = 'text', normalize_names = true)
     s = ::Vendor::BibtexRuby.get_style(style)
     cp = CiteProc::Processor.new(style: s, format:)
-    b = to_bibtex
-    ::Vendor::BibtexRuby.namecase_bibtex_entry(b) if normalize_names
     cp.import( [to_citeproc(normalize_names)] )
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
   end

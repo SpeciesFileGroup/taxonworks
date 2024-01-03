@@ -207,8 +207,10 @@ const isOpenInStorage = async () => {
   }
 }
 
-const setWidth = (style) => {
-  state.width = style
+const setWidth = (width) => {
+  if (width < window.innerWidth) {
+    state.width = width
+  }
 }
 
 const setPage = (value) => {
