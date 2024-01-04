@@ -14,10 +14,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `epithet_only` parameter and facet to taxon name filter [#3589]
 - Links for users profiles on project members list (only for administrators)
 - Cursor and text to reveal project preference predicates can be reordered [#3736]
-- DwC Exporter: export notes from most recent `TaxonDetermination` as `identificationRemarks`
 - Batch append collectors to Collecting Events within CE filter
 - Batch set Collecting Event date and time within CE filter
-- DwC `superfamily`, `subfamily`, `tribe`, `subtribe` export support
+- Darwin Core `superfamily`, `subfamily`, `tribe`, `subtribe` export support
+- Darwin Core exporter: include Notes from most recent `TaxonDetermination` as `identificationRemarks`
 - Save user's custom layout tables [#3756] [#3307] [#3568]
 
 ### Changed
@@ -39,10 +39,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Combination always visible [#3366]
 - Copy text from PDF
 
+[#2110]: https://github.com/SpeciesFileGroup/taxonworks/issues/2110
 [#3307]: https://github.com/SpeciesFileGroup/taxonworks/issues/3307
 [#3366]: https://github.com/SpeciesFileGroup/taxonworks/issues/3366
 [#3568]: https://github.com/SpeciesFileGroup/taxonworks/issues/3568
-[#2110]: https://github.com/SpeciesFileGroup/taxonworks/issues/2110
+[#3589]: https://github.com/SpeciesFileGroup/taxonworks/issues/3589
 [#3716]: https://github.com/SpeciesFileGroup/taxonworks/issues/3716
 [#3727]: https://github.com/SpeciesFileGroup/taxonworks/issues/3727
 [#3736]: https://github.com/SpeciesFileGroup/taxonworks/issues/3736
