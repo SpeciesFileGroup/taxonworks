@@ -55,7 +55,8 @@ module Queries
 
       def collection_object_id_facet
         return nil if collection_object_id.empty?
-        table[:biological_collection_object_id].in(collection_object_id)
+        table[:taxon_determination_object_id].in(collection_object_id)
+        .and(table[:taxon_determination_object_type].eq('CollectionObject'))
       end
 
       def determiner_id_facet

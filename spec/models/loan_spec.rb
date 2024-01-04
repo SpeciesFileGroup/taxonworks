@@ -86,7 +86,7 @@ describe Loan, type: :model, group: :loans do
 
     context 'objects via Otus' do
       let(:otu) { Otu.create(name: 'Blobasaurus') }
-      let!(:determination) { TaxonDetermination.create(otu: otu, biological_collection_object: specimen) }
+      let!(:determination) { TaxonDetermination.create(otu:, taxon_determination_object: specimen) }
 
       before do
         loan.loan_items << LoanItem.new(loan_item_object: otu)

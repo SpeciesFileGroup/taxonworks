@@ -49,10 +49,10 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   specify '#determiner_name_regex' do
     s = Specimen.create!
-    a = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, determiners: [ FactoryBot.create(:valid_person, last_name: 'Smith') ] )
+    a = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s, determiners: [ FactoryBot.create(:valid_person, last_name: 'Smith') ] )
 
     s1 = Specimen.create! # not this one
-    b = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s1, determiners: [ FactoryBot.create(:valid_person, last_name: 'htims') ] )
+    b = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s1, determiners: [ FactoryBot.create(:valid_person, last_name: 'htims') ] )
 
     query.determiner_name_regex = 'i.*h'
     expect(query.all.pluck(:id)).to contain_exactly(s.id)
@@ -174,7 +174,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     FactoryBot.create(:valid_specimen)
     s = FactoryBot.create(:valid_specimen)
     FactoryBot.create(:valid_specimen) # dummy
-    a = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, determiners: [ FactoryBot.create(:valid_person) ] )
+    a = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s, determiners: [ FactoryBot.create(:valid_person) ] )
     query.determiner_id = a.determiners.pluck(:id)
     expect(query.all.pluck(:id)).to contain_exactly(s.id)
   end
@@ -186,7 +186,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     a = FactoryBot.create(
       :valid_taxon_determination,
-      biological_collection_object: s,
+      taxon_determination_object: s,
       determiners: [ p1, p2]
     )
 
@@ -195,7 +195,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     a = FactoryBot.create(
       :valid_taxon_determination,
-      biological_collection_object: s0,
+      taxon_determination_object: s0,
       determiners: [ p1 ]
     )
 
@@ -211,7 +211,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     a = FactoryBot.create(
       :valid_taxon_determination,
-      biological_collection_object: s,
+      taxon_determination_object: s,
       determiners: [ p1, p2]
     )
 
@@ -220,7 +220,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     a = FactoryBot.create(
       :valid_taxon_determination,
-      biological_collection_object: s0,
+      taxon_determination_object: s0,
       determiners: [ p1 ]
     )
 
@@ -268,7 +268,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   specify '#taxon_determinations 1' do
     s = FactoryBot.create(:valid_specimen)
-    d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+    d = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
     a = Specimen.create! # this one
     query.taxon_determinations = false
     expect(query.all.pluck(:id)).to contain_exactly(a.id)
@@ -276,7 +276,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   specify '#taxon_determinations #buffered_determinations' do
     s = FactoryBot.create(:valid_specimen, buffered_determinations: 'Foo')
-    d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+    d = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
 
     a = Specimen.create!(buffered_determinations: 'Foo')  # this one
 
@@ -388,13 +388,13 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
       let!(:o4) { Otu.create!(taxon_name: genus2) }   # invalid
 
-      let!(:td1) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co1, otu: o1) } # historical
-      let!(:td2) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co1, otu: o2) } # current
+      let!(:td1) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: co1, otu: o1) } # historical
+      let!(:td2) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: co1, otu: o2) } # current
 
-      let!(:td3) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co2, otu: o2) } # historical
-      let!(:td4) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co2, otu: o1) } # current
+      let!(:td3) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: co2, otu: o2) } # historical
+      let!(:td4) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: co2, otu: o1) } # current
 
-      let!(:td5) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co3, otu: o3) } # current
+      let!(:td5) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: co3, otu: o3) } # current
 
 
       # collection_objects/dwc_index?&per=500&page=1&determiner_id[]=61279&taxon_name_id=606330
