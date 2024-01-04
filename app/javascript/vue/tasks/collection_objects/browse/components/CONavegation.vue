@@ -97,7 +97,7 @@ const navigate = computed(() => store.getters[GetterNames.GetNavigation])
 const collectionObject = computed(
   () => store.getters[GetterNames.GetCollectionObject]
 )
-const currentNavigation = ref('identifier')
+const currentNavigation = ref('id')
 
 const previousByCurrent = computed(
   () =>
@@ -106,7 +106,7 @@ const previousByCurrent = computed(
 )
 const nextByCurrent = computed(
   () =>
-    navigate.value?.previous_by &&
+    navigate.value?.next_by &&
     navigate.value.next_by[currentNavigation.value]
 )
 
