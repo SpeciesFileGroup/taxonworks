@@ -32,6 +32,12 @@ module Shared::BiologicalExtensions
     accepts_nested_attributes_for :otus, allow_destroy: true, reject_if: :reject_otus
     accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
 
+    # New with FieldOccurrence , see current_taxon_determination
+    has_one :taxon_determination, -> { order(:position).limit(1) }, as: :taxon_determination_object, class_name: 'TaxonDetermination', inverse_of: :taxon_determination_object
+
+    # New with FO
+    has_one :otu, through: :taxon_determination, inverse_of: :taxon_determinations
+
     # Note that this should not be a has_one because order is over-ridden on .first
     # and can be lost when merged into other queries.
     def current_taxon_determination
@@ -49,6 +55,10 @@ module Shared::BiologicalExtensions
 
   # see BiologicalCollectionObject
   def missing_determination
+  end
+
+  def requires_taxon_determination?
+    false
   end
 
   # Ugh: TODO: deprecate!  no utility gained here, and it's HTML!!!

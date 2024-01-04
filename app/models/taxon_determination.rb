@@ -78,6 +78,8 @@ class TaxonDetermination < ApplicationRecord
   scope :current, -> { where(position: 1)}
   scope :historical, -> { where.not(position: 1)}
 
+  before_destroy :prevent_if_required
+
   # @params params [Hash]
   # @params collection_objectt_id [Array, Integer]
   #   an Array or single id
@@ -124,6 +126,15 @@ class TaxonDetermination < ApplicationRecord
   # @return [Boolean]
   def reject_otu(attributed)
     attributed['name'].blank? && attributed['taxon_name_id'].blank?
+  end
+
+  def prevent_if_required
+    unless taxon_determination_object && taxon_determination_object.respond_to?(:ignore_taxon_determination_restriction) && taxon_determination_object.ignore_taxon_determination_restriction
+      if !marked_for_destruction? && !new_record? && taxon_determination_object.requires_taxon_determination? && taxon_determination_object.taxon_determinations.count == 1
+        errors.add(:base, 'at least one taxon determination is required')
+        throw :abort
+      end
+    end
   end
 
 end

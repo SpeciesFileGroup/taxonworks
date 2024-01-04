@@ -46,6 +46,7 @@ module Queries
       dwc_occurrence: [:asserted_distribution, :collection_object],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
+      field_occurrence: [:source, :otu, :collecting_event],
       image: [:content, :collection_object, :collecting_event, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
       observation: [:collection_object, :descriptor, :image, :otu, :source, :taxon_name],
@@ -86,6 +87,7 @@ module Queries
       descriptor_query: '::Queries::Descriptor::Filter',
       dwc_occurrence_query: '::Queries::DwcOccurrence::Filter',
       extract_query: '::Queries::Extract::Filter',
+      field_occurrence_query: '::Queries::FieldOccurrence::Filter',
       image_query: '::Queries::Image::Filter',
       loan_query: '::Queries::Loan::Filter',
       observation_query: '::Queries::Observation::Filter',
@@ -154,6 +156,9 @@ module Queries
 
     # @return [Query::Descriptor::Filter, nil]
     attr_accessor :descriptor_query
+
+    # @return [Query::TaxonName::Filter, nil]
+    attr_accessor :field_occurrencet_query
 
     # @return [Query::Image::Filter, nil]
     attr_accessor :image_query

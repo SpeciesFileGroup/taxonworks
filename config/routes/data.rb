@@ -309,8 +309,8 @@ end
 
 resources :field_occurrences do
   concerns [:data_routes]
-
   collection do
+    get :autocomplete, defaults: {format: :json}
   end
 end
 
@@ -415,8 +415,6 @@ end
 resources :languages, only: [:show] do
   collection do
     get 'autocomplete'
-  end
-  collection do
     get :select_options, defaults: {format: :json}
   end
 end

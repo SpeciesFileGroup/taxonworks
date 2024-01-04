@@ -725,7 +725,6 @@ class CollectionObject < ApplicationRecord
 
   end
 
-
   protected
 
   def collecting_event_belongs_to_project

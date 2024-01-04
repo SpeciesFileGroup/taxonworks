@@ -1,8 +1,10 @@
 FactoryBot.define do
-  factory :field_occurrence do
-    # TODO: add valid_field_occurrence
-    total { 1 }
-    collecting_event_id { nil }
-    is_absent { false }
+  factory :field_occurrence, traits: [:housekeeping] do
+    factory :valid_field_occurrence do
+      total { 1 }
+      association :collecting_event, factory: :valid_collecting_event
+      is_absent { false }
+      association :taxon_determinations, factory: :taxon_determination
+    end
   end
 end
