@@ -3,7 +3,7 @@
 #    spec/lib/tools/description/from_observation_matrix_spec.rb
 shared_context 'complex observation matrix' do
 
-    let(:observation_matrix) {  ObservationMatrix.create!(name: 'Matrix') }
+  let(:observation_matrix) {  ObservationMatrix.create!(name: 'Matrix') }
 
     let(:genus1) { FactoryBot.create(:relationship_genus, name: 'Aus') }
     let(:genus2) {  FactoryBot.create(:relationship_genus, name: 'Bus') }
@@ -27,7 +27,7 @@ shared_context 'complex observation matrix' do
     let(:otu9) { Otu.create!(name: 'b9') }
 
     let(:collection_object) { Specimen.create! }
-    let!(:taxon_determination) { TaxonDetermination.create(otu: otu1, biological_collection_object: collection_object) }
+    let!(:taxon_determination) { TaxonDetermination.create(otu: otu1, taxon_determination_object: collection_object) }
 
     let(:descriptor1) { Descriptor::Qualitative.create!(name: 'Descriptor 1') }
     let(:cs1) { CharacterState.create!(name: 'State1', label: '0', descriptor: descriptor1) }
@@ -51,24 +51,24 @@ shared_context 'complex observation matrix' do
     let(:descriptor6) { Descriptor::Continuous.create!(name: 'Descriptor 6') }
     let(:descriptor7) { Descriptor::PresenceAbsence.create!(name: 'Descriptor 7') }
 
-    let!(:r1) { ObservationMatrixRowItem::Single.create!(observation_object: otu1, observation_matrix: observation_matrix) }
-    let!(:r2) { ObservationMatrixRowItem::Single.create!(observation_object: otu2, observation_matrix: observation_matrix) }
-    let!(:r3) { ObservationMatrixRowItem::Single.create!(observation_object: otu3, observation_matrix: observation_matrix) }
-    let!(:r4) { ObservationMatrixRowItem::Single.create!(observation_object: otu4, observation_matrix: observation_matrix) }
-    let!(:r5) { ObservationMatrixRowItem::Single.create!(observation_object: otu5, observation_matrix: observation_matrix) }
-    let!(:r6) { ObservationMatrixRowItem::Single.create!(observation_object: otu6, observation_matrix: observation_matrix) }
-    let!(:r7) { ObservationMatrixRowItem::Single.create!(observation_object: otu7, observation_matrix: observation_matrix) }
-    let!(:r8) { ObservationMatrixRowItem::Single.create!(observation_object: otu8, observation_matrix: observation_matrix) }
-    let!(:r9) { ObservationMatrixRowItem::Single.create!(observation_object: otu9, observation_matrix: observation_matrix) }
-    let!(:r10) { ObservationMatrixRowItem::Single.create!(observation_object: collection_object, observation_matrix: observation_matrix) }
+    let!(:r1) { ObservationMatrixRowItem::Single.create!(observation_object: otu1, observation_matrix:) }
+    let!(:r2) { ObservationMatrixRowItem::Single.create!(observation_object: otu2, observation_matrix:) }
+    let!(:r3) { ObservationMatrixRowItem::Single.create!(observation_object: otu3, observation_matrix:) }
+    let!(:r4) { ObservationMatrixRowItem::Single.create!(observation_object: otu4, observation_matrix:) }
+    let!(:r5) { ObservationMatrixRowItem::Single.create!(observation_object: otu5, observation_matrix:) }
+    let!(:r6) { ObservationMatrixRowItem::Single.create!(observation_object: otu6, observation_matrix:) }
+    let!(:r7) { ObservationMatrixRowItem::Single.create!(observation_object: otu7, observation_matrix:) }
+    let!(:r8) { ObservationMatrixRowItem::Single.create!(observation_object: otu8, observation_matrix:) }
+    let!(:r9) { ObservationMatrixRowItem::Single.create!(observation_object: otu9, observation_matrix:) }
+    let!(:r10) { ObservationMatrixRowItem::Single.create!(observation_object: collection_object, observation_matrix:) }
 
-    let!(:c1) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor1, observation_matrix: observation_matrix) }
-    let!(:c2) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor2, observation_matrix: observation_matrix) }
-    let!(:c3) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor3, observation_matrix: observation_matrix) }
-    let!(:c4) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor4, observation_matrix: observation_matrix) }
-    let!(:c5) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor5, observation_matrix: observation_matrix) }
-    let!(:c6) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor6, observation_matrix: observation_matrix) }
-    let!(:c7) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor7, observation_matrix: observation_matrix) }
+    let!(:c1) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor1, observation_matrix:) }
+    let!(:c2) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor2, observation_matrix:) }
+    let!(:c3) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor3, observation_matrix:) }
+    let!(:c4) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor4, observation_matrix:) }
+    let!(:c5) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor5, observation_matrix:) }
+    let!(:c6) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor6, observation_matrix:) }
+    let!(:c7) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor7, observation_matrix:) }
 
     # build the observations
 
@@ -162,4 +162,3 @@ shared_context 'complex observation matrix' do
     let!(:o68) {Observation::PresenceAbsence.create!(descriptor: descriptor7, observation_object: collection_object, presence: true) }
 
 end
-

@@ -514,7 +514,9 @@ module Queries
 
         b = b.as('det_z1_')
 
-        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['biological_collection_object_id'].eq(tt['id']))))
+        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b,
+        Arel::Nodes::On.new( b['taxon_determination_object_id'].eq(tt['id']).and( b['taxon_determination_object_type'].eq(tt['CollectionObject']) )
+        )))
       end
 
       def determiners_facet
@@ -732,8 +734,9 @@ module Queries
       def otu_id_facet
         return nil if otu_id.empty?
 
-        w = taxon_determination_table[:biological_collection_object_id].eq(table[:id])
+        w = taxon_determination_table[:taxon_determination_object_id].eq(table[:id])
           .and(taxon_determination_table[:otu_id].in(otu_id))
+          .and(taxon_determionation_table[:taxon_determionation_object_type].eq('CollectionObject'))
 
         if current_determinations
           w = w.and(taxon_determination_table[:position].eq(1))
@@ -757,7 +760,8 @@ module Queries
           t = ::TaxonName.arel_table
 
           q = table.join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
-            table[:id].eq(taxon_determination_table[:biological_collection_object_id])
+            table[:id].eq(taxon_determination_table[:taxon_determination_object_id])
+            .and(taxon_determination_table[:taxon_determination_object_type]).eq('CollectionObject') )
           ).join(otu_table, Arel::Nodes::InnerJoin).on(
             taxon_determination_table[:otu_id].eq(otu_table[:id])
           ).join(t, Arel::Nodes::InnerJoin).on(

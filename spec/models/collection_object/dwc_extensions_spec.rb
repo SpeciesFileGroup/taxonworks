@@ -37,18 +37,18 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     let(:s) { Specimen.create! }
 
     specify 'with no notes' do
-      FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+      FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
       expect(s.dwc_identification_remarks).to eq('')
     end
 
     specify 'with one note' do
-      d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+      d = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
       d.notes << Note.new(text: 'text')
       expect(s.dwc_identification_remarks).to eq('text')
     end
 
     specify 'with multiple notes' do
-      d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+      d = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
       d.notes << Note.new(text: 'text1')
       d.notes << Note.new(text: 'text2')
       expect(s.dwc_identification_remarks).to eq('text1 | text2')
@@ -56,8 +56,8 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     it 'should only include remarks for the latest determination' do
       otu = FactoryBot.create(:valid_otu)
-      d1 = TaxonDetermination.create!(biological_collection_object: s, otu:)
-      d2 = TaxonDetermination.create!(biological_collection_object: s, otu:)
+      d1 = TaxonDetermination.create!(taxon_determination_object: s, otu:)
+      d2 = TaxonDetermination.create!(taxon_determination_object: s, otu:)
 
       d1.notes << Note.new(text: 'd1 text')
       d2.notes << Note.new(text: 'd2 text')
@@ -196,7 +196,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     # Not sure of point of these now without downstream checks
     context 'with taxon determination' do
       let!(:o) { Otu.create!(name: 'Blob') }
-      let!(:td) { TaxonDetermination.create!(biological_collection_object: s, otu: o) }
+      let!(:td) { TaxonDetermination.create!(taxon_determination_object: s, otu: o) }
 
       specify 'taxon determination update' do
         expect(td.update!(otu: Otu.create!(name: 'Aus'))).to be_truthy
@@ -216,13 +216,13 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     end
 
     specify '#dwc_identified_by' do
-      TaxonDetermination.create!(biological_collection_object: s, otu: o, determiners: [p]) # Bad mix of object/attributes now: roles_attributes: [{person: p, type: 'Determiner'}]
+      TaxonDetermination.create!(taxon_determination_object: s, otu: o, determiners: [p]) # Bad mix of object/attributes now: roles_attributes: [{person: p, type: 'Determiner'}]
       s.reload
       expect(s.dwc_identified_by).to eq('Sue Smith Jr.')
     end
 
     specify '#dwc_date_identified' do
-      FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, year_made: 2000, day_made: 1, month_made: 1 )
+      FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s, year_made: 2000, day_made: 1, month_made: 1 )
       s.reload
       expect(s.dwc_date_identified).to eq('2000-1-1')
     end
@@ -243,7 +243,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       )
 
       d = TaxonDetermination.create!(
-        biological_collection_object: s,
+        taxon_determination_object: s,
         otu: Otu.create!(taxon_name: p)
       )
 
@@ -258,7 +258,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
         parent: root
       )
 
-      TaxonDetermination.create!(biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+      TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
 
       s.reload
       expect(s.dwc_taxon_rank).to eq('genus')
@@ -271,7 +271,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
         parent: root
       )
 
-      TaxonDetermination.create!(biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+      TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
 
       s.taxonomy(true)
       expect(s.dwc_infraspecific_epithet).to eq('aus')
@@ -470,8 +470,8 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
         parent: root
       )
 
-      TaxonDetermination.create!(biological_collection_object: s, otu: Otu.create!(taxon_name: p1), year_made: 2020)
-      TaxonDetermination.create!(biological_collection_object: s, otu: Otu.create!(taxon_name: p2) )
+      TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p1), year_made: 2020)
+      TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p2) )
 
       s.taxonomy(true)
       s.reload
@@ -486,7 +486,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       )
 
       ce.update!(collectors_attributes: [{last_name: 'Doe', first_name: 'John', prefix: 'von'}])
-      TaxonDetermination.create!(biological_collection_object: s, otu: Otu.create!(taxon_name: p1), determiner_roles_attributes: [{person: p}] )
+      TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p1), determiner_roles_attributes: [{person: p}] )
 
       s.reload
 
@@ -515,7 +515,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     specify '#dwc_superfamily' do
       p = FactoryBot.create(:relationship_family, name: 'Erythroneuroidea', rank_class: Ranks.lookup(:iczn, :superfamily))
-      c = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+      c = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
 
       s.taxonomy(true)
       expect(s.dwc_superfamily).to eq(p.name)
@@ -523,7 +523,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     specify '#dwc_subfamily' do
       p = FactoryBot.create(:relationship_family, name: 'Erythroneurinae', rank_class: Ranks.lookup(:iczn, :subfamily))
-      c = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+      c = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
 
       s.taxonomy(true)
       expect(s.dwc_subfamily).to eq(p.name)
@@ -531,7 +531,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     specify '#dwc_tribe' do
       p = FactoryBot.create(:relationship_family, name: 'Erythroneurini', rank_class: Ranks.lookup(:iczn, :tribe))
-      c = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+      c = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
 
       s.taxonomy(true)
       expect(s.dwc_tribe).to eq(p.name)
@@ -539,11 +539,10 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     specify '#dwc_subtribe' do
       p = FactoryBot.create(:relationship_family, name: 'Erythroneurina', rank_class: Ranks.lookup(:iczn, :subtribe))
-      c = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+      c = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
 
       s.taxonomy(true)
       expect(s.dwc_subtribe).to eq(p.name)
     end
   end
 end
-

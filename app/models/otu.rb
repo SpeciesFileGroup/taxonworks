@@ -63,12 +63,9 @@ class Otu < ApplicationRecord
 
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change
 
-
-  # TODO: clarify with where clause!!
-  has_many :collection_objects, -> { where(taxon_determination_object: 'CollectionObject')}, through: :taxon_determinations, source: :taxoon_determinationn_object, inverse_of: :otus
-
-  # TODO: clarify with where clause!! ... or source type
-  has_many :field_occurrences, -> { where(taxon_determination_object: 'FieldOccurrence')}, through: :taxon_determinations, source: :taxoon_determinationn_object, inverse_of: :otus
+  # TODO, move to infer BiologicalCollectionObject
+  has_many :collection_objects, through: :taxon_determinations, source: :taxon_determination_object, inverse_of: :otus, source_type: 'CollectionObject'
+  has_many :field_occurrences, through: :taxon_determinations, source: :taxon_determination_object, inverse_of: :otus, source_type: 'FieldOccurrence'
 
   has_many :type_materials, through: :protonym
 
