@@ -6,7 +6,7 @@ json.extract! taxon_determination, :id, :biological_collection_object_id, :otu_i
 json.partial!('/shared/data/all/metadata', object: taxon_determination)
 
 json.collection_object do
-  json.partial! '/shared/data/all/metadata', object: taxon_determination.biological_collection_object, extensions: false
+  json.partial! '/shared/data/all/metadata', object: taxon_determination.taxon_determination_object, extensions: false
 end
 
 json.otu do
