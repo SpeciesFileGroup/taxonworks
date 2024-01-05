@@ -21,6 +21,7 @@ module Queries
         :combinationify,
         :descendants,
         :descendants_max_depth,
+        :epithet_only,
         :etymology,
         :leaves,
         :name,
@@ -73,6 +74,11 @@ module Queries
       #   false/nil - ignore
       # !! This parameter is not like the others, it is applied POST result, see also synonymify and validify, etc.
       attr_accessor :ancestrify
+
+      # @param epithet_only [Boolean]
+      #   true - use name property instead of cached to find taxon name
+      #   false/nil - ignore
+      attr_accessor :epithet_only
 
       # @param collection_object_id[String, Array]
       # @return Array
@@ -300,6 +306,7 @@ module Queries
         @descendants = boolean_param(params, :descendants)
         @descendants_max_depth = params[:descendants_max_depth]
         @etymology = boolean_param(params, :etymology)
+        @epithet_only = params[:epithet_only]
         @geo_json = params[:geo_json]
         @leaves = boolean_param(params, :leaves)
         @name = params[:name]
@@ -593,7 +600,7 @@ module Queries
           )
 
         e = c[:id].not_eq(nil)
-        f = c[:person_id].eq_any(taxon_name_author_id)
+        f = c[:person_id].in(taxon_name_author_id)
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
@@ -645,16 +652,24 @@ module Queries
       def name_facet
         return nil if name.empty?
         if name_exact
-          table[:cached].eq_any(name).or(table[:cached_original_combination].eq_any(name))
+          if (epithet_only)
+            table[:name].in(name)
+          else
+            table[:cached].in(name).or(table[:cached_original_combination].in(name))
+          end
           #  table[:cached].eq(name.strip).or(table[:cached_original_combination].eq(name.strip))
         else
-          table[:cached].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' }).or(table[:cached_original_combination].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' }))
+          if (epithet_only)
+            table[:name].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' })
+          else
+            table[:cached].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' }).or(table[:cached_original_combination].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' }))
+          end
         end
       end
 
       def parent_id_facet
         return nil if parent_id.empty?
-        table[:parent_id].eq_any(parent_id)
+        table[:parent_id].in(parent_id)
       end
 
       def author_facet
@@ -832,7 +847,7 @@ module Queries
       # Overrides base class
       def model_id_facet
         return nil if taxon_name_id.empty? || !descendants.nil? || ancestors
-        table[:id].eq_any(taxon_name_id)
+        table[:id].in(taxon_name_id)
       end
 
       def validify_result(q)
@@ -876,9 +891,7 @@ module Queries
               .to_sql
 
         # !! Do not use .distinct here
-        a = ::TaxonName.from('(' + s + ') as taxon_names')
-
-        a
+        ::TaxonName.from('(' + s + ') as taxon_names')
       end
 
       def order_clause(query)
@@ -902,12 +915,17 @@ module Queries
       # @return [ActiveRecord::Relation]
       def all(nil_empty = false)
         q = super
+
+        # Order matters, use this first to go up
+        q = ancestrify_result(q) if ancestrify
+
+        # Then out in various ways
         q = validify_result(q) if validify
         q = combinationify_result(q) if combinationify
         q = synonimify_result(q) if synonymify
-        q = order_clause(q) if sort
 
-        q = ancestrify_result(q) if ancestrify
+        # Then sort
+        q = order_clause(q) if sort
 
         q
       end

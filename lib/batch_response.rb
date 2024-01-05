@@ -35,7 +35,7 @@ class BatchResponse
   # @return String
   attr_accessor :cap_reason
 
-  def initialize(params)
+  def initialize(params = {})
     @updated = params[:updated] || []
     @not_updated = params[:not_updated] || []
     @async = params[:async] || false

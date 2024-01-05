@@ -163,7 +163,7 @@ class Otu < ApplicationRecord
       .join(h, Arel::Nodes::InnerJoin).on(
         t[:cached_valid_taxon_name_id].eq(h[:descendant_id]))
 
-    Otu.joins(q.join_sources).where(h[:ancestor_id].eq_any(ids).to_sql)
+    Otu.joins(q.join_sources).where(h[:ancestor_id].in(ids).to_sql)
   end
 
   # TODO: replace with filter

@@ -92,5 +92,12 @@ export const CollectingEvent = {
     AjaxCall('get', '/collecting_events/parse_verbatim_label', { params }),
 
   batchUpdate: (params) =>
-    AjaxCall('patch', `/${controller}/batch_update `, params)
+    AjaxCall('patch', `/${controller}/batch_update `, params),
+
+  stepwiseCollectors: (params) =>
+    AjaxCall(
+      'get',
+      '/tasks/collecting_events/stepwise/collectors/data.json',
+      { params }
+    ),
 }

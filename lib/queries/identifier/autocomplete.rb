@@ -56,7 +56,7 @@ module Queries
       # @return [Arel::Nodes::<>, nil]
       def is_identifier_object_type
         return nil if identifier_object_types.empty?
-        table[:identifier_object_type].eq_any(identifier_object_types)
+        table[:identifier_object_type].in(identifier_object_types)
       end
 
       def autocomplete_exact_cached

@@ -30,6 +30,7 @@ import getLastSave from './getLastSave'
 import getSoftValidations from './getSoftValidations'
 import getBiologicalAssociations from './getBiologicalAssociations'
 import getGeoreferences from './getGeoreferences'
+import getCETotalUsed from './getCETotalUsed'
 
 const GetterNames = {
   IsSaving: 'isSaving',
@@ -63,7 +64,8 @@ const GetterNames = {
   GetLastSave: 'getLastSave',
   GetSoftValidations: 'getSoftValidations',
   GetBiologicalAssociations: 'getBiologicalAssociations',
-  GetGeoreferences: 'getGeoreferences'
+  GetGeoreferences: 'getGeoreferences',
+  GetCETotalUsed: 'getCETotalUsed'
 }
 
 const GetterFunctions = {
@@ -98,10 +100,8 @@ const GetterFunctions = {
   [GetterNames.GetLastSave]: getLastSave,
   [GetterNames.GetSoftValidations]: getSoftValidations,
   [GetterNames.GetBiologicalAssociations]: getBiologicalAssociations,
-  [GetterNames.GetGeoreferences]: getGeoreferences
+  [GetterNames.GetGeoreferences]: getGeoreferences,
+  [GetterNames.GetCETotalUsed]: getCETotalUsed
 }
 
-export {
-  GetterNames,
-  GetterFunctions
-}
+export { GetterNames, GetterFunctions }

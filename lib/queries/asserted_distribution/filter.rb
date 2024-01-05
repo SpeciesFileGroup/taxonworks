@@ -118,7 +118,7 @@ module Queries
       def presence_facet
         return nil if presence.nil?
         if presence
-          table[:is_absent].eq_any(['f', nil])
+          table[:is_absent].eq_any(['f', nil]) # !! not eq_any()
         else
           table[:is_absent].eq('t')
         end
@@ -209,7 +209,7 @@ module Queries
 
       def otu_id_facet
         return nil if otu_id.empty?
-        table[:otu_id].eq_any(otu_id)
+        table[:otu_id].in(otu_id)
       end
 
       def geographic_item_id_facet
@@ -226,7 +226,7 @@ module Queries
           o = Arel::Table.new(:otus)
 
           j = o.join(h, Arel::Nodes::InnerJoin).on(o[:taxon_name_id].eq(h[:descendant_id]))
-          z = h[:ancestor_id].eq_any(taxon_name_id)
+          z = h[:ancestor_id].in(taxon_name_id)
 
           ::AssertedDistribution.joins(:otu).joins(j.join_sources).where(z)
         else

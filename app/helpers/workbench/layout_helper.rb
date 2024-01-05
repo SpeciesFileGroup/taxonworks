@@ -6,6 +6,16 @@ module Workbench::LayoutHelper
     Settings.sandbox_mode? ? 'sandbox' : nil
   end
 
+  def navbar_css
+     Rails.env.production? ? 'header_production' : 'header_development'
+  end
+
+  def development_header_tag
+    if Rails.env.development? 
+      content_tag(:span, 'DEVELOPMENT', class: 'subtle')
+    end 
+  end
+
   def taxonworks_version_tag
     unless Settings.sandbox_mode?
       link_to("v#{Taxonworks::VERSION}", "https://github.com/SpeciesFileGroup/taxonworks/releases/tag/v#{Taxonworks::VERSION}", id: 'taxonworks_version')

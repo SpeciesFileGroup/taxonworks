@@ -6,23 +6,85 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
   let(:state) { county.parent }
   let(:country) { state.parent }
 
-  specify '.batch_update' do
-    c1 = FactoryBot.create(:valid_collecting_event)
-    c2 = FactoryBot.create(:valid_collecting_event)
+  context '.batch_update' do
+    specify 'can update a verbatim field' do
+      c1 =  FactoryBot.create(:valid_collecting_event)
+      c2 = FactoryBot.create(:valid_collecting_event)
+      l = 'The final frontier (psychiatrist).'
 
-    l = 'The final frontier (psychiatrist).'
+      params = {
+        async_cutoff: 3,
+        collecting_event: { verbatim_locality: l },
+      }.merge( collecting_event_query: { collecting_event_id: [c1.id] })
 
-    params = {
-      async_cutoff: 3,
-      collecting_event: { verbatim_locality: l },
-    }.merge( collecting_event_query: { collecting_event_id: [c1.id] })
+      response = CollectingEvent.batch_update(params).to_json
 
-    response = CollectingEvent.batch_update(params).to_json
+      expect(response[:updated]).to include(c1.id)
+      expect(response[:not_updated]).to eq([])
+      expect(c1.reload.verbatim_locality).to eq(l)
+    end
 
-    expect(response[:updated]).to include(c1.id)
-    expect(response[:not_updated]).to eq([])
-    expect(c1.reload.verbatim_locality).to eq(l)
+    context 'updating collector roles' do
+      let(:c1) { FactoryBot.create(:valid_collecting_event) }
+
+      specify 'can add the first collector' do
+        collector = FactoryBot.create(:valid_person)
+        params = { collecting_event: { roles_attributes:
+                                         [{ person_id: collector.id, type: 'Collector' }] },
+                   collecting_event_query: { collecting_event_id: [c1.id] }
+        }
+
+        response = CollectingEvent.batch_update(params).to_json
+
+        expect(response[:updated]).to include(c1.id)
+        expect(response[:not_updated]).to eq([])
+        expect(c1.reload.collectors.count).to eq(1)
+        expect(c1.collectors.first.id).to eq(collector.id)
+      end
+
+      specify 'can append a second collector' do
+        first_collector = FactoryBot.create(:valid_person)
+        c1.collectors << first_collector
+        second_collector = FactoryBot.create(:valid_person)
+
+        params = { collecting_event: { roles_attributes:
+                                         [{ person_id: second_collector.id, type: 'Collector' }] },
+                   collecting_event_query: { collecting_event_id: [c1.id] }
+        }
+
+        response = CollectingEvent.batch_update(params).to_json
+
+        expect(response[:updated]).to include(c1.id)
+        expect(response[:not_updated]).to eq([])
+        expect(c1.reload.collectors.count).to eq(2)
+        expect(c1.collectors.first.id).to eq(first_collector.id)
+        expect(c1.collectors.second.id).to eq(second_collector.id)
+      end
+
+      specify 'can append multiple collectors' do
+        first_collector = FactoryBot.create(:valid_person)
+        c1.collectors << first_collector
+        second_collector = FactoryBot.create(:valid_person)
+        third_collector = FactoryBot.create(:valid_person)
+
+        params = { collecting_event: { roles_attributes:
+                                         [{ person_id: second_collector.id, type: 'Collector' },
+                                          { person_id: third_collector.id, type: 'Collector' }] },
+                   collecting_event_query: { collecting_event_id: [c1.id] }
+        }
+
+        response = CollectingEvent.batch_update(params).to_json
+
+        expect(response[:updated]).to include(c1.id)
+        expect(response[:not_updated]).to eq([])
+        expect(c1.reload.collectors.count).to eq(3)
+        expect(c1.collectors.first.id).to eq(first_collector.id)
+        expect(c1.collectors.second.id).to eq(second_collector.id)
+        expect(c1.collectors.third.id).to eq(third_collector.id)
+      end
+    end
   end
+
 
   context 'validation' do
     context 'time start/end' do

@@ -218,15 +218,15 @@ class CollectionObject < ApplicationRecord
     else
       r.async = true
       q.each do |co|
-        dwc_occurrence_update_query(co)
+        co.dwc_occurrence_update_query
       end
     end
 
     return r
   end
 
-  def dwc_occurrence_update_query(collection_object)
-    collection_object.set_dwc_occurrence
+  def dwc_occurrence_update_query
+    self.send(:set_dwc_occurrence)
   end
 
   handle_asynchronously :dwc_occurrence_update_query, run_at: Proc.new { 1.second.from_now }, queue: :query_batch_update

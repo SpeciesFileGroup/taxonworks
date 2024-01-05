@@ -19,7 +19,7 @@ export default async ({ state, commit, dispatch }) => {
       (key) => {
         const elevationValue = Number(collectingEvent[key])
         collectingEvent[key] =
-          elevationValue > 0 ? elevationValue / 3.281 : undefined
+          elevationValue > 0 ? (elevationValue / 3.281).toFixed(2) : undefined
       }
     )
     commit(MutationNames.SetUnit, 'm')
@@ -60,6 +60,7 @@ export default async ({ state, commit, dispatch }) => {
         response.body.id
       )
     })
+    .catch(() => {})
     .finally(() => {
       updateSmartSelectors()
       state.settings.isSaving = false

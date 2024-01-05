@@ -105,7 +105,7 @@ module Queries::Concerns::Tags
     t = ::Tag.arel_table
 
     w = t[:tag_object_id].eq(table[:id]).and( t[:tag_object_type].eq(table.name.classify))
-    w = w.and( t[:keyword_id].eq_any(keyword_id_or) ) if keyword_id_or.any?
+    w = w.and( t[:keyword_id].in(keyword_id_or) ) if keyword_id_or.any?
 
     k.where( ::Tag.where(w).arel.exists )
   end

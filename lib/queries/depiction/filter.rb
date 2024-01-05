@@ -52,22 +52,22 @@ module Queries
 
       def depiction_id_facet
         return nil if depiction_id.empty?
-        table[:id].eq_any(depiction_id)
+        table[:id].in(depiction_id)
       end
 
       def image_id_facet
         return nil if image_id.empty?
-        table[:image_id].eq_any(image_id)
+        table[:image_id].in(image_id)
       end
 
       def depiction_object_type_facet
         return nil if depiction_object_type.empty?
-        table[:depiction_object_type].eq_any(depiction_object_type)
+        table[:depiction_object_type].in(depiction_object_type)
       end
 
       def depiction_object_id_facet
         return nil if depiction_object_id.empty?
-        table[:depiction_object_id].eq_any(depiction_object_id)
+        table[:depiction_object_id].in(depiction_object_id)
       end
 
       # If we add merge_clauses then we likely have

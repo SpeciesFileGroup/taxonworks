@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="new_collecting_event_task">
     <spinner-component
       full-screen
       :legend="isSaving ? 'Saving...' : 'Loading...'"
@@ -12,7 +12,7 @@
           <label>
             <input
               type="checkbox"
-              v-model="settings.sortable"
+              v-model="sortable"
             />
             Reorder fields
           </label>
@@ -20,6 +20,7 @@
         <li>
           <autocomplete
             url="/collecting_events/autocomplete"
+            class="autocomplete-search-bar"
             param="term"
             label="label_html"
             :clear-after="true"
@@ -101,7 +102,7 @@
           </li>
         </ul>
       </div>
-      <confirmation-modal ref="confirmationModal" />
+      <ConfirmationModal ref="confirmationModal" />
     </nav-bar>
     <recent-component
       v-if="showRecent"
@@ -111,7 +112,7 @@
     <div class="horizontal-left-content align-start">
       <collecting-event-form
         v-model="collectingEvent"
-        :sortable="settings.sortable"
+        :sortable="sortable"
         class="full_width"
       />
       <div class="margin-medium-left">
@@ -142,7 +143,9 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, onMounted } from 'vue'
+import { useStore } from 'vuex'
 import { RouteNames } from '@/routes/routes'
 import Autocomplete from '@/components/ui/Autocomplete'
 
@@ -170,145 +173,144 @@ import { MutationNames } from './store/mutations/mutations'
 
 import { CollectionObject } from '@/routes/endpoints'
 
-export default {
-  components: {
-    CollectionObjectsTable,
-    RadialAnnotator,
-    RadialObject,
-    PinComponent,
-    RightSection,
-    NavBar,
-    ParseData,
-    RecentComponent,
-    CollectingEventForm,
-    Autocomplete,
-    NavigateComponent,
-    SpinnerComponent,
-    ConfirmationModal
+const MAX_CO_LIMIT = 100
+const store = useStore()
+
+const shortcuts = computed(() => {
+  const keys = {}
+
+  keys[`${platformKey()}+s`] = saveCollectingEvent
+  keys[`${platformKey()}+n`] = reset
+
+  return keys
+})
+
+const collectingEvent = computed({
+  get() {
+    return store.getters[GetterNames.GetCollectingEvent]
   },
+  set(value) {
+    store.commit(MutationNames.SetCollectingEvent, value)
+  }
+})
 
-  computed: {
-    shortcuts() {
-      const keys = {}
+const isUnsaved = computed(() => store.getters[GetterNames.IsUnsaved])
+const isLoading = computed(
+  () => store.getters[GetterNames.GetSettings].isLoading
+)
+const isSaving = computed(() => store.getters[GetterNames.GetSettings].isSaving)
 
-      keys[`${platformKey()}+s`] = this.saveCollectingEvent
-      keys[`${platformKey()}+n`] = this.reset
+const showRecent = ref(false)
+const sortable = ref(false)
+const confirmationModal = ref(null)
 
-      return keys
-    },
+watch(
+  collectingEvent,
+  (_) => {
+    store.commit(MutationNames.UpdateLastChange)
+  },
+  { deep: true }
+)
 
-    collectingEvent: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectingEvent]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectingEvent, value)
+onMounted(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const collectingEventId = urlParams.get('collecting_event_id')
+  const collectionObjectId = urlParams.get('collection_object_id')
+
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+s`,
+    'Save',
+    'New collecting event'
+  )
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+n`,
+    'New',
+    'New collecting event'
+  )
+
+  if (/^\d+$/.test(collectingEventId)) {
+    loadCollectingEvent(collectingEventId)
+  } else if (/^\d+$/.test(collectionObjectId)) {
+    CollectionObject.find(collectionObjectId).then((response) => {
+      const ceId = response.body.collecting_event_id
+      if (ceId) {
+        loadCollectingEvent(ceId)
       }
-    },
-    isUnsaved() {
-      return this.$store.getters[GetterNames.IsUnsaved]
-    },
-    isLoading() {
-      return this.$store.getters[GetterNames.GetSettings].isLoading
-    },
-    isSaving() {
-      return this.$store.getters[GetterNames.GetSettings].isSaving
-    }
-  },
+    })
+  }
+})
 
-  data() {
-    return {
-      settings: {
-        sortable: false
-      },
-      showRecent: false
-    }
-  },
+async function cloneCE() {
+  const ok = await confirmationModal.value.show({
+    title: 'Clone collecting event',
+    message:
+      'This will clone the current collecting event. Are you sure you want to proceed?',
+    confirmationWord: 'CLONE',
+    okButton: 'Clone',
+    cancelButton: 'Cancel',
+    typeButton: 'submit'
+  })
 
-  watch: {
-    collectingEvent: {
-      handler(_) {
-        this.$store.commit(MutationNames.UpdateLastChange)
-      },
-      deep: true
-    }
-  },
-
-  mounted() {
-    const urlParams = new URLSearchParams(window.location.search)
-    const collectingEventId = urlParams.get('collecting_event_id')
-    const collectionObjectId = urlParams.get('collection_object_id')
-
-    TW.workbench.keyboard.createLegend(
-      `${platformKey()}+s`,
-      'Save',
-      'New collecting event'
-    )
-    TW.workbench.keyboard.createLegend(
-      `${platformKey()}+n`,
-      'New',
-      'New collecting event'
-    )
-
-    if (/^\d+$/.test(collectingEventId)) {
-      this.loadCollectingEvent(collectingEventId)
-    } else if (/^\d+$/.test(collectionObjectId)) {
-      CollectionObject.find(collectionObjectId).then((response) => {
-        const ceId = response.body.collecting_event_id
-        if (ceId) {
-          this.loadCollectingEvent(ceId)
-        }
-      })
-    }
-  },
-
-  methods: {
-    async cloneCE() {
-      const ok = await this.$refs.confirmationModal.show({
-        title: 'Clone collecting event',
-        message:
-          'This will clone the current collecting event. Are you sure you want to proceed?',
-        confirmationWord: 'CLONE',
-        okButton: 'Clone',
-        cancelButton: 'Cancel',
-        typeButton: 'submit'
-      })
-
-      if (ok) {
-        this.$store.dispatch(ActionNames.CloneCollectingEvent)
-      }
-    },
-
-    reset() {
-      this.$store.dispatch(ActionNames.ResetStore)
-      SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id')
-      SetParam(RouteNames.NewCollectingEvent, 'collection_object_id')
-    },
-    loadCollectingEvent(id) {
-      this.$store.dispatch(ActionNames.LoadCollectingEvent, id)
-    },
-    setCollectingEvent(ce) {
-      this.collectingEvent = Object.assign({}, this.collectingEvent, ce)
-      SetParam(
-        RouteNames.NewCollectingEvent,
-        'collecting_event_id',
-        this.collectingEvent.id
-      )
-    },
-    saveCollectingEvent() {
-      this.$store.dispatch(ActionNames.SaveCollectingEvent)
-    },
-    openComprehensive() {
-      window.open(
-        `${RouteNames.DigitizeTask}?collecting_event_id=${this.collectingEvent.id}`,
-        '_self'
-      )
-    }
+  if (ok) {
+    store.dispatch(ActionNames.CloneCollectingEvent)
   }
 }
+
+function reset() {
+  store.dispatch(ActionNames.ResetStore)
+  SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id')
+  SetParam(RouteNames.NewCollectingEvent, 'collection_object_id')
+}
+
+function loadCollectingEvent(id) {
+  store.dispatch(ActionNames.LoadCollectingEvent, id)
+}
+
+function setCollectingEvent(ce) {
+  collectingEvent.value = Object.assign({}, collectingEvent.value, ce)
+  SetParam(
+    RouteNames.NewCollectingEvent,
+    'collecting_event_id',
+    collectingEvent.value.id
+  )
+}
+
+async function saveCollectingEvent() {
+  const underThreshold = store.getters[GetterNames.GetTotalCO] < MAX_CO_LIMIT
+
+  const ok =
+    underThreshold ||
+    (await confirmationModal.value.show({
+      title: 'Save collecting event',
+      message: `This collecting event is used for over ${MAX_CO_LIMIT} collection objects. Are you sure you want to proceed?`,
+      confirmationWord: 'SAVE',
+      okButton: 'Save',
+      cancelButton: 'Cancel',
+      typeButton: 'submit'
+    }))
+
+  if (ok) {
+    store.dispatch(ActionNames.SaveCollectingEvent)
+  }
+}
+
+function openComprehensive() {
+  window.open(
+    `${RouteNames.DigitizeTask}?collecting_event_id=${collectingEvent.value.id}`,
+    '_self'
+  )
+}
 </script>
-<style scoped>
-.button-size {
-  width: 100px;
+<style lang="scss">
+#new_collecting_event_task {
+  .button-size {
+    width: 100px;
+  }
+
+  .autocomplete-search-bar {
+    input {
+      width: 500px;
+    }
+  }
 }
 </style>

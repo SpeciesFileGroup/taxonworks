@@ -1,9 +1,20 @@
 import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
-import { CollectingEvent } from '@/routes/endpoints'
+import { CollectingEvent, CollectionObject } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import SetParam from '@/helpers/setParam'
 import extend from '../../const/extendRequest.js'
+import { getPagination } from '@/helpers'
+
+async function getTotalCO(ceId) {
+  const response = await CollectionObject.where({
+    collecting_event_id: [ceId],
+    per: 1
+  })
+  const pagination = getPagination(response)
+
+  return pagination.total
+}
 
 export default ({ state, dispatch, commit }, ceId) => {
   state.settings.isLoading = true
@@ -15,6 +26,7 @@ export default ({ state, dispatch, commit }, ceId) => {
       if (collectingEvent.units === undefined) collectingEvent.units = 'm'
 
       collectingEvent.roles_attributes = collectingEvent.collector_roles || []
+      state.totalCO = await getTotalCO(collectingEvent.id)
       commit(MutationNames.SetCollectingEvent, collectingEvent)
       await dispatch(ActionNames.LoadGeoreferences, ceId)
       await dispatch(ActionNames.LoadSoftValidations, collectingEvent.global_id)

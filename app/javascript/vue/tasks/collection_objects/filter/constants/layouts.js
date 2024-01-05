@@ -60,7 +60,11 @@ export const LAYOUTS = {
         'preparations',
         'scientificName',
         'order',
-        'family'
+        'superfamily',
+        'family',
+        'subfamily',
+        'tribe',
+        'subtribe'
       ]
     },
     includes: {}
@@ -76,7 +80,11 @@ export const LAYOUTS = {
         'phylum',
         'dwcClass',
         'order',
+        'superfamily',
         'family',
+        'subfamily',
+        'tribe',
+        'subtribe',
         'genus',
         'specificEpithet',
         'infraspecificEpithet',
@@ -183,7 +191,6 @@ export const LAYOUTS = {
         'verbatim_collectors',
         'verbatim_method',
         'verbatim_elevation',
-        'verbatim_habitat',
         'verbatim_habitat',
         'verbatim_datum',
         'verbatim_date',
