@@ -11,6 +11,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Use `zeitwerk` loading framework [#2718]
 
+### Fixed 
+
+- Contributing link [#3752]
+
+[#3752]: https://github.com/SpeciesFileGroup/taxonworks/issues/3752
 [#2718]: https://github.com/SpeciesFileGroup/taxonworks/issues/2718
 
 ## [0.37.1] - 2024-01-04
