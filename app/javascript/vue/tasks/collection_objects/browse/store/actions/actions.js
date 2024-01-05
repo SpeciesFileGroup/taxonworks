@@ -7,6 +7,7 @@ import loadSoftValidation from './loadSoftValidation.js'
 import loadIdentifiersFor from './loadIdentifiersFor.js'
 import loadTimeline from './loadTimeline.js'
 import updateCollectingEvent from './updateCollectingEvent.js'
+import resetState from './resetState.js'
 
 const ActionFunctions = {
   [ActionNames.LoadBiocurations]: loadBiocurations,
@@ -15,10 +16,8 @@ const ActionFunctions = {
   [ActionNames.LoadIdentifiersFor]: loadIdentifiersFor,
   [ActionNames.LoadSoftValidation]: loadSoftValidation,
   [ActionNames.LoadTimeline]: loadTimeline,
-  [ActionNames.UpdateCollectingEvent]: updateCollectingEvent
+  [ActionNames.UpdateCollectingEvent]: updateCollectingEvent,
+  [ActionNames.ResetStore]: resetState
 }
 
-export {
-  ActionFunctions,
-  ActionNames
-}
+export { ActionFunctions, ActionNames }
