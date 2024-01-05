@@ -18,7 +18,8 @@
     "jquery": true,
     "defineEmits": true,
     "defineProps": true,
-    "defineExpose": true
+    "defineExpose": true,
+    "defineModel": true
   },
   "rules": {
     "space-before-function-paren": [

@@ -12,8 +12,8 @@ module Features
         click_button 'sign_in'
         find_link('sign_out')  # TODO: check for Capybara bug fix down the road?
       rescue
-        puts "<Current.user_id = #{Current.user_id.inspect}; Current.project_id = #{Current.project_id.inspect}>"
-        puts page.body
+        # puts "<Current.user_id = #{Current.user_id.inspect}; Current.project_id = #{Current.project_id.inspect}>"
+        # puts page.body
         raise
       end
     end
@@ -53,7 +53,7 @@ module Features
     end
 
     def user_project_attributes(user, project)
-      {creator: user, updater: user, project: project}
+      {creator: user, updater: user, project:}
     end
 
     protected
@@ -70,4 +70,3 @@ module Features
     end
   end
 end
-

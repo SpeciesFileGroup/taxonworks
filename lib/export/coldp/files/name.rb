@@ -147,7 +147,7 @@ module Export::Coldp::Files::Name
   #   the top level OTU
   def self.generate(otu, project_members, reference_csv = nil)
      name_total = 0
-    CSV.generate(col_sep: "\t") do |csv|
+    ::CSV.generate(col_sep: "\t") do |csv|
       csv << %w{
         ID
         basionymID

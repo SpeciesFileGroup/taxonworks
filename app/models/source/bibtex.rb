@@ -529,7 +529,7 @@ class Source::Bibtex < Source
       self.roles.count > 0
 
     bibtex = to_bibtex
-    ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(bibtex)
+    ::Vendor::BibtexRuby.namecase_bibtex_entry(bibtex)
 
     begin
       Role.transaction do
@@ -758,14 +758,6 @@ class Source::Bibtex < Source
 
     unless serial.nil?
       b[:journal] = serial.name
-      issns  = serial.identifiers.where(type: 'Identifier::Global::Issn')
-      unless issns.empty?
-        b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
-      end
-    end
-
-    unless serial.nil?
-      b[:journal] = serial.name
       issns = serial.identifiers.where(type: 'Identifier::Global::Issn')
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
@@ -801,7 +793,7 @@ class Source::Bibtex < Source
   #   handling via `{}` in TaxonWorks
   def to_citeproc(normalize_names = true)
     b = to_bibtex
-    ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(b) if normalize_names
+    ::Vendor::BibtexRuby.namecase_bibtex_entry(b) if normalize_names
 
     a = b.to_citeproc
 
@@ -837,7 +829,7 @@ class Source::Bibtex < Source
   # @return [BibTex::Bibliography]
   #   initialized with this Source as an entry
   def bibtex_bibliography
-    TaxonWorks::Vendor::BibtexRuby.bibliography([self])
+    Vendor::BibtexRuby.bibliography([self])
  end
 
   # @param [String] style
@@ -845,10 +837,8 @@ class Source::Bibtex < Source
   # @return [String]
   #   this source, rendered in the provided CSL style, as text
   def render_with_style(style = 'vancouver', format = 'text', normalize_names = true)
-    s = ::TaxonWorks::Vendor::BibtexRuby.get_style(style)
+    s = ::Vendor::BibtexRuby.get_style(style)
     cp = CiteProc::Processor.new(style: s, format:)
-    b = to_bibtex
-    ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(b) if normalize_names
     cp.import( [to_citeproc(normalize_names)] )
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
   end
@@ -874,7 +864,7 @@ class Source::Bibtex < Source
         return nil
       else
         b = to_bibtex
-        ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(b)
+        ::Vendor::BibtexRuby.namecase_bibtex_entry(b)
         return Utilities::Strings.authorship_sentence(b.author.tokens.collect{ |t| t.last })
       end
     else # use normalized records

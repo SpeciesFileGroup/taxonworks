@@ -8,7 +8,7 @@ module Export::Coldp::Files::Reference
   # !! It is not integrated yet.
   # 
   def self.generate(project_id, project_members)
-    CSV.generate do |csv|
+    ::CSV.generate do |csv|
       Source.joins(:project_sources).where(project_sources: {project_id: project_id} ).each do |source|
         csv << ref_row(source, project_members)
       end

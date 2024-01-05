@@ -47,7 +47,15 @@
             :disabled="!selectedIds.length"
             :parameters="{ collecting_event_id: selectedIds }"
           />
-          <TableLayoutSelector />
+          <TableLayoutSelector
+            v-model="currentLayout"
+            v-model:includes="includes"
+            v-model:properties="properties"
+            :layouts="layouts"
+            @reset="resetPreferences"
+            @sort="updatePropertiesPositions"
+            @update="saveLayoutPreferences"
+          />
         </div>
       </template>
 
@@ -111,7 +119,15 @@ defineOptions({
 
 const extend = ['roles']
 
-const { currentLayout } = useTableLayoutConfiguration(LAYOUTS)
+const {
+  currentLayout,
+  includes,
+  layouts,
+  properties,
+  updatePropertiesPositions,
+  saveLayoutPreferences,
+  resetPreferences
+} = useTableLayoutConfiguration({ layouts: LAYOUTS, model: COLLECTING_EVENT })
 
 const geojson = computed(() => {
   const hoverId = rowHover.value?.collecting_event?.id

@@ -94,7 +94,7 @@ class ConfidencesController < ApplicationController
 
   # GET /confidences/download
   def download
-    send_data Export::Csv.generate_csv(Confidence.where(project_id: sessions_current_project_id)), type: 'text', filename: "confidences_#{DateTime.now}.tsv"
+    send_data Export::CSV.generate_csv(Confidence.where(project_id: sessions_current_project_id)), type: 'text', filename: "confidences_#{DateTime.now}.tsv"
   end
 
   def exists

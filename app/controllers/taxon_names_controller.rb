@@ -106,7 +106,7 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/download
   def download
-    send_data Export::Csv.generate_csv(
+    send_data Export::CSV.generate_csv(
       TaxonName.where(project_id: sessions_current_project_id)
     ), type: 'text', filename: "taxon_names_#{DateTime.now}.tsv"
   end
@@ -213,7 +213,7 @@ class TaxonNamesController < ApplicationController
 
   def parse
     @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id]
-    @result = TaxonWorks::Vendor::Biodiversity::Result.new(
+    @result = Vendor::Biodiversity::Result.new(
       query_string: params.require(:query_string),
       project_id: sessions_current_project_id,
       code: :iczn # !! TODO: generalize
@@ -250,7 +250,7 @@ class TaxonNamesController < ApplicationController
      }
       format.csv {
         @taxon_names = q
-        send_data Export::Csv.generate_csv(
+        send_data Export::CSV.generate_csv(
           @taxon_names,
           exclude_columns: %w{updated_by_id created_by_id project_id},
         ), type: 'text', filename: "taxon_names_#{DateTime.now}.tsv"
@@ -277,7 +277,7 @@ class TaxonNamesController < ApplicationController
 
   def api_parse
     @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id]
-    @result = TaxonWorks::Vendor::Biodiversity::Result.new(
+    @result = Vendor::Biodiversity::Result.new(
       query_string: params.require(:query_string),
       project_id: sessions_current_project_id,
       code: :iczn # !! TODO: generalize
@@ -333,4 +333,7 @@ class TaxonNamesController < ApplicationController
 
 end
 
-require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/nomen_interpreter.rb'
+
+Rails.application.reloader.to_prepare do
+  require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/nomen_interpreter.rb'
+end

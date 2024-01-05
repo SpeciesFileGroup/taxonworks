@@ -66,7 +66,7 @@ class DocumentsController < ApplicationController
 
   # GET /documents/download
   def download
-    send_data Export::Csv.generate_csv(
+    send_data Export::CSV.generate_csv(
       Document.where(project_id: sessions_current_project_id)), type: 'text', filename: "documents_#{DateTime.now}.tsv"
   end
 

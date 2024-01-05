@@ -1,5 +1,5 @@
 # config/routes.rb
-Rails.application.eager_load!
+#Rails.application.eager_load!
 
 # See initializer config/initializers/routing_draw.rb
 

@@ -61,8 +61,15 @@
             @delete="removeCOFromList"
           />
           <span class="separate-left separate-right">|</span>
-
-          <LayoutConfiguration />
+          <TableLayoutSelector
+            v-model="currentLayout"
+            v-model:includes="includes"
+            v-model:properties="properties"
+            :layouts="layouts"
+            @reset="resetPreferences"
+            @sort="updatePropertiesPositions"
+            @update="saveLayoutPreferences"
+          />
         </div>
       </template>
       <template #facets>
@@ -96,7 +103,7 @@ import TableResults from '@/components/Filter/Table/TableResults.vue'
 import DwcDownload from './components/dwcDownload.vue'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 import VSpinner from '@/components/spinner.vue'
-import LayoutConfiguration from '@/components/Filter/Table/TableLayoutSelector.vue'
+import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
 import RadialLoan from '@/components/radials/loan/radial.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import RadialCollectionObject from '@/components/radials/co/radial.vue'
@@ -118,7 +125,15 @@ const extend = [
 
 const exclude = ['object_labels']
 
-const { currentLayout } = useTableLayoutConfiguration(LAYOUTS)
+const {
+  currentLayout,
+  includes,
+  layouts,
+  properties,
+  updatePropertiesPositions,
+  saveLayoutPreferences,
+  resetPreferences
+} = useTableLayoutConfiguration({ layouts: LAYOUTS, model: COLLECTION_OBJECT })
 
 const {
   isLoading,

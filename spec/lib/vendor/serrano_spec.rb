@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
+describe Vendor::Serrano, type: :model, group: [:sources] do
 
   # needs VCR
   context '#new_from_citation' do
@@ -9,19 +9,19 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
 
       specify 'when citation is < 6 characters false is returned' do
         VCR.use_cassette('source_citation_abc') {
-          expect(TaxonWorks::Vendor::Serrano.new_from_citation(citation: 'ABC')).to eq(false)
+          expect(Vendor::Serrano.new_from_citation(citation: 'ABC')).to eq(false)
         }
       end
 
       specify 'when citation is > than 5 characters but unresolvable a Source::Verbatim instance is returned' do
         VCR.use_cassette('source_citation_xyz') {
-          expect(TaxonWorks::Vendor::Serrano.new_from_citation(citation: 'ABCDE XYZ').class).to eq(Source::Verbatim)
+          expect(Vendor::Serrano.new_from_citation(citation: 'ABCDE XYZ').class).to eq(Source::Verbatim)
         }
       end
 
       specify 'when citation is resolvable a Source::Bibtex instance is returned' do
         VCR.use_cassette('source_citation_polaszek') {
-          s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: citation)
+          s = Vendor::Serrano.new_from_citation(citation: citation)
           expect(s.class).to eq(Source::Bibtex)
         }
       end
@@ -34,35 +34,35 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
 
       specify 'some stupid string' do
         VCR.use_cassette('source_from_some_stupid_doi') do
-          s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: 'Some.stupid/string')
+          s = Vendor::Serrano.new_from_citation(citation: 'Some.stupid/string')
           expect(s.class).to eq(Source::Verbatim)
         end
       end
 
       specify 'naked_doi 1' do
         VCR.use_cassette('source_from_naked_doi') do
-          s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: naked_doi)
+          s = Vendor::Serrano.new_from_citation(citation: naked_doi)
           expect(s.class).to eq(Source::Bibtex)
         end
       end
 
       specify 'naked_doi sets DOI' do
         VCR.use_cassette('source_from_naked_doi') do
-          s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: naked_doi)
+          s = Vendor::Serrano.new_from_citation(citation: naked_doi)
           expect(s.doi).to eq(naked_doi)
         end
       end
 
       specify 'https' do
         VCR.use_cassette('source_from_https_doi') do
-          s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: https_doi)
+          s = Vendor::Serrano.new_from_citation(citation: https_doi)
           expect(s.class).to eq(Source::Bibtex)
         end
       end
 
       specify 'http' do
         VCR.use_cassette('source_from_http_doi') do
-          s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: http_doi)
+          s = Vendor::Serrano.new_from_citation(citation: http_doi)
           expect(s.class).to eq(Source::Bibtex)
         end
       end
@@ -70,7 +70,7 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
       # TODO: Find new example
       xspecify 'remove html tags with special pseudo-LaTeX encodings except for <em>/<i>' do
         VCR.use_cassette('source_from_naked_doi') do
-          s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: naked_doi)
+          s = Vendor::Serrano.new_from_citation(citation: naked_doi)
           expect(s.title).to include('<i>Tachycines</i>')
         end
       end
@@ -81,14 +81,14 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
     # Expected result is a resolved citation of Source::Bibtex
     let(:src1) {
       VCR.use_cassette('source_citation_brauer') {
-        TaxonWorks::Vendor::Serrano.new_from_citation(citation: 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.')
+        Vendor::Serrano.new_from_citation(citation: 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.')
       }
     }
 
     # Expected result is a resolved citation of Source::Bibtex
     let(:src2) {
       VCR.use_cassette('source_citation_kevan') {
-        TaxonWorks::Vendor::Serrano.new_from_citation(citation: 'Kevan, D.K.M. & Wighton. 1981. Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences. 18(12):1824-1837')
+        Vendor::Serrano.new_from_citation(citation: 'Kevan, D.K.M. & Wighton. 1981. Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences. 18(12):1824-1837')
       }
     }
 

@@ -18,7 +18,7 @@ module Export
     end
 
     def self.generate(taxon_name)
-      CSV.generate(col_sep: "\t") do |csv|
+      ::CSV.generate(col_sep: "\t") do |csv|
 
         csv << %w{
           global_id

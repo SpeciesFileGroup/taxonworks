@@ -56,7 +56,7 @@ describe Queries::Query::Filter do
       n = file.split('/').last
       next unless n =~ /^[A-Z]/ # Constants start with a capital
 
-      puts n
+      # puts n
 
       filter_name = n.split('.').first.tableize.singularize.to_sym
 
