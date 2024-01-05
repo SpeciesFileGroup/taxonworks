@@ -1,7 +1,7 @@
 # Species Description extension class
 # Repository: http://rs.gbif.org/extension/gbif/1.0/description.xml
 
-module Dwca::GbifProfile
+module Export::Dwca::GbifProfile
 
   class SpeciesDescription
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)

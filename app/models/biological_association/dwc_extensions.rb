@@ -20,7 +20,7 @@ module BiologicalAssociation::DwcExtensions
 
   # Don't use dwc_
   def darwin_core_extension_row
-    Export::Csv::Dwc::Extension::BiologicalAssociations::HEADERS.collect{|h| send( DWC_EXTENSION_MAP[h.to_sym] )}
+    Export::CSV::Dwc::Extension::BiologicalAssociations::HEADERS.collect{|h| send( DWC_EXTENSION_MAP[h.to_sym] )}
   end
 
   # Don't use dwc_

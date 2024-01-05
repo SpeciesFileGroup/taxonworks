@@ -12,7 +12,7 @@
 <table id="preview_table" class="tablesorter">
   <thead>
     <%= tag.tr(
-      Export::Csv::Globi::HEADERS.collect{|c| fancy_th_tag(name: c)}.join.html_safe
+      Export::CSV::Globi::HEADERS.collect{|c| fancy_th_tag(name: c)}.join.html_safe
     ) %>
   </thead>
 

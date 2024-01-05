@@ -91,7 +91,7 @@ class Identifier < ApplicationRecord
 
   # @return [String, Identifer]
   def self.prototype_identifier(project_id, created_by_id)
-    identifiers = Identifier.where(project_id: project_id, created_by_id: created_by_id).limit(1)
+    identifiers = Identifier.where(project_id:, created_by_id:).limit(1)
     identifiers.empty? ? '12345678' : identifiers.last.identifier
   end
 
@@ -131,8 +131,8 @@ class Identifier < ApplicationRecord
       cached_numeric_identifier: build_cached_numeric_identifier
     )
   end
-
-
 end
 
+#Rails.application.reloader.to_prepare do
 Dir[Rails.root.to_s + '/app/models/identifier/**/*.rb'].sort.each{ |file| require_dependency file }
+# aned

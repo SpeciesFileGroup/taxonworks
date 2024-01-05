@@ -84,7 +84,7 @@ class PreparationTypesController < ApplicationController
 
   # GET /preparation_types/download
   def download
-    send_data(Export::Csv.generate_csv(PreparationType.all),
+    send_data(Export::CSV.generate_csv(PreparationType.all),
               type: 'text',
               filename: "preparation_types_#{DateTime.now}.tsv")
   end

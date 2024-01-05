@@ -87,18 +87,24 @@
 import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import { GetterNames } from '../store/getters/getters'
+import { ActionNames } from '../store/actions/actions'
+import { RouteNames } from '@/routes/routes'
 import ModalComponent from '@/components/ui/Modal'
-import loadCO from '../utils/loadCO.js'
+import setParam from '@/helpers/setParam'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
 const store = useStore()
+
+const currentNavigation = ref('identifier')
+const isVisible = ref(false)
+
 const navigate = computed(() => store.getters[GetterNames.GetNavigation])
 const collectionObject = computed(
   () => store.getters[GetterNames.GetCollectionObject]
 )
-const currentNavigation = ref('id')
 
+const currentNavigation = ref('id')
 const previousByCurrent = computed(
   () =>
     navigate.value?.previous_by &&
@@ -110,5 +116,9 @@ const nextByCurrent = computed(
     navigate.value.next_by[currentNavigation.value]
 )
 
-const isVisible = ref(false)
+function loadCO(coId) {
+  store.dispatch(ActionNames.ResetStore)
+  store.dispatch(ActionNames.LoadCollectionObject, coId)
+  setParam(RouteNames.BrowseCollectionObject, 'collection_object_id', coId)
+}
 </script>

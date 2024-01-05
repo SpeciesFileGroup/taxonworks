@@ -18,8 +18,8 @@ module Housekeeping::Timestamps
       where(updated_at: DateTime.parse(start.to_s)..DateTime.parse(u_end.to_s))
     }
 
-    scope :recently_created, -> (range = 1.weeks.ago..Time.now) { where(created_at: range) }
-    scope :recently_updated, -> (range = 1.weeks.ago..Time.now) { where(updated_at: range) }
+    scope :recently_created, -> (range = 1.week.ago..Time.now) { where(created_at: range) }
+    scope :recently_updated, -> (range = 1.week.ago..Time.now) { where(updated_at: range) }
 
   end
 
@@ -46,12 +46,12 @@ module Housekeeping::Timestamps
 
     # @return [Scope]
     def created_this_week
-      where(created_at: 1.weeks.ago..Time.now)
+      where(created_at: 1.week.ago..Time.now)
     end
 
     # @return [Scope]
     def updated_this_week
-      where(updated_at: 1.weeks.ago..Time.now)
+      where(updated_at: 1.week.ago..Time.now)
     end
 
     # @return [Scope]
@@ -90,7 +90,7 @@ module Housekeeping::Timestamps
 
   # @return [Array]
   def data_breakdown_for_chartkick_recent
-    Rails.application.eager_load!
+    # Rails.application.eager_load!
     data = []
     has_many_relationships.each do |name|
 
@@ -103,7 +103,7 @@ module Housekeeping::Timestamps
           name: name.to_s.humanize,
           data: {
             'this week'  => this_week,
-            today:       today,
+            today:,
             'this month' => this_month
           }
         })
@@ -113,4 +113,3 @@ module Housekeeping::Timestamps
   end
 
 end
-

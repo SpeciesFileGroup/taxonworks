@@ -1,11 +1,11 @@
-require 'rails_helper'
-require 'ranks'
-
-
+Rails.application.reloader.to_prepare do
+  require 'rails_helper'
+  require 'ranks'
+end
 
 describe 'Ranks' do
 
-  Rails.application.eager_load!
+  # Rails.application.eager_load!
 
   context 'constants' do
     context 'are build without error from config/initializers/ranks.rb' do
@@ -38,13 +38,13 @@ describe 'Ranks' do
 
     context 'class methods' do
       specify 'top_rank returns top assignable rank' do
-        # The top two levels 
-        
+        # The top two levels
+
         expect(NomenclaturalRank::Iczn.top_rank).to eq(NomenclaturalRank::Iczn::HigherClassificationGroup::Superkingdom)
         expect(NomenclaturalRank::Icn.top_rank).to eq(NomenclaturalRank::Icn::HigherClassificationGroup::Kingdom)
 
 
-        
+
 #       expect(NomenclaturalRank.top_rank(NomenclaturalRank::Iczn)).to eq(NomenclaturalRank::Iczn::HigherClassificationGroup::Superkingdom)
 #       expect(NomenclaturalRank.top_rank(NomenclaturalRank::Icn)).to eq(NomenclaturalRank::Icn::HigherClassificationGroup::Kingdom)
 
@@ -77,9 +77,4 @@ describe 'Ranks' do
 
 
   end
-end 
-
-
-
-
-
+end

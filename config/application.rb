@@ -1,5 +1,4 @@
-require File.expand_path('../boot', __FILE__)
-
+require_relative 'boot'
 require 'rails/all'
 
 # Require the gems listed in Gemfile, including any gems
@@ -8,9 +7,12 @@ require 'rails/all'
 
 Bundler.require *Rails.groups
 
-
 module TaxonWorks
   class Application < Rails::Application
+
+    # This breaks housekeeping when on but might be needed
+    # config.load_defaults 6.1
+
     # Via https://github.com/matthuhiggins/foreigner/pull/95
     #  config.before_initialize do
     #    Foreigner::Adapter.register 'postgis', 'foreigner/connection_adapters/postgresql_adapter'
@@ -29,14 +31,16 @@ module TaxonWorks
     # Fix deprecation warning by adopting future Rails 6.1 behaviour
     config.action_dispatch.return_only_media_type_on_content_type = false
 
+    # Zietwerk currently requires both, review
     config.autoload_paths << "#{Rails.root.join("lib")}"
-    config.autoload_paths << "#{Rails.root.join("lib/vendor")}"
 
     #Include separate assets
     config.assets.precompile += %w( separated_application.js )
 
-    # Breaks rake/loading becahse of existing Rails.application.eager_load! statements
-    # config.eager_load_paths += %W(#{config.root}/lib) # #{config.root}/extras
+    # Breaks rake/loading because of existing Rails.application.eager_load! statements
+
+    # zeitwerk not needed?
+    config.eager_load_paths += config.autoload_paths
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
@@ -60,6 +64,9 @@ module TaxonWorks
     # config.logger = Logger.new(STDOUT)
     # config.logger = Log4r::Logger.new('Application Log')
 
-    config.autoloader = :classic
+
+    config.autoloader = :zeitwerk
+
+
   end
 end

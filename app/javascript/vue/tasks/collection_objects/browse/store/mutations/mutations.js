@@ -1,8 +1,11 @@
-const MutationNames = {}
+import resetState from './resetState.js'
 
-const MutationFunctions = {}
-
-export {
-  MutationNames,
-  MutationFunctions
+const MutationNames = {
+  ResetState: 'resetState'
 }
+
+const MutationFunctions = {
+  [MutationNames.ResetState]: resetState
+}
+
+export { MutationNames, MutationFunctions }

@@ -1,7 +1,7 @@
 # Vernacular Names extension class
 # Repository: http://rs.gbif.org/extension/gbif/1.0/vernacular.xml
 
-module Dwca::GbifProfile
+module Export::Dwca::GbifProfile
 
   class VernacularName
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)

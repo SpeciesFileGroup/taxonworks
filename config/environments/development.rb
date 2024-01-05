@@ -13,7 +13,7 @@ TaxonWorks::Application.configure do
   config.eager_load = false
 
   # Show full error reports and disable caching.
-  config.consider_all_requests_local       = true
+  config.consider_all_requests_local = true
   config.action_controller.perform_caching = false
 
   # Don't care if the mailer can't send.
@@ -48,12 +48,9 @@ TaxonWorks::Application.configure do
 
   BetterErrors.editor='x-mine://open?file=%{file}&line=%{line}' if defined? BetterErrors
 
-  config.autoload_paths << Rails.root.join('lib/vendor/')
-  config.eager_load_paths << Rails.root.join('lib/vendor/')
-
-  require 'taxonworks'
-  require 'taxonworks_autoload'
+  # Removed with zeitwerk
+  # config.autoload_paths << Rails.root.join('lib/vendor/')
+  # config.eager_load_paths << Rails.root.join('lib/vendor/')
+  # require 'taxonworks'
+  # require 'taxonworks/taxonworks_autoload'
 end
-
-
-

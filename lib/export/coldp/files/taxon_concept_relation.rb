@@ -24,7 +24,7 @@ module Export::Coldp::Files::TaxonConceptRelation
   
   
     def self.generate(otus, project_members, reference_csv = nil )
-        CSV.generate(col_sep: "\t") do |csv|
+        ::CSV.generate(col_sep: "\t") do |csv|
     
             csv << %w{
                 taxonID

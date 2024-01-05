@@ -9,7 +9,7 @@
         param="term"
         label="label_html"
         clear-after
-        @get-item="loadCO($event.id)"
+        @get-item="({ id }) => loadCO(id)"
       />
     </div>
     <COHeader />
@@ -43,6 +43,7 @@ import { useStore } from 'vuex'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { ActionNames } from './store/actions/actions'
 import { GetterNames } from './store/getters/getters'
+import { RouteNames } from '@/routes/routes'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import COHeader from './components/COHeader.vue'
 import TableGrid from '@/components/layout/Table/TableGrid.vue'
@@ -50,7 +51,7 @@ import PanelCE from './components/PanelCE/PanelCE.vue'
 import PanelCO from './components/Panel/PanelCO.vue'
 import ColumnThree from './components/ColumnThree.vue'
 import PanelDerived from './components/Panel/PanelDerived.vue'
-import loadCO from './utils/loadCO.js'
+import setParam from '@/helpers/setParam'
 
 const store = useStore()
 const collectingEvent = computed(
@@ -60,6 +61,12 @@ const { collection_object_id: coId } = URLParamsToJSON(location.href)
 
 if (coId) {
   store.dispatch(ActionNames.LoadCollectionObject, coId)
+}
+
+function loadCO(coId) {
+  store.dispatch(ActionNames.ResetStore)
+  store.dispatch(ActionNames.LoadCollectionObject, coId)
+  setParam(RouteNames.BrowseCollectionObject, 'collection_object_id', coId)
 }
 </script>
 

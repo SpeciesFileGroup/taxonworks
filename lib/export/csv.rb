@@ -1,6 +1,6 @@
 # Code that translates scopes into downloadable tab-delimited CSV. Dependant on Postgresql.
 #
-module ::Export::Csv
+module ::Export::CSV
 
   #   translate a scope into a CSV table, with optional tweaks to the data
   #
@@ -18,10 +18,10 @@ module ::Export::Csv
     column_names = scope.columns_hash.keys
     column_names = sort_column_headers(column_names, column_order.map(&:to_s)) if column_order.any?
 
-    h = CSV.new(column_names.join(','), header_converters:, headers: true)
+    h = ::CSV.new(column_names.join(','), header_converters:, headers: true)
     h.read
 
-    headers = CSV::Row.new(h.headers, h.headers, true).headers
+    headers = ::CSV::Row.new(h.headers, h.headers, true).headers
 
     tbl = headers.map { |h| [h] }
 
@@ -55,7 +55,7 @@ module ::Export::Csv
       if trim_rows
         next unless row.detect { |c| c.present? } # Minimize checks by exiting ASAP.  Could benchmark vs. row.compact.blank?
       end
-      output.puts CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
+      output.puts ::CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
     end
     # end).to_s).yellow
 

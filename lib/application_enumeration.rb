@@ -1,4 +1,5 @@
-Dir[Rails.root.to_s + '/app/models/*.rb'].each { |file| require_dependency file }
+# Not needed in zeitwerk
+# Dir[Rails.root.to_s + '/app/models/*.rb'].each { |file| require_dependency file }
 
 # Methods for enumerating models, tables, columns etc.
 #

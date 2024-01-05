@@ -2,10 +2,15 @@
 
 # All SequenceRelationship subclasses
 
-sequence_relationship_type_select = []
 
-SequenceRelationship.descendants.each do |s|
-  sequence_relationship_type_select.push([s.name.demodulize, s.to_s])
+Rails.application.reloader.to_prepare do
+
+  sequence_relationship_type_select = []
+
+  SequenceRelationship.descendants.each do |s|
+    sequence_relationship_type_select.push([s.name.demodulize, s.to_s])
+  end
+
+  SEQUENCE_RELATIONSHIP_TYPE_SELECT = sequence_relationship_type_select.freeze
+
 end
-
-SEQUENCE_RELATIONSHIP_TYPE_SELECT = sequence_relationship_type_select.freeze
