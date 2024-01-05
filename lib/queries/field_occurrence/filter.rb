@@ -34,9 +34,6 @@ module Queries
       # :extract_id,
       # :georeferences,
       # :import_dataset_id,
-      # :loaned,
-      # :never_loaned,
-      # :on_loan,
       # :repository,
       # :repository_id,
       # :sled_image_id,
@@ -55,7 +52,6 @@ module Queries
       # geographic_area_id: [],
       # import_dataset_id: [],
       # is_type: [],
-      # loan_id: [],
       # otu_id: [],
       # taxon_name_id: [],
       ].inject([{}]) { |ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary }.freeze
@@ -131,22 +127,6 @@ module Queries
       #  false - A collector role exists
       #  nil - not applied
       attr_accessor :collectors
-
-      # @param on_loan [True]
-      #   true - the FieldOccurrence *currently* on loan
-      attr_accessor :on_loan
-
-      # @param loaned [True]
-      #   true - the FieldOccurrence has been loaned at least once
-      attr_accessor :loaned
-
-      # @param never_loaned [True]
-      #   true - the FieldOccurrence has never been loaned
-      attr_accessor :never_loaned
-
-      # @return [Array]
-      #   a list of loan#id, all collection objects inside them will be included
-      attr_accessor :loan_id
 
       # @return [Array]
       #   of biocuration_class ids
@@ -283,10 +263,6 @@ module Queries
         @georeferences = boolean_param(params, :georeferences)
         @import_dataset_id = params[:import_dataset_id]
         @is_type = params[:is_type] || []
-        @loan_id = params[:loan_id]
-        @loaned = boolean_param(params, :loaned)
-        @never_loaned = boolean_param(params, :never_loaned)
-        @on_loan = boolean_param(params, :on_loan)
         @otu_descendants = boolean_param(params, :otu_descendants)
         @otu_id = params[:otu_id]
         @repository = boolean_param(params, :repository)
@@ -349,10 +325,6 @@ module Queries
 
       def import_dataset_id
         [@import_dataset_id].flatten.compact
-      end
-
-      def loan_id
-        [@loan_id].flatten.compact
       end
 
       def otu_id
@@ -508,11 +480,6 @@ module Queries
           .where(biocuration_classifications: { biocuration_class_id: })
       end
 
-      def loan_facet
-        return nil if loan_id.empty?
-        ::FieldOccurrence::BiologicalFieldOccurrence.joins(:loans).where(loans: { id: loan_id })
-      end
-
       def sled_image_facet
         return nil if sled_image_id.nil?
         ::FieldOccurrence::BiologicalFieldOccurrence.joins(:depictions).where('depictions.sled_image_id = ?', sled_image_id)
@@ -521,22 +488,6 @@ module Queries
       def biological_relationship_id_facet
         return nil if biological_relationship_id.empty?
         ::FieldOccurrence.with_biological_relationship_id(biological_relationship_id)
-      end
-
-      def loaned_facet
-        return nil unless loaned
-        ::FieldOccurrence.loaned
-      end
-
-      def never_loaned_facet
-        return nil unless never_loaned
-        ::FieldOccurrence.never_loaned
-      end
-
-      # TODO: change to not/on
-      def on_loan_facet
-        return nil unless on_loan
-        ::FieldOccurrence.on_loan
       end
 
       def dwc_indexed_facet
@@ -689,16 +640,6 @@ module Queries
         ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
       end
 
-      def loan_query_facet
-        return nil if loan_query.nil?
-        s = 'WITH query_loan_co AS (' + loan_query.all.to_sql + ') ' +
-            ::FieldOccurrence.joins(:loan_items)
-              .joins('JOIN query_loan_co as query_loan_co1 on query_loan_co1.id = loan_items.loan_id')
-              .to_sql
-
-        ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-      end
-
       def base_collecting_event_query_facet
         # Turn project_id off and check for a truly empty query
         base_collecting_event_query.project_id = nil
@@ -803,7 +744,6 @@ module Queries
        #  biological_association_query_facet,
        #  collecting_event_query_facet,
        #  extract_query_facet,
-       #  loan_query_facet,
        #  otu_query_facet,
        #  taxon_name_query_facet,
 
@@ -822,10 +762,6 @@ module Queries
        #  extract_id_facet,
        #  geographic_area_facet,
        #  georeferences_facet,
-       #  loan_facet,
-       #  loaned_facet,
-       #  never_loaned_facet,
-       #  on_loan_facet,
        #  otu_id_facet,
        #  repository_facet,
        #  sled_image_facet,

@@ -761,7 +761,7 @@ module Queries
 
           q = table.join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
             table[:id].eq(taxon_determination_table[:taxon_determination_object_id])
-            .and(taxon_determination_table[:taxon_determination_object_type]).eq('CollectionObject') )
+            .and(taxon_determination_table[:taxon_determination_object_type]).eq('CollectionObject') 
           ).join(otu_table, Arel::Nodes::InnerJoin).on(
             taxon_determination_table[:otu_id].eq(otu_table[:id])
           ).join(t, Arel::Nodes::InnerJoin).on(

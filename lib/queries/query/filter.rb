@@ -36,7 +36,7 @@ module Queries
     # This is read as  :to <- [:from1, from2...] ].
     SUBQUERIES = {
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name],
-      biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name, :asserted_distribution],
+      biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name, :asserted_distribution, :field_occurrence],
       biological_associations_graph: [:biological_association, :source],
       collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name],
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
@@ -46,7 +46,7 @@ module Queries
       dwc_occurrence: [:asserted_distribution, :collection_object],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
-      field_occurrence: [:source, :otu, :collecting_event],
+      field_occurrence: [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
       image: [:content, :collection_object, :collecting_event, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
       observation: [:collection_object, :descriptor, :image, :otu, :source, :taxon_name],
