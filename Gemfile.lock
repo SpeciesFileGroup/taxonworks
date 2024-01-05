@@ -348,14 +348,14 @@ GEM
     namae (1.1.1)
     namecase (2.0.0)
     nenv (0.3.0)
-    net-imap (0.4.9)
+    net-imap (0.4.9.1)
       date
       net-protocol
     net-pop (0.1.2)
       net-protocol
     net-protocol (0.2.2)
       timeout
-    net-smtp (0.3.3)
+    net-smtp (0.3.4)
       net-protocol
     netrc (0.11.0)
     nio4r (2.7.0)
@@ -376,7 +376,7 @@ GEM
     parallel (1.24.0)
     parallel_tests (4.4.0)
       parallel
-    parser (3.2.2.4)
+    parser (3.3.0.0)
       ast (~> 2.4.1)
       racc
     parslet (2.0.0)
@@ -547,7 +547,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
       rubocop-ast (>= 1.30.0, < 2.0)
-    rubocop-rspec (2.26.0)
+    rubocop-rspec (2.26.1)
       rubocop (~> 1.40)
       rubocop-capybara (~> 2.17)
       rubocop-factory_bot (~> 2.22)

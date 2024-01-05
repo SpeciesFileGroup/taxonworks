@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+
+- Use `zeitwerk` loading framework [#2718]
+
+[#2718]: https://github.com/SpeciesFileGroup/taxonworks/issues/2718
 
 ## [0.37.1] - 2024-01-04
 
