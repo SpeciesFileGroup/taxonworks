@@ -107,7 +107,7 @@ scope :tasks do
     end
   end
 
-  scope :browse_annotations, controller: 'tasks/browse_annotations' do
+  scope :browse_annotations, controller: 'tasks/object_annotations/browse_annotations' do
     get '/', action: :index, as: 'browse_annotations_task'
   end
 
