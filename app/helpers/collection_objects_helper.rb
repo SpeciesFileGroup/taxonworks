@@ -124,7 +124,7 @@ module CollectionObjectsHelper
 
   def collection_object_loan_tag(collection_object)
     return nil if collection_object.nil? || !collection_object.on_loan?
-    msg = ['On Loan until', collection_object.loan_return_date].compact.join(' ')
+    msg = collection_object.loan_return_date ? 'On Loan until ' + collection_object.loan_return_date.to_s : 'Gifted'
     content_tag(:span, msg, class: [
       :feedback,
       'feedback-thin',
