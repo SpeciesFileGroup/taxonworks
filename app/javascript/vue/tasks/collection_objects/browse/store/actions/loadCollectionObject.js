@@ -7,7 +7,8 @@ import {
   BiologicalAssociation,
   TypeMaterial,
   GeographicArea,
-  Repository
+  Repository,
+  Depiction
 } from '@/routes/endpoints'
 import { sortArray } from '@/helpers'
 import { makeCollectionObject } from '@/adapters/index.js'
@@ -55,7 +56,10 @@ export default ({ state, dispatch }, coId) => {
     state.navigation = body
   })
 
-  CollectionObject.depictions(coId).then(({ body }) => {
+  Depiction.where({
+    depiction_object_id: [coId],
+    depiction_object_type: COLLECTION_OBJECT
+  }).then(({ body }) => {
     state.depictions = body
   })
 
