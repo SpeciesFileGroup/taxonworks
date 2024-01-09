@@ -10,7 +10,7 @@ class Tasks::Exports::TaxonworksProjectController < ApplicationController
   end
 
   def csv_download
-    download = ::Export::Project::Csv.download(sessions_current_project)
+    download = ::Export::Project::CSV.download(sessions_current_project)
     redirect_to download_path(download)
   end
 

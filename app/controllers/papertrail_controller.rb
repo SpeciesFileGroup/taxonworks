@@ -73,7 +73,7 @@ class PapertrailController < ApplicationController
     if invalid_object(@object)
       record_not_found
     else
-      @result = TaxonWorks::Vendor::Papertrail.compare(@object, compare_params)
+      @result = Vendor::Papertrail.compare(@object, compare_params)
       @result ? render('compare') : record_not_found
     end
   end

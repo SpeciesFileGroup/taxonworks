@@ -411,7 +411,7 @@ class User < ApplicationRecord
   # @return [Hash]
   # @user.get_class_created_updated # => { "projects" => {created: 10, first_created: datetime, updated: 10, last_updated: datetime} }
   def get_class_created_updated
-    Rails.application.eager_load! if Rails.env.development?
+    #  Rails.application.eager_load! if Rails.env.development?
     data = {}
 
     User.reflect_on_all_associations(:has_many).each do |r|

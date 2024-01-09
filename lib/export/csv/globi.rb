@@ -1,6 +1,6 @@
 # CSV for for a ResourceRelationship based extension
 # 
-module Export::Csv::Globi
+module Export::CSV::Globi
 
   # See also  BiologicalAssociation::DwcExtensions::DWC_EXTENSION_MAP, the two play off each other.
   # Maintain this for order.
@@ -69,7 +69,7 @@ module Export::Csv::Globi
 
     output = StringIO.new
     tbl.each do |row|
-      output.puts CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
+      output.puts ::CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
     end
 
     output.string

@@ -121,7 +121,7 @@ module Export::Coldp::Files::Taxon
     # TODO: optional Taxon.alternativeID field allows inclusion of external identifiers: https://github.com/CatalogueOfLife/coldp#alternativeid-1 https://github.com/CatalogueOfLife/coldp#identifiers
     #   e.g., gbif:2704179,col:6W3C4,BOLD:AAJ2287,wikidata:Q157571
 
-    CSV.generate(col_sep: "\t") do |csv|
+    ::CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{
         ID

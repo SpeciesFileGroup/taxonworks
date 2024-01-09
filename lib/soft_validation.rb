@@ -1,8 +1,8 @@
-require_relative 'soft_validation/soft_validation'
-require_relative 'soft_validation/soft_validations'
-require_relative 'soft_validation/soft_validation_method'
-require_relative 'utilities/params'
-require "active_support/all"
+# require_relative 'soft_validation/soft_validation'
+# require_relative 'soft_validation/soft_validations'
+# require_relative 'soft_validation/soft_validation_method'
+# require_relative 'utilities/params'
+# require "active_support/all"
 
 # Vaguely inspired by concepts from by svn://rubyforge.org/var/svn/softvalidations, but not as elegant.
 #

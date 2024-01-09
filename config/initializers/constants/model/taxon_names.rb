@@ -1,6 +1,8 @@
 # Be sure to restart your server when you modify this file.
 
-require_dependency Rails.root.to_s + '/app/models/nomenclatural_rank'
+Rails.application.reloader.to_prepare do
+
+  require_dependency Rails.root.to_s + '/app/models/nomenclatural_rank'
 
 # a dictionary used to build three forms of adjectives
 LATIN_ADJECTIVES = {
@@ -138,3 +140,5 @@ LATIN_ADJECTIVES = {
     'vilius' => {masculine_name: 'vilior', feminine_name: 'vilior', neuter_name: 'vilius'},
     'vetus' => {masculine_name: 'vetus', feminine_name: 'vetus', neuter_name: 'vetus'},
 }.freeze
+
+end

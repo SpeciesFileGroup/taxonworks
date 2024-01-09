@@ -188,7 +188,7 @@ class SqedDepiction < ApplicationRecord
     end
 
     # otherwise rebuild
-    result = SqedToTaxonworks::Result.new(depiction_id: depiction.id)
+    result = Vendor::SqedToTaxonworks::Result.new(depiction_id: depiction.id)
     result.cache_all
   end
 

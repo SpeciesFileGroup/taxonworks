@@ -27,7 +27,7 @@ module Export::Coldp::Files::Synonym
 
   # This is currently factored to use *no* ActiveRecord instances
   def self.generate(otus, project_members, reference_csv = nil)
-    CSV.generate(col_sep: "\t") do |csv|
+    ::CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{taxonID nameID status remarks referenceID modified modifiedBy}
 

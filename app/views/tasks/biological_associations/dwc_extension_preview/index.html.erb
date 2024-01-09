@@ -10,7 +10,7 @@
 <table id="preview_table" class="tablesorter">
   <thead>
     <%= tag.tr(
-      Export::Csv::Dwc::Extension::BiologicalAssociations::HEADERS.collect{|c| fancy_th_tag(name: c)}.join.html_safe
+      Export::CSV::Dwc::Extension::BiologicalAssociations::HEADERS.collect{|c| fancy_th_tag(name: c)}.join.html_safe
     ) %>
   </thead>
 

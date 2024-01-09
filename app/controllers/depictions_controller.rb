@@ -124,7 +124,7 @@ class DepictionsController < ApplicationController
 
   # GET /depictions/download
   def download
-    send_data Export::Csv.generate_csv(
+    send_data Export::CSV.generate_csv(
       Depiction.where(project_id: sessions_current_project_id)), type: 'text', filename: "depictions_#{DateTime.now}.tsv"
   end
 

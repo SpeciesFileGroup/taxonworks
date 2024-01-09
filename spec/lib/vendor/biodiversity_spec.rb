@@ -1,9 +1,9 @@
 require 'rails_helper'
 
-describe ::TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature] do
+describe ::Vendor::Biodiversity, type: :model, group: [:nomenclature] do
   context 'Result' do
 
-    let(:result) { TaxonWorks::Vendor::Biodiversity::Result.new }
+    let(:result) { Vendor::Biodiversity::Result.new }
 
     specify '#name' do
       expect( result.name = 'Aus bus').to be_truthy

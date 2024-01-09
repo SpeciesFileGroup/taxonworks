@@ -69,7 +69,7 @@ module BiologicalAssociation::GlobiExtensions
   # Don't use dwc_
   def globi_extension_row
     r = []
-    Export::Csv::Globi::HEADERS.each do |h|
+    Export::CSV::Globi::HEADERS.each do |h|
       if m = GLOBI_EXTENSION_MAP[h.to_sym]
         r.push send(m)
       else

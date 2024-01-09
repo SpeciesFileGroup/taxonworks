@@ -9,7 +9,7 @@ end
 
 ENV['RAILS_ENV'] ||= 'test'
 
-require File.expand_path('../../config/environment', __FILE__)
+require_relative '../config/environment'
 
 ActiveRecord::Migration.check_pending!
 ActiveRecord::Migration.maintain_test_schema!
@@ -18,9 +18,12 @@ require 'amazing_print'
 require 'rspec/rails'
 require 'spec_helper'
 include ActionDispatch::TestProcess
+
 # TODO: this is all kinds of fragile and terrible. Potential fix:
 # * [ ] Use FactoryBot not FactoryBotRails
 # * [ ] Work backwards with dependencies for a more explicit/logical approach
+
+# Commenting this out does not prevent initialization
 Dir[Rails.root.join('spec/support/**/*.rb')].sort.reverse.each { |f| require f }
 
 ApplicationRecord.connection.tables.each { |t| ApplicationRecord.connection.reset_pk_sequence!(t) }
