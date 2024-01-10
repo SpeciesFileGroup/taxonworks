@@ -50,4 +50,15 @@ module Workbench::TableHelper
     content_tag(:button, 'Copy to clipboard', data: { 'clipboard-table-selector': selector }, type: 'button')
   end
 
+  def table_from_hash_tag(hash)
+    tag.table do
+      hash.collect do |k,v|
+        tag.tr do
+          concat(tag.td(k))
+          concat(tag.td(tag.strong(v)))
+        end
+      end.join.html_safe
+    end
+  end
+
 end
