@@ -1,4 +1,10 @@
 scope :tasks do
+    scope :field_occurrences do
+      scope :new_field_occurrences, controller: 'tasks/field_occurrences/new_field_occurrences' do
+        get :index, as: 'index_new_field_occurrences_task'
+      end
+    end
+
 
   scope :cached_maps do
     scope :report, controller: 'tasks/cached_maps/report' do
