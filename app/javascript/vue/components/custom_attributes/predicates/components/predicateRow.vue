@@ -86,6 +86,7 @@ export default {
         if (id) {
           this.$emit('onUpdate', {
             id,
+            controlled_vocabulary_term_id: this.predicateObject.id,
             _destroy: true
           })
         }
