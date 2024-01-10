@@ -8,7 +8,9 @@ export default ({ commit, state }, loan) => {
       loan.loan_supervisor_roles || []
     )
   }
-  Loan.update(loan.id, { loan: payload, extend: ['roles'] }).then(() => {
-    TW.workbench.alert.create('Loan was successfully updated.', 'notice')
-  })
+  Loan.update(loan.id, { loan: payload, extend: ['roles'] })
+    .then(() => {
+      TW.workbench.alert.create('Loan was successfully updated.', 'notice')
+    })
+    .catch(() => {})
 }
