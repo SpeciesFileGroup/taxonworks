@@ -5,7 +5,7 @@
     object-type="CollectingEvent"
     model="CollectingEvent"
     :model-preferences="projectPreferences.model_predicate_sets.CollectingEvent"
-    @onUpdate="setAttributes"
+    @on-update="setAttributes"
   />
 </template>
 
