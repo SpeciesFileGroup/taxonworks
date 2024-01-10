@@ -261,7 +261,7 @@ class Loan < ApplicationRecord
   end
 
   def gift_or_date_expected_required
-    errors.add(:date_return_expected, ' or gift status is required') if is_gift.nil? && date_return_expected.nil?
+    errors.add(:date_return_expected, ' or gift status is required') if is_gift.blank? && date_return_expected.nil?
   end
 
   def requested_after_sent
