@@ -846,10 +846,9 @@ stepwise_collectors_task:
     - people
   status: prototype
   description: 'Parse verbatim collectors into their semantic components.'
-
-index_new_field_occurrences_task:
+new_field_occurrences_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'New field occurrence'
   related:
   categories:
   status: prototype
