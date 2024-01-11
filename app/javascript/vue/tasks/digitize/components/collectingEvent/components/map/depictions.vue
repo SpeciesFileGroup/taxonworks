@@ -10,16 +10,9 @@
 <script>
 import DepictionComponent from '../../../shared/depictions'
 import { GetterNames } from '../../../../store/getters/getters.js'
-import { CollectingEvent } from '@/routes/endpoints'
 
 export default {
   components: { DepictionComponent },
-
-  data() {
-    return {
-      GetCollectingEventDepictions: CollectingEvent.depictions
-    }
-  },
 
   computed: {
     collectingEvent() {
