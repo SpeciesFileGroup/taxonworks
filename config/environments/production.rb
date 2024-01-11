@@ -13,10 +13,6 @@ TaxonWorks::Application.configure do
   # TODO: find out the consequences and resolve autoload/eager_loadness
   # at present this resolved TW-261
 
-  ["generators", "assets", "tasks"].each do |subdirectory|
-    Rails.autoloaders.main.ignore("#{Rails.root}/lib/#{subdirectory}")
-  end
-
   config.eager_load = true
   # config.eager_load = false
 

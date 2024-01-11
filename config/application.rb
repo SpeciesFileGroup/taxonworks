@@ -64,9 +64,10 @@ module TaxonWorks
     # config.logger = Logger.new(STDOUT)
     # config.logger = Log4r::Logger.new('Application Log')
 
-
     config.autoloader = :zeitwerk
 
-
+    ["generators", "assets", "tasks"].each do |subdirectory|
+      Rails.autoloaders.main.ignore("#{Rails.root}/lib/#{subdirectory}")
+    end
   end
 end

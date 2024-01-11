@@ -32,7 +32,7 @@
   </div>
 
   <div class="panel content separate-top">
-    <h2> Created at in the past </h2>
+    <h2> Created in the past </h2>
     <table>
       <tr><td>24 hours</td><td><%= tag.strong @loans.where('loans.created_at > ?', 24.hours.ago).count %></td></tr>
       <tr><td>Week</td><td><%= tag.strong @loans.where('loans.created_at > ?', 1.week.ago).count %></td></tr>

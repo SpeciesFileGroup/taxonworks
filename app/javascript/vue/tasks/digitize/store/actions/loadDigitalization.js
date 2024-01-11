@@ -6,7 +6,8 @@ export default ({ commit, dispatch, state }, coId) =>
   new Promise((resolve, reject) => {
     state.settings.loading = true
     dispatch(ActionNames.GetCollectionObject, coId)
-      .then((coObject) => {
+      .then(({ body }) => {
+        const coObject = body
         const promises = []
 
         dispatch(ActionNames.LoadContainer, coObject.global_id)

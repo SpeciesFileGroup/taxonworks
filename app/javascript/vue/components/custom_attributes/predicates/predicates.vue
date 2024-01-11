@@ -76,15 +76,7 @@ export default {
   watch: {
     objectId(newVal) {
       if (newVal && this.objectType) {
-        this.loading = true
-        DataAttribute.where({
-          attribute_subject_type: this.objectType,
-          attribute_subject_id: this.objectId,
-          type: 'InternalAttribute'
-        }).then((response) => {
-          this.createdList = response.body
-          this.loading = false
-        })
+        this.loadDataAttributes()
       } else {
         this.createdList = []
       }
@@ -104,6 +96,21 @@ export default {
           response.body.model_predicate_sets?.predicate_index || []
         this.loadPredicates(this.modelPreferencesIds)
       })
+    },
+
+    loadDataAttributes() {
+      this.loading = true
+      DataAttribute.where({
+        attribute_subject_type: this.objectType,
+        attribute_subject_id: this.objectId,
+        type: 'InternalAttribute'
+      })
+        .then((response) => {
+          this.createdList = response.body
+        })
+        .finally(() => {
+          this.loading = false
+        })
     },
 
     async loadPredicates(ids) {

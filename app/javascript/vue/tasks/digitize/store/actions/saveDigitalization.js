@@ -15,7 +15,9 @@ export default ({ commit, dispatch, state }) =>
       .then(() => {
         dispatch(ActionNames.SaveLabel)
         dispatch(ActionNames.SaveCollectionObject, state.collection_object)
-          .then((coCreated) => {
+          .then(({ body }) => {
+            const coCreated = body
+
             commit(MutationNames.SetCollectionObject, coCreated)
             commit(MutationNames.AddCollectionObject, coCreated)
 

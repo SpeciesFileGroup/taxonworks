@@ -14,5 +14,6 @@ export default ({ commit, state }) => {
   if (!state.settings.locked.collecting_event) {
     commit(MutationNames.SetCollectingEvent, makeCollectingEvent())
     commit(MutationNames.SetGeoreferences, [])
+    commit(MutationNames.SetCETotalUsed, 0)
   }
 }

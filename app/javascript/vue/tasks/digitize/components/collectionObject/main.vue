@@ -82,13 +82,14 @@
               />
               <predicates-component
                 v-if="projectPreferences"
+                ref="customAttributes"
                 :object-id="collectionObject.id"
                 object-type="CollectionObject"
                 model="CollectionObject"
                 :model-preferences="
                   projectPreferences.model_predicate_sets.CollectionObject
                 "
-                @onUpdate="setAttributes"
+                @on-update="setAttributes"
               />
             </div>
           </div>
@@ -237,6 +238,21 @@ export default {
       GetCollectionObjectDepictions: CollectionObject.depictions
     }
   },
+
+  created() {
+    this.$store.subscribeAction({
+      after: (action) => {
+        if (action.type === ActionNames.SaveCollectionObject) {
+          this.$refs.customAttributes.loadDataAttributes()
+        }
+      }
+    })
+  },
+
+  beforeUnmount() {
+    this.unsubscribe()
+  },
+
   watch: {
     collectionObject(newVal) {
       if (newVal.id) {
