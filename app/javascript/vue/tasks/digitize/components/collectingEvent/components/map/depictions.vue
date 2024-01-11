@@ -3,7 +3,6 @@
     :object-value="collectingEvent"
     object-type="CollectingEvent"
     default-message="Drop images or click here<br> to add collecting event figures"
-    :get-depictions="GetCollectingEventDepictions"
     action-save="SaveCollectingEvent"
   />
 </template>

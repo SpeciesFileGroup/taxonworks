@@ -45,7 +45,6 @@
             <depictions-component
               v-if="showDepictions"
               :object-value="collectionObject"
-              :get-depictions="GetCollectionObjectDepictions"
               object-type="CollectionObject"
               @create="createDepictionForAll"
               @delete="removeAllDepictionsByImageId"
@@ -120,7 +119,7 @@ import PredicatesComponent from '@/components/custom_attributes/predicates/predi
 import DefaultTag from '@/components/defaultTag.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import SoftValidations from '@/components/soft_validations/panel.vue'
-import { Depiction, CollectionObject } from '@/routes/endpoints'
+import { Depiction } from '@/routes/endpoints'
 import { COLLECTION_OBJECT } from '@/constants/index.js'
 import {
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CITATIONS,
@@ -234,8 +233,7 @@ export default {
     return {
       types: [],
       labelRepository: undefined,
-      labelEvent: undefined,
-      GetCollectionObjectDepictions: CollectionObject.depictions
+      labelEvent: undefined
     }
   },
 
