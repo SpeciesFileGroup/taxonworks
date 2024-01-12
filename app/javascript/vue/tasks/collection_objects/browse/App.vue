@@ -44,6 +44,7 @@ import { URLParamsToJSON } from '@/helpers/url/parse'
 import { ActionNames } from './store/actions/actions'
 import { GetterNames } from './store/getters/getters'
 import { RouteNames } from '@/routes/routes'
+import { usePopstateListener } from '@/compositions'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import COHeader from './components/COHeader.vue'
 import TableGrid from '@/components/layout/Table/TableGrid.vue'
@@ -74,8 +75,9 @@ function loadCO(coId, doSetParam = true) {
   }
 }
 
-window.addEventListener('popstate', () => {
+usePopstateListener(() => {
   const { collection_object_id: coId } = URLParamsToJSON(location.href)
+
   if (coId) {
     loadCO(coId, false)
   }
