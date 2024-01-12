@@ -60,14 +60,26 @@ const collectingEvent = computed(
 const { collection_object_id: coId } = URLParamsToJSON(location.href)
 
 if (coId) {
+  // Call this for history.replaceState - otherwise turbolinks saves state
+  // that causes a reload every time we revisit this initial CO.
+  setParam(RouteNames.BrowseCollectionObject, 'collection_object_id', coId)
   store.dispatch(ActionNames.LoadCollectionObject, coId)
 }
 
-function loadCO(coId) {
+function loadCO(coId, doSetParam = true) {
   store.dispatch(ActionNames.ResetStore)
   store.dispatch(ActionNames.LoadCollectionObject, coId)
-  setParam(RouteNames.BrowseCollectionObject, 'collection_object_id', coId)
+  if (doSetParam) {
+    setParam(RouteNames.BrowseCollectionObject, 'collection_object_id', coId)
+  }
 }
+
+window.addEventListener('popstate', () => {
+  const { collection_object_id: coId } = URLParamsToJSON(location.href)
+  if (coId) {
+    loadCO(coId, false)
+  }
+})
 </script>
 
 <style lang="scss">
