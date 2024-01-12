@@ -69,10 +69,6 @@ export default {
       type: String,
       required: true
     },
-    getDepictions: {
-      type: Function,
-      required: true
-    },
     defaultMessage: {
       type: String,
       default: 'Drop images or click here to add figures'
@@ -107,7 +103,10 @@ export default {
       if (newVal.id && newVal.id != oldVal.id) {
         this.$refs.depiction.setOption('autoProcessQueue', true)
         this.$refs.depiction.processQueue()
-        this.getDepictions(newVal.id)
+        Depiction.where({
+          depiction_object_id: newVal.id,
+          depiction_object_type: this.objectType
+        })
           .then((response) => {
             this.figuresList = response.body
           })
