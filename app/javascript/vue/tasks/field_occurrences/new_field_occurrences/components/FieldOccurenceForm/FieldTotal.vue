@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="field label-above">
     <label>Total</label>
     <input
       type="number"

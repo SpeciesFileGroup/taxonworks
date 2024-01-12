@@ -1,5 +1,5 @@
 <template>
-  <div class="panel content">
+  <div>
     <div class="horizontal-left-content align-start">
       <div
         class="flex-wrap-column full_width"
