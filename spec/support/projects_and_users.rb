@@ -16,15 +16,15 @@ module ProjectsAndUsers
   def self.spin_up_projects_users_and_housekeeping
 
     # Order matters
-   User.create!(
-     name: 'test',
-     email: 'person1@example.com',
-     password: Rails.configuration.x.test_user_password,
-     password_confirmation:  Rails.configuration.x.test_user_password,
-     self_created: true
-   ) 
+  #User.create!(
+  #  name: 'test',
+  #  email: 'person1@example.com',
+  #  password: Rails.configuration.x.test_user_password,
+  #  password_confirmation:  Rails.configuration.x.test_user_password,
+  #  self_created: true
+  #) 
 
-  #   FactoryBot.create(:valid_user, id: 1, self_created: true)
+     FactoryBot.create(:valid_user, id: 1, self_created: true)
     
     Current.user_id = 1
 

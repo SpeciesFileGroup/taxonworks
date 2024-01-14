@@ -9,9 +9,8 @@ Bundler.require *Rails.groups
 
 module TaxonWorks
   class Application < Rails::Application
-
-    # This breaks housekeeping when on but might be needed
-    config.load_defaults 6.1
+    # This breaks housekeeping everywhere 
+    # config.load_defaults 6.1
 
     # Via https://github.com/matthuhiggins/foreigner/pull/95
     #  config.before_initialize do
@@ -25,7 +24,7 @@ module TaxonWorks
     # Pre-load all libraries in /lib
     # config.autoload_paths += %W(#{config.root}/lib) # #{config.root}/extras
 
-    config.autoload_paths << "#{Rails.root}/app/lib"
+    # config.autoload_paths << "#{Rails.root}/app/lib"
 
     # TODO: clean module/class names so that this works:
     # config.autoload_paths += Dir[ Rails.root.join('lib', '**/') ]
