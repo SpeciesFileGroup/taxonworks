@@ -21,6 +21,38 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     expect(ad_offset.send(:touched_cached_maps).pluck(:id)).to eq([ad_offset.otu_id])
   end
 
+  specify '#touched_cached_maps (untouched)' do
+    ad_offset.save!
+    p = FactoryBot.create(:valid_project)
+    a = FactoryBot.create(:valid_asserted_distribution, project: p, geographic_area: ga_offset)
+
+    Delayed::Worker.new.work_off
+
+    expect(ad_offset.send(:touched_cached_maps)).to contain_exactly(ad_offset.otu)
+  end
+
+  specify '#cached_maps_to_clear 1' do
+     ad_offset.save!
+    p = FactoryBot.create(:valid_project)
+    a = FactoryBot.create(:valid_asserted_distribution, project: p, geographic_area: ga_offset)
+    Delayed::Worker.new.work_off
+
+    expect(ad_offset.send(:cached_maps_to_clear).all).to eq([])
+  end
+
+  specify '#cached_maps_to_clear 2' do
+     ad_offset.save!
+    p = FactoryBot.create(:valid_project)
+    a = FactoryBot.create(:valid_asserted_distribution, project: p, geographic_area: ga_offset)
+    Delayed::Worker.new.work_off
+
+    a.otu.cached_map
+    ad_offset.otu.cached_map
+    Delayed::Worker.new.work_off
+
+    expect(ad_offset.send(:cached_maps_to_clear).all).to eq([ad_offset.otu.cached_map])
+  end
+
   specify 'Delayed::Job is cued' do
     ad_offset.save!
     expect(Delayed::Job.count).to eq(2) # Create items, clear CachedMap
