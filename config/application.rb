@@ -11,7 +11,7 @@ module TaxonWorks
   class Application < Rails::Application
 
     # This breaks housekeeping when on but might be needed
-    config.load_defaults 6.0
+    config.load_defaults 6.1
 
     # Via https://github.com/matthuhiggins/foreigner/pull/95
     #  config.before_initialize do
