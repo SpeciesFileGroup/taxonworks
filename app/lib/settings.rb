@@ -1,8 +1,9 @@
 # Server/application configuration settings
 
-require 'utilities'
-require 'utilities/hashes'
-require 'taxonworks_net'
+require_relative 'utilities'
+require_relative 'utilities/hashes'
+require_relative 'taxonworks_net'
+
 module Settings
 
   class Error < RuntimeError; end;

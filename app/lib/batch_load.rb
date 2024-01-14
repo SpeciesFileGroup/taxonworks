@@ -10,6 +10,6 @@ module BatchLoad
 
 end
 
-require_dependency Rails.root + 'lib/batch_load/import'
-require_dependency Rails.root + 'lib/batch_load/import/collection_objects'
-require_dependency Rails.root + 'lib/batch_load/import/taxon_names'
+# require_dependency Rails.root + 'lib/batch_load/import'
+# require_dependency Rails.root + 'lib/batch_load/import/collection_objects'
+# require_dependency Rails.root + 'lib/batch_load/import/taxon_names'

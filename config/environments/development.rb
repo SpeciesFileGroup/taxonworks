@@ -1,4 +1,6 @@
-require 'settings'
+
+require Rails.root + 'app/lib/settings' #  Rails.root + '/lib/settings'
+
 TaxonWorks::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 

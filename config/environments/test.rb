@@ -1,4 +1,5 @@
-require 'settings'
+require Rails.root + 'app/lib/settings' #  Rails.root + '/lib/settings'
+
 TaxonWorks::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -13,6 +14,9 @@ TaxonWorks::Application.configure do
   # preloads Rails for running tests, you may have to set it to true.
   # 
   config.eager_load = ENV["CI"].present?
+
+  # config.eager_load = true
+
 
   # Configure static asset server for tests with Cache-Control for performance.
   # config.serve_static_files                         = true
@@ -63,7 +67,7 @@ TaxonWorks::Application.configure do
 
   Settings.load_mail_domain(config, 'example.com')
 
-  require 'taxonworks'
+  # require 'taxonworks'
 
   # See http://guides.rubyonrails.org/v5.1/configuring.html#custom-configuration
   config.x.test_user_password = 'taxonworks'.freeze

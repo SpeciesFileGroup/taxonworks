@@ -1,1 +1,1 @@
-require_relative '../../lib/taxonworks/version'
+require_relative 'version' # ../../lib/taxonworks/version'
