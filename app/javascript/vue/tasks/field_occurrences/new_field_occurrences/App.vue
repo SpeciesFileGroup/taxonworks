@@ -2,29 +2,23 @@
   <h1>New field occurrence</h1>
   <div>
     <HeaderBar />
-    <BlockLayout>
-      <template #header>
-        <h3>Collecting event</h3>
-      </template>
-      <template #body>
-        <CollectingEventForm :exclude="[ComponentMap.PrintLabel]" />
-      </template>
-    </BlockLayout>
-    <div class="flexbox">
-      <FieldOccurrenceForm />
-      <TaxonDeterminationForm />
+    <div class="horizontal-left-content align-start gap-medium">
+      <div class="flex-wrap-column gap-medium">
+        <FieldOccurrenceForm />
+        <TaxonDeterminationForm />
+      </div>
+
+      <CollectingEventForm class="full_width" />
     </div>
   </div>
 </template>
 
 <script setup>
-import useStore from './store/store'
 import TaxonDeterminationForm from './components/TaxonDeterminationForm.vue'
-import CollectingEventForm from '@/components/Form/FormCollectingEvent/FormCollectingEvent.vue'
-import BlockLayout from '@/components/layout/BlockLayout.vue'
-import HeaderBar from './components/HeaderBar.vue'
 import FieldOccurrenceForm from './components/FieldOccurenceForm/FieldOccurrenceForm.vue'
-import { ComponentMap } from '@/components/Form/FormCollectingEvent/const/components.js'
+import HeaderBar from './components/HeaderBar.vue'
+import CollectingEventForm from './components/CollectingEventForm.vue'
+import useStore from './store/store'
 
 defineOptions({
   name: 'NewFieldOccurrence'
