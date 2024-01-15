@@ -25,5 +25,9 @@ import BlockLayout from '@/components/layout/BlockLayout.vue'
 import HeaderBar from './components/HeaderBar.vue'
 import FieldOccurrenceForm from './components/FieldOccurenceForm/FieldOccurrenceForm.vue'
 
+defineOptions({
+  name: 'NewFieldOccurrence'
+})
+
 const store = useStore()
 </script>

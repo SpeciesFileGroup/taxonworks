@@ -7,6 +7,10 @@
       <div class="flex-col gap-medium">
         <FieldTotal v-model="store.fieldOccurrence" />
         <FieldAbsent v-model="store.fieldOccurrence" />
+        <BiocurationForm
+          :object-id="store.fieldOccurrence.id"
+          :biocurations-groups="biocurationStore.biocurationGroups"
+        />
       </div>
     </template>
   </BlockLayout>
@@ -16,7 +20,12 @@
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import FieldAbsent from './FieldIsAbsent.vue'
 import FieldTotal from './FieldTotal.vue'
-import useStore from '../../store/store'
+import BiocurationForm from '../BiocurationForm.vue'
+import useStore from '../../store/store.js'
+import useBiocurationStore from '../../store/biocurations.js'
 
 const store = useStore()
+const biocurationStore = useBiocurationStore()
+
+biocurationStore.loadBiocurationGroups()
 </script>

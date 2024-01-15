@@ -1,7 +1,10 @@
 <template>
   <div>
     <div>
-      <div v-for="group in biocurationsGroups">
+      <div
+        v-for="group in biocurationsGroups"
+        :key="group.id"
+      >
         <label>{{ group.name }}</label>
         <br />
         <template
@@ -10,15 +13,17 @@
         >
           <VBtn
             v-if="!isInList(item.id)"
-            :color="biologicalId ? 'create' : 'primary'"
+            :color="objectId ? 'create' : 'primary'"
+            medium
             class="biocuration-toggle-button"
-            @click="addBiocuration(item.id)"
+            @click="addBiocuration(item)"
           >
             {{ item.name }}
           </VBtn>
           <VBtn
             v-else
-            :color="biologicalId && 'destroy'"
+            :color="objectId && 'destroy'"
+            medium
             class="biocuration-toggle-button"
             @click="() => removeBiocuration(item)"
           >
@@ -32,27 +37,14 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue'
-import {
-  BiocurationClassification,
-  ControlledVocabularyTerm,
-  Tag
-} from '@/routes/endpoints'
+import { BiocurationClassification } from '@/routes/endpoints'
+import { FIELD_OCCURRENCE } from '@/constants'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import {
-  BIOCURATION_CLASS,
-  BIOCURATION_GROUP,
-  FIELD_OCCURRENCE
-} from '@/constants'
 
 const props = defineProps({
-  biologicalId: {
+  objectId: {
     type: [String, Number],
     default: undefined
-  },
-
-  biocutarionsType: {
-    type: Array,
-    default: () => []
   },
 
   biocurationsGroups: {
@@ -61,24 +53,19 @@ const props = defineProps({
   }
 })
 
-const biocurationList = ref([])
-const createdBiocutarions = ref([])
-const unsavedBiocurations = computed(() =>
-  biocurationList.value.filter((item) => item.id)
-)
+const list = ref([])
+const unsavedBiocurations = computed(() => list.value.filter((item) => item.id))
 
 watch(
-  () => props.biologicalId,
+  () => props.objectId,
   (newId, oldId) => {
-    createdBiocutarions.value = []
-
     if (newId && !oldId) {
-      processQueue()
+      processUnsavedBiocurations()
     } else if (newId) {
       BiocurationClassification.where({
         biological_collection_object_id: newId
       }).then(({ body }) => {
-        biocurationList.value = body.map((item) => makeBiocurationObject(item))
+        list.value = body.map((item) => makeBiocurationObject(item))
       })
     }
   },
@@ -88,49 +75,53 @@ watch(
 watch(
   unsavedBiocurations,
   (newVal) => {
-    if (props.biologicalId && newVal.length) {
-      processQueue()
+    if (props.objectId && newVal.length) {
+      processUnsavedBiocurations()
     }
   },
   { deep: true }
 )
 
 function addBiocuration(biocuration) {
-  biocurationList.value.push(biocuration)
+  list.value.push(
+    makeBiocurationObject({ biocuration_class_id: biocuration.id })
+  )
 }
 
-function processQueue() {
-  const requests = biocurationList.value.map((id) =>
-    BiocurationClassification.create(makeBiocurationPayload(id))
+function processUnsavedBiocurations() {
+  const requests = list.value.map((item) =>
+    BiocurationClassification.create(makeBiocurationPayload(item.id))
   )
 
   Promise.all(requests).then((responses) => {
-    const created = biocurationList.value.filter((item) => item.id)
-    biocurationList.value = [...created, ...responses.map((r) => r.body)]
+    const created = list.value.filter((item) => item.id)
+
+    list.value = [...created, ...responses.map((r) => r.body)]
   })
 }
 
 function isInList(id) {
-  return !!biocurationList.value.find((bio) => id === bio.biocurationClassId)
+  return !!list.value.find((bio) => id === bio.biocurationClassId)
 }
 
 function removeBiocuration(biocurationClass) {
-  const index = biocurationList.value.findIndex(
-    (item) => item.biocuration_class_id === biocurationClass.id
+  const index = list.value.findIndex(
+    ({ biocurationClassId }) => biocurationClassId === biocurationClass.id
   )
-  const biocuration = biocurationList.value[index]
+  const biocuration = list.value[index]
 
-  BiocurationClassification.destroy(biocuration.id).then(() => {
-    biocurationList.value.splice(index, 1)
-  })
+  if (biocuration.id) {
+    BiocurationClassification.destroy(biocuration.id)
+  }
+
+  list.value.splice(index, 1)
 }
 
 function makeBiocurationObject(item) {
   return {
     id: item.id,
     uuid: crypto.randomUUID(),
-    biocurationClassId: item.biocuration_class_id,
-    biologicalId: props.biologicalId
+    biocurationClassId: item.biocuration_class_id
   }
 }
 
@@ -138,40 +129,11 @@ function makeBiocurationPayload(id) {
   return {
     biocuration_classification: {
       biocuration_class_id: id,
-      biocuration_classification_object_id: props.biologicalId,
+      biocuration_classification_object_id: props.objectId,
       biocuration_classification_object_type: FIELD_OCCURRENCE
     }
   }
 }
-
-async function splitGroups() {
-  const { body: list } = await ControlledVocabularyTerm.where({
-    type: ['BiocurationGroup', 'BiocurationClass']
-  })
-
-  const groups = list.filter(({ b }) => b.type === BIOCURATION_GROUP)
-  const types = list.filter(({ b }) => b.type === BIOCURATION_CLASS)
-
-  groups.forEach((group) => {
-    Tag.where({ keyword_id: group.id }).then(({ body }) => {
-      const tmpArray = []
-
-      body.forEach((item) => {
-        types.forEach((itemClass) => {
-          if (itemClass.id === item.tag_object_id) {
-            tmpArray.push(itemClass)
-          }
-        })
-      })
-
-      group.list = tmpArray
-    })
-  })
-
-  return groups
-}
-
-splitGroups()
 </script>
 
 <style lang="scss" scoped>
