@@ -7,7 +7,7 @@
         <h3>Collecting event</h3>
       </template>
       <template #body>
-        <CollectingEventForm />
+        <CollectingEventForm :exclude="[ComponentMap.PrintLabel]" />
       </template>
     </BlockLayout>
     <div class="flexbox">
@@ -24,6 +24,7 @@ import CollectingEventForm from '@/components/Form/FormCollectingEvent/FormColle
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import HeaderBar from './components/HeaderBar.vue'
 import FieldOccurrenceForm from './components/FieldOccurenceForm/FieldOccurrenceForm.vue'
+import { ComponentMap } from '@/components/Form/FormCollectingEvent/const/components.js'
 
 defineOptions({
   name: 'NewFieldOccurrence'

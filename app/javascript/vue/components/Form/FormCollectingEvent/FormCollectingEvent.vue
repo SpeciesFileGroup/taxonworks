@@ -17,6 +17,7 @@
         >
           <template #item="{ element }">
             <component
+              v-if="!exclude.includes(element)"
               class="separate-bottom"
               v-model="store.collectingEvent"
               :components-order="componentsOrder"
@@ -56,6 +57,11 @@ defineProps({
   sortable: {
     type: Boolean,
     default: false
+  },
+
+  exclude: {
+    type: Array,
+    default: () => []
   }
 })
 
