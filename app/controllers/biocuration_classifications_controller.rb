@@ -53,7 +53,7 @@ class BiocurationClassificationsController < ApplicationController
   end
 
   def biocuration_classification_params
-    params.require(:biocuration_classification).permit(:biocuration_class_id, :biolcuration_classification_object_id, :biocuration_classification_object_type)
+    params.require(:biocuration_classification).permit(:biocuration_class_id, :biocuration_classification_object_id, :biocuration_classification_object_type)
   end
 
   # No corresponding filter.rb
