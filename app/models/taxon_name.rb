@@ -248,9 +248,8 @@ class TaxonName < ApplicationRecord
   has_many :otus, inverse_of: :taxon_name, dependent: :restrict_with_error
   has_many :taxon_determinations, through: :otus
 
-  # TODO: add Where clauses!!
-  has_many :collection_objects, through: :taxon_determinations, source: :taxon_determination_object
-  has_many :field_occurrences, through: :taxon_determinations, source: :taxon_determination_object
+  has_many :collection_objects, through: :taxon_determinations, source: :taxon_determination_object, source_type: 'CollectionObject'
+  has_many :field_occurrences, through: :taxon_determinations, source: :taxon_determination_object, source_type: 'FieldOccurrence'
 
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error, inverse_of: :object_taxon_name
 
