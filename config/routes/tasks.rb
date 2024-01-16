@@ -1,14 +1,14 @@
 scope :tasks do
-    scope :field_occurrences do
-      scope :new_field_occurrences, controller: 'tasks/field_occurrences/new_field_occurrences' do
-        get '/', as: 'new_field_occurrences_task', action: :index
-      end
-    end
-
 
   scope :cached_maps do
     scope :report, controller: 'tasks/cached_maps/report' do
       get :items_by_otu, as: 'cached_map_items_by_otus_task'
+    end
+  end
+
+  scope :geographic_items do
+    scope :debug, controller: 'tasks/geographic_items/debug' do
+      get '/', action: :index, as: 'debug_geographic_item_task'
     end
   end
 
@@ -46,6 +46,12 @@ scope :tasks do
     post 'update_catalog_number_namespace'
     post 'update_catalog_number_collection_code_namespace'
     post 'set_import_settings'
+  end
+
+  scope :field_occurrences do
+    scope :new_field_occurrences, controller: 'tasks/field_occurrences/new_field_occurrences' do
+      get '/', as: 'new_field_occurrences_task', action: :index
+    end
   end
 
   scope :namespaces do

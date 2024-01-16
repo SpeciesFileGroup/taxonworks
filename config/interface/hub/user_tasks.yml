@@ -853,3 +853,13 @@ new_field_occurrences_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+debug_geographic_item_task:
+  hub: false
+  name: 'Debug geographic item'
+  related:
+  categories:
+    - geographic_area
+    - collecting_event 
+    - georeference
+  status: prototype
+  description: 'Report metadat about a geographic item.'
