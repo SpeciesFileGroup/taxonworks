@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_27_154355) do
+ActiveRecord::Schema.define(version: 2024_01_16_154142) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -85,7 +85,10 @@ ActiveRecord::Schema.define(version: 2023_12_27_154355) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
+    t.bigint "biocuration_classification_object_id"
+    t.string "biocuration_classification_object_type"
     t.index ["biocuration_class_id"], name: "index_biocuration_classifications_on_biocuration_class_id"
+    t.index ["biocuration_classification_object_type", "biocuration_classification_object_id"], name: "bc_poly"
     t.index ["biological_collection_object_id"], name: "bio_c_bio_collection_object"
     t.index ["created_by_id"], name: "index_biocuration_classifications_on_created_by_id"
     t.index ["position"], name: "index_biocuration_classifications_on_position"

@@ -23,7 +23,7 @@ module Shared::BiologicalExtensions
 
     has_many :type_materials, inverse_of: :collection_object, dependent: :restrict_with_error
 
-    has_many :biocuration_classifications,  inverse_of: :biological_collection_object, dependent: :destroy, foreign_key: :biological_collection_object_id
+    has_many :biocuration_classifications, as: :biocuration_classification_object, dependent: :destroy, inverse_of: :biocuration_classification_object
     has_many :biocuration_classes, through: :biocuration_classifications, inverse_of: :biological_collection_objects
 
     accepts_nested_attributes_for :biocuration_classes, allow_destroy: true

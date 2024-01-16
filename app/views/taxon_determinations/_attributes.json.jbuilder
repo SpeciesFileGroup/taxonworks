@@ -1,4 +1,6 @@
-json.extract! taxon_determination, :id, :biological_collection_object_id, :otu_id,
+json.extract! taxon_determination, :id,
+:taxon_determination_object_id, :taxon_determination_object_type,
+:otu_id,
 :position, :year_made, :month_made, :day_made,
 :print_label,
 :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at

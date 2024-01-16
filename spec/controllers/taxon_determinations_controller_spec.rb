@@ -28,7 +28,7 @@ describe TaxonDeterminationsController, type: :controller do
   let(:otu) { FactoryBot.create(:valid_otu) }
   let(:specimen) { FactoryBot.create(:valid_specimen) }
   let(:valid_attributes) {
-    strip_housekeeping_attributes( {otu_id: otu.to_param, biological_collection_object_id: specimen.to_param} )
+    strip_housekeeping_attributes( {otu_id: otu.to_param, biocuration_classification_object_id: specimen.to_param} )
   }
 
   # This should return the minimal set of values that should be in the session

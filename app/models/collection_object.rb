@@ -572,7 +572,7 @@ class CollectionObject < ApplicationRecord
           t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
             .where(
               t['updated_at'].gt(1.week.ago).and(
-                t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
+                t['biological_association_subject_type'].eq('CollectionObject')
               )
             )
               .where(t['updated_by_id'].eq(user_id))
@@ -597,7 +597,7 @@ class CollectionObject < ApplicationRecord
           ))
         else
           # TODO: needs to be fixed to scope the taxon_determination_object_type
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['taxon_determination_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['taxon_determination_object_id'].eq(p['id'])))
         end
 
     CollectionObject.joins(j).pluck(:id).uniq
