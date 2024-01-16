@@ -402,7 +402,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         t1 = Specimen.create!
         t2 = Specimen.create!
         o = Otu.create!(taxon_name: species1)
-        a = FactoryBot.create(:valid_taxon_determination, otu: o, biological_collection_object: t1, determiners: [ FactoryBot.create(:valid_person) ] )
+        a = FactoryBot.create(:valid_taxon_determination, otu: o, taxon_determination_object: t1, determiners: [ FactoryBot.create(:valid_person) ] )
 
         query.determiner_id = a.determiners.pluck(:id)
         # query.collector_id_or = false
@@ -549,7 +549,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     end
 
     context 'biocuration' do
-      let!(:bc1) { FactoryBot.create(:valid_biocuration_classification, biological_collection_object: co1) }
+      let!(:bc1) { FactoryBot.create(:valid_biocuration_classification, biocuration_classification_object: co1) }
 
       specify '#biocuration_class_id' do
         query.biocuration_class_id = [ co1.biocuration_classes.first.id ]

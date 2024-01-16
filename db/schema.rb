@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_01_16_154142) do
+ActiveRecord::Schema.define(version: 2024_01_16_170633) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -78,7 +78,7 @@ ActiveRecord::Schema.define(version: 2024_01_16_154142) do
 
   create_table "biocuration_classifications", id: :serial, force: :cascade do |t|
     t.integer "biocuration_class_id", null: false
-    t.integer "biological_collection_object_id", null: false
+    t.bigint "biological_collection_object_id"
     t.integer "position", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

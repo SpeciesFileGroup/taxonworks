@@ -1,7 +1,6 @@
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
-# See spec/models/biological_collection_object for nested attributes and taxon determinations
 describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_objects] do
   include_context 'stuff for complex geo tests'
 

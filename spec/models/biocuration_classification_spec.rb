@@ -8,7 +8,7 @@ describe BiocurationClassification, type: :model do
   context 'associations' do
     context 'belongs_to' do
       specify 'biological_object' do
-        expect(biocuration_classification).to respond_to(:biological_collection_object)
+        expect(biocuration_classification).to respond_to(:biocuration_classification_object)
       end
       specify 'biocuration_class' do
         expect(biocuration_classification).to respond_to(:biocuration_class)
@@ -21,8 +21,8 @@ describe BiocurationClassification, type: :model do
       biocuration_classification.valid?
     end
 
-    specify '#biological_collection_object is required' do
-      expect(biocuration_classification.errors.include?(:biological_collection_object)).to be_truthy
+    specify '#biocuration_classification_object is required' do
+      expect(biocuration_classification.errors.include?(:biocuration_classification_object)).to be_truthy
     end
 
     specify '#biocuration_class is required' do
@@ -42,28 +42,28 @@ describe BiocurationClassification, type: :model do
       }
 
       specify 'a specimen can be biocuration classified' do
-        biocuration_classification.biological_collection_object = FactoryBot.create(:valid_specimen)
+        biocuration_classification.biocuration_classification_object = FactoryBot.create(:valid_specimen)
         expect(biocuration_classification.save).to be_truthy
       end
 
       specify 'a lot can be biocuration classified' do
-        biocuration_classification.biological_collection_object = FactoryBot.create(:valid_lot)
+        biocuration_classification.biocuration_classification_object = FactoryBot.create(:valid_lot)
         expect(biocuration_classification.save).to be_truthy
       end
 
       specify 'a ranged_lot can be biocuration classified' do
-        biocuration_classification.biological_collection_object = FactoryBot.create(:valid_ranged_lot)
+        biocuration_classification.biocuration_classification_object = FactoryBot.create(:valid_ranged_lot)
         expect(biocuration_classification.save).to be_truthy
       end
     end
 
     context 'class per object' do
       before do
-        BiocurationClassification.create!(biocuration_class:, biological_collection_object: specimen)
+        BiocurationClassification.create!(biocuration_class:, biocuration_classification_object: specimen)
       end
 
       specify 'can not be duplicated' do
-        expect(BiocurationClassification.create(biocuration_class:, biological_collection_object: specimen).id).to eq(nil)
+        expect(BiocurationClassification.create(biocuration_class:, biocuration_classification_object: specimen).id).to eq(nil)
       end
     end
 

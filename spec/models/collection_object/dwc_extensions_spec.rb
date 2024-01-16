@@ -332,7 +332,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       Tag.create!(keyword: g, tag_object: a)
 
       b = BiocurationClassification.create!(
-        biological_collection_object: s,
+        biocuration_classification_object: s,
         biocuration_class: a)
 
       expect(s.dwc_sex).to eq('gynandromorph')
@@ -353,7 +353,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       Tag.create!(keyword: g, tag_object: a)
 
       b = BiocurationClassification.create!(
-        biological_collection_object: s,
+        biocuration_classification_object: s,
         biocuration_class: a)
 
       expect(s.dwc_life_stage).to eq('adult')
@@ -374,7 +374,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       Tag.create!(keyword: g, tag_object: a)
 
       b = BiocurationClassification.create!(
-        biological_collection_object: s,
+        biocuration_classification_object: s,
         biocuration_class: a)
 
       expect(s.dwc_caste).to eq('ergatoid')

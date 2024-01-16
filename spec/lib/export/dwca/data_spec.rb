@@ -56,7 +56,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
       context 'extension_scopes: [:biological_associations]' do
         let(:biological_relationship) { FactoryBot.create(:valid_biological_relationship) }
-        let!(:ba1) { BiologicalAssociation.create!(biological_relationship: biological_relationship, biological_association_subject: CollectionObject.first, biological_association_object: CollectionObject.last) }
+        let!(:ba1) { BiologicalAssociation.create!(biological_relationship:, biological_association_subject: CollectionObject.first, biological_association_object: CollectionObject.last) }
         let(:biological_association_scope) { BiologicalAssociation.all }
 
         specify '#biological_associations_resource_relationship is a tempfile' do
@@ -77,8 +77,10 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         context 'exporting otu_name' do
           let(:d) {Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])}
           let!(:o) {FactoryBot.create(:valid_otu)}
-          let!(:det) {FactoryBot.create(:valid_taxon_determination, otu: o,
-                                        biological_collection_object: DwcOccurrence.last.dwc_occurrence_object)}
+          let!(:det) {FactoryBot.create(
+            :valid_taxon_determination,
+            otu: o,
+            taxon_determination_object: DwcOccurrence.last.dwc_occurrence_object)}
 
           specify 'the COs should have OTUs' do
             expect(DwcOccurrence.last.dwc_occurrence_object.current_otu).to_not be_nil

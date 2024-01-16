@@ -75,7 +75,7 @@ class Otu < ApplicationRecord
 
   has_many :collecting_events, -> { distinct }, through: :collection_objects
   has_many :common_names, dependent: :destroy
-  has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what? DD: profile should never be update, a new profile should be created insted
+  has_many :collection_profiles, dependent: :restrict_with_error # Do not destroy old profiles
 
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :public_contents, inverse_of: :otu, dependent: :destroy

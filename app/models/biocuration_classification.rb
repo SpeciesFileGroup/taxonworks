@@ -30,8 +30,8 @@ class BiocurationClassification < ApplicationRecord
   belongs_to :biocuration_class, inverse_of: :biocuration_classifications
   belongs_to :biocuration_classification_object, polymorphic: true, inverse_of: :biocuration_classifications
 
-  validates_presence_of :biocuration_class, :biological_collection_object
-  validates_uniqueness_of :biocuration_class, scope: [:biological_collection_object]
+  validates_presence_of :biocuration_class, :biocuration_classification_object
+  validates_uniqueness_of :biocuration_class, scope: [:biocuration_classification_object]
 
   # Janky, but here for now
   after_save :update_dwc_occurrence
@@ -41,13 +41,13 @@ class BiocurationClassification < ApplicationRecord
 
   def update_dwc_occurrence
     if biocuration_class.uri == DWC_FOSSIL_URI
-      biological_collection_object.dwc_occurrence&.update_attribute(:basisOfRecord, 'FossilSpecimen')
+      biocuration_classification_object.dwc_occurrence&.update_attribute(:basisOfRecord, 'FossilSpecimen')
     end
   end
 
   def revert_dwc_occurrence
     if biocuration_class.uri == DWC_FOSSIL_URI
-      biological_collection_object.dwc_occurrence&.update_attribute(:basisOfRecord, 'PreservedSpecimen')
+      biocuration_classification_object.dwc_occurrence&.update_attribute(:basisOfRecord, 'PreservedSpecimen')
     end
   end
 

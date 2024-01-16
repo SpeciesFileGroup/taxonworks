@@ -33,6 +33,7 @@ module Queries
         :deaccessioned,
         :descendants,
         :determiner_id_or,
+        :determiner_id,
         :determiner_name_regex,
         :determiners,
         :dwc_indexed,
@@ -515,7 +516,7 @@ module Queries
         b = b.as('det_z1_')
 
         ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b,
-        Arel::Nodes::On.new( b['taxon_determination_object_id'].eq(tt['id']).and( b['taxon_determination_object_type'].eq(tt['CollectionObject']) )
+        Arel::Nodes::On.new( b['taxon_determination_object_id'].eq(tt['id']).and( b['taxon_determination_object_type'].eq('CollectionObject') )
         )))
       end
 
@@ -736,7 +737,7 @@ module Queries
 
         w = taxon_determination_table[:taxon_determination_object_id].eq(table[:id])
           .and(taxon_determination_table[:otu_id].in(otu_id))
-          .and(taxon_determionation_table[:taxon_determionation_object_type].eq('CollectionObject'))
+          .and(taxon_determination_table[:taxon_determination_object_type].eq('CollectionObject'))
 
         if current_determinations
           w = w.and(taxon_determination_table[:position].eq(1))
@@ -761,7 +762,7 @@ module Queries
 
           q = table.join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
             table[:id].eq(taxon_determination_table[:taxon_determination_object_id])
-            .and(taxon_determination_table[:taxon_determination_object_type]).eq('CollectionObject') 
+            .and(taxon_determination_table[:taxon_determination_object_type]).eq('CollectionObject')
           ).join(otu_table, Arel::Nodes::InnerJoin).on(
             taxon_determination_table[:otu_id].eq(otu_table[:id])
           ).join(t, Arel::Nodes::InnerJoin).on(

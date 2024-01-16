@@ -18,13 +18,15 @@ module Shared::BiologicalExtensions
     # All determiners, regardless of what the taxon is
     has_many :determiners, through: :taxon_determinations, source: :determiners
 
-    has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
+    has_many :otus, through: :taxon_determinations # , inverse_of: :collection_objects
+
     has_many :taxon_names, through: :otus
 
     has_many :type_materials, inverse_of: :collection_object, dependent: :restrict_with_error
 
     has_many :biocuration_classifications, as: :biocuration_classification_object, dependent: :destroy, inverse_of: :biocuration_classification_object
-    has_many :biocuration_classes, through: :biocuration_classifications, inverse_of: :biological_collection_objects
+
+    has_many :biocuration_classes, through: :biocuration_classifications #, inverse_of: :biological_collection_objects
 
     accepts_nested_attributes_for :biocuration_classes, allow_destroy: true
     accepts_nested_attributes_for :biocuration_classifications, allow_destroy: true
