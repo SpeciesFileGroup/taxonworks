@@ -7,7 +7,7 @@
       GEOLocate
     </button>
     <modal-component
-      v-if="show"
+      v-if="isModalVisible"
       @close="setModalView(false)"
     >
       <template #header>

@@ -279,7 +279,7 @@ const mapGeoreferences = computed(() =>
   )
 )
 
-watch([store.georeferences, store.geographicArea], populateShapes, {
+watch([() => store.georeferences, () => store.geographicArea], populateShapes, {
   deep: true
 })
 
