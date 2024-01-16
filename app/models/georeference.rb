@@ -95,7 +95,7 @@ class Georeference < ApplicationRecord
   belongs_to :geographic_item, inverse_of: :georeferences
 
   has_many :collection_objects, through: :collecting_event, inverse_of: :georeferences
-  has_many :otus, through: :collection_objects
+  has_many :otus, through: :collection_objects, source: 'otus'
 
   has_many :georeferencer_roles, class_name: 'Georeferencer', as: :role_object, dependent: :destroy, inverse_of: :role_object
   has_many :georeference_authors, -> { order('roles.position ASC') }, through: :georeferencer_roles, source: :person # , inverse_of: :georeferences
