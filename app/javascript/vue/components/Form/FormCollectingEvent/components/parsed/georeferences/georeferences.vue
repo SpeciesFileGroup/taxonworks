@@ -124,10 +124,14 @@
             </button>
           </div>
           <display-list
-            :list="collectingEvent.id ? georeferences : queueGeoreferences"
+            :list="
+              collectingEvent.id
+                ? store.georeferences
+                : store.queueGeoreferences
+            "
             @delete="removeGeoreference"
             @update="updateRadius"
-            @dateChanged="addToQueue"
+            @date-changed="addToQueue"
             label="object_tag"
           />
         </div>

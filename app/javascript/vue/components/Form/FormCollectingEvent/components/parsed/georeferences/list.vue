@@ -135,12 +135,9 @@ export default {
     getCoordinates(coordinates) {
       const flatten = coordinates.flat(1)
 
-      if (typeof flatten[0] === 'number') {
-        console.log(coordinates)
-        return convertToLatLongOrder(coordinates)
-      } else {
-        return flatten.map((arr) => convertToLatLongOrder(arr))
-      }
+      return typeof flatten[0] === 'number'
+        ? convertToLatLongOrder(coordinates)
+        : flatten.map((arr) => convertToLatLongOrder(arr))
     },
     geojsonObject(object) {
       return object.geo_json
