@@ -619,27 +619,6 @@ module Queries
         end
       end
 
-      def taxon_name_query_facet
-        return nil if taxon_name_query.nil?
-        s = 'WITH query_tn_co AS (' + taxon_name_query.all.to_sql + ') ' +
-            ::FieldOccurrence
-              .joins(:taxon_names)
-              .joins('JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id')
-              .to_sql
-
-        ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-      end
-
-      def collecting_event_query_facet
-        return nil if collecting_event_query.nil?
-        s = 'WITH query_ce_co AS (' + collecting_event_query.all.to_sql + ') ' +
-            ::FieldOccurrence
-              .joins('JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = collection_objects.collecting_event_id')
-              .to_sql
-
-        ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-      end
-
       def base_collecting_event_query_facet
         # Turn project_id off and check for a truly empty query
         base_collecting_event_query.project_id = nil
@@ -656,76 +635,98 @@ module Queries
         ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
       end
 
-      def otu_query_facet
-        return nil if otu_query.nil?
-        s = 'WITH query_otu_co AS (' + otu_query.all.to_sql + ') ' +
-            ::FieldOccurrence
-              .joins(:taxon_determinations)
-              .joins('JOIN query_otu_co as query_otu_co1 on query_otu_co1.id = taxon_determinations.otu_id')
-              .where(taxon_determinations: { position: 1 })
-              .to_sql
+    # def taxon_name_query_facet
+    #   return nil if taxon_name_query.nil?
+    #   s = 'WITH query_tn_co AS (' + taxon_name_query.all.to_sql + ') ' +
+    #       ::FieldOccurrence
+    #         .joins(:taxon_names)
+    #         .joins('JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id')
+    #         .to_sql
 
-        ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-      end
+    #   ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
+    # end
 
-      def biological_associations_facet
-        return nil if biological_associations.nil?
-        a = ::FieldOccurrence.joins(:biological_associations)
-        b = ::FieldOccurrence.joins(:related_biological_associations)
+    # def collecting_event_query_facet
+    #   return nil if collecting_event_query.nil?
+    #   s = 'WITH query_ce_co AS (' + collecting_event_query.all.to_sql + ') ' +
+    #       ::FieldOccurrence
+    #         .joins('JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = collection_objects.collecting_event_id')
+    #         .to_sql
 
-        referenced_klass_union([a, b])
-      end
+    #   ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
+    # end
 
-      # TODO: turn into UNION!
-      def biological_association_id_facet
-        return nil if biological_association_id.empty?
-        b = ::BiologicalAssociation.where(id: biological_association_id)
-        s = 'WITH query_ba_id_co AS (' + b.all.to_sql + ') ' +
-            ::FieldOccurrence
-              .joins("LEFT JOIN query_ba_id_co as query_ba_id_co1 on collection_objects.id = query_ba_id_co1.biological_association_subject_id AND query_ba_id_co1.biological_association_subject_type = 'FieldOccurrence'")
-              .joins("LEFT JOIN query_ba_id_co as query_ba_id_co2 on collection_objects.id = query_ba_id_co2.biological_association_object_id AND query_ba_id_co2.biological_association_object_type = 'FieldOccurrence'")
-              .where('(query_ba_id_co1.id) IS NOT NULL OR (query_ba_id_co2.id IS NOT NULL)')
-              .to_sql
 
-        ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-      end
+#     def otu_query_facet
+#       return nil if otu_query.nil?
+#       s = 'WITH query_otu_co AS (' + otu_query.all.to_sql + ') ' +
+#           ::FieldOccurrence
+#             .joins(:taxon_determinations)
+#             .joins('JOIN query_otu_co as query_otu_co1 on query_otu_co1.id = taxon_determinations.otu_id')
+#             .where(taxon_determinations: { position: 1 })
+#             .to_sql
 
-      # TODO: turn into UNION!
-      def biological_association_query_facet
-        return nil if biological_association_query.nil?
-        s = 'WITH query_ba_co AS (' + biological_association_query.all.to_sql + ') ' +
-            ::FieldOccurrence
-              .joins("LEFT JOIN query_ba_co as query_ba_co1 on collection_objects.id = query_ba_co1.biological_association_subject_id AND query_ba_co1.biological_association_subject_type = 'FieldOccurrence'")
-              .joins("LEFT JOIN query_ba_co as query_ba_co2 on collection_objects.id = query_ba_co2.biological_association_object_id AND query_ba_co2.biological_association_object_type = 'FieldOccurrence'")
-              .where('(query_ba_co1.id) IS NOT NULL OR (query_ba_co2.id IS NOT NULL)')
-              .to_sql
+#       ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
+#     end
 
-        ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-      end
+#     def biological_associations_facet
+#       return nil if biological_associations.nil?
+#       a = ::FieldOccurrence.joins(:biological_associations)
+#       b = ::FieldOccurrence.joins(:related_biological_associations)
 
-      def extract_query_facet
-        return nil if extract_query.nil?
+#       referenced_klass_union([a, b])
+#     end
 
-        s = 'WITH query_extract_co AS (' + extract_query.all.to_sql + ') ' +
-            ::FieldOccurrence
-              .joins(:origin_relationships)
-              .joins("JOIN query_extract_co as query_extract_co1 on origin_relationships.new_object_id = query_extract_co1.id and origin_relationships.new_object_type = 'Extract'")
-              .to_sql
+#     # TODO: turn into UNION!
+#     def biological_association_id_facet
+#       return nil if biological_association_id.empty?
+#       b = ::BiologicalAssociation.where(id: biological_association_id)
+#       s = 'WITH query_ba_id_co AS (' + b.all.to_sql + ') ' +
+#           ::FieldOccurrence
+#             .joins("LEFT JOIN query_ba_id_co as query_ba_id_co1 on collection_objects.id = query_ba_id_co1.biological_association_subject_id AND query_ba_id_co1.biological_association_subject_type = 'FieldOccurrence'")
+#             .joins("LEFT JOIN query_ba_id_co as query_ba_id_co2 on collection_objects.id = query_ba_id_co2.biological_association_object_id AND query_ba_id_co2.biological_association_object_type = 'FieldOccurrence'")
+#             .where('(query_ba_id_co1.id) IS NOT NULL OR (query_ba_id_co2.id IS NOT NULL)')
+#             .to_sql
 
-        ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-      end
+#       ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
+#     end
 
-      def observation_query_facet
-        return nil if observation_query.nil?
+#     # TODO: turn into UNION!
+#     def biological_association_query_facet
+#       return nil if biological_association_query.nil?
+#       s = 'WITH query_ba_co AS (' + biological_association_query.all.to_sql + ') ' +
+#           ::FieldOccurrence
+#             .joins("LEFT JOIN query_ba_co as query_ba_co1 on collection_objects.id = query_ba_co1.biological_association_subject_id AND query_ba_co1.biological_association_subject_type = 'FieldOccurrence'")
+#             .joins("LEFT JOIN query_ba_co as query_ba_co2 on collection_objects.id = query_ba_co2.biological_association_object_id AND query_ba_co2.biological_association_object_type = 'FieldOccurrence'")
+#             .where('(query_ba_co1.id) IS NOT NULL OR (query_ba_co2.id IS NOT NULL)')
+#             .to_sql
 
-        s = 'WITH query_obs_co AS (' + observation_query.all.to_sql + ') ' +
-            ::FieldOccurrence
-              .joins(:observations)
-              .joins('JOIN query_obs_co as query_obs_co1 on observations.id = query_obs_co1.id')
-              .to_sql
+#       ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
+#     end
 
-        ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-      end
+#     def extract_query_facet
+#       return nil if extract_query.nil?
+
+#       s = 'WITH query_extract_co AS (' + extract_query.all.to_sql + ') ' +
+#           ::FieldOccurrence
+#             .joins(:origin_relationships)
+#             .joins("JOIN query_extract_co as query_extract_co1 on origin_relationships.new_object_id = query_extract_co1.id and origin_relationships.new_object_type = 'Extract'")
+#             .to_sql
+
+#       ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
+#     end
+
+#     def observation_query_facet
+#       return nil if observation_query.nil?
+
+#       s = 'WITH query_obs_co AS (' + observation_query.all.to_sql + ') ' +
+#           ::FieldOccurrence
+#             .joins(:observations)
+#             .joins('JOIN query_obs_co as query_obs_co1 on observations.id = query_obs_co1.id')
+#             .to_sql
+
+#       ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
+#     end
 
       def and_clauses
         [

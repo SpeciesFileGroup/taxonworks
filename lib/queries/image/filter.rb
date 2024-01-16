@@ -414,7 +414,7 @@ module Queries
 
       def otu_facet_collection_object_observations(otu_ids)
         ::Image.joins(:observations)
-          .joins("INNER JOIN taxon_determinations on taxon_determinations.taxon_determination_object_id = observations.observation_object_id AND taxon_determinations.taxon_determination_object_type = 'CollectionObject")
+          .joins("INNER JOIN taxon_determinations on taxon_determinations.taxon_determination_object_id = observations.observation_object_id AND taxon_determinations.taxon_determination_object_type = 'CollectionObject'")
           .where(taxon_determinations: {otu_id: otu_ids}, observations: {observation_object_type: 'CollectionObject'})
       end
 
@@ -468,7 +468,7 @@ module Queries
             .join(collection_object_table, Arel::Nodes::InnerJoin).on( depiction_table[:depiction_object_id].eq(collection_object_table[:id]).and( depiction_table[:depiction_object_type].eq('CollectionObject') ))
             .join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
               collection_object_table[:id].eq(taxon_determination_table[:taxon_determination_object_id])
-              .and(taxon_determination_table[:taxon_determination_object].eq('CollectionObject'))
+              .and(taxon_determination_table[:taxon_determination_object_type].eq('CollectionObject'))
             )
             .join(a, Arel::Nodes::InnerJoin).on(  taxon_determination_table[:otu_id].eq(a[:id]) )
             .join(b, Arel::Nodes::InnerJoin).on( a[:taxon_name_id].eq(b[:id]))
