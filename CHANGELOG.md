@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Uncaught promise errors [#3767]
 - Custom attributes triggers `isUpdated` ce state [#3764]
 - Custom attributes panels don't check if data attributes already exist [#3762]
+- Gender agreement of misspellings [#3782]
 
 [#2718]: https://github.com/SpeciesFileGroup/taxonworks/issues/2718
 [#3752]: https://github.com/SpeciesFileGroup/taxonworks/issues/3752
