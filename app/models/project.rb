@@ -96,6 +96,7 @@ class Project < ApplicationRecord
      ObservationMatrixRow
      ObservationMatrixRowItem
      ObservationMatrix
+     FieldOccurrence
      CollectionObject
      CollectingEvent
      Otu
