@@ -5,6 +5,7 @@
     <div class="horizontal-left-content align-start gap-medium">
       <div class="flex-wrap-column gap-medium">
         <FieldOccurrenceForm />
+        <IdentifierForm />
         <TaxonDeterminationForm />
       </div>
 
@@ -18,6 +19,7 @@ import TaxonDeterminationForm from './components/TaxonDeterminationForm.vue'
 import FieldOccurrenceForm from './components/FieldOccurenceForm/FieldOccurrenceForm.vue'
 import HeaderBar from './components/HeaderBar.vue'
 import CollectingEventForm from './components/CollectingEventForm.vue'
+import IdentifierForm from './components/FieldOccurenceForm/Identifier/IdentifierForm.vue'
 import useStore from './store/store'
 
 defineOptions({

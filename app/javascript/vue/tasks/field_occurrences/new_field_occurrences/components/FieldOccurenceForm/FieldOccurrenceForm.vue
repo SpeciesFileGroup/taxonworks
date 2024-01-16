@@ -4,7 +4,7 @@
       <h3>Field occurrence</h3>
     </template>
     <template #body>
-      <div class="flex-col gap-medium">
+      <div class="flex-wrap-column gap-medium">
         <FieldTotal v-model="store.fieldOccurrence" />
         <FieldAbsent v-model="store.fieldOccurrence" />
         <BiocurationForm
