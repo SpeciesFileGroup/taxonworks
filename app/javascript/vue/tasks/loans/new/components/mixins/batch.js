@@ -1,6 +1,7 @@
 import { ActionNames } from '../../store/actions/actions'
 import { MutationNames } from '../../store/mutations/mutations'
 import { getTagMetadata, batchRemoveKeyword } from '../../request/resources'
+import extend from '../../const/extend'
 
 export default {
   props: {
@@ -27,7 +28,8 @@ export default {
         batch_type: this.batchType,
         loan_id: this.loan.id,
         keyword_id: keywordId,
-        klass: (klass === 'total' ? undefined : klass)
+        klass: (klass === 'total' ? undefined : klass),
+        extend
       }
       if (total > this.maxItemsWarning) {
         if (window.confirm(`You're trying to create ${total} items. Are you sure want to proceed?`)) {
