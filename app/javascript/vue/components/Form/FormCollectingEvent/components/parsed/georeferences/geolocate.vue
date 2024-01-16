@@ -27,7 +27,7 @@
         <button
           type="button"
           class="normal-input button button-submit"
-          :disabled="!iframe_response"
+          :disabled="!coordinates"
           @click="createShape"
         >
           Add
