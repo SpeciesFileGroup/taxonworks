@@ -66,7 +66,6 @@ class FieldOccurrence < ApplicationRecord
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
-
   def requires_taxon_determination?
     true
   end

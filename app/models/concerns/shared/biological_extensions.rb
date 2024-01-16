@@ -34,10 +34,10 @@ module Shared::BiologicalExtensions
     accepts_nested_attributes_for :otus, allow_destroy: true, reject_if: :reject_otus
     accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
 
-    # New with FieldOccurrence , see current_taxon_determination
+    # !! New with FieldOccurrence , see current_taxon_determination
     has_one :taxon_determination, -> { order(:position).limit(1) }, as: :taxon_determination_object, class_name: 'TaxonDetermination', inverse_of: :taxon_determination_object
 
-    # New with FO
+    # !! New with FO
     has_one :otu, through: :taxon_determination, inverse_of: :taxon_determinations
 
     # Note that this should not be a has_one because order is over-ridden on .first

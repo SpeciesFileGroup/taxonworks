@@ -51,7 +51,7 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
 
     specify '#biocuration_classifications are destroyed' do
       b = FactoryBot.create(:valid_biocuration_class)
-      d = BiocurationClassification.create!(taxon_determination_object: biological_collection_object, biocuration_class: b)
+      d = BiocurationClassification.create!(biocuration_classification_object: biological_collection_object, biocuration_class: b)
       biological_collection_object.destroy
       expect(BiocurationClassification.where(id: d.id).any?).to be_falsey
     end

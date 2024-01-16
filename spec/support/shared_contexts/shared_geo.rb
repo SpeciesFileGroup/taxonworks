@@ -1033,13 +1033,13 @@ shared_context 'stuff for complex geo tests' do
       project: geo_project,
       by: geo_user)
 
-    TaxonDetermination.create!(taxon_determation_object: co, otu: otu_a, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: otu_a, by: geo_user, project: geo_project)
 
-    TaxonDetermination.create!(taxon_determation_object: co, otu: top_dog, by: geo_user, project: geo_project)
-    TaxonDetermination.create!(taxon_determation_object: co, otu: by_bill, by: geo_user, project: geo_project)
-    TaxonDetermination.create!(taxon_determation_object: co, otu: abra, by: geo_user, project: geo_project)
-    TaxonDetermination.create!(taxon_determation_object: co, otu: cadabra, by: geo_user, project: geo_project)
-    TaxonDetermination.create!(taxon_determation_object: co, otu: alakazam, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: top_dog, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: by_bill, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: abra, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: cadabra, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: alakazam, by: geo_user, project: geo_project)
 
     co
   }
@@ -1054,9 +1054,9 @@ shared_context 'stuff for complex geo tests' do
       by: geo_user
     )
 
-    TaxonDetermination.create!(taxon_determation_object: co, otu: otu_p4, by: geo_user, project: geo_project)
-    TaxonDetermination.create!(taxon_determation_object: co, otu: nuther_dog, by: geo_user, project: geo_project)
-    TaxonDetermination.create!(taxon_determation_object: co, otu: spooler, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: otu_p4, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: nuther_dog, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: spooler, by: geo_user, project: geo_project)
 
     co
   }
@@ -2076,7 +2076,7 @@ Two different shapes with the same name, 'East Boxia', and
                            verbatim_label: '@ce_m1',
                            geographic_area: area_m1)
   td_m1 = FactoryBot.create(:valid_taxon_determination)
-  co_m1 = td_m1.taxon_determation_object
+  co_m1 = td_m1.taxon_determination_object
   td_m1.otu.name = 'Find me, I\'m in M1!'
   td_m1.otu.save!
   co_m1.collecting_event = ce
