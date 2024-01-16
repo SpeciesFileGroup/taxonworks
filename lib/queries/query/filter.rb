@@ -158,7 +158,7 @@ module Queries
     attr_accessor :descriptor_query
 
     # @return [Query::TaxonName::Filter, nil]
-    attr_accessor :field_occurrencet_query
+    attr_accessor :field_occurrence_query
 
     # @return [Query::Image::Filter, nil]
     attr_accessor :image_query
