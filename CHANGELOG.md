@@ -22,12 +22,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Custom attributes triggers `isUpdated` ce state [#3764]
 - Custom attributes panels don't check if data attributes already exist [#3762]
 - Gender agreement of misspellings [#3782]
+- Loan item list doesn't update when adding a loan item from Tag or Pinboard [#3784]
 
 [#2718]: https://github.com/SpeciesFileGroup/taxonworks/issues/2718
 [#3752]: https://github.com/SpeciesFileGroup/taxonworks/issues/3752
 [#3762]: https://github.com/SpeciesFileGroup/taxonworks/issues/3762
 [#3764]: https://github.com/SpeciesFileGroup/taxonworks/issues/3764
 [#3767]: https://github.com/SpeciesFileGroup/taxonworks/issues/3767
+[#3784]: https://github.com/SpeciesFileGroup/taxonworks/issues/3784
 
 ## [0.37.1] - 2024-01-04
 
