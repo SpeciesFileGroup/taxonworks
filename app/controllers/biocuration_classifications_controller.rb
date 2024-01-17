@@ -2,10 +2,13 @@ class BiocurationClassificationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_biocuration_classification, only: [:update, :destroy]
+  after_action -> { set_pagination_headers(:biocuration_classifications) }, only: [:index] # , if: :json_request?
 
   # GET /biocuration_classifications.json
   def index
-    @biocuration_classifications = BiocurationClassification.where(filter_params)
+    @biocuration_classifications = BiocurationClassification.where(filter_params).page(params[:page])
+          .per(params[:per])
+ 
   end
 
   # POST /biocuration_classifications

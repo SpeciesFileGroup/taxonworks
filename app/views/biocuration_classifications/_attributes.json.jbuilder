@@ -1,4 +1,6 @@
-json.extract! biocuration_classification, :id, :biocuration_class_id, :biological_classification_object_id, :biological_classification_object_type, :position, :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
+json.extract! biocuration_classification, :id, :biocuration_class_id,
+:biocuration_classification_object_id, :biocuration_classification_object_type,
+:position, :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 json.partial! '/shared/data/all/metadata', object: biocuration_classification
 
 json.biocuration_class do
