@@ -140,6 +140,7 @@ export default {
             'notice'
           )
         })
+        .catch(() => {})
         .finally(() => {
           this.setObjectSelected(undefined)
         })
