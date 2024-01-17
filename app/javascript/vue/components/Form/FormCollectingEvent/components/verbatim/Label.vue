@@ -5,6 +5,7 @@
       class="full_width"
       rows="5"
       v-model="collectingEvent.verbatim_label"
+      @change="() => { collectingEvent.isUnsaved = true }"
     />
     <button
       type="button"
@@ -37,11 +38,12 @@ function parseData() {
         body.collecting_method
       )
 
-      collectingEvent.value = Object.assign(
-        {},
-        collectingEvent.value,
-        parsedFields
-      )
+      collectingEvent.value = {
+        ...collectingEvent.value,
+        ...parsedFields,
+        isUnsaved: true
+      }
+      
       TW.workbench.alert.create('Label value parsed.', 'notice')
     } else {
       TW.workbench.alert.create('No label value to convert.', 'error')

@@ -6,6 +6,7 @@
       type="text"
       rows="3"
       v-model="collectingEvent.verbatim_datum"
+      @change="() => { collectingEvent.isUnsaved = true }"
     />
   </div>
 </template>

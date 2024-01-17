@@ -4,6 +4,7 @@
     <input
       type="number"
       v-model="fieldOccurence.total"
+      @change="() => { fieldOccurence.isUnsaved = true }"
     />
   </div>
 </template>

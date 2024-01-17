@@ -114,6 +114,7 @@ watch([verbatimLatitude, verbatimLongitude], () => {
 })
 
 function selectGeographicArea(item) {
+  collectingEvent.value.isUnsaved = true
   store.loadGeographicArea(item?.id)
 }
 

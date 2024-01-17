@@ -29,20 +29,18 @@
             title="You have unsaved changes."
             data-icon="warning"
           />
-          <button
-            type="button"
+          <VBtn
             class="button normal-input button-submit button-size margin-small-right"
             @click="save"
           >
             Save
-          </button>
-          <button
-            type="button"
+          </VBtn>
+          <VBtn
             class="button normal-input button-default button-size"
             @click="reset"
           >
             New
-          </button>
+          </VBtn>
         </li>
       </ul>
     </div>
@@ -53,13 +51,22 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import Navbar from '@/components/layout/NavBar.vue'
-import useStore from '../store/store'
+import useStore from '../store/store.js'
+import useCitationStore from '../store/citations.js'
+import useCEStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { computed } from 'vue'
 
 const store = useStore()
-const isUnsaved = computed(() => true)
+const citationStore = useCitationStore()
+const ceStore = useCEStore()
+const isUnsaved = computed(() => citationStore.hasUnsaved || store.fieldOccurrence.isUnsaved || ceStore.collectingEvent.isUnsaved)
+
 
 function save() {}
 
-function reset() {}
+function reset() {
+  ceStore.$reset()
+  citationStore.$reset()
+}
 </script>

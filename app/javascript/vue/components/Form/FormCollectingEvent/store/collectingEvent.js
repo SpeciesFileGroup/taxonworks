@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { IDENTIFIER_LOCAL_TRIP_CODE } from '@/constants/index.js'
-import { Georeference, GeographicArea } from '@/routes/endpoints'
+import { Georeference, GeographicArea, CollectingEvent } from '@/routes/endpoints'
 import { addToArray } from '@/helpers'
 import makeCollectingEvent from '@/factory/CollectingEvent.js'
 import makeIdentifier from '@/factory/Identifier.js'
@@ -18,6 +18,22 @@ export default defineStore('collectingEventForm', {
   }),
 
   actions: {
+    async save() {
+      const payload = {
+        collecting_event: {
+          ...this.collectingEvent
+        }
+      }
+
+      const { body } = this.collectingEvent.id
+        ? await CollectingEvent.update(this.collectingEvent.id, payload)
+        : await CollectingEvent.create(payload)
+
+      this.collectingEvent.id = body.id
+
+      return body
+    },
+
     async processGeoreferenceQueue() {
       if (!this.collectingEvent.id) return
 

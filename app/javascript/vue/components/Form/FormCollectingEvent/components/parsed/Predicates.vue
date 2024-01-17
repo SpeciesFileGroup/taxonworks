@@ -24,5 +24,6 @@ Project.preferences().then((response) => {
 
 function setAttributes(dataAttributes) {
   collectingEvent.value.data_attributes_attributes = dataAttributes
+  collectingEvent.value.isUnsaved = true
 }
 </script>

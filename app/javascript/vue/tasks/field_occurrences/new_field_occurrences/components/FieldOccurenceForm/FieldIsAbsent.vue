@@ -4,6 +4,7 @@
       <input
         type="checkbox"
         v-model="fieldOccurence.is_absent"
+        @change="() => { fieldOccurence.isUnsaved = true }"
       />
       Is absent</label
     >

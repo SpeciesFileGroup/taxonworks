@@ -8,6 +8,7 @@
           type="text"
           class="input-xsmall-width"
           v-model="collectingEvent.minimum_elevation"
+          @change="() => { collectingEvent.isUnsaved = true }"
         />
       </div>
       <div class="field label-above separate-right">
@@ -16,6 +17,7 @@
           type="text"
           class="input-xsmall-width"
           v-model="collectingEvent.maximum_elevation"
+          @change="() => { collectingEvent.isUnsaved = true }"
         />
       </div>
       <div class="field label-above separate-right">
@@ -26,6 +28,7 @@
             type="text"
             class="input-xsmall-width"
             v-model="collectingEvent.elevation_precision"
+            @change="() => { collectingEvent.isUnsaved = true }"
           />
         </div>
       </div>
@@ -42,6 +45,7 @@
                 type="radio"
                 :value="unit.value"
                 name="elevation"
+                @change="() => { collectingEvent.isUnsaved = true }"
               />
               {{ unit.label }}
             </label>

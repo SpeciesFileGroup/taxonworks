@@ -5,6 +5,7 @@
       class="full_width"
       rows="5"
       v-model="collectingEvent.verbatim_collectors"
+      @change="() => { collectingEvent.isUnsaved = true }"
     />
   </div>
 </template>

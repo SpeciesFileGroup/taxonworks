@@ -6,6 +6,7 @@
       type="text"
       rows="5"
       v-model="collectingEvent.verbatim_locality"
+      @change="() => { collectingEvent.isUnsaved = true }"
     />
   </div>
 </template>

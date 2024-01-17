@@ -185,7 +185,7 @@ watch(sourceId, async (newId, oldId) => {
   if (newId) {
     if (newId !== oldId && newId !== source.value?.id) {
       source.value = (await Source.find(newId)).body
-      citation.value._label = source.value.cached
+      citation.value.label = source.value.cached
     }
   } else {
     source.value = undefined
@@ -211,7 +211,7 @@ function setSource(value) {
     sessionStorage.setItem(STORAGE.sourceId, value.id)
   }
   citation.value.source_id = value.id
-  citation.value._label = value.cached
+  citation.value.label = value.cached
 
   emit('source', value)
 }

@@ -3,5 +3,6 @@ export default (type) => ({
   source_id: undefined,
   pages: undefined,
   citation_object_type: type,
-  citation_object_id: undefined
+  citation_object_id: undefined,
+  isUnsaved: false
 })

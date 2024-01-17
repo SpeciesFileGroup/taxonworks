@@ -5,6 +5,7 @@
       class="full_width"
       type="text"
       v-model="longitude"
+      @change="() => { collectingEvent.isUnsaved = true }"
     />
   </div>
 </template>

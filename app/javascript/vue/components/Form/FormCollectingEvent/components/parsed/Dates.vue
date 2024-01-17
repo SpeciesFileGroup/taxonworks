@@ -7,11 +7,13 @@
           v-model:year="collectingEvent.start_date_year"
           v-model:month="collectingEvent.start_date_month"
           v-model:day="collectingEvent.start_date_day"
+          @change="() => { collectingEvent.isUnsaved = true }"
         />
         <date-now
           v-model:year="collectingEvent.start_date_year"
           v-model:month="collectingEvent.start_date_month"
           v-model:day="collectingEvent.start_date_day"
+          @click="() => { collectingEvent.isUnsaved = true }"
         />
       </div>
     </div>
@@ -22,11 +24,13 @@
           v-model:year="collectingEvent.end_date_year"
           v-model:month="collectingEvent.end_date_month"
           v-model:day="collectingEvent.end_date_day"
+          @change="() => { collectingEvent.isUnsaved = true }"
         />
         <date-now
           v-model:year="collectingEvent.end_date_year"
           v-model:month="collectingEvent.end_date_month"
           v-model:day="collectingEvent.end_date_day"
+          @click="() => { collectingEvent.isUnsaved = true }"
         />
         <button
           type="button"
@@ -50,5 +54,6 @@ function cloneDate() {
   collectingEvent.value.end_date_day = collectingEvent.value.start_date_day
   collectingEvent.value.end_date_month = collectingEvent.value.start_date_month
   collectingEvent.value.end_date_year = collectingEvent.value.start_date_year
+  collectingEvent.value.isUnsaved = true
 }
 </script>

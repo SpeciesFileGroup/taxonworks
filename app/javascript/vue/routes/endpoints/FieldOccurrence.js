@@ -1,4 +1,4 @@
-import baseCRUD, { annotations } from './base'
+import baseCRUD from './base'
 import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'collection_objects'
@@ -73,9 +73,8 @@ const permitParams = {
   }
 }
 
-export const CollectionObject = {
+export const FieldOccurrence = {
   ...baseCRUD(controller, permitParams),
-  ...annotations(controller),
 
   filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }
