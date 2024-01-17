@@ -81,20 +81,23 @@ module Shared::Maps
       delay(queue: 'cached_map').clear_cached_maps
     end
 
-    # TODO: use JOINS not IN
-    def clear_cached_maps
+    # @return CachedMap scope
+    def cached_maps_to_clear
       s = 'WITH otu_clear_maps AS (' + touched_cached_maps.to_sql + ') ' +
         ::CachedMap
-        .joins('JOIN otu_clear_maps as otu_clear_maps1 on otu_clear_maps1.otu_id = cached_maps.id')
+        .joins('JOIN otu_clear_maps as otu_clear_maps1 on otu_clear_maps1.id = cached_maps.otu_id')
         .to_sql
 
-      b = ::CachedMap.from('(' + s + ') as cached_maps')
+      ::CachedMap.from('(' + s + ') as cached_maps')
+    end
 
-      b.delete_all
-
+    # TODO: use JOINS not IN
+    def clear_cached_maps
+      cached_maps_to_clear.delete_all
       true
     end
 
+    # @return OTUs
     def touched_cached_maps
       case self.class.base_class.name
       when 'AssertedDistribution'
