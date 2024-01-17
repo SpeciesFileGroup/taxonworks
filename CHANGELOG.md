@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Custom attributes panels don't check if data attributes already exist [#3762]
 - Gender agreement of misspellings [#3782]
 - Loan item list doesn't update when adding a loan item from Tag or Pinboard [#3784]
+- Unable to add a CO loan item to a loan that already has an OTU loan item with the same id [#3785]
 
 [#2718]: https://github.com/SpeciesFileGroup/taxonworks/issues/2718
 [#3752]: https://github.com/SpeciesFileGroup/taxonworks/issues/3752
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3764]: https://github.com/SpeciesFileGroup/taxonworks/issues/3764
 [#3767]: https://github.com/SpeciesFileGroup/taxonworks/issues/3767
 [#3784]: https://github.com/SpeciesFileGroup/taxonworks/issues/3784
+[#3785]: https://github.com/SpeciesFileGroup/taxonworks/issues/3785
 
 ## [0.37.1] - 2024-01-04
 
