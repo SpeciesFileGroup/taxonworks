@@ -91,7 +91,9 @@ export default defineStore('freeform', {
       const imageStore = useImageStore()
       const boardStore = useBoardStore()
 
-      const SVGData = boardStore.SVGBoard.apiJsonSVG()
+      const SVGData = boardStore.SVGBoard.apiJsonSVG({
+        override: { 'stroke-width': 1 }
+      })
       const SVGClip = SVGData.data.attributes
       const payload = {
         total: this.collectionObject.total,
