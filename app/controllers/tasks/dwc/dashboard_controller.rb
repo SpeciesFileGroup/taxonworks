@@ -70,6 +70,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
   end
 
   def taxonworks_extension_params
+    return [] if !params.include?(:taxonworks_extension_methods)
     params.permit(taxonworks_extension_methods: []).dig(:taxonworks_extension_methods).map(&:to_sym)
   end
 
