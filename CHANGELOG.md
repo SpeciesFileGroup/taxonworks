@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loan item list doesn't update when adding a loan item from Tag or Pinboard [#3784]
 - Unable to add a CO loan item to a loan that already has an OTU loan item with the same id [#3785]
 - CO Loan gifts have tag "On Loan until false" [#3731]
+- Figure panel in New content task
 
 [#2718]: https://github.com/SpeciesFileGroup/taxonworks/issues/2718
 [#3731]: https://github.com/SpeciesFileGroup/taxonworks/issues/3731
