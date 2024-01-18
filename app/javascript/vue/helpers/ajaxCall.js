@@ -18,7 +18,16 @@ const axios = Axios.create({
   }
 })
 
-const ajaxCall = (type, url, data = {}, config = {}) => {
+axios.interceptors.response.use(
+  function (response) {
+    return setDataProperty(response)
+  },
+  function (error) {
+    return Promise.reject(error)
+  }
+)
+
+async function ajaxCall(type, url, data = {}, config = {}) {
   const cancelFunction = config.cancelRequest || data.cancelRequest
   const requestId = config.requestId || data.requestId
   const CSRFToken = document
@@ -64,19 +73,14 @@ const ajaxCall = (type, url, data = {}, config = {}) => {
     delete data.cancelRequest
   }
 
-  return new Promise((resolve, reject) => {
-    axios[type](url, data, config)
-      .then((response) => {
-        response = setDataProperty(response)
-        printDevelopmentResponse(response)
+  const request = axios[type](url, data, config)
 
-        resolve(response)
-      })
-      .catch((error) => {
-        if (Axios.isCancel(error)) {
-          return reject(error)
-        }
-
+  request
+    .then((response) => {
+      printDevelopmentResponse(response)
+    })
+    .catch((error) => {
+      if (!Axios.isCancel(error)) {
         error.response = setDataProperty(error.response)
         printDevelopmentResponse(error.response)
 
@@ -86,10 +90,10 @@ const ajaxCall = (type, url, data = {}, config = {}) => {
           default:
             handleError(error.response.body)
         }
+      }
+    })
 
-        reject(error.response)
-      })
-  })
+  return request
 }
 
 const handleError = (error) => {

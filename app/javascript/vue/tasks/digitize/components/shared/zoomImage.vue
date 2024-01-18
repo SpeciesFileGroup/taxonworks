@@ -54,7 +54,7 @@ import SvgViewer from '@/components/Svg/SvgViewer.vue'
 
 const props = defineProps({
   data: {
-    type: String,
+    type: [String, Object],
     required: true
   },
 

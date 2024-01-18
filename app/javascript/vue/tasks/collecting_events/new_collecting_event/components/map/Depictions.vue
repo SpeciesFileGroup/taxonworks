@@ -135,9 +135,11 @@ export default {
         this.$refs.depiction.setOption('autoProcessQueue', true)
         this.$refs.depiction.processQueue()
         this.coordinatesEXIF = []
-        CollectingEvent.depictions(newVal.id).then((response) => {
-          this.figuresList = response.body
-        })
+        CollectingEvent.depictions(newVal.id)
+          .then((response) => {
+            this.figuresList = response.body
+          })
+          .catch(() => {})
       } else {
         if (!newVal.id) {
           this.figuresList = []

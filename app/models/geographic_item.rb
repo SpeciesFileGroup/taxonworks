@@ -1,4 +1,4 @@
-require 'rgeo'
+# require 'rgeo'
 
 # A GeographicItem is one and only one of [point, line_string, polygon, multi_point, multi_line_string,
 # multi_polygon, geometry_collection] which describes a position, path, or area on the globe, generally associated
@@ -1182,13 +1182,53 @@ class GeographicItem < ApplicationRecord
     r = (r * Utilities::Geo::ONE_WEST_MEAN).to_i
   end
 
-      private
+
+  # Convention is to store in PostGIS in  ccw
+  # @return Array [Boolean]
+  #   false - cw
+  #   true - ccw (preferred), except cee donuts
+  def orientations
+    if multi_polygon.present?
+      ApplicationRecord.connection.execute(" \
+             SELECT ST_IsPolygonCCW(a.geom) as is_ccw
+                FROM ( SELECT b.id, (ST_Dump(p_geom)).geom AS geom
+                   FROM (SELECT id, multi_polygon::geometry AS p_geom FROM geographic_items where id = #{id}) AS b \
+              ) AS a;").collect{|a| a['is_ccw']}
+    elsif polygon.present?
+      ApplicationRecord.connection.execute("SELECT ST_IsPolygonCCW(polygon::geometry) as is_ccw \
+                FROM geographic_items where where id = #{id};").collect{|a| a['is_ccw']}
+    else
+      []
+    end
+  end
+
+  # @return Boolean
+  #   looks at all orientations
+  #   if they follow the pattern [true, false, ... <all false>] then `true`, else `false`
+  # !! Does not confirm that shapes are nested !!
+  def is_basic_donut?
+    a = orientations
+    b = a.shift
+    return false unless b
+    a.uniq!
+    a == [false]
+  end
+
+  def st_isvalid
+    r = ApplicationRecord.connection.execute( "SELECT ST_IsValid(  #{GeographicItem::GEOMETRY_SQL.to_sql }) from  geographic_items where geographic_items.id = #{id}").first['st_isvalid']
+  end
+
+  def st_isvalidreason
+    r = ApplicationRecord.connection.execute( "SELECT ST_IsValidReason(  #{GeographicItem::GEOMETRY_SQL.to_sql }) from  geographic_items where geographic_items.id = #{id}").first['st_isvalidreason']
+  end
+
+  private
 
   def set_cached
     update_column(:cached_total_area, area)
   end
 
-      protected
+   protected
 
       # @return [Symbol]
       #   returns the attribute (column name) containing data

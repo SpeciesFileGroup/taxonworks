@@ -95,6 +95,11 @@ GeographicArea:
     - asserted_distributions_basic_endemism_task
   config:
     recent: false
+GeographicItem:
+  tasks:
+    - debug_geographic_item_task
+  config:
+    recent: false
 Loan:
   tasks:
     - edit_loan_task

@@ -2,13 +2,19 @@
   <div class="field">
     <label v-html="predicateObject.object_tag" />
     <autocomplete
-      :url="`/data_attributes/value_autocomplete`"
       v-model="data_attribute.value"
-      @getItem="data_attribute.value = $event"
+      :url="`/data_attributes/value_autocomplete`"
       :add-params="{
         predicate_id: this.predicateObject.id
       }"
       param="term"
+      @get-item="
+        (value) => {
+          data_attribute.value = value
+          updatePredicate()
+        }
+      "
+      @change="updatePredicate"
     />
   </div>
 </template>
@@ -54,13 +60,6 @@ export default {
       this.data_attribute = newVal || this.newDataAttribute()
     },
 
-    data_attribute: {
-      handler() {
-        this.updatePredicate()
-      },
-      deep: true
-    },
-
     objectId(newVal) {
       if (!newVal) {
         this.data_attribute.value = undefined
@@ -80,17 +79,20 @@ export default {
     },
 
     updatePredicate() {
-      let data
+      const value = this.data_attribute?.value?.trim()
+      const id = this.data_attribute.id
 
-      if (!this.data_attribute?.value?.length && this.data_attribute?.id) {
-        data = {
-          id: this.data_attribute.id,
-          _destroy: true
+      if (!value) {
+        if (id) {
+          this.$emit('onUpdate', {
+            id,
+            controlled_vocabulary_term_id: this.predicateObject.id,
+            _destroy: true
+          })
         }
       } else {
-        data = this.data_attribute
+        this.$emit('onUpdate', this.data_attribute)
       }
-      this.$emit('onUpdate', data)
     }
   }
 }
