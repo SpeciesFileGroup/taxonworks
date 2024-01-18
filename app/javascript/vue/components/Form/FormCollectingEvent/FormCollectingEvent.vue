@@ -12,8 +12,8 @@
           class="full_width"
           v-model="componentsOrder[key]"
           :item-key="(element) => element"
-          @end="updatePreferences"
           :disabled="!sortable"
+          @end="updatePreferences"
         >
           <template #item="{ element }">
             <component
@@ -49,11 +49,6 @@ const TITLE_SECTION = {
 }
 
 defineProps({
-  modelValue: {
-    type: Object,
-    required: true
-  },
-
   sortable: {
     type: Boolean,
     default: false

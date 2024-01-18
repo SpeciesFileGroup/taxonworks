@@ -3,9 +3,9 @@
     <div class="flex-separate full_width">
       <div class="middle margin-small-left">
         <span
-          v-if="store.fieldOccurrence.id"
+          v-if="foStore.fieldOccurrence.id"
           class="margin-small-left"
-          v-html="store.fieldOccurrence.object_tag"
+          v-html="foStore.fieldOccurrence.object_tag"
         />
         <span
           class="margin-small-left"
@@ -14,11 +14,11 @@
           New record
         </span>
         <div
-          v-if="store.fieldOccurrence.id"
+          v-if="foStore.fieldOccurrence.id"
           class="horizontal-left-content margin-small-left gap-small"
         >
-          <RadialAnnotator :global-id="store.fieldOccurrence.global_id" />
-          <RadialObject :global-id="store.fieldOccurrence.global_id" />
+          <RadialAnnotator :global-id="foStore.fieldOccurrence.global_id" />
+          <RadialObject :global-id="foStore.fieldOccurrence.global_id" />
         </div>
       </div>
       <ul class="context-menu no_bullets">
@@ -51,22 +51,34 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import Navbar from '@/components/layout/NavBar.vue'
-import useStore from '../store/store.js'
+import useFieldOccurrenceStore from '../store/fieldOccurrence.js'
 import useCitationStore from '../store/citations.js'
 import useCEStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
+import useDeterminationStore from '../store/determinations.js'
+import useSettingStore from '../store/settings.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { computed } from 'vue'
 
-const store = useStore()
+const foStore = useFieldOccurrenceStore()
+const settings = useSettingStore()
 const citationStore = useCitationStore()
+const determinationStore = useDeterminationStore()
 const ceStore = useCEStore()
-const isUnsaved = computed(() => citationStore.hasUnsaved || store.fieldOccurrence.isUnsaved || ceStore.collectingEvent.isUnsaved)
-
+const isUnsaved = computed(
+  () =>
+    citationStore.hasUnsaved ||
+    determinationStore.hasUnsaved ||
+    foStore.fieldOccurrence.isUnsaved ||
+    ceStore.collectingEvent.isUnsaved
+)
 
 function save() {}
 
 function reset() {
-  ceStore.$reset()
+  if (!settings.locked.collectingEvent) {
+    ceStore.reset()
+  }
+
   citationStore.$reset()
 }
 </script>

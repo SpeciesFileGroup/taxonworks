@@ -149,7 +149,7 @@ import GeolocateComponent from './geolocate'
 import ModalComponent from '@/components/ui/Modal'
 import WktComponent from './wkt'
 import DateComponent from '@/components/ui/Date/DateFields.vue'
-import useStore from '../../../store/collectingEvent.js'
+import useStore from '../../../store/georeferences.js'
 import { addToArray } from '@/helpers'
 import { computed, ref, watch } from 'vue'
 import { Georeference } from '@/routes/endpoints'
@@ -368,6 +368,6 @@ function createVerbatimShape() {
 
 function addToQueue(data) {
   addToArray(store.queueGeoreferences, data, { property: 'tmpId' })
-  store.processGeoreferenceQueue()
+  store.processGeoreferenceQueue(collectingEvent.value.id)
 }
 </script>

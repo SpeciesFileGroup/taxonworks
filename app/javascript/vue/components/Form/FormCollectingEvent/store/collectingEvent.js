@@ -1,24 +1,53 @@
 import { defineStore } from 'pinia'
-import { IDENTIFIER_LOCAL_TRIP_CODE } from '@/constants/index.js'
-import { Georeference, GeographicArea, CollectingEvent } from '@/routes/endpoints'
-import { addToArray } from '@/helpers'
+import {
+  IDENTIFIER_LOCAL_TRIP_CODE,
+  COLLECTING_EVENT
+} from '@/constants/index.js'
+import {
+  GeographicArea,
+  CollectingEvent,
+  CollectionObject
+} from '@/routes/endpoints'
+import { RouteNames } from '@/routes/routes'
+import { getPagination } from '@/helpers'
 import makeCollectingEvent from '@/factory/CollectingEvent.js'
 import makeIdentifier from '@/factory/Identifier.js'
 import makeLabel from '@/factory/Label'
+import SetParam from '@/helpers/setParam'
+import useGeoreferenceStore from './georeferences.js'
+
+async function getTotalUsed(ceId) {
+  const response = await CollectionObject.where({
+    collecting_event_id: [ceId],
+    per: 1
+  })
+  const pagination = getPagination(response)
+
+  return pagination.total
+}
+
+const EXTEND = ['roles']
 
 export default defineStore('collectingEventForm', {
   state: () => ({
     collectingEvent: makeCollectingEvent(),
     geographicArea: undefined,
-    georeferences: [],
-    tripCode: makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, 'CollectingEvent'),
-    queueGeoreferences: [],
-    label: makeLabel('CollectingEvent'),
-    unit: 'm'
+    tripCode: makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT),
+    label: makeLabel(COLLECTING_EVENT),
+    unit: 'm',
+    totalUsed: 0
   }),
 
   actions: {
+    reset() {
+      const georeferenceStore = useGeoreferenceStore()
+
+      this.$reset()
+      georeferenceStore.$reset()
+    },
+
     async save() {
+      const store = useGeoreferenceStore()
       const payload = {
         collecting_event: {
           ...this.collectingEvent
@@ -29,33 +58,38 @@ export default defineStore('collectingEventForm', {
         ? await CollectingEvent.update(this.collectingEvent.id, payload)
         : await CollectingEvent.create(payload)
 
+      store.processGeoreferenceQueue(body.id)
       this.collectingEvent.id = body.id
 
       return body
     },
 
-    async processGeoreferenceQueue() {
-      if (!this.collectingEvent.id) return
+    async load(ceId) {
+      return CollectingEvent.find(ceId, { extend: EXTEND }).then(
+        async ({ body }) => {
+          body.roles_attributes = body.collector_roles || []
+          this.collectingEvent = body
 
-      const requests = this.queueGeoreferences.map((item) => {
-        const georeference = {
-          ...item,
-          collecting_event_id: this.collectingEvent.id
+          this.totalUsed = await getTotalUsed(body.id)
+
+          SetParam(
+            RouteNames.NewCollectingEvent,
+            'collecting_event_id',
+            body.id
+          )
         }
+      )
+    },
 
-        const request = georeference.id
-          ? Georeference.update(georeference.id, { georeference })
-          : Georeference.create({ georeference })
-
-        request
-          .then(({ body }) => addToArray(this.georeferences, body))
-          .catch((_) => {})
-
-        return request
-      })
-
-      return Promise.allSettled(requests).then((_) => {
-        this.queueGeoreferences = []
+    async clone() {
+      return CollectingEvent.clone(this.collectingEvent.id, {
+        extend: EXTEND
+      }).then(({ body }) => {
+        this.load(body.id)
+        TW.workbench.alert.create(
+          'Collecting event was successfully cloned.',
+          'notice'
+        )
       })
     },
 

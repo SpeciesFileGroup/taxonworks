@@ -6,7 +6,7 @@
       <div class="flex-wrap-column gap-medium">
         <FieldOccurrenceForm />
         <IdentifierForm />
-        <CitationForm/>
+        <CitationForm />
         <TaxonDeterminationForm />
       </div>
 
@@ -22,11 +22,8 @@ import HeaderBar from './components/HeaderBar.vue'
 import CollectingEventForm from './components/CollectingEventForm.vue'
 import IdentifierForm from './components/FieldOccurenceForm/Identifier/IdentifierForm.vue'
 import CitationForm from './components/CitationForm.vue'
-import useStore from './store/store'
 
 defineOptions({
   name: 'NewFieldOccurrence'
 })
-
-const store = useStore()
 </script>

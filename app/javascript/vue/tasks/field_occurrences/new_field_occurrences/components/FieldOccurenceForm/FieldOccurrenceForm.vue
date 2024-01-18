@@ -21,7 +21,7 @@ import BlockLayout from '@/components/layout/BlockLayout.vue'
 import FieldAbsent from './FieldIsAbsent.vue'
 import FieldTotal from './FieldTotal.vue'
 import BiocurationForm from '../BiocurationForm.vue'
-import useStore from '../../store/store.js'
+import useStore from '../../store/fieldOccurrence.js'
 import useBiocurationStore from '../../store/biocurations.js'
 
 const store = useStore()

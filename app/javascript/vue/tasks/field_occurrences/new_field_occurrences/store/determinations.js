@@ -9,7 +9,7 @@ export default defineStore('taxonDeterminations', {
 
   getters: {
     hasUnsaved(state) {
-      return state.determinations.some(c => c.isUnsaved)
+      return state.determinations.some((c) => c.isUnsaved)
     }
   },
 
@@ -19,24 +19,26 @@ export default defineStore('taxonDeterminations', {
         taxon_determination_object_id: id,
         taxon_determination_object_type: type
       }).then(({ body }) => {
-        this.determinations = body.map(item => 
-          ({
-            ...item, 
-            uuid: crypto.randomUUID(), 
-            isUnsaved: false
-          })
-        )
+        this.determinations = body.map((item) => ({
+          ...item,
+          uuid: crypto.randomUUID(),
+          isUnsaved: false
+        }))
       })
     },
 
-    addDetermination(determination) {
-        addToArray(this.determinations, determination, {
+    add(determination) {
+      addToArray(
+        this.determinations,
+        { ...determination, isUnsaved: true },
+        {
           property: 'uuid',
           prepend: true
-        })
+        }
+      )
     },
 
-    removeDetermination(determination) {
+    remove(determination) {
       if (determination.id) {
         TaxonDetermination.destroy(determination.id)
       }
