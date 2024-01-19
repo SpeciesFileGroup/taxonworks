@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { makeFieldOccurrence } from '@/factory'
 import { FieldOccurrence } from '@/routes/endpoints'
+import useDeterminationStore from '../store/determinations.js'
 
 export default defineStore('fieldOccurrences', {
   state: () => ({
@@ -10,8 +11,13 @@ export default defineStore('fieldOccurrences', {
 
   actions: {
     async save() {
+      const determinationStore = useDeterminationStore()
       const payload = {
-        field_occurrence: this.fieldOccurrence
+        field_occurrence: {
+          ...this.fieldOccurrence,
+          taxon_determinations_attributes:
+            determinationStore.determinations.filter((d) => d.isUnsaved)
+        }
       }
 
       const request = this.fieldOccurrence.id

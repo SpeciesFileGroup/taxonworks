@@ -14,10 +14,10 @@ export default defineStore('taxonDeterminations', {
   },
 
   actions: {
-    loadDeterminations({ id, type }) {
+    load({ objectId, objectType }) {
       TaxonDetermination.where({
-        taxon_determination_object_id: id,
-        taxon_determination_object_type: type
+        taxon_determination_object_id: objectId,
+        taxon_determination_object_type: objectType
       }).then(({ body }) => {
         this.determinations = body.map((item) => ({
           ...item,
@@ -46,12 +46,16 @@ export default defineStore('taxonDeterminations', {
       removeFromArray(this.determinations, determination, 'uuid')
     },
 
-    save() {
+    save({ objectId, objectType }) {
       const determinations = this.determinations.filter((d) => d.isUnsaved)
 
       const requests = determinations.map((determination) => {
         const payload = {
-          taxon_determination: determination
+          taxon_determination: {
+            determination,
+            taxon_determination_object_id: objectId,
+            taxon_determination_object_type: objectType
+          }
         }
 
         const request = determination.id

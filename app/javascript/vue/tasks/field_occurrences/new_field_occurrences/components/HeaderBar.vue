@@ -87,7 +87,7 @@ async function save() {
     }
 
     citationStore.save(args)
-    determinationStore.save(args)
+    determinationStore.load(args)
   })
 }
 
