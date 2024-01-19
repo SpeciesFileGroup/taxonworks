@@ -41,7 +41,7 @@ export default defineStore('citations', {
 
         const request = citation.id
           ? Citation.update(citation.id, payload)
-          : Citation.create(citation)
+          : Citation.create(payload)
 
         request.then(({ body }) => {
           body.uuid = citation.uuid

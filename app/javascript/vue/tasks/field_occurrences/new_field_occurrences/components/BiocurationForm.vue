@@ -54,7 +54,9 @@ const props = defineProps({
 })
 
 const list = ref([])
-const unsavedBiocurations = computed(() => list.value.filter((item) => item.id))
+const unsavedBiocurations = computed(() =>
+  list.value.filter((item) => !item.id)
+)
 
 watch(
   () => props.objectId,
@@ -63,7 +65,8 @@ watch(
       processUnsavedBiocurations()
     } else if (newId) {
       BiocurationClassification.where({
-        biological_collection_object_id: newId
+        biocuration_classification_object_id: newId,
+        biocuration_classification_object_type: FIELD_OCCURRENCE
       }).then(({ body }) => {
         list.value = body.map((item) => makeBiocurationObject(item))
       })
@@ -89,14 +92,19 @@ function addBiocuration(biocuration) {
 }
 
 function processUnsavedBiocurations() {
-  const requests = list.value.map((item) =>
-    BiocurationClassification.create(makeBiocurationPayload(item.id))
+  const requests = unsavedBiocurations.value.map((item) =>
+    BiocurationClassification.create(
+      makeBiocurationPayload(item.biocurationClassId)
+    )
   )
 
   Promise.all(requests).then((responses) => {
     const created = list.value.filter((item) => item.id)
 
-    list.value = [...created, ...responses.map((r) => r.body)]
+    list.value = [
+      ...created,
+      ...responses.map((r) => makeBiocurationObject(r.body))
+    ]
   })
 }
 
