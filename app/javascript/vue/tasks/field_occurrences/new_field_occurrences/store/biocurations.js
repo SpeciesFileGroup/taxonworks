@@ -8,15 +8,17 @@ async function getBiocurationGroupsWithClasses() {
   })
   const groups = list.filter(({ type }) => type === BIOCURATION_GROUP)
   const types = list.filter(({ type }) => type === BIOCURATION_CLASS)
-  const response = await Tag.where({
+  const { body } = await Tag.where({
     keyword_id: groups.map((item) => item.id)
   })
 
-  response.body.forEach((item) => {
+  body.forEach((item) => {
     const group = groups.find((group) => item.keyword_id === group.id)
     const items = types.filter((type) => type.id === item.tag_object_id)
 
-    group.list = group.list ? [...group.list, ...items] : items
+    if (group) {
+      group.list = group.list ? [...group.list, ...items] : items
+    }
   })
 
   return groups
