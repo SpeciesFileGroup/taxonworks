@@ -26,6 +26,8 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     'taxonID'
   end
 
+  # rubocop:disable RuboCopMetrics/MethodLength
+
   # Stages core (Taxon) records and all extension records.
   def perform_staging
     records, headers = get_records(source)
@@ -45,7 +47,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     # hash of row index, record metadata
     core_records = records[:core].each_with_index.map do |record, index|
       records_lut[record['taxonID']] = {
-        index: index,
+        index:,
         type: nil, # will be protonym or combination
         dependencies: [],
         dependants: [],
@@ -97,6 +99,12 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
       # misspellings are treated as separate protonyms, so don't bundle them in original combination with the correct spelling
       # "original misspelling" is also treated this way
+
+      if records_lut[record[:src_data]['taxonomicStatus']].nil?
+        add_error_message(record, :taxonomicStatus, 'taxonomicStatus not found in dataset')
+        next
+      end
+
       if record[:src_data]['taxonomicStatus'].include?('misspelling')
         oc_index = index
       end
@@ -106,6 +114,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
     end
 
+    # TODO: Move to Constant?
     current_taxonomic_status = Set['valid', 'homonym', 'synonym', 'excluded', 'unidentifiable', 'incertae sedis', 'unavailable'].freeze
 
     # make combinations dependent on the protonym of each OC group
@@ -195,7 +204,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
         # make protonym depend on original combination's parent, if protonym is not the original combination
         # do not make valid record depend on self if OC's parent is the valid name. Ex: Aus with OC Aus (Aus)
-        if !core_records[oc_index][:parent].blank? && current_record[:index] != oc_index && (core_records[oc_index][:parent] != current_record[:src_data]["taxonID"])
+        if core_records[oc_index][:parent].present? && current_record[:index] != oc_index && (core_records[oc_index][:parent] != current_record[:src_data]['taxonID'])
           current_record[:dependencies] << records_lut[core_records[oc_index][:parent]][:index]
           records_lut[core_records[oc_index][:parent]][:dependants] << current_record[:index]
         end
@@ -281,11 +290,12 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
         dwc_extension.save!
       end
     end
-
   end
 
+  # rubocop:enable
+
   def use_existing_hierarchy?
-    !!self.metadata.dig("import_settings", "use_existing_taxon_hierarchy")
+    !!self.metadata.dig('import_settings', 'use_existing_taxon_hierarchy')
   end
 
   private
