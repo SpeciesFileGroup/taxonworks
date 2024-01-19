@@ -14,9 +14,10 @@ async function getBiocurationGroupsWithClasses() {
 
   body.forEach((item) => {
     const group = groups.find((group) => item.keyword_id === group.id)
-    const items = types.filter((type) => type.id === item.tag_object_id)
 
     if (group) {
+      const items = types.filter((type) => type.id === item.tag_object_id)
+
       group.list = group.list ? [...group.list, ...items] : items
     }
   })

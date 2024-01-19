@@ -54,14 +54,16 @@ export default defineStore('collectingEventForm', {
         }
       }
 
-      const { body } = this.collectingEvent.id
-        ? await CollectingEvent.update(this.collectingEvent.id, payload)
-        : await CollectingEvent.create(payload)
+      const request = this.collectingEvent.id
+        ? CollectingEvent.update(this.collectingEvent.id, payload)
+        : CollectingEvent.create(payload)
 
-      store.processGeoreferenceQueue(body.id)
-      this.collectingEvent.id = body.id
+      request.then(({ body }) => {
+        store.processGeoreferenceQueue(body.id)
+        this.collectingEvent.id = body.id
+      })
 
-      return body
+      return request
     },
 
     async load(ceId) {
