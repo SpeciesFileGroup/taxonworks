@@ -16,7 +16,7 @@
     <% @field_occurrences.each do |field_occurrence| %>
       <tr>
         <td><%= field_occurrence.total %></td>
-        <td><%= field_occurrence.collecting_event_id_id %></td>
+        <td><%= field_occurrence.collecting_event_id %></td>
         <td><%= field_occurrence.is_absent %></td>
         <td><%= link_to 'Show', field_occurrence %></td>
         <td><%= link_to 'Edit', edit_field_occurrence_path(field_occurrence) %></td>
