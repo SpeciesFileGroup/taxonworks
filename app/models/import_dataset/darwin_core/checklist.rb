@@ -100,12 +100,12 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
       # misspellings are treated as separate protonyms, so don't bundle them in original combination with the correct spelling
       # "original misspelling" is also treated this way
 
-      if records_lut[record[:src_data]['taxonomicStatus']].nil?
-        add_error_message(record, :taxonomicStatus, 'taxonomicStatus not found in dataset')
-        next
-      end
+      # if records_lut[record[:src_data]['taxonomicStatus']].nil?
+      #   add_error_message(record, :taxonomicStatus, 'taxonomicStatus not found in dataset')
+      #   next
+      # end
 
-      if record[:src_data]['taxonomicStatus'].include?('misspelling')
+      if record[:src_data]['taxonomicStatus'] && record[:src_data]['taxonomicStatus'].include?('misspelling')
         oc_index = index
       end
 
