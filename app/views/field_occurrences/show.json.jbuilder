@@ -1,1 +1,1 @@
-json.partial! "field_occurrences/field_occurrence", field_occurrence: @field_occurrence
+json.partial! "/field_occurrences/attributes", field_occurrence: @field_occurrence
