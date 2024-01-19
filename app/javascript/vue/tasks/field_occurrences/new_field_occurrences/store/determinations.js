@@ -44,6 +44,29 @@ export default defineStore('taxonDeterminations', {
       }
 
       removeFromArray(this.determinations, determination, 'uuid')
+    },
+
+    save() {
+      const determinations = this.determinations.filter((d) => d.isUnsaved)
+
+      const requests = determinations.map((determination) => {
+        const payload = {
+          taxon_determination: determination
+        }
+
+        const request = determination.id
+          ? TaxonDetermination.update(determination.id, payload)
+          : TaxonDetermination.create(determination)
+
+        request.then(({ body }) => {
+          body.uuid = determination.uuid
+          addToArray(this.determinations, body, { property: 'uuid' })
+        })
+
+        return request
+      })
+
+      return Promise.all(requests)
     }
   }
 })

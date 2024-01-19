@@ -1,5 +1,6 @@
 export default (type) => ({
   id: undefined,
+  uuid: crypto.randomUUID(),
   source_id: undefined,
   pages: undefined,
   citation_object_type: type,
