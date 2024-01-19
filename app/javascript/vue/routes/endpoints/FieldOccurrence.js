@@ -1,7 +1,7 @@
 import baseCRUD from './base'
 import AjaxCall from '@/helpers/ajaxCall'
 
-const controller = 'collection_objects'
+const controller = 'field_occurrences'
 
 const permitParams = {
   field_occurrence: {

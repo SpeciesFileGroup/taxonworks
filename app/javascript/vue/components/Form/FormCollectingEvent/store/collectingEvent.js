@@ -71,12 +71,6 @@ export default defineStore('collectingEventForm', {
           this.collectingEvent = body
 
           this.totalUsed = await getTotalUsed(body.id)
-
-          SetParam(
-            RouteNames.NewCollectingEvent,
-            'collecting_event_id',
-            body.id
-          )
         }
       )
     },

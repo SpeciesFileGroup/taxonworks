@@ -14,11 +14,15 @@ export default defineStore('fieldOccurrences', {
         field_occurrence: this.fieldOccurrence
       }
 
-      const { body } = this.fieldOccurrence.identifier
+      const request = this.fieldOccurrence.id
         ? FieldOccurrence.update(this.fieldOccurrence.id, payload)
         : FieldOccurrence.create(payload)
 
-      this.fieldOccurrence = body
+      request.then(({ body }) => {
+        this.fieldOccurrence = body
+      })
+
+      return request
     }
   }
 })

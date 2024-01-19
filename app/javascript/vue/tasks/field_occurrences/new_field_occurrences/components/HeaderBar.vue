@@ -58,6 +58,7 @@ import useDeterminationStore from '../store/determinations.js'
 import useSettingStore from '../store/settings.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { computed } from 'vue'
+import { FIELD_OCCURRENCE } from '@/constants'
 
 const foStore = useFieldOccurrenceStore()
 const settings = useSettingStore()
@@ -72,7 +73,23 @@ const isUnsaved = computed(
     ceStore.collectingEvent.isUnsaved
 )
 
-function save() {}
+async function save() {
+  const ce = ceStore.collectingEvent.isUnsaved
+    ? (await ceStore.save()).body
+    : ceStore.collectingEvent
+
+  foStore.fieldOccurrence.collecting_event_id = ce.id
+
+  foStore.save().then(({ body }) => {
+    const args = {
+      objectId: body.id,
+      objectType: FIELD_OCCURRENCE
+    }
+
+    citationStore.save(args)
+    determinationStore.save(args)
+  })
+}
 
 function reset() {
   if (!settings.locked.collectingEvent) {
