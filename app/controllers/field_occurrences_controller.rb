@@ -35,7 +35,7 @@ class FieldOccurrencesController < ApplicationController
 
   # POST /field_occurrences or /field_occurrences.json
   def create
-    @field_occurrence = FieldOccurrence.new(field_occurrence_params)
+    @field_occurrence = ::FieldOccurrence.new(field_occurrence_params)
 
     respond_to do |format|
       if @field_occurrence.save

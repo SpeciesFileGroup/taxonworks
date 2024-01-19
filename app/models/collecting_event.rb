@@ -241,7 +241,8 @@ class CollectingEvent < ApplicationRecord
   # see also app/models/collecting_event/georeference.rb for more has_many
 
   has_many :otus, through: :collection_objects, source: 'otu'
-  has_many :field_occurrences, through: :collection_objects, source: 'otu'
+
+  has_many :field_occurrences, inverse_of: :collecting_event
 
   after_create do
     if with_verbatim_data_georeference

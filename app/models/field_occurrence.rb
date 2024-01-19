@@ -17,8 +17,6 @@
 #     Total must be zero here.
 #
 class FieldOccurrence < ApplicationRecord
-  belongs_to :collecting_event_id
-
   include GlobalID::Identification
   include Housekeeping
 
@@ -47,7 +45,7 @@ class FieldOccurrence < ApplicationRecord
 
   is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence'
 
-  belongs_to :collecting_event, inverse_of: :collection_objects
+  belongs_to :collecting_event, inverse_of: :field_occurrences
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
 
   has_many :georeferences, through: :collecting_event

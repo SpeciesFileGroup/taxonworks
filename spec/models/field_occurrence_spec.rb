@@ -4,6 +4,13 @@ RSpec.describe FieldOccurrence, type: :model do
 
   let(:field_occurrence) { FieldOccurrence.new }
   let(:otu) { Otu.create(name: 'Sunny') }
+  let(:ce) { FactoryBot.create(:valid_collecting_event) }
+
+  specify '#collecting_event' do
+    expect(
+      FieldOccurrence.new(collecting_event_id: ce.id)
+    ).to be_truthy
+  end
 
   specify 'total zero when absent' do
     field_occurrence.is_absent = true
