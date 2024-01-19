@@ -474,7 +474,6 @@ module Export::Dwca
     def meta_fields
       return [] if no_records?
       h = File.open(all_data, &:gets)&.strip&.split("\t")
-      h&.shift
       h || []
     end
 

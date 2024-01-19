@@ -16,6 +16,10 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     expect(DwcOccurrence.target_columns).to include(:occurrenceID)
   end
 
+  specify '.excluded_columns must include id' do
+    expect(DwcOccurrence.excluded_columns).to include(:id)
+  end
+
   specify 'extending predicates' do
     include ActiveJob::TestHelper
 
