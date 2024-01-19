@@ -47,7 +47,8 @@
                 :metadata="metadata"
                 :global-id="globalId"
                 :object-type="metadata.object_type"
-                @updateCount="setTotal"
+                :object-id="metadata.object_id"
+                @update-count="setTotal"
               />
             </div>
           </div>
