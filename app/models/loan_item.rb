@@ -63,7 +63,7 @@ class LoanItem < ApplicationRecord
 
   validate :available_for_loan
 
-  validates_uniqueness_of :loan_id, scope: [:loan_item_object_id], if: -> { loan_item_object_type == 'CollectionObject' }
+  validates_uniqueness_of :loan_id, scope: [:loan_item_object_id, :loan_item_object_type], if: -> { loan_item_object_type == 'CollectionObject' }
 
   validates_inclusion_of :disposition, in: STATUS, if: -> {disposition.present?}
 
