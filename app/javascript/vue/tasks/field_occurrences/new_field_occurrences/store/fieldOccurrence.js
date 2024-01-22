@@ -10,6 +10,18 @@ export default defineStore('fieldOccurrences', {
   }),
 
   actions: {
+    async load(id) {
+      const request = FieldOccurrence.find(id)
+
+      request
+        .then(({ body }) => {
+          this.fieldOccurrence = body
+        })
+        .catch(() => {})
+
+      return request
+    },
+
     async save() {
       const determinationStore = useDeterminationStore()
       const payload = {

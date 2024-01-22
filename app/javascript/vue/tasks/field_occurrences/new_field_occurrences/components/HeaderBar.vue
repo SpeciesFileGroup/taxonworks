@@ -22,7 +22,7 @@
         </div>
       </div>
       <ul class="context-menu no_bullets">
-        <li class="horizontal-right-content">
+        <li class="horizontal-right-content gap-small">
           <span
             v-if="isUnsaved"
             class="medium-icon margin-small-right"
@@ -30,13 +30,20 @@
             data-icon="warning"
           />
           <VBtn
-            class="button normal-input button-submit button-size margin-small-right"
+            color="create"
+            :disabled="!validateSave"
             @click="save"
           >
             Save
           </VBtn>
           <VBtn
-            class="button normal-input button-default button-size"
+            color="create"
+            :disabled="!validateSave"
+          >
+            Save and new
+          </VBtn>
+          <VBtn
+            color="primary"
             @click="reset"
           >
             New
@@ -56,8 +63,9 @@ import useCitationStore from '../store/citations.js'
 import useCEStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 import useDeterminationStore from '../store/determinations.js'
 import useSettingStore from '../store/settings.js'
+import useBiocurationStore from '../store/biocurations.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { computed } from 'vue'
+import { computed, onBeforeMount } from 'vue'
 import { FIELD_OCCURRENCE } from '@/constants'
 
 const foStore = useFieldOccurrenceStore()
@@ -65,37 +73,85 @@ const settings = useSettingStore()
 const citationStore = useCitationStore()
 const determinationStore = useDeterminationStore()
 const ceStore = useCEStore()
+const biocurationStore = useBiocurationStore()
 const isUnsaved = computed(
   () =>
     citationStore.hasUnsaved ||
     determinationStore.hasUnsaved ||
+    biocurationStore.hasUnsaved ||
     foStore.fieldOccurrence.isUnsaved ||
     ceStore.collectingEvent.isUnsaved
 )
 
+const validateSave = computed(() => {
+  return (
+    determinationStore.determinations.length &&
+    (ceStore.collectingEvent.isUnsaved || ceStore.collectingEvent.id)
+  )
+})
+
 async function save() {
-  const ce = ceStore.collectingEvent.isUnsaved
+  const ce = ceStore.isUnsaved
     ? (await ceStore.save()).body
     : ceStore.collectingEvent
 
   foStore.fieldOccurrence.collecting_event_id = ce.id
 
-  foStore.save().then(({ body }) => {
-    const args = {
-      objectId: body.id,
-      objectType: FIELD_OCCURRENCE
-    }
+  foStore
+    .save()
+    .then(({ body }) => {
+      const args = {
+        objectId: body.id,
+        objectType: FIELD_OCCURRENCE
+      }
 
-    citationStore.save(args)
-    determinationStore.load(args)
-  })
+      citationStore.save(args)
+      determinationStore.load(args)
+      biocurationStore.save(args)
+    })
+    .then(() => {
+      TW.workbench.alert.create(
+        'Field occurrence was successfully saved.',
+        'notice'
+      )
+    })
 }
 
 function reset() {
-  if (!settings.locked.collectingEvent) {
+  const { locked } = settings
+  if (!locked.collectingEvent) {
     ceStore.reset()
+  }
+
+  if (locked.biocurations) {
+    biocurationStore.resetIds()
+  } else {
+    biocurationStore.list = []
   }
 
   citationStore.$reset()
 }
+
+onBeforeMount(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const id = urlParams.get('field_occurrence_id')
+
+  if (/^\d+$/.test(id)) {
+    const args = {
+      objectId: id,
+      objectType: FIELD_OCCURRENCE
+    }
+
+    foStore.load(id).then(({ body }) => {
+      const ceId = body.collecting_event_id
+
+      if (ceId) {
+        ceStore.load(ceId)
+      }
+    })
+
+    determinationStore.load(args)
+    biocurationStore.load(args)
+  }
+})
 </script>

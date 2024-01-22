@@ -11,25 +11,30 @@
             model="namespaces"
             target="CollectingEvent"
             klass="CollectingEvent"
-            v-model="namespace"
-            @selected="setNamespace"
+            v-model="store.namespace"
+            @selected="
+              (item) => {
+                store.namespace = item
+                store.identifier.isUnsaved = true
+              }
+            "
           />
-          <template v-if="store.tripCode.namespace_id && namespace">
+          <template v-if="store.namespace">
             <div class="middle separate-top">
               <span data-icon="ok" />
               <p
                 class="separate-right"
-                v-html="namespace.name"
+                v-html="store.namespace.name"
               />
               <span
-                v-if="store.tripCode.id"
-                @click="removeIdentifier"
+                v-if="store.identifier.id"
                 class="circle-button btn-delete"
+                @click="store.remove"
               />
               <span
                 v-else
                 class="circle-button button-default btn-undo"
-                @click="unsetIdentifier"
+                @click="() => (store.namespace = undefined)"
               />
             </div>
           </template>
@@ -40,12 +45,13 @@
         <div class="horizontal-left-content field">
           <input
             type="text"
-            v-model="store.tripCode.identifier"
+            v-model="store.identifier.identifier"
+            @change="() => (store.identifier.isUnsaved = true)"
           />
           <label>
             <input
               type="checkbox"
-              v-model="store.incrementIdentifier"
+              v-model="store.increment"
             />
             Increment
           </label>
@@ -57,36 +63,7 @@
 
 <script setup>
 import SmartSelector from '@/components/ui/SmartSelector.vue'
-import { ref, watch } from 'vue'
-import { Namespace, Identifier } from '@/routes/endpoints'
-import useStore from '../../store/collectingEvent'
+import useStore from '../../store/identifier.js'
 
 const store = useStore()
-const namespace = ref()
-
-watch(store.tripCode.namespace_id, (newVal) => {
-  if (newVal) {
-    Namespace.find(newVal).then((response) => {
-      namespace.value = response.body
-    })
-  } else {
-    namespace.value = undefined
-  }
-})
-
-function setNamespace(namespace) {
-  store.tripCode.namespace_id = namespace.id
-}
-
-function unsetIdentifier() {
-  store.tripCode.namespace_id = undefined
-  store.tripCode.identifier = undefined
-  namespace.value = undefined
-}
-
-function removeIdentifier() {
-  Identifier.destroy(store.tripCode.id).then(() => {
-    unsetIdentifier()
-  })
-}
 </script>

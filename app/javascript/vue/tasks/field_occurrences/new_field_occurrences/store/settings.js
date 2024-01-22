@@ -6,7 +6,8 @@ export default defineStore('settings', {
     isSaving: false,
     locked: {
       taxonDeterminations: false,
-      collectingEvent: false
+      collectingEvent: false,
+      biocurations: false
     }
   })
 })

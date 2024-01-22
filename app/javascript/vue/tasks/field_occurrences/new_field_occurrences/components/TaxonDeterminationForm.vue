@@ -4,7 +4,10 @@
       <h3>Taxon determination</h3>
     </template>
     <template #body>
-      <TaxonDetermination @on-add="determinationStore.add" />
+      <TaxonDetermination
+        class="margin-medium-bottom"
+        @on-add="determinationStore.add"
+      />
       <TaxonDeterminationList
         v-model="determinationStore.determinations"
         v-model:lock="settings.locked.taxonDeterminations"

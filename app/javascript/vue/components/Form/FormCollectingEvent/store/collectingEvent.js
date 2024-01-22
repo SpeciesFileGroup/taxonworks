@@ -1,20 +1,15 @@
 import { defineStore } from 'pinia'
-import {
-  IDENTIFIER_LOCAL_TRIP_CODE,
-  COLLECTING_EVENT
-} from '@/constants/index.js'
+import { COLLECTING_EVENT } from '@/constants/index.js'
 import {
   GeographicArea,
   CollectingEvent,
   CollectionObject
 } from '@/routes/endpoints'
-import { RouteNames } from '@/routes/routes'
 import { getPagination } from '@/helpers'
 import makeCollectingEvent from '@/factory/CollectingEvent.js'
-import makeIdentifier from '@/factory/Identifier.js'
 import makeLabel from '@/factory/Label'
-import SetParam from '@/helpers/setParam'
 import useGeoreferenceStore from './georeferences.js'
+import useIdentifierStore from './identifier.js'
 
 async function getTotalUsed(ceId) {
   const response = await CollectionObject.where({
@@ -32,11 +27,18 @@ export default defineStore('collectingEventForm', {
   state: () => ({
     collectingEvent: makeCollectingEvent(),
     geographicArea: undefined,
-    tripCode: makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT),
     label: makeLabel(COLLECTING_EVENT),
     unit: 'm',
     totalUsed: 0
   }),
+
+  getters: {
+    isUnsaved(state) {
+      const idStore = useIdentifierStore()
+
+      return state.collectingEvent.isUnsaved || idStore.identifier.isUnsaved
+    }
+  },
 
   actions: {
     reset() {
@@ -48,6 +50,7 @@ export default defineStore('collectingEventForm', {
 
     async save() {
       const store = useGeoreferenceStore()
+      const idStore = useIdentifierStore()
       const payload = {
         collecting_event: {
           ...this.collectingEvent
@@ -61,18 +64,26 @@ export default defineStore('collectingEventForm', {
       request.then(({ body }) => {
         store.processGeoreferenceQueue(body.id)
         this.collectingEvent.id = body.id
+
+        if (idStore.isUnsaved) {
+          idStore.save({ objectId: body.id, objectType: COLLECTING_EVENT })
+        }
       })
 
       return request
     },
 
     async load(ceId) {
+      const idStore = useIdentifierStore()
+
       return CollectingEvent.find(ceId, { extend: EXTEND }).then(
         async ({ body }) => {
           body.roles_attributes = body.collector_roles || []
-          this.collectingEvent = body
 
+          this.collectingEvent = body
           this.totalUsed = await getTotalUsed(body.id)
+
+          idStore.load({ objectId: ceId, objectType: COLLECTING_EVENT })
         }
       )
     },
