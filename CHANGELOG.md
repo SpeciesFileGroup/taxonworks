@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- TaxonName batch update
 - Contributing link [#3752]
 - Uncaught promise errors [#3767]
 - Custom attributes triggers `isUpdated` ce state [#3764]
