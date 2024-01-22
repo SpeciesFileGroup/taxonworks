@@ -93,74 +93,90 @@ FilterHub.prototype.handleEvents = function (that) {
     }
   )
 
-  $('#filter [data-filter-category]').on('click', function () {
-    var elementFilter = $(this).attr('data-filter-category')
+  const btnStatusFilter = [
+    ...document.querySelectorAll('#filter [data-filter-category]')
+  ]
 
-    if (
-      $(this).parent().hasClass('filter-category') &&
-      !$(this).hasClass('activated')
-    ) {
-      that.resetAllStatusCards()
-    }
-    if (elementFilter === 'reset') {
-      that.changeAllSectionsFilter(that.arrayData)
-      that.changeAllSectionsFilter(that.arrayTasks)
-    } else {
-      ;[that.arrayData, that.arrayTasks].forEach(function (element) {
-        element.forEach(function (element) {
-          element.changeFilter('data-category-' + elementFilter)
-        })
-      })
-    }
-    if (that.allEmpty(that.arrayData) && that.allEmpty(that.arrayTasks)) {
-      $('[data-section="Supporting"] .reset-all-filters').fadeIn()
-    } else {
-      $('.reset-all-filters').fadeOut(0)
-    }
-  })
-
-  $('#filter .navigation-controls-type [data-filter-category]').on(
-    'click',
-    function () {
-      var elementFilter = $(this).attr('data-filter-category')
-      var activated = $(this).hasClass('activated')
-
-      $('#filter .navigation-controls-type .navigation-item').each(function () {
-        $(this).removeClass('activated')
-      })
-
-      if (!activated) {
-        $(this).addClass('activated')
-      }
-
-      if ($(this).hasClass('activated')) {
-        that.resetTypeFilter()
-      }
-
-      that.resetTypeFilter()
-      if ($(this).hasClass('activated')) {
-        ;[that.arrayData, that.arrayTasks].forEach(function (element) {
-          element.forEach(function (element) {
-            element.changeFilter('data-category-' + elementFilter)
-          })
-        })
-      }
-    }
+  btnStatusFilter.forEach((btn) =>
+    btn.addEventListener('click', handleStatusFilter.bind(this))
   )
 
-  $('#filter .switch input').on('click', function (element) {
-    that.resetAllStatusCards()
+  function handleStatusFilter(e) {
+    const element = e.target
+    const elementFilter = element.getAttribute('data-filter-category')
+    const cards = [...that.arrayData, ...that.arrayTasks]
+    const isResetButton = elementFilter === 'reset'
+    const isActive = element.classList.contains('activated')
+    const isCategoryButton = element.classList.contains('navigation-item')
+
+    if (!isCategoryButton && isActive) {
+      that.resetStatusFilter()
+    }
+
+    if (isResetButton) {
+      that.changeAllSectionsFilter(cards)
+    } else {
+      cards.forEach((element) => {
+        element.changeFilter('data-category-' + elementFilter)
+      })
+    }
+  }
+
+  const btnCategoryFilter = [
+    ...document.querySelectorAll(
+      '#filter .navigation-controls-type [data-filter-category]'
+    )
+  ]
+
+  btnCategoryFilter.forEach((btn) => {
+    btn.addEventListener('click', handleClickCategoryFilter.bind(this))
   })
+
+  function handleClickCategoryFilter(e) {
+    const element = e.target
+    const elementFilter = element.getAttribute('data-filter-category')
+    const activated = element.classList.contains('activated')
+    const allBtns = [
+      ...document.querySelectorAll(
+        '#filter .navigation-controls-type .navigation-item'
+      )
+    ]
+
+    allBtns.forEach((element) => {
+      element.classList.remove('activated')
+    })
+
+    if (activated) {
+      element.classList.remove('activated')
+    } else {
+      element.classList.add('activated')
+    }
+
+    if (!activated) {
+      that.resetTypeFilter()
+    }
+
+    that.resetTypeFilter()
+
+    if (!activated) {
+      const cards = [...that.arrayData, ...that.arrayTasks]
+      cards.forEach(function (element) {
+        element.changeFilter('data-category-' + elementFilter)
+      })
+    }
+  }
+
+  document
+    .querySelector('#filter .switch input')
+    .addEventListener('click', that.resetAllStatusCards.bind(this))
 }
 
 FilterHub.prototype.resetAllStatusCards = function () {
-  var that = this
+  const cards = [...this.arrayData, ...this.arrayTasks]
 
-  ;[that.arrayData, that.arrayTasks].forEach(function (element) {
-    element.forEach(function (element) {
-      that.resetStatusFilter()
-      element.refresh()
-    })
+  cards.forEach((element) => {
+    this.resetStatusFilter()
+    element.refresh()
   })
 }
 
@@ -192,15 +208,4 @@ FilterHub.prototype.changeAllSectionsFilter = function (arrayData) {
     element.filterChildren()
     $('.reset-all-filters').fadeOut(0)
   })
-}
-
-FilterHub.prototype.allEmpty = function (arraySection) {
-  var inc = 0
-
-  arraySection.forEach(function (element) {
-    if (element.empty()) {
-      inc++
-    }
-  })
-  return inc == arraySection.length
 }

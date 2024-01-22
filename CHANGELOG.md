@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CO Loan gifts have tag "On Loan until false" [#3731]
 - Figure panel in New content task
 - DwC Occurrence Importer using out of project scope http://rs.tdwg.org/dwc/terms/FossilSpecimen biocuration class.
+- Hub: Status filter doesn't work correctly [#3791]
 
 [#2718]: https://github.com/SpeciesFileGroup/taxonworks/issues/2718
 [#3731]: https://github.com/SpeciesFileGroup/taxonworks/issues/3731
@@ -37,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3767]: https://github.com/SpeciesFileGroup/taxonworks/issues/3767
 [#3784]: https://github.com/SpeciesFileGroup/taxonworks/issues/3784
 [#3785]: https://github.com/SpeciesFileGroup/taxonworks/issues/3785
+[#3791]: https://github.com/SpeciesFileGroup/taxonworks/issues/3791
 
 ## [0.37.1] - 2024-01-04
 
