@@ -1,3 +1,5 @@
+<!--- zeitwerk TODO: do not reference TaxonWorksNet directly, use an initialized constant?! --->
+
 <% if TaxonworksNet.commit_sha %>
   <%= /\A(app|lib)\/([^:]+):(\d+)/.match(@backtrace.first) do |m|
         "https://github.com/SpeciesFileGroup/taxonworks/blob/#{TaxonworksNet.commit_sha}/#{m[1]}/#{m[2]}#L#{m[3]}"

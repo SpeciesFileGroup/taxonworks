@@ -1,4 +1,4 @@
-require_relative '../../lib/soft_validation'
+require_relative '../../app/lib/soft_validation'
 # require 'rails_helper'
 
 # Stub class for testing. Mimics only

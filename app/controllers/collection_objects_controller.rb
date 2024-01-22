@@ -515,4 +515,4 @@ class CollectionObjectsController < ApplicationController
 
 end
 
-require_dependency Rails.root.to_s + '/lib/batch_load/import/collection_objects/castor_interpreter.rb'
+# require_dependency Rails.root.to_s + '/lib/batch_load/import/collection_objects/castor_interpreter.rb'

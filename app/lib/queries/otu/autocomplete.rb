@@ -1,4 +1,4 @@
-require Rails.root.to_s + '/lib/queries/taxon_name/autocomplete'
+# require Rails.root.to_s + '/lib/queries/taxon_name/autocomplete'
 
 module Queries
   module Otu

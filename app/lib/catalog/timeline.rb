@@ -1,5 +1,6 @@
-require_dependency Rails.root.to_s + '/lib/catalog/nomenclature/entry.rb'
-require_dependency Rails.root.to_s + '/lib/catalog/otu/entry.rb'
+# zeitwerk removed
+# require_dependency Rails.root.to_s + '/lib/catalog/nomenclature/entry.rb'
+# require_dependency Rails.root.to_s + '/lib/catalog/otu/entry.rb'
 
 # A Catalog::Timeline is a catalog that merges biolgological concepts (OTUs) with their nomenclature.
 #

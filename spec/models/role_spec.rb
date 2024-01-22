@@ -5,6 +5,10 @@ describe Role, type: :model, group: [:sources, :people, :roles] do
   let(:person) { FactoryBot.create(:valid_person, last_name: 'Smith') }
   let(:organization) { FactoryBot.create(:valid_organization) }
 
+  specify 'sti .descendants' do
+    expect(Role.descendants.count).to eq(20)
+  end
+
   context 'associations' do
     context 'belongs_to' do
       specify 'person' do

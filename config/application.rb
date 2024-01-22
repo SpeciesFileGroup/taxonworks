@@ -9,8 +9,7 @@ Bundler.require *Rails.groups
 
 module TaxonWorks
   class Application < Rails::Application
-
-    # This breaks housekeeping when on but might be needed
+    # This breaks housekeeping everywhere 
     # config.load_defaults 6.1
 
     # Via https://github.com/matthuhiggins/foreigner/pull/95
@@ -25,6 +24,8 @@ module TaxonWorks
     # Pre-load all libraries in /lib
     # config.autoload_paths += %W(#{config.root}/lib) # #{config.root}/extras
 
+    # config.autoload_paths << "#{Rails.root}/app/lib"
+
     # TODO: clean module/class names so that this works:
     # config.autoload_paths += Dir[ Rails.root.join('lib', '**/') ]
 
@@ -32,7 +33,7 @@ module TaxonWorks
     config.action_dispatch.return_only_media_type_on_content_type = false
 
     # Zietwerk currently requires both, review
-    config.autoload_paths << "#{Rails.root.join("lib")}"
+    # config.autoload_paths << "#{Rails.root.join("lib")}"
 
     #Include separate assets
     config.assets.precompile += %w( separated_application.js )
@@ -40,7 +41,7 @@ module TaxonWorks
     # Breaks rake/loading because of existing Rails.application.eager_load! statements
 
     # zeitwerk not needed?
-    config.eager_load_paths += config.autoload_paths
+    # config.eager_load_paths += config.autoload_paths
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
@@ -66,8 +67,8 @@ module TaxonWorks
 
     config.autoloader = :zeitwerk
 
-    ["generators", "assets", "tasks"].each do |subdirectory|
-      Rails.autoloaders.main.ignore("#{Rails.root}/lib/#{subdirectory}")
-    end
+    #["generators", "assets", "tasks"].each do |subdirectory|
+    #  Rails.autoloaders.main.ignore("#{Rails.root}/lib/#{subdirectory}")
+    #end
   end
 end
