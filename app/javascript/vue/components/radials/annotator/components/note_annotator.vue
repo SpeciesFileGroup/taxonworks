@@ -12,7 +12,7 @@
         color="create"
         medium
         :disabled="!validateFields"
-        @click="updateNote()"
+        @click="saveNote()"
       >
         Update
       </v-btn>
@@ -29,7 +29,7 @@
         medium
         color="create"
         :disabled="!validateFields"
-        @click="createNew()"
+        @click="saveNote()"
       >
         Create
       </v-btn>
@@ -38,59 +38,69 @@
       label="text"
       :list="list"
       edit
-      @edit="note = $event"
+      @edit="(item) => (note = item)"
       @delete="removeItem"
     />
   </div>
 </template>
-<script>
-import CRUD from '../request/crud.js'
-import annotatorExtend from '../components/annotatorExtend.js'
+
+<script setup>
+import { Note } from '@/routes/endpoints'
+import { ref, computed } from 'vue'
+import { addToArray, removeFromArray } from '@/helpers'
 import DisplayList from '@/components/displayList.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
-export default {
-  mixins: [CRUD, annotatorExtend],
-  components: {
-    DisplayList,
-    VBtn
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
-  computed: {
-    validateFields() {
-      return this.note.text
-    }
-  },
-  data: function () {
-    return {
-      list: [],
-      note: this.newNote()
-    }
-  },
-  methods: {
-    newNote() {
-      return {
-        text: null,
-        annotated_global_entity: decodeURIComponent(this.globalId)
-      }
-    },
-    createNew() {
-      this.create('/notes', { note: this.note }).then((response) => {
-        this.list.push(response.body)
-        this.note = this.newNote()
-      })
-    },
-    updateNote() {
-      this.update(`/notes/${this.note.id}`, { note: this.note }).then(
-        (response) => {
-          const index = this.list.findIndex(
-            (element) => element.id === this.note.id
-          )
 
-          this.list[index] = response.body
-          this.note = this.newNote()
-        }
-      )
-    }
+  objectType: {
+    type: String,
+    required: true
+  }
+})
+
+const emit = defineEmits(['update-count'])
+
+const validateFields = computed(() => note.value.text)
+
+const list = ref([])
+const note = ref(newNote())
+
+function newNote() {
+  return {
+    text: null,
+    note_object_id: props.objectId,
+    note_object_type: props.objectType
   }
 }
+
+function saveNote() {
+  const request = note.value.id
+    ? Note.update(note.value.id, { note: note.value })
+    : Note.create({ note: note.value })
+
+  request.then(({ body }) => {
+    addToArray(list.value, body)
+    emit('update-count', list.value.length)
+  })
+}
+
+function removeItem(item) {
+  Note.destroy(item.id).then((_) => {
+    removeFromArray(list.value, item)
+    emit('update-count', list.value.length)
+  })
+}
+
+Note.where({
+  note_object_id: props.objectId,
+  note_object_type: props.objectType,
+  per: 500
+}).then(({ body }) => {
+  list.value = body
+})
 </script>
