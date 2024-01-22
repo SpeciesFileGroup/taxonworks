@@ -160,6 +160,7 @@ class TaxonName < ApplicationRecord
   include Shared::Labels
   include SoftValidation
   include Shared::IsData
+  include Shared::QueryBatchUpdate
   include TaxonName::OtuSyncronization
 
   include Shared::MatrixHooks::Member

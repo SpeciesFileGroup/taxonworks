@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- TaxonName batch update
 - Contributing link [#3752]
 - Uncaught promise errors [#3767]
 - Custom attributes triggers `isUpdated` ce state [#3764]
@@ -26,6 +27,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Unable to add a CO loan item to a loan that already has an OTU loan item with the same id [#3785]
 - CO Loan gifts have tag "On Loan until false" [#3731]
 - Figure panel in New content task
+- DwC Occurrence Importer using out of project scope http://rs.tdwg.org/dwc/terms/FossilSpecimen biocuration class.
+- Hub: Status filter doesn't work correctly [#3791]
 
 [#2718]: https://github.com/SpeciesFileGroup/taxonworks/issues/2718
 [#3731]: https://github.com/SpeciesFileGroup/taxonworks/issues/3731
@@ -35,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3767]: https://github.com/SpeciesFileGroup/taxonworks/issues/3767
 [#3784]: https://github.com/SpeciesFileGroup/taxonworks/issues/3784
 [#3785]: https://github.com/SpeciesFileGroup/taxonworks/issues/3785
+[#3791]: https://github.com/SpeciesFileGroup/taxonworks/issues/3791
 
 ## [0.37.1] - 2024-01-04
 
