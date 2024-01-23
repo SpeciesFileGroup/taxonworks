@@ -1,6 +1,10 @@
 <h1> Task - Debug Geographic Item </h1>
 
-<%= radial_navigation_tag(@geographic_item) %>
+<div class="flexbox separate-bottom">
+  <div class="panel content">
+    <%= radial_navigation_tag(@geographic_item) %>
+  </div>
+</div>
 
 <div class="flexbox separate-bottom">
   <div class="panel content">
@@ -13,6 +17,8 @@
       'Orientation (polygons)' => orientations.collect{|o| o ? 'CCW' : 'CW'}.join(', '), 
       'ST_IsValid' => (@geographic_item.st_isvalid ? 'Yes' : 'No'),
       'ST_IsValidReason' => @geographic_item.st_isvalidreason,
+      'cached_total_area (m)' => @geographic_item.cached_total_area,
+      'CachedMapItem#dynamic_buffer' => CachedMapItem.dynamic_buffer(@geographic_item.id)
     }) %>
   </div>
 
@@ -51,13 +57,10 @@
 <div class="flexbox separate-bottom">
   <div class="panel content">
     <h3> GeographicArea </h3>
-    <p> Names from geographic areas: <%= geographic_area_link_list(@geographic_item.geographic_areas) -%></p>
+    <p> Names from geographic areas: <%= geographic_area_link_list(@geographic_item.geographic_areas) -%> </p>
     <p> Parents through geographic areas: <%= geographic_area_link_list(@geographic_item.parent_geographic_areas) -%></p>
 
     <h3> Parents </h3>
-    <p> Through geographic areas: <%= geographic_item_parent_nav_links(@geographic_item) -%></p>
+    <p> Through geographic areas: <%= geographic_item_parent_nav_links(@geographic_item) -%> </p>
   </div>
 </div>
-
-
-
