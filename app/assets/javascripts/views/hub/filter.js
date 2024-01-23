@@ -36,9 +36,6 @@ Object.assign(TW.views.hub.filter, {
       (userWindowWidth - taskSection.offsetLeft) / cardWidth
     )
 
-    console.log(maxCardsInColumn)
-    console.log(maxCardsInRow)
-
     if (userWindowWidth < minWindowWidth) {
       if (isFavouritePage) {
         this.filterHubTask.changeTaskSize(1)

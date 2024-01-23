@@ -58,8 +58,6 @@ FilterHub.prototype.handleEvents = function (that) {
     const chain = this.value
     const cards = [that.arrayData, that.arrayTasks]
 
-    console.log(chain)
-
     cards.forEach(function (element) {
       element.forEach(function (element) {
         element.filterKeys(chain)
