@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Figure panel in New content task
 - DwC Occurrence Importer using out of project scope http://rs.tdwg.org/dwc/terms/FossilSpecimen biocuration class.
 - Hub: Status filter doesn't work correctly [#3791]
+- Hub: Left and right arrow keys on task hub don't work as expected. [#3792]
 
 [#2718]: https://github.com/SpeciesFileGroup/taxonworks/issues/2718
 [#3731]: https://github.com/SpeciesFileGroup/taxonworks/issues/3731
@@ -39,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3784]: https://github.com/SpeciesFileGroup/taxonworks/issues/3784
 [#3785]: https://github.com/SpeciesFileGroup/taxonworks/issues/3785
 [#3791]: https://github.com/SpeciesFileGroup/taxonworks/issues/3791
+[#3792]: https://github.com/SpeciesFileGroup/taxonworks/issues/3792
 
 ## [0.37.1] - 2024-01-04
 

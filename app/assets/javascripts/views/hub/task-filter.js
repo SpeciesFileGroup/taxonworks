@@ -52,18 +52,19 @@ CarrouselTask.prototype.handleEvents = function (that) {
 }
 
 CarrouselTask.prototype.changeSize = function (maxColumns, maxRow = undefined) {
-  var tmp = maxRow ? maxRow : Math.ceil(this.childrenCount / maxColumns)
-  this.changeTasks = maxRow
+  const tmp = maxRow || Math.ceil(this.childrenCount / maxColumns)
+  const cards = [
+    ...document.querySelectorAll(this.sectionTag + '.task-section')
+  ]
+  this.changeTasks = maxRow * maxColumns
   this.maxRow = tmp
   this.maxCards = tmp * maxColumns
   this.maxColumns = maxColumns
 
-  $(this.sectionTag)
-    .children('.task-section')
-    .css('width', this.maxColumns * this.cardWidth + 'px')
-  $(this.sectionTag)
-    .children('.task-section')
-    .css('height', this.maxRow * this.cardHeight + 'px')
+  cards.forEach((card) => {
+    card.style.width = this.maxColumns * this.cardWidth + 'px'
+    card.style.height = this.maxRow * this.cardHeight + 'px'
+  })
 
   this.resetChildrenCount()
   this.filterChildren()
