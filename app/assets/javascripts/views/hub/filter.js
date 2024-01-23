@@ -29,24 +29,29 @@ Object.assign(TW.views.hub.filter, {
 
     if (!taskSection) return
 
-    const tmpHeight = (userWindowHeight - taskSection.offsetTop) / cardHeight
+    const maxCardsInColumn = Math.floor(
+      (userWindowHeight - taskSection.offsetTop) / cardHeight
+    )
+    const maxCardsInRow = Math.floor(
+      (userWindowWidth - taskSection.offsetLeft) / cardWidth
+    )
 
     if (userWindowWidth < minWindowWidth) {
       if (isFavouritePage) {
         this.filterHubTask.changeTaskSize(1)
       } else {
-        this.filterHubTask.changeTaskSize(1, Math.floor(tmpHeight))
+        this.filterHubTask.changeTaskSize(1, maxCardsInRow)
       }
     } else {
       const tmp = (userWindowWidth - minWindowWidth) / cardWidth
 
       if (tmp > 0) {
         if (isFavouritePage) {
-          this.filterHubTask.changeTaskSize(Math.ceil(tmp))
+          this.filterHubTask.changeTaskSize(Math.ceil(maxCardsInColumn))
         } else
           this.filterHubTask.changeTaskSize(
-            Math.ceil(tmp),
-            Math.floor(tmpHeight)
+            maxCardsInRow,
+            Math.ceil(maxCardsInColumn)
           )
       }
     }

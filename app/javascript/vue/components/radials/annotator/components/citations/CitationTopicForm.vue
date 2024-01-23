@@ -1,7 +1,7 @@
 <template>
   <div>
     <h4>Topics</h4>
-    <smart-selector
+    <SmartSelector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{ 'type[]': 'Topic' }"
       get-url="/controlled_vocabulary_terms/"
@@ -24,7 +24,7 @@
           />
         </div>
       </template>
-    </smart-selector>
+    </SmartSelector>
     <div
       v-if="topicsSelected.length"
       class="margin-medium-top margin-medium-bottom"
@@ -44,15 +44,10 @@
 
 <script setup>
 import { onBeforeMount, ref } from 'vue'
-import SmartSelector from '@/components/ui/SmartSelector'
 import { ControlledVocabularyTerm } from '@/routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector'
 
 const props = defineProps({
-  globalId: {
-    type: String,
-    required: true
-  },
-
   citation: {
     type: Object,
     required: true

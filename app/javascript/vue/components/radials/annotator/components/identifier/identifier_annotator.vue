@@ -33,80 +33,80 @@
     />
   </div>
 </template>
-<script>
-import CRUD from '../../request/crud.js'
-import AnnotatorExtend from '../../components/annotatorExtend.js'
+<script setup>
 import TableList from '@/components/table_list.vue'
 import IdentifierList from './identifierList.vue'
 import IdentifierType from './IdentifierType.vue'
 import IdentifierLocal from './IdentifierLocal.vue'
 import IdentifierForm from './IdentifierForm.vue'
 import { Identifier } from '@/routes/endpoints'
+import { computed, ref, watch } from 'vue'
+import { removeFromArray } from '@/helpers'
 
-export default {
-  mixins: [CRUD, AnnotatorExtend],
-
-  components: {
-    TableList,
-    IdentifierList,
-    IdentifierType,
-    IdentifierForm,
-    IdentifierLocal
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  computed: {
-    isLocal() {
-      return this.listSelected === 'local'
-    }
-  },
-
-  data() {
-    return {
-      typeList: [],
-      typeIdentifier: undefined,
-      listSelected: undefined
-    }
-  },
-
-  created() {
-    Identifier.types().then(({ body }) => {
-      const list = body
-      const keys = Object.keys(body)
-
-      keys.forEach((key) => {
-        const itemList = list[key]
-        itemList.common = Object.fromEntries(
-          itemList.common.map((item) => [
-            item,
-            Object.entries(itemList.all).find(([key]) => key === item)[1]
-          ])
-        )
-      })
-
-      this.typeList = body
-    })
-  },
-
-  watch: {
-    listSelected() {
-      this.typeIdentifier = undefined
-    }
-  },
-
-  methods: {
-    saveIdentifier(params) {
-      const identifier = {
-        ...params,
-        type: this.typeIdentifier,
-        identifier_object_id: this.metadata.object_id,
-        identifier_object_type: this.metadata.object_type
-      }
-
-      Identifier.create({ identifier }).then((response) => {
-        this.list.push(response.body)
-        this.listSelected = undefined
-      })
-    }
+  objectType: {
+    type: String,
+    required: true
   }
+})
+
+const isLocal = computed(() => listSelected.value === 'local')
+const typeList = ref([])
+const listSelected = ref()
+const typeIdentifier = ref()
+const list = ref([])
+
+Identifier.types().then(({ body }) => {
+  const list = body
+  const keys = Object.keys(body)
+
+  keys.forEach((key) => {
+    const itemList = list[key]
+    itemList.common = Object.fromEntries(
+      itemList.common.map((item) => [
+        item,
+        Object.entries(itemList.all).find(([key]) => key === item)[1]
+      ])
+    )
+  })
+
+  typeList.value = body
+})
+
+watch(listSelected, () => {
+  typeIdentifier.value = undefined
+})
+
+function saveIdentifier(params) {
+  const identifier = {
+    ...params,
+    type: typeIdentifier.value,
+    identifier_object_id: props.objectId,
+    identifier_object_type: props.objectType
+  }
+
+  Identifier.create({ identifier }).then((response) => {
+    list.value.push(response.body)
+    listSelected.value = undefined
+  })
 }
+
+function removeItem(item) {
+  Identifier.destroy(item.id).then((_) => {
+    removeFromArray(list.value, item)
+  })
+}
+
+Identifier.where({
+  identifier_object_id: props.objectId,
+  identifier_object_type: props.objectType,
+  per: 500
+}).then(({ body }) => {
+  list.value = body
+})
 </script>

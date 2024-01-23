@@ -40,7 +40,8 @@
 <script>
 import ActionNames from '../../store/actions/actionNames'
 import { GetterNames } from '../../store/getters/getters'
-import { CollectionObject, Depiction } from '@/routes/endpoints'
+import { Depiction } from '@/routes/endpoints'
+import { COLLECTION_OBJECT } from '@/constants'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
 import Dropzone from '@/components/dropzone.vue'
 
@@ -86,11 +87,12 @@ export default {
       if (newVal.id) {
         if (newVal.id !== oldVal.id) {
           this.$refs.depiction.setOption('autoProcessQueue', true)
-          CollectionObject.depictions(newVal.collection_object.id).then(
-            (response) => {
-              this.figuresList = response.body
-            }
-          )
+          Depiction.where({
+            depiction_object_id: newVal.collection_object.id,
+            depiction_object_type: COLLECTION_OBJECT
+          }).then((response) => {
+            this.figuresList = response.body
+          })
         }
       } else {
         this.figuresList = []
