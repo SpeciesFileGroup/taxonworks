@@ -21,14 +21,14 @@
       </template>
     </FormCitation>
     <div v-if="!citation.id">
-      <table-list
+      <TableList
         :list="list"
         @edit="citation = $event"
         @delete="removeItem"
       />
     </div>
     <div v-else>
-      <TopicForm
+      <CitationTopicForm
         v-if="!DISABLED_FOR.includes(objectType)"
         :object-type="objectType"
         :global-id="globalId"
@@ -50,10 +50,10 @@
           >
             <td v-html="item.topic.object_tag" />
             <td>
-              <topic-pages
+              <TopicPages
                 v-model="citation.citation_topics[index]"
                 :citation-id="citation.id"
-                @update="updateCitation"
+                @update="saveCitation"
               />
             </td>
             <td>
@@ -78,22 +78,23 @@
       v-if="isModalVisible"
       :citation="citation"
       :original-citation="originalCitation"
+      @save="(item) => addToArray(list, item)"
       @create="setCitation"
-      @close="resetCitations"
+      @close="isModalVisible = false"
     />
   </div>
 </template>
 <script setup>
 import TableList from './table.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
-import TopicForm from './topic.vue'
-import TopicPages from './pagesUpdate'
+import CitationTopicForm from './CitationTopicForm.vue'
+import TopicPages from './TopicPages.vue'
 import HandleCitations from './handleOriginalModal'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import makeCitation from '@/factory/Citation'
 import { Citation } from '@/routes/endpoints'
-import { addToArray } from '@/helpers/arrays'
+import { addToArray, removeFromArray } from '@/helpers/arrays'
 import { computed, ref } from 'vue'
 
 const EXTEND_PARAMS = ['source', 'citation_topics']
@@ -111,8 +112,6 @@ const props = defineProps({
   }
 })
 
-const validateFields = computed(() => citation.value.source_id)
-
 const list = ref([])
 const citation = ref(newCitation())
 const isModalVisible = ref(false)
@@ -120,12 +119,7 @@ const isModalVisible = ref(false)
 const originalCitation = computed(() => list.value.find((c) => c.is_original))
 
 function setCitation(citation) {
-  resetCitations()
   citation.value = citation
-}
-
-function resetCitations() {
-  isModalVisible.value = false
 }
 
 function newCitation() {
@@ -134,13 +128,6 @@ function newCitation() {
     citation_object_id: props.objectId,
     citation_object_type: props.objectType,
     citation_topics_attributes: []
-  }
-}
-
-function newTopic() {
-  return {
-    topic_id: undefined,
-    pages: undefined
   }
 }
 
@@ -157,20 +144,22 @@ function deleteTopic(topic) {
     },
     extend: EXTEND_PARAMS
   }
-  Citation.update(citation.value.id, payload).then((_) => {
-    citation.value.citation_topics.splice(
-      citation.value.citation_topics.findIndex(
+
+  Citation.update(citation.value.id, payload)
+    .then((_) => {
+      const index = citation.value.citation_topics.findIndex(
         (element) => element.id === topic.id
-      ),
-      1
-    )
-  })
+      )
+
+      citation.value.citation_topics.splice(index, 1)
+    })
+    .catch(() => {})
 }
 
-function saveCitation(citation) {
+function saveCitation(item) {
   const payload = {
     citation: {
-      ...citation,
+      ...item,
       citation_object_id: props.objectId,
       citation_object_type: props.objectType
     },
@@ -178,23 +167,31 @@ function saveCitation(citation) {
   }
 
   if (
-    citation.is_original &&
+    item.is_original &&
     originalCitation.value &&
-    originalCitation.value.id !== citation.id
+    originalCitation.value.id !== item.id
   ) {
     isModalVisible.value = true
 
     return
   }
 
-  const request = citation.id
-    ? Citation.update(citation.id, payload)
+  const request = item.id
+    ? Citation.update(item.id, payload)
     : Citation.create(payload)
 
-  request.then(({ body }) => {
-    addToArray(list.value, body)
-    citation.value = body
-    TW.workbench.alert.create('Citation was successfully saved.', 'notice')
+  request
+    .then(({ body }) => {
+      addToArray(list.value, body)
+      citation.value = body
+      TW.workbench.alert.create('Citation was successfully saved.', 'notice')
+    })
+    .catch(() => {})
+}
+
+function removeItem(item) {
+  Citation.destroy(item.id).then((_) => {
+    removeFromArray(list.value, item)
   })
 }
 
