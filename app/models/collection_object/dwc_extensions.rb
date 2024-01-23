@@ -163,6 +163,7 @@ module CollectionObject::DwcExtensions
     end
   end
 
+
   def is_fossil?
     biocuration_classes.where(uri: DWC_FOSSIL_URI).any?
   end
@@ -491,8 +492,14 @@ module CollectionObject::DwcExtensions
     current_taxon_determination&.determiners&.map(&:orcid)&.join(CollectionObject::DWC_DELIMITER).presence
   end
 
+  # we assert custody, NOT ownership
   def dwc_institution_code
-    repository.try(:acronym)
+    repository_acronym
+  end
+
+  # we assert custody, NOT ownership
+  def dwc_institution_id
+    repository_url
   end
 
   def dwc_collection_code
@@ -600,16 +607,6 @@ module CollectionObject::DwcExtensions
 
   def dwc_preparations
     preparation_type_name
-  end
-
-  # we assert custody, NOT ownership
-  def dwc_institution_code
-    repository_acronym
-  end
-
-  # we assert custody, NOT ownership
-  def dwc_institution_id
-    repository_url
   end
 
   def dwc_georeference_protocol
