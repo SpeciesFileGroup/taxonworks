@@ -1,5 +1,6 @@
 export function makeFieldOccurrence() {
   return {
+    id: undefined,
     total: 1,
     is_absent: undefined,
     ranged_lot_category_id: undefined,

@@ -45,6 +45,7 @@ export default defineStore('identifiers', {
       const payload = {
         identifier: {
           id: this.identifier.id,
+          type: IDENTIFIER_LOCAL_CATALOG_NUMBER,
           namespace_id: this.namespace.id,
           identifier: this.identifier.identifier,
           identifier_object_id: objectId,
@@ -53,7 +54,7 @@ export default defineStore('identifiers', {
       }
 
       const request = this.identifier.id
-        ? Identifier.update(this.identifier, payload)
+        ? Identifier.update(this.identifier.id, payload)
         : Identifier.create(payload)
 
       request

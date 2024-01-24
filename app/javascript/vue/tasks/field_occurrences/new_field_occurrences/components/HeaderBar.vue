@@ -66,7 +66,8 @@ import useSettingStore from '../store/settings.js'
 import useBiocurationStore from '../store/biocurations.js'
 import useIdentifierStore from '../store/identifier.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { computed, onBeforeMount } from 'vue'
+import { setParam } from '@/helpers'
+import { computed, onBeforeMount, watch } from 'vue'
 import { FIELD_OCCURRENCE } from '@/constants'
 
 const foStore = useFieldOccurrenceStore()
@@ -76,6 +77,7 @@ const determinationStore = useDeterminationStore()
 const ceStore = useCEStore()
 const biocurationStore = useBiocurationStore()
 const identifierStore = useIdentifierStore()
+const fieldOccurrenceId = computed(() => foStore.fieldOccurrence.id)
 const isUnsaved = computed(
   () =>
     citationStore.hasUnsaved ||
@@ -123,6 +125,9 @@ async function save() {
 
 function reset() {
   const { locked } = settings
+
+  foStore.$reset()
+
   if (!locked.collectingEvent) {
     ceStore.reset()
   }
@@ -135,6 +140,16 @@ function reset() {
 
   citationStore.$reset()
 }
+
+watch(fieldOccurrenceId, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    setParam(
+      '/tasks/field_occurrences/new_field_occurrences',
+      'field_occurrence_id',
+      newVal
+    )
+  }
+})
 
 onBeforeMount(() => {
   const urlParams = new URLSearchParams(window.location.search)

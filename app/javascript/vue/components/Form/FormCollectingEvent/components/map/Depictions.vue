@@ -54,16 +54,16 @@
 </template>
 
 <script setup>
-import { CollectingEvent, Depiction } from '@/routes/endpoints'
-import { GEOREFERENCE_EXIF } from '@/constants/index.js'
 import { ref, computed, watch } from 'vue'
+import { Depiction } from '@/routes/endpoints'
+import { GEOREFERENCE_EXIF, COLLECTING_EVENT } from '@/constants/index.js'
 import Dropzone from '@/components/dropzone.vue'
 import ParseDMS from '@/helpers/parseDMS.js'
 import addGeoreference from '../../helpers/addGeoreference.js'
 import createGeoJSONFeature from '../../helpers/createGeoJSONFeature.js'
 import DepictionImage from './depictionImage'
 import EXIF from 'exif-js'
-import useStore from '../../store/collectingEvent'
+import useStore from '../../store/georeferences.js'
 
 const store = useStore()
 const collectingEvent = defineModel()
@@ -121,7 +121,10 @@ watch(collectingEvent, (newVal, oldVal) => {
     depictionRef.value.setOption('autoProcessQueue', true)
     depictionRef.value.processQueue()
     coordinatesEXIF.value = []
-    CollectingEvent.depictions(newVal.id)
+    Depiction.where({
+      depiction_object_id: newVal.id,
+      depiction_object_type: COLLECTING_EVENT
+    })
       .then((response) => {
         figuresList.value = response.body
       })

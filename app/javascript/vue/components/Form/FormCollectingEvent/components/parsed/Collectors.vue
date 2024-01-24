@@ -21,13 +21,15 @@
           ref="rolepickerRef"
           :autofocus="false"
           role-type="Collector"
+          @update:model-value="() => (collectingEvent.isUnsaved = true)"
         />
       </template>
       <role-picker
-        :create-form="false"
         v-model="collectingEvent.roles_attributes"
-        :autofocus="false"
         role-type="Collector"
+        :create-form="false"
+        :autofocus="false"
+        @update:model-value="() => (collectingEvent.isUnsaved = true)"
       />
     </smart-selector>
   </fieldset>
