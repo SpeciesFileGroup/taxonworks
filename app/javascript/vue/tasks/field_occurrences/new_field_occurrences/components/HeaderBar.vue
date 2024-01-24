@@ -31,18 +31,22 @@
           />
           <VBtn
             color="create"
+            medium
             :disabled="!validateSave"
             @click="save"
           >
             Save
           </VBtn>
           <VBtn
+            medium
             color="create"
             :disabled="!validateSave"
+            @click="saveAndNew"
           >
             Save and new
           </VBtn>
           <VBtn
+            medium
             color="primary"
             @click="reset"
           >
@@ -96,31 +100,32 @@ const validateSave = computed(() => {
 })
 
 async function save() {
-  const ce = ceStore.isUnsaved
-    ? (await ceStore.save()).body
-    : ceStore.collectingEvent
+  try {
+    const ce = ceStore.isUnsaved
+      ? (await ceStore.save()).body
+      : ceStore.collectingEvent
 
-  foStore.fieldOccurrence.collecting_event_id = ce.id
+    foStore.fieldOccurrence.collecting_event_id = ce.id
 
-  foStore
-    .save()
-    .then(({ body }) => {
-      const args = {
-        objectId: body.id,
-        objectType: FIELD_OCCURRENCE
-      }
-
-      citationStore.save(args)
-      determinationStore.load(args)
-      biocurationStore.save(args)
+    const { body } = await foStore.save()
+    const args = {
+      objectId: body.id,
+      objectType: FIELD_OCCURRENCE
+    }
+    const requests = [
+      citationStore.save(args),
+      determinationStore.load(args),
+      biocurationStore.save(args),
       identifierStore.save(args)
-    })
-    .then(() => {
+    ]
+
+    return Promise.all(requests).then((_) => {
       TW.workbench.alert.create(
         'Field occurrence was successfully saved.',
         'notice'
       )
     })
+  } catch (e) {}
 }
 
 function reset() {
@@ -138,8 +143,14 @@ function reset() {
     biocurationStore.list = []
   }
 
+  identifierStore.reset({ keepNamespace: locked.namespace })
   determinationStore.reset({ keepRecords: locked.taxonDeterminations })
   citationStore.reset({ keepRecords: locked.citations })
+}
+
+async function saveAndNew() {
+  await save()
+  reset()
 }
 
 watch(fieldOccurrenceId, (newVal, oldVal) => {
@@ -173,6 +184,7 @@ onBeforeMount(() => {
     determinationStore.load(args)
     biocurationStore.load(args)
     citationStore.load(args)
+    identifierStore.load(args)
   }
 })
 </script>

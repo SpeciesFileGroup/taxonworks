@@ -1,11 +1,11 @@
 import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from '@/constants/index.js'
 import { defineStore } from 'pinia'
-import { Identifier } from '@/routes/endpoints'
+import { Identifier, Namespace } from '@/routes/endpoints'
 import makeIdentifier from '@/factory/Identifier.js'
+import incrementIdentifier from '@/tasks/digitize/helpers/incrementIdentifier.js'
 
 export default defineStore('identifiers', {
   state: () => ({
-    identifiers: [],
     identifier: makeIdentifier(),
     namespace: null,
     increment: false
@@ -22,21 +22,34 @@ export default defineStore('identifiers', {
   },
 
   actions: {
-    load({ id, type }) {
-      Identifier.where({
-        identifier_object_id: id,
-        identifier_object_type: type,
+    async load({ objectId, objectType }) {
+      return Identifier.where({
+        identifier_object_id: objectId,
+        identifier_object_type: objectType,
         type: IDENTIFIER_LOCAL_CATALOG_NUMBER
-      }).then(({ body }) => {
+      }).then(async ({ body }) => {
         const [identifier] = body
 
         if (identifier) {
+          this.namespace = (await Namespace.find(identifier.namespace_id)).body
           this.identifier = {
-            ...body,
+            ...identifier,
             isUnsaved: false
           }
         }
       })
+    },
+
+    reset({ keepNamespace }) {
+      this.identifier.id = null
+
+      if (!keepNamespace) {
+        this.namespace = null
+      }
+
+      this.identifier.identifier = this.increment
+        ? incrementIdentifier(this.identifier.identifier)
+        : null
     },
 
     save({ objectId, objectType }) {

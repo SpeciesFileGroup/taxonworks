@@ -123,7 +123,7 @@ export default defineStore('biocurations', {
 
       destroyList.forEach((item) => BiocurationClassification.destroy(item.id))
 
-      Promise.all(requests).then((responses) => {
+      return Promise.all(requests).then((responses) => {
         const created = this.list.filter((item) => item.id && !item._destroy)
 
         this.list = [

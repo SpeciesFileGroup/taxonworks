@@ -17,7 +17,7 @@ export default defineStore('citations', {
 
   actions: {
     load({ objectId, objectType }) {
-      Citation.where({
+      return Citation.where({
         citation_object_id: objectId,
         citation_object_type: objectType
       }).then(({ body }) => {

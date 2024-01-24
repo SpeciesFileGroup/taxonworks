@@ -8,7 +8,8 @@ export default defineStore('settings', {
       biocurations: false,
       citations: false,
       collectingEvent: false,
-      taxonDeterminations: false
+      taxonDeterminations: false,
+      namespace: false
     }
   })
 })

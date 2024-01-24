@@ -15,7 +15,7 @@ export default defineStore('taxonDeterminations', {
 
   actions: {
     load({ objectId, objectType }) {
-      TaxonDetermination.where({
+      return TaxonDetermination.where({
         taxon_determination_object_id: [objectId],
         taxon_determination_object_type: [objectType]
       }).then(({ body }) => {
