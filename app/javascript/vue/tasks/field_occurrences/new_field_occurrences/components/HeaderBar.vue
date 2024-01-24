@@ -2,6 +2,14 @@
   <Navbar>
     <div class="flex-separate full_width">
       <div class="middle margin-small-left">
+        <Autocomplete
+          url="/field_occurrences/autocomplete"
+          param="term"
+          placeholder="Search"
+          label="label_html"
+          clear-after
+          @get-item="({ id }) => loadForms(id)"
+        />
         <span
           v-if="foStore.fieldOccurrence.id"
           class="margin-small-left"
@@ -61,6 +69,7 @@
 <script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 import Navbar from '@/components/layout/NavBar.vue'
 import useFieldOccurrenceStore from '../store/fieldOccurrence.js'
 import useCitationStore from '../store/citations.js'
@@ -70,8 +79,10 @@ import useSettingStore from '../store/settings.js'
 import useBiocurationStore from '../store/biocurations.js'
 import useIdentifierStore from '../store/identifier.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import useHotkey from 'vue3-hotkey'
+import platformKey from '@/helpers/getPlatformKey'
 import { setParam } from '@/helpers'
-import { computed, onBeforeMount, watch } from 'vue'
+import { computed, onBeforeMount, watch, ref } from 'vue'
 import { FIELD_OCCURRENCE } from '@/constants'
 
 const foStore = useFieldOccurrenceStore()
@@ -168,23 +179,73 @@ onBeforeMount(() => {
   const id = urlParams.get('field_occurrence_id')
 
   if (/^\d+$/.test(id)) {
-    const args = {
-      objectId: id,
-      objectType: FIELD_OCCURRENCE
-    }
-
-    foStore.load(id).then(({ body }) => {
-      const ceId = body.collecting_event_id
-
-      if (ceId) {
-        ceStore.load(ceId)
-      }
-    })
-
-    determinationStore.load(args)
-    biocurationStore.load(args)
-    citationStore.load(args)
-    identifierStore.load(args)
+    loadForms(id)
   }
 })
+
+function loadForms(id) {
+  const args = {
+    objectId: id,
+    objectType: FIELD_OCCURRENCE
+  }
+
+  foStore.load(id).then(({ body }) => {
+    const ceId = body.collecting_event_id
+
+    if (ceId) {
+      ceStore.load(ceId)
+    }
+  })
+
+  determinationStore.load(args)
+  biocurationStore.load(args)
+  citationStore.load(args)
+  identifierStore.load(args)
+}
+
+const hotkeys = ref([
+  {
+    keys: [platformKey(), 's'],
+    preventDefault: true,
+    handler() {
+      if (validateSave.value) {
+        save()
+      }
+    }
+  },
+  {
+    keys: [platformKey(), 'n'],
+    preventDefault: true,
+    handler() {
+      if (validateSave.value) {
+        saveAndNew()
+      }
+    }
+  },
+  {
+    keys: [platformKey(), 'r'],
+    preventDefault: true,
+    handler() {
+      reset()
+    }
+  }
+])
+
+const stop = useHotkey(hotkeys.value)
+
+TW.workbench.keyboard.createLegend(
+  `${platformKey()}+s`,
+  'Save',
+  'New field occurrence'
+)
+TW.workbench.keyboard.createLegend(
+  `${platformKey()}+n`,
+  'Save and new',
+  'New field occurrence'
+)
+TW.workbench.keyboard.createLegend(
+  `${platformKey()}+r`,
+  'Reset all',
+  'New field occurrence'
+)
 </script>
