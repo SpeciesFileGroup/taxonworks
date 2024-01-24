@@ -25,7 +25,7 @@
     />
 
     <textarea
-      v-model="value"
+      v-model="text"
       class="separate-bottom"
       placeholder="Value"
     />
@@ -72,91 +72,101 @@
   </div>
 </template>
 
-<script>
-import { ControlledVocabularyTerm } from '@/routes/endpoints'
-import { IMPORT_ATTRIBUTE } from '@/constants'
-import { addToArray } from '@/helpers/arrays.js'
-import CRUD from '../request/crud.js'
-import AnnotatorExtend from '../components/annotatorExtend.js'
+<script setup>
+import { computed, ref } from 'vue'
+import { ControlledVocabularyTerm, DataAttribute } from '@/routes/endpoints'
+import { IMPORT_ATTRIBUTE, PREDICATE } from '@/constants'
+import { addToArray, removeFromArray } from '@/helpers/arrays.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import TableList from './shared/tableList'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
-export default {
-  mixins: [CRUD, AnnotatorExtend],
-
-  components: {
-    TableList,
-    SmartSelector,
-    SmartSelectorItem,
-    VBtn
+const props = defineProps({
+  globalId: {
+    type: String,
+    required: true
   },
 
-  computed: {
-    validateFields() {
-      return this.predicate && this.value.length
-    },
-
-    importList() {
-      return this.list.filter((item) => item.base_class === IMPORT_ATTRIBUTE)
-    },
-
-    internalAttributes() {
-      return this.list.filter((item) => item.base_class !== IMPORT_ATTRIBUTE)
-    }
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  data() {
-    return {
-      all: [],
-      predicate: undefined,
-      value: '',
-      selectedDataAttribute: {}
-    }
-  },
+  objectType: {
+    type: String,
+    required: true
+  }
+})
 
-  created() {
-    ControlledVocabularyTerm.where({ type: ['Predicate'] }).then((response) => {
-      this.all = response.body
-    })
-  },
+const emit = defineEmits(['update-count'])
 
-  methods: {
-    resetForm() {
-      this.predicate = undefined
-      this.value = ''
-      this.selectedDataAttribute = {}
-    },
+const all = ref([])
+const predicate = ref()
+const selectedDataAttribute = ref({})
+const text = ref()
+const list = ref([])
 
-    saveDataAttribute() {
-      const payload = {
-        id: this.selectedDataAttribute.id,
-        type: 'InternalAttribute',
-        value: this.value,
-        controlled_vocabulary_term_id: this.predicate.id,
-        annotated_global_entity: decodeURIComponent(this.globalId)
-      }
+const validateFields = computed(() => predicate.value && text.value.length)
+const importList = computed(() =>
+  list.value.filter((item) => item.base_class === IMPORT_ATTRIBUTE)
+)
+const internalAttributes = computed(() =>
+  list.value.filter((item) => item.base_class !== IMPORT_ATTRIBUTE)
+)
 
-      const request = payload.id
-        ? this.update(`/data_attributes/${payload.id}`, {
-            data_attribute: payload
-          })
-        : this.create('/data_attributes', { data_attribute: payload })
+function resetForm() {
+  predicate.value = undefined
+  text.value = ''
+  selectedDataAttribute.value = {}
+}
 
-      request.then(({ body }) => {
-        addToArray(this.list, body)
-        this.resetForm()
-      })
-    },
-
-    setDataAttribute(dataAttribute) {
-      this.selectedDataAttribute = dataAttribute
-      this.predicate = dataAttribute.controlled_vocabulary_term
-      this.value = dataAttribute.value
+function saveDataAttribute() {
+  const currentId = selectedDataAttribute.value.id
+  const payload = {
+    data_attribute: {
+      id: currentId,
+      type: 'InternalAttribute',
+      value: text.value,
+      controlled_vocabulary_term_id: predicate.value.id,
+      annotated_global_entity: decodeURIComponent(props.globalId)
     }
   }
+
+  const request = currentId
+    ? DataAttribute.update(currentId, payload)
+    : DataAttribute.create(payload)
+
+  request.then(({ body }) => {
+    addToArray(list.value, body)
+    resetForm()
+    emit('update-count', list.value.length)
+  })
 }
+
+function removeItem(item) {
+  DataAttribute.destroy(item).then((_) => {
+    removeFromArray(this.list.value, item)
+    emit('update-count', list.value.length)
+  })
+}
+
+function setDataAttribute(dataAttribute) {
+  selectedDataAttribute.value = dataAttribute
+  predicate.value = dataAttribute.controlled_vocabulary_term
+  text.value = dataAttribute.value
+}
+
+ControlledVocabularyTerm.where({ type: [PREDICATE] }).then((response) => {
+  all.value = response.body
+})
+
+DataAttribute.where({
+  attribute_subject_id: props.objectId,
+  attribute_subject_type: props.objectType
+}).then(({ body }) => {
+  list.value = body
+})
 </script>
 <style lang="scss">
 .radial-annotator {
