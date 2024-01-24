@@ -64,6 +64,7 @@ import useCEStore from '@/components/Form/FormCollectingEvent/store/collectingEv
 import useDeterminationStore from '../store/determinations.js'
 import useSettingStore from '../store/settings.js'
 import useBiocurationStore from '../store/biocurations.js'
+import useIdentifierStore from '../store/identifier.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { computed, onBeforeMount } from 'vue'
 import { FIELD_OCCURRENCE } from '@/constants'
@@ -74,13 +75,15 @@ const citationStore = useCitationStore()
 const determinationStore = useDeterminationStore()
 const ceStore = useCEStore()
 const biocurationStore = useBiocurationStore()
+const identifierStore = useIdentifierStore()
 const isUnsaved = computed(
   () =>
     citationStore.hasUnsaved ||
     determinationStore.hasUnsaved ||
     biocurationStore.hasUnsaved ||
     foStore.fieldOccurrence.isUnsaved ||
-    ceStore.collectingEvent.isUnsaved
+    ceStore.collectingEvent.isUnsaved ||
+    identifierStore.isUnsaved
 )
 
 const validateSave = computed(() => {
@@ -108,6 +111,7 @@ async function save() {
       citationStore.save(args)
       determinationStore.load(args)
       biocurationStore.save(args)
+      identifierStore.save(args)
     })
     .then(() => {
       TW.workbench.alert.create(

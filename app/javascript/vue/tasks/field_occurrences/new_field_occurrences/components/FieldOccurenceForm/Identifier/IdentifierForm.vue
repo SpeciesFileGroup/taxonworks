@@ -15,40 +15,7 @@
               others.</span
             >
           </div>
-          <fieldset>
-            <legend>Namespace</legend>
-            <div class="horizontal-left-content align-start separate-bottom">
-              <SmartSelector
-                class="full_width"
-                model="namespaces"
-                input-id="namespace-autocomplete"
-                :target="FIELD_OCCURRENCE"
-                :klass="FIELD_OCCURRENCE"
-                pin-section="Namespaces"
-                pin-type="Namespace"
-                v-model="store.namespace"
-                @selected="setNamespace"
-              />
-              <a
-                class="margin-small-top margin-small-left"
-                href="/namespaces/new"
-                >New</a
-              >
-            </div>
-            <template v-if="store.identifier.namespace_id">
-              <hr />
-              <div class="middle flex-separate">
-                <p class="separate-right">
-                  <span data-icon="ok" />
-                  <span v-html="store.namespace.name" />
-                </p>
-                <span
-                  class="circle-button button-default btn-undo"
-                  @click="unsetNamespace"
-                />
-              </div>
-            </template>
-          </fieldset>
+          <NamespaceForm v-model="store.namespace" />
         </div>
         <div class="separate-top">
           <label>Identifier</label>
@@ -57,10 +24,11 @@
               id="identifier-field"
               :class="{
                 'validate-identifier':
-                  existingIdentifiers.length && !isCreatedIdentifierCurrent
+                  existingIdentifier && !isCreatedIdentifierCurrent
               }"
               type="text"
               @input="checkIdentifier"
+              @change="() => (store.identifier.isUnsaved = true)"
               v-model="store.identifier.identifier"
             />
             <label>
@@ -78,23 +46,17 @@
             />
           </div>
           <span
-            v-if="
-              !store.identifier.namespace_id &&
-              store.identifier.identifier &&
-              store.identifier.identifier.length
-            "
+            v-if="!store.namespace && store.identifier.identifier?.length"
             style="color: red"
             >Namespace is needed.</span
           >
-          <template
-            v-if="existingIdentifiers.length && !isCreatedIdentifierCurrent"
-          >
+          <template v-if="existingIdentifier && !isCreatedIdentifierCurrent">
             <span style="color: red"
               >Identifier already exists, and it won't be saved:</span
             >
             <a
-              :href="existingIdentifiers[0].identifier_object.object_url"
-              v-html="existingIdentifiers[0].identifier_object.object_tag"
+              :href="existingIdentifier.identifier_object.object_url"
+              v-html="existingIdentifier.identifier_object.object_tag"
             />
           </template>
         </div>
@@ -106,22 +68,19 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { Identifier } from '@/routes/endpoints'
-import {
-  IDENTIFIER_LOCAL_CATALOG_NUMBER,
-  FIELD_OCCURRENCE
-} from '@/constants/index.js'
+import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from '@/constants/index.js'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import SmartSelector from '@/components/ui/SmartSelector.vue'
 import validateComponent from '@/tasks/digitize/components/shared/validate.vue'
 import validateIdentifier from '@/tasks/digitize/validations/namespace.js'
 import useStore from '../../../store/identifier.js'
 import useSettings from '../../../store/settings.js'
+import NamespaceForm from './NamespaceForm.vue'
 
 const DELAY = 1000
 const store = useStore()
 const settings = useSettings()
-const existingIdentifiers = ref([])
-let saveRequestTimeout
+const existingIdentifier = ref()
+let timeOut
 
 const checkValidation = computed(
   () =>
@@ -131,37 +90,39 @@ const checkValidation = computed(
     })
 )
 
-const isCreatedIdentifierCurrent = computed(() =>
-  existingIdentifiers.value.find((item) => item.id === store.identifier.id)
+const isCreatedIdentifierCurrent = computed(
+  () => existingIdentifier.value.id === store.identifier.id
 )
 
-watch(existingIdentifiers, (newVal) => {
-  settings.saveIdentifier = !newVal.lnegth
+watch(existingIdentifier, (newVal) => {
+  settings.saveIdentifier = !newVal
 })
 
 function findExistingIdentifier() {
-  if (saveRequestTimeout) {
-    clearTimeout(saveRequestTimeout)
+  if (timeOut) {
+    clearTimeout(timeOut)
   }
   if (store.identifier.identifier) {
-    saveRequestTimeout = setTimeout(() => {
+    timeOut = setTimeout(() => {
       Identifier.where({
         type: IDENTIFIER_LOCAL_CATALOG_NUMBER,
-        namespace_id: store.identifier.namespace_id,
+        namespace_id: store.namespace.id,
         identifier: store.identifier.identifier
       }).then(({ body }) => {
-        existingIdentifiers.value = body
+        const [identifier] = body
+
+        existingIdentifier.value = identifier
       })
     }, DELAY)
   }
 }
 
 function setNamespace(namespace) {
-  store.identifier.namespace_id = namespace.id
+  store.namespace = namespace
+  store.isUnsaved = true
   findExistingIdentifier()
 }
 function unsetNamespace() {
-  store.identifier.namespace_id = undefined
   store.namespace = undefined
 }
 </script>
