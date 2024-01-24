@@ -1,7 +1,7 @@
 <template>
   <fieldset>
     <legend>Collectors</legend>
-    <smart-selector
+    <SmartSelector
       ref="smartSelector"
       model="people"
       target="Collector"
@@ -15,7 +15,7 @@
       @selected="addRole"
     >
       <template #header>
-        <role-picker
+        <RolePicker
           hidden-list
           v-model="collectingEvent.roles_attributes"
           ref="rolepickerRef"
@@ -24,14 +24,14 @@
           @update:model-value="() => (collectingEvent.isUnsaved = true)"
         />
       </template>
-      <role-picker
+      <RolePicker
         v-model="collectingEvent.roles_attributes"
         role-type="Collector"
         :create-form="false"
         :autofocus="false"
         @update:model-value="() => (collectingEvent.isUnsaved = true)"
       />
-    </smart-selector>
+    </SmartSelector>
   </fieldset>
 </template>
 

@@ -5,9 +5,10 @@ export default defineStore('settings', {
     isLoading: false,
     isSaving: false,
     locked: {
-      taxonDeterminations: false,
+      biocurations: false,
+      citations: false,
       collectingEvent: false,
-      biocurations: false
+      taxonDeterminations: false
     }
   })
 })

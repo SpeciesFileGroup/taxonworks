@@ -71,6 +71,19 @@ export default defineStore('taxonDeterminations', {
       })
 
       return Promise.all(requests)
+    },
+
+    reset({ keepRecords }) {
+      if (keepRecords) {
+        this.determinations.forEach((item) => {
+          Object.assign(item, {
+            id: null,
+            isUnsaved: true
+          })
+        })
+      } else {
+        this.$reset()
+      }
     }
   }
 })

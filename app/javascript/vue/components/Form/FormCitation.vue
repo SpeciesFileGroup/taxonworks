@@ -22,18 +22,25 @@
       />
     </div>
     <div
-      class="horizontal-left-content margin-medium-top"
+      class="horizontal-left-content margin-medium-top gap-small"
       :class="!source && 'margin-medium-bottom'"
     >
       <VBtn
         v-if="submitButton"
-        class="margin-small-right"
         :color="submitButton.color"
         :disabled="!citation.source_id"
         medium
         @click="emit('submit', citation)"
       >
         {{ submitButton.label }}
+      </VBtn>
+      <VBtn
+        v-if="citation.id"
+        color="primary"
+        medium
+        @click="() => (citation = makeCitation())"
+      >
+        New
       </VBtn>
       <FormCitationClone
         v-if="!inlineClone"

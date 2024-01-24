@@ -4,37 +4,54 @@
       <h3>Citations</h3>
     </template>
     <template #body>
-      <FormCitation 
+      <FormCitation
         v-model="store.citation"
         :submit-button="{
           color: 'primary',
-          label: 'Add'
-        }" 
+          label: store.citation.id ? 'Update' : 'Add'
+        }"
         @submit="addCitation"
       />
-      <DisplayList
-        :list="store.citations"
+      <FormCitationList
+        :list="store.citations.filter((item) => !item._destroy)"
+        v-model:lock="settings.locked.citations"
         label="label"
-        @delete-index="(index) => store.citations.splice(index, 1)"
+        @edit="(item) => (store.citation = { ...item })"
+        @delete="removeItem"
       />
     </template>
   </BlockLayout>
 </template>
 
 <script setup>
-import BlockLayout from '@/components/layout/BlockLayout.vue';
-import FormCitation from '@/components/Form/FormCitation.vue';
-import DisplayList from '@/components/displayList.vue'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
+import FormCitation from '@/components/Form/FormCitation.vue'
+import FormCitationList from '@/components/Form/FormCitation/FormCitationList.vue'
 import useCitationStore from '../store/citations.js'
+import useSettingStore from '../store/settings.js'
+import { addToArray, removeFromArray } from '@/helpers'
 
 const store = useCitationStore()
+const settings = useSettingStore()
 
 function addCitation(citation) {
-  store.citations.push({
-    ...citation,
-    isUnsaved: true
-  })
+  addToArray(
+    store.citations,
+    {
+      ...citation,
+      isUnsaved: true
+    },
+    { property: 'uuid' }
+  )
 
   store.newCitation()
+}
+
+function removeItem(citation) {
+  if (citation.id) {
+    citation._destroy = true
+  } else {
+    removeFromArray(store.citations, citation, 'uuid')
+  }
 }
 </script>

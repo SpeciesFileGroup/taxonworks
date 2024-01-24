@@ -20,6 +20,7 @@ const permitParams = {
     },
 
     taxon_determinations_attributes: {
+      id: Number,
       otu_id: Number,
       year_made: Number,
       month_made: Number,

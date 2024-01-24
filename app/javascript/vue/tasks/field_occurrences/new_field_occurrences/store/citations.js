@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { Citation } from '@/routes/endpoints'
-import { addToArray } from '@/helpers'
+import { addToArray, removeFromArray } from '@/helpers'
 import makeCitation from '@/factory/Citation.js'
 
 export default defineStore('citations', {
@@ -11,15 +11,21 @@ export default defineStore('citations', {
 
   getters: {
     hasUnsaved(state) {
-      return state.citations.some((c) => c.isUnsaved)
+      return state.citations.some((c) => c.isUnsaved || c._destroy)
     }
   },
 
   actions: {
-    loadCitations({ id, type }) {
+    load({ objectId, objectType }) {
       Citation.where({
-        citation_object_id: id,
-        citation_object_type: type
+        citation_object_id: objectId,
+        citation_object_type: objectType
+      }).then(({ body }) => {
+        this.citations = body.map((c) => ({
+          ...c,
+          uuid: crypto.randomUUID(),
+          label: c.object_tag
+        }))
       })
     },
 
@@ -28,7 +34,13 @@ export default defineStore('citations', {
     },
 
     save({ objectId, objectType }) {
-      const citations = this.citations.filter((d) => d.isUnsaved)
+      this.citations.forEach((item) => {
+        if (item._destroy) {
+          this.remove(item)
+        }
+      })
+
+      const citations = this.citations.filter((c) => c.isUnsaved)
 
       const requests = citations.map((citation) => {
         const payload = {
@@ -43,15 +55,43 @@ export default defineStore('citations', {
           ? Citation.update(citation.id, payload)
           : Citation.create(payload)
 
-        request.then(({ body }) => {
-          body.uuid = citation.uuid
-          addToArray(this.citations, body, { property: 'uuid' })
-        })
+        request
+          .then(({ body }) => {
+            const data = Object.assign(body, {
+              uuid: citation.uuid,
+              label: body.object_tag
+            })
+
+            addToArray(this.citations, data, { property: 'uuid' })
+          })
+          .catch({})
 
         return request
       })
 
       return Promise.all(requests)
+    },
+
+    remove(item) {
+      if (item.id) {
+        Citation.destroy(item.id).catch({})
+      }
+
+      removeFromArray(this.citations, item, 'uuid')
+    },
+
+    reset({ keepRecords }) {
+      if (keepRecords) {
+        this.citations = this.citations
+          .filter((c) => !c._destroy)
+          .map((item) => ({
+            ...item,
+            id: null,
+            isUnsaved: true
+          }))
+      } else {
+        this.$reset()
+      }
     }
   }
 })

@@ -138,7 +138,8 @@ function reset() {
     biocurationStore.list = []
   }
 
-  citationStore.$reset()
+  determinationStore.reset({ keepRecords: locked.taxonDeterminations })
+  citationStore.reset({ keepRecords: locked.citations })
 }
 
 watch(fieldOccurrenceId, (newVal, oldVal) => {
@@ -171,6 +172,7 @@ onBeforeMount(() => {
 
     determinationStore.load(args)
     biocurationStore.load(args)
+    citationStore.load(args)
   }
 })
 </script>
