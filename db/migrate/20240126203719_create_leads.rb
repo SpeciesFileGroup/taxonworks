@@ -1,23 +1,22 @@
 class CreateLeads < ActiveRecord::Migration[6.1]
   def change
     create_table :leads do |t|
-      t.integer :parent_id
-      t.integer :otu_id
-      t.text :text
+      t.references :parent, foreign_key: { to_table: :leads }
+      t.references :otu, foreign_key: true
+      t.text :text, index: true
       t.string :origin_label
       t.text :description
-      t.integer :redirect_id
+      t.references :redirect, foreign_key: { to_table: :leads }
       t.text :link_out
       t.string :link_out_text
-      t.integer :position
+      t.integer :position, index: true
       t.boolean :is_public
-      t.integer :project_id
-      t.integer :created_by_id
-      t.integer :updated_by_id
+      t.references :project, foreign_key: true, null: false
 
-      t.timestamps
+      t.integer :created_by_id, null: false, index: true
+      t.integer :updated_by_id, null: false, index: true
+
+      t.timestamps null: false
     end
-    add_index :leads, :created_by_id
-    add_index :leads, :updated_by_id
   end
 end
