@@ -414,6 +414,8 @@ resources :languages, only: [:show] do
   end
 end
 
+resources :leads
+
 resources :loans do
   concerns [:data_routes]
   member do
