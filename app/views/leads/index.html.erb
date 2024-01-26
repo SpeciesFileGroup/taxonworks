@@ -1,0 +1,51 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Leads</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parent</th>
+      <th>Otu</th>
+      <th>Text</th>
+      <th>Origin label</th>
+      <th>Description</th>
+      <th>Redirect</th>
+      <th>Link out</th>
+      <th>Link out text</th>
+      <th>Position</th>
+      <th>Is public</th>
+      <th>Project</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @leads.each do |lead| %>
+      <tr>
+        <td><%= lead.parent_id %></td>
+        <td><%= lead.otu_id %></td>
+        <td><%= lead.text %></td>
+        <td><%= lead.origin_label %></td>
+        <td><%= lead.description %></td>
+        <td><%= lead.redirect_id %></td>
+        <td><%= lead.link_out %></td>
+        <td><%= lead.link_out_text %></td>
+        <td><%= lead.position %></td>
+        <td><%= lead.is_public %></td>
+        <td><%= lead.project_id %></td>
+        <td><%= lead.created_by_id %></td>
+        <td><%= lead.updated_by_id %></td>
+        <td><%= link_to 'Show', lead %></td>
+        <td><%= link_to 'Edit', edit_lead_path(lead) %></td>
+        <td><%= link_to 'Destroy', lead, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Lead', new_lead_path %>
