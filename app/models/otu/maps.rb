@@ -7,7 +7,6 @@ module Otu::Maps
     has_many :cached_map_items, dependent: :destroy, inverse_of: :otu
   end
 
-  #
   # TODO: If:
   #   *All* children have OTUs, and all children have maps, combine those maps
   #       Should, in theory, speed-up higher level maps
@@ -47,7 +46,7 @@ module Otu::Maps
   # If the CachedMap is not yet built it is built here.
   def cached_map(cached_map_type = 'CachedMapItem::WebLevel1')
     m = cached_maps.where(cached_map_type:).first
-    m ||= create_cached_map
+    m ||= create_cached_map(cached_map_type)
     m
   end
 
@@ -83,7 +82,6 @@ module Otu::Maps
   end
 
   #  def png
-
   #  if ids = Otu.joins(:cached_map_items).first.cached_map_items.pluck(:geographic_item_id)
 
   #    sql = "SELECT ST_AsPNG(
@@ -106,4 +104,3 @@ module Otu::Maps
   #end
 
 end
-

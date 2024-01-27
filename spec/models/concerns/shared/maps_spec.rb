@@ -6,6 +6,12 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
 
   let(:ad_offset) { FactoryBot.build( :valid_asserted_distribution, geographic_area: ga_offset) }
 
+  specify '.cached_map creates a CachedMap' do
+    ad_offset.save!
+    Delayed::Worker.new.work_off
+    expect(ad_offset.otu.cached_map.persisted?).to be_truthy
+  end
+
   specify '#destroy_cached_map' do
     ad_offset.save!
     Delayed::Worker.new.work_off # triggers cached map item build
@@ -126,12 +132,6 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
 
       expect(CachedMapItem.first.reload.reference_count).to eq(98)
     end
-  end
-
-  specify '.cached_map creates a CachedMap' do
-    ad_offset.save!
-    Delayed::Worker.new.work_off
-    expect(ad_offset.otu.cached_map.persisted?).to be_truthy
   end
 
   specify '.cached_map_items_to_clean' do

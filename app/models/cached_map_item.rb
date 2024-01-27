@@ -139,7 +139,7 @@ class CachedMapItem < ApplicationRecord
       .order(cached_total_area: :ASC) # smallest first
       .first
       &.id
-    return [a]
+      return [a]
     else
       []
     end
