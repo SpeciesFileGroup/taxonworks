@@ -210,6 +210,8 @@ Supporting:
       - CollectionObject
       - CollectingEvent
       - TaxonDetermination
+  Lead:
+    status: :prototype
   Loan:
     status: :prototype
     categories:
