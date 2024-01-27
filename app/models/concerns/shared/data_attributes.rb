@@ -6,7 +6,7 @@ module Shared::DataAttributes
   included do
     DataAttribute.related_foreign_keys.push self.name.foreign_key
 
-    has_many :data_attributes, as: :attribute_subject, validate: true, dependent: :destroy, inverse_of: :attribute_subject
+    has_many :data_attributes, as: :attribute_subject, validate: true, dependent: :destroy, inverse_of: :attribute_subject # should be delete
 
     has_many :import_attributes, -> { where(data_attributes: {type: 'ImportAttribute'})} , as: :attribute_subject, class_name: 'DataAttribute'
     has_many :internal_attributes, -> { where(data_attributes: {type: 'InternalAttribute'})}, as: :attribute_subject, class_name: 'DataAttribute'

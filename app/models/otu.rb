@@ -129,6 +129,8 @@ class Otu < ApplicationRecord
   #    historical and pragmatic (i.e. share the same `taxon_name_id`), or
   #    nomenclatural reasons (are synonyms of the taxon name). Includes self.
   #
+  # TODO: Replace with Queries::Otu::Filter
+  #
   def self.coordinate_otus(otu_id)
     begin
       i = Otu.joins(:taxon_name).find(otu_id)
@@ -146,6 +148,7 @@ class Otu < ApplicationRecord
     end
   end
 
+  # TODO: REplace with Queries::Otu::Filter
   # TODO: This is coordinate_otus with children,
   #       it should probably be renamed coordinate.
   # @return [Otu::ActiveRecordRelation]

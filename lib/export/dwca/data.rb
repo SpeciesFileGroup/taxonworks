@@ -238,8 +238,6 @@ module Export::Dwca
       @taxonworks_extension_data.flush
       @taxonworks_extension_data.rewind
       @taxonworks_extension_data
-
-
     end
 
     def predicate_data
@@ -251,12 +249,12 @@ module Export::Dwca
       # At this point we have specific CO ids, so we don't need project_id
       object_attributes = CollectionObject.left_joins(data_attributes: [:predicate])
         .where(id: collection_object_ids)
-        .where(data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collection_object_predicate_id] })
+        .where(data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collection_object_predicate_id], attribute_subject_type: 'CollectionObject' } ) # Can't assume cvts are used for only one object type
         .pluck(:id, 'controlled_vocabulary_terms.name', 'data_attributes.value')
 
       event_attributes = CollectionObject.left_joins(collecting_event: [data_attributes: [:predicate]])
         .where(id: collection_object_ids)
-        .where(data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collecting_event_predicate_id] })
+        .where(data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collecting_event_predicate_id], attribute_subject_type: 'CollectingEvent'  })
         .pluck(:id, 'controlled_vocabulary_terms.name',  'data_attributes.value')
 
       # Add TW prefix to names

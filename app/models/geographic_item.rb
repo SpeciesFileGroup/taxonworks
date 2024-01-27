@@ -1251,6 +1251,54 @@ class GeographicItem < ApplicationRecord
 
     private
 
+    # Crude debuging helper, write the shapes
+    # to a png
+    def self.debug_draw(geographic_item_ids = [])
+      return false if geographic_item_ids.empty?
+
+      sql = "SELECT ST_AsPNG(
+       ST_AsRaster(
+           ST_Buffer( multi_polygon::geometry, 0, 'join=bevel'),
+               1024,
+               768)
+        ) png
+        from geographic_items where id IN (" + geographic_item_ids.join(',') + ');'
+
+      result = ActiveRecord::Base.connection.execute(sql).first['png']
+      r = ActiveRecord::Base.connection.unescape_bytea(result)
+
+      n = geographic_item_ids.join('_') + '_debug.draw.png'
+
+      # Open the file in binary write mode ("wb")
+      File.open(n, "wb") do |file|
+        # Write the binary data to the file
+        file.write(r)
+      end
+    end
+
+    # def png
+
+    #   if ids = Otu.joins(:cached_map_items).first.cached_map_items.pluck(:geographic_item_id)
+
+    #     sql = "SELECT ST_AsPNG(
+    #    ST_AsRaster(
+    #        ST_Buffer( multi_polygon::geometry, 0, 'join=bevel'),
+    #            1024,
+    #            768)
+    #     ) png
+    #        from geographic_items where id IN (" + ids.join(',') + ');'
+
+    #     # hack, not the best way to unpack result
+    #     result = ActiveRecord::Base.connection.execute(sql).first['png']
+    #     r = ActiveRecord::Base.connection.unescape_bytea(result)
+
+    #     send_data r, filename: 'foo.png', type: 'imnage/png'
+
+    #   else
+    #     render json: {foo: false}
+    #   end
+    # end
+
     def set_cached
       update_column(:cached_total_area, area)
     end

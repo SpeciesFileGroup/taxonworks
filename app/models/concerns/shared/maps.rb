@@ -108,6 +108,8 @@ module Shared::Maps
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
+
     # @param batch (Boolean)
     #   true - skips setting geographic name labels (see followup tasks) AND caching translations
     #           i.e. assumes you have a completely built translation table
@@ -194,6 +196,8 @@ module Shared::Maps
       end
       true
     end
+
+    # rubocop:enable Metrics/MethodLength
 
     def deduct_from_cached_map_items
       cached_map_items_to_clean.each do |cmi|
