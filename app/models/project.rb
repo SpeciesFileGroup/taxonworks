@@ -73,6 +73,7 @@ class Project < ApplicationRecord
      Content
      Georeference
      Identifier
+     Lead
      LoanItem
      Loan
      OtuPageLayoutSection
