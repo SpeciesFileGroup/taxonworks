@@ -1,19 +1,17 @@
-<p id="notice"><%= notice %></p>
 
-<p>
-  <strong>Total:</strong>
-  <%= @field_occurrence.total %>
-</p>
+<%= content_for :add do -%>
+<% end %>
 
-<p>
-  <strong>Collecting event:</strong>
-  <%= @field_occurrence.collecting_event_id %>
-</p>
+<%= content_for :report do -%>
+<% end %>
 
-<p>
-  <strong>Is absent:</strong>
-  <%= @field_occurrence.is_absent %>
-</p>
+<%= content_for :associated do -%>
+<% end %>
 
-<%= link_to 'Edit', edit_field_occurrence_path(@field_occurrence) %> |
-<%= link_to 'Back', field_occurrences_path %>
+<%= content_for :icon_navigation do -%>
+<% end %>
+
+<%= render(partial: 'shared/data/project/show', locals: {object: @field_occurrence}) -%>
+
+
+

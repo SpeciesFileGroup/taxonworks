@@ -842,7 +842,7 @@ stepwise_collectors_task:
   name: 'Stepwise collectors'
   related:
   categories:
-    - collecting event
+    - collecting_event
     - people
   status: prototype
   description: 'Parse verbatim collectors into their semantic components.'
@@ -851,8 +851,10 @@ new_field_occurrences_task:
   name: 'New field occurrence'
   related:
   categories:
+    - collecting_event
+    - georeference
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Link OTUs to collecting events. Used when no physical object was collected and returned to a repository.'
 debug_geographic_item_task:
   hub: false
   name: 'Debug geographic item'
