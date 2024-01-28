@@ -52,4 +52,6 @@ class Lead < ApplicationRecord
   has_many :kids, class_name: 'Lead', foreign_key: :parent_id, inverse_of: :parent, dependent: :destroy
   belongs_to :otu, inverse_of: :leads
   belongs_to :redirect, class_name: 'Lead'
+
+  has_closure_tree order: 'position', numeric_order: true, dont_order_roots: true
 end
