@@ -71,7 +71,7 @@
               width: width
             }"
           >
-            <map-component
+            <VMap
               ref="leaflet"
               v-if="show"
               :height="height"
@@ -137,7 +137,7 @@
 </template>
 
 <script setup>
-import MapComponent from '@/components/georeferences/map'
+import VMap from '@/components/georeferences/map'
 import DisplayList from './list'
 import convertDMS from '@/helpers/parseDMS.js'
 import ManuallyComponent from '@/components/georeferences/manuallyComponent'

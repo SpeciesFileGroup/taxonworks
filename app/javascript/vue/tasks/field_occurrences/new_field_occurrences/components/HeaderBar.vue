@@ -42,6 +42,7 @@
             title="You have unsaved changes."
             data-icon="warning"
           />
+          <VRecent @selected="({ id }) => loadForms(id)" />
           <VBtn
             color="create"
             medium
@@ -88,6 +89,7 @@ import useSettingStore from '../store/settings.js'
 import useBiocurationStore from '../store/biocurations.js'
 import useIdentifierStore from '../store/identifier.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VRecent from './Recent.vue'
 import useHotkey from 'vue3-hotkey'
 import platformKey from '@/helpers/getPlatformKey'
 import VSpinner from '@/components/spinner.vue'
@@ -178,11 +180,11 @@ async function saveAndNew() {
 
 watch(fieldOccurrenceId, (newVal, oldVal) => {
   if (newVal !== oldVal) {
-    setParam(
-      '/tasks/field_occurrences/new_field_occurrences',
-      'field_occurrence_id',
-      newVal
-    )
+    setParam('/tasks/field_occurrences/new_field_occurrences', {
+      field_occurrence_id: newVal,
+      collecting_event_id: undefined,
+      otu_id: undefined
+    })
   }
 })
 
