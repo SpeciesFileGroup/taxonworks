@@ -52,16 +52,24 @@ export default defineStore('georeferences', {
 
         request
           .then(({ body }) =>
-            addToArray(this.georeferences, Object.assign(item, body))
+            addToArray(
+              this.georeferences,
+              {
+                ...body,
+                uuid: item.uuid,
+                isUnsaved: false
+              },
+              {
+                property: 'uuid'
+              }
+            )
           )
           .catch((_) => {})
 
         return request
       })
 
-      return Promise.allSettled(requests).then((_) => {
-        this.georeferences = []
-      })
+      return Promise.allSettled(requests)
     }
   }
 })

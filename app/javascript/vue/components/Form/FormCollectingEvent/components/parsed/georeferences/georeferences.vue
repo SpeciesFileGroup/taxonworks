@@ -218,8 +218,8 @@ const verbatimCoordinates = computed(() => {
   const shape = isVerbatimCreated.value
 
   if (shape) {
-    const [longitude, latitude] = shape.geo_jso
-      ? shape.geo_jso.geometry.coordinates
+    const [longitude, latitude] = shape.geo_json
+      ? shape.geo_json.geometry.coordinates
       : JSON.parse(isVerbatimCreated.value.geographic_item_attributes.shape)
           .geometry.coordinates
 
@@ -237,7 +237,7 @@ const verbatimRadiusError = computed(() => {
 
   if (shape) {
     if (shape.geo_json) {
-      return truncateDecimal(shape.properties.radius, 6)
+      return truncateDecimal(shape.geo_json.properties.radius || 0, 6)
     } else {
       return truncateDecimal(
         JSON.parse(isVerbatimCreated.value.geographic_item_attributes.shape)
@@ -332,6 +332,7 @@ function createVerbatimShape() {
   }
 
   addToQueue({
+    uuid: crypto.randomUUID(),
     geographic_item_attributes: { shape: JSON.stringify(shape) },
     collecting_event_id: collectingEvent.value.id,
     type: GEOREFERENCE_VERBATIM,

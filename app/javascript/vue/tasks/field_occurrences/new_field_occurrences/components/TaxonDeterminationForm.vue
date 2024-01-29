@@ -1,5 +1,5 @@
 <template>
-  <BlockLayout>
+  <BlockLayout :warning="!isFilled">
     <template #header>
       <h3>Taxon determination</h3>
     </template>
@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import TaxonDetermination from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
 import TaxonDeterminationList from '@/components/TaxonDetermination/TaxonDeterminationList.vue'
@@ -60,4 +60,13 @@ function editTaxonDetermination(item) {
     roles_attributes: item?.determiner_roles || item.roles_attributes || []
   })
 }
+
+onMounted(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const id = urlParams.get('otu_id')
+
+  if (/^\d+$/.test(id)) {
+    taxonDeterminationRef.value.setDetermination({ otu_id: id })
+  }
+})
 </script>

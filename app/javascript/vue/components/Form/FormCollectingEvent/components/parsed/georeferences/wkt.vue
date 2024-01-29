@@ -1,12 +1,13 @@
 <template>
   <div>
-    <button
-      class="button normal-input button-default"
+    <VBtn
+      color="primary"
+      medium
       @click="setModalView(true)"
     >
       WKT coordinates
-    </button>
-    <modal-component
+    </VBtn>
+    <VModal
       v-if="isModalVisible"
       @close="setModalView(false)"
     >
@@ -24,20 +25,21 @@
         </div>
       </template>
       <template #footer>
-        <button
-          type="button"
-          class="normal-input button button-submit"
+        <VBtn
+          color="primary"
+          medium
           @click="createShape"
         >
           Add
-        </button>
+        </VBtn>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
 <script setup>
-import ModalComponent from '@/components/ui/Modal'
+import VModal from '@/components/ui/Modal'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { GEOREFERENCE_WKT } from '@/constants/index.js'
 import { ref } from 'vue'
 
