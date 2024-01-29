@@ -5,10 +5,10 @@
     <div class="horizontal-left-content align-start gap-medium">
       <div class="flex-wrap-column gap-medium left-column">
         <FieldOccurrenceForm />
-        <BiocurationForm />
-        <IdentifierForm />
-        <CitationForm />
         <TaxonDeterminationForm />
+        <BiocurationForm />
+        <CitationForm />
+        <IdentifierForm />
       </div>
 
       <CollectingEventForm class="right-column" />

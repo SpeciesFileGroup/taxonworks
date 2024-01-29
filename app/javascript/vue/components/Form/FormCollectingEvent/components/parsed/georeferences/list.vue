@@ -46,27 +46,31 @@
                 v-model:year="item.year_georeferenced"
                 placeholder
               />
-              <v-btn
-                color="update"
+              <VBtn
+                color="primary"
                 medium
                 @click="$emit('dateChanged', item)"
               >
                 Update
-              </v-btn>
+              </VBtn>
             </div>
           </td>
           <td>
             <div class="vue-table-options gap-small">
-              <radial-annotator
+              <RadialAnnotator
                 v-if="item.global_id"
                 :global-id="item.global_id"
               />
-              <span
-                v-if="destroy"
-                class="circle-button btn-delete"
+              <VBtn
+                :color="item.id ? 'destroy' : 'primary'"
+                circle
                 @click="deleteItem(item)"
-                >Remove
-              </span>
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
             </div>
           </td>
         </tr>
@@ -79,6 +83,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import EditInPlace from '@/components/editInPlace'
 import DateComponent from '@/components/ui/Date/DateFields.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { convertToLatLongOrder } from '@/helpers/geojson'
 import { GEOREFERENCE_GEOLOCATE, GEOREFERENCE_WKT } from '@/constants/index.js'
 
@@ -87,7 +92,8 @@ export default {
     RadialAnnotator,
     DateComponent,
     EditInPlace,
-    VBtn
+    VBtn,
+    VIcon
   },
   props: {
     list: {

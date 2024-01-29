@@ -123,12 +123,8 @@
               Create georeference from verbatim
             </button>
           </div>
-          <display-list
-            :list="
-              collectingEvent.id
-                ? store.georeferences
-                : store.queueGeoreferences
-            "
+          <DisplayList
+            :list="store.georeferences"
             @delete="removeGeoreference"
             @update="updateRadius"
             @date-changed="addToQueue"
@@ -152,7 +148,6 @@ import DateComponent from '@/components/ui/Date/DateFields.vue'
 import useStore from '../../../store/georeferences.js'
 import { addToArray } from '@/helpers'
 import { computed, ref, watch } from 'vue'
-import { Georeference } from '@/routes/endpoints'
 import { truncateDecimal } from '@/helpers/math.js'
 import {
   GEOREFERENCE_GEOLOCATE,
@@ -191,7 +186,6 @@ const props = defineProps({
 })
 
 const collectingEvent = defineModel()
-const emit = defineEmits(['onGeoreferences'])
 const store = useStore()
 
 const isModalVisible = ref(false)
@@ -208,23 +202,14 @@ const date = ref({
 })
 
 const isVerbatimCreated = computed(() => {
-  return []
-    .concat(store.georeferences, store.queueGeoreferences)
-    .find(
-      (item) =>
-        item.type === GEOREFERENCE_VERBATIM || item.type === GEOREFERENCE_EXIF
-    )
-})
-
-const geojson = computed(() => {
-  return collectingEvent.value.id
-    ? shapes.value.features
-    : store.queueGeoreferences
+  return store.georeferences.find(
+    (item) =>
+      item.type === GEOREFERENCE_VERBATIM || item.type === GEOREFERENCE_EXIF
+  )
 })
 
 const count = computed(() => {
-  return geojson.value.filter((item) => !item?.properties?.geographic_area)
-    .length
+  return store.georeferences.length
 })
 const verbatimLat = computed(() => collectingEvent.value.verbatim_latitude)
 const verbatimLng = computed(() => collectingEvent.value.verbatim_longitude)
@@ -266,17 +251,18 @@ const verbatimRadiusError = computed(() => {
 })
 
 const mapGeoreferences = computed(() =>
-  [].concat(
-    shapes.value.features,
-    store.queueGeoreferences
-      .filter(
-        (item) =>
-          item.type !== GEOREFERENCE_WKT &&
-          item.type !== GEOREFERENCE_GEOLOCATE &&
-          item?.geographic_item_attributes?.shape
-      )
-      .map((item) => JSON.parse(item?.geographic_item_attributes?.shape))
-  )
+  store.georeferences
+    .filter(
+      (item) =>
+        item.type !== GEOREFERENCE_WKT &&
+        item.type !== GEOREFERENCE_GEOLOCATE &&
+        (item?.geographic_item_attributes?.shape || item?.geo_json)
+    )
+    .map((item) =>
+      item.geo_json
+        ? item.geo_json
+        : JSON.parse(item?.geographic_item_attributes?.shape)
+    )
 )
 
 watch([() => store.georeferences, () => store.geographicArea], populateShapes, {
@@ -284,22 +270,19 @@ watch([() => store.georeferences, () => store.geographicArea], populateShapes, {
 })
 
 function updateRadius(geo) {
-  const index = geo.id
-    ? store.georeferences.findIndex((item) => item.id === geo.id)
-    : store.queueGeoreferences.findIndex((item) => item.tmpId === geo.tmpId)
+  const georeference = store.georeferences.find(
+    (item) => item.uuid === geo.uuid
+  )
 
-  if (geo.id) {
-    store.georeferences[index].error_radius = geo.error_radius
-    store.georeferences[index].error_geographic_item_id = geo.geographic_item_id
-    store.queueGeoreferences.push(store.georeferences[index])
-  } else {
-    store.queueGeoreferences[index].error_radius = geo.error_radius
-  }
+  Object.assign(georeference, {
+    error_geographic_item_id: geo.geographic_item_id,
+    error_radius: geo.error_radius
+  })
 }
 
 function addGeoreference(shape, type = GEOREFERENCE_LEAFLET) {
   addToQueue({
-    tmpId: Math.random().toString(36).substr(2, 5),
+    uuid: crypto.randomUUID(),
     geographic_item_attributes: { shape: JSON.stringify(shape) },
     error_radius: shape.properties?.radius,
     type,
@@ -331,18 +314,8 @@ function populateShapes() {
 }
 
 function removeGeoreference(geo) {
-  const index = geo.id
-    ? store.georeferences.findIndex((item) => item.id === geo.id)
-    : store.queueGeoreferences.findIndex((item) => item.tmpId === geo.tmpId)
-  if (geo.id) {
-    Georeference.destroy(geo.id).then(() => {
-      store.georeferences.splice(index, 1)
-      emit('onGeoreferences', store.georeferences)
-      populateShapes()
-    })
-  } else {
-    store.queueGeoreferences.splice(index, 1)
-  }
+  store.remove(geo)
+  populateShapes()
 }
 
 function createVerbatimShape() {
@@ -367,7 +340,13 @@ function createVerbatimShape() {
 }
 
 function addToQueue(data) {
-  addToArray(store.queueGeoreferences, data, { property: 'tmpId' })
-  store.processGeoreferenceQueue(collectingEvent.value.id)
+  addToArray(
+    store.georeferences,
+    {
+      ...data,
+      isUnsaved: true
+    },
+    { property: 'uuid' }
+  )
 }
 </script>

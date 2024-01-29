@@ -1,7 +1,16 @@
 <template>
-  <BlockLayout>
+  <BlockLayout :warning="!isFilled">
     <template #header>
       <h3>Collecting event</h3>
+    </template>
+    <template #options>
+      <VIcon
+        v-if="!isFilled"
+        color="attention"
+        name="attention"
+        small
+        title="You need to fill out this form in order to save"
+      />
     </template>
     <template #body>
       <fieldset class="separate-bottom">
@@ -108,7 +117,12 @@ import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { ComponentMap } from '@/components/Form/FormCollectingEvent/const/components.js'
 import { COLLECTING_EVENT, FIELD_OCCURRENCE } from '@/constants'
+import { computed } from 'vue'
 
 const ceStore = useCEStore()
 const settings = useSettingStore()
+
+const isFilled = computed(
+  () => ceStore.collectingEvent.id || ceStore.collectingEvent.isUnsaved
+)
 </script>

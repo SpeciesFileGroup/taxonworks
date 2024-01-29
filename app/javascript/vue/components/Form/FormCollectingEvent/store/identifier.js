@@ -56,12 +56,14 @@ export default defineStore('tripCode', {
       this.$reset()
     },
 
-    load({ objectId, objectType }) {
-      Identifier.where({
-        identifier_object_id: objectId,
-        identifier_object_type: objectType,
-        type: IDENTIFIER_LOCAL_TRIP_CODE
-      }).then(({ body }) => {
+    async load({ objectId, objectType }) {
+      try {
+        const { body } = Identifier.where({
+          identifier_object_id: objectId,
+          identifier_object_type: objectType,
+          type: IDENTIFIER_LOCAL_TRIP_CODE
+        })
+
         const [identifier] = body
 
         if (identifier) {
@@ -75,7 +77,9 @@ export default defineStore('tripCode', {
             this.namespace = body
           })
         }
-      })
+
+        return body
+      } catch (e) {}
     }
   }
 })

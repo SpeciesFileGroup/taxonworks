@@ -35,8 +35,13 @@ export default defineStore('collectingEventForm', {
   getters: {
     isUnsaved(state) {
       const idStore = useIdentifierStore()
+      const georeferencesStore = useGeoreferenceStore()
 
-      return state.collectingEvent.isUnsaved || idStore.identifier.isUnsaved
+      return (
+        state.collectingEvent.isUnsaved ||
+        idStore.identifier.isUnsaved ||
+        georeferencesStore.hasUnsaved
+      )
     }
   },
 
@@ -75,17 +80,21 @@ export default defineStore('collectingEventForm', {
 
     async load(ceId) {
       const idStore = useIdentifierStore()
+      const georeferenceStore = useGeoreferenceStore()
 
-      return CollectingEvent.find(ceId, { extend: EXTEND }).then(
-        async ({ body }) => {
-          body.roles_attributes = body.collector_roles || []
+      try {
+        const { body } = await CollectingEvent.find(ceId, { extend: EXTEND })
 
-          this.collectingEvent = body
-          this.totalUsed = await getTotalUsed(body.id)
+        body.roles_attributes = body.collector_roles || []
 
-          idStore.load({ objectId: ceId, objectType: COLLECTING_EVENT })
-        }
-      )
+        this.collectingEvent = body
+        this.totalUsed = await getTotalUsed(body.id)
+
+        await idStore.load({ objectId: ceId, objectType: COLLECTING_EVENT })
+        await georeferenceStore.load(ceId)
+
+        return body
+      } catch (e) {}
     },
 
     async clone() {

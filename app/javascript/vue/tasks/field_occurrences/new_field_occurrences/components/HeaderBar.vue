@@ -7,6 +7,11 @@
           param="term"
           placeholder="Search"
           label="label_html"
+          :legend="
+            settings.isLoading
+              ? 'Loading, please wait...'
+              : 'Saving, please wait...'
+          "
           clear-after
           @get-item="({ id }) => loadForms(id)"
         />
@@ -64,6 +69,10 @@
       </ul>
     </div>
   </Navbar>
+  <VSpinner
+    v-if="settings.isSaving || settings.isLoading"
+    full-screen
+  />
 </template>
 
 <script setup>
@@ -81,6 +90,7 @@ import useIdentifierStore from '../store/identifier.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import useHotkey from 'vue3-hotkey'
 import platformKey from '@/helpers/getPlatformKey'
+import VSpinner from '@/components/spinner.vue'
 import { setParam } from '@/helpers'
 import { computed, onBeforeMount, watch, ref } from 'vue'
 import { FIELD_OCCURRENCE } from '@/constants'
@@ -99,19 +109,20 @@ const isUnsaved = computed(
     determinationStore.hasUnsaved ||
     biocurationStore.hasUnsaved ||
     foStore.fieldOccurrence.isUnsaved ||
-    ceStore.collectingEvent.isUnsaved ||
+    ceStore.isUnsaved ||
     identifierStore.isUnsaved
 )
 
 const validateSave = computed(() => {
   return (
     determinationStore.determinations.length &&
-    (ceStore.collectingEvent.isUnsaved || ceStore.collectingEvent.id)
+    (ceStore.isUnsaved || ceStore.collectingEvent.id)
   )
 })
 
 async function save() {
   try {
+    settings.isSaving = true
     const ce = ceStore.isUnsaved
       ? (await ceStore.save()).body
       : ceStore.collectingEvent
@@ -131,6 +142,7 @@ async function save() {
     ]
 
     return Promise.all(requests).then((_) => {
+      settings.isSaving = false
       TW.workbench.alert.create(
         'Field occurrence was successfully saved.',
         'notice'
@@ -177,30 +189,43 @@ watch(fieldOccurrenceId, (newVal, oldVal) => {
 onBeforeMount(() => {
   const urlParams = new URLSearchParams(window.location.search)
   const id = urlParams.get('field_occurrence_id')
+  const ceId = urlParams.get('collecting_event_id')
 
   if (/^\d+$/.test(id)) {
     loadForms(id)
   }
+
+  if (ceId) {
+    ceStore.load(ceId)
+  }
 })
 
-function loadForms(id) {
+async function loadForms(id) {
   const args = {
     objectId: id,
     objectType: FIELD_OCCURRENCE
   }
 
-  foStore.load(id).then(({ body }) => {
+  settings.isLoading = true
+
+  foStore.load(id).then(async ({ body }) => {
     const ceId = body.collecting_event_id
 
     if (ceId) {
-      ceStore.load(ceId)
+      await ceStore.load(ceId)
     }
   })
 
-  determinationStore.load(args)
-  biocurationStore.load(args)
-  citationStore.load(args)
-  identifierStore.load(args)
+  const requests = [
+    determinationStore.load(args),
+    biocurationStore.load(args),
+    citationStore.load(args),
+    identifierStore.load(args)
+  ]
+
+  Promise.all(requests).then((_) => {
+    settings.isLoading = false
+  })
 }
 
 const hotkeys = ref([

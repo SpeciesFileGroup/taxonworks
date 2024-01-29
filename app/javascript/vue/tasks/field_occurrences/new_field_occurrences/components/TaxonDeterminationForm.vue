@@ -3,6 +3,15 @@
     <template #header>
       <h3>Taxon determination</h3>
     </template>
+    <template #options>
+      <VIcon
+        v-if="!isFilled"
+        color="attention"
+        name="attention"
+        small
+        title="You need to fill out this form in order to save"
+      />
+    </template>
     <template #body>
       <TaxonDetermination
         ref="taxonDeterminationRef"
@@ -20,17 +29,23 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import TaxonDetermination from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
 import TaxonDeterminationList from '@/components/TaxonDetermination/TaxonDeterminationList.vue'
 import useStore from '../store/determinations.js'
 import useSettingStore from '../store/settings.js'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const settings = useSettingStore()
 const determinationStore = useStore()
 
 const taxonDeterminationRef = ref(null)
+
+const isFilled = computed(
+  () =>
+    determinationStore.determinations.length || determinationStore.hasUnsaved
+)
 
 function editTaxonDetermination(item) {
   taxonDeterminationRef.value.setDetermination({
