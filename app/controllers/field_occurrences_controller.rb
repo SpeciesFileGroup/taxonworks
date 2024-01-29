@@ -39,7 +39,7 @@ class FieldOccurrencesController < ApplicationController
 
     respond_to do |format|
       if @field_occurrence.save
-        format.html { redirect_to field_occurrence_url(@field_occurrence), notice: "Field occurrence was successfully created." }
+        format.html { redirect_to field_occurrence_url(@field_occurrence), notice: 'Field occurrence was successfully created.' }
         format.json { render :show, status: :created, location: @field_occurrence }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -52,7 +52,7 @@ class FieldOccurrencesController < ApplicationController
   def update
     respond_to do |format|
       if @field_occurrence.update(field_occurrence_params)
-        format.html { redirect_to field_occurrence_url(@field_occurrence), notice: "Field occurrence was successfully updated." }
+        format.html { redirect_to field_occurrence_url(@field_occurrence), notice: 'Field occurrence was successfully updated.' }
         format.json { render :show, status: :ok, location: @field_occurrence }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -66,7 +66,7 @@ class FieldOccurrencesController < ApplicationController
     @field_occurrence.destroy
 
     respond_to do |format|
-      format.html { redirect_to field_occurrences_url, notice: "Field occurrence was successfully destroyed." }
+      format.html { redirect_to field_occurrences_url, notice: 'Field occurrence was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -81,7 +81,7 @@ class FieldOccurrencesController < ApplicationController
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_field_occurrence
-    @field_occurrence = FieldOccurrence.find(params[:id])
+    @field_occurrence = FieldOccurrence.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   # Only allow a list of trusted parameters through.

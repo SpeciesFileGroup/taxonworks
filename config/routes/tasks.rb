@@ -50,7 +50,7 @@ scope :tasks do
 
   scope :field_occurrences do
     scope :new_field_occurrences, controller: 'tasks/field_occurrences/new_field_occurrences' do
-      get '/', as: 'new_field_occurrences_task', action: :index
+      get '/', as: 'new_field_occurrence_task', action: :index
     end
   end
 
@@ -576,7 +576,7 @@ scope :tasks do
 
   scope :otus do
     scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
-      get :index, as: 'index_browse_asserted_distributions_task'
+      get '/', action: :index, as: 'browse_asserted_distributions_task'
     end
 
     scope :browse, controller: 'tasks/otus/browse' do

@@ -67,6 +67,7 @@ CollectingEvent:
     - new_collecting_event_task
     - filter_collecting_events_task
     - comprehensive_collection_object_task
+    - new_field_occurrence_task
   config:
     recent: true
   edit: new_collecting_event_task
@@ -90,6 +91,13 @@ Extract:
   edit: new_extract_task
   config:
     recent: true
+FieldOccurrence:
+  tasks:
+  config:
+    recent: true
+  edit: new_field_occurrence_task
+  new: new_field_occurrence_task
+  home: new_field_occurrence_task
 GeographicArea:
   tasks:
     - asserted_distributions_basic_endemism_task
@@ -118,10 +126,11 @@ Otu:
     - browse_otus_task
     - filter_otus_task
     - comprehensive_collection_object_task
+    - new_field_occurrence_task
     - edit_biological_associations_graph_task
     - index_editor_task
     - cite_otus_task
-    - index_browse_asserted_distributions_task
+    - browse_asserted_distributions_task
     - otu_distribution_data_task
   home: browse_otus_task
   config:

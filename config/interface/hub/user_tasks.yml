@@ -451,7 +451,7 @@ export_coldp_task:
     - nomenclature
   status: prototype
   description: 'Export a zip of text files in the Catalogue of Life CoLDP format.'
-index_browse_asserted_distributions_task:
+browse_asserted_distributions_task:
   hub: true
   name: 'Browse asserted distributions'
   related:
@@ -846,7 +846,7 @@ stepwise_collectors_task:
     - people
   status: prototype
   description: 'Parse verbatim collectors into their semantic components.'
-new_field_occurrences_task:
+new_field_occurrence_task:
   hub: true
   name: 'New field occurrence'
   related:
@@ -861,7 +861,7 @@ debug_geographic_item_task:
   related:
   categories:
     - geographic_area
-    - collecting_event 
+    - collecting_event
     - georeference
   status: prototype
   description: 'Report metadat about a geographic item.'
