@@ -54,4 +54,93 @@ class Lead < ApplicationRecord
   belongs_to :redirect, class_name: 'Lead'
 
   has_closure_tree order: 'position', numeric_order: true, dont_order_roots: true
+
+  def display_name
+    id.to_s + ': ' + text.slice(0..40) + (text.size > 40 ? '...' : '')
+  end
+
+  def future
+    self.redirect_id.blank? ? self.all_children : self.redirect.all_children
+  end
+
+  def go_id
+    (self.redirect_id.presence || self.id)
+  end
+
+  def dupe(node = self, id = nil)
+    a = node.dup
+    a.parent_id = id
+    a.description = (a.description + ' (COPY)') if id == nil
+    a.save!
+
+    for c in node.children
+      dupe(c, a.id)
+    end
+
+    true
+  end
+
+  def insert_couplet
+    if cs = self.children
+      a = cs[0]
+      b = cs[1]
+    end
+
+    c = self.children.create!(text: 'Child nodes, if present, are attached to this node.')
+    d = self.children.create!(text: 'Inserted node')
+
+    if not a == nil
+      a.update!(parent_id: c.id)
+      b.update!(parent_id: c.id)
+    end
+
+    [c.id, d.id]
+  end
+
+  def destroy_couplet # if refactored do with care, parent/child relationships cause some unexpected behaviour
+    return false if self.children.size == 0
+    a = self.children[0]
+    b = self.children[1]
+
+    if (a.children.size == 0) or (b.children.size == 0) # note that this only works when one side of the couplet has no children!
+      for c in [a, b]
+        for d in c.children
+          d.parent = self # update(parent_id: self.id)
+          d.save!
+        end
+      end
+      Lead.find(a.id).destroy! # NOTE WE CANNOT just do a.destroy, as this invokes bizarre cascading nastiness!!
+      Lead.find(b.id).destroy!
+      true
+    else
+      false
+    end
+  end
+
+  def all_children(node = self, result = [], depth = 0)
+    for c in [node.children.second, node.children.first].compact # intentionally reversed
+      c.all_children(c, result, depth + 1)
+      a = {}
+      a[:depth] = depth
+      a[:cpl] = c
+      result.push(a)
+    end
+    result
+  end
+
+  def all_children_standard_key(node = self, result = [], depth = 0) # couplets before depth
+    ch = node.children
+    for c in ch
+      a = {}
+      a[:depth] = depth
+      a[:cpl] = c
+      result.push(a)
+    end
+
+    for c in ch
+      c.all_children_standard_key(c, result, depth + 1)
+    end
+    result
+  end
+
 end
