@@ -18,6 +18,7 @@
       :list="topics"
       label="object_tag"
       :delete-warning="false"
+      soft-delete
       @delete-index="removeTopic"
     />
   </FacetContainer>

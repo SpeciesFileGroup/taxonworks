@@ -29,6 +29,7 @@
         :list="list"
         label="cached"
         :delete-warning="false"
+        soft-delete
         @delete-index="removePerson"
       />
     </div>
