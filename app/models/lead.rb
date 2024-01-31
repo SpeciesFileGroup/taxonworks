@@ -69,8 +69,8 @@ class Lead < ApplicationRecord
 
   def dupe(node = self, id = nil)
     a = node.dup
-    a.parent_id = id
-    a.description = (a.description + ' (COPY)') if id == nil
+    a.parent_id = parentId
+    a.description = (a.description ? (a.description + ' (COPY)') : '(COPY)') if parentId == nil
     a.save!
 
     for c in node.children

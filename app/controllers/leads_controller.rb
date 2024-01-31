@@ -1,9 +1,23 @@
 class LeadsController < ApplicationController
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
   before_action :set_lead, only: %i[ show edit update destroy ]
 
-  # GET /leads or /leads.json
+  # GET /leads
+  # GET /leads.json
   def index
-    @leads = Lead.all
+    respond_to do |format|
+      format.html {
+        @recent_objects = Lead.recent_from_project_id(sessions_current_project_id).where('parent_id is null').order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @leads = Lead.with_project_id(sessions_current_project_id)
+          .where('parent_id is null')
+          .order('description')
+          .page(params[:page])
+          .per(params[:per])
+      }
+    end
   end
 
   # GET /leads/1 or /leads/1.json
@@ -57,14 +71,18 @@ class LeadsController < ApplicationController
     end
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_lead
-      @lead = Lead.find(params[:id])
-    end
+  def list
+    @leads = Lead.with_project_id(sessions_current_project_id).where('parent_id is null').order(:id).page(params[:page])
+  end
 
-    # Only allow a list of trusted parameters through.
-    def lead_params
-      params.require(:lead).permit(:parent_id, :otu_id, :text, :origin_label, :description, :redirect_id, :link_out, :link_out_text, :position, :is_public, :project_id, :created_by_id, :updated_by_id)
-    end
+  private
+
+  # Use callbacks to share common setup or constraints between actions.
+  def set_lead
+    @lead = Lead.find(params[:id])
+  end
+
+  def lead_params
+    params.require(:lead).permit(:parent_id, :otu_id, :text, :origin_label, :description, :redirect_id, :link_out, :link_out_text, :position, :is_public)
+  end
 end
