@@ -181,7 +181,10 @@
 </template>
 
 <script>
-import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from '@/constants/index.js'
+import {
+  COLLECTION_OBJECT,
+  IDENTIFIER_LOCAL_CATALOG_NUMBER
+} from '@/constants/index.js'
 import BiocurationComponent from './Biocuration'
 import PreparationTypes from './PreparationTypes'
 import ModalComponent from '@/components/ui/Modal'
@@ -300,7 +303,10 @@ export default {
         await CollectionObject.create({ collection_object: co, extend }).then(
           (response) => {
             this.determinations.forEach((determination) => {
-              determination.biological_collection_object_id = response.body.id
+              Object.assign(determination, {
+                taxon_determination_object_id: response.body.id,
+                taxon_determination_object_type: COLLECTION_OBJECT
+              })
               promises.push(
                 TaxonDetermination.create({
                   taxon_determination: determination
@@ -312,7 +318,8 @@ export default {
                 BiocurationClassification.create({
                   biocuration_classification: {
                     biocuration_class_id: biocurationId,
-                    biological_collection_object_id: response.body.id
+                    biocuration_classification_object_id: response.body.id,
+                    biocuration_classification_object_type: COLLECTION_OBJECT
                   }
                 })
               )
