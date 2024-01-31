@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Staged Image filter failing on some identifier queries
 - TaxonName batch update
 - Contributing link [#3752]
 - Uncaught promise errors [#3767]
