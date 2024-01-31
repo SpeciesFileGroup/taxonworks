@@ -1,8 +1,13 @@
 scope :tasks do
-
   scope :cached_maps do
     scope :report, controller: 'tasks/cached_maps/report' do
       get :items_by_otu, as: 'cached_map_items_by_otus_task'
+    end
+  end
+
+  scope :geographic_items do
+    scope :debug, controller: 'tasks/geographic_items/debug' do
+      get '/', action: :index, as: 'debug_geographic_item_task'
     end
   end
 
@@ -107,7 +112,7 @@ scope :tasks do
     end
   end
 
-  scope :browse_annotations, controller: 'tasks/browse_annotations' do
+  scope :browse_annotations, controller: 'tasks/object_annotations/browse_annotations' do
     get '/', action: :index, as: 'browse_annotations_task'
   end
 

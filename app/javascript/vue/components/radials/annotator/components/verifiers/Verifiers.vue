@@ -34,65 +34,58 @@
   </div>
 </template>
 
-<script>
-import CRUD from '../../request/crud.js'
-import annotatorExtend from '../../components/annotatorExtend.js'
+<script setup>
 import RolePicker from '@/components/role_picker.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import TableList from '@/components/table_list.vue'
 import { removeFromArray } from '@/helpers/arrays.js'
 import { Role } from '@/routes/endpoints'
 import { ROLE_VERIFIER } from '@/constants'
+import { ref } from 'vue'
 
-export default {
-  mixins: [CRUD, annotatorExtend],
-
-  components: {
-    SmartSelector,
-    RolePicker,
-    TableList
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  computed: {
-    validateFields() {
-      return this.note.text
-    }
-  },
-
-  data() {
-    return {
-      loadOnMounted: false,
-      roles: []
-    }
-  },
-
-  created() {
-    Role.where({
-      role_type: [ROLE_VERIFIER],
-      role_object_id: this.metadata.object_id,
-      role_object_type: this.objectType
-    }).then(({ body }) => {
-      this.list = body
-    })
-  },
-
-  methods: {
-    createRole(id) {
-      const role = {
-        type: 'Verifier',
-        person_id: id,
-        annotated_global_entity: this.globalId
-      }
-
-      Role.create({ role }).then(({ body }) => {
-        this.list.push(body)
-      })
-    },
-
-    removeRole(role) {
-      Role.destroy(role.id)
-      removeFromArray(this.list, role)
-    }
+  objectType: {
+    type: String,
+    required: true
   }
+})
+
+const emit = defineEmits(['update-count'])
+
+const roles = ref([])
+const list = ref([])
+
+function createRole(id) {
+  const role = {
+    type: ROLE_VERIFIER,
+    person_id: id,
+    role_object_id: props.objectId,
+    role_object_type: props.objectType
+  }
+
+  Role.create({ role }).then(({ body }) => {
+    list.value.push(body)
+    emit('update-count', list.value.length)
+  })
 }
+
+function removeRole(role) {
+  Role.destroy(role.id).then((_) => {
+    removeFromArray(list.value, role)
+    emit('update-count', list.value.length)
+  })
+}
+
+Role.where({
+  role_type: [ROLE_VERIFIER],
+  role_object_id: props.objectId,
+  role_object_type: props.objectType
+}).then(({ body }) => {
+  list.value = body
+})
 </script>

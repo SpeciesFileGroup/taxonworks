@@ -29,7 +29,7 @@ module Export::Coldp::Files::TypeMaterial
   end
 
   def self.generate(otus, project_members, reference_csv = nil )
-    CSV.generate(col_sep: "\t") do |csv|
+    ::CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{
         ID

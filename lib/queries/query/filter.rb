@@ -491,6 +491,7 @@ module Queries
       #  `.present?` fails as well, so verbose loops here
       self.class.included_annotator_facets.each do |c|
         if c.respond_to?(:merge_clauses)
+          next if c.name == 'Queries::Concerns::Identifiers' && no_identifier_clauses
           c.merge_clauses.each do |f|
             if v = send(f)
               a.push v

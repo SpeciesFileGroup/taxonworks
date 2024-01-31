@@ -13,6 +13,8 @@ module Queries
         :language_id,
         :type,
         :alternate_value_object_attribute,
+        :alternate_value_object_id,
+        :alternate_value_object_type,
         alternate_value_id: []
       ].freeze
 
@@ -22,11 +24,17 @@ module Queries
       # Params specific to AlternateValue
       attr_accessor :value, :language_id, :type, :alternate_value_object_attribute
 
+      attr_accessor :alternate_value_object_id
+
+      attr_accessor :alternate_value_object_type
+
       # @params params [ActionController::Parameters]
       def initialize(query_params)
         super
         @alternate_value_id = params[:alternate_value_id]
         @alternate_value_object_attribute = params[:alternate_value_object_attribute]
+        @alternate_value_object_type = params[:alternate_value_object_type]
+        @alternate_value_object_id = params[:alternate_value_object_id]
         @language_id = params[:language_id]
         @type = params[:type]
         @value = params[:value]
@@ -37,12 +45,32 @@ module Queries
         [@alternate_value_id].flatten.compact
       end
 
+      
+      def alternate_value_object_type
+        [@alternate_value_object_type].flatten.compact
+      end
+
+      def alternate_value_object_id
+        [@alternate_value_object_id].flatten.compact
+      end
+
       def ignores_project?
         ::AlternateValue::ALWAYS_COMMUNITY.include?( polymorphic_type )
       end
 
+      
+      def alternate_value_object_type_facet
+        return nil if alternate_value_object_type.empty?
+        table[:alternate_value_object_type].in(alternate_value_object_type)
+      end
+
+      def alternate_value_object_id_facet
+        return nil if alternate_value_object_id.empty?
+        table[:alternate_value_object_id].in(alternate_value_object_id)
+      end
+
       def community_project_id_facet
-        return nil if project_id.empty?
+        return nil if project_id.nil?
         if !ignores_project?
           return table[:project_id].in(project_id)
         end
@@ -75,6 +103,8 @@ module Queries
 
       def and_clauses
         [
+          alternate_value_object_id_facet,
+          alternate_value_object_type_facet,
           value_facet,
           language_id_facet,
           type_facet,

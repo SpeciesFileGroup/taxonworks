@@ -16,6 +16,7 @@ const props = defineProps({
   }
 })
 
+const STROKE_BASE = 2
 const store = useStore()
 const elementBoard = ref(null)
 
@@ -30,7 +31,7 @@ onMounted(() => {
     opts: {
       imageSrc: props.image.image_file_url,
       stroke: '#FFA500',
-      strokeWidth: 2,
+      strokeWidth: STROKE_BASE * window.devicePixelRatio,
       width,
       height
     }

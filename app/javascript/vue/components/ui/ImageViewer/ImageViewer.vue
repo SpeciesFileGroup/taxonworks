@@ -185,9 +185,10 @@ import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import ImageViewerAttributions from './ImageViewerAttributions.vue'
 import ImageViewerCitations from './ImageViewerCitations.vue'
 import SvgViewer from '@/components/Svg/SvgViewer.vue'
-import { Depiction, Image } from '@/routes/endpoints'
+import { Depiction, Image, Citation, Attribution } from '@/routes/endpoints'
 import { imageSVGViewBox, imageScale } from '@/helpers/images'
 import { computed, reactive, ref, watch } from 'vue'
+import { IMAGE } from '@/constants'
 
 const CONVERT_IMAGE_TYPES = ['image/tiff']
 const IMG_MAX_SIZES = {
@@ -287,10 +288,18 @@ const thumbUrlSrc = computed(() => {
 
 const loadAttributions = async () => {
   state.citations = (
-    await Image.citations(imageObject.value.id, { extend: ['source'] })
+    await Citation.where({
+      citation_object_id: imageObject.value.id,
+      citation_object_type: IMAGE,
+      extend: ['source ']
+    })
   ).body
   state.attributions = (
-    await Image.attributions(imageObject.value.id, { extend: ['roles'] })
+    await Attribution.where({
+      attribution_object_id: imageObject.value.id,
+      attribution_object_type: IMAGE,
+      extend: ['roles']
+    })
   ).body
 }
 

@@ -53,9 +53,9 @@ import setSoftValidations from './setSoftValidations'
 import setBiologicalAssociations from './setBiologicalAssociations'
 
 import setProjectPreferences from './setProjectPreferences'
+import setCETotalUsed from './CollectingEvent/setCETotalUsed'
 
 const MutationNames = {
-
   SetBiologicalAssociations: 'setBiologicalAssociations',
 
   SetGeographicArea: 'setGeographicArea',
@@ -100,6 +100,7 @@ const MutationNames = {
 
   SetCollectingEvent: 'SetCollectingEvent',
   SetCollectingEventIdentifier: 'setCollectingEventIdentifier',
+  SetCETotalUsed: 'setCETotalUsed',
 
   SetCOCitations: 'setCOCitations',
   SetCollectionObject: 'setCollectionObject',
@@ -155,6 +156,7 @@ const MutationFunctions = {
 
   [MutationNames.SetCollectingEvent]: SetCollectingEvent,
   [MutationNames.SetCollectingEventIdentifier]: setCollectingEventIdentifier,
+  [MutationNames.SetCETotalUsed]: setCETotalUsed,
 
   [MutationNames.SetCOCitations]: setCOCitations,
   [MutationNames.SetCollectionObject]: setCollectionObject,
@@ -168,7 +170,4 @@ const MutationFunctions = {
   [MutationNames.SetLabel]: setLabel
 }
 
-export {
-  MutationNames,
-  MutationFunctions
-}
+export { MutationNames, MutationFunctions }

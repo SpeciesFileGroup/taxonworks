@@ -1,0 +1,66 @@
+<h1> Task - Debug Geographic Item </h1>
+
+<div class="flexbox separate-bottom">
+  <div class="panel content">
+    <%= radial_navigation_tag(@geographic_item) %>
+  </div>
+</div>
+
+<div class="flexbox separate-bottom">
+  <div class="panel content">
+    <% orientations = @geographic_item.orientations %>
+    <h3> Multi/Polygon description </h3>
+    <%= table_from_hash_tag({
+      'Polygons' => orientations.count,
+      'Basic donut orientations?' => (@geographic_item.is_basic_donut? ? 'Yes' : 'No'),
+      'Total polygons' => orientations.count,
+      'Orientation (polygons)' => orientations.collect{|o| o ? 'CCW' : 'CW'}.join(', '), 
+      'ST_IsValid' => (@geographic_item.st_isvalid ? 'Yes' : 'No'),
+      'ST_IsValidReason' => @geographic_item.st_isvalidreason,
+      'cached_total_area (m)' => @geographic_item.cached_total_area,
+      'CachedMapItem#dynamic_buffer' => CachedMapItem.dynamic_buffer(@geographic_item.id)
+    }) %>
+  </div>
+
+  <div class="panel content separate-left">
+    <h3> Project specific </h3>
+    <%= table_from_hash_tag({
+      'Georeferences' => collecting_events_count_using_this_geographic_item(@geographic_item.id),
+      'AssertedDistributions' => @geographic_item.asserted_distributions.where(project_id: sessions_current_project_id).count
+    }) %>
+
+  </div>
+</div>
+
+<div class="flexbox separate-bottom">
+  <div class="panel content">
+    <% orientations = @geographic_item.orientations %>
+    <h3> Shape </h3>
+    <%= simple_map([@geographic_item]) -%> 
+  </div>
+
+  <% if @geographic_item.st_isvalid %>
+    <div class="panel content separate-left">
+      <h3> WebLevel1 map </h3>
+      <% a = CachedMapItem.translate_geographic_item_id( @geographic_item.id, 'AssertedDistribution', ['ne_states']) %>
+      <div>
+        <%= simple_map( GeographicItem.where(id: a) ) %>
+        <ul>
+          <li> GeographicItem ID(s): <%= a.collect{|id| link_to(id, geographic_item_path(id) )}.join(', ').html_safe %> </li>
+          <li> Corresponding GeographicAreas: <%= GeographicArea.order(:name).joins(:geographic_areas_geographic_items).where(geographic_areas_geographic_items: {geographic_item_id: a}).collect{|g| link_to(g.name, geographic_area_path(g))}.join(', ').html_safe %> </li>
+        </ul>
+      </div>
+    </div>    
+  <% end %>
+</div>
+
+<div class="flexbox separate-bottom">
+  <div class="panel content">
+    <h3> GeographicArea </h3>
+    <p> Names from geographic areas: <%= geographic_area_link_list(@geographic_item.geographic_areas) -%> </p>
+    <p> Parents through geographic areas: <%= geographic_area_link_list(@geographic_item.parent_geographic_areas) -%></p>
+
+    <h3> Parents </h3>
+    <p> Through geographic areas: <%= geographic_item_parent_nav_links(@geographic_item) -%> </p>
+  </div>
+</div>

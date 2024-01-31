@@ -66,7 +66,7 @@ module Export
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
 
       metadata_path = Zaru::sanitize!("/tmp/#{project.name}_#{DateTime.now}_metadata.yaml").gsub(' ', '_').downcase
-      version = Taxonworks::VERSION
+      version = TaxonWorks::VERSION
       if Settings.sandbox_mode?
         version = Settings.sandbox_commit_sha
       end
@@ -93,7 +93,7 @@ module Export
         # Sort the refs by full citation string
         sorted_refs = ref_tsv.values.sort{|a,b| a[1] <=> b[1]}
 
-        d = CSV.generate(col_sep: "\t") do |tsv|
+        d = ::CSV.generate(col_sep: "\t") do |tsv|
           tsv << %w{ID citation	doi modified modifiedBy} # author year source details
           sorted_refs.each do |r|
             tsv << r

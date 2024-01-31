@@ -22,7 +22,9 @@ module Shared::Maps
     has_one :cached_map_register, as: :cached_map_register_object, dependent: :delete
 
     after_create :initialize_cached_map_items
-    after_create :destroy_cached_map
+
+    # TODO: re-enable once scoping issues are determined
+    # after_create :destroy_cached_map
 
     before_destroy :remove_from_cached_map_items
 
@@ -45,7 +47,7 @@ module Shared::Maps
     def cached_map_items_to_clean
       maps = []
 
-      Behavior::Maps::DEFAULT_CACHED_BUILD_TYPES.each do |map_type|
+      ::DEFAULT_CACHED_MAP_BUILD_TYPES.each do |map_type|
         if stubs = CachedMapItem.stubs(self, map_type)
           stubs[:geographic_item_id].each do |geographic_item_id|
             stubs[:otu_id].each do |otu_id|
@@ -81,20 +83,23 @@ module Shared::Maps
       delay(queue: 'cached_map').clear_cached_maps
     end
 
-    # TODO: use JOINS not IN
-    def clear_cached_maps
+    # @return CachedMap scope
+    def cached_maps_to_clear
       s = 'WITH otu_clear_maps AS (' + touched_cached_maps.to_sql + ') ' +
         ::CachedMap
-        .joins('JOIN otu_clear_maps as otu_clear_maps1 on otu_clear_maps1.otu_id = cached_maps.id')
+        .joins('JOIN otu_clear_maps as otu_clear_maps1 on otu_clear_maps1.id = cached_maps.otu_id')
         .to_sql
 
-      b = ::CachedMap.from('(' + s + ') as cached_maps')
+      ::CachedMap.from('(' + s + ') as cached_maps')
+    end
 
-      b.delete_all
-
+    # TODO: use JOINS not IN
+    def clear_cached_maps
+      cached_maps_to_clear.delete_all
       true
     end
 
+    # @return OTUs
     def touched_cached_maps
       case self.class.base_class.name
       when 'AssertedDistribution'
@@ -105,6 +110,8 @@ module Shared::Maps
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
+
     # @param batch (Boolean)
     #   true - skips setting geographic name labels (see followup tasks) AND caching translations
     #           i.e. assumes you have a completely built translation table
@@ -114,7 +121,7 @@ module Shared::Maps
     # * !! Assumes this is the first time CachedMapItem is being indexed for this object.
     # * !! Does NOT check register.
     def create_cached_map_items(batch = false)
-      Behavior::Maps::DEFAULT_CACHED_BUILD_TYPES.each do |map_type|
+      ::DEFAULT_CACHED_MAP_BUILD_TYPES.each do |map_type|
         stubs = CachedMapItem.stubs(self, map_type)
 
         # Georeferences with no CollectionObjects will hit here
@@ -191,6 +198,8 @@ module Shared::Maps
       end
       true
     end
+
+    # rubocop:enable Metrics/MethodLength
 
     def deduct_from_cached_map_items
       cached_map_items_to_clean.each do |cmi|

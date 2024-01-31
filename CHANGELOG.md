@@ -9,6 +9,47 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.38.0] - 2024-01-31
+
+### Added
+
+- GeographicItem debug task
+- `documentation_object_type` and `documentation_object_id` to documentation filter
+
+### Changed
+
+- Use `zeitwerk` loading framework [#2718]
+
+### Fixed
+
+- DwC dumps cross-mapping attributes between CollectingEvent and CollectionObject [#3802]
+- Staged Image filter failing on some identifier queries
+- TaxonName batch update
+- Contributing link [#3752]
+- Uncaught promise errors [#3767]
+- Custom attributes triggers `isUpdated` ce state [#3764]
+- Custom attributes panels don't check if data attributes already exist [#3762]
+- Gender agreement of misspellings [#3782]
+- Loan item list doesn't update when adding a loan item from Tag or Pinboard [#3784]
+- Unable to add a CO loan item to a loan that already has an OTU loan item with the same id [#3785]
+- CO Loan gifts have tag "On Loan until false" [#3731]
+- Figure panel in New content task
+- DwC Occurrence Importer using out of project scope http://rs.tdwg.org/dwc/terms/FossilSpecimen biocuration class.
+- Hub: Status filter doesn't work correctly [#3791]
+- Hub: Left and right arrow keys on task hub don't work as expected. [#3792]
+
+[#3802]: https://github.com/SpeciesFileGroup/taxonworks/issues/3802
+[#2718]: https://github.com/SpeciesFileGroup/taxonworks/issues/2718
+[#3731]: https://github.com/SpeciesFileGroup/taxonworks/issues/3731
+[#3752]: https://github.com/SpeciesFileGroup/taxonworks/issues/3752
+[#3762]: https://github.com/SpeciesFileGroup/taxonworks/issues/3762
+[#3764]: https://github.com/SpeciesFileGroup/taxonworks/issues/3764
+[#3767]: https://github.com/SpeciesFileGroup/taxonworks/issues/3767
+[#3784]: https://github.com/SpeciesFileGroup/taxonworks/issues/3784
+[#3785]: https://github.com/SpeciesFileGroup/taxonworks/issues/3785
+[#3791]: https://github.com/SpeciesFileGroup/taxonworks/issues/3791
+[#3792]: https://github.com/SpeciesFileGroup/taxonworks/issues/3792
+
 ## [0.37.1] - 2024-01-04
 
 ### Added
@@ -4222,7 +4263,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.0...development
+[0.38.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.1...v0.38.0
 [0.37.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.0...v0.37.1
 [0.37.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.3...v0.36.0

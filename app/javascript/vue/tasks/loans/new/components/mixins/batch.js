@@ -1,6 +1,7 @@
 import { ActionNames } from '../../store/actions/actions'
 import { MutationNames } from '../../store/mutations/mutations'
 import { getTagMetadata, batchRemoveKeyword } from '../../request/resources'
+import extend from '../../const/extend.js'
 
 export default {
   props: {
@@ -10,27 +11,32 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       maxItemsWarning: 100,
       keywords: []
     }
   },
 
-  async created () {
+  async created() {
     this.getMeta()
   },
 
   methods: {
-    batchLoad (klass, keywordId, total) {
+    batchLoad(klass, keywordId, total) {
       const object = {
         batch_type: this.batchType,
         loan_id: this.loan.id,
         keyword_id: keywordId,
-        klass: (klass === 'total' ? undefined : klass)
+        klass: klass === 'total' ? undefined : klass,
+        extend
       }
       if (total > this.maxItemsWarning) {
-        if (window.confirm(`You're trying to create ${total} items. Are you sure want to proceed?`)) {
+        if (
+          window.confirm(
+            `You're trying to create ${total} items. Are you sure want to proceed?`
+          )
+        ) {
           this.$store.dispatch(ActionNames.CreateBatchLoad, object)
         }
       } else {
@@ -38,12 +44,12 @@ export default {
       }
     },
 
-    async getMeta () {
+    async getMeta() {
       const metadata = (await getTagMetadata()).body
       this.keywords = metadata[this.metadataList]
     },
 
-    removeKeyword (id, type) {
+    removeKeyword(id, type) {
       this.$store.commit(MutationNames.SetSaving, true)
       batchRemoveKeyword(id, type).then(async () => {
         this.getMeta()
@@ -51,8 +57,11 @@ export default {
       })
     },
 
-    isOneRow ({ totals }) {
-      return Object.entries(totals).filter(([k, v]) => k !== 'total' && v > 0).length === 1
+    isOneRow({ totals }) {
+      return (
+        Object.entries(totals).filter(([k, v]) => k !== 'total' && v > 0)
+          .length === 1
+      )
     }
   }
 }

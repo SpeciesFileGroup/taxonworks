@@ -1,5 +1,8 @@
 # Be sure to restart your server (or console) when you modify this file.
 
+
+Rails.application.reloader.to_prepare do
+
 require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
 
 # Array of all ICZN and ICN TaxonNameClassification classes
@@ -176,4 +179,4 @@ TAXON_NAME_CLASSIFICATION_JSON = {
     ])
   }
 }.freeze
-
+end

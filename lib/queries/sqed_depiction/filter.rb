@@ -10,7 +10,19 @@ module Queries
         :with_buffered_collecting_event,
         :with_buffered_other_labels,
 
+        :identifier,
+        :identifier_end,
+        :identifier_exact,
+        :identifier_start,
+        :identifier_type,
+        :identifiers,
         :local_identifiers,
+        :global_identifiers,
+        :match_identifiers,
+        :match_identifiers_delimiter,
+        :match_identifiers_type,
+        :namespace_id,
+        identifier_type: [],
       ].freeze
 
       PARAMS = [
@@ -29,17 +41,12 @@ module Queries
 
         @sqed_depiction_id = params[:sqed_depiction_id]
         @base_collection_object_filter_params = params.select{|k,v| COLLECTION_OBJECT_FILTER_PARAMS.include?(k) ? k : nil}
+        @params = @params.delete_if{|k,v| @base_collection_object_filter_params[k].present?}
+        @no_identifier_clauses = true
       end
 
       def sqed_depiction_id
         [@sqed_depiction_id].flatten.compact
-      end
-
-      # TODO: will need to consider moving Identifies out of base class
-      # because of edge cases like this (less inheritence, more composition)
-      # applies to CO, not here 
-      def local_identifiers_facet
-        nil
       end
 
       # TODO: use WITH

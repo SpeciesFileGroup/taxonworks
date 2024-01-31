@@ -51,15 +51,15 @@
 
   <div class="panel content">
     <h2> New users past </h2>
-    <table>
-      <tr><td>24 hours</td><td><%= tag.strong User.where('created_at > ?', 24.hours.ago).count %></td></tr>
-      <tr><td>Week</td><td><%= tag.strong User.where('created_at > ?', 1.week.ago).count %></td></tr>
-      <tr><td>Month</td><td><%= tag.strong User.where('created_at > ?', 1.month.ago).count %></td></tr>
-      <tr><td>Half year</td><td><%= tag.strong User.where('created_at > ?', 6.months.ago).count %></td></tr>
-      <tr><td>Year</td><td><%= tag.strong User.where('created_at > ?', 1.year.ago).count %></td></tr>
-      <tr><td>3 years</td><td><%= tag.strong User.where('created_at > ?', 3.years.ago).count %></td></tr>
-      <tr><td>All time</td><td><%= tag.strong User.where('created_at > ?', 1000.years.ago).count %></td></tr>
-    </table>
+    <%= table_from_hash_tag( {
+      '24 hours' => User.where('created_at > ?', 24.hours.ago).count,
+      'Week' => User.where('created_at > ?', 1.week.ago).count,
+      'Month' => User.where('created_at > ?', 1.month.ago).count,
+      'Half year' => User.where('created_at > ?', 6.months.ago).count,
+      'Year' => User.where('created_at > ?', 1.year.ago).count,
+      '3 years' => User.where('created_at > ?', 3.years.ago).count,
+      'All time' => User.where('created_at > ?', 1000.years.ago).count
+    }) %>
   </div>
 
   <div class="panel content separate-left">

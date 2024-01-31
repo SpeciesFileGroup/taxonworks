@@ -846,3 +846,13 @@ stepwise_collectors_task:
     - people
   status: prototype
   description: 'Parse verbatim collectors into their semantic components.'
+debug_geographic_item_task:
+  hub: false
+  name: 'Debug geographic item'
+  related:
+  categories:
+    - geographic_area
+    - collecting_event 
+    - georeference
+  status: prototype
+  description: 'Report metadat about a geographic item.'

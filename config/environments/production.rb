@@ -13,8 +13,8 @@ TaxonWorks::Application.configure do
   # TODO: find out the consequences and resolve autoload/eager_loadness
   # at present this resolved TW-261
 
-  # config.eager_load = true 
-  config.eager_load = false 
+  config.eager_load = true
+  # config.eager_load = false
 
   # Full error reports are disabled and caching is turned on.
   config.consider_all_requests_local       = false
@@ -89,7 +89,8 @@ TaxonWorks::Application.configure do
 
   # Load local settings
   Settings.load_from_settings_file(config, :production)
-  
-  require 'taxonworks'
-  require 'taxonworks_autoload'
+
+  # Removed with zeitwerk
+  # require 'taxonworks'
+  # require 'taxonworks_autoload'
 end

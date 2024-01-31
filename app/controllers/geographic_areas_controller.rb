@@ -52,7 +52,7 @@ class GeographicAreasController < ApplicationController
 
   # GET /geographic_areas/download
   def download
-    send_data Export::Csv.generate_csv(GeographicArea.all), type: 'text', filename: "geographic_areas_#{DateTime.now}.tsv"
+    send_data Export::CSV.generate_csv(GeographicArea.all), type: 'text', filename: "geographic_areas_#{DateTime.now}.tsv"
   end
 
   # GET /geographic_areas/select_options.json

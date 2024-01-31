@@ -56,8 +56,8 @@
 <script>
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import { CollectingEvent, Depiction } from '@/routes/endpoints'
-import { GEOREFERENCE_EXIF } from '@/constants/index.js'
+import { Depiction } from '@/routes/endpoints'
+import { GEOREFERENCE_EXIF, COLLECTING_EVENT } from '@/constants/index.js'
 import Dropzone from '@/components/dropzone.vue'
 import extendCE from '../mixins/extendCE.js'
 import ParseDMS from '@/helpers/parseDMS.js'
@@ -135,9 +135,14 @@ export default {
         this.$refs.depiction.setOption('autoProcessQueue', true)
         this.$refs.depiction.processQueue()
         this.coordinatesEXIF = []
-        CollectingEvent.depictions(newVal.id).then((response) => {
-          this.figuresList = response.body
+        Depiction.where({
+          depiction_object_id: newVal.id,
+          depiction_object_type: COLLECTING_EVENT
         })
+          .then((response) => {
+            this.figuresList = response.body
+          })
+          .catch(() => {})
       } else {
         if (!newVal.id) {
           this.figuresList = []

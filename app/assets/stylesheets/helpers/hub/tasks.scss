@@ -76,6 +76,9 @@
       opacity: 0.2;
       overflow: hidden;
     }
+    a {
+      flex-grow: 1;
+    }
   }
 
   .task_card:hover {
@@ -104,7 +107,6 @@
 
   .task-information {
     margin-left: 30px;
-    width: 100%;
   }
 
   .fav-link {

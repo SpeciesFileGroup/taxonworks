@@ -160,6 +160,7 @@ class TaxonName < ApplicationRecord
   include Shared::Labels
   include SoftValidation
   include Shared::IsData
+  include Shared::QueryBatchUpdate
   include TaxonName::OtuSyncronization
 
   include Shared::MatrixHooks::Member
@@ -1321,9 +1322,9 @@ class TaxonName < ApplicationRecord
   def name_with_misspelling(gender)
     if cached_misspelling
       if rank_string =~ /Icnp/
-        name.to_s + ' (sic)'
+        name_in_gender(gender).to_s + ' (sic)'
       else
-        name.to_s + ' [sic]'
+        name_in_gender(gender).to_s + ' [sic]'
       end
     elsif gender.nil? || rank_string =~ /Genus/
       name.to_s

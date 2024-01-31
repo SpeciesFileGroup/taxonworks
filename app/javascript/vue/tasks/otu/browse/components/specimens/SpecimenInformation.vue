@@ -64,11 +64,14 @@
 </template>
 
 <script>
+import { COLLECTION_OBJECT, TAXON_DETERMINATION } from '@/constants'
 import {
   BiocurationClassification,
   CollectionObject,
   TaxonDetermination,
-  Repository
+  Repository,
+  Depiction,
+  Citation
 } from '@/routes/endpoints'
 
 import { GetterNames } from '../../store/getters/getters'
@@ -172,29 +175,37 @@ export default {
           })
         }
       })
+
       BiocurationClassification.where({
         biological_collection_object_id: this.specimen.collection_objects_id
-      }).then((response) => {
-        this.biocurations = response.body
+      }).then(({ body }) => {
+        this.biocurations = body
       })
-      CollectionObject.depictions(this.specimen.collection_objects_id).then(
-        (response) => {
-          this.depictions = response.body
-        }
-      )
-      CollectionObject.citations(this.specimen.collection_objects_id).then(
-        (response) => {
-          this.citations = response.body
-        }
-      )
+
+      Depiction.where({
+        depiction_object_id: this.specimen.collection_objects_id,
+        depiction_object_type: COLLECTION_OBJECT
+      }).then((response) => {
+        this.depictions = response.body
+      })
+      Citation.where({
+        citation_object_id: this.specimen.collection_objects_id,
+        citation_object_type: COLLECTION_OBJECT
+      }).then((response) => {
+        this.citations = response.body
+      })
+
       TaxonDetermination.where({
-        collection_object_id: this.specimen.collection_objects_id
+        collection_object_id: [this.specimen.collection_objects_id]
       }).then((response) => {
         const determinations = response.body
 
         this.determinations = determinations
         determinations.forEach((item) => {
-          TaxonDetermination.citations(item.id).then((citationResponse) => {
+          Citation.where({
+            citation_object_id: item.id,
+            citation_object_type: TAXON_DETERMINATION
+          }).then((citationResponse) => {
             citationResponse.body.forEach((c) => {
               this.determinationCitations.push(c)
             })
