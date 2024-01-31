@@ -6,13 +6,10 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
 
   let(:ad_offset) { FactoryBot.build( :valid_asserted_distribution, geographic_area: ga_offset) }
 
-  specify '.cached_map creates a CachedMap' do
-    ad_offset.save!
-    Delayed::Worker.new.work_off
-    expect(ad_offset.otu.cached_map.persisted?).to be_truthy
-  end
 
-  specify '#destroy_cached_map' do
+  # Must turn back on the after_destroy in the maps.concern to revisit these.
+
+  xspecify '#destroy_cached_map' do
     ad_offset.save!
     Delayed::Worker.new.work_off # triggers cached map item build
     expect(ad_offset.otu.cached_map).to be_truthy
@@ -21,6 +18,22 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     Delayed::Worker.new.work_off # triggers cached map destroy
 
     expect(ad_offset.otu.cached_maps).to be_empty
+  end
+
+  xspecify 'Delayed::Job is cued' do
+    ad_offset.save!
+    expect(Delayed::Job.count).to eq(2) # Create items, clear CachedMap
+  end
+
+  xspecify 'Delayed::Job is cued and ran' do
+    ad_offset.save!
+    expect(Delayed::Worker.new.work_off).to eq [2, 0] # Returns [successes, failures]
+  end
+
+  specify '.cached_map creates a CachedMap' do
+    ad_offset.save!
+    Delayed::Worker.new.work_off
+    expect(ad_offset.otu.cached_map.persisted?).to be_truthy
   end
 
   specify '#touched_cached_maps' do
@@ -57,16 +70,6 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     Delayed::Worker.new.work_off
 
     expect(ad_offset.send(:cached_maps_to_clear).all).to eq([ad_offset.otu.cached_map])
-  end
-
-  specify 'Delayed::Job is cued' do
-    ad_offset.save!
-    expect(Delayed::Job.count).to eq(2) # Create items, clear CachedMap
-  end
-
-  specify 'Delayed::Job is cued and ran' do
-    ad_offset.save!
-    expect(Delayed::Worker.new.work_off).to eq [2, 0] # Returns [successes, failures]
   end
 
   context 'Delayed::Job(s) on create' do
