@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- DwC dumps cross-mapping attributes between CollectingEvent and CollectionObject [#3802]
 - Staged Image filter failing on some identifier queries
 - TaxonName batch update
 - Contributing link [#3752]
@@ -33,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Hub: Status filter doesn't work correctly [#3791]
 - Hub: Left and right arrow keys on task hub don't work as expected. [#3792]
 
+[#3802]: https://github.com/SpeciesFileGroup/taxonworks/issues/3802
 [#2718]: https://github.com/SpeciesFileGroup/taxonworks/issues/2718
 [#3731]: https://github.com/SpeciesFileGroup/taxonworks/issues/3731
 [#3752]: https://github.com/SpeciesFileGroup/taxonworks/issues/3752
