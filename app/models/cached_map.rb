@@ -111,7 +111,6 @@ class CachedMap < ApplicationRecord
 
   def self.calculate_union(otu_scope, cached_map_type = 'CachedMapItem::WebLevel1')
     sql = union_sql(otu_scope, cached_map_type = 'CachedMapItem::WebLevel1')
-    byebug
     begin
       r = ActiveRecord::Base.connection.execute(sql)
     rescue ActiveRecord::StatementInvalid => e
