@@ -9,7 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- DwC dumps cross-mapping attributes between CollectingEvent and CollectionObject (for real?) [#3802]
 - Favorite cards section layout
+
+[#3802]: https://github.com/SpeciesFileGroup/taxonworks/issues/3802
 
 ## [0.38.0] - 2024-01-31
 
