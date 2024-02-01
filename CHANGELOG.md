@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Favorite cards section layout
 
 ## [0.38.0] - 2024-01-31
 
