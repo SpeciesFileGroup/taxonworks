@@ -21,7 +21,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @close="
+          @update="
             () => makeFilterRequest({ ...parameters, extend, exclude, page: 1 })
           "
         />
@@ -41,7 +41,7 @@
             :disabled="!list.length"
             :ids="selectedIds"
             :count="selectedIds.length"
-            @close="
+            @update="
               () =>
                 makeFilterRequest({ ...parameters, extend, exclude, page: 1 })
             "

@@ -57,7 +57,7 @@ namespace :tw do
           puts 'Done.'
         end
 
-        desc 'destroy all cached map references'
+        desc 'destroy all cached map references *except* the translation table'
         task destroy_index: [:environment] do |t|
           puts 'Destroying CachedMap index except translations'
           CachedMap.delete_all

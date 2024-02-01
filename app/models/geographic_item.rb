@@ -1257,20 +1257,29 @@ class GeographicItem < ApplicationRecord
       return false if geographic_item_ids.empty?
 
       sql = "SELECT ST_AsPNG(
-       ST_AsRaster(
-           ST_Buffer( multi_polygon::geometry, 0, 'join=bevel'),
-               1024,
-               768)
-        ) png
-        from geographic_items where id IN (" + geographic_item_ids.join(',') + ');'
+         ST_AsRaster(
+            (SELECT ST_Union(multi_polygon::geometry) from geographic_items where id IN (" + geographic_item_ids.join(',') + ")), 1920, 1080
+        )
+       ) png;"
+
+      # ST_Buffer( multi_polygon::geometry, 0, 'join=bevel'),
+      #     1920,
+      #     1080)
+
 
       result = ActiveRecord::Base.connection.execute(sql).first['png']
       r = ActiveRecord::Base.connection.unescape_bytea(result)
 
-      n = geographic_item_ids.join('_') + '_debug.draw.png'
+      prefix = if geographic_item_ids.size > 10
+                 'multiple'
+               else
+                 geographic_item_ids.join('_') + '_debug.draw.png'
+               end
+
+      n = prefix + '_debug.draw.png'
 
       # Open the file in binary write mode ("wb")
-      File.open(n, "wb") do |file|
+      File.open(n, 'wb') do |file|
         # Write the binary data to the file
         file.write(r)
       end
@@ -1445,4 +1454,4 @@ class GeographicItem < ApplicationRecord
     end
     end
 
-#     Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }
+    #     Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }

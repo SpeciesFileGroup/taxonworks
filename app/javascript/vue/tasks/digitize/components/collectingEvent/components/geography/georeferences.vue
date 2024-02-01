@@ -490,7 +490,9 @@ export default {
 <style lang="scss">
 .modal-georeferences {
   .modal-container {
-    width: 500px;
+    width: 80vw;
+    max-height: 80vh;
+    overflow-y: scroll;
   }
 }
 </style>
