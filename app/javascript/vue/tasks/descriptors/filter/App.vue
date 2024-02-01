@@ -19,6 +19,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :object-type="DESCRIPTOR"
+          @update="() => makeFilterRequest({ ...parameters, page: 1 })"
         />
       </template>
       <template #nav-right>
@@ -26,6 +27,7 @@
           :ids="selectedIds"
           :disabled="!list.length"
           :object-type="DESCRIPTOR"
+          @update="() => makeFilterRequest({ ...parameters, page: 1 })"
         />
       </template>
       <template #facets>

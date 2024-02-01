@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Favorite cards section layout
+- Radial batch triggers "re-search" when nothing is changed
 
 ## [0.38.0] - 2024-01-31
 

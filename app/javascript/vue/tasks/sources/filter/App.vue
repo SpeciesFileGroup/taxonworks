@@ -21,6 +21,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #nav-right>
@@ -28,6 +29,7 @@
           :disabled="!list.length"
           :ids="selectedIds"
           :count="selectedIds.length"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #facets>
