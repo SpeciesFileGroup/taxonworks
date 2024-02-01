@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.38.1] - 2024-02-01
+
 ### Fixed
 
 - DwC dumps cross-mapping attributes between CollectingEvent and CollectionObject (for real?) [#3802]
@@ -16,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer crashing on real DwC-A zip archives when first table rows are not headers.
 
 [#3802]: https://github.com/SpeciesFileGroup/taxonworks/issues/3802
+[#3805]: https://github.com/SpeciesFileGroup/taxonworks/issues/3805
 
 ## [0.38.0] - 2024-01-31
 
@@ -4271,7 +4276,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.1...development
+[0.38.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.0...v0.38.1
 [0.38.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.1...v0.38.0
 [0.37.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.0...v0.37.1
 [0.37.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.36.0...v0.37.0
