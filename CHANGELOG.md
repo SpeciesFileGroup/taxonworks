@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Favorite cards section layout
 - Radial batch triggers "re-search" when nothing is changed
 - Custom attributes component loads auto filled with incorrect values [#3805]
+- DwC importer crashing on real DwC-A zip archives when first table rows are not headers.
 
 [#3802]: https://github.com/SpeciesFileGroup/taxonworks/issues/3802
 
