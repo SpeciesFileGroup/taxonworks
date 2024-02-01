@@ -20,7 +20,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @close="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #nav-right>
@@ -29,7 +29,9 @@
             :disabled="!list.length"
             :ids="selectedIds"
             :count="selectedIds.length"
-            @close="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+            @update="
+              () => makeFilterRequest({ ...parameters, extend, page: 1 })
+            "
           />
         </div>
       </template>

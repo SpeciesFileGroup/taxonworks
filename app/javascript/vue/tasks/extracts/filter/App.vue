@@ -20,6 +20,7 @@
           :parameters="parameters"
           :disabled="!list.length"
           :object-type="EXTRACT"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #nav-right>
@@ -27,6 +28,7 @@
           :ids="selectedIds"
           :disabled="!list.length"
           :object-type="EXTRACT"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #facets>
