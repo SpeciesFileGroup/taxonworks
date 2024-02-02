@@ -8,6 +8,7 @@ module Queries
         *::Confidence.related_foreign_keys.map(&:to_sym),
         :confidence_id,
         :confidence_level_id,
+        :confidence_object_id,
         :confidence_object_type,
         confidence_id: [],
         confidence_level_id: [],
