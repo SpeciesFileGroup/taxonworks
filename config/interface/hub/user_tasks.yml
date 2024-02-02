@@ -852,15 +852,14 @@ debug_geographic_item_task:
   related:
   categories:
     - geographic_area
-    - collecting_event 
+    - collecting_event
     - georeference
   status: prototype
   description: 'Report metadat about a geographic item.'
-
-index_new_lead_task:
+new_lead_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'New dichotomous key'
   related:
   categories:
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Create a new dichotomous key.'

@@ -1,9 +1,9 @@
 scope :tasks do
-    scope :leads do
-      scope :new_lead, controller: 'tasks/leads/new_lead' do
-        get :index, as: 'index_new_lead_task'
-      end
+  scope :leads do
+    scope :new_lead, controller: 'tasks/leads/new_lead' do
+      get '/', action: :index, as: 'new_lead_task'
     end
+  end
 
   scope :cached_maps do
     scope :report, controller: 'tasks/cached_maps/report' do
