@@ -1,4 +1,10 @@
 scope :tasks do
+    scope :leads do
+      scope :new_lead, controller: 'tasks/leads/new_lead' do
+        get :index, as: 'index_new_lead_task'
+      end
+    end
+
   scope :cached_maps do
     scope :report, controller: 'tasks/cached_maps/report' do
       get :items_by_otu, as: 'cached_map_items_by_otus_task'
