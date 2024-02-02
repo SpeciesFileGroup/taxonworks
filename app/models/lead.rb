@@ -102,7 +102,7 @@ class Lead < ApplicationRecord
     a = self.children[0]
     b = self.children[1]
 
-    if (a.children.size == 0) or (b.children.size == 0) # note that this only works when one side of the couplet has no children!
+    if (a.children.size == 0) or (b.children.size == 0)
       for c in [a, b]
         for d in c.children
           d.parent = self # update(parent_id: self.id)
