@@ -112,6 +112,8 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits('update-count')
+
 const list = ref([])
 const citation = ref(newCitation())
 const isModalVisible = ref(false)
@@ -184,6 +186,7 @@ function saveCitation(item) {
     .then(({ body }) => {
       addToArray(list.value, body)
       citation.value = body
+      emit('update-count', list.value.length)
       TW.workbench.alert.create('Citation was successfully saved.', 'notice')
     })
     .catch(() => {})
@@ -192,6 +195,7 @@ function saveCitation(item) {
 function removeItem(item) {
   Citation.destroy(item.id).then((_) => {
     removeFromArray(list.value, item)
+    emit('update-count', list.value.length)
   })
 }
 

@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Radial Annotator: Citation count no longer updates [#3806]
+
+[#3806]: https://github.com/SpeciesFileGroup/taxonworks/issues/3806
 
 ## [0.38.1] - 2024-02-01
 
