@@ -1,1 +1,1 @@
-json.partial! "leads/lead", lead: @lead
+json.partial! 'attributes', lead: @lead
