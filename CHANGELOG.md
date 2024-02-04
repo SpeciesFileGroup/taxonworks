@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Radial Annotator: Citation count no longer updates [#3806]
+- Image matrix: OTU depictions cells are not displaying the correct images when `otu_filter` parameter is set
 
 [#3806]: https://github.com/SpeciesFileGroup/taxonworks/issues/3806
 
