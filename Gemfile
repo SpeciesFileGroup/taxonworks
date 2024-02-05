@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 2.0', require: 'rack/cors'
 
-ruby '>= 3.2', '< 3.3.0'
+ruby '>= 3.2', '< 3.4.0'
 
 gem 'bundler', '~> 2.0'
 
