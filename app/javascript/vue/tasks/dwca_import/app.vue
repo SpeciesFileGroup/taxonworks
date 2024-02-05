@@ -105,7 +105,7 @@ export default {
 
       if (bottomOfTable && this.dataset.id) {
         if (
-          this.pagination.nextPage &&
+          this.pagination?.nextPage &&
           this.pagination.nextPage > this.pagination.paginationPage
         ) {
           this.$store.dispatch(
