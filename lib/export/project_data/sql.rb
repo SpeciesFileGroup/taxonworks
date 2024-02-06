@@ -111,7 +111,7 @@ module ::Export::ProjectData::Sql
     return dump_table(table_pair.first, io, project_id) unless cols_model.include?('"project_id"')
 
     cols_hierarchy = get_table_cols(table_pair.first)
-    select_query = "SELECT #{cols_hierarchy.map { |c| "#{table_pair.first}.#{c}" }.join(', ')} "\
+    select_query = "SELECT DISTINCT #{cols_hierarchy.map { |c| "#{table_pair.first}.#{c}" }.join(', ')} "\
                    "FROM #{table_pair.second} INNER JOIN "\
                        "#{table_pair.first} ON #{table_pair.second}.id IN ("\
                          "#{table_pair.first}.ancestor_id, #{table_pair.first}.descendant_id"\
