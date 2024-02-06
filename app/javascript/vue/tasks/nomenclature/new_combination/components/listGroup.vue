@@ -28,7 +28,7 @@
               <span>
                 <span
                   class="new-combination-rank-list-taxon-name"
-                  v-html="taxon.original_combination"
+                  v-html="makeTaxonLabel(taxon)"
                 />
                 <span class="disabled"> ({{ taxon.rank }})</span>
               </span>
@@ -48,7 +48,7 @@
       >
         <h3 v-if="selected">
           <b
-            ><span v-html="selected.original_combination" />
+            ><span v-html="makeTaxonLabel(selected)" />
             <span class="disabled"> ({{ selected.rank }})</span></b
           >
         </h3>
@@ -58,7 +58,7 @@
       <div class="maxheight content middle item">
         <h3 v-if="selected">
           <b
-            ><span v-html="selected.original_combination" />
+            ><span v-html="makeTaxonLabel(selected)" />
             <span class="disabled"> ({{ selected.rank }})</span></b
           >
         </h3>
@@ -86,7 +86,7 @@
           display="label"
           min="2"
           placeholder="Search an taxon name"
-          @getItem="getFromAutocomplete"
+          @get-item="getFromAutocomplete"
           param="term"
           :add-params="{
             'type[]': 'Protonym',
@@ -245,6 +245,10 @@ export default {
       } else {
         this.$refs.rankRadio.$el.focus()
       }
+    },
+
+    makeTaxonLabel(taxon) {
+      return taxon.original_combination || taxon.cached_html
     },
 
     isSelected(taxon) {
