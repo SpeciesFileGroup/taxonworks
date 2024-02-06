@@ -2,7 +2,7 @@
   <div>
     <ul class="no_bullets">
       <li
-        v-for="item in documents"
+        v-for="item in documentation"
         :key="item.id"
       >
         <a
@@ -15,26 +15,24 @@
   </div>
 </template>
 
-<script>
-import { Source } from '@/routes/endpoints'
+<script setup>
+import { ref } from 'vue'
+import { Documentation } from '@/routes/endpoints'
+import { SOURCE } from '@/constants'
 
-export default {
-  props: {
-    sourceId: {
-      type: [String, Number]
-    }
-  },
-
-  data() {
-    return {
-      documents: []
-    }
-  },
-
-  mounted() {
-    Source.documentation(this.sourceId).then((response) => {
-      this.documents = response.body
-    })
+const props = defineProps({
+  sourceId: {
+    type: [String, Number],
+    required: true
   }
-}
+})
+
+const documentation = ref([])
+
+Documentation.where({
+  documentation_object_id: props.sourceId,
+  documentation_object_type: SOURCE
+}).then(({ body }) => {
+  documentation.value = body
+})
 </script>

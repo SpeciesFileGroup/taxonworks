@@ -1,63 +1,79 @@
 <template>
   <div class="protocols_annotator">
-    <autocomplete
+    <Autocomplete
       url="/protocols/autocomplete"
       label="label"
       min="2"
       placeholder="Select a protocol"
-      @getItem="createNew($event.id)"
       class="separate-bottom"
       param="term"
+      @get-item="({ id }) => createNew(id)"
     />
-    <list-items
+    <ListItems
       target="protocols"
       label="object_tag"
       :annotator="false"
       target-citations="protocols"
       :list="list"
-      @delete="removeItem"
       class="list"
+      @delete="removeItem"
     />
   </div>
 </template>
-<script>
-import CRUD from '../request/crud.js'
-import annotatorExtend from '../components/annotatorExtend.js'
-import autocomplete from '@/components/ui/Autocomplete.vue'
+
+<script setup>
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 import ListItems from './shared/listItems'
+import { ProtocolRelationship } from '@/routes/endpoints'
+import { ref } from 'vue'
+import { removeFromArray } from '@/helpers'
 
-export default {
-  mixins: [CRUD, annotatorExtend],
-  components: {
-    ListItems,
-    autocomplete
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
-  computed: {
-    validateFields() {
-      return this.note.text
-    }
-  },
-  data: function () {
-    return {
-      list: []
-    }
-  },
-  methods: {
-    createNew(protocol_relationship_id) {
-      let data = {
-        protocol_id: protocol_relationship_id,
-        annotated_global_entity: decodeURIComponent(this.globalId)
-      }
 
-      this.create('/protocol_relationships', {
-        protocol_relationship: data
-      }).then((response) => {
-        this.list.push(response.body)
-      })
+  objectType: {
+    type: String,
+    required: true
+  }
+})
+
+const emit = defineEmits(['update-count'])
+
+const list = ref([])
+
+function createNew(protocolId) {
+  const payload = {
+    protocol_relationship: {
+      protocol_id: protocolId,
+      protocol_relationship_object_id: props.objectId,
+      protocol_relationship_object_type: props.objectType
     }
   }
+
+  ProtocolRelationship.create(payload).then(({ body }) => {
+    list.value.push(body)
+    emit('update-count', list.value.length)
+  })
 }
+
+function removeItem(item) {
+  ProtocolRelationship.destroy(item.id).then((_) => {
+    removeFromArray(list.value, item)
+    emit('update-count', list.value.length)
+  })
+}
+
+ProtocolRelationship.where({
+  protocol_relationship_object_id: props.objectId,
+  protocol_relationship_object_type: props.objectType
+}).then(({ body }) => {
+  list.value = body
+})
 </script>
+
 <style lang="scss">
 .radial-annotator {
   .protocols_annotator {

@@ -9,7 +9,37 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- highlight row on click in DwC Importer [#3795]
+
+### Fixed
+
+- Radial Annotator: Citation count no longer updates [#3806]
+- Image matrix: OTU depictions cells are not displaying the correct images when `otu_filter` parameter is set
+- New combination task freezes in some cases
+- SQL project dump duplicating hierarchies tables rows causing index creation to fail on restore
+
+[#3795]: https://github.com/SpeciesFileGroup/taxonworks/issues/3795
+[#3806]: https://github.com/SpeciesFileGroup/taxonworks/issues/3806
+
+## [0.38.1] - 2024-02-01
+
+### Fixed
+
+- DwC dumps cross-mapping attributes between CollectingEvent and CollectionObject (for real?) [#3802]
+- Favorite cards section layout
+- Radial batch triggers "re-search" when nothing is changed
+- Custom attributes component loads auto filled with incorrect values [#3805]
+- DwC importer crashing on real DwC-A zip archives when first table rows are not headers.
+
+[#3802]: https://github.com/SpeciesFileGroup/taxonworks/issues/3802
+[#3805]: https://github.com/SpeciesFileGroup/taxonworks/issues/3805
+
+## [0.38.0] - 2024-01-31
+
+### Added
+
 - GeographicItem debug task
+- `documentation_object_type` and `documentation_object_id` to documentation filter
 
 ### Changed
 
@@ -17,6 +47,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- DwC dumps cross-mapping attributes between CollectingEvent and CollectionObject [#3802]
+- Staged Image filter failing on some identifier queries
+- TaxonName batch update
 - Contributing link [#3752]
 - Uncaught promise errors [#3767]
 - Custom attributes triggers `isUpdated` ce state [#3764]
@@ -25,7 +58,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loan item list doesn't update when adding a loan item from Tag or Pinboard [#3784]
 - Unable to add a CO loan item to a loan that already has an OTU loan item with the same id [#3785]
 - CO Loan gifts have tag "On Loan until false" [#3731]
+- Figure panel in New content task
+- DwC Occurrence Importer using out of project scope http://rs.tdwg.org/dwc/terms/FossilSpecimen biocuration class.
+- Hub: Status filter doesn't work correctly [#3791]
+- Hub: Left and right arrow keys on task hub don't work as expected. [#3792]
 
+[#3802]: https://github.com/SpeciesFileGroup/taxonworks/issues/3802
 [#2718]: https://github.com/SpeciesFileGroup/taxonworks/issues/2718
 [#3731]: https://github.com/SpeciesFileGroup/taxonworks/issues/3731
 [#3752]: https://github.com/SpeciesFileGroup/taxonworks/issues/3752
@@ -34,6 +72,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3767]: https://github.com/SpeciesFileGroup/taxonworks/issues/3767
 [#3784]: https://github.com/SpeciesFileGroup/taxonworks/issues/3784
 [#3785]: https://github.com/SpeciesFileGroup/taxonworks/issues/3785
+[#3791]: https://github.com/SpeciesFileGroup/taxonworks/issues/3791
+[#3792]: https://github.com/SpeciesFileGroup/taxonworks/issues/3792
 
 ## [0.37.1] - 2024-01-04
 
@@ -4248,7 +4288,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.1...development
+[0.38.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.0...v0.38.1
+[0.38.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.1...v0.38.0
 [0.37.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.0...v0.37.1
 [0.37.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.3...v0.36.0

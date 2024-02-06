@@ -16,7 +16,7 @@
   <%= tag.em('None') if @geographic_area.children.empty? -%>
   </p>
 
-  <%= link_to('Debug default geographic item', debug_geographic_item_task_path(@geographic_area.default_geographic_item_id)) %>
+  <%= link_to('Debug default geographic item', debug_geographic_item_task_path(geographic_item_id: @geographic_area.default_geographic_item_id)) %>
 
 <% end %>
 

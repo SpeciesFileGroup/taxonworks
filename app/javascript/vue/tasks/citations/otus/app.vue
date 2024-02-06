@@ -69,14 +69,14 @@
 <script>
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
-
+import { Citation, Otu, Topic } from '@/routes/endpoints'
+import { OTU } from '@/constants'
 import removeCitation from './components/removeCitation.vue'
 import OtuPicker from './components/otuPicker.vue'
 import OtuCitations from './components/otuCitations.vue'
 import TopicsChecklist from './components/topicsChecklist.vue'
 import SourceCitations from './components/sourceCitations.vue'
 import SourcePicker from './components/sourcePicker.vue'
-import { Citation, Otu, Topic } from '@/routes/endpoints'
 
 export default {
   components: {
@@ -154,11 +154,12 @@ export default {
     loadCitations() {
       const { commit, getters } = this.$store
 
-      Otu.citations(this.$store.getters[GetterNames.GetOtuSelected].id).then(
-        (response) => {
-          commit(MutationNames.SetCitationsList, response.body)
-        }
-      )
+      Citation.where({
+        citation_object_id: getters[GetterNames.GetOtuSelected].id,
+        citation_object_type: OTU
+      }).then((response) => {
+        commit(MutationNames.SetCitationsList, response.body)
+      })
 
       Citation.where({
         source_id: this.$store.getters[GetterNames.GetSourceSelected].id,

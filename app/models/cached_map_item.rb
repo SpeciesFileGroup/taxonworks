@@ -148,78 +148,39 @@ class CachedMapItem < ApplicationRecord
   # Given a  set of target shapes, return those that intersect with the provided shape
   #
   # @param geographic_item_id [id]
-  #   the provide shape
+  #   the shape we are translating *from*
   #
-  # @return [Array]
-  #   of GeographicItem ids
+  # @param data_origin
+  #    defines the shapes we are translating to
   #
-  def self.translate_by_spatial_overlap(geographic_item_id, data_origin, percent_overlap_cutoff)
-
+  # #param buffer [nil, Decimal] in meters
+  #    shrink, (or grow) the shape we are translating from
+  #    Typical use is to shrink, so that differences in spatial resolution
+  #    are minimized (low res shapes intersect with high res in undesireable ways)
+  #
+  # @return [Array] of GeographicItem ids
+  #
+  def self.translate_by_spatial_overlap(geographic_item_id, data_origin, buffer)
     return [] if geographic_item_id.blank?
 
-    # All intersecting candidates, from smallest to largest
-    b = GeographicItem
+    # !! Assumes all GeographicArea shapes were loaded to multi_polygon
+    # (pre-adapts us to a single geometry field type), however be
+    # aware of this assumption
+
+    # This is a fast first pass, pure intersection
+    a = GeographicItem
       .joins(:geographic_areas_geographic_items)
       .where(geographic_areas_geographic_items: { data_origin: })
-      .where( GeographicItem.within_radius_of_item_sql(geographic_item_id, 0.0) )
-      .order('geographic_items.cached_total_area ASC')
-      .pluck(:id, :cached_total_area)
+      .where( "ST_Intersects( multi_polygon, ( select #{ GeographicItem::GEOGRAPHY_SQL } from geographic_items where geographic_items.id = #{geographic_item_id}) )" )
+      .pluck(:id)
 
-    gi = GeographicItem.select(:id, :cached_total_area).find(geographic_item_id)
+    return a if buffer.nil?
 
-    original_area = gi.cached_total_area
-
-    # Points
-    if original_area == 0.0
-      return b.collect{ |c| c.first }
-
-      # Polygons
-    else
-
-      # Break the candidates down into two sets, smaller than original, and larger than original
-      smaller = []
-      larger = []
-
-      b.each do |id, candidate_area|
-        if candidate_area < original_area
-          smaller.push [id, candidate_area]
-        else
-          larger.push [id, candidate_area]
-        end
-      end
-
-      # Among those candidates larger than the original the first will completely surround the candidate, or not.
-      # If there isn't a single that fully surrounds, then all must intersect.  Use area comparison
-      # as a proxy for fully surrounds. TODO: check likely not necessary.
-      #
-      # !! Note that if the if the candidate set contains nested shapes (e.g. countries and states)
-      # !! then we need another step to only return the covering shapes, not covering and eclosed of the covering.
-      #
-      chosen_larger = []
-
-      if !larger.empty?
-        id = larger.first.first  # id of the smallest of the largest
-        intersecting_area = gi.intersecting_area( id )
-        if intersecting_area >= original_area # if the largest fully surrounds the original area select that, and exit, there should be no other results needed
-          chosen_larger.push id
-        else  # it must be intersecting all remaining target shapes, since we started with the smallest
-          chosen_larger += larger.map(&:first)
-        end
-      end
-
-      # We need to "smooth" the smaller, more detailed shapes which may catch many overlaping areas slightly.
-      # Remove intersections of 10% or less.
-      chosen_smaller = []
-
-      smaller.each do |id, candidate_area|
-        intersecting_area = gi.intersecting_area(id)
-
-        o = (((candidate_area - intersecting_area) / candidate_area ) * 100.0 ).to_f.round(4)
-        chosen_smaller.push id if o <= percent_overlap_cutoff
-      end
-
-      return chosen_larger + chosen_smaller
-    end
+    # Refine the pass by smoothing using buffer/st_within
+    return GeographicItem
+      .where(id: a)
+      .where( GeographicItem.st_buffer_st_within(geographic_item_id, 0.0, buffer) )
+      .pluck(:id)
   end
 
   # @return [Array]
@@ -229,18 +190,18 @@ class CachedMapItem < ApplicationRecord
   # @param data_origin Array, String
   #   like `ne_states` or ['ne_states, 'ne_countries']
   #
-  # @param percent_overlap_cutoff
-  #    Decimal, 0.0 - 100.0
-  #   a "smoothing" variable, if the intersection of the two compared shapes is < this target
-  #   (for example when edges of a precise shape clip surrounding less precise shapes) then
-  #   then we do not match them
+  # @param buffer [nil, Decimal]
+  #   shr,ink (or grow) the size of the target shape, in meters
+  #   Typical use, do not apply for Georeferences, apply -10km for AssertedDistributions
   #
-  def self.translate_geographic_item_id(geographic_item_id, origin_type = nil, data_origin = nil, percent_overlap_cutoff: 90.0)
+  def self.translate_geographic_item_id(geographic_item_id, origin_type = nil, data_origin = nil, buffer = nil)
     return nil if data_origin.blank?
 
     cached_map_type = types_by_data_origin(data_origin)
 
     a = nil
+
+    b = buffer
 
     # All these methods depend on "prior knowledge" (not spatial calculations)
     if origin_type == 'AssertedDistribution'
@@ -255,9 +216,32 @@ class CachedMapItem < ApplicationRecord
 
       a = translate_by_cached_map_usage(geographic_item_id, cached_map_type)
       return a if a.present?
+
+      b = dynamic_buffer(geographic_item_id) # -1000.0 # Monaco
     end
 
-    translate_by_spatial_overlap(geographic_item_id, data_origin, percent_overlap_cutoff)
+    translate_by_spatial_overlap(geographic_item_id, data_origin, b)
+  end
+
+  def self.dynamic_buffer(geographic_item_id)
+    v = GeographicItem.select(:id, :cached_total_area).find(geographic_item_id).cached_total_area
+    return 0 if v.nil?
+    case Math.log10(v).to_i
+    when 0..2 # 3786
+      0.0
+    when 3..6 # Perhaps no GeographicAreas hit here
+      -100.0
+    when 7 # e.g. Monaco 122
+      -1000
+    when 8
+      -2000 # e.g. Calhoun Co. 27490
+    when 9
+      -4000 # 3786 Cooma-Monaro
+    when 10..12
+      -12000.0  # e.g. Brazil 33794; Canada 37 !! Seems to be a sweet spot, remainder untested
+    else #(max is 13)
+      -20000.0 # Antarctic, 10
+    end
   end
 
   # @return [Hash, nil]

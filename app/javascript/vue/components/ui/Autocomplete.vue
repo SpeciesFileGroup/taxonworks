@@ -206,8 +206,11 @@ export default {
   },
 
   watch: {
-    modelValue(newVal) {
-      this.type = newVal
+    modelValue: {
+      handler(newVal) {
+        this.type = newVal || ''
+      },
+      immediate: true
     },
     type(newVal) {
       if (this.type?.length < Number(this.min)) {
@@ -347,7 +350,9 @@ export default {
           .then(({ body }) => {
             this.json = this.getNested(body, this.nested)
             if (this.excludedIds) {
-              this.json = this.json.filter((item) => !this.excludedIds.includes(item.id))
+              this.json = this.json.filter(
+                (item) => !this.excludedIds.includes(item.id)
+              )
             }
             this.showList = this.json.length > 0
             this.searchEnd = true

@@ -80,10 +80,11 @@
 <script>
 import ModalComponent from '@/components/ui/Modal'
 import CharacterState from './Character'
-import { Descriptor } from '@/routes/endpoints'
+import { Depiction } from '@/routes/endpoints'
 import { chunkArray } from '@/helpers/arrays.js'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
+import { DESCRIPTOR } from '@/constants'
 
 export default {
   components: {
@@ -113,7 +114,10 @@ export default {
   },
 
   created() {
-    Descriptor.depictions(this.descriptor.id).then((response) => {
+    Depiction.where({
+      depiction_object_id: this.descriptor.id,
+      depiction_object_type: DESCRIPTOR
+    }).then((response) => {
       this.depictions = response.body
     })
   },

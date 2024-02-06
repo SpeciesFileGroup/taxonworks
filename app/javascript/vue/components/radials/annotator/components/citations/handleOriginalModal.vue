@@ -19,8 +19,8 @@
             />
             <span
               >Keep <b v-html="originalSource.cached" /> as original, save
-              <b v-html="currentSource.cached" /> as non original.</span
-            >
+              <b v-html="currentSource.cached" /> as non original.
+            </span>
           </label>
         </li>
         <li>
@@ -31,10 +31,9 @@
               :value="false"
               v-model="keepOriginal"
             />
-            <span
-              >Save <b v-html="currentSource.cached" /> as original
-              citation.</span
-            >
+            <span>
+              Save <b v-html="currentSource.cached" /> as original citation.
+            </span>
           </label>
         </li>
       </ul>
@@ -51,75 +50,80 @@
   </modal-component>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import { Citation, Source } from '@/routes/endpoints'
 import ModalComponent from '@/components/ui/Modal'
-import CRUD from '../../request/crud.js'
 
-export default {
-  mixins: [CRUD],
+const EXTEND_PARAMS = ['source', 'citation_topics']
 
-  components: { ModalComponent },
+const props = defineProps({
+  citation: {
+    type: Object,
+    required: true
+  },
 
-  props: {
+  originalCitation: {
+    type: Object,
+    required: true
+  }
+})
+
+const emit = defineEmits(['create', 'save', 'close'])
+
+const currentSource = ref({})
+const originalSource = ref({})
+const keepOriginal = ref(true)
+
+Source.find(props.citation.source_id).then(({ body }) => {
+  currentSource.value = body
+})
+Source.find(props.originalCitation.source_id).then(({ body }) => {
+  originalSource.value = body
+})
+
+function createNonOriginal() {
+  const payload = {
     citation: {
-      type: Object,
-      required: true
+      ...props.citation,
+      is_original: false
     },
+    extend: EXTEND_PARAMS
+  }
 
-    originalCitation: {
-      type: Object,
-      required: true
-    }
-  },
+  Citation.create(payload).then(({ body }) => {
+    emit('save', body)
+    emit('close')
+  })
+}
 
-  emits: ['create', 'close'],
-
-  data() {
-    return {
-      currentSource: {},
-      originalSource: {},
-      keepOriginal: true
-    }
-  },
-
-  async created() {
-    this.currentSource = (await Source.find(this.citation.source_id)).body
-    this.originalSource = (
-      await Source.find(this.originalCitation.source_id)
-    ).body
-  },
-
-  methods: {
-    createNonOriginal() {
-      const payload = { ...this.citation, is_original: false }
-
-      Citation.create({ citation: payload }).then((response) => {
-        this.$emit('create', response.body)
-        this.$emit('close')
-      })
+function changeOriginal() {
+  const payload = {
+    citation: {
+      id: props.originalCitation.id,
+      is_original: false
     },
+    extend: EXTEND_PARAMS
+  }
 
-    changeOriginal() {
-      const payload = { ...this.originalCitation, is_original: false }
+  Citation.update(props.originalCitation.id, payload).then(({ body }) => {
+    emit('save', body)
 
-      Citation.update(this.originalCitation.id, { citation: payload }).then(
-        (_) => {
-          Citation.create({ citation: this.citation }).then((response) => {
-            this.$emit('create', response.body)
-            this.$emit('close')
-          })
-        }
-      )
-    },
+    Citation.create({
+      citation: { ...props.citation, is_original: true }
+    }).then(({ body }) => {
+      emit('save', body)
+      emit('create', body)
+      emit('close')
+    })
+  })
+}
 
-    handleCitation() {
-      if (this.keepOriginal) {
-        this.createNonOriginal()
-      } else {
-        this.changeOriginal()
-      }
-    }
+function handleCitation() {
+  if (keepOriginal.value) {
+    createNonOriginal()
+  } else {
+    changeOriginal()
   }
 }
 </script>

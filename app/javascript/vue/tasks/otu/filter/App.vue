@@ -20,6 +20,7 @@
           :parameters="parameters"
           :disabled="!list.length"
           :object-type="OTU"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #nav-right>
@@ -27,11 +28,13 @@
           :object-type="OTU"
           :disabled="!list.length"
           :ids="selectedIds"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
         <RadialOtu
           :disabled="!list.length"
           :ids="selectedIds"
           :count="selectedIds.length"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #facets>

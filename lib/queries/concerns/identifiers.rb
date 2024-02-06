@@ -87,6 +87,10 @@ module Queries::Concerns::Identifiers
     # Limit to this namespace
     attr_accessor :namespace_id
 
+    # Globally turn off (in crude manner) use of this concern.  Set in individual filters,
+    # e.g. SqedDepictoin
+    attr_accessor :no_identifier_clauses
+
     def identifier_start
       @identifier_start.to_s
     end
@@ -275,7 +279,6 @@ module Queries::Concerns::Identifiers
 
     a
   end
-
 
   # TODO: Simplify local/global copy-pasta
   def global_identifiers_facet

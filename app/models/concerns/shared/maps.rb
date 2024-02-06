@@ -22,7 +22,9 @@ module Shared::Maps
     has_one :cached_map_register, as: :cached_map_register_object, dependent: :delete
 
     after_create :initialize_cached_map_items
-    after_create :destroy_cached_map
+
+    # TODO: re-enable once scoping issues are determined
+    # after_create :destroy_cached_map
 
     before_destroy :remove_from_cached_map_items
 
@@ -107,6 +109,8 @@ module Shared::Maps
         return ::Queries::Otu::Filter.new(otu_id: otu_ids, coordinatify: true, ancestrify: true, project_id: ).all
       end
     end
+
+    # rubocop:disable Metrics/MethodLength
 
     # @param batch (Boolean)
     #   true - skips setting geographic name labels (see followup tasks) AND caching translations
@@ -194,6 +198,8 @@ module Shared::Maps
       end
       true
     end
+
+    # rubocop:enable Metrics/MethodLength
 
     def deduct_from_cached_map_items
       cached_map_items_to_clean.each do |cmi|
