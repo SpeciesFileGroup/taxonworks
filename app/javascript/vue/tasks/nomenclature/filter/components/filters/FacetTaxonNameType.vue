@@ -21,8 +21,7 @@
 
 <script setup>
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
-import { computed, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { computed } from 'vue'
 
 const TAXON_TYPES = {
   Protonym: 'Protonym',
@@ -43,9 +42,5 @@ const emit = defineEmits(['update:modelValue'])
 const params = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
-})
-
-onBeforeMount(() => {
-  params.value.taxon_name_type = URLParamsToJSON(location.href).taxon_name_type
 })
 </script>
