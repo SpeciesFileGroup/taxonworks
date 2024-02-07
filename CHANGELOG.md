@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Image matrix: OTU depictions cells are not displaying the correct images when `otu_filter` parameter is set
 - New combination task freezes in some cases
 - SQL project dump duplicating hierarchies tables rows causing index creation to fail on restore
+- OtuPicker doesn't display OTU label when a new OTU is created in New loan task [#3809]
 
 [#3795]: https://github.com/SpeciesFileGroup/taxonworks/issues/3795
 [#3806]: https://github.com/SpeciesFileGroup/taxonworks/issues/3806
