@@ -250,6 +250,7 @@ const updateObjectType = computed(
 
 function success(file, response) {
   list.value.push(response)
+  emit('update-count', list.value.length)
   figureRef.value.removeFile(file)
 }
 
