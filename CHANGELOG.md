@@ -9,7 +9,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- highlight row on click in DwC Importer [#3795]
+- Highlight row on click in DwC Importer [#3795]
+- Radial Collection object: collecting event slice
 
 ### Fixed
 
