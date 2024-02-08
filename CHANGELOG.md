@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Radial Annotator: Citation count no longer updates [#3806]
+- Radial Annotator: Depiction count no longer updates [#3813]
 - Image matrix: OTU depictions cells are not displaying the correct images when `otu_filter` parameter is set
 - New combination task freezes in some cases
 - SQL project dump duplicating hierarchies tables rows causing index creation to fail on restore
@@ -21,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3795]: https://github.com/SpeciesFileGroup/taxonworks/issues/3795
 [#3806]: https://github.com/SpeciesFileGroup/taxonworks/issues/3806
+[#3813]: https://github.com/SpeciesFileGroup/taxonworks/pull/3813
 
 ## [0.38.1] - 2024-02-01
 
