@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Radial Annotator: Citation count no longer updates [#3806]
 - Radial Annotator: Depiction count no longer updates [#3813]
+- Radial annotator: Attribution slice loads incorrect records
 - Image matrix: OTU depictions cells are not displaying the correct images when `otu_filter` parameter is set
 - New combination task freezes in some cases
 - SQL project dump duplicating hierarchies tables rows causing index creation to fail on restore
