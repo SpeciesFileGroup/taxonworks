@@ -43,8 +43,9 @@
 #
 class Lead < ApplicationRecord
   include Housekeeping
-  include Shared::Tags
   include Shared::Citations
+  include Shared::Depictions
+  include Shared::Tags
   include Shared::IsData
 
   belongs_to :parent, class_name: 'Lead'
@@ -55,9 +56,8 @@ class Lead < ApplicationRecord
 
   has_closure_tree order: 'position', numeric_order: true, dont_order_roots: true
 
-  def display_name
-    id.to_s + ': ' + text.slice(0..40) + (text.size > 40 ? '...' : '')
-  end
+  validate :root_has_title
+  validate :link_out_has_no_protocol
 
   def future
     self.redirect_id.blank? ? self.all_children : self.redirect.all_children
@@ -90,27 +90,38 @@ class Lead < ApplicationRecord
     d = self.children.create!(text: 'Inserted node')
 
     if not a == nil
-      a.update!(parent_id: c.id)
-      b.update!(parent_id: c.id)
+      # !! Test thoroughly here! Many things you might expect to work may give
+      # you the wrong order for a and b.
+      c.add_child a
+      a.append_sibling b
     end
 
     [c.id, d.id]
   end
 
-  def destroy_couplet # if refactored do with care, parent/child relationships cause some unexpected behaviour
-    return false if self.children.size == 0
+  def destroy_couplet
+    return true if self.children.size == 0
     a = self.children[0]
     b = self.children[1]
 
     if (a.children.size == 0) or (b.children.size == 0)
-      for c in [a, b]
-        for d in c.children
-          d.parent = self # update(parent_id: self.id)
-          d.save!
-        end
+      if (a.children.size > 0) || (b.children.size > 0)
+        # !! Test thoroughly here! Many things you might expect to work may
+        # give you the wrong order for the reparented children.
+        has_kids = a.children.size > 0 ? a : b
+        no_kids = a.children.size == 0 ? a : b
+        no_kids.destroy!
+        # TODO: find a way to make this work reliably with fewer queries.
+        first_child = Lead.find has_kids.children[0].id
+        second_child = Lead.find has_kids.children[1].id
+        self.add_child first_child
+        first_child.append_sibling second_child
+        Lead.find(has_kids.id).destroy! # NOTE WE CANNOT just do has_kids.destroy, as this invokes bizarre cascading nastiness!!
+      else
+        a.destroy!
+        b.destroy!
       end
-      Lead.find(a.id).destroy! # NOTE WE CANNOT just do a.destroy, as this invokes bizarre cascading nastiness!!
-      Lead.find(b.id).destroy!
+
       true
     else
       false
@@ -141,6 +152,16 @@ class Lead < ApplicationRecord
       c.all_children_standard_key(c, result, depth + 1)
     end
     result
+  end
+
+  protected
+
+  def root_has_title
+    errors.add(:root_node, 'must have a title') if parent_id.nil? and text.nil?
+  end
+
+  def link_out_has_no_protocol
+    errors.add(:link, "shouldn't include http") if link_out&.start_with? 'http' or link_out&.include? '://'
   end
 
 end

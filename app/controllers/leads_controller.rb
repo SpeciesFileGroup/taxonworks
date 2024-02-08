@@ -1,6 +1,8 @@
 class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  before_action :set_lead, only: %i[ edit update destroy show_all show_all_print destroy_couplet delete_couplet duplicate ]
+  before_action :set_lead, only: %i[
+    edit create_for_edit update destroy show show_all show_all_print
+    destroy_couplet insert_couplet delete_couplet duplicate update_meta ]
 
   # GET /leads
   # GET /leads.json
@@ -13,7 +15,7 @@ class LeadsController < ApplicationController
       format.json {
         @leads = Lead.with_project_id(sessions_current_project_id)
           .where('parent_id is null')
-          .order('description')
+          .order(:description)
           .page(params[:page])
           .per(params[:per])
       }
@@ -21,36 +23,34 @@ class LeadsController < ApplicationController
   end
 
   def list
-    @leads = Lead.with_project_id(sessions_current_project_id).where('parent_id is null').order(:id).page(params[:page])
+    @leads = Lead.with_project_id(sessions_current_project_id)
+      .where('parent_id is null').order(:id).page(params[:page])
+  end
+
+  # GET /leads/all_texts.json
+  def all_texts
+    texts = Lead
+      .select(:id, :text)
+      .with_project_id(sessions_current_project_id)
+      .order(:text)
+    @leads = texts.filter_map {|o|
+      t = o.text.nil? ? '(Blank text)' : o.text.truncate(40)
+      {id: o.id, text: "[#{o.id}] " + t}
+    }
   end
 
   # GET /leads/1
   # GET /leads/1.json
   def show
-    respond to do |format|
-      format.html {
-        id = params[:lead][:id] if params[:lead]
-        id ||= params[:id]
-
-        @lead = Lead.find(id)
-        @lead = @lead.parent if params[:lead] and params[:lead][:id] # we hit this when we search, and in fact want to display the found lead, not its children
-
-        children = @lead.children(order: :position)
-        if children.size == 2
-          @left = children[0]
-          @right = children[1]
-        end
-
-        # TODO
-        @left_text = Linker.new(:link_url_base => self.request.host, :proj_id => @proj.ontology_id_to_use, :incoming_text => @left.text, :adjacent_words_to_fuse => 5).linked_text(:is_public => false)
-        @right_text = Linker.new(:link_url_base => self.request.host, :proj_id => @proj.ontology_id_to_use, :incoming_text => @right.text, :adjacent_words_to_fuse => 5).linked_text(:is_public => false)
-
-        @left_future = @left.future
-        @right_future = @right.future
-
-        @parents = @lead.ancestors.reverse!
-      }
-      format.json
+    children = @lead.children
+    if children.size == 2
+      expand_lead
+    else
+      @left = nil
+      @right = nil
+      @left_future = []
+      @right_future = []
+      @parents = @lead.ancestors.reverse
     end
   end
 
@@ -64,21 +64,25 @@ class LeadsController < ApplicationController
 
   # GET /leads/new
   def new
-    @lead = Lead.new
+    respond_to do |format|
+      format.html { redirect_to new_lead_task_path }
+      format.json {
+        @lead = Lead.new
+      }
+    end
   end
 
   # GET /leads/1/edit
   def edit
-    children = @lead.children
-    if children.size == 2
-      @left = children[0]
-      @right = children[1]
-      @left_future = @left.future
-      @right_future = @right.future
-    else
+    redirect_to new_lead_task_path id: @lead.id
+  end
+
+  # POST /leads/1/create_for_edit.json
+  def create_for_edit
+    if @lead.children.size == 0
       new_couplet
     end
-    @parents = @lead.ancestors.reverse!
+    expand_lead
   end
 
   # POST /leads
@@ -88,21 +92,18 @@ class LeadsController < ApplicationController
     respond_to do |format|
       if @lead.save
         new_couplet # we make two blank couplets so we can show the key
-        format.html { redirect_to action: 'list', notice: 'Key was successfully created.' }
-        format.json { render :show, status: :created, location: @lead }
+        format.json { expand_lead }
       else
-        format.html { redirect_to action: 'new', notice: 'Failed to create a new key!' }
         format.json { render json: @lead.errors, status: :unprocessable_entity}
       end
     end
   end
 
+  # POST /leads/1.json/insert_couplet
   def insert_couplet
-    @lead = Lead.find(lead_params[:id]) or raise 'insert_couplet failed.'
     @lead.insert_couplet
 
     respond_to do |format|
-      format.html { redirect_to action: :edit, id: @lead.parent_id, notice: 'Inserted a couplet.' }
       format.json { head :no_content }
     end
   end
@@ -115,13 +116,12 @@ class LeadsController < ApplicationController
     @right = Lead.find(params[:right][:id])
     respond_to do |format|
       begin
-        @left.update!(params[:left])
-        @right.update!(params[:right])
-        @lead.update!(params[:lead])
-        format.html { redirect_to action: 'edit', id: @lead, notice: 'Successfully updated!' }
-        format.json { render :show, status: :ok, location: @lead }
+        @lead.update!(lead_params)
+        @left.update!(lead_params(:left))
+        @right.update!(lead_params(:right))
+        format.json { head :no_content }
       rescue
-        format.html { redirect_to action: 'edit', id: @lead, notice: 'Something went wrong in the save!' }
+        # TODO we're using @lead.errors like the error occurred with lead
         format.json { render json: @lead.errors, status: :unprocessable_entity}
       end
     end
@@ -130,14 +130,15 @@ class LeadsController < ApplicationController
   # DELETE /leads/1
   # DELETE /leads/1.json
   def destroy
-    respond_to do |format|
-      if no_grandchildren(@lead)
+    if @lead.parent_id
+      respond_to do |format|
+        flash[:error] = 'Delete aborted - you can only delete on root nodes.'
+        format.json { head :no_content, status: :unprocessable_entity }
+      end
+    else
+      respond_to do |format|
         @lead.destroy! # note we allow the AR to do this
-        format.html { redirect_to action: 'list', notice: 'Deleted.' }
-        format.json { head :no_content }
-      else
-        format.html { redirect_to action: 'list', notice: 'Node not deleted: can only delete nodes with no grandchildren.' }
-        # TODO: what's the right response here, to say 'nothing went wrong, you just can't delete in this case'?
+        flash[:notice] = 'Key deleted.'
         format.json { head :no_content }
       end
     end
@@ -147,28 +148,26 @@ class LeadsController < ApplicationController
   def destroy_couplet
     if @lead.parent_id.present?
       delete_couplet
+      respond_to do |format|
+        format.json { head :no_content }
+      end
     else
       respond_to do |format|
-        format.html { redirect_to action: :edit, id: @lead, notice: 'Can\'t delete a root couplet.' }
-        # TODO: ?
-        format.json { head :no_content }
+        format.json { head :no_content, status: :unprocessable_entity }
       end
     end
   end
 
-  # For deleting a couplet where one side has no children but the other might; the side with children is reparented.
+  # For deleting a couplet where one side has no children but the other might;
+  # the side with children is reparented.
   def delete_couplet
     respond_to do |format|
       if @lead.destroy_couplet
-        notice = @lead.children.size == 0 ? 'Deleted couplet and moved back up.' : 'Deleted couplet and reparented its children.'
-        format.html { redirect_to action: :edit, id: @lead, notice: }
         format.json { head :no_content }
       else
-        format.html { redirect_to action: :edit, id: @lead, notice: 'Couplet was not deleted.'}
         format.json { head :no_content }
       end
     end
-    redirect_to action: :edit, id: (@lead.children.size == 0 ? @lead.parent_id : @lead)
   end
 
   def duplicate
@@ -179,20 +178,42 @@ class LeadsController < ApplicationController
     end
   end
 
+  # POST /leads/1/update_meta.json
+  def update_meta
+    respond_to do |format|
+      if @lead.update(lead_params)
+        format.json { head :no_content }
+      else
+        format.json { render json: @lead.errors, status: :unprocessable_entity}
+      end
+    end
+  end
+
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_lead
     @lead = Lead.find(params[:id])
   end
 
-  def lead_params
-    params.require(:lead).permit(:parent_id, :otu_id, :text, :origin_label, :description, :redirect_id, :link_out, :link_out_text, :position, :is_public)
+  def lead_params(require = :lead)
+    params.require(require).permit(
+      :otu_id, :text, :origin_label, :description, :redirect_id,
+      :link_out, :link_out_text, :is_public, :position
+    )
+  end
+
+  def expand_lead
+    # Assumes the parent node is @lead and @lead has two children
+    @left = @lead.children[0]
+    @right = @lead.children[1]
+    @left_future = @left.future
+    @right_future = @right.future
+    @parents = @lead.ancestors.reverse
   end
 
   def new_couplet
-    # Assumes the parent node is @clave
-    return if @clave.children.size == 0
+    # Assumes the parent node is @lead
+    return if @lead.children.size > 0
     @left = @lead.children.create!
     @right = @lead.children.create!
     @left_future = @left.future

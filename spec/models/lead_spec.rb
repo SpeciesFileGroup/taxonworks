@@ -90,7 +90,7 @@ RSpec.describe Lead, type: :model do
     end
 
     specify 'destroy_couplet noops on a key with no children' do
-      expect(Lead.find_by(text: 'r').destroy_couplet).to be(false)
+      expect(Lead.find_by(text: 'r').destroy_couplet).to be(true)
       expect(Lead.where('parent_id is null').first.all_children.size).to be(6)
     end
 
@@ -106,6 +106,9 @@ RSpec.describe Lead, type: :model do
 
       expect(Lead.find_by(text: 'lrl').parent_id).to eq(lkey2.id)
       expect(Lead.find_by(text: 'lrr').parent_id).to eq(lkey2.id)
+
+      expect(lkey2.children[0]).to eq(Lead.find_by(text: 'lrl'))
+      expect(lkey2.children[1]).to eq(Lead.find_by(text: 'lrr'))
 
       expect(lkey2.all_children.size).to eq(2)
     end

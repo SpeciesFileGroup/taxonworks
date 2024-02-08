@@ -1,0 +1,46 @@
+import { Lead } from '@/routes/endpoints'
+import { RouteNames } from '@/routes/routes'
+import setParam from '@/helpers/setParam'
+
+export default async function(id_or_couplet) {
+  let lo = undefined
+  let error_message = undefined
+  if (typeof(id_or_couplet) == 'object') {
+    lo = id_or_couplet
+  }
+  else if (typeof(id_or_couplet) == 'number') {
+    try {
+      lo = (await Lead.find(id_or_couplet)).body
+    }
+    catch(e) {
+      error_message = `Unable to load: couldn't find id ${id_or_couplet}.`
+    }
+  }
+  else {
+    error_message = 'Unable to load: unrecognized id.'
+  }
+
+  if (error_message) {
+    this.$reset()
+    setParam(RouteNames.NewLead, 'id')
+    error_message = error_message + " You've been redirected to the New Key page."
+    TW.workbench.alert.create(error_message, 'error')
+    return;
+  }
+
+  this.root = lo.root
+  this.lead = lo.lead
+  this.left = lo.left
+  this.right = lo.right
+  this.parents = lo.parents
+  this.left_future = lo.left_future
+  this.right_future = lo.right_future
+  this.left_has_children = has_children(lo.left_future)
+  this.right_has_children = has_children(lo.right_future)
+
+  setParam(RouteNames.NewLead, 'id', lo.lead.id)
+}
+
+function has_children(future) {
+  return future && future.length > 0
+}

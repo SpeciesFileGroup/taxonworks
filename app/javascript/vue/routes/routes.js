@@ -24,8 +24,9 @@ const RouteNames = {
   DigitizeTask: '/tasks/accessions/comprehensive',
   DwcDashboard: '/tasks/dwc/dashboard',
   DwcImport: '/tasks/dwca_import/index',
-  FilterCollectionObjects: '/tasks/collection_objects/filter',
   FilterCollectingEvents: '/tasks/collecting_events/filter',
+  FilterCollectionObjects: '/tasks/collection_objects/filter',
+  FreeFormTask: '/tasks/collection_objects/freeform_digitize',
   ImageMatrix: '/tasks/matrix_image/matrix_image/index',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   ManageBiocurationTask:
@@ -33,21 +34,21 @@ const RouteNames = {
   ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',
   MatchCollectionObject: '/tasks/collection_objects/match',
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
-  NewObservationMatrix: '/tasks/observation_matrices/new_matrix',
   NewBiologicalAssociationGraph:
     '/tasks/biological_associations/biological_associations_graph',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
   NewExtract: '/tasks/extracts/new_extract',
+  NewLead: '/tasks/leads/new_lead',
   NewNamespace: '/tasks/namespaces/new_namespace',
-  NewTaxonName: '/tasks/nomenclature/new_taxon_name',
+  NewObservationMatrix: '/tasks/observation_matrices/new_matrix',
   NewSource: '/tasks/sources/new_source',
+  NewTaxonName: '/tasks/nomenclature/new_taxon_name',
   NomenclatureBySource: '/tasks/nomenclature/by_source',
   NomenclatureStats: '/tasks/nomenclature/stats',
   ObservationMatricesDashboard: '/tasks/observation_matrices/dashboard',
   ObservationMatricesHub: '/tasks/observation_matrices/observation_matrix_hub',
   PrintLabel: '/tasks/labels/print_labels',
-  TypeMaterial: '/tasks/type_material/edit_type_material',
-  FreeFormTask: '/tasks/collection_objects/freeform_digitize'
+  TypeMaterial: '/tasks/type_material/edit_type_material'
 }
 
 const FILTER_ROUTES = {

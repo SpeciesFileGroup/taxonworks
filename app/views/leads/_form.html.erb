@@ -1,5 +1,9 @@
-<%= content_tag(:span, 'A new key task exists and should be used.', class: [:feedback, 'feedback-warning']) %>
-<%# TODO = link_to('New/edit key task', edit_lead_task_path(lead_id: @lead&.id )) %>
+<%= content_tag(:span, 'A new key task exists and should be used instead.', class: [:feedback, 'feedback-warning']) %>
+<br />
+<br />
+<%= link_to('New/edit key task', new_lead_task_path(id: @lead&.id )) %>
+<br />
+<br />
 
 <%= render 'shared/errors', object: @lead %>
 
