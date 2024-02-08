@@ -144,10 +144,14 @@ module Export::Dwca
 
 # rubocop:disable Metrics/MethodLength
 
+    def collection_object_ids
+      core_scope.select(:dwc_occurrence_object_id).pluck(:dwc_occurrence_object_id)
+    end
+
     def taxonworks_extension_data
       return @taxonworks_extension_data if @taxonworks_extension_data
 
-      collection_object_ids = core_scope.order(:id).select(:dwc_occurrence_object_id).pluck(:dwc_occurrence_object_id)
+      # collection_object_ids = core_scope.order(:id).select(:dwc_occurrence_object_id).pluck(:dwc_occurrence_object_id)
       collection_objects = CollectionObject.joins(:dwc_occurrence).where(id: core_scope.select(:dwc_occurrence_object_id))
 
       # hash of internal method name => csv header name
@@ -242,9 +246,6 @@ module Export::Dwca
       @taxonworks_extension_data
     end
 
-  # def collection_objects
-  #   CollectionObject.joins(:dwc_occurrence).where(dwc_occurrence: core_scope)
-  # end
 
   # def asserted_distributions
   #   AssertedDistribution.joins(:dwc_occurrence).where(dwc_occurrence: core_scope)
@@ -275,6 +276,11 @@ module Export::Dwca
   #     )
   # end
 
+
+    def collection_objects
+      CollectionObject.joins(:dwc_occurrence).where(dwc_occurrence: core_scope).order('dwc_occurrences.id')
+    end
+
     def predicate_data
       return @predicate_data if @predicate_data
 
@@ -299,12 +305,10 @@ module Export::Dwca
       # Add TW prefix to names
       used_predicates = Set[]
 
-
       # THese should be turned into lookups of
       #   header by name_+ ID to realized header without looping through them all
 
       # with select/distinct
-
 
       object_attributes.each do |attr|
         # next if attr[1].nil?  # don't add headers for objects without predicates
