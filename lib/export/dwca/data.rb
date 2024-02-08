@@ -74,9 +74,9 @@ module Export::Dwca
     #   String is fully formed SQL
     def core_scope
       if @core_scope.kind_of?(String)
-        ::DwcOccurrence.from('(' + @core_scope + ') as dwc_occurrences')
+        ::DwcOccurrence.from('(' + @core_scope + ') as dwc_occurrences').order('dwc_occurrences.id')
       elsif @core_scope.kind_of?(ActiveRecord::Relation)
-        @core_scope
+        @core_scope.order('dwc_occurrences.id')
       else
         raise ArgumentError, 'Scope is not a SQL string or ActiveRecord::Relation'
       end
@@ -142,10 +142,12 @@ module Export::Dwca
       @data
     end
 
+# rubocop:disable Metrics/MethodLength
+
     def taxonworks_extension_data
       return @taxonworks_extension_data if @taxonworks_extension_data
 
-      collection_object_ids = core_scope.select(:dwc_occurrence_object_id).pluck(:dwc_occurrence_object_id)
+      collection_object_ids = core_scope.order(:id).select(:dwc_occurrence_object_id).pluck(:dwc_occurrence_object_id)
       collection_objects = CollectionObject.joins(:dwc_occurrence).where(id: core_scope.select(:dwc_occurrence_object_id))
 
       # hash of internal method name => csv header name
@@ -240,39 +242,84 @@ module Export::Dwca
       @taxonworks_extension_data
     end
 
+  # def collection_objects
+  #   CollectionObject.joins(:dwc_occurrence).where(dwc_occurrence: core_scope)
+  # end
+
+  # def asserted_distributions
+  #   AssertedDistribution.joins(:dwc_occurrence).where(dwc_occurrence: core_scope)
+  # end
+
+  # def collecting_events
+  #   CollectingEvent.joins(:collection_objects, :data_attributes)
+  #   .where(collection_objects:)
+  # end
+
+  # def collection_object_attributes
+  #   InternalAttribute
+  #      .includes(:controlled_vocabulary_term)
+  #      .where(attribute_subject: collection_objects)
+  #      .select(
+  #       'data_attributes.attribute_subject_id', # CollectionObject#id
+  #       'controlled_vocabulary_terms.name', 'data_attributes.value'
+  #     )
+  # end
+
+  # def collecting_event_attributes
+  #   InternalAttribute
+  #      .includes(:controlled_vocabulary_term)
+  #      .where(attribute_subject: collecting_events)
+  #      .select(
+  #       'data_attributes.attribute_subject_id', # CollectionObject#id
+  #       'controlled_vocabulary_terms.name', 'data_attributes.value'
+  #     )
+  # end
+
     def predicate_data
       return @predicate_data if @predicate_data
+
+      # base_dwc_occurrence_query = core_scope.where(dwc_occurrence_object_type: 'CollectionObject')
 
       # TODO maybe replace with select? not best practice to use pluck as input to other query
       collection_object_ids = core_scope.where(dwc_occurrence_object_type: 'CollectionObject').select(:dwc_occurrence_object_id).pluck(:dwc_occurrence_object_id)
 
       # At this point we have specific CO ids, so we don't need project_id
-      object_attributes = CollectionObject.left_joins(data_attributes: [:predicate])
+      object_attributes =  CollectionObject.left_joins(data_attributes: [:predicate])
         .where(id: collection_object_ids)
+        .where(data_attributes: {type: 'InternalAttribute'})
         .where(data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collection_object_predicate_id], attribute_subject_type: 'CollectionObject' } ) # Can't assume cvts are used for only one object type
-        .pluck(:id, 'controlled_vocabulary_terms.name', 'data_attributes.value')
+        .pluck('collection_objects.id', 'controlled_vocabulary_terms.name', 'data_attributes.value')
 
       event_attributes = CollectionObject.left_joins(collecting_event: [data_attributes: [:predicate]])
         .where(id: collection_object_ids)
+        .where(data_attributes: {type: 'InternalAttribute'})
         .where(collecting_event: { data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collecting_event_predicate_id], attribute_subject_type: 'CollectingEvent'  }})
-        .pluck(:id, 'controlled_vocabulary_terms.name',  'data_attributes.value')
+        .pluck('collection_objects.id', 'controlled_vocabulary_terms.name',  'data_attributes.value')
 
       # Add TW prefix to names
       used_predicates = Set[]
 
+
+      # THese should be turned into lookups of
+      #   header by name_+ ID to realized header without looping through them all
+
+      # with select/distinct
+
+
       object_attributes.each do |attr|
-        next if attr[1].nil?  # don't add headers for objects without predicates
+        # next if attr[1].nil?  # don't add headers for objects without predicates
         header_name = 'TW:DataAttribute:CollectionObject:' + attr[1]
         used_predicates.add(header_name)
         attr[1] = header_name
       end
 
       event_attributes.each do |attr|
-        next if attr[1].nil?  # don't add headers for events without predicates
+        # next if attr[1].nil?  # don't add headers for events without predicates
         header_name = 'TW:DataAttribute:CollectingEvent:' + attr[1]
         used_predicates.add(header_name)
         attr[1] = header_name
       end
+
 
       # if no predicate data found, return empty file
       if used_predicates.empty?
@@ -285,7 +332,7 @@ module Export::Dwca
       # data attributes
       empty_hash = collection_object_ids.index_with { |_| []}
 
-      data = (object_attributes + event_attributes).group_by(&:shift)
+      data = (object_attributes + event_attributes).group_by(&:shift) # very cool
 
       data = empty_hash.merge(data)
 
