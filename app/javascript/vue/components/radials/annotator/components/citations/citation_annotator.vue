@@ -1,5 +1,25 @@
 <template>
   <div class="citation_annotator">
+    <div
+      v-if="citation?.id"
+      class="flex-separate gap-small"
+    >
+      <h3>
+        Edit:
+        <span v-html="citation.object_tag" />
+      </h3>
+      <VBtn
+        circle
+        color="primary"
+        @click="() => (citation = newCitation())"
+      >
+        <VIcon
+          name="undo"
+          small
+        />
+      </VBtn>
+    </div>
+    <h3 v-else>New citation</h3>
     <FormCitation
       v-model="citation"
       :klass="objectType"
@@ -14,7 +34,7 @@
           class="margin-small-left"
           color="primary"
           medium
-          @click="citation = newCitation()"
+          @click="() => (citation = newCitation())"
         >
           New
         </VBtn>
@@ -112,6 +132,8 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits('update-count')
+
 const list = ref([])
 const citation = ref(newCitation())
 const isModalVisible = ref(false)
@@ -184,6 +206,7 @@ function saveCitation(item) {
     .then(({ body }) => {
       addToArray(list.value, body)
       citation.value = body
+      emit('update-count', list.value.length)
       TW.workbench.alert.create('Citation was successfully saved.', 'notice')
     })
     .catch(() => {})
@@ -192,6 +215,7 @@ function saveCitation(item) {
 function removeItem(item) {
   Citation.destroy(item.id).then((_) => {
     removeFromArray(list.value, item)
+    emit('update-count', list.value.length)
   })
 }
 

@@ -3,20 +3,31 @@
     <div>
       <div v-for="group in biocurationsGroups">
         <label>{{ group.name }}</label>
-        <br>
+        <br />
         <template
-          v-for="item in group.list">
+          v-for="item in group.list"
+          :key="item.id"
+        >
           <button
             type="button"
             class="bottom button-submit normal-input biocuration-toggle-button"
             @click="createBiocuration(item.id)"
-            v-if="!checkExist(item.id)">{{ item.name }}
+            v-if="!checkExist(item.id)"
+          >
+            {{ item.name }}
           </button>
           <button
             type="button"
             class="bottom button-delete normal-input biocuration-toggle-button"
-            @click="removeEntry(item)"
-            v-else>{{ item.name }}
+            @click="
+              () =>
+                removeItem(
+                  list.find((bio) => item.id === bio.biocuration_class_id)
+                )
+            "
+            v-else
+          >
+            {{ item.name }}
           </button>
         </template>
       </div>
@@ -24,68 +35,97 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import {
+  ControlledVocabularyTerm,
+  BiocurationClassification,
+  Tag
+} from '@/routes/endpoints'
+import { removeFromArray } from '@/helpers'
+import { ref, onBeforeMount } from 'vue'
+import { BIOCURATION_CLASS, BIOCURATION_GROUP } from '@/constants'
 
-import CRUD from '../../request/crud.js'
-import AnnotatorExtend from '../annotatorExtend.js'
-
-export default {
-  mixins: [CRUD, AnnotatorExtend],
-  data() {
-    return {
-      biocutarionsType: [],
-      biocurationsGroups: [],
-    }
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
-  mounted () {
-    this.getList(`/controlled_vocabulary_terms.json?type[]=BiocurationGroup`).then(response => {
-      this.biocurationsGroups = response.body
-      this.getList(`/controlled_vocabulary_terms.json?type[]=BiocurationClass`).then(response => {
-        this.biocutarionsType = response.body
-        this.splitGroups()
-      })
-    })
-  },
-  methods: {
-    createBiocuration (id) {
-      this.create('/biocuration_classifications.json', this.createBiocurationObject(id)).then(response => {
-        this.list.push(response.body)
-      })
-    },
-    checkExist (id) {
-      let found = this.list.find((bio) => {
-        return id == bio.biocuration_class_id
-      })
-      return found
-    },
-    removeEntry (item) {
-      this.removeItem(this.list.find(bio => { return item.id == bio.biocuration_class_id }))
-    },
-    createBiocurationObject (id) {
-      return {
-        biocuration_classification: {
-          biocuration_class_id: id,
-          biological_collection_object_id: this.metadata.object_id
-        }
-      }
-    },
-    splitGroups() {
-      this.biocurationsGroups.forEach((item, index) => {
-        this.getList(`/tags.json?keyword_id=${item.id}`).then(response => {
-          const tmpArray = []
 
-          response.body.forEach(item => {
-            this.biocutarionsType.forEach(itemClass => {
-              if(itemClass.id === item.tag_object_id) {
-                tmpArray.push(itemClass)
-                return
-              }
-            })
-          })
-          this.biocurationsGroups[index]['list'] = tmpArray
+  objectType: {
+    type: Number,
+    required: true
+  }
+})
+
+const emit = defineEmits(['update-count'])
+
+const biocurationsType = ref([])
+const biocurationsGroups = ref([])
+const list = ref([])
+
+onBeforeMount(async () => {
+  const { body } = await ControlledVocabularyTerm.where({
+    type: [BIOCURATION_GROUP, BIOCURATION_CLASS]
+  })
+
+  biocurationsType.value = body.filter(
+    (item) => item.type === BIOCURATION_CLASS
+  )
+  biocurationsGroups.value = body.filter(
+    (item) => item.type === BIOCURATION_GROUP
+  )
+
+  BiocurationClassification.where({
+    biological_collection_object_id: props.objectId
+  }).then(({ body }) => {
+    list.value = body
+  })
+
+  splitGroups()
+})
+
+function createBiocuration(id) {
+  const payload = {
+    biocuration_classification: makeBiocurationObject(id)
+  }
+
+  BiocurationClassification.create(payload).then(({ body }) => {
+    list.value.push(body)
+    emit('update-count', list.value.length)
+  })
+}
+
+function checkExist(id) {
+  return list.value.some((bio) => id === bio.biocuration_class_id)
+}
+
+function makeBiocurationObject(id) {
+  return {
+    biocuration_class_id: id,
+    biological_collection_object_id: props.objectId
+  }
+}
+function removeItem(item) {
+  BiocurationClassification.destroy(item.id).then(() => {
+    removeFromArray(list.value, item)
+    emit('update-count', list.value.length)
+  })
+}
+
+function splitGroups() {
+  biocurationsGroups.value.forEach((item) => {
+    Tag.where({ keyword_id: item.id }).then(({ body }) => {
+      const classes = []
+
+      body.forEach((item) => {
+        biocurationsType.value.forEach((itemClass) => {
+          if (itemClass.id === item.tag_object_id) {
+            classes.push(itemClass)
+          }
         })
       })
-    }
-  }
+      item.list = classes
+    })
+  })
 }
 </script>

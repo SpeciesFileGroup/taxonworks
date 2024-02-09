@@ -17,7 +17,8 @@ module Queries::Concerns::Users
       :user_target,
       :user_date_start,
       :user_date_end,
-      :updated_since
+      :updated_since,
+      user_id: [],
     ]
   end
 
@@ -40,7 +41,7 @@ module Queries::Concerns::Users
     #   In format 'yyyy-mm-dd'
     attr_accessor :user_date_end
 
-    # @return [Date, nil] 
+    # @return [Date, nil]
     # @param updated_since [String] in format yyyy-mm-dd
     #   Records updated (.updated_at) since this date
     attr_accessor :updated_since
@@ -102,6 +103,7 @@ module Queries::Concerns::Users
       when 'created'
         q = base_query.created_in_date_range(s, e)
       else
+        # TODO: UNION
         q = base_query.updated_in_date_range(s, e).or(base_query.created_in_date_range(s,e))
       end
     end
@@ -116,6 +118,7 @@ module Queries::Concerns::Users
       when 'created'
         q = q.where(created_by_id: user_id)
       else
+        # TODO: UNION
         q = q.where(created_by_id: user_id).or(q.where(updated_by_id: user_id))
       end
     end

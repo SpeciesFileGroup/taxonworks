@@ -36,22 +36,20 @@ const filterParams = (params, allowParams) => {
 }
 
 export default (model, permitParams) => ({
-  all: async (params = {}) => {
-    const url = `/${model}.json`
+  async all(params = {}, { useFilter } = {}) {
+    const makeRequest = useFilter ? this.filter : this.where
     const maxPer = params.per || 500
     const requests = [
-      await AjaxCall('get', url, {
-        params: {
-          ...params,
-          per: maxPer
-        }
+      await makeRequest({
+        ...params,
+        per: maxPer
       })
     ]
     const { totalPages } = getPagination(requests[0])
 
     if (totalPages > 1) {
       for (let page = 2; page <= totalPages; page++) {
-        requests.push(AjaxCall('get', url, { params: { ...params, page } }))
+        requests.push(makeRequest({ params: { ...params, page } }))
       }
     }
 

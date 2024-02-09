@@ -1,7 +1,8 @@
-Rails.application.reloader.to_prepare do
-  require 'rails_helper'
-  require 'ranks'
-end
+require 'rails_helper'
+
+# Rails.application.reloader.to_prepare do
+#  require 'ranks'
+# end
 
 describe 'Ranks' do
 
