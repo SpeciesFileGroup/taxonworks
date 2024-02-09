@@ -77,7 +77,7 @@
 
   <tr>
     <td> Collection objects with determinations </td>
-    <td> <%= objects_without_determinations = @collection_objects.where.missing(:taxon_determinations).distinct.count -%> </td>
+    <td> <%= objects_without_determinations = ::Queries::CollectionObject::Filter.new(@collection_objects_query.params.merge(taxon_determinations: false)).all.count -%> </td>
     <td> <%= (100.0 * (objects_without_determinations.to_f / @collection_objects.count.to_f)).round(2) -%> </td>
     <td> <%= link_to('Link', filter_collection_objects_task_url(
       ::Queries::CollectionObject::Filter.new(@collection_objects_query.params.merge(taxon_determinations: false)).params
@@ -100,7 +100,11 @@
     <li> <%= m.count %> taxon names referenced </li>
   </ul>
 
-  <%= simple_hierarchy_tag(n, m) -%>
+  <% if m.count > 0 %>
+    <%= simple_hierarchy_tag(n, m) -%>
+  <% else %>
+    No names referenced.
+  <% end %>
 
 <% else %>
   Over 10,000 names, too many to summarize.

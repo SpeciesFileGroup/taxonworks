@@ -15,6 +15,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- CollectionObject summary Nomenclature tag failing when no-names are present
+- Papertrail calls for most models were failing
 - Syncronized winding of polygons and multipolygons [#3712], and others
 - DataAttribute alignment in DwC, take 3 [#3806]
 - Radial Annotator: Citation count no longer updates [#3806]
