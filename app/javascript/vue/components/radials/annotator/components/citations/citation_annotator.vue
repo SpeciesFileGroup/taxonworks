@@ -185,7 +185,6 @@ function saveCitation(item) {
   request
     .then(({ body }) => {
       addToArray(list.value, body)
-      citation.value = body
       emit('update-count', list.value.length)
       TW.workbench.alert.create('Citation was successfully saved.', 'notice')
     })
