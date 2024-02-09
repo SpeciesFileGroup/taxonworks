@@ -88,7 +88,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         let(:p3) { FactoryBot.create(:valid_predicate)}
         let(:predicate_ids) { [p3.id, p1.id, p2.id] } # purposefully out of order
 
-        specify 'orders values into the right columns' do
+        specify 'orders values into the right rows' do
           s = Specimen.all
           f = Specimen.first
           m = Specimen.third
@@ -113,6 +113,56 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           expect(z.to_a[3].first).to include(d4.value) # the ce value
           expect(z.to_a[3].first).to include(d3.value)
           expect(z.to_a[5].first).to include(d2.value)
+        end
+
+        specify '#collection_object_attributes' do
+          s = Specimen.all
+          f = Specimen.first
+          m = Specimen.third
+          l = Specimen.last
+
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p1 )
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: l, predicate: p3 )
+          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: m, predicate: p2 )
+
+          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids } )
+
+          expect(a.collection_object_attributes).to include([f.id, "TW:DataAttribute:CollectionObject:#{p1.name}", d1.value])
+          expect(a.collection_object_attributes).to include([l.id, "TW:DataAttribute:CollectionObject:#{p3.name}", d2.value])
+        end
+
+        specify '#collecting_event_attributes' do
+          f = Specimen.first
+
+          c = FactoryBot.create(:valid_collecting_event)
+          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+
+          f.update!(collecting_event: c)
+
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p3 )
+
+          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
+
+          expect(a.collecting_event_attributes).to include([f.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d1.value])
+          expect(a.collecting_event_attributes).to include([f.id, "TW:DataAttribute:CollectingEvent:#{p3.name}", d2.value])
+        end
+
+        specify '#used_predicates' do
+          f = Specimen.first
+
+          c = FactoryBot.create(:valid_collecting_event)
+          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+
+          f.update!(collecting_event: c)
+
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p3 )
+
+          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
+
+          expect(a.collecting_event_attributes).to include([f.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d1.value])
+          expect(a.collecting_event_attributes).to include([f.id, "TW:DataAttribute:CollectingEvent:#{p3.name}", d2.value])
         end
 
       end

@@ -48,6 +48,17 @@ module Export::Dwca
     # collection_object_predicate_id: [], collecting_event_predicate_id: []
     attr_accessor :data_predicate_ids
 
+    # @return Array
+    #   ordered in the order they will be placed in the file
+    #   !!! Breaks if inter-mingled with asserted distributions !!!
+    attr_accessor :collection_object_ids
+
+    # @return Array
+    attr_accessor :collection_object_attributes
+
+    # @return Array
+    attr_accessor :collecting_event_attributes
+
     attr_accessor :taxonworks_extension_data
 
     # @return Array<Symbol>
@@ -142,17 +153,14 @@ module Export::Dwca
       @data
     end
 
-# rubocop:disable Metrics/MethodLength
-
     def collection_object_ids
-      core_scope.select(:dwc_occurrence_object_id).pluck(:dwc_occurrence_object_id)
+      @collection_object_ids ||= core_scope.select("(CASE dwc_occurrence_object_type WHEN 'CollectionObject' THEN dwc_occurrence_object_id ELSE null END) AS co_id").map{|a| a['co_id']}
     end
+
+    # rubocop:disable Metrics/MethodLength
 
     def taxonworks_extension_data
       return @taxonworks_extension_data if @taxonworks_extension_data
-
-      # collection_object_ids = core_scope.order(:id).select(:dwc_occurrence_object_id).pluck(:dwc_occurrence_object_id)
-      collection_objects = CollectionObject.joins(:dwc_occurrence).where(id: core_scope.select(:dwc_occurrence_object_id))
 
       # hash of internal method name => csv header name
       methods = {}
@@ -246,84 +254,70 @@ module Export::Dwca
       @taxonworks_extension_data
     end
 
+    # rubocop:enable Metrics/MethodLength
 
-  # def asserted_distributions
-  #   AssertedDistribution.joins(:dwc_occurrence).where(dwc_occurrence: core_scope)
-  # end
+    # def asserted_distributions
+    #   AssertedDistribution.joins(:dwc_occurrence).where(dwc_occurrence: core_scope)
+    # end
 
-  # def collecting_events
-  #   CollectingEvent.joins(:collection_objects, :data_attributes)
-  #   .where(collection_objects:)
-  # end
+    def collecting_events
+      CollectingEvent.joins(:collection_objects, :data_attributes).where(collection_objects:)
+    end
 
-  # def collection_object_attributes
-  #   InternalAttribute
-  #      .includes(:controlled_vocabulary_term)
-  #      .where(attribute_subject: collection_objects)
-  #      .select(
-  #       'data_attributes.attribute_subject_id', # CollectionObject#id
-  #       'controlled_vocabulary_terms.name', 'data_attributes.value'
-  #     )
-  # end
+    def collection_object_attributes_query
+      @collection_object_attributes ||= InternalAttribute
+         .joins(:predicate)
+         .where(attribute_subject: collection_objects)
+    end
 
-  # def collecting_event_attributes
-  #   InternalAttribute
-  #      .includes(:controlled_vocabulary_term)
-  #      .where(attribute_subject: collecting_events)
-  #      .select(
-  #       'data_attributes.attribute_subject_id', # CollectionObject#id
-  #       'controlled_vocabulary_terms.name', 'data_attributes.value'
-  #     )
-  # end
+    def collection_object_attributes
+      collection_object_attributes_query
+      .select(
+          'data_attributes.attribute_subject_id', # CollectionObject#id
+          "CONCAT('TW:DataAttribute:CollectionObject:', controlled_vocabulary_terms.name) predicate",
+          'data_attributes.value'
+        ).collect{|r| [r['attribute_subject_id'], r['predicate'], r['value']] }
+    end
 
+    def collecting_event_attributes_query
+      @collecting_event_attributes ||= InternalAttribute
+         .joins(:predicate)
+         .joins('JOIN collecting_events on data_attributes.attribute_subject_id = collecting_events.id')
+         .joins('JOIN collection_objects on collection_objects.collecting_event_id = collecting_events.id')
+         .where(attribute_subject: collecting_events)
+    end
+
+    def collecting_event_attributes
+      collecting_event_attributes_query
+         .select(
+          'collection_objects.id',
+          "CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate",
+          'data_attributes.value')
+          .collect{|r| [r['id'], r['predicate'], r['value']] }
+    end
 
     def collection_objects
       CollectionObject.joins(:dwc_occurrence).where(dwc_occurrence: core_scope).order('dwc_occurrences.id')
     end
 
+    def used_collection_object_predicates
+      collection_object_attributes_query.select("CONCAT('TW:DataAttribute:CollectionObject:', controlled_vocabulary_terms.name) predicate_name")
+      .distinct
+      .collect{|r| r['predicate_name']}
+    end
+
+    def used_collecting_event_predicates
+      collecting_event_attributes_query.select("CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate_name").distinct
+      .distinct
+      .collect{|r| r['predicate_name']}
+    end
+
+    def used_predicates
+      used_collection_object_predicates + used_collecting_event_predicates
+    end
+
     def predicate_data
       return @predicate_data if @predicate_data
-
-      # base_dwc_occurrence_query = core_scope.where(dwc_occurrence_object_type: 'CollectionObject')
-
-      # TODO maybe replace with select? not best practice to use pluck as input to other query
-      collection_object_ids = core_scope.where(dwc_occurrence_object_type: 'CollectionObject').select(:dwc_occurrence_object_id).pluck(:dwc_occurrence_object_id)
-
-      # At this point we have specific CO ids, so we don't need project_id
-      object_attributes =  CollectionObject.left_joins(data_attributes: [:predicate])
-        .where(id: collection_object_ids)
-        .where(data_attributes: {type: 'InternalAttribute'})
-        .where(data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collection_object_predicate_id], attribute_subject_type: 'CollectionObject' } ) # Can't assume cvts are used for only one object type
-        .pluck('collection_objects.id', 'controlled_vocabulary_terms.name', 'data_attributes.value')
-
-      event_attributes = CollectionObject.left_joins(collecting_event: [data_attributes: [:predicate]])
-        .where(id: collection_object_ids)
-        .where(data_attributes: {type: 'InternalAttribute'})
-        .where(collecting_event: { data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collecting_event_predicate_id], attribute_subject_type: 'CollectingEvent'  }})
-        .pluck('collection_objects.id', 'controlled_vocabulary_terms.name',  'data_attributes.value')
-
-      # Add TW prefix to names
-      used_predicates = Set[]
-
-      # THese should be turned into lookups of
-      #   header by name_+ ID to realized header without looping through them all
-
-      # with select/distinct
-
-      object_attributes.each do |attr|
-        # next if attr[1].nil?  # don't add headers for objects without predicates
-        header_name = 'TW:DataAttribute:CollectionObject:' + attr[1]
-        used_predicates.add(header_name)
-        attr[1] = header_name
-      end
-
-      event_attributes.each do |attr|
-        # next if attr[1].nil?  # don't add headers for events without predicates
-        header_name = 'TW:DataAttribute:CollectingEvent:' + attr[1]
-        used_predicates.add(header_name)
-        attr[1] = header_name
-      end
-
 
       # if no predicate data found, return empty file
       if used_predicates.empty?
@@ -336,7 +330,7 @@ module Export::Dwca
       # data attributes
       empty_hash = collection_object_ids.index_with { |_| []}
 
-      data = (object_attributes + event_attributes).group_by(&:shift) # very cool
+      data = (collection_object_attributes + collecting_event_attributes).group_by(&:shift) # very cool
 
       data = empty_hash.merge(data)
 
@@ -402,6 +396,8 @@ module Export::Dwca
       @all_data.rewind
       @all_data
     end
+
+    # rubocop:disable Metrics/MethodLength
 
     # This is a stub, and only half-heartedly done. You should be using IPT for the time being.
     # @return [Tempfile]
@@ -497,6 +493,8 @@ module Export::Dwca
       @eml.flush
       @eml
     end
+
+    # rubocop:enable Metrics/MethodLength
 
     def biological_associations_resource_relationship
       return nil if biological_associations_extension.nil?
