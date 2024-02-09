@@ -10,15 +10,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Highlight row on click in DwC Importer [#3795]
-- Radial Collection object: collecting event slice
-- `meta_prioritize_geographic_area` to radial collecting event
+- Batch update CollectingEvent from CollectionObject filter radial
+- Batch update `meta_prioritize_geographic_area` from CollectingEvent filter radial [#3498]
 
 ### Fixed
 
-- CollectionObject summary Nomenclature tag failing when no-names are present
-- Papertrail calls for most models were failing
+- CollectionObject summary nomenclature tag failing when no names are present
+- Papertrail views for most models were failing
 - Syncronized winding of polygons and multipolygons [#3712], and others
-- DataAttribute alignment in DwC, take 3 [#3806]
+- DataAttribute alignment in DwC, take 3 [#3802]
 - Radial Annotator: Citation count no longer updates [#3806]
 - Radial Annotator: Depiction count no longer updates [#3813]
 - Radial annotator: Attribution slice loads incorrect records
@@ -29,8 +29,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- All polygons and multi_polygons in GeographicItems are wound to CCW after save
 - Updated Ruby gems
 
+[#3498]: https://github.com/SpeciesFileGroup/taxonworks/issues/3498
 [#3712]: https://github.com/SpeciesFileGroup/taxonworks/issues/3712
 [#3802]: https://github.com/SpeciesFileGroup/taxonworks/issues/3802
 [#3795]: https://github.com/SpeciesFileGroup/taxonworks/issues/3795
