@@ -14,6 +14,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Syncronized winding of polygons and multipolygons [#3712], and others
+- DataAttribute alignment in DwC, take 3 [#3806]
 - Radial Annotator: Citation count no longer updates [#3806]
 - Radial Annotator: Depiction count no longer updates [#3813]
 - Radial annotator: Attribution slice loads incorrect records
@@ -22,6 +24,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - SQL project dump duplicating hierarchies tables rows causing index creation to fail on restore
 - OtuPicker doesn't display OTU label when a new OTU is created in New loan task [#3809]
 
+[#3712]: https://github.com/SpeciesFileGroup/taxonworks/issues/3712
+[#3802]: https://github.com/SpeciesFileGroup/taxonworks/issues/3802
 [#3795]: https://github.com/SpeciesFileGroup/taxonworks/issues/3795
 [#3806]: https://github.com/SpeciesFileGroup/taxonworks/issues/3806
 [#3813]: https://github.com/SpeciesFileGroup/taxonworks/pull/3813

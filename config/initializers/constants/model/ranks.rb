@@ -1,9 +1,6 @@
 # Be sure to restart your server when you modify this file.
 
-
 Rails.application.reloader.to_prepare do
-
-  require_dependency Rails.root.to_s + '/app/models/nomenclatural_rank'
 
   # Crossreference with http://api.col.plus/vocab/nomcode
 
@@ -12,24 +9,24 @@ Rails.application.reloader.to_prepare do
   # Contains NOMEN classes of rank/hierarchy in various format.
   #
   # ICN, ICZN, ICNP class names ordered in an Array
-  ICN = NomenclaturalRank::Icn.ordered_ranks.map(&:to_s).freeze 
+  ICN = NomenclaturalRank::Icn.ordered_ranks.map(&:to_s).freeze
   ICZN = NomenclaturalRank::Iczn.ordered_ranks.map(&:to_s).freeze
   ICNP = NomenclaturalRank::Icnp.ordered_ranks.map(&:to_s).freeze
   ICVCN = NomenclaturalRank::Icvcn.ordered_ranks.map(&:to_s).freeze
 
-  # All assignable Rank Classes 
+  # All assignable Rank Classes
   RANKS = ( ['NomenclaturalRank'] + ICN + ICZN + ICNP + ICVCN).freeze
-  
+
   RANK_SORT = RANKS.each_with_index.inject({}){|hsh, a| hsh[a.first] = a.last; hsh}.freeze
-  
+
   ri = {}
-  
+
   [['NomenclaturalRank'], ICN, ICZN, ICNP, ICVCN].each do |g|
     g.each_with_index do |r, i|
       ri[r] = i
     end
   end
-  
+
   RANK_INDENT = ri.freeze
 
   # ICN Rank Classes in a Hash with keys being the "human" name
@@ -51,7 +48,7 @@ Rails.application.reloader.to_prepare do
 
   # An Array of Arrays, used in options for select
   #   [["class (ICN)", "NomenclaturalRank::Icn::HigherClassificationGroup::ClassRank"] .. ]
-  RANKS_SELECT_OPTIONS = RANKS_LOOKUP.collect{|k,v| 
+  RANKS_SELECT_OPTIONS = RANKS_LOOKUP.collect{|k,v|
     ["#{v} " + ((k.to_s =~ /Iczn/) ? '(ICZN)' : ((k.to_s =~ /Icnp/) ? '(ICNP)' : ((k.to_s =~ /Icvcn/) ? '(ICVCN)' : '(ICN)')) ), k, {class: ((k.to_s =~ /Iczn/) ? :iczn : ((k.to_s =~ /Icnp/) ? :icnp : ((k.to_s =~ /Icvcn/) ? :icvcn : :icn))) }] }.sort{|a, b| a[0] <=> b[0]}.freeze
 
   # All assignable ranks for family groups, for ICZN, ICN, ICNP
@@ -113,7 +110,7 @@ Rails.application.reloader.to_prepare do
 
   module RankHelper
     def self.rank_attributes(rank)
-      rank.ordered_ranks.inject([]) {|ary, r| 
+      rank.ordered_ranks.inject([]) {|ary, r|
         ary.push(
           {
             name: r.rank_name,
