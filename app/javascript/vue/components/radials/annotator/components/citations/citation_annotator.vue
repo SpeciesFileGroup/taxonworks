@@ -1,5 +1,25 @@
 <template>
   <div class="citation_annotator">
+    <div
+      v-if="citation?.id"
+      class="flex-separate gap-small"
+    >
+      <h3>
+        Edit:
+        <span v-html="citation.object_tag" />
+      </h3>
+      <VBtn
+        circle
+        color="primary"
+        @click="() => (citation = newCitation())"
+      >
+        <VIcon
+          name="undo"
+          small
+        />
+      </VBtn>
+    </div>
+    <h3 v-else>New citation</h3>
     <FormCitation
       v-model="citation"
       :klass="objectType"
@@ -14,7 +34,7 @@
           class="margin-small-left"
           color="primary"
           medium
-          @click="citation = newCitation()"
+          @click="() => (citation = newCitation())"
         >
           New
         </VBtn>

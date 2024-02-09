@@ -27,6 +27,16 @@
         />
       </fieldset>
 
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            v-model="prioritizeGeographicArea"
+          />
+          Prioritize Geographic area when indexing
+        </label>
+      </div>
+
       <div
         class="horizontal-left-content gap-small margin-large-top margin-large-bottom"
       >
@@ -81,11 +91,13 @@ const emit = defineEmits(['close'])
 const geographicArea = ref()
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 const updateBatchRef = ref(null)
+const prioritizeGeographicArea = ref(undefined)
 
 const payload = computed(() => ({
   collecting_event_query: props.parameters,
   collecting_event: {
-    geographic_area_id: geographicArea.value?.id
+    geographic_area_id: geographicArea.value?.id,
+    meta_prioritize_geographic_area: prioritizeGeographicArea.value
   }
 }))
 
