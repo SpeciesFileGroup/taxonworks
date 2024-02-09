@@ -25,6 +25,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - SQL project dump duplicating hierarchies tables rows causing index creation to fail on restore
 - OtuPicker doesn't display OTU label when a new OTU is created in New loan task [#3809]
 
+### Changed
+
+- Updated Ruby gems
+
 [#3712]: https://github.com/SpeciesFileGroup/taxonworks/issues/3712
 [#3802]: https://github.com/SpeciesFileGroup/taxonworks/issues/3802
 [#3795]: https://github.com/SpeciesFileGroup/taxonworks/issues/3795
