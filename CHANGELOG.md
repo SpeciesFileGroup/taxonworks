@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Highlight row on click in DwC Importer [#3795]
 - Radial Collection object: collecting event slice
+- `meta_prioritize_geographic_area` to radial collecting event
 
 ### Fixed
 
