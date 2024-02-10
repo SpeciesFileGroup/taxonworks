@@ -136,7 +136,7 @@ const DOM_EVENT = {
   Open: 'radialAnnotator:open'
 }
 
-const emit = defineEmits(['close', 'update', 'add', 'delete', 'change'])
+const emit = defineEmits(['close', 'update', 'create', 'delete', 'change'])
 const props = defineProps({
   reload: {
     type: Boolean,
@@ -361,7 +361,7 @@ function selectComponent({ name }) {
 
 const handleEmitRadial = {
   add(item) {
-    emit('add', { item, slice: currentAnnotator.value })
+    emit('create', { item, slice: currentAnnotator.value })
   },
   delete(item) {
     emit('delete', { item, slice: currentAnnotator.value })
