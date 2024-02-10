@@ -361,16 +361,16 @@ function selectComponent({ name }) {
 
 const handleEmitRadial = {
   add(item) {
-    emit('add', { item })
+    emit('add', { item, slice: currentAnnotator.value })
   },
   delete(item) {
-    emit('delete', { item })
+    emit('delete', { item, slice: currentAnnotator.value })
   },
   update(item) {
-    emit('update', { item })
+    emit('update', { item, slice: currentAnnotator.value })
   },
   change(item) {
-    emit('change', { item, metadata })
+    emit('change', { item, metadata, slice: currentAnnotator.value })
   },
   count(total) {
     setTotal(total)
