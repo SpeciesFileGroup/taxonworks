@@ -66,13 +66,13 @@
             label="label_html"
             :placeholder="`Select a ${selectedType.label.toLowerCase()}`"
             :clear-after="true"
-            @getItem="selectedObject = $event"
+            @get-item="(item) => (selectedObject = item)"
             param="term"
           />
           <otu-picker
             v-else
             :clear-after="true"
-            @getItem="selectedObject = $event"
+            @get-item="(otu) => (selectedObject = otu)"
           />
         </div>
         <div
@@ -173,7 +173,7 @@ import OtuPicker from '@/components/otu/otu_picker/otu_picker'
 import FilterImage from '@/tasks/images/filter/components/filter'
 import SmartSelector from '@/components/ui/SmartSelector'
 import DepictionList from './DepictionList.vue'
-import { addToArray, removeFromArray } from '@/helpers/arrays'
+import { useSlice } from '@/components/radials/composables'
 import { Depiction, Image } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 
@@ -231,26 +231,30 @@ const props = defineProps({
   objectId: {
     type: Number,
     required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
   }
 })
-
-const emit = defineEmits(['update-count'])
 
 const depiction = ref()
 const isDataDepiction = ref(false)
 const selectedType = ref()
 const selectedObject = ref()
 const filterList = ref([])
-const list = ref([])
 const figureRef = ref(null)
+const { list, add, remove } = useSlice({
+  radialEmit: props.radialEmit
+})
 
 const updateObjectType = computed(
   () => selectedObject.value && selectedType.value
 )
 
 function success(file, response) {
-  list.value.push(response)
-  emit('update-count', list.value.length)
+  add(response)
   figureRef.value.removeFile(file)
 }
 
@@ -269,15 +273,11 @@ function updateFigure() {
   }
 
   Depiction.update(depiction.value.id, { depiction: depiction.value }).then(
-    (response) => {
-      const index = list.value.findIndex(
-        (element) => depiction.value.id === element.id
-      )
-
+    ({ body }) => {
       if (updateObjectType.value) {
-        list.value.splice(index, 1)
+        remove(body)
       } else {
-        list.value[index] = response.body
+        add(body)
       }
       depiction.value = undefined
 
@@ -288,7 +288,7 @@ function updateFigure() {
 
 function updateDepiction(depiction) {
   Depiction.update(depiction.id, { depiction }).then(({ body }) => {
-    addToArray(list.value, body)
+    add(list.value, body)
 
     TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
   })
@@ -302,8 +302,7 @@ function createDepiction(image) {
   }
 
   Depiction.create({ depiction }).then(({ body }) => {
-    list.value.push(body)
-    emit('update-count', list.value.length)
+    add(body)
     TW.workbench.alert.create('Depiction was successfully created.', 'notice')
   })
 }
@@ -315,9 +314,9 @@ function loadList(params) {
 }
 
 function removeItem(item) {
-  Depiction.destroy(item.id)
-  removeFromArray(list.value, item)
-  emit('update-count', list.value.length)
+  Depiction.destroy(item.id).then((_) => {
+    remove(item)
+  })
 }
 
 Depiction.where({
