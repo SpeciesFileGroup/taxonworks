@@ -9,6 +9,7 @@
 <div class="flexbox separate-bottom">
   <div class="panel content">
     <% orientations = @geographic_item.orientations %>
+    <% buffer = CachedMapItem.dynamic_buffer(@geographic_item.id) %>
     <h3> Multi/Polygon description </h3>
     <%= table_from_hash_tag({
       'Polygons' => orientations.count,
@@ -18,7 +19,7 @@
       'ST_IsValid' => (@geographic_item.st_isvalid ? 'Yes' : 'No'),
       'ST_IsValidReason' => @geographic_item.st_isvalidreason,
       'cached_total_area (m)' => @geographic_item.cached_total_area,
-      'CachedMapItem#dynamic_buffer' => CachedMapItem.dynamic_buffer(@geographic_item.id)
+      'CachedMapItem#dynamic_buffer' => buffer 
     }) %>
   </div>
 
@@ -41,7 +42,7 @@
 
   <% if @geographic_item.st_isvalid %>
     <div class="panel content separate-left">
-      <h3> WebLevel1 map </h3>
+      <h3> WebLevel1 (full translate) </h3>
       <% a = CachedMapItem.translate_geographic_item_id( @geographic_item.id, 'AssertedDistribution', ['ne_states']) %>
       <div>
         <%= simple_map( GeographicItem.where(id: a) ) %>
@@ -53,6 +54,16 @@
     </div>    
   <% end %>
 </div>
+
+<div class="flexbox separate-bottom">
+  <div class="panel content separate-left">
+    <% spatial_id = CachedMapItem.translate_by_spatial_overlap(@geographic_item.id, ['ne_states'], buffer) %>
+    <h3> WebLevel 1 (spatial translation) </h3>
+    <%= simple_map( GeographicItem.where(id: spatial_id) ) %>
+  </div>
+</div>
+
+
 
 <div class="flexbox separate-bottom">
   <div class="panel content">
