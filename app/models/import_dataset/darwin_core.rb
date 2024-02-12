@@ -329,7 +329,7 @@ class ImportDataset::DarwinCore < ImportDataset
 
   def add_filters(records, filters)
     filters&.each do |key, value|
-      records = records.where(id: core_records_fields.at(key.to_i).with_value(value).select(:dataset_record_id))
+      records = records.where(id: core_records_fields.at(key.to_i).having_value(value).select(:dataset_record_id))
     end
     records
   end
