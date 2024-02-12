@@ -13,6 +13,37 @@ module TaxonWorks
     # This breaks housekeeping when on but might be needed
     # config.load_defaults 6.1
 
+    config.load_defaults 7.1
+
+    # With no settings set:
+
+#   config.action_controller.allow_deprecated_parameters_hash_equality = nil
+#   config.action_dispatch.debug_exception_log_level = :fatal # (not :error)
+#   config.action_text.sanitizer_vendor = nil
+#   config.active_job.use_big_decimal_serializer = nil
+#   config.active_record.allow_deprecated_singular_associations_name = nil
+#   config.active_record.before_committed_on_all_records = nil
+#    config.active_record.belongs_to_required_validates_foreign_key = false # false # !! false in 7.1
+#   config.active_record.commit_transaction_on_non_local_return = nil
+#   config.active_record.default_column_serializer = nil
+#   config.active_record.encryption.hash_digest_class = nil
+#   config.active_record.encryption.support_sha1_for_non_deterministic_encryption = nil
+#   config.active_record.generate_secure_token_on = :create # !! (is :initialize in 7.1)
+#   # config.active_record.marshalling_format_version = nil
+#   config.active_record.query_log_tags_format = :legacy # !! (is :sqlcommenter in 7.1)
+#   config.active_record.raise_on_assign_to_attr_readonly = false # !! (is true in 7.1)
+#   config.active_record.run_after_transaction_callbacks_in_order_defined = nil # (true in 7.1)
+#   config.active_record.run_commit_callbacks_on_first_saved_instances_in_transaction = nil # (false in 7.1)
+#   config.active_record.sqlite3_adapter_strict_strings_by_default = nil
+#   config.active_support.cache_format_version = nil
+#   config.active_support.message_serializer = nil
+#   config.active_support.raise_on_invalid_cache_expiration_time = nil
+#   config.active_support.use_message_serializer_for_metadata = nil
+#    config.add_autoload_paths_to_load_path = true #  !! (this must be it, false in 7.1)
+#   config.dom_testing_default_html_version = :html4 # !! (Nokogiri/HTML 5 options here)
+#   config.precompile_filter_parameters = nil
+
+
     # Via https://github.com/matthuhiggins/foreigner/pull/95
     #  config.before_initialize do
     #    Foreigner::Adapter.register 'postgis', 'foreigner/connection_adapters/postgresql_adapter'
