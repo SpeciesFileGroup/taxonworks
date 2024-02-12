@@ -4,14 +4,14 @@ import { addToArray, removeFromArray } from '@/helpers'
 export function useSlice({ radialEmit }) {
   const list = ref([])
 
-  function remove(item, property = 'id') {
+  function removeFromList(item, property = 'id') {
     removeFromArray(list.value, item, property)
     radialEmit.count(list.value.length)
     radialEmit.delete(item)
     radialEmit.change(item)
   }
 
-  function add(item, opts) {
+  function addToList(item, opts) {
     const length = list.value.length
 
     addToArray(list.value, item, opts)
@@ -26,8 +26,8 @@ export function useSlice({ radialEmit }) {
   }
 
   return {
-    add,
-    remove,
+    addToList,
+    removeFromList,
     list
   }
 }

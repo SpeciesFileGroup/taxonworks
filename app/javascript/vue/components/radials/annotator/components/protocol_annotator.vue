@@ -25,8 +25,7 @@
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import ListItems from './shared/listItems'
 import { ProtocolRelationship } from '@/routes/endpoints'
-import { ref } from 'vue'
-import { removeFromArray } from '@/helpers'
+import { useSlice } from '@/components/radials/composables'
 
 const props = defineProps({
   objectId: {
@@ -37,12 +36,17 @@ const props = defineProps({
   objectType: {
     type: String,
     required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
   }
 })
 
-const emit = defineEmits(['update-count'])
-
-const list = ref([])
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
 function createNew(protocolId) {
   const payload = {
@@ -54,15 +58,13 @@ function createNew(protocolId) {
   }
 
   ProtocolRelationship.create(payload).then(({ body }) => {
-    list.value.push(body)
-    emit('update-count', list.value.length)
+    addToList(body)
   })
 }
 
 function removeItem(item) {
   ProtocolRelationship.destroy(item.id).then((_) => {
-    removeFromArray(list.value, item)
-    emit('update-count', list.value.length)
+    removeFromList(item)
   })
 }
 

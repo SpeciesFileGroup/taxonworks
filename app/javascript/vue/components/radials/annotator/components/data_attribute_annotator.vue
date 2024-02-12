@@ -76,7 +76,7 @@
 import { computed, ref } from 'vue'
 import { ControlledVocabularyTerm, DataAttribute } from '@/routes/endpoints'
 import { IMPORT_ATTRIBUTE, PREDICATE } from '@/constants'
-import { addToArray, removeFromArray } from '@/helpers/arrays.js'
+import { useSlice } from '@/components/radials/composables'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import TableList from './shared/tableList'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
@@ -96,16 +96,22 @@ const props = defineProps({
   objectType: {
     type: String,
     required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
   }
 })
 
-const emit = defineEmits(['update-count'])
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
 const all = ref([])
 const predicate = ref()
 const selectedDataAttribute = ref({})
 const text = ref()
-const list = ref([])
 
 const validateFields = computed(() => predicate.value && text.value.length)
 const importList = computed(() =>
@@ -138,16 +144,14 @@ function saveDataAttribute() {
     : DataAttribute.create(payload)
 
   request.then(({ body }) => {
-    addToArray(list.value, body)
+    addToList(body)
     resetForm()
-    emit('update-count', list.value.length)
   })
 }
 
 function removeItem(item) {
   DataAttribute.destroy(item).then((_) => {
-    removeFromArray(this.list.value, item)
-    emit('update-count', list.value.length)
+    removeFromList(item)
   })
 }
 
