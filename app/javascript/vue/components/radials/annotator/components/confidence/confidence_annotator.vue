@@ -33,10 +33,10 @@
 import ListItems from '../shared/listItems.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import NewConfidence from './NewConfidence.vue'
+import { useSlice } from '@/components/radials/composables'
 import { ControlledVocabularyTerm, Confidence } from '@/routes/endpoints'
 import { CONFIDENCE_LEVEL, TAG } from '@/constants'
 import { ref } from 'vue'
-import { removeFromArray } from '@/helpers'
 
 const props = defineProps({
   objectId: {
@@ -47,13 +47,19 @@ const props = defineProps({
   objectType: {
     type: String,
     required: true
+  },
+
+  radialEmit: {
+    type: String,
+    required: true
   }
 })
 
-const emit = defineEmits(['update-count'])
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
 const allList = ref([])
-const list = ref([])
 
 function createConfidence(payload) {
   Confidence.create({
@@ -62,16 +68,14 @@ function createConfidence(payload) {
       confidence_object_id: props.objectId,
       confidence_object_type: props.objectType
     }
-  }).then((response) => {
-    list.value.push(response.body)
-    emit('update-count', list.value.length)
+  }).then(({ body }) => {
+    addToList(body)
   })
 }
 
 function removeItem(item) {
   Confidence.destroy(item.id).then((_) => {
-    removeFromArray(list.value, item)
-    emit('update-count', list.value.length)
+    removeFromList(item)
   })
 }
 

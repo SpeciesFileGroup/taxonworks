@@ -245,7 +245,7 @@ const selectedType = ref()
 const selectedObject = ref()
 const filterList = ref([])
 const figureRef = ref(null)
-const { list, add, remove } = useSlice({
+const { list, addToList, removeFromList } = useSlice({
   radialEmit: props.radialEmit
 })
 
@@ -254,7 +254,7 @@ const updateObjectType = computed(
 )
 
 function success(file, response) {
-  add(response)
+  addToList(response)
   figureRef.value.removeFile(file)
 }
 
@@ -275,9 +275,9 @@ function updateFigure() {
   Depiction.update(depiction.value.id, { depiction: depiction.value }).then(
     ({ body }) => {
       if (updateObjectType.value) {
-        remove(body)
+        removeFromList(body)
       } else {
-        add(body)
+        addToList(body)
       }
       depiction.value = undefined
 
@@ -288,7 +288,7 @@ function updateFigure() {
 
 function updateDepiction(depiction) {
   Depiction.update(depiction.id, { depiction }).then(({ body }) => {
-    add(list.value, body)
+    addToList(list.value, body)
 
     TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
   })
@@ -302,7 +302,7 @@ function createDepiction(image) {
   }
 
   Depiction.create({ depiction }).then(({ body }) => {
-    add(body)
+    addToList(body)
     TW.workbench.alert.create('Depiction was successfully created.', 'notice')
   })
 }
@@ -315,7 +315,7 @@ function loadList(params) {
 
 function removeItem(item) {
   Depiction.destroy(item.id).then((_) => {
-    remove(item)
+    removeFromList(item)
   })
 }
 

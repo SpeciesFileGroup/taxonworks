@@ -38,7 +38,7 @@
 import RolePicker from '@/components/role_picker.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import TableList from '@/components/table_list.vue'
-import { removeFromArray } from '@/helpers/arrays.js'
+import { useSlice } from '@/components/radials/composables'
 import { Role } from '@/routes/endpoints'
 import { ROLE_VERIFIER } from '@/constants'
 import { ref } from 'vue'
@@ -52,13 +52,19 @@ const props = defineProps({
   objectType: {
     type: String,
     required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
   }
 })
 
-const emit = defineEmits(['update-count'])
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
 const roles = ref([])
-const list = ref([])
 
 function createRole(id) {
   const role = {
@@ -69,15 +75,13 @@ function createRole(id) {
   }
 
   Role.create({ role }).then(({ body }) => {
-    list.value.push(body)
-    emit('update-count', list.value.length)
+    addToList(body)
   })
 }
 
 function removeRole(role) {
   Role.destroy(role.id).then((_) => {
-    removeFromArray(list.value, role)
-    emit('update-count', list.value.length)
+    removeFromList(role)
   })
 }
 

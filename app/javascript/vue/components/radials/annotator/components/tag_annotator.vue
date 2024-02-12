@@ -36,7 +36,7 @@ import { ControlledVocabularyTerm, Tag } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { KEYWORD } from '@/constants'
 import { ref } from 'vue'
-import { removeFromArray } from '@/helpers'
+import { useSlice } from '@/components/radials/composables'
 
 const props = defineProps({
   objectId: {
@@ -47,13 +47,19 @@ const props = defineProps({
   objectType: {
     type: String,
     required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
   }
 })
 
-const emit = defineEmits(['update-count'])
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
 const allList = ref([])
-const list = ref([])
 
 ControlledVocabularyTerm.where({ type: [KEYWORD] }).then(({ body }) => {
   allList.value = body
@@ -66,17 +72,15 @@ function createWithId({ id }) {
     tag_object_type: props.objectType
   }
 
-  Tag.create({ tag }).then((response) => {
-    list.value.push(response.body)
-    emit('update-count', list.value.length)
+  Tag.create({ tag }).then(({ body }) => {
+    addToList(body)
     TW.workbench.alert.create('Tag was successfully created.', 'notice')
   })
 }
 
 function removeItem(item) {
   Tag.destroy(item.id).then((_) => {
-    removeFromArray(list.value, item)
-    emit('update-count', list.value.length)
+    removeFromList(item)
   })
 }
 

@@ -14,7 +14,11 @@
             <BrowseOTU :otu="otu" />
           </li>
           <li>
-            <RadialAnnotator :global-id="collectionObject.globalId" />
+            <RadialAnnotator
+              :global-id="collectionObject.globalId"
+              @create="handleRadialCreate"
+              @delete="handleRadialDelete"
+            />
           </li>
           <li>
             <RadialObject :global-id="collectionObject.globalId" />
@@ -49,9 +53,12 @@
 </template>
 
 <script setup>
+import { addToArray, removeFromArray } from '@/helpers'
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { DEPICTION, IDENTIFIER, COLLECTION_OBJECT } from '@/constants'
 import VBtn from '@/components/ui/VBtn'
 import VIcon from '@/components/ui/VIcon'
 import NavBar from '@/components/layout/NavBar.vue'
@@ -77,5 +84,31 @@ const otu = computed(() => {
 
 const openComprehenseive = (id) => {
   window.open(`${RouteNames.DigitizeTask}?collection_object_id=${id}`, '_self')
+}
+
+function handleRadialCreate({ item }) {
+  switch (item.base_class) {
+    case DEPICTION:
+      addToArray(store.state.depictions, item)
+      break
+
+    case IDENTIFIER:
+      store.commit(MutationNames.AddIdentifier, {
+        objectType: COLLECTION_OBJECT,
+        item
+      })
+      break
+  }
+}
+
+function handleRadialDelete({ item }) {
+  switch (item.base_class) {
+    case DEPICTION:
+      removeFromArray(store.state.depictions, item)
+      break
+    case IDENTIFIER:
+      removeFromArray(store.state.identifiers[COLLECTION_OBJECT], item)
+      break
+  }
 }
 </script>
