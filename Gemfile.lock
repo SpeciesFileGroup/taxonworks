@@ -229,6 +229,7 @@ GEM
       rexml
     csl-styles (1.0.1.11)
       csl (~> 1.0)
+    csv (3.2.8)
     daemons (1.4.1)
     database_cleaner (2.0.2)
       database_cleaner-active_record (>= 2, < 3)
@@ -745,7 +746,7 @@ DEPENDENCIES
   binding_of_caller
   biodiversity!
   brakeman (~> 5.1, >= 4.6.1)
-  bundler (~> 2.0)
+  bundler (~> 2.5)
   byebug (~> 11.1)
   capybara (~> 3.18)
   chartkick (~> 4.0)
@@ -757,6 +758,7 @@ DEPENDENCIES
   colrapi (~> 0.1.1)
   csl (~> 1.6.0)
   csl-styles (~> 1.0.1.8)
+  csv (~> 3.2)
   daemons (~> 1.4.1)
   database_cleaner (~> 2.0)
   delayed_job_active_record (~> 4.1.3)

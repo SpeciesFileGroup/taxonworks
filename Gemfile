@@ -4,7 +4,7 @@ gem 'rack-cors', '~> 2.0', require: 'rack/cors'
 
 ruby '>= 3.2', '< 3.4.0'
 
-gem 'bundler', '~> 2.0'
+gem 'bundler', '~> 2.5'
 
 gem 'rake', '~> 13.0'
 gem 'rails', '~> 7.1'
@@ -26,6 +26,9 @@ gem 'psych', '~> 5.1'
 gem 'rmagick', '~> 5.1' # , '>= 4.2.2'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
+
+gem 'csv', '~> 3.2'
+
 
 gem 'net-smtp', '~> 0.3.1'
 gem 'mail', '~> 2.8', '>= 2.8.1'
@@ -67,6 +70,7 @@ gem 'delayed_job_active_record', '~> 4.1.3'
 # This is likely not the real propegated error, see similar https://github.com/Shopify/bootsnap/issues/218
 # version 6 beta out now
 gem 'validates_timeliness', '~> 4.1', '>= 4.1.1'
+
 gem 'paper_trail', '~> 12.0'
 gem 'acts_as_list', '~> 1.0'
 gem 'modularity', '~> 3.0.0' # TODO: Used!?
