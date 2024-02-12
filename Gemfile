@@ -154,7 +154,7 @@ gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
   gem 'faker', '~> 2.10'
-  gem 'rspec-rails', '~> 5.0'
+  gem 'rspec-rails', '~> 6.1'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
