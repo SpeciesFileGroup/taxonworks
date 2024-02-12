@@ -692,7 +692,8 @@ GEM
       execjs (>= 0.3.0, < 3)
     unicode-display_width (2.5.0)
     uri (0.13.0)
-    validates_timeliness (4.1.1)
+    validates_timeliness (7.0.0.beta2)
+      activemodel (>= 7.0.0, < 8)
       timeliness (>= 0.3.10, < 1)
     vcr (6.2.0)
     waxy (0.1.1)
@@ -853,7 +854,7 @@ DEPENDENCIES
   turbolinks (~> 5.2.0)
   tzinfo-data (~> 1.2019)
   uglifier (~> 4.2)
-  validates_timeliness (~> 4.1, >= 4.1.1)
+  validates_timeliness (~> 7.0.0.beta2)
   vcr (~> 6.0)
   voight_kampff!
   waxy (~> 0.1.1)
