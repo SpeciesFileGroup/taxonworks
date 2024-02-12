@@ -137,9 +137,9 @@ gem 'colrapi', '~>0.1.1'
 gem 'gnfinder', '~> 1.0'
 
 # Minor Utils/helpers
-gem 'amazing_print', '~> 1.4.0'
+gem 'amazing_print', '~> 1.5'
 gem 'indefinite_article', '~> 0.2.4'
-gem 'rainbow', '~> 3.0.0'
+gem 'rainbow', '~> 3.0'
 gem 'term-ansicolor', '~> 1.6' # DEPRECATED
 gem 'chronic', '~> 0.10.2'
 gem 'logical_query_parser'
