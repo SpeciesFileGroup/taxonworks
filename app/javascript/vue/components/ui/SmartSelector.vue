@@ -39,7 +39,7 @@
           v-if="otuPicker"
           :input-id="inputId"
           clear-after
-          @get-item="getObject($event.id)"
+          @get-item="sendObject"
         />
       </div>
       <slot name="body" />

@@ -2,8 +2,7 @@
 
 # All SequenceRelationship subclasses
 
-
-Rails.application.reloader.to_prepare do
+Rails.application.config.after_initialize do
 
   sequence_relationship_type_select = []
 
