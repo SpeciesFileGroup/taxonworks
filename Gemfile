@@ -74,7 +74,8 @@ gem 'validates_timeliness', '~> 7.0.0.beta2' # , '>= 4.1.1'
 
 
 
-gem 'paper_trail', '~> 12.0'
+gem 'paper_trail', '~> 15.0'
+
 gem 'acts_as_list', '~> 1.0'
 gem 'modularity', '~> 3.0.0' # TODO: Used!?
 gem 'paperclip', github: 'LocoDelAssembly/paperclip', branch: 'migration-fix' # gem 'paperclip', '~> 6.1.0'
