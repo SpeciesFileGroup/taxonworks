@@ -1,5 +1,6 @@
 <template>
   <div class="depiction_annotator">
+    <VSpinner v-if="isLoading" />
     <div
       class="field"
       v-if="depiction"
@@ -128,7 +129,13 @@
         <template #filter>
           <div class="horizontal-left-content align-start">
             <div class="flex-wrap-column gap-medium">
-              <FilterImage @parameters="loadList" />
+              <VBtn
+                color="primary"
+                medium
+                @click="() => loadList(parameters)"
+                >Search</VBtn
+              >
+              <FilterImage v-model="parameters" />
             </div>
             <div class="margin-small-left flex-wrap-row">
               <div
@@ -173,6 +180,8 @@ import OtuPicker from '@/components/otu/otu_picker/otu_picker'
 import FilterImage from '@/tasks/images/filter/components/filter'
 import SmartSelector from '@/components/ui/SmartSelector'
 import DepictionList from './DepictionList.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/spinner.vue'
 import { useSlice } from '@/components/radials/composables'
 import { Depiction, Image } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
@@ -239,12 +248,14 @@ const props = defineProps({
   }
 })
 
+const parameters = ref({})
 const depiction = ref()
 const isDataDepiction = ref(false)
 const selectedType = ref()
 const selectedObject = ref()
 const filterList = ref([])
 const figureRef = ref(null)
+const isLoading = ref(false)
 const { list, addToList, removeFromList } = useSlice({
   radialEmit: props.radialEmit
 })
@@ -308,9 +319,14 @@ function createDepiction(image) {
 }
 
 function loadList(params) {
-  Image.filter(params).then(({ body }) => {
-    filterList.value = body
-  })
+  isLoading.value = true
+  Image.filter(params)
+    .then(({ body }) => {
+      filterList.value = body
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
 }
 
 function removeItem(item) {
