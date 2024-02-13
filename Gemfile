@@ -92,7 +92,7 @@ gem 'rails_or', '~> 1.1.8'
 gem 'sprockets-rails', '~> 3.4.0' # UPDATE TODO
 gem 'sprockets', '~> 4.2' # TODO: Cannot use '~> 4.0' (app fails to initialize properly)
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
-gem 'uglifier', '~> 4.2'
+gem 'terser', '~> 1.2'
 
 gem 'jquery-rails', '~> 4.4'
 # gem 'jquery-ui-rails', '~> 6.0.1'
