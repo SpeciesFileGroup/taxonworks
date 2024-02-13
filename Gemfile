@@ -4,12 +4,12 @@ gem 'rack-cors', '~> 2.0', require: 'rack/cors'
 
 ruby '>= 3.2', '< 3.4.0'
 
-gem 'bundler', '~> 2.0'
+gem 'bundler', '~> 2.5'
 
 gem 'rake', '~> 13.0'
-gem 'rails', '~> 6.1'
+gem 'rails', '~> 7.1'
 gem 'pg', '~> 1.1'
-gem 'activerecord-postgis-adapter', '~> 7.0'
+gem 'activerecord-postgis-adapter', '~> 9.0'
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.5'
 
@@ -22,10 +22,13 @@ gem 'rubyzip', '~> 2.3.0'
 gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
-gem 'psych', '~> 3.3'
+gem 'psych', '~> 5.1'
 gem 'rmagick', '~> 5.1' # , '>= 4.2.2'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
+
+gem 'csv', '~> 3.2'
+
 
 gem 'net-smtp', '~> 0.3.1'
 gem 'mail', '~> 2.8', '>= 2.8.1'
@@ -66,12 +69,21 @@ gem 'delayed_job_active_record', '~> 4.1.3'
 # TODO: updating to 5.0 causes "NoMethodError: undefined method `has_attached_file' for Image:Class"
 # This is likely not the real propegated error, see similar https://github.com/Shopify/bootsnap/issues/218
 # version 6 beta out now
-gem 'validates_timeliness', '~> 4.1', '>= 4.1.1'
-gem 'paper_trail', '~> 12.0'
+
+gem 'validates_timeliness', '~> 7.0.0.beta2' # , '>= 4.1.1'
+
+
+
+gem 'paper_trail', '~> 15.0'
+
 gem 'acts_as_list', '~> 1.0'
 gem 'modularity', '~> 3.0.0' # TODO: Used!?
-gem 'paperclip', github: 'LocoDelAssembly/paperclip', branch: 'migration-fix' # gem 'paperclip', '~> 6.1.0'
-gem 'paperclip-meta', '~> 3.0' # TODO: kt-paperclip can be installed but because of this gem old paperclip is installed as well and deprecation warnings continue
+
+gem 'kt-paperclip', '~> 7.2'
+
+# gem 'paperclip', github: 'LocoDelAssembly/paperclip', branch: 'migration-fix' # gem 'paperclip', '~> 6.1.0'
+# gem 'paperclip-meta', '~> 3.0' # TODO: kt-paperclip can be installed but because of this gem old paperclip is installed as well and deprecation warnings continue
+
 gem 'voight_kampff', github: 'LocoDelAssembly/Voight-Kampff'
 gem 'shortener', '~> 1.0.0'
 gem 'rails_or', '~> 1.1.8'
@@ -130,9 +142,9 @@ gem 'colrapi', '~>0.1.1'
 gem 'gnfinder', '~> 1.0'
 
 # Minor Utils/helpers
-gem 'amazing_print', '~> 1.4.0'
+gem 'amazing_print', '~> 1.5'
 gem 'indefinite_article', '~> 0.2.4'
-gem 'rainbow', '~> 3.0.0'
+gem 'rainbow', '~> 3.0'
 gem 'term-ansicolor', '~> 1.6' # DEPRECATED
 gem 'chronic', '~> 0.10.2'
 gem 'logical_query_parser'
@@ -154,7 +166,7 @@ gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
   gem 'faker', '~> 2.10'
-  gem 'rspec-rails', '~> 5.0'
+  gem 'rspec-rails', '~> 6.1'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
