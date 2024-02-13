@@ -127,8 +127,8 @@
           />
         </template>
         <template #filter>
-          <div class="horizontal-left-content align-start">
-            <div class="flex-wrap-column gap-medium">
+          <div class="horizontal-left-content align-start gap-medium">
+            <div class="flex-wrap-column gap-medium filter-tab">
               <VBtn
                 color="primary"
                 medium
@@ -342,3 +342,9 @@ Depiction.where({
   list.value = body
 })
 </script>
+
+<style scoped>
+.filter-tab {
+  width: 400px;
+}
+</style>
