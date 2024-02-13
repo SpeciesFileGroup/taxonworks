@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Radial annotator: Filter tab doesn't work in depictions slice [#3824]
+
+[#3824]: https://github.com/SpeciesFileGroup/taxonworks/issues/3824
 
 ## [0.38.2] - 2024-02-09
 
