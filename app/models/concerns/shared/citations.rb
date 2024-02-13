@@ -100,7 +100,7 @@ module Shared::Citations
     accepts_nested_attributes_for :citations, reject_if: :reject_citations, allow_destroy: true
     accepts_nested_attributes_for :origin_citation, reject_if: :reject_citations, allow_destroy: true
 
-    validate :origin_citation_source_id, if: -> {!new_record?}
+    validate :origin_citation_source_id, if: -> { !new_record? }
 
     # !! use validate: true in associations settings to trigger this as needed
     # Required to trigger validate callbacks, which in turn set user_id related housekeeping
