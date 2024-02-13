@@ -98,10 +98,13 @@ describe 'Loanable', type: :model, group: :loans do
 
     specify 'setting loan_item sets loan' do
       class_with_loan.save!
-      class_with_loan.build_loan_item(loan:)
-      class_with_loan.save!
 
-      expect(class_with_loan.loan_item.id).to be_truthy
+      class_with_loan.create_loan_item(loan:)
+     
+      # No longer saves the build 
+      # class_with_loan.save!
+
+      expect(class_with_loan.reload_loan_item.id).to be_truthy
     end
 
     specify 'has_one loan' do
