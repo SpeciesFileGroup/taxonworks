@@ -82,7 +82,7 @@ gem 'modularity', '~> 3.0.0' # TODO: Used!?
 gem 'kt-paperclip', '~> 7.2'
 
 # gem 'paperclip', github: 'LocoDelAssembly/paperclip', branch: 'migration-fix' # gem 'paperclip', '~> 6.1.0'
-# gem 'paperclip-meta', '~> 3.0' # TODO: kt-paperclip can be installed but because of this gem old paperclip is installed as well and deprecation warnings continue
+gem 'paperclip-meta', github: 'LocoDelAssembly/paperclip-meta', branch: 'kt-paperclip'
 
 gem 'voight_kampff', github: 'LocoDelAssembly/Voight-Kampff'
 gem 'shortener', '~> 1.0.0'

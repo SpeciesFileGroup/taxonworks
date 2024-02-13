@@ -32,6 +32,14 @@ GIT
       rake
 
 GIT
+  remote: https://github.com/LocoDelAssembly/paperclip-meta.git
+  revision: 31c55c7d914d14460b8907a546bd66287cc22988
+  branch: kt-paperclip
+  specs:
+    paperclip-meta (3.1.0)
+      kt-paperclip (>= 7.0)
+
+GIT
   remote: https://github.com/LocoDelAssembly/serrano.git
   revision: 6b5ce4abb016b628eae881437caf7d6a4e4de089
   branch: older_thor
@@ -781,6 +789,7 @@ DEPENDENCIES
   net-smtp (~> 0.3.1)
   os (~> 1.0, >= 1.0.1)
   paper_trail (~> 15.0)
+  paperclip-meta!
   parallel (~> 1.23)
   parallel_tests
   passenger (~> 6.0.2)
