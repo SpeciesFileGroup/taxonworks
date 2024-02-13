@@ -288,7 +288,7 @@ function updateFigure() {
 
 function updateDepiction(depiction) {
   Depiction.update(depiction.id, { depiction }).then(({ body }) => {
-    addToList(list.value, body)
+    addToList(body)
 
     TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
   })

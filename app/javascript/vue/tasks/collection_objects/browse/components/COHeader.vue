@@ -18,6 +18,7 @@
               :global-id="collectionObject.globalId"
               @create="handleRadialCreate"
               @delete="handleRadialDelete"
+              @update="handleRadialUpdate"
             />
           </li>
           <li>
@@ -108,6 +109,14 @@ function handleRadialDelete({ item }) {
       break
     case IDENTIFIER:
       removeFromArray(store.state.identifiers[COLLECTION_OBJECT], item)
+      break
+  }
+}
+
+function handleRadialUpdate({ item }) {
+  switch (item.base_class) {
+    case DEPICTION:
+      addToArray(store.state.depictions, item)
       break
   }
 }
