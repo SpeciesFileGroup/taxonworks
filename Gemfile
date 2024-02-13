@@ -89,8 +89,8 @@ gem 'shortener', '~> 1.0.0'
 gem 'rails_or', '~> 1.1.8'
 
 # javascript
-gem 'sprockets-rails', '~> 3.2.0' # UPDATE TODO
-gem 'sprockets', '~> 3.7.2' # TODO: Cannot use '~> 4.0' (app fails to initialize properly)
+gem 'sprockets-rails', '~> 3.4.0' # UPDATE TODO
+gem 'sprockets', '~> 4.2' # TODO: Cannot use '~> 4.0' (app fails to initialize properly)
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
 gem 'uglifier', '~> 4.2'
 
