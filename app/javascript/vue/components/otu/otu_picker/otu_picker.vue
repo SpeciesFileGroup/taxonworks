@@ -81,7 +81,7 @@
           @click="
             () =>
               createOtu({
-                taxonId: taxon.id,
+                taxonId: taxon ? taxon.id : undefined,
                 name: otuName
               })
           "
