@@ -7,10 +7,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- `/api/v1/common_names` [#3794]
+- `/api/v1/biological_associations/simple` A simple table format for BiologicalAssociations
+
 ### Fixed
 
+- A couple .csv endpoints for /api/v1
 - Radial annotator: Filter tab doesn't work in depictions slice [#3824]
 
+[#3794]: https://github.com/SpeciesFileGroup/taxonworks/issues/3794
 [#3824]: https://github.com/SpeciesFileGroup/taxonworks/issues/3824
 
 ## [0.38.2] - 2024-02-09
