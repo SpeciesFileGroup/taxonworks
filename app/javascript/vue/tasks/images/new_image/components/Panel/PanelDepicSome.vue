@@ -35,9 +35,11 @@
         v-if="listCreated.length"
         class="margin-medium-top"
         :list="listCreated"
-        :header="['Objects', 'Remove']"
+        :header="['Objects', '']"
         :delete-warning="false"
-        :annotator="false"
+        annotator
+        navigator
+        quick-forms
         :attributes="['label']"
         @delete="
           (item) => store.commit(MutationNames.RemoveObjectForDepictions, item)
@@ -93,6 +95,7 @@ function addToList(item) {
   store.commit(MutationNames.AddObjectForDepictions, {
     id: item.id,
     label: item.object_label,
+    global_id: item.global_id,
     base_class: selectedType.value.type
   })
 }
