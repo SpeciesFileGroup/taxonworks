@@ -20,7 +20,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
   }
 
   let(:source) { FactoryBot.create(:valid_source_verbatim) }
-  
+
   let(:upload_file_2) { Rack::Test::UploadedFile.new(file_ph_2) }
 
   let(:import_2_im) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(
@@ -56,7 +56,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
     file: upload_file_2,
     type_select: 'import'
   ) }
-  
+
   let(:import_no_new_otus) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(
     project_id:,
     user_id: user.id,
@@ -358,10 +358,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           end
 
           specify '#valid_objects' do
-            # The 5 data attributes are shown as invalid because
-            # their base object is not yet saved.
-            # See polymorphic_annotator.rb validate associated
-            expect(import_2_in.valid_objects.count).to eq(14)
+            expect(import_2_in.valid_objects.count).to eq(19)
           end
 
           specify '#successful_rows' do
