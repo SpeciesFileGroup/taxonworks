@@ -39,8 +39,6 @@ class Protonym < TaxonName
     :verbatim_author_without_digits,
     :verbatim_author_with_closed_parens_when_present
 
-  after_create :create_otu, if: -> {self.also_create_otu}
-
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
@@ -969,10 +967,6 @@ class Protonym < TaxonName
 
   def name_is_valid_format
     rank_class.validate_name_format(self) if name.present? && rank_class && rank_class.respond_to?(:validate_name_format) && !has_latinized_exceptions?
-  end
-
-  def create_otu
-    Otu.create(by: self.creator, project: self.project, taxon_name_id: self.id)
   end
 
   def new_parent_taxon_name
