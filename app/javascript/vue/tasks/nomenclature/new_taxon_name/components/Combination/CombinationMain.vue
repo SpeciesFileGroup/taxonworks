@@ -7,12 +7,12 @@
       <h3>Subsequent combination</h3>
     </template>
     <template #body>
-      <combination-current
+      <CombinationCurrent
         v-if="!isCurrentTaxonInCombination"
         :combination-ranks="combinationRanks"
-        @onSet="combination = $event"
+        @on-set="(item) => (combination = item)"
       />
-      <combination-rank
+      <CombinationRank
         v-for="(group, groupName) in combinationRanks"
         :key="groupName"
         v-model="combination"
@@ -32,10 +32,10 @@
 
       <div class="original-combination margin-medium-top margin-medium-bottom">
         <div class="rank-name-label" />
-        <combination-verbatim v-model="currentCombination.verbatim_name" />
+        <CombinationVerbatim v-model="currentCombination.verbatim_name" />
       </div>
       <template v-if="Object.keys(combination).length">
-        <combination-citation
+        <CombinationCitation
           :taxon="taxon"
           v-model="citationData"
         />
@@ -43,31 +43,31 @@
 
         <template v-if="isBotanyCode">
           <h3>Classification</h3>
-          <classification-main
+          <ClassificationMain
             :taxon-id="taxon.id"
             @select="addClassification"
           />
 
-          <display-list
+          <DisplayList
             v-if="currentCombination.id"
             :list="classifications"
             label="object_tag"
             annotator
             @delete="removeClassification"
           />
-          <display-list
+          <DisplayList
             v-else
             :list="queueClassification"
             label="name"
             :delete-warning="false"
-            @delete-index="queueClassification.splice($event, 1)"
             soft-delete
+            @delete-index="queueClassification.splice($event, 1)"
           />
         </template>
       </template>
 
       <div class="margin-medium-top">
-        <v-btn
+        <VBtn
           class="margin-small-right"
           color="create"
           medium
@@ -75,17 +75,17 @@
           @click="saveCombination"
         >
           {{ currentCombination.id ? 'Update' : 'Create' }}
-        </v-btn>
-        <v-btn
+        </VBtn>
+        <VBtn
           color="primary"
           medium
           @click="newCombination"
         >
           New
-        </v-btn>
+        </VBtn>
       </div>
       <hr />
-      <combination-list
+      <CombinationList
         :list="combinationList"
         @edit="loadCombination"
         @delete="removeCombination"
@@ -160,12 +160,15 @@ const saveCombination = () => {
     ...makeCombinationParams()
   )
 
-  store.dispatch(ActionNames.CreateCombination, combObj).then((body) => {
-    combination.value = {}
-    currentCombination.value = {}
-    setCitationData()
-    processQueueCombination(body.id)
-  })
+  store
+    .dispatch(ActionNames.CreateCombination, combObj)
+    .then(({ body }) => {
+      combination.value = {}
+      currentCombination.value = {}
+      setCitationData()
+      processQueueCombination(body.id)
+    })
+    .catch(() => {})
 }
 
 const removeOldRelationships = (protonyms) => {
