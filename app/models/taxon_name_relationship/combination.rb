@@ -66,12 +66,9 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
   protected
 
   def set_cached_names_for_taxon_names
-    begin
-      TaxonName.transaction do
-        t = object_taxon_name
-        t.send(:set_cached)
-      end
-    end
+    t = object_taxon_name
+    return true if t.destroyed?
+    t.send(:set_cached)
     true
   end
 

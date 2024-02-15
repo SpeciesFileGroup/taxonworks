@@ -206,34 +206,23 @@ class TaxonName < ApplicationRecord
   # to a new cached value, so let's record the old one
   #  after_save :create_new_combination_if_absent
 
-  after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
-  after_save :set_cached_warnings, if: Proc.new {|n| n.no_cached }
   after_create :create_otu, if: :also_create_otu
   before_destroy :check_for_children, prepend: true
+  after_commit :set_cached, on: [:create, :update], unless: Proc.new {|n| n.no_cached || errors.any? }
+  after_commit :set_cached_warnings, on: [:create, :update], if: Proc.new {|n| n.no_cached }
 
-  validate :validate_rank_class_class,
-    # :check_format_of_name,
-    :validate_parent_from_the_same_project,
-    :validate_parent_is_set,
-    :check_new_rank_class,
-    :check_new_parent_class,
-    :validate_source_type,
-    :validate_one_root_per_project
-
-  # TODO: remove, this is handled natively
-  validates_presence_of :type, message: 'is not specified'
-
+  validate :validate_rank_class_class
+  validate :check_new_rank_class
+  validate :check_new_parent_class
+  validate :validate_source_type
+  validate :validate_parent_from_the_same_project
+  validate :validate_one_root_per_project
+  validates_presence_of :type, message: 'is not specified' # TODO: remove, this is handled natively, and in DB
   validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}, allow_nil: true
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
 
-  # TODO: think of a different name, and test
-  has_many :historical_taxon_names, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
 
-  has_many :observation_matrix_row_items, as: :observation_object, inverse_of: :observation_object, class_name: 'ObservationMatrixRowItem::Dynamic::TaxonName', dependent: :destroy # was delete_all
-  has_many :observation_matrices, through: :observation_matrix_row_items
-
-  # TODO: revisit?
   belongs_to :valid_taxon_name, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
 
   has_one :source_classified_as_relationship, -> {
@@ -246,6 +235,12 @@ class TaxonName < ApplicationRecord
 
   has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name
 
+  # TODO: think of a different name, and test
+  has_many :historical_taxon_names, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
+
+  has_many :observation_matrix_row_items, as: :observation_object, inverse_of: :observation_object, class_name: 'ObservationMatrixRowItem::Dynamic::TaxonName', dependent: :destroy # was delete_all
+  has_many :observation_matrices, through: :observation_matrix_row_items
+
   has_many :otus, inverse_of: :taxon_name, dependent: :restrict_with_error
   has_many :taxon_determinations, through: :otus
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object
@@ -257,7 +252,6 @@ class TaxonName < ApplicationRecord
   # TODO: Combinations shouldn't have classifications or relationships?  Move to Protonym?
   has_many :taxon_name_classifications, dependent: :destroy, inverse_of: :taxon_name
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :restrict_with_error, inverse_of: :subject_taxon_name
-
 
   # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
   accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
@@ -976,13 +970,15 @@ class TaxonName < ApplicationRecord
   #  returns list of invalid names for a given taxon.
   # Can't we just use #valid_id now?
   # DD: no this is used for validation of multiple conflicting relationships
-  # this list does not return combinations
+  #   this list does not return Combinations
   def list_of_invalid_taxon_names
     first_pass = true
     list = {}
     while first_pass || !list.keys.select{|t| list[t] == false}.empty? do
       first_pass = false
+
       list_of_taxa_to_check = list.empty? ? [self] : list.keys.select{|t| list[t] == false}
+
       list_of_taxa_to_check.each do |t|
         potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).order_by_oldest_source_first
         potentialy_invalid_relationships.each do |r|
@@ -996,7 +992,7 @@ class TaxonName < ApplicationRecord
       end
     end
     return [] if list.empty?
-    list.sort_by{|t, a| (t.cached_nomenclature_date&.to_time || Time.now)}.collect{|t, a| t}
+    list.sort_by{|t, a| (t.cached_nomenclature_date&.to_time || Time.zone.now)}.collect{|t, a| t}
   end
 
   def gbif_status_array
@@ -1482,11 +1478,6 @@ class TaxonName < ApplicationRecord
     nil
   end
 
-  # @return [Boolean]
-  def parent_is_set?
-    !parent_id.nil? || (parent&.persisted?)
-  end
-
   # TODO: this should be paginated, not all IDs!
   def next_sibling
     if siblings.where(project_id:).any?
@@ -1642,10 +1633,9 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  def validate_parent_is_set
-    if !(rank_class == NomenclaturalRank) && !(type == 'Combination')
-      errors.add(:parent_id, 'is not selected') if !parent_is_set?
-    end
+  # @return [Boolean]
+  def parent_is_set?
+    parent_id.present? || parent # &.persisted?
   end
 
   def validate_parent_from_the_same_project
