@@ -17,6 +17,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - A couple .csv endpoints for /api/v1
 - Radial annotator: Filter tab doesn't work in depictions slice [#3824]
 
+### Changed
+
+- Documents are no longer destroyed when the last documentation referencing them are deleted.
+
 [#3794]: https://github.com/SpeciesFileGroup/taxonworks/issues/3794
 [#3824]: https://github.com/SpeciesFileGroup/taxonworks/issues/3824
 
