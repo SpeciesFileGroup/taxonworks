@@ -113,8 +113,8 @@ gem 'serrano', github: 'LocoDelAssembly/serrano', branch: 'older_thor' #gem 'ser
 gem 'pdf-reader', '~> 2.2'
 
 # UI/UX
-gem 'chartkick', '~> 4.0'
-gem 'groupdate', '~> 5.2'
+gem 'chartkick', '~> 5.0'
+gem 'groupdate', '~> 6.4'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.2.0'
 gem 'best_in_place', git: 'https://github.com/mmotherwell/best_in_place'
