@@ -104,10 +104,10 @@ gem 'jquery-turbolinks', '~> 2.1'
 gem 'shakapacker', '7.2.2'
 
 # BibTeX handling
-gem 'csl', '~> 1.6.0'
+gem 'csl', '~> 2.0'
 gem 'bibtex-ruby', '~> 6.0'
-gem 'citeproc-ruby', '~> 1.1.10'
-gem 'csl-styles', '~> 1.0.1.8'
+gem 'citeproc-ruby', '~> 2.0'
+gem 'csl-styles', '~> 2.0.1'
 gem 'serrano', github: 'LocoDelAssembly/serrano', branch: 'older_thor' #gem 'serrano', '~> 1.0.0'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
