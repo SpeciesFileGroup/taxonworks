@@ -165,7 +165,7 @@ gem 'parallel', '~> 1.23'
 gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
-  gem 'faker', '~> 2.10'
+  gem 'faker', '~> 3.2'
   gem 'rspec-rails', '~> 6.1'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
@@ -193,7 +193,7 @@ group :development do
   gem 'rubocop-rspec', '~>2.6'
   gem 'rubocop-faker', '~> 1.1'
   gem 'rubocop-performance', '~> 1.10'
-  gem 'brakeman', '~> 5.1', '>= 4.6.1', require: false
+  gem 'brakeman', '~> 6.1', '>= 5.4', require: false
   gem 'seedbank', '~> 0.5.0'
 end
 

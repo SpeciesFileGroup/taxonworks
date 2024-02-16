@@ -183,7 +183,8 @@ GEM
     bindex (0.8.1)
     binding_of_caller (1.0.0)
       debug_inspector (>= 0.0.1)
-    brakeman (5.4.1)
+    brakeman (6.1.2)
+      racc
     builder (3.2.4)
     byebug (11.1.3)
     capybara (3.40.0)
@@ -261,7 +262,7 @@ GEM
     factory_bot_rails (6.4.3)
       factory_bot (~> 6.4)
       railties (>= 5.0.0)
-    faker (2.23.0)
+    faker (3.2.3)
       i18n (>= 1.8.11, < 2)
     faraday (2.9.0)
       faraday-net_http (>= 2.0, < 3.2)
@@ -743,7 +744,7 @@ DEPENDENCIES
   bibtex-ruby (~> 6.0)
   binding_of_caller
   biodiversity!
-  brakeman (~> 5.1, >= 4.6.1)
+  brakeman (~> 6.1, >= 5.4)
   bundler (~> 2.5)
   byebug (~> 11.1)
   capybara (~> 3.18)
@@ -766,7 +767,7 @@ DEPENDENCIES
   exception_notification (~> 4.4)
   execjs (~> 2.8.1)
   factory_bot_rails (~> 6.2)
-  faker (~> 2.10)
+  faker (~> 3.2)
   ffi-geos (~> 2.4.0)
   gnfinder (~> 1.0)
   gpx!
