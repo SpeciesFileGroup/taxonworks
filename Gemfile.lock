@@ -719,7 +719,7 @@ GEM
       zeitwerk (>= 2.6)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    zaru (0.3.0)
+    zaru (1.0.0)
     zeitwerk (2.6.13)
     zip_tricks (5.6.0)
 
@@ -858,7 +858,7 @@ DEPENDENCIES
   web-console (~> 4.0, >= 4.0.1)
   webmock (~> 3.8)
   wikidata-client (~> 0.1.0.pre.rc1)
-  zaru (~> 0.3.0)
+  zaru (~> 1.0)
   zip_tricks (~> 5.6)
 
 RUBY VERSION

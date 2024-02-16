@@ -151,7 +151,7 @@ gem 'logical_query_parser'
 gem 'logic_tools'
 gem 'chunky_png', '~> 1.4.0'
 gem 'namecase', '~> 2.0'
-gem 'zaru', '~> 0.3.0'
+gem 'zaru', '~> 1.0'
 
 # Export
 gem 'asciidoctor', '~> 2.0'
