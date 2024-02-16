@@ -203,7 +203,7 @@ GEM
     citeproc-ruby (1.1.14)
       citeproc (~> 1.0, >= 1.0.9)
       csl (~> 1.6)
-    climate_control (0.2.0)
+    climate_control (1.2.0)
     closure_tree (7.4.0)
       activerecord (>= 4.2.10)
       with_advisory_lock (>= 4.0.0)
@@ -425,7 +425,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pg (1.5.4)
+    pg (1.5.5)
     pkg-config (1.5.6)
     polyglot (0.3.5)
     postgresql_cursor (0.6.8)
@@ -527,7 +527,7 @@ GEM
       rgeo (>= 1.0.0)
     rgeo-proj4 (4.0.0)
       rgeo (~> 3.0.0)
-    rmagick (5.4.2)
+    rmagick (5.4.4)
       observer (~> 0.1)
       pkg-config (~> 1.4)
     roo (2.10.1)
@@ -666,8 +666,8 @@ GEM
       require_all (~> 3.0)
     term-ansicolor (1.7.1)
       tins (~> 1.0)
-    terrapin (0.6.0)
-      climate_control (>= 0.0.3, < 1.0)
+    terrapin (1.0.1)
+      climate_control
     terser (1.2.0)
       execjs (>= 0.3.0, < 3)
     thor (1.2.2)
