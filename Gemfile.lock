@@ -384,7 +384,7 @@ GEM
       net-protocol
     net-protocol (0.2.2)
       timeout
-    net-smtp (0.3.4)
+    net-smtp (0.4.0.1)
       net-protocol
     netrc (0.11.0)
     nio4r (2.7.0)
@@ -615,7 +615,7 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
-    sdoc (2.2.0)
+    sdoc (2.6.1)
       rdoc (>= 5.0)
     seedbank (0.5.0)
       rake (>= 10.0)
@@ -787,7 +787,7 @@ DEPENDENCIES
   matrix (~> 0.4.2)
   modularity (~> 3.0.0)
   namecase (~> 2.0)
-  net-smtp (~> 0.3.1)
+  net-smtp (~> 0.4)
   os (~> 1.0, >= 1.0.1)
   paper_trail (~> 15.0)
   paperclip-meta!
@@ -833,7 +833,7 @@ DEPENDENCIES
   ruby-units (~> 2.3.0)
   rubyzip (~> 2.3.0)
   sassc-rails (~> 2.1.0)
-  sdoc (~> 2.2.0)
+  sdoc (~> 2.6)
   seedbank (~> 0.5.0)
   selenium-webdriver (~> 4.6, >= 4.6.1)
   serrano!

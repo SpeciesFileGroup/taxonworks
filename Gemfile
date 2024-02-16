@@ -30,7 +30,7 @@ gem 'roo-xls', '~> 1.2'
 gem 'csv', '~> 3.2'
 
 
-gem 'net-smtp', '~> 0.3.1'
+gem 'net-smtp', '~> 0.4'
 gem 'mail', '~> 2.8', '>= 2.8.1'
 gem 'matrix', '~> 0.4.2'
 
@@ -198,7 +198,7 @@ group :development do
 end
 
 group :doc do
-  gem 'sdoc', '~> 2.2.0', require: false
+  gem 'sdoc', '~> 2.6', require: false
 end
 
 group :test do
