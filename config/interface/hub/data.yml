@@ -212,6 +212,8 @@ Supporting:
       - TaxonDetermination
   Lead:
     status: :prototype
+    related_models:
+      - Otu
   Loan:
     status: :prototype
     categories:

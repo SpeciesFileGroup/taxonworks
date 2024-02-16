@@ -49,7 +49,7 @@ class Lead < ApplicationRecord
   include Shared::IsData
 
   belongs_to :parent, class_name: 'Lead'
-  # has_closure_tree uses 'children', so we use 'kids' instead.
+  # has_closure_tree uses 'children', so we use 'kids' here instead.
   has_many :kids, class_name: 'Lead', foreign_key: :parent_id, inverse_of: :parent, dependent: :destroy
   belongs_to :otu, inverse_of: :leads
   belongs_to :redirect, class_name: 'Lead'
@@ -60,14 +60,14 @@ class Lead < ApplicationRecord
   validate :link_out_has_no_protocol
 
   def future
-    self.redirect_id.blank? ? self.all_children : self.redirect.all_children
+    redirect_id.blank? ? all_children : redirect.all_children
   end
 
   def go_id
-    (self.redirect_id.presence || self.id)
+    (redirect_id.presence || id)
   end
 
-  def dupe(node = self, id = nil)
+  def dupe(node = self, parentId = nil)
     a = node.dup
     a.parent_id = parentId
     a.description = (a.description ? (a.description + ' (COPY)') : '(COPY)') if parentId == nil
@@ -81,15 +81,23 @@ class Lead < ApplicationRecord
   end
 
   def insert_couplet
-    if cs = self.children
+    if cs = children
       a = cs[0]
       b = cs[1]
     end
 
-    c = self.children.create!(text: 'Child nodes, if present, are attached to this node.')
-    d = self.children.create!(text: 'Inserted node')
+    begin
+      c, d = Lead.transaction do
+        [
+          children.create!(text: 'Child nodes, if present, are attached to this node.'),
+          children.create!(text: 'Inserted node')
+        ]
+      end
+    rescue ActiveRecord::RecordInvalid
+      return []
+    end
 
-    if not a == nil
+    if !a.nil?
       # !! Test thoroughly here! Many things you might expect to work may give
       # you the wrong order for a and b.
       c.add_child a
@@ -100,9 +108,9 @@ class Lead < ApplicationRecord
   end
 
   def destroy_couplet
-    return true if self.children.size == 0
-    a = self.children[0]
-    b = self.children[1]
+    return true if children.size == 0
+    a = children[0]
+    b = children[1]
 
     if (a.children.size == 0) or (b.children.size == 0)
       if (a.children.size > 0) || (b.children.size > 0)
@@ -110,18 +118,29 @@ class Lead < ApplicationRecord
         # give you the wrong order for the reparented children.
         has_kids = a.children.size > 0 ? a : b
         no_kids = a.children.size == 0 ? a : b
-        no_kids.destroy!
         # TODO: find a way to make this work reliably with fewer queries.
         first_child = Lead.find has_kids.children[0].id
         second_child = Lead.find has_kids.children[1].id
-        self.add_child first_child
-        first_child.append_sibling second_child
-        Lead.find(has_kids.id).destroy! # NOTE WE CANNOT just do has_kids.destroy, as this invokes bizarre cascading nastiness!!
+        begin
+          Lead.transaction do
+            add_child first_child
+            first_child.append_sibling second_child
+            Lead.find(has_kids.id).destroy! # NOTE WE CANNOT just do has_kids.destroy, as this invokes bizarre cascading nastiness!!
+            no_kids.destroy!
+          end
+        rescue ActiveRecord::RecordInvalid
+          return false
+        end
       else
-        a.destroy!
-        b.destroy!
+        begin
+          Lead.transaction do
+            a.destroy!
+            b.destroy!
+          end
+        rescue ActiveRecord::RecordInvalid
+          return false
+        end
       end
-
       true
     else
       false
