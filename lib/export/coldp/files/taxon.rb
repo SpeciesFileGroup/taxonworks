@@ -157,6 +157,12 @@ module Export::Coldp::Files::Taxon
         # TODO: alter way parent is set to conform to CoLDP status
         #   For OTUs with combinations we might have to change the parenthood?!
 
+        # exclude OTUs of names with NOT SPECIFIED components
+        if o.taxon_name.cached =~ /NOT SPECIFIED/
+          next
+        end
+
+
         parent_id = nil
         if root_otu_id != o.id
           if pid = o.parent_otu_id(skip_ranks: SKIPPED_RANKS, prefer_unlabelled_otus: prefer_unlabelled_otus)

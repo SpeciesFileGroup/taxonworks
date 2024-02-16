@@ -61,6 +61,11 @@ module Export::Coldp::Files::Name
   def self.add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
     e = t.original_combination_elements
 
+    # skip names that include any NOT SPECIFIED components
+    if t.cached =~ /NOT SPECIFIED/
+      return
+    end
+
     infraspecific_element = t.original_combination_infraspecific_element(e)
 
     rank = nil
@@ -87,32 +92,10 @@ module Export::Coldp::Files::Name
 
     if rank == :genus
       uninomial = e[:genus][1]
-
     else
-      if e[:genus]
-        if e[:genus][1] =~ /NOT SPECIFIED/
-          genus = nil
-        else
-          genus = e[:genus][1]
-        end
-      end
-
-      if e[:subgenus]
-        if e[:subgenus][1] =~ /NOT SPECIFIED/
-          subgenus = nil
-        else
-          subgenus = e[:subgenus][1]&.gsub(/[\)\(]/, '')
-        end
-      end
-
-      if e[:species]
-        if e[:species][1] =~ /NOT SPECIFIED/
-          species = nil
-        else
-          species = e[:species][1]
-        end
-      end
-
+      genus = e[:genus][1]
+      subgenus = e[:subgenus][1]&.gsub(/[\)\(]/, '')
+      species = e[:species][1]
     end
 
     csv << [
@@ -196,6 +179,11 @@ module Export::Coldp::Files::Name
           .where(cached_valid_taxon_name_id: name[0]) # == .historical_taxon_names
           .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", name[1]) # This eliminates Combinations that are identical to the current placement.
           .find_each do |t|
+
+          # skip names that include any NOT SPECIFIED components
+          if t.cached =~ /NOT SPECIFIED/
+            next
+          end
 
           origin_citation = t.origin_citation
 
