@@ -67,7 +67,7 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
 
   def set_cached_names_for_taxon_names
     t = object_taxon_name
-    return true if t.destroyed?
+    return true if t.destroyed? # Are we sure this is right?
     t.send(:set_cached)
     true
   end

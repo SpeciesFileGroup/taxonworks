@@ -57,7 +57,8 @@ class TaxonNameRelationship < ApplicationRecord
 
   # !! Keep as after_commit unless you are wanting to spend a lot of time
   # !! refactoring tests
-  after_commit :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
+  after_commit :set_cached_names_for_taxon_names, unless: -> {self.no_cached || destroyed?}
+  after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
 
   # TODO: remove, it's required by STI
   validates_presence_of :type, message: 'Relationship type should be specified'
