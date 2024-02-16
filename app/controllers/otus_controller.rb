@@ -255,7 +255,7 @@ class OtusController < ApplicationController
   # PATCH /otus/batch_update.json?otus_query=<>&otu={taxon_name_id=123}}
   def batch_update
     if r = Otu.batch_update(
-        preview: params[:preview], 
+        preview: params[:preview],
         otu: otu_params.merge(by: sessions_current_user_id),
         otu_query: params[:otu_query],
     )
@@ -282,7 +282,7 @@ class OtusController < ApplicationController
         send_data Export::CSV.generate_csv(
           @otus,
           exclude_columns: %w{updated_by_id created_by_id project_id},
-        ), type: 'text', filename: "taxon_names_#{DateTime.now}.tsv"
+        ), type: 'text', filename: "otus_#{DateTime.now}.tsv"
       }
     end
   end

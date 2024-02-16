@@ -25,8 +25,8 @@ module BiologicalAssociation::DwcExtensions
 
   # Don't use dwc_
   def globi_extension_json
-    r = {} 
-     Export::Csv::Dwc::Extension::BiologicalAssociations::HEADERS.each do |h|
+    r = {}
+     Export::CSV::Dwc::Extension::BiologicalAssociations::HEADERS.each do |h|
       if m = DWC_EXTENSION_MAP[h.to_sym]
         r[h] = send(m)
       end

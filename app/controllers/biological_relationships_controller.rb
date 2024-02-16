@@ -29,7 +29,7 @@ class BiologicalRelationshipsController < ApplicationController
       }
       format.csv {
         @biological_relationships = q
-        send_data Export::Csv.generate_csv(
+        send_data Export::CSV.generate_csv(
           @biological_relationships,
           exclude_columns: %w{updated_by_id created_by_id project_id},
         ), type: 'text',
