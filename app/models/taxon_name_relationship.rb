@@ -55,6 +55,8 @@ class TaxonNameRelationship < ApplicationRecord
   belongs_to :subject_taxon_name, class_name: 'TaxonName', inverse_of: :taxon_name_relationships # left side
   belongs_to :object_taxon_name, class_name: 'TaxonName', inverse_of: :related_taxon_name_relationships # right side
 
+  # !! Keep as after_commit unless you are wanting to spend a lot of time
+  # !! refactoring tests
   after_commit :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
 
   # TODO: remove, it's required by STI
@@ -460,6 +462,7 @@ class TaxonNameRelationship < ApplicationRecord
           cached_html: t.get_full_name_html(n), # OK to force reload here, otherwise we need an exception in #set_cached
           cached_valid_taxon_name_id: vn.id,
           cached_is_valid: !t.unavailable_or_invalid?)
+
         t.combination_list_self.each do |c|
           c.update_column(:cached_valid_taxon_name_id, vn.id)
         end
@@ -468,10 +471,12 @@ class TaxonNameRelationship < ApplicationRecord
           s.update_columns(
             cached_valid_taxon_name_id: vn.id,
             cached_is_valid: !s.unavailable_or_invalid?)
+
           s.combination_list_self.each do |c|
             c.update_column(:cached_valid_taxon_name_id, vn.id)
           end
         end
+
       end
 
     end

@@ -1048,8 +1048,9 @@ class Protonym < TaxonName
   end
 
   def set_cached
-    old_cached_html = cached_html.to_s
-    old_cached_author_year = cached_author_year.to_s
+    # old_cached_html = cached_html.to_s
+    old_cached_author_year = cached_author_year.to_s # why to_s?
+    old_cached = cached.to_s # why to_s?
 
     super
     set_cached_original_combination
@@ -1058,8 +1059,8 @@ class Protonym < TaxonName
     set_cached_species_homonym if is_species_rank?
     set_cached_misspelling
     tn = TaxonName.find(id)
-    set_cached_names_for_descendants if tn.cached_html != old_cached_html
-    set_cached_names_for_dependants if tn.cached_html.to_s != old_cached_html || tn.cached_author_year.to_s != old_cached_author_year
+    set_cached_names_for_descendants if tn.cached != old_cached
+    set_cached_names_for_dependants if tn.cached.to_s != old_cached || tn.cached_author_year.to_s != old_cached_author_year
   end
 
   def set_cached_homonymy

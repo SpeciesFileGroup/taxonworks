@@ -208,8 +208,11 @@ class TaxonName < ApplicationRecord
 
   after_create :create_otu, if: :also_create_otu
   before_destroy :check_for_children, prepend: true
-  after_commit :set_cached, on: [:create, :update], unless: Proc.new {|n| n.no_cached || errors.any? }
-  after_commit :set_cached_warnings, on: [:create, :update], if: Proc.new {|n| n.no_cached }
+
+  # Rails 7 experiments have after_commit creating a whack-a-mole situation
+  # (though leave after_commit on TaxonNameRelationship)
+  after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
+  after_save :set_cached_warnings, if: Proc.new {|n| n.no_cached }
 
   validate :validate_rank_class_class
   validate :check_new_rank_class
@@ -221,7 +224,6 @@ class TaxonName < ApplicationRecord
   validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}, allow_nil: true
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
-
 
   belongs_to :valid_taxon_name, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
 
