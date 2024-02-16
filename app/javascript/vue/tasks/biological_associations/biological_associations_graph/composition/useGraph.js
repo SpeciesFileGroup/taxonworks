@@ -23,6 +23,7 @@ import {
   isNetwork,
   getHexColorFromString
 } from '../utils'
+import { randomUUID } from '@/helpers'
 import { addToArray } from '@/helpers/arrays'
 import { COLLECTION_OBJECT, BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 
@@ -161,7 +162,7 @@ export function useGraph() {
 
     const biologicalAssociation = {
       id: undefined,
-      uuid: crypto.randomUUID(),
+      uuid: randomUUID(),
       subject,
       object,
       citations: [],
