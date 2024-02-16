@@ -429,7 +429,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def set_cached_names_for_taxon_names
     # !! only fire if subject_taxon_name changed
-    return true unless subject_taxon_name_id_previously_changed?
+    return true unless subject_taxon_name_id_previously_changed? || destroyed?
 
     TaxonName.transaction do
       if is_invalidating?
