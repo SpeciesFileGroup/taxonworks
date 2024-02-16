@@ -837,7 +837,7 @@ DEPENDENCIES
   selenium-webdriver (~> 4.6, >= 4.6.1)
   serrano!
   shakapacker (= 7.2.2)
-  shortener (~> 1.0.0)
+  shortener (~> 1.0)
   simplecov
   spring-commands-rspec (~> 1.0.4)
   sprockets (~> 4.2)

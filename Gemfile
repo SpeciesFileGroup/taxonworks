@@ -85,7 +85,7 @@ gem 'kt-paperclip', '~> 7.2'
 gem 'paperclip-meta', github: 'LocoDelAssembly/paperclip-meta', branch: 'kt-paperclip'
 
 gem 'voight_kampff', github: 'LocoDelAssembly/Voight-Kampff'
-gem 'shortener', '~> 1.0.0'
+gem 'shortener', '~> 1.0'
 gem 'rails_or', '~> 1.1.8'
 
 # javascript
