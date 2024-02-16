@@ -140,7 +140,7 @@ module Export::Coldp::Files::Name
   end
 
   def self.clean_sic(name)
-    name&.gsub(/\s+\[sic\]/, '') # TODO: remove `&` once cached_original_combination is re-indexed
+    name&.gsub(/\[sic\]/, '') # TODO: remove `&` once cached_original_combination is re-indexed
   end
 
   # @params otu [Otu]
