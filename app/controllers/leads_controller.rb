@@ -189,6 +189,22 @@ class LeadsController < ApplicationController
     end
   end
 
+  def autocomplete
+    @leads = ::Queries::Lead::Autocomplete.new(
+      params.require(:term),
+      project_id: sessions_current_project_id,
+    ).autocomplete
+  end
+
+  def search
+    if params[:id].blank?
+      redirect_to(lead_path,
+                  alert: 'You must select an item from the list with a click or tab press before clicking show.')
+    else
+      redirect_to lead_path(params[:id])
+    end
+  end
+
   private
 
   def set_lead

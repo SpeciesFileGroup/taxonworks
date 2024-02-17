@@ -52,6 +52,7 @@ class Lead < ApplicationRecord
   # has_closure_tree uses 'children', so we use 'kids' here instead.
   has_many :kids, class_name: 'Lead', foreign_key: :parent_id, inverse_of: :parent, dependent: :destroy
   belongs_to :otu, inverse_of: :leads
+  has_one :taxon_name, through: :otu
   belongs_to :redirect, class_name: 'Lead'
 
   has_closure_tree order: 'position', numeric_order: true, dont_order_roots: true
