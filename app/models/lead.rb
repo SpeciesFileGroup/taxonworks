@@ -68,16 +68,15 @@ class Lead < ApplicationRecord
     (redirect_id.presence || id)
   end
 
-  def dupe(node = self, parentId = nil)
-    a = node.dup
-    a.parent_id = parentId
-    a.description = (a.description ? (a.description + ' (COPY)') : '(COPY)') if parentId == nil
-    a.save!
-
-    for c in node.children
-      dupe(c, a.id)
+  def dupe
+    return false if parent_id
+    begin
+      Lead.transaction do
+        dupe_in_transaction(self, parent_id)
+      end
+    rescue ActiveRecord::RecordInvalid
+      return false
     end
-
     true
   end
 
@@ -184,4 +183,14 @@ class Lead < ApplicationRecord
     errors.add(:link, "shouldn't include http") if link_out&.start_with? 'http' or link_out&.include? '://'
   end
 
+  def dupe_in_transaction(node, parentId)
+    a = node.dup
+    a.parent_id = parentId
+    a.text = '(COPY OF) ' + a.text if parentId == nil
+    a.save!
+
+    for c in node.children
+      dupe_in_transaction(c, a.id)
+    end
+  end
 end

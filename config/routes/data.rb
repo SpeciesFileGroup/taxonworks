@@ -422,6 +422,7 @@ resources :leads do
     patch :update_meta
     post :destroy_couplet
     post :delete_couplet
+    post :duplicate
   end
   collection do
     get :all_texts

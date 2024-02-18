@@ -34,13 +34,14 @@ RSpec.describe Lead, type: :model do
     end
 
     specify 'dupe' do
+      title = root.text
       expect(Lead.all.size).to eq(7)
 
       expect(root.dupe).to be_truthy
 
       expect(Lead.all.size).to eq(14)
       expect(Lead.where('parent_id is null').size).to eq(2)
-      expect(Lead.where('parent_id is null').order(:id)[1].description).to eq('(COPY)')
+      expect(Lead.where('parent_id is null').order(:id)[1].text).to eq('(COPY OF) ' + title)
     end
 
     specify 'all_children' do

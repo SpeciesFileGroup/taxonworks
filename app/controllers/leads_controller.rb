@@ -170,11 +170,18 @@ class LeadsController < ApplicationController
     end
   end
 
+  # POST /leads/1/duplicate
   def duplicate
-    @lead.dupe
     respond_to do |format|
-      format.html { redirect_to action: :list }
-      format.json { head :no_content }
+      format.html {
+        if !@lead.parent_id
+          @lead.dupe
+          flash[:notice] = 'Key cloned.'
+        else
+          flash[:error] = 'Clone aborted - you can only clone on a root node.'
+        end
+        redirect_to action: :list
+      }
     end
   end
 
