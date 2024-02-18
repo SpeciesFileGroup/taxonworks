@@ -80,6 +80,17 @@ RSpec.describe Lead, type: :model do
       expect(Lead.find_by(text: 'lr').all_children.size).to eq(4)
     end
 
+    specify 'destroy! destroys all children of a key' do
+      second_key = FactoryBot.create(:valid_lead)
+      second_key.insert_couplet
+      expect(Lead.all.size).to eq(10)
+
+      expect(root.destroy!).to be_truthy
+
+      expect(Lead.all.size).to eq(3)
+      expect(Lead.find(second_key.id)).to eq(second_key)
+    end
+
     specify 'destroy_couplet noops when both children have children' do
       r.children.create!(text: 'rl')
       r.children.create!(text: 'rr')
