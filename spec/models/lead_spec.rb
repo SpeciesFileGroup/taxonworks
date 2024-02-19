@@ -6,6 +6,20 @@ RSpec.describe Lead, type: :model do
     expect(k.parent_id).to be(nil)
   end
 
+  specify 'is_public is only set on roots' do
+    root = Lead.create! text: 'private key'
+    expect(root.is_public).to be(false)
+
+    c1_id, c2_id = root.insert_couplet
+    c1 = Lead.find(c1_id)
+    expect(c1.is_public).to be(nil)
+    c1.update!(is_public: true)
+    expect(c1.is_public).to be(nil)
+
+    public_root = Lead.create! text: 'public key', is_public: true
+    expect(public_root.is_public).to be(true)
+  end
+
   context 'with multiple couplets' do
     before(:all) do
       Lead.delete_all

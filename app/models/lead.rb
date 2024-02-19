@@ -57,6 +57,8 @@ class Lead < ApplicationRecord
 
   has_closure_tree order: 'position', numeric_order: true, dont_order_roots: true
 
+  before_save :check_is_public
+
   validate :root_has_title
   validate :link_out_has_no_protocol
 
@@ -191,6 +193,14 @@ class Lead < ApplicationRecord
 
     for c in node.children
       dupe_in_transaction(c, a.id)
+    end
+  end
+
+  def check_is_public
+    if parent_id.nil?
+      self.is_public ||= false
+    else
+      self.is_public = nil
     end
   end
 end
