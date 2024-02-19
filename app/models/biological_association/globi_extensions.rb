@@ -61,7 +61,7 @@ module BiologicalAssociation::GlobiExtensions
 
       archiveURI: nil,
       lastSeenAt: nil,
-      contentHash: nil,  
+      contentHash: nil,
       eltonVersion: nil,
     }.freeze
   end
@@ -81,8 +81,8 @@ module BiologicalAssociation::GlobiExtensions
 
   # Don't use dwc_
   def globi_extension_json
-    r = {} 
-    Export::Csv::Globi::HEADERS.each do |h|
+    r = {}
+    Export::CSV::Globi::HEADERS.each do |h|
       if m = GLOBI_EXTENSION_MAP[h.to_sym]
         r[h] = send(m)
       end

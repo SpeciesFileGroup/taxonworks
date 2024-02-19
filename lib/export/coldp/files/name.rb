@@ -87,7 +87,14 @@ module Export::Coldp::Files::Name
   # @param t [Protonym]
   #    only place that var./frm can be handled.
   def self.add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
-    e = t.original_combination_elements
+    e = t.original_combination_elements.transform_values(&:last)
+    e[:scientific_name] = t.cached_original_combination
+    e = clean_sic(e)
+
+    # skip names with "NOT SPECIFIED" elements
+    if t.cached_original_combination =~ /NOT SPECIFIED/
+      return
+    end
 
     infraspecific_element = t.original_combination_infraspecific_element(e)
 
@@ -109,66 +116,47 @@ module Export::Coldp::Files::Name
     # case 1 - original combination difference
     # case 2 - misspelling (same combination)
 
-    genus, subgenus, species = nil, nil, nil
+    uninomial, genus, subgenus, species = nil, nil, nil, nil
 
-    uninomial = nil
-
+    scientific_name = e[:scientific_name]
     if rank == :genus
-      uninomial = e[:genus][1]
-
+      uninomial = e[:genus]
     else
-      if e[:genus]
-        if e[:genus][1] =~ /NOT SPECIFIED/
-          genus = nil
-        else
-          genus = e[:genus][1]
-        end
-      end
-
-      if e[:subgenus]
-        if e[:subgenus][1] =~ /NOT SPECIFIED/
-          subgenus = nil
-        else
-          subgenus = e[:subgenus][1]&.gsub(/[\)\(]/, '')
-        end
-      end
-
-      if e[:species]
-        if e[:species][1] =~ /NOT SPECIFIED/
-          species = nil
-        else
-          species = e[:species][1]
-        end
-      end
-
+      genus = e[:genus]
+      subgenus = e[:subgenus]&.gsub(/[\)\(]/, '')
+      species = e[:species]
     end
 
-  csv << [
-    id,                                                                 # ID
-    basionym_id,                                                        # basionymID
-    clean_sic(t.cached_original_combination),                           # scientificName
-    authorship_field(t, true),                                          # authorship
-    rank,                                                               # rank
-    uninomial,                                                          # uninomial
-    genus,                                                              # genus
-    subgenus,                                                           # subgenus (no parens)
-    species,                                                            # species
-    infraspecific_element ? infraspecific_element.last : nil,           # infraspecificEpithet
-    origin_citation&.source_id,                                         # referenceID    |
-    origin_citation&.pages,                                             # publishedInPage  | !! All origin citations get added to reference_csv via the main loop, not here
-    t.year_of_publication,                                              # publishedInYear  |
-    true,                                                               # original
-    code_field(t),                                                      # code
-    nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
-    nil,                                                                # link (probably TW public or API)
-    Export::Coldp.sanitize_remarks(remarks(t, name_remarks_vocab_id)),  # remarks
-    Export::Coldp.modified(t[:updated_at]),                             # modified
-    Export::Coldp.modified_by(t[:updated_by_id], project_members)       # modifiedBy
-  ]
-end
+    csv << [
+      id,                                                                 # ID
+      basionym_id,                                                        # basionymID
+      scientific_name,                                                    # scientificName
+      authorship_field(t, true),                                          # authorship
+      rank,                                                               # rank
+      uninomial,                                                          # uninomial
+      genus,                                                              # genus
+      subgenus,                                                           # subgenus (no parens)
+      species,                                                            # species
+      infraspecific_element ? infraspecific_element.last : nil,           # infraspecificEpithet
+      origin_citation&.source_id,                                         # referenceID    |
+      origin_citation&.pages,                                             # publishedInPage  | !! All origin citations get added to reference_csv via the main loop, not here
+      t.year_of_publication,                                              # publishedInYear  |
+      true,                                                               # original
+      code_field(t),                                                      # code
+      nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
+      nil,                                                                # link (probably TW public or API)
+      Export::Coldp.sanitize_remarks(remarks(t, name_remarks_vocab_id)),  # remarks
+      Export::Coldp.modified(t[:updated_at]),                             # modified
+      Export::Coldp.modified_by(t[:updated_by_id], project_members)       # modifiedBy
+    ]
+  end
 
-  def self.clean_sic(name)
-    name&.gsub(/\s+\[sic\]/, '') # TODO: remove `&` once cached_original_combination is re-indexed
+  def self.clean_sic(epithets)
+    if epithets[:scientific_name].include? '[sic]'
+      epithets.transform_values { |value| value&.gsub(/\[sic\]/, '') }
+    else
+      epithets
+    end
   end
 
   # @params otu [Otu]
@@ -249,21 +237,20 @@ end
 
           higher = !t.is_combination? && !is_genus_species
 
-          # TODO: consider faster ways to check for misspellings
-          name_string = clean_sic(t.cached) # if higher and misspelling, then it's in name too
-
-          uninomial = nil
-          generic_epithet, infrageneric_epithet, specific_epithet, infraspecific_epithet = nil, nil, nil, nil
+          uninomial, generic_epithet, infrageneric_epithet, specific_epithet, infraspecific_epithet = nil, nil, nil, nil, nil
 
           if !is_col_uninomial
             elements = t.full_name_hash
 
-            generic_epithet = clean_sic(elements['genus']&.last)
-            infrageneric_epithet = clean_sic(elements['subgenus']&.last)
-            specific_epithet = clean_sic(elements['species']&.last)
-            infraspecific_epithet = clean_sic(elements['subspecies']&.last)
+            epithets = clean_sic({:scientific_name => t.cached, :genus => elements['genus']&.last, :subgenus => elements['subgenus']&.last, :species => elements['species']&.last, :subspecies => elements['subspecies']&.last})
+
+            name_string = epithets[:scientific_name]
+            generic_epithet = epithets[:genus]
+            infrageneric_epithet = epithets[:subgenus]
+            specific_epithet = epithets[:species]
+            infraspecific_epithet = epithets[:subspecies]
           else
-            uninomial = name_string
+            uninomial = name_string = clean_sic({:scientific_name => t.cached})[:scientific_name]
           end
 
           if t.is_combination?

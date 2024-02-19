@@ -1,5 +1,25 @@
 <template>
   <div class="citation_annotator">
+    <div
+      v-if="citation?.id"
+      class="flex-separate gap-small"
+    >
+      <h3>
+        Edit:
+        <span v-html="citation.object_tag" />
+      </h3>
+      <VBtn
+        circle
+        color="primary"
+        @click="() => (citation = newCitation())"
+      >
+        <VIcon
+          name="undo"
+          small
+        />
+      </VBtn>
+    </div>
+    <h3 v-else>New citation</h3>
     <FormCitation
       v-model="citation"
       :klass="objectType"
@@ -14,7 +34,7 @@
           class="margin-small-left"
           color="primary"
           medium
-          @click="citation = newCitation()"
+          @click="() => (citation = newCitation())"
         >
           New
         </VBtn>
@@ -78,7 +98,7 @@
       v-if="isModalVisible"
       :citation="citation"
       :original-citation="originalCitation"
-      @save="(item) => addToArray(list, item)"
+      @save="(item) => add(item)"
       @create="setCitation"
       @close="isModalVisible = false"
     />
@@ -93,8 +113,8 @@ import HandleCitations from './handleOriginalModal'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import makeCitation from '@/factory/Citation'
+import { useSlice } from '@/components/radials/composables'
 import { Citation } from '@/routes/endpoints'
-import { addToArray, removeFromArray } from '@/helpers/arrays'
 import { computed, ref } from 'vue'
 
 const EXTEND_PARAMS = ['source', 'citation_topics']
@@ -109,12 +129,17 @@ const props = defineProps({
   objectType: {
     type: String,
     required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
   }
 })
 
-const emit = defineEmits('update-count')
-
-const list = ref([])
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 const citation = ref(newCitation())
 const isModalVisible = ref(false)
 
@@ -184,9 +209,8 @@ function saveCitation(item) {
 
   request
     .then(({ body }) => {
-      addToArray(list.value, body)
+      addToList(body)
       citation.value = body
-      emit('update-count', list.value.length)
       TW.workbench.alert.create('Citation was successfully saved.', 'notice')
     })
     .catch(() => {})
@@ -194,8 +218,7 @@ function saveCitation(item) {
 
 function removeItem(item) {
   Citation.destroy(item.id).then((_) => {
-    removeFromArray(list.value, item)
-    emit('update-count', list.value.length)
+    removeFromList(item)
   })
 }
 

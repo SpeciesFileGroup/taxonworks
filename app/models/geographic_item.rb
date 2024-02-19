@@ -12,6 +12,7 @@
 #
 # @!attribute polygon
 #   @return [RGeo::Geographic::ProjectedPolygonImpl]
+#   CCW orientation is applied 
 #
 # @!attribute multi_point
 #   @return [RGeo::Geographic::ProjectedMultiPointImpl]
@@ -21,6 +22,7 @@
 #
 # @!attribute multi_polygon
 #   @return [RGeo::Geographic::ProjectedMultiPolygonImpl]
+#   CCW orientation is applied 
 #
 # @!attribute type
 #   @return [String]
@@ -115,6 +117,7 @@ class GeographicItem < ApplicationRecord
     scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
 
     after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
+    after_save :align_winding
 
     class << self
 
@@ -1205,7 +1208,7 @@ class GeographicItem < ApplicationRecord
     end
 
 
-    # Convention is to store in PostGIS in  ccw
+    # Convention is to store in PostGIS in CCW
     # @return Array [Boolean]
     #   false - cw
     #   true - ccw (preferred), except cee donuts
@@ -1250,6 +1253,24 @@ class GeographicItem < ApplicationRecord
     end
 
     private
+
+    def align_winding
+      if orientations.flatten.include?(false)
+        case type
+        when 'multi_polygon'
+          ApplicationRecord.connection.execute(
+            "UPDATE geographic_items set multi_polygon = ST_ForcePolygonCCW(multi_polygon::geometry) 
+              WHERE id = #{self.id};"
+           )
+        when 'polygon'
+         ApplicationRecord.connection.execute(
+            "UPDATE geographic_items set polygon = ST_ForcePolygonCCW(polygon::geometry) 
+              WHERE id = #{self.id};"
+           )
+        end     
+      end
+      true
+    end
 
     # Crude debuging helper, write the shapes
     # to a png

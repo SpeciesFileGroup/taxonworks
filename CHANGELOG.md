@@ -9,17 +9,51 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- highlight row on click in DwC Importer [#3795]
+- `/api/v1/common_names` [#3794]
+- `/api/v1/biological_associations/simple` A simple table format for BiologicalAssociations
 
 ### Fixed
 
+- A couple .csv endpoints for /api/v1
+- Radial annotator: Filter tab doesn't work in depictions slice [#3824]
+
+[#3794]: https://github.com/SpeciesFileGroup/taxonworks/issues/3794
+[#3824]: https://github.com/SpeciesFileGroup/taxonworks/issues/3824
+[#3833]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
+
+## [0.38.2] - 2024-02-09
+
+### Added
+
+- Highlight row on click in DwC Importer [#3795]
+- Batch update CollectingEvent from CollectionObject filter radial
+- Batch update `meta_prioritize_geographic_area` from CollectingEvent filter radial [#3498]
+
+### Fixed
+
+- CollectionObject summary nomenclature tag failing when no names are present
+- Papertrail views for most models were failing
+- Syncronized winding of polygons and multipolygons [#3712], and others
+- DataAttribute alignment in DwC, take 3 [#3802]
 - Radial Annotator: Citation count no longer updates [#3806]
+- Radial Annotator: Depiction count no longer updates [#3813]
+- Radial annotator: Attribution slice loads incorrect records
 - Image matrix: OTU depictions cells are not displaying the correct images when `otu_filter` parameter is set
 - New combination task freezes in some cases
 - SQL project dump duplicating hierarchies tables rows causing index creation to fail on restore
+- OtuPicker doesn't display OTU label when a new OTU is created in New loan task [#3809]
 
+### Changed
+
+- All polygons and multi_polygons in GeographicItems are wound to CCW after save
+- Updated Ruby gems
+
+[#3498]: https://github.com/SpeciesFileGroup/taxonworks/issues/3498
+[#3712]: https://github.com/SpeciesFileGroup/taxonworks/issues/3712
+[#3802]: https://github.com/SpeciesFileGroup/taxonworks/issues/3802
 [#3795]: https://github.com/SpeciesFileGroup/taxonworks/issues/3795
 [#3806]: https://github.com/SpeciesFileGroup/taxonworks/issues/3806
+[#3813]: https://github.com/SpeciesFileGroup/taxonworks/pull/3813
 
 ## [0.38.1] - 2024-02-01
 
@@ -4288,7 +4322,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.2...development
+[0.38.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.1...v0.38.2
 [0.38.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.0...v0.38.1
 [0.38.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.1...v0.38.0
 [0.37.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.0...v0.37.1

@@ -31,11 +31,11 @@
       </span>
       <otu-picker
         v-else
-        :clear-after="true"
+        clear-after
         @get-item="
-          ($event) => {
-            determination.otu_id = $event.id
-            otuSelected = $event.label_html
+          (otu) => {
+            determination.otu_id = otu.id
+            otuSelected = otu.object_tag
           }
         "
       />

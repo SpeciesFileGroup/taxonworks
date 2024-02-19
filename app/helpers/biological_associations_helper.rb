@@ -38,5 +38,27 @@ module BiologicalAssociationsHelper
     r
   end
 
+  def simple_hash(biological_associations)
+    h = []
+
+    biological_associations.each do |b|
+      types = biological_relationship_types(b.biological_relationship)
+
+      r = %w{order family genus}.inject({}) { |hsh, r| hsh['subject_' + r] = [b.biological_association_subject.taxonomy[r]].flatten.join(' '); hsh }
+       r.merge!(
+        types: biological_relationship_types(b.biological_relationship),
+        subject: label_for(b.biological_association_subject),
+        subject_properties: types[:subject].join(',').presence,
+        biological_relationships: label_for(b.biological_relationship),
+        object_properties: types[:object].join(',').presence,
+        object: label_for(b.biological_association_object),
+      )
+
+     r.merge! %w{order family genus}.inject({}) { |hsh, r| hsh['object_' + r] = [b.biological_association_object.taxonomy[r]].flatten.join(' '); hsh }
+     h.push r
+    end
+
+    h
+  end
 
 end

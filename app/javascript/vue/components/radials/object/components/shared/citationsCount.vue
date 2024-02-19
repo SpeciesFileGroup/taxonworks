@@ -83,9 +83,9 @@ export default {
     values: {
       handler(newVal) {
         this.citations = newVal
-      }
-    },
-    deep: true
+      },
+      deep: true
+    }
   },
 
   mounted() {

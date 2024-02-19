@@ -84,11 +84,13 @@ watch(
   { deep: true }
 )
 
-const { otu_id = [] } = URLParamsToJSON(location.href)
+const otuIds = params.value.otu_id || []
 
-Promise.all(otu_id.map((id) => Otu.find(id))).then((responses) => {
-  otusStore.value = responses.map((r) => r.body)
-})
+if (otuIds.length) {
+  Otu.all({ otu_id: otuIds }).then(({ body }) => {
+    otusStore.value = body
+  })
+}
 </script>
 <style scoped>
 :deep(.vue-autocomplete-input) {

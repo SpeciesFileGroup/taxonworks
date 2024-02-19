@@ -110,7 +110,7 @@ const props = defineProps({
     default: () => ({})
   },
 
-  filterOptions: {
+  exclude: {
     type: [String, Array],
     default: () => []
   },
@@ -189,14 +189,14 @@ const menuOptions = computed(() => {
 })
 
 const defaultSlices = computed(() => {
-  const filterOptions = props.filterOptions
+  const exclude = [props.exclude].flat()
 
   if (!metadata.value.destroy) {
-    filterOptions.push(addSlice(DEFAULT_OPTIONS.Destroy))
+    exclude.push(addSlice(DEFAULT_OPTIONS.Destroy))
   }
 
   return defaultSlicesTypes
-    .filter((type) => !filterOptions.includes(type))
+    .filter((type) => !exclude.includes(type))
     .map((type) => addSlice(type, { link: defaultLinks()[type] }))
 })
 

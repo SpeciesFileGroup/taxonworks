@@ -50,13 +50,11 @@
             class="date-input"
             v-model="params.user_date_end"
           />
-          <button
+          <FacetHousekeeperNow
             type="button"
             class="button normal-input button-default margin-small-left"
-            @click="setActualDateEnd"
-          >
-            Now
-          </button>
+            @select="setRangeDate"
+          />
         </div>
       </div>
     </div>
@@ -68,6 +66,7 @@ import { ref, computed, watch, onBeforeMount } from 'vue'
 import { ProjectMember } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import FacetHousekeeperNow from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeepingNow.vue'
 
 const OPTIONS = [
   {
@@ -122,7 +121,8 @@ onBeforeMount(() => {
   }
 })
 
-const setActualDateEnd = () => {
+function setRangeDate(date) {
+  params.value.user_date_start = date.toISOString().split('T')[0]
   params.value.user_date_end = new Date().toISOString().split('T')[0]
 }
 </script>

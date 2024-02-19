@@ -1,6 +1,6 @@
 <template>
   <div class="vue-otu-picker gap-small">
-    <autocomplete
+    <VAutocomplete
       :input-id="inputId"
       url="/otus/autocomplete"
       label="label_html"
@@ -10,17 +10,24 @@
       :input-attributes="inputAttributes"
       placeholder="Select an OTU"
       param="term"
-      @found="($event) => (found = $event)"
+      @found="($event) => (foundSomething = $event)"
       @get-item="emitOtu"
       @get-input="callbackInput"
     />
     <div class="flex-wrap-column create-otu-panel">
-      <match-taxon-name
-        v-if="!found"
+      <MatchTaxonName
+        v-if="!foundSomething"
         class="panel content match-otu-box"
+        :otu-name="otuName"
+        @selected="
+          (data) => {
+            createOtu({
+              taxonId: data.taxon.id,
+              name: data.otuName
+            })
+          }
+        "
         @create-new="() => (create = true)"
-        :otu-name="otu.name"
-        @selected="createWith"
       />
       <div
         v-if="create"
@@ -36,7 +43,7 @@
           <input
             type="text"
             class="full_width"
-            v-model="otu.name"
+            v-model="otuName"
           />
         </div>
         <div class="field label-above">
@@ -47,7 +54,7 @@
           >
             <span
               class="margin-small-right"
-              v-html="taxonLabel"
+              v-html="taxon.label_html"
             />
             <span
               class="button circle-button btn-undo button-default"
@@ -55,23 +62,29 @@
             />
           </div>
           <template v-else>
-            <autocomplete
+            <VAutocomplete
               url="/taxon_names/autocomplete"
               autofocus
               label="label"
               min="2"
               clear-after
-              @get-item="setTaxon"
               placeholder="Select a taxon name"
               param="term"
+              @get-item="(item) => (taxon = item)"
             />
           </template>
         </div>
         <button
           class="button normal-input button-submit"
-          :disabled="!validateFields"
-          @click="createOtu"
+          :disabled="!otuName"
           type="button"
+          @click="
+            () =>
+              createOtu({
+                taxonId: taxon ? taxon.id : undefined,
+                name: otuName
+              })
+          "
         >
           Create
         </button>
@@ -79,106 +92,74 @@
     </div>
   </div>
 </template>
-<script>
-import Autocomplete from '@/components/ui/Autocomplete.vue'
+
+<script setup>
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import MatchTaxonName from './matchTaxonNames'
 import { Otu } from '@/routes/endpoints'
+import { ref, watch } from 'vue'
 
-export default {
-  components: {
-    Autocomplete,
-    MatchTaxonName
+defineProps({
+  inputId: {
+    type: String,
+    default: undefined
   },
-
-  props: {
-    inputId: {
-      type: String,
-      default: undefined
-    },
-    clearAfter: {
-      type: Boolean,
-      default: false
-    },
-    inputAttributes: {
-      type: Object,
-      default: () => ({})
-    }
+  clearAfter: {
+    type: Boolean,
+    default: false
   },
+  inputAttributes: {
+    type: Object,
+    default: () => ({})
+  }
+})
 
-  emits: ['getItem', 'getInput'],
+const emit = defineEmits(['get-item', 'get-input'])
+const foundSomething = ref(true)
 
-  computed: {
-    validateFields() {
-      return this.otu.name
-    },
+const otuName = ref()
+const taxon = ref()
+const type = ref()
+const create = ref()
 
-    taxonLabel() {
-      return this.taxon?.label_html || this.taxon?.object_tag
-    }
-  },
+watch(type, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    resetPicker()
+    otuName.value = newVal
+    foundSomething.value = true
+    emit('get-input', newVal)
+  }
+})
 
-  data() {
-    return {
-      found: true,
-      create: false,
-      type: undefined,
-      taxon: undefined,
-      otu: {
-        name: undefined,
-        taxon_name_id: undefined
-      }
-    }
-  },
+function emitOtu({ id }) {
+  Otu.find(id).then(({ body }) => {
+    emit('get-item', body)
+  })
+}
 
-  watch: {
-    type(newVal, oldVal) {
-      if (newVal != oldVal) {
-        this.resetPicker()
-        this.otu.name = newVal
-        this.found = true
-        this.$emit('getInput', newVal)
-      }
-    }
-  },
-
-  methods: {
-    resetPicker() {
-      this.otu.name = undefined
-      this.otu.taxon_name_id = undefined
-      this.create = false
-    },
-
-    createOtu() {
-      if (this.taxon) {
-        this.otu.taxon_name_id = this.taxon.id
-      }
-
-      Otu.create({ otu: this.otu }).then((response) => {
-        this.emitOtu(response.body)
-        this.create = false
-        this.found = true
-      })
-    },
-
-    emitOtu(otu) {
-      this.$emit('getItem', otu)
-    },
-
-    callbackInput(event) {
-      this.type = event
-      this.$emit('getInput', event)
-    },
-
-    setTaxon(taxon) {
-      this.taxon = taxon
-    },
-
-    createWith(data) {
-      this.taxon = data.taxon
-      this.otu.name = data.otuName
-      this.createOtu()
+function createOtu({ taxonId, name }) {
+  const payload = {
+    otu: {
+      name,
+      taxon_name_id: taxonId
     }
   }
+
+  Otu.create(payload).then(({ body }) => {
+    emit('get-item', body)
+    create.value = false
+    foundSomething.value = true
+  })
+}
+
+function resetPicker() {
+  otuName.value = undefined
+  create.value = false
+}
+
+function callbackInput(event) {
+  type.value = event
+  emit('get-input', event)
 }
 </script>
 <style lang="scss">
