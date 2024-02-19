@@ -9,6 +9,74 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- `/api/v1/common_names` [#3794]
+- `/api/v1/biological_associations/simple` A simple table format for BiologicalAssociations
+
+### Fixed
+
+- DwC Dashboard buttons scoped to recent timeframes [#3774]
+- A couple .csv endpoints for /api/v1
+- Radial annotator: Filter tab doesn't work in depictions slice [#3824]
+
+### Changed
+
+- Documents are no longer destroyed when the last documentation referencing them are deleted.
+
+[#3774]: https://github.com/SpeciesFileGroup/taxonworks/issues/3774
+[#3794]: https://github.com/SpeciesFileGroup/taxonworks/issues/3794
+[#3824]: https://github.com/SpeciesFileGroup/taxonworks/issues/3824
+
+## [0.38.2] - 2024-02-09
+
+### Added
+
+- Highlight row on click in DwC Importer [#3795]
+- Batch update CollectingEvent from CollectionObject filter radial
+- Batch update `meta_prioritize_geographic_area` from CollectingEvent filter radial [#3498]
+
+### Fixed
+
+- CollectionObject summary nomenclature tag failing when no names are present
+- Papertrail views for most models were failing
+- Syncronized winding of polygons and multipolygons [#3712], and others
+- DataAttribute alignment in DwC, take 3 [#3802]
+- Radial Annotator: Citation count no longer updates [#3806]
+- Radial Annotator: Depiction count no longer updates [#3813]
+- Radial annotator: Attribution slice loads incorrect records
+- Image matrix: OTU depictions cells are not displaying the correct images when `otu_filter` parameter is set
+- New combination task freezes in some cases
+- SQL project dump duplicating hierarchies tables rows causing index creation to fail on restore
+- OtuPicker doesn't display OTU label when a new OTU is created in New loan task [#3809]
+
+### Changed
+
+- All polygons and multi_polygons in GeographicItems are wound to CCW after save
+- Updated Ruby gems
+
+[#3498]: https://github.com/SpeciesFileGroup/taxonworks/issues/3498
+[#3712]: https://github.com/SpeciesFileGroup/taxonworks/issues/3712
+[#3802]: https://github.com/SpeciesFileGroup/taxonworks/issues/3802
+[#3795]: https://github.com/SpeciesFileGroup/taxonworks/issues/3795
+[#3806]: https://github.com/SpeciesFileGroup/taxonworks/issues/3806
+[#3813]: https://github.com/SpeciesFileGroup/taxonworks/pull/3813
+
+## [0.38.1] - 2024-02-01
+
+### Fixed
+
+- DwC dumps cross-mapping attributes between CollectingEvent and CollectionObject (for real?) [#3802]
+- Favorite cards section layout
+- Radial batch triggers "re-search" when nothing is changed
+- Custom attributes component loads auto filled with incorrect values [#3805]
+- DwC importer crashing on real DwC-A zip archives when first table rows are not headers.
+
+[#3802]: https://github.com/SpeciesFileGroup/taxonworks/issues/3802
+[#3805]: https://github.com/SpeciesFileGroup/taxonworks/issues/3805
+
+## [0.38.0] - 2024-01-31
+
+### Added
+
 - GeographicItem debug task
 - `documentation_object_type` and `documentation_object_id` to documentation filter
 
@@ -18,6 +86,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- DwC dumps cross-mapping attributes between CollectingEvent and CollectionObject [#3802]
+- Staged Image filter failing on some identifier queries
 - TaxonName batch update
 - Contributing link [#3752]
 - Uncaught promise errors [#3767]
@@ -32,6 +102,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Hub: Status filter doesn't work correctly [#3791]
 - Hub: Left and right arrow keys on task hub don't work as expected. [#3792]
 
+[#3802]: https://github.com/SpeciesFileGroup/taxonworks/issues/3802
 [#2718]: https://github.com/SpeciesFileGroup/taxonworks/issues/2718
 [#3731]: https://github.com/SpeciesFileGroup/taxonworks/issues/3731
 [#3752]: https://github.com/SpeciesFileGroup/taxonworks/issues/3752
@@ -4256,7 +4327,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.2...development
+[0.38.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.1...v0.38.2
+[0.38.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.0...v0.38.1
+[0.38.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.1...v0.38.0
 [0.37.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.0...v0.37.1
 [0.37.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.35.3...v0.36.0

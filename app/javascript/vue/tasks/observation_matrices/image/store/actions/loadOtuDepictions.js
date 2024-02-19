@@ -3,9 +3,10 @@ import { MutationNames } from '../mutations/mutations'
 
 function requestDepictions(item) {
   const type = item.observation_object_type || item.base_class
+  const id = item.observation_object_id || item.id
 
   return Depiction.where({
-    depiction_object_id: item.observation_object_id,
+    depiction_object_id: id,
     depiction_object_type: type
   })
 }

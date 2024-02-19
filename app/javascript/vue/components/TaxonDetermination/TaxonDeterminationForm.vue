@@ -60,6 +60,7 @@
 <script setup>
 import { EVENT_TAXON_DETERMINATION_FORM_RESET } from '@/constants/index.js'
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { randomUUID } from '@/helpers'
 
 import TaxonDeterminationOtu from './TaxonDeterminationOtu.vue'
 import TaxonDeterminationDeterminer from './TaxonDeterminationDeterminer.vue'
@@ -140,7 +141,7 @@ const addDetermination = () => {
   )}`
 
   emit('onAdd', {
-    uuid: crypto.randomUUID(),
+    uuid: randomUUID(),
     ...taxonDetermination,
     object_tag: label
   })

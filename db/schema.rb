@@ -10,7 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema.define(version: 2024_01_16_170633) do
+=======
+ActiveRecord::Schema.define(version: 2024_02_09_173244) do
+>>>>>>> development
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -440,8 +444,8 @@ ActiveRecord::Schema.define(version: 2024_01_16_170633) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.string "confidence_object_type", null: false
     t.integer "confidence_object_id", null: false
+    t.string "confidence_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -673,8 +677,8 @@ ActiveRecord::Schema.define(version: 2024_01_16_170633) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.string "documentation_object_type", null: false
     t.integer "documentation_object_id", null: false
+    t.string "documentation_object_type", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -692,7 +696,7 @@ ActiveRecord::Schema.define(version: 2024_01_16_170633) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.bigint "document_file_file_size", null: false
+    t.integer "document_file_file_size", null: false
     t.datetime "document_file_updated_at", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -901,8 +905,8 @@ ActiveRecord::Schema.define(version: 2024_01_16_170633) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.string "dwc_occurrence_object_type"
     t.integer "dwc_occurrence_object_id"
+    t.string "dwc_occurrence_object_type"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -1125,7 +1129,7 @@ ActiveRecord::Schema.define(version: 2024_01_16_170633) do
     t.datetime "updated_at", null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.bigint "image_file_file_size"
+    t.integer "image_file_file_size"
     t.datetime "image_file_updated_at"
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
@@ -1206,8 +1210,8 @@ ActiveRecord::Schema.define(version: 2024_01_16_170633) do
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "loan_item_object_type"
     t.integer "loan_item_object_id"
+    t.string "loan_item_object_type"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -1236,7 +1240,7 @@ ActiveRecord::Schema.define(version: 2024_01_16_170633) do
     t.datetime "updated_at", null: false
     t.string "recipient_honorific"
     t.string "recipient_country"
-    t.text "lender_address", null: false
+    t.text "lender_address", default: "Lender's address not provided.", null: false
     t.boolean "is_gift"
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
@@ -1432,10 +1436,10 @@ ActiveRecord::Schema.define(version: 2024_01_16_170633) do
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.string "old_object_type", null: false
     t.integer "old_object_id", null: false
-    t.string "new_object_type", null: false
+    t.string "old_object_type", null: false
     t.integer "new_object_id", null: false
+    t.string "new_object_type", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1537,8 +1541,8 @@ ActiveRecord::Schema.define(version: 2024_01_16_170633) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.string "pinned_object_type", null: false
     t.integer "pinned_object_id", null: false
+    t.string "pinned_object_type", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1602,7 +1606,7 @@ ActiveRecord::Schema.define(version: 2024_01_16_170633) do
     t.datetime "updated_at", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.jsonb "preferences", default: "{}", null: false
+    t.jsonb "preferences", default: {}, null: false
     t.string "api_access_token"
     t.string "data_curation_issue_tracker_url"
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
@@ -1611,8 +1615,8 @@ ActiveRecord::Schema.define(version: 2024_01_16_170633) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.string "protocol_relationship_object_type", null: false
     t.integer "protocol_relationship_object_id", null: false
+    t.string "protocol_relationship_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1871,8 +1875,8 @@ ActiveRecord::Schema.define(version: 2024_01_16_170633) do
     t.string "boundary_finder", null: false
     t.boolean "has_border", null: false
     t.string "layout", null: false
-    t.jsonb "metadata_map", default: "{}", null: false
-    t.jsonb "specimen_coordinates", default: "{}", null: false
+    t.jsonb "metadata_map", default: {}, null: false
+    t.jsonb "specimen_coordinates", default: {}, null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false

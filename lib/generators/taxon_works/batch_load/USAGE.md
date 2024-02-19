@@ -1,19 +1,19 @@
 # Description
 
-Stubs out the basic needed files for a new TaxonWorks batch loader 
+Stubs out the basic needed files for a new TaxonWorks batch loader
 
 # Example
 
 ```ruby
-    rails generate taxonworks:batch_load Otu batch_loader_name
+    rails generate taxon_works:batch_load Otu batch_loader_name
 ```
 
-Where 
+Where
 * `model_name` = `Otu`
-* `batch_loader_name` = `batch_loader_name` 
-    
+* `batch_loader_name` = `batch_loader_name`
+
 The result of this command will be:
-```      
+```
     create  lib/batch_load/import/otus/batch_loader_name_interpreter.rb
     route  # routes added to otus by batch_load generator
      resource :otus do
@@ -34,10 +34,10 @@ The result of this command will be:
 
 The batch loader should be stubbed and immediately visible under the respective model.
 Batch loaders reference interpreters in lib/batchload/import/.  Interpreters inherit
-from lib/import. 
+from lib/import.
 
-After running this generate the next steps are typrically to:
-1) Describe the batch loader to the user in `_batch_load.html.erb` 
+After running this generate the next steps are typically to:
+1) Describe the batch loader to the user in `_batch_load.html.erb`
 2) Provide additional user-provided parameters in `_form.html`
 3) Tweak `create.html.erb` and `preview.html.erb` to provide a response specific to this batch load
 4) Write tests and code the interpreter

@@ -47,7 +47,7 @@
 <script setup>
 import { Note } from '@/routes/endpoints'
 import { ref, computed } from 'vue'
-import { addToArray, removeFromArray } from '@/helpers'
+import { useSlice } from '@/components/radials/composables'
 import DisplayList from '@/components/displayList.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
@@ -60,14 +60,19 @@ const props = defineProps({
   objectType: {
     type: String,
     required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
   }
 })
 
-const emit = defineEmits(['update-count'])
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
 const validateFields = computed(() => note.value.text)
-
-const list = ref([])
 const note = ref(newNote())
 
 function newNote() {
@@ -84,15 +89,13 @@ function saveNote() {
     : Note.create({ note: note.value })
 
   request.then(({ body }) => {
-    addToArray(list.value, body)
-    emit('update-count', list.value.length)
+    addToList(body)
   })
 }
 
 function removeItem(item) {
   Note.destroy(item.id).then((_) => {
-    removeFromArray(list.value, item)
-    emit('update-count', list.value.length)
+    removeFromList(item)
   })
 }
 

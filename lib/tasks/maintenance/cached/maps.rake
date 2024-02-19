@@ -57,7 +57,7 @@ namespace :tw do
           puts 'Done.'
         end
 
-        desc 'destroy all cached map references'
+        desc 'destroy all cached map references *except* the translation table'
         task destroy_index: [:environment] do |t|
           puts 'Destroying CachedMap index except translations'
           CachedMap.delete_all
@@ -251,7 +251,7 @@ namespace :tw do
             #  b = ( Benchmark.measure {
             begin
               #  print "#{id}: "
-              t = CachedMapItem.translate_by_spatial_overlap(id, ['ne_states'], 90.0)
+              t = CachedMapItem.translate_geographic_item_id(id, 'AssertedDistribution', ['ne_states'])
               # if t.present?
               #   print t.join(', ')
               # else

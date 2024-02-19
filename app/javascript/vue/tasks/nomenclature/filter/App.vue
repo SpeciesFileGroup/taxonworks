@@ -19,6 +19,7 @@
         <RadialNomenclature
           :disabled="!list.length"
           :parameters="parameters"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #nav-right>
@@ -30,6 +31,7 @@
         <RadialNomenclature
           :disabled="!list.length"
           :ids="selectedIds"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #facets>

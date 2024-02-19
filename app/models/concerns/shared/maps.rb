@@ -22,7 +22,9 @@ module Shared::Maps
     has_one :cached_map_register, as: :cached_map_register_object, dependent: :delete
 
     after_create :initialize_cached_map_items
-    after_create :destroy_cached_map
+
+    # TODO: re-enable once scoping issues are determined
+    # after_create :destroy_cached_map
 
     before_destroy :remove_from_cached_map_items
 

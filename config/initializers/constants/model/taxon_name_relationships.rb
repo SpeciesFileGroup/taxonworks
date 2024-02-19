@@ -1,11 +1,11 @@
 # Be sure to restart your server (or console) when you modify this file.
 
+# TODO: Resolve chicken/egg, this breaks -t group:nomenclature specs !!
+# Rails.application.config.after_initialize do
 
-
-Rails.application.reloader.to_prepare do
+ Rails.application.reloader.to_prepare do
 
   require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
-
 
   # Only initialize if the table exists (migrations are done)
   # !! Limit this pattern, see https://github.com/rails/rails/issues/32870 in part

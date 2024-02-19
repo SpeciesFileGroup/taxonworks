@@ -10,6 +10,7 @@ import getCurrentVirtualPage from './getCurrentVirtualPage'
 import getNamespaceFor from './getNamespaceFor'
 import getCollectionCodeNamespaces from './getCollectionCodeNamespaces'
 import getDefaultCollectionCodeNamespaces from './getDefaultCollectionCodeNamespaces'
+import getCurrentRowIndex from './getCurrentRowIndex.js'
 
 const GetterNames = {
   GetCollectionCodeNamespaces: 'getCollectionCodeNamespaces',
@@ -23,13 +24,15 @@ const GetterNames = {
   GetRowPositionById: 'getRowPositionById',
   GetSettings: 'getSettings',
   GetVirtualPages: 'getVirtualPages',
-  GetCurrentVirtualPage: 'getCurrentVirtualPage'
+  GetCurrentVirtualPage: 'getCurrentVirtualPage',
+  GetCurrentRowIndex: 'getCurrentRowIndex'
 }
 
 const GetterFunctions = {
   [GetterNames.GetCollectionCodeNamespaces]: getCollectionCodeNamespaces,
   [GetterNames.GetDataset]: getDataset,
-  [GetterNames.GetDefaultCollectionCodeNamespaces]: getDefaultCollectionCodeNamespaces,
+  [GetterNames.GetDefaultCollectionCodeNamespaces]:
+    getDefaultCollectionCodeNamespaces,
   [GetterNames.GetPagination]: getPagination,
   [GetterNames.GetParamsFilter]: getParamsFilter,
   [GetterNames.GetSelectedRowIds]: getSelectedRowIds,
@@ -38,10 +41,8 @@ const GetterFunctions = {
   [GetterNames.GetRowPositionById]: getRowPositionById,
   [GetterNames.GetSettings]: getSettings,
   [GetterNames.GetVirtualPages]: getVirtualPages,
-  [GetterNames.GetCurrentVirtualPage]: getCurrentVirtualPage
+  [GetterNames.GetCurrentVirtualPage]: getCurrentVirtualPage,
+  [GetterNames.GetCurrentRowIndex]: getCurrentRowIndex
 }
 
-export {
-  GetterNames,
-  GetterFunctions
-}
+export { GetterNames, GetterFunctions }

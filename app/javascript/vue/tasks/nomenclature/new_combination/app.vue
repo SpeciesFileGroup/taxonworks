@@ -28,7 +28,7 @@
       :taxon-name="taxon"
     />
     <h3 v-help.section.recent.overview>Recent</h3>
-    <display-list
+    <DisplayList
       :list="combinations"
       @edit="editCombination"
       @delete="deleteCombination"
