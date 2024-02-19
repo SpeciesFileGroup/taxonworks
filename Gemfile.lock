@@ -204,7 +204,7 @@ GEM
       faraday-follow_redirects (>= 0.1, < 0.4)
       multi_json (~> 1.15)
     concurrent-ruby (1.2.3)
-    crack (0.4.6)
+    crack (1.0.0)
       bigdecimal
       rexml
     crass (1.0.6)
@@ -232,7 +232,7 @@ GEM
     domain_name (0.6.20240107)
     dropzonejs-rails (0.8.5)
       rails (> 3.1)
-    dwc_agent (3.1.0.0)
+    dwc_agent (3.1.1.0)
       namae (~> 1)
       namecase (~> 2)
     erubi (1.12.0)
@@ -380,7 +380,7 @@ GEM
     paperclip-meta (3.1.0)
       paperclip (>= 5.0)
     parallel (1.24.0)
-    parallel_tests (4.5.0)
+    parallel_tests (4.5.1)
       parallel
     parser (3.3.0.5)
       ast (~> 2.4.1)
@@ -396,7 +396,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pg (1.5.4)
+    pg (1.5.5)
     pkg-config (1.5.6)
     polyglot (0.3.5)
     postgresql_cursor (0.6.8)
@@ -488,7 +488,7 @@ GEM
       rgeo (>= 1.0.0)
     rgeo-proj4 (4.0.0)
       rgeo (~> 3.0.0)
-    rmagick (5.4.1)
+    rmagick (5.4.4)
       observer (~> 0.1)
       pkg-config (~> 1.4)
     roo (2.10.1)
