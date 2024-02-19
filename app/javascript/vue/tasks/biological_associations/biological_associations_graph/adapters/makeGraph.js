@@ -1,7 +1,9 @@
 import { makeCitation } from './makeCitation'
 import { BIOLOGICAL_ASSOCIATIONS_GRAPH } from '@/constants/index.js'
+import { randomUUID } from '@/helpers'
+
 export function makeGraph(data) {
-  const uuid = crypto.randomUUID()
+  const uuid = randomUUID()
 
   return {
     uuid,

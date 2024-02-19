@@ -54,7 +54,7 @@ import { computed, ref } from 'vue'
 import { GeographicArea } from '@/routes/endpoints'
 import VSpinner from '@/components/spinner.vue'
 import VMap from '@/components/georeferences/map.vue'
-import { useRandomUUID } from '@/helpers/random.js'
+import { randomUUID } from '@/helpers'
 
 const props = defineProps({
   modelValue: {
@@ -64,7 +64,7 @@ const props = defineProps({
 
   name: {
     type: String,
-    default: useRandomUUID()
+    default: randomUUID()
   }
 })
 

@@ -148,21 +148,23 @@
                 </tr>
               </thead>
               <tbody>
-              <tr
-                v-for="item in extensionMethodNames"
-                :key="item.id"
-              >
-                <td>
-                  <input
-                    type="checkbox"
-                    :value="item"
-                    v-model="selectedExtensionMethods.taxonworks_extension_methods"
-                  />
-                </td>
-                <td>
-                  <span v-html="item" />
-                </td>
-              </tr>
+                <tr
+                  v-for="item in extensionMethodNames"
+                  :key="item.id"
+                >
+                  <td>
+                    <input
+                      type="checkbox"
+                      :value="item"
+                      v-model="
+                        selectedExtensionMethods.taxonworks_extension_methods
+                      "
+                    />
+                  </td>
+                  <td>
+                    <span v-html="item" />
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -273,9 +275,9 @@ const checkAllExtensionMethods = computed({
     selectedExtensionMethods.taxonworks_extension_methods.length ===
     extensionMethodNames.value.length,
   set: (isChecked) => {
-      selectedExtensionMethods.taxonworks_extension_methods = isChecked
-        ? extensionMethodNames.value
-        : []
+    selectedExtensionMethods.taxonworks_extension_methods = isChecked
+      ? extensionMethodNames.value
+      : []
   }
 })
 
@@ -285,7 +287,9 @@ function download() {
     : getFilterParams(props.params)
 
   DwcOcurrence.generateDownload({
-    ...downloadParams,
+    collection_object_query: {
+      ...downloadParams
+    },
     ...includeParameters.value,
     ...predicateParams,
     ...selectedExtensionMethods
@@ -316,8 +320,10 @@ async function openGenerateDownloadModal() {
 onBeforeMount(async () => {
   isLoading.value = true
 
-  const [predicates, extensions] = await Promise.all(
-    [DwcOcurrence.predicates(), DwcOcurrence.taxonworksExtensionMethods()])
+  const [predicates, extensions] = await Promise.all([
+    DwcOcurrence.predicates(),
+    DwcOcurrence.taxonworksExtensionMethods()
+  ])
 
   isLoading.value = false
 
