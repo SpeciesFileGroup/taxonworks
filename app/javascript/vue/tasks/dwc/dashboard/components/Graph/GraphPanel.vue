@@ -4,16 +4,16 @@
     class="panel content"
     v-help.section.freshnessIndex
   >
-    <spinner-component v-if="useState.isLoadingMetadata" />
-    <graph-index :metadata="metadata" />
+    <VSpinner v-if="useState.isLoadingMetadata" />
+    <GraphIndex />
   </div>
   <div
     style="min-width: 0"
     class="panel content"
     v-help.section.freshnessVersions
   >
-    <spinner-component v-if="useState.isLoadingMetadata" />
-    <graph-collection-object />
+    <VSpinner v-if="useState.isLoadingMetadata" />
+    <GraphCollectionObject />
   </div>
 </template>
 
@@ -21,7 +21,7 @@
 import { onBeforeMount, inject } from 'vue'
 import GraphIndex from './GraphIndex.vue'
 import GraphCollectionObject from './GraphCollectionObjects.vue'
-import SpinnerComponent from '@/components/spinner.vue'
+import VSpinner from '@/components/spinner.vue'
 
 const useActions = inject('actions')
 const useState = inject('state')

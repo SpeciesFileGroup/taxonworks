@@ -4,6 +4,7 @@
     <table>
       <thead>
         <tr>
+          <th class="w-2" />
           <th
             v-for="header in PROPERTIES"
             :key="header"
@@ -19,6 +20,9 @@
           v-for="(item, index) in useState.downloadList"
           :key="item.id"
         >
+          <td>
+            <RadialNavigator :global-id="item.global_id" />
+          </td>
           <td
             v-for="property in PROPERTIES"
             :key="property"
@@ -52,6 +56,7 @@ import { inject, onBeforeMount, watch } from 'vue'
 import { DOWNLOAD_DWC_ARCHIVE } from '@/constants/index.js'
 import { Download } from '@/routes/endpoints'
 import { humanize } from '@/helpers/strings'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const DEFAULT_WAIT_TIME = 60000
