@@ -33,8 +33,8 @@ const emit = defineEmits(['onDate'])
 
 const handleClick = () => {
   emit('onDate', {
-    dwc_occurrence_end_date: getPastDateByDays(0),
-    dwc_occurrence_start_date: getPastDateByDays(Number(props.days)),
+    user_date_start: getPastDateByDays(Number(props.days)),
+    user_date_end: getPastDateByDays(0),
     per: props.count
   })
 }
