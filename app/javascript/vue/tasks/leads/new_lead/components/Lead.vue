@@ -17,13 +17,13 @@
 
     <template #body>
     <div
-      v-if="store[side].redirect_id"
+      v-if="store[side + '_had_redirect_on_save']"
       class="redirect_notice"
       v-html="'<i>This side is currently redirecting, to add couplets below remove the redirection.</i>'"
     />
     <div class="navigation">
       <VBtn
-        :disabled="!!store[side].redirect_id"
+        :disabled="store[side + '_had_redirect_on_save']"
         color="update"
         medium
         @click="nextCouplet()"
@@ -32,7 +32,7 @@
       </VBtn>
 
       <VBtn
-        :disabled="!!store[side].redirect_id || !store[side + '_has_children']"
+        :disabled="store[side + '_had_redirect_on_save'] || !store[side + '_has_children']"
         color="create"
         medium
         @click="insertCouplet()"
@@ -84,7 +84,10 @@
 
     <div class="field label-above">
       <label>Redirect</label>
-      <select v-model="store[side].redirect_id">
+      <select
+        v-model="store[side].redirect_id"
+        :disabled="store[side + '_has_children']"
+      >
         <option :value="null"></option>
         <option
           v-for="option in redirectOptions"

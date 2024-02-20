@@ -35,7 +35,7 @@
       </VBtn>
 
       <VBtn
-        v-if="!store.left_has_children && !store.right_has_children && store.lead.parent_id"
+        v-if="allowDestroyCouplet"
         color="destroy"
         medium
         @click="destroyCouplet()"
@@ -44,9 +44,7 @@
       </VBtn>
 
       <VBtn
-        v-else-if="
-          (!store.left_has_children && store.right_has_children) ||
-          (!store.right_has_children && store.left_has_children)"
+        v-else-if="allowDeleteCouplet"
         color="destroy"
         medium
         @click="deleteCouplet()"
@@ -104,6 +102,19 @@ const hasChildren = computed(() => {
   return store.left && store.left.id && store.right && store.right.id
 })
 
+const allowDestroyCouplet = computed(() => {
+  return (
+    (!store.left_has_children && !store.right_has_children) &&
+    store.lead.parent_id
+  )
+})
+
+const allowDeleteCouplet = computed(() => {
+  return (
+    (!store.left_has_children && store.right_has_children) ||
+    (!store.right_has_children && store.left_has_children)
+  )
+})
 
 const redirectOptions = ref([])
 
@@ -126,7 +137,9 @@ function updateCouplet() {
       right: store.right
   }
 
-  LeadEndpoint.update(store.lead.id, payload).then(() => {
+  LeadEndpoint.update(store.lead.id, payload).then(({ body }) => {
+    // Future changes when redirect changes, so reload.
+    store.loadKey(body)
     TW.workbench.alert.create('Couplet was successfully saved.', 'notice')
   })
 }
@@ -150,7 +163,7 @@ function destroyCouplet() {
 
 function deleteCouplet() {
   if (window.confirm(
-    'Delete both left and right  sides and attach orphaned children to this parent?'
+    'Delete both left and right sides and attach orphaned children to this parent?'
   )) {
     LeadEndpoint.delete_couplet(store.lead.id).then(() => {
       store.loadKey(store.lead.id)

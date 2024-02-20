@@ -10,10 +10,14 @@ const makeInitialState = () => ({
   left: makeLeadObject(),
   left_future: [],
   left_has_children: undefined,
+  // True if left had a redirect the last time it was saved.
+  left_had_redirect_on_save: undefined,
   // The right child of lead.
   right: makeLeadObject(),
   right_future: [],
   right_has_children: undefined,
+  // True if right had a redirect the last time it was saved.
+  right_had_redirect_on_save: undefined,
   parents: []
 })
 

@@ -92,7 +92,8 @@ class LeadsController < ApplicationController
     respond_to do |format|
       if @lead.save
         new_couplet # we make two blank couplets so we can show the key
-        format.json { expand_lead }
+        expand_lead
+        format.json {}
       else
         format.json { render json: @lead.errors, status: :unprocessable_entity}
       end
@@ -119,7 +120,9 @@ class LeadsController < ApplicationController
         @lead.update!(lead_params)
         @left.update!(lead_params(:left))
         @right.update!(lead_params(:right))
-        format.json { head :no_content }
+        # Note that future changes when redirect is updated.
+        expand_lead
+        format.json {}
       rescue
         # TODO we're using @lead.errors like the error occurred with lead
         format.json { render json: @lead.errors, status: :unprocessable_entity}
