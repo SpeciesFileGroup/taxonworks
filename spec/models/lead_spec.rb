@@ -20,6 +20,37 @@ RSpec.describe Lead, type: :model do
     expect(public_root.is_public).to be(true)
   end
 
+  specify 'no redirect on root nodes' do
+    root1 = FactoryBot.create(:valid_lead)
+    root2 = FactoryBot.create(:valid_lead)
+    expect { root2.update! redirect_id: root1.id }.to raise_error ActiveRecord::RecordInvalid
+  end
+
+  specify 'redirect only on leaf nodes' do
+    root = FactoryBot.create(:valid_lead)
+    child = root.children.create text: 'c'
+    grandchild = child.children.create text: 'gc'
+
+    root2 = FactoryBot.create(:valid_lead)
+    expect { child.update! redirect_id: root2.id }.to raise_error ActiveRecord::RecordInvalid
+  end
+
+  specify "children of a redirect node are invalid" do
+    root1 = FactoryBot.create(:valid_lead)
+    root2 = FactoryBot.create(:valid_lead)
+    child = root1.children.create text: 'c'
+    expect(child.new_record?).to be(false)
+    expect(child.update! redirect_id: root2.id).to be(true)
+    expect(child.valid?).to be(true)
+    expect{child.children.create! text: 'gc'}.to raise_error ActiveRecord::RecordInvalid
+  end
+
+  specify "redirect can't point to an ancestor" do
+    root = FactoryBot.create(:valid_lead)
+    child = root.children.create text: 'c'
+    expect {child.update! redirect_id: root.id}.to raise_error ActiveRecord::RecordInvalid
+  end
+
   context 'with multiple couplets' do
     before(:all) do
       Lead.delete_all

@@ -61,6 +61,10 @@ class Lead < ApplicationRecord
 
   validate :root_has_title
   validate :link_out_has_no_protocol
+  validate :redirect_node_is_leaf_node
+  validate :node_parent_doesnt_have_redirect
+  validate :root_has_no_redirect
+  validate :redirect_isnt_ancestor_or_self
 
   def future
     redirect_id.blank? ? all_children : redirect.all_children
@@ -183,6 +187,22 @@ class Lead < ApplicationRecord
 
   def link_out_has_no_protocol
     errors.add(:link, "shouldn't include http") if link_out&.start_with? 'http' or link_out&.include? '://'
+  end
+
+  def redirect_node_is_leaf_node
+    errors.add(:redirect, "nodes can't have children") if redirect_id && children.size > 0
+  end
+
+  def node_parent_doesnt_have_redirect
+    errors.add(:parent, "can't be a redirect node") if parent && parent.redirect_id
+  end
+
+  def redirect_isnt_ancestor_or_self
+    errors.add(:redirect, "can't be an ancestor") if redirect_id && (redirect_id == id || ancestor_ids.include?(redirect_id))
+  end
+
+  def root_has_no_redirect
+    errors.add(:root, "nodes can't have a redirect") if redirect_id && parent_id.nil?
   end
 
   def dupe_in_transaction(node, parentId)
