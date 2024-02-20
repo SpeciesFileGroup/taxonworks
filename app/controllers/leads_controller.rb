@@ -132,7 +132,7 @@ class LeadsController < ApplicationController
       rescue
         @lead.errors.merge!(@left)
         @lead.errors.merge!(@right)
-        format.json { render json: @lead.errors, status: :unprocessable_entity}
+        format.json { render json: @lead.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -146,23 +146,33 @@ class LeadsController < ApplicationController
         format.json { head :no_content, status: :unprocessable_entity }
       end
     else
-      respond_to do |format|
+      begin
         @lead.destroy! # note we allow the AR to do this
-        flash[:notice] = 'Key deleted.'
-        format.json { head :no_content }
+        respond_to do |format|
+          flash[:notice] = 'Key deleted.'
+          format.json { head :no_content }
+        end
+      rescue
+        respond_to do |format|
+          format.json { render json: @lead.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
 
   # For destroying a couplet with no children on either side.
   def destroy_couplet
-    if @lead.parent_id.present?
-      delete_couplet
-      respond_to do |format|
-        format.json { head :no_content }
-      end
-    else
-      respond_to do |format|
+    respond_to do |format|
+      if @lead.parent_id.present?
+        if delete_couplet
+          format.json { head :no_content }
+        else
+          format.json {
+            @lead.errors.add(:delete, 'failed - is there a node redirecting to this one?')
+            render json: @lead.errors, status: :unprocessable_entity
+          }
+        end
+      else
         format.json { head :no_content, status: :unprocessable_entity }
       end
     end
@@ -174,8 +184,10 @@ class LeadsController < ApplicationController
     respond_to do |format|
       if @lead.destroy_couplet
         format.json { head :no_content }
+        return true
       else
-        format.json { head :no_content }
+        format.json { render json: @lead.errors, status: :unprocessable_entity }
+        return false
       end
     end
   end

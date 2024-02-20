@@ -167,10 +167,12 @@ function destroyCouplet() {
   if (window.confirm(
     'Delete both left and right sides?'
   )) {
-    LeadEndpoint.destroy_couplet(store.lead.id).then(() => {
+    LeadEndpoint.destroy_couplet(store.lead.id)
+    .then(() => {
       store.loadKey(store.lead.id)
       TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
     })
+    .catch(() => {})
   }
 }
 

@@ -54,6 +54,7 @@ class Lead < ApplicationRecord
   belongs_to :otu, inverse_of: :leads
   has_one :taxon_name, through: :otu
   belongs_to :redirect, class_name: 'Lead'
+  has_many :redirecters, class_name: 'Lead', foreign_key: :redirect_id, inverse_of: :redirect, dependent: :restrict_with_error
 
   has_closure_tree order: 'position', numeric_order: true, dont_order_roots: true
 
@@ -134,7 +135,7 @@ class Lead < ApplicationRecord
             Lead.find(has_kids.id).destroy! # NOTE WE CANNOT just do has_kids.destroy, as this invokes bizarre cascading nastiness!!
             no_kids.destroy!
           end
-        rescue ActiveRecord::RecordInvalid
+        rescue ActiveRecord::RecordNotDestroyed
           return false
         end
       else
@@ -143,7 +144,7 @@ class Lead < ApplicationRecord
             a.destroy!
             b.destroy!
           end
-        rescue ActiveRecord::RecordInvalid
+        rescue ActiveRecord::RecordNotDestroyed
           return false
         end
       end

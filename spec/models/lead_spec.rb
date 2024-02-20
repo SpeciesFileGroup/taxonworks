@@ -51,6 +51,25 @@ RSpec.describe Lead, type: :model do
     expect {child.update! redirect_id: root.id}.to raise_error ActiveRecord::RecordInvalid
   end
 
+  specify "keys with external referrers can't be destroyed" do
+    root1 = FactoryBot.create(:valid_lead)
+    root2 = FactoryBot.create(:valid_lead)
+    child = root1.children.create text: 'c'
+    expect(child.update! redirect_id: root2.id).to be(true)
+    expect{root2.destroy!}.to raise_error ActiveRecord::RecordNotDestroyed
+  end
+
+  specify "keys with internal referrers can't be destroyed" do
+    root = FactoryBot.create(:valid_lead)
+    child = root.children.create text: 'c'
+    sibling = root.children.create text: 's'
+    expect(child.update! redirect_id: sibling.id).to be(true)
+    # TODO: this may depend on the order in which the children get destroyed:
+    # if the child with !redirect_id.nil? gets destroyed first then there
+    # may be no error (which would be fine!).
+    expect{root.destroy!}.to raise_error ActiveRecord::RecordNotDestroyed
+  end
+
   context 'with multiple couplets' do
     before(:all) do
       Lead.delete_all
