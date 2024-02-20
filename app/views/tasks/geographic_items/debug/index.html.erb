@@ -47,7 +47,7 @@
       <div>
         <%= simple_map( GeographicItem.where(id: a) ) %>
         <ul>
-          <li>  GeographicItem ID(s): <%= a.collect{|id| link_to(id, geographic_item_path(id) )}.join(', ').html_safe %> </li>
+          <li> GeographicItem ID(s): <%= a.collect{|id| link_to(id, geographic_item_path(id) )}.join(', ').html_safe %> </li>
           <li> Corresponding GeographicAreas: <%= GeographicArea.joins(:geographic_areas_geographic_items).where(geographic_areas_geographic_items: {geographic_item_id: a}).collect{|g| link_to(g.name, geographic_area_path(g))}.join(', ').html_safe %> </li>
         </ul>
       </div>
