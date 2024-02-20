@@ -423,8 +423,6 @@ resources :leads do
     post :destroy_couplet
     post :delete_couplet
     post :duplicate
-  end
-  collection do
     get :all_texts
   end
 end

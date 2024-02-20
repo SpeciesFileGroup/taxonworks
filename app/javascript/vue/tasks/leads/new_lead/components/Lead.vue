@@ -85,6 +85,7 @@
     <div class="field label-above">
       <label>Redirect</label>
       <select
+        class="redirect_select"
         v-model="store[side].redirect_id"
         :disabled="store[side + '_has_children']"
       >
@@ -190,5 +191,8 @@ function nextCouplet() {
 }
 .redirect_notice {
   margin-bottom: 12px;
+}
+.redirect_select[disabled] {
+  opacity: .5;
 }
 </style>

@@ -1,1 +1,1 @@
-json.all_texts @leads
+json.all_texts @texts

@@ -1,7 +1,7 @@
 class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   before_action :set_lead, only: %i[
-    edit create_for_edit update destroy show show_all show_all_print
+    edit create_for_edit update destroy show show_all show_all_print all_texts
     destroy_couplet insert_couplet delete_couplet duplicate update_meta ]
 
   # GET /leads
@@ -27,15 +27,21 @@ class LeadsController < ApplicationController
       .where('parent_id is null').order(:id).page(params[:page])
   end
 
-  # GET /leads/all_texts.json
+  # GET /leads/1/all_texts.json
   def all_texts
-    texts = Lead
-      .select(:id, :text)
+    leads = Lead
+      .select(:id, :text, :origin_label)
       .with_project_id(sessions_current_project_id)
       .order(:text)
-    @leads = texts.filter_map {|o|
-      t = o.text.nil? ? '(Blank text)' : o.text.truncate(40)
-      {id: o.id, text: "[#{o.id}] " + t}
+    ancestor_ids = @lead.ancestor_ids
+    @texts = leads.filter_map {|o|
+      if o.id != @lead.id && !ancestor_ids.include?(o.id)
+        {
+          id: o.id,
+          label: o.origin_label,
+          text: o.text.nil? ? '' : o.text.truncate(40)
+        }
+      end
     }
   end
 
@@ -124,7 +130,8 @@ class LeadsController < ApplicationController
         expand_lead
         format.json {}
       rescue
-        # TODO we're using @lead.errors like the error occurred with lead
+        @lead.errors.merge!(@left)
+        @lead.errors.merge!(@right)
         format.json { render json: @lead.errors, status: :unprocessable_entity}
       end
     end

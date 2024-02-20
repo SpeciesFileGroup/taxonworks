@@ -119,13 +119,24 @@ const allowDeleteCouplet = computed(() => {
 const redirectOptions = ref([])
 
 function loadRedirectOptions() {
-  LeadEndpoint.all_texts().then(({ body }) => {
-    redirectOptions.value = body.all_texts
+  LeadEndpoint.all_texts(store.lead.id).then(({ body }) => {
+    const texts = body.all_texts.flatMap((o) => {
+      if ((store.left && o.id == store.left.id) || (store.right && o.id == store.right.id)) {
+        return []
+      }
+      let id_label = o.label ? ('[' + o.label + ']') : ''
+      id_label = id_label + '[tw:' + o.id + ']'
+      return [{
+        id: o.id,
+        text: id_label + ' ' + (o.text || '(No text)')
+      }]
+    })
+    redirectOptions.value = texts
   })
 }
 
 watch(
-  () => store.lead.id,
+  () => [store.lead.id],
   () => loadRedirectOptions(),
   { immediate: true }
 )
@@ -137,11 +148,13 @@ function updateCouplet() {
       right: store.right
   }
 
-  LeadEndpoint.update(store.lead.id, payload).then(({ body }) => {
+  LeadEndpoint.update(store.lead.id, payload)
+  .then(({ body }) => {
     // Future changes when redirect changes, so reload.
     store.loadKey(body)
     TW.workbench.alert.create('Couplet was successfully saved.', 'notice')
   })
+  .catch(() => {})
 }
 
 function nextCouplet() {
