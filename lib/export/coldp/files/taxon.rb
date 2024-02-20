@@ -94,9 +94,9 @@ module Export::Coldp::Files::Taxon
     # API or public interface
   end
 
-  def self.remarks(otu, taxon_remarks_vocab)
-    if otu.data_attributes.where(controlled_vocabulary_term_id: taxon_remarks_vocab).any?
-      otu.data_attributes.where(controlled_vocabulary_term_id: taxon_remarks_vocab).pluck(:value).join('|')
+  def self.remarks(otu, taxon_remarks_vocab_id)
+    if !taxon_remarks_vocab_id.nil? && otu.data_attributes.where(controlled_vocabulary_term_id: taxon_remarks_vocab_id).any?
+      otu.data_attributes.where(controlled_vocabulary_term_id: taxon_remarks_vocab_id).pluck(:value).join('|')
     else
       nil
     end
