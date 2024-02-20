@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC Dashboard buttons scoped to recent timeframes [#3774]
 - A couple .csv endpoints for /api/v1
 - Radial annotator: Filter tab doesn't work in depictions slice [#3824]
+- A COLDP export name and taxon remarks bug [#3837]
 
 ### Changed
 
