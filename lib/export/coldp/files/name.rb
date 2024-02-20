@@ -96,7 +96,7 @@ module Export::Coldp::Files::Name
       return
     end
 
-    infraspecific_element = t.original_combination_infraspecific_element(e)
+    infraspecific_element = t.original_combination_infraspecific_element
 
     rank = nil
     if infraspecific_element
