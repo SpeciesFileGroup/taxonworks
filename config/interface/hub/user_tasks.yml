@@ -863,3 +863,11 @@ new_lead_task:
   categories:
   status: prototype
   description: 'Create a new dichotomous key.'
+
+index_show_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'

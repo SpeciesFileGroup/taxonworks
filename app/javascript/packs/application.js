@@ -98,3 +98,4 @@ import '../vue/tasks/biological_associations/biological_associations_graph/main.
 import '../vue/tasks/biological_associations/network/main.js'
 import '../vue/tasks/collecting_events/stepwise/collectors/main.js'
 import '../vue/tasks/leads/new_lead/main.js'
+import '../vue/tasks/leads/show/main.js'
