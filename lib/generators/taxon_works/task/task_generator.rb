@@ -197,7 +197,7 @@ class TaxonWorks::TaskGenerator < Rails::Generators::Base
   end
 
   def register_vue_in_application_js
-    str =  "require('../vue/tasks/#{path_to_controller}#{controller_base_name}/main.js')"
+    str =  "import '../vue/tasks/#{path_to_controller}#{controller_base_name}/main.js'"
     append_to_file 'app/javascript/packs/application.js', str
   end
 
