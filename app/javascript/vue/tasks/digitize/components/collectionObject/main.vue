@@ -10,10 +10,10 @@
           v-hotkey="shortcuts"
           class="horizontal-left-content gap-small"
         >
-          <radial-annotator :global-id="collectionObject.global_id" />
-          <default-tag :global-id="collectionObject.global_id" />
-          <radial-object :global-id="collectionObject.global_id" />
-          <radial-navigation :global-id="collectionObject.global_id" />
+          <RadialAnnotator :global-id="collectionObject.global_id" />
+          <ButtonTag :global-id="collectionObject.global_id" />
+          <RadialObject :global-id="collectionObject.global_id" />
+          <RadialNavigation :global-id="collectionObject.global_id" />
         </div>
       </template>
       <template #body>
@@ -116,7 +116,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import PredicatesComponent from '@/components/custom_attributes/predicates/predicates'
-import DefaultTag from '@/components/defaultTag.vue'
+import ButtonTag from '@/components/ui/Button/ButtonTag.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import SoftValidations from '@/components/soft_validations/panel.vue'
 import { Depiction } from '@/routes/endpoints'
@@ -146,7 +146,7 @@ export default {
     RadialAnnotator,
     PredicatesComponent,
     RadialObject,
-    DefaultTag,
+    ButtonTag,
     RadialNavigation,
     SoftValidations
   },

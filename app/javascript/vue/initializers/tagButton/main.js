@@ -1,22 +1,25 @@
 import { createApp } from 'vue'
-import App from './app.vue'
+import ButtonTag from '@/components/ui/Button/ButtonTag.vue'
 
-function init (element) {
+function init(element) {
   const globalId = element.getAttribute('data-tag-object-global-id')
-  const count = element.getAttribute('data-inserted-keyword-count')
+  const count = +element.getAttribute('data-inserted-keyword-count')
   const props = {
-    globalId: globalId,
-    count: count
+    globalId,
+    count,
+    showCount: true
   }
-  const app = createApp(App, props)
+  const app = createApp(ButtonTag, props)
 
   app.mount(element)
 }
 
 document.addEventListener('turbolinks:load', () => {
   if (document.querySelector('[data-tag-default="true"]')) {
-    document.querySelectorAll('[data-tag-default="true"]').forEach(element => {
-      init(element)
-    })
+    document
+      .querySelectorAll('[data-tag-default="true"]')
+      .forEach((element) => {
+        init(element)
+      })
   }
 })
