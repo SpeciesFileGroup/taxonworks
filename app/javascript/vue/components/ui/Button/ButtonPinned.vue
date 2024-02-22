@@ -1,6 +1,6 @@
 <template>
   <VBtn
-    :disabled="!getDefault"
+    :disabled="!pinnedId"
     circle
     color="primary"
     :title="buttonTitle"
