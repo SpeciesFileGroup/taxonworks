@@ -1,30 +1,29 @@
 <template>
-  <button
-    type="button"
-    class="button button-circle btn-clipboard button-default"
-    @click="copyToClipboard()"/>
+  <VBtn
+    color="primary"
+    medium
+    circle
+    @click="copyToClipboard()"
+  >
+    <VIcon
+      name="clip"
+      small
+    />
+  </VBtn>
 </template>
 
-<script>
-export default {
-  props: {
-    text: {
-      type: String,
-      default: ''
-    }
-  },
-
-  methods: {
-    copyToClipboard () {
-      const element = document.createElement('textarea')
-
-      element.value = this.text
-      document.body.appendChild(element)
-      element.select()
-      document.execCommand('copy')
-      document.body.removeChild(element)
-      TW.workbench.alert.create('Copied to clipboard', 'notice')
-    }
+<script setup>
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+const props = defineProps({
+  text: {
+    type: String,
+    default: ''
   }
+})
+
+function copyToClipboard() {
+  navigator.clipboard.writeText(props.text).then(() => {})
+  TW.workbench.alert.create('Copied to clipboard', 'notice')
 }
 </script>
