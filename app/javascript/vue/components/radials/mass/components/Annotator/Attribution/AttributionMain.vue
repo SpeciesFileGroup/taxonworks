@@ -13,7 +13,7 @@
 import { ref } from 'vue'
 import { Attribution } from '@/routes/endpoints'
 import AttributionComponent from './attributions.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
   ids: {

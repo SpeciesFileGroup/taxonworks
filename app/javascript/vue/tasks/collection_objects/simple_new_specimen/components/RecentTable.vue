@@ -76,7 +76,7 @@ import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import ButtonTag from '@/components/ui/Button/ButtonTag.vue'
-import VSpinner from '@/components/spinner'
+import VSpinner from '@/components/ui/VSpinner'
 
 const store = useStore()
 const isLoading = ref(false)

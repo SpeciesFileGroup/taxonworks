@@ -74,7 +74,7 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
-import PdfButton from '@/components/pdfButton.vue'
+import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 

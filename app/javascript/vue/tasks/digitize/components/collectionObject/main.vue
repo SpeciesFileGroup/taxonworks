@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import ContainerItems from './containerItems.vue'
 import PreparationType from './preparationType.vue'
 import CatalogueNumber from '../catalogueNumber/catalogNumber.vue'

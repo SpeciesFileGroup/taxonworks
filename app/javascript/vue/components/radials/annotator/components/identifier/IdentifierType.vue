@@ -35,7 +35,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import VSwitch from '@/components/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 
 const props = defineProps({
   types: {

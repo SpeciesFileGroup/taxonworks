@@ -88,7 +88,7 @@
 </template>
 
 <script setup>
-import VSwitch from '@/components/switch'
+import VSwitch from '@/components/ui/VSwitch'
 import VAutocomplete from '@/components/ui/Autocomplete'
 import VMap from '@/components/georeferences/map'
 import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttribute.vue'

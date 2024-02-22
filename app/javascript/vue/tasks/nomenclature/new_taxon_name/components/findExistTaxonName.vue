@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import Spinner from '@/components/spinner.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
 import AjaxCall from '@/helpers/ajaxCall'
 
 export default {

@@ -21,7 +21,7 @@
 import { onBeforeMount, inject } from 'vue'
 import GraphIndex from './GraphIndex.vue'
 import GraphCollectionObject from './GraphCollectionObjects.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const useActions = inject('actions')
 const useState = inject('state')

@@ -83,7 +83,7 @@
 
 <script>
 import ModalComponent from '@/components/ui/Modal'
-import SwitchComponent from '@/components/switch'
+import SwitchComponent from '@/components/ui/VSwitch'
 
 import { GetDWC } from '../request/resources'
 import { CollectingEvent } from '@/routes/endpoints'

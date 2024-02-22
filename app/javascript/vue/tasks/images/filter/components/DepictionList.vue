@@ -71,7 +71,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { Depiction } from '@/routes/endpoints'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'

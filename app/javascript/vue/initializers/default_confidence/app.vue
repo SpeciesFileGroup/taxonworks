@@ -5,7 +5,7 @@
   />
 </template>
 <script>
-import DefaultConfidence from '@/components/defaultConfidence.vue'
+import DefaultConfidence from '@/components/ui/Button/ButtonConfidence.vue'
 
 export default {
   components: { DefaultConfidence },

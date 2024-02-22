@@ -21,7 +21,7 @@
 <script>
 import { GetImports, DestroyDataset } from '../request/resources.js'
 import ImportCard from './ImportCard'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 export default {
   components: {

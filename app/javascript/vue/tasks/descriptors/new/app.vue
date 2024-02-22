@@ -111,7 +111,7 @@
   </div>
 </template>
 <script>
-import Spinner from '@/components/spinner.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import TypeComponent from './components/type/type.vue'
 import DefinitionComponent from './components/definition/definition.vue'

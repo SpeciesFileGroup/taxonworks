@@ -59,7 +59,7 @@
 
 <script setup>
 import RadialMenu from '@/components/radials/RadialMenu.vue'
-import Spinner from '@/components/spinner.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import Icons from './images/icons.js'

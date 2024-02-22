@@ -27,7 +27,7 @@
 <script setup>
 import SectionPanel from './shared/sectionPanel'
 import MapComponent from '@/components/georeferences/map.vue'
-import SwitchComponent from '@/components/switch.vue'
+import SwitchComponent from '@/components/ui/VSwitch.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { computed, ref, watch } from 'vue'

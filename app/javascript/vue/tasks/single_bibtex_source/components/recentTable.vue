@@ -31,8 +31,8 @@
 
 <script>
 import RadialAnnotator from '@/components/radials/annotator/annotator'
-import AddToProject from '@/components/addToProjectSource'
-import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+import AddToProject from '@/components/ui/Button/ButtonAddToProjectSource'
+import PinComponent from '@/components/ui/Button/ButtonPin.vue'
 
 export default {
   components: {

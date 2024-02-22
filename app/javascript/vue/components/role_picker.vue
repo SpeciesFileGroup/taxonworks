@@ -154,7 +154,7 @@
 <script>
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import Draggable from 'vuedraggable'
-import DefaultPin from './getDefaultPin'
+import DefaultPin from '@/components/ui/Button/ButtonPinned'
 import OrganizationPicker from '@/components/organizationPicker.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
