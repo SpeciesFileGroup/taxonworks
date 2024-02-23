@@ -315,6 +315,12 @@ function saveAssociation() {
   })
 }
 
+function removeItem(item) {
+  BiologicalAssociation.destroy(item.id).then(() => {
+    removeFromList(item)
+  })
+}
+
 function setCitation(citation) {
   citation.value = {
     id: citation.id,
