@@ -263,6 +263,14 @@ module Queries
         [@biological_association_object_type].flatten.compact
       end
 
+      def biological_association_subject_id
+        [@biological_association_subject_id].flatten.compact
+      end
+
+      def biological_association_subject_type
+        [@biological_association_subject_type].flatten.compact
+      end
+
       def any_global_id
         [@any_global_id].flatten.compact
       end
