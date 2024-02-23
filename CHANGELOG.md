@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- DwC download not scoping DataAttributes correctly when records are a subset of objecs from a CollectingEvent
 - DwC Dashboard buttons scoped to recent timeframes [#3774]
 - A couple .csv endpoints for /api/v1
 - Radial annotator: Filter tab doesn't work in depictions slice [#3824]
