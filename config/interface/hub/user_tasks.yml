@@ -861,13 +861,13 @@ new_lead_task:
   name: 'New dichotomous key'
   related:
   categories:
+    - new
   status: prototype
   description: 'Create a new dichotomous key.'
-
-index_show_task:
+show_lead_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'Use dichotomous key'
   related:
   categories:
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Use an existing dichotomous key.'

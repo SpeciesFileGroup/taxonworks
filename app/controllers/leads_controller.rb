@@ -15,7 +15,7 @@ class LeadsController < ApplicationController
       format.json {
         @leads = Lead.with_project_id(sessions_current_project_id)
           .where('parent_id is null')
-          .order(:description)
+          .order(:text)
           .page(params[:page])
           .per(params[:per])
       }
