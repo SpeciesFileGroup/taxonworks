@@ -58,10 +58,15 @@ const props = defineProps({
   spinner: {
     type: Boolean,
     default: false
+  },
+
+  startCollapsed: {
+    type: Boolean,
+    default: false
   }
 })
 
-const expanded = ref(true)
+const expanded = ref(!props.startCollapsed)
 </script>
 <style lang="scss" scoped>
 .block-layout {
