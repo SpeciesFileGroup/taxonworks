@@ -100,6 +100,9 @@ GeographicItem:
     - debug_geographic_item_task
   config:
     recent: false
+Lead:
+  tasks:
+    - show_lead_task
 Loan:
   tasks:
     - edit_loan_task

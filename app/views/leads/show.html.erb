@@ -4,6 +4,10 @@
       <%= link_to( content_tag(:span, 'Clone', data: {icon: :new}, class: 'small-icon' ), "/leads/#{@lead.id}/duplicate", method: :post, class: 'navigation-item' ) -%>
     </div>
   <% end %>
+
+  <div class="navigation-controls">
+      <%= link_to( content_tag(:span, 'Use key', data: {icon: :show}, class: 'small-icon' ), "/tasks/leads/show?lead_id=#{@lead.id}", class: 'navigation-item' ) -%>
+  </div>
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @lead}) -%>
