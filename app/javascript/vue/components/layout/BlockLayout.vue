@@ -34,44 +34,34 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import ExpandComponent from '@/components/expand.vue'
 import SpinnerComponent from '@/components/ui/VSpinner.vue'
+import { ref } from 'vue'
 
-export default {
-  components: {
-    ExpandComponent,
-    SpinnerComponent
+const props = defineProps({
+  expand: {
+    type: Boolean,
+    default: false
   },
 
-  props: {
-    expand: {
-      type: Boolean,
-      default: false
-    },
-
-    anchor: {
-      type: String,
-      default: undefined
-    },
-
-    warning: {
-      type: Boolean,
-      default: false
-    },
-
-    spinner: {
-      type: Boolean,
-      default: false
-    }
+  anchor: {
+    type: String,
+    default: undefined
   },
 
-  data() {
-    return {
-      expanded: true
-    }
+  warning: {
+    type: Boolean,
+    default: false
+  },
+
+  spinner: {
+    type: Boolean,
+    default: false
   }
-}
+})
+
+const expanded = ref(true)
 </script>
 <style lang="scss" scoped>
 .block-layout {
