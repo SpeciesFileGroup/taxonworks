@@ -334,4 +334,8 @@ const handleEmitRadial = {
     setTotal(total)
   }
 }
+
+defineExpose({
+  openRadialMenu
+})
 </script>

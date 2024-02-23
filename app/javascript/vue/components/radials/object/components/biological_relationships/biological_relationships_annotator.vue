@@ -129,9 +129,7 @@
   </div>
 </template>
 
-<script>
-import CRUD from '../../request/crud.js'
-import AnnotatorExtend from '../annotatorExtend.js'
+<script setup>
 import Biological from './biological.vue'
 import Related from './related.vue'
 import TableList from './table.vue'
@@ -140,14 +138,15 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
-import displayList from '@/components/displayList.vue'
+import DisplayList from '@/components/displayList.vue'
 import { convertType } from '@/helpers/types'
-import { addToArray } from '@/helpers/arrays.js'
 import {
   BiologicalAssociation,
   BiologicalRelationship
 } from '@/routes/endpoints'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
+import { ref, computed, watch, onBeforeMount, reactive } from 'vue'
+import { useSlice } from '@/components/radials/composables'
 
 const EXTEND_PARAMS = [
   'origin_citation',
@@ -158,207 +157,215 @@ const EXTEND_PARAMS = [
   'source'
 ]
 
-export default {
-  mixins: [CRUD, AnnotatorExtend],
-
-  components: {
-    Biological,
-    LockComponent,
-    Related,
-    TableList,
-    VBtn,
-    VIcon,
-    FormCitation,
-    displayList
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  computed: {
-    validateFields() {
-      return this.biologicalRelationship && this.biologicalRelation
-    },
-
-    displayRelated() {
-      return (
-        this.biologicalRelation?.object_tag ||
-        this.biologicalRelation?.label_html
-      )
-    },
-
-    createdBiologicalAssociation() {
-      return this.list.find(
-        (item) =>
-          item.biological_relationship_id === this.biologicalRelationship?.id &&
-          item.biological_association_object_id === this.biologicalRelation?.id
-      )
-    },
-
-    biologicalRelationLabel() {
-      return (
-        this.biologicalRelationship?.label || this.biologicalRelationship?.name
-      )
-    }
+  objectType: {
+    type: String,
+    required: true
   },
 
-  data() {
-    return {
-      list: [],
-      biologicalRelationship: undefined,
-      biologicalRelation: undefined,
-      citation: makeEmptyCitation(),
-      flip: false,
-      lockSource: false,
-      lockRelationship: false,
-      loadOnMounted: false,
-      BIOLOGICAL_ASSOCIATION
-    }
+  metadata: {
+    type: Object,
+    required: true
   },
 
-  watch: {
-    lockRelationship(newVal) {
-      sessionStorage.setItem(
-        'radialObject::biologicalRelationship::lock',
-        newVal
-      )
-    },
+  radialEmit: {
+    type: Object,
+    required: true
+  }
+})
 
-    biologicalRelation(newVal) {
-      if (
-        newVal?.id &&
-        this.citation.source_id &&
-        this.biologicalRelationship?.id
-      ) {
-        this.saveAssociation()
-      }
-    }
-  },
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
-  created() {
-    const value = convertType(
-      sessionStorage.getItem('radialObject::biologicalRelationship::lock')
+const validateFields = computed(
+  () => biologicalRelationship.value && biologicalRelation.value
+)
+
+const displayRelated = computed(() => {
+  return (
+    biologicalRelation.value?.object_tag || biologicalRelation.value?.label_html
+  )
+})
+
+const createdBiologicalAssociation = computed(() =>
+  list.value.find(
+    (item) =>
+      item.biological_relationship_id === biologicalRelationship.value?.id &&
+      item.biological_association_object_id === biologicalRelation.value?.id
+  )
+)
+
+const biologicalRelationLabel = computed(
+  () =>
+    biologicalRelationship.value?.label || biologicalRelationship.value?.name
+)
+
+const biologicalRelation = ref()
+const biologicalRelationship = ref()
+const citation = ref(makeEmptyCitation())
+const flip = ref(false)
+
+const lock = reactive({
+  source: false,
+  relationship: false
+})
+
+watch(
+  () => lock.relationship,
+  (newVal) => {
+    sessionStorage.setItem('radialObject::biologicalRelationship::lock', newVal)
+  }
+)
+
+watch(biologicalRelation, (newVal) => {
+  if (
+    newVal?.id &&
+    citation.value.source_id &&
+    biologicalRelationship.value?.id
+  ) {
+    saveAssociation()
+  }
+})
+
+onBeforeMount(() => {
+  const value = convertType(
+    sessionStorage.getItem('radialObject::biologicalRelationship::lock')
+  )
+  if (value !== null) {
+    lock.relationship = value === true
+  }
+
+  if (lock.relationship) {
+    const relationshipId = convertType(
+      sessionStorage.getItem('radialObject::biologicalRelationship::id')
     )
-    if (value !== null) {
-      this.lockRelationship = value === true
-    }
 
-    if (this.lockRelationship) {
-      const relationshipId = convertType(
-        sessionStorage.getItem('radialObject::biologicalRelationship::id')
-      )
-
-      if (relationshipId) {
-        BiologicalRelationship.find(relationshipId).then((response) => {
-          this.biologicalRelationship = response.body
-        })
-      }
-    }
-
-    BiologicalAssociation.where({
-      subject_object_global_id: this.globalId,
-      extend: EXTEND_PARAMS
-    }).then(({ body }) => {
-      this.list = body
-    })
-  },
-
-  methods: {
-    reset() {
-      if (!this.lockRelationship) {
-        this.biologicalRelationship = undefined
-      }
-      this.biologicalRelation = undefined
-      this.flip = false
-      this.citation = {
-        ...makeEmptyCitation(),
-        source_id: this.lockSource ? this.citation.source_id : undefined,
-        pages: this.lockSource ? this.citation.pages : undefined
-      }
-    },
-
-    saveAssociation() {
-      const data = {
-        biological_relationship_id: this.biologicalRelationship.id,
-        object_global_id: this.flip
-          ? this.globalId
-          : this.biologicalRelation.global_id,
-        subject_global_id: this.flip
-          ? this.biologicalRelation.global_id
-          : this.globalId,
-        citations_attributes: this.citation ? [this.citation] : undefined
-      }
-      const saveRequest = this.createdBiologicalAssociation
-        ? BiologicalAssociation.update(this.createdBiologicalAssociation.id, {
-            biological_association: data,
-            extend: EXTEND_PARAMS
-          })
-        : BiologicalAssociation.create({
-            biological_association: data,
-            extend: EXTEND_PARAMS
-          })
-
-      saveRequest.then(({ body }) => {
-        addToArray(this.list, body)
-        this.reset()
-        TW.workbench.alert.create(
-          'Biological association was successfully saved.',
-          'notice'
-        )
+    if (relationshipId) {
+      BiologicalRelationship.find(relationshipId).then(({ body }) => {
+        biologicalRelationship.value = body
       })
-    },
-
-    setCitation(citation) {
-      this.citation = {
-        id: citation.id,
-        pages: citation.pages,
-        source_id: citation.source_id,
-        is_original: citation.is_original
-      }
-      this.editCitation = citation
-    },
-
-    removeCitation(item) {
-      const biological_association = {
-        citations_attributes: [
-          {
-            id: item.id,
-            _destroy: true
-          }
-        ]
-      }
-
-      BiologicalAssociation.update(this.createdBiologicalAssociation.id, {
-        biological_association,
-        extend: EXTEND_PARAMS
-      }).then(({ body }) => {
-        addToArray(this.list, body)
-      })
-    },
-
-    editBiologicalRelationship(bioRelation) {
-      this.biologicalRelationship = {
-        id: bioRelation.biological_relationship_id,
-        ...bioRelation.biological_relationship
-      }
-
-      this.biologicalRelation = {
-        id: bioRelation.biological_association_object_id,
-        ...bioRelation.object
-      }
-      this.flip = bioRelation.object.id === this.metadata.object_id
-    },
-
-    setBiologicalRelationship(item) {
-      this.biologicalRelationship = item
-      sessionStorage.setItem(
-        'radialObject::biologicalRelationship::id',
-        item.id
-      )
-    },
-
-    unsetBiologicalRelationship() {
-      this.biologicalRelationship = undefined
-      this.flip = false
     }
   }
+
+  BiologicalAssociation.where({
+    biological_association_subject_id: props.objectId,
+    biological_association_subject_type: props.objectType,
+    extend: EXTEND_PARAMS
+  }).then(({ body }) => {
+    list.value = body
+  })
+})
+
+function reset() {
+  if (!lock.relationship) {
+    biologicalRelationship.value = undefined
+  }
+  biologicalRelation.value = undefined
+  flip.value = false
+  citation.value = {
+    ...makeEmptyCitation(),
+    source_id: lock.source ? citation.value.source_id : undefined,
+    pages: lock.source ? citation.value.pages : undefined
+  }
+}
+
+function saveAssociation() {
+  const payload = {
+    biological_association: {
+      ...(flip.value
+        ? {
+            biological_association_object_id: props.objectId,
+            biological_association_object_type: props.objectType,
+            biological_association_subject_id: biologicalRelation.value.id,
+            biological_association_subject_type:
+              biologicalRelation.value.base_class
+          }
+        : {
+            biological_association_object_id: biologicalRelation.value.id,
+            biological_association_object_type:
+              biologicalRelation.value.base_class,
+            biological_association_subject_id: props.objectId,
+            biological_association_subject_type: props.objectType
+          }),
+      biological_relationship_id: biologicalRelationship.value.id,
+      citations_attributes: citation.value ? [citation.value] : undefined
+    },
+    extend: EXTEND_PARAMS
+  }
+  const saveRequest = createdBiologicalAssociation.value
+    ? BiologicalAssociation.update(
+        createdBiologicalAssociation.value.id,
+        payload
+      )
+    : BiologicalAssociation.create(payload)
+
+  saveRequest.then(({ body }) => {
+    addToList(body)
+    reset()
+    TW.workbench.alert.create(
+      'Biological association was successfully saved.',
+      'notice'
+    )
+  })
+}
+
+function setCitation(citation) {
+  citation.value = {
+    id: citation.id,
+    pages: citation.pages,
+    source_id: citation.source_id,
+    is_original: citation.is_original
+  }
+}
+
+function removeCitation(item) {
+  const payload = {
+    biological_association: {
+      citations_attributes: [
+        {
+          id: item.id,
+          _destroy: true
+        }
+      ]
+    },
+    extend: EXTEND_PARAMS
+  }
+
+  BiologicalAssociation.update(
+    createdBiologicalAssociation.value.id,
+    payload
+  ).then(({ body }) => {
+    removeFromList(body)
+  })
+}
+
+function editBiologicalRelationship(bioRelation) {
+  biologicalRelationship.value = {
+    id: bioRelation.biological_relationship_id,
+    ...bioRelation.biological_relationship
+  }
+
+  biologicalRelation.value = {
+    id: bioRelation.biological_association_object_id,
+    ...bioRelation.object
+  }
+  flip.value = bioRelation.object.id === props.objectId
+}
+
+function setBiologicalRelationship(item) {
+  biologicalRelationship.value = item
+  sessionStorage.setItem('radialObject::biologicalRelationship::id', item.id)
+}
+
+function unsetBiologicalRelationship() {
+  biologicalRelationship.value = undefined
+  flip.value = false
 }
 </script>
 <style lang="scss">

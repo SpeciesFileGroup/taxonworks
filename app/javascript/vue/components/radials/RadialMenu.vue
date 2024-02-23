@@ -2,48 +2,41 @@
   <div ref="radialContainer" />
 </template>
 
-<script>
-
+<script setup>
+import { ref, onMounted, watch } from 'vue'
 import RadialMenu from '@sfgrp/svg-radial-menu'
 
-export default {
-  props: {
-    options: {
-      type: Object,
-      required: true
-    }
-  },
+const props = defineProps({
+  options: {
+    type: Object,
+    required: true
+  }
+})
 
-  data () {
-    return {
-      radialInstance: undefined
-    }
-  },
+const emit = defineEmits(['onClick'])
 
-  watch: {
-    options: {
-      handler (newVal) {
-        if (!newVal) return
-        this.init()
-      }
-    }
-  },
+const radialContainer = ref(null)
+let radialInstance = null
 
-  mounted () {
-    this.init()
-  },
-
-  methods: {
-    init () {
-      const element = this.$refs.radialContainer
-
-      this.radialInstance = new RadialMenu(element, this.options)
-      this.handleEvents()
-    },
-
-    handleEvents () {
-      this.radialInstance.on('click', (event) => this.$emit('onClick', event))
+watch(
+  () => props.options,
+  (newVal) => {
+    if (newVal) {
+      initRadialMenu()
     }
   }
+)
+
+onMounted(() => {
+  initRadialMenu()
+})
+
+function initRadialMenu() {
+  radialInstance = new RadialMenu(radialContainer.value, props.options)
+  handleEvents()
+}
+
+function handleEvents() {
+  radialInstance.on('click', (event) => emit('onClick', event))
 }
 </script>
