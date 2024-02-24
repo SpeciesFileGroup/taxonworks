@@ -11,6 +11,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - `/api/v1/common_names` [#3794]
 - `/api/v1/biological_associations/simple` A simple table format for BiologicalAssociations
+- Housekeeping facet in filters has "Recent" button with options to populate past date ranges
+- Radials to New image task
 
 ### Fixed
 
@@ -20,11 +22,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial annotator: Filter tab doesn't work in depictions slice [#3824]
 - Filters: Geographic area facet doesn't clear geographic area after reset [#3840]
 - Radial collection object: Taxon determination list is not visible
+- Align metadata in GeographicItem debug view
+- Biological associations filter bugs 
+- Several radial annotator and batch annotator slice fixes
 
 ### Changed
 
 - Documents are no longer destroyed when the last documentation referencing them are deleted.
+- Use Ruby 3.3
+- CI build/test with PostgreSQL 15
+- CI base image uses Node 20
 
+[#3840]: https://github.com/SpeciesFileGroup/taxonworks/issues/3840
 [#3774]: https://github.com/SpeciesFileGroup/taxonworks/issues/3774
 [#3794]: https://github.com/SpeciesFileGroup/taxonworks/issues/3794
 [#3824]: https://github.com/SpeciesFileGroup/taxonworks/issues/3824
