@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { lead_tag, margin_for_depth } from './display/formatters.js'
+import { lead_tag, margin_for_depth } from '../../helpers/formatters.js'
 import { useStore } from '../store/useStore.js'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 

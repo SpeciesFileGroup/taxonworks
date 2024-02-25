@@ -113,10 +113,10 @@
 </template>
 
 <script setup>
-import { lead_id } from './display/formatters.js'
+import { lead_id } from '../../helpers/formatters.js'
 import { DEPICTION, LEAD } from '@/constants/index.js'
 import { Lead } from '@/routes/endpoints'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useAnnotationHandlers } from './composables/useAnnotationHandlers.js'
 import { useStore } from '../store/useStore.js'
 import Annotations from './Annotations.vue'

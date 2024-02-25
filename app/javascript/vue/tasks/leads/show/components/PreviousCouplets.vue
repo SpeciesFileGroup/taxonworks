@@ -30,7 +30,7 @@
 
 <script setup>
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import { lead_tag, margin_for_depth } from '../../new_lead/components/display/formatters.js'
+import { lead_tag, margin_for_depth } from '../../helpers/formatters.js'
 import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({

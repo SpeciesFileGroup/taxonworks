@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { lead_tag, margin_for_depth } from '../../new_lead/components/display/formatters.js'
+import { lead_tag, margin_for_depth } from '../../helpers/formatters.js'
 
 const props = defineProps({
   couplets: {
