@@ -2,8 +2,8 @@
   <div class="field label-above">
     <label>OTU</label>
     <span
-      class="middle"
       v-if="lead.otu_id"
+      class="middle"
     >
       <span
         v-html="otuTag"

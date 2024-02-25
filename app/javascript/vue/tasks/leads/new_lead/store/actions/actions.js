@@ -1,7 +1,7 @@
 import loadKey from './loadKey.js'
 
 const ActionNames = {
-    LoadKey: 'loadKey'
+  LoadKey: 'loadKey'
 }
 
 const ActionFunctions = {

@@ -1,6 +1,6 @@
 <template>
   <div class="cplt_center">
-   <VBtn
+    <VBtn
       :disabled="!store.lead.parent_id"
       color="primary"
       medium
@@ -29,7 +29,7 @@
       <VBtn
         color="update"
         medium
-        @click="updateCouplet()"
+        @click="updateCouplet"
       >
         Update (save)
       </VBtn>
@@ -38,7 +38,7 @@
         v-if="allowDestroyCouplet"
         color="destroy"
         medium
-        @click="destroyCouplet()"
+        @click="destroyCouplet"
       >
         Delete both sides
       </VBtn>
@@ -47,7 +47,7 @@
         v-else-if="allowDeleteCouplet"
         color="destroy"
         medium
-        @click="deleteCouplet()"
+        @click="deleteCouplet"
       >
         Delete both sides and reparent children from
         {{ store.left_has_children ? 'left' : 'right' }}
@@ -80,7 +80,7 @@
     <VBtn
       color="update"
       medium
-      @click="nextCouplet()"
+      @click="nextCouplet"
     >
       Create the next couplet
     </VBtn>
@@ -121,7 +121,10 @@ const redirectOptions = ref([])
 function loadRedirectOptions() {
   LeadEndpoint.all_texts(store.lead.id).then(({ body }) => {
     const texts = body.all_texts.flatMap((o) => {
-      if ((store.left && o.id == store.left.id) || (store.right && o.id == store.right.id)) {
+      if (
+        (store.left && o.id == store.left.id) ||
+        (store.right && o.id == store.right.id)
+      ) {
         return []
       }
       let id_label = o.label ? ('[' + o.label + ']') : ''
@@ -136,7 +139,7 @@ function loadRedirectOptions() {
 }
 
 watch(
-  () => [store.lead.id],
+  () => store.lead.id,
   () => loadRedirectOptions(),
   { immediate: true }
 )
@@ -149,12 +152,12 @@ function updateCouplet() {
   }
 
   LeadEndpoint.update(store.lead.id, payload)
-  .then(({ body }) => {
-    // Future changes when redirect changes, so reload.
-    store.loadKey(body)
-    TW.workbench.alert.create('Couplet was successfully saved.', 'notice')
-  })
-  .catch(() => {})
+    .then(({ body }) => {
+      // Future changes when redirect changes, so reload.
+      store.loadKey(body)
+      TW.workbench.alert.create('Couplet was successfully saved.', 'notice')
+    })
+    .catch(() => {})
 }
 
 function nextCouplet() {
@@ -168,11 +171,11 @@ function destroyCouplet() {
     'Delete both left and right sides?'
   )) {
     LeadEndpoint.destroy_couplet(store.lead.id)
-    .then(() => {
-      store.loadKey(store.lead.id)
-      TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
-    })
-    .catch(() => {})
+      .then(() => {
+        store.loadKey(store.lead.id)
+        TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
+      })
+      .catch(() => {})
   }
 }
 
@@ -194,23 +197,22 @@ function deleteCouplet() {
   justify-content:space-around;
 }
 .cplt_center {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 1em;
+  margin-bottom: 1em;
   text-align: center;
-  //margin: 0 auto;
 }
 .cplt_horizontal_buttons {
   display: grid;
   grid-template-columns: 50% 50%;
   column-gap: 0px;
   justify-items: start;
-  margin-bottom: 40px;
+  margin-bottom: 2em;
   :first-child {
     justify-self: end;
-    margin-right: 40px;
+    margin-right: 2em;
   }
   :last-child {
-    margin-left: 40px;
+    margin-left: 2em;
   }
 }
 .title_and_annotator {

@@ -1,6 +1,5 @@
 <template>
-  <div class="lead">
-    <BlockLayout>
+  <BlockLayout class="lead">
     <template #header>
       <div class="flex-separate middle full_width">
         <h3 v-html="lead_id(store[side])" />
@@ -16,103 +15,101 @@
     </template>
 
     <template #body>
-    <div
-      v-if="store[side + '_had_redirect_on_save']"
-      class="redirect_notice"
-      v-html="'<i>This side is currently redirecting, to add couplets below remove the redirection.</i>'"
-    />
-    <div class="navigation">
-      <VBtn
-        :disabled="store[side + '_had_redirect_on_save']"
-        color="update"
-        medium
-        @click="nextCouplet()"
-      >
-        {{ store[side + '_has_children'] ? 'Edit the next couplet' : 'Create and edit the next couplet' }}
-      </VBtn>
-
-      <VBtn
-        :disabled="store[side + '_had_redirect_on_save'] || !store[side + '_has_children']"
-        color="create"
-        medium
-        @click="insertCouplet()"
-      >
-        Insert a couplet below
-      </VBtn>
-    </div>
-
-    <div class="field label-above">
-      <label>Text</label>
-      <textarea
-        class="full_width"
-        rows="5"
-        v-model="store[side].text"
+      <div
+        v-if="store[side + '_had_redirect_on_save']"
+        class="redirect_notice"
+        v-html="'<i>This side is currently redirecting, to add couplets below remove the redirection.</i>'"
       />
-    </div>
+      <div class="navigation">
+        <VBtn
+          :disabled="store[side + '_had_redirect_on_save']"
+          color="update"
+          medium
+          @click="nextCouplet()"
+        >
+          {{ store[side + '_has_children'] ? 'Edit the next couplet' : 'Create and edit the next couplet' }}
+        </VBtn>
 
-    <OtuChooser :lead="store[side]"/>
+        <VBtn
+          :disabled="store[side + '_had_redirect_on_save'] || !store[side + '_has_children']"
+          color="create"
+          medium
+          @click="insertCouplet()"
+        >
+          Insert a couplet below
+        </VBtn>
+      </div>
 
-    <div class="field label-above">
-      <label>External link</label>
-    <fieldset>
       <div class="field label-above">
-        <label>URL (don't include http://)</label>
+        <label>Text</label>
         <textarea
           class="full_width"
-          rows="2"
-          v-model="store[side].link_out"
+          rows="5"
+          v-model="store[side].text"
         />
       </div>
+
+      <OtuChooser :lead="store[side]"/>
+
       <div class="field label-above">
-        <label>URL text</label>
-        <input
-          type="text"
-          class="normal-input full_width"
-          v-model="store[side].link_out_text"
-        />
+        <label>External link</label>
+        <fieldset>
+          <div class="field label-above">
+            <label>URL (don't include http://)</label>
+            <textarea
+              class="full_width"
+              rows="2"
+              v-model="store[side].link_out"
+            />
+          </div>
+          <div class="field label-above">
+            <label>URL text</label>
+            <input
+              type="text"
+              class="normal-input full_width"
+              v-model="store[side].link_out_text"
+            />
+          </div>
+          <p v-if="displayLinkOut">
+            Link: <a :href="'http://' + store[side].link_out" target="_blank">
+              {{ store[side].link_out_text }}
+            </a>
+          </p>
+          <p v-else>
+            Link: <span v-html="'<i>(Requires both URL and text)</i>'" />
+          </p>
+        </fieldset>
       </div>
-      <p v-if="displayLinkOut">
-        Link: <a :href="'http://' + store[side].link_out" target="_blank">
-          {{ store[side].link_out_text }}
-        </a>
-      </p>
-      <p v-else>
-        Link: <span v-html="'<i>(Requires both URL and text)</i>'" />
-      </p>
-    </fieldset>
-    </div>
 
-    <div class="field label-above">
-      <label>Redirect</label>
-      <select
-        class="redirect_select"
-        v-model="store[side].redirect_id"
-        :disabled="store[side + '_has_children']"
-      >
-        <option :value="null"></option>
-        <option
-          v-for="option in redirectOptions"
-          :key="option.id"
-          :value="option.id"
-          :selected="option.id == store[side].redirect_id"
+      <div class="field label-above">
+        <label>Redirect</label>
+        <select
+          class="redirect_select"
+          v-model="store[side].redirect_id"
+          :disabled="store[side + '_has_children']"
         >
-          {{ option.text }}
-        </option>
-      </select>
+          <option :value="null"></option>
+          <option
+            v-for="option in redirectOptions"
+            :key="option.id"
+            :value="option.id"
+            :selected="option.id == store[side].redirect_id"
+          >
+            {{ option.text }}
+          </option>
+        </select>
+      </div>
 
-    </div>
+      <Annotations
+        :object_type="LEAD"
+        :object_id="store[side].id"
+        v-model:depiction="depictions"
+      />
 
-    <Annotations
-      :object_type="LEAD"
-      :object_id="store[side].id"
-      v-model:depiction="depictions"
-    />
-
-    <h3>Future Couplets</h3>
-    <FutureCouplets :side="side" />
+      <h3>Future Couplets</h3>
+      <FutureCouplets :side="side" />
     </template>
-    </BlockLayout>
-  </div>
+  </BlockLayout>
 </template>
 
 <script setup>
@@ -183,14 +180,14 @@ function nextCouplet() {
 .lead {
   max-width: 600px;
   flex-grow: 1;
-  margin-bottom: 60px;
+  margin-bottom: 2em;
 }
 .navigation {
   display: flex;
   justify-content: space-evenly;
 }
 .redirect_notice {
-  margin-bottom: 12px;
+  margin-bottom: 1em;
 }
 .redirect_select[disabled] {
   opacity: .5;

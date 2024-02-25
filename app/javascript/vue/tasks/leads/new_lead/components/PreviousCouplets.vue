@@ -38,6 +38,6 @@ const store = useStore()
 <style lang="scss" scoped>
 .previous {
   max-width: 600px;
-  margin: 40px auto;
+  margin: 2em auto;
 }
 </style>

@@ -4,33 +4,33 @@
     <!-- The back button on this link fails without data-turbolinks=false if the current url has an id param, but works fine if there's no id param. -->
     <p><a href="/leads/list" data-turbolinks="false">List of Keys</a></p>
     <BlockLayout expand class="meta">
-        <template #header>
-          <div class="flex-separate middle full_width">
-            <h3>Key metadata</h3>
-            <div
-              v-if="store.root.id"
-              class="horizontal-right-content gap-small header-radials"
-            >
-              <RadialAnnotator
-                :global-id="store.root.global_id"
-                @create="handleRadialCreate"
-                @delete="handleRadialDelete"
-                @update="handleRadialUpdate"
-              />
-              <RadialNavigator
-                :global-id="store.root.global_id"
-                exclude="Edit"
-              />
-            </div>
+      <template #header>
+        <div class="flex-separate middle full_width">
+          <h3>Key metadata</h3>
+          <div
+            v-if="store.root.id"
+            class="horizontal-right-content gap-small header-radials"
+          >
+            <RadialAnnotator
+              :global-id="store.root.global_id"
+              @create="handleRadialCreate"
+              @delete="handleRadialDelete"
+              @update="handleRadialUpdate"
+            />
+            <RadialNavigator
+              :global-id="store.root.global_id"
+              exclude="Edit"
+            />
           </div>
-        </template>
+        </div>
+      </template>
 
-        <template #body>
-          <KeyMeta
-            v-model:depiction="depictions"
-            v-model:citation="citations"
-          />
-        </template>
+      <template #body>
+        <KeyMeta
+          v-model:depiction="depictions"
+          v-model:citation="citations"
+        />
+      </template>
     </BlockLayout>
 
     <PreviousCouplets v-if="store.lead.id" />

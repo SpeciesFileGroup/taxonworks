@@ -94,8 +94,7 @@ const updateButtonText = computed(() => {
       return 'Enter a title to enable udpate'
     }
     return 'Update key metadata'
-  }
-  else {
+  } else {
     if (!store.root.text) {
       return "Enter a title to enable save"
     }
@@ -116,8 +115,7 @@ async function processKeyMeta() {
         TW.workbench.alert.create('New key created.', 'notice')
       })
       .catch(() => {})
-  }
-  else {
+  } else {
     Lead.update_meta(store.root.id, payload)
       .then(() => {
         TW.workbench.alert.create('Key metadata updated.', 'notice')

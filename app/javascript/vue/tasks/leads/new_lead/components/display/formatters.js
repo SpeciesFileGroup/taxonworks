@@ -7,8 +7,7 @@ function lead_id(lead) {
 function lead_tag(lead) {
   if (lead.text) {
     return lead_id(lead) + lead.text.slice(0, 38) + (lead.text.length > 38 ? '...' : '')
-  }
-  else {
+  } else {
     return lead_id(lead) + '<i>(No text)</i>'
   }
 }
