@@ -1,4 +1,9 @@
 <template>
+  <VSpinner
+    v-if="loading"
+    full-screen
+  />
+
   <BlockLayout class="lead">
     <template #header>
       <div class="flex-separate middle full_width">
@@ -125,6 +130,7 @@ import FutureCouplets from './FutureCouplets.vue'
 import OtuChooser from './OtuChooser.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/spinner'
 
 const props = defineProps({
   side: {
@@ -144,6 +150,8 @@ const store = useStore()
 
 const depictions = ref([])
 
+const loading = ref(false)
+
 const displayLinkOut = computed(() => {
   return store[props.side].link_out && store[props.side].link_out_text
 })
@@ -159,20 +167,35 @@ function insertCouplet() {
   if (window.confirm(
     'Insert a couplet below this one? Any existing children will be reparented.'
   )) {
-    Lead.insert_couplet(store[props.side].id).then(() => {
-      store.loadKey(store[props.side].id)
-      TW.workbench.alert.create(
-        "Success - you're now editing the inserted couplet",
-        'notice'
-      )
-    })
+    loading.value = true
+    Lead.insert_couplet(store[props.side].id)
+      .then(() => {
+        store.loadKey(store[props.side].id)
+        TW.workbench.alert.create(
+          "Success - you're now editing the inserted couplet",
+          'notice'
+        )
+      })
+      .finally(() => {
+        loading.value = false
+      })
   }
 }
 
 function nextCouplet() {
-  Lead.create_for_edit(store[props.side].id).then(({ body }) => {
-    store.loadKey(body)
-  })
+  if (store[props.side + '_has_children']) {
+    store.loadKey(store[props.side].id)
+  }
+  else {
+    loading.value = true
+    Lead.create_for_edit(store[props.side].id)
+      .then(({ body }) => {
+        store.loadKey(body)
+      })
+      .finally(() => {
+        loading.value = false
+      })
+  }
 }
 </script>
 

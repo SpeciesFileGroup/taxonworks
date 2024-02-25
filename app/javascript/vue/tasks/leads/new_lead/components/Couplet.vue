@@ -1,4 +1,9 @@
 <template>
+  <VSpinner
+    v-if="loading"
+    full-screen
+  />
+
   <div class="cplt_center">
     <VBtn
       :disabled="!store.lead.parent_id"
@@ -91,12 +96,15 @@
 import Lead from './Lead.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/spinner'
 import { computed, ref, watch } from 'vue'
 import { lead_tag } from '../../helpers/formatters.js'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { useStore } from '../store/useStore.js'
 
 const store = useStore()
+
+const loading = ref(false)
 
 const hasChildren = computed(() => {
   return store.left && store.left.id && store.right && store.right.id
@@ -151,6 +159,7 @@ function updateCouplet() {
       right: store.right
   }
 
+  loading.value = true
   LeadEndpoint.update(store.lead.id, payload)
     .then(({ body }) => {
       // Future changes when redirect changes, so reload.
@@ -158,24 +167,36 @@ function updateCouplet() {
       TW.workbench.alert.create('Couplet was successfully saved.', 'notice')
     })
     .catch(() => {})
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 function nextCouplet() {
-  LeadEndpoint.create_for_edit(store.lead.id).then(({ body }) => {
-    store.loadKey(body)
-  })
+  loading.value = true
+  LeadEndpoint.create_for_edit(store.lead.id)
+    .then(({ body }) => {
+      store.loadKey(body)
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 function destroyCouplet() {
   if (window.confirm(
     'Delete both left and right sides?'
   )) {
+    loading.value = true
     LeadEndpoint.destroy_couplet(store.lead.id)
       .then(() => {
         store.loadKey(store.lead.id)
         TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
       })
       .catch(() => {})
+      .finally(() => {
+        loading.value = false
+      })
   }
 }
 
@@ -183,10 +204,15 @@ function deleteCouplet() {
   if (window.confirm(
     'Delete both left and right sides and attach orphaned children to this parent?'
   )) {
-    LeadEndpoint.delete_couplet(store.lead.id).then(() => {
-      store.loadKey(store.lead.id)
-      TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
-    })
+    loading.value = true
+    LeadEndpoint.delete_couplet(store.lead.id)
+      .then(() => {
+        store.loadKey(store.lead.id)
+        TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
+      })
+      .finally(() => {
+        loading.value = false
+      })
   }
 }
 </script>

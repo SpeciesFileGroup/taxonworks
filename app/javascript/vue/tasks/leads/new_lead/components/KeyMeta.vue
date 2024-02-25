@@ -1,4 +1,9 @@
 <template>
+  <VSpinner
+    v-if="loading"
+    full-screen
+  />
+
   <div class="field label-above">
     <label>Title</label>
     <textarea
@@ -65,12 +70,15 @@
 import Annotations from './Annotations.vue'
 import OtuChooser from './OtuChooser.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { computed } from 'vue'
+import VSpinner from '@/components/spinner'
+import { computed, ref } from 'vue'
 import { LEAD } from '@/constants/index.js'
 import { useStore } from '../store/useStore.js'
 import { Lead } from '@/routes/endpoints'
 
 const store = useStore()
+
+const loading = ref(false)
 
 const depictions = defineModel(
   'depiction',
@@ -107,6 +115,7 @@ async function processKeyMeta() {
     lead: store.root
   }
 
+  loading.value = true
   if (!store.root.id) {
     Lead.create(payload)
       .then(({ body }) => {
@@ -122,6 +131,7 @@ async function processKeyMeta() {
       })
       .catch(() => {})
   }
+  loading.value = false
 }
 </script>
 
