@@ -251,7 +251,7 @@ namespace :tw do
             #  b = ( Benchmark.measure {
             begin
               #  print "#{id}: "
-              t = CachedMapItem.translate_by_spatial_overlap(id, ['ne_states'], 90.0)
+              t = CachedMapItem.translate_geographic_item_id(id, 'AssertedDistribution', ['ne_states'])
               # if t.present?
               #   print t.join(', ')
               # else

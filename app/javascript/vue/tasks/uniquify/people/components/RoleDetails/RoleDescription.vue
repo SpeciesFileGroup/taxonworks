@@ -35,7 +35,7 @@
 import { computed } from 'vue'
 import RoleLegend from './RoleLegend.vue'
 import VModal from '@/components/ui/Modal.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import useRoleObjectRequest from '../../composables/useRoleObjectRequest.js'
 
 const props = defineProps({

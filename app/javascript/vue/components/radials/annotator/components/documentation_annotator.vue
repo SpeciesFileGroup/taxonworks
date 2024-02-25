@@ -62,7 +62,7 @@
       </thead>
       <tbody>
         <tr
-          v-for="(item, index) in list"
+          v-for="item in list"
           :key="item.id"
         >
           <td>
@@ -75,7 +75,7 @@
             <input
               type="checkbox"
               :checked="item.document.is_public"
-              @click="changeIsPublicState(index, item)"
+              @click="() => changeIsPublicState(item)"
             />
           </td>
           <td>{{ item.updated_at }}</td>
@@ -117,14 +117,14 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { Documentation, Document } from '@/routes/endpoints'
+import { useSlice } from '@/components/radials/composables'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import Dropzone from '@/components/dropzone.vue'
-import PdfButton from '@/components/pdfButton.vue'
+import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import VIcon from '@/components/ui/VIcon/index'
 import VBtn from '@/components/ui/VBtn/index'
-import VSwitch from '@/components/switch.vue'
-import { removeFromArray } from '@/helpers'
+import VSwitch from '@/components/ui/VSwitch.vue'
 
 const DROPZONE_CONFIGURATION = {
   maxFilesize: 512,
@@ -154,12 +154,17 @@ const props = defineProps({
   objectType: {
     type: String,
     required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
   }
 })
 
-const emit = defineEmits(['update-count'])
-
-const list = ref([])
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 const documentation = ref(newDocumentation())
 const isPublic = ref(false)
 const figureRef = ref()
@@ -178,15 +183,14 @@ function newDocumentation() {
 function createNew() {
   Documentation.create({ documentation: documentation.value }).then(
     ({ body }) => {
-      list.value.push(body)
+      addToList(body)
       documentation.value = newDocumentation()
-      emit('update-count', list.value.length)
     }
   )
 }
 
 function success(file, response) {
-  list.value.push(response)
+  addToList(response)
   figureRef.value.removeFile(file)
 }
 
@@ -201,7 +205,7 @@ function sending(file, xhr, formData) {
   }
 }
 
-function changeIsPublicState(index, documentation) {
+function changeIsPublicState(documentation) {
   const payload = {
     document: {
       id: documentation.document_id,
@@ -210,14 +214,13 @@ function changeIsPublicState(index, documentation) {
   }
 
   Document.update(documentation.document_id, payload).then(({ body }) => {
-    list.value[index].is_public = body.is_public
+    addToList({ ...documentation, is_public: body.is_public })
   })
 }
 
 function removeItem(item) {
   Documentation.destroy(item.id).then((_) => {
-    removeFromArray(list.value, item)
-    emit('update-count', list.value.length)
+    removeFromList(item)
   })
 }
 

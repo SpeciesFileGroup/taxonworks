@@ -98,7 +98,7 @@ import { RouteNames } from '@/routes/routes'
 import { ActionNames } from './store/actions/actions'
 
 import MatrixTable from './components/MatrixTable.vue'
-import SpinnerComponent from '@/components/spinner.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import ColumnModal from './components/ColumnModal.vue'
 import ViewComponent from './components/View/Main.vue'
 import setParam from '@/helpers/setParam'

@@ -59,7 +59,7 @@
 
 <script setup>
 import RadialMenu from '@/components/radials/RadialMenu.vue'
-import Spinner from '@/components/spinner.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import Icons from './images/icons.js'
@@ -110,7 +110,7 @@ const props = defineProps({
     default: () => ({})
   },
 
-  filterOptions: {
+  exclude: {
     type: [String, Array],
     default: () => []
   },
@@ -189,14 +189,14 @@ const menuOptions = computed(() => {
 })
 
 const defaultSlices = computed(() => {
-  const filterOptions = props.filterOptions
+  const exclude = [props.exclude].flat()
 
   if (!metadata.value.destroy) {
-    filterOptions.push(addSlice(DEFAULT_OPTIONS.Destroy))
+    exclude.push(addSlice(DEFAULT_OPTIONS.Destroy))
   }
 
   return defaultSlicesTypes
-    .filter((type) => !filterOptions.includes(type))
+    .filter((type) => !exclude.includes(type))
     .map((type) => addSlice(type, { link: defaultLinks()[type] }))
 })
 

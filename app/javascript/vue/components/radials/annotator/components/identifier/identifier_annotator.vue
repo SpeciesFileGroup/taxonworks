@@ -39,9 +39,9 @@ import IdentifierList from './identifierList.vue'
 import IdentifierType from './IdentifierType.vue'
 import IdentifierLocal from './IdentifierLocal.vue'
 import IdentifierForm from './IdentifierForm.vue'
+import { useSlice } from '@/components/radials/composables'
 import { Identifier } from '@/routes/endpoints'
 import { computed, ref, watch } from 'vue'
-import { removeFromArray } from '@/helpers'
 
 const props = defineProps({
   objectId: {
@@ -52,6 +52,11 @@ const props = defineProps({
   objectType: {
     type: String,
     required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
   }
 })
 
@@ -59,7 +64,9 @@ const isLocal = computed(() => listSelected.value === 'local')
 const typeList = ref([])
 const listSelected = ref()
 const typeIdentifier = ref()
-const list = ref([])
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
 Identifier.types().then(({ body }) => {
   const list = body
@@ -90,15 +97,15 @@ function saveIdentifier(params) {
     identifier_object_type: props.objectType
   }
 
-  Identifier.create({ identifier }).then((response) => {
-    list.value.push(response.body)
+  Identifier.create({ identifier }).then(({ body }) => {
+    addToList(body)
     listSelected.value = undefined
   })
 }
 
 function removeItem(item) {
   Identifier.destroy(item.id).then((_) => {
-    removeFromArray(list.value, item)
+    removeFromList(item)
   })
 }
 

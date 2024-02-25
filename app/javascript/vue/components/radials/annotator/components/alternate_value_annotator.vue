@@ -74,12 +74,6 @@
 </template>
 
 <script setup>
-import VSwitch from '@/components/switch.vue'
-import DisplayList from '@/components/displayList.vue'
-import SmartSelector from '@/components/ui/SmartSelector.vue'
-import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import { addToArray, removeFromArray } from '@/helpers/arrays.js'
 import {
   ALTERNATE_VALUE_ABBREVIATION,
   ALTERNATE_VALUE_ALTERNATE_SPELLING,
@@ -88,6 +82,12 @@ import {
 } from '@/constants/index.js'
 import { AlternateValue, Language } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
+import { useSlice } from '@/components/radials/composables'
+import VSwitch from '@/components/ui/VSwitch.vue'
+import DisplayList from '@/components/displayList.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import makeRequest from '@/helpers/ajaxCall.js'
 
 const TYPE_LIST = {
@@ -111,12 +111,17 @@ const props = defineProps({
   globalId: {
     type: String,
     required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
   }
 })
 
-const emit = defineEmits(['update-count'])
-
-const list = ref([])
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 const values = ref()
 const language = ref()
 const alternateValue = ref(newAlternate())
@@ -170,9 +175,8 @@ function saveAlternateValue() {
     ? AlternateValue.update(alternateValue.value.id, payload)
     : AlternateValue.create(payload)
 
-  saveRequest.then((response) => {
-    addToArray(list.value, response.body)
-    emit('update-count', list.value.length)
+  saveRequest.then(({ body }) => {
+    addToList(body)
     reset()
     TW.workbench.alert.create(
       'Alternate value was successfully saved.',
@@ -213,8 +217,7 @@ function loadAlternateValue({
 
 function removeItem(item) {
   AlternateValue.destroy(item.id).then((_) => {
-    removeFromArray(list.value, item)
-    emit('update-count', list.value.length)
+    removeFromList(item)
   })
 }
 

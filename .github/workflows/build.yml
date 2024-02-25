@@ -37,7 +37,7 @@ jobs:
 
     services:
       db:
-        image: postgis/postgis:12-3.4
+        image: postgis/postgis:15-3.4
         ports: ['5432:5432']
         env:
           POSTGRES_HOST_AUTH_METHOD: trust

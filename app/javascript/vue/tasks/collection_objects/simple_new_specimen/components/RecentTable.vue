@@ -30,7 +30,7 @@
         >
           <td>
             <div class="horizontal-right-content gap-small">
-              <TagButtom
+              <ButtonTag
                 class="circle-button"
                 :global-id="item.global_id"
               />
@@ -75,8 +75,8 @@ import { removeFromArray } from '@/helpers/arrays'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
-import TagButtom from '@/components/defaultTag.vue'
-import VSpinner from '@/components/spinner'
+import ButtonTag from '@/components/ui/Button/ButtonTag.vue'
+import VSpinner from '@/components/ui/VSpinner'
 
 const store = useStore()
 const isLoading = ref(false)

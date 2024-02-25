@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import DefaultTaxon from '@/components/getDefaultPin.vue'
+import DefaultTaxon from '@/components/ui/Button/ButtonPinned.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'

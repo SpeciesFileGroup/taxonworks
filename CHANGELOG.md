@@ -9,6 +9,41 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.38.3] - 2024-02-25
+
+### Added
+
+- `/api/v1/common_names` [#3794]
+- `/api/v1/biological_associations/simple` A simple table format for BiologicalAssociations
+- Housekeeping facet in filters has "Recent" button with options to populate past date ranges
+- Radials to New image task
+
+### Fixed
+
+- DwC download not scoping DataAttributes correctly when records are a subset of objecs from a CollectingEvent
+- DwC Dashboard buttons scoped to recent timeframes [#3774]
+- A couple .csv endpoints for /api/v1
+- Radial annotator: Filter tab doesn't work in depictions slice [#3824]
+- Filters: Geographic area facet doesn't clear geographic area after reset [#3840]
+- Radial collection object: Taxon determination list is not visible
+- Align metadata in GeographicItem debug view
+- Biological associations filter bugs 
+- Several radial annotator and batch annotator slice fixes
+- DwC checklist importer fails quietly when `taxonomicStatus` is empty [#3783]
+
+### Changed
+
+- Documents are no longer destroyed when the last documentation referencing them are deleted.
+- Use Ruby 3.3
+- CI build/test with PostgreSQL 15
+- CI base image uses Node 20
+
+[#3783]: https://github.com/SpeciesFileGroup/taxonworks/issues/3783
+[#3840]: https://github.com/SpeciesFileGroup/taxonworks/issues/3840
+[#3774]: https://github.com/SpeciesFileGroup/taxonworks/issues/3774
+[#3794]: https://github.com/SpeciesFileGroup/taxonworks/issues/3794
+[#3824]: https://github.com/SpeciesFileGroup/taxonworks/issues/3824
+
 ## [0.38.2] - 2024-02-09
 
 ### Added

@@ -1,5 +1,6 @@
 <template>
   <div class="depiction_annotator">
+    <VSpinner v-if="isLoading" />
     <div
       class="field"
       v-if="depiction"
@@ -66,13 +67,13 @@
             label="label_html"
             :placeholder="`Select a ${selectedType.label.toLowerCase()}`"
             :clear-after="true"
-            @getItem="selectedObject = $event"
+            @get-item="(item) => (selectedObject = item)"
             param="term"
           />
           <otu-picker
             v-else
             :clear-after="true"
-            @getItem="selectedObject = $event"
+            @get-item="(otu) => (selectedObject = otu)"
           />
         </div>
         <div
@@ -126,9 +127,15 @@
           />
         </template>
         <template #filter>
-          <div class="horizontal-left-content align-start">
-            <div class="flex-wrap-column gap-medium">
-              <FilterImage @parameters="loadList" />
+          <div class="horizontal-left-content align-start gap-medium">
+            <div class="flex-wrap-column gap-medium filter-tab">
+              <VBtn
+                color="primary"
+                medium
+                @click="() => loadList(parameters)"
+                >Search</VBtn
+              >
+              <FilterImage v-model="parameters" />
             </div>
             <div class="margin-small-left flex-wrap-row">
               <div
@@ -173,7 +180,9 @@ import OtuPicker from '@/components/otu/otu_picker/otu_picker'
 import FilterImage from '@/tasks/images/filter/components/filter'
 import SmartSelector from '@/components/ui/SmartSelector'
 import DepictionList from './DepictionList.vue'
-import { addToArray, removeFromArray } from '@/helpers/arrays'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import { useSlice } from '@/components/radials/composables'
 import { Depiction, Image } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 
@@ -231,26 +240,32 @@ const props = defineProps({
   objectId: {
     type: Number,
     required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
   }
 })
 
-const emit = defineEmits(['update-count'])
-
+const parameters = ref({})
 const depiction = ref()
 const isDataDepiction = ref(false)
 const selectedType = ref()
 const selectedObject = ref()
 const filterList = ref([])
-const list = ref([])
 const figureRef = ref(null)
+const isLoading = ref(false)
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
 const updateObjectType = computed(
   () => selectedObject.value && selectedType.value
 )
 
 function success(file, response) {
-  list.value.push(response)
-  emit('update-count', list.value.length)
+  addToList(response)
   figureRef.value.removeFile(file)
 }
 
@@ -269,15 +284,11 @@ function updateFigure() {
   }
 
   Depiction.update(depiction.value.id, { depiction: depiction.value }).then(
-    (response) => {
-      const index = list.value.findIndex(
-        (element) => depiction.value.id === element.id
-      )
-
+    ({ body }) => {
       if (updateObjectType.value) {
-        list.value.splice(index, 1)
+        removeFromList(body)
       } else {
-        list.value[index] = response.body
+        addToList(body)
       }
       depiction.value = undefined
 
@@ -288,7 +299,7 @@ function updateFigure() {
 
 function updateDepiction(depiction) {
   Depiction.update(depiction.id, { depiction }).then(({ body }) => {
-    addToArray(list.value, body)
+    addToList(body)
 
     TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
   })
@@ -302,22 +313,26 @@ function createDepiction(image) {
   }
 
   Depiction.create({ depiction }).then(({ body }) => {
-    list.value.push(body)
-    emit('update-count', list.value.length)
+    addToList(body)
     TW.workbench.alert.create('Depiction was successfully created.', 'notice')
   })
 }
 
 function loadList(params) {
-  Image.filter(params).then(({ body }) => {
-    filterList.value = body
-  })
+  isLoading.value = true
+  Image.filter(params)
+    .then(({ body }) => {
+      filterList.value = body
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
 }
 
 function removeItem(item) {
-  Depiction.destroy(item.id)
-  removeFromArray(list.value, item)
-  emit('update-count', list.value.length)
+  Depiction.destroy(item.id).then((_) => {
+    removeFromList(item)
+  })
 }
 
 Depiction.where({
@@ -327,3 +342,9 @@ Depiction.where({
   list.value = body
 })
 </script>
+
+<style scoped>
+.filter-tab {
+  width: 400px;
+}
+</style>

@@ -2,7 +2,7 @@ class BiologicalAssociationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_biological_association, only: [:show, :edit, :update, :destroy, :api_show, :api_globi, :api_resource_relationship]
-  after_action -> { set_pagination_headers(:biological_associations) }, only: [:index], if: :json_request?
+  after_action -> { set_pagination_headers(:biological_associations) }, only: [:index, :api_index_simple], if: :json_request?
 
   # GET /biological_associations
   # GET /biological_associations.json
@@ -99,7 +99,6 @@ class BiologicalAssociationsController < ApplicationController
     render json:  @biological_association.globi_extension_json, status: :ok
   end
 
-
   def api_index
     q = ::Queries::BiologicalAssociation::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
@@ -110,9 +109,10 @@ class BiologicalAssociationsController < ApplicationController
         @biological_associations = q.page(params[:page]).per(params[:per])
         render '/biological_associations/api/v1/index'
       }
+
       format.csv {
         @biological_associations = q
-        send_data Export::Csv.generate_csv(
+        send_data Export::CSV.generate_csv(
           @biological_associations,
           exclude_columns: %w{updated_by_id created_by_id project_id},
         ), type: 'text',
@@ -120,15 +120,26 @@ class BiologicalAssociationsController < ApplicationController
       }
 
       format.globi {
-        if q.count < 1001
-          send_data Export::Csv::Globi.csv(q.all),
+        if q.page(params[:page]).per(params[:per]).count < 1001
+          send_data Export::CSV::Globi.csv(q.page(params[:page]).per(params[:per])),
             type: 'text',
             filename: "biological_associations_globi_#{DateTime.now}.tsv"
         else
-          render json: { msg: 'At present this format is only allowed for 100 or less records.' }, status: :unprocessable_entity
+          render json: { msg: 'At present this format is only allowed for 1000 or less records.' }, status: :unprocessable_entity
         end
       }
     end
+  end
+
+  def api_index_simple
+     @biological_associations = ::Queries::BiologicalAssociation::Filter.new(params.merge!(api: true))
+     .all
+     .where(project_id: sessions_current_project_id)
+     .order('biological_associations.id')
+     .page(params[:page])
+     .per(params[:per])
+
+     render '/biological_associations/api/v1/simple' and return
   end
 
   # PATCH /biological_associations/batch_update.json?biological_association_query=<>&biological_association={}
