@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Align metadata in GeographicItem debug view
 - Biological associations filter bugs 
 - Several radial annotator and batch annotator slice fixes
+- DwC checklist importer fails quietly when `taxonomicStatus` is empty [#3783]
 
 ### Changed
 
@@ -33,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CI build/test with PostgreSQL 15
 - CI base image uses Node 20
 
+[#3783]: https://github.com/SpeciesFileGroup/taxonworks/issues/3783
 [#3840]: https://github.com/SpeciesFileGroup/taxonworks/issues/3840
 [#3774]: https://github.com/SpeciesFileGroup/taxonworks/issues/3774
 [#3794]: https://github.com/SpeciesFileGroup/taxonworks/issues/3794
