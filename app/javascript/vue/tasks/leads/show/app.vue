@@ -1,14 +1,11 @@
 <template>
-  <VSpinner
-    v-if="loading"
-    full-screen
-    :logo-size="{ width: '100px', height: '100px' }"
-  />
+  <CornerSpinner :loading="loading" />
 
   <KeyList
     v-show="!lead_id"
     @load-couplet="loadCouplet"
   />
+
   <div
     v-if="lead_id"
     class="show_keys_list"
@@ -43,12 +40,12 @@ import { ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { usePopstateListener } from '@/compositions'
+import CornerSpinner from './components/CornerSpinner.vue'
 import Couplet from './components/Couplet.vue'
 import Header from './components/Header.vue'
 import KeyList from './components/KeyList.vue'
 import PreviousCouplets from './components/PreviousCouplets.vue'
 import setParam from '@/helpers/setParam'
-import VSpinner from '@/components/spinner.vue'
 
 const lead_id = ref(URLParamsToJSON(location.href).lead_id)
 
@@ -57,7 +54,8 @@ const lead = ref({})
 const left = ref(makeExpandedLead())
 const right = ref(makeExpandedLead())
 const parents = ref([])
-const loading = ref(true)
+
+const loading = ref(false)
 
 if (lead_id.value) {
   loadCouplet(lead_id.value)
