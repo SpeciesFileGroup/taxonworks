@@ -1,4 +1,5 @@
 <template>
+  <CornerSpinner :loading="store.loading" />
   <div id="new_lead_task">
     <h1>{{ store.root.id ? 'Editing' : 'Create a new key' }}</h1>
     <!-- The back button on this link fails without data-turbolinks=false if the current url has an id param, but works fine if there's no id param. -->
@@ -47,6 +48,7 @@ import { useAnnotationHandlers } from './components/composables/useAnnotationHan
 import { usePopstateListener } from '@/compositions'
 import { useStore } from './store/useStore'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
+import CornerSpinner from '../components/CornerSpinner.vue'
 import Couplet from './components/Couplet.vue'
 import PreviousCouplets from './components/PreviousCouplets.vue'
 import KeyMeta from './components/KeyMeta.vue'

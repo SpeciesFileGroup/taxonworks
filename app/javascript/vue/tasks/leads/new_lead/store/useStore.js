@@ -18,7 +18,9 @@ const makeInitialState = () => ({
   right_has_children: undefined,
   // True if right had a redirect the last time it was saved.
   right_had_redirect_on_save: undefined,
-  parents: []
+  parents: [],
+  // Use this to indicate data is being retrieved, not for database changes.
+  loading: false
 })
 
 export const useStore = defineStore('leads', {

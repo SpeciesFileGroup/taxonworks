@@ -8,12 +8,14 @@ export default async function(id_or_couplet) {
   if (typeof(id_or_couplet) == 'object') {
     lo = id_or_couplet
   } else if (typeof(id_or_couplet) == 'number') {
+    this.loading = true
     try {
       lo = (await Lead.find(id_or_couplet)).body
     }
     catch(e) {
       error_message = `Unable to load: couldn't find id ${id_or_couplet}.`
     }
+    this.loading = false
   } else {
     error_message = 'Unable to load: unrecognized id.'
   }
