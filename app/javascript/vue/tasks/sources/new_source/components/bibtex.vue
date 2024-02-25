@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import ModalComponent from '@/components/ui/Modal'
 import newSource from '../const/source'
 import setParam from '@/helpers/setParam'

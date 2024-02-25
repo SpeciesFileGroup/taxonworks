@@ -55,7 +55,7 @@
 <script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import PlacementComponent from './placement.vue'
-import ConfidenceButton from '@/components/defaultConfidence'
+import ConfidenceButton from '@/components/ui/Button/ButtonConfidence'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 

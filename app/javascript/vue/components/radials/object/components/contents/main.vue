@@ -96,7 +96,7 @@ import TableList from '@/components/table_list.vue'
 import MarkdownEditor from '@/components/markdown-editor.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import SpinnerComponent from '@/components/spinner.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import { shorten } from '@/helpers/strings.js'
 import { ControlledVocabularyTerm, Content } from '@/routes/endpoints'
 

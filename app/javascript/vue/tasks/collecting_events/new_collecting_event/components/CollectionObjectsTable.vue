@@ -188,7 +188,7 @@ import {
 import BiocurationComponent from './Biocuration'
 import PreparationTypes from './PreparationTypes'
 import ModalComponent from '@/components/ui/Modal'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import IdentifiersComponent from './Identifiers'
 import DeterminerComponent from './Determiner'
 import RepositoryComponent from './Repository'

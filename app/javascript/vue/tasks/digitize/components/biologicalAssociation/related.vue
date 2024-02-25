@@ -36,7 +36,7 @@
 
 <script>
 import SmartSelector from '@/components/ui/SmartSelector'
-import SwitchComponent from '@/components/switch.vue'
+import SwitchComponent from '@/components/ui/VSwitch.vue'
 
 import { GetterNames } from '../../store/getters/getters'
 

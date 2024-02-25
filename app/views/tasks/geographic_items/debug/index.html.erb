@@ -15,11 +15,11 @@
       'Polygons' => orientations.count,
       'Basic donut orientations?' => (@geographic_item.is_basic_donut? ? 'Yes' : 'No'),
       'Total polygons' => orientations.count,
-      'Orientation (polygons)' => orientations.collect{|o| o ? 'CCW' : 'CW'}.join(', '), 
+      'Orientation (polygons)' => orientations.collect{|o| o ? 'CCW' : 'CW'}.join(', '),
       'ST_IsValid' => (@geographic_item.st_isvalid ? 'Yes' : 'No'),
       'ST_IsValidReason' => @geographic_item.st_isvalidreason,
       'cached_total_area (m)' => @geographic_item.cached_total_area,
-      'CachedMapItem#dynamic_buffer' => buffer 
+      'CachedMapItem#dynamic_buffer' => buffer
     }) %>
   </div>
 
@@ -37,7 +37,7 @@
   <div class="panel content">
     <% orientations = @geographic_item.orientations %>
     <h3> Shape </h3>
-    <%= simple_map([@geographic_item]) -%> 
+    <%= simple_map([@geographic_item]) -%>
   </div>
 
   <% if @geographic_item.st_isvalid %>
@@ -46,12 +46,23 @@
       <% a = CachedMapItem.translate_geographic_item_id( @geographic_item.id, 'AssertedDistribution', ['ne_states']) %>
       <div>
         <%= simple_map( GeographicItem.where(id: a) ) %>
-        <ul>
-          <li> GeographicItem ID(s): <%= a.collect{|id| link_to(id, geographic_item_path(id) )}.join(', ').html_safe %> </li>
-          <li> Corresponding GeographicAreas: <%= GeographicArea.order(:name).joins(:geographic_areas_geographic_items).where(geographic_areas_geographic_items: {geographic_item_id: a}).collect{|g| link_to(g.name, geographic_area_path(g))}.join(', ').html_safe %> </li>
-        </ul>
+
+        <table>
+        <tr><th>GeographicItem id</th><th>Corresponding GeographicArea(s)</th><th>Data origin</th></tr>
+        <% a.each do |id| %>
+        <tr>
+        <td> <%= link_to(id, debug_geographic_item_task_path(geographic_item_id: id)) %> </td>
+        <td> <%= GeographicArea.joins(:geographic_areas_geographic_items)
+              .where(geographic_areas_geographic_items: {geographic_item_id: id})
+              .collect{|g| link_to(g.name, geographic_area_path(g))}.join(', ').html_safe
+             %>
+          </td>
+          <td> <%= GeographicAreasGeographicItem.where(geographic_item_id: id).pluck(:data_origin).join(', ') %>
+          </tr>
+          <% end %>
+        </table>
       </div>
-    </div>    
+    </div>
   <% end %>
 </div>
 

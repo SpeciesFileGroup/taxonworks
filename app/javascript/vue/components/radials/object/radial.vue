@@ -80,7 +80,7 @@
 <script setup>
 import RadialMenu from '@/components/radials/RadialMenu.vue'
 import VModal from '@/components/ui/Modal.vue'
-import SpinnerComponent from '@/components/spinner.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import makeRequest from '@/helpers/ajaxCall'
@@ -334,4 +334,8 @@ const handleEmitRadial = {
     setTotal(total)
   }
 }
+
+defineExpose({
+  openRadialMenu
+})
 </script>

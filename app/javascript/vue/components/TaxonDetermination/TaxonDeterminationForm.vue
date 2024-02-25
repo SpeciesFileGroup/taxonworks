@@ -113,17 +113,17 @@ const lockTime = computed({
   set: (value) => emit('update:lockDate', value)
 })
 
-const taxonDetermination = reactive(makeTaxonDetermination())
+const taxonDetermination = ref(makeTaxonDetermination())
 const otuLabel = ref('')
 
-const dateString = ({ year_made: year, month_made: month, day_made: day }) => {
+function dateString({ year_made: year, month_made: month, day_made: day }) {
   const date = [year, month, day].filter(Number).join('-')
 
   return date ? `on ${date}` : ''
 }
 
-const setDetermination = (determination) => {
-  Object.assign(taxonDetermination, makeTaxonDetermination(), determination)
+const setDetermination = (determination = {}) => {
+  taxonDetermination.value = { ...makeTaxonDetermination(), ...determination }
 }
 
 const getRoleString = (role) =>
@@ -132,17 +132,17 @@ const getRoleString = (role) =>
     : role?.person?.last_name || role?.last_name || ''
 
 const addDetermination = () => {
-  const rolesString = taxonDetermination.roles_attributes
+  const rolesString = taxonDetermination.value.roles_attributes
     .map(getRoleString)
     .join('; ')
   const rolesLabel = rolesString.length ? 'by ' + rolesString : ''
   const label = `${otuLabel.value} ${rolesLabel} ${dateString(
-    taxonDetermination
+    taxonDetermination.value
   )}`
 
   emit('onAdd', {
     uuid: randomUUID(),
-    ...taxonDetermination,
+    ...taxonDetermination.value,
     object_tag: label
   })
 
@@ -153,17 +153,18 @@ const resetForm = () => {
   const newDetermination = makeTaxonDetermination()
 
   if (props.lockDate) {
-    newDetermination.day_made = taxonDetermination.day_made
-    newDetermination.month_made = taxonDetermination.month_made
-    newDetermination.year_made = taxonDetermination.year_made
+    newDetermination.day_made = taxonDetermination.value.day_made
+    newDetermination.month_made = taxonDetermination.value.month_made
+    newDetermination.year_made = taxonDetermination.value.year_made
   }
 
   if (props.lockDeterminer) {
-    newDetermination.roles_attributes = taxonDetermination.roles_attributes
+    newDetermination.roles_attributes =
+      taxonDetermination.value.roles_attributes
   }
 
   if (props.lockOtu) {
-    newDetermination.otu_id = taxonDetermination.otu_id
+    newDetermination.otu_id = taxonDetermination.value.otu_id
   }
 
   setDetermination(newDetermination)

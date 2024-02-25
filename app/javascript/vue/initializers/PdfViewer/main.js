@@ -3,6 +3,7 @@ import App from '@/components/pdf/pdfViewer.vue'
 
 function init(element) {
   const app = createApp(App)
+
   app.mount(element)
 }
 

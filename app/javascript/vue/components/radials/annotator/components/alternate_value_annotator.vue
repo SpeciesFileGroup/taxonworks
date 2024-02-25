@@ -83,7 +83,7 @@ import {
 import { AlternateValue, Language } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import { useSlice } from '@/components/radials/composables'
-import VSwitch from '@/components/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import DisplayList from '@/components/displayList.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'

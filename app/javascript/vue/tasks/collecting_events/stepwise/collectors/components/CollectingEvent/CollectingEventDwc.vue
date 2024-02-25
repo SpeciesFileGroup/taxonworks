@@ -30,7 +30,7 @@
 import { ref } from 'vue'
 import { CollectingEvent } from '@/routes/endpoints'
 import VModal from '@/components/ui/Modal.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
   collectingEventId: {
@@ -44,10 +44,9 @@ const dwc = ref({})
 
 const headers = ref([])
 
-CollectingEvent.attributes()
-  .then(({ body }) => {
-    headers.value = body
-  })
+CollectingEvent.attributes().then(({ body }) => {
+  headers.value = body
+})
 
 CollectingEvent.find(props.collectingEventId)
   .then(({ body }) => {

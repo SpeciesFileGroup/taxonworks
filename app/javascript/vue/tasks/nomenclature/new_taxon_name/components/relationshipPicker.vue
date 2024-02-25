@@ -142,7 +142,7 @@ import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import getRankGroup from '../helpers/getRankGroup'
-import SwitchComponent from '@/components/switch'
+import SwitchComponent from '@/components/ui/VSwitch'
 import BlockLayout from '@/components/layout/BlockLayout'
 
 const FILTER_RELATIONSHIPS = [

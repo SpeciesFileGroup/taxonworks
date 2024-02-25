@@ -9,7 +9,7 @@ class TaxonWorks::TaskGenerator < Rails::Generators::Base
   argument :methods_actions_names, type: 'array', required: false, banner: '<method_name:action:route_name>'
   class_option :vue, type: :boolean, required: false, default: false
 
-  # This is a Thor task, all methods are invoked in order 
+  # This is a Thor task, all methods are invoked in order
 
   def check_args
     error_str = ''
@@ -36,9 +36,9 @@ class TaxonWorks::TaskGenerator < Rails::Generators::Base
   def process_args
 
     @paths = path_to_controller.split('/')
-    @route_methods = [] 
-    @route_actions = [] 
-    @route_names = [] 
+    @route_methods = []
+    @route_actions = []
+    @route_names = []
 
     if methods_actions_names.present?
       methods_actions_names.each do |str|
@@ -81,7 +81,7 @@ class TaxonWorks::TaskGenerator < Rails::Generators::Base
     end
 
     route_str = ''
-    indent_str = '  '
+    indent_str = ''
 
     scopes.each_with_index do |scope, index|
       if index >= scope_index
@@ -117,7 +117,7 @@ class TaxonWorks::TaskGenerator < Rails::Generators::Base
 
     @route_names.each_with_index do |name, index|
       next if @route_actions[index] != 'get'
-      add_user_task(name) 
+      add_user_task(name)
     end
   end
 
@@ -152,7 +152,7 @@ class TaxonWorks::TaskGenerator < Rails::Generators::Base
   end
 
   def handle_vue
-    if options[:vue] 
+    if options[:vue]
       create_app
       create_main
       create_vue_index
@@ -197,7 +197,7 @@ class TaxonWorks::TaskGenerator < Rails::Generators::Base
   end
 
   def register_vue_in_application_js
-    str =  "require('../vue/tasks/#{path_to_controller}#{controller_base_name}/main.js')" 
+    str =  "import '../vue/tasks/#{path_to_controller}#{controller_base_name}/main.js'"
     append_to_file 'app/javascript/packs/application.js', str
   end
 

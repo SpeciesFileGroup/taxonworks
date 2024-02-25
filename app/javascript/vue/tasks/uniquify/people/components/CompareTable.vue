@@ -159,7 +159,7 @@ import TableAnnotations from './Table/TableAnnotations.vue'
 import TablePersonRoles from './Table/TableDescription.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
-import SwitchComponent from '@/components/switch'
+import SwitchComponent from '@/components/ui/VSwitch'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import TableGrid from '@/components/layout/Table/TableGrid.vue'
 

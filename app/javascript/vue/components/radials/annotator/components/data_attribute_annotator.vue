@@ -111,7 +111,7 @@ const { list, addToList, removeFromList } = useSlice({
 const all = ref([])
 const predicate = ref()
 const selectedDataAttribute = ref({})
-const text = ref()
+const text = ref('')
 
 const validateFields = computed(() => predicate.value && text.value.length)
 const importList = computed(() =>

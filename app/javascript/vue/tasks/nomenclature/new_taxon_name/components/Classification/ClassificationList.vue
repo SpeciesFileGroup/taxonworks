@@ -26,7 +26,7 @@
 
 <script setup>
 import { ref, defineAsyncComponent } from 'vue'
-import SwitchComponent from '@/components/switch'
+import SwitchComponent from '@/components/ui/VSwitch'
 
 const props = defineProps({
   created: {

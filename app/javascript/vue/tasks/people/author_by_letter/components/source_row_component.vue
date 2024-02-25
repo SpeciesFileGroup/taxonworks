@@ -23,8 +23,8 @@
 </template>
 
 <script>
-import Pin from '@/components/ui/Pinboard/VPin.vue'
-import AddToProject from '@/components/addToProjectSource'
+import Pin from '@/components/ui/Button/ButtonPin.vue'
+import AddToProject from '@/components/ui/Button/ButtonAddToProjectSource'
 import RadialObject from '@/components/radials/navigation/radial'
 
 export default {

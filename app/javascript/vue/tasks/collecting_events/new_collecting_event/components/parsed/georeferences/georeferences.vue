@@ -142,7 +142,7 @@
 
 <script>
 import MapComponent from '@/components/georeferences/map'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import DisplayList from './list'
 import convertDMS from '@/helpers/parseDMS.js'
 import ManuallyComponent from '@/components/georeferences/manuallyComponent'

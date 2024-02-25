@@ -243,7 +243,7 @@ module Workbench::NavigationHelper
   end
 
   def radial_navigation_tag(object)
-    content_tag(:span, '', data: { 'global-id' => object.to_global_id.to_s, 'radial-object' => 'true'})
+    content_tag(:span, '', data: { 'global-id': object.to_global_id.to_s, 'radial-navigation': 'true'})
   end
 
   # If a "home" is provided, use it instead of show link

@@ -27,7 +27,7 @@ import CreateObject from './CreateObject'
 import CreateTag from './CreateTag'
 import CreatePinboard from './CreatePinboard'
 import ExpandComponent from './expand.vue'
-import SwitchComponent from '@/components/switch'
+import SwitchComponent from '@/components/ui/VSwitch'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 
 const typeList = ['Object', 'Tag', 'Pinboard']

@@ -12,7 +12,7 @@
 <script setup>
 import { useStore } from './composables/useStore'
 import TopicList from './components/Topic/TopicList.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const { topics, requestTopics, isLoading } = useStore()
 

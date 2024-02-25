@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import VModal from '@/components/ui/Modal'
 import { Source } from '@/routes/endpoints'
 import { ref, onBeforeMount } from 'vue'

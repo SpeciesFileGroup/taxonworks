@@ -1,6 +1,6 @@
 <template>
   <div>
-    <smart-selector
+    <SmartSelector
       model="people"
       target="Verifier"
       :klass="objectType"
@@ -9,7 +9,6 @@
       :autocomplete-params="{
         roles: ['Verifier']
       }"
-      :filter-ids="peopleIds"
       :autocomplete="false"
       @selected="createRole($event.id)"
     >
@@ -24,8 +23,8 @@
           @create="createRole($event.person_id)"
         />
       </template>
-    </smart-selector>
-    <table-list
+    </SmartSelector>
+    <TableList
       :list="list"
       :header="['Person', '']"
       :attributes="['object_tag']"

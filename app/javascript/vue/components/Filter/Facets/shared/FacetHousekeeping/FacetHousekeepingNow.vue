@@ -5,7 +5,7 @@
       medium
       @click="() => (isModalVisible = true)"
     >
-      Now
+      Recent
     </VBtn>
     <VPopup
       class="popup-now"
