@@ -1,10 +1,12 @@
 <template>
+  <div>
   <VSpinner
     v-if="loading"
     full-screen
     legend="Loading keys..."
     :logo-size="{ width: '100px', height: '100px' }"
   />
+  <h1>Available Keys</h1>
   <div class="leads_list">
     <table
       v-if="keys.length"
@@ -47,6 +49,7 @@
     <div v-else-if="!loading">
       No key currently available. Use the <a :href="RouteNames.NewLead">New dichotomous key</a> task to create one.'"
     </div>
+  </div>
   </div>
 </template>
 
