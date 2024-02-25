@@ -1,14 +1,17 @@
 <template>
-  <h3>Depictions</h3>
-  <div class="depictions_holder">
-    <ImageViewer
-      v-for="depiction in depictions"
-      :key="depiction.id"
-      :depiction="depiction"
-    />
-  </div>
+  <template v-if="depictions.length">
+    <h3>Depictions</h3>
+    <div class="depictions_holder">
+      <ImageViewer
+        v-for="depiction in depictions"
+        :key="depiction.id"
+        :depiction="depiction"
+        edit
+      />
+    </div>
+  </template>
 
-  <div v-if="citations">
+  <template v-if="citations && citations.length">
     <h3>Citations</h3>
     <div
       v-for="citation in citations"
@@ -20,7 +23,7 @@
         </a>
       </div>
     </div>
-  </div>
+  </template>
 </template>
 
 <script setup>
@@ -57,7 +60,6 @@ const citations = defineModel(
 )
 
 function updateDepictions() {
-  depictions.value = []
   Depiction
     .where({
       depiction_object_id: [props.object_id],
@@ -69,7 +71,6 @@ function updateDepictions() {
 }
 
 function updateCitations() {
-  citations.value = []
   Citation
     .where({
       citation_object_id: [props.object_id],
@@ -95,7 +96,8 @@ watch(
 
 <style lang="scss" scoped>
 .depictions_holder {
-  border-left: 4px solid #eaeaea;
+  display: flex;
+  flex-wrap: wrap;
 }
 .lead_citation {
   margin-bottom: 16px;
