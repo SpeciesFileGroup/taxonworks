@@ -38,7 +38,7 @@
 
 <script setup>
 import VModal from '@/components/ui/Modal'
-import VSpinner from '@/components/spinner'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { FieldOccurrence } from '@/routes/endpoints'
 import { ref, watch } from 'vue'
