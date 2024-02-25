@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import { CollectionObject, PreparationType } from '@/routes/endpoints'
 import { chunkArray } from '@/helpers/arrays'
 

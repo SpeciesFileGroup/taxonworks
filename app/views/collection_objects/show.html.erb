@@ -20,7 +20,7 @@
 <% end %>
 
 <%= content_for :icon_navigation do -%>
-  <%= content_tag(:li, collection_object_radial_tag(@collection_object) )   %>
+  <%= content_tag(:li, radial_quick_forms_tag(@collection_object) )   %>
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @collection_object}) -%>

@@ -101,7 +101,7 @@ import BlockMap from './components/map/main.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
-import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+import PinComponent from '@/components/ui/Button/ButtonPin.vue'
 import platformKey from '@/helpers/getPlatformKey'
 
 export default {

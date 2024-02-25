@@ -71,7 +71,7 @@ import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor
 import SampleDescriptor from './SampleDescriptor/SampleDescriptor.vue'
 import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
 import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
-import Spinner from '@/components/spinner'
+import Spinner from '@/components/ui/VSpinner'
 import CloneScoring from './Clone/Clone'
 import DestroyAllObservations from './ObservationRow/destroyObservationRow'
 import DescriptionMain from './Description/DescriptionMain.vue'

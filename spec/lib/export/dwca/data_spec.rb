@@ -88,6 +88,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         let(:p3) { FactoryBot.create(:valid_predicate)}
         let(:predicate_ids) { [p3.id, p1.id, p2.id] } # purposefully out of order
 
+        after { data.cleanup }
+
         specify 'orders values into the right rows' do
           s = Specimen.all
           f = Specimen.first
@@ -113,6 +115,54 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           expect(z.to_a[3].first).to include(d4.value) # the ce value
           expect(z.to_a[3].first).to include(d3.value)
           expect(z.to_a[5].first).to include(d2.value)
+        end
+
+        specify '#collection_object_attributes_query' do
+          # All three share CE
+          f = Specimen.first
+          m = Specimen.third
+          l = Specimen.last
+
+          c = FactoryBot.create(:valid_collecting_event)
+          f.update!(collecting_event: c)
+          m.update!(collecting_event: c)
+          l.update!(collecting_event: c)
+
+          # The collecting event has a data attributes
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+
+          # The scope is only two specimens
+          q = DwcOccurrence.where(dwc_occurrence_object: Specimen.where(id: [f.id, m.id]))
+
+          a = Export::Dwca::Data.new(core_scope: q, predicate_extensions: {collecting_event_predicate_id: [p1.id] } )
+
+          expect(a.collecting_event_attributes_query.to_a).to contain_exactly(d1)
+        end
+
+        specify '#collection_object_attributes_query, does not inject collection_object_ids via collecting events for collection_objects not referenced in the origin scope' do
+          # All three share CE
+          f = Specimen.first
+          m = Specimen.third
+          l = Specimen.last
+
+          c = FactoryBot.create(:valid_collecting_event)
+
+          f.update!(collecting_event: c)
+          m.update!(collecting_event: c)
+          l.update!(collecting_event: c)
+
+          # The collecting event has a data attributes
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+
+          # The scope is only two specimens
+          q = DwcOccurrence.where(dwc_occurrence_object: Specimen.where(id: [f.id, m.id]))
+
+          a = Export::Dwca::Data.new(core_scope: q, predicate_extensions: {collecting_event_predicate_id: [p1.id] } )
+
+          expect(a.collecting_event_attributes).to contain_exactly(
+            [f.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d1.value ],
+            [m.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d1.value ]
+          )
         end
 
         specify '#collection_object_attributes' do
@@ -165,6 +215,23 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           expect(a.collecting_event_attributes).to include([f.id, "TW:DataAttribute:CollectingEvent:#{p3.name}", d2.value])
         end
 
+        specify '#used_predicates 2' do
+          f = Specimen.first
+
+          c = FactoryBot.create(:valid_collecting_event)
+          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+
+          f.update!(collecting_event: c)
+
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p3 )
+          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p2 )
+
+          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
+
+          expect(a.used_predicates).to contain_exactly("TW:DataAttribute:CollectingEvent:#{p1.name}", "TW:DataAttribute:CollectingEvent:#{p3.name}", "TW:DataAttribute:CollectionObject:#{p2.name}")
+        end
+
       end
 
       context 'taxonworks_extensions for internal attributes' do
@@ -172,8 +239,9 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         context 'exporting otu_name' do
           let(:d) {Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])}
           let!(:o) {FactoryBot.create(:valid_otu)}
-          let!(:det) {FactoryBot.create(:valid_taxon_determination, otu: o,
-                                        biological_collection_object: DwcOccurrence.last.dwc_occurrence_object)}
+          let!(:det) {FactoryBot.create(
+            :valid_taxon_determination, otu: o,
+            biological_collection_object: DwcOccurrence.last.dwc_occurrence_object)}
 
           specify 'the COs should have OTUs' do
             expect(DwcOccurrence.last.dwc_occurrence_object.current_otu).to_not be_nil

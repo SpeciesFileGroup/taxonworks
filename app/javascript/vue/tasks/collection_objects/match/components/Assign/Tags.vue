@@ -38,7 +38,7 @@
 
 <script>
 import SmartSelector from '@/components/ui/SmartSelector'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import DisplayList from '@/components/displayList.vue'
 import { Tag } from '@/routes/endpoints'
 

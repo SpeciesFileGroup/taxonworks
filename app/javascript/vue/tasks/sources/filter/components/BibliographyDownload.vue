@@ -82,8 +82,8 @@
 
 <script setup>
 import VModal from '@/components/ui/Modal'
-import VSpinner from '@/components/spinner'
-import ClipboardButton from '@/components/clipboardButton'
+import VSpinner from '@/components/ui/VSpinner'
+import ClipboardButton from '@/components/ui/Button/ButtonClipboard'
 import { sortArray } from '@/helpers/arrays.js'
 import { SOURCE_BIBTEX } from '@/constants'
 import { ref, watch, computed } from 'vue'

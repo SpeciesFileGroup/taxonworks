@@ -13,7 +13,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { DwcOcurrence } from '@/routes/endpoints'
-import SpinnerComponent from '@/components/spinner.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import CountDown from '@/tasks/dwc/dashboard/components/Countdown/CountDown.vue'
 
 const CALL_DELAY = 2000

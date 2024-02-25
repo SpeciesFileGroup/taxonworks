@@ -34,7 +34,7 @@
 import { ref } from 'vue'
 import { CollectionObject, Project } from '@/routes/endpoints'
 import { COLLECTION_OBJECT } from '@/constants'
-import VSpinner from '@/components/spinner'
+import VSpinner from '@/components/ui/VSpinner'
 import CustomAttributes from '@/components/custom_attributes/predicates/predicates.vue'
 
 const MAX_PER_CALL = 5

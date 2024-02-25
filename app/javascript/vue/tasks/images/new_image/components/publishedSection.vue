@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import SmartSelector from '@/components/switch'
+import SmartSelector from '@/components/ui/VSwitch'
 import RolePicker from '@/components/role_picker'
 
 export default {

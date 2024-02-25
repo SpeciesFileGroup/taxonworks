@@ -1,17 +1,18 @@
-
 import { createApp } from 'vue'
-import App from './app.vue'
+import RadialOtu from '@/components/radials/object/radial.vue'
 
-function init (element) {
-  const id = `otu-radial-${(Math.random().toString(36).substr(2, 5))}`
+function init(element) {
+  const id = `otu-radial-${Math.random().toString(36).substr(2, 5)}`
   const globalId = element.getAttribute('data-global-id')
 
   if (globalId) {
     const props = {
-      id: id,
-      globalId: globalId
+      id,
+      globalId,
+      buttonTitle: 'OTU quick forms',
+      buttonClass: 'btn-hexagon-w button-default'
     }
-    const app = createApp(App, props)
+    const app = createApp(RadialOtu, props)
     app.mount(element)
   }
 }

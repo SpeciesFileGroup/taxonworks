@@ -36,7 +36,7 @@
 
 <script>
 import ExpandComponent from '@/components/expand.vue'
-import SpinnerComponent from '@/components/spinner.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
 
 export default {
   components: {

@@ -134,7 +134,7 @@
 <script>
 import SourceType from './components/sourceType'
 import RecentComponent from './components/recent'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 
 import CrossRef from './components/crossRef'
 import BibtexButton from './components/bibtex'
@@ -143,11 +143,11 @@ import Bibtex from './components/bibtex/main'
 import Human from './components/person/PersonHuman.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialObject from '@/components/radials/navigation/radial'
-import AddSource from '@/components/addToProjectSource'
+import AddSource from '@/components/ui/Button/ButtonAddToProjectSource'
 import CloneSource from './components/cloneSource'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
-import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+import PinComponent from '@/components/ui/Button/ButtonPin.vue'
 
 import { User } from '@/routes/endpoints'
 import { GetterNames } from './store/getters/getters'

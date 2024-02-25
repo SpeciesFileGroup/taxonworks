@@ -75,7 +75,7 @@ import {
 
 import smartTaxonList from './dynamic/smartList'
 import Autocomplete from '@/components/ui/Autocomplete'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import { GetSmartSelector } from '../../request/resources'
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'

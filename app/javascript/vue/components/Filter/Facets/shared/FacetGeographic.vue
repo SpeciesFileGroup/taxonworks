@@ -1,21 +1,21 @@
 <template>
   <FacetContainer>
     <h3>Geographic area</h3>
-    <switch-component
+    <VSwitch
       class="separate-bottom"
       v-model="view"
       :options="Object.values(TABS)"
     />
     <div v-if="view === 'area'">
       <div class="field">
-        <autocomplete
+        <VAutocomplete
           :input-id="inputId"
           url="/geographic_areas/autocomplete"
           label="label_html"
           clear-after
           placeholder="Search a geographic area"
           param="term"
-          @get-item="addGeoArea($event.id)"
+          @get-item="({ id }) => addGeoArea(id)"
         />
       </div>
 
@@ -64,24 +64,23 @@
         </ul>
       </div>
     </div>
-    <div v-else>
-      <georeference-map
-        width="100%"
-        height="300px"
-        :geojson="geojson"
-        draw-controls
-        :draw-polyline="false"
-        :draw-marker="false"
-        :drag-mode="false"
-        :cut-polygon="false"
-        :draw-circle-marker="false"
-        :tiles-selection="false"
-        :edit-mode="false"
-        :zoom="1"
-        @geojson="geojson = $event"
-        @geo-json-layer-created="addShape"
-      />
-    </div>
+    <VMap
+      v-else
+      width="100%"
+      height="300px"
+      :geojson="geojson"
+      draw-controls
+      :draw-polyline="false"
+      :draw-marker="false"
+      :drag-mode="false"
+      :cut-polygon="false"
+      :draw-circle-marker="false"
+      :tiles-selection="false"
+      :edit-mode="false"
+      :zoom="1"
+      @geojson="geojson = $event"
+      @geo-json-layer-created="addShape"
+    />
     <RadialFilterAttribute
       :parameters="{ geographic_area_id: geographic.geographic_area_id }"
     />
@@ -89,16 +88,15 @@
 </template>
 
 <script setup>
-import SwitchComponent from '@/components/switch'
-import Autocomplete from '@/components/ui/Autocomplete'
-import GeoreferenceMap from '@/components/georeferences/map'
+import VSwitch from '@/components/ui/VSwitch'
+import VAutocomplete from '@/components/ui/Autocomplete'
+import VMap from '@/components/georeferences/map'
 import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttribute.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
-import { GeographicArea } from '@/routes/endpoints'
-import { URLParamsToJSON } from '@/helpers/url/parse.js'
-import { computed, ref, watch, onBeforeMount } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import { GeographicArea } from '@/routes/endpoints'
+import { computed, ref, watch, onBeforeMount } from 'vue'
 
 const TABS = {
   Area: 'area',
@@ -159,6 +157,12 @@ watch(
   },
   { deep: true }
 )
+
+watch(geographic, (newVal) => {
+  if (!newVal?.length) {
+    geographicAreas.value = []
+  }
+})
 
 const addShape = (shape) => {
   geojson.value = [shape]

@@ -54,7 +54,7 @@
 </template>
 
 <script setup>
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import ImageDropzone from './components/images/imageDropzone'
 import ApplyAttributes from './components/ApplyAttributes'
 

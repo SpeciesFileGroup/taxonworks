@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import { CollectionObject } from '@/routes/endpoints'
 
 export default {

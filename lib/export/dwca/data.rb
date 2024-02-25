@@ -71,6 +71,8 @@ module Export::Dwca
     def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: [])
       raise ArgumentError, 'must pass a core_scope' if core_scope.nil?
 
+
+
       @core_scope = core_scope
 
       @biological_associations_extension = extension_scopes[:biological_associations] #! String
@@ -87,6 +89,8 @@ module Export::Dwca
       if @core_scope.kind_of?(String)
         ::DwcOccurrence.from('(' + @core_scope + ') as dwc_occurrences').order('dwc_occurrences.id')
       elsif @core_scope.kind_of?(ActiveRecord::Relation)
+        raise ArgumentError, 'core_scope: is not a DwcOccurrence relation' unless @core_scope.table.name == 'dwc_occurrences'
+
         @core_scope.order('dwc_occurrences.id')
       else
         raise ArgumentError, 'Scope is not a SQL string or ActiveRecord::Relation'
@@ -279,21 +283,38 @@ module Export::Dwca
         ).collect{|r| [r['attribute_subject_id'], r['predicate'], r['value']] }
     end
 
+    # @return Relation
+    #   the uniqe attributes derived from CollectingEvents
     def collecting_event_attributes_query
-      @collecting_event_attributes ||= InternalAttribute
-         .joins(:predicate)
-         .joins('JOIN collecting_events on data_attributes.attribute_subject_id = collecting_events.id')
-         .joins('JOIN collection_objects on collection_objects.collecting_event_id = collecting_events.id')
-         .where(attribute_subject: collecting_events)
+
+      s = 'WITH touched_collection_objects AS (' + collection_objects.to_sql + ') ' + ::InternalAttribute
+        .joins("JOIN collecting_events on data_attributes.attribute_subject_id = collecting_events.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
+        .joins('JOIN touched_collection_objects as tco1 on tco1.collecting_event_id = collecting_events.id')
+        .distinct
+        .to_sql
+
+      ::InternalAttribute.from('(' + s + ') as data_attributes')
+      # .joins(:predicate)
+      # .joins("JOIN collecting_events on data_attributes.attribute_subject_id = collecting_events.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
+      # .joins('JOIN collection_objects on collection_objects.collecting_event_id = collecting_events.id')
     end
 
+    #   @return Array
+    #     1 row per CO per DA (type) on CE
     def collecting_event_attributes
-      collecting_event_attributes_query
-         .select(
-          'collection_objects.id',
-          "CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate",
-          'data_attributes.value')
-          .collect{|r| [r['id'], r['predicate'], r['value']] }
+      a = collection_objects.left_joins(collecting_event: [internal_attributes: [:predicate]] )
+        .where("(data_attributes.id IN (#{collecting_event_attributes_query.pluck(:id).join(',')}))") # mmmarg, how to do this with join
+        .select('collection_objects.id', "CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate", 'data_attributes.value')
+
+      # TODO: head scratch and get this to work with a join/CTE
+      #  s = 'WITH target_data_attributes AS (' + collecting_event_attributes_query.to_sql + ') ' +
+      #   collection_objects.left_joins(collecting_event: [internal_attributes: [:predicate]] )
+      #    .joins('JOIN target_data_attributes tda on tda.id = data_attributes.id')
+      #    .select('collection_objects.id co_id', "CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate", 'data_attributes.value')
+      #    .to_sql
+      #  b = ::CollectionObject.from('(' + s + ') as collection_objects')
+
+      @collecting_event_attributes ||= a.collect{|r| [r['id'], r['predicate'], r['value']] }
     end
 
     def collection_objects
@@ -307,11 +328,13 @@ module Export::Dwca
     end
 
     def used_collecting_event_predicates
-      collecting_event_attributes_query.select("CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate_name").distinct
-      .distinct
+      collecting_event_attributes_query.joins(:predicate).select("CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate_name").distinct
       .collect{|r| r['predicate_name']}
     end
 
+    # @return [Array]
+    #   of distinct Predicate names in the format
+    #      `TW:DataAttribute:<CollectingEvent|CollectionObject>:<name>`
     def used_predicates
       used_collection_object_predicates + used_collecting_event_predicates
     end

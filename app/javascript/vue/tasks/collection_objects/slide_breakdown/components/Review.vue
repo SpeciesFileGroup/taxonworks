@@ -76,7 +76,7 @@ import RadialNavigation from '@/components/radials/navigation/radial'
 import RadialObject from '@/components/radials/object/radial'
 import { Report } from '../request/resource'
 import { GetterNames } from '../store/getters/getters'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 
 export default {
   components: {

@@ -67,7 +67,7 @@
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import PdfComponent from '@/components/pdfButton'
+import PdfComponent from '@/components/ui/Button/ButtonPdf'
 
 const props = defineProps({
   list: {

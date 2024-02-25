@@ -1,3 +1,5 @@
+import { randomUUID } from '@/helpers'
+
 export function makeCitation(data) {
   return {
     id: data.id,
@@ -7,6 +9,6 @@ export function makeCitation(data) {
     objectUuid: data.objectUuid,
     pages: data.pages,
     sourceId: data.source_id,
-    uuid: crypto.randomUUID()
+    uuid: randomUUID()
   }
 }

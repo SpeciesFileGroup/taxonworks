@@ -125,7 +125,7 @@
 </template>
 
 <script setup>
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'

@@ -68,7 +68,7 @@ import { GetterNames } from '../../store/getters/getters'
 import VModal from '@/components/ui/Modal.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
 const props = defineProps({
