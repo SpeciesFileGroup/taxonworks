@@ -78,6 +78,13 @@ class FieldOccurrencesController < ApplicationController
     ).autocomplete
   end
 
+    # GET /collection_objects/list
+  def list
+    @field_occurrences = FieldOccurrence.with_project_id(sessions_current_project_id)
+      .order(:id)
+      .page(params[:page]) #.per(10) #.per(3)
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_field_occurrence

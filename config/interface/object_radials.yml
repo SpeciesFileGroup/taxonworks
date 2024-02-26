@@ -94,10 +94,10 @@ Extract:
 FieldOccurrence:
   tasks:
     - new_field_occurrence_task
+  edit: new_field_occurrence_task
+  new: new_field_occurrence_task,
   config:
     recent: true
-  edit: new_field_occurrence_task
-  new: new_field_occurrence_task
 GeographicArea:
   tasks:
     - asserted_distributions_basic_endemism_task
