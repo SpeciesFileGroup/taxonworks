@@ -26,7 +26,7 @@ class FieldOccurrencesController < ApplicationController
 
   # GET /field_occurrences/new
   def new
-    @field_occurrence = FieldOccurrence.new
+    redirect_to new_field_occurrence_task_path
   end
 
   # GET /field_occurrences/1/edit
