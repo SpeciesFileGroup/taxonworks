@@ -35,9 +35,10 @@
       </a>
     </div>
 
-    <modal-component
+    <VModal
       v-if="isModalVisible"
       @close="isModalVisible = false"
+      :container-style="{ width: '700px' }"
     >
       <template #header>
         <h3>Select geographic area</h3>
@@ -65,7 +66,7 @@
           </li>
         </ul>
       </template>
-    </modal-component>
+    </VModal>
     <SmartSelectorItem
       v-if="store.geographicArea"
       :item="store.geographicArea"
@@ -84,14 +85,14 @@ import { watch, ref, computed } from 'vue'
 import { GeographicArea } from '@/routes/endpoints'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import convertDMS from '@/helpers/parseDMS.js'
-import ModalComponent from '@/components/ui/Modal'
+import VModal from '@/components/ui/Modal'
 import MetaPrioritizeGeographicArea from '../Meta/MetaPrioritizeGeographicArea.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import GeographicAreaMapPicker from '@/components/ui/SmartSelector/GeographicAreaMapPicker.vue'
 import useStore from '../../store/collectingEvent.js'
 
 const DELAY = 1000
-const collectingEvent = defineModel()
+const collectingEvent = defineModel({ type: Object, required: true })
 const store = useStore()
 const isModalVisible = ref(false)
 const areasByCoors = ref([])
