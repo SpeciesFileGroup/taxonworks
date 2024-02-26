@@ -15,7 +15,7 @@
           :style="margin_for_depth(i)"
         >
           <a
-            :href="RouteNames.NewLead + '?id=' + o.id"
+            :href="RouteNames.NewLead + '?lead_id=' + o.id"
             @click.prevent="store.loadKey(o.id)"
             v-html="lead_tag(o)"
           />

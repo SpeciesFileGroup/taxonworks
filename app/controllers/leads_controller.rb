@@ -80,7 +80,7 @@ class LeadsController < ApplicationController
 
   # GET /leads/1/edit
   def edit
-    redirect_to new_lead_task_path id: @lead.id
+    redirect_to new_lead_task_path lead_id: @lead.id
   end
 
   # POST /leads/1/create_for_edit.json

@@ -22,7 +22,7 @@ export default async function(id_or_couplet) {
 
   if (error_message) {
     this.$reset()
-    setParam(RouteNames.NewLead, 'id')
+    setParam(RouteNames.NewLead, 'lead_id')
     error_message = error_message + " You've been redirected to the New Key page."
     TW.workbench.alert.create(error_message, 'error')
     return;
@@ -40,7 +40,7 @@ export default async function(id_or_couplet) {
   this.left_had_redirect_on_save = lo.left && !!lo.left.redirect_id
   this.right_had_redirect_on_save = lo.right && !!lo.right.redirect_id
 
-  setParam(RouteNames.NewLead, 'id', lo.lead.id)
+  setParam(RouteNames.NewLead, 'lead_id', lo.lead.id)
 }
 
 // Ignores redirect children.

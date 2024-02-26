@@ -71,21 +71,21 @@ const {
   handleRadialUpdate
 } = useAnnotationHandlers(annotationLists)
 
-const { id } = URLParamsToJSON(location.href)
+const { lead_id } = URLParamsToJSON(location.href)
 
-if (id) {
+if (lead_id) {
   // Call this for history.replaceState - it replaces turbolinks state
   // that would cause a reload every time we revisit this initial lead.
-  setParam(RouteNames.NewLead, 'id', id)
-  store.loadKey(id)
+  setParam(RouteNames.NewLead, 'lead_id', lead_id)
+  store.loadKey(lead_id)
 }
 
 usePopstateListener(() => {
   store.$reset()
 
-  const { id } = URLParamsToJSON(location.href)
-  if (id) {
-    store.loadKey(id)
+  const { lead_id } = URLParamsToJSON(location.href)
+  if (lead_id) {
+    store.loadKey(lead_id)
   }
 })
 </script>
