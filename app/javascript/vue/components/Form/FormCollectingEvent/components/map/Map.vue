@@ -1,7 +1,9 @@
 <template>
   <div>
     <div v-show="latitude && longitude">
-      <div style="height: 10%; overflow: auto">Map verification</div>
+      <div style="height: 10%; overflow: auto">
+        Verbatim coordinates preview
+      </div>
       <VMap
         width="100%"
         height="300px"

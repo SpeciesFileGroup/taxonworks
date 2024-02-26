@@ -5,7 +5,11 @@
       class="full_width"
       rows="5"
       v-model="collectingEvent.verbatim_label"
-      @change="() => { collectingEvent.isUnsaved = true }"
+      @change="
+        () => {
+          collectingEvent.isUnsaved = true
+        }
+      "
     />
     <button
       type="button"
@@ -13,7 +17,7 @@
       :disabled="!collectingEvent.verbatim_label"
       @click="parseData"
     >
-      Parse fields
+      Parsed fields
     </button>
   </div>
 </template>
@@ -21,7 +25,10 @@
 <script setup>
 import { CollectingEvent } from '@/routes/endpoints'
 
-const collectingEvent = defineModel()
+const collectingEvent = defineModel({
+  type: Object,
+  requierd: true
+})
 
 function parseData() {
   const payload = {
@@ -43,7 +50,7 @@ function parseData() {
         ...parsedFields,
         isUnsaved: true
       }
-      
+
       TW.workbench.alert.create('Label value parsed.', 'notice')
     } else {
       TW.workbench.alert.create('No label value to convert.', 'error')
