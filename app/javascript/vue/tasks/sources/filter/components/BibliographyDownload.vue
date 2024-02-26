@@ -84,7 +84,6 @@
 import VModal from '@/components/ui/Modal'
 import VSpinner from '@/components/ui/VSpinner'
 import ClipboardButton from '@/components/ui/Button/ButtonClipboard'
-import DOMPurify from 'dompurify'
 import { sortArray } from '@/helpers/arrays.js'
 import { SOURCE_BIBTEX } from '@/constants'
 import { ref, watch, computed } from 'vue'
@@ -183,9 +182,9 @@ function generateLinks() {
 function loadBibliography() {
   isLoading.value = true
 
-  GetBibtex(payload.value).then(({ body }) => {
+  GetBibtex(payload.value).then((response) => {
     links.value = undefined
-    bibtex.value = DOMPurify.sanitize(body, { USE_PROFILES: { html: false } })
+    bibtex.value = response.body
     isLoading.value = false
   })
 }
