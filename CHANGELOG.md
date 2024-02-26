@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.38.3] - 2024-02-25
+
 ### Added
 
 - `/api/v1/common_names` [#3794]
