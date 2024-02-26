@@ -55,7 +55,7 @@
 
 <script setup>
 import { Lead } from '@/routes/endpoints'
-import { defineEmits, ref } from 'vue'
+import { defineEmits, onBeforeMount, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VSpinner from '@/components/spinner.vue'
@@ -65,13 +65,15 @@ const emit = defineEmits(['loadCouplet'])
 const keys = ref([])
 const loading = ref(true)
 
-Lead.where({ extend: ['otu', 'couplet_count', 'updater'] })
-  .then(({ body }) => {
-    keys.value = body
-  })
-  .finally(() => {
-    loading.value = false
-  })
+onBeforeMount(() => {
+  Lead.where({ extend: ['otu', 'couplet_count', 'updater'] })
+    .then(({ body }) => {
+      keys.value = body
+    })
+    .finally(() => {
+      loading.value = false
+    })
+})
 </script>
 
 <style lang="scss" scoped>
