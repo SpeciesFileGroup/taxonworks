@@ -5,7 +5,7 @@
         v-if="hasFuture"
         color="primary"
         medium
-        @click="$emit('loadCouplet', lead.id)"
+        @click="$emit('loadCouplet', goId)"
       >
         Go
       </VBtn>
@@ -56,7 +56,7 @@
       <VBtn
         color="primary"
         medium
-        @click="$emit('loadCouplet', lead.id)"
+        @click="$emit('loadCouplet', goId)"
       >
         Go
       </VBtn>
@@ -83,6 +83,10 @@ const props = defineProps({
 const emit = defineEmits(['loadCouplet'])
 
 const hasDepictions = ref(false)
+
+const goId = computed(() => {
+  return props.lead.redirect_id || props.lead.id
+})
 
 const displayLinkOut = computed(() => {
   return props.lead.link_out && props.lead.link_out_text

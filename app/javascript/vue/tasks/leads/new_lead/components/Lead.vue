@@ -27,12 +27,11 @@
       />
       <div class="navigation">
         <VBtn
-          :disabled="store[side + '_had_redirect_on_save']"
           color="update"
           medium
           @click="nextCouplet()"
         >
-          {{ store[side + '_has_children'] ? 'Edit the next couplet' : 'Create and edit the next couplet' }}
+          {{ editNextText }}
         </VBtn>
 
         <VBtn
@@ -156,6 +155,17 @@ const displayLinkOut = computed(() => {
   return store[props.side].link_out && store[props.side].link_out_text
 })
 
+const editNextText = computed(() => {
+  if (store[props.side].redirect_id) {
+    return 'Follow redirect and edit'
+  }
+  else {
+    return store[props.side + '_has_children'] ?
+      'Edit the next couplet' :
+      'Create and edit the next couplet'
+  }
+})
+
 const annotationLists = { [DEPICTION]: depictions }
 const {
   handleRadialCreate,
@@ -185,8 +195,9 @@ function insertCouplet() {
 function nextCouplet() {
   if (store[props.side + '_has_children']) {
     store.loadKey(store[props.side].id)
-  }
-  else {
+  } else if (store[props.side].redirect_id) {
+    store.loadKey(store[props.side].redirect_id)
+  } else {
     loading.value = true
     Lead.create_for_edit(store[props.side].id)
       .then(({ body }) => {
