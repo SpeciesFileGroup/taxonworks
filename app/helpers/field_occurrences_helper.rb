@@ -21,7 +21,7 @@ module FieldOccurrencesHelper
   def field_occurrence_autocomplete_tag(field_occurrence)
     return nil if field_occurrence.nil?
     [
-      field_occurrence_taxon_determination_tag(field_occurrence)
+      field_occurrence_tag(field_occurrence)
     ].join(' ').html_safe
   end
 

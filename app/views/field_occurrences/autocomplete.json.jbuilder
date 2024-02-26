@@ -1,6 +1,6 @@
-json.array! @field_occurences do |p|
+json.array! @field_occurrences do |p|
   json.id p.id
-  json.label field_occurrence_tag(p)
+  json.label label_for_field_occurrence(p)
   json.label_html field_occurrence_autocomplete_tag(p)
 
   json.object_id p.id
