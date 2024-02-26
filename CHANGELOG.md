@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Quick Forms: Observation matrices slice doesn't work
 
 ## [0.38.3] - 2024-02-25
 
@@ -27,7 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filters: Geographic area facet doesn't clear geographic area after reset [#3840]
 - Radial collection object: Taxon determination list is not visible
 - Align metadata in GeographicItem debug view
-- Biological associations filter bugs 
+- Biological associations filter bugs
 - Several radial annotator and batch annotator slice fixes
 - DwC checklist importer fails quietly when `taxonomicStatus` is empty [#3783]
 

@@ -19,7 +19,7 @@ export const SLICE = {
   contents,
   biocuration_classifications: biocurationClassifications,
   taxon_determinations: taxonDeterminations,
-  observation_matricesAnnotator: observationMatrices,
+  observation_matrices: observationMatrices,
   collecting_event: collectingEvent,
   origin_relationships: originRelationships,
   extracts,
