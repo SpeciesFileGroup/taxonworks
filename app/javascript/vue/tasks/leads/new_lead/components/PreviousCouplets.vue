@@ -14,8 +14,9 @@
           :key="o.id"
           :style="margin_for_depth(i)"
         >
-          <span class="link cursor-pointer"
-            @click="store.loadKey(o.id)"
+          <a
+            :href="RouteNames.NewLead + '?id=' + o.id"
+            @click.prevent="store.loadKey(o.id)"
             v-html="lead_tag(o)"
           />
         </div>
@@ -29,6 +30,7 @@
 
 <script setup>
 import { lead_tag, margin_for_depth } from '../../helpers/formatters.js'
+import { RouteNames } from '@/routes/routes'
 import { useStore } from '../store/useStore.js'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 

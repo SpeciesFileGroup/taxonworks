@@ -5,7 +5,8 @@
       :key="o.cpl.id"
       :style="margin_for_depth(o.depth)"
     >
-      <span class="link cursor-pointer"
+      <a
+        :href="RouteNames.ShowLead + '?lead_id=' + o.cpl.id"
         @click="$emit('loadCouplet', o.cpl.id)"
         v-html="lead_tag(o.cpl)"
       />
@@ -15,6 +16,7 @@
 
 <script setup>
 import { lead_tag, margin_for_depth } from '../../helpers/formatters.js'
+import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({
   couplets: {

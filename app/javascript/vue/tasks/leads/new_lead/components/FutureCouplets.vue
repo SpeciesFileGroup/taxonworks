@@ -5,8 +5,9 @@
       :key="o.cpl.id"
       :style="margin_for_depth(o.depth)"
     >
-      <span class="link cursor-pointer"
-        @click="store.loadKey(o.cpl.id)"
+      <a
+        :href="RouteNames.NewLead + '?id=' + o.cpl.id"
+        @click.prevent="store.loadKey(o.cpl.id)"
         v-html="lead_tag(o.cpl)"
       />
     </div>
@@ -17,6 +18,7 @@
 <script setup>
 import { computed } from 'vue'
 import { lead_tag, margin_for_depth } from '../../helpers/formatters.js'
+import { RouteNames } from '@/routes/routes'
 import { useStore } from '../store/useStore.js'
 
 const props = defineProps({

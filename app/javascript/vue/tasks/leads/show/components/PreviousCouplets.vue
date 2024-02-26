@@ -15,7 +15,7 @@
           :style="margin_for_depth(i)"
         >
           <a
-            :href="RouteNames.ShowLead + 'lead_id=' + o.id"
+            :href="RouteNames.ShowLead + '?lead_id=' + o.id"
             @click.prevent = "$emit('loadCouplet', o.id)"
             v-html="lead_tag(o)"
           />
