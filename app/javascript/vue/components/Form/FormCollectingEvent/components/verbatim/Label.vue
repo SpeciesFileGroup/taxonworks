@@ -17,7 +17,7 @@
       :disabled="!collectingEvent.verbatim_label"
       @click="parseData"
     >
-      Parsed fields
+      Parse fields
     </button>
   </div>
 </template>

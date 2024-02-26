@@ -45,7 +45,7 @@ import {
 const KEY_STORAGE = 'form::collectingEvent::componentsOrder'
 const TITLE_SECTION = {
   componentVerbatim: 'Verbatim',
-  componentParse: 'Parse'
+  componentParse: 'Parsed'
 }
 
 defineProps({

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-help="helpData.verbatimCoordinatesPrewiew">
     <div v-show="latitude && longitude">
       <div style="height: 10%; overflow: auto">
         Verbatim coordinates preview
@@ -60,6 +60,8 @@
 <script setup>
 import convertDMS from '@/helpers/parseDMS.js'
 import VMap from '@/components/georeferences/map.vue'
+import helpData from '../../help/en.js'
+import { vHelp } from '@/directives'
 import { computed } from 'vue'
 
 const collectingEvent = defineModel()
