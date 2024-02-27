@@ -10,6 +10,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Quick Forms: Observation matrices slice doesn't work
+- Quick Forms: Content slice doesn't display contents [#3850]
+
+[#3850]: https://github.com/SpeciesFileGroup/taxonworks/issues/3850
 
 ## [0.38.3] - 2024-02-25
 
