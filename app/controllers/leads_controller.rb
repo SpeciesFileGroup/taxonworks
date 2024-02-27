@@ -166,16 +166,19 @@ class LeadsController < ApplicationController
   def destroy_couplet
     respond_to do |format|
       if @lead.parent_id.present?
-        if delete_couplet
+        if @lead.destroy_couplet
           format.json { head :no_content }
         else
+          @lead.errors.add(:delete, 'failed - is there a node redirecting to one of these?')
           format.json {
-            @lead.errors.add(:delete, 'failed - is there a node redirecting to this one?')
             render json: @lead.errors, status: :unprocessable_entity
           }
         end
       else
-        format.json { head :no_content, status: :unprocessable_entity }
+        @lead.errors.add(:destroy, "failed - can't delete the only couplet.")
+        format.json {
+          render json: @lead.errors, status: :unprocessable_entity
+        }
       end
     end
   end
@@ -186,10 +189,11 @@ class LeadsController < ApplicationController
     respond_to do |format|
       if @lead.destroy_couplet
         format.json { head :no_content }
-        return true
       else
-        format.json { render json: @lead.errors, status: :unprocessable_entity }
-        return false
+        @lead.errors.add(:delete, 'failed - is there a node redirecting to one of these?')
+        format.json {
+          render json: @lead.errors, status: :unprocessable_entity
+        }
       end
     end
   end

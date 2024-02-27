@@ -224,6 +224,7 @@ function deleteCouplet() {
         store.loadKey(store.lead.id)
         TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
       })
+      .catch(() => {})
       .finally(() => {
         loading.value = false
       })
