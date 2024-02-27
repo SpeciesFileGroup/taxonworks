@@ -79,11 +79,11 @@ if (lead_id) {
 }
 
 usePopstateListener(() => {
-  store.$reset()
-
   const { lead_id } = URLParamsToJSON(location.href)
   if (lead_id) {
     store.loadKey(lead_id)
+  } else {
+    store.$reset()
   }
 })
 </script>
