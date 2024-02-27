@@ -55,7 +55,7 @@
         @click="deleteCouplet"
       >
         Delete both sides and reparent children from
-        {{ store.left_has_children ? 'left' : 'right' }}
+        {{ leftHasChildren ? 'left' : 'right' }}
       </VBtn>
 
       <VBtn
@@ -107,20 +107,34 @@ const store = useStore()
 const loading = ref(false)
 
 const hasChildren = computed(() => {
-  return store.left && store.left.id && store.right && store.right.id
+  return store.left && !!store.left.id && store.right && !!store.right.id
+})
+
+const leftHasChildren = computed(() => {
+  return store.left && !!store.left.id &&
+    // Ignore redirect children.
+    !store.left.redirect_id &&
+    store.left_future.length > 0
+})
+
+const rightHasChildren = computed(() => {
+  return store.right && !!store.right.id &&
+    // Ignore redirect children.
+    !store.right.redirect_id &&
+    store.right_future.length > 0
 })
 
 const allowDestroyCouplet = computed(() => {
   return (
-    (!store.left_has_children && !store.right_has_children) &&
-    store.lead.parent_id
+    (!leftHasChildren.value && !rightHasChildren.value) &&
+    !!store.lead.parent_id
   )
 })
 
 const allowDeleteCouplet = computed(() => {
   return (
-    (!store.left_has_children && store.right_has_children) ||
-    (!store.right_has_children && store.left_has_children)
+    (!leftHasChildren.value && rightHasChildren.value) ||
+    (!rightHasChildren.value && leftHasChildren.value)
   )
 })
 

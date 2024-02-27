@@ -35,15 +35,8 @@ export default async function(id_or_couplet) {
   this.parents = lo.parents
   this.left_future = lo.left_future
   this.right_future = lo.right_future
-  this.left_has_children = has_children(lo.left, lo.left_future)
-  this.right_has_children = has_children(lo.right, lo.right_future)
   this.left_had_redirect_on_save = lo.left && !!lo.left.redirect_id
   this.right_had_redirect_on_save = lo.right && !!lo.right.redirect_id
 
   setParam(RouteNames.NewLead, 'lead_id', lo.lead.id)
-}
-
-// Ignores redirect children.
-function has_children(lead, future) {
-  return lead && !lead.redirect_id && future && future.length > 0
 }
