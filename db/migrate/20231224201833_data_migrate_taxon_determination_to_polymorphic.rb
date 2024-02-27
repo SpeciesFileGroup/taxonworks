@@ -8,7 +8,7 @@ class DataMigrateTaxonDeterminationToPolymorphic < ActiveRecord::Migration[6.1]
       #TaxonDetermination.all.find_each do |td|
       #  td.update_column(:taxon_determination_object_id, td.biological_collection_object_id)
       #end
-      TaxonDetermination.update_all('taxon_determination_object_id = taxon_determination_object_id')
+      TaxonDetermination.update_all('taxon_determination_object_id = biological_collection_object_id')
     end
 
   end
