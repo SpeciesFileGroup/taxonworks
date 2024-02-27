@@ -309,9 +309,6 @@ end
 
 resources :field_occurrences do
   concerns [:data_routes]
-  collection do
-    get :autocomplete, defaults: {format: :json}
-  end
 end
 
 resources :geographic_areas, only: [:index, :show] do

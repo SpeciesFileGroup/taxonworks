@@ -125,8 +125,6 @@ class OtusController < ApplicationController
     end
   end
 
-
-
   def batch_load
     # see app/views/otus/batch_load.html.erb
   end

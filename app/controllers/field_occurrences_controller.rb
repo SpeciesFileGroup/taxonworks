@@ -78,20 +78,29 @@ class FieldOccurrencesController < ApplicationController
     ).autocomplete
   end
 
-    # GET /collection_objects/list
+  # GET /collection_objects/list
   def list
     @field_occurrences = FieldOccurrence.with_project_id(sessions_current_project_id)
       .order(:id)
       .page(params[:page]) #.per(10) #.per(3)
   end
 
+  def search
+    if params[:id].blank?
+      redirect_to(
+        field_occurrences_path,
+        alert: 'You must select an item from the list with a click or tab press before clicking show.')
+    else
+      redirect_to field_occurrence_path(params[:id])
+    end
+  end
+
   private
-  # Use callbacks to share common setup or constraints between actions.
+
   def set_field_occurrence
     @field_occurrence = FieldOccurrence.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
-  # Only allow a list of trusted parameters through.
   def field_occurrence_params
     params.require(:field_occurrence).permit(
       :total, :is_absent,
