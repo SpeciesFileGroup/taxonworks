@@ -72,9 +72,6 @@ class LeadsController < ApplicationController
   def new
     respond_to do |format|
       format.html { redirect_to new_lead_task_path }
-      format.json {
-        @lead = Lead.new
-      }
     end
   end
 
@@ -143,17 +140,22 @@ class LeadsController < ApplicationController
     if @lead.parent_id
       respond_to do |format|
         flash[:error] = 'Delete aborted - you can only delete on root nodes.'
+        format.html { redirect_back(fallback_location: (request.referer || root_path)) }
         format.json { head :no_content, status: :unprocessable_entity }
       end
+      return
     else
       begin
         @lead.destroy! # note we allow the AR to do this
         respond_to do |format|
-          flash[:notice] = 'Key deleted.'
+          flash[:notice] = 'Key was succesfully destroyed.'
+          format.html { destroy_redirect @lead }
           format.json { head :no_content }
         end
       rescue
         respond_to do |format|
+          flash[:error] = 'Delete failed!'
+          format.html { redirect_back(fallback_location: (request.referer || root_path)) }
           format.json { render json: @lead.errors, status: :unprocessable_entity }
         end
       end

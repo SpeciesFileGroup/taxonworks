@@ -103,6 +103,8 @@ GeographicItem:
 Lead:
   tasks:
     - show_lead_task
+  new: new_lead_task
+  edit: new_lead_task
 Loan:
   tasks:
     - edit_loan_task
