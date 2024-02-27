@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Handle bad BibTeX coming back from CrossRef.
 - Quick Forms: Observation matrices slice doesn't work
 - Quick Forms: Content slice doesn't display contents [#3850]
 
