@@ -158,8 +158,7 @@ const displayLinkOut = computed(() => {
 const editNextText = computed(() => {
   if (store[props.side].redirect_id) {
     return 'Follow redirect and edit'
-  }
-  else {
+  } else {
     return store[props.side + '_has_children'] ?
       'Edit the next couplet' :
       'Create and edit the next couplet'

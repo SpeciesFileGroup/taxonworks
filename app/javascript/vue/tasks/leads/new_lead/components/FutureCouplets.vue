@@ -12,7 +12,10 @@
       />
     </div>
   </div>
-  <div v-else v-html="'<i>No future couplets</i>'" />
+  <div
+    v-else
+    v-html="'<i>No future couplets</i>'"
+  />
 </template>
 
 <script setup>

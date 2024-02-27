@@ -110,7 +110,7 @@ const updateButtonText = computed(() => {
   }
 })
 
-async function processKeyMeta() {
+function processKeyMeta() {
   const payload = {
     lead: store.root
   }
