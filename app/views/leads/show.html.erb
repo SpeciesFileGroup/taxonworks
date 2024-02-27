@@ -29,4 +29,10 @@
   <% end %>
 <% end %>
 
+<%= content_for :edit do
+  # data-turbolinks='false' to prevent a bug with a spinner target element
+  # not existing in mount() when refollowing this link in browser history.
+  link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), new_lead_task_path(lead_id: @lead.id), class: 'navigation-item', data: { turbolinks: 'false' })
+end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @lead}) -%>
