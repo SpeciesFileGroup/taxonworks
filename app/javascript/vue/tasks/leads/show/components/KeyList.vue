@@ -58,7 +58,7 @@ import { Lead } from '@/routes/endpoints'
 import { defineEmits, onBeforeMount, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const emit = defineEmits(['loadCouplet'])
 

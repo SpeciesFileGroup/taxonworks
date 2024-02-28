@@ -70,7 +70,7 @@
 import Annotations from './Annotations.vue'
 import OtuChooser from './OtuChooser.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VSpinner from '@/components/spinner'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import { computed, ref } from 'vue'
 import { LEAD } from '@/constants/index.js'
 import { useStore } from '../store/useStore.js'

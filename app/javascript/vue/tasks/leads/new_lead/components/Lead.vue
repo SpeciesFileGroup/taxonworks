@@ -129,7 +129,7 @@ import FutureCouplets from './FutureCouplets.vue'
 import OtuChooser from './OtuChooser.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VSpinner from '@/components/spinner'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
   side: {

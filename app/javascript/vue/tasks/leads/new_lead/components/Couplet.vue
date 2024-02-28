@@ -98,7 +98,7 @@
 import Lead from './Lead.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VSpinner from '@/components/spinner'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import { computed, ref, watch } from 'vue'
 import { lead_tag } from '../../helpers/formatters.js'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
