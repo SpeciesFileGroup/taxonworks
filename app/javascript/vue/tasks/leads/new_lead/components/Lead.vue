@@ -160,7 +160,7 @@ const displayLinkOut = computed(() => {
 })
 
 const editNextText = computed(() => {
-  if (store[props.side].redirect_id) {
+  if (store[props.side + '_had_redirect_on_save']) {
     return 'Follow redirect and edit'
   } else {
     return props.sideHasChildren ?
