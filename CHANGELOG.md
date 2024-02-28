@@ -7,6 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Global identifier classes for Web of Science and Zoological Record [#3853]
+
 ### Fixed
 
 - Handle bad BibTeX coming back from CrossRef.
