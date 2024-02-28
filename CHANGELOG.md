@@ -7,12 +7,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Return a png of any image via `/api/v1/images/:id/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)` [#3852]
+- `content_type` and `original_png` attributes to `/api/v1//images/123` [#3852]
+
 ### Fixed
 
 - Handle bad BibTeX coming back from CrossRef.
 - Quick Forms: Observation matrices slice doesn't work
 - Quick Forms: Content slice doesn't display contents [#3850]
 
+[#3852]: https://github.com/SpeciesFileGroup/taxonworks/issues/3852
 [#3850]: https://github.com/SpeciesFileGroup/taxonworks/issues/3850
 
 ## [0.38.3] - 2024-02-25

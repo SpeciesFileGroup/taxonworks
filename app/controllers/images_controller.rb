@@ -147,6 +147,12 @@ class ImagesController < ApplicationController
     send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
   end
 
+
+  # GET 'images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
+  def api_scale_to_box
+    send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
+  end
+
   # GET /images/:id/ocr/:x/:y/:height/:width
   def ocr
     tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root.join("public/images/tmp")}", encoding: 'utf-8')
