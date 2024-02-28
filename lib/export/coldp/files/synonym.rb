@@ -26,7 +26,7 @@ module Export::Coldp::Files::Synonym
   end
 
   # This is currently factored to use *no* ActiveRecord instances
-  def self.generate(otus, project_members, reference_csv = nil)
+  def self.generate(otus, project_members, reference_csv = nil, skip_name_ids = [])
     ::CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{taxonID nameID status remarks referenceID modified modifiedBy}
@@ -63,6 +63,8 @@ module Export::Coldp::Files::Synonym
           c.pluck(:id, :cached, :cached_original_combination, :type, :rank_class, :cached_secondary_homonym, :updated_at, :updated_by_id)
             .each do |t|
               reified_id = ::Export::Coldp.reified_id(t[0], t[1], t[2])
+              next if skip_name_ids.include?               reified_id = ::Export::Coldp.reified_id(t[0], t[1], t[2])
+
 
               # skip duplicate protonyms created for family group relationships
               if t[4]&.include? 'FamilyGroup'

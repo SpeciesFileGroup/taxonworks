@@ -4,6 +4,12 @@
 # * All names strings, even if hanging (= not attached to OTUs/Taxa)
 module Export::Coldp::Files::Name
 
+  @skipped_name_ids = []
+
+  def self.skipped_name_ids
+    @skipped_name_ids
+  end
+
   def self.code_field(taxon_name)
     case taxon_name.nomenclatural_code
     when :iczn
@@ -58,14 +64,15 @@ module Export::Coldp::Files::Name
   def self.add_higher_original_name(t, csv, origin_citation, name_remarks_vocab_id, project_members)
 
     id = t.reified_id
+    uninomial = clean_sic({:scientific_name => t.cached_original_combination})[:scientific_name]
 
     csv << [
       id,                                                                 # ID
       nil,                                                                # basionymID
-      clean_sic(t.cached_original_combination),                           # scientificName
+      uninomial,                                                          # scientificName
       authorship_field(t, true),                                          # authorship
       t.rank,                                                             # rank
-      clean_sic(t.cached_original_combination),                           # uninomial
+      uninomial,                                                          # uninomial
       nil,                                                                # genus
       nil,                                                                # subgenus (no parens)
       nil,                                                                # species
@@ -87,14 +94,12 @@ module Export::Coldp::Files::Name
   # @param t [Protonym]
   #    only place that var./frm can be handled.
   def self.add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
-    e = t.original_combination_elements.transform_values(&:last)
+
+    # Transform t.original_combination_elements from {:genus=>[nil, "Medeterus", "[sic]"], :species=>[nil, "viridifacies"]} to {:genus=>"Medeterus [sic]", :species=>"viridifacies"}
+    e = {}
+    e = t.original_combination_elements.transform_values { |v| v.compact.join(' ') }
     e[:scientific_name] = t.cached_original_combination
     e = clean_sic(e)
-
-    # skip names with "NOT SPECIFIED" elements
-    if t.cached_original_combination =~ /NOT SPECIFIED/
-      return
-    end
 
     infraspecific_element = t.original_combination_infraspecific_element
 
@@ -112,6 +117,13 @@ module Export::Coldp::Files::Name
     end
 
     id = t.reified_id
+
+    # skip names with "NOT SPECIFIED" elements
+    if t.cached_original_combination =~ /NOT SPECIFIED/
+      @skipped_name_ids.push(id)
+      return
+    end
+
     basionym_id = t.has_misspelling_relationship? ? t.valid_taxon_name.reified_id : id # => t.reified_id
     # case 1 - original combination difference
     # case 2 - misspelling (same combination)
@@ -153,7 +165,7 @@ module Export::Coldp::Files::Name
 
   def self.clean_sic(epithets)
     if epithets[:scientific_name].include? '[sic]'
-      epithets.transform_values { |value| value&.gsub(/\[sic\]/, '') }
+      epithets.transform_values { |value| value&.gsub(/\s*\[sic\]/, '') }
     else
       epithets
     end
@@ -162,8 +174,9 @@ module Export::Coldp::Files::Name
   # @params otu [Otu]
   #   the top level OTU
   def self.generate(otu, project_members, reference_csv = nil)
-     name_total = 0
-    ::CSV.generate(col_sep: "\t") do |csv|
+    name_total = 0
+    output = {}
+    output[:csv] = ::CSV.generate(col_sep: "\t") do |csv|
       csv << %w{
         ID
         basionymID
@@ -259,6 +272,19 @@ module Export::Coldp::Files::Name
             rank = t.rank
           end
 
+          # Here we truly want no higher
+          if !t.cached_original_combination.blank? && (is_genus_species && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?))
+            name_total += 1
+            add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
+          end
+
+          # Here we add reified ID's for higher taxa in which cached != cached_original_combination (e.g., TaxonName stores both Lamotialnina and Lamotialnini so needs a reified ID)
+          if !t.cached_original_combination.blank? && t.is_family_rank? && t.cached != t.cached_original_combination
+            add_higher_original_name(t, csv, origin_citation, name_remarks_vocab_id, project_members)
+          end
+
+          basionym_id = nil if @skipped_name_ids.include?(basionym_id)
+
           # Set is: no original combination OR (valid or invalid higher, valid lower, past combinations)
           if t.cached_original_combination.blank? || higher || t.is_valid? || t.is_combination?
             csv << [
@@ -283,17 +309,6 @@ module Export::Coldp::Files::Name
               Export::Coldp.modified(t[:updated_at]),                             # modified
               Export::Coldp.modified_by(t[:updated_by_id], project_members)       # modifiedBy
             ]
-          end
-
-          # Here we truly want no higher
-          if !t.cached_original_combination.blank? && (is_genus_species && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?))
-            name_total += 1
-            add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
-          end
-
-          # Here we add reified ID's for higher taxa in which cached != cached_original_combination (e.g., TaxonName stores both Lamotialnina and Lamotialnini so needs a reified ID)
-          if !t.cached_original_combination.blank? && t.is_family_rank? && t.cached != t.cached_original_combination
-            add_higher_original_name(t, csv, origin_citation, name_remarks_vocab_id, project_members)
           end
 
           Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation

@@ -84,14 +84,16 @@ module Export
       metadata_file.close
 
       Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
-        (FILETYPES - ['Name']).each do |ft|
+        (FILETYPES - ['Name', 'Synonym']).each do |ft|
           m = "Export::Coldp::Files::#{ft}".safe_constantize
           zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
         end
 
         zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
+        skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids
+        zipfile.get_output_stream("Synonym.tsv") { |f| f.write Export::Coldp::Files::Synonym.generate(otus, project_members, ref_tsv, skip_name_ids) }
         zipfile.get_output_stream('Taxon.tsv') do |f|
-          f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_tsv)
+          f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_tsv, prefer_unlabelled_otus, skip_name_ids)
         end
 
         # Sort the refs by full citation string
