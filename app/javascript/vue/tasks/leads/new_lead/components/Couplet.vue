@@ -72,10 +72,12 @@
       <Lead
         side="left"
         :redirect-options="redirectOptions"
+        :side-has-children="leftHasChildren"
       />
       <Lead
         side="right"
         :redirect-options="redirectOptions"
+        :side-has-children="rightHasChildren"
       />
     </div>
   </div>

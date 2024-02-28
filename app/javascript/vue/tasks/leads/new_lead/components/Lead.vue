@@ -35,7 +35,7 @@
         </VBtn>
 
         <VBtn
-          :disabled="store[side + '_had_redirect_on_save'] || !store[side + '_has_children']"
+          :disabled="store[side + '_had_redirect_on_save'] || !sideHasChildren"
           color="create"
           medium
           @click="insertCouplet()"
@@ -90,7 +90,7 @@
         <select
           class="redirect_select"
           v-model="store[side].redirect_id"
-          :disabled="store[side + '_has_children']"
+          :disabled="sideHasChildren"
         >
           <option :value="null"></option>
           <option
@@ -139,6 +139,10 @@ const props = defineProps({
       return ['left', 'right'].includes(value)
     }
   },
+  sideHasChildren: {
+    type: Boolean,
+    required: true
+  },
   redirectOptions: {
     type: Array,
     required: true
@@ -159,7 +163,7 @@ const editNextText = computed(() => {
   if (store[props.side].redirect_id) {
     return 'Follow redirect and edit'
   } else {
-    return store[props.side + '_has_children'] ?
+    return props.sideHasChildren ?
       'Edit the next couplet' :
       'Create and edit the next couplet'
   }
@@ -192,7 +196,7 @@ function insertCouplet() {
 }
 
 function nextCouplet() {
-  if (store[props.side + '_has_children']) {
+  if (props.sideHasChildren) {
     store.loadKey(store[props.side].id)
   } else if (store[props.side].redirect_id) {
     store.loadKey(store[props.side].redirect_id)
