@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Quick Forms: Content slice doesn't display contents [#3850]
 - Browse OTU: Load preferences
 - New loan task: reset button doesn't work [#3856]
+- New image task doesn't create citations without attributions
 
 [#3852]: https://github.com/SpeciesFileGroup/taxonworks/issues/3852
 [#3850]: https://github.com/SpeciesFileGroup/taxonworks/issues/3850
