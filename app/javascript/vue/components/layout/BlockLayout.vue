@@ -66,6 +66,8 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['expandedChanged'])
+
 const expanded = ref(props.setExpanded)
 
 watch(
@@ -73,6 +75,11 @@ watch(
   () => {
     expanded.value = props.setExpanded
   }
+)
+
+watch(
+  expanded,
+  (newVal) => { emit('expandedChanged', newVal) }
 )
 
 </script>
