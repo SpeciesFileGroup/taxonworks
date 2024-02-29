@@ -1,7 +1,7 @@
 <template>
   <BlockLayout
     expand
-    :start-collapsed="true"
+    :set-expanded="false"
     class="lead_header"
   >
     <template #header>

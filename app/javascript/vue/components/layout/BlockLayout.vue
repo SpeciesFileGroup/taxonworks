@@ -1,6 +1,6 @@
 <template>
   <div class="panel block-layout">
-    <spinner-component
+    <VSpinner
       :show-spinner="false"
       :show-legend="false"
       v-if="spinner"
@@ -19,7 +19,7 @@
       </slot>
       <div class="horizontal-left-content">
         <slot name="options" />
-        <expand-component
+        <VExpand
           v-if="expand"
           v-model="expanded"
         />
@@ -35,9 +35,9 @@
 </template>
 
 <script setup>
-import ExpandComponent from '@/components/expand.vue'
-import SpinnerComponent from '@/components/ui/VSpinner.vue'
-import { ref } from 'vue'
+import VExpand from '@/components/expand.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   expand: {
@@ -60,13 +60,21 @@ const props = defineProps({
     default: false
   },
 
-  startCollapsed: {
+  setExpanded: {
     type: Boolean,
-    default: false
+    default: true
   }
 })
 
-const expanded = ref(!props.startCollapsed)
+const expanded = ref(props.setExpanded)
+
+watch(
+  () => props.setExpanded,
+  () => {
+    expanded.value = props.setExpanded
+  }
+)
+
 </script>
 <style lang="scss" scoped>
 .block-layout {
