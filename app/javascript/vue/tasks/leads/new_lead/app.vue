@@ -3,10 +3,15 @@
   <h1>{{ store.root.id ? 'Editing' : 'Create a new key' }}</h1>
   <!-- The back button on this link fails without data-turbolinks=false if the current url has an id param, but works fine if there's no id param. -->
   <p><a href="/leads/list" data-turbolinks="false">List of Keys</a></p>
-  <BlockLayout expand class="meta">
+  <BlockLayout
+    expand
+    :set-expanded="!editingHasOccurred"
+    @expanded-changed="(val) => (metaExpanded = val)"
+    class="meta"
+  >
     <template #header>
       <div class="flex-separate middle full_width">
-        <h3>Key metadata</h3>
+        <h3>{{ metadataTitle }}</h3>
         <div
           v-if="store.root.id"
           class="horizontal-right-content gap-small header-radials"
@@ -34,12 +39,15 @@
   </BlockLayout>
 
   <PreviousCouplets v-if="store.lead.id" />
-  <Couplet v-if="store.lead.id"/>
+  <Couplet
+    v-if="store.lead.id"
+    @editing-has-occurred="() => (editingHasOccurred = true)"
+  />
 </template>
 
 <script setup>
 import { CITATION, DEPICTION } from '@/constants'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { useAnnotationHandlers } from './components/composables/useAnnotationHandlers.js'
@@ -58,6 +66,18 @@ const store = useStore()
 
 const depictions = ref([])
 const citations = ref([])
+
+const metaExpanded = ref(true)
+const editingHasOccurred = ref(false)
+
+const metadataTitle = computed(() => {
+  const defaultText = 'Key metadata'
+  if (metaExpanded.value || !store.root.text) {
+    return defaultText
+  } else {
+    return defaultText + ' - ' + store.root.text
+  }
+})
 
 const annotationLists = {
   [DEPICTION]: depictions,

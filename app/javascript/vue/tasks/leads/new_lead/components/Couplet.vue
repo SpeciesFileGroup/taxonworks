@@ -9,7 +9,7 @@
       :disabled="!store.lead.parent_id"
       color="primary"
       medium
-      @click="store.loadKey(store.lead.parent_id)"
+      @click="previousCouplet"
     >
       Go to the previous couplet
     </VBtn>
@@ -76,11 +76,13 @@
         side="left"
         :redirect-options="redirectOptions"
         :side-has-children="leftHasChildren"
+        @editing-has-occurred="() => emit('editingHasOccurred')"
       />
       <Lead
         side="right"
         :redirect-options="redirectOptions"
         :side-has-children="rightHasChildren"
+        @editing-has-occurred="() => emit('editingHasOccurred')"
       />
     </div>
   </div>
@@ -106,6 +108,8 @@ import { computed, ref, watch } from 'vue'
 import { lead_tag } from '../../helpers/formatters.js'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { useStore } from '../store/useStore.js'
+
+const emit = defineEmits(['editingHasOccurred'])
 
 const store = useStore()
 
@@ -171,6 +175,11 @@ watch(
   { immediate: true }
 )
 
+function previousCouplet() {
+  store.loadKey(store.lead.parent_id)
+  emit('editingHasOccurred')
+}
+
 function updateCouplet() {
   const payload = {
       lead: store.lead,
@@ -184,6 +193,7 @@ function updateCouplet() {
       // Future changes when redirect changes, so reload.
       store.loadKey(body)
       TW.workbench.alert.create('Couplet was successfully saved.', 'notice')
+      emit('editingHasOccurred')
     })
     .catch(() => {})
     .finally(() => {
@@ -196,6 +206,7 @@ function nextCouplet() {
   LeadEndpoint.create_for_edit(store.lead.id)
     .then(({ body }) => {
       store.loadKey(body)
+      emit('editingHasOccurred')
     })
     .finally(() => {
       loading.value = false
@@ -211,6 +222,7 @@ function destroyCouplet() {
       .then(() => {
         store.loadKey(store.lead.id)
         TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
+        emit('editingHasOccurred')
       })
       .catch(() => {})
       .finally(() => {
@@ -228,6 +240,7 @@ function deleteCouplet() {
       .then(() => {
         store.loadKey(store.lead.id)
         TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
+        emit('editingHasOccurred')
       })
       .catch(() => {})
       .finally(() => {

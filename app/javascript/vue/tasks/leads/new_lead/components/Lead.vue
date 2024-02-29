@@ -149,6 +149,8 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['editingHasOccurred'])
+
 const store = useStore()
 
 const depictions = ref([])
@@ -190,6 +192,7 @@ function insertCouplet() {
           "Success - you're now editing the inserted couplet",
           'notice'
         )
+        emit('editingHasOccurred')
       })
       .finally(() => {
         loading.value = false
@@ -212,6 +215,7 @@ function nextCouplet() {
         loading.value = false
       })
   }
+  emit('editingHasOccurred')
 }
 </script>
 
