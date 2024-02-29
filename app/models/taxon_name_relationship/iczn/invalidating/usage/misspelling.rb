@@ -58,4 +58,12 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling < TaxonNameR
     return false if c.nil?
     self.citations.create(source_id: c.source_id, pages: c.pages, is_original: true)
   end
+
+  def sv_specific_relationship
+    s = self.subject_taxon_name
+    o = self.object_taxon_name
+    if s.name == o.name
+      soft_validations.add(:base, "Misspelled and correctly spelled names are identical: '#{s.cached_html}'")
+    end
+  end
 end
