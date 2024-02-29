@@ -14,10 +14,13 @@
       Go to the previous couplet
     </VBtn>
 
-    <h2 class="title_and_annotator">
-      <span v-html="'<i>At</i> ' + lead_tag(store.lead)" />
+    <div class="title_and_annotator">
+      <span
+        class="large_type"
+        v-html="'<b><i>At</i> ' + lead_tag(store.lead) + '</b>'"
+      />
       <RadialAnnotator :global-id="store.lead.global_id" />
-    </h2>
+    </div>
   </div>
 
   <div v-if="hasChildren">
@@ -259,10 +262,13 @@ function deleteCouplet() {
   }
 }
 .title_and_annotator {
+  margin-top: 1em;
   span {
     display: inline-block;
   }
+  // The radial annotator icon
   div {
+    vertical-align: 6px;
     display: inline-block;
     margin-left: .5em;
   }
