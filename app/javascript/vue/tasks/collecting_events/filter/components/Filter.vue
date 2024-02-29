@@ -1,10 +1,6 @@
 <template>
   <FacetGeographic v-model="params" />
   <FaceDeterminations v-model="params" />
-  <FacetTaxonName
-    v-model="params"
-    validity
-  />
   <FacetIdentifiers v-model="params" />
   <FacetPeople
     v-model="params"
@@ -40,7 +36,6 @@
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
-import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetTotalUsed from '@/components/Filter/Facets/shared/FacetTotalUsed.vue'
 import FacetCollectingEventAttributes from '@/components/Filter/Facets/CollectingEvent/FacetCollectingEvent/FacetCollectingEvent.vue'
 import FacetKeywords from '@/components/Filter/Facets/shared/FacetTags.vue'
