@@ -28,7 +28,7 @@
 import { computed } from 'vue'
 import { CONTENT } from '@/constants/index.js'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetTopic from '@/components/Filter/Facets/shared/FacetTopic.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
