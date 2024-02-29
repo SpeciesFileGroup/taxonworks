@@ -18,9 +18,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Quick Forms: Observation matrices slice doesn't work
 - Quick Forms: Content slice doesn't display contents [#3850]
 - Browse OTU: Load preferences
+- New loan task: reset button doesn't work [#3856]
 
 [#3852]: https://github.com/SpeciesFileGroup/taxonworks/issues/3852
 [#3850]: https://github.com/SpeciesFileGroup/taxonworks/issues/3850
+[#3856]: https://github.com/SpeciesFileGroup/taxonworks/issues/3856
 
 ## [0.38.3] - 2024-02-25
 
