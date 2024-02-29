@@ -25,7 +25,7 @@
 
     <div v-if="lead.link_out && lead.link_out_text">
       <a
-        :href="'http://' + lead.link_out"
+        :href="lead.link_out"
         target="_blank"
       >
         {{ lead.link_out_text }}

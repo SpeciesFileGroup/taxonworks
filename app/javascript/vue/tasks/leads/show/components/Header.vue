@@ -9,7 +9,7 @@
         <h3>
           <a
             v-if="root.link_out"
-            :href="'http://' + root.link_out"
+            :href="root.link_out"
             target="_blank"
           >
             {{ root.text }}

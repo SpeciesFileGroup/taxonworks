@@ -61,7 +61,7 @@ class Lead < ApplicationRecord
   before_save :check_is_public
 
   validate :root_has_title
-  validate :link_out_has_no_protocol
+  validate :link_out_has_protocol
   validate :redirect_node_is_leaf_node
   validate :node_parent_doesnt_have_redirect
   validate :root_has_no_redirect
@@ -186,8 +186,8 @@ class Lead < ApplicationRecord
     errors.add(:root_node, 'must have a title') if parent_id.nil? and text.nil?
   end
 
-  def link_out_has_no_protocol
-    errors.add(:link, "shouldn't include http") if link_out&.start_with? 'http' or link_out&.include? '://'
+  def link_out_has_protocol
+    errors.add(:link, 'must include https:// or http://') if !link_out.nil? && !(link_out.start_with?('https://') || link_out.start_with?('http://'))
   end
 
   def redirect_node_is_leaf_node

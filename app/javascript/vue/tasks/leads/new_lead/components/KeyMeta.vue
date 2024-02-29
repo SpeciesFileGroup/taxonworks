@@ -35,13 +35,17 @@
   </div>
 
   <div class="field label-above">
-    <label>Link out (for title/top of key; don't include http://)</label>
+    <label>Link out (for title/top of key; must include https:// or http://)</label>
     <textarea
       class="full_width"
       v-model="store.root.link_out"
       rows="2"
     />
-    <a :href="'http://' + store.root.link_out" target="_blank">
+    <a
+      v-if="displayLinkOut"
+      :href="store.root.link_out"
+      target="_blank"
+    >
       {{ store.root.link_out }}
     </a>
   </div>
@@ -95,6 +99,12 @@ const citations = defineModel(
     required: true
   }
 )
+
+const displayLinkOut = computed(() => {
+  const linkOut = store.root.link_out
+  return linkOut &&
+    (linkOut.startsWith('https://') || linkOut.startsWith('http://'))
+})
 
 const updateButtonText = computed(() => {
   if (store.root.id) {

@@ -36,7 +36,10 @@
       </div>
 
       <div v-if="displayLinkOut">
-        <a :href="'http://' + lead.link_out" target="_blank">
+        <a
+          :href="lead.link_out"
+          target="_blank"
+        >
           {{ lead.link_out_text }}
         </a>
       </div>

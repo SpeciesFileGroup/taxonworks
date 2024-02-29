@@ -59,7 +59,7 @@
         <label>External link</label>
         <fieldset>
           <div class="field label-above">
-            <label>URL (don't include http://)</label>
+            <label>URL (must include https:// or http://)</label>
             <textarea
               class="full_width"
               rows="2"
@@ -75,7 +75,7 @@
             />
           </div>
           <p v-if="displayLinkOut">
-            Link: <a :href="'http://' + store[side].link_out" target="_blank">
+            Link: <a :href="store[side].link_out" target="_blank">
               {{ store[side].link_out_text }}
             </a>
           </p>
@@ -156,7 +156,9 @@ const depictions = ref([])
 const loading = ref(false)
 
 const displayLinkOut = computed(() => {
-  return store[props.side].link_out && store[props.side].link_out_text
+  const linkOut = store[props.side].link_out
+  return linkOut && store[props.side].link_out_text &&
+    (linkOut.startsWith('https://') || linkOut.startsWith('http://'))
 })
 
 const editNextText = computed(() => {
