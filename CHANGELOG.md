@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Handle bad BibTeX coming back from CrossRef.
 - Quick Forms: Observation matrices slice doesn't work
 - Quick Forms: Content slice doesn't display contents [#3850]
+- Browse OTU: Load preferences
 
 [#3852]: https://github.com/SpeciesFileGroup/taxonworks/issues/3852
 [#3850]: https://github.com/SpeciesFileGroup/taxonworks/issues/3850
