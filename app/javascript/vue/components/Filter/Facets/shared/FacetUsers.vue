@@ -58,6 +58,13 @@
         </div>
       </div>
     </div>
+    <label>
+      <input
+        type="checkbox"
+        v-model="params.extend_housekeeping"
+      />
+      Extend
+    </label>
   </FacetContainer>
 </template>
 
