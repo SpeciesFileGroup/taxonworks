@@ -8,7 +8,7 @@
       <a
         :href="RouteNames.NewLead + '?lead_id=' + o.cpl.parent_id"
         @click.prevent="store.loadKey(o.cpl.parent_id)"
-        v-html="leadText(o.cpl)"
+        v-html="coupletText(o.cpl, o.cplLabel)"
       />
     </div>
   </div>
@@ -20,7 +20,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { leadText, marginForDepth } from '../../helpers/formatters.js'
+import { coupletText, marginForDepth } from '../../helpers/formatters.js'
 import { RouteNames } from '@/routes/routes'
 import { useStore } from '../store/useStore.js'
 

@@ -47,15 +47,7 @@ const selfAndParents = computed(() => {
 })
 
 function textForParents(parents, i) {
-  const optionChosenText = leadText(parents[i])
-  const coupletLabelOfChosenOption = parents[i-1].origin_label
-  if (coupletLabelOfChosenOption) {
-    return (
-      '<span class="lead-super">[' + coupletLabelOfChosenOption + ']</span> '
-      + optionChosenText
-    )
-  }
-  return optionChosenText
+  return coupletText(parents[i], parents[i-1].origin_label)
 }
 </script>
 
@@ -66,7 +58,7 @@ function textForParents(parents, i) {
   margin: 2em auto;
 }
 .new-lead-half-couplet {
-  margin-bottom: .5em;
+  margin-bottom: .1em;
 }
 .lead-super {
   vertical-align: super;

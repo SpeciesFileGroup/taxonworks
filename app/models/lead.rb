@@ -160,6 +160,7 @@ class Lead < ApplicationRecord
       a = {}
       a[:depth] = depth
       a[:cpl] = c
+      a[:cplLabel] = node.origin_label
       result.push(a)
     end
     result

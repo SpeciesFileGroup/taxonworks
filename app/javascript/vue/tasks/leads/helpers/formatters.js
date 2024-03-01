@@ -17,4 +17,12 @@ function marginForDepth(depth) {
   return 'margin-left: ' + pxs.toString() + 'px'
 }
 
-export { leadId, leadText, marginForDepth }
+function coupletText(lead, label) {
+  const text = leadText(lead)
+  if (label) {
+    return '<span class="lead-super">[' + label + ']</span> ' + text
+  }
+  return text
+}
+
+export { leadId, leadText, marginForDepth, coupletText }
