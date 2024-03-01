@@ -5,14 +5,17 @@ All (hopefully) notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 This project <em>does not yet</em> adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
 
-## [unreleased]
+## [0.39.0] [!!unreleased!!]
 
 ### Added
 
+- Project vocabulary task [#864]
 - Global identifier classes for Web of Science and Zoological Record [#3853]
 - `/api/v1/biological_associations/simple.csv` endpoint
 - Return a png of any image via `/api/v1/images/:id/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)` [#3852]
 - `content_type` and `original_png` attributes to `/api/v1//images/123` [#3852]
+- Ability to extend housekeeping on some filters to check changes on related models [#3851]
+- Some new soft validations on Misspellings
 
 ### Fixed
 
@@ -22,13 +25,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse OTU: Load preferences
 - New loan task: reset button doesn't work [#3856]
 - New image task doesn't create citations without attributions
-- Missing pagination headers for 4 endpoints
+- Missing pagination headers for 4 endpoints [#3859]
 
 ### Changed
 
 - Allow omitting seconds in non-interval ISO-8601 date times in DwC importer.
 
+[#864]: https://github.com/SpeciesFileGroup/taxonworks/issues/864
 [#3853]: https://github.com/SpeciesFileGroup/taxonworks/issues/3853
+[#3851]: https://github.com/SpeciesFileGroup/taxonworks/issues/3851
 [#3852]: https://github.com/SpeciesFileGroup/taxonworks/issues/3852
 [#3850]: https://github.com/SpeciesFileGroup/taxonworks/issues/3850
 [#3856]: https://github.com/SpeciesFileGroup/taxonworks/issues/3856
