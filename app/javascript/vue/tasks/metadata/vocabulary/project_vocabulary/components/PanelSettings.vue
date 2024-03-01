@@ -5,6 +5,11 @@
       <select
         v-model="parameters.model"
         class="full_width"
+        @change="
+          () => {
+            parameters.attribute = undefined
+          }
+        "
       >
         <option
           disabled
@@ -106,13 +111,14 @@ const attributes = ref([])
 watch(
   () => parameters.value.model,
   (newVal) => {
-    parameters.value.attribute = undefined
-
     if (newVal) {
       Metadata.attributes({ model: newVal }).then(({ body }) => {
         attributes.value = body
       })
     }
+  },
+  {
+    immediate: true
   }
 )
 
