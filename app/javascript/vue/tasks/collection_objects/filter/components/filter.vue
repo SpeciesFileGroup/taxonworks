@@ -28,7 +28,10 @@
   <FacetTypeMaterial v-model="params" />
   <FacetInRelationship v-model="params" />
   <FacetLoan v-model="params" />
-  <FacetUsers v-model="params" />
+  <FacetUsers
+    v-model="params"
+    :type="COLLECTION_OBJECT"
+  />
   <FacetTags
     v-model="params"
     target="CollectionObject"
@@ -48,11 +51,11 @@
 
 <script setup>
 import { computed } from 'vue'
-import { COLLECTOR_SELECTOR } from '@/constants/index.js'
+import { COLLECTOR_SELECTOR, COLLECTION_OBJECT } from '@/constants/index.js'
 import FacetDetermination from '@/components/Filter/Facets/CollectionObject/Determiner/FacetDetermination.vue'
 import FacetCollectingEvent from '@/components/Filter/Facets/CollectingEvent/FacetCollectingEvent/FacetCollectingEvent.vue'
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
