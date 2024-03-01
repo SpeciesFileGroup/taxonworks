@@ -21,10 +21,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse OTU: Load preferences
 - New loan task: reset button doesn't work [#3856]
 - New image task doesn't create citations without attributions
+- Missing pagination headers for 4 endpoints
 
 [#3852]: https://github.com/SpeciesFileGroup/taxonworks/issues/3852
 [#3850]: https://github.com/SpeciesFileGroup/taxonworks/issues/3850
 [#3856]: https://github.com/SpeciesFileGroup/taxonworks/issues/3856
+[#3859]: https://github.com/SpeciesFileGroup/taxonworks/issues/3859
 
 ## [0.38.3] - 2024-02-25
 
