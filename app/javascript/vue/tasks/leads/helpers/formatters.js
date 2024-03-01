@@ -1,9 +1,3 @@
-function leadId(lead) {
-  const id =
-    lead.origin_label ? '[' + lead.origin_label + ']' : '[tw:' + lead.id + ']'
-  return '<b>' + id + '</b> '
-}
-
 function leadText(lead) {
   if (lead.text) {
     return lead.text.slice(0, 38) + (lead.text.length > 38 ? '...' : '')
@@ -25,4 +19,4 @@ function coupletText(lead, label) {
   return text
 }
 
-export { leadId, leadText, marginForDepth, coupletText }
+export { leadText, marginForDepth, coupletText }

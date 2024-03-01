@@ -6,16 +6,13 @@
 
   <BlockLayout class="lead">
     <template #header>
-      <div class="flex-separate middle full_width">
-        <h3 v-html="leadId(store[side])" />
-        <div class="horizontal-right-content gap-small header-radials">
-          <RadialAnnotator
-            :global-id="store[side].global_id"
-            @create="handleRadialCreate"
-            @delete="handleRadialDelete"
-            @update="handleRadialUpdate"
-          />
-        </div>
+      <div class="full_width horizontal-right-content">
+        <RadialAnnotator
+          :global-id="store[side].global_id"
+          @create="handleRadialCreate"
+          @delete="handleRadialDelete"
+          @update="handleRadialUpdate"
+        />
       </div>
     </template>
 
@@ -117,7 +114,6 @@
 </template>
 
 <script setup>
-import { leadId } from '../../helpers/formatters.js'
 import { DEPICTION, LEAD } from '@/constants/index.js'
 import { Lead } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
