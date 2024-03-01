@@ -24,6 +24,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New image task doesn't create citations without attributions
 - Missing pagination headers for 4 endpoints
 
+### Changed
+
+- Allow omitting seconds in non-interval ISO-8601 date times in DwC importer.
+
 [#3853]: https://github.com/SpeciesFileGroup/taxonworks/issues/3853
 [#3852]: https://github.com/SpeciesFileGroup/taxonworks/issues/3852
 [#3850]: https://github.com/SpeciesFileGroup/taxonworks/issues/3850
