@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- `/api/v1/biological_associations/simple.csv` endpoint
 - Return a png of any image via `/api/v1/images/:id/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)` [#3852]
 - `content_type` and `original_png` attributes to `/api/v1//images/123` [#3852]
 
