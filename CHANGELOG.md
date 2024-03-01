@@ -5,7 +5,11 @@ All (hopefully) notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 This project <em>does not yet</em> adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
 
-## [0.39.0] [!!unreleased!!]
+## [unreleased]
+
+\-
+
+## [0.39.0] - 2024-03-01
 
 ### Added
 
@@ -4375,7 +4379,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.39.0...development
+[0.39.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.3...v0.39.0
+[0.38.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.2...v0.38.3
 [0.38.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.1...v0.38.2
 [0.38.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.0...v0.38.1
 [0.38.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.1...v0.38.0
