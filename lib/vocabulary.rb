@@ -1,11 +1,11 @@
 module Vocabulary
 
   def self.words(model: nil, attribute: nil, min: 0, max: nil, limit: nil, begins_with: nil, contains: nil, project_id: [])
-    begin
-      klass = ::ApplicationController.new().whitelist_constantize(model)
-    rescue KeyError
-      return {}
-    end 
+
+    # TODO: Check for project id
+
+    klass = get_model(model)
+    return {} if klass == {}
 
     c = "COUNT(#{attribute})"
 
@@ -20,6 +20,19 @@ module Vocabulary
     words = words.having("#{c} < ?", max) if max
     words = words.limit(limit) if limit
     words.group(attribute).order(c + ' DESC').count
+  end
+
+  def self.attributes(model)
+    klass = get_model(model)
+    ApplicationEnumeration.attributes(klass)
+  end
+
+  def self.get_model(name)
+    begin
+      klass = ::ApplicationController.new().whitelist_constantize(name)
+    rescue KeyError
+      return {}
+    end 
   end
 
 end

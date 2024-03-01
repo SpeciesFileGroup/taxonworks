@@ -49,6 +49,14 @@ class MetadataController < ApplicationController
     render json: DATA_MODELS.keys.sort
   end
 
+  def data_models
+    render json: DATA_MODELS.keys.sort
+  end
+
+  def attributes
+    render json: Vocabulary.attributes(params.require(:model))
+  end
+
   protected
 
   def get_klass

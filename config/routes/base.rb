@@ -20,6 +20,7 @@ end
 scope :metadata, controller: 'metadata' do
   get :vocabulary, defaults: {format: :json}
   get :data_models, defaults: {format: :json}
+  get :attributes, defaults: {format: :json}
   get :annotators, defaults: {format: :json}
   get :related_summary
   post :related_summary
