@@ -26,6 +26,22 @@
           <input
             class="input-apply"
             disabled="true"
+            :value="showSource"
+            type="text"
+          />
+          <button
+            type="button"
+            :disabled="!source || !areImagesCreated"
+            class="button normal-input button-submit separate-left"
+            @click="applySource"
+          >
+            Apply
+          </button>
+        </div>
+        <div class="horizontal-left-content margin-small-top">
+          <input
+            class="input-apply"
+            disabled="true"
             :value="showPeopleAndLicense"
             type="text"
           />
@@ -78,7 +94,11 @@
         type="button"
         :disabled="
           !(
-            (validateDepic || validateSqedObject || validateAttr || pixels) &&
+            (validateDepic ||
+              validateSqedObject ||
+              validateAttr ||
+              pixels ||
+              source) &&
             areImagesCreated
           )
         "
@@ -88,6 +108,7 @@
             applyAttr()
             applyDepic()
             applyPxToCm()
+            applySource()
           }
         "
       >
@@ -194,14 +215,18 @@ export default {
     },
 
     showPeopleAndLicense() {
-      if (this.imagesBy.length || this.license.length || this.source) {
+      if (this.imagesBy.length || this.license.length) {
         return `${this.imagesBy}${this.imagesBy.length > 0 ? ' ' : ''}${
           this.license ? `${this.license}. ` : ''
-        }${this.source ? `Source: ${this.source.cached}` : ''}${
-          this.getYear ? ` Copyright year ${this.getYear}` : ''
-        }`
+        }${this.getYear ? ` Copyright year ${this.getYear}` : ''}`
       }
       return 'The attribution summary will be displayed here when defined.'
+    },
+
+    showSource() {
+      return this.source
+        ? `Source: ${this.source.cached}`
+        : 'Source will be displayed here when defined.'
     },
 
     objectsForDepictions() {
@@ -239,6 +264,12 @@ export default {
     applyAttr() {
       if (this.validateAttr) {
         this.$store.dispatch(ActionNames.ApplyAttributions)
+      }
+    },
+
+    applySource() {
+      if (this.source) {
+        this.$store.dispatch(ActionNames.ApplySource)
       }
     },
 

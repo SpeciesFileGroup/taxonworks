@@ -58,6 +58,13 @@
         </div>
       </div>
     </div>
+    <label v-if="type">
+      <input
+        type="checkbox"
+        v-model="params.extend_housekeeping"
+      />
+      Extend ({{ TYPE_MESSAGE[type] }})
+    </label>
   </FacetContainer>
 </template>
 
@@ -65,6 +72,7 @@
 import { ref, computed, watch, onBeforeMount } from 'vue'
 import { ProjectMember } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { TYPE_MESSAGE } from './constants/types'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import FacetHousekeeperNow from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeepingNow.vue'
 
@@ -87,6 +95,11 @@ const props = defineProps({
   modelValue: {
     type: Object,
     required: true
+  },
+
+  type: {
+    type: String,
+    default: null
   }
 })
 
