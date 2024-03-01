@@ -32,7 +32,7 @@
           disabled
           :value="undefined"
         >
-          Select...
+          {{ parameters.model ? 'Select...' : 'Select a model first.' }}
         </option>
         <option
           v-for="attr in attributes"
