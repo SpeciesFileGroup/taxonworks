@@ -37,4 +37,21 @@ module Vocabulary
     end 
   end
 
+  # WITH words_list AS (
+  #   SELECT unnest(ARRAY['word1', 'word2', 'word3', ...]) AS word
+  # )
+  # SELECT 
+  #   w1.word AS word1,
+  #   w2.word AS word2,
+  #   levenshtein(w1.word, w2.word) AS levenshtein_distance
+  # FROM 
+  #   words_list w1
+  # CROSS JOIN 
+  #   words_list w2
+  # WHERE 
+  #   w1.word != w2.word
+  # ORDER BY 
+  #   levenshtein_distance;
+
+
 end
