@@ -13,14 +13,6 @@
     >
       Go to the previous couplet
     </VBtn>
-
-    <div class="title_and_annotator">
-      <span
-        class="large_type"
-        v-html="'<b><i>At</i> ' + lead_tag(store.lead) + '</b>'"
-      />
-      <RadialAnnotator :global-id="store.lead.global_id" />
-    </div>
   </div>
 
   <div v-if="hasChildren">
@@ -101,11 +93,9 @@
 
 <script setup>
 import Lead from './Lead.vue'
-import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { computed, ref, watch } from 'vue'
-import { lead_tag } from '../../helpers/formatters.js'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { useStore } from '../store/useStore.js'
 
@@ -266,6 +256,7 @@ function deleteCouplet() {
   column-gap: 0px;
   justify-items: start;
   margin-bottom: 2em;
+  margin-top: 2em;
   :first-child {
     justify-self: end;
     margin-right: 2em;

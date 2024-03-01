@@ -12,12 +12,12 @@
         <div
           v-for="(o, i) in parents"
           :key="o.id"
-          :style="margin_for_depth(i)"
+          :style="marginForDepth(i)"
         >
           <a
             :href="RouteNames.ShowLead + '?lead_id=' + o.id"
             @click.prevent = "$emit('loadCouplet', o.id)"
-            v-html="lead_tag(o)"
+            v-html="leadText(o)"
           />
         </div>
       </div>
@@ -30,7 +30,7 @@
 
 <script setup>
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import { lead_tag, margin_for_depth } from '../../helpers/formatters.js'
+import { leadText, marginForDepth } from '../../helpers/formatters.js'
 import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({

@@ -3,12 +3,12 @@
     <div
       v-for="o in futureCouplets.toReversed()"
       :key="o.cpl.id"
-      :style="margin_for_depth(o.depth)"
+      :style="marginForDepth(o.depth)"
     >
       <a
-        :href="RouteNames.NewLead + '?lead_id=' + o.cpl.id"
-        @click.prevent="store.loadKey(o.cpl.id)"
-        v-html="lead_tag(o.cpl)"
+        :href="RouteNames.NewLead + '?lead_id=' + o.cpl.parent_id"
+        @click.prevent="store.loadKey(o.cpl.parent_id)"
+        v-html="leadText(o.cpl)"
       />
     </div>
   </div>
@@ -20,7 +20,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { lead_tag, margin_for_depth } from '../../helpers/formatters.js'
+import { leadText, marginForDepth } from '../../helpers/formatters.js'
 import { RouteNames } from '@/routes/routes'
 import { useStore } from '../store/useStore.js'
 

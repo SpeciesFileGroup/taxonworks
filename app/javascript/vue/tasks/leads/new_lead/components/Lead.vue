@@ -7,7 +7,7 @@
   <BlockLayout class="lead">
     <template #header>
       <div class="flex-separate middle full_width">
-        <h3 v-html="lead_id(store[side])" />
+        <h3 v-html="leadId(store[side])" />
         <div class="horizontal-right-content gap-small header-radials">
           <RadialAnnotator
             :global-id="store[side].global_id"
@@ -117,7 +117,7 @@
 </template>
 
 <script setup>
-import { lead_id } from '../../helpers/formatters.js'
+import { leadId } from '../../helpers/formatters.js'
 import { DEPICTION, LEAD } from '@/constants/index.js'
 import { Lead } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
