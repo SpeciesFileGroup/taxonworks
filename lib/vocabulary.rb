@@ -22,6 +22,4 @@ module Vocabulary
     words.group(attribute).order(c + ' DESC').count
   end
 
-
-
 end

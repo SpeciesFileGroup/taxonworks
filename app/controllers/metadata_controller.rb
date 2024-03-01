@@ -45,6 +45,10 @@ class MetadataController < ApplicationController
     end
   end
 
+  def data_models
+    render json: DATA_MODELS.keys.sort
+  end
+
   protected
 
   def get_klass
