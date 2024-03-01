@@ -6,7 +6,10 @@
   />
   <div class="horizontal-left-content align-start gap-medium">
     <div class="panel content">
-      <PanelSettings v-model="parameters" />
+      <PanelSettings
+        v-model="parameters"
+        class="margin-medium-bottom"
+      />
       <VBtn
         color="primary"
         medium
