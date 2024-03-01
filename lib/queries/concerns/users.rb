@@ -19,7 +19,7 @@ module Queries::Concerns::Users
       :user_date_start,
       :user_date_end,
       :updated_since,
-      :extend_houskeeping,
+      :extend_housekeeping,
       user_id: [],
     ]
   end
