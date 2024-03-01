@@ -2,7 +2,7 @@ class BiologicalAssociationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_biological_association, only: [:show, :edit, :update, :destroy, :api_show, :api_globi, :api_resource_relationship]
-  after_action -> { set_pagination_headers(:biological_associations) }, only: [:index, :api_index_simple], if: :json_request?
+  after_action -> { set_pagination_headers(:biological_associations) }, only: [:index, :api_index, :api_index_simple], if: :json_request?
 
   # GET /biological_associations
   # GET /biological_associations.json
