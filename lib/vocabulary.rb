@@ -23,16 +23,17 @@ module Vocabulary
     words.group(attribute).order(c + ' DESC').count
   end
 
+  # @param model an ApplicationRecord model
   def self.attributes(model)
-    klass = get_model(model)
-    ApplicationEnumeration.attributes(klass.new)
+    ApplicationEnumeration.attributes(model.new)
   end
 
+  # From a String.
   def self.get_model(name)
     begin
       klass = ::ApplicationController.new().whitelist_constantize(name)
     rescue KeyError
-      return {}
+      nil 
     end 
   end
 

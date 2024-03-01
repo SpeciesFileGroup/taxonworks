@@ -54,7 +54,11 @@ class MetadataController < ApplicationController
   end
 
   def attributes
-    render json: Vocabulary.attributes(params.require(:model))
+    render json: Vocabulary.attributes(
+      Vocabulary.get_model(
+        params.require(:model)
+      )
+    )
   end
 
   protected

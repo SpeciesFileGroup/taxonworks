@@ -12,18 +12,11 @@ module ApplicationEnumeration
   # TODO: This should be a require check likely, for lib/taxon_works.rb or some such
   # Rails.application.eager_load! if ActiveRecord::Base.connected?
 
-  # @param target [Model or Model instance]
+  # @param target [Instance of an ApplicationRecord model]
   # @return [Array of Symbol]
   #   a list attributes except "_id", "_at" postfixed
   def self.attributes(target)
-
-    if target.class < ApplicationRecord
-      o = target.new
-    else
-      o = target
-    end
-    
-     o.attributes.select{|k,v| !(k =~ /_id\z|\Aid\z|_at\z/)}.symbolize_keys.keys.sort
+     target.attributes.select{|k,v| !(k =~ /_id\z|\Aid\z|_at\z/)}.symbolize_keys.keys.sort
   end
 
   # @return [Array]
