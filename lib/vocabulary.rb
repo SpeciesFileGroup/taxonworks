@@ -24,7 +24,7 @@ module Vocabulary
 
   def self.attributes(model)
     klass = get_model(model)
-    ApplicationEnumeration.attributes(klass)
+    ApplicationEnumeration.attributes(klass.new)
   end
 
   def self.get_model(name)

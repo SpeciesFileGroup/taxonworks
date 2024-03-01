@@ -16,11 +16,13 @@ module ApplicationEnumeration
   # @return [Array of Symbol]
   #   a list attributes except "_id", "_at" postfixed
   def self.attributes(target)
-    if target < ApplicationRecord
-      o = target
-    else
+
+    if target.class < ApplicationRecord
       o = target.new
+    else
+      o = target
     end
+    
      o.attributes.select{|k,v| !(k =~ /_id\z|\Aid\z|_at\z/)}.symbolize_keys.keys.sort
   end
 
