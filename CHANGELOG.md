@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Global identifier classes for Web of Science and Zoological Record [#3853]
 - `/api/v1/biological_associations/simple.csv` endpoint
 - Return a png of any image via `/api/v1/images/:id/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)` [#3852]
 - `content_type` and `original_png` attributes to `/api/v1//images/123` [#3852]
@@ -23,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New image task doesn't create citations without attributions
 - Missing pagination headers for 4 endpoints
 
+[#3853]: https://github.com/SpeciesFileGroup/taxonworks/issues/3853
 [#3852]: https://github.com/SpeciesFileGroup/taxonworks/issues/3852
 [#3850]: https://github.com/SpeciesFileGroup/taxonworks/issues/3850
 [#3856]: https://github.com/SpeciesFileGroup/taxonworks/issues/3856
