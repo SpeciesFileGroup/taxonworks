@@ -39,7 +39,7 @@
         medium
         @click="updateCouplet"
       >
-        Update (save)
+        Update
       </VBtn>
 
       <VBtn
