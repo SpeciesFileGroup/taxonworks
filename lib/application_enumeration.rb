@@ -12,6 +12,13 @@ module ApplicationEnumeration
   # TODO: This should be a require check likely, for lib/taxon_works.rb or some such
   # Rails.application.eager_load! if ActiveRecord::Base.connected?
 
+  # @param target [Instance of an ApplicationRecord model]
+  # @return [Array of Symbol]
+  #   a list attributes except "_id", "_at" postfixed
+  def self.attributes(target)
+     target.attributes.select{|k,v| !(k =~ /_id\z|\Aid\z|_at\z/)}.symbolize_keys.keys.sort
+  end
+
   # @return [Array]
   #   a list symbols that represent populated, non "cached", non "_id", non reserved attributes
   def self.alternate_value_attributes(object)

@@ -132,7 +132,7 @@ export default {
           } else {
             this.found = false
             TW.workbench.alert.create(
-              'Nothing found or the source already exist.',
+              'Nothing found, the Source already exists, or the result found could not be processed as BibTeX.',
               'error'
             )
           }

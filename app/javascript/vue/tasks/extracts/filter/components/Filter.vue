@@ -36,7 +36,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetRepository from '@/components/Filter/Facets/CollectionObject/FacetRepository.vue'
 import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'

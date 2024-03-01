@@ -7,7 +7,7 @@
     <h3 v-else>New record</h3>
     <fieldset class="margin-medium-bottom">
       <legend>Topic</legend>
-      <smart-selector
+      <SmartSelector
         class="full_width margin-small-bottom"
         ref="smartSelector"
         autocomplete-url="/controlled_vocabulary_terms/autocomplete"
@@ -22,6 +22,7 @@
         inline
         label="name"
         pin-type="BiologicalRelationship"
+        :filter="(topic) => list.every((item) => item.topic.id !== topic.id)"
         @selected="setTopic"
       >
         <template #all>
@@ -32,183 +33,184 @@
           >
             Create a topic first.
           </a>
-          <topic-item
+          <TopicItem
             v-for="item in topicsAvailable"
             :key="item.id"
             :topic="item"
-            :class="{ 'btn-data': content.topic_id !== item.id }"
             @select="setTopic"
           />
         </template>
-      </smart-selector>
+      </SmartSelector>
       <hr />
-      <smart-selector-item
+      <SmartSelectorItem
         :item="topic"
         label="name"
-        @unset="topic = undefined"
+        @unset="() => (topic = null)"
       />
     </fieldset>
     <div>
-      <spinner-component
+      <VSpinner
         v-if="!topic"
         :show-spinner="false"
         legend="Select a topic first"
       />
-      <markdown-editor
+      <MarkdownEditor
         v-model="content.text"
         :configs="config"
       />
     </div>
-    <div class="margin-small-top margin-small-bottom">
-      <button
-        type="button"
+    <div
+      class="margin-small-top margin-small-bottom horizontal-left-content gap-small"
+    >
+      <VBtn
+        color="create"
+        medium
         :disabled="!validate"
-        class="button normal-input button-submit margin-small-right"
         @click="saveContent"
       >
-        Save
-      </button>
-      <button
-        type="button"
-        class="button normal-input button-default"
-        @click="setContent(newContent())"
+        {{ content.id ? 'Update' : 'Create' }}
+      </VBtn>
+      <VBtn
+        color="primary"
+        medium
+        @click="
+          () => {
+            setContent(makeContent())
+          }
+        "
       >
         New
-      </button>
+      </VBtn>
     </div>
-    <table-list
+    <TableList
       :header="['Text', 'Topic', '']"
       :attributes="['text_for_list', ['topic', 'name']]"
       :list="shortList"
       edit
+      class="list"
       @delete="removeItem"
       @edit="setContent"
-      class="list"
     />
   </div>
 </template>
 
-<script>
-import CRUD from '../../request/crud.js'
-import annotatorExtend from '../../components/annotatorExtend.js'
+<script setup>
 import TopicItem from '../citations/topicItem.vue'
 import TableList from '@/components/table_list.vue'
 import MarkdownEditor from '@/components/markdown-editor.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import SpinnerComponent from '@/components/ui/VSpinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { shorten } from '@/helpers/strings.js'
 import { ControlledVocabularyTerm, Content } from '@/routes/endpoints'
+import { computed, ref, onBeforeMount } from 'vue'
+import { useSlice } from '@/components/radials/composables'
+import { TOPIC } from '@/constants'
+
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
+  },
+
+  objectType: {
+    type: String,
+    required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
+  }
+})
 
 const extend = ['otu', 'topic']
 
-export default {
-  name: 'QuickContentForm',
+const config = {
+  status: false,
+  spellChecker: false
+}
 
-  mixins: [CRUD, annotatorExtend],
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
-  components: {
-    SmartSelector,
-    MarkdownEditor,
-    TopicItem,
-    TableList,
-    SmartSelectorItem,
-    SpinnerComponent
-  },
+const content = ref(makeContent())
+const topic = ref(null)
+const allTopics = ref([])
 
-  data() {
-    return {
-      view: '',
-      options: [],
-      content: this.newContent(),
-      config: {
-        status: false,
-        spellChecker: false
-      },
-      allTopics: [],
-      topic: undefined,
-      loadOnMounted: false
-    }
-  },
+const topicsAvailable = computed(() =>
+  allTopics.value.filter(
+    (topic) => !list.value.find((item) => item.topic_id === topic.id)
+  )
+)
 
-  computed: {
-    validate() {
-      return this.content.text.length > 1 && this.content.topic_id
+const validate = computed(() => content.value.text.length > 1 && topic.value)
+const shortList = computed(() =>
+  list.value.map((content) => ({
+    ...content,
+    text_for_list: shorten(content.text, 150)
+  }))
+)
+
+onBeforeMount(async () => {
+  ControlledVocabularyTerm.where({ type: [TOPIC] }).then(({ body }) => {
+    allTopics.value = body
+  })
+
+  Content.where({
+    otu_id: props.objectId,
+    extend
+  }).then(({ body }) => {
+    list.value = body
+  })
+})
+
+function saveContent() {
+  const { text, id } = content.value
+  const payload = {
+    content: {
+      id,
+      text,
+      topic_id: topic.value.id,
+      otu_id: props.objectId,
+      type: props.objectType
     },
-
-    shortList() {
-      return this.list.map((content) => ({
-        ...content,
-        text_for_list: shorten(content.text, 150)
-      }))
-    },
-
-    topicsAvailable() {
-      return this.allTopics.filter(
-        (topic) => !this.list.find((item) => item.topic_id === topic.id)
-      )
-    }
-  },
-
-  watch: {
-    topic(newVal) {
-      this.content.topic_id = newVal?.id
-    }
-  },
-
-  async created() {
-    this.allTopics = (
-      await ControlledVocabularyTerm.where({ type: ['Topic'] })
-    ).body
-    this.list = (
-      await Content.where({
-        otu_id: this.metadata.object_id,
-        extend
-      })
-    ).body
-  },
-
-  methods: {
-    saveContent() {
-      const content = this.content
-      const saveRecord = this.content.id
-        ? Content.update(content.id, { content, extend })
-        : Content.create({ content, extend })
-
-      saveRecord.then((response) => {
-        this.addRecord(response.body)
-        TW.workbench.alert.create('Content was successfully saved.', 'notice')
-        this.content = this.newContent()
-      })
-    },
-
-    newContent() {
-      return {
-        text: '',
-        topic_id: undefined,
-        otu_id: this.metadata.object_id,
-        type: this.objectType
-      }
-    },
-
-    setTopic(topic) {
-      this.topic = topic
-    },
-
-    addRecord(record) {
-      const index = this.list.findIndex((item) => item.id === record.id)
-
-      if (index > -1) {
-        this.list[index] = record
-      } else {
-        this.list.push(record)
-      }
-    },
-
-    setContent(content) {
-      this.content = content
-      this.topic = content?.topic
-    }
+    extend
   }
+
+  const saveRecord = id ? Content.update(id, payload) : Content.create(payload)
+
+  saveRecord.then(({ body }) => {
+    addToList(body)
+    TW.workbench.alert.create('Content was successfully saved.', 'notice')
+    content.value = makeContent()
+  })
+}
+
+function makeContent() {
+  return {
+    text: ''
+  }
+}
+
+function setTopic(item) {
+  topic.value = item
+}
+
+function setContent(item) {
+  content.value = item
+  topic.value = item?.topic
+}
+
+function removeItem(item) {
+  Content.destroy(item.id).then((_) => {
+    removeFromList(item)
+
+    if (item.id === content.value?.id) {
+      setContent(makeContent())
+    }
+  })
 }
 </script>

@@ -240,6 +240,11 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
           date = Utilities::Dates.parse_iso_date_str("1932-01-11T12:15:30")
           expect(date[0]).to eq(OpenStruct.new(year: 1932, month: 1, day: 11, hour: 12, minute: 15, second: 30))
         end
+
+        specify "should parse date and time without seconds" do
+          date = Utilities::Dates.parse_iso_date_str("1932-01-11T12:15")
+          expect(date[0]).to eq(OpenStruct.new(year: 1932, month: 1, day: 11, hour: 12, minute: 15, second: nil))
+        end
       end
 
       context "ISO8601 interval parsing" do
@@ -283,6 +288,20 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
           expect(date[1]).to eq(OpenStruct.new(year: 1986, month: 3, day: 7, hour: 9, minute: 0, second: 0))
         end
 
+        specify "should not parse time interval missing seconds" do
+          date = Utilities::Dates.parse_iso_date_str("1986-03-07T08:13/09:21")
+          expect(date).to be_nil
+        end
+
+        specify "should not parse time interval missing seconds (left)" do
+          date = Utilities::Dates.parse_iso_date_str("1986-03-07T08:13:05/09:21")
+          expect(date).to be_nil
+        end
+
+        specify "should not parse time interval missing seconds (right)" do
+          date = Utilities::Dates.parse_iso_date_str("1986-03-07T08:13/09:21:05")
+          expect(date).to be_nil
+        end
       end
     end
   end
