@@ -8,29 +8,19 @@
     </template>
 
     <template #body>
-      <template v-if="parents.length">
-        <div
-          v-for="(o, i) in parents"
-          :key="o.id"
-          :style="marginForDepth(i)"
-        >
-          <a
-            :href="RouteNames.ShowLead + '?lead_id=' + o.id"
-            @click.prevent = "() => emit('loadCouplet', o.id)"
-            v-html="leadText(o)"
-          />
-        </div>
-      </template>
-      <div v-else>
-        {{ rootText }} <span v-html="'<i>(At the start)</i>'" />
-      </div>
-      </template>
+      <PreviousCoupletsList
+        :past="[...parents, lead]"
+        :load-function="(id) => emit('loadCouplet', id)"
+        :route-name="RouteNames.ShowLead"
+        :root-text="rootText"
+      />
+    </template>
   </BlockLayout>
 </template>
 
 <script setup>
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import { leadText, marginForDepth } from '../../helpers/formatters.js'
+import PreviousCoupletsList from '../../components/PreviousCoupletsList.vue'
 import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({
@@ -40,6 +30,10 @@ const props = defineProps({
   },
   rootText: {
     type: String,
+    required: true
+  },
+  lead: {
+    type: Object,
     required: true
   }
 })

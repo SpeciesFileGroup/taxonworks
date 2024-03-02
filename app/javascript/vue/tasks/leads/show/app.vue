@@ -22,6 +22,7 @@
     <Header :root="root" />
     <PreviousCouplets
       :parents="parents"
+      :lead="lead"
       :root-text="root.text"
       @load-couplet="loadCouplet"
     />
