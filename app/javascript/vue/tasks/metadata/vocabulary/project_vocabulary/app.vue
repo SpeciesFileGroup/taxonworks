@@ -17,7 +17,7 @@
           :disabled="!validate"
           @click="getWords"
         >
-          Generate word cloud
+          Show records
         </VBtn>
       </div>
       <div
@@ -31,9 +31,16 @@
       </div>
     </div>
     <div class="word-cloud-container panel padding-medium">
+      <VSpinner
+        v-if="isGeneratingCloud"
+        legend="Generating word cloud..."
+      />
       <VueWordCloud
         class="full_width full_height"
+        :animation-enter="['bounceIn', 'bounceOut']"
         :words="words"
+        :spacing="1 / 4"
+        @update:progress="updateLoadState"
       />
     </div>
   </div>
@@ -53,6 +60,7 @@ import { URLParamsToJSON } from '@/helpers/url/parse'
 
 const words = ref([])
 const isLoading = ref(false)
+const isGeneratingCloud = ref(false)
 const parameters = ref(initParameters())
 const validate = computed(
   () => parameters.value.model && parameters.value.attribute
@@ -87,6 +95,16 @@ onBeforeMount(() => {
     }
   }
 })
+
+function updateLoadState(e) {
+  if (e) {
+    const isProcessing = e.completedWords !== e.totalWords
+
+    isGeneratingCloud.value = isProcessing
+  } else {
+    isGeneratingCloud.value = false
+  }
+}
 </script>
 
 <style scoped>
