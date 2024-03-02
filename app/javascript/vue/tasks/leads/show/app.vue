@@ -97,6 +97,10 @@ function loadCouplet(id) {
       parents.value = body.parents
       setParam(RouteNames.ShowLead, 'lead_id', lead_id.value)
     })
+    .catch(() => {
+      TW.workbench.alert.create('Unable to load the requested id.', 'error')
+      showKeyList()
+    })
     .finally(() => {
       loading.value = false
     })
