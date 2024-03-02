@@ -108,7 +108,11 @@
       />
 
       <h3>Future Couplets</h3>
-      <FutureCouplets :side="side" />
+      <FutureCoupletsList
+        :future="store[side + '_future']"
+        :route-name="RouteNames.NewLead"
+        :load-function="(id) => store.loadKey(id)"
+      />
     </template>
   </BlockLayout>
 </template>
@@ -117,11 +121,12 @@
 import { DEPICTION, LEAD } from '@/constants/index.js'
 import { Lead } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
+import { RouteNames } from '@/routes/routes'
 import { useAnnotationHandlers } from './composables/useAnnotationHandlers.js'
 import { useStore } from '../store/useStore.js'
 import Annotations from './Annotations.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import FutureCouplets from './FutureCouplets.vue'
+import FutureCoupletsList from '../../components/FutureCoupletsList.vue'
 import OtuChooser from './OtuChooser.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'

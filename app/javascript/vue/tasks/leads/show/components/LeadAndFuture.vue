@@ -13,10 +13,12 @@
         Future Couplets
       </template>
       <template #body>
-        <FutureCouplets
-          :couplets="future"
-          @loadCouplet="(id) => emit('loadCouplet', id)"
+        <FutureCoupletsList
+          :future="future"
+          :load-function="(id) => emit('loadCouplet', id)"
+          :route-name="RouteNames.ShowLead"
         />
+
       </template>
     </BlockLayout>
   </div>
@@ -24,8 +26,9 @@
 
 <script setup>
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import FutureCouplets from './FutureCouplets.vue'
+import FutureCoupletsList from '../../components/FutureCoupletsList.vue'
 import Lead from './Lead.vue'
+import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({
   lead: {

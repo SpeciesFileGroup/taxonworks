@@ -19,4 +19,4 @@ function coupletText(lead, label) {
   return text
 }
 
-export { leadText, marginForDepth, coupletText }
+export { marginForDepth, coupletText }
