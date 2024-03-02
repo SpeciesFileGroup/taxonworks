@@ -10,7 +10,8 @@
   <div class="leads_list">
     <table
       v-if="keys.length"
-      class="vue-table">
+      class="vue-table"
+    >
       <thead>
         <tr>
           <th>Name</th>
@@ -18,7 +19,7 @@
           <th>Is Public</th>
           <th>Last Modified</th>
           <th>Last Modified By</th>
-          <th />
+          <th /> <!-- radial navigator -->
         </tr>
         <tr
           v-for="(key, index) in keys"
@@ -27,7 +28,7 @@
         >
           <td>
             <a
-              @click.prevent="$emit('loadCouplet', key.id)"
+              @click.prevent="() => emit('loadCouplet', key.id)"
               :href="RouteNames.ShowLead + '?lead_id=' + key.id"
             >
               {{ key.text }}
@@ -47,7 +48,7 @@
     </table>
 
     <div v-else-if="!loading">
-      No key currently available. Use the <a :href="RouteNames.NewLead">New dichotomous key</a> task to create one.'"
+      No key currently available. Use the <a :href="RouteNames.NewLead">New dichotomous key</a> task to create one.
     </div>
   </div>
   </div>
@@ -78,7 +79,7 @@ onBeforeMount(() => {
 
 <style lang="scss" scoped>
 .leads_list {
-  margin-right: 20px;
-  margin-bottom: 40px;
+  margin-right: 1em;
+  margin-bottom: 2em;
 }
 </style>

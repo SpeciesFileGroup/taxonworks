@@ -3,7 +3,7 @@
     <Lead
       :lead="lead"
       :has-future="future.length > 0"
-      @load-couplet="(id) => $emit('loadCouplet', id)"
+      @load-couplet="(id) => emit('loadCouplet', id)"
     />
     <BlockLayout
       v-if="future.length"

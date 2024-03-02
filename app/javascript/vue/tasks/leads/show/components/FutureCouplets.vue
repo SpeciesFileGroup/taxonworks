@@ -1,5 +1,5 @@
 <template>
-  <div v-if="couplets.length">
+  <template v-if="couplets.length">
     <div
       v-for="o in couplets.toReversed()"
       :key="o.cpl.id"
@@ -7,11 +7,11 @@
     >
       <a
         :href="RouteNames.ShowLead + '?lead_id=' + o.cpl.id"
-        @click="$emit('loadCouplet', o.cpl.id)"
+        @click="() => emit('loadCouplet', o.cpl.id)"
         v-html="leadText(o.cpl)"
       />
     </div>
-  </div>
+  </template>
 </template>
 
 <script setup>

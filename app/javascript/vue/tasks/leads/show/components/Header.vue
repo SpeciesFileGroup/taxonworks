@@ -19,10 +19,7 @@
           </template>
         </h3>
         <div class="horizontal-right-content gap-small header-radials">
-          <RadialNavigator
-            :global-id="root.global_id"
-            exclude="Use dichotomous key"
-          />
+          <RadialNavigator :global-id="root.global_id" />
         </div>
       </div>
     </template>
@@ -30,7 +27,7 @@
       <div v-if="root.otu">
         <span
           v-if="!root.otu.taxon_name_id"
-          v-html="'Otu: '"
+          v-html="'Otu:'"
         />
         <a
           :href="root.otu.object_url"
@@ -57,11 +54,11 @@ const props = defineProps({
 </script>
 
 <style lang="scss" scoped>
-  .lead_header {
-    margin: 1em auto;
-    max-width: 1240px;
-  }
-  .header-radials {
+.lead_header {
+  margin: 1em auto;
+  max-width: 1240px;
+}
+.header-radials {
   margin-right: .5em;
 }
 </style>

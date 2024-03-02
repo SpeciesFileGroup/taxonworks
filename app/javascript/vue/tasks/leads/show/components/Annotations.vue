@@ -14,7 +14,9 @@
           <div :style="'width: ' + captionWidth(depiction) + 'px' ">
             <ul class="no_bullets">
               <li v-if="depiction.figure_label">
-                <u v-html="depiction.figure_label" />
+                <u>
+                  {{ depiction.figure_label }}
+                </u>
               </li>
               <li v-if="depiction.caption">
                 {{ depiction.caption }}
@@ -70,6 +72,7 @@ const hasDepictions = defineModel(
 )
 
 const depictions = ref([])
+
 function loadDepictions() {
   Depiction
     .where({
@@ -83,6 +86,7 @@ function loadDepictions() {
 }
 
 const citations = ref([])
+
 function loadCitations() {
   Citation
     .where({
@@ -109,19 +113,14 @@ watch(
 function captionWidth(depiction) {
   return Math.max(depiction.image.alternatives['medium'].width, 100)
 }
-
 </script>
 
 <style lang="scss" scoped>
 .depictions_holder {
   display: flex;
   flex-wrap: wrap;
-  .depiction-thumb-container {
-
-
-  }
 }
 .lead_citation {
-  margin-bottom: 16px;
+  margin-bottom: 1em;
 }
 </style>

@@ -8,7 +8,7 @@
     </template>
 
     <template #body>
-      <div v-if="parents.length">
+      <template v-if="parents.length">
         <div
           v-for="(o, i) in parents"
           :key="o.id"
@@ -16,11 +16,11 @@
         >
           <a
             :href="RouteNames.ShowLead + '?lead_id=' + o.id"
-            @click.prevent = "$emit('loadCouplet', o.id)"
+            @click.prevent = "() => emit('loadCouplet', o.id)"
             v-html="leadText(o)"
           />
         </div>
-      </div>
+      </template>
       <div v-else>
         {{ rootText }} <span v-html="'<i>(At the start)</i>'" />
       </div>

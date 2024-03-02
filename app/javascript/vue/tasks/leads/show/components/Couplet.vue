@@ -4,7 +4,7 @@
       v-if="lead.parent_id"
       color="primary"
       medium
-      @click="$emit('loadCouplet', lead.parent_id)"
+      @click="() => emit('loadCouplet', lead.parent_id)"
     >
       Up
     </VBtn>
@@ -33,47 +33,28 @@
     </div>
   </div>
 
-  <div v-if="left_expanded.lead && right_expanded.lead">
-    <div class="left_and_right_cplt">
-      <LeadAndFuture
-        class="lead_and_future"
-        :lead="left_expanded.lead"
-        :future="left_expanded.future"
-        @load-couplet="(id) => $emit('loadCouplet', id)"
-      />
-      <LeadAndFuture
-        class="lead_and_future"
-        :lead="right_expanded.lead"
-        :future="right_expanded.future"
-        @load-couplet="(id) => $emit('loadCouplet', id)"
-      />
-
-     <!-- <div class="lead_and_future">
-        <Lead
-          :lead="right_expanded.lead"
-          :has-future="right_expanded.future.length"
-          @load-couplet="(id) => $emit('loadCouplet', id)"
-        />
-        <BlockLayout
-          v-if="right_expanded.future.length"
-          expand
-        >
-          <template #header>
-            Future Couplets
-          </template>
-          <template #body>
-            <FutureCouplets
-              :couplets="right_expanded.future"
-              @loadCouplet="(id) => emit('loadCouplet', id)"
-            />
-          </template>
-        </BlockLayout>
-      </div>-->
-    </div>
+  <div
+    v-if="left_expanded.lead && right_expanded.lead"
+    class="left_and_right_cplt"
+  >
+    <LeadAndFuture
+      class="lead_and_future"
+      :lead="left_expanded.lead"
+      :future="left_expanded.future"
+      @load-couplet="(id) => emit('loadCouplet', id)"
+    />
+    <LeadAndFuture
+      class="lead_and_future"
+      :lead="right_expanded.lead"
+      :future="right_expanded.future"
+      @load-couplet="(id) => emit('loadCouplet', id)"
+    />
   </div>
   <div v-else class="cplt_center">
-    <!-- TODO: include a link to the previous couplet -->
-    <p>You're viewing a leaf node without the node it's associated with in the key; go Up to view the full couplet.</p>
+    <p>
+      You're viewing a leaf node without the node it's associated with in the
+      key; go Up to view the full couplet.
+    </p>
   </div>
 </template>
 
@@ -120,7 +101,7 @@ const emit = defineEmits(['loadCouplet'])
   flex-direction: column;
   align-items: center;
   * {
-    margin-bottom: 12px;
+    margin-bottom: .5em;
   }
 }
 </style>

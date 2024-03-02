@@ -5,7 +5,7 @@
         v-if="hasFuture"
         color="primary"
         medium
-        @click="$emit('loadCouplet', goId)"
+        @click="() => emit('loadCouplet', goId)"
       >
         Go
       </VBtn>
@@ -26,7 +26,7 @@
       <div v-if="lead.otu">
         <span
           v-if="!lead.otu.taxon_name_id"
-          v-html="'Otu: '"
+          v-html="'Otu:'"
         />
         <a
           :href="lead.otu.object_url"
@@ -59,7 +59,7 @@
       <VBtn
         color="primary"
         medium
-        @click="$emit('loadCouplet', goId)"
+        @click="() => emit('loadCouplet', goId)"
       >
         Go
       </VBtn>
@@ -94,7 +94,6 @@ const goId = computed(() => {
 const displayLinkOut = computed(() => {
   return props.lead.link_out && props.lead.link_out_text
 })
-
 </script>
 
 <style lang="scss" scoped>
@@ -124,7 +123,7 @@ const displayLinkOut = computed(() => {
   justify-content: center;
 }
 .redirect_notice {
-  margin-bottom: 12px;
+  margin-bottom: .5em;
 }
 .redirect_select[disabled] {
   opacity: .5;
