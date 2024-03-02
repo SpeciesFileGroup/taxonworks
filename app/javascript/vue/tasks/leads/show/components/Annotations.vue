@@ -1,6 +1,6 @@
 <template>
   <div v-if="depictions.length">
-    <h3>Depictions</h3>
+    <h3 v-if="!mediumDepictions">Depictions</h3>
     <div class="depictions_holder">
       <ImageViewer
         v-for="depiction in depictions"
