@@ -18,7 +18,7 @@
 
     <template #body>
       <div
-        v-if="store[side + '_had_redirect_on_save']"
+        v-if="!!store.last_saved[side].redirect_id"
         class="redirect_notice"
         v-html="'<i>This side is currently redirecting, to add couplets below remove the redirection.</i>'"
       />
@@ -32,7 +32,7 @@
         </VBtn>
 
         <VBtn
-          :disabled="store[side + '_had_redirect_on_save'] || !sideHasChildren"
+          :disabled="!!store.last_saved[side].redirect_id || !sideHasChildren"
           color="create"
           medium
           @click="insertCouplet()"
@@ -165,7 +165,7 @@ const displayLinkOut = computed(() => {
 })
 
 const editNextText = computed(() => {
-  if (store[props.side + '_had_redirect_on_save']) {
+  if (!!store.last_saved[props.side].redirect_id) {
     return 'Follow redirect and edit'
   } else {
     return props.sideHasChildren ?

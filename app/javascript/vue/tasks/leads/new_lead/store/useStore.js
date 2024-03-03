@@ -10,13 +10,9 @@ const makeInitialState = () => ({
   // The left child of lead.
   left: makeLeadObject(),
   left_future: [],
-  // True if left had a redirect the last time it was saved.
-  left_had_redirect_on_save: undefined,
   // The right child of lead.
   right: makeLeadObject(),
   right_future: [],
-  // True if right had a redirect the last time it was saved.
-  right_had_redirect_on_save: undefined,
   parents: [],
   // Use this to indicate data is being retrieved, not for database changes.
   loading: false,

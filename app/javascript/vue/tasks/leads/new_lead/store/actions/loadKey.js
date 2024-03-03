@@ -36,8 +36,6 @@ export default async function(id_or_couplet) {
   this.parents = lo.parents
   this.left_future = lo.left_future
   this.right_future = lo.right_future
-  this.left_had_redirect_on_save = lo.left && !!lo.left.redirect_id
-  this.right_had_redirect_on_save = lo.right && !!lo.right.redirect_id
   this.last_saved = {
     origin_label: lo.lead.origin_label,
     left: lo.left ? editableFieldsObject(lo.left) : {},
