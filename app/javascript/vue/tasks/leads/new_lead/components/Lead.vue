@@ -210,8 +210,8 @@ function nextCouplet() {
   }
   if (props.sideHasChildren) {
     store.loadKey(store[props.side].id)
-  } else if (store[props.side].redirect_id) {
-    store.loadKey(store[props.side].redirect_id)
+  } else if (!!store.last_saved[props.side].redirect_id) {
+    store.loadKey(store.last_saved[props.side].redirect_id)
   } else {
     loading.value = true
     Lead.create_for_edit(store[props.side].id)
