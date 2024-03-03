@@ -23,25 +23,27 @@
         v-html="'<i>(No text)</i>'"
       />
 
-      <div v-if="lead.otu">
-        <span
-          v-if="!lead.otu.taxon_name_id"
-          v-html="'Otu:'"
-        />
-        <a
-          :href="lead.otu.object_url"
-          target="_blank"
-          v-html="lead.otu.object_tag"
-        />
-      </div>
-
-      <div v-if="displayLinkOut">
+      <div
+        v-if="displayLinkOut"
+        class="lead_determination"
+      >
         <a
           :href="lead.link_out"
           target="_blank"
         >
           {{ lead.link_out_text }}
         </a>
+      </div>
+
+      <div
+        v-if="lead.otu"
+        class="lead_determination"
+      >
+        <a
+          :href="lead.otu.object_url"
+          target="_blank"
+          v-html="lead.otu.object_tag"
+        />
       </div>
 
       <Annotations
@@ -127,5 +129,8 @@ const displayLinkOut = computed(() => {
 }
 .redirect_select[disabled] {
   opacity: .5;
+}
+.lead_determination {
+  text-align: end;
 }
 </style>
