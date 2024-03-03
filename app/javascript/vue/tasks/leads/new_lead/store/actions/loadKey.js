@@ -1,5 +1,6 @@
 import { Lead } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
+import editableLeftRightFields from '../constants/editableLeftRightFields'
 import setParam from '@/helpers/setParam'
 
 export default async function(id_or_couplet) {
@@ -37,6 +38,19 @@ export default async function(id_or_couplet) {
   this.right_future = lo.right_future
   this.left_had_redirect_on_save = lo.left && !!lo.left.redirect_id
   this.right_had_redirect_on_save = lo.right && !!lo.right.redirect_id
+  this.last_saved = {
+    origin_label: lo.lead.origin_label,
+    left: lo.left ? editableFieldsObject(lo.left) : {},
+    right: lo.right ? editableFieldsObject(lo.right) : {}
+  }
 
   setParam(RouteNames.NewLead, 'lead_id', lo.lead.id)
+}
+
+function editableFieldsObject(lead) {
+  const o = {}
+  editableLeftRightFields.forEach((field) => {
+    o[field] = lead[field]
+  })
+  return o
 }

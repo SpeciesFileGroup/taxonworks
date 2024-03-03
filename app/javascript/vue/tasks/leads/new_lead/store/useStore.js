@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ActionFunctions } from './actions/actions'
+import editableLeftRightFields from './constants/editableLeftRightFields'
 
 const makeInitialState = () => ({
   // The root node of the key.
@@ -18,7 +19,13 @@ const makeInitialState = () => ({
   right_had_redirect_on_save: undefined,
   parents: [],
   // Use this to indicate data is being retrieved, not for database changes.
-  loading: false
+  loading: false,
+  // Keep a copy of values from the last time a save occurred.
+  last_saved: {
+    origin_label: undefined,
+    left: makeSaveStateLead(),
+    right: makeSaveStateLead()
+  }
 })
 
 export const useStore = defineStore('leads', {
@@ -41,5 +48,12 @@ function makeLeadObject() {
     redirect_id: undefined,
     text: undefined
   }
+}
 
+function makeSaveStateLead() {
+  const o = {}
+  editableLeftRightFields.forEach((field) => {
+    o[field] = undefined
+  })
+  return o
 }

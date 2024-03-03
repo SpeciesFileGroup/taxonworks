@@ -182,26 +182,32 @@ const {
 } = useAnnotationHandlers(annotationLists)
 
 function insertCouplet() {
-  if (window.confirm(
-    'Insert a couplet below this one? Any existing children will be reparented.'
-  )) {
-    loading.value = true
-    Lead.insert_couplet(store[props.side].id)
-      .then(() => {
-        store.loadKey(store[props.side].id)
-        TW.workbench.alert.create(
-          "Success - you're now editing the inserted couplet",
-          'notice'
-        )
-        emit('editingHasOccurred')
-      })
-      .finally(() => {
-        loading.value = false
-      })
+  if (!userOkayToLeave() ||
+    !window.confirm(
+      'Insert a couplet below this one? Any existing children will be reparented.'
+    )
+  ) {
+    return
   }
+  loading.value = true
+  Lead.insert_couplet(store[props.side].id)
+    .then(() => {
+      store.loadKey(store[props.side].id)
+      TW.workbench.alert.create(
+        "Success - you're now editing the inserted couplet",
+        'notice'
+      )
+      emit('editingHasOccurred')
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 function nextCouplet() {
+  if (!userOkayToLeave()) {
+    return
+  }
   if (props.sideHasChildren) {
     store.loadKey(store[props.side].id)
   } else if (store[props.side].redirect_id) {
@@ -217,6 +223,17 @@ function nextCouplet() {
       })
   }
   emit('editingHasOccurred')
+}
+
+function userOkayToLeave() {
+  if (store.dataChangedSinceLastSave() &&
+    !window.confirm(
+      'You have unsaved data, are you sure you want to navigate to a new couplet?'
+    )
+  ) {
+    return false
+  }
+  return true
 }
 </script>
 
