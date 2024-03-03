@@ -14,7 +14,7 @@
   </div>
 
   <div class="field label-above">
-    <label>Description (made public)</label>
+    <label>Description</label>
     <textarea
       class="full_width"
       v-model="store.root.description"
