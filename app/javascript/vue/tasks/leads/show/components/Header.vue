@@ -24,7 +24,17 @@
       </div>
     </template>
     <template #body>
-      <div v-if="root.otu">
+      <div
+        v-if="root.description"
+        class="root-data"
+      >
+        {{ root.description }}
+      </div>
+
+      <div
+        v-if="root.otu"
+        class="root-data"
+      >
         <span
           v-if="!root.otu.taxon_name_id"
           v-html="'Otu:'"
@@ -35,6 +45,7 @@
           v-html="root.otu.object_tag"
         />
       </div>
+
       <Annotations :lead-id="root.id" />
     </template>
   </BlockLayout>
@@ -60,5 +71,8 @@ const props = defineProps({
 }
 .header-radials {
   margin-right: .5em;
+}
+.root-data {
+  margin-bottom: 1em;
 }
 </style>
