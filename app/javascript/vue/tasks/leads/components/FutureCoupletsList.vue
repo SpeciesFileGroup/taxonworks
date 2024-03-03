@@ -8,7 +8,7 @@
       <a
         :href="routeName + '?lead_id=' + o.cpl.parent_id"
         @click.prevent="loadFunction(o.cpl.parent_id)"
-        v-html="coupletText(o.cpl, o.cplLabel)"
+        v-html="coupletText(o.cpl, o.cplLabel, o.otuLabel)"
       />
     </div>
   </div>

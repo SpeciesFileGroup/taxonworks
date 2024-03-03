@@ -18,7 +18,16 @@ json.right do
   json.partial! 'attributes', lead: @right
 end
 
-json.left_future @left_future
-json.right_future @right_future
+if extend_response_with('future_otus')
+  json.left_future do
+    json.partial! 'future_with_otus', future: @left_future
+  end
+  json.right_future do
+    json.partial! 'future_with_otus', future: @right_future
+  end
+else
+  json.left_future @left_future
+  json.right_future @right_future
+end
 
 json.parents @parents

@@ -87,7 +87,7 @@ function makeExpandedLead() {
 function loadCouplet(id) {
   lead_id.value = id
   loading.value = true
-  Lead.find(id, {extend: ['otu']})
+  Lead.find(id, { extend: ['otu', 'future_otus'] })
     .then(({ body }) => {
       root.value = body.root
       lead.value = body.lead

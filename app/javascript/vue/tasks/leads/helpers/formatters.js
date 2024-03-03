@@ -11,8 +11,11 @@ function marginForDepth(depth) {
   return 'margin-left: ' + pxs.toString() + 'px'
 }
 
-function coupletText(lead, label) {
-  const text = leadText(lead)
+function coupletText(lead, label, otuTag) {
+  let text = leadText(lead)
+  if (otuTag) {
+    text = text + ' ... ' + otuTag
+  }
   if (label) {
     return '<span class="lead-super">[' + label + ']</span> ' + text
   }
