@@ -27,13 +27,9 @@ import PreviousCoupletsList from '../../components/PreviousCoupletsList.vue'
 const store = useStore()
 </script>
 
-<!-- Not scoped so we can use .lead-super in v-html -->
-<style lang="scss">
+<style lang="scss" scoped>
 .new-lead-previous {
   max-width: 600px;
   margin: 2em auto;
-}
-.lead-super {
-  vertical-align: super;
 }
 </style>

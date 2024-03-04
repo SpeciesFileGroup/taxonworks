@@ -17,7 +17,7 @@ function coupletText(lead, label, otuTag) {
     text = text + ' ... ' + otuTag
   }
   if (label) {
-    return '<span class="lead-super">[' + label + ']</span> ' + text
+    return '[' + label + '] ' + text
   }
   return text
 }
