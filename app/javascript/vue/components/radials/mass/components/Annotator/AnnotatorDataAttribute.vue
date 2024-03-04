@@ -107,7 +107,7 @@ function createDataAttributes() {
 
 const all = ref([])
 
-ControlledVocabularyTerm.where({ type: 'Predicate' }).then(({ body }) => {
+ControlledVocabularyTerm.where({ type: ['Predicate'] }).then(({ body }) => {
   all.value = body
 })
 </script>
