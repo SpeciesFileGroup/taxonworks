@@ -93,19 +93,21 @@ function createDataAttributes() {
     type: 'InternalAttribute',
     controlled_vocabulary_term_id: predicate.value.id,
     value: inputValue.value
-  }).then((response) => {
-    TW.workbench.alert.create(
-      'Data attribute(s) were successfully created',
-      'notice'
-    )
-    resetForm()
-    emit('create', response.body)
   })
+    .then((response) => {
+      TW.workbench.alert.create(
+        'Data attribute(s) were successfully created',
+        'notice'
+      )
+      resetForm()
+      emit('create', response.body)
+    })
+    .catch(() => {})
 }
 
 const all = ref([])
 
-ControlledVocabularyTerm.where({ type: 'Predicate' }).then(({ body }) => {
+ControlledVocabularyTerm.where({ type: ['Predicate'] }).then(({ body }) => {
   all.value = body
 })
 </script>
