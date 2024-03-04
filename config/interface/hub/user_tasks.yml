@@ -871,3 +871,10 @@ show_lead_task:
   categories:
   status: prototype
   description: 'Use an existing dichotomous key.'
+project_vocabulary_task:
+  hub: true
+  name: 'Project vocabulary'
+  related:
+  categories:
+  status: prototype
+  description: 'Visualize data values used in this project.  Word clouds.'

@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetRoles from './Facet/FacetRoles.vue'

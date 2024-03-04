@@ -130,9 +130,11 @@ namespace :api, defaults: {format: :json} do
       get '/observation_matrices', to: '/observation_matrices#api_index'
       get '/observation_matrices/:id', to: '/observation_matrices#api_show'
 
+
       get '/images', to: '/images#api_index'
       get '/images/:id/file', to: '/images#api_file', as: :image_file
       get '/images/:id', to: '/images#api_show'
+      get '/images/:id/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', to: '/images#api_scale_to_box'
 
       get '/tags', to: '/tags#api_index'
       get '/tags/:id', to: '/tags#api_show'

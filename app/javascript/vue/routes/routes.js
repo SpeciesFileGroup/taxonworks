@@ -49,7 +49,9 @@ const RouteNames = {
   ObservationMatricesHub: '/tasks/observation_matrices/observation_matrix_hub',
   PrintLabel: '/tasks/labels/print_labels',
   ShowLead: '/tasks/leads/show',
-  TypeMaterial: '/tasks/type_material/edit_type_material'
+  TypeMaterial: '/tasks/type_material/edit_type_material',
+  FreeFormTask: '/tasks/collection_objects/freeform_digitize',
+  ProjectVocabulary: '/tasks/metadata/vocabulary/project_vocabulary'
 }
 
 const FILTER_ROUTES = {
