@@ -2,8 +2,6 @@ module Queries
   module Lead
     class Autocomplete < Query::Autocomplete
 
-      # @params string [String]
-      # @params [Hash] args
       def initialize(string, project_id: nil)
         super
       end
@@ -46,7 +44,6 @@ module Queries
 
       def updated_queries
         queries = [
-          autocomplete_exact_id,
           autocomplete_text_contains_match,
           autocomplete_description_contains_match,
           autocomplete_exact_origin_label,
