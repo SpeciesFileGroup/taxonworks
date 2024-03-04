@@ -9,6 +9,40 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.39.0] - 2024-03-01
+
+### Added
+
+- Project vocabulary task [#864]
+- Global identifier classes for Web of Science and Zoological Record [#3853]
+- `/api/v1/biological_associations/simple.csv` endpoint
+- Return a png of any image via `/api/v1/images/:id/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)` [#3852]
+- `content_type` and `original_png` attributes to `/api/v1//images/123` [#3852]
+- Ability to extend housekeeping on some filters to check changes on related models [#3851]
+- Some new soft validations on Misspellings
+
+### Fixed
+
+- Handle bad BibTeX coming back from CrossRef.
+- Quick Forms: Observation matrices slice doesn't work
+- Quick Forms: Content slice doesn't display contents [#3850]
+- Browse OTU: Load preferences
+- New loan task: reset button doesn't work [#3856]
+- New image task doesn't create citations without attributions
+- Missing pagination headers for 4 endpoints [#3859]
+
+### Changed
+
+- Allow omitting seconds in non-interval ISO-8601 date times in DwC importer.
+
+[#864]: https://github.com/SpeciesFileGroup/taxonworks/issues/864
+[#3853]: https://github.com/SpeciesFileGroup/taxonworks/issues/3853
+[#3851]: https://github.com/SpeciesFileGroup/taxonworks/issues/3851
+[#3852]: https://github.com/SpeciesFileGroup/taxonworks/issues/3852
+[#3850]: https://github.com/SpeciesFileGroup/taxonworks/issues/3850
+[#3856]: https://github.com/SpeciesFileGroup/taxonworks/issues/3856
+[#3859]: https://github.com/SpeciesFileGroup/taxonworks/issues/3859
+
 ## [0.38.3] - 2024-02-25
 
 ### Added
@@ -27,7 +61,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filters: Geographic area facet doesn't clear geographic area after reset [#3840]
 - Radial collection object: Taxon determination list is not visible
 - Align metadata in GeographicItem debug view
-- Biological associations filter bugs 
+- Biological associations filter bugs
 - Several radial annotator and batch annotator slice fixes
 - DwC checklist importer fails quietly when `taxonomicStatus` is empty [#3783]
 
@@ -4345,7 +4379,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.39.0...development
+[0.39.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.3...v0.39.0
+[0.38.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.2...v0.38.3
 [0.38.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.1...v0.38.2
 [0.38.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.0...v0.38.1
 [0.38.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.1...v0.38.0

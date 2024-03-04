@@ -3,6 +3,8 @@ class IdentifiersController < ApplicationController
 
   before_action :set_identifier, only: [:update, :destroy, :show]
 
+  after_action -> { set_pagination_headers(:identifiers) }, only: [:index, :api_index], if: :json_request?
+
   # GET /identifiers
   # GET /identifiers.json
   def index

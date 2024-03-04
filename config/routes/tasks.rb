@@ -1,4 +1,11 @@
 scope :tasks do
+  scope :metadata do
+    scope :vocabulary do
+      scope :project_vocabulary, controller: 'tasks/metadata/vocabulary/project_vocabulary' do
+        get '/', action: :index, as: 'project_vocabulary_task'
+      end
+    end
+  end
 
   scope :cached_maps do
     scope :report, controller: 'tasks/cached_maps/report' do

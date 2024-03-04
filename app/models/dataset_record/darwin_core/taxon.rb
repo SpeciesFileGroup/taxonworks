@@ -96,7 +96,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
         if metadata['parent'].nil?
           if self.import_dataset.use_existing_hierarchy?
-            protonym_attributes = { name:,
+            protonym_attributes = { name:, #
                                   cached: get_field_value(:scientificName),
                                   rank_class: Ranks.lookup(nomenclature_code, rank),
                                   verbatim_author: author_name,

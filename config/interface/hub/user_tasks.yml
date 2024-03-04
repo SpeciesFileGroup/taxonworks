@@ -865,3 +865,10 @@ debug_geographic_item_task:
     - georeference
   status: prototype
   description: 'Report metadat about a geographic item.'
+project_vocabulary_task:
+  hub: true
+  name: 'Project vocabulary'
+  related:
+  categories:
+  status: prototype
+  description: 'Visualize data values used in this project.  Word clouds.'

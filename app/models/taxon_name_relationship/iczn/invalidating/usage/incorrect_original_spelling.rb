@@ -40,4 +40,13 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpellin
     true
   end
 
+  protected
+
+  def sv_specific_relationship
+    s = self.subject_taxon_name
+    o = self.object_taxon_name
+    if !s.cached_original_combination.blank? && s.cached_original_combination == o.cached_original_combination
+      soft_validations.add(:base, "Incorrect and correctly spelled names are identical: '#{s.cached_original_combination}'")
+    end
+  end
 end

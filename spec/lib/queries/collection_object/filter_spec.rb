@@ -5,6 +5,82 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
+  context 'housekeeping_extensions' do
+    let!(:s) { Specimen.create!(updated_at: old_date, created_at: old_date) }
+    let(:old_date) { 2.weeks.ago }
+
+    # An old collecting event not hit in the params below
+    let(:c) { FactoryBot.create(:valid_collecting_event, created_at: old_date, updated_at: old_date) }
+
+    let!(:p) {
+      {
+        extend_housekeeping: true,
+        user_date_start: 1.day.ago.to_date.to_s,
+        user_date_end: DateTime.tomorrow .to_s
+      }
+    }
+    let(:q) { Queries::CollectionObject::Filter.new(p) }
+
+    specify 'control' do
+      expect(q.all).to contain_exactly()
+    end
+
+    specify 'collecting_events' do
+      d = FactoryBot.create(:valid_collecting_event)
+      s.update!(collecting_event: d, updated_at: old_date) # time travel
+
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'collecting_event data attributes' do
+      s.update!(collecting_event: c, updated_at: old_date)
+      FactoryBot.create(:valid_data_attribute, attribute_subject: c)
+
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'taxon_determinations' do
+      c = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'data_attributes' do
+      c = FactoryBot.create(:valid_data_attribute, attribute_subject:  s)
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'georeferences' do
+      FactoryBot.create(:valid_georeference, collecting_event: c)
+      s.update!(collecting_event: c, updated_at: old_date)
+
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'collecting event notes' do
+      FactoryBot.create(:valid_note, note_object: c)
+      s.update!(collecting_event: c, updated_at: old_date)
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'collection_object notes' do
+      FactoryBot.create(:valid_note, note_object: s)
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'collecting_event roles' do
+      FactoryBot.create(:valid_collector, role_object: c)
+      s.update!(collecting_event: c, updated_at: old_date)
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'taxon_determiner roles' do
+      t = FactoryBot.create(:valid_taxon_determination, created_at: old_date, updated_at: old_date, biological_collection_object: s) # TODO: refactor for FO
+      FactoryBot.create(:valid_determiner, role_object: t)
+
+      expect(q.all).to contain_exactly(s)
+    end
+  end
+
   context 'pagination' do
     before { 3.times { FactoryBot.create(:valid_specimen) } }
 
