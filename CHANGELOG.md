@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- Add taxon name autocomplete to Type specimen facet
 
 ## [0.39.0] - 2024-03-01
 
