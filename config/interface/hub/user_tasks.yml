@@ -863,3 +863,11 @@ project_vocabulary_task:
   categories:
   status: prototype
   description: 'Visualize data values used in this project.  Word clouds.'
+
+index_new_otu_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
