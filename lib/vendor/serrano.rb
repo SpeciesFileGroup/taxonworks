@@ -49,17 +49,37 @@ module Vendor
     def self.new_from_citation(citation: nil)
       citation&.strip!
       return false if citation.length < 6
-      # check string encoding, if not UTF-8, check if compatible with UTF-8,
-      # if so convert to UTF-8 and parse with latex, else use type verbatim
-      a = get_bibtex_string(citation, 'bibtex')
-      b = ::Utilities::Strings.encode_with_utf8(a) if a
-      if b
-        bibtex = Source::Bibtex.new_from_bibtex(BibTeX::Bibliography.parse(b, filter: CrossRefLaTeX.instance).first)
-        citeproc = get_bibtex_string(citation, 'citeproc')
-        bibtex_from_citproc(citeproc, bibtex)
-      else
-        Source::Verbatim.new(verbatim: a ? a : citation)
-      end
+
+    # begin
+
+        # check string encoding, if not UTF-8, check if compatible with UTF-8,
+        # if so convert to UTF-8 and parse with latex, else use type verbatim
+        a = get_bibtex_string(citation, 'bibtex')
+
+        b = ::Utilities::Strings.encode_with_utf8(a) if a
+
+        if b
+
+          begin
+            bibtex = Source::Bibtex.new_from_bibtex(BibTeX::Bibliography.parse(b, filter: CrossRefLaTeX.instance).first)
+          rescue BibTeX::ParseError => e
+            # Handle year not being parsable but otherwise OK
+            unless e.message.include?('Failed to parse BibTeX on value "year"')
+              raise e
+            end
+            true
+          end
+
+          citeproc = get_bibtex_string(citation, 'citeproc')
+          bibtex_from_citproc(citeproc, bibtex)
+        else
+          Source::Verbatim.new(verbatim: a ? a : citation)
+        end
+
+    #   rescue BibTeX::ParseError
+    #     return false
+    #   end
+
     end
 
     # @return [String, nil] ; format == 'bibtex' or 'citeproc'
@@ -157,7 +177,7 @@ module Vendor
       doi = Identifier::Global::Doi.new(identifier: citation)
       doi.valid?
       !doi.errors.has_key?(:identifier)
-    end 
+    end
 
   end
 end

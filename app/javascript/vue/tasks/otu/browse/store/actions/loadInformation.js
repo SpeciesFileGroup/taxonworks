@@ -19,8 +19,8 @@ export default async ({ dispatch, commit, state }, otus) => {
     ])
   }
 
-  if (state.currentOtu.taxon_name_id) {
-    await dispatch(ActionNames.LoadTaxonName, state.currentOtu.taxon_name_id)
+  if (currentOtu.taxon_name_id) {
+    await dispatch(ActionNames.LoadTaxonName, currentOtu.taxon_name_id)
   }
 
   dispatch(ActionNames.LoadDistribution, currentOtu.id)

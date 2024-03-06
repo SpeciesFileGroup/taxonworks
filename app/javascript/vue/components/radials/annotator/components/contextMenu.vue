@@ -67,7 +67,7 @@ const defaultPinned = computed(() => {
     const types = Object.keys(props.metadata.endpoints)
     return types.find((item) =>
       document.querySelector(
-        `[data-pinboard-section="${props.pinboardTypes[item]?.type}"] [data-insert="true"]`
+        `[data-pinboard-section="${PINBOARD_TYPES[item]?.type}"] [data-insert="true"]`
       )
     )
   }

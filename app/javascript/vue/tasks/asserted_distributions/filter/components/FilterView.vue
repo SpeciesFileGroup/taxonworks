@@ -35,7 +35,7 @@
 import { computed } from 'vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWKT from '@/components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
