@@ -79,7 +79,7 @@ module Export::Coldp::Files::NameRelation
         o.taxon_name.taxon_name_relationships.each do |tnr|
 
           # Combinations and OriginalCombinations are already handled in the Name module
-          unless BLOCKED.include? tnr.type
+          unless (tnr.type.constantize.nomen_uri.blank? || BLOCKED.include?(tnr.type))
 
             sources = tnr.sources.load
             reference_ids = sources.collect{|a| a.id}
