@@ -67,7 +67,7 @@
 <script setup>
 import RadialMenu from '@/components/radials/RadialMenu.vue'
 import VModal from '@/components/ui/Modal.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import Icons from '@/components/radials/annotator/images/icons.js'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'

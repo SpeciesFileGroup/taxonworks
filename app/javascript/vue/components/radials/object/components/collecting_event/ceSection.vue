@@ -11,7 +11,7 @@
         @click="setCE({})"
       />
     </h3>
-    <smart-selector
+    <SmartSelector
       v-else
       class="full_width"
       ref="smartSelector"
@@ -38,11 +38,11 @@ export default {
     }
   },
 
-  emits: ['onSelect'],
+  emits: ['select'],
 
   methods: {
     setCE(ce) {
-      this.$emit('onSelect', ce)
+      this.$emit('select', ce)
     }
   }
 }

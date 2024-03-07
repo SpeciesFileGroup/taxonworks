@@ -46,7 +46,7 @@
 <script setup>
 import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetWKT from '@/components/Filter/Facets/Otu/FacetWKT.vue'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetIdentifier from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetBiologicalRelationship from '@/components/Filter/Facets/BiologicalAssociation/FacetBiologicalRelationship.vue'
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'

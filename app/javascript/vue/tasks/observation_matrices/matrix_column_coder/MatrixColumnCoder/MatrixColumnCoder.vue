@@ -70,7 +70,7 @@ import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor
 import SampleDescriptor from './SampleDescriptor/SampleDescriptor.vue'
 import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
 import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
-import Spinner from '@/components/spinner'
+import Spinner from '@/components/ui/VSpinner'
 import NavbarComponent from '@/components/layout/NavBar.vue'
 import NavigationMatrix from './Navigation/NavigationMatrix.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'

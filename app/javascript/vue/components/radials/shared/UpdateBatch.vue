@@ -38,7 +38,7 @@ import { ref } from 'vue'
 import VModal from '@/components/ui/Modal.vue'
 import PreviewTable from './PreviewTable.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
 const props = defineProps({

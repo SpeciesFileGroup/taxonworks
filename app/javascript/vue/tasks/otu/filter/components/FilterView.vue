@@ -47,7 +47,7 @@ import FacetDescriptor from '@/components/Filter/Facets/shared/FacetDescriptor.v
 import FacetGeographicArea from '@/components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetHistorialDeterminations from './Facet/FacetHistorialDeterminations.vue'
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetWKT from '@/components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'

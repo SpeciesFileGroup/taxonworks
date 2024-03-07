@@ -1,47 +1,15 @@
-const HelpSystem = {}
-let languages = {}
-let defaultLanguage = ''
+import { vHelp } from '@/directives'
 
-const getString = function(binding) {
-  const modifiers = binding.modifiers
-  let string = languages[defaultLanguage]
+const HelpSystem = {
+  install(app, options) {
+    const languages = options.languages
+    const defaultLanguage = options.default || Object.keys(languages)[0]
 
-  if (binding.value) {
-    const expression = binding.value.split('|')
-
-    expression.forEach(item => {
-      string = string[item]
+    app.directive('help', {
+      ...vHelp,
+      helpData: languages[defaultLanguage]
     })
-    return string
   }
-
-  for (const key in modifiers) {
-    string = string[key]
-  }
-
-  return string
-}
-
-const setHelpPresent = () => {
-  document.querySelector('.help-button').classList.add('help-button-present')
-}
-
-HelpSystem.install = function (app, options) {
-  languages = options.languages
-  defaultLanguage = options.default || Object.keys(languages)[0]
-
-  app.directive('help', {
-    beforeMount (el, binding, vnode, oldVnode) {
-      if (languages.hasOwnProperty(defaultLanguage)) {
-        const description = getString(binding)
-
-        if (description) {
-          el.setAttribute('data-help', description)
-          setHelpPresent()
-        }
-      }
-    }
-  })
 }
 
 export default HelpSystem

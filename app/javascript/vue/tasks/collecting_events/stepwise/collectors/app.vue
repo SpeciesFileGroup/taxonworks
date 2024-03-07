@@ -47,7 +47,7 @@ import CollectingEventList from './components/CollectingEvent/CollectingEventLis
 import VBtn from '@/components/ui/VBtn/index.vue'
 import NavBar from '@/components/layout/NavBar.vue'
 import LabelList from './components/LabelList.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import useStore from './composables/useStore.js'
 import CuttoffInput from './components/CutoffInput.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'

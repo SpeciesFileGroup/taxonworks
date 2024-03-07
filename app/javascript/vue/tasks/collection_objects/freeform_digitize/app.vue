@@ -56,11 +56,11 @@
 
 <script setup>
 import { computed, ref, onBeforeMount } from 'vue'
-import VSwitch from '@/components/switch'
+import VSwitch from '@/components/ui/VSwitch'
 import AssignComponent from './components/Assign/Main'
 import UploadImage from './components/UploadImage'
 import ReviewComponent from './components/Review.vue'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import useImageStore from './store/image.js'
 import useStore from './store/store'
 import NavBar from '@/components/layout/NavBar.vue'

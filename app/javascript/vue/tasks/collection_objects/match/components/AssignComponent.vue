@@ -13,7 +13,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import SwitchComponent from '@/components/switch'
+import SwitchComponent from '@/components/ui/VSwitch'
 import TagComponent from './Assign/Tags'
 import DeterminationComponent from './Assign/Determinations'
 import LoanComponent from './Assign/Loans'

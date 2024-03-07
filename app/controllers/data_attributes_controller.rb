@@ -111,7 +111,7 @@ class DataAttributesController < ApplicationController
     if @data_attributes.present?
       render '/data_attributes/index'
     else
-      render json: { failed: true, status: :unprocessable_entity}
+      render json: { errors: ['Batch create failed - make sure your controlled vocabulary term is a predicate.'] }, status: :unprocessable_entity
     end
   end
 

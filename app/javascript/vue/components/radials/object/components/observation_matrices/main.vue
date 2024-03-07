@@ -68,8 +68,8 @@
 <script>
 import CRUD from '../../request/crud'
 import annotatorExtend from '../annotatorExtend'
-import SpinnerComponent from '@/components/spinner'
-import DefaultPin from '@/components/getDefaultPin'
+import SpinnerComponent from '@/components/ui/VSpinner'
+import DefaultPin from '@/components/ui/Button/ButtonPinned'
 import {
   ObservationMatrix,
   ObservationMatrixRow,

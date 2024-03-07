@@ -3,6 +3,7 @@ const ActionNames = {
   ApplyDepictions: 'applyDepictions',
   ApplyPixelToCentimeter: 'applyPixelToCentimeter',
   ApplyTags: 'applyTags',
+  ApplySource: 'applySource',
   ResetStore: 'resetStore',
   RemoveImage: 'removeImage'
 }

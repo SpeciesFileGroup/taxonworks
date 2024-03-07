@@ -68,7 +68,7 @@
 
 <script>
 import Dropzone from '@/components/dropzone'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import DATASET_ROW_TYPES from '../const/datasetRowTypes.js'
 import CODES from '../const/nomenclatureCodes.js'
 import { capitalize } from '@/helpers/strings'

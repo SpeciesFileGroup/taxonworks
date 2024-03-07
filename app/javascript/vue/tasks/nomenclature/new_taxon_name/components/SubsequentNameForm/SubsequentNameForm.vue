@@ -86,7 +86,7 @@ import DisplayList from '@/components/displayList.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 import EditTaxonName from './EditTaxonName'
 import FormCitation from '@/components/Form/FormCitation.vue'
-import VConfidence from '@/components/defaultConfidence.vue'
+import VConfidence from '@/components/ui/Button/ButtonConfidence.vue'
 
 const store = useStore()
 

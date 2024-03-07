@@ -4,16 +4,16 @@
       <h3>Add loan items</h3>
     </template>
     <template #options>
-      <expand-component v-model="displayBody" />
+      <VExpand v-model="isExpanded" />
     </template>
     <template #body>
-      <template v-if="displayBody">
+      <template v-if="isExpanded">
         <SwitchComponent
-          :options="typeList"
-          v-model="view"
+          :options="Object.keys(TYPE_LIST)"
+          v-model="currentTab"
         />
         <component
-          :is="componentView"
+          :is="TYPE_LIST[currentTab]"
           :loan="loan"
         />
       </template>
@@ -21,46 +21,29 @@
   </block-layout>
 </template>
 
-<script>
+<script setup>
+import { ref, computed } from 'vue'
+import { useStore } from 'vuex'
 import { GetterNames } from '../store/getters/getters'
 import CreateObject from './CreateObject'
 import CreateTag from './CreateTag'
 import CreatePinboard from './CreatePinboard'
-import ExpandComponent from './expand.vue'
-import SwitchComponent from '@/components/switch'
+import VExpand from './expand.vue'
+import SwitchComponent from '@/components/ui/VSwitch'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 
-const typeList = ['Object', 'Tag', 'Pinboard']
-
-export default {
-  components: {
-    CreateObject,
-    CreateTag,
-    CreatePinboard,
-    ExpandComponent,
-    SwitchComponent,
-    BlockLayout
-  },
-
-  computed: {
-    loan() {
-      return this.$store.getters[GetterNames.GetLoan]
-    },
-
-    componentView() {
-      return `Create${this.view}`
-    }
-  },
-
-  data() {
-    return {
-      maxItemsWarning: 100,
-      typeList: typeList,
-      displayBody: true,
-      view: typeList[0]
-    }
-  }
+const TYPE_LIST = {
+  Object: CreateObject,
+  Tag: CreateTag,
+  Pinboard: CreatePinboard
 }
+
+const store = useStore()
+
+const isExpanded = ref(true)
+const currentTab = ref('Object')
+
+const loan = computed(() => store.getters[GetterNames.GetLoan])
 </script>
 <style lang="scss">
 #edit_loan_task {

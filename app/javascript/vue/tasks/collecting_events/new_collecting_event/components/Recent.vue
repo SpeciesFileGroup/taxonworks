@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import ModalComponent from '@/components/ui/Modal'
 import { CollectingEvent } from '@/routes/endpoints'
 

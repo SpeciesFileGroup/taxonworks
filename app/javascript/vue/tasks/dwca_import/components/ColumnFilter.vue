@@ -1,7 +1,7 @@
 <template>
   <th class="column-filter">
     <div class="flex-separate middle">
-      <span v-help="`section|dwcTable|${title}`">{{ title }}</span>
+      <span v-help:path="`section.dwcTable.${this.title}`">{{ title }}</span>
       <div
         class="margin-small-left"
         @keyup.esc="show = false"

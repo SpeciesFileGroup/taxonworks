@@ -38,7 +38,7 @@
 import LeafletMap from '@/components/georeferences/map.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { ref, computed } from 'vue'
-import { useDraggable } from '@/compositions'
+import { useDraggable } from '@/composables'
 
 defineProps({
   geojson: {

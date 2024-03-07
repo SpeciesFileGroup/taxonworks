@@ -53,7 +53,7 @@ import FilterPanel from './components/Filter/FilterPanel.vue'
 import FoundPeople from './components/FoundPeople'
 import MatchPeople from './components/MatchPeople'
 import CompareTable from './components/CompareTable.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import URLComponent from './components/URLComponent.vue'
 
 import { ActionNames } from './store/actions/actions'

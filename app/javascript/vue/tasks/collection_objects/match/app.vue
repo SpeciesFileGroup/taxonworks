@@ -50,7 +50,7 @@
 import InputComponent from './components/InputComponent'
 import LineComponent from './components/LineComponent'
 import AssignComponent from './components/AssignComponent'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import { CollectionObject } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 

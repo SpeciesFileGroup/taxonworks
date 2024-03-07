@@ -2,8 +2,8 @@ import { ObservationMatrix, ObservationMatrixRowItem } from '@/routes/endpoints'
 import { sortArray } from '@/helpers/arrays'
 import { OTU, OBSERVATION_MATRIX_ROW_SINGLE } from '@/constants/index.js'
 import ModalComponent from '@/components/ui/Modal.vue'
-import SpinnerComponent from '@/components/spinner.vue'
-import PinComponent from '@/components/getDefaultPin.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
+import PinComponent from '@/components/ui/Button/ButtonPinned.vue'
 
 export default {
   components: {

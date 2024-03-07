@@ -9,20 +9,77 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- `/api/v1/common_names` [#3794]
-- `/api/v1/biological_associations/simple` A simple table format for BiologicalAssociations
+- Add taxon name autocomplete to Type specimen facet
+- DwC Dashboard: Use the same DwC download of collection object filter task
+
+### Fixed
+- A COLDP export name and taxon remarks bug [#3837]
+
+## [0.39.0] - 2024-03-01
+
+### Added
+
+- Project vocabulary task [#864]
+- Global identifier classes for Web of Science and Zoological Record [#3853]
+- `/api/v1/biological_associations/simple.csv` endpoint
+- Return a png of any image via `/api/v1/images/:id/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)` [#3852]
+- `content_type` and `original_png` attributes to `/api/v1//images/123` [#3852]
+- Ability to extend housekeeping on some filters to check changes on related models [#3851]
+- Some new soft validations on Misspellings
 
 ### Fixed
 
+- Handle bad BibTeX coming back from CrossRef.
+- Quick Forms: Observation matrices slice doesn't work
+- Quick Forms: Content slice doesn't display contents [#3850]
+- Browse OTU: Load preferences
+- New loan task: reset button doesn't work [#3856]
+- New image task doesn't create citations without attributions
+- Missing pagination headers for 4 endpoints [#3859]
+
+### Changed
+
+- Allow omitting seconds in non-interval ISO-8601 date times in DwC importer.
+
+[#864]: https://github.com/SpeciesFileGroup/taxonworks/issues/864
+[#3853]: https://github.com/SpeciesFileGroup/taxonworks/issues/3853
+[#3851]: https://github.com/SpeciesFileGroup/taxonworks/issues/3851
+[#3852]: https://github.com/SpeciesFileGroup/taxonworks/issues/3852
+[#3850]: https://github.com/SpeciesFileGroup/taxonworks/issues/3850
+[#3856]: https://github.com/SpeciesFileGroup/taxonworks/issues/3856
+[#3859]: https://github.com/SpeciesFileGroup/taxonworks/issues/3859
+
+## [0.38.3] - 2024-02-25
+
+### Added
+
+- `/api/v1/common_names` [#3794]
+- `/api/v1/biological_associations/simple` A simple table format for BiologicalAssociations
+- Housekeeping facet in filters has "Recent" button with options to populate past date ranges
+- Radials to New image task
+
+### Fixed
+
+- DwC download not scoping DataAttributes correctly when records are a subset of objecs from a CollectingEvent
 - DwC Dashboard buttons scoped to recent timeframes [#3774]
 - A couple .csv endpoints for /api/v1
 - Radial annotator: Filter tab doesn't work in depictions slice [#3824]
-- A COLDP export name and taxon remarks bug [#3837]
+- Filters: Geographic area facet doesn't clear geographic area after reset [#3840]
+- Radial collection object: Taxon determination list is not visible
+- Align metadata in GeographicItem debug view
+- Biological associations filter bugs
+- Several radial annotator and batch annotator slice fixes
+- DwC checklist importer fails quietly when `taxonomicStatus` is empty [#3783]
 
 ### Changed
 
 - Documents are no longer destroyed when the last documentation referencing them are deleted.
+- Use Ruby 3.3
+- CI build/test with PostgreSQL 15
+- CI base image uses Node 20
 
+[#3783]: https://github.com/SpeciesFileGroup/taxonworks/issues/3783
+[#3840]: https://github.com/SpeciesFileGroup/taxonworks/issues/3840
 [#3774]: https://github.com/SpeciesFileGroup/taxonworks/issues/3774
 [#3794]: https://github.com/SpeciesFileGroup/taxonworks/issues/3794
 [#3824]: https://github.com/SpeciesFileGroup/taxonworks/issues/3824
@@ -4329,7 +4386,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.39.0...development
+[0.39.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.3...v0.39.0
+[0.38.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.2...v0.38.3
 [0.38.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.1...v0.38.2
 [0.38.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.0...v0.38.1
 [0.38.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.37.1...v0.38.0

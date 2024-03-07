@@ -52,7 +52,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { GeographicArea } from '@/routes/endpoints'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import VMap from '@/components/georeferences/map.vue'
 import { randomUUID } from '@/helpers'
 

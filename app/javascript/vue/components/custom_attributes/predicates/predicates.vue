@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import VSpinner from '@/components/spinner'
+import VSpinner from '@/components/ui/VSpinner'
 import PredicateRow from './components/predicateRow'
 import {
   Project,
