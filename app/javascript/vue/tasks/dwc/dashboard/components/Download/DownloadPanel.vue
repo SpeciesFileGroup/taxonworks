@@ -11,6 +11,7 @@
         <VBtn
           class="capitalize"
           color="create"
+          :total="downloadCount"
           medium
           :disabled="!downloadCount"
           @click="action"
@@ -25,12 +26,7 @@
         <DwcDownload
           v-for="(days, key) in DATE_BUTTONS"
           :key="key"
-          :params="
-            makeParameters({
-              count: getTotal(key),
-              days
-            })
-          "
+          :params="makeParameters(days)"
           v-slot="{ action }"
           @create="actions.addDownloadRecord"
         >
@@ -73,11 +69,10 @@ function getTotal(date) {
   return state?.metadata?.index.freshness[`one_${date}`]
 }
 
-function makeParameters({ days, count }) {
+function makeParameters(days) {
   return {
     user_date_start: getPastDateByDays(Number(days)),
     user_date_end: getPastDateByDays(0),
-    per: count,
     dwc_indexed: true
   }
 }

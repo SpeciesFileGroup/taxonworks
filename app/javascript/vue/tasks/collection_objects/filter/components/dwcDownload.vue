@@ -218,6 +218,11 @@ const props = defineProps({
   selectedIds: {
     type: Array,
     default: () => []
+  },
+
+  nestParameter: {
+    type: String,
+    default: null
   }
 })
 
@@ -289,14 +294,19 @@ function download() {
     ? { collection_object_id: props.selectedIds }
     : getFilterParams(props.params)
 
-  DwcOcurrence.generateDownload({
-    collection_object_query: {
-      ...downloadParams
-    },
+  const payload = {
     ...includeParameters.value,
     ...predicateParams,
     ...selectedExtensionMethods
-  }).then(({ body }) => {
+  }
+
+  if (props.nestParameter) {
+    Object.assign(payload, { [props.nestParameter]: downloadParams })
+  } else {
+    Object.assign(payload, downloadParams)
+  }
+
+  DwcOcurrence.generateDownload(payload).then(({ body }) => {
     emit('create', body)
     openGenerateDownloadModal()
   })
