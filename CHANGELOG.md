@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Browse OTUs: headers do not link to correct panel [#3868]
 - DwC-A importer crashing on hybrid formula scientific names.
+- Crash when georeferencing with zero meters of uncertainty.
 
 [#3868]: https://github.com/SpeciesFileGroup/taxonworks/issues/3868
 [#3869]: https://github.com/SpeciesFileGroup/taxonworks/issues/3869
