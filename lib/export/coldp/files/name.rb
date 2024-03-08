@@ -95,13 +95,15 @@ module Export::Coldp::Files::Name
   #    only place that var./frm can be handled.
   def self.add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
 
+
     # Transform t.original_combination_elements from {:genus=>[nil, "Medeterus", "[sic]"], :species=>[nil, "viridifacies"]} to {:genus=>"Medeterus [sic]", :species=>"viridifacies"}
+    # TODO: Should [sic] handling be added to the Protonym#original_combination_elements method? Need to discuss with DD and MJY
     e = {}
     e = t.original_combination_elements.transform_values { |v| v.compact.join(' ') }
     e[:scientific_name] = t.cached_original_combination
     e = clean_sic(e)
 
-    infraspecific_element = t.original_combination_infraspecific_element
+    infraspecific_element = t.original_combination_infraspecific_element(e, remove_sic: true)
 
     rank = nil
     if infraspecific_element

@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - A COLDP export name and taxon remarks bug [#3837]
+- Handling of [sic] in Protonym#original_combination_infraspecific_element [#3867]
 
 ## [0.39.0] - 2024-03-01
 
