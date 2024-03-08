@@ -12,6 +12,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add taxon name autocomplete to Type specimen facet
 - DwC Dashboard: Use the same DwC download of collection object filter task
 
+### Fixed
+- Handling of [sic] in Protonym#original_combination_infraspecific_element [#3867]
+
 ## [0.39.0] - 2024-03-01
 
 ### Added
