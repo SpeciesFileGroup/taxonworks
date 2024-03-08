@@ -12,11 +12,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add taxon name autocomplete to Type specimen facet
 - DwC Dashboard: Use the same DwC download of collection object filter task
 
+### Changed
+
+- Filter images: Remove quick forms for Depictions [#3869]
+
 ### Fixed
 
 - Browse OTUs: headers do not link to correct panel [#3868]
 
 [#3868]: https://github.com/SpeciesFileGroup/taxonworks/issues/3868
+[#3869]: https://github.com/SpeciesFileGroup/taxonworks/issues/3869
 
 ## [0.39.0] - 2024-03-01
 
