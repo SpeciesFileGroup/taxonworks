@@ -179,7 +179,7 @@ function createOTUs(otus) {
     const payload = {
       otu: {
         name: item.name,
-        taxon_name_id: item.taxonName.id
+        taxon_name_id: item.taxonName?.id
       }
     }
     return Otu.create(payload).then(() => {
