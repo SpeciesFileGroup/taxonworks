@@ -866,8 +866,9 @@ project_vocabulary_task:
 
 index_new_otu_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'New OTU'
   related:
   categories:
+    - otu
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Create one or many OTUs in batch.'
