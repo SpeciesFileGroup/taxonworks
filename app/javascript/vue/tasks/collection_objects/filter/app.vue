@@ -158,7 +158,8 @@ const extendDownload = computed(() => [
     bind: {
       params: parameters.value,
       total: pagination.value?.total,
-      selectedIds: selectedIds.value
+      selectedIds: selectedIds.value,
+      nestParameter: 'collection_object_query'
     }
   }
 ])
