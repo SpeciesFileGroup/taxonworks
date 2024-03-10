@@ -1,5 +1,6 @@
 import { reactive } from 'vue'
 import { DwcOcurrence } from '@/routes/endpoints'
+import { removeFromArray } from '@/helpers'
 
 const state = reactive({
   metadata: undefined,
@@ -21,10 +22,15 @@ const addDownloadRecord = (record) => {
   state.downloadList.unshift(record)
 }
 
+const removeDownloadFromList = (record) => {
+  removeFromArray(state.downloadList, record)
+}
+
 const actions = {
   addDownloadRecord,
   getMetadata,
-  setDownloadRecord
+  setDownloadRecord,
+  removeDownloadFromList
 }
 
 export { actions, state }

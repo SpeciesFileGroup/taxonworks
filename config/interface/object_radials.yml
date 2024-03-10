@@ -131,6 +131,7 @@ Otu:
   home: browse_otus_task
   config:
     recent: true
+  new: new_otu_task
 Person:
   tasks:
     - uniquify_people_task

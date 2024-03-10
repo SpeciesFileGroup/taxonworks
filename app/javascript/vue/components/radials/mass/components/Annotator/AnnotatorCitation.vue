@@ -1,5 +1,6 @@
 <template>
   <div class="confidence_annotator">
+    <VSpinner v-if="isCreating" />
     <FormCitation
       :target="objectType"
       v-model="citation"
@@ -15,6 +16,7 @@
 <script setup>
 import { ref } from 'vue'
 import { Citation } from '@/routes/endpoints'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 
 const props = defineProps({
@@ -32,17 +34,26 @@ const props = defineProps({
 const emit = defineEmits(['create'])
 
 const citation = ref({})
-const topics = ref([])
+const isCreating = ref(false)
 
 function createCitation() {
+  isCreating.value = true
   Citation.createBatch({
     citation_object_type: props.objectType,
     source_id: citation.value.source_id,
     pages: citation.value.pages,
     citation_object_id: props.ids
-  }).then((response) => {
-    TW.workbench.alert.create('Citation(s) were successfully created', 'notice')
-    emit('create', response.body)
   })
+    .then(({ body }) => {
+      TW.workbench.alert.create(
+        'Citation(s) were successfully created',
+        'notice'
+      )
+      emit('create', body)
+    })
+    .catch(() => {})
+    .finally(() => {
+      isCreating.value = false
+    })
 }
 </script>

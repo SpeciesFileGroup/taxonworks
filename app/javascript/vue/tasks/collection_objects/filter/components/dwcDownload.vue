@@ -184,7 +184,7 @@
   </div>
 </template>
 <script setup>
-import { computed, reactive, ref, onBeforeMount, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { RouteNames } from '@/routes/routes.js'
 import { DwcOcurrence } from '@/routes/endpoints'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
@@ -218,12 +218,20 @@ const props = defineProps({
   selectedIds: {
     type: Array,
     default: () => []
+  },
+
+  nestParameter: {
+    type: String,
+    default: null
   }
 })
+
+const emit = defineEmits(['create'])
 
 const confirmationModalRef = ref()
 const showModal = ref(false)
 const isLoading = ref(false)
+const predicatesLoaded = ref(false)
 const collectingEvents = ref([])
 const collectionObjects = ref([])
 const includeParameters = ref({})
@@ -286,14 +294,20 @@ function download() {
     ? { collection_object_id: props.selectedIds }
     : getFilterParams(props.params)
 
-  DwcOcurrence.generateDownload({
-    collection_object_query: {
-      ...downloadParams
-    },
+  const payload = {
     ...includeParameters.value,
     ...predicateParams,
     ...selectedExtensionMethods
-  }).then((_) => {
+  }
+
+  if (props.nestParameter) {
+    Object.assign(payload, { [props.nestParameter]: downloadParams })
+  } else {
+    Object.assign(payload, downloadParams)
+  }
+
+  DwcOcurrence.generateDownload(payload).then(({ body }) => {
+    emit('create', body)
     openGenerateDownloadModal()
   })
 }
@@ -317,27 +331,29 @@ async function openGenerateDownloadModal() {
   setModalView(false)
 }
 
-onBeforeMount(async () => {
-  isLoading.value = true
-
-  const [predicates, extensions] = await Promise.all([
-    DwcOcurrence.predicates(),
-    DwcOcurrence.taxonworksExtensionMethods()
-  ])
-
-  isLoading.value = false
-
-  collectingEvents.value = predicates.body.collecting_event
-  collectionObjects.value = predicates.body.collection_object
-
-  extensionMethodNames.value = extensions.body
-})
-
-watch(showModal, (newVal) => {
+watch(showModal, async (newVal) => {
   if (newVal) {
     predicateParams.collection_object_predicate_id = []
     predicateParams.collecting_event_predicate_id = []
     selectedExtensionMethods.taxonworks_extension_methods = []
+
+    if (!predicatesLoaded.value && !isLoading.value) {
+      try {
+        isLoading.value = true
+
+        const [predicates, extensions] = await Promise.all([
+          DwcOcurrence.predicates(),
+          DwcOcurrence.taxonworksExtensionMethods()
+        ])
+
+        collectingEvents.value = predicates.body.collecting_event
+        collectionObjects.value = predicates.body.collection_object
+        extensionMethodNames.value = extensions.body
+        predicatesLoaded.value = true
+      } catch (e) {}
+
+      isLoading.value = false
+    }
   }
 })
 </script>

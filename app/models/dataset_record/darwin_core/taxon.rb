@@ -45,7 +45,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                                             "scientificName": parse_results[:qualityWarnings] ?
                                                                 parse_results[:qualityWarnings].map { |q| q[:warning] } :
                                                                 ['Unable to parse scientific name. Please make sure it is correctly spelled.']
-                                          }) unless (1..3).include?(parse_results[:quality]) && parse_results_details
+                                          }) unless (1..3).include?(parse_results[:quality]) && parse_results_details&.is_a?(Hash)
 
         raise 'UNKNOWN NAME DETAILS COMBINATION' unless KNOWN_KEYS_COMBINATIONS.include?(parse_results_details.keys - [:authorship])
 

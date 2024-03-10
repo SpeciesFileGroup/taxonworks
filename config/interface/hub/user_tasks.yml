@@ -878,3 +878,11 @@ project_vocabulary_task:
   categories:
   status: prototype
   description: 'Visualize data values used in this project.  Word clouds.'
+new_otu_task:
+  hub: true
+  name: 'New OTU'
+  related:
+  categories:
+    - otu
+  status: prototype
+  description: 'Create one or many OTUs in batch.'
