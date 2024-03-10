@@ -5,10 +5,12 @@
       :key="o.cpl.id"
       :style="marginForDepth(o.depth)"
     >
-      <a
-        :href="routeName + '?lead_id=' + o.cpl.parent_id"
-        @click.prevent="loadFunction(o.cpl.parent_id)"
-        v-html="coupletText(o.cpl, o.cplLabel, o.otuLabel)"
+      <CoupletChoiceLink
+        :load-function="loadFunction"
+        :route-name="routeName"
+        :couplet-label="o.cplLabel"
+        :lead="o.cpl"
+        :otu-tag="o.otuLabel"
       />
     </div>
   </div>
@@ -18,7 +20,8 @@
 </template>
 
 <script setup>
-import { coupletText, marginForDepth } from '../helpers/formatters.js'
+import CoupletChoiceLink from './CoupletChoiceLink.vue'
+import { marginForDepth } from '../helpers/formatters.js'
 
 const props = defineProps({
   future: {

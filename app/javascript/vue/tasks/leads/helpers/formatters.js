@@ -1,25 +1,13 @@
 function leadText(lead) {
   if (lead.text) {
     return lead.text.slice(0, 38) + (lead.text.length > 38 ? '...' : '')
-  } else {
-    return '<i>(No text)</i>'
   }
+  return ''
 }
 
 function marginForDepth(depth) {
   const pxs = depth * 5
-  return 'margin-left: ' + pxs.toString() + 'px'
+  return pxs > 0 ? ('margin-left: ' + pxs.toString() + 'px') : ''
 }
 
-function coupletText(lead, label, otuTag) {
-  let text = leadText(lead)
-  if (otuTag) {
-    text = text + ' ... ' + otuTag
-  }
-  if (label) {
-    return '[' + label + '] ' + text
-  }
-  return text
-}
-
-export { marginForDepth, coupletText }
+export { leadText, marginForDepth }
