@@ -99,3 +99,4 @@ import '../vue/tasks/biological_associations/biological_associations_graph/main.
 import '../vue/tasks/biological_associations/network/main.js'
 import '../vue/tasks/collecting_events/stepwise/collectors/main.js'
 import '../vue/tasks/metadata/vocabulary/project_vocabulary/main.js'
+import '../vue/tasks/otus/new_otu/main.js'

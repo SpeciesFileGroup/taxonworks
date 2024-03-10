@@ -576,6 +576,10 @@ scope :tasks do
   end
 
   scope :otus do
+    scope :new_otu, controller: 'tasks/otus/new_otu' do
+      get '/', action: :index, as: 'new_otu_task'
+    end
+
     scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
       get :index, as: 'index_browse_asserted_distributions_task'
     end
