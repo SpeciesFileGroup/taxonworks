@@ -10,7 +10,7 @@
         </th>
         <th>Name</th>
         <th>Taxon name</th>
-        <th>Exist?</th>
+        <th>Exists?</th>
         <th></th>
       </tr>
     </thead>

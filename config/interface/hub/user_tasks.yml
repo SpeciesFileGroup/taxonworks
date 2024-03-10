@@ -852,7 +852,7 @@ debug_geographic_item_task:
   related:
   categories:
     - geographic_area
-    - collecting_event 
+    - collecting_event
     - georeference
   status: prototype
   description: 'Report metadat about a geographic item.'
@@ -863,8 +863,7 @@ project_vocabulary_task:
   categories:
   status: prototype
   description: 'Visualize data values used in this project.  Word clouds.'
-
-index_new_otu_task:
+new_otu_task:
   hub: true
   name: 'New OTU'
   related:
