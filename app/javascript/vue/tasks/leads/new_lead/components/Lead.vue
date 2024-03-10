@@ -20,8 +20,9 @@
       <div
         v-if="!!store.last_saved[side].redirect_id"
         class="redirect_notice"
-        v-html="'<i>This side is currently redirecting, to add couplets below remove the redirection.</i>'"
-      />
+      >
+        <i>This side is currently redirecting, to add couplets below remove the redirection.</i>
+      </div>
       <div class="navigation">
         <VBtn
           color="update"
@@ -77,7 +78,7 @@
             </a>
           </p>
           <p v-else>
-            Link: <span v-html="'<i>(Requires both URL and text)</i>'" />
+            Link: <i>(Requires both URL and text)</i>
           </p>
         </fieldset>
       </div>

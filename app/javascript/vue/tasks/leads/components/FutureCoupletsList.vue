@@ -12,10 +12,9 @@
       />
     </div>
   </div>
-  <div
-    v-else
-    v-html="'<i>No future couplets</i>'"
-  />
+  <div v-else>
+    <i>No future couplets</i>
+  </div>
 </template>
 
 <script setup>
@@ -33,7 +32,6 @@ const props = defineProps({
   routeName: {
     type: String,
     required: true
-  },
-
+  }
 })
 </script>

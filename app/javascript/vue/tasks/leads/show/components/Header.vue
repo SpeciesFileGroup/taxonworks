@@ -35,10 +35,9 @@
         v-if="root.otu"
         class="root-data"
       >
-        <span
-          v-if="!root.otu.taxon_name_id"
-          v-html="'Otu:'"
-        />
+        <template v-if="!root.otu.taxon_name_id">
+          Otu:
+        </template>
         <a
           :href="root.otu.object_url"
           target="_blank"

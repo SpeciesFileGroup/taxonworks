@@ -18,10 +18,9 @@
       >
         {{ lead.text }}
       </div>
-      <div
-        v-else
-        v-html="'<i>(No text)</i>'"
-      />
+      <div v-else>
+        <i>(No text)</i>
+      </div>
 
       <div
         v-if="displayLinkOut"

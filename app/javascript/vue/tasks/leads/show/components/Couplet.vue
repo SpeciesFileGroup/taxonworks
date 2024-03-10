@@ -12,8 +12,9 @@
     <div
       v-if="lead.origin_label"
       class="large_type"
-      v-html="'<b>Couplet ' + lead.origin_label + '</b>'"
-    />
+    >
+      <b>Couplet {{ lead.origin_label }}</b>
+    </div>
 
     <div v-if="lead.otu">
       <a
