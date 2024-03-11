@@ -23,9 +23,7 @@
               />
               Append
             </label>
-          </div>
-          <ModalNestedParameters :parameters="parameters" />
-          <div class="horizontal-left-content gap-small">
+            <ModalNestedParameters :parameters="parameters" />
             <slot name="nav-query-left" />
             <template v-if="objectType">
               <RadialFilter
