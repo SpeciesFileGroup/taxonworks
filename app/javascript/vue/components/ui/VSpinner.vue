@@ -218,8 +218,10 @@ export default {
 
         copyCSS.width = this.outerWidth(domElement) + 'px'
         copyCSS.height = this.outerHeight(domElement) + 'px'
-        copyCSS.top = elementBound.top + 'px'
-        copyCSS.left = elementBound.left + 'px'
+        if (copyCSS.position == 'fixed') {
+          copyCSS.top = elementBound.top + 'px'
+          copyCSS.left = elementBound.left + 'px'
+        }
       }
       if (!this.showSpinner) {
         copyCSS.zIndex =
