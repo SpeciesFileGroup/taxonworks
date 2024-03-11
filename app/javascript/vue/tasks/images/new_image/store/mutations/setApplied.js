@@ -1,3 +1,3 @@
 export default (state, value) => {
-  state.pixelsToCentimeter = value
+  state.settings.applied = value
 }

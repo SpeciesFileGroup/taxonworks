@@ -114,6 +114,7 @@ export default ({ state, commit }) => {
   Promise.all(promises).then(() => {
     state.settings.saving = false
     if (createdCount > 0) {
+      state.settings.applied.depiction = true
       TW.workbench.alert.create(
         'Depiction(s) was successfully created.',
         'notice'

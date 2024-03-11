@@ -30,8 +30,10 @@
 </template>
 
 <script>
+import { ActionNames } from '../../store/actions/actions.js'
 import Dropzone from '@/components/dropzone.vue'
 import ImageViewer from './imageViewer.vue'
+import { GetterNames } from '../../store/getters/getters.js'
 
 export default {
   components: {
@@ -85,10 +87,15 @@ export default {
       this.$refs.image.removeFile(file)
       this.$emit('update:modelValue', this.figuresList)
       this.$emit('created', response)
+      this.$store.dispatch(ActionNames.SetAllApplied, false)
     },
 
     clearImages() {
-      if (window.confirm('Are you sure you want to clear the images?')) {
+      const message = this.$store.getters[GetterNames.IsAllApplied]
+        ? 'Are you sure you want to clear the images?'
+        : 'You have images without applying changes, are you sure you want to clean the images?'
+
+      if (window.confirm(message)) {
         this.$emit('update:modelValue', [])
         this.$emit('onClear')
       }
