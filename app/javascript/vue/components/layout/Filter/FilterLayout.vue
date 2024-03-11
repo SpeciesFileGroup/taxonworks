@@ -27,19 +27,25 @@
           <ModalNestedParameters :parameters="parameters" />
           <div class="horizontal-left-content gap-small">
             <slot name="nav-query-left" />
-            <RadialFilter
-              v-if="objectType"
-              :parameters="parameters"
-              :object-type="objectType"
-              :disabled="!list.length"
-            />
-            <RadialLinker
-              v-if="objectType"
-              all
-              :parameters="parameters"
-              :object-type="objectType"
-              :disabled="!list.length"
-            />
+            <template v-if="objectType">
+              <RadialFilter
+                :parameters="parameters"
+                :object-type="objectType"
+                :disabled="!list.length"
+              />
+              <RadialLinker
+                all
+                :parameters="parameters"
+                :object-type="objectType"
+                :disabled="!list.length"
+              />
+              <RadialMassAnnotator
+                :object-type="objectType"
+                :parameters="parameters"
+                :disabled="!list.length"
+                nested-query
+              />
+            </template>
             <slot name="nav-query-right" />
             <span class="separate-left separate-right">|</span>
             <VBtn
@@ -72,23 +78,20 @@
           />
           <div class="horizontal-right-content gap-small">
             <RadialFilter
-              v-if="selectedIds"
               :ids="selectedIds"
               :parameters="parameters"
               :disabled="!selectedIds.length"
               :object-type="objectType"
             />
             <RadialLinker
-              v-if="selectedIds"
               :ids="selectedIds"
               :disabled="!selectedIds.length"
               :object-type="objectType"
             />
             <RadialMassAnnotator
-              v-if="selectedIds"
               :object-type="objectType"
-              :parameters="parameters"
               :ids="selectedIds"
+              :disabled="!selectedIds.length"
             />
             <slot name="nav-right" />
             <span class="separate-left separate-right">|</span>
