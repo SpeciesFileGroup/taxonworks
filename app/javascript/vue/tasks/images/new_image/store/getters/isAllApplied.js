@@ -14,32 +14,15 @@ export default (state) => {
     pixelsToCentimeter
   } = state
 
-  if (!imagesCreated.length) {
-    return true
-  }
-
-  if (!applied.attribution && isAttributeSet({ people, license })) {
-    return false
-  }
-
-  if (!applied.tags && tagsForImage.length) {
-    return false
-  }
-
-  if (!applied.source && state.source) {
-    return false
-  }
-
-  if (!applied.pixel && pixelsToCentimeter) {
-    return false
-  }
-
-  if (
-    !applied.depiction &&
-    (objectsForDepictions.length || depiction.caption.length)
-  ) {
-    return false
-  }
-
-  return true
+  return (
+    !imagesCreated.length ||
+    !(
+      (!applied.attribution && isAttributeSet({ people, license })) ||
+      (!applied.tags && tagsForImage.length) ||
+      (!applied.source && state.source) ||
+      (!applied.pixel && pixelsToCentimeter) ||
+      (!applied.depiction &&
+        (objectsForDepictions.length || depiction.caption.length))
+    )
+  )
 }
