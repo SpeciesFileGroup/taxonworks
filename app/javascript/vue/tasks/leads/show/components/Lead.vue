@@ -7,7 +7,7 @@
         medium
         @click="() => emit('loadCouplet', goId)"
       >
-        Go
+        {{ goText }}
       </VBtn>
     </div>
 
@@ -62,7 +62,7 @@
         medium
         @click="() => emit('loadCouplet', goId)"
       >
-        Go
+        {{ goText }}
       </VBtn>
     </div>
   </div>
@@ -90,6 +90,10 @@ const hasDepictions = ref(false)
 
 const goId = computed(() => {
   return props.lead.redirect_id || props.lead.id
+})
+
+const goText = computed(() => {
+  return props.lead.redirect_id ? 'Go - follow redirect' : 'Go'
 })
 
 const displayLinkOut = computed(() => {
