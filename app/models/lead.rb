@@ -88,26 +88,40 @@ class Lead < ApplicationRecord
   end
 
   def insert_couplet
+
     if cs = children
       a = cs[0]
       b = cs[1]
     end
 
+    children_present = cs && !a.nil? && !b.nil?
+    current_node_is_left_child = !parent_id || (parent.children[0].id == id)
+
     begin
       c, d = Lead.transaction do
+        texts = {
+          parented: children_present ?
+            'Child nodes are attached to this node' : 'Inserted node',
+          unparented: 'Inserted node'
+        }
+        left_text =
+          current_node_is_left_child ? texts[:parented] : texts[:unparented]
+        right_text =
+          current_node_is_left_child ? texts[:unparented] : texts[:parented]
         [
-          children.create!(text: 'Child nodes, if present, are attached to this node.'),
-          children.create!(text: 'Inserted node')
+          children.create!(text: left_text),
+          children.create!(text: right_text)
         ]
       end
     rescue ActiveRecord::RecordInvalid
       return []
     end
 
-    if !a.nil?
+    if children_present
+      new_parent = current_node_is_left_child ? c : d
       # !! Test thoroughly here! Many things you might expect to work may give
       # you the wrong order for a and b.
-      c.add_child a
+      new_parent.add_child a
       a.append_sibling b
     end
 

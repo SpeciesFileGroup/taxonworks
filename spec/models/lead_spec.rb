@@ -28,17 +28,17 @@ RSpec.describe Lead, type: :model do
 
   specify 'redirect only on leaf nodes' do
     root = FactoryBot.create(:valid_lead)
-    child = root.children.create text: 'c'
-    grandchild = child.children.create text: 'gc'
+    child = root.children.create! text: 'c'
+    grandchild = child.children.create! text: 'gc'
 
     root2 = FactoryBot.create(:valid_lead)
     expect { child.update! redirect_id: root2.id }.to raise_error ActiveRecord::RecordInvalid
   end
 
-  specify "children of a redirect node are invalid" do
+  specify 'children of a redirect node are invalid' do
     root1 = FactoryBot.create(:valid_lead)
     root2 = FactoryBot.create(:valid_lead)
-    child = root1.children.create text: 'c'
+    child = root1.children.create! text: 'c'
     expect(child.new_record?).to be(false)
     expect(child.update! redirect_id: root2.id).to be(true)
     expect(child.valid?).to be(true)
@@ -47,22 +47,22 @@ RSpec.describe Lead, type: :model do
 
   specify "redirect can't point to an ancestor" do
     root = FactoryBot.create(:valid_lead)
-    child = root.children.create text: 'c'
+    child = root.children.create! text: 'c'
     expect {child.update! redirect_id: root.id}.to raise_error ActiveRecord::RecordInvalid
   end
 
   specify "keys with external referrers can't be destroyed" do
     root1 = FactoryBot.create(:valid_lead)
     root2 = FactoryBot.create(:valid_lead)
-    child = root1.children.create text: 'c'
+    child = root1.children.create! text: 'c'
     expect(child.update! redirect_id: root2.id).to be(true)
     expect{root2.destroy!}.to raise_error ActiveRecord::RecordNotDestroyed
   end
 
   specify "keys with internal referrers can't be destroyed" do
     root = FactoryBot.create(:valid_lead)
-    child = root.children.create text: 'c'
-    sibling = root.children.create text: 's'
+    child = root.children.create! text: 'c'
+    sibling = root.children.create! text: 's'
     expect(child.update! redirect_id: sibling.id).to be(true)
     # TODO: this may depend on the order in which the children get destroyed:
     # if the child with !redirect_id.nil? gets destroyed first then there
@@ -129,20 +129,28 @@ RSpec.describe Lead, type: :model do
 
       ids = lr.insert_couplet
 
-      expect(Lead.find(ids[0]).text).to eq('Child nodes, if present, are attached to this node.')
+      new_left_child = Lead.find(ids[0])
+      new_right_child = Lead.find(ids[1])
+      expect(new_left_child.text).to eq('Inserted node')
+      expect(new_right_child.text).to eq('Child nodes are attached to this node')
 
-      expect(Lead.find(ids[0]).all_children.size).to eq(2)
-      expect(Lead.find(ids[1]).all_children.size).to eq(0)
+      expect(new_left_child.all_children.size).to eq(0)
+      expect(new_right_child.all_children.size).to eq(2)
 
-      expect(Lead.find(ids[0]).children[0]).to eq(Lead.where(text: 'lrl')[0])
-      expect(Lead.find(ids[0]).children[1]).to eq(Lead.where(text: 'lrr')[0])
-      expect(Lead.find(ids[1]).children.size).to eq(0)
+      expect(new_left_child.children.size).to eq(0)
+      expect(new_right_child.children[0]).to eq(Lead.where(text: 'lrl')[0])
+      expect(new_right_child.children[1]).to eq(Lead.where(text: 'lrr')[0])
 
-      expect(Lead.find(ids[0]).parent_id).to eq(lr.id)
-      expect(Lead.find_by(text: 'lrl').parent_id).to eq(ids[0])
-      expect(Lead.find_by(text: 'lrr').parent_id).to eq(ids[0])
+      expect(new_left_child.parent_id).to eq(lr.id)
+      expect(Lead.find_by(text: 'lrl').parent_id).to eq(ids[1])
+      expect(Lead.find_by(text: 'lrr').parent_id).to eq(ids[1])
 
       expect(Lead.find_by(text: 'lr').all_children.size).to eq(4)
+
+      ids = l.insert_couplet
+
+      expect(Lead.find(ids[0]).text).to eq('Child nodes are attached to this node')
+      expect(Lead.find(ids[1]).text).to eq('Inserted node')
     end
 
     specify 'destroy! destroys all children of a key' do
