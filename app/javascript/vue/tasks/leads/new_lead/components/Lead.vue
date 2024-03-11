@@ -25,6 +25,7 @@
       </div>
       <div class="navigation">
         <VBtn
+          :disabled="nextButtonDisabled"
           color="update"
           medium
           @click="nextCouplet()"
@@ -159,6 +160,14 @@ const depictions = ref([])
 
 const loading = ref(false)
 
+const nextButtonDisabled = computed(() => {
+  return (
+    !props.sideHasChildren &&
+    !store.last_saved[props.side].redirect_id &&
+    !store.last_saved[props.side].text
+  )
+})
+
 const displayLinkOut = computed(() => {
   const linkOut = store[props.side].link_out
   return linkOut && store[props.side].link_out_text &&
@@ -168,10 +177,14 @@ const displayLinkOut = computed(() => {
 const editNextText = computed(() => {
   if (!!store.last_saved[props.side].redirect_id) {
     return 'Follow redirect and edit'
+  } else if (props.sideHasChildren) {
+    return 'Edit the next couplet'
   } else {
-    return props.sideHasChildren ?
-      'Edit the next couplet' :
-      'Create and edit the next couplet'
+    if (store.last_saved[props.side].text) {
+      return 'Create and edit the next couplet'
+    } else {
+      return 'Save text to enable creating the next couplet'
+    }
   }
 })
 
