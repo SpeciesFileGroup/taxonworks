@@ -12,7 +12,7 @@
           v-if="mediumDepictions"
         >
           <div :style="'width: ' + captionWidth(depiction) + 'px' ">
-            <ul class="no_bullets">
+            <ul class="no_bullets figure_text">
               <li v-if="depiction.figure_label">
                 <u>
                   {{ depiction.figure_label }}
@@ -122,5 +122,10 @@ function captionWidth(depiction) {
 }
 .lead_citation {
   margin-bottom: 1em;
+}
+.figure_text {
+  li {
+    overflow-wrap: break-word;
+  }
 }
 </style>
