@@ -179,17 +179,22 @@ module BatchLoad
     def create
       @create_attempted = true
 
-
       if ready_to_create?
         # TODO: DRY
         if a = save_order
 
-          sorted_processed_rows.each_value do |rp|
-            a.each do |k|
-              rp.objects[k].each do |o|
-                o.save unless o.persisted?
+          a.each do |k|
+            sorted_processed_rows.each_value do |rp|
+                rp.objects[k].each do |o|
+                  begin
+                    # puts o.name
+                    o.save! unless o.persisted?
+                   rescue ActiveRecord::RecordInvalid => o
+                     a = o.record
+                     o.record
+                  end
+                end
               end
-            end
           end
 
         else

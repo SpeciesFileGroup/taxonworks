@@ -4,14 +4,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
   let(:root) { FactoryBot.create(:root_taxon_name) }
 
-  after(:all) do
-    TaxonNameRelationship.delete_all
-    TaxonName.delete_all
-    TaxonNameHierarchy.delete_all
-    # TODO: find out why this exists and resolve - presently leaving sources in the models
-    Citation.delete_all
-    Source.destroy_all
-  end
+
+ #  after(:all) do
+ #    TaxonNameRelationship.delete_all
+ #    TaxonName.delete_all
+ #    TaxonNameHierarchy.delete_all
+ #    # TODO: find out why this exists and resolve - presently leaving sources in the models
+ #    Citation.delete_all
+ #    Source.destroy_all
+ #  end
 
   context 'quick test' do
     let(:genus) { Protonym.create(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
@@ -26,10 +27,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
     specify '#not_specified 1' do
       species.update!(parent: root, original_genus: nil)
-
-      # !! At this point species.cached == "</i>[<i></i>GENUS NOT SPECIFIED<i></i>]<i> vulnerata". See #2236
-
-      expect(species.reload.cached).to eq('[GENUS NOT SPECIFIED] vulnerata')
+      expect(species.cached).to eq('[GENUS NOT SPECIFIED] vulnerata')
     end
   end
 
@@ -252,7 +250,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(species.not_binominal?).to be_falsey
               species.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Unavailable::NonBinominal')
               expect(species.not_binominal?).to be_truthy
-              species.reload
+#              species.reload
               species.save
               expect(species.cached_html).to eq('<i>Cus aus</i>')
             end

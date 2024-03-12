@@ -20,13 +20,13 @@ class DatasetRecordField < ApplicationRecord
     where(position: position)
   end
 
-  def self.with_value(value)
+  def self.having_value(value)
     where(indexed_column_value(value).eq(value))
   end
 
   # Messy way of passing array of values for indexed_column_value
   # @param [Array] values
-  def self.with_values(values)
+  def self.having_values(values)
     if values.all? { |value| !value.nil? && value.length < VALUE_INDEX_LIMIT}
       where(indexed_column_value(values.first).in(values))
     else

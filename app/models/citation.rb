@@ -49,8 +49,9 @@ class Citation < ApplicationRecord
   has_many :documents, through: :source
 
   validates_presence_of :source
+
   validates_uniqueness_of :source_id, scope: [:citation_object_id, :citation_object_type, :pages]
-  validates_uniqueness_of :is_original, scope: [:citation_object_type, :citation_object_id], message: 'origin can only be assigned once', allow_nil: true, if: :is_original?
+  validates_uniqueness_of :is_original, scope: [:citation_object_type, :citation_object_id], message: 'origin can only be assigned once', allow_nil: true, if: -> { is_original? }
 
   accepts_nested_attributes_for :citation_topics, allow_destroy: true, reject_if: :reject_citation_topics
   accepts_nested_attributes_for :topics, allow_destroy: true, reject_if: :reject_topic

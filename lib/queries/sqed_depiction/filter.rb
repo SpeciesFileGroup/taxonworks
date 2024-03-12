@@ -49,10 +49,9 @@ module Queries
         [@sqed_depiction_id].flatten.compact
       end
 
-      # TODO: use WITH
       def base_collection_object_query_facet
         q = ::Queries::CollectionObject::Filter.new(base_collection_object_filter_params).all
-        ::SqedDepiction.joins(:collection_object).where(collection_objects: q)
+        ::SqedDepiction.joins(:collection_object).with(collection_objects: q)
       end
 
       def merge_clauses

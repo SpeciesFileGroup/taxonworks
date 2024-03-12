@@ -57,8 +57,9 @@ class Document < ApplicationRecord
 
   accepts_nested_attributes_for :documentation, allow_destroy: true, reject_if: :reject_documentation
 
+  # TODO: Remove on ActiveStorage
   before_save :set_pdf_metadata, if: -> {
-    ActiveSupport::Deprecation.silence do
+   Rails.application.deprecators.silence do
       changed_attributes.include?('document_file_file_size') &&
         document_file_content_type =~ /pdf/
     end

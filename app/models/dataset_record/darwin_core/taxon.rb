@@ -158,6 +158,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               metadata:
             })
 
+            taxon_name.save!
           end
 
           # make OC relationships to OC ancestors
@@ -208,7 +209,6 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                   !taxon_name.year_integer.nil? &&
                   ancestor_protonym.year_integer > taxon_name.year_integer
 
-                taxon_name.save!
                 TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor_protonym, object_taxon_name: taxon_name)
               end
             end
@@ -226,7 +226,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             # get OC dataset_record_id so we can pull the taxonRank from it.
             oc_dataset_record_id = import_dataset.core_records_fields
                                                  .at(get_field_mapping(:taxonID))
-                                                 .with_value(get_field_value(:originalNameUsageID))
+                                                 .having_value(get_field_value(:originalNameUsageID))
                                                  .pick(:dataset_record_id)
 
             oc_protonym_rank = import_dataset.core_records_fields
@@ -582,7 +582,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   def get_parent
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                              .at(get_field_mapping(:taxonID))
-                                                             .with_value(get_field_value(:parentNameUsageID))
+                                                             .having_value(get_field_value(:parentNameUsageID))
                                                              .select(:dataset_record_id)
     ).first
   end
@@ -591,7 +591,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   def get_original_combination
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                              .at(get_field_mapping(:taxonID))
-                                                             .with_value(get_field_value(:originalNameUsageID))
+                                                             .having_value(get_field_value(:originalNameUsageID))
                                                              .select(:dataset_record_id)
     ).first
   end
@@ -600,7 +600,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   def find_by_taxonID(taxon_id)
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                              .at(get_field_mapping(:taxonID))
-                                                             .with_value(taxon_id.to_s)
+                                                             .having_value(taxon_id.to_s)
                                                              .select(:dataset_record_id)
     ).first
   end
@@ -609,7 +609,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   def get_taxon_name_from_taxon_id(taxon_id)
     TaxonName.find(DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                                             .at(get_field_mapping(:taxonID))
-                                                                            .with_value(taxon_id.to_s)
+                                                                            .having_value(taxon_id.to_s)
                                                                             .select(:dataset_record_id)
     ).pick(:metadata)['imported_objects']['taxon_name']['id'])
   end
@@ -618,13 +618,13 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   def dependencies_imported?(taxon_id)
     dependency_taxon_ids = DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                                                     .at(get_field_mapping(:taxonID))
-                                                                                    .with_value(taxon_id.to_s)
+                                                                                    .having_value(taxon_id.to_s)
                                                                                     .select(:dataset_record_id)
     ).pick(:metadata)['dependencies']
 
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                              .at(get_field_mapping(:taxonID))
-                                                             .with_values(dependency_taxon_ids.map { |d| d.to_s })
+                                                             .having_values(dependency_taxon_ids.map { |d| d.to_s })
                                                              .select(:dataset_record_id)
     ).where(status: 'Imported').count == dependency_taxon_ids.length
 

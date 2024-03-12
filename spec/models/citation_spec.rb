@@ -7,11 +7,10 @@ describe Citation, type: :model, group: [:annotators, :citations] do
   let(:topic) { FactoryBot.create(:valid_topic) }
   let(:pdf) { Rack::Test::UploadedFile.new( Spec::Support::Utilities::Files.generate_pdf(pages: 10) ) }
 
-
   specify '.batch_create 1' do
     o1 = FactoryBot.create(:valid_otu)
     o2 = FactoryBot.create(:valid_otu)
-    
+
     s = FactoryBot.create(:valid_source)
 
     h = {
@@ -23,9 +22,9 @@ describe Citation, type: :model, group: [:annotators, :citations] do
 
     p = ActionController::Parameters.new(h)
     p.permit!
-   
+
     Citation.batch_create(p)
-    
+
     expect(Citation.count).to eq(2)
     expect(Citation.first.pages).to eq('22')
   end
@@ -156,16 +155,18 @@ describe Citation, type: :model, group: [:annotators, :citations] do
     let(:c3) { Citation.new() }
 
     specify 'one is_original per citation_object' do
-      c1.update(is_original: true)
+      c1.update!(is_original: true)
       c2.is_original = true
       expect(c2.valid?).to be_falsey
       expect(c2.errors[:is_original]).to be_truthy
     end
 
-    specify 'many is_original is false per citation_object' do
-      c1.update(is_original: false)
-      c2.is_original = false
+    specify 'many is_original is invalid per citation_object' do
+      c1.update!(is_original: false)
       expect(c1.valid?).to be_truthy
+
+      # !! validates_uniqueness of now crosses into in-memory objects
+      c2.is_original = false
       expect(c2.errors[:is_original].empty?).to be_truthy
     end
 
@@ -206,7 +207,7 @@ describe Citation, type: :model, group: [:annotators, :citations] do
       c3.citation_object = otu
 
       expect(c3.valid?).to be_falsey
-      expect(c3.errors.messages[:source]).to be_truthy 
+      expect(c3.errors.messages[:source]).to be_truthy
     end
   end
 
