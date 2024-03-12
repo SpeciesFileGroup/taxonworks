@@ -415,6 +415,19 @@ resources :languages, only: [:show] do
   end
 end
 
+resources :leads do
+  concerns [:data_routes]
+  member do
+    post :create_for_edit, defaults: {format: :json}
+    post :insert_couplet
+    patch :update_meta
+    post :destroy_couplet
+    post :delete_couplet
+    post :duplicate
+    get :all_texts
+  end
+end
+
 resources :loans do
   concerns [:data_routes]
   member do

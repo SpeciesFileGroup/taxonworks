@@ -856,6 +856,21 @@ debug_geographic_item_task:
     - georeference
   status: prototype
   description: 'Report metadat about a geographic item.'
+new_lead_task:
+  hub: true
+  name: 'New dichotomous key'
+  related:
+  categories:
+    - new
+  status: prototype
+  description: 'Create a new dichotomous key.'
+show_lead_task:
+  hub: true
+  name: 'Use dichotomous key'
+  related:
+  categories:
+  status: prototype
+  description: 'Use an existing dichotomous key.'
 project_vocabulary_task:
   hub: true
   name: 'Project vocabulary'

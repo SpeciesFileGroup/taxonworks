@@ -98,5 +98,8 @@ import '../vue/tasks/contents/filter/main.js'
 import '../vue/tasks/biological_associations/biological_associations_graph/main.js'
 import '../vue/tasks/biological_associations/network/main.js'
 import '../vue/tasks/collecting_events/stepwise/collectors/main.js'
+import '../vue/tasks/leads/new_lead/main.js'
+import '../vue/tasks/leads/show/main.js'
 import '../vue/tasks/metadata/vocabulary/project_vocabulary/main.js'
 import '../vue/tasks/otus/new_otu/main.js'
+

@@ -85,6 +85,8 @@ class Otu < ApplicationRecord
   has_many :otu_relationships, foreign_key: :subject_otu_id
   has_many :related_otu_relationships, class_name: 'OtuRelationship', foreign_key: :object_otu_id
 
+  has_many :leads, inverse_of: :otu, dependent: :restrict_with_error
+
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
   scope :with_name, -> (name) { where(name:) }
 

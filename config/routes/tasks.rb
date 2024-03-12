@@ -1,4 +1,14 @@
 scope :tasks do
+  scope :leads do
+    scope :show, controller: 'tasks/leads/show' do
+      get '/', action: :index, as: 'show_lead_task'
+    end
+
+    scope :new_lead, controller: 'tasks/leads/new_lead' do
+      get '/', action: :index, as: 'new_lead_task'
+    end
+  end
+
   scope :metadata do
     scope :vocabulary do
       scope :project_vocabulary, controller: 'tasks/metadata/vocabulary/project_vocabulary' do
