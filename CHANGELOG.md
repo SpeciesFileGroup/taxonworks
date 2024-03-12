@@ -5,10 +5,11 @@ All (hopefully) notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 This project <em>does not yet</em> adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
 
-## [unreleased]
+## [unreleased] 
 
 ### Added
 
+- New key task, add edit "traditional" keys [#1691]
 - New OTU task
 - Add taxon name autocomplete to Type specimen facet
 - DwC Dashboard: Use the same DwC download of collection object filter task
@@ -25,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC-A importer crashing on hybrid formula scientific names.
 - Crash when georeferencing with zero meters of uncertainty.
 
+[#1691]: https://github.com/SpeciesFileGroup/taxonworks/issues/1691
 [#3868]: https://github.com/SpeciesFileGroup/taxonworks/issues/3868
 [#3869]: https://github.com/SpeciesFileGroup/taxonworks/issues/3869
 
