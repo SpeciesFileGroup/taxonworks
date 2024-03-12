@@ -5,7 +5,7 @@ All (hopefully) notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 This project <em>does not yet</em> adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
 
-## [unreleased] 
+## [unreleased]
 
 ### Added
 
@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add taxon name autocomplete to Type specimen facet
 - DwC Dashboard: Use the same DwC download of collection object filter task
 - DwC-A Workbench: Add pagination for created imports
+- Clone mode on image matrix
 
 ### Changed
 
