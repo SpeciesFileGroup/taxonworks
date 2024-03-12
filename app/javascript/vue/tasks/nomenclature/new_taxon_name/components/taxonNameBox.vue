@@ -169,9 +169,11 @@ export default {
 
   methods: {
     deleteTaxon() {
-      TaxonName.destroy(this.taxon.id).then(() => {
-        this.reloadPage()
-      })
+      TaxonName.destroy(this.taxon.id)
+        .then(() => {
+          this.reloadPage()
+        })
+        .catch(() => {})
     },
 
     reloadPage() {
