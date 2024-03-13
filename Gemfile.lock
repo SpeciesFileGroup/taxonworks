@@ -239,7 +239,7 @@ GEM
     exception_notification (4.5.0)
       actionmailer (>= 5.2, < 8)
       activesupport (>= 5.2, < 8)
-    excon (0.109.0)
+    excon (0.110.0)
     execjs (2.8.1)
     factory_bot (6.4.6)
       activesupport (>= 5.0.0)
@@ -344,7 +344,7 @@ GEM
       nokogiri (~> 1)
       rake
     mini_mime (1.1.5)
-    minitest (5.22.2)
+    minitest (5.22.3)
     modularity (3.0.1)
     multi_json (1.15.0)
     namae (1.2.0)
