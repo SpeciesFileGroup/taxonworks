@@ -56,6 +56,7 @@ class Lead < ApplicationRecord
   belongs_to :redirect, class_name: 'Lead'
   has_many :redirecters, class_name: 'Lead', foreign_key: :redirect_id, inverse_of: :redirect, dependent: :restrict_with_error
 
+  acts_as_list scope: [:parent_id, :project_id]
   has_closure_tree order: 'position', dont_order_roots: true
 
   before_save :check_is_public
@@ -109,8 +110,8 @@ class Lead < ApplicationRecord
         right_text =
           current_node_is_left_child ? texts[:unparented] : texts[:parented]
         [
-          children.create!(text: left_text),
-          children.create!(text: right_text)
+          children.order(:position).create!(text: left_text),
+          children.order(:position).create!(text: right_text)
         ]
       end
     rescue ActiveRecord::RecordInvalid
@@ -122,7 +123,10 @@ class Lead < ApplicationRecord
       # !! Test thoroughly here! Many things you might expect to work may give
       # you the wrong order for a and b.
       new_parent.add_child a
-      a.append_sibling b
+
+      b.update!(parent: a.parent)
+
+      #  a.append_sibling b
     end
 
     [c.id, d.id]
@@ -140,12 +144,17 @@ class Lead < ApplicationRecord
         has_kids = a.children.size > 0 ? a : b
         no_kids = a.children.size == 0 ? a : b
         # TODO: find a way to make this work reliably with fewer queries.
+       
         first_child = Lead.find has_kids.children[0].id
         second_child = Lead.find has_kids.children[1].id
+        
         begin
           Lead.transaction do
             add_child first_child
-            first_child.append_sibling second_child
+            second_child.update!(parent: first_child.parent)
+
+            # first_child.append_sibling second_child
+            
             Lead.find(has_kids.id).destroy! # NOTE WE CANNOT just do has_kids.destroy, as this invokes bizarre cascading nastiness!!
             no_kids.destroy!
           end
