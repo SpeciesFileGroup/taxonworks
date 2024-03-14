@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Filter images: Remove quick forms for Depictions [#3869]
 - New image task: Add alert when trying to restart the interface without applying changes
+- New CE: Destroy label when print label input is empty [#3878]
 
 ### Fixed
 
@@ -31,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1691]: https://github.com/SpeciesFileGroup/taxonworks/issues/1691
 [#3868]: https://github.com/SpeciesFileGroup/taxonworks/issues/3868
 [#3869]: https://github.com/SpeciesFileGroup/taxonworks/issues/3869
+[#3878]: https://github.com/SpeciesFileGroup/taxonworks/issues/3878
 
 ## [0.39.0] - 2024-03-01
 
