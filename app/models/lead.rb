@@ -57,7 +57,7 @@ class Lead < ApplicationRecord
   has_many :redirecters, class_name: 'Lead', foreign_key: :redirect_id, inverse_of: :redirect, dependent: :restrict_with_error
 
   acts_as_list scope: [:parent_id, :project_id]
-  has_closure_tree order: 'position', dont_order_roots: true
+  has_closure_tree order: 'position'
 
   before_save :check_is_public
 
