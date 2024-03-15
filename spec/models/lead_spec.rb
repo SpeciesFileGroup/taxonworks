@@ -124,33 +124,64 @@ RSpec.describe Lead, type: :model do
       expect(r.all_children_standard_key.size).to eq(0)
     end
 
-    specify 'insert_couplet' do
+    specify 'positions are correct after insert_couplet' do
+      ids = l.insert_couplet
+
+      expect(Lead.find_by(text: 'l').position).to be < Lead.find_by(text: 'r').position
+      expect(Lead.find(ids[0]).position).to be < Lead.find(ids[1]).position
+      expect(Lead.find_by(text: 'll').position).to be < Lead.find_by(text: 'lr').position
+
+      # Test the same when inserting on a right node.
+      ids = lr.insert_couplet
+
+      expect(Lead.find_by(text: 'll').position).to be < Lead.find_by(text: 'lr').position
+      expect(Lead.find(ids[0]).position).to be < Lead.find(ids[1]).position
+      expect(Lead.find_by(text: 'lrl').position).to be < Lead.find_by(text: 'lrr').position
+    end
+
+    specify 'insert_couplet reparents on the same side as self' do
+      # lr is a right child, so reparented children should be on right.
+      ids = lr.insert_couplet
+
+      expect(Lead.find(ids[0]).children.size).to eq(0)
+      expect(Lead.find(ids[1]).all_children.size).to eq(2)
+
+      expect(Lead.find(ids[0]).text). to eq('Inserted node')
+      expect(Lead.find(ids[1]).text).to eq('Child nodes are attached to this node')
+
+      # l is a left child, so reparented children should be on left.
+      ids = l.insert_couplet
+
+      expect(Lead.find(ids[0]).all_children.size).to eq(6)
+      expect(Lead.find(ids[1]).children.size).to eq(0)
+
+      expect(Lead.find(ids[0]).text).to eq('Child nodes are attached to this node')
+      expect(Lead.find(ids[1]).text). to eq('Inserted node')
+    end
+
+    specify 'insert_couplet creates expected parent/child relationships' do
       expect(lr.all_children.size).to eq(2)
 
       ids = lr.insert_couplet
+      lr.reload
 
       new_left_child = Lead.find(ids[0])
       new_right_child = Lead.find(ids[1])
-      expect(new_left_child.text).to eq('Inserted node')
-      expect(new_right_child.text).to eq('Child nodes are attached to this node')
 
-      expect(new_left_child.all_children.size).to eq(0)
-      expect(new_right_child.all_children.size).to eq(2)
+      expect(lr.children[0]).to eq(new_left_child)
+      expect(lr.children[1]).to eq(new_right_child)
 
       expect(new_left_child.children.size).to eq(0)
-      expect(new_right_child.children[0]).to eq(Lead.where(text: 'lrl')[0])
-      expect(new_right_child.children[1]).to eq(Lead.where(text: 'lrr')[0])
+
+      expect(new_right_child.children[0]).to eq(Lead.find_by(text: 'lrl'))
+      expect(new_right_child.children[1]).to eq(Lead.find_by(text: 'lrr'))
 
       expect(new_left_child.parent_id).to eq(lr.id)
+      expect(new_right_child.parent_id).to eq(lr.id)
+      expect(Lead.where(parent_id: ids[0]).size).to be(0)
+      expect(Lead.where(parent_id: ids[1]).size).to be(2)
       expect(Lead.find_by(text: 'lrl').parent_id).to eq(ids[1])
       expect(Lead.find_by(text: 'lrr').parent_id).to eq(ids[1])
-
-      expect(Lead.find_by(text: 'lr').all_children.size).to eq(4)
-
-      ids = l.insert_couplet
-
-      expect(Lead.find(ids[0]).text).to eq('Child nodes are attached to this node')
-      expect(Lead.find(ids[1]).text).to eq('Inserted node')
     end
 
     specify 'destroy! destroys all children of a key' do
@@ -171,28 +202,56 @@ RSpec.describe Lead, type: :model do
       expect(Lead.where('parent_id is null').first.all_children.size).to be(8)
     end
 
-    specify 'destroy_couplet noops on a key with no children' do
+    specify 'destroy_couplet noops on a couplet with no children' do
       expect(Lead.find_by(text: 'r').destroy_couplet).to be(true)
       expect(Lead.where('parent_id is null').first.all_children.size).to be(6)
     end
 
-    specify 'destroy_couplet' do
-      lkey = Lead.find_by(text: 'l')
-      expect(lkey.all_children.size).to eq(4)
+    specify "destroy_couplet doesn't change order of remaining nodes" do
+      l.destroy_couplet
 
-      expect(lkey.destroy_couplet).to be(true)
+      expect(Lead.find_by(text: 'l').position).to be < Lead.find_by(text: 'r').position
+      expect(Lead.find_by(text: 'lrl').position).to be < Lead.find_by(text: 'lrr').position
 
-      lkey2 = Lead.find_by(text: 'l')
+      # Test the same for destroy_couplet on a right node.
+      r.reload
+      rl = r.children.create! text: 'rl'
+      rr = r.children.create! text: 'rr'
+      rll = rl.children.create! text: 'rll'
+      rlr = rl.children.create! text: 'rlr'
 
-      expect(lkey2.all_children.size).to eq(2)
+      Lead.find_by(text: 'r').destroy_couplet
+      expect(Lead.find_by(text: 'l').position).to be < Lead.find_by(text: 'r').position
+      expect(Lead.find_by(text: 'rll').position).to be < Lead.find_by(text: 'rlr').position
+    end
 
-      expect(Lead.find_by(text: 'lrl').parent_id).to eq(lkey2.id)
-      expect(Lead.find_by(text: 'lrr').parent_id).to eq(lkey2.id)
+    specify 'destroy_couplet yields expected parent/child relationships' do
+      # Test with grandchildren of l.
+      lrll = lrl.children.create! text: 'lrll'
+      lrlr = lrl.children.create! text: 'lrlr'
+      expect(l.all_children.size).to eq(6)
 
-      expect(lkey2.children[0]).to eq(Lead.find_by(text: 'lrl'))
-      expect(lkey2.children[1]).to eq(Lead.find_by(text: 'lrr'))
+      expect(l.destroy_couplet).to be(true)
+      l.reload
+      lrl.reload
+      lrr.reload
+      lrll.reload
+      lrlr.reload
 
-      expect(lkey2.all_children.size).to eq(2)
+      expect(l.all_children.size).to eq(4)
+      expect(l.children[0]).to eq(lrl)
+      expect(l.children[1]).to eq(lrr)
+      expect(lrl.children[0]).to eq(lrll)
+      expect(lrl.children[1]).to eq(lrlr)
+      expect(lrr.children.size).to eq(0)
+
+      expect(Lead.where(parent_id: l.id).size).to be(2)
+      expect(Lead.where(parent_id: lrl.id).size).to be(2)
+      expect(Lead.where(parent_id: lrr.id).size).to be(0)
+      expect(lrl.parent_id).to eq(l.id)
+      expect(lrr.parent_id).to eq(l.id)
+      expect(lrll.parent_id).to eq(lrl.id)
+      expect(lrlr.parent_id).to eq(lrl.id)
     end
   end
 end
