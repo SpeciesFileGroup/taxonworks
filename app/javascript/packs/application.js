@@ -102,4 +102,4 @@ import '../vue/tasks/leads/new_lead/main.js'
 import '../vue/tasks/leads/show/main.js'
 import '../vue/tasks/metadata/vocabulary/project_vocabulary/main.js'
 import '../vue/tasks/otus/new_otu/main.js'
-
+import '../vue/tasks/leads/hub/main.js'
