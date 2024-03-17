@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_01_16_170633) do
+ActiveRecord::Schema.define(version: 2024_02_10_173244) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -1197,6 +1197,40 @@ ActiveRecord::Schema.define(version: 2024_01_16_170633) do
     t.index ["updated_by_id"], name: "index_languages_on_updated_by_id"
   end
 
+  create_table "lead_hierarchies", id: false, force: :cascade do |t|
+    t.integer "ancestor_id", null: false
+    t.integer "descendant_id", null: false
+    t.integer "generations", null: false
+    t.index ["ancestor_id", "descendant_id", "generations"], name: "lead_anc_desc_idx", unique: true
+    t.index ["descendant_id"], name: "lead_desc_idx"
+  end
+
+  create_table "leads", force: :cascade do |t|
+    t.bigint "parent_id"
+    t.bigint "otu_id"
+    t.text "text"
+    t.string "origin_label"
+    t.text "description"
+    t.bigint "redirect_id"
+    t.text "link_out"
+    t.string "link_out_text"
+    t.integer "position"
+    t.boolean "is_public"
+    t.bigint "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_by_id"], name: "index_leads_on_created_by_id"
+    t.index ["otu_id"], name: "index_leads_on_otu_id"
+    t.index ["parent_id"], name: "index_leads_on_parent_id"
+    t.index ["position"], name: "index_leads_on_position"
+    t.index ["project_id"], name: "index_leads_on_project_id"
+    t.index ["redirect_id"], name: "index_leads_on_redirect_id"
+    t.index ["text"], name: "index_leads_on_text"
+    t.index ["updated_by_id"], name: "index_leads_on_updated_by_id"
+  end
+
   create_table "loan_items", id: :serial, force: :cascade do |t|
     t.integer "loan_id", null: false
     t.date "date_returned"
@@ -2291,6 +2325,10 @@ ActiveRecord::Schema.define(version: 2024_01_16_170633) do
   add_foreign_key "labels", "users", column: "updated_by_id", name: "labels_updated_by_id_fk"
   add_foreign_key "languages", "users", column: "created_by_id", name: "languages_created_by_id_fkey"
   add_foreign_key "languages", "users", column: "updated_by_id", name: "languages_updated_by_id_fkey"
+  add_foreign_key "leads", "leads", column: "parent_id"
+  add_foreign_key "leads", "leads", column: "redirect_id"
+  add_foreign_key "leads", "otus"
+  add_foreign_key "leads", "projects"
   add_foreign_key "loan_items", "loans", name: "loan_items_loan_id_fkey"
   add_foreign_key "loan_items", "projects", name: "loan_items_project_id_fkey"
   add_foreign_key "loan_items", "users", column: "created_by_id", name: "loan_items_created_by_id_fkey"

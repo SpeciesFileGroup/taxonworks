@@ -7,7 +7,32 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- New key task, add edit "traditional" keys [#1691]
+- New OTU task
+- Add taxon name autocomplete to Type specimen facet
+- DwC Dashboard: Use the same DwC download of collection object filter task
+- DwC-A Workbench: Add pagination for created imports
+- Clone mode on image matrix
+
+### Changed
+
+- Filter images: Remove quick forms for Depictions [#3869]
+- New image task: Add alert when trying to restart the interface without applying changes
+- New CE: Destroy label when print label input is empty [#3878]
+
+### Fixed
+
+- Browse OTUs: headers do not link to correct panel [#3868]
+- DwC-A importer crashing on hybrid formula scientific names.
+- Crash when georeferencing with zero meters of uncertainty.
+- New CE: Custom attributes don' refresh on new/edit CE [#3874]
+
+[#1691]: https://github.com/SpeciesFileGroup/taxonworks/issues/1691
+[#3868]: https://github.com/SpeciesFileGroup/taxonworks/issues/3868
+[#3869]: https://github.com/SpeciesFileGroup/taxonworks/issues/3869
+[#3878]: https://github.com/SpeciesFileGroup/taxonworks/issues/3878
 
 ## [0.39.0] - 2024-03-01
 

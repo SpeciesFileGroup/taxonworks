@@ -1,4 +1,14 @@
 scope :tasks do
+  scope :leads do
+    scope :show, controller: 'tasks/leads/show' do
+      get '/', action: :index, as: 'show_lead_task'
+    end
+
+    scope :new_lead, controller: 'tasks/leads/new_lead' do
+      get '/', action: :index, as: 'new_lead_task'
+    end
+  end
+
   scope :metadata do
     scope :vocabulary do
       scope :project_vocabulary, controller: 'tasks/metadata/vocabulary/project_vocabulary' do
@@ -582,6 +592,10 @@ scope :tasks do
   end
 
   scope :otus do
+    scope :new_otu, controller: 'tasks/otus/new_otu' do
+      get '/', action: :index, as: 'new_otu_task'
+    end
+
     scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
       get '/', action: :index, as: 'browse_asserted_distributions_task'
     end

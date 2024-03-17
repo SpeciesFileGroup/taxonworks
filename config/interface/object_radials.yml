@@ -108,6 +108,11 @@ GeographicItem:
     - debug_geographic_item_task
   config:
     recent: false
+Lead:
+  tasks:
+    - show_lead_task
+  new: new_lead_task
+  edit: new_lead_task
 Loan:
   tasks:
     - edit_loan_task
@@ -135,6 +140,7 @@ Otu:
   home: browse_otus_task
   config:
     recent: true
+  new: new_otu_task
 Person:
   tasks:
     - uniquify_people_task

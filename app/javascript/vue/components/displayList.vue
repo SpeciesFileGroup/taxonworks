@@ -241,10 +241,6 @@ export default {
 
   .list-item {
     white-space: normal;
-    a {
-      padding-left: 4px;
-      padding-right: 4px;
-    }
   }
 
   .list-complete-item {

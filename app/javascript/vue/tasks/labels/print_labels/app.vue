@@ -125,17 +125,19 @@ export default {
     Label.all().then((response) => {
       this.list = response.body
       if (/^\d+$/.test(labelId)) {
-        Label.find(labelId).then((r) => {
-          const index = this.list.findIndex(
-            (item) => item.id === Number(labelId)
-          )
+        Label.find(labelId)
+          .then((r) => {
+            const index = this.list.findIndex(
+              (item) => item.id === Number(labelId)
+            )
 
-          if (index > -1) {
-            this.list.splice(index, 1)
-          }
-          this.list.unshift(r.body)
-          this.labels.unshift(r.body)
-        })
+            if (index > -1) {
+              this.list.splice(index, 1)
+            }
+            this.list.unshift(r.body)
+            this.labels.unshift(r.body)
+          })
+          .catch(() => {})
       }
     })
   },

@@ -3,6 +3,13 @@
     <h2>
       Use the options below to build attributions and depictions, then
       <i>Apply</i> them to your images.
+      <VIcon
+        v-if="!isAllApplied"
+        small
+        name="attention"
+        color="attention"
+        title="You have some images without applying changes."
+      />
     </h2>
     <div class="horizontal-left-content items-stretch">
       <div class="separate-right full_width">
@@ -119,11 +126,17 @@
 </template>
 
 <script>
+import { MutationNames } from '../store/mutations/mutations.js'
 import { GetterNames } from '../store/getters/getters.js'
 import { ActionNames } from '../store/actions/actions.js'
 import validateSqed from '../helpers/validateSqed'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
+  components: {
+    VIcon
+  },
+
   computed: {
     source() {
       return this.$store.getters[GetterNames.GetSource]
@@ -147,6 +160,19 @@ export default {
 
     imagesCreated() {
       return this.$store.getters[GetterNames.GetImagesCreated]
+    },
+
+    isAllApplied() {
+      return this.$store.getters[GetterNames.IsAllApplied]
+    },
+
+    applied: {
+      get() {
+        return this.$store.getters[GetterNames.GetApplied]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetApplied, value)
+      }
     },
 
     areImagesCreated() {

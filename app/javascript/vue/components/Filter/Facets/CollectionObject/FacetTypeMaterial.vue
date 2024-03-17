@@ -42,14 +42,36 @@
         </li>
       </ul>
     </div>
+    <div>
+      <h4>Taxon name</h4>
+      <VAutocomplete
+        url="/taxon_names/autocomplete"
+        param="term"
+        label="label_html"
+        clear-after
+        placeholder="Search a taxon name..."
+        :add-params="{
+          'type[]': 'Protonym',
+          'nomenclature_group[]': 'SpeciesGroup'
+        }"
+        @get-item="({ id }) => setTaxonName(id)"
+      />
+      <SmartSelectorItem
+        v-if="taxonName"
+        :item="taxonName"
+        label="object_tag"
+        @unset="taxonName = undefined"
+      />
+    </div>
   </FacetContainer>
 </template>
 
 <script setup>
 import { computed, ref, watch, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from '@/helpers/url/parse.js'
-import { TypeMaterial } from '@/routes/endpoints'
+import { TaxonName, TypeMaterial } from '@/routes/endpoints'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 const props = defineProps({
   modelValue: {
@@ -67,18 +89,40 @@ const emit = defineEmits(['update:modelValue'])
 
 const nomenclatureCode = ref()
 const types = ref({})
+const taxonName = ref(null)
 
 watch(nomenclatureCode, () => {
   params.value.is_type = []
 })
 
+watch(
+  () => params.value.type_specimen_taxon_name_id,
+  (newId, oldVal) => {
+    if (oldVal && !newId) {
+      taxonName.value = null
+    }
+  }
+)
+
 onBeforeMount(() => {
-  const urlParams = URLParamsToJSON(location.href)
+  const taxonId = params.value.type_specimen_taxon_name_id
+  const isType = params.value.is_type
 
-  params.value.is_type = urlParams.is_type || []
-
-  TypeMaterial.types().then((response) => {
-    types.value = response.body
+  TypeMaterial.types().then(({ body }) => {
+    types.value = body
   })
+
+  if (taxonId) {
+    setTaxonName(taxonId)
+  }
 })
+
+function setTaxonName(id) {
+  TaxonName.find(id)
+    .then(({ body }) => {
+      taxonName.value = body
+      params.value.type_specimen_taxon_name_id = id
+    })
+    .catch(() => {})
+}
 </script>

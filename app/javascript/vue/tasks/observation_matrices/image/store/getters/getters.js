@@ -9,6 +9,7 @@ import getDepictionMoved from './getDepictionMoved'
 import getObservationLanguages from './getObservationLanguages'
 import getPagination from './getPagination.js'
 import getIsLoading from './getIsLoading.js'
+import IsClone from './isClone.js'
 
 const GetterNames = {
   GetMatrix: 'getMatrix',
@@ -21,7 +22,8 @@ const GetterNames = {
   GetIsSaving: 'getIsSaving',
   GetDepictionMoved: 'getDepictionMoved',
   GetPagination: 'getPagination',
-  GetIsLoading: 'getIsLoading'
+  GetIsLoading: 'getIsLoading',
+  IsClone: 'isClone'
 }
 
 const GetterFunctions = {
@@ -35,10 +37,8 @@ const GetterFunctions = {
   [GetterNames.GetIsSaving]: getIsSaving,
   [GetterNames.GetDepictionMoved]: getDepictionMoved,
   [GetterNames.GetPagination]: getPagination,
-  [GetterNames.GetIsLoading]: getIsLoading
+  [GetterNames.GetIsLoading]: getIsLoading,
+  [GetterNames.IsClone]: IsClone
 }
 
-export {
-  GetterNames,
-  GetterFunctions
-}
+export { GetterNames, GetterFunctions }

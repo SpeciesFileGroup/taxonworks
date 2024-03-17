@@ -249,6 +249,9 @@ export default {
 
 <style lang="scss">
 #browse-otu {
+  .anchor {
+    scroll-margin-top: 9rem;
+  }
   .autocomplete-search-bar {
     input {
       width: 500px;

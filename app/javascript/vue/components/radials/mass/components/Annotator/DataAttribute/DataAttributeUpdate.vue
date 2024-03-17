@@ -8,10 +8,10 @@
       buttons
       inline
       klass="DataAttribute"
-      :custom-list="{ all }"
+      :custom-list="{ all: controlledVocabularyTerms }"
       @selected="
-        ($event) => {
-          predicate = $event
+        (item) => {
+          predicate = item
         }
       "
     />
@@ -25,16 +25,21 @@
       "
     />
     <textarea
-      v-model="inputValue"
+      v-model="fromValue"
       class="separate-bottom"
-      placeholder="Value"
+      placeholder="From value"
+    />
+    <textarea
+      v-model="toValue"
+      class="separate-bottom"
+      placeholder="To value"
     />
     <div class="horizontal-left-content gap-small">
       <button
-        @click="createDataAttributes()"
+        type="button"
         :disabled="!validateFields"
         class="button button-submit normal-input separate-bottom"
-        type="button"
+        @click="updateDataAttributes"
       >
         Create
       </button>
@@ -56,12 +61,12 @@
 
 <script setup>
 import SmartSelector from '@/components/ui/SmartSelector'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import { computed, ref } from 'vue'
 import { ControlledVocabularyTerm, DataAttribute } from '@/routes/endpoints'
-import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 const props = defineProps({
-  ids: {
+  parameters: {
     type: Array,
     default: () => []
   },
@@ -69,43 +74,51 @@ const props = defineProps({
   objectType: {
     type: String,
     required: true
+  },
+
+  controlledVocabularyTerms: {
+    type: Array,
+    default: () => []
   }
 })
 
 const emit = defineEmits(['create'])
 
 const predicate = ref()
-const inputValue = ref('')
+const fromValue = ref('')
+const toValue = ref('')
 
-const validateFields = computed(
-  () => predicate.value && inputValue.value.length
-)
+const validateFields = computed(() => predicate.value && toValue.value.length)
 
 function resetForm() {
-  inputValue.value = ''
+  toValue.value = ''
+  fromValue.value = ''
   predicate.value = undefined
 }
 
-function createDataAttributes() {
-  DataAttribute.createBatch({
-    attribute_subject_id: props.ids,
-    attribute_subject_type: props.objectType,
-    type: 'InternalAttribute',
-    controlled_vocabulary_term_id: predicate.value.id,
-    value: inputValue.value
-  }).then((response) => {
-    TW.workbench.alert.create(
-      'Data attribute(s) were successfully created',
-      'notice'
-    )
-    resetForm()
-    emit('create', response.body)
-  })
+function updateDataAttributes() {
+  const payload = {
+    ...props.parameters,
+    predicate_id: predicate.value.id,
+    from_value: fromValue.value,
+    to_value: toValue.value
+  }
+
+  DataAttribute.updateBatch(payload)
+    .then(({ body }) => {
+      TW.workbench.alert.create(
+        'Data attribute(s) were successfully updated',
+        'notice'
+      )
+      resetForm()
+      emit('create', body)
+    })
+    .catch(() => {})
 }
 
 const all = ref([])
 
-ControlledVocabularyTerm.where({ type: 'Predicate' }).then(({ body }) => {
+ControlledVocabularyTerm.where({ type: ['Predicate'] }).then(({ body }) => {
   all.value = body
 })
 </script>

@@ -44,6 +44,14 @@ export default {
       }
     },
 
+    batchLoadForAll(keywordId, totals) {
+      Object.entries(totals).forEach(([klass, total]) => {
+        if (klass != 'total' && total > 0) {
+          this.batchLoad(klass, keywordId, total)
+        }
+      })
+    },
+
     async getMeta() {
       const metadata = (await getTagMetadata()).body
       this.keywords = metadata[this.metadataList]

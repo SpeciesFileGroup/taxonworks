@@ -865,6 +865,21 @@ debug_geographic_item_task:
     - georeference
   status: prototype
   description: 'Report metadat about a geographic item.'
+new_lead_task:
+  hub: true
+  name: 'New dichotomous key'
+  related:
+  categories:
+    - new
+  status: prototype
+  description: 'Create a new dichotomous key.'
+show_lead_task:
+  hub: true
+  name: 'Use dichotomous key'
+  related:
+  categories:
+  status: prototype
+  description: 'Use an existing dichotomous key.'
 project_vocabulary_task:
   hub: true
   name: 'Project vocabulary'
@@ -872,3 +887,11 @@ project_vocabulary_task:
   categories:
   status: prototype
   description: 'Visualize data values used in this project.  Word clouds.'
+new_otu_task:
+  hub: true
+  name: 'New OTU'
+  related:
+  categories:
+    - otu
+  status: prototype
+  description: 'Create one or many OTUs in batch.'

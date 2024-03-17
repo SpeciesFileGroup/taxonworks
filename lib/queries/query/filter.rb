@@ -46,7 +46,7 @@ module Queries
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
       content: [:source, :otu, :taxon_name, :image],
       controlled_vocabulary_term: [:data_attribute],
-      data_attribute: [:collection_object, :collecting_event, :taxon_name],
+      data_attribute: [:collection_object, :collecting_event, :taxon_name, :otu],
       dwc_occurrence: [:asserted_distribution, :collection_object],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
@@ -59,6 +59,14 @@ module Queries
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name],
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source ]
     }.freeze
+
+   def self.query_name
+     base_name + '_query'
+   end
+
+   def query_name
+     self.class.query_name
+   end
 
     # @return [Hash]
     #  only referenced in specs
@@ -241,6 +249,24 @@ module Queries
 
     def project_id
       [@project_id].flatten.compact
+    end
+
+    # @params [Parameters]
+    # @return [Filter, nil]
+    #    the class of filter that is referenced at the base of this parameter set
+    def self.base_filter(params)
+      s = params.keys.select{|s| s =~ /\A.+_query\z/}.first
+
+      return nil if s.nil?
+
+      t = s.gsub('_query', '').to_sym
+
+      if SUBQUERIES.include?(t)
+        k = t.to_s.camelcase
+        return "Queries::#{k}::Filter".constantize
+      else
+        return nil
+      end
     end
 
     def self.included_annotator_facets

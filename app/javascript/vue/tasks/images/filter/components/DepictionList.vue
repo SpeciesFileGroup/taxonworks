@@ -30,7 +30,6 @@
               <td>
                 <div class="horizontal-left-content gap-small">
                   <RadialAnnotator :global-id="item.global_id" />
-                  <RadialObject :global-id="item.global_id" />
                   <RadialNavigator :global-id="item.global_id" />
                 </div>
               </td>
@@ -75,7 +74,6 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 
 const props = defineProps({
