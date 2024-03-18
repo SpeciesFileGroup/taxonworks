@@ -886,3 +886,11 @@ new_otu_task:
     - otu
   status: prototype
   description: 'Create one or many OTUs in batch.'
+week_in_review_task:
+  hub: true
+  name: 'Week in review'
+  related:
+  categories:
+    - metadata
+  status: prototype
+  description: 'A quick look dashboard of past activity'
