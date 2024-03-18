@@ -240,7 +240,7 @@ class CollectingEvent < ApplicationRecord
 
   # see also app/models/collecting_event/georeference.rb for more has_many
 
-  has_many :otus, through: :collection_objects, source: 'otu'
+  has_many :otus, -> { unscope(:order) }, through: :collection_objects, source: 'otu'
 
   has_many :field_occurrences, inverse_of: :collecting_event
 
