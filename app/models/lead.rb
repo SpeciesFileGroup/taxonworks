@@ -48,16 +48,20 @@ class Lead < ApplicationRecord
   include Shared::Tags
   include Shared::IsData
 
+  has_closure_tree order: 'position', numeric_order: true, dont_order_roots: true , dependent: nil
+
+  # New records added at bottom (default)
+  # !! Note there is some oddness with update(parent: obj) vs. update(parent_id: object.id),
+  # if your function is not working as expected try the opposite.
+  acts_as_list scope: [:parent_id, :project_id]
+
   belongs_to :parent, class_name: 'Lead'
-  # has_closure_tree uses 'children', so we use 'kids' here instead.
-  has_many :kids, class_name: 'Lead', foreign_key: :parent_id, inverse_of: :parent, dependent: :destroy
+
   belongs_to :otu, inverse_of: :leads
   has_one :taxon_name, through: :otu
   belongs_to :redirect, class_name: 'Lead'
-  has_many :redirecters, class_name: 'Lead', foreign_key: :redirect_id, inverse_of: :redirect, dependent: :restrict_with_error
 
-  acts_as_list scope: [:parent_id, :project_id]
-  has_closure_tree order: 'position'
+  has_many :redirecters, class_name: 'Lead', foreign_key: :redirect_id, inverse_of: :redirect, dependent: :nullify
 
   before_save :check_is_public
 
@@ -88,95 +92,120 @@ class Lead < ApplicationRecord
     true
   end
 
+  # left/right/middle
+  def node_position
+    o = self_and_siblings.order(:position).pluck(:id)
+    return :root if o.size == 1
+    return :left if o.index(id) == 0
+    return :right if o.last == id
+    return :middle
+  end
+
+  def self.draw(lead, indent = 0)
+    puts Rainbow( (' ' * indent) + lead.text ).purple + ' ' + Rainbow( lead.node_position.to_s ).red + ' ' + Rainbow( lead.position ).blue + ' [.parent: ' + Rainbow(lead.parent&.text || 'none').gold + ']'
+    lead.children.reload.order(:position).each do |c|
+      draw(c, indent + 1)
+    end
+    nil
+  end
+
   def insert_couplet
+    a,b,c,d = nil, nil, nil, nil
 
-    if cs = children
-      a = cs[0]
-      b = cs[1]
-    end
+    p = node_position
 
-    children_present = cs && !a.nil? && !b.nil?
-    current_node_is_left_child = !parent_id || (parent.children[0].id == id)
+    t1 = 'Inserted node'
+    t2 = 'Child nodes are attached to this node'
 
-    begin
-      texts = {
-        parented: children_present ?
-          'Child nodes are attached to this node' : 'Inserted node',
-        unparented: 'Inserted node'
-      }
-      left_text =
-        current_node_is_left_child ? texts[:parented] : texts[:unparented]
-      right_text =
-        current_node_is_left_child ? texts[:unparented] : texts[:parented]
+    # !! This reload is key to have specs pass
+    if children.reload.any?
+      o = children.to_a
 
-      c, d = Lead.transaction do
-        [
-          children.create!(text: left_text),
-          children.create!(text: right_text)
-        ]
+      left_text = (p == :left || p == :root) ? t2 : t1
+      right_text = (p == :right) ? t2 : t1
+      # !! middle handling
+
+      c = Lead.create!(text: left_text, parent: self)
+      d = Lead.create!(text: right_text, parent: self)
+
+      o.each do |i|
+        if p == :left || p == :root
+          i.update!(parent: c)
+        else
+          i.update!(parent: d)
+        end
+
       end
-    rescue ActiveRecord::RecordInvalid
-      return []
-    end
-
-    if children_present
-      new_parent = current_node_is_left_child ? c : d
-      # !! Test thoroughly here! Many things you might expect to work may give
-      # you the wrong order for a and b and/or c and d.
-      a.update!(parent: new_parent)
-      b.update!(parent: new_parent)
-      a.reload
-      b.reload
-      c.reload
-      d.reload
-      a.set_list_position(1)
-      b.set_list_position(2)
-      c.set_list_position(1)
-      d.set_list_position(2)
+    else
+      c = Lead.create!(text: t1, parent: self)
+      d = Lead.create!(text: t1, parent: self)
     end
 
     [c.id, d.id]
   end
 
+  # Destroy the children of this Lead, re-appending the grand-children to self
+  #  !! Do not destroy couplet if children on > 1 side exist
   def destroy_couplet
-    return true if children.size == 0
-    a = children[0]
-    b = children[1]
+    k = children.order(:position).reload.to_a
+    return true if k.empty?
 
-    if (a.children.size == 0) or (b.children.size == 0)
-      if (a.children.size > 0) || (b.children.size > 0)
-        has_kids = a.children.size > 0 ? a : b
-        no_kids = a.children.size == 0 ? a : b
+    # TODO: handle multiple facets
+    # not first/last because that gives us a==b scenarious
+    a = k[0]
+    b = k[1]
 
-        begin
-          Lead.transaction do
-            # !! Test thoroughly here! Many things you might expect to work may
-            # give you the wrong order for the reparented children.
-            has_kids.children[0].update!(parent: self)
-            has_kids.children[1].update!(parent: self)
+    c = a.children.to_a
+    d = b&.children&.to_a || []
 
-            has_kids.destroy!
-            no_kids.destroy!
-          end
-        rescue ActiveRecord::RecordNotDestroyed
-          return false
+    if (c.size == 0) or (d.size == 0) # At least one side, but not two have children
+      if (c.size > 0) || (d.size > 0) # One side has children
+
+        has_kids = c.size > 0 ? a : b
+        no_kids = c.size == 0 ? a : b
+
+        i = has_kids.children
+
+        i.each do |z|
+          # reload is required for pass, it seems we need to know the sibiling state
+          z.reload.update!(parent_id: has_kids.parent_id)
         end
-      else
-        begin
-          Lead.transaction do
-            a.destroy!
-            b.destroy!
-          end
-        rescue ActiveRecord::RecordNotDestroyed
-          return false
+
+        # `position` looks OK here
+        has_kids.destroy!
+        # `position` looks OK here
+        no_kids.destroy!
+        # !! `position` NOT OK here
+
+        # Give up as to why destroy fails to re-index. Force re-index of `position`
+        children.reload.reverse.map(&:save)  # reload is required
+
+      else # Neither side has children
+        Lead.transaction do
+          a.destroy!
+          b&.destroy!
         end
       end
       true
-    else
+    else #
       false
     end
   end
 
+  def transaction_nuke(lead = self)
+    Lead.transaction do
+      nuke(lead)
+    end
+  end
+
+  def nuke(lead = self)
+    lead.children.each do |c|
+      c.nuke(c)
+    end
+    destroy!
+  end
+
+  # TODO: Probably a helper method
   def all_children(node = self, result = [], depth = 0)
     for c in [node.children.second, node.children.first].compact # intentionally reversed
       c.all_children(c, result, depth + 1)
@@ -189,6 +218,7 @@ class Lead < ApplicationRecord
     result
   end
 
+  # TODO: Probably a helper method
   def all_children_standard_key(node = self, result = [], depth = 0) # couplets before depth
     ch = node.children
     for c in ch
@@ -248,4 +278,5 @@ class Lead < ApplicationRecord
       self.is_public = nil
     end
   end
+
 end
