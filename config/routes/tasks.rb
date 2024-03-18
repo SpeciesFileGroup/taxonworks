@@ -213,6 +213,7 @@ scope :tasks do
   scope :projects do
     scope :week_in_review, controller: 'tasks/projects/week_in_review' do
       get '/', action: :index, as: 'week_in_review_task'
+      get :data, as: 'week_in_review_data', defaults: {format: :json}
     end
 
     scope :activity, controller: 'tasks/projects/activity' do
