@@ -40,7 +40,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     end
 
     specify 'taxon_determinations' do
-      c = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+      c = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
       expect(q.all).to contain_exactly(s)
     end
 
@@ -74,7 +74,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     end
 
     specify 'taxon_determiner roles' do
-      t = FactoryBot.create(:valid_taxon_determination, created_at: old_date, updated_at: old_date, biological_collection_object: s) # TODO: refactor for FO
+      t = FactoryBot.create(:valid_taxon_determination, created_at: old_date, updated_at: old_date, taxon_determination_object: s) # TODO: refactor for FO
       FactoryBot.create(:valid_determiner, role_object: t)
 
       expect(q.all).to contain_exactly(s)
