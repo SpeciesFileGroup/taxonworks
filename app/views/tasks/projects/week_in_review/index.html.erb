@@ -1,46 +1,23 @@
 <%= content_for :head do -%>
   <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" %>
 <% end %>
+  <h1> "Week" in review</h2>
 
-<script>
-  function handleClick(event) {
-    var label = event[0].name;
-    window.location.href = '/example/action?label=' + label; // Change the URL and parameters accordingly
-  }
-</script>
+  <%= form_tag(week_in_review_task_path, method: :get) do %>
+    Reporting from <%= pluralize(@weeks_ago, 'week', false ) %> ago until now. <br/>
+  <%= tag.input(type: :submit, class: 'button button-default', value: 'Set to') -%> <%= tag.input value: @weeks_ago, type: :number, name: :weeks_ago, min: 1, max:999 %> weeks.
+  <% end %>
 
-<h1> "Week" in review</h2>
+  <br>
 
-<%= form_tag(week_in_review_task_path, method: :get) do %>
-  Reporting from <%= pluralize(@weeks_ago, 'week', false ) %> ago until now. <br/>
-<%= tag.input(type: :submit, class: 'button button-default', value: 'Set to') -%> <%= tag.input value: @weeks_ago, name: :weeks_ago, size: 3 %> weeks.
-<% end %>
+  <%= week_in_review_graphs(@weeks_ago) %>
 
-<br>
-
-<% days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %>
-
-<div class="flexbox flex-wrap-row gap-medium" >
-
-  <% %w{otus taxon_names collection_objects collecting_events biological_associations asserted_distributions type_materials images observations}.each do |i| %>
-    <% q = sessions_current_project.send(i.to_sym).where("#{i}.created_at > ?", @weeks_ago.week.ago) %>
-
-  <div class="panel content item separate-left">
-    <%= bar_chart q.group(:created_by_id).count.collect{|k,v| [User.find(k).name, v]}.sort{|a,b| b.last <=> a.last}, horizontal: true, title: "#{i.humanize} created (#{q.count})", discrete: true, height: '400px', width: '400px', library: 'options: {events: ["click"]}', id: i %>
+  <div class="panel content margin-medium-top">
+    <h2> Recently seen </h2>
+    <ol>
+      <% User.where('last_seen_at > ?', 1.week.ago).joins(:projects).where(projects: {id: sessions_current_project_id}).limit(20).order(last_seen_at: :desc).where('last_seen_at IS NOT NULL').each do |u| -%>
+        <li> <%= user_link(u) %> <%= content_tag :span, time_ago_in_words(u.last_seen_at) + " ago", class: :subtle -%> </li>
+      <% end %>
+    </ol>
   </div>
-
-<% end %>
-
-</div>
-
-
-<div class="panel content separate-bottom">
-  <h2> Recently seen </h2>
-  <ol>
-    <% User.where('last_seen_at > ?', 1.week.ago).joins(:projects).where(projects: {id: sessions_current_project_id}).limit(20).order(last_seen_at: :desc).where('last_seen_at IS NOT NULL').each do |u| -%>
-      <li> <%= user_link(u) %> <%= content_tag :span, time_ago_in_words(u.last_seen_at) + " ago", class: :subtle -%> </li>
-    <% end %>
-  </ol>
-</div>
-
 
