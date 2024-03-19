@@ -6,11 +6,18 @@
       :key="item.target"
     >
       <BarChart
+        v-if="item.data.length"
         :data="item"
         :title="item.title"
         :target="item.target"
         :weeks-ago="weeksAgo"
       />
+      <div
+        v-else
+        class="horizontal-center-content middle full_height"
+      >
+        No data
+      </div>
     </div>
   </div>
 </template>
