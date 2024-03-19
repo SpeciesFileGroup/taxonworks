@@ -98,7 +98,7 @@ function loadTask(index) {
     ? `${url}?${queryString}`
     : `/tasks/${props.target}/filter?${queryString}`
 
-  window.open(filterUrl, '_blank')
+  window.open(filterUrl, '_self')
 }
 
 const options = {
