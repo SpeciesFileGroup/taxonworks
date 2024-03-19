@@ -8,7 +8,7 @@ module GraphHelper
       data: []
     }  
 
-    %w{otus taxon_names collection_objects collecting_events biological_associations asserted_distributions type_materials images observations}.each do |i|
+    %w{otus taxon_names collection_objects collecting_events biological_associations asserted_distributions type_materials images documents descriptors observations contents}.each do |i|
 
       g = { target: i }
 
