@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 function init(element) {
-  const weeksAgo = element.getAttribute('data-weeks-ago')
+  const weeksAgo = Number(element.getAttribute('data-weeks-ago'))
   const app = createApp(App, { weeksAgo })
 
   app.mount(element)

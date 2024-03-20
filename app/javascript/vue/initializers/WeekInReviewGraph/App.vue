@@ -1,5 +1,9 @@
 <template>
   <div class="flexbox flex-wrap-row gap-medium">
+    <VSpinner
+      v-if="isLoading"
+      full-screen
+    />
     <div
       class="panel content item"
       v-for="item in types.data"
@@ -24,6 +28,7 @@
 
 <script setup>
 import BarChart from './BarChart.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import { ref, onBeforeMount } from 'vue'
 import { ajaxCall } from '@/helpers'
 
@@ -35,8 +40,10 @@ const props = defineProps({
 })
 
 const types = ref([])
+const isLoading = ref(false)
 
 onBeforeMount(() => {
+  isLoading.value = true
   ajaxCall('get', '/tasks/projects/week_in_review/data', {
     params: {
       weeks_ago: props.weeksAgo
@@ -46,5 +53,8 @@ onBeforeMount(() => {
       types.value = body
     })
     .catch(() => {})
+    .finally(() => {
+      isLoading.value = false
+    })
 })
 </script>

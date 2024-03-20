@@ -3,7 +3,6 @@
     ref="root"
     :data="dataset"
     :options="options"
-    :plugins="plugins"
     type="bar"
     height="400"
     width="400"
@@ -15,12 +14,13 @@ import { computed, ref } from 'vue'
 import { getHexColorFromString } from '@/tasks/biological_associations/biological_associations_graph/utils'
 import { convertToTwoDigits } from '@/helpers'
 import VChart from '@/components/ui/Chart'
+import { TYPES, EXCLUDE_TYPES } from './constants'
 
 import qs from 'qs'
 
 const props = defineProps({
   data: {
-    type: Number,
+    type: Object,
     required: true
   },
 
@@ -39,15 +39,6 @@ const props = defineProps({
     required: true
   }
 })
-
-const CONFIG = {
-  type_materials: {
-    url: '/tasks/collection_objects/filter',
-    params: {
-      type_material: true
-    }
-  }
-}
 
 const root = ref(null)
 
@@ -84,7 +75,7 @@ function makeDataset({ data, title }) {
 }
 
 function loadTask(index) {
-  const { params, url } = CONFIG[props.target] || {}
+  const { params, url } = TYPES[props.target] || {}
   const parameters = {
     user_date_start: dayByWeeksAgo(props.weeksAgo),
     user_date_end: formatDate(new Date()),
@@ -122,7 +113,9 @@ const options = {
     if (elements.length > 0) {
       const index = elements[0].index
 
-      loadTask(index)
+      if (!EXCLUDE_TYPES.includes(props.target)) {
+        loadTask(index)
+      }
     }
   }
 }
