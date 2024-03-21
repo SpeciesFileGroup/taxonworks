@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - New key task, add edit "traditional" keys [#1691]
 - New OTU task
+- New "Week in review" task, visualize records added and navigate to them in filter context
 - Add taxon name autocomplete to Type specimen facet
 - DwC Dashboard: Use the same DwC download of collection object filter task
 - DwC-A Workbench: Add pagination for created imports
