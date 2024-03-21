@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter images: Remove quick forms for Depictions [#3869]
 - New image task: Add alert when trying to restart the interface without applying changes
 - New CE: Destroy label when print label input is empty [#3878]
+- Updated Ruby gems
 
 ### Fixed
 

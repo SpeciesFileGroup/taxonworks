@@ -100,9 +100,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                                   cached: get_field_value(:scientificName),
                                   rank_class: Ranks.lookup(nomenclature_code, rank),
                                   verbatim_author: author_name,
-                                  year_of_publication: year,
-                                  project:}
-            potential_protonyms = TaxonName.where(protonym_attributes)
+                                  year_of_publication: year}
+            potential_protonyms = TaxonName.where(protonym_attributes.merge({project:})) # merged project here so data is not leaked in error messages.
 
             if potential_protonyms.count == 1
               parent = potential_protonyms.first.parent
@@ -137,7 +136,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             parent = parent.finest_protonym
           end
 
-          protonym_attributes = {
+          taxon_name = Protonym.find_or_initialize_by({
             name:,
             parent:,
             rank_class: Ranks.lookup(nomenclature_code, rank),
@@ -145,9 +144,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             verbatim_author: author_name,
             year_of_publication: year,
             project:
-          }
-
-          taxon_name = Protonym.find_or_initialize_by(protonym_attributes)
+          })
 
           unless taxon_name.persisted?
             taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid

@@ -1,10 +1,10 @@
 GIT
   remote: https://github.com/GlobalNamesArchitecture/biodiversity.git
-  revision: e9dbc57cfa0d70a8145b7d1385df64456fc5457b
+  revision: 2bc2f579262943792d2f92e69444aaf33efe7d9b
   branch: pipe_approach
   specs:
-    biodiversity (5.3.3)
-      ffi (~> 1.14)
+    biodiversity (5.7.2)
+      ffi (~> 1.15)
 
 GIT
   remote: https://github.com/LocoDelAssembly/Voight-Kampff.git
@@ -15,11 +15,11 @@ GIT
 
 GIT
   remote: https://github.com/LocoDelAssembly/dwc-archive.git
-  revision: c2243e26a3884af64f3295ad30f26306a16df38a
+  revision: 8fffe78690b5e988f3a303657e32cf7ddb9f561e
   branch: overhaul
   specs:
     dwc-archive (1.1.4)
-      biodiversity (~> 5.3.0)
+      biodiversity (~> 5.3)
       nokogiri (~> 1.11)
 
 GIT
@@ -364,9 +364,9 @@ GEM
       net-protocol
     netrc (0.11.0)
     nio4r (2.7.0)
-    nokogiri (1.16.2-x86_64-darwin)
+    nokogiri (1.16.3-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.16.2-x86_64-linux)
+    nokogiri (1.16.3-x86_64-linux)
       racc (~> 1.4)
     notiffany (0.1.3)
       nenv (~> 0.1)
