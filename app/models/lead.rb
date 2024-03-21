@@ -56,10 +56,15 @@ class Lead < ApplicationRecord
   belongs_to :redirect, class_name: 'Lead'
   has_many :redirecters, class_name: 'Lead', foreign_key: :redirect_id, inverse_of: :redirect, dependent: :restrict_with_error
 
+  # This needs to go before has_closure_tree.
+  before_destroy :set_root_updated_on_destroy, unless: -> { parent_id.nil? }
+
   acts_as_list scope: [:parent_id, :project_id]
   has_closure_tree order: 'position'
 
   before_save :check_is_public
+  # This needs to go after has_closure_tree.
+  after_save :set_root_updated, unless: -> { parent_id.nil? }
 
   validate :root_has_title
   validate :link_out_has_protocol
@@ -246,6 +251,22 @@ class Lead < ApplicationRecord
       self.is_public ||= false
     else
       self.is_public = nil
+    end
+  end
+
+  def set_root_updated
+    return if not saved_changes?
+
+    self.root.update_column :updated_at, self.updated_at
+    if self.root.updated_by_id != self.updated_by_id
+      self.root.update_column :updated_by_id, self.updated_by_id
+    end
+  end
+
+  def set_root_updated_on_destroy
+    self.root.update_column :updated_at, Time.now.utc
+    if self.root.updated_by_id != Current.user_id
+      self.root.update_column :updated_by_id, Current.user_id
     end
   end
 end

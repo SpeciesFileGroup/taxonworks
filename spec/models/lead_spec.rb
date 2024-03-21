@@ -254,4 +254,79 @@ RSpec.describe Lead, type: :model do
       expect(lrlr.parent_id).to eq(lrl.id)
     end
   end
+
+  context 'with one couplet' do
+    let!(:root) { FactoryBot.create(:valid_lead) }
+    let!(:l) { root.children.create!(text: 'l') }
+    let!(:r) { root.children.create!(text: 'r') }
+    let(:user) { FactoryBot.create(:valid_user) }
+
+    specify 'root updated_at is updated when descendant updated_at is updated' do
+      start_time = root.updated_at
+      l.update! text: 'new text'
+      root.reload
+      expect(root.updated_at).to be > start_time
+    end
+
+    specify 'root updated_by is updated when descendant update_by is updated' do
+      expect(root.updated_by_id).not_to eq(user.id)
+      l.update! text: 'new text', updated_by_id: user.id
+      root.reload
+      expect(root.updated_by_id).to eq(user.id)
+    end
+
+    specify 'root updated_at is updated when a descendant is added' do
+      start_time = root.updated_at
+      l.children.create! text:'ll'
+      root.reload
+      expect(root.updated_at).to be > start_time
+    end
+
+    specify "unchanged update doesn't overwrite changed update" do
+      # When we update in the ui, each of the 3 leads in a couplet gets
+      # updated. Test that if left has changes but right doesn't, that
+      # updating root with left's update data doesn't get overwritten by
+      # right's old (unchanged) update data.
+      start_time = root.updated_at
+      l.update! text: 'new text'
+
+      before_right_update = Time.now.utc
+      right_start_time = r.updated_at
+      # An update with no change (this shouldn't update root):
+      r.update! text: r.text
+      r.reload
+      expect(r.updated_at).to eq(right_start_time)
+
+      root.reload
+      expect(root.updated_at).to be > start_time
+      expect(root.updated_at).to be < before_right_update
+    end
+
+    specify 'delete node updates root.updated_at' do
+      l.children.create! text: 'll'
+      l.children.create! text: 'lr'
+
+      root.reload
+      start_time = root.updated_at
+      l.destroy_couplet
+
+      root.reload
+      expect(root.updated_at).to be > start_time
+    end
+
+    specify 'delete node updates root.updated_by_id' do
+      l.children.create! text: 'll'
+      l.children.create! text: 'lr'
+
+      root.update! updated_by_id: user.id
+      root.reload
+      original_updated_by_id = root.updated_by_id
+
+      l.destroy_couplet
+
+      root.reload
+      expect(root.updated_by_id).not_to eq(original_updated_by_id)
+      expect(root.updated_by_id).to eq(Current.user_id)
+    end
+  end
 end
