@@ -78,14 +78,17 @@ ActiveRecord::Schema.define(version: 2024_02_09_173244) do
 
   create_table "biocuration_classifications", id: :serial, force: :cascade do |t|
     t.integer "biocuration_class_id", null: false
-    t.integer "biological_collection_object_id", null: false
+    t.bigint "biological_collection_object_id"
     t.integer "position", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
+    t.bigint "biocuration_classification_object_id"
+    t.string "biocuration_classification_object_type"
     t.index ["biocuration_class_id"], name: "index_biocuration_classifications_on_biocuration_class_id"
+    t.index ["biocuration_classification_object_type", "biocuration_classification_object_id"], name: "bc_poly"
     t.index ["biological_collection_object_id"], name: "bio_c_bio_collection_object"
     t.index ["created_by_id"], name: "index_biocuration_classifications_on_created_by_id"
     t.index ["position"], name: "index_biocuration_classifications_on_position"
@@ -932,6 +935,24 @@ ActiveRecord::Schema.define(version: 2024_02_09_173244) do
     t.bigint "repository_id"
     t.index ["project_id"], name: "index_extracts_on_project_id"
     t.index ["repository_id"], name: "index_extracts_on_repository_id"
+  end
+
+  create_table "field_occurrences", force: :cascade do |t|
+    t.integer "total", null: false
+    t.bigint "collecting_event_id", null: false
+    t.bigint "ranged_lot_category_id"
+    t.boolean "is_absent"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.bigint "project_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["collecting_event_id"], name: "index_field_occurrences_on_collecting_event_id"
+    t.index ["created_by_id"], name: "index_field_occurrences_on_created_by_id"
+    t.index ["is_absent"], name: "index_field_occurrences_on_is_absent"
+    t.index ["project_id"], name: "index_field_occurrences_on_project_id"
+    t.index ["ranged_lot_category_id"], name: "index_field_occurrences_on_ranged_lot_category_id"
+    t.index ["updated_by_id"], name: "index_field_occurrences_on_updated_by_id"
   end
 
   create_table "gene_attributes", id: :serial, force: :cascade do |t|
@@ -1937,7 +1958,7 @@ ActiveRecord::Schema.define(version: 2024_02_09_173244) do
   end
 
   create_table "taxon_determinations", id: :serial, force: :cascade do |t|
-    t.integer "biological_collection_object_id", null: false
+    t.bigint "biological_collection_object_id"
     t.integer "otu_id", null: false
     t.integer "position", null: false
     t.datetime "created_at", null: false
@@ -1949,11 +1970,14 @@ ActiveRecord::Schema.define(version: 2024_02_09_173244) do
     t.integer "month_made"
     t.integer "day_made"
     t.text "print_label"
+    t.bigint "taxon_determination_object_id"
+    t.string "taxon_determination_object_type"
     t.index ["biological_collection_object_id"], name: "index_taxon_determinations_on_biological_collection_object_id"
     t.index ["created_by_id"], name: "index_taxon_determinations_on_created_by_id"
     t.index ["otu_id"], name: "index_taxon_determinations_on_otu_id"
     t.index ["position"], name: "index_taxon_determinations_on_position"
     t.index ["project_id"], name: "index_taxon_determinations_on_project_id"
+    t.index ["taxon_determination_object_type", "taxon_determination_object_id"], name: "td_poly"
     t.index ["updated_by_id"], name: "index_taxon_determinations_on_updated_by_id"
   end
 
@@ -2259,6 +2283,11 @@ ActiveRecord::Schema.define(version: 2024_02_09_173244) do
   add_foreign_key "extracts", "repositories"
   add_foreign_key "extracts", "users", column: "created_by_id"
   add_foreign_key "extracts", "users", column: "updated_by_id"
+  add_foreign_key "field_occurrences", "collecting_events"
+  add_foreign_key "field_occurrences", "projects"
+  add_foreign_key "field_occurrences", "ranged_lot_categories"
+  add_foreign_key "field_occurrences", "users", column: "created_by_id"
+  add_foreign_key "field_occurrences", "users", column: "updated_by_id"
   add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
   add_foreign_key "gene_attributes", "projects"
   add_foreign_key "gene_attributes", "sequences"

@@ -65,6 +65,12 @@ scope :tasks do
     post 'set_import_settings'
   end
 
+  scope :field_occurrences do
+    scope :new_field_occurrences, controller: 'tasks/field_occurrences/new_field_occurrences' do
+      get '/', as: 'new_field_occurrence_task', action: :index
+    end
+  end
+
   scope :namespaces do
     scope :new_namespace, controller: 'tasks/namespaces/new_namespace' do
       get '/', action: :index, as: 'new_namespace_task'
@@ -596,7 +602,7 @@ scope :tasks do
     end
 
     scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
-      get :index, as: 'index_browse_asserted_distributions_task'
+      get '/', action: :index, as: 'browse_asserted_distributions_task'
     end
 
     scope :browse, controller: 'tasks/otus/browse' do

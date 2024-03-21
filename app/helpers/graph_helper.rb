@@ -297,7 +297,7 @@ module GraphHelper
     g.add(td.otu, td)
 
     if collection_object
-      g.add(td.biological_collection_object, td)
+      g.add(td.taxon_determination_object, td)
     end
 
     if taxon_names

@@ -1,6 +1,6 @@
 import { MutationNames } from '../mutations/mutations'
 import { TaxonDetermination } from '@/routes/endpoints'
-import { ROLE_DETERMINER } from '@/constants/index.js'
+import { ROLE_DETERMINER, COLLECTION_OBJECT } from '@/constants/index.js'
 
 const makePerson = (role) => ({
   id: role.id,
@@ -27,7 +27,8 @@ export default async ({ commit, state }) => {
   const promises = taxonDeterminations.map((determination) => {
     const payload = {
       ...determination,
-      biological_collection_object_id: collectionObject.id,
+      taxon_determination_object_id: collectionObject.id,
+      taxon_determination_object_type: COLLECTION_OBJECT,
       position: undefined
     }
 

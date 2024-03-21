@@ -139,13 +139,13 @@ class LoanItem < ApplicationRecord
         item_list.flatten!
 
         first = item_list.pop
-        td.biological_collection_object = first
+        td.taxon_determination_object = first
         td.save! # create and save the first one so we can dup it in the next step
 
         item_list.each do |item|
           n = td.dup
           n.determiners << td.determiners
-          n.biological_collection_object = item
+          n.taxon_determination_object = item
           n.save
           n.move_to_top
         end

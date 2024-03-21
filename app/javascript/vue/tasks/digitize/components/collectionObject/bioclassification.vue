@@ -35,6 +35,7 @@
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { BiocurationClassification } from '@/routes/endpoints'
+import { COLLECTION_OBJECT } from '@/constants'
 
 export default {
   props: {
@@ -93,7 +94,8 @@ export default {
 
           setTimeout(() => {
             BiocurationClassification.where({
-              biological_collection_object_id: newVal
+              biocuration_classification_object_id: newVal,
+              biocuration_classification_object_type: COLLECTION_OBJECT
             }).then((response) => {
               this.createdBiocutarions = response.body
               this.$forceUpdate()
@@ -171,7 +173,8 @@ export default {
       return {
         biocuration_classification: {
           biocuration_class_id: id,
-          biological_collection_object_id: this.biologicalId
+          biocuration_classification_object_id: this.biologicalId,
+          biocuration_classification_object_type: COLLECTION_OBJECT
         }
       }
     }

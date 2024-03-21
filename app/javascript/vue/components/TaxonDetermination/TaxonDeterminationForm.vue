@@ -3,7 +3,7 @@
     <taxon-determination-otu
       v-model="taxonDetermination.otu_id"
       v-model:lock="lockOTU"
-      @label="otuLabel = $event"
+      @label="(label) => (otuLabel = label)"
     />
     <taxon-determination-determiner
       v-model="taxonDetermination.roles_attributes"
