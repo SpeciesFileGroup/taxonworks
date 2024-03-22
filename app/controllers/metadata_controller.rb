@@ -22,8 +22,7 @@ class MetadataController < ApplicationController
 
   def class_navigation
    k = params.require(:klass)
-   
-   render json: {klass: k, foo: OBJECT_RADIALS[k]}
+   render json: helpers.class_navigation_json(k)
   end
 
   def related_summary
