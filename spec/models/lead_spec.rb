@@ -34,7 +34,7 @@ RSpec.describe Lead, type: :model do
 
   specify '#insert_couplet between leads inserts with positions' do
     FactoryBot.create(:valid_lead, parent: lead, text: 'bottom')
-    lead.insert_couplet
+    lead.reload.insert_couplet
     a = lead.children.reload.order(:position)
 
     expect(a.first.children.size).to eq(1)
@@ -44,7 +44,7 @@ RSpec.describe Lead, type: :model do
     FactoryBot.create(:valid_lead, parent: lead, text: 'bottom left')
     FactoryBot.create(:valid_lead, parent: lead, text: 'bottom right')
 
-    lead.insert_couplet
+    lead.reload.insert_couplet
 
     a = lead.reload.children.order(:position)
     expect(a.first.children.size).to eq(2)
@@ -54,7 +54,7 @@ RSpec.describe Lead, type: :model do
     FactoryBot.create(:valid_lead, parent: lead, text: 'bottom left')
     FactoryBot.create(:valid_lead, parent: lead, text: 'bottom right')
 
-    lead.insert_couplet
+    lead.reload.insert_couplet
 
     a = lead.reload.children.order(:position)
     expect(a.first.children.pluck(:position)).to eq([0,1])

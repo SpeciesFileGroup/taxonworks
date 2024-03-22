@@ -112,8 +112,7 @@ class Lead < ApplicationRecord
     t1 = 'Inserted node'
     t2 = 'Child nodes are attached to this node'
 
-    # !! This reload is key to have specs pass
-    if children.reload.any?
+    if children.any?
       o = children.to_a
 
       left_text = (p == :left || p == :root) ? t2 : t1
