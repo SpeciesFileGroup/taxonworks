@@ -57,7 +57,7 @@ RSpec.describe Lead, type: :model do
     lead.insert_couplet
 
     a = lead.reload.children.order(:position)
-    expect(a.first.children.order(:position).pluck(:position)).to eq([0,1])
+    expect(a.first.children.pluck(:position)).to eq([0,1])
   end
 
   specify '#node_position of root' do
@@ -122,6 +122,21 @@ RSpec.describe Lead, type: :model do
     root = FactoryBot.create(:valid_lead)
     child = root.children.create! text: 'c'
     expect {child.update! redirect_id: root.id}.to raise_error ActiveRecord::RecordInvalid
+  end
+
+  # TODO: should this be a request test instead, so that we're testing
+  # whatever current leads_controller#update behavior is?
+  specify "'ui update' doesn't change order of chidren" do
+    # Simulate a ui 'Update' saving all three nodes of a couplet.
+    lead = FactoryBot.create(:valid_lead)
+    l = FactoryBot.create(:valid_lead, parent: lead, text: 'bottom left')
+    r = FactoryBot.create(:valid_lead, parent: lead, text: 'bottom right')
+
+    lead.update! text: lead.text
+    l.update! text: 'new text'
+    r.update! text: r.text
+
+    expect(l.reload.position).to be < r.reload.position
   end
 
   xspecify "keys with external referrers can't be destroyed" do
