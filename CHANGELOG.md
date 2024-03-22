@@ -33,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC-A importer crashing on hybrid formula scientific names.
 - Crash when georeferencing with zero meters of uncertainty.
 - New CE: Custom attributes don't refresh on new/edit CE [#3874]
+- Radial quick forms: Asserted distribution screen partially blocked by a white rectangle [#3891]
 
 [#3861]: https://github.com/SpeciesFileGroup/taxonworks/issues/3861
 [#3883]: https://github.com/SpeciesFileGroup/taxonworks/issues/3883
@@ -41,8 +42,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3868]: https://github.com/SpeciesFileGroup/taxonworks/issues/3868
 [#3869]: https://github.com/SpeciesFileGroup/taxonworks/issues/3869
 [#3878]: https://github.com/SpeciesFileGroup/taxonworks/issues/3878
+[#3891]: https://github.com/SpeciesFileGroup/taxonworks/issues/3891
 
 ### Fixed
+
 - Handling of [sic] in Protonym#original_combination_infraspecific_element [#3867]
 
 ## [0.39.0] - 2024-03-01
