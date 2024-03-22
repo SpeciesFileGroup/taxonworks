@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- New model, FieldOccurrence [#1643]
 - New key task, add edit "traditional" keys [#1691]
 - New OTU task
 - New "Week in review" task, visualize records added and navigate to them in filter context
@@ -26,11 +27,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Community-based models not showing AlternateValues [#3883]
 - Browse OTUs: headers do not link to correct panel [#3868]
 - DwC-A importer crashing on hybrid formula scientific names.
 - Crash when georeferencing with zero meters of uncertainty.
-- New CE: Custom attributes don' refresh on new/edit CE [#3874]
+- New CE: Custom attributes don't refresh on new/edit CE [#3874]
 
+[#3883]: https://github.com/SpeciesFileGroup/taxonworks/issues/3883
+[#1643]: https://github.com/SpeciesFileGroup/taxonworks/issues/1643
 [#1691]: https://github.com/SpeciesFileGroup/taxonworks/issues/1691
 [#3868]: https://github.com/SpeciesFileGroup/taxonworks/issues/3868
 [#3869]: https://github.com/SpeciesFileGroup/taxonworks/issues/3869
