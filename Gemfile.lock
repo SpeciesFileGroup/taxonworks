@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/GlobalNamesArchitecture/biodiversity.git
-  revision: 2bc2f579262943792d2f92e69444aaf33efe7d9b
+  revision: f8d55f8909984d61540ae821b5719f66c1dfd856
   branch: pipe_approach
   specs:
-    biodiversity (5.7.2)
+    biodiversity (5.9.1)
       ffi (~> 1.15)
 
 GIT
@@ -168,7 +168,7 @@ GEM
     bibtex-ruby (6.1.0)
       latex-decode (~> 0.0)
       racc (~> 1.7)
-    bigdecimal (3.1.6)
+    bigdecimal (3.1.7)
     bindex (0.8.1)
     binding_of_caller (1.0.1)
       debug_inspector (>= 1.2.0)
@@ -363,7 +363,7 @@ GEM
     net-smtp (0.3.4)
       net-protocol
     netrc (0.11.0)
-    nio4r (2.7.0)
+    nio4r (2.7.1)
     nokogiri (1.16.3-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.16.3-x86_64-linux)
@@ -412,7 +412,7 @@ GEM
     puma (6.4.2)
       nio4r (~> 2.0)
     racc (1.7.3)
-    rack (2.2.8.1)
+    rack (2.2.9)
     rack-cors (2.0.2)
       rack (>= 2.0.0)
     rack-proxy (0.7.7)
@@ -463,7 +463,7 @@ GEM
     rdf (3.3.1)
       bcp47_spec (~> 0.2)
       link_header (~> 0.0, >= 0.0.8)
-    rdoc (6.3.3)
+    rdoc (6.3.4.1)
     redcarpet (3.6.0)
     redis (4.8.1)
     regexp_parser (2.9.0)
@@ -498,7 +498,7 @@ GEM
       nokogiri
       roo (>= 2.0.0, < 3)
       spreadsheet (> 0.9.0)
-    rouge (4.2.0)
+    rouge (4.2.1)
     rqrcode_core (1.2.0)
     rspec (3.13.0)
       rspec-core (~> 3.13.0)
@@ -623,7 +623,7 @@ GEM
     sync (0.5.0)
     taxonifi (0.6.0)
       require_all (~> 3.0)
-    term-ansicolor (1.7.1)
+    term-ansicolor (1.7.2)
       tins (~> 1.0)
     terrapin (0.6.0)
       climate_control (>= 0.0.3, < 1.0)
