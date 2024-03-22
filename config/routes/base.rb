@@ -26,6 +26,7 @@ scope :metadata, controller: 'metadata' do
   post :related_summary
   get 'object_radial/', action: :object_radial, defaults: {format: :json}
   get 'object_navigation/:global_id', action: :object_navigation, defaults: {format: :json}
+  get :class_navigation, defaults: {format: :json}
   get '(/:klass)', action: :index, defaults: {format: :json}
 end
 
