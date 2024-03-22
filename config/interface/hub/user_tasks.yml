@@ -414,7 +414,7 @@ new_bibtex_source_task:
   description: 'Parse a captured BibTeX string into a new source'
 visualize_confidences_task:
   hub: true
-  name: 'Visualize confidences.'
+  name: 'Visualize confidences'
   related:
   categories:
   status: stable
