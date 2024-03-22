@@ -1,5 +1,4 @@
 export const TAXON_DETERMINATION_PROPERTIES = [
-  'biological_collection_object_id',
   'otu_id',
   'otu_name',
   'position',

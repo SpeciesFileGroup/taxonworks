@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- OTU name to Filter CO result [#3861]
 - New model, FieldOccurrence [#1643]
 - New key task, add edit "traditional" keys [#1691]
 - New OTU task
@@ -33,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Crash when georeferencing with zero meters of uncertainty.
 - New CE: Custom attributes don't refresh on new/edit CE [#3874]
 
+[#3861]: https://github.com/SpeciesFileGroup/taxonworks/issues/3861
 [#3883]: https://github.com/SpeciesFileGroup/taxonworks/issues/3883
 [#1643]: https://github.com/SpeciesFileGroup/taxonworks/issues/1643
 [#1691]: https://github.com/SpeciesFileGroup/taxonworks/issues/1691
