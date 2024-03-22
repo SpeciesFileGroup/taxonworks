@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Rediculous number of identifiers preventing collecting event editing [#3715]
 - Community-based models not showing AlternateValues [#3883]
 - Browse OTUs: headers do not link to correct panel [#3868]
 - DwC-A importer crashing on hybrid formula scientific names
@@ -37,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New CE: Custom attributes don't refresh on new/edit CE [#3874]
 - Radial quick forms: Asserted distribution screen partially blocked by a white rectangle [#3891]
 
+[#3715]: https://github.com/SpeciesFileGroup/taxonworks/issues/3715
 [#3888]: https://github.com/SpeciesFileGroup/taxonworks/issues/3888
 [#3861]: https://github.com/SpeciesFileGroup/taxonworks/issues/3861
 [#3883]: https://github.com/SpeciesFileGroup/taxonworks/issues/3883
