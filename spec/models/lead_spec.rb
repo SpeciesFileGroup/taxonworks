@@ -220,7 +220,6 @@ RSpec.describe Lead, type: :model do
     specify 'inserted lead positions are correct after #insert_couplet (left)' do
       ids = l.insert_couplet
       a = Lead.find(ids[0])
-      # a.run_callbacks(:commit)
       expect(Lead.find(ids[0]).reload.position).to be < Lead.find(ids[1]).reload.position               # Children should be left/right OK
     end
 
@@ -229,33 +228,42 @@ RSpec.describe Lead, type: :model do
       expect(Lead.find_by(text: 'll').position).to be < Lead.find_by(text: 'lr').position # Grand children maintain position
     end
 
-    specify 'positions are correct after insert_couplet (right)' do
-      # Test the same when inserting on a right node.
+    specify 'current positions are correct after #insert_couplet (right)' do
       ids = lr.insert_couplet
-
-      expect(Lead.find_by(text: 'll').position).to be < Lead.find_by(text: 'lr').position
-      expect(Lead.find(ids[0]).position).to be < Lead.find(ids[1]).position
-      expect(Lead.find_by(text: 'lrl').position).to be < Lead.find_by(text: 'lrr').position
+      expect(Lead.find_by(text: 'll').position).to be < Lead.find_by(text: 'lr').position   # Position shouldn't change L or R
     end
 
-    specify 'insert_couplet reparents on the same side as self' do
+    specify 'inserted lead positions are correct after #insert_couplet (right)' do
+      ids = lr.insert_couplet
+      a = Lead.find(ids[0])
+      expect(Lead.find(ids[0]).reload.position).to be < Lead.find(ids[1]).reload.position               # Children should be left/right OK
+    end
+
+    specify 're-attached child lead positions are correct after #insert_couplet (right)' do
+      ids = lr.insert_couplet
+      expect(Lead.find_by(text: 'lrl').position).to be < Lead.find_by(text: 'lrr').position # Grand children maintain position
+    end
+
+    specify 'insert_couplet reparents on the right if self was a right child' do
       # lr is a right child, so reparented children should be on right.
       ids = lr.insert_couplet
 
       expect(Lead.find(ids[0]).children.size).to eq(0)
       expect(Lead.find(ids[1]).all_children.size).to eq(2)
 
-      expect(Lead.find(ids[0]).text). to eq('Inserted node')
+      expect(Lead.find(ids[0]).text).to eq('Inserted node')
       expect(Lead.find(ids[1]).text).to eq('Child nodes are attached to this node')
+    end
 
+    specify 'insert_couplet reparents on the right if self was a right child' do
       # l is a left child, so reparented children should be on left.
       ids = l.insert_couplet
 
-      expect(Lead.find(ids[0]).all_children.size).to eq(6)
+      expect(Lead.find(ids[0]).all_children.size).to eq(4)
       expect(Lead.find(ids[1]).children.size).to eq(0)
 
       expect(Lead.find(ids[0]).text).to eq('Child nodes are attached to this node')
-      expect(Lead.find(ids[1]).text). to eq('Inserted node')
+      expect(Lead.find(ids[1]).text).to eq('Inserted node')
     end
 
     specify 'insert_couplet creates expected parent/child relationships' do
@@ -323,28 +331,33 @@ RSpec.describe Lead, type: :model do
       expect(Lead.where('parent_id is null').first.all_children.size).to be(6)
     end
 
-    specify "destroy_couplet doesn't change order of remaining nodes (left)" do
+    specify "destroy_couplet doesn't change order of parent node pair (left)" do
       l.destroy_couplet
       expect(Lead.find_by(text: 'l').position).to be < Lead.find_by(text: 'r').position
+    end
 
-
+    specify "destroy_couplet doesn't change order of reparented nodes (left)" do
+      l.destroy_couplet
       expect(Lead.find_by(text: 'lrl').position).to be < Lead.find_by(text: 'lrr').position
     end
 
-    specify "destroy_couplet doesn't change order of remaining nodes (right)" do
-      # Test the same for destroy_couplet on a right node.
-      l.destroy_couplet
-
-      r.reload
+    specify "destroy_couplet doesn't change order of parent node pair (right)" do
       rl = r.children.create! text: 'rl'
       rr = r.children.create! text: 'rr'
       rll = rl.children.create! text: 'rll'
       rlr = rl.children.create! text: 'rlr'
 
-      o = Lead.find_by(text: 'r')
-
-      o.destroy_couplet
+      r.reload.destroy_couplet
       expect(Lead.find_by(text: 'l').position).to be < Lead.find_by(text: 'r').position
+    end
+
+    specify "destroy_couplet doesn't change order of reparented nodes (right)" do
+      rl = r.children.create! text: 'rl'
+      rr = r.children.create! text: 'rr'
+      rll = rl.children.create! text: 'rll'
+      rlr = rl.children.create! text: 'rlr'
+
+      r.reload.destroy_couplet
       expect(Lead.find_by(text: 'rll').position).to be < Lead.find_by(text: 'rlr').position
     end
 
