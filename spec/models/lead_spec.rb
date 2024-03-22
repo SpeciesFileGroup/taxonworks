@@ -361,6 +361,16 @@ RSpec.describe Lead, type: :model do
       expect(Lead.find_by(text: 'rll').position).to be < Lead.find_by(text: 'rlr').position
     end
 
+    specify "destroy_couplet doesn't change order of 3 reparented nodes (left)" do
+      lrm = FactoryBot.create(:valid_lead, text: 'middle child of lr')
+      lrl.append_sibling(lrm)
+
+      l.reload.destroy_couplet
+
+      expect(Lead.find_by(text: 'lrl').position).to be < Lead.find_by(text: 'middle child of lr').position
+      expect(Lead.find_by(text: 'middle child of lr').position).to be < Lead.find_by(text: 'lrr').position
+    end
+
     specify '#all_children' do
       lrll = lrl.children.create! text: 'lrll'
       lrlr = lrl.children.create! text: 'lrlr'
