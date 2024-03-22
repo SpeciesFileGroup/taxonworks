@@ -9,7 +9,19 @@ class LeadsController < ApplicationController
   def index
     respond_to do |format|
       format.html {
-        @recent_objects = Lead.recent_from_project_id(sessions_current_project_id).where('parent_id is null').order(updated_at: :desc).limit(10)
+        one_week_ago = Time.now.utc.to_date - 7
+        recents = []
+        roots = loaded_roots
+        roots.each do |k|
+          if k.key_updated_at > one_week_ago
+            recents.push k
+          end
+        end
+
+        recents.sort! { |a, b| b[:key_updated_at] <=> a[:key_updated_at] }
+
+        @recent_objects = recents.take(10)
+
         render '/shared/data/all/index'
       }
       format.json {
@@ -285,5 +297,47 @@ class LeadsController < ApplicationController
   def no_grandchildren(lead)
     children = lead.children
     (children.size == 2) and (children[0].children.size == 0) and (children[1].children.size == 0)
+  end
+
+  # Returns all root nodes, with new properties:
+  #  * couplet_count (number of couplets in the key)
+  #  * otus_count (total number of distinct otus on the key)
+  #  * key_updated_at (last time the key was updated)
+  #  * key_updated_by_id (id of last person to update the key)
+  #  * key_updated_by (name of last person to update the key)
+  def loaded_roots
+    # The updated_at subquery computes key_updated_at (and others), the second
+    # query uses that to compute key_updated_by (by finding which node has the
+    # corresponding key_updated_at).
+    # TODO: couplet_count will be wrong if any couplets don't have exactly two
+    # children.
+    updated_at = Lead
+      .joins('JOIN lead_hierarchies AS lh
+        ON leads.id = lh.ancestor_id')
+      .joins('JOIN leads AS otus_source
+        ON lh.descendant_id = otus_source.id')
+      .where("
+        leads.parent_id IS NULL
+        AND leads.project_id = #{sessions_current_project_id}
+      ")
+      .group(:id)
+      .select('
+        leads.*,
+        COUNT(DISTINCT otus_source.otu_id) AS otus_count,
+        MAX(otus_source.updated_at) as key_updated_at,
+        (COUNT(otus_source.id) - 1) / 2 AS couplet_count
+      ')
+
+    Lead
+      .joins("JOIN (#{updated_at.to_sql}) as leads_updated_at
+        ON leads_updated_at.key_updated_at = leads.updated_at")
+      .joins('JOIN users
+        ON users.id = leads.updated_by_id')
+      .select('
+        leads_updated_at.*,
+        leads.updated_by_id AS key_updated_by_id,
+        users.name AS key_updated_by
+      ')
+      .order(:text)
   end
 end
