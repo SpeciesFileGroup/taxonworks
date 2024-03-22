@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC Dashboard: Use the same DwC download of collection object filter task
 - DwC-A Workbench: Add pagination for created imports
 - Clone mode on image matrix
+- Radial CO: Add preparation type slice [#3889]
 
 ### Changed
 
@@ -42,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3868]: https://github.com/SpeciesFileGroup/taxonworks/issues/3868
 [#3869]: https://github.com/SpeciesFileGroup/taxonworks/issues/3869
 [#3878]: https://github.com/SpeciesFileGroup/taxonworks/issues/3878
+[#3889]: https://github.com/SpeciesFileGroup/taxonworks/issues/3889
 [#3891]: https://github.com/SpeciesFileGroup/taxonworks/issues/3891
 
 ### Fixed

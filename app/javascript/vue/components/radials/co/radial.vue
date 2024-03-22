@@ -15,6 +15,7 @@ import SliceTaxonDetermination from './components/SliceTaxonDetermination.vue'
 import SliceBiocurations from './components/SliceBiocurations/SliceBiocurations.vue'
 import SliceRepository from './components/SliceRepository.vue'
 import SliceCollectingEvent from './components/SliceCollectingEvent.vue'
+import SlicePreparationType from './components/SlicePreparationType.vue'
 import DwcSlice from './components/DwCSlice.vue'
 
 const SLICES = {
@@ -22,7 +23,8 @@ const SLICES = {
   'Collecting event': SliceCollectingEvent,
   'Taxon determinations': SliceTaxonDetermination,
   Repository: SliceRepository,
-  'Regenerate DwC': DwcSlice
+  'Regenerate DwC': DwcSlice,
+  'Preparation type': SlicePreparationType
 }
 
 defineOptions({
