@@ -91,6 +91,11 @@
               :ids="selectedIds"
               :disabled="!selectedIds.length"
             />
+            <RadialNavigation
+              :model="objectType"
+              :ids="selectedIds"
+              :disabled="!selectedIds.length"
+            />
             <slot name="nav-right" />
             <span class="separate-left separate-right">|</span>
             <FilterDownload
@@ -148,6 +153,7 @@ import ModalNestedParameters from '@/components/Filter/ModalNestedParameters.vue
 import RadialLinker from '@/components/radials/linker/radial.vue'
 import RadialMassAnnotator from '@/components/radials/mass/radial.vue'
 import FilterSettings from './FilterSettings.vue'
+import RadialNavigation from '@/components/radials/MassNavigation/radial.vue'
 import { ref, computed, onBeforeUnmount, reactive } from 'vue'
 
 const props = defineProps({
