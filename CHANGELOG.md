@@ -36,6 +36,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3869]: https://github.com/SpeciesFileGroup/taxonworks/issues/3869
 [#3878]: https://github.com/SpeciesFileGroup/taxonworks/issues/3878
 
+### Fixed
+- Handling of [sic] in Protonym#original_combination_infraspecific_element [#3867]
+
 ## [0.39.0] - 2024-03-01
 
 ### Added
