@@ -64,7 +64,7 @@ class ProjectSourcesController < ApplicationController
 
   # GET /project_sources/download
   def download
-    send_data Export::CSV.generate_csv
+    send_data Export::CSV.generate_csv(
       ProjectSource.where(project_id: sessions_current_project_id)), type: 'text', filename: "project_sources_#{DateTime.now}.tsv"
   end
 
@@ -72,7 +72,7 @@ class ProjectSourcesController < ApplicationController
   def batch_sync_to_project
     a = ProjectSource.batch_sync_to_project(params, params[:operation], sessions_current_project_id)
     if a
-      render json: {success: true, total: a}
+      render json: { success: true, total: a }, status: :ok
     else
       render json: {}, status: :unprocessable_entity
     end
