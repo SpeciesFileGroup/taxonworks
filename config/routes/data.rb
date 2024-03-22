@@ -654,6 +654,7 @@ resources :project_sources, only: [:index, :create, :destroy] do
     get 'list'
     get 'autocomplete'
     get 'search'
+    post :batch_sync_to_project, defaults: {format: :json}
   end
 end
 
