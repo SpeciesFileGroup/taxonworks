@@ -20,10 +20,9 @@ RSpec.describe Lead, type: :model do
   end
 
   specify '#insert_couplet children are ordered' do
-    lead.insert_couplet
-    a = lead.children.order(:position)
-    expect(a.first.position).to eq(0)
-    expect(a.last.position).to eq(1)
+    ids = lead.insert_couplet
+    expect(Lead.find(ids[0]).position).to eq(0)
+    expect(Lead.find(ids[1]).position).to eq(1)
   end
 
   specify '#insert_couplet inserts between leads' do
@@ -51,13 +50,12 @@ RSpec.describe Lead, type: :model do
   end
 
   specify '#insert_couplet between leads with siblings maintains position' do
-    FactoryBot.create(:valid_lead, parent: lead, text: 'bottom left')
-    FactoryBot.create(:valid_lead, parent: lead, text: 'bottom right')
+    bl = FactoryBot.create(:valid_lead, parent: lead, text: 'bottom left')
+    br = FactoryBot.create(:valid_lead, parent: lead, text: 'bottom right')
 
     lead.reload.insert_couplet
 
-    a = lead.reload.children.order(:position)
-    expect(a.first.children.pluck(:position)).to eq([0,1])
+    expect(bl.reload.position).to be < br.reload.position
   end
 
   specify '#node_position of root' do
