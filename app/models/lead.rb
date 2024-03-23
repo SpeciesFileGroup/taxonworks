@@ -122,13 +122,18 @@ class Lead < ApplicationRecord
       c = Lead.create!(text: left_text, parent: self)
       d = Lead.create!(text: right_text, parent: self)
 
-      o.each do |i|
-        if p == :left || p == :root
-          i.update!(parent: c)
-        else
-          i.update!(parent: d)
-        end
+      new_parent = (p == :left || p == :root) ? c : d
+      last_sibling = nil
 
+      # !! The more obvious version using add_child is actually more error
+      # prone than using add_sibling.
+      o.each_with_index do |c, i|
+        if i == 0
+          new_parent.add_child c
+        else
+          last_sibling.append_sibling c
+        end
+        last_sibling = c
       end
     else
       c = Lead.create!(text: t1, parent: self)
