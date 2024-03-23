@@ -160,8 +160,9 @@ class Lead < ApplicationRecord
 
         i = has_kids.children
 
-        # !! Use append_sibling, which is numeric_order-aware, to reparent
-        # the children of has_kids to self.
+        # Reparent the children of has_kids to self.
+        # !! The obvious solution using add_child is actually more error-prone
+        # than using add_sibling.
         last_sibling = children[-1]
         i.each do |z|
           last_sibling.append_sibling z
