@@ -20,10 +20,9 @@ RSpec.describe Lead, type: :model do
   end
 
   specify '#insert_couplet children are ordered' do
-    lead.insert_couplet
-    a = lead.children.order(:position)
-    expect(a.first.position).to eq(0)
-    expect(a.last.position).to eq(1)
+    ids = lead.insert_couplet
+    expect(Lead.find(ids[0]).position).to eq(0)
+    expect(Lead.find(ids[1]).position).to eq(1)
   end
 
   specify '#insert_couplet inserts between leads' do
@@ -34,7 +33,7 @@ RSpec.describe Lead, type: :model do
 
   specify '#insert_couplet between leads inserts with positions' do
     FactoryBot.create(:valid_lead, parent: lead, text: 'bottom')
-    lead.insert_couplet
+    lead.reload.insert_couplet
     a = lead.children.reload.order(:position)
 
     expect(a.first.children.size).to eq(1)
@@ -44,20 +43,19 @@ RSpec.describe Lead, type: :model do
     FactoryBot.create(:valid_lead, parent: lead, text: 'bottom left')
     FactoryBot.create(:valid_lead, parent: lead, text: 'bottom right')
 
-    lead.insert_couplet
+    lead.reload.insert_couplet
 
     a = lead.reload.children.order(:position)
     expect(a.first.children.size).to eq(2)
   end
 
   specify '#insert_couplet between leads with siblings maintains position' do
-    FactoryBot.create(:valid_lead, parent: lead, text: 'bottom left')
-    FactoryBot.create(:valid_lead, parent: lead, text: 'bottom right')
+    bl = FactoryBot.create(:valid_lead, parent: lead, text: 'bottom left')
+    br = FactoryBot.create(:valid_lead, parent: lead, text: 'bottom right')
 
-    lead.insert_couplet
+    lead.reload.insert_couplet
 
-    a = lead.reload.children.order(:position)
-    expect(a.first.children.order(:position).pluck(:position)).to eq([0,1])
+    expect(bl.reload.position).to be < br.reload.position
   end
 
   specify '#node_position of root' do
@@ -122,6 +120,21 @@ RSpec.describe Lead, type: :model do
     root = FactoryBot.create(:valid_lead)
     child = root.children.create! text: 'c'
     expect {child.update! redirect_id: root.id}.to raise_error ActiveRecord::RecordInvalid
+  end
+
+  # TODO: should this be a request test instead, so that we're testing
+  # whatever current leads_controller#update behavior is?
+  specify "'ui update' doesn't change order of chidren" do
+    # Simulate a ui 'Update' saving all three nodes of a couplet.
+    lead = FactoryBot.create(:valid_lead)
+    l = FactoryBot.create(:valid_lead, parent: lead, text: 'bottom left')
+    r = FactoryBot.create(:valid_lead, parent: lead, text: 'bottom right')
+
+    lead.update! text: lead.text
+    l.update! text: 'new text'
+    r.update! text: r.text
+
+    expect(l.reload.position).to be < r.reload.position
   end
 
   xspecify "keys with external referrers can't be destroyed" do
@@ -205,7 +218,6 @@ RSpec.describe Lead, type: :model do
     specify 'inserted lead positions are correct after #insert_couplet (left)' do
       ids = l.insert_couplet
       a = Lead.find(ids[0])
-      # a.run_callbacks(:commit)
       expect(Lead.find(ids[0]).reload.position).to be < Lead.find(ids[1]).reload.position               # Children should be left/right OK
     end
 
@@ -214,33 +226,42 @@ RSpec.describe Lead, type: :model do
       expect(Lead.find_by(text: 'll').position).to be < Lead.find_by(text: 'lr').position # Grand children maintain position
     end
 
-    specify 'positions are correct after insert_couplet (right)' do
-      # Test the same when inserting on a right node.
+    specify 'current positions are correct after #insert_couplet (right)' do
       ids = lr.insert_couplet
-
-      expect(Lead.find_by(text: 'll').position).to be < Lead.find_by(text: 'lr').position
-      expect(Lead.find(ids[0]).position).to be < Lead.find(ids[1]).position
-      expect(Lead.find_by(text: 'lrl').position).to be < Lead.find_by(text: 'lrr').position
+      expect(Lead.find_by(text: 'll').position).to be < Lead.find_by(text: 'lr').position   # Position shouldn't change L or R
     end
 
-    specify 'insert_couplet reparents on the same side as self' do
+    specify 'inserted lead positions are correct after #insert_couplet (right)' do
+      ids = lr.insert_couplet
+      a = Lead.find(ids[0])
+      expect(Lead.find(ids[0]).reload.position).to be < Lead.find(ids[1]).reload.position               # Children should be left/right OK
+    end
+
+    specify 're-attached child lead positions are correct after #insert_couplet (right)' do
+      ids = lr.insert_couplet
+      expect(Lead.find_by(text: 'lrl').position).to be < Lead.find_by(text: 'lrr').position # Grand children maintain position
+    end
+
+    specify 'insert_couplet reparents on the right if self was a right child' do
       # lr is a right child, so reparented children should be on right.
       ids = lr.insert_couplet
 
       expect(Lead.find(ids[0]).children.size).to eq(0)
       expect(Lead.find(ids[1]).all_children.size).to eq(2)
 
-      expect(Lead.find(ids[0]).text). to eq('Inserted node')
+      expect(Lead.find(ids[0]).text).to eq('Inserted node')
       expect(Lead.find(ids[1]).text).to eq('Child nodes are attached to this node')
+    end
 
+    specify 'insert_couplet reparents on the right if self was a right child' do
       # l is a left child, so reparented children should be on left.
       ids = l.insert_couplet
 
-      expect(Lead.find(ids[0]).all_children.size).to eq(6)
+      expect(Lead.find(ids[0]).all_children.size).to eq(4)
       expect(Lead.find(ids[1]).children.size).to eq(0)
 
       expect(Lead.find(ids[0]).text).to eq('Child nodes are attached to this node')
-      expect(Lead.find(ids[1]).text). to eq('Inserted node')
+      expect(Lead.find(ids[1]).text).to eq('Inserted node')
     end
 
     specify 'insert_couplet creates expected parent/child relationships' do
@@ -308,29 +329,44 @@ RSpec.describe Lead, type: :model do
       expect(Lead.where('parent_id is null').first.all_children.size).to be(6)
     end
 
-    specify "destroy_couplet doesn't change order of remaining nodes (left)" do
+    specify "destroy_couplet doesn't change order of parent node pair (left)" do
       l.destroy_couplet
       expect(Lead.find_by(text: 'l').position).to be < Lead.find_by(text: 'r').position
+    end
 
-
+    specify "destroy_couplet doesn't change order of reparented nodes (left)" do
+      l.destroy_couplet
       expect(Lead.find_by(text: 'lrl').position).to be < Lead.find_by(text: 'lrr').position
     end
 
-    specify "destroy_couplet doesn't change order of remaining nodes (right)" do
-      # Test the same for destroy_couplet on a right node.
-      l.destroy_couplet
-
-      r.reload
+    specify "destroy_couplet doesn't change order of parent node pair (right)" do
       rl = r.children.create! text: 'rl'
       rr = r.children.create! text: 'rr'
       rll = rl.children.create! text: 'rll'
       rlr = rl.children.create! text: 'rlr'
 
-      o = Lead.find_by(text: 'r')
-
-      o.destroy_couplet
+      r.reload.destroy_couplet
       expect(Lead.find_by(text: 'l').position).to be < Lead.find_by(text: 'r').position
+    end
+
+    specify "destroy_couplet doesn't change order of reparented nodes (right)" do
+      rl = r.children.create! text: 'rl'
+      rr = r.children.create! text: 'rr'
+      rll = rl.children.create! text: 'rll'
+      rlr = rl.children.create! text: 'rlr'
+
+      r.reload.destroy_couplet
       expect(Lead.find_by(text: 'rll').position).to be < Lead.find_by(text: 'rlr').position
+    end
+
+    specify "destroy_couplet doesn't change order of 3 reparented nodes (left)" do
+      lrm = FactoryBot.create(:valid_lead, text: 'middle child of lr')
+      lrl.append_sibling(lrm)
+
+      l.reload.destroy_couplet
+
+      expect(Lead.find_by(text: 'lrl').position).to be < Lead.find_by(text: 'middle child of lr').position
+      expect(Lead.find_by(text: 'middle child of lr').position).to be < Lead.find_by(text: 'lrr').position
     end
 
     specify '#all_children' do

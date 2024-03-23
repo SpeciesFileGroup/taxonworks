@@ -50,11 +50,6 @@ class Lead < ApplicationRecord
 
   has_closure_tree order: 'position', numeric_order: true, dont_order_roots: true , dependent: nil
 
-  # New records added at bottom (default)
-  # !! Note there is some oddness with update(parent: obj) vs. update(parent_id: object.id),
-  # if your function is not working as expected try the opposite.
-  acts_as_list scope: [:parent_id, :project_id]
-
   belongs_to :parent, class_name: 'Lead'
 
   belongs_to :otu, inverse_of: :leads
@@ -110,15 +105,14 @@ class Lead < ApplicationRecord
   end
 
   def insert_couplet
-    a,b,c,d = nil, nil, nil, nil
+    c,d = nil, nil
 
     p = node_position
 
     t1 = 'Inserted node'
     t2 = 'Child nodes are attached to this node'
 
-    # !! This reload is key to have specs pass
-    if children.reload.any?
+    if children.any?
       o = children.to_a
 
       left_text = (p == :left || p == :root) ? t2 : t1
@@ -128,13 +122,18 @@ class Lead < ApplicationRecord
       c = Lead.create!(text: left_text, parent: self)
       d = Lead.create!(text: right_text, parent: self)
 
-      o.each do |i|
-        if p == :left || p == :root
-          i.update!(parent: c)
-        else
-          i.update!(parent: d)
-        end
+      new_parent = (p == :left || p == :root) ? c : d
+      last_sibling = nil
 
+      # !! The more obvious version using add_child is actually more error
+      # prone than using add_sibling.
+      o.each_with_index do |c, i|
+        if i == 0
+          new_parent.add_child c
+        else
+          last_sibling.append_sibling c
+        end
+        last_sibling = c
       end
     else
       c = Lead.create!(text: t1, parent: self)
@@ -166,20 +165,17 @@ class Lead < ApplicationRecord
 
         i = has_kids.children
 
+        # Reparent the children of has_kids to self.
+        # !! The obvious solution using add_child is actually more error-prone
+        # than using add_sibling.
+        last_sibling = children[-1]
         i.each do |z|
-          # reload is required for pass, it seems we need to know the sibiling state
-          z.reload.update!(parent_id: has_kids.parent_id)
+          last_sibling.append_sibling z
+          last_sibling = z
         end
 
-        # `position` looks OK here
         has_kids.destroy!
-        # `position` looks OK here
         no_kids.destroy!
-        # !! `position` NOT OK here
-
-        # Give up as to why destroy fails to re-index. Force re-index of `position`
-        children.reload.reverse.map(&:save)  # reload is required
-
       else # Neither side has children
         Lead.transaction do
           a.destroy!
