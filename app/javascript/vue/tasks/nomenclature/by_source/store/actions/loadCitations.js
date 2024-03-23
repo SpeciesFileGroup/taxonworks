@@ -24,9 +24,12 @@ export default async ({ state }, payload) => {
 
 async function loadTaxonNamesIntoList(list) {
   const taxonIds = list.map((item) => item.citation_object_id)
-  const { body } = await TaxonName.all({
-    taxon_name_id: taxonIds
-  })
+  const { body } = await TaxonName.all(
+    {
+      taxon_name_id: taxonIds
+    },
+    { useFilter: true }
+  )
 
   return list.map((item) => ({
     ...item,

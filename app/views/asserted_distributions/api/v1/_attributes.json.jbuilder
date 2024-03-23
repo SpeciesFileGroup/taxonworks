@@ -17,7 +17,7 @@ end
 json.otu do
   json.name asserted_distribution.otu.name
   json.taxon_name_id asserted_distribution.otu.taxon_name_id
-  json.taxon_name asserted_distribution.otu.taxon_name.cached
+  json.taxon_name asserted_distribution.otu.taxon_name&.cached
   json.global_id asserted_distribution.otu.to_global_id.to_s
 end
 

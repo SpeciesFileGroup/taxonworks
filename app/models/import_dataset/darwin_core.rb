@@ -121,7 +121,7 @@ class ImportDataset::DarwinCore < ImportDataset
   # @param [Integer] record_id
   #   Indicates the record to be imported (default none). When used filters are ignored.
   # Returns the updated dataset records. Do not call if there are changes that have not been persisted
-  def import(max_time, max_records, retry_errored: false, filters: nil, record_id: nil)
+  def import(max_time, max_records, retry_errored: nil, filters: nil, record_id: nil)
     imported = []
 
     lock_time = Time.now
@@ -159,6 +159,7 @@ class ImportDataset::DarwinCore < ImportDataset
       end
 
       if imported.any? && record_id.nil?
+        reload
         self.metadata.merge!({
           'import_start_id' => imported.last&.id + 1,
           'import_filters' => filters,
@@ -277,7 +278,7 @@ class ImportDataset::DarwinCore < ImportDataset
     headers[table.id[:index]] = 'id' if table.id
     table.fields.each { |f| headers[f[:index]] = get_normalized_dwc_term(f) if f[:index] }
 
-    table.read_header.first.each_with_index { |f, i| headers[i] ||= f.strip }
+    table.read_header.first&.each_with_index { |f, i| headers[i] ||= f.strip }
 
     get_dwc_default_values(table).each.with_index(headers.length) { |f, i| headers[i] = get_normalized_dwc_term(f) }
 

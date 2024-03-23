@@ -5,6 +5,11 @@ import { TaxonName } from '@/routes/endpoints'
 export default async ({ dispatch, commit, state }, otus) => {
   const { currentOtu } = state
   const otuIds = otus.map((otu) => otu.id)
+  const taxonNameIds = [
+    ...new Set(otus.map((otu) => otu.taxon_name_id))
+  ].filter(Boolean)
+
+  await dispatch(ActionNames.LoadPreferences)
 
   async function loadOtuInformation(otu) {
     await Promise.all([
@@ -14,21 +19,22 @@ export default async ({ dispatch, commit, state }, otus) => {
     ])
   }
 
-  if (state.currentOtu.taxon_name_id) {
-    await dispatch(ActionNames.LoadTaxonName, state.currentOtu.taxon_name_id)
+  if (currentOtu.taxon_name_id) {
+    await dispatch(ActionNames.LoadTaxonName, currentOtu.taxon_name_id)
   }
 
   dispatch(ActionNames.LoadDistribution, currentOtu.id)
 
-  TaxonName.all({
-    taxon_name_id: [...new Set(otus.map((otu) => otu.taxon_name_id))]
-  }).then((response) => {
-    commit(MutationNames.SetTaxonNames, response.body)
-  })
+  if (taxonNameIds.length) {
+    TaxonName.all({
+      taxon_name_id: taxonNameIds
+    }).then((response) => {
+      commit(MutationNames.SetTaxonNames, response.body)
+    })
+  }
 
   dispatch(ActionNames.LoadObservationDepictions, otus)
   dispatch(ActionNames.LoadDescendants, state.currentOtu)
-  dispatch(ActionNames.LoadPreferences)
 
   async function processArray(otus) {
     for (const item of otus) {

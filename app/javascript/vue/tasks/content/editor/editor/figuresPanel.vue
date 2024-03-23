@@ -37,10 +37,11 @@ import FigureItem from './figureItem.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { Content, Depiction } from '@/routes/endpoints'
+import { CONTENT } from '@/constants'
 
 export default {
   components: {
-    Draggable: Draggable,
+    Draggable,
     Dropzone,
     FigureItem
   },
@@ -107,7 +108,10 @@ export default {
     },
 
     loadContent() {
-      Content.depictions(this.content.id).then((response) => {
+      Depiction.where({
+        depiction_object_id: this.content.id,
+        depiction_object_type: CONTENT
+      }).then((response) => {
         this.$store.commit(MutationNames.SetDepictionsList, response.body)
       })
     },

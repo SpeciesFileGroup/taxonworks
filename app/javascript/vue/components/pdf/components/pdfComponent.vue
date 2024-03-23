@@ -12,14 +12,8 @@
 </template>
 <script setup>
 import 'pdfjs-dist/web/pdf_viewer.css'
-import {
-  PDFPageView,
-  DefaultAnnotationLayerFactory,
-  createLoadingTask,
-  isPDFDocumentLoadingTask,
-  EventBus
-} from './pdfLibraryComponents.js'
-import { ref, watch, onMounted, onUnmounted, toRaw } from 'vue'
+import { PDFPageView, EventBus } from './pdfLibraryComponents.js'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
   src: {
@@ -45,16 +39,6 @@ const props = defineProps({
   resize: {
     type: Boolean,
     default: false
-  },
-
-  annotation: {
-    type: Boolean,
-    default: false
-  },
-
-  text: {
-    type: Boolean,
-    default: true
   }
 })
 
@@ -62,25 +46,18 @@ const pdf = ref(null)
 const isLoading = ref(true)
 const pdfContainer = ref(null)
 
-let pdfInstance = null
 let pdfViewPage = null
 
-const emit = defineEmits([
-  'numpages',
-  'loading'
-])
+const emit = defineEmits(['numpages', 'loading'])
 
-watch(
-  pdf,
-  val => {
-    const pdfInfo = val.pdfInfo || val._pdfInfo
-    emit('numpages', pdfInfo.numPages)
-  }
-)
+watch(pdf, (val) => {
+  const pdfInfo = val.pdfInfo || val._pdfInfo
+  emit('numpages', pdfInfo.numPages)
+})
 
 watch(
   () => props.page,
-  val => {
+  (val) => {
     pdf.value.getPage(val).then((pdfPage) => {
       pdfViewPage.setPdfPage(pdfPage)
       pdfViewPage.draw()
@@ -88,41 +65,19 @@ watch(
   }
 )
 
-watch(
-  [
-    () => props.scale,
-    () => props.rotate
-  ],
-  val => {
-    updatePage(val)
-  }
-)
+watch([() => props.scale, () => props.rotate], (val) => {
+  updatePage(val)
+})
 
 watch(
   () => props.src,
-  newVal => {
+  (newVal) => {
     loadPdf(newVal)
   }
 )
 
-const calculateScale = (width = -1, height = -1) => {
-  pdfViewPage.update(1, props.rotate)
-  if (width === -1 && height === -1) {
-    width = pdfContainer.value.offsetWidth
-    height = pdfContainer.value.height
-  }
-  const pageWidthScale = width / pdfViewPage.viewport.width * 1
-  const pageHeightScale = height / pdfViewPage.viewport.height * 1
-
-  return pageWidthScale
-}
-
-const updatePage = newScale => {
+const updatePage = () => {
   if (pdfViewPage) {
-    if (newScale === 'page-width') {
-      newScale = calculateScale()
-    }
-
     pdfViewPage.update({
       scale: props.scale,
       rotate: props.rotate
@@ -132,14 +87,8 @@ const updatePage = newScale => {
   }
 }
 
-const loadPdf = async pdfInstance => {
+const loadPdf = async (pdfInstance) => {
   const container = pdfContainer.value
-  let annotationLayerFactory
-
-  if (props.annotation) {
-    annotationLayerFactory = new DefaultAnnotationLayerFactory()
-  }
-
   const eventBus = new EventBus()
   const pdfDocument = await pdfInstance
   const pdfPage = await pdfDocument.getPage(props.page)
@@ -149,8 +98,7 @@ const loadPdf = async pdfInstance => {
     id: props.page,
     scale: props.scale,
     defaultViewport: pdfPage.getViewport({ scale: props.scale }),
-    textLayerMode: props.text ? 2 : 0,
-    annotationLayerFactory,
+    textLayerMode: 1,
     eventBus
   })
 
@@ -161,7 +109,7 @@ const loadPdf = async pdfInstance => {
 }
 
 onMounted(() => {
-  document.addEventListener('turbolinks:load', _ => {
+  document.addEventListener('turbolinks:load', (_) => {
     pdfViewPage?.destroy()
   })
 

@@ -38,6 +38,7 @@ class Otu < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::OriginRelationship
 
+  include Shared::AutoUuid
   include Shared::Taxonomy
   include Otu::DwcExtensions
 
@@ -47,9 +48,11 @@ class Otu < ApplicationRecord
 
   include Shared::IsData
 
+  include Shared::QueryBatchUpdate
+
   is_origin_for 'Sequence', 'Extract'
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes].freeze
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :observation_matrices].freeze
 
   belongs_to :taxon_name, inverse_of: :otus
 
@@ -59,7 +62,11 @@ class Otu < ApplicationRecord
   has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error
 
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change
-  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
+
+  # TODO, move to infer BiologicalCollectionObject
+  has_many :collection_objects, through: :taxon_determinations, source: :taxon_determination_object, inverse_of: :otus, source_type: 'CollectionObject'
+  has_many :field_occurrences, through: :taxon_determinations, source: :taxon_determination_object, inverse_of: :otus, source_type: 'FieldOccurrence'
+
   has_many :type_materials, through: :protonym
 
   # TODO: no longer true since they can come through Otu as well
@@ -68,7 +75,7 @@ class Otu < ApplicationRecord
 
   has_many :collecting_events, -> { distinct }, through: :collection_objects
   has_many :common_names, dependent: :destroy
-  has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what? DD: profile should never be update, a new profile should be created insted
+  has_many :collection_profiles, dependent: :restrict_with_error # Do not destroy old profiles
 
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :public_contents, inverse_of: :otu, dependent: :destroy
@@ -81,6 +88,8 @@ class Otu < ApplicationRecord
 
   has_many :otu_relationships, foreign_key: :subject_otu_id
   has_many :related_otu_relationships, class_name: 'OtuRelationship', foreign_key: :object_otu_id
+
+  has_many :leads, inverse_of: :otu, dependent: :restrict_with_error
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
   scope :with_name, -> (name) { where(name:) }
@@ -122,6 +131,8 @@ class Otu < ApplicationRecord
   #    historical and pragmatic (i.e. share the same `taxon_name_id`), or
   #    nomenclatural reasons (are synonyms of the taxon name). Includes self.
   #
+  # TODO: Replace with Queries::Otu::Filter
+  #
   def self.coordinate_otus(otu_id)
     begin
       i = Otu.joins(:taxon_name).find(otu_id)
@@ -139,6 +150,7 @@ class Otu < ApplicationRecord
     end
   end
 
+  # TODO: REplace with Queries::Otu::Filter
   # TODO: This is coordinate_otus with children,
   #       it should probably be renamed coordinate.
   # @return [Otu::ActiveRecordRelation]
@@ -160,7 +172,7 @@ class Otu < ApplicationRecord
       .join(h, Arel::Nodes::InnerJoin).on(
         t[:cached_valid_taxon_name_id].eq(h[:descendant_id]))
 
-    Otu.joins(q.join_sources).where(h[:ancestor_id].eq_any(ids).to_sql)
+    Otu.joins(q.join_sources).where(h[:ancestor_id].in(ids).to_sql)
   end
 
   # TODO: replace with filter
@@ -202,6 +214,55 @@ class Otu < ApplicationRecord
     new_otus
   end
 
+  # Batch update
+
+  # @params params [Hash]
+  #   { otu_query: {},
+  #     otu_filter_query: {},
+  #     async_cutoff: 1
+  #   }
+  def self.batch_update(params)
+    request = QueryBatchRequest.new(
+      async_cutoff: params[:async_cutoff] || 26,
+      klass: 'Otu',
+      object_filter_params: params[:otu_query],
+      object_params: params[:otu],
+      preview: params[:preview],
+    )
+
+    a = request.filter
+
+    v = a.all.select(:taxon_name_id).distinct.limit(2).pluck(:taxon_name_id)
+
+    cap = 0
+
+    case v.size
+    when 1
+      if v.first.nil?
+        cap = 10000
+        request.cap_reason = 'Maximum allowed for empty records.'
+      else
+        cap = 2000
+        request.cap_reason = 'Maximum allowed for 1 unique taxon name id.'
+      end
+    when 2
+      if v.include?(nil)
+        cap = 2000
+        request.cap_reason = 'Maximum allowed for 1 unique taxon name id.'
+      else
+        cap = 25
+        request.cap_reason = '> 1 taxon name id'
+      end
+    else
+      cap = 25
+      request.cap_reason = '> 1 taxon name id'
+    end
+
+    request.cap = cap
+
+    query_batch_update(request)
+  end
+
   # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, `TaxonDetermination`
   # @return [Scope]
   #   the max 10 most recently used otus, as `used_on`
@@ -210,7 +271,7 @@ class Otu < ApplicationRecord
         when 'AssertedDistribution'
           AssertedDistribution.arel_table
         when 'Content'
-          Content.arel_table
+          ::Content.arel_table
         when 'BiologicalAssociation'
           BiologicalAssociation.arel_table
         when 'TaxonDetermination'

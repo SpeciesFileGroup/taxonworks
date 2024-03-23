@@ -44,7 +44,9 @@
               <row-component
                 v-if="item"
                 class="contextMenuCells"
+                :class="{ hightlight: currentRowIndex === item.id }"
                 :row="item"
+                @click="() => highlightRow(item.id)"
               />
               <tr
                 v-else
@@ -72,7 +74,7 @@ import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import { UpdateColumnField } from '../request/resources'
 import VirtualScroller from './VirtualScroller.vue'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 
 import RowComponent from './row'
 import ColumnFilter from './ColumnFilter'
@@ -128,6 +130,15 @@ export default {
     },
     isProcessing() {
       return this.$store.getters[GetterNames.GetSettings].isProcessing
+    },
+
+    currentRowIndex: {
+      get() {
+        return this.$store.getters[GetterNames.GetCurrentRowIndex]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCurrentRowIndex, value)
+      }
     }
   },
 
@@ -198,6 +209,10 @@ export default {
             this.isSaving = false
           })
       }
+    },
+
+    highlightRow(index) {
+      this.currentRowIndex = index
     }
   }
 }
@@ -244,6 +259,11 @@ export default {
     white-space: nowrap;
     overflow: hidden;
     vertical-align: middle;
+  }
+
+  .hightlight {
+    outline: 2px solid var(--color-primary) !important;
+    outline-offset: -2px;
   }
 }
 </style>

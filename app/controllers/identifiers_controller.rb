@@ -3,6 +3,8 @@ class IdentifiersController < ApplicationController
 
   before_action :set_identifier, only: [:update, :destroy, :show]
 
+  after_action -> { set_pagination_headers(:identifiers) }, only: [:index, :api_index], if: :json_request?
+
   # GET /identifiers
   # GET /identifiers.json
   def index
@@ -69,6 +71,7 @@ class IdentifiersController < ApplicationController
   # DELETE /identifiers/1.json
   def destroy
     @identifier.destroy
+
     respond_to do |format|
       format.html { destroy_redirect @identifier, notice: 'Identifier was successfully destroyed.' }
       format.json { head :no_content }
@@ -118,7 +121,7 @@ class IdentifiersController < ApplicationController
 
   # GET /identifiers/download
   def download
-    send_data Export::Download.generate_csv(Identifier.where(project_id: sessions_current_project_id)), type: 'text', filename: "identifiers_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(Identifier.where(project_id: sessions_current_project_id)), type: 'text', filename: "identifiers_#{DateTime.now}.tsv"
   end
 
   # GET /identifiers/identifier_types
@@ -129,7 +132,15 @@ class IdentifiersController < ApplicationController
   private
 
   def set_identifier
-    @identifier = Identifier.with_project_id(sessions_current_project_id).find(params[:id])
+    @identifier = Identifier.find(params[:id])
+
+    if !@identifier.is_community_annotation?
+      if @identifier.project_id != sessions_current_project_id
+        return nil
+      end
+    end
+
+    @identifier
   end
 
   def identifier_params

@@ -5,7 +5,8 @@ const ActionNames = {
   LoadIdentifiersFor: 'loadIdentifiersFor',
   LoadSoftValidation: 'loadSoftValidation',
   LoadTimeline: 'loadTimeline',
-  UpdateCollectingEvent: 'updateCollectingEvent'
+  UpdateCollectingEvent: 'updateCollectingEvent',
+  ResetStore: 'resetStore'
 }
 
 export default ActionNames

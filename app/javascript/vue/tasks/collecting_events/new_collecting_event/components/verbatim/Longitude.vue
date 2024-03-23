@@ -9,23 +9,18 @@
   </div>
 </template>
 
-<script>
-import extendCE from '../mixins/extendCE'
+<script setup>
 import { parseCoordinateCharacters } from '@/helpers/georeferences'
+import { computed } from 'vue'
 
-export default {
-  mixins: [extendCE],
+const collectingEvent = defineModel()
 
-  computed: {
-    longitude: {
-      get() {
-        return this.collectingEvent.verbatim_longitude
-      },
-      set(value) {
-        this.collectingEvent.verbatim_longitude =
-          parseCoordinateCharacters(value)
-      }
-    }
+const longitude = computed({
+  get() {
+    return collectingEvent.value.verbatim_longitude
+  },
+  set(value) {
+    collectingEvent.value.verbatim_longitude = parseCoordinateCharacters(value)
   }
-}
+})
 </script>

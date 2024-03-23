@@ -60,7 +60,11 @@ export const LAYOUTS = {
         'preparations',
         'scientificName',
         'order',
-        'family'
+        'superfamily',
+        'family',
+        'subfamily',
+        'tribe',
+        'subtribe'
       ]
     },
     includes: {}
@@ -69,6 +73,7 @@ export const LAYOUTS = {
   TaxonNames: {
     properties: {
       collection_object: ['buffered_determinations'],
+      taxon_determinations: ['otu_name'],
       dwc_occurrence: [
         'scientificName',
         'scientificNameAuthorship',
@@ -76,14 +81,17 @@ export const LAYOUTS = {
         'phylum',
         'dwcClass',
         'order',
+        'superfamily',
         'family',
+        'subfamily',
+        'tribe',
+        'subtribe',
         'genus',
         'specificEpithet',
         'infraspecificEpithet',
         'previousIdentifications',
         'higherClassification'
-      ],
-      taxon_determinations: TAXON_DETERMINATION_PROPERTIES
+      ]
     },
     includes: {}
   },
@@ -183,7 +191,6 @@ export const LAYOUTS = {
         'verbatim_collectors',
         'verbatim_method',
         'verbatim_elevation',
-        'verbatim_habitat',
         'verbatim_habitat',
         'verbatim_datum',
         'verbatim_date',

@@ -1,17 +1,17 @@
 <template>
   <FacetContainer>
     <h3>Collection objects</h3>
-    <smart-selector
+    <SmartSelector
       model="collection_objects"
       klass="Extract"
-      @selected="addToArray(collectionObjects, $event)"
+      @selected="addToArray(list, $event)"
     />
     <DisplayList
-      :list="collectionObjects"
+      :list="list"
       label="object_tag"
       :delete-warning="false"
       soft-delete
-      @delete="removeFromArray(collectionObjects, $event)"
+      @delete="removeFromArray(list, $event)"
     />
     <Includes
       v-if="includes"
@@ -23,7 +23,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { addToArray, removeFromArray } from '@/helpers/arrays'
-import { URLParamsToJSON } from '@/helpers/url/parse'
 import { CollectionObject } from '@/routes/endpoints'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import DisplayList from '@/components/displayList.vue'
@@ -49,19 +48,17 @@ const params = computed({
 
 const emit = defineEmits(['update:modelValue'])
 
-const collectionObjects = ref([])
-const { collection_object_id: coIds } = URLParamsToJSON(location.href)
+const list = ref([])
+const coIds = params.value.collection_object_id || []
 
-if (coIds) {
-  Promise.all(coIds.map((id) => CollectionObject.find(id))).then(
-    (responses) => {
-      collectionObjects.value = responses.map((r) => r.body)
-    }
-  )
+if (coIds.length) {
+  CollectionObject.all({ collection_object_id: coIds }).then(({ body }) => {
+    list.value = body
+  })
 }
 
 watch(
-  collectionObjects,
+  list,
   (newVal) => {
     params.value.collection_object_id = newVal.map((co) => co.id)
   },
@@ -75,7 +72,7 @@ watch(
       !newVal?.collection_object_id?.length &&
       oldVal?.collection_object_id?.length
     ) {
-      collectionObjects.value = []
+      list.value = []
     }
   }
 )

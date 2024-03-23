@@ -160,6 +160,7 @@ class TaxonName < ApplicationRecord
   include Shared::Labels
   include SoftValidation
   include Shared::IsData
+  include Shared::QueryBatchUpdate
   include TaxonName::OtuSyncronization
 
   include Shared::MatrixHooks::Member
@@ -247,7 +248,10 @@ class TaxonName < ApplicationRecord
 
   has_many :otus, inverse_of: :taxon_name, dependent: :restrict_with_error
   has_many :taxon_determinations, through: :otus
-  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object
+
+  has_many :collection_objects, through: :taxon_determinations, source: :taxon_determination_object, source_type: 'CollectionObject'
+  has_many :field_occurrences, through: :taxon_determinations, source: :taxon_determination_object, source_type: 'FieldOccurrence'
+
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error, inverse_of: :object_taxon_name
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy, inverse_of: :role_object
@@ -265,6 +269,9 @@ class TaxonName < ApplicationRecord
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
   has_many :classified_as_unavailable_or_invalid, -> { where type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }, class_name: 'TaxonNameClassification'
+
+  # Combinations are rankless, but we need this scope here for generic returns
+  scope :order_by_rank, -> (code) {order(Arel.sql("position(taxon_names.rank_class in '#{code}')"))}
 
   scope :with_same_cached_valid_id, -> { where(arel_table[:id].eq(arel_table[:cached_valid_taxon_name_id])) }
   scope :with_different_cached_valid_id, -> { where(arel_table[:id].not_eq(arel_table[:cached_valid_taxon_name_id])) } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#
@@ -684,9 +691,7 @@ class TaxonName < ApplicationRecord
   # @return String, nil
   #   virtual attribute, to ultimately be fixed in db
   def get_author
-    a = cached_author_year.to_s.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '')
-    a = a.gsub('(', '') if a.starts_with?('(') && !a.include?(')')
-    return a
+    cached_author_year.to_s.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '').gsub(') ', ', ').gsub('(', '').gsub(')', '')
   end
 
   # @return [Time]
@@ -1320,9 +1325,9 @@ class TaxonName < ApplicationRecord
   def name_with_misspelling(gender)
     if cached_misspelling
       if rank_string =~ /Icnp/
-        name.to_s + ' (sic)'
+        name_in_gender(gender).to_s + ' (sic)'
       else
-        name.to_s + ' [sic]'
+        name_in_gender(gender).to_s + ' [sic]'
       end
     elsif gender.nil? || rank_string =~ /Genus/
       name.to_s
@@ -1454,6 +1459,7 @@ class TaxonName < ApplicationRecord
       end
     elsif FAMILY_RANK_NAMES_ICZN.include?(taxon.rank_string) && !y.empty? && cached_nomenclature_date&.year != y.first && !mobj.present?
       ay = ay + ' [' + cached_nomenclature_date&.year.to_s + ']'
+      ay = ay.gsub(' []', '')
     end
 
     unless misapplication.empty? || obj.author_string.blank?
@@ -1760,7 +1766,7 @@ class TaxonName < ApplicationRecord
             self.save
             res = true
           end
-        rescue
+        rescue # TODO: Qualify this!!
         end
       end
     end

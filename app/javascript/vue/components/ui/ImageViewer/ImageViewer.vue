@@ -13,7 +13,19 @@
       </template>
       <template #body>
         <div class="image-container">
+          <SvgViewer
+            v-if="svgClip"
+            class="img-maxsize full_width"
+            :height="depiction.image.height"
+            :groups="svgClip"
+            :image="{
+              url: depiction.image.image_file_url,
+              width: depiction.image.width,
+              height: depiction.image.height
+            }"
+          />
           <img
+            v-else
             :class="[
               'img-maxsize',
               state.fullSizeImage ? 'img-fullsize' : 'img-normalsize'
@@ -87,7 +99,6 @@
                       <radial-annotator
                         type="annotations"
                         :global-id="imageObject.global_id"
-                        @close="loadData"
                       />
                     </li>
                     <li>
@@ -173,9 +184,11 @@ import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import ImageViewerAttributions from './ImageViewerAttributions.vue'
 import ImageViewerCitations from './ImageViewerCitations.vue'
-import { Depiction, Image } from '@/routes/endpoints'
+import SvgViewer from '@/components/Svg/SvgViewer.vue'
+import { Depiction, Image, Citation, Attribution } from '@/routes/endpoints'
 import { imageSVGViewBox, imageScale } from '@/helpers/images'
 import { computed, reactive, ref, watch } from 'vue'
+import { IMAGE } from '@/constants'
 
 const CONVERT_IMAGE_TYPES = ['image/tiff']
 const IMG_MAX_SIZES = {
@@ -219,6 +232,17 @@ const image = computed(() =>
     : props.depiction?.image.alternatives.medium ||
       props.image.alternatives.medium
 )
+
+const svgClip = computed(() => {
+  return props.depiction?.svg_clip
+    ? [
+        {
+          g: props.depiction.svg_clip,
+          attributes: { fill: '#FFA500', 'fill-opacity': 0.25 }
+        }
+      ]
+    : null
+})
 
 const imageObject = computed(() => props.depiction?.image || props.image)
 
@@ -264,10 +288,18 @@ const thumbUrlSrc = computed(() => {
 
 const loadAttributions = async () => {
   state.citations = (
-    await Image.citations(props.imageId, { extend: ['source'] })
+    await Citation.where({
+      citation_object_id: imageObject.value.id,
+      citation_object_type: IMAGE,
+      extend: ['source']
+    })
   ).body
   state.attributions = (
-    await Image.attributions(props.imageId, { extend: ['roles'] })
+    await Attribution.where({
+      attribution_object_id: imageObject.value.id,
+      attribution_object_type: IMAGE,
+      extend: ['roles']
+    })
   ).body
 }
 

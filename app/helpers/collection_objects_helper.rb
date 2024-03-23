@@ -3,24 +3,28 @@ module CollectionObjectsHelper
   def table_example(collection_objects)
     cols = %i{
       class
-      b
-      c
+      order
+      family
+      genus
+      scientificName
+      sex
     }
 
     tag.table do
-      tag.tr { cols.collect{|h| tag.td(h.to_s) }.join.html_safe } +
+      tag.tr { cols.collect{|h| tag.th(h.to_s) }.join.html_safe } +
 
       collection_objects.collect{|co|
-        tag.tr +
-          tag.td( co.dwc_class) +
+        tag.tr do
+          (tag.td( co.dwc_class) +
           tag.td( co.dwc_order) +
           tag.td( co.dwc_family) +
-          tag.td( co.dwc_sex)
-
+          tag.td( co.dwc_genus) +
+          tag.td( co.dwc_scientific_name) +
+          tag.td( co.dwc_sex)).html_safe
+        end
       }.join.html_safe
     end.html_safe
   end
-
 
   # Return [String, nil]
   #   a descriptor including the identifier and determination
@@ -51,8 +55,8 @@ module CollectionObjectsHelper
     link_to(collection_object_tag(collection_object).html_safe, collection_object.metamorphosize)
   end
 
-  def collection_object_radial_tag(collection_object)
-    content_tag(:span, '', data: { 'global-id' => collection_object.to_global_id.to_s, 'collection-object-radial' => 'true'})
+  def radial_quick_forms_tag(object)
+    content_tag(:span, '', data: { "global-id": object.to_global_id.to_s, 'radial-quick-forms': 'true'})
   end
 
   def label_for_collection_object(collection_object)
@@ -70,6 +74,21 @@ module CollectionObjectsHelper
       collection_object_identifier_tag(collection_object),
       collection_object_taxon_determination_tag(collection_object)
     ].join(' ').html_safe
+  end
+
+  # Text only, taxon name cached or OTU name for the
+  # most recent determination
+  def collection_object_scientific_name(collection_object)
+    return nil if collection_object.nil?
+    if a = collection_object.taxon_determinations.order(:position)&.first
+      if a.otu.taxon_name
+        a.otu.taxon_name.cached
+      else
+        a.otu.name
+      end
+    else
+      nil
+    end
   end
 
   def collection_objects_search_form
@@ -105,7 +124,7 @@ module CollectionObjectsHelper
 
   def collection_object_loan_tag(collection_object)
     return nil if collection_object.nil? || !collection_object.on_loan?
-    msg = ['On Loan until', collection_object.loan_return_date].compact.join(' ')
+    msg = collection_object.loan_return_date ? 'On Loan until ' + collection_object.loan_return_date.to_s : 'Gifted'
     content_tag(:span, msg, class: [
       :feedback,
       'feedback-thin',
@@ -347,4 +366,28 @@ module CollectionObjectsHelper
     }
 
   end
+
+  def table_example(collection_objects)
+    cols = %i{
+      class
+      b
+      c
+    }
+
+    tag.table do
+      tag.tr { cols.collect{|h| tag.td(h.to_s) }.join.html_safe } +
+
+      collection_objects.collect{|co|
+        tag.tr +
+          tag.td( co.dwc_class) +
+          tag.td( co.dwc_order) +
+          tag.td( co.dwc_family) +
+          tag.td( co.dwc_sex)
+
+      }.join.html_safe
+    end.html_safe
+  end
+
+
+
 end

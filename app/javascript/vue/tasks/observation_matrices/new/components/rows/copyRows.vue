@@ -120,7 +120,7 @@
 
 <script>
 import ModalComponent from '@/components/ui/Modal'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import getPagination from '@/helpers/getPagination'
 
 import { ActionNames } from '../../store/actions/actions'

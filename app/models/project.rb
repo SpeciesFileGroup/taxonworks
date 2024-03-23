@@ -73,6 +73,7 @@ class Project < ApplicationRecord
      Content
      Georeference
      Identifier
+     Lead
      LoanItem
      Loan
      OtuPageLayoutSection
@@ -80,7 +81,6 @@ class Project < ApplicationRecord
      ProjectSource
      TaxonDetermination
      TypeMaterial
-     CollectingEvent
      RangedLotCategory
      Image
      CommonName
@@ -97,7 +97,9 @@ class Project < ApplicationRecord
      ObservationMatrixRow
      ObservationMatrixRowItem
      ObservationMatrix
+     FieldOccurrence
      CollectionObject
+     CollectingEvent
      Otu
      OtuRelationship
      TaxonName
@@ -115,8 +117,9 @@ class Project < ApplicationRecord
   has_many :project_members, dependent: :restrict_with_error
 
   has_many :users, through: :project_members
-  has_many :project_sources, dependent: :restrict_with_error
-  has_many :sources, through: :project_sources
+
+  has_many :project_sources, inverse_of: :projects, dependent: :restrict_with_error
+  has_many :sources, inverse_of: :projects, through: :project_sources
 
   before_save :generate_api_access_token, if: :set_new_api_access_token
   before_save :destroy_api_access_token, if: -> { self.clear_api_access_token}
@@ -163,8 +166,6 @@ class Project < ApplicationRecord
     end
   end
 
-
-
   # !! This is not production ready.
   # @return [Boolean]
   #   based on whether the project has successfully been deleted.  Can also raise on detected problems with configuration.
@@ -173,7 +174,7 @@ class Project < ApplicationRecord
 
     known.each do |k|
       next if k.constantize.table_name == 'test_classes' # TODO: a kludge to ignore stubbed classes in testing
-      if !MANIFEST.include?(k)
+      unless MANIFEST.include?(k)
         raise "#{k} has not been added to #nuke order."
       end
     end
@@ -181,7 +182,8 @@ class Project < ApplicationRecord
     begin
       MANIFEST.each do |o|
         klass = o.constantize
-        klass.where(project_id: id).delete_all
+        # `unscoped` disables default_scope, which would restrict which records in a project are deleted
+        klass.unscoped.where(project_id: id).delete_all
       end
 
       self.destroy
@@ -191,9 +193,6 @@ class Project < ApplicationRecord
       raise e
     end
   end
-
-
-
 
   # TODO: boot load checks
   def root_taxon_name

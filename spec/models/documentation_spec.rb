@@ -32,12 +32,6 @@ RSpec.describe Documentation, type: :model, group: :documentation do
     end
   end
 
-  specify 'destroys document when last documentation 1' do
-    documentation.update!(document: document, documentation_object: otu)
-    expect(documentation.destroy).to be_truthy
-    expect(Document.count).to eq(0)
-  end
-
   specify 'does not destroy document when additional documentation' do
     documentation.update!(document: document, documentation_object: otu)
     Documentation.create!document: document, documentation_object: Otu.create!(name: 'spiderotu')

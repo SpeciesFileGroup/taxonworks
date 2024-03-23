@@ -70,9 +70,9 @@ class RangedLotCategoriesController < ApplicationController
 
   # GET /ranged_lot_categories/download
   def download
-    send_data(Export::Download.generate_csv(RangedLotCategory.where(project_id: sessions_current_project_id)),
+    send_data(Export::CSV.generate_csv(RangedLotCategory.where(project_id: sessions_current_project_id)),
               type: 'text',
-              filename: "ranged_lot_categories_#{DateTime.now}.csv")
+              filename: "ranged_lot_categories_#{DateTime.now}.tsv")
   end
 
 

@@ -262,7 +262,7 @@ module TaxonNames::PaperCatalogHelper
       #history_pages(c)
     ].compact.join.html_safe
 
-    unless body.blank?
+    if body.present?
       ': ' + body
     end
     #    content_tag(:span, body, class: :history__subject_original_citation) unless body.blank?
@@ -327,7 +327,7 @@ module TaxonNames::PaperCatalogHelper
         o.sources.collect{|s| source_author_year_label(s)}.join('; ')
       ].join(' ')
     else
-     "| Record not indexed: #{label_for(o)}" + (['|'] * 12).join
+      "| Record not indexed: #{label_for(o)}" + (['|'] * 12).join
     end
   end
 

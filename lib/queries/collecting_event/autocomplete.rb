@@ -65,7 +65,7 @@ module Queries
         a = years
         return nil if query_string.length < 7 || a.empty?
         base_query.where(
-          table[:start_date_year].eq_any(a).
+          table[:start_date_year].in(a).
           and( table[:verbatim_locality].matches(string_fragments.join))
           .to_sql)
           .limit(20)

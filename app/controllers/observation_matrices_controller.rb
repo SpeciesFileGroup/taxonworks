@@ -3,7 +3,7 @@ class ObservationMatricesController < ApplicationController
 
   before_action :set_observation_matrix, only: [
     :show, :api_show, :edit, :update, :destroy,
-    :nexml, :tnt, :nexus, :csv, :otu_contents, :descriptor_list,
+    :nexml, :tnt, :nexus, :csv, :otu_content, :descriptor_list,
     :reorder_rows, :reorder_columns, :row_labels, :column_labels]
   after_action -> { set_pagination_headers(:observation_matrices) }, only: [:index, :api_index], if: :json_request?
 
@@ -138,23 +138,23 @@ class ObservationMatricesController < ApplicationController
   def nexml
     @options = nexml_params
     respond_to do |format|
-      base =  '/observation_matrices/export/nexml/nexml'
-      format.html { render base }
-      format.text {
-        s = render_to_string(base, layout: false, formats: [:rdf])
+      base =  '/observation_matrices/export/nexml/'
+      format.html { render base + 'index' }
+      format.rdf {
+        s = render_to_string(partial: base + 'nexml', layout: false, formats: [:rdf])
         send_data(s, filename: "nexml_#{DateTime.now}.xml", type: 'text/plain')
       }
     end
   end
 
-  def otu_contents
-    @options = otu_contents_params
+  def otu_content
+    @options = otu_content_params
     respond_to do |format|
-      base = '/observation_matrices/export/otu_content/index'
-      format.html { render base }
+      base ='/observation_matrices/export/otu_content/'
+      format.html { render base + 'index' }
       format.text {
-        s = render_to_string(base, layout: false)
-        send_data(s, filename: "otu_contents_#{DateTime.now}.csv", type: 'text/plain')
+        s = render_to_string(partial: base + 'otu_content', layout: false, formats: [:html])
+        send_data(s, filename: "otu_content_#{DateTime.now}.csv", type: 'text/plain')
       }
     end
   end
@@ -214,11 +214,11 @@ class ObservationMatricesController < ApplicationController
   end
 
   def download
-    send_data Export::Download.generate_csv(ObservationMatrix.where(project_id: sessions_current_project_id)), type: 'text', filename: "observation_matrices_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(ObservationMatrix.where(project_id: sessions_current_project_id)), type: 'text', filename: "observation_matrices_#{DateTime.now}.tsv"
   end
 
   def download_contents
-    send_data Export::Download.generate_csv(ObservationMatrix.where(project_id: sessions_current_project_id)), type: 'text', filename: "observation_matrices_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(ObservationMatrix.where(project_id: sessions_current_project_id)), type: 'text', filename: "observation_matrices_#{DateTime.now}.csv"
   end
 
   def otus_used_in_matrices
@@ -273,7 +273,7 @@ class ObservationMatricesController < ApplicationController
       )
   end
 
-  def otu_contents_params
+  def otu_content_params
     { observation_matrix: @observation_matrix,
       target: '',
       include_otus: 'true',

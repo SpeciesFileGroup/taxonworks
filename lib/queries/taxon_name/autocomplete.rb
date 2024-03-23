@@ -92,14 +92,14 @@ module Queries
       # @return [Arel::Nodes::<>, nil]
       def is_type
         return nil if type.empty?
-        table[:type].eq_any(type)
+        table[:type].in(type)
       end
 
       # and clause, limit to ancestors or [ids]
       # @return [Arel::Nodes::<>, nil]
       def with_parent_id
         return nil if parent_id.empty?
-        taxon_name_hierarchies_table[:ancestor_id].eq_any(parent_id)
+        taxon_name_hierarchies_table[:ancestor_id].in(parent_id)
       end
 
       # @return [Arel::Nodes::Grouping, nil]
@@ -235,21 +235,21 @@ module Queries
       def autocomplete_cached
         ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, cached) AS sml', query_string]))
           .where('cached % ?', query_string) # `%` in where means nothing < 0.3 (internal PG similarity value)
-          .where(ApplicationRecord.sanitize_sql("similarity('#{query_string}', cached) > 0.6"))
+          .where(ApplicationRecord.sanitize_sql_array(["similarity('%s', cached) > 0.6", query_string]))
           .order('sml DESC, cached')
       end
 
       def autocomplete_original_combination
         ::TaxonName.select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, taxon_names.cached_original_combination) AS sml', query_string]))
           .where('taxon_names.cached_original_combination % ?', query_string)
-          .where(ApplicationRecord.sanitize_sql("similarity('#{query_string}', taxon_names.cached_original_combination) > 0.6"))
+          .where(ApplicationRecord.sanitize_sql_array(["similarity('%s', taxon_names.cached_original_combination) > 0.6", query_string]))
           .order('sml DESC, taxon_names.cached_original_combination')
       end
 
       def autocomplete_cached_author_year
         ::TaxonName.select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, taxon_names.cached_author_year) AS sml', query_string]))
           .where('taxon_names.cached_author_year % ?', query_string)
-          .where(ApplicationRecord.sanitize_sql("similarity('#{query_string}', taxon_names.cached_author_year) > 0.6"))
+          .where(ApplicationRecord.sanitize_sql(["similarity('%s', taxon_names.cached_author_year) > 0.6", query_string]))
           .order('sml DESC, taxon_names.cached_author_year')
       end
 
@@ -289,6 +289,7 @@ module Queries
           autocomplete_exact_cached,
           autocomplete_exact_cached_original_combination,
           autocomplete_identifier_cached_exact,
+          autocomplete_identifier_identifier_exact,
           autocomplete_exact_name_and_year,
 
           autocomplete_cached_end_wildcard,
@@ -384,7 +385,7 @@ module Queries
       # @return [String, nil]
       #   parse and only return what is assumed to be genus/species, with a wildcard in front
       def genus_species
-        p = TaxonWorks::Vendor::Biodiversity::Result.new
+        p = Vendor::Biodiversity::Result.new
         p.name = query_string
         r = p.parse
 

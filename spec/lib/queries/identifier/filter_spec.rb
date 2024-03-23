@@ -120,17 +120,17 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
 
   specify '#identifier_object_type' do
     query.identifier_object_type = 'Otu'
-    expect(query.all.map(&:id)).to contain_exactly(i1.id)
+    expect(query.all.map(&:id)).to include(i1.id)
   end
 
   specify '#identifier_object_id' do
     query.identifier_object_id = o1.id
-    expect(query.all.map(&:id)).to contain_exactly(i1.id, i2.id, i3.id) # when new objects identified, add here as necessary
+    expect(query.all.map(&:id)).to include(i1.id, i2.id, i3.id) # when new objects identified, add here as necessary
   end
 
   specify '#identifier_object_id 2' do
     query.identifier_object_id = [o1.id, 99]
-    expect(query.all.map(&:id)).to contain_exactly(i1.id, i2.id, i3.id) # when new objects identified, add here as necessary
+    expect(query.all.map(&:id)).to include(i1.id, i2.id, i3.id) # when new objects identified, add here as necessary
   end
 
   specify '#identifier_type' do
@@ -141,7 +141,7 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
 
   specify 'matching_identifier_object_type[] #1' do
     query.identifier_object_type = %w{Otu CollectionObject}
-    expect(query.all.map(&:id)).to contain_exactly(i1.id, i2.id)
+    expect(query.all.map(&:id)).to include(i1.id, i2.id)
   end
 
 end

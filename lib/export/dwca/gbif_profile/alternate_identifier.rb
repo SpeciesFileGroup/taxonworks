@@ -1,7 +1,7 @@
 # Alternate Identifiers extension class
 # Repository: http://rs.gbif.org/extension/gbif/1.0/identifier.xml
 
-module Dwca::GbifProfile
+module Export::Dwca::GbifProfile
 
   class AlternateIdentifier
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)

@@ -21,12 +21,39 @@
         v-model="isLocked"
       />
     </div>
+    <div
+      class="horizontal-left-content margin-medium-top gap-small"
+      :class="!source && 'margin-medium-bottom'"
+    >
+      <VBtn
+        v-if="submitButton"
+        :color="submitButton.color"
+        :disabled="!citation.source_id"
+        medium
+        @click="emit('submit', citation)"
+      >
+        {{ submitButton.label }}
+      </VBtn>
+      <VBtn
+        v-if="citation.id"
+        color="primary"
+        medium
+        @click="() => (citation = makeCitation())"
+      >
+        New
+      </VBtn>
+      <FormCitationClone
+        v-if="!inlineClone"
+        @clone="(item) => Object.assign(citation, item)"
+      />
+      <slot name="footer" />
+    </div>
     <SmartSelectorItem
       :item="source"
       label="cached"
       @unset="setSource({})"
     />
-    <div class="margin-medium-bottom margin-medium-top">
+    <div>
       <ul class="context-menu no_bullets">
         <li>
           <input
@@ -63,23 +90,6 @@
           </label>
         </li>
       </ul>
-    </div>
-    <div class="horizontal-left-content">
-      <VBtn
-        v-if="submitButton"
-        class="margin-small-right"
-        :color="submitButton.color"
-        :disabled="!citation.source_id"
-        medium
-        @click="emit('submit', citation)"
-      >
-        {{ submitButton.label }}
-      </VBtn>
-      <FormCitationClone
-        v-if="!inlineClone"
-        @clone="(item) => Object.assign(citation, item)"
-      />
-      <slot name="footer" />
     </div>
   </fieldset>
 </template>
@@ -182,7 +192,7 @@ watch(sourceId, async (newId, oldId) => {
   if (newId) {
     if (newId !== oldId && newId !== source.value?.id) {
       source.value = (await Source.find(newId)).body
-      citation.value._label = source.value.cached
+      citation.value.label = source.value.cached
     }
   } else {
     source.value = undefined
@@ -208,7 +218,7 @@ function setSource(value) {
     sessionStorage.setItem(STORAGE.sourceId, value.id)
   }
   citation.value.source_id = value.id
-  citation.value._label = value.cached
+  citation.value.label = value.cached
 
   emit('source', value)
 }

@@ -130,6 +130,22 @@ class UsersController < ApplicationController
     redirect_to hub_path and return if @user.nil?
   end
 
+  def reset_preferences
+    @user = sessions_current_user
+    redirect_to hub_path and return if @user.nil?
+    @user.reset_preferences
+    @user.save!
+    redirect_to user_path(@user)
+  end
+
+  def reset_hub_favorites
+    @user = sessions_current_user
+    redirect_to hub_path and return if @user.nil?
+    @user.reset_hub_favorites(sessions_current_project_id)
+    @user.save!
+    redirect_to user_path(@user)
+  end
+
   def autocomplete
     @users = Queries::User::Autocomplete.new(params.require(:term)).autocomplete
   end
@@ -167,7 +183,7 @@ class UsersController < ApplicationController
   def set_user
     own_id = (params[:id].to_i == sessions_current_user_id)
 
-    @user = User.find((is_superuser? || own_id) ? params[:id] : nil)
+    @user = User.find((is_administrator? || own_id) ? params[:id] : nil)
     @recent_object = @user
   end
 

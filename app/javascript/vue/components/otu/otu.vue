@@ -57,7 +57,7 @@
 
 <script>
 import Modal from '@/components/ui/Modal.vue'
-import Spinner from '@/components/spinner.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
 import OtuRadial from '@/components/radials/object/radial'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -135,10 +135,12 @@ export default {
           this.loaded = true
         })
       } else {
-        TaxonName.otus(this.objectId).then((response) => {
-          this.loaded = true
-          this.list = response.body
-        })
+        TaxonName.otus(this.objectId)
+          .then((response) => {
+            this.loaded = true
+            this.list = response.body
+          })
+          .catch(() => {})
       }
     },
 

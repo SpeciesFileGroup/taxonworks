@@ -228,7 +228,7 @@ module Queries::Concerns::DataAttributes
       a = data_attribute_table[:value].matches_any(v)
     end
 
-    b = data_attribute_table[:value].eq_any(data_attribute_exact_value) if data_attribute_exact_value.present?
+    b = data_attribute_table[:value].in(data_attribute_exact_value) if data_attribute_exact_value.present?
 
     q = referenced_klass.joins(:internal_attributes)
 
@@ -253,7 +253,7 @@ module Queries::Concerns::DataAttributes
       a = data_attribute_table[:value].matches_any(v)
     end
 
-    b = data_attribute_table[:value].eq_any(data_attribute_import_exact_value) if data_attribute_import_exact_value.present?
+    b = data_attribute_table[:value].in(data_attribute_import_exact_value) if data_attribute_import_exact_value.present?
 
     q = referenced_klass.joins(:import_attributes)
 

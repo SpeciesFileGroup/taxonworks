@@ -28,6 +28,68 @@ class InternalAttribute < DataAttribute
     end
   end
 
+  # @params attribute_scope a Query::X::Filter instance
+  #   that is NOT Query::DataAttribute::Filter
+  def self.update_value(attribute_scope, controlled_vocabulary_term_id, value_from, value_to)
+    return false if controlled_vocabulary_term_id.nil? || value_from.nil? || value_to.nil?
+    b = ::Queries::DataAttribute::Filter.new(
+      attribute_scope.query_name.to_sym => attribute_scope.params,
+      controlled_vocabulary_term_id:,
+      value: value_from,
+    )
+
+
+    b.all.update_all(value: value_to)
+  end
+
+  # Add attributes to the objects in the filter that do not have them
+  #
+  # @return attribute_scope a Filter instance
+  def self.add_value(attribute_scope, controlled_vocabulary_term_id, value_to)
+    return false if controlled_vocabulary_term_id.nil? || value_to.nil?
+
+    # with (not these)
+    a = attribute_scope.all.joins(:internal_attributes).where(
+      data_attributes: {
+        value: value_to,
+        controlled_vocabulary_term_id:
+      })
+
+    s = 'WITH query_with_ia AS (' + a.to_sql + ') ' +
+      attribute_scope.referenced_klass
+      .joins("LEFT JOIN query_with_ia as query_with_ia1 ON query_with_ia1.id = #{attribute_scope.table.name}.id")
+      .where("query_with_ia1.id is null")
+      .to_sql
+
+    b = attribute_scope.referenced_klass.from('(' + s + ") as #{attribute_scope.table.name}").distinct
+
+
+    InternalAttribute.transaction do
+      b.each do |o|
+        ::InternalAttribute.create!(
+          controlled_vocabulary_term_id:,
+          value: value_to,
+          attribute_subject: o)
+      end
+    end
+
+  end
+
+  # <some_object>_query={}&value_from=123&value_to=456&predicate_id=890
+
+  def self.batch_update_or_create(params)
+    a = Queries::Query::Filter.base_filter(params)
+
+    b = a.new(params)
+
+    transaction do
+      update_value(b, params[:predicate_id], params[:value_from], params[:value_to])
+      add_value(b, params[:predicate_id], params[:value_to])
+    end
+
+    true
+  end
+
   def self.batch_create(params)
     ids = params[:attribute_subject_id]
     params.delete(:attribute_subject_id)
@@ -48,5 +110,4 @@ class InternalAttribute < DataAttribute
     end
     internal_attributes
   end
-
 end

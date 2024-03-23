@@ -24,12 +24,15 @@
         v-hotkey="shortcuts"
         class="align-start gap-medium"
       >
-        <div class="item">
+        <div class="full_width">
           <name-section
             class="separate-bottom"
             v-if="!taxon"
           />
-          <metadata-section class="separate-bottom" />
+          <metadata-section
+            v-if="taxon"
+            class="separate-bottom"
+          />
           <type-material-section class="separate-bottom" />
         </div>
         <div
@@ -52,7 +55,7 @@ import nameSection from './components/nameSection.vue'
 import typeMaterialSection from './components/typeMaterial.vue'
 import metadataSection from './components/metadataSection.vue'
 import typeBox from './components/typeBox.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
 import setParamsId from '@/helpers/setParam.js'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -192,10 +195,10 @@ export default {
 </script>
 <style lang="scss">
 #vue_type_specimens {
-  flex-direction: column-reverse;
   margin: 0 auto;
   margin-top: 1em;
   max-width: 1240px;
+  width: 1240px;
 
   .cleft,
   .cright {

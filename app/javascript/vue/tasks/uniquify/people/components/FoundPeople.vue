@@ -65,10 +65,10 @@
               </td>
               <td>
                 <span class="feedback feedback-thin feedback-primary">{{
-                  person.roles ? person.roles.length : 0
+                  person?.roles?.length ?? countUses(person)
                 }}</span>
               </td>
-              <td>{{ getRoles(person) }}</td>
+              <td>{{ getRoleNames(person) }}</td>
             </tr>
           </template>
         </tbody>
@@ -81,8 +81,9 @@ import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import { MutationNames } from '../store/mutations/mutations'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
-import DefaultPin from '@/components/getDefaultPin.vue'
-import getRoles from '../utils/getRoles'
+import DefaultPin from '@/components/ui/Button/ButtonPinned.vue'
+import getRoleNames from '../utils/getRoleNames'
+import countUses from '../utils/countUses'
 
 export default {
   components: {
@@ -126,7 +127,9 @@ export default {
       return value || '?'
     },
 
-    getRoles
+    getRoleNames,
+
+    countUses
   }
 }
 </script>

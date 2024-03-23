@@ -20,18 +20,20 @@ module Export
       '2022-01-21 16:30:00.000000 -0500',    # basisOfRecord can now be FossilSpecimen; occurrenceId exporting; adds redundant time fields
       '2022-03-31 16:30:00.000000 -0500',    # collectionCode, occurrenceRemarks and various small fixes
       '2022-04-28 16:30:00.000000 -0500',    # add dwcOccurrenceStatus
-      '2022-09-28 16:30:00.000000 -0500',     # add phylum, class, order, higherClassification
-      '2023-04-03 16:30:00.000000 -0500'     # add associatedTaxa; updating InternalAttributes is now reflected in index
+      '2022-09-28 16:30:00.000000 -0500',    # add phylum, class, order, higherClassification
+      '2023-04-03 16:30:00.000000 -0500',    # add associatedTaxa; updating InternalAttributes is now reflected in index
+      '2023-12-14 16:30:00.000000 -0500',    # add verbatimLabel
+      '2023-12-21 11:00:00.000000 -0500'     # add caste (via biocuration), identificationRemarks
     ].freeze
 
     # @param record_scope [ActiveRecord::Relation]
     #   a relation that returns DwcOccurrence records
-    # @param predicate_extension_params Hash
+    # @param predicate_extensions Hash
     #    keys as _symbols_ => Array of Predicate ids
     #    valid values are collecting_event_predicate_id: [], collection_object_predicate_id
     # @return [Download]
     #   the download object containing the archive
-    def self.download_async(record_scope, request = nil, predicate_extension_params: {})
+    def self.download_async(record_scope, request = nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: {})
       name = "dwc-a_#{DateTime.now}.zip"
 
       download = ::Download::DwcArchive.create!(
@@ -44,14 +46,20 @@ module Export
       )
 
       # Note we pass a string with the record scope
-      ::DwcaCreateDownloadJob.perform_later(download, core_scope: record_scope.to_sql, predicate_extension_params:)
+      ::DwcaCreateDownloadJob.perform_later(
+        download,
+        core_scope: record_scope.to_sql,
+        extension_scopes:,
+        predicate_extensions:,
+        taxonworks_extensions:,
+      )
 
       download
     end
 
-    # @param klass [ActiveRecord class]
+    # @param klass [Class] [ActiveRecord class]
     #   e.g. CollectionObject
-    # @param record_scope [An ActiveRecord scope]
+    # @param record_scope [ActiveRecord::Relation] [An ActiveRecord scope]
     # @return Hash
     #   total: total records to expect
     #   start_time: the time indexing started
@@ -60,21 +68,22 @@ module Export
     # When we re-index a large set of data then we run it in the background.
     # To determine when it is done we poll by the last record to be indexed.
     #
-    def self.build_index_async(klass, record_scope, predicate_extension_params: {} )
+    def self.build_index_async(klass, record_scope, predicate_extensions: {} )
       s = record_scope.order(:id)
       ::DwcaCreateIndexJob.perform_later(klass.to_s, sql_scope: s.to_sql)
       index_metadata(klass, s)
     end
 
+    # @return [Hash{Symbol=>Integer, Time, Array}]
     def self.index_metadata(klass, record_scope)
-      a = record_scope.first&.to_global_id&.to_s
-      b = record_scope.last&.to_global_id&.to_s
+      a = record_scope.first&.to_global_id&.to_s  # TODO: this should be UUID?
+      b = record_scope.last&.to_global_id&.to_s # TODO: this should be UUID?
 
       t = record_scope.size # was having problems with count
 
       metadata = {
         total: t,
-        start_time: Time.now,
+        start_time: Time.zone.now,
         sample: [a, b].compact
       }
 

@@ -1,5 +1,6 @@
 <template>
   <div class="depiction_annotator">
+    <VSpinner v-if="isLoading" />
     <div
       class="field"
       v-if="depiction"
@@ -41,7 +42,7 @@
         <h4>Move to</h4>
         <ul class="no_bullets">
           <li
-            v-for="type in objectTypes"
+            v-for="type in OBJECT_TYPES"
             :key="type.value"
           >
             <label>
@@ -66,13 +67,13 @@
             label="label_html"
             :placeholder="`Select a ${selectedType.label.toLowerCase()}`"
             :clear-after="true"
-            @getItem="selectedObject = $event"
+            @get-item="(item) => (selectedObject = item)"
             param="term"
           />
           <otu-picker
             v-else
             :clear-after="true"
-            @getItem="selectedObject = $event"
+            @get-item="(otu) => (selectedObject = otu)"
           />
         </div>
         <div
@@ -105,7 +106,7 @@
       </div>
     </div>
     <div v-else>
-      <smart-selector
+      <SmartSelector
         model="images"
         :autocomplete="false"
         :search="false"
@@ -119,15 +120,23 @@
             class="dropzone-card separate-bottom"
             @vdropzone-sending="sending"
             @vdropzone-success="success"
-            ref="figure"
+            ref="figureRef"
             url="/depictions"
             :use-custom-dropzone-options="true"
-            :dropzone-options="dropzone"
+            :dropzone-options="DROPZONE_CONFIG"
           />
         </template>
         <template #filter>
-          <div class="horizontal-left-content align-start">
-            <FilterImage @parameters="loadList" />
+          <div class="horizontal-left-content align-start gap-medium">
+            <div class="flex-wrap-column gap-medium filter-tab">
+              <VBtn
+                color="primary"
+                medium
+                @click="() => loadList(parameters)"
+                >Search</VBtn
+              >
+              <FilterImage v-model="parameters" />
+            </div>
             <div class="margin-small-left flex-wrap-row">
               <div
                 v-for="image in filterList"
@@ -144,7 +153,7 @@
             </div>
           </div>
         </template>
-      </smart-selector>
+      </SmartSelector>
       <label>
         <input
           type="checkbox"
@@ -163,162 +172,179 @@
     </div>
   </div>
 </template>
-<script>
-import CRUD from '../../request/crud.js'
+
+<script setup>
 import Dropzone from '@/components/dropzone.vue'
-import annotatorExtend from '../../components/annotatorExtend.js'
 import Autocomplete from '@/components/ui/Autocomplete'
 import OtuPicker from '@/components/otu/otu_picker/otu_picker'
-import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import FilterImage from '@/tasks/images/filter/components/filter'
 import SmartSelector from '@/components/ui/SmartSelector'
 import DepictionList from './DepictionList.vue'
-import { addToArray } from '@/helpers/arrays'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import { useSlice } from '@/components/radials/composables'
 import { Depiction, Image } from '@/routes/endpoints'
+import { computed, ref } from 'vue'
 
-export default {
-  mixins: [CRUD, annotatorExtend],
-
-  components: {
-    Dropzone,
-    Autocomplete,
-    FilterImage,
-    OtuPicker,
-    SmartSelector,
-    DepictionList
+const DROPZONE_CONFIG = {
+  paramName: 'depiction[image_attributes][image_file]',
+  url: '/depictions',
+  headers: {
+    'X-CSRF-Token': document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute('content')
   },
-
-  computed: {
-    updateObjectType() {
-      return this.selectedObject && this.selectedType
-    }
-  },
-
-  data() {
-    return {
-      depiction: undefined,
-      dropzone: {
-        paramName: 'depiction[image_attributes][image_file]',
-        url: '/depictions',
-        headers: {
-          'X-CSRF-Token': document
-            .querySelector('meta[name="csrf-token"]')
-            .getAttribute('content')
-        },
-        dictDefaultMessage: 'Drop images here to add figures',
-        acceptedFiles: 'image/*,.heic'
-      },
-      objectTypes: [
-        {
-          value: 'Otu',
-          label: 'Otu',
-          url: '/otus/autocomplete'
-        },
-        {
-          value: 'CollectingEvent',
-          label: 'Collecting event',
-          url: '/collecting_events/autocomplete'
-        },
-        {
-          value: 'CollectionObject',
-          label: 'Collection object',
-          url: '/collection_objects/autocomplete'
-        },
-        {
-          value: 'TaxonName',
-          label: 'Taxon name',
-          url: '/taxon_names/autocomplete'
-        },
-        {
-          value: 'Person',
-          label: 'Person',
-          url: '/people/autocomplete'
-        }
-      ],
-      isDataDepiction: false,
-      selectedType: undefined,
-      selectedObject: undefined,
-      filterList: []
-    }
-  },
-
-  mounted() {
-    this.$options.components.RadialAnnotator = RadialAnnotator
-  },
-
-  methods: {
-    success(file, response) {
-      this.list.push(response)
-      this.$refs.figure.removeFile(file)
-    },
-
-    sending(file, xhr, formData) {
-      formData.append(
-        'depiction[annotated_global_entity]',
-        decodeURIComponent(this.globalId)
-      )
-      formData.append('depiction[is_metadata_depiction]', this.isDataDepiction)
-    },
-
-    updateFigure() {
-      if (this.updateObjectType) {
-        this.depiction.depiction_object_type = this.selectedType.value
-        this.depiction.depiction_object_id = this.selectedObject.id
-      }
-
-      Depiction.update(this.depiction.id, { depiction: this.depiction }).then(
-        (response) => {
-          const index = this.list.findIndex(
-            (element) => this.depiction.id === element.id
-          )
-
-          if (this.updateObjectType) {
-            this.list.splice(index, 1)
-          } else {
-            this.list[index] = response.body
-          }
-          this.depiction = undefined
-
-          TW.workbench.alert.create(
-            'Depiction was successfully updated.',
-            'notice'
-          )
-        }
-      )
-    },
-
-    updateDepiction(depiction) {
-      Depiction.update(depiction.id, { depiction }).then(({ body }) => {
-        addToArray(this.list, body)
-
-        TW.workbench.alert.create(
-          'Depiction was successfully updated.',
-          'notice'
-        )
-      })
-    },
-
-    createDepiction(image) {
-      const depiction = {
-        image_id: image.id,
-        annotated_global_entity: this.globalId,
-        is_metadata_depiction: this.isDataDepiction
-      }
-
-      Depiction.create({ depiction }).then(({ body }) => {
-        this.list.push(body)
-        TW.workbench.alert.create(
-          'Depiction was successfully created.',
-          'notice'
-        )
-      })
-    },
-
-    loadList(params) {
-      Image.filter(params).then(({ body }) => {
-        this.filterList = body
-      })
-    }
-  }
+  dictDefaultMessage: 'Drop images here to add figures',
+  acceptedFiles: 'image/*,.heic'
 }
+
+const OBJECT_TYPES = [
+  {
+    value: 'Otu',
+    label: 'Otu',
+    url: '/otus/autocomplete'
+  },
+  {
+    value: 'CollectingEvent',
+    label: 'Collecting event',
+    url: '/collecting_events/autocomplete'
+  },
+  {
+    value: 'CollectionObject',
+    label: 'Collection object',
+    url: '/collection_objects/autocomplete'
+  },
+  {
+    value: 'TaxonName',
+    label: 'Taxon name',
+    url: '/taxon_names/autocomplete'
+  },
+  {
+    value: 'Person',
+    label: 'Person',
+    url: '/people/autocomplete'
+  }
+]
+
+const props = defineProps({
+  globalId: {
+    type: String,
+    required: true
+  },
+
+  objectType: {
+    type: String,
+    required: true
+  },
+
+  objectId: {
+    type: Number,
+    required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
+  }
+})
+
+const parameters = ref({})
+const depiction = ref()
+const isDataDepiction = ref(false)
+const selectedType = ref()
+const selectedObject = ref()
+const filterList = ref([])
+const figureRef = ref(null)
+const isLoading = ref(false)
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
+
+const updateObjectType = computed(
+  () => selectedObject.value && selectedType.value
+)
+
+function success(file, response) {
+  addToList(response)
+  figureRef.value.removeFile(file)
+}
+
+function sending(file, xhr, formData) {
+  formData.append(
+    'depiction[annotated_global_entity]',
+    decodeURIComponent(props.globalId)
+  )
+  formData.append('depiction[is_metadata_depiction]', isDataDepiction.value)
+}
+
+function updateFigure() {
+  if (updateObjectType.value) {
+    depiction.value.depiction_object_type = selectedType.value.value
+    depiction.value.depiction_object_id = selectedObject.value.id
+  }
+
+  Depiction.update(depiction.value.id, { depiction: depiction.value }).then(
+    ({ body }) => {
+      if (updateObjectType.value) {
+        removeFromList(body)
+      } else {
+        addToList(body)
+      }
+      depiction.value = undefined
+
+      TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
+    }
+  )
+}
+
+function updateDepiction(depiction) {
+  Depiction.update(depiction.id, { depiction }).then(({ body }) => {
+    addToList(body)
+
+    TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
+  })
+}
+
+function createDepiction(image) {
+  const depiction = {
+    image_id: image.id,
+    annotated_global_entity: props.globalId,
+    is_metadata_depiction: isDataDepiction.value
+  }
+
+  Depiction.create({ depiction }).then(({ body }) => {
+    addToList(body)
+    TW.workbench.alert.create('Depiction was successfully created.', 'notice')
+  })
+}
+
+function loadList(params) {
+  isLoading.value = true
+  Image.filter(params)
+    .then(({ body }) => {
+      filterList.value = body
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
+}
+
+function removeItem(item) {
+  Depiction.destroy(item.id).then((_) => {
+    removeFromList(item)
+  })
+}
+
+Depiction.where({
+  depiction_object_id: props.objectId,
+  depiction_object_type: props.objectType
+}).then(({ body }) => {
+  list.value = body
+})
 </script>
+
+<style scoped>
+.filter-tab {
+  width: 400px;
+}
+</style>

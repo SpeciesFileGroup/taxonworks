@@ -1,4 +1,4 @@
-module Utilities::Csv
+module Utilities::CSV
 
   # A dirt simple CSV dump to STDOUT, tab separators. Takes an
   # array of AR instances.

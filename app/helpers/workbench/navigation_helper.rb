@@ -9,12 +9,22 @@ module Workbench::NavigationHelper
 
   NOT_DATA_PATHS = %w{/project /administration /user}.freeze
 
+  def class_navigation_json(klass)
+    k = klass
+    return {
+     klass: k, 
+     id: k.tableize.singularize + '_id',
+     tasks: OBJECT_RADIALS[k]['tasks'].inject({}){|hsh, t| hsh[t] = send(t + '_path'); hsh },
+     base: %w{new edit home}.inject({}){|hsh, t| hsh[t] = ( t.blank? ? nil : send(OBJECT_RADIALS[k][t] + '_path')) ; hsh }
+   }
+  end
+
   # Slideout panels
   def slideouts
     if sessions_current_project && sessions_signed_in? && on_workbench?
       [ slideout_pinboard,
-      slideout_pdf_viewer,
-      slideout_clipboard ].join.html_safe
+        slideout_pdf_viewer,
+        slideout_clipboard ].join.html_safe
     end
   end
 
@@ -120,7 +130,12 @@ module Workbench::NavigationHelper
   end
 
   def download_path_for_model(model)
-    send("download_#{model.name.tableize}_path")
+    if model.name == 'Documentation'
+      # some weirdness with ninflections
+      download_documentation_index_path
+    else
+      send("download_#{model.name.tableize}_path")
+    end
   end
 
   def object_link(object)
@@ -238,7 +253,7 @@ module Workbench::NavigationHelper
   end
 
   def radial_navigation_tag(object)
-    content_tag(:span, '', data: { 'global-id' => object.to_global_id.to_s, 'radial-object' => 'true'})
+    content_tag(:span, '', data: { 'global-id': object.to_global_id.to_s, 'radial-navigation': 'true'})
   end
 
   # If a "home" is provided, use it instead of show link

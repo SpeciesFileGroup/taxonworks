@@ -20,16 +20,22 @@
           :parameters="parameters"
           :disabled="!list.length"
           :object-type="OTU"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #nav-right>
-        <div class="horizontal-right-content">
-          <RadialMatrix
-            :object-type="OTU"
-            :disabled="!list.length"
-            :ids="selectedIds"
-          />
-        </div>
+        <RadialMatrix
+          :object-type="OTU"
+          :disabled="!list.length"
+          :ids="selectedIds"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+        />
+        <RadialOtu
+          :disabled="!list.length"
+          :ids="selectedIds"
+          :count="selectedIds.length"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+        />
       </template>
       <template #facets>
         <FilterView v-model="parameters" />
@@ -41,6 +47,7 @@
           v-model="selectedIds"
           radial-object
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>
@@ -59,7 +66,8 @@ import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
-import VSpinner from '@/components/spinner.vue'
+import RadialOtu from '@/components/radials/otu/radial.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
 import { OTU } from '@/constants/index.js'

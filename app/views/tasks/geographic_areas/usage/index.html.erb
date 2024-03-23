@@ -1,5 +1,6 @@
-
 <h1> Geographic area usage </h2>
+
+<b> Experimental debug, see all debug geographic item for a more polished view. </b>
 
 <h3> Unique use </h3>
 CollectingEvent:  <%= a = @geographic_areas.joins(:collecting_events).where(collecting_events: {project_id: sessions_current_project_id}).distinct.count %><br/>
@@ -50,27 +51,12 @@ AssertedDistribution: <% a = GeographicArea.inferred_as_country.joins(:asserted_
   <h3> CachedMap::Level1 Translations </h3>
   <h4> By spatial overlap </h4>
 
-  <% a, debug = CachedMap.translate_by_spatial_overlap(@geographic_item.id, CachedMapItem::WebLevel1::SOURCE_GAZETEERS, 50.0) %>
+  <% a = CachedMapItem.translate_by_spatial_overlap(@geographic_item.id, CachedMapItem::WebLevel1::SOURCE_GAZETEERS, 50.0) %>
   <%= tag.div('untranslated', class: [:feedback, 'feedback-danger', 'feedback-narrow'] ) if a.blank? %>
 
   <% a.each do |b| %>
     <%= b %> - <%= GeographicItem.find(b).geographic_areas.collect{|c| geographic_area_link(c).html_safe}.join('; ').html_safe %><br/>
   <% end %>
-
- <table>
-    <tr>
-      <th>GeographicAreas</th>
-      <th>% intersection </th>
-      <th></th>
-      <th>geographic item id</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-    <% debug.each do |r| %>
-      <tr> <%= tag.td GeographicItem.find(r[2]).geographic_areas.collect{|ga| geographic_area_link(ga)}.join('; ').html_safe %> <%= r.collect{|c| tag.td(c) }.join.html_safe %> </tr>
-    <% end %>
-  </table>
 
 <% end %>
 

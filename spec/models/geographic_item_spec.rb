@@ -5,8 +5,47 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
   let(:geographic_item) { GeographicItem.new }
 
-  context 'using ce_test_objects' do
+  let(:geo_json) {
+    '{
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10, 10]
+      },
+      "properties": {
+        "name": "Sample Point",
+        "description": "This is a sample point feature."
+      }
+    }'
+  }
 
+  let(:geo_json2) {
+    '{
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20, 20]
+      },
+      "properties": {
+        "name": "Sample Point",
+        "description": "This is a sample point feature."
+      }
+    }'
+  }
+
+  specify '#shape=' do
+    g = GeographicItem.new(shape: geo_json)
+    expect(g.save).to be_truthy
+  end
+
+  specify '#shape=' do
+    g = GeographicItem.create!(shape: geo_json)
+    g.update(shape: geo_json2)
+    expect(g.reload.geo_object.to_s).to match(/20/)
+  end
+
+
+  context 'using ce_test_objects' do
     let(:geographic_item) { FactoryBot.build(:geographic_item) }
     let(:geographic_item_with_point_a) { FactoryBot.build(:geographic_item_with_point_a) }
     let(:geographic_item_with_point_b) { FactoryBot.build(:geographic_item_with_point_b) }
@@ -118,6 +157,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
   end
 =end
+
 
     # TODO: remove, redundant with single Factory use
     specify 'Two different object types share the same factory.' do

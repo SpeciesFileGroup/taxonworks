@@ -92,6 +92,12 @@ namespace :api, defaults: {format: :json} do
       get '/collection_objects/:id/dwc', to: '/collection_objects#api_dwc'
       get '/collection_objects/:id', to: '/collection_objects#api_show'
 
+      get '/common_names', to: '/common_names#api_index'
+      get '/common_names/:id', to: '/common_names#api_show'
+
+      get '/biological_associations/:id/resource_relationship', to: '/biological_associations#api_resource_relationship'
+      get '/biological_associations/:id/globi', to: '/biological_associations#api_globi'
+      get '/biological_associations/simple', to: '/biological_associations#api_index_simple'
       get '/biological_associations', to: '/biological_associations#api_index'
       get '/biological_associations/:id', to: '/biological_associations#api_show'
 
@@ -124,9 +130,11 @@ namespace :api, defaults: {format: :json} do
       get '/observation_matrices', to: '/observation_matrices#api_index'
       get '/observation_matrices/:id', to: '/observation_matrices#api_show'
 
+
       get '/images', to: '/images#api_index'
       get '/images/:id/file', to: '/images#api_file', as: :image_file
       get '/images/:id', to: '/images#api_show'
+      get '/images/:id/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', to: '/images#api_scale_to_box'
 
       get '/tags', to: '/tags#api_index'
       get '/tags/:id', to: '/tags#api_show'

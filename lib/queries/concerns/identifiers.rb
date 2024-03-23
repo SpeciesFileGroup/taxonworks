@@ -87,6 +87,10 @@ module Queries::Concerns::Identifiers
     # Limit to this namespace
     attr_accessor :namespace_id
 
+    # Globally turn off (in crude manner) use of this concern.  Set in individual filters,
+    # e.g. SqedDepictoin
+    attr_accessor :no_identifier_clauses
+
     def identifier_start
       @identifier_start.to_s
     end
@@ -276,7 +280,6 @@ module Queries::Concerns::Identifiers
     a
   end
 
-
   # TODO: Simplify local/global copy-pasta
   def global_identifiers_facet
     return nil if global_identifiers.nil?
@@ -328,7 +331,7 @@ module Queries::Concerns::Identifiers
   def identifier_type_facet
     return nil if identifier_type.empty?
     q = referenced_klass.joins(:identifiers)
-    w = identifier_table[:type].eq_any(identifier_type)
+    w = identifier_table[:type].in(identifier_type)
     a = q.where(w)
 
     a = referenced_klass_union([a, identifier_type_container_match ]) if referenced_klass.is_containable?

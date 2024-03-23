@@ -143,8 +143,9 @@ class Protonym < TaxonName
   scope :is_original_name, -> { where("cached_author_year NOT ILIKE '(%'") }
   scope :is_not_original_name, -> { where("cached_author_year ILIKE '(%'") }
 
+  # Deprecated, moved to TaxonName.  Combinations are rankless, but we need generic sort at TaxonName level
   # Protonym.order_by_rank(RANKS) or Protonym.order_by_rank(ICZN)
-  scope :order_by_rank, -> (code) {order(Arel.sql("position(taxon_names.rank_class in '#{code}')"))}
+  # scope :order_by_rank, -> (code) {order(Arel.sql("position(taxon_names.rank_class in '#{code}')"))}
 
   # @return [Protonym]
   #   a name ready to become the root
@@ -165,26 +166,22 @@ class Protonym < TaxonName
     end
   end
 
-  # @param rank ['speciesgroup' or 'genusgroup' or 'family']
+  # @param rank full String to match rank_class, like '%genusgroup%' or '%::Family'
   #    scope to names used in taxon determinations
-  def self.names_at_rank_group_for_collection_objects(rank = 'speciesgroup')
-    h = ::TaxonNameHierarchy.arel_table
-    t = ::TaxonName.arel_table
-    t1 = ::TaxonName.arel_table.alias('tndet')
-    d = ::TaxonDetermination.arel_table
-    o = ::Otu.arel_table
+  #  !! Ensure collection_object_query is scoped to project
+  def self.names_at_rank_group_for_collection_objects(rank: nil, collection_object_query: nil)
 
-    q = t.join(h, Arel::Nodes::InnerJoin).on(
-      t[:id].eq(h[:ancestor_id])
-    ).join(t1, Arel::Nodes::InnerJoin).on(
-      h[:descendant_id].eq(t1[:id])
-    ).join(o, Arel::Nodes::InnerJoin).on(
-      t1[:id].eq(o[:id])
-    ).join(d, Arel::Nodes::InnerJoin).on(
-      o[:id].eq(d[:otu_id])
-    )
+    # Find all the names for the objects in question
+    names = ::Queries::TaxonName::Filter.new(collection_object_query:).all
 
-    joins(q.join_sources).where(t[:rank_class].matches('%' + rank + '%').to_sql).distinct
+    s = 'WITH q_co_names AS (' + names.distinct.all.to_sql + ') ' +
+      ::Protonym
+      .joins('JOIN taxon_name_hierarchies tnh on tnh.ancestor_id = taxon_names.id')
+      .joins('JOIN q_co_names as q_co1 on q_co1.id = tnh.descendant_id')
+      .where('taxon_names.rank_class ilike ?', rank)
+      .to_sql
+
+    ::Protonym.from('(' + s + ') as taxon_names').distinct
   end
 
   # A convenience method to make this
@@ -562,31 +559,31 @@ class Protonym < TaxonName
       n = n[0..-5] + 'ana' if n =~ /^[a-z]*iana$/ # -iana > -ana
       n = n.gsub('ae', 'e') if n =~ /^[a-z]*ae[a-z]+$/ # -ae-
       n = n.gsub('oe', 'e').
-            gsub('ai', 'i').
-            gsub('ei', 'i').
-            gsub('ej', 'i').
-            gsub('ii', 'i').
-            gsub('ij', 'i').
-            gsub('jj', 'i').
-            gsub('j', 'i').
-            gsub('y', 'i').
-            gsub('v', 'u').
-            gsub('rh', 'r').
-            gsub('th', 't').
-            gsub('k', 'c').
-            gsub('ch', 'c').
-            gsub('tt', 't').
-            gsub('bb', 'b').
-            gsub('rr', 'r').
-            gsub('nn', 'n').
-            gsub('mm', 'm').
-            gsub('pp', 'p').
-            gsub('ss', 's').
-            gsub('ff', 'f').
-            gsub('ll', 'l').
-            gsub('ct', 't').
-            gsub('ph', 'f').
-            gsub('-', '')
+        gsub('ai', 'i').
+        gsub('ei', 'i').
+        gsub('ej', 'i').
+        gsub('ii', 'i').
+        gsub('ij', 'i').
+        gsub('jj', 'i').
+        gsub('j', 'i').
+        gsub('y', 'i').
+        gsub('v', 'u').
+        gsub('rh', 'r').
+        gsub('th', 't').
+        gsub('k', 'c').
+        gsub('ch', 'c').
+        gsub('tt', 't').
+        gsub('bb', 'b').
+        gsub('rr', 'r').
+        gsub('nn', 'n').
+        gsub('mm', 'm').
+        gsub('pp', 'p').
+        gsub('ss', 's').
+        gsub('ff', 'f').
+        gsub('ll', 'l').
+        gsub('ct', 't').
+        gsub('ph', 'f').
+        gsub('-', '')
       n = n[0, 3] + n[3..-4].gsub('o', 'i') + n[-3, 3] if n.length > 6 # connecting vowel in the middle of the word (nigrocinctus vs. nigricinctus)
     elsif rank_string =~ /Family/
       n_base = Protonym.family_group_base(self.name)
@@ -775,8 +772,10 @@ class Protonym < TaxonName
 
   # @return [[rank_name, name], nil]
   #   Used in ColDP export
-  def original_combination_infraspecific_element(elements = nil)
+  def original_combination_infraspecific_element(elements = nil, remove_sic = false)
     elements ||= original_combination_elements
+
+    elements = elements.each { |r, e| e.delete('[sic]') } if remove_sic
 
     # TODO: consider plants/other codes?
     [:form, :variety, :subspecies].each do |r|
@@ -823,22 +822,13 @@ class Protonym < TaxonName
     )
   end
 
-  def set_cached_names_for_dependants
+  def set_cached_names_for_descendants
     dependants = []
-    related_through_original_combination_relationships = []
-    combination_relationships = []
 
     TaxonName.transaction_with_retry do
       if is_genus_or_species_rank?
         dependants = Protonym.unscoped.descendants_of(self).to_a
-        related_through_original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
-        combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
       end
-
-     #  dependants.push(self) # combination does hit here
-
-      # Combination can hit here
-      classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
 
       dependants.each do |i|
         n = i.get_full_name
@@ -856,6 +846,20 @@ class Protonym < TaxonName
 
         i.update_columns(columns_to_update)
       end
+    end
+  end
+
+  def set_cached_names_for_dependants
+    related_through_original_combination_relationships = []
+    combination_relationships = []
+
+    TaxonName.transaction_with_retry do
+      if is_genus_or_species_rank?
+        related_through_original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
+        combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
+      end
+
+      classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
 
       related_through_original_combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
         i.update_cached_original_combinations
@@ -895,6 +899,47 @@ class Protonym < TaxonName
   # @return [boolean]
   def nominotypical_sub_of?(protonym)
     is_genus_or_species_rank? && parent == protonym && parent.name == protonym.name
+  end
+
+  # @return [Hash]
+  def self.batch_move(params)
+    return false if params[:parent_id].blank?
+
+    a = Queries::TaxonName::Filter.new(params[:taxon_name_query]).all.where(type: 'Protonym')
+
+    return false if a.count == 0
+
+    moved = []
+    unmoved = []
+
+    begin
+      a.each do |o|
+        if o.update(parent_id: params[:parent_id] )
+          moved.push o
+        else
+          unmoved.push o
+        end
+      end
+    end
+
+    return { moved:, unmoved:}
+  end
+
+  # @params params [Hash]
+  #   { taxon_name_query: {},
+  #     taxon_name_filter_query: {},
+  #     async_cutoff: 1
+  #   }
+  def self.batch_update(params)
+    request = QueryBatchRequest.new(
+      async_cutoff: params[:async_cutoff] || 50,
+      klass: 'TaxonName',
+      object_filter_params: params[:taxon_name_query],
+      object_params: params[:taxon_name],
+      preview: params[:preview],
+    )
+
+    query_batch_update(request)
   end
 
   protected
@@ -985,10 +1030,10 @@ class Protonym < TaxonName
   def sv_cached_names # this cannot be moved to soft_validation_extensions
     is_cached = true
 
-    is_cached = false if cached_author_year != get_author_and_year
-    is_cached = false if cached_author != get_author
+  is_cached = false if cached_author_year != get_author_and_year
+  is_cached = false if cached_author != get_author
 
-    if is_cached && (
+  if is_cached && (
       cached_valid_taxon_name_id != get_valid_taxon_name.id ||
       cached_is_valid != !unavailable_or_invalid? || # Do not change this, we want the calculated value.
       cached_html != get_full_name_html ||
@@ -1001,23 +1046,28 @@ class Protonym < TaxonName
       rank_string =~ /Species/ &&
       (cached_secondary_homonym != get_genus_species(:current, :self) ||
        cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative)))
-      is_cached = false
-    end
+    is_cached = false
+  end
 
-    soft_validations.add(
-      :base, 'Cached values should be updated',
-      success_message: 'Cached values were updated',
-      failure_message:  'Failed to update cached values') if !is_cached
+  soft_validations.add(
+    :base, 'Cached values should be updated',
+    success_message: 'Cached values were updated',
+    failure_message:  'Failed to update cached values') if !is_cached
   end
 
   def set_cached
+    old_cached_html = cached_html.to_s
+    old_cached_author_year = cached_author_year.to_s
+
     super
-    set_cached_names_for_dependants
     set_cached_original_combination
     set_cached_original_combination_html
     set_cached_homonymy
     set_cached_species_homonym if is_species_rank?
     set_cached_misspelling
+    tn = TaxonName.find(id)
+    set_cached_names_for_descendants if tn.cached_html != old_cached_html
+    set_cached_names_for_dependants if tn.cached_html.to_s != old_cached_html || tn.cached_author_year.to_s != old_cached_author_year
   end
 
   def set_cached_homonymy
@@ -1039,4 +1089,4 @@ class Protonym < TaxonName
   def set_cached_original_combination_html
     update_column(:cached_original_combination_html, get_original_combination_html)
   end
-end
+  end

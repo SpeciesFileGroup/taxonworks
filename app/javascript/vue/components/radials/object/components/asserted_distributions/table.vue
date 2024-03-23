@@ -51,7 +51,7 @@
 
               <VBtn
                 circle
-                :color="softDelete ? 'primary' : 'destroy'"
+                color="destroy"
                 @click="deleteItem(item, index)"
               >
                 <VIcon
@@ -88,7 +88,7 @@ function deleteItem(item) {
       "You're trying to delete this record. Are you sure want to proceed?"
     )
   ) {
-    this.$emit('delete', item)
+    emit('delete', item)
   }
 }
 </script>

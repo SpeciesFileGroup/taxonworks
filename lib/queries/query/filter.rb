@@ -34,18 +34,23 @@ module Queries
     # app/javascript/vue/components/radials/linker/links
     #
     # This is read as  :to <- [:from1, from2...] ].
+    #
+    # !! If you add a `def <model>_query_facet`` to a filter you will get warnings if that
+    # !! model is not referencened in this constant.
+    #
     SUBQUERIES = {
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name],
-      biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name, :asserted_distribution],
+      biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name, :asserted_distribution], # :field_occurrence
       biological_associations_graph: [:biological_association, :source],
       collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name],
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
       content: [:source, :otu, :taxon_name, :image],
       controlled_vocabulary_term: [:data_attribute],
-      data_attribute: [:collection_object, :collecting_event, :taxon_name],
+      data_attribute: [:collection_object, :collecting_event, :taxon_name, :otu],
       dwc_occurrence: [:asserted_distribution, :collection_object],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
+      field_occurrence: [], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
       image: [:content, :collection_object, :collecting_event, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
       observation: [:collection_object, :descriptor, :image, :otu, :source, :taxon_name],
@@ -54,6 +59,14 @@ module Queries
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name],
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source ]
     }.freeze
+
+   def self.query_name
+     base_name + '_query'
+   end
+
+   def query_name
+     self.class.query_name
+   end
 
     # @return [Hash]
     #  only referenced in specs
@@ -86,6 +99,7 @@ module Queries
       descriptor_query: '::Queries::Descriptor::Filter',
       dwc_occurrence_query: '::Queries::DwcOccurrence::Filter',
       extract_query: '::Queries::Extract::Filter',
+      field_occurrence_query: '::Queries::FieldOccurrence::Filter',
       image_query: '::Queries::Image::Filter',
       loan_query: '::Queries::Loan::Filter',
       observation_query: '::Queries::Observation::Filter',
@@ -155,6 +169,9 @@ module Queries
     # @return [Query::Descriptor::Filter, nil]
     attr_accessor :descriptor_query
 
+    # @return [Query::TaxonName::Filter, nil]
+    attr_accessor :field_occurrence_query
+
     # @return [Query::Image::Filter, nil]
     attr_accessor :image_query
 
@@ -199,10 +216,10 @@ module Queries
       @recent = boolean_param(query_params, :recent)
       @object_global_id = query_params[:object_global_id]
 
-       # !! This is the *only* place Current.project_id should be seen !! It's still not the best
-       # way to implement this, but we use it to optimize the scope of sub/nested-queries efficiently.
-       # Ideally we'd have a global class param that stores this that all Filters would have access to,
-       # rather than an instance variable.
+      # !! This is the *only* place Current.project_id should be seen !! It's still not the best
+      # way to implement this, but we use it to optimize the scope of sub/nested-queries efficiently.
+      # Ideally we'd have a global class param that stores this that all Filters would have access to,
+      # rather than an instance variable.
       @project_id = query_params[:project_id] || Current.project_id
 
       @paginate = boolean_param(query_params, :paginate)
@@ -232,6 +249,24 @@ module Queries
 
     def project_id
       [@project_id].flatten.compact
+    end
+
+    # @params [Parameters]
+    # @return [Filter, nil]
+    #    the class of filter that is referenced at the base of this parameter set
+    def self.base_filter(params)
+      s = params.keys.select{|s| s =~ /\A.+_query\z/}.first
+
+      return nil if s.nil?
+
+      t = s.gsub('_query', '').to_sym
+
+      if SUBQUERIES.include?(t)
+        k = t.to_s.camelcase
+        return "Queries::#{k}::Filter".constantize
+      else
+        return nil
+      end
     end
 
     def self.included_annotator_facets
@@ -411,9 +446,11 @@ module Queries
     # @params params [Hash]
     #   set all nested queries variables, e.g. @otu_filter_query
     # @return True
+    # TODO: when a nesting problem is found we need to flag the query as invalid
     def set_nested_queries(params)
+
       if n = params.select{|k, p| k.to_s =~ /_query/ }
-        return nil if n.keys.count != 1 # can't have multiple nested queries inside one level
+        return nil if n.keys.count != 1 # !!! can't have multiple nested queries inside one level !!! This lets us eliminate infinite loops at the cost of expressiveness?!
 
         query_name = n.first.first
 
@@ -436,12 +473,12 @@ module Queries
     def model_id_facet
       m = (base_name + '_id').to_sym
       return nil if send(m).empty?
-      table[:id].eq_any(send(m))
+      table[:id].in(send(m))
     end
 
     def project_id_facet
       return nil if project_id.empty?
-      table[:project_id].eq_any(project_id)
+      table[:project_id].in(project_id)
     end
 
     def object_global_id_facet
@@ -454,7 +491,7 @@ module Queries
         ids.push g.model_id
       end
 
-      table[:id].eq_any(ids)
+      table[:id].in(ids)
     end
 
     # params attribute [Symbol]
@@ -489,6 +526,7 @@ module Queries
       #  `.present?` fails as well, so verbose loops here
       self.class.included_annotator_facets.each do |c|
         if c.respond_to?(:merge_clauses)
+          next if c.name == 'Queries::Concerns::Identifiers' && no_identifier_clauses
           c.merge_clauses.each do |f|
             if v = send(f)
               a.push v

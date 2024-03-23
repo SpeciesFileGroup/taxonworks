@@ -1,6 +1,6 @@
 <template>
   <div class="panel block-layout">
-    <spinner-component
+    <VSpinner
       :show-spinner="false"
       :show-legend="false"
       v-if="spinner"
@@ -19,7 +19,7 @@
       </slot>
       <div class="horizontal-left-content">
         <slot name="options" />
-        <expand-component
+        <VExpand
           v-if="expand"
           v-model="expanded"
         />
@@ -34,44 +34,54 @@
   </div>
 </template>
 
-<script>
-import ExpandComponent from '@/components/expand.vue'
-import SpinnerComponent from '@/components/spinner.vue'
+<script setup>
+import VExpand from '@/components/expand.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import { ref, watch } from 'vue'
 
-export default {
-  components: {
-    ExpandComponent,
-    SpinnerComponent
+const props = defineProps({
+  expand: {
+    type: Boolean,
+    default: false
   },
 
-  props: {
-    expand: {
-      type: Boolean,
-      default: false
-    },
-
-    anchor: {
-      type: String,
-      default: undefined
-    },
-
-    warning: {
-      type: Boolean,
-      default: false
-    },
-
-    spinner: {
-      type: Boolean,
-      default: false
-    }
+  anchor: {
+    type: String,
+    default: undefined
   },
 
-  data() {
-    return {
-      expanded: true
-    }
+  warning: {
+    type: Boolean,
+    default: false
+  },
+
+  spinner: {
+    type: Boolean,
+    default: false
+  },
+
+  setExpanded: {
+    type: Boolean,
+    default: true
   }
-}
+})
+
+const emit = defineEmits(['expandedChanged'])
+
+const expanded = ref(props.setExpanded)
+
+watch(
+  () => props.setExpanded,
+  () => {
+    expanded.value = props.setExpanded
+  }
+)
+
+watch(
+  expanded,
+  (newVal) => { emit('expandedChanged', newVal) }
+)
+
 </script>
 <style lang="scss" scoped>
 .block-layout {

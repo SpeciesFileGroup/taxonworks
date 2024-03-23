@@ -10,6 +10,11 @@ const customConfig = {
     alias: {
       '@': path.resolve(__dirname, '..', '..', 'app/javascript/vue')
     }
+  },
+  output: {
+    environment: {
+      asyncFunction: true
+    }
   }
 }
 

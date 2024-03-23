@@ -11,6 +11,24 @@ module ImagesHelper
     render('/images/quick_search_form')
   end
 
+  # @return [String]
+  #   like `jpeg`, `png`
+  def image_type(image)
+    image.image_file.content_type.split('/').last.downcase
+  end
+
+
+  # "/images/scale_to_box/:x/:y/:width/:height/:box_width/:box_height" 
+  def original_as_png_via_api(image, api: true)
+   h = image.height
+   w = image.width 
+
+   s = api ? '/api/v1' : ''
+
+   s << "/images/#{image.id}/scale_to_box/0/0/#{w}/#{h}/#{w}/#{h}"
+   s
+  end
+
   # Return a ShortenedUrl to the original file image
   # @params image [Image, Integer]
   def image_short_url(image, api: true)

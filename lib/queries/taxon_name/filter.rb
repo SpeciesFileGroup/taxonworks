@@ -11,6 +11,7 @@ module Queries
 
       PARAMS = [
         :ancestors,
+        :ancestrify,
         :author,
         :author_exact,
         :authors,
@@ -20,6 +21,7 @@ module Queries
         :combinationify,
         :descendants,
         :descendants_max_depth,
+        :epithet_only,
         :etymology,
         :leaves,
         :name,
@@ -66,6 +68,17 @@ module Queries
       # @return Boolean
       #   Ignored when taxon_name_id[].empty?  Works as AND clause with descendants :(
       attr_accessor :ancestors
+
+      # @param ancestrify [Boolean]
+      #   true - extend result to include all ancestors of names in the result along with the result
+      #   false/nil - ignore
+      # !! This parameter is not like the others, it is applied POST result, see also synonymify and validify, etc.
+      attr_accessor :ancestrify
+
+      # @param epithet_only [Boolean]
+      #   true - use name property instead of cached to find taxon name
+      #   false/nil - ignore
+      attr_accessor :epithet_only
 
       # @param collection_object_id[String, Array]
       # @return Array
@@ -152,11 +165,12 @@ module Queries
       attr_accessor :parent_id
 
       # @param descendants [Boolean, 'true', 'false', nil]
+      #   Read carefully! descendants = false is NOT no descendants, it's descendants and self
       # @return [Boolean]
-      #   true - only descendants
-      #   false - self and descendants
+      #   true - only descendants NOT SELF
+      #   false - self AND descendants
       #   nil - ignored
-      #   Ignored when taxon_name_id[].empty? Return descendants of parents as well.
+      #   Ignored when taxon_name_id[].empty?
       attr_accessor :descendants
 
       # @param descendants_max_depth [Integer]
@@ -280,6 +294,7 @@ module Queries
         super
 
         @ancestors = boolean_param(params, :ancestors)
+        @ancestrify = boolean_param(params, :ancestrify)
         @author = params[:author]
         @author_exact = boolean_param(params, :author_exact)
         @authors = boolean_param(params, :authors)
@@ -291,6 +306,7 @@ module Queries
         @descendants = boolean_param(params, :descendants)
         @descendants_max_depth = params[:descendants_max_depth]
         @etymology = boolean_param(params, :etymology)
+        @epithet_only = params[:epithet_only]
         @geo_json = params[:geo_json]
         @leaves = boolean_param(params, :leaves)
         @name = params[:name]
@@ -410,7 +426,7 @@ module Queries
         otus = ::Queries::Otu::Filter.new(geo_json:).all
         collection_objects = ::Queries::CollectionObject::Filter.new(geo_json:).all
 
-        a = ::TaxonName.joins(:taxon_taxon_determinations).where(taxon_determinations: { biological_collection_object: collection_objects })
+        a = ::TaxonName.joins(:taxon_taxon_determinations).where(taxon_determinations: { taxon_determination_object: collection_objects })
         b = ::TaxonName.joins(:otus).where(otus:)
 
         ::TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
@@ -449,16 +465,17 @@ module Queries
 
       # @return Scope
       #   match only names that are a descendant of some taxon_name_id
-      # A merge facet.
       def descendant_facet
         return nil if taxon_name_id.empty? || descendants.nil?
 
+        h = ::TaxonNameHierarchy.arel_table
+
         if descendants
           descendants_subquery = ::TaxonNameHierarchy.where(
-            ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
-              ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id)
+            h[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
+              h[:ancestor_id].in(taxon_name_id)
             )
-          )
+          ).where(h[:ancestor_id].not_eq(h[:descendant_id]))
 
           if descendants_max_depth.present?
             descendants_subquery = descendants_subquery.where(::TaxonNameHierarchy.arel_table[:generations].lteq(descendants_max_depth.to_i))
@@ -583,7 +600,7 @@ module Queries
           )
 
         e = c[:id].not_eq(nil)
-        f = c[:person_id].eq_any(taxon_name_author_id)
+        f = c[:person_id].in(taxon_name_author_id)
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
@@ -635,16 +652,24 @@ module Queries
       def name_facet
         return nil if name.empty?
         if name_exact
-          table[:cached].eq_any(name)
+          if (epithet_only)
+            table[:name].in(name)
+          else
+            table[:cached].in(name).or(table[:cached_original_combination].in(name))
+          end
           #  table[:cached].eq(name.strip).or(table[:cached_original_combination].eq(name.strip))
         else
-          table[:cached].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' })
+          if (epithet_only)
+            table[:name].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' })
+          else
+            table[:cached].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' }).or(table[:cached_original_combination].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' }))
+          end
         end
       end
 
       def parent_id_facet
         return nil if parent_id.empty?
-        table[:parent_id].eq_any(parent_id)
+        table[:parent_id].in(parent_id)
       end
 
       def author_facet
@@ -761,7 +786,7 @@ module Queries
 
         b = ::TaxonName
           .joins(:otus)
-          .joins("JOIN query_tn_ba as query_tn_ba2 on query_tn_ba2.biological_association_object_id = otus.id AND query_tn_ba2.biological_association_subject_type = 'Otu'").to_sql
+          .joins("JOIN query_tn_ba as query_tn_ba2 on query_tn_ba2.biological_association_object_id = otus.id AND query_tn_ba2.biological_association_object_type = 'Otu'").to_sql
 
         s << ::TaxonName.from("((#{a}) UNION (#{b})) as taxon_names").to_sql
 
@@ -822,7 +847,7 @@ module Queries
       # Overrides base class
       def model_id_facet
         return nil if taxon_name_id.empty? || !descendants.nil? || ancestors
-        table[:id].eq_any(taxon_name_id)
+        table[:id].in(taxon_name_id)
       end
 
       def validify_result(q)
@@ -857,6 +882,18 @@ module Queries
         referenced_klass_union([q, a])
       end
 
+      def ancestrify_result(q)
+        s = 'WITH tn_result_query_anc AS (' + q.to_sql + ') ' +
+            ::TaxonName
+              .joins('JOIN taxon_name_hierarchies tnh on tnh.ancestor_id = taxon_names.id')
+              .joins('JOIN tn_result_query_anc as tn_result_query_anc1 on tn_result_query_anc1.id = tnh.descendant_id')
+              .distinct
+              .to_sql
+
+        # !! Do not use .distinct here
+        ::TaxonName.from('(' + s + ') as taxon_names')
+      end
+
       def order_clause(query)
         case sort
         when 'alphabetical'
@@ -878,10 +915,18 @@ module Queries
       # @return [ActiveRecord::Relation]
       def all(nil_empty = false)
         q = super
+
+        # Order matters, use this first to go up
+        q = ancestrify_result(q) if ancestrify
+
+        # Then out in various ways
         q = validify_result(q) if validify
         q = combinationify_result(q) if combinationify
         q = synonimify_result(q) if synonymify
+
+        # Then sort
         q = order_clause(q) if sort
+
         q
       end
     end

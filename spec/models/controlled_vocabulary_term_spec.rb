@@ -3,6 +3,19 @@ require 'rails_helper'
 describe ControlledVocabularyTerm, type: :model do
   let(:controlled_vocabulary_term) { FactoryBot.build(:controlled_vocabulary_term) }
 
+  specify 'clone from project 1' do
+    p = FactoryBot.create(:valid_project)
+
+    t1 = FactoryBot.create(:valid_topic)
+    t2 = FactoryBot.create(:valid_topic)
+    t3 = FactoryBot.create(:valid_topic)
+
+    ControlledVocabularyTerm.clone_from_project(from_id: project_id, to_id: p.id, klass: 'Topic')
+
+    expect(Project.find(project_id).controlled_vocabulary_terms.reload.count).to eq(3)
+    expect(p.controlled_vocabulary_terms.reload.count).to eq(3)
+  end
+
   context 'validation' do
     before(:each) { controlled_vocabulary_term.valid? }
 
@@ -24,11 +37,11 @@ describe ControlledVocabularyTerm, type: :model do
   context 'name and definition ' do
     let(:name) { 'Name should be unique' }
     let(:definition) { 'Never before seen, is not 20 characters!' }
-    
-    before { Keyword.create!(name: name, definition: definition) } 
+
+    before { Keyword.create!(name:, definition:) }
 
     specify 'are unique' do
-      expect(Keyword.new(name: name, definition: definition).valid?).to be_falsey 
+      expect(Keyword.new(name:, definition:).valid?).to be_falsey
     end
   end
 
@@ -61,7 +74,7 @@ describe ControlledVocabularyTerm, type: :model do
 
     specify 'name is unique within projects per type' do
       a = FactoryBot.create(:valid_controlled_vocabulary_term)
-      b = FactoryBot.build(:controlled_vocabulary_term, a.attributes.merge(definition: 'Something else, but longer, and more specific.', uri: uri, uri_relation: 'skos:closeMatch' ))
+      b = FactoryBot.build(:controlled_vocabulary_term, a.attributes.merge(definition: 'Something else, but longer, and more specific.', uri:, uri_relation: 'skos:closeMatch' ))
       expect(b.valid?).to be_falsey
       b.name = 'Something Completely Different'
       expect(b.valid?).to be_truthy
@@ -69,22 +82,22 @@ describe ControlledVocabularyTerm, type: :model do
 
     specify 'definition is unique within projects' do
       d = 'Something crazy, but detailed!'
-      a = FactoryBot.create(:valid_controlled_vocabulary_term, definition: d, uri: uri, uri_relation: 'skos:closeMatch')
-      b = FactoryBot.build(:valid_controlled_vocabulary_term, name: 'Something else.', definition: d, uri: uri, uri_relation: 'skos:closeMatch')
+      a = FactoryBot.create(:valid_controlled_vocabulary_term, definition: d, uri:, uri_relation: 'skos:closeMatch')
+      b = FactoryBot.build(:valid_controlled_vocabulary_term, name: 'Something else.', definition: d, uri:, uri_relation: 'skos:closeMatch')
       expect(b.valid?).to be_falsey
       expect(b.errors.include?(:definition)).to be_truthy
     end
 
     specify 'uri is unique within projects' do
-      a = FactoryBot.create(:valid_controlled_vocabulary_term, uri: uri,  uri_relation: 'skos:closeMatch')
-      b = FactoryBot.build(:valid_controlled_vocabulary_term, uri: uri, uri_relation: 'skos:closeMatch' )
+      a = FactoryBot.create(:valid_controlled_vocabulary_term, uri:,  uri_relation: 'skos:closeMatch')
+      b = FactoryBot.build(:valid_controlled_vocabulary_term, uri:, uri_relation: 'skos:closeMatch' )
       expect(b.valid?).to be_falsey
       expect(b.errors.include?(:uri)).to be_truthy
     end
 
     specify 'is case sensitive, i.e. bat and Bat are different' do
       a = FactoryBot.create(:valid_controlled_vocabulary_term, name: 'blue')
-      b = FactoryBot.build(:valid_controlled_vocabulary_term, definition: 'Something else, but with details.', name: 'Blue', uri: uri, uri_relation: 'skos:closeMatch')
+      b = FactoryBot.build(:valid_controlled_vocabulary_term, definition: 'Something else, but with details.', name: 'Blue', uri:, uri_relation: 'skos:closeMatch')
       expect(b.valid?).to be_truthy
     end
 

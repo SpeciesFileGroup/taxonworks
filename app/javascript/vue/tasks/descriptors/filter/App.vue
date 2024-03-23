@@ -19,6 +19,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :object-type="DESCRIPTOR"
+          @update="() => makeFilterRequest({ ...parameters, page: 1 })"
         />
       </template>
       <template #nav-right>
@@ -26,6 +27,7 @@
           :ids="selectedIds"
           :disabled="!list.length"
           :object-type="DESCRIPTOR"
+          @update="() => makeFilterRequest({ ...parameters, page: 1 })"
         />
       </template>
       <template #facets>
@@ -37,6 +39,7 @@
           :list="list"
           :attributes="ATTRIBUTES"
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>
@@ -54,7 +57,7 @@ import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import { listParser } from './utils/listParser'
 import { ATTRIBUTES } from './constants/attributes'

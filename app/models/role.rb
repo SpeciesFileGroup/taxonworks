@@ -44,7 +44,9 @@ class Role < ApplicationRecord
   polymorphic_annotates(:role_object, presence_validate: false)
   acts_as_list scope: [:type, :role_object_type, :role_object_id]
 
-  after_save :set_cached
+  # !! Has to be after after_save to not interfer with initial calls
+  # !! TODO: revist
+  after_commit :set_cached
 
   belongs_to :organization, inverse_of: :roles
   belongs_to :person, inverse_of: :roles
@@ -129,7 +131,7 @@ class Role < ApplicationRecord
 
   def set_role_object_cached
     becomes(type.constantize).cached_trigger_methods(role_object).each do |m|
-      role_object.send(m)
+      role_object.send(m) unless role_object.destroyed?
     end
   end
 

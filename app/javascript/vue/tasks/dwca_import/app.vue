@@ -33,7 +33,7 @@ import { ActionNames } from './store/actions/actions'
 import RequestImport from './components/RequestImport'
 import { disableStatus } from './const/datasetStatus'
 
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 
 export default {
   name: 'DWCImporter',
@@ -105,7 +105,7 @@ export default {
 
       if (bottomOfTable && this.dataset.id) {
         if (
-          this.pagination.nextPage &&
+          this.pagination?.nextPage &&
           this.pagination.nextPage > this.pagination.paginationPage
         ) {
           this.$store.dispatch(

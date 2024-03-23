@@ -18,18 +18,21 @@ resource :hub, controller: 'hub', only: [:index] do
 end
 
 scope :metadata, controller: 'metadata' do
+  get :vocabulary, defaults: {format: :json}
+  get :data_models, defaults: {format: :json}
+  get :attributes, defaults: {format: :json}
   get :annotators, defaults: {format: :json}
   get :related_summary
   post :related_summary
   get 'object_radial/', action: :object_radial, defaults: {format: :json}
   get 'object_navigation/:global_id', action: :object_navigation, defaults: {format: :json}
+  get :class_navigation, defaults: {format: :json}
   get '(/:klass)', action: :index, defaults: {format: :json}
 end
 
 scope :annotations, controller: :annotations, defaults: {format: :json} do
   get ':global_id/metadata', action: :metadata
   get :types
-
 end
 
 scope :graph, controller: :graph do
@@ -85,6 +88,8 @@ scope :s do
 end
 
 resources :users, except: :new do
+  resources :projects, only: [:index], defaults: {format: :json}, action: :user_projects
+
   collection do
     post 'batch_create'
     get :autocomplete, defaults: {format: :json}
@@ -92,6 +97,8 @@ resources :users, except: :new do
   member do
     get 'recently_created_data'
     get 'recently_created_stats'
+    patch 'reset_preferences'
+    patch 'reset_hub_favorites'
   end
 end
 
@@ -113,4 +120,3 @@ match '/favorite_page/:kind/:name', to: 'user_preferences#favorite_page', as: :f
 match '/unfavorite_page/:kind/:name', to: 'user_preferences#unfavorite_page', as: :unfavorite_page, via: :post
 
 get '/crash_test/' => 'crash_test#index' unless Rails.env.production?
-

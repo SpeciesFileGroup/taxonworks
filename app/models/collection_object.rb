@@ -79,9 +79,10 @@ class CollectionObject < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::Observations
   include Shared::IsData
+  include Shared::QueryBatchUpdate
   include SoftValidation
 
-  include CollectionObject::BiologicalExtensions
+  include Shared::BiologicalExtensions
 
   include Shared::Taxonomy # at present must be before IsDwcOccurence
   include Shared::IsDwcOccurrence
@@ -94,7 +95,7 @@ class CollectionObject < ApplicationRecord
 
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
-  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships, :extracts]
+  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships, :extracts, :observation_matrices]
 
   # Identifier delegations
   # .catalog_number_cached
@@ -181,6 +182,55 @@ class CollectionObject < ApplicationRecord
                ON  "sequences"."id" = "origin_relationships_extracts_join"."new_object_id"}
   end
 
+  def self.batch_update(params)
+    request = QueryBatchRequest.new(
+      async_cutoff: params[:async_cutoff] || 50,
+      klass: 'CollectionObject',
+      object_filter_params: params[:collection_object_query],
+      object_params: params[:collection_object],
+      preview: params[:preview],
+    )
+
+    request.cap = 1000
+
+    query_batch_update(request)
+  end
+
+  def self.batch_update_dwc_occurrence(params)
+    q = Queries::CollectionObject::Filter.new(params).all
+
+    r = BatchResponse.new
+    r.method = 'batch_update_dwc_occurrence'
+    r.klass = 'CollectionObject'
+
+    c = q.all.count
+
+    if c == 0 || c > 10000
+      r.cap_reason = 'Too many (or no) collection objects (max 10k)'
+      return r
+    end
+
+    if c < 51
+      q.each do |co|
+        co.set_dwc_occurrence
+        r.updated.push co.id
+      end
+    else
+      r.async = true
+      q.each do |co|
+        co.dwc_occurrence_update_query
+      end
+    end
+
+    return r
+  end
+
+  def dwc_occurrence_update_query
+    self.send(:set_dwc_occurrence)
+  end
+
+  handle_asynchronously :dwc_occurrence_update_query, run_at: Proc.new { 1.second.from_now }, queue: :query_batch_update
+
   # TODO: move to a helper
   def self.breakdown_status(collection_objects)
     collection_objects = [collection_objects] if collection_objects.class != Array
@@ -225,62 +275,6 @@ class CollectionObject < ApplicationRecord
     end
 
     breakdown
-  end
-
-  # TODO: Deprecate.  Used?!
-  # @param [Scope] scope of selected CollectionObjects
-  # @param [Hash] col_defs selected headers and types
-  # @param [Hash] table_data (optional)
-  # @return [CSV] tab-separated data
-  # Generate the CSV (tab-separated) data for the file to be sent, substitute for new-lines and tabs
-  def self.generate_report_download(scope, col_defs, table_data = nil)
-    CSV.generate do |csv|
-      row = CO_OTU_HEADERS
-      unless col_defs.nil?
-        %w(ce co bc).each { |column_type|
-          items = []
-          unless col_defs[column_type.to_sym].nil?
-            unless col_defs[column_type.to_sym][:in].nil?
-              items.push(col_defs[column_type.to_sym][:in].keys)
-            end
-            unless col_defs[column_type.to_sym][:im].nil?
-              items.push(col_defs[column_type.to_sym][:im].keys)
-            end
-          end
-          row += items.flatten
-        }
-      end
-      csv << row
-      if table_data.nil?
-        scope.order(id: :asc).each do |c_o|
-          row = [c_o.otu_id,
-                 c_o.otu_name,
-                 c_o.name_at_rank_string(:family),
-                 c_o.name_at_rank_string(:genus),
-                 c_o.name_at_rank_string(:species),
-                 c_o.collecting_event.country_name,
-                 c_o.collecting_event.state_name,
-                 c_o.collecting_event.county_name,
-                 c_o.collecting_event.verbatim_locality,
-                 c_o.collecting_event.georeference_latitude.to_s,
-                 c_o.collecting_event.georeference_longitude.to_s
-          ]
-          row += ce_attributes(c_o, col_defs)
-          row += co_attributes(c_o, col_defs)
-          row += bc_attributes(c_o, col_defs)
-          csv << row.collect { |item|
-            item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-          }
-
-        end
-      else
-        table_data.each_value { |value|
-          csv << value.collect { |item|
-            item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-          }
-        }
-      end
-    end
   end
 
   # TODO: this should be refactored to be collection object centric AFTER
@@ -578,14 +572,15 @@ class CollectionObject < ApplicationRecord
           t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
             .where(
               t['updated_at'].gt(1.week.ago).and(
-                t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
+                t['biological_association_subject_type'].eq('CollectionObject')
               )
             )
               .where(t['updated_by_id'].eq(user_id))
               .where(t['project_id'].eq(project_id))
               .order(t['updated_at'].desc)
         else
-          t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
+          # TODO: update to reference new TaxonDetermination
+          t.project(t['taxon_determination_object_id'], t['taxon_determination_object_type'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.week.ago ))
             .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
@@ -601,7 +596,8 @@ class CollectionObject < ApplicationRecord
             z['biological_association_subject_id'].eq(p['id'])
           ))
         else
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_collection_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
+          # TODO: needs to be fixed to scope the taxon_determination_object_type
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['taxon_determination_object_id'].eq(p['id'])))
         end
 
     CollectionObject.joins(j).pluck(:id).uniq
@@ -706,6 +702,27 @@ class CollectionObject < ApplicationRecord
 
   def sv_missing_biocuration_classification
     # see biological_collection_object
+  end
+
+  # See Depiction#destroy_image_stub_collection_object
+  # Used to determin if the CO can be
+  # destroy after moving an image off
+  # this object.
+  def is_image_stub?
+    r = [
+      collecting_event_id.blank?,
+      !depictions.reload.any?,
+      identifiers.count <= 1,
+      !taxon_determinations.any?,
+      !type_materials.any?,
+      !citations.any?,
+      !data_attributes.any?,
+      !notes.any?,
+      !observations.any?
+    ]
+
+   !r.include?(false)
+
   end
 
   protected

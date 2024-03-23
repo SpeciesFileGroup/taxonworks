@@ -21,6 +21,7 @@
             <spinner v-if="isLoading" />
             <RadialMenu
               v-if="metadata"
+              ref="radialElement"
               :options="menuOptions"
               @onClick="selectedRadialOption"
             />
@@ -58,7 +59,7 @@
 
 <script setup>
 import RadialMenu from '@/components/radials/RadialMenu.vue'
-import Spinner from '@/components/spinner.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import Icons from './images/icons.js'
@@ -66,7 +67,7 @@ import DestroyConfirmation from './components/DestroyConfirmation'
 import AllTasks from './components/allTasks.vue'
 import ajaxCall from '@/helpers/ajaxCall'
 import { PinboardItem } from '@/routes/endpoints'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import VModal from '@/components/ui/Modal.vue'
 
 const DEFAULT_OPTIONS = {
@@ -109,7 +110,7 @@ const props = defineProps({
     default: () => ({})
   },
 
-  filterOptions: {
+  exclude: {
     type: [String, Array],
     default: () => []
   },
@@ -188,14 +189,14 @@ const menuOptions = computed(() => {
 })
 
 const defaultSlices = computed(() => {
-  const filterOptions = props.filterOptions
+  const exclude = [props.exclude].flat()
 
   if (!metadata.value.destroy) {
-    filterOptions.push(addSlice(DEFAULT_OPTIONS.Destroy))
+    exclude.push(addSlice(DEFAULT_OPTIONS.Destroy))
   }
 
   return defaultSlicesTypes
-    .filter((type) => !filterOptions.includes(type))
+    .filter((type) => !exclude.includes(type))
     .map((type) => addSlice(type, { link: defaultLinks()[type] }))
 })
 
@@ -222,6 +223,7 @@ const metadata = ref(undefined)
 const title = ref('Radial navigation')
 const deleted = ref(false)
 const showDestroyModal = ref(false)
+const radialElement = ref(null)
 const defaultSlicesTypes = [
   DEFAULT_OPTIONS.Related,
   DEFAULT_OPTIONS.New,
@@ -229,6 +231,21 @@ const defaultSlicesTypes = [
   DEFAULT_OPTIONS.Edit,
   DEFAULT_OPTIONS.Show
 ]
+
+watch(radialElement, (newVal) => {
+  if (newVal) {
+    newVal.$el.querySelectorAll('a').forEach((element) => {
+      element.addEventListener('click', (event) => {
+        const isShortcutKeyPressed =
+          event.ctrlKey || event.shiftKey || event.metaKey
+
+        if (isShortcutKeyPressed) {
+          isRadialOpen.value = false
+        }
+      })
+    })
+  }
+})
 
 function addSlice(type, attr) {
   return {
@@ -378,31 +395,35 @@ function destroyPin() {
 
 function destroyObject() {
   showDestroyModal.value = false
-  ajaxCall('delete', `${metadata.value.resource_path}.json`).then((_) => {
-    TW.workbench.alert.create(
-      `${metadata.value.type} was successfully destroyed.`,
-      'notice'
-    )
-    if (props.globalId === metadata.value.global_id) {
-      eventDestroy()
-      deleted.value = true
-    }
-    if (props.redirect) {
-      if (metadata.value.destroyed_redirect) {
-        window.open(metadata.value.destroyed_redirect, '_self')
-      } else if (window.location.pathname === metadata.value.resource_path) {
-        window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
-      } else {
-        window.open(
-          metadata.value.resource_path.substring(
-            0,
-            metadata.value.resource_path.lastIndexOf('/')
-          ),
-          '_self'
-        )
+  ajaxCall('delete', `${metadata.value.resource_path}.json`)
+    .then((_) => {
+      TW.workbench.alert.create(
+        `${metadata.value.type} was successfully destroyed.`,
+        'notice'
+      )
+      if (props.globalId === metadata.value.global_id) {
+        eventDestroy()
+        deleted.value = true
       }
-    }
-  })
+      if (props.redirect) {
+        if (metadata.value.destroyed_redirect) {
+          window.open(metadata.value.destroyed_redirect, '_self')
+        } else if (window.location.pathname === metadata.value.resource_path) {
+          window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
+        } else {
+          window.open(
+            metadata.value.resource_path.substring(
+              0,
+              metadata.value.resource_path.lastIndexOf('/')
+            ),
+            '_self'
+          )
+        }
+      }
+      emit('delete', metadata.value)
+      closeModal()
+    })
+    .catch(() => {})
 }
 </script>
 

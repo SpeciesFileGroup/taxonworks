@@ -1,5 +1,25 @@
 <template>
   <div class="citation_annotator">
+    <div
+      v-if="citation?.id"
+      class="flex-separate gap-small"
+    >
+      <h3>
+        Edit:
+        <span v-html="citation.object_tag" />
+      </h3>
+      <VBtn
+        circle
+        color="primary"
+        @click="() => (citation = newCitation())"
+      >
+        <VIcon
+          name="undo"
+          small
+        />
+      </VBtn>
+    </div>
+    <h3 v-else>New citation</h3>
     <FormCitation
       v-model="citation"
       :klass="objectType"
@@ -14,22 +34,22 @@
           class="margin-small-left"
           color="primary"
           medium
-          @click="citation = newCitation()"
+          @click="() => (citation = newCitation())"
         >
           New
         </VBtn>
       </template>
     </FormCitation>
     <div v-if="!citation.id">
-      <table-list
+      <TableList
         :list="list"
         @edit="citation = $event"
         @delete="removeItem"
       />
     </div>
     <div v-else>
-      <TopicForm
-        v-if="!disabledFor.includes(objectType)"
+      <CitationTopicForm
+        v-if="!DISABLED_FOR.includes(objectType)"
         :object-type="objectType"
         :global-id="globalId"
         :citation="citation"
@@ -50,10 +70,10 @@
           >
             <td v-html="item.topic.object_tag" />
             <td>
-              <topic-pages
+              <TopicPages
                 v-model="citation.citation_topics[index]"
                 :citation-id="citation.id"
-                @update="updateCitation"
+                @update="saveCitation"
               />
             </td>
             <td>
@@ -74,164 +94,141 @@
         </tbody>
       </table>
     </div>
-    <handle-citations
-      v-if="showModal"
+    <HandleCitations
+      v-if="isModalVisible"
       :citation="citation"
       :original-citation="originalCitation"
+      @save="(item) => add(item)"
       @create="setCitation"
-      @close="resetCitations"
+      @close="isModalVisible = false"
     />
   </div>
 </template>
-<script>
-import CRUD from '../../request/crud.js'
-import annotatorExtend from '../annotatorExtend.js'
+<script setup>
 import TableList from './table.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
-import TopicForm from './topic.vue'
-import TopicPages from './pagesUpdate'
+import CitationTopicForm from './CitationTopicForm.vue'
+import TopicPages from './TopicPages.vue'
 import HandleCitations from './handleOriginalModal'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import makeCitation from '@/factory/Citation'
-import { Citation, CitationTopic } from '@/routes/endpoints'
-import { addToArray } from '@/helpers/arrays'
+import { useSlice } from '@/components/radials/composables'
+import { Citation } from '@/routes/endpoints'
+import { computed, ref } from 'vue'
 
 const EXTEND_PARAMS = ['source', 'citation_topics']
+const DISABLED_FOR = ['Content']
 
-export default {
-  mixins: [CRUD, annotatorExtend],
-  components: {
-    TopicForm,
-    TableList,
-    TopicPages,
-    HandleCitations,
-    FormCitation,
-    VBtn,
-    VIcon
-  },
-  computed: {
-    validateFields() {
-      return this.citation.source_id
-    },
-
-    originalCitation() {
-      return this.list.find((c) => c.is_original)
-    }
-  },
-  data() {
-    return {
-      list: [],
-      citation: this.newCitation(),
-      topic: this.newTopic(),
-      autocompleteLabel: undefined,
-      disabledFor: ['Content'],
-      showModal: false,
-      existingOriginal: [],
-      currentCitation: undefined,
-      loadOnMounted: false
-    }
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  created() {
-    Citation.all({
-      citation_object_id: this.metadata.object_id,
-      citation_object_type: this.metadata.object_type,
-      extend: EXTEND_PARAMS
-    }).then(({ body }) => {
-      this.list = body
-    })
+  objectType: {
+    type: String,
+    required: true
   },
 
-  methods: {
-    setCitation(citation) {
-      this.resetCitations()
-      this.citation = citation
-      this.loadObjectsList()
-    },
+  radialEmit: {
+    type: Object,
+    required: true
+  }
+})
 
-    resetCitations() {
-      this.showModal = false
-      this.currentCitation = undefined
-      this.existingOriginal = []
-    },
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
+const citation = ref(newCitation())
+const isModalVisible = ref(false)
 
-    newCitation() {
-      return {
-        ...makeCitation(),
-        citation_object_id: this.metadata.object_id,
-        citation_object_type: this.metadata.object_type,
-        citation_topics_attributes: []
-      }
-    },
+const originalCitation = computed(() => list.value.find((c) => c.is_original))
 
-    newTopic() {
-      return {
-        topic_id: undefined,
-        pages: undefined
-      }
-    },
+function setCitation(citation) {
+  citation.value = citation
+}
 
-    deleteTopic(topic) {
-      const citation = {
-        id: this.citation.id,
-        citation_topics_attributes: [
-          {
-            id: topic.id,
-            _destroy: true
-          }
-        ]
-      }
-      Citation.update(citation.id, { citation, extend: EXTEND_PARAMS }).then(
-        (_) => {
-          this.citation.citation_topics.splice(
-            this.citation.citation_topics.findIndex(
-              (element) => element.id === topic.id
-            ),
-            1
-          )
-        }
-      )
-    },
-
-    saveCitation(citation) {
-      const payload = {
-        citation: {
-          ...citation,
-          citation_object_type: this.objectType,
-          citation_object_id: this.metadata.object_id
-        },
-        extend: EXTEND_PARAMS
-      }
-
-      if (
-        citation.is_original &&
-        this.originalCitation &&
-        this.originalCitation.id !== citation.id
-      ) {
-        this.showModal = true
-
-        return
-      }
-
-      const request = citation.id
-        ? Citation.update(citation.id, payload)
-        : Citation.create(payload)
-
-      request.then(({ body }) => {
-        addToArray(this.list, body)
-        this.citation = body
-        TW.workbench.alert.create('Citation was successfully saved.', 'notice')
-      })
-    },
-
-    updateTopic(citation_topic) {
-      CitationTopic.update(citation_topic.id, { citation_topic }).then((_) => {
-        TW.workbench.alert.create('Topic was successfully updated.', 'notice')
-      })
-    }
+function newCitation() {
+  return {
+    ...makeCitation(),
+    citation_object_id: props.objectId,
+    citation_object_type: props.objectType,
+    citation_topics_attributes: []
   }
 }
+
+function deleteTopic(topic) {
+  const payload = {
+    citation: {
+      id: citation.value.id,
+      citation_topics_attributes: [
+        {
+          id: topic.id,
+          _destroy: true
+        }
+      ]
+    },
+    extend: EXTEND_PARAMS
+  }
+
+  Citation.update(citation.value.id, payload)
+    .then((_) => {
+      const index = citation.value.citation_topics.findIndex(
+        (element) => element.id === topic.id
+      )
+
+      citation.value.citation_topics.splice(index, 1)
+    })
+    .catch(() => {})
+}
+
+function saveCitation(item) {
+  const payload = {
+    citation: {
+      ...item,
+      citation_object_id: props.objectId,
+      citation_object_type: props.objectType
+    },
+    extend: EXTEND_PARAMS
+  }
+
+  if (
+    item.is_original &&
+    originalCitation.value &&
+    originalCitation.value.id !== item.id
+  ) {
+    isModalVisible.value = true
+
+    return
+  }
+
+  const request = item.id
+    ? Citation.update(item.id, payload)
+    : Citation.create(payload)
+
+  request
+    .then(({ body }) => {
+      addToList(body)
+      citation.value = body
+      TW.workbench.alert.create('Citation was successfully saved.', 'notice')
+    })
+    .catch(() => {})
+}
+
+function removeItem(item) {
+  Citation.destroy(item.id).then((_) => {
+    removeFromList(item)
+  })
+}
+
+Citation.all({
+  citation_object_id: props.objectId,
+  citation_object_type: props.objectType,
+  extend: EXTEND_PARAMS
+}).then(({ body }) => {
+  list.value = body
+})
 </script>
 <style lang="scss">
 .radial-annotator {

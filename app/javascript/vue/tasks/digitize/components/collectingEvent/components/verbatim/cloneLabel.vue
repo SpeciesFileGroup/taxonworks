@@ -58,7 +58,7 @@ import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
 import { CollectingEvent } from '@/routes/endpoints'
 import ModalComponent from '@/components/ui/Modal'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import extendCE from '../../mixins/extendCE.js'
 
 export default {
@@ -73,15 +73,6 @@ export default {
     bufferedCollectingEvent() {
       return this.$store.getters[GetterNames.GetCollectionObject]
         .buffered_collecting_event
-    },
-
-    collectingEvent: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectingEvent]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectingEvent, value)
-      }
     }
   },
 
@@ -100,6 +91,7 @@ export default {
         this.showModal = true
       } else {
         this.collectingEvent.verbatim_label = this.bufferedCollectingEvent
+        this.updateChange()
       }
     }
   },

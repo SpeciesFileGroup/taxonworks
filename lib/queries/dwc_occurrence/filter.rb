@@ -45,17 +45,17 @@ module Queries
 
       def dwc_occurrence_id_facet
         return nil if dwc_occurrence_id.empty?
-        table[:dwc_occurrence_id].eq_any(dwc_occurrence_id)
+        table[:id].in(dwc_occurrence_id)
       end
 
       def dwc_occurrence_object_id_facet
         return nil if dwc_occurrence_object_id.empty?
-        table[:dwc_occurrence_object_id].eq_any(dwc_occurrence_object_id)
+        table[:dwc_occurrence_object_id].in(dwc_occurrence_object_id)
       end
 
       def dwc_occurrence_object_type_facet
         return nil if dwc_occurrence_object_type.empty?
-        table[:dwc_occurrence_object_type].eq_any(dwc_occurrence_object_type)
+        table[:dwc_occurrence_object_type].in(dwc_occurrence_object_type)
       end
 
       def asserted_distribution_query_facet

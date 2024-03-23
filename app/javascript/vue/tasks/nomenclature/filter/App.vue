@@ -15,11 +15,23 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialNomenclature
+          :disabled="!list.length"
+          :parameters="parameters"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+        />
+      </template>
       <template #nav-right>
         <RadialLabel
           :object-type="TAXON_NAME"
           :ids="selectedIds"
           :disabled="!selectedIds.length"
+        />
+        <RadialNomenclature
+          :disabled="!list.length"
+          :ids="selectedIds"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #facets>
@@ -31,6 +43,7 @@
           :attributes="ATTRIBUTES"
           :list="list"
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>
@@ -46,9 +59,10 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import RadialLabel from '@/components/radials/label/radial.vue'
+import RadialNomenclature from '@/components/radials/nomenclature/radial.vue'
 import { ATTRIBUTES } from './constants/attributes.js'
 import { listParser } from './utils/listParser'
 import { TaxonName } from '@/routes/endpoints'

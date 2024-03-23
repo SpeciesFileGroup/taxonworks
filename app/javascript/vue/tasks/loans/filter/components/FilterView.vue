@@ -65,7 +65,7 @@
 import { computed } from 'vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetByAttribute from '@/components/Filter/Facets/shared/FacetByAttribute.vue'
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
@@ -76,7 +76,7 @@ import FacetLoanItemStatus from './Facet/FacetLoanItemStatus.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetPerson from './Facet/FacetPerson.vue'
 
-const WITH_PARAMS = ['overdue', 'documentation', 'identifiers']
+const WITH_PARAMS = ['documentation', 'identifiers']
 
 const OVERDUE_OPTIONS = [
   {

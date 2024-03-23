@@ -22,6 +22,10 @@ module Shared::Maps
     has_one :cached_map_register, as: :cached_map_register_object, dependent: :delete
 
     after_create :initialize_cached_map_items
+
+    # TODO: re-enable once scoping issues are determined
+    # after_create :destroy_cached_map
+
     before_destroy :remove_from_cached_map_items
 
     # after_update :syncronize_cached_map_items
@@ -29,7 +33,7 @@ module Shared::Maps
     # !! This should only impacts the CachedMapItem layer. See CachedMapItem for
     # triggers that will propagate to CachedMap.
     # def syncronize_cached_map_items
-      # delay.coordinate_cached_map_items
+    # delay.coordinate_cached_map_items
     # end
 
     def cached_map_registered
@@ -43,7 +47,7 @@ module Shared::Maps
     def cached_map_items_to_clean
       maps = []
 
-      Behavior::Maps::DEFAULT_CACHED_BUILD_TYPES.each do |map_type|
+      ::DEFAULT_CACHED_MAP_BUILD_TYPES.each do |map_type|
         if stubs = CachedMapItem.stubs(self, map_type)
           stubs[:geographic_item_id].each do |geographic_item_id|
             stubs[:otu_id].each do |otu_id|
@@ -72,15 +76,52 @@ module Shared::Maps
       delay(queue: 'cached_map').deduct_from_cached_map_items
     end
 
+    # Remove the pre-calculated map for the OTU
+    # Note that this doesn't resolve all issues, but at least
+    # new additions will be added on next build
+    def destroy_cached_map
+      delay(queue: 'cached_map').clear_cached_maps
+    end
+
+    # @return CachedMap scope
+    def cached_maps_to_clear
+      s = 'WITH otu_clear_maps AS (' + touched_cached_maps.to_sql + ') ' +
+        ::CachedMap
+        .joins('JOIN otu_clear_maps as otu_clear_maps1 on otu_clear_maps1.id = cached_maps.otu_id')
+        .to_sql
+
+      ::CachedMap.from('(' + s + ') as cached_maps')
+    end
+
+    # TODO: use JOINS not IN
+    def clear_cached_maps
+      cached_maps_to_clear.delete_all
+      true
+    end
+
+    # @return OTUs
+    def touched_cached_maps
+      case self.class.base_class.name
+      when 'AssertedDistribution'
+        return ::Queries::Otu::Filter.new(otu_id:, coordinatify: true, ancestrify: true, project_id: ).all
+      when 'Georeference'
+        otu_ids = collecting_event.otus.distinct.pluck(:id)
+        return ::Queries::Otu::Filter.new(otu_id: otu_ids, coordinatify: true, ancestrify: true, project_id: ).all
+      end
+    end
+
+    # rubocop:disable Metrics/MethodLength
+
     # @param batch (Boolean)
-    #   true - skips setting geographic name labels (see followup tasks)
-    #   false - sets labels
+    #   true - skips setting geographic name labels (see followup tasks) AND caching translations
+    #           i.e. assumes you have a completely built translation table
+    #   false - sets labels, and builds translations
     #
     # Creates or increments a CachedMapItem and creates a CachedMapRegister for this object.
     # * !! Assumes this is the first time CachedMapItem is being indexed for this object.
     # * !! Does NOT check register.
     def create_cached_map_items(batch = false)
-      Behavior::Maps::DEFAULT_CACHED_BUILD_TYPES.each do |map_type|
+      ::DEFAULT_CACHED_MAP_BUILD_TYPES.each do |map_type|
         stubs = CachedMapItem.stubs(self, map_type)
 
         # Georeferences with no CollectionObjects will hit here
@@ -89,23 +130,25 @@ module Shared::Maps
 
         name_hierarchy = {}
 
-        stubs[:geographic_item_id].each do |geographic_item_id|
-          stubs[:otu_id].each do |otu_id|
-            begin
-              CachedMapItem.transaction do
+        CachedMapItem.transaction do
+
+          stubs[:geographic_item_id].each do |geographic_item_id|
+            stubs[:otu_id].each do |otu_id|
+              begin
+
                 a = CachedMapItem.find_or_initialize_by(
-                    type: map_type,
-                    otu_id:,
-                    geographic_item_id:,
-                    project_id: stubs[:origin_object].project_id,
-                  )
+                  type: map_type,
+                  otu_id:,
+                  geographic_item_id:,
+                  project_id: stubs[:origin_object].project_id,
+                )
 
                 if a.persisted?
                   a.increment!(:reference_count)
                 else
 
                   # When running in batch mode we assume we will use the label rake task to update
-                  # en-masse after processing.
+                  # en-masse after processing, and we assume we have pre-build translations
                   unless batch
                     name_hierarchy[geographic_item_id] ||= CachedMapItem.cached_map_name_hierarchy(geographic_item_id)
 
@@ -118,34 +161,45 @@ module Shared::Maps
 
                   a.reference_count = 1
                   a.save!
+
+                  # Assume in batch we're going to pre-translate records
+                  unless batch
+                    # There is little or no point to logging translations
+                    # for Georeferences, i.e. it is overhead with no benefit.
+                    # !! If we do log then we should SHA the wkt as a check and store that in the translation table
+                    unless self.kind_of?(Georeference)
+                      CachedMapItemTranslation.find_or_create_by!(
+                        cached_map_type: map_type,
+                        geographic_item_id: stubs[:origin_geographic_item_id],
+                        translated_geographic_item_id: geographic_item_id
+                      )
+                    end
+                  end
+
                 end
 
-                # There is little or no point to logging translations
-                # for Georeferences, i.e. it is overhead with no benefit.
-                unless self.kind_of?(Georeference)
-                  CachedMapItemTranslation.find_or_create_by!(
-                    cached_map_type: map_type,
-                    geographic_item_id: stubs[:origin_geographic_item_id],
-                    translated_geographic_item_id: geographic_item_id
-                  )
-                end
-
-                CachedMapRegister.create!(
-                  cached_map_register_object: self,
-                  project_id:
-                )
+              rescue ActiveRecord::RecordInvalid => e
+                logger.debug e
+              rescue PG::UniqueViolation
+                logger.debug 'pg unique violation'
               end
-
-            rescue ActiveRecord::RecordInvalid => e
-              logger.debug e
-            rescue PG::UniqueViolation
-              logger.debug 'pg unique violation'
             end
+          end
+
+          begin
+            CachedMapRegister.create!(
+              cached_map_register_object: self,
+              project_id:
+            )
+          rescue ActiveRecord::RecordInvalid => e
+            logger.debug e
           end
         end
       end
       true
     end
+
+    # rubocop:enable Metrics/MethodLength
 
     def deduct_from_cached_map_items
       cached_map_items_to_clean.each do |cmi|

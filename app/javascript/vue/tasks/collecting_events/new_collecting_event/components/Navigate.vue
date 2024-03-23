@@ -63,7 +63,7 @@
 
 <script>
 import ModalComponent from '@/components/ui/Modal'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import { CollectingEvent } from '@/routes/endpoints'
 
 export default {

@@ -414,7 +414,7 @@ new_bibtex_source_task:
   description: 'Parse a captured BibTeX string into a new source'
 visualize_confidences_task:
   hub: true
-  name: 'Visualize confidences.'
+  name: 'Visualize confidences'
   related:
   categories:
   status: stable
@@ -451,7 +451,7 @@ export_coldp_task:
     - nomenclature
   status: prototype
   description: 'Export a zip of text files in the Catalogue of Life CoLDP format.'
-index_browse_asserted_distributions_task:
+browse_asserted_distributions_task:
   hub: true
   name: 'Browse asserted distributions'
   related:
@@ -459,7 +459,7 @@ index_browse_asserted_distributions_task:
     - browse
   status: prototype
   description: 'Browse through asserted distributions summarized by OTU.  Map, table, and CSV downloads.'
-collection_objects_filter_task:
+filter_collection_objects_task:
   hub: true
   name: 'Filter collection objects'
   related:
@@ -557,13 +557,6 @@ filter_sources_task:
     - filters
   status: prototype
   description: 'Filter and find sources then download or share bibliographies.'
-project_data_task:
-  hub: true
-  name: 'Project data overview and download'
-  related:
-  categories:
-  status: prototype
-  description: 'Quick stats and download options for the overall project.'
 gnfinder_task:
   hub: true
   name: 'Gnfinder playground'
@@ -600,13 +593,13 @@ filter_images_task:
     - filters
   status: prototype
   description: 'Filter images.'
-export_taxonworks_project_task:
+project_data_task:
   hub: true
-  name: 'Export project database'
+  name: 'Project data overview and download'
   related:
   categories:
   status: prototype
-  description: 'Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)'
+  description: 'Quick stats and download options for the overall project.'
 dwc_dashboard_task:
   hub: true
   name: 'DwC Dashboard'
@@ -733,6 +726,11 @@ paper_catalog_generator_task:
     - export
   status: prototype
   description: 'Experimenting with rendering nomenclature as a paper catalog'
+freeform_digitize_task:
+  hub: true
+  name: 'Task - freeform digitize'
+  description: 'Digitize specimen by drawing free-form shapes on images.'
+  status: prototype
 filter_biological_associations_task:
   hub: true
   name: 'Filter biological associations'
@@ -833,9 +831,75 @@ geographic_area_usage_task:
   status: prototype
   description: 'Summarize this projects geographic area usage'
 taxon_name_stats_task:
-  hub: false 
+  hub: false
   name: 'Taxon name stats'
   related:
   categories:
   status: prototype
   description: 'Plot stats / year for taxon name filter results.'
+stepwise_collectors_task:
+  hub: true
+  name: 'Stepwise collectors'
+  related:
+  categories:
+    - collecting_event
+    - people
+  status: prototype
+  description: 'Parse verbatim collectors into their semantic components.'
+new_field_occurrence_task:
+  hub: true
+  name: 'New field occurrence'
+  related:
+  categories:
+    - collecting_event
+    - georeference
+  status: prototype
+  description: 'Link OTUs to collecting events. Used when no physical object was collected and returned to a repository.'
+debug_geographic_item_task:
+  hub: false
+  name: 'Debug geographic item'
+  related:
+  categories:
+    - geographic_area
+    - collecting_event
+    - georeference
+  status: prototype
+  description: 'Report metadat about a geographic item.'
+new_lead_task:
+  hub: true
+  name: 'New dichotomous key'
+  related:
+  categories:
+    - new
+  status: prototype
+  description: 'Create a new dichotomous key.'
+show_lead_task:
+  hub: true
+  name: 'Use dichotomous key'
+  related:
+  categories:
+  status: prototype
+  description: 'Use an existing dichotomous key.'
+project_vocabulary_task:
+  hub: true
+  name: 'Project vocabulary'
+  related:
+  categories:
+  status: prototype
+  description: 'Visualize data values used in this project.  Word clouds.'
+new_otu_task:
+  hub: true
+  name: 'New OTU'
+  related:
+  categories:
+    - otu
+  status: prototype
+  description: 'Create one or many OTUs in batch.'
+week_in_review_task:
+  hub: true
+  name: 'Week in review'
+  related:
+  categories:
+    - metadata
+  status: prototype
+  description: 'A quick look dashboard of past activity'

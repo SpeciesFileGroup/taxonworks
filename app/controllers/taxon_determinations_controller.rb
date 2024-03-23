@@ -79,7 +79,7 @@ class TaxonDeterminationsController < ApplicationController
 
   # PATCH /taxon_determinations/reorder?id[]=1
   def reorder
-    params[:id].each do |taxon_determination_id|
+    params[:id].reverse.each do |taxon_determination_id|
       TaxonDetermination.find(taxon_determination_id).move_to_top
     end
     render json: true
@@ -111,9 +111,9 @@ class TaxonDeterminationsController < ApplicationController
 
   # GET /taxon_determinations/download
   def download
-    send_data Export::Download.generate_csv(TaxonDetermination.where(project_id: sessions_current_project_id)),
+    send_data Export::CSV.generate_csv(TaxonDetermination.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "taxon_determinations_#{DateTime.now}.csv"
+      filename: "taxon_determinations_#{DateTime.now}.tsv"
   end
 
   # POST /taxon_determinations/batch_create
@@ -135,7 +135,8 @@ class TaxonDeterminationsController < ApplicationController
 
   def taxon_determination_params
     params.require(:taxon_determination).permit(
-      :biological_collection_object_id, :otu_id, :year_made, :month_made, :day_made, :position,
+      :taxon_determination_object_id, :taxon_determination_object_type,
+      :otu_id, :year_made, :month_made, :day_made, :position,
       roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
       otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
     )

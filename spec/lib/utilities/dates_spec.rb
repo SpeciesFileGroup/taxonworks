@@ -176,11 +176,11 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
                yyyy_mm_dd_mm_dd: {},
                yyyy_month_dd_month_dd: {}
               },
-          'Here is some extra text:,;   22-24 V 2003; More stuff at the end' =>
-              {dd_dd_month_yyyy: {method: :dd_dd_month_yyyy, piece: {0 => '22-24 V 2003'}, start_date_year: '2003', start_date_month: '5', start_date_day: '22', end_date_year: '2003', end_date_month: '5', end_date_day: '24', start_date: '2003 5 22', end_date: '2003 5 24'},
+          'Here is some extra text:,;   22-25 V 2003; More stuff at the end' =>
+              {dd_dd_month_yyyy: {method: :dd_dd_month_yyyy, piece: {0 => '22-25 V 2003'}, start_date_year: '2003', start_date_month: '5', start_date_day: '22', end_date_year: '2003', end_date_month: '5', end_date_day: '25', start_date: '2003 5 22', end_date: '2003 5 25'},
                dd_mm_dd_mm_yyyy: {},
                dd_month_dd_month_yyyy: {},
-               dd_month_yyy: {method: :dd_month_yyy, piece: {0 => '24 V 2003'}, start_date_year: '2003', start_date_month: '5', start_date_day: '24', end_date_year: '', end_date_month: '', end_date_day: '', start_date: '2003 5 24', end_date: ''},
+               dd_month_yyy: {method: :dd_month_yyy, piece: {0 => '25 V 2003'}, start_date_year: '2003', start_date_month: '5', start_date_day: '25', end_date_year: '', end_date_month: '', end_date_day: '', start_date: '2003 5 25', end_date: ''},
                dd_month_yyyy_2: {},
                mm_dd_dd_yyyy: {},
                mm_dd_mm_dd_yyyy: {},
@@ -194,7 +194,7 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
                month_dd_yyyy_2: {},
                yyyy_mm_dd: {},
                yyy_mm_dd: {},
-               yyyy_month_dd: {method: :yyyy_month_dd, piece: {0 => '24 V 20'}, start_date_year: '1924', start_date_month: '5', start_date_day: '20', end_date_year: '', end_date_month: '', end_date_day: '', start_date: '1924 5 20', end_date: ''},
+               yyyy_month_dd: {method: :yyyy_month_dd, piece: {0 => '25 V 20'}, start_date_year: '1925', start_date_month: '5', start_date_day: '20', end_date_year: '', end_date_month: '', end_date_day: '', start_date: '1925 5 20', end_date: ''},
                yyyy_mm_dd_mm_dd: {},
                yyyy_month_dd_month_dd: {}
               }
@@ -240,6 +240,11 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
           date = Utilities::Dates.parse_iso_date_str("1932-01-11T12:15:30")
           expect(date[0]).to eq(OpenStruct.new(year: 1932, month: 1, day: 11, hour: 12, minute: 15, second: 30))
         end
+
+        specify "should parse date and time without seconds" do
+          date = Utilities::Dates.parse_iso_date_str("1932-01-11T12:15")
+          expect(date[0]).to eq(OpenStruct.new(year: 1932, month: 1, day: 11, hour: 12, minute: 15, second: nil))
+        end
       end
 
       context "ISO8601 interval parsing" do
@@ -283,6 +288,20 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
           expect(date[1]).to eq(OpenStruct.new(year: 1986, month: 3, day: 7, hour: 9, minute: 0, second: 0))
         end
 
+        specify "should not parse time interval missing seconds" do
+          date = Utilities::Dates.parse_iso_date_str("1986-03-07T08:13/09:21")
+          expect(date).to be_nil
+        end
+
+        specify "should not parse time interval missing seconds (left)" do
+          date = Utilities::Dates.parse_iso_date_str("1986-03-07T08:13:05/09:21")
+          expect(date).to be_nil
+        end
+
+        specify "should not parse time interval missing seconds (right)" do
+          date = Utilities::Dates.parse_iso_date_str("1986-03-07T08:13/09:21:05")
+          expect(date).to be_nil
+        end
       end
     end
   end

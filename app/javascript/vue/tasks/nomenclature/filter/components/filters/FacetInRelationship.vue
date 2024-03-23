@@ -63,7 +63,7 @@
 
 <script>
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from '@/components/switch'
+import SmartSelector from '@/components/ui/VSwitch'
 import TreeDisplay from '../treeDisplay'
 import Autocomplete from '@/components/ui/Autocomplete'
 import DisplayList from '@/components/displayList.vue'

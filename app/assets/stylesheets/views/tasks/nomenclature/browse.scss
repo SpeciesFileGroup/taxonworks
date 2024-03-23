@@ -3,6 +3,11 @@
     transform: rotate(180deg);
   }
 
+  .switch-radio label {
+    width: 100%;
+    min-width: auto;
+  }
+
   #vue-browse-validation-panel {
     .soft-validation-box {
       height: 100%;

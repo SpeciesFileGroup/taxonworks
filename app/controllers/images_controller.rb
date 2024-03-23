@@ -127,9 +127,9 @@ class ImagesController < ApplicationController
   # GET /images/download
   def download
     send_data(
-      Export::Download.generate_csv(Image.where(project_id: sessions_current_project_id)),
+      Export::CSV.generate_csv(Image.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "images_#{DateTime.now}.csv")
+      filename: "images_#{DateTime.now}.tsv")
   end
 
   # GET /images/:id/extract/:x/:y/:height/:width
@@ -144,6 +144,11 @@ class ImagesController < ApplicationController
 
   # GET 'images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
   def scale_to_box
+    send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
+  end
+
+  # GET 'images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
+  def api_scale_to_box
     send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
   end
 

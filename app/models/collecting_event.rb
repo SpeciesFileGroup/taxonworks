@@ -202,6 +202,8 @@ class CollectingEvent < ApplicationRecord
 
   include CollectingEvent::DwcSerialization
 
+  include Shared::QueryBatchUpdate
+
   ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
 
   NEARBY_DISTANCE = 5000
@@ -238,7 +240,9 @@ class CollectingEvent < ApplicationRecord
 
   # see also app/models/collecting_event/georeference.rb for more has_many
 
-  has_many :otus, through: :collection_objects
+  has_many :otus, -> { unscope(:order) }, through: :collection_objects, source: 'otu'
+
+  has_many :field_occurrences, inverse_of: :collecting_event
 
   after_create do
     if with_verbatim_data_georeference
@@ -1028,28 +1032,21 @@ class CollectingEvent < ApplicationRecord
   end
 
   class << self
-  # @return [Hash]
+
+    # @return [Hash, false]
     def batch_update(params)
-      return false if params[:collecting_event].blank?
-      a = Queries::CollectingEvent::Filter.new(params[:collecting_event_query])
-      c = a.all.count
-      return false if c == 0 || c > 250
+      request = QueryBatchRequest.new(
+        klass: 'CollectingEvent',
+        object_filter_params: params[:collecting_event_query],
+        object_params: params[:collecting_event],
+        async_cutoff: params[:async_cutoff] || 26,
+        preview: params[:preview],
+      )
 
-      a.all.find_each do |e|
-        query_update(e, params[:collecting_event])
-      end
-
-      return true
+      request.cap = 1000
+      request.cap_reason = 'Max 1000 updated at a time.'
+      query_batch_update(request)
     end
-
-    def query_update(collecting_event, params)
-      begin
-        collecting_event.update!( params )
-      rescue ActiveRecord::RecordInvalid => e
-      end
-    end
-
-    handle_asynchronously :query_update, run_at: Proc.new { 1.second.from_now }, queue: :collecting_event_ui_batch_update
   end
 
   protected
@@ -1059,6 +1056,10 @@ class CollectingEvent < ApplicationRecord
     values = get_geographic_name_classification
 
     if values.empty?
+      update_columns(
+        cached_level0_geographic_name: nil,
+        cached_level1_geographic_name: nil,
+        cached_level2_geographic_name: nil)
       @geographic_names = {}
     else
       update_columns(

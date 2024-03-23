@@ -2,9 +2,9 @@
   <div>
     <div class="radial-annotator">
       <VModal
-        v-if="isModalVisible"
+        v-if="isRadialOpen"
         transparent
-        @close="closeModal()"
+        @close="closeRadialBatch()"
       >
         <template #header>
           <h3 class="flex-separate">
@@ -19,23 +19,25 @@
             <VSpinner v-if="!Object.keys(annotatorTypes).length" />
             <div class="radial-annotator-menu">
               <div>
-                <radial-menu
+                <RadialMenu
                   :options="menuOptions"
-                  @onClick="selectComponent"
+                  @on-click="selectSlice"
                 />
               </div>
             </div>
             <div
               class="radial-annotator-template panel"
-              v-if="currentAnnotator"
+              v-if="currentSliceName"
             >
               <h2 class="capitalize view-title">
-                {{ currentAnnotator.replaceAll('_', ' ') }}
+                {{ currentSliceName }}
               </h2>
               <component
-                :is="ANNOTATORS[currentAnnotator]?.component"
+                :is="currentSlice"
                 :object-type="objectType"
                 :ids="ids"
+                :parameters="params"
+                :nested-query="nestedQuery"
                 @create="
                   () => {
                     RadialAnnotatorEventEmitter.emit('reset')
@@ -48,15 +50,15 @@
       </VModal>
       <VBtn
         class="circle-button"
-        title="Radial massive annoator"
+        title="Radial mass annoator"
         circle
         color="radial"
-        :disabled="!ids.length"
-        @click="isModalVisible = true"
+        :disabled="disabled || (!ids.length && !Object.keys(params).length)"
+        @click="openRadialBatch"
       >
         <VIcon
           name="radialMassAnnotator"
-          title="Radial massive annoator"
+          title="Radial mass annoator"
           x-small
         />
       </VBtn>
@@ -67,18 +69,23 @@
 <script setup>
 import RadialMenu from '@/components/radials/RadialMenu.vue'
 import VModal from '@/components/ui/Modal.vue'
-import VSpinner from '@/components/spinner.vue'
-import Icons from '@/components/radials/annotator/images/icons.js'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import { useRadialBatch } from '@/components/radials/shared/useRadialBatch'
 import { RadialAnnotatorEventEmitter } from '@/utils/index.js'
 import { ANNOTATORS } from './constants/annotators.js'
-import { Metadata, Tag } from '@/routes/endpoints'
-import { computed, ref, onBeforeMount } from 'vue'
+import { Metadata } from '@/routes/endpoints'
+import { ref, onBeforeMount } from 'vue'
 
-const MIDDLE_RADIAL_BUTTON = 'circleButton'
+const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 
 const props = defineProps({
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+
   ids: {
     type: Array,
     default: () => []
@@ -87,96 +94,47 @@ const props = defineProps({
   objectType: {
     type: String,
     required: true
+  },
+
+  parameters: {
+    type: Object,
+    default: undefined
+  },
+
+  nestedQuery: {
+    type: Boolean,
+    default: false
   }
 })
 
 const emit = defineEmits(['close'])
 
+const {
+  closeRadialBatch,
+  currentSlice,
+  currentSliceName,
+  isRadialOpen,
+  menuOptions,
+  openRadialBatch,
+  params,
+  selectSlice
+} = useRadialBatch({
+  excludeParameters: EXCLUDE_PARAMETERS,
+  props,
+  slices: props.nestedQuery ? ANNOTATORS.all : ANNOTATORS.ids
+})
+
 const isModalVisible = ref(false)
 const currentAnnotator = ref()
 const annotatorTypes = ref({})
 
-const menuOptions = computed(() => {
-  const annotators =
-    annotatorTypes.value[props.objectType]?.filter(
-      (type) => ANNOTATORS[type]?.component
-    ) || []
-
-  const slices = annotators.map((type) => ({
-    name: type,
-    label: ANNOTATORS[type].label,
-    innerPosition: 1.7,
-    svgAttributes: {
-      class: currentAnnotator.value === type ? 'slice active' : 'slice'
-    }
-  }))
-
-  return {
-    width: 400,
-    height: 400,
-    sliceSize: 120,
-    centerSize: 34,
-    margin: 2,
-    middleButton: middleButton(),
-    svgAttributes: {
-      class: 'svg-radial-menu'
-    },
-    svgSliceAttributes: {
-      fontSize: 11
-    },
-    slices
-  }
-})
-
-function middleButton() {
-  return {
-    name: MIDDLE_RADIAL_BUTTON,
-    radius: 30,
-    icon: {
-      url: Icons.tags,
-      width: '20',
-      height: '20'
-    },
-    svgAttributes: {
-      fontSize: 11,
-      fill: getDefault() ? '#9ccc65' : '#CACACA',
-      style: 'cursor: pointer'
-    },
-    backgroundHover: getDefault() ? '#81a553' : '#CACACA'
-  }
-}
-
-function getDefault() {
-  const defaultTag = document.querySelector(
-    '[data-pinboard-section="Keywords"] [data-insert="true"]'
-  )
-
-  return defaultTag?.getAttribute('data-pinboard-object-id')
-}
-
 function selectComponent({ name }) {
-  if (name === MIDDLE_RADIAL_BUTTON) {
-    if (getDefault()) {
-      createTag()
-    }
-  } else {
-    currentAnnotator.value = name
-  }
+  currentAnnotator.value = name
 }
 
 function closeModal() {
   isModalVisible.value = false
   emit('close')
-}
-
-function createTag() {
-  Tag.createBatch({
-    object_type: props.objectType,
-    keyword_id: this.getDefault(),
-    object_id: props.ids
-  }).then(() => {
-    TW.workbench.alert.create('Tag item(s) were successfully created', 'notice')
-  })
 }
 
 onBeforeMount(() => {

@@ -77,7 +77,7 @@ class CachedMap < ApplicationRecord
     end
   end
 
-  def self.calculate_union(otu_scope, cached_map_type = 'CachedMapItem::WebLevel1')
+  def self.union_sql(otu_scope, cached_map_type = 'CachedMapItem::WebLevel1')
     i = ::GeographicItem.select("#{GeographicItem::GEOMETRY_SQL.to_sql}")
       .joins('JOIN cached_map_items cmi on cmi.geographic_item_id = geographic_items.id')
       .joins('JOIN otu_scope AS otu_scope1 on otu_scope1.id = cmi.otu_id')
@@ -106,8 +106,20 @@ class CachedMap < ApplicationRecord
               #{s}
             ) AS geom_array
           ) AS subquery;"
+    sql
+  end
 
-    r = ActiveRecord::Base.connection.execute(sql)
+  def self.calculate_union(otu_scope, cached_map_type = 'CachedMapItem::WebLevel1')
+    sql = union_sql(otu_scope, cached_map_type = 'CachedMapItem::WebLevel1')
+    begin
+      r = ActiveRecord::Base.connection.execute(sql)
+    rescue ActiveRecord::StatementInvalid => e
+      if e.message.include?('GEOSUnaryUnion')
+        return nil
+      else
+        raise e
+      end
+    end
     r[0]['geojson']
   end
 

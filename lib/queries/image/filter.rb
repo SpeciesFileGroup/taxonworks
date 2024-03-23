@@ -10,10 +10,13 @@ module Queries
         :collection_object_scope,
         :depiction_object_type,
         :depictions,
+        :freeform_svg,
         :image_id,
         :otu_id,
+        :sled_image,
         :sled_image_id,
         :source_id,
+        :sqed_image,
         :taxon_name_id,
         :taxon_name_id_target,
         :type_material_depictions,
@@ -48,6 +51,12 @@ module Queries
       #   false - image is not used
       #   nil - either
       attr_accessor :depictions
+
+      # @return [Boolean, nil]
+      #   true - image is used (in a depiction) that has svg
+      #   false - is not a true image
+      #   nil - ignored
+      attr_accessor :freeform_svg
 
       # @return [Array]
       # @param depiction_object_type
@@ -94,8 +103,20 @@ module Queries
       # @return [Array]
       attr_accessor :sled_image_id
 
+      # @return [Boolean]
+      #   true - yes
+      #   false - is not
+      #   nil - ignored
+      attr_accessor :sled_image
+
       # @return [Array]
       attr_accessor :sqed_depiction_id
+
+      # @return [Boolean]
+      #   true - yes
+      #   false - is not
+      #   nil - ignored
+      attr_accessor :sqed_image
 
       # @return [Array]
       #   one or both of 'Otu', 'CollectionObject', defaults to both if nothing provided
@@ -115,11 +136,14 @@ module Queries
         @collection_object_scope = params[:collection_object_scope]
         @depiction_object_type = params[:depiction_object_type]
         @depictions = boolean_param(params, :depictions)
+        @freeform_svg = boolean_param(params, :freeform_svg)
         @image_id = params[:image_id]
         @otu_id = params[:otu_id]
         @otu_scope = params[:otu_scope]&.map(&:to_sym)
+        @sled_image = boolean_param(params, :sled_image)
         @sled_image_id = params[:sled_image_id]
         @sqed_depiction_id = params[:sqed_depiction_id]
+        @sqed_image = boolean_param(params, :sqed_image)
         @taxon_name_id = params[:taxon_name_id]
         @taxon_name_id_target = params[:taxon_name_id_target]
         @type_material_depictions = boolean_param(params, :type_material_depictions)
@@ -221,12 +245,44 @@ module Queries
         end
       end
 
+      def freeform_svg_facet
+        return nil if freeform_svg.nil?
+
+        q = ::Image.left_joins(depictions: [:sled_image, :sqed_depiction])
+        .where.missing(:sled_image)
+        .where.not(depictions: {svg_clip: nil}).distinct
+
+        if freeform_svg
+          q
+        else
+          ::Queries.except(::Image.where(project_id:), q)
+        end
+      end
+
+      def sqed_image_facet
+        return nil if sqed_image.nil?
+        if sqed_image
+          ::Image.joins(depictions: [:sqed_depiction]).distinct
+        else
+          ::Image.left_joins(depictions: [:sqed_depiction]).where(sqed_depiction: {id: nil}).distinct
+        end
+      end
+
       def sled_image_facet
+        return nil if sled_image.nil?
+        if sled_image
+          ::Image.joins(:sled_image).distinct
+        else
+          ::Image.where.missing(:sled_image).distinct
+        end
+      end
+
+      def sled_image_id_facet
         return nil if sled_image_id.empty?
         ::Image.joins(:sled_image).where(sled_images: {id: sled_image_id})
       end
 
-      def sqed_depiction_facet
+      def sqed_depiction_id_facet
         return nil if sqed_depiction_id.empty?
         ::Image.joins(depictions: [:sqed_depiction]).where(sqed_depictions: {id: sqed_depiction_id})
       end
@@ -329,9 +385,22 @@ module Queries
           .where(otus: {id: otu_ids})
       end
 
+      # Find all TaxonNames, and their synonyms
       def otu_facet_type_material(otu_ids)
-        ::Image.joins(collection_objects: [type_materials: [protonym: [:otus]]])
-          .where(otus: {id: otu_ids})
+
+        # Double check that there are otu_ids,
+        #  this check exists in calling methods, but re-inforce here.
+        protonyms = if otu_ids.any?
+                      ::Queries::TaxonName::Filter.new(
+                        otu_query: { otu_id: otu_ids},
+                        synonymify: true,
+                        project_id:
+                      ).all.where(type: 'Protonym')
+                    else
+                      TaxonName.none
+                    end
+
+        ::Image.joins(collection_objects: [type_materials: [:protonym]]).where(collection_objects: {type_materials: {protonym: protonyms}})
       end
 
       def otu_facet_otus(otu_ids)
@@ -345,7 +414,7 @@ module Queries
 
       def otu_facet_collection_object_observations(otu_ids)
         ::Image.joins(:observations)
-          .joins('INNER JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = observations.observation_object_id')
+          .joins("INNER JOIN taxon_determinations on taxon_determinations.taxon_determination_object_id = observations.observation_object_id AND taxon_determinations.taxon_determination_object_type = 'CollectionObject'")
           .where(taxon_determinations: {otu_id: otu_ids}, observations: {observation_object_type: 'CollectionObject'})
       end
 
@@ -385,7 +454,7 @@ module Queries
             .join(b, Arel::Nodes::InnerJoin).on( a[:taxon_name_id].eq(b[:id]))
             .join(h_alias, Arel::Nodes::InnerJoin).on(b[:id].eq(h_alias[:descendant_id]))
 
-          z = h_alias[:ancestor_id].eq_any(taxon_name_id)
+          z = h_alias[:ancestor_id].in(taxon_name_id)
           q1 = ::Image.joins(j1.join_sources).where(z)
         end
 
@@ -397,12 +466,15 @@ module Queries
           j2 = table
             .join(depiction_table, Arel::Nodes::InnerJoin).on(table[:id].eq(depiction_table[:image_id]))
             .join(collection_object_table, Arel::Nodes::InnerJoin).on( depiction_table[:depiction_object_id].eq(collection_object_table[:id]).and( depiction_table[:depiction_object_type].eq('CollectionObject') ))
-            .join(taxon_determination_table, Arel::Nodes::InnerJoin).on( collection_object_table[:id].eq(taxon_determination_table[:biological_collection_object_id]) )
+            .join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
+              collection_object_table[:id].eq(taxon_determination_table[:taxon_determination_object_id])
+              .and(taxon_determination_table[:taxon_determination_object_type].eq('CollectionObject'))
+            )
             .join(a, Arel::Nodes::InnerJoin).on(  taxon_determination_table[:otu_id].eq(a[:id]) )
             .join(b, Arel::Nodes::InnerJoin).on( a[:taxon_name_id].eq(b[:id]))
             .join(h_alias, Arel::Nodes::InnerJoin).on(b[:id].eq(h_alias[:descendant_id]))
 
-          z = h_alias[:ancestor_id].eq_any(taxon_name_id)
+          z = h_alias[:ancestor_id].in(taxon_name_id)
           q2 = ::Image.joins(j2.join_sources).where(z)
         end
 
@@ -441,10 +513,14 @@ module Queries
           collection_object_scope_facet,
           depiction_object_type_facet,
           depictions_facet,
+          freeform_svg_facet,
           otu_id_facet,
           otu_scope_facet,
           sled_image_facet,
-          sqed_depiction_facet,
+          sled_image_id_facet,
+          sqed_image_facet,
+          sqed_depiction_id_facet,
+          sqed_image_facet,
           taxon_name_id_facet,
           type_material_depictions_facet,
         ]

@@ -26,12 +26,12 @@
             placeholder="Family name, given name"
             param="term"
             @get-input="setInput"
-            @get-item="addCreatedPerson"
+            @get-item="_addPersonById"
           />
           <DefaultPin
             type="People"
             section="People"
-            @get-item="addCreatedPerson({ object_id: $event.id })"
+            @get-item="_addPersonById"
           />
         </div>
         <div
@@ -154,7 +154,7 @@
 <script>
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import Draggable from 'vuedraggable'
-import DefaultPin from './getDefaultPin'
+import DefaultPin from '@/components/ui/Button/ButtonPinned'
 import OrganizationPicker from '@/components/organizationPicker.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -254,9 +254,9 @@ export default {
     },
 
     getUrl(role) {
-      return role?.person_id || role?.person
-        ? `/people/${role?.person_id || role.person.id}`
-        : '#'
+      const id = role?.person_id || role?.person?.id
+
+      return id ? `/people/${id}` : '#'
     },
 
     filterRole(role) {
@@ -302,10 +302,7 @@ export default {
       const role = this.roles_attributes[index]
 
       if (role?.id) {
-        this.roles_attributes[index] = {
-          id: role.id,
-          _destroy: true
-        }
+        role._destroy = true
       } else {
         this.roles_attributes.splice(index, 1)
       }
@@ -318,9 +315,11 @@ export default {
       this.searchPerson = text
     },
 
-    alreadyExist(personId) {
-      return !!this.roles_attributes.find(
-        (item) => personId === item?.person_id
+    findPersonById(personId) {
+      return this.roles_attributes.find(
+        (item) =>
+          (item.person_id === personId || item?.person?.id === personId) &&
+          item.type === this.roleType
       )
     },
 
@@ -333,7 +332,7 @@ export default {
       if (string.indexOf(', ') > 1) {
         delimiter = ', '
       }
-      if (string.indexOf(' ') > 1 && delimiter != ', ') {
+      if (string.indexOf(' ') > 1 && delimiter !== ', ') {
         delimiter = ' '
       }
       return string.split(delimiter, 2)[position]
@@ -385,10 +384,10 @@ export default {
         const person = this.adapterPerson(response.body)
 
         this.roles_attributes.push(person)
-        this.$emit('update:modelValue', this.roles_attributes)
         this.$refs.autocomplete.cleanInput()
         this.expandPerson = false
         this.person_attributes = this.makeNewPerson()
+        this.$emit('update:modelValue', this.roles_attributes)
         this.$emit('create', person)
       })
     },
@@ -404,16 +403,34 @@ export default {
       }
     },
 
-    async addCreatedPerson({ object_id }) {
-      if (!this.alreadyExist(object_id)) {
-        const person = (await People.find(object_id)).body
-        const personData = this.adapterPerson(person)
+    async _addPersonById({ id }) {
+      const role = this.findPersonById(id)
 
-        this.roles_attributes.push(personData)
+      if (!role) {
+        const { body } = await People.find(id)
+        const person = this.adapterPerson(body)
+
+        this.roles_attributes.push(person)
+        this.reset()
+        this.$emit('create', person)
         this.$emit('update:modelValue', this.roles_attributes)
-        this.$emit('create', personData)
-        this.person_attributes = this.makeNewPerson()
-        this.searchPerson = ''
+      } else if (role?._destroy) {
+        delete role._destroy
+        this.$emit('update:modelValue', this.roles_attributes)
+      }
+    },
+
+    addPerson(data) {
+      const role = this.findPersonById(data?.id)
+
+      if (!role) {
+        const person = this.adapterPerson(data)
+
+        this.roles_attributes.push(person)
+        this.$emit('update:modelValue', this.roles_attributes)
+      } else if (role?._destroy) {
+        delete role._destroy
+        this.$emit('update:modelValue', this.roles_attributes)
       }
     },
 
@@ -425,19 +442,11 @@ export default {
       if (!alreadyExist) {
         this.roles_attributes.push({
           organization_id: organization.id,
-          name: organization.label,
+          name: organization.name,
           type: this.roleType
         })
         this.$emit('update:modelValue', this.roles_attributes)
       }
-    },
-
-    setPerson(data) {
-      const person = this.adapterPerson(data)
-
-      person.position = this.roles_attributes.length + 1
-      this.roles_attributes.push(person)
-      this.$emit('update:modelValue', this.roles_attributes)
     }
   }
 }

@@ -3,14 +3,15 @@
     <div class="horizontal-right-content">
       <a
         target="_blank"
-        :href="manageCVTLink()"
-        >New keyword</a
+        :href="RouteNames.ManageControlledVocabularyTask"
       >
+        New keyword
+      </a>
     </div>
     <smart-selector
       class="margin-medium-bottom"
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-      :autocomplete-params="{ 'type[]': 'Keyword' }"
+      :autocomplete-params="{ 'type[]': KEYWORD }"
       get-url="/controlled_vocabulary_terms/"
       model="keywords"
       buttons
@@ -27,50 +28,69 @@
     />
   </div>
 </template>
-<script>
-import CRUD from '../request/crud.js'
-import annotatorExtend from '../components/annotatorExtend.js'
+
+<script setup>
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import DisplayList from '@/components/displayList.vue'
 import { ControlledVocabularyTerm, Tag } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
+import { KEYWORD } from '@/constants'
+import { ref } from 'vue'
+import { useSlice } from '@/components/radials/composables'
 
-export default {
-  mixins: [CRUD, annotatorExtend],
-
-  components: {
-    DisplayList,
-    SmartSelector
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  created() {
-    ControlledVocabularyTerm.where({ type: ['Keyword'] }).then(({ body }) => {
-      this.allList = body
-    })
+  objectType: {
+    type: String,
+    required: true
   },
 
-  data() {
-    return {
-      allList: []
-    }
-  },
-
-  methods: {
-    createWithId({ id }) {
-      const tag = {
-        keyword_id: id,
-        annotated_global_entity: decodeURIComponent(this.globalId)
-      }
-
-      Tag.create({ tag }).then((response) => {
-        this.list.push(response.body)
-        TW.workbench.alert.create('Tag was successfully created.', 'notice')
-      })
-    },
-
-    manageCVTLink() {
-      return RouteNames.ManageControlledVocabularyTask
-    }
+  radialEmit: {
+    type: Object,
+    required: true
   }
+})
+
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
+
+const allList = ref([])
+
+ControlledVocabularyTerm.where({ type: [KEYWORD] }).then(({ body }) => {
+  allList.value = body
+})
+
+function createWithId({ id }) {
+  const tag = {
+    keyword_id: id,
+    tag_object_id: props.objectId,
+    tag_object_type: props.objectType
+  }
+
+  Tag.create({ tag })
+    .then(({ body }) => {
+      addToList(body)
+      TW.workbench.alert.create('Tag was successfully created.', 'notice')
+    })
+    .catch(() => {})
 }
+
+function removeItem(item) {
+  Tag.destroy(item.id).then((_) => {
+    removeFromList(item)
+  })
+}
+
+Tag.where({
+  tag_object_id: props.objectId,
+  tag_object_type: props.objectType,
+  per: 500
+}).then(({ body }) => {
+  list.value = body
+})
 </script>

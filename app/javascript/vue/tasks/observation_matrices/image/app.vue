@@ -14,6 +14,15 @@
     <div class="flex-separate">
       <h1>Image matrix</h1>
       <ul class="context-menu">
+        <li v-if="editMode">
+          <label class="cursor-pointer middle">
+            <input
+              v-model="isClone"
+              type="checkbox"
+            />
+            Clone mode
+          </label>
+        </li>
         <li>
           <label class="cursor-pointer middle">
             <input
@@ -94,11 +103,12 @@
 
 <script>
 import { GetterNames } from './store/getters/getters'
+import { MutationNames } from './store/mutations/mutations.js'
 import { RouteNames } from '@/routes/routes'
 import { ActionNames } from './store/actions/actions'
 
 import MatrixTable from './components/MatrixTable.vue'
-import SpinnerComponent from '@/components/spinner.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import ColumnModal from './components/ColumnModal.vue'
 import ViewComponent from './components/View/Main.vue'
 import setParam from '@/helpers/setParam'
@@ -106,6 +116,8 @@ import PaginationComponent from '@/components/pagination.vue'
 import PaginationCount from '@/components/pagination/PaginationCount.vue'
 
 export default {
+  name: 'ImageMatrix',
+
   components: {
     ViewComponent,
     MatrixTable,
@@ -136,6 +148,15 @@ export default {
     },
     pagination() {
       return this.$store.getters[GetterNames.GetPagination]
+    },
+    isClone: {
+      get() {
+        return this.$store.getters[GetterNames.IsClone]
+      },
+
+      set(value) {
+        this.$store.commit(MutationNames.SetClone, value)
+      }
     },
     RouteNames: () => RouteNames
   },

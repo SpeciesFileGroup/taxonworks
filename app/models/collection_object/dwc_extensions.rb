@@ -2,6 +2,8 @@ module CollectionObject::DwcExtensions
 
   extend ActiveSupport::Concern
 
+  include CollectionObject::DwcExtensions::TaxonworksExtensions
+
   included do
 
     # A current list of mappable values
@@ -14,6 +16,7 @@ module CollectionObject::DwcExtensions
       preparations: :dwc_preparations,
       lifeStage: :dwc_life_stage,
       sex: :dwc_sex,
+      caste: :dwc_caste,
       country: :dwc_country,
       stateProvince: :dwc_state_province,
       county: :dwc_county,
@@ -49,7 +52,11 @@ module CollectionObject::DwcExtensions
       order: :dwc_order,
       higherClassification: :dwc_higher_classification,
 
+      superfamily: :dwc_superfamily,
       family: :dwc_family,
+      subfamily: :dwc_subfamily,
+      tribe: :dwc_tribe,
+      subtribe: :dwc_subtribe,
       genus: :dwc_genus,
       specificEpithet: :dwc_specific_epithet,
       infraspecificEpithet: :dwc_infraspecific_epithet,
@@ -93,7 +100,11 @@ module CollectionObject::DwcExtensions
 
       occurrenceRemarks: :dwc_occurrence_remarks,
 
-      eventRemarks: :dwc_event_remarks
+      identificationRemarks: :dwc_identification_remarks,
+
+      eventRemarks: :dwc_event_remarks,
+
+      verbatimLabel: :dwc_verbatim_label,
 
       # -- Core taxon? --
       # nomenclaturalCode
@@ -104,6 +115,8 @@ module CollectionObject::DwcExtensions
       # taxonRank
       # namePublishedIn NOT DONE
     }.freeze
+
+    # verbatim label data
 
     attr_accessor :georeference_attributes
 
@@ -150,8 +163,17 @@ module CollectionObject::DwcExtensions
     end
   end
 
+
   def is_fossil?
     biocuration_classes.where(uri: DWC_FOSSIL_URI).any?
+  end
+
+  # use buffered if any
+  # if not check CE verbatim_label
+  def dwc_verbatim_label
+    b = [buffered_collecting_event, buffered_determinations, buffered_other_labels].compact
+    return  b.join("\n\n") if b.present?
+    collecting_event&.verbatim_label.presence
   end
 
   def dwc_occurrence_status
@@ -160,11 +182,16 @@ module CollectionObject::DwcExtensions
 
   # https://dwc.tdwg.org/list/#dwc_georeferenceRemarks
   def dwc_occurrence_remarks
-    notes.collect{|n| n.text}.join('|')
+    notes.collect{|n| n.text}&.join(CollectionObject::DWC_DELIMITER)
+  end
+
+  # https://dwc.tdwg.org/list/#dwc_identificationRemarks
+  def dwc_identification_remarks
+    current_taxon_determination&.notes&.collect { |n| n.text }&.join(CollectionObject::DWC_DELIMITER)
   end
 
   def dwc_event_remarks
-    collecting_event&.notes&.collect {|n| n.text}&.join('|')
+    collecting_event&.notes&.collect {|n| n.text}&.join(CollectionObject::DWC_DELIMITER)
   end
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
@@ -300,6 +327,11 @@ module CollectionObject::DwcExtensions
       .pluck(:name)&.join(', ').presence
   end
 
+  def dwc_caste
+    biocuration_classes.tagged_with_uri(::DWC_ATTRIBUTE_URIS[:caste])
+       .pluck(:name)&.join(', ').presence
+  end
+
   def dwc_verbatim_coordinates
     return nil unless collecting_event
     [collecting_event.verbatim_latitude, collecting_event.verbatim_longitude].compact.join(' ').presence
@@ -378,9 +410,29 @@ module CollectionObject::DwcExtensions
     taxonomy['order']
   end
 
+  # http://rs.tdwg.org/dwc/terms/superfamily
+  def dwc_superfamily
+    taxonomy['superfamily']
+  end
+
   # http://rs.tdwg.org/dwc/terms/family
   def dwc_family
     taxonomy['family']
+  end
+
+  # http://rs.tdwg.org/dwc/terms/subfamily
+  def dwc_subfamily
+    taxonomy['subfamily']
+  end
+
+  # http://rs.tdwg.org/dwc/terms/tribe
+  def dwc_tribe
+    taxonomy['tribe']
+  end
+
+  # http://rs.tdwg.org/dwc/terms/subtribe
+  def dwc_subtribe
+    taxonomy['subtribe']
   end
 
   # http://rs.tdwg.org/dwc/terms/genus
@@ -403,13 +455,13 @@ module CollectionObject::DwcExtensions
 
   # Definition: A list (concatenated and separated) of names of people, groups, or organizations responsible for recording the original Occurrence. The primary collector or observer, especially one who applies a personal identifier (recordNumber), should be listed first.
   #
-  # This was interpreted as collectors (in the field in this context), not those who recorded other aspectes of the data.
+  # This was interpreted as collectors (in the field in this context), not those who recorded other aspects of the data.
   def dwc_recorded_by
     v = nil
     if collecting_event
       v = collecting_event.collectors
         .order('roles.position')
-        .pluck(:cached)
+        .map(&:name)
         .join(CollectionObject::DWC_DELIMITER)
         .presence
       v = collecting_event.verbatim_collectors.presence if v.blank?
@@ -418,8 +470,8 @@ module CollectionObject::DwcExtensions
   end
 
   # See dwc_recorded_by
+  # TODO: Expand to any GlobalIdentifier
   def dwc_recorded_by_id
-
     if collecting_event
       collecting_event.collectors
         .order('roles.position')
@@ -428,12 +480,11 @@ module CollectionObject::DwcExtensions
         .join(CollectionObject::DWC_DELIMITER)
         .presence
     end
-
   end
 
   def dwc_identified_by
     # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    current_taxon_determination&.determiners&.map(&:cached)&.join(CollectionObject::DWC_DELIMITER).presence
+    current_taxon_determination&.determiners&.map(&:name)&.join(CollectionObject::DWC_DELIMITER).presence
   end
 
   def dwc_identified_by_id
@@ -441,8 +492,14 @@ module CollectionObject::DwcExtensions
     current_taxon_determination&.determiners&.map(&:orcid)&.join(CollectionObject::DWC_DELIMITER).presence
   end
 
+  # we assert custody, NOT ownership
   def dwc_institution_code
-    repository.try(:acronym)
+    repository_acronym
+  end
+
+  # we assert custody, NOT ownership
+  def dwc_institution_id
+    repository_url
   end
 
   def dwc_collection_code
@@ -550,16 +607,6 @@ module CollectionObject::DwcExtensions
 
   def dwc_preparations
     preparation_type_name
-  end
-
-  # we assert custody, NOT ownership
-  def dwc_institution_code
-    repository_acronym
-  end
-
-  # we assert custody, NOT ownership
-  def dwc_institution_id
-    repository_url
   end
 
   def dwc_georeference_protocol

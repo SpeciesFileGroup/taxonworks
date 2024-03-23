@@ -1,9 +1,9 @@
-import { useRandomUUID } from '@/helpers/random'
+import { randomUUID } from '@/helpers'
 import makeCitation from '@/factory/Citation'
 
 export default (typeData = {}) => ({
   id: typeData.id,
-  internalId: typeData.internalId || useRandomUUID(),
+  internalId: typeData.internalId || randomUUID(),
   type: typeData.type_type,
   protonymId: typeData.protonym_id,
   label: typeData.object_tag,

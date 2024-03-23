@@ -38,6 +38,7 @@
           v-model="selectedIds"
           :list="list"
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>
@@ -55,7 +56,7 @@ import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import SelectAll from '@/tasks/collection_objects/filter/components/selectAll.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import DepictionList from './components/DepictionList.vue'
 import { IMAGE } from '@/constants/index.js'

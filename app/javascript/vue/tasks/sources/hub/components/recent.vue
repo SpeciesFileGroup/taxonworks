@@ -63,9 +63,9 @@
 </template>
 
 <script>
-import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+import PinComponent from '@/components/ui/Button/ButtonPin.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
-import AddToProjectSource from '@/components/addToProjectSource.vue'
+import AddToProjectSource from '@/components/ui/Button/ButtonAddToProjectSource.vue'
 import CitationsCount from './citationsCount'
 import DocumentsComponent from './documents'
 import TagsComponent from './tags'

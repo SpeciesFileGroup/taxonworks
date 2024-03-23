@@ -2,7 +2,7 @@ class CollectingEventsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card, :clone, :navigation]
-  after_action -> { set_pagination_headers(:collecting_events) }, only: [:index], if: :json_request?
+  after_action -> { set_pagination_headers(:collecting_events) }, only: [:index, :api_index], if: :json_request?
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -124,13 +124,13 @@ class CollectingEventsController < ApplicationController
     @collecting_events = Queries::CollectingEvent::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
   end
 
-  # POST /collecting_events/batch_update.json?collecting_event_query=<>&collecting_event={}
+  # PATCH /collecting_events/batch_update.json?collecting_event_query=<>&collecting_event={}
   def batch_update
-    if c = CollectingEvent.batch_update(
-        collecting_event: collecting_event_params.merge(by: sessions_current_user_id) ,
-        collecting_event_query: params[:collecting_event_query]
-     )
-      render json: {}, status: :ok
+    if r = CollectingEvent.batch_update(
+        preview: params[:preview],
+        collecting_event: collecting_event_params.merge(by: sessions_current_user_id),
+        collecting_event_query: params[:collecting_event_query])
+      render json: r.to_json, status: :ok
     else
       render json: {}, status: :unprocessable_entity
     end
@@ -146,9 +146,9 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/download
   def download
-    send_data(Export::Download.generate_csv(CollectingEvent.where(project_id: sessions_current_project_id)),
+    send_data(Export::CSV.generate_csv(CollectingEvent.where(project_id: sessions_current_project_id)),
               type: 'text',
-              filename: "collecting_events_#{DateTime.now}.csv")
+              filename: "collecting_events_#{DateTime.now}.tsv")
   end
 
   # parse verbatim label, return date and coordinates
@@ -220,7 +220,7 @@ class CollectingEventsController < ApplicationController
 
   def preview_gpx_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(**batch_params)
+      @result = BatchLoad::Import::CollectingEvents::GPXInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
       render 'collecting_events/batch_load/gpx/preview'
       # render '/shared/data/all/batch_load/preview'
@@ -232,7 +232,7 @@ class CollectingEventsController < ApplicationController
 
   def create_gpx_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
-      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(**batch_params)
+      @result = BatchLoad::Import::CollectingEvents::GPXInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events w/georeferences were created."
         render 'collecting_events/batch_load/gpx/create' and return

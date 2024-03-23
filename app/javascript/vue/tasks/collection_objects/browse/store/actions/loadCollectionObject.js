@@ -7,8 +7,10 @@ import {
   BiologicalAssociation,
   TypeMaterial,
   GeographicArea,
-  Repository
+  Repository,
+  Depiction
 } from '@/routes/endpoints'
+import { sortArray } from '@/helpers'
 import { makeCollectionObject } from '@/adapters/index.js'
 import { COLLECTION_OBJECT, COLLECTING_EVENT } from '@/constants/index.js'
 import ActionNames from './actionNames'
@@ -54,15 +56,19 @@ export default ({ state, dispatch }, coId) => {
     state.navigation = body
   })
 
-  CollectionObject.depictions(coId).then(({ body }) => {
+  Depiction.where({
+    depiction_object_id: [coId],
+    depiction_object_type: COLLECTION_OBJECT
+  }).then(({ body }) => {
     state.depictions = body
   })
 
-  TaxonDetermination.where({ biological_collection_object_id: [coId] }).then(
-    ({ body }) => {
-      state.determinations = body
-    }
-  )
+  TaxonDetermination.where({
+    taxon_determination_object_id: [coId],
+    taxon_determination_object_type: COLLECTION_OBJECT
+  }).then(({ body }) => {
+    state.determinations = sortArray(body, 'position')
+  })
 
   TypeMaterial.where({
     collection_object_id: coId,

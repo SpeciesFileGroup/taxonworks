@@ -10,6 +10,14 @@ describe Loan, type: :model, group: :loans do
     expect(loan.valid?).to be_truthy
   end
 
+  specify 'cancelled gift must have date_return_expected' do
+    loan.lender_address = '123 N. South'
+    loan.date_return_expected = nil
+    loan.is_gift = true
+    loan.is_gift = false
+    expect(loan.valid?).to be_falsey
+  end
+
   context 'cloning records' do
     let(:cloned_attributes) {
       {
@@ -86,7 +94,7 @@ describe Loan, type: :model, group: :loans do
 
     context 'objects via Otus' do
       let(:otu) { Otu.create(name: 'Blobasaurus') }
-      let!(:determination) { TaxonDetermination.create(otu: otu, biological_collection_object: specimen) }
+      let!(:determination) { TaxonDetermination.create(otu:, taxon_determination_object: specimen) }
 
       before do
         loan.loan_items << LoanItem.new(loan_item_object: otu)

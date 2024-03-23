@@ -39,6 +39,7 @@ module Queries
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
       @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
+
       @project_id = project_id
       build_terms # TODO - should remove this for accessors
     end
@@ -145,7 +146,7 @@ module Queries
     #   used in or_clauses
     def with_id
       if integers.any?
-        table[:id].eq_any(integers)
+        table[:id].in(integers)
       else
         nil
       end
@@ -181,7 +182,7 @@ module Queries
     # @return [Arel::Nodes::Equality]
     def with_project_id
       if project_id.present?
-        table[:project_id].eq_any(project_id)
+        table[:project_id].in(project_id)
       else
         nil
       end

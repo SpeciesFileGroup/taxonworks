@@ -7,7 +7,7 @@ export default ({ state, commit }, params) => {
   state.matchPeople = []
   state.mergeList = []
 
-  People.where({ ...params, extend: ['roles'] })
+  People.where({ ...params, extend: ['role_counts'] })
     .then((response) => {
       commit(MutationNames.SetFoundPeople, response.body)
       state.URLRequest = response.request.responseURL

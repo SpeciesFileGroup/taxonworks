@@ -31,7 +31,10 @@
               @click="removeDepiction(item)"
               class="button circle-button btn-delete"
             />
-            <zoom-image :image-url="getImageDepictionUrl(item)" />
+            <zoom-image
+              :data="getImageDepictionUrl(item)"
+              :depiction="item"
+            />
           </div>
         </template>
       </image-viewer>
@@ -64,10 +67,6 @@ export default {
     },
     objectType: {
       type: String,
-      required: true
-    },
-    getDepictions: {
-      type: Function,
       required: true
     },
     defaultMessage: {
@@ -104,9 +103,14 @@ export default {
       if (newVal.id && newVal.id != oldVal.id) {
         this.$refs.depiction.setOption('autoProcessQueue', true)
         this.$refs.depiction.processQueue()
-        this.getDepictions(newVal.id).then((response) => {
-          this.figuresList = response.body
+        Depiction.where({
+          depiction_object_id: newVal.id,
+          depiction_object_type: this.objectType
         })
+          .then((response) => {
+            this.figuresList = response.body
+          })
+          .catch(() => {})
       } else if (!newVal.id) {
         this.figuresList = []
         this.$refs.depiction.setOption('autoProcessQueue', false)
@@ -176,20 +180,33 @@ export default {
     },
 
     getImageDepictionUrl(depiction) {
-      const imageWidth = Math.floor(window.innerWidth * 0.75)
-      const imageHeight =
+      return depiction.svg_view_box
+        ? this.makeSVGViewbox(depiction)
+        : {
+            imageUrl: depiction.image.image_display_url,
+            width: depiction.image.width,
+            height: depiction.image.height
+          }
+    },
+
+    makeSVGViewbox(depiction) {
+      const width = Math.floor(window.innerWidth * 0.75)
+      const height =
         window.innerHeight * 0.4 < 400
           ? Math.floor(window.innerHeight * 0.4)
           : 400
+      const imageUrl = imageSVGViewBox(
+        depiction.image.id,
+        depiction.svg_view_box,
+        width,
+        height
+      )
 
-      return depiction.svg_view_box
-        ? imageSVGViewBox(
-            depiction.image.id,
-            depiction.svg_view_box,
-            imageWidth,
-            imageHeight
-          )
-        : depiction.image.image_display_url
+      return {
+        imageUrl,
+        width,
+        height
+      }
     }
   }
 }

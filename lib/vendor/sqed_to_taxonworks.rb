@@ -1,5 +1,5 @@
 # A middle-layer wrapper between Sqed and TaxonWorks
-module SqedToTaxonworks
+module Vendor::SqedToTaxonworks
 
   # Stores and handles metadata linking a TW depiction to the Sqed library.
   class Result

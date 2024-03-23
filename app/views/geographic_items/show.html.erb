@@ -1,17 +1,7 @@
-
 <%= content_for :associated do -%>
-
-  <h3> Project related </h3>
-  <p>
-  <strong>Count of collecting events using <br> this geographic item for georeference:</strong>
-    <%= collecting_events_count_using_this_geographic_item(@geographic_item.id) %>
-  </p>
-
   <h3> Geographic Areas </h3>
   <p>Names from geographic areas: <%= geographic_area_link_list(@geographic_item.geographic_areas) -%></p>
-
-  <p>Parents through geographic
-  areas:  <%= geographic_area_link_list(@geographic_item.parent_geographic_areas) -%></p>
+  <p>Parents through geographic areas: <%= geographic_area_link_list(@geographic_item.parent_geographic_areas) -%></p>
 
   <h3> Geographic Items </h3>
   <p> Parent items through geographic areas: <%= geographic_item_parent_nav_links(@geographic_item) -%></p>
@@ -19,7 +9,6 @@
   <div class="one_third"> Children through geographic areas:
     <%= children_through_geographic_areas_links(@geographic_item) -%>
   </div>
-
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @geographic_item}) -%>

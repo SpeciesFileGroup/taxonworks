@@ -2,96 +2,97 @@
   <div class="field">
     <label v-html="predicateObject.object_tag" />
     <autocomplete
+      v-model="dataAttribute.value"
       :url="`/data_attributes/value_autocomplete`"
-      v-model="data_attribute.value"
-      @getItem="data_attribute.value = $event"
       :add-params="{
-        predicate_id: this.predicateObject.id
+        predicate_id: predicateObject.id
       }"
       param="term"
+      @get-item="
+        (value) => {
+          dataAttribute.value = value
+          updatePredicate()
+        }
+      "
+      @change="updatePredicate"
     />
   </div>
 </template>
 
-<script>
+<script setup>
 import Autocomplete from '@/components/ui/Autocomplete'
+import { DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE } from '@/constants'
+import { watch, ref } from 'vue'
 
-export default {
-  components: {
-    Autocomplete
-  },
-  props: {
-    predicateObject: {
-      type: Object,
-      required: true
-    },
-
-    objectId: {
-      type: [String, Number]
-    },
-
-    objectType: {
-      type: String,
-      required: true
-    },
-
-    existing: {
-      type: Object,
-      default: undefined
-    }
+const props = defineProps({
+  predicateObject: {
+    type: Object,
+    required: true
   },
 
-  emits: ['onUpdate'],
-
-  data() {
-    return {
-      data_attribute: this.newDataAttribute()
-    }
+  objectId: {
+    type: [String, Number],
+    default: undefined
   },
 
-  watch: {
-    existing(newVal) {
-      this.data_attribute = newVal || this.newDataAttribute()
-    },
-
-    data_attribute: {
-      handler() {
-        this.updatePredicate()
-      },
-      deep: true
-    },
-
-    objectId(newVal) {
-      if (!newVal) {
-        this.data_attribute.value = undefined
-      }
-    }
+  objectType: {
+    type: String,
+    required: true
   },
 
-  methods: {
-    newDataAttribute() {
-      return {
-        type: 'InternalAttribute',
-        controlled_vocabulary_term_id: this.predicateObject.id,
-        attribute_subject_id: this.objectId,
-        attribute_subject_type: this.objectType,
-        value: undefined
-      }
-    },
+  existing: {
+    type: Object,
+    default: undefined
+  }
+})
 
-    updatePredicate() {
-      let data
+const emit = defineEmits(['onUpdate'])
 
-      if (!this.data_attribute?.value?.length && this.data_attribute?.id) {
-        data = {
-          id: this.data_attribute.id,
-          _destroy: true
-        }
-      } else {
-        data = this.data_attribute
-      }
-      this.$emit('onUpdate', data)
+const dataAttribute = ref(makeDataAttribute())
+
+watch(
+  () => props.existing,
+  (newVal) => {
+    dataAttribute.value = newVal || makeDataAttribute()
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+)
+watch(
+  () => props.objectId,
+  (newVal) => {
+    if (!newVal) {
+      dataAttribute.value.value = undefined
     }
+  }
+)
+
+function makeDataAttribute() {
+  return {
+    type: DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE,
+    controlled_vocabulary_term_id: props.predicateObject.id,
+    attribute_subject_id: props.objectId,
+    attribute_subject_type: props.objectType,
+    value: undefined
+  }
+}
+
+function updatePredicate() {
+  const value = dataAttribute.value?.value?.trim()
+  const id = dataAttribute.value.id
+
+  if (!value) {
+    if (id) {
+      emit('onUpdate', {
+        id,
+        controlled_vocabulary_term_id: props.predicateObject.id,
+        _destroy: true
+      })
+    }
+  } else {
+    emit('onUpdate', dataAttribute.value)
   }
 }
 </script>

@@ -6,6 +6,7 @@
     coverage
     validity
   />
+  <FilterType v-model="params" />
   <FacetBiocurations v-model="params" />
   <FacetIdentifiers v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
@@ -27,7 +28,10 @@
   <FacetTypeMaterial v-model="params" />
   <FacetInRelationship v-model="params" />
   <FacetLoan v-model="params" />
-  <FacetUsers v-model="params" />
+  <FacetUsers
+    v-model="params"
+    :type="COLLECTION_OBJECT"
+  />
   <FacetTags
     v-model="params"
     target="CollectionObject"
@@ -47,11 +51,11 @@
 
 <script setup>
 import { computed } from 'vue'
-import { COLLECTOR_SELECTOR } from '@/constants/index.js'
+import { COLLECTOR_SELECTOR, COLLECTION_OBJECT } from '@/constants/index.js'
 import FacetDetermination from '@/components/Filter/Facets/CollectionObject/Determiner/FacetDetermination.vue'
 import FacetCollectingEvent from '@/components/Filter/Facets/CollectingEvent/FacetCollectingEvent/FacetCollectingEvent.vue'
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
@@ -71,6 +75,7 @@ import FacetWKT from '@/components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
+import FilterType from '@/components/Filter/Facets/CollectionObject/FacetType.vue'
 
 const WITH_PARAMS = [
   'biological_associations',

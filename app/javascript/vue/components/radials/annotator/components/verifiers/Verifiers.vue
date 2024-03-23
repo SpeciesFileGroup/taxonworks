@@ -1,6 +1,6 @@
 <template>
   <div>
-    <smart-selector
+    <SmartSelector
       model="people"
       target="Verifier"
       :klass="objectType"
@@ -9,7 +9,6 @@
       :autocomplete-params="{
         roles: ['Verifier']
       }"
-      :filter-ids="peopleIds"
       :autocomplete="false"
       @selected="createRole($event.id)"
     >
@@ -24,8 +23,8 @@
           @create="createRole($event.person_id)"
         />
       </template>
-    </smart-selector>
-    <table-list
+    </SmartSelector>
+    <TableList
       :list="list"
       :header="['Person', '']"
       :attributes="['object_tag']"
@@ -34,65 +33,62 @@
   </div>
 </template>
 
-<script>
-import CRUD from '../../request/crud.js'
-import annotatorExtend from '../../components/annotatorExtend.js'
+<script setup>
 import RolePicker from '@/components/role_picker.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import TableList from '@/components/table_list.vue'
-import { removeFromArray } from '@/helpers/arrays.js'
+import { useSlice } from '@/components/radials/composables'
 import { Role } from '@/routes/endpoints'
 import { ROLE_VERIFIER } from '@/constants'
+import { ref } from 'vue'
 
-export default {
-  mixins: [CRUD, annotatorExtend],
-
-  components: {
-    SmartSelector,
-    RolePicker,
-    TableList
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  computed: {
-    validateFields() {
-      return this.note.text
-    }
+  objectType: {
+    type: String,
+    required: true
   },
 
-  data() {
-    return {
-      loadOnMounted: false,
-      roles: []
-    }
-  },
-
-  created() {
-    Role.where({
-      role_type: [ROLE_VERIFIER],
-      role_object_id: this.metadata.object_id,
-      role_object_type: this.objectType
-    }).then(({ body }) => {
-      this.list = body
-    })
-  },
-
-  methods: {
-    createRole(id) {
-      const role = {
-        type: 'Verifier',
-        person_id: id,
-        annotated_global_entity: this.globalId
-      }
-
-      Role.create({ role }).then(({ body }) => {
-        this.list.push(body)
-      })
-    },
-
-    removeRole(role) {
-      Role.destroy(role.id)
-      removeFromArray(this.list, role)
-    }
+  radialEmit: {
+    type: Object,
+    required: true
   }
+})
+
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
+
+const roles = ref([])
+
+function createRole(id) {
+  const role = {
+    type: ROLE_VERIFIER,
+    person_id: id,
+    role_object_id: props.objectId,
+    role_object_type: props.objectType
+  }
+
+  Role.create({ role }).then(({ body }) => {
+    addToList(body)
+  })
 }
+
+function removeRole(role) {
+  Role.destroy(role.id).then((_) => {
+    removeFromList(role)
+  })
+}
+
+Role.where({
+  role_type: [ROLE_VERIFIER],
+  role_object_id: props.objectId,
+  role_object_type: props.objectType
+}).then(({ body }) => {
+  list.value = body
+})
 </script>

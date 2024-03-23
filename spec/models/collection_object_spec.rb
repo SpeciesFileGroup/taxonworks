@@ -1,9 +1,53 @@
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
-# See spec/models/biological_collection_object for nested attributes and taxon determinations
 describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_objects] do
   include_context 'stuff for complex geo tests'
+
+  specify '#is_image_stub? 1'  do
+    s = FactoryBot.create(:valid_specimen)
+    expect(s.is_image_stub?).to be_truthy
+  end
+
+  specify '#is_image_stub? 2'  do
+    s = FactoryBot.create(:valid_specimen)
+    FactoryBot.create(:valid_type_material, collection_object: s)
+    expect(s.is_image_stub?).to be_falsey
+  end
+
+  specify '.batch_update() (async)' do
+    s1, s2 = Specimen.create!, Specimen.create!
+    o = FactoryBot.create(:valid_otu)
+
+    q = ::Queries::CollectionObject::Filter.new({collection_object_id: [ s1.id, s2.id ]})
+
+    params = {
+      async_cutoff: 1,
+      collection_object: {taxon_determinations_attributes: [{otu_id: o.id} ] }
+    }.merge( collection_object_query: q.params )
+
+    CollectionObject.batch_update(params)
+
+    sleep(2) # jobs trigger in 2 seconds
+    Delayed::Worker.new.work_off
+
+    expect(TaxonDetermination.all.count).to eq(2)
+  end
+
+  specify '.batch_update() (sync)' do
+    s1, s2 = Specimen.create!, Specimen.create!
+    o = FactoryBot.create(:valid_otu)
+
+    q = ::Queries::CollectionObject::Filter.new({collection_object_id: [ s1.id, s2.id ]})
+
+    params = {
+      collection_object: {taxon_determinations_attributes: [{otu_id: o.id}]}
+    }.merge(collection_object_query: q.params)
+
+    CollectionObject.batch_update(params)
+
+    expect(TaxonDetermination.all.count).to eq(2)
+  end
 
   context 'dwc_occurrence' do
     let(:collection_object) { CollectionObject.new() }
@@ -116,12 +160,12 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
           end
 
           specify 'a Lot when assigned a ranged lot and nilled total changes to RangedLot' do
-            l.update!(total: nil, ranged_lot_category: ranged_lot_category)
+            l.update!(total: nil, ranged_lot_category:)
             expect(l.type).to eq('RangedLot')
           end
 
           specify 'a Specimen when assigned a ranged lot and nilled total changes to RangedLot' do
-            s.update!(total: nil, ranged_lot_category: ranged_lot_category)
+            s.update!(total: nil, ranged_lot_category:)
             expect(s.type).to eq('RangedLot')
           end
         end
@@ -431,7 +475,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
       let(:id_attributes) {
         { namespace:  nil,
-          project_id: project_id,
+          project_id:,
           type: nil,
           identifier: nil} }
 
@@ -466,19 +510,19 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
           id = nil
           while new
             id = rand(99999) + 10 - identifier
-            if !Specimen.where(id: id).any?
+            if !Specimen.where(id:).any?
               new = false
             end
           end
 
           # Force strange id order so we don't assume anything
-          Specimen.create!(id: id)
+          Specimen.create!(id:)
         }
 
         let!(i) { Identifier::Local::CatalogNumber.create!(
           identifier_object: send(n),
           namespace: (identifier.even? ? ns2 : ns1),
-          identifier: identifier) }
+          identifier:) }
       end
 
       let(:evens) { [sp_2, sp_4] }
@@ -621,8 +665,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         :valid_biological_association,
         biological_association_subject: collection_object) }
       let!(:taxon_determination) { FactoryBot.create(
-        :valid_taxon_determination, otu: otu,
-        biological_collection_object: collection_object) }
+        :valid_taxon_determination, otu:,
+        taxon_determination_object: collection_object) }
 
       specify ".used_recently('TaxonDetermination')" do
         expect(CollectionObject.used_recently(otu.created_by_id, otu.project_id,'TaxonDetermination').to_a)

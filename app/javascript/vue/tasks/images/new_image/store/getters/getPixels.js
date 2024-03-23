@@ -1,1 +1,1 @@
-export default state => state.pixels_to_centimeter
+export default (state) => state.pixelsToCentimeter

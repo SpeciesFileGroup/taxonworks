@@ -1,5 +1,6 @@
 <template>
   <div class="attribution_annotator">
+    <VSpinner v-if="isLoading" />
     <LicenseSelector
       v-model="attribution.license"
       v-model:year="attribution.copyright_year"
@@ -31,11 +32,12 @@
 </template>
 
 <script setup>
-import VSwitch from '@/components/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import LicenseSelector from './LicenseSelector.vue'
 import PeopleSelector from './PeopleSelector.vue'
 import { Attribution } from '@/routes/endpoints'
-import { computed, ref, onBeforeMount } from 'vue'
+import { computed, ref } from 'vue'
 import {
   ROLE_ATTRIBUTION_COPYRIGHT_HOLDER,
   ROLE_ATTRIBUTION_CREATOR,
@@ -63,10 +65,18 @@ const roleList = ref({
 const roleType = ref(ROLE_ATTRIBUTION_CREATOR)
 
 const ROLE_TYPE_LIST = computed(() => ({
-  [ROLE_ATTRIBUTION_CREATOR]: `Creator (${getCount(roleList.value[ROLE_ATTRIBUTION_CREATOR])})`,
-  [ROLE_ATTRIBUTION_EDITOR]: `Editor (${getCount(roleList.value[ROLE_ATTRIBUTION_EDITOR])})`,
-  [ROLE_ATTRIBUTION_OWNER]: `Owner (${getCount(roleList.value[ROLE_ATTRIBUTION_OWNER])})`,
-  [ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]: `Copyright Holder (${getCount(roleList.value[ROLE_ATTRIBUTION_COPYRIGHT_HOLDER])})`
+  [ROLE_ATTRIBUTION_CREATOR]: `Creator (${getCount(
+    roleList.value[ROLE_ATTRIBUTION_CREATOR]
+  )})`,
+  [ROLE_ATTRIBUTION_EDITOR]: `Editor (${getCount(
+    roleList.value[ROLE_ATTRIBUTION_EDITOR]
+  )})`,
+  [ROLE_ATTRIBUTION_OWNER]: `Owner (${getCount(
+    roleList.value[ROLE_ATTRIBUTION_OWNER]
+  )})`,
+  [ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]: `Copyright Holder (${getCount(
+    roleList.value[ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]
+  )})`
 }))
 
 const typeHasOrganization = computed(
@@ -85,18 +95,6 @@ const validateFields = computed(
     attribution.value.copyright_year ||
     [].concat([], ...Object.values(roleList.value)).length
 )
-
-onBeforeMount(() => {
-  Attribution.where({
-    attribution_object_id: [props.metadata.object_id],
-    attribution_object_type: props.metadata.object_type
-  }).then(({ body }) => {
-    const [item] = body
-
-    attribution.value = makeAttribution(item)
-    roleList.value = makeRoleList(item)
-  })
-})
 
 function makeAttribution(item) {
   return {
@@ -134,4 +132,20 @@ function saveAttribution() {
     TW.workbench.alert.create('Attribution was successfully created.', 'notice')
   })
 }
+
+const isLoading = ref(true)
+
+Attribution.where({
+  attribution_object_id: props.metadata.object_id,
+  attribution_object_type: props.metadata.object_type
+})
+  .then(({ body }) => {
+    const [item] = body
+
+    attribution.value = makeAttribution(item)
+    roleList.value = makeRoleList(item)
+  })
+  .finally(() => {
+    isLoading.value = false
+  })
 </script>

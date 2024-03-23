@@ -19,12 +19,14 @@
         <RadialAssertedDistribution
           :disabled="!list.length"
           :parameters="parameters"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #nav-right>
         <RadialAssertedDistribution
           :disabled="!list.length"
           :ids="selectedIds"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #facets>
@@ -36,6 +38,7 @@
           :attributes="ATTRIBUTES"
           :list="list"
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>
@@ -51,7 +54,7 @@
 <script setup>
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import RadialAssertedDistribution from '@/components/radials/asserted_distribution/radial.vue'

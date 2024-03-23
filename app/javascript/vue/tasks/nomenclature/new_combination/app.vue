@@ -28,7 +28,7 @@
       :taxon-name="taxon"
     />
     <h3 v-help.section.recent.overview>Recent</h3>
-    <display-list
+    <DisplayList
       :list="combinations"
       @edit="editCombination"
       @delete="deleteCombination"
@@ -40,7 +40,7 @@
 import NewCombination from './components/newCombination.vue'
 import InputSearch from './components/inputSearch.vue'
 import DisplayList from './components/displayList.vue'
-import Spinner from '@/components/spinner.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
 import { addToArray } from '@/helpers/arrays.js'
 import { Combination, TaxonName } from '@/routes/endpoints'
 import { EXTEND_PARAMS } from './constants/extend'

@@ -45,6 +45,7 @@
       v-model="collectingEvent.document_label"
       cols="45"
       rows="6"
+      @change="updateChange"
     />
   </div>
 </template>

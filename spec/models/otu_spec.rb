@@ -50,7 +50,7 @@ describe Otu, type: :model, group: :otu do
       end
 
       specify 'contents' do
-        expect(otu.contents << Content.new).to be_truthy
+        expect(otu.contents << ::Content.new).to be_truthy
       end
 
       specify 'topics' do
@@ -159,10 +159,10 @@ describe Otu, type: :model, group: :otu do
       let(:c_o2) { FactoryBot.create(:valid_collection_object, {collecting_event: c_e2}) }
       let(:c_o3) { FactoryBot.create(:valid_collection_object, {collecting_event: c_e3}) }
 
-      let(:t_d1) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o1}) }
+      let(:t_d1) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, taxon_determination_object: c_o1}) }
 
-      let(:t_d2) { FactoryBot.create(:valid_taxon_determination, {otu: otu2, biological_collection_object: c_o2}) }
-      let(:t_d3) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o3}) }
+      let(:t_d2) { FactoryBot.create(:valid_taxon_determination, {otu: otu2, taxon_determination_object: c_o2}) }
+      let(:t_d3) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, taxon_determination_object: c_o3}) }
 
       before(:each) {
         a_d3.otu = otu1
@@ -230,10 +230,10 @@ describe Otu, type: :model, group: :otu do
 
     let(:o2) { Otu.create(name: 'o2') }
     let(:s) { FactoryBot.create(:valid_specimen) }
-    let!(:content) { FactoryBot.create(:valid_content, otu: otu) }
+    let!(:content) { FactoryBot.create(:valid_content, otu:) }
     let!(:biological_association) { FactoryBot.create(:valid_biological_association, biological_association_subject: o2, biological_association_object: otu) }
-    
-    let!(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution, otu: otu) }
+
+    let!(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution, otu:) }
 
     specify ".used_recently('Content')" do
       expect(Otu.used_recently(otu.created_by_id, otu.project_id,'Content').to_a).to include(otu.id)
@@ -254,6 +254,54 @@ describe Otu, type: :model, group: :otu do
     specify '.selected_optimized 3' do
       expect(Otu.select_optimized(otu.created_by_id, otu.project_id, 'AssertedDistribution')[:quick].map(&:id)).to contain_exactly(otu.id, o2.id)
     end
+  end
+
+  context '.batch_update' do
+    let(:t0) {Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))}
+    let(:t) {Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)}
+
+    specify 'sync' do
+
+      o0 = Otu.create!(taxon_name:t0, name: 'o1')
+      o1 = Otu.create!(taxon_name:t0, name: 'o2')
+
+      q = ::Queries::Otu::Filter.new({otu_id: [o0.id, o1.id]})
+
+      params = {
+        async_cutoff: 3,
+        otu: { taxon_name_id: t.id },
+      }.merge(otu_query: q.params)
+
+      response = Otu.batch_update(params).to_json
+
+      expect(response[:updated]).to include(o0.id, o1.id)
+      expect(response[:not_updated]).to eq([])
+      expect(o0.reload.taxon_name).to eq t
+      expect(o1.reload.taxon_name).to eq t
+    end
+
+    specify 'async' do
+      o0 = Otu.create!(taxon_name:t0, name: 'o1')
+      o1 = Otu.create!(taxon_name:t0, name: 'o2')
+
+      q = ::Queries::Otu::Filter.new({otu_id: [o0.id, o1.id]})
+
+      params = {
+        otu: { taxon_name_id: t.id },
+      }.merge(otu_query: q.params)
+
+      response = Otu.batch_update(params.merge(async_cutoff: 1)).to_json
+
+      sleep(2) # jobs trigger in 2 seconds
+      Delayed::Worker.new.work_off
+
+      expect(response[:total_attempted]).to eq(2)
+      expect(response[:async]).to eq(true)
+
+      expect(o0.reload.taxon_name).to eq t
+      expect(o1.reload.taxon_name).to eq t
+    end
+
   end
 
   context 'concerns' do

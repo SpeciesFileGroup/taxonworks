@@ -93,7 +93,6 @@ import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { RouteNames } from '@/routes/routes'
-import { CollectionObject } from '@/routes/endpoints'
 import BlockVerbatin from './components/verbatimLayout.vue'
 import BlockGeography from './components/GeographyLayout.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
@@ -102,7 +101,7 @@ import BlockMap from './components/map/main.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
-import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+import PinComponent from '@/components/ui/Button/ButtonPin.vue'
 import platformKey from '@/helpers/getPlatformKey'
 
 export default {
@@ -160,12 +159,10 @@ export default {
       set(value) {
         this.$store.commit([MutationNames.SetLocked, value])
       }
-    }
-  },
+    },
 
-  data() {
-    return {
-      alreadyUsed: 0
+    alreadyUsed() {
+      return this.$store.getters[GetterNames.GetCETotalUsed]
     }
   },
 
@@ -173,13 +170,6 @@ export default {
     async collectingEvent(newVal, oldVal) {
       if (!(newVal?.id && oldVal?.id && newVal.id === oldVal.id)) {
         this.subsequentialUses = 0
-      }
-      if (newVal.id) {
-        this.alreadyUsed = (
-          await CollectionObject.where({ collecting_event_id: [newVal.id] })
-        ).body.length
-      } else {
-        this.alreadyUsed = 0
       }
     }
   },

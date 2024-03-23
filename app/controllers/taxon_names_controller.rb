@@ -106,9 +106,9 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/download
   def download
-    send_data Export::Download.generate_csv(
+    send_data Export::CSV.generate_csv(
       TaxonName.where(project_id: sessions_current_project_id)
-    ), type: 'text', filename: "taxon_names_#{DateTime.now}.csv"
+    ), type: 'text', filename: "taxon_names_#{DateTime.now}.tsv"
   end
 
   def batch_load
@@ -213,7 +213,7 @@ class TaxonNamesController < ApplicationController
 
   def parse
     @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id]
-    @result = TaxonWorks::Vendor::Biodiversity::Result.new(
+    @result = Vendor::Biodiversity::Result.new(
       query_string: params.require(:query_string),
       project_id: sessions_current_project_id,
       code: :iczn # !! TODO: generalize
@@ -224,14 +224,38 @@ class TaxonNamesController < ApplicationController
   def original_combination
   end
 
+  # PATCH /taxon_names/batch_update.json?taxon_names_query=<>&taxon_name={taxon_name_id=123}}
+  def batch_update
+    if r = Protonym.batch_update(
+        preview: params[:preview], 
+        taxon_name: taxon_name_params.merge(by: sessions_current_user_id),
+        taxon_name_query: params[:taxon_name_query].merge(by: sessions_current_user_id),
+    )
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
   # GET /api/v1/taxon_names
   def api_index
-    @taxon_names = ::Queries::TaxonName::Filter.new(params.merge!(api: true)).all
+    q = ::Queries::TaxonName::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('taxon_names.id')
-      .page(params[:page])
-      .per(params[:per])
-    render '/taxon_names/api/v1/index'
+
+    respond_to do |format|
+      format.json {
+       @taxon_names = q.page(params[:page]).per(params[:per])
+       render '/taxon_names/api/v1/index'
+     }
+      format.csv {
+        @taxon_names = q
+        send_data Export::CSV.generate_csv(
+          @taxon_names,
+          exclude_columns: %w{updated_by_id created_by_id project_id},
+        ), type: 'text', filename: "taxon_names_#{DateTime.now}.tsv"
+      }
+    end
   end
 
   # GET /api/v1/taxon_names/:id
@@ -253,7 +277,7 @@ class TaxonNamesController < ApplicationController
 
   def api_parse
     @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id]
-    @result = TaxonWorks::Vendor::Biodiversity::Result.new(
+    @result = Vendor::Biodiversity::Result.new(
       query_string: params.require(:query_string),
       project_id: sessions_current_project_id,
       code: :iczn # !! TODO: generalize
@@ -309,4 +333,7 @@ class TaxonNamesController < ApplicationController
 
 end
 
-require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/nomen_interpreter.rb'
+
+Rails.application.reloader.to_prepare do
+  require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/nomen_interpreter.rb'
+end

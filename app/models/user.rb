@@ -121,6 +121,7 @@ class User < ApplicationRecord
   has_secure_password
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+  HUB_FAVORITES = {'data' => [], 'tasks' => []}.freeze
 
   store :preferences, accessors: [:disable_chime], coder: JSON
 
@@ -199,10 +200,10 @@ class User < ApplicationRecord
       email, name = r.split(',')
       p = SecureRandom.hex
       u = User.create(
-        email: email,
-        name: name,
+        email:,
+        name:,
         set_new_api_access_token: create_api_token,
-        is_administrator: is_administrator,
+        is_administrator:,
         by: created_by,
         password: p,
         password_confirmation: p,
@@ -211,8 +212,8 @@ class User < ApplicationRecord
 
       v.push u
 
-      if !project_id.blank? && u.valid?
-        ProjectMember.create(user: u, project_id: project_id)
+      if project_id.present? && u.valid?
+        ProjectMember.create(user: u, project_id:)
       end
     end
     v
@@ -247,7 +248,7 @@ class User < ApplicationRecord
   # @param [Integer] project_id
   # @return [Scope] of users
   def self.not_in_project(project_id)
-    ids = ProjectMember.where(project_id: project_id).pluck(:user_id)
+    ids = ProjectMember.where(project_id:).pluck(:user_id)
     return where(false) if ids.empty?
 
     User.where(User.arel_table[:id].not_eq_all(ids))
@@ -256,7 +257,7 @@ class User < ApplicationRecord
   # @param [Integer] project_id
   # @return [Scope] of ids for users in the project
   def self.in_project(project_id = Current.project_id )
-    ProjectMember.where(project_id: project_id).distinct.pluck(:user_id)
+    ProjectMember.where(project_id:).distinct.pluck(:user_id)
   end
 
   # @return [String] of token
@@ -307,10 +308,10 @@ class User < ApplicationRecord
     n = options[:name]
     p = options[:project_id].to_s
     k = options[:kind]
-    u = hub_favorites.clone
+    u = hub_favorites.dup
 
-    u[p] = {'data' => [], 'tasks' => []} if !u[p]
-    u[p][k] = u[p][k].push(n).uniq[0..19].sort
+    u[p] = HUB_FAVORITES.dup if !u[p]
+    u[p][k] = u[p][k].push(n).uniq[0..39].sort
 
     update_column(:hub_favorites, u)
     true
@@ -321,7 +322,7 @@ class User < ApplicationRecord
   # @param [Hash] options
   def remove_page_from_favorites(options = {}) # name: nil, kind: nil, project_id: nil
     validate_favorite_options(options)
-    new_routes = hub_favorites.clone
+    new_routes = hub_favorites.dup
     new_routes[options['project_id'].to_s][options['kind']].delete(options['name'])
     update_column(:hub_favorites, new_routes)
   end
@@ -386,7 +387,7 @@ class User < ApplicationRecord
   # @return [Scope] of pinboard items
   def pinboard_hash(project_id)
     h = {}
-    pinboard_items.where(project_id: project_id).order('pinned_object_type DESC, position').each do |i|
+    pinboard_items.where(project_id:).order('pinned_object_type DESC, position').each do |i|
       l = i.pinned_object_type == 'ControlledVocabularyTerm' ? i.pinned_object.class.name : i.pinned_object_type
       h[l] ||= []
       h[l].push i
@@ -410,7 +411,7 @@ class User < ApplicationRecord
   # @return [Hash]
   # @user.get_class_created_updated # => { "projects" => {created: 10, first_created: datetime, updated: 10, last_updated: datetime} }
   def get_class_created_updated
-    Rails.application.eager_load! if Rails.env.development?
+    #  Rails.application.eager_load! if Rails.env.development?
     data = {}
 
     User.reflect_on_all_associations(:has_many).each do |r|
@@ -485,9 +486,9 @@ class User < ApplicationRecord
 
   def transfer_housekeeping(target_user)
     models = ApplicationEnumeration.superclass_models.select { |m| m < Housekeeping::Users }
-  
+
     User.transaction do
-      models.each do |model| 
+      models.each do |model|
         model.where(created_by_id: self.id).update_all(created_by_id: target_user.id)
         model.where(updated_by_id: self.id).update_all(updated_by_id: target_user.id)
       end

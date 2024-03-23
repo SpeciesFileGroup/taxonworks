@@ -38,6 +38,7 @@ class Repository < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::Confidences
+  include Shared::HasPapertrail
   include Shared::IsData
 
   ALTERNATE_VALUES_FOR = [:name, :acronym]

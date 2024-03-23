@@ -12,7 +12,7 @@ export default ({ state, commit }) => {
 
     People.merge(selectedPerson.id, {
       person_to_destroy: mergePerson.id,
-      extend: ['roles']
+      extend: ['role_counts']
     })
       .then(({ body }) => {
         const personIndex = foundPeople.findIndex(
@@ -36,7 +36,7 @@ export default ({ state, commit }) => {
         if (mergeList.length) {
           processMerge(mergeList)
         } else {
-          People.find(selectedPerson.id, { extend: ['roles'] }).then(
+          People.find(selectedPerson.id, { extend: ['roles', 'role_counts'] }).then(
             ({ body }) => {
               commit(MutationNames.SetSelectedPerson, body)
               commit(MutationNames.SetFoundPeople, foundPeople)

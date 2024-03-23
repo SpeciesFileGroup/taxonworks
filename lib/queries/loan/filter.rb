@@ -137,8 +137,8 @@ module Queries
 
       def taxon_name_id_facet
         return nil if taxon_name_id.empty?
-        a = ::Queries::CollectionObject::Filter.new(taxon_name_id: taxon_name_id, descendants: descendants)
-        b = ::Queries::Otu::Filter.new(taxon_name_id: taxon_name_id, descendants: descendants)
+        a = ::Queries::CollectionObject::Filter.new(taxon_name_id:, descendants:)
+        b = ::Queries::Otu::Filter.new(taxon_name_id:, descendants:)
 
         a.project_id = nil
         b.project_id = nil
@@ -165,7 +165,7 @@ module Queries
 
         s = 'WITH items AS (' + e + ') ' + ::Loan.joins('JOIN items as items1 on items1.loan_id = loans.id').to_sql
 
-        ::Loan.from("(#{s}) as loans")
+        ::Loan.from("(#{s}) as loans").distinct
       end
 
       def date_requested_facet
@@ -223,12 +223,12 @@ module Queries
 
       def loan_item_disposition_facet
         return nil if loan_item_disposition.empty?
-        ::Loan.joins(:loan_items).where(loan_items: {disposition: loan_item_disposition})
+        ::Loan.joins(:loan_items).where(loan_items: {disposition: loan_item_disposition}).distinct
       end
 
       def person_role_facet
         return nil if person_id.empty?
-        ::Loan.joins(:roles).where(roles: {type: role, person_id: person_id})
+        ::Loan.joins(:roles).where(roles: {type: role, person_id:}).distinct
       end
 
       def otu_query_facet
@@ -241,12 +241,12 @@ module Queries
         # Consider position = 1
         b = ::Loan.joins(:loan_items)
           .joins("JOIN collection_objects co on co.id = loan_items.loan_item_object_id and loan_items.loan_item_object_type = 'CollectionObject'")
-          .joins('JOIN taxon_determinations td on co.id = td.biological_collection_object_id')
+          .joins("JOIN taxon_determinations td on co.id = td.taxon_determination_object_id AND td.taxon_determination_object_type = 'CollectionObject'")
           .joins('JOIN query_otu_loan as query_otu_loan2 ON query_otu_loan2.id = td.otu_id').to_sql
 
         s << ::Loan.from("((#{a}) UNION (#{b})) as loans").to_sql
 
-        ::Loan.from('(' + s + ') as loans')
+        ::Loan.from('(' + s + ') as loans').distinct
       end
 
       def collection_object_query_facet
@@ -256,7 +256,7 @@ module Queries
         a = ::Loan.joins(:loan_items)
           .joins("JOIN query_co_loan as query_co_loan1 on query_co_loan1.id = loan_items.loan_item_object_id AND loan_items.loan_item_object_type = 'CollectionObject'").to_sql
 
-        ::Loan.from('(' + s + ::Loan.from("(#{a}) as loans").to_sql + ') as loans' )
+        ::Loan.from('(' + s + ::Loan.from("(#{a}) as loans").to_sql + ') as loans' ).distinct
       end
 
       def merge_clauses
@@ -279,4 +279,3 @@ module Queries
     end
   end
 end
-

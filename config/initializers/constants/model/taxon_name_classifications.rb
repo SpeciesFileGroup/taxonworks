@@ -1,9 +1,9 @@
 # Be sure to restart your server (or console) when you modify this file.
 
-require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
+Rails.application.config.after_initialize do
 
 # Array of all ICZN and ICN TaxonNameClassification classes
-TAXON_NAME_CLASSIFICATION_CLASSES = TaxonNameClassification.descendants.freeze
+  TAXON_NAME_CLASSIFICATION_CLASSES = TaxonNameClassification.descendants.freeze
 
 # Array of all Latinized TaxonNameClassification classes, as Strings
 LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Latinized.descendants.collect { |d| d.to_s }.freeze
@@ -176,4 +176,4 @@ TAXON_NAME_CLASSIFICATION_JSON = {
     ])
   }
 }.freeze
-
+end

@@ -11,7 +11,8 @@ TaxonWorks::Application.configure do
   # Do not eager load code on boot. This avoids loading your whole application
   # just for the purpose of running a single test. If you are using a tool that
   # preloads Rails for running tests, you may have to set it to true.
-  config.eager_load = false
+  # 
+  config.eager_load = ENV["CI"].present?
 
   # Configure static asset server for tests with Cache-Control for performance.
   # config.serve_static_files                         = true
@@ -33,6 +34,9 @@ TaxonWorks::Application.configure do
   # The :test delivery method accumulates sent emails in the
   # ActionMailer::Base.deliveries array.
   config.action_mailer.delivery_method = :test
+
+  # Limit log size to 512 MB total
+  config.logger = ActiveSupport::Logger.new(config.paths['log'].first, 1, 256 * 1024 ** 2)
 
   # Use test queue to enable Active Job testing
   config.active_job.queue_adapter = :test
@@ -60,11 +64,10 @@ TaxonWorks::Application.configure do
   Settings.load_mail_domain(config, 'example.com')
 
   require 'taxonworks'
-  require 'taxonworks_autoload'
 
   # See http://guides.rubyonrails.org/v5.1/configuring.html#custom-configuration
   config.x.test_user_password = 'taxonworks'.freeze
-  config.x.test_tmp_file_dir = "#{Rails.root}/spec/test_files/_#{ENV['TEST_ENV_NUMBER']&.+ '/'}"
+  config.x.test_tmp_file_dir = "#{Rails.root.join("spec/test_files/_#{ENV['TEST_ENV_NUMBER']&.+ '/'}")}"
 
   Paperclip::Attachment.default_options[:path] = "#{config.x.test_tmp_file_dir}:class/:id_partition/:style.:extension"
 end

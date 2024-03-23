@@ -119,7 +119,7 @@ describe BatchLoad::Import::TaxonNames::NomenInterpreter, type: :model do
       end
 
       specify 'creates identifiers' do
-        expect(Identifier.all.count).to eq(1) # not added to total
+        expect(Identifier.all.count).to eq(3) # not added to total; 2 OTUs
       end
 
     end

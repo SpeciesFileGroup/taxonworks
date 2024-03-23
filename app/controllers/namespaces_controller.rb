@@ -91,7 +91,7 @@ class NamespacesController < ApplicationController
 
   # GET /namespaces/download
   def download
-    send_data Export::Download.generate_csv(Namespace.all), type: 'text', filename: "namespaces_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(Namespace.all), type: 'text', filename: "namespaces_#{DateTime.now}.tsv"
   end
 
   # GET /namespaces/select_options?klass=CollectionObject

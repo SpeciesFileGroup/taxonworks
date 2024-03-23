@@ -43,9 +43,9 @@ module CollectingEventsHelper
   def collecting_event_identifiers_tag(collecting_event)
     return nil if collecting_event.nil?
     if i = collecting_event.identifiers.load.first
-      collecting_event.identifiers.collect{|j|
+      collecting_event.identifiers.limit(10).collect{|j|
         content_tag(:span, j.cached, class: [ :feedback, 'feedback-thin', 'feedback-secondary' ])
-      }.join
+      }.join + ( collecting_event.identifiers.size > 10 ? ' ... and more!' : '')
     else
       nil
     end

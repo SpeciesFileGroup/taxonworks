@@ -26,7 +26,7 @@
         </ul>
         <template v-if="otu">
           <autocomplete
-            class="float_right separate-left separate-right"
+            class="float_right separate-left separate-right autocomplete-search-bar"
             url="/otus/autocomplete"
             placeholder="Search a otu"
             param="term"
@@ -82,19 +82,21 @@
 
 <script>
 import HeaderBar from './components/HeaderBar'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import ImageGallery from './components/gallery/Main'
 import ContentComponent from './components/Content'
 import AssertedDistribution from './components/AssertedDistribution'
 import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
 import NomenclatureHistory from './components/timeline/Timeline.vue'
-import CollectingEvents from './components/CollectingEvents'
+import Distribution from './components/Distribution.vue'
+import CollectingEventSection from './components/collectingEvent/CollectingEventSection.vue'
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'
 import TypeSection from './components/TypeSection.vue'
 import CommonNames from './components/CommonNames'
 import DescriptionComponent from './components/Description.vue'
+import CoordinateOtus from './components/coordinate/CoordinateOtus.vue'
 import Descendants from './components/descendants'
 import Autocomplete from '@/components/ui/Autocomplete'
 import SearchOtu from './components/SearchOtu'
@@ -119,7 +121,7 @@ export default {
     BiologicalAssociations,
     AnnotationsComponent,
     NomenclatureHistory,
-    CollectingEvents,
+    CollectingEventSection,
     CollectionObjects,
     TypeSpecimens,
     CommonNames,
@@ -127,7 +129,9 @@ export default {
     Draggable,
     Descendants,
     SelectOtu,
-    TypeSection
+    TypeSection,
+    CoordinateOtus,
+    Distribution
   },
   computed: {
     preferences: {
@@ -245,6 +249,14 @@ export default {
 
 <style lang="scss">
 #browse-otu {
+  .anchor {
+    scroll-margin-top: 9rem;
+  }
+  .autocomplete-search-bar {
+    input {
+      width: 500px;
+    }
+  }
   .container {
     margin: 0 auto;
     width: 1240px;

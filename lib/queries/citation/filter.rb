@@ -61,17 +61,17 @@ module Queries
 
       def citation_object_type_facet
         return nil if citation_object_type.empty?
-        table[:citation_object_type].eq_any(citation_object_type)
+        table[:citation_object_type].in(citation_object_type)
       end
 
       def citation_object_id_facet
         return nil if citation_object_id.empty?
-        table[:citation_object_id].eq_any(citation_object_id)
+        table[:citation_object_id].in(citation_object_id)
       end
 
       def source_id_facet
         return nil if source_id.empty?
-        table[:source_id].eq_any(source_id)
+        table[:source_id].in(source_id)
       end
 
       def is_original_facet

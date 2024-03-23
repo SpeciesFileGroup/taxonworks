@@ -33,6 +33,7 @@ module Queries
         :deaccessioned,
         :descendants,
         :determiner_id_or,
+        :determiner_id,
         :determiner_name_regex,
         :determiners,
         :dwc_indexed,
@@ -319,6 +320,7 @@ module Queries
         # Only CollectingEvent fields are permitted, for advanced nesting (e.g. tags on CEs), use collecting_event_query
         collecting_event_params = ::Queries::CollectingEvent::Filter.base_params + Queries::Concerns::DateRanges.params
 
+        # project_id is handled during use
         @base_collecting_event_query = ::Queries::CollectingEvent::Filter.new(
           params.select{ |a, b| collecting_event_params.include?(a) } # maintain this to avoid sub query initialization for now
         )
@@ -457,13 +459,13 @@ module Queries
 
       def collection_object_id_facet
         return nil if collection_object_id.empty?
-        table[:id].eq_any(collection_object_id)
+        table[:id].in(collection_object_id)
       end
 
       def import_dataset_id_facet
         return nil if import_dataset_id.blank?
         ::CollectionObject.joins(:related_origin_relationships)
-        .where(origin_relationships: {old_object_id: import_dataset_id, old_object_type: 'ImportDataset'})
+          .where(origin_relationships: {old_object_id: import_dataset_id, old_object_type: 'ImportDataset'})
       end
 
       def extract_id_facet
@@ -500,12 +502,12 @@ module Queries
         b = b.join(c, Arel::Nodes::OuterJoin)
           .on(
             a[:id].eq(c[:role_object_id])
-              .and(c[:role_object_type].eq('TaxonDetermination'))
-              .and(c[:type].eq('Determiner'))
+          .and(c[:role_object_type].eq('TaxonDetermination'))
+          .and(c[:type].eq('Determiner'))
           )
 
         e = c[:id].not_eq(nil)
-        f = c[:person_id].eq_any(determiner_id)
+        f = c[:person_id].in(determiner_id)
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
@@ -513,7 +515,9 @@ module Queries
 
         b = b.as('det_z1_')
 
-        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['biological_collection_object_id'].eq(tt['id']))))
+        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b,
+        Arel::Nodes::On.new( b['taxon_determination_object_id'].eq(tt['id']).and( b['taxon_determination_object_type'].eq('CollectionObject') )
+        )))
       end
 
       def determiners_facet
@@ -677,17 +681,17 @@ module Queries
 
       def collecting_event_id_facet
         return nil if collecting_event_id.empty?
-        table[:collecting_event_id].eq_any(collecting_event_id)
+        table[:collecting_event_id].in(collecting_event_id)
       end
 
       def preparation_type_id_facet
         return nil if preparation_type_id.empty?
-        table[:preparation_type_id].eq_any(preparation_type_id)
+        table[:preparation_type_id].in(preparation_type_id)
       end
 
       def repository_id_facet
         return nil if repository_id.blank?
-        table[:repository_id].eq_any(repository_id)
+        table[:repository_id].in(repository_id)
       end
 
       def current_repository_id_facet
@@ -710,7 +714,7 @@ module Queries
         return nil if is_type.empty?
 
         w = type_materials_table[:collection_object_id].eq(table[:id])
-          .and(type_materials_table[:type_type].eq_any(is_type))
+          .and(type_materials_table[:type_type].in(is_type))
 
         ::CollectionObject.where(
           ::TypeMaterial.where(w).arel.exists
@@ -731,8 +735,9 @@ module Queries
       def otu_id_facet
         return nil if otu_id.empty?
 
-        w = taxon_determination_table[:biological_collection_object_id].eq(table[:id])
-          .and(taxon_determination_table[:otu_id].eq_any(otu_id))
+        w = taxon_determination_table[:taxon_determination_object_id].eq(table[:id])
+          .and(taxon_determination_table[:otu_id].in(otu_id))
+          .and(taxon_determination_table[:taxon_determination_object_type].eq('CollectionObject'))
 
         if current_determinations
           w = w.and(taxon_determination_table[:position].eq(1))
@@ -756,7 +761,8 @@ module Queries
           t = ::TaxonName.arel_table
 
           q = table.join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
-            table[:id].eq(taxon_determination_table[:biological_collection_object_id])
+            table[:id].eq(taxon_determination_table[:taxon_determination_object_id])
+            .and(taxon_determination_table[:taxon_determination_object_type]).eq('CollectionObject')
           ).join(otu_table, Arel::Nodes::InnerJoin).on(
             taxon_determination_table[:otu_id].eq(otu_table[:id])
           ).join(t, Arel::Nodes::InnerJoin).on(
@@ -764,7 +770,7 @@ module Queries
           ).join(h, Arel::Nodes::InnerJoin).on(
             t[:id].eq(h[:descendant_id])
           )
-          z = h[:ancestor_id].eq_any(taxon_name_id)
+          z = h[:ancestor_id].in(taxon_name_id)
 
           if validity == true
             z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
@@ -828,9 +834,9 @@ module Queries
           c
         else
           s = 'WITH query_deac AS (' + c.all.to_sql + ') ' +
-              ::CollectionObject
-                .joins('LEFT JOIN query_deac as query_deac1 on query_deac1.id = collection_objects.id')
-                .where('query_deac1.id IS NULL').to_sql
+            ::CollectionObject
+            .joins('LEFT JOIN query_deac as query_deac1 on query_deac1.id = collection_objects.id')
+            .where('query_deac1.id IS NULL').to_sql
           ::CollectionObject.from('(' + s + ') as collection_objects').distinct
         end
       end
@@ -838,10 +844,10 @@ module Queries
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
         s = 'WITH query_tn_co AS (' + taxon_name_query.all.to_sql + ') ' +
-            ::CollectionObject
-              .joins(:taxon_names)
-              .joins('JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id')
-              .to_sql
+          ::CollectionObject
+          .joins(:taxon_names)
+          .joins('JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id')
+          .to_sql
 
         ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
@@ -849,9 +855,9 @@ module Queries
       def collecting_event_query_facet
         return nil if collecting_event_query.nil?
         s = 'WITH query_ce_co AS (' + collecting_event_query.all.to_sql + ') ' +
-            ::CollectionObject
-              .joins('JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = collection_objects.collecting_event_id')
-              .to_sql
+          ::CollectionObject
+          .joins('JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = collection_objects.collecting_event_id')
+          .to_sql
 
         ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
@@ -859,9 +865,9 @@ module Queries
       def loan_query_facet
         return nil if loan_query.nil?
         s = 'WITH query_loan_co AS (' + loan_query.all.to_sql + ') ' +
-            ::CollectionObject.joins(:loan_items)
-              .joins('JOIN query_loan_co as query_loan_co1 on query_loan_co1.id = loan_items.loan_id')
-              .to_sql
+          ::CollectionObject.joins(:loan_items)
+          .joins('JOIN query_loan_co as query_loan_co1 on query_loan_co1.id = loan_items.loan_id')
+          .to_sql
 
         ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
@@ -875,9 +881,9 @@ module Queries
         base_collecting_event_query.project_id = project_id
 
         s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.to_sql + ') ' +
-            ::CollectionObject
-              .joins('JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = collection_objects.collecting_event_id')
-              .to_sql
+          ::CollectionObject
+          .joins('JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = collection_objects.collecting_event_id')
+          .to_sql
 
         ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
@@ -885,11 +891,11 @@ module Queries
       def otu_query_facet
         return nil if otu_query.nil?
         s = 'WITH query_otu_co AS (' + otu_query.all.to_sql + ') ' +
-            ::CollectionObject
-              .joins(:taxon_determinations)
-              .joins('JOIN query_otu_co as query_otu_co1 on query_otu_co1.id = taxon_determinations.otu_id')
-              .where(taxon_determinations: { position: 1 })
-              .to_sql
+          ::CollectionObject
+          .joins(:taxon_determinations)
+          .joins('JOIN query_otu_co as query_otu_co1 on query_otu_co1.id = taxon_determinations.otu_id')
+          .where(taxon_determinations: { position: 1 })
+          .to_sql
 
         ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
@@ -907,11 +913,11 @@ module Queries
         return nil if biological_association_id.empty?
         b = ::BiologicalAssociation.where(id: biological_association_id)
         s = 'WITH query_ba_id_co AS (' + b.all.to_sql + ') ' +
-            ::CollectionObject
-              .joins("LEFT JOIN query_ba_id_co as query_ba_id_co1 on collection_objects.id = query_ba_id_co1.biological_association_subject_id AND query_ba_id_co1.biological_association_subject_type = 'CollectionObject'")
-              .joins("LEFT JOIN query_ba_id_co as query_ba_id_co2 on collection_objects.id = query_ba_id_co2.biological_association_object_id AND query_ba_id_co2.biological_association_object_type = 'CollectionObject'")
-              .where('(query_ba_id_co1.id) IS NOT NULL OR (query_ba_id_co2.id IS NOT NULL)')
-              .to_sql
+          ::CollectionObject
+          .joins("LEFT JOIN query_ba_id_co as query_ba_id_co1 on collection_objects.id = query_ba_id_co1.biological_association_subject_id AND query_ba_id_co1.biological_association_subject_type = 'CollectionObject'")
+          .joins("LEFT JOIN query_ba_id_co as query_ba_id_co2 on collection_objects.id = query_ba_id_co2.biological_association_object_id AND query_ba_id_co2.biological_association_object_type = 'CollectionObject'")
+          .where('(query_ba_id_co1.id) IS NOT NULL OR (query_ba_id_co2.id IS NOT NULL)')
+          .to_sql
 
         ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
@@ -920,11 +926,11 @@ module Queries
       def biological_association_query_facet
         return nil if biological_association_query.nil?
         s = 'WITH query_ba_co AS (' + biological_association_query.all.to_sql + ') ' +
-            ::CollectionObject
-              .joins("LEFT JOIN query_ba_co as query_ba_co1 on collection_objects.id = query_ba_co1.biological_association_subject_id AND query_ba_co1.biological_association_subject_type = 'CollectionObject'")
-              .joins("LEFT JOIN query_ba_co as query_ba_co2 on collection_objects.id = query_ba_co2.biological_association_object_id AND query_ba_co2.biological_association_object_type = 'CollectionObject'")
-              .where('(query_ba_co1.id) IS NOT NULL OR (query_ba_co2.id IS NOT NULL)')
-              .to_sql
+          ::CollectionObject
+          .joins("LEFT JOIN query_ba_co as query_ba_co1 on collection_objects.id = query_ba_co1.biological_association_subject_id AND query_ba_co1.biological_association_subject_type = 'CollectionObject'")
+          .joins("LEFT JOIN query_ba_co as query_ba_co2 on collection_objects.id = query_ba_co2.biological_association_object_id AND query_ba_co2.biological_association_object_type = 'CollectionObject'")
+          .where('(query_ba_co1.id) IS NOT NULL OR (query_ba_co2.id IS NOT NULL)')
+          .to_sql
 
         ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
@@ -933,10 +939,10 @@ module Queries
         return nil if extract_query.nil?
 
         s = 'WITH query_extract_co AS (' + extract_query.all.to_sql + ') ' +
-            ::CollectionObject
-              .joins(:origin_relationships)
-              .joins("JOIN query_extract_co as query_extract_co1 on origin_relationships.new_object_id = query_extract_co1.id and origin_relationships.new_object_type = 'Extract'")
-              .to_sql
+          ::CollectionObject
+          .joins(:origin_relationships)
+          .joins("JOIN query_extract_co as query_extract_co1 on origin_relationships.new_object_id = query_extract_co1.id and origin_relationships.new_object_type = 'Extract'")
+          .to_sql
 
         ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
@@ -945,12 +951,28 @@ module Queries
         return nil if observation_query.nil?
 
         s = 'WITH query_obs_co AS (' + observation_query.all.to_sql + ') ' +
-            ::CollectionObject
-              .joins(:observations)
-              .joins('JOIN query_obs_co as query_obs_co1 on observations.id = query_obs_co1.id')
-              .to_sql
+          ::CollectionObject
+          .joins(:observations)
+          .joins('JOIN query_obs_co as query_obs_co1 on observations.id = query_obs_co1.id')
+          .to_sql
 
         ::CollectionObject.from('(' + s + ') as collection_objects').distinct
+      end
+
+      def housekeeping_extensions
+        [
+          housekeeping_extension_query(target: ::CollectingEvent, joins: [:collecting_event]),
+          housekeeping_extension_query(target: ::TaxonDetermination, joins: [:taxon_determinations]),
+          housekeeping_extension_query(target: ::DataAttribute, joins: [:data_attributes]),
+          housekeeping_extension_query(target: ::Georeference, joins: [:georeferences]),
+          housekeeping_extension_query(target: ::DataAttribute, joins: {collecting_event: [:data_attributes]}),
+          housekeeping_extension_query(target: ::DataAttribute, joins: {collecting_event: [:data_attributes]}),
+          housekeeping_extension_query(target: ::Note, joins: {collecting_event: [:notes]}),
+          housekeeping_extension_query(target: ::Note, joins: [:notes]),
+          housekeeping_extension_query(target: ::Role, joins: [:roles]),
+          housekeeping_extension_query(target: ::Role, joins: {collecting_event: [:roles]}),
+          housekeeping_extension_query(target: ::Role, joins: { taxon_determinations: [:determiner_roles]}),
+        ]
       end
 
       def and_clauses
@@ -1014,6 +1036,6 @@ module Queries
           with_buffered_other_labels_facet,
         ]
       end
-    end
-  end
-end
+      end
+      end
+      end

@@ -26,7 +26,7 @@
                 @click="
                   () =>
                     downloadTextFile(
-                      svgElement.outerHTML,
+                      graph.getSVGElement().outerHTML,
                       'image/svg+xml',
                       'graph.svg'
                     )
@@ -74,150 +74,36 @@
         </li>
       </ul>
     </div>
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      ref="svgElement"
-      :class="!showLabels && 'hide-labels'"
-    ></svg>
+    <VGraph
+      ref="graph"
+      :edges="edges"
+      :nodes="nodes"
+      :labels="showLabels"
+      @node:dbclick="(e) => loadGraph(e.id)"
+    />
   </div>
 </template>
 
 <script setup>
-import * as d3 from 'd3'
 import { ref, onMounted } from 'vue'
 import SetParam from '@/helpers/setParam'
 import AjaxCall from '@/helpers/ajaxCall'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import VGraph from '@/components/ui/VGraph/VGraph.vue'
 import { downloadTextFile } from '@/helpers/files'
-import * as shapes from './components/Svg'
-
-const size = 5
-
-const opt = {
-  size: 10
-}
-
-let width = 0
-let height = 0
 
 const stats = ref({})
-const svgElement = ref(null)
+const graph = ref(null)
 const currentNode = ref(null)
 const isLoading = ref(false)
 const currentGlobalId = ref(null)
 const showLabels = ref(true)
-let nodes = []
-let links = []
-let simulation
-
-function initGraph() {
-  const graph = d3.select(svgElement.value)
-  graph.selectAll('g').remove()
-  const graphContainer = graph.append('g').attr('id', 'container')
-  const zoom = d3.zoom().on('zoom', function (e) {
-    graphContainer.attr('transform', e.transform)
-  })
-
-  graph.call(zoom).call(zoom.transform, d3.zoomIdentity)
-
-  simulation = d3
-    .forceSimulation(nodes)
-    .force('charge', d3.forceManyBody().strength(-10).distanceMax(10))
-    .force('center', d3.forceCenter(width / 2, height / 2))
-    .force('link', d3.forceLink().links(links).distance(150))
-    .on('tick', ticked)
-
-  function createNodes() {
-    graphContainer.append('g').attr('class', 'links')
-
-    graphContainer
-      .select('.links')
-      .selectAll('line')
-      .data(links)
-      .enter()
-      .append('line')
-      .attr('stroke', '#ccc')
-
-    graphContainer.append('g').attr('class', 'nodes')
-
-    const nodeGroup = graphContainer
-      .select('.nodes')
-      .selectAll('.node')
-      .data(nodes)
-      .enter()
-      .append('g')
-      .attr('class', 'node')
-      .call(drag(simulation))
-
-    nodeGroup.append(function (d) {
-      return this.appendChild(shapes[d.shape || 'circle'](d, opt))
-    })
-
-    nodeGroup
-      .append('text')
-      .text(function (d) {
-        return d.name
-      })
-      .attr('dx', size * 2 + 4)
-      .attr('dy', size / 2)
-
-    nodeGroup.on('dblclick', (e, d) => {
-      e.stopPropagation()
-      loadGraph(d.id)
-    })
-  }
-
-  createNodes()
-
-  function updateNodes() {
-    graphContainer.selectAll('.node').attr('transform', function (d) {
-      return `translate(${d.x}, ${d.y})`
-    })
-  }
-
-  function drag(simulation) {
-    function dragstarted(event) {
-      if (!event.active) simulation.alphaTarget(0.3).restart()
-      event.subject.fx = event.subject.x
-      event.subject.fy = event.subject.y
-    }
-
-    function dragged(event) {
-      event.subject.fx = event.x
-      event.subject.fy = event.y
-    }
-
-    function dragended(event) {
-      if (!event.active) simulation.alphaTarget(0)
-      event.subject.fx = null
-      event.subject.fy = null
-    }
-
-    return d3
-      .drag()
-      .on('start', dragstarted)
-      .on('drag', dragged)
-      .on('end', dragended)
-  }
-
-  function updateLinks() {
-    graphContainer
-      .selectAll('line')
-      .attr('x1', (d) => d.source.x)
-      .attr('y1', (d) => d.source.y)
-      .attr('x2', (d) => d.target.x)
-      .attr('y2', (d) => d.target.y)
-  }
-
-  function ticked() {
-    updateNodes()
-    updateLinks()
-  }
-}
+const nodes = ref([])
+const edges = ref([])
 
 function loadGraph(globalId) {
   currentGlobalId.value = globalId
@@ -227,15 +113,14 @@ function loadGraph(globalId) {
   AjaxCall('get', `/graph/${encodeURIComponent(globalId)}/object`).then(
     ({ body }) => {
       stats.value = body.stats
-      nodes = body.nodes.map((node) => ({ ...node, x: null, y: null }))
-      links = body.edges.map((link) => ({
+      nodes.value = body.nodes.map((node) => ({ ...node, x: null, y: null }))
+      edges.value = body.edges.map((link) => ({
         source: body.nodes.findIndex((node) => node.id === link.start_id),
         target: body.nodes.findIndex((node) => node.id === link.end_id)
       }))
 
-      currentNode.value = nodes.find((n) => n.id === globalId)
+      currentNode.value = nodes.value.find((n) => n.id === globalId)
 
-      initGraph()
       isLoading.value = false
     }
   )
@@ -244,9 +129,6 @@ function loadGraph(globalId) {
 onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search)
   const globalId = urlParams.get('global_id')
-
-  height = svgElement.value.clientHeight
-  width = svgElement.value.clientWidth
 
   if (globalId) {
     loadGraph(globalId)
@@ -269,16 +151,6 @@ onMounted(() => {
   ul {
     padding-left: 1em;
     margin: 0;
-  }
-
-  .node {
-    cursor: pointer;
-  }
-
-  .hide-labels {
-    text {
-      display: none;
-    }
   }
 }
 </style>

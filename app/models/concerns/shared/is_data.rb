@@ -41,6 +41,10 @@ module Shared::IsData
       self < Shared::BiologicalAssociations
     end
 
+    def auto_uuids?
+      self < Shared::AutoUuid
+    end
+
     # @return [Array of String]
     #   only the non-cached and non-housekeeping column names
     def core_attributes # was data_attributes
@@ -157,7 +161,6 @@ module Shared::IsData
     p = u.projects.pluck(:id)
 
     self.class.reflect_on_all_associations(:has_many).each do |r|
-      # puts r.name
       if r.klass.column_names.include?('project_id')
         # If this has any related data in another project, we can't destroy it
         #    if !send(r.name).nil?

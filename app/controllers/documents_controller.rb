@@ -64,6 +64,12 @@ class DocumentsController < ApplicationController
     end
   end
 
+  # GET /documents/download
+  def download
+    send_data Export::CSV.generate_csv(
+      Document.where(project_id: sessions_current_project_id)), type: 'text', filename: "documents_#{DateTime.now}.tsv"
+  end
+
   def list
     @documents = Document.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10)
   end
@@ -87,6 +93,6 @@ class DocumentsController < ApplicationController
   end
 
   def document_params
-    params.require(:document).permit(:document_file, :initialize_start_page, :is_public)  
+    params.require(:document).permit(:document_file, :initialize_start_page, :is_public)
   end
 end

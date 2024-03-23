@@ -10,6 +10,17 @@ describe Queries::Query::Filter do
   let(:query) { Queries::Query::Filter.new({}) }
   filters = ::Queries::Query::Filter.descendants
 
+
+  specify '#base_filter 1' do
+     p = ActionController::Parameters.new(collection_object_query: {}, foo: :bar)
+     expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter) 
+  end
+
+  specify '#base_filter 1' do
+     p = ActionController::Parameters.new(collection_object_query: { otu_query: {}}, foo: :bar)
+     expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter) 
+  end
+
   context 'PARAMS defined' do
     filters.each do |f|
       specify "#{f.name}" do
@@ -25,7 +36,7 @@ describe Queries::Query::Filter do
   context 'SUBQUERY reference of _query_facet present in filter' do
     ::Queries::Query::Filter::SUBQUERIES.each do |k,v|
       k = ::Queries::Query::Filter::FILTER_QUERIES[(k.to_s + '_query').to_sym].constantize
-      next if k.name =~ /Image|Source/ # Queries are dynamically added in these filters, and have no corresponding method name
+      next if k.name =~ /Image|Source|DataAttribute/ # Queries are dynamically added in these filters, and have no corresponding method name
       v.each do |t|
         specify "#{k.name}: #{t}" do
           m = (t.to_s + '_query_facet' ).to_sym
@@ -51,12 +62,12 @@ describe Queries::Query::Filter do
     end
   end
 
-  context '<Model>.js matches content of SUBQUERIES' do
-    Dir.glob('app/javascript//**/filter/links/*.js').each do |file|
+  context 'app/javascript/**/filter/links/<Model>.js matches content of SUBQUERIES' do
+    Dir.glob('app/javascript/**/filter/links/*.js').each do |file|
       n = file.split('/').last
       next unless n =~ /^[A-Z]/ # Constants start with a capital
 
-      puts n
+      # puts n
 
       filter_name = n.split('.').first.tableize.singularize.to_sym
 

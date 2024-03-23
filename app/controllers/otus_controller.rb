@@ -119,13 +119,11 @@ class OtusController < ApplicationController
   def search
     if params[:id].blank?
       redirect_to(otus_path,
-                 alert: 'You must select an item from the list with a click or tab press before clicking show.')
+                  alert: 'You must select an item from the list with a click or tab press before clicking show.')
     else
       redirect_to otu_path(params[:id])
     end
   end
-
-
 
   def batch_load
     # see app/views/otus/batch_load.html.erb
@@ -236,15 +234,15 @@ class OtusController < ApplicationController
 
   # GET /otus/download
   def download
-    send_data Export::Download.generate_csv(Otu.where(project_id: sessions_current_project_id)),
+    send_data Export::CSV.generate_csv(Otu.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "otus_#{DateTime.now}.csv"
+      filename: "otus_#{DateTime.now}.tsv"
   end
 
   # GET api/v1/otus/by_name/:name?token=:token&project_id=:id
   def by_name
     @otu_name = params.require(:name)
-    @otu_ids = Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
+    @otu_ids = ::Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
   end
 
   # GET /otus/select_options?target=TaxonDetermination
@@ -252,14 +250,39 @@ class OtusController < ApplicationController
     @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
+  # PATCH /otus/batch_update.json?otus_query=<>&otu={taxon_name_id=123}}
+  def batch_update
+    if r = Otu.batch_update(
+        preview: params[:preview],
+        otu: otu_params.merge(by: sessions_current_user_id),
+        otu_query: params[:otu_query],
+    )
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
+  # GET /api/v1/otus.csv
   # GET /api/v1/otus
   def api_index
-    @otus = ::Queries::Otu::Filter.new(params.merge!(api: true)).all
+    q = ::Queries::Otu::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('otus.id')
-      .page(params[:page])
-      .per(params[:per])
-    render '/otus/api/v1/index'
+
+    respond_to do |format|
+      format.json {
+        @otus = q.page(params[:page]).per(params[:per])
+        render '/otus/api/v1/index'
+      }
+      format.csv {
+        @otus = q
+        send_data Export::CSV.generate_csv(
+          @otus,
+          exclude_columns: %w{updated_by_id created_by_id project_id},
+        ), type: 'text', filename: "otus_#{DateTime.now}.tsv"
+      }
+    end
   end
 
   # GET /api/v1/otus/:id
@@ -270,6 +293,7 @@ class OtusController < ApplicationController
   def autocomplete
     @otus = ::Queries::Otu::Autocomplete.new(
       params.require(:term),
+      exact: 'true',
       project_id: sessions_current_project_id,
       with_taxon_name: params[:with_taxon_name],
       having_taxon_name_only: params[:having_taxon_name_only],
@@ -280,8 +304,9 @@ class OtusController < ApplicationController
   def api_autocomplete
     @otus = ::Queries::Otu::Autocomplete.new(
       params.require(:term),
-      with_taxon_name: params[:with_taxon_name],
       project_id: sessions_current_project_id,
+      with_taxon_name: params[:with_taxon_name],
+      having_taxon_name_only: params[:having_taxon_name_only]
     ).api_autocomplete
 
     render '/otus/api/v1/autocomplete'
@@ -296,11 +321,11 @@ class OtusController < ApplicationController
   def api_dwc_inventory
     respond_to do |format|
       format.csv do
-        send_data Export::Download.generate_csv(
+        send_data Export::CSV.generate_csv(
           DwcOccurrence.scoped_by_otu(@otu),
           exclude_columns: ['id', 'created_by_id', 'updated_by_id', 'project_id', 'updated_at']),
-          type: 'text',
-          filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.csv"
+        type: 'text',
+        filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.csv"
       end
       format.json do
         render json: DwcOccurrence.scoped_by_otu(@otu).to_json
@@ -386,15 +411,15 @@ class OtusController < ApplicationController
     @recent_object = @otu
   end
 
-# def set_cached_map
-#   @cached_map = @otu.cached_maps.where(cached_map_type: params[:cached_map_type] || 'CachedMapItem::WebLevel1').first
-#   if @cached_map.blank?
+  # def set_cached_map
+  #   @cached_map = @otu.cached_maps.where(cached_map_type: params[:cached_map_type] || 'CachedMapItem::WebLevel1').first
+  #   if @cached_map.blank?
 
-#   end
-# end
+  #   end
+  # end
 
   def otu_params
-    params.require(:otu).permit(:name, :taxon_name_id)
+    params.require(:otu).permit(:name, :taxon_name_id, :exact)
   end
 
   def batch_params

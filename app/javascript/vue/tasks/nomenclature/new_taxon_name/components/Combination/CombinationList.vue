@@ -21,7 +21,7 @@
           />
           <span v-html="combination.object_label" />
         </label>
-        <div class="horizontal-left-content middle">
+        <div class="horizontal-left-content gap-xsmall middle">
           <default-confidence
             class="circle-button"
             :global-id="combination.global_id"
@@ -78,7 +78,7 @@ import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import DefaultConfidence from '@/components/defaultConfidence.vue'
+import DefaultConfidence from '@/components/ui/Button/ButtonConfidence.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VConfirmation from '@/components/ConfirmationModal.vue'

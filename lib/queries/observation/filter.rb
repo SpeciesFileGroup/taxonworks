@@ -139,12 +139,12 @@ module Queries
           .where(otus: {taxon_name_id: t})
 
         b = ::Observation.joins("JOIN collection_objects ON observations.observation_object_id = collection_objects.id AND observations.observation_object_type = 'CollectionObject'")
-          .joins('JOIN taxon_determinations ON taxon_determinations.biological_collection_object_id = collection_objects.id')
+          .joins("JOIN taxon_determinations ON taxon_determinations.taxon_determination_object_id = collection_objects.id AND taxon_determinations.taxon_determination_object_type = 'CollectionObject'")
           .joins('JOIN otus ON taxon_determinations.otu_id = otus.id')
           .joins('JOIN taxon_names ON taxon_names.id = otus.id')
           .where(taxon_names: {id:  t})
 
-        e = ::Queries::Extract::Filter.new(taxon_name_id: taxon_name_id, descendants: descendants, project_id: project_id).all
+        e = ::Queries::Extract::Filter.new(taxon_name_id:, descendants:, project_id:).all
 
         c = ::Observation.joins("JOIN extracts ON observations.observation_object_id = extracts.id AND observations.observation_object_type = 'Extract'")
           .where(extracts: {id: e})
@@ -183,28 +183,28 @@ module Queries
       # @return [Arel::Node, nil]
       def observation_type_facet
         return nil if observation_type.empty?
-        table[:type].eq_any(observation_type)
+        table[:type].in(observation_type)
       end
 
       # @return [Arel::Node, nil]
       def character_state_id_facet
         return nil if character_state_id.empty?
-        table[:character_state_id].eq_any(character_state_id)
+        table[:character_state_id].in(character_state_id)
       end
 
       def otu_id_facet
         return nil if otu_id.empty?
-        table[:observation_object_id].eq_any(otu_id).and(table[:observation_object_type].eq('Otu'))
+        table[:observation_object_id].in(otu_id).and(table[:observation_object_type].eq('Otu'))
       end
 
       def observation_object_type_facet
         return nil if observation_object_type.empty?
-        table[:observation_object_type].eq_any(observation_object_type)
+        table[:observation_object_type].in(observation_object_type)
       end
 
       def descriptor_id_facet
         return nil if descriptor_id.empty?
-        table[:descriptor_id].eq_any(descriptor_id)
+        table[:descriptor_id].in(descriptor_id)
       end
 
       def descriptor_query_facet
@@ -246,7 +246,7 @@ module Queries
 
         a = ::Observation
           .joins("JOIN collection_objects on observations.observation_object_id = collection_objects.id and observations.observation_object_type = 'CollectionObject'")
-          .joins('JOIN taxon_determinations on collection_objects.id = taxon_determinations.biological_collection_object_id')
+          .joins("JOIN taxon_determinations on collection_objects.id = taxon_determinations.taxon_determination_object_id AND taxon_determinations.taxon_determination_objec_type = 'CollectionObject'")
           .joins('JOIN otus on taxon_determinations.otu_id = otus.id')
           .joins('JOIN query_tn_obs as query_tn_obs1 on otus.taxon_name_id = query_tn_obs1.id')
           .to_sql

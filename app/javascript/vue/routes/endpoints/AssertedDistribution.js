@@ -46,6 +46,6 @@ export const AssertedDistribution = {
 
   filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
 
-  moveBatch: (params) =>
-    AjaxCall('post', `/${controller}/batch_move.json`, params)
+  batchUpdate: (params) =>
+    AjaxCall('patch', `/${controller}/batch_update.json`, params)
 }

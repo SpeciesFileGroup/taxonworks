@@ -24,13 +24,15 @@
       <div class="flex-separate middle">
         <p>
           <span
-            target="_blank"
+            class="break_words"
             v-html="citation.source.cached"
           />
-          <soft-validation
-            :validate-object="citation"
-            :global-id="citation.global_id"
-          />
+          <span class="padding-xsmall">
+            <soft-validation
+              :validate-object="citation"
+              :global-id="citation.global_id"
+            />
+          </span>
         </p>
         <div class="horizontal-left-content gap-small">
           <citation-pages
@@ -62,10 +64,10 @@ import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
 import Autocomplete from '@/components/ui/Autocomplete.vue'
-import DefaultElement from '@/components/getDefaultPin.vue'
+import DefaultElement from '@/components/ui/Button/ButtonPinned.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial'
-import PdfButton from '@/components/pdfButton'
+import PdfButton from '@/components/ui/Button/ButtonPdf'
 import CitationPages from '../citationPages.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
 

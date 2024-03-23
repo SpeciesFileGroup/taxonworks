@@ -48,7 +48,7 @@ http://css-tricks.com/snippets/css/a-guide-to-flexbox/
 }
 
 .separate-top {
-  margin-top: $standard_padding*0.5;
+  margin-top: $standard_padding * 0.5;
 }
 
 .separate-bottom {
@@ -96,6 +96,16 @@ http://css-tricks.com/snippets/css/a-guide-to-flexbox/
   width: auto;
   flex-wrap: wrap !important;
   flex-direction: column !important;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
 }
 
 .item {

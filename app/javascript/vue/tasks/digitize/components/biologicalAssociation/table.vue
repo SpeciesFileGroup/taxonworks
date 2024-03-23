@@ -20,18 +20,18 @@
         tag="tbody"
       >
         <template
-          v-for="(item, index) in list"
+          v-for="(item, index) in renderList"
           :key="item.id"
         >
           <tr class="list-complete-item">
-            <td v-html="item.biological_relationship.name" />
-            <td v-html="item.object.object_tag" />
-            <td v-html="getCitationString(item)" />
+            <td v-html="item.relationship" />
+            <td v-html="item.object" />
+            <td v-html="item.citation" />
             <td>
-              <div class="middle horizontal-right-content">
-                <radial-annotator
-                  v-if="item.global_id"
-                  :global-id="item.global_id"
+              <div class="middle horizontal-right-content gap-small">
+                <RadialAnnotator
+                  v-if="item.globalId"
+                  :global-id="item.globalId"
                 />
                 <span
                   class="circle-button btn-delete"
@@ -48,68 +48,76 @@
     </table>
   </div>
 </template>
-<script>
+
+<script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 
-export default {
-  components: {
-    RadialAnnotator,
-    LockComponent
-  },
-
-  props: {
-    list: {
-      type: Array,
-      default: () => []
-    }
-  },
-
-  emits: ['delete'],
-
-  computed: {
-    settings: {
-      get() {
-        return this.$store.getters[GetterNames.GetSettings]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetSettings, value)
-      }
-    }
-  },
-
-  methods: {
-    deleteItem(item) {
-      if (item.id) {
-        if (
-          window.confirm(
-            "You're trying to delete this record. Are you sure want to proceed?"
-          )
-        ) {
-          this.$emit('delete', item)
-        }
-      } else {
-        this.$emit('delete', item)
-      }
-    },
-
-    getCitationString(object) {
-      const citation =
-        object?.origin_citation || object?.origin_citation_attributes
-
-      if (citation) {
-        const authorString = citation.source.cached_author_string
-
-        return citation.source?.year
-          ? `${authorString}, ${citation.source.year}`
-          : authorString
-      }
-
-      return ''
-    }
+const props = defineProps({
+  list: {
+    type: Array,
+    default: () => []
   }
+})
+
+const renderList = computed(() =>
+  props.list.map((item) => ({
+    id: item.id,
+    globalId: item.global_id,
+    relationship: getRelationshipString(item),
+    object: item.object.object_tag,
+    citation: getCitationString(item)
+  }))
+)
+
+const store = useStore()
+
+const emit = defineEmits(['delete'])
+
+const settings = computed({
+  get() {
+    return store.getters[GetterNames.GetSettings]
+  },
+  set(value) {
+    store.commit(MutationNames.SetSettings, value)
+  }
+})
+
+function deleteItem(item) {
+  if (item.id) {
+    if (
+      window.confirm(
+        "You're trying to delete this record. Are you sure want to proceed?"
+      )
+    ) {
+      emit('delete', item)
+    }
+  } else {
+    emit('delete', item)
+  }
+}
+
+function getRelationshipString(item) {
+  return (
+    item.biological_relationship.name ||
+    item.biological_relationship.object_label
+  )
+}
+
+function getCitationString(object) {
+  const citation = object?.origin_citation || object?.origin_citation_attributes
+
+  if (citation?.source) {
+    const authorString = citation.source?.cached_author_string
+
+    return [authorString, citation.source.year].filter(Boolean).join(', ')
+  }
+
+  return ''
 }
 </script>
 <style lang="scss" scoped>

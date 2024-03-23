@@ -73,7 +73,7 @@
                   />
                 </td>
                 <td>
-                  <div class="horizontal-left-content">
+                  <div class="horizontal-left-content gap-xsmall">
                     <span
                       class="circle-button btn-edit"
                       @click="loadTaxon(child.id)"
@@ -140,7 +140,7 @@ import { TaxonName } from '@/routes/endpoints'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import BlockLayout from '@/components/layout/BlockLayout'
 import ModalComponent from '@/components/ui/Modal'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import Autocomplete from '@/components/ui/Autocomplete'
 
 export default {

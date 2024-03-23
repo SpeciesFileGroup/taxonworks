@@ -7,7 +7,7 @@
       model="predicates"
       buttons
       inline
-      klass="DataAttribute"
+      :klass="objectType"
       :custom-list="{ all }"
       :lock-view="false"
       :filter-ids="list.map((item) => item.controlled_vocabulary_term_id)"
@@ -25,7 +25,7 @@
     />
 
     <textarea
-      v-model="value"
+      v-model="text"
       class="separate-bottom"
       placeholder="Value"
     />
@@ -72,91 +72,105 @@
   </div>
 </template>
 
-<script>
-import { ControlledVocabularyTerm } from '@/routes/endpoints'
-import { IMPORT_ATTRIBUTE } from '@/constants'
-import { addToArray } from '@/helpers/arrays.js'
-import CRUD from '../request/crud.js'
-import AnnotatorExtend from '../components/annotatorExtend.js'
+<script setup>
+import { computed, ref } from 'vue'
+import { ControlledVocabularyTerm, DataAttribute } from '@/routes/endpoints'
+import { IMPORT_ATTRIBUTE, PREDICATE } from '@/constants'
+import { useSlice } from '@/components/radials/composables'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import TableList from './shared/tableList'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
-export default {
-  mixins: [CRUD, AnnotatorExtend],
-
-  components: {
-    TableList,
-    SmartSelector,
-    SmartSelectorItem,
-    VBtn
+const props = defineProps({
+  globalId: {
+    type: String,
+    required: true
   },
 
-  computed: {
-    validateFields() {
-      return this.predicate && this.value.length
-    },
-
-    importList() {
-      return this.list.filter((item) => item.base_class === IMPORT_ATTRIBUTE)
-    },
-
-    internalAttributes() {
-      return this.list.filter((item) => item.base_class !== IMPORT_ATTRIBUTE)
-    }
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  data() {
-    return {
-      all: [],
-      predicate: undefined,
-      value: '',
-      selectedDataAttribute: {}
-    }
+  objectType: {
+    type: String,
+    required: true
   },
 
-  created() {
-    ControlledVocabularyTerm.where({ type: ['Predicate'] }).then((response) => {
-      this.all = response.body
-    })
-  },
+  radialEmit: {
+    type: Object,
+    required: true
+  }
+})
 
-  methods: {
-    resetForm() {
-      this.predicate = undefined
-      this.value = ''
-      this.selectedDataAttribute = {}
-    },
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
-    saveDataAttribute() {
-      const payload = {
-        id: this.selectedDataAttribute.id,
-        type: 'InternalAttribute',
-        value: this.value,
-        controlled_vocabulary_term_id: this.predicate.id,
-        annotated_global_entity: decodeURIComponent(this.globalId)
-      }
+const all = ref([])
+const predicate = ref()
+const selectedDataAttribute = ref({})
+const text = ref('')
 
-      const request = payload.id
-        ? this.update(`/data_attributes/${payload.id}`, {
-            data_attribute: payload
-          })
-        : this.create('/data_attributes', { data_attribute: payload })
+const validateFields = computed(() => predicate.value && text.value.length)
+const importList = computed(() =>
+  list.value.filter((item) => item.base_class === IMPORT_ATTRIBUTE)
+)
+const internalAttributes = computed(() =>
+  list.value.filter((item) => item.base_class !== IMPORT_ATTRIBUTE)
+)
 
-      request.then(({ body }) => {
-        addToArray(this.list, body)
-        this.resetForm()
-      })
-    },
+function resetForm() {
+  predicate.value = undefined
+  text.value = ''
+  selectedDataAttribute.value = {}
+}
 
-    setDataAttribute(dataAttribute) {
-      this.selectedDataAttribute = dataAttribute
-      this.predicate = dataAttribute.controlled_vocabulary_term
-      this.value = dataAttribute.value
+function saveDataAttribute() {
+  const currentId = selectedDataAttribute.value.id
+  const payload = {
+    data_attribute: {
+      id: currentId,
+      type: 'InternalAttribute',
+      value: text.value,
+      controlled_vocabulary_term_id: predicate.value.id,
+      annotated_global_entity: decodeURIComponent(props.globalId)
     }
   }
+
+  const request = currentId
+    ? DataAttribute.update(currentId, payload)
+    : DataAttribute.create(payload)
+
+  request.then(({ body }) => {
+    addToList(body)
+    resetForm()
+  })
 }
+
+function removeItem(item) {
+  DataAttribute.destroy(item).then((_) => {
+    removeFromList(item)
+  })
+}
+
+function setDataAttribute(dataAttribute) {
+  selectedDataAttribute.value = dataAttribute
+  predicate.value = dataAttribute.controlled_vocabulary_term
+  text.value = dataAttribute.value
+}
+
+ControlledVocabularyTerm.where({ type: [PREDICATE] }).then((response) => {
+  all.value = response.body
+})
+
+DataAttribute.where({
+  attribute_subject_id: props.objectId,
+  attribute_subject_type: props.objectType
+}).then(({ body }) => {
+  list.value = body
+})
 </script>
 <style lang="scss">
 .radial-annotator {

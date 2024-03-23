@@ -7,17 +7,17 @@ class DwcaCreateDownloadJob < ApplicationJob
   # take a download, and a list of scopes, and save the result to the download, that's all
   # @return
   # # TODO: handle extension scopes
-  def perform(download, core_scope: nil, extension_scopes: {biological_associations: nil}, predicate_extension_params: {})
+  def perform(download, core_scope: nil, extension_scopes: {biological_associations: nil, media: nil}, predicate_extensions: {}, taxonworks_extensions: [])
     begin
       begin
-        d = ::Export::Dwca::Data.new(core_scope: core_scope, predicate_extension_params: predicate_extension_params)
+        d = ::Export::Dwca::Data.new(core_scope:, predicate_extensions:, extension_scopes:, taxonworks_extensions:)
         d.package_download(download)
         d
       ensure
         d.cleanup
       end
     rescue => ex
-      ExceptionNotifier.notify_exception(ex, data: {  download: download&.id&.to_s } ) # otu: otu&.id&.to_s,
+      ExceptionNotifier.notify_exception(ex, data: { download: download&.id&.to_s } ) # otu: otu&.id&.to_s,
       raise
     end
   end

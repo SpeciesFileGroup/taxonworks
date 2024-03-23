@@ -24,7 +24,7 @@ class AssertedDistribution < ApplicationRecord
   include SoftValidation
   include Shared::Notes
   include Shared::Tags
-  include Shared::DataAttributes # why?
+  include Shared::DataAttributes # Why?
   include Shared::CitationRequired # !! must preceed Shared::Citations
   include Shared::Citations
   include Shared::Confidences
@@ -37,8 +37,9 @@ class AssertedDistribution < ApplicationRecord
   include Shared::IsData
 
   include Shared::Maps
+  include Shared::QueryBatchUpdate
 
-  originates_from 'Specimen', 'Lot'
+  originates_from 'Specimen', 'Lot', 'FieldOccurrence'
 
   # @return [Hash]
   #   of known country/state/county values
@@ -113,29 +114,35 @@ class AssertedDistribution < ApplicationRecord
     geographic_area.geographic_items.any?
   end
 
-  # @return [Hash]
-  def self.batch_move(params)
-    return false if params[:geographic_area_id].blank?
+  def self.batch_update(params)
+    request = QueryBatchRequest.new(
+      async_cutoff: params[:async_cutoff] || 26,
+      klass: 'AssertedDistribution',
+      object_filter_params: params[:asserted_distribution_query],
+      object_params: params[:asserted_distribution],
+      preview: params[:preview],
+    )
 
-    a = Queries::AssertedDistribution::Filter.new(params[:asserted_distribution_query])
+    a = request.filter
 
-    return false if a.all.count == 0
-    return false if a.all.pluck(:geographic_area_id).uniq.size != 1
+    v1 = a.all.distinct.limit(2).pluck(:geographic_area_id).uniq.count
+    v2 = a.all.distinct.limit(2).pluck(:otu_id).uniq.count
 
-    moved = []
-    unmoved = []
+    cap = 0
 
-    begin
-      a.all.each do |o|
-        if o.update(geographic_area_id: params[:geographic_area_id] )
-          moved.push o
-        else
-          unmoved.push o
-        end
-      end
+    if v1 > 1 && v2 > 1 # many otus, many geographic areas
+      cap = 0
+      request.cap_reason = 'Records include multiple OTUs *and* multiple geographic areas.'
+    elsif v1 > 1
+      cap = 0
+      request.cap_reason = 'May not update multiple geographic areas to one.' # TODO: revist constraint
+    else
+      cap = 2000
     end
 
-    return { moved:, unmoved: }
+    request.cap = cap
+
+    query_batch_update(request)
   end
 
   protected

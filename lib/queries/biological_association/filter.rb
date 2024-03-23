@@ -30,6 +30,10 @@ module Queries
         :taxon_name_id,
         :taxon_name_id_mode,
         :wkt,
+        :biological_association_object_id,
+        :biological_association_object_type,
+        :biological_association_subject_id,
+        :biological_association_subject_type,
 
         any_global_id: [],
         biological_association_id: [],
@@ -46,6 +50,10 @@ module Queries
         subject_object_global_id: [],
         subject_taxon_name_id: [],
         taxon_name_id: [],
+        biological_association_object_id: [],
+        biological_association_object_type: [],
+        biological_association_subject_id: [],
+        biological_association_subject_type: []
       ].freeze
 
       API_PARAM_EXCLUSIONS = [
@@ -150,6 +158,14 @@ module Queries
       #  limit object to a type
       attr_accessor :object_type
 
+      attr_accessor :biological_association_object_id
+
+      attr_accessor :biological_association_object_type
+
+      attr_accessor :biological_association_subject_id
+
+      attr_accessor :biological_association_subject_type
+
       def initialize(query_params)
         super
 
@@ -176,6 +192,10 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @taxon_name_id_mode = boolean_param(params, :taxon_name_id_mode)
         @wkt = params[:wkt]
+        @biological_association_object_id = params[:biological_association_object_id]
+        @biological_association_object_type = params[:biological_association_object_type]
+        @biological_association_subject_id = params[:biological_association_subject_id]
+        @biological_association_subject_type = params[:biological_association_subject_type]
 
         set_notes_params(params)
         set_tags_params(params)
@@ -235,6 +255,22 @@ module Queries
         [@object_object_global_id].flatten.compact
       end
 
+      def biological_association_object_id
+        [@biological_association_object_id].flatten.compact
+      end
+
+      def biological_association_object_type
+        [@biological_association_object_type].flatten.compact
+      end
+
+      def biological_association_subject_id
+        [@biological_association_subject_id].flatten.compact
+      end
+
+      def biological_association_subject_type
+        [@biological_association_subject_type].flatten.compact
+      end
+
       def any_global_id
         [@any_global_id].flatten.compact
       end
@@ -253,6 +289,26 @@ module Queries
         table['biological_association_object_id'].eq(object.id).and(
           table['biological_association_object_type'].eq(object.class.base_class.name)
         )
+      end
+
+      def biological_association_object_type_facet
+        return nil if biological_association_object_type.empty?
+        table[:biological_association_object_type].in(biological_association_object_type)
+      end
+
+      def biological_association_object_id_facet
+        return nil if biological_association_object_id.empty?
+        table[:biological_association_object_id].in(biological_association_object_id)
+      end
+
+      def biological_association_subject_type_facet
+        return nil if biological_association_subject_type.empty?
+        table[:biological_association_subject_type].in(biological_association_subject_type)
+      end
+
+      def biological_association_subject_id_facet
+        return nil if biological_association_subject_id.empty?
+        table[:biological_association_subject_id].in(biological_association_subject_id)
       end
 
       def object_biological_property_id_facet
@@ -544,15 +600,15 @@ module Queries
       def biological_relationship_id_facet
         return nil if biological_relationship_id.empty?
         if exclude_taxon_name_relationship
-          table[:biological_relationship_id].not_eq_any(biological_relationship_id)
+          table[:biological_relationship_id].not_in(biological_relationship_id)
         else
-          table[:biological_relationship_id].eq_any(biological_relationship_id)
+          table[:biological_relationship_id].in(biological_relationship_id)
         end
       end
 
       def biological_association_id_facet
         return nil if biological_association_id.empty?
-        table[:id].eq_any(biological_association_id)
+        table[:id].in(biological_association_id)
       end
 
       def object_type_facet
@@ -642,14 +698,14 @@ module Queries
 
         c = ::BiologicalAssociation
           .joins("JOIN collection_objects on collection_objects.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'CollectionObject'")
-          .joins('JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = collection_objects.id')
+          .joins("JOIN taxon_determinations on taxon_determinations.taxon_determination_object_id = collection_objects.id AND taxon_determinations.taxon_determination_object_type = 'CollectionObject'")
           .joins('JOIN otus on otus.id = taxon_determinations.otu_id')
           .joins('JOIN query_tn_ba as query_tn_ba3 on otus.taxon_name_id = query_tn_ba3.id')
           .where('taxon_determinations.position = 1')
 
         d = ::BiologicalAssociation
           .joins("JOIN collection_objects on collection_objects.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'CollectionObject'")
-          .joins('JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = collection_objects.id')
+          .joins("JOIN taxon_determinations on taxon_determinations.taxon_determination_object_id = collection_objects.id AND taxon_determinations.taxon_determination_object_type = 'CollectionObject'")
           .joins('JOIN otus on otus.id = taxon_determinations.otu_id')
           .joins('JOIN query_tn_ba as query_tn_ba4 on otus.taxon_name_id = query_tn_ba4.id')
           .where('taxon_determinations.position = 1')
@@ -668,6 +724,10 @@ module Queries
           object_type_facet,
           subject_object_global_id_facet,
           subject_type_facet,
+          biological_association_object_id_facet,
+          biological_association_object_type_facet,
+          biological_association_subject_id_facet,
+          biological_association_subject_id_facet
         ]
       end
 

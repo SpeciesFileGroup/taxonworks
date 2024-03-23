@@ -1,8 +1,28 @@
 module Shared::Taxonomy
-
   extend ActiveSupport::Concern
 
   included do
+
+    # @return [Hash]
+    # {
+    #     "nomenclatural rank" => "Root",
+    #                  "order" => "Lepidoptera",
+    #            "superfamily" => "Alucitoidea",
+    #                 "family" => "Alucitidae",
+    #                  "genus" => [
+    #         [0] nil,
+    #         [1] "Alucita"
+    #     ],
+    #                "species" => [
+    #         [0] nil,
+    #         [1] "acalles"
+    #     ]
+    # }
+    #
+    # !! Calling taxonom.keys gives ranks back from root to target.
+    # !! Note Root is included, this may be deprecated ultimate
+    # !!  as it is rarely used
+    #
     attr_accessor :taxonomy
 
     # @params reset [Boolean]
@@ -18,8 +38,23 @@ module Shared::Taxonomy
       end
     end
 
+    # @return [Array]
+    #   all ancestral names as string excepting self
+    #   !! includes 'Root'
+    def ancestry
+      t = taxonomy.values.collect{|n| [n].flatten.compact.join(' ')}
+      t.pop
+      t
+    end
+
     protected
 
+    # !! @return Taxonomy
+    # !!
+    # !! Since Ruby 2.5 Hash keys return in the order
+    # !!  they were added, this is assumed for this method
+    # !!  so if it is change this must be taken into account.
+    # !!
     # TODO: analyze and optimize for n+1
     def set_taxonomy
       c = case self.class.base_class.name

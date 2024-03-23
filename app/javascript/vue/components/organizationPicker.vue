@@ -9,8 +9,8 @@
       placeholder="Search an organization"
       clear-after
       @found="nothing = !$event"
-      @get-input="organization.name = $event"
-      @get-item="setOrganization"
+      @get-input="(item) => (organization.name = item)"
+      @get-item="(item) => setOrganization({ id: item.id, name: item.label })"
     />
     <button
       v-if="nothing"
@@ -23,8 +23,8 @@
     <default-pin
       class="button-circle"
       type="Organization"
-      @get-item="setOrganization({ id: $event.id, label: $event.label })"
       section="Organizations"
+      @get-item="(item) => setOrganization({ id: item.id, name: item.label })"
     />
     <modal-component
       v-if="showModal"
@@ -176,7 +176,7 @@
 <script>
 import Autocomplete from '@/components/ui/Autocomplete'
 import ModalComponent from '@/components/ui/Modal'
-import DefaultPin from './getDefaultPin.vue'
+import DefaultPin from '@/components/ui/Button/ButtonPinned.vue'
 import { Organization } from '@/routes/endpoints'
 
 export default {

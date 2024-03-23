@@ -6,7 +6,7 @@ class CollectionObjectsController < ApplicationController
     :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications,
     :timeline,
     :api_show, :api_dwc]
-  after_action -> { set_pagination_headers(:collection_objects) }, only: [:index], if: :json_request?
+  after_action -> { set_pagination_headers(:collection_objects) }, only: [:index, :api_index], if: :json_request?
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -20,13 +20,13 @@ class CollectionObjectsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json do
-        @collection_objects = ::Queries::CollectionObject::Filter.new(params).all
+        collection_objects = ::Queries::CollectionObject::Filter.new(params).all
 
-        @collection_objects = add_includes_to_filter_result(@collection_objects)
+        @collection_objects = add_includes_to_filter_result(collection_objects)
 
         @collection_objects = @collection_objects
-        .page(params[:page])
-        .per(params[:per])
+          .page(params[:page])
+          .per(params[:per])
       end
     end
   end
@@ -258,7 +258,7 @@ class CollectionObjectsController < ApplicationController
 
   # GET /collection_objects/download
   def download
-    send_data Export::Download.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now}.tsv"
   end
 
   # GET collection_objects/batch_load
@@ -364,7 +364,7 @@ class CollectionObjectsController < ApplicationController
   # GET /api/v1/collection_objects
   def api_index
     @collection_objects = ::Queries::CollectionObject::Filter.new(params.merge!(api: true)).all
-       .where(project_id: sessions_current_project_id)
+      .where(project_id: sessions_current_project_id)
       .order('collection_objects.id')
       .page(params[:page]).per(params[:per])
     render '/collection_objects/api/v1/index'
@@ -386,6 +386,27 @@ class CollectionObjectsController < ApplicationController
     ActiveRecord::Base.connection_pool.with_connection do
       @collection_object.get_dwc_occurrence
       render json: @collection_object.dwc_occurrence_attributes
+    end
+  end
+
+  # PATCH /collection_object/batch_update_dwc_occurrence.json?<collection object query params>
+  def batch_update_dwc_occurrence
+    if c = CollectionObject.batch_update_dwc_occurrence(params)
+      render json: c.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
+  # PATCH /collection_object/batch_update.json?collection_object_query=<>&collection_object={}
+  def batch_update
+    if c = CollectionObject.batch_update(
+        preview: params[:preview],
+        collection_object: collection_object_params.merge(by: sessions_current_user_id),
+        collection_object_query: params[:collection_object_query])
+      render json: c.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
     end
   end
 
@@ -419,6 +440,7 @@ class CollectionObjectsController < ApplicationController
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
       tags_attributes: [:id, :_destroy, :keyword_id],
+      depictions_attributes: [:id, :_destroy, :svg_clip, :svg_view_box, :position, :caption, :figure_label, :image_id],
       identifiers_attributes: [
         :id,
         :_destroy,
@@ -431,7 +453,16 @@ class CollectionObjectsController < ApplicationController
           :text_method,
           :total
         ]
+      ],
+      taxon_determinations_attributes: [
+        :id, :_destroy, :otu_id, :year_made, :month_made, :day_made, :position,
+        roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+        otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
+      ],
+      biocuration_classifications_attributes: [
+        :id, :_destroy, :biocuration_class_id
       ]
+
     )
   end
 
@@ -478,6 +509,7 @@ class CollectionObjectsController < ApplicationController
     if helpers.extend_response_with('taxon_determinations')
       collection_objects = collection_objects.includes(taxon_determinations: [:otu, roles: [:person]])
     end
+
     collection_objects
   end
 

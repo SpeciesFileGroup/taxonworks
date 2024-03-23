@@ -3,6 +3,12 @@
     v-model="params"
     param="name"
     title="Name"
+    :aditional-checkboxes="[
+      {
+        label: 'Epithet only',
+        param: 'epithet_only'
+      }
+    ]"
   />
   <FacetTaxonName
     :autocomplete-params="{
@@ -44,6 +50,7 @@
   <FacetValidify v-model="params" />
   <FacetCombinationify v-model="params" />
   <FacetSynonymify v-model="params" />
+  <FacetAncestrify v-model="params" />
 </template>
 
 <script setup>
@@ -56,12 +63,13 @@ import FacetNomenclatureGroup from './filters/FacetNomenclatureGroup.vue'
 import FacetNomenclatureCode from './filters/FacetNomenclatureCode.vue'
 import FacetInRelationship from './filters/FacetInRelationship'
 import FacetTaxonNameType from './filters/FacetTaxonNameType.vue'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetValidify from './filters/FacetValidify.vue'
 import FacetCombinationify from './filters/FacetCombinationify.vue'
 import FacetSynonymify from './filters/FacetSynonymify.vue'
+import FacetAncestrify from '@/components/Filter/Facets/shared/FacetAncestrify.vue'
 import FacetAuthors from './filters/FacetAuthors.vue'
 import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'

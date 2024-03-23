@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="radial-annotator">
-      <modal
-        v-if="display"
+      <VModal
+        v-if="isVisible"
         transparent
         @close="closeModal()"
       >
@@ -19,13 +19,13 @@
         </template>
         <template #body>
           <div class="flex-separate">
-            <spinner v-if="!menuCreated" />
+            <VSpinner v-if="!isMetadataLoaded" />
             <div class="radial-annotator-menu">
               <div>
                 <radial-menu
-                  v-if="menuCreated"
+                  v-if="isMetadataLoaded"
                   :options="menuOptions"
-                  @onClick="selectComponent"
+                  @on-click="selectComponent"
                 />
               </div>
             </div>
@@ -37,22 +37,22 @@
                 {{ currentAnnotator.replace('_', ' ') }}
               </h2>
               <component
-                v-if="metadataLoaded"
+                v-if="isMetadataLoaded"
                 class="radial-annotator-container"
-                :is="
-                  currentAnnotator ? currentAnnotator + 'Annotator' : undefined
-                "
+                :is="SLICE[currentAnnotator]"
                 :type="currentAnnotator"
-                :url="url"
+                :url="metadata.url"
                 :metadata="metadata"
                 :global-id="globalId"
                 :object-type="metadata.object_type"
-                @updateCount="setTotal"
+                :object-id="metadata.object_id"
+                :radial-emit="handleEmitRadial"
+                @update-count="setTotal"
               />
             </div>
           </div>
         </template>
-      </modal>
+      </VModal>
 
       <VBtn
         v-if="showBottom"
@@ -76,422 +76,369 @@
       >
         <span class="citation-count-text">{{ metadataCount }}</span>
       </div>
-      <context-menu
+      <ContextMenu
         :metadata="metadata"
         :global-id="globalId"
-        v-model="showContextMenu"
-        v-if="showContextMenu"
+        v-model="isContextMenuVisible"
+        v-if="isContextMenuVisible"
       />
     </div>
   </div>
 </template>
-<script>
-import RadialMenu from '@/components/radials/RadialMenu.vue'
-import modal from '@/components/ui/Modal.vue'
-import spinner from '@/components/spinner.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 
-import CRUD from './request/crud'
-
-import confidencesAnnotator from './components/confidence/confidence_annotator.vue'
-import depictionsAnnotator from './components/depictions/depiction_annotator.vue'
-import documentationAnnotator from './components/documentation_annotator.vue'
-import identifiersAnnotator from './components/identifier/identifier_annotator.vue'
-import tagsAnnotator from './components/tag_annotator.vue'
-import notesAnnotator from './components/note_annotator.vue'
-import data_attributesAnnotator from './components/data_attribute_annotator.vue'
-import alternate_valuesAnnotator from './components/alternate_value_annotator.vue'
-import citationsAnnotator from './components/citations/citation_annotator.vue'
-import protocol_relationshipsAnnotator from './components/protocol_annotator.vue'
-import attributionAnnotator from './components/attribution/main.vue'
-import verifiersAnnotator from './components/verifiers/Verifiers.vue'
-
-import ContextMenu from './components/contextMenu'
-import Icons from './images/icons.js'
-import shortcutsMixin from '../mixins/shortcuts'
+<script setup>
+import { ref, computed, watch, onBeforeMount, onBeforeUnmount } from 'vue'
+import { ajaxCall } from '@/helpers'
+import { useShortcuts } from '@/components/radials/composables/useShortcuts'
 import { Tag } from '@/routes/endpoints'
 import { RadialAnnotatorEventEmitter } from '@/utils/index.js'
+import { SLICE } from './constants/slices.js'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import Icons from './images/icons.js'
+import ContextMenu from './components/contextMenu'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
-export default {
-  mixins: [CRUD, shortcutsMixin],
+const DOM_EVENT = {
+  Update: 'radialAnnotator:update',
+  Close: 'radialAnnotator:close',
+  Open: 'radialAnnotator:open'
+}
 
-  name: 'RadialAnnotator',
+defineOptions({
+  name: 'RadialAnnotator'
+})
+
+const props = defineProps({
+  reload: {
+    type: Boolean,
+    default: false
+  },
+
+  globalId: {
+    type: String,
+    required: true
+  },
+
+  showBottom: {
+    type: Boolean,
+    default: true
+  },
+
+  buttonClass: {
+    type: String,
+    default: 'btn-radial-annotator'
+  },
+
+  buttonTitle: {
+    type: String,
+    default: 'Radial annotator'
+  },
+
+  showCount: {
+    type: Boolean,
+    default: false
+  },
+
+  defaultView: {
+    type: String,
+    default: undefined
+  },
 
   components: {
-    RadialMenu,
-    modal,
-    spinner,
-    notesAnnotator,
-    citationsAnnotator,
-    confidencesAnnotator,
-    depictionsAnnotator,
-    data_attributesAnnotator,
-    documentationAnnotator,
-    alternate_valuesAnnotator,
-    identifiersAnnotator,
-    tagsAnnotator,
-    protocol_relationshipsAnnotator,
-    attributionAnnotator,
-    verifiersAnnotator,
-    ContextMenu,
-    VBtn,
-    VIcon
+    type: Object,
+    default: () => ({})
   },
 
-  emits: ['close'],
-
-  props: {
-    reload: {
-      type: Boolean,
-      default: false
-    },
-
-    globalId: {
-      type: String,
-      required: true
-    },
-
-    showBottom: {
-      type: Boolean,
-      default: true
-    },
-
-    buttonClass: {
-      type: String,
-      default: 'btn-radial-annotator'
-    },
-
-    buttonTitle: {
-      type: String,
-      default: 'Radial annotator'
-    },
-
-    showCount: {
-      type: Boolean,
-      default: false
-    },
-
-    defaultView: {
-      type: String,
-      default: undefined
-    },
-
-    components: {
-      type: Object,
-      default: () => ({})
-    },
-
-    type: {
-      type: String,
-      default: 'annotations'
-    },
-
-    pulse: {
-      type: Boolean,
-      default: false
-    },
-
-    disabled: {
-      type: Boolean,
-      default: false
-    }
+  type: {
+    type: String,
+    default: 'annotations'
   },
 
-  data() {
-    return {
-      currentAnnotator: undefined,
-      display: false,
-      url: undefined,
-      globalIdSaved: undefined,
-      metadata: undefined,
-      title: 'Radial annotator',
-      defaultTag: undefined,
-      showContextMenu: false,
-      listenerId: undefined
-    }
+  pulse: {
+    type: Boolean,
+    default: false
   },
 
-  computed: {
-    metadataLoaded() {
-      return (
-        this.globalId === this.globalIdSaved && this.menuCreated && !this.reload
-      )
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['close', 'update', 'create', 'delete', 'change'])
+
+const isMetadataLoaded = computed(() => !!metadata.value?.endpoints)
+const isVisible = ref(false)
+const isContextMenuVisible = ref(false)
+const currentAnnotator = ref()
+const title = ref('Radial annotator')
+const metadata = ref(null)
+const defaultTag = ref(null)
+const menuOptions = computed(() => {
+  const endpoints = metadata.value.endpoints || {}
+
+  const slices = Object.entries(endpoints).map(([annotator, { total }]) => ({
+    name: annotator,
+    label: (annotator.charAt(0).toUpperCase() + annotator.slice(1)).replace(
+      '_',
+      ' '
+    ),
+    innerPosition: 1.7,
+    svgAttributes: {
+      class: currentAnnotator.value === annotator ? 'slice active' : 'slice'
     },
-
-    menuCreated() {
-      return this.metadata?.endpoints
-    },
-
-    menuOptions() {
-      const endpoints = this.metadata.endpoints || {}
-
-      const slices = Object.entries(endpoints).map(
-        ([annotator, { total }]) => ({
-          name: annotator,
-          label: (
-            annotator.charAt(0).toUpperCase() + annotator.slice(1)
-          ).replace('_', ' '),
-          innerPosition: 1.7,
-          svgAttributes: {
-            class:
-              this.currentAnnotator === annotator ? 'slice active' : 'slice'
-          },
-          slices: total
-            ? [
-                {
-                  label: total.toString(),
-                  size: 26,
-                  svgAttributes: {
-                    class: 'slice-total'
-                  }
-                }
-              ]
-            : [],
-          icon: Icons[annotator]
-            ? {
-                url: Icons[annotator],
-                width: '20',
-                height: '20'
-              }
-            : undefined
-        })
-      )
-
-      return {
-        width: 400,
-        height: 400,
-        sliceSize: 120,
-        centerSize: 34,
-        margin: 2,
-        middleButton: this.middleButton,
-        svgAttributes: {
-          class: 'svg-radial-menu'
-        },
-        svgSliceAttributes: {
-          fontSize: 11
-        },
-        slices
-      }
-    },
-
-    metadataCount() {
-      if (this.metadata) {
-        let totalCounts = 0
-        for (const key in this.metadata.endpoints) {
-          const section = this.metadata.endpoints[key]
-          if (typeof section === 'object') {
-            totalCounts = totalCounts + Number(section.total)
+    slices: total
+      ? [
+          {
+            label: total.toString(),
+            size: 26,
+            svgAttributes: {
+              class: 'slice-total'
+            }
           }
-        }
-        return totalCounts
-      }
-      return undefined
-    },
-
-    isTagged() {
-      return !!this.defaultTag
-    },
-
-    middleButton() {
-      return {
-        name: MIDDLE_RADIAL_BUTTON,
-        radius: 30,
-        icon: {
-          url: Icons.tags,
+        ]
+      : [],
+    icon: Icons[annotator]
+      ? {
+          url: Icons[annotator],
           width: '20',
           height: '20'
-        },
-        svgAttributes: {
-          fontSize: 11,
-          fill: this.getDefault()
-            ? this.isTagged
-              ? '#F44336'
-              : '#9ccc65'
-            : '#CACACA',
-          style: 'cursor: pointer'
-        },
-        backgroundHover: this.getDefault()
-          ? this.isTagged
-            ? '#CE3430'
-            : '#81a553'
-          : '#CACACA'
-      }
-    }
-  },
-
-  watch: {
-    metadataLoaded() {
-      if (this.defaultView) {
-        this.currentAnnotator = this.isComponentExist(this.defaultView)
-      }
-    },
-
-    display(newVal) {
-      if (newVal && this.metadataLoaded) {
-        this.currentAnnotator = this.isComponentExist(this.defaultView)
-      }
-    }
-  },
-
-  created() {
-    if (this.showCount) {
-      this.loadMetadata()
-    }
-
-    RadialAnnotatorEventEmitter.on('reset', this.resetAnnotator)
-  },
-
-  unmounted() {
-    RadialAnnotatorEventEmitter.removeListener('reset', this.resetAnnotator)
-  },
-
-  methods: {
-    isComponentExist(componentName) {
-      return this.$options.components[`${componentName}Annotator`]
-        ? componentName
-        : undefined
-    },
-
-    loadContextMenu() {
-      this.showContextMenu = true
-      this.loadMetadata()
-    },
-
-    getDefault() {
-      const defaultTag = document.querySelector(
-        '[data-pinboard-section="Keywords"] [data-insert="true"]'
-      )
-      return defaultTag
-        ? defaultTag.getAttribute('data-pinboard-object-id')
-        : undefined
-    },
-
-    alreadyTagged() {
-      const keyId = this.getDefault()
-      if (!keyId) return
-
-      const params = {
-        global_id: this.globalId,
-        keyword_id: keyId
-      }
-
-      Tag.exists(params).then(({ body }) => {
-        this.defaultTag = body
-      })
-    },
-
-    selectComponent({ name }) {
-      if (name === MIDDLE_RADIAL_BUTTON) {
-        if (this.getDefault()) {
-          this.isTagged ? this.deleteTag() : this.createTag()
         }
-      } else {
-        this.currentAnnotator = name
-      }
+      : undefined
+  }))
+
+  return {
+    width: 400,
+    height: 400,
+    sliceSize: 120,
+    centerSize: 34,
+    margin: 2,
+    middleButton: middleButton.value,
+    svgAttributes: {
+      class: 'svg-radial-menu'
     },
-
-    closeModal() {
-      this.display = false
-      this.$emit('close')
-      this.eventClose()
-      this.removeListener()
+    svgSliceAttributes: {
+      fontSize: 11
     },
-
-    async displayAnnotator() {
-      this.display = true
-      await this.loadMetadata()
-      this.alreadyTagged()
-      this.eventOpen()
-      this.setShortcutsEvent()
-    },
-
-    async loadMetadata() {
-      if (
-        this.globalId === this.globalIdSaved &&
-        this.menuCreated &&
-        !this.reload
-      )
-        return
-      this.globalIdSaved = this.globalId
-
-      return this.getList(
-        `/${this.type}/${encodeURIComponent(this.globalId)}/metadata`
-      ).then(({ body }) => {
-        this.metadata = body
-        this.title = body.object_tag
-        this.url = body.url
-      })
-    },
-
-    setTotal(total) {
-      const sliceMetadata = this.metadata.endpoints[this.currentAnnotator]
-
-      if (total !== sliceMetadata.total) {
-        sliceMetadata.total = total
-        this.eventUpdate()
-      }
-    },
-
-    eventOpen() {
-      const event = new CustomEvent('radialAnnotator:open', {
-        detail: {
-          metadata: this.metadata
-        }
-      })
-      document.dispatchEvent(event)
-    },
-
-    eventUpdate() {
-      const event = new CustomEvent('radialAnnotator:update', {
-        detail: {
-          metadata: this.metadata
-        }
-      })
-      document.dispatchEvent(event)
-    },
-
-    eventClose() {
-      const event = new CustomEvent('radialAnnotator:close', {
-        detail: {
-          metadata: this.metadata
-        }
-      })
-      document.dispatchEvent(event)
-    },
-
-    createTag() {
-      const tag = {
-        keyword_id: this.getDefault(),
-        annotated_global_entity: this.globalId
-      }
-
-      Tag.create({ tag }).then((response) => {
-        this.defaultTag = response.body
-        TW.workbench.alert.create(
-          'Tag item was successfully created.',
-          'notice'
-        )
-      })
-    },
-
-    deleteTag() {
-      Tag.destroy(this.defaultTag.id).then((_) => {
-        this.defaultTag = undefined
-        TW.workbench.alert.create(
-          'Tag item was successfully destroyed.',
-          'notice'
-        )
-      })
-    },
-
-    resetAnnotator() {
-      this.metadata = undefined
-      this.globalIdSaved = undefined
-    }
+    slices
   }
+})
+
+const metadataCount = computed(() => {
+  if (metadata.value) {
+    let totalCounts = 0
+
+    for (const key in metadata.value.endpoints) {
+      const section = metadata.value.endpoints[key]
+      if (typeof section === 'object') {
+        totalCounts = totalCounts + Number(section.total)
+      }
+    }
+    return totalCounts
+  }
+  return undefined
+})
+
+const isTagged = computed(() => !!defaultTag.value)
+
+const middleButton = computed(() => ({
+  name: MIDDLE_RADIAL_BUTTON,
+  radius: 30,
+  icon: {
+    url: Icons.tags,
+    width: '20',
+    height: '20'
+  },
+  svgAttributes: {
+    fontSize: 11,
+    fill: getDefault() ? (isTagged.value ? '#F44336' : '#9ccc65') : '#CACACA',
+    style: 'cursor: pointer'
+  },
+  backgroundHover: getDefault()
+    ? isTagged.value
+      ? '#CE3430'
+      : '#81a553'
+    : '#CACACA'
+}))
+
+const { removeListener, setShortcutsEvent } = useShortcuts({
+  metadata,
+  currentAnnotator
+})
+
+watch(isVisible, (newVal) => {
+  if (newVal && isMetadataLoaded.value) {
+    currentAnnotator.value = isComponentExist(props.defaultView)
+  }
+})
+
+watch(isMetadataLoaded, () => {
+  if (props.defaultView) {
+    currentAnnotator.value = isComponentExist(props.defaultView)
+  }
+})
+
+onBeforeMount(() => {
+  if (props.showCount) {
+    loadMetadata()
+  }
+
+  RadialAnnotatorEventEmitter.on('reset', resetAnnotator)
+})
+
+onBeforeUnmount(() => {
+  RadialAnnotatorEventEmitter.removeListener('reset', resetAnnotator)
+})
+
+function isComponentExist(componentName) {
+  return SLICE[componentName]
+}
+
+function loadContextMenu() {
+  isContextMenuVisible.value = true
+  loadMetadata()
+}
+
+function getDefault() {
+  const defaultTag = document.querySelector(
+    '[data-pinboard-section="Keywords"] [data-insert="true"]'
+  )
+
+  return defaultTag?.getAttribute('data-pinboard-object-id')
+}
+
+function alreadyTagged() {
+  const keyId = getDefault()
+  if (!keyId) return
+
+  const params = {
+    global_id: props.globalId,
+    keyword_id: keyId
+  }
+
+  Tag.exists(params).then(({ body }) => {
+    defaultTag.value = body
+  })
+}
+
+function selectComponent({ name }) {
+  if (name === MIDDLE_RADIAL_BUTTON) {
+    if (getDefault()) {
+      isTagged.value ? deleteTag() : createTag()
+    }
+  } else {
+    currentAnnotator.value = name
+  }
+}
+
+const handleEmitRadial = {
+  add(item) {
+    emit('create', { item, slice: currentAnnotator.value })
+  },
+  delete(item) {
+    emit('delete', { item, slice: currentAnnotator.value })
+  },
+  update(item) {
+    emit('update', { item, slice: currentAnnotator.value })
+  },
+  change(item) {
+    emit('change', { item, metadata, slice: currentAnnotator.value })
+  },
+  count(total) {
+    setTotal(total)
+  }
+}
+
+function closeModal() {
+  isVisible.value = false
+  emit('close')
+  eventClose()
+  removeListener()
+}
+
+async function displayAnnotator() {
+  isVisible.value = true
+  await loadMetadata()
+  alreadyTagged()
+  eventOpen()
+  setShortcutsEvent()
+}
+
+async function loadMetadata() {
+  if (isMetadataLoaded.value && !props.reload) return
+
+  const metadataUrl = `/${props.type}/${encodeURIComponent(
+    props.globalId
+  )}/metadata`
+
+  return ajaxCall('get', metadataUrl).then(({ body }) => {
+    metadata.value = body
+    title.value = body.object_tag
+  })
+}
+
+function setTotal(total) {
+  const sliceMetadata = metadata.value.endpoints[currentAnnotator.value]
+
+  if (total !== sliceMetadata.total) {
+    sliceMetadata.total = total
+    eventUpdate()
+  }
+}
+
+function eventOpen() {
+  const event = new CustomEvent(DOM_EVENT.Open, {
+    detail: {
+      metadata: metadata.value
+    }
+  })
+  document.dispatchEvent(event)
+}
+
+function eventUpdate() {
+  const event = new CustomEvent(DOM_EVENT.Update, {
+    detail: {
+      metadata: metadata.value
+    }
+  })
+  document.dispatchEvent(event)
+}
+
+function eventClose() {
+  const event = new CustomEvent(DOM_EVENT.Close, {
+    detail: {
+      metadata: metadata.value
+    }
+  })
+  document.dispatchEvent(event)
+}
+
+function createTag() {
+  const tag = {
+    keyword_id: getDefault(),
+    annotated_global_entity: props.globalId
+  }
+
+  Tag.create({ tag }).then((response) => {
+    defaultTag.value = response.body
+    TW.workbench.alert.create('Tag item was successfully created.', 'notice')
+  })
+}
+
+function deleteTag() {
+  Tag.destroy(defaultTag.value.id).then((_) => {
+    defaultTag.value = undefined
+    TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
+  })
+}
+
+function resetAnnotator() {
+  metadata.value = undefined
 }
 </script>
 <style lang="scss">

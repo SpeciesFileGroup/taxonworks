@@ -110,7 +110,8 @@ export default {
             [key]: func({
               ce: this.collectingEvent,
               tripCode: this.tripCode,
-              georeferences: this.georeferences
+              georeferences: this.georeferences,
+              unit: this.$store.getters[GetterNames.GetUnit]
             })
           }
         })

@@ -9,6 +9,7 @@
     </button>
     <modal-component
       v-if="showModal"
+      :container-style="{ width: '90vw' }"
       @close="showModal = false"
     >
       <template #header>
@@ -71,7 +72,7 @@
 
 <script>
 import ModalComponent from '@/components/ui/Modal'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import { CollectionObject } from '@/routes/endpoints'
 
 export default {

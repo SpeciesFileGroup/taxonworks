@@ -22,7 +22,24 @@
           v-if="isLoading"
           legend="Loading predicates..."
         />
-        <h3>Filter by predicates</h3>
+        <ul class="no_bullets">
+          <li
+            v-for="item in checkboxParameters"
+            :key="item.parameter"
+          >
+            <label>
+              <input
+                type="checkbox"
+                :disabled="item.disabled"
+                v-model="includeParameters[item.parameter]"
+              />
+              {{ item.label }}
+            </label>
+          </li>
+        </ul>
+        <div class="margin-small-top">
+          <h3>Filter by predicates</h3>
+        </div>
         <div>
           <v-btn
             class="margin-small-right"
@@ -117,6 +134,40 @@
               </tbody>
             </table>
           </div>
+          <div>
+            <table v-if="extensionMethodNames.length">
+              <thead>
+                <tr>
+                  <th>
+                    <input
+                      v-model="checkAllExtensionMethods"
+                      type="checkbox"
+                    />
+                  </th>
+                  <th class="full_width">Internal values</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="item in extensionMethodNames"
+                  :key="item.id"
+                >
+                  <td>
+                    <input
+                      type="checkbox"
+                      :value="item"
+                      v-model="
+                        selectedExtensionMethods.taxonworks_extension_methods
+                      "
+                    />
+                  </td>
+                  <td>
+                    <span v-html="item" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
         <div class="margin-medium-top">
           <VBtn
@@ -133,14 +184,25 @@
   </div>
 </template>
 <script setup>
-import { computed, reactive, ref, onBeforeMount, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { RouteNames } from '@/routes/routes.js'
 import { DwcOcurrence } from '@/routes/endpoints'
-import { qs } from 'qs'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+
+const checkboxParameters = [
+  {
+    label: 'Include biological associations as recource relationship',
+    parameter: 'biological_associations_extension'
+  },
+  {
+    label: 'Include media extension',
+    parameter: 'media_extension',
+    disabled: true
+  }
+]
 
 const props = defineProps({
   params: {
@@ -156,17 +218,30 @@ const props = defineProps({
   selectedIds: {
     type: Array,
     default: () => []
+  },
+
+  nestParameter: {
+    type: String,
+    default: null
   }
 })
+
+const emit = defineEmits(['create'])
 
 const confirmationModalRef = ref()
 const showModal = ref(false)
 const isLoading = ref(false)
+const predicatesLoaded = ref(false)
 const collectingEvents = ref([])
 const collectionObjects = ref([])
+const includeParameters = ref({})
 const predicateParams = reactive({
   collecting_event_predicate_id: [],
   collection_object_predicate_id: []
+})
+const extensionMethodNames = ref([])
+const selectedExtensionMethods = reactive({
+  taxonworks_extension_methods: []
 })
 
 const getFilterParams = (params) => {
@@ -203,16 +278,38 @@ const checkAllCo = computed({
   }
 })
 
+const checkAllExtensionMethods = computed({
+  get: () =>
+    selectedExtensionMethods.taxonworks_extension_methods.length ===
+    extensionMethodNames.value.length,
+  set: (isChecked) => {
+    selectedExtensionMethods.taxonworks_extension_methods = isChecked
+      ? extensionMethodNames.value
+      : []
+  }
+})
+
 function download() {
   const downloadParams = props.selectedIds.length
     ? { collection_object_id: props.selectedIds }
     : getFilterParams(props.params)
 
-  DwcOcurrence.generateDownload({ ...downloadParams, ...predicateParams }).then(
-    (_) => {
-      openGenerateDownloadModal()
-    }
-  )
+  const payload = {
+    ...includeParameters.value,
+    ...predicateParams,
+    ...selectedExtensionMethods
+  }
+
+  if (props.nestParameter) {
+    Object.assign(payload, { [props.nestParameter]: downloadParams })
+  } else {
+    Object.assign(payload, downloadParams)
+  }
+
+  DwcOcurrence.generateDownload(payload).then(({ body }) => {
+    emit('create', body)
+    openGenerateDownloadModal()
+  })
 }
 
 function setModalView(value) {
@@ -234,27 +331,36 @@ async function openGenerateDownloadModal() {
   setModalView(false)
 }
 
-onBeforeMount(() => {
-  isLoading.value = true
-
-  DwcOcurrence.predicates().then(({ body }) => {
-    isLoading.value = false
-    collectingEvents.value = body.collecting_event
-    collectionObjects.value = body.collection_object
-  })
-})
-
-watch(showModal, (newVal) => {
+watch(showModal, async (newVal) => {
   if (newVal) {
     predicateParams.collection_object_predicate_id = []
     predicateParams.collecting_event_predicate_id = []
+    selectedExtensionMethods.taxonworks_extension_methods = []
+
+    if (!predicatesLoaded.value && !isLoading.value) {
+      try {
+        isLoading.value = true
+
+        const [predicates, extensions] = await Promise.all([
+          DwcOcurrence.predicates(),
+          DwcOcurrence.taxonworksExtensionMethods()
+        ])
+
+        collectingEvents.value = predicates.body.collecting_event
+        collectionObjects.value = predicates.body.collection_object
+        extensionMethodNames.value = extensions.body
+        predicatesLoaded.value = true
+      } catch (e) {}
+
+      isLoading.value = false
+    }
   }
 })
 </script>
 <style>
 .dwc-download-predicates {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 1em;
 }
 </style>

@@ -61,7 +61,7 @@ module Queries
 
       def biological_associations_graph_id_facet
         return nil if biological_associations_graph_id.empty?
-        table[:id].eq_any(biological_associations_graph_id)
+        table[:id].in(biological_associations_graph_id)
       end
 
       def biological_relationship_id_facet
@@ -73,18 +73,18 @@ module Queries
       def biological_association_id_facet
         return nil if biological_association_id.empty?
         ::BiologicalAssociationsGraph.joins(biological_associations_biological_associations_graphs: [:biological_association])
-        .where(biological_associations_biological_associations_graphs: { biological_association_id: biological_association_id }).distinct
+        .where(biological_associations_biological_associations_graphs: { biological_association_id: }).distinct
       end
 
-     def biological_association_query_facet
-       return nil if biological_association_query.nil?
-       s = 'WITH query_ba_bag AS (' + biological_association_query.all.to_sql + ') '
+      def biological_association_query_facet
+        return nil if biological_association_query.nil?
+        s = 'WITH query_ba_bag AS (' + biological_association_query.all.to_sql + ') '
 
-       s << ::BiologicalAssociationGraph.joins(:biological_associations_biological_associations_graphs)
-         .joins("JOIN query_ba_bag as query_ba_bag1 on biological_associations_biological_associations_graphs.biological_association_id = query_ba_bag1.id").to_sql
+        s << ::BiologicalAssociationGraph.joins(:biological_associations_biological_associations_graphs)
+          .joins('JOIN query_ba_bag as query_ba_bag1 on biological_associations_biological_associations_graphs.biological_association_id = query_ba_bag1.id').to_sql
 
-       ::BiologicalAssociation.from('(' + s + ') as biological_associations')
-     end
+        ::BiologicalAssociation.from('(' + s + ') as biological_associations')
+      end
 
 #     def otu_query_facet
 #       return nil if otu_query.nil?
@@ -133,7 +133,7 @@ module Queries
 
  #      c = ::BiologicalAssociation
  #        .joins("JOIN collection_objects on collection_objects.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'CollectionObject'")
- #        .joins('JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = collection_objects.id')
+ #        .joins('JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = collection_objects.id') # TODO: change with FO
  #        .joins('JOIN otus on otus.id = taxon_determinations.otu_id')
  #        .joins('JOIN query_tn_ba as query_tn_ba3 on otus.taxon_name_id = query_tn_ba3.id')
  #        .where('taxon_determinations.position = 1')
@@ -141,7 +141,7 @@ module Queries
 
  #      d = ::BiologicalAssociation
  #        .joins("JOIN collection_objects on collection_objects.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'CollectionObject'")
- #        .joins('JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = collection_objects.id')
+ #        .joins('JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = collection_objects.id') # TODO: change with FO
  #        .joins('JOIN otus on otus.id = taxon_determinations.otu_id')
  #        .joins('JOIN query_tn_ba as query_tn_ba4 on otus.taxon_name_id = query_tn_ba4.id')
  #        .where('taxon_determinations.position = 1')

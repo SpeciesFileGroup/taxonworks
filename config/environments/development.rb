@@ -1,5 +1,5 @@
 require 'settings'
-TaxonWorks::Application.configure do 
+TaxonWorks::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
   config.file_watcher = ActiveSupport::FileUpdateChecker
@@ -10,23 +10,26 @@ TaxonWorks::Application.configure do
   config.cache_classes = false
 
   # Do not eager load code on boot.
-  config.eager_load = false 
+  config.eager_load = false
 
   # Show full error reports and disable caching.
-  config.consider_all_requests_local       = true
+  config.consider_all_requests_local = true
   config.action_controller.perform_caching = false
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
+
+  # Limit log size to 512 MB total
+  config.logger = ActiveSupport::Logger.new(config.paths['log'].first, 1, 256 * 1024 ** 2)
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
 
   # Raise an error on page load if there are pending migrations
   config.active_record.migration_error = :page_load
-  
+
   # http://guides.rubyonrails.org/v5.1/configuring.html#configuring-assets
-  # Assets 
+  # Assets
 
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
@@ -45,9 +48,9 @@ TaxonWorks::Application.configure do
 
   BetterErrors.editor='x-mine://open?file=%{file}&line=%{line}' if defined? BetterErrors
 
-  require 'taxonworks'
-  require 'taxonworks_autoload'
+  # Removed with zeitwerk
+  # config.autoload_paths << Rails.root.join('lib/vendor/')
+  # config.eager_load_paths << Rails.root.join('lib/vendor/')
+  # require 'taxonworks'
+  # require 'taxonworks/taxonworks_autoload'
 end
-
-
-

@@ -38,6 +38,9 @@ class SqedDepiction < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
 
+  # True?!
+  include Shared::IsData
+
   attr_accessor :rebuild
 
   belongs_to :depiction
@@ -185,7 +188,7 @@ class SqedDepiction < ApplicationRecord
     end
 
     # otherwise rebuild
-    result = SqedToTaxonworks::Result.new(depiction_id: depiction.id)
+    result = Vendor::SqedToTaxonworks::Result.new(depiction_id: depiction.id)
     result.cache_all
   end
 

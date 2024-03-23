@@ -90,7 +90,7 @@ class Download < ApplicationRecord
   # Deletes associated file from storage
   def delete_file
     path = dir_path
-    raise "Download: dir_path not pointing inside storage path! Aborting deletion" unless path.to_s.start_with?(STORAGE_PATH.to_s)
+    raise 'Download: dir_path not pointing inside storage path! Aborting deletion' unless path.to_s.start_with?(STORAGE_PATH.to_s)
 
     FileUtils.rm_rf(path)
   end
@@ -114,5 +114,6 @@ require_dependency 'download/basic_nomenclature'
 require_dependency 'download/bibtex'
 require_dependency 'download/coldp'
 require_dependency 'download/dwc_archive'
-require_dependency 'download/sql_project_dump'
+require_dependency 'download/project_dump/sql'
+require_dependency 'download/project_dump/tsv'
 require_dependency 'download/text'

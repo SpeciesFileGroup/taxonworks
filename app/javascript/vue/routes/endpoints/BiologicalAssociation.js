@@ -32,5 +32,14 @@ const permitParams = {
 export const BiologicalAssociation = {
   ...baseCRUD(controller, permitParams),
 
-  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
+  graph: (params) =>
+    AjaxCall('post', `/tasks/${controller}/graph/data`, params),
+
+  batchRotate: (params) =>
+    AjaxCall('post', `/${controller}/batch_rotate`, params),
+
+  batchUpdate: (params) =>
+    AjaxCall('patch', `/${controller}/batch_update`, params)
 }

@@ -77,7 +77,7 @@
 
 <script setup>
 import SmartSelector from '@/components/ui/SmartSelector'
-import SwitchComponent from '@/components/switch'
+import SwitchComponent from '@/components/ui/VSwitch'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 import useSettings from '../composables/useSettings.js'

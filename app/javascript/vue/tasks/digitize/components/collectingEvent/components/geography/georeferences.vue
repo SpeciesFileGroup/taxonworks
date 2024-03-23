@@ -146,7 +146,7 @@ import { MutationNames } from '../../../../store/mutations/mutations.js'
 import { ActionNames } from '../../../../store/actions/actions.js'
 
 import MapComponent from '@/components/georeferences/map.vue'
-import SpinnerComponent from '@/components/spinner.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import DisplayList from '@/components/georeferences/list.vue'
 import ManuallyComponent from '@/components/georeferences/manuallyComponent'
 import GeolocateComponent from '@/components/georeferences/geolocateComponent'
@@ -490,7 +490,9 @@ export default {
 <style lang="scss">
 .modal-georeferences {
   .modal-container {
-    width: 500px;
+    width: 80vw;
+    max-height: 80vh;
+    overflow-y: scroll;
   }
 }
 </style>

@@ -29,7 +29,7 @@ module Export
 
     def self.project_members(project_id)
       project_members = {}
-      ProjectMember.where(project_id: project_id).each do |pm|
+      ProjectMember.where(project_id:).each do |pm|
         if pm.user.orcid.nil?
           project_members[pm.user_id] = pm.user.name
         else
@@ -51,6 +51,7 @@ module Export
       remarks&.gsub('\r\n', ' ')&.gsub('\n', ' ')&.gsub('\t', ' ')&.gsub(/[ ]+/, ' ')
     end
 
+    # Return path to the data itself
     def self.export(otu_id, prefer_unlabelled_otus: true)
       otus = otus(otu_id)
 
@@ -65,7 +66,7 @@ module Export
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
 
       metadata_path = Zaru::sanitize!("/tmp/#{project.name}_#{DateTime.now}_metadata.yaml").gsub(' ', '_').downcase
-      version = Taxonworks::VERSION
+      version = TaxonWorks::VERSION
       if Settings.sandbox_mode?
         version = Settings.sandbox_commit_sha
       end
@@ -92,7 +93,7 @@ module Export
         # Sort the refs by full citation string
         sorted_refs = ref_tsv.values.sort{|a,b| a[1] <=> b[1]}
 
-        d = CSV.generate(col_sep: "\t") do |tsv|
+        d = ::CSV.generate(col_sep: "\t") do |tsv|
           tsv << %w{ID citation	doi modified modifiedBy} # author year source details
           sorted_refs.each do |r|
             tsv << r
@@ -100,7 +101,7 @@ module Export
         end
 
         zipfile.get_output_stream('References.tsv') { |f| f.write d }
-        zipfile.add("metadata.yaml", metadata_file.path)
+        zipfile.add('metadata.yaml', metadata_file.path)
       end
 
       zip_file_path
@@ -113,7 +114,7 @@ module Export
     def self.download(otu, request = nil, prefer_unlabelled_otus: true)
       file_path = ::Export::Coldp.export(
         otu.id,
-        prefer_unlabelled_otus: prefer_unlabelled_otus
+        prefer_unlabelled_otus:
       )
       name = "coldp_otu_id_#{otu.id}_#{DateTime.now}.zip"
 
@@ -122,7 +123,7 @@ module Export
         description: 'A zip file containing CoLDP formatted data.',
         filename: filename(otu),
         source_file_path: file_path,
-        request: request,
+        request:,
         expires: 2.days.from_now
       )
     end
@@ -132,11 +133,11 @@ module Export
         name: "ColDP Download for #{otu.otu_name} on #{Time.now}.",
         description: 'A zip file containing CoLDP formatted data.',
         filename: filename(otu),
-        request: request,
+        request:,
         expires: 2.days.from_now
       )
 
-      ColdpCreateDownloadJob.perform_later(otu, download, prefer_unlabelled_otus: prefer_unlabelled_otus)
+      ColdpCreateDownloadJob.perform_later(otu, download, prefer_unlabelled_otus:)
 
       download
     end

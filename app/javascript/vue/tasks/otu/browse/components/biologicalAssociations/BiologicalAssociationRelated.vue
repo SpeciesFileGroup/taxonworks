@@ -34,7 +34,7 @@ import { OTU, COLLECTION_OBJECT } from '@/constants/index.js'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import getPagination from '@/helpers/getPagination'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const param = {
   [OTU]: 'otu_id',

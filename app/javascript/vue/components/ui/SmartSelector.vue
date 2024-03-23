@@ -39,7 +39,7 @@
           v-if="otuPicker"
           :input-id="inputId"
           clear-after
-          @get-item="getObject($event.id)"
+          @get-item="sendObject"
         />
       </div>
       <slot name="body" />
@@ -116,14 +116,14 @@
 
 <script setup>
 import { ref, computed, watch, onUnmounted } from 'vue'
-import { useOnResize } from '@/compositions/index'
+import { useOnResize } from '@/composables/index'
 import { isMac } from '@/helpers/os'
-import SwitchComponents from '@/components/switch'
+import SwitchComponents from '@/components/ui/VSwitch'
 import AjaxCall from '@/helpers/ajaxCall'
 import Autocomplete from '@/components/ui/Autocomplete'
 import OrderSmart from '@/helpers/smartSelector/orderSmartSelector'
 import SelectFirst from '@/helpers/smartSelector/selectFirstSmartOption'
-import DefaultPin from '@/components/getDefaultPin'
+import DefaultPin from '@/components/ui/Button/ButtonPinned'
 import OtuPicker from '@/components/otu/otu_picker/otu_picker'
 
 const props = defineProps({

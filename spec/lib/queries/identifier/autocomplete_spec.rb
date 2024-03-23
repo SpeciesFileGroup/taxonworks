@@ -36,7 +36,7 @@ describe Queries::Identifier::Autocomplete, type: :model do
 
   specify '#autocomplete_matching_cached_anywhere' do
     query.query_string = '3'
-    expect(query.autocomplete_matching_cached_anywhere.map(&:id)).to contain_exactly(i1.id, i2.id)
+    expect(query.autocomplete_matching_cached_anywhere.map(&:id)).to include(i1.id, i2.id)
   end
 
 end

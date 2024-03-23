@@ -46,8 +46,6 @@ class Documentation < ApplicationRecord
   belongs_to :documentation_object, polymorphic: true
   belongs_to :document, inverse_of: :documentation
 
-  after_destroy :destroy_document_if_last
-
   validates_presence_of :document
 
   accepts_nested_attributes_for :document
@@ -59,10 +57,6 @@ class Documentation < ApplicationRecord
     ProjectSource.find_or_create_by(
       project_id:,
       source_id: documentation_object_id)
-  end
-
-  def destroy_document_if_last
-    document.destroy if Documentation.where(document:).count == 0
   end
 
   def catch_statement_invalid

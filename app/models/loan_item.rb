@@ -63,7 +63,7 @@ class LoanItem < ApplicationRecord
 
   validate :available_for_loan
 
-  validates_uniqueness_of :loan_id, scope: [:loan_item_object_id], if: -> { loan_item_object_type == 'CollectionObject' }
+  validates_uniqueness_of :loan_id, scope: [:loan_item_object_id, :loan_item_object_type], if: -> { loan_item_object_type == 'CollectionObject' }
 
   validates_inclusion_of :disposition, in: STATUS, if: -> {disposition.present?}
 
@@ -95,7 +95,13 @@ class LoanItem < ApplicationRecord
       when 'Otu'
         total ? total : nil
       when 'Container'
-        loan_item_object.container_items.try(:count)
+        t = 0
+        loan_item_object.all_contained_objects.each do |o|
+          if o.kind_of?(::CollectionObject)
+            t += o.total
+          end
+        end
+        t
       when 'CollectionObject'
         loan_item_object.total.to_i
       else
@@ -104,7 +110,7 @@ class LoanItem < ApplicationRecord
   end
 
   # @return [Array]
-  #   all objects that can have a taxon determination applied to them for htis loan item
+  #   all objects that can have a taxon determination applied to them for this loan item
   def determinable_objects
     # this loan item which may be a container, an OTU, or a collection object
     case loan_item_object_type
@@ -133,13 +139,13 @@ class LoanItem < ApplicationRecord
         item_list.flatten!
 
         first = item_list.pop
-        td.biological_collection_object = first
+        td.taxon_determination_object = first
         td.save! # create and save the first one so we can dup it in the next step
 
         item_list.each do |item|
           n = td.dup
           n.determiners << td.determiners
-          n.biological_collection_object = item
+          n.taxon_determination_object = item
           n.save
           n.move_to_top
         end

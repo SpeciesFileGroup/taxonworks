@@ -56,9 +56,11 @@ export default {
             observation_matrix_id: /^\d+$/.test(matrixId) ? matrixId : undefined
           }
         }
-      ).then(({ body }) => {
-        this.generatedDescription = body.generated_description
-      })
+      )
+        .then(({ body }) => {
+          this.generatedDescription = body.generated_description
+        })
+        .catch(() => {})
     }
   }
 }

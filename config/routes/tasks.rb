@@ -1,8 +1,31 @@
 scope :tasks do
+  scope :leads do
+    scope :show, controller: 'tasks/leads/show' do
+      get '/', action: :index, as: 'show_lead_task'
+    end
+
+    scope :new_lead, controller: 'tasks/leads/new_lead' do
+      get '/', action: :index, as: 'new_lead_task'
+    end
+  end
+
+  scope :metadata do
+    scope :vocabulary do
+      scope :project_vocabulary, controller: 'tasks/metadata/vocabulary/project_vocabulary' do
+        get '/', action: :index, as: 'project_vocabulary_task'
+      end
+    end
+  end
 
   scope :cached_maps do
     scope :report, controller: 'tasks/cached_maps/report' do
       get :items_by_otu, as: 'cached_map_items_by_otus_task'
+    end
+  end
+
+  scope :geographic_items do
+    scope :debug, controller: 'tasks/geographic_items/debug' do
+      get '/', action: :index, as: 'debug_geographic_item_task'
     end
   end
 
@@ -40,6 +63,12 @@ scope :tasks do
     post 'update_catalog_number_namespace'
     post 'update_catalog_number_collection_code_namespace'
     post 'set_import_settings'
+  end
+
+  scope :field_occurrences do
+    scope :new_field_occurrences, controller: 'tasks/field_occurrences/new_field_occurrences' do
+      get '/', as: 'new_field_occurrence_task', action: :index
+    end
   end
 
   scope :namespaces do
@@ -82,6 +111,7 @@ scope :tasks do
     scope :dashboard, controller: 'tasks/dwc/dashboard' do
       get '/', action: :index, as: 'dwc_dashboard_task'
       get :index_versions, defaults: {format: :json}
+      get :taxonworks_extension_methods, defaults: {format: :json}
 
       post 'generate_download', as: 'generate_dwc_download_task', defaults: {format: :json}
       post :create_index, as: 'create_dwc_index_task', defaults: {format: :json}
@@ -89,11 +119,6 @@ scope :tasks do
   end
 
   scope :exports do
-    scope :taxonworks_project, controller: 'tasks/exports/taxonworks_project' do
-      get '/', action: :index, as: 'export_taxonworks_project_task'
-      get 'download', as: 'download_taxonworks_project_task'
-    end
-
     scope :coldp, controller: 'tasks/exports/coldp' do
       get '/', action: :index, as: 'export_coldp_task'
       get 'download', as: 'download_coldp_task'
@@ -111,7 +136,7 @@ scope :tasks do
     end
   end
 
-  scope :browse_annotations, controller: 'tasks/browse_annotations' do
+  scope :browse_annotations, controller: 'tasks/object_annotations/browse_annotations' do
     get '/', action: :index, as: 'browse_annotations_task'
   end
 
@@ -192,6 +217,11 @@ scope :tasks do
   end
 
   scope :projects do
+    scope :week_in_review, controller: 'tasks/projects/week_in_review' do
+      get '/', action: :index, as: 'week_in_review_task'
+      get :data, as: 'week_in_review_data', defaults: {format: :json}
+    end
+
     scope :activity, controller: 'tasks/projects/activity' do
       get :index, as: :project_activity_task
       get :type_report, as: :project_activity_type_report
@@ -200,8 +230,19 @@ scope :tasks do
     scope :preferences, controller: 'tasks/projects/preferences' do
       get :index, as: 'project_preferences_task'
     end
+
+#   scope :taxonworks_project, controller: 'tasks/exports/taxonworks_project' do
+#     get '/', action: :index, as: 'export_taxonworks_project_task'
+#     get 'download', as: 'download_taxonworks_project_task'
+#   end
+
+    # Downloads here
     scope :data, controller: 'tasks/projects/data' do
       get '/', action: :index, as: 'project_data_task'
+
+      get 'tsv_download', as: 'generate_tsv_download_task'
+      get 'sql_download', as: 'generate_sql_download_task'
+
     end
   end
 
@@ -266,9 +307,23 @@ scope :tasks do
         end
       end
     end
+
+    scope :stepwise do
+      scope :collectors, controller: 'tasks/collecting_events/stepwise/collectors' do
+        get '/', action: :index, as: 'stepwise_collectors_task'
+        get :data, defaults: {format: :json}
+      end
+    end
   end
 
   scope :collection_objects do
+    scope :freeform_digitize, controller: 'tasks/collection_objects/freeform_digitize' do
+      get '/', action: :index, as: 'freeform_digitize_task'
+    end
+
+    scope :outdated_names, controller: 'tasks/collection_objects/outdated_names' do
+      get '/', action: :index, as: 'collection_object_outdated_names_task'
+    end
 
     scope :table, controller: 'tasks/collection_objects/table' do
       get '/', action: :index, as: 'collection_object_table_task'
@@ -300,10 +355,11 @@ scope :tasks do
 
     scope :summary, controller: 'tasks/collection_objects/summary' do
       get '/', action: :index, as: 'collection_object_summary_task'
+      get :report, as: 'collection_object_summary_report',  defaults: {format: :js}
     end
 
     scope :filter, controller: 'tasks/collection_objects/filter' do
-      get '/', as: 'collection_objects_filter_task', action: :index
+      get '/', as: 'filter_collection_objects_task', action: :index
     end
 
     scope :browse, controller: 'tasks/collection_objects/browse' do
@@ -369,6 +425,39 @@ scope :tasks do
     scope :dot, controller: 'tasks/biological_associations/dot' do
       get 'by_project/:project_id', action: :project_dot_graph, as: :biological_associations_dot_graph_task
     end
+
+    scope :dwc_extension_preview, controller: 'tasks/biological_associations/dwc_extension_preview' do
+      get '/', action: :index, as: 'biological_associations_dwc_extension_preview_task'
+      post '/', action: :index
+    end
+
+    scope :simple_table, controller: 'tasks/biological_associations/simple_table' do
+      get '/', action: :index, as: 'biological_associations_simple_table_task'
+      post '/', action: :index
+    end
+
+    scope :globi_preview, controller: 'tasks/biological_associations/globi_preview' do
+      get '/', action: :index, as: 'biological_associations_globi_preview_task'
+      post '/', action: :index
+    end
+
+    scope :family_summary, controller: 'tasks/biological_associations/family_summary' do
+      get '/', action: :index, as: 'biological_associations_family_summary_task'
+      post '/', action: :index
+    end
+
+    scope :graph, controller: 'tasks/biological_associations/graph' do
+      get '/', action: :index, as: 'biological_associations_graph_task'
+      post 'data', action: :data, defaults: {format: :json}
+      get  :data, defaults: {format: :json}
+    end
+
+    scope :summary, controller: 'tasks/biological_associations/summary' do
+      get '/', action: :index, as: 'biological_associations_summary_task'
+      post 'data', action: :data, defaults: {format: :json}
+      get  :data, defaults: {format: :json}
+    end
+
   end
 
   scope :biological_relationships do
@@ -508,8 +597,12 @@ scope :tasks do
   end
 
   scope :otus do
+    scope :new_otu, controller: 'tasks/otus/new_otu' do
+      get '/', action: :index, as: 'new_otu_task'
+    end
+
     scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
-      get :index, as: 'index_browse_asserted_distributions_task'
+      get '/', action: :index, as: 'browse_asserted_distributions_task'
     end
 
     scope :browse, controller: 'tasks/otus/browse' do
@@ -537,6 +630,12 @@ scope :tasks do
 
     scope :filter, controller: 'tasks/people/filter' do
       get '/', action: :index, as: :filter_people_task
+    end
+
+    scope :summary, controller: 'tasks/people/summary' do
+      get '/', action: :index, as: 'people_summary_task'
+      post 'data', action: :data, defaults: {format: :json}
+      get  :data, defaults: {format: :json}
     end
   end
 

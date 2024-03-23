@@ -16,18 +16,22 @@
       <input
         :type="field.type"
         :placeholder="placeholder ? field.property : ''"
-        :ref="el => { if (el) fieldsRef[index] = el }"
+        :ref="
+          (el) => {
+            if (el) fieldsRef[index] = el
+          }
+        "
         :maxlength="field.maxLength"
         :value="props[field.property]"
         :step="field.step"
         @input="autoAdvance($event, index)"
-      >
+        @change="(e) => emit('change', e)"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-
 import { computed, ref } from 'vue'
 
 const props = defineProps({
@@ -71,7 +75,9 @@ const emit = defineEmits([
   'update:day',
   'update:month',
   'update:year',
-  'update:time'
+  'update:time',
+  'change',
+  'input'
 ])
 
 const dateFields = [
@@ -100,10 +106,8 @@ const timeField = {
 
 const fieldsRef = ref([])
 
-const inputFields = computed(
-  () => props.timeField
-    ? [...dateFields, timeField]
-    : dateFields
+const inputFields = computed(() =>
+  props.timeField ? [...dateFields, timeField] : dateFields
 )
 
 const autoAdvance = (e, index) => {
@@ -111,6 +115,7 @@ const autoAdvance = (e, index) => {
   const currentField = inputFields.value[index]
 
   emit(`update:${inputFields.value[index].property}`, e.target.value)
+  emit('input', e)
 
   index++
 
@@ -124,7 +129,7 @@ const autoAdvance = (e, index) => {
 </script>
 
 <style scoped>
-  input[type="text"] {
-    width: 60px;
-  }
+input[type='text'] {
+  width: 60px;
+}
 </style>

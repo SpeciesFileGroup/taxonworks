@@ -283,7 +283,7 @@ module Queries
           )
 
         e = c[:id].not_eq(nil)
-        f = c[:person_id].eq_any(collector_id)
+        f = c[:person_id].in(collector_id)
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
@@ -346,7 +346,7 @@ module Queries
 
       def collecting_event_id_facet
         return nil if collecting_event_id.empty?
-        table[:id].eq_any(collecting_event_id)
+        table[:id].in(collecting_event_id)
       end
 
       def otu_id_facet
@@ -410,6 +410,15 @@ module Queries
           .to_sql
 
         ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
+      end
+
+      def housekeeping_extensions
+        [
+          housekeeping_extension_query(target: ::DataAttribute, joins: [:data_attributes]),
+          housekeeping_extension_query(target: ::Georeference, joins: [:georeferences]),
+          housekeeping_extension_query(target: ::Note, joins: [:notes]),
+          housekeeping_extension_query(target: ::Role, joins: [:roles]),
+        ]
       end
 
       # @return [Array]

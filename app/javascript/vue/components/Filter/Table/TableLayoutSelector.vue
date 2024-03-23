@@ -6,6 +6,13 @@
   >
     <template #header>
       <h3>Layout preferences</h3>
+      <VBtn
+        color="submit"
+        medium
+        @click="emit('reset')"
+      >
+        Reset
+      </VBtn>
     </template>
     <template #body>
       <div class="horizontal-left-content align-start">
@@ -23,11 +30,14 @@
                     currentLayout.properties[key].length
                   "
                   @click="
-                    currentLayout.properties[key] =
-                      propertiesList.length ===
-                      currentLayout.properties[key].length
-                        ? []
-                        : [...propertiesList]
+                    () => {
+                      currentLayout.properties[key] =
+                        propertiesList.length ===
+                        currentLayout.properties[key].length
+                          ? []
+                          : [...propertiesList]
+                      emit('update')
+                    }
                   "
                 />
                 {{ humanize(key) }}
@@ -38,7 +48,12 @@
               element="ul"
               v-model="properties[key]"
               :item-key="(item) => item"
-              @end="updatePropertiesPositions(key)"
+              @end="
+                () => {
+                  emit('sort', key)
+                  emit('update')
+                }
+              "
             >
               <template #item="{ element }">
                 <li>
@@ -46,8 +61,8 @@
                     <input
                       type="checkbox"
                       :value="element"
-                      @change="updatePropertiesPositions(key)"
                       v-model="currentLayout.properties[key]"
+                      @change="() => emit('update', key)"
                     />
                     {{ element }}
                   </label>
@@ -67,6 +82,7 @@
                 <input
                   type="checkbox"
                   v-model="currentLayout.includes[key]"
+                  @change="() => emit('update', key)"
                 />
                 {{ humanize(key) }}
               </label>
@@ -75,51 +91,69 @@
         </div>
       </div>
     </template>
+    <template #footer>
+      <VBtn
+        color="submit"
+        medium
+        @click="emit('reset')"
+      >
+        Reset
+      </VBtn>
+    </template>
   </VModal>
-  <select v-model="currentLayout">
-    <option
-      v-for="(item, key) in layouts"
-      :key="key"
-      :value="item"
+  <div class="horizontal-left-content middle">
+    <select
+      v-model="currentLayout"
+      @change="emit('select')"
     >
-      {{ key }}
-    </option>
-  </select>
+      <option
+        v-for="(item, key) in layouts"
+        :key="key"
+        :value="item"
+      >
+        {{ key }}
+      </option>
+    </select>
 
-  <VBtn
-    class="rounded-tl-none rounded-bl-none"
-    medium
-    color="primary"
-    @click="openLayoutPreferences"
-  >
-    <VIcon
-      name="pencil"
-      x-small
-    />
-  </VBtn>
+    <VBtn
+      class="rounded-tl-none rounded-bl-none"
+      medium
+      color="primary"
+      @click="openLayoutPreferences"
+    >
+      <VIcon
+        name="pencil"
+        x-small
+      />
+    </VBtn>
+  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { useTableLayoutConfiguration } from '../composables/useTableLayoutConfiguration.js'
 import { humanize } from '@/helpers/strings.js'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VueDraggable from 'vuedraggable'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
-const {
-  currentLayout,
-  layouts,
-  properties,
-  includes,
-  updatePropertiesPositions
-} = useTableLayoutConfiguration()
+const props = defineProps({
+  layouts: {
+    type: Object,
+    default: () => ({})
+  }
+})
 
-function openLayoutPreferences() {
-  currentLayout.value = layouts.value.Custom
-  isModalVisible.value = true
-}
+const currentLayout = defineModel()
+const includes = defineModel('includes')
+const properties = defineModel('properties')
+
+const emit = defineEmits(['update', 'select', 'sort', 'reset'])
 
 const isModalVisible = ref(false)
+
+function openLayoutPreferences() {
+  currentLayout.value = props.layouts.Custom
+  isModalVisible.value = true
+}
 </script>

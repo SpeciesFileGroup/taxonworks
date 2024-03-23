@@ -29,9 +29,10 @@ class Extract < ApplicationRecord
   include Shared::Tags
   include SoftValidation
   include Shared::IsData
+  # TODO: make loanable
 
   is_origin_for 'Extract', 'Sequence'
-  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject'
+  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence'
 
   belongs_to :repository, inverse_of: :extracts
 
@@ -90,14 +91,14 @@ class Extract < ApplicationRecord
           t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
             .where(
               t['updated_at'].gt(1.week.ago).and(
-                t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
+                t['biological_association_subject_type'].eq('CollectionObject')
               )
             )
               .where(t['updated_by_id'].eq(user_id))
               .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         else
-          t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
+          t.project(t['taxon_determination_object_id'], t['taxon_determination_object_type'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.week.ago ))
             .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
@@ -113,7 +114,8 @@ class Extract < ApplicationRecord
             z['biological_association_subject_id'].eq(p['id'])
           ))
         else
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_collection_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
+          # TODO fix biological_collection_object_id transition scoping
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['taxon_determination_object_id'].eq(p['id'])))
         end
 
     CollectionObject.joins(j).pluck(:id).uniq

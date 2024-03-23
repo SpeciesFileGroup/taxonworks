@@ -1,0 +1,37 @@
+<h3> Loans </h3>
+
+<% collection_object_count = @collection_objects.count %>
+
+<table>
+  <tr><th></th><th>Count</th><th> % total </th> <th> Filter </th> <th> Notes </th> </tr>
+
+  <tr>
+    <td> Collection objects loaned* </td>
+    <td> <%= objects_loaned = @collection_objects.joins(:loan_items).distinct.count -%> </td>
+    <td> <%= (100.0 * (objects_loaned.to_f / collection_object_count.to_f)).round(2) -%> </td>
+
+    <td> <%= link_to('Loans', filter_loans_task_url(collection_object_query: @collection_objects_query.params)) -%> </td>
+
+    <td> <em> Only loan items that are CollectionObject, no reference to OTU or container </em> </td>
+  </tr>
+
+  <tr>
+    <td> Collection objects currently on loan* </td>
+    <td> <%= @collection_objects_query.on_loan = true; objects_loaned = @collection_objects_query.all.count -%> </td>
+    <td> <%= (100.0 * (objects_loaned.to_f / collection_object_count.to_f)).round(2) -%> </td>
+    <td>
+    <td> <em> Only loan items that are CollectionObject, no reference to OTU or container </em> </td>
+  </tr>
+
+  <tr>
+    <td> Loans </td>
+    <td> <%= loans = @loans.count -%> </td>
+    <td> 100 </td>
+  </tr>
+
+  <tr>
+    <td> Open loans </td>
+    <td> <%= open_loans = @loans.where(loans: {date_closed: nil}).count -%> </td>
+    <td> <%= (100.0 * (open_loans.to_f / loans.to_f)).round(2) -%> </td>
+  </tr>
+</table>

@@ -7,8 +7,11 @@ module Shared::Identifiers
     Identifier.related_foreign_keys.push self.name.foreign_key
 
     # Validation happens on the parent side!
-    has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy, inverse_of: :identifier_object
+    has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy, inverse_of: :identifier_object # should be delete
     accepts_nested_attributes_for :identifiers, reject_if: :reject_identifiers, allow_destroy: true
+
+    has_many :uuids, -> { where('identifiers.type like ?', 'Identifier::Global::Uuid%').order(:position) }, class_name: 'Identifier', as: :identifier_object
+    has_many :uris, -> { where(type: 'Identifier::Global::Uri').order(:position) }, class_name: 'Identifier', as: :identifier_object
 
     scope :with_identifier_type, ->(identifier_type) { joins(:identifiers).where('identifiers.type = ?', identifier_type).references(:identifiers) }
     scope :with_identifier_namespace, ->(namespace_id) { joins(:identifiers).where('identifiers.namespace_id = ?', namespace_id).references(:identifiers) }
@@ -62,7 +65,7 @@ module Shared::Identifiers
     def with_identifier(value)
       value = [value] if value.class == String
       t = Identifier.arel_table
-      a = t[:cached].eq_any(value)
+      a = t[:cached].in(value)
       self.joins(:identifiers).where(a.to_sql).references(:identifiers)
     end
 
@@ -78,6 +81,14 @@ module Shared::Identifiers
       q = (!q.nil? ? q.with_identifiers_sorted(sorted) :  with_identifiers_sorted(sorted) ) if sorted.present?
       q
     end
+  end
+
+  def uri
+    uris.first&.cached
+  end
+
+  def uuid
+    uuids.first&.cached
   end
 
   def dwc_occurrence_id

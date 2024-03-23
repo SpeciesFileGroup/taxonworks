@@ -46,7 +46,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       #   multi-year match? otherwise pointless
       def autocomplete_year
-        a = table[:year].eq_any(years)
+        a = table[:year].in(years)
         base_query.where(a.to_sql).limit(5)
       end
 
@@ -180,7 +180,7 @@ module Queries
 
       # @return [Arel::Nodes::Equatity]
       def member_of_project_id
-        project_sources_table[:project_id].eq_any(project_id)
+        project_sources_table[:project_id].in(project_id)
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -188,7 +188,7 @@ module Queries
       def fragment_year_matches
         if fragments.any?
           s = table[:cached].matches_any(fragments)
-          s = s.and(table[:year].eq_any(years)) if !years.empty?
+          s = s.and(table[:year].in(years)) if !years.empty?
           s
         else
           nil

@@ -101,7 +101,7 @@ import SoftValidation from '@/components/soft_validations/panel.vue'
 import SubsequentCombinationSection from './components/Combination/CombinationMain.vue'
 import SubsequentNameFormSection from './components/SubsequentNameForm/SubsequentNameForm.vue'
 import OriginalFormSection from './components/OriginalForm.vue'
-import Spinner from '@/components/spinner.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey'
 
 import { convertType } from '@/helpers/types.js'

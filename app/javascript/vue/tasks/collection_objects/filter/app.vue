@@ -17,6 +17,14 @@
       @reset="resetFilter"
     >
       <template #nav-query-right>
+        <RadialCollectionObject
+          :disabled="!list.length"
+          :parameters="parameters"
+          :count="pagination?.total || 0"
+          @update="
+            () => makeFilterRequest({ ...parameters, extend, exclude, page: 1 })
+          "
+        />
         <RadialLoan
           :disabled="!list.length"
           :parameters="parameters"
@@ -29,6 +37,15 @@
       </template>
       <template #nav-right>
         <div class="horizontal-right-content gap-small">
+          <RadialCollectionObject
+            :disabled="!list.length"
+            :ids="selectedIds"
+            :count="selectedIds.length"
+            @update="
+              () =>
+                makeFilterRequest({ ...parameters, extend, exclude, page: 1 })
+            "
+          />
           <RadialLoan
             :disabled="!list.length"
             :ids="selectedIds"
@@ -44,8 +61,15 @@
             @delete="removeCOFromList"
           />
           <span class="separate-left separate-right">|</span>
-
-          <LayoutConfiguration />
+          <TableLayoutSelector
+            v-model="currentLayout"
+            v-model:includes="includes"
+            v-model:properties="properties"
+            :layouts="layouts"
+            @reset="resetPreferences"
+            @sort="updatePropertiesPositions"
+            @update="saveLayoutPreferences"
+          />
         </div>
       </template>
       <template #facets>
@@ -56,7 +80,9 @@
           v-model="selectedIds"
           :list="list"
           :layout="currentLayout"
+          radial-object
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>
@@ -76,10 +102,11 @@ import FilterComponent from './components/filter.vue'
 import TableResults from '@/components/Filter/Table/TableResults.vue'
 import DwcDownload from './components/dwcDownload.vue'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
-import VSpinner from '@/components/spinner.vue'
-import LayoutConfiguration from '@/components/Filter/Table/TableLayoutSelector.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
 import RadialLoan from '@/components/radials/loan/radial.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
+import RadialCollectionObject from '@/components/radials/co/radial.vue'
 import { computed } from 'vue'
 import { CollectionObject } from '@/routes/endpoints'
 import { COLLECTION_OBJECT } from '@/constants/index.js'
@@ -98,7 +125,15 @@ const extend = [
 
 const exclude = ['object_labels']
 
-const { currentLayout } = useTableLayoutConfiguration(LAYOUTS)
+const {
+  currentLayout,
+  includes,
+  layouts,
+  properties,
+  updatePropertiesPositions,
+  saveLayoutPreferences,
+  resetPreferences
+} = useTableLayoutConfiguration({ layouts: LAYOUTS, model: COLLECTION_OBJECT })
 
 const {
   isLoading,
@@ -123,7 +158,8 @@ const extendDownload = computed(() => [
     bind: {
       params: parameters.value,
       total: pagination.value?.total,
-      selectedIds: selectedIds.value
+      selectedIds: selectedIds.value,
+      nestParameter: 'collection_object_query'
     }
   }
 ])

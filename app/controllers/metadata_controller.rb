@@ -20,6 +20,11 @@ class MetadataController < ApplicationController
     render json: {status: 200}
   end
 
+  def class_navigation
+   k = params.require(:klass)
+   render json: helpers.class_navigation_json(k)
+  end
+
   def related_summary
     @klass = params.require(:klass).safe_constantize
     render json: @klass.related_summary(params.require(:id))
@@ -28,6 +33,37 @@ class MetadataController < ApplicationController
   # /metadata/annotators.json
   def annotators
     render json: helpers.klass_annotations
+  end
+
+  # DO NOT EXPOSE TO API until santize tested
+  def vocabulary
+
+    p = params.permit(:model, :attribute, :begins_with, :limit, :contains, :min, :max).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
+    @words = Vocabulary.words(**p)
+
+    respond_to do |format|
+      format.html do
+        @recent_objects = Otu.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json { render json: @words }
+    end
+  end
+
+  def data_models
+    render json: DATA_MODELS.keys.sort
+  end
+
+  def data_models
+    render json: DATA_MODELS.keys.sort
+  end
+
+  def attributes
+    render json: Vocabulary.attributes(
+      Vocabulary.get_model(
+        params.require(:model)
+      )
+    )
   end
 
   protected

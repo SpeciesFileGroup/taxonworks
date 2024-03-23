@@ -29,5 +29,5 @@ export default ({ state: { extract, originRelationships }, commit }) => {
       ...savedRelationships,
       ...originRelationships.filter((item) => !item.isUnsaved)
     ])
-  })
+  }).catch(() => {})
 }
