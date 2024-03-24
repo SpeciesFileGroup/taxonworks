@@ -22,18 +22,25 @@
       />
     </div>
     <div
-      class="horizontal-left-content margin-medium-top"
+      class="horizontal-left-content margin-medium-top gap-small"
       :class="!source && 'margin-medium-bottom'"
     >
       <VBtn
         v-if="submitButton"
-        class="margin-small-right"
         :color="submitButton.color"
         :disabled="!citation.source_id"
         medium
         @click="emit('submit', citation)"
       >
         {{ submitButton.label }}
+      </VBtn>
+      <VBtn
+        v-if="citation.id"
+        color="primary"
+        medium
+        @click="() => (citation = makeCitation())"
+      >
+        New
       </VBtn>
       <FormCitationClone
         v-if="!inlineClone"
@@ -185,7 +192,7 @@ watch(sourceId, async (newId, oldId) => {
   if (newId) {
     if (newId !== oldId && newId !== source.value?.id) {
       source.value = (await Source.find(newId)).body
-      citation.value._label = source.value.cached
+      citation.value.label = source.value.cached
     }
   } else {
     source.value = undefined
@@ -211,7 +218,7 @@ function setSource(value) {
     sessionStorage.setItem(STORAGE.sourceId, value.id)
   }
   citation.value.source_id = value.id
-  citation.value._label = value.cached
+  citation.value.label = value.cached
 
   emit('source', value)
 }

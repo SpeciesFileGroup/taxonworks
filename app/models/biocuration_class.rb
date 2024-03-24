@@ -5,13 +5,15 @@
 # generally they could be categories like "skulls", "furs", or perhaps even "wet" or "dry".  It is important to note that
 # these categorizations are for *organization* and *curatorial* purposes, they are not primary assertions that the collection object itself has
 # the biological property "maleness", or "adultness".  That is, in most, but not all, cases we can _infer_ that the classification means that the collection object
-# is a "male" or "adult". 
+# is a "male" or "adult".
 #
 class BiocurationClass < ControlledVocabularyTerm
   include Shared::Tags
 
   has_many :biocuration_classifications, inverse_of: :biocuration_class, dependent: :restrict_with_error
-  has_many :biological_collection_objects, through: :biocuration_classifications, class_name: 'CollectionObject::BiologicalCollectionObject', inverse_of: :biocuration_classes
+
+  has_many :collection_objects, through: :biocuration_classifications, source: :biocuration_classification_object, inverse_of: :biocuration_classifications, source_type: 'CollectionObject'
+  has_many :field_occurrences, through: :biocuration_classifications, source: :biocuration_classification_object, inverse_of: :biocuration_classifications, source_type: 'FieldOccurrence'
 
   after_save :check_dwc_occurrence_basis
 
@@ -23,18 +25,16 @@ class BiocurationClass < ControlledVocabularyTerm
 
   def check_dwc_occurrence_basis
     if saved_change_to_attribute?(:uri, from: DWC_FOSSIL_URI)
-      biological_collection_objects.each do |o|
+      collection_objects.each do |o|
         o.dwc_occurrence.update_attribute(:basisOfRecord, 'PreservedSpecimen')
       end
     end
 
     if saved_change_to_attribute?(:uri, to: DWC_FOSSIL_URI)
-      biological_collection_objects.each do |o|
+      collection_objects.each do |o|
         o.dwc_occurrence.update_attribute(:basisOfRecord, 'FossilSpecimen')
       end
     end
   end
-
-
 
 end

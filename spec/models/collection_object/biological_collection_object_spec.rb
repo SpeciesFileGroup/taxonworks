@@ -44,20 +44,20 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
     before { biological_collection_object.update(total: 1) }
 
     specify '#taxon_determinations are destroyed' do
-      d = TaxonDetermination.create!(biological_collection_object: biological_collection_object, otu: otu)
+      d = TaxonDetermination.create!(taxon_determination_object: biological_collection_object, otu:)
       biological_collection_object.destroy
       expect(TaxonDetermination.where(id: d.id).any?).to be_falsey
-    end 
+    end
 
     specify '#biocuration_classifications are destroyed' do
       b = FactoryBot.create(:valid_biocuration_class)
-      d = BiocurationClassification.create!(biological_collection_object: biological_collection_object, biocuration_class: b) 
+      d = BiocurationClassification.create!(biocuration_classification_object: biological_collection_object, biocuration_class: b)
       biological_collection_object.destroy
       expect(BiocurationClassification.where(id: d.id).any?).to be_falsey
-    end 
+    end
 
     specify '#observations prevent destruction' do
-      o = Observation::Continuous.create!(observation_object_global_id: biological_collection_object.to_global_id.to_s, continuous_value: 22, descriptor: descriptor)
+      o = Observation::Continuous.create!(observation_object_global_id: biological_collection_object.to_global_id.to_s, continuous_value: 22, descriptor:)
       expect(biological_collection_object.destroy).to be_falsey
       expect(biological_collection_object.errors.include?(:base)).to be_truthy
     end
@@ -188,4 +188,3 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
   end
 
 end
-

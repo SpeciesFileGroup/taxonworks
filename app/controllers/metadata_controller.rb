@@ -20,6 +20,11 @@ class MetadataController < ApplicationController
     render json: {status: 200}
   end
 
+  def class_navigation
+   k = params.require(:klass)
+   render json: helpers.class_navigation_json(k)
+  end
+
   def related_summary
     @klass = params.require(:klass).safe_constantize
     render json: @klass.related_summary(params.require(:id))

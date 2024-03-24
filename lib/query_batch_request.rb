@@ -59,7 +59,7 @@ class QueryBatchRequest
   end
 
    def infer_class(params)
-     f = Queriess::Query::Filter.base_filter(params)
+     f = Queries::Query::Filter.base_filter(params)
      @klass = f.referenced_class.name.to_s
    end
 

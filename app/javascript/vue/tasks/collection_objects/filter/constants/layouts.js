@@ -73,6 +73,7 @@ export const LAYOUTS = {
   TaxonNames: {
     properties: {
       collection_object: ['buffered_determinations'],
+      taxon_determinations: ['otu_name'],
       dwc_occurrence: [
         'scientificName',
         'scientificNameAuthorship',
@@ -90,8 +91,7 @@ export const LAYOUTS = {
         'infraspecificEpithet',
         'previousIdentifications',
         'higherClassification'
-      ],
-      taxon_determinations: TAXON_DETERMINATION_PROPERTIES
+      ]
     },
     includes: {}
   },

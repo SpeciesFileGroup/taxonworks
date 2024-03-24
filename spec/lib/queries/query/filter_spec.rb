@@ -62,8 +62,8 @@ describe Queries::Query::Filter do
     end
   end
 
-  context '<Model>.js matches content of SUBQUERIES' do
-    Dir.glob('app/javascript//**/filter/links/*.js').each do |file|
+  context 'app/javascript/**/filter/links/<Model>.js matches content of SUBQUERIES' do
+    Dir.glob('app/javascript/**/filter/links/*.js').each do |file|
       n = file.split('/').last
       next unless n =~ /^[A-Z]/ # Constants start with a capital
 

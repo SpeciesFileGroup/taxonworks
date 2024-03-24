@@ -146,13 +146,13 @@ class LeadsController < ApplicationController
       return
     else
       begin
-        @lead.destroy! # note we allow the AR to do this
+        @lead.transaction_nuke
         respond_to do |format|
           flash[:notice] = 'Key was succesfully destroyed.'
           format.html { destroy_redirect @lead }
           format.json { head :no_content }
         end
-      rescue
+      rescue # TODO: add specifics
         respond_to do |format|
           flash[:error] = 'Delete failed!'
           format.html { redirect_back(fallback_location: (request.referer || root_path)) }

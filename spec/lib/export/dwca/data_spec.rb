@@ -240,8 +240,9 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           let(:d) {Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])}
           let!(:o) {FactoryBot.create(:valid_otu)}
           let!(:det) {FactoryBot.create(
-            :valid_taxon_determination, otu: o,
-            biological_collection_object: DwcOccurrence.last.dwc_occurrence_object)}
+            :valid_taxon_determination,
+            otu: o,
+            taxon_determination_object: DwcOccurrence.last.dwc_occurrence_object)}
 
           specify 'the COs should have OTUs' do
             expect(DwcOccurrence.last.dwc_occurrence_object.current_otu).to_not be_nil

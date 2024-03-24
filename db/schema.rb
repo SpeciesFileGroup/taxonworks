@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_10_173244) do
+ActiveRecord::Schema.define(version: 2024_02_09_173244) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -78,14 +78,17 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
 
   create_table "biocuration_classifications", id: :serial, force: :cascade do |t|
     t.integer "biocuration_class_id", null: false
-    t.integer "biological_collection_object_id", null: false
+    t.bigint "biological_collection_object_id"
     t.integer "position", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
+    t.bigint "biocuration_classification_object_id"
+    t.string "biocuration_classification_object_type"
     t.index ["biocuration_class_id"], name: "index_biocuration_classifications_on_biocuration_class_id"
+    t.index ["biocuration_classification_object_type", "biocuration_classification_object_id"], name: "bc_poly"
     t.index ["biological_collection_object_id"], name: "bio_c_bio_collection_object"
     t.index ["created_by_id"], name: "index_biocuration_classifications_on_created_by_id"
     t.index ["position"], name: "index_biocuration_classifications_on_position"
@@ -437,8 +440,8 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.integer "confidence_object_id", null: false
     t.string "confidence_object_type", null: false
+    t.integer "confidence_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -670,8 +673,8 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.integer "documentation_object_id", null: false
     t.string "documentation_object_type", null: false
+    t.integer "documentation_object_id", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -689,7 +692,7 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.integer "document_file_file_size", null: false
+    t.bigint "document_file_file_size", null: false
     t.datetime "document_file_updated_at", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -898,8 +901,8 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.integer "dwc_occurrence_object_id"
     t.string "dwc_occurrence_object_type"
+    t.integer "dwc_occurrence_object_id"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -932,6 +935,24 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
     t.bigint "repository_id"
     t.index ["project_id"], name: "index_extracts_on_project_id"
     t.index ["repository_id"], name: "index_extracts_on_repository_id"
+  end
+
+  create_table "field_occurrences", force: :cascade do |t|
+    t.integer "total", null: false
+    t.bigint "collecting_event_id", null: false
+    t.bigint "ranged_lot_category_id"
+    t.boolean "is_absent"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.bigint "project_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["collecting_event_id"], name: "index_field_occurrences_on_collecting_event_id"
+    t.index ["created_by_id"], name: "index_field_occurrences_on_created_by_id"
+    t.index ["is_absent"], name: "index_field_occurrences_on_is_absent"
+    t.index ["project_id"], name: "index_field_occurrences_on_project_id"
+    t.index ["ranged_lot_category_id"], name: "index_field_occurrences_on_ranged_lot_category_id"
+    t.index ["updated_by_id"], name: "index_field_occurrences_on_updated_by_id"
   end
 
   create_table "gene_attributes", id: :serial, force: :cascade do |t|
@@ -1104,7 +1125,7 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
     t.datetime "updated_at", null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.integer "image_file_file_size"
+    t.bigint "image_file_file_size"
     t.datetime "image_file_updated_at"
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
@@ -1219,8 +1240,8 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "loan_item_object_id"
     t.string "loan_item_object_type"
+    t.integer "loan_item_object_id"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -1249,7 +1270,7 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
     t.datetime "updated_at", null: false
     t.string "recipient_honorific"
     t.string "recipient_country"
-    t.text "lender_address", default: "Lender's address not provided.", null: false
+    t.text "lender_address", null: false
     t.boolean "is_gift"
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
@@ -1445,10 +1466,10 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.integer "old_object_id", null: false
     t.string "old_object_type", null: false
-    t.integer "new_object_id", null: false
+    t.integer "old_object_id", null: false
     t.string "new_object_type", null: false
+    t.integer "new_object_id", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1550,8 +1571,8 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.integer "pinned_object_id", null: false
     t.string "pinned_object_type", null: false
+    t.integer "pinned_object_id", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1615,7 +1636,7 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
     t.datetime "updated_at", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.jsonb "preferences", default: {}, null: false
+    t.jsonb "preferences", default: "{}", null: false
     t.string "api_access_token"
     t.string "data_curation_issue_tracker_url"
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
@@ -1624,8 +1645,8 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.integer "protocol_relationship_object_id", null: false
     t.string "protocol_relationship_object_type", null: false
+    t.integer "protocol_relationship_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1884,8 +1905,8 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
     t.string "boundary_finder", null: false
     t.boolean "has_border", null: false
     t.string "layout", null: false
-    t.jsonb "metadata_map", default: {}, null: false
-    t.jsonb "specimen_coordinates", default: {}, null: false
+    t.jsonb "metadata_map", default: "{}", null: false
+    t.jsonb "specimen_coordinates", default: "{}", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1937,7 +1958,7 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
   end
 
   create_table "taxon_determinations", id: :serial, force: :cascade do |t|
-    t.integer "biological_collection_object_id", null: false
+    t.bigint "biological_collection_object_id"
     t.integer "otu_id", null: false
     t.integer "position", null: false
     t.datetime "created_at", null: false
@@ -1949,11 +1970,14 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
     t.integer "month_made"
     t.integer "day_made"
     t.text "print_label"
+    t.bigint "taxon_determination_object_id"
+    t.string "taxon_determination_object_type"
     t.index ["biological_collection_object_id"], name: "index_taxon_determinations_on_biological_collection_object_id"
     t.index ["created_by_id"], name: "index_taxon_determinations_on_created_by_id"
     t.index ["otu_id"], name: "index_taxon_determinations_on_otu_id"
     t.index ["position"], name: "index_taxon_determinations_on_position"
     t.index ["project_id"], name: "index_taxon_determinations_on_project_id"
+    t.index ["taxon_determination_object_type", "taxon_determination_object_id"], name: "td_poly"
     t.index ["updated_by_id"], name: "index_taxon_determinations_on_updated_by_id"
   end
 
@@ -2259,6 +2283,11 @@ ActiveRecord::Schema.define(version: 2024_02_10_173244) do
   add_foreign_key "extracts", "repositories"
   add_foreign_key "extracts", "users", column: "created_by_id"
   add_foreign_key "extracts", "users", column: "updated_by_id"
+  add_foreign_key "field_occurrences", "collecting_events"
+  add_foreign_key "field_occurrences", "projects"
+  add_foreign_key "field_occurrences", "ranged_lot_categories"
+  add_foreign_key "field_occurrences", "users", column: "created_by_id"
+  add_foreign_key "field_occurrences", "users", column: "updated_by_id"
   add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
   add_foreign_key "gene_attributes", "projects"
   add_foreign_key "gene_attributes", "sequences"

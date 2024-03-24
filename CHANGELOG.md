@@ -9,30 +9,52 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Batch add/remove sources to project from Source filter [#3888]
+- OTU name to Filter CO result [#3861]
+- New model, FieldOccurrence [#1643]
 - New key task, add edit "traditional" keys [#1691]
 - New OTU task
+- New "Week in review" task, visualize records added and navigate to them in filter context
 - Add taxon name autocomplete to Type specimen facet
 - DwC Dashboard: Use the same DwC download of collection object filter task
 - DwC-A Workbench: Add pagination for created imports
 - Clone mode on image matrix
+- Radial CO: Add preparation type slice [#3889]
+- Radial mass navigation [#3672]
 
 ### Changed
 
 - Filter images: Remove quick forms for Depictions [#3869]
 - New image task: Add alert when trying to restart the interface without applying changes
 - New CE: Destroy label when print label input is empty [#3878]
+- Updated Ruby gems
 
 ### Fixed
 
+- Rediculous number of identifiers preventing collecting event editing [#3715]
+- Community-based models not showing AlternateValues [#3883]
 - Browse OTUs: headers do not link to correct panel [#3868]
-- DwC-A importer crashing on hybrid formula scientific names.
-- Crash when georeferencing with zero meters of uncertainty.
-- New CE: Custom attributes don' refresh on new/edit CE [#3874]
+- DwC-A importer crashing on hybrid formula scientific names
+- Crash when georeferencing with zero meters of uncertainty
+- New CE: Custom attributes don't refresh on new/edit CE [#3874]
+- Radial quick forms: Asserted distribution screen partially blocked by a white rectangle [#3891]
 
+[#1643]: https://github.com/SpeciesFileGroup/taxonworks/issues/1643
 [#1691]: https://github.com/SpeciesFileGroup/taxonworks/issues/1691
+[#3672]: https://github.com/SpeciesFileGroup/taxonworks/issues/3672
+[#3715]: https://github.com/SpeciesFileGroup/taxonworks/issues/3715
+[#3861]: https://github.com/SpeciesFileGroup/taxonworks/issues/3861
 [#3868]: https://github.com/SpeciesFileGroup/taxonworks/issues/3868
 [#3869]: https://github.com/SpeciesFileGroup/taxonworks/issues/3869
 [#3878]: https://github.com/SpeciesFileGroup/taxonworks/issues/3878
+[#3883]: https://github.com/SpeciesFileGroup/taxonworks/issues/3883
+[#3888]: https://github.com/SpeciesFileGroup/taxonworks/issues/3888
+[#3889]: https://github.com/SpeciesFileGroup/taxonworks/issues/3889
+[#3891]: https://github.com/SpeciesFileGroup/taxonworks/issues/3891
+
+### Fixed
+
+- Handling of [sic] in Protonym#original_combination_infraspecific_element [#3867]
 
 ## [0.39.0] - 2024-03-01
 

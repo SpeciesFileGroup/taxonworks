@@ -65,6 +65,14 @@ module IdentifiersHelper
     ids = visible_identifiers(object).load
     return nil unless ids.any?
     content_tag(:h3, 'Identifiers') +
+      identifier_ul_list(object)
+  end
+
+  # @return [String]
+  #   assumes the display context is on the object in question
+  def identifier_ul_list(object)
+    ids = visible_identifiers(object).load
+    return nil unless ids.any?
       content_tag(:ul, class: 'annotations_identifier_list') do
         ids.collect{|a| content_tag(:li, identifier_annotation_tag(a)) }.join.html_safe
       end
@@ -75,7 +83,7 @@ module IdentifiersHelper
   def simple_identifier_list_tag(object)
     ids = visible_identifiers(object).load
     return nil unless ids.any?
-    ids.collect{|a| tag.span(identifier_annotation_tag(a)) }.join.html_safe
+    ids.collect{|a| tag.span(identifier_annotation_tag(a)) }.join(', ').html_safe
   end
 
   # @return [String, nil]

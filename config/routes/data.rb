@@ -308,6 +308,10 @@ resources :extracts do
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
+resources :field_occurrences do
+  concerns [:data_routes]
+end
+
 resources :geographic_areas, only: [:index, :show] do
   collection do
     get 'download'
@@ -409,8 +413,6 @@ end
 resources :languages, only: [:show] do
   collection do
     get 'autocomplete'
-  end
-  collection do
     get :select_options, defaults: {format: :json}
   end
 end
@@ -652,6 +654,7 @@ resources :project_sources, only: [:index, :create, :destroy] do
     get 'list'
     get 'autocomplete'
     get 'search'
+    post :batch_sync_to_project, defaults: {format: :json}
   end
 end
 
