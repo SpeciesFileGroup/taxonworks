@@ -1,8 +1,14 @@
 <template>
   <CornerSpinner :loading="store.loading" />
   <h1>{{ store.root.id ? 'Editing' : 'Create a new key' }}</h1>
-  <!-- The back button on this link fails without data-turbolinks=false if the current url has an id param, but works fine if there's no id param. -->
-  <p><a href="/leads/list" data-turbolinks="false">List of Keys</a></p>
+  <p>
+    <a
+      :href="RouteNames.LeadsHub"
+      data-turbolinks="false"
+    >
+      Dichotomous Keys Hub
+    </a>
+  </p>
   <BlockLayout
     expand
     :set-expanded="!editingHasOccurred"

@@ -29,6 +29,7 @@ const RouteNames = {
   FreeFormTask: '/tasks/collection_objects/freeform_digitize',
   ImageMatrix: '/tasks/matrix_image/matrix_image/index',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
+  LeadsHub: '/tasks/leads/hub',
   ManageBiocurationTask:
     '/tasks/controlled_vocabularies/biocuration/build_collection',
   ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',
