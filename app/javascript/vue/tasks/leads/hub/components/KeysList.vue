@@ -13,11 +13,21 @@
       >
         <thead>
           <tr>
-            <th>Name</th>
-            <th># Couplets</th>
-            <th>Is Public</th>
-            <th>Last Modified</th>
-            <th>Last Modified By</th>
+            <th @click="() => sortTable('text')">
+              Name
+            </th>
+            <th @click="() => sortTable('couplet_count')">
+              # Couplets
+            </th>
+            <th @click="() => sortTable('is_public')">
+              Is Public
+            </th>
+            <th @click="() => sortTable('updated_at')">
+              Last Modified
+            </th>
+            <th @click="() => sortTable('updated_by')">
+              Last Modified By
+            </th>
             <th /> <!-- radials -->
           </tr>
           <tr
@@ -58,12 +68,14 @@
 import { Lead } from '@/routes/endpoints'
 import { onBeforeMount, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
+import { sortArray } from '@/helpers'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const keys = ref([])
 const loading = ref(true)
+const ascending = ref(false)
 
 onBeforeMount(() => {
   Lead.where({ extend: ['couplet_count', 'updater'] })
@@ -74,6 +86,11 @@ onBeforeMount(() => {
       loading.value = false
     })
 })
+
+function sortTable(sortProperty) {
+  keys.value = sortArray(keys.value, sortProperty, ascending.value)
+  ascending.value = !ascending.value
+}
 </script>
 
 <style lang="scss" scoped>
