@@ -18,7 +18,6 @@
             <th>Is Public</th>
             <th>Last Modified</th>
             <th>Last Modified By</th>
-            <th /> <!-- Options button -->
             <th /> <!-- radials -->
           </tr>
           <tr
@@ -31,15 +30,6 @@
             <td>{{ key.is_public? 'True' : 'False' }}</td>
             <td>{{ key.updated_at }}</td>
             <td>{{ key.updated_by }}</td>
-            <td class="width-shrink">
-              <VBtn
-                color="primary"
-                medium
-                @click="() => selectedKey = key"
-              >
-                Options
-              </VBtn>
-            </td>
             <td class="width-shrink">
               <div class="horizontal-right-content gap-small">
                 <RadialAnnotator :global-id="key.global_id" />
@@ -61,69 +51,19 @@
         task to create one.
       </div>
     </div>
-    <VModal
-      v-if="selectedKey"
-      :container-style="{ width: '600px' }"
-      @close="() => selectedKey = null"
-    >
-      <template #header>
-        <h1>"{{ leadText(selectedKey) }}" Options</h1>
-      </template>
-      <template #body>
-        <p>
-          <a
-            :href="RouteNames.NewLead + '?lead_id=' + selectedKey.id"
-            target="_blank"
-          >
-            Edit key
-          </a>
-        </p>
-        <p>
-          <a
-            :href="RouteNames.ShowLead + '?lead_id=' + selectedKey.id"
-            target="_blank"
-          >
-            Use key
-          </a>
-        </p>
-        <!-- TODO
-        <p>
-          <a
-            href=""
-            target="_blank"
-          >
-            Display entire key on one page
-          </a>
-        </p>
-        <p>
-          <a
-            href=""
-            target="_blank"
-          >
-            Display entire key on one page for printing
-          </a>
-        </p>
-        ... Download markdown and/or latex versions of the key ...
-        -->
-      </template>
-    </VModal>
   </div>
 </template>
 
 <script setup>
 import { Lead } from '@/routes/endpoints'
-import { leadText } from '../../helpers/formatters.js'
 import { onBeforeMount, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const keys = ref([])
 const loading = ref(true)
-const selectedKey = ref(null)
 
 onBeforeMount(() => {
   Lead.where({ extend: ['couplet_count', 'updater'] })
