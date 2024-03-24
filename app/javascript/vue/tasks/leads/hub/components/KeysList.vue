@@ -38,7 +38,7 @@
             <td>{{ key.text }}</td>
             <td>{{ key.couplet_count }}</td>
             <td>{{ key.is_public? 'True' : 'False' }}</td>
-            <td>{{ key.updated_at }}</td>
+            <td>{{ key.updated_at_in_words }}</td>
             <td>{{ key.updated_by }}</td>
             <td class="width-shrink">
               <div class="horizontal-right-content gap-small">
@@ -78,7 +78,7 @@ const loading = ref(true)
 const ascending = ref(false)
 
 onBeforeMount(() => {
-  Lead.where({ extend: ['couplet_count', 'updater'] })
+  Lead.where({ extend: ['couplet_count', 'updater', 'updated_at_in_words'] })
     .then(({ body }) => {
       keys.value = body
     })
