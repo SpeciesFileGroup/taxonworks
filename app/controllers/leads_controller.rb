@@ -217,7 +217,7 @@ class LeadsController < ApplicationController
   def update_meta
     respond_to do |format|
       if @lead.update(lead_params)
-        format.json { head :no_content }
+        format.json {}
       else
         format.json { render json: @lead.errors, status: :unprocessable_entity}
       end

@@ -37,7 +37,13 @@
           >
             <td>{{ key.text }}</td>
             <td>{{ key.couplet_count }}</td>
-            <td>{{ key.is_public? 'True' : 'False' }}</td>
+            <td>
+              <input
+                type="checkbox"
+                :checked="key.is_public"
+                @click="() => changeIsPublicState(key)"
+              />
+            </td>
             <td>{{ key.updated_at_in_words }}</td>
             <td>{{ key.updated_by }}</td>
             <td class="width-shrink">
@@ -65,6 +71,7 @@
 </template>
 
 <script setup>
+import { addToArray } from '@/helpers/arrays'
 import { Lead } from '@/routes/endpoints'
 import { onBeforeMount, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
@@ -90,6 +97,21 @@ onBeforeMount(() => {
 function sortTable(sortProperty) {
   keys.value = sortArray(keys.value, sortProperty, ascending.value)
   ascending.value = !ascending.value
+}
+
+function changeIsPublicState(key) {
+  const payload = {
+    lead: {
+      is_public: !key.is_public
+    },
+    extend: ['couplet_count', 'updater', 'updated_at_in_words']
+  }
+
+  Lead.update_meta(key.id, payload)
+    .then(({ body }) => {
+      addToArray(keys.value, body.lead)
+    })
+    .catch(() => {})
 }
 </script>
 
