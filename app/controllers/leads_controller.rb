@@ -2,7 +2,7 @@ class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   before_action :set_lead, only: %i[
     edit create_for_edit update destroy show show_all show_all_print all_texts
-    destroy_couplet insert_couplet delete_couplet duplicate update_meta ]
+    destroy_couplet insert_couplet delete_couplet duplicate update_meta otus]
 
   # GET /leads
   # GET /leads.json
@@ -221,6 +221,17 @@ class LeadsController < ApplicationController
       else
         format.json { render json: @lead.errors, status: :unprocessable_entity}
       end
+    end
+  end
+
+  # GET /leads/1/otus.json
+  def otus
+    leads_list = @lead.self_and_descendants.where.not(otu_id: nil).includes(:otu)
+
+    @otus = leads_list.to_a.map{|l| l.otu}.uniq(&:id)
+
+    respond_to do |format|
+      format.json {}
     end
   end
 

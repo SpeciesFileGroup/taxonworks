@@ -6,7 +6,7 @@
       :logo-size="{ width: '100px', height: '100px' }"
     />
     <h3 class="title-section">Keys</h3>
-    <div class="leads_list">
+    <div class="keys_list">
       <table
         v-if="keys.length"
         class="vue-table"
@@ -30,30 +30,54 @@
             </th>
             <th /> <!-- radials -->
           </tr>
-          <tr
+        </thead>
+        <tbody>
+          <template
             v-for="(key, index) in keys"
             :key="key.id"
-            :class="{ even: (index % 2 == 0)}"
           >
-            <td>{{ key.text }}</td>
-            <td>{{ key.couplet_count }}</td>
-            <td>
-              <input
-                type="checkbox"
-                :checked="key.is_public"
-                @click="() => changeIsPublicState(key)"
-              />
-            </td>
-            <td>{{ key.updated_at_in_words }}</td>
-            <td>{{ key.updated_by }}</td>
-            <td class="width-shrink">
-              <div class="horizontal-right-content gap-small">
-                <RadialAnnotator :global-id="key.global_id" />
-                <RadialNavigator :global-id="key.global_id" />
-              </div>
-            </td>
-          </tr>
-        </thead>
+            <tr
+              class="meta_row"
+              :class="{ even: (index % 2 == 0)}"
+            >
+              <td><b>{{ key.text }}</b></td>
+              <td>{{ key.couplet_count }}</td>
+              <td>
+                <input
+                  type="checkbox"
+                  :checked="key.is_public"
+                  @click="() => changeIsPublicState(key)"
+                />
+              </td>
+              <td>{{ key.updated_at_in_words }}</td>
+              <td>{{ key.updated_by }}</td>
+              <td class="width-shrink">
+                <div class="horizontal-right-content gap-small">
+                  <RadialAnnotator :global-id="key.global_id" />
+                  <RadialNavigator :global-id="key.global_id" />
+                </div>
+              </td>
+            </tr>
+
+            <tr :class="{ even: (index % 2 == 0)}">
+              <td colspan="6" class="extension_row">
+                <KeyOtus
+                  :key-prop="key"
+                  @load-otus-for-key="() => loadOtusForKey(key)"
+                />
+              </td>
+            </tr>
+
+            <tr
+              :class="{ even: (index % 2 == 0)}"
+              v-if="key.citations"
+            >
+              <td colspan="6">
+                <KeyCitations :citations="key.citations" />
+              </td>
+            </tr>
+          </template>
+        </tbody>
       </table>
 
       <div v-else-if="!loading">
@@ -72,10 +96,13 @@
 
 <script setup>
 import { addToArray } from '@/helpers/arrays'
-import { Lead } from '@/routes/endpoints'
+import { Citation, Lead } from '@/routes/endpoints'
+import { LEAD } from '@/constants/index.js'
 import { onBeforeMount, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { sortArray } from '@/helpers'
+import KeyCitations from './KeyCitations.vue'
+import KeyOtus from './KeyOtus.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -84,15 +111,43 @@ const keys = ref([])
 const loading = ref(true)
 const ascending = ref(false)
 
-onBeforeMount(() => {
-  Lead.where({ extend: ['couplet_count', 'updater', 'updated_at_in_words'] })
+onBeforeMount(async () => {
+  const loadKeys = Lead.where({
+    extend: ['couplet_count', 'updater', 'updated_at_in_words', 'otu']
+   })
     .then(({ body }) => {
       keys.value = body
     })
     .finally(() => {
       loading.value = false
     })
+
+  const loadCitations = Citation.where({
+    citation_object_type: LEAD,
+    extend: ['source']
+  })
+
+  Promise.allSettled([loadKeys, loadCitations])
+    .then(([_, { value }]) => {
+      addCitationsToKeysList(value.body)
+    })
+    .catch(() => {})
 })
+
+function addCitationsToKeysList(citations) {
+  citations.forEach((citation) => {
+    const i = keys.value.findIndex(
+      (key) => (key.id == citation.citation_object_id)
+    )
+    if (i != -1) {
+      if (keys.value[i].citations) {
+        keys.value[i].citations.push(citation)
+      } else {
+        keys.value[i].citations = [ citation ]
+      }
+    }
+  })
+}
 
 function sortTable(sortProperty) {
   keys.value = sortArray(keys.value, sortProperty, ascending.value)
@@ -104,23 +159,68 @@ function changeIsPublicState(key) {
     lead: {
       is_public: !key.is_public
     },
-    extend: ['couplet_count', 'updater', 'updated_at_in_words']
+    extend: ['updater', 'updated_at_in_words']
   }
 
   Lead.update_meta(key.id, payload)
     .then(({ body }) => {
-      addToArray(keys.value, body.lead)
+      const updatedKey = {
+        ...body.lead,
+        otu: key.otu,
+        couplet_count: key.couplet_count,
+        citations: key.citations,
+        child_otus: key.child_otus
+      }
+
+      addToArray(keys.value, updatedKey)
     })
     .catch(() => {})
+}
+
+function loadOtusForKey(key) {
+  Lead.otus(key.id)
+    .then(({ body }) => {
+      let otus = body
+      if (key.otu) {
+        // Remove the root otu, which is already displayed.
+        const i = otus.find((otu) => (otu.id == key.otu_id))
+        if (i != -1) {
+          otus.splice(i, 1)
+        }
+      }
+
+      otus.sort((a, b) => {
+        if (a.object_label == b.object_label) {
+          return a.id < b.id ? -1 : 1
+        }
+        return a.object_label < b.object_label ? -1 : 1
+      })
+
+      key.child_otus = otus
+      addToArray(keys.value, key)
+    })
+    .catch(() => {
+      // Add child_otus or the loading spinner will never disappear.
+      key.child_otus = []
+      addToArray(keys.value, key)
+    })
 }
 </script>
 
 <style lang="scss" scoped>
-.leads_list {
+.keys_list {
   margin-right: 1em;
   margin-bottom: 2em;
 }
 .width-shrink {
   width: 1%;
+}
+.meta_row:not(:first-child) {
+  border-top: 2px solid #5D9ECE;
+}
+.extension_row {
+  border-top: 4px dotted #eee;
+  padding-top: .5em;
+  padding-bottom: .5em;
 }
 </style>
