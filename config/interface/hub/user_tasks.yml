@@ -895,6 +895,13 @@ new_otu_task:
     - otu
   status: prototype
   description: 'Create one or many OTUs in batch.'
+leads_hub_task:
+  hub: true
+  name: 'Dichotomous keys hub'
+  related:
+  categories:
+  status: prototype
+  description: 'A centralized hub unifying access to the different means of creating and displaying dichotomous keys.'
 week_in_review_task:
   hub: true
   name: 'Week in review'

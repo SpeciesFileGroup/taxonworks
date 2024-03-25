@@ -1,5 +1,9 @@
 scope :tasks do
   scope :leads do
+    scope :hub, controller: 'tasks/leads/hub' do
+      get '/', action: :index, as: 'leads_hub_task'
+    end
+
     scope :show, controller: 'tasks/leads/show' do
       get '/', action: :index, as: 'show_lead_task'
     end
