@@ -4,9 +4,9 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
 
   let(:q) { Queries::Image::Filter.new({}) }
 
-  let(:i1) { FactoryBot.create(:valid_image) }
-  let(:i2) { FactoryBot.create(:valid_image) }
-  let(:i3) { FactoryBot.create(:valid_image) }
+  let(:i1) { FactoryBot.create(:tiny_random_image) }
+  let(:i2) { FactoryBot.create(:tiny_random_image) }
+  let(:i3) { FactoryBot.create(:tiny_random_image) }
 
   let(:o) { Otu.create(name: 'o1') }
   let(:co) { Specimen.create!  }
