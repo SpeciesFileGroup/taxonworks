@@ -24,7 +24,7 @@
     "pdfjs-dist": "4.0.379",
     "pinia": "^2.1.7",
     "qs": "^6.12.0",
-    "shakapacker": "7.2.2",
+    "shakapacker": "7.2.3",
     "v-hotkey": "^0.9.0",
     "v-network-graph": "^0.9.15",
     "vue": "^3.4.21",
@@ -62,7 +62,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-standard": "^4.1.0",
-    "eslint-plugin-vue": "^9.23.0",
+    "eslint-plugin-vue": "^9.24.0",
     "mini-css-extract-plugin": "^2.8.1",
     "postcss": "^8.4.38",
     "postcss-flexbugs-fixes": "^5.0.2",
@@ -82,7 +82,7 @@
     "webpack": "^5.91.0",
     "webpack-assets-manifest": "^5.2.1",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.1",
+    "webpack-dev-server": "^5.0.4",
     "webpack-merge": "^5.10.0",
     "worker-loader": "^3.0.8"
   }

@@ -549,7 +549,7 @@ GEM
     rubocop-performance (1.20.2)
       rubocop (>= 1.48.1, < 2.0)
       rubocop-ast (>= 1.30.0, < 2.0)
-    rubocop-rails (2.24.0)
+    rubocop-rails (2.24.1)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
@@ -584,7 +584,7 @@ GEM
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
     semantic_range (3.0.0)
-    shakapacker (7.2.2)
+    shakapacker (7.2.3)
       activesupport (>= 5.2)
       package_json
       rack-proxy (>= 0.6.1)
@@ -791,7 +791,7 @@ DEPENDENCIES
   seedbank (~> 0.5.0)
   selenium-webdriver (~> 4.6, >= 4.6.1)
   serrano!
-  shakapacker (= 7.2.2)
+  shakapacker (= 7.2.3)
   shortener (~> 1.0.0)
   simplecov
   spring-commands-rspec (~> 1.0.4)
