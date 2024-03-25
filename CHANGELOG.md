@@ -38,11 +38,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Crash when georeferencing with zero meters of uncertainty
 - New CE: Custom attributes don't refresh on new/edit CE [#3874]
 - Radial quick forms: Asserted distribution screen partially blocked by a white rectangle [#3891]
+- Print label task doesn't apply styles to labels [#3776]
 
 [#1643]: https://github.com/SpeciesFileGroup/taxonworks/issues/1643
 [#1691]: https://github.com/SpeciesFileGroup/taxonworks/issues/1691
 [#3672]: https://github.com/SpeciesFileGroup/taxonworks/issues/3672
 [#3715]: https://github.com/SpeciesFileGroup/taxonworks/issues/3715
+[#3776]: https://github.com/SpeciesFileGroup/taxonworks/issues/3776
 [#3861]: https://github.com/SpeciesFileGroup/taxonworks/issues/3861
 [#3868]: https://github.com/SpeciesFileGroup/taxonworks/issues/3868
 [#3869]: https://github.com/SpeciesFileGroup/taxonworks/issues/3869
