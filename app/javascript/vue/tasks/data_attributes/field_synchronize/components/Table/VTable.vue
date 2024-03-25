@@ -10,6 +10,16 @@
           :key="attr"
         >
           {{ attr }}
+          <VBtn
+            color="primary"
+            circle
+            @click="emit('remove:attribute', attr)"
+          >
+            <VIcon
+              name="trash"
+              x-small
+            />
+          </VBtn>
         </th>
       </tr>
     </thead>
@@ -22,7 +32,10 @@
           v-for="attr in attributes"
           :key="attr"
         >
-          {{ item[attr] }}
+          <input
+            type="text"
+            :value="item[attr]"
+          />
         </td>
       </tr>
     </tbody>
@@ -30,6 +43,10 @@
 </template>
 
 <script setup>
+import TableRow from './TableRow.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+
 const props = defineProps({
   attributes: {
     type: Array,
@@ -41,4 +58,6 @@ const props = defineProps({
     default: () => []
   }
 })
+
+const emit = defineEmits(['remove:attribute'])
 </script>
