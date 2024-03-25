@@ -910,3 +910,10 @@ week_in_review_task:
     - metadata
   status: prototype
   description: 'A quick look dashboard of past activity'
+field_synchronize_task:
+  hub: true
+  name: 'Field synchronize'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
