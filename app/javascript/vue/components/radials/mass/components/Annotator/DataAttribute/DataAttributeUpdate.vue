@@ -1,5 +1,9 @@
 <template>
   <div class="data_attribute_annotator">
+    <VSpinner
+      v-if="isUpdating"
+      full-screen
+    />
     <SmartSelector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{ 'type[]': 'Predicate' }"
@@ -62,6 +66,7 @@
 <script setup>
 import SmartSelector from '@/components/ui/SmartSelector'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import { computed, ref } from 'vue'
 import { ControlledVocabularyTerm, DataAttribute } from '@/routes/endpoints'
 
@@ -84,6 +89,7 @@ const props = defineProps({
 
 const emit = defineEmits(['create'])
 
+const isUpdating = ref(false)
 const predicate = ref()
 const fromValue = ref('')
 const toValue = ref('')
@@ -104,6 +110,7 @@ function updateDataAttributes() {
     value_to: toValue.value
   }
 
+  isUpdating.value = true
   DataAttribute.updateBatch(payload)
     .then(({ body }) => {
       TW.workbench.alert.create(
@@ -114,6 +121,9 @@ function updateDataAttributes() {
       emit('create', body)
     })
     .catch(() => {})
+    .finally(() => {
+      isUpdating.value = true
+    })
 }
 
 const all = ref([])
