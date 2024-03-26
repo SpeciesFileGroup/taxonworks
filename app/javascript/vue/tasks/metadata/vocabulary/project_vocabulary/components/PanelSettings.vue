@@ -97,6 +97,7 @@
 
 <script setup>
 import { Metadata } from '@/routes/endpoints'
+import { ajaxCall } from '@/helpers'
 import { ref, onBeforeMount, watch } from 'vue'
 import { vBetweenNumbers } from '@/directives'
 
@@ -123,7 +124,10 @@ watch(
 )
 
 onBeforeMount(() => {
-  Metadata.dataModels().then(({ body }) => {
+  ajaxCall(
+    'get',
+    '/tasks/metadata/vocabulary/project_vocabulary/data_models'
+  ).then(({ body }) => {
     models.value = body
   })
 })

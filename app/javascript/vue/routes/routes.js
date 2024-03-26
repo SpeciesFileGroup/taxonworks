@@ -16,7 +16,6 @@ import {
 } from '@/constants/index.js'
 
 const RouteNames = {
-  // FilterAssertedDistribition: '/tasks/asserted_distributions/filter',
   BrowseCollectionObject: '/tasks/collection_objects/browse',
   BrowseNomenclature: '/tasks/nomenclature/browse',
   BrowseOtu: '/tasks/otus/browse',
@@ -24,8 +23,12 @@ const RouteNames = {
   DigitizeTask: '/tasks/accessions/comprehensive',
   DwcDashboard: '/tasks/dwc/dashboard',
   DwcImport: '/tasks/dwca_import/index',
+  FilterAssertedDistribition: '/tasks/asserted_distributions/filter',
   FilterCollectingEvents: '/tasks/collecting_events/filter',
   FilterCollectionObjects: '/tasks/collection_objects/filter',
+  FilterOtus: '/tasks/otus/filter',
+  FilterSources: '/tasks/sources/filter',
+  FilterNomenclature: '/tasks/taxon_names/filter',
   FreeFormTask: '/tasks/collection_objects/freeform_digitize',
   ImageMatrix: '/tasks/matrix_image/matrix_image/index',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
@@ -48,10 +51,9 @@ const RouteNames = {
   ObservationMatricesDashboard: '/tasks/observation_matrices/dashboard',
   ObservationMatricesHub: '/tasks/observation_matrices/observation_matrix_hub',
   PrintLabel: '/tasks/labels/print_labels',
+  ProjectVocabulary: '/tasks/metadata/vocabulary/project_vocabulary',
   ShowLead: '/tasks/leads/show',
-  TypeMaterial: '/tasks/type_material/edit_type_material',
-  FreeFormTask: '/tasks/collection_objects/freeform_digitize',
-  ProjectVocabulary: '/tasks/metadata/vocabulary/project_vocabulary'
+  TypeMaterial: '/tasks/type_material/edit_type_material'
 }
 
 const FILTER_ROUTES = {
