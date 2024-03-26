@@ -122,7 +122,7 @@ function updateDataAttributes() {
     })
     .catch(() => {})
     .finally(() => {
-      isUpdating.value = true
+      isUpdating.value = false
     })
 }
 
