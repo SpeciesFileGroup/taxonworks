@@ -25,9 +25,10 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Radial CO: Add preparation type slice [#3889]
 - Radial mass navigation [#3672]
 - Batch update or add data attributes [#3748]
-- !! TODO: Include OTU name in filter collection objects result [#XXXX]
+- Include OTU `name` in Filter Collection Objects result
 - Text file delimiter options to DwC import [#3894]
 - CSV format for DwC importer
+- Project vocabulary word-cloud text links to filter result for some models (e.g. CollectingEvent) 
 
 ### Changed
 
@@ -50,7 +51,6 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Radial quick forms: Asserted distribution screen partially blocked by a white rectangle [#3891]
 - Print label task doesn't apply styles to labels [#3776]
 - Missing collection object links on map markers
-
 
 [#3748]: https://github.com/SpeciesFileGroup/taxonworks/issues/3748
 [#3881]: https://github.com/SpeciesFileGroup/taxonworks/issues/3881
