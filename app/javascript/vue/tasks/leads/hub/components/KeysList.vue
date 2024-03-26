@@ -13,13 +13,22 @@
       >
         <thead>
           <tr>
-            <th @click="() => sortTable('text')">
+            <th
+              @click="() => sortTable('text')"
+              class="table_name_col"
+            >
               Name
             </th>
-            <th @click="() => sortTable('couplet_count')">
+            <th
+              @click="() => sortTable('couplet_count')"
+              class="narrow_col"
+            >
               # Couplets
             </th>
-            <th @click="() => sortTable('is_public')">
+            <th
+              @click="() => sortTable('is_public')"
+              class="narrow_col"
+            >
               Is Public
             </th>
             <th @click="() => sortTable('updated_at')">
@@ -60,19 +69,19 @@
             </tr>
 
             <tr :class="{ even: (index % 2 == 0)}">
-              <td colspan="6" class="extension_row">
+              <td
+                colspan="3"
+                class="extension_data"
+              >
                 <KeyOtus
                   :key-prop="key"
                   @load-otus-for-key="() => loadOtusForKey(key)"
                 />
               </td>
-            </tr>
-
-            <tr
-              :class="{ even: (index % 2 == 0)}"
-              v-if="key.citations"
-            >
-              <td colspan="6">
+              <td
+                colspan="3"
+                class="extension_data"
+              >
                 <KeyCitations :citations="key.citations" />
               </td>
             </tr>
@@ -218,9 +227,15 @@ function loadOtusForKey(key) {
 .meta_row:not(:first-child) {
   border-top: 2px solid #5D9ECE;
 }
-.extension_row {
+.extension_data {
   border-top: 4px dotted #eee;
   padding-top: .5em;
   padding-bottom: .5em;
+}
+.table_name_col {
+  width: 40%;
+}
+.narrow_col {
+  width: 4em;
 }
 </style>

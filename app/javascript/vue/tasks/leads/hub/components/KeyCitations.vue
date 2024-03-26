@@ -1,6 +1,7 @@
 <template>
   Citations
   <div
+    v-if="citations.length"
     v-for="citation in citations"
     :key="citation.id"
   >
@@ -10,13 +11,16 @@
       </a>
     </div>
   </div>
+  <div v-else>
+    <i>No citations</i>
+  </div>
 </template>
 
 <script setup>
 const props = defineProps({
   citations: {
     type: Array,
-    required: true
+    default: []
   }
 })
 </script>
