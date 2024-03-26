@@ -190,6 +190,7 @@ function changeIsPublicState(key) {
       const updatedKey = {
         ...body.lead,
         otu: key.otu,
+        otus_count: key.otus_count,
         couplet_count: key.couplet_count,
         citations: key.citations,
         child_otus: key.child_otus
@@ -239,7 +240,7 @@ function loadOtusForKey(key) {
   width: 1%;
 }
 .meta_row:not(:first-child) {
-  border-top: 2px solid #5D9ECE;
+  border-top: 2px solid var(--color-primary);
 }
 .extension_data {
   border-top: 4px dotted #eee;
