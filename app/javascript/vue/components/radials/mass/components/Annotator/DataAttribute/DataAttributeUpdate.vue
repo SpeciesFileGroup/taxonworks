@@ -100,8 +100,8 @@ function updateDataAttributes() {
   const payload = {
     ...props.parameters,
     predicate_id: predicate.value.id,
-    from_value: fromValue.value,
-    to_value: toValue.value
+    value_from: fromValue.value,
+    value_to: toValue.value
   }
 
   DataAttribute.updateBatch(payload)
