@@ -11,7 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [0.40.0] - 2024-03-26
 
-_Special thanks to Tom Klein for his amazing open-source contributions on this release!.
+_Special thanks to Tom Klein for his amazing open-source contributions on this release!._
 
 ### Added
 
