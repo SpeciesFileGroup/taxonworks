@@ -21,4 +21,8 @@ else
   if extend_response_with('updater')
     json.updated_by lead.updater.name
   end
+
+  if extend_response_with('updated_at_in_words')
+    json.updated_at_in_words time_ago_in_words(lead.updated_at)
+  end
 end
