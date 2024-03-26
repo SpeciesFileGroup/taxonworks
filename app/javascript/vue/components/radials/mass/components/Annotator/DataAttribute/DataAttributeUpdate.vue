@@ -45,7 +45,7 @@
         class="button button-submit normal-input separate-bottom"
         @click="updateDataAttributes"
       >
-        Create
+        Update or Create
       </button>
       <button
         @click="
@@ -57,7 +57,7 @@
         class="button button-default normal-input separate-bottom"
         type="button"
       >
-        New
+        Reset
       </button>
     </div>
   </div>
