@@ -90,6 +90,7 @@ function getWords() {
       setParam(RouteNames.ProjectVocabulary, parameters.value)
       words.value = Object.entries(body)
     })
+    .catch(() => {})
     .finally(() => {
       isLoading.value = false
     })

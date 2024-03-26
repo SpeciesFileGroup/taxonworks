@@ -113,6 +113,7 @@ watch(
   () => parameters.value.model,
   (newVal) => {
     if (newVal) {
+      attributes.value = []
       Metadata.attributes({ model: newVal }).then(({ body }) => {
         attributes.value = body
       })
