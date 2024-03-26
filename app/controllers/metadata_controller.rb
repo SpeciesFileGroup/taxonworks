@@ -35,18 +35,14 @@ class MetadataController < ApplicationController
     render json: helpers.klass_annotations
   end
 
-  # DO NOT EXPOSE TO API until santize tested
+  # !! DO NOT EXPOSE TO API !! until santize tested
   def vocabulary
 
     p = params.permit(:model, :attribute, :begins_with, :limit, :contains, :min, :max).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
-    @words = Vocabulary.words(**p)
-
-    respond_to do |format|
-      format.html do
-        @recent_objects = Otu.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-        render '/shared/data/all/index'
-      end
-      format.json { render json: @words }
+    if @words = Vocabulary.words(**p)
+      render json: @words, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
     end
   end
 

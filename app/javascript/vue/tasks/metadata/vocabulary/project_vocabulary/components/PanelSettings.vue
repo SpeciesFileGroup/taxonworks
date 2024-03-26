@@ -63,7 +63,7 @@
       <input
         class="full_width"
         type="text"
-        v-model="parameters.begining_with"
+        v-model="parameters.begins_with"
       />
     </div>
 
