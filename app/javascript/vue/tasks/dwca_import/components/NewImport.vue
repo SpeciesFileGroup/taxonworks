@@ -140,7 +140,8 @@ function completeQueue(file, response) {
 }
 
 function addedFile(file) {
-  const defaultValues = TYPES_OPTS[file.type]
+  const fileExtension = file.name.split('.').pop()
+  const defaultValues = TYPES_OPTS[fileExtension]
 
   if (defaultValues) {
     separatorOptionsRef.value
