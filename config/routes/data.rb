@@ -427,6 +427,7 @@ resources :leads do
     post :delete_couplet
     post :duplicate
     get :all_texts
+    get :otus
   end
 end
 
