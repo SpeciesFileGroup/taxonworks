@@ -91,20 +91,16 @@ const currentFieldSeparator = computed(() => {
     : fieldDelimiter.value
 })
 
-function show() {
-  reset()
+function show({ field, str }) {
+  stringDelimiter.value = str
+  fieldDelimiter.value = field
+  customDelimiter.value = ''
   isModalVisible.value = true
 
   return new Promise((resolve, reject) => {
     resolvePromise.value = resolve
     rejectPromise.value = reject
   })
-}
-
-function reset() {
-  stringDelimiter.value = null
-  fieldDelimiter.value = null
-  customDelimiter.value = null
 }
 
 function submit() {

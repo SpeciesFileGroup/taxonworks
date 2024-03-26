@@ -77,8 +77,7 @@ import DATASET_ROW_TYPES from '../const/datasetRowTypes.js'
 import CODES from '../const/nomenclatureCodes.js'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SeparatorOptions from './SeparatorOptions.vue'
-
-const TEXT_TYPES = ['text/plain', 'text/csv', 'text/tsv']
+import { TYPES_OPTS } from '../const/delimiters'
 
 const emit = defineEmits(['onCreate'])
 
@@ -141,9 +140,11 @@ function completeQueue(file, response) {
 }
 
 function addedFile(file) {
-  if (TEXT_TYPES.includes(file.type)) {
+  const defaultValues = TYPES_OPTS[file.type]
+
+  if (defaultValues) {
     separatorOptionsRef.value
-      .show()
+      .show(defaultValues)
       .then((payload) => {
         delimiterParams.value = payload
         dwcDropzone.value.dropzone.processQueue()
