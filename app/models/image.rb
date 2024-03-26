@@ -94,7 +94,7 @@ class Image < ApplicationRecord
   validates_attachment_presence :image_file
   validate :image_dimensions_too_short
 
-  validates_uniqueness_of :image_file_fingerprint
+  validates_uniqueness_of :image_file_fingerprint, scope: :project_id
 
   accepts_nested_attributes_for :sled_image, allow_destroy: true
 
