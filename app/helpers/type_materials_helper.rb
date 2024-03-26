@@ -2,7 +2,7 @@ module TypeMaterialsHelper
 
   def type_material_tag(type_material)
     return nil if type_material.nil?
-    [type_material.type_type, full_original_taxon_name_tag(type_material.protonym)].compact.join(' of ')
+    [type_material.type_type, link_to(full_original_taxon_name_tag(type_material.protonym), browse_nomenclature_task_path(taxon_name_id: type_material.protonym.id))].compact.join(' of ')
   end
 
   def type_material_link(type_material)

@@ -5,7 +5,7 @@
         <th>Determination</th>
         <th>
           <div class="horizontal-right-content">
-            <lock-component
+            <VLock
               v-if="lock !== undefined"
               class="margin-small-left"
               v-model="lockButton"
@@ -38,32 +38,32 @@
           </td>
           <td>
             <div class="horizontal-right-content gap-small">
-              <radial-annotator
+              <RadialAnnotator
                 v-if="element.global_id"
                 :global-id="element.global_id"
               />
 
-              <v-btn
+              <VBtn
                 circle
-                :color="element.id ? 'update' : 'primary'"
+                color="primary"
                 @click="emit('edit', element)"
               >
                 <v-icon
                   x-small
                   name="pencil"
                 />
-              </v-btn>
+              </VBtn>
 
-              <v-btn
+              <VBtn
                 circle
                 :color="element.id ? 'destroy' : 'primary'"
                 @click="emit('delete', element)"
               >
-                <v-icon
+                <VIcon
                   x-small
                   name="trash"
                 />
-              </v-btn>
+              </VBtn>
             </div>
           </td>
         </tr>
@@ -77,7 +77,7 @@ import { computed } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { TaxonDetermination } from '@/routes/endpoints'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import LockComponent from '@/components/ui/VLock/index.vue'
+import VLock from '@/components/ui/VLock/index.vue'
 import Draggable from 'vuedraggable'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'

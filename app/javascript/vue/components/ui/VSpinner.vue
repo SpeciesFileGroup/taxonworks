@@ -140,6 +140,7 @@ export default {
       type: Boolean,
       default: true
     },
+
     spinnerPosition: {
       type: String,
       default: 'top'
@@ -151,20 +152,29 @@ export default {
         width: '50px',
         height: '50px'
       })
+    },
+
+    cssPosition: {
+      type: String,
+      default: 'absolute'
     }
   },
 
-  data: () => ({
-    cssProperties: {
-      width: undefined,
-      height: undefined,
-      position: 'absolute',
-      top: undefined,
-      zIndex: undefined,
-      left: undefined
-    },
-    resizeInterval: undefined
-  }),
+  data: function() {
+    return {
+      cssProperties: {
+        width: undefined,
+        height: undefined,
+        position: this.cssPosition,
+        top: undefined,
+        bottom: undefined,
+        zIndex: undefined,
+        left: undefined,
+        right: undefined
+      },
+      resizeInterval: undefined
+    }
+  },
 
   mounted() {
     this.init()
@@ -208,8 +218,10 @@ export default {
 
         copyCSS.width = this.outerWidth(domElement) + 'px'
         copyCSS.height = this.outerHeight(domElement) + 'px'
-        copyCSS.top = elementBound.top
-        copyCSS.left = elementBound.left
+        if (copyCSS.position == 'fixed') {
+          copyCSS.top = elementBound.top + 'px'
+          copyCSS.left = elementBound.left + 'px'
+        }
       }
       if (!this.showSpinner) {
         copyCSS.zIndex =

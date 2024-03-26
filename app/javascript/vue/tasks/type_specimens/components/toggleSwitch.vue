@@ -55,6 +55,7 @@
 
 <script>
 import { RouteNames } from '@/routes/routes'
+import { COLLECTION_OBJECT } from '@/constants'
 import {
   BiocurationClassification,
   ControlledVocabularyTerm
@@ -94,7 +95,8 @@ export default {
         if (newVal != undefined && newVal != oldVal) {
           this.addQueue = []
           BiocurationClassification.where({
-            biological_collection_object_id: newVal
+            biocuration_classification_object_id: newVal,
+            biocuration_classification_object_type: COLLECTION_OBJECT
           }).then((response) => {
             this.createdBiocutarions = response.body
           })
@@ -157,7 +159,7 @@ export default {
 
       BiocurationClassification.destroy(
         this.createdBiocutarions[index].id
-      ).then((response) => {
+      ).then((_) => {
         this.createdBiocutarions.splice(index, 1)
       })
     },
@@ -166,7 +168,8 @@ export default {
       return {
         biocuration_classification: {
           biocuration_class_id: id,
-          biological_collection_object_id: this.biologicalId
+          biocuration_classification_object_id: this.biologicalId,
+          biocuration_classification_object_type: COLLECTION_OBJECT
         }
       }
     }

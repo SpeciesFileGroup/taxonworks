@@ -1,0 +1,21 @@
+
+<%= content_for :add do -%>
+<% end %>
+
+<%= content_for :edit do
+  link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), new_field_occurrence_path(collecting_event_id: @field_occurrence.id), class: 'navigation-item')
+end %>
+
+<%= content_for :report do -%>
+<% end %>
+
+<%= content_for :associated do -%>
+<% end %>
+
+<%= content_for :icon_navigation do -%>
+<% end %>
+
+<%= render(partial: 'shared/data/project/show', locals: {object: @field_occurrence}) -%>
+
+
+

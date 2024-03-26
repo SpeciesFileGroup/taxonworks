@@ -67,6 +67,7 @@ CollectingEvent:
     - new_collecting_event_task
     - filter_collecting_events_task
     - comprehensive_collection_object_task
+    - new_field_occurrence_task
   config:
     recent: true
   edit: new_collecting_event_task
@@ -90,6 +91,13 @@ Extract:
   edit: new_extract_task
   config:
     recent: true
+FieldOccurrence:
+  tasks:
+    - new_field_occurrence_task
+  edit: new_field_occurrence_task
+  new: new_field_occurrence_task,
+  config:
+    recent: true
 GeographicArea:
   tasks:
     - asserted_distributions_basic_endemism_task
@@ -100,6 +108,12 @@ GeographicItem:
     - debug_geographic_item_task
   config:
     recent: false
+Lead:
+  tasks:
+    - show_lead_task
+    - leads_hub_task
+  new: new_lead_task
+  edit: new_lead_task
 Loan:
   tasks:
     - edit_loan_task
@@ -118,14 +132,16 @@ Otu:
     - browse_otus_task
     - filter_otus_task
     - comprehensive_collection_object_task
+    - new_field_occurrence_task
     - edit_biological_associations_graph_task
     - index_editor_task
     - cite_otus_task
-    - index_browse_asserted_distributions_task
+    - browse_asserted_distributions_task
     - otu_distribution_data_task
   home: browse_otus_task
   config:
     recent: true
+  new: new_otu_task
 Person:
   tasks:
     - uniquify_people_task

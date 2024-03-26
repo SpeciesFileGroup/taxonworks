@@ -1,0 +1,38 @@
+<%= content_for :additional_navigation do %>
+  <% if !@lead.parent_id -%>
+    <div class="navigation-controls">
+      <%= link_to( content_tag(:span, 'Clone', data: {icon: :new}, class: 'small-icon' ), "/leads/#{@lead.id}/duplicate", method: :post, class: 'navigation-item' ) -%>
+    </div>
+  <% end %>
+
+  <div class="navigation-controls">
+      <%= link_to( content_tag(:span, 'Use key', class: 'small-icon' ), "/tasks/leads/show?lead_id=#{@lead.id}", class: 'navigation-item' ) -%>
+  </div>
+
+   <% if @lead.parent_id -%>
+    <div class="navigation-controls">
+      <%= link_to( content_tag(:span, 'Key root', data: {icon: :show}, class: 'small-icon' ), "/leads/#{@lead.root.id}", class: 'navigation-item' ) -%>
+    </div>
+    <div class="navigation-controls">
+      <%= link_to( content_tag(:span, 'Parent', data: {icon: :show}, class: 'small-icon' ), "/leads/#{@lead.parent.id}", class: 'navigation-item' ) -%>
+    </div>
+  <% end %>
+
+  <% if @lead.children.size == 2 -%>
+    <div class="navigation-controls">
+      <%= link_to( content_tag(:span, 'Left child', data: {icon: :show}, class: 'small-icon' ), "/leads/#{@lead.children[0].id}", class: 'navigation-item' ) -%>
+    </div>
+
+    <div class="navigation-controls">
+      <%= link_to( content_tag(:span, 'Right child', data: {icon: :show}, class: 'small-icon' ), "/leads/#{@lead.children[1].id}", class: 'navigation-item' ) -%>
+    </div>
+  <% end %>
+<% end %>
+
+<%= content_for :edit do
+  # data-turbolinks='false' to prevent a bug with a spinner target element
+  # not existing in mount() when refollowing this link in browser history.
+  link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), new_lead_task_path(lead_id: @lead.id), class: 'navigation-item', data: { turbolinks: 'false' })
+end %>
+
+<%= render(partial: 'shared/data/project/show', locals: {object: @lead}) -%>

@@ -1033,13 +1033,13 @@ shared_context 'stuff for complex geo tests' do
       project: geo_project,
       by: geo_user)
 
-    TaxonDetermination.create!(biological_collection_object: co, otu: otu_a, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: otu_a, by: geo_user, project: geo_project)
 
-    TaxonDetermination.create!(biological_collection_object: co, otu: top_dog, by: geo_user, project: geo_project)
-    TaxonDetermination.create!(biological_collection_object: co, otu: by_bill, by: geo_user, project: geo_project)
-    TaxonDetermination.create!(biological_collection_object: co, otu: abra, by: geo_user, project: geo_project)
-    TaxonDetermination.create!(biological_collection_object: co, otu: cadabra, by: geo_user, project: geo_project)
-    TaxonDetermination.create!(biological_collection_object: co, otu: alakazam, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: top_dog, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: by_bill, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: abra, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: cadabra, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: alakazam, by: geo_user, project: geo_project)
 
     co
   }
@@ -1054,9 +1054,9 @@ shared_context 'stuff for complex geo tests' do
       by: geo_user
     )
 
-    TaxonDetermination.create!(biological_collection_object: co, otu: otu_p4, by: geo_user, project: geo_project)
-    TaxonDetermination.create!(biological_collection_object: co, otu: nuther_dog, by: geo_user, project: geo_project)
-    TaxonDetermination.create!(biological_collection_object: co, otu: spooler, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: otu_p4, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: nuther_dog, by: geo_user, project: geo_project)
+    TaxonDetermination.create!(taxon_determination_object: co, otu: spooler, by: geo_user, project: geo_project)
 
     co
   }
@@ -1166,7 +1166,7 @@ shared_context 'stuff for complex geo tests' do
   let(:c3) { FactoryBot.create(:geographic_item_line_string, line_string: shape_c3, by: geo_user) } # 29
   let(:c) { FactoryBot.create(:geographic_item_multi_line_string,
                               multi_line_string: shape_c.as_binary, by: geo_user) } # 30
-  
+
   let(:d) { FactoryBot.create(:geographic_item_line_string, line_string: shape_d.as_binary, by: geo_user) }
 
   let(:b1) { FactoryBot.create(:geographic_item_polygon, polygon: shape_b_outer.as_binary, by: geo_user) } # 25
@@ -2076,7 +2076,7 @@ Two different shapes with the same name, 'East Boxia', and
                            verbatim_label: '@ce_m1',
                            geographic_area: area_m1)
   td_m1 = FactoryBot.create(:valid_taxon_determination)
-  co_m1 = td_m1.biological_collection_object
+  co_m1 = td_m1.taxon_determination_object
   td_m1.otu.name = 'Find me, I\'m in M1!'
   td_m1.otu.save!
   co_m1.collecting_event = ce
@@ -2308,4 +2308,3 @@ Two different shapes with the same name, 'East Boxia', and
   let(:item_m3) { FactoryBot.create(:geographic_item, multi_polygon: shape_m3, by: geo_user) }
 
 end
-

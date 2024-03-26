@@ -14,9 +14,10 @@ module ApplicationEnumeration
 
   # @param target [Instance of an ApplicationRecord model]
   # @return [Array of Symbol]
-  #   a list attributes except "_id", "_at" postfixed
+  #   a list attributes except "id", 'md5_", and postfixed  "_id", "_at"
+  #   This is an arbitrary convention, wrap this to further refine.
   def self.attributes(target)
-     target.attributes.select{|k,v| !(k =~ /_id\z|\Aid\z|_at\z/)}.symbolize_keys.keys.sort
+     target.attributes.select{|k,v| !(k =~ /\Amd5_|_id\z|\Aid\z|_at\z/)}.symbolize_keys.keys.sort
   end
 
   # @return [Array]

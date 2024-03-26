@@ -1339,7 +1339,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       "scientificName": parse_results[:qualityWarnings] ?
         parse_results[:qualityWarnings].map { |q| q[:warning] } :
         ['Unable to parse scientific name. Please make sure it is correctly spelled.']
-    }) unless parse_details
+    }) unless parse_details&.is_a?(Hash)
 
     unless parse_details[:uninomial]
       origins[

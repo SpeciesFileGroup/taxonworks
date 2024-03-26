@@ -139,4 +139,9 @@ module ProjectsHelper
   end
 
 
+  def week_in_review_graphs(weeks)
+    content_tag(:div, '', 'data-weeks-ago': weeks, 'data-weeks-review': true)
+  end
+
+
 end

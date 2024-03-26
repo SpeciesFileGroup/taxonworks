@@ -414,7 +414,7 @@ new_bibtex_source_task:
   description: 'Parse a captured BibTeX string into a new source'
 visualize_confidences_task:
   hub: true
-  name: 'Visualize confidences.'
+  name: 'Visualize confidences'
   related:
   categories:
   status: stable
@@ -451,7 +451,7 @@ export_coldp_task:
     - nomenclature
   status: prototype
   description: 'Export a zip of text files in the Catalogue of Life CoLDP format.'
-index_browse_asserted_distributions_task:
+browse_asserted_distributions_task:
   hub: true
   name: 'Browse asserted distributions'
   related:
@@ -842,20 +842,44 @@ stepwise_collectors_task:
   name: 'Stepwise collectors'
   related:
   categories:
-    - collecting event
+    - collecting_event
     - people
   status: prototype
   description: 'Parse verbatim collectors into their semantic components.'
+new_field_occurrence_task:
+  hub: true
+  name: 'New field occurrence'
+  related:
+  categories:
+    - collecting_event
+    - georeference
+  status: prototype
+  description: 'Link OTUs to collecting events. Used when no physical object was collected and returned to a repository.'
 debug_geographic_item_task:
   hub: false
   name: 'Debug geographic item'
   related:
   categories:
     - geographic_area
-    - collecting_event 
+    - collecting_event
     - georeference
   status: prototype
   description: 'Report metadat about a geographic item.'
+new_lead_task:
+  hub: true
+  name: 'New dichotomous key'
+  related:
+  categories:
+    - new
+  status: prototype
+  description: 'Create a new dichotomous key.'
+show_lead_task:
+  hub: true
+  name: 'Use dichotomous key'
+  related:
+  categories:
+  status: prototype
+  description: 'Use an existing dichotomous key.'
 project_vocabulary_task:
   hub: true
   name: 'Project vocabulary'
@@ -863,3 +887,26 @@ project_vocabulary_task:
   categories:
   status: prototype
   description: 'Visualize data values used in this project.  Word clouds.'
+new_otu_task:
+  hub: true
+  name: 'New OTU'
+  related:
+  categories:
+    - otu
+  status: prototype
+  description: 'Create one or many OTUs in batch.'
+leads_hub_task:
+  hub: true
+  name: 'Dichotomous keys hub'
+  related:
+  categories:
+  status: prototype
+  description: 'A centralized hub unifying access to the different means of creating and displaying dichotomous keys.'
+week_in_review_task:
+  hub: true
+  name: 'Week in review'
+  related:
+  categories:
+    - metadata
+  status: prototype
+  description: 'A quick look dashboard of past activity'

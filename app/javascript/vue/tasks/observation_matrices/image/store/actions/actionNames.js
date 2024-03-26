@@ -1,4 +1,5 @@
 const ActionNames = {
+  CreateDepiction: 'createDepiction',
   CreateNewColumn: 'createNewColumn',
   CreateObservation: 'createObservation',
   LoadObservationMatrix: 'loadObservationMatrix',

@@ -240,7 +240,9 @@ class CollectingEvent < ApplicationRecord
 
   # see also app/models/collecting_event/georeference.rb for more has_many
 
-  has_many :otus, through: :collection_objects
+  has_many :otus, -> { unscope(:order) }, through: :collection_objects, source: 'otu'
+
+  has_many :field_occurrences, inverse_of: :collecting_event
 
   after_create do
     if with_verbatim_data_georeference
@@ -1042,7 +1044,7 @@ class CollectingEvent < ApplicationRecord
       )
 
       request.cap = 1000
-      request.cap_reason = 'Max 1000 updated at a time.' 
+      request.cap_reason = 'Max 1000 updated at a time.'
       query_batch_update(request)
     end
   end

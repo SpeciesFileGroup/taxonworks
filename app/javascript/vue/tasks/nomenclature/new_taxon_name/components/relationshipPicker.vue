@@ -328,10 +328,13 @@ export default {
             object_taxon_name_id: this.taxonRelation.id,
             subject_taxon_name_id: this.taxon.id
           })
-          .then(() => {
-            this.taxonRelation = undefined
-            this.$store.commit(MutationNames.UpdateLastChange)
-          })
+          .then(
+            () => {
+              this.taxonRelation = undefined
+              this.$store.commit(MutationNames.UpdateLastChange)
+            },
+            (errors) => {}
+          )
       }
       this.isInsertaeSedis = false
     },

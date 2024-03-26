@@ -34,7 +34,7 @@ export default ({ commit, dispatch }, taxon) => {
         commit(MutationNames.UpdateLastSave)
         resolve(response.body)
       },
-      (response) => {
+      ({ response }) => {
         commit(MutationNames.SetHardValidation, response.body)
         reject(response.body)
       }

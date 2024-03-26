@@ -24,7 +24,7 @@ class AssertedDistribution < ApplicationRecord
   include SoftValidation
   include Shared::Notes
   include Shared::Tags
-  include Shared::DataAttributes # why?
+  include Shared::DataAttributes # Why?
   include Shared::CitationRequired # !! must preceed Shared::Citations
   include Shared::Citations
   include Shared::Confidences
@@ -39,7 +39,7 @@ class AssertedDistribution < ApplicationRecord
   include Shared::Maps
   include Shared::QueryBatchUpdate
 
-  originates_from 'Specimen', 'Lot'
+  originates_from 'Specimen', 'Lot', 'FieldOccurrence'
 
   # @return [Hash]
   #   of known country/state/county values

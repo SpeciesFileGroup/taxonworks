@@ -12,9 +12,11 @@ import { useAttrs } from 'vue'
 import { SOURCE } from '@/constants'
 import RadialBatch from '@/components/radials/shared/RadialBatch.vue'
 import SliceSerial from './components/SliceSerial.vue'
+import SliceProjectSource from './components/SliceProjectSource.vue'
 
 const SLICES = {
-  Serial: SliceSerial
+  Serial: SliceSerial,
+  'Project source': SliceProjectSource
 }
 
 defineOptions({
