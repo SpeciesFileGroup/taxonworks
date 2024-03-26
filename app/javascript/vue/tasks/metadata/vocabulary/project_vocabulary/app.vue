@@ -47,7 +47,7 @@
         <template #default="{ text, weight }">
           <div
             :title="weight"
-            :class="TASK[parameters.model] && 'cursor-pointer'"
+            :class="TASK[parameters.model] && 'cursor-pointer link'"
             @click="() => openTask(text)"
           >
             {{ text }}
@@ -160,5 +160,9 @@ watch(
 .settings-panel {
   width: 400px;
   max-width: 400px;
+}
+
+.link {
+  color: var(--color-primary);
 }
 </style>
