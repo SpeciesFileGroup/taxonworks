@@ -49,8 +49,19 @@
               class="meta_row"
               :class="{ even: (index % 2 == 0)}"
             >
-              <td><b>{{ key.text }}</b></td>
+              <td>
+                <b>
+                  <a
+                    :href="RouteNames.ShowLead + '?lead_id=' + key.id"
+                    target="_blank"
+                  >
+                    {{ key.text }}
+                  </a>
+                </b>
+              </td>
+
               <td>{{ key.couplet_count }}</td>
+
               <td>
                 <input
                   type="checkbox"
@@ -58,8 +69,11 @@
                   @click="() => changeIsPublicState(key)"
                 />
               </td>
+
               <td>{{ key.updated_at_in_words }}</td>
+
               <td>{{ key.updated_by }}</td>
+
               <td class="width-shrink">
                 <div class="horizontal-right-content gap-small">
                   <RadialAnnotator :global-id="key.global_id" />
