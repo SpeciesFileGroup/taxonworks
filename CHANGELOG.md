@@ -40,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial quick forms: Asserted distribution screen partially blocked by a white rectangle [#3891]
 - Print label task doesn't apply styles to labels [#3776]
 - Add separator options to DwC import [#3894]
+- Missing collection object links on map markers
 
 [#1643]: https://github.com/SpeciesFileGroup/taxonworks/issues/1643
 [#1691]: https://github.com/SpeciesFileGroup/taxonworks/issues/1691
