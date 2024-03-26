@@ -140,7 +140,7 @@ function completeQueue(file, response) {
 }
 
 function addedFile(file) {
-  const fileExtension = file.name.split('.').pop()
+  const fileExtension = file.name.split('.').pop().toLowerCase()
   const defaultValues = TYPES_OPTS[fileExtension]
 
   if (defaultValues) {
