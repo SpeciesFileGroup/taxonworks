@@ -134,12 +134,12 @@ class DatasetRecordsController < ApplicationController
         zip.write_deflated_file(filename) do |sink|
           sink.write CSV.generate_line([
             'Status', 'error_data', *headers
-          ], col_sep: "\t", quote_char: '')
+          ], col_sep: "\t")
 
           filtered_records.find_each do |row|
             sink.write CSV.generate_line([
               row.status, row.metadata&.dig('error_data', 'messages'), *row.data_fields
-            ], col_sep: "\t", quote_char: '')
+            ], col_sep: "\t")
           end
         end
       end

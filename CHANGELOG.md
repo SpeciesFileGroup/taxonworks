@@ -21,6 +21,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clone mode on image matrix
 - Radial CO: Add preparation type slice [#3889]
 - Radial mass navigation [#3672]
+- Text file delimiter options to DwC import [#3894]
+- CSV format for DwC importer
 
 ### Changed
 
@@ -28,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New image task: Add alert when trying to restart the interface without applying changes
 - New CE: Destroy label when print label input is empty [#3878]
 - Updated Ruby gems
+- DwC importer now defaults to use `"` as string delimiter when importing and downloading tables.
 
 ### Fixed
 
@@ -39,7 +42,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New CE: Custom attributes don't refresh on new/edit CE [#3874]
 - Radial quick forms: Asserted distribution screen partially blocked by a white rectangle [#3891]
 - Print label task doesn't apply styles to labels [#3776]
-- Add separator options to DwC import [#3894]
 - Missing collection object links on map markers
 
 [#1643]: https://github.com/SpeciesFileGroup/taxonworks/issues/1643
