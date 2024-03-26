@@ -118,7 +118,7 @@ class DataAttributesController < ApplicationController
   # /data_attributes/batch_update_or_create?<some_object>_query={}&value_from=123&value_to=456&predicate_id=890
   def batch_update_or_create
     if ::InternalAttribute.batch_update_or_create(params)
-      render json: {}
+      render json: {}, status: :ok
     else
       render json: { errors: ['Batch update or create failed.'] }, status: :unprocessable_entity
     end

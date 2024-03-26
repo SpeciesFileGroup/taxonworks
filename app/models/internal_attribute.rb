@@ -38,7 +38,6 @@ class InternalAttribute < DataAttribute
       value: value_from,
     )
 
-
     b.all.update_all(value: value_to)
   end
 
@@ -55,32 +54,50 @@ class InternalAttribute < DataAttribute
         controlled_vocabulary_term_id:
       })
 
-    s = 'WITH query_with_ia AS (' + a.to_sql + ') ' +
-      attribute_scope.referenced_klass
-      .joins("LEFT JOIN query_with_ia as query_with_ia1 ON query_with_ia1.id = #{attribute_scope.table.name}.id")
-      .where("query_with_ia1.id is null")
-      .to_sql
+    # If the join is empty, we need to add to all
+    if a.size == 0
+      b = attribute_scope.all
+    else
+      s = 'WITH query_with_ia AS (' + a.to_sql + ') ' +
+        attribute_scope.referenced_klass
+        .joins("LEFT JOIN query_with_ia as query_with_ia1 ON query_with_ia1.id = #{attribute_scope.table.name}.id")
+        .where("query_with_ia1.id is null")
+        .to_sql
 
-    b = attribute_scope.referenced_klass.from('(' + s + ") as #{attribute_scope.table.name}").distinct
+      b = attribute_scope.referenced_klass.from('(' + s + ") as #{attribute_scope.table.name}").distinct
+    end
 
+    # stop-gap, we shouldn't hit this
+    return false if b.size > 1000
 
     InternalAttribute.transaction do
       b.each do |o|
-        ::InternalAttribute.create!(
-          controlled_vocabulary_term_id:,
-          value: value_to,
-          attribute_subject: o)
+        begin
+          ::InternalAttribute.create!(
+            controlled_vocabulary_term_id:,
+            value: value_to,
+            attribute_subject: o)
+        rescue ActiveRecord::RecordInvalid => e
+          # TODO: check necessity of this
+          # This should not be necessary, but proceed
+        end
       end
     end
-
   end
 
   # <some_object>_query={}&value_from=123&value_to=456&predicate_id=890
-
   def self.batch_update_or_create(params)
     a = Queries::Query::Filter.base_filter(params)
 
-    b = a.new(params)
+    q = params.keys.select{|z| z =~ /_query/}.first
+
+    return false if q.nil?
+
+    b = a.new(params[q])
+
+    s = b.all.count
+
+    return false if b.params.empty? || s > 1000 || s == 0
 
     transaction do
       update_value(b, params[:predicate_id], params[:value_from], params[:value_to])

@@ -55,7 +55,7 @@ describe InternalAttribute, type: :model do
     expect(InternalAttribute.first.value).to eq('22')
   end
 
-  specify '.batch_update_or_create' do
+  specify '.batch_update_or_create 1' do
     a = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu)
     b = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu)
 
@@ -64,19 +64,46 @@ describe InternalAttribute, type: :model do
     h = {
       otu_query: q.params,
       predicate_id: b.predicate.id,
-      value_from: a.value,
+      value_from: b.value,
       value_to: '22'
-
     }
 
     p = ActionController::Parameters.new(h)
-    # p.permit!
+
+    InternalAttribute.batch_update_or_create(p)
+
+    expect(InternalAttribute.count).to eq(2)
+    expect(InternalAttribute.order(:id).map(&:value)).to eq([a.value, '22'])
+
+    expect(InternalAttribute.order(:id).map(&:controlled_vocabulary_term_id)).to eq(
+      [ a.controlled_vocabulary_term_id,
+        b.controlled_vocabulary_term_id,
+      ])
+  end
+
+  specify '.batch_update_or_create 2' do
+    p1 = FactoryBot.create(:valid_controlled_vocabulary_term_predicate)
+
+    a = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu)
+    b = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu)
+
+    q = Queries::Otu::Filter.new( otu_id: otu.id)
+
+    h = {
+      otu_query: q.params,
+      predicate_id: p1.id,
+      value_from: a.value,
+      value_to: '22'
+    }
+
+    p = ActionController::Parameters.new(h)
 
     InternalAttribute.batch_update_or_create(p)
 
     expect(InternalAttribute.count).to eq(3)
-    expect(InternalAttribute.order(:id).last.value).to eq('22')
+    expect(InternalAttribute.order(:id).map(&:value)).to eq([a.value, b.value, '22'])
   end
+
 
   context 'validation' do
     before(:each) {
