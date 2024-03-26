@@ -1,5 +1,5 @@
 <template>
-  <u>Root otu:</u>
+  Root otu:
   <a
     v-if="key.otu"
     :href="key.otu.object_url"
@@ -27,7 +27,7 @@
     class="otu"
   >
     <template v-if="key.child_otus.length">
-      <u>Other otus:</u>
+      Other otus:
       <a
         v-for="otu in key.child_otus"
         :key="otu.id"

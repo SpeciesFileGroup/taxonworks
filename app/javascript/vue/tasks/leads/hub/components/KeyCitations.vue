@@ -1,5 +1,5 @@
 <template>
-  <u>Citations</u>
+  Citations
   <div
     v-for="citation in citations"
     :key="citation.id"
