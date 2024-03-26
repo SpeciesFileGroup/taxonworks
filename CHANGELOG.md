@@ -39,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New CE: Custom attributes don't refresh on new/edit CE [#3874]
 - Radial quick forms: Asserted distribution screen partially blocked by a white rectangle [#3891]
 - Print label task doesn't apply styles to labels [#3776]
+- Add separator options to DwC import [#3894]
 
 [#1643]: https://github.com/SpeciesFileGroup/taxonworks/issues/1643
 [#1691]: https://github.com/SpeciesFileGroup/taxonworks/issues/1691
@@ -53,6 +54,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3888]: https://github.com/SpeciesFileGroup/taxonworks/issues/3888
 [#3889]: https://github.com/SpeciesFileGroup/taxonworks/issues/3889
 [#3891]: https://github.com/SpeciesFileGroup/taxonworks/issues/3891
+[#3894]: https://github.com/SpeciesFileGroup/taxonworks/issues/3894
 
 ### Fixed
 

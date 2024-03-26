@@ -65,17 +65,7 @@
       </div>
     </template>
   </BlockLayout>
-  <DelimiterModal
-    v-if="isDelimiterModalOpen"
-    v-model="delimiters"
-    @submit="
-      () => {
-        dwcDropzone.dropzone.processQueue()
-        isDelimiterModalOpen = false
-      }
-    "
-    @close="() => closeModal()"
-  />
+  <SeparatorOptions ref="separatorOptionsRef" />
 </template>
 
 <script setup>
@@ -86,10 +76,11 @@ import VSpinner from '@/components/ui/VSpinner'
 import DATASET_ROW_TYPES from '../const/datasetRowTypes.js'
 import CODES from '../const/nomenclatureCodes.js'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import DelimiterModal from './DelimiterModal.vue'
+import SeparatorOptions from './SeparatorOptions.vue'
+
+const TEXT_TYPES = ['text/plain', 'text/csv', 'text/tsv']
 
 const emit = defineEmits(['onCreate'])
-const TEXT_TYPES = ['text/plain']
 
 const validate = computed(() => description.value.length >= 2)
 const nomenclatureCode = ref(CODES.ICZN)
@@ -97,8 +88,8 @@ const description = ref('')
 const isUploading = ref(false)
 const rowType = ref()
 const dwcDropzone = ref(null)
-const isDelimiterModalOpen = ref(false)
-const delimiters = ref(initDelimiters())
+const delimiterParams = ref(null)
+const separatorOptionsRef = ref(null)
 
 const dropzone = {
   paramName: 'import_dataset[source]',
@@ -113,11 +104,7 @@ const dropzone = {
       .getAttribute('content')
   },
   dictDefaultMessage: 'Drop import file here',
-  acceptedFiles: '.zip,.txt,.tsv,.xls,.xlsx,.ods'
-}
-
-function initDelimiters() {
-  return { field: null, str: null }
+  acceptedFiles: '.zip,.txt,.csv,.tsv,.xls,.xlsx,.ods'
 }
 
 function success(file, response) {
@@ -137,29 +124,35 @@ function sending(file, xhr, formData) {
     formData.append('import_dataset[import_settings][row_type]', rowType.value)
   }
 
-  if (delimiters.value.field) {
-    formData.append('import_dataset[col_sep]', delimiters.value.field)
+  if (delimiterParams.value?.col_sep) {
+    formData.append('import_dataset[col_sep]', delimiterParams.value.col_sep)
   }
-  if (delimiters.value.str) {
-    formData.append('import_dataset[quote_char]', delimiters.value.str)
+  if (delimiterParams.value?.quote_char) {
+    formData.append(
+      'import_dataset[quote_char]',
+      delimiterParams.value.quote_char
+    )
   }
 }
 
 function completeQueue(file, response) {
   isUploading.value = false
-  delimiters.value = initDelimiters()
+  delimiterParams.value = null
 }
 
 function addedFile(file) {
   if (TEXT_TYPES.includes(file.type)) {
-    isDelimiterModalOpen.value = true
-  }
-}
-
-function closeModal() {
-  isDelimiterModalOpen.value = false
-  if (!isUploading.value) {
-    dwcDropzone.value.dropzone.removeAllFiles()
+    separatorOptionsRef.value
+      .show()
+      .then((payload) => {
+        delimiterParams.value = payload
+        dwcDropzone.value.dropzone.processQueue()
+      })
+      .catch(() => {
+        dwcDropzone.value.dropzone.removeAllFiles()
+      })
+  } else {
+    dwcDropzone.value.dropzone.processQueue()
   }
 }
 
