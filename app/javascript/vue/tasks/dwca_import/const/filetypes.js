@@ -1,5 +1,5 @@
 export const FILE_TYPE = {
-  TXT: 'text/plain',
-  CSV: 'text/csv',
-  TSV: 'text/tsv'
+  TXT: 'txt',
+  CSV: 'csv',
+  TSV: 'tsv'
 }

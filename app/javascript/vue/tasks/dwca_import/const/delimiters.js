@@ -8,19 +8,22 @@ export const FIELD_DELIMITER = {
   Other: 'other'
 }
 
-export const STRING_DELIMITER = ["'", '"']
+export const STRING_DELIMITER = {
+  SingleQuote: "'",
+  DoubleQuote: '"'
+}
 
 export const TYPES_OPTS = {
   [FILE_TYPE.TXT]: {
     field: FIELD_DELIMITER.Tab,
-    str: '"'
+    str: STRING_DELIMITER.DoubleQuote
   },
   [FILE_TYPE.TSV]: {
     field: FIELD_DELIMITER.Tab,
-    str: '"'
+    str: STRING_DELIMITER.DoubleQuote
   },
   [FILE_TYPE.CSV]: {
     field: FIELD_DELIMITER.Comma,
-    str: '"'
+    str: STRING_DELIMITER.DoubleQuote
   }
 }
