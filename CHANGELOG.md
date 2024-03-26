@@ -7,23 +7,29 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+_Special thanks to Tom Klein for his amazing open-source contributions on this release!.
+
 ### Added
 
-- Batch add/remove sources to project from Source filter [#3888]
-- OTU name to Filter CO result [#3861]
-- New model, FieldOccurrence [#1643]
-- New key task, add edit "traditional" keys [#1691]
+- Model FieldOccurrence (observations sensu iNaturalist), with corresponding "new" task [#1643]
+- Model "Lead" (dichotomous key support), with corresponding "new" task" [#1691]
+- Key hub task [#3881]
 - New OTU task
-- New "Week in review" task, visualize records added and navigate to them in filter context
+- "Week in review" task, visualize records added and navigate to them in filter context
+- OTU name to Filter CO result [#3861]
+- Batch add/remove sources to project from Source filter [#3888]
 - Add taxon name autocomplete to Type specimen facet
 - DwC Dashboard: Use the same DwC download of collection object filter task
 - DwC-A Workbench: Add pagination for created imports
 - Clone mode on image matrix
 - Radial CO: Add preparation type slice [#3889]
 - Radial mass navigation [#3672]
+- Batch update or add data attributes [#3748]
+- !! TODO: Include OTU name in filter collection objects result [#XXXX]
 
 ### Changed
 
+- Images can no longer be duplicated attempting and are seemlessly normalized at creation [#2909]
 - Filter images: Remove quick forms for Depictions [#3869]
 - New image task: Add alert when trying to restart the interface without applying changes
 - New CE: Destroy label when print label input is empty [#3878]
@@ -31,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Project vocabulary handling of numeric fields
 - Rediculous number of identifiers preventing collecting event editing [#3715]
 - Community-based models not showing AlternateValues [#3883]
 - Browse OTUs: headers do not link to correct panel [#3868]
@@ -42,6 +49,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add separator options to DwC import [#3894]
 - Missing collection object links on map markers
 
+
+[#3748]: https://github.com/SpeciesFileGroup/taxonworks/issues/3748
+[#3881]: https://github.com/SpeciesFileGroup/taxonworks/issues/3881
+[#2909]: https://github.com/SpeciesFileGroup/taxonworks/issues/2909
 [#1643]: https://github.com/SpeciesFileGroup/taxonworks/issues/1643
 [#1691]: https://github.com/SpeciesFileGroup/taxonworks/issues/1691
 [#3672]: https://github.com/SpeciesFileGroup/taxonworks/issues/3672
