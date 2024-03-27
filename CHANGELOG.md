@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-_Special thanks to Tom Klein for his amazing open-source contributions on this release!.
+\-
+
+## [0.40.0] - 2024-03-26
+
+_Special thanks to Tom Klein for his amazing open-source contributions on this release!._
 
 ### Added
 
@@ -69,10 +73,6 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 [#3889]: https://github.com/SpeciesFileGroup/taxonworks/issues/3889
 [#3891]: https://github.com/SpeciesFileGroup/taxonworks/issues/3891
 [#3894]: https://github.com/SpeciesFileGroup/taxonworks/issues/3894
-
-### Fixed
-
-- Handling of [sic] in Protonym#original_combination_infraspecific_element [#3867]
 
 ## [0.39.0] - 2024-03-01
 
@@ -4444,7 +4444,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.39.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.0...development
+[0.40.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.3...v0.39.0
 [0.38.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.2...v0.38.3
 [0.38.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.1...v0.38.2
