@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Cloning CollectingEvents sets creator to the person who cloned the record
 
 ## [0.40.0] - 2024-03-26
 
