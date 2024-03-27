@@ -25,10 +25,10 @@
             >
               # Couplets
             </th>
-            <th @click="() => sortTable('updated_at')">
+            <th @click="() => sortTable('key_updated_at')">
               Last Modified
             </th>
-            <th @click="() => sortTable('updated_by')">
+            <th @click="() => sortTable('key_updated_by')">
               Last Modified By
             </th>
             <th class="width_shrink"/> <!-- radials -->
@@ -62,9 +62,9 @@
 
               <td>{{ key.couplet_count }}</td>
 
-              <td>{{ key.updated_at_in_words }}</td>
+              <td>{{ key.key_updated_at_in_words }}</td>
 
-              <td>{{ key.updated_by }}</td>
+              <td>{{ key.key_updated_by }}</td>
 
               <td>
                 <div class="horizontal-right-content gap-small">
@@ -136,13 +136,10 @@ const ascending = ref(false)
 
 onBeforeMount(async () => {
   const loadKeys = Lead.where({
-    extend: ['couplet_count', 'updater', 'updated_at_in_words', 'otu']
-   })
+    extend: ['otu']
+  })
     .then(({ body }) => {
       keys.value = body
-    })
-    .finally(() => {
-      loading.value = false
     })
 
   const loadCitations = Citation.where({
@@ -155,6 +152,9 @@ onBeforeMount(async () => {
       addCitationsToKeysList(value.body)
     })
     .catch(() => {})
+    .finally(() => {
+      loading.value = false
+    })
 })
 
 function addCitationsToKeysList(citations) {
@@ -193,7 +193,11 @@ function changeIsPublicState(key) {
         otus_count: key.otus_count,
         couplet_count: key.couplet_count,
         citations: key.citations,
-        child_otus: key.child_otus
+        child_otus: key.child_otus,
+        key_updated_at: body.lead.updated_at,
+        key_updated_at_in_words: body.lead.updated_at_in_words,
+        key_updated_by: body.lead.updated_by,
+        key_updated_by_id: body.lead.updated_by_id
       }
 
       addToArray(keys.value, updatedKey)

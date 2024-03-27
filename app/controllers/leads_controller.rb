@@ -25,11 +25,7 @@ class LeadsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @leads = Lead.with_project_id(sessions_current_project_id)
-          .where('parent_id is null')
-          .order(:text)
-          .page(params[:page])
-          .per(params[:per])
+        @leads = loaded_roots
       }
     end
   end
