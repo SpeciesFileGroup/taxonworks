@@ -69,9 +69,11 @@ function updateField({ item, attribute, value }) {
 }
 
 onBeforeMount(() => {
-  Metadata.attributes({ model: COLLECTING_EVENT }).then(({ body }) => {
-    attributes.value = body
-  })
+  Metadata.attributes({ model: COLLECTING_EVENT, mode: 'editable' }).then(
+    ({ body }) => {
+      attributes.value = body
+    }
+  )
 
   CollectingEvent.filter({ per: 10 }).then(({ body }) => {
     list.value = body
