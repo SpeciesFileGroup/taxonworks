@@ -21,15 +21,9 @@
             </th>
             <th
               @click="() => sortTable('couplet_count')"
-              class="narrow_col"
+              class="width_shrink"
             >
               # Couplets
-            </th>
-            <th
-              @click="() => sortTable('is_public')"
-              class="narrow_col"
-            >
-              Is Public
             </th>
             <th @click="() => sortTable('updated_at')">
               Last Modified
@@ -37,7 +31,13 @@
             <th @click="() => sortTable('updated_by')">
               Last Modified By
             </th>
-            <th /> <!-- radials -->
+            <th class="width_shrink"/> <!-- radials -->
+            <th
+              @click="() => sortTable('is_public')"
+              class="width_shrink"
+            >
+              Is Public
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -62,6 +62,17 @@
 
               <td>{{ key.couplet_count }}</td>
 
+              <td>{{ key.updated_at_in_words }}</td>
+
+              <td>{{ key.updated_by }}</td>
+
+              <td>
+                <div class="horizontal-right-content gap-small">
+                  <RadialAnnotator :global-id="key.global_id" />
+                  <RadialNavigator :global-id="key.global_id" />
+                </div>
+              </td>
+
               <td>
                 <input
                   type="checkbox"
@@ -69,22 +80,11 @@
                   @click="() => changeIsPublicState(key)"
                 />
               </td>
-
-              <td>{{ key.updated_at_in_words }}</td>
-
-              <td>{{ key.updated_by }}</td>
-
-              <td class="width-shrink">
-                <div class="horizontal-right-content gap-small">
-                  <RadialAnnotator :global-id="key.global_id" />
-                  <RadialNavigator :global-id="key.global_id" />
-                </div>
-              </td>
             </tr>
 
             <tr :class="{ even: (index % 2 == 0)}">
               <td
-                colspan="3"
+                colspan="2"
                 class="extension_data"
               >
                 <KeyOtus
@@ -93,7 +93,7 @@
                 />
               </td>
               <td
-                colspan="3"
+                colspan="4"
                 class="extension_data"
               >
                 <KeyCitations :citations="key.citations" />
@@ -236,7 +236,7 @@ function loadOtusForKey(key) {
   margin-right: 1em;
   margin-bottom: 2em;
 }
-.width-shrink {
+.width_shrink {
   width: 1%;
 }
 .meta_row:not(:first-child) {
@@ -248,9 +248,6 @@ function loadOtusForKey(key) {
   padding-bottom: .5em;
 }
 .table_name_col {
-  width: 40%;
-}
-.narrow_col {
-  width: 4em;
+  width: 45%;
 }
 </style>
