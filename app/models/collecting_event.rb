@@ -993,6 +993,7 @@ class CollectingEvent < ApplicationRecord
   #   the instance may not be valid!
   def clone
     a = dup
+    a.created_by_id = nil
     a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
 
     roles.each do |r|

@@ -111,6 +111,7 @@ GeographicItem:
 Lead:
   tasks:
     - show_lead_task
+    - leads_hub_task
   new: new_lead_task
   edit: new_lead_task
 Loan:

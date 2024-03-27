@@ -83,11 +83,16 @@ export default {
 
   methods: {
     success(file, response) {
-      this.figuresList.push(response)
+      const isCreated = this.figuresList.some((item) => item.id === response.id)
+
       this.$refs.image.removeFile(file)
-      this.$emit('update:modelValue', this.figuresList)
-      this.$emit('created', response)
-      this.$store.dispatch(ActionNames.SetAllApplied, false)
+
+      if (!isCreated) {
+        this.figuresList.push(response)
+        this.$emit('update:modelValue', this.figuresList)
+        this.$emit('created', response)
+        this.$store.dispatch(ActionNames.SetAllApplied, false)
+      }
     },
 
     clearImages() {

@@ -56,16 +56,26 @@ class Depiction < ApplicationRecord
   belongs_to :sled_image, inverse_of: :depictions
   has_one :sqed_depiction, dependent: :destroy
 
+  # handle duplicate images here!!
+
   accepts_nested_attributes_for :image
   accepts_nested_attributes_for :sqed_depiction, allow_destroy: true
 
   validates_presence_of :depiction_object
   validates_uniqueness_of :sled_image_id, scope: [:project_id, :sled_image_x_position, :sled_image_y_position], allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
 
+  before_validation :normalize_image
+
   after_update :remove_media_observation2, if: Proc.new {|d| d.depiction_object_type_previously_was == 'Observation' && d.depiction_object.type_was == 'Observation::Media' }
   after_destroy :remove_media_observation, if: Proc.new {|d| d.depiction_object_type == 'Observation' && d.depiction_object.type == 'Observation::Media' }
 
   after_update :destroy_image_stub_collection_object, if: Proc.new {|d| d.depiction_object_type_previously_was == 'CollectionObject' && d.depiction_object_type == 'CollectionObject' }
+
+  def normalize_image
+    if o = Image.where(project_id: Current.project_id, image_file_fingerprint: image.image_file_fingerprint).first
+      self.image = o
+    end
+  end
 
   def from_sled?
     !sled_image_id.nil?
@@ -109,7 +119,7 @@ class Depiction < ApplicationRecord
   end
 
   def destroy_image_stub_collection_object
-    if sqed_depiction.present? 
+    if sqed_depiction.present?
       if v = depiction_object_id_previously_was
         o = CollectionObject.find(v)
         if o.is_image_stub?
