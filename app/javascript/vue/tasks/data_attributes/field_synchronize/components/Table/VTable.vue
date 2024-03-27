@@ -24,20 +24,14 @@
       </tr>
     </thead>
     <tbody>
-      <tr
+      <TableRow
         v-for="item in list"
         :key="item.id"
-      >
-        <td
-          v-for="attr in attributes"
-          :key="attr"
-        >
-          <input
-            type="text"
-            :value="item[attr]"
-          />
-        </td>
-      </tr>
+        :item="item"
+        :attributes="attributes"
+        :emit="emit"
+        @update:attribute="(e) => emit('update:attribute', e)"
+      />
     </tbody>
   </table>
 </template>
@@ -59,5 +53,5 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['remove:attribute'])
+const emit = defineEmits(['remove:attribute', 'update:attribute'])
 </script>
