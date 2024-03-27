@@ -104,7 +104,7 @@
       </table>
 
       <div v-else-if="!loading">
-        No key currently available. Use the
+        No keys currently available. Use the
         <a
           :href="RouteNames.NewLead"
           data-turbolinks="false"
