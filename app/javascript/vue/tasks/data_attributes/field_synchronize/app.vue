@@ -1,22 +1,28 @@
 <template>
   <h1>Field synchronize</h1>
-  <PropertySelector
-    :properties="attributes"
-    v-model="selectedProperties"
-  />
-  <div class="overflow-x-scroll">
-    <VTable
-      :attributes="selectedProperties"
-      :list="tableList"
-      @remove:attribute="
-        (attr) => {
-          selectedProperties = selectedProperties.filter(
-            (item) => item !== attr
-          )
-        }
-      "
-      @update:attribute="updateField"
+  <div v-if="QUERY_PARAMETER[queryParam]">
+    <PropertySelector
+      :properties="attributes"
+      v-model="selectedProperties"
     />
+    <div class="overflow-x-scroll">
+      <VTable
+        :attributes="selectedProperties"
+        :list="tableList"
+        @remove:attribute="
+          (attr) => {
+            selectedProperties = selectedProperties.filter(
+              (item) => item !== attr
+            )
+          }
+        "
+        @update:attribute="updateField"
+      />
+    </div>
+  </div>
+  <div v-else>
+    <i v-if="queryParam">Query parameter is not supported</i>
+    <i v-else>Query parameter is missing</i>
   </div>
 </template>
 
@@ -24,14 +30,10 @@
 import { onBeforeMount, ref, computed } from 'vue'
 import { Metadata, CollectingEvent } from '@/routes/endpoints'
 import { COLLECTING_EVENT } from '@/constants'
+import { URLParamsToJSON } from '@/helpers'
+import { QUERY_PARAMETER } from './constants'
 import VTable from './components/Table/VTable.vue'
 import PropertySelector from './components/Table/PropertySelector.vue'
-
-const QUERY_PARAMETER = {
-  collecting_event_query: {
-    model: COLLECTING_EVENT
-  }
-}
 
 defineOptions({
   name: 'FieldSynchronize'
@@ -40,6 +42,7 @@ defineOptions({
 const attributes = ref([])
 const list = ref([])
 const selectedProperties = ref([])
+const queryParam = ref(null)
 
 const tableList = computed(() =>
   list.value.map((item) => {
@@ -68,15 +71,30 @@ function updateField({ item, attribute, value }) {
   })
 }
 
-onBeforeMount(() => {
-  Metadata.attributes({ model: COLLECTING_EVENT, mode: 'editable' }).then(
-    ({ body }) => {
-      attributes.value = body
-    }
+function getQueryParamFromUrl() {
+  const queryParameters = Object.keys(QUERY_PARAMETER)
+  const parameters = URLParamsToJSON(window.location.href)
+  const queryParam = Object.keys(parameters).find((param) =>
+    queryParameters.includes(param)
   )
 
-  CollectingEvent.filter({ per: 10 }).then(({ body }) => {
-    list.value = body
-  })
+  return queryParam
+}
+
+onBeforeMount(() => {
+  queryParam.value = getQueryParamFromUrl()
+
+  if (queryParam.value) {
+    Metadata.attributes({
+      model: COLLECTING_EVENT,
+      mode: 'editable'
+    }).then(({ body }) => {
+      attributes.value = body
+    })
+
+    CollectingEvent.filter({ per: 10 }).then(({ body }) => {
+      list.value = body
+    })
+  }
 })
 </script>
