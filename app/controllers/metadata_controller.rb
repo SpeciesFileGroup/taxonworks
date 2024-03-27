@@ -54,11 +54,13 @@ class MetadataController < ApplicationController
     render json: DATA_MODELS.keys.sort
   end
 
+  # GET /metadata/attributes?model=CollectingEvent&mode=editable
   def attributes
     render json: Vocabulary.attributes(
       Vocabulary.get_model(
         params.require(:model)
-      )
+      ), 
+      mode: params[:mode]
     )
   end
 
