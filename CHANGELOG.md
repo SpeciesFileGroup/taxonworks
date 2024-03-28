@@ -7,9 +7,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Radial nomenclature: verbatim_author slice [#3896]
+
 ### Fixed
 
 - Cloning CollectingEvents sets creator to the person who cloned the record
+
+[#3896]: https://github.com/SpeciesFileGroup/taxonworks/issues/3896
 
 ## [0.40.0] - 2024-03-26
 
@@ -34,7 +40,7 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Include OTU `name` in Filter Collection Objects result
 - Text file delimiter options to DwC import [#3894]
 - CSV format for DwC importer
-- Project vocabulary word-cloud text links to filter result for some models (e.g. CollectingEvent) 
+- Project vocabulary word-cloud text links to filter result for some models (e.g. CollectingEvent)
 
 ### Changed
 
