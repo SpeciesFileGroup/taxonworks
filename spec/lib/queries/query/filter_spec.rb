@@ -11,12 +11,22 @@ describe Queries::Query::Filter do
   filters = ::Queries::Query::Filter.descendants
 
 
-  specify '#base_filter 1' do
+  specify '.instantiated_base_filter 1' do
+    p = ActionController::Parameters.new(otu_query: {}, foo: :bar)
+    expect(Queries::Query::Filter.instatiated_base_filter(p).referenced_klass).to eq(::Otu)
+  end
+
+  specify '.instantiated_base_filter 1' do
+    p = ActionController::Parameters.new(otu_query: {otu_id: [1,2,3]}, foo: :bar)
+    expect(Queries::Query::Filter.instatiated_base_filter(p).otu_id).to eq([1,2,3])
+  end
+
+  specify '.base_filter 1' do
      p = ActionController::Parameters.new(collection_object_query: {}, foo: :bar)
      expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter) 
   end
 
-  specify '#base_filter 1' do
+  specify '.base_filter 1' do
      p = ActionController::Parameters.new(collection_object_query: { otu_query: {}}, foo: :bar)
      expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter) 
   end

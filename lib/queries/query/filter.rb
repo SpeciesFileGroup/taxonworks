@@ -255,18 +255,31 @@ module Queries
     # @return [Filter, nil]
     #    the class of filter that is referenced at the base of this parameter set
     def self.base_filter(params)
-      s = params.keys.select{|s| s =~ /\A.+_query\z/}.first
+      if s = base_query_name(params)
+        t = s.gsub('_query', '').to_sym
 
-      return nil if s.nil?
-
-      t = s.gsub('_query', '').to_sym
-
-      if SUBQUERIES.include?(t)
-        k = t.to_s.camelcase
-        return "Queries::#{k}::Filter".constantize
+        if SUBQUERIES.include?(t)
+          k = t.to_s.camelcase
+          return "Queries::#{k}::Filter".constantize
+        else
+          return nil
+        end
       else
-        return nil
+        nil
       end
+    end
+
+    # An instiatied filter, with params set, for params with patterns like `otu_query={}`
+    def self.instatiated_base_filter(params)
+      if s = base_filter(params)
+        s.new(params[base_query_name(params)])
+      else
+        nil
+      end
+    end
+
+    def self.base_query_name(params)
+      params.keys.select{|s| s =~ /\A.+_query\z/}.first
     end
 
     def self.included_annotator_facets
