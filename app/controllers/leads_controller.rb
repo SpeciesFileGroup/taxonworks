@@ -35,8 +35,7 @@ class LeadsController < ApplicationController
   end
 
   def list
-    @leads = Lead.with_project_id(sessions_current_project_id)
-      .where('parent_id is null').order(:id).page(params[:page])
+    @leads = loaded_roots.page(params[:page])
   end
 
   # GET /leads/1/all_texts.json
