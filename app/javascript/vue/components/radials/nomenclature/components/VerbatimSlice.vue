@@ -94,6 +94,11 @@ const props = defineProps({
   parameters: {
     type: Object,
     required: true
+  },
+
+  count: {
+    type: Number,
+    required: true
   }
 })
 
