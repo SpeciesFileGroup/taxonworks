@@ -135,9 +135,7 @@ const loading = ref(true)
 const ascending = ref(false)
 
 onBeforeMount(async () => {
-  const loadKeys = Lead.where({
-    extend: ['otu']
-  })
+  const loadKeys = Lead.where({ load_root_otus: true })
     .then(({ body }) => {
       keys.value = body
     })

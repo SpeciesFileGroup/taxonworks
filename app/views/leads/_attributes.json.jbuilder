@@ -32,7 +32,7 @@ else
   if extend_response_with('otu')
     json.otu do
       if lead.otu_id.nil?
-        json.nil
+        json.nil!
       else
         json.partial! '/otus/attributes', otu: lead.otu, extensions: false
       end

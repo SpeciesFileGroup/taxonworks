@@ -25,7 +25,11 @@ class LeadsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @leads = loaded_roots
+        if params[:load_root_otus]
+          @leads = loaded_roots(true)
+        else
+          @leads = loaded_roots
+        end
       }
     end
   end
@@ -301,7 +305,7 @@ class LeadsController < ApplicationController
   #  * key_updated_at (last time the key was updated)
   #  * key_updated_by_id (id of last person to update the key)
   #  * key_updated_by (name of last person to update the key)
-  def loaded_roots
+  def loaded_roots(load_root_otus = false)
     # The updated_at subquery computes key_updated_at (and others), the second
     # query uses that to compute key_updated_by (by finding which node has the
     # corresponding key_updated_at).
@@ -324,7 +328,7 @@ class LeadsController < ApplicationController
         (COUNT(otus_source.id) - 1) / 2 AS couplet_count
       ')
 
-    Lead
+    root_leads = Lead
       .joins("JOIN (#{updated_at.to_sql}) as leads_updated_at
         ON leads_updated_at.key_updated_at = leads.updated_at")
       .joins('JOIN users
@@ -335,5 +339,7 @@ class LeadsController < ApplicationController
         users.name AS key_updated_by
       ')
       .order(:text)
+
+    return load_root_otus ? root_leads.includes(:otu) : root_leads
   end
 end

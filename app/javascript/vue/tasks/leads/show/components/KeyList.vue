@@ -74,7 +74,7 @@ const keys = ref([])
 const loading = ref(true)
 
 onBeforeMount(() => {
-  Lead.where({ extend: ['otu'] })
+  Lead.where()
     .then(({ body }) => {
       keys.value = body
     })
