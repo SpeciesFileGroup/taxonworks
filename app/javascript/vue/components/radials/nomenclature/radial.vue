@@ -12,7 +12,7 @@ import { useAttrs } from 'vue'
 import { TAXON_NAME } from '@/constants'
 import RadialBatch from '@/components/radials/shared/RadialBatch.vue'
 import SliceParent from './components/ParentSlice.vue'
-import VerbatimSlice from './components/VerbatimAuthorSlice.vue'
+import VerbatimSlice from './components/VerbatimSlice.vue'
 
 const SLICES = {
   Parent: SliceParent,
