@@ -90,12 +90,16 @@ module Queries
       end
 
       # Replaces things like `otu_query_facet)
-      def from_filter_facet(query)
+      def from_filter_facet(query, project_ids)
         return nil if query.nil?
         t = "query_#{query.table.name}_da"
+        
         k = query.referenced_klass.name
 
-        s = "WITH #{t} AS (" + query.all.to_sql + ') ' +
+        q = query
+        q = q.all.where(project_id: project_ids) if !project_ids.empty?
+
+        s = "WITH #{t} AS (" + q.to_sql + ') ' +
           ::DataAttribute
           .joins("JOIN #{t} as #{t}1 on data_attributes.attribute_subject_id = #{t}1.id AND data_attributes.attribute_subject_type = '" + k + "'")
           .to_sql
@@ -105,10 +109,10 @@ module Queries
 
       def merge_clauses
         [
-          from_filter_facet(otu_query),
-          from_filter_facet(taxon_name_query),
-          from_filter_facet(collecting_event_query),
-          from_filter_facet(collection_object_query),
+          from_filter_facet(otu_query, project_id),
+          from_filter_facet(taxon_name_query, project_id),
+          from_filter_facet(collecting_event_query, project_id),
+          from_filter_facet(collection_object_query, project_id),
         ]
       end
 
