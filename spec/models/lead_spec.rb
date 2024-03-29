@@ -126,7 +126,6 @@ RSpec.describe Lead, type: :model do
   # whatever current leads_controller#update behavior is?
   specify "'ui update' doesn't change order of chidren" do
     # Simulate a ui 'Update' saving all three nodes of a couplet.
-    lead = FactoryBot.create(:valid_lead)
     l = FactoryBot.create(:valid_lead, parent: lead, text: 'bottom left')
     r = FactoryBot.create(:valid_lead, parent: lead, text: 'bottom right')
 
@@ -154,6 +153,117 @@ RSpec.describe Lead, type: :model do
     # if the child with !redirect_id.nil? gets destroyed first then there
     # may be no error (which would be fine!).
     expect{root.destroy!}.to raise_error ActiveRecord::RecordNotDestroyed
+  end
+
+  # !! Note that roots_with_data selects data from the second table of a join,
+  # but pluck can only select columns from the first table of the join, so
+  # don't use pluck here or you'll get the wrong results.
+  context 'Retrieving roots data using roots_with_data' do
+    specify 'returns the right number of roots' do
+      lead.insert_couplet
+      root2 = FactoryBot.create(:valid_lead)
+      root2.insert_couplet
+
+      q = Lead.roots_with_data(project_id)
+      expect(q.to_a.map { |r| r.parent_id }).to eq([nil, nil])
+    end
+
+    specify 'returns roots from the right project' do
+      root1 = FactoryBot.create(:valid_lead)
+
+      p2 = FactoryBot.create(:valid_project)
+      root2 = FactoryBot.create(:valid_lead, project_id: p2.id)
+
+      q = Lead.roots_with_data(project_id)
+      expect(q.to_a.map { |r| r.project_id }).to eq([project_id])
+    end
+
+    specify 'returns a node, the correct node' do
+      lead.insert_couplet
+
+      q = Lead.roots_with_data(project_id)
+      expect(q.first).to eq(lead)
+    end
+
+    specify 'returns couplet_count' do
+      ids = lead.insert_couplet
+      Lead.find(ids[0]).insert_couplet
+
+      q = Lead.roots_with_data(project_id)
+      expect(q.first.couplet_count).to eq(2)
+    end
+
+    specify 'returns otus_count' do
+      ids = lead.insert_couplet
+      otu1 = FactoryBot.create(:valid_otu)
+      otu2 = FactoryBot.create(:valid_otu)
+      lead.update! otu_id: otu1.id
+      Lead.find(ids[0]).update! otu_id: otu2.id
+
+      q = Lead.roots_with_data(project_id)
+      expect(q.first.otus_count).to eq(2)
+    end
+
+    specify 'returns correct key_updated_at' do
+      child = FactoryBot.create(:valid_lead)
+      lead.add_child child
+      child.update! text: 'new text'
+
+      q = Lead.roots_with_data(project_id)
+      expect(q.first.key_updated_at).to eq(child.updated_at)
+    end
+
+    specify 'returns correct key_updated_by_id' do
+      # The update we'll do on a child later will be as Current.user_id, so
+      # create a root with a different updated_by_id so we can differentiate.
+      user2 = FactoryBot.create(:valid_user)
+      user2_root = FactoryBot.create(:valid_lead, updated_by_id: user2.id)
+
+      child = FactoryBot.create(:valid_lead)
+      user2_root.add_child child
+      # Updates as Current.user_id (not as user2)
+      child.update! text: 'new text'
+
+      q = Lead.roots_with_data(project_id)
+      expect(user2_root.updated_by_id).to eq(user2.id)
+      expect(q.first.key_updated_by_id).to eq(Current.user_id)
+    end
+
+    specify 'returns correct key_updated_by' do
+       # The update we'll do on a child later will be as Current.user_id, so
+      # create a root with a different updated_by_id so we can differentiate.
+      user2 = FactoryBot.create(:valid_user)
+      user2_root = FactoryBot.create(:valid_lead, updated_by_id: user2.id)
+
+      child = FactoryBot.create(:valid_lead)
+      user2_root.add_child child
+      # Updates as Current.user_id (not as user2)
+      child.update! text: 'new text'
+
+      q = Lead.roots_with_data(project_id)
+      expect(user2_root.updated_by_id).to eq(user2.id)
+      child_updated_by_name = User.find(child.updated_by_id).name
+      expect(q.first.key_updated_by).to eq(child_updated_by_name)
+    end
+
+    specify "doesn't pre-load otus when you don't tell it to" do
+      otu = FactoryBot.create(:valid_otu)
+
+      lead.update! otu_id: otu.id
+
+      q = Lead.roots_with_data(project_id)
+      expect(q.first.association(:otu).loaded?).to be(false)
+    end
+
+    specify 'pre-loads otus when you tell it to' do
+      otu = FactoryBot.create(:valid_otu)
+
+      lead.update! otu_id: otu.id
+
+      q = Lead.roots_with_data(project_id, true)
+      expect(q.first.association(:otu).loaded?).to be(true)
+    end
+
   end
 
   context 'with multiple couplets' do
