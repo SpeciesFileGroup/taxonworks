@@ -27,10 +27,10 @@
 </template>
 
 <script setup>
-import { onBeforeMount, ref, computed } from 'vue'
-import { Metadata, CollectingEvent } from '@/routes/endpoints'
+import { onBeforeMount, ref, computed, watch } from 'vue'
+import { Metadata, CollectingEvent, DataAttribute } from '@/routes/endpoints'
 import { COLLECTING_EVENT } from '@/constants'
-import { URLParamsToJSON } from '@/helpers'
+import { URLParamsToJSON, ajaxCall } from '@/helpers'
 import { QUERY_PARAMETER } from './constants'
 import VTable from './components/Table/VTable.vue'
 import PropertySelector from './components/Table/PropertySelector.vue'
@@ -43,6 +43,10 @@ const attributes = ref([])
 const list = ref([])
 const selectedProperties = ref([])
 const queryParam = ref(null)
+const queryValue = ref(undefined)
+const predicates = ref([])
+
+const currentModel = computed(() => QUERY_PARAMETER[queryParam.value]?.model)
 
 const tableList = computed(() =>
   list.value.map((item) => {
@@ -78,22 +82,46 @@ function getQueryParamFromUrl() {
     queryParameters.includes(param)
   )
 
-  return queryParam
+  return {
+    queryParam,
+    queryValue: parameters[queryParam]
+  }
+}
+
+watch(selectedProperties, (newVal) => {
+  if (newVal.length) {
+    loadAttributes(newVal)
+  }
+})
+
+function loadAttributes(attribute) {
+  const payload = {
+    [queryParam.value]: queryValue.value
+  }
+
+  ajaxCall('get', '/tasks/data_attributes/field_synchronize/values', {
+    params: { [queryParam.value]: queryValue.value, attribute }
+  }).then(({ body }) => {
+    list.value = body
+  })
+
+  DataAttribute.brief(payload).then(({ body }) => {
+    predicates.value = body
+  })
 }
 
 onBeforeMount(() => {
-  queryParam.value = getQueryParamFromUrl()
+  const data = getQueryParamFromUrl()
 
-  if (queryParam.value) {
+  queryParam.value = data.queryParam
+  queryValue.value = data.queryValue
+
+  if (currentModel.value) {
     Metadata.attributes({
-      model: COLLECTING_EVENT,
+      model: currentModel.value,
       mode: 'editable'
     }).then(({ body }) => {
       attributes.value = body
-    })
-
-    CollectingEvent.filter({ per: 10 }).then(({ body }) => {
-      list.value = body
     })
   }
 })
