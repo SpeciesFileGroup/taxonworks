@@ -230,19 +230,23 @@ class Lead < ApplicationRecord
     result
   end
 
+  # @return [ActiveRecord::Relation] ordered by text.
   # Returns all root nodes, with new properties:
   #  * couplet_count (number of couplets in the key)
   #  * otus_count (total number of distinct otus on the key)
   #  * key_updated_at (last time the key was updated)
   #  * key_updated_by_id (id of last person to update the key)
   #  * key_updated_by (name of last person to update the key)
+  #
+  # !! Note, the relation is a join, check your results when changing order
+  # or plucking, most of want you want is on the table joined to, which is
+  # not the default table for ordering and plucking.
   def self.roots_with_data(project_id, load_root_otus = false)
     # The updated_at subquery computes key_updated_at (and others), the second
     # query uses that to compute key_updated_by (by finding which node has the
     # corresponding key_updated_at).
     # TODO: couplet_count will be wrong if any couplets don't have exactly two
     # children.
-    # Returns an array of roots ordered by text.
     updated_at = Lead
       .joins('JOIN lead_hierarchies AS lh
         ON leads.id = lh.ancestor_id')
@@ -272,7 +276,7 @@ class Lead < ApplicationRecord
       ')
       .order('leads_updated_at.text')
 
-    return load_root_otus ? root_leads.includes(:otu).to_a : root_leads.to_a
+    return load_root_otus ? root_leads.includes(:otu) : root_leads
   end
 
   protected

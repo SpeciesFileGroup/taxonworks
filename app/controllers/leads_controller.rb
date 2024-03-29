@@ -35,9 +35,8 @@ class LeadsController < ApplicationController
   end
 
   def list
-    @leads = Lead
-      .roots_with_data(sessions_current_project_id)
-      .page(params[:page])
+    @leads = Lead.
+      roots_with_data(sessions_current_project_id).page(params[:page])
   end
 
   # GET /leads/1/all_texts.json
