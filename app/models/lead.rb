@@ -242,6 +242,7 @@ class Lead < ApplicationRecord
     # corresponding key_updated_at).
     # TODO: couplet_count will be wrong if any couplets don't have exactly two
     # children.
+    # Returns an array of roots ordered by text.
     updated_at = Lead
       .joins('JOIN lead_hierarchies AS lh
         ON leads.id = lh.ancestor_id')
@@ -260,7 +261,7 @@ class Lead < ApplicationRecord
       ')
 
     root_leads = Lead
-      .joins("JOIN (#{updated_at.to_sql}) as leads_updated_at
+      .joins("JOIN (#{updated_at.to_sql}) AS leads_updated_at
         ON leads_updated_at.key_updated_at = leads.updated_at")
       .joins('JOIN users
         ON users.id = leads.updated_by_id')
@@ -269,9 +270,9 @@ class Lead < ApplicationRecord
         leads.updated_by_id AS key_updated_by_id,
         users.name AS key_updated_by
       ')
-      .order(:text)
+      .order('leads_updated_at.text')
 
-    return load_root_otus ? root_leads.includes(:otu) : root_leads
+    return load_root_otus ? root_leads.includes(:otu).to_a : root_leads.to_a
   end
 
   protected

@@ -155,9 +155,6 @@ RSpec.describe Lead, type: :model do
     expect{root.destroy!}.to raise_error ActiveRecord::RecordNotDestroyed
   end
 
-  # !! Note that roots_with_data selects data from the second table of a join,
-  # but pluck can only select columns from the first table of the join, so
-  # don't use pluck here or you'll get the wrong results.
   context 'Retrieving roots data using roots_with_data' do
     specify 'returns the right number of roots' do
       lead.insert_couplet
@@ -165,7 +162,7 @@ RSpec.describe Lead, type: :model do
       root2.insert_couplet
 
       q = Lead.roots_with_data(project_id)
-      expect(q.to_a.map { |r| r.parent_id }).to eq([nil, nil])
+      expect(q.map { |r| r.parent_id }).to eq([nil, nil])
     end
 
     specify 'returns roots from the right project' do
@@ -175,14 +172,16 @@ RSpec.describe Lead, type: :model do
       root2 = FactoryBot.create(:valid_lead, project_id: p2.id)
 
       q = Lead.roots_with_data(project_id)
-      expect(q.to_a.map { |r| r.project_id }).to eq([project_id])
+      expect(q.map { |r| r.project_id }).to eq([project_id])
     end
 
-    specify 'returns a node, the correct node' do
-      lead.insert_couplet
+    specify 'returns roots ordered by text' do
+      root1 = FactoryBot.create(:valid_lead, text: 'b')
+      root2 = FactoryBot.create(:valid_lead, text: 'c')
+      root3 = FactoryBot.create(:valid_lead, text: 'a')
 
       q = Lead.roots_with_data(project_id)
-      expect(q.first).to eq(lead)
+      expect(q.map { |r| r.text }). to eq(['a', 'b', 'c'])
     end
 
     specify 'returns couplet_count' do
