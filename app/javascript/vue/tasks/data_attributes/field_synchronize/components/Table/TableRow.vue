@@ -17,6 +17,22 @@
         "
       />
     </td>
+    <td v-if="item.dataAttributes">
+      <input
+        v-for="dataAttribute in item.dataAttributes"
+        :key="dataAttribute.id"
+        type="text"
+        :value="dataAttribute.value"
+        @change="
+          (e) => {
+            emit('update:data-attribute', {
+              id: dataAttribute.id,
+              value: e.target.value
+            })
+          }
+        "
+      />
+    </td>
   </tr>
 </template>
 
@@ -33,5 +49,5 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['update:attribute'])
+const emit = defineEmits(['update:attribute', 'update:data-attribute'])
 </script>

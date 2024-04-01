@@ -1,13 +1,16 @@
 <template>
-  <select v-model="selected">
-    <option selected>Select...</option>
-    <option
-      v-for="property in list"
-      :key="property"
-    >
-      {{ property }}
-    </option>
-  </select>
+  <div>
+    <label class="d-block">Attribute</label>
+    <select v-model="selected">
+      <option selected>Select...</option>
+      <option
+        v-for="property in list"
+        :key="property"
+      >
+        {{ property }}
+      </option>
+    </select>
+  </div>
 </template>
 
 <script setup>

@@ -1,9 +1,23 @@
 <template>
-  <table
-    class="table-striped full_width"
-    border="1"
-  >
+  <table class="table-striped">
     <thead>
+      <tr>
+        <th
+          :colspan="attributes.length"
+          scope="colgroup"
+          class="cell-left-border"
+        >
+          Attributes
+        </th>
+
+        <th
+          :colspan="predicates.length"
+          scope="colgroup"
+          class="cell-left-border"
+        >
+          Data attributes
+        </th>
+      </tr>
       <tr>
         <th
           v-for="attr in attributes"
@@ -21,23 +35,67 @@
             />
           </VBtn>
         </th>
+        <th
+          v-for="(predicate, index) in predicates"
+          :key="predicate.id"
+          :class="{ 'cell-left-border': !index }"
+        >
+          {{ predicate.name }}
+        </th>
       </tr>
     </thead>
     <tbody>
-      <TableRow
+      <tr
         v-for="item in list"
         :key="item.id"
-        :item="item"
-        :attributes="attributes"
-        :emit="emit"
-        @update:attribute="(e) => emit('update:attribute', e)"
-      />
+        class="contextMenuCells"
+      >
+        <td
+          v-for="key in attributes"
+          :key="key"
+        >
+          <input
+            type="text"
+            :value="item.attributes[key]"
+            @change="
+              (e) =>
+                emit('update:attribute', {
+                  item: item,
+                  attribute: key,
+                  value: e.target.value
+                })
+            "
+          />
+        </td>
+        <td
+          v-for="(predicate, index) in predicates"
+          :key="predicate.id"
+          :class="{ 'cell-left-border': !index }"
+        >
+          <input
+            v-for="dataAttribute in item.dataAttributes[predicate.id]"
+            :key="dataAttribute.uuid"
+            type="text"
+            :value="dataAttribute.value"
+            @change="
+              (e) => {
+                emit('update:data-attribute', {
+                  id: dataAttribute.id,
+                  objectId: item.id,
+                  predicateId: dataAttribute.predicateId,
+                  uuid: dataAttribute.uuid,
+                  value: e.target.value
+                })
+              }
+            "
+          />
+        </td>
+      </tr>
     </tbody>
   </table>
 </template>
 
 <script setup>
-import TableRow from './TableRow.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
@@ -50,8 +108,28 @@ const props = defineProps({
   list: {
     type: Array,
     default: () => []
+  },
+
+  predicates: {
+    type: Object,
+    default: undefined
   }
 })
 
-const emit = defineEmits(['remove:attribute', 'update:attribute'])
+const emit = defineEmits([
+  'remove:attribute',
+  'update:attribute',
+  'update:data-attribute'
+])
 </script>
+
+<style scoped>
+.cell-left-border {
+  border-left: 3px #eaeaea solid;
+}
+
+.cell-selected-border {
+  outline: 2px solid var(--color-primary) !important;
+  outline-offset: -2px;
+}
+</style>

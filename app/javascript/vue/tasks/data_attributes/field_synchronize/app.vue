@@ -5,10 +5,15 @@
       :properties="attributes"
       v-model="selectedProperties"
     />
+    <PredicateSelector
+      :predicates="predicates"
+      v-model="selectedPredicates"
+    />
     <div class="overflow-x-scroll">
       <VTable
         :attributes="selectedProperties"
-        :list="tableList"
+        :list="list"
+        :predicates="selectedPredicates"
         @remove:attribute="
           (attr) => {
             selectedProperties = selectedProperties.filter(
@@ -17,6 +22,7 @@
           }
         "
         @update:attribute="updateField"
+        @update:data-attribute="saveDataAttribute"
       />
     </div>
   </div>
@@ -29,11 +35,17 @@
 <script setup>
 import { onBeforeMount, ref, computed, watch } from 'vue'
 import { Metadata, CollectingEvent, DataAttribute } from '@/routes/endpoints'
-import { COLLECTING_EVENT } from '@/constants'
-import { URLParamsToJSON, ajaxCall } from '@/helpers'
+import { DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE } from '@/constants'
+import {
+  URLParamsToJSON,
+  ajaxCall,
+  randomUUID,
+  removeFromArray
+} from '@/helpers'
 import { QUERY_PARAMETER } from './constants'
 import VTable from './components/Table/VTable.vue'
-import PropertySelector from './components/Table/PropertySelector.vue'
+import PropertySelector from './components/PropertySelector.vue'
+import PredicateSelector from './components/PredicateSelector.vue'
 
 defineOptions({
   name: 'FieldSynchronize'
@@ -42,25 +54,21 @@ defineOptions({
 const attributes = ref([])
 const list = ref([])
 const selectedProperties = ref([])
+const selectedPredicates = ref([])
 const queryParam = ref(null)
 const queryValue = ref(undefined)
 const predicates = ref([])
-
+const dataAttributes = ref([])
 const currentModel = computed(() => QUERY_PARAMETER[queryParam.value]?.model)
 
-const tableList = computed(() =>
-  list.value.map((item) => {
-    const data = {
-      id: item.id
-    }
-
-    attributes.value.forEach((attr) => {
-      data[attr] = item[attr]
-    })
-
-    return data
-  })
-)
+function makeDataAttribute({ predicateId, value = null, id = null }) {
+  return {
+    id,
+    uuid: randomUUID(),
+    predicateId,
+    value
+  }
+}
 
 function updateField({ item, attribute, value }) {
   CollectingEvent.update(item.id, {
@@ -94,20 +102,125 @@ watch(selectedProperties, (newVal) => {
   }
 })
 
-function loadAttributes(attribute) {
+function saveDataAttribute({ id, value, objectId, predicateId, uuid }) {
+  const objectItem = list.value.find((item) => item.id === objectId)
+  const predicates = objectItem.dataAttributes[predicateId]
   const payload = {
-    [queryParam.value]: queryValue.value
+    data_attribute: {
+      controlled_vocabulary_term_id: predicateId,
+      attribute_subject_id: objectId,
+      attribute_subject_type: currentModel.value,
+      type: DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE,
+      value
+    }
+  }
+
+  if (!value) {
+    DataAttribute.destroy(id).then(() => {
+      removeFromArray(predicates, { uuid }, 'uuid')
+
+      if (!predicates.length) {
+        predicates.push(makeDataAttribute({ predicateId }))
+      }
+      TW.workbench.alert.create('Data attribute was successfully removed')
+    })
+  } else {
+    const request = id
+      ? DataAttribute.update(id, payload)
+      : DataAttribute.create(payload)
+
+    request.then(({ body }) => {
+      const da = predicates.find((item) => item.uuid === uuid)
+
+      da.id = body.id
+      da.value = body.value
+      TW.workbench.alert.create('Data attribute was successfully updated')
+    })
+  }
+}
+
+function loadPredicates(params) {
+  DataAttribute.brief({
+    ...params,
+    type: DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE
+  }).then(async ({ body }) => {
+    predicates.value = body.index.map((item) => {
+      const [id] = Object.keys(item)
+      const [name] = Object.values(item)
+
+      return {
+        id: Number(id),
+        name
+      }
+    })
+
+    dataAttributes.value = makeDataAttributeList(body)
+  })
+}
+
+function loadAttributes(attribute) {
+  const params = {
+    [queryParam.value]: queryValue.value,
+    attribute
   }
 
   ajaxCall('get', '/tasks/data_attributes/field_synchronize/values', {
-    params: { [queryParam.value]: queryValue.value, attribute }
+    params
   }).then(({ body }) => {
-    list.value = body
+    list.value = body.map((item) => {
+      const { id, ...attributes } = item
+
+      return {
+        id,
+        attributes,
+        dataAttributes: dataAttributes.value[id] || fillDataAttributes({})
+      }
+    })
+  })
+}
+
+function fillDataAttributes(obj) {
+  predicates.value.forEach(({ id }) => {
+    if (!obj[id]) {
+      obj[id] = [makeDataAttribute({ predicateId: id })]
+    }
   })
 
-  DataAttribute.brief(payload).then(({ body }) => {
-    predicates.value = body
+  return obj
+}
+
+function makeDataAttributeList({ data, index }) {
+  const obj = {}
+
+  data.forEach(([id, objectId, predicateId, value]) => {
+    const dataAttribute = makeDataAttribute({
+      id,
+      predicateId,
+      value,
+      objectId
+    })
+    const dataAttributes = obj[objectId]
+
+    if (dataAttributes) {
+      const arr = dataAttributes[predicateId]
+
+      if (arr) {
+        arr.push(dataAttribute)
+      } else {
+        dataAttributes[predicateId] = [dataAttribute]
+      }
+    } else {
+      obj[objectId] = {
+        [predicateId]: [dataAttribute]
+      }
+    }
   })
+
+  for (const key in obj) {
+    fillDataAttributes(obj[key])
+  }
+
+  return obj
 }
 
 onBeforeMount(() => {
@@ -123,6 +236,8 @@ onBeforeMount(() => {
     }).then(({ body }) => {
       attributes.value = body
     })
+
+    loadPredicates({ [queryParam.value]: queryValue.value })
   }
 })
 </script>
