@@ -10,17 +10,11 @@ class LeadsController < ApplicationController
     respond_to do |format|
       format.html {
         one_week_ago = Time.now.utc.to_date - 7
-        recents = []
-        roots = Lead.roots_with_data(sessions_current_project_id)
-        roots.each do |k|
-          if k.key_updated_at > one_week_ago
-            recents.push k
-          end
-        end
-
-        recents.sort! { |a, b| b[:key_updated_at] <=> a[:key_updated_at] }
-
-        @recent_objects = recents.take(10)
+        @recent_objects = Lead
+          .roots_with_data(sessions_current_project_id)
+          .where('key_updated_at > ?', one_week_ago)
+          .reorder(key_updated_at: :desc)
+          .limit(10)
 
         render '/shared/data/all/index'
       }
