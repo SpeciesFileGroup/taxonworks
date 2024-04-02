@@ -910,7 +910,7 @@ week_in_review_task:
     - metadata
   status: prototype
   description: 'A quick look dashboard of past activity'
-spatial_summary_task:
+collecting_events_spatial_summary_task:
   hub: false 
   name: 'Collecting Event Spatial Summary'
   related:
