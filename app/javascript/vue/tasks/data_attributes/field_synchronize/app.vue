@@ -9,11 +9,18 @@
       :predicates="predicates"
       v-model="selectedPredicates"
     />
+    <RegexForm
+      :attributes="selectedProperties"
+      v-model="regexPattern"
+      v-model:to="to"
+      v-model:from="from"
+    />
     <div class="overflow-x-scroll">
       <VTable
         :attributes="selectedProperties"
-        :list="list"
+        :list="tableList"
         :predicates="selectedPredicates"
+        :preview-header="previewHeader"
         @remove:attribute="
           (attr) => {
             selectedProperties = selectedProperties.filter(
@@ -46,6 +53,7 @@ import { QUERY_PARAMETER } from './constants'
 import VTable from './components/Table/VTable.vue'
 import PropertySelector from './components/PropertySelector.vue'
 import PredicateSelector from './components/PredicateSelector.vue'
+import RegexForm from './components/RegexForm.vue'
 
 defineOptions({
   name: 'FieldSynchronize'
@@ -60,6 +68,40 @@ const queryValue = ref(undefined)
 const predicates = ref([])
 const dataAttributes = ref([])
 const currentModel = computed(() => QUERY_PARAMETER[queryParam.value]?.model)
+const from = ref()
+const to = ref()
+const regexPattern = ref('')
+
+function applyRegex(text, regexPattern) {
+  const regex = new RegExp(regexPattern, 'g')
+
+  return text?.replace(regex, '')
+}
+
+const previewHeader = computed(() => {
+  return from.value && to.value ? `${from.value}→${to.value}` : ''
+})
+
+const tableList = computed(() => {
+  return list.value.map((item) => {
+    const data = {
+      ...item
+    }
+
+    if (from.value && to.value && regexPattern.value) {
+      try {
+        data.preview = applyRegex(
+          item.attributes[from.value],
+          regexPattern.value
+        )
+      } catch (e) {
+        console.log(e)
+      }
+    }
+
+    return data
+  })
+})
 
 function makeDataAttribute({ predicateId, value = null, id = null }) {
   return {

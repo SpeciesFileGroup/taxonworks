@@ -3,6 +3,7 @@
     <thead>
       <tr>
         <th
+          v-if="attributes.length"
           :colspan="attributes.length"
           scope="colgroup"
           class="cell-left-border"
@@ -11,11 +12,18 @@
         </th>
 
         <th
+          v-if="predicates.length"
           :colspan="predicates.length"
           scope="colgroup"
           class="cell-left-border"
         >
           Data attributes
+        </th>
+        <th
+          v-if="previewHeader"
+          class="cell-left-border"
+        >
+          Preview
         </th>
       </tr>
       <tr>
@@ -41,6 +49,12 @@
           :class="{ 'cell-left-border': !index }"
         >
           {{ predicate.name }}
+        </th>
+        <th
+          class="cell-left-border"
+          v-if="previewHeader"
+        >
+          {{ previewHeader }}
         </th>
       </tr>
     </thead>
@@ -90,6 +104,12 @@
             "
           />
         </td>
+        <td
+          v-if="previewHeader"
+          class="cell-left-border"
+        >
+          {{ item.preview }}
+        </td>
       </tr>
     </tbody>
   </table>
@@ -113,6 +133,11 @@ const props = defineProps({
   predicates: {
     type: Object,
     default: undefined
+  },
+
+  previewHeader: {
+    type: String,
+    default: ''
   }
 })
 
