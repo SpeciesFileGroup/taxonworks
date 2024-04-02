@@ -9,14 +9,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Spatial summary report for CollectingEvent filter 
+- Geographic Area radial navigator links to associated filters
 - Radial nomenclature: verbatim_author slice [#3896]
 
 ### Fixed
 
+- Async batch update calls on individual objects failing [#3905]
 - DwC export without CollectingEvents failing [#3897]
 - Cloning CollectingEvents sets creator to the person who cloned the record
-- Filtering option in Filter Staged Images does not work [#3901]
+- Filter Staged Images missing filter button [#3901]
 
+[#3905]: https://github.com/SpeciesFileGroup/taxonworks/issues/3905
 [#3897]: https://github.com/SpeciesFileGroup/taxonworks/issues/3897
 [#3896]: https://github.com/SpeciesFileGroup/taxonworks/issues/3896
 [#3901]: https://github.com/SpeciesFileGroup/taxonworks/issues/3901
