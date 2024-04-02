@@ -279,6 +279,10 @@ scope :tasks do
   end
 
   scope :collecting_events do
+    scope :spatial_summary, controller: 'tasks/collecting_events/spatial_summary' do
+      get '/', action: :index, as: 'collecting_events_spatial_summary_task'
+    end
+
     scope :new_collecting_event, controller: 'tasks/collecting_events/new_collecting_event' do
       get '/', action: :index, as: 'new_collecting_event_task'
     end
@@ -288,7 +292,7 @@ scope :tasks do
     end
 
     scope :filter, controller: 'tasks/collecting_events/filter' do
-      get '/', action: :index, as: 'filter_collecting_events_task'
+      match '/', action: :index, via: [:get, :post], as: 'filter_collecting_events_task'
     end
 
     scope :parse do

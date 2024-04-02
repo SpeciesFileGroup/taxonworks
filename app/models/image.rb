@@ -282,6 +282,7 @@ class Image < ApplicationRecord
   # @param [ActionController::Parameters] params
   # @return [Magick::Image, nil]
   def self.scaled_to_box(params)
+    return nil if params[:box_width].to_f == 0 || params[:box_height].to_f == 0
     begin
       c = cropped(params)
       ratio = c.columns.to_f / c.rows.to_f
@@ -308,7 +309,7 @@ class Image < ApplicationRecord
           ) #.sharpen(0x1)
         else # tall into tall # TODO: or 1:1?!
           scaled = c.resize(
-            (params[:box_width ].to_f * ratio / box_ratio ).to_i,
+            (params[:box_width].to_f * ratio / box_ratio ).to_i,
             (params[:box_height].to_f ).to_i
           ) #.sharpen(0x1)
         end

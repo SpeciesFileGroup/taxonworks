@@ -204,7 +204,7 @@ class GeographicItem < ApplicationRecord
         return nil unless [:latitude, :longitude].include?(choice)
         f = "'D.DDDDDD'" # TODO: probably a constant somewhere
         v = (choice == :latitude ? 1 : 2)
-        "CASE type
+        "CASE geographic_items.type
       WHEN 'GeographicItem::GeometryCollection' THEN split_part(ST_AsLatLonText(ST_Centroid" \
       "(geometry_collection::geometry), #{f}), ' ', #{v})
       WHEN 'GeographicItem::LineString' THEN split_part(ST_AsLatLonText(ST_Centroid(line_string::geometry), " \

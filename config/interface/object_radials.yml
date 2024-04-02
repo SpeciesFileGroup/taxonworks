@@ -100,6 +100,9 @@ FieldOccurrence:
     recent: true
 GeographicArea:
   tasks:
+    - filter_asserted_distributions_task
+    - filter_collecting_events_task
+    - filter_otus_task
     - asserted_distributions_basic_endemism_task
   config:
     recent: false
