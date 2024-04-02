@@ -1,0 +1,6 @@
+<ul>
+  <% recent_objects.each do |r| -%>
+    <li><div><%= object_link(r) -%></div> <div><%= edit_object_link(r) -%>  <%= time_ago_in_words(r.key_updated_at) -%> ago </div></li>
+  <% end %>
+</ul>
+<%= content_tag(:em, "No recently updated or created records.") if recent_objects.empty? -%>

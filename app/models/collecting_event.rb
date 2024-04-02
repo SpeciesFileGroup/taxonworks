@@ -993,6 +993,7 @@ class CollectingEvent < ApplicationRecord
   #   the instance may not be valid!
   def clone
     a = dup
+    a.created_by_id = nil
     a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
 
     roles.each do |r|
@@ -1044,7 +1045,7 @@ class CollectingEvent < ApplicationRecord
       )
 
       request.cap = 1000
-      request.cap_reason = 'Max 1000 updated at a time.'
+      request.cap_reason = 'Max 500 updated at a time.'
       query_batch_update(request)
     end
   end

@@ -1,13 +1,12 @@
 <template>
   <VBtn
     color="primary"
-    medium
     circle
     @click="copyToClipboard()"
   >
     <VIcon
       name="clip"
-      small
+      x-small
     />
   </VBtn>
 </template>

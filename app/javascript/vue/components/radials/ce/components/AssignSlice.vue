@@ -73,7 +73,7 @@ import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 
-const MAX_LIMIT = 250
+const MAX_LIMIT = 1000
 
 const props = defineProps({
   parameters: {

@@ -231,7 +231,7 @@ watch(
 
 onBeforeMount(() => {
   if (geographic.value.geographic_area_id) {
-    geographic.value.geographic_area_id.forEach((id) => {
+    [geographic.value.geographic_area_id].flat().forEach((id) => {
       addGeoArea(id)
     })
   }

@@ -9,9 +9,34 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.40.1] - 2024-04-02
+
+### Added
+
+- Some more quality-of-life changes to Leads/keys
+- Spatial summary report for CollectingEvent filter 
+- Geographic Area radial navigator links to associated filters
+- Radial nomenclature: verbatim_author slice [#3896]
+
+#### Changed
+
+- Gems updated
+
+### Fixed
+
+- Async batch update calls on individual objects failing [#3905]
+- DwC export without CollectingEvents failing [#3897]
+- Cloning CollectingEvents sets creator to the person who cloned the record
+- Filter Staged Images missing filter button [#3901]
+
+[#3905]: https://github.com/SpeciesFileGroup/taxonworks/issues/3905
+[#3897]: https://github.com/SpeciesFileGroup/taxonworks/issues/3897
+[#3896]: https://github.com/SpeciesFileGroup/taxonworks/issues/3896
+[#3901]: https://github.com/SpeciesFileGroup/taxonworks/issues/3901
+
 ## [0.40.0] - 2024-03-26
 
-_Special thanks to Tom Klein for his amazing open-source contributions on this release!.
+_Special thanks to Tom Klein for his amazing open-source contributions on this release!._
 
 ### Added
 
@@ -29,9 +54,10 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Radial CO: Add preparation type slice [#3889]
 - Radial mass navigation [#3672]
 - Batch update or add data attributes [#3748]
-- !! TODO: Include OTU name in filter collection objects result [#XXXX]
+- Include OTU `name` in Filter Collection Objects result
 - Text file delimiter options to DwC import [#3894]
 - CSV format for DwC importer
+- Project vocabulary word-cloud text links to filter result for some models (e.g. CollectingEvent)
 
 ### Changed
 
@@ -54,7 +80,6 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Radial quick forms: Asserted distribution screen partially blocked by a white rectangle [#3891]
 - Print label task doesn't apply styles to labels [#3776]
 - Missing collection object links on map markers
-- Handling of [sic] in Protonym#original_combination_infraspecific_element [#3867]
 
 [#3748]: https://github.com/SpeciesFileGroup/taxonworks/issues/3748
 [#3881]: https://github.com/SpeciesFileGroup/taxonworks/issues/3881
@@ -4444,7 +4469,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.1...development
+[0.40.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.0...v0.40.1
 [0.40.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.3...v0.39.0
 [0.38.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.2...v0.38.3
