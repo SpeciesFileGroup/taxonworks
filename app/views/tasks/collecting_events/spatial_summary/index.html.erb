@@ -1,0 +1,27 @@
+
+
+<h1> Collecting Events Spatial Summary </h1>
+
+Total: <%= @collecting_events.all.count %> <%= link_to('re-filter', filter_collecting_events_task_path( @collecting_events.params), method: :post) %>
+
+<h2> Asserted distributions </h2>
+
+<table>
+  <tr> <th> Name </th> <th> total </th> <th> filter subset </th> </tr>
+
+  <% GeographicArea.where(id: @collecting_events.all.select('distinct(geographic_area_id)').pluck(:geographic_area_id)).each do |ga| %>
+    <tr> 
+      <td> <%= link_to(ga.name, geographic_areas_path(ga)) %> </td>
+      <td> <%= @collecting_events.all.where(geographic_area_id: ga.id).count %> </td>
+      <td> <%= link_to('filter', filter_collecting_events_task_path( @collecting_events.params.merge(geographic_area_id: [ga.id])), method: :post) %>
+    </tr>
+  <% end %>
+
+  <tr> 
+    <td> None </td>
+    <td> <%= @collecting_events.all.where(geographic_area_id: nil).count %> </td>
+    <td> <%= link_to('filter', filter_collecting_events_task_path( @collecting_events.params.merge(geographic_area: false)), method: :post) %>
+  </tr>
+
+</table>
+
