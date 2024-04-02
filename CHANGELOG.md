@@ -9,9 +9,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Some more quality-of-life changes to Leads/keys
 - Spatial summary report for CollectingEvent filter 
 - Geographic Area radial navigator links to associated filters
 - Radial nomenclature: verbatim_author slice [#3896]
+
+#### Changed
+
+- Gems updated
 
 ### Fixed
 
