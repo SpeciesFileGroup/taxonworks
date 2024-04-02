@@ -13,7 +13,7 @@ module Shared::QueryBatchUpdate
   def query_update(params, response)
     begin
       update!( params )
-      response.updated.push object.id
+      response.updated.push self.id
     rescue ActiveRecord::RecordInvalid => e
       response.not_updated.push e.record.id
       response.errors[e.message] += 1
@@ -58,5 +58,5 @@ module Shared::QueryBatchUpdate
       end
     end
 
-  end
+  end # END CLASS METHODS
 end
