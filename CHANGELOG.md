@@ -15,9 +15,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - DwC export without CollectingEvents failing [#3897]
 - Cloning CollectingEvents sets creator to the person who cloned the record
+- Filtering option in Filter Staged Images does not work [#3901]
 
 [#3897]: https://github.com/SpeciesFileGroup/taxonworks/issues/3897
 [#3896]: https://github.com/SpeciesFileGroup/taxonworks/issues/3896
+[#3901]: https://github.com/SpeciesFileGroup/taxonworks/issues/3901
 
 ## [0.40.0] - 2024-03-26
 
