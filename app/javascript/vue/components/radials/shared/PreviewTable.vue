@@ -7,12 +7,43 @@
       </tr>
     </thead>
     <tbody>
-      <tr
-        v-for="(value, key) in previewData"
-        :key="key"
-      >
-        <td>{{ humanize(key) }}</td>
-        <td>{{ value }}</td>
+      <tr>
+        <td>Preview</td>
+        <td>
+          {{ data.preview ? 'Yes' : 'No' }}
+        </td>
+      </tr>
+      <tr>
+        <td>Async</td>
+        <td>
+          <div
+            v-if="data.async"
+            class="horizontal-left-content middle gap-small"
+          >
+            <VIcon
+              name="attention"
+              color="warning"
+              small
+            />
+            <span class="text-warning-color"
+              >Yes. Records will not be updated immediately, they will be
+              updated asynchronously.</span
+            >
+          </div>
+          <div v-else>No</div>
+        </td>
+      </tr>
+      <tr>
+        <td>Updated</td>
+        <td>{{ data.updated.length }}</td>
+      </tr>
+      <tr>
+        <td>Not updated</td>
+        <td>{{ data.not_updated.length }}</td>
+      </tr>
+      <tr>
+        <td>Total attempted</td>
+        <td>{{ data.total_attempted }}</td>
       </tr>
     </tbody>
   </table>
@@ -39,28 +70,14 @@
 </template>
 
 <script setup>
-import { humanize } from '@/helpers'
 import { computed } from 'vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   data: {
     type: Object,
     required: true
   }
-})
-
-const previewData = computed(() => {
-  const { data } = props
-
-  return data
-    ? {
-        preview: data.preview ? 'Yes' : 'No',
-        async: data.async ? 'Yes' : 'No',
-        updated: data.updated.length,
-        not_updated: data.not_updated.length,
-        total_attempted: data.total_attempted
-      }
-    : {}
 })
 
 const previewErrors = computed(() => {
