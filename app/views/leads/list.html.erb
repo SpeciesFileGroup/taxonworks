@@ -17,7 +17,9 @@
           <td><%= lead.text %></td>
           <td><%= lead.all_children.size / 2 %></td>
           <td><%= lead.is_public %></td>
-          <%= fancy_metadata_cells_tag(lead) -%>
+          <%= content_tag(:td, lead[:key_updated_by]) +
+              content_tag(:td, time_ago_in_words(lead[:key_updated_at])) +
+              fancy_options_cells_tag(lead) -%>
       <% end %>
   <% end %>
   </tbody>

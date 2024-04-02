@@ -21,23 +21,23 @@
             </th>
             <th
               @click="() => sortTable('couplet_count')"
-              class="narrow_col"
+              class="width_shrink"
             >
               # Couplets
             </th>
+            <th @click="() => sortTable('key_updated_at')">
+              Last Modified
+            </th>
+            <th @click="() => sortTable('key_updated_by')">
+              Last Modified By
+            </th>
+            <th class="width_shrink"/> <!-- radials -->
             <th
               @click="() => sortTable('is_public')"
-              class="narrow_col"
+              class="width_shrink"
             >
               Is Public
             </th>
-            <th @click="() => sortTable('updated_at')">
-              Last Modified
-            </th>
-            <th @click="() => sortTable('updated_by')">
-              Last Modified By
-            </th>
-            <th /> <!-- radials -->
           </tr>
         </thead>
         <tbody>
@@ -62,6 +62,17 @@
 
               <td>{{ key.couplet_count }}</td>
 
+              <td>{{ key.key_updated_at_in_words }}</td>
+
+              <td>{{ key.key_updated_by }}</td>
+
+              <td>
+                <div class="horizontal-right-content gap-small">
+                  <RadialAnnotator :global-id="key.global_id" />
+                  <RadialNavigator :global-id="key.global_id" />
+                </div>
+              </td>
+
               <td>
                 <input
                   type="checkbox"
@@ -69,22 +80,11 @@
                   @click="() => changeIsPublicState(key)"
                 />
               </td>
-
-              <td>{{ key.updated_at_in_words }}</td>
-
-              <td>{{ key.updated_by }}</td>
-
-              <td class="width-shrink">
-                <div class="horizontal-right-content gap-small">
-                  <RadialAnnotator :global-id="key.global_id" />
-                  <RadialNavigator :global-id="key.global_id" />
-                </div>
-              </td>
             </tr>
 
             <tr :class="{ even: (index % 2 == 0)}">
               <td
-                colspan="3"
+                colspan="2"
                 class="extension_data"
               >
                 <KeyOtus
@@ -93,7 +93,7 @@
                 />
               </td>
               <td
-                colspan="3"
+                colspan="4"
                 class="extension_data"
               >
                 <KeyCitations :citations="key.citations" />
@@ -104,7 +104,7 @@
       </table>
 
       <div v-else-if="!loading">
-        No key currently available. Use the
+        No keys currently available. Use the
         <a
           :href="RouteNames.NewLead"
           data-turbolinks="false"
@@ -135,14 +135,9 @@ const loading = ref(true)
 const ascending = ref(false)
 
 onBeforeMount(async () => {
-  const loadKeys = Lead.where({
-    extend: ['couplet_count', 'updater', 'updated_at_in_words', 'otu']
-   })
+  const loadKeys = Lead.where({ load_root_otus: true })
     .then(({ body }) => {
       keys.value = body
-    })
-    .finally(() => {
-      loading.value = false
     })
 
   const loadCitations = Citation.where({
@@ -155,6 +150,9 @@ onBeforeMount(async () => {
       addCitationsToKeysList(value.body)
     })
     .catch(() => {})
+    .finally(() => {
+      loading.value = false
+    })
 })
 
 function addCitationsToKeysList(citations) {
@@ -190,9 +188,14 @@ function changeIsPublicState(key) {
       const updatedKey = {
         ...body.lead,
         otu: key.otu,
+        otus_count: key.otus_count,
         couplet_count: key.couplet_count,
         citations: key.citations,
-        child_otus: key.child_otus
+        child_otus: key.child_otus,
+        key_updated_at: body.lead.updated_at,
+        key_updated_at_in_words: body.lead.updated_at_in_words,
+        key_updated_by: body.lead.updated_by,
+        key_updated_by_id: body.lead.updated_by_id
       }
 
       addToArray(keys.value, updatedKey)
@@ -235,11 +238,11 @@ function loadOtusForKey(key) {
   margin-right: 1em;
   margin-bottom: 2em;
 }
-.width-shrink {
+.width_shrink {
   width: 1%;
 }
 .meta_row:not(:first-child) {
-  border-top: 2px solid #5D9ECE;
+  border-top: 2px solid var(--color-primary);
 }
 .extension_data {
   border-top: 4px dotted #eee;
@@ -247,9 +250,6 @@ function loadOtusForKey(key) {
   padding-bottom: .5em;
 }
 .table_name_col {
-  width: 40%;
-}
-.narrow_col {
-  width: 4em;
+  width: 45%;
 }
 </style>

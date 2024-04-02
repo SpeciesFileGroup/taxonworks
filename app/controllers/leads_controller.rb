@@ -9,22 +9,28 @@ class LeadsController < ApplicationController
   def index
     respond_to do |format|
       format.html {
-        @recent_objects = Lead.recent_from_project_id(sessions_current_project_id).where('parent_id is null').order(updated_at: :desc).limit(10)
+        one_week_ago = Time.now.utc.to_date - 7
+        @recent_objects = Lead
+          .roots_with_data(sessions_current_project_id)
+          .where('key_updated_at > ?', one_week_ago)
+          .reorder(key_updated_at: :desc)
+          .limit(10)
+
         render '/shared/data/all/index'
       }
       format.json {
-        @leads = Lead.with_project_id(sessions_current_project_id)
-          .where('parent_id is null')
-          .order(:text)
-          .page(params[:page])
-          .per(params[:per])
+        if params[:load_root_otus]
+          @leads = Lead.roots_with_data(sessions_current_project_id, true)
+        else
+          @leads = Lead.roots_with_data(sessions_current_project_id)
+        end
       }
     end
   end
 
   def list
-    @leads = Lead.with_project_id(sessions_current_project_id)
-      .where('parent_id is null').order(:id).page(params[:page])
+    @leads = Lead.
+      roots_with_data(sessions_current_project_id).page(params[:page])
   end
 
   # GET /leads/1/all_texts.json
