@@ -257,6 +257,15 @@ class LeadsController < ApplicationController
     end
   end
 
+  # GET /leads/download
+  def download
+    send_data Export::CSV.generate_csv(
+        Lead.where(project_id: sessions_current_project_id)
+      ),
+      type: 'text',
+      filename: "leads_#{DateTime.now}.tsv"
+  end
+
   private
 
   def set_lead
