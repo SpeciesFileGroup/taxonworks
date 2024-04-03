@@ -6,7 +6,6 @@
           v-if="attributes.length"
           :colspan="attributes.length"
           scope="colgroup"
-          class="cell-left-border"
         >
           Attributes
         </th>
@@ -108,7 +107,12 @@
           v-if="previewHeader"
           class="cell-left-border"
         >
-          {{ item.preview }}
+          <input
+            v-for="(p, index) in item.preview"
+            type="text"
+            disabled
+            :value="p"
+          />
         </td>
       </tr>
     </tbody>

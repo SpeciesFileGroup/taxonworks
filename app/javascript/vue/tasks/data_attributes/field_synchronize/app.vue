@@ -11,7 +11,8 @@
     />
     <RegexForm
       :attributes="selectedProperties"
-      v-model="regexPattern"
+      :predicates="selectedPredicates"
+      v-model="regexPatterns"
       v-model:to="to"
       v-model:from="from"
     />
@@ -53,7 +54,7 @@ import { QUERY_PARAMETER } from './constants'
 import VTable from './components/Table/VTable.vue'
 import PropertySelector from './components/PropertySelector.vue'
 import PredicateSelector from './components/PredicateSelector.vue'
-import RegexForm from './components/RegexForm.vue'
+import RegexForm from './components/Regex/RegexForm.vue'
 
 defineOptions({
   name: 'FieldSynchronize'
@@ -70,16 +71,23 @@ const dataAttributes = ref([])
 const currentModel = computed(() => QUERY_PARAMETER[queryParam.value]?.model)
 const from = ref()
 const to = ref()
-const regexPattern = ref('')
+const regexPatterns = ref([])
 
-function applyRegex(text, regexPattern) {
-  const regex = new RegExp(regexPattern, 'g')
+function applyRegex(text, regexPatterns) {
+  regexPatterns.forEach((pattern) => {
+    const regex = new RegExp(pattern.match, 'g')
 
-  return text?.replace(regex, '')
+    text = text?.replace(regex, pattern.value)
+  })
+
+  return text
 }
 
 const previewHeader = computed(() => {
-  return from.value && to.value ? `${from.value}→${to.value}` : ''
+  const _from = from.value?.name || from.value
+  const _to = to.value?.name || to.value
+
+  return _from && _to ? `${_from}→${_to}` : ''
 })
 
 const tableList = computed(() => {
@@ -88,12 +96,15 @@ const tableList = computed(() => {
       ...item
     }
 
-    if (from.value && to.value && regexPattern.value) {
+    if (from.value && to.value && regexPatterns.value.length) {
       try {
-        data.preview = applyRegex(
-          item.attributes[from.value],
-          regexPattern.value
-        )
+        const text = from.value?.id
+          ? item.dataAttributes[from.value.id].map((item) => item.value)
+          : item.attributes[from.value]
+
+        data.preview = [text]
+          .flat()
+          .map((t) => applyRegex(t, regexPatterns.value))
       } catch (e) {
         console.log(e)
       }
