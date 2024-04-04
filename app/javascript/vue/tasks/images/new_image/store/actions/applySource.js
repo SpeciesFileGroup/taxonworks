@@ -35,6 +35,7 @@ export default ({ state, commit }) => {
 
   Promise.all(promises)
     .then(() => {
+      state.settings.applied.source = true
       TW.workbench.alert.create(
         `Citation(s) were successfully saved.`,
         'notice'

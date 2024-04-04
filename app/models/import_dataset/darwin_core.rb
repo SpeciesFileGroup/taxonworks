@@ -256,10 +256,10 @@ class ImportDataset::DarwinCore < ImportDataset
         records[:extensions][type] = get_dwc_records(extension)
         headers[:extensions][type] = get_dwc_headers(extension)
       end
-    elsif source.path =~ /\.(txt|tsv|xlsx?|ods)\z/i
+    elsif source.path =~ /\.(csv|txt|tsv|xlsx?|ods)\z/i
       # only strip whitespace on the headers with lambda functions because whitespace is stripped from the data elsewhere
-      if source.path =~ /\.(txt|tsv)\z/i
-        records[:core] = CSV.read(source.path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8', header_converters: lambda {|f| f&.strip})
+      if source.path =~ /\.(csv|txt|tsv)\z/i
+        records[:core] = CSV.read(source.path, headers: true, col_sep: get_col_sep, quote_char: get_quote_char, encoding: 'bom|utf-8', header_converters: lambda {|f| f&.strip})
       else
         records[:core] = CSV.parse(Roo::Spreadsheet.open(source.path).to_csv, headers: true, header_converters: lambda {|f| f&.strip})
       end
@@ -305,6 +305,19 @@ class ImportDataset::DarwinCore < ImportDataset
   end
 
   private
+
+  def return_default_if_absent(value, default)
+    return default if value.nil? || value.empty?
+    value
+  end
+
+  def get_col_sep
+    return_default_if_absent(metadata.dig("import_settings", "col_sep"), "\t")
+  end
+
+  def get_quote_char
+    return_default_if_absent(metadata.dig("import_settings", "quote_char"), "\"")
+  end
 
   def get_fields_mapping
     @fields_mapping ||= metadata['core_headers']

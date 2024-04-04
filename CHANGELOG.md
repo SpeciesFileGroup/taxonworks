@@ -7,9 +7,97 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.40.1] - 2024-04-02
+
 ### Added
 
+- Some more quality-of-life changes to Leads/keys
+- Spatial summary report for CollectingEvent filter 
+- Geographic Area radial navigator links to associated filters
+- Radial nomenclature: verbatim_author slice [#3896]
+
+#### Changed
+
+- Gems updated
+
+### Fixed
+
+- Async batch update calls on individual objects failing [#3905]
+- DwC export without CollectingEvents failing [#3897]
+- Cloning CollectingEvents sets creator to the person who cloned the record
+- Filter Staged Images missing filter button [#3901]
+
+[#3905]: https://github.com/SpeciesFileGroup/taxonworks/issues/3905
+[#3897]: https://github.com/SpeciesFileGroup/taxonworks/issues/3897
+[#3896]: https://github.com/SpeciesFileGroup/taxonworks/issues/3896
+[#3901]: https://github.com/SpeciesFileGroup/taxonworks/issues/3901
+
+## [0.40.0] - 2024-03-26
+
+_Special thanks to Tom Klein for his amazing open-source contributions on this release!._
+
+### Added
+
+- Model FieldOccurrence (observations sensu iNaturalist), with corresponding "new" task [#1643]
+- Model "Lead" (dichotomous key support), with corresponding "new" task" [#1691]
+- Key hub task [#3881]
+- New OTU task
+- "Week in review" task, visualize records added and navigate to them in filter context
+- OTU name to Filter CO result [#3861]
+- Batch add/remove sources to project from Source filter [#3888]
 - Add taxon name autocomplete to Type specimen facet
+- DwC Dashboard: Use the same DwC download of collection object filter task
+- DwC-A Workbench: Add pagination for created imports
+- Clone mode on image matrix
+- Radial CO: Add preparation type slice [#3889]
+- Radial mass navigation [#3672]
+- Batch update or add data attributes [#3748]
+- Include OTU `name` in Filter Collection Objects result
+- Text file delimiter options to DwC import [#3894]
+- CSV format for DwC importer
+- Project vocabulary word-cloud text links to filter result for some models (e.g. CollectingEvent)
+
+### Changed
+
+- Images can no longer be duplicated attempting and are seemlessly normalized at creation [#2909]
+- Filter images: Remove quick forms for Depictions [#3869]
+- New image task: Add alert when trying to restart the interface without applying changes
+- New CE: Destroy label when print label input is empty [#3878]
+- Updated Ruby gems
+- DwC importer now defaults to use `"` as string delimiter when importing and downloading tables.
+
+### Fixed
+
+- Project vocabulary handling of numeric fields
+- Rediculous number of identifiers preventing collecting event editing [#3715]
+- Community-based models not showing AlternateValues [#3883]
+- Browse OTUs: headers do not link to correct panel [#3868]
+- DwC-A importer crashing on hybrid formula scientific names
+- Crash when georeferencing with zero meters of uncertainty
+- New CE: Custom attributes don't refresh on new/edit CE [#3874]
+- Radial quick forms: Asserted distribution screen partially blocked by a white rectangle [#3891]
+- Print label task doesn't apply styles to labels [#3776]
+- Missing collection object links on map markers
+
+[#3748]: https://github.com/SpeciesFileGroup/taxonworks/issues/3748
+[#3881]: https://github.com/SpeciesFileGroup/taxonworks/issues/3881
+[#2909]: https://github.com/SpeciesFileGroup/taxonworks/issues/2909
+[#1643]: https://github.com/SpeciesFileGroup/taxonworks/issues/1643
+[#1691]: https://github.com/SpeciesFileGroup/taxonworks/issues/1691
+[#3672]: https://github.com/SpeciesFileGroup/taxonworks/issues/3672
+[#3715]: https://github.com/SpeciesFileGroup/taxonworks/issues/3715
+[#3776]: https://github.com/SpeciesFileGroup/taxonworks/issues/3776
+[#3861]: https://github.com/SpeciesFileGroup/taxonworks/issues/3861
+[#3868]: https://github.com/SpeciesFileGroup/taxonworks/issues/3868
+[#3869]: https://github.com/SpeciesFileGroup/taxonworks/issues/3869
+[#3878]: https://github.com/SpeciesFileGroup/taxonworks/issues/3878
+[#3883]: https://github.com/SpeciesFileGroup/taxonworks/issues/3883
+[#3888]: https://github.com/SpeciesFileGroup/taxonworks/issues/3888
+[#3889]: https://github.com/SpeciesFileGroup/taxonworks/issues/3889
+[#3891]: https://github.com/SpeciesFileGroup/taxonworks/issues/3891
+[#3894]: https://github.com/SpeciesFileGroup/taxonworks/issues/3894
 
 ## [0.39.0] - 2024-03-01
 
@@ -4381,7 +4469,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.39.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.1...development
+[0.40.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.0...v0.40.1
+[0.40.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.3...v0.39.0
 [0.38.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.2...v0.38.3
 [0.38.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.1...v0.38.2

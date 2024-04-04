@@ -47,7 +47,7 @@ function removeEmptyProperties(object) {
   return obj
 }
 
-const isDeepEqual = (object1, object2) => {
+function isDeepEqual(object1, object2) {
   const objKeys1 = Object.keys(object1)
   const objKeys2 = Object.keys(object2)
 
@@ -69,6 +69,21 @@ const isDeepEqual = (object1, object2) => {
   return true
 }
 
+function flattenObject(obj, prefix = '') {
+  return Object.keys(obj).reduce((acc, key) => {
+    const newKey = prefix ? `${prefix}_${key}` : key
+
+    if (typeof obj[key] === 'object' && obj[key] !== null) {
+      const flattened = flattenObject(obj[key], newKey)
+      Object.assign(acc, flattened)
+    } else {
+      acc[newKey] = obj[key]
+    }
+
+    return acc
+  }, {})
+}
+
 export {
   copyObject,
   copyObjectByArray,
@@ -76,5 +91,6 @@ export {
   isJSON,
   isObject,
   removeEmptyProperties,
-  isDeepEqual
+  isDeepEqual,
+  flattenObject
 }

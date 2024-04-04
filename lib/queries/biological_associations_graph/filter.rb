@@ -133,7 +133,7 @@ module Queries
 
  #      c = ::BiologicalAssociation
  #        .joins("JOIN collection_objects on collection_objects.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'CollectionObject'")
- #        .joins('JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = collection_objects.id')
+ #        .joins('JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = collection_objects.id') # TODO: change with FO
  #        .joins('JOIN otus on otus.id = taxon_determinations.otu_id')
  #        .joins('JOIN query_tn_ba as query_tn_ba3 on otus.taxon_name_id = query_tn_ba3.id')
  #        .where('taxon_determinations.position = 1')
@@ -141,7 +141,7 @@ module Queries
 
  #      d = ::BiologicalAssociation
  #        .joins("JOIN collection_objects on collection_objects.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'CollectionObject'")
- #        .joins('JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = collection_objects.id')
+ #        .joins('JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = collection_objects.id') # TODO: change with FO
  #        .joins('JOIN otus on otus.id = taxon_determinations.otu_id')
  #        .joins('JOIN query_tn_ba as query_tn_ba4 on otus.taxon_name_id = query_tn_ba4.id')
  #        .where('taxon_determinations.position = 1')

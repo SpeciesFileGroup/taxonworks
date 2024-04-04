@@ -23,7 +23,7 @@ export default defineStore('board', {
         collectionObjectId,
         g: svg,
         attributes: {
-          fill: await getHexColorFromString(String(collectionObjectId)),
+          fill: getHexColorFromString(String(collectionObjectId)),
           'fill-opacity': 0.25,
           'stroke-width': 2 * window.devicePixelRatio
         }

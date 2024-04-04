@@ -241,7 +241,7 @@ module Queries
         # Consider position = 1
         b = ::Loan.joins(:loan_items)
           .joins("JOIN collection_objects co on co.id = loan_items.loan_item_object_id and loan_items.loan_item_object_type = 'CollectionObject'")
-          .joins('JOIN taxon_determinations td on co.id = td.biological_collection_object_id')
+          .joins("JOIN taxon_determinations td on co.id = td.taxon_determination_object_id AND td.taxon_determination_object_type = 'CollectionObject'")
           .joins('JOIN query_otu_loan as query_otu_loan2 ON query_otu_loan2.id = td.otu_id').to_sql
 
         s << ::Loan.from("((#{a}) UNION (#{b})) as loans").to_sql

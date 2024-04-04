@@ -48,6 +48,14 @@ Core: # a Section
     related_models:
       - ObservationMatrix
     status: :prototype
+  FieldOccurrence:
+    status: :stable
+    related_models:
+      - TaxonName
+      - TaxonDetermination
+    categories:
+      - CollectingEvent
+      - TaxonDetermination
   Observation:
     categories:
       - matrix
@@ -210,6 +218,10 @@ Supporting:
       - CollectionObject
       - CollectingEvent
       - TaxonDetermination
+  Lead:
+    status: :prototype
+    related_models:
+      - Otu
   Loan:
     status: :prototype
     categories:

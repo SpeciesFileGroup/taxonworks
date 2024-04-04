@@ -115,6 +115,15 @@ class DataAttributesController < ApplicationController
     end
   end
 
+  # /data_attributes/batch_update_or_create?<some_object>_query={}&value_from=123&value_to=456&predicate_id=890
+  def batch_update_or_create
+    if ::InternalAttribute.batch_update_or_create(params)
+      render json: {}, status: :ok
+    else
+      render json: { errors: ['Batch update or create failed.'] }, status: :unprocessable_entity
+    end
+  end
+
   def list
     @data_attributes = DataAttribute.where(project_id: sessions_current_project_id).order(:attribute_subject_type).page(params[:page])
   end
@@ -142,12 +151,12 @@ class DataAttributesController < ApplicationController
     render json: [] and return if params[:term].blank?
 
     @internal_attributes = ::DataAttribute
-    .where(project_id: sessions_current_project_id)
-    .where('import_predicate ilike ?', '%' + params[:term] + '%' )
-    .order(:import_predicate)
-    .distinct
-    .limit(20)
-    .pluck(:import_predicate)
+      .where(project_id: sessions_current_project_id)
+      .where('import_predicate ilike ?', '%' + params[:term] + '%' )
+      .order(:import_predicate)
+      .distinct
+      .limit(20)
+      .pluck(:import_predicate)
 
     render json: @internal_attributes
   end

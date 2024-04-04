@@ -71,8 +71,6 @@ module Export::Dwca
     def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: [])
       raise ArgumentError, 'must pass a core_scope' if core_scope.nil?
 
-
-
       @core_scope = core_scope
 
       @biological_associations_extension = extension_scopes[:biological_associations] #! String
@@ -302,6 +300,9 @@ module Export::Dwca
     #   @return Array
     #     1 row per CO per DA (type) on CE
     def collecting_event_attributes
+
+      return [] if !collecting_event_attributes_query.any?
+
       a = collection_objects.left_joins(collecting_event: [internal_attributes: [:predicate]] )
         .where("(data_attributes.id IN (#{collecting_event_attributes_query.pluck(:id).join(',')}))") # mmmarg, how to do this with join
         .select('collection_objects.id', "CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate", 'data_attributes.value')

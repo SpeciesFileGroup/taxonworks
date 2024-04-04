@@ -38,8 +38,10 @@
 
           <button
             v-if="!isOneRow(item) && key === 'total'"
-            class="button normal-input button-submit">
-            Create for both
+            class="button normal-input button-submit"
+            @click="batchLoadForAll(item.object.id, item.totals)"
+          >
+            Create for all
           </button>
         </div>
       </template>

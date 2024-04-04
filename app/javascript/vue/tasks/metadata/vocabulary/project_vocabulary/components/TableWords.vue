@@ -10,6 +10,7 @@
       <tr
         v-for="[term, count] in list"
         :key="term"
+        @click="emit('select', term)"
       >
         <td v-text="term" />
         <td v-text="count" />
@@ -25,4 +26,6 @@ defineProps({
     default: () => []
   }
 })
+
+const emit = defineEmits(['select'])
 </script>

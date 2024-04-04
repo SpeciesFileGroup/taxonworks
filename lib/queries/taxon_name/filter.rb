@@ -426,7 +426,7 @@ module Queries
         otus = ::Queries::Otu::Filter.new(geo_json:).all
         collection_objects = ::Queries::CollectionObject::Filter.new(geo_json:).all
 
-        a = ::TaxonName.joins(:taxon_taxon_determinations).where(taxon_determinations: { biological_collection_object: collection_objects })
+        a = ::TaxonName.joins(:taxon_taxon_determinations).where(taxon_determinations: { taxon_determination_object: collection_objects })
         b = ::TaxonName.joins(:otus).where(otus:)
 
         ::TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")

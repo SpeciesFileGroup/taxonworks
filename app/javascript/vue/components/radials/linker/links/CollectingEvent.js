@@ -1,6 +1,14 @@
+import {
+  TASK_COLLECTING_EVENT_SPATIAL_SUMMARY,
+} from '../constants/links'
+
 export const CollectingEvent = {
-  all: [],
-  ids: []
+  all: [
+    TASK_COLLECTING_EVENT_SPATIAL_SUMMARY
+  ],
+  ids: [
+    TASK_COLLECTING_EVENT_SPATIAL_SUMMARY
+  ]
   /*   per: [
     {
       label: 'By collection object',

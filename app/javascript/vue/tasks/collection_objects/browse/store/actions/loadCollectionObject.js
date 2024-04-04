@@ -63,11 +63,12 @@ export default ({ state, dispatch }, coId) => {
     state.depictions = body
   })
 
-  TaxonDetermination.where({ biological_collection_object_id: [coId] }).then(
-    ({ body }) => {
-      state.determinations = sortArray(body, 'position')
-    }
-  )
+  TaxonDetermination.where({
+    taxon_determination_object_id: [coId],
+    taxon_determination_object_type: COLLECTION_OBJECT
+  }).then(({ body }) => {
+    state.determinations = sortArray(body, 'position')
+  })
 
   TypeMaterial.where({
     collection_object_id: coId,

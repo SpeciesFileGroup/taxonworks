@@ -770,8 +770,10 @@ class Protonym < TaxonName
 
   # @return [[rank_name, name], nil]
   #   Used in ColDP export
-  def original_combination_infraspecific_element(elements = nil)
+  def original_combination_infraspecific_element(elements = nil, remove_sic = false)
     elements ||= original_combination_elements
+
+    elements = elements.each { |r, e| e.delete('[sic]') } if remove_sic
 
     # TODO: consider plants/other codes?
     [:form, :variety, :subspecies].each do |r|
