@@ -917,3 +917,10 @@ field_synchronize_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+collecting_events_spatial_summary_task:
+  hub: false
+  name: 'Collecting Event Spatial Summary'
+  related:
+  categories:
+  status: prototype
+  description: 'Summarize spatial characteristics of a set of Collecting Events.'

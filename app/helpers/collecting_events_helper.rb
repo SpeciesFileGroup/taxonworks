@@ -255,5 +255,11 @@ module CollectingEventsHelper
     base
   end
 
+  def collecting_event_georeference_points(collecting_events)
+    GeographicItem.joins(:collecting_events_through_georeferences)
+      .where(georeferences: {collecting_event: collecting_events})
+      .select(GeographicItem.lat_long_sql(:latitude), GeographicItem.lat_long_sql(:longitude) )
+      .collect{|g| [g.longitude, g.latitude]}.uniq
+  end
 
 end

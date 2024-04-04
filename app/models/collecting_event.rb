@@ -1045,7 +1045,7 @@ class CollectingEvent < ApplicationRecord
       )
 
       request.cap = 1000
-      request.cap_reason = 'Max 1000 updated at a time.'
+      request.cap_reason = 'Max 500 updated at a time.'
       query_batch_update(request)
     end
   end

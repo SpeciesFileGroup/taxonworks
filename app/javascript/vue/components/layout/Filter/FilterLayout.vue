@@ -75,27 +75,29 @@
             v-model="perValue"
           />
           <div class="horizontal-right-content gap-small">
-            <RadialFilter
-              :ids="selectedIds"
-              :parameters="parameters"
-              :disabled="!selectedIds.length"
-              :object-type="objectType"
-            />
-            <RadialLinker
-              :ids="selectedIds"
-              :disabled="!selectedIds.length"
-              :object-type="objectType"
-            />
-            <RadialMassAnnotator
-              :object-type="objectType"
-              :ids="selectedIds"
-              :disabled="!selectedIds.length"
-            />
-            <RadialNavigation
-              :model="objectType"
-              :ids="selectedIds"
-              :disabled="!selectedIds.length"
-            />
+            <template v-if="selectedIds">
+              <RadialFilter
+                :ids="selectedIds"
+                :parameters="parameters"
+                :disabled="!selectedIds.length"
+                :object-type="objectType"
+              />
+              <RadialLinker
+                :ids="selectedIds"
+                :disabled="!selectedIds.length"
+                :object-type="objectType"
+              />
+              <RadialMassAnnotator
+                :object-type="objectType"
+                :ids="selectedIds"
+                :disabled="!selectedIds.length"
+              />
+              <RadialNavigation
+                :model="objectType"
+                :ids="selectedIds"
+                :disabled="!selectedIds.length"
+              />
+            </template>
             <slot name="nav-right" />
             <span class="separate-left separate-right">|</span>
             <FilterDownload

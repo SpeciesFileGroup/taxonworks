@@ -10,7 +10,7 @@
       }
     "
   >
-    Load other otus from the key
+    Load others
   </VBtn>
   <div
     v-else

@@ -230,6 +230,55 @@ class Lead < ApplicationRecord
     result
   end
 
+  # @return [ActiveRecord::Relation] ordered by text.
+  # Returns all root nodes, with new properties:
+  #  * couplet_count (number of couplets in the key)
+  #  * otus_count (total number of distinct otus on the key)
+  #  * key_updated_at (last time the key was updated)
+  #  * key_updated_by_id (id of last person to update the key)
+  #  * key_updated_by (name of last person to update the key)
+  #
+  # !! Note, the relation is a join, check your results when changing order
+  # or plucking, most of want you want is on the table joined to, which is
+  # not the default table for ordering and plucking.
+  def self.roots_with_data(project_id, load_root_otus = false)
+    # The updated_at subquery computes key_updated_at (and others), the second
+    # query uses that to compute key_updated_by (by finding which node has the
+    # corresponding key_updated_at).
+    # TODO: couplet_count will be wrong if any couplets don't have exactly two
+    # children.
+    updated_at = Lead
+      .joins('JOIN lead_hierarchies AS lh
+        ON leads.id = lh.ancestor_id')
+      .joins('JOIN leads AS otus_source
+        ON lh.descendant_id = otus_source.id')
+      .where("
+        leads.parent_id IS NULL
+        AND leads.project_id = #{project_id}
+      ")
+      .group(:id)
+      .select('
+        leads.*,
+        COUNT(DISTINCT otus_source.otu_id) AS otus_count,
+        MAX(otus_source.updated_at) as key_updated_at,
+        (COUNT(otus_source.id) - 1) / 2 AS couplet_count
+      ')
+
+    root_leads = Lead
+      .joins("JOIN (#{updated_at.to_sql}) AS leads_updated_at
+        ON leads_updated_at.key_updated_at = leads.updated_at")
+      .joins('JOIN users
+        ON users.id = leads.updated_by_id')
+      .select('
+        leads_updated_at.*,
+        leads.updated_by_id AS key_updated_by_id,
+        users.name AS key_updated_by
+      ')
+      .order('leads_updated_at.text')
+
+    return load_root_otus ? root_leads.includes(:otu) : root_leads
+  end
+
   protected
 
   def root_has_title

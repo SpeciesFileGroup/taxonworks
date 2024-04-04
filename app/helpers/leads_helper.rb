@@ -41,4 +41,10 @@ module LeadsHelper
   def leads_search_form
     render('/leads/quick_search_form')
   end
+
+  # @return [True]
+  #   indicates a custom partial should be used, see list_helper.rb
+  def leads_recent_objects_partial
+    true
+  end
 end
