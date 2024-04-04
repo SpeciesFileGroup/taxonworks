@@ -107,12 +107,31 @@
           v-if="previewHeader"
           class="cell-left-border"
         >
-          <input
+          <div
             v-for="(p, index) in item.preview"
-            type="text"
-            disabled
-            :value="p"
-          />
+            class="horizontal-left-content gap-small"
+          >
+            <input
+              type="text"
+              disabled
+              :value="p"
+            />
+            <VBtn
+              color="update"
+              medium
+              @click="
+                () => {
+                  emit('update:preview', {
+                    item,
+                    index,
+                    value: p
+                  })
+                }
+              "
+            >
+              Apply
+            </VBtn>
+          </div>
         </td>
       </tr>
     </tbody>
@@ -148,7 +167,8 @@ const props = defineProps({
 const emit = defineEmits([
   'remove:attribute',
   'update:attribute',
-  'update:data-attribute'
+  'update:data-attribute',
+  'update:preview'
 ])
 </script>
 

@@ -5,10 +5,9 @@
       <select v-model="from">
         <option
           :value="undefined"
-          disabled
           selected
         >
-          Select...
+          None
         </option>
         <option
           v-for="attribute in attributes"
@@ -32,10 +31,9 @@
       <select v-model="to">
         <option
           :value="undefined"
-          disabled
           selected
         >
-          Select...
+          None
         </option>
         <option
           v-for="attribute in attributes"

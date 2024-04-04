@@ -29,8 +29,9 @@
             )
           }
         "
-        @update:attribute="updateField"
+        @update:attribute="updateFieldAttribute"
         @update:data-attribute="saveDataAttribute"
+        @update:preview="processPreview"
       />
     </div>
   </div>
@@ -42,7 +43,7 @@
 
 <script setup>
 import { onBeforeMount, ref, computed, watch } from 'vue'
-import { Metadata, CollectingEvent, DataAttribute } from '@/routes/endpoints'
+import { Metadata, DataAttribute } from '@/routes/endpoints'
 import { DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE } from '@/constants'
 import {
   URLParamsToJSON,
@@ -74,11 +75,24 @@ const to = ref()
 const regexPatterns = ref([])
 
 function applyRegex(text, regexPatterns) {
-  regexPatterns.forEach((pattern) => {
+  for (let i = 0; i < regexPatterns.length; i++) {
+    const pattern = regexPatterns[i]
     const regex = new RegExp(pattern.match, 'g')
 
-    text = text?.replace(regex, pattern.value)
-  })
+    if (pattern.match) {
+      if (pattern.replace) {
+        text = text?.replace(regex, pattern.value)
+      } else {
+        const found = text.match(regex)
+
+        if (found) {
+          text = found[0]
+        } else {
+          return text
+        }
+      }
+    }
+  }
 
   return text
 }
@@ -96,7 +110,7 @@ const tableList = computed(() => {
       ...item
     }
 
-    if (from.value && to.value && regexPatterns.value.length) {
+    if (from.value && to.value) {
       try {
         const text = from.value?.id
           ? item.dataAttributes[from.value.id].map((item) => item.value)
@@ -104,10 +118,12 @@ const tableList = computed(() => {
 
         data.preview = [text]
           .flat()
-          .map((t) => applyRegex(t, regexPatterns.value))
-      } catch (e) {
-        console.log(e)
-      }
+          .map((t) =>
+            t && regexPatterns.value.length
+              ? applyRegex(t, regexPatterns.value)
+              : t
+          )
+      } catch (e) {}
     }
 
     return data
@@ -123,17 +139,38 @@ function makeDataAttribute({ predicateId, value = null, id = null }) {
   }
 }
 
-function updateField({ item, attribute, value }) {
-  CollectingEvent.update(item.id, {
-    collecting_event: {
-      [attribute]: value
-    }
-  }).then((body) => {
-    const currentItem = list.value.find((obj) => obj.id === item.id)
+function processPreview({ item, index, value }) {
+  const predicateId = to.value?.id
 
-    currentItem[attribute] = value
-    TW.workbench.alert.create('Field was successfully updated')
-  })
+  if (predicateId) {
+    const dataAttribute = item.dataAttributes[predicateId][index]
+
+    saveDataAttribute({
+      ...dataAttribute,
+      objectId: item.id,
+      value
+    })
+  } else {
+    updateFieldAttribute({ item, attribute: to.value, value })
+  }
+}
+
+function updateFieldAttribute({ item, attribute, value }) {
+  const { service } = QUERY_PARAMETER[queryParam.value]
+  const objectParam = queryParam.value.slice(0, -6)
+
+  service
+    .update(item.id, {
+      [objectParam]: {
+        [attribute]: value
+      }
+    })
+    .then((body) => {
+      const currentItem = list.value.find((obj) => obj.id === item.id)
+
+      currentItem.attributes[attribute] = value
+      TW.workbench.alert.create('Field was successfully updated')
+    })
 }
 
 function getQueryParamFromUrl() {
@@ -183,10 +220,15 @@ function saveDataAttribute({ id, value, objectId, predicateId, uuid }) {
       : DataAttribute.create(payload)
 
     request.then(({ body }) => {
-      const da = predicates.find((item) => item.uuid === uuid)
+      const _dataAttributes = dataAttributes.value[objectId][predicateId]
+      const da = _dataAttributes.find((item) => item.uuid === uuid)
+      const currentDa = predicates.find((item) => item.uuid === uuid)
 
       da.id = body.id
       da.value = body.value
+      currentDa.value = body.id
+      currentDa.value = body.value
+
       TW.workbench.alert.create('Data attribute was successfully updated')
     })
   }
@@ -223,10 +265,14 @@ function loadAttributes(attribute) {
     list.value = body.map((item) => {
       const { id, ...attributes } = item
 
+      if (!dataAttributes.value[id]) {
+        dataAttributes.value[id] = fillDataAttributes({})
+      }
+
       return {
         id,
         attributes,
-        dataAttributes: dataAttributes.value[id] || fillDataAttributes({})
+        dataAttributes: dataAttributes.value[id]
       }
     })
   })
