@@ -10,6 +10,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - New collecting event: It tries to save the label even if it is empty
+- Spatial summary return to filter with empty cached level fields [#3907]
+
+[#3907]: https://github.com/SpeciesFileGroup/taxonworks/issues/3907
 
 \-
 
