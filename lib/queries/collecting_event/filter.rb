@@ -412,6 +412,15 @@ module Queries
         ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
       end
 
+      def housekeeping_extensions
+        [
+          housekeeping_extension_query(target: ::DataAttribute, joins: [:data_attributes]),
+          housekeeping_extension_query(target: ::Georeference, joins: [:georeferences]),
+          housekeeping_extension_query(target: ::Note, joins: [:notes]),
+          housekeeping_extension_query(target: ::Role, joins: [:roles]),
+        ]
+      end
+
       # @return [Array]
       def and_clauses
         [

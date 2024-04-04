@@ -6,6 +6,7 @@ import addObjectForDepictions from './addObjectForDepictions'
 import addTag from './addTag'
 import removeObjectForDepictions from './removeObjectForDepictions'
 import resetStore from './resetStore'
+import setApplied from './setApplied'
 import setAttributionsCreated from './setAttributionsCreated'
 import setAuthors from './setAuthors'
 import setCollectionObject from './setCollectionObject'
@@ -39,6 +40,7 @@ const MutationNames = {
   AddTag: 'addTag',
   RemoveObjectForDepictions: 'removeObjectForDepictions',
   ResetStore: 'resetStore',
+  SetApplied: 'setApplied',
   SetAttributionsCreated: 'setAttributionsCreated',
   SetAuthors: 'setAuthors',
   SetCollectionObject: 'setCollectionObject',
@@ -73,6 +75,7 @@ const MutationFunctions = {
   [MutationNames.AddTag]: addTag,
   [MutationNames.RemoveObjectForDepictions]: removeObjectForDepictions,
   [MutationNames.ResetStore]: resetStore,
+  [MutationNames.SetApplied]: setApplied,
   [MutationNames.SetAttributionsCreated]: setAttributionsCreated,
   [MutationNames.SetAuthors]: setAuthors,
   [MutationNames.SetCollectionObject]: setCollectionObject,

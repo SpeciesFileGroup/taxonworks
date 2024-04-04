@@ -37,7 +37,7 @@ jobs:
 
     services:
       db:
-        image: postgis/postgis:12-3.4
+        image: postgis/postgis:15-3.4
         ports: ['5432:5432']
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -55,24 +55,24 @@ jobs:
         echo "year_week=$(date -u +'%Y-%U')" >> $GITHUB_OUTPUT
 
     - name: Git checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
         
     - name: Set up Ruby Bundler gems cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: vendor/bundle
         key: ${{ runner.os }}-gems-${{ hashFiles('.ruby-version', '**/Gemfile', '**/Gemfile.lock', 'exe/install-imagemagick7.sh') }}
 
     - name: Set up Node 18 LTS
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
 
     - name: Set up Node packages cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.npm
@@ -80,7 +80,7 @@ jobs:
         key: ${{ runner.os }}-node-18-${{ hashFiles('**/package-lock.json') }}
 
     - name: Set up assets cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           tmp/cache/shakapacker
@@ -91,7 +91,7 @@ jobs:
           ${{ runner.os }}-assets-${{ steps.datetime.outputs.iso_date }}
 
     - name: Set up VCR cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: spec/fixtures/vcr_cassettes
         key: ${{ runner.os }}-vcr-rev2-${{ steps.datetime.outputs.year_week }}-${{ hashFiles('**/Gemfile.lock') }}-${{ matrix.worker }}
@@ -106,7 +106,7 @@ jobs:
       run: sudo chown $(id -u) /usr/src
 
     - name: Set up imagemagick cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           /usr/src/libheif-*

@@ -23,6 +23,23 @@ describe Image, type: :model, group: [:images] do
     i.run_callbacks(:commit)
   }
 
+  specify 'duplicate images are not allowed 1' do
+    a = FactoryBot.create(:valid_image)
+    expect(Image.new(image_file: a.image_file).valid?).to be_falsey
+  end
+
+  specify 'duplicate images add fingerprint error' do
+    a = FactoryBot.create(:valid_image)
+    i = Image.new(image_file: a.image_file)
+    i.valid?
+    expect(i.errors.include?(:image_file_fingerprint)).to be_truthy
+  end
+
+  specify '#deduplicate_create' do
+    a = FactoryBot.create(:valid_image)
+    expect(Image.deduplicate_create(image_file: a.image_file)).to eq(a)
+  end
+
   # Taken verbatim from the doc. 
   context 'default paperclip tests' do
     it { is_expected.to have_attached_file(:image_file) }
@@ -70,17 +87,14 @@ describe Image, type: :model, group: [:images] do
       k.run_callbacks(:commit)
     }
 
-    specify 'once saved, it should soft validate for duplicate images already saved to database' do
-      expect(i.soft_validations.messages).to include 'This image is a duplicate of an image already stored.'
-      expect(k.soft_validations.messages).to include 'This image is a duplicate of an image already stored.'
-    end
-
-    specify '#has_duplicate?' do
+    # TODO: Deprecated, remove when data are clean
+    xspecify '#has_duplicate?' do
       expect(i.has_duplicate?).to be_truthy
       expect(k.has_duplicate?).to be_truthy
     end
 
-    specify '#duplicate_images' do
+    # TODO: Deprecated remove when data are clean
+    xspecify '#duplicate_images' do
       expect(i.duplicate_images).to eq([k])
     end
   end

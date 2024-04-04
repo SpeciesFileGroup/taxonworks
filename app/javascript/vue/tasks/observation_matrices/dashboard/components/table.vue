@@ -129,7 +129,7 @@
 import { GetterNames } from '../store/getters/getters'
 import { RouteNames } from '@/routes/routes'
 import ModalList from './modalList'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import AddToMatrix from './addToMatrix'
 import ButtonImageMatrix from './buttonImageMatrix.vue'
 import ButtonEditImageMatrix from './ButtonEditImageMatrix.vue'

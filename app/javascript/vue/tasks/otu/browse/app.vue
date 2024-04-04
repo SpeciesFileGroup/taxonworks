@@ -82,7 +82,7 @@
 
 <script>
 import HeaderBar from './components/HeaderBar'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import ImageGallery from './components/gallery/Main'
 import ContentComponent from './components/Content'
 import AssertedDistribution from './components/AssertedDistribution'
@@ -249,6 +249,9 @@ export default {
 
 <style lang="scss">
 #browse-otu {
+  .anchor {
+    scroll-margin-top: 9rem;
+  }
   .autocomplete-search-bar {
     input {
       width: 500px;

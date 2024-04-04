@@ -6,7 +6,7 @@ class CollectionObjectsController < ApplicationController
     :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications,
     :timeline,
     :api_show, :api_dwc]
-  after_action -> { set_pagination_headers(:collection_objects) }, only: [:index], if: :json_request?
+  after_action -> { set_pagination_headers(:collection_objects) }, only: [:index, :api_index], if: :json_request?
 
   # GET /collecting_events
   # GET /collecting_events.json

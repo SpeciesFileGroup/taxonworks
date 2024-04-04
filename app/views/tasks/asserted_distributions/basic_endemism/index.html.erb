@@ -47,7 +47,7 @@
       <%= content_tag(:td, taxon_name_browse_link(t)) -%>
       <%= content_tag(:td, !@data[t]) -%>
       <!-- TODO: we need a more explicit map since invalid OTUs are lost in the linkage below) -->
-      <%= content_tag(:td, link_to('map', index_browse_asserted_distributions_task_path(otu_id: t.otus&.first&.id) )) -%>
+      <%= content_tag(:td, link_to('map', browse_asserted_distributions_task(otu_id: t.otus&.first&.id) )) -%>
     </tr>
   <% end %>
 </table>

@@ -19,6 +19,7 @@
         <RadialNomenclature
           :disabled="!list.length"
           :parameters="parameters"
+          :count="pagination?.total || 0"
           @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
@@ -31,6 +32,7 @@
         <RadialNomenclature
           :disabled="!list.length"
           :ids="selectedIds"
+          :count="selectedIds.length"
           @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
@@ -59,7 +61,7 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import RadialLabel from '@/components/radials/label/radial.vue'
 import RadialNomenclature from '@/components/radials/nomenclature/radial.vue'

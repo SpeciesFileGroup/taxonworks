@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import CellHeader from './CellHeader.vue'
 import RadialObject from '@/components/radials/object/radial'
 import TableGrid from '@/components/layout/Table/TableGrid.vue'

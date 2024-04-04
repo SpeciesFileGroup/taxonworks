@@ -68,6 +68,16 @@ class ProjectSourcesController < ApplicationController
       ProjectSource.where(project_id: sessions_current_project_id)), type: 'text', filename: "project_sources_#{DateTime.now}.tsv"
   end
 
+  # POST /project_sources/batch_sync_to_project?source_query=<>
+  def batch_sync_to_project
+    a = ProjectSource.batch_sync_to_project(params, params[:operation], sessions_current_project_id)
+    if a
+      render json: { success: true, total: a }, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
   protected
 
   def project_source_params

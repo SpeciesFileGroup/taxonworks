@@ -65,14 +65,19 @@ class ImagesController < ApplicationController
   # POST /images
   # POST /images.json
   def create
-    @image = Image.new(image_params)
+    @image = Image.deduplicate_create(image_params)
     respond_to do |format|
-      if @image.save
-        format.html { redirect_to @image, notice: 'Image was successfully created.' }
-        format.json { render :show, status: :created, location: @image }
+      if @image.persisted?
+        format.html { redirect_to @image, notice: 'Identical image exists.' }
+        format.json { render :show, status: :ok, location: @image }
       else
-        format.html { render :new }
-        format.json { render json: @image.errors, status: :unprocessable_entity }
+        if @image.save
+          format.html { redirect_to @image, notice: 'Image was successfully created.' }
+          format.json { render :show, status: :created, location: @image }
+        else
+          format.html { render :new }
+          format.json { render json: @image.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
@@ -144,6 +149,11 @@ class ImagesController < ApplicationController
 
   # GET 'images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
   def scale_to_box
+    send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
+  end
+
+  # GET 'images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
+  def api_scale_to_box
     send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
   end
 

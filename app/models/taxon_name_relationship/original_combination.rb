@@ -62,7 +62,7 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
   #   TODO: reconcile this format with that of full_name_hash
   def combination_name(name_gender = nil)
     elements = [monominal_prefix]
-    if !subject_taxon_name.verbatim_name.blank? && name_gender.nil?
+    if subject_taxon_name.verbatim_name.present? && name_gender.nil?
       elements.push subject_taxon_name.verbatim_name
     else
       elements.push subject_taxon_name.genderized_name(name_gender)
@@ -82,15 +82,18 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
   protected
 
   def set_cached_names_for_taxon_names
+
     begin
       TaxonName.transaction do
         t = object_taxon_name
         t.send(:set_cached)
-        t.update_columns(
-          cached_original_combination: t.get_original_combination,
-          cached_original_combination_html: t.get_original_combination_html,
-          cached_author_year: t.get_author_and_year,
-          )
+        t.send(:set_cached_original_combination)
+        t.send(:set_cached_original_combination_html)
+#       t.update_columns(
+#         cached_original_combination: t.get_original_combination,
+#         cached_original_combination_html: t.get_original_combination_html,
+# #        cached_author_year: t.get_author_and_year, # is done in set_cached!!
+#         )
       end
     end
     true

@@ -157,7 +157,7 @@ import getRankGroup from '../helpers/getRankGroup'
 import childOfParent from '../helpers/childOfParent'
 import QuickTaxonName from './quickTaxonName'
 import platformKey from '@/helpers/getPlatformKey.js'
-import SwitchComponent from '@/components/switch.vue'
+import SwitchComponent from '@/components/ui/VSwitch.vue'
 
 export default {
   components: {

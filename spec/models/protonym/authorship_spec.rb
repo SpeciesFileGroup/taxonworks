@@ -19,9 +19,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   context 'by nested attributes' do
     let(:name) {
       Protonym.create!(
-        name: 'aus', 
-        parent: root, 
-        rank_class: Ranks.lookup(:iczn, :species), 
+        name: 'aus',
+        parent: root,
+        rank_class: Ranks.lookup(:iczn, :species),
         taxon_name_author_roles_attributes: [
           {person_id: p1.id},
           {person: p2},
@@ -35,22 +35,22 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   context 'updating roles' do
     let(:name) {
       Protonym.create!(
-        name: 'aus', 
-        parent: root, 
-        rank_class: Ranks.lookup(:iczn, :species), 
+        name: 'aus',
+        parent: root,
+        rank_class: Ranks.lookup(:iczn, :species),
         taxon_name_author_roles_attributes: [
           {person_id: p1.id}])}
     let(:first_role_id) {name.taxon_name_author_roles.first.id }
-    
+
     specify '#author_string 1' do
       name.update(taxon_name_author_roles_attributes: [{_destroy: true, id: first_role_id}, {person: p2}])
       expect(name.author_string).to eq('Jones')
     end
 
-   specify '#author_string 2' do
-     name.update(roles_attributes: [{_destroy: true, id: first_role_id}, {type: 'TaxonNameAuthor', person: p2}])
-     expect(name.author_string).to eq('Jones')
-   end
+    specify '#author_string 2' do
+      name.update(roles_attributes: [{_destroy: true, id: first_role_id}, {type: 'TaxonNameAuthor', person: p2}])
+      expect(name.author_string).to eq('Jones')
+    end
   end
 
 end

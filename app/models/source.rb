@@ -215,11 +215,8 @@ class Source < ApplicationRecord
   has_many :citation_topics, through: :citations, inverse_of: :source
   has_many :topics, through: :citation_topics, inverse_of: :sources
 
-  # !! must be below has_many :citations
-  # has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
-
-  has_many :project_sources, dependent: :destroy
-  has_many :projects, through: :project_sources
+  has_many :project_sources, inverse_of: :source, dependent: :destroy
+  has_many :projects, inverse_of: :sources, through: :project_sources
 
   after_save :set_cached
 

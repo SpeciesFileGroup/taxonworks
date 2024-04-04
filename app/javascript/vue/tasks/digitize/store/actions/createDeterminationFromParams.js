@@ -1,5 +1,6 @@
 import { Otu } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
+import { randomUUID } from '@/helpers'
 
 export default async ({ state, commit }) => {
   const urlParams = new URLSearchParams(window.location.search)
@@ -27,7 +28,7 @@ export default async ({ state, commit }) => {
       object_tag: otu.object_tag,
       otu_id: otu.id,
       roles_attributes: [],
-      uuid: crypto.randomUUID()
+      uuid: randomUUID()
     }
   ])
 }

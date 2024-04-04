@@ -32,10 +32,10 @@
       <div class="margin-medium-left">
         <div class="margin-xlarge-left">
           a
-          <select v-model="typeSelected">
-            <option :value="undefined">Select type</option>
+          <select v-model="type">
+            <option :value="null">Select type</option>
             <option
-              v-for="(item, key) in typeList"
+              v-for="(_, key) in typeList"
               :key="key"
               :value="key"
             >
@@ -46,7 +46,7 @@
       </div>
     </div>
     <smart-selector
-      v-if="typeSelected"
+      v-if="type"
       :model="modelSelected"
       :target="metadata.object_type"
       @selected="setObject"
@@ -56,7 +56,7 @@
       <button
         type="button"
         class="button normal-input button-submit"
-        :disabled="!objectSelected"
+        :disabled="!objective"
         @click="createOrigin"
       >
         Create
@@ -78,14 +78,14 @@
         v-model="list"
         @end="onSortable"
       >
-        <template #item="{ element, index }">
+        <template #item="{ element }">
           <tr>
             <td v-html="element.new_object_object_tag" />
             <td v-html="element.old_object_object_tag" />
             <td>
               <span
                 class="circle-button btn-delete"
-                @click="removeOrigin(index)"
+                @click="removeOrigin(element)"
               />
             </td>
           </tr>
@@ -95,10 +95,12 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { OriginRelationship } from '@/routes/endpoints'
+import { useSlice } from '@/components/radials/composables'
+import { ref, computed } from 'vue'
+import { COLLECTION_OBJECT } from '@/constants'
 import SmartSelector from '@/components/ui/SmartSelector'
-import CRUD from '../../request/crud'
-import annotatorExtend from '../annotatorExtend'
 import Draggable from 'vuedraggable'
 
 const controllerRoute = {
@@ -109,102 +111,113 @@ const controllerRoute = {
   Specimen: 'collection_objects'
 }
 
-export default {
-  mixins: [CRUD, annotatorExtend],
-
-  components: {
-    Draggable,
-    SmartSelector
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  data() {
-    return {
-      objectSelected: undefined,
-      originRelationship: undefined,
-      flip: undefined,
-      typeSelected: undefined
-    }
+  objectType: {
+    type: String,
+    required: true
   },
 
-  computed: {
-    typeList() {
-      return this.metadata.endpoints.origin_relationships.origin_for
-    },
-
-    originOf() {
-      return !this.flip
-        ? this.metadata.object_tag
-        : this.objectSelected?.object_tag
-    },
-
-    originFor() {
-      return this.flip
-        ? this.metadata.object_tag
-        : this.objectSelected?.object_tag
-    },
-
-    modelSelected() {
-      return controllerRoute[this.typeSelected]
-    }
+  globalId: {
+    type: String,
+    required: true
   },
 
-  methods: {
-    setObject(item) {
-      this.objectSelected =
-        this.modelSelected === controllerRoute.Specimen
-          ? Object.assign(item, { base_class: 'CollectionObject' })
-          : item
-    },
+  metadata: {
+    type: Object,
+    required: true
+  },
 
-    createOrigin() {
-      const newObject = !this.flip
-        ? this.objectSelected
-        : { id: this.metadata.object_id, base_class: this.metadata.object_type }
-      const oldObject = this.flip
-        ? this.objectSelected
-        : { id: this.metadata.object_id, base_class: this.metadata.object_type }
-      const originRelationship = {
-        old_object_id: oldObject.id,
-        old_object_type: oldObject.base_class,
-        new_object_id: newObject.id,
-        new_object_type: newObject.base_class
-      }
-
-      this.create('/origin_relationships', {
-        origin_relationship: originRelationship
-      }).then((response) => {
-        TW.workbench.alert.create(
-          'Origin relationship was successfully created.',
-          'notice'
-        )
-        this.list.unshift(response.body)
-      })
-    },
-
-    removeOrigin(index) {
-      this.destroy(`/origin_relationships/${this.list[index].id}.json`).then(
-        ({ body }) => {
-          TW.workbench.alert.create(
-            'Origin relationship was successfully destroyed.',
-            'notice'
-          )
-          this.list.splice(index, 1)
-        }
-      )
-    },
-
-    onSortable({ newIndex }) {
-      const originRelationship = {
-        id: this.list[newIndex].id,
-        position: newIndex
-      }
-
-      this.update(`/origin_relationships/${originRelationship.id}.json`, {
-        origin_relationship: originRelationship
-      }).then(({ body }) => {
-        this.list[newIndex] = body
-      })
-    }
+  radialEmit: {
+    type: Object,
+    required: true
   }
+})
+
+const typeList = props.metadata.endpoints.origin_relationships.origin_for
+
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
+
+const flip = ref(false)
+const type = ref(null)
+const objective = ref(null)
+
+const originOf = computed(() => {
+  return !flip.value ? props.metadata.object_tag : objective.value?.object_tag
+})
+
+const originFor = computed(() => {
+  return flip.value ? props.metadata.object_tag : objective.value?.object_tag
+})
+
+const modelSelected = computed(() => controllerRoute[type.value])
+
+function setObject(item) {
+  objective.value =
+    modelSelected.value === controllerRoute.Specimen
+      ? Object.assign(item, { base_class: COLLECTION_OBJECT })
+      : item
 }
+
+function createOrigin() {
+  const newObject = !flip.value
+    ? objective.value
+    : { id: props.objectId, base_class: props.objectType }
+  const oldObject = flip.value
+    ? objective.value
+    : { id: props.objectId, base_class: props.objectType }
+  const originRelationship = {
+    old_object_id: oldObject.id,
+    old_object_type: oldObject.base_class,
+    new_object_id: newObject.id,
+    new_object_type: newObject.base_class
+  }
+
+  OriginRelationship.create({
+    origin_relationship: originRelationship
+  })
+    .then(({ body }) => {
+      TW.workbench.alert.create(
+        'Origin relationship was successfully created.',
+        'notice'
+      )
+      addToList(body)
+    })
+    .catch(() => {})
+}
+
+function removeOrigin(item) {
+  OriginRelationship.destroy(item.id).then(() => {
+    TW.workbench.alert.create(
+      'Origin relationship was successfully destroyed.',
+      'notice'
+    )
+    removeFromList(item)
+  })
+}
+
+function onSortable({ newIndex }) {
+  const originRelationship = {
+    id: list.value[newIndex].id,
+    position: newIndex
+  }
+
+  OriginRelationship.update(originRelationship.id, {
+    origin_relationship: originRelationship
+  }).then(({ body }) => {
+    addToList(body)
+  })
+}
+
+OriginRelationship.where({ old_object_global_id: props.globalId }).then(
+  ({ body }) => {
+    list.value = body
+  }
+)
 </script>

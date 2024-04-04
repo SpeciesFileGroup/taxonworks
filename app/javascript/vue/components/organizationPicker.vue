@@ -176,7 +176,7 @@
 <script>
 import Autocomplete from '@/components/ui/Autocomplete'
 import ModalComponent from '@/components/ui/Modal'
-import DefaultPin from './getDefaultPin.vue'
+import DefaultPin from '@/components/ui/Button/ButtonPinned.vue'
 import { Organization } from '@/routes/endpoints'
 
 export default {

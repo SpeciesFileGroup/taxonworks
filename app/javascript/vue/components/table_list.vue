@@ -29,18 +29,26 @@
                 :item="item"
                 name="options"
               />
-              <pdf-component
+              <PdfComponent
                 v-if="pdf"
                 :pdf="item.document"
               />
-              <radial-annotator
+              <RadialAnnotator
                 v-if="annotator"
+                :global-id="item.global_id"
+              />
+              <RadialObject
+                v-if="quickForms"
+                :global-id="item.global_id"
+              />
+              <RadialNavigator
+                v-if="navigator"
                 :global-id="item.global_id"
               />
               <span
                 v-if="edit"
                 class="circle-button btn-edit"
-                @click="$emit('edit', Object.assign({}, item))"
+                @click="emit('edit', Object.assign({}, item))"
               />
               <span
                 v-if="destroy"
@@ -55,98 +63,92 @@
     </table>
   </div>
 </template>
-<script>
+<script setup>
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import PdfComponent from '@/components/pdfButton'
+import PdfComponent from '@/components/ui/Button/ButtonPdf'
 
-export default {
-  components: {
-    RadialAnnotator,
-    PdfComponent
+const props = defineProps({
+  list: {
+    type: Array,
+    default: () => []
   },
-  props: {
-    list: {
-      type: Array,
-      default: () => {
-        return []
-      }
-    },
-    attributes: {
-      type: Array,
-      required: true
-    },
-    header: {
-      type: Array,
-      default: () => {
-        return []
-      }
-    },
-    rowKey: {
-      type: String,
-      default: undefined
-    },
-    destroy: {
-      type: Boolean,
-      default: true
-    },
-    deleteWarning: {
-      type: Boolean,
-      default: true
-    },
-    annotator: {
-      type: Boolean,
-      default: true
-    },
-    edit: {
-      type: Boolean,
-      default: false
-    },
-    pdf: {
-      type: Boolean,
-      default: false
-    }
+  attributes: {
+    type: Array,
+    required: true
   },
-
-  emits: ['delete'],
-
-  created() {
-    this.$options.components['RadialAnnotator'] = RadialAnnotator
+  header: {
+    type: Array,
+    default: () => []
   },
+  rowKey: {
+    type: String,
+    default: undefined
+  },
+  destroy: {
+    type: Boolean,
+    default: true
+  },
+  deleteWarning: {
+    type: Boolean,
+    default: true
+  },
+  navigator: {
+    type: Boolean,
+    default: false
+  },
+  quickForms: {
+    type: Boolean,
+    default: false
+  },
+  annotator: {
+    type: Boolean,
+    default: true
+  },
+  edit: {
+    type: Boolean,
+    default: false
+  },
+  pdf: {
+    type: Boolean,
+    default: false
+  }
+})
 
-  methods: {
-    getValue(object, attributes) {
-      if (Array.isArray(attributes)) {
-        let obj = object
+const emit = defineEmits(['delete', 'edit'])
 
-        for (var i = 0; i < attributes.length; i++) {
-          if (obj.hasOwnProperty(attributes[i])) {
-            obj = obj[attributes[i]]
-          } else {
-            return null
-          }
-        }
-        return obj
+function getValue(object, attributes) {
+  if (Array.isArray(attributes)) {
+    let obj = object
+
+    for (let i = 0; i < attributes.length; i++) {
+      if (obj.hasOwnProperty(attributes[i])) {
+        obj = obj[attributes[i]]
       } else {
-        if (attributes.substr(0, 1) === '@') {
-          return attributes.substr(1, attributes.length)
-        }
-      }
-      return object[attributes]
-    },
-
-    deleteItem(item) {
-      if (this.deleteWarning) {
-        if (
-          window.confirm(
-            `You're trying to delete this record. Are you sure want to proceed?`
-          )
-        ) {
-          this.$emit('delete', item)
-        }
-      } else {
-        this.$emit('delete', item)
+        return null
       }
     }
+    return obj
+  } else {
+    if (attributes.substr(0, 1) === '@') {
+      return attributes.substr(1, attributes.length)
+    }
+  }
+  return object[attributes]
+}
+
+function deleteItem(item) {
+  if (props.deleteWarning) {
+    if (
+      window.confirm(
+        `You're trying to delete this record. Are you sure want to proceed?`
+      )
+    ) {
+      emit('delete', item)
+    }
+  } else {
+    emit('delete', item)
   }
 }
 </script>

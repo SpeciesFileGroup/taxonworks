@@ -30,7 +30,7 @@
 import { ref } from 'vue'
 import { CollectionObject } from '@/routes/endpoints'
 import VModal from '@/components/ui/Modal.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
   collectionObjectId: {

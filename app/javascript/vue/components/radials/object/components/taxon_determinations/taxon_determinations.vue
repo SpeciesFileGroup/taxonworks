@@ -1,11 +1,11 @@
 <template>
   <div>
     <h3>Determinations</h3>
-    <taxon-determination-form
+    <TaxonDeterminationForm
       create-form
       @on-add="addDetermination"
     />
-    <display-list
+    <DisplayList
       :list="list"
       @delete="removeTaxonDetermination"
       :radial-object="true"
@@ -31,22 +31,26 @@ export default {
   },
 
   methods: {
-    addDetermination(taxon_determination) {
+    addDetermination(taxonDetermination) {
       if (
         this.list.find(
           (determination) =>
-            determination.otu_id === taxon_determination.otu_id &&
-            determination.year_made === taxon_determination.year_made
+            determination.otu_id === taxonDetermination.otu_id &&
+            determination.year_made === taxonDetermination.year_made
         )
       ) {
         return
       }
 
-      Object.assign(taxon_determination, {
-        biological_collection_object_id: this.metadata.object_id
-      })
+      const payload = {
+        taxon_determination: {
+          ...taxonDetermination,
+          taxon_determination_object_id: this.metadata.object_id,
+          taxon_determination_object_type: this.metadata.object_type
+        }
+      }
 
-      TaxonDetermination.create({ taxon_determination }).then((response) => {
+      TaxonDetermination.create(payload).then((response) => {
         TW.workbench.alert.create(
           'Taxon determination was successfully created.',
           'notice'

@@ -2,7 +2,7 @@ class CollectingEventsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card, :clone, :navigation]
-  after_action -> { set_pagination_headers(:collecting_events) }, only: [:index], if: :json_request?
+  after_action -> { set_pagination_headers(:collecting_events) }, only: [:index, :api_index], if: :json_request?
 
   # GET /collecting_events
   # GET /collecting_events.json

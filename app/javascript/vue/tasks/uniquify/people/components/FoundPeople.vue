@@ -81,7 +81,7 @@ import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import { MutationNames } from '../store/mutations/mutations'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
-import DefaultPin from '@/components/getDefaultPin.vue'
+import DefaultPin from '@/components/ui/Button/ButtonPinned.vue'
 import getRoleNames from '../utils/getRoleNames'
 import countUses from '../utils/countUses'
 
@@ -129,7 +129,7 @@ export default {
 
     getRoleNames,
 
-    countUses,
+    countUses
   }
 }
 </script>

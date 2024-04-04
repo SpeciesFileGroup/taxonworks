@@ -87,46 +87,19 @@
 </template>
 
 <script setup>
-import RadialMenu from '@/components/radials/RadialMenu.vue'
-import VModal from '@/components/ui/Modal.vue'
-import VSpinner from '@/components/spinner.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
-import Icons from './images/icons.js'
-
-import confidences from './components/confidence/confidence_annotator.vue'
-import depictions from './components/depictions/depiction_annotator.vue'
-import documentation from './components/documentation_annotator.vue'
-import identifiers from './components/identifier/identifier_annotator.vue'
-import tags from './components/tag_annotator.vue'
-import notes from './components/note_annotator.vue'
-import dataAttributes from './components/data_attribute_annotator.vue'
-import alternateValues from './components/alternate_value_annotator.vue'
-import citations from './components/citations/citation_annotator.vue'
-import protocolRelationships from './components/protocol_annotator.vue'
-import attribution from './components/attribution/main.vue'
-import verifiers from './components/verifiers/Verifiers.vue'
-import { ajaxCall } from '@/helpers'
 import { ref, computed, watch, onBeforeMount, onBeforeUnmount } from 'vue'
-import ContextMenu from './components/contextMenu'
+import { ajaxCall } from '@/helpers'
 import { useShortcuts } from '@/components/radials/composables/useShortcuts'
 import { Tag } from '@/routes/endpoints'
 import { RadialAnnotatorEventEmitter } from '@/utils/index.js'
-
-const SLICE = {
-  confidences,
-  depictions,
-  documentation,
-  identifiers,
-  tags,
-  notes,
-  data_attributes: dataAttributes,
-  alternate_values: alternateValues,
-  citations,
-  protocol_relationships: protocolRelationships,
-  attribution,
-  verifiers
-}
+import { SLICE } from './constants/slices.js'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import Icons from './images/icons.js'
+import ContextMenu from './components/contextMenu'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
@@ -136,7 +109,10 @@ const DOM_EVENT = {
   Open: 'radialAnnotator:open'
 }
 
-const emit = defineEmits(['close', 'update', 'create', 'delete', 'change'])
+defineOptions({
+  name: 'RadialAnnotator'
+})
+
 const props = defineProps({
   reload: {
     type: Boolean,
@@ -193,6 +169,8 @@ const props = defineProps({
     default: false
   }
 })
+
+const emit = defineEmits(['close', 'update', 'create', 'delete', 'change'])
 
 const isMetadataLoaded = computed(() => !!metadata.value?.endpoints)
 const isVisible = ref(false)
@@ -330,9 +308,8 @@ function getDefault() {
   const defaultTag = document.querySelector(
     '[data-pinboard-section="Keywords"] [data-insert="true"]'
   )
-  return defaultTag
-    ? defaultTag.getAttribute('data-pinboard-object-id')
-    : undefined
+
+  return defaultTag?.getAttribute('data-pinboard-object-id')
 }
 
 function alreadyTagged() {

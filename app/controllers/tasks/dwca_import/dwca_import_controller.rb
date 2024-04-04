@@ -1,6 +1,8 @@
 class Tasks::DwcaImport::DwcaImportController < ApplicationController
   include TaskControllerConfiguration
 
+  after_action -> { set_pagination_headers(:datasets) }, only: [:index], if: :json_request?
+
   # GET
   def index
     respond_to do |format|

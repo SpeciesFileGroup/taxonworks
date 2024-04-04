@@ -3,14 +3,15 @@ import {
   ControlledVocabularyTerm,
   Tag
 } from '@/routes/endpoints'
-import { BIOCURATION_GROUP } from '@/constants/index.js'
+import { BIOCURATION_GROUP, COLLECTION_OBJECT } from '@/constants/index.js'
 
 export default async ({ state }, coId) => {
   const { body: biocurationGroups } = await ControlledVocabularyTerm.where({
     type: [BIOCURATION_GROUP]
   })
   const { body: biocurations } = await BiocurationClassification.where({
-    biological_collection_object_id: coId
+    biocuration_classification_object_id: coId,
+    biocuration_classification_object_type: COLLECTION_OBJECT
   })
   const groups = Object.assign(
     {},

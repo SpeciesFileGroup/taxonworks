@@ -20,9 +20,13 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
 
   specify 'destroying depiction does not destroy related Observation::Media 2 when not last' do
     o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))
+    
     d = FactoryBot.create(:valid_depiction, depiction_object: o)
 
-    FactoryBot.create(:valid_depiction, depiction_object: o)
+    # Can not test with this because of the way callbacks are created
+    # FactoryBot.create(:valid_depiction, depiction_object: o)
+
+    e = Depiction.create(depiction_object: o, image: FactoryBot.build(:valid_image)) # must be that in valid_depiction for test to be correct
 
     d.destroy!
     expect(Observation.find(o.id)).to be_truthy
@@ -43,7 +47,8 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
     d1 = FactoryBot.create(:valid_depiction, depiction_object: o)
 
     otu = Otu.create!(name: 'Foo') 
-    d2 = FactoryBot.create(:valid_depiction, depiction_object: otu)
+
+    d2 = Depiction.create(depiction_object: otu, image: d1.image)
 
     d2.update!(depiction_object: o)
 
@@ -58,8 +63,17 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
     expect {Observation.find(o.id)}.to raise_error ActiveRecord::RecordNotFound
   end
 
+  specify 'new depiction uses exisiting image if file is duplicate' do
+    a = FactoryBot.create(:valid_image)
+    depiction.image_attributes = {image_file: a.image_file}
+    depiction.depiction_object = specimen
+    expect(depiction.save).to be_truthy
+    expect(depiction.image.reload).to eq(a)
+    expect(Image.all.size).to eq(1)
+  end
+
   specify 'new depiction also creates new (nested) image' do
-    depiction.image_attributes = {image_file: image_file}
+    depiction.image_attributes = {image_file: FactoryBot.create(:valid_image).image_file}
     depiction.depiction_object = specimen
     expect(depiction.save).to be_truthy
     expect(depiction.image.reload).to be_truthy
@@ -67,7 +81,7 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
 
   specify 'CPU usage must not increase exponentially every time a depiction is added for the same OTU' do
     o = Otu.create!(name:'a1')
-    a = Rack::Test::UploadedFile.new(Spec::Support::Utilities::Files.generate_png(file_name: "test.png"), 'image/png')
+    a = Rack::Test::UploadedFile.new(Spec::Support::Utilities::Files.generate_tiny_random_png(file_name: "test.png"), 'image/png')
     last_utime = 2
 
     8.times do |i|

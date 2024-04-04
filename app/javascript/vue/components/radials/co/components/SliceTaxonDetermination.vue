@@ -8,7 +8,16 @@
     </div>
     <div>
       <TaxonDeterminationForm
-        @on-add="(determination) => (taxonDetermination = determination)"
+        ref="taxonDeterminationFormRef"
+        class="margin-medium-bottom"
+        @on-add="
+          (determination) =>
+            addToArray(taxonDeterminations, determination, { property: 'uuid' })
+        "
+      />
+      <TaxonDeterminationList
+        v-model="taxonDeterminations"
+        @edit="editTaxonDetermination"
       />
     </div>
 
@@ -19,7 +28,7 @@
         ref="updateBatchRef"
         :batch-service="CollectionObject.batchUpdate"
         :payload="payload"
-        :disabled="!taxonDetermination || isCountExceeded"
+        :disabled="!taxonDeterminations.length || isCountExceeded"
         @update="updateMessage"
         @close="emit('close')"
       />
@@ -27,7 +36,7 @@
       <PreviewBatch
         :batch-service="CollectionObject.batchUpdate"
         :payload="payload"
-        :disabled="!taxonDetermination || isCountExceeded"
+        :disabled="!taxonDeterminations.length || isCountExceeded"
         @finalize="
           () => {
             updateBatchRef.openModal()
@@ -43,7 +52,9 @@ import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import { computed, ref } from 'vue'
 import { CollectionObject } from '@/routes/endpoints'
+import { addToArray } from '@/helpers'
 import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
+import TaxonDeterminationList from '@/components/TaxonDetermination/TaxonDeterminationList.vue'
 
 const MAX_LIMIT = 50
 
@@ -61,23 +72,28 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 
-const taxonDetermination = ref(null)
+const taxonDeterminations = ref([])
+const taxonDeterminationFormRef = ref(null)
 const updateBatchRef = ref(null)
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 const payload = computed(() => ({
   collection_object_query: props.parameters,
   collection_object: {
-    taxon_determinations_attributes: [
-      {
-        day_made: taxonDetermination.value?.day_made,
-        month_made: taxonDetermination.value?.month_made,
-        year_made: taxonDetermination.value?.year_made,
-        otu_id: taxonDetermination.value?.otu_id,
-        roles_attributes: taxonDetermination.value?.roles_attributes
-      }
-    ]
+    taxon_determinations_attributes: taxonDeterminations.value.map(
+      (determination) => ({
+        day_made: determination.day_made,
+        month_made: determination.month_made,
+        year_made: determination.year_made,
+        otu_id: determination.otu_id,
+        roles_attributes: determination.roles_attributes
+      })
+    )
   }
 }))
+
+function editTaxonDetermination(item) {
+  taxonDeterminationFormRef.value.setDetermination({ ...item })
+}
 
 function updateMessage(data) {
   const message = data.sync

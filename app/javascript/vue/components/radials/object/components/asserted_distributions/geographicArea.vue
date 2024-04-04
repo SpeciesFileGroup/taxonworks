@@ -1,12 +1,12 @@
 <template>
   <div>
-    <VSpinner
+    <div
       v-if="disabled"
-      :show-legend="false"
-      :show-spinner="false"
-      z-index="2000"
-    />
-    <fieldset>
+      class="panel content horizontal-center-content padding-large"
+    >
+      <h3>Select a source first</h3>
+    </div>
+    <fieldset v-else>
       <legend>Geographic area</legend>
       <SmartSelector
         model="geographic_areas"
@@ -31,7 +31,6 @@
 
 <script setup>
 import { ref } from 'vue'
-import VSpinner from '@/components/spinner.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 import GeographicAreaMapPicker from '@/components/ui/SmartSelector/GeographicAreaMapPicker.vue'
 

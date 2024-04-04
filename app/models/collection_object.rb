@@ -82,7 +82,7 @@ class CollectionObject < ApplicationRecord
   include Shared::QueryBatchUpdate
   include SoftValidation
 
-  include CollectionObject::BiologicalExtensions
+  include Shared::BiologicalExtensions
 
   include Shared::Taxonomy # at present must be before IsDwcOccurence
   include Shared::IsDwcOccurrence
@@ -95,7 +95,7 @@ class CollectionObject < ApplicationRecord
 
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
-  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships, :extracts]
+  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships, :extracts, :observation_matrices]
 
   # Identifier delegations
   # .catalog_number_cached
@@ -572,14 +572,15 @@ class CollectionObject < ApplicationRecord
           t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
             .where(
               t['updated_at'].gt(1.week.ago).and(
-                t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
+                t['biological_association_subject_type'].eq('CollectionObject')
               )
             )
               .where(t['updated_by_id'].eq(user_id))
               .where(t['project_id'].eq(project_id))
               .order(t['updated_at'].desc)
         else
-          t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
+          # TODO: update to reference new TaxonDetermination
+          t.project(t['taxon_determination_object_id'], t['taxon_determination_object_type'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.week.ago ))
             .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
@@ -595,7 +596,8 @@ class CollectionObject < ApplicationRecord
             z['biological_association_subject_id'].eq(p['id'])
           ))
         else
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_collection_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
+          # TODO: needs to be fixed to scope the taxon_determination_object_type
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['taxon_determination_object_id'].eq(p['id'])))
         end
 
     CollectionObject.joins(j).pluck(:id).uniq
@@ -722,7 +724,6 @@ class CollectionObject < ApplicationRecord
    !r.include?(false)
 
   end
-
 
   protected
 

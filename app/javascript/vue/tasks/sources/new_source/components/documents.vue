@@ -90,10 +90,10 @@
   </div>
 </template>
 <script>
-import PdfButton from '@/components/pdfButton.vue'
-import SpinnerComponent from '@/components/spinner'
+import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
-import SwitchComponent from '@/components/switch'
+import SwitchComponent from '@/components/ui/VSwitch'
 import PickComponent from './documents/pick'
 import DropComponent from './documents/drop.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'

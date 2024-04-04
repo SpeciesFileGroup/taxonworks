@@ -30,7 +30,7 @@ gem 'roo-xls', '~> 1.2'
 gem 'csv', '~> 3.2'
 
 
-gem 'net-smtp', '~> 0.3.1'
+gem 'net-smtp', '~> 0.4'
 gem 'mail', '~> 2.8', '>= 2.8.1'
 gem 'matrix', '~> 0.4.2'
 
@@ -82,17 +82,17 @@ gem 'modularity', '~> 3.0.0' # TODO: Used!?
 gem 'kt-paperclip', '~> 7.2'
 
 # gem 'paperclip', github: 'LocoDelAssembly/paperclip', branch: 'migration-fix' # gem 'paperclip', '~> 6.1.0'
-# gem 'paperclip-meta', '~> 3.0' # TODO: kt-paperclip can be installed but because of this gem old paperclip is installed as well and deprecation warnings continue
+gem 'paperclip-meta', github: 'LocoDelAssembly/paperclip-meta', branch: 'kt-paperclip'
 
 gem 'voight_kampff', github: 'LocoDelAssembly/Voight-Kampff'
-gem 'shortener', '~> 1.0.0'
+gem 'shortener', '~> 1.0'
 gem 'rails_or', '~> 1.1.8'
 
 # javascript
-gem 'sprockets-rails', '~> 3.2.0' # UPDATE TODO
-gem 'sprockets', '~> 3.7.2' # TODO: Cannot use '~> 4.0' (app fails to initialize properly)
+gem 'sprockets-rails', '~> 3.4.0' # UPDATE TODO
+gem 'sprockets', '~> 4.2' # TODO: Cannot use '~> 4.0' (app fails to initialize properly)
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
-gem 'uglifier', '~> 4.2'
+gem 'terser', '~> 1.2'
 
 gem 'jquery-rails', '~> 4.4'
 # gem 'jquery-ui-rails', '~> 6.0.1'
@@ -101,20 +101,20 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '7.2.2'
+gem 'shakapacker', '7.2.3'
 
 # BibTeX handling
-gem 'csl', '~> 1.6.0'
+gem 'csl', '~> 2.0'
 gem 'bibtex-ruby', '~> 6.0'
-gem 'citeproc-ruby', '~> 1.1.10'
-gem 'csl-styles', '~> 1.0.1.8'
+gem 'citeproc-ruby', '~> 2.0'
+gem 'csl-styles', '~> 2.0.1'
 gem 'serrano', github: 'LocoDelAssembly/serrano', branch: 'older_thor' #gem 'serrano', '~> 1.0.0'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
 
 # UI/UX
-gem 'chartkick', '~> 4.0'
-gem 'groupdate', '~> 5.2'
+gem 'chartkick', '~> 5.0'
+gem 'groupdate', '~> 6.4'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.2.0'
 gem 'best_in_place', git: 'https://github.com/mmotherwell/best_in_place'
@@ -151,7 +151,7 @@ gem 'logical_query_parser'
 gem 'logic_tools'
 gem 'chunky_png', '~> 1.4.0'
 gem 'namecase', '~> 2.0'
-gem 'zaru', '~> 0.3.0'
+gem 'zaru', '~> 1.0'
 
 # Export
 gem 'asciidoctor', '~> 2.0'
@@ -165,7 +165,7 @@ gem 'parallel', '~> 1.23'
 gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
-  gem 'faker', '~> 2.10'
+  gem 'faker', '~> 3.2'
   gem 'rspec-rails', '~> 6.1'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
@@ -193,12 +193,12 @@ group :development do
   gem 'rubocop-rspec', '~>2.6'
   gem 'rubocop-faker', '~> 1.1'
   gem 'rubocop-performance', '~> 1.10'
-  gem 'brakeman', '~> 5.1', '>= 4.6.1', require: false
+  gem 'brakeman', '~> 6.1', '>= 5.4', require: false
   gem 'seedbank', '~> 0.5.0'
 end
 
 group :doc do
-  gem 'sdoc', '~> 2.2.0', require: false
+  gem 'sdoc', '~> 2.6', require: false
 end
 
 group :test do

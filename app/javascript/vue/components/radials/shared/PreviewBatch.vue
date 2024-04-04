@@ -16,7 +16,10 @@
     </template>
     <template #body>
       <VSpinner v-if="isLoading" />
-      <PreviewTable :data="data" />
+      <PreviewTable
+        v-if="data"
+        :data="data"
+      />
     </template>
     <template #footer>
       <div class="flex-separate middle">
@@ -49,7 +52,7 @@ import { ref } from 'vue'
 import VModal from '@/components/ui/Modal.vue'
 import PreviewTable from './PreviewTable.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
   payload: {

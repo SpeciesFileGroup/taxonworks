@@ -1,6 +1,6 @@
 <template>
   <div
-    @mouseleave="$emit('update:modelValue', false)"
+    @mouseleave="emit('update:modelValue', false)"
     class="context-menu"
   >
     <template v-if="metadata">
@@ -28,95 +28,82 @@
   </div>
 </template>
 
-<script>
-import CRUD from '../request/crud.js'
+<script setup>
+import { computed } from 'vue'
+import makeRequest from '@/helpers/ajaxCall'
 
-export default {
-  mixins: [CRUD],
-
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: false
-    },
-
-    metadata: {
-      type: Object,
-      default: undefined
-    },
-
-    globalId: {
-      type: String,
-      default: undefined
-    }
+const PINBOARD_TYPES = {
+  tags: {
+    type: 'Keywords',
+    idName: 'keyword_id'
   },
-
-  emits: ['update:modelValue'],
-
-  computed: {
-    defaultPinned() {
-      if (this.metadata) {
-        const types = Object.keys(this.metadata.endpoints)
-        return types.find((item) =>
-          document.querySelector(
-            `[data-pinboard-section="${this.pinboardTypes[item]?.type}"] [data-insert="true"]`
-          )
-        )
-      }
-      return undefined
-    }
-  },
-  data() {
-    return {
-      pinboardTypes: {
-        tags: {
-          type: 'Keywords',
-          idName: 'keyword_id'
-        },
-        citations: {
-          type: 'Sources',
-          idName: 'source_id'
-        }
-      }
-    }
-  },
-  methods: {
-    getDefault(type) {
-      if (this.pinboardTypes[type]) {
-        const defaultElement = document.querySelector(
-          `[data-pinboard-section="${this.pinboardTypes[type].type}"] [data-insert="true"]`
-        )
-        return defaultElement
-          ? defaultElement.getAttribute('data-pinboard-object-id')
-          : undefined
-      }
-      return undefined
-    },
-
-    createNew(type) {
-      const newObject = {
-        annotated_global_entity: decodeURIComponent(this.globalId),
-        [this.pinboardTypes[type].idName]: this.getDefault(type)
-      }
-      this.create(`/${type}`, { [this.singularize(type)]: newObject }).then(
-        (response) => {
-          TW.workbench.alert.create(
-            `${this.singularize(type)} was successfully created.`,
-            'notice'
-          )
-        },
-        (response) => {
-          TW.workbench.alert.create(JSON.stringify(response.body), 'error')
-        }
-      )
-    },
-
-    singularize(text) {
-      return text.charAt(text.length - 1) === 's'
-        ? text.slice(0, text.length - 1)
-        : text
-    }
+  citations: {
+    type: 'Sources',
+    idName: 'source_id'
   }
+}
+
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false
+  },
+
+  metadata: {
+    type: Object,
+    default: undefined
+  },
+
+  globalId: {
+    type: String,
+    default: undefined
+  }
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const defaultPinned = computed(() => {
+  if (props.metadata) {
+    const types = Object.keys(props.metadata.endpoints)
+    return types.find((item) =>
+      document.querySelector(
+        `[data-pinboard-section="${PINBOARD_TYPES[item]?.type}"] [data-insert="true"]`
+      )
+    )
+  }
+  return undefined
+})
+
+function getDefault(type) {
+  if (PINBOARD_TYPES[type]) {
+    const defaultElement = document.querySelector(
+      `[data-pinboard-section="${PINBOARD_TYPES[type].type}"] [data-insert="true"]`
+    )
+    return defaultElement?.getAttribute('data-pinboard-object-id')
+  }
+  return undefined
+}
+
+function createNew(type) {
+  const newObject = {
+    annotated_global_entity: decodeURIComponent(props.globalId),
+    [PINBOARD_TYPES[type].idName]: getDefault(type)
+  }
+
+  makeRequest('post', `/${type}`, { [singularize(type)]: newObject })
+    .then((_) => {
+      TW.workbench.alert.create(
+        `${singularize(type)} was successfully created.`,
+        'notice'
+      )
+    })
+    .catch(() => {})
+}
+
+function singularize(text) {
+  return text.charAt(text.length - 1) === 's'
+    ? text.slice(0, text.length - 1)
+    : text
 }
 </script>
 <style lang="scss" scoped>

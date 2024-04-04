@@ -1,3 +1,4 @@
+import { ajaxCall } from '@/helpers'
 import baseCRUD from './base'
 
 const controller = 'project_sources'
@@ -9,5 +10,8 @@ const permitParams = {
 }
 
 export const ProjectSource = {
-  ...baseCRUD(controller, permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  batchSyncToProject: (params) =>
+    ajaxCall('post', `/${controller}/batch_sync_to_project`, params)
 }

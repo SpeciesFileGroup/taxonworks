@@ -23,17 +23,19 @@ export default async ({ state, commit, dispatch }, { name, citation }) => {
 
   return TaxonName.create({
     taxon_name: payload
-  }).then(({ body }) =>
-    TaxonNameRelationship.where({
-      type: TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM,
-      object_taxon_name_id: currentTaxon.id,
-      subject_taxon_name_id: body.id
-    }).then(({ body }) => {
-      body.forEach((item) => {
-        commit(MutationNames.AddTaxonRelationship, item)
-      })
+  })
+    .then(({ body }) =>
+      TaxonNameRelationship.where({
+        type: TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM,
+        object_taxon_name_id: currentTaxon.id,
+        subject_taxon_name_id: body.id
+      }).then(({ body }) => {
+        body.forEach((item) => {
+          commit(MutationNames.AddTaxonRelationship, item)
+        })
 
-      dispatch(ActionNames.LoadSoftValidation, 'taxonRelationshipList')
-    })
-  )
+        dispatch(ActionNames.LoadSoftValidation, 'taxonRelationshipList')
+      })
+    )
+    .catch(() => {})
 }

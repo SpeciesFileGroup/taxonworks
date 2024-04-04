@@ -84,8 +84,8 @@
 import OtuRadial from '@/components/otu/otu.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
-import DefaultConfidence from '@/components/defaultConfidence.vue'
-import PinObject from '@/components/ui/Pinboard/VPin.vue'
+import DefaultConfidence from '@/components/ui/Button/ButtonConfidence.vue'
+import PinObject from '@/components/ui/Button/ButtonPin.vue'
 import Modal from '@/components/ui/Modal.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -169,9 +169,11 @@ export default {
 
   methods: {
     deleteTaxon() {
-      TaxonName.destroy(this.taxon.id).then(() => {
-        this.reloadPage()
-      })
+      TaxonName.destroy(this.taxon.id)
+        .then(() => {
+          this.reloadPage()
+        })
+        .catch(() => {})
     },
 
     reloadPage() {

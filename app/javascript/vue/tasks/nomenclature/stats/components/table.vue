@@ -75,7 +75,7 @@
 <script>
 import { RouteNames } from '@/routes/routes'
 import { GetterNames } from '../store/getters/getters'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import CsvButton from '@/components/csvButton'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'

@@ -36,7 +36,7 @@
 import AlphabetButtons from './components/alphabet_buttons'
 import AuthorList from './components/author_list'
 import SourceList from './components/source_list.vue'
-import Spinner from '@/components/spinner.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
 import PaginationComponent from './components/pagination.vue'
 import GetPagination from '@/helpers/getPagination.js'
 import { Source, People } from '@/routes/endpoints'

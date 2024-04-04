@@ -81,7 +81,7 @@ import { ref, onMounted } from 'vue'
 import { downloadTextFile } from '@/helpers/files'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { BiologicalAssociation } from '@/routes/endpoints'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VGraph from '@/components/ui/VGraph/VGraph.vue'
@@ -113,7 +113,7 @@ async function makeEdges(edges, nodes) {
   const arr = []
 
   for (const link of edges) {
-    const hexColor = await getHexColorFromString(link.label || '')
+    const hexColor = getHexColorFromString(link.label || '')
 
     arr.push({
       source: nodes.findIndex((node) => node.id === link.start_id),

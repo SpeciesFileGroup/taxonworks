@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { useOnResize } from '@/compositions'
+import { useOnResize } from '@/composables'
 import { ref, onMounted, computed, watch } from 'vue'
 
 const props = defineProps({

@@ -59,7 +59,7 @@ import { COLLECTION_OBJECT } from '@/constants'
 import { RouteNames } from '@/routes/routes'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const isModalVisible = ref(false)
 const isLoading = ref(false)

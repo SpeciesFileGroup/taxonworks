@@ -52,7 +52,7 @@ class Otu < ApplicationRecord
 
   is_origin_for 'Sequence', 'Extract'
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes].freeze
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :observation_matrices].freeze
 
   belongs_to :taxon_name, inverse_of: :otus
 
@@ -62,7 +62,11 @@ class Otu < ApplicationRecord
   has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error
 
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change
-  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
+
+  # TODO, move to infer BiologicalCollectionObject
+  has_many :collection_objects, through: :taxon_determinations, source: :taxon_determination_object, inverse_of: :otus, source_type: 'CollectionObject'
+  has_many :field_occurrences, through: :taxon_determinations, source: :taxon_determination_object, inverse_of: :otus, source_type: 'FieldOccurrence'
+
   has_many :type_materials, through: :protonym
 
   # TODO: no longer true since they can come through Otu as well
@@ -71,7 +75,7 @@ class Otu < ApplicationRecord
 
   has_many :collecting_events, -> { distinct }, through: :collection_objects
   has_many :common_names, dependent: :destroy
-  has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what? DD: profile should never be update, a new profile should be created insted
+  has_many :collection_profiles, dependent: :restrict_with_error # Do not destroy old profiles
 
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :public_contents, inverse_of: :otu, dependent: :destroy
@@ -84,6 +88,8 @@ class Otu < ApplicationRecord
 
   has_many :otu_relationships, foreign_key: :subject_otu_id
   has_many :related_otu_relationships, class_name: 'OtuRelationship', foreign_key: :object_otu_id
+
+  has_many :leads, inverse_of: :otu, dependent: :restrict_with_error
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
   scope :with_name, -> (name) { where(name:) }

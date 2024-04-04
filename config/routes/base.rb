@@ -18,18 +18,21 @@ resource :hub, controller: 'hub', only: [:index] do
 end
 
 scope :metadata, controller: 'metadata' do
+  get :vocabulary, defaults: {format: :json}
+  get :data_models, defaults: {format: :json}
+  get :attributes, defaults: {format: :json}
   get :annotators, defaults: {format: :json}
   get :related_summary
   post :related_summary
   get 'object_radial/', action: :object_radial, defaults: {format: :json}
   get 'object_navigation/:global_id', action: :object_navigation, defaults: {format: :json}
+  get :class_navigation, defaults: {format: :json}
   get '(/:klass)', action: :index, defaults: {format: :json}
 end
 
 scope :annotations, controller: :annotations, defaults: {format: :json} do
   get ':global_id/metadata', action: :metadata
   get :types
-
 end
 
 scope :graph, controller: :graph do

@@ -1,4 +1,27 @@
 scope :tasks do
+  scope :leads do
+    scope :hub, controller: 'tasks/leads/hub' do
+      get '/', action: :index, as: 'leads_hub_task'
+    end
+
+    scope :show, controller: 'tasks/leads/show' do
+      get '/', action: :index, as: 'show_lead_task'
+    end
+
+    scope :new_lead, controller: 'tasks/leads/new_lead' do
+      get '/', action: :index, as: 'new_lead_task'
+    end
+  end
+
+  scope :metadata do
+    scope :vocabulary do
+      scope :project_vocabulary, controller: 'tasks/metadata/vocabulary/project_vocabulary' do
+        get '/', action: :index, as: 'project_vocabulary_task'
+        get :data_models, defaults: {format: :json}
+      end
+    end
+  end
+
   scope :cached_maps do
     scope :report, controller: 'tasks/cached_maps/report' do
       get :items_by_otu, as: 'cached_map_items_by_otus_task'
@@ -45,6 +68,12 @@ scope :tasks do
     post 'update_catalog_number_namespace'
     post 'update_catalog_number_collection_code_namespace'
     post 'set_import_settings'
+  end
+
+  scope :field_occurrences do
+    scope :new_field_occurrences, controller: 'tasks/field_occurrences/new_field_occurrences' do
+      get '/', as: 'new_field_occurrence_task', action: :index
+    end
   end
 
   scope :namespaces do
@@ -193,6 +222,11 @@ scope :tasks do
   end
 
   scope :projects do
+    scope :week_in_review, controller: 'tasks/projects/week_in_review' do
+      get '/', action: :index, as: 'week_in_review_task'
+      get :data, as: 'week_in_review_data', defaults: {format: :json}
+    end
+
     scope :activity, controller: 'tasks/projects/activity' do
       get :index, as: :project_activity_task
       get :type_report, as: :project_activity_type_report
@@ -245,6 +279,10 @@ scope :tasks do
   end
 
   scope :collecting_events do
+    scope :spatial_summary, controller: 'tasks/collecting_events/spatial_summary' do
+      get '/', action: :index, as: 'collecting_events_spatial_summary_task'
+    end
+
     scope :new_collecting_event, controller: 'tasks/collecting_events/new_collecting_event' do
       get '/', action: :index, as: 'new_collecting_event_task'
     end
@@ -254,7 +292,7 @@ scope :tasks do
     end
 
     scope :filter, controller: 'tasks/collecting_events/filter' do
-      get '/', action: :index, as: 'filter_collecting_events_task'
+      match '/', action: :index, via: [:get, :post], as: 'filter_collecting_events_task'
     end
 
     scope :parse do
@@ -568,8 +606,12 @@ scope :tasks do
   end
 
   scope :otus do
+    scope :new_otu, controller: 'tasks/otus/new_otu' do
+      get '/', action: :index, as: 'new_otu_task'
+    end
+
     scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
-      get :index, as: 'index_browse_asserted_distributions_task'
+      get '/', action: :index, as: 'browse_asserted_distributions_task'
     end
 
     scope :browse, controller: 'tasks/otus/browse' do

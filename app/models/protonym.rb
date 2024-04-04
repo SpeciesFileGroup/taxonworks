@@ -39,8 +39,6 @@ class Protonym < TaxonName
     :verbatim_author_without_digits,
     :verbatim_author_with_closed_parens_when_present
 
-  after_create :create_otu, if: -> {self.also_create_otu}
-
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
@@ -772,8 +770,10 @@ class Protonym < TaxonName
 
   # @return [[rank_name, name], nil]
   #   Used in ColDP export
-  def original_combination_infraspecific_element(elements = nil)
+  def original_combination_infraspecific_element(elements = nil, remove_sic = false)
     elements ||= original_combination_elements
+
+    elements = elements.each { |r, e| e.delete('[sic]') } if remove_sic
 
     # TODO: consider plants/other codes?
     [:form, :variety, :subspecies].each do |r|
@@ -971,10 +971,6 @@ class Protonym < TaxonName
     rank_class.validate_name_format(self) if name.present? && rank_class && rank_class.respond_to?(:validate_name_format) && !has_latinized_exceptions?
   end
 
-  def create_otu
-    Otu.create(by: self.creator, project: self.project, taxon_name_id: self.id)
-  end
-
   def new_parent_taxon_name
     r = self.iczn_uncertain_placement_relationship
     if r.present?
@@ -1054,8 +1050,9 @@ class Protonym < TaxonName
   end
 
   def set_cached
-    old_cached_html = cached_html.to_s
-    old_cached_author_year = cached_author_year.to_s
+    # old_cached_html = cached_html.to_s
+    old_cached_author_year = cached_author_year.to_s # why to_s?
+    old_cached = cached.to_s # why to_s?
 
     super
     set_cached_original_combination
@@ -1064,8 +1061,8 @@ class Protonym < TaxonName
     set_cached_species_homonym if is_species_rank?
     set_cached_misspelling
     tn = TaxonName.find(id)
-    set_cached_names_for_descendants if tn.cached_html != old_cached_html
-    set_cached_names_for_dependants if tn.cached_html.to_s != old_cached_html || tn.cached_author_year.to_s != old_cached_author_year
+    set_cached_names_for_descendants if tn.cached != old_cached
+    set_cached_names_for_dependants if tn.cached.to_s != old_cached || tn.cached_author_year.to_s != old_cached_author_year
   end
 
   def set_cached_homonymy

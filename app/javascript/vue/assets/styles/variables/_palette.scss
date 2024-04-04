@@ -22,3 +22,9 @@ $tw-colors: (
     --color-#{$key}: #{$value};
   }
 }
+
+@each $key, $value in $tw-colors {
+  .text-#{$key}-color {
+    color: #{$value};
+  }
+}
