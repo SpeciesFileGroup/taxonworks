@@ -63,6 +63,7 @@
         v-for="(item, index) in patterns"
         :key="item.uuid"
         v-model="patterns[index]"
+        @remove="() => patterns.splice(index, 1)"
       />
     </div>
   </div>

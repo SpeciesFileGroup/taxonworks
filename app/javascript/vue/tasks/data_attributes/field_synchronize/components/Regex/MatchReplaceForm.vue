@@ -1,23 +1,35 @@
 <template>
   <div>
-    <ul class="no_bullets">
-      <li>
-        <input
-          type="radio"
-          v-model="pattern.replace"
-          :value="false"
+    <div class="flex-separate flex-start">
+      <ul class="no_bullets">
+        <li>
+          <input
+            type="radio"
+            v-model="pattern.replace"
+            :value="false"
+          />
+          Match
+        </li>
+        <li>
+          <input
+            type="radio"
+            v-model="pattern.replace"
+            :value="true"
+          />
+          Replace
+        </li>
+      </ul>
+      <VBtn
+        color="primary"
+        circle
+        @click="emit('remove')"
+      >
+        <VIcon
+          name="trash"
+          x-small
         />
-        Match
-      </li>
-      <li>
-        <input
-          type="radio"
-          v-model="pattern.replace"
-          :value="true"
-        />
-        Replace
-      </li>
-    </ul>
+      </VBtn>
+    </div>
     <div>
       <label class="d-block">Find</label>
       <input
@@ -36,8 +48,13 @@
 </template>
 
 <script setup>
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+
 const pattern = defineModel({
   type: Object,
   required: true
 })
+
+const emit = defineEmits(['remove'])
 </script>
