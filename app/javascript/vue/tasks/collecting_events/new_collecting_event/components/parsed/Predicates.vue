@@ -4,7 +4,7 @@
     :object-id="collectingEvent.id"
     object-type="CollectingEvent"
     model="CollectingEvent"
-    refs="customAttributes"
+    ref="customAttributes"
     :model-preferences="projectPreferences.model_predicate_sets.CollectingEvent"
     @on-update="setAttributes"
   />
