@@ -86,6 +86,11 @@ class DocumentsController < ApplicationController
     @documents = Queries::Document::Autocomplete.new(params[:term], project_id: params[:project_id]).all
   end
 
+  # GET /documents/select_options?target=Source
+  def select_options
+    @documents = Document.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
+  end
+
   private
 
   def set_document
