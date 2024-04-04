@@ -694,6 +694,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord-postgis-adapter (~> 7.0)
   acts_as_list (~> 1.0)
+  addressable (~> 2.8)
   amazing_print (~> 1.4.0)
   asciidoctor (~> 2.0)
   barby (~> 0.6.8)
