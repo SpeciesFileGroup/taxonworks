@@ -285,6 +285,7 @@ resources :documents do
   concerns [:data_routes]
   collection do
     get :select_options, defaults: {format: :json}
+    match :filter, to: 'documents#index', via: [:get, :post]
   end
 end
 

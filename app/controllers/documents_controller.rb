@@ -6,8 +6,20 @@ class DocumentsController < ApplicationController
   # GET /documents
   # GET /documents.json
   def index
-    @recent_objects = Document.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @recent_objects = Document
+          .recent_from_project_id(sessions_current_project_id)
+          .order(updated_at: :desc)
+          .limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @documents = ::Queries::Document::Filter.new(params).all
+          .page(params[:page])
+          .per(params[:per])
+      }
+    end
   end
 
   # GET /documents/1

@@ -1,5 +1,7 @@
 import baseCRUD from './base'
+import AjaxCall from '@/helpers/ajaxCall'
 
+const controller = 'documents'
 const permitParams = {
   document: {
     document_file: String,
@@ -9,5 +11,7 @@ const permitParams = {
 }
 
 export const Document = {
-  ...baseCRUD('documents', permitParams)
+  ...baseCRUD('documents', permitParams),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }
