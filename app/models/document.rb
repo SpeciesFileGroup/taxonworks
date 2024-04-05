@@ -1,4 +1,4 @@
-# A Document is digital file that has text inhering within it.  Handled formats are pdfs and txt at present.
+# A Document is digital file that has text inhering within it.
 #
 # Documents are to Documentation as Images are to Depictions.
 #
@@ -13,6 +13,10 @@
 # @!attribute document_file_file_size
 #   @return [Integer]
 #     size of the document in K
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
 #
 # @!attribute document_file_updated_at
 #   @return [Timestamp]
@@ -32,6 +36,18 @@
 #            { "1": ["300", "301"]
 #              "2": ["301"]
 #            } ... printed page 301 is on pdf pages 1,2; page 1 contains printed pages 300, and part of 301
+#
+# @!attribute page_total
+#   @return [Integer]
+#   Total number of pages in the document
+#
+# @!attribute document_file_fingerprint
+#   @return [String]
+#   Used to recognize duplicate files; computed by Paperclip
+#
+# @!attribute is_public
+#   @return [Boolean]
+#   True if this document can be publicly shared, otherwise false.
 #
 class Document < ApplicationRecord
   include Housekeeping
