@@ -44,6 +44,7 @@
     :param="param"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -67,6 +68,7 @@ import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttri
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import CitationOnOtus from '@/components/Filter/Facets/Source/CitationOnOtus.vue'
 import FacetByAttribute from '@/components/Filter/Facets/shared/FacetByAttribute.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_TITLES = {
   with_title: 'BibTeX title'

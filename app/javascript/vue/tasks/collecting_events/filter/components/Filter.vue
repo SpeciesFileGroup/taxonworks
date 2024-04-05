@@ -33,6 +33,7 @@
     :param="param"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -50,6 +51,7 @@ import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchI
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import { computed } from 'vue'
 import { COLLECTOR_SELECTOR, COLLECTING_EVENT } from '@/constants/index.js'
 

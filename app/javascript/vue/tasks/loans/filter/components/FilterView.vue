@@ -59,6 +59,7 @@
     :param="param"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -75,6 +76,7 @@ import FacetDateRange from '@/components/Filter/Facets/shared/FacetDateRange.vue
 import FacetLoanItemStatus from './Facet/FacetLoanItemStatus.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetPerson from './Facet/FacetPerson.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_PARAMS = ['documentation', 'identifiers']
 

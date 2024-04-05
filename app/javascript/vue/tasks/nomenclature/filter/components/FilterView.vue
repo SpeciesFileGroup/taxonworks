@@ -51,6 +51,7 @@
   <FacetCombinationify v-model="params" />
   <FacetSynonymify v-model="params" />
   <FacetAncestrify v-model="params" />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -76,6 +77,7 @@ import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchI
 import FacetDateYear from '@/components/Filter/Facets/Source/FacetDate.vue'
 import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import { computed } from 'vue'
 
 const WITH_TITLES = {
