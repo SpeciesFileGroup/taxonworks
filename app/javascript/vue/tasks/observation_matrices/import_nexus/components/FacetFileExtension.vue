@@ -3,13 +3,14 @@
     <h3>File extensions</h3>
     <div class="extensions">
       <div
-        v-for="ext in extensions"
+        v-for="ext in [ANY_EXTENSION].concat(extensions)"
         :key="ext"
       >
         <label @click="() => updateParams(ext)">
           <input
             type="radio"
             :value="ext"
+            :checked="ext == ANY_EXTENSION"
             name="extensions"
           />
           {{ ext }}
@@ -20,6 +21,7 @@
 </template>
 
 <script setup>
+const ANY_EXTENSION = 'Any extension'
 
 const props = defineProps({
   extensions: {
@@ -31,7 +33,11 @@ const props = defineProps({
 const params = defineModel()
 
 function updateParams(extension) {
+  if (extension == ANY_EXTENSION) {
+    params.value.file_extension = ''
+  } else {
     params.value.file_extension = extension
+  }
 }
 </script>
 
