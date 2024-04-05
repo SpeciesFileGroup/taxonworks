@@ -31,13 +31,10 @@ module Queries
 
         extensions_match = extension_matches_ored(d[:extensions])
 
-        table.project(Arel.star)
-          .where(type_match)
-          .where(extensions_match)
-          .order(table[:updated_at])
+        type_match.and(extensions_match)
       end
 
-      def merge_clauses
+      def and_clauses
         [file_extension_facet]
       end
 
