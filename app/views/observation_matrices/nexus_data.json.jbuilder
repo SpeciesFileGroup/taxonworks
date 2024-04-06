@@ -1,5 +1,5 @@
 json.otus do
-  json.array!(@nexus_data[:otus]) do |x|
+  json.array!(@otus) do |x|
     if x.is_a? String
       json.name x
     else
@@ -8,6 +8,18 @@ json.otus do
       end
       json.taxon_name do
         x['tname']
+      end
+    end
+  end
+end
+
+json.descriptors do
+  json.array!(@descriptors) do |x|
+    if x.is_a? String
+      json.name x
+    else
+      json.descriptor do
+        json.partial! '/descriptors/attributes', descriptor: x
       end
     end
   end

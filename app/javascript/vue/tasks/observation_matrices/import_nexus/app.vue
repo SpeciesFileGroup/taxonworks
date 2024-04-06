@@ -13,6 +13,7 @@
 
   <ImportPreview
     :otus="nexusTaxaList"
+    :descriptors="nexusDescriptorsList"
   />
 
 </template>
@@ -26,6 +27,7 @@ import { ref } from 'vue'
 
 const nexusDoc = ref()
 const nexusTaxaList = ref([])
+const nexusDescriptorsList = ref([])
 
 function generatePreview() {
   const payload = {
@@ -35,6 +37,7 @@ function generatePreview() {
   ObservationMatrix.previewNexus(payload)
     .then(({ body }) => {
       nexusTaxaList.value = body.otus
+      nexusDescriptorsList.value = body.descriptors
     })
     .catch(() => {})
 }

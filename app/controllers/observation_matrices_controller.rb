@@ -276,9 +276,18 @@ class ObservationMatricesController < ApplicationController
       .select('otus.*, taxon_names.name as tname')
       .order('tname')
 
-    @nexus_data = {
-      otus: merge_name_and_otu_lists(taxa_names, otus.to_a)
-    }
+    # TODO: the nexus description says character name repeats aren't allowed,
+    # but the parser currently allows them.
+    descriptor_names = d.characters.collect{ |c| c.name }.sort().uniq
+    descriptors = Descriptor
+      .where(project_id: sessions_current_project_id)
+      .where(name: descriptor_names)
+      .order(:name)
+
+    @otus = merge_name_and_ar_lists(taxa_names, otus.to_a, 'tname')
+    @descriptors = merge_name_and_ar_lists(
+      descriptor_names, descriptors.to_a, 'name'
+    )
   end
 
   private
@@ -342,13 +351,19 @@ class ObservationMatricesController < ApplicationController
     params.require(:observation_matrix).permit(:name)
   end
 
-  def merge_name_and_otu_lists(names, otus)
+  # Given a list of names and a list of ActiveRecords with a name_attr,
+  # return the names list where any names matching an AR are replaced with the
+  # AR.
+  # !! Assumes both names and ars are ordered by name, ars' names are a
+  # subset of those on the names list, and each list is uniq.
+  # TODO: spec this if it stays
+  def merge_name_and_ar_lists(names, ars, name_attr)
     a = []
     names.each_with_index { |n, i|
-      if otus.empty?
+      if ars.empty?
         return a + names[i..]
-      elsif n == otus.first['tname']
-        a.push otus.shift
+      elsif n == ars.first[name_attr]
+        a.push ars.shift
       else
         a.push n
       end
