@@ -6,7 +6,7 @@ module Vendor::NexusParser
     begin
       parse_nexus_file(f)
     rescue NexusParser::ParseError
-      return false
+      raise
     end
   end
 end

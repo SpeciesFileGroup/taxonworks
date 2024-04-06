@@ -36,5 +36,8 @@ export const ObservationMatrix = {
   addBatch: (params) => AjaxCall('post', `/${controller}/batch_add`, params),
 
   createBatch: (params) =>
-    AjaxCall('post', `/${controller}/batch_create`, params)
+    AjaxCall('post', `/${controller}/batch_create`, params),
+
+  previewNexus: (params) =>
+    AjaxCall('get', `/${controller}/nexus_data.json`, { params })
 }

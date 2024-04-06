@@ -500,6 +500,7 @@ resources :observation_matrices do
 
   collection do
     get :otus_used_in_matrices, {format: :json}
+    get :nexus_data, {format: :json}
 
     post :batch_create, {format: :json}
     post :batch_add, {format: :json}

@@ -1,10 +1,48 @@
 <template>
   <DocumentSelector v-model="nexusDoc" />
+
+  <VBtn
+    color="primary"
+    medium
+    :disabled="!nexusDoc"
+    @click="generatePreview"
+    class="preview_button"
+  >
+    Preview conversion
+  </VBtn>
+
+  <ImportPreview
+    :otus="nexusTaxaList"
+  />
+
 </template>
 
 <script setup>
 import DocumentSelector from './components/DocumentSelector.vue'
+import ImportPreview from './components/ImportPreview.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { ObservationMatrix } from '@/routes/endpoints'
 import { ref } from 'vue'
 
 const nexusDoc = ref()
+const nexusTaxaList = ref([])
+
+function generatePreview() {
+  const payload = {
+    nexus_document_id: nexusDoc.value.id
+  }
+
+  ObservationMatrix.previewNexus(payload)
+    .then(({ body }) => {
+      nexusTaxaList.value = body.otus
+    })
+    .catch(() => {})
+}
 </script>
+
+<style lang="scss" scoped>
+.preview_button {
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+</style>

@@ -249,6 +249,38 @@ class ObservationMatricesController < ApplicationController
     render '/observation_matrices/api/v1/show'
   end
 
+  # GET /observation_matrices/nexus_data.json
+  def nexus_data
+    begin
+      nexus_doc = Document.find(params[:nexus_document_id])
+    rescue ActiveRecord::RecordNotFound
+      render json: { errors: 'Document not found' },
+        status: :unprocessable_entity
+      return
+    end
+
+    begin
+      d = Vendor::NexusParser.document_to_nexus(nexus_doc)
+    rescue NexusParser::ParseError => e
+      render json: { errors: "Nexus parse error: #{e}" },
+        status: :unprocessable_entity
+      return
+    end
+
+    # TODO: Deal with repeated taxa
+    taxa_names = d.taxa.collect{ |t| t.name }.sort().uniq
+    otus = Otu
+      .joins(:taxon_name)
+      .where(project_id: sessions_current_project_id)
+      .where(taxon_names: { name: taxa_names })
+      .select('otus.*, taxon_names.name as tname')
+      .order('tname')
+
+    @nexus_data = {
+      otus: merge_name_and_otu_lists(taxa_names, otus.to_a)
+    }
+  end
+
   private
 
   # TODO: Not all params are supported yet.
@@ -308,6 +340,21 @@ class ObservationMatricesController < ApplicationController
 
   def observation_matrix_params
     params.require(:observation_matrix).permit(:name)
+  end
+
+  def merge_name_and_otu_lists(names, otus)
+    a = []
+    names.each_with_index { |n, i|
+      if otus.empty?
+        return a + names[i..]
+      elsif n == otus.first['tname']
+        a.push otus.shift
+      else
+        a.push n
+      end
+    }
+
+    a
   end
 
 end
