@@ -504,6 +504,7 @@ resources :observation_matrices do
 
     post :batch_create, {format: :json}
     post :batch_add, {format: :json}
+    post :import_from_nexus, {format: :json}
   end
 end
 

@@ -6,7 +6,7 @@
     medium
     :disabled="!nexusDoc"
     @click="generatePreview"
-    class="preview_button"
+    class="button"
   >
     Preview conversion
   </VBtn>
@@ -15,6 +15,18 @@
     :otus="nexusTaxaList"
     :descriptors="nexusDescriptorsList"
   />
+
+  <div>
+    <VBtn
+      color="update"
+      medium
+      :disabled="!nexusDoc"
+      @click="scheduleConvert"
+      class="button"
+    >
+      Convert
+    </VBtn>
+  </div>
 
 </template>
 
@@ -41,10 +53,18 @@ function generatePreview() {
     })
     .catch(() => {})
 }
+
+function scheduleConvert() {
+  const payload = {
+    nexus_document_id: nexusDoc.value.id
+  }
+
+  ObservationMatrix.initiateImportFromNexus(payload).catch(() => {})
+}
 </script>
 
 <style lang="scss" scoped>
-.preview_button {
+.button {
   margin-top: 2em;
   margin-bottom: 2em;
 }

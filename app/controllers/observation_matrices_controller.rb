@@ -260,7 +260,7 @@ class ObservationMatricesController < ApplicationController
     end
 
     begin
-      d = Vendor::NexusParser.document_to_nexus(nexus_doc)
+      nf = Vendor::NexusParser.document_to_nexus(nexus_doc)
     rescue NexusParser::ParseError => e
       render json: { errors: "Nexus parse error: #{e}" },
         status: :unprocessable_entity
@@ -268,7 +268,7 @@ class ObservationMatricesController < ApplicationController
     end
 
     # TODO: Deal with repeated taxa
-    taxa_names = d.taxa.collect{ |t| t.name }.sort().uniq
+    taxa_names = nf.taxa.collect{ |t| t.name }.sort().uniq
     otus = Otu
       .joins(:taxon_name)
       .where(project_id: sessions_current_project_id)
@@ -278,7 +278,9 @@ class ObservationMatricesController < ApplicationController
 
     # TODO: the nexus description says character name repeats aren't allowed,
     # but the parser currently allows them.
-    descriptor_names = d.characters.collect{ |c| c.name }.sort().uniq
+    descriptor_names = nf.characters.collect{ |c| c.name }.sort().uniq
+    # TODO: the actual import also requires that states and labels match before
+    # a TW descriptor is used, we should do the same check here.
     descriptors = Descriptor
       .where(project_id: sessions_current_project_id)
       .where(name: descriptor_names)
@@ -288,6 +290,18 @@ class ObservationMatricesController < ApplicationController
     @descriptors = merge_name_and_ar_lists(
       descriptor_names, descriptors.to_a, 'name'
     )
+  end
+
+  # POST /observation_matrices/import_nexus.json
+  def import_from_nexus
+    #ImportNexusJob.perform_later(
+    runit(
+      params[:nexus_document_id],
+      sessions_current_user_id,
+      sessions_current_project_id
+    )
+
+    head :no_content
   end
 
   private
@@ -370,6 +384,203 @@ class ObservationMatricesController < ApplicationController
     }
 
     a
+  end
+
+  def runit(nexus_doc_id, uid, project_id, title = nil)
+
+    Current.user_id = uid
+    Current.project_id = project_id
+
+    begin
+      nexus_doc = Document.find(nexus_doc_id)
+    rescue => ex
+      ExceptionNotifier.notify_exception(ex,
+        data: { nexus_document_id: nexus_doc_id }
+      )
+      raise
+    end
+
+    begin
+      nf = Vendor::NexusParser.document_to_nexus(nexus_doc)
+    rescue => ex
+      ExceptionNotifier.notify_exception(ex,
+        data: { nexus_document_id: nexus_doc_id }
+      )
+      raise
+    end
+
+
+=begin
+      @opt = {
+          :title => false,
+          :generate_short_chr_name => false,
+          :generate_otu_name_with_ds_id => false, # data source, not dataset
+          :generate_chr_name_with_ds_id => false,
+          :match_otu_to_db_using_name => false,
+          :match_otu_to_db_using_matrix_name => false,
+          :match_chr_to_db_using_name => false,
+          :generate_chr_with_ds_ref_id => false, # data source, not dataset
+          :generate_otu_with_ds_ref_id => false,
+          :generate_tags_from_notes => false,
+          :generate_tag_with_note => false
+        }.merge!(options)
+
+      # run some checks on options
+      raise if @opt[:generate_otu_name_with_ds_id] && !DataSource.find(@opt[:generate_otu_name_with_ds_id])
+      raise if @opt[:generate_chr_name_with_ds_id] && !DataSource.find(@opt[:generate_chr_name_with_ds_id])
+      raise if @opt[:generate_chr_with_ds_ref_id] && !Ref.find(@opt[:generate_chr_with_ds_ref_id])
+      raise if @opt[:generate_otu_with_ds_ref_id] && !Ref.find(@opt[:generate_otu_with_ds_ref_id])
+      raise ':generate_tags_from_notes must be true when including note' if @opt[:generate_tag_with_note] && !@opt[:generate_tags_from_notes]
+=end
+
+    new_otus = []
+    new_chrs = []
+    new_states = []
+
+    begin
+      ObservationMatrix.transaction do
+
+        title ||= "Converted matrix created #{Time.now().to_formatted_s(:long)} by #{User.find(uid).name}"
+        # TODO: this can't be run twice during the same minute.
+        m = ObservationMatrix.create!(name: title)
+
+        # Create OTUs, add them to the matrix as we do so,
+        # and add them to an array for reference during coding.
+        nf.taxa.each_with_index do |o, i|
+          otu = nil
+          if true #@opt[:match_otu_to_db_using_n  ame] || @opt[:match_otu_to_db_using_matrix_name]
+            # TODO: what's the right approach here for species names?
+            otu = Otu
+              .joins(:taxon_name)
+              .where(project_id: sessions_current_project_id)
+              .find_by('taxon_names.name = ?', o.name)
+          end
+
+          if !otu
+            puts Rainbow("Creating Otu #{o.name}").orange.bold
+            otu = Otu.create!(name: o.name)
+          else
+            puts Rainbow("Found Otu #{o.name}").orange.bold
+          end
+
+          new_otus << otu
+          ObservationMatrixRow.create!(
+            observation_matrix: m, observation_object: otu
+          )
+        end
+
+        # Create characters.
+        nf.characters.each_with_index do |nxs_chr, i|
+          tw_chr = nil
+          new_states[i] = {}
+
+          if true # @opt[:match_chr_to_db_using_name]
+            # TODO: allow other types somehow?
+            # TODO: there can be more than one descriptor with a given name -
+            # we should be checking them all for a states/labels match.
+            tw_chr = Descriptor
+              .where(project_id: sessions_current_project_id)
+              .where(type: 'Descriptor::Qualitative')
+              .find_by('name = ?', nxs_chr.name)
+
+            if tw_chr
+              # Require state labels/names from nexus and TW to match.
+              # Other operations are conceivable, for instance updating the
+              # chr with the new states, but the combinatorics gets very tricky
+              # very quickly.
+
+              tw_chr_states = CharacterState
+                .where(project_id: sessions_current_project_id)
+                .where(descriptor: tw_chr)
+
+              if !same_state_names_and_labels(nxs_chr.states, tw_chr_states)
+                tw_chr = nil
+              end
+
+              if tw_chr
+                tw_chr_states.each{ |twcs|
+                  new_states[i][twcs.label] = twcs
+                }
+              end
+            end
+          end
+
+          if !tw_chr
+            name = nxs_chr.name
+
+            new_tw_chr_states = []
+            nxs_chr.state_labels.each do |nex_state|
+              new_tw_chr_states << {
+                label: nex_state,
+                name: nf.characters[i].states[nex_state].name
+              }
+              if nf.characters[i].states[nex_state].name == ''
+                puts Rainbow(' NO NAME ').orange.bold
+              end
+            end
+
+            # TODO: Is this failing without throwing on states with no name? How??
+            tw_chr = Descriptor.create!({
+              name:,
+              type: Descriptor::Qualitative,
+              character_states_attributes: new_tw_chr_states
+            })
+
+            puts Rainbow('Created states').orange.bold
+            tw_chr.character_states.each{ |cs|
+              new_states[i][cs.label] = cs
+            }
+          end
+
+          new_chrs << tw_chr
+          ObservationMatrixColumn.create!(
+            observation_matrix_id: m.id, descriptor: tw_chr
+          )
+        end
+
+        # Create codings.
+        nf.codings[0..nf.taxa.size].each_with_index do |y, i| # y is a rowvector of NexusFile::Coding
+          y.each_with_index do |x, j| # x is a NexusFile::Coding
+            x.states.each do |z|
+              # TODO: handle gap
+              if z != '?' && z != '-'
+                o = Observation.create!(
+                  type: Observation::Qualitative,
+                  descriptor: new_chrs[j],
+                  observation_object: new_otus[i],
+                  character_state: new_states[j][z]
+                )
+              end
+            end
+          end
+        end
+      end
+    rescue ActiveRecord::RecordInvalid => ex
+      ExceptionNotifier.notify_exception(ex,
+        data: { nexus_document_id: nexus_doc_id }
+      )
+      raise
+    end
+  end
+
+  def same_state_names_and_labels(nex_states, tw_states)
+    # TODO: nexus_parse includes a gap state *if* one is used with
+    # this character (but never includes a 'missing' state) - presumably
+    # TW would have to have a corresponding gap state in order to
+    # import a gap state (unless it gets mapped to missing), but the nexus
+    # parser parses a gap state into label "-" (e.g.) with empty name,
+    # whereas TW doesn't allow character states with empty names.
+    if nex_states.keys.sort() != tw_states.map{ |s| s.label }.sort()
+      return false
+    end
+
+    tw_states.each{ |s|
+      if nex_states[s.label].name != s.name
+        return false
+      end
+    }
+    puts Rainbow('Character states matched').orange.bold
+    true
   end
 
 end
