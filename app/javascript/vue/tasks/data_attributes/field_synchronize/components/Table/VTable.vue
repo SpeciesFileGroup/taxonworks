@@ -30,30 +30,44 @@
           v-for="attr in attributes"
           :key="attr"
         >
-          {{ attr }}
-          <VBtn
-            color="primary"
-            circle
-            @click="emit('remove:attribute', attr)"
-          >
-            <VIcon
-              name="trash"
-              x-small
-            />
-          </VBtn>
+          <div class="flex-separate middle gap-medium">
+            {{ attr }}
+            <VBtn
+              color="primary"
+              circle
+              @click="emit('remove:attribute', attr)"
+            >
+              <VIcon
+                name="trash"
+                x-small
+              />
+            </VBtn>
+          </div>
         </th>
         <th
           v-for="(predicate, index) in predicates"
           :key="predicate.id"
           :class="{ 'cell-left-border': !index }"
         >
-          {{ predicate.name }}
+          <div class="flex-separate middle gap-medium">
+            <span>{{ predicate.name }}</span>
+            <VBtn
+              color="primary"
+              circle
+              @click="emit('remove:predicate', predicate)"
+            >
+              <VIcon
+                name="trash"
+                x-small
+              />
+            </VBtn>
+          </div>
         </th>
         <th
           class="cell-left-border"
           v-if="previewHeader"
         >
-          <div class="horizontal-left-content middle gap-medium">
+          <div class="flex-separate middle gap-medium">
             <span>{{ previewHeader }}</span>
             <VBtn
               color="update"
@@ -80,6 +94,7 @@
           <input
             type="text"
             :value="item.attributes[key]"
+            class="full_width"
             @change="
               (e) =>
                 emit('update:attribute', {
@@ -98,6 +113,7 @@
           <input
             v-for="dataAttribute in item.dataAttributes[predicate.id]"
             :key="dataAttribute.uuid"
+            class="full_width"
             type="text"
             :value="dataAttribute.value"
             @change="
@@ -125,6 +141,7 @@
             <input
               type="text"
               disabled
+              class="full_width"
               :value="obj.value"
             />
             <VBtn
@@ -133,11 +150,13 @@
               :disabled="!obj.hasChanged"
               @click="
                 () => {
-                  emit('update:preview', {
-                    index,
-                    item,
-                    value: obj.value
-                  })
+                  emit('update:preview', [
+                    {
+                      index,
+                      item,
+                      value: obj.value
+                    }
+                  ])
                 }
               "
             >
@@ -148,12 +167,14 @@
       </tr>
     </tbody>
   </table>
+  <ConfirmationModal ref="confirmationRef" />
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
 const props = defineProps({
   attributes: {
@@ -179,17 +200,19 @@ const props = defineProps({
 
 const emit = defineEmits([
   'remove:attribute',
+  'remove:predicate',
   'update:attribute',
   'update:data-attribute',
-  'update:preview',
-  'update:all'
+  'update:preview'
 ])
+
+const confirmationRef = ref()
 
 const hasChanges = computed(() =>
   props.list.some((item) => item.preview.some((item) => item.hasChanged))
 )
 
-function updateAll() {
+async function updateAll() {
   const items = []
 
   props.list.forEach((item) => {
@@ -204,7 +227,18 @@ function updateAll() {
     })
   })
 
-  emit('update:all', items)
+  const opts = {
+    title: 'Mass update',
+    message: `This operation will update ${items.length} record(s). Are you sure you want to proceed?`,
+    confirmationWord: 'update',
+    typeButton: 'submit'
+  }
+
+  const ok = await confirmationRef.value.show(opts)
+
+  if (ok) {
+    emit('update:preview', items)
+  }
 }
 </script>
 
@@ -216,9 +250,5 @@ function updateAll() {
 .cell-selected-border {
   outline: 2px solid var(--color-primary) !important;
   outline-offset: -2px;
-}
-
-.has-changed {
-  background-color: var(--color-warning);
 }
 </style>

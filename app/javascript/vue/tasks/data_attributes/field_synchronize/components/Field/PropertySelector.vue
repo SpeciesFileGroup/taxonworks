@@ -2,7 +2,12 @@
   <div>
     <label class="d-block">Attribute</label>
     <select v-model="selected">
-      <option selected>Select...</option>
+      <option
+        selected
+        disabled
+      >
+        Select...
+      </option>
       <option
         v-for="property in list"
         :key="property"

@@ -3,20 +3,24 @@
     <div class="flex-separate flex-start">
       <ul class="no_bullets">
         <li>
-          <input
-            type="radio"
-            v-model="pattern.replace"
-            :value="false"
-          />
-          Match
+          <label>
+            <input
+              type="radio"
+              v-model="pattern.replace"
+              :value="false"
+            />
+            Match
+          </label>
         </li>
         <li>
-          <input
-            type="radio"
-            v-model="pattern.replace"
-            :value="true"
-          />
-          Replace
+          <label>
+            <input
+              type="radio"
+              v-model="pattern.replace"
+              :value="true"
+            />
+            Replace
+          </label>
         </li>
       </ul>
       <VBtn

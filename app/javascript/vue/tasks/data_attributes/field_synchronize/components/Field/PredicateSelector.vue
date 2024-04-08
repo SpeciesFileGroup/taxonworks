@@ -2,7 +2,12 @@
   <div>
     <label class="d-block">Predicate</label>
     <select v-model="selected">
-      <option selected>Select...</option>
+      <option
+        selected
+        disabled
+      >
+        Select...
+      </option>
       <option
         v-for="predicate in list"
         :key="predicate.id"

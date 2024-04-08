@@ -47,7 +47,9 @@
       :delete-warning="false"
       label="name"
       soft-delete
-      @delete="removeFromArray(selectedRanks, $event, 'rankClass')"
+      @delete="
+        removeFromArray(selectedRanks, $event, { property: 'rankClass' })
+      "
     />
   </FacetContainer>
 </template>

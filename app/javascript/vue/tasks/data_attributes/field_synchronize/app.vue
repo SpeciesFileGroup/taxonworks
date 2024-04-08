@@ -1,35 +1,40 @@
 <template>
   <h1>Field synchronize</h1>
-  <div v-if="QUERY_PARAMETER[queryParam]">
-    <PropertySelector
-      :properties="attributes"
-      v-model="selectedProperties"
-    />
-    <PredicateSelector
-      :predicates="predicates"
-      v-model="selectedPredicates"
-    />
-    <RegexForm
-      :attributes="selectedProperties"
-      :predicates="selectedPredicates"
-      v-model="regexPatterns"
-      v-model:to="to"
-      v-model:from="from"
-    />
+  <VSpinner
+    v-if="isLoading"
+    full-screen
+  />
+  <div
+    v-if="QUERY_PARAMETER[queryParam]"
+    class="horizontal-left-content align-start gap-medium"
+  >
+    <div class="flex-col gap-medium left-column">
+      <FieldForm
+        :predicates="predicates"
+        :attributes="attributes"
+        v-model:selected-predicates="selectedPredicates"
+        v-model:selected-attributes="selectedAttributes"
+      />
+      <RegexForm
+        :attributes="selectedAttributes"
+        :predicates="selectedPredicates"
+        v-model="regexPatterns"
+        v-model:to="to"
+        v-model:from="from"
+      />
+    </div>
     <div class="overflow-x-scroll">
       <VTable
-        :attributes="selectedProperties"
+        :attributes="selectedAttributes"
         :list="tableList"
         :predicates="selectedPredicates"
         :preview-header="previewHeader"
         @remove:attribute="
-          (attr) => {
-            selectedProperties = selectedProperties.filter(
-              (item) => item !== attr
-            )
-          }
+          (attr) =>
+            removeFromArray(selectedAttributes, attr, { primitive: true })
         "
-        @update:attribute="updateFieldAttribute"
+        @remove:predicate="(item) => removeFromArray(selectedPredicates, item)"
+        @update:attribute="saveFieldAttribute"
         @update:data-attribute="saveDataAttribute"
         @update:preview="processPreview"
       />
@@ -53,9 +58,9 @@ import {
 } from '@/helpers'
 import { QUERY_PARAMETER } from './constants'
 import VTable from './components/Table/VTable.vue'
-import PropertySelector from './components/PropertySelector.vue'
-import PredicateSelector from './components/PredicateSelector.vue'
 import RegexForm from './components/Regex/RegexForm.vue'
+import FieldForm from './components/Field/FieldForm.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 defineOptions({
   name: 'FieldSynchronize'
@@ -63,7 +68,7 @@ defineOptions({
 
 const attributes = ref([])
 const list = ref([])
-const selectedProperties = ref([])
+const selectedAttributes = ref([])
 const selectedPredicates = ref([])
 const queryParam = ref(null)
 const queryValue = ref(undefined)
@@ -73,6 +78,7 @@ const currentModel = computed(() => QUERY_PARAMETER[queryParam.value]?.model)
 const from = ref()
 const to = ref()
 const regexPatterns = ref([])
+const isLoading = ref(false)
 
 function applyRegex(text, regexPatterns) {
   for (let i = 0; i < regexPatterns.length; i++) {
@@ -143,38 +149,53 @@ function makeDataAttribute({ predicateId, value = null, id = null }) {
   }
 }
 
-function processPreview({ item, index, value }) {
+function processPreview(items) {
   const predicateId = to.value?.id
 
-  if (predicateId) {
-    const dataAttribute = item.dataAttributes[predicateId][index]
+  const promises = items.map(({ item, index, value }) => {
+    if (predicateId) {
+      const dataAttribute = item.dataAttributes[predicateId][index]
 
-    saveDataAttribute({
-      ...dataAttribute,
-      objectId: item.id,
-      value
-    })
-  } else {
-    updateFieldAttribute({ item, attribute: to.value, value })
-  }
+      return saveDataAttribute({
+        ...dataAttribute,
+        objectId: item.id,
+        value
+      })
+    }
+
+    return saveFieldAttribute({ item, attribute: to.value, value })
+  })
+
+  Promise.allSettled(promises).then((res) => {
+    const resolvedCount = res.filter((r) => r.status === 'fulfilled').length
+    const rejectedCount = (promises.length = resolvedCount)
+
+    const message = rejectedCount.length
+      ? `${resolvedCount} record(s) were successfully updated. ${rejectedCount} were not updated`
+      : `${resolvedCount} record(s) were successfully updated`
+
+    TW.workbench.alert.create(message)
+  })
 }
 
-function updateFieldAttribute({ item, attribute, value }) {
+function saveFieldAttribute({ item, attribute, value }) {
   const { service } = QUERY_PARAMETER[queryParam.value]
   const objectParam = queryParam.value.slice(0, -6)
 
-  service
-    .update(item.id, {
-      [objectParam]: {
-        [attribute]: value
-      }
-    })
-    .then((body) => {
-      const currentItem = list.value.find((obj) => obj.id === item.id)
+  const request = service.update(item.id, {
+    [objectParam]: {
+      [attribute]: value
+    }
+  })
 
-      currentItem.attributes[attribute] = value
-      TW.workbench.alert.create('Field was successfully updated')
-    })
+  request.then((_) => {
+    const currentItem = list.value.find((obj) => obj.id === item.id)
+
+    currentItem.attributes[attribute] = value
+    TW.workbench.alert.create('Field was successfully updated')
+  })
+
+  return request
 }
 
 function getQueryParamFromUrl() {
@@ -190,7 +211,7 @@ function getQueryParamFromUrl() {
   }
 }
 
-watch(selectedProperties, (newVal) => {
+watch(selectedAttributes, (newVal) => {
   if (newVal.length) {
     loadAttributes(newVal)
   }
@@ -210,32 +231,38 @@ function saveDataAttribute({ id, value, objectId, predicateId, uuid }) {
   }
 
   if (!value) {
-    DataAttribute.destroy(id).then(() => {
-      removeFromArray(predicates, { uuid }, 'uuid')
+    const request = DataAttribute.destroy(id)
+
+    request.then(() => {
+      removeFromArray(predicates, { uuid }, { property: 'uuid' })
 
       if (!predicates.length) {
         predicates.push(makeDataAttribute({ predicateId }))
       }
       TW.workbench.alert.create('Data attribute was successfully removed')
     })
-  } else {
-    const request = id
-      ? DataAttribute.update(id, payload)
-      : DataAttribute.create(payload)
 
-    request.then(({ body }) => {
-      const _dataAttributes = dataAttributes.value[objectId][predicateId]
-      const da = _dataAttributes.find((item) => item.uuid === uuid)
-      const currentDa = predicates.find((item) => item.uuid === uuid)
-
-      da.id = body.id
-      da.value = body.value
-      currentDa.value = body.id
-      currentDa.value = body.value
-
-      TW.workbench.alert.create('Data attribute was successfully updated')
-    })
+    return request
   }
+
+  const request = id
+    ? DataAttribute.update(id, payload)
+    : DataAttribute.create(payload)
+
+  request.then(({ body }) => {
+    const _dataAttributes = dataAttributes.value[objectId][predicateId]
+    const da = _dataAttributes.find((item) => item.uuid === uuid)
+    const currentDa = predicates.find((item) => item.uuid === uuid)
+
+    da.id = body.id
+    da.value = body.value
+    currentDa.value = body.id
+    currentDa.value = body.value
+
+    TW.workbench.alert.create('Data attribute was successfully updated')
+  })
+
+  return request
 }
 
 function loadPredicates(params) {
@@ -263,23 +290,29 @@ function loadAttributes(attribute) {
     attribute
   }
 
+  isLoading.value = true
+
   ajaxCall('get', '/tasks/data_attributes/field_synchronize/values', {
     params
-  }).then(({ body }) => {
-    list.value = body.map((item) => {
-      const { id, ...attributes } = item
-
-      if (!dataAttributes.value[id]) {
-        dataAttributes.value[id] = fillDataAttributes({})
-      }
-
-      return {
-        id,
-        attributes,
-        dataAttributes: dataAttributes.value[id]
-      }
-    })
   })
+    .then(({ body }) => {
+      list.value = body.map((item) => {
+        const { id, ...attributes } = item
+
+        if (!dataAttributes.value[id]) {
+          dataAttributes.value[id] = fillDataAttributes({})
+        }
+
+        return {
+          id,
+          attributes,
+          dataAttributes: dataAttributes.value[id]
+        }
+      })
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
 }
 
 function fillDataAttributes(obj) {
@@ -344,3 +377,9 @@ onBeforeMount(() => {
   }
 })
 </script>
+
+<style scoped>
+.left-column {
+  width: 400px;
+}
+</style>
