@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Comprehensive form: Sometimes Attributes are not cleaned when new collection object is created [#3910]
 - DwC importer crashing when uploading files with CSV extension.
 - DwC importer not honouring field and string delimiters when processing headers
+- DwC importing wrongly allowing unreadable files to be staged
 
 [#3907]: https://github.com/SpeciesFileGroup/taxonworks/issues/3907
 [#3910]: https://github.com/SpeciesFileGroup/taxonworks/issues/3910

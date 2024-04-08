@@ -41,7 +41,7 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
 
   # Stages core (Occurrence) records and all extension records.
   def perform_staging
-    records, headers = get_records(source)
+    records, headers = get_records(source.path)
 
     update!(metadata:
       metadata.merge({
