@@ -30,7 +30,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
   # Stages core (Taxon) records and all extension records.
   def perform_staging
-    records, headers = get_records(source)
+    records, headers = get_records(source.path)
 
     update!(metadata:
       metadata.merge({

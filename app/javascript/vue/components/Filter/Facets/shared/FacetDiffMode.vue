@@ -1,0 +1,72 @@
+<template>
+  <FacetContainer highlight>
+    <h3>Mode</h3>
+    <div class="field label-above">
+      <label
+        >Paste the full JSON or Browser URL request of a query for this
+        filter</label
+      >
+      <input
+        class="full_width"
+        type="text"
+        @change="(e) => (params.venn = encodeURI(e.target.value))"
+      />
+      <label>Mode</label>
+      <ul class="no_bullets">
+        <li>
+          <label>
+            <input
+              type="radio"
+              v-model="params.venn_mode"
+              :value="undefined"
+            />
+            None
+          </label>
+        </li>
+        <li
+          v-for="(value, key) in VENN_MODES"
+          :key="key"
+        >
+          <label>
+            <input
+              v-model="params.venn_mode"
+              type="radio"
+              :value="key"
+            />
+            {{ value }}
+          </label>
+        </li>
+      </ul>
+    </div>
+  </FacetContainer>
+</template>
+
+<script setup>
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import { computed } from 'vue'
+
+const VENN_MODES = {
+  a: 'Exclude (A not B)',
+  ab: 'Intersect (found in A & B)',
+  b: 'Inverse (B not A)'
+}
+
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    required: true
+  }
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const params = computed({
+  get() {
+    return props.modelValue
+  },
+
+  set(value) {
+    emit('update:modelValue', value)
+  }
+})
+</script>

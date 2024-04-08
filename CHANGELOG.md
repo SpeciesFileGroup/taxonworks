@@ -11,6 +11,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - `/data_attributes/brief` not scoped to project
 - New collecting event: It tries to save the label even if it is empty
+- Spatial summary return to filter with empty cached level fields [#3907]
+- Comprehensive form: Sometimes Attributes are not cleaned when new collection object is created [#3910]
+- DwC importer crashing when uploading files with CSV extension.
+- DwC importer not honouring field and string delimiters when processing headers
+- DwC importing wrongly allowing unreadable files to be staged
+
+[#3907]: https://github.com/SpeciesFileGroup/taxonworks/issues/3907
+[#3910]: https://github.com/SpeciesFileGroup/taxonworks/issues/3910
 
 \-
 

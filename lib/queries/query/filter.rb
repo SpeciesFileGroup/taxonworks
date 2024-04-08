@@ -198,8 +198,34 @@ module Queries
     attr_accessor :recent
 
     # @return Boolean
-    #   When true api_except_params is applied
+    #   When true api_except_params is applied and
+    #   other restrictions are placed:
+    #     - :venn param is ignored
     attr_accessor :api
+
+    # @return String
+    #   A JSON full URL containing the base string for a query
+    attr_accessor :venn
+
+    # @return Symbol one of :a, :ab, :b
+    #  defaults to :ab
+    #    :a :ab  :b
+    #  ( A ( B ) C )
+    attr_accessor :venn_mode
+
+    def venn_mode
+      v = @venn_mode.to_s.downcase.to_sym
+      v  = :ab if v.blank?
+      if [:a, :ab, :b].include?(v)
+        v
+      else
+        nil
+      end
+    end
+
+    def process_url_into_params(url)
+      Rack::Utils.parse_nested_query(url)
+    end
 
     # @return Hash
     #  the parsed/permitted params
@@ -215,6 +241,9 @@ module Queries
       @api = boolean_param(query_params, :api)
       @recent = boolean_param(query_params, :recent)
       @object_global_id = query_params[:object_global_id]
+
+      @venn = query_params[:venn]
+      @venn_mode = query_params[:venn_mode]
 
       # !! This is the *only* place Current.project_id should be seen !! It's still not the best
       # way to implement this, but we use it to optimize the scope of sub/nested-queries efficiently.
@@ -614,6 +643,19 @@ module Queries
       referenced_klass_intersection(clauses)
     end
 
+    def apply_venn(query)
+      Queries.venn(query, venn_query.all, venn_mode)
+    end
+
+    def venn_query
+      u = ::Addressable::URI.parse(venn)
+      p = ::Rack::Utils.parse_query(u.query)
+
+      a = ActionController::Parameters.new(p)
+
+      self.class.new(a)
+    end
+
     # @param nil_empty [Boolean]
     #   If true then if there are no clauses return nil not .all
     # @return [ActiveRecord::Relation]
@@ -641,6 +683,10 @@ module Queries
         q = referenced_klass.all
       end
 
+      if venn && !api
+        q = apply_venn(q)
+      end
+
       if recent
         q = referenced_klass.from(q.all, table.name).order(updated_at: :desc)
       end
@@ -651,6 +697,7 @@ module Queries
 
       q
     end
+
 
   end
 end
