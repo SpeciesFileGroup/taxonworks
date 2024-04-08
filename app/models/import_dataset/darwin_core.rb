@@ -352,7 +352,11 @@ class ImportDataset::DarwinCore < ImportDataset
   end
 
   def core_records_are_readable
-    get_records(source.staged_path)
+    begin
+      get_records(source.staged_path)
+    rescue RuntimeError
+      errors.add(:source, "A problem occurred when reading the data file. If this is a text file please make sure the selected string and field delimiters are correct.")
+    end
     true
   end
 end
