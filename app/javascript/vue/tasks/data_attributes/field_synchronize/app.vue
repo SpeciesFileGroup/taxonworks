@@ -4,6 +4,11 @@
     v-if="isLoading"
     full-screen
   />
+  <VSpinner
+    v-if="isUpdating"
+    full-screen
+    legend="Saving..."
+  />
   <div
     v-if="QUERY_PARAMETER[queryParam]"
     class="horizontal-left-content align-start gap-medium"
@@ -35,6 +40,7 @@
         "
         @remove:predicate="(item) => removeFromArray(selectedPredicates, item)"
         @update:attribute="saveFieldAttribute"
+        @update:attribute-column="saveColumnAttribute"
         @update:data-attribute="saveDataAttribute"
         @update:preview="processPreview"
       />
@@ -79,6 +85,7 @@ const from = ref()
 const to = ref()
 const regexPatterns = ref([])
 const isLoading = ref(false)
+const isUpdating = ref(false)
 
 function applyRegex(text, regexPatterns) {
   for (let i = 0; i < regexPatterns.length; i++) {
@@ -166,7 +173,15 @@ function processPreview(items) {
     return saveFieldAttribute({ item, attribute: to.value, value })
   })
 
-  Promise.allSettled(promises).then((res) => {
+  makeNotificationWhenPromisesEnd(promises).then((res) => {
+    isUpdating.value = false
+  })
+}
+
+function makeNotificationWhenPromisesEnd(promises) {
+  const handlePromises = Promise.allSettled(promises)
+
+  handlePromises.then((res) => {
     const resolvedCount = res.filter((r) => r.status === 'fulfilled').length
     const rejectedCount = (promises.length = resolvedCount)
 
@@ -175,6 +190,17 @@ function processPreview(items) {
       : `${resolvedCount} record(s) were successfully updated`
 
     TW.workbench.alert.create(message)
+  })
+
+  return handlePromises
+}
+
+function saveColumnAttribute(items) {
+  const requests = items.map((item) => saveFieldAttribute(item))
+
+  isUpdating.value = true
+  makeNotificationWhenPromisesEnd(requests).then((res) => {
+    isUpdating.value = false
   })
 }
 
@@ -188,12 +214,13 @@ function saveFieldAttribute({ item, attribute, value }) {
     }
   })
 
-  request.then((_) => {
-    const currentItem = list.value.find((obj) => obj.id === item.id)
+  request
+    .then((_) => {
+      const currentItem = list.value.find((obj) => obj.id === item.id)
 
-    currentItem.attributes[attribute] = value
-    TW.workbench.alert.create('Field was successfully updated')
-  })
+      currentItem.attributes[attribute] = value
+    })
+    .catch(() => {})
 
   return request
 }
@@ -305,6 +332,7 @@ function loadAttributes(attribute) {
 
         return {
           id,
+          uuid: randomUUID(),
           attributes,
           dataAttributes: dataAttributes.value[id]
         }

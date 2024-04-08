@@ -31,17 +31,29 @@
           :key="attr"
         >
           <div class="flex-separate middle gap-medium">
-            {{ attr }}
-            <VBtn
-              color="primary"
-              circle
-              @click="emit('remove:attribute', attr)"
-            >
-              <VIcon
-                name="trash"
-                x-small
-              />
-            </VBtn>
+            <span>{{ attr }}</span>
+            <div class="horizontal-left-content middle gap-small">
+              <VBtn
+                color="primary"
+                circle
+                @click="updateAttributeColumn({ title: attr })"
+              >
+                <VIcon
+                  name="pencil"
+                  x-small
+                />
+              </VBtn>
+              <VBtn
+                color="primary"
+                circle
+                @click="emit('remove:attribute', attr)"
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
+            </div>
           </div>
         </th>
         <th
@@ -51,16 +63,33 @@
         >
           <div class="flex-separate middle gap-medium">
             <span>{{ predicate.name }}</span>
-            <VBtn
-              color="primary"
-              circle
-              @click="emit('remove:predicate', predicate)"
-            >
-              <VIcon
-                name="trash"
-                x-small
-              />
-            </VBtn>
+            <div class="horizontal-left-content middle gap-small">
+              <!--               <VBtn
+                color="primary"
+                circle
+                @click="
+                  updatePredicateColumn({
+                    title: predicate.name,
+                    predicateId: predicate.id
+                  })
+                "
+              >
+                <VIcon
+                  name="pencil"
+                  x-small
+                />
+              </VBtn> -->
+              <VBtn
+                color="primary"
+                circle
+                @click="emit('remove:predicate', predicate)"
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
+            </div>
           </div>
         </th>
         <th
@@ -84,7 +113,7 @@
     <tbody>
       <tr
         v-for="item in list"
-        :key="item.id"
+        :key="item.uuid"
         class="contextMenuCells"
       >
         <td
@@ -113,7 +142,7 @@
           <input
             v-for="dataAttribute in item.dataAttributes[predicate.id]"
             :key="dataAttribute.uuid"
-            class="full_width"
+            class="full_width d-block"
             type="text"
             :value="dataAttribute.value"
             @change="
@@ -167,14 +196,17 @@
       </tr>
     </tbody>
   </table>
+  <EditColumn ref="editColumnRef" />
   <ConfirmationModal ref="confirmationRef" />
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
+import { isEmpty } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import EditColumn from './EditColumn.vue'
 
 const props = defineProps({
   attributes: {
@@ -202,11 +234,13 @@ const emit = defineEmits([
   'remove:attribute',
   'remove:predicate',
   'update:attribute',
+  'update:attribute-column',
   'update:data-attribute',
   'update:preview'
 ])
 
-const confirmationRef = ref()
+const confirmationRef = ref(null)
+const editColumnRef = ref(null)
 
 const hasChanges = computed(() =>
   props.list.some((item) => item.preview.some((item) => item.hasChanged))
@@ -238,6 +272,44 @@ async function updateAll() {
 
   if (ok) {
     emit('update:preview', items)
+  }
+}
+
+async function updateAttributeColumn({ title }) {
+  try {
+    const payload = await editColumnRef.value.show({ title })
+
+    if (payload) {
+      const items = payload.replace
+        ? props.list
+        : props.list.filter((item) => isEmpty(item.attributes[title]))
+
+      const records = items.map((item) => ({
+        item,
+        attribute: title,
+        value: payload.value
+      }))
+
+      emit('update:attribute-column', records)
+    }
+  } catch (e) {}
+}
+
+async function updatePredicateColumn({ predicateId, title }) {
+  const payload = await editColumnRef.value.show({ title })
+
+  if (payload) {
+    const items = props.list
+      .map((item) => {
+        return item.dataAttributes[predicateId].map((da) => ({
+          ...da,
+          objectId: item.id,
+          value: payload.value
+        }))
+      })
+      .flat()
+
+    console.log(payload.replace ? items : items.filter((item) => !item.id))
   }
 }
 </script>
