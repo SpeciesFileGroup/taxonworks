@@ -58,6 +58,13 @@
           </label>
         </li>
       </ul>
+      <div class="margin-large-top feedback feedback-warning">
+        <i>
+          This is a new feature for selecting file delimiters. If you need to
+          use the settings prior to this change, use TAB and NONE for field and
+          string delimiters respectively.
+        </i>
+      </div>
     </template>
     <template #footer>
       <VBtn
