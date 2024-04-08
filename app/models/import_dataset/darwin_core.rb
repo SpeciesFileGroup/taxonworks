@@ -50,7 +50,9 @@ class ImportDataset::DarwinCore < ImportDataset
         if path =~ /\.(xlsx?|ods)\z/i
           headers = CSV.parse(Roo::Spreadsheet.open(path).to_csv, headers: true, header_converters: lambda {|f| f.strip}).headers
         else
-          headers = CSV.read(path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8', header_converters: lambda {|f| f.strip}).headers
+          col_sep = default_if_absent(params.dig(:import_settings, :col_sep), "\t")
+          quote_char = default_if_absent(params.dig(:import_settings, :qoute_char), '"')
+          headers = CSV.read(path, headers: true, col_sep: col_sep, quote_char: quote_char, encoding: 'bom|utf-8', header_converters: lambda {|f| f.strip}).headers
         end
 
         row_type = params.dig(:import_settings, :row_type)
@@ -306,17 +308,17 @@ class ImportDataset::DarwinCore < ImportDataset
 
   private
 
-  def return_default_if_absent(value, default)
+  def self.default_if_absent(value, default)
     return default if value.nil? || value.empty?
     value
   end
 
   def get_col_sep
-    return_default_if_absent(metadata.dig("import_settings", "col_sep"), "\t")
+    DarwinCore.default_if_absent(metadata.dig("import_settings", "col_sep"), "\t")
   end
 
   def get_quote_char
-    return_default_if_absent(metadata.dig("import_settings", "quote_char"), "\"")
+    DarwinCore.default_if_absent(metadata.dig("import_settings", "quote_char"), "\"")
   end
 
   def get_fields_mapping

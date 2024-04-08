@@ -116,7 +116,7 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
         if source.staged_path =~ /\.(xlsx?|ods)\z/i
           headers = CSV.parse(Roo::Spreadsheet.open(source.staged_path).to_csv, headers: true).headers
         else
-          headers = CSV.read(source.staged_path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8').headers
+          headers = CSV.read(source.staged_path, headers: true, col_sep: get_col_sep, quote_char: get_quote_char, encoding: 'bom|utf-8').headers
         end
       end
 
