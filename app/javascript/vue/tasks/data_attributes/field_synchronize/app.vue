@@ -112,17 +112,21 @@ const tableList = computed(() => {
 
     if (from.value && to.value) {
       try {
-        const text = from.value?.id
+        const items = from.value?.id
           ? item.dataAttributes[from.value.id].map((item) => item.value)
           : item.attributes[from.value]
 
-        data.preview = [text]
-          .flat()
-          .map((t) =>
-            t && regexPatterns.value.length
-              ? applyRegex(t, regexPatterns.value)
-              : t
-          )
+        data.preview = [items].flat().map((value) => {
+          const newValue =
+            value && regexPatterns.value.length
+              ? applyRegex(value, regexPatterns.value)
+              : value
+
+          return {
+            value: newValue,
+            hasChanged: newValue !== value
+          }
+        })
       } catch (e) {}
     }
 

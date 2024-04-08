@@ -87,12 +87,12 @@ defineProps({
 })
 
 const to = defineModel('to', {
-  type: String,
+  type: [String, Object],
   default: undefined
 })
 
 const from = defineModel('from', {
-  type: String,
+  type: [String, Object],
   default: undefined
 })
 

@@ -53,7 +53,17 @@
           class="cell-left-border"
           v-if="previewHeader"
         >
-          {{ previewHeader }}
+          <div class="horizontal-left-content middle gap-medium">
+            <span>{{ previewHeader }}</span>
+            <VBtn
+              color="update"
+              medium
+              :disabled="!hasChanges"
+              @click="updateAll"
+            >
+              Apply all
+            </VBtn>
+          </div>
         </th>
       </tr>
     </thead>
@@ -108,23 +118,25 @@
           class="cell-left-border"
         >
           <div
-            v-for="(p, index) in item.preview"
+            v-for="(obj, index) in item.preview"
+            :key="obj.id"
             class="horizontal-left-content gap-small"
           >
             <input
               type="text"
               disabled
-              :value="p"
+              :value="obj.value"
             />
             <VBtn
               color="update"
               medium
+              :disabled="!obj.hasChanged"
               @click="
                 () => {
                   emit('update:preview', {
-                    item,
                     index,
-                    value: p
+                    item,
+                    value: obj.value
                   })
                 }
               "
@@ -139,6 +151,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
@@ -168,8 +181,31 @@ const emit = defineEmits([
   'remove:attribute',
   'update:attribute',
   'update:data-attribute',
-  'update:preview'
+  'update:preview',
+  'update:all'
 ])
+
+const hasChanges = computed(() =>
+  props.list.some((item) => item.preview.some((item) => item.hasChanged))
+)
+
+function updateAll() {
+  const items = []
+
+  props.list.forEach((item) => {
+    item.preview.forEach((p, index) => {
+      if (p.hasChanged) {
+        items.push({
+          index,
+          item,
+          value: p.value
+        })
+      }
+    })
+  })
+
+  emit('update:all', items)
+}
 </script>
 
 <style scoped>
@@ -180,5 +216,9 @@ const emit = defineEmits([
 .cell-selected-border {
   outline: 2px solid var(--color-primary) !important;
   outline-offset: -2px;
+}
+
+.has-changed {
+  background-color: var(--color-warning);
 }
 </style>
