@@ -69,7 +69,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, nextTick } from 'vue'
 import { capitalize } from '@/helpers/strings'
 import VDropzone from '@/components/dropzone'
 import VSpinner from '@/components/ui/VSpinner'
@@ -157,7 +157,9 @@ function addedFile(file) {
         dwcDropzone.value.dropzone.removeAllFiles()
       })
   } else {
-    dwcDropzone.value.dropzone.processQueue()
+    nextTick(() => {
+      dwcDropzone.value.dropzone.processQueue()
+    })
   }
 }
 
