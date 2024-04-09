@@ -4,6 +4,9 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
   has_many :core_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Taxon'
   has_many :extension_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Extension'
 
+  MINIMUM_FIELD_SET = ["taxonID", "scientificName", "parentNameUsageID"]
+
+  validate :source, :check_field_set
   # if taxonomicStatus is "obsolete combination", and it is an original combination, then don't create a protonym.
   # the valid combination will create the original combination relationship when it is processed.
   #

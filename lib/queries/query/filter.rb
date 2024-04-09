@@ -346,7 +346,7 @@ module Queries
     # Any params set here, and in corresponding subclasses will not
     # be permitted when api: true is present
     def self.api_except_params
-      []
+      [:venn, :venn_mode]
     end
 
     # @return Array, nil

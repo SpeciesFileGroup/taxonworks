@@ -59,7 +59,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import Icons from '../navigation/images/icons.js'
 import AllTasks from './components/allTasks.vue'
-import { humanize, capitalize } from '@/helpers/strings.js'
+import { humanize } from '@/helpers/strings.js'
 import { Metadata } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import VModal from '@/components/ui/Modal.vue'
@@ -97,24 +97,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'delete'])
 
 const menuOptions = computed(() => {
-  const { base = {}, tasks = {} } = metadata.value
-
-  const baseSlices = Object.entries(base)
-    .slice(0, props.maxTaskInPie)
-    .map(([task, url]) => ({
-      name: {
-        url,
-        task
-      },
-      label: humanize(task),
-      icon: Icons[capitalize(task)]
-        ? {
-            url: Icons[capitalize(task)],
-            width: '20',
-            height: '20'
-          }
-        : undefined
-    }))
+  const { tasks = {} } = metadata.value
 
   const taskSlices = Object.entries(tasks)
     .slice(0, props.maxTaskInPie)
@@ -141,7 +124,7 @@ const menuOptions = computed(() => {
     })
   }
 
-  const slices = [...taskSlices, ...baseSlices]
+  const slices = [...taskSlices]
 
   return {
     width: 500,
