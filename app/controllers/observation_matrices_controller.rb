@@ -273,7 +273,8 @@ class ObservationMatricesController < ApplicationController
       .joins(:taxon_name)
       .where(project_id: sessions_current_project_id)
       .where(taxon_names: { name: taxa_names })
-      .select('otus.*, taxon_names.name as tname')
+      .or(Otu.where(taxon_names: { cached: taxa_names }))
+      .select('otus.*, taxon_names.cached as tname')
       .order('tname')
 
     # TODO: the nexus description says character name repeats aren't allowed,
@@ -457,11 +458,10 @@ class ObservationMatricesController < ApplicationController
         nf.taxa.each_with_index do |o, i|
           otu = nil
           if true #@opt[:match_otu_to_db_using_n  ame] || @opt[:match_otu_to_db_using_matrix_name]
-            # TODO: what's the right approach here for species names?
             otu = Otu
               .joins(:taxon_name)
               .where(project_id: sessions_current_project_id)
-              .find_by('taxon_names.name = ?', o.name)
+              .find_by('taxon_names.cached = ?', o.name)
           end
 
           if !otu
@@ -552,6 +552,8 @@ class ObservationMatricesController < ApplicationController
             x.states.each do |z|
               # TODO: handle gap
               if z != '?' && z != '-'
+                # TODO? if we matched otus and descriptors, there's probably
+                # a good chance at least some Observations match as well.
                 o = Observation.create!(
                   type: Observation::Qualitative,
                   descriptor: new_chrs[j],
