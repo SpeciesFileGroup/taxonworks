@@ -21,12 +21,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer not honouring field and string delimiters when processing headers
 - DwC importing wrongly allowing unreadable files to be staged
 
+### Changed
+
+- Updated Ruby gems.
+
 [#3908]: https://github.com/SpeciesFileGroup/taxonworks/issues/3908
 [#3907]: https://github.com/SpeciesFileGroup/taxonworks/issues/3907
 [#3910]: https://github.com/SpeciesFileGroup/taxonworks/issues/3910
 [#3915]: https://github.com/SpeciesFileGroup/taxonworks/issues/3915
-
-\-
 
 ## [0.40.1] - 2024-04-02
 
@@ -37,7 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Geographic Area radial navigator links to associated filters
 - Radial nomenclature: verbatim_author slice [#3896]
 
-#### Changed
+### Changed
 
 - Gems updated
 
