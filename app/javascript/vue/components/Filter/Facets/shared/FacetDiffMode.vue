@@ -1,17 +1,16 @@
 <template>
   <FacetContainer highlight>
-    <h3>Mode</h3>
+    <h3>Venn</h3>
     <div class="field label-above">
-      <label
-        >Paste the full JSON or Browser URL request of a query for this
-        filter</label
-      >
+      <label ><em>Paste the full JSON or browser URL of a query for this
+        filter (the "B" query)</em>
+      </label >
       <input
         class="full_width"
         type="text"
         @change="(e) => (params.venn = encodeURI(e.target.value))"
       />
-      <label>Mode</label>
+      <label>Operation</label>
       <ul class="no_bullets">
         <li>
           <label>
@@ -48,7 +47,7 @@ import { computed } from 'vue'
 const VENN_MODES = {
   a: 'Exclude (A not B)',
   ab: 'Intersect (found in A & B)',
-  b: 'Inverse (B not A)'
+  b: 'Inverse exclude (B not A)'
 }
 
 const props = defineProps({
