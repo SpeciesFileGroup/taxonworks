@@ -34,6 +34,7 @@
         :list="tableList"
         :predicates="selectedPredicates"
         :preview-header="previewHeader"
+        :model="currentModel"
         @remove:attribute="
           (attr) =>
             removeFromArray(selectedAttributes, attr, { primitive: true })

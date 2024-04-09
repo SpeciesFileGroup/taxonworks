@@ -31,7 +31,10 @@
           :key="attr"
         >
           <div class="flex-separate middle gap-medium">
-            <span>{{ attr }}</span>
+            <a
+              :href="`${RouteNames.ProjectVocabulary}?limit=100&model=${model}&attribute=${attr}`"
+              >{{ attr }}</a
+            >
             <div class="horizontal-left-content middle gap-small">
               <VBtn
                 color="primary"
@@ -207,6 +210,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import EditColumn from './EditColumn.vue'
+import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({
   attributes: {
@@ -227,6 +231,11 @@ const props = defineProps({
   previewHeader: {
     type: String,
     default: ''
+  },
+
+  model: {
+    type: String,
+    required: true
   }
 })
 
