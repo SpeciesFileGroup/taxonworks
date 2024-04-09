@@ -11,6 +11,14 @@
       />
     </div>
 
+    <div class="field">
+      <label>match otus to db using taxonomy name</label>
+      <input
+        type="checkbox"
+        v-model="options.match_otu_to_taxonomy_name"
+      />
+    </div>
+
     <div>
       <VBtn
         color="update"
@@ -21,6 +29,7 @@
       >
         Convert
       </VBtn>
+      <!--TODO: Give a message on how to find the new matrix/progress-->
     </div>
   </fieldset>
 </template>
@@ -37,9 +46,9 @@ const emit = defineEmits(['convert'])
 
 const options = defineModel()
 options.value = {
-  // Default values (don't put in defineModel, where they're not passed to the
-  // parent).
-  matrix_name: ''
+  // Default values.
+  matrix_name: '',
+  match_otu_to_taxonomy_name: false
 }
 
 </script>

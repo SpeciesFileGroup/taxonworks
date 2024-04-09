@@ -368,7 +368,7 @@ class ObservationMatricesController < ApplicationController
   end
 
   def nexus_import_options_params
-    params.require(:options).permit(:matrix_name)
+    params.require(:options).permit(:matrix_name, :match_otu_to_taxonomy_name)
   end
 
   # Given a list of names and a list of ActiveRecords with a name_attr,
@@ -393,7 +393,6 @@ class ObservationMatricesController < ApplicationController
   end
 
   def runit(nexus_doc_id, uid, project_id, options)
-
     Current.user_id = uid
     Current.project_id = project_id
 
@@ -445,7 +444,6 @@ class ObservationMatricesController < ApplicationController
 
     begin
       ObservationMatrix.transaction do
-
         # TODO: generated title can't be used to create! twice in the same minute.
         title = options[:matrix_name].present? ?
           options[:matrix_name] :
@@ -453,11 +451,11 @@ class ObservationMatricesController < ApplicationController
         m = ObservationMatrix.create!(name: title)
         puts Rainbow("Created matrix #{title}").orange.bold
 
-        # Create OTUs, add them to the matrix as we do so,
+        # Find/create OTUs, add them to the matrix as we do so,
         # and add them to an array for reference during coding.
         nf.taxa.each_with_index do |o, i|
           otu = nil
-          if true #@opt[:match_otu_to_db_using_n  ame] || @opt[:match_otu_to_db_using_matrix_name]
+          if options[:match_otu_to_taxonomy_name]
             otu = Otu
               .joins(:taxon_name)
               .where(project_id: sessions_current_project_id)
@@ -477,7 +475,7 @@ class ObservationMatricesController < ApplicationController
           )
         end
 
-        # Create characters.
+        # Find/create characters.
         nf.characters.each_with_index do |nxs_chr, i|
           tw_chr = nil
           new_states[i] = {}
