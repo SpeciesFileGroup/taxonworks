@@ -41,6 +41,7 @@
         @remove:predicate="(item) => removeFromArray(selectedPredicates, item)"
         @update:attribute="saveFieldAttribute"
         @update:attribute-column="saveColumnAttribute"
+        @update:predicate-column="saveColumnPredicate"
         @update:data-attribute="saveDataAttribute"
         @update:preview="processPreview"
       />
@@ -186,8 +187,8 @@ function makeNotificationWhenPromisesEnd(promises) {
     const rejectedCount = (promises.length = resolvedCount)
 
     const message = rejectedCount.length
-      ? `${resolvedCount} record(s) were successfully updated. ${rejectedCount} were not updated`
-      : `${resolvedCount} record(s) were successfully updated`
+      ? `${resolvedCount} record(s) were successfully saved. ${rejectedCount} were not saved`
+      : `${resolvedCount} record(s) were successfully saved`
 
     TW.workbench.alert.create(message)
   })
@@ -197,6 +198,15 @@ function makeNotificationWhenPromisesEnd(promises) {
 
 function saveColumnAttribute(items) {
   const requests = items.map((item) => saveFieldAttribute(item))
+
+  isUpdating.value = true
+  makeNotificationWhenPromisesEnd(requests).then((res) => {
+    isUpdating.value = false
+  })
+}
+
+function saveColumnPredicate(items) {
+  const requests = items.map((item) => saveDataAttribute(item))
 
   isUpdating.value = true
   makeNotificationWhenPromisesEnd(requests).then((res) => {
@@ -219,6 +229,7 @@ function saveFieldAttribute({ item, attribute, value }) {
       const currentItem = list.value.find((obj) => obj.id === item.id)
 
       currentItem.attributes[attribute] = value
+      TW.workbench.alert.create('Field attribute was successfully saved')
     })
     .catch(() => {})
 
@@ -286,7 +297,7 @@ function saveDataAttribute({ id, value, objectId, predicateId, uuid }) {
     currentDa.value = body.id
     currentDa.value = body.value
 
-    TW.workbench.alert.create('Data attribute was successfully updated')
+    TW.workbench.alert.create('Data attribute was successfully saved')
   })
 
   return request

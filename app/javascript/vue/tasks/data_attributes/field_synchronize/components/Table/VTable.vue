@@ -64,7 +64,7 @@
           <div class="flex-separate middle gap-medium">
             <span>{{ predicate.name }}</span>
             <div class="horizontal-left-content middle gap-small">
-              <!--               <VBtn
+              <VBtn
                 color="primary"
                 circle
                 @click="
@@ -78,7 +78,7 @@
                   name="pencil"
                   x-small
                 />
-              </VBtn> -->
+              </VBtn>
               <VBtn
                 color="primary"
                 circle
@@ -235,6 +235,7 @@ const emit = defineEmits([
   'remove:predicate',
   'update:attribute',
   'update:attribute-column',
+  'update:predicate-column',
   'update:data-attribute',
   'update:preview'
 ])
@@ -296,21 +297,25 @@ async function updateAttributeColumn({ title }) {
 }
 
 async function updatePredicateColumn({ predicateId, title }) {
-  const payload = await editColumnRef.value.show({ title })
+  try {
+    const payload = await editColumnRef.value.show({ title })
 
-  if (payload) {
-    const items = props.list
-      .map((item) => {
-        return item.dataAttributes[predicateId].map((da) => ({
-          ...da,
-          objectId: item.id,
-          value: payload.value
-        }))
-      })
-      .flat()
+    if (payload) {
+      const items = props.list
+        .map((item) => {
+          return item.dataAttributes[predicateId].map((da) => ({
+            ...da,
+            objectId: item.id,
+            value: payload.value
+          }))
+        })
+        .flat()
 
-    console.log(payload.replace ? items : items.filter((item) => !item.id))
-  }
+      const records = payload.replace ? items : items.filter((item) => !item.id)
+
+      emit('update:predicate-column', records)
+    }
+  } catch (e) {}
 }
 </script>
 
