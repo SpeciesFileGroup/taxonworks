@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - "Venn" factets to filter- logical operations on filter results [#3908]
+- Sort column on project vocabulary task [#3915]
 
 ### Fixed
 
@@ -23,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3908]: https://github.com/SpeciesFileGroup/taxonworks/issues/3908
 [#3907]: https://github.com/SpeciesFileGroup/taxonworks/issues/3907
 [#3910]: https://github.com/SpeciesFileGroup/taxonworks/issues/3910
+[#3915]: https://github.com/SpeciesFileGroup/taxonworks/issues/3915
 
 \-
 
