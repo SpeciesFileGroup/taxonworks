@@ -298,7 +298,8 @@ class ObservationMatricesController < ApplicationController
     runit(
       params[:nexus_document_id],
       sessions_current_user_id,
-      sessions_current_project_id
+      sessions_current_project_id,
+      nexus_import_options_params
     )
 
     head :no_content
@@ -365,6 +366,10 @@ class ObservationMatricesController < ApplicationController
     params.require(:observation_matrix).permit(:name)
   end
 
+  def nexus_import_options_params
+    params.require(:options).permit(:matrix_name)
+  end
+
   # Given a list of names and a list of ActiveRecords with a name_attr,
   # return the names list where any names matching an AR are replaced with the
   # AR.
@@ -386,7 +391,7 @@ class ObservationMatricesController < ApplicationController
     a
   end
 
-  def runit(nexus_doc_id, uid, project_id, title = nil)
+  def runit(nexus_doc_id, uid, project_id, options)
 
     Current.user_id = uid
     Current.project_id = project_id
@@ -440,9 +445,12 @@ class ObservationMatricesController < ApplicationController
     begin
       ObservationMatrix.transaction do
 
-        title ||= "Converted matrix created #{Time.now().to_formatted_s(:long)} by #{User.find(uid).name}"
-        # TODO: this can't be run twice during the same minute.
+        # TODO: generated title can't be used to create! twice in the same minute.
+        title = options[:matrix_name].present? ?
+          options[:matrix_name] :
+          "Converted matrix created #{Time.now().to_formatted_s(:long)} by #{User.find(uid).name}"
         m = ObservationMatrix.create!(name: title)
+        puts Rainbow("Created matrix #{title}").orange.bold
 
         # Create OTUs, add them to the matrix as we do so,
         # and add them to an array for reference during coding.

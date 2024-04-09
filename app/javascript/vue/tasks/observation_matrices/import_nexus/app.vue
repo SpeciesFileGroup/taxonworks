@@ -16,22 +16,16 @@
     :descriptors="nexusDescriptorsList"
   />
 
-  <div>
-    <VBtn
-      color="update"
-      medium
-      :disabled="!nexusDoc"
-      @click="scheduleConvert"
-      class="button"
-    >
-      Convert
-    </VBtn>
-  </div>
-
+  <ImportOptions
+    v-model="options"
+    :docChosen="!!nexusDoc"
+    @convert="scheduleConvert"
+  />
 </template>
 
 <script setup>
 import DocumentSelector from './components/DocumentSelector.vue'
+import ImportOptions from './components/ImportOptions.vue'
 import ImportPreview from './components/ImportPreview.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { ObservationMatrix } from '@/routes/endpoints'
@@ -40,6 +34,7 @@ import { ref } from 'vue'
 const nexusDoc = ref()
 const nexusTaxaList = ref([])
 const nexusDescriptorsList = ref([])
+const options = ref({})
 
 function generatePreview() {
   const payload = {
@@ -56,7 +51,8 @@ function generatePreview() {
 
 function scheduleConvert() {
   const payload = {
-    nexus_document_id: nexusDoc.value.id
+    nexus_document_id: nexusDoc.value.id,
+    options: options.value
   }
 
   ObservationMatrix.initiateImportFromNexus(payload).catch(() => {})
