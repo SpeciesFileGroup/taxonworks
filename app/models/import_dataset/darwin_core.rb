@@ -359,4 +359,24 @@ class ImportDataset::DarwinCore < ImportDataset
     end
     true
   end
+
+  def check_field_set
+    if source.staged?
+      if source.staged_path =~ /\.zip\z/i
+        headers = get_dwc_headers(::DarwinCore.new(source.staged_path).core)
+      else
+        if source.staged_path =~ /\.(xlsx?|ods)\z/i
+          headers = CSV.parse(Roo::Spreadsheet.open(source.staged_path).to_csv, headers: true).headers
+        else
+          headers = CSV.read(source.staged_path, headers: true, col_sep: get_col_sep, quote_char: get_quote_char, encoding: 'bom|utf-8').headers
+        end
+      end
+
+      missing_headers = self.class::MINIMUM_FIELD_SET - headers
+
+      missing_headers.each do |header|
+        errors.add(:source, "required field #{header} missing.")
+      end
+    end
+  end
 end
