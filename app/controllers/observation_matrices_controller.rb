@@ -282,6 +282,7 @@ class ObservationMatricesController < ApplicationController
     descriptor_names = nf.characters.collect{ |c| c.name }.sort().uniq
     # TODO: the actual import also requires that states and labels match before
     # a TW descriptor is used, we should do the same check here.
+    # Also need to make this list uniq.
     descriptors = Descriptor
       .where(project_id: sessions_current_project_id)
       .where(name: descriptor_names)
@@ -498,14 +499,12 @@ class ObservationMatricesController < ApplicationController
 
           if true # @opt[:match_chr_to_db_using_name]
             # TODO: allow other types somehow?
-            # TODO: there can be more than one descriptor with a given name -
-            # we should be checking them all for a states/labels match.
-            tw_chr = Descriptor
+            tw_chrs = Descriptor
               .where(project_id: sessions_current_project_id)
               .where(type: 'Descriptor::Qualitative')
-              .find_by(name: nxs_chr.name)
+              .where(name: nxs_chr.name)
 
-            if tw_chr
+            tw_chrs.each do |twc|
               # Require state labels/names from nexus and TW to match.
               # Other operations are conceivable, for instance updating the
               # chr with the new states, but the combinatorics gets very tricky
@@ -513,17 +512,18 @@ class ObservationMatricesController < ApplicationController
 
               tw_chr_states = CharacterState
                 .where(project_id: sessions_current_project_id)
-                .where(descriptor: tw_chr)
+                .where(descriptor: twc)
 
               if !same_state_names_and_labels(nxs_chr.states, tw_chr_states)
-                tw_chr = nil
+                next
               end
 
-              if tw_chr
-                tw_chr_states.each{ |twcs|
-                  new_states[i][twcs.label] = twcs
-                }
+              tw_chr = twc
+              tw_chr_states.each do |twcs|
+                new_states[i][twcs.label] = twcs
               end
+
+              break
             end
           end
 
@@ -548,9 +548,9 @@ class ObservationMatricesController < ApplicationController
             })
 
             puts Rainbow('Created states').orange.bold
-            tw_chr.character_states.each{ |cs|
+            tw_chr.character_states.each do |cs|
               new_states[i][cs.label] = cs
-            }
+            end
           end
 
           new_chrs << tw_chr
@@ -599,11 +599,11 @@ class ObservationMatricesController < ApplicationController
       return false
     end
 
-    tw_states.each{ |s|
+    tw_states.each do |s|
       if nex_states[s.label].name != s.name
         return false
       end
-    }
+    end
     puts Rainbow('Character states matched').orange.bold
     true
   end
@@ -617,11 +617,11 @@ class ObservationMatricesController < ApplicationController
       return nf
     end
 
-    nf.characters.each{ |c|
+    nf.characters.each do |c|
       if c.state_labels.include? gap_label
         c.states[gap_label].name = gap_name_for_states(c.state_labels)
       end
-    }
+    end
     nf
   end
 
