@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.40.2] - 2024-04-09
+
 ### Added
 
 - "Venn" factets to filter- logical operations on filter results [#3908]
@@ -4490,7 +4494,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.2...development
+[0.40.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.1...v0.40.2
 [0.40.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.0...v0.40.1
 [0.40.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.3...v0.39.0
