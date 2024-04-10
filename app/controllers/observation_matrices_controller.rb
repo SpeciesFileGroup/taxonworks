@@ -368,7 +368,8 @@ class ObservationMatricesController < ApplicationController
   end
 
   def nexus_import_options_params
-    params.require(:options).permit(:matrix_name, :match_otu_to_taxonomy_name)
+    params.require(:options).permit(:matrix_name, :match_otu_to_taxonomy_name,
+      :match_otu_to_name)
   end
 
   # Given a list of names and a list of ActiveRecords with a name_attr,
@@ -455,11 +456,24 @@ class ObservationMatricesController < ApplicationController
         # and add them to an array for reference during coding.
         nf.taxa.each_with_index do |o, i|
           otu = nil
-          if options[:match_otu_to_taxonomy_name]
+          if (options[:match_otu_to_taxonomy_name] ||
+            options[:match_otu_to_name])
+
+            conditions = []
+            values = []
+            if options[:match_otu_to_name]
+              conditions << 'name = ?'
+              values << o.name
+            end
+            if options[:match_otu_to_taxonomy_name]
+              conditions << 'taxon_names.cached = ?'
+              values << o.name
+            end
+            condition = conditions.join(' OR ')
             otu = Otu
               .joins(:taxon_name)
               .where(project_id: sessions_current_project_id)
-              .find_by('taxon_names.cached = ?', o.name)
+              .find_by(condition, *values)
           end
 
           if !otu

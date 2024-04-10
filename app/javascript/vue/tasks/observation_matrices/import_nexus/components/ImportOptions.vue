@@ -19,6 +19,14 @@
       />
     </div>
 
+    <div class="field">
+      <label>match otus to db using name</label>
+      <input
+        type="checkbox"
+        v-model="options.match_otu_to_name"
+      />
+    </div>
+
     <div>
       <VBtn
         color="update"
