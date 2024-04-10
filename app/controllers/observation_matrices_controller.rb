@@ -445,6 +445,8 @@ class ObservationMatricesController < ApplicationController
 
     begin
       ObservationMatrix.transaction do
+        nf = assign_gap_names(nf)
+
         # TODO: generated title can't be used to create! twice in the same minute.
         title = options[:matrix_name].present? ?
           options[:matrix_name] :
@@ -539,7 +541,6 @@ class ObservationMatricesController < ApplicationController
               end
             end
 
-            # TODO: Is this failing without throwing on states with no name? How??
             tw_chr = Descriptor.create!({
               name:,
               type: 'Descriptor::Qualitative',
@@ -562,8 +563,7 @@ class ObservationMatricesController < ApplicationController
         nf.codings[0..nf.taxa.size].each_with_index do |y, i| # y is a rowvector of NexusFile::Coding
           y.each_with_index do |x, j| # x is a NexusFile::Coding
             x.states.each do |z|
-              # TODO: handle gap
-              if z != '?' && z != '-'
+              if z != '?'
                 o = Observation
                   .where(project_id: sessions_current_project_id)
                   .where(type: 'Observation::Qualitative')
@@ -595,12 +595,6 @@ class ObservationMatricesController < ApplicationController
   end
 
   def same_state_names_and_labels(nex_states, tw_states)
-    # TODO: nexus_parse includes a gap state *if* one is used with
-    # this character (but never includes a 'missing' state) - presumably
-    # TW would have to have a corresponding gap state in order to
-    # import a gap state (unless it gets mapped to missing), but the nexus
-    # parser parses a gap state into label "-" (e.g.) with empty name,
-    # whereas TW doesn't allow character states with empty names.
     if nex_states.keys.sort() != tw_states.map{ |s| s.label }.sort()
       return false
     end
@@ -613,5 +607,35 @@ class ObservationMatricesController < ApplicationController
     puts Rainbow('Character states matched').orange.bold
     true
   end
+
+  # Assign a name to all gap states (nexus_parser outputs gap states that have
+  # no name, but TW requires a name).
+  # @param a nexus file object as returned by nexus_parser
+  def assign_gap_names(nf)
+    gap_label = nf.vars[:gap]
+    if gap_label.nil?
+      return nf
+    end
+
+    nf.characters.each{ |c|
+      if c.state_labels.include? gap_label
+        c.states[gap_label].name = gap_name_for_states(c.state_labels)
+      end
+    }
+    nf
+  end
+
+  def gap_name_for_states(states)
+    if !states.include?('tw_gap')
+      return 'tw_gap'
+    else
+      i = 1
+      while states.include?("tw_gap_#{i}")
+        i = i + 1
+      end
+      return "tw_gap#{i}"
+    end
+  end
+
 
 end
