@@ -501,7 +501,7 @@ class ObservationMatricesController < ApplicationController
             tw_chr = Descriptor
               .where(project_id: sessions_current_project_id)
               .where(type: 'Descriptor::Qualitative')
-              .find_by('name = ?', nxs_chr.name)
+              .find_by(name: nxs_chr.name)
 
             if tw_chr
               # Require state labels/names from nexus and TW to match.
@@ -542,7 +542,7 @@ class ObservationMatricesController < ApplicationController
             # TODO: Is this failing without throwing on states with no name? How??
             tw_chr = Descriptor.create!({
               name:,
-              type: Descriptor::Qualitative,
+              type: 'Descriptor::Qualitative',
               character_states_attributes: new_tw_chr_states
             })
 
@@ -564,14 +564,23 @@ class ObservationMatricesController < ApplicationController
             x.states.each do |z|
               # TODO: handle gap
               if z != '?' && z != '-'
-                # TODO? if we matched otus and descriptors, there's probably
-                # a good chance at least some Observations match as well.
-                o = Observation.create!(
-                  type: Observation::Qualitative,
-                  descriptor: new_chrs[j],
-                  observation_object: new_otus[i],
-                  character_state: new_states[j][z]
-                )
+                o = Observation
+                  .where(project_id: sessions_current_project_id)
+                  .where(type: 'Observation::Qualitative')
+                  .find_by(
+                    descriptor: new_chrs[j],
+                    observation_object: new_otus[i],
+                    character_state: new_states[j][z]
+                  )
+
+                if o.nil?
+                  Observation.create!(
+                    type: Observation::Qualitative,
+                    descriptor: new_chrs[j],
+                    observation_object: new_otus[i],
+                    character_state: new_states[j][z]
+                  )
+                end
               end
             end
           end
