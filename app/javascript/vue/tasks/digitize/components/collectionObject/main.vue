@@ -79,17 +79,7 @@
                 }"
                 legend="Locked until first save"
               />
-              <predicates-component
-                v-if="projectPreferences"
-                ref="customAttributes"
-                :object-id="collectionObject.id"
-                object-type="CollectionObject"
-                model="CollectionObject"
-                :model-preferences="
-                  projectPreferences.model_predicate_sets.CollectionObject
-                "
-                @on-update="setAttributes"
-              />
+              <predicates-component />
             </div>
           </div>
           <container-items class="row-item" />
@@ -115,7 +105,7 @@ import BlockLayout from '@/components/layout/BlockLayout.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
-import PredicatesComponent from '@/components/custom_attributes/predicates/predicates'
+import PredicatesComponent from './predicates.vue'
 import ButtonTag from '@/components/ui/Button/ButtonTag.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import SoftValidations from '@/components/soft_validations/panel.vue'
@@ -152,10 +142,6 @@ export default {
   },
 
   computed: {
-    projectPreferences() {
-      return this.$store.getters[GetterNames.GetProjectPreferences]
-    },
-
     collectionObject: {
       get() {
         return this.$store.getters[GetterNames.GetCollectionObject]
@@ -237,20 +223,6 @@ export default {
     }
   },
 
-  created() {
-    this.$store.subscribeAction({
-      after: (action) => {
-        if (action.type === ActionNames.SaveCollectionObject) {
-          this.$refs.customAttributes.loadDataAttributes()
-        }
-      }
-    })
-  },
-
-  beforeUnmount() {
-    this.unsubscribe()
-  },
-
   watch: {
     collectionObject(newVal) {
       if (newVal.id) {
@@ -259,10 +231,6 @@ export default {
     }
   },
   methods: {
-    setAttributes(value) {
-      this.collectionObject.data_attributes_attributes = value
-    },
-
     cloneDepictions(co) {
       const unique = new Set()
       const depictionsRemovedDuplicate = this.depictions.filter((depiction) => {

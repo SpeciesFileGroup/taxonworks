@@ -11,11 +11,21 @@ module Workbench::NavigationHelper
 
   def class_navigation_json(klass)
     k = klass
+
+    b = {}
+    %w{new edit home}.each do |t|
+      if OBJECT_RADIALS[k]
+        if c = OBJECT_RADIALS[k][t]
+          b[t] = send(OBJECT_RADIALS[k][t] + '_path')
+        end
+      end
+    end
+
     return {
-     klass: k, 
+     klass: k,
      id: k.tableize.singularize + '_id',
      tasks: OBJECT_RADIALS[k]['tasks'].inject({}){|hsh, t| hsh[t] = send(t + '_path'); hsh },
-     base: %w{new edit home}.inject({}){|hsh, t| hsh[t] = ( t.blank? ? nil : send(OBJECT_RADIALS[k][t] + '_path')) ; hsh }
+     base: b
    }
   end
 

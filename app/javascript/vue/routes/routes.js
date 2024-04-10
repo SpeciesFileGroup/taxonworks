@@ -16,6 +16,7 @@ import {
 } from '@/constants/index.js'
 
 const RouteNames = {
+  BrowseAssertedDistribution: '/tasks/otus/browse_asserted_distributions',
   BrowseCollectionObject: '/tasks/collection_objects/browse',
   BrowseNomenclature: '/tasks/nomenclature/browse',
   BrowseOtu: '/tasks/otus/browse',

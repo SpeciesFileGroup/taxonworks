@@ -23,7 +23,7 @@ describe Queries::Source::Autocomplete, type: :model do
     expect(query.autocomplete).to contain_exactly(serial1)
   end
 
-  specify '#autocomplete_begining_name 2' do
+  specify '#autocomplete_beginning_name 2' do
     query.terms = 'Journal'
     expect(query.autocomplete).to contain_exactly(serial1, serial2)
   end
@@ -40,9 +40,9 @@ describe Queries::Source::Autocomplete, type: :model do
     expect(query.autocomplete_exact_name.map(&:id)).to contain_exactly(serial1.id)
   end
 
-  specify '#autocomplete_begining_name' do
+  specify '#autocomplete_beginning_name' do
     query.terms = 'Journal'
-    expect(query.autocomplete_begining_name.map(&:id)).to contain_exactly(serial1.id, serial2.id)
+    expect(query.autocomplete_beginning_name.map(&:id)).to contain_exactly(serial1.id, serial2.id)
   end
 
   specify '#autocomplete_wildcard_name' do
@@ -55,9 +55,9 @@ describe Queries::Source::Autocomplete, type: :model do
     expect(query.autocomplete_exact_alternate_value('name', 'AlternateValue::AlternateSpelling').map(&:id)).to contain_exactly(serial1.id)
   end
 
-  specify '#autocomplete_begining_alternate_value' do
+  specify '#autocomplete_beginning_alternate_value' do
     query.terms = 'Journal of Stup'
-    expect(query.autocomplete_begining_alternate_value('name', 'AlternateValue::AlternateSpelling').map(&:id)).to contain_exactly(serial1.id)
+    expect(query.autocomplete_beginning_alternate_value('name', 'AlternateValue::AlternateSpelling').map(&:id)).to contain_exactly(serial1.id)
   end
 
   specify '#autocomplete_ordered_wildcard_alternate_value' do

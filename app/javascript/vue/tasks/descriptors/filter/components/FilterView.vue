@@ -16,6 +16,7 @@
     :param="param"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -28,6 +29,7 @@ import FacetObservationMatrix from '@/components/Filter/Facets/shared/FacetObser
 import FacetDescriptorType from '@/components/Filter/Facets/shared/FacetDescriptorType.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetDescriptorTerm from '@/components/Filter/Facets/shared/FacetDescriptorTerm.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_PARAMS = [
   'observation_matrices',

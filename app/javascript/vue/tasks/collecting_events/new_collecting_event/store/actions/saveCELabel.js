@@ -6,10 +6,14 @@ import makeLabel from '@/factory/Label.js'
 export default async ({ commit, state }) => {
   const label = state.ceLabel
 
-  if (label.id && !label.text.trim().length) {
-    return Label.destroy(label.id).then((_) => {
-      state.ceLabel = makeLabel(COLLECTING_EVENT)
-    })
+  if (!label.text.trim().length) {
+    if (label.id) {
+      Label.destroy(label.id).then((_) => {
+        state.ceLabel = makeLabel(COLLECTING_EVENT)
+      })
+    }
+
+    return
   }
 
   const payload = {

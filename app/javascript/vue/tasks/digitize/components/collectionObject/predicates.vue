@@ -2,11 +2,11 @@
   <CustomAttributes
     v-if="projectPreferences"
     ref="customAttributeRef"
-    :object-id="collectingEvent.id"
-    :object-type="COLLECTING_EVENT"
-    :model="COLLECTING_EVENT"
+    :object-id="collectionObject.id"
+    :object-type="COLLECTION_OBJECT"
+    :model="COLLECTION_OBJECT"
     :model-preferences="
-      projectPreferences.model_predicate_sets[COLLECTING_EVENT]
+      projectPreferences.model_predicate_sets.CollectionObject
     "
     @on-update="setAttributes"
   />
@@ -14,19 +14,19 @@
 
 <script setup>
 import CustomAttributes from '@/components/custom_attributes/predicates/predicates'
-import { COLLECTING_EVENT } from '@/constants'
-import { MutationNames } from '../../../../store/mutations/mutations'
-import { GetterNames } from '../../../../store/getters/getters.js'
-import { ActionNames } from '../../../../store/actions/actions.js'
+import { COLLECTION_OBJECT } from '@/constants'
+import { MutationNames } from '../../store/mutations/mutations'
+import { GetterNames } from '../../store/getters/getters.js'
+import { ActionNames } from '../../store/actions/actions.js'
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useStore } from 'vuex'
 
 const store = useStore()
 const customAttributeRef = ref()
 
-const collectingEvent = computed({
-  get: () => store.getters[GetterNames.GetCollectingEvent],
-  set: (value) => store.commit(MutationNames.SetCollectingEvent, value)
+const collectionObject = computed({
+  get: () => store.getters[GetterNames.GetCollectionObject],
+  set: (value) => store.commit(MutationNames.SetCollectionObject, value)
 })
 
 const projectPreferences = computed(
@@ -35,7 +35,7 @@ const projectPreferences = computed(
 
 const unsubscribe = store.subscribeAction({
   after: (action) => {
-    if (action.type === ActionNames.SaveCollectingEvent) {
+    if (action.type === ActionNames.SaveCollectionObject) {
       customAttributeRef.value.loadDataAttributes()
     }
   }
@@ -46,6 +46,6 @@ onBeforeUnmount(() => {
 })
 
 function setAttributes(dataAttributes) {
-  collectingEvent.value.data_attributes_attributes = dataAttributes
+  collectionObject.value.data_attributes_attributes = dataAttributes
 }
 </script>

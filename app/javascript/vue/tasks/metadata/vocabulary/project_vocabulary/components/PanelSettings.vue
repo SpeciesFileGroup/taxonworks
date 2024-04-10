@@ -59,7 +59,7 @@
     </div>
 
     <div>
-      <label class="d-block">Begining with</label>
+      <label class="d-block">Beginning with</label>
       <input
         class="full_width"
         type="text"
