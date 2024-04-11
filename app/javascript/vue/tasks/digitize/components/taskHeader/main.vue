@@ -243,7 +243,7 @@ export default {
     },
 
     resetStore() {
-      this.$store.commit(MutationNames.ResetStore)
+      this.$store.dispatch(ActionNames.ResetStore)
     },
 
     saveAndNew() {

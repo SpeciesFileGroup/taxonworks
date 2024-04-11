@@ -6,6 +6,7 @@
       <template v-if="predicatesList.length">
         <PredicateRow
           v-for="item in predicatesList"
+          ref="rowRefs"
           :key="item.id"
           :object-id="objectId"
           :object-type="objectType"
@@ -59,6 +60,7 @@ const props = defineProps({
 
 const emit = defineEmits(['onUpdate'])
 
+const rowRefs = ref([])
 const isLoading = ref(true)
 const list = ref([])
 const dataAttributes = ref([])
@@ -71,6 +73,10 @@ watch(() => props.objectId, loadDataAttributes, {
 })
 
 function loadDataAttributes() {
+  dataAttributes.value = []
+  list.value = []
+  resetRows()
+
   if (props.objectType && props.objectId) {
     isLoading.value = true
     DataAttribute.where({
@@ -84,9 +90,11 @@ function loadDataAttributes() {
       .finally(() => {
         isLoading.value = false
       })
-  } else {
-    list.value = []
   }
+}
+
+function resetRows() {
+  rowRefs.value.forEach((row) => row.reset())
 }
 
 async function loadPredicates(ids) {
@@ -128,7 +136,8 @@ Project.preferences().then((response) => {
 })
 
 defineExpose({
-  loadDataAttributes
+  loadDataAttributes,
+  resetRows
 })
 </script>
 
