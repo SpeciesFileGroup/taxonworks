@@ -2,6 +2,8 @@ require 'zip'
 
 module Export::Dwca
 
+  # TODO: consider shelling to `paste` to concat files, see Dima's tutorial: https://globalnames.org/docs/tut-xsv-gnparser/
+
   # Wrapper to build DWCA zipfiles for a specific project.
   # See tasks/accesssions/report/dwc_controller.rb for use.
   #
@@ -204,14 +206,14 @@ module Export::Dwca
       co_column_count = co_columns.size
       # get all CO fields in one query, then split into triplets of [id, CSV column name, value]
       extension_data += collection_objects.pluck(:id, *co_columns)
-                                          .flat_map { |id, *values| ([id] * co_column_count).zip(co_csv_names, values) }
+        .flat_map { |id, *values| ([id] * co_column_count).zip(co_csv_names, values) }
 
       ce_columns = ce_fields.keys
       ce_csv_names = ce_columns.map { |sym| ce_fields[sym] }
       ce_column_count = ce_columns.size
       extension_data += collection_objects.joins(:collecting_event) # no point using left outer join, no event means all data is nil
-                                          .pluck(:id, *ce_columns)
-                                          .flat_map { |id, *values| ([id] * ce_column_count).zip(ce_csv_names, values) }
+        .pluck(:id, *ce_columns)
+        .flat_map { |id, *values| ([id] * ce_column_count).zip(ce_csv_names, values) }
 
       # Create hash with key: co_id, value: [[extension_name, extension_value], ...]
       # prefill with empty values so we have the same number of rows as the main csv, even if some rows don't have
@@ -263,18 +265,23 @@ module Export::Dwca
     # end
 
     def collecting_events
-      CollectingEvent.joins(:collection_objects, :data_attributes).where(collection_objects:)
+      s = 'WITH co_scoped AS (' + collection_objects.to_sql + ') ' + ::CollectingEvent
+        .joins('JOIN co_scoped as co_scoped1 on co_scoped1.collecting_event_id = collecting_events.id')
+        .distinct
+        .to_sql
+
+      ::CollectingEvent.from('(' + s + ') as collecting_events') # .joins(:data_attributes)
     end
 
     def collection_object_attributes_query
-      @collection_object_attributes ||= InternalAttribute
-         .joins(:predicate)
-         .where(attribute_subject: collection_objects)
+      InternalAttribute
+        .joins(:predicate)
+        .where(attribute_subject: collection_objects)
     end
 
     def collection_object_attributes
-      collection_object_attributes_query
-      .select(
+      @collection_object_attributes ||= collection_object_attributes_query
+        .select(
           'data_attributes.attribute_subject_id', # CollectionObject#id
           "CONCAT('TW:DataAttribute:CollectionObject:', controlled_vocabulary_terms.name) predicate",
           'data_attributes.value'
@@ -282,27 +289,25 @@ module Export::Dwca
     end
 
     # @return Relation
-    #   the uniqe attributes derived from CollectingEvents
+    #   the unique attributes derived from CollectingEvents
     def collecting_event_attributes_query
 
-      s = 'WITH touched_collection_objects AS (' + collection_objects.to_sql + ') ' + ::InternalAttribute
-        .joins("JOIN collecting_events on data_attributes.attribute_subject_id = collecting_events.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
-        .joins('JOIN touched_collection_objects as tco1 on tco1.collecting_event_id = collecting_events.id')
-        .distinct
+      #     s = 'WITH touched_collection_objects AS (' + collection_objects.to_sql + ') ' + ::InternalAttribute
+      #       .joins("JOIN collecting_events on data_attributes.attribute_subject_id = collecting_events.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
+      #       .joins('JOIN touched_collection_objects as tco1 on tco1.collecting_event_id = collecting_events.id')
+      #       .distinct
+      #       .to_sql
+
+      s = 'WITH touched_collecting_events AS (' + collecting_events.to_sql + ') ' + ::InternalAttribute
+        .joins("JOIN touched_collecting_events as tce1 on data_attributes.attribute_subject_id = tce1.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
         .to_sql
 
       ::InternalAttribute.from('(' + s + ') as data_attributes')
-      # .joins(:predicate)
-      # .joins("JOIN collecting_events on data_attributes.attribute_subject_id = collecting_events.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
-      # .joins('JOIN collection_objects on collection_objects.collecting_event_id = collecting_events.id')
     end
 
     #   @return Array
     #     1 row per CO per DA (type) on CE
     def collecting_event_attributes
-
-      return [] if !collecting_event_attributes_query.any?
-
       a = collection_objects.left_joins(collecting_event: [internal_attributes: [:predicate]] )
         .where("(data_attributes.id IN (#{collecting_event_attributes_query.pluck(:id).join(',')}))") # mmmarg, how to do this with join
         .select('collection_objects.id', "CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate", 'data_attributes.value')
@@ -319,18 +324,25 @@ module Export::Dwca
     end
 
     def collection_objects
-      CollectionObject.joins(:dwc_occurrence).where(dwc_occurrence: core_scope).order('dwc_occurrences.id')
+      # Use JOIN
+      # CollectionObject.joins(:dwc_occurrence).where(dwc_occurrence: core_scope).order('dwc_occurrences.id')
+
+      s = 'WITH dwc_scoped AS (' + core_scope.to_sql + ') ' + ::CollectionObject
+        .joins("JOIN dwc_scoped as dwc_scoped1 on dwc_scoped1.dwc_occurrence_object_id = collection_objects.id and dwc_scoped1.dwc_occurrence_object_type = 'CollectionObject'")
+        .to_sql
+
+      ::CollectionObject.from('(' + s + ') as collection_objects')
     end
 
     def used_collection_object_predicates
       collection_object_attributes_query.select("CONCAT('TW:DataAttribute:CollectionObject:', controlled_vocabulary_terms.name) predicate_name")
-      .distinct
-      .collect{|r| r['predicate_name']}
+        .distinct
+        .collect{|r| r['predicate_name']}
     end
 
     def used_collecting_event_predicates
       collecting_event_attributes_query.joins(:predicate).select("CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate_name").distinct
-      .collect{|r| r['predicate_name']}
+        .collect{|r| r['predicate_name']}
     end
 
     # @return [Array]
@@ -366,7 +378,9 @@ module Export::Dwca
       # Get order of ids that matches core records so we can align with csv
       dwc_id_order = collection_object_ids.map.with_index.to_h
 
-      data.sort_by {|k, _| dwc_id_order[k]}.each do |row|
+      # TODO: order dependenant pattern is fast but very brittle.
+      data.sort_by {|k, _| dwc_id_order[k] }.each do |row|
+
         # remove collection object id, select "value" from hash conversion
         row = row[1]
 
