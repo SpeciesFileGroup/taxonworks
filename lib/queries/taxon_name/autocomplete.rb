@@ -233,10 +233,10 @@ module Queries
       # Consider word_similarity()
 
       def autocomplete_cached
-        ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, cached) AS sml', query_string]))
-          .where('cached % ?', query_string) # `%` in where means nothing < 0.3 (internal PG similarity value)
-          .where(ApplicationRecord.sanitize_sql_array(["similarity('%s', cached) > 0.6", query_string]))
-          .order('sml DESC, cached')
+        ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, taxon_names.cached) AS sml', query_string]))
+          .where('taxon_names.cached % ?', query_string) # `%` in where means nothing < 0.3 (internal PG similarity value)
+          .where(ApplicationRecord.sanitize_sql_array(["similarity('%s', taxon_names.cached) > 0.6", query_string]))
+          .order('sml DESC, taxon_names.cached')
       end
 
       def autocomplete_original_combination
