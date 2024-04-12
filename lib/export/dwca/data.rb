@@ -175,7 +175,7 @@ module Export::Dwca
 
       # select valid methods, generate frozen name string ahead of time
       # add TW prefix to names
-      @taxonworks_extension_methods.each do |sym|
+      taxonworks_extension_methods.each do |sym|
         csv_header_name = ('TW:Internal:' + sym.name).freeze
         if (method = ::CollectionObject::EXTENSION_COMPUTED_FIELDS[sym])
           methods[method] = csv_header_name

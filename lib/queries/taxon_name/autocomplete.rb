@@ -353,7 +353,6 @@ module Queries
 
       # @return [Array]
       def autocomplete
-
         # exact, unified, comprehensive
 
         queries = (exact ? exact_autocomplete : comprehensive_autocomplete )
@@ -427,7 +426,7 @@ module Queries
         else
           # Gnparser doesn't parse with names like `aus Jones`, do a quick and dirty check for things like `foo Jones`
           if a = query_string.match(/\A[a-z]+\s*\,?\s*(.*)\Z/)
-            @authorship = a[1]
+            @authorship = a[1].gsub(/\\+\z/, '')
           else
             @authorship = ''
           end
