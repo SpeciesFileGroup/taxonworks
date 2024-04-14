@@ -31,5 +31,10 @@ export const Otu = {
   filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
 
   batchUpdate: (params) =>
-    AjaxCall('patch', `/${controller}/batch_update.json`, params)
+    AjaxCall('patch', `/${controller}/batch_update.json`, params),
+
+  taxonomy: (otuId, params) =>
+    AjaxCall('get', `/${controller}/${otuId}/inventory/taxonomy.json`, {
+      params
+    })
 }

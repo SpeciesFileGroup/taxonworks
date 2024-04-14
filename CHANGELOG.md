@@ -9,6 +9,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.40.3] - 2024-04-14
+
+### Changed
+
+- Browse OTU: Replace descendants endpoint for the same used on TaxonPages. Now this panel is available for all ranks
+
+### Fixed
+
+- 2 issues with taxon names autocomplete (internal and api/v1)
+
 ## [0.40.2] - 2024-04-09
 
 ### Added
@@ -4494,7 +4504,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.3...development
+[0.40.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.2...v0.40.3
 [0.40.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.1...v0.40.2
 [0.40.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.0...v0.40.1
 [0.40.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.39.0...v0.40.0

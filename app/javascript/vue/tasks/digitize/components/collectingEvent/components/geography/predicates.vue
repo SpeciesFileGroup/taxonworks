@@ -38,6 +38,9 @@ const unsubscribe = store.subscribeAction({
     if (action.type === ActionNames.SaveCollectingEvent) {
       customAttributeRef.value.loadDataAttributes()
     }
+    if (action.type === ActionNames.ResetStore) {
+      customAttributeRef.value.resetRows()
+    }
   }
 })
 

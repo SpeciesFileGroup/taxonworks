@@ -4,6 +4,9 @@ require 'rails_helper'
 describe Export::Dwca::Data, type: :model, group: :darwin_core do
   let(:scope) { ::DwcOccurrence.all }
 
+  # Headers added when we spec a Specimen with a ce that is a valid_collecting_eventh5555h
+  let(:valid_collecting_event_headers) { %w{georeferenceProtocol verbatimCoordinates verbatimElevation verbatimLatitude verbatimLocality verbatimLongitude} }
+
   specify 'initializing without a scope raises' do
     expect {Export::Dwca::Data.new()}.to raise_error ArgumentError
   end
@@ -27,7 +30,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
     context 'with some occurrence records created' do
       before do
         5.times do
-          f = FactoryBot.create(:valid_specimen)
+          f = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event))
           f.get_dwc_occurrence
         end
       end
@@ -44,23 +47,45 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         expect(d).to eq(CollectionObject.joins(:dwc_occurrence).order('dwc_occurrences.id').pluck(:dwc_occurrence_object_id))
       end
 
+      specify '#collection_objects 1' do
+        d = Export::Dwca::Data.new(core_scope: scope).collection_objects
+        expect(d.all).to contain_exactly(*CollectionObject.joins(:dwc_occurrence).order('dwc_occurrences.id').to_a)
+      end
+
+      specify '#collection_objects 1' do
+        s1 = Specimen.order(:id).first
+        s2 = Specimen.order(:id).last
+        d = Export::Dwca::Data.new(core_scope: scope.where(dwc_occurrence_object_id: [s1.id, s2.id])).collection_objects
+        expect(d.all).to contain_exactly(s1, s2)
+      end
+
+      specify '#collecting_events 1' do
+        d = Export::Dwca::Data.new(core_scope: scope).collecting_events
+        expect(d.to_a).to contain_exactly(*CollectingEvent.all.to_a)
+      end
+
+      specify '#collecting_events 2' do
+        d = Export::Dwca::Data.new(core_scope: scope).collecting_events
+        expect(d.to_a).to contain_exactly(*CollectingEvent.all.to_a)
+      end
+
       context 'various scopes' do
         specify 'with .where clauses' do
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s)
-          expect(d.meta_fields).to contain_exactly(*headers)
+          expect(d.meta_fields).to contain_exactly(*( headers + valid_collecting_event_headers))
         end
 
         specify 'with .order clauses' do
           s = scope.order(:basisOfRecord)
           d = Export::Dwca::Data.new(core_scope: s)
-          expect(d.meta_fields).to contain_exactly(*headers)
+          expect(d.meta_fields).to contain_exactly(*(headers + valid_collecting_event_headers) )
         end
 
         specify 'with .join clauses' do
           s = scope.collection_objects_join
           d = Export::Dwca::Data.new(core_scope: s)
-          expect(d.meta_fields).to contain_exactly(*headers)
+          expect(d.meta_fields).to contain_exactly(*(headers + valid_collecting_event_headers))
         end
       end
 
@@ -258,7 +283,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           specify 'should have the correct headers' do
             headers = %w[basisOfRecord individualCount occurrenceID occurrenceStatus TW:Internal:otu_name]
-            expect(d.meta_fields).to contain_exactly(*headers)
+            expect(d.meta_fields).to contain_exactly(*(headers + valid_collecting_event_headers) )
           end
 
           specify 'should have the otu name in the correct extension file row' do
@@ -275,7 +300,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           specify 'should have the correct headers' do
             headers = %w[basisOfRecord individualCount occurrenceID occurrenceStatus TW:Internal:collection_object_id]
-            expect(d.meta_fields).to contain_exactly(*headers)
+            expect(d.meta_fields).to contain_exactly(*( headers + valid_collecting_event_headers) )
           end
 
           specify 'should have the collection_object_id in the correct extension file row' do
@@ -318,7 +343,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           end
 
           specify 'the datafile should have only the standard headers' do
-            expect(empty_extension.meta_fields).to contain_exactly(*headers)
+            expect(empty_extension.meta_fields).to contain_exactly(*(headers + valid_collecting_event_headers))
           end
         end
       end
@@ -332,11 +357,11 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
       end
 
       specify 'generated headers are restricted to data' do
-        expect(csv.headers).to contain_exactly(*(['id'] + headers))
+        expect(csv.headers).to contain_exactly(*(['id'] + headers + valid_collecting_event_headers ))
       end
 
       specify '#meta_fields can be returned, and exclude id' do
-        expect(data.meta_fields).to contain_exactly(*headers)
+        expect(data.meta_fields).to contain_exactly(*(headers + valid_collecting_event_headers) )
       end
 
       context 'files' do
