@@ -10,10 +10,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Browse OTU: Replace descendants endpoint for the same used on TaxonPages. Now this panel is available for all ranks
+- Bundle/gem update
 
 ### Fixed
 
 - 2 issues with taxon names autocomplete (internal and api/v1)
+- Memoization in dwca export
 
 ## [0.40.2] - 2024-04-09
 
