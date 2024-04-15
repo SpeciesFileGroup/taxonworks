@@ -194,7 +194,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 
 const checkboxParameters = [
   {
-    label: 'Include biological associations as recource relationship',
+    label: 'Include biological associations as resource relationship',
     parameter: 'biological_associations_extension'
   },
   {
