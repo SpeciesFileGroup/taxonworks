@@ -294,6 +294,7 @@ resources :dwc_occurrences, only: [:create] do
     get 'status', defaults: {format: :json}
     get 'collector_id_metadata', defaults: {format: :json}
     get 'download'
+    post 'sweep', as: 'sweep_stale' # TODO: ultimately should not be required
   end
 end
 

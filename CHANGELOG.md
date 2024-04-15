@@ -9,6 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+### Added
+
+- Orphaned DwcOccurrence and DelayedJob job metadata to admin Health report
+
 ## [0.40.3] - 2024-04-14
 
 ### Changed
