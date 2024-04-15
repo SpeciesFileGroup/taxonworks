@@ -588,6 +588,7 @@ resources :otus do
     get :coordinate, defaults: {format: :json}
 
     get 'inventory/distribution', action: :distribution, defaults: {format: :json}
+    get 'inventory/taxonomy', action: :api_taxonomy_inventory, as: :taxonomy_inventory
   end
 
 end

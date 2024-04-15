@@ -10,8 +10,7 @@ export default () => {
     },
     Descendants: {
       title: 'Descendants',
-      status: 'prototype',
-      rankGroup: ['FamilyGroup', 'GenusGroup', 'SpeciesGroup']
+      status: 'prototype'
     },
     ImageGallery: {
       title: 'Images',

@@ -48,6 +48,7 @@ import saveBiologicalAssociations from './saveBiologicalAssociations'
 import updateLayoutPreferences from './updateLayoutPreferences'
 import updateLastChange from './updateLastChange'
 import updateCEChange from './updateCEChange'
+import resetSource from './resetStore'
 
 const ActionFunctions = {
   [ActionNames.AddToContainer]: addToContainer,
@@ -80,6 +81,7 @@ const ActionFunctions = {
   [ActionNames.RemoveTaxonDetermination]: removeTaxonDetermination,
   [ActionNames.RemoveTypeMaterial]: removeTypeMaterial,
   [ActionNames.ResetTaxonDetermination]: resetTaxonDetermination,
+  [ActionNames.ResetStore]: resetSource,
   [ActionNames.ResetWithDefault]: resetWithDefault,
   [ActionNames.SaveCOCitations]: saveCOCitations,
   [ActionNames.SaveCollectingEvent]: saveCollectingEvent,
