@@ -230,7 +230,6 @@ function saveFieldAttribute({ item, attribute, value }) {
       const currentItem = list.value.find((obj) => obj.id === item.id)
 
       currentItem.attributes[attribute] = value
-      TW.workbench.alert.create('Field attribute was successfully saved')
     })
     .catch(() => {})
 
@@ -278,7 +277,6 @@ function saveDataAttribute({ id, value, objectId, predicateId, uuid }) {
       if (!predicates.length) {
         predicates.push(makeDataAttribute({ predicateId }))
       }
-      TW.workbench.alert.create('Data attribute was successfully removed')
     })
 
     return request
