@@ -4,7 +4,7 @@ require 'rails_helper'
 describe Export::Dwca::Data, type: :model, group: :darwin_core do
   let(:scope) { ::DwcOccurrence.all }
 
-  # Headers added when we spec a Specimen with a ce that is a valid_collecting_eventh5555h
+  # Headers added when we spec a Specimen with a ce that is a valid_collecting_events
   let(:valid_collecting_event_headers) { %w{georeferenceProtocol verbatimCoordinates verbatimElevation verbatimLatitude verbatimLocality verbatimLongitude} }
 
   specify 'initializing without a scope raises' do
@@ -107,13 +107,88 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
       end
 
-      context 'predicate_extension' do
+      context 'predicate_extension with orphaned collection objects' do
         let(:p1) { FactoryBot.create(:valid_predicate)}
         let(:p2) { FactoryBot.create(:valid_predicate)}
         let(:p3) { FactoryBot.create(:valid_predicate)}
         let(:predicate_ids) { [p3.id, p1.id, p2.id] } # purposefully out of order
 
         after { data.cleanup }
+
+        specify 'stale DwcOccurrence index does not raise' do
+          s = Specimen.all
+          f = Specimen.first
+          m = Specimen.third
+          l = Specimen.last
+
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p1 )
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: l, predicate: p3 )
+          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: m, predicate: p2 )
+
+          c = FactoryBot.create(:valid_collecting_event)
+          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+
+          m.update!(collecting_event: c)
+
+          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
+
+          # Orphan DwcOccurrence
+          f.delete
+          l.delete
+          m.delete
+
+          expect{a.predicate_data}.not_to raise_error
+        end
+
+        specify 'orders values into the right rows' do
+          s = Specimen.all
+          f = Specimen.first
+          m = Specimen.third
+          l = Specimen.last
+
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p1 )
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: l, predicate: p3 )
+          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: m, predicate: p2 )
+
+          c = FactoryBot.create(:valid_collecting_event)
+          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+
+          m.update!(collecting_event: c)
+
+          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
+
+          f = a.predicate_data.read
+
+          z = CSV.parse(f, headers: true)
+
+          expect(z.to_a[1].first).to include(d1.value)
+          expect(z.to_a[3].first).to include(d4.value) # the ce value
+          expect(z.to_a[3].first).to include(d3.value)
+          expect(z.to_a[5].first).to include(d2.value)
+        end
+
+        specify 'destruction of DataAttribute post instantiation is caught' do
+          s = Specimen.all
+          f = Specimen.first
+          m = Specimen.third
+          l = Specimen.last
+
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p1 )
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: l, predicate: p3 )
+          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: m, predicate: p2 )
+
+          c = FactoryBot.create(:valid_collecting_event)
+          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+
+          m.update!(collecting_event: c)
+
+          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
+
+          d1.destroy!
+          d2.destroy!
+
+          expect{a.predicate_data}.not_to raise_error
+        end
 
         specify 'orders values into the right rows' do
           s = Specimen.all

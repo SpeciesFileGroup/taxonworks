@@ -308,8 +308,13 @@ module Export::Dwca
     #   @return Array
     #     1 row per CO per DA (type) on CE
     def collecting_event_attributes
+
+      t = collecting_event_attributes_query.pluck(:id)
+
+      return [] if t.empty?
+
       a = collection_objects.left_joins(collecting_event: [internal_attributes: [:predicate]] )
-        .where("(data_attributes.id IN (#{collecting_event_attributes_query.pluck(:id).join(',')}))") # mmmarg, how to do this with join
+        .where("(data_attributes.id IN (#{t.join(',')}))") # mmmarg, how to do this with join
         .select('collection_objects.id', "CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate", 'data_attributes.value')
 
       # TODO: head scratch and get this to work with a join/CTE
@@ -366,6 +371,9 @@ module Export::Dwca
       # data attributes
       empty_hash = collection_object_ids.index_with { |_| []}
 
+
+      # Pre clean here
+
       data = (collection_object_attributes + collecting_event_attributes).group_by(&:shift) # very cool
 
       data = empty_hash.merge(data)
@@ -377,6 +385,9 @@ module Export::Dwca
 
       # Get order of ids that matches core records so we can align with csv
       dwc_id_order = collection_object_ids.map.with_index.to_h
+
+      # TODO: this is a heavy-handed hack to re-sync data
+      data.delete_if{|k,_| dwc_id_order[k].nil? }
 
       # TODO: order dependenant pattern is fast but very brittle.
       data.sort_by {|k, _| dwc_id_order[k] }.each do |row|
