@@ -7,19 +7,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Orphaned DwcOccurrence and DelayedJob job metadata to admin Health report
+
 ### Changed
 
 - Unified some methods on dwca export, refactored for speedups 
+- Updated Ruby gems
 
 ### Fixed
 
 - Resource is spelled recource [#3922]
 
 [#3922]: https://github.com/SpeciesFileGroup/taxonworks/issues/3922
-
-### Added
-
-- Orphaned DwcOccurrence and DelayedJob job metadata to admin Health report
 
 ## [0.40.3] - 2024-04-14
 
