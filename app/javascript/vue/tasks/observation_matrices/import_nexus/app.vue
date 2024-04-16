@@ -38,7 +38,8 @@ const options = ref({})
 
 function generatePreview() {
   const payload = {
-    nexus_document_id: nexusDoc.value.id
+    nexus_document_id: nexusDoc.value.id,
+    options: options.value
   }
 
   ObservationMatrix.previewNexus(payload)

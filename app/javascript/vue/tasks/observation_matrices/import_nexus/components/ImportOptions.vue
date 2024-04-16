@@ -27,6 +27,16 @@
       />
     </div>
 
+    <div class="field">
+      <label>
+        match characters to db using name (matches character states as well)
+      </label>
+      <input
+        type="checkbox"
+        v-model="options.match_character_to_name"
+      />
+    </div>
+
     <div>
       <VBtn
         color="update"
@@ -56,7 +66,9 @@ const options = defineModel()
 options.value = {
   // Default values.
   matrix_name: '',
-  match_otu_to_taxonomy_name: false
+  match_otu_to_taxonomy_name: false,
+  match_otu_to_name: false,
+  match_character_to_name: false
 }
 
 </script>

@@ -263,6 +263,8 @@ class ObservationMatricesController < ApplicationController
       return
     end
 
+    options = nexus_import_options_params
+
     # TODO: Deal with repeated taxa
     taxa_names = nf.taxa.collect{ |t| t.name }.sort().uniq
     otus = Otu
@@ -279,14 +281,16 @@ class ObservationMatricesController < ApplicationController
     # TODO: the actual import also requires that states and labels match before
     # a TW descriptor is used, we should do the same check here.
     # Also need to make this list uniq.
-    descriptors = Descriptor
-      .where(project_id: sessions_current_project_id)
-      .where(name: descriptor_names)
-      .order(:name)
+    descriptors = options[:match_character_to_name] ?
+      Descriptor
+        .where(project_id: sessions_current_project_id)
+        .where(name: descriptor_names)
+        .order(:name).to_a
+      : []
 
     @otus = merge_name_and_ar_lists(taxa_names, otus.to_a, 'tname')
     @descriptors = merge_name_and_ar_lists(
-      descriptor_names, descriptors.to_a, 'name'
+      descriptor_names, descriptors, 'name'
     )
   end
 
@@ -366,7 +370,7 @@ class ObservationMatricesController < ApplicationController
 
   def nexus_import_options_params
     params.require(:options).permit(:matrix_name, :match_otu_to_taxonomy_name,
-      :match_otu_to_name)
+      :match_otu_to_name, :match_character_to_name)
   end
 
   # Given a list of names and a list of ActiveRecords with a name_attr,
@@ -482,7 +486,7 @@ class ObservationMatricesController < ApplicationController
           tw_chr = nil
           new_states[i] = {}
 
-          if true # @opt[:match_chr_to_db_using_name]
+          if options[:match_character_to_name]
             # TODO: allow other types somehow?
             tw_chrs = Descriptor
               .where(project_id: sessions_current_project_id)
