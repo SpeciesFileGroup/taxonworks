@@ -51,6 +51,9 @@
                   collectionObjects.map((co) => co.id)
                 predicateParams.collecting_event_predicate_id =
                   collectingEvents.map((ce) => ce.id)
+                selectedExtensionMethods.taxonworks_extension_methods = [
+                  ...extensionMethodNames
+                ]
               }
             "
           >
@@ -63,6 +66,7 @@
               () => {
                 predicateParams.collection_object_predicate_id = []
                 predicateParams.collecting_event_predicate_id = []
+                selectedExtensionMethods.taxonworks_extension_methods = []
               }
             "
           >
