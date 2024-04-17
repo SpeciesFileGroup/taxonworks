@@ -4,7 +4,7 @@ class Tasks::DataAttributes::FieldSynchronizeController < ApplicationController
   def values
     if q = Queries::Query::Filter.instatiated_base_filter(params)
       if !q.params.empty?
-        render json: q.all.select(:id, *params[:attribute]).to_json and return
+        render json: q.all.select(:id, *params[:attribute]).page(params[:page]).per(params[:per]).to_json and return
       end
     end
     render json: {}, status: :unprocessable_entity
