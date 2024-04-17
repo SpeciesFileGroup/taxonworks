@@ -86,30 +86,35 @@ const currentModel = computed(() => QUERY_PARAMETER[queryParam.value]?.model)
 const from = ref()
 const to = ref()
 const regexPatterns = ref([])
+const currentPage = ref()
 const isLoading = ref(false)
 const isUpdating = ref(false)
 
 function applyRegex(text, regexPatterns) {
-  for (let i = 0; i < regexPatterns.length; i++) {
-    const pattern = regexPatterns[i]
-    const regex = new RegExp(pattern.match, 'g')
+  try {
+    for (let i = 0; i < regexPatterns.length; i++) {
+      const pattern = regexPatterns[i]
+      const regex = new RegExp(pattern.match, 'g')
 
-    if (pattern.match) {
-      if (pattern.replace) {
-        text = text?.replace(regex, pattern.value)
-      } else {
-        const found = text.match(regex)
-
-        if (found) {
-          text = found[0]
+      if (pattern.match) {
+        if (pattern.replace) {
+          text = text?.replace(regex, pattern.value)
         } else {
-          return text
+          const found = text.match(regex)
+
+          if (found) {
+            text = found[0]
+          } else {
+            return text
+          }
         }
       }
     }
-  }
 
-  return text
+    return text
+  } catch {
+    return text
+  }
 }
 
 const previewHeader = computed(() => {
