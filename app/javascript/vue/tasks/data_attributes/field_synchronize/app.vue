@@ -29,6 +29,10 @@
       />
     </div>
     <div class="overflow-x-scroll">
+      <VPagination
+        :pagination="pagination"
+        @next-page="({ page }) => loadPage(page)"
+      />
       <VTable
         :attributes="selectedAttributes"
         :list="tableList"
@@ -61,6 +65,7 @@ import { DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE } from '@/constants'
 import {
   URLParamsToJSON,
   ajaxCall,
+  getPagination,
   randomUUID,
   removeFromArray
 } from '@/helpers'
@@ -69,10 +74,15 @@ import VTable from './components/Table/VTable.vue'
 import RegexForm from './components/Regex/RegexForm.vue'
 import FieldForm from './components/Field/FieldForm.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VPaginationCount from '@/components/pagination/PaginationCount.vue'
+import VPagination from '@/components/pagination.vue'
+import { applyRegex } from './utils'
 
 defineOptions({
   name: 'FieldSynchronize'
 })
+
+const DEFAULT_PER = 250
 
 const attributes = ref([])
 const list = ref([])
@@ -86,36 +96,11 @@ const currentModel = computed(() => QUERY_PARAMETER[queryParam.value]?.model)
 const from = ref()
 const to = ref()
 const regexPatterns = ref([])
-const currentPage = ref()
 const isLoading = ref(false)
 const isUpdating = ref(false)
 
-function applyRegex(text, regexPatterns) {
-  try {
-    for (let i = 0; i < regexPatterns.length; i++) {
-      const pattern = regexPatterns[i]
-      const regex = new RegExp(pattern.match, 'g')
-
-      if (pattern.match) {
-        if (pattern.replace) {
-          text = text?.replace(regex, pattern.value)
-        } else {
-          const found = text.match(regex)
-
-          if (found) {
-            text = found[0]
-          } else {
-            return text
-          }
-        }
-      }
-    }
-
-    return text
-  } catch {
-    return text
-  }
-}
+const pagination = ref({})
+const currentPage = ref(1)
 
 const previewHeader = computed(() => {
   const _from = from.value?.name || from.value
@@ -256,7 +241,7 @@ function getQueryParamFromUrl() {
 
 watch(selectedAttributes, (newVal) => {
   if (newVal.length) {
-    loadAttributes(newVal)
+    loadPage(currentPage.value)
   }
 })
 
@@ -308,10 +293,12 @@ function saveDataAttribute({ id, value, objectId, predicateId, uuid }) {
 }
 
 function loadPredicates(params) {
-  DataAttribute.brief({
+  const request = DataAttribute.brief({
     ...params,
     type: DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE
-  }).then(async ({ body }) => {
+  })
+
+  request.then(async ({ body }) => {
     predicates.value = body.index.map((item) => {
       const [id] = Object.keys(item)
       const [name] = Object.values(item)
@@ -324,21 +311,23 @@ function loadPredicates(params) {
 
     dataAttributes.value = makeDataAttributeList(body)
   })
+
+  return request
 }
 
-function loadAttributes(attribute) {
-  const params = {
-    [queryParam.value]: queryValue.value,
-    attribute
-  }
+function loadAttributes(params) {
+  const request = ajaxCall(
+    'get',
+    '/tasks/data_attributes/field_synchronize/values',
+    {
+      params
+    }
+  )
 
-  isLoading.value = true
-
-  ajaxCall('get', '/tasks/data_attributes/field_synchronize/values', {
-    params
-  })
-    .then(({ body }) => {
-      list.value = body.map((item) => {
+  request
+    .then((response) => {
+      pagination.value = getPagination(response)
+      list.value = response.body.map((item) => {
         const { id, ...attributes } = item
 
         if (!dataAttributes.value[id]) {
@@ -356,6 +345,8 @@ function loadAttributes(attribute) {
     .finally(() => {
       isLoading.value = false
     })
+
+  return request
 }
 
 function fillDataAttributes(obj) {
@@ -368,7 +359,7 @@ function fillDataAttributes(obj) {
   return obj
 }
 
-function makeDataAttributeList({ data, index }) {
+function makeDataAttributeList({ data }) {
   const obj = {}
 
   data.forEach(([id, objectId, predicateId, value]) => {
@@ -415,10 +406,40 @@ onBeforeMount(() => {
     }).then(({ body }) => {
       attributes.value = body
     })
-
-    loadPredicates({ [queryParam.value]: queryValue.value })
   }
 })
+
+function loadPage(page) {
+  const promises = []
+
+  promises.push(
+    loadPredicates({
+      [queryParam.value]: {
+        ...queryValue.value,
+        page,
+        paginate: true,
+        per: DEFAULT_PER
+      }
+    })
+  )
+
+  if (selectedAttributes.value.length) {
+    promises.push(
+      loadAttributes({
+        [queryParam.value]: queryValue.value,
+        attribute: selectedAttributes.value,
+        page,
+        per: DEFAULT_PER
+      })
+    )
+  }
+
+  isLoading.value = true
+
+  Promise.all(promises).then(() => {
+    isLoading.value = false
+  })
+}
 </script>
 
 <style scoped>
