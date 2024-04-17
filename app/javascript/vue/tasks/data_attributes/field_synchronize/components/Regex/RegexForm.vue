@@ -57,18 +57,18 @@
       </div>
 
       <div class="flex-col gap-medium margin-medium-top">
-        <VBtn
-          color="primary"
-          medium
-          @click="() => addPattern({ replace: false })"
-          >Add pattern</VBtn
-        >
         <MatchReplaceForm
           v-for="(item, index) in patterns"
           :key="item.uuid"
           v-model="patterns[index]"
           @remove="() => patterns.splice(index, 1)"
         />
+        <VBtn
+          color="primary"
+          medium
+          @click="() => addPattern({ replace: false })"
+          >Add pattern</VBtn
+        >
       </div>
     </template>
   </BlockLayout>
