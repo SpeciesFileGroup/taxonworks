@@ -29,10 +29,17 @@
       />
     </div>
     <div class="overflow-x-scroll">
-      <VPagination
-        :pagination="pagination"
-        @next-page="({ page }) => loadPage(page)"
-      />
+      <div class="horizontal-left-content middle gap-medium">
+        <VPagination
+          :pagination="pagination"
+          @next-page="({ page }) => loadPage(page)"
+        />
+        <VPaginationCount
+          :pagination="pagination"
+          :max-records="PER_VALUES"
+          v-model="per"
+        />
+      </div>
       <VTable
         :attributes="selectedAttributes"
         :list="tableList"
@@ -82,7 +89,7 @@ defineOptions({
   name: 'FieldSynchronize'
 })
 
-const DEFAULT_PER = 250
+const PER_VALUES = [50, 100, 200, 250]
 
 const attributes = ref([])
 const list = ref([])
@@ -100,6 +107,7 @@ const isLoading = ref(false)
 const isUpdating = ref(false)
 
 const pagination = ref({})
+const per = ref(250)
 const currentPage = ref(1)
 
 const previewHeader = computed(() => {
@@ -298,7 +306,7 @@ function loadPredicates(params) {
     type: DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE
   })
 
-  request.then(async ({ body }) => {
+  request.then(({ body }) => {
     predicates.value = body.index.map((item) => {
       const [id] = Object.keys(item)
       const [name] = Object.values(item)
@@ -406,39 +414,35 @@ onBeforeMount(() => {
     }).then(({ body }) => {
       attributes.value = body
     })
+
+    loadPage(currentPage.value)
   }
 })
 
-function loadPage(page) {
-  const promises = []
-
-  promises.push(
-    loadPredicates({
-      [queryParam.value]: {
-        ...queryValue.value,
-        page,
-        paginate: true,
-        per: DEFAULT_PER
-      }
-    })
-  )
-
-  if (selectedAttributes.value.length) {
-    promises.push(
-      loadAttributes({
-        [queryParam.value]: queryValue.value,
-        attribute: selectedAttributes.value,
-        page,
-        per: DEFAULT_PER
-      })
-    )
-  }
-
+async function loadPage(page) {
   isLoading.value = true
 
-  Promise.all(promises).then(() => {
-    isLoading.value = false
+  await loadPredicates({
+    [queryParam.value]: {
+      ...queryValue.value,
+      paginate: true,
+      page,
+      per: per.value
+    }
   })
+
+  await loadAttributes({
+    [queryParam.value]: queryValue.value,
+    attribute: selectedAttributes.value,
+    page,
+    per: per.value
+  })
+
+  selectedPredicates.value = selectedPredicates.value.filter((item) =>
+    predicates.value.some((p) => p.id === item.id)
+  )
+
+  isLoading.value = false
 }
 </script>
 

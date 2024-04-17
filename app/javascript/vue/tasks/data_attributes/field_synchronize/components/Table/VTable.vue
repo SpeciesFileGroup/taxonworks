@@ -2,6 +2,7 @@
   <table class="table-striped">
     <thead>
       <tr>
+        <td />
         <th
           v-if="attributes.length"
           :colspan="attributes.length"
@@ -26,6 +27,7 @@
         </th>
       </tr>
       <tr>
+        <th>ID</th>
         <th
           v-for="attr in attributes"
           :key="attr"
@@ -119,6 +121,7 @@
         :key="item.uuid"
         class="contextMenuCells"
       >
+        <td>{{ item.id }}</td>
         <td
           v-for="key in attributes"
           :key="key"
@@ -206,11 +209,11 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { isEmpty } from '@/helpers'
+import { RouteNames } from '@/routes/routes'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import EditColumn from './EditColumn.vue'
-import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({
   attributes: {
