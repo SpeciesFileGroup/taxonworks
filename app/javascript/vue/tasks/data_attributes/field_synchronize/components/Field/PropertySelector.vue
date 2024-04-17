@@ -4,7 +4,7 @@
     <select v-model="selected">
       <option
         selected
-        disabled
+        :value="selected"
       >
         Select...
       </option>
