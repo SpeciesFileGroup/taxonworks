@@ -58,7 +58,7 @@ scope :administration, controller: :administration do
   match '/', action: :index, as: 'administration', via: :get
   get 'user_activity'
   get 'data_overview'
-  get 'data_health'
+  get 'data_health', as: 'administration_data_health_task'
   get 'data_reindex'
   get 'data_class_summary'
   get 'cached_maps_status'

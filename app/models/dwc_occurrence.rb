@@ -80,6 +80,20 @@ class DwcOccurrence < ApplicationRecord
 
   attr_accessor :occurrence_identifier
 
+  # Delete all stale indecies, where stale = object is missing
+  def self.sweep
+    %w{CollectionObject AssertedDistribution}.each do |k|
+      stale(k).delete_all
+    end
+    true
+  end
+
+  def self.stale(kind = 'CollectionObject')
+    tbl = kind.tableize
+    DwcOccurrence.joins("LEFT JOIN #{tbl} tbl on dwc_occurrences.dwc_occurrence_object_id = tbl.id")
+    .where("tbl.id IS NULL and dwc_occurrences.dwc_occurrence_object_type = '#{kind}'")
+  end
+
   def self.annotates?
     false
   end

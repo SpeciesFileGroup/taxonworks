@@ -51,6 +51,9 @@
                   collectionObjects.map((co) => co.id)
                 predicateParams.collecting_event_predicate_id =
                   collectingEvents.map((ce) => ce.id)
+                selectedExtensionMethods.taxonworks_extension_methods = [
+                  ...extensionMethodNames
+                ]
               }
             "
           >
@@ -63,6 +66,7 @@
               () => {
                 predicateParams.collection_object_predicate_id = []
                 predicateParams.collecting_event_predicate_id = []
+                selectedExtensionMethods.taxonworks_extension_methods = []
               }
             "
           >
@@ -194,7 +198,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 
 const checkboxParameters = [
   {
-    label: 'Include biological associations as recource relationship',
+    label: 'Include biological associations as resource relationship',
     parameter: 'biological_associations_extension'
   },
   {

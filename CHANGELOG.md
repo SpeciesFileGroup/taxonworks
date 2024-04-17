@@ -7,17 +7,32 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- Orphaned DwcOccurrence and DelayedJob job metadata to admin Health report
+
+### Changed
+
+- Unified some methods on dwca export, refactored for speedups 
+- Updated Ruby gems
+
+### Fixed
+
+- Resource is spelled recource [#3922]
+
+[#3922]: https://github.com/SpeciesFileGroup/taxonworks/issues/3922
 
 ## [0.40.3] - 2024-04-14
 
 ### Changed
 
 - Browse OTU: Replace descendants endpoint for the same used on TaxonPages. Now this panel is available for all ranks
+- Bundle/gem update
 
 ### Fixed
 
 - 2 issues with taxon names autocomplete (internal and api/v1)
+- Memoization in dwca export
 
 ## [0.40.2] - 2024-04-09
 

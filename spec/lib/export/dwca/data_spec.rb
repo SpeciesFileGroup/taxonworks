@@ -1,11 +1,16 @@
 require 'rails_helper'
-# require 'export/dwca/data'
 
 describe Export::Dwca::Data, type: :model, group: :darwin_core do
   let(:scope) { ::DwcOccurrence.all }
 
-  # Headers added when we spec a Specimen with a ce that is a valid_collecting_eventh5555h
+  # Headers added when we spec a Specimen with a ce that is a valid_collecting_events
   let(:valid_collecting_event_headers) { %w{georeferenceProtocol verbatimCoordinates verbatimElevation verbatimLatitude verbatimLocality verbatimLongitude} }
+
+  specify 'optimizations using ::CollectionObject::EXTENSION_COMPUTED_FIELDS are noted' do
+    # If this spec breaks then see def taxonworks_extension_data
+    # for required changes before it can be updated
+    expect(::CollectionObject::EXTENSION_COMPUTED_FIELDS).to eq({otu_name: :otu_name})
+  end
 
   specify 'initializing without a scope raises' do
     expect {Export::Dwca::Data.new()}.to raise_error ArgumentError
@@ -107,7 +112,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
       end
 
-      context 'predicate_extension' do
+      context 'predicate_extensions with orphaned collection objects' do
         let(:p1) { FactoryBot.create(:valid_predicate)}
         let(:p2) { FactoryBot.create(:valid_predicate)}
         let(:p3) { FactoryBot.create(:valid_predicate)}
@@ -115,7 +120,82 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
         after { data.cleanup }
 
+        specify 'stale DwcOccurrence index does not raise' do
+          s = Specimen.all
+          f = Specimen.first
+          m = Specimen.third
+          l = Specimen.last
+
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p1 )
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: l, predicate: p3 )
+          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: m, predicate: p2 )
+
+          c = FactoryBot.create(:valid_collecting_event)
+          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+
+          m.update!(collecting_event: c)
+
+          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
+
+          # Orphan DwcOccurrence
+          f.delete
+          l.delete
+          m.delete
+
+          expect{a.predicate_data}.not_to raise_error
+        end
+
         specify 'orders values into the right rows' do
+          s = Specimen.all
+          f = Specimen.first
+          m = Specimen.third
+          l = Specimen.last
+
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p1 )
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: l, predicate: p3 )
+          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: m, predicate: p2 )
+
+          c = FactoryBot.create(:valid_collecting_event)
+          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+
+          m.update!(collecting_event: c)
+
+          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
+
+          f = a.predicate_data.read
+
+          z = CSV.parse(f, headers: true)
+
+          expect(z.to_a[1].first).to include(d1.value)
+          expect(z.to_a[3].first).to include(d4.value) # the ce value
+          expect(z.to_a[3].first).to include(d3.value)
+          expect(z.to_a[5].first).to include(d2.value)
+        end
+
+        specify 'destruction of DataAttribute post instantiation is caught' do
+          s = Specimen.all
+          f = Specimen.first
+          m = Specimen.third
+          l = Specimen.last
+
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p1 )
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: l, predicate: p3 )
+          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: m, predicate: p2 )
+
+          c = FactoryBot.create(:valid_collecting_event)
+          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+
+          m.update!(collecting_event: c)
+
+          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
+
+          d1.destroy!
+          d2.destroy!
+
+          expect{a.predicate_data}.not_to raise_error
+        end
+
+        specify 'orders values into the right rows 2' do
           s = Specimen.all
           f = Specimen.first
           m = Specimen.third
@@ -256,10 +336,180 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           expect(a.used_predicates).to contain_exactly("TW:DataAttribute:CollectingEvent:#{p1.name}", "TW:DataAttribute:CollectingEvent:#{p3.name}", "TW:DataAttribute:CollectionObject:#{p2.name}")
         end
+      end
 
+      specify '#dwc_id_order' do
+        # zero! Like  {1=>0, 2=>1, 3=>2, 4=>3, 5=>4}
+        d = Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])
+        o = Specimen.order(:id).pluck(:id).map.with_index.to_h
+        expect(d.dwc_id_order).to eq(o)
       end
 
       context 'taxonworks_extensions for internal attributes' do
+        context '#taxonworks_extension_data' do
+          let(:o1) { Otu.create(name: 'aus') }
+          let(:o2) { Otu.create(name: 'bus') }
+          let(:o3) { Otu.create(name: 'cus') }
+
+          specify 'exports in the correct order' do
+            s1 = Specimen.order(:id).first
+            s2 = Specimen.order(:id).third
+            s3 = Specimen.order(:id).last
+
+            d1 = TaxonDetermination.create( otu: o1, taxon_determination_object: s1)
+            d2 = TaxonDetermination.create( otu: o2, taxon_determination_object: s3)
+            d3 = TaxonDetermination.create( otu: o3, taxon_determination_object: s2)
+
+            d = Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])
+
+            e = d.taxonworks_extension_data.read
+
+            z = CSV.parse(e, headers: true)
+
+            expect(z.to_a[1].first).to eq(d1.otu.name)
+            expect(z.to_a[2].first).to eq(nil)
+            expect(z.to_a[3].first).to eq(d3.otu.name)
+            expect(z.to_a[4].first).to eq(nil)
+            expect(z.to_a[5].first).to eq(d2.otu.name)
+          end
+
+          specify 'exports in the correct order (otu attributes)' do
+            s1 = Specimen.order(:id).first
+            s2 = Specimen.order(:id).third
+            s3 = Specimen.order(:id).last
+
+            d1 = TaxonDetermination.create( otu: o1, taxon_determination_object: s1)
+            d2 = TaxonDetermination.create( otu: o2, taxon_determination_object: s3)
+            d3 = TaxonDetermination.create( otu: o3, taxon_determination_object: s2)
+
+            d = Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])
+
+            e = d.taxonworks_extension_data.read
+
+            z = CSV.parse(e, headers: true)
+
+            expect(z.to_a[1].first).to eq(d1.otu.name)
+            expect(z.to_a[2].first).to eq(nil)
+            expect(z.to_a[3].first).to eq(d3.otu.name)
+            expect(z.to_a[4].first).to eq(nil)
+            expect(z.to_a[5].first).to eq(d2.otu.name)
+          end
+
+          specify 'exports in the correct order (ce attributes)' do
+            s1 = Specimen.order(:id).first
+            s2 = Specimen.order(:id).third
+            s3 = Specimen.order(:id).last
+
+            c1 = FactoryBot.create(:valid_collecting_event, elevation_precision: 1.0 )
+            c2 = FactoryBot.create(:valid_collecting_event, elevation_precision: 2.0 )
+            c3 = FactoryBot.create(:valid_collecting_event, elevation_precision: 3.0 )
+
+            s1.update!(collecting_event: c1)
+            s3.update!(collecting_event: c2)
+            s2.update!(collecting_event: c3)
+
+            d = Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:elevation_precision])
+
+            e = d.taxonworks_extension_data.read
+
+            z = CSV.parse(e, headers: true)
+
+            expect(z.to_a[1].first).to eq(c1.elevation_precision)
+            expect(z.to_a[2].first).to eq(nil)
+            expect(z.to_a[3].first).to eq(c3.elevation_precision)
+            expect(z.to_a[4].first).to eq(nil)
+            expect(z.to_a[5].first).to eq(c2.elevation_precision)
+          end
+
+          specify 'exports in the correct order (ce & co attributes)' do
+            s1 = Specimen.order(:id).first
+            s2 = Specimen.order(:id).third
+            s3 = Specimen.order(:id).last
+
+            c1 = FactoryBot.create(:valid_collecting_event, elevation_precision: 1.0 )
+            c2 = FactoryBot.create(:valid_collecting_event, elevation_precision: 2.0 )
+            c3 = FactoryBot.create(:valid_collecting_event, elevation_precision: 3.0 )
+
+            d1 = TaxonDetermination.create( otu: o1, taxon_determination_object: s1)
+
+            s1.update!(collecting_event: c1)
+            s3.update!(collecting_event: c2)
+            s2.update!(collecting_event: c3)
+
+            d = Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name, :elevation_precision])
+
+            e = d.taxonworks_extension_data.read
+
+            z = CSV.parse(e, headers: true)
+
+            expect(z.to_a).to eq(
+              [
+                [ "TW:Internal:otu_name\tTW:Internal:elevation_precision" ],
+                [ "aus\t1.0" ],
+                [ "\t" ],
+                [ "\t3.0" ],
+                [ "\t" ],
+                [ "\t2.0" ]
+              ]
+            )
+          end
+
+          specify 'collection objects without dwc_occurrences, with (ce & co attributes), with (potentially) interfering AssertedDistribution' do
+            s1 = Specimen.order(:id).first
+            s2 = Specimen.order(:id).third
+            s3 = Specimen.order(:id).last
+
+            c1 = FactoryBot.create(:valid_collecting_event, elevation_precision: 1.0 )
+            c2 = FactoryBot.create(:valid_collecting_event, elevation_precision: 2.0 )
+
+            d1 = TaxonDetermination.create( otu: o1, taxon_determination_object: s3)
+
+            s1.update!(collecting_event: c1)
+            s2.update!(collecting_event: c1) # not this!
+            s3.update!(collecting_event: c2)
+
+            d = Export::Dwca::Data.new(core_scope: scope.where(dwc_occurrence_object_id: [s1.id, s3.id, s2.id]), taxonworks_extensions: ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS)
+
+            s2.dwc_occurrence.delete # !!
+
+            qq = FactoryBot.create(:valid_asserted_distribution, otu: o1)
+
+            e = d.taxonworks_extension_data.read
+
+            z = CSV.parse(e, headers: true)
+
+            expect(z.to_a).to eq(
+              [["TW:Internal:otu_name\tTW:Internal:collecting_event_id\tTW:Internal:elevation_precision\tTW:Internal:collection_object_id"], ["\t151\t1.0\t151"], ["aus\t155\t2.0\t155"]]
+            )
+          end
+
+          specify '#extension_computed_fields_data' do
+            s1 = Specimen.order(:id).first
+            s2 = Specimen.order(:id).third
+            s3 = Specimen.order(:id).last
+
+            c1 = FactoryBot.create(:valid_collecting_event, elevation_precision: 1.0 )
+            c2 = FactoryBot.create(:valid_collecting_event, elevation_precision: 2.0 )
+
+            d1 = TaxonDetermination.create( otu: o1, taxon_determination_object: s3)
+
+            s1.update!(collecting_event: c1)
+            s2.update!(collecting_event: c1) # not this!
+            s3.update!(collecting_event: c2)
+
+            d = Export::Dwca::Data.new(core_scope: scope.where(dwc_occurrence_object_id: [s1.id, s3.id, s2.id]), taxonworks_extensions: ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS)
+
+            # Mess with things
+            s2.dwc_occurrence.delete
+            qq = FactoryBot.create(:valid_asserted_distribution, otu: o1)
+
+            expect(d.extension_computed_fields_data({otu_name: 'TW:Internal:otu_name' })).to eq(
+              [[s1.id, 'TW:Internal:otu_name', nil], [s3.id, 'TW:Internal:otu_name', "aus"]]
+            )
+
+          end
+
+        end
 
         context 'exporting otu_name' do
           let(:d) {Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])}

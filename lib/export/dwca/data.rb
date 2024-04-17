@@ -2,8 +2,14 @@ require 'zip'
 
 module Export::Dwca
 
-  # TODO: consider shelling to `paste` to concat files, see Dima's tutorial: https://globalnames.org/docs/tut-xsv-gnparser/
 
+  # CONSIDER: shelling to `paste` to concat files, see Dima's tutorial: https://globalnames.org/docs/tut-xsv-gnparser/
+  #
+  # !!
+  # !! This export does not support AssertedDistribution data at the moment.  While those data are indexed,
+  # !! if they are in the `core_scope` they will almost certainly cause problems or be ignored. 
+  # !!
+  #
   # Wrapper to build DWCA zipfiles for a specific project.
   # See tasks/accesssions/report/dwc_controller.rb for use.
   #
@@ -51,8 +57,8 @@ module Export::Dwca
     attr_accessor :data_predicate_ids
 
     # @return Array
-    #   ordered in the order they will be placed in the file
-    #   !!! Breaks if inter-mingled with asserted distributions !!!
+    # ordered in the order they will be placed in the file
+    # !!! Breaks if inter-mingled with asserted distributions !!!
     attr_accessor :collection_object_ids
 
     # @return Array
@@ -68,6 +74,10 @@ module Export::Dwca
 
     # A Tempfile, core records and predicate data (and maybe more in future) joined together in one file
     attr_accessor :all_data
+
+    # TODO: fails when we get to AssertedDistribution
+    #  A lookup with the id pointing to the position
+    attr_accessor :dwc_id_order
 
     # @param [Array<Symbol>] taxonworks_extensions List of methods to perform on each CO
     def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: [])
@@ -157,8 +167,53 @@ module Export::Dwca
       @data
     end
 
+    # Get order of ids that matches core records so we can align with csv
+    # @return Hash
+    # zero! Like  {1=>0, 2=>1, 3=>2, 4=>3, 5=>4}
+    def dwc_id_order
+      @dwc_id_order ||= collection_object_ids.map.with_index.to_h
+    end
+
     def collection_object_ids
-      @collection_object_ids ||= core_scope.select("(CASE dwc_occurrence_object_type WHEN 'CollectionObject' THEN dwc_occurrence_object_id ELSE null END) AS co_id").map{|a| a['co_id']}
+      @collection_object_ids ||= collection_objects.pluck(:id)
+    end
+
+
+
+    #   def collecting_event_extension_data
+    #     collection_objects.joins(:collecting_event) # no point using left outer join, no event means all data is nil
+    #       .pluck(:id, *ce_columns)
+    #       .flat_map { |id, *values| ([id] * ce_column_count).zip(ce_csv_names, values) }
+    #   end
+
+    #   def collection_object_extension_data(co_columns)
+    #     collection_objects.pluck(:id, *co_columns)
+    #       .flat_map { |id, *values| ([id] * co_column_count).zip(co_csv_names, values) }
+    #   end
+    #
+
+
+    # TODO: return, or optimize to this when ::CollectionObject::EXTENSION_COMPUTED_FIELDS.size > 1
+    # def extension_computed_fields_data(methods)
+    #   d = []
+    #   collection_objects.find_each do |object|
+    #     methods.each_pair { |method, name| d  << [object.id, name, object.send(method)] }
+    #   end
+    #   d
+    # end
+    #
+    # !! This will have to be reverted to above when > 1 EXTENSION field is present
+    def extension_computed_fields_data(methods)
+      return [] if methods.empty?
+
+      a = "TW:Internal:otu_name".freeze
+
+      n = "COALESCE( otus.name, TRIM(CONCAT(cached, ' ', cached_author_year))) as otu_name"
+
+      v = collection_objects.left_joins(otu: [:taxon_name])
+        .select("collection_objects.id, #{n}")
+        .collect{|r| [r.id, a, r['otu_name'].presence] }
+      v
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -173,10 +228,12 @@ module Export::Dwca
       ce_fields = {}
       co_fields = {}
 
-      # select valid methods, generate frozen name string ahead of time
+      # Select valid methods, generate frozen name string ahead of time
       # add TW prefix to names
       taxonworks_extension_methods.each do |sym|
+
         csv_header_name = ('TW:Internal:' + sym.name).freeze
+
         if (method = ::CollectionObject::EXTENSION_COMPUTED_FIELDS[sym])
           methods[method] = csv_header_name
         elsif (column_name = ::CollectionObject::EXTENSION_CE_FIELDS[sym])
@@ -196,27 +253,29 @@ module Export::Dwca
 
       extension_data = []
 
-      collection_objects.find_each do |object|
-        methods.each_pair { |method, name| extension_data << [object.id, name, object.send(method)] }
-      end
+      extension_data += extension_computed_fields_data(methods)
 
       # extract to ensure consistent order
       co_columns = co_fields.keys
       co_csv_names = co_columns.map { |sym| co_fields[sym] }
       co_column_count = co_columns.size
+
+      # TODO: we're replicating this to get ids as well in `collection_object_ids` so somewhat redundant 
       # get all CO fields in one query, then split into triplets of [id, CSV column name, value]
-      extension_data += collection_objects.pluck(:id, *co_columns)
-        .flat_map { |id, *values| ([id] * co_column_count).zip(co_csv_names, values) }
+      extension_data += collection_objects.pluck('collection_objects.id', *co_columns)
+        .flat_map{ |id, *values| ([id] * co_column_count).zip(co_csv_names, values) }
 
       ce_columns = ce_fields.keys
       ce_csv_names = ce_columns.map { |sym| ce_fields[sym] }
       ce_column_count = ce_columns.size
-      extension_data += collection_objects.joins(:collecting_event) # no point using left outer join, no event means all data is nil
-        .pluck(:id, *ce_columns)
-        .flat_map { |id, *values| ([id] * ce_column_count).zip(ce_csv_names, values) }
+
+      # no point using left outer join, no event means all data is nil
+      extension_data += collection_objects.joins(:collecting_event)
+        .pluck('collection_objects.id', *ce_columns)
+        .flat_map{ |id, *values| ([id] * ce_column_count).zip(ce_csv_names, values) }
 
       # Create hash with key: co_id, value: [[extension_name, extension_value], ...]
-      # prefill with empty values so we have the same number of rows as the main csv, even if some rows don't have
+      # pre-fill with empty values so we have the same number of rows as the main csv, even if some rows don't have
       # data attributes
       empty_hash = collection_object_ids.index_with { |_| []}
 
@@ -229,10 +288,11 @@ module Export::Dwca
 
       tbl = CSV::Table.new([headers])
 
-      # Get order of ids that matches core records so we can align with csv
-      dwc_id_order = collection_object_ids.map.with_index.to_h
+      # TODO: this is a heavy-handed hack to re-sync data
+      # data.delete_if{|k,_| dwc_id_order[k].nil? }
 
       data.sort_by {|k, _| dwc_id_order[k]}.each do |row|
+
         # remove collection object id, select "value" from hash conversion
         row = row[1]
 
@@ -291,13 +351,6 @@ module Export::Dwca
     # @return Relation
     #   the unique attributes derived from CollectingEvents
     def collecting_event_attributes_query
-
-      #     s = 'WITH touched_collection_objects AS (' + collection_objects.to_sql + ') ' + ::InternalAttribute
-      #       .joins("JOIN collecting_events on data_attributes.attribute_subject_id = collecting_events.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
-      #       .joins('JOIN touched_collection_objects as tco1 on tco1.collecting_event_id = collecting_events.id')
-      #       .distinct
-      #       .to_sql
-
       s = 'WITH touched_collecting_events AS (' + collecting_events.to_sql + ') ' + ::InternalAttribute
         .joins("JOIN touched_collecting_events as tce1 on data_attributes.attribute_subject_id = tce1.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
         .to_sql
@@ -308,8 +361,13 @@ module Export::Dwca
     #   @return Array
     #     1 row per CO per DA (type) on CE
     def collecting_event_attributes
+
+      t = collecting_event_attributes_query.pluck(:id)
+
+      return [] if t.empty?
+
       a = collection_objects.left_joins(collecting_event: [internal_attributes: [:predicate]] )
-        .where("(data_attributes.id IN (#{collecting_event_attributes_query.pluck(:id).join(',')}))") # mmmarg, how to do this with join
+        .where("(data_attributes.id IN (#{t.join(',')}))") # mmmarg, how to do this with join
         .select('collection_objects.id', "CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate", 'data_attributes.value')
 
       # TODO: head scratch and get this to work with a join/CTE
@@ -324,9 +382,6 @@ module Export::Dwca
     end
 
     def collection_objects
-      # Use JOIN
-      # CollectionObject.joins(:dwc_occurrence).where(dwc_occurrence: core_scope).order('dwc_occurrences.id')
-
       s = 'WITH dwc_scoped AS (' + core_scope.to_sql + ') ' + ::CollectionObject
         .joins("JOIN dwc_scoped as dwc_scoped1 on dwc_scoped1.dwc_occurrence_object_id = collection_objects.id and dwc_scoped1.dwc_occurrence_object_type = 'CollectionObject'")
         .to_sql
@@ -362,9 +417,11 @@ module Export::Dwca
       end
 
       # Create hash with key: co_id, value [[predicate_name, predicate_value], ...]
-      # prefill with empty values so we have the same number of rows as the main csv, even if some rows don't have
+      # pre-fill with empty values so we have the same number of rows as the main csv, even if some rows don't have
       # data attributes
       empty_hash = collection_object_ids.index_with { |_| []}
+
+      # Pre clean here
 
       data = (collection_object_attributes + collecting_event_attributes).group_by(&:shift) # very cool
 
@@ -375,17 +432,17 @@ module Export::Dwca
 
       tbl = ::CSV::Table.new([headers])
 
-      # Get order of ids that matches core records so we can align with csv
-      dwc_id_order = collection_object_ids.map.with_index.to_h
+      # TODO: this is a heavy-handed hack to re-sync data
+      # data.delete_if{|k,_| dwc_id_order[k].nil? }
 
-      # TODO: order dependenant pattern is fast but very brittle.
+      # TODO: order dependant pattern is fast but very brittle
       data.sort_by {|k, _| dwc_id_order[k] }.each do |row|
 
         # remove collection object id, select "value" from hash conversion
         row = row[1]
 
         # Create empty row, this way we can insert columns by their headers, not by order
-        csv_row = ::CSV::Row.new(used_predicates, [])
+        csv_row = CSV::Row.new(used_predicates, [])
 
         # Add each [header, value] pair to the row
         row.each do |column_pair|
