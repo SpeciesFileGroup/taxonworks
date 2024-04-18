@@ -341,15 +341,45 @@ class User < ApplicationRecord
   #   If user has been active within the last 5 minutes, and at least 5
   #   seconds past their last activity, update their time_active.
   #   The latter prevents multiple writes on many async calls.
+  #
   def update_last_seen_at
     if !last_seen_at.nil?
       t = Time.now - last_seen_at
       if t > 5
         a = t < 301 ? time_active + t : (time_active || 0)
-        update_columns(last_seen_at: Time.now, time_active: a) if t > 5
+
+        if t > 5
+          update_columns(last_seen_at: Time.now, time_active: a) 
+        end
       end
     else
       update_columns(last_seen_at: Time.now)
+    end
+
+    update_project_member_last_seen_at
+
+    true 
+  end
+
+  # TODO: we still global track at User, this is hit only when that
+  # ticker ticks
+  #  perhaps seperate for performace
+  def update_project_member_last_seen_at
+    if Current.project_id
+      pm = project_members.where(project_id: Current.project_id).first 
+
+      if !pm.last_seen_at.nil?
+        t = Time.now - pm.last_seen_at
+        if t > 5
+          a = t < 301 ? (pm.time_active || 0) + t : (pm.time_active || 0)
+
+          if t > 5
+            pm.update_columns(last_seen_at: Time.now, time_active: a) 
+          end
+        end
+      else
+        pm.update_columns(last_seen_at: Time.now)
+      end
     end
   end
 
