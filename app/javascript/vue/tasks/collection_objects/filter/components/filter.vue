@@ -47,6 +47,7 @@
     :param="param"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -76,6 +77,7 @@ import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchI
 import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import FilterType from '@/components/Filter/Facets/CollectionObject/FacetType.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_PARAMS = [
   'biological_associations',

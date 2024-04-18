@@ -159,10 +159,10 @@ describe Otu, type: :model, group: :otu do
       let(:c_o2) { FactoryBot.create(:valid_collection_object, {collecting_event: c_e2}) }
       let(:c_o3) { FactoryBot.create(:valid_collection_object, {collecting_event: c_e3}) }
 
-      let(:t_d1) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o1}) }
+      let(:t_d1) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, taxon_determination_object: c_o1}) }
 
-      let(:t_d2) { FactoryBot.create(:valid_taxon_determination, {otu: otu2, biological_collection_object: c_o2}) }
-      let(:t_d3) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o3}) }
+      let(:t_d2) { FactoryBot.create(:valid_taxon_determination, {otu: otu2, taxon_determination_object: c_o2}) }
+      let(:t_d3) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, taxon_determination_object: c_o3}) }
 
       before(:each) {
         a_d3.otu = otu1

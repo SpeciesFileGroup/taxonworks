@@ -6,6 +6,7 @@ import applySource from './applySource'
 import applyTags from './applyTags'
 import removeImage from './removeImage'
 import resetStore from './resetStore'
+import setAllApplied from './setAllApplied'
 
 const ActionFunctions = {
   [ActionNames.ApplyAttributions]: applyAttibutions,
@@ -14,7 +15,8 @@ const ActionFunctions = {
   [ActionNames.ApplySource]: applySource,
   [ActionNames.ApplyTags]: applyTags,
   [ActionNames.RemoveImage]: removeImage,
-  [ActionNames.ResetStore]: resetStore
+  [ActionNames.ResetStore]: resetStore,
+  [ActionNames.SetAllApplied]: setAllApplied
 }
 
 export { ActionNames, ActionFunctions }

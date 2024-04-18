@@ -5,7 +5,7 @@ class Determiner < Role::ProjectRole
   has_one :taxon_determination, as: :role_object, inverse_of: :determiner_roles
 
   has_one :otu, through: :taxon_determination, source: :otu
-  has_one :biological_collection_object, through: :taxon_determination, source: :biological_collection_object
+  has_one :taxon_determination_object, through: :taxon_determination, source: :taxon_determination_object
 
   def self.human_name
     'Determiner'

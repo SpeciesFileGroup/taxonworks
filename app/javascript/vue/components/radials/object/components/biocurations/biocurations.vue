@@ -76,7 +76,8 @@ onBeforeMount(async () => {
   )
 
   BiocurationClassification.where({
-    biological_collection_object_id: props.objectId
+    biocuration_classification_object_id: props.objectId,
+    biocuration_classification_object_type: props.objectType
   }).then(({ body }) => {
     list.value = body
   })
@@ -102,7 +103,8 @@ function checkExist(id) {
 function makeBiocurationObject(id) {
   return {
     biocuration_class_id: id,
-    biological_collection_object_id: props.objectId
+    biocuration_classification_object_id: props.objectId,
+    biocuration_classification_object_type: props.objectType
   }
 }
 function removeItem(item) {

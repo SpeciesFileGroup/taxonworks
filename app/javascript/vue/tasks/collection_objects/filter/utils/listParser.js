@@ -1,5 +1,6 @@
 import { COLLECTION_OBJECT_PROPERTIES } from '@/shared/Filter/constants'
 import { DataAttribute } from '@/routes/endpoints'
+import { flattenObject } from '@/helpers'
 
 function makeDataAttributeObjectHeaders(data) {
   return Object.assign({}, ...data.index)
@@ -52,7 +53,9 @@ export async function listParser(list, { parameters }) {
       current_repository,
       repository,
       collecting_event,
-      taxon_determinations,
+      taxon_determinations: taxon_determinations.map((item) =>
+        flattenObject(item)
+      ),
       dwc_occurrence,
       identifiers,
       data_attributes: getDataAttributesFor(body, item.id)

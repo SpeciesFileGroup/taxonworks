@@ -71,8 +71,8 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
         expect(taxon_determination).to respond_to(:otu)
       end
 
-      specify 'biological_collection_object' do
-        expect(taxon_determination).to respond_to(:biological_collection_object)
+      specify 'taxon_determination_object' do
+        expect(taxon_determination).to respond_to(:taxon_determination_object)
       end
     end
 
@@ -92,8 +92,8 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
   end
 
   context 'multiple determinations' do
-    let!(:a) {TaxonDetermination.create!(biological_collection_object: specimen, otu:) }
-    let!(:b) {TaxonDetermination.create!(biological_collection_object: specimen, otu:) }
+    let!(:a) {TaxonDetermination.create!(taxon_determination_object: specimen, otu:) }
+    let!(:b) {TaxonDetermination.create!(taxon_determination_object: specimen, otu:) }
 
     specify 'two determinations, one deleted other has position "1"' do
       a.destroy!

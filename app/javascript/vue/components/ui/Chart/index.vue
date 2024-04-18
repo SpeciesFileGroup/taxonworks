@@ -42,12 +42,12 @@ export default defineComponent({
     },
 
     plugins: {
-      type: Array,
-      default: () => []
+      type: Object,
+      default: () => ({})
     }
   },
 
-  setup (props) {
+  setup(props) {
     const chartRef = ref(null)
     let chartObject
 
@@ -55,8 +55,10 @@ export default defineComponent({
       chartObject = new Chart(chartRef.value.getContext('2d'), {
         type: props.type,
         data: props.data,
-        options: props.options,
-        plugins: props.plugins
+        options: {
+          plugins: props.plugins,
+          ...props.options
+        }
       })
     }
 
@@ -83,9 +85,7 @@ export default defineComponent({
       destroy()
     })
 
-    watch([
-      () => props.data
-    ], () => {
+    watch([() => props.data], () => {
       update()
     })
 
@@ -97,7 +97,7 @@ export default defineComponent({
     }
   },
 
-  render () {
+  render() {
     return h('canvas', {
       ref: 'chartRef'
     })

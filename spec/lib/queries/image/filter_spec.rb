@@ -4,9 +4,9 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
 
   let(:q) { Queries::Image::Filter.new({}) }
 
-  let(:i1) { FactoryBot.create(:valid_image) }
-  let(:i2) { FactoryBot.create(:valid_image) }
-  let(:i3) { FactoryBot.create(:valid_image) }
+  let(:i1) { FactoryBot.create(:tiny_random_image) }
+  let(:i2) { FactoryBot.create(:tiny_random_image) }
+  let(:i3) { FactoryBot.create(:tiny_random_image) }
 
   let(:o) { Otu.create(name: 'o1') }
   let(:co) { Specimen.create!  }
@@ -20,7 +20,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     ce.images << i1
     h = {collecting_event_query: {collecting_event_id: [ce.id]}}
     p = ActionController::Parameters.new( h  )
-    query = Queries::Image::Filter.new(p) 
+    query = Queries::Image::Filter.new(p)
     expect(query.params).to eq(h)
   end
 
@@ -71,7 +71,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   specify '#otu_scope :coordinate_otus, :collection_object_observations' do
     # First image, on valid
     o.update!(taxon_name: t3)
-    TaxonDetermination.create!(otu: o, biological_collection_object: co)
+    TaxonDetermination.create!(otu: o, taxon_determination_object: co)
 
     b = FactoryBot.create(:valid_observation, observation_object: co)
     b.images << i1
@@ -80,9 +80,9 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     t = Protonym.create(name: 'cus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) )
     t.synonymize_with(t3)
     o1 = Otu.create!(taxon_name: t)
-    td = TaxonDetermination.create!(otu: o1, biological_collection_object: Specimen.create!)
+    td = TaxonDetermination.create!(otu: o1, taxon_determination_object: Specimen.create!)
 
-    c = FactoryBot.create(:valid_observation, observation_object: td.biological_collection_object)
+    c = FactoryBot.create(:valid_observation, observation_object: td.taxon_determination_object)
     c.images << i2
 
     i3 # not this image
@@ -115,7 +115,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   end
 
   specify '#otu_scope :coordinate_otus, :collection_objects' do
-    TaxonDetermination.create!(otu: o, biological_collection_object: co)
+    TaxonDetermination.create!(otu: o, taxon_determination_object: co)
     co.images << i1
 
     t = Protonym.create(name: 'cus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) )
@@ -124,8 +124,8 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     o.update!(taxon_name: t3)
     o1 = Otu.create!(taxon_name: t)
 
-    td = TaxonDetermination.create!(otu: o1, biological_collection_object: Specimen.create!)
-    td.biological_collection_object.images << i2
+    td = TaxonDetermination.create!(otu: o1, taxon_determination_object: Specimen.create!)
+    td.taxon_determination_object.images << i2
 
     i3 # not this one
 
@@ -157,7 +157,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   specify '#otu_scope :all' do
     b = FactoryBot.create(:valid_observation, observation_object: co)
     b.images << i1
-    TaxonDetermination.create!(otu: o, biological_collection_object: co)
+    TaxonDetermination.create!(otu: o, taxon_determination_object: co)
 
     o.images << i2
 
@@ -170,7 +170,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   specify '#otu_scope :collection_object_observations' do
     b = FactoryBot.create(:valid_observation, observation_object: co)
     b.images << i1
-    TaxonDetermination.create!(otu: o, biological_collection_object: co)
+    TaxonDetermination.create!(otu: o, taxon_determination_object: co)
     i2 # not this one
     q.otu_id = o.id
     q.otu_scope = [:collection_object_observations]
@@ -196,7 +196,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   end
 
   specify '#otu_scope :collection_objects' do
-    t = TaxonDetermination.create!(otu: o, biological_collection_object: co)
+    t = TaxonDetermination.create!(otu: o, taxon_determination_object: co)
     co.images << i1
     i2 # not this one
     q.otu_id = o.id
@@ -257,14 +257,14 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
 
   specify '#biocuration_class_id id' do
     co.images << i1
-    a = FactoryBot.create(:valid_biocuration_classification, biological_collection_object: co)
+    a = FactoryBot.create(:valid_biocuration_classification, biocuration_classification_object:  co)
     q.biocuration_class_id = a.id
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
   specify '#biocuration_class_id array' do
     co.images << i1
-    a = FactoryBot.create(:valid_biocuration_classification, biological_collection_object: co)
+    a = FactoryBot.create(:valid_biocuration_classification, biocuration_classification_object: co)
     q.biocuration_class_id = [a.id]
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
@@ -348,4 +348,3 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   end
 
 end
-

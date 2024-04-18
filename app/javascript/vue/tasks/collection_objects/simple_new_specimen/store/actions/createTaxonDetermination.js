@@ -1,10 +1,14 @@
 import { TaxonDetermination } from '@/routes/endpoints'
+import { COLLECTION_OBJECT } from '@/constants'
 
 export default function (coId) {
   const payload = {
-    otu_id: this.otu.id,
-    biological_collection_object_id: coId
+    taxon_determination: {
+      otu_id: this.otu.id,
+      taxon_determination_object_id: coId,
+      taxon_determination_object_type: COLLECTION_OBJECT
+    }
   }
 
-  return TaxonDetermination.create({ taxon_determination: payload })
+  return TaxonDetermination.create(payload)
 }

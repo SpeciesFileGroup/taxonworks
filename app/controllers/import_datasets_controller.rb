@@ -102,7 +102,9 @@ class ImportDatasetsController < ApplicationController
       :description,
       import_settings: [
         :nomenclatural_code,
-        :row_type
+        :row_type,
+        :col_sep,
+        :quote_char
       ])
   end
 end

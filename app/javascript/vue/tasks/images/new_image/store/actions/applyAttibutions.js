@@ -84,6 +84,7 @@ export default ({ state, commit }) => {
 
   Promise.all(promises)
     .then(() => {
+      state.settings.applied.attribution = true
       TW.workbench.alert.create(
         `Attribution(s) were successfully saved.`,
         'notice'

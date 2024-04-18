@@ -461,6 +461,9 @@ To add a new (discovered) symbol:
     def self.error_box_for_point(geo_object, error_radius)
       # this limits the actual error_box to 10k FOR THIS TEST ONLY!
       error_radius = 10_000 if error_radius > 10_000
+      # ensure radius is not too close to zero to avoid creating invalid box
+      error_radius = [error_radius, 2.0**-16].max
+
       p0      = geo_object
       delta_x = (error_radius / ONE_WEST) / Math.cos(p0.y * Math::PI / 180)
       delta_y = error_radius / ONE_NORTH

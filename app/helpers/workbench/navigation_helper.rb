@@ -9,6 +9,26 @@ module Workbench::NavigationHelper
 
   NOT_DATA_PATHS = %w{/project /administration /user}.freeze
 
+  def class_navigation_json(klass)
+    k = klass
+
+    b = {}
+    %w{new edit home}.each do |t|
+      if OBJECT_RADIALS[k]
+        if c = OBJECT_RADIALS[k][t]
+          b[t] = send(OBJECT_RADIALS[k][t] + '_path')
+        end
+      end
+    end
+
+    return {
+     klass: k,
+     id: k.tableize.singularize + '_id',
+     tasks: OBJECT_RADIALS[k]['tasks'].inject({}){|hsh, t| hsh[t] = send(t + '_path'); hsh },
+     base: b
+   }
+  end
+
   # Slideout panels
   def slideouts
     if sessions_current_project && sessions_signed_in? && on_workbench?

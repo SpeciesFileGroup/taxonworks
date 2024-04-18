@@ -35,6 +35,7 @@
   />
   <FacetAncestrify v-model="params" />
   <FacetCoordinatify v-model="params" />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -55,6 +56,7 @@ import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers
 import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
 import FacetCoordinatify from '@/components/Filter/Facets/Otu/FacetCoordinatify.vue'
 import FacetAncestrify from '@/components/Filter/Facets/shared/FacetAncestrify.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_PARAMS = [
   'asserted_distributions',

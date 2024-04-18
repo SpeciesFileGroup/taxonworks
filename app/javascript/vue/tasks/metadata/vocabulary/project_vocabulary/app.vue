@@ -5,7 +5,7 @@
     full-screen
   />
   <div class="horizontal-left-content align-start gap-medium task-container">
-    <div class="flex-col gap-medium full_height">
+    <div class="flex-col gap-medium full_height settings-panel">
       <div class="panel content">
         <PanelSettings
           v-model="parameters"
@@ -26,7 +26,8 @@
       >
         <TableWords
           class="full_width"
-          :list="words"
+          v-model="words"
+          @select="openTask"
         />
       </div>
     </div>
@@ -39,24 +40,40 @@
         class="full_width full_height"
         :animation-enter="['bounceIn', 'bounceOut']"
         :words="words"
+        :font-size-ratio="1 / 20"
         :spacing="1 / 4"
         @update:progress="updateLoadState"
-      />
+      >
+        <template #default="{ text, weight }">
+          <div
+            :title="weight"
+            :class="TASK[parameters.model] && 'cursor-pointer link'"
+            @click="() => openTask(text)"
+          >
+            {{ text }}
+          </div>
+        </template>
+      </VueWordCloud>
     </div>
   </div>
 </template>
 
 <script setup>
-import VSpinner from '@/components/ui/VSpinner.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse'
+import { TASK } from './constants/links'
 import { RouteNames } from '@/routes/routes'
 import { setParam } from '@/helpers'
 import { Metadata } from '@/routes/endpoints'
-import { computed, ref, onBeforeMount } from 'vue'
+import { computed, ref, onBeforeMount, watch } from 'vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import VueWordCloud from 'vuewordcloud'
 import PanelSettings from './components/PanelSettings.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import TableWords from './components/TableWords.vue'
-import { URLParamsToJSON } from '@/helpers/url/parse'
+
+defineOptions({
+  name: 'ProjectVocabulary'
+})
 
 const words = ref([])
 const isLoading = ref(false)
@@ -73,6 +90,7 @@ function getWords() {
       setParam(RouteNames.ProjectVocabulary, parameters.value)
       words.value = Object.entries(body)
     })
+    .catch(() => {})
     .finally(() => {
       isLoading.value = false
     })
@@ -105,6 +123,27 @@ function updateLoadState(e) {
     isGeneratingCloud.value = false
   }
 }
+
+function openTask(word) {
+  const task = TASK[parameters.value.model]
+  const { attribute } = parameters.value
+
+  if (task) {
+    const parameter = task.arrarProperties?.includes(attribute)
+      ? `${attribute}[]`
+      : attribute
+
+    window.open(`${task.url}?${parameter}=${word}`, '_blank')
+  }
+}
+
+watch(
+  parameters,
+  () => {
+    words.value = []
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped>
@@ -116,5 +155,14 @@ function updateLoadState(e) {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+}
+
+.settings-panel {
+  width: 400px;
+  max-width: 400px;
+}
+
+.link {
+  color: var(--color-primary);
 }
 </style>

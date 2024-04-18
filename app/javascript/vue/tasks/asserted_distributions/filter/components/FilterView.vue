@@ -29,6 +29,7 @@
     param="presence"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -42,6 +43,7 @@ import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import { ASSERTED_DISTRIBUTION } from '@/constants/index.js'
 
 const PRESENCE_OPTIONS = [

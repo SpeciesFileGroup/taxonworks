@@ -14,5 +14,8 @@ export const Metadata = {
     AjaxCall('get', `/${controller}/vocabulary`, { params }),
 
   attributes: (params) =>
-    AjaxCall('get', `/${controller}/attributes`, { params })
+    AjaxCall('get', `/${controller}/attributes`, { params }),
+
+  classNavigation: (params) =>
+    AjaxCall('get', `/${controller}/class_navigation`, { params })
 }

@@ -9,7 +9,7 @@
     <template #title>
       <a
         v-if="currentOtu"
-        :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${currentOtu.id}`"
+        :href="`${RouteNames.BrowseAssertedDistribution}?otu_id=${currentOtu.id}`"
         >Expand</a
       >
     </template>
@@ -104,79 +104,79 @@
   </section-panel>
 </template>
 
-<script>
+<script setup>
 import SectionPanel from './shared/sectionPanel'
 import ModalComponent from '@/components/ui/Modal'
-import extendSection from './shared/extendSections'
+import FilterLevel from './assertedDistribution/filterLevel'
 import { GetterNames } from '../store/getters/getters'
 import { getUnique } from '@/helpers/arrays'
-import FilterLevel from './assertedDistribution/filterLevel'
+import { RouteNames } from '@/routes/routes'
+import { useStore } from 'vuex'
+import { computed, ref } from 'vue'
 
-export default {
-  mixins: [extendSection],
-  components: {
-    ModalComponent,
-    SectionPanel,
-    FilterLevel
+defineProps({
+  status: {
+    type: String,
+    default: 'unknown'
   },
-  computed: {
-    assertedDistributions() {
-      return getUnique(
-        this.$store.getters[GetterNames.GetAssertedDistributions],
-        'id'
-      )
-    },
-    currentOtu() {
-      return this.$store.getters[GetterNames.GetCurrentOtu]
-    },
-    level0List() {
-      return [
-        ...new Set(
-          this.assertedDistributions.map((ad) => ad.geographic_area.level0_name)
-        )
-      ].filter((level) => level)
-    },
-    level1List() {
-      return [
-        ...new Set(
-          this.assertedDistributions.map((ad) => ad.geographic_area.level1_name)
-        )
-      ].filter((level) => level)
-    },
-    level2List() {
-      return [
-        ...new Set(
-          this.assertedDistributions.map((ad) => ad.geographic_area.level2_name)
-        )
-      ].filter((level) => level)
-    },
-    filteredList() {
-      return this.assertedDistributions.filter(
-        (ad) =>
-          (this.level0Filter.length
-            ? this.level0Filter.includes(ad.geographic_area.level0_name)
-            : true) &&
-          (this.level1Filter.length
-            ? this.level1Filter.includes(ad.geographic_area.level1_name)
-            : true) &&
-          (this.level2Filter.length
-            ? this.level2Filter.includes(ad.geographic_area.level2_name)
-            : true)
-      )
-    }
+  title: {
+    type: String,
+    default: undefined
   },
-  data() {
-    return {
-      showModal: false,
-      level0Filter: [],
-      level1Filter: [],
-      level2Filter: []
-    }
-  },
-  methods: {
-    setModalView(value) {
-      this.showModal = value
-    }
+  otu: {
+    type: Object,
+    required: true
   }
+})
+
+const store = useStore()
+const showModal = ref(false)
+const level0Filter = ref([])
+const level1Filter = ref([])
+const level2Filter = ref([])
+
+const loadState = computed(() => store.getters[GetterNames.GetLoadState])
+
+const assertedDistributions = computed(() =>
+  getUnique(store.getters[GetterNames.GetAssertedDistributions], 'id')
+)
+
+const currentOtu = computed(() => store.getters[GetterNames.GetCurrentOtu])
+const level0List = computed(() =>
+  [
+    ...new Set(
+      assertedDistributions.value.map((ad) => ad.geographic_area.level0_name)
+    )
+  ].filter((level) => level)
+)
+const level1List = computed(() =>
+  [
+    ...new Set(
+      assertedDistributions.value.map((ad) => ad.geographic_area.level1_name)
+    )
+  ].filter((level) => level)
+)
+const level2List = computed(() =>
+  [
+    ...new Set(
+      assertedDistributions.value.map((ad) => ad.geographic_area.level2_name)
+    )
+  ].filter((level) => level)
+)
+
+const filteredList = computed(() => {
+  return assertedDistributions.value.filter(
+    (ad) =>
+      (!level0Filter.value.length ||
+        level0Filter.value.includes(ad.geographic_area.level0_name)) &&
+      (!level1Filter.value.length ||
+        level1Filter.value.includes(ad.geographic_area.level1_name)) &&
+      (!level2Filter.value.length ||
+        level2Filter.value.includes(ad.geographic_area.level2_name))
+  )
+})
+
+function setModalView(value) {
+  showModal.value = value
 }
 </script>

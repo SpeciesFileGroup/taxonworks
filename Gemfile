@@ -53,6 +53,7 @@ gem 'gpx', github: 'LocoDelAssembly/gpx', branch: 'ruby3'
 # API/controllers
 gem 'jbuilder', '~> 2.7'
 gem 'responders', '~> 3.0' # Used?!
+gem 'addressable', '~> 2.8'
 
 # Email
 gem 'exception_notification', '~> 4.4'
@@ -89,7 +90,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '7.2.2'
+gem 'shakapacker', '7.2.3'
 
 # BibTeX handling
 gem 'csl', '~> 1.6.0'

@@ -13,8 +13,12 @@ module CollectionObject::DwcExtensions::TaxonworksExtensions
       elevation_precision: :elevation_precision
     }.freeze
 
+    # !!!! If you extend this then dwc/data.rb will have to be refactored (a spec will fail)
+    # TODO: this is introducing a lot of overhead for little payoff here,
+    # adding n(records) queries when n = 1 would work
+    # It draws from taxon_name cached field
     EXTENSION_COMPUTED_FIELDS = {
-      otu_name: :otu_name,  # delegated to OTU through BiologicalExtensions
+      otu_name: :otu_name,  # delegated to OTU
     }.freeze
 
     EXTENSION_FIELDS = (EXTENSION_CO_FIELDS.keys + EXTENSION_CE_FIELDS.keys + EXTENSION_COMPUTED_FIELDS.keys).freeze

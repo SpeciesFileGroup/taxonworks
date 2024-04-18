@@ -16,7 +16,7 @@ describe TaxonWorks, group: :lint do
 
       OBJECT_RADIALS.keys.collect{|k| OBJECT_RADIALS[k]['tasks']}.flatten.uniq.each do |t|
         if !route_names.include?(t)
-          puts Rainbow(t + ' not found routes/tasks.rb').purple.bold
+          puts Rainbow( "[#{t}]"  + ' not found routes/tasks.rb').purple.bold
           fail = true
         end
       end

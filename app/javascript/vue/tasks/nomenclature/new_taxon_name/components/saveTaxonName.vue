@@ -56,11 +56,11 @@ export default {
     },
 
     createTaxonName() {
-      this.$store.dispatch(ActionNames.CreateTaxonName, this.taxon)
+      this.$store.dispatch(ActionNames.CreateTaxonName, this.taxon).catch(() => {})
     },
 
     updateTaxonName() {
-      this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+      this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).catch(() => {})
     }
   }
 }

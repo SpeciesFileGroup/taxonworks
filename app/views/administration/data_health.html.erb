@@ -1,6 +1,27 @@
 <h1> Administration - Data health </h1>
 <%= link_to 'Back', administration_path() %>
-<p><em class="feedback feedback-danger"> Bad things if data listed here. </em></p>
+
+<h2> DelayedJobs </h2>
+<div class="flexbox separate-bottom">
+  <div class="panel content separate-left">
+    <%= table_from_hash_tag delayed_job_queue %>
+  </div>
+</div>
+
+<p><em class="feedback feedback-danger"> Bad things if data listed below here. </em></p>
+
+<h2> Stale DwcOccurrences (record present but object gone) </h2>
+<%= button_to 'Sweep (delete these DwcOccurrences)', sweep_stale_dwc_occurrences_path, method: :post, class: [:button, 'button-delete'] %><br/>
+<div class="flexbox separate-bottom">
+  <% %w{CollectionObject AssertedDistribution}.each_with_index do |k, i| -%>
+    <div class="panel content separate-left">
+     <h3> <%= k %> </h3>
+        <%= table_from_hash_tag( stale_dwc_occurrences(k).sort ) %>
+    </div>
+  <% end %>
+</div>
+
+
 
 <div class="flexbox">
   <div class="item item1">
@@ -53,3 +74,5 @@
     <% end %>
   </div>
 </div>
+
+

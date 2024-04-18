@@ -168,7 +168,7 @@ export function useGraph() {
       citations: [],
       objectType: BIOLOGICAL_ASSOCIATION,
       biologicalRelationship: relationship,
-      color: await getHexColorFromString(relationship.name),
+      color: getHexColorFromString(relationship.name),
       isUnsaved: true
     }
 

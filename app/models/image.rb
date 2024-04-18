@@ -94,19 +94,36 @@ class Image < ApplicationRecord
   validates_attachment_presence :image_file
   validate :image_dimensions_too_short
 
-  soft_validate(:sv_duplicate_image?)
+  validates_uniqueness_of :image_file_fingerprint, scope: :project_id
 
   accepts_nested_attributes_for :sled_image, allow_destroy: true
+
+  # Replaces Image.create!
+  def self.deduplicate_create(image_params)
+    image = Image.new(image_params)
+
+    if i = Image.where(project_id: Current.project_id, image_file_fingerprint: image.image_file_fingerprint).first
+      return i
+    else
+      return image
+    end
+  end
 
   def sqed_depiction
     depictions.joins(:sqed_depiction).first&.sqed_depiction
   end
 
+  # TODO:
+  # Deprecated, once images are de-duplicated
+  #   this will be removed
   # @return [Boolean]
   def has_duplicate?
     Image.where(image_file_fingerprint: self.image_file_fingerprint).count > 1
   end
 
+  # TODO:
+  # Deprecated, once images are de-duplicated
+  #   this will be removed. No duplicate images can now be created
   # @return [Array]
   def duplicate_images
     Image.where(image_file_fingerprint: self.image_file_fingerprint).not_self(self).to_a
@@ -265,6 +282,7 @@ class Image < ApplicationRecord
   # @param [ActionController::Parameters] params
   # @return [Magick::Image, nil]
   def self.scaled_to_box(params)
+    return nil if params[:box_width].to_f == 0 || params[:box_height].to_f == 0
     begin
       c = cropped(params)
       ratio = c.columns.to_f / c.rows.to_f
@@ -291,7 +309,7 @@ class Image < ApplicationRecord
           ) #.sharpen(0x1)
         else # tall into tall # TODO: or 1:1?!
           scaled = c.resize(
-            (params[:box_width ].to_f * ratio / box_ratio ).to_i,
+            (params[:box_width].to_f * ratio / box_ratio ).to_i,
             (params[:box_height].to_f ).to_i
           ) #.sharpen(0x1)
         end
@@ -389,16 +407,6 @@ class Image < ApplicationRecord
       geometry = Paperclip::Geometry.from_file(tempfile)
       self.width = geometry.width.to_i
       self.height = geometry.height.to_i
-    end
-  end
-
-  # Check md5 fingerprint against existing fingerprints
-  # @return [Object]
-  def sv_duplicate_image?
-    if has_duplicate?
-      soft_validations.add(
-        :image_file_fingerprint,
-        'This image is a duplicate of an image already stored.')
     end
   end
 

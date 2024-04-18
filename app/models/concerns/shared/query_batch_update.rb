@@ -12,20 +12,8 @@ module Shared::QueryBatchUpdate
   # @params result [BatchResponse]
   def query_update(params, response)
     begin
-      self.update!( params )
-      response[:updated].push id
-    rescue ActiveRecord::RecordInvalid => e
-      response.not_updated.push e.record.id
-      response.errors[e.message] += 1
-    end
-    result
-  end
-
-  # Called on Delayed::Job version
-  def query_update(params, response)
-    begin
       update!( params )
-      response.updated.push object.id
+      response.updated.push self.id
     rescue ActiveRecord::RecordInvalid => e
       response.not_updated.push e.record.id
       response.errors[e.message] += 1
@@ -43,7 +31,7 @@ module Shared::QueryBatchUpdate
 
       a = request.filter
 
-      if request.run_async? 
+      if request.run_async?
         a.all.find_each do |o|
           o.delay(run_at: Proc.new { 1.second.from_now }, queue: :query_batch_update).query_update(request.object_params, r)
         end
@@ -70,5 +58,5 @@ module Shared::QueryBatchUpdate
       end
     end
 
-  end
+  end # END CLASS METHODS
 end

@@ -22,6 +22,7 @@
     :param="param"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -33,6 +34,7 @@ import FacetTopic from '@/components/Filter/Facets/shared/FacetTopic.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_PARAMS = ['citations', 'origin_citation', 'depictions']
 
