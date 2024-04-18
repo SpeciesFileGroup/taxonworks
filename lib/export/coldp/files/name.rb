@@ -96,14 +96,20 @@ module Export::Coldp::Files::Name
   def self.add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
 
 
-    # Transform t.original_combination_elements from {:genus=>[nil, "Medeterus", "[sic]"], :species=>[nil, "viridifacies"]} to {:genus=>"Medeterus [sic]", :species=>"viridifacies"}
     # TODO: Should [sic] handling be added to the Protonym#original_combination_elements method? Need to discuss with DD and MJY
     e = {}
-    e = t.original_combination_elements.transform_values { |v| v.compact.join(' ') }
-    e[:scientific_name] = t.cached_original_combination
-    e = clean_sic(e)
+    
+    # TODO: Not sure why, but the data stucture from  t.original_combination_elements seems to be either of the following:
+    #   {:genus=>[nil, "Sabacon"], :species=>[nil, "vizcayanus [sic]"]} 
+    #   {:genus=>[nil, "Sabacon"], :species=>[nil, "vizcayanus", "[sic]"]}
 
-    infraspecific_element = t.original_combination_infraspecific_element(e, remove_sic: true)
+    t.original_combination_elements.each do |k, v|
+      v.delete('[sic]')
+      e[k] = v
+    end
+
+    epithets = clean_sic({:scientific_name => t.cached_original_combination, :genus => e[:genus]&.last, :subgenus => e[:subgenus]&.last, :species => e[:species]&.last, :subspecies => e[:subspecies]&.last})
+    infraspecific_element = t.original_combination_infraspecific_element(t.original_combination_elements, remove_sic: true)
 
     rank = nil
     if infraspecific_element
@@ -132,13 +138,13 @@ module Export::Coldp::Files::Name
 
     uninomial, genus, subgenus, species = nil, nil, nil, nil
 
-    scientific_name = e[:scientific_name]
+    scientific_name = epithets[:scientific_name]
     if rank == :genus
-      uninomial = e[:genus]
+      uninomial = epithets[:genus]
     else
-      genus = e[:genus]
-      subgenus = e[:subgenus]&.gsub(/[\)\(]/, '')
-      species = e[:species]
+      genus = epithets[:genus]
+      subgenus = epithets[:subgenus]&.gsub(/[\)\(]/, '')
+      species = epithets[:species]
     end
 
     csv << [
@@ -166,7 +172,7 @@ module Export::Coldp::Files::Name
   end
 
   def self.clean_sic(epithets)
-    if epithets[:scientific_name].include? '[sic]'
+    if epithets.values.any? { |value| value&.include?('[sic]') }
       epithets.transform_values { |value| value&.gsub(/\s*\[sic\]/, '') }
     else
       epithets
