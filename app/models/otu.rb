@@ -516,6 +516,34 @@ class Otu < ApplicationRecord
     end
   end
 
+  # @return [Hash] name to Otu for names from the supplied list that match an
+  # Otu in the db by taxon name.
+  # @param last_created_only If true returns matching Otu that was created most
+  # recently, otherwise returns arrays of matching otus ordered by id desc
+  def self.match_otus_by_taxon(names, last_created_only: true)
+    otus = Otu
+      .joins(:taxon_name)
+      .select('otus.*, taxon_names.cached as tname')
+      .where(project_id: sessions_current_project_id)
+      .where('taxon_names.cached': names)
+      .order('taxon_names.cached', id: :desc)
+
+    otus_to_name_hash(otus, 'tname', last_created_only)
+  end
+
+  # @return [Hash] name to Otu for names from the supplied list that match an
+  # Otu in the db by otu name.
+  # @param last_created_only If true returns matching Otu that was created most
+  # recently, otherwise returns arrays of matching otus ordered by id desc
+  def self.match_otus_by_name(names, last_created_only: true)
+    otus = Otu
+      .where(project_id: sessions_current_project_id)
+      .where(name: names)
+      .order(:name, id: :desc)
+
+    otus_to_name_hash(otus, 'name', last_created_only)
+  end
+
   protected
 
   def check_required_fields
@@ -535,5 +563,39 @@ class Otu < ApplicationRecord
       soft_validations.add(:base, m )
     end
   end
+
+  # Assumes otus are ordered by name, id desc.
+  # @param name_attr Attribute to use on otus_list objects to get the hash key
+  # name to use
+  # @param last_created_only Only return the most recently created Otu for each
+  # name
+  # @return [Hash] keys are names, values are a single otu if last_created_only
+  # is true, otherwise each value is an array of matching otus ordered by
+  # id desc
+  def otus_to_name_hash(otus, name_attr, last_created_only)
+    matches = {}
+    if last_created_only
+      previous_name = ''
+      otus.each { |o|
+        name = o[name_attr]
+        if name != previous_name
+          matches[name] = o
+          previous_name = name
+        end
+      }
+    else
+      otus.each { |o|
+        name = o[name_attr]
+        if matches[name]
+          matches[name].push(name)
+        else
+          matches[name] = [name]
+        end
+      }
+    end
+
+    matches
+  end
+
 
 end

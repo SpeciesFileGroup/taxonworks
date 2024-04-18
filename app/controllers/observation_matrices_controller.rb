@@ -265,15 +265,11 @@ class ObservationMatricesController < ApplicationController
 
     options = nexus_import_options_params
 
-    # TODO: Deal with repeated taxa
     taxa_names = nf.taxa.collect{ |t| t.name }.sort().uniq
-    otus = Otu
-      .joins(:taxon_name)
-      .where(project_id: sessions_current_project_id)
-      .where(taxon_names: { name: taxa_names })
-      .or(Otu.where(taxon_names: { cached: taxa_names }))
-      .select('otus.*, taxon_names.cached as tname')
-      .order('tname')
+    matched_otus = find_matching_otus(taxa_names,
+      options[:match_otu_to_name], options[:match_otu_to_taxonomy_name])
+
+    @otus = taxa_names.map { |tn| matched_otus[tn] || tn }
 
     # TODO: the nexus description says character name repeats aren't allowed,
     # but the parser currently allows them.
@@ -288,7 +284,6 @@ class ObservationMatricesController < ApplicationController
         .order(:name).to_a
       : []
 
-    @otus = merge_name_and_ar_lists(taxa_names, otus.to_a, 'tname')
     @descriptors = merge_name_and_ar_lists(
       descriptor_names, descriptors, 'name'
     )
@@ -402,6 +397,27 @@ class ObservationMatricesController < ApplicationController
     a
   end
 
+  def find_matching_otus(names, match_otus_by_name, match_otus_by_taxon)
+    if !match_otus_by_name && !match_otus_by_taxon
+      return {}
+    end
+
+    matches = {}
+    if match_otus_by_taxon
+      matches = Otu.match_otus_by_taxon(names)
+    end
+
+    if match_otus_by_name
+      remaining_names = names - matches.keys
+      if remaining_names.size
+        more_matches = Otu.match_otus_by_name(remaining_names)
+        matches.merge!(more_matches)
+      end
+    end
+
+    matches
+  end
+
   def runit(nexus_doc_id, uid, project_id, options)
     Current.user_id = uid
     Current.project_id = project_id
@@ -443,6 +459,7 @@ class ObservationMatricesController < ApplicationController
     new_states = []
 
     begin
+      # TODO: can we narrow the scope of the transaction at all?
       ObservationMatrix.transaction do
         nf = assign_gap_names(nf)
 
@@ -454,28 +471,13 @@ class ObservationMatricesController < ApplicationController
 
         # Find/create OTUs, add them to the matrix as we do so,
         # and add them to an array for reference during coding.
+
+        taxa_names = nf.taxa.collect{ |t| t.name }.sort().uniq
+        matched_otus = find_matching_otus(taxa_names,
+          options[:match_otu_to_name], options[:match_otu_to_taxonomy_name])
+
         nf.taxa.each_with_index do |o, i|
-          otu = nil
-          if (options[:match_otu_to_taxonomy_name] ||
-            options[:match_otu_to_name])
-
-            conditions = []
-            values = []
-            if options[:match_otu_to_name]
-              conditions << 'name = ?'
-              values << o.name
-            end
-            if options[:match_otu_to_taxonomy_name]
-              conditions << 'taxon_names.cached = ?'
-              values << o.name
-            end
-            condition = conditions.join(' OR ')
-            otu = Otu
-              .joins(:taxon_name)
-              .where(project_id: sessions_current_project_id)
-              .find_by(condition, *values)
-          end
-
+          otu = matched_otus[o.name]
           if !otu
             puts Rainbow("Creating Otu #{o.name}").orange.bold
             otu = Otu.create!(name: o.name)
