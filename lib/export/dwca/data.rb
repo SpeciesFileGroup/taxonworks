@@ -2,9 +2,6 @@ require 'zip'
 
 module Export::Dwca
 
-
-  # CONSIDER: shelling to `paste` to concat files, see Dima's tutorial: https://globalnames.org/docs/tut-xsv-gnparser/
-  #
   # !!
   # !! This export does not support AssertedDistribution data at the moment.  While those data are indexed,
   # !! if they are in the `core_scope` they will almost certainly cause problems or be ignored. 
@@ -175,10 +172,8 @@ module Export::Dwca
     end
 
     def collection_object_ids
-      @collection_object_ids ||= collection_objects.pluck(:id)
+      @collection_object_ids ||= collection_objects.find_each(batch_size: 10000).pluck(:id)
     end
-
-
 
     #   def collecting_event_extension_data
     #     collection_objects.joins(:collecting_event) # no point using left outer join, no event means all data is nil
@@ -212,6 +207,7 @@ module Export::Dwca
 
       v = collection_objects.left_joins(otu: [:taxon_name])
         .select("collection_objects.id, #{n}")
+        .find_each(batch_size: 10000)
         .collect{|r| [r.id, a, r['otu_name'].presence] }
       v
     end
@@ -342,10 +338,11 @@ module Export::Dwca
     def collection_object_attributes
       @collection_object_attributes ||= collection_object_attributes_query
         .select(
+          'data_attributes.id',
           'data_attributes.attribute_subject_id', # CollectionObject#id
           "CONCAT('TW:DataAttribute:CollectionObject:', controlled_vocabulary_terms.name) predicate",
           'data_attributes.value'
-        ).collect{|r| [r['attribute_subject_id'], r['predicate'], r['value']] }
+        ).find_each(batch_size: 10000).collect{|r| [r['attribute_subject_id'], r['predicate'], r['value']] }
     end
 
     # @return Relation
@@ -378,7 +375,7 @@ module Export::Dwca
       #    .to_sql
       #  b = ::CollectionObject.from('(' + s + ') as collection_objects')
 
-      @collecting_event_attributes ||= a.collect{|r| [r['id'], r['predicate'], r['value']] }
+      @collecting_event_attributes ||= a.find_each(batch_size: 10000).collect{|r| [r['id'], r['predicate'], r['value']] }
     end
 
     def collection_objects
@@ -396,7 +393,8 @@ module Export::Dwca
     end
 
     def used_collecting_event_predicates
-      collecting_event_attributes_query.joins(:predicate).select("CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate_name").distinct
+      collecting_event_attributes_query.joins(:predicate).select("CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate_name")
+        .distinct
         .collect{|r| r['predicate_name']}
     end
 

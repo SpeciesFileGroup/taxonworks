@@ -219,6 +219,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           expect(z.to_a[1].first).to include(d1.value)
           expect(z.to_a[3].first).to include(d4.value) # the ce value
           expect(z.to_a[3].first).to include(d3.value)
+
           expect(z.to_a[5].first).to include(d2.value)
         end
 
@@ -244,7 +245,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           expect(a.collecting_event_attributes_query.to_a).to contain_exactly(d1)
         end
 
-        specify '#collection_object_attributes_query, does not inject collection_object_ids via collecting events for collection_objects not referenced in the origin scope' do
+        specify '#collection_event_attributes, does not inject collection_object_ids via collecting events for collection_objects not referenced in the origin scope' do
           # All three share CE
           f = Specimen.first
           m = Specimen.third
