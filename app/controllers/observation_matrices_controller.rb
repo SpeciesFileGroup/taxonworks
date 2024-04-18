@@ -252,17 +252,13 @@ class ObservationMatricesController < ApplicationController
   # GET /observation_matrices/nexus_data.json
   def nexus_data
     begin
-      nexus_doc = Document.find(params[:nexus_document_id])
+      nf = Vendor::NexusParser.document_id_to_nexus(params[:nexus_document_id])
     rescue ActiveRecord::RecordNotFound
       render json: { errors: 'Document not found' },
         status: :unprocessable_entity
       return
-    end
-
-    begin
-      nf = Vendor::NexusParser.document_to_nexus(nexus_doc)
-    rescue NexusParser::ParseError => e
-      render json: { errors: "Nexus parse error: #{e}" },
+    rescue NexusParser::ParseError => ex
+      render json: { errors: "Nexus parse error: #{ex}" },
         status: :unprocessable_entity
       return
     end
@@ -399,23 +395,13 @@ class ObservationMatricesController < ApplicationController
     Current.project_id = project_id
 
     begin
-      nexus_doc = Document.find(nexus_doc_id)
+      nf = Vendor::NexusParser.document_id_to_nexus(nexus_doc_id)
     rescue => ex
       ExceptionNotifier.notify_exception(ex,
         data: { nexus_document_id: nexus_doc_id }
       )
       raise
     end
-
-    begin
-      nf = Vendor::NexusParser.document_to_nexus(nexus_doc)
-    rescue => ex
-      ExceptionNotifier.notify_exception(ex,
-        data: { nexus_document_id: nexus_doc_id }
-      )
-      raise
-    end
-
 
 =begin
       @opt = {
@@ -449,9 +435,8 @@ class ObservationMatricesController < ApplicationController
         nf = assign_gap_names(nf)
 
         # TODO: generated title can't be used to create! twice in the same minute.
-        title = options[:matrix_name].present? ?
-          options[:matrix_name] :
-          "Converted matrix created #{Time.now().to_formatted_s(:long)} by #{User.find(uid).name}"
+        title = options[:matrix_name] ||
+          "Converted matrix created #{Time.now.utc.to_formatted_s(:long)} by #{User.find(uid).name}"
         m = ObservationMatrix.create!(name: title)
         puts Rainbow("Created matrix #{title}").orange.bold
 
