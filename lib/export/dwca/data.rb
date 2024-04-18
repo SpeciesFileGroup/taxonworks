@@ -330,9 +330,13 @@ module Export::Dwca
     end
 
     def collection_object_attributes_query
-      InternalAttribute
+      s = 'WITH touched_collection_objects AS (' + collection_objects.to_sql + ') ' + ::InternalAttribute
+        .joins("JOIN touched_collection_objects as tco1 on data_attributes.attribute_subject_id = tco1.id AND data_attributes.attribute_subject_type = 'CollectionObject'")
+        .to_sql
+
+      ::InternalAttribute
         .joins(:predicate)
-        .where(attribute_subject: collection_objects)
+        .from('(' + s + ') as data_attributes')
     end
 
     def collection_object_attributes
