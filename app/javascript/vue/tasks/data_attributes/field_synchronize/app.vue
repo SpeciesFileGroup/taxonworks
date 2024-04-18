@@ -46,6 +46,7 @@
         :predicates="selectedPredicates"
         :preview-header="previewHeader"
         :model="currentModel"
+        :is-extract="!!extractOperation"
         @remove:attribute="
           (attr) =>
             removeFromArray(selectedAttributes, attr, { primitive: true })
@@ -76,14 +77,14 @@ import {
   randomUUID,
   removeFromArray
 } from '@/helpers'
-import { QUERY_PARAMETER } from './constants'
+import { QUERY_PARAMETER, PATTERN_TYPES } from './constants'
 import VTable from './components/Table/VTable.vue'
 import RegexForm from './components/Regex/RegexForm.vue'
 import FieldForm from './components/Field/FieldForm.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VPaginationCount from '@/components/pagination/PaginationCount.vue'
 import VPagination from '@/components/pagination.vue'
-import { applyRegex } from './utils'
+import { applyRegex, applyExtract } from './utils'
 
 defineOptions({
   name: 'FieldSynchronize'
@@ -114,8 +115,16 @@ const previewHeader = computed(() => {
   const _from = from.value?.name || from.value
   const _to = to.value?.name || to.value
 
-  return _from && _to ? `${_from}→${_to}` : ''
+  if (!_from || !_to) {
+    return []
+  }
+
+  return extractOperation.value ? [_from, _to] : [`${_from}→${_to}`]
 })
+
+const extractOperation = computed(() =>
+  regexPatterns.value.find((item) => item.mode === PATTERN_TYPES.Extract)
+)
 
 const tableList = computed(() => {
   return list.value.map((item) => {
@@ -124,30 +133,58 @@ const tableList = computed(() => {
     }
 
     if (from.value && to.value) {
-      try {
-        const items = from.value?.id
-          ? item.dataAttributes[from.value.id].map((item) => item.value)
-          : item.attributes[from.value]
+      const fromItems = from.value?.id
+        ? item.dataAttributes[from.value.id].map((item) => item.value)
+        : [item.attributes[from.value]]
 
-        data.preview = [items].flat().map((value) => {
-          const newValue =
-            value && regexPatterns.value.length
-              ? applyRegex(value, regexPatterns.value)
-              : value
+      if (extractOperation.value) {
+        const toItems = to.value?.id
+          ? item.dataAttributes[to.value.id].map((item) => item.value)
+          : [item.attributes[to.value]]
+
+        data.preview = fromItems.map((fromValue, index) => {
+          const toValue = toItems[index]
+          const newValue = applyExtract(
+            extractOperation.value,
+            fromValue,
+            toValue
+          )
 
           return {
-            value: newValue,
-            hasChanged: newValue !== value
+            to: {
+              value: newValue.to,
+              hasChanged: newValue.to !== toValue
+            },
+            from: {
+              value: newValue.from,
+              hasChanged: newValue.from !== fromValue
+            }
           }
         })
-      } catch (e) {}
+      } else {
+        try {
+          data.preview = [fromItems].flat().map((value) => {
+            const newValue =
+              value && regexPatterns.value.length
+                ? applyRegex(value, regexPatterns.value)
+                : value
+
+            return {
+              to: {
+                value: newValue,
+                hasChanged: newValue !== value
+              }
+            }
+          })
+        } catch (e) {}
+      }
     }
 
     return data
   })
 })
 
-function makeDataAttribute({ predicateId, value = null, id = null }) {
+function makeDataAttribute({ predicateId, value = '', id = null }) {
   return {
     id,
     uuid: randomUUID(),
@@ -156,24 +193,32 @@ function makeDataAttribute({ predicateId, value = null, id = null }) {
   }
 }
 
-function processPreview(items) {
-  const predicateId = to.value?.id
+function processPreview({ fromItems = [], toItems = [] }) {
+  const fromPredicateId = from.value?.id
+  const toPredicateId = to.value?.id
 
-  const promises = items.map(({ item, index, value }) => {
-    if (predicateId) {
-      const dataAttribute = item.dataAttributes[predicateId][index]
+  function requestItems(items, predicateId, attribute) {
+    return items.map(({ item, index, value }) => {
+      if (predicateId) {
+        const dataAttribute = item.dataAttributes[predicateId][index]
 
-      return saveDataAttribute({
-        ...dataAttribute,
-        objectId: item.id,
-        value
-      })
-    }
+        return saveDataAttribute({
+          ...dataAttribute,
+          objectId: item.id,
+          value
+        })
+      }
 
-    return saveFieldAttribute({ item, attribute: to.value, value })
-  })
+      return saveFieldAttribute({ item, attribute, value })
+    })
+  }
 
-  makeNotificationWhenPromisesEnd(promises).then((res) => {
+  const promises = [
+    ...requestItems(fromItems, fromPredicateId, from.value),
+    ...requestItems(toItems, toPredicateId, to.value)
+  ]
+
+  makeNotificationWhenPromisesEnd(promises).then((_) => {
     isUpdating.value = false
   })
 }
@@ -448,6 +493,6 @@ async function loadPage(page) {
 
 <style scoped>
 .left-column {
-  width: 400px;
+  width: 440px;
 }
 </style>

@@ -20,8 +20,9 @@
           Data attributes
         </th>
         <th
-          v-if="previewHeader"
+          v-if="previewHeader.length"
           class="cell-left-border"
+          :colspan="previewHeader.length + 1"
         >
           Preview
         </th>
@@ -97,12 +98,26 @@
             </div>
           </div>
         </th>
-        <th
-          class="cell-left-border"
-          v-if="previewHeader"
-        >
-          <div class="flex-separate middle gap-medium">
-            <span>{{ previewHeader }}</span>
+        <template v-if="previewHeader.length">
+          <th
+            v-for="(header, index) in previewHeader"
+            :key="index"
+            :class="index == 0 && 'cell-left-border'"
+          >
+            <div class="horizontal-left-content middle gap-small">
+              <span>{{ header }}</span>
+              <VBtn
+                v-if="!isExtract"
+                color="update"
+                medium
+                :disabled="!hasChanges"
+                @click="updateAll"
+              >
+                Apply all
+              </VBtn>
+            </div>
+          </th>
+          <th v-if="isExtract">
             <VBtn
               color="update"
               medium
@@ -111,8 +126,8 @@
             >
               Apply all
             </VBtn>
-          </div>
-        </th>
+          </th>
+        </template>
       </tr>
     </thead>
     <tbody>
@@ -164,41 +179,93 @@
             "
           />
         </td>
-        <td
-          v-if="previewHeader"
-          class="cell-left-border"
-        >
-          <div
-            v-for="(obj, index) in item.preview"
-            :key="obj.id"
-            class="horizontal-left-content gap-small"
+        <template v-if="previewHeader.length">
+          <td
+            v-if="isExtract"
+            class="cell-left-border"
           >
-            <input
-              type="text"
-              disabled
-              class="full_width"
-              :value="obj.value"
-            />
-            <VBtn
-              color="update"
-              medium
-              :disabled="!obj.hasChanged"
-              @click="
-                () => {
-                  emit('update:preview', [
-                    {
-                      index,
-                      item,
-                      value: obj.value
-                    }
-                  ])
-                }
-              "
+            <div
+              v-for="{ from } in item.preview"
+              :key="from.id"
+              class="horizontal-left-content gap-small"
             >
-              Apply
-            </VBtn>
-          </div>
-        </td>
+              <input
+                type="text"
+                disabled
+                class="full_width"
+                :value="from.value"
+              />
+            </div>
+          </td>
+          <td :class="!isExtract && 'cell-left-border'">
+            <div
+              v-for="({ to }, index) in item.preview"
+              :key="to.id"
+              class="horizontal-left-content gap-small"
+            >
+              <input
+                type="text"
+                disabled
+                class="full_width"
+                :value="to.value"
+              />
+              <VBtn
+                v-if="!isExtract"
+                color="update"
+                medium
+                :disabled="!to.hasChanged"
+                @click="
+                  () => {
+                    emit('update:preview', {
+                      toItems: [
+                        {
+                          index,
+                          item,
+                          value: to.value
+                        }
+                      ]
+                    })
+                  }
+                "
+              >
+                Apply
+              </VBtn>
+            </div>
+          </td>
+          <td v-if="isExtract">
+            <div class="flex-col gap-small">
+              <VBtn
+                v-for="({ to, from }, index) in item.preview"
+                :key="from.id"
+                color="update"
+                medium
+                :disabled="!to.hasChanged || !from.hasChanged"
+                @click="
+                  () => {
+                    emit('update:preview', {
+                      fromItems: [
+                        {
+                          index,
+                          item,
+                          value: from.value
+                        }
+                      ],
+                      toItems: [
+                        {
+                          index,
+                          item,
+                          value: to.value
+                        }
+                      ]
+                    })
+                  }
+                "
+              >
+                Apply both
+              </VBtn>
+            </div>
+          </td>
+        </template>
       </tr>
     </tbody>
   </table>
@@ -226,14 +293,19 @@ const props = defineProps({
     default: () => []
   },
 
+  isExtract: {
+    type: Boolean,
+    required: true
+  },
+
   predicates: {
     type: Object,
     default: undefined
   },
 
   previewHeader: {
-    type: String,
-    default: ''
+    type: Array,
+    default: () => []
   },
 
   model: {
@@ -256,19 +328,28 @@ const confirmationRef = ref(null)
 const editColumnRef = ref(null)
 
 const hasChanges = computed(() =>
-  props.list.some((item) => item.preview.some((item) => item.hasChanged))
+  props.list.some((item) => item.preview.some((item) => item.to.hasChanged))
 )
 
 async function updateAll() {
-  const items = []
+  const toItems = []
+  const fromItems = []
 
   props.list.forEach((item) => {
     item.preview.forEach((p, index) => {
-      if (p.hasChanged) {
-        items.push({
+      if (p.to.hasChanged) {
+        toItems.push({
           index,
           item,
-          value: p.value
+          value: p.to.value
+        })
+      }
+
+      if (p.from?.hasChanged) {
+        fromItems.push({
+          index,
+          item,
+          value: p.from.value
         })
       }
     })
@@ -276,15 +357,17 @@ async function updateAll() {
 
   const opts = {
     title: 'Mass update',
-    message: `This operation will update ${items.length} record(s). Are you sure you want to proceed?`,
-    confirmationWord: 'update',
+    message: `This operation will update ${
+      fromItems.length + toItems.length
+    } record(s). Are you sure you want to proceed?`,
+    confirmationWord: 'UPDATE',
     typeButton: 'submit'
   }
 
   const ok = await confirmationRef.value.show(opts)
 
   if (ok) {
-    emit('update:preview', items)
+    emit('update:preview', { toItems, fromItems })
   }
 }
 

@@ -60,15 +60,26 @@
         <MatchReplaceForm
           v-for="(item, index) in patterns"
           :key="item.uuid"
+          :index="index"
           v-model="patterns[index]"
           @remove="() => patterns.splice(index, 1)"
         />
-        <VBtn
-          color="primary"
-          medium
-          @click="() => addPattern({ replace: false })"
-          >Add pattern</VBtn
-        >
+
+        <i>* When extract pattern is set, others will be ignored</i>
+        <div class="horizontal-left-content gap-small">
+          <VBtn
+            v-for="(value, key) in PATTERN_TYPES"
+            :key="key"
+            color="primary"
+            :disabled="
+              patterns.some((item) => item.mode === PATTERN_TYPES.Extract)
+            "
+            medium
+            @click="() => addPattern({ mode: value })"
+          >
+            {{ key }}
+          </VBtn>
+        </div>
       </div>
     </template>
   </BlockLayout>
@@ -79,6 +90,7 @@ import MatchReplaceForm from './MatchReplaceForm.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import { randomUUID } from '@/helpers'
+import { PATTERN_TYPES } from '../../constants'
 
 defineProps({
   attributes: {
@@ -107,12 +119,12 @@ const patterns = defineModel({
   default: () => []
 })
 
-function addPattern({ replace }) {
+function addPattern({ mode }) {
   patterns.value.push({
     uuid: randomUUID(),
     match: '',
     value: '',
-    replace
+    mode
   })
 }
 </script>
