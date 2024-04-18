@@ -253,28 +253,21 @@ class ObservationMatricesController < ApplicationController
   def nexus_data
     begin
       nf = Vendor::NexusParser.document_id_to_nexus(params[:nexus_document_id])
-    # TODO: can we combine these rescues? They're taking up space
-    rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Document not found' },
-        status: :unprocessable_entity
-      return
-    rescue NexusParser::ParseError => ex
-      render json: { errors: "Nexus parse error: #{ex}" },
+    rescue ActiveRecord::RecordNotFound, NexusParser::ParseError => e
+      render json: { errors: "Nexus parse error: #{e}" },
         status: :unprocessable_entity
       return
     end
 
     options = nexus_import_options_params
 
-    # Otus
-    taxa_names = nf.taxa.collect{ |t| t.name }.sort().uniq
+    taxa_names = nf.taxa.map { |t| t.name }.sort().uniq
     matched_otus = find_matching_otus(taxa_names,
       options[:match_otu_to_name], options[:match_otu_to_taxonomy_name])
 
     @otus = taxa_names.map { |name| matched_otus[name] || name }
 
-    # Descriptors
-    descriptor_names = nf.characters.collect{ |c| c.name }.sort().uniq
+    descriptor_names = nf.characters.map { |c| c.name }.sort().uniq
 
     matched_descriptors = {}
     if options[:match_character_to_name]
