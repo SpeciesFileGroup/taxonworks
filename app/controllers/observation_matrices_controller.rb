@@ -369,8 +369,16 @@ class ObservationMatricesController < ApplicationController
   end
 
   def nexus_import_options_params
-    params.require(:options).permit(:matrix_name, :match_otu_to_taxonomy_name,
-      :match_otu_to_name, :match_character_to_name)
+    boolean_options = [:match_otu_to_taxonomy_name, :match_otu_to_name,
+      :match_character_to_name]
+
+    params[:options].each { |k, v|
+      if boolean_options.include? k.to_sym
+        params[:options][k] = (v == 'true' || v == true) ? true : false
+      end
+    }
+
+    params.require(:options).permit(:matrix_name, *boolean_options)
   end
 
   # Given a list of names and a list of ActiveRecords with a name_attr,
