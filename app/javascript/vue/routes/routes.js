@@ -24,6 +24,7 @@ const RouteNames = {
   DigitizeTask: '/tasks/accessions/comprehensive',
   DwcDashboard: '/tasks/dwc/dashboard',
   DwcImport: '/tasks/dwca_import/index',
+  FieldSynchronize: '/tasks/data_attributes/field_synchronize',
   FilterAssertedDistribition: '/tasks/asserted_distributions/filter',
   FilterCollectingEvents: '/tasks/collecting_events/filter',
   FilterCollectionObjects: '/tasks/collection_objects/filter',

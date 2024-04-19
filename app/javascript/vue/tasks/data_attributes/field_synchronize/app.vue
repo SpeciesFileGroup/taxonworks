@@ -447,6 +447,7 @@ function makeDataAttributeList({ data }) {
 }
 
 onBeforeMount(() => {
+  const { attribute } = URLParamsToJSON(window.location.href)
   const data = getQueryParamFromUrl()
 
   queryParam.value = data.queryParam
@@ -458,6 +459,12 @@ onBeforeMount(() => {
       mode: 'editable'
     }).then(({ body }) => {
       attributes.value = body
+
+      if (Array.isArray(attribute)) {
+        selectedAttributes.value.push(
+          ...attribute.filter((item) => body.includes(item))
+        )
+      }
     })
 
     loadPage(currentPage.value)
