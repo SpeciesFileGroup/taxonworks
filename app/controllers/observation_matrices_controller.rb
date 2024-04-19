@@ -378,13 +378,13 @@ class ObservationMatricesController < ApplicationController
 
     matches = {}
     if match_otus_by_taxon
-      matches = Otu.match_otus_by_taxon(names)
+      matches = match_otus_by_taxon(names)
     end
 
     if match_otus_by_name
       remaining_names = names - matches.keys
       if remaining_names.size
-        more_matches = Otu.match_otus_by_name(remaining_names)
+        more_matches = match_otus_by_name(remaining_names)
         matches.merge!(more_matches)
       end
     end
@@ -420,6 +420,46 @@ class ObservationMatricesController < ApplicationController
     end
 
     {}
+  end
+
+  # @return [Hash] name matched to Otu by taxon name. For those names that
+  # match, the Otu returned is the one created most recently.
+  def match_otus_by_taxon(names)
+    otus = Otu
+      .joins(:taxon_name)
+      .select('otus.*, taxon_names.cached as tname')
+      .where(project_id: sessions_current_project_id)
+      .where('taxon_names.cached': names)
+      .order('taxon_names.cached', id: :desc)
+
+    otus_to_name_hash(otus, 'tname')
+  end
+
+  # @return [Hash] name matched to Otu by otu name. For those names that match,
+  # the Otu returned is the one created most recently.
+  def match_otus_by_name(names, last_created_only: true)
+    otus = Otu
+      .where(project_id: sessions_current_project_id)
+      .where(name: names)
+      .order(:name, id: :desc)
+
+    otus_to_name_hash(otus, 'name')
+  end
+
+  # Assumes otus are ordered by name; only returns the first otu if there
+  # are repeats for a given name.
+  def otus_to_name_hash(otus, name_attr)
+    matches = {}
+    previous_name = ''
+    otus.each { |o|
+      name = o[name_attr]
+      if name != previous_name
+        matches[name] = o
+        previous_name = name
+      end
+    }
+
+    matches
   end
 
   def runit(nexus_doc_id, uid, project_id, options)
