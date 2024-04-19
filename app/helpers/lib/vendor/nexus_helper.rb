@@ -172,8 +172,6 @@ module Lib::Vendor::NexusHelper
     begin
       # TODO: can we narrow the scope of the transaction at all?
       ObservationMatrix.transaction do
-        nf = assign_gap_names(nf)
-
         # Find/create OTUs, add them to the matrix as we do so,
         # and add them to an array for reference during coding.
         taxa_names = nf.taxa.collect{ |t| t.name }.sort().uniq
@@ -274,35 +272,6 @@ module Lib::Vendor::NexusHelper
       )
       m.destroy!
       raise
-    end
-  end
-
-  # Assign a name to all gap states (nexus_parser outputs gap states that have
-  # no name, but TW requires a name).
-  # @param a nexus file object as returned by nexus_parser
-  def assign_gap_names(nf)
-    gap_label = nf.vars[:gap]
-    if gap_label.nil?
-      return nf
-    end
-
-    nf.characters.each do |c|
-      if c.state_labels.include? gap_label
-        c.states[gap_label].name = gap_name_for_states(c.state_labels)
-      end
-    end
-    nf
-  end
-
-  def gap_name_for_states(states)
-    if !states.include?('gap')
-      return 'gap'
-    else
-      i = 1
-      while states.include?("gap_#{i}")
-        i = i + 1
-      end
-      return "gap#{i}"
     end
   end
 
