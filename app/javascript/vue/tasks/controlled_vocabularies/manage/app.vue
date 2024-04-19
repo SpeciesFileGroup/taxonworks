@@ -18,23 +18,23 @@
     </div>
 
     <VSwitch
-      v-model="view"
-      :options="types"
+      v-model="type"
+      :options="Object.keys(CVT_TYPES)"
     />
     <div class="flex-separate middle">
       <h3>
-        {{ CVT_TYPES[view] }}
+        {{ CVT_TYPES[type] }}
         <a
-          v-if="linkFor.includes(view)"
+          v-if="linkFor.includes(type)"
           href="/tasks/controlled_vocabularies/biocuration/build_collection"
           >Manage biocuration classes and groups
         </a>
       </h3>
       <CloneControlledVocabularyTerms
-        :type="view"
+        :type="type"
         @clone="
           () => {
-            loadCVTList(view)
+            loadCVTList(type)
           }
         "
       />
@@ -91,19 +91,17 @@ import CloneFromObject from '@/helpers/cloneFromObject'
 import CloneControlledVocabularyTerms from './components/CloneControlledVocabularyTerms.vue'
 import NavBar from '@/components/layout/NavBar.vue'
 
-const types = computed(() => Object.keys(CVT_TYPES))
 const globalId = computed(() => cvt.value?.global_id)
 const cvt = ref(makeControlledVocabularyTerm())
 const isSaving = ref(false)
 const isLoading = ref(false)
-const view = ref('Keyword')
+const type = ref('Keyword')
 const linkFor = ref(['BiocurationClass', 'BiocurationGroup'])
 const list = ref([])
 
 watch(
-  view,
+  type,
   (newVal) => {
-    cvt.value.type = newVal
     isLoading.value = true
     loadCVTList(newVal)
   },
@@ -117,9 +115,9 @@ onBeforeMount(() => {
   const ctvId = urlParams.get('controlled_vocabulary_term_id')
 
   if (/^\d+$/.test(ctvId)) {
-    ControlledVocabularyTerm.find(ctvId).then((response) => {
-      view.value = response.body.type
-      setCTV(response.body)
+    ControlledVocabularyTerm.find(ctvId).then(({ body }) => {
+      type.value = body.type
+      setCTV(body)
     })
   }
 })
@@ -133,7 +131,10 @@ function loadCVTList(type) {
 
 function createCTV() {
   const payload = {
-    controlled_vocabulary_term: cvt.value
+    controlled_vocabulary_term: {
+      ...cvt.value,
+      type: type.value
+    }
   }
   const request = cvt.value.id
     ? ControlledVocabularyTerm.update(cvt.value.id, payload)
@@ -151,16 +152,11 @@ function createCTV() {
       )
 
       addToArray(list.value, body, { prepend: true })
-      newCTV()
+      cvt.value = makeControlledVocabularyTerm()
     })
     .finally(() => {
       isSaving.value = false
     })
-}
-
-function newCTV() {
-  cvt.value = makeControlledVocabularyTerm()
-  cvt.value.type = view.value
 }
 
 function setCTV(ctv) {

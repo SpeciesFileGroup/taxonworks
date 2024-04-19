@@ -14,14 +14,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
-- Unified some methods on dwca export, refactored for speedups 
+- Unified some methods on dwca export, refactored for speedups
 - Updated Ruby gems
 
 ### Fixed
 
+- Manage controlled vocabulary task: New button resets type [#3923]
 - Resource is spelled recource [#3922]
 
 [#3922]: https://github.com/SpeciesFileGroup/taxonworks/issues/3922
+[#3923]: https://github.com/SpeciesFileGroup/taxonworks/issues/3923
 
 ## [0.40.3] - 2024-04-14
 
