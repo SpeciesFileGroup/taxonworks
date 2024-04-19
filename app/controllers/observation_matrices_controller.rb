@@ -646,16 +646,15 @@ class ObservationMatricesController < ApplicationController
   end
 
   def gap_name_for_states(states)
-    if !states.include?('tw_gap')
-      return 'tw_gap'
+    if !states.include?('gap')
+      return 'gap'
     else
       i = 1
-      while states.include?("tw_gap_#{i}")
+      while states.include?("gap_#{i}")
         i = i + 1
       end
-      return "tw_gap#{i}"
+      return "gap#{i}"
     end
   end
-
 
 end
