@@ -1,4 +1,8 @@
 module Lib::Vendor::NexusHelper
+  # !! Some of the code here is run in the context of an ApplicationJob, which
+  # doesn't have sessions_current_project_id or sessions_current_user_id -
+  # instead assume that Current.project_id and Current.user_id are set.
+
   def preview_nexus_otus(nexus_file, match_otu_to_name,
     match_otu_to_taxonomy_name)
 
@@ -82,7 +86,7 @@ module Lib::Vendor::NexusHelper
     otus = Otu
       .joins(:taxon_name)
       .select('otus.*, taxon_names.cached as tname')
-      .where(project_id: sessions_current_project_id)
+      .where(project_id: Current.project_id)
       .where('taxon_names.cached': names)
       .order('taxon_names.cached', id: :desc)
 
@@ -93,7 +97,7 @@ module Lib::Vendor::NexusHelper
   # the Otu returned is the one created most recently.
   def match_otus_by_name(names, last_created_only: true)
     otus = Otu
-      .where(project_id: sessions_current_project_id)
+      .where(project_id: Current.project_id)
       .where(name: names)
       .order(:name, id: :desc)
 
