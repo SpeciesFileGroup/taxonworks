@@ -18,7 +18,9 @@
 
   <ImportOptions
     v-model="options"
-    :docChosen="!!nexusDoc"
+    :doc-chosen="!!nexusDoc"
+    :matrix-id="matrixId"
+    :matrix-name="matrixName"
     @convert="scheduleConvert"
   />
 </template>
@@ -35,6 +37,8 @@ const nexusDoc = ref()
 const nexusTaxaList = ref([])
 const nexusDescriptorsList = ref([])
 const options = ref({})
+const matrixId = ref()
+const matrixName = ref()
 
 function generatePreview() {
   const payload = {
@@ -56,7 +60,13 @@ function scheduleConvert() {
     options: options.value
   }
 
-  ObservationMatrix.initiateImportFromNexus(payload).catch(() => {})
+  ObservationMatrix.initiateImportFromNexus(payload)
+    .then(({ body }) => {
+      // The returned object isn't an AR matrix.
+      matrixId.value = body.matrix_id
+      matrixName.value = body.matrix_name
+    })
+    .catch(() => {})
 }
 </script>
 

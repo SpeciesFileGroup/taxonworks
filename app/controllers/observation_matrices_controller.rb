@@ -251,22 +251,18 @@ class ObservationMatricesController < ApplicationController
 
   # GET /observation_matrices/nexus_data.json
   def nexus_data
-    begin
-      nf = Vendor::NexusParser.document_id_to_nexus(params[:nexus_document_id])
-    rescue ActiveRecord::RecordNotFound, NexusParser::ParseError => e
-      render json: { errors: "Nexus parse error: #{e}" },
-        status: :unprocessable_entity
-      return
-    end
+    return if !(nf = document_to_nexus(params[:nexus_document_id]))
 
     options = nexus_import_options_params
 
+    # Otus
     taxa_names = nf.taxa.map { |t| t.name }.sort().uniq
     matched_otus = find_matching_otus(taxa_names,
       options[:match_otu_to_name], options[:match_otu_to_taxonomy_name])
 
     @otus = taxa_names.map { |name| matched_otus[name] || name }
 
+    # Descriptors
     descriptor_names = nf.characters.map { |c| c.name }.sort().uniq
 
     matched_descriptors = {}
@@ -286,15 +282,28 @@ class ObservationMatricesController < ApplicationController
 
   # POST /observation_matrices/import_nexus.json
   def import_from_nexus
+    return if !(nf = document_to_nexus params[:nexus_document_id])
+
+    options = nexus_import_options_params
+
+    return if !(m = create_matrix_for_nexus_import(options[:matrix_name]))
+
+    # Once we've handed the matrix off to the background job it could get
+    # destroyed at any time, so save what we want from it now.
+    matrix_id = m.id
+    matrix_name = m.name
+
     #ImportNexusJob.perform_later(
     runit(
       params[:nexus_document_id],
+      nf,
+      m,
       sessions_current_user_id,
       sessions_current_project_id,
-      nexus_import_options_params
+      options
     )
 
-    head :no_content
+    render json: { matrix_id:, matrix_name: }
   end
 
   private
@@ -371,6 +380,47 @@ class ObservationMatricesController < ApplicationController
     params.require(:options).permit(:matrix_name, *boolean_options)
   end
 
+  def document_to_nexus(doc_id)
+    begin
+      Vendor::NexusParser.document_id_to_nexus(doc_id)
+    rescue ActiveRecord::RecordNotFound, NexusParser::ParseError => e
+      render json: { errors: "Nexus parse error: #{e}" },
+        status: :unprocessable_entity
+      return nil
+    end
+  end
+
+  # @return [Matrix, nil]
+  def create_matrix_for_nexus_import(matrix_name)
+    if matrix_name.present?
+      begin
+        m = ObservationMatrix.create!(name: matrix_name)
+      rescue ActiveRecord::RecordInvalid
+        render json: { errors: 'The provided matrix name is already in use, try another' },
+          status: unprocessable_entity
+      end
+
+      return m
+    end
+
+    i = 0
+    unique = ''
+    begin
+      title = matrix_name.presence ||
+        "Converted matrix created #{Time.now.utc.to_formatted_s(:long)} by #{User.find(Current.user_id).name + unique}"
+
+      m = ObservationMatrix.create!(name: title)
+    rescue ActiveRecord::RecordInvalid
+      if i < 10
+        i = i + 1
+        unique = "-#{i}"
+        retry
+      end
+    end
+
+    m
+  end
+
   def find_matching_otus(names, match_otus_by_name, match_otus_by_taxon)
     if !match_otus_by_name && !match_otus_by_taxon
       return {}
@@ -393,7 +443,7 @@ class ObservationMatricesController < ApplicationController
   end
 
   # @return [Hash] Returns a hash with descriptor and chr_states
-  # properties of the most recently created descriptor of the same name
+  # properties of the most recently created descriptor with the same name
   # and character states as nxs_char.
   def find_matching_descriptor(nxs_chr)
     descriptors = Descriptor::Qualitative
@@ -462,18 +512,11 @@ class ObservationMatricesController < ApplicationController
     matches
   end
 
-  def runit(nexus_doc_id, uid, project_id, options)
+  def runit(nexus_doc_id, parsed_nexus, matrix, uid, project_id, options)
     Current.user_id = uid
     Current.project_id = project_id
-
-    begin
-      nf = Vendor::NexusParser.document_id_to_nexus(nexus_doc_id)
-    rescue => ex
-      ExceptionNotifier.notify_exception(ex,
-        data: { nexus_document_id: nexus_doc_id }
-      )
-      raise
-    end
+    nf = parsed_nexus
+    m = matrix
 
 =begin
       @opt = {
@@ -506,12 +549,6 @@ class ObservationMatricesController < ApplicationController
       # TODO: can we narrow the scope of the transaction at all?
       ObservationMatrix.transaction do
         nf = assign_gap_names(nf)
-
-        # TODO: generated title can't be used to create! twice in the same minute.
-        title = options[:matrix_name] ||
-          "Converted matrix created #{Time.now.utc.to_formatted_s(:long)} by #{User.find(uid).name}"
-        m = ObservationMatrix.create!(name: title)
-        puts Rainbow("Created matrix #{title}").orange.bold
 
         # Find/create OTUs, add them to the matrix as we do so,
         # and add them to an array for reference during coding.
@@ -584,6 +621,7 @@ class ObservationMatricesController < ApplicationController
           y.each_with_index do |x, j| # x is a NexusFile::Coding
             x.states.each do |z|
               if z != '?'
+                # TODO: use find_or_create_by here, and move type to class name
                 o = Observation
                   .where(project_id: sessions_current_project_id)
                   .where(type: 'Observation::Qualitative')
@@ -606,10 +644,11 @@ class ObservationMatricesController < ApplicationController
           end
         end
       end
-    rescue ActiveRecord::RecordInvalid => ex
+    rescue => ex
       ExceptionNotifier.notify_exception(ex,
         data: { nexus_document_id: nexus_doc_id }
       )
+      m.destroy!
       raise
     end
   end

@@ -49,15 +49,38 @@
       </VBtn>
       <!--TODO: Give a message on how to find the new matrix/progress-->
     </div>
+
+    <div v-if="matrixId">
+      The new matrix
+      <a
+        :href="RouteNames.ObservationMatricesView + '/' + matrixId"
+        target="_blank"
+      >
+        {{ matrixName }}
+      </a>
+      is being populated by a background job. The matrix will be empty until
+      the import finishes; if the import fails the matrix will be deleted.
+    </div>
   </fieldset>
 </template>
 
 <script setup>
+import { RouteNames } from '@/routes/routes'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
-  docChosen: Boolean,
-  default: false
+  docChosen: {
+    type: Boolean,
+    default: false
+  },
+  matrixId: {
+    type: Number,
+    default: null
+  },
+  matrixName: {
+    type: String,
+    default: null
+  }
 })
 
 const emit = defineEmits(['convert'])
@@ -76,9 +99,10 @@ options.value = {
 <style lang="scss" scoped>
 .import_options {
   width: 600px;
+  margin-bottom: 2em;
 }
 .button {
-  margin-top: 2em;
+  margin-top: 1em;
   margin-bottom: 1em;
 }
 </style>
