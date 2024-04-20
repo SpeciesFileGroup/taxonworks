@@ -365,8 +365,7 @@ class User < ApplicationRecord
   # ticker ticks
   #  perhaps seperate for performace
   def update_project_member_last_seen_at
-    if Current.project_id
-      pm = project_members.where(project_id: Current.project_id).first 
+    if Current.project_id && (pm = project_members.find_by(project_id: Current.project_id))
 
       if !pm.last_seen_at.nil?
         t = Time.now - pm.last_seen_at
