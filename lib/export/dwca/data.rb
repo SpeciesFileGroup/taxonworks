@@ -169,6 +169,9 @@ module Export::Dwca
       @data.write(content)
       @data.flush
       @data.rewind
+
+      Rails.logger.debug 'dwca_export: data written'
+
       @data
     end
 
@@ -257,6 +260,8 @@ module Export::Dwca
       extension_data += collection_objects.pluck('collection_objects.id', *co_columns)
         .flat_map{ |id, *values| ([id] * co_column_count).zip(co_csv_names, values) }
 
+      Rails.logger.debug 'dwca_export: post co extension read'
+
       ce_columns = ce_fields.keys
       ce_csv_names = ce_columns.map { |sym| ce_fields[sym] }
       ce_column_count = ce_columns.size
@@ -271,6 +276,9 @@ module Export::Dwca
         .pluck('collection_objects.id', *ce_columns)
         .flat_map{ |id, *values| ([id] * ce_column_count).zip(ce_csv_names, values) }
 
+
+      Rails.logger.debug 'dwca_export: post ce extension read'
+
       # Create hash with key: co_id, value: [[extension_name, extension_value], ...]
       # pre-fill with empty values so we have the same number of rows as the main csv, even if some rows don't have
       # data attributes
@@ -280,7 +288,6 @@ module Export::Dwca
 
       data = empty_hash.merge(data)
 
-
       # write rows to csv
       headers = CSV::Row.new(used_extensions, used_extensions, true)
 
@@ -288,6 +295,8 @@ module Export::Dwca
 
       # TODO: this is a heavy-handed hack to re-sync data
       # data.delete_if{|k,_| dwc_id_order[k].nil? }
+
+      Rails.logger.debug 'dwca_export: extension in memory, pre-sort'
 
       data.sort_by {|k, _| dwc_id_order[k]}.each do |row|
 
@@ -307,12 +316,17 @@ module Export::Dwca
         tbl << csv_row
       end
 
+      Rails.logger.debug 'dwca_export: extension in memory, post-sort'
+
       content = tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
 
       @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
       @taxonworks_extension_data.write(content)
       @taxonworks_extension_data.flush
       @taxonworks_extension_data.rewind
+
+      Rails.logger.debug 'dwca_export: taxonworks_extension_data prepared'
+
       @taxonworks_extension_data
     end
 
@@ -456,8 +470,7 @@ module Export::Dwca
 
       tbl = ::CSV::Table.new([headers])
 
-      # TODO: this is a heavy-handed hack to re-sync data
-      # data.delete_if{|k,_| dwc_id_order[k].nil? }
+      Rails.logger.debug 'dwca_export: predicate_data in memory'
 
       # TODO: order dependant pattern is fast but very brittle
       data.sort_by {|k, _| dwc_id_order[k] }.each do |row|
@@ -478,18 +491,25 @@ module Export::Dwca
         tbl << csv_row
       end
 
+      Rails.logger.debug 'dwca_export: predicate_data sorted'
+
       content = tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
 
       @predicate_data = Tempfile.new('predicate_data.tsv')
       @predicate_data.write(content)
       @predicate_data.flush
       @predicate_data.rewind
+
+      Rails.logger.debug 'dwca_export: predicate_data written'
+
       @predicate_data
     end
 
     # @return Tempfile
     def all_data
       return @all_data if @all_data
+
+      Rails.logger.debug 'dwca_export: start combining all data'
 
       @all_data = Tempfile.new('data.tsv')
 
@@ -513,6 +533,9 @@ module Export::Dwca
 
       @all_data.flush
       @all_data.rewind
+
+      Rails.logger.debug 'dwca_export: all_data written'
+
       @all_data
     end
 
@@ -708,6 +731,9 @@ module Export::Dwca
     # @return [True]
     #   close and delete all temporary files
     def cleanup
+
+      Rails.logger.debug 'dwca_export: cleanup start'
+
       zipfile.close
       zipfile.unlink
       meta.close
@@ -734,6 +760,9 @@ module Export::Dwca
 
       all_data.close
       all_data.unlink
+
+      Rails.logger.debug 'dwca_export: cleanup end'
+
       true
     end
 
