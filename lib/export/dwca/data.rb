@@ -338,7 +338,7 @@ module Export::Dwca
         .distinct
         .to_sql
 
-      ::CollectingEvent.from('(' + s + ') as collecting_events') # .joins(:data_attributes)
+      ::CollectingEvent.from('(' + s + ') as collecting_events')
     end
 
     def collection_object_attributes_query
@@ -377,7 +377,7 @@ module Export::Dwca
 
       q = q + " AND da.controlled_vocabulary_term_id IN (#{collection_object_predicate_ids.join(',')})" if collection_object_predicate_ids.any?
 
-      @collection_object_attributes ||= DataAttribute.connection.execute( q ).collect{|r| [r['attribute_subject_id'], r['predicate'], r['value']] }
+      DataAttribute.connection.execute( q ).collect{|r| [r['attribute_subject_id'], r['predicate'], r['value']] }
     end
 
     # @return Relation
@@ -414,7 +414,7 @@ module Export::Dwca
 
       q = q + " AND da.controlled_vocabulary_term_id IN (#{collecting_event_predicate_ids.join(',')})" if collecting_event_predicate_ids.any?
 
-      @collecting_event_attributes ||= DataAttribute.connection.execute( q ).collect{|r| [r['co_id'], r['predicate'], r['value']] }
+      DataAttribute.connection.execute( q ).collect{|r| [r['co_id'], r['predicate'], r['value']] }
     end
 
     def collection_objects
