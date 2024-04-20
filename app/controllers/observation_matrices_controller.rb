@@ -252,6 +252,7 @@ class ObservationMatricesController < ApplicationController
   # GET /observation_matrices/nexus_data.json
   def nexus_data
     return if !(nf = document_to_nexus(params[:nexus_document_id]))
+    return if nexus_dimensions_too_large(nf)
 
     options = nexus_import_options_params
 
@@ -265,6 +266,7 @@ class ObservationMatricesController < ApplicationController
   # POST /observation_matrices/import_nexus.json
   def import_from_nexus
     return if !(nf = document_to_nexus params[:nexus_document_id])
+    return if nexus_dimensions_too_large(nf)
 
     options = nexus_import_options_params
 
@@ -401,6 +403,16 @@ class ObservationMatricesController < ApplicationController
     end
 
     m
+  end
+
+  def nexus_dimensions_too_large(nf)
+    max_dim = 1000
+    return false if nf.taxa.size < max_dim && nf.characters.size < max_dim
+
+    render json: { errors: "Max size is #{max_dim}x#{max_dim}, this file has #{nf.taxa.size} taxa, #{nf.characters.size} characters" },
+      status: unprocessable_entity
+
+    true
   end
 
 end
