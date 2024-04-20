@@ -159,7 +159,6 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
 
-          # TODO: Are these breaking specs?!
           # Orphan DwcOccurrence
           f.delete
           l.delete
@@ -273,6 +272,44 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           a = Export::Dwca::Data.new(core_scope: q, predicate_extensions: {collecting_event_predicate_id: [p1.id] } )
 
           expect(a.collecting_event_attributes_query.to_a).to contain_exactly(d1)
+
+          a.cleanup
+        end
+
+        specify '#collecting_event_attributes match only referenced collecting events' do
+          f = Specimen.first
+          fm = Specimen.second
+          m = Specimen.third
+          ml = Specimen.fourth
+          l = Specimen.last
+
+          c1 = FactoryBot.create(:valid_collecting_event)
+          c2 = FactoryBot.create(:valid_collecting_event) # no
+          c3 = FactoryBot.create(:valid_collecting_event)
+
+          f.update!(collecting_event:  c1)
+          fm.update!(collecting_event: c1) # no
+          m.update!(collecting_event:  c2) # no
+          ml.update(collecting_event:  c3) # no
+          l.update!(collecting_event:  c3)
+
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c1, predicate: p1 )
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c3, predicate: p1 )
+          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c2, predicate: p2 ) # no
+          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c3, predicate: p2 )
+          d5 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c3, predicate: p3 ) # no
+          d5 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c1, predicate: p3 ) # no
+
+          # The scope is only two specimens
+          q = DwcOccurrence.where(dwc_occurrence_object: Specimen.where(id: [f.id, l.id])) # c1, c3
+
+          a = Export::Dwca::Data.new(core_scope: q, predicate_extensions: {collecting_event_predicate_id: [p1.id, p2.id] } )
+
+          expect(a.collecting_event_attributes).to contain_exactly(
+            [f.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d1.value ],
+            [l.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d2.value ],
+            [l.id, "TW:DataAttribute:CollectingEvent:#{p2.name}", d4.value ],
+          )
 
           a.cleanup
         end
@@ -521,7 +558,10 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             s2.update!(collecting_event: c1) # not this!
             s3.update!(collecting_event: c2)
 
-            d = Export::Dwca::Data.new(core_scope: scope.where(dwc_occurrence_object_id: [s1.id, s3.id, s2.id]), taxonworks_extensions: ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS)
+            d = Export::Dwca::Data.new(
+              core_scope: scope.where(dwc_occurrence_object_id: [s1.id, s3.id, s2.id]),
+              taxonworks_extensions: ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS
+            )
 
             s2.dwc_occurrence.delete # !!
 
@@ -531,8 +571,13 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
             z = CSV.parse(e, headers: true)
 
+            # TODO: proper ids!!
             expect(z.to_a).to eq(
-              [["TW:Internal:otu_name\tTW:Internal:collecting_event_id\tTW:Internal:elevation_precision\tTW:Internal:collection_object_id"], ["\t151\t1.0\t151"], ["aus\t155\t2.0\t155"]]
+              [
+                ["TW:Internal:otu_name\tTW:Internal:collecting_event_id\tTW:Internal:elevation_precision\tTW:Internal:collection_object_id"],
+                ["\t#{c1.id}\t1.0\t#{s1.id}"],  # 1
+                ["aus\t#{c2.id}\t2.0\t#{s3.id}"] # 5
+              ]
             )
           end
 

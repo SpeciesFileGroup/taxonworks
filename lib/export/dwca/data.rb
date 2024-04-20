@@ -261,6 +261,11 @@ module Export::Dwca
       ce_csv_names = ce_columns.map { |sym| ce_fields[sym] }
       ce_column_count = ce_columns.size
 
+      # !!
+      # i = ce_columns.index(:id)
+
+      ce_columns[ce_columns.index(:id)] = :collecting_event_id if ce_columns.index(:id)
+
       # no point using left outer join, no event means all data is nil
       extension_data += collection_objects.joins(:collecting_event)
         .pluck('collection_objects.id', *ce_columns)
@@ -274,6 +279,7 @@ module Export::Dwca
       data = extension_data.group_by(&:shift)
 
       data = empty_hash.merge(data)
+
 
       # write rows to csv
       headers = CSV::Row.new(used_extensions, used_extensions, true)
@@ -375,7 +381,7 @@ module Export::Dwca
     #     1 row per CO per DA (type) on CE
     def collecting_event_attributes
       q = "WITH relevant_collection_objects AS (
-          #{collection_objects.unscope(:order).to_sql}
+          #{collection_objects.unscope(:order).select(:id, :collecting_event_id).to_sql}
       )
 
       SELECT
@@ -389,9 +395,10 @@ module Export::Dwca
                AND da.type = 'InternalAttribute'
           LEFT JOIN relevant_collection_objects ON ce.id = relevant_collection_objects.collecting_event_id
           JOIN controlled_vocabulary_terms cvt ON cvt.id = da.controlled_vocabulary_term_id
-              AND cvt.type = 'Predicate'"
+              AND cvt.type = 'Predicate'
+      WHERE relevant_collection_objects.id IS NOT null"
 
-      q = q + " WHERE da.controlled_vocabulary_term_id IN (#{collecting_event_predicate_ids.join(',')})" if collecting_event_predicate_ids.any?
+      q = q + " AND da.controlled_vocabulary_term_id IN (#{collecting_event_predicate_ids.join(',')})" if collecting_event_predicate_ids.any?
 
       @collecting_event_attributes ||= DataAttribute.connection.execute( q ).collect{|r| [r['co_id'], r['predicate'], r['value']] }
     end
