@@ -269,6 +269,7 @@ class ObservationMatricesController < ApplicationController
     return if nexus_dimensions_too_large(nf)
 
     options = nexus_import_options_params
+    return if !nexus_options_are_sane(options)
 
     return if !(m = create_matrix_for_nexus_import(options[:matrix_name]))
 
@@ -353,7 +354,8 @@ class ObservationMatricesController < ApplicationController
 
   def nexus_import_options_params
     boolean_options = [:match_otu_to_taxonomy_name, :match_otu_to_name,
-      :match_character_to_name]
+      :match_character_to_name, :cite_otus, :cite_descriptors,
+      :cite_observations, :cite_matrix]
 
     params[:options].each { |k, v|
       if boolean_options.include? k.to_sym
@@ -361,7 +363,21 @@ class ObservationMatricesController < ApplicationController
       end
     }
 
-    params.require(:options).permit(:matrix_name, *boolean_options)
+    params.require(:options).permit(:matrix_name, :citation, *boolean_options)
+  end
+
+  def nexus_options_are_sane(options)
+    if options[:citation].blank? &&
+      (options[:cite_otus] || options[:cite_descriptors] ||
+        options[:cite_observations] || options[:cite_matrix])
+
+      render json: { errors: 'Citation option(s) checked but no source selected' },
+        status: :unprocessable_entity
+
+      return false
+    end
+
+    true
   end
 
   def document_to_nexus(doc_id)
@@ -389,9 +405,10 @@ class ObservationMatricesController < ApplicationController
 
     i = 0
     unique = ''
+    user_name = User.find(Current.user_id).name
     begin
       title = matrix_name.presence ||
-        "Converted matrix created #{Time.now.utc.to_formatted_s(:long)} by #{User.find(Current.user_id).name + unique}"
+        "Converted matrix created #{Time.now.utc.to_formatted_s(:long)} by #{user_name + unique}"
 
       m = ObservationMatrix.create!(name: title)
     rescue ActiveRecord::RecordInvalid
