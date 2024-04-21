@@ -9,16 +9,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- User estimated time tracking at the per-project level. 
+- User estimated time tracking at the per-project level 
 - Orphaned DwcOccurrence and DelayedJob job metadata to admin Health report
 
 ### Changed
 
-- Unified some methods on dwca export, refactored for speedups
+- Unified some methods on dwca export, refactored for speedups and memory
 - Updated Ruby gems
 
 ### Fixed
 
+- Dwca error from missmatched ids leading to bad sorts
 - Manage controlled vocabulary task: New button resets type [#3923]
 - Resource is spelled recource [#3922]
 

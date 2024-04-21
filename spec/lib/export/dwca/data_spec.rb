@@ -1,27 +1,5 @@
 require 'rails_helper'
 
-=begin
-  q = DwcOccurrence.where(project_id: 1)
-  d = Export::Dwca::Data.new(
-    core_scope: q,
-    predicate_extensions: {
-      collecting_event_predicate_id: [
-                           435, 436, 437, 438, 439, 440, 441, 442, 444, 445, 446, 447, 448, 449, 450, 451, 452, 453, 454, 455, 458, 459, 460, 461, 462, 463, 464, 465, 500, 501, 502, 503, 707, 708, 709, 710, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 725, 726, 727, 728, 729, 730, 731, 732, 733, 734, 735, 736, 908, 909, 910
-      ],
-      collection_object_predicate_id: [
-                           435, 436, 437, 442, 445, 447, 448, 451, 454, 456, 457, 459, 460, 463, 464, 465, 466, 475, 476, 477, 478, 479, 480, 481, 482, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 495, 496, 497, 498, 500, 501, 502, 503, 975
-      ],
-      taxonworks_extensions: [
-        :collection_object_id, :collecting_event_id, :elevation_precision, :otu_name
-      ]
-    }
-  )
-
-  # sandbox ce:         6, 7, 8, 13, 18, 19, 22, 25, 30, 31, 34, 35, 36, 71, 72, 73, 74
-  # sandbox co:         6, 7, 8, 13, 16, 18, 19, 25, 27, 28, 30, 31, 34, 35, 36, 37, 46, 47, 48, 49, 50, 51, 52, 53, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 66, 67, 68, 69, 71, 72, 73, 74, 7905
-
-=end
-
 describe Export::Dwca::Data, type: :model, group: :darwin_core do
   let(:scope) { ::DwcOccurrence.all }
 
@@ -579,6 +557,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
                 ["aus\t#{c2.id}\t2.0\t#{s3.id}"] # 5
               ]
             )
+
+            d.cleanup
           end
 
           specify '#extension_computed_fields_data' do
@@ -605,8 +585,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
               [[s1.id, 'TW:Internal:otu_name', nil], [s3.id, 'TW:Internal:otu_name', "aus"]]
             )
 
+            d.cleanup
           end
-
         end
 
         context 'exporting otu_name' do

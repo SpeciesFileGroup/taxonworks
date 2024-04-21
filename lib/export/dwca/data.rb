@@ -58,12 +58,6 @@ module Export::Dwca
     # !!! Breaks if inter-mingled with asserted distributions !!!
     attr_accessor :collection_object_ids
 
-    # @return Array
-    attr_accessor :collection_object_attributes
-
-    # @return Array
-    attr_accessor :collecting_event_attributes
-
     attr_accessor :taxonworks_extension_data
 
     # @return Array<Symbol>
@@ -266,16 +260,13 @@ module Export::Dwca
       ce_csv_names = ce_columns.map { |sym| ce_fields[sym] }
       ce_column_count = ce_columns.size
 
-      # !!
-      # i = ce_columns.index(:id)
-
+      # kludge to select correct column below
       ce_columns[ce_columns.index(:id)] = :collecting_event_id if ce_columns.index(:id)
 
       # no point using left outer join, no event means all data is nil
       extension_data += collection_objects.joins(:collecting_event)
         .pluck('collection_objects.id', *ce_columns)
         .flat_map{ |id, *values| ([id] * ce_column_count).zip(ce_csv_names, values) }
-
 
       Rails.logger.debug 'dwca_export: post ce extension read'
 
@@ -353,14 +344,6 @@ module Export::Dwca
     end
 
     def collection_object_attributes
-      #  @collection_object_attributes ||= collection_object_attributes_query
-      #    .select(
-      #      'data_attributes.id',
-      #      'data_attributes.attribute_subject_id', # CollectionObject#id
-      #      "CONCAT('TW:DataAttribute:CollectionObject:', controlled_vocabulary_terms.name) predicate",
-      #      'data_attributes.value'
-      #    ).find_each(batch_size: 10000).collect{|r| [r['attribute_subject_id'], r['predicate'], r['value']] }
-
       q = "WITH relevant_collection_objects AS (
           #{collection_objects.unscope(:order).select(:id).to_sql}
       )
