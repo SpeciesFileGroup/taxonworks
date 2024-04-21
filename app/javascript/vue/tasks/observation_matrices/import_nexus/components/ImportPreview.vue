@@ -3,7 +3,7 @@
     v-if="otus.length || descriptors.length"
     class="preview"
   >
-    <em> Linked characters or OTUs are matches with existing data. </em>
+    <em> Linked descriptors or OTUs are matches with existing data. </em>
 
     <p v-if="otus.length">
       <strong>Taxa:</strong> ({{ otus.length }})

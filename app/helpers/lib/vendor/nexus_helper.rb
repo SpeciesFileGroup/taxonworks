@@ -1,7 +1,8 @@
 module Lib::Vendor::NexusHelper
   # !! Some of the code here is run in the context of an ApplicationJob, which
   # doesn't have sessions_current_project_id or sessions_current_user_id -
-  # instead assume that Current.project_id and Current.user_id are set.
+  # instead assume that Current.project_id and Current.user_id are set by the
+  # caller.
 
   def preview_nexus_otus(nexus_file, match_otu_to_name,
     match_otu_to_taxonomy_name)
@@ -130,7 +131,7 @@ module Lib::Vendor::NexusHelper
         return false
       end
     end
-    puts Rainbow('Character states matched').orange.bold
+
     true
   end
 
@@ -168,13 +169,10 @@ module Lib::Vendor::NexusHelper
         nf.taxa.each_with_index do |o, i|
           otu = matched_otus[o.name]
           if !otu
-            puts Rainbow("Creating Otu #{o.name}").orange.bold
             otu = Otu.create!(name: o.name)
             if options[:cite_otus]
               create_citation_for(options[:citation], 'Otu', otu.id)
             end
-          else
-            puts Rainbow("Found Otu #{o.name}").orange.bold
           end
 
           new_otus << otu
@@ -205,21 +203,16 @@ module Lib::Vendor::NexusHelper
                 label: nex_state,
                 name: nf.characters[i].states[nex_state].name
               }
-              if nf.characters[i].states[nex_state].name == ''
-                puts Rainbow(' NO NAME ').orange.bold
-              end
             end
 
-            tw_d = Descriptor.create!({
+            tw_d = Descriptor::Qualitative.create!({
               name: nxs_chr.name,
-              type: 'Descriptor::Qualitative',
               character_states_attributes: new_tw_chr_states
             })
             if options[:cite_descriptors]
               create_citation_for(options[:citation], 'Descriptor', tw_d.id)
             end
 
-            puts Rainbow('Created states').orange.bold
             tw_d.character_states.each do |cs|
               new_states[i][cs.label] = cs
             end
@@ -236,10 +229,8 @@ module Lib::Vendor::NexusHelper
           y.each_with_index do |x, j| # x is a NexusFile::Coding
             x.states.each do |z|
               if z != '?'
-                # TODO: use find_or_create_by here, and move type to class name
-                o = Observation
+                o = Observation::Qualitative
                   .where(project_id: sessions_current_project_id)
-                  .where(type: 'Observation::Qualitative')
                   .find_by(
                     descriptor: new_descriptors[j],
                     observation_object: new_otus[i],
@@ -247,8 +238,7 @@ module Lib::Vendor::NexusHelper
                   )
 
                 if o.nil?
-                  Observation.create!(
-                    type: Observation::Qualitative,
+                  Observation::Qualitative.create!(
                     descriptor: new_descriptors[j],
                     observation_object: new_otus[i],
                     character_state: new_states[j][z]

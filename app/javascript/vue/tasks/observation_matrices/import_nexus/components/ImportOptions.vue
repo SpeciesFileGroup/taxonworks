@@ -3,38 +3,44 @@
     <legend>Convert</legend>
 
     <div class="field label-above">
-      <label>Matrix name (left blank will provide a timestamped default)</label>
-      <input
-        type="text"
-        class="normal-input full_width"
-        v-model="options.matrix_name"
-      />
-    </div>
-
-    <div class="field">
-      <label>match otus to db using taxonomy name</label>
-      <input
-        type="checkbox"
-        v-model="options.match_otu_to_taxonomy_name"
-      />
-    </div>
-
-    <div class="field">
-      <label>match otus to db using name</label>
-      <input
-        type="checkbox"
-        v-model="options.match_otu_to_name"
-      />
+      <label>
+        Matrix name (left blank will provide a timestamped default)
+        <input
+          type="text"
+          class="normal-input full_width"
+          v-model="options.matrix_name"
+        />
+      </label>
     </div>
 
     <div class="field">
       <label>
+        <input
+          type="checkbox"
+          v-model="options.match_otu_to_taxonomy_name"
+        />
+        match otus to db using taxonomy name
+      </label>
+    </div>
+
+    <div class="field">
+      <label>
+        <input
+          type="checkbox"
+          v-model="options.match_otu_to_name"
+        />
+        match otus to db using name
+      </label>
+    </div>
+
+    <div class="field">
+      <label>
+        <input
+          type="checkbox"
+          v-model="options.match_character_to_name"
+        />
         match characters to db using name (character states must match as well)
       </label>
-      <input
-        type="checkbox"
-        v-model="options.match_character_to_name"
-      />
     </div>
 
     <div
@@ -75,7 +81,8 @@
         {{ matrixName }}
       </a>
       is being populated by a background job. The matrix will be empty until
-      the import finishes; if the import fails the matrix will be deleted.
+      the import finishes; if the import fails the matrix will be deleted, in
+      which case the link will no longer work.
     </div>
   </fieldset>
 </template>
