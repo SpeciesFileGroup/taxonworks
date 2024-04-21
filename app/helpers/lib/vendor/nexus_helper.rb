@@ -134,6 +134,13 @@ module Lib::Vendor::NexusHelper
     true
   end
 
+  def create_citation_for(citation, model, id)
+    Citation.create!(citation.merge({
+      citation_object_type: model,
+      citation_object_id: id
+    }))
+  end
+
   def create_matrix_from_nexus(nexus_doc_id, parsed_nexus, matrix,
     uid, project_id, options)
 
@@ -142,34 +149,14 @@ module Lib::Vendor::NexusHelper
     nf = parsed_nexus
     m = matrix
 
-=begin
-      @opt = {
-          :title => false,
-          :generate_short_chr_name => false,
-          :generate_otu_name_with_ds_id => false, # data source, not dataset
-          :generate_chr_name_with_ds_id => false,
-          :match_otu_to_db_using_name => false,
-          :match_otu_to_db_using_matrix_name => false,
-          :match_chr_to_db_using_name => false,
-          :generate_chr_with_ds_ref_id => false, # data source, not dataset
-          :generate_otu_with_ds_ref_id => false,
-          :generate_tags_from_notes => false,
-          :generate_tag_with_note => false
-        }.merge!(options)
-
-      # run some checks on options
-      raise if @opt[:generate_otu_name_with_ds_id] && !DataSource.find(@opt[:generate_otu_name_with_ds_id])
-      raise if @opt[:generate_chr_name_with_ds_id] && !DataSource.find(@opt[:generate_chr_name_with_ds_id])
-      raise if @opt[:generate_chr_with_ds_ref_id] && !Ref.find(@opt[:generate_chr_with_ds_ref_id])
-      raise if @opt[:generate_otu_with_ds_ref_id] && !Ref.find(@opt[:generate_otu_with_ds_ref_id])
-      raise ':generate_tags_from_notes must be true when including note' if @opt[:generate_tag_with_note] && !@opt[:generate_tags_from_notes]
-=end
-
     new_otus = []
     new_descriptors = []
     new_states = []
 
     begin
+      if options[:cite_matrix]
+        create_citation_for(options[:citation], 'ObservationMatrix', m.id)
+      end
       # TODO: can we narrow the scope of the transaction at all?
       ObservationMatrix.transaction do
         # Find/create OTUs, add them to the matrix as we do so,
@@ -183,6 +170,9 @@ module Lib::Vendor::NexusHelper
           if !otu
             puts Rainbow("Creating Otu #{o.name}").orange.bold
             otu = Otu.create!(name: o.name)
+            if options[:cite_otus]
+              create_citation_for(options[:citation], 'Otu', otu.id)
+            end
           else
             puts Rainbow("Found Otu #{o.name}").orange.bold
           end
@@ -225,6 +215,9 @@ module Lib::Vendor::NexusHelper
               type: 'Descriptor::Qualitative',
               character_states_attributes: new_tw_chr_states
             })
+            if options[:cite_descriptors]
+              create_citation_for(options[:citation], 'Descriptor', tw_d.id)
+            end
 
             puts Rainbow('Created states').orange.bold
             tw_d.character_states.each do |cs|
@@ -260,6 +253,9 @@ module Lib::Vendor::NexusHelper
                     observation_object: new_otus[i],
                     character_state: new_states[j][z]
                   )
+                  if options[:cite_observations]
+                    create_citation_for(options[:citation], 'Observation', o.id)
+                  end
                 end
               end
             end
