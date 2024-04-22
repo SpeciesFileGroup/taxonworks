@@ -440,8 +440,8 @@ ActiveRecord::Schema.define(version: 2024_04_18_162420) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.integer "confidence_object_id", null: false
     t.string "confidence_object_type", null: false
+    t.integer "confidence_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -673,8 +673,8 @@ ActiveRecord::Schema.define(version: 2024_04_18_162420) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.integer "documentation_object_id", null: false
     t.string "documentation_object_type", null: false
+    t.integer "documentation_object_id", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -692,7 +692,7 @@ ActiveRecord::Schema.define(version: 2024_04_18_162420) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.integer "document_file_file_size", null: false
+    t.bigint "document_file_file_size", null: false
     t.datetime "document_file_updated_at", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -901,8 +901,8 @@ ActiveRecord::Schema.define(version: 2024_04_18_162420) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.integer "dwc_occurrence_object_id"
     t.string "dwc_occurrence_object_type"
+    t.integer "dwc_occurrence_object_id"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -1086,26 +1086,6 @@ ActiveRecord::Schema.define(version: 2024_04_18_162420) do
     t.index ["updated_by_id"], name: "index_georeferences_on_updated_by_id"
   end
 
-  create_table "greece", primary_key: "gid", id: :serial, force: :cascade do |t|
-    t.string "gid_3", limit: 12
-    t.string "gid_0", limit: 10
-    t.string "country", limit: 10
-    t.string "gid_1", limit: 10
-    t.string "name_1", limit: 31
-    t.string "nl_name_1", limit: 58
-    t.string "gid_2", limit: 10
-    t.string "name_2", limit: 25
-    t.string "nl_name_2", limit: 55
-    t.string "name_3", limit: 27
-    t.string "varname_3", limit: 27
-    t.string "nl_name_3", limit: 56
-    t.string "type_3", limit: 10
-    t.string "engtype_3", limit: 12
-    t.string "cc_3", limit: 10
-    t.string "hasc_3", limit: 10
-    t.geography "geomz", limit: {:srid=>4326, :type=>"multi_polygon", :has_z=>true, :geographic=>true}
-  end
-
   create_table "identifiers", id: :serial, force: :cascade do |t|
     t.string "identifier", null: false
     t.string "type", null: false
@@ -1145,7 +1125,7 @@ ActiveRecord::Schema.define(version: 2024_04_18_162420) do
     t.datetime "updated_at", null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.integer "image_file_file_size"
+    t.bigint "image_file_file_size"
     t.datetime "image_file_updated_at"
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
@@ -1260,8 +1240,8 @@ ActiveRecord::Schema.define(version: 2024_04_18_162420) do
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "loan_item_object_id"
     t.string "loan_item_object_type"
+    t.integer "loan_item_object_id"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -1290,7 +1270,7 @@ ActiveRecord::Schema.define(version: 2024_04_18_162420) do
     t.datetime "updated_at", null: false
     t.string "recipient_honorific"
     t.string "recipient_country"
-    t.text "lender_address", default: "Lender's address not provided.", null: false
+    t.text "lender_address", null: false
     t.boolean "is_gift"
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
@@ -1486,10 +1466,10 @@ ActiveRecord::Schema.define(version: 2024_04_18_162420) do
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.integer "old_object_id", null: false
     t.string "old_object_type", null: false
-    t.integer "new_object_id", null: false
+    t.integer "old_object_id", null: false
     t.string "new_object_type", null: false
+    t.integer "new_object_id", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1591,8 +1571,8 @@ ActiveRecord::Schema.define(version: 2024_04_18_162420) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.integer "pinned_object_id", null: false
     t.string "pinned_object_type", null: false
+    t.integer "pinned_object_id", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1658,7 +1638,7 @@ ActiveRecord::Schema.define(version: 2024_04_18_162420) do
     t.datetime "updated_at", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.jsonb "preferences", default: {}, null: false
+    t.jsonb "preferences", default: "{}", null: false
     t.string "api_access_token"
     t.string "data_curation_issue_tracker_url"
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
@@ -1667,8 +1647,8 @@ ActiveRecord::Schema.define(version: 2024_04_18_162420) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.integer "protocol_relationship_object_id", null: false
     t.string "protocol_relationship_object_type", null: false
+    t.integer "protocol_relationship_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1927,8 +1907,8 @@ ActiveRecord::Schema.define(version: 2024_04_18_162420) do
     t.string "boundary_finder", null: false
     t.boolean "has_border", null: false
     t.string "layout", null: false
-    t.jsonb "metadata_map", default: {}, null: false
-    t.jsonb "specimen_coordinates", default: {}, null: false
+    t.jsonb "metadata_map", default: "{}", null: false
+    t.jsonb "specimen_coordinates", default: "{}", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false

@@ -582,7 +582,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             qq = FactoryBot.create(:valid_asserted_distribution, otu: o1)
 
             expect(d.extension_computed_fields_data({otu_name: 'TW:Internal:otu_name' })).to eq(
-              [[s1.id, 'TW:Internal:otu_name', nil], [s3.id, 'TW:Internal:otu_name', "aus"]]
+              [[s3.id, 'TW:Internal:otu_name', "aus"]]
             )
 
             d.cleanup

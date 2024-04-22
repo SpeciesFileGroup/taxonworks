@@ -38,7 +38,7 @@
 #   the project ID
 #
 class TaxonDetermination < ApplicationRecord
-  acts_as_list scope: [:taxon_determination_object_id, :taxon_determination_object_type, :project_id], add_new_at: :top
+  acts_as_list scope: [:taxon_determination_object_id, :taxon_determination_object_type, :project_id], add_new_at: :top # top is 1
 
   include Housekeeping
   include Shared::Citations
