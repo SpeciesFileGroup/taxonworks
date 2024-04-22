@@ -19,7 +19,7 @@
       :klass="BIOLOGICAL_ASSOCIATION"
       lock-button
       use-session
-      @lock="lockSource = $event"
+      @lock="lock.source = $event"
     />
 
     <DisplayList
@@ -64,7 +64,7 @@
             small
           />
         </VBtn>
-        <LockComponent v-model="lockRelationship" />
+        <LockComponent v-model="lock.relationship" />
       </h3>
       <h3
         class="subtle relationship-title"
@@ -305,14 +305,16 @@ function saveAssociation() {
       )
     : BiologicalAssociation.create(payload)
 
-  saveRequest.then(({ body }) => {
-    addToList(body)
-    reset()
-    TW.workbench.alert.create(
-      'Biological association was successfully saved.',
-      'notice'
-    )
-  })
+  saveRequest
+    .then(({ body }) => {
+      addToList(body)
+      reset()
+      TW.workbench.alert.create(
+        'Biological association was successfully saved.',
+        'notice'
+      )
+    })
+    .catch(() => {})
 }
 
 function removeItem(item) {
