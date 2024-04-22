@@ -56,7 +56,7 @@ module Lib::Vendor::NexusHelper
   # and character states as nxs_char.
   def find_matching_descriptor(nxs_chr)
     descriptors = Descriptor::Qualitative
-      .where(project_id: sessions_current_project_id)
+      .where(project_id: Current.project_id)
       .where(name: nxs_chr.name)
       .order(:name, id: :desc)
 
@@ -67,7 +67,7 @@ module Lib::Vendor::NexusHelper
       # very quickly.
 
       tw_chr_states = CharacterState
-        .where(project_id: sessions_current_project_id)
+        .where(project_id: Current.project_id)
         .where(descriptor: tw_d)
 
       if same_state_names_and_labels(nxs_chr.states, tw_chr_states)
@@ -235,7 +235,7 @@ module Lib::Vendor::NexusHelper
                   )
 
                 if o.nil?
-                  Observation::Qualitative.create!(
+                  o = Observation::Qualitative.create!(
                     descriptor: new_descriptors[j],
                     observation_object: new_otus[i],
                     character_state: new_states[j][z]

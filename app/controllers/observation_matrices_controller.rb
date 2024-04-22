@@ -267,7 +267,6 @@ class ObservationMatricesController < ApplicationController
   def import_from_nexus
     return if !(nf = document_to_nexus params[:nexus_document_id])
     return if nexus_dimensions_too_large(nf)
-
     options = nexus_import_options_params
     return if !nexus_options_are_sane(options)
 
@@ -371,7 +370,9 @@ class ObservationMatricesController < ApplicationController
       end
     }
 
-    params.require(:options).permit(:matrix_name, :citation, *boolean_options)
+    params.require(:options)
+      .permit(:matrix_name, *boolean_options)
+      .permit(citation: [:source_id])
   end
 
   def nexus_options_are_sane(options)
