@@ -7,13 +7,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Quick forms: Lock buttons don't work on Biological associations.
 
 ## [0.40.4] - 2024-04-21
 
 ### Added
 
-- User estimated time tracking at the per-project level 
+- User estimated time tracking at the per-project level
 - Orphaned DwcOccurrence and DelayedJob job metadata to admin Health report
 
 ### Changed
