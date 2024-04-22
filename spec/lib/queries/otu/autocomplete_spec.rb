@@ -71,12 +71,21 @@ describe Queries::Otu::Autocomplete, type: :model do
       expect(q.api_autocomplete).to contain_exactly(o1)
     end
 
+    xspecify 'combination without otu' do
+      g1 = FactoryBot.create(:iczn_genus, name: 'Aus')
+      g2 = FactoryBot.create(:iczn_genus, name: 'Bus', parent_id: g1.parent_id)
+      g3 = FactoryBot.create(:iczn_genus, name: 'Cus', parent_id: g1.parent_id)
+      s = FactoryBot.create(:iczn_species, name: 'dus', parent_id: g1.parent_id)
+      o = Otu.create(taxon_name: s)
+      c = Combination.create(genus: g2, species: s)
 
+      s.original_genus = g3
+      s.original_species = s
+      s.save
 
-
-
-
-
+      q = Queries::Otu::Autocomplete.new('Bus dus', project_id: project_id)
+      expect(q.api_autocomplete).to contain_exactly(o1)
+    end
 
     specify '#open paren' do
       query.terms = 'Scaphoideus ('
