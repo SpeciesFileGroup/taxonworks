@@ -218,6 +218,8 @@ function processPreview({ fromItems = [], toItems = [] }) {
     ...requestItems(toItems, toPredicateId, to.value)
   ]
 
+  isUpdating.value = true
+
   makeNotificationWhenPromisesEnd(promises).then((_) => {
     isUpdating.value = false
   })
