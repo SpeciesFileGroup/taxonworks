@@ -7,9 +7,7 @@ module Vendor::NexusParser
 
   # Can raise NexusParser::ParseError
   def self.document_to_nexus(doc)
-    # Remove any cache buster.
-    fname = doc.document_file.url.split('?').first
-    f = File.read(Rails.root.join('public', *fname.split('/')))
+    f = File.read(doc.document_file.path)
     nf = parse_nexus_file(f)
 
     assign_gap_names(nf)
