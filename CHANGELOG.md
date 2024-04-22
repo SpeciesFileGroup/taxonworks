@@ -11,6 +11,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Quick forms: Lock buttons don't work on Biological associations.
 
+### Fixed
+
+- Week in review task
+
 ## [0.40.4] - 2024-04-21
 
 ### Added
