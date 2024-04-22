@@ -8,7 +8,7 @@ class ImportNexusJob < ApplicationJob
 
     nf = document_to_nexus(nexus_doc_id, matrix)
 
-    create_matrix_from_nexus(
+    populate_matrix_with_nexus(
       nexus_doc_id,
       nf,
       matrix,

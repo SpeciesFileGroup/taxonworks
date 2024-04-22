@@ -288,7 +288,7 @@ class ObservationMatricesController < ApplicationController
     )
 #=end
 =begin
-    helpers.create_matrix_from_nexus(
+    helpers.populate_matrix_with_nexus(
       params[:nexus_document_id],
       nf,
       m,

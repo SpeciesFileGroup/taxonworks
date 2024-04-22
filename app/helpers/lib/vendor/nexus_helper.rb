@@ -142,7 +142,7 @@ module Lib::Vendor::NexusHelper
     }))
   end
 
-  def create_matrix_from_nexus(nexus_doc_id, parsed_nexus, matrix, options)
+  def populate_matrix_with_nexus(nexus_doc_id, parsed_nexus, matrix, options)
 
     nf = parsed_nexus
     m = matrix
