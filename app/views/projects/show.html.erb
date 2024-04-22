@@ -25,8 +25,9 @@
       <table>
         <tr>
           <th> Name </th>
+          <th> Last seen in project </th>
+          <th> Time in project </th>
           <th> Member since </th>
-          <th> Last seen </th>
           <th> Project administrator? </th>
           <th> </th>
         </tr>
@@ -34,15 +35,17 @@
         <tbody>
           <% @project.project_members.includes(:user).order('users.name').each do |pm| -%>
             <tr>
-              <td> 
+              <td>
                 <% if is_administrator? %>
-                  <%= link_to(pm.user.name, user_path(pm.user)) -%> 
+                  <%= link_to(pm.user.name, user_path(pm.user)) -%>
                 <% else %>
-                  <%= pm.user.name -%> 
+                  <%= pm.user.name -%>
                 <% end %>
               </td>
+              <td> <%= user_last_seen_in_project_tag(pm) -%> </td>
+              <td> <%= user_time_active_in_project_tag(pm) -%> </td>
               <td> <%= time_ago_in_words(pm.created_at) -%> ago </td>
-              <td> <%= user_last_seen_tag(pm.user) -%> </td>
+
               <td>
                 <%= form_for(pm) do |f| -%>
                   <div class="actions">

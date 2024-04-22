@@ -636,7 +636,8 @@ GEM
     timecop (0.9.8)
     timeliness (0.4.5)
     timeout (0.4.1)
-    tins (1.32.1)
+    tins (1.33.0)
+      bigdecimal
       sync
     treetop (1.6.12)
       polyglot (~> 0.3)

@@ -7,17 +7,23 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.40.4] - 2024-04-21
+
 ### Added
 
+- User estimated time tracking at the per-project level 
 - Orphaned DwcOccurrence and DelayedJob job metadata to admin Health report
 
 ### Changed
 
-- Unified some methods on dwca export, refactored for speedups
+- Unified some methods on dwca export, refactored for speedups and memory
 - Updated Ruby gems
 
 ### Fixed
 
+- Dwca error from missmatched ids leading to bad sorts
 - Manage controlled vocabulary task: New button resets type [#3923]
 - Resource is spelled recource [#3922]
 
@@ -4522,7 +4528,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.4...development
+[0.40.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.3...v0.40.4
 [0.40.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.2...v0.40.3
 [0.40.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.1...v0.40.2
 [0.40.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.0...v0.40.1
