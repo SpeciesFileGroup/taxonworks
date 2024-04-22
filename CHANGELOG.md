@@ -9,6 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+### Fixed
+
+- Week in review task
+
 ## [0.40.4] - 2024-04-21
 
 ### Added
