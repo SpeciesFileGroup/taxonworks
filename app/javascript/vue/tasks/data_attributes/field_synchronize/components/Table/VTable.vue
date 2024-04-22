@@ -282,6 +282,8 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import EditColumn from './EditColumn.vue'
 
+const MAX_RECORDS_WITHOUT_CONFIRMATION = 10
+
 const props = defineProps({
   attributes: {
     type: Array,
@@ -355,16 +357,18 @@ async function updateAll() {
     })
   })
 
+  const total = fromItems.length + toItems.length
+
   const opts = {
     title: 'Mass update',
-    message: `This operation will update ${
-      fromItems.length + toItems.length
-    } record(s). Are you sure you want to proceed?`,
+    message: `This operation will update ${total} record(s). Are you sure you want to proceed?`,
     confirmationWord: 'UPDATE',
     typeButton: 'submit'
   }
 
-  const ok = await confirmationRef.value.show(opts)
+  const ok =
+    total <= MAX_RECORDS_WITHOUT_CONFIRMATION ||
+    (await confirmationRef.value.show(opts))
 
   if (ok) {
     emit('update:preview', { toItems, fromItems })

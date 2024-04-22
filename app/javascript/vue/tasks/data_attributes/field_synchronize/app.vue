@@ -298,6 +298,10 @@ watch(selectedAttributes, (newVal) => {
   }
 })
 
+watch(per, () => {
+  loadPage(1)
+})
+
 function saveDataAttribute({ id, value, objectId, predicateId, uuid }) {
   const objectItem = list.value.find((item) => item.id === objectId)
   const predicates = objectItem.dataAttributes[predicateId]
@@ -473,6 +477,7 @@ onBeforeMount(() => {
 
 async function loadPage(page) {
   isLoading.value = true
+  currentPage.value = page
 
   await loadPredicates({
     [queryParam.value]: {
