@@ -294,6 +294,7 @@ resources :dwc_occurrences, only: [:create] do
     get 'status', defaults: {format: :json}
     get 'collector_id_metadata', defaults: {format: :json}
     get 'download'
+    post 'sweep', as: 'sweep_stale' # TODO: ultimately should not be required
   end
 end
 
@@ -588,6 +589,7 @@ resources :otus do
     get :coordinate, defaults: {format: :json}
 
     get 'inventory/distribution', action: :distribution, defaults: {format: :json}
+    get 'inventory/taxonomy', action: :api_taxonomy_inventory, as: :taxonomy_inventory
   end
 
 end

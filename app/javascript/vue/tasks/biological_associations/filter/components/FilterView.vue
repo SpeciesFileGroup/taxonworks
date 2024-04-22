@@ -41,6 +41,7 @@
     :param="param"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -57,6 +58,7 @@ import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
 import FacetBiologicalProperty from '@/components/Filter/Facets/BiologicalAssociation/FacetBiologicalProperty.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import { OTU, COLLECTION_OBJECT } from '@/constants/index.js'
 import { computed } from 'vue'
 

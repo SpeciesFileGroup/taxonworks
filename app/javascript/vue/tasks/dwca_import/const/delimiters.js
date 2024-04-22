@@ -3,7 +3,7 @@ import { FILE_TYPE } from './filetypes'
 export const FIELD_DELIMITER = {
   Tab: '\t',
   Comma: ',',
-  Semicolor: ';',
+  Semicolon: ';',
   Space: ' ',
   Other: 'other'
 }

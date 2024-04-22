@@ -56,6 +56,7 @@ gem 'gpx', github: 'LocoDelAssembly/gpx', branch: 'ruby3'
 # API/controllers
 gem 'jbuilder', '~> 2.7'
 gem 'responders', '~> 3.0' # Used?!
+gem 'addressable', '~> 2.8'
 
 # Email
 gem 'exception_notification', '~> 4.4'

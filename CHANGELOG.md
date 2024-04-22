@@ -7,18 +7,72 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- User estimated time tracking at the per-project level 
+- Orphaned DwcOccurrence and DelayedJob job metadata to admin Health report
+
+### Changed
+
+- Unified some methods on dwca export, refactored for speedups and memory
+- Updated Ruby gems
+
+### Fixed
+
+- Dwca error from missmatched ids leading to bad sorts
+- Manage controlled vocabulary task: New button resets type [#3923]
+- Resource is spelled recource [#3922]
+
+[#3922]: https://github.com/SpeciesFileGroup/taxonworks/issues/3922
+[#3923]: https://github.com/SpeciesFileGroup/taxonworks/issues/3923
+
+## [0.40.3] - 2024-04-14
+
+### Changed
+
+- Browse OTU: Replace descendants endpoint for the same used on TaxonPages. Now this panel is available for all ranks
+- Bundle/gem update
+
+### Fixed
+
+- 2 issues with taxon names autocomplete (internal and api/v1)
+- Memoization in dwca export
+
+## [0.40.2] - 2024-04-09
+
+### Added
+
+- "Venn" factets to filter- logical operations on filter results [#3908]
+- Sort column on project vocabulary task [#3915]
+
+### Fixed
+
+- New collecting event: It tries to save the label even if it is empty
+- Spatial summary return to filter with empty cached level fields [#3907]
+- Comprehensive form: Sometimes Attributes are not cleaned when new collection object is created [#3910]
+- DwC importer crashing when uploading files with CSV extension.
+- DwC importer not honouring field and string delimiters when processing headers
+- DwC importing wrongly allowing unreadable files to be staged
+
+### Changed
+
+- Updated Ruby gems.
+
+[#3908]: https://github.com/SpeciesFileGroup/taxonworks/issues/3908
+[#3907]: https://github.com/SpeciesFileGroup/taxonworks/issues/3907
+[#3910]: https://github.com/SpeciesFileGroup/taxonworks/issues/3910
+[#3915]: https://github.com/SpeciesFileGroup/taxonworks/issues/3915
 
 ## [0.40.1] - 2024-04-02
 
 ### Added
 
 - Some more quality-of-life changes to Leads/keys
-- Spatial summary report for CollectingEvent filter 
+- Spatial summary report for CollectingEvent filter
 - Geographic Area radial navigator links to associated filters
 - Radial nomenclature: verbatim_author slice [#3896]
 
-#### Changed
+### Changed
 
 - Gems updated
 
@@ -4469,7 +4523,9 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.3...development
+[0.40.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.2...v0.40.3
+[0.40.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.1...v0.40.2
 [0.40.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.0...v0.40.1
 [0.40.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.38.3...v0.39.0

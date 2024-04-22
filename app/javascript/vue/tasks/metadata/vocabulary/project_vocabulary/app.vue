@@ -26,7 +26,7 @@
       >
         <TableWords
           class="full_width"
-          :list="words"
+          v-model="words"
           @select="openTask"
         />
       </div>

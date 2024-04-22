@@ -1,5 +1,18 @@
 module Queries
 
+  def self.venn(a_query, b_query, mode)
+    case mode
+    when :a
+      except(a_query, b_query)
+    when :b
+      except(b_query, a_query)
+    when :ab
+      intersect(a_query, [b_query])
+    else
+      raise
+    end
+  end
+
   def self.intersect(target, queries)
 
     table = target.name.tableize

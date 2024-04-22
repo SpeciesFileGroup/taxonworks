@@ -3,6 +3,7 @@
     <label v-html="predicateObject.object_tag" />
     <autocomplete
       v-model="dataAttribute.value"
+      ref="autocompleteRef"
       :url="`/data_attributes/value_autocomplete`"
       :add-params="{
         predicate_id: predicateObject.id
@@ -49,6 +50,7 @@ const props = defineProps({
 const emit = defineEmits(['onUpdate'])
 
 const dataAttribute = ref(makeDataAttribute())
+const autocompleteRef = ref()
 
 watch(
   () => props.existing,
@@ -95,4 +97,13 @@ function updatePredicate() {
     emit('onUpdate', dataAttribute.value)
   }
 }
+
+function reset() {
+  dataAttribute.value = makeDataAttribute()
+  autocompleteRef.value?.cleanInput()
+}
+
+defineExpose({
+  reset
+})
 </script>

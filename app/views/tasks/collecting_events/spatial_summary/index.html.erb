@@ -48,7 +48,12 @@ Total: <%= t = @collecting_events.all.count %> <%= link_to('re-filter', filter_c
             <tr>
               <td> <%= n %> </td>
               <td> <%= @collecting_events.all.where(a => n).count %> </td>
-              <td> <%= link_to('filter', filter_collecting_events_task_path( @collecting_events.params.merge(a => n)), method: :post) %>
+
+              <% if n.blank? %>
+                <td> <%= link_to('filter', filter_collecting_events_task_path( @collecting_events.params.merge(no_value_attribute: a )), method: :post) %>
+              <% else %>
+                <td> <%= link_to('filter', filter_collecting_events_task_path( @collecting_events.params.merge(a => n)), method: :post) %>
+              <% end %>
             </tr>
 
           <% end %>

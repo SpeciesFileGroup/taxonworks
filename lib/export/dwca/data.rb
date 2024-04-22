@@ -2,6 +2,11 @@ require 'zip'
 
 module Export::Dwca
 
+  # !!
+  # !! This export does not support AssertedDistribution data at the moment.  While those data are indexed,
+  # !! if they are in the `core_scope` they will almost certainly cause problems or be ignored.
+  # !!
+  #
   # Wrapper to build DWCA zipfiles for a specific project.
   # See tasks/accesssions/report/dwc_controller.rb for use.
   #
@@ -49,15 +54,9 @@ module Export::Dwca
     attr_accessor :data_predicate_ids
 
     # @return Array
-    #   ordered in the order they will be placed in the file
-    #   !!! Breaks if inter-mingled with asserted distributions !!!
+    # ordered in the order they will be placed in the file
+    # !!! Breaks if inter-mingled with asserted distributions !!!
     attr_accessor :collection_object_ids
-
-    # @return Array
-    attr_accessor :collection_object_attributes
-
-    # @return Array
-    attr_accessor :collecting_event_attributes
 
     attr_accessor :taxonworks_extension_data
 
@@ -66,6 +65,10 @@ module Export::Dwca
 
     # A Tempfile, core records and predicate data (and maybe more in future) joined together in one file
     attr_accessor :all_data
+
+    # TODO: fails when we get to AssertedDistribution
+    #  A lookup with the id pointing to the position
+    attr_accessor :dwc_id_order
 
     # @param [Array<Symbol>] taxonworks_extensions List of methods to perform on each CO
     def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: [])
@@ -95,6 +98,14 @@ module Export::Dwca
       end
     end
 
+    def collection_object_predicate_ids
+      @data_predicate_ids[:collection_object_predicate_id]
+    end
+
+    def collecting_event_predicate_ids
+      @data_predicate_ids[:collecting_event_predicate_id]
+    end
+
     def biological_associations_extension
       return nil unless @biological_associations_extension.present?
       if @biological_associations_extension.kind_of?(String)
@@ -115,7 +126,7 @@ module Export::Dwca
     end
 
     def total
-      @total ||= core_scope.size
+      @total ||= core_scope.unscope(:order).size
     end
 
     # @return [CSV]
@@ -152,11 +163,46 @@ module Export::Dwca
       @data.write(content)
       @data.flush
       @data.rewind
+
+      Rails.logger.debug 'dwca_export: data written'
+
       @data
     end
 
+    # Get order of ids that matches core records so we can align with csv
+    # @return Hash
+    # zero! Like  {1=>0, 2=>1, 3=>2, 4=>3, 5=>4}
+    def dwc_id_order
+      @dwc_id_order ||= collection_object_ids.map.with_index.to_h
+    end
+
+    # TODO Breaks when AssertedDistribution is added
     def collection_object_ids
-      @collection_object_ids ||= core_scope.select("(CASE dwc_occurrence_object_type WHEN 'CollectionObject' THEN dwc_occurrence_object_id ELSE null END) AS co_id").map{|a| a['co_id']}
+      @collection_object_ids ||= core_scope.where(dwc_occurrence_object_type: 'CollectionObject').pluck(:dwc_occurrence_object_id)
+    end
+
+    # TODO: return, or optimize to this when ::CollectionObject::EXTENSION_COMPUTED_FIELDS.size > 1
+    # def extension_computed_fields_data(methods)
+    #   d = []
+    #   collection_objects.find_each do |object|
+    #     methods.each_pair { |method, name| d  << [object.id, name, object.send(method)] }
+    #   end
+    #   d
+    # end
+    #
+    # !! This will have to be reverted to above when > 1 EXTENSION field is present
+    def extension_computed_fields_data(methods)
+      return [] if methods.empty?
+
+      a = "TW:Internal:otu_name".freeze
+
+      n = "COALESCE( otus.name, TRIM(CONCAT(cached, ' ', cached_author_year))) as otu_name"
+
+      v = collection_objects.left_joins(otu: [:taxon_name])
+        .select("collection_objects.id, #{n}")
+        .find_each(batch_size: 10000)
+        .collect{|r| [r.id, a, r['otu_name'].presence] }
+      v
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -171,10 +217,12 @@ module Export::Dwca
       ce_fields = {}
       co_fields = {}
 
-      # select valid methods, generate frozen name string ahead of time
+      # Select valid methods, generate frozen name string ahead of time
       # add TW prefix to names
-      @taxonworks_extension_methods.each do |sym|
+      taxonworks_extension_methods.each do |sym|
+
         csv_header_name = ('TW:Internal:' + sym.name).freeze
+
         if (method = ::CollectionObject::EXTENSION_COMPUTED_FIELDS[sym])
           methods[method] = csv_header_name
         elsif (column_name = ::CollectionObject::EXTENSION_CE_FIELDS[sym])
@@ -194,27 +242,36 @@ module Export::Dwca
 
       extension_data = []
 
-      collection_objects.find_each do |object|
-        methods.each_pair { |method, name| extension_data << [object.id, name, object.send(method)] }
-      end
+      extension_data += extension_computed_fields_data(methods)
 
       # extract to ensure consistent order
       co_columns = co_fields.keys
       co_csv_names = co_columns.map { |sym| co_fields[sym] }
       co_column_count = co_columns.size
+
+      # TODO: we're replicating this to get ids as well in `collection_object_ids` so somewhat redundant
       # get all CO fields in one query, then split into triplets of [id, CSV column name, value]
-      extension_data += collection_objects.pluck(:id, *co_columns)
-                                          .flat_map { |id, *values| ([id] * co_column_count).zip(co_csv_names, values) }
+      extension_data += collection_objects.pluck('collection_objects.id', *co_columns)
+        .flat_map{ |id, *values| ([id] * co_column_count).zip(co_csv_names, values) }
+
+      Rails.logger.debug 'dwca_export: post co extension read'
 
       ce_columns = ce_fields.keys
       ce_csv_names = ce_columns.map { |sym| ce_fields[sym] }
       ce_column_count = ce_columns.size
-      extension_data += collection_objects.joins(:collecting_event) # no point using left outer join, no event means all data is nil
-                                          .pluck(:id, *ce_columns)
-                                          .flat_map { |id, *values| ([id] * ce_column_count).zip(ce_csv_names, values) }
+
+      # kludge to select correct column below
+      ce_columns[ce_columns.index(:id)] = :collecting_event_id if ce_columns.index(:id)
+
+      # no point using left outer join, no event means all data is nil
+      extension_data += collection_objects.joins(:collecting_event)
+        .pluck('collection_objects.id', *ce_columns)
+        .flat_map{ |id, *values| ([id] * ce_column_count).zip(ce_csv_names, values) }
+
+      Rails.logger.debug 'dwca_export: post ce extension read'
 
       # Create hash with key: co_id, value: [[extension_name, extension_value], ...]
-      # prefill with empty values so we have the same number of rows as the main csv, even if some rows don't have
+      # pre-fill with empty values so we have the same number of rows as the main csv, even if some rows don't have
       # data attributes
       empty_hash = collection_object_ids.index_with { |_| []}
 
@@ -227,10 +284,13 @@ module Export::Dwca
 
       tbl = CSV::Table.new([headers])
 
-      # Get order of ids that matches core records so we can align with csv
-      dwc_id_order = collection_object_ids.map.with_index.to_h
+      # TODO: this is a heavy-handed hack to re-sync data
+      # data.delete_if{|k,_| dwc_id_order[k].nil? }
+
+      Rails.logger.debug 'dwca_export: extension in memory, pre-sort'
 
       data.sort_by {|k, _| dwc_id_order[k]}.each do |row|
+
         # remove collection object id, select "value" from hash conversion
         row = row[1]
 
@@ -247,90 +307,118 @@ module Export::Dwca
         tbl << csv_row
       end
 
+      Rails.logger.debug 'dwca_export: extension in memory, post-sort'
+
       content = tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
 
       @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
       @taxonworks_extension_data.write(content)
       @taxonworks_extension_data.flush
       @taxonworks_extension_data.rewind
+
+      Rails.logger.debug 'dwca_export: taxonworks_extension_data prepared'
+
       @taxonworks_extension_data
     end
 
     # rubocop:enable Metrics/MethodLength
 
-    # def asserted_distributions
-    #   AssertedDistribution.joins(:dwc_occurrence).where(dwc_occurrence: core_scope)
-    # end
-
     def collecting_events
-      CollectingEvent.joins(:collection_objects, :data_attributes).where(collection_objects:)
-    end
-
-    def collection_object_attributes_query
-      @collection_object_attributes ||= InternalAttribute
-         .joins(:predicate)
-         .where(attribute_subject: collection_objects)
-    end
-
-    def collection_object_attributes
-      collection_object_attributes_query
-      .select(
-          'data_attributes.attribute_subject_id', # CollectionObject#id
-          "CONCAT('TW:DataAttribute:CollectionObject:', controlled_vocabulary_terms.name) predicate",
-          'data_attributes.value'
-        ).collect{|r| [r['attribute_subject_id'], r['predicate'], r['value']] }
-    end
-
-    # @return Relation
-    #   the uniqe attributes derived from CollectingEvents
-    def collecting_event_attributes_query
-
-      s = 'WITH touched_collection_objects AS (' + collection_objects.to_sql + ') ' + ::InternalAttribute
-        .joins("JOIN collecting_events on data_attributes.attribute_subject_id = collecting_events.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
-        .joins('JOIN touched_collection_objects as tco1 on tco1.collecting_event_id = collecting_events.id')
+      s = 'WITH co_scoped AS (' + collection_objects.unscope(:order).select(:id, :collecting_event_id).to_sql + ') ' + ::CollectingEvent
+        .joins('JOIN co_scoped as co_scoped1 on co_scoped1.collecting_event_id = collecting_events.id')
         .distinct
         .to_sql
 
+      ::CollectingEvent.from('(' + s + ') as collecting_events')
+    end
+
+    def collection_object_attributes_query
+      s = 'WITH touched_collection_objects AS (' + collection_objects.unscope(:order).select(:id).to_sql + ') ' + ::InternalAttribute
+        .joins("JOIN touched_collection_objects as tco1 on data_attributes.attribute_subject_id = tco1.id AND data_attributes.attribute_subject_type = 'CollectionObject'")
+        .to_sql
+
+      ::InternalAttribute
+        .joins(:predicate)
+        .where(controlled_vocabulary_term_id: collection_object_predicate_ids)
+        .from('(' + s + ') as data_attributes')
+    end
+
+    def collection_object_attributes
+      q = "WITH relevant_collection_objects AS (
+          #{collection_objects.unscope(:order).select(:id).to_sql}
+      )
+      SELECT da.id, da.attribute_subject_id,
+             CONCAT('TW:DataAttribute:CollectionObject:', cvt.name) AS predicate,
+             da.value,
+             da.controlled_vocabulary_term_id
+      FROM data_attributes da
+      JOIN relevant_collection_objects rco ON da.attribute_subject_id = rco.id
+                                           AND da.attribute_subject_type = 'CollectionObject'
+      JOIN controlled_vocabulary_terms cvt ON cvt.id = da.controlled_vocabulary_term_id
+                                           AND cvt.type = 'Predicate'
+      WHERE da.type = 'InternalAttribute'"
+
+      q = q + " AND da.controlled_vocabulary_term_id IN (#{collection_object_predicate_ids.join(',')})" if collection_object_predicate_ids.any?
+
+      DataAttribute.connection.execute( q ).collect{|r| [r['attribute_subject_id'], r['predicate'], r['value']] }
+    end
+
+    # @return Relation
+    #   the unique attributes derived from CollectingEvents
+    def collecting_event_attributes_query
+      s = 'WITH touched_collecting_events AS (' + collecting_events.to_sql + ') ' + ::InternalAttribute
+        .joins("JOIN touched_collecting_events as tce1 on data_attributes.attribute_subject_id = tce1.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
+        .where(controlled_vocabulary_term_id: collecting_event_predicate_ids)
+        .to_sql
+
       ::InternalAttribute.from('(' + s + ') as data_attributes')
-      # .joins(:predicate)
-      # .joins("JOIN collecting_events on data_attributes.attribute_subject_id = collecting_events.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
-      # .joins('JOIN collection_objects on collection_objects.collecting_event_id = collecting_events.id')
     end
 
     #   @return Array
     #     1 row per CO per DA (type) on CE
     def collecting_event_attributes
+      q = "WITH relevant_collection_objects AS (
+          #{collection_objects.unscope(:order).select(:id, :collecting_event_id).to_sql}
+      )
 
-      return [] if !collecting_event_attributes_query.any?
+      SELECT
+          relevant_collection_objects.id AS co_id,
+          CONCAT('TW:DataAttribute:CollectingEvent:', cvt.name) AS predicate,
+          da.value
+      FROM
+          data_attributes da
+          JOIN collecting_events ce ON ce.id = da.attribute_subject_id
+               AND da.attribute_subject_type = 'CollectingEvent'
+               AND da.type = 'InternalAttribute'
+          LEFT JOIN relevant_collection_objects ON ce.id = relevant_collection_objects.collecting_event_id
+          JOIN controlled_vocabulary_terms cvt ON cvt.id = da.controlled_vocabulary_term_id
+              AND cvt.type = 'Predicate'
+      WHERE relevant_collection_objects.id IS NOT null"
 
-      a = collection_objects.left_joins(collecting_event: [internal_attributes: [:predicate]] )
-        .where("(data_attributes.id IN (#{collecting_event_attributes_query.pluck(:id).join(',')}))") # mmmarg, how to do this with join
-        .select('collection_objects.id', "CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate", 'data_attributes.value')
+      q = q + " AND da.controlled_vocabulary_term_id IN (#{collecting_event_predicate_ids.join(',')})" if collecting_event_predicate_ids.any?
 
-      # TODO: head scratch and get this to work with a join/CTE
-      #  s = 'WITH target_data_attributes AS (' + collecting_event_attributes_query.to_sql + ') ' +
-      #   collection_objects.left_joins(collecting_event: [internal_attributes: [:predicate]] )
-      #    .joins('JOIN target_data_attributes tda on tda.id = data_attributes.id')
-      #    .select('collection_objects.id co_id', "CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate", 'data_attributes.value')
-      #    .to_sql
-      #  b = ::CollectionObject.from('(' + s + ') as collection_objects')
-
-      @collecting_event_attributes ||= a.collect{|r| [r['id'], r['predicate'], r['value']] }
+      DataAttribute.connection.execute( q ).collect{|r| [r['co_id'], r['predicate'], r['value']] }
     end
 
     def collection_objects
-      CollectionObject.joins(:dwc_occurrence).where(dwc_occurrence: core_scope).order('dwc_occurrences.id')
+      s = 'WITH dwc_scoped AS (' + core_scope.unscope(:order).select('dwc_occurrences.dwc_occurrence_object_id, dwc_occurrences.dwc_occurrence_object_type').to_sql + ') ' + ::CollectionObject
+        .joins("JOIN dwc_scoped as dwc_scoped1 on dwc_scoped1.dwc_occurrence_object_id = collection_objects.id and dwc_scoped1.dwc_occurrence_object_type = 'CollectionObject'")
+        .select(:id, :collecting_event_id, :type)
+        .to_sql
+
+      ::CollectionObject.from('(' + s + ') as collection_objects')
     end
 
     def used_collection_object_predicates
       collection_object_attributes_query.select("CONCAT('TW:DataAttribute:CollectionObject:', controlled_vocabulary_terms.name) predicate_name")
-      .distinct
-      .collect{|r| r['predicate_name']}
+        .distinct
+        .collect{|r| r['predicate_name']}
     end
 
     def used_collecting_event_predicates
-      collecting_event_attributes_query.joins(:predicate).select("CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate_name").distinct
-      .collect{|r| r['predicate_name']}
+      collecting_event_attributes_query.joins(:predicate).select("CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate_name")
+        .distinct
+        .collect{|r| r['predicate_name']}
     end
 
     # @return [Array]
@@ -350,9 +438,11 @@ module Export::Dwca
       end
 
       # Create hash with key: co_id, value [[predicate_name, predicate_value], ...]
-      # prefill with empty values so we have the same number of rows as the main csv, even if some rows don't have
+      # pre-fill with empty values so we have the same number of rows as the main csv, even if some rows don't have
       # data attributes
       empty_hash = collection_object_ids.index_with { |_| []}
+
+      # logger.debug 'Pre-shift'
 
       data = (collection_object_attributes + collecting_event_attributes).group_by(&:shift) # very cool
 
@@ -363,15 +453,16 @@ module Export::Dwca
 
       tbl = ::CSV::Table.new([headers])
 
-      # Get order of ids that matches core records so we can align with csv
-      dwc_id_order = collection_object_ids.map.with_index.to_h
+      Rails.logger.debug 'dwca_export: predicate_data in memory'
 
-      data.sort_by {|k, _| dwc_id_order[k]}.each do |row|
+      # TODO: order dependant pattern is fast but very brittle
+      data.sort_by {|k, _| dwc_id_order[k] }.each do |row|
+
         # remove collection object id, select "value" from hash conversion
         row = row[1]
 
         # Create empty row, this way we can insert columns by their headers, not by order
-        csv_row = ::CSV::Row.new(used_predicates, [])
+        csv_row = CSV::Row.new(used_predicates, [])
 
         # Add each [header, value] pair to the row
         row.each do |column_pair|
@@ -383,18 +474,25 @@ module Export::Dwca
         tbl << csv_row
       end
 
+      Rails.logger.debug 'dwca_export: predicate_data sorted'
+
       content = tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
 
       @predicate_data = Tempfile.new('predicate_data.tsv')
       @predicate_data.write(content)
       @predicate_data.flush
       @predicate_data.rewind
+
+      Rails.logger.debug 'dwca_export: predicate_data written'
+
       @predicate_data
     end
 
     # @return Tempfile
     def all_data
       return @all_data if @all_data
+
+      Rails.logger.debug 'dwca_export: start combining all data'
 
       @all_data = Tempfile.new('data.tsv')
 
@@ -418,6 +516,9 @@ module Export::Dwca
 
       @all_data.flush
       @all_data.rewind
+
+      Rails.logger.debug 'dwca_export: all_data written'
+
       @all_data
     end
 
@@ -613,6 +714,9 @@ module Export::Dwca
     # @return [True]
     #   close and delete all temporary files
     def cleanup
+
+      Rails.logger.debug 'dwca_export: cleanup start'
+
       zipfile.close
       zipfile.unlink
       meta.close
@@ -639,6 +743,9 @@ module Export::Dwca
 
       all_data.close
       all_data.unlink
+
+      Rails.logger.debug 'dwca_export: cleanup end'
+
       true
     end
 
