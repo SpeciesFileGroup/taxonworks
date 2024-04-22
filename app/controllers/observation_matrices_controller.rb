@@ -278,15 +278,23 @@ class ObservationMatricesController < ApplicationController
     matrix_id = m.id
     matrix_name = m.name
 
-    #ImportNexusJob.perform_later(
+#=begin
+    ImportNexusJob.perform_later(
+      params[:nexus_document_id],
+      m,
+      options,
+      sessions_current_user_id,
+      sessions_current_project_id,
+    )
+#=end
+=begin
     helpers.create_matrix_from_nexus(
       params[:nexus_document_id],
       nf,
       m,
-      sessions_current_user_id,
-      sessions_current_project_id,
       options
     )
+=end
 
     render json: { matrix_id:, matrix_name: }
   end

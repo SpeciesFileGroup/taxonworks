@@ -142,11 +142,8 @@ module Lib::Vendor::NexusHelper
     }))
   end
 
-  def create_matrix_from_nexus(nexus_doc_id, parsed_nexus, matrix,
-    uid, project_id, options)
+  def create_matrix_from_nexus(nexus_doc_id, parsed_nexus, matrix, options)
 
-    Current.user_id = uid
-    Current.project_id = project_id
     nf = parsed_nexus
     m = matrix
 
@@ -230,7 +227,7 @@ module Lib::Vendor::NexusHelper
             x.states.each do |z|
               if z != '?'
                 o = Observation::Qualitative
-                  .where(project_id: sessions_current_project_id)
+                  .where(project_id: Current.project_id)
                   .find_by(
                     descriptor: new_descriptors[j],
                     observation_object: new_otus[i],
