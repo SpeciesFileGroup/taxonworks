@@ -202,10 +202,10 @@ module Lib::Vendor::NexusHelper
               }
             end
 
-            tw_d = Descriptor::Qualitative.create!({
-              name: nxs_chr.name,
-              character_states_attributes: new_tw_chr_states
-            })
+            tw_d = Descriptor::Qualitative.create!(name: nxs_chr.name)
+            new_tw_chr_states.each { |cs|
+              CharacterState.create!(cs.merge({ descriptor: tw_d }))
+            }
             if options[:cite_descriptors]
               create_citation_for(options[:citation], 'Descriptor', tw_d.id)
             end
