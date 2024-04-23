@@ -14,7 +14,7 @@
             None
           </option>
           <option
-            v-for="attribute in attributes"
+            v-for="attribute in isExtract ? editableAttributes : attributes"
             :key="attribute"
           >
             {{ attribute }}
@@ -40,9 +40,7 @@
             None
           </option>
           <option
-            v-for="attribute in attributes.filter(
-              (item) => !toExclude.includes(item)
-            )"
+            v-for="attribute in editableAttributes"
             :key="attribute"
           >
             {{ attribute }}
@@ -74,7 +72,7 @@
             :key="key"
             color="primary"
             :disabled="
-              patterns.some((item) => item.mode === PATTERN_TYPES.Extract) ||
+              isExtract ||
               (value === PATTERN_TYPES.Extract &&
                 (toExclude.includes(to) || toExclude.includes(from)))
             "
@@ -95,8 +93,9 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import { randomUUID } from '@/helpers'
 import { PATTERN_TYPES } from '../../constants'
+import { computed } from 'vue'
 
-defineProps({
+const props = defineProps({
   toExclude: {
     type: Array,
     default: () => []
@@ -113,6 +112,10 @@ defineProps({
   }
 })
 
+const editableAttributes = computed(() =>
+  props.attributes.filter((item) => !props.toExclude.includes(item))
+)
+
 const to = defineModel('to', {
   type: [String, Object],
   default: undefined
@@ -127,6 +130,10 @@ const patterns = defineModel({
   type: Array,
   default: () => []
 })
+
+const isExtract = computed(() =>
+  patterns.value.some((item) => item.mode === PATTERN_TYPES.Extract)
+)
 
 function addPattern({ mode }) {
   patterns.value.push({
