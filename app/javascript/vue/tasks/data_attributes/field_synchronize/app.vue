@@ -16,11 +16,12 @@
     <div class="flex-col gap-medium left-column">
       <FieldForm
         :predicates="predicates"
-        :attributes="attributes"
+        :attributes="[...attributes, ...noEditableAttributes].sort()"
         v-model:selected-predicates="selectedPredicates"
         v-model:selected-attributes="selectedAttributes"
       />
       <RegexForm
+        :to-exclude="noEditableAttributes"
         :attributes="selectedAttributes"
         :predicates="selectedPredicates"
         v-model="regexPatterns"
@@ -43,6 +44,7 @@
       <VTable
         :attributes="selectedAttributes"
         :list="tableList"
+        :no-editable="noEditableAttributes"
         :predicates="selectedPredicates"
         :preview-header="previewHeader"
         :model="currentModel"
@@ -93,6 +95,7 @@ defineOptions({
 const PER_VALUES = [50, 100, 200, 250]
 
 const attributes = ref([])
+const noEditableAttributes = ref([])
 const list = ref([])
 const selectedAttributes = ref([])
 const selectedPredicates = ref([])
@@ -452,7 +455,7 @@ function makeDataAttributeList({ data }) {
   return obj
 }
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
   const { attribute } = URLParamsToJSON(window.location.href)
   const data = getQueryParamFromUrl()
 
@@ -460,18 +463,20 @@ onBeforeMount(() => {
   queryValue.value = data.queryValue
 
   if (currentModel.value) {
-    Metadata.attributes({
-      model: currentModel.value,
-      mode: 'editable'
-    }).then(({ body }) => {
-      attributes.value = body
+    attributes.value = (
+      await Metadata.attributes({
+        model: currentModel.value,
+        mode: 'editable'
+      })
+    ).body
 
-      if (Array.isArray(attribute)) {
-        selectedAttributes.value.push(
-          ...attribute.filter((item) => body.includes(item))
-        )
-      }
-    })
+    noEditableAttributes.value = (
+      await Metadata.attributes({ model: currentModel.value })
+    ).body.filter((item) => !attributes.value.includes(item))
+
+    if (Array.isArray(attribute)) {
+      selectedAttributes.value.push(...attribute)
+    }
 
     loadPage(currentPage.value)
   }

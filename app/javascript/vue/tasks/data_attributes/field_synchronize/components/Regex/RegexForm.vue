@@ -40,7 +40,9 @@
             None
           </option>
           <option
-            v-for="attribute in attributes"
+            v-for="attribute in attributes.filter(
+              (item) => !toExclude.includes(item)
+            )"
             :key="attribute"
           >
             {{ attribute }}
@@ -72,7 +74,9 @@
             :key="key"
             color="primary"
             :disabled="
-              patterns.some((item) => item.mode === PATTERN_TYPES.Extract)
+              patterns.some((item) => item.mode === PATTERN_TYPES.Extract) ||
+              (value === PATTERN_TYPES.Extract &&
+                (toExclude.includes(to) || toExclude.includes(from)))
             "
             medium
             @click="() => addPattern({ mode: value })"
@@ -93,6 +97,11 @@ import { randomUUID } from '@/helpers'
 import { PATTERN_TYPES } from '../../constants'
 
 defineProps({
+  toExclude: {
+    type: Array,
+    default: () => []
+  },
+
   attributes: {
     type: Array,
     default: () => []

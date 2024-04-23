@@ -40,6 +40,7 @@
             >
             <div class="horizontal-left-content middle gap-small">
               <VBtn
+                v-if="!noEditable.includes(attr)"
                 color="primary"
                 circle
                 @click="updateAttributeColumn({ title: attr })"
@@ -145,6 +146,7 @@
             type="text"
             :value="item.attributes[key]"
             class="full_width"
+            :disabled="noEditable.includes(key)"
             @change="
               (e) =>
                 emit('update:attribute', {
@@ -285,6 +287,11 @@ import EditColumn from './EditColumn.vue'
 const MAX_RECORDS_WITHOUT_CONFIRMATION = 10
 
 const props = defineProps({
+  noEditable: {
+    type: Array,
+    default: () => []
+  },
+
   attributes: {
     type: Array,
     default: () => []
