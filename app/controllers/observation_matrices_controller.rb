@@ -397,6 +397,10 @@ class ObservationMatricesController < ApplicationController
         status: :unprocessable_entity
       return nil
     end
+    rescue ArgumentError => e
+      render json: { errors: "Error reading document: #{e} - are you sure it's a nexus document?" },
+      status: :unprocessable_entity
+      return nil
   end
 
   # @return [Matrix, nil]
