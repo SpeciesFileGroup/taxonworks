@@ -39,17 +39,16 @@ export default (model, permitParams) => ({
   async all(params = {}, { useFilter } = {}) {
     const makeRequest = useFilter ? this.filter : this.where
     const maxPer = params.per || 500
-    const requests = [
-      await makeRequest({
-        ...params,
-        per: maxPer
-      })
-    ]
+    const payload = {
+      ...params,
+      per: maxPer
+    }
+    const requests = [await makeRequest(payload)]
     const { totalPages } = getPagination(requests[0])
 
     if (totalPages > 1) {
       for (let page = 2; page <= totalPages; page++) {
-        requests.push(makeRequest({ params: { ...params, page } }))
+        requests.push(makeRequest({ ...payload, page }))
       }
     }
 
