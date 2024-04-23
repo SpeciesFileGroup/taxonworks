@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Quick forms: Lock buttons don't work on Biological associations.
 - Week in review task
+- Missing Image metadata breaks radial
 
 ## [0.40.4] - 2024-04-21
 

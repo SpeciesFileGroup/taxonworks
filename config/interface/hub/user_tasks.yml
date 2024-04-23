@@ -108,7 +108,7 @@ nomenclature_by_source_task:
     - nomenclature
     - source
     - browse
-index_new_image_task:
+new_image_task:
   description: 'Add images via drag-and-drop. Applies attribution and depiction metadata across sets of added images. Add staged specimen images.'
   hub: true
   name: 'New image'
@@ -911,7 +911,7 @@ week_in_review_task:
   status: prototype
   description: 'A quick look dashboard of past activity'
 collecting_events_spatial_summary_task:
-  hub: false 
+  hub: false
   name: 'Collecting Event Spatial Summary'
   related:
   categories:
