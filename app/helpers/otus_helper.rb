@@ -22,6 +22,17 @@ module OtusHelper
     ].compact
   end
 
+  # Used exclusively in /api/v1/otus/autocomplete
+  def otu_extended_autocomplete_tag(target)
+    if target.kind_of?(Otu)
+      otu_tag(target)
+    else # TaxonName
+      a = [ tag.span( full_taxon_name_tag(target).html_safe, class: :otu_tag_taxon_name, title: target.id) ]
+      a.push taxon_name_type_short_tag(target)
+      tag.span( a.compact.join(' ').html_safe, class: :otu_tag )
+    end
+  end
+
   # @return [String]
   #    no HTML inside <input>
   def otu_autocomplete_selected_tag(otu)
@@ -226,11 +237,11 @@ module OtusHelper
 
     if gj = otu.cached_map_geo_json(cached_map_type)
 
-     i = 
+     i =
        {
          **gj,
         # 'type' => gj['type'],  # 'Feature',
-        
+
         'properties' => {
           'base' => {
             'type' => 'Otu',
@@ -243,7 +254,6 @@ module OtusHelper
         }
       }
 
-     
      if gj.keys.include?('coordinates')
        i['coordinates'] = gj['coordinates'] # was 'coordinates' TODO: might not work
      elsif gj.keys.include?('geometries')
