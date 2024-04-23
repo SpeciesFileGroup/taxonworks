@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Week in review task
 - Missing Image metadata breaks radial
 - Basic endemism task had a broken link out
+- Prevent raise on bad polygon (LinearRing) Georeferences
 
 ## [0.40.4] - 2024-04-21
 
