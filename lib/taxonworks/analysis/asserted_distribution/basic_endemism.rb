@@ -20,7 +20,7 @@ module TaxonWorks
             geographic_area: 
           )
 
-          reurn {} if q.all.select(:otu_id).distinct.count > 2000
+          return {} if q.all.select(:otu_id).distinct.count > 2000
 
           q.all.find_each do |a|
            
