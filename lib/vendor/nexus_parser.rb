@@ -26,7 +26,7 @@ module Vendor::NexusParser
       dup_names = find_duplicates(state_names)
       if dup_names.present?
         dups = dup_names.join(', ')
-
+        byebug
         raise TaxonWorks::Error, "TaxonWorks character names must be unique for a given descriptor - duplicate name(s): '#{dups}' detected for character '#{c.name}'"
 
         return false

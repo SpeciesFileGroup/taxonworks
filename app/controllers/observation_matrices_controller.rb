@@ -252,7 +252,7 @@ class ObservationMatricesController < ApplicationController
   # GET /observation_matrices/nexus_data.json
   def nexus_data
     return if !(nf = document_to_nexus(params[:nexus_document_id]))
-    return if nexus_dimensions_too_large(nf)
+    return if !nexus_dimensions_okay(nf)
 
     options = nexus_import_options_params
 
@@ -266,7 +266,7 @@ class ObservationMatricesController < ApplicationController
   # POST /observation_matrices/import_nexus.json
   def import_from_nexus
     return if !(nf = document_to_nexus params[:nexus_document_id])
-    return if nexus_dimensions_too_large(nf)
+    return if !nexus_dimensions_okay(nf)
     options = nexus_import_options_params
     return if !nexus_options_are_sane(options)
 
@@ -439,14 +439,26 @@ class ObservationMatricesController < ApplicationController
     m
   end
 
-  def nexus_dimensions_too_large(nf)
+  def nexus_dimensions_okay(nf)
     max_dim = 1000
-    return false if nf.taxa.size < max_dim && nf.characters.size < max_dim
 
-    render json: { errors: "Max size is #{max_dim}x#{max_dim}, this file has #{nf.taxa.size} taxa, #{nf.characters.size} characters" },
-      status: unprocessable_entity
+    if (nf.taxa.size <= max_dim && nf.characters.size <= max_dim) &&
+      (nf.taxa.size > 0 && nf.characters.size > 0)
+      return true
+    end
 
-    true
+    error_message = ''
+    if nf.taxa.size > max_dim || nf.characters.size > max_dim
+      error_message = "Max size is #{max_dim}x#{max_dim}, this file has #{nf.taxa.size} taxa, #{nf.characters.size} characters"
+    elsif nf.taxa.size == 0 && nf.characters.size == 0
+      error_message = "No taxa or characters parsed - this could be because your matrix is very large and nexus_parser failed to parse it. TaxonWorks limits are #{max_dim}x#{max_dim}"
+    else
+      error_message = "The nexus file must include both taxa and characters, this one has #{nf.taxa.size} taxa and #{nf.characters.size} characters"
+    end
+
+    render json: { errors: error_message }, status: unprocessable_entity
+
+    false
   end
 
 end

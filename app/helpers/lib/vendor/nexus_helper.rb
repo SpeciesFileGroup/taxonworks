@@ -163,6 +163,8 @@ module Lib::Vendor::NexusHelper
         matched_otus = find_matching_otus(taxa_names,
           options[:match_otu_to_name], options[:match_otu_to_taxonomy_name])
 
+        puts 'Creating otus'
+        t = Time.now
         nf.taxa.each_with_index do |o, i|
           otu = matched_otus[o.name]
           if !otu
@@ -177,7 +179,10 @@ module Lib::Vendor::NexusHelper
             observation_matrix: m, observation_object: otu
           )
         end
+        puts 'Finished creating otus ' + (Time.now - t).to_s
 
+        puts 'Creating descriptors'
+        t = Time.now
         # Find/create descriptors (= nexus characters).
         nf.characters.each_with_index do |nxs_chr, i|
           tw_d = nil
@@ -220,7 +225,10 @@ module Lib::Vendor::NexusHelper
             observation_matrix_id: m.id, descriptor: tw_d
           )
         end
+        puts 'Finished creating descriptors ' + + (Time.now - t).to_s
 
+        puts 'Creating codings'
+        t = Time.now
         # Create codings.
         nf.codings[0..nf.taxa.size].each_with_index do |y, i| # y is a rowvector of NexusFile::Coding
           y.each_with_index do |x, j| # x is a NexusFile::Coding
@@ -233,7 +241,9 @@ module Lib::Vendor::NexusHelper
                     observation_object: new_otus[i],
                     character_state: new_states[j][z]
                   )
-
+                # TODO: is it a sign that something's wrong if this observation
+                # already exists? i.e. that we may also be adding observations to
+                # a different matrix in that case?
                 if o.nil?
                   o = Observation::Qualitative.create!(
                     descriptor: new_descriptors[j],
@@ -248,6 +258,7 @@ module Lib::Vendor::NexusHelper
             end
           end
         end
+        puts 'Finished creating codings ' + + (Time.now - t).to_s
       end
     rescue => ex
       ExceptionNotifier.notify_exception(ex,
