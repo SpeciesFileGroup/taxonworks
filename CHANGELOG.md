@@ -7,13 +7,28 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+###  Changed
+
+- Dwca `otu_name` only includes Otu#name, never anything else.
+- `api/v1/otus/autocomplete` now more acurately returns the label of the matching term, i.e. Combinations are supported in rendering [https://github.com/SpeciesFileGroup/taxonpages/issues/193]
+- Update Ruby gems
+
+### Fixed
+
+- Quick forms: Lock buttons don't work on Biological associations.
+- Week in review task [#3926]
+- Missing Image metadata breaks radial
+- Basic endemism task had a broken link out
+- Prevent raise on bad polygon (LinearRing) Georeferences
+
+
+[#3926]: https://github.com/SpeciesFileGroup/taxonworks/issues/3926
 
 ## [0.40.4] - 2024-04-21
 
 ### Added
 
-- User estimated time tracking at the per-project level 
+- User estimated time tracking at the per-project level
 - Orphaned DwcOccurrence and DelayedJob job metadata to admin Health report
 
 ### Changed

@@ -138,10 +138,8 @@ module ProjectsHelper
     cumulative_gb_per_year(Image.group_by_year(:created_at, format: '%Y').sum(:image_file_file_size))
   end
 
-
   def week_in_review_graphs(weeks)
     content_tag(:div, '', 'data-weeks-ago': weeks, 'data-weeks-review': true)
   end
-
 
 end

@@ -38,12 +38,33 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
     expect(g.save).to be_truthy
   end
 
-  specify '#shape=' do
+  specify '#shape= 2' do
     g = GeographicItem.create!(shape: geo_json)
     g.update(shape: geo_json2)
     expect(g.reload.geo_object.to_s).to match(/20/)
   end
 
+  specify '#shape= bad linear ring' do
+    bad = '{
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-80.498221, 25.761437],
+            [-80.498221, 25.761959],
+            [-80.498221, 25.761959],
+            [-80.498221, 25.761437]
+          ]
+        ]
+      },
+      "properties": {}
+    }'
+
+    g = GeographicItem.new(shape: bad)
+    g.valid?
+    expect(g.errors[:base]).to be_present
+  end
 
   context 'using ce_test_objects' do
     let(:geographic_item) { FactoryBot.build(:geographic_item) }

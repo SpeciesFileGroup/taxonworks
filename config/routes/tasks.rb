@@ -204,7 +204,7 @@ scope :tasks do
     end
 
     scope :new_image, controller: 'tasks/images/new_image' do
-      get :index, as: 'index_new_image_task'
+      get :index, as: 'new_image_task'
     end
   end
 

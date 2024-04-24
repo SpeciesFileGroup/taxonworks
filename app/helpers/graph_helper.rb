@@ -2,11 +2,11 @@ module GraphHelper
 
   def week_in_review(weeks)
     h = {
-      metadata: { 
+      metadata: {
         weeks_ago: weeks,
       },
       data: []
-    }  
+    }
 
     %w{otus taxon_names collection_objects collecting_events biological_associations asserted_distributions type_materials images documents descriptors observations contents}.each do |i|
 
@@ -21,9 +21,8 @@ module GraphHelper
       h[:data].push g
     end
 
-    h  
+    h
   end
-
 
   def objects_graph(object_scope)
     g = initialize_graph(nil, nil, nil)
@@ -40,7 +39,6 @@ module GraphHelper
 
     g
   end
-
 
   def object_graph(object)
     return nil if object.nil?
