@@ -32,12 +32,13 @@ export function applyExtract(pattern, from, to) {
   try {
     const regex = new RegExp(pattern.match, 'g')
     const matchedGroups = from?.match(regex)
+    const toValue = to != null ? to : ''
 
     if (matchedGroups) {
       from = from?.replace(regex, '')
-      to = to + customReplace(matchedGroups, pattern.value)
+      to = toValue + customReplace(matchedGroups, pattern.value)
     }
-  } catch (e) {
+  } catch {
     /* empty */
   }
 

@@ -74,7 +74,9 @@
             :disabled="
               isExtract ||
               (value === PATTERN_TYPES.Extract &&
-                (toExclude.includes(to) || toExclude.includes(from)))
+                (toExclude.includes(to) ||
+                  toExclude.includes(from) ||
+                  to == from))
             "
             medium
             @click="() => addPattern({ mode: value })"
@@ -112,10 +114,6 @@ const props = defineProps({
   }
 })
 
-const editableAttributes = computed(() =>
-  props.attributes.filter((item) => !props.toExclude.includes(item))
-)
-
 const to = defineModel('to', {
   type: [String, Object],
   default: undefined
@@ -133,6 +131,10 @@ const patterns = defineModel({
 
 const isExtract = computed(() =>
   patterns.value.some((item) => item.mode === PATTERN_TYPES.Extract)
+)
+
+const editableAttributes = computed(() =>
+  props.attributes.filter((item) => !props.toExclude.includes(item))
 )
 
 function addPattern({ mode }) {

@@ -87,6 +87,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import VPaginationCount from '@/components/pagination/PaginationCount.vue'
 import VPagination from '@/components/pagination.vue'
 import { applyRegex, applyExtract } from './utils'
+import { useQueryParam } from './composables'
 
 defineOptions({
   name: 'FieldSynchronize'
@@ -94,16 +95,14 @@ defineOptions({
 
 const PER_VALUES = [50, 100, 200, 250]
 
+const { queryParam, queryValue } = useQueryParam()
 const attributes = ref([])
 const noEditableAttributes = ref([])
 const list = ref([])
 const selectedAttributes = ref([])
 const selectedPredicates = ref([])
-const queryParam = ref(null)
-const queryValue = ref(undefined)
 const predicates = ref([])
 const dataAttributes = ref([])
-const currentModel = computed(() => QUERY_PARAMETER[queryParam.value]?.model)
 const from = ref()
 const to = ref()
 const regexPatterns = ref([])
@@ -113,6 +112,8 @@ const isUpdating = ref(false)
 const pagination = ref({})
 const per = ref(250)
 const currentPage = ref(1)
+
+const currentModel = computed(() => QUERY_PARAMETER[queryParam.value]?.model)
 
 const previewHeader = computed(() => {
   const _from = from.value?.name || from.value
@@ -130,20 +131,22 @@ const extractOperation = computed(() =>
 )
 
 const tableList = computed(() => {
+  function getItemsFromObj(obj, property) {
+    return property?.id
+      ? obj.dataAttributes[property.id].map((item) => item.value)
+      : [obj.attributes[property]]
+  }
+
   return list.value.map((item) => {
     const data = {
       ...item
     }
 
     if (from.value && to.value) {
-      const fromItems = from.value?.id
-        ? item.dataAttributes[from.value.id].map((item) => item.value)
-        : [item.attributes[from.value]]
+      const fromItems = getItemsFromObj(item, from.value)
 
       if (extractOperation.value) {
-        const toItems = to.value?.id
-          ? item.dataAttributes[to.value.id].map((item) => item.value)
-          : [item.attributes[to.value]]
+        const toItems = getItemsFromObj(item, to.value)
 
         data.preview = fromItems.map((fromValue, index) => {
           const toValue = toItems[index]
@@ -154,38 +157,34 @@ const tableList = computed(() => {
           )
 
           return {
-            to: {
-              value: newValue.to,
-              hasChanged: newValue.to !== toValue
-            },
-            from: {
-              value: newValue.from,
-              hasChanged: newValue.from !== fromValue
-            }
+            to: makePreviewObject(newValue.to, toValue),
+            from: makePreviewObject(newValue.from, fromValue)
           }
         })
       } else {
-        try {
-          data.preview = [fromItems].flat().map((value) => {
-            const newValue =
-              value && regexPatterns.value.length
-                ? applyRegex(value, regexPatterns.value)
-                : value
+        data.preview = fromItems.map((value) => {
+          const newValue =
+            value && regexPatterns.value.length
+              ? applyRegex(value, regexPatterns.value)
+              : value
 
-            return {
-              to: {
-                value: newValue,
-                hasChanged: newValue !== value
-              }
-            }
-          })
-        } catch (e) {}
+          return {
+            to: makePreviewObject(newValue, value)
+          }
+        })
       }
     }
 
     return data
   })
 })
+
+function makePreviewObject(newVal, oldVal) {
+  return {
+    value: newVal,
+    hasChanged: newVal !== oldVal
+  }
+}
 
 function makeDataAttribute({ predicateId, value = '', id = null }) {
   return {
@@ -282,19 +281,6 @@ function saveFieldAttribute({ item, attribute, value }) {
     .catch(() => {})
 
   return request
-}
-
-function getQueryParamFromUrl() {
-  const queryParameters = Object.keys(QUERY_PARAMETER)
-  const parameters = URLParamsToJSON(window.location.href)
-  const queryParam = Object.keys(parameters).find((param) =>
-    queryParameters.includes(param)
-  )
-
-  return {
-    queryParam,
-    queryValue: parameters[queryParam]
-  }
 }
 
 watch(selectedAttributes, (newVal) => {
@@ -457,10 +443,6 @@ function makeDataAttributeList({ data }) {
 
 onBeforeMount(async () => {
   const { attribute } = URLParamsToJSON(window.location.href)
-  const data = getQueryParamFromUrl()
-
-  queryParam.value = data.queryParam
-  queryValue.value = data.queryValue
 
   if (currentModel.value) {
     attributes.value = (
