@@ -86,6 +86,7 @@ import FieldForm from './components/Field/FieldForm.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VPaginationCount from '@/components/pagination/PaginationCount.vue'
 import VPagination from '@/components/pagination.vue'
+import Qs from 'qs'
 import { applyRegex, applyExtract } from './utils'
 import { useQueryParam } from './composables'
 
@@ -368,7 +369,10 @@ function loadAttributes(params) {
     'get',
     '/tasks/data_attributes/field_synchronize/values',
     {
-      params
+      params,
+      paramsSerializer: {
+        serialize: (params) => Qs.stringify(params, { arrayFormat: 'brackets' })
+      }
     }
   )
 
