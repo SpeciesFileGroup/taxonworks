@@ -60,17 +60,17 @@
       v-model:citation="options.citation"
     />
 
-    <div>
-      <VBtn
-        color="update"
-        medium
-        :disabled="!docChosen"
-        @click="emit('convert')"
-        class="button"
-      >
-        Convert
-      </VBtn>
-    </div>
+    <VBtn
+      color="update"
+      medium
+      :disabled="!docChosen || loading"
+      @click="emit('convert')"
+      class="button"
+    >
+      Convert
+    </VBtn>
+
+    <InlineSpinner v-if="loading" />
 
     <div v-if="matrixId">
       The new matrix
@@ -91,6 +91,7 @@
 import { RouteNames } from '@/routes/routes'
 import { ref } from 'vue'
 import CitationOptions from './CitationOptions.vue'
+import InlineSpinner from './InlineSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
@@ -105,6 +106,10 @@ const props = defineProps({
   matrixName: {
     type: String,
     default: null
+  },
+  loading: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -136,5 +141,6 @@ options.value = {
 .button {
   margin-top: 1em;
   margin-bottom: 1em;
+  margin-right: 1.5em;
 }
 </style>
