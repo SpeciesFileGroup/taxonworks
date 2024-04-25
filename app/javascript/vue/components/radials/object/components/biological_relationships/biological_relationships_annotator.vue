@@ -268,10 +268,11 @@ function reset() {
   }
   biologicalRelation.value = undefined
   flip.value = false
-  citation.value = {
-    ...makeEmptyCitation(),
-    source_id: lock.source ? citation.value.source_id : undefined,
-    pages: lock.source ? citation.value.pages : undefined
+
+  if (lock.source) {
+    citation.value.id = undefined
+  } else {
+    citation.value = makeEmptyCitation()
   }
 }
 
