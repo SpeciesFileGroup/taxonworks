@@ -59,6 +59,7 @@
         @update:predicate-column="saveColumnPredicate"
         @update:data-attribute="saveDataAttribute"
         @update:preview="processPreview"
+        @sort="sortListByMatched"
       />
     </div>
   </div>
@@ -77,7 +78,8 @@ import {
   ajaxCall,
   getPagination,
   randomUUID,
-  removeFromArray
+  removeFromArray,
+  sortArray
 } from '@/helpers'
 import { QUERY_PARAMETER, PATTERN_TYPES } from './constants'
 import VTable from './components/Table/VTable.vue'
@@ -179,6 +181,17 @@ const tableList = computed(() => {
     return data
   })
 })
+
+function sortListByMatched() {
+  const itemsChangedId = tableList.value
+    .filter((item) => item.preview.some((p) => p.to.hasChanged))
+    .map((item) => item.id)
+
+  list.value = [
+    ...list.value.filter((item) => itemsChangedId.includes(item.id)),
+    ...list.value.filter((item) => !itemsChangedId.includes(item.id))
+  ]
+}
 
 function makePreviewObject(newVal, oldVal) {
   return {

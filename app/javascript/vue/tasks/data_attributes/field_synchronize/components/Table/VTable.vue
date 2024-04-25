@@ -24,7 +24,17 @@
           class="cell-left-border"
           :colspan="previewHeader.length + 1"
         >
-          Preview
+          <div class="flex-separate middle">
+            <span>Preview</span>
+            <VBtn
+              color="primary"
+              medium
+              :disabled="!hasChanges"
+              @click="emit('sort')"
+            >
+              Gather
+            </VBtn>
+          </div>
         </th>
       </tr>
       <tr>
@@ -105,7 +115,7 @@
             :key="index"
             :class="index == 0 && 'cell-left-border'"
           >
-            <div class="horizontal-left-content middle gap-small">
+            <div class="flex-separate middle gap-small">
               <span>{{ header }}</span>
               <VBtn
                 v-if="!isExtract"
@@ -336,7 +346,8 @@ const emit = defineEmits([
   'update:attribute-column',
   'update:predicate-column',
   'update:data-attribute',
-  'update:preview'
+  'update:preview',
+  'sort'
 ])
 
 const confirmationRef = ref(null)
@@ -447,6 +458,8 @@ input {
 
 .preview-input {
   opacity: 0.25;
+  min-width: 320px;
+  width: 100%;
 }
 
 .preview-input-changed {

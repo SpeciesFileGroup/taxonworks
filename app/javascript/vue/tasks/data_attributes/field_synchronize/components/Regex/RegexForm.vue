@@ -4,56 +4,58 @@
       <h3>Match/Replace</h3>
     </template>
     <template #body>
-      <div>
-        <label class="d-block">From</label>
-        <select v-model="from">
-          <option
-            :value="undefined"
-            selected
-          >
-            None
-          </option>
-          <option
-            v-for="attribute in isExtract ? editableAttributes : attributes"
-            :key="attribute"
-          >
-            {{ attribute }}
-          </option>
-          <hr />
-          <option
-            v-for="predicate in predicates"
-            :key="predicate.id"
-            :value="predicate"
-          >
-            {{ predicate.name }}
-          </option>
-        </select>
-      </div>
+      <div class="flex-wrap-row gap-small">
+        <div>
+          <label class="d-block">From</label>
+          <select v-model="from">
+            <option
+              :value="undefined"
+              selected
+            >
+              None
+            </option>
+            <option
+              v-for="attribute in isExtract ? editableAttributes : attributes"
+              :key="attribute"
+            >
+              {{ attribute }}
+            </option>
+            <hr />
+            <option
+              v-for="predicate in predicates"
+              :key="predicate.id"
+              :value="predicate"
+            >
+              {{ predicate.name }}
+            </option>
+          </select>
+        </div>
 
-      <div>
-        <label class="d-block">To</label>
-        <select v-model="to">
-          <option
-            :value="undefined"
-            selected
-          >
-            None
-          </option>
-          <option
-            v-for="attribute in editableAttributes"
-            :key="attribute"
-          >
-            {{ attribute }}
-          </option>
-          <hr />
-          <option
-            v-for="predicate in predicates"
-            :key="predicate.id"
-            :value="predicate"
-          >
-            {{ predicate.name }}
-          </option>
-        </select>
+        <div>
+          <label class="d-block">To</label>
+          <select v-model="to">
+            <option
+              :value="undefined"
+              selected
+            >
+              None
+            </option>
+            <option
+              v-for="attribute in editableAttributes"
+              :key="attribute"
+            >
+              {{ attribute }}
+            </option>
+            <hr />
+            <option
+              v-for="predicate in predicates"
+              :key="predicate.id"
+              :value="predicate"
+            >
+              {{ predicate.name }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div class="flex-col gap-medium margin-medium-top">
