@@ -194,7 +194,10 @@
               <input
                 type="text"
                 disabled
-                class="full_width"
+                :class="[
+                  'preview-input',
+                  from.hasChanged && 'preview-input-changed'
+                ]"
                 :value="from.value"
               />
             </div>
@@ -208,7 +211,10 @@
               <input
                 type="text"
                 disabled
-                class="full_width"
+                :class="[
+                  'preview-input',
+                  to.hasChanged && 'preview-input-changed'
+                ]"
                 :value="to.value"
               />
               <VBtn
@@ -436,6 +442,14 @@ async function updatePredicateColumn({ predicateId, title }) {
 }
 
 input {
-  width: 300px;
+  width: 320px;
+}
+
+.preview-input {
+  opacity: 0.25;
+}
+
+.preview-input-changed {
+  opacity: 1;
 }
 </style>

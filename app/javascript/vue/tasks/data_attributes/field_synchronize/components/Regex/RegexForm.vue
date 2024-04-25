@@ -73,6 +73,8 @@
             color="primary"
             :disabled="
               isExtract ||
+              !to ||
+              !from ||
               (value === PATTERN_TYPES.Extract &&
                 (toExclude.includes(to) ||
                   toExclude.includes(from) ||
