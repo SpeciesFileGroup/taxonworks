@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- `/api/v1/taxon_name_relationships.csv` endpoint
+
 ###  Changed
 
 - Dwca `otu_name` only includes Otu#name, never anything else.
