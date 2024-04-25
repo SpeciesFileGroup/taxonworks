@@ -434,4 +434,8 @@ async function updatePredicateColumn({ predicateId, title }) {
   outline: 2px solid var(--color-primary) !important;
   outline-offset: -2px;
 }
+
+input {
+  width: 300px;
+}
 </style>
