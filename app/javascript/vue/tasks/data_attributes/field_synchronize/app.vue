@@ -13,22 +13,27 @@
     v-if="QUERY_PARAMETER[queryParam]"
     class="horizontal-left-content align-start gap-medium"
   >
-    <div class="flex-col gap-medium left-column">
-      <FieldForm
-        :predicates="predicates"
-        :attributes="[...attributes, ...noEditableAttributes].sort()"
-        v-model:selected-predicates="selectedPredicates"
-        v-model:selected-attributes="selectedAttributes"
-      />
-      <RegexForm
-        :to-exclude="noEditableAttributes"
-        :attributes="selectedAttributes"
-        :predicates="selectedPredicates"
-        v-model="regexPatterns"
-        v-model:to="to"
-        v-model:from="from"
-      />
-    </div>
+    <NavBar
+      navbar-class=""
+      class="left-column"
+    >
+      <div class="flex-col gap-medium left-column">
+        <FieldForm
+          :predicates="predicates"
+          :attributes="[...attributes, ...noEditableAttributes].sort()"
+          v-model:selected-predicates="selectedPredicates"
+          v-model:selected-attributes="selectedAttributes"
+        />
+        <RegexForm
+          :to-exclude="noEditableAttributes"
+          :attributes="selectedAttributes"
+          :predicates="selectedPredicates"
+          v-model="regexPatterns"
+          v-model:to="to"
+          v-model:from="from"
+        />
+      </div>
+    </NavBar>
     <div class="overflow-x-scroll">
       <div class="horizontal-left-content middle gap-medium">
         <VPagination
@@ -78,19 +83,19 @@ import {
   ajaxCall,
   getPagination,
   randomUUID,
-  removeFromArray,
-  sortArray
+  removeFromArray
 } from '@/helpers'
 import { QUERY_PARAMETER, PATTERN_TYPES } from './constants'
+import { applyRegex, applyExtract } from './utils'
+import { useQueryParam } from './composables'
+import Qs from 'qs'
 import VTable from './components/Table/VTable.vue'
 import RegexForm from './components/Regex/RegexForm.vue'
 import FieldForm from './components/Field/FieldForm.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VPaginationCount from '@/components/pagination/PaginationCount.vue'
 import VPagination from '@/components/pagination.vue'
-import Qs from 'qs'
-import { applyRegex, applyExtract } from './utils'
-import { useQueryParam } from './composables'
+import NavBar from '@/components/layout/NavBar.vue'
 
 defineOptions({
   name: 'FieldSynchronize'
