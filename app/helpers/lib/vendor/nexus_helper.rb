@@ -143,7 +143,7 @@ module Lib::Vendor::NexusHelper
   end
 
   def populate_matrix_with_nexus(nexus_doc_id, parsed_nexus, matrix, options)
-
+    start_t = Time.now
     nf = parsed_nexus
     m = matrix
 
@@ -225,7 +225,7 @@ module Lib::Vendor::NexusHelper
             observation_matrix_id: m.id, descriptor: tw_d
           )
         end
-        puts 'Finished creating descriptors ' + + (Time.now - t).to_s
+        puts 'Finished creating descriptors ' + (Time.now - t).to_s
 
         puts 'Creating codings'
         t = Time.now
@@ -258,7 +258,8 @@ module Lib::Vendor::NexusHelper
             end
           end
         end
-        puts 'Finished creating codings ' + + (Time.now - t).to_s
+        puts 'Finished creating codings ' + (Time.now - t).to_s
+        puts 'Total run time ' + (Time.now - start_t).to_s
       end
     rescue => ex
       ExceptionNotifier.notify_exception(ex,

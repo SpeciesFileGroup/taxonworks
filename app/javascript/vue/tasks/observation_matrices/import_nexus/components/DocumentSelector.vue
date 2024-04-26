@@ -68,6 +68,9 @@
       @unset="() => nexusDoc = undefined"
       class="selector_item"
     />
+    <div v-if="extensionsMatchNone === true">
+      <i>No documents found matching the selected extensions</i>
+    </div>
   </fieldset>
 </template>
 
@@ -89,7 +92,7 @@ const DROPZONE_CONFIG = {
       .querySelector('meta[name="csrf-token"]')
       .getAttribute('content')
   },
-  dictDefaultMessage: 'Drop a Nexus file here',
+  dictDefaultMessage: 'Drop a nexus file here',
   acceptedFiles: '.nex, .nxs'
 }
 
@@ -101,6 +104,7 @@ const isPublicDocument = ref(false)
 const parameters = ref({})
 const filterList = ref([])
 const isLoading = ref(false)
+const extensionsMatchNone = ref(undefined)
 
 function sending(file, xhr, formData) {
   formData.append('document[is_public]', isPublicDocument.value)
@@ -109,6 +113,7 @@ function sending(file, xhr, formData) {
 function success(file, response) {
   nexusDoc.value = response
   isPublicDocument.value = false
+  extensionsMatchNone.value = undefined
 }
 
 function loadList(params) {
@@ -119,6 +124,7 @@ function loadList(params) {
   Document.filter(params)
     .then(({ body }) => {
       filterList.value = body
+      extensionsMatchNone.value = filterList.value.length == 0
     })
     .finally(() => {
       isLoading.value = false

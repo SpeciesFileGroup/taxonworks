@@ -16,6 +16,7 @@ class DocumentsController < ApplicationController
       }
       format.json {
         @documents = ::Queries::Document::Filter.new(params).all
+          .order(:updated_at)
           .page(params[:page])
           .per(params[:per])
       }
