@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+
+- OTU autocomplete raises when no taxon names match
+
 \-
 
 ## [0.40.5] - 2024-04-25
