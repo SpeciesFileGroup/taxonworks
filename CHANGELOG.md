@@ -9,9 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Notes params not applied in Source filters (anywhere) [#3927]
 - OTU autocomplete raises when no taxon names match
 
-\-
+[#3927]: https://github.com/SpeciesFileGroup/taxonworks/issues/3927
 
 ## [0.40.5] - 2024-04-25
 
