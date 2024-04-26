@@ -81,7 +81,7 @@ function makeInitialState() {
     identifiers: [],
     georeferences: [],
     materialTypes: [],
-    namespaceSelected: '',
+    namespaceSelected: undefined,
     preferences: {},
     preparation_type_id: undefined,
     project_preferences: undefined,

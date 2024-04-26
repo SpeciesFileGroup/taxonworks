@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label>Value</label>
+    <label>{{ label }}</label>
     <div class="field">
       <textarea
         v-model="text"
@@ -33,6 +33,13 @@
 <script setup>
 import { ref } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+
+defineProps({
+  label: {
+    type: String,
+    default: 'Value'
+  }
+})
 
 const emit = defineEmits('add')
 

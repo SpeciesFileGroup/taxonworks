@@ -37,18 +37,13 @@
               >New</a
             >
           </div>
-          <template v-if="identifier.namespace_id">
+          <template v-if="namespaceSelected">
             <hr />
-            <div class="middle flex-separate">
-              <p class="separate-right">
-                <span data-icon="ok" />
-                <span v-html="namespaceSelected.name" />
-              </p>
-              <span
-                class="circle-button button-default btn-undo"
-                @click="unsetNamespace"
-              />
-            </div>
+            <SmartSelectorItem
+              :item="namespaceSelected"
+              label="name"
+              @unset="unsetNamespace"
+            />
           </template>
         </fieldset>
       </div>
@@ -113,6 +108,7 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 import { Identifier } from '@/routes/endpoints'
 import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from '@/constants/index.js'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import validateComponent from '../shared/validate.vue'
 import validateIdentifier from '../../validations/namespace.js'
 import incrementIdentifier from '../../helpers/incrementIdentifier.js'
@@ -122,12 +118,17 @@ export default {
   components: {
     validateComponent,
     LockComponent,
-    SmartSelector
+    SmartSelector,
+    SmartSelectorItem
   },
 
   computed: {
     collectionObject() {
       return this.$store.getters[GetterNames.GetCollectionObject]
+    },
+
+    coId() {
+      return this.$store.getters[GetterNames.GetCollectionObject]?.id
     },
 
     identifiers() {
@@ -195,6 +196,14 @@ export default {
   watch: {
     existingIdentifier(newVal) {
       this.settings.saveIdentifier = !newVal
+    },
+
+    coId(newVal) {
+      if (newVal) {
+        this.checkIdentifier()
+      } else {
+        this.existingIdentifiers = []
+      }
     }
   },
 

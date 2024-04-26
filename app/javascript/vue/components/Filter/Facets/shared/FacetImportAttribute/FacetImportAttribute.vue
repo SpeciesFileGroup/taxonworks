@@ -18,6 +18,7 @@
     />
     <hr class="divisor full_width" />
     <AddValue
+      label="Value (any predicate)"
       @add="
         (value) => {
           values.push(value)
