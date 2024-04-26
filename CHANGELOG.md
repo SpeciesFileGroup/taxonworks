@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Notes params not applied in Source filters (anywhere) [#3927]
 - OTU autocomplete raises when no taxon names match
+- CSD: Catalog number panel displays warning messages when the namespace is set
 
 [#3927]: https://github.com/SpeciesFileGroup/taxonworks/issues/3927
 
@@ -20,7 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - `/api/v1/taxon_name_relationships.csv` endpoint
 
-###  Changed
+### Changed
 
 - Dwca `otu_name` only includes Otu#name, never anything else.
 - `api/v1/otus/autocomplete` now more acurately returns the label of the matching term, i.e. Combinations are supported in rendering [https://github.com/SpeciesFileGroup/taxonpages/issues/193]
@@ -33,7 +34,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing Image metadata breaks radial
 - Basic endemism task had a broken link out
 - Prevent raise on bad polygon (LinearRing) Georeferences
-
 
 [#3926]: https://github.com/SpeciesFileGroup/taxonworks/issues/3926
 
