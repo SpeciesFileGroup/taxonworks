@@ -196,10 +196,11 @@ module Export::Dwca
 
       a = "TW:Internal:otu_name".freeze
 
-      n = "COALESCE( otus.name, TRIM(CONCAT(cached, ' ', cached_author_year))) as otu_name"
+      # n = "COALESCE( otus.name, TRIM(CONCAT(cached, ' ', cached_author_year))) as otu_name"
 
       v = collection_objects.left_joins(otu: [:taxon_name])
-        .select("collection_objects.id, #{n}")
+        .select("collection_objects.id, otus.name as otu_name")
+        .where(taxon_determinations: {position: '1'})
         .find_each(batch_size: 10000)
         .collect{|r| [r.id, a, r['otu_name'].presence] }
       v

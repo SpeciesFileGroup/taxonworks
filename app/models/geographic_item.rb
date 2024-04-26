@@ -1129,7 +1129,14 @@ class GeographicItem < ApplicationRecord
     def shape=(value)
 
       if value.present?
-        geom = RGeo::GeoJSON.decode(value, json_parser: :json, geo_factory: Gis::FACTORY)
+
+        begin
+          geom = RGeo::GeoJSON.decode(value, json_parser: :json, geo_factory: Gis::FACTORY)
+        rescue RGeo::Error::InvalidGeometry => e
+          errors.add(:base, "invalid geometry: #{e.to_s}")
+          return
+        end
+
         this_type = nil
 
         if geom.respond_to?(:geometry_type)
@@ -1145,7 +1152,6 @@ class GeographicItem < ApplicationRecord
           errors.add(:base, 'type is not set from shape')
           return
         end
-        # raise('GeographicItem.type not set.') if type.blank?
 
         object = nil
 
