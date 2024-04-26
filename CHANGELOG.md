@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - OTU autocomplete raises when no taxon names match
+- Moving from Source to Image filter failed to return cited images
 
 \-
 

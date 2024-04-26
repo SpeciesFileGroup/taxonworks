@@ -60,13 +60,13 @@ module Queries
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source ]
     }.freeze
 
-   def self.query_name
-     base_name + '_query'
-   end
+    def self.query_name
+      base_name + '_query'
+    end
 
-   def query_name
-     self.class.query_name
-   end
+    def query_name
+      self.class.query_name
+    end
 
     # @return [Hash]
     #  only referenced in specs
@@ -697,7 +697,6 @@ module Queries
 
       q
     end
-
 
   end
 end
