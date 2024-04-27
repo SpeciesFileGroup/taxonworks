@@ -45,8 +45,3 @@ COPY --from=imagemagick /etc/ImageMagick-6 /usr/local/etc/ImageMagick-7
 # Set up ImageMagick
 RUN sed -i 's/name="disk" value="1GiB"/name="disk" value="8GiB"/' /usr/local/etc/ImageMagick-7/policy.xml && \
       identify -list resource | grep Disk | grep 8GiB && magick -list format | grep "HEIC      rw+" # Confirm HEIC support and that 8GB disk setting is active
-
-# Workaround for https://github.com/phusion/passenger-docker/issues/393 / https://github.com/rvm/rvm/issues/5449
-RUN sed -i 's/require/load/g' /usr/local/rvm/rubies/ruby-3.3.0/.irbrc
-# Yes, no dot
-RUN touch /root/irbrc && touch /home/app/irbrc
