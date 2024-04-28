@@ -6,7 +6,7 @@ class ImportNexusJob < ApplicationJob
     Current.user_id = uid
     Current.project_id = project_id
 
-    nf = document_to_nexus(nexus_doc_id, matrix)
+    nf = document_to_nexus(nexus_doc_id, matrix, options)
 
     populate_matrix_with_nexus(
       nexus_doc_id,
@@ -16,14 +16,28 @@ class ImportNexusJob < ApplicationJob
     )
   end
 
-  def document_to_nexus(doc_id, matrix)
+  def document_to_nexus(nexus_doc_id, matrix, options)
     begin
-      Vendor::NexusParser.document_id_to_nexus(doc_id)
+      Vendor::NexusParser.document_id_to_nexus(nexus_doc_id)
     rescue => e
+      if e.class == ActiveRecord::RecordNotFound
+        # ExceptionNotifier ignores RecordNotFound, so use TW::Error instead.
+        bt = e.backtrace
+        e = TaxonWorks::Error.new(e.message)
+        e.set_backtrace(bt)
+      end
+
       ExceptionNotifier.notify_exception(e,
-        data: { nexus_document_id: doc_id }
+        data: {
+          nexus_document_id: nexus_doc_id,
+          matrix_id: matrix&.id,
+          user_id: Current.user_id,
+          project_id: Current.project_id
+        }
+        .merge(options)
       )
-      matrix.destroy!
+
+      matrix&.destroy!
       raise
     end
   end

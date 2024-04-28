@@ -263,7 +263,13 @@ module Lib::Vendor::NexusHelper
       end
     rescue => ex
       ExceptionNotifier.notify_exception(ex,
-        data: { nexus_document_id: nexus_doc_id }
+        data: {
+          nexus_document_id: nexus_doc_id,
+          matrix_id: matrix.id,
+          user_id: Current.user_id,
+          project_id: Current.project_id
+        }
+        .merge(options)
       )
       m.destroy!
       raise
