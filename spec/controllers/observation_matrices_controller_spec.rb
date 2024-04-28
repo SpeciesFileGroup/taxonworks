@@ -27,11 +27,11 @@ RSpec.describe ObservationMatricesController, type: :controller do
   # Matrix. As you add validations to Matrix, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryBot.build(:valid_observation_matrix).attributes)  
+    strip_housekeeping_attributes(FactoryBot.build(:valid_observation_matrix).attributes)
   }
 
   let(:invalid_attributes) {
-    {name: nil} 
+    {name: nil}
   }
 
   # This should return the minimal set of values that should be in the session
@@ -159,4 +159,96 @@ RSpec.describe ObservationMatricesController, type: :controller do
     end
   end
 
+  describe 'POST #import_from_nexus' do
+    let!(:options) {
+      # Non-empty options required
+      { matrix_name: 'my_matrix' }
+    }
+
+    describe 'adding an ActiveJob' do
+      specify '#import_from_nexus adds an ActiveJob to the queue' do
+        valid_nexus_doc = Document.create!(
+          document_file: Rack::Test::UploadedFile.new(
+            (Rails.root + 'spec/files/nexus/small_with_species.nex'),
+            'text/plain'
+          ))
+
+        params = {
+          nexus_document_id: valid_nexus_doc.id,
+          options:
+        }
+
+        expect {
+          post :import_from_nexus, params:, session: valid_session
+        }.to have_enqueued_job(ImportNexusJob)
+      end
+    end
+
+    describe 'error conditions' do
+      specify 'document not found error' do
+        params = {
+          nexus_document_id: 1234,
+          options:
+        }
+        post :import_from_nexus, params:, session: valid_session
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        errors = JSON.parse(response.body)['errors']
+        expect(errors).to include("Couldn't find Document")
+      end
+
+      specify 'nexus document parse error' do
+        invalid_nexus_doc = Document.create!(
+          document_file: Rack::Test::UploadedFile.new(
+            (Rails.root + 'spec/files/nexus/malformed.nex'),
+            'text/plain'
+          ))
+
+        params = {
+          nexus_document_id: invalid_nexus_doc.id,
+          options:
+        }
+        post :import_from_nexus, params:, session: valid_session
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        errors = JSON.parse(response.body)['errors']
+        expect(errors).to include('File is missing at least some required headers')
+      end
+
+      # TODO: do we really want an email every time a user accidentally submits
+      # a binary file? (To be fair the controller catches this error, so it
+      # should never get to the background job.)
+      specify 'non-text document error' do
+        pdf_doc = FactoryBot.create(:valid_document)
+
+        params = {
+          nexus_document_id: pdf_doc.id,
+          options:
+        }
+        post :import_from_nexus, params:, session: valid_session
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        errors = JSON.parse(response.body)['errors']
+        expect(errors).to include("are you sure it's a nexus document?")
+      end
+
+      specify 'error on converting nexus_parser data to TW data' do
+        invalid_tw_nexus_doc = Document.create!(
+          document_file: Rack::Test::UploadedFile.new(
+            (Rails.root + 'spec/files/nexus/repeated_character_state_name.nex'),
+            'text/plain'
+          ))
+
+        params = {
+          nexus_document_id: invalid_tw_nexus_doc.id,
+          options:
+        }
+        post :import_from_nexus, params:, session: valid_session
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        errors = JSON.parse(response.body)['errors']
+        expect(errors).to include('Error converting nexus to TaxonWorks')
+      end
+    end
+  end
 end
