@@ -24,8 +24,10 @@ module Queries
       end
 
       def file_extension_facet
-        d = EXTENSIONS_DATA[file_extension&.to_sym]
-        return nil if d.nil?
+        d = EXTENSIONS_DATA[file_extension&.to_sym] || {
+          content_type: '', # matches no document
+          extensions: ['']
+        }
 
         type_match = table[:document_file_content_type].eq(d[:content_type])
 
@@ -49,7 +51,7 @@ module Queries
           content_type: 'application/pdf',
           extensions: ['.pdf']
         }
-      }
+      }.freeze
 
       def extension_matches_ored(exts)
         clauses = exts.map { |ext|

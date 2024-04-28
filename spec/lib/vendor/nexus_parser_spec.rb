@@ -49,7 +49,7 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
   specify 'gap state + character state with name gap handled correctly' do
     d = Document.create!(
       document_file: Rack::Test::UploadedFile.new(
-        (Rails.root + 'spec/files/nexus/gap_state_and_character_name.nex'),
+        (Rails.root + 'spec/files/nexus/gap_state_and_character_name.nxs'),
         'text/plain'
       ))
 
@@ -62,7 +62,7 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
   specify 'character with duplicate state name raises' do
     d = Document.create!(
       document_file: Rack::Test::UploadedFile.new(
-        (Rails.root + 'spec/files/nexus/repeated_character_state_name.nex'),
+        (Rails.root + 'spec/files/nexus/repeated_character_state_name.nxs'),
         'text/plain'
       ))
 
