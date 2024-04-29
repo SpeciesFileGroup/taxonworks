@@ -274,9 +274,6 @@ RSpec.describe ObservationMatricesController, type: :controller do
         expect(errors).to include('File is missing at least some required headers')
       end
 
-      # TODO: do we really want an email every time a user accidentally submits
-      # a binary file? (To be fair the controller catches this error, so it
-      # should never get to the background job.)
       specify 'non-text document error' do
         pdf_doc = FactoryBot.create(:valid_document)
 

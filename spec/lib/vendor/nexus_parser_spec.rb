@@ -62,7 +62,7 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
   specify 'character with duplicate state name raises' do
     d = Document.create!(
       document_file: Rack::Test::UploadedFile.new(
-        (Rails.root + 'spec/files/nexus/repeated_character_state_name.nxs'),
+        (Rails.root + 'spec/files/nexus/repeated_character_state_name.nex'),
         'text/plain'
       ))
 

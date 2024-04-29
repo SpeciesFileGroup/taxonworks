@@ -96,7 +96,7 @@ module Lib::Vendor::NexusHelper
 
   # @return [Hash] name matched to Otu by otu name. For those names that match,
   # the Otu returned is the one created most recently.
-  def match_otus_by_name(names, last_created_only: true)
+  def match_otus_by_name(names)
     otus = Otu
       .where(project_id: Current.project_id)
       .where(name: names)
@@ -143,7 +143,6 @@ module Lib::Vendor::NexusHelper
   end
 
   def populate_matrix_with_nexus(nexus_doc_id, parsed_nexus, matrix, options)
-    start_t = Time.now
     nf = parsed_nexus
     m = matrix
 
@@ -163,8 +162,6 @@ module Lib::Vendor::NexusHelper
         options[:match_otu_to_name], options[:match_otu_to_taxonomy_name])
 
       ObservationMatrix.transaction do
-        puts 'Creating otus'
-        t = Time.now
         nf.taxa.each_with_index do |o, i|
           otu = matched_otus[o.name]
           if !otu
@@ -179,10 +176,7 @@ module Lib::Vendor::NexusHelper
             observation_matrix: m, observation_object: otu
           )
         end
-        puts 'Finished creating otus ' + (Time.now - t).to_s
 
-        puts 'Creating descriptors'
-        t = Time.now
         # Find/create descriptors (= nexus characters).
         nf.characters.each_with_index do |nxs_chr, i|
           tw_d = nil
@@ -225,10 +219,7 @@ module Lib::Vendor::NexusHelper
             observation_matrix_id: m.id, descriptor: tw_d
           )
         end
-        puts 'Finished creating descriptors ' + (Time.now - t).to_s
 
-        puts 'Creating codings'
-        t = Time.now
         # Create codings.
         nf.codings[0..nf.taxa.size].each_with_index do |y, i| # y is a rowvector of NexusFile::Coding
           y.each_with_index do |x, j| # x is a NexusFile::Coding
@@ -258,8 +249,6 @@ module Lib::Vendor::NexusHelper
             end
           end
         end
-        puts 'Finished creating codings ' + (Time.now - t).to_s
-        puts 'Total run time ' + (Time.now - start_t).to_s
       end
     rescue => ex
       ExceptionNotifier.notify_exception(ex,
