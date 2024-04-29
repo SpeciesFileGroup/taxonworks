@@ -375,8 +375,7 @@ class ObservationMatricesController < ApplicationController
     }
 
     params.require(:options)
-      .permit(:matrix_name, *boolean_options)
-      .permit(citation: [:source_id])
+      .permit(:matrix_name, *boolean_options, citation: [:source_id])
   end
 
   def nexus_options_are_sane(options)
@@ -418,7 +417,7 @@ class ObservationMatricesController < ApplicationController
         m = ObservationMatrix.create!(name: matrix_name)
       rescue ActiveRecord::RecordInvalid
         render json: { errors: 'The provided matrix name is already in use, try another' },
-          status: unprocessable_entity
+          status: :unprocessable_entity
       end
 
       return m
@@ -428,16 +427,16 @@ class ObservationMatricesController < ApplicationController
     unique = ''
     user_name = User.find(Current.user_id).name
     begin
-      title = matrix_name.presence ||
-        "Converted matrix created #{Time.now.utc.to_formatted_s(:long)} by #{user_name + unique}"
+      title = "Converted matrix created #{Time.now.utc.to_formatted_s(:long)} by #{user_name + unique}"
 
       m = ObservationMatrix.create!(name: title)
     rescue ActiveRecord::RecordInvalid
-      if i < 10
+      if i < 60
         i = i + 1
         unique = "-#{i}"
         retry
       end
+      raise
     end
 
     m

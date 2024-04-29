@@ -160,19 +160,23 @@ RSpec.describe ObservationMatricesController, type: :controller do
   end
 
   describe 'POST #import_from_nexus' do
+    let!(:matrix_name) { 'my_matrix' }
+
     let!(:options) {
       # Non-empty options required
-      { matrix_name: 'my_matrix' }
+      { matrix_name: }
+    }
+
+    let(:valid_nexus_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/nexus/small_with_species.nex'),
+          'text/plain'
+        ))
     }
 
     describe 'adding an ActiveJob' do
       specify '#import_from_nexus adds an ActiveJob to the queue' do
-        valid_nexus_doc = Document.create!(
-          document_file: Rack::Test::UploadedFile.new(
-            (Rails.root + 'spec/files/nexus/small_with_species.nex'),
-            'text/plain'
-          ))
-
         params = {
           nexus_document_id: valid_nexus_doc.id,
           options:
@@ -184,7 +188,60 @@ RSpec.describe ObservationMatricesController, type: :controller do
       end
     end
 
+    specify 'a matrix is created' do
+      params = {
+        nexus_document_id: valid_nexus_doc.id,
+        options:
+      }
+      post :import_from_nexus, params:, session: valid_session
+
+      expect(ObservationMatrix.all.count).to eq(1)
+    end
+
+    # Other options are tested in the helper specs - this option is processed
+    # in the controller so that we can respond to the user right away instead
+    # of via an error in the background job.
+    specify 'matrix_name option assigns the created matrix a name' do
+      params = {
+        nexus_document_id: valid_nexus_doc.id,
+        options:
+      }
+      post :import_from_nexus, params:, session: valid_session
+
+      expect(ObservationMatrix.first.name).to eq(matrix_name)
+    end
+
+    specify '#import_from_nexus can be called twice in a row by a user' do
+      params = {
+        nexus_document_id: valid_nexus_doc.id,
+        options: { match_otu_to_name: true } # just doesn't specify matrix_name
+      }
+
+      # The issue is that generated names are only unique down to the minute,
+      # so it's possible if the two calls below are actually made in different
+      # minutes that we're not testing the matrix name collision path. We'll
+      # live with that.
+      post :import_from_nexus, params:, session: valid_session
+      expect(response).to have_http_status(:success)
+      post :import_from_nexus, params:, session: valid_session
+      expect(response).to have_http_status(:success)
+    end
+
     describe 'error conditions' do
+      specify 'specified matrix_name already in use is an error' do
+        FactoryBot.create(:valid_observation_matrix, name: matrix_name)
+
+        params = {
+          nexus_document_id: valid_nexus_doc.id,
+          options:
+        }
+        post :import_from_nexus, params:, session: valid_session
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        errors = JSON.parse(response.body)['errors']
+        expect(errors).to include('matrix name is already in use')
+      end
+
       specify 'document not found error' do
         params = {
           nexus_document_id: 1234,
