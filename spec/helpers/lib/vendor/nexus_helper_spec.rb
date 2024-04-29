@@ -42,6 +42,10 @@ describe Lib::Vendor::NexusHelper, type: :helper do
       expect(ObservationMatrixRow.all.size).to be(2)
     end
 
+    specify 'default options creates matrix columns' do
+      expect(ObservationMatrixColumn.all.size).to be(3)
+    end
+
     specify 'default options creates character states' do
       expect(CharacterState.all.size).to be(8)
     end

@@ -227,6 +227,8 @@ RSpec.describe ObservationMatricesController, type: :controller do
       expect(response).to have_http_status(:success)
     end
 
+    # Make sure these errors happen in the controller instead of in a
+    # background job.
     describe 'error conditions' do
       specify 'specified matrix_name already in use is an error' do
         FactoryBot.create(:valid_observation_matrix, name: matrix_name)
@@ -305,6 +307,19 @@ RSpec.describe ObservationMatricesController, type: :controller do
         expect(response).to have_http_status(:unprocessable_entity)
         errors = JSON.parse(response.body)['errors']
         expect(errors).to include('Error converting nexus to TaxonWorks')
+      end
+
+      specify 'error on cite_matrix option with no citation chosen' do
+        params = {
+          nexus_document_id: valid_nexus_doc.id,
+          options: { cite_matrix: true }
+        }
+
+        post :import_from_nexus, params:, session: valid_session
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        errors = JSON.parse(response.body)['errors']
+        expect(errors).to include('no source selected')
       end
     end
   end
