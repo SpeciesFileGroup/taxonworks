@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+
+- Updated Ruby gems
+
 ### Fixed
 
 - Notes params not applied in Source filters (anywhere) [#3927]
