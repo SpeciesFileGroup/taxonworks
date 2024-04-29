@@ -155,14 +155,14 @@ module Lib::Vendor::NexusHelper
       if options[:cite_matrix]
         create_citation_for(options[:citation], 'ObservationMatrix', m.id)
       end
-      # TODO: can we narrow the scope of the transaction at all?
-      ObservationMatrix.transaction do
-        # Find/create OTUs, add them to the matrix as we do so,
-        # and add them to an array for reference during coding.
-        taxa_names = nf.taxa.collect{ |t| t.name }.sort().uniq
-        matched_otus = find_matching_otus(taxa_names,
-          options[:match_otu_to_name], options[:match_otu_to_taxonomy_name])
 
+      # Find/create OTUs, add them to the matrix as we do so,
+      # and add them to an array for reference during coding.
+      taxa_names = nf.taxa.collect{ |t| t.name }.sort().uniq
+      matched_otus = find_matching_otus(taxa_names,
+        options[:match_otu_to_name], options[:match_otu_to_taxonomy_name])
+
+      ObservationMatrix.transaction do
         puts 'Creating otus'
         t = Time.now
         nf.taxa.each_with_index do |o, i|
