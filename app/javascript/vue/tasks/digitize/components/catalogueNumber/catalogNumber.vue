@@ -102,7 +102,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { Identifier } from '@/routes/endpoints'
@@ -111,134 +111,112 @@ import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import validateComponent from '../shared/validate.vue'
 import validateIdentifier from '../../validations/namespace.js'
-import incrementIdentifier from '../../helpers/incrementIdentifier.js'
 import LockComponent from '@/components/ui/VLock/index.vue'
 
-export default {
-  components: {
-    validateComponent,
-    LockComponent,
-    SmartSelector,
-    SmartSelectorItem
+import { computed, ref, watch } from 'vue'
+import { useStore } from 'vuex'
+
+const DELAY = 1000
+let saveRequest = undefined
+
+const store = useStore()
+const existingIdentifiers = ref([])
+
+const coId = computed(() => store.getters[GetterNames.GetCollectionObject]?.id)
+const identifiers = computed(() => store.getters[GetterNames.GetIdentifiers])
+
+const locked = computed({
+  get() {
+    return store.getters[GetterNames.GetLocked]
   },
+  set(value) {
+    store.commit([MutationNames.SetLocked, value])
+  }
+})
 
-  computed: {
-    collectionObject() {
-      return this.$store.getters[GetterNames.GetCollectionObject]
-    },
-
-    coId() {
-      return this.$store.getters[GetterNames.GetCollectionObject]?.id
-    },
-
-    identifiers() {
-      return this.$store.getters[GetterNames.GetIdentifiers]
-    },
-
-    locked: {
-      get() {
-        return this.$store.getters[GetterNames.GetLocked]
-      },
-      set(value) {
-        this.$store.commit([MutationNames.SetLocked, value])
-      }
-    },
-
-    settings: {
-      get() {
-        return this.$store.getters[GetterNames.GetSettings]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetSettings, value)
-      }
-    },
-
-    identifier: {
-      get() {
-        return this.$store.getters[GetterNames.GetIdentifier]
-      },
-      set(value) {
-        return this.$store.commit(MutationNames.SetIdentifier, value)
-      }
-    },
-
-    checkValidation() {
-      return !validateIdentifier({
-        namespace_id: this.identifier.namespace_id,
-        identifier: this.identifier.identifier
-      })
-    },
-
-    namespaceSelected: {
-      get() {
-        return this.$store.getters[GetterNames.GetNamespaceSelected]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetNamespaceSelected, value)
-      }
-    },
-
-    isCreatedIdentifierCurrent() {
-      return this.existingIdentifiers.find(
-        (item) => item.id === this.identifier.id
-      )
-    }
+const settings = computed({
+  get() {
+    return store.getters[GetterNames.GetSettings]
   },
+  set(value) {
+    store.commit(MutationNames.SetSettings, value)
+  }
+})
 
-  data() {
-    return {
-      existingIdentifiers: [],
-      delay: 1000,
-      saveRequest: undefined
-    }
+const identifier = computed({
+  get() {
+    return store.getters[GetterNames.GetIdentifier]
   },
+  set(value) {
+    store.commit(MutationNames.SetIdentifier, value)
+  }
+})
 
-  watch: {
-    existingIdentifier(newVal) {
-      this.settings.saveIdentifier = !newVal
-    },
+const checkValidation = computed(
+  () =>
+    !validateIdentifier({
+      namespace_id: identifier.value.namespace_id,
+      identifier: identifier.value.identifier
+    })
+)
 
-    coId(newVal) {
-      if (newVal) {
-        this.checkIdentifier()
-      } else {
-        this.existingIdentifiers = []
-      }
-    }
+const namespaceSelected = computed({
+  get() {
+    return store.getters[GetterNames.GetNamespaceSelected]
   },
+  set(value) {
+    store.commit(MutationNames.SetNamespaceSelected, value)
+  }
+})
 
-  methods: {
-    increment() {
-      this.identifier.identifier = incrementIdentifier(
-        this.identifier.identifier
-      )
-    },
+const isCreatedIdentifierCurrent = computed(() =>
+  existingIdentifiers.value.find((item) => item.id === identifier.value.id)
+)
 
-    checkIdentifier() {
-      if (this.saveRequest) {
-        clearTimeout(this.saveRequest)
-      }
-      if (this.identifier.identifier) {
-        this.saveRequest = setTimeout(() => {
-          Identifier.where({
-            type: IDENTIFIER_LOCAL_CATALOG_NUMBER,
-            namespace_id: this.identifier.namespace_id,
-            identifier: this.identifier.identifier
-          }).then((response) => {
-            this.existingIdentifiers = response.body
-          })
-        }, this.delay)
-      }
-    },
-    setNamespace(namespace) {
-      this.identifier.namespace_id = namespace.id
-      this.checkIdentifier()
-    },
-    unsetNamespace() {
-      this.identifier.namespace_id = undefined
-      this.namespaceSelected = undefined
+watch(existingIdentifiers, (newVal) => {
+  settings.value.saveIdentifier = !newVal.length
+})
+
+watch(coId, () => {
+  existingIdentifiers.value = []
+})
+
+watch(
+  () => identifier.value.namespace_id,
+  (newVal) => {
+    if (!newVal) {
+      unsetNamespace()
     }
   }
+)
+
+function checkIdentifier() {
+  if (saveRequest) {
+    clearTimeout(saveRequest)
+  }
+  if (identifier.value.identifier) {
+    saveRequest = setTimeout(() => {
+      Identifier.where({
+        type: IDENTIFIER_LOCAL_CATALOG_NUMBER,
+        namespace_id: identifier.value.namespace_id,
+        identifier: identifier.value.identifier
+      }).then(({ body }) => {
+        existingIdentifiers.value = body
+      })
+    }, DELAY)
+  } else {
+    existingIdentifiers.value = []
+  }
+}
+
+function setNamespace(namespace) {
+  identifier.value.namespace_id = namespace.id
+  checkIdentifier()
+}
+
+function unsetNamespace() {
+  identifier.value.namespace_id = undefined
+  namespaceSelected.value = undefined
 }
 </script>
 
