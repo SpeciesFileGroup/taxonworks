@@ -70,7 +70,10 @@
       Convert
     </VBtn>
 
-    <InlineSpinner v-if="loading" />
+    <span v-if="loading">
+      <InlineSpinner  />
+      Parsing nexus file...
+    </span>
 
     <div v-if="matrixId">
       The new matrix

@@ -11,7 +11,10 @@
     Preview conversion
   </VBtn>
 
-  <InlineSpinner v-if="loadingPreview" />
+  <span v-if="loadingPreview">
+    <InlineSpinner />
+    Parsing nexus file...
+  </span>
 
   <ImportPreview
     :otus="nexusTaxaList"
