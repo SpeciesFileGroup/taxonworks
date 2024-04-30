@@ -7,7 +7,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+## [0.40.6] - 2024-04-30
+
+### Changed
+
+- Updated Ruby gems
+
+### Fixed
+
+- Notes params not applied in Source filters (anywhere) [#3927]
+- OTU autocomplete raises when no taxon names match
+- CSD: Catalog number panel displays warning messages when the namespace is set
+
+[#3927]: https://github.com/SpeciesFileGroup/taxonworks/issues/3927
 
 ## [0.40.5] - 2024-04-25
 
@@ -15,7 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - `/api/v1/taxon_name_relationships.csv` endpoint
 
-###  Changed
+### Changed
 
 - Dwca `otu_name` only includes Otu#name, never anything else.
 - `api/v1/otus/autocomplete` now more acurately returns the label of the matching term, i.e. Combinations are supported in rendering [https://github.com/SpeciesFileGroup/taxonpages/issues/193]
@@ -28,7 +40,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing Image metadata breaks radial
 - Basic endemism task had a broken link out
 - Prevent raise on bad polygon (LinearRing) Georeferences
-
 
 [#3926]: https://github.com/SpeciesFileGroup/taxonworks/issues/3926
 
@@ -4550,7 +4561,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.5...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.6...development
+[0.40.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.5...v0.40.6
 [0.40.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.4...v0.40.5
 [0.40.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.3...v0.40.4
 [0.40.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.2...v0.40.3

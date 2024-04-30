@@ -145,7 +145,7 @@ module Queries
           ]
         }
 
-        return nil if ids.empty?
+        return ::Otu.none if ids.empty?
 
         ids.uniq!
 
