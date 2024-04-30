@@ -911,12 +911,12 @@ week_in_review_task:
   status: prototype
   description: 'A quick look dashboard of past activity'
 field_synchronize_task:
-  hub: true
+  hub: false 
   name: 'Field synchronize'
   related:
   categories:
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Batch edit or syncronize the values in one or two fields or data-attributes.'
 collecting_events_spatial_summary_task:
   hub: false
   name: 'Collecting Event Spatial Summary'
