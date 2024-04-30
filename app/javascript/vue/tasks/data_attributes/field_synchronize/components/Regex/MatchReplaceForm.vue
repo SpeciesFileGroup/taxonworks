@@ -26,6 +26,7 @@
           v-model="pattern.value"
         />
       </div>
+
       <VBtn
         color="primary"
         circle
@@ -36,6 +37,15 @@
           x-small
         />
       </VBtn>
+    </div>
+    <div v-if="pattern.mode === PATTERN_TYPES.Extract">
+      <label>
+        <input
+          type="checkbox"
+          v-model="pattern.emptyOnly"
+        />
+        Empty only
+      </label>
     </div>
   </div>
 </template>

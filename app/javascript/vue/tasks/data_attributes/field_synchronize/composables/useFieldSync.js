@@ -93,10 +93,16 @@ export function useFieldSync() {
               toValue
             )
 
-            return {
+            const payload = {
               to: makePreviewObject(newValue.to, toValue),
               from: makePreviewObject(newValue.from, fromValue)
             }
+
+            if (extractOperation.value.emptyOnly && toValue) {
+              payload.to.hasChanged = false
+            }
+
+            return payload
           })
         } else {
           data.preview = fromItems.map((value) => {
