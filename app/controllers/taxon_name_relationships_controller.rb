@@ -117,12 +117,23 @@ class TaxonNameRelationshipsController < ApplicationController
 
   # GET /api/v1/taxon_name_relationships
   def api_index
-    @taxon_name_relationships = Queries::TaxonNameRelationship::Filter.new(params.merge!(api: true)).all
+    q = Queries::TaxonNameRelationship::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('taxon_name_relationships.id')
-      .page(params[:page])
-      .per(params[:per])
-    render '/taxon_name_relationships/api/v1/index'
+
+    respond_to do |format|
+      format.json {
+        @taxon_name_relationships = q.all.page(params[:page]).per(params[:per])
+        render '/taxon_name_relationships/api/v1/index'
+      }
+      format.csv {
+        @taxon_name_relationships = q
+        send_data Export::CSV.generate_csv(
+          @taxon_name_relationships,
+          exclude_columns: %w{updated_by_id created_by_id project_id},
+        ), type: 'text', filename: "taxon_names_relationships_#{DateTime.now}.tsv"
+      }
+    end
   end
 
   # GET /api/v1/taxon_name_relationships/:id

@@ -33,7 +33,7 @@ export default defineStore('georeferences', {
         Georeference.destroy(georeference.id)
       }
 
-      removeFromArray(this.georeferences, georeference, 'uuid')
+      removeFromArray(this.georeferences, georeference, { property: 'uuid' })
     },
 
     async processGeoreferenceQueue(ceId) {

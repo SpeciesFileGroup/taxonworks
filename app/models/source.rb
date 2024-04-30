@@ -198,6 +198,7 @@ class Source < ApplicationRecord
   include Shared::HasPapertrail
   include SoftValidation
   include Shared::IsData
+  # !! Must not have Shared::Depictions
 
   ignore_whitespace_on(:verbatim_contents)
 

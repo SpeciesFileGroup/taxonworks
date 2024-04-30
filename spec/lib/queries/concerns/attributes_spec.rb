@@ -24,6 +24,15 @@ describe Queries::Concerns::Attributes, type: :model, group: [:filter] do
   # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
   context 'wildcard_attribute' do
+
+    specify 'permitted' do
+      h = {wildcard_attribute: 'foo'}
+      p = ActionController::Parameters.new(h)
+      q = Queries::CollectingEvent::Filter.new(p)
+
+      expect(q.params.keys).to include(:wildcard_attribute)
+    end
+
     specify '#start_date_year (integer field test) 1' do
       query.start_date_year = 20
       query.wildcard_attribute = :start_date_year

@@ -41,42 +41,104 @@ describe Queries::Otu::Autocomplete, type: :model do
 
   # having_taxon_name is always true here
   context '#api_autocomplete' do
-    specify 'valid taxon name 1' do
-      o = FactoryBot.create(:valid_otu, name: nil, taxon_name: FactoryBot.create(:iczn_species, name: 'smorf'))
-      q = Queries::Otu::Autocomplete.new('orf', project_id: project_id)
-      expect(q.api_autocomplete == [o]).to be_truthy
+
+    context 'api_autocomplete_extended' do
+
+      specify '#api_autocomplete_extended combination without otu' do
+        g1 = FactoryBot.create(:iczn_genus, name: 'Aus')
+        g2 = FactoryBot.create(:iczn_genus, name: 'Bus', parent_id: g1.parent_id)
+        g3 = FactoryBot.create(:iczn_genus, name: 'Cus', parent_id: g1.parent_id)
+        s = FactoryBot.create(:iczn_species, name: 'dus', parent_id: g1.parent_id)
+        o = Otu.create!(taxon_name: s)
+        c = Combination.create!(genus: g2, species: s)
+
+        s.original_genus = g3
+        s.original_species = s
+        s.save!
+
+        o2 = Otu.create!(name: 'Bus dus')
+
+        q = Queries::Otu::Autocomplete.new('Bus dus', project_id: project_id)
+
+        r = q.api_autocomplete_extended
+
+        # First match is exact OTU name
+        expect(r.first[:otu].id).to eq(o2.id)
+        expect(r.first[:otu_valid_id]).to eq(o2.id)
+        expect(r.first[:label_target].id).to eq(o2.id)
+        expect(r.first[:label_target].class.name).to eq('Otu')
+
+        # Second to Combination
+        expect(r.last[:otu].id).to eq(o.id)
+        expect(r.last[:otu_valid_id]).to eq(o.id)
+        expect(r.last[:label_target].id).to eq(c.id)
+        expect(r.last[:label_target].class.name).to eq('Combination')
+      end
     end
 
-    specify 'invalid taxon name 1' do
-      a = FactoryBot.create(:iczn_species, name: 'smorf')
-      b = FactoryBot.create(:iczn_species, name: 'rho')
+    context 'DEPRECATED(?)' do
+      specify 'combination without otu' do
+        g1 = FactoryBot.create(:iczn_genus, name: 'Aus')
+        g2 = FactoryBot.create(:iczn_genus, name: 'Bus', parent_id: g1.parent_id)
+        g3 = FactoryBot.create(:iczn_genus, name: 'Cus', parent_id: g1.parent_id)
+        s = FactoryBot.create(:iczn_species, name: 'dus', parent_id: g1.parent_id)
+        o = Otu.create!(taxon_name: s)
+        c = Combination.create!(genus: g2, species: s)
 
-      c = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: a, object_taxon_name: b)
+        s.original_genus = g3
+        s.original_species = s
+        s.save!
 
-      o = FactoryBot.create(:valid_otu, name: nil, taxon_name: a )
-      q = Queries::Otu::Autocomplete.new('smorf', project_id: project_id)
-      expect(q.api_autocomplete).to contain_exactly(o)
+        q = Queries::Otu::Autocomplete.new('Bus dus', project_id: project_id)
+        expect(q.api_autocomplete).to contain_exactly(o)
+      end
+
+      specify 'valid taxon name 1' do
+        o = FactoryBot.create(:valid_otu, name: nil, taxon_name: FactoryBot.create(:iczn_species, name: 'smorf'))
+        q = Queries::Otu::Autocomplete.new('orf', project_id: project_id)
+        expect(q.api_autocomplete == [o]).to be_truthy
+      end
+
+      specify 'invalid taxon name 1' do
+        a = FactoryBot.create(:iczn_species, name: 'smorf')
+        b = FactoryBot.create(:iczn_species, name: 'rho')
+
+        c = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: a, object_taxon_name: b)
+
+        o = FactoryBot.create(:valid_otu, name: nil, taxon_name: a )
+        q = Queries::Otu::Autocomplete.new('smorf', project_id: project_id)
+        expect(q.api_autocomplete).to contain_exactly(o)
+      end
+
+      specify 'invalid taxon name 2' do
+        a = FactoryBot.create(:iczn_species, name: 'smorf')
+        b = FactoryBot.create(:iczn_species, name: 'rho')
+
+        c = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: a, object_taxon_name: b)
+
+        o1 = FactoryBot.create(:valid_otu, name: nil, taxon_name: a )
+        o2 = FactoryBot.create(:valid_otu, name: 'smorf' ) # no taxon name
+
+        q = Queries::Otu::Autocomplete.new('smorf', project_id: project_id)
+        expect(q.api_autocomplete).to contain_exactly(o1)
+      end
+
+      specify 'combination without otu' do
+        g1 = FactoryBot.create(:iczn_genus, name: 'Aus')
+        g2 = FactoryBot.create(:iczn_genus, name: 'Bus', parent_id: g1.parent_id)
+        g3 = FactoryBot.create(:iczn_genus, name: 'Cus', parent_id: g1.parent_id)
+        s = FactoryBot.create(:iczn_species, name: 'dus', parent_id: g1.parent_id)
+        o = Otu.create!(taxon_name: s)
+        c = Combination.create!(genus: g2, species: s)
+
+        s.original_genus = g3
+        s.original_species = s
+        s.save!
+
+        q = Queries::Otu::Autocomplete.new('Bus dus', project_id: project_id)
+        expect(q.api_autocomplete).to contain_exactly(o)
+      end
     end
-
-    specify 'invalid taxon name 2' do
-      a = FactoryBot.create(:iczn_species, name: 'smorf')
-      b = FactoryBot.create(:iczn_species, name: 'rho')
-
-      c = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: a, object_taxon_name: b)
-
-      o1 = FactoryBot.create(:valid_otu, name: nil, taxon_name: a )
-      o2 = FactoryBot.create(:valid_otu, name: 'smorf' ) # no taxon name
-
-      q = Queries::Otu::Autocomplete.new('smorf', project_id: project_id)
-      expect(q.api_autocomplete).to contain_exactly(o1)
-    end
-
-
-
-
-
-
-
 
     specify '#open paren' do
       query.terms = 'Scaphoideus ('

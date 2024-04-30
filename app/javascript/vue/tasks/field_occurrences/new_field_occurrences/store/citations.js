@@ -77,7 +77,7 @@ export default defineStore('citations', {
         Citation.destroy(item.id).catch({})
       }
 
-      removeFromArray(this.citations, item, 'uuid')
+      removeFromArray(this.citations, item, { property: 'uuid' })
     },
 
     reset({ keepRecords }) {

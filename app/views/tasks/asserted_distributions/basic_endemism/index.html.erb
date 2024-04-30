@@ -1,4 +1,7 @@
 <h1> Task - Asserted distributions basic endemism </h1>
+
+<%= tag.span 'Works on asserted distributions only', class: [:feedback, 'feedback-warning', 'feedback-thin'] %> <br> <br>
+
 <%= form_tag( asserted_distributions_basic_endemism_task_path(), method: :get)  do -%>
   <div class="field">
     <%= label_tag 'Taxon name' %>
@@ -46,8 +49,9 @@
       <%= content_tag(:td, object_tag(t.ancestor_at_rank(:genus))) -%>
       <%= content_tag(:td, taxon_name_browse_link(t)) -%>
       <%= content_tag(:td, !@data[t]) -%>
+      
       <!-- TODO: we need a more explicit map since invalid OTUs are lost in the linkage below) -->
-      <%= content_tag(:td, link_to('map', browse_asserted_distributions_task(otu_id: t.otus&.first&.id) )) -%>
+      <%= content_tag(:td, link_to('map', browse_asserted_distributions_task_path(otu_id: t.otus&.first&.id) )) -%>
     </tr>
   <% end %>
 </table>

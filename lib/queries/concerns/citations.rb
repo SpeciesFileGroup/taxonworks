@@ -44,7 +44,7 @@ module Queries::Concerns::Citations
     @origin_citation = boolean_param(params, :origin_citation)
 
     # All params are Hash here
-    @source_query = ::Queries::Source::Filter.new(params[:source_query]) if params[:source_query]
+   @source_query = ::Queries::Source::Filter.new(params[:source_query]) if params[:source_query]
   end
 
   # @return [Arel::Table]
