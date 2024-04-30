@@ -90,14 +90,19 @@ module Queries
       end
 
       # Replaces things like `otu_query_facet)
-      def from_filter_facet(query, project_ids)
+      def from_filter_facet(query, project_ids = [])
         return nil if query.nil?
         t = "query_#{query.table.name}_da"
         
         k = query.referenced_klass.name
 
         q = query
-        q = q.all.where(project_id: project_ids) if !project_ids.empty?
+
+        if !project_ids.empty?
+          q = q.all.where(project_id: project_ids) 
+        else
+          q = q.all
+        end
 
         s = "WITH #{t} AS (" + q.to_sql + ') ' +
           ::DataAttribute
