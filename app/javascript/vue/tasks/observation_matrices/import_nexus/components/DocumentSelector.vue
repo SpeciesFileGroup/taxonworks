@@ -11,6 +11,7 @@
       pin-type="Document"
       :add-tabs="['new', 'filter']"
       class="selector"
+      :filter="(item) => ALLOW_EXTENSIONS.some(ext => item.document_file_file_name.endsWith(ext))"
     >
       <template #new>
         <Dropzone
@@ -95,6 +96,8 @@ const DROPZONE_CONFIG = {
   dictDefaultMessage: 'Drop a nexus file here',
   acceptedFiles: '.nex, .nxs'
 }
+
+const ALLOW_EXTENSIONS = ['.nex', '.nxs']
 
 const emit = defineEmits('selected')
 
