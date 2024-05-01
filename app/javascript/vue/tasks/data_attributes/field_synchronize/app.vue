@@ -61,11 +61,8 @@
         :preview-header="previewHeader"
         :model="currentModel"
         :is-extract="!!extractOperation"
-        @remove:attribute="
-          (attr) =>
-            removeFromArray(selectedAttributes, attr, { primitive: true })
-        "
-        @remove:predicate="(item) => removeFromArray(selectedPredicates, item)"
+        @remove:attribute="removeSelectedAttribute"
+        @remove:predicate="removeSelectedPredicate"
         @update:attribute="saveFieldAttribute"
         @update:attribute-column="saveColumnAttribute"
         @update:predicate-column="saveColumnPredicate"
@@ -84,7 +81,6 @@
 </template>
 
 <script setup>
-import { removeFromArray } from '@/helpers'
 import { QUERY_PARAMETER } from './constants'
 import { useFieldSync } from './composables'
 
@@ -119,6 +115,8 @@ const {
   processPreview,
   queryParam,
   regexPatterns,
+  removeSelectedAttribute,
+  removeSelectedPredicate,
   saveColumnAttribute,
   saveColumnPredicate,
   saveDataAttribute,

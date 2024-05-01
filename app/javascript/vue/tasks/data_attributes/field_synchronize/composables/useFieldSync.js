@@ -337,6 +337,30 @@ export function useFieldSync() {
     return request
   }
 
+  function removeSelectedAttribute(attr) {
+    removeFromArray(selectedAttributes.value, attr, { primitive: true })
+
+    if (from.value === attr) {
+      from.value = null
+    }
+
+    if (to.value === attr) {
+      to.value = null
+    }
+  }
+
+  function removeSelectedPredicate(predicate) {
+    removeFromArray(selectedPredicates.value, predicate)
+
+    if (from.value?.id === predicate.id) {
+      from.value = null
+    }
+
+    if (to.value?.id === predicate.id) {
+      to.value = null
+    }
+  }
+
   onBeforeMount(async () => {
     const { attribute } = URLParamsToJSON(window.location.href)
 
@@ -405,6 +429,8 @@ export function useFieldSync() {
     queryParam,
     queryValue,
     regexPatterns,
+    removeSelectedAttribute,
+    removeSelectedPredicate,
     saveColumnAttribute,
     saveColumnPredicate,
     saveDataAttribute,
