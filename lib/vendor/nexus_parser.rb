@@ -18,7 +18,7 @@ module Vendor::NexusParser
   end
 
   def self.validate_character_states(characters)
-    characters.each do |c|
+    characters.each_with_index do |c, i|
       # It shouldn't be possible to have duplicate state labels (right?) since
       # they're assigned sequentially, but nexus_parser does allow duplicate
       # state names, which TW does not.
@@ -26,7 +26,7 @@ module Vendor::NexusParser
       dup_names = find_duplicates(state_names)
       if dup_names.present?
         dups = dup_names.join(', ')
-        raise TaxonWorks::Error, "TaxonWorks character names must be unique for a given descriptor - duplicate name(s): '#{dups}' detected for character '#{c.name}'"
+        raise TaxonWorks::Error, "TaxonWorks character names must be unique for a given descriptor - duplicate name(s): '#{dups}' detected for character #{i + 1}: '#{c.name}'"
 
         return false
       end
