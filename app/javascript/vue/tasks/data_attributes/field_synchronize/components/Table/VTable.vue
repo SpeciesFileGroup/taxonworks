@@ -440,7 +440,9 @@ async function updateAttributeColumn({ title }) {
 
       emit('update:attribute-column', records)
     }
-  } catch (e) {}
+  } catch {
+    /* empty */
+  }
 }
 
 async function updatePredicateColumn({ predicateId, title }) {
@@ -462,7 +464,9 @@ async function updatePredicateColumn({ predicateId, title }) {
 
       emit('update:predicate-column', records)
     }
-  } catch (e) {}
+  } catch {
+    /* empty */
+  }
 }
 </script>
 

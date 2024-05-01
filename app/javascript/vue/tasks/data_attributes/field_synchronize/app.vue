@@ -14,7 +14,7 @@
   <VSpinner
     v-if="isUpdating"
     full-screen
-    legend="Saving..."
+    :legend="`Saving... ${updatedCount} of ${totalUpdate} records`"
   />
   <div
     v-if="QUERY_PARAMETER[queryParam]"
@@ -126,7 +126,9 @@ const {
   sortListByEmpty,
   sortListByMatched,
   tableList,
-  to
+  to,
+  totalUpdate,
+  updatedCount
 } = useFieldSync()
 </script>
 
