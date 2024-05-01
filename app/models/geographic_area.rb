@@ -69,12 +69,12 @@ class GeographicArea < ApplicationRecord
 
   # !! If this table changes we need to update this
   CACHED_GEOGRAPHIC_AREA_TYPES = {
-   2 => 'Unknown',
-   3 => 'Country',
-   15 => 'Parish',
-   18 => 'Province',
-   33 => 'County',
-   63 => 'State'
+    2 => 'Unknown',
+    3 => 'Country',
+    15 => 'Parish',
+    18 => 'Province',
+    33 => 'County',
+    63 => 'State'
   }.freeze
 
   before_destroy :check_for_children
@@ -297,16 +297,16 @@ class GeographicArea < ApplicationRecord
       s = m
     end
 
-     # TODO: Wrap this a pre-loading constant. This makes specs very fragile.
+    # TODO: Wrap this a pre-loading constant. This makes specs very fragile.
 
-     unless Rails.env.test?
-       n = CACHED_GEOGRAPHIC_AREA_TYPES[geographic_area_type_id]
-     end
+    unless Rails.env.test?
+      n = CACHED_GEOGRAPHIC_AREA_TYPES[geographic_area_type_id]
+    end
 
-     n ||= GeographicAreaType.where(id: geographic_area_type_id).limit(1).pick(:name)
+    n ||= GeographicAreaType.where(id: geographic_area_type_id).limit(1).pick(:name)
 
-    return {country: s} if GeographicAreaType::COUNTRY_LEVEL_TYPES.include?(n) || (id == level0_id)
-    return {state: s} if GeographicAreaType::STATE_LEVEL_TYPES.include?(n) || (data_origin == 'ne_states') || (id == level1_id) || (!parent.nil? && (parent&.id) == parent&.level0_id)
+    return {country: s} if GeographicAreaType::COUNTRY_LEVEL_TYPES.include?(n) || (id == level0_id) || (parent&.name == 'Earth')
+    return {state: s} if GeographicAreaType::STATE_LEVEL_TYPES.include?(n) || (data_origin == 'ne_states') || (id == level1_id) || (!parent.nil? && (parent&.id == parent&.level0_id)) || (parent&.parent&.name == 'Earth')
     return {county: s} if GeographicAreaType::COUNTY_LEVEL_TYPES.include?(n)
 
     if data_origin =~ /tdwg/

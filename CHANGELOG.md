@@ -11,6 +11,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Field sync task: Empty only option for extract pattern
 
+### Changeed
+
+- Improvements(?) to Collecting Event level classifier
+
 ## [0.40.6] - 2024-04-30
 
 ### Changed
