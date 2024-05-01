@@ -71,6 +71,7 @@
         @update:predicate-column="saveColumnPredicate"
         @update:data-attribute="saveDataAttribute"
         @update:preview="processPreview"
+        @refresh="() => loadPage(1)"
         @sort="sortListByMatched"
       />
     </div>

@@ -2,7 +2,15 @@
   <table class="table-striped">
     <thead>
       <tr>
-        <td />
+        <td>
+          <VBtn
+            color="primary"
+            medium
+            @click="emit('refresh')"
+          >
+            Refresh
+          </VBtn>
+        </td>
         <th
           v-if="attributes.length"
           :colspan="attributes.length"
@@ -347,6 +355,7 @@ const emit = defineEmits([
   'update:predicate-column',
   'update:data-attribute',
   'update:preview',
+  'refresh',
   'sort'
 ])
 
