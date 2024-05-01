@@ -37,7 +37,7 @@
             <VBtn
               color="primary"
               medium
-              :disabled="!hasChanges"
+              :disabled="!totalChanges"
               @click="emit('sort:preview')"
             >
               Gather
@@ -143,10 +143,10 @@
                 v-if="!isExtract"
                 color="update"
                 medium
-                :disabled="!hasChanges"
+                :disabled="!totalChanges"
                 @click="updateAll"
               >
-                Apply all ({{ hasChanges }})
+                Apply all ({{ totalChanges }})
               </VBtn>
             </div>
           </th>
@@ -154,7 +154,7 @@
             <VBtn
               color="update"
               medium
-              :disabled="!hasChanges"
+              :disabled="!totalChanges"
               @click="updateAll"
             >
               Apply all
@@ -377,7 +377,7 @@ const emit = defineEmits([
 const confirmationRef = ref(null)
 const editColumnRef = ref(null)
 
-const hasChanges = computed(
+const totalChanges = computed(
   () =>
     props.list.filter((item) => item.preview.some((item) => item.to.hasChanged))
       .length
