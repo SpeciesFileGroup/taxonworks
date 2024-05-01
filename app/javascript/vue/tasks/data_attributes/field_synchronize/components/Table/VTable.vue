@@ -146,7 +146,7 @@
                 :disabled="!hasChanges"
                 @click="updateAll"
               >
-                Apply all
+                Apply all ({{ hasChanges }})
               </VBtn>
             </div>
           </th>
@@ -377,8 +377,10 @@ const emit = defineEmits([
 const confirmationRef = ref(null)
 const editColumnRef = ref(null)
 
-const hasChanges = computed(() =>
-  props.list.some((item) => item.preview.some((item) => item.to.hasChanged))
+const hasChanges = computed(
+  () =>
+    props.list.filter((item) => item.preview.some((item) => item.to.hasChanged))
+      .length
 )
 
 async function updateAll() {
