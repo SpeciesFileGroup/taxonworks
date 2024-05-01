@@ -46,17 +46,14 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
     expect(nf.characters[0].states['-'].name).to eq('gap')
   end
 
-  specify 'gap state + character state with name gap handled correctly' do
+  specify "gap state + character state with name 'gap' raises" do
     d = Document.create!(
       document_file: Rack::Test::UploadedFile.new(
         (Rails.root + 'spec/files/nexus/gap_state_and_character_name.nxs'),
         'text/plain'
       ))
 
-    nf = Vendor::NexusParser.document_to_nexus(d)
-
-    expect(nf.characters[0].states['0'].name).to eq('gap')
-    expect(nf.characters[0].states['-'].name).to_not eq('gap')
+    expect{ Vendor::NexusParser.document_to_nexus(d) }.to raise_error TaxonWorks::Error
   end
 
   specify 'character with duplicate state name raises' do
