@@ -185,14 +185,24 @@ class GeographicArea < ApplicationRecord
 
   scope :ordered_by_area, -> (direction = :ASC) { joins(:geographic_items).order("geographic_items.cached_total_area #{direction || 'ASC'}") }
 
+  # Based strictly on the original data recording a level ID, 
+  # this is *inferrence* and it will fail with some data.
   def self.inferred_as_country
     where('geographic_areas.level0_id = geographic_areas.id')
+  end
+
+  def self.inferred_as_state
+    where('geographic_areas.level1_id = geographic_areas.id')
+  end
+
+  def self.inferred_as_county
+    where('geographic_areas.level2_id = geographic_areas.id')
   end
 
   # Same results as descendant_of but starts with Array of IDs
   def self.descendants_of_any(ids = [])
     ids = [ids].flatten.compact.uniq
-   return nil if ids.empty?
+    return nil if ids.empty?
 
     descendants_subquery = GeographicAreaHierarchy.where(
       GeographicAreaHierarchy.arel_table[:descendant_id].eq(GeographicArea.arel_table[:id]).and(
@@ -286,6 +296,10 @@ class GeographicArea < ApplicationRecord
   #  joins(:geographic_areas_geographic_items)
   # end
 
+  def is_tdwg?
+    data_origin =~ /tdwg/
+  end
+
   # @return [Hash]
   #   A key/value pair that classify this GeographicArea
   #   into  a country, state, our county
@@ -305,30 +319,27 @@ class GeographicArea < ApplicationRecord
 
     n ||= GeographicAreaType.where(id: geographic_area_type_id).limit(1).pick(:name)
 
-    return {country: s} if GeographicAreaType::COUNTRY_LEVEL_TYPES.include?(n) || (id == level0_id) || (parent&.name == 'Earth')
-    return {state: s} if GeographicAreaType::STATE_LEVEL_TYPES.include?(n) || (data_origin == 'ne_states') || (id == level1_id) || (!parent.nil? && (parent&.id == parent&.level0_id)) || (parent&.parent&.name == 'Earth')
+    return {country: s} if GeographicAreaType::COUNTRY_LEVEL_TYPES.include?(n) || (id == level0_id) || (parent&.name == 'Earth' && !is_tdwg?)
+    return {state: s} if GeographicAreaType::STATE_LEVEL_TYPES.include?(n) || (data_origin == 'ne_states') || (id == level1_id) || (!parent.nil? && (parent&.id == parent&.level0_id)) || ((parent&.parent&.name == 'Earth') && !is_tdwg?)
     return {county: s} if GeographicAreaType::COUNTY_LEVEL_TYPES.include?(n)
 
-    if data_origin =~ /tdwg/
-      if o = categorize_tdwg
-        return o
-      end
-    end
+    return categorize_tdwg if is_tdwg?
     {}
   end
 
   # Hack. If TDWG Gazetteer data are eliminated this needs to be removed.
-#
+  #
   # TODO:
   #   * This seems very wrong in many was, TDWG does not have levels corresponding to countries in any place
   #
   def categorize_tdwg
-    if g = GeographicArea
-      .where(name:) # shares the same name
-      # was: .where('level0_id = parent_id') # parent is a country
-      .inferred_as_country # parent is a country
-      .where.not(geographic_area_type: [111,112]).any? # not another TDWG record
-      return {state: name}
+
+    g = GeographicArea
+      .where(name:)
+      .where.not(geographic_area_type: [109, 110, 111,112])
+
+    if g.any?
+      return g.first.categorize
     end
 
     # !! Do not use ::Utilities::Geo::DICTIONARY here, this is particular to TDWG's names
@@ -341,13 +352,6 @@ class GeographicArea < ApplicationRecord
     return {country: 'Canada'} if name =~ /Canada/
     return {country: 'Chile'} if name =~ /Chile.Central/
     return {country: name} if %w{Brazil New\ Zealand Mexico Brazil China Australia}.include?(name)
-
-    if g = GeographicArea
-        .where(name:) # shares the same name
-        .where('level0_id = id') # self is a country
-        .where.not(geographic_area_type: [111,112]).any? # not another TDWG record
-      return {country: name}
-    end
 
     {}
   end
@@ -545,37 +549,37 @@ class GeographicArea < ApplicationRecord
   def self.used_recently(user_id, project_id, used_on = 'CollectingEvent')
 
     case used_on
-        when 'CollectingEvent'
-          t = CollectingEvent.arel_table
-          # i is a select manager
-          i = t.project(t['geographic_area_id'], t['updated_at']).from(t)
-                  .where(t['updated_at'].gt(1.week.ago))
-                  .where(t['updated_by_id'].eq(user_id))
-                  .where(t['project_id'].eq(project_id))
-                  .order(t['updated_at'].desc)
+    when 'CollectingEvent'
+      t = CollectingEvent.arel_table
+      # i is a select manager
+      i = t.project(t['geographic_area_id'], t['updated_at']).from(t)
+        .where(t['updated_at'].gt(1.week.ago))
+        .where(t['updated_by_id'].eq(user_id))
+        .where(t['project_id'].eq(project_id))
+        .order(t['updated_at'].desc)
 
-          # z is a table alias
-          z = i.as('recent_t')
-          p = GeographicArea.arel_table
-          GeographicArea.joins(
-              Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['geographic_area_id'].eq(p['id'])))
-          ).pluck(:geographic_area_id).uniq
-        when 'AssertedDistribution'
-          t = Citation.arel_table
-          # i is a select manager
-          i = t.project(t['citation_object_id'], t['citation_object_type'], t['created_at']).from(t)
-                  .where(t['created_at'].gt(1.week.ago))
-                  .where(t['created_by_id'].eq(user_id))
-                  .where(t['project_id'].eq(project_id))
-                  .order(t['created_at'].desc)
+      # z is a table alias
+      z = i.as('recent_t')
+      p = GeographicArea.arel_table
+      GeographicArea.joins(
+        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['geographic_area_id'].eq(p['id'])))
+      ).pluck(:geographic_area_id).uniq
+    when 'AssertedDistribution'
+      t = Citation.arel_table
+      # i is a select manager
+      i = t.project(t['citation_object_id'], t['citation_object_type'], t['created_at']).from(t)
+        .where(t['created_at'].gt(1.week.ago))
+        .where(t['created_by_id'].eq(user_id))
+        .where(t['project_id'].eq(project_id))
+        .order(t['created_at'].desc)
 
-          # z is a table alias
-          z = i.as('recent_t')
-          p = AssertedDistribution.arel_table
+      # z is a table alias
+      z = i.as('recent_t')
+      p = AssertedDistribution.arel_table
 
-           ad = AssertedDistribution.joins(
-              Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['citation_object_id'].eq(p['id']).and(z['citation_object_type'].eq('AssertedDistribution')))  )
-              ).pluck(:geographic_area_id).uniq
+      ad = AssertedDistribution.joins(
+        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['citation_object_id'].eq(p['id']).and(z['citation_object_type'].eq('AssertedDistribution')))  )
+      ).pluck(:geographic_area_id).uniq
     end
   end
 
@@ -593,13 +597,13 @@ class GeographicArea < ApplicationRecord
       h[:quick] = GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a
     else
       case target
-        when 'CollectingEvent'
-          h[:recent] = GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(10) ).order(:name).to_a
-        when 'AssertedDistribution'
-          h[:recent] = GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(15) ).order(:name).to_a
+      when 'CollectingEvent'
+        h[:recent] = GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(10) ).order(:name).to_a
+      when 'AssertedDistribution'
+        h[:recent] = GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(15) ).order(:name).to_a
       end
       h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a +
-          GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(5) ).order(:name).to_a).uniq
+                   GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(5) ).order(:name).to_a).uniq
     end
 
     h
