@@ -62,7 +62,7 @@
                 medium
                 @click="emit('sort:property', attr)"
               >
-                Sort by empty
+                Gather empty
               </VBtn>
               <VBtn
                 v-if="!noEditable.includes(attr)"
@@ -101,7 +101,7 @@
                 medium
                 @click="emit('sort:property', predicate)"
               >
-                Sort by empty
+                Gather empty
               </VBtn>
               <VBtn
                 color="primary"
