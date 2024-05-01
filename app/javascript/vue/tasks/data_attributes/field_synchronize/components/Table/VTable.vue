@@ -58,6 +58,13 @@
             >
             <div class="horizontal-left-content middle gap-small">
               <VBtn
+                color="primary"
+                medium
+                @click="emit('sort:property', attr)"
+              >
+                Sort by empty
+              </VBtn>
+              <VBtn
                 v-if="!noEditable.includes(attr)"
                 color="primary"
                 circle
@@ -89,6 +96,13 @@
           <div class="flex-separate middle gap-medium">
             <span>{{ predicate.name }}</span>
             <div class="horizontal-left-content middle gap-small">
+              <VBtn
+                color="primary"
+                medium
+                @click="emit('sort:property', predicate)"
+              >
+                Sort by empty
+              </VBtn>
               <VBtn
                 color="primary"
                 circle
@@ -356,7 +370,8 @@ const emit = defineEmits([
   'update:data-attribute',
   'update:preview',
   'refresh',
-  'sort'
+  'sort:preview',
+  'sort:property'
 ])
 
 const confirmationRef = ref(null)

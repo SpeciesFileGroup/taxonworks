@@ -72,7 +72,8 @@
         @update:data-attribute="saveDataAttribute"
         @update:preview="processPreview"
         @refresh="() => loadPage(1)"
-        @sort="sortListByMatched"
+        @sort:preview="sortListByMatched"
+        @sort:property="sortListByEmpty"
       />
     </div>
   </div>
@@ -124,6 +125,7 @@ const {
   saveFieldAttribute,
   selectedAttributes,
   selectedPredicates,
+  sortListByEmpty,
   sortListByMatched,
   tableList,
   to

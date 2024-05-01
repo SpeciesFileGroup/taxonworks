@@ -133,6 +133,22 @@ export function useFieldSync() {
     ]
   }
 
+  function sortListByEmpty(property) {
+    const predicateId = property?.id
+    const itemsWithValue = list.value
+      .filter((item) =>
+        predicateId
+          ? item.dataAttributes[predicateId].some((d) => d.value)
+          : item.attributes[property]
+      )
+      .map((item) => item.id)
+
+    list.value = [
+      ...list.value.filter((item) => !itemsWithValue.includes(item.id)),
+      ...list.value.filter((item) => itemsWithValue.includes(item.id))
+    ]
+  }
+
   function processPreview({ fromItems = [], toItems = [] }) {
     const fromPredicateId = from.value?.id
     const toPredicateId = to.value?.id
@@ -395,6 +411,7 @@ export function useFieldSync() {
     saveFieldAttribute,
     selectedAttributes,
     selectedPredicates,
+    sortListByEmpty,
     sortListByMatched,
     tableList,
     to
