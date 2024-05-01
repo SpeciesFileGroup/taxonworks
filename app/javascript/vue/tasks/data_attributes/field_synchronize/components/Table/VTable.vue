@@ -38,7 +38,7 @@
               color="primary"
               medium
               :disabled="!hasChanges"
-              @click="emit('sort')"
+              @click="emit('sort:preview')"
             >
               Gather
             </VBtn>
