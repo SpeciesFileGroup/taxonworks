@@ -459,7 +459,7 @@ class ObservationMatricesController < ApplicationController
       error_message = "The nexus file must include both taxa and characters, this one has #{nf.taxa.size} taxa and #{nf.characters.size} characters"
     end
 
-    render json: { errors: error_message }, status: unprocessable_entity
+    render json: { errors: error_message }, status: :unprocessable_entity
 
     false
   end
