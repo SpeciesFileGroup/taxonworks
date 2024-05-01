@@ -39,4 +39,9 @@ describe Queries::Source::Filter, type: :model, group: [:documents, :filter] do
     query.file_extension = '.asdf'
     expect(query.all.count).to eq(0)
   end
+
+  specify 'empty #file_extension matches all files' do
+    query.file_extension = ''
+    expect(query.all.count).to eq(3)
+  end
 end

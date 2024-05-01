@@ -24,6 +24,8 @@ module Queries
       end
 
       def file_extension_facet
+        return nil if !file_extension&.present?
+
         d = EXTENSIONS_DATA[file_extension&.to_sym] || {
           content_type: '', # matches no document
           extensions: ['']
