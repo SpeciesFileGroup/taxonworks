@@ -7,12 +7,12 @@ function makeDataAttributeObjectHeaders(data) {
 }
 
 function getDataAttributesFor(data, objectId) {
-  const list = data.data.filter(([id]) => id === objectId)
+  const list = data.data.filter(([_, id]) => id === objectId)
   const headers = makeDataAttributeObjectHeaders(data)
 
   return Object.assign(
     {},
-    ...list.map(([id, attrId, value]) => ({
+    ...list.map(([dataAttrId, id, attrId, value]) => ({
       [headers[attrId]]: value
     }))
   )

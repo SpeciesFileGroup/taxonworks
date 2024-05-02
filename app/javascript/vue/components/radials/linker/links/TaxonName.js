@@ -1,12 +1,9 @@
 import {
   TASK_TAXON_NAME_STATS,
+  TASK_FIELD_SYNCHRONIZE
 } from '../constants/links'
 
 export const TaxonName = {
-  all: [
-    TASK_TAXON_NAME_STATS
-  ],
-  ids: [
-    TASK_TAXON_NAME_STATS
-  ]
+  all: [TASK_TAXON_NAME_STATS, TASK_FIELD_SYNCHRONIZE],
+  ids: [TASK_TAXON_NAME_STATS, TASK_FIELD_SYNCHRONIZE]
 }

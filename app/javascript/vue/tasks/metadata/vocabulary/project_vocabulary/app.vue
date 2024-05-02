@@ -20,6 +20,11 @@
           Show records
         </VBtn>
       </div>
+      <PanelLinks
+        v-if="words.length"
+        :model="parameters.model"
+        :attribute="parameters.attribute"
+      />
       <div
         v-if="words.length"
         class="overflow-y-auto"
@@ -70,6 +75,7 @@ import VueWordCloud from 'vuewordcloud'
 import PanelSettings from './components/PanelSettings.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import TableWords from './components/TableWords.vue'
+import PanelLinks from './components/PanelLinks.vue'
 
 defineOptions({
   name: 'ProjectVocabulary'

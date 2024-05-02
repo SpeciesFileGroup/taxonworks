@@ -7,6 +7,27 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+## [0.41.0] - 2024-05-02
+
+### Added
+
+- Field synchronizer task- batch edit (regex too), update and syncronize columns and between columns
+- `misspelling` option to API `taxon_name_relationship_set[]`
+
+### Changed
+
+- Gemfile update
+- Improvements(?) to Collecting Event level classifier [#3821]
+
+### Fixed
+
+- Asynchronous batch updates on individual objects
+- Invisible edges in biological associations graph viz
+- PDF button is available for all document types [#3933]
+
+[#3821]: https://github.com/SpeciesFileGroup/taxonworks/issues/3821
+[#3933]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
+
 ## [0.40.6] - 2024-04-30
 
 ### Changed
@@ -17,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Notes params not applied in Source filters (anywhere) [#3927]
 - OTU autocomplete raises when no taxon names match
+- Moving from Source to Image filter failed to return cited images
 - CSD: Catalog number panel displays warning messages when the namespace is set
 
 [#3927]: https://github.com/SpeciesFileGroup/taxonworks/issues/3927
@@ -85,6 +107,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- `/data_attributes/brief` not scoped to project
 - New collecting event: It tries to save the label even if it is empty
 - Spatial summary return to filter with empty cached level fields [#3907]
 - Comprehensive form: Sometimes Attributes are not cleaned when new collection object is created [#3910]
@@ -4561,7 +4584,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.6...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.0..development
+[0.41.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.6...v0.41.0
 [0.40.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.5...v0.40.6
 [0.40.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.4...v0.40.5
 [0.40.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.3...v0.40.4

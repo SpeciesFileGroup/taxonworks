@@ -77,7 +77,14 @@ export const TASK_BIOLOGICAL_ASSOCIATION_SUMMARY = {
   label: 'Summary (metadata)',
   link: '/tasks/biological_associations/summary'
 }
+
 export const TASK_PEOPLE_METADATA = {
   label: 'Summary (metadata)',
   link: '/tasks/people/summary'
+}
+
+export const TASK_FIELD_SYNCHRONIZE = {
+  label: 'Field synchronize',
+  link: '/tasks/data_attributes/field_synchronize',
+  queryParam: true
 }

@@ -43,7 +43,7 @@ export default defineStore('taxonDeterminations', {
         TaxonDetermination.destroy(determination.id)
       }
 
-      removeFromArray(this.determinations, determination, 'uuid')
+      removeFromArray(this.determinations, determination, { property: 'uuid' })
     },
 
     save({ objectId, objectType }) {

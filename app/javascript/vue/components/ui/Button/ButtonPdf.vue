@@ -1,5 +1,6 @@
 <template>
   <VBtn
+    v-if="pdf.content_type === PDF_CONTENT_TYPE"
     color="primary"
     circle
     class="pdf-button"
@@ -10,6 +11,8 @@
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
+
+const PDF_CONTENT_TYPE = 'application/pdf'
 
 const props = defineProps({
   pdf: {

@@ -47,8 +47,18 @@ module Vocabulary
   # are reasonably human-visualized
   # @param model an ApplicationRecord model
   def self.attributes(model, mode: nil)
+    return [] if model.nil?
     xml_fields = %i{svg_clip} # for now just subtract known unprocessable fields across models.
-    ApplicationEnumeration.attributes(model.new) - xml_fields
+    
+    a = ApplicationEnumeration.attributes(model.new) - xml_fields
+
+    case mode&.to_sym
+    when :editable
+      a.delete_if{|v| v =~ /cached|md5|document_file|_type\Z|\Atype\Z|rank_class/} # needs to be in application enumeration probably
+      a
+    else
+      a
+    end
   end
 
   # From a String.

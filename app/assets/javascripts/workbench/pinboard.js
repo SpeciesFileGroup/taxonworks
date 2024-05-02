@@ -36,7 +36,7 @@ Object.assign(TW.workbench.pinboard, {
           <div class="pinboard-menu-bar"></div>
           <div class="pinboard-menu-bar"></div>
           <div class="pinboard-menu-bar"></div>
-          <div class="itemOptions pinboard-dropdown-content">
+          <div class="itemOptions pinboard-dropdown-content gap-small">
             ${this.createDocuments(pinObject)}
             <a
               href="${pinObject.object_url}"
@@ -68,7 +68,7 @@ Object.assign(TW.workbench.pinboard, {
     return pinObject.pinned_object_documents
       ? pinObject.pinned_object_documents.map(
           (document) => `
-        <span class="pdfviewerItem">
+        <span class="pdfviewerItem flexbox gap-small">
           <a
             class="circle-button"
             data-pdfviewer="${document.document_file}"
