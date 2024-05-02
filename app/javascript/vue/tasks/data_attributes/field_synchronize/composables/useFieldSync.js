@@ -35,6 +35,8 @@ export function useFieldSync() {
   const regexPatterns = ref([])
   const selectedAttributes = ref([])
   const selectedPredicates = ref([])
+  const updatedCount = ref(0)
+  const totalUpdate = ref(0)
   const to = ref()
   const { queryParam, queryValue } = useQueryParam()
 
@@ -153,19 +155,32 @@ export function useFieldSync() {
     const fromPredicateId = from.value?.id
     const toPredicateId = to.value?.id
 
+    updatedCount.value = 0
+    totalUpdate.value = fromItems.length + toItems.length
+
     function requestItems(items, predicateId, attribute) {
       return items.map(({ item, index, value }) => {
+        let request
+
         if (predicateId) {
           const dataAttribute = item.dataAttributes[predicateId][index]
 
-          return saveDataAttribute({
+          request = saveDataAttribute({
             ...dataAttribute,
             objectId: item.id,
             value
           })
+        } else {
+          request = saveFieldAttribute({ item, attribute, value })
         }
 
-        return saveFieldAttribute({ item, attribute, value })
+        request
+          .finally(() => {
+            updatedCount.value++
+          })
+          .catch(() => {})
+
+        return request
       })
     }
 
@@ -184,14 +199,26 @@ export function useFieldSync() {
   function saveColumnAttribute(items) {
     const requests = items.map((item) => saveFieldAttribute(item))
 
-    isUpdating.value = true
-    makeNotificationWhenPromisesEnd(requests).then(() => {
-      isUpdating.value = false
-    })
+    handleRequestsFromColumnUpdate(requests)
   }
 
   function saveColumnPredicate(items) {
     const requests = items.map((item) => saveDataAttribute(item))
+
+    handleRequestsFromColumnUpdate(requests)
+  }
+
+  function handleRequestsFromColumnUpdate(requests) {
+    totalUpdate.value = requests.length
+    updatedCount.value = 0
+
+    requests.forEach((item) => {
+      item
+        .finally(() => {
+          updatedCount.value++
+        })
+        .catch(() => {})
+    })
 
     isUpdating.value = true
     makeNotificationWhenPromisesEnd(requests).then(() => {
@@ -210,10 +237,10 @@ export function useFieldSync() {
     })
 
     request
-      .then(() => {
+      .then(({ body }) => {
         const currentItem = list.value.find((obj) => obj.id === item.id)
 
-        currentItem.attributes[attribute] = value
+        currentItem.attributes[attribute] = body[attribute]
       })
       .catch(() => {})
 
@@ -246,13 +273,15 @@ export function useFieldSync() {
     if (!value) {
       const request = DataAttribute.destroy(id)
 
-      request.then(() => {
-        removeFromArray(predicates, { uuid }, { property: 'uuid' })
+      request
+        .then(() => {
+          removeFromArray(predicates, { uuid }, { property: 'uuid' })
 
-        if (!predicates.length) {
-          predicates.push(makeDataAttribute({ predicateId }))
-        }
-      })
+          if (!predicates.length) {
+            predicates.push(makeDataAttribute({ predicateId }))
+          }
+        })
+        .catch(() => {})
 
       return request
     }
@@ -261,18 +290,20 @@ export function useFieldSync() {
       ? DataAttribute.update(id, payload)
       : DataAttribute.create(payload)
 
-    request.then(({ body }) => {
-      const _dataAttributes = dataAttributes.value[objectId][predicateId]
-      const da = _dataAttributes.find((item) => item.uuid === uuid)
-      const currentDa = predicates.find((item) => item.uuid === uuid)
+    request
+      .then(({ body }) => {
+        const _dataAttributes = dataAttributes.value[objectId][predicateId]
+        const da = _dataAttributes.find((item) => item.uuid === uuid)
+        const currentDa = predicates.find((item) => item.uuid === uuid)
 
-      da.id = body.id
-      da.value = body.value
-      currentDa.value = body.id
-      currentDa.value = body.value
+        da.id = body.id
+        da.value = body.value
+        currentDa.value = body.id
+        currentDa.value = body.value
 
-      TW.workbench.alert.create('Data attribute was successfully saved')
-    })
+        TW.workbench.alert.create('Data attribute was successfully saved')
+      })
+      .catch(() => {})
 
     return request
   }
@@ -440,6 +471,8 @@ export function useFieldSync() {
     sortListByEmpty,
     sortListByMatched,
     tableList,
+    updatedCount,
+    totalUpdate,
     to
   }
 }

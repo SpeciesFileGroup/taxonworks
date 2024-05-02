@@ -37,7 +37,7 @@
             <VBtn
               color="primary"
               medium
-              :disabled="!hasChanges"
+              :disabled="!totalChanges"
               @click="emit('sort:preview')"
             >
               Gather
@@ -143,10 +143,10 @@
                 v-if="!isExtract"
                 color="update"
                 medium
-                :disabled="!hasChanges"
+                :disabled="!totalChanges"
                 @click="updateAll"
               >
-                Apply all
+                Apply all ({{ totalChanges }})
               </VBtn>
             </div>
           </th>
@@ -154,7 +154,7 @@
             <VBtn
               color="update"
               medium
-              :disabled="!hasChanges"
+              :disabled="!totalChanges"
               @click="updateAll"
             >
               Apply all
@@ -377,8 +377,10 @@ const emit = defineEmits([
 const confirmationRef = ref(null)
 const editColumnRef = ref(null)
 
-const hasChanges = computed(() =>
-  props.list.some((item) => item.preview.some((item) => item.to.hasChanged))
+const totalChanges = computed(
+  () =>
+    props.list.filter((item) => item.preview.some((item) => item.to.hasChanged))
+      .length
 )
 
 async function updateAll() {
@@ -440,7 +442,9 @@ async function updateAttributeColumn({ title }) {
 
       emit('update:attribute-column', records)
     }
-  } catch (e) {}
+  } catch {
+    /* empty */
+  }
 }
 
 async function updatePredicateColumn({ predicateId, title }) {
@@ -462,7 +466,9 @@ async function updatePredicateColumn({ predicateId, title }) {
 
       emit('update:predicate-column', records)
     }
-  } catch (e) {}
+  } catch {
+    /* empty */
+  }
 }
 </script>
 
