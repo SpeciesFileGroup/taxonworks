@@ -9,16 +9,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- Field sync task: Empty only option for extract pattern 
+- Field synchronizer task- batch edit (regex too), update and syncronize columns and between columns
 - `misspelling` option to API `taxon_name_relationship_set[]`
 
 ### Changed
 
+- Gemfile update
 - Improvements(?) to Collecting Event level classifier [#3821]
 
 ### Fixed
 
 - Asynchronous batch updates on individual objects
+- Invisible edges in biological associations graph viz
 
 [#3821]: https://github.com/SpeciesFileGroup/taxonworks/issues/3821
 
