@@ -21,6 +21,8 @@
 </template>
 
 <script setup>
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+
 const ANY_EXTENSION = 'Any extension'
 
 const props = defineProps({

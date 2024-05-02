@@ -32,16 +32,11 @@
         </label>
       </template>
       <template #filter>
-        <div>
-          <FilterDocument v-model="parameters" />
-          <VBtn
-            color="primary"
-            medium
-            @click="() => loadList(parameters)"
-          >
-            Search
-          </VBtn>
-        </div>
+        <FilterDocument
+          v-model="parameters"
+          :extensions="[ALLOW_EXTENSIONS.join(', ')]"
+          @filter="() => loadList(parameters)"
+        />
         <div class="results">
           <div
             v-for="doc in filterList"
@@ -80,7 +75,6 @@ import Dropzone from '@/components/dropzone.vue'
 import FilterDocument from './FilterDocument.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { Document } from '@/routes/endpoints'
 import { ref } from 'vue'
