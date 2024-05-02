@@ -3,6 +3,7 @@
 class ObservationMatrix < ApplicationRecord
   include Housekeeping
   include Shared::Citations
+  include Shared::Documentation
   include Shared::Identifiers
   include Shared::Tags
   include Shared::Notes

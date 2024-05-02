@@ -198,6 +198,18 @@ RSpec.describe ObservationMatricesController, type: :controller do
       expect(ObservationMatrix.all.count).to eq(1)
     end
 
+    specify 'the created matrix is documented with its nexus document' do
+      params = {
+        nexus_document_id: valid_nexus_doc.id,
+        options:
+      }
+      post :import_from_nexus, params:, session: valid_session
+
+      m = ObservationMatrix.first
+      expect(Documentation.first.documentation_object).to eq(m)
+      expect(Documentation.first.document_id).to eq(valid_nexus_doc.id)
+    end
+
     # Other options are tested in the helper specs - this option is processed
     # in the controller so that we can respond to the user right away instead
     # of via an error in the background job.
