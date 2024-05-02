@@ -7,6 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+## [0.41.0] - 2024-05-02
+
 ### Added
 
 - Field synchronizer task- batch edit (regex too), update and syncronize columns and between columns
@@ -4582,7 +4584,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.6...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.0..development
+[0.41.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.6...v0.41.0
 [0.40.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.5...v0.40.6
 [0.40.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.4...v0.40.5
 [0.40.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.3...v0.40.4
