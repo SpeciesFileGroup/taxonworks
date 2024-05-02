@@ -255,6 +255,42 @@ describe Lib::Vendor::NexusHelper, type: :helper do
     end
   end
 
+  context 'Matching both otus and descriptors' do
+    let!(:d) { FactoryBot.create(:valid_descriptor_qualitative, name: 'head') }
+    let!(:otu) { FactoryBot.create(:valid_otu, name: 'Agonum') }
+    before(:each) {
+      # Descriptors only match if character states match as well, so create
+      # those.
+      FactoryBot.create(:valid_character_state, descriptor: d,
+        name: 'square', label: '0')
+      FactoryBot.create(:valid_character_state, descriptor: d,
+        name: 'pointy', label: '1')
+      FactoryBot.create(:valid_character_state, descriptor: d,
+        name: 'gap', label: '-')
+    }
+
+    specify 'Matched existing observations get merged with newly created ones' do
+      Observation::Qualitative.create!(
+        observation_object: otu, descriptor: d,
+        character_state: CharacterState.find_by(name: 'square'))
+
+      # Observation 00 of nex_parsed is the just created Observation with
+      # character state name 'pointy' instead of 'square'.
+      populate_matrix_with_nexus(
+        doc.id,
+        nex_parsed,
+        m,
+        {
+          match_character_to_name: true,
+          match_otu_to_name: true
+        }
+      )
+
+      g = m.observations_in_grid[:grid]
+      expect(g[0][0].map { |o| o.character_state.name }).to eq(['square', 'pointy'])
+    end
+  end
+
   context 'Adding citations' do
     let!(:source) { FactoryBot.create(:valid_source) }
 
