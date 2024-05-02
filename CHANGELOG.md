@@ -9,9 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- Field sync task: Empty only option for extract pattern
+- Field sync task: Empty only option for extract pattern 
+- `misspelling` option to API `taxon_name_relationship_set[]`
 
-### Changeed
+### Changed
 
 - Improvements(?) to Collecting Event level classifier [#3821]
 
