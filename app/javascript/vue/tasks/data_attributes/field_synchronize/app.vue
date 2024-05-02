@@ -61,6 +61,8 @@
         :preview-header="previewHeader"
         :model="currentModel"
         :is-extract="!!extractOperation"
+        :save-attribute-function="saveFieldAttribute"
+        :save-data-attribute-function="saveDataAttribute"
         @remove:attribute="removeSelectedAttribute"
         @remove:predicate="removeSelectedPredicate"
         @update:attribute="saveFieldAttribute"

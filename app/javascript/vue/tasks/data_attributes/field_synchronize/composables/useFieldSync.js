@@ -300,8 +300,6 @@ export function useFieldSync() {
         da.value = body.value
         currentDa.value = body.id
         currentDa.value = body.value
-
-        TW.workbench.alert.create('Data attribute was successfully saved')
       })
       .catch(() => {})
 

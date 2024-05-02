@@ -167,52 +167,25 @@
       <tr
         v-for="item in list"
         :key="item.uuid"
-        class="contextMenuCells"
       >
         <td>{{ item.id }}</td>
-        <td
+        <VTableCellAttribute
           v-for="key in attributes"
           :key="key"
-        >
-          <input
-            type="text"
-            :value="item.attributes[key]"
-            class="full_width"
-            :disabled="noEditable.includes(key)"
-            @change="
-              (e) =>
-                emit('update:attribute', {
-                  item: item,
-                  attribute: key,
-                  value: e.target.value
-                })
-            "
-          />
-        </td>
-        <td
+          :attribute="key"
+          :item="item"
+          :save-attribute-function="saveAttributeFunction"
+          :disabled="noEditable.includes(key)"
+        />
+        <VTableCellDataAttribute
           v-for="(predicate, index) in predicates"
           :key="predicate.id"
           :class="{ 'cell-left-border': !index }"
+          :item="item"
+          :predicate="predicate"
+          :save-data-attribute-function="saveDataAttributeFunction"
         >
-          <input
-            v-for="dataAttribute in item.dataAttributes[predicate.id]"
-            :key="dataAttribute.uuid"
-            class="full_width d-block"
-            type="text"
-            :value="dataAttribute.value"
-            @change="
-              (e) => {
-                emit('update:data-attribute', {
-                  id: dataAttribute.id,
-                  objectId: item.id,
-                  predicateId: dataAttribute.predicateId,
-                  uuid: dataAttribute.uuid,
-                  value: e.target.value
-                })
-              }
-            "
-          />
-        </td>
+        </VTableCellDataAttribute>
         <template v-if="previewHeader.length">
           <td
             v-if="isExtract"
@@ -321,6 +294,8 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import EditColumn from './EditColumn.vue'
+import VTableCellAttribute from './VTableCellAttribute.vue'
+import VTableCellDataAttribute from './VTableCellDataAttribute.vue'
 
 const MAX_RECORDS_WITHOUT_CONFIRMATION = 10
 
@@ -328,6 +303,16 @@ const props = defineProps({
   noEditable: {
     type: Array,
     default: () => []
+  },
+
+  saveAttributeFunction: {
+    type: Function,
+    required: true
+  },
+
+  saveDataAttributeFunction: {
+    type: Function,
+    required: true
   },
 
   attributes: {
