@@ -12,21 +12,29 @@ module Vendor::NexusParser
 
     assign_gap_names(nf)
 
-    validate_character_states(nf.characters)
+    validate_characters_and_states(nf.characters)
 
     nf
   end
 
-  def self.validate_character_states(characters)
+  def self.validate_characters_and_states(characters)
     characters.each_with_index do |c, i|
+      if c.name == 'Undefined' # nexus_parser special string
+        raise TaxonWorks::Error, "Character #{i + 1} has no name - in TaxonWorks descriptors are required to have a name."
+      end
+
       # It shouldn't be possible to have duplicate state labels (right?) since
       # they're assigned sequentially, but nexus_parser does allow duplicate
-      # state names, which TW does not.
+      # and empty state names, which TW does not.
       state_names = c.states.map { |k, v| v.name }
+      if (empty_index = state_names.index(''))
+        raise TaxonWorks::Error, "Character #{empty_index + 1} contains an empty state name - in TaxonWorks all character states are required to have a name."
+      end
+
       dup_names = find_duplicates(state_names)
       if dup_names.present?
         dups = dup_names.join(', ')
-        raise TaxonWorks::Error, "TaxonWorks character names must be unique for a given descriptor - duplicate name(s): '#{dups}' detected for character #{i + 1}: '#{c.name}'"
+        raise TaxonWorks::Error, "Error in character #{i + 1}: duplicate name(s): '#{dups}'. In TaxonWorks character names must be unique for a given descriptor."
 
         return false
       end

@@ -66,4 +66,24 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
     expect{Vendor::NexusParser.document_to_nexus(d)}.to raise_error TaxonWorks::Error
   end
 
+  specify 'character with empty name raises' do
+    d = Document.create!(
+      document_file: Rack::Test::UploadedFile.new(
+        (Rails.root + 'spec/files/nexus/empty_character_name.nex'),
+        'text/plain'
+      ))
+
+    expect{Vendor::NexusParser.document_to_nexus(d)}.to raise_error TaxonWorks::Error
+  end
+
+  specify 'character state with empty name raises' do
+    d = Document.create!(
+      document_file: Rack::Test::UploadedFile.new(
+        (Rails.root + 'spec/files/nexus/empty_character_state_name.nex'),
+        'text/plain'
+      ))
+
+    expect{Vendor::NexusParser.document_to_nexus(d)}.to raise_error TaxonWorks::Error
+  end
+
 end
