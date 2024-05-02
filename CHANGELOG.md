@@ -15,6 +15,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Improvements(?) to Collecting Event level classifier [#3821]
 
+### Fixed
+
+- Asynchronous batch updates on individual objects
+
 [#3821]: https://github.com/SpeciesFileGroup/taxonworks/issues/3821
 
 ## [0.40.6] - 2024-04-30
