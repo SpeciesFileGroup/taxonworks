@@ -21,8 +21,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Asynchronous batch updates on individual objects
 - Invisible edges in biological associations graph viz
+- PDF button is available for all document types [#3933]
 
 [#3821]: https://github.com/SpeciesFileGroup/taxonworks/issues/3821
+[#3933]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
 
 ## [0.40.6] - 2024-04-30
 
