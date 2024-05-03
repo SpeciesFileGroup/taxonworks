@@ -1,7 +1,8 @@
 <template>
   <FacetFileExtension
-    v-model="params"
-    :extension-groups="nexusExtensionsGroup"
+    v-model:params="params"
+    v-model:extension-groups="extensionGroups"
+    :only-include-groups="['', 'nexus']"
   />
   <VBtn
     color="primary"
@@ -16,30 +17,11 @@
 <script setup>
 import FacetFileExtension from '@/components/Filter/Facets/Document/FacetFileExtension.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { computed } from 'vue'
-
-const props = defineProps({
-  extensionGroups: {
-    type: Array,
-    required: true
-  }
-})
 
 const emit = defineEmits(['filter'])
 
-const params = defineModel()
-
-const nexusExtensionsGroup = computed(() => {
-  if (props.extensionGroups == []) {
-    return []
-  } else {
-    const anyGroup = props.extensionGroups.find((h) => h['group'] == '')
-    const nexusGroup =
-      props.extensionGroups.find((h) => h['group'] == 'nexus')
-
-    return [anyGroup, nexusGroup]
-  }
-})
+const params = defineModel('params')
+const extensionGroups = defineModel('extensionGroups')
 
 </script>
 
