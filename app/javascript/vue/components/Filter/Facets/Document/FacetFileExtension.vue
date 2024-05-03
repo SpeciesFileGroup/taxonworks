@@ -35,7 +35,6 @@ const props = defineProps({
 })
 
 const params = defineModel('params')
-
 const extensionGroups = defineModel('extensionGroups')
 
 const isLoading = ref(true)

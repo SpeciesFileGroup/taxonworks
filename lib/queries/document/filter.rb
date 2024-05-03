@@ -49,8 +49,6 @@ module Queries
 
       private
 
-
-
       def extension_matches_ored(exts)
         clauses = exts.map { |ext|
           table[:document_file_file_name].matches('%' + ext)
@@ -60,6 +58,7 @@ module Queries
         clauses.each do |b|
           a = a.or(b)
         end
+
         a
       end
     end

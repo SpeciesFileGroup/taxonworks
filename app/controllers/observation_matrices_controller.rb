@@ -267,14 +267,15 @@ class ObservationMatricesController < ApplicationController
 
   # POST /observation_matrices/import_nexus.json
   def import_from_nexus
-    t = Time.now
     return if !(nf = document_to_nexus(params[:nexus_document_id]))
-    puts 'Nexus parse took ' + (Time.now - t).to_s
+
     return if !nexus_dimensions_okay(nf)
+
     options = nexus_import_options_params
     return if !nexus_options_are_sane(options)
 
     return if !(m = create_matrix_for_nexus_import(options[:matrix_name]))
+
     Documentation.create!({
       documentation_object: m,
       document_id: params[:nexus_document_id]
@@ -285,7 +286,6 @@ class ObservationMatricesController < ApplicationController
     matrix_id = m.id
     matrix_name = m.name
 
-#=begin
     ImportNexusJob.perform_later(
       params[:nexus_document_id],
       m,
@@ -293,15 +293,6 @@ class ObservationMatricesController < ApplicationController
       sessions_current_user_id,
       sessions_current_project_id,
     )
-#=end
-=begin
-    helpers.populate_matrix_with_nexus(
-      params[:nexus_document_id],
-      nf,
-      m,
-      options
-    )
-=end
 
     render json: { matrix_id:, matrix_name: }
   end
