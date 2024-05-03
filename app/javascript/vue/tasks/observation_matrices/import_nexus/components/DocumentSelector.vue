@@ -33,8 +33,8 @@
       </template>
       <template #filter>
         <FilterDocument
-          v-model:params="parameters"
-          v-model:extension-groups="extensionGroups"
+          v-model="parameters"
+          :extension-groups="extensionGroups"
           @filter="() => loadList(parameters)"
         />
         <div class="results">
@@ -77,7 +77,7 @@ import SmartSelector from '@/components/ui/SmartSelector'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { Document } from '@/routes/endpoints'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const DROPZONE_CONFIG = {
   paramName: 'document[document_file]',
@@ -98,7 +98,7 @@ const nexusDoc = defineModel()
 const isPublicDocument = ref(false)
 const parameters = ref({})
 const filterList = ref([])
-const isLoading = ref(false)
+const isLoading = ref(true)
 const noMatchesForExtension = ref(undefined)
 const extensionGroups = ref([])
 
@@ -132,6 +132,15 @@ function loadList(params) {
     })
 }
 
+onMounted(() => {
+  Document.file_extensions()
+    .then(({ body }) => {
+      extensionGroups.value = body['extension_groups']
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
+})
 </script>
 
 <style lang="scss" scoped>
