@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import FacetFileExtension from '@/components/Filter/Facets/Document/FacetFileExtension.vue'
+import FacetFileExtension from './FacetFileExtension.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { computed } from 'vue'
 
