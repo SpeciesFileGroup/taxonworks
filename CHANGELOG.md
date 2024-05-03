@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+
+- PDF Button is missing in Filter Sources
+
 ## [0.41.0] - 2024-05-02
 
 ### Added
