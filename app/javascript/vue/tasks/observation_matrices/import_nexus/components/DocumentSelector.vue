@@ -11,7 +11,7 @@
       pin-type="Document"
       :add-tabs="['new', 'filter']"
       class="selector"
-      :filter="(item) => ALLOW_EXTENSIONS.some(ext => item.document_file_file_name.endsWith(ext))"
+      :filter="(item) => nexusExtensions.some(ext => item.document_file_file_name.endsWith(ext))"
     >
       <template #new>
         <Dropzone
@@ -34,7 +34,7 @@
       <template #filter>
         <FilterDocument
           v-model="parameters"
-          :extensions="[ALLOW_EXTENSIONS.join(', ')]"
+          :extension-groups="extensionGroups"
           @filter="() => loadList(parameters)"
         />
         <div class="results">
@@ -77,7 +77,7 @@ import SmartSelector from '@/components/ui/SmartSelector'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { Document } from '@/routes/endpoints'
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const DROPZONE_CONFIG = {
   paramName: 'document[document_file]',
@@ -91,8 +91,6 @@ const DROPZONE_CONFIG = {
   acceptedFiles: '.nex, .nxs'
 }
 
-const ALLOW_EXTENSIONS = ['.nex', '.nxs']
-
 const emit = defineEmits('selected')
 
 const nexusDoc = defineModel()
@@ -100,8 +98,14 @@ const nexusDoc = defineModel()
 const isPublicDocument = ref(false)
 const parameters = ref({})
 const filterList = ref([])
-const isLoading = ref(false)
+const isLoading = ref(true)
 const noMatchesForExtension = ref(undefined)
+const extensionGroups = ref([])
+
+const nexusExtensions = computed(() => {
+  const nexusGroup = extensionGroups.value.find((h) => h['group'] == 'nexus')
+  return !nexusGroup ? [] : nexusGroup['extensions']
+})
 
 function sending(file, xhr, formData) {
   formData.append('document[is_public]', isPublicDocument.value)
@@ -127,6 +131,16 @@ function loadList(params) {
       isLoading.value = false
     })
 }
+
+onMounted(() => {
+  Document.file_extensions()
+    .then(({ body }) => {
+      extensionGroups.value = body['extension_groups']
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
+})
 </script>
 
 <style lang="scss" scoped>

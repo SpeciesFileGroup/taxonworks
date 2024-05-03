@@ -286,6 +286,7 @@ resources :documents do
   collection do
     get :select_options, defaults: {format: :json}
     match :filter, to: 'documents#index', via: [:get, :post]
+    get :file_extensions, defaults: {format: :json}
   end
 end
 

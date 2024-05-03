@@ -13,5 +13,6 @@ const permitParams = {
 export const Document = {
   ...baseCRUD('documents', permitParams),
 
-  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+  file_extensions: () => AjaxCall('get', `/${controller}/file_extensions`)
 }

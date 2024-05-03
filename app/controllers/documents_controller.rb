@@ -104,6 +104,11 @@ class DocumentsController < ApplicationController
     @documents = Document.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
   end
 
+  # GET /documents/file_extensions.json
+  def file_extensions
+    @extension_groups = FILE_EXTENSIONS_DATA
+  end
+
   private
 
   def set_document

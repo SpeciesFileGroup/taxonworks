@@ -4,19 +4,19 @@ module Queries
 
       PARAMS = [
         :document_id,
-        :file_extension,
+        :file_extension_group,
         document_id: [],
       ].freeze
 
       attr_accessor :document_id
 
-      attr_accessor :file_extension
+      attr_accessor :file_extension_group
 
       def initialize(query_params)
         super
 
         @document_id = params[:document_id]
-        @file_extension = params[:file_extension]
+        @file_extension_group = params[:file_extension_group]
       end
 
       def document_id
@@ -24,9 +24,14 @@ module Queries
       end
 
       def file_extension_facet
-        return nil if !file_extension&.present?
+        return nil if !file_extension_group&.present?
 
-        d = EXTENSIONS_DATA[file_extension&.to_sym] || {
+        d = FILE_EXTENSIONS_DATA.find { |g|
+          g[:group] == file_extension_group
+        }
+
+        d ||= {
+          group: '',
           content_type: '', # matches no document
           extensions: ['']
         }
@@ -44,16 +49,7 @@ module Queries
 
       private
 
-      EXTENSIONS_DATA = {
-        '.nex, .nxs': {
-          content_type: 'text/plain',
-          extensions: ['.nex', '.nxs']
-        },
-        '.pdf': {
-          content_type: 'application/pdf',
-          extensions: ['.pdf']
-        }
-      }.freeze
+
 
       def extension_matches_ored(exts)
         clauses = exts.map { |ext|

@@ -1,7 +1,7 @@
 <template>
   <FacetFileExtension
     v-model="params"
-    :extensions="extensions"
+    :extension-groups="nexusExtensionsGroup"
   />
   <VBtn
     color="primary"
@@ -16,18 +16,31 @@
 <script setup>
 import FacetFileExtension from '@/components/Filter/Facets/Document/FacetFileExtension.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VSpinner from '@/components/ui/VSpinner.vue'
+import { computed } from 'vue'
 
 const props = defineProps({
-  extensions: {
+  extensionGroups: {
     type: Array,
     required: true
   }
 })
 
+const emit = defineEmits(['filter'])
+
 const params = defineModel()
 
-const emit = defineEmits(['filter'])
+const nexusExtensionsGroup = computed(() => {
+  if (props.extensionGroups == []) {
+    return []
+  } else {
+    const anyGroup = props.extensionGroups.find((h) => h['group'] == '')
+    const nexusGroup =
+      props.extensionGroups.find((h) => h['group'] == 'nexus')
+
+    return [anyGroup, nexusGroup]
+  }
+})
+
 </script>
 
 <style lang="scss" scoped>

@@ -3,17 +3,17 @@
     <h3>File extensions</h3>
     <div class="extensions">
       <div
-        v-for="ext in [ANY_EXTENSION].concat(extensions)"
-        :key="ext"
+        v-for="h in extensionGroups"
+        :key="h['group']"
       >
-        <label @click="() => updateParams(ext)">
+        <label @click="() => updateParams(h['group'])">
           <input
             type="radio"
-            :value="ext"
-            :checked="ext == ANY_EXTENSION"
+            :value="h['group']"
+            :checked="h['group'] == ''"
             name="extensions"
           />
-          {{ ext }}
+          {{ h['extensions'].join(', ') }}
         </label>
       </div>
     </div>
@@ -23,23 +23,17 @@
 <script setup>
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
-const ANY_EXTENSION = 'Any extension'
-
 const props = defineProps({
-  extensions: {
+  extensionGroups: {
     type: Array,
-    required: true
+    default: []
   }
 })
 
 const params = defineModel()
 
-function updateParams(extension) {
-  if (extension == ANY_EXTENSION) {
-    params.value.file_extension = ''
-  } else {
-    params.value.file_extension = extension
-  }
+function updateParams(extensionGroup) {
+  params.value.file_extension_group = extensionGroup
 }
 </script>
 
