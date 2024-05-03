@@ -51,7 +51,7 @@ function removeItem(citation) {
   if (citation.id) {
     citation._destroy = true
   } else {
-    removeFromArray(store.citations, citation, 'uuid')
+    removeFromArray(store.citations, citation, { property: 'uuid' })
   }
 }
 </script>

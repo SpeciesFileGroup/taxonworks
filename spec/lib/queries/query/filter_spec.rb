@@ -71,12 +71,32 @@ describe Queries::Query::Filter, type: [:model] do
     expect(query.venn_mode).to eq(nil)
   end
 
-  specify '#base_filter 1' do
+  specify '.instantiated_base_filter 1' do
+    p = ActionController::Parameters.new(otu_query: {}, foo: :bar)
+    expect(Queries::Query::Filter.instatiated_base_filter(p).referenced_klass).to eq(::Otu)
+  end
+
+  specify '.instantiated_base_filter 1' do
+    p = ActionController::Parameters.new(otu_query: {otu_id: [1,2,3]}, foo: :bar)
+    expect(Queries::Query::Filter.instatiated_base_filter(p).otu_id).to eq([1,2,3])
+  end
+
+  specify '.instantiated_base_filter params 1 ' do
+    p = ActionController::Parameters.new(collecting_event_query: {wildcard_attribute: 'verbatim_locality'})
+    expect(Queries::Query::Filter.instatiated_base_filter(p).params).to include(:wildcard_attribute)
+  end
+
+  specify '.instantiated_base_filter params 2 ' do
+    p = ActionController::Parameters.new(collecting_event_query: {wildcard_attribute: ['verbatim_locality']})
+    expect(Queries::Query::Filter.instatiated_base_filter(p).params).to include(:wildcard_attribute)
+  end
+
+  specify '.base_filter 1' do
      p = ActionController::Parameters.new(collection_object_query: {}, foo: :bar)
      expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
   end
 
-  specify '#base_filter 1' do
+  specify '.base_filter 1' do
      p = ActionController::Parameters.new(collection_object_query: { otu_query: {}}, foo: :bar)
      expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
   end

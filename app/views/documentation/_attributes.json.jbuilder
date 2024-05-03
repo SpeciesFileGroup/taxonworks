@@ -4,6 +4,7 @@ json.partial! '/shared/data/all/metadata', object: documentation
 
 json.document do
   json.file_url documentation.document.document_file.url() # TODO: REDACT IN PUBLIC
+  json.content_type documentation.document.document_file_content_type
   json.is_public documentation.document.is_public
   json.partial! '/shared/data/all/metadata', object: documentation.document
 end

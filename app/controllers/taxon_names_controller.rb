@@ -245,9 +245,9 @@ class TaxonNamesController < ApplicationController
 
     respond_to do |format|
       format.json {
-       @taxon_names = q.page(params[:page]).per(params[:per])
-       render '/taxon_names/api/v1/index'
-     }
+        @taxon_names = q.page(params[:page]).per(params[:per])
+        render '/taxon_names/api/v1/index'
+      }
       format.csv {
         @taxon_names = q
         send_data Export::CSV.generate_csv(

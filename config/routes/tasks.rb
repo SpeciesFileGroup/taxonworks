@@ -1,4 +1,12 @@
 scope :tasks do
+
+  scope :data_attributes do
+    scope :field_synchronize, controller: 'tasks/data_attributes/field_synchronize' do
+      get '/', action: :index, as: 'field_synchronize_task'
+      get :values, defaults: {format: :json}
+    end
+  end
+
   scope :leads do
     scope :hub, controller: 'tasks/leads/hub' do
       get '/', action: :index, as: 'leads_hub_task'

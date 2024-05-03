@@ -51,6 +51,7 @@ module Queries
       #     'status',
       #     'synonym',
       #     'classification'
+      #     'misspelling'
       # See corresponding constants in config/intialize/constants/taxon_name_relationships.rb
       attr_accessor :taxon_name_relationship_set
 
@@ -102,6 +103,7 @@ module Queries
           t += ::STATUS_TAXON_NAME_RELATIONSHIP_NAMES if i == 'status'
           t += ::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM if i == 'synonym'
           t += ::TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION if i == 'classification'
+          t += ::TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING if i == 'misspelling'
         end
         t
       end
