@@ -150,7 +150,7 @@ function saveDataAttribute() {
 }
 
 function removeItem(item) {
-  DataAttribute.destroy(item).then((_) => {
+  DataAttribute.destroy(item.id).then((_) => {
     removeFromList(item)
   })
 }
