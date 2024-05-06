@@ -249,8 +249,8 @@ module Queries
         return nil if freeform_svg.nil?
 
         q = ::Image.left_joins(depictions: [:sled_image, :sqed_depiction])
-        .where.missing(:sled_image)
-        .where.not(depictions: {svg_clip: nil}).distinct
+          .where.missing(:sled_image)
+          .where.not(depictions: {svg_clip: nil}).distinct
 
         if freeform_svg
           q
@@ -468,14 +468,14 @@ module Queries
             .join(collection_object_table, Arel::Nodes::InnerJoin).on( depiction_table[:depiction_object_id].eq(collection_object_table[:id]).and( depiction_table[:depiction_object_type].eq('CollectionObject') ))
             .join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
               collection_object_table[:id].eq(taxon_determination_table[:taxon_determination_object_id])
-              .and(taxon_determination_table[:taxon_determination_object_type].eq('CollectionObject'))
+            .and(taxon_determination_table[:taxon_determination_object_type].eq('CollectionObject'))
             )
-            .join(a, Arel::Nodes::InnerJoin).on(  taxon_determination_table[:otu_id].eq(a[:id]) )
-            .join(b, Arel::Nodes::InnerJoin).on( a[:taxon_name_id].eq(b[:id]))
-            .join(h_alias, Arel::Nodes::InnerJoin).on(b[:id].eq(h_alias[:descendant_id]))
+              .join(a, Arel::Nodes::InnerJoin).on(  taxon_determination_table[:otu_id].eq(a[:id]) )
+              .join(b, Arel::Nodes::InnerJoin).on( a[:taxon_name_id].eq(b[:id]))
+              .join(h_alias, Arel::Nodes::InnerJoin).on(b[:id].eq(h_alias[:descendant_id]))
 
-          z = h_alias[:ancestor_id].in(taxon_name_id)
-          q2 = ::Image.joins(j2.join_sources).where(z)
+            z = h_alias[:ancestor_id].in(taxon_name_id)
+            q2 = ::Image.joins(j2.join_sources).where(z)
         end
 
         if q1 && q2
@@ -506,7 +506,7 @@ module Queries
       end
 
       def merge_clauses
-        s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:image)}.keys.map(&:to_s)
+        s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:image)}.keys.map(&:to_s) - ['source']
         [
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Image referencing SUBQUERIES
           biocuration_facet,

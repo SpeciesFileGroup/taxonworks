@@ -25,11 +25,13 @@ class DataAttributesController < ApplicationController
 
     render json: [], status: :unprocessable_entity and return if q.all.count > 30000
 
-    @data = q.all.pluck('data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, data_attributes.value')
-    cols = @data.collect{|a| a[1]}.uniq
+    @data = q.all.pluck('data_attributes.id, data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, data_attributes.value')
+
+    cols = @data.collect{|a| a[2]}.uniq
     @columns = Predicate.where(project_id: sessions_current_project_id, id: cols).order(:name).pluck(:id, :name).inject([]){|ary, a| ary.push(a[0] => a[1]); ary}
   end
 
+  # TODO: /brief differs in that the first value is id, determine whether we should do that in /api
   def api_brief
     q = ::Queries::DataAttribute::Filter.new(params)
 

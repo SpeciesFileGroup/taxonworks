@@ -111,6 +111,12 @@ GeographicItem:
     - debug_geographic_item_task
   config:
     recent: false
+Image:
+  tasks:
+    - filter_images_task
+  config:
+    recent: false
+  new: new_image_task
 Lead:
   tasks:
     - show_lead_task

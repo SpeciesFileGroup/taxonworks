@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_09_173244) do
+ActiveRecord::Schema.define(version: 2024_04_18_162420) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -1611,6 +1611,8 @@ ActiveRecord::Schema.define(version: 2024_02_09_173244) do
     t.integer "updated_by_id", null: false
     t.boolean "is_project_administrator"
     t.jsonb "clipboard", default: {}
+    t.integer "time_active", default: 0
+    t.datetime "last_seen_at"
     t.index ["created_by_id"], name: "index_project_members_on_created_by_id"
     t.index ["project_id"], name: "index_project_members_on_project_id"
     t.index ["updated_by_id"], name: "index_project_members_on_updated_by_id"

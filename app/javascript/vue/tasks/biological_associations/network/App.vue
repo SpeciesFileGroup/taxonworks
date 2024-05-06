@@ -113,7 +113,7 @@ async function makeEdges(edges, nodes) {
   const arr = []
 
   for (const link of edges) {
-    const hexColor = getHexColorFromString(link.label || '')
+    const hexColor = link?.label ? getHexColorFromString(link.label) : null
 
     arr.push({
       source: nodes.findIndex((node) => node.id === link.start_id),

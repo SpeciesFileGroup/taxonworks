@@ -189,6 +189,7 @@ module Queries
         set_attributes_params(params)
         set_empty_params(params)
         set_tags_params(params)
+        set_notes_params(params)
         set_user_dates(params)
       end
 

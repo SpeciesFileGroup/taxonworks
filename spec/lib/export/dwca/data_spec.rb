@@ -112,7 +112,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
       end
 
-      context 'predicate_extensions with orphaned collection objects' do
+      context ':predicate_extensions with orphaned collection objects' do
         let(:p1) { FactoryBot.create(:valid_predicate)}
         let(:p2) { FactoryBot.create(:valid_predicate)}
         let(:p3) { FactoryBot.create(:valid_predicate)}
@@ -143,6 +143,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           m.delete
 
           expect{a.predicate_data}.not_to raise_error
+
+          a.cleanup
         end
 
         specify 'orders values into the right rows' do
@@ -170,6 +172,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           expect(z.to_a[3].first).to include(d4.value) # the ce value
           expect(z.to_a[3].first).to include(d3.value)
           expect(z.to_a[5].first).to include(d2.value)
+
+          a.cleanup
         end
 
         specify 'destruction of DataAttribute post instantiation is caught' do
@@ -193,6 +197,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           d2.destroy!
 
           expect{a.predicate_data}.not_to raise_error
+          a.cleanup
         end
 
         specify 'orders values into the right rows 2' do
@@ -221,6 +226,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           expect(z.to_a[3].first).to include(d3.value)
 
           expect(z.to_a[5].first).to include(d2.value)
+
+          a.cleanup
         end
 
         specify '#collection_object_attributes_query' do
@@ -243,9 +250,49 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           a = Export::Dwca::Data.new(core_scope: q, predicate_extensions: {collecting_event_predicate_id: [p1.id] } )
 
           expect(a.collecting_event_attributes_query.to_a).to contain_exactly(d1)
+
+          a.cleanup
         end
 
-        specify '#collection_event_attributes, does not inject collection_object_ids via collecting events for collection_objects not referenced in the origin scope' do
+        specify '#collecting_event_attributes match only referenced collecting events' do
+          f = Specimen.first
+          fm = Specimen.second
+          m = Specimen.third
+          ml = Specimen.fourth
+          l = Specimen.last
+
+          c1 = FactoryBot.create(:valid_collecting_event)
+          c2 = FactoryBot.create(:valid_collecting_event) # no
+          c3 = FactoryBot.create(:valid_collecting_event)
+
+          f.update!(collecting_event:  c1)
+          fm.update!(collecting_event: c1) # no
+          m.update!(collecting_event:  c2) # no
+          ml.update(collecting_event:  c3) # no
+          l.update!(collecting_event:  c3)
+
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c1, predicate: p1 )
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c3, predicate: p1 )
+          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c2, predicate: p2 ) # no
+          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c3, predicate: p2 )
+          d5 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c3, predicate: p3 ) # no
+          d5 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c1, predicate: p3 ) # no
+
+          # The scope is only two specimens
+          q = DwcOccurrence.where(dwc_occurrence_object: Specimen.where(id: [f.id, l.id])) # c1, c3
+
+          a = Export::Dwca::Data.new(core_scope: q, predicate_extensions: {collecting_event_predicate_id: [p1.id, p2.id] } )
+
+          expect(a.collecting_event_attributes).to contain_exactly(
+            [f.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d1.value ],
+            [l.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d2.value ],
+            [l.id, "TW:DataAttribute:CollectingEvent:#{p2.name}", d4.value ],
+          )
+
+          a.cleanup
+        end
+
+        specify '#collecting_event_attributes, does not inject collection_object_ids via collecting events for collection_objects not referenced in the origin scope' do
           # All three share CE
           f = Specimen.first
           m = Specimen.third
@@ -269,6 +316,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             [f.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d1.value ],
             [m.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d1.value ]
           )
+
+          a.cleanup
         end
 
         specify '#collection_object_attributes' do
@@ -285,6 +334,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           expect(a.collection_object_attributes).to include([f.id, "TW:DataAttribute:CollectionObject:#{p1.name}", d1.value])
           expect(a.collection_object_attributes).to include([l.id, "TW:DataAttribute:CollectionObject:#{p3.name}", d2.value])
+
+          a.cleanup
         end
 
         specify '#collecting_event_attributes' do
@@ -302,9 +353,11 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           expect(a.collecting_event_attributes).to include([f.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d1.value])
           expect(a.collecting_event_attributes).to include([f.id, "TW:DataAttribute:CollectingEvent:#{p3.name}", d2.value])
+
+          a.cleanup
         end
 
-        specify '#used_predicates' do
+        specify '#used_predicates 1' do
           f = Specimen.first
 
           c = FactoryBot.create(:valid_collecting_event)
@@ -317,8 +370,9 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
 
-          expect(a.collecting_event_attributes).to include([f.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d1.value])
-          expect(a.collecting_event_attributes).to include([f.id, "TW:DataAttribute:CollectingEvent:#{p3.name}", d2.value])
+          expect(a.used_predicates).to contain_exactly("TW:DataAttribute:CollectingEvent:#{p1.name}", "TW:DataAttribute:CollectingEvent:#{p3.name}")
+
+          a.cleanup
         end
 
         specify '#used_predicates 2' do
@@ -331,11 +385,16 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
           d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p3 )
-          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p2 )
+          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p2 ) # Not requested
 
           a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
 
-          expect(a.used_predicates).to contain_exactly("TW:DataAttribute:CollectingEvent:#{p1.name}", "TW:DataAttribute:CollectingEvent:#{p3.name}", "TW:DataAttribute:CollectionObject:#{p2.name}")
+          expect(a.used_predicates).to contain_exactly(
+            "TW:DataAttribute:CollectingEvent:#{p1.name}",
+            "TW:DataAttribute:CollectingEvent:#{p3.name}"
+          )
+
+          a.cleanup
         end
       end
 
@@ -372,6 +431,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             expect(z.to_a[3].first).to eq(d3.otu.name)
             expect(z.to_a[4].first).to eq(nil)
             expect(z.to_a[5].first).to eq(d2.otu.name)
+
+            d.cleanup
           end
 
           specify 'exports in the correct order (otu attributes)' do
@@ -394,6 +455,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             expect(z.to_a[3].first).to eq(d3.otu.name)
             expect(z.to_a[4].first).to eq(nil)
             expect(z.to_a[5].first).to eq(d2.otu.name)
+
+            d.cleanup
           end
 
           specify 'exports in the correct order (ce attributes)' do
@@ -420,6 +483,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             expect(z.to_a[3].first).to eq(c3.elevation_precision)
             expect(z.to_a[4].first).to eq(nil)
             expect(z.to_a[5].first).to eq(c2.elevation_precision)
+
+            d.cleanup
           end
 
           specify 'exports in the correct order (ce & co attributes)' do
@@ -453,6 +518,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
                 [ "\t2.0" ]
               ]
             )
+
+            d.cleanup
           end
 
           specify 'collection objects without dwc_occurrences, with (ce & co attributes), with (potentially) interfering AssertedDistribution' do
@@ -469,7 +536,10 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             s2.update!(collecting_event: c1) # not this!
             s3.update!(collecting_event: c2)
 
-            d = Export::Dwca::Data.new(core_scope: scope.where(dwc_occurrence_object_id: [s1.id, s3.id, s2.id]), taxonworks_extensions: ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS)
+            d = Export::Dwca::Data.new(
+              core_scope: scope.where(dwc_occurrence_object_id: [s1.id, s3.id, s2.id]),
+              taxonworks_extensions: ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS
+            )
 
             s2.dwc_occurrence.delete # !!
 
@@ -479,9 +549,16 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
             z = CSV.parse(e, headers: true)
 
+            # TODO: proper ids!!
             expect(z.to_a).to eq(
-              [["TW:Internal:otu_name\tTW:Internal:collecting_event_id\tTW:Internal:elevation_precision\tTW:Internal:collection_object_id"], ["\t151\t1.0\t151"], ["aus\t155\t2.0\t155"]]
+              [
+                ["TW:Internal:otu_name\tTW:Internal:collecting_event_id\tTW:Internal:elevation_precision\tTW:Internal:collection_object_id"],
+                ["\t#{c1.id}\t1.0\t#{s1.id}"],  # 1
+                ["aus\t#{c2.id}\t2.0\t#{s3.id}"] # 5
+              ]
             )
+
+            d.cleanup
           end
 
           specify '#extension_computed_fields_data' do
@@ -505,11 +582,11 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             qq = FactoryBot.create(:valid_asserted_distribution, otu: o1)
 
             expect(d.extension_computed_fields_data({otu_name: 'TW:Internal:otu_name' })).to eq(
-              [[s1.id, 'TW:Internal:otu_name', nil], [s3.id, 'TW:Internal:otu_name', "aus"]]
+              [[s3.id, 'TW:Internal:otu_name', "aus"]]
             )
 
+            d.cleanup
           end
-
         end
 
         context 'exporting otu_name' do

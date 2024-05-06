@@ -58,8 +58,10 @@ table {
   }
 
   td {
+    padding: 0;
     padding-left: $standard_padding;
     padding-right: $standard_padding;
+    height: 40px;
   }
 
   th:hover {
@@ -68,7 +70,6 @@ table {
 
   tr {
     margin: 0px;
-    height: 40px;
     cursor: pointer;
   }
 
@@ -77,6 +78,7 @@ table {
     padding-left: $standard_padding;
     padding-right: $standard_padding;
     font-weight: 500;
+    height: 40px;
     color: $default_text;
     font-size: 12px;
     border-bottom: 2px solid $color-complement-3;
