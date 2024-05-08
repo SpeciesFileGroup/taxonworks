@@ -8,7 +8,7 @@
           :disabled="!identifier.cached"
           @click="setTextFromIdentifier"
         >
-          Copy from identifier
+          Copy from CO Identifier
         </button>
       </div>
       <div class="horizontal-right-content middle">
