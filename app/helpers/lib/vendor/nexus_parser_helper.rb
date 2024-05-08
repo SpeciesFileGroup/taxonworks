@@ -1,4 +1,4 @@
-module Lib::Vendor::NexusHelper
+module Lib::Vendor::NexusParserHelper
   # !! Some of the code here is run in the context of an ApplicationJob, which
   # doesn't have sessions_current_project_id or sessions_current_user_id -
   # instead assume that Current.project_id and Current.user_id are set by the
@@ -232,9 +232,6 @@ module Lib::Vendor::NexusHelper
                     observation_object: new_otus[i],
                     character_state: new_states[j][z]
                   )
-                # TODO: is it a sign that something's wrong if this observation
-                # already exists? i.e. that we may also be adding observations to
-                # a different matrix in that case?
                 if o.nil?
                   o = Observation::Qualitative.create!(
                     descriptor: new_descriptors[j],

@@ -1,6 +1,6 @@
 class ImportNexusJob < ApplicationJob
   queue_as :import_nexus
-  include Lib::Vendor::NexusHelper
+  include Lib::Vendor::NexusParserHelper
 
   def perform(nexus_doc_id, matrix, options, uid, project_id)
     Current.user_id = uid
