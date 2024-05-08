@@ -10,6 +10,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - PDF Button is missing in Filter Sources
+- DwC Import task: Replace dialog shows `undefined` instead the current value
+- Radial annotator: Data attributes can't be deleted from the list
 
 ## [0.41.0] - 2024-05-02
 

@@ -133,7 +133,7 @@ export default {
       this.$emit('replace', {
         columnIndex: this.columnIndex,
         replaceValue: this.replace,
-        currentValue: this.value
+        currentValue: this.modelValue
       })
     }
   }
