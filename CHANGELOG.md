@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - PDF Button is missing in Filter Sources
 - DwC Import task: Replace dialog shows `undefined` instead the current value
 - Radial annotator: Data attributes can't be deleted from the list
+- Radial quick forms: Collecting event slice doesn't render correctly
 
 ## [0.41.0] - 2024-05-02
 
