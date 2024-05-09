@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Filters: JSON request URL overflows container when too long
 - PDF Button is missing in Filter Sources
 - DwC Import task: Replace dialog shows `undefined` instead the current value
 - Radial annotator: Data attributes can't be deleted from the list
