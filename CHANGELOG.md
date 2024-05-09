@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Filter nomenclature: Local and global identifiers facets [#3942]
 - Field synchronizer task- batch edit (regex too), update and syncronize columns and between columns
 - `misspelling` option to API `taxon_name_relationship_set[]`
 
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3821]: https://github.com/SpeciesFileGroup/taxonworks/issues/3821
 [#3933]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
+[#3942]: https://github.com/SpeciesFileGroup/taxonworks/issues/3942
 
 ## [0.40.6] - 2024-04-30
 
