@@ -12,29 +12,33 @@ module Vendor::NexusParser
 
     assign_gap_names(nf)
 
-    validate_characters_and_states(nf.characters)
+    fixup_and_validate_characters_and_states(nf.characters,
+      doc.document_file_file_name)
 
     nf
   end
 
-  def self.validate_characters_and_states(characters)
+  def self.fixup_and_validate_characters_and_states(characters, file_name)
     characters.each_with_index do |c, i|
-      if c.name == 'Undefined' # nexus_parser special string
-        raise TaxonWorks::Error, "Character #{i + 1} has no name - in TaxonWorks descriptors are required to have a name."
+      if c.name.nil? || c.name == 'Undefined' # nexus_parser special string
+        c.name = "Undefined (#{i + 1}) from [#{file_name}]"
       end
 
       # It shouldn't be possible to have duplicate state labels (right?) since
       # they're assigned sequentially, but nexus_parser does allow duplicate
-      # and empty state names, which TW does not.
-      state_names = c.states.map { |k, v| v.name }
-      if (empty_index = state_names.index(''))
-        raise TaxonWorks::Error, "Character #{empty_index + 1} contains an empty state name - in TaxonWorks all character states are required to have a name."
+      # and empty state names.
+      state_names = []
+      c.states.each do |label, state|
+        if state.name == ''
+          state.name = "Undefined (#{label}) from [#{file_name}]"
+        end
+        state_names << state.name
       end
 
       dup_names = find_duplicates(state_names)
       if dup_names.present?
         dups = dup_names.join(', ')
-        raise TaxonWorks::Error, "Error in character #{i + 1}: duplicate name(s): '#{dups}'. In TaxonWorks character names must be unique for a given descriptor."
+        raise TaxonWorks::Error, "Error in character #{i + 1}: duplicate state name(s): '#{dups}'. In TaxonWorks character state names must be unique for a given descriptor."
 
         return false
       end

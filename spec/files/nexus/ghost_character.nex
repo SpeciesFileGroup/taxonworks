@@ -11,9 +11,9 @@ BEGIN CHARACTERS;
 	DIMENSIONS  NCHAR=3;
 	FORMAT DATATYPE = STANDARD GAP = - MISSING = ? SYMBOLS = "  0 1 2 3 4 5 6 7 8 9 A";
 	CHARSTATELABELS
-		1 head / gap pointy, 2 foot / toey extremely_toey, 3 ribs / spherical monodromic exact ;
+		1 head / round pointy, 3 ribs / spherical monodromic;
 	MATRIX
-	Xhlarp              0?2
+	Xhlarp              01?
 	'Preng phlit'       -01
 
 ;

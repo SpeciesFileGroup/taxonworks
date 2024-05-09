@@ -53,6 +53,9 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
         'text/plain'
       ))
 
+    # 1 head / gap pointy
+    # 0?2
+	  # -01
     expect{ Vendor::NexusParser.document_to_nexus(d) }.to raise_error TaxonWorks::Error
   end
 
@@ -63,27 +66,59 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
         'text/plain'
       ))
 
+    # 2 foot / toey toey # repeated character state name
     expect{Vendor::NexusParser.document_to_nexus(d)}.to raise_error TaxonWorks::Error
   end
 
-  specify 'character with empty name raises' do
+  specify 'character with empty name gets a name assigned' do
+    file_name = 'empty_character_name.nex'
     d = Document.create!(
       document_file: Rack::Test::UploadedFile.new(
-        (Rails.root + 'spec/files/nexus/empty_character_name.nex'),
+        (Rails.root + "spec/files/nexus/#{file_name}"),
         'text/plain'
       ))
 
-    expect{Vendor::NexusParser.document_to_nexus(d)}.to raise_error TaxonWorks::Error
+    nf = Vendor::NexusParser.document_to_nexus(d)
+
+    #  2 / toey heely # no character name
+    expect(nf.characters.second.name).to eq("Undefined (2) from [#{file_name}]")
   end
 
-  specify 'character state with empty name raises' do
+  specify 'character state with empty name gets a name assigned' do
+    file_name = 'empty_character_state_name.nex'
     d = Document.create!(
       document_file: Rack::Test::UploadedFile.new(
-        (Rails.root + 'spec/files/nexus/empty_character_state_name.nex'),
+        (Rails.root + "spec/files/nexus/#{file_name}"),
         'text/plain'
       ))
 
-    expect{Vendor::NexusParser.document_to_nexus(d)}.to raise_error TaxonWorks::Error
+    nf = Vendor::NexusParser.document_to_nexus(d)
+
+    # ... 3 ribs / spherical monodromic; # only two defined states
+    #
+    # 0?3 # state label 3
+	  # -01
+    expect(nf.characters.third.states['3'].name).to eq("Undefined (3) from [#{file_name}]")
+  end
+
+  specify 'ghost character is assigned defaults' do
+    file_name = 'ghost_character.nex'
+    d = Document.create!(
+      document_file: Rack::Test::UploadedFile.new(
+        (Rails.root + "spec/files/nexus/#{file_name}"),
+        'text/plain'
+      ))
+
+    nf = Vendor::NexusParser.document_to_nexus(d)
+
+    # 1 head / round pointy, 3 ribs / spherical monodromic; # ghost character 2
+	  # 01?
+	  # -01
+    expect(nf.characters.second.name).to eq("Undefined (2) from [#{file_name}]")
+
+    expect(nf.characters.second.states['1'].name).to eq("Undefined (1) from [#{file_name}]")
+
+    expect(nf.characters.second.states['0'].name).to eq("Undefined (0) from [#{file_name}]")
   end
 
 end
