@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC Import task: Replace dialog shows `undefined` instead the current value
 - Radial annotator: Data attributes can't be deleted from the list
 - Radial quick forms: Collecting event slice doesn't render correctly
+- CSD: In some cases, the locking mechanism does not work correctly [#3941]
 
 ## [0.41.0] - 2024-05-02
 
@@ -36,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3821]: https://github.com/SpeciesFileGroup/taxonworks/issues/3821
 [#3933]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
+[#3941]: https://github.com/SpeciesFileGroup/taxonworks/issues/3941
 [#3942]: https://github.com/SpeciesFileGroup/taxonworks/issues/3942
 
 ## [0.40.6] - 2024-04-30
