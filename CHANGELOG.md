@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- An extended biological associations API endpoint [#3944]
+
 ### Fixed
 
 - Resaving Image resets height/width and original filename
