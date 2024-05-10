@@ -398,11 +398,7 @@ class Image < ApplicationRecord
   def extract_tw_attributes
     # NOTE: assumes content type is an image.
     tempfile = image_file.queued_for_write[:original]
-    if tempfile.nil?
-      self.width = 0
-      self.height = 0
-      self.user_file_name = nil
-    else
+    if tempfile
       self.user_file_name = tempfile.original_filename
       geometry = Paperclip::Geometry.from_file(tempfile)
       self.width = geometry.width.to_i

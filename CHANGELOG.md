@@ -9,6 +9,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Resaving Image resets height/width and original filename
+- New image from Data raising from path error
 - Filters: JSON request URL overflows container when too long
 - PDF Button is missing in Filter Sources
 - DwC Import task: Replace dialog shows `undefined` instead the current value
