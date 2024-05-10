@@ -9,10 +9,12 @@ module Export::CSV::BiologicalAssociations::Extended
     subject_id
     subject_properties
     subject_taxon_name_id
+    subject_type
     biological_relationship_id
     biological_relationships
     object_properties
     object_taxon_name_id
+    object_type
     object
     object_id
     object_order

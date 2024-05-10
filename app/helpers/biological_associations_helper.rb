@@ -72,6 +72,7 @@ module BiologicalAssociationsHelper
         id: b.id,
         subject_id: b.biological_association_subject_id,
         subject_taxon_name_id: b.biological_association_subject.taxon_name_id,
+        subject_type: b.biological_association_subject_type,
         subject: label_for(b.biological_association_subject),
         subject_properties: types[:subject].join('|').presence,
         biological_relationship_id: b.biological_relationship_id,
@@ -79,6 +80,7 @@ module BiologicalAssociationsHelper
         object_properties: types[:object].join('|').presence,
         object_id: b.biological_association_object_id,
         object_taxon_name_id: b.biological_association_object.taxon_name_id,
+        object_type: b.biological_association_object_type,
         object: label_for(b.biological_association_object),
       )
 
