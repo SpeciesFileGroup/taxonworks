@@ -308,8 +308,4 @@ onBeforeUnmount(() => {
   grid-template-columns: 400px 1fr;
   gap: 1em;
 }
-
-:deep(.btn-delete) {
-  background-color: #5d9ece;
-}
 </style>

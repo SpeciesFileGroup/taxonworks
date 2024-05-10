@@ -7,10 +7,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+
+- Filters: JSON request URL overflows container when too long
+- PDF Button is missing in Filter Sources
+- DwC Import task: Replace dialog shows `undefined` instead the current value
+- Radial annotator: Data attributes can't be deleted from the list
+- Radial quick forms: Collecting event slice doesn't render correctly
+- CSD: In some cases, the locking mechanism does not work correctly [#3941]
+
 ## [0.41.0] - 2024-05-02
 
 ### Added
 
+- Filter nomenclature: Local and global identifiers facets [#3942]
 - Field synchronizer task- batch edit (regex too), update and syncronize columns and between columns
 - `misspelling` option to API `taxon_name_relationship_set[]`
 
@@ -27,6 +37,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3821]: https://github.com/SpeciesFileGroup/taxonworks/issues/3821
 [#3933]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
+[#3941]: https://github.com/SpeciesFileGroup/taxonworks/issues/3941
+[#3942]: https://github.com/SpeciesFileGroup/taxonworks/issues/3942
 
 ## [0.40.6] - 2024-04-30
 

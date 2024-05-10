@@ -12,8 +12,8 @@
         class="no_bullets context-menu"
       >
         <li
-          v-for="(value, key) in LABEL_TYPES"
-          :key="value"
+          v-for="(_, key) in LABEL_TYPES"
+          :key="key"
         >
           <label>
             <input
@@ -21,7 +21,7 @@
               v-model="label.type"
               :value="key"
             />
-            {{ value }}
+            {{ key }}
           </label>
         </li>
       </ul>
@@ -34,7 +34,7 @@
       />
       <button
         class="normal-input button button-submit margin-small-right"
-        :disabled="!label.total"
+        :disabled="!label.total || !label.text"
         @click="saveLabel"
       >
         {{ label.id ? 'Update' : 'Create' }}
@@ -175,6 +175,7 @@ function setLabel(label) {
 function removeLabel(label) {
   Label.destroy(label.id).then(() => {
     removeFromList(label)
+    TW.workbench.alert.create('Label was successfully destroyed.', 'notice')
   })
 }
 
