@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Lib::Vendor::NexusHelper, type: :helper do
+describe Lib::Vendor::NexusParserHelper, type: :helper do
   let!(:doc) {
     Document.create!(
       document_file: Rack::Test::UploadedFile.new(
