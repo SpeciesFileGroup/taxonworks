@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Empty `higherClassification` included ""
 - Resaving Image resets height/width and original filename
 - New image from Data raising from path error
 - Filters: JSON request URL overflows container when too long
