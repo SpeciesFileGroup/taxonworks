@@ -18,6 +18,7 @@ module Vendor::NexusParser
     nf
   end
 
+  # Raises on error
   def self.fixup_and_validate_characters_and_states(characters, file_name)
     characters.each_with_index do |c, i|
       if c.name.nil? || c.name == 'Undefined' # nexus_parser special string
@@ -39,12 +40,8 @@ module Vendor::NexusParser
       if dup_names.present?
         dups = dup_names.join(', ')
         raise TaxonWorks::Error, "Error in character #{i + 1}: duplicate state name(s): '#{dups}'. In TaxonWorks character state names must be unique for a given descriptor."
-
-        return false
       end
     end
-
-    true
   end
 
   # Assign name 'gap' to all gap states - nexus_parser outputs gap states that
@@ -52,7 +49,7 @@ module Vendor::NexusParser
   def self.assign_gap_names(nf)
     gap_label = nf&.vars[:gap]
     if gap_label.nil?
-      return nf
+      return
     end
 
     nf.characters.each_with_index do |c, i|
@@ -60,8 +57,6 @@ module Vendor::NexusParser
         c.states[gap_label].name = gap_name_for_states(c.states, i)
       end
     end
-
-    nf
   end
 
   def self.gap_name_for_states(states, i)
