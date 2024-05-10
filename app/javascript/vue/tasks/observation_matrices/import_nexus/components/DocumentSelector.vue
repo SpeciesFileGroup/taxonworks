@@ -20,7 +20,7 @@
           @vdropzone-success="success"
           url="/documents"
           :use-custom-dropzone-options="true"
-          :dropzone-options="DROPZONE_CONFIG"
+          :dropzone-options="dropzoneConfig"
         />
         <label>
           <input
@@ -79,7 +79,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import { Document } from '@/routes/endpoints'
 import { computed, onMounted, ref } from 'vue'
 
-const DROPZONE_CONFIG = {
+const DROPZONE_CONFIG_BASE = {
   paramName: 'document[document_file]',
   url: '/documents',
   headers: {
@@ -88,7 +88,6 @@ const DROPZONE_CONFIG = {
       .getAttribute('content')
   },
   dictDefaultMessage: 'Drop a nexus file here',
-  acceptedFiles: '.nex, .nxs'
 }
 
 const emit = defineEmits('selected')
@@ -104,7 +103,14 @@ const extensionGroups = ref([])
 
 const nexusExtensions = computed(() => {
   const nexusGroup = extensionGroups.value.find((h) => h['group'] == 'nexus')
-  return !nexusGroup ? [] : nexusGroup['extensions']
+  return nexusGroup ? nexusGroup['extensions'] : []
+})
+
+const dropzoneConfig = computed(() => {
+  return {
+    ...DROPZONE_CONFIG_BASE,
+    acceptedFiles: nexusExtensions.value.join(', ')
+  }
 })
 
 function sending(file, xhr, formData) {
