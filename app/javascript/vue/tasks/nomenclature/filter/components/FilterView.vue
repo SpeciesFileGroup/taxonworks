@@ -103,6 +103,8 @@ const WITH_PARAMS = [
   'depictions',
   'etymology',
   'leaves',
+  'global_identifiers',
+  'local_identifiers',
   'nomenclature_date',
   'not_specified',
   'notes',

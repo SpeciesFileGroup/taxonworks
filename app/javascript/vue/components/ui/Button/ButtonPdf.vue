@@ -1,6 +1,6 @@
 <template>
   <VBtn
-    v-if="pdf.content_type === PDF_CONTENT_TYPE"
+    v-if="pdf.document_file_content_type === PDF_CONTENT_TYPE"
     color="primary"
     circle
     class="pdf-button"

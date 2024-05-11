@@ -38,6 +38,16 @@ module Spec
           b = a.save(f, interlace: true)
           b.path
         end
+
+        def self.generate_tiny_random_sized_png(file_name: 'i.png', path: Rails.configuration.x.test_tmp_file_dir, x: 16, y: 16)
+          f = File.join(path, file_name)
+          a = ChunkyPNG::Image.new(x, y, ChunkyPNG::Color::TRANSPARENT)
+          a.line(1, y - 1, x - 1, 1, ChunkyPNG::Color.from_hex('#aa007f'))
+          a[1,1] = ChunkyPNG::Color.rgba(rand(254), rand(254), rand(254), 128)
+          b = a.save(f, interlace: true)
+          b.path
+        end
+
       end
     end
   end

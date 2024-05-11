@@ -1,7 +1,7 @@
 <template>
   <div class="panel content">
-    <div class="flex-separate middle">
-      <span> JSON Request: {{ queryString }} </span>
+    <div class="flex-separate middle gap-small">
+      <span class="word_break"> JSON Request: {{ queryString }} </span>
       <ButtonClipboard :text="queryString" />
     </div>
   </div>
