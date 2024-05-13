@@ -12,7 +12,7 @@
       target="_blank"
       v-html="x[type_attr].object_tag"
     />
-    <template v-if="i < list.length - 1">, </template>
+    <span v-if="i < list.length - 1" class="comma">, </span>
   </template>
 </template>
 
@@ -28,3 +28,9 @@ const props = defineProps({
   }
 })
 </script>
+
+<style lang="scss" scoped>
+.comma {
+  margin-right: 1em;
+}
+</style>
