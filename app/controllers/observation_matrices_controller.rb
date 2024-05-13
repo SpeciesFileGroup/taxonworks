@@ -251,9 +251,8 @@ class ObservationMatricesController < ApplicationController
 
   # GET /observation_matrices/nexus_data.json
   def nexus_data
-    t = Time.now
     return if !(nf = document_to_nexus(params[:nexus_document_id]))
-    puts 'Nexus parse took ' + (Time.now - t).to_s
+
     return if !nexus_dimensions_okay(nf)
 
     options = nexus_import_options_params
