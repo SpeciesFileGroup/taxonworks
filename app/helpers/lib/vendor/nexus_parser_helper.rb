@@ -7,7 +7,7 @@ module Lib::Vendor::NexusParserHelper
   def preview_nexus_otus(nexus_file, match_otu_to_name,
     match_otu_to_taxonomy_name)
 
-    taxa_names = nexus_file.taxa.map { |t| t.name }.sort().uniq
+    taxa_names = nexus_file.taxa.map { |t| t.name }.sort()
     matched_otus = find_matching_otus(taxa_names, match_otu_to_name,
       match_otu_to_taxonomy_name)
 
@@ -15,7 +15,7 @@ module Lib::Vendor::NexusParserHelper
   end
 
   def preview_nexus_descriptors(nexus_file, match_descriptor_to_name)
-    descriptor_names = nexus_file.characters.map { |c| c.name }.sort().uniq
+    descriptor_names = nexus_file.characters.map { |c| c.name }.sort()
 
     matched_descriptors = {}
     if match_descriptor_to_name
@@ -31,9 +31,7 @@ module Lib::Vendor::NexusParserHelper
   end
 
   def find_matching_otus(names, match_otus_by_name, match_otus_by_taxon)
-    if !match_otus_by_name && !match_otus_by_taxon
-      return {}
-    end
+    return {} if !match_otus_by_name && !match_otus_by_taxon
 
     matches = {}
     if match_otus_by_taxon
@@ -52,8 +50,8 @@ module Lib::Vendor::NexusParserHelper
   end
 
   # @return [Hash] Returns a hash with descriptor and chr_states
-  # properties of the most recently created descriptor with the same name
-  # and character states as nxs_char.
+  # properties for the most recently created descriptor, if any, that has the
+  # same name and character states as nxs_char.
   def find_matching_descriptor(nxs_chr)
     descriptors = Descriptor::Qualitative
       .where(project_id: Current.project_id)
@@ -122,14 +120,11 @@ module Lib::Vendor::NexusParserHelper
   end
 
   def same_state_names_and_labels(nex_states, tw_states)
-    if nex_states.keys.sort() != tw_states.map{ |s| s.label }.sort()
-      return false
-    end
+    return false if
+      nex_states.keys.sort() != tw_states.map{ |s| s.label }.sort()
 
     tw_states.each do |s|
-      if nex_states[s.label].name != s.name
-        return false
-      end
+      return false if nex_states[s.label].name != s.name
     end
 
     true
