@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Sometimes URL parameters are set incorrectly in facets.
 
 ## [0.41.1] - 2024-05-10
 
