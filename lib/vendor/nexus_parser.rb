@@ -15,6 +15,8 @@ module Vendor::NexusParser
     fixup_and_validate_characters_and_states(nf.characters,
       doc.document_file_file_name)
 
+    nil_squish_strip_names(nf)
+
     nf
   end
 
@@ -66,6 +68,23 @@ module Vendor::NexusParser
     else
       raise TaxonWorks::Error, "Nexus character #{i + 1} contains a gap state and a character state named 'gap', please rename the character state"
     end
+  end
+
+  # TW squishes names before saving to the db, incoming nexus names are
+  # unsquished - squish incoming so they match what might already be in the db.
+  def self.nil_squish_strip_names(nf)
+    nf.characters.each { |c|
+      c.name = Utilities::Strings.nil_squish_strip(c.name)
+
+      c.states.keys.each { |k|
+        c.states[k].name =
+          Utilities::Strings.nil_squish_strip(c.states[k].name)
+      }
+    }
+
+    nf.taxa.each { |t|
+      t.name = Utilities::Strings.nil_squish_strip(t.name)
+    }
   end
 
   def self.find_duplicates(arr)

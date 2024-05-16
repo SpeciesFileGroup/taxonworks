@@ -17,6 +17,8 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
       ))
   }
 
+  let(:unsquished_doc) {}
+
   specify 'parsed valid nexus file has data' do
     nf = Vendor::NexusParser.document_to_nexus(doc)
 
@@ -121,4 +123,41 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
     expect(nf.characters.second.states['0'].name).to eq("Undefined (0) from [#{file_name}]")
   end
 
+  context 'with unsquished nexus names' do
+    let!(:unsquished_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/nexus/unsquished_names.nex'),
+          'text/plain'
+        ))
+    }
+
+    let!(:nf) {
+      Vendor::NexusParser.document_to_nexus(unsquished_doc)
+    }
+
+    specify 'unsquished taxon names get squished' do
+      # ' Carabus    goryi  '
+      expect(nf.taxa.first.name).to eq('Carabus goryi')
+    end
+
+    specify 'unsquished character names get squished' do
+      # 1 /  square pointy, 2 'right  foot' / 'one,  purple ' ' one,  gree  n' ;
+      expect(nf.characters.first.name).to eq('Undefined (1) from [unsquished_names.nex]')
+      expect(nf.characters.second.name).to eq('right foot')
+      expect(nf.characters.third.name).to eq('Undefined (3) from [unsquished_names.nex]')
+    end
+
+    specify 'unsquished state names get squished' do
+      # 1 /  square pointy, 2 'right  foot' / 'one,  purple ' ' one,  gree  n' ;
+      # MATRIX
+	    # ' Carabus    goryi'     -(0 1)3
+      expect(nf.characters.first.states['-'].name).to eq('gap')
+
+      expect(nf.characters.second.states['0'].name).to eq('one, purple')
+      expect(nf.characters.second.states['1'].name).to eq('one, gree n')
+
+      expect(nf.characters.third.states['3'].name).to eq('Undefined (3) from [unsquished_names.nex]')
+    end
+  end
 end
