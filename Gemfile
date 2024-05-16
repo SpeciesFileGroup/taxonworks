@@ -180,7 +180,9 @@ gem 'parallel_tests', group: [:development, :test]
 
 group :development do
   # gem "ruby-lsp", "~> 0.4.1", require: false
-  
+
+  gem 'thruster' 
+
   # gem 'tunemygc'
   gem 'ruby-prof', '~> 1.2'
   gem 'better_errors', '~> 2.9'

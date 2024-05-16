@@ -35,6 +35,8 @@ export function useFieldSync() {
   const regexPatterns = ref([])
   const selectedAttributes = ref([])
   const selectedPredicates = ref([])
+  const updatedCount = ref(0)
+  const totalUpdate = ref(0)
   const to = ref()
   const { queryParam, queryValue } = useQueryParam()
 
@@ -93,10 +95,16 @@ export function useFieldSync() {
               toValue
             )
 
-            return {
+            const payload = {
               to: makePreviewObject(newValue.to, toValue),
               from: makePreviewObject(newValue.from, fromValue)
             }
+
+            if (extractOperation.value.emptyOnly && toValue) {
+              payload.to.hasChanged = false
+            }
+
+            return payload
           })
         } else {
           data.preview = fromItems.map((value) => {
@@ -127,23 +135,52 @@ export function useFieldSync() {
     ]
   }
 
+  function sortListByEmpty(property) {
+    const predicateId = property?.id
+    const itemsWithValue = list.value
+      .filter((item) =>
+        predicateId
+          ? item.dataAttributes[predicateId].some((d) => d.value)
+          : item.attributes[property]
+      )
+      .map((item) => item.id)
+
+    list.value = [
+      ...list.value.filter((item) => !itemsWithValue.includes(item.id)),
+      ...list.value.filter((item) => itemsWithValue.includes(item.id))
+    ]
+  }
+
   function processPreview({ fromItems = [], toItems = [] }) {
     const fromPredicateId = from.value?.id
     const toPredicateId = to.value?.id
 
+    updatedCount.value = 0
+    totalUpdate.value = fromItems.length + toItems.length
+
     function requestItems(items, predicateId, attribute) {
       return items.map(({ item, index, value }) => {
+        let request
+
         if (predicateId) {
           const dataAttribute = item.dataAttributes[predicateId][index]
 
-          return saveDataAttribute({
+          request = saveDataAttribute({
             ...dataAttribute,
             objectId: item.id,
             value
           })
+        } else {
+          request = saveFieldAttribute({ item, attribute, value })
         }
 
-        return saveFieldAttribute({ item, attribute, value })
+        request
+          .finally(() => {
+            updatedCount.value++
+          })
+          .catch(() => {})
+
+        return request
       })
     }
 
@@ -162,14 +199,26 @@ export function useFieldSync() {
   function saveColumnAttribute(items) {
     const requests = items.map((item) => saveFieldAttribute(item))
 
-    isUpdating.value = true
-    makeNotificationWhenPromisesEnd(requests).then(() => {
-      isUpdating.value = false
-    })
+    handleRequestsFromColumnUpdate(requests)
   }
 
   function saveColumnPredicate(items) {
     const requests = items.map((item) => saveDataAttribute(item))
+
+    handleRequestsFromColumnUpdate(requests)
+  }
+
+  function handleRequestsFromColumnUpdate(requests) {
+    totalUpdate.value = requests.length
+    updatedCount.value = 0
+
+    requests.forEach((item) => {
+      item
+        .finally(() => {
+          updatedCount.value++
+        })
+        .catch(() => {})
+    })
 
     isUpdating.value = true
     makeNotificationWhenPromisesEnd(requests).then(() => {
@@ -188,10 +237,10 @@ export function useFieldSync() {
     })
 
     request
-      .then(() => {
+      .then(({ body }) => {
         const currentItem = list.value.find((obj) => obj.id === item.id)
 
-        currentItem.attributes[attribute] = value
+        currentItem.attributes[attribute] = body[attribute]
       })
       .catch(() => {})
 
@@ -224,13 +273,15 @@ export function useFieldSync() {
     if (!value) {
       const request = DataAttribute.destroy(id)
 
-      request.then(() => {
-        removeFromArray(predicates, { uuid }, { property: 'uuid' })
+      request
+        .then(() => {
+          removeFromArray(predicates, { uuid }, { property: 'uuid' })
 
-        if (!predicates.length) {
-          predicates.push(makeDataAttribute({ predicateId }))
-        }
-      })
+          if (!predicates.length) {
+            predicates.push(makeDataAttribute({ predicateId }))
+          }
+        })
+        .catch(() => {})
 
       return request
     }
@@ -239,18 +290,18 @@ export function useFieldSync() {
       ? DataAttribute.update(id, payload)
       : DataAttribute.create(payload)
 
-    request.then(({ body }) => {
-      const _dataAttributes = dataAttributes.value[objectId][predicateId]
-      const da = _dataAttributes.find((item) => item.uuid === uuid)
-      const currentDa = predicates.find((item) => item.uuid === uuid)
+    request
+      .then(({ body }) => {
+        const _dataAttributes = dataAttributes.value[objectId][predicateId]
+        const da = _dataAttributes.find((item) => item.uuid === uuid)
+        const currentDa = predicates.find((item) => item.uuid === uuid)
 
-      da.id = body.id
-      da.value = body.value
-      currentDa.value = body.id
-      currentDa.value = body.value
-
-      TW.workbench.alert.create('Data attribute was successfully saved')
-    })
+        da.id = body.id
+        da.value = body.value
+        currentDa.value = body.id
+        currentDa.value = body.value
+      })
+      .catch(() => {})
 
     return request
   }
@@ -313,6 +364,30 @@ export function useFieldSync() {
     })
 
     return request
+  }
+
+  function removeSelectedAttribute(attr) {
+    removeFromArray(selectedAttributes.value, attr, { primitive: true })
+
+    if (from.value === attr) {
+      from.value = null
+    }
+
+    if (to.value === attr) {
+      to.value = null
+    }
+  }
+
+  function removeSelectedPredicate(predicate) {
+    removeFromArray(selectedPredicates.value, predicate)
+
+    if (from.value?.id === predicate.id) {
+      from.value = null
+    }
+
+    if (to.value?.id === predicate.id) {
+      to.value = null
+    }
   }
 
   onBeforeMount(async () => {
@@ -383,14 +458,19 @@ export function useFieldSync() {
     queryParam,
     queryValue,
     regexPatterns,
+    removeSelectedAttribute,
+    removeSelectedPredicate,
     saveColumnAttribute,
     saveColumnPredicate,
     saveDataAttribute,
     saveFieldAttribute,
     selectedAttributes,
     selectedPredicates,
+    sortListByEmpty,
     sortListByMatched,
     tableList,
+    updatedCount,
+    totalUpdate,
     to
   }
 }

@@ -14,7 +14,7 @@
   <VSpinner
     v-if="isUpdating"
     full-screen
-    legend="Saving..."
+    :legend="`Saving... ${updatedCount} of ${totalUpdate} records`"
   />
   <div
     v-if="QUERY_PARAMETER[queryParam]"
@@ -61,17 +61,18 @@
         :preview-header="previewHeader"
         :model="currentModel"
         :is-extract="!!extractOperation"
-        @remove:attribute="
-          (attr) =>
-            removeFromArray(selectedAttributes, attr, { primitive: true })
-        "
-        @remove:predicate="(item) => removeFromArray(selectedPredicates, item)"
+        :save-attribute-function="saveFieldAttribute"
+        :save-data-attribute-function="saveDataAttribute"
+        @remove:attribute="removeSelectedAttribute"
+        @remove:predicate="removeSelectedPredicate"
         @update:attribute="saveFieldAttribute"
         @update:attribute-column="saveColumnAttribute"
         @update:predicate-column="saveColumnPredicate"
         @update:data-attribute="saveDataAttribute"
         @update:preview="processPreview"
-        @sort="sortListByMatched"
+        @refresh="() => loadPage(1)"
+        @sort:preview="sortListByMatched"
+        @sort:property="sortListByEmpty"
       />
     </div>
   </div>
@@ -82,7 +83,6 @@
 </template>
 
 <script setup>
-import { removeFromArray } from '@/helpers'
 import { QUERY_PARAMETER } from './constants'
 import { useFieldSync } from './composables'
 
@@ -117,15 +117,20 @@ const {
   processPreview,
   queryParam,
   regexPatterns,
+  removeSelectedAttribute,
+  removeSelectedPredicate,
   saveColumnAttribute,
   saveColumnPredicate,
   saveDataAttribute,
   saveFieldAttribute,
   selectedAttributes,
   selectedPredicates,
+  sortListByEmpty,
   sortListByMatched,
   tableList,
-  to
+  to,
+  totalUpdate,
+  updatedCount
 } = useFieldSync()
 </script>
 

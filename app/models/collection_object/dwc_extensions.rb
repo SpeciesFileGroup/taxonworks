@@ -391,7 +391,7 @@ module CollectionObject::DwcExtensions
     v.shift
     v.pop
     v.compact
-    v.join(CollectionObject::DWC_DELIMITER)
+    v.join(CollectionObject::DWC_DELIMITER).presence
   end
 
   def dwc_kingdom

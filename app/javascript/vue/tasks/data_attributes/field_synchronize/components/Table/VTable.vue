@@ -2,7 +2,15 @@
   <table class="table-striped">
     <thead>
       <tr>
-        <td />
+        <td>
+          <VBtn
+            color="primary"
+            medium
+            @click="emit('refresh')"
+          >
+            Refresh
+          </VBtn>
+        </td>
         <th
           v-if="attributes.length"
           :colspan="attributes.length"
@@ -29,8 +37,8 @@
             <VBtn
               color="primary"
               medium
-              :disabled="!hasChanges"
-              @click="emit('sort')"
+              :disabled="!totalChanges"
+              @click="emit('sort:preview')"
             >
               Gather
             </VBtn>
@@ -49,6 +57,13 @@
               >{{ attr }}</a
             >
             <div class="horizontal-left-content middle gap-small">
+              <VBtn
+                color="primary"
+                medium
+                @click="emit('sort:property', attr)"
+              >
+                Gather empty
+              </VBtn>
               <VBtn
                 v-if="!noEditable.includes(attr)"
                 color="primary"
@@ -81,6 +96,13 @@
           <div class="flex-separate middle gap-medium">
             <span>{{ predicate.name }}</span>
             <div class="horizontal-left-content middle gap-small">
+              <VBtn
+                color="primary"
+                medium
+                @click="emit('sort:property', predicate)"
+              >
+                Gather empty
+              </VBtn>
               <VBtn
                 color="primary"
                 circle
@@ -121,10 +143,10 @@
                 v-if="!isExtract"
                 color="update"
                 medium
-                :disabled="!hasChanges"
+                :disabled="!totalChanges"
                 @click="updateAll"
               >
-                Apply all
+                Apply all ({{ totalChanges }})
               </VBtn>
             </div>
           </th>
@@ -132,7 +154,7 @@
             <VBtn
               color="update"
               medium
-              :disabled="!hasChanges"
+              :disabled="!totalChanges"
               @click="updateAll"
             >
               Apply all
@@ -145,52 +167,25 @@
       <tr
         v-for="item in list"
         :key="item.uuid"
-        class="contextMenuCells"
       >
         <td>{{ item.id }}</td>
-        <td
+        <VTableCellAttribute
           v-for="key in attributes"
           :key="key"
-        >
-          <input
-            type="text"
-            :value="item.attributes[key]"
-            class="full_width"
-            :disabled="noEditable.includes(key)"
-            @change="
-              (e) =>
-                emit('update:attribute', {
-                  item: item,
-                  attribute: key,
-                  value: e.target.value
-                })
-            "
-          />
-        </td>
-        <td
+          :attribute="key"
+          :item="item"
+          :save-attribute-function="saveAttributeFunction"
+          :disabled="noEditable.includes(key)"
+        />
+        <VTableCellDataAttribute
           v-for="(predicate, index) in predicates"
           :key="predicate.id"
           :class="{ 'cell-left-border': !index }"
+          :item="item"
+          :predicate="predicate"
+          :save-data-attribute-function="saveDataAttributeFunction"
         >
-          <input
-            v-for="dataAttribute in item.dataAttributes[predicate.id]"
-            :key="dataAttribute.uuid"
-            class="full_width d-block"
-            type="text"
-            :value="dataAttribute.value"
-            @change="
-              (e) => {
-                emit('update:data-attribute', {
-                  id: dataAttribute.id,
-                  objectId: item.id,
-                  predicateId: dataAttribute.predicateId,
-                  uuid: dataAttribute.uuid,
-                  value: e.target.value
-                })
-              }
-            "
-          />
-        </td>
+        </VTableCellDataAttribute>
         <template v-if="previewHeader.length">
           <td
             v-if="isExtract"
@@ -299,6 +294,8 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import EditColumn from './EditColumn.vue'
+import VTableCellAttribute from './VTableCellAttribute.vue'
+import VTableCellDataAttribute from './VTableCellDataAttribute.vue'
 
 const MAX_RECORDS_WITHOUT_CONFIRMATION = 10
 
@@ -306,6 +303,16 @@ const props = defineProps({
   noEditable: {
     type: Array,
     default: () => []
+  },
+
+  saveAttributeFunction: {
+    type: Function,
+    required: true
+  },
+
+  saveDataAttributeFunction: {
+    type: Function,
+    required: true
   },
 
   attributes: {
@@ -347,14 +354,18 @@ const emit = defineEmits([
   'update:predicate-column',
   'update:data-attribute',
   'update:preview',
-  'sort'
+  'refresh',
+  'sort:preview',
+  'sort:property'
 ])
 
 const confirmationRef = ref(null)
 const editColumnRef = ref(null)
 
-const hasChanges = computed(() =>
-  props.list.some((item) => item.preview.some((item) => item.to.hasChanged))
+const totalChanges = computed(
+  () =>
+    props.list.filter((item) => item.preview.some((item) => item.to.hasChanged))
+      .length
 )
 
 async function updateAll() {
@@ -416,7 +427,9 @@ async function updateAttributeColumn({ title }) {
 
       emit('update:attribute-column', records)
     }
-  } catch (e) {}
+  } catch {
+    /* empty */
+  }
 }
 
 async function updatePredicateColumn({ predicateId, title }) {
@@ -438,7 +451,9 @@ async function updatePredicateColumn({ predicateId, title }) {
 
       emit('update:predicate-column', records)
     }
-  } catch (e) {}
+  } catch {
+    /* empty */
+  }
 }
 </script>
 
