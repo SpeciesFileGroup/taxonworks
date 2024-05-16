@@ -24,7 +24,7 @@ module Vendor::NexusParser
   def self.fixup_and_validate_characters_and_states(characters, file_name)
     characters.each_with_index do |c, i|
       if c.name.nil? || c.name == 'Undefined' # nexus_parser special string
-        c.name = "Undefined (#{i + 1}) from [#{file_name}]"
+        c.name = "Undefined (#{i + 1}) from (#{file_name})"
       end
 
       # It shouldn't be possible to have duplicate state labels (right?) since
@@ -33,7 +33,7 @@ module Vendor::NexusParser
       state_names = []
       c.states.each do |label, state|
         if state.name == ''
-          state.name = "Undefined (#{label}) from [#{file_name}]"
+          state.name = "Undefined (#{label}) from (#{file_name})"
         end
         state_names << state.name
       end

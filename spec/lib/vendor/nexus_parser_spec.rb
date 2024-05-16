@@ -83,7 +83,7 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
     nf = Vendor::NexusParser.document_to_nexus(d)
 
     #  2 / toey heely # no character name
-    expect(nf.characters.second.name).to eq("Undefined (2) from [#{file_name}]")
+    expect(nf.characters.second.name).to eq("Undefined (2) from (#{file_name})")
   end
 
   specify 'character state with empty name gets a name assigned' do
@@ -100,7 +100,7 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
     #
     # 0?3 # state label 3
 	  # -01
-    expect(nf.characters.third.states['3'].name).to eq("Undefined (3) from [#{file_name}]")
+    expect(nf.characters.third.states['3'].name).to eq("Undefined (3) from (#{file_name})")
   end
 
   specify 'ghost character is assigned defaults' do
@@ -116,11 +116,11 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
     # 1 head / round pointy, 3 ribs / spherical monodromic; # ghost character 2
 	  # 01?
 	  # -01
-    expect(nf.characters.second.name).to eq("Undefined (2) from [#{file_name}]")
+    expect(nf.characters.second.name).to eq("Undefined (2) from (#{file_name})")
 
-    expect(nf.characters.second.states['1'].name).to eq("Undefined (1) from [#{file_name}]")
+    expect(nf.characters.second.states['1'].name).to eq("Undefined (1) from (#{file_name})")
 
-    expect(nf.characters.second.states['0'].name).to eq("Undefined (0) from [#{file_name}]")
+    expect(nf.characters.second.states['0'].name).to eq("Undefined (0) from (#{file_name})")
   end
 
   context 'with unsquished nexus names' do
@@ -143,9 +143,9 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
 
     specify 'unsquished character names get squished' do
       # 1 /  square pointy, 2 'right  foot' / 'one,  purple ' ' one,  gree  n' ;
-      expect(nf.characters.first.name).to eq('Undefined (1) from [unsquished_names.nex]')
+      expect(nf.characters.first.name).to eq('Undefined (1) from (unsquished_names.nex)')
       expect(nf.characters.second.name).to eq('right foot')
-      expect(nf.characters.third.name).to eq('Undefined (3) from [unsquished_names.nex]')
+      expect(nf.characters.third.name).to eq('Undefined (3) from (unsquished_names.nex)')
     end
 
     specify 'unsquished state names get squished' do
@@ -157,7 +157,7 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
       expect(nf.characters.second.states['0'].name).to eq('one, purple')
       expect(nf.characters.second.states['1'].name).to eq('one, gree n')
 
-      expect(nf.characters.third.states['3'].name).to eq('Undefined (3) from [unsquished_names.nex]')
+      expect(nf.characters.third.states['3'].name).to eq('Undefined (3) from (unsquished_names.nex)')
     end
   end
 end
