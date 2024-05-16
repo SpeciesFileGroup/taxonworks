@@ -128,7 +128,7 @@ gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 gem 'colrapi', '~>0.1.1'
 
 # Nexus
-gem 'nexus_parser', '~> 1.2.1'
+gem 'nexus_parser', '~> 1.2.2'
 
 # Global Names
 gem 'gnfinder', '~> 1.0'
