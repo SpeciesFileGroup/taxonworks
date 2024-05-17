@@ -34,8 +34,14 @@ module NilifyBlanks
     # @param [Symbol, Array] attributes
     # @return [Symbol]
     def ignore_whitespace_on(*attributes) # this assigns the attributes to be trimmed
+      begin
+      
       raise('no attributes to trim') if !(attributes.map(&:to_s) - self.column_names).empty? # <- don't require AR connection
       self.attributes_to_not_trim = attributes.map(&:to_s)
+
+      rescue ActiveRecord::NoDatabaseError
+        puts Rainbow("skipping nillify setup for #{self.name} initialization (this is ok if you are migrating the database)").yellow.bold
+      end
     end
 
     protected
