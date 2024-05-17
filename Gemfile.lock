@@ -415,7 +415,7 @@ GEM
       ast (~> 2.4.1)
       racc
     parslet (2.0.0)
-    passenger (6.0.20)
+    passenger (6.0.21)
       rack
       rake (>= 0.8.1)
     pdf-core (0.9.0)
@@ -589,7 +589,7 @@ GEM
     rubocop-performance (1.21.0)
       rubocop (>= 1.48.1, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
-    rubocop-rails (2.24.1)
+    rubocop-rails (2.25.0)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
@@ -621,7 +621,7 @@ GEM
       rdoc (>= 5.0)
     seedbank (0.5.0)
       rake (>= 10.0)
-    selenium-webdriver (4.21.0)
+    selenium-webdriver (4.21.1)
       base64 (~> 0.2)
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
