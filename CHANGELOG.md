@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Increased scope of string cleaning [#3947]
+
 ### Fixed
 
 - Sometimes URL parameters are set incorrectly in facets.
@@ -15,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Upgraded to Rails 7. [#3819]
 
+[#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
 [#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
 
 ## [0.41.1] - 2024-05-10
