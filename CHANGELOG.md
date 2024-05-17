@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - An extended biological associations API endpoint [#3944]
+- Updated Ruby gems.
 
 ### Fixed
 
