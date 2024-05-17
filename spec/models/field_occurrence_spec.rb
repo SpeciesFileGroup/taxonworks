@@ -15,7 +15,7 @@ RSpec.describe FieldOccurrence, type: :model do
   specify 'total zero when absent' do
     field_occurrence.is_absent = true
     field_occurrence.valid?
-    expect(field_occurrence.errors.keys).to include(:total)
+    expect(field_occurrence.errors.messages).to include(:total)
   end 
 
   context 'a taxon_determination is required' do

@@ -126,7 +126,7 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
       # TODO: Add scopes/methods in DatasetRecord to handle nil fields values transparently
       unless institution_code.nil?
         query = query.where(
-          id: core_records_fields.at(get_field_mapping(:institutionCode)).with_value(institution_code).select(:dataset_record_id)
+          id: core_records_fields.at(get_field_mapping(:institutionCode)).having_value(institution_code).select(:dataset_record_id)
         )
       else
         query = query.where.not(
@@ -135,7 +135,7 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
       end
       unless collection_code.nil?
         query = query.where(
-          id: core_records_fields.at(get_field_mapping(:collectionCode)).with_value(collection_code).select(:dataset_record_id)
+          id: core_records_fields.at(get_field_mapping(:collectionCode)).having_value(collection_code).select(:dataset_record_id)
         )
       else
         query = query.where.not(
@@ -163,16 +163,16 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
 
       if ready
         query.where(
-          id: core_records_fields.at(get_field_mapping(:collectionCode)).with_value(collection_code).select(:dataset_record_id)
+          id: core_records_fields.at(get_field_mapping(:collectionCode)).having_value(collection_code).select(:dataset_record_id)
         ).update_all(
           "status = 'Ready', metadata = metadata - 'error_data'"
         )
       else
         institution_codes = self.metadata["catalog_numbers_namespaces"]&.select { |m| m[0][1] == collection_code && m[1] }&.map { |m| m[0][0] } || []
         query.where(
-          id: core_records_fields.at(get_field_mapping(:collectionCode)).with_value(collection_code).select(:dataset_record_id)
+          id: core_records_fields.at(get_field_mapping(:collectionCode)).having_value(collection_code).select(:dataset_record_id)
         ).where.not(
-          id: core_records_fields.at(get_field_mapping(:institutionCode)).with_values(institution_codes).select(:dataset_record_id)
+          id: core_records_fields.at(get_field_mapping(:institutionCode)).having_values(institution_codes).select(:dataset_record_id)
         ).update_all(
           "status = 'NotReady', metadata = jsonb_set(metadata, '{error_data}', '{ \"messages\": { \"catalogNumber\": [\"Record cannot be imported until namespace is set, see \\\"Settings\\\".\"] } }')"
         )

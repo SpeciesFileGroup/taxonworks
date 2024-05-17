@@ -9,6 +9,24 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Sometimes URL parameters are set incorrectly in facets.
+
+### Changed
+
+- Upgraded to Rails 7. [#3819]
+
+[#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
+
+## [0.41.1] - 2024-05-10
+
+### Added
+
+- An extended biological associations API endpoint [#3944]
+- Updated Ruby gems.
+
+### Fixed
+
+- Empty `higherClassification` included ""
 - Resaving Image resets height/width and original filename
 - New image from Data raising from path error
 - Filters: JSON request URL overflows container when too long
@@ -17,6 +35,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial annotator: Data attributes can't be deleted from the list
 - Radial quick forms: Collecting event slice doesn't render correctly
 - CSD: In some cases, the locking mechanism does not work correctly [#3941]
+
+[#3941]: https://github.com/SpeciesFileGroup/taxonworks/issues/3941
+[#3944]: https://github.com/SpeciesFileGroup/taxonworks/issues/3944
 
 ## [0.41.0] - 2024-05-02
 
@@ -39,7 +60,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3821]: https://github.com/SpeciesFileGroup/taxonworks/issues/3821
 [#3933]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
-[#3941]: https://github.com/SpeciesFileGroup/taxonworks/issues/3941
 [#3942]: https://github.com/SpeciesFileGroup/taxonworks/issues/3942
 
 ## [0.40.6] - 2024-04-30
@@ -4598,7 +4618,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.0..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.1..development
+[0.41.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.0...v0.41.1
 [0.41.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.6...v0.41.0
 [0.40.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.5...v0.40.6
 [0.40.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.4...v0.40.5

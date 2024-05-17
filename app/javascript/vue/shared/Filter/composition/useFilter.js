@@ -1,7 +1,6 @@
 import { reactive, toRefs, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from '@/helpers/url/parse'
-import qs from 'qs'
 import getPagination from '@/helpers/getPagination'
+import qs from 'qs'
 
 export default function (service, { listParser, initParameters } = {}) {
   const state = reactive({
@@ -103,7 +102,7 @@ export default function (service, { listParser, initParameters } = {}) {
 
   onBeforeMount(() => {
     const urlParameters = {
-      ...URLParamsToJSON(location.href),
+      ...qs.parse(location.search, { ignoreQueryPrefix: true }),
       ...JSON.parse(sessionStorage.getItem('filterQuery'))
     }
 
