@@ -1,20 +1,28 @@
 <template>
-  <DocumentSelector v-model="nexusDoc" />
+  <DocumentSelector
+    v-model="nexusDoc"
+    class="document_selector"
+  />
 
-  <VBtn
-    color="primary"
-    medium
-    :disabled="!nexusDoc || loadingPreview"
-    @click="generatePreview"
-    class="button"
-  >
-    Preview conversion
-  </VBtn>
+  <div>Preview uses the same matching options as Convert below</div>
+  <div class="preview_button">
+    <VBtn
+      color="primary"
+      medium
+      :disabled="!nexusDoc || loadingPreview"
+      @click="generatePreview"
+    >
+      Preview conversion
+    </VBtn>
 
-  <span v-if="loadingPreview">
-    <InlineSpinner />
-    Parsing nexus file...
-  </span>
+    <span
+      v-if="loadingPreview"
+      class="inline_spinner"
+    >
+      <InlineSpinner />
+      Parsing nexus file...
+    </span>
+  </div>
 
   <ImportPreview
     :otus="nexusTaxaList"
@@ -87,9 +95,15 @@ function scheduleConvert() {
 </script>
 
 <style lang="scss" scoped>
-.button {
-  margin-top: 2em;
+.document_selector {
   margin-bottom: 2em;
+}
+.preview_button {
+  padding-top: .5em;
+  padding-bottom: 2em;
   margin-right: 1.5em;
+}
+.inline_spinner {
+  margin-left: .5em;
 }
 </style>
