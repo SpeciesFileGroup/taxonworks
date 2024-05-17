@@ -17,8 +17,6 @@ RSpec.describe Vendor::NexusParser, type: :model, group: :observation_matrix do
       ))
   }
 
-  let(:unsquished_doc) {}
-
   specify 'parsed valid nexus file has data' do
     nf = Vendor::NexusParser.document_to_nexus(doc)
 
