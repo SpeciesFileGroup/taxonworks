@@ -39,7 +39,7 @@ module NilifyBlanks
       raise('no attributes to trim') if !(attributes.map(&:to_s) - self.column_names).empty? # <- don't require AR connection
       self.attributes_to_not_trim = attributes.map(&:to_s)
 
-      rescue ActiveRecord::NoDatabaseError
+      rescue ActiveRecord::NoDatabaseError, ActiveRecord::StatementInvalid
         puts Rainbow("skipping nillify setup for #{self.name} initialization (this is ok if you are migrating the database)").yellow.bold
       end
     end
