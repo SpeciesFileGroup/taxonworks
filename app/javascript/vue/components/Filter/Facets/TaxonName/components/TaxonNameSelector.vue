@@ -45,6 +45,7 @@
         :list="taxonNames"
         label="object_tag"
         :delete-warning="false"
+        soft-delete
         @delete="removeTaxonName"
       />
     </template>
