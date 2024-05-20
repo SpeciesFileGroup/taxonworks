@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-# config/lib/application_record/nillify_blanks.rb
+# config/initializers/application_record/nillify_blanks.rb
 describe 'NilifyBlanks', group: [:model] do
 
   # Use OTU as a proxy

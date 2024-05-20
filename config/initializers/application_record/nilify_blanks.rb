@@ -23,7 +23,7 @@ module NilifyBlanks
     # 2) A whitespace cleanup (can be skipped via `attributes_to_not_trim`
     #    Include a pre-processed step to convert non-break spaces to space (only if not included in trim)
     #
-    before_validation :nilify_blanks, prepend: true # force this to be the first processor
+    before_validation :nilify_blanks, prepend: true, on: [:create, :update], unless: -> {destroyed?} # force this to be the first processor
 
     # You can add attributes to exclude from trimming
     # by passing them to this variable
@@ -35,9 +35,10 @@ module NilifyBlanks
     # @return [Symbol]
     def ignore_whitespace_on(*attributes) # this assigns the attributes to be trimmed
       begin
-      
-      raise('no attributes to trim') if !(attributes.map(&:to_s) - self.column_names).empty? # <- don't require AR connection
-      self.attributes_to_not_trim = attributes.map(&:to_s)
+
+        raise('no attributes to trim') if (attributes & self.column_names.map(&:to_sym)).empty? 
+
+        self.attributes_to_not_trim = attributes.map(&:to_sym)
 
       rescue ActiveRecord::NoDatabaseError, ActiveRecord::StatementInvalid
         puts Rainbow("skipping nillify setup for #{self.name} initialization (this is ok if you are migrating the database)").yellow.bold
@@ -71,10 +72,10 @@ module NilifyBlanks
     end
   end
 
-  # @param attribute [String]
+  # @param attribute [Symbol]
   def trimmable?(attribute)
     if self.attributes_to_not_trim # there are some
-      return false if attributes_to_not_trim.include?(attribute)
+      return false if attributes_to_not_trim.include?(attribute.to_sym)
     end
     true
   end
