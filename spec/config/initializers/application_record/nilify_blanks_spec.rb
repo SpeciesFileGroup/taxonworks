@@ -14,6 +14,14 @@ describe 'NilifyBlanks', group: [:model] do
     expect(Otu.new.trimmable?('name')).to be_falsey
   end
 
+  specify 'all models have only existing columns in #ignore_whitespace_on' do
+    ApplicationRecord.descendants.reject { |c| c.attributes_to_not_trim.nil? }.each do |klass|
+      columns = klass.column_names.map(&:to_sym)
+      expect(columns).to include(*klass.attributes_to_not_trim),
+        "Invalid column(s) in #{klass}: #{klass.attributes_to_not_trim}"
+    end
+  end
+
   context 'cleanup' do
     let(:o) { Otu.new }
     let(:mess) { ' this is (not) a big         gap  ' }
