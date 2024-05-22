@@ -14,12 +14,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Sometimes URL parameters are set incorrectly in facets.
+- A COLDP export name and taxon remarks bug [#3837]
 
 ### Changed
 
 - Upgraded to Rails 7. [#3819]
 - Changed default URL protocol to HTTPS for TaxonWorks-generated e-mails in production environments.
 
+[#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
 [#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
 [#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
 
