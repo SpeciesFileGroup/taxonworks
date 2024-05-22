@@ -7,16 +7,52 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Increased scope of string cleaning [#3947]
+
 ### Fixed
 
-- PDF Button is missing in Filter Sources
+- Sometimes URL parameters are set incorrectly in facets.
 - A COLDP export name and taxon remarks bug [#3837]
 - Handling of [sic] in Protonym#original_combination_infraspecific_element [#3867]
+
+### Changed
+
+- Upgraded to Rails 7. [#3819]
+- Changed default URL protocol to HTTPS for TaxonWorks-generated e-mails in production environments.
+
+[#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
+[#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
+[#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
+
+## [0.41.1] - 2024-05-10
+
+### Added
+
+- An extended biological associations API endpoint [#3944]
+- Updated Ruby gems.
+
+### Fixed
+
+- Empty `higherClassification` included ""
+- Resaving Image resets height/width and original filename
+- New image from Data raising from path error
+- Filters: JSON request URL overflows container when too long
+- PDF Button is missing in Filter Sources
+- DwC Import task: Replace dialog shows `undefined` instead the current value
+- Radial annotator: Data attributes can't be deleted from the list
+- Radial quick forms: Collecting event slice doesn't render correctly
+- CSD: In some cases, the locking mechanism does not work correctly [#3941]
+
+[#3941]: https://github.com/SpeciesFileGroup/taxonworks/issues/3941
+[#3944]: https://github.com/SpeciesFileGroup/taxonworks/issues/3944
 
 ## [0.41.0] - 2024-05-02
 
 ### Added
 
+- Filter nomenclature: Local and global identifiers facets [#3942]
 - Field synchronizer task- batch edit (regex too), update and syncronize columns and between columns
 - `misspelling` option to API `taxon_name_relationship_set[]`
 
@@ -33,6 +69,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3821]: https://github.com/SpeciesFileGroup/taxonworks/issues/3821
 [#3933]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
+[#3942]: https://github.com/SpeciesFileGroup/taxonworks/issues/3942
 
 ## [0.40.6] - 2024-04-30
 
@@ -4591,7 +4628,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.0..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.1..development
+[0.41.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.0...v0.41.1
 [0.41.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.6...v0.41.0
 [0.40.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.5...v0.40.6
 [0.40.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.4...v0.40.5

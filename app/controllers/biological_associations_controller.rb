@@ -149,6 +149,24 @@ class BiologicalAssociationsController < ApplicationController
     end
   end
 
+  def api_index_extended
+    @biological_associations = ::Queries::BiologicalAssociation::Filter.new(params.merge!(api: true))
+      .all
+      .where(project_id: sessions_current_project_id)
+      .order('biological_associations.id')
+      .page(params[:page])
+      .per(params[:per])
+
+    respond_to do |format|
+      format.json  { render '/biological_associations/api/v1/extended' and return }
+      format.csv {
+        send_data Export::CSV::BiologicalAssociations::Extended.csv(@biological_associations),
+        type: 'text',
+        filename: "biological_associations_extended_#{DateTime.now}.tsv"
+      }
+    end
+  end
+
   # PATCH /biological_associations/batch_update.json?biological_association_query=<>&biological_association={}
   def batch_update
     if r = BiologicalAssociation.batch_update(

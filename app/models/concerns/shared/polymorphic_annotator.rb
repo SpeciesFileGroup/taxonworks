@@ -46,6 +46,8 @@ module Shared::PolymorphicAnnotator
 
   included do
 
+    attr_accessor :annotated_object
+
     # Concern implementation macro
     #
     # @param foreign_key [String, nil]
@@ -64,7 +66,8 @@ module Shared::PolymorphicAnnotator
       belongs_to(polymorphic_belongs.to_sym, polymorphic: true, foreign_key: (foreign_key.nil? ? (polymorphic_belongs.to_s + '_id').to_s : polymorphic_belongs.to_s),
         inverse_of:)
 
-      alias_attribute :annotated_object, polymorphic_belongs.to_sym
+      alias_method :annotated_object, polymorphic_belongs.to_sym
+      alias_method :annotated_object=, (polymorphic_belongs.to_s + '=').to_sym
 
       define_singleton_method(:annotator_reflection){polymorphic_belongs.to_s}
 

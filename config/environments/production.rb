@@ -29,7 +29,7 @@ TaxonWorks::Application.configure do
   config.serve_static_files = false # true # was false until oct/2014
 
   # Compress JavaScripts and CSS.
-  config.assets.js_compressor = Uglifier.new(harmony: true)
+  config.assets.js_compressor = :terser
   # config.assets.css_compressor = :sass
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
@@ -86,6 +86,8 @@ TaxonWorks::Application.configure do
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
+
+  config.action_mailer.default_url_options = { protocol: 'https' }
 
   # Load local settings
   Settings.load_from_settings_file(config, :production)

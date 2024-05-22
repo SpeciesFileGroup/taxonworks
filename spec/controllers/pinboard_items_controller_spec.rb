@@ -32,7 +32,7 @@ RSpec.describe PinboardItemsController, type: :controller do
   }
 
   let(:invalid_attributes) {
-    {pinned_object_type: 'Smurf'}
+    {pinned_object_type_id: nil}
   }
 
   # This should return the minimal set of values that should be in the session
