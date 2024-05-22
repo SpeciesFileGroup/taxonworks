@@ -23,7 +23,7 @@
 
 <script>
 import TableList from '@/components/table_list'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import ModalComponent from '@/components/ui/Modal'
 import { ActionNames } from '../store/actions/actions'
 import { Source } from '@/routes/endpoints'

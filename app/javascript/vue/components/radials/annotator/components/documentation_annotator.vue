@@ -120,11 +120,11 @@ import { Documentation, Document } from '@/routes/endpoints'
 import { useSlice } from '@/components/radials/composables'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import Dropzone from '@/components/dropzone.vue'
-import PdfButton from '@/components/pdfButton.vue'
+import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import VIcon from '@/components/ui/VIcon/index'
 import VBtn from '@/components/ui/VBtn/index'
-import VSwitch from '@/components/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 
 const DROPZONE_CONFIGURATION = {
   maxFilesize: 512,

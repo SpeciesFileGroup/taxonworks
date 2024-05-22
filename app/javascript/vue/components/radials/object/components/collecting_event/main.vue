@@ -3,7 +3,7 @@
     <CeSection
       class="margin-small-bottom"
       :collecting-event="collectingEvent"
-      @onSelect="addCollectingEvent"
+      @select="addCollectingEvent"
     />
     <div v-if="collectingEvent">
       <h3>Print label</h3>
@@ -12,8 +12,8 @@
         class="no_bullets context-menu"
       >
         <li
-          v-for="(value, key) in labelTypes"
-          :key="value"
+          v-for="(_, key) in LABEL_TYPES"
+          :key="key"
         >
           <label>
             <input
@@ -21,20 +21,20 @@
               v-model="label.type"
               :value="key"
             />
-            {{ value }}
+            {{ key }}
           </label>
         </li>
       </ul>
       <component
         class="margin-small-top"
-        :is="componentName"
+        :is="LABEL_TYPES[label.type]"
         :collecting-event="collectingEvent"
         :identifier="identifier"
         v-model="label"
       />
       <button
         class="normal-input button button-submit margin-small-right"
-        :disabled="!label.total"
+        :disabled="!label.total || !label.text"
         @click="saveLabel"
       >
         {{ label.id ? 'Update' : 'Create' }}
@@ -46,9 +46,9 @@
       >
         New
       </button>
-      <table-list
+      <TableList
         class="margin-medium-top"
-        :list="labels"
+        :list="list"
         :header="['Label', 'Total', '']"
         :attributes="['label', 'total']"
         edit
@@ -59,13 +59,12 @@
   </div>
 </template>
 
-<script>
-import CRUD from '../../request/crud.js'
-import annotatorExtend from '../../components/annotatorExtend.js'
+<script setup>
 import TableList from '@/components/table_list'
 import CeSection from './ceSection'
 import TextComponent from './label/TextLabel'
 import QRCodeComponent from './label/QRCode'
+import { useSlice } from '@/components/radials/composables'
 import {
   LABEL,
   LABEL_QR_CODE,
@@ -80,125 +79,111 @@ import {
   CollectionObject,
   CollectingEvent
 } from '@/routes/endpoints'
+import { onBeforeMount, ref, watch } from 'vue'
 
-const LabelTypes = {
-  [LABEL]: 'Text',
-  [LABEL_QR_CODE]: 'QRCode',
-  [LABEL_CODE_128]: 'Barcode'
+const LABEL_TYPES = {
+  [LABEL]: TextComponent,
+  [LABEL_QR_CODE]: QRCodeComponent,
+  [LABEL_CODE_128]: QRCodeComponent
 }
 
-export default {
-  mixins: [CRUD, annotatorExtend],
-
-  components: {
-    BarcodeComponent: QRCodeComponent,
-    CeSection,
-    TableList,
-    TextComponent,
-    QRCodeComponent
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  computed: {
-    componentName() {
-      return `${LabelTypes[this.label.type]}Component`
-    }
+  objectType: {
+    type: String,
+    required: true
   },
 
-  data() {
-    return {
-      loadOnMounted: false,
-      label: {},
-      collectingEvent: undefined,
-      labels: [],
-      identifier: undefined,
-      labelTypes: LabelTypes
-    }
-  },
+  radialEmit: {
+    type: Object,
+    required: true
+  }
+})
 
-  watch: {
-    async collectingEvent(newVal) {
-      this.labels = newVal
-        ? (
-            await Label.where({
-              label_object_id: newVal.id,
-              label_object_type: COLLECTING_EVENT
-            })
-          ).body
-        : []
-    }
-  },
+const { list, removeFromList, addToList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
-  async created() {
-    const ceId = (await CollectionObject.find(this.metadata.object_id)).body
-      .collecting_event_id
+const label = ref({})
+const identifier = ref()
+const collectingEvent = ref()
 
-    Identifier.where({
-      identifier_object_id: this.metadata.object_id,
-      identifier_object_type: COLLECTION_OBJECT,
-      type: IDENTIFIER_LOCAL_CATALOG_NUMBER
-    }).then((response) => {
-      this.identifier = response.body[0]
+watch(collectingEvent, (newVal) => {
+  if (newVal)
+    Label.where({
+      label_object_id: newVal.id,
+      label_object_type: COLLECTING_EVENT
+    }).then(({ body }) => {
+      list.value = body
     })
+})
 
-    if (ceId) {
-      this.collectingEvent = (await CollectingEvent.find(ceId)).body
-    }
+onBeforeMount(async () => {
+  const ceId = (await CollectionObject.find(props.objectId)).body
+    .collecting_event_id
 
-    this.resetLabel()
-  },
+  Identifier.where({
+    identifier_object_id: props.objectId,
+    identifier_object_type: COLLECTION_OBJECT,
+    type: IDENTIFIER_LOCAL_CATALOG_NUMBER
+  }).then(({ body }) => {
+    identifier.value = body[0]
+  })
 
-  methods: {
-    resetLabel() {
-      this.label = {
-        total: undefined,
-        text: undefined,
-        type: LABEL
-      }
-    },
+  if (ceId) {
+    collectingEvent.value = (await CollectingEvent.find(ceId)).body
+  }
 
-    saveLabel() {
-      const label = {
-        ...this.label,
-        label_object_id: this.collectingEvent.id,
-        label_object_type: COLLECTING_EVENT
-      }
+  resetLabel()
+})
 
-      const saveRequest = label.id
-        ? Label.update(label.id, { label })
-        : Label.create({ label })
+function resetLabel() {
+  label.value = {
+    total: undefined,
+    text: undefined,
+    type: LABEL
+  }
+}
 
-      saveRequest.then(({ body }) => {
-        if (label.id) {
-          const index = this.labels.findIndex((item) => item.id === body.id)
-
-          this.labels[index] = body
-        } else {
-          this.labels.unshift(body)
-        }
-
-        TW.workbench.alert.create('Label was successfully saved.', 'notice')
-      })
-    },
-
-    setLabel(label) {
-      this.label = label
-    },
-
-    removeLabel(label) {
-      Label.destroy(label.id).then(() => {
-        const index = this.labels.findIndex((item) => item.id === label.id)
-
-        this.labels.splice(index, 1)
-      })
-    },
-
-    addCollectingEvent(ce) {
-      CollectionObject.update(this.metadata.object_id, {
-        collection_object: { collecting_event_id: ce.id || null }
-      }).then((_) => {
-        this.collectingEvent = ce.id ? ce : undefined
-      })
+function saveLabel() {
+  const payload = {
+    label: {
+      ...label.value,
+      label_object_id: collectingEvent.value.id,
+      label_object_type: COLLECTING_EVENT
     }
   }
+
+  const saveRequest = label.value.id
+    ? Label.update(label.value.id, payload)
+    : Label.create(payload)
+
+  saveRequest.then(({ body }) => {
+    addToList(body)
+    TW.workbench.alert.create('Label was successfully saved.', 'notice')
+  })
+}
+
+function setLabel(label) {
+  label.value = label
+}
+
+function removeLabel(label) {
+  Label.destroy(label.id).then(() => {
+    removeFromList(label)
+    TW.workbench.alert.create('Label was successfully destroyed.', 'notice')
+  })
+}
+
+function addCollectingEvent(ce) {
+  CollectionObject.update(props.objectId, {
+    collection_object: { collecting_event_id: ce.id || null }
+  }).then((_) => {
+    collectingEvent.value = ce.id ? ce : undefined
+  })
 }
 </script>

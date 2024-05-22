@@ -51,9 +51,9 @@
 </template>
 <script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+import PinComponent from '@/components/ui/Button/ButtonPin.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
-import PdfButton from '@/components/pdfButton.vue'
+import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
 import NavBar from '@/components/layout/NavBar.vue'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'

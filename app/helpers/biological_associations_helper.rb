@@ -44,17 +44,47 @@ module BiologicalAssociationsHelper
     biological_associations.each do |b|
       types = biological_relationship_types(b.biological_relationship)
 
-      r = %w{order family genus}.inject({}) { |hsh, r| hsh['subject_' + r] = [b.biological_association_subject.taxonomy[r]].flatten.join(' '); hsh }
+      r = %I{order family genus}.inject({}) { |hsh, r| hsh[('subject_' + r.to_s).to_sym] = [b.biological_association_subject.taxonomy[r.to_s]].flatten.compact.join(' '); hsh }
        r.merge!(
-        types: biological_relationship_types(b.biological_relationship),
+        # types: biological_relationship_types(b.biological_relationship),
         subject: label_for(b.biological_association_subject),
-        subject_properties: types[:subject].join(',').presence,
+        subject_properties: types[:subject].join('|').presence,
         biological_relationships: label_for(b.biological_relationship),
-        object_properties: types[:object].join(',').presence,
+        object_properties: types[:object].join('|').presence,
         object: label_for(b.biological_association_object),
       )
 
-     r.merge! %w{order family genus}.inject({}) { |hsh, r| hsh['object_' + r] = [b.biological_association_object.taxonomy[r]].flatten.join(' '); hsh }
+       r.merge! %I{order family genus}.inject({}) { |hsh, r| hsh[('object_' + r.to_s).to_sym] = [b.biological_association_object.taxonomy[r.to_s]].flatten.compact.join(' '); hsh }
+     h.push r
+    end
+
+    h
+  end
+
+  def extended_hash(biological_associations)
+    h = []
+
+    biological_associations.each do |b|
+      types = biological_relationship_types(b.biological_relationship)
+
+      r = %I{order family genus}.inject({}) { |hsh, r| hsh[('subject_' + r.to_s).to_sym] = [b.biological_association_subject.taxonomy[r.to_s]].flatten.compact.join(' '); hsh }
+       r.merge!(
+        id: b.id,
+        subject_id: b.biological_association_subject_id,
+        subject_taxon_name_id: b.biological_association_subject.taxon_name_id,
+        subject_type: b.biological_association_subject_type,
+        subject: label_for(b.biological_association_subject),
+        subject_properties: types[:subject].join('|').presence,
+        biological_relationship_id: b.biological_relationship_id,
+        biological_relationships: label_for(b.biological_relationship),
+        object_properties: types[:object].join('|').presence,
+        object_id: b.biological_association_object_id,
+        object_taxon_name_id: b.biological_association_object.taxon_name_id,
+        object_type: b.biological_association_object_type,
+        object: label_for(b.biological_association_object),
+      )
+
+       r.merge! %I{order family genus}.inject({}) { |hsh, r| hsh[('object_' + r.to_s).to_sym] = [b.biological_association_object.taxonomy[r.to_s]].flatten.compact.join(' '); hsh }
      h.push r
     end
 

@@ -1,6 +1,6 @@
 <template>
   <div id="vue-task-images-new">
-    <spinner-component
+    <VSpinner
       :full-screen="true"
       :legend="'Saving...'"
       :logo-size="{ width: '100px', height: '100px' }"
@@ -17,7 +17,7 @@
           circle
           medium
           color="primary"
-          @click="store.dispatch(ActionNames.ResetStore)"
+          @click="resetTask"
         >
           <VIcon
             name="reset"
@@ -54,7 +54,7 @@
 </template>
 
 <script setup>
-import SpinnerComponent from '@/components/spinner'
+import VSpinner from '@/components/ui/VSpinner'
 import ImageDropzone from './components/images/imageDropzone'
 import ApplyAttributes from './components/ApplyAttributes'
 
@@ -69,6 +69,10 @@ import { MutationNames } from './store/mutations/mutations.js'
 import { ActionNames } from './store/actions/actions.js'
 import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
+
+defineOptions({
+  name: 'NewImage'
+})
 
 const store = useStore()
 const layout = ref({
@@ -91,6 +95,19 @@ function clearDataCreated() {
 }
 function removeImage(image) {
   store.dispatch(ActionNames.RemoveImage, image)
+}
+
+function resetTask() {
+  const isApplied = store.getters[GetterNames.IsAllApplied]
+
+  if (
+    isApplied ||
+    window.confirm(
+      'You have images without applying changes, are you sure you want to reset?'
+    )
+  ) {
+    store.dispatch(ActionNames.ResetStore)
+  }
 }
 </script>
 

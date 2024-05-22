@@ -142,7 +142,7 @@ import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import getRankGroup from '../helpers/getRankGroup'
-import SwitchComponent from '@/components/switch'
+import SwitchComponent from '@/components/ui/VSwitch'
 import BlockLayout from '@/components/layout/BlockLayout'
 
 const FILTER_RELATIONSHIPS = [
@@ -328,10 +328,13 @@ export default {
             object_taxon_name_id: this.taxonRelation.id,
             subject_taxon_name_id: this.taxon.id
           })
-          .then(() => {
-            this.taxonRelation = undefined
-            this.$store.commit(MutationNames.UpdateLastChange)
-          })
+          .then(
+            () => {
+              this.taxonRelation = undefined
+              this.$store.commit(MutationNames.UpdateLastChange)
+            },
+            (errors) => {}
+          )
       }
       this.isInsertaeSedis = false
     },

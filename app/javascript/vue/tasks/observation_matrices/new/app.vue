@@ -34,9 +34,9 @@
             </a>
           </li>
           <li>
-            <a href="/tasks/accessions/comprehensive/index"
-              >New collection object</a
-            >
+            <a href="/tasks/accessions/comprehensive/"
+              >New collection object
+            </a>
           </li>
           <li v-if="matrix.id && settings.sortable">
             <button
@@ -117,8 +117,8 @@ import TablesComponent from './components/tables/view'
 import RowsFixed from './components/rows/fixed'
 import columnsFixed from './components/columns/fixed'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
-import PinComponent from '@/components/ui/Pinboard/VPin.vue'
-import SpinnerComponent from '@/components/spinner'
+import PinComponent from '@/components/ui/Button/ButtonPin.vue'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import RadialNavigation from '@/components/radials/navigation/radial'
 
 import RowsDynamic from './components/rows/dynamic'

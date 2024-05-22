@@ -1,17 +1,18 @@
 import { COLLECTION_OBJECT_PROPERTIES } from '@/shared/Filter/constants'
 import { DataAttribute } from '@/routes/endpoints'
+import { flattenObject } from '@/helpers'
 
 function makeDataAttributeObjectHeaders(data) {
   return Object.assign({}, ...data.index)
 }
 
 function getDataAttributesFor(data, objectId) {
-  const list = data.data.filter(([id]) => id === objectId)
+  const list = data.data.filter(([_, id]) => id === objectId)
   const headers = makeDataAttributeObjectHeaders(data)
 
   return Object.assign(
     {},
-    ...list.map(([id, attrId, value]) => ({
+    ...list.map(([dataAttrId, id, attrId, value]) => ({
       [headers[attrId]]: value
     }))
   )
@@ -52,7 +53,9 @@ export async function listParser(list, { parameters }) {
       current_repository,
       repository,
       collecting_event,
-      taxon_determinations,
+      taxon_determinations: taxon_determinations.map((item) =>
+        flattenObject(item)
+      ),
       dwc_occurrence,
       identifiers,
       data_attributes: getDataAttributesFor(body, item.id)

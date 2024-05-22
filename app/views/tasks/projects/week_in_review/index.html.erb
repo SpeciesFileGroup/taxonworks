@@ -1,0 +1,42 @@
+<%= content_for :head do -%>
+  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" %>
+<% end %>
+
+<h1> "Week" in review</h2>
+
+<%= form_tag(week_in_review_task_path, method: :get) do %>
+  Reporting from <%= pluralize(@weeks_ago, 'week', false ) %> ago until now. <br/>
+<%= tag.input(type: :submit, class: 'button button-default', value: 'Set to') -%> <%= tag.input value: @weeks_ago, type: :number, name: :weeks_ago, min: 1, max:999 %> weeks.
+<% end %>
+
+<br>
+
+<div class="panel content margin-medium-top">
+  <% d = ProjectMember.includes(:user).group(:id).where(project_id: sessions_current_project_id).where('project_members.last_seen_at > ?', @weeks_ago.weeks.ago).sum('project_members.time_active').collect{|a,b| [ProjectMember.find(a).user.name, (b.to_f / 3600.0).round(3)]}.sort{|a,b| b[1] <=> a[1] } %>
+  <% c = d.collect{|a| Utilities::Heatmap.hex_color_from_string(a.first)} %> 
+  <%= bar_chart d, colors: c, dataset: {borderWidth: 0}, xtitle: 'Hours (estimated)'  %>
+</div>
+
+<br/>
+
+<%= week_in_review_graphs(@weeks_ago) %>
+
+<div class="panel content margin-medium-top">
+  <h2> Recently seen (tracks as of 2024/04/21) </h2>
+  <ol>
+    <% ProjectMember.where('last_seen_at > ?', 1.week.ago).where(project_id: sessions_current_project_id).limit(20).order('last_seen_at DESC').where('last_seen_at IS NOT NULL').each do |u| -%>
+      <li> <%= user_link(u.user) %> <%= content_tag :span, time_ago_in_words(u.last_seen_at) + " ago", class: :subtle -%> </li>
+    <% end %>
+  </ol>
+</div>
+
+
+<div class="panel content margin-medium-top">
+  <h2> Recently seen (deprecated, does not track-per-project activity) </h2>
+  <ol>
+    <% User.where('users.last_seen_at > ?', 1.week.ago).joins(:projects).where(projects: {id: sessions_current_project_id}).limit(20).order('users.last_seen_at DESC').where('users.last_seen_at IS NOT NULL').each do |u| -%>
+      <li> <%= user_link(u) %> <%= content_tag :span, time_ago_in_words(u.last_seen_at) + " ago", class: :subtle -%> </li>
+    <% end %>
+  </ol>
+</div>
+

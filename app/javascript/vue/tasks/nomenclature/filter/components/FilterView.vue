@@ -51,6 +51,7 @@
   <FacetCombinationify v-model="params" />
   <FacetSynonymify v-model="params" />
   <FacetAncestrify v-model="params" />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -63,7 +64,7 @@ import FacetNomenclatureGroup from './filters/FacetNomenclatureGroup.vue'
 import FacetNomenclatureCode from './filters/FacetNomenclatureCode.vue'
 import FacetInRelationship from './filters/FacetInRelationship'
 import FacetTaxonNameType from './filters/FacetTaxonNameType.vue'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetValidify from './filters/FacetValidify.vue'
@@ -76,6 +77,7 @@ import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchI
 import FacetDateYear from '@/components/Filter/Facets/Source/FacetDate.vue'
 import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import { computed } from 'vue'
 
 const WITH_TITLES = {
@@ -101,6 +103,8 @@ const WITH_PARAMS = [
   'depictions',
   'etymology',
   'leaves',
+  'global_identifiers',
+  'local_identifiers',
   'nomenclature_date',
   'not_specified',
   'notes',

@@ -35,6 +35,7 @@
   />
   <FacetAncestrify v-model="params" />
   <FacetCoordinatify v-model="params" />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -47,7 +48,7 @@ import FacetDescriptor from '@/components/Filter/Facets/shared/FacetDescriptor.v
 import FacetGeographicArea from '@/components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetHistorialDeterminations from './Facet/FacetHistorialDeterminations.vue'
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetWKT from '@/components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
@@ -55,6 +56,7 @@ import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers
 import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
 import FacetCoordinatify from '@/components/Filter/Facets/Otu/FacetCoordinatify.vue'
 import FacetAncestrify from '@/components/Filter/Facets/shared/FacetAncestrify.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_PARAMS = [
   'asserted_distributions',

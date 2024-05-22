@@ -21,7 +21,7 @@
 <script setup>
 import { ref, computed, onBeforeMount } from 'vue'
 import { Attribution } from '@/routes/endpoints'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
   modelValue: {

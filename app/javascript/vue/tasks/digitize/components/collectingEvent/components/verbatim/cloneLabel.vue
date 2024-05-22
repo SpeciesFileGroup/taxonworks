@@ -58,7 +58,7 @@ import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
 import { CollectingEvent } from '@/routes/endpoints'
 import ModalComponent from '@/components/ui/Modal'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import extendCE from '../../mixins/extendCE.js'
 
 export default {

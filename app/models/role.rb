@@ -130,7 +130,8 @@ class Role < ApplicationRecord
   end
 
   def set_role_object_cached
-    becomes(type.constantize).cached_trigger_methods(role_object).each do |m|
+    a = self.dup
+    a.becomes(type.constantize).cached_trigger_methods(role_object).each do |m|
       role_object.send(m) unless role_object.destroyed?
     end
   end
@@ -159,26 +160,26 @@ end
 #
 # Person only roles
 
-require_dependency 'taxon_name_author'
-require_dependency 'source_source'
-require_dependency 'source_author'
-require_dependency 'source_editor'
-require_dependency 'collector'
-require_dependency 'georeferencer'
-require_dependency 'loan_recipient'
-require_dependency 'loan_supervisor'
+# require_dependency 'taxon_name_author'
+# require_dependency 'source_source'
+# require_dependency 'source_author'
+# require_dependency 'source_editor'
+# require_dependency 'collector'
+# require_dependency 'georeferencer'
+# require_dependency 'loan_recipient'
+# require_dependency 'loan_supervisor'
 
-# Records below have not been hooked to Person activity years
+# # Records below have not been hooked to Person activity years
 
-require_dependency 'accession_provider'
-require_dependency 'deaccession_recipient'
-require_dependency 'verifier'
+# require_dependency 'accession_provider'
+# require_dependency 'deaccession_recipient'
+# require_dependency 'verifier'
 
-# TODO: these are being used in Attribution, or not?
-require_dependency 'attribution_creator'
-require_dependency 'attribution_editor'
+# # TODO: these are being used in Attribution, or not?
+# require_dependency 'attribution_creator'
+# require_dependency 'attribution_editor'
 
-# Person OR Organization roles
-require_dependency 'attribution_copyright_holder'
-require_dependency 'attribution_owner'
-require_dependency 'determiner'
+# # Person OR Organization roles
+# require_dependency 'attribution_copyright_holder'
+# require_dependency 'attribution_owner'
+# require_dependency 'determiner'

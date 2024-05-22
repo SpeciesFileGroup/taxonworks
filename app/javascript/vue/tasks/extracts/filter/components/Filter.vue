@@ -32,11 +32,12 @@
     :param="param"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
 import { computed } from 'vue'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetRepository from '@/components/Filter/Facets/CollectionObject/FacetRepository.vue'
 import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'
@@ -49,6 +50,7 @@ import FacetVerbatimAnatomical from '@/components/Filter/Facets/Extract/FacetVer
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_PARAMS = ['citations', 'origin_citation']
 

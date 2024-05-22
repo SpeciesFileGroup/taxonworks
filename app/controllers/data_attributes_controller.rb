@@ -25,11 +25,13 @@ class DataAttributesController < ApplicationController
 
     render json: [], status: :unprocessable_entity and return if q.all.count > 30000
 
-    @data = q.all.pluck('data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, data_attributes.value')
-    cols = @data.collect{|a| a[1]}.uniq
+    @data = q.all.pluck('data_attributes.id, data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, data_attributes.value')
+
+    cols = @data.collect{|a| a[2]}.uniq
     @columns = Predicate.where(project_id: sessions_current_project_id, id: cols).order(:name).pluck(:id, :name).inject([]){|ary, a| ary.push(a[0] => a[1]); ary}
   end
 
+  # TODO: /brief differs in that the first value is id, determine whether we should do that in /api
   def api_brief
     q = ::Queries::DataAttribute::Filter.new(params)
 
@@ -111,7 +113,16 @@ class DataAttributesController < ApplicationController
     if @data_attributes.present?
       render '/data_attributes/index'
     else
-      render json: { failed: true, status: :unprocessable_entity}
+      render json: { errors: ['Batch create failed - make sure your controlled vocabulary term is a predicate.'] }, status: :unprocessable_entity
+    end
+  end
+
+  # /data_attributes/batch_update_or_create?<some_object>_query={}&value_from=123&value_to=456&predicate_id=890
+  def batch_update_or_create
+    if ::InternalAttribute.batch_update_or_create(params)
+      render json: {}, status: :ok
+    else
+      render json: { errors: ['Batch update or create failed.'] }, status: :unprocessable_entity
     end
   end
 
@@ -142,12 +153,12 @@ class DataAttributesController < ApplicationController
     render json: [] and return if params[:term].blank?
 
     @internal_attributes = ::DataAttribute
-    .where(project_id: sessions_current_project_id)
-    .where('import_predicate ilike ?', '%' + params[:term] + '%' )
-    .order(:import_predicate)
-    .distinct
-    .limit(20)
-    .pluck(:import_predicate)
+      .where(project_id: sessions_current_project_id)
+      .where('import_predicate ilike ?', '%' + params[:term] + '%' )
+      .order(:import_predicate)
+      .distinct
+      .limit(20)
+      .pluck(:import_predicate)
 
     render json: @internal_attributes
   end

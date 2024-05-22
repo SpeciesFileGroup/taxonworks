@@ -25,6 +25,7 @@
     :param="param"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -32,7 +33,7 @@ import { computed } from 'vue'
 import { OBSERVATION } from '@/constants/index.js'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetObservationMatrix from '@/components/Filter/Facets/shared/FacetObservationMatrix'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetDescriptor from '@/components/Filter/Facets/shared/FacetDescriptor.vue'
@@ -41,6 +42,7 @@ import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetObservationType from '@/components/Filter/Facets/Observation/FacetObservationType.vue'
 import FacetObservationObjectType from '@/components/Filter/Facets/Observation/FacetObservationObjectType.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_PARAMS = [
   'citations',

@@ -3,6 +3,7 @@ import {
   TASK_COLLECTION_OBJECT_TABLE,
   TASK_COLLECTION_OBJECT_SUMMARY,
   TASK_COLLECTION_OBJECT_OUTDATED_NAMES,
+  TASK_FIELD_SYNCHRONIZE
 } from '../constants/links'
 
 export const CollectionObject = {
@@ -10,17 +11,19 @@ export const CollectionObject = {
     TASK_COLLECTION_OBJECT_MATCH,
     TASK_COLLECTION_OBJECT_TABLE,
     TASK_COLLECTION_OBJECT_SUMMARY,
-    TASK_COLLECTION_OBJECT_OUTDATED_NAMES
+    TASK_COLLECTION_OBJECT_OUTDATED_NAMES,
+    TASK_FIELD_SYNCHRONIZE
   ],
   ids: [
     TASK_COLLECTION_OBJECT_MATCH,
     TASK_COLLECTION_OBJECT_TABLE,
     TASK_COLLECTION_OBJECT_SUMMARY,
-    TASK_COLLECTION_OBJECT_OUTDATED_NAMES
+    TASK_COLLECTION_OBJECT_OUTDATED_NAMES,
+    TASK_FIELD_SYNCHRONIZE
   ]
 }
 
-  /*   per: [
+/*   per: [
     {
       label: 'By collecting event',
       link: '/tasks/collection_objects/filter',
@@ -57,4 +60,3 @@ export const CollectionObject = {
       params: ['geographic_area_id']
     }
   ] */
-

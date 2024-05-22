@@ -113,7 +113,7 @@ import ListGroup from './listGroup.vue'
 import SaveCombination from './saveCombination.vue'
 import PreviewView from './previewView.vue'
 import SourcePicker from './sourcePicker.vue'
-import Spinner from '@/components/spinner.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
 import MatchGroup from './matchGroup.vue'
 import { Combination, TaxonName } from '@/routes/endpoints'
 

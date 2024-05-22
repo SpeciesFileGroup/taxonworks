@@ -33,7 +33,7 @@ export const LAYOUTS = {
         'cached_level1_geographic_name',
         'cached_level2_geographic_name',
         'verbatim_locality',
-        'verbatim_latititude',
+        'verbatim_latitude',
         'verbatim_longitude',
         'verbatim_geolocation_uncertainty',
         'minimum_elevation',

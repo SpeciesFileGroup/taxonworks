@@ -61,7 +61,7 @@ module Export::Coldp::Files::Name
   def self.add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
     e = t.original_combination_elements
 
-    infraspecific_element = t.original_combination_infraspecific_element(e)
+    infraspecific_element = t.original_combination_infraspecific_element(e, remove_sic: true)
 
     rank = nil
     if infraspecific_element

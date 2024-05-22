@@ -1,16 +1,16 @@
 <template>
-  <section-panel
+  <SectionPanel
     :status="status"
     :title="title"
     :spinner="isLoading"
   >
     <SwitchComponent
       v-if="isSpeciesGroup"
-      :options="TABS"
+      :options="Object.values(TABS)"
       v-model="view"
     />
     <div class="relative">
-      <MapComponent
+      <VMap
         width="100%"
         :zoom="2"
         :zoom-on-click="false"
@@ -21,21 +21,28 @@
         :cached-map="cachedMap"
       />
     </div>
-  </section-panel>
+  </SectionPanel>
 </template>
 
 <script setup>
 import SectionPanel from './shared/sectionPanel'
-import MapComponent from '@/components/georeferences/map.vue'
-import SwitchComponent from '@/components/switch.vue'
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
-import { computed, ref, watch } from 'vue'
-import { useStore } from 'vuex'
-import { GEOREFERENCE, ASSERTED_DISTRIBUTION } from '@/constants/index.js'
+import VMap from '@/components/georeferences/map.vue'
+import SwitchComponent from '@/components/ui/VSwitch.vue'
 import CachedMap from './CachedMap.vue'
+import { GetterNames } from '../store/getters/getters'
+import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
+import {
+  GEOREFERENCE,
+  ASSERTED_DISTRIBUTION,
+  COLLECTION_OBJECT
+} from '@/constants/index.js'
 
-const TABS = ['georeferences', 'asserted distributions', 'both']
+const TABS = {
+  Georeferences: 'Georeferences',
+  AssertedDistributions: 'Asserted distributions',
+  Both: 'Both'
+}
 
 const store = useStore()
 defineProps({
@@ -56,18 +63,15 @@ defineProps({
 const georeferences = computed(
   () => store.getters[GetterNames.GetGeoreferences]
 )
+const features = computed(() => {
+  const { features = [] } = georeferences.value
+
+  return features.map((item) => addPopup(item))
+})
 
 const isSpeciesGroup = computed(() => store.getters[GetterNames.IsSpeciesGroup])
 
 const cachedMap = computed(() => store.getters[GetterNames.GetCachedMap])
-
-const descedantsGeoreferences = computed(
-  () => store.getters[GetterNames.GetDescendants].georeferences
-)
-
-const collectionObjects = computed(
-  () => store.getters[GetterNames.GetCollectionObjects]
-)
 
 const isLoading = computed(() => {
   const loadState = store.getters[GetterNames.GetLoadState]
@@ -75,99 +79,44 @@ const isLoading = computed(() => {
   return loadState.distribution
 })
 
-const collectingEvents = computed({
-  get() {
-    return store.getters[GetterNames.GetCollectingEvents]
-  },
-  set(value) {
-    store.commit(MutationNames.SetCollectingEvents, value)
-  }
-})
-
 const shapes = computed(() => {
   switch (view.value) {
-    case 'both':
-      return [].concat(georeferences.value?.features || [])
-    case 'georeferences':
-      return (
-        georeferences.value?.features.filter(
-          (item) => item.properties.type === GEOREFERENCE
-        ) || []
-      )
-    default:
-      return georeferences.value?.features.filter(
+    case TABS.AssertedDistributions:
+      return features.value.filter(
         (item) => item.properties.base.type === ASSERTED_DISTRIBUTION
       )
+    case TABS.Georeferences:
+      return features.value.filter(
+        (item) => item.properties.type === GEOREFERENCE
+      )
+    default:
+      return features.value
   }
 })
 
-const view = ref('both')
-const geojson = ref({
-  features: []
-})
+const view = ref(TABS.Both)
 
-watch(georeferences, (newVal) => {
-  if (newVal) {
-    populateShapes()
+function addPopup(georeference) {
+  const popup = composePopup(georeference)
+
+  if (popup) {
+    georeference.properties.popup = popup
   }
-})
 
-watch(
-  descedantsGeoreferences,
-  (newVal) => {
-    if (newVal) {
-      populateShapes()
-    }
-  },
-  { deep: true }
-)
-
-const populateShapes = () => {
-  const georeferencesArray = [].concat(
-    descedantsGeoreferences.value,
-    georeferences.value
-  )
-  geojson.value.features = []
-
-  georeferencesArray.forEach((geo) => {
-    const popup = composePopup(geo)
-
-    if (geo.error_radius != null) {
-      geo.geo_json.properties.radius = geo.error_radius
-    }
-    if (popup) {
-      geo.geo_json.properties.popup = popup
-    }
-
-    geojson.value.features.push(geo.geo_json)
-  })
+  return georeference
 }
 
-const getCollectionObjectByGeoId = (georeference) =>
-  collectionObjects.value.filter(
-    (co) => co.collecting_event_id === getCEByGeo(georeference).id
-  )
+function composePopup(geo) {
+  const { id, type, label } = geo.properties.base || {}
 
-const composePopup = (geo) => {
-  const ce = getCEByGeo(geo)
-  if (ce) {
-    return `<h4><b>Collection objects</b></h4>
-      ${getCollectionObjectByGeoId(geo)
-        .map(
-          (item) =>
-            `<a href="/tasks/collection_objects/browse?collection_object_id=${item.id}">${item.object_tag}</a>`
-        )
-        .join('<br>')}
-      <h4><b>Collecting event</b></h4>
-      <a href="/tasks/collecting_events/browse?collecting_event_id=${ce.id}">${
-      ce.object_tag
-    }</a>`
+  if (!id) {
+    return
   }
-  return undefined
-}
 
-const getCEByGeo = (georeference) =>
-  collectingEvents.value.find(
-    (ce) => ce.id === georeference.collecting_event_id
-  )
+  if (type === COLLECTION_OBJECT) {
+    return `<a href="/tasks/collection_objects/browse?collection_object_id=${id}">${label}</a>`
+  } else {
+    return `<span>${label}</span>`
+  }
+}
 </script>

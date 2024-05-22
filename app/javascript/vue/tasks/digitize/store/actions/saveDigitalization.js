@@ -8,7 +8,7 @@ const updateSmartSelectors = () => {
   document.dispatchEvent(event)
 }
 
-export default ({ commit, dispatch, state }) =>
+export default ({ commit, dispatch, state }, { resetAfter = false } = {}) =>
   new Promise((resolve, reject) => {
     state.settings.saving = true
     dispatch(ActionNames.SaveCollectingEvent)
@@ -30,21 +30,31 @@ export default ({ commit, dispatch, state }) =>
             ]
 
             Promise.allSettled(actions)
-              .then((_) => {
-                dispatch(ActionNames.LoadSoftValidations)
-
-                CollectionObject.find(state.collection_object.id).then(
-                  ({ body }) => {
-                    state.collection_object.object_tag = body.object_tag
-                  }
+              .then(async (promises) => {
+                const allSaved = promises.every(
+                  (item) => item.status == 'fulfilled'
                 )
 
-                state.settings.lastSave = Date.now()
+                if (resetAfter && allSaved) {
+                  dispatch(ActionNames.ResetWithDefault)
+                } else {
+                  await dispatch(ActionNames.LoadSoftValidations)
+                  await CollectionObject.find(state.collection_object.id).then(
+                    ({ body }) => {
+                      state.collection_object.object_tag = body.object_tag
+                    }
+                  )
 
-                TW.workbench.alert.create(
-                  'All records were successfully saved.',
-                  'notice'
-                )
+                  state.settings.lastSave = Date.now()
+                }
+
+                if (allSaved) {
+                  TW.workbench.alert.create(
+                    'All records were successfully saved.',
+                    'notice'
+                  )
+                }
+
                 resolve(true)
               })
               .finally(() => {
@@ -56,7 +66,7 @@ export default ({ commit, dispatch, state }) =>
             state.settings.saving = false
           })
       })
-      .catch((_) => {
+      .catch(() => {
         state.settings.saving = false
       })
   })

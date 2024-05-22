@@ -1,6 +1,6 @@
 <template>
   <div class="confidence_annotator">
-    <smart-selector
+    <SmartSelector
       class="margin-medium-bottom"
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{ 'type[]': CONFIDENCE_LEVEL }"
@@ -18,9 +18,9 @@
       <template #new>
         <NewConfidence @submit="createConfidence" />
       </template>
-    </smart-selector>
+    </SmartSelector>
 
-    <list-items
+    <ListItems
       :label="['confidence_level', 'object_tag']"
       :list="list"
       @delete="removeItem"
@@ -30,13 +30,13 @@
   </div>
 </template>
 <script setup>
-import ListItems from '../shared/listItems.vue'
-import SmartSelector from '@/components/ui/SmartSelector.vue'
-import NewConfidence from './NewConfidence.vue'
 import { useSlice } from '@/components/radials/composables'
 import { ControlledVocabularyTerm, Confidence } from '@/routes/endpoints'
 import { CONFIDENCE_LEVEL, TAG } from '@/constants'
 import { ref } from 'vue'
+import ListItems from '../shared/listItems.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import NewConfidence from './NewConfidence.vue'
 
 const props = defineProps({
   objectId: {
@@ -50,7 +50,7 @@ const props = defineProps({
   },
 
   radialEmit: {
-    type: String,
+    type: Object,
     required: true
   }
 })

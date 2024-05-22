@@ -20,5 +20,8 @@ export const DataAttribute = {
   createBatch: (params) =>
     ajaxCall('post', `/${controller}/batch_create`, params),
 
+  updateBatch: (params) =>
+    ajaxCall('post', `/${controller}/batch_update_or_create`, params),
+
   brief: (params) => ajaxCall('post', `/${controller}/brief.json`, params)
 }

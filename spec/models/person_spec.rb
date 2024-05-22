@@ -108,7 +108,7 @@ describe Person, type: :model, group: [:sources, :people] do
 
      # Should be identical, sanity check
       context 'Determiner' do
-        let!(:td){ TaxonDetermination.create!(biological_collection_object: Specimen.create!, otu: Otu.create!(name: 'foo'), determiner_roles_attributes: [person:]) }
+        let!(:td){ TaxonDetermination.create!(taxon_determination_object: Specimen.create!, otu: Otu.create!(name: 'foo'), determiner_roles_attributes: [person:]) }
 
 #        specify '.used_recently' do
 #          expect( Person.joins(:roles).where(roles: {project_id: Current.project_id, updated_by_id: Current.user_id} ).used_recently('Determiner').limit(10).map(&:id)).to contain_exactly(person.id)

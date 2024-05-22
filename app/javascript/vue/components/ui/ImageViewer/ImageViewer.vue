@@ -291,7 +291,7 @@ const loadAttributions = async () => {
     await Citation.where({
       citation_object_id: imageObject.value.id,
       citation_object_type: IMAGE,
-      extend: ['source ']
+      extend: ['source']
     })
   ).body
   state.attributions = (

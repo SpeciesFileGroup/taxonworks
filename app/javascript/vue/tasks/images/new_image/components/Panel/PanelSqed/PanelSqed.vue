@@ -93,7 +93,7 @@ import TLayout from './layouts/t.vue'
 import InvertedTLayout from './layouts/t_inverted.vue'
 import VerticalSplitLayout from './layouts/vertical_split'
 import NoneLayout from './layouts/none.vue'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 
 import TagsComponent from './tags'
 import DataAttributes from '../../dataAttributes'

@@ -62,7 +62,7 @@
 
 <script>
 import Expand from '@/components/expand.vue'
-import Spinner from '@/components/spinner.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import { GetterNames } from '../store/getters/getters'

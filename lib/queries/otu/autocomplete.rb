@@ -85,27 +85,28 @@ module Queries
       #
       def otu_name_similarity
         base_query
-        .where('otus.name % ?', query_string)
+          .where('otus.name % ?', query_string)
           .where( ApplicationRecord.sanitize_sql_array(["word_similarity('%s', otus.name) > 0.33", query_string]))
-        .order('otus.name, length(otus.name)')
+          .order('otus.name, length(otus.name)')
       end
 
       # @return [Scope]
       #   Pull the result of a TaxonName autocomplete. Maintain the order returned, and
-      #   re-cast the result in terms of an OTU query. Expensive but maintain order is key.
+      #   re-cast the result in terms of an OTU query. Expensive but maintaining order is key.
       def autocomplete_taxon_name
         taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:).autocomplete # an array, not a query
 
-        ids = taxon_names.map(&:id) # TODO: Experiment with :cached_valid_taxon_name_id) # We assume we want to land on Valid OTUs, but see #
+        ids = taxon_names.collect{|n| n.is_combination? ? n.cached_valid_taxon_name_id : n.id} # TODO: Experiment with :cached_valid_taxon_name_id) # We assume we want to land on Valid OTUs, but see #
         return nil if ids.empty?
 
         min = 10.0
         max = 20.0
         scale = (max - min) / ids.count.to_f
 
+        # TODO: optimize *
         base_query.select("otus.*, ((#{min} + row_number() OVER ())::float * #{scale}) as priority") # small incrementing numbers for priority
-        .joins("INNER JOIN ( SELECT unnest(ARRAY[#{ids.join(',')}]) AS id, row_number() OVER () AS row_num ) AS id_order ON otus.taxon_name_id = id_order.id")
-        .order('id_order.row_num')
+          .joins("INNER JOIN ( SELECT unnest(ARRAY[#{ids.join(',')}]) AS id, row_number() OVER () AS row_num ) AS id_order ON otus.taxon_name_id = id_order.id")
+          .order('id_order.row_num')
       end
 
       # Maintains valid_taxon_name_id needed for API.
@@ -126,13 +127,106 @@ module Queries
         otu_order = otus.map(&:id).uniq
 
         f = ::Otu.where(id: otu_order)
-              .joins('left join taxon_names t1 on otus.taxon_name_id = t1.id')
-              .joins('left join otus o2 on t1.cached_valid_taxon_name_id = o2.taxon_name_id')
-              .select('distinct on (otus.id) otus.id, otus.name, otus.taxon_name_id, COALESCE(o2.id, otus.id) as otu_valid_id')
+          .joins('left join taxon_names t1 on otus.taxon_name_id = t1.id')
+          .joins('left join otus o2 on t1.cached_valid_taxon_name_id = o2.taxon_name_id')
+          .select('distinct on (otus.id) otus.id, otus.name, otus.taxon_name_id, COALESCE(o2.id, otus.id) as otu_valid_id')
 
         f.sort_by.with_index { |item, idx| [(otu_order.index(item.id) || 999), (idx || 999)] }
       end
 
+
+      def autocomplete_taxon_name_extended
+        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:).autocomplete # an array, not a query
+
+        ids = taxon_names.collect{|n|
+          [
+            (n.is_combination? ? n.cached_valid_taxon_name_id : n.id), # Points to the OTU target, if there is one
+            n.id,  # points to the label target
+          ]
+        }
+
+        return ::Otu.none if ids.empty?
+
+        ids.uniq!
+
+        min = 10.0
+        max = 20.0
+        scale = (max - min) / ids.count.to_f
+
+        # TODO: optimize *
+        otus = base_query.select("otus.*, label_target_taxon_name_id, ((#{min} + row_number() OVER ())::float * #{scale}) as priority") # small incrementing numbers for priority
+          .joins("INNER JOIN ( SELECT unnest(ARRAY[#{ids.map(&:first).join(',')}]) AS id, unnest(ARRAY[#{ids.map(&:last).join(',')}]) AS label_target_taxon_name_id, row_number() OVER () AS row_num ) AS id_order ON otus.taxon_name_id = id_order.id")
+          .order('id_order.row_num')
+
+        otus = scope_autocomplete(otus).includes(:taxon_name)
+
+        otus
+      end
+
+      # An autocomplete result that permits displaying the TaxonName as originally matched.
+      # @return [Array] of
+      #    { otu:,  label_target:, otu_valid_id: } 
+      #
+      # Note that otu: is really only useful when displaying otus without &having_taxon_name_only=true.  We don't, for example make use 
+      # of this element there.
+      def api_autocomplete_extended
+        otu_queries = QUERIES.dup
+        otu_queries.delete(:autocomplete_taxon_name)
+
+        base_otus = autocomplete_base(otu_queries).limit(30)
+        taxon_name_otus = autocomplete_taxon_name_extended
+
+        r = []
+
+        base_otus.each do |o|
+          r.push({
+            otu: o, # contains priority
+            label_target: o
+          })
+        end
+
+        taxon_name_otus.each do |o|
+          r.push({
+            otu: o,
+            label_target: (o.label_target_taxon_name_id ? ::TaxonName.find(o.label_target_taxon_name_id) : o.taxon_name )  # is o.taxon_name true?!
+          })
+        end
+
+        # Keep a unique set of otu + label (to render)
+        seen = Set.new
+
+        # The compacted result
+        compact = []
+
+        r.each do |h|
+          g = h[:label_target].id.to_s + h[:label_target].class.name
+          m = [ h[:otu].id, g ]
+          next if seen.include?( m )
+          seen << m
+          compact.push h
+        end
+
+        compact.sort!{|c,d| (c[:otu].priority || 999) <=> (d[:otu].priority || 999 )}
+
+        # TODO: Refactor to remove extra query and assignment of otu_valid_id.  This is ugly.
+        otu_order = compact.collect{|d| d[:otu].id}
+
+        # Extra query is painful.
+        f = ::Otu.where(id: otu_order)
+          .joins('left join taxon_names t1 on otus.taxon_name_id = t1.id')
+          .joins('left join otus o2 on t1.cached_valid_taxon_name_id = o2.taxon_name_id')
+          .select('distinct on (otus.id) otus.id, otus.name, otus.taxon_name_id, COALESCE(o2.id, otus.id) as otu_valid_id')
+
+        compact.each do |h|
+          h[:otu_valid_id] = f.select{|j| j.id == h[:otu].id}.first.otu_valid_id
+        end
+
+        compact
+      end
+
+      #
+      # Doesn't work for extended, as we can have the same OTU with different labels
+      #
       def compact_priorities(otus)
         # Mmmmarg!
         # We may have the same name at different priorities, strike all but the highest/first.
@@ -150,10 +244,10 @@ module Queries
         compact_priorities( autocomplete_base.limit(40) )
       end
 
-      def autocomplete_base
+      def autocomplete_base(targets = QUERIES)
         queries = []
 
-        QUERIES.each do |q, p|
+        targets.each do |q, p|
           if self.respond_to?(q)
 
             a = send(q)
@@ -161,9 +255,7 @@ module Queries
 
             y = p[:priority]
 
-            a = a.joins(:taxon_name) if with_taxon_name
-            a = a.where.missing(:taxon_name) if with_taxon_name == false
-            a = a.joins(:taxon_name).where(otus: {name: nil}) if having_taxon_name_only
+            a = scope_autocomplete(a)
 
             a = a.select("otus.*, #{y} as priority") unless y.nil?
 
@@ -175,16 +267,23 @@ module Queries
         referenced_klass_union(queries).order('priority')
       end
 
-       # # @return [Array]
-       # def autocomplete
-       #   result = []
-       #   base_queries.each do |q|
-       #     result += q.to_a
-       #     result.uniq!
-       #     break if result.count > 39
-       #   end
-       #   result[0..39].uniq
-       # end
+      def scope_autocomplete(query)
+        query = query.joins(:taxon_name) if with_taxon_name
+        query = query.where.missing(:taxon_name) if with_taxon_name == false
+        query = query.joins(:taxon_name).where(otus: {name: nil}) if having_taxon_name_only
+        query
+      end
+
+      # # @return [Array]
+      # def autocomplete
+      #   result = []
+      #   base_queries.each do |q|
+      #     result += q.to_a
+      #     result.uniq!
+      #     break if result.count > 39
+      #   end
+      #   result[0..39].uniq
+      # end
 
     end
   end

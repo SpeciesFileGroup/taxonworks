@@ -72,10 +72,12 @@ function createWithId({ id }) {
     tag_object_type: props.objectType
   }
 
-  Tag.create({ tag }).then(({ body }) => {
-    addToList(body)
-    TW.workbench.alert.create('Tag was successfully created.', 'notice')
-  })
+  Tag.create({ tag })
+    .then(({ body }) => {
+      addToList(body)
+      TW.workbench.alert.create('Tag was successfully created.', 'notice')
+    })
+    .catch(() => {})
 }
 
 function removeItem(item) {

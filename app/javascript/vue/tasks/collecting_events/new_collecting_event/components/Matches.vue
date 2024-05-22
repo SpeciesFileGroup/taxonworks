@@ -21,7 +21,7 @@
 <script>
 import { CollectingEvent } from '@/routes/endpoints'
 import DisplayList from '@/components/displayList'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 
 export default {
   components: {

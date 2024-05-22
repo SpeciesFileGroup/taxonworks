@@ -67,8 +67,8 @@
 
 <script setup>
 import ModalComponent from '@/components/ui/Modal'
-import SpinnerComponent from '@/components/spinner'
-import ClipboardButton from '@/components/clipboardButton'
+import SpinnerComponent from '@/components/ui/VSpinner'
+import ClipboardButton from '@/components/ui/Button/ButtonClipboard'
 import { SOURCE_BIBTEX } from '@/constants'
 import { GetBibtex, GetGenerateLinks } from '../request/resources'
 import { ref, watch, computed } from 'vue'

@@ -2,10 +2,13 @@ class BiocurationClassificationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_biocuration_classification, only: [:update, :destroy]
+  after_action -> { set_pagination_headers(:biocuration_classifications) }, only: [:index] # , if: :json_request?
 
   # GET /biocuration_classifications.json
   def index
-    @biocuration_classifications = BiocurationClassification.where(filter_params)
+    @biocuration_classifications = BiocurationClassification.where(filter_params).page(params[:page])
+          .per(params[:per])
+ 
   end
 
   # POST /biocuration_classifications
@@ -48,18 +51,17 @@ class BiocurationClassificationsController < ApplicationController
   end
 
   private
-    def set_biocuration_classification
-      @biocuration_classification = BiocurationClassification.with_project_id(sessions_current_project_id).find(params[:id])
-    end
+  def set_biocuration_classification
+    @biocuration_classification = BiocurationClassification.with_project_id(sessions_current_project_id).find(params[:id])
+  end
 
-    def biocuration_classification_params
-      params.require(:biocuration_classification).permit(:biocuration_class_id, :biological_collection_object_id)
-    end
+  def biocuration_classification_params
+    params.require(:biocuration_classification).permit(:biocuration_class_id, :biocuration_classification_object_id, :biocuration_classification_object_type)
+  end
 
-    # No corresponding filter.rb 
-    def filter_params
-      params.require(:biological_collection_object_id)
-      return params.permit(:biocuration_class_id, :biological_collection_object_id).merge(project_id: sessions_current_project_id)
-    end
+  # No corresponding filter.rb
+  def filter_params
+    return params.permit(:biocuration_class_id, :biocuration_classification_object_id, :biocuration_classification_object_type).merge(project_id: sessions_current_project_id)
+  end
 
 end

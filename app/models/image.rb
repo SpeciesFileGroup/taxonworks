@@ -85,36 +85,53 @@ class Image < ApplicationRecord
     styles: {
       thumb: [ "#{DEFAULT_SIZES[:thumb][:width]}x#{DEFAULT_SIZES[:thumb][:height]}>", :png ] ,
       medium: [ "#{DEFAULT_SIZES[:medium][:width]}x#{DEFAULT_SIZES[:medium][:height]}>", :jpg ] },
-    default_url: MISSING_IMAGE_PATH,
-    filename_cleaner: Utilities::CleanseFilename,
-    processors: [:rotator]
+  default_url: MISSING_IMAGE_PATH,
+  filename_cleaner: Utilities::CleanseFilename,
+  processors: [:rotator]
 
-    #:restricted_characters => /[^A-Za-z0-9\.]/,
+  #:restricted_characters => /[^A-Za-z0-9\.]/,
   validates_attachment_content_type :image_file, content_type: /\Aimage\/.*\Z/
   validates_attachment_presence :image_file
   validate :image_dimensions_too_short
 
-  soft_validate(:sv_duplicate_image?)
+  validates_uniqueness_of :image_file_fingerprint, scope: :project_id
 
   accepts_nested_attributes_for :sled_image, allow_destroy: true
+
+  # Replaces Image.create!
+  def self.deduplicate_create(image_params)
+    image = Image.new(image_params)
+
+    if i = Image.where(project_id: Current.project_id, image_file_fingerprint: image.image_file_fingerprint).first
+      return i
+    else
+      return image
+    end
+  end
 
   def sqed_depiction
     depictions.joins(:sqed_depiction).first&.sqed_depiction
   end
 
+  # TODO:
+  # Deprecated, once images are de-duplicated
+  #   this will be removed
   # @return [Boolean]
   def has_duplicate?
     Image.where(image_file_fingerprint: self.image_file_fingerprint).count > 1
   end
 
-    # @return [Array]
+  # TODO:
+  # Deprecated, once images are de-duplicated
+  #   this will be removed. No duplicate images can now be created
+  # @return [Array]
   def duplicate_images
     Image.where(image_file_fingerprint: self.image_file_fingerprint).not_self(self).to_a
   end
 
-    # @return [Hash]
-    # returns a hash of EXIF data if present, empty hash if not.do
-    # EXIF data tags/specifications -  http://web.archive.org/web/20131018091152/http://exif.org/Exif2-2.PDF
+  # @return [Hash]
+  # returns a hash of EXIF data if present, empty hash if not.do
+  # EXIF data tags/specifications -  http://web.archive.org/web/20131018091152/http://exif.org/Exif2-2.PDF
   def exif
     ret_val = {} # return value
 
@@ -157,17 +174,17 @@ class Image < ApplicationRecord
     # - maybe 2 versions? - one returns string, other decimal?
   end
 
-    # Returns the true, unscaled height/width ratio
-    # @return [Float]
+  # Returns the true, unscaled height/width ratio
+  # @return [Float]
   def hw_ratio
     raise if height.nil? || width.nil? # if they are something has gone badly wrong
     return (height.to_f / width.to_f)
   end
 
-    # rubocop:disable Style/StringHashKeys
-    # used in ImageHelper#image_thumb_tag
-    # asthetic scaling of very narrow images in thumbnails
-    # @return [Hash]
+  # rubocop:disable Style/StringHashKeys
+  # used in ImageHelper#image_thumb_tag
+  # asthetic scaling of very narrow images in thumbnails
+  # @return [Hash]
   def thumb_scaler
     a = self.hw_ratio
     if a < 0.6
@@ -176,23 +193,23 @@ class Image < ApplicationRecord
       {}
     end
   end
-    # rubocop:enable Style/StringHashKeys
+  # rubocop:enable Style/StringHashKeys
 
-    # the scale factor is typically the same except in a few cases where we skew small thumbs
-    # @param [Symbol] size
-    # @return [Float]
+  # the scale factor is typically the same except in a few cases where we skew small thumbs
+  # @param [Symbol] size
+  # @return [Float]
   def width_scale_for_size(size = :medium)
     (width_for_size(size).to_f / width.to_f)
   end
 
-    # @param [Symbol] size
-    # @return [Float]
+  # @param [Symbol] size
+  # @return [Float]
   def height_scale_for_size(size = :medium)
     height_for_size(size).to_f / height.to_f
   end
 
-    # @param [Symbol] size
-    # @return [Float]
+  # @param [Symbol] size
+  # @return [Float]
   def width_for_size(size = :medium)
     a = self.hw_ratio
     case size
@@ -209,8 +226,8 @@ class Image < ApplicationRecord
     end
   end
 
-    # @param [Symbol] size
-    # @return [Float]
+  # @param [Symbol] size
+  # @return [Float]
   def height_for_size(size = :medium)
     a = self.hw_ratio
     case size
@@ -227,18 +244,18 @@ class Image < ApplicationRecord
     end
   end
 
-    #  def filename(layout_section_type)
-    #    'tmp/' + tempfile(layout_section_type).path.split('/').last
-    #  end
+  #  def filename(layout_section_type)
+  #    'tmp/' + tempfile(layout_section_type).path.split('/').last
+  #  end
 
-    #  def tempfile(layout_section_type)
-    #    tempfile = Tempfile.new([layout_section_type.to_s, '.jpg'], "#{Rails.root.to_s}/public/images/tmp", encoding: 'ASCII-8BIT' )
-    #    tempfile.write(zoomed_image(layout_section_type).to_blob)
-    #    tempfile
-    #  end
+  #  def tempfile(layout_section_type)
+  #    tempfile = Tempfile.new([layout_section_type.to_s, '.jpg'], "#{Rails.root.to_s}/public/images/tmp", encoding: 'ASCII-8BIT' )
+  #    tempfile.write(zoomed_image(layout_section_type).to_blob)
+  #    tempfile
+  #  end
 
-    # @param [ActionController::Parameters] params
-    # @return [Magick::Image]
+  # @param [ActionController::Parameters] params
+  # @return [Magick::Image]
   def self.cropped(params)
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
@@ -253,8 +270,8 @@ class Image < ApplicationRecord
     cropped
   end
 
-    # @param [ActionController::Parameters] params
-    # @return [Magick::Image]
+  # @param [ActionController::Parameters] params
+  # @return [Magick::Image]
   def self.resized(params)
     c = cropped(params)
     resized = c.resize(params[:new_width].to_i, params[:new_height].to_i) #.sharpen(0x1)
@@ -262,9 +279,10 @@ class Image < ApplicationRecord
     resized
   end
 
-    # @param [ActionController::Parameters] params
-    # @return [Magick::Image, nil]
+  # @param [ActionController::Parameters] params
+  # @return [Magick::Image, nil]
   def self.scaled_to_box(params)
+    return nil if params[:box_width].to_f == 0 || params[:box_height].to_f == 0
     begin
       c = cropped(params)
       ratio = c.columns.to_f / c.rows.to_f
@@ -291,7 +309,7 @@ class Image < ApplicationRecord
           ) #.sharpen(0x1)
         else # tall into tall # TODO: or 1:1?!
           scaled = c.resize(
-            (params[:box_width ].to_f * ratio / box_ratio ).to_i,
+            (params[:box_width].to_f * ratio / box_ratio ).to_i,
             (params[:box_height].to_f ).to_i
           ) #.sharpen(0x1)
         end
@@ -303,27 +321,27 @@ class Image < ApplicationRecord
     scaled
   end
 
-    # @param [ActionController::Parameters] params
-    # @return [String]
+  # @param [ActionController::Parameters] params
+  # @return [String]
   def self.scaled_to_box_blob(params)
     self.to_blob!(scaled_to_box(params))
   end
 
-    # @param [ActionController::Parameters] params
-    # @return [String]
+  # @param [ActionController::Parameters] params
+  # @return [String]
   def self.resized_blob(params)
     self.to_blob!(resized(params))
   end
 
-    # @param [ActionController::Parameters] params
-    # @return [String]
+  # @param [ActionController::Parameters] params
+  # @return [String]
   def self.cropped_blob(params)
     self.to_blob!(cropped(params))
   end
 
-    # @param used_on [String] required, a depictable base class name like  `Otu`, `Content`, or `CollectionObject`
-    # @return [Scope]
-    #   the max 10 most recently used images, as `used_on`
+  # @param used_on [String] required, a depictable base class name like  `Otu`, `Content`, or `CollectionObject`
+  # @return [Scope]
+  #   the max 10 most recently used images, as `used_on`
   def self.used_recently(user_id, project_id, used_on = '')
     i = arel_table
     d = Depiction.arel_table
@@ -344,8 +362,8 @@ class Image < ApplicationRecord
     joins(k).distinct.pluck(:id)
   end
 
-    # @params target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
-    # @return [Hash] images optimized for user selection
+  # @params target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
+  # @return [Hash] images optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
     r = used_recently(user_id, project_id, target)
     h = {
@@ -374,17 +392,13 @@ class Image < ApplicationRecord
     h
   end
 
-    protected
+  protected
 
-    # @return [Integer, Nil]
+  # @return [Integer, Nil]
   def extract_tw_attributes
     # NOTE: assumes content type is an image.
     tempfile = image_file.queued_for_write[:original]
-    if tempfile.nil?
-      self.width = 0
-      self.height = 0
-      self.user_file_name = nil
-    else
+    if tempfile
       self.user_file_name = tempfile.original_filename
       geometry = Paperclip::Geometry.from_file(tempfile)
       self.width = geometry.width.to_i
@@ -392,23 +406,13 @@ class Image < ApplicationRecord
     end
   end
 
-    # Check md5 fingerprint against existing fingerprints
-    # @return [Object]
-  def sv_duplicate_image?
-    if has_duplicate?
-      soft_validations.add(
-        :image_file_fingerprint,
-        'This image is a duplicate of an image already stored.')
-    end
-  end
+  private
 
-    private
-
-    # Converts image to blob and releases memory of img (image cannot be used afterwards)
-    # @param [Magick::Image] img
-    # @return [String] a JPG representation of the image
-    #   !! Always converts to .jpg, this may need abstraction later
-    #   Returns an empty string if no image
+  # Converts image to blob and releases memory of img (image cannot be used afterwards)
+  # @param [Magick::Image] img
+  # @return [String] a JPG representation of the image
+  #   !! Always converts to .jpg, this may need abstraction later
+  #   Returns an empty string if no image
   def self.to_blob!(img)
     return '' if img.nil?
     img.format = 'jpg'

@@ -44,6 +44,7 @@
     :param="param"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -58,7 +59,7 @@ import FacetSerials from '@/components/Filter/Facets/Source/FacetSerials.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetSourceType from '@/components/Filter/Facets/Source/FacetSourceType'
 import FacetCitationTopics from '@/components/Filter/Facets/Source/FacetCitationTopics'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetSomeValue from '@/components/Filter/Facets/shared/FacetSomeValue.vue'
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
@@ -67,6 +68,7 @@ import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttri
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import CitationOnOtus from '@/components/Filter/Facets/Source/CitationOnOtus.vue'
 import FacetByAttribute from '@/components/Filter/Facets/shared/FacetByAttribute.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_TITLES = {
   with_title: 'BibTeX title'

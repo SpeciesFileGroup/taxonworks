@@ -177,7 +177,9 @@ export default {
       })
 
       BiocurationClassification.where({
-        biological_collection_object_id: this.specimen.collection_objects_id
+        biocuration_classification_object_id:
+          this.specimen.collection_objects_id,
+        biocuration_classification_object_type: COLLECTION_OBJECT
       }).then(({ body }) => {
         this.biocurations = body
       })

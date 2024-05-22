@@ -32,8 +32,8 @@
 </template>
 
 <script setup>
-import VSwitch from '@/components/switch.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import LicenseSelector from './LicenseSelector.vue'
 import PeopleSelector from './PeopleSelector.vue'
 import { Attribution } from '@/routes/endpoints'

@@ -1,16 +1,32 @@
 <template>
   <div v-if="imports.length">
     <h2>Created imports</h2>
+    <VPagination
+      :pagination="pagination"
+      @next-page="
+        ({ page }) => {
+          loadPage(page)
+        }
+      "
+    />
     <div class="flex-wrap-row">
-      <import-card
+      <ImportCard
         v-for="item in imports"
         :key="item.id"
         :dataset="item"
-        @onSelect="$emit('onSelect', $event)"
+        @onSelect="emit('onSelect', $event)"
         @onRemove="removeDataset"
       />
     </div>
-    <v-spinner
+    <VPagination
+      :pagination="pagination"
+      @next-page="
+        ({ page }) => {
+          loadPage(page)
+        }
+      "
+    />
+    <VSpinner
       v-if="isDeleting"
       full-screen
       legend="Destroying dataset..."
@@ -18,50 +34,43 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import { GetImports, DestroyDataset } from '../request/resources.js'
+import { removeFromArray } from '@/helpers/arrays.js'
+import { getPagination } from '@/helpers'
+import VPagination from '@/components/pagination.vue'
 import ImportCard from './ImportCard'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
-export default {
-  components: {
-    ImportCard,
-    VSpinner
-  },
+const emit = defineEmits(['onSelect'])
 
-  emits: ['onSelect'],
+const imports = ref([])
+const isDeleting = ref(false)
+const pagination = ref({})
 
-  data: () => ({
-    imports: [],
-    isDeleting: false
-  }),
-
-  created() {
-    GetImports().then((response) => {
-      this.imports = response.body
-    })
-  },
-
-  methods: {
-    removeDataset(dataset) {
-      this.isDeleting = true
-
-      DestroyDataset(dataset.id)
-        .then(() => {
-          const index = this.imports.findIndex(({ id }) => dataset.id === id)
-
-          this.imports.splice(index, 1)
-          TW.workbench.alert.create(
-            'Dataset was successfully destroyed.',
-            'notice'
-          )
-        })
-        .finally(() => {
-          this.isDeleting = false
-        })
-    }
-  }
+function loadPage(page) {
+  GetImports({ page }).then((response) => {
+    imports.value = response.body
+    pagination.value = getPagination(response)
+  })
 }
+
+function removeDataset(dataset) {
+  isDeleting.value = true
+
+  DestroyDataset(dataset.id)
+    .then(() => {
+      removeFromArray(imports.value, dataset)
+
+      TW.workbench.alert.create('Dataset was successfully destroyed.', 'notice')
+    })
+    .finally(() => {
+      isDeleting.value = false
+    })
+}
+
+loadPage()
 </script>
 
 <style scoped>

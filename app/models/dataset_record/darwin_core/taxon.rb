@@ -20,6 +20,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
     form: 'TaxonNameRelationship::OriginalCombination::OriginalForm'
   }.freeze
 
+
+# rubocop:disable Metric/MethodLength
+
   def import(dwc_data_attributes = {})
     super
     begin
@@ -42,7 +45,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                                             "scientificName": parse_results[:qualityWarnings] ?
                                                                 parse_results[:qualityWarnings].map { |q| q[:warning] } :
                                                                 ['Unable to parse scientific name. Please make sure it is correctly spelled.']
-                                          }) unless (1..3).include?(parse_results[:quality]) && parse_results_details
+                                          }) unless (1..3).include?(parse_results[:quality]) && parse_results_details&.is_a?(Hash)
 
         raise 'UNKNOWN NAME DETAILS COMBINATION' unless KNOWN_KEYS_COMBINATIONS.include?(parse_results_details.keys - [:authorship])
 
@@ -93,13 +96,12 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
         if metadata['parent'].nil?
           if self.import_dataset.use_existing_hierarchy?
-            protonym_attributes = { name: name,
+            protonym_attributes = { name:, #
                                   cached: get_field_value(:scientificName),
                                   rank_class: Ranks.lookup(nomenclature_code, rank),
                                   verbatim_author: author_name,
-                                  year_of_publication: year,
-                                  project: project}
-            potential_protonyms = TaxonName.where(protonym_attributes)
+                                  year_of_publication: year}
+            potential_protonyms = TaxonName.where(protonym_attributes.merge({project:})) # merged project here so data is not leaked in error messages.
 
             if potential_protonyms.count == 1
               parent = potential_protonyms.first.parent
@@ -134,17 +136,15 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             parent = parent.finest_protonym
           end
 
-          protonym_attributes = {
-            name: name,
-            parent: parent,
+          taxon_name = Protonym.find_or_initialize_by({
+            name:,
+            parent:,
             rank_class: Ranks.lookup(nomenclature_code, rank),
             # also_create_otu: false,
             verbatim_author: author_name,
             year_of_publication: year,
-            project: project
-          }
-
-          taxon_name = Protonym.find_or_initialize_by(protonym_attributes)
+            project:
+          })
 
           unless taxon_name.persisted?
             taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
@@ -152,9 +152,10 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               scientificName: get_field_value('scientificName'),
               scientificNameAuthorship: get_field_value('scientificNameAuthorship'),
               taxonRank: get_field_value('taxonRank'),
-              metadata: metadata
+              metadata:
             })
 
+            taxon_name.save!
           end
 
           # make OC relationships to OC ancestors
@@ -162,7 +163,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           # Do not make original combination if we assumed the value.
           if metadata['parent'].present? && (metadata.fetch('create_original_combination', true) == true)
 
-            # loop through parents of original combination based on parentNameUsageID, not TW parent
+            # Loop through parents of original combination based on parentNameUsageID, not TW parent
             # this way we get the name as intended, not with any valid/current names
             original_combination_parents = [find_by_taxonID(get_original_combination.metadata['parent'])].compact
 
@@ -175,7 +176,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
             # in cases where the taxon original combination is subgenus of self eg Sima (Sima), the first parent of the list
             # should be dropped because it hasn't been imported yet
-            original_combination_parents = original_combination_parents.drop_while {|p| p.status != "Imported" }
+            original_combination_parents = original_combination_parents.drop_while {|p| p.status != 'Imported' }
 
             # convert DatasetRecords into list of Protonyms
             original_combination_parents.map! do |p|
@@ -205,7 +206,6 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                   !taxon_name.year_integer.nil? &&
                   ancestor_protonym.year_integer > taxon_name.year_integer
 
-                taxon_name.save!
                 TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor_protonym, object_taxon_name: taxon_name)
               end
             end
@@ -223,7 +223,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             # get OC dataset_record_id so we can pull the taxonRank from it.
             oc_dataset_record_id = import_dataset.core_records_fields
                                                  .at(get_field_mapping(:taxonID))
-                                                 .with_value(get_field_value(:originalNameUsageID))
+                                                 .having_value(get_field_value(:originalNameUsageID))
                                                  .pick(:dataset_record_id)
 
             oc_protonym_rank = import_dataset.core_records_fields
@@ -239,7 +239,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
               # detect if current name rank is genus and original combination is with self at subgenus level, eg Aus (Aus)
               # if so, generate OC relationship with genus (since oc_protonym_rank will be subgenus)
-              if oc_protonym_rank == :subgenus && get_field_value('taxonRank').downcase == "genus" &&
+              if oc_protonym_rank == :subgenus && get_field_value('taxonRank').downcase == 'genus' &&
                 (get_original_combination&.metadata['parent'] == get_field_value('taxonID'))
                 TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
                   type: ORIGINAL_COMBINATION_RANKS[:genus],
@@ -286,10 +286,10 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
 
               raise DarwinCore::InvalidData.new(
-                { "taxonomicStatus": ["acceptedNameUsageID refers to a different protonym, " \
+                { "taxonomicStatus": ['acceptedNameUsageID refers to a different protonym, ' \
                   "but status #{status} did not match synonym, homonym, invalid, misspelling or original misspelling."] }) if type.nil?
 
-              taxon_name.taxon_name_relationships.find_or_initialize_by(object_taxon_name: valid_name, type: type)
+              taxon_name.taxon_name_relationships.find_or_initialize_by(object_taxon_name: valid_name, type:)
 
               if status.to_s == 'synonym'
                 # if synonym and not same rank as valid, and not original combination,
@@ -354,7 +354,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                   incertae_sedis_parent = taxon_name.ancestor_at_rank(verbatim_is_rank.downcase)
 
                   if incertae_sedis_parent.nil?
-                    available_parent_ranks = taxon_name.ancestors.map { |a| "#{a.rank}: #{a.name}" }.join(", ")
+                    available_parent_ranks = taxon_name.ancestors.map { |a| "#{a.rank}: #{a.name}" }.join(', ')
                     raise DarwinCore::InvalidData.new({ "TW:TaxonNameRelationship:incertae_sedis_in_rank":
                                                           ["Taxon #{taxon_name.name} does not have a parent at rank #{verbatim_is_rank}.
                                                             Available ancestors are #{available_parent_ranks}.".squish] })
@@ -387,7 +387,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                   { "taxonomicStatus": ["Couldn't find a status that matched #{status}.",
                                         "Possible statuses: [#{status_types.keys.join(", ")}]"] }) if type.nil?
 
-                taxon_name.taxon_name_classifications.find_or_initialize_by(type: type)
+                taxon_name.taxon_name_classifications.find_or_initialize_by(type:)
               end
             end
           end
@@ -509,7 +509,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           # loop over dependants, see if all other dependencies are met, if so mark them as ready
           metadata['dependants'].each do |dependant_taxonID|
             if dependencies_imported?(dependant_taxonID)
-              DatasetRecord::DarwinCore::Taxon.where(status: "NotReady",
+              DatasetRecord::DarwinCore::Taxon.where(status: 'NotReady',
                                                      id: import_dataset.core_records_fields
                                                                        .at(get_field_mapping(:taxonID))
                                                                        .where(value: dependant_taxonID)
@@ -579,7 +579,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   def get_parent
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                              .at(get_field_mapping(:taxonID))
-                                                             .with_value(get_field_value(:parentNameUsageID))
+                                                             .having_value(get_field_value(:parentNameUsageID))
                                                              .select(:dataset_record_id)
     ).first
   end
@@ -588,7 +588,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   def get_original_combination
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                              .at(get_field_mapping(:taxonID))
-                                                             .with_value(get_field_value(:originalNameUsageID))
+                                                             .having_value(get_field_value(:originalNameUsageID))
                                                              .select(:dataset_record_id)
     ).first
   end
@@ -597,7 +597,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   def find_by_taxonID(taxon_id)
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                              .at(get_field_mapping(:taxonID))
-                                                             .with_value(taxon_id.to_s)
+                                                             .having_value(taxon_id.to_s)
                                                              .select(:dataset_record_id)
     ).first
   end
@@ -606,7 +606,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   def get_taxon_name_from_taxon_id(taxon_id)
     TaxonName.find(DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                                             .at(get_field_mapping(:taxonID))
-                                                                            .with_value(taxon_id.to_s)
+                                                                            .having_value(taxon_id.to_s)
                                                                             .select(:dataset_record_id)
     ).pick(:metadata)['imported_objects']['taxon_name']['id'])
   end
@@ -615,13 +615,13 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   def dependencies_imported?(taxon_id)
     dependency_taxon_ids = DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                                                     .at(get_field_mapping(:taxonID))
-                                                                                    .with_value(taxon_id.to_s)
+                                                                                    .having_value(taxon_id.to_s)
                                                                                     .select(:dataset_record_id)
     ).pick(:metadata)['dependencies']
 
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                              .at(get_field_mapping(:taxonID))
-                                                             .with_values(dependency_taxon_ids.map { |d| d.to_s })
+                                                             .having_values(dependency_taxon_ids.map { |d| d.to_s })
                                                              .select(:dataset_record_id)
     ).where(status: 'Imported').count == dependency_taxon_ids.length
 

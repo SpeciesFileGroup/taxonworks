@@ -7,6 +7,54 @@
   .new_plus {
     display: none;
   }
+
+  #new_otu {
+    background-color: #FFF;
+    width: 300px;
+    border-radius: 2px;
+    box-shadow: 0px 1px 2px 0px $navigation_border;
+    border: 1px solid $navigation_border;
+    margin-bottom: $standard_margin;
+    position: absolute;
+    z-index: 400;
+    flex-direction: row;
+    .fields {
+      padding-left: $standard_padding;
+      display: flex;
+      flex-direction: column;
+      align-items: left;
+      justify-content: center;
+    }
+    .field {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      label {
+        text-align: left;
+      }
+    }
+    #new_otu:active {
+      transition: block 0.3s ease;
+    }
+    .link {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    #otu_picker_new_undo {
+      position: absolute;
+      top: 0px;
+      right: 10px;
+    }
+  }
+
+
+
+
+
+
 }
 
 .inline_otu_picker {
@@ -41,46 +89,4 @@
 
 .inline_fields {
   padding: $standard_padding;
-}
-
-#new_otu {
-  background-color: #FFF;
-  width: 300px;
-  border-radius: 2px;
-  box-shadow: 0px 1px 2px 0px $navigation_border;
-  border: 1px solid $navigation_border;
-  margin-bottom: $standard_margin;
-  position: absolute;
-  z-index: 400;
-  flex-direction: row;
-  .fields {
-    padding-left: $standard_padding;
-    display: flex;
-    flex-direction: column;
-    align-items: left;
-    justify-content: center;
-  }
-  .field {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    label {
-      text-align: left;
-    }
-  }
-  #new_otu:active {
-    transition: block 0.3s ease;
-  }
-  .link {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  #otu_picker_new_undo {
-    position: absolute;
-    top: 0px;
-    right: 10px;
-  }
 }

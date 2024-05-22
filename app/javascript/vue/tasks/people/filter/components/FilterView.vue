@@ -55,10 +55,11 @@
     :param="param"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetRoles from './Facet/FacetRoles.vue'
@@ -74,6 +75,7 @@ import FacetWith from './Facet/FacetWith.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import WithComponent from '@/components/Filter/Facets/shared/FacetWith.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import { computed } from 'vue'
 
 const withFilter = ['first_name', 'suffix', 'prefix']

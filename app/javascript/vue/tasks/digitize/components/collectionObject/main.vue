@@ -10,10 +10,10 @@
           v-hotkey="shortcuts"
           class="horizontal-left-content gap-small"
         >
-          <radial-annotator :global-id="collectionObject.global_id" />
-          <default-tag :global-id="collectionObject.global_id" />
-          <radial-object :global-id="collectionObject.global_id" />
-          <radial-navigation :global-id="collectionObject.global_id" />
+          <RadialAnnotator :global-id="collectionObject.global_id" />
+          <ButtonTag :global-id="collectionObject.global_id" />
+          <RadialObject :global-id="collectionObject.global_id" />
+          <RadialNavigation :global-id="collectionObject.global_id" />
         </div>
       </template>
       <template #body>
@@ -79,17 +79,7 @@
                 }"
                 legend="Locked until first save"
               />
-              <predicates-component
-                v-if="projectPreferences"
-                ref="customAttributes"
-                :object-id="collectionObject.id"
-                object-type="CollectionObject"
-                model="CollectionObject"
-                :model-preferences="
-                  projectPreferences.model_predicate_sets.CollectionObject
-                "
-                @on-update="setAttributes"
-              />
+              <predicates-component />
             </div>
           </div>
           <container-items class="row-item" />
@@ -100,7 +90,7 @@
 </template>
 
 <script>
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import ContainerItems from './containerItems.vue'
 import PreparationType from './preparationType.vue'
 import CatalogueNumber from '../catalogueNumber/catalogNumber.vue'
@@ -115,8 +105,8 @@ import BlockLayout from '@/components/layout/BlockLayout.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
-import PredicatesComponent from '@/components/custom_attributes/predicates/predicates'
-import DefaultTag from '@/components/defaultTag.vue'
+import PredicatesComponent from './predicates.vue'
+import ButtonTag from '@/components/ui/Button/ButtonTag.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import SoftValidations from '@/components/soft_validations/panel.vue'
 import { Depiction } from '@/routes/endpoints'
@@ -146,16 +136,12 @@ export default {
     RadialAnnotator,
     PredicatesComponent,
     RadialObject,
-    DefaultTag,
+    ButtonTag,
     RadialNavigation,
     SoftValidations
   },
 
   computed: {
-    projectPreferences() {
-      return this.$store.getters[GetterNames.GetProjectPreferences]
-    },
-
     collectionObject: {
       get() {
         return this.$store.getters[GetterNames.GetCollectionObject]
@@ -237,20 +223,6 @@ export default {
     }
   },
 
-  created() {
-    this.$store.subscribeAction({
-      after: (action) => {
-        if (action.type === ActionNames.SaveCollectionObject) {
-          this.$refs.customAttributes.loadDataAttributes()
-        }
-      }
-    })
-  },
-
-  beforeUnmount() {
-    this.unsubscribe()
-  },
-
   watch: {
     collectionObject(newVal) {
       if (newVal.id) {
@@ -259,10 +231,6 @@ export default {
     }
   },
   methods: {
-    setAttributes(value) {
-      this.collectionObject.data_attributes_attributes = value
-    },
-
     cloneDepictions(co) {
       const unique = new Set()
       const depictionsRemovedDuplicate = this.depictions.filter((depiction) => {

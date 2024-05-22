@@ -1,10 +1,10 @@
 <template>
-  <block-layout :warning="!validate">
+  <BlockLayout :warning="!validate">
     <template #header>
       <h3>New import</h3>
     </template>
     <template #body>
-      <spinner-component
+      <VSpinner
         full-screen
         legend="Uploading import..."
         v-if="isUploading"
@@ -21,7 +21,7 @@
           <label>Dataset type </label>
           <select v-model="rowType">
             <option
-              v-for="(value, key) in datasetRowTypes"
+              v-for="(value, key) in DATASET_ROW_TYPES"
               :key="key"
               :value="value"
             >
@@ -33,7 +33,7 @@
           <label>Nomenclature code: </label>
           <select v-model="nomenclatureCode">
             <option
-              v-for="code in codes"
+              v-for="code in CODES"
               :key="code"
               :value="code"
             >
@@ -43,115 +43,137 @@
         </div>
       </div>
       <div>
-        <spinner-component
+        <VSpinner
           :show-spinner="false"
           legend="Fill description field first"
           v-if="!validate"
         />
-        <dropzone
+        <VDropzone
           class="dropzone-card"
           v-help.section.import.dropzone
-          @vdropzone-success="success"
-          @vdropzone-sending="sending"
-          @vdropzone-queue-complete="completeQueue"
-          @vdropzone-error="error"
           ref="dwcDropzone"
           id="dropzone-dropzone"
           url="/import_datasets.json"
-          :use-custom-dropzone-options="true"
+          use-custom-dropzone-options
           :dropzone-options="dropzone"
+          @vdropzone-success="success"
+          @vdropzone-sending="sending"
+          @vdropzone-error="error"
+          @vdropzone-queue-complete="completeQueue"
+          @vdropzone-file-added="addedFile"
         />
       </div>
     </template>
-  </block-layout>
+  </BlockLayout>
+  <SeparatorOptions ref="separatorOptionsRef" />
 </template>
 
-<script>
-import Dropzone from '@/components/dropzone'
-import SpinnerComponent from '@/components/spinner'
+<script setup>
+import { computed, ref, nextTick } from 'vue'
+import { capitalize } from '@/helpers/strings'
+import VDropzone from '@/components/dropzone'
+import VSpinner from '@/components/ui/VSpinner'
 import DATASET_ROW_TYPES from '../const/datasetRowTypes.js'
 import CODES from '../const/nomenclatureCodes.js'
-import { capitalize } from '@/helpers/strings'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
+import SeparatorOptions from './SeparatorOptions.vue'
+import { TYPES_OPTS } from '../const/delimiters'
 
-export default {
-  components: {
-    Dropzone,
-    SpinnerComponent,
-    BlockLayout
+const emit = defineEmits(['onCreate'])
+
+const validate = computed(() => description.value.length >= 2)
+const nomenclatureCode = ref(CODES.ICZN)
+const description = ref('')
+const isUploading = ref(false)
+const rowType = ref()
+const dwcDropzone = ref(null)
+const delimiterParams = ref(null)
+const separatorOptionsRef = ref(null)
+
+const dropzone = {
+  paramName: 'import_dataset[source]',
+  url: '/import_datasets.json',
+  uploadMultiple: false,
+  autoProcessQueue: false,
+  parallelUploads: 1,
+  timeout: 600000,
+  headers: {
+    'X-CSRF-Token': document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute('content')
   },
+  dictDefaultMessage: 'Drop import file here',
+  acceptedFiles: '.zip,.txt,.csv,.tsv,.xls,.xlsx,.ods'
+}
 
-  emits: ['onCreate'],
+function success(file, response) {
+  emit('onCreate', response)
+  dwcDropzone.value.removeFile(file)
+}
 
-  computed: {
-    validate() {
-      return this.description.length >= 2
-    }
-  },
+function sending(file, xhr, formData) {
+  isUploading.value = true
+  formData.append('import_dataset[description]', description.value)
+  formData.append(
+    'import_dataset[import_settings][nomenclatural_code]',
+    nomenclatureCode.value
+  )
 
-  data() {
-    return {
-      datasetRowTypes: DATASET_ROW_TYPES,
-      codes: Object.values(CODES),
-      nomenclatureCode: CODES.ICZN,
-      rowType: undefined,
-      description: '',
-      isUploading: false,
-      dropzone: {
-        paramName: 'import_dataset[source]',
-        url: '/import_datasets.json',
-        uploadMultiple: false,
-        autoProcessQueue: true,
-        parallelUploads: 1,
-        timeout: 600000,
-        headers: {
-          'X-CSRF-Token': document
-            .querySelector('meta[name="csrf-token"]')
-            .getAttribute('content')
-        },
-        dictDefaultMessage: 'Drop import file here',
-        acceptedFiles: '.zip,.txt,.tsv,.xls,.xlsx,.ods'
-      }
-    }
-  },
+  if (rowType.value) {
+    formData.append('import_dataset[import_settings][row_type]', rowType.value)
+  }
 
-  methods: {
-    success(file, response) {
-      this.$emit('onCreate', response)
-      this.$refs.dwcDropzone.removeFile(file)
-    },
+  if (delimiterParams.value?.col_sep) {
+    formData.append(
+      'import_dataset[import_settings][col_sep]',
+      delimiterParams.value.col_sep
+    )
+  }
+  if (delimiterParams.value?.quote_char) {
+    formData.append(
+      'import_dataset[import_settings][quote_char]',
+      delimiterParams.value.quote_char
+    )
+  }
+}
 
-    sending(file, xhr, formData) {
-      this.isUploading = true
-      formData.append('import_dataset[description]', this.description)
-      formData.append(
-        'import_dataset[import_settings][nomenclatural_code]',
-        this.nomenclatureCode
-      )
+function completeQueue(file, response) {
+  isUploading.value = false
+  delimiterParams.value = null
+}
 
-      if (this.rowType) {
-        formData.append(
-          'import_dataset[import_settings][row_type]',
-          this.rowType
-        )
-      }
-    },
+function addedFile(file) {
+  const fileExtension = file.name.split('.').pop().toLowerCase()
+  const defaultValues = TYPES_OPTS[fileExtension]
 
-    completeQueue(file, response) {
-      this.isUploading = false
-    },
+  if (defaultValues) {
+    separatorOptionsRef.value
+      .show(defaultValues)
+      .then((payload) => {
+        delimiterParams.value = payload
+        dwcDropzone.value.dropzone.processQueue()
+      })
+      .catch(() => {
+        dwcDropzone.value.dropzone.removeAllFiles()
+      })
+  } else {
+    nextTick(() => {
+      dwcDropzone.value.dropzone.processQueue()
+    })
+  }
+}
 
-    error(file, error, xhr) {
-      if (typeof error === 'string') {
-        TW.workbench.alert.create(
-          `<span data-icon="warning">${error}</span>`,
-          'error'
-        )
-      } else {
-        TW.workbench.alert.create(
-          Object.keys(error)
-            .map(
-              (key) => `
+function error(file, error, xhr) {
+  if (typeof error === 'string') {
+    TW.workbench.alert.create(
+      `<span data-icon="warning">${error}</span>`,
+      'error'
+    )
+  } else {
+    TW.workbench.alert.create(
+      Object.keys(error)
+        .map(
+          (key) => `
         <span data-icon="warning">${key}:</span>
         <ul>
           <li>${
@@ -161,14 +183,12 @@ export default {
           }
           </li>
         </ul>`
-            )
-            .join(''),
-          'error'
         )
-      }
-      this.isUploading = false
-      this.$refs.dwcDropzone.dropzone.removeFile(file)
-    }
+        .join(''),
+      'error'
+    )
   }
+  isUploading.value = false
+  dwcDropzone.value.dropzone.removeFile(file)
 }
 </script>

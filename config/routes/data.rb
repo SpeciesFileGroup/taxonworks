@@ -227,6 +227,7 @@ resources :data_attributes, except: [:show] do
   concerns [:data_routes]
 
   collection do
+    post :batch_update_or_create, defaults: {format: :json}
     post :batch_create, defaults: {format: :json}
     get 'value_autocomplete', defaults: {format: :json}
     get :brief, defaults: {format: :json}
@@ -293,6 +294,7 @@ resources :dwc_occurrences, only: [:create] do
     get 'status', defaults: {format: :json}
     get 'collector_id_metadata', defaults: {format: :json}
     get 'download'
+    post 'sweep', as: 'sweep_stale' # TODO: ultimately should not be required
   end
 end
 
@@ -305,6 +307,10 @@ resources :extracts do
   end
 
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
+end
+
+resources :field_occurrences do
+  concerns [:data_routes]
 end
 
 resources :geographic_areas, only: [:index, :show] do
@@ -408,9 +414,21 @@ end
 resources :languages, only: [:show] do
   collection do
     get 'autocomplete'
-  end
-  collection do
     get :select_options, defaults: {format: :json}
+  end
+end
+
+resources :leads do
+  concerns [:data_routes]
+  member do
+    post :create_for_edit, defaults: {format: :json}
+    post :insert_couplet
+    patch :update_meta
+    post :destroy_couplet
+    post :delete_couplet
+    post :duplicate
+    get :all_texts
+    get :otus
   end
 end
 
@@ -571,6 +589,7 @@ resources :otus do
     get :coordinate, defaults: {format: :json}
 
     get 'inventory/distribution', action: :distribution, defaults: {format: :json}
+    get 'inventory/taxonomy', action: :api_taxonomy_inventory, as: :taxonomy_inventory
   end
 
 end
@@ -638,6 +657,7 @@ resources :project_sources, only: [:index, :create, :destroy] do
     get 'list'
     get 'autocomplete'
     get 'search'
+    post :batch_sync_to_project, defaults: {format: :json}
   end
 end
 

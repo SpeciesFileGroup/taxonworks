@@ -50,12 +50,17 @@
                 class="circle-button btn-edit"
                 @click="emit('edit', Object.assign({}, item))"
               />
-              <span
+              <VBtn
                 v-if="destroy"
-                class="circle-button btn-delete"
+                circle
+                :color="softDelete ? 'primary' : 'destroy'"
                 @click="deleteItem(item)"
-                >Remove
-              </span>
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
             </div>
           </td>
         </tr>
@@ -67,7 +72,9 @@
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import PdfComponent from '@/components/pdfButton'
+import PdfComponent from '@/components/ui/Button/ButtonPdf'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   list: {
@@ -93,6 +100,10 @@ const props = defineProps({
   deleteWarning: {
     type: Boolean,
     default: true
+  },
+  softDelete: {
+    type: Boolean,
+    default: false
   },
   navigator: {
     type: Boolean,

@@ -238,20 +238,22 @@ export default {
         }))
 
       if (ok) {
-        this.$store.dispatch(ActionNames.SaveDigitalization)
+        if (!this.settings.saving) {
+          this.$store.dispatch(ActionNames.SaveDigitalization)
+        }
       }
     },
 
     resetStore() {
-      this.$store.commit(MutationNames.ResetStore)
+      this.$store.dispatch(ActionNames.ResetStore)
     },
 
     saveAndNew() {
-      this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-        setTimeout(() => {
-          this.$store.dispatch(ActionNames.ResetWithDefault)
-        }, 500)
-      })
+      if (!this.settings.saving) {
+        this.$store.dispatch(ActionNames.SaveDigitalization, {
+          resetAfter: true
+        })
+      }
     },
 
     newDigitalization() {

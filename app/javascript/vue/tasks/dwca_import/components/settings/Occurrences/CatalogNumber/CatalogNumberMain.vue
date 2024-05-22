@@ -15,7 +15,7 @@ import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
 import { ActionNames } from '../../../../store/actions/actions'
 import CatalogNumberTable from './CatalogNumberTable.vue'
-import VSwitch from '@/components/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import CatalogNumberDefaultTable from './CatalogNumberDefaultTable.vue'
 
 const TABS = {

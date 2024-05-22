@@ -75,7 +75,11 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { ControlledVocabularyTerm, DataAttribute } from '@/routes/endpoints'
-import { IMPORT_ATTRIBUTE, PREDICATE } from '@/constants'
+import {
+  DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE,
+  IMPORT_ATTRIBUTE,
+  PREDICATE
+} from '@/constants'
 import { useSlice } from '@/components/radials/composables'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import TableList from './shared/tableList'
@@ -111,7 +115,7 @@ const { list, addToList, removeFromList } = useSlice({
 const all = ref([])
 const predicate = ref()
 const selectedDataAttribute = ref({})
-const text = ref()
+const text = ref('')
 
 const validateFields = computed(() => predicate.value && text.value.length)
 const importList = computed(() =>
@@ -132,7 +136,7 @@ function saveDataAttribute() {
   const payload = {
     data_attribute: {
       id: currentId,
-      type: 'InternalAttribute',
+      type: DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE,
       value: text.value,
       controlled_vocabulary_term_id: predicate.value.id,
       annotated_global_entity: decodeURIComponent(props.globalId)
@@ -150,7 +154,7 @@ function saveDataAttribute() {
 }
 
 function removeItem(item) {
-  DataAttribute.destroy(item).then((_) => {
+  DataAttribute.destroy(item.id).then((_) => {
     removeFromList(item)
   })
 }

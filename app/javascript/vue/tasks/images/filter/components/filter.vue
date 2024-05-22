@@ -30,12 +30,13 @@
     :param="param"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import FacetCollectionObject from '@/components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetBiocurations from '@/components/Filter/Facets/CollectionObject/FacetBiocurations.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
@@ -45,6 +46,7 @@ import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetDepictionObjectType from '@/components/Filter/Facets/Depiction/FacetDepictionObjectType.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const props = defineProps({
   modelValue: {

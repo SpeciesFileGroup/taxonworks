@@ -10,8 +10,12 @@ describe BiocurationClass, type: :model do
         expect(biocuration_class.biocuration_classifications << FactoryBot.build(:valid_biocuration_classification)).to be_truthy
       end
 
-      specify 'biological_objects' do
-        expect(biocuration_class.biological_collection_objects << FactoryBot.build(:valid_specimen)).to be_truthy
+      specify 'collection_objects' do
+        expect(biocuration_class.collection_objects << FactoryBot.build(:valid_specimen)).to be_truthy
+      end
+
+      specify 'field_occurrences' do
+        expect(biocuration_class.field_occurrences << FactoryBot.build(:valid_field_occurrence)).to be_truthy
       end
 
       specify 'tags' do

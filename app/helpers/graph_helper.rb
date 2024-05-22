@@ -1,5 +1,29 @@
 module GraphHelper
 
+  def week_in_review(weeks)
+    h = {
+      metadata: {
+        weeks_ago: weeks,
+      },
+      data: []
+    }
+
+    %w{otus taxon_names collection_objects collecting_events biological_associations asserted_distributions type_materials images documents descriptors observations contents}.each do |i|
+
+      g = { target: i }
+
+      q = sessions_current_project.send(i.to_sym).where("#{i}.created_at > ?", @weeks_ago.week.ago)
+
+      g[:data] = q.group(:created_by_id).count.collect{|k,v| [k, User.find(k).name, v]}.sort{|a,b| b.last <=> a.last}
+      g[:count] = q.count
+      g[:title] = "#{i.humanize} created (#{q.count})"
+
+      h[:data].push g
+    end
+
+    h
+  end
+
   def objects_graph(object_scope)
     g = initialize_graph(nil, nil, nil)
 
@@ -15,7 +39,6 @@ module GraphHelper
 
     g
   end
-
 
   def object_graph(object)
     return nil if object.nil?
@@ -272,7 +295,7 @@ module GraphHelper
     g.add(td.otu, td)
 
     if collection_object
-      g.add(td.biological_collection_object, td)
+      g.add(td.taxon_determination_object, td)
     end
 
     if taxon_names

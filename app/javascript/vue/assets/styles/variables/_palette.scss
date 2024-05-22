@@ -4,21 +4,28 @@
 }
 
 $tw-colors: (
+  'attention': #ffda44,
   'background': #f7f8fc,
   'black': #444444,
   'create': #9ccc65,
-  'update': #9ccc65,
   'data': #006ebf,
-  'primary': #5d9ece,
   'destroy': #f44336,
+  'panel': #ffffff,
+  'primary': #5d9ece,
   'secondary': #5a1321,
+  'update': #9ccc65,
   'warning': #ff8c00,
-  'attention': #ffda44,
   'white': #ffffff
 );
 
 @each $key, $value in $tw-colors {
   :root {
     --color-#{$key}: #{$value};
+  }
+}
+
+@each $key, $value in $tw-colors {
+  .text-#{$key}-color {
+    color: #{$value};
   }
 }

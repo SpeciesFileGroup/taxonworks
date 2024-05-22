@@ -23,7 +23,7 @@ import { useStore } from '../store/useStore'
 import { COLLECTION_OBJECT } from '@/constants/index'
 import { ActionNames } from '../store/actions/actions'
 import VDropzone from '@/components/dropzone.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const dropzoneOptions = {
   paramName: 'depiction[image_attributes][image_file]',
