@@ -11,7 +11,7 @@ module Export
   # * Pending handling of both BibTeX and Verbatim
   module Coldp
 
-    FILETYPES = %w{Description Name Synonym NameRelation TaxonConceptRelation TypeMaterial VernacularName}.freeze
+    FILETYPES = %w{Description Distribution Name NameRelation SpeciesInteraction Synonym TaxonConceptRelation TypeMaterial VernacularName}.freeze
 
     # @return [Scope]
     #  A full set of valid only Otus (= Taxa in CoLDP) that are to be sent.
@@ -40,7 +40,11 @@ module Export
     end
 
     def self.modified(updated_at)
-      updated_at.iso8601
+      if updated_at.nil?
+        ''
+      else
+        updated_at&.iso8601
+      end
     end
 
     def self.modified_by(updated_by_id, project_members)
@@ -80,14 +84,16 @@ module Export
       metadata_file.close
 
       Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
-        (FILETYPES - ['Name']).each do |ft|
+        (FILETYPES - ['Name', 'Synonym']).each do |ft|
           m = "Export::Coldp::Files::#{ft}".safe_constantize
           zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
         end
 
         zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
+        skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids
+        zipfile.get_output_stream("Synonym.tsv") { |f| f.write Export::Coldp::Files::Synonym.generate(otus, project_members, ref_tsv, skip_name_ids) }
         zipfile.get_output_stream('Taxon.tsv') do |f|
-          f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_tsv)
+          f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_tsv, prefer_unlabelled_otus, skip_name_ids)
         end
 
         # Sort the refs by full citation string

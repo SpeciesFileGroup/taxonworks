@@ -110,7 +110,8 @@ module Export::Coldp::Files::Taxon
     nil
   end
 
-  def self.generate(otus, project_members, root_otu_id = nil, reference_csv = nil, prefer_unlabelled_otus: true)
+  # .generate(otus, project_members, otu_id, ref_tsv, skip_name_ids)
+  def self.generate(otus, project_members, root_otu_id = nil, reference_csv = nil, prefer_unlabelled_otus = true, skip_name_ids = [])
 
     # Until we have RC5 articulations we are simplifying handling the fact
     # that one taxon name can be used for many OTUs. Track to see that
@@ -182,6 +183,9 @@ module Export::Coldp::Files::Taxon
         source = o.source
 
         parent_id = (root_otu_id == o.id ? nil : parent_id )
+
+        # some names are skipped (e.g., if they have NOT SPECIFIED names)
+        next if skip_name_ids.include?(o.taxon_name_id)
 
         csv << [
           o.id,                                                                # ID (Taxon)

@@ -10,7 +10,8 @@ module Export::Coldp::Files::NameRelation
 
   # These concepts do not really fit with the CoL Name/NameRelation data model or are represented in a different way
   # TODO: SupressedSynony misspelled in TW models, which probably should be SupressedSynonym
-  BLOCKED = %w[TaxonNameRelationship::CurrentCombination
+  BLOCKED = %w[TaxonNameRelationship::Typification
+               TaxonNameRelationship::CurrentCombination
                TaxonNameRelationship::Combination
                TaxonNameRelationship::Combination::Family
                TaxonNameRelationship::Combination::Genus
@@ -60,15 +61,6 @@ module Export::Coldp::Files::NameRelation
                TaxonNameRelationship::Icvcn::Unaccepting
                TaxonNameRelationship::Hybrid].freeze
 
-  def self.type(tnr)
-    if tnr.type.include? "TaxonNameRelationship::Typification"  # There are no nomen_uri's for Typification
-      type = "type"
-    else
-      type = tnr.type.constantize.nomen_uri
-    end
-    type
-  end
-
 
   def self.generate(otus, project_members, reference_csv = nil )
     ::CSV.generate(col_sep: "\t") do |csv|
@@ -87,7 +79,7 @@ module Export::Coldp::Files::NameRelation
         o.taxon_name.taxon_name_relationships.each do |tnr|
 
           # Combinations and OriginalCombinations are already handled in the Name module
-          unless BLOCKED.include? tnr.type
+          unless (tnr.type.constantize.nomen_uri.blank? || BLOCKED.include?(tnr.type))
 
             sources = tnr.sources.load
             reference_ids = sources.collect{|a| a.id}
@@ -96,9 +88,9 @@ module Export::Coldp::Files::NameRelation
             csv << [
               tnr.subject_taxon_name_id,                                       # nameID
               tnr.object_taxon_name_id,                                        # relatedNameID
-              type(tnr),                                                       # type
+              tnr.type.constantize.nomen_uri,                                  # type
               reference_id,                                                    # referenceID
-              Export::Coldp.modified(tnr[:updated_at]),                         # modified
+              Export::Coldp.modified(tnr[:updated_at]),                        # modified
               Export::Coldp.modified_by(tnr[:updated_by_id], project_members), # modified_by
               nil,                                                             # remarks
             ]
