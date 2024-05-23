@@ -74,16 +74,16 @@ module Vendor::NexusParser
   # unsquished - squish incoming so they match what might already be in the db.
   def self.nil_squish_strip_names(nf)
     nf.characters.each { |c|
-      c.name = Utilities::Strings.nil_squish_strip(c.name)
+      c.name = Utilities::Rails::Strings.nil_squish_strip(c.name)
 
       c.states.keys.each { |k|
         c.states[k].name =
-          Utilities::Strings.nil_squish_strip(c.states[k].name)
+          Utilities::Rails::Strings.nil_squish_strip(c.states[k].name)
       }
     }
 
     nf.taxa.each { |t|
-      t.name = Utilities::Strings.nil_squish_strip(t.name)
+      t.name = Utilities::Rails::Strings.nil_squish_strip(t.name)
     }
   end
 
