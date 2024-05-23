@@ -911,7 +911,7 @@ week_in_review_task:
   status: prototype
   description: 'A quick look dashboard of past activity'
 field_synchronize_task:
-  hub: false 
+  hub: false
   name: 'Field synchronize'
   related:
   categories:
@@ -924,3 +924,10 @@ collecting_events_spatial_summary_task:
   categories:
   status: prototype
   description: 'Summarize spatial characteristics of a set of Collecting Events.'
+new_container_task:
+  hub: true
+  name: 'New container'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'

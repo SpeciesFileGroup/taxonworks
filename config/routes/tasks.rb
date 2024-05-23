@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :containers do
+    scope :new_container, controller: 'tasks/containers/new_container' do
+      get '/', action: :index, as: 'new_container_task'
+    end
+  end
+
 
   scope :data_attributes do
     scope :field_synchronize, controller: 'tasks/data_attributes/field_synchronize' do
