@@ -37,6 +37,7 @@
         :list="listCreated"
         :header="['Objects', '']"
         :delete-warning="false"
+        soft-delete
         annotator
         navigator
         quick-forms

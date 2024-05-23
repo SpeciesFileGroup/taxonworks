@@ -21,10 +21,16 @@
           :key="otu.id"
         >
           <span v-html="otu.object_tag" />
-          <span
-            class="btn-delete button-circle"
+          <VBtn
+            circle
+            color="primary"
             @click="removeOtu(index)"
-          />
+          >
+            <VIcon
+              name="trash"
+              x-small
+            />
+          </VBtn>
         </li>
       </ul>
     </div>
@@ -75,6 +81,8 @@
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import Autocomplete from '@/components/ui/Autocomplete'
 import FacetPeople from '../../shared/FacetPeople.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { DETERMINER_SELECTOR } from '@/constants/index.js'
 import { Otu } from '@/routes/endpoints'
 import { ref, computed, watch, onBeforeMount } from 'vue'

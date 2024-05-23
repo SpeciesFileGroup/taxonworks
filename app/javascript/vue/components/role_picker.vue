@@ -136,7 +136,7 @@
 
           <v-btn
             circle
-            color="destroy"
+            color="primary"
             @click="removePerson(index)"
           >
             <v-icon
