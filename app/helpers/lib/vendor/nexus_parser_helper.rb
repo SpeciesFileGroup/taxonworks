@@ -146,23 +146,23 @@ module Lib::Vendor::NexusParserHelper
     new_states = []
 
     begin
-      if options[:cite_matrix]
-        create_citation_for(options[:citation], 'ObservationMatrix', m.id)
+      if options[:Cite_matrix]
+        create_citation_for(options[:Citation], 'ObservationMatrix', m.id)
       end
 
       # Find/create OTUs, add them to the matrix as we do so,
       # and add them to an array for reference during coding.
       taxa_names = nf.taxa.collect{ |t| t.name }.sort().uniq
       matched_otus = find_matching_otus(taxa_names,
-        options[:match_otu_to_name], options[:match_otu_to_taxonomy_name])
+        options[:Match_otu_to_name], options[:Match_otu_to_taxonomy_name])
 
       ObservationMatrix.transaction do
         nf.taxa.each_with_index do |o, i|
           otu = matched_otus[o.name]
           if !otu
             otu = Otu.create!(name: o.name)
-            if options[:cite_otus]
-              create_citation_for(options[:citation], 'Otu', otu.id)
+            if options[:Cite_otus]
+              create_citation_for(options[:Citation], 'Otu', otu.id)
             end
           end
 
@@ -177,7 +177,7 @@ module Lib::Vendor::NexusParserHelper
           tw_d = nil
           new_states[i] = {}
 
-          if options[:match_character_to_name]
+          if options[:Match_character_to_name]
             r = find_matching_descriptor(nxs_chr)
             tw_d = r[:descriptor]
             if tw_d
@@ -200,8 +200,8 @@ module Lib::Vendor::NexusParserHelper
             new_tw_chr_states.each { |cs|
               CharacterState.create!(cs.merge({ descriptor: tw_d }))
             }
-            if options[:cite_descriptors]
-              create_citation_for(options[:citation], 'Descriptor', tw_d.id)
+            if options[:Cite_descriptors]
+              create_citation_for(options[:Citation], 'Descriptor', tw_d.id)
             end
 
             tw_d.character_states.each do |cs|
@@ -233,8 +233,8 @@ module Lib::Vendor::NexusParserHelper
                     observation_object: new_otus[i],
                     character_state: new_states[j][z]
                   )
-                  if options[:cite_observations]
-                    create_citation_for(options[:citation], 'Observation', o.id)
+                  if options[:Cite_observations]
+                    create_citation_for(options[:Citation], 'Observation', o.id)
                   end
                 end
               end
