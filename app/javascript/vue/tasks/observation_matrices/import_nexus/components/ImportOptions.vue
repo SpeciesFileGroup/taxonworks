@@ -8,7 +8,7 @@
         <input
           type="text"
           class="normal-input full_width"
-          v-model="options.Matrix_name"
+          v-model="options.matrix_name"
         />
       </label>
     </div>
@@ -17,7 +17,7 @@
       <label>
         <input
           type="checkbox"
-          v-model="options.Match_otu_to_taxonomy_name"
+          v-model="options.match_otu_to_taxonomy_name"
         />
         match otus to db using taxonomy name
       </label>
@@ -27,7 +27,7 @@
       <label>
         <input
           type="checkbox"
-          v-model="options.Match_otu_to_name"
+          v-model="options.match_otu_to_name"
         />
         match otus to db using name
       </label>
@@ -37,7 +37,7 @@
       <label>
         <input
           type="checkbox"
-          v-model="options.Match_character_to_name"
+          v-model="options.match_character_to_name"
         />
         match characters to db using name (character states must match as well)
       </label>
@@ -53,11 +53,11 @@
     </div>
     <CitationOptions
       v-else
-      v-model:cite-otus="options.Cite_otus"
-      v-model:cite-descriptors="options.Cite_descriptors"
-      v-model:cite-observations="options.Cite_observations"
-      v-model:cite-matrix="options.Cite_matrix"
-      v-model:citation="options.Citation"
+      v-model:cite-otus="options.cite_otus"
+      v-model:cite-descriptors="options.cite_descriptors"
+      v-model:cite-observations="options.cite_observations"
+      v-model:cite-matrix="options.cite_matrix"
+      v-model:citation="options.citation"
     />
 
     <VBtn
@@ -123,15 +123,15 @@ const showCitationOptions = ref(false)
 const options = defineModel()
 options.value = {
   // Default values.
-  Matrix_name: '',
-  Match_otu_to_taxonomy_name: false,
-  Match_otu_to_name: false,
-  Match_character_to_name: false,
-  Cite_otus: false,
-  Cite_descriptors: false,
-  Cite_observations: false,
-  Cite_matrix: false,
-  Citation: {}
+  matrix_name: '',
+  match_otu_to_taxonomy_name: false,
+  match_otu_to_name: false,
+  match_character_to_name: false,
+  cite_otus: false,
+  cite_descriptors: false,
+  cite_observations: false,
+  cite_matrix: false,
+  citation: {}
 }
 
 </script>

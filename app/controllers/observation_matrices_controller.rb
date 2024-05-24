@@ -258,10 +258,10 @@ class ObservationMatricesController < ApplicationController
     options = nexus_import_options_params
 
     @otus = helpers.preview_nexus_otus(nf,
-      options[:Match_otu_to_name], options[:Match_otu_to_taxonomy_name])
+      options[:match_otu_to_name], options[:match_otu_to_taxonomy_name])
 
     @descriptors = helpers.preview_nexus_descriptors(nf,
-      options[:Match_character_to_name])
+      options[:match_character_to_name])
   end
 
   # POST /observation_matrices/import_nexus.json
@@ -273,7 +273,7 @@ class ObservationMatricesController < ApplicationController
     options = nexus_import_options_params
     return if !nexus_options_are_sane(options)
 
-    return if !(m = create_matrix_for_nexus_import(options[:Matrix_name]))
+    return if !(m = create_matrix_for_nexus_import(options[:matrix_name]))
 
     Documentation.create!({
       documentation_object: m,
@@ -358,9 +358,9 @@ class ObservationMatricesController < ApplicationController
   end
 
   def nexus_import_options_params
-    boolean_options = [:Match_otu_to_taxonomy_name, :Match_otu_to_name,
-      :Match_character_to_name, :Cite_otus, :Cite_descriptors,
-      :Cite_observations, :Cite_matrix]
+    boolean_options = [:match_otu_to_taxonomy_name, :match_otu_to_name,
+      :match_character_to_name, :cite_otus, :cite_descriptors,
+      :cite_observations, :cite_matrix]
 
     params[:options].each { |k, v|
       if boolean_options.include? k.to_sym
@@ -369,13 +369,13 @@ class ObservationMatricesController < ApplicationController
     }
 
     params.require(:options)
-      .permit(:Matrix_name, *boolean_options, Citation: [:source_id])
+      .permit(:matrix_name, *boolean_options, citation: [:source_id])
   end
 
   def nexus_options_are_sane(options)
-    if options[:Citation].blank? &&
-      (options[:Cite_otus] || options[:Cite_descriptors] ||
-        options[:Cite_observations] || options[:Cite_matrix])
+    if options[:citation].blank? &&
+      (options[:cite_otus] || options[:cite_descriptors] ||
+        options[:cite_observations] || options[:cite_matrix])
 
       render json: { errors: 'Citation option(s) checked but no source selected' },
         status: :unprocessable_entity

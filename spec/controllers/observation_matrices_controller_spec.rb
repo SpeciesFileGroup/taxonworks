@@ -164,7 +164,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
 
     let!(:options) {
       # Non-empty options required
-      { Matrix_name: matrix_name}
+      { matrix_name: }
     }
 
     let(:valid_nexus_doc) {
@@ -226,7 +226,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
     specify '#import_from_nexus can be called twice in a row by a user' do
       params = {
         nexus_document_id: valid_nexus_doc.id,
-        options: { Match_otu_to_name: true } # just doesn't specify matrix_name
+        options: { match_otu_to_name: true } # just doesn't specify matrix_name
       }
 
       # The issue is that generated names are only unique down to the minute,
@@ -318,10 +318,10 @@ RSpec.describe ObservationMatricesController, type: :controller do
         expect(errors).to include('Error converting nexus to TaxonWorks')
       end
 
-      specify 'error on Cite_matrix option with no citation chosen' do
+      specify 'error on cite_matrix option with no citation chosen' do
         params = {
           nexus_document_id: valid_nexus_doc.id,
-          options: { Cite_matrix: true }
+          options: { cite_matrix: true }
         }
 
         post :import_from_nexus, params:, session: valid_session

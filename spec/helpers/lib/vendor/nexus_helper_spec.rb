@@ -148,7 +148,7 @@ describe Lib::Vendor::NexusParserHelper, type: :helper do
         doc.id,
         nex_parsed,
         m,
-        { Match_otu_to_name: true }
+        { match_otu_to_name: true }
       )
     }
 
@@ -173,7 +173,7 @@ describe Lib::Vendor::NexusParserHelper, type: :helper do
         doc.id,
         nex_parsed,
         m,
-        { Match_otu_to_taxonomy_name: true }
+        { match_otu_to_taxonomy_name: true }
       )
     }
 
@@ -200,8 +200,8 @@ describe Lib::Vendor::NexusParserHelper, type: :helper do
         nex_parsed,
         m,
         {
-          Match_otu_to_name: true,
-          Match_otu_to_taxonomy_name: true
+          match_otu_to_name: true,
+          match_otu_to_taxonomy_name: true
         }
       )
     }
@@ -239,7 +239,7 @@ describe Lib::Vendor::NexusParserHelper, type: :helper do
         doc.id,
         nex_parsed,
         m,
-        { Match_character_to_name: true }
+        { match_character_to_name: true }
       )
     }
 
@@ -281,8 +281,8 @@ describe Lib::Vendor::NexusParserHelper, type: :helper do
         nex_parsed,
         m,
         {
-          Match_character_to_name: true,
-          Match_otu_to_name: true
+          match_character_to_name: true,
+          match_otu_to_name: true
         }
       )
 
@@ -301,9 +301,9 @@ describe Lib::Vendor::NexusParserHelper, type: :helper do
         nex_parsed,
         m,
         {
-          Match_otu_to_name: true,
-          Cite_otus: true,
-          Citation: {
+          match_otu_to_name: true,
+          cite_otus: true,
+          citation: {
             source_id: source.id
           }
         }
@@ -329,9 +329,9 @@ describe Lib::Vendor::NexusParserHelper, type: :helper do
         nex_parsed,
         m,
         {
-          Match_character_to_name: true,
-          Cite_descriptors: true,
-          Citation: {
+          match_character_to_name: true,
+          cite_descriptors: true,
+          citation: {
             source_id: source.id
           }
         }
@@ -351,8 +351,8 @@ describe Lib::Vendor::NexusParserHelper, type: :helper do
         nex_parsed,
         m,
         {
-          Cite_observations: true,
-          Citation: {
+          cite_observations: true,
+          citation: {
             source_id: source.id
           }
         }
@@ -368,8 +368,8 @@ describe Lib::Vendor::NexusParserHelper, type: :helper do
         nex_parsed,
         m,
         {
-          Cite_matrix: true,
-          Citation: {
+          cite_matrix: true,
+          citation: {
             source_id: source.id
           }
         }
