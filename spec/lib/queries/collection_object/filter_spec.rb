@@ -112,7 +112,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     p = ActionController::Parameters.new(h)
 
     q = Queries::CollectionObject::Filter.new(p)
-    expect(q.all.first).to eq(Specimen.second)
+    expect(q.all.order(:id).first).to eq(Specimen.second)
   end
 
   specify 'CollectingEvent params are permitted' do
