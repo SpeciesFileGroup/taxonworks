@@ -139,6 +139,9 @@ gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 gem 'colrapi', '~>0.1.1'
 
+# Nexus
+gem 'nexus_parser', '~> 1.2.2'
+
 # Global Names
 gem 'gnfinder', '~> 1.0'
 
@@ -181,7 +184,7 @@ gem 'parallel_tests', group: [:development, :test]
 group :development do
   # gem "ruby-lsp", "~> 0.4.1", require: false
 
-  gem 'thruster' 
+  gem 'thruster'
 
   # gem 'tunemygc'
   gem 'ruby-prof', '~> 1.2'

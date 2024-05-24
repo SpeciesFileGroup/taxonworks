@@ -249,6 +249,53 @@ class ObservationMatricesController < ApplicationController
     render '/observation_matrices/api/v1/show'
   end
 
+  # GET /observation_matrices/nexus_data.json
+  def nexus_data
+    return if !(nf = document_to_nexus(params[:nexus_document_id]))
+
+    return if !nexus_dimensions_okay(nf)
+
+    options = nexus_import_options_params
+
+    @otus = helpers.preview_nexus_otus(nf,
+      options[:match_otu_to_name], options[:match_otu_to_taxonomy_name])
+
+    @descriptors = helpers.preview_nexus_descriptors(nf,
+      options[:match_character_to_name])
+  end
+
+  # POST /observation_matrices/import_nexus.json
+  def import_from_nexus
+    return if !(nf = document_to_nexus(params[:nexus_document_id]))
+
+    return if !nexus_dimensions_okay(nf)
+
+    options = nexus_import_options_params
+    return if !nexus_options_are_sane(options)
+
+    return if !(m = create_matrix_for_nexus_import(options[:matrix_name]))
+
+    Documentation.create!({
+      documentation_object: m,
+      document_id: params[:nexus_document_id]
+    })
+
+    # Once we've handed the matrix off to the background job it could get
+    # destroyed at any time, so save what we want from it now.
+    matrix_id = m.id
+    matrix_name = m.name
+
+    ImportNexusJob.perform_later(
+      params[:nexus_document_id],
+      m,
+      options,
+      sessions_current_user_id,
+      sessions_current_project_id,
+    )
+
+    render json: { matrix_id:, matrix_name: }
+  end
+
   private
 
   # TODO: Not all params are supported yet.
@@ -308,6 +355,117 @@ class ObservationMatricesController < ApplicationController
 
   def observation_matrix_params
     params.require(:observation_matrix).permit(:name)
+  end
+
+  def nexus_import_options_params
+    if params[:options].nil?
+      # Rails discarded the empty options {} that's sent when all options are
+      # defaults, this restores it
+      return ActionController::Parameters.new({}).permit!
+    end
+
+    boolean_options = [:match_otu_to_taxonomy_name, :match_otu_to_name,
+      :match_character_to_name, :cite_otus, :cite_descriptors,
+      :cite_observations, :cite_matrix]
+
+    params[:options].each { |k, v|
+      if boolean_options.include? k.to_sym
+        params[:options][k] = (v == 'true' || v == true) ? true : false
+      end
+    }
+
+    params.require(:options)
+      .permit(:matrix_name, *boolean_options,
+        citation: [:source_id, :pages, :is_original]
+      )
+  end
+
+  def nexus_options_are_sane(options)
+    if !options[:citation]&.dig(:source_id) &&
+      (options[:cite_otus] || options[:cite_descriptors] ||
+        options[:cite_observations] || options[:cite_matrix])
+
+      render json: {
+          errors: 'Citation option(s) checked but no source selected'
+        },
+        status: :unprocessable_entity
+
+      return false
+    end
+
+    true
+  end
+
+  def document_to_nexus(doc_id)
+    begin
+      Vendor::NexusParser.document_id_to_nexus(doc_id)
+    rescue ActiveRecord::RecordNotFound, NexusParser::ParseError => e
+      render json: { errors: "Nexus parse error: #{e}" },
+        status: :unprocessable_entity
+      return nil
+    rescue ArgumentError => e
+      render json: { errors: "Error reading document: #{e} - are you sure it's a nexus document?" },
+        status: :unprocessable_entity
+      return nil
+    rescue TaxonWorks::Error => e
+      render json: { errors: "Error converting nexus to TaxonWorks: #{e}" },
+        status: :unprocessable_entity
+      return nil
+    end
+  end
+
+  # @return [Matrix, nil]
+  def create_matrix_for_nexus_import(matrix_name)
+    if matrix_name.present?
+      begin
+        m = ObservationMatrix.create!(name: matrix_name)
+      rescue ActiveRecord::RecordInvalid
+        render json: { errors: 'The provided matrix name is already in use, try another' },
+          status: :unprocessable_entity
+      end
+
+      return m
+    end
+
+    i = 0
+    unique = ''
+    user_name = User.find(Current.user_id).name
+    begin
+      title = "Converted matrix created #{Time.now.utc.to_formatted_s(:long)} by #{user_name + unique}"
+
+      m = ObservationMatrix.create!(name: title)
+    rescue ActiveRecord::RecordInvalid
+      if i < 60
+        i = i + 1
+        unique = "-#{i}"
+        retry
+      end
+      raise
+    end
+
+    m
+  end
+
+  def nexus_dimensions_okay(nf)
+    max_dim = 1000
+
+    if (nf.taxa.size <= max_dim && nf.characters.size <= max_dim) &&
+      (nf.taxa.size > 0 && nf.characters.size > 0)
+      return true
+    end
+
+    error_message = ''
+    if nf.taxa.size > max_dim || nf.characters.size > max_dim
+      error_message = "Max size is #{max_dim}x#{max_dim}, this file has #{nf.taxa.size} taxa, #{nf.characters.size} characters"
+    elsif nf.taxa.size == 0 && nf.characters.size == 0
+      error_message = "No taxa or characters parsed - this could be because your matrix is very large and nexus_parser failed to parse it. TaxonWorks limits are #{max_dim}x#{max_dim}"
+    else
+      error_message = "The nexus file must include both taxa and characters, this one has #{nf.taxa.size} taxa and #{nf.characters.size} characters"
+    end
+
+    render json: { errors: error_message }, status: :unprocessable_entity
+
+    false
   end
 
 end

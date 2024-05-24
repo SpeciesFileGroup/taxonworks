@@ -924,3 +924,14 @@ collecting_events_spatial_summary_task:
   categories:
   status: prototype
   description: 'Summarize spatial characteristics of a set of Collecting Events.'
+import_nexus_task:
+  hub: true
+  name: 'Import Nexus file data'
+  related:
+    - observation_matrices
+  categories:
+    - matrix
+    - new
+  status: prototype
+  description: 'Populate an observation matrix with data imported from a Nexus
+  file.'

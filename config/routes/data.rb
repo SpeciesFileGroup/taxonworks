@@ -283,6 +283,11 @@ end
 
 resources :documents do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+    match :filter, to: 'documents#index', via: [:get, :post]
+    get :file_extensions, defaults: {format: :json}
+  end
 end
 
 # TODO: these should default json?
@@ -496,9 +501,11 @@ resources :observation_matrices do
 
   collection do
     get :otus_used_in_matrices, {format: :json}
+    get :nexus_data, {format: :json}
 
     post :batch_create, {format: :json}
     post :batch_add, {format: :json}
+    post :import_from_nexus, {format: :json}
   end
 end
 

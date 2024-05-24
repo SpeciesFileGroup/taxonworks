@@ -6,8 +6,21 @@ class DocumentsController < ApplicationController
   # GET /documents
   # GET /documents.json
   def index
-    @recent_objects = Document.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @recent_objects = Document
+          .recent_from_project_id(sessions_current_project_id)
+          .order(updated_at: :desc)
+          .limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @documents = ::Queries::Document::Filter.new(params).all
+          .order(updated_at: :desc)
+          .page(params[:page])
+          .per(params[:per])
+      }
+    end
   end
 
   # GET /documents/1
@@ -84,6 +97,16 @@ class DocumentsController < ApplicationController
 
   def autocomplete
     @documents = Queries::Document::Autocomplete.new(params[:term], project_id: params[:project_id]).all
+  end
+
+  # GET /documents/select_options?target=Source
+  def select_options
+    @documents = Document.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
+  end
+
+  # GET /documents/file_extensions.json
+  def file_extensions
+    @extension_groups = FILE_EXTENSIONS_DATA
   end
 
   private
