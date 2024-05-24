@@ -13,33 +13,17 @@
       </label>
     </div>
 
-    <div class="field">
+    <div
+      v-for="(label, param) in BOOL_PARAMETERS"
+      :key="param"
+      class="field"
+    >
       <label>
         <input
           type="checkbox"
-          v-model="options.match_otu_to_taxonomy_name"
+          v-model="options[param]"
         />
-        match otus to db using taxonomy name
-      </label>
-    </div>
-
-    <div class="field">
-      <label>
-        <input
-          type="checkbox"
-          v-model="options.match_otu_to_name"
-        />
-        match otus to db using name
-      </label>
-    </div>
-
-    <div class="field">
-      <label>
-        <input
-          type="checkbox"
-          v-model="options.match_character_to_name"
-        />
-        match characters to db using name (character states must match as well)
+        {{ label }}
       </label>
     </div>
 
@@ -96,6 +80,13 @@ import { ref } from 'vue'
 import CitationOptions from './CitationOptions.vue'
 import InlineSpinner from './InlineSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+
+const BOOL_PARAMETERS = {
+  match_otu_to_taxonomy_name: 'Match otus to db using taxonomy name',
+  match_otu_to_name: 'Match otus to db using name',
+  match_character_to_name:
+    'Match characters to db using name (character states must match as well)'
+}
 
 const props = defineProps({
   docChosen: {
