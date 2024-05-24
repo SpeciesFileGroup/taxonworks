@@ -358,7 +358,7 @@ class ObservationMatricesController < ApplicationController
   end
 
   def nexus_import_options_params
-    if params[:options].nil?
+    if params[:options].blank?
       # Rails discarded the empty options {} that's sent when all options are
       # defaults, this restores it
       return ActionController::Parameters.new({}).permit!
