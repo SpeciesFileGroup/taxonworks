@@ -9,7 +9,7 @@
       <strong>Taxa:</strong> ({{ otus.length }})
       <ImportList
         :list="otus"
-        type_attr="otu"
+        type-attr="otu"
       />
     </p>
     <p v-else>
@@ -20,7 +20,7 @@
       <strong>Descriptors:</strong> ({{ descriptors.length }})
       <ImportList
         :list="descriptors"
-        type_attr="descriptor"
+        type-attr="descriptor"
       />
     </p>
     <p v-else>
