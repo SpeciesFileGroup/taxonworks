@@ -358,6 +358,12 @@ class ObservationMatricesController < ApplicationController
   end
 
   def nexus_import_options_params
+    if params[:options].nil?
+      # Rails discarded the empty options {} that's sent when all options are
+      # defaults, this restores it
+      return ActionController::Parameters.new({}).permit!
+    end
+
     boolean_options = [:match_otu_to_taxonomy_name, :match_otu_to_name,
       :match_character_to_name, :cite_otus, :cite_descriptors,
       :cite_observations, :cite_matrix]

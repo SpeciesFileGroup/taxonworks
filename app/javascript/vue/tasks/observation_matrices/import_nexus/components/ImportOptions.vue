@@ -37,11 +37,7 @@
     </div>
     <CitationOptions
       v-else
-      v-model:cite-otus="options.cite_otus"
-      v-model:cite-descriptors="options.cite_descriptors"
-      v-model:cite-observations="options.cite_observations"
-      v-model:cite-matrix="options.cite_matrix"
-      v-model:citation="options.citation"
+      v-model="options.citation_options"
     />
 
     <VBtn
@@ -112,18 +108,7 @@ const emit = defineEmits(['convert'])
 const showCitationOptions = ref(false)
 
 const options = defineModel()
-options.value = {
-  // Default values.
-  matrix_name: '',
-  match_otu_to_taxonomy_name: false,
-  match_otu_to_name: false,
-  match_character_to_name: false,
-  cite_otus: false,
-  cite_descriptors: false,
-  cite_observations: false,
-  cite_matrix: false,
-  citation: {}
-}
+options.value.citation_options = {}
 
 </script>
 

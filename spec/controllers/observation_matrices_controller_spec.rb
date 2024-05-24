@@ -160,12 +160,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
   end
 
   describe 'POST #import_from_nexus' do
-    let!(:matrix_name) { 'my_matrix' }
-
-    let!(:options) {
-      # Non-empty options required
-      { matrix_name: }
-    }
+    let(:matrix_name) { 'my_matrix' }
 
     let(:valid_nexus_doc) {
       Document.create!(
@@ -178,8 +173,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
     describe 'adding an ActiveJob' do
       specify '#import_from_nexus adds an ActiveJob to the queue' do
         params = {
-          nexus_document_id: valid_nexus_doc.id,
-          options:
+          nexus_document_id: valid_nexus_doc.id
         }
 
         expect {
@@ -190,8 +184,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
 
     specify 'a matrix is created' do
       params = {
-        nexus_document_id: valid_nexus_doc.id,
-        options:
+        nexus_document_id: valid_nexus_doc.id
       }
       post :import_from_nexus, params:, session: valid_session
 
@@ -200,8 +193,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
 
     specify 'the created matrix is documented with its nexus document' do
       params = {
-        nexus_document_id: valid_nexus_doc.id,
-        options:
+        nexus_document_id: valid_nexus_doc.id
       }
       post :import_from_nexus, params:, session: valid_session
 
@@ -216,7 +208,9 @@ RSpec.describe ObservationMatricesController, type: :controller do
     specify 'matrix_name option assigns the created matrix a name' do
       params = {
         nexus_document_id: valid_nexus_doc.id,
-        options:
+        options: {
+          matrix_name:
+        }
       }
       post :import_from_nexus, params:, session: valid_session
 
@@ -225,8 +219,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
 
     specify '#import_from_nexus can be called twice in a row by a user' do
       params = {
-        nexus_document_id: valid_nexus_doc.id,
-        options: { match_otu_to_name: true } # just doesn't specify matrix_name
+        nexus_document_id: valid_nexus_doc.id
       }
 
       # The issue is that generated names are only unique down to the minute,
@@ -247,7 +240,9 @@ RSpec.describe ObservationMatricesController, type: :controller do
 
         params = {
           nexus_document_id: valid_nexus_doc.id,
-          options:
+          options: {
+            matrix_name:
+          }
         }
         post :import_from_nexus, params:, session: valid_session
 
@@ -258,8 +253,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
 
       specify 'document not found error' do
         params = {
-          nexus_document_id: 1234,
-          options:
+          nexus_document_id: 1234
         }
         post :import_from_nexus, params:, session: valid_session
 
@@ -276,8 +270,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
           ))
 
         params = {
-          nexus_document_id: invalid_nexus_doc.id,
-          options:
+          nexus_document_id: invalid_nexus_doc.id
         }
         post :import_from_nexus, params:, session: valid_session
 
@@ -290,8 +283,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
         pdf_doc = FactoryBot.create(:valid_document)
 
         params = {
-          nexus_document_id: pdf_doc.id,
-          options:
+          nexus_document_id: pdf_doc.id
         }
         post :import_from_nexus, params:, session: valid_session
 
@@ -308,8 +300,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
           ))
 
         params = {
-          nexus_document_id: invalid_tw_nexus_doc.id,
-          options:
+          nexus_document_id: invalid_tw_nexus_doc.id
         }
         post :import_from_nexus, params:, session: valid_session
 

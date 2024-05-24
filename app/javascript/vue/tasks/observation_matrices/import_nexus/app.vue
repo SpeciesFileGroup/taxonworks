@@ -60,7 +60,7 @@ const loadingConvert = ref(false)
 function generatePreview() {
   const payload = {
     nexus_document_id: nexusDoc.value.id,
-    options: options.value
+    options: combinedOptions(options.value)
   }
   loadingPreview.value = true
   ObservationMatrix.previewNexus(payload)
@@ -77,7 +77,7 @@ function generatePreview() {
 function scheduleConvert() {
   const payload = {
     nexus_document_id: nexusDoc.value.id,
-    options: options.value
+    options: combinedOptions(options.value)
   }
 
   loadingConvert.value = true
@@ -91,6 +91,13 @@ function scheduleConvert() {
     .finally(() => {
       loadingConvert.value = false
     })
+}
+
+function combinedOptions(options) {
+  const h = { ...options, ...options.citation_options }
+  delete h.citation_options
+
+  return h
 }
 </script>
 
