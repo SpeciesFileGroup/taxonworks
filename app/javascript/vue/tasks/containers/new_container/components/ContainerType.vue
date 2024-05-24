@@ -1,10 +1,11 @@
 <template>
-  <div>
+  <div class="field">
     <label class="d-block">Type</label>
     <select v-model="type">
       <option
         v-for="value in CONTAINER_TYPES"
         :key="value"
+        :value="value"
       >
         {{ value.split('::')[1] }}
       </option>

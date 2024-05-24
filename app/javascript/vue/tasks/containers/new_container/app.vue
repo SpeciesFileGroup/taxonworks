@@ -3,38 +3,52 @@
   <div
     class="horizontal-left-content align-start full_width task-container gap-medium"
   >
-    <ContainerForm
-      v-model="container"
-      class="container-form"
-    />
+    <div>
+      <ContainerForm
+        v-model="container"
+        class="container-form margin-medium-bottom"
+        @new="newContainer"
+        @save="saveContainer"
+      />
+      <ContainerItems :container-items="container.containerItems" />
+    </div>
 
     <VueEncase
       class="container-viewer"
       v-bind="opts"
       :container="container"
-      v-model:selected-items="selectedItems"
     />
   </div>
 </template>
 
 <script setup>
 import { VueEncase } from '@sfgrp/encase'
-import { ref } from 'vue'
+import { ref, onBeforeMount } from 'vue'
+import { useContainer } from './composables'
+import { URLParamsToJSON } from '@/helpers'
 import ContainerForm from './components/ContainerForm.vue'
+import ContainerItems from './components/ContainerItems.vue'
+
+defineOptions({
+  name: 'NewContainer'
+})
+
+const { container, loadContainer, newContainer, saveContainer } = useContainer()
 
 const selectedItems = ref([])
-const container = ref({
-  name: '',
-  sizeX: 12,
-  sizeY: 1,
-  sizeZ: 8,
-  containerItems: []
-})
 
 const opts = ref({
   enclose: true,
   itemSize: 1,
   padding: 1
+})
+
+onBeforeMount(() => {
+  const { container_id } = URLParamsToJSON(window.location.href)
+
+  if (container_id) {
+    loadContainer(container_id)
+  }
 })
 </script>
 
