@@ -375,15 +375,19 @@ class ObservationMatricesController < ApplicationController
     }
 
     params.require(:options)
-      .permit(:matrix_name, *boolean_options, citation: [:source_id])
+      .permit(:matrix_name, *boolean_options,
+        citation: [:source_id, :pages, :is_original]
+      )
   end
 
   def nexus_options_are_sane(options)
-    if options[:citation].blank? &&
+    if !options[:citation]&.dig(:source_id) &&
       (options[:cite_otus] || options[:cite_descriptors] ||
         options[:cite_observations] || options[:cite_matrix])
 
-      render json: { errors: 'Citation option(s) checked but no source selected' },
+      render json: {
+          errors: 'Citation option(s) checked but no source selected'
+        },
         status: :unprocessable_entity
 
       return false
