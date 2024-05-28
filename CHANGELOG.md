@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Reasonable min/max elevations hard validations 
 - Increased scope of string cleaning [#3947]
 
 ### Fixed

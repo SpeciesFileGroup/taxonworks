@@ -131,6 +131,26 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       expect(collecting_event.errors.include?(:verbatim_latitude)).to be_truthy
     end
 
+    specify 'not Atlantis' do
+      collecting_event.minimum_elevation = -11001
+      expect(collecting_event.valid?).to be_falsey
+      expect(collecting_event.errors[:minimum_elevation].present?).to be_truthy
+    end
+
+    specify 'not Bespin' do
+      collecting_event.minimum_elevation = 10000
+      expect(collecting_event.valid?).to be_falsey
+      expect(collecting_event.errors[:minimum_elevation].present?).to be_truthy
+    end
+
+    specify 'not Valhala' do
+      collecting_event.minimum_elevation = 9999
+      collecting_event.maximum_elevation = 11001 
+
+      expect(collecting_event.valid?).to be_falsey
+      expect(collecting_event.errors[:maximum_elevation].present?).to be_truthy
+    end
+
     specify 'maximum elevation is greater than minimum elevation when both provided' do
       message                            = 'Maximum elevation is lower than minimum elevation.'
       collecting_event.minimum_elevation = 2

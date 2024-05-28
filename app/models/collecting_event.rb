@@ -207,6 +207,8 @@ class CollectingEvent < ApplicationRecord
   ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
 
   NEARBY_DISTANCE = 5000
+  MINIMUM_ELEVATION = -11000
+  MAXIMUM_ELEVATION = 8500
 
   attr_accessor :with_verbatim_data_georeference
 
@@ -261,6 +263,9 @@ class CollectingEvent < ApplicationRecord
   validate :check_verbatim_geolocation_uncertainty,
     :check_date_range,
     :check_elevation_range,
+    :check_min_land_elevation,
+    :check_max_land_elevation,
+    :check_date_range,
     :check_ma_range
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: -> { verbatim_label.blank? }
@@ -1132,6 +1137,21 @@ class CollectingEvent < ApplicationRecord
 
   def check_ma_range
     errors.add(:min_ma, 'Min ma is < Max ma.') if min_ma.present? && max_ma.present? && min_ma > max_ma
+  end
+
+  def check_max_land_elevation
+    m = 'This is Earth, not Bespin, contact us sky collector.'
+    if (maximum_elevation.present? && maximum_elevation > MAXIMUM_ELEVATION)
+      errors.add(:maximum_elevation, m)
+    end
+
+    if (minimum_elevation.present? && minimum_elevation > MAXIMUM_ELEVATION)  # 2023 LLM
+      errors.add(:minimum_elevation, m)
+    end
+  end
+
+  def check_min_land_elevation
+    errors.add(:minimum_elevation, 'You know a deeper trench than we do, contact us.') if minimum_elevation.present? && minimum_elevation < MINIMUM_ELEVATION # 2023 LLM
   end
 
   def check_elevation_range
