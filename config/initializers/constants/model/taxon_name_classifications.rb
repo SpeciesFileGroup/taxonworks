@@ -1,6 +1,6 @@
 # Be sure to restart your server (or console) when you modify this file.
 
-Rails.application.config.after_initialize do
+Rails.application.reloader.to_prepare do
 
 # Array of all ICZN and ICN TaxonNameClassification classes
   TAXON_NAME_CLASSIFICATION_CLASSES = TaxonNameClassification.descendants.freeze
