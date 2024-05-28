@@ -43,7 +43,7 @@ module Queries
       biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name, :asserted_distribution], # :field_occurrence
       biological_associations_graph: [:biological_association, :source],
       collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name],
-      collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
+      collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence],
       content: [:source, :otu, :taxon_name, :image],
       controlled_vocabulary_term: [:data_attribute],
       data_attribute: [:collection_object, :collecting_event, :taxon_name, :otu],
@@ -168,6 +168,9 @@ module Queries
 
     # @return [Query::Descriptor::Filter, nil]
     attr_accessor :descriptor_query
+
+    # @return [Query::DwcOccurrence::Filter, nil]
+    attr_accessor :dwc_occurrence_query
 
     # @return [Query::TaxonName::Filter, nil]
     attr_accessor :field_occurrence_query
