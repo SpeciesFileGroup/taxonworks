@@ -3,10 +3,18 @@ module Queries
 
     # Keep this minimal, in pricinple filtering should be done on the base objects, not the core here.
     class Filter < Query::Filter
+
+      ATTRIBUTES = ::DwcOccurrence.column_names.reject{ |c| %w{
+        id project_id created_by_id updated_by_id created_at updated_at
+      }.include?(c)}.map(&:to_sym).freeze
+
       include Queries::Helpers
       include Queries::Concerns::Users
+      include Queries::Concerns::Attributes
 
       PARAMS = [
+        *Queries::Concerns::Attributes.params,
+        *ATTRIBUTES,
         :dwc_occurrence_id,
         :dwc_occurence_object_type,
         :dwc_occurence_object_id,
@@ -14,7 +22,7 @@ module Queries
         dwc_occurence_object_type: [],
         dwc_occurence_object_id: [],
         dwc_occurrence_id: [],
-      ].freeze
+      ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
 
       # @params dwc_occurrence_id [Integer, Array, nil]
       #   the TW native id, *not* the occurrenceID
@@ -86,7 +94,6 @@ module Queries
           asserted_distribution_query_facet,
         ]
       end
-
 
       def and_clauses
         [ dwc_occurrence_id_facet,

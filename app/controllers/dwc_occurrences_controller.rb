@@ -55,7 +55,7 @@ class DwcOccurrencesController < ApplicationController
     @dwc_occurrences = Queries::DwcOccurrence::Filter.new(params.merge!(api: true))
       .all
       .where(project_id: sessions_current_project_id)
-      .page(params[:page]).per(params[:per] || 1)
+      .page(params[:page]).per(params[:per] || 1000)
     render '/dwc_occurrences/api/v1/index'
   end
 
@@ -67,8 +67,16 @@ class DwcOccurrencesController < ApplicationController
 
   # POST /dwc_occurrence/sweep (admin)
   def sweep
-   DwcOccurrence.sweep
-   redirect_to administration_data_health_task_path and return
+    DwcOccurrence.sweep
+    redirect_to administration_data_health_task_path and return
+  end
+
+  # TODO: extract this all, unify with Concerns::IsData model, and re-use in DwcOccurrence
+  def attributes
+    i = Queries::DwcOccurrence::Filter::ATTRIBUTES
+    render json:  ::DwcOccurrence.columns.select{
+      |a| i.include?(a.name.to_sym)
+    }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
 
   protected
