@@ -97,6 +97,7 @@ module Queries
       controlled_vocabulary_term_query: '::Queries::ControlledVocabularyTerm::Filter',
       data_attribute_query: '::Queries::DataAttribute::Filter',
       descriptor_query: '::Queries::Descriptor::Filter',
+      document_query: '::Queries::Document::Filter',
       dwc_occurrence_query: '::Queries::DwcOccurrence::Filter',
       extract_query: '::Queries::Extract::Filter',
       field_occurrence_query: '::Queries::FieldOccurrence::Filter',
@@ -168,6 +169,9 @@ module Queries
 
     # @return [Query::Descriptor::Filter, nil]
     attr_accessor :descriptor_query
+
+    # @return [Query::Document::Filter, nil]
+    attr_accessor :document_query
 
     # @return [Query::DwcOccurrence::Filter, nil]
     attr_accessor :dwc_occurrence_query

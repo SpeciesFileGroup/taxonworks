@@ -106,3 +106,5 @@ import '../vue/tasks/metadata/vocabulary/project_vocabulary/main.js'
 import '../vue/tasks/otus/new_otu/main.js'
 import '../vue/tasks/leads/hub/main.js'
 import '../vue/tasks/data_attributes/field_synchronize/main.js'
+import '../vue/tasks/observation_matrices/import_nexus/main.js'
+

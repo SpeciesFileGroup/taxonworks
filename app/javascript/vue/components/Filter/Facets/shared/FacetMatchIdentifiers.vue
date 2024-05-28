@@ -13,7 +13,7 @@
     <div class="field label-above">
       <label>Delimiter</label>
       <span class="display-block">
-        <i>Use \n for newlines, \t for tabs.</i>
+        <i>Use </i>\n<i> for newlines, </i>\t<i> for tabs.</i>
       </span>
       <input
         v-model="delimiterIdentifier"
