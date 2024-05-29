@@ -34,9 +34,13 @@ module Queries
 
       def initialize(query_params)
         super
+
+
         @dwc_occurrence_id = params[:dwc_occurrence_id]
         @dwc_occurrence_object_id = params[:dwc_occurrence_object_id]
         @dwc_occurrence_object_type = params[:dwc_occurrence_object_type]
+
+        set_attributes_params(params)
       end
 
       def dwc_occurrence_id

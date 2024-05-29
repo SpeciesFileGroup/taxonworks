@@ -916,7 +916,7 @@ field_synchronize_task:
   related:
   categories:
   status: prototype
-  description: 'Batch edit or syncronize the values in one or two fields or data-attributes.'
+  description: 'Batch edit or syncronize the values in one or two fields or data-attribute
 collecting_events_spatial_summary_task:
   hub: false
   name: 'Collecting Event Spatial Summary'
@@ -938,6 +938,10 @@ filter_dwc_occurrences_task:
   hub: true
   name: 'Filter DwC Occurrences'
   related:
+    - collection_object
+    - collecting_event
+    - asserted_distribution
   categories:
+    - filter
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Filter records in the DarwinCore index.'
