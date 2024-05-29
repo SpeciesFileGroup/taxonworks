@@ -49,11 +49,8 @@ import FilterList from '@/components/Filter/Table/TableResults.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { ATTRIBUTES } from './constants/attributes'
-import { listParser } from './utils/listParser'
 import { DWC_OCCURRENCE } from '@/constants/index.js'
 import { DwcOcurrence } from '@/routes/endpoints'
-
-const extend = ['taxonomy']
 
 const {
   isLoading,
@@ -66,7 +63,7 @@ const {
   selectedIds,
   makeFilterRequest,
   resetFilter
-} = useFilter(DwcOcurrence, { listParser, initParameters: { extend } })
+} = useFilter(DwcOcurrence)
 </script>
 
 <script>
