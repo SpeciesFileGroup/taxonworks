@@ -675,20 +675,6 @@ class TaxonNameRelationship < ApplicationRecord
     false
   end
 
-  @@subclasses_preloaded = false
-  def self.descendants
-    unless @@subclasses_preloaded
-      Dir.glob("#{Rails.root.join("app/models/taxon_name_relationship/**/*.rb")}")
-        .sort { |a, b| a.split('/').count <=> b.split('/').count }
-        .map { |p| p.split('/app/models/').last.sub(/\.rb$/, '') }
-        .map { |p| p.split('/') }
-        .map { |c| c.map { |n| ActiveSupport::Inflector.camelize(n) } }
-        .map { |c| c.join('::') }.map(&:constantize)
-      @@subclasses_preloaded = true
-    end
-    super
-  end
-
   def self.collect_to_s(*args)
     args.collect{|arg| arg.to_s}
   end
