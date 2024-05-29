@@ -1,13 +1,6 @@
-import {
-  TASK_DWC_OCCURRENCE_STATUS,
+import { TASK_DWC_OCCURRENCE_STATUS } from '../constants/links'
 
-} from '../constants/links'
-
-export const CollectionObject = {
-  all: [
-    TASK_DWC_OCCURRENCE_STATUS
-  ],
-  ids: [
-    TASK_DWC_OCCURRENCE_STATUS
-  ]
+export const DwcOccurrence = {
+  all: [TASK_DWC_OCCURRENCE_STATUS],
+  ids: [TASK_DWC_OCCURRENCE_STATUS]
 }
