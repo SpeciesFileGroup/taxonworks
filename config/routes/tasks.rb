@@ -3,8 +3,12 @@ scope :tasks do
     scope :filter, controller: 'tasks/dwc_occurrences/filter' do
       get '/', action: :index, as: 'filter_dwc_occurrences_task'
     end
-  end
 
+    scope :status, controller: 'tasks/dwc_occurrences/status' do
+      get '/', action: :index
+      post '/', action: :index
+    end
+  end
 
   scope :data_attributes do
     scope :field_synchronize, controller: 'tasks/data_attributes/field_synchronize' do
