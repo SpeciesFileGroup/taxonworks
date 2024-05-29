@@ -6,7 +6,6 @@
         url="/data_attributes/import_predicate_autocomplete"
         param="term"
         placeholder="Type a predicate..."
-        v-model="internalPredicate"
         @get-item="
           (item) => {
             internalPredicate = item
