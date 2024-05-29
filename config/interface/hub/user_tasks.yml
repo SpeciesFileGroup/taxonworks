@@ -911,7 +911,7 @@ week_in_review_task:
   status: prototype
   description: 'A quick look dashboard of past activity'
 field_synchronize_task:
-  hub: false 
+  hub: false
   name: 'Field synchronize'
   related:
   categories:
@@ -933,5 +933,11 @@ import_nexus_task:
     - matrix
     - new
   status: prototype
-  description: 'Populate an observation matrix with data imported from a Nexus
-  file.'
+  description: 'Populate an observation matrix with data imported from a Nexus file.'
+filter_dwc_occurrences_task:
+  hub: true
+  name: 'Filter DwC Occurrences'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'

@@ -13,7 +13,11 @@
             layout?.properties
           "
         >
-          <td colspan="2" />
+          <td
+            :colspan="
+              radialObject || radialAnnotator || radialNavigator ? 2 : 1
+            "
+          />
           <template
             v-for="header in headerGroups"
             :key="header"
@@ -66,7 +70,10 @@
               type="checkbox"
             />
           </th>
-          <th class="w-2" />
+          <th
+            v-if="radialObject || radialAnnotator || radialNavigator"
+            class="w-2"
+          />
           <th
             v-for="(title, attr) in attributes"
             :key="attr"
@@ -163,6 +170,7 @@
                 :item="item"
               />
               <RadialAnnotator
+                v-if="radialAnnotator"
                 :global-id="item.global_id"
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
@@ -172,6 +180,7 @@
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
               <RadialNavigation
+                v-if="radialNavigator"
                 :global-id="item.global_id"
                 :redirect="false"
                 @delete="emit('remove', { item, index })"
@@ -277,10 +286,21 @@ const props = defineProps({
   radialObject: {
     type: Boolean,
     default: false
+  },
+
+  radialAnnotator: {
+    type: Boolean,
+    default: true
+  },
+
+  radialNavigator: {
+    type: Boolean,
+    default: true
   }
 })
 
 const emit = defineEmits([
+  'remove',
   'onSort',
   'update:modelValue',
   'mouseover:row',

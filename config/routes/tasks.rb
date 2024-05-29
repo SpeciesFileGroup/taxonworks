@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :dwc_occurrences do
+    scope :filter, controller: 'tasks/dwc_occurrences/filter' do
+      get '/', action: :index, as: 'filter_dwc_occurrences_task'
+    end
+  end
+
 
   scope :data_attributes do
     scope :field_synchronize, controller: 'tasks/data_attributes/field_synchronize' do
