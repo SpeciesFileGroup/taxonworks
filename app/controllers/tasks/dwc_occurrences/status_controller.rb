@@ -1,4 +1,4 @@
-class Tasks::DwcOccurrences::FilterController < ApplicationController
+class Tasks::DwcOccurrences::StatusController < ApplicationController
   include TaskControllerConfiguration
 
   after_action -> { set_pagination_headers(:dwc_occurrences) }, only: [:index]
