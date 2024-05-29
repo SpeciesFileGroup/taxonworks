@@ -53,44 +53,44 @@
       #
       # TODO: deprecate this array of Classes for array of strings
       #
-      TAXON_NAME_RELATIONSHIPS = TaxonNameRelationship.descendants.freeze
+      TAXON_NAME_RELATIONSHIPS ||= TaxonNameRelationship.descendants.freeze
 
       # Array of all ICZN TaxonNameRelationship classes, as Strings
-      ICZN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Iczn.descendants.collect{|d| d.to_s}.freeze
+      ICZN_TAXON_NAME_RELATIONSHIP_NAMES ||= TaxonNameRelationship::Iczn.descendants.collect{|d| d.to_s}.freeze
 
       # Array of all ICN TaxonNameRelationship classes, as Strings
-      ICN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icn.descendants.collect{|d| d.to_s}.freeze
+      ICN_TAXON_NAME_RELATIONSHIP_NAMES ||= TaxonNameRelationship::Icn.descendants.collect{|d| d.to_s}.freeze
 
       # Array of all ICNP TaxonNameRelationship classes, as Strings
-      ICNP_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icnp.descendants.collect{|d| d.to_s}.freeze
+      ICNP_TAXON_NAME_RELATIONSHIP_NAMES ||= TaxonNameRelationship::Icnp.descendants.collect{|d| d.to_s}.freeze
 
       # Array of all ICVCN TaxonNameRelationship classes, as Strings
-      ICVCN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icvcn.descendants.collect{|d| d.to_s}.freeze
+      ICVCN_TAXON_NAME_RELATIONSHIP_NAMES ||= TaxonNameRelationship::Icvcn.descendants.collect{|d| d.to_s}.freeze
 
       # Array of all ICZN + ICN TaxonNameRelationship classes, as Strings
-      STATUS_TAXON_NAME_RELATIONSHIP_NAMES = (ICZN_TAXON_NAME_RELATIONSHIP_NAMES + ICN_TAXON_NAME_RELATIONSHIP_NAMES + ICNP_TAXON_NAME_RELATIONSHIP_NAMES + ICVCN_TAXON_NAME_RELATIONSHIP_NAMES).freeze
+      STATUS_TAXON_NAME_RELATIONSHIP_NAMES ||= (ICZN_TAXON_NAME_RELATIONSHIP_NAMES + ICN_TAXON_NAME_RELATIONSHIP_NAMES + ICNP_TAXON_NAME_RELATIONSHIP_NAMES + ICVCN_TAXON_NAME_RELATIONSHIP_NAMES).freeze
 
       # Array of all assignable TaxonNameRelationship classes, as Strings
-      TAXON_NAME_RELATIONSHIP_NAMES = TAXON_NAME_RELATIONSHIPS.select{|i| i.assignable}.collect{|d| d.to_s}.freeze
+      TAXON_NAME_RELATIONSHIP_NAMES ||= TAXON_NAME_RELATIONSHIPS.select{|i| i.assignable}.collect{|d| d.to_s}.freeze
 
       # Array of all invalid TaxonNameRelationship classes, as Strings
-      TAXON_NAME_RELATIONSHIP_NAMES_INVALID = TaxonNameRelationship.
+      TAXON_NAME_RELATIONSHIP_NAMES_INVALID ||= TaxonNameRelationship.
         collect_descendants_and_itself_to_s(
           TaxonNameRelationship::Iczn::Invalidating,
           TaxonNameRelationship::Icn::Unaccepting,
           TaxonNameRelationship::Icnp::Unaccepting,
           TaxonNameRelationship::Icvcn::Unaccepting).freeze
 
-      TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION = %w{
+      TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION ||= %w{
       TaxonNameRelationship::Iczn::Validating::UncertainPlacement
       TaxonNameRelationship::SourceClassifiedAs}.freeze
 
-      COMBINATION_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship.
+      COMBINATION_TAXON_NAME_RELATIONSHIP_NAMES ||= TaxonNameRelationship.
         collect_descendants_to_s(
           TaxonNameRelationship::Combination,
           TaxonNameRelationship::OriginalCombination)
 
-      TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM = TaxonNameRelationship.collect_descendants_and_itself_to_s(
+      TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM ||= TaxonNameRelationship.collect_descendants_and_itself_to_s(
         TaxonNameRelationship::Iczn::Invalidating::Synonym,
         TaxonNameRelationship::Iczn::Invalidating::Usage,
         TaxonNameRelationship::Icn::Unaccepting::Synonym,
@@ -104,7 +104,7 @@
        TaxonNameRelationship::Icnp::Unaccepting
        TaxonNameRelationship::Icvcn::Unaccepting}.freeze
 
-       TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING = %w{
+       TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING ||= %w{
       TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling'
       TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling
@@ -113,7 +113,7 @@
       TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameOriginalForm
       TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling}.freeze
 
-      TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING = %w{
+      TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING ||= %w{
       TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling
@@ -121,20 +121,20 @@
       TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameOriginalForm
       TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling}.freeze
 
-      TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_PARENTHESES = %w{
+      TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_PARENTHESES ||= %w{
       TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling}.freeze
 
 
-      TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY = %w{
+      TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY ||= %w{
       TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation
       TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling
       TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling}.freeze
 
-      TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION = TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING + %w{
+      TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION ||= TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING + %w{
       TaxonNameRelationship::Icn::Unaccepting::Misapplication
       TaxonNameRelationship::Icnp::Unaccepting::Misapplication
       TaxonNameRelationship::Iczn::Invalidating::Misapplication}
@@ -151,18 +151,18 @@
         end
       end
 
-      TAXON_NAME_RELATIONSHIPS_SUBJECT_SELECT = subject_select.freeze
-      TAXON_NAME_RELATIONSHIPS_OBJECT_SELECT = object_select.freeze
+      TAXON_NAME_RELATIONSHIPS_SUBJECT_SELECT ||= subject_select.freeze
+      TAXON_NAME_RELATIONSHIPS_OBJECT_SELECT ||= object_select.freeze
 
-      TAXON_NAME_RELATIONSHIPS_TYPE_JSON = {
+      TAXON_NAME_RELATIONSHIPS_TYPE_JSON ||= {
         family:  TAXON_NAME_RELATIONSHIPS_OBJECT_SELECT.select{|a,b| b =~ /.*::Typification::Family/},
         genus: TAXON_NAME_RELATIONSHIPS_OBJECT_SELECT.select{|a,b| b =~ /.*::Typification::Genus/}
       }.freeze
 
       # { genus: 'TaxonNameRelationship::Combination::Genus, ... }
-      TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES = TaxonNameRelationship::Combination.descendants.inject({}){|hsh, a| hsh.merge!( a.rank_name.to_sym => a.name)}.freeze
+      TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES ||= TaxonNameRelationship::Combination.descendants.inject({}){|hsh, a| hsh.merge!( a.rank_name.to_sym => a.name)}.freeze
 
-      TAXON_NAME_RELATIONSHIPS_JSON = {
+      TAXON_NAME_RELATIONSHIPS_JSON ||= {
         iczn: {
           tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Iczn),
           all: TaxonNameRelationshipsConstantHelper::descendants_collection( TaxonNameRelationship::Iczn ),
