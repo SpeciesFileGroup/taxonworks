@@ -916,7 +916,7 @@ field_synchronize_task:
   related:
   categories:
   status: prototype
-  description: 'Batch edit or syncronize the values in one or two fields or data-attribute
+  description: 'Batch edit or syncronize the values in one or two fields or data-attribute'
 collecting_events_spatial_summary_task:
   hub: false
   name: 'Collecting Event Spatial Summary'
