@@ -10,7 +10,6 @@
       :list="list"
       :radial-mass-annotator="false"
       :radial-navigator="false"
-      :radial-linker="false"
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
