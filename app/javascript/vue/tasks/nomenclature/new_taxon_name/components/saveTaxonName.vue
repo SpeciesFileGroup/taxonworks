@@ -1,7 +1,6 @@
 <template>
   <button
     type="button"
-    v-hotkey="shortcuts"
     :disabled="!validateInfo || isSaving"
     @click="saveTaxon"
   >
@@ -9,59 +8,53 @@
   </button>
 </template>
 
-<script>
+<script setup>
+import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import platformKey from '@/helpers/getPlatformKey'
+import useHotkey from 'vue3-hotkey'
 
-export default {
-  computed: {
-    parent() {
-      return this.$store.getters[GetterNames.GetParent]
-    },
+const store = useStore()
 
-    taxon() {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
+const parent = computed(() => store.getters[GetterNames.GetParent])
+const taxon = computed(() => store.getters[GetterNames.GetTaxon])
+const validateInfo = computed(
+  () =>
+    parent.value &&
+    taxon.value.name &&
+    taxon.value.name.replace(' ', '').length >= 2
+)
 
-    validateInfo() {
-      return (
-        this.parent &&
-        this.taxon.name &&
-        this.taxon.name.replace(' ', '').length >= 2
-      )
-    },
+const isSaving = computed(() => store.getters[GetterNames.GetSaving])
 
-    isSaving() {
-      return this.$store.getters[GetterNames.GetSaving]
-    },
-
-    shortcuts() {
-      const keys = {}
-
-      keys[`${platformKey()}+s`] = this.saveTaxon
-
-      return keys
-    }
-  },
-  methods: {
-    saveTaxon() {
-      if (this.validateInfo && !this.GetSaving) {
-        if (this.taxon.id) {
-          this.updateTaxonName()
-        } else {
-          this.createTaxonName()
-        }
-      }
-    },
-
-    createTaxonName() {
-      this.$store.dispatch(ActionNames.CreateTaxonName, this.taxon).catch(() => {})
-    },
-
-    updateTaxonName() {
-      this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).catch(() => {})
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 's'],
+    handler() {
+      saveTaxon()
     }
   }
+])
+
+useHotkey(shortcuts.value)
+
+function saveTaxon() {
+  if (validateInfo.value && !isSaving.value) {
+    if (taxon.value.id) {
+      updateTaxonName()
+    } else {
+      createTaxonName()
+    }
+  }
+}
+
+function createTaxonName() {
+  store.dispatch(ActionNames.CreateTaxonName, taxon.value).catch(() => {})
+}
+
+function updateTaxonName() {
+  store.dispatch(ActionNames.UpdateTaxonName, taxon.value).catch(() => {})
 }
 </script>

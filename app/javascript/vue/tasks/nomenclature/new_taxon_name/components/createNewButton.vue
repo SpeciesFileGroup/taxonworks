@@ -1,8 +1,8 @@
 <template>
   <div>
     <modal
-      v-if="showModal"
-      @close="showModal = false"
+      v-if="isModalVisible"
+      @close="() => (isModalVisible = false)"
     >
       <template #header>
         <h3>Confirm</h3>
@@ -27,99 +27,91 @@
     <button
       type="button"
       class="normal-input button button-default"
-      v-hotkey="shortcuts"
       @click="createNew()"
     >
       New
     </button>
   </div>
 </template>
-<script>
+<script setup>
 import { GetterNames } from '../store/getters/getters'
 import { RouteNames } from '@/routes/routes'
+import { computed, ref, watch, nextTick } from 'vue'
+import { useStore } from 'vuex'
 import Modal from '@/components/ui/Modal.vue'
 import PlatformKey from '@/helpers/getPlatformKey'
+import useHotkey from 'vue3-hotkey'
 
-export default {
-  components: {
-    Modal
-  },
-  computed: {
-    unsavedChanges() {
-      return (
-        this.$store.getters[GetterNames.GetLastChange] >
-        this.$store.getters[GetterNames.GetLastSave]
-      )
-    },
-    getParent() {
-      return this.$store.getters[GetterNames.GetParent]
-    },
-    getTaxon() {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
-    shortcuts() {
-      const keys = {}
+const store = useStore()
 
-      keys[`${PlatformKey()}+p`] = this.createNewWithParent
-      keys[`${PlatformKey()}+d`] = this.createNewWithChild
-      keys[`${PlatformKey()}+n`] = this.createNew
+const unsavedChanges = computed(
+  () =>
+    store.getters[GetterNames.GetLastChange] >
+    store.getters[GetterNames.GetLastSave]
+)
 
-      return keys
+const parent = computed(() => store.getters[GetterNames.GetParent])
+const taxon = computed(() => store.getters[GetterNames.GetTaxon])
+
+const shortcuts = ref([
+  {
+    keys: [PlatformKey(), 'p'],
+    handler() {
+      createNewWithParent()
     }
   },
-  data() {
-    return {
-      showModal: false,
-      url: RouteNames.NewTaxonName
+  {
+    keys: [PlatformKey(), 'd'],
+    handler() {
+      createNewWithChild()
     }
   },
-
-  watch: {
-    showModal(newVal) {
-      if (newVal) {
-        this.$nextTick(() => {
-          document.querySelector('#confirm-create-newtaxonname').focus()
-        })
-      }
-    }
-  },
-
-  methods: {
-    reloadPage() {
-      window.location.href = this.url
-      this.url = RouteNames.NewTaxonName
-    },
-
-    loadWithParent() {
-      return this.getParent && this.getParent.hasOwnProperty('id')
-        ? `${RouteNames.NewTaxonName}?parent_id=${this.getParent.id}`
-        : RouteNames.NewTaxonName
-    },
-
-    createNew(newUrl = this.url) {
-      this.url = newUrl
-      if (this.unsavedChanges) {
-        this.showModal = true
-      } else {
-        this.reloadPage()
-      }
-    },
-
-    createNewWithChild() {
-      this.createNew(
-        this.getTaxon.id
-          ? `${RouteNames.NewTaxonName}?parent_id=${this.getTaxon.id}`
-          : RouteNames.NewTaxonName
-      )
-    },
-
-    createNewWithParent() {
-      this.createNew(
-        this.getParent && this.getParent.hasOwnProperty('id')
-          ? `${RouteNames.NewTaxonName}?parent_id=${this.getParent.id}`
-          : RouteNames.NewTaxonName
-      )
+  {
+    keys: [PlatformKey(), 'n'],
+    handler() {
+      createNew()
     }
   }
+])
+
+useHotkey(shortcuts.value)
+
+const isModalVisible = ref(false)
+const url = ref(RouteNames.NewTaxonName)
+
+watch(isModalVisible, (newVal) => {
+  if (newVal) {
+    nextTick(() => {
+      document.querySelector('#confirm-create-newtaxonname').focus()
+    })
+  }
+})
+
+function reloadPage() {
+  window.location.href = url.value
+  url.value = RouteNames.NewTaxonName
+}
+
+function loadTask(taxon) {
+  return taxon.id
+    ? `${RouteNames.NewTaxonName}?parent_id=${taxon.id}`
+    : RouteNames.NewTaxonName
+}
+
+function createNew(newUrl = url.value) {
+  url.value = newUrl
+  if (unsavedChanges.value) {
+    isModalVisible.value = true
+  } else {
+    reloadPage()
+  }
+}
+
+function createNewWithChild() {
+  createNew(loadTask(taxon.value))
+}
+
+function createNewWithParent() {
+  createNew(loadTask(parent.value))
 }
 </script>

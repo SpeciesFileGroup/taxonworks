@@ -1,5 +1,5 @@
 <template>
-  <navbar-component v-hotkey="shortcuts">
+  <navbar-component>
     <div class="flex-separate middle">
       <div
         class="horizontal-left-content gap-small"
