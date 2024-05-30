@@ -6,11 +6,11 @@
         v-if="extract.id"
       >
         <span v-html="extract.object_tag" />
-        <radial-annotator :global-id="extract.global_id" />
-        <radial-navigator :global-id="extract.global_id" />
+        <RadialAnnotator :global-id="extract.global_id" />
+        <RadialNavigator :global-id="extract.global_id" />
       </div>
       <span v-else> New </span>
-      <div class="horizontal-right-content">
+      <div class="horizontal-right-content gap-small">
         <tippy
           v-if="unsavedChanges"
           animation="scale"
@@ -25,15 +25,15 @@
 
         <button
           type="button"
-          class="button normal-input button-submit margin-small-right margin-small-left"
-          @click="emitSave"
+          class="button normal-input button-submit"
+          @click="emit('onSave')"
         >
           Save
         </button>
         <button
           type="button"
           class="button normal-input button-default"
-          @click="emitReset"
+          @click="emit('onReset')"
         >
           New
         </button>
@@ -42,59 +42,42 @@
   </navbar-component>
 </template>
 
-<script>
+<script setup>
 import { GetterNames } from '../store/getters/getters'
 import { Tippy } from 'vue-tippy'
+import { useStore } from 'vuex'
+import { ref, computed } from 'vue'
 import NavbarComponent from '@/components/layout/NavBar'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
+import useHotkey from 'vue3-hotkey'
 
-export default {
-  components: {
-    NavbarComponent,
-    Tippy,
-    RadialAnnotator,
-    RadialNavigator
-  },
+const emit = defineEmits(['onSave', 'onReset'])
 
-  emits: ['onSave', 'onReset'],
+const store = useStore()
 
-  computed: {
-    extract() {
-      return this.$store.getters[GetterNames.GetExtract]
-    },
+const extract = computed(() => store.getters[GetterNames.GetExtract])
+const unsavedChanges = computed(
+  () =>
+    store.getters[GetterNames.GetLastChange] >
+    store.getters[GetterNames.GetLastSave]
+)
 
-    lastChange() {
-      return this.$store.getters[GetterNames.GetLastChange]
-    },
-
-    lastSave() {
-      return this.$store.getters[GetterNames.GetLastSave]
-    },
-
-    unsavedChanges() {
-      return this.lastChange > this.lastSave
-    },
-
-    shortcuts() {
-      const keys = {}
-
-      keys[`${platformKey()}+s`] = this.emitSave
-      keys[`${platformKey()}+n`] = this.emitReset
-
-      return keys
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 's'],
+    handler() {
+      emit('onSave')
     }
   },
-
-  methods: {
-    emitSave() {
-      this.$emit('onSave')
-    },
-
-    emitReset() {
-      this.$emit('onReset')
+  {
+    keys: [platformKey(), 'n'],
+    handler() {
+      emit('onReset')
     }
   }
-}
+])
+
+useHotkey(shortcuts.value)
 </script>
