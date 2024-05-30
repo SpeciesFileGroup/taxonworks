@@ -34,9 +34,9 @@ module ObservationMatrixRowsHelper
     return observation_matrix_row.name if observation_matrix_row.name.present?
     o = observation_matrix_row.observation_object
     s = label_for(o)
-    s.gsub!(/[^\w]/, '_').to_s
+    s.gsub!(/[^\w]/, '_')
     s = '_' if s.blank?
-    s.gsub!(/_+/, '_')
+    s.gsub(/_+/, '_')
   end
 
   def observation_matrix_row_label_nexml(observation_matrix_row)

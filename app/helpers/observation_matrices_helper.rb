@@ -82,7 +82,7 @@ module ObservationMatricesHelper
       s = observation_export_value(o)
       s = LABEL_REPLACEMENT[s].nil? ? s : LABEL_REPLACEMENT[s]
 
-      if s.length > 1 && (style == :nexus && style == :tnt) && o.type == 'Observation::Qualitative'
+      if s.length > 1 && (style == :nexus || style == :tnt) && o.type == 'Observation::Qualitative'
         "#{s} [WARNING STATE '#{s}' is TOO LARGE FOR PAUP (0-9, A-Z only).]"
       else
         s
