@@ -22,7 +22,7 @@
   </div>
 </template>
 
-<style lang="stylus" src="./ContinuousDescriptor.styl"></style>
+<style lang="scss" src="./ContinuousDescriptor.scss"></style>
 
 <script>
 import { GetterNames } from '../../store/getters/getters'
