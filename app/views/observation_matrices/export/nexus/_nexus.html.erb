@@ -21,11 +21,12 @@ Title qualitative_characters;
 Dimensions Nchar=<%= descriptors.size -%>;
 Format
 <%= as_file ? '  ' : nb -%>datatype = STANDARD
+<%= as_file ? '  ' : nb -%>gap = -
 <%= as_file ? '  ' : nb -%>missing = ?
 <%= as_file ? '  ' : nb -%>symbols = "0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N P Q R S U V W X Y Z !";
 Charstatelabels
 <% descriptors.each_with_index do |d, i| -%>
-  <%= as_file ? '  ' : nb -%><%= "#{i+1} #{descriptor_matrix_label(d).html_safe} /".html_safe %> <%= d.character_states.order(:position).collect{|cs| "'#{cs.name}'".html_safe}.join(' ').html_safe if d.qualitative? -%>,
+  <%= as_file ? '  ' : nb -%><%= "#{i+1} #{descriptor_matrix_label(d).html_safe} /".html_safe %> <%= d.character_states.order(:position).filter_map{|cs| "'#{cs.name}'".html_safe if cs.name.downcase != 'gap'}.join(' ').html_safe if d.qualitative? -%>,
 <% end %>
 ;
 Matrix
