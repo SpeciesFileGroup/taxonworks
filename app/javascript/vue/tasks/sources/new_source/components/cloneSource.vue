@@ -3,55 +3,51 @@
     type="button"
     class="button normal-input button-submit button-size"
     :disabled="!source.id"
-    v-hotkey="shortcuts"
     @click="cloneSource"
   >
     Clone
   </button>
-  <ConfirmationModal ref="confirmationModal" />
+  <ConfirmationModal ref="confirmationModalRef" />
 </template>
 
-<script>
+<script setup>
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
+import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
 import platformKey from '@/helpers/getPlatformKey'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import useHotkey from 'vue3-hotkey'
 
-export default {
-  components: {
-    ConfirmationModal
-  },
+const store = useStore()
 
-  computed: {
-    source() {
-      return this.$store.getters[GetterNames.GetSource]
-    },
-
-    shortcuts() {
-      const keys = {}
-
-      keys[`${platformKey()}+c`] = this.cloneSource
-
-      return keys
+const confirmationModalRef = ref(null)
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 'c'],
+    handler() {
+      cloneSource()
     }
-  },
+  }
+])
 
-  methods: {
-    async cloneSource() {
-      const ok = await this.$refs.confirmationModal.show({
-        title: 'Clone source',
-        message:
-          'This will clone the current source. Are you sure you want to proceed?',
-        confirmationWord: 'CLONE',
-        okButton: 'Clone',
-        cancelButton: 'Cancel',
-        typeButton: 'submit'
-      })
+useHotkey(shortcuts.value)
 
-      if (ok) {
-        this.$store.dispatch(ActionNames.CloneSource)
-      }
-    }
+const source = computed(() => store.getters[GetterNames.GetSource])
+
+async function cloneSource() {
+  const ok = await confirmationModalRef.value.show({
+    title: 'Clone source',
+    message:
+      'This will clone the current source. Are you sure you want to proceed?',
+    confirmationWord: 'CLONE',
+    okButton: 'Clone',
+    cancelButton: 'Cancel',
+    typeButton: 'submit'
+  })
+
+  if (ok) {
+    store.dispatch(ActionNames.CloneSource)
   }
 }
 </script>
