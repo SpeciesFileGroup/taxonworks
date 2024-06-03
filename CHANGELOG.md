@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Sometimes URL parameters are set incorrectly in facets.
 - A COLDP export name and taxon remarks bug [#3837]
+- Project dump not working when all params were supplied [#3967]
 
 ### Changed
 
@@ -28,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
 [#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
 [#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
+[#3967]: https://github.com/SpeciesFileGroup/taxonworks/pull/3967
 
 ## [0.41.1] - 2024-05-10
 
