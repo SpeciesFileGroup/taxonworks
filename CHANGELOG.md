@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- `/api/v1/taxon_names/origin_citation.csv`, taxon names plus their origin citation
 - Reasonable min/max elevations hard validations 
 - Increased scope of string cleaning [#3947]
 - DwcOccurrence filter on all attributes
