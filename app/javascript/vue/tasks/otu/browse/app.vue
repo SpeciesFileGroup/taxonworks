@@ -163,7 +163,7 @@ export default {
       navigate: undefined,
       tmp: undefined,
       otuList: [],
-      componentNames: COMPONENT_NAMES()
+      componentNames: COMPONENT_NAMES
     }
   },
   watch: {

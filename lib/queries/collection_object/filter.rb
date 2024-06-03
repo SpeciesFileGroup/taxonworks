@@ -900,6 +900,18 @@ module Queries
         ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
+      def dwc_occurrence_query_facet
+        return nil if dwc_occurrence_query.nil?
+
+         s = ::CollectionObject
+          .with(query_dwc_co: dwc_occurrence_query.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
+          .joins(:dwc_occurrence)
+          .joins('JOIN query_dwc_co as query_dwc_co1 on query_dwc_co1.id = dwc_occurrences.id')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
+      end
+
       def biological_associations_facet
         return nil if biological_associations.nil?
         a = ::CollectionObject.joins(:biological_associations)
@@ -997,6 +1009,7 @@ module Queries
           biological_association_id_facet,
           base_collecting_event_query_facet,
           biological_association_query_facet,
+          dwc_occurrence_query_facet,
           collecting_event_query_facet,
           extract_query_facet,
           loan_query_facet,

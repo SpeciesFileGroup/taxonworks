@@ -183,6 +183,8 @@ GEM
     bindex (0.8.1)
     binding_of_caller (1.0.1)
       debug_inspector (>= 1.2.0)
+    bootsnap (1.18.3)
+      msgpack (~> 1.2)
     brakeman (6.1.2)
       racc
     builder (3.2.4)
@@ -368,6 +370,7 @@ GEM
     mini_mime (1.1.5)
     minitest (5.23.0)
     modularity (3.0.1)
+    msgpack (1.7.2)
     multi_json (1.15.0)
     mutex_m (0.2.0)
     namae (1.2.0)
@@ -386,6 +389,7 @@ GEM
     net-smtp (0.5.0)
       net-protocol
     netrc (0.11.0)
+    nexus_parser (1.2.2)
     nio4r (2.7.3)
     nokogiri (1.16.5-aarch64-linux)
       racc (~> 1.4)
@@ -755,6 +759,7 @@ DEPENDENCIES
   bibtex-ruby (~> 6.0)
   binding_of_caller
   biodiversity!
+  bootsnap
   brakeman (~> 6.1, >= 5.4)
   bundler (~> 2.5)
   byebug (~> 11.1)
@@ -799,6 +804,7 @@ DEPENDENCIES
   modularity (~> 3.0.0)
   namecase (~> 2.0)
   net-smtp (~> 0.4)
+  nexus_parser (~> 1.2.2)
   os (~> 1.0, >= 1.0.1)
   paper_trail (~> 15.0)
   paperclip-meta!

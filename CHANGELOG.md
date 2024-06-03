@@ -9,7 +9,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Reasonable min/max elevations hard validations 
 - Increased scope of string cleaning [#3947]
+- DwcOccurrence filter on all attributes
 
 ### Fixed
 
@@ -21,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Upgraded to Rails 7. [#3819]
 - Changed default URL protocol to HTTPS for TaxonWorks-generated e-mails in production environments.
+- Added bootsnap gem to speed up boot times. `tmp/cache` dir is used as cache by this gem.
 
 [#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
 [#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/

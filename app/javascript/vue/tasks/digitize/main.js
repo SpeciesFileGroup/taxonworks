@@ -2,7 +2,6 @@ import { createApp } from 'vue'
 import { newStore } from './store/store.js'
 import HelpSystem from '@/plugins/help/help'
 import en from './lang/help/en'
-import hotkey from '@/plugins/v-hotkey'
 import App from './app.vue'
 
 function init() {
@@ -13,7 +12,7 @@ function init() {
       en: en
     }
   })
-  app.directive('hotkey', hotkey)
+
   app.mount('#vue-all-in-one')
 }
 
