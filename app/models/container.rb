@@ -152,6 +152,10 @@ class Container < ApplicationRecord
     []
   end
 
+  def self.dimensions
+    {}
+  end
+
   # @return [Container]
   #   places all objects in a new, parent-less container, saves it off,
   #   None of the objects are permitted to be new_records.

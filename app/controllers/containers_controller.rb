@@ -96,6 +96,10 @@ class ContainersController < ApplicationController
     ).autocomplete
   end
 
+  def container_types
+    render json: helpers.container_types 
+  end
+
   private
   def set_container
     @container = Container.with_project_id(sessions_current_project_id).find(params[:id])

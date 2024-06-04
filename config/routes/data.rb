@@ -195,6 +195,9 @@ end
 match 'containers/for', to: 'containers#for', via: :get, defaults: {format: :json}
 resources :containers do # , only: [:create, :update, :destroy] do
   concerns [:data_routes]
+  collection do
+    get :container_types, defaults: {format: :json}
+  end
 end
 
 resources :container_items, except: [:edit] do

@@ -100,4 +100,17 @@ module ContainersHelper
   def add_or_move_to_container_link(object)
     link_to( (object.contained? ? 'Move to another' : 'Add to' ) + ' container', containerize_collection_object_path(object) )
   end
+
+  def container_types
+    r = []
+    Container.descendants.each do |t|
+      r.push({
+        type: t.name,
+        name: t.class_name,
+        dimensions: t.dimensions.presence,
+        valid_parents: t.valid_parents.presence
+      })
+    end
+    r
+  end
 end
