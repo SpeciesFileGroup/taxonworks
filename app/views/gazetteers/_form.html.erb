@@ -1,0 +1,17 @@
+<%= form_with(model: gazetteer) do |form| %>
+  <% if gazetteer.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(gazetteer.errors.count, "error") %> prohibited this gazetteer from being saved:</h2>
+
+      <ul>
+        <% gazetteer.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

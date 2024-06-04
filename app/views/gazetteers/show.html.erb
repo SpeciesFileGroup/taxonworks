@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @gazetteer %>
+
+<div>
+  <%= link_to "Edit this gazetteer", edit_gazetteer_path(@gazetteer) %> |
+  <%= link_to "Back to gazetteers", gazetteers_path %>
+
+  <%= button_to "Destroy this gazetteer", @gazetteer, method: :delete %>
+</div>

@@ -1,0 +1,2 @@
+class Gazetteer < ApplicationRecord
+end
