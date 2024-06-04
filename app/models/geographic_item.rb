@@ -1,8 +1,8 @@
 # require 'rgeo'
 
 # A GeographicItem is one and only one of [point, line_string, polygon, multi_point, multi_line_string,
-# multi_polygon, geometry_collection] which describes a position, path, or area on the globe, generally associated
-# with a geographic_area (through a geographic_area_geographic_item entry), and sometimes only with a georeference.
+# multi_polygon, geometry_collection, geography] which describes a position, path, or area on the globe, generally associated
+# with a geographic_area (through a geographic_area_geographic_item entry), a gazetteer, or a georeference.
 #
 # @!attribute point
 #   @return [RGeo::Geographic::ProjectedPointImpl]
@@ -24,9 +24,17 @@
 #   @return [RGeo::Geographic::ProjectedMultiPolygonImpl]
 #   CCW orientation is applied
 #
+# @!attribute geometry_collection
+#   @return [RGeo::Geographic::ProjectedGeometryCollectionImpl]
+#
+# @!attribute geography
+#   @return [RGeo::Geographic::Geography]
+#   Holds a shape of any geographic type. Currently only used by Gazetteer,
+#   eventually all of the above shapes will be folded into here.
+#
 # @!attribute type
 #   @return [String]
-#     Rails STI, determines the geography column as well
+#     Rails STI
 #
 # @!attribute cached_total_area
 #   @return [Numeric]
@@ -65,7 +73,8 @@ class GeographicItem < ApplicationRecord
     :multi_point,
     :multi_line_string,
     :multi_polygon,
-    :geometry_collection
+    :geometry_collection,
+    :geography
   ].freeze
 
   GEOMETRY_SQL = Arel::Nodes::Case.new(arel_table[:type])
@@ -76,8 +85,11 @@ class GeographicItem < ApplicationRecord
     .when('GeographicItem::MultiLineString').then(Arel::Nodes::NamedFunction.new('CAST', [arel_table[:multi_line_string].as('geometry')]))
     .when('GeographicItem::MultiPoint').then(Arel::Nodes::NamedFunction.new('CAST', [arel_table[:multi_point].as('geometry')]))
     .when('GeographicItem::GeometryCollection').then(Arel::Nodes::NamedFunction.new('CAST', [arel_table[:geometry_collection].as('geometry')]))
+    .when('GeographicItem::Geography').then(Arel::Nodes::NamedFunction.new('CAST', [arel_table[:geography].as('geometry')]))
     .freeze
 
+  # TODO Note this is pg, not rails: it doesn't know anything about the
+  # type override accessor for geography.
   GEOGRAPHY_SQL = "CASE geographic_items.type
     WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon
     WHEN 'GeographicItem::Point' THEN point
@@ -86,6 +98,7 @@ class GeographicItem < ApplicationRecord
     WHEN 'GeographicItem::MultiLineString' THEN multi_line_string
     WHEN 'GeographicItem::MultiPoint' THEN multi_point
     WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection
+    WHEN 'GeographicItem::Geography' THEN geography
     END".freeze
 
     # ANTI_MERIDIAN = '0X0102000020E61000000200000000000000008066400000000000405640000000000080664000000000004056C0'
@@ -122,6 +135,7 @@ class GeographicItem < ApplicationRecord
 
     class << self
 
+      # TODO add geography case?
       def aliased_geographic_sql(name = 'a')
         "CASE #{name}.type \
          WHEN 'GeographicItem::MultiPolygon' THEN #{name}.multi_polygon \
@@ -187,6 +201,7 @@ class GeographicItem < ApplicationRecord
       # @param [Integer, String]
       # @return [String]
       #   a SQL select statement that returns the *geometry* for the geographic_item with the specified id
+      # TODO Same query as select_geography_sql but without sanitize
       def select_geometry_sql(geographic_item_id)
         "SELECT #{GeographicItem::GEOMETRY_SQL.to_sql} from geographic_items where geographic_items.id = #{geographic_item_id}"
       end
@@ -200,7 +215,7 @@ class GeographicItem < ApplicationRecord
           geographic_item_id])
       end
 
-      # @param [Symbol] choice
+      # @param [Symbol] choice, either :latitude or :longitude
       # @return [String]
       #   a fragment returning either latitude or longitude columns
       def lat_long_sql(choice)
@@ -223,6 +238,8 @@ class GeographicItem < ApplicationRecord
       "ST_Centroid(multi_line_string::geometry), #{f} ), ' ', #{v})
       WHEN 'GeographicItem::MultiPoint' THEN split_part(ST_AsLatLonText(" \
       "ST_Centroid(multi_point::geometry), #{f}), ' ', #{v})
+      WHEN 'GeographicItem::Geography' THEN split_part(ST_AsLatLonText(" \
+      "ST_Centroid(geography::geometry), #{f}), ' ', #{v})
     END as #{choice}"
       end
 
@@ -486,6 +503,7 @@ class GeographicItem < ApplicationRecord
       # @return [String] sql for contained_by via ST_Contains
       # Note: Can not use GEOMETRY_SQL because geometry_collection is not supported in older versions of ST_Contains
       # Note: !! If the target GeographicItem#id crosses the anti-meridian then you may/will get unexpected results.
+      # TODO need to handle geography case here
       def contained_by_where_sql(*geographic_item_ids)
         "ST_Contains(
         #{GeographicItem.geometry_sql2(*geographic_item_ids)},
