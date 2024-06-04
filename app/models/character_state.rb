@@ -39,6 +39,10 @@ class CharacterState < ApplicationRecord
 
   validate :descriptor_kind
 
+  def is_gap?
+    label == '-' && name.downcase == 'gap'
+  end
+
   # @return [String] name of the character_state in a particular language
   # @parm :target
   #   one of :key, :description, nil
