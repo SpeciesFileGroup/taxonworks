@@ -107,4 +107,22 @@ module ::Export::CSV
     unsorted + sorted
   end
 
+  # @return Tempfile
+  # @param query any ActiveRecord::Relation
+  def self.copy_table(query)
+    conn = ::Export.get_connection
+
+    t = Tempfile.new
+    q = "COPY ( #{query.to_sql} ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\t', HEADER, ENCODING 'UTF8')"
+
+    conn.copy_data(q) do
+      while row = conn.get_copy_data
+        t.write(row.force_encoding('UTF-8'))
+      end
+    end
+
+    t.rewind
+    t
+  end
+
 end

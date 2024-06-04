@@ -1,0 +1,22 @@
+#NEXUS
+
+BEGIN AUTHORS;
+AUTHOR  NAME = Asdf;
+END;
+
+BEGIN TAXA;
+	DIMENSIONS NTAX=1;
+	TAXLABELS
+		' Carabus    goryi  '
+	;
+END;
+
+BEGIN CHARACTERS;
+	DIMENSIONS  NCHAR=3;
+	FORMAT DATATYPE = STANDARD GAP = - MISSING = ? SYMBOLS = "  0 1 2 3 4 5 6 7 8 9 A";
+	CHARSTATELABELS
+		1 /  square pointy, 2 'right  foot' / 'one,  purple ' ' one,  gree  n' ;
+	MATRIX
+	' Carabus    goryi'     -(0 1)3
+;
+END;

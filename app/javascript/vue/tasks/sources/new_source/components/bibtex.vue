@@ -89,6 +89,7 @@ function createSource() {
       setParam('/tasks/sources/new_source', 'source_id', response.body.id)
       TW.workbench.alert.create('New source from BibTeX created.', 'notice')
     })
+    .catch(() => {})
     .finally(() => {
       creating.value = false
     })

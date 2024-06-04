@@ -576,6 +576,10 @@ scope :tasks do
   end
 
   scope :observation_matrices do
+    scope :import_nexus, controller: 'tasks/observation_matrices/import_nexus' do
+      get '/', action: :index, as: 'import_nexus_task'
+    end
+
     scope :matrix_column_coder, controller: 'tasks/observation_matrices/matrix_column_coder' do
       get :index, as: 'index_matrix_column_coder_task'
     end

@@ -535,5 +535,4 @@ class Otu < ApplicationRecord
       soft_validations.add(:base, m )
     end
   end
-
 end

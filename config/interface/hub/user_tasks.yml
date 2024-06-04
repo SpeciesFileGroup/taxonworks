@@ -931,3 +931,13 @@ new_container_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+import_nexus_task:
+  hub: true
+  name: 'Import Nexus file data'
+  related:
+    - observation_matrices
+  categories:
+    - matrix
+    - new
+  status: prototype
+  description: 'Populate an observation matrix with data imported from a Nexus file.'

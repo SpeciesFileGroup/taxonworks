@@ -1,7 +1,7 @@
 <template>
   <block-layout :warning="hasUnsavedChanges">
     <template #header>
-      <h3 v-hotkey="shortcuts">Type material</h3>
+      <h3>Type material</h3>
     </template>
     <template #body>
       <div>
@@ -15,8 +15,11 @@
   </block-layout>
 </template>
 
-<script>
+<script setup>
+import { computed, ref, onBeforeMount } from 'vue'
+import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters.js'
+import { RouteNames } from '@/routes/routes.js'
 import ActionNames from '../../store/actions/actionNames.js'
 import TypeMaterialType from './TypeMaterialType.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
@@ -25,84 +28,58 @@ import TypeMaterialList from './TypeMaterialList.vue'
 import TypeMaterialTaxon from './TypeMaterialTaxon.vue'
 import TypeMaterialSource from './TypeMaterialSource.vue'
 import TypeMaterialAdd from './TypeMaterialAdd.vue'
+import useHotkey from 'vue3-hotkey'
 
-export default {
-  components: {
-    BlockLayout,
-    TypeMaterialList,
-    TypeMaterialTaxon,
-    TypeMaterialType,
-    TypeMaterialSource,
-    TypeMaterialAdd
-  },
-  computed: {
-    shortcuts() {
-      const keys = {}
+const OSKey = platformKey()
+const store = useStore()
 
-      keys[`${platformKey()}+m`] = this.switchTypeMaterial
-      keys[`${platformKey()}+t`] = this.switchNewTaxonName
-      keys[`${platformKey()}+o`] = this.switchBrowseOtu
-      keys[`${platformKey()}+b`] = this.switchBrowseNomenclature
-
-      return keys
-    },
-
-    typeMaterial() {
-      return this.$store.getters[GetterNames.GetTypeMaterial]
-    },
-
-    hasUnsavedChanges() {
-      return this.$store.getters[GetterNames.GetTypeMaterials].some(
-        (item) => !item.isUnsaved
-      )
+const shortcuts = ref([
+  {
+    keys: [OSKey, 'm'],
+    handler() {
+      switchToTask(RouteNames.TypeMaterial)
     }
   },
-
-  created() {
-    const urlParams = new URLSearchParams(window.location.search)
-    const taxonId = urlParams.get('taxon_name_id')
-
-    if (/^\d+$/.test(taxonId)) {
-      this.$store.dispatch(ActionNames.SetTypeMaterialTaxonName, taxonId)
+  {
+    keys: [OSKey, 't'],
+    handler() {
+      switchToTask(RouteNames.NewTaxonName)
     }
   },
-
-  methods: {
-    switchNewTaxonName() {
-      window.open(
-        `/tasks/nomenclature/new_taxon_name${
-          this.taxon ? `?taxon_name_id=${this.taxon.id}` : ''
-        }`,
-        '_self'
-      )
-    },
-
-    switchBrowseNomenclature() {
-      window.open(
-        `/tasks/nomenclature/browse${
-          this.taxon ? `?taxon_name_id=${this.taxon.id}` : ''
-        }`,
-        '_self'
-      )
-    },
-
-    switchTypeMaterial() {
-      window.open(
-        `/tasks/type_material/edit_type_material${
-          this.taxon ? `?taxon_name_id=${this.taxon.id}` : ''
-        }`,
-        '_self'
-      )
-    },
-
-    switchBrowseOtu() {
-      window.open(
-        `/tasks/otus/browse${
-          this.taxon ? `?taxon_name_id=${this.taxon.id}` : ''
-        }`,
-        '_self'
-      )
+  {
+    keys: [OSKey, 'o'],
+    handler() {
+      switchToTask(RouteNames.BrowseOtu)
+    }
+  },
+  {
+    keys: [OSKey, 'b'],
+    handler() {
+      switchToTask(RouteNames.BrowseNomenclature)
     }
   }
+])
+
+useHotkey(shortcuts.value)
+
+const typeMaterial = computed(() => store.getters[GetterNames.GetTypeMaterial])
+const hasUnsavedChanges = computed(() =>
+  store.getters[GetterNames.GetTypeMaterials].some((item) => !item.isUnsaved)
+)
+
+function switchToTask(url) {
+  const { protonymId } = typeMaterial.value
+  const param = protonymId ? `?taxon_name_id=${protonymId}` : ''
+
+  window.open(`${url}${param}`, '_self')
 }
+
+onBeforeMount(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const taxonId = urlParams.get('taxon_name_id')
+
+  if (/^\d+$/.test(taxonId)) {
+    store.dispatch(ActionNames.SetTypeMaterialTaxonName, taxonId)
+  }
+})
 </script>

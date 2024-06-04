@@ -9,21 +9,27 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- `/api/v1/taxon_names/origin_citation.csv`, taxon names plus their origin citation
+- Reasonable min/max elevations hard validations 
 - Increased scope of string cleaning [#3947]
+- DwcOccurrence filter on all attributes
 
 ### Fixed
 
 - Sometimes URL parameters are set incorrectly in facets.
 - A COLDP export name and taxon remarks bug [#3837]
+- Project dump not working when all params were supplied [#3967]
 
 ### Changed
 
 - Upgraded to Rails 7. [#3819]
 - Changed default URL protocol to HTTPS for TaxonWorks-generated e-mails in production environments.
+- Added bootsnap gem to speed up boot times. `tmp/cache` dir is used as cache by this gem.
 
 [#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
 [#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
 [#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
+[#3967]: https://github.com/SpeciesFileGroup/taxonworks/pull/3967
 
 ## [0.41.1] - 2024-05-10
 
