@@ -3,6 +3,6 @@
 class Container::WellPlate < Container
 
   def self.dimensions
-    { x: 8, y: 12 }
+    { x: 8, y: 12, z: 1}
   end
 end
