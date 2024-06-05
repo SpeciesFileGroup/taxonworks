@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Optimized performance of union, intersect and related filter queries cleaning `select` for intermediate queries
 - Upgraded to Rails 7. [#3819]
 - Changed default URL protocol to HTTPS for TaxonWorks-generated e-mails in production environments.
 
