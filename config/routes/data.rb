@@ -320,6 +320,10 @@ resources :field_occurrences do
   concerns [:data_routes]
 end
 
+resources :gazetteers do
+  concerns [:data_routes]
+end
+
 resources :geographic_areas, only: [:index, :show] do
   collection do
     get 'download'

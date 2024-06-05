@@ -12,7 +12,7 @@
 #
 # @!attribute polygon
 #   @return [RGeo::Geographic::ProjectedPolygonImpl]
-#   CCW orientation is applied 
+#   CCW orientation is applied
 #
 # @!attribute multi_point
 #   @return [RGeo::Geographic::ProjectedMultiPointImpl]
@@ -22,7 +22,7 @@
 #
 # @!attribute multi_polygon
 #   @return [RGeo::Geographic::ProjectedMultiPolygonImpl]
-#   CCW orientation is applied 
+#   CCW orientation is applied
 #
 # @!attribute type
 #   @return [String]
@@ -99,6 +99,7 @@ class GeographicItem < ApplicationRecord
     has_many :geographic_area_types, through: :geographic_areas
     has_many :parent_geographic_areas, through: :geographic_areas, source: :parent
 
+    has_many :gazetteers, inverse_of: :geographic_item
     has_many :georeferences, inverse_of: :geographic_item
     has_many :georeferences_through_error_geographic_item,
       class_name: 'Georeference', foreign_key: :error_geographic_item_id, inverse_of: :error_geographic_item
@@ -1265,15 +1266,15 @@ class GeographicItem < ApplicationRecord
         case type
         when 'multi_polygon'
           ApplicationRecord.connection.execute(
-            "UPDATE geographic_items set multi_polygon = ST_ForcePolygonCCW(multi_polygon::geometry) 
+            "UPDATE geographic_items set multi_polygon = ST_ForcePolygonCCW(multi_polygon::geometry)
               WHERE id = #{self.id};"
            )
         when 'polygon'
          ApplicationRecord.connection.execute(
-            "UPDATE geographic_items set polygon = ST_ForcePolygonCCW(polygon::geometry) 
+            "UPDATE geographic_items set polygon = ST_ForcePolygonCCW(polygon::geometry)
               WHERE id = #{self.id};"
            )
-        end     
+        end
       end
       true
     end

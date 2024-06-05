@@ -176,6 +176,12 @@ Supporting:
       - biology
       - dna
       - matrix
+  Gazetteer:
+    status: :prototype
+    related_models:
+      - GeographicArea
+      - Georeference
+      - CollectingEvent
   GeneAttribute:
     status: :prototype
     related_models:
