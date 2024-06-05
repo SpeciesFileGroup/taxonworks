@@ -3,21 +3,28 @@
     <label class="d-block">Type</label>
     <select v-model="type">
       <option
-        v-for="value in CONTAINER_TYPES"
-        :key="value"
-        :value="value"
+        v-for="item in types"
+        :key="item.type"
+        :value="item"
       >
-        {{ value.split('::')[1] }}
+        {{ item.name }}
       </option>
     </select>
   </div>
 </template>
 
 <script setup>
-import * as CONTAINER_TYPES from '@/constants/containerTypes.js'
+import { ref } from 'vue'
+import { Container } from '@/routes/endpoints'
 
 const type = defineModel({
-  type: String,
+  type: Object,
   default: undefined
+})
+
+const types = ref([])
+
+Container.types().then(({ body }) => {
+  types.value = body
 })
 </script>

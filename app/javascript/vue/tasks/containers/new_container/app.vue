@@ -16,18 +16,23 @@
     <VueEncase
       class="container-viewer"
       v-bind="opts"
-      :container="container"
     />
   </div>
 </template>
 
 <script setup>
 import { VueEncase } from '@sfgrp/encase'
-import { ref, onBeforeMount } from 'vue'
+import { computed, ref, onBeforeMount } from 'vue'
 import { useContainer } from './composables'
 import { URLParamsToJSON } from '@/helpers'
 import ContainerForm from './components/ContainerForm.vue'
 import ContainerItems from './components/ContainerItems.vue'
+
+const DEFAULT_OPTS = {
+  enclose: true,
+  itemSize: 1,
+  padding: 1
+}
 
 defineOptions({
   name: 'NewContainer'
@@ -35,13 +40,18 @@ defineOptions({
 
 const { container, loadContainer, newContainer, saveContainer } = useContainer()
 
-const selectedItems = ref([])
+const opts = computed(() => ({
+  ...DEFAULT_OPTS,
+  container: {
+    type: container.value.type,
+    sizeX: container.value.size.x,
+    sizeY: container.value.size.y,
+    sizeZ: container.value.size.z,
+    containerItems: []
+  }
+}))
 
-const opts = ref({
-  enclose: true,
-  itemSize: 1,
-  padding: 1
-})
+const selectedItems = ref([])
 
 onBeforeMount(() => {
   const { container_id } = URLParamsToJSON(window.location.href)
