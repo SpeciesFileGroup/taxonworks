@@ -149,7 +149,8 @@ module ::Export::ProjectData::Sql
         created_by_id: user.created_by_id || 'NULL',
         updated_by_id: user.updated_by_id || 'NULL',
         is_administrator: user.is_administrator || 'NULL',
-        hub_tab_order: "'{#{conn.escape_string(user.hub_tab_order.join(','))}}'"
+        hub_tab_order: "'{#{conn.escape_string(user.hub_tab_order.join(','))}}'",
+        preferences: %['"#{conn.escape_string(JSON.generate(user.preferences)).gsub('"', '\"')}"']
       }.merge!(
         if members.include?(user.id)
           {
