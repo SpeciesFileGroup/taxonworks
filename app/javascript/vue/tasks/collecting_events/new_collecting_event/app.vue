@@ -1,6 +1,6 @@
 <template>
   <div id="new_collecting_event_task">
-    <spinner-component
+    <VSpinner
       full-screen
       :legend="isSaving ? 'Saving...' : 'Loading...'"
       v-if="isSaving || isLoading"
@@ -30,7 +30,7 @@
         </li>
       </ul>
     </div>
-    <nav-bar v-hotkey="shortcuts">
+    <NavBar>
       <div class="flex-separate full_width">
         <div class="middle margin-small-left">
           <span
@@ -103,7 +103,7 @@
         </ul>
       </div>
       <ConfirmationModal ref="confirmationModal" />
-    </nav-bar>
+    </NavBar>
     <recent-component
       v-if="showRecent"
       @select="loadCollectingEvent($event.id)"
@@ -147,6 +147,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { RouteNames } from '@/routes/routes'
+import useHotKey from 'vue3-hotkey'
 import Autocomplete from '@/components/ui/Autocomplete'
 
 import RecentComponent from './components/Recent'
@@ -164,7 +165,7 @@ import ParseData from './components/parseData'
 import CollectingEventForm from './components/CollectingEventForm'
 import CollectionObjectsTable from './components/CollectionObjectsTable.vue'
 import NavigateComponent from './components/Navigate'
-import SpinnerComponent from '@/components/ui/VSpinner'
+import VSpinner from '@/components/ui/VSpinner'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
 import { ActionNames } from './store/actions/actions'
@@ -176,14 +177,24 @@ import { CollectionObject } from '@/routes/endpoints'
 const MAX_CO_LIMIT = 100
 const store = useStore()
 
-const shortcuts = computed(() => {
-  const keys = {}
+const hotkeys = ref([
+  {
+    keys: [platformKey(), 's'],
+    preventDefault: true,
+    handler() {
+      saveCollectingEvent()
+    }
+  },
+  {
+    keys: [platformKey(), 'n'],
+    preventDefault: true,
+    handler() {
+      reset()
+    }
+  }
+])
 
-  keys[`${platformKey()}+s`] = saveCollectingEvent
-  keys[`${platformKey()}+n`] = reset
-
-  return keys
-})
+useHotKey(hotkeys.value)
 
 const collectingEvent = computed({
   get() {

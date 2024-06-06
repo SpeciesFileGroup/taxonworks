@@ -1,11 +1,15 @@
 <template>
-  <attribution-component
+  <AttributionComponent
     :type="type"
     @attribution="createAttribution"
   />
   <VSpinner
     v-if="isSaving"
     legend="Creating attributions..."
+  />
+  <ConfirmationModal
+    ref="confirmationModalRef"
+    :container-style="{ 'min-width': 'auto', width: '300px' }"
   />
 </template>
 
@@ -14,6 +18,8 @@ import { ref } from 'vue'
 import { Attribution } from '@/routes/endpoints'
 import AttributionComponent from './attributions.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import confirmationOpts from '../../../constants/confirmationOpts.js'
 
 const props = defineProps({
   ids: {
@@ -28,26 +34,31 @@ const props = defineProps({
 })
 
 const isSaving = ref(false)
+const confirmationModalRef = ref(null)
 
-function createAttribution(attribution) {
-  const promises = props.ids.map((id) => {
-    const payload = {
-      ...attribution,
-      attribution_object_type: props.objectType,
-      attribution_object_id: id
-    }
+async function createAttribution(attribution) {
+  const ok = await confirmationModalRef.value.show(confirmationOpts)
 
-    return Attribution.create({ attribution: payload })
-  })
+  if (ok) {
+    const promises = props.ids.map((id) => {
+      const payload = {
+        ...attribution,
+        attribution_object_type: props.objectType,
+        attribution_object_id: id
+      }
 
-  isSaving.value = true
+      return Attribution.create({ attribution: payload })
+    })
 
-  Promise.allSettled(promises).then((_) => {
-    TW.workbench.alert.create(
-      'Attribution item(s) were successfully created',
-      'notice'
-    )
-    isSaving.value = false
-  })
+    isSaving.value = true
+
+    Promise.allSettled(promises).then(() => {
+      TW.workbench.alert.create(
+        'Attribution item(s) were successfully created',
+        'notice'
+      )
+      isSaving.value = false
+    })
+  }
 }
 </script>

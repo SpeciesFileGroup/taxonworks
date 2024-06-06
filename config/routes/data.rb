@@ -811,6 +811,9 @@ resources :taxon_names do
     get :predicted_rank, {format: :json}
 
     patch :batch_update
+
+    get :origin_citation, defaults: {format: :json}
+    post :origin_citation, defaults:  {format: :json}
   end
 
   member do
