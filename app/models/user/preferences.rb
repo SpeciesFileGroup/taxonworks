@@ -20,6 +20,14 @@ class User
       end
     end
 
+    def preferences
+      prefs = read_attribute(:preferences)
+      return prefs unless prefs.empty?
+
+      write_attribute(:preferences, BASE_PREFERENCES)
+      read_attribute(:preferences)
+    end
+
     def fill_preferences
       if preferences.empty?
         reset_preferences
