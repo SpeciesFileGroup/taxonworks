@@ -113,8 +113,7 @@ describe Lib::Vendor::NexusParserHelper, type: :helper do
       g = m.observations_in_grid[:grid]
       expect(g[0][0][0].character_state.label).to eq('1')
       expect(g[0][1][0].character_state.label).to eq('-')
-      # Multi-observations in g are unordered:
-      expect(g[1][1].map{ |o| o.character_state.label }.to_set).to eq(Set['0', '1'])
+      expect(g[1][1].map{ |o| o.character_state.label }).to contain_exactly('0', '1')
       expect(g[2][0][0].character_state.label).to eq('2')
       expect(g[2][1][0].character_state.label).to eq('1')
     end
@@ -124,8 +123,7 @@ describe Lib::Vendor::NexusParserHelper, type: :helper do
       g = m.observations_in_grid[:grid]
       expect(g[0][0][0].character_state.name).to eq('pointy')
       expect(g[0][1][0].character_state.name).to eq('gap')
-      # Multi-observations in g are unordered:
-      expect(g[1][1].map{ |o| o.character_state.name }.to_set).to eq(Set['toey', 'heely'])
+      expect(g[1][1].map{ |o| o.character_state.name }).to contain_exactly('toey', 'heely')
       expect(g[2][0][0].character_state.name).to eq('exact')
       expect(g[2][1][0].character_state.name).to eq('monodromic')
     end
@@ -287,7 +285,7 @@ describe Lib::Vendor::NexusParserHelper, type: :helper do
       )
 
       g = m.observations_in_grid[:grid]
-      expect(g[0][0].map { |o| o.character_state.name }).to eq(['square', 'pointy'])
+      expect(g[0][0].map { |o| o.character_state.name }).to contain_exactly('square', 'pointy')
     end
   end
 

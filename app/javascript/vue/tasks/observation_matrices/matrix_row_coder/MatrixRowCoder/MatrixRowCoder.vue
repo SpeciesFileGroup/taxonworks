@@ -59,7 +59,7 @@
   </div>
 </template>
 
-<style lang="stylus" src="./MatrixRowCoder.styl"></style>
+<style lang="scss" src="./MatrixRowCoder.scss"></style>
 
 <script>
 import { mapState } from 'vuex'

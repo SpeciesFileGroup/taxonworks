@@ -140,19 +140,21 @@ export default {
     addedfile() {
       if (!this.objectValue.id && !this.creatingType) {
         this.creatingType = true
-        this.$store.dispatch(ActionNames[this.actionSave]).then(
-          (data) => {
-            if (!data?.id) return
-            setTimeout(() => {
-              this.$refs.depiction.setOption('autoProcessQueue', true)
-              this.$refs.depiction.processQueue()
+        this.$store
+          .dispatch(ActionNames[this.actionSave], this.objectValue)
+          .then(
+            (data) => {
+              if (!data?.id) return
+              setTimeout(() => {
+                this.$refs.depiction.setOption('autoProcessQueue', true)
+                this.$refs.depiction.processQueue()
+                this.creatingType = false
+              }, 500)
+            },
+            () => {
               this.creatingType = false
-            }, 500)
-          },
-          () => {
-            this.creatingType = false
-          }
-        )
+            }
+          )
       }
     },
 

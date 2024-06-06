@@ -7,14 +7,15 @@
         v-for="(conversion, unit) in units"
         :key="unit"
         :value="unit"
-        :selected="modelValue === unit">
+        :selected="modelValue === unit"
+      >
         {{ unit }}: {{ conversion }}
       </option>
     </select>
   </label>
 </template>
 
-<style lang="stylus" src="./UnitSelector.styl"></style>
+<style lang="scss" src="./UnitSelector.scss"></style>
 
 <script>
 const vModelChangeEventName = 'change'
@@ -35,17 +36,17 @@ export default {
   emits: ['update:modelValue'],
 
   computed: {
-    units () {
+    units() {
       return this.$store.getters[GetterNames.GetUnits]
     },
     unitSelected: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
-  },
+  }
 }
 </script>

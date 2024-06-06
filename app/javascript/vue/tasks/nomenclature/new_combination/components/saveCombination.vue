@@ -1,113 +1,118 @@
 <template>
   <button
     type="button"
-    ref="saveButton"
+    ref="saveButtonRef"
     class="button normal-input button-submit create-new-combination"
-    v-hotkey="shortcuts"
     :disabled="!validateCreate()"
     @click="save()"
   >
     {{ newCombination.hasOwnProperty('id') ? 'Update' : 'Create' }}
   </button>
 </template>
-<script>
+
+<script setup>
+import { ref } from 'vue'
 import { Combination } from '@/routes/endpoints'
 import { EXTEND_PARAMS } from '../constants/extend.js'
 import platformKey from '@/helpers/getPlatformKey'
+import useHotkey from 'vue3-hotkey'
 
-export default {
-  props: {
-    newCombination: {
-      type: Object,
-      required: true
-    }
-  },
+const props = defineProps({
+  newCombination: {
+    type: Object,
+    required: true
+  }
+})
 
-  emits: ['processing', 'save', 'success'],
+const emit = defineEmits(['processing', 'save', 'success'])
 
-  computed: {
-    shortcuts() {
-      const keys = {}
-      keys[`${platformKey()}+s`] = this.save
-
-      return keys
-    }
-  },
-
-  methods: {
-    validateCreate() {
-      return this.newCombination.protonyms.genus
-    },
-
-    setFocus() {
-      if (this.validateCreate()) {
-        this.$refs.saveButton.focus()
-      }
-    },
-
-    save() {
-      if (this.validateCreate()) {
-        this.newCombination.hasOwnProperty('id')
-          ? this.update(this.newCombination.id)
-          : this.create()
-      }
-    },
-
-    createRecordCombination() {
-      const keys = Object.keys(this.newCombination.protonyms)
-      const combination = {
-        verbatim_name: this.newCombination.verbatim_name,
-        origin_citation_attributes:
-          this.newCombination?.origin_citation_attributes
-      }
-
-      keys.forEach((rank) => {
-        if (this.newCombination.protonyms[rank]) {
-          combination[`${rank}_id`] = this.newCombination.protonyms[rank].id
-        }
-      })
-
-      return combination
-    },
-    create() {
-      this.$emit('processing', true)
-      Combination.create({
-        combination: this.createRecordCombination(),
-        ...EXTEND_PARAMS
-      }).then(
-        (response) => {
-          this.$emit('save', response.body)
-          this.$emit('processing', false)
-          this.$emit('success', true)
-          TW.workbench.alert.create(
-            'New combination was successfully created.',
-            'notice'
-          )
-        },
-        (response) => {
-          this.$emit('processing', false)
-          TW.workbench.alert.create(
-            `Something went wrong: ${JSON.stringify(response.body)}`,
-            'error'
-          )
-        }
-      )
-    },
-    update(id) {
-      this.$emit('processing', true)
-      Combination.update(id, {
-        combination: this.createRecordCombination(),
-        ...EXTEND_PARAMS
-      }).then((response) => {
-        this.$emit('save', response.body)
-        this.$emit('processing', false)
-        this.$emit('success', true)
-        TW.workbench.alert.create(
-          'New combination was successfully updated.',
-          'notice'
-        )
-      })
+const saveButtonRef = ref()
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 's'],
+    handler() {
+      save()
     }
   }
+])
+
+useHotkey(shortcuts.value)
+
+function validateCreate() {
+  return props.newCombination.protonyms.genus
 }
+
+function setFocus() {
+  if (validateCreate()) {
+    saveButtonRef.value.focus()
+  }
+}
+
+function save() {
+  if (validateCreate()) {
+    props.newCombination?.id ? update(props.newCombination.id) : create()
+  }
+}
+
+function createRecordCombination() {
+  const keys = Object.keys(props.newCombination.protonyms)
+  const combination = {
+    verbatim_name: props.newCombination.verbatim_name,
+    origin_citation_attributes: props.newCombination?.origin_citation_attributes
+  }
+
+  keys.forEach((rank) => {
+    if (props.newCombination.protonyms[rank]) {
+      combination[`${rank}_id`] = props.newCombination.protonyms[rank].id
+    }
+  })
+
+  return combination
+}
+
+function create() {
+  emit('processing', true)
+
+  Combination.create({
+    combination: createRecordCombination(),
+    ...EXTEND_PARAMS
+  }).then(
+    ({ body }) => {
+      emit('save', body)
+      emit('processing', false)
+      emit('success', true)
+      TW.workbench.alert.create(
+        'New combination was successfully created.',
+        'notice'
+      )
+    },
+    ({ body }) => {
+      emit('processing', false)
+      TW.workbench.alert.create(
+        `Something went wrong: ${JSON.stringify(body)}`,
+        'error'
+      )
+    }
+  )
+}
+
+function update(id) {
+  emit('processing', true)
+  Combination.update(id, {
+    combination: createRecordCombination(),
+    ...EXTEND_PARAMS
+  }).then(({ body }) => {
+    emit('save', body)
+    emit('processing', false)
+    emit('success', true)
+    TW.workbench.alert.create(
+      'New combination was successfully updated.',
+      'notice'
+    )
+  })
+}
+
+defineExpose({
+  setFocus
+})
 </script>

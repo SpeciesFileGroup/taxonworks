@@ -1,0 +1,13 @@
+@import '../../styles/descriptorTitle.scss';
+
+.qualitative-descriptor {
+  position: relative;
+
+  &__descriptor-title {
+    @extend .descriptor-title;
+  }
+
+  &__descriptor-li {
+    height: 34px;
+  }
+}

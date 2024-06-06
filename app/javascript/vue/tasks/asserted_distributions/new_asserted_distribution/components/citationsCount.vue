@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <div class="horizontal-left-content">
     <div
       v-if="citations.length"
       class="citation-count"
@@ -39,7 +39,7 @@
         </display-list>
       </template>
     </modal-component>
-  </span>
+  </div>
 </template>
 
 <script>

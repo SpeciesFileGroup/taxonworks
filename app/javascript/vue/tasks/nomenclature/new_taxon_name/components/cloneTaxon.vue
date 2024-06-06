@@ -4,14 +4,13 @@
       type="button"
       class="button normal-input button-submit"
       :disabled="!taxon.id || isSaving"
-      v-hotkey="shortcuts"
-      @click="showModal = true"
+      @click="() => (isModalVisible = true)"
     >
       Clone
     </button>
-    <modal-component
-      v-show="showModal"
-      @close="showModal = false"
+    <VModal
+      v-show="isModalVisible"
+      @close="isModalVisible = false"
     >
       <template #header>
         <h3>Clone taxon name</h3>
@@ -22,7 +21,7 @@
         </p>
         <ul class="no_bullets">
           <li
-            v-for="field in fieldsToCopy"
+            v-for="field in FIELDS"
             :key="field.value"
           >
             <label>
@@ -44,7 +43,7 @@
           class="full_width"
           v-model="inputValue"
           @keypress.enter.prevent="cloneTaxon()"
-          ref="inputtext"
+          ref="inputTextRef"
           :placeholder="`Write ${checkWord} to continue`"
         />
       </template>
@@ -58,129 +57,118 @@
           Clone
         </button>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
-<script>
+<script setup>
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
-import ModalComponent from '@/components/ui/Modal.vue'
+import { computed, ref, watch, onMounted, nextTick } from 'vue'
+import { useStore } from 'vuex'
+import VModal from '@/components/ui/Modal.vue'
 import platformKey from '@/helpers/getPlatformKey'
+import useHotkey from 'vue3-hotkey'
 
-export default {
-  components: {
-    ModalComponent
+const FIELDS = [
+  {
+    label: 'Name',
+    value: 'name',
+    lock: true,
+    default: true
   },
-  computed: {
-    shortcuts() {
-      const keys = {}
+  {
+    label: 'Parent',
+    value: 'parent_id',
+    lock: true,
+    default: true
+  },
+  {
+    label: 'Rank',
+    value: 'rank_class',
+    lock: true,
+    default: true
+  },
+  {
+    label: 'Author',
+    value: 'verbatim_author',
+    lock: false,
+    default: true
+  },
+  {
+    label: 'Year',
+    value: 'verbatim_year',
+    lock: false,
+    default: true
+  },
+  {
+    label: 'Original source',
+    value: 'origin_citation',
+    lock: false,
+    default: true
+  },
+  {
+    label: 'Persons',
+    value: 'taxon_name_author_roles',
+    lock: false,
+    default: true
+  },
+  {
+    label: 'Original combination relationships',
+    value: 'original_combination',
+    lock: false,
+    default: false
+  },
+  {
+    label: 'Add invalid relationship',
+    value: 'invalid_relationship',
+    lock: false,
+    default: false
+  }
+]
 
-      keys[`${platformKey()}+l`] = () => {
-        this.showModal = this.taxon.id && !this.isSaving
-      }
+const store = useStore()
 
-      return keys
-    },
-    taxon() {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
-    checkInput() {
-      return this.inputValue.toUpperCase() !== this.checkWord
-    },
-    isSaving() {
-      return this.$store.getters[GetterNames.GetSaving]
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 'l'],
+    handler() {
+      taxon.value.id && !isSaving.value
     }
-  },
-  data() {
-    return {
-      showModal: false,
-      inputValue: '',
-      checkWord: 'CLONE',
-      copyValues: [],
-      fieldsToCopy: [
-        {
-          label: 'Name',
-          value: 'name',
-          lock: true,
-          default: true
-        },
-        {
-          label: 'Parent',
-          value: 'parent_id',
-          lock: true,
-          default: true
-        },
-        {
-          label: 'Rank',
-          value: 'rank_class',
-          lock: true,
-          default: true
-        },
-        {
-          label: 'Author',
-          value: 'verbatim_author',
-          lock: false,
-          default: true
-        },
-        {
-          label: 'Year',
-          value: 'verbatim_year',
-          lock: false,
-          default: true
-        },
-        {
-          label: 'Original source',
-          value: 'origin_citation',
-          lock: false,
-          default: true
-        },
-        {
-          label: 'Persons',
-          value: 'taxon_name_author_roles',
-          lock: false,
-          default: true
-        },
-        {
-          label: 'Original combination relationships',
-          value: 'original_combination',
-          lock: false,
-          default: false
-        },
-        {
-          label: 'Add invalid relationship',
-          value: 'invalid_relationship',
-          lock: false,
-          default: false
-        }
-      ]
-    }
-  },
+  }
+])
 
-  watch: {
-    showModal: {
-      handler(newVal) {
-        if (newVal) {
-          this.$nextTick(() => {
-            this.$refs.inputtext.focus()
-          })
-        }
-      }
-    }
-  },
+useHotkey(shortcuts.value)
 
-  mounted() {
-    this.copyValues = this.fieldsToCopy
-      .filter((item) => item.default)
-      .map((item) => item.value)
-  },
+const inputTextRef = ref(null)
+const isModalVisible = ref(false)
+const inputValue = ref('')
+const checkWord = ref('CLONE')
+const copyValues = ref([])
 
-  methods: {
-    cloneTaxon() {
-      if (!this.checkInput) {
-        this.$store.dispatch(ActionNames.CloneTaxon, this.copyValues)
-      }
-    }
+const taxon = computed(() => store.getters[GetterNames.GetTaxon])
+const isSaving = computed(() => store.getters[GetterNames.GetSaving])
+const checkInput = computed(
+  () => inputValue.value.toUpperCase() !== checkWord.value
+)
+
+watch(isModalVisible, (newVal) => {
+  if (newVal) {
+    nextTick(() => {
+      inputTextRef.value.focus()
+    })
+  }
+})
+
+onMounted(() => {
+  copyValues.value = FIELDS.filter((item) => item.default).map(
+    (item) => item.value
+  )
+})
+
+function cloneTaxon() {
+  if (!checkInput.value) {
+    store.dispatch(ActionNames.CloneTaxon, copyValues.value)
   }
 }
 </script>

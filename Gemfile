@@ -12,6 +12,7 @@ gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 9.0'
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.5'
+gem 'bootsnap', require: false
 
 # gem 'json', '>= 2.1.0'
 gem 'rdf', '~> 3.0'

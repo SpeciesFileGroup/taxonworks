@@ -2,7 +2,7 @@
   <div id="vue_type_specimens">
     <VSpinner
       v-if="settings.loading || settings.saving"
-      :full-screen="true"
+      full-screen
       :legend="settings.loading ? 'Loading...' : 'Saving...'"
       :logo-size="{ width: '100px', height: '100px' }"
     />
@@ -20,28 +20,25 @@
       </VBtn>
     </div>
     <div>
-      <div
-        v-hotkey="shortcuts"
-        class="align-start gap-medium"
-      >
+      <div class="align-start gap-medium">
         <div class="full_width">
-          <name-section
+          <NameSection
             class="separate-bottom"
             v-if="!taxon"
           />
-          <metadata-section
+          <MetadataSection
             v-if="taxon"
             class="separate-bottom"
           />
-          <type-material-section class="separate-bottom" />
+          <TypeMaterialSection class="separate-bottom" />
         </div>
         <div
           v-if="taxon"
           class="cright item"
         >
           <div id="cright-panel">
-            <type-box class="separate-bottom" />
-            <soft-validation :validations="softValidations" />
+            <TypeBox class="separate-bottom" />
+            <SoftValidation :validations="softValidations" />
           </div>
         </div>
       </div>
@@ -49,147 +46,138 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import SoftValidation from '@/components/soft_validations/panel.vue'
-import nameSection from './components/nameSection.vue'
-import typeMaterialSection from './components/typeMaterial.vue'
-import metadataSection from './components/metadataSection.vue'
-import typeBox from './components/typeBox.vue'
+import NameSection from './components/nameSection.vue'
+import TypeMaterialSection from './components/typeMaterial.vue'
+import MetadataSection from './components/metadataSection.vue'
+import TypeBox from './components/typeBox.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
 import setParamsId from '@/helpers/setParam.js'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-
+import useHotkey from 'vue3-hotkey'
 import ActionNames from './store/actions/actionNames'
 import { GetterNames } from './store/getters/getters'
 import { RouteNames } from '@/routes/routes'
+import { computed, ref, onMounted, watch } from 'vue'
+import { useStore } from 'vuex'
 
-export default {
-  name: 'NewTypeMaterial',
+defineOptions({
+  name: 'NewTypeMaterial'
+})
 
-  components: {
-    SoftValidation,
-    nameSection,
-    typeBox,
-    typeMaterialSection,
-    metadataSection,
-    VSpinner,
-    VIcon,
-    VBtn
-  },
+const store = useStore()
 
-  computed: {
-    taxonMaterial() {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
+const taxon = computed(() => store.getters[GetterNames.GetTaxon])
+const settings = computed(() => store.getters[GetterNames.GetSettings])
+const softValidations = computed(
+  () => store.getters[GetterNames.GetSoftValidation]
+)
+const isNew = computed(() =>
+  store.getters[GetterNames.GetTypeMaterial].id ? 'Edit' : 'New'
+)
 
-    taxon() {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
-
-    settings() {
-      return this.$store.getters[GetterNames.GetSettings]
-    },
-
-    isNew() {
-      return this.$store.getters[GetterNames.GetTypeMaterial].id
-        ? 'Edit'
-        : 'New'
-    },
-
-    shortcuts() {
-      const keys = {}
-
-      keys[`${platformKey()}+t`] = this.switchTaxonNameTask
-
-      return keys
-    },
-
-    softValidations() {
-      return this.$store.getters[GetterNames.GetSoftValidation]
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 't'],
+    preventDefault: true,
+    handler() {
+      switchToTask(RouteNames.NewTaxonName)
     }
   },
-
-  mounted() {
-    this.loadTaxonTypes()
-    TW.workbench.keyboard.createLegend(
-      `${platformKey()}+t`,
-      'Go to new taxon name task',
-      'New type material'
-    )
-    TW.workbench.keyboard.createLegend(
-      `${platformKey()}+o`,
-      'Go to browse OTU',
-      'New type material'
-    )
-    TW.workbench.keyboard.createLegend(
-      `${platformKey()}+e`,
-      'Go to comprehensive specimen digitization',
-      'New type material'
-    )
-    TW.workbench.keyboard.createLegend(
-      `${platformKey()}+b`,
-      'Go to browse nomenclature',
-      'New type material'
-    )
-  },
-
-  watch: {
-    taxon(newVal) {
-      if (newVal?.id) {
-        setParamsId(RouteNames.TypeMaterial, 'taxon_name_id', newVal.id)
-      }
+  {
+    keys: [platformKey(), 'o'],
+    preventDefault: true,
+    handler() {
+      switchToTask(RouteNames.BrowseOtu)
     }
   },
-
-  methods: {
-    reloadApp() {
-      window.location.href = '/tasks/type_material/edit_type_material'
-    },
-
-    loadTaxonTypes() {
-      const urlParams = new URLSearchParams(window.location.search)
-      const protonymId =
-        urlParams.get('protonym_id') || urlParams.get('taxon_name_id')
-      const typeId = urlParams.get('type_material_id')
-
-      if (/^\d+$/.test(protonymId)) {
-        this.$store
-          .dispatch(ActionNames.LoadTaxonName, protonymId)
-          .then((_) => {
-            this.$store
-              .dispatch(ActionNames.LoadTypeMaterials, protonymId)
-              .then((response) => {
-                if (/^\d+$/.test(typeId)) {
-                  this.loadType(response, typeId)
-                }
-              })
-          })
-      }
-    },
-
-    loadType(list, typeId) {
-      const findType = list.find((type) => type.id === Number(typeId))
-
-      if (findType) {
-        this.$store.dispatch(ActionNames.LoadTypeMaterial, findType)
-      }
-    },
-
-    switchTaxonNameTask() {
-      const urlParams = new URLSearchParams(window.location.search)
-      const taxonId = urlParams.get('taxon_name_id')
-
-      if (taxonId) {
-        window.open(
-          `/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxonId}`,
-          '_self'
-        )
-      } else {
-        window.open('/tasks/nomenclature/new_taxon_name', '_self')
-      }
+  {
+    keys: [platformKey(), 'e'],
+    preventDefault: true,
+    handler() {
+      switchToTask(RouteNames.DigitizeTask)
     }
+  },
+  {
+    keys: [platformKey(), 'b'],
+    preventDefault: true,
+    handler() {
+      switchToTask(RouteNames.BrowseNomenclature)
+    }
+  }
+])
+
+useHotkey(shortcuts.value)
+
+onMounted(() => {
+  const TASK = 'New type material'
+  loadTaxonTypes()
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+t`,
+    'Go to new taxon name task',
+    TASK
+  )
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+o`,
+    'Go to browse OTU',
+    TASK
+  )
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+e`,
+    'Go to comprehensive specimen digitization',
+    TASK
+  )
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+b`,
+    'Go to browse nomenclature',
+    TASK
+  )
+})
+
+watch(taxon, (newVal) => {
+  if (newVal?.id) {
+    setParamsId(RouteNames.TypeMaterial, 'taxon_name_id', newVal.id)
+  }
+})
+
+function reloadApp() {
+  window.location.href = '/tasks/type_material/edit_type_material'
+}
+
+function loadTaxonTypes() {
+  const params = new URLSearchParams(window.location.search)
+  const typeId = params.get('type_material_id')
+  const protonymId = params.get('protonym_id') || params.get('taxon_name_id')
+
+  if (/^\d+$/.test(protonymId)) {
+    store.dispatch(ActionNames.LoadTaxonName, protonymId).then(() => {
+      store
+        .dispatch(ActionNames.LoadTypeMaterials, protonymId)
+        .then((response) => {
+          if (/^\d+$/.test(typeId)) {
+            loadType(response, typeId)
+          }
+        })
+    })
+  }
+}
+
+function loadType(list, typeId) {
+  const findType = list.find((type) => type.id === Number(typeId))
+
+  if (findType) {
+    store.dispatch(ActionNames.LoadTypeMaterial, findType)
+  }
+}
+
+function switchToTask(url) {
+  if (taxon.value.id) {
+    window.open(`${url}?taxon_name_id=${taxon.value.id}`, '_self')
+  } else {
+    window.open(url, '_self')
   }
 }
 </script>
