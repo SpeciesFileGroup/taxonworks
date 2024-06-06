@@ -60,15 +60,21 @@
         Reset
       </button>
     </div>
+    <ConfirmationModal
+      ref="confirmationModalRef"
+      :container-style="{ 'min-width': 'auto', width: '300px' }"
+    />
   </div>
 </template>
 
 <script setup>
+import { computed, ref } from 'vue'
+import { ControlledVocabularyTerm, DataAttribute } from '@/routes/endpoints'
 import SmartSelector from '@/components/ui/SmartSelector'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import { computed, ref } from 'vue'
-import { ControlledVocabularyTerm, DataAttribute } from '@/routes/endpoints'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import confirmationOpts from '../../../constants/confirmationOpts.js'
 
 const props = defineProps({
   parameters: {
@@ -89,6 +95,7 @@ const props = defineProps({
 
 const emit = defineEmits(['create'])
 
+const confirmationModalRef = ref(null)
 const isUpdating = ref(false)
 const predicate = ref()
 const fromValue = ref('')
@@ -102,28 +109,32 @@ function resetForm() {
   predicate.value = undefined
 }
 
-function updateDataAttributes() {
-  const payload = {
-    ...props.parameters,
-    predicate_id: predicate.value.id,
-    value_from: fromValue.value,
-    value_to: toValue.value
-  }
+async function updateDataAttributes() {
+  const ok = await confirmationModalRef.value.show(confirmationOpts)
 
-  isUpdating.value = true
-  DataAttribute.updateBatch(payload)
-    .then(({ body }) => {
-      TW.workbench.alert.create(
-        'Data attribute(s) were successfully updated',
-        'notice'
-      )
-      resetForm()
-      emit('create', body)
-    })
-    .catch(() => {})
-    .finally(() => {
-      isUpdating.value = false
-    })
+  if (ok) {
+    const payload = {
+      ...props.parameters,
+      predicate_id: predicate.value.id,
+      value_from: fromValue.value,
+      value_to: toValue.value
+    }
+
+    isUpdating.value = true
+    DataAttribute.updateBatch(payload)
+      .then(({ body }) => {
+        TW.workbench.alert.create(
+          'Data attribute(s) were successfully updated',
+          'notice'
+        )
+        resetForm()
+        emit('create', body)
+      })
+      .catch(() => {})
+      .finally(() => {
+        isUpdating.value = false
+      })
+  }
 }
 
 const all = ref([])

@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Reasonable min/max elevations hard validations
 - Increased scope of string cleaning [#3947]
 - DwcOccurrence filter on all attributes
+- Confirmation modal on mass annotator [#3969]
 
 ### Fixed
 
@@ -31,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
 [#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
 [#3967]: https://github.com/SpeciesFileGroup/taxonworks/pull/3967
+[#3969]: https://github.com/SpeciesFileGroup/taxonworks/pull/3969
 
 ## [0.41.1] - 2024-05-10
 
