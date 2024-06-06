@@ -123,8 +123,6 @@ class User < ApplicationRecord
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   HUB_FAVORITES = {'data' => [], 'tasks' => []}.freeze
 
-  store :preferences, accessors: [:disable_chime], coder: JSON
-
   attr_accessor :set_new_api_access_token
   attr_accessor :self_created
 
@@ -349,7 +347,7 @@ class User < ApplicationRecord
         a = t < 301 ? time_active + t : (time_active || 0)
 
         if t > 5
-          update_columns(last_seen_at: Time.now, time_active: a) 
+          update_columns(last_seen_at: Time.now, time_active: a)
         end
       end
     else
@@ -358,7 +356,7 @@ class User < ApplicationRecord
 
     update_project_member_last_seen_at
 
-    true 
+    true
   end
 
   # TODO: we still global track at User, this is hit only when that
@@ -373,7 +371,7 @@ class User < ApplicationRecord
           a = t < 301 ? (pm.time_active || 0) + t : (pm.time_active || 0)
 
           if t > 5
-            pm.update_columns(last_seen_at: Time.now, time_active: a) 
+            pm.update_columns(last_seen_at: Time.now, time_active: a)
           end
         end
       else
