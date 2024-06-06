@@ -1,1 +1,2 @@
-export * from './FieldOccurrence'
+export * from './FieldOccurrence.js'
+export * from './Namespace.js'
