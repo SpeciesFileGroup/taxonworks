@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - A COLDP export name and taxon remarks bug [#3837]
 - Project dump not working when all params were supplied [#3967]
 - Radial annotator: Selected object in "Move to" section is not displayed in Depictions slice
+- Project SQL exported failed to export tables with NULL project_id.
 
 ### Changed
 
