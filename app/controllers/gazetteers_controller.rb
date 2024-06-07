@@ -1,9 +1,23 @@
 class GazetteersController < ApplicationController
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
   before_action :set_gazetteer, only: %i[ show edit update destroy ]
 
-  # GET /gazetteers or /gazetteers.json
+  # GET /gazetteers
+  # GET /gazetteers.json
   def index
-    @gazetteers = Gazetteer.all
+    respond_to do |format|
+      format.html do
+        @recent_objects = Gazetteer.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json do
+        @geographic_areas = ::Queries::GeographicArea::Filter.new(params).all
+          .includes(:geographic_items)
+          .page(params[:page])
+          .per(params[:per])
+          # .order('geographic_items.cached_total_area, geographic_area.name')
+      end
+    end
   end
 
   # GET /gazetteers/1 or /gazetteers/1.json
@@ -58,13 +72,12 @@ class GazetteersController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_gazetteer
-      @gazetteer = Gazetteer.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def gazetteer_params
-      params.fetch(:gazetteer, {})
-    end
+  def set_gazetteer
+    @gazetteer = Gazetteer.find(params[:id])
+  end
+
+  def gazetteer_params
+    params.require(:gazetteer).permit(:name, :parent_id, :iso_3166_a2, :iso_3166_a3)
+  end
 end
