@@ -33,6 +33,11 @@ class GazetteersController < ApplicationController
   def edit
   end
 
+  # GET /gazetteers/list
+  def list
+    @gazetteers = Gazetteer.with_project_id(sessions_current_project_id).page(params[:page]).per(params[[:per]])
+  end
+
   # POST /gazetteers or /gazetteers.json
   def create
     @gazetteer = Gazetteer.new(gazetteer_params)

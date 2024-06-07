@@ -1,0 +1,28 @@
+<%= render("/shared/data/all/list/list_header", objects: @gazetteers) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Parent') -%>
+    <%= fancy_th_tag(name: 'Iso 3166 a2') -%>
+    <%= fancy_th_tag(name: 'Iso 3166 a3') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @gazetteers.each do |gaz| %>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
+          <td><%= gaz.name %></td>
+          <td><%= gazetteer_link(gaz.parent) %></td>
+          <td><%= gazetteer_type_tag(gaz.type) %></td>
+          <td><%= gaz.iso_3166_a2 %></td>
+          <td><%= gaz.iso_3166_a3 %></td>
+          <%= fancy_metadata_cells_tag(gaz) -%>
+      <% end %>
+      </tr>
+  <% end %>
+  </tbody>
+</table>
