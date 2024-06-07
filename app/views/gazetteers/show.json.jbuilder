@@ -1,1 +1,1 @@
-json.partial! "gazetteers/gazetteer", gazetteer: @gazetteer
+json.partial! 'attributes', gazetteer: @gazetteer

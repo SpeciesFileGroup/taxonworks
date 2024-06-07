@@ -1,1 +1,3 @@
-json.array! @gazetteers, partial: "gazetteers/gazetteer", as: :gazetteer
+json.array!(@gazeteers) do |gazeteer|
+  json.partial! 'attributes',  gazeteer:
+end
