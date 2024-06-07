@@ -53,7 +53,7 @@ const props = defineProps({
   },
 
   type: {
-    type: String,
+    type: [String, null],
     required: true
   }
 })

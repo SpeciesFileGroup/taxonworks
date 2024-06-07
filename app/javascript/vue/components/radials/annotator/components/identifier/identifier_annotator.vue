@@ -42,6 +42,7 @@ import IdentifierForm from './IdentifierForm.vue'
 import { useSlice } from '@/components/radials/composables'
 import { Identifier } from '@/routes/endpoints'
 import { computed, ref, watch } from 'vue'
+import { IDENTIFIER_UNKNOWN } from '@/constants'
 
 const props = defineProps({
   objectId: {
@@ -63,7 +64,7 @@ const props = defineProps({
 const isLocal = computed(() => listSelected.value === 'local')
 const typeList = ref([])
 const listSelected = ref()
-const typeIdentifier = ref()
+const typeIdentifier = ref(null)
 const { list, addToList, removeFromList } = useSlice({
   radialEmit: props.radialEmit
 })
@@ -85,8 +86,8 @@ Identifier.types().then(({ body }) => {
   typeList.value = body
 })
 
-watch(listSelected, () => {
-  typeIdentifier.value = undefined
+watch(listSelected, (newVal) => {
+  typeIdentifier.value = newVal === 'unknown' ? IDENTIFIER_UNKNOWN : null
 })
 
 function saveIdentifier(params) {
