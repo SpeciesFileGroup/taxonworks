@@ -25,6 +25,13 @@
       </VBtn>
     </template>
   </VModal>
+  <slot :open="open">
+    <span
+      class="link cursor-pointer"
+      @click="open"
+      >{{ label }}</span
+    >
+  </slot>
 </template>
 
 <script setup>
@@ -35,6 +42,13 @@ import FormNamespace from '@/components/Form/FormNamespace/FormNamespace.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+
+defineProps({
+  label: {
+    type: String,
+    default: 'New'
+  }
+})
 
 const emit = defineEmits(['create'])
 

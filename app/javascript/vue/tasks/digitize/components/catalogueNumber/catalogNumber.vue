@@ -31,12 +31,7 @@
               class="margin-small-left"
               v-model="locked.identifier"
             />
-            <span
-              class="margin-small-top margin-small-left link cursor-pointer"
-              @click="() => widgetNamespaceRef.open()"
-            >
-              New
-            </span>
+            <WidgetNamespace @create="setNamespace" />
           </div>
           <template v-if="namespaceSelected">
             <hr />
@@ -100,10 +95,6 @@
         </template>
       </div>
     </div>
-    <WidgetNamespace
-      ref="widgetNamespaceRef"
-      @create="setNamespace"
-    />
   </div>
 </template>
 
@@ -117,7 +108,7 @@ import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import validateComponent from '../shared/validate.vue'
 import validateIdentifier from '../../validations/namespace.js'
 import LockComponent from '@/components/ui/VLock/index.vue'
-import WidgetNamespace from '@/components/ui/Widget/WdigetNamespace.vue'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
@@ -127,7 +118,6 @@ let saveRequest = undefined
 
 const store = useStore()
 const existingIdentifiers = ref([])
-const widgetNamespaceRef = ref()
 
 const coId = computed(() => store.getters[GetterNames.GetCollectionObject]?.id)
 const identifiers = computed(() => store.getters[GetterNames.GetIdentifiers])
