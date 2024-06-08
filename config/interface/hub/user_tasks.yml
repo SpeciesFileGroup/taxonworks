@@ -945,3 +945,13 @@ filter_dwc_occurrences_task:
     - filter
   status: prototype
   description: 'Filter records in the DarwinCore index.'
+new_gazetteer_task:
+  hub: true
+  name: 'New Gazetteer'
+  related:
+  categories:
+    - collecting_event
+    - filters
+    - new
+  status: prototype
+  description: 'Create named shapes for use in your project.'

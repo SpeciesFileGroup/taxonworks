@@ -956,7 +956,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_04_160009) do
 
   create_table "gazetteers", force: :cascade do |t|
     t.integer "geographic_item_id", null: false
+    t.integer "parent_id"
     t.string "name", null: false
+    t.string "iso_3166_a2"
+    t.string "iso_3166_a3"
     t.bigint "project_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -964,7 +967,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_04_160009) do
     t.integer "updated_by_id", null: false
     t.index ["created_by_id"], name: "index_gazetteers_on_created_by_id"
     t.index ["geographic_item_id"], name: "index_gazetteers_on_geographic_item_id"
+    t.index ["iso_3166_a2"], name: "index_gazetteers_on_iso_3166_a2"
+    t.index ["iso_3166_a3"], name: "index_gazetteers_on_iso_3166_a3"
     t.index ["name"], name: "index_gazetteers_on_name"
+    t.index ["parent_id"], name: "index_gazetteers_on_parent_id"
     t.index ["project_id"], name: "index_gazetteers_on_project_id"
     t.index ["updated_by_id"], name: "index_gazetteers_on_updated_by_id"
   end
@@ -1057,10 +1063,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_04_160009) do
     t.integer "updated_by_id", null: false
     t.string "type", null: false
     t.decimal "cached_total_area"
-    t.geography "geography", limit: {:srid=>4326, :type=>"geometry", :has_z=>true, :has_m=>true, :geographic=>true}
     t.index "st_centroid(\nCASE type\n    WHEN 'GeographicItem::MultiPolygon'::text THEN (multi_polygon)::geometry\n    WHEN 'GeographicItem::Point'::text THEN (point)::geometry\n    WHEN 'GeographicItem::LineString'::text THEN (line_string)::geometry\n    WHEN 'GeographicItem::Polygon'::text THEN (polygon)::geometry\n    WHEN 'GeographicItem::MultiLineString'::text THEN (multi_line_string)::geometry\n    WHEN 'GeographicItem::MultiPoint'::text THEN (multi_point)::geometry\n    WHEN 'GeographicItem::GeometryCollection'::text THEN (geometry_collection)::geometry\n    ELSE NULL::geometry\nEND)", name: "idx_centroid", using: :gist
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
-    t.index ["geography"], name: "index_geographic_items_on_geography"
     t.index ["geometry_collection"], name: "geometry_collection_gix", using: :gist
     t.index ["line_string"], name: "line_string_gix", using: :gist
     t.index ["multi_line_string"], name: "multi_line_string_gix", using: :gist
