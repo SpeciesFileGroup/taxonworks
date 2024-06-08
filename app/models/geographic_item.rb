@@ -852,6 +852,8 @@ class GeographicItem < ApplicationRecord
           retval += '::MultiLineString'
         when 'MULTIPOINT'
           retval += '::MultiPoint'
+        when 'GEOGRAPHY'
+          retval += '::Geography'
         else
           retval = nil
         end
@@ -1140,13 +1142,15 @@ class GeographicItem < ApplicationRecord
 
         this_type = nil
 
-        if geom.respond_to?(:geometry_type)
+        if geom.respond_to?(:properties) && geom.properties['data_type'].present?
+          this_type = geom.properties['data_type']
+        elsif geom.respond_to?(:geometry_type)
           this_type = geom.geometry_type.to_s
         elsif geom.respond_to?(:geometry)
           this_type = geom.geometry.geometry_type.to_s
         else
         end
-
+byebug
         self.type = GeographicItem.eval_for_type(this_type) unless geom.nil?
 
         if type.blank?
@@ -1162,6 +1166,7 @@ class GeographicItem < ApplicationRecord
           object = Gis::FACTORY.parse_wkt(s)
         rescue RGeo::Error::InvalidGeometry
           errors.add(:self, 'Shape value is an Invalid Geometry')
+          return
         end
 
         write_attribute(this_type.underscore.to_sym, object)

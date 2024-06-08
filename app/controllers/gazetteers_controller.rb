@@ -45,7 +45,10 @@ class GazetteersController < ApplicationController
     respond_to do |format|
       if @gazetteer.save
         format.html { redirect_to gazetteer_url(@gazetteer), notice: "Gazetteer was successfully created." }
-        format.json { render :show, status: :created, location: @gazetteer }
+        format.json {
+          render :show, status: :created, location: @gazetteer
+          flash[:notice] = 'Gazetteer created.'
+        }
       else
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @gazetteer.errors, status: :unprocessable_entity }
@@ -83,6 +86,6 @@ class GazetteersController < ApplicationController
   end
 
   def gazetteer_params
-    params.require(:gazetteer).permit(:name, :parent_id, :iso_3166_a2, :iso_3166_a3)
+    params.require(:gazetteer).permit(:name, :parent_id, :iso_3166_a2, :iso_3166_a3, geographic_item_attributes: {})
   end
 end
