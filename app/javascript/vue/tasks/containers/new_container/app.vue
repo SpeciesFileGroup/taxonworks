@@ -5,59 +5,60 @@
   >
     <div>
       <ContainerForm
-        v-model="container"
+        v-model="store.container"
         class="container-form margin-medium-bottom"
-        @new="newContainer"
-        @save="saveContainer"
+        @new="store.newContainer"
+        @save="store.saveContainer"
       />
-      <ContainerItems :container-items="container.containerItems" />
+      <ContainerItems :container-items="store.containerItems" />
     </div>
 
     <VueEncase
       class="container-viewer"
-      v-bind="opts"
+      v-bind="store.encaseOpts"
+      @container-item:right-click="openContainerItemModal"
+    />
+    <ContainerItemModal
+      ref="containerItemModalRef"
+      @add="store.addContainerItem"
     />
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { VueEncase } from '@sfgrp/encase'
-import { computed, ref, onBeforeMount } from 'vue'
-import { useContainer } from './composables'
+import { onBeforeMount } from 'vue'
 import { URLParamsToJSON } from '@/helpers'
+import { useContainerStore } from './store'
 import ContainerForm from './components/ContainerForm.vue'
 import ContainerItems from './components/ContainerItems.vue'
-
-const DEFAULT_OPTS = {
-  enclose: true,
-  itemSize: 1,
-  padding: 1
-}
+import ContainerItemModal from './components/ContainerItem/ContainerItemModal.vue'
+import { makeContainerItem } from './adapters'
 
 defineOptions({
   name: 'NewContainer'
 })
 
-const { container, loadContainer, newContainer, saveContainer } = useContainer()
+const store = useContainerStore()
+const containerItemModalRef = ref()
 
-const opts = computed(() => ({
-  ...DEFAULT_OPTS,
-  container: {
-    type: container.value.type,
-    sizeX: container.value.size.x,
-    sizeY: container.value.size.y,
-    sizeZ: container.value.size.z,
-    containerItems: []
+async function openContainerItemModal({ position }) {
+  const containerItem = store.getContainerItemByPosition(position) || {
+    ...makeContainerItem(),
+    position
   }
-}))
 
-const selectedItems = ref([])
+  await new Promise((resolve) => setTimeout(resolve, 50))
+
+  containerItemModalRef.value.show(containerItem)
+}
 
 onBeforeMount(() => {
   const { container_id } = URLParamsToJSON(window.location.href)
 
   if (container_id) {
-    loadContainer(container_id)
+    store.loadContainer(container_id)
   }
 })
 </script>

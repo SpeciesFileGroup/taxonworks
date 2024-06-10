@@ -9,19 +9,14 @@
         <input
           type="text"
           class="full_width"
-          v-between-numbers="[1, 999]"
           v-model="container.name"
         />
       </div>
-      <ContainerType v-model="type" />
-      <div class="field">
-        <label>Parent</label>
-        <VAutocomplete
-          url="/containers/autocomplete"
-          param="term"
-          @get-item="setParent"
-        />
-      </div>
+      <ContainerType
+        :types="types"
+        v-model="type"
+      />
+      <ContainerParent v-model="container.parent_id" />
       <ContainerSize
         v-model="container.size"
         :disabled="!!type.dimensions"
@@ -48,9 +43,10 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { Container } from '@/routes/endpoints'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
+import ContainerParent from './ContainerParent.vue'
 import ContainerType from './ContainerType.vue'
 import ContainerSize from './ContainerSize.vue'
 
@@ -72,6 +68,12 @@ watch(type, (newVal) => {
     z: 0,
     ...newVal.dimensions
   }
+})
+
+const types = ref([])
+
+Container.types().then(({ body }) => {
+  types.value = body
 })
 
 function setParent(newParent) {

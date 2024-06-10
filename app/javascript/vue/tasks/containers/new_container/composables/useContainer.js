@@ -1,6 +1,6 @@
 import { toRefs, reactive } from 'vue'
 import { Container } from '@/routes/endpoints'
-import { makeContainer } from '../adapters'
+import { makeContainer, makeContainerPayload } from '../adapters'
 
 export function useContainer() {
   const state = reactive({
@@ -24,7 +24,15 @@ export function useContainer() {
     state.container = makeContainer()
   }
 
-  const save = () => {}
+  const save = (data) => {
+    Container.create({
+      container: makeContainerPayload(data)
+    })
+      .then(({ body }) => {
+        state.container = makeContainer(body)
+      })
+      .catch(() => {})
+  }
 
   return {
     loadContainer,

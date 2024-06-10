@@ -10,6 +10,7 @@ export function makeContainer(container = {}) {
       y: container.size_y || 0,
       z: container.size_z || 0
     },
-    containerItems: container.container_items?.map(makeContainerItem) || []
+    containerItems: container.container_items?.map(makeContainerItem) || [],
+    isUnsaved: false
   }
 }

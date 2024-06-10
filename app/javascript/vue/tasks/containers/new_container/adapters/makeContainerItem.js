@@ -1,13 +1,15 @@
-export function makeContainerItem(cItem) {
+export function makeContainerItem(data) {
   return {
-    id: cItem.id,
-    label: cItem.contained_object?.object_label,
-    objectId: cItem.contained_object_id,
-    objectType: cItem.contained_object_type,
+    id: data?.id,
+    label: data?.contained_object?.object_label,
+    objectId: data?.contained_object_id,
+    objectType: data?.contained_object_type,
+    disposition: data?.disposition,
     position: {
-      x: cItem.disposition_x || null,
-      y: cItem.disposition_y || null,
-      z: cItem.disposition_z || null
-    }
+      x: data?.disposition_x || null,
+      y: data?.disposition_y || null,
+      z: data?.disposition_z || null
+    },
+    isUnsaved: false
   }
 }

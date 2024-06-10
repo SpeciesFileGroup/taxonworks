@@ -14,17 +14,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { Container } from '@/routes/endpoints'
+defineProps({
+  types: {
+    type: Array,
+    default: () => []
+  }
+})
 
 const type = defineModel({
   type: Object,
   default: undefined
-})
-
-const types = ref([])
-
-Container.types().then(({ body }) => {
-  types.value = body
 })
 </script>

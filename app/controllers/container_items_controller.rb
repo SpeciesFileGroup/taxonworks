@@ -97,6 +97,9 @@ class ContainerItemsController < ApplicationController
         :container_id,
         :position,
         :parent_id, 
-        :disposition)
+        :disposition,
+        :disposition_x,
+        :disposition_y,
+        :disposition_z)
     end
 end
