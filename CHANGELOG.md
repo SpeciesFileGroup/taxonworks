@@ -21,13 +21,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - A COLDP export name and taxon remarks bug [#3837]
 - Project dump not working when all params were supplied [#3967]
 - Radial annotator: Selected object in "Move to" section is not displayed in Depictions slice
-- Project SQL exported failed to export tables with NULL project_id.
+- Project SQL export failed to export tables with NULL project_id.
 
 ### Changed
 
 - Upgraded to Rails 7. [#3819]
 - Changed default URL protocol to HTTPS for TaxonWorks-generated e-mails in production environments.
 - Added bootsnap gem to speed up boot times. `tmp/cache` dir is used as cache by this gem.
+- Removed `versions_associations` and `shortened_urls` tables from Project SQL export.
 
 [#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
 [#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
