@@ -5,7 +5,7 @@ import {
   BiocurationClassification
 } from '@/routes/endpoints'
 import { defineStore } from 'pinia'
-import { addToArray } from '@/helpers'
+import { addToArray, randomUUID } from '@/helpers'
 
 async function getBiocurationGroupsWithClasses() {
   const { body: list } = await ControlledVocabularyTerm.where({
@@ -33,7 +33,7 @@ async function getBiocurationGroupsWithClasses() {
 function makeBiocurationObject(item) {
   return {
     id: item.id,
-    uuid: crypto.randomUUID(),
+    uuid: randomUUID(),
     biocurationClassId: item.biocuration_class_id
   }
 }
