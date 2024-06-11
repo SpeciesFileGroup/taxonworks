@@ -14,9 +14,13 @@
       </div>
       <ContainerType
         :types="types"
-        v-model="type"
+        v-model="container"
       />
-      <ContainerParent v-model="container.parent_id" />
+      <ContainerParent
+        v-if="validParents"
+        :types="types"
+        v-model="container.parentId"
+      />
       <ContainerSize
         v-model="container.size"
         :disabled="!!type.dimensions"
@@ -42,7 +46,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { Container } from '@/routes/endpoints'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
@@ -56,28 +60,16 @@ const container = defineModel({
 })
 
 const emit = defineEmits(['save', 'new'])
-const parent = ref(null)
 const type = ref({})
-
-watch(type, (newVal) => {
-  container.value.type = newVal.type
-
-  container.value.size = {
-    x: 0,
-    y: 0,
-    z: 0,
-    ...newVal.dimensions
-  }
-})
-
 const types = ref([])
+
+const validParents = computed(() => {
+  const type = types.value.find((item) => item.type === container.value.type)
+
+  return type?.valid_parents
+})
 
 Container.types().then(({ body }) => {
   types.value = body
 })
-
-function setParent(newParent) {
-  parent.value = newParent
-  container.value.parent_id = newParent?.id || null
-}
 </script>

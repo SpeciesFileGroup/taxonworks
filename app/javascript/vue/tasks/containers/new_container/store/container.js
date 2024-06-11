@@ -3,8 +3,10 @@ import { Container, ContainerItem } from '@/routes/endpoints'
 import {
   makeContainer,
   makeContainerPayload,
+  makeContainerItem,
   makeContainerItemPayload
 } from '../adapters'
+import { removeFromArray, addToArray } from '@/helpers'
 
 const DEFAULT_OPTS = {
   enclose: true,
@@ -37,6 +39,13 @@ export const useContainerStore = defineStore('container', {
       }
     },
 
+    hasUnsavedChanges(state) {
+      return (
+        state.containerItems.some((item) => item.isUnsaved) ||
+        state.container.isUnsaved
+      )
+    },
+
     getContainerItemByPosition(state) {
       return (coordinates) =>
         state.containerItems.find(({ position }) =>
@@ -52,6 +61,8 @@ export const useContainerStore = defineStore('container', {
       return Container.find(id)
         .then(({ body }) => {
           this.container = makeContainer(body)
+          this.containerItems =
+            body.container_items?.map(makeContainerItem) || []
         })
         .catch(() => {})
         .finally(() => {
@@ -77,29 +88,37 @@ export const useContainerStore = defineStore('container', {
     },
 
     addContainerItem(item) {
-      const index = this.containerItems.findIndex(({ position }) =>
-        comparePosition(item.position, position)
-      )
+      addToArray(this.containerItems, item, { property: 'uuid' })
+    },
 
-      if (index > -1) {
-        this.containerItems[index] = item
-      } else {
-        this.containerItems.push(item)
+    removeContainerItem(item) {
+      if (item.id) {
+        ContainerItem.destroy(item.id)
       }
+
+      removeFromArray(this.containerItems, item, { property: 'uuid' })
     },
 
     saveContainerItems() {
-      const list = this.containerItems.filter((item) => item.isUnsaved)
+      if (!this.container.id) return
 
-      const promises = list.map((item) =>
-        item.id
-          ? ContainerItem.update(item.id, {
-              container_item: makeContainerItemPayload(item)
-            })
-          : ContainerItem.create({
-              container_item: makeContainerItemPayload(item)
-            })
-      )
+      const list = this.containerItems.filter((item) => item.isUnsaved)
+      const promises = list.map((item) => {
+        const payload = {
+          container_item: makeContainerItemPayload({
+            ...item,
+            containerId: this.container.id
+          })
+        }
+
+        const request = item.id
+          ? ContainerItem.update(item.id, payload)
+          : ContainerItem.create(payload)
+
+        request.catch(() => {})
+
+        return request
+      })
 
       Promise.all(promises)
     },

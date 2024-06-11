@@ -1,5 +1,3 @@
-import { makeContainerItem } from './makeContainerItem'
-
 export function makeContainer(container = {}) {
   return {
     id: container.id,
@@ -10,7 +8,7 @@ export function makeContainer(container = {}) {
       y: container.size_y || 0,
       z: container.size_z || 0
     },
-    containerItems: container.container_items?.map(makeContainerItem) || [],
+    parentId: null,
     isUnsaved: false
   }
 }

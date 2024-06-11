@@ -10,7 +10,7 @@
         @new="store.newContainer"
         @save="store.saveContainer"
       />
-      <ContainerItems :container-items="store.containerItems" />
+      <ContainerItemList :container-items="store.containerItems" />
     </div>
 
     <VueEncase
@@ -20,7 +20,13 @@
     />
     <ContainerItemModal
       ref="containerItemModalRef"
-      @add="store.addContainerItem"
+      @add="
+        (item) => {
+          store.addContainerItem(item)
+          store.saveContainerItems()
+        }
+      "
+      @remove="store.removeContainerItem"
     />
   </div>
 </template>
@@ -31,10 +37,10 @@ import { VueEncase } from '@sfgrp/encase'
 import { onBeforeMount } from 'vue'
 import { URLParamsToJSON } from '@/helpers'
 import { useContainerStore } from './store'
-import ContainerForm from './components/ContainerForm.vue'
-import ContainerItems from './components/ContainerItems.vue'
-import ContainerItemModal from './components/ContainerItem/ContainerItemModal.vue'
 import { makeContainerItem } from './adapters'
+import ContainerForm from './components/ContainerForm.vue'
+import ContainerItemList from './components/ContainerItem/ContainerItemList.vue'
+import ContainerItemModal from './components/ContainerItem/ContainerItemModal.vue'
 
 defineOptions({
   name: 'NewContainer'

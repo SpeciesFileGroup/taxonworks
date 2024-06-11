@@ -6,9 +6,11 @@ const permitParams = {
     contained_object_id: Number,
     contained_object_type: String,
     container_id: Number,
-    position: Number,
     parent_id: Number,
-    disposition: String
+    disposition: String,
+    disposition_x: Number,
+    disposition_y: Number,
+    disposition_z: Number
   }
 }
 

@@ -7,7 +7,6 @@
       placeholder="Search a container..."
       param="term"
       label="label"
-      :disabled="disabled"
       @get-item="(container) => (parentId = container.id)"
     />
     <div
@@ -40,13 +39,6 @@ import { Container } from '@/routes/endpoints'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-
-const props = defineProps({
-  disabled: {
-    type: Boolean,
-    default: false
-  }
-})
 
 const parentId = defineModel({
   type: [Number, null],

@@ -1,11 +1,14 @@
 <template>
   <div class="field">
     <label class="d-block">Type</label>
-    <select v-model="type">
+    <select
+      v-model="container.type"
+      @change="setType"
+    >
       <option
         v-for="item in types"
         :key="item.type"
-        :value="item"
+        :value="item.type"
       >
         {{ item.name }}
       </option>
@@ -14,15 +17,27 @@
 </template>
 
 <script setup>
-defineProps({
+const props = defineProps({
   types: {
     type: Array,
-    default: () => []
+    required: true
   }
 })
-
-const type = defineModel({
+const container = defineModel({
   type: Object,
-  default: undefined
+  required: true
 })
+
+function setType(e) {
+  const type = e.target.value
+  const { dimensions } = props.types.find((item) => item.type === type)
+
+  container.value.type = type
+  container.value.size = {
+    x: 0,
+    y: 0,
+    z: 0,
+    ...dimensions
+  }
+}
 </script>

@@ -8,7 +8,7 @@
       <h3>Container item</h3>
     </template>
     <template #body>
-      <div>
+      <div class="field">
         <p v-if="containerItem.objectId">{{ containerItem.label }}</p>
 
         <VAutocomplete
@@ -20,16 +20,45 @@
           @get-item="setContainedObject"
         />
       </div>
+      <div class="field">
+        <label>Disposition</label>
+        <textarea
+          class="full_width"
+          rows="5"
+          v-model="containerItem.disposition"
+          @change="() => (containerItem.isUnsaved = true)"
+        ></textarea>
+      </div>
     </template>
     <template #footer>
-      <VBtn
-        v-if="containerItem.objectId"
-        :color="containerItem.id ? 'destroy' : 'primary'"
-        medium
-        @click="emit('destroy', containerItem)"
-      >
-        Remove
-      </VBtn>
+      <div class="horizontal-left-content gap-small">
+        <VBtn
+          color="submit"
+          medium
+          :disabled="!containerItem.objectId"
+          @click="
+            () => {
+              emit('add', containerItem)
+              isVisible = false
+            }
+          "
+        >
+          Set
+        </VBtn>
+        <VBtn
+          v-if="containerItem.objectId"
+          :color="containerItem.id ? 'destroy' : 'primary'"
+          medium
+          @click="
+            () => {
+              emit('remove', containerItem)
+              isVisible = false
+            }
+          "
+        >
+          Remove
+        </VBtn>
+      </div>
     </template>
   </VModal>
 </template>
@@ -48,11 +77,11 @@ const TYPES = {
   }
 }
 
-const emit = defineEmits(['add', 'destroy'])
+const emit = defineEmits(['add', 'remove'])
 
 const selectedType = ref(COLLECTION_OBJECT)
 const isVisible = ref(false)
-const containerItem = ref()
+const containerItem = ref(null)
 
 function show(data) {
   isVisible.value = true
@@ -62,12 +91,12 @@ function show(data) {
 }
 
 function setContainedObject({ id, label }) {
-  containerItem.value.objectId = id
-  containerItem.value.objectType = selectedType.value
-  containerItem.value.label = label
-  isVisible.value = false
-
-  emit('add', containerItem.value)
+  Object.assign(containerItem.value, {
+    objectId: id,
+    objectType: selectedType.value,
+    label: label,
+    isUnsaved: true
+  })
 }
 
 defineExpose({

@@ -18,6 +18,12 @@
   box-shadow: none;
 }
 
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 @for $i from 1 through 3 {
   .flex-grow-#{$i} {
     flex-grow: $i;
