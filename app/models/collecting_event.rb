@@ -1021,8 +1021,8 @@ class CollectingEvent < ApplicationRecord
           add_incremented_identifier(to_object: a, incremented_identifier_id:)
         end
 
-        if annotations
-          clone_annotations(self, a, except: [:identifiers])
+        if !annotations.blank? # TODO: boolean param this 
+          clone_annotations(to_object: a, except: [:identifiers])
         end
 
         a.save! # TODO: confirm behaviour is OK in case of comprehensive.
