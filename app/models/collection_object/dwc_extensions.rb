@@ -30,6 +30,8 @@ module CollectionObject::DwcExtensions
       endDayOfYear: :dwc_end_day_of_year,
 
       fieldNumber: :dwc_field_number,
+      eventID: :dwc_event_id,
+
       maximumElevationInMeters: :dwc_maximum_elevation_in_meters,
       minimumElevationInMeters: :dwc_minimum_elevation_in_meters,
       samplingProtocol: :dwc_sampling_protocol,
@@ -140,9 +142,12 @@ module CollectionObject::DwcExtensions
     when :verbatim
       h = collecting_event.dwc_georeference_attributes
 
-      if a = collecting_event&.attribute_updater(:verbatim_latitude)
-        h[:georeferencedBy] = User.find(a).name
-      end
+      # Our interpretation is now that georeferencedBy is the person who "computed" the
+      # values, not transcribed the values.
+      #
+      #     if a = collecting_event&.attribute_updater(:verbatim_latitude)
+      #       h[:georeferencedBy] = User.find(a).name
+      #     end
 
       # verbatim_longitude could technically be different, but...
       h[:georeferencedDate] = collecting_event&.attribute_updated(:verbatim_latitude)
@@ -354,9 +359,17 @@ module CollectionObject::DwcExtensions
     collecting_event&.verbatim_method
   end
 
+  # There is no `otherEvent*ID`, prioritize formalized over verbatim
+  # TODO: Reconcile with eventID https://github.com/SpeciesFileGroup/taxonworks/issues/2852
   def dwc_field_number
     return nil unless collecting_event
-    collecting_event.identifiers.where(type: 'Identifier::Local::TripCode').first&.cached
+    collecting_event.identifiers.where(type: 'Identifier::Local::TripCode').first&.cached || collecting_event.verbatim_trip_identifier
+  end
+
+  # TODO: Reconcile with eventID https://github.com/SpeciesFileGroup/taxonworks/issues/2852
+  def dwc_event_id
+    return nil unless collecting_event
+    collecting_event.identifiers.where(type: 'Identifier::Local::Event').first&.cached
   end
 
   def dwc_verbatim_habitat

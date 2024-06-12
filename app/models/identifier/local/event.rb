@@ -1,8 +1,8 @@
 # The identifier sensu DarwinCore eventID https://dwc.tdwg.org/terms/#dwc:eventID.
 #
-# See also TripCode. 
+# See also TripCode.
 #
-# In TW we assume it differs from TripCode: 
+# In TW we assume it differs from TripCode:
 #  - can be assigned via machine-originating processes (typically not to be the case on TripCode)
 #  - think of it as an accession  (="assigned while taking in the date") code for CollectingEvents
 #

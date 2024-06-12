@@ -9,14 +9,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Model Identifier::Local::Event in part: [#3800]
+- Task - DwcOccurrence status
 - `/api/v1/taxon_names/origin_citation.csv`, taxon names plus their origin citation
 - Reasonable min/max elevations hard validations
 - Increased scope of string cleaning [#3947]
 - DwcOccurrence filter on all attributes
+- DwcOccurrence visible in Project vocabulary
 - Confirmation modal on mass annotator [#3969]
 
 ### Fixed
 
+- DwcIndex failing to update on Georeference and Role related changes
 - Sometimes URL parameters are set incorrectly in facets.
 - A COLDP export name and taxon remarks bug [#3837]
 - Project dump not working when all params were supplied [#3967]
@@ -29,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changed default URL protocol to HTTPS for TaxonWorks-generated e-mails in production environments.
 - Added bootsnap gem to speed up boot times. `tmp/cache` dir is used as cache by this gem.
 
+[#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
 [#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
 [#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
 [#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
