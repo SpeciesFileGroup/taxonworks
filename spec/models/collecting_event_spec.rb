@@ -305,6 +305,13 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       a = collecting_event.clone
       expect(a.georeferences.count).to eq(1)
     end
+
+    specify 'increments identifier' do
+      a = FactoryBot.create(:valid_identifier, identifier_object: collecting_event, identifier: '1')
+      b = collecting_event.clone(incremented_identifier_id: a.id)
+      expect(b.local_identifiers.first.identifier).to eq('2')
+    end
+
   end
 
   context 'roles' do

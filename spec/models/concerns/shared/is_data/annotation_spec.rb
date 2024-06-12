@@ -5,6 +5,38 @@ describe 'Annotation', type: :model do
   let(:test_is_data_annotation_instance) { TestIsDataAnnotation.new }
   let(:test_is_data_annotation_subclass_instance) { TestIsDataAnnotationSubclass.new }
 
+  specify '#clone_annotations - citations' do
+    a = FactoryBot.create(:valid_otu)
+    b = FactoryBot.create(:valid_otu)
+
+    c = FactoryBot.create(:valid_citation, citation_object: a)
+
+    a.clone_annotations(to_object: b)
+    expect(b.citations.count).to eq(1)
+  end
+
+  specify '#clone_annotations - except' do
+    a = FactoryBot.create(:valid_otu)
+    b = FactoryBot.create(:valid_otu)
+
+    c = FactoryBot.create(:valid_citation, citation_object: a)
+
+    a.clone_annotations(to_object: b, except: [:citations])
+    expect(b.citations.count).to eq(0)
+  end
+
+  specify '#clone_annotations - only' do
+    a = FactoryBot.create(:valid_otu)
+    b = FactoryBot.create(:valid_otu)
+
+    FactoryBot.create(:valid_citation, citation_object: a)
+    FactoryBot.create(:valid_data_attribute, attribute_subject: a)
+
+    a.clone_annotations(to_object: b, only: [:data_attributes])
+    expect(b.citations.count).to eq(0)
+    expect(b.data_attributes.count).to eq(1)
+  end
+
   ::ANNOTATION_TYPES.each do |t|
     specify "#has_#{t}?" do
       expect(test_is_data_annotation_instance.send("has_#{t}?")).to eq(false)

@@ -8,13 +8,30 @@ module Shared::IsData::Annotation
   # middle is left, top/bottom right
 
   # see config/initializes/constanst/model/annotations for types
-
+  #
   included do
 
     # @return [Boolean]
     # true if model is an "annotator" (e.g. identifiers, tags, notes, data attributes, alternate values, citations), i.e. data that references another data element through STI
     def annotates?
       respond_to?(:annotated_object)
+    end
+
+    # TODO: consider implications of allowing cloning from any objet
+    # to any object
+    # This should be wrapped in a larger transction
+    def clone_annotations(to_object: nil, except: [], only: [])
+      return false if to_object.nil?
+      a = !only.empty? ? only : (::ANNOTATION_TYPES - except)
+      a.each do |t|
+        if respond_to?(t)
+          send(t).each do |o|
+            o.dup
+            to_object.send(t) << o
+          end
+        end
+      end
+      to_object
     end
   end
 

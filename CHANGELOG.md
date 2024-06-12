@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Clone CollectingEvent can include annotations, incremented identifiers
 - Model Identifier::Local::Event in part: [#3800]
 - Task - DwcOccurrence status
 - `/api/v1/taxon_names/origin_citation.csv`, taxon names plus their origin citation

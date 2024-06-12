@@ -993,26 +993,45 @@ class CollectingEvent < ApplicationRecord
   # end
 
   # @return [CollectingEvent]
-  #   the instance may not be valid!
-  def clone(annotations: false, increment_identifier_id: nil)
+  #  the instance may not be valid!
+  def clone(annotations: false, incremented_identifier_id: nil)
     a = dup
-    a.created_by_id = nil
-    a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
 
-    roles.each do |r|
-      a.collector_roles.build(person: r.person, position: r.position)
-    end
+    CollectingEvent.transaction do
+      begin
+        a.created_by_id = nil
 
-    if georeferences.load.any?
-      not_georeference_attributes = %w{created_at updated_at project_id updated_by_id created_by_id collecting_event_id id position}
-      georeferences.each do |g|
-        c = g.dup.attributes.select{|c| !not_georeference_attributes.include?(c) }
-        a.georeferences.build(c)
+        if a.verbatim_label.present?
+          a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
+        end
+
+        roles.each do |r|
+          a.collector_roles.build(person: r.person, position: r.position)
+        end
+
+        if georeferences.load.any?
+          not_georeference_attributes = %w{created_at updated_at project_id updated_by_id created_by_id collecting_event_id id position}
+          georeferences.each do |g|
+            c = g.dup.attributes.select{|c| !not_georeference_attributes.include?(c) }
+            a.georeferences.build(c)
+          end
+        end
+
+        if incremented_identifier_id
+          add_incremented_identifier(to_object: a, incremented_identifier_id:)
+        end
+
+        if annotations
+          clone_annotations(self, a, except: [:identifiers])
+        end
+
+        a.save! # TODO: confirm behaviour is OK in case of comprehensive.
+
+      rescue ActiveRecord::RecordInvalid
+        raise ActiveRecord::Rollback
       end
+      a
     end
-
-    a.save
-    a
   end
 
   # @return [String, nil]

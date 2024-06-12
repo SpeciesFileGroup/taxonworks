@@ -56,6 +56,10 @@ class Identifier::Local < Identifier
     true
   end
 
+  def increment_identifier
+    write_attribute(:identifier, ::Utilities::Strings.increment_contained_integer(identifier))
+  end
+
   protected
 
   def build_cached
