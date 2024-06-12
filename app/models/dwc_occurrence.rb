@@ -277,7 +277,7 @@ class DwcOccurrence < ApplicationRecord
 
       return false
     else # AssertedDistribution
-      dwc_occurrence_object.updated_at > updated_at
+     return  dwc_occurrence_object.updated_at > updated_at
     end
   end
 
@@ -311,13 +311,13 @@ class DwcOccurrence < ApplicationRecord
         taxon_determination_roles: dwc_occurrence_object.taxon_determinations.order(:position)&.first&.updated_at,
         biocuration_classification: dwc_occurrence_object.biocuration_classifications.order(:updated_at).first&.updated_at,
         georeferences: dwc_occurrence_object.georeferences.order(:updated_at).first&.updated_at,
-       
+
         data_attributes: dwc_occurrence_object.data_attributes.order(:updated_at).first&.updated_at,
-        
+
         collection_object_roles: dwc_occurrence_object.roles.order(:updated_at).first&.updated_at,
         collecting_event_data_attributes: dwc_occurrence_object.collecting_event&.data_attributes&.order(:updated_at)&.first&.updated_at,
-        collecting_event_roles: dwc_occurrence_object.collecting_event&.roles.order(:updated_at).first&.updated_at,
-        # citations?
+        collecting_event_roles: dwc_occurrence_object.collecting_event&.roles&.order(:updated_at)&.first&.updated_at
+       # citations?
         # tags?!
       }.select{|k,v| !v.nil?}
 
