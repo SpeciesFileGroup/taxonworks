@@ -63,7 +63,7 @@ Core: # a Section
     related_models:
       - Descriptor
       - ObservationMatrix
-  ControlledVocabularyTerm :
+  ControlledVocabularyTerm:
     status: :stable
     related_models:
       - Tag
@@ -316,7 +316,6 @@ Supporting:
   Repository:
     status: :prototype
     shared: true
-    application_defined: true
     related_models:
       - CollectingObject
   Serial:

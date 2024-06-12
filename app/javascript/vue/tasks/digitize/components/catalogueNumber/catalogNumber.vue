@@ -15,7 +15,7 @@
         <fieldset>
           <legend>Namespace</legend>
           <div class="horizontal-left-content align-start separate-bottom">
-            <smart-selector
+            <SmartSelector
               class="full_width"
               ref="smartSelector"
               model="namespaces"
@@ -31,11 +31,7 @@
               class="margin-small-left"
               v-model="locked.identifier"
             />
-            <a
-              class="margin-small-top margin-small-left"
-              href="/namespaces/new"
-              >New</a
-            >
+            <WidgetNamespace @create="setNamespace" />
           </div>
           <template v-if="namespaceSelected">
             <hr />
@@ -112,6 +108,7 @@ import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import validateComponent from '../shared/validate.vue'
 import validateIdentifier from '../../validations/namespace.js'
 import LockComponent from '@/components/ui/VLock/index.vue'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
@@ -210,6 +207,7 @@ function checkIdentifier() {
 }
 
 function setNamespace(namespace) {
+  namespaceSelected.value = namespace
   identifier.value.namespace_id = namespace.id
   checkIdentifier()
 }

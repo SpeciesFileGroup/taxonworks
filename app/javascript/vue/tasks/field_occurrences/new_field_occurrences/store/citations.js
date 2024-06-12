@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { Citation } from '@/routes/endpoints'
-import { addToArray, removeFromArray } from '@/helpers'
+import { addToArray, removeFromArray, randomUUID } from '@/helpers'
 import makeCitation from '@/factory/Citation.js'
 
 export default defineStore('citations', {
@@ -23,7 +23,7 @@ export default defineStore('citations', {
       }).then(({ body }) => {
         this.citations = body.map((c) => ({
           ...c,
-          uuid: crypto.randomUUID(),
+          uuid: randomUUID(),
           label: c.object_tag
         }))
       })
