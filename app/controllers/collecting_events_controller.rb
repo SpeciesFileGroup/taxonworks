@@ -52,7 +52,8 @@ class CollectingEventsController < ApplicationController
   # POST /collecting_events/1/clone.json
   def clone
     @collecting_event = @collecting_event.clone(
-      params.permit(:annotations, :incremented_identifier_id).symbolize_keys
+      annotations: params[:annotations],
+      incremented_identifier_id: params[:incremented_identifier_id]
     )
 
     respond_to do |format|
