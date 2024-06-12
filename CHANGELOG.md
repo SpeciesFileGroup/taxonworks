@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- POST `/annotations/move?from_global_id=<>&to_global_id=<>&only[]=&except[]=`
 - Clone CollectingEvent can include annotations, incremented identifiers
 - Model Identifier::Local::Event in part: [#3800]
 - Task - DwcOccurrence status
