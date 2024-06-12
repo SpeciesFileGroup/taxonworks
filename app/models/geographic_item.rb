@@ -144,6 +144,7 @@ class GeographicItem < ApplicationRecord
           .where(id: geographic_item_scope.pluck(:id))
       end
 
+      # DEPRECATED
       # @return [GeographicItem::ActiveRecord_Relation]
       # @params [Array] array of geographic area ids
       def default_by_geographic_area_ids(geographic_area_ids = [])
@@ -163,6 +164,7 @@ class GeographicItem < ApplicationRecord
         ).first.r
       end
 
+      # DEPRECATED
       # @param [Integer] ids
       # @return [Boolean]
       #   whether or not any GeographicItem passed intersects the anti-meridian
@@ -224,6 +226,7 @@ class GeographicItem < ApplicationRecord
     END as #{choice}"
       end
 
+      # DEPRECATED
       # @param [Integer] geographic_item_id
       # @param [Integer] distance
       # @return [String]
@@ -289,6 +292,7 @@ class GeographicItem < ApplicationRecord
           "where geom_alias_tbl.id = #{geographic_item_id}"
       end
 
+      # DEPRECATED
       # rubocop:disable Metrics/MethodLength
       # @param [String] column_name
       # @param [GeographicItem] geographic_item
@@ -381,6 +385,7 @@ class GeographicItem < ApplicationRecord
           END)"
       end
 
+      # DEPRECATED
       # TODO Does this work? Looks like the first parameter is a
       # geometry, the second is a geography
       # @param [Integer, Array of Integer] geographic_item_ids
@@ -400,6 +405,7 @@ class GeographicItem < ApplicationRecord
           END)"
       end
 
+      # DEPRECATED
       # @param [Interger, Array of Integer] ids
       # @return [Array]
       #   If we detect that some query id has crossed the meridian, then loop through
@@ -546,6 +552,7 @@ class GeographicItem < ApplicationRecord
         where(GeographicItem.containing_where_for_point_sql(rgeo_point))
       end
 
+      # DEPRECATED
       # @return [Scope]
       #   adds an area_in_meters field, with meters
       def with_area
@@ -586,11 +593,13 @@ class GeographicItem < ApplicationRecord
                             ).distinct
       end
 
+      # DEPRECATED
       # @return [Scope] include a 'latitude' column
       def with_latitude
         select(lat_long_sql(:latitude))
       end
 
+      # DEPRECATED
       # @return [Scope] include a 'longitude' column
       def with_longitude
         select(lat_long_sql(:longitude))
@@ -625,6 +634,7 @@ class GeographicItem < ApplicationRecord
         where(within_radius_of_item_sql(geographic_item_id, distance))
       end
 
+      # DEPRECATED
       # @param [String, GeographicItem]
       # @return [Scope]
       #   a SQL fragment for ST_DISJOINT, specifies all geographic_items that have data in column_name
@@ -699,6 +709,7 @@ class GeographicItem < ApplicationRecord
 
       # rubocop:enable Metrics/MethodLength
 
+      # DEPRECATED
       # @param [String] column_name
       # @param [String] geometry of WKT
       # @return [Scope]
@@ -982,6 +993,7 @@ class GeographicItem < ApplicationRecord
       return Gis::FACTORY.parse_wkt(self.st_centroid)
     end
 
+    # DEPRECATED
     # @param [Integer] geographic_item_id
     # @return [Double] distance in meters
     def st_distance(geographic_item_id) # geo_object
@@ -1013,6 +1025,7 @@ class GeographicItem < ApplicationRecord
       ActiveRecord::Base.connection.select_value("SELECT ST_Distance(#{a}, #{b})")
     end
 
+    # DEPRECATED
     alias_method :distance_to, :st_distance
 
     # @param [Integer] geographic_item_id
@@ -1087,12 +1100,14 @@ class GeographicItem < ApplicationRecord
       self.geo_object.intersects?(target_geo_object)
     end
 
+    # DEPRECATED
     # @param [geo_object, Double]
     # @return [Boolean]
     def near(target_geo_object, distance)
       self.geo_object.unsafe_buffer(distance).contains?(target_geo_object)
     end
 
+    # DEPRECATED
     # @param [geo_object, Double]
     # @return [Boolean]
     def far(target_geo_object, distance)
@@ -1117,6 +1132,7 @@ class GeographicItem < ApplicationRecord
           "FROM geographic_items WHERE id=#{id};")['a'])
     end
 
+    # DEPRECATED
     # We don't need to serialize to/from JSON
     def to_geo_json_string
       GeographicItem.connection.select_one(
@@ -1212,6 +1228,7 @@ class GeographicItem < ApplicationRecord
       a
     end
 
+    # DEPRECATED
     # @return [Float, false]
     #    the value in square meters of the interesecting area of this and another GeographicItem
     def intersecting_area(geographic_item_id)
@@ -1276,6 +1293,7 @@ class GeographicItem < ApplicationRecord
       r = ApplicationRecord.connection.execute( "SELECT ST_IsValidReason(  #{GeographicItem::GEOMETRY_SQL.to_sql }) from  geographic_items where geographic_items.id = #{id}").first['st_isvalidreason']
     end
 
+    # DEPRECATED
     # !! Unused. Doesn't check Geometry collection
     def has_polygons?
       ['GeographicItem::MultiPolygon', 'GeographicItem::Polygon'].include?(self.type)
