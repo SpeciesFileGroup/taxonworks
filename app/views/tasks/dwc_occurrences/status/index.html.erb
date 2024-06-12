@@ -1,2 +1,22 @@
+<h1> DwcOccurrence status </h1>
 
-<%= @dwc_occurrences.count %>
+<%= tag.div link_to('Back to filter', filter_dwc_occurrences_task_path(@dwc_occurrences_query.params)) %>
+<%= tag.div(paginate @dwc_occurrences) %>
+
+<br><br>
+
+<table>
+  <tr>
+    <th> Object </th>
+    <th> DwcOccurrence updated at </th>
+    <th> Component w/ time updated prior indexing </th>
+  </tr>
+  <% @dwc_occurrences.find_each do |d| %>
+    <%= tag.tr(
+      [
+       tag.td(object_link(d.dwc_occurrence_object) ),
+       tag.td(d.updated_at),
+       tag.td( is_stale_metadata_tag(d))
+      ].join.html_safe, class: :top_align_text ) %>
+  <% end %>
+</table>

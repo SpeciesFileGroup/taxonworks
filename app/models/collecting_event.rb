@@ -238,8 +238,6 @@ class CollectingEvent < ApplicationRecord
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy, inverse_of: :role_object
   has_many :collectors, -> { order('roles.position ASC') }, through: :collector_roles, source: :person, inverse_of: :collecting_events
 
-  has_many :dwc_occurrences, through: :collection_objects, inverse_of: :collecting_event
-
   # see also app/models/collecting_event/georeference.rb for more has_many
 
   has_many :otus, -> { unscope(:order) }, through: :collection_objects, source: 'otu'
@@ -996,7 +994,7 @@ class CollectingEvent < ApplicationRecord
 
   # @return [CollectingEvent]
   #   the instance may not be valid!
-  def clone
+  def clone(annotations: false, increment_identifier_id: nil)
     a = dup
     a.created_by_id = nil
     a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
