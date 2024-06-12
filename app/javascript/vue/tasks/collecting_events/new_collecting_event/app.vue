@@ -58,36 +58,28 @@
           </div>
         </div>
         <ul class="context-menu no_bullets">
-          <li class="horizontal-right-content">
+          <li class="horizontal-right-content gap-small">
             <span
               v-if="isUnsaved"
-              class="medium-icon margin-small-right"
+              class="medium-icon"
               title="You have unsaved changes."
               data-icon="warning"
             />
             <button
               @click="showRecent = true"
-              class="button normal-input button-default button-size margin-small-right"
+              class="button normal-input button-default button-size"
               type="button"
             >
               Recent
             </button>
             <navigate-component
-              class="margin-small-right"
               :collecting-event="collectingEvent"
               @select="loadCollectingEvent"
             />
-            <button
-              type="button"
-              class="button normal-input button-submit margin-small-right"
-              :disabled="!collectingEvent.id"
-              @click="cloneCE"
-            >
-              Clone
-            </button>
+            <CloneForm :disabled="!collectingEvent.id" />
             <button
               @click="saveCollectingEvent"
-              class="button normal-input button-submit button-size margin-small-right"
+              class="button normal-input button-submit button-size"
               type="button"
             >
               Save
@@ -161,6 +153,7 @@ import PinComponent from '@/components/ui/Button/ButtonPin.vue'
 import RightSection from './components/RightSection'
 import NavBar from '@/components/layout/NavBar'
 import ParseData from './components/parseData'
+import CloneForm from './components/CloneForm.vue'
 
 import CollectingEventForm from './components/CollectingEventForm'
 import CollectionObjectsTable from './components/CollectionObjectsTable.vue'
