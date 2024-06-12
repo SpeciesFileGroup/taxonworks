@@ -51,7 +51,9 @@ class CollectingEventsController < ApplicationController
 
   # POST /collecting_events/1/clone.json
   def clone
-    @collecting_event = @collecting_event.clone(params.permit(:annotations, :incremented_identifier_id))
+    @collecting_event = @collecting_event.clone(
+      params.permit(:annotations, :incremented_identifier_id).symbolize_keys
+    )
 
     respond_to do |format|
       if @collecting_event.persisted?
