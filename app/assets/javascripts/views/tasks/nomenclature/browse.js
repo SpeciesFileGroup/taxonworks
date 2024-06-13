@@ -6,52 +6,6 @@ TW.views.tasks.nomenclature.browse = TW.views.tasks.nomenclature.browse || {}
 
 Object.assign(TW.views.tasks.nomenclature.browse, {
   init: function () {
-    let softValidations
-
-    function fillSoftValidation() {
-      if (!softValidations) {
-        const validationElements = [
-          ...document.querySelectorAll(
-            '[data-icon="attention"][data-global-id]'
-          )
-        ]
-        const groups = {}
-        softValidations = {}
-
-        $('[data-filter=".soft_validation_anchor"]').mx_spinner('show')
-
-        validationElements.forEach((element) => {
-          const gid = decodeURIComponent(element.getAttribute('data-global-id'))
-
-          ;(groups[gid] || (groups[gid] = [])).push(element)
-        })
-
-        const promises = Object.entries(groups).map(([gid, elements]) =>
-          fetch(`/soft_validations/validate?global_id=${gid}`)
-            .then((response) => response.json())
-            .then((response) => {
-              for (const element of elements) {
-                if (response.soft_validations.length) {
-                  const id = element.getAttribute('id')
-
-                  if (!softValidations[id]) {
-                    Object.defineProperty(softValidations, id, {
-                      value: response.soft_validations
-                    })
-                  }
-                } else {
-                  element.remove()
-                }
-              }
-            })
-        )
-
-        Promise.all(promises).then((_) => {
-          $('[data-filter=".soft_validation_anchor"]').mx_spinner('hide')
-        })
-      }
-    }
-
     const taxonId = document
       .querySelector('#browse-nomenclature')
       .getAttribute('data-taxon-id')
@@ -130,40 +84,6 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       e.target.classList.toggle('filter-button-open')
     })
 
-    function createValidationModal(validationList) {
-      const list = validationList
-        .map((item) => '<li class="list">' + item.message + '</li>')
-        .join('')
-      const template = document.createElement('template')
-
-      template.innerHTML = `
-        <div class="modal-mask">
-          <div class="modal-wrapper">
-            <div class="modal-container">
-              <div class="modal-header">
-                <div class="modal-close"></div>
-                <h3>
-                  Validation
-                </h3>
-              </div>
-              <div class="modal-body soft_validation list">
-                  <ul>${list}</ul>
-              </div>
-              <div class="modal-footer">
-              </div>
-            </div>
-          </div>
-        </div>`.trim()
-
-      template.content
-        .querySelector('.modal-close')
-        .addEventListener('click', () => {
-          document.querySelector('.modal-mask').remove()
-        })
-
-      return template.content.firstChild
-    }
-
     function toggleElementState(element, isVisible) {
       if (isVisible) {
         element.classList.add('d-none')
@@ -214,28 +134,12 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 
     validationElements.forEach((element) => {
       element.classList.add('d-none')
-
-      element.addEventListener('click', () => {
-        const id = element.getAttribute('id')
-
-        if (softValidations[id]) {
-          document
-            .querySelector('#browse-nomenclature')
-            .append(createValidationModal(softValidations[id]))
-        }
-      })
     })
 
     document
       .querySelector('#filterBrowse_button')
       .addEventListener('click', () => {
         document.querySelector('#filterBrowse').classList.toggle('active')
-      })
-
-    document
-      .querySelector('#filterBrowse [data-filter=".soft_validation_anchor"]')
-      .addEventListener('click', (_) => {
-        fillSoftValidation()
       })
 
     const filterButtons = [
@@ -247,9 +151,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       '#filterBrowse [data-filter-reset]'
     )
 
-    resetButton.addEventListener('click', (_) => {
-      fillSoftValidation()
-
+    resetButton.addEventListener('click', () => {
       filterButtons.forEach((filterElement) => {
         const elements = [
           ...document.querySelectorAll(
@@ -270,7 +172,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
     })
 
     filterButtons.forEach((element) => {
-      element.addEventListener('click', (_) => {
+      element.addEventListener('click', () => {
         const childElement = element.children[0]
         const isVisible = childElement.getAttribute('data-icon') === 'show'
         const filterSelector =

@@ -36,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changed default URL protocol to HTTPS for TaxonWorks-generated e-mails in production environments.
 - Added bootsnap gem to speed up boot times. `tmp/cache` dir is used as cache by this gem.
 - Removed `versions_associations` and `shortened_urls` tables from Project SQL export.
+- Replace validations modal in Browse nomenclature task [#3974]
 
 [#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
 [#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
@@ -43,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
 [#3967]: https://github.com/SpeciesFileGroup/taxonworks/pull/3967
 [#3969]: https://github.com/SpeciesFileGroup/taxonworks/pull/3969
+[#3974]: https://github.com/SpeciesFileGroup/taxonworks/pull/3974
 
 ## [0.41.1] - 2024-05-10
 
