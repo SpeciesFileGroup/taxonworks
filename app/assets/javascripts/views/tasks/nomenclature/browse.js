@@ -9,26 +9,25 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
     const taxonId = document
       .querySelector('#browse-nomenclature')
       .getAttribute('data-taxon-id')
+    const nomenclatureTaxonElement = document.querySelector(
+      '#browse-nomenclature-taxon-name'
+    )
     const taxonTypeElement = document.querySelector('[data-taxon-type]')
     const taxonStatusElement = document.querySelector('[data-status]')
-    const taxonType =
-      taxonTypeElement && taxonTypeElement.getAttribute('data-taxon-type')
-    const taxonStatus =
-      taxonStatusElement && taxonStatusElement.getAttribute('data-status')
+    const taxonType = taxonTypeElement?.getAttribute('data-taxon-type')
+    const taxonStatus = taxonStatusElement?.getAttribute('data-status')
     const platformKey = navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt'
     const editTaskUrl =
       taxonType === 'Combination'
         ? `/tasks/nomenclature/new_combination?taxon_name_id=${taxonId}`
         : `/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxonId}`
 
-    if (
-      taxonType === 'Invalid' ||
-      taxonType === 'Combination' ||
-      taxonStatus === 'invalid'
-    ) {
-      document
-        .querySelector('#browse-nomenclature-taxon-name')
-        .classList.add('feedback-warning')
+    if (taxonType === 'Invalid' || taxonStatus === 'invalid') {
+      nomenclatureTaxonElement.classList.add('feedback-warning')
+    }
+
+    if (taxonType === 'Combination') {
+      nomenclatureTaxonElement.classList.add('bg-combination')
     }
 
     if (
