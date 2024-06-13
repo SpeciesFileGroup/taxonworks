@@ -163,24 +163,21 @@
               type="checkbox"
             />
           </td>
-          <td>
+          <td v-if="radialObject || radialAnnotator || radialNavigator">
             <div class="horizontal-right-content gap-small">
               <slot
                 name="buttons-left"
                 :item="item"
               />
               <RadialAnnotator
-                v-if="radialAnnotator"
                 :global-id="item.global_id"
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
               <RadialObject
-                v-if="radialObject"
                 :global-id="item.global_id"
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
               <RadialNavigation
-                v-if="radialNavigator"
                 :global-id="item.global_id"
                 :redirect="false"
                 @delete="emit('remove', { item, index })"
