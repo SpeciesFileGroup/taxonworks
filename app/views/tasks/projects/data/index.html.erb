@@ -7,6 +7,9 @@
   <div class="panel content">
     <h3> Export SQL </h3>
     <p><em>Generate a downloadable copy of the database (PostgreSQL dump) with all data referenced in this project. Includes Community data like Sources, People, and Repositories.</em></p>
+
+    <p><em>All exported user passwords are set to</em> 'taxonworks', <em><strong>so DO NOT ALLOW PUBLIC ACCESS TO THE EXPORTED DATABASE</strong></em>.</p>
+
     <p> Restorable with <b>psql -U :username -d :database -f dump.sql</b>. Requires database to be created without tables (<b>rails db:create</b>) </p>
 
     <div>
