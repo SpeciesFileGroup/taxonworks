@@ -1091,7 +1091,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
         context 'distance to others' do
           specify 'slow' do
-            expect(p1.st_distance(p2.id)).to be_within(0.1).of(497835.8972059313)
+            expect(p1.st_distance(p2.id)).to be_within(0.1).of(479988.25399881)
           end
 
           specify 'fast' do

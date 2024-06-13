@@ -194,7 +194,7 @@ class GeographicItem < ApplicationRecord
       #   a SQL select statement that returns the geography for the geographic_item with the specified id
       def select_geography_sql(geographic_item_id)
         ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
-          "SELECT #{GeographicItem::GEOMETRY_SQL.to_sql} from geographic_items where geographic_items.id = ?",
+          "SELECT #{GeographicItem::GEOGRAPHY_SQL} from geographic_items where geographic_items.id = ?",
           geographic_item_id])
       end
 
@@ -983,15 +983,15 @@ class GeographicItem < ApplicationRecord
     end
 
     # @param [Integer] geographic_item_id
-    # @return [Double] distance in meters (slower, more accurate)
+    # @return [Double] distance in meters
     def st_distance(geographic_item_id) # geo_object
       q1 = "ST_Distance((#{GeographicItem.select_geography_sql(id)}), " \
         "(#{GeographicItem.select_geography_sql(geographic_item_id)})) as d"
       _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance((?),(?)) as d',
                                                           GeographicItem.select_geography_sql(self.id),
                                                           GeographicItem.select_geography_sql(geographic_item_id)])
-      deg = GeographicItem.where(id:).pluck(Arel.sql(q1)).first
-      deg * Utilities::Geo::ONE_WEST
+
+      GeographicItem.where(id:).pluck(Arel.sql(q1)).first
     end
 
     # @param [GeographicItem] geographic_item
@@ -1016,7 +1016,7 @@ class GeographicItem < ApplicationRecord
     alias_method :distance_to, :st_distance
 
     # @param [Integer] geographic_item_id
-    # @return [Double] distance in meters (faster, less accurate)
+    # @return [Double] distance in meters
     def st_distance_spheroid(geographic_item_id)
       q1 = "ST_DistanceSpheroid((#{GeographicItem.select_geometry_sql(id)})," \
         "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
