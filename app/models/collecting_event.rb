@@ -1019,7 +1019,7 @@ class CollectingEvent < ApplicationRecord
            end
 
            # c = g.dup.attributes.select{|c| !not_georeference_attributes.include?(c) }
-           a.georeferences << g
+           a.georeferences << i
          end
        end
 
