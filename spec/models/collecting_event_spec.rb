@@ -145,7 +145,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
     specify 'not Valhala' do
       collecting_event.minimum_elevation = 9999
-      collecting_event.maximum_elevation = 11001 
+      collecting_event.maximum_elevation = 11001
 
       expect(collecting_event.valid?).to be_falsey
       expect(collecting_event.errors[:maximum_elevation].present?).to be_truthy
@@ -310,6 +310,31 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       a = FactoryBot.create(:valid_identifier, identifier_object: collecting_event, identifier: '1')
       b = collecting_event.clone(incremented_identifier_id: a.id)
       expect(b.local_identifiers.first.identifier).to eq('2')
+    end
+
+    specify 'does not infinite loop dwc indexing' do
+      collecting_event.collectors << FactoryBot.create(:valid_person)
+      collecting_event.update!(verbatim_label: 'Some text')
+
+      s1 = Specimen.create(collecting_event: collecting_event)
+      s2 = Specimen.create(collecting_event: collecting_event)
+
+      s1.biocuration_classes << FactoryBot.create(:valid_biocuration_class)
+
+      t = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s1)
+
+      t.determiners << FactoryBot.create(:valid_person)
+
+      a = FactoryBot.create(:valid_identifier, identifier_object: collecting_event, identifier: '1')
+
+      FactoryBot.create(:valid_data_attribute, attribute_subject: collecting_event)
+      g = FactoryBot.create(:valid_georeference, collecting_event: collecting_event)
+      g.georeference_authors << FactoryBot.create(:valid_person)
+
+      n = collecting_event.clone(incremented_identifier_id: a.id, annotations: true)
+
+      expect(n.persisted?).to be_truthy
+      expect(n.georeferences.first.georeference_authors.count).to eq(1)
     end
 
   end
