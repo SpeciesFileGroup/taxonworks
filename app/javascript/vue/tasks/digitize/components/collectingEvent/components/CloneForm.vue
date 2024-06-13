@@ -53,8 +53,8 @@
 <script setup>
 import { computed, ref, useAttrs } from 'vue'
 import { useStore } from 'vuex'
-import { ActionNames } from '../store/actions/actions'
-import { GetterNames } from '../store/getters/getters'
+import { ActionNames } from '../../../store/actions/actions'
+import { GetterNames } from '../../../store/getters/getters'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
