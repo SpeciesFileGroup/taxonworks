@@ -1009,19 +1009,19 @@ class CollectingEvent < ApplicationRecord
           a.collector_roles.build(person: r.person, position: r.position)
         end
 
-       if georeferences.load.any?
-         # not_georeference_attributes = %w{created_at updated_at project_id updated_by_id created_by_id collecting_event_id id position}
-         georeferences.each do |g|
-           i = g.dup
+        if georeferences.load.any?
+          # not_georeference_attributes = %w{created_at updated_at project_id updated_by_id created_by_id collecting_event_id id position}
+          georeferences.each do |g|
+            i = g.dup
+          
+            g.georeferencer_roles.each do |r|
+              i.georeferencer_roles.build(person: r.person, position: r.position)
+            end
 
-           g.georeferencer_roles.each do |r|
-             i.georeferencer_roles.build(person: r.person, position: r.position)
-           end
+            a.georeferences << i
 
-           # c = g.dup.attributes.select{|c| !not_georeference_attributes.include?(c) }
-           a.georeferences << i
-         end
-       end
+          end
+        end
 
         if incremented_identifier_id
           add_incremented_identifier(to_object: a, incremented_identifier_id:)

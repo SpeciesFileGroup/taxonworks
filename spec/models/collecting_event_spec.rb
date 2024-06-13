@@ -328,6 +328,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       a = FactoryBot.create(:valid_identifier, identifier_object: collecting_event, identifier: '1')
 
       FactoryBot.create(:valid_data_attribute, attribute_subject: collecting_event)
+
       g = FactoryBot.create(:valid_georeference, collecting_event: collecting_event)
       g.georeference_authors << FactoryBot.create(:valid_person)
 
@@ -335,6 +336,9 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
       expect(n.persisted?).to be_truthy
       expect(n.georeferences.first.georeference_authors.count).to eq(1)
+
+      expect(collecting_event.georeferences.first.georeference_authors.count).to eq(1)
+
     end
 
   end

@@ -244,6 +244,7 @@ class Georeference < ApplicationRecord
     DwcOccurrence
       .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
       .joins('JOIN georeferences g on co.collecting_event_id = g.collecting_event_id')
+      .where(g: {id:})
       .distinct
   end
 
