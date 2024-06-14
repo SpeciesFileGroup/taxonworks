@@ -81,6 +81,15 @@ class DwcOccurrence < ApplicationRecord
     collection_object&.collecting_event
   end
 
+  def otu
+    case dwc_occurrence_object_type
+    when 'AssertedDistribution'
+      dwc_occurrence_object.otu
+    when 'CollectionObject'
+      collection_object.otu
+    end    
+  end
+
   # Delete all stale indecies, where stale = object is missing
   def self.sweep
     %w{CollectionObject AssertedDistribution}.each do |k|
@@ -122,6 +131,7 @@ class DwcOccurrence < ApplicationRecord
 
   # ---
 
+  # TODO: Move to DwcOccurrence filter
   # @return [Scope]
   #   all DwcOccurrences for the Otu
   #   * Includes synonymy (coordinate OTUs).
@@ -329,7 +339,7 @@ class DwcOccurrence < ApplicationRecord
     end
   end
 
-  protected
+    protected
 
   def create_object_uuid
     @occurrence_identifier = Identifier::Global::Uuid::TaxonworksDwcOccurrence.create!(
