@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Encoding unencodable text as Code128 breaks label preview 
 - Identifier between range breaks filter when blank params passed
 - DwcIndex failing to update on Georeference and Role related changes
 - Sometimes URL parameters are set incorrectly in facets.
