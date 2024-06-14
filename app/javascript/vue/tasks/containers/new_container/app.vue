@@ -1,5 +1,6 @@
 <template>
   <h1>New container</h1>
+  <Navbar />
   <div
     class="horizontal-left-content align-start full_width task-container gap-medium"
   >
@@ -7,8 +8,6 @@
       <ContainerForm
         v-model="store.container"
         class="container-form margin-medium-bottom"
-        @new="store.newContainer"
-        @save="store.saveContainer"
       />
       <ContainerItemList :container-items="store.containerItems" />
     </div>
@@ -41,6 +40,7 @@ import { makeContainerItem } from './adapters'
 import ContainerForm from './components/ContainerForm.vue'
 import ContainerItemList from './components/ContainerItem/ContainerItemList.vue'
 import ContainerItemModal from './components/ContainerItem/ContainerItemModal.vue'
+import Navbar from './components/Navbar/Navbar.vue'
 
 defineOptions({
   name: 'NewContainer'

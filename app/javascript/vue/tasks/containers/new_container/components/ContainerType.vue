@@ -3,6 +3,7 @@
     <label class="d-block">Type</label>
     <select
       v-model="container.type"
+      class="sentence-case"
       @change="setType"
     >
       <option

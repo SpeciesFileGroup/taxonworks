@@ -52,6 +52,7 @@ const RouteNames = {
   NewBiologicalAssociationGraph:
     '/tasks/biological_associations/biological_associations_graph',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
+  NewContainer: '/tasks/containers/new_container',
   NewExtract: '/tasks/extracts/new_extract',
   NewLead: '/tasks/leads/new_lead',
   NewNamespace: '/tasks/namespaces/new_namespace',

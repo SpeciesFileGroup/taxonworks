@@ -1,6 +1,7 @@
 export function makeContainer(container = {}) {
   return {
     id: container.id,
+    globalId: container.global_id,
     name: container.name,
     type: container.type,
     size: {
@@ -8,6 +9,7 @@ export function makeContainer(container = {}) {
       y: container.size_y || 0,
       z: container.size_z || 0
     },
+    objectTag: container.object_tag,
     parentId: null,
     isUnsaved: false
   }

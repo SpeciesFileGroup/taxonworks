@@ -25,22 +25,6 @@
         v-model="container.size"
         :disabled="!!type.dimensions"
       />
-      <div class="horizontal-left-content gap-small">
-        <VBtn
-          color="create"
-          medium
-          @click="emit('save')"
-        >
-          {{ container.id ? 'Update' : 'Create' }}
-        </VBtn>
-        <VBtn
-          color="primary"
-          medium
-          @click="emit('new')"
-        >
-          New
-        </VBtn>
-      </div>
     </template>
   </BlockLayout>
 </template>

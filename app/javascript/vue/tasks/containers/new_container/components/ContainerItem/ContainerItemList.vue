@@ -11,11 +11,8 @@
         v-for="item in store.containerItems"
         :key="item.uuid"
       >
-        <td
-          class="container-item-column ellipsis"
-          :title="item.label"
-        >
-          {{ item.label }}
+        <td :title="item.label">
+          <div class="container-item-column ellipsis">{{ item.label }}</div>
         </td>
         <td>
           <div class="horizontal-right-content">

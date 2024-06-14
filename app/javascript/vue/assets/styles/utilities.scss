@@ -24,6 +24,10 @@
   text-overflow: ellipsis;
 }
 
+.sentence-case::first-letter {
+  text-transform: uppercase;
+}
+
 @for $i from 1 through 3 {
   .flex-grow-#{$i} {
     flex-grow: $i;
