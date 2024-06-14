@@ -12,7 +12,8 @@ import {
   TAXON_NAME,
   OBSERVATION,
   LOAN,
-  CONTENT
+  CONTENT,
+  DWC_OCCURRENCE
 } from '@/constants/index.js'
 
 export const QUERY_PARAM = {
@@ -21,6 +22,7 @@ export const QUERY_PARAM = {
   [COLLECTING_EVENT]: 'collecting_event_query',
   [COLLECTION_OBJECT]: 'collection_object_query',
   [DESCRIPTOR]: 'descriptor_query',
+  [DWC_OCCURRENCE]: 'dwc_occurrence_query',
   [EXTRACT]: 'extract_query',
   [IMAGE]: 'image_query',
   [OTU]: 'otu_query',

@@ -1,11 +1,18 @@
 import { createApp } from 'vue'
-import NomenclatureSearch from '@/tasks/nomenclature/browse/components/search'
-import SoftValidation from '@/tasks/nomenclature/browse/components/validations'
+import NomenclatureSearch from '@/tasks/nomenclature/browse/components/search.vue'
+import SoftValidation from '@/tasks/nomenclature/browse/components/validations.vue'
+import ValidationModal from '@/tasks/nomenclature/browse/components/ValidationModal.vue'
 
-function initSearch() {
+function initSearch(el) {
   const app = createApp(NomenclatureSearch)
 
-  app.mount('#vue-browse-nomenclature-search')
+  app.mount(el)
+}
+
+function initValidationModal(el) {
+  const app = createApp(ValidationModal)
+
+  app.mount(el)
 }
 
 function getGlobalIdsFromSelector(selector) {
@@ -47,9 +54,18 @@ document.addEventListener('turbolinks:load', () => {
   const validationElement = document.querySelector(
     '#vue-browse-validation-panel'
   )
+  const validationModalElement = document.querySelector(
+    '#vue-browse-nomenclature-validation-modal'
+  )
+
+  if (validationModalElement) {
+    initValidationModal(validationModalElement)
+  }
+
   if (searchElement) {
     initSearch(searchElement)
   }
+
   if (validationElement) {
     initValidations(validationElement)
   }

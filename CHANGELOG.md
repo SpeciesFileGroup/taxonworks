@@ -9,27 +9,42 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- POST `/annotations/move?from_global_id=<>&to_global_id=<>&only[]=&except[]=`
+- Clone CollectingEvent can include annotations, incremented identifiers
+- Model Identifier::Local::Event in part: [#3800]
+- Task - DwcOccurrence status
 - `/api/v1/taxon_names/origin_citation.csv`, taxon names plus their origin citation
-- Reasonable min/max elevations hard validations 
+- Reasonable min/max elevations hard validations
 - Increased scope of string cleaning [#3947]
 - DwcOccurrence filter on all attributes
+- DwcOccurrence visible in Project vocabulary
+- Confirmation modal on mass annotator [#3969]
 
 ### Fixed
 
+- DwcIndex failing to update on Georeference and Role related changes
 - Sometimes URL parameters are set incorrectly in facets.
 - A COLDP export name and taxon remarks bug [#3837]
 - Project dump not working when all params were supplied [#3967]
+- Radial annotator: Selected object in "Move to" section is not displayed in Depictions slice
+- Project SQL export failed to export tables with NULL project_id.
 
 ### Changed
 
+- Optimized performance of union, intersect and related filter queries cleaning `select` for intermediate queries
 - Upgraded to Rails 7. [#3819]
 - Changed default URL protocol to HTTPS for TaxonWorks-generated e-mails in production environments.
 - Added bootsnap gem to speed up boot times. `tmp/cache` dir is used as cache by this gem.
+- Removed `versions_associations` and `shortened_urls` tables from Project SQL export.
+- Replace validations modal in Browse nomenclature task [#3974]
 
+[#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
 [#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
 [#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
 [#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
 [#3967]: https://github.com/SpeciesFileGroup/taxonworks/pull/3967
+[#3969]: https://github.com/SpeciesFileGroup/taxonworks/pull/3969
+[#3974]: https://github.com/SpeciesFileGroup/taxonworks/pull/3974
 
 ## [0.41.1] - 2024-05-10
 

@@ -17,11 +17,7 @@
           class="margin-small-left"
           v-model="lockButton"
         />
-        <a
-          class="margin-small-top margin-small-left"
-          href="/namespaces/new"
-          >New</a
-        >
+        <WidgetNamespace @create="() => (namespace = item)" />
       </div>
       <template v-if="namespace">
         <div class="middle">
@@ -43,13 +39,15 @@
 import componentExtend from '../mixins/componentExtend'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VLock from '@/components/ui/VLock/index.vue'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 
 export default {
   mixins: [componentExtend],
 
   components: {
     SmartSelector,
-    VLock
+    VLock,
+    WidgetNamespace
   },
 
   props: {

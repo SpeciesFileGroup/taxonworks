@@ -95,7 +95,7 @@ module ::Export::ProjectData::Sql
   def self.dump_table(table, io, project_id)
     cols = get_table_cols(table)
     if cols.include?('"project_id"')
-      where_clause = "WHERE project_id IN (#{project_id}, NULL)"
+      where_clause = "WHERE project_id = #{project_id} OR project_id IS NULL"
     elsif table == 'projects'
       where_clause = "WHERE id = #{project_id}"
     else

@@ -82,6 +82,7 @@ class Georeference < ApplicationRecord
   include Shared::DataAttributes
   include Shared::Confidences # qualitative, not spatial
   include Shared::Maps
+  include Shared::DwcOccurrenceHooks
   include Shared::IsData
 
   include Shared::Maps
@@ -237,6 +238,14 @@ class Georeference < ApplicationRecord
     query = "verbatim_locality #{like ? 'ilike' : '='} '#{likeness}#{string}#{likeness}'"
 
     Georeference.where(collecting_event: CollectingEvent.where(query))
+  end
+
+  def dwc_occurrences
+    DwcOccurrence
+      .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
+      .joins('JOIN georeferences g on co.collecting_event_id = g.collecting_event_id')
+      .where(g: {id:})
+      .distinct
   end
 
   # @return [Hash]

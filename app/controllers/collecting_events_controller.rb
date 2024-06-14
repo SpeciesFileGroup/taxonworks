@@ -51,7 +51,12 @@ class CollectingEventsController < ApplicationController
 
   # POST /collecting_events/1/clone.json
   def clone
-    @collecting_event = @collecting_event.clone
+    @collecting_event = @collecting_event.clone(
+      annotations: params[:annotations],
+      incremented_identifier_id: params[:incremented_identifier_id]
+      
+    )
+
     respond_to do |format|
       if @collecting_event.persisted?
         format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Clone successful, editing new record.' }

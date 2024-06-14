@@ -31,6 +31,7 @@ const RouteNames = {
   FilterCollectionObjects: '/tasks/collection_objects/filter',
   FilterContents: '/tasks/content/filter',
   FilterDescriptors: '/tasks/descriptors/filter',
+  FilterDwcOccurrences: '/tasks/dwc_occurrences/filter',
   FilterExtracts: '/tasks/extracts/filter',
   FilterImages: '/tasks/images/filter',
   FilterLoans: '/tasks/loans/filter',

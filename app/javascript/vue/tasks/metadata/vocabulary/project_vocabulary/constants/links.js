@@ -1,6 +1,7 @@
 import {
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
+  DWC_OCCURRENCE,
   OTU,
   SOURCE,
   TAXON_NAME
@@ -15,6 +16,11 @@ export const TASK = {
 
   [COLLECTION_OBJECT]: {
     url: RouteNames.FilterCollectionObjects,
+    arrayAttributes: []
+  },
+
+  [DWC_OCCURRENCE]: {
+    url: RouteNames.FilterDwcOccurrences,
     arrayAttributes: []
   },
 

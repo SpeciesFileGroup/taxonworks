@@ -88,3 +88,8 @@ export const TASK_FIELD_SYNCHRONIZE = {
   link: '/tasks/data_attributes/field_synchronize',
   queryParam: true
 }
+
+export const TASK_DWC_OCCURRENCE_STATUS = {
+  label: 'DwC Occurrence Status',
+  link: '/tasks/dwc_occurrences/status'
+}

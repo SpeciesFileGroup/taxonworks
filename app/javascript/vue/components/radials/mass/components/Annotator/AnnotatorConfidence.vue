@@ -1,6 +1,6 @@
 <template>
   <div class="confidence_annotator">
-    <smart-selector
+    <SmartSelector
       class="margin-medium-bottom"
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{ 'type[]': 'ConfidenceLevel' }"
@@ -14,6 +14,10 @@
       :custom-list="{ all: allList }"
       @selected="createConfidence"
     />
+    <ConfirmationModal
+      ref="confirmationModalRef"
+      :container-style="{ 'min-width': 'auto', width: '300px' }"
+    />
   </div>
 </template>
 
@@ -21,6 +25,8 @@
 import { ref, onBeforeMount } from 'vue'
 import { ControlledVocabularyTerm, Confidence } from '@/routes/endpoints'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import confirmationOpts from '../../constants/confirmationOpts.js'
 
 const props = defineProps({
   ids: {
@@ -36,6 +42,7 @@ const props = defineProps({
 
 const emit = defineEmits(['create'])
 
+const confirmationModalRef = ref(null)
 const allList = ref([])
 
 onBeforeMount(() => {
@@ -46,26 +53,30 @@ onBeforeMount(() => {
   )
 })
 
-function createConfidence(confidence) {
-  const promises = props.ids.map((id) => {
-    const payload = {
-      confidence_level_id: confidence.id,
-      confidence_object_id: id,
-      confidence_object_type: props.objectType
-    }
+async function createConfidence(confidence) {
+  const ok = await confirmationModalRef.value.show(confirmationOpts)
 
-    return Confidence.create({ confidence: payload })
-  })
+  if (ok) {
+    const promises = props.ids.map((id) => {
+      const payload = {
+        confidence_level_id: confidence.id,
+        confidence_object_id: id,
+        confidence_object_type: props.objectType
+      }
 
-  Promise.all(promises).then((_) => {
-    emit(
-      'create',
-      promises.map((r) => r.body)
-    )
-    TW.workbench.alert.create(
-      'Note item(s) were successfully created',
-      'notice'
-    )
-  })
+      return Confidence.create({ confidence: payload })
+    })
+
+    Promise.all(promises).then(() => {
+      emit(
+        'create',
+        promises.map((r) => r.body)
+      )
+      TW.workbench.alert.create(
+        'Note item(s) were successfully created',
+        'notice'
+      )
+    })
+  }
 }
 </script>
