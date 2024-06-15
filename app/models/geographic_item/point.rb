@@ -1,7 +1,6 @@
 # A geographic point.
 #
 class GeographicItem::Point < GeographicItem
-  SHAPE_COLUMN = :point
   validates_presence_of :point
   validate :check_point_limits
 

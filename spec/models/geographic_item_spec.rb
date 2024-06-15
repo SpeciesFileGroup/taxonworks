@@ -199,14 +199,6 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         end
       end
 
-      context 'subclasses have a SHAPE_COLUMN set' do
-        GeographicItem.descendants.each do |d|
-          specify "for #{d}" do
-            expect(d::SHAPE_COLUMN).to be_truthy
-          end
-        end
-      end
-
       specify '#geo_object_type' do
         expect(geographic_item).to respond_to(:geo_object_type)
       end
@@ -1309,14 +1301,6 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             geographic_item.send("#{t}=", simple_shapes[t])
             expect(geographic_item.valid?).to be_truthy
             expect(geographic_item.type).to eq("GeographicItem::#{t.to_s.camelize}")
-          end
-        end
-      end
-
-      context 'subclasses have a SHAPE_COLUMN set' do
-        GeographicItem.descendants.each do |d|
-          specify "for #{d}" do
-            expect(d::SHAPE_COLUMN).to be_truthy
           end
         end
       end

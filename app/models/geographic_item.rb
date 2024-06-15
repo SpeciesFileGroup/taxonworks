@@ -1066,22 +1066,15 @@ class GeographicItem < ApplicationRecord
       GeographicItem.where(id:).pluck(Arel.sql("ST_NPoints(#{GeographicItem::GEOMETRY_SQL.to_sql}) as npoints")).first
     end
 
-    # @return [Symbol]
-    #   the geo type (i.e. column like :point, :multipolygon).  References the first-found object,
-    # according to the list of DATA_TYPES, or nil
+    # @return [Symbol, nil]
+    #   the specific type of geography: :point, :multipolygon, etc. Returns
+    #   the underlying shape of :geography in the :geography case
     def geo_object_type
-      if self.class.name == 'GeographicItem' # a proxy check for new records
-        geo_type
-      else
-        self.class::SHAPE_COLUMN
-      end
-    end
+      column = data_column
 
-    def type_of_geography
-      return nil unless geo_object_type == :geography
-
-      # TODO: too many versions of "type" ... what should this one be?
-      "GeographicItem::#{geography.geometry_type.type_name}"
+      return column == :geography ?
+        geography.geometry_type.type_name.underscore.to_sym :
+        column
     end
 
     # !!TODO: migrate these to use native column calls
@@ -1089,15 +1082,9 @@ class GeographicItem < ApplicationRecord
     # @return [RGeo instance, nil]
     #  the Rgeo shape (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
     def geo_object
-      begin
-        if r = geo_object_type # rubocop:disable Lint/AssignmentInCondition
-          send(r)
-        else
-          false
-        end
-      rescue RGeo::Error::InvalidGeometry
-        return nil # TODO: we need to render proper error for this!
-      end
+      column = data_column
+
+      return column.nil? ? nil : send(column)
     end
 
     # @param [geo_object]
@@ -1319,27 +1306,23 @@ class GeographicItem < ApplicationRecord
     private
 
     def polygon_column
-      return 'polygon' if polygon.present?
-      return 'geography' if type_of_geography == 'GeographicItem::Polygon'
-
-      nil
+      geo_object_type == :polygon ? data_column : nil
     end
 
     def multi_polygon_column
-      return 'multi_polygon' if multi_polygon.present?
-      return 'geography' if type_of_geography == 'GeographicItem::MultiPolygon'
-
-      nil
+      geo_object_type == :multi_polygon ? data_column : nil
     end
 
     def align_winding
       if orientations.flatten.include?(false)
         if (column = multi_polygon_column)
+          column = column.to_s
           ApplicationRecord.connection.execute(
             "UPDATE geographic_items set #{column} = ST_ForcePolygonCCW(#{column}::geometry)
               WHERE id = #{self.id};"
            )
         elsif (column = polygon_column)
+          column = column.to_s
           ApplicationRecord.connection.execute(
             "UPDATE geographic_items set #{column} = ST_ForcePolygonCCW(#{column}::geometry)
               WHERE id = #{self.id};"
@@ -1412,8 +1395,9 @@ class GeographicItem < ApplicationRecord
 
     # @return [Symbol]
     #   returns the attribute (column name) containing data
-    #   nearly all methods should use #geo_object_type, not geo_type
-    def geo_type
+    #   nearly all methods should use #geo_object_type instead
+    def data_column
+      # This works before and after this item has been saved
       DATA_TYPES.each { |item|
         return item if send(item)
       }
@@ -1423,7 +1407,7 @@ class GeographicItem < ApplicationRecord
     # @return [Boolean, String] false if already set, or type to which it was set
     def set_type_if_geography_present
       if type.blank?
-        column = geo_type
+        column = data_column
         self.type = "GeographicItem::#{column.to_s.camelize}" if column
       end
     end

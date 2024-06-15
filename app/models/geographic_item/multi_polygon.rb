@@ -1,7 +1,6 @@
 # Multi polygon definition...
 #
 class GeographicItem::MultiPolygon < GeographicItem
-  SHAPE_COLUMN = :multi_polygon
   validates_presence_of :multi_polygon
 
   # @return [Array] arrays of points
