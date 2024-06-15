@@ -1077,6 +1077,13 @@ class GeographicItem < ApplicationRecord
       end
     end
 
+    def type_of_geography
+      return nil unless geo_object_type == :geography
+
+      # TODO: too many versions of "type" ... what should this one be?
+      "GeographicItem::#{geography.geometry_type.type_name}"
+    end
+
     # !!TODO: migrate these to use native column calls
 
     # @return [RGeo instance, nil]
@@ -1264,23 +1271,21 @@ class GeographicItem < ApplicationRecord
       r = (r * Utilities::Geo::ONE_WEST_MEAN).to_i
     end
 
-
     # Convention is to store in PostGIS in CCW
     # @return Array [Boolean]
     #   false - cw
-    #   true - ccw (preferred), except cee donuts
+    #   true - ccw (preferred), except see donuts
     def orientations
-      if multi_polygon.present?
+      if (column = multi_polygon_column)
         ApplicationRecord.connection.execute(" \
              SELECT ST_IsPolygonCCW(a.geom) as is_ccw
                 FROM ( SELECT b.id, (ST_Dump(p_geom)).geom AS geom
-                   FROM (SELECT id, multi_polygon::geometry AS p_geom FROM geographic_items where id = #{id}) AS b \
+                   FROM (SELECT id, #{column}::geometry AS p_geom FROM geographic_items where id = #{id}) AS b \
               ) AS a;").collect{|a| a['is_ccw']}
-      elsif polygon.present?
-        ApplicationRecord.connection.execute("SELECT ST_IsPolygonCCW(polygon::geometry) as is_ccw \
-                FROM geographic_items where  id = #{id};").collect{|a| a['is_ccw']}
+      elsif (column = polygon_column)
+        ApplicationRecord.connection.execute("SELECT ST_IsPolygonCCW(#{column}::geometry) as is_ccw \
+          FROM geographic_items where  id = #{id};").collect{|a| a['is_ccw']}
       else
-        # TODO need to handle geography's types here
         []
       end
     end
@@ -1313,19 +1318,30 @@ class GeographicItem < ApplicationRecord
 
     private
 
+    def polygon_column
+      return 'polygon' if polygon.present?
+      return 'geography' if type_of_geography == 'GeographicItem::Polygon'
+
+      nil
+    end
+
+    def multi_polygon_column
+      return 'multi_polygon' if multi_polygon.present?
+      return 'geography' if type_of_geography == 'GeographicItem::MultiPolygon'
+
+      nil
+    end
+
     def align_winding
       if orientations.flatten.include?(false)
-        # TODO type digs through geography, but the sql needs to reference
-        # geography column
-        case type
-        when 'multi_polygon'
+        if (column = multi_polygon_column)
           ApplicationRecord.connection.execute(
-            "UPDATE geographic_items set multi_polygon = ST_ForcePolygonCCW(multi_polygon::geometry)
+            "UPDATE geographic_items set #{column} = ST_ForcePolygonCCW(#{column}::geometry)
               WHERE id = #{self.id};"
            )
-        when 'polygon'
-         ApplicationRecord.connection.execute(
-            "UPDATE geographic_items set polygon = ST_ForcePolygonCCW(polygon::geometry)
+        elsif (column = polygon_column)
+          ApplicationRecord.connection.execute(
+            "UPDATE geographic_items set #{column} = ST_ForcePolygonCCW(#{column}::geometry)
               WHERE id = #{self.id};"
            )
         end
