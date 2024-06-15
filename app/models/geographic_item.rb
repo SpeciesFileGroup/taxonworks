@@ -381,12 +381,11 @@ class GeographicItem < ApplicationRecord
 
       # @param [Integer, Array of Integer] geographic_item_ids
       # @return [String]
+      # Result includes self
       # TODO why does GEOMETRY_SQL.to_sql fail here?
-      # TODO why was geometrycollection not included here? st_coveredby suports
-      # it (as of 3.0)
-      # TODO if old versions of pgis are allowed then do we need to exclude
-      # geometrycollection from the geography case?
-      # TODO what happens here when type /is/ geo collection?
+      # TODO need to exclude geometry collection from the geography case until
+      # required postgis >= 3.0 - excluding means geometry collection shapes
+      # are not considered/never returned
       def containing_where_sql(*geographic_item_ids)
         "ST_CoveredBy(
           #{GeographicItem.geometry_sql2(*geographic_item_ids)},
@@ -397,21 +396,16 @@ class GeographicItem < ApplicationRecord
              WHEN 'GeographicItem::Polygon' THEN polygon::geometry
              WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
              WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
-             WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection::geometry
-             WHEN 'GeographicItem::Geography' THEN geography::geometry
           END)"
       end
 
       # DEPRECATED
-      # TODO Does this work? Looks like the first parameter is a
-      # geometry, the second is a geography
       # @param [Integer, Array of Integer] geographic_item_ids
       # @return [String]
+      # Result doesn't contain self. Much slower than containing_where_sql
       def containing_where_sql_geog(*geographic_item_ids)
-        # TODO Does this work? Looks like the first parameter is a
-        # geometry, the second is a geography
         "ST_CoveredBy(
-          #{GeographicItem.geometry_sql2(*geographic_item_ids)},
+          (#{GeographicItem.geometry_sql2(*geographic_item_ids)})::geography,
            CASE geographic_items.type
              WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geography
              WHEN 'GeographicItem::Point' THEN point::geography
