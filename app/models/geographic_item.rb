@@ -88,8 +88,6 @@ class GeographicItem < ApplicationRecord
     .when('GeographicItem::Geography').then(Arel::Nodes::NamedFunction.new('CAST', [arel_table[:geography].as('geometry')]))
     .freeze
 
-  # TODO Note this is pg, not rails: it doesn't know anything about the
-  # type override accessor for geography.
   GEOGRAPHY_SQL = "CASE geographic_items.type
     WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon
     WHEN 'GeographicItem::Point' THEN point
@@ -135,7 +133,6 @@ class GeographicItem < ApplicationRecord
 
     class << self
 
-      # TODO add geography case?
       def aliased_geographic_sql(name = 'a')
         "CASE #{name}.type \
          WHEN 'GeographicItem::MultiPolygon' THEN #{name}.multi_polygon \
@@ -145,6 +142,7 @@ class GeographicItem < ApplicationRecord
          WHEN 'GeographicItem::MultiLineString' THEN #{name}.multi_line_string \
          WHEN 'GeographicItem::MultiPoint' THEN #{name}.multi_point \
          WHEN 'GeographicItem::GeometryCollection' THEN #{name}.geometry_collection \
+         WHEN 'GeographicItem::Geography' THEN #{name}.geography \
          END"
       end
 
@@ -201,7 +199,6 @@ class GeographicItem < ApplicationRecord
       # @param [Integer, String]
       # @return [String]
       #   a SQL select statement that returns the *geometry* for the geographic_item with the specified id
-      # TODO Same query as select_geography_sql but without sanitize
       def select_geometry_sql(geographic_item_id)
         "SELECT #{GeographicItem::GEOMETRY_SQL.to_sql} from geographic_items where geographic_items.id = #{geographic_item_id}"
       end
@@ -683,15 +680,12 @@ class GeographicItem < ApplicationRecord
         geographic_item_ids.flatten! # in case there is a array of arrays, or multiple objects
         column_name.downcase!
         case column_name
+        when 'geometry_collection'
+          none
         when 'any'
           part = []
           DATA_TYPES.each { |column|
-            # TODO need to check geography column type here
-            # TODO how does empty return on g_c not cause a problem? (is there
-            # currently any way to produce a GeoItem of type g_c? Test entering g_c WKT in georeference)
-            unless column == :geometry_collection
-              part.push(GeographicItem.are_contained_in_item_by_id(column.to_s, geographic_item_ids).to_a)
-            end
+            part.push(GeographicItem.are_contained_in_item_by_id(column.to_s, geographic_item_ids).to_a)
           }
           # TODO: change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten.map(&:id))
@@ -1354,7 +1348,7 @@ class GeographicItem < ApplicationRecord
       prefix = if geographic_item_ids.size > 10
                  'multiple'
                else
-                 geographic_item_ids.join('_') + '_debug.draw.png'
+                 geographic_item_ids.join('_')
                end
 
       n = prefix + '_debug.draw.png'
@@ -1532,9 +1526,8 @@ class GeographicItem < ApplicationRecord
           errors.add(object, 'More than one shape type provided')
         end
       end
-      # TODO should this be false?
-      true
+      false
     end
-    end
+end
 
     #     Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }
