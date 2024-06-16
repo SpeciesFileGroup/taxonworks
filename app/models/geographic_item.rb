@@ -168,7 +168,7 @@ class GeographicItem < ApplicationRecord
 
       # @param [String] wkt
       # @return [Boolean]
-      #   whether or not the wtk intersects with the anti-meridian
+      #   whether or not the wkt intersects with the anti-meridian
       #   !! StrongParams security considerations
       def crosses_anti_meridian?(wkt)
         GeographicItem.find_by_sql(
@@ -266,6 +266,9 @@ class GeographicItem < ApplicationRecord
       # @return [String]
       # !! This is intersecting
       def intersecting_radius_of_wkt_sql(wkt, distance)
+        # TODO the first param is a geography, the second is a geometry - be
+        # explicit about what is intended
+        # I'm also unclear on why the transform from 4326 to 4326?
         "ST_DWithin((#{GeographicItem::GEOGRAPHY_SQL}), ST_Transform( ST_GeomFromText('#{wkt}', " \
           "4326), 4326), #{distance})"
       end
@@ -281,7 +284,8 @@ class GeographicItem < ApplicationRecord
       # @param [String, Integer, String]
       # @return [String]
       #   a SQL fragment for ST_Contains() function, returns
-      #   all geographic items which are contained in the item supplied
+      #   all geographic items which contain the item supplied
+      # TODO issue if target or source column is geometrycollection?
       def containing_sql(target_column_name = nil, geographic_item_id = nil, source_column_name = nil)
         return 'false' if geographic_item_id.nil? || source_column_name.nil? || target_column_name.nil?
         "ST_Contains(#{target_column_name}::geometry, (#{geometry_sql(geographic_item_id, source_column_name)}))"
@@ -290,7 +294,9 @@ class GeographicItem < ApplicationRecord
       # @param [String, Integer, String]
       # @return [String]
       #   a SQL fragment for ST_Contains(), returns
-      #   all geographic_items which contain the supplied geographic_item
+      #   all geographic_items which are contained in the supplied
+      #   geographic_item
+      # TODO issue if target or source column is geometrycollection?
       def reverse_containing_sql(target_column_name = nil, geographic_item_id = nil, source_column_name = nil)
         return 'false' if geographic_item_id.nil? || source_column_name.nil? || target_column_name.nil?
         "ST_Contains((#{geometry_sql(geographic_item_id, source_column_name)}), #{target_column_name}::geometry)"
@@ -298,8 +304,8 @@ class GeographicItem < ApplicationRecord
 
       # @param [Integer, String]
       # @return [String]
-      #   a SQL fragment that represents the geometry of the geographic item specified (which has data in the
-      # source_column_name, i.e. geo_object_type)
+      #   a SQL fragment that returns the specified geometry column of the
+      #   specified geographic item
       def geometry_sql(geographic_item_id = nil, source_column_name = nil)
         return 'false' if geographic_item_id.nil? || source_column_name.nil?
         "select geom_alias_tbl.#{source_column_name}::geometry from geographic_items geom_alias_tbl " \
@@ -342,8 +348,10 @@ class GeographicItem < ApplicationRecord
 
       # @param [Integer, Array of Integer] geographic_item_ids
       # @return [String]
-      #   a select query that returns a single geometry (column name 'single_geometry' for the collection of ids
-      # provided via ST_Collect)
+      #   A select query that returns a single geometry (column name
+      #   'single_geometry') for the collection of ids.
+      # Provided via ST_Collect
+      # TODO explode this in single_geometry_sql
       def st_collect_sql(*geographic_item_ids)
         geographic_item_ids.flatten!
         ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
@@ -357,7 +365,8 @@ class GeographicItem < ApplicationRecord
 
       # @param [Integer, Array of Integer] geographic_item_ids
       # @return [String]
-      #    returns one or more geographic items combined as a single geometry in column 'single'
+      #    returns one or more geographic items combined as a single geometry
+      #    in a paren wrapped column 'single_geometry'
       def single_geometry_sql(*geographic_item_ids)
         a = GeographicItem.st_collect_sql(geographic_item_ids)
         '(SELECT single.single_geometry FROM (' + a + ' ) AS single)'
@@ -365,8 +374,9 @@ class GeographicItem < ApplicationRecord
 
       # @param [Integer, Array of Integer] geographic_item_ids
       # @return [String]
-      #   returns a single geometry "column" (paren wrapped) as "single" for multiple geographic item ids, or the
-      # geometry as 'geometry' for a single id
+      #   returns a single geometry "column" (paren wrapped) as
+      #   "single_geometry" for multiple geographic item ids, or the geometry
+      #   as 'geometry' for a single id
       def geometry_sql2(*geographic_item_ids)
         geographic_item_ids.flatten! # *ALWAYS* reduce the pile to a single level of ids
         if geographic_item_ids.count == 1
@@ -377,12 +387,10 @@ class GeographicItem < ApplicationRecord
       end
 
       # @param [Integer, Array of Integer] geographic_item_ids
-      # @return [String]
-      # Result includes self
+      # @return [String] Those geographic items containing the union of
+      # geographic_item_ids.
       # TODO why does GEOMETRY_SQL.to_sql fail here?
-      # TODO need to exclude geometry collection from the geography case until
-      # required postgis >= 3.0 - excluding means geometry collection shapes
-      # are not considered/never returned
+      # TODO need to handle non-geom_collection geography case here
       def containing_where_sql(*geographic_item_ids)
         "ST_CoveredBy(
           #{GeographicItem.geometry_sql2(*geographic_item_ids)},
@@ -451,8 +459,10 @@ class GeographicItem < ApplicationRecord
       end
 
       # @params [String] well known text
-      # @return [String] the SQL fragment for the specific geometry type, shifted by longitude
-      # Note: this routine is called when it is already known that the A argument crosses anti-meridian
+      # @return [String] the SQL fragment for the specific geometry type,
+      # shifted by longitude
+      # Note: this routine is called when it is already known that the A
+      # argument crosses anti-meridian
       # TODO If wkt coords are in the range 0..360 and GI coords are in the range -180..180 (or vice versa), doesn't this fail? Don't you want all coords in the range 0..360 in this geometry case? Is there any assumption about range of inputs for georefs, e.g.? are they always normalized? See anti-meridian spec?
       def contained_by_wkt_shifted_sql(wkt)
         "ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
@@ -470,7 +480,8 @@ class GeographicItem < ApplicationRecord
 
       # TODO: Remove the hard coded 4326 reference
       # @params [String] wkt
-      # @return [String] SQL fragment limiting geographics items to those in this WKT
+      # @return [String] SQL fragment limiting geographic items to those
+      # contained by this WKT
       def contained_by_wkt_sql(wkt)
         if crosses_anti_meridian?(wkt)
           retval = contained_by_wkt_shifted_sql(wkt)
@@ -540,14 +551,16 @@ class GeographicItem < ApplicationRecord
 
       # @param [Integer, Array of Integer] geographic_item_ids
       # @return [Scope]
-      #    the geographic items containing all of the geographic_item ids; return value never includes geographic_item_ids
+      #    the geographic items containing all of the geographic_item ids;
+      #    return value never includes geographic_item_ids
       def containing(*geographic_item_ids)
         where(GeographicItem.containing_where_sql(geographic_item_ids)).not_ids(*geographic_item_ids)
       end
 
       # @param [Integer, Array of Integer] geographic_item_ids
       # @return [Scope]
-      #    the geographic items contained by the union of these geographic_item ids; return value always includes geographic_item_ids
+      #    the geographic items contained by the union of these
+      #    geographic_item ids; return value always includes geographic_item_ids
       # (works via ST_Contains)
       def contained_by(*geographic_item_ids)
         where(GeographicItem.contained_by_where_sql(geographic_item_ids))
@@ -723,7 +736,6 @@ class GeographicItem < ApplicationRecord
       # which are contained in the WKT
       def are_contained_in_wkt(column_name, geometry)
         column_name.downcase!
-        # column_name = 'point'
         case column_name
         when 'any'
           part = []
@@ -744,14 +756,14 @@ class GeographicItem < ApplicationRecord
           # TODO: change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten)
         else
-          # column = points, geometry = square
           q = "ST_Contains(ST_GeomFromEWKT('srid=4326;#{geometry}'), #{column_name}::geometry)"
           where(q) # .not_including(geographic_items)
         end
       end
 
       # rubocop:disable Metrics/MethodLength
-      #    containing the items the shape of which is contained in the geographic_item[s] supplied.
+      # Returns a scope of all items whose column_name ontains an element of
+      # geographic_items.
       # @param column_name [String] can be any of DATA_TYPES, or 'any' to check against all types, 'any_poly' to check
       # against 'polygon' or 'multi_polygon', or 'any_line' to check against 'line_string' or 'multi_line_string'.
       #  CANNOT be 'geometry_collection'.
@@ -869,21 +881,21 @@ class GeographicItem < ApplicationRecord
         GeographicItem.containing_point(point).order(cached_total_area: :ASC).limit(1).first&.inferred_geographic_name_hierarchy
       end
 
-      # @param [String] type_name ('polygon', 'point', 'line' [, 'circle'])
+      # @param [String] type_name ('polygon', 'point', 'line', etc)
       # @return [String] if type
       def eval_for_type(type_name)
         retval = 'GeographicItem'
         case type_name.upcase
         when 'POLYGON'
           retval += '::Polygon'
-        when 'LINESTRING'
-          retval += '::LineString'
-        when 'POINT'
-          retval += '::Point'
         when 'MULTIPOLYGON'
           retval += '::MultiPolygon'
+        when 'LINESTRING'
+          retval += '::LineString'
         when 'MULTILINESTRING'
           retval += '::MultiLineString'
+        when 'POINT'
+          retval += '::Point'
         when 'MULTIPOINT'
           retval += '::MultiPoint'
         when 'GEOGRAPHY'
@@ -972,8 +984,10 @@ class GeographicItem < ApplicationRecord
     end
 
     # @return [Array of latitude, longitude]
-    #    the lat, lon of the first point in the GeoItem, see subclass for #st_start_point
+    #    the lat, lon of the first point in the GeoItem, see subclass for
+    #    st_start_point
     def start_point
+      # TODO add st_start_point for geography
       o = st_start_point
       [o.y, o.x]
     end
@@ -995,6 +1009,7 @@ class GeographicItem < ApplicationRecord
     #    representing the centroid of this geographic item
     def centroid
       # Gis::FACTORY.point(*center_coords.reverse)
+      # TODO check geography type for point
       return geo_object if type == 'GeographicItem::Point'
       return Gis::FACTORY.parse_wkt(self.st_centroid)
     end
@@ -1051,6 +1066,7 @@ class GeographicItem < ApplicationRecord
     # @return [String]
     #   a WKT POINT representing the centroid of the geographic item
     def st_centroid
+      # TODO why to_param here?
       GeographicItem.where(id: to_param).pluck(Arel.sql("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}))")).first.gsub(/SRID=\d*;/, '')
     end
 
@@ -1060,26 +1076,7 @@ class GeographicItem < ApplicationRecord
       GeographicItem.where(id:).pluck(Arel.sql("ST_NPoints(#{GeographicItem::GEOMETRY_SQL.to_sql}) as npoints")).first
     end
 
-    # @return [Symbol, nil]
-    #   the specific type of geography: :point, :multipolygon, etc. Returns
-    #   the underlying shape of :geography in the :geography case
-    def geo_object_type
-      column = data_column
-
-      return column == :geography ?
-        geography.geometry_type.type_name.underscore.to_sym :
-        column
-    end
-
     # !!TODO: migrate these to use native column calls
-
-    # @return [RGeo instance, nil]
-    #  the Rgeo shape (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
-    def geo_object
-      column = data_column
-
-      return column.nil? ? nil : send(column)
-    end
 
     # @param [geo_object]
     # @return [Boolean]
@@ -1126,6 +1123,7 @@ class GeographicItem < ApplicationRecord
     #   requires the geo_object_type and id.
     #
     def to_geo_json
+      # TODO need to handle geography case here
       JSON.parse(
         GeographicItem.connection.select_one(
           "SELECT ST_AsGeoJSON(#{geo_object_type}::geometry) a " \
@@ -1162,7 +1160,7 @@ class GeographicItem < ApplicationRecord
     #
     #  '{"type":"Point","coordinates":[2.5,4.0]},"properties":{"color":"red"}}'
     #
-    # @return [Boolean, RGeo object]
+    # @return [RGeo object]
     def shape=(value)
       return if value.blank?
 
@@ -1187,7 +1185,7 @@ class GeographicItem < ApplicationRecord
       self.type = GeographicItem.eval_for_type(this_type) unless geom.nil?
 
       if type.blank?
-        errors.add(:base, 'type is not set from shape')
+        errors.add(:base, "unrecognized geometry type '#{this_type}'; note geometry collections are currently not supported")
         return
       end
 
@@ -1297,7 +1295,37 @@ class GeographicItem < ApplicationRecord
       ['GeographicItem::MultiPolygon', 'GeographicItem::Polygon'].include?(self.type)
     end
 
+    # @return [Symbol, nil]
+    #   the specific type of geography: :point, :multipolygon, etc. Returns
+    #   the underlying shape of :geography in the :geography case
+    def geo_object_type
+      column = data_column
+
+      return column == :geography ?
+        geography.geometry_type.type_name.underscore.to_sym :
+        column
+    end
+
+    # @return [RGeo instance, nil]
+    #  the Rgeo shape (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
+    def geo_object
+      column = data_column
+
+      return column.nil? ? nil : send(column)
+    end
+
     private
+
+    # @return [Symbol]
+    #   returns the attribute (column name) containing data
+    #   nearly all methods should use #geo_object_type instead
+    def data_column
+      # This works before and after this item has been saved
+      DATA_TYPES.each { |item|
+        return item if send(item)
+      }
+      nil
+    end
 
     def polygon_column
       geo_object_type == :polygon ? data_column : nil
@@ -1330,7 +1358,7 @@ class GeographicItem < ApplicationRecord
     # to a png
     def self.debug_draw(geographic_item_ids = [])
       return false if geographic_item_ids.empty?
-      # TODO why does this only reference multi_polygon?
+      # TODO support other shapes
       sql = "SELECT ST_AsPNG(
          ST_AsRaster(
             (SELECT ST_Union(multi_polygon::geometry) from geographic_items where id IN (" + geographic_item_ids.join(',') + ")), 1920, 1080
@@ -1387,18 +1415,8 @@ class GeographicItem < ApplicationRecord
       update_column(:cached_total_area, area)
     end
 
-    # @return [Symbol]
-    #   returns the attribute (column name) containing data
-    #   nearly all methods should use #geo_object_type instead
-    def data_column
-      # This works before and after this item has been saved
-      DATA_TYPES.each { |item|
-        return item if send(item)
-      }
-      nil
-    end
-
     # @return [Boolean, String] false if already set, or type to which it was set
+    # TODO rename this - geography is now the name of a column
     def set_type_if_geography_present
       if type.blank?
         column = data_column
