@@ -119,7 +119,7 @@ class GeographicItem < ApplicationRecord
       through: :georeferences_through_error_geographic_item, source: :collecting_event
 
     # TODO: THIS IS NOT GOOD
-    before_validation :set_type_if_geography_present
+    before_validation :set_type_if_shape_column_present
 
     validate :some_data_is_provided
     validates :type, presence: true # not needed
@@ -266,11 +266,7 @@ class GeographicItem < ApplicationRecord
       # @return [String]
       # !! This is intersecting
       def intersecting_radius_of_wkt_sql(wkt, distance)
-        # TODO the first param is a geography, the second is a geometry - be
-        # explicit about what is intended
-        # I'm also unclear on why the transform from 4326 to 4326?
-        "ST_DWithin((#{GeographicItem::GEOGRAPHY_SQL}), ST_Transform( ST_GeomFromText('#{wkt}', " \
-          "4326), 4326), #{distance})"
+        "ST_DWithin((#{GeographicItem::GEOGRAPHY_SQL}), ST_GeomFromText('#{wkt}', 4326)::geography, #{distance})"
       end
 
       # @param [String] wkt
@@ -348,28 +344,19 @@ class GeographicItem < ApplicationRecord
 
       # @param [Integer, Array of Integer] geographic_item_ids
       # @return [String]
-      #   A select query that returns a single geometry (column name
-      #   'single_geometry') for the collection of ids.
-      # Provided via ST_Collect
-      # TODO explode this in single_geometry_sql
-      def st_collect_sql(*geographic_item_ids)
+      #    returns one or more geographic items combined as a single geometry
+      #    in a paren wrapped column 'single_geometry'
+      def single_geometry_sql(*geographic_item_ids)
         geographic_item_ids.flatten!
-        ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
+        q = ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
           "SELECT ST_Collect(f.the_geom) AS single_geometry
      FROM (
         SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL.to_sql})).geom as the_geom
         FROM geographic_items
         WHERE id in (?))
       AS f", geographic_item_ids])
-      end
 
-      # @param [Integer, Array of Integer] geographic_item_ids
-      # @return [String]
-      #    returns one or more geographic items combined as a single geometry
-      #    in a paren wrapped column 'single_geometry'
-      def single_geometry_sql(*geographic_item_ids)
-        a = GeographicItem.st_collect_sql(geographic_item_ids)
-        '(SELECT single.single_geometry FROM (' + a + ' ) AS single)'
+      '(' + q + ')'
       end
 
       # @param [Integer, Array of Integer] geographic_item_ids
@@ -772,12 +759,13 @@ class GeographicItem < ApplicationRecord
       def is_contained_by(column_name, *geographic_items)
         column_name.downcase!
         case column_name
+        when 'geometry_collection'
+          none
+
         when 'any'
           part = []
           DATA_TYPES.each { |column|
-            unless column == :geometry_collection
-              part.push(GeographicItem.is_contained_by(column.to_s, geographic_items).to_a)
-            end
+            part.push(GeographicItem.is_contained_by(column.to_s, geographic_items).to_a)
           }
           # @TODO change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten.map(&:id))
@@ -850,13 +838,6 @@ class GeographicItem < ApplicationRecord
         where.not(id: geographic_items)
       end
 
-      # @return [Scope]
-      #   includes an 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
-      # @param [RGeo object] geographic_item
-      def with_is_valid_geometry_column(geographic_item)
-        where(id: geographic_item.id).select("ST_IsValid(ST_AsBinary(#{geographic_item.geo_object_type})) is_valid")
-      end
-
       #
       # Other
       #
@@ -898,6 +879,8 @@ class GeographicItem < ApplicationRecord
           retval += '::Point'
         when 'MULTIPOINT'
           retval += '::MultiPoint'
+        when 'GEOMETRYCOLLECTION'
+          retval += '::GeometryCollection'
         when 'GEOGRAPHY'
           retval += '::Geography'
         else
@@ -980,7 +963,7 @@ class GeographicItem < ApplicationRecord
     # @return [Boolean]
     #   whether stored shape is ST_IsValid
     def valid_geometry?
-      GeographicItem.with_is_valid_geometry_column(self).first['is_valid']
+      GeographicItem.where(id:).select("ST_IsValid(ST_AsBinary(#{data_column})) is_valid").first['is_valid']
     end
 
     # @return [Array of latitude, longitude]
@@ -1009,8 +992,7 @@ class GeographicItem < ApplicationRecord
     #    representing the centroid of this geographic item
     def centroid
       # Gis::FACTORY.point(*center_coords.reverse)
-      # TODO check geography type for point
-      return geo_object if type == 'GeographicItem::Point'
+      return geo_object if geo_object_type == :point
       return Gis::FACTORY.parse_wkt(self.st_centroid)
     end
 
@@ -1121,12 +1103,10 @@ class GeographicItem < ApplicationRecord
     #   in GeoJSON format
     #   Computed via "raw" PostGIS (much faster). This
     #   requires the geo_object_type and id.
-    #
     def to_geo_json
-      # TODO need to handle geography case here
       JSON.parse(
         GeographicItem.connection.select_one(
-          "SELECT ST_AsGeoJSON(#{geo_object_type}::geometry) a " \
+          "SELECT ST_AsGeoJSON(#{data_column}::geometry) a " \
           "FROM geographic_items WHERE id=#{id};")['a'])
     end
 
@@ -1416,8 +1396,7 @@ class GeographicItem < ApplicationRecord
     end
 
     # @return [Boolean, String] false if already set, or type to which it was set
-    # TODO rename this - geography is now the name of a column
-    def set_type_if_geography_present
+    def set_type_if_shape_column_present
       if type.blank?
         column = data_column
         self.type = "GeographicItem::#{column.to_s.camelize}" if column

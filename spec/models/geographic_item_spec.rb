@@ -1052,34 +1052,6 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
               # 5,862 km (3,642 miles)
               expect(result[2].distance).to be_within(0.1).of(5862006.0029975)
             end
-
-          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
-          end
-
-          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
-          end
-
-          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            expect(GeographicItem.with_is_valid_geometry_column(b)).to be_truthy
-          end
-
-          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            expect(GeographicItem.with_is_valid_geometry_column(h)).to be_truthy
-          end
-
-          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            expect(GeographicItem.with_is_valid_geometry_column(f)).to be_truthy
-          end
-
-          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
-          end
-
-          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
-          end
         end
 
         context 'distance to others' do
@@ -2158,34 +2130,6 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
               # 5,862 km (3,642 miles)
               expect(result[2].distance).to be_within(0.1).of(5862006.0029975)
             end
-
-          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
-          end
-
-          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
-          end
-
-          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            expect(GeographicItem.with_is_valid_geometry_column(b)).to be_truthy
-          end
-
-          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            expect(GeographicItem.with_is_valid_geometry_column(h)).to be_truthy
-          end
-
-          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            expect(GeographicItem.with_is_valid_geometry_column(f)).to be_truthy
-          end
-
-          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
-          end
-
-          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
-          end
         end
 
         context 'distance to others' do
