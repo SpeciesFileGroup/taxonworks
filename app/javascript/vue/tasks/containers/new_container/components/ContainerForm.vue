@@ -32,7 +32,6 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { Container } from '@/routes/endpoints'
-import VBtn from '@/components/ui/VBtn/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import ContainerParent from './ContainerParent.vue'
 import ContainerType from './ContainerType.vue'
@@ -43,7 +42,6 @@ const container = defineModel({
   required: true
 })
 
-const emit = defineEmits(['save', 'new'])
 const type = ref({})
 const types = ref([])
 

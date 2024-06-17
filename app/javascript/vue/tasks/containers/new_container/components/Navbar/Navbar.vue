@@ -29,7 +29,7 @@
         <VBtn
           color="primary"
           medium
-          @click="store.newContainer()"
+          @click="store.$reset()"
         >
           New
         </VBtn>

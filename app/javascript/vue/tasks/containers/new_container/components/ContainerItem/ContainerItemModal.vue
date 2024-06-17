@@ -39,6 +39,7 @@
           @click="
             () => {
               emit('add', containerItem)
+              emit('close')
               isVisible = false
             }
           "
@@ -52,6 +53,7 @@
           @click="
             () => {
               emit('remove', containerItem)
+              emit('close')
               isVisible = false
             }
           "
@@ -77,7 +79,7 @@ const TYPES = {
   }
 }
 
-const emit = defineEmits(['add', 'remove'])
+const emit = defineEmits(['add', 'remove', 'close'])
 
 const selectedType = ref(COLLECTION_OBJECT)
 const isVisible = ref(false)

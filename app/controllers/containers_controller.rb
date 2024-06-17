@@ -58,7 +58,7 @@ class ContainersController < ApplicationController
     respond_to do |format|
       if @container.update(container_params)
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was successfully updated.')}
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @container.metamorphosize }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was NOT successfully updated.')}
         format.json { render json: @container.errors, status: :unprocessable_entity }

@@ -1,5 +1,8 @@
 <template>
-  <h1>New container</h1>
+  <div class="flex-separate middle">
+    <h1>New container</h1>
+    <VSettings />
+  </div>
   <Navbar />
   <div
     class="horizontal-left-content align-start full_width task-container gap-medium"
@@ -9,16 +12,18 @@
         v-model="store.container"
         class="container-form margin-medium-bottom"
       />
-      <ContainerItemList :container-items="store.containerItems" />
+      <ContainerItemList />
     </div>
 
     <VueEncase
       class="container-viewer"
       v-bind="store.encaseOpts"
       @container-item:right-click="openContainerItemModal"
+      @container-item:left-click="handleClick"
     />
     <ContainerItemModal
       ref="containerItemModalRef"
+      @close="() => (store.placeItem = null)"
       @add="
         (item) => {
           store.addContainerItem(item)
@@ -27,6 +32,7 @@
       "
       @remove="store.removeContainerItem"
     />
+    <MessageBox />
   </div>
 </template>
 
@@ -41,7 +47,8 @@ import ContainerForm from './components/ContainerForm.vue'
 import ContainerItemList from './components/ContainerItem/ContainerItemList.vue'
 import ContainerItemModal from './components/ContainerItem/ContainerItemModal.vue'
 import Navbar from './components/Navbar/Navbar.vue'
-
+import MessageBox from './components/MessageBox.vue'
+import VSettings from './components/Settings.vue'
 defineOptions({
   name: 'NewContainer'
 })
@@ -58,6 +65,18 @@ async function openContainerItemModal({ position }) {
   await new Promise((resolve) => setTimeout(resolve, 50))
 
   containerItemModalRef.value.show(containerItem)
+}
+
+function handleClick({ position }) {
+  if (store.placeItem && !store.getContainerItemByPosition(position)) {
+    const containerItem = {
+      ...store.placeItem,
+      position,
+      isUnsaved: true
+    }
+
+    containerItemModalRef.value.show(containerItem)
+  }
 }
 
 onBeforeMount(() => {

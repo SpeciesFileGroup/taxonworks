@@ -1,15 +1,59 @@
 <template>
-  <table class="table-striped full_width">
+  <table
+    class="table-striped full_width"
+    v-if="store.getItemsOutsideContainer.length"
+  >
     <thead>
       <tr>
-        <th>Container Item</th>
+        <th>Container Items (Outside)</th>
         <th />
       </tr>
     </thead>
     <tbody>
       <tr
-        v-for="item in store.containerItems"
+        v-for="item in store.getItemsOutsideContainer"
         :key="item.uuid"
+      >
+        <td :title="item.label">
+          <div class="container-item-column ellipsis">{{ item.label }}</div>
+        </td>
+        <td>
+          <div class="horizontal-right-content gap-small">
+            <VBtn
+              color="primary"
+              @click="() => (store.placeItem = item)"
+            >
+              Place
+            </VBtn>
+            <VBtn
+              circle
+              :color="item.id ? 'destroy' : 'primary'"
+              @click="() => store.removeContainerItem(item)"
+            >
+              <VIcon
+                x-small
+                name="trash"
+              />
+            </VBtn>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="table-striped full_width">
+    <thead>
+      <tr>
+        <th>Container Items (Inside)</th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        v-for="item in store.getItemsInsideContainer"
+        :key="item.uuid"
+        @mouseover="() => (store.hoverRow = item)"
+        @mouseout="() => (store.hoverRow = null)"
       >
         <td :title="item.label">
           <div class="container-item-column ellipsis">{{ item.label }}</div>

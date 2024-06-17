@@ -6,27 +6,68 @@ import {
   makeContainerItem,
   makeContainerItemPayload
 } from '../adapters'
-import { removeFromArray, addToArray } from '@/helpers'
+import { removeFromArray, addToArray, shorten } from '@/helpers'
+
+const HOVER_COLOR = {
+  filled: 'blue',
+  empty: 'blue',
+  selected: 'blue'
+}
 
 const DEFAULT_OPTS = {
   enclose: true,
   itemSize: 1,
-  padding: 1
+  padding: 1,
+  cameraPosition: {
+    x: 50,
+    y: 50,
+    z: 50
+  }
 }
 
 function comparePosition({ x, y, z }, position) {
   return position.x === x && position.y === y && position.z === z
 }
 
+function isItemInContainer({ x, y, z }, size) {
+  return (
+    x !== null &&
+    y !== null &&
+    z !== null &&
+    x <= size.x &&
+    y <= size.y &&
+    z <= size.z
+  )
+}
+
 export const useContainerStore = defineStore('container', {
   state: () => ({
+    placeItem: null,
     isLoading: false,
+    truncateMaxLength: 50,
     container: makeContainer(),
-    containerItems: []
+    containerItems: [],
+    hoverRow: null
   }),
 
   getters: {
     encaseOpts(state) {
+      const containerItems = state.containerItems.map((item) => {
+        return {
+          ...item,
+          label: state.truncateMaxLength
+            ? shorten(item.label, state.truncateMaxLength)
+            : item.label,
+          style:
+            state.hoverRow &&
+            comparePosition(item.position, state.hoverRow.position)
+              ? {
+                  color: HOVER_COLOR
+                }
+              : {}
+        }
+      })
+
       return {
         ...DEFAULT_OPTS,
         container: {
@@ -34,7 +75,7 @@ export const useContainerStore = defineStore('container', {
           sizeX: state.container.size.x,
           sizeY: state.container.size.y,
           sizeZ: state.container.size.z,
-          containerItems: this.containerItems
+          containerItems
         }
       }
     },
@@ -51,6 +92,18 @@ export const useContainerStore = defineStore('container', {
         state.containerItems.find(({ position }) =>
           comparePosition(coordinates, position)
         )
+    },
+
+    getItemsOutsideContainer(state) {
+      return state.containerItems.filter(
+        (item) => !isItemInContainer(item.position, this.container.size)
+      )
+    },
+
+    getItemsInsideContainer(state) {
+      return state.containerItems.filter((item) =>
+        isItemInContainer(item.position, this.container.size)
+      )
     }
   },
 
@@ -120,13 +173,16 @@ export const useContainerStore = defineStore('container', {
         return request
       })
 
-      Promise.all(promises)
+      Promise.all(promises).catch(() => {})
     },
 
     saveContainer() {
-      Container.create({
-        container: makeContainerPayload(this.container)
-      })
+      const payload = { container: makeContainerPayload(this.container) }
+      const request = this.container.id
+        ? Container.update(this.container.id, payload)
+        : Container.create(payload)
+
+      request
         .then(({ body }) => {
           this.container = makeContainer(body)
         })
