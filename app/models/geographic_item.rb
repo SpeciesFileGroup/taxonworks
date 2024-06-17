@@ -280,32 +280,40 @@ class GeographicItem < ApplicationRecord
       # @param [String, Integer, String]
       # @return [String]
       #   a SQL fragment for ST_Contains() function, returns
-      #   all geographic items which contain the item supplied
+      #   all geographic items whose target_shape contain the item supplied's
+      #   source_shape
       # TODO issue if target or source column is geometrycollection?
-      def containing_sql(target_column_name = nil, geographic_item_id = nil, source_column_name = nil)
-        return 'false' if geographic_item_id.nil? || source_column_name.nil? || target_column_name.nil?
-        "ST_Contains(#{target_column_name}::geometry, (#{geometry_sql(geographic_item_id, source_column_name)}))"
+      def containing_sql(target_shape = nil, geographic_item_id = nil,
+                         source_shape = nil)
+        return 'false' if geographic_item_id.nil? || source_shape.nil? || target_shape.nil?
+
+        target_shape_sql = GeographicItem.shape_column_sql(target_shape)
+        "ST_Contains(#{target_shape_sql}::geometry, " \
+        "(#{geometry_sql(geographic_item_id, source_shape)}))"
       end
 
       # @param [String, Integer, String]
       # @return [String]
-      #   a SQL fragment for ST_Contains(), returns
-      #   all geographic_items which are contained in the supplied
-      #   geographic_item
+      #   a SQL fragment for ST_Contains() function, returns
+      #   all geographic items whose target_shape is contained in the item
+      #   supplied's source_shape
       # TODO issue if target or source column is geometrycollection?
-      def reverse_containing_sql(target_column_name = nil, geographic_item_id = nil, source_column_name = nil)
-        return 'false' if geographic_item_id.nil? || source_column_name.nil? || target_column_name.nil?
-        "ST_Contains((#{geometry_sql(geographic_item_id, source_column_name)}), #{target_column_name}::geometry)"
+      def reverse_containing_sql(target_shape = nil, geographic_item_id = nil, source_shape = nil)
+        return 'false' if geographic_item_id.nil? || source_shape.nil? || target_shape.nil?
+
+        target_shape_sql = GeographicItem.shape_column_sql(target_shape)
+        "ST_Contains((#{geometry_sql(geographic_item_id, source_shape)}), #{target_shape_sql}::geometry)"
       end
 
       # @param [Integer, String]
       # @return [String]
-      #   a SQL fragment that returns the specified geometry column of the
-      #   specified geographic item
-      def geometry_sql(geographic_item_id = nil, source_column_name = nil)
-        return 'false' if geographic_item_id.nil? || source_column_name.nil?
-        "select geom_alias_tbl.#{source_column_name}::geometry from geographic_items geom_alias_tbl " \
-          "where geom_alias_tbl.id = #{geographic_item_id}"
+      #   a SQL fragment that returns the column containing data of type
+      #   shape for the specified geographic item
+      def geometry_sql(geographic_item_id = nil, shape = nil)
+        return 'false' if geographic_item_id.nil? || shape.nil?
+
+        "SELECT #{GeographicItem.shape_column_sql(shape)}::geometry FROM " \
+        "geographic_items WHERE id = #{geographic_item_id}"
       end
 
       # DEPRECATED
@@ -646,12 +654,15 @@ class GeographicItem < ApplicationRecord
       # DEPRECATED
       # @param [String, GeographicItem]
       # @return [Scope]
-      #   a SQL fragment for ST_DISJOINT, specifies all geographic_items that have data in column_name
-      #   that are disjoint from the passed geographic_items
-      def disjoint_from(column_name, *geographic_items)
+      #   a SQL fragment for ST_DISJOINT, specifies geographic_items that
+      #   have data of type shape that are disjoint from all of the passed
+      #   geographic_items
+      def disjoint_from(shape, *geographic_items)
+        shape_column = GeographicItem.shape_column_sql(shape)
+
         q = geographic_items.flatten.collect { |geographic_item|
-          "ST_DISJOINT(#{column_name}::geometry, (#{geometry_sql(geographic_item.to_param,
-                                                             geographic_item.geo_object_type)}))"
+          "ST_DISJOINT(#{shape_column}::geometry, " \
+                      "(#{geographic_item.data_column}))"
         }.join(' and ')
 
         where(q)
@@ -1313,6 +1324,18 @@ class GeographicItem < ApplicationRecord
 
     def multi_polygon_column
       geo_object_type == :multi_polygon ? data_column : nil
+    end
+
+    # @param [String] shape, the type of shape you want
+    # @return [String]
+    #   A paren-wrapped SQL fragment for selecting the column containing
+    #   shape. Returns the column named :shape if no shape is found.
+    def self.shape_column_sql(shape)
+      st_shape = 'ST_' + shape.to_s.camelize
+
+      '(CASE ST_GeometryType(geography::geometry) ' \
+      "WHEN '#{st_shape}' THEN geography " \
+      "ELSE #{shape} END)"
     end
 
     def align_winding

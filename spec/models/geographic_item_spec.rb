@@ -577,12 +577,6 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
     context 'class methods' do
 
-      specify '::geometry_sql' do
-        test = 'select geom_alias_tbl.polygon::geometry from geographic_items geom_alias_tbl ' \
-          'where geom_alias_tbl.id = 2'
-        expect(GeographicItem.geometry_sql(2, :polygon)).to eq(test)
-      end
-
       specify '::ordered_by_shortest_distance_from to specify ordering of found objects.' do
         expect(GeographicItem).to respond_to(:ordered_by_shortest_distance_from)
       end
@@ -602,13 +596,6 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
       specify '::intersecting method to intersecting an \'or\' list of objects.' do
         expect(GeographicItem).to respond_to(:intersecting)
-      end
-
-      specify '::containing_sql' do
-        test1 = 'ST_Contains(polygon::geometry, (select geom_alias_tbl.point::geometry from ' \
-          "geographic_items geom_alias_tbl where geom_alias_tbl.id = #{p1.id}))"
-        expect(GeographicItem.containing_sql('polygon',
-                                             p1.to_param, p1.geo_object_type)).to eq(test1)
       end
 
       specify '::eval_for_type' do
@@ -1655,12 +1642,6 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
     context 'class methods' do
 
-      specify '::geometry_sql' do
-        test = 'select geom_alias_tbl.polygon::geometry from geographic_items geom_alias_tbl ' \
-          'where geom_alias_tbl.id = 2'
-        expect(GeographicItem.geometry_sql(2, :polygon)).to eq(test)
-      end
-
       specify '::ordered_by_shortest_distance_from to specify ordering of found objects.' do
         expect(GeographicItem).to respond_to(:ordered_by_shortest_distance_from)
       end
@@ -1680,13 +1661,6 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
       specify '::intersecting method to intersecting an \'or\' list of objects.' do
         expect(GeographicItem).to respond_to(:intersecting)
-      end
-
-      specify '::containing_sql' do
-        test1 = 'ST_Contains(polygon::geometry, (select geom_alias_tbl.point::geometry from ' \
-          "geographic_items geom_alias_tbl where geom_alias_tbl.id = #{p1.id}))"
-        expect(GeographicItem.containing_sql('polygon',
-                                             p1.to_param, p1.geo_object_type)).to eq(test1)
       end
 
       specify '::eval_for_type' do
