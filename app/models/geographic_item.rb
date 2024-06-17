@@ -236,6 +236,8 @@ class GeographicItem < ApplicationRecord
       "ST_Centroid(multi_line_string::geometry), #{f} ), ' ', #{v})
       WHEN 'GeographicItem::MultiPoint' THEN split_part(ST_AsLatLonText(" \
       "ST_Centroid(multi_point::geometry), #{f}), ' ', #{v})
+      WHEN 'GeographicItem::GeometryCollection' THEN split_part(ST_AsLatLonText(" \
+      "ST_Centroid(geometry_collection::geometry), #{f}), ' ', #{v})
       WHEN 'GeographicItem::Geography' THEN split_part(ST_AsLatLonText(" \
       "ST_Centroid(geography::geometry), #{f}), ' ', #{v})
     END as #{choice}"
@@ -382,19 +384,10 @@ class GeographicItem < ApplicationRecord
       # @param [Integer, Array of Integer] geographic_item_ids
       # @return [String] Those geographic items containing the union of
       # geographic_item_ids.
-      # TODO why does GEOMETRY_SQL.to_sql fail here?
-      # TODO need to handle non-geom_collection geography case here
       def containing_where_sql(*geographic_item_ids)
         "ST_CoveredBy(
           #{GeographicItem.geometry_sql2(*geographic_item_ids)},
-           CASE geographic_items.type
-             WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
-             WHEN 'GeographicItem::Point' THEN point::geometry
-             WHEN 'GeographicItem::LineString' THEN line_string::geometry
-             WHEN 'GeographicItem::Polygon' THEN polygon::geometry
-             WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
-             WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
-          END)"
+          #{GeographicItem::GEOMETRY_SQL.to_sql})"
       end
 
       # DEPRECATED
@@ -404,14 +397,7 @@ class GeographicItem < ApplicationRecord
       def containing_where_sql_geog(*geographic_item_ids)
         "ST_CoveredBy(
           (#{GeographicItem.geometry_sql2(*geographic_item_ids)})::geography,
-           CASE geographic_items.type
-             WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geography
-             WHEN 'GeographicItem::Point' THEN point::geography
-             WHEN 'GeographicItem::LineString' THEN line_string::geography
-             WHEN 'GeographicItem::Polygon' THEN polygon::geography
-             WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geography
-             WHEN 'GeographicItem::MultiPoint' THEN multi_point::geography
-          END)"
+          #{GEOGRAPHY_SQL})"
       end
 
       # DEPRECATED
@@ -466,6 +452,8 @@ class GeographicItem < ApplicationRecord
            WHEN 'GeographicItem::Polygon' THEN ST_ShiftLongitude(polygon::geometry)
            WHEN 'GeographicItem::MultiLineString' THEN ST_ShiftLongitude(multi_line_string::geometry)
            WHEN 'GeographicItem::MultiPoint' THEN ST_ShiftLongitude(multi_point::geometry)
+           WHEN 'GeographicItem::GeometryCollection' THEN ST_ShiftLongitude(geometry_collection::geometry)
+           WHEN 'GeographicItem::Geography' THEN ST_ShiftLongitude(geography::geometry)
         END
         )
       )"
@@ -479,17 +467,8 @@ class GeographicItem < ApplicationRecord
         if crosses_anti_meridian?(wkt)
           retval = contained_by_wkt_shifted_sql(wkt)
         else
-          retval = "ST_Contains(ST_GeomFromText('#{wkt}', 4326), (
-        CASE geographic_items.type
-           WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
-           WHEN 'GeographicItem::Point' THEN point::geometry
-           WHEN 'GeographicItem::LineString' THEN line_string::geometry
-           WHEN 'GeographicItem::Polygon' THEN polygon::geometry
-           WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
-           WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
-        END
-        )
-      )"
+          retval = "ST_Contains(ST_GeomFromText('#{wkt}', 4326),
+                                #{GEOMETRY_SQL.to_sql})"
         end
         retval
       end
@@ -502,14 +481,7 @@ class GeographicItem < ApplicationRecord
       def contained_by_where_sql(*geographic_item_ids)
         "ST_Contains(
         #{GeographicItem.geometry_sql2(*geographic_item_ids)},
-        CASE geographic_items.type
-          WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
-          WHEN 'GeographicItem::Point' THEN point::geometry
-          WHEN 'GeographicItem::LineString' THEN line_string::geometry
-          WHEN 'GeographicItem::Polygon' THEN polygon::geometry
-          WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
-          WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
-        END)"
+        #{GEOMETRY_SQL.to_sql})"
       end
 
       # @param [RGeo:Point] rgeo_point
