@@ -66,16 +66,17 @@ class GeographicItem < ApplicationRecord
   #   When true cached values are not built
   attr_accessor :no_cached
 
-  DATA_TYPES = [
+  SHAPE_TYPES = [
     :point,
     :line_string,
     :polygon,
     :multi_point,
     :multi_line_string,
     :multi_polygon,
-    :geometry_collection,
-    :geography
+    :geometry_collection
   ].freeze
+
+  DATA_TYPES = (SHAPE_TYPES + [:geography]).freeze
 
   GEOMETRY_SQL = Arel::Nodes::Case.new(arel_table[:type])
     .when('GeographicItem::MultiPolygon').then(Arel::Nodes::NamedFunction.new('CAST', [arel_table[:multi_polygon].as('geometry')]))
@@ -266,6 +267,7 @@ class GeographicItem < ApplicationRecord
       # @return [String]
       # !! This is intersecting
       def intersecting_radius_of_wkt_sql(wkt, distance)
+        # TODO use ST_GeogFromText?
         "ST_DWithin((#{GeographicItem::GEOGRAPHY_SQL}), ST_GeomFromText('#{wkt}', 4326)::geography, #{distance})"
       end
 
@@ -274,6 +276,7 @@ class GeographicItem < ApplicationRecord
       # @return [String]
       # !! This is fully covering
       def within_radius_of_wkt_sql(wkt, distance)
+        # TODO use ST_GeogFromText?
         "ST_Covers( ST_Buffer(ST_SetSRID( ST_GeomFromText('#{wkt}'), 4326)::geography, #{distance}), (#{GeographicItem::GEOGRAPHY_SQL}))"
       end
 
@@ -305,7 +308,7 @@ class GeographicItem < ApplicationRecord
 
       # @param [Integer, String]
       # @return [String]
-      #   a SQL fragment that returns the column containing data of type
+      #   a SQL fragment that returns the column containing data of the given
       #   shape for the specified geographic item
       def geometry_sql(geographic_item_id = nil, shape = nil)
         return 'false' if geographic_item_id.nil? || shape.nil?
@@ -316,29 +319,30 @@ class GeographicItem < ApplicationRecord
 
       # DEPRECATED
       # rubocop:disable Metrics/MethodLength
-      # @param [String] column_name
+      # @param [String] shape
       # @param [GeographicItem] geographic_item
-      # @return [String] of SQL
-      def is_contained_by_sql(column_name, geographic_item)
-        geo_id = geographic_item.id
-        geo_type = geographic_item.geo_object_type
-        template = '(ST_Contains((select geographic_items.%s::geometry from geographic_items where ' \
-          'geographic_items.id = %d), %s::geometry))'
+      # @return [String] of SQL for all GeographicItems of the given shape
+      # contained by geographic_item
+      def is_contained_by_sql(shape, geographic_item)
+        template = "(ST_Contains(#{geographic_item.geo_object}, %s::geometry))"
         retval = []
-        column_name.downcase!
-        case column_name
+        shape = shape.to_s.downcase
+        case shape
         when 'any'
-          DATA_TYPES.each { |column|
-            retval.push(template % [geo_type, geo_id, column])
+          SHAPE_TYPES.each { |shape|
+            shape_column = GeographicItem.shape_column_sql(shape)
+            retval.push(template % shape_column)
           }
         when 'any_poly', 'any_line'
-          DATA_TYPES.each { |column|
-            if column.to_s.index(column_name.gsub('any_', ''))
-              retval.push(template % [geo_type, geo_id, column])
+          SHAPE_TYPES.each { |shape|
+            if column.to_s.index(shape.gsub('any_', ''))
+              shape_column = GeographicItem.shape_column_sql(shape)
+              retval.push(template % shape_column)
             end
           }
         else
-          retval = template % [geo_type, geo_id, column_name]
+          shape_column = GeographicItem.shape_column_sql(shape)
+          retval = template % shape_column
         end
         retval = retval.join(' OR ') if retval.instance_of?(Array)
         retval
@@ -618,19 +622,22 @@ class GeographicItem < ApplicationRecord
 
       # @param [String, GeographicItems]
       # @return [Scope]
-      def intersecting(column_name, *geographic_items)
-        if column_name.downcase == 'any'
+      def intersecting(shape, *geographic_items)
+        shape = shape.to_s.downcase
+        if shape == 'any'
           pieces = []
-          DATA_TYPES.each { |column|
-            pieces.push(GeographicItem.intersecting(column.to_s, geographic_items).to_a)
+          SHAPE_TYPES.each { |shape|
+            pieces.push(GeographicItem.intersecting(shape, geographic_items).to_a)
           }
 
           # @TODO change 'id in (?)' to some other sql construct
-
           GeographicItem.where(id: pieces.flatten.map(&:id))
         else
+          shape_column = GeographicItem.shape_column_sql(shape)
           q = geographic_items.flatten.collect { |geographic_item|
-            "ST_Intersects(#{column_name}, '#{geographic_item.geo_object}'    )" # seems like we want this: http://danshultz.github.io/talks/mastering_activerecord_arel/#/15/2
+            # seems like we want this: http://danshultz.github.io/talks/mastering_activerecord_arel/#/15/2
+            # TODO would geometry intersect be equivalent and faster?
+            "ST_Intersects(#{shape_column}, '#{geographic_item.geo_object}')"
           }.join(' or ')
 
           where(q)
@@ -648,15 +655,18 @@ class GeographicItem < ApplicationRecord
       # DEPRECATED
       # @param [String, GeographicItem]
       # @return [Scope]
-      #   a SQL fragment for ST_DISJOINT, specifies geographic_items that
-      #   have data of type shape that are disjoint from all of the passed
+      #   a SQL fragment for ST_DISJOINT, specifies geographic_items of the
+      #   given shape that are disjoint from all of the passed
       #   geographic_items
       def disjoint_from(shape, *geographic_items)
         shape_column = GeographicItem.shape_column_sql(shape)
 
         q = geographic_items.flatten.collect { |geographic_item|
+          geographic_item_geometry = geometry_sql(geographic_item.id,
+            geographic_item.geo_object_type)
+
           "ST_DISJOINT(#{shape_column}::geometry, " \
-                      "(#{geographic_item.data_column}))"
+                      "(#{geographic_item_geometry}))"
         }.join(' and ')
 
         where(q)
@@ -664,16 +674,17 @@ class GeographicItem < ApplicationRecord
 
       # @return [Scope]
       #   see are_contained_in_item_by_id
-      # @param [String] column_name
+      # @param [String] shape
       # @param [GeographicItem, Array] geographic_items
-      def are_contained_in_item(column_name, *geographic_items)
-        are_contained_in_item_by_id(column_name, geographic_items.flatten.map(&:id))
+      def are_contained_in_item(shape, *geographic_items)
+        are_contained_in_item_by_id(shape, geographic_items.flatten.map(&:id))
       end
 
       # rubocop:disable Metrics/MethodLength
-      # @param [String] column_name to search
+      # @param [String] shape to search
       # @param [GeographicItem] geographic_item_ids or array of geographic_item_ids to be tested.
-      # @return [Scope] of GeographicItems
+      # @return [Scope] of GeographicItems that contain at least one of
+      #                 geographic_item_ids
       #
       # If this scope is given an Array of GeographicItems as a second parameter,
       # it will return the 'OR' of each of the objects against the table.
@@ -681,34 +692,33 @@ class GeographicItem < ApplicationRecord
       #        WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)'))
       #               OR ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
       #
-      def are_contained_in_item_by_id(column_name, *geographic_item_ids) # = containing
+      def are_contained_in_item_by_id(shape, *geographic_item_ids) # = containing
         geographic_item_ids.flatten! # in case there is a array of arrays, or multiple objects
-        column_name.downcase!
-        case column_name
+        shape = shape.to_s.downcase
+        case shape
         when 'any'
           part = []
-          DATA_TYPES.each { |column|
-            part.push(GeographicItem.are_contained_in_item_by_id(column.to_s, geographic_item_ids).to_a)
+          SHAPE_TYPES.each { |shape|
+            part.push(GeographicItem.are_contained_in_item_by_id(shape, geographic_item_ids).to_a)
           }
           # TODO: change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten.map(&:id))
         when 'any_poly', 'any_line'
           part = []
-          DATA_TYPES.each { |column|
-            # TODO Need to handle geography's type here
-            if column.to_s.index(column_name.gsub('any_', ''))
-              part.push(GeographicItem.are_contained_in_item_by_id("#{column}", geographic_item_ids).to_a)
+          SHAPE_TYPES.each { |shape|
+            if shape.to_s.index(shape.gsub('any_', ''))
+              part.push(GeographicItem.are_contained_in_item_by_id(shape, geographic_item_ids).to_a)
             end
           }
           # TODO: change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten.map(&:id))
         else
           q = geographic_item_ids.flatten.collect { |geographic_item_id|
-            # discover the item types, and convert type to database type for 'multi_'
-            b = GeographicItem.where(id: geographic_item_id)
-              .pluck(:type)[0].split(':')[2].underscore
-            # a = GeographicItem.find(geographic_item_id).geo_object_type
-            GeographicItem.containing_sql(column_name, geographic_item_id, b)
+            # TODO too bad this is being fetched seperately
+            geographic_item_shape =
+              GeographicItem.where(id: geographic_item_id).first.geo_object_type
+            GeographicItem.containing_sql(shape, geographic_item_id,
+                                          geographic_item_shape)
           }.join(' or ')
           q = 'FALSE' if q.blank? # this will prevent the invocation of *ALL* of the GeographicItems, if there are
           # no GeographicItems in the request (see CollectingEvent.name_hash(types)).
@@ -719,60 +729,62 @@ class GeographicItem < ApplicationRecord
       # rubocop:enable Metrics/MethodLength
 
       # DEPRECATED
-      # @param [String] column_name
+      # @param [String] shape
       # @param [String] geometry of WKT
       # @return [Scope]
-      # a single WKT geometry is compared against column or columns to find geographic_items
-      # which are contained in the WKT
-      def are_contained_in_wkt(column_name, geometry)
-        column_name.downcase!
-        case column_name
+      # A scope of GeographicItems of the given shape contained in the
+      # WKT.
+      def are_contained_in_wkt(shape, geometry)
+        shape = shape.to_s.downcase
+        case shape
         when 'any'
           part = []
-          DATA_TYPES.each { |column|
-            part.push(GeographicItem.are_contained_in_wkt(column.to_s, geometry).pluck(:id).to_a)
+          SHAPE_TYPES.each { |shape|
+            part.push(GeographicItem.are_contained_in_wkt(shape, geometry).pluck(:id).to_a)
           }
           # TODO: change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten)
         when 'any_poly', 'any_line'
           part = []
-          DATA_TYPES.each { |column|
-            if column.to_s.index(column_name.gsub('any_', ''))
-              part.push(GeographicItem.are_contained_in_wkt("#{column}", geometry).pluck(:id).to_a)
+          SHAPE_TYPES.each { |shape|
+            if shape.to_s.index(shape.gsub('any_', ''))
+              part.push(GeographicItem.are_contained_in_wkt("#{shape}", geometry).pluck(:id).to_a)
             end
           }
           # TODO: change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten)
         else
-          q = "ST_Contains(ST_GeomFromEWKT('srid=4326;#{geometry}'), #{column_name}::geometry)"
+          shape_column = GeographicItem.shape_column_sql(shape)
+          q = "ST_Contains(ST_GeomFromEWKT('srid=4326;#{geometry}'), #{shape_column}::geometry)"
           where(q) # .not_including(geographic_items)
         end
       end
 
       # rubocop:disable Metrics/MethodLength
-      # Returns a scope of all items whose column_name ontains an element of
-      # geographic_items.
-      # @param column_name [String] can be any of DATA_TYPES, or 'any' to check against all types, 'any_poly' to check
-      # against 'polygon' or 'multi_polygon', or 'any_line' to check against 'line_string' or 'multi_line_string'.
-      # @param geographic_items [GeographicItem] Can be a single GeographicItem, or an array of GeographicItem.
-      # @return [Scope]
-      def is_contained_by(column_name, *geographic_items)
-        column_name.downcase!
-        case column_name
+      # @param shape [String] can be any of SHAPE_TYPES, or 'any' to check
+      # against all types, 'any_poly' to check against 'polygon' or
+      # 'multi_polygon', or 'any_line' to check against 'line_string' or
+      #'multi_line_string'.
+      # @param geographic_items [GeographicItem] Can be a single
+      # GeographicItem, or an array of GeographicItem.
+      # @return [Scope] of all GeographicItems of the given shape contained
+      # in one or more of geographic_items
+      def is_contained_by(shape, *geographic_items)
+        shape = shape.to_s.downcase
+        case shape
         when 'any'
           part = []
-          DATA_TYPES.each { |column|
-            part.push(GeographicItem.is_contained_by(column.to_s, geographic_items).to_a)
+          SHAPE_TYPES.each { |shape|
+            part.push(GeographicItem.is_contained_by(shape, geographic_items).to_a)
           }
           # @TODO change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten.map(&:id))
 
         when 'any_poly', 'any_line'
           part = []
-          DATA_TYPES.each { |column|
-            # TODO this needs to check geography column's type
-            if column.to_s.index(column_name.gsub('any_', ''))
-              part.push(GeographicItem.is_contained_by(column.to_s, geographic_items).to_a)
+          SHAPE_TYPES.each { |shape|
+            if shape.to_s.index(shape.gsub('any_', ''))
+              part.push(GeographicItem.is_contained_by(shape, geographic_items).to_a)
             end
           }
           # @TODO change 'id in (?)' to some other sql construct
@@ -780,7 +792,7 @@ class GeographicItem < ApplicationRecord
 
         else
           q = geographic_items.flatten.collect { |geographic_item|
-            GeographicItem.reverse_containing_sql(column_name, geographic_item.to_param,
+            GeographicItem.reverse_containing_sql(shape, geographic_item.to_param,
                                                   geographic_item.geo_object_type)
           }.join(' or ')
           where(q) # .not_including(geographic_items)
@@ -791,39 +803,33 @@ class GeographicItem < ApplicationRecord
 
       # @param [String, GeographicItem]
       # @return [Scope]
-      def ordered_by_shortest_distance_from(column_name, geographic_item)
-        if true # check_geo_params(column_name, geographic_item)
-          select_distance_with_geo_object(column_name, geographic_item)
-            .where_distance_greater_than_zero(column_name, geographic_item).order('distance')
-        else
-          where('false')
-        end
+      def ordered_by_shortest_distance_from(shape, geographic_item)
+        select_distance_with_geo_object(shape, geographic_item)
+          .where_distance_greater_than_zero(shape, geographic_item)
+          .order('distance')
       end
 
       # @param [String, GeographicItem]
       # @return [Scope]
-      def ordered_by_longest_distance_from(column_name, geographic_item)
-        if true # check_geo_params(column_name, geographic_item)
-          q = select_distance_with_geo_object(column_name, geographic_item)
-            .where_distance_greater_than_zero(column_name, geographic_item)
-            .order('distance desc')
-          q
-        else
-          where('false')
-        end
+      def ordered_by_longest_distance_from(shape, geographic_item)
+        select_distance_with_geo_object(shape, geographic_item)
+          .where_distance_greater_than_zero(shape, geographic_item)
+          .order('distance desc')
       end
 
-      # @param [String] column_name
+      # @param [String] shape
       # @param [GeographicItem] geographic_item
       # @return [String]
-      def select_distance_with_geo_object(column_name, geographic_item)
-        select("*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance")
+      def select_distance_with_geo_object(shape, geographic_item)
+        shape_column = GeographicItem.shape_column_sql(shape)
+        select("*, ST_Distance(#{shape_column}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance")
       end
 
       # @param [String, GeographicItem]
       # @return [Scope]
-      def where_distance_greater_than_zero(column_name, geographic_item)
-        where("#{column_name} is not null and ST_Distance(#{column_name}, " \
+      def where_distance_greater_than_zero(shape, geographic_item)
+        shape_column = GeographicItem.shape_column_sql(shape)
+        where("#{shape_column} is not null and ST_Distance(#{shape_column}, " \
               "GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0")
       end
 
@@ -1312,8 +1318,10 @@ class GeographicItem < ApplicationRecord
 
     # @param [String] shape, the type of shape you want
     # @return [String]
-    #   A paren-wrapped SQL fragment for selecting the column containing
-    #   shape. Returns the column named :shape if no shape is found.
+    #   A paren-wrapped SQL fragment for selecting the geography column
+    #   containing shape. Returns the column named :shape if no shape is found.
+    #   !! This should probably never be called except to be put directly in a
+    #   raw ST_* statement as the parameter that matches some shape.
     def self.shape_column_sql(shape)
       st_shape = 'ST_' + shape.to_s.camelize
 
