@@ -282,7 +282,6 @@ class GeographicItem < ApplicationRecord
       #   a SQL fragment for ST_Contains() function, returns
       #   all geographic items whose target_shape contain the item supplied's
       #   source_shape
-      # TODO issue if target or source column is geometrycollection?
       def containing_sql(target_shape = nil, geographic_item_id = nil,
                          source_shape = nil)
         return 'false' if geographic_item_id.nil? || source_shape.nil? || target_shape.nil?
@@ -297,7 +296,6 @@ class GeographicItem < ApplicationRecord
       #   a SQL fragment for ST_Contains() function, returns
       #   all geographic items whose target_shape is contained in the item
       #   supplied's source_shape
-      # TODO issue if target or source column is geometrycollection?
       def reverse_containing_sql(target_shape = nil, geographic_item_id = nil, source_shape = nil)
         return 'false' if geographic_item_id.nil? || source_shape.nil? || target_shape.nil?
 
@@ -331,16 +329,12 @@ class GeographicItem < ApplicationRecord
         case column_name
         when 'any'
           DATA_TYPES.each { |column|
-            unless column == :geometry_collection
-              retval.push(template % [geo_type, geo_id, column])
-            end
+            retval.push(template % [geo_type, geo_id, column])
           }
         when 'any_poly', 'any_line'
           DATA_TYPES.each { |column|
-            unless column == :geometry_collection
-              if column.to_s.index(column_name.gsub('any_', ''))
-                retval.push(template % [geo_type, geo_id, column])
-              end
+            if column.to_s.index(column_name.gsub('any_', ''))
+              retval.push(template % [geo_type, geo_id, column])
             end
           }
         else
@@ -691,8 +685,6 @@ class GeographicItem < ApplicationRecord
         geographic_item_ids.flatten! # in case there is a array of arrays, or multiple objects
         column_name.downcase!
         case column_name
-        when 'geometry_collection'
-          none
         when 'any'
           part = []
           DATA_TYPES.each { |column|
@@ -714,7 +706,7 @@ class GeographicItem < ApplicationRecord
           q = geographic_item_ids.flatten.collect { |geographic_item_id|
             # discover the item types, and convert type to database type for 'multi_'
             b = GeographicItem.where(id: geographic_item_id)
-              .pluck(:type)[0].split(':')[2].downcase.gsub('lti', 'lti_')
+              .pluck(:type)[0].split(':')[2].underscore
             # a = GeographicItem.find(geographic_item_id).geo_object_type
             GeographicItem.containing_sql(column_name, geographic_item_id, b)
           }.join(' or ')
@@ -730,7 +722,7 @@ class GeographicItem < ApplicationRecord
       # @param [String] column_name
       # @param [String] geometry of WKT
       # @return [Scope]
-      # a single WKT geometry is compared against column or columns (except geometry_collection) to find geographic_items
+      # a single WKT geometry is compared against column or columns to find geographic_items
       # which are contained in the WKT
       def are_contained_in_wkt(column_name, geometry)
         column_name.downcase!
@@ -738,9 +730,7 @@ class GeographicItem < ApplicationRecord
         when 'any'
           part = []
           DATA_TYPES.each { |column|
-            unless column == :geometry_collection
-              part.push(GeographicItem.are_contained_in_wkt(column.to_s, geometry).pluck(:id).to_a)
-            end
+            part.push(GeographicItem.are_contained_in_wkt(column.to_s, geometry).pluck(:id).to_a)
           }
           # TODO: change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten)
@@ -764,15 +754,11 @@ class GeographicItem < ApplicationRecord
       # geographic_items.
       # @param column_name [String] can be any of DATA_TYPES, or 'any' to check against all types, 'any_poly' to check
       # against 'polygon' or 'multi_polygon', or 'any_line' to check against 'line_string' or 'multi_line_string'.
-      #  CANNOT be 'geometry_collection'.
       # @param geographic_items [GeographicItem] Can be a single GeographicItem, or an array of GeographicItem.
       # @return [Scope]
       def is_contained_by(column_name, *geographic_items)
         column_name.downcase!
         case column_name
-        when 'geometry_collection'
-          none
-
         when 'any'
           part = []
           DATA_TYPES.each { |column|
@@ -784,11 +770,9 @@ class GeographicItem < ApplicationRecord
         when 'any_poly', 'any_line'
           part = []
           DATA_TYPES.each { |column|
-            unless column == :geometry_collection
-              # TODO this needs to check geography column's type
-              if column.to_s.index(column_name.gsub('any_', ''))
-                part.push(GeographicItem.is_contained_by(column.to_s, geographic_items).to_a)
-              end
+            # TODO this needs to check geography column's type
+            if column.to_s.index(column_name.gsub('any_', ''))
+              part.push(GeographicItem.is_contained_by(column.to_s, geographic_items).to_a)
             end
           }
           # @TODO change 'id in (?)' to some other sql construct
