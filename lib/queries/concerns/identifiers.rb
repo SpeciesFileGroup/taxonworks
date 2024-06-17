@@ -348,8 +348,8 @@ module Queries::Concerns::Identifiers
   end
 
   def identifier_between_facet
-    return nil if @identifier_start.nil?
-    @identifier_end = @identifier_start if @identifier_end.nil?
+    return nil if @identifier_start.blank?
+    @identifier_end = @identifier_start if @identifier_end.blank?
 
     w = between
     w = w.and(identifier_table[:namespace_id].eq(namespace_id)) if namespace_id # TODO: redundant with namespace facet likely

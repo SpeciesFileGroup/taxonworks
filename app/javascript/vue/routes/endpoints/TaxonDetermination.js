@@ -4,7 +4,6 @@ import AjaxCall from '@/helpers/ajaxCall'
 const controller = 'taxon_determinations'
 const permitParams = {
   taxon_determination: {
-    biological_collection_object_id: Number,
     taxon_determination_object_id: Number,
     taxon_determination_object_type: String,
     otu_id: Number,

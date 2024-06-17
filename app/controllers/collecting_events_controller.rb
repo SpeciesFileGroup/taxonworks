@@ -54,7 +54,6 @@ class CollectingEventsController < ApplicationController
     @collecting_event = @collecting_event.clone(
       annotations: params[:annotations],
       incremented_identifier_id: params[:incremented_identifier_id]
-      
     )
 
     respond_to do |format|
