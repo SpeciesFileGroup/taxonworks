@@ -112,7 +112,7 @@ onBeforeMount(() => {
 }
 
 .task-container {
-  height: calc(100vh - 200px);
-  max-height: calc(100vh - 200px);
+  height: calc(100vh - 15.5rem);
+  max-height: calc(100vh - 15.5rem);
 }
 </style>
