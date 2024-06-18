@@ -203,9 +203,9 @@ export const useContainerStore = defineStore('container', {
               promises.length === 1
                 ? 'Container item was successfully saved.'
                 : `${promises.length} Container items were successfully saved.`
-          }
 
-          TW.workbench.alert.create(message)
+            TW.workbench.alert.create(message)
+          }
         })
         .catch(() => {})
     },
