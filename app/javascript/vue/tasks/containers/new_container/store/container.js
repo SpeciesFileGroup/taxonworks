@@ -146,7 +146,11 @@ export const useContainerStore = defineStore('container', {
 
     removeContainerItem(item) {
       if (item.id) {
-        ContainerItem.destroy(item.id)
+        ContainerItem.destroy(item.id).then(() => {
+          TW.workbench.alert.create(
+            'Container item was successfully destroyed.'
+          )
+        })
       }
 
       removeFromArray(this.containerItems, item, { property: 'uuid' })
