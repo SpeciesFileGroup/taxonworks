@@ -335,6 +335,7 @@ class GeographicItem < ApplicationRecord
             shape_column = GeographicItem.shape_column_sql(shape)
             retval.push(template % shape_column)
           }
+
         when 'any_poly', 'any_line'
           SHAPE_TYPES.each { |shape|
             if column.to_s.index(shape.gsub('any_', ''))
@@ -342,6 +343,7 @@ class GeographicItem < ApplicationRecord
               retval.push(template % shape_column)
             end
           }
+
         else
           shape_column = GeographicItem.shape_column_sql(shape)
           retval = template % shape_column
@@ -644,19 +646,12 @@ class GeographicItem < ApplicationRecord
         where(q)
       end
 
-      # @return [Scope]
-      #   see are_contained_in_item_by_id
-      # @param [String] shape
-      # @param [GeographicItem, Array] geographic_items
-      def are_contained_in_item(shape, *geographic_items)
-        are_contained_in_item_by_id(shape, geographic_items.flatten.map(&:id))
-      end
-
       # rubocop:disable Metrics/MethodLength
       # @param [String] shape to search
-      # @param [GeographicItem] geographic_item_ids or array of geographic_item_ids to be tested.
+      # @param [GeographicItem] geographic_items or array of geographic_items
+      #                         to be tested.
       # @return [Scope] of GeographicItems that contain at least one of
-      #                 geographic_item_ids
+      #                 geographic_items
       #
       # If this scope is given an Array of GeographicItems as a second parameter,
       # it will return the 'OR' of each of the objects against the table.
@@ -664,36 +659,38 @@ class GeographicItem < ApplicationRecord
       #        WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)'))
       #               OR ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
       #
-      def are_contained_in_item_by_id(shape, *geographic_item_ids) # = containing
-        geographic_item_ids.flatten! # in case there is a array of arrays, or multiple objects
+      def are_contained_in_item(shape, *geographic_items) # = containing
+        geographic_items.flatten! # in case there is a array of arrays, or multiple objects
         shape = shape.to_s.downcase
         case shape
         when 'any'
           part = []
           SHAPE_TYPES.each { |shape|
-            part.push(GeographicItem.are_contained_in_item_by_id(shape, geographic_item_ids).to_a)
+            part.push(GeographicItem.are_contained_in_item(shape, geographic_items).to_a)
           }
           # TODO: change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten.map(&:id))
+
         when 'any_poly', 'any_line'
           part = []
           SHAPE_TYPES.each { |shape|
-            if shape.to_s.index(shape.gsub('any_', ''))
-              part.push(GeographicItem.are_contained_in_item_by_id(shape, geographic_item_ids).to_a)
+            if column.to_s.index(shape.gsub('any_', ''))
+              part.push(GeographicItem.are_contained_in_item(shape, geographic_items).to_a)
             end
           }
           # TODO: change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten.map(&:id))
+
         else
-          q = geographic_item_ids.flatten.collect { |geographic_item_id|
-            # TODO too bad this is being fetched seperately
-            geographic_item_shape =
-              GeographicItem.where(id: geographic_item_id).first.geo_object_type
-            GeographicItem.containing_sql(shape, geographic_item_id,
-                                          geographic_item_shape)
+          q = geographic_items.flatten.collect { |geographic_item|
+            GeographicItem.containing_sql(shape, geographic_item.id,
+                                          geographic_item.geo_object_type)
           }.join(' or ')
-          q = 'FALSE' if q.blank? # this will prevent the invocation of *ALL* of the GeographicItems, if there are
-          # no GeographicItems in the request (see CollectingEvent.name_hash(types)).
+
+          # This will prevent the invocation of *ALL* of the GeographicItems
+          # if there are no GeographicItems in the request (see
+          # CollectingEvent.name_hash(types)).
+          q = 'FALSE' if q.blank?
           where(q) # .not_including(geographic_items)
         end
       end
@@ -716,6 +713,7 @@ class GeographicItem < ApplicationRecord
           }
           # TODO: change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten)
+
         when 'any_poly', 'any_line'
           part = []
           SHAPE_TYPES.each { |shape|
@@ -725,6 +723,7 @@ class GeographicItem < ApplicationRecord
           }
           # TODO: change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten)
+
         else
           shape_column = GeographicItem.shape_column_sql(shape)
           q = "ST_Contains(ST_GeomFromEWKT('srid=4326;#{geometry}'), #{shape_column}::geometry)"
