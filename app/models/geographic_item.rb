@@ -134,19 +134,6 @@ class GeographicItem < ApplicationRecord
 
     class << self
 
-      def aliased_geographic_sql(name = 'a')
-        "CASE #{name}.type \
-         WHEN 'GeographicItem::MultiPolygon' THEN #{name}.multi_polygon \
-         WHEN 'GeographicItem::Point' THEN #{name}.point \
-         WHEN 'GeographicItem::LineString' THEN #{name}.line_string \
-         WHEN 'GeographicItem::Polygon' THEN #{name}.polygon \
-         WHEN 'GeographicItem::MultiLineString' THEN #{name}.multi_line_string \
-         WHEN 'GeographicItem::MultiPoint' THEN #{name}.multi_point \
-         WHEN 'GeographicItem::GeometryCollection' THEN #{name}.geometry_collection \
-         WHEN 'GeographicItem::Geography' THEN #{name}.geography \
-         END"
-      end
-
       def st_union(geographic_item_scope)
         GeographicItem.select("ST_Union(#{GeographicItem::GEOMETRY_SQL.to_sql}) as collection")
           .where(id: geographic_item_scope.pluck(:id))
@@ -1182,15 +1169,15 @@ class GeographicItem < ApplicationRecord
     # @return [Float, false]
     #    the value in square meters of the interesecting area of this and another GeographicItem
     def intersecting_area(geographic_item_id)
-      a = GeographicItem.aliased_geographic_sql('a')
-      b = GeographicItem.aliased_geographic_sql('b')
+      self_shape = GeographicItem.select_geography_sql(id)
+      other_shape = GeographicItem.select_geography_sql(geographic_item_id)
 
-      c = GeographicItem.connection.execute(
-        "SELECT ST_Area(ST_Intersection(#{a}, #{b})) as intersecting_area
-          FROM geographic_items a, geographic_items b
-          WHERE a.id = #{id} AND b.id = #{geographic_item_id};"
+      r = GeographicItem.connection.execute(
+        "SELECT ST_Area(ST_Intersection((#{self_shape}), (#{other_shape}))) " \
+        'AS intersecting_area FROM geographic_items limit 1'
       ).first
-      c && c['intersecting_area'].to_f
+
+      r && r['intersecting_area'].to_f
     end
 
     # TODO: This is bad, while internal use of ONE_WEST_MEAN is consistent it is in-accurate given the vast differences of radius vs. lat/long position.
