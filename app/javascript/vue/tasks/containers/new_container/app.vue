@@ -12,7 +12,7 @@
         v-model="store.container"
         class="container-form margin-medium-bottom"
       />
-      <ContainerItemList />
+      <ContainerItemList @edit="openContainerItemModal" />
     </div>
 
     <VueEncase
@@ -24,12 +24,7 @@
     <ContainerItemModal
       ref="containerItemModalRef"
       @close="() => (store.placeItem = null)"
-      @add="
-        (item) => {
-          store.addContainerItem(item)
-          store.saveContainerItems()
-        }
-      "
+      @add="saveContainerItem"
       @remove="store.removeContainerItem"
     />
     <MessageBox />
@@ -49,6 +44,7 @@ import ContainerItemModal from './components/ContainerItem/ContainerItemModal.vu
 import Navbar from './components/Navbar/Navbar.vue'
 import MessageBox from './components/MessageBox.vue'
 import VSettings from './components/Settings.vue'
+
 defineOptions({
   name: 'NewContainer'
 })
@@ -77,6 +73,19 @@ function handleClick({ position }) {
 
     containerItemModalRef.value.show(containerItem)
   }
+}
+
+async function saveContainerItem(item) {
+  if (store.container.isUnsaved) {
+    try {
+      await store.saveContainer()
+    } catch {
+      return
+    }
+  }
+
+  store.addContainerItem(item)
+  store.saveContainerItems()
 }
 
 onBeforeMount(() => {

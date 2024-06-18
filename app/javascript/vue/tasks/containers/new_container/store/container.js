@@ -34,9 +34,9 @@ function isItemInContainer({ x, y, z }, size) {
     x !== null &&
     y !== null &&
     z !== null &&
-    x <= size.x &&
-    y <= size.y &&
-    z <= size.z
+    x < size.x &&
+    y < size.y &&
+    z < size.z
   )
 }
 
@@ -155,7 +155,13 @@ export const useContainerStore = defineStore('container', {
     saveContainerItems() {
       if (!this.container.id) return
 
-      const list = this.containerItems.filter((item) => item.isUnsaved)
+      const unsavedItems = this.containerItems.filter((item) => item.isUnsaved)
+      const list = unsavedItems.filter((item) =>
+        isItemInContainer(item.position, this.container.size)
+      )
+      const outsideItemsCount = unsavedItems.length - list.length
+      let message = ''
+
       const promises = list.map((item) => {
         const payload = {
           container_item: makeContainerItemPayload({
@@ -168,12 +174,35 @@ export const useContainerStore = defineStore('container', {
           ? ContainerItem.update(item.id, payload)
           : ContainerItem.create(payload)
 
-        request.catch(() => {})
+        request
+          .then(() => {
+            item.isUnsaved = false
+          })
+          .catch(() => {})
 
         return request
       })
 
-      Promise.all(promises).catch(() => {})
+      if (outsideItemsCount) {
+        if (outsideItemsCount === 1) {
+          message = `Container items was not saved because its position exceeds the container size.`
+        } else {
+          message = `${outsideItemsCount} were not saved because their position exceeds the container size.`
+        }
+      }
+
+      Promise.all(promises)
+        .then(() => {
+          if (promises.length) {
+            message +=
+              promises.length === 1
+                ? 'Container item was successfully saved.'
+                : `${promises.length} Container items were successfully saved.`
+          }
+
+          TW.workbench.alert.create(message)
+        })
+        .catch(() => {})
     },
 
     saveContainer() {
@@ -185,8 +214,11 @@ export const useContainerStore = defineStore('container', {
       request
         .then(({ body }) => {
           this.container = makeContainer(body)
+          TW.workbench.alert.create('Container was successfully saved.')
         })
         .catch(() => {})
+
+      return request
     }
   }
 })

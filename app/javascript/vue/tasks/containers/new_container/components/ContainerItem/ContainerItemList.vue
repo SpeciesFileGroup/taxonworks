@@ -59,7 +59,17 @@
           <div class="container-item-column ellipsis">{{ item.label }}</div>
         </td>
         <td>
-          <div class="horizontal-right-content">
+          <div class="horizontal-right-content gap-small">
+            <VBtn
+              circle
+              color="primary"
+              @click="() => emit('edit', item)"
+            >
+              <VIcon
+                x-small
+                name="pencil"
+              />
+            </VBtn>
             <VBtn
               circle
               :color="item.id ? 'destroy' : 'primary'"
@@ -81,6 +91,8 @@
 import { useContainerStore } from '../../store'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+
+const emit = defineEmits(['edit'])
 
 const store = useContainerStore()
 </script>

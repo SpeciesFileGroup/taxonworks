@@ -10,6 +10,7 @@
           type="text"
           class="full_width"
           v-model="container.name"
+          @change="() => (container.isUnsaved = true)"
         />
       </div>
       <ContainerType
@@ -23,7 +24,8 @@
       />
       <ContainerSize
         v-model="container.size"
-        :disabled="!!type.dimensions"
+        :disabled="!!dimensions"
+        @change="() => (container.isUnsaved = true)"
       />
     </template>
   </BlockLayout>
@@ -42,13 +44,18 @@ const container = defineModel({
   required: true
 })
 
-const type = ref({})
 const types = ref([])
 
 const validParents = computed(() => {
   const type = types.value.find((item) => item.type === container.value.type)
 
   return type?.valid_parents
+})
+
+const dimensions = computed(() => {
+  const type = types.value.find((item) => item.type === container.value.type)
+
+  return type?.dimensions
 })
 
 Container.types().then(({ body }) => {

@@ -1,29 +1,17 @@
 <template>
   <div class="horizontal-left-content gap-small margin-medium-top">
-    <div class="field">
-      <label class="d-block">X</label>
+    <div
+      v-for="axis in AXES"
+      :key="axis"
+      class="field"
+    >
+      <label class="d-block capitalize">{{ axis }}</label>
       <input
         type="number"
         :disabled="disabled"
         v-between-numbers="[1, 999]"
-        v-model="size.x"
-      />
-    </div>
-    <div class="field">
-      <label class="d-block">Y</label>
-      <input
-        type="number"
-        :disabled="disabled"
-        v-between-numbers="[1, 999]"
-        v-model="size.y"
-      />
-    </div>
-    <div class="field">
-      <label class="d-block">Z</label>
-      <input
-        type="number"
-        :disabled="disabled"
-        v-model="size.z"
+        v-model="size[axis]"
+        @change="() => emit('change', true)"
       />
     </div>
   </div>
@@ -31,6 +19,8 @@
 
 <script setup>
 import { vBetweenNumbers } from '@/directives'
+
+const AXES = ['x', 'y', 'z']
 
 defineProps({
   disabled: {
@@ -43,6 +33,8 @@ const size = defineModel({
   type: Object,
   required: true
 })
+
+const emit = defineEmits(['change'])
 </script>
 
 <style scoped>
