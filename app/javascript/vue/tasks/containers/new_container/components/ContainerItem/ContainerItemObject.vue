@@ -1,7 +1,20 @@
 <template>
-  <div>
-    <div v-if="containerItem.objectId">
+  <div class="field">
+    <div
+      v-if="containerItem.objectId"
+      class="horizontal-left-content gap-small"
+    >
       <p>{{ containerItem.label }}</p>
+      <VBtn
+        circle
+        color="primary"
+        @click="unsetContainerObject"
+      >
+        <VIcon
+          name="undo"
+          small
+        />
+      </VBtn>
     </div>
 
     <VAutocomplete
@@ -19,6 +32,8 @@
 import { ref } from 'vue'
 import { COLLECTION_OBJECT } from '@/constants'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const TYPES = {
   [COLLECTION_OBJECT]: {
@@ -35,8 +50,20 @@ const containerItem = defineModel({
 const selectedType = ref(COLLECTION_OBJECT)
 
 function setContainedObject({ id, label }) {
-  containerItem.value.objectId = id
-  containerItem.value.objectType = selectedType.value
-  containerItem.value.label = label
+  Object.assign(containerItem.value, {
+    objectId: id,
+    objectType: selectedType.value,
+    label: label,
+    isUnsaved: true
+  })
+}
+
+function unsetContainerObject() {
+  Object.assign(containerItem.value, {
+    objectId: null,
+    objectType: null,
+    label: null,
+    isUnsaved: true
+  })
 }
 </script>

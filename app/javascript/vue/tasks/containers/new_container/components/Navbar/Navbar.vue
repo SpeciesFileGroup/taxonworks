@@ -29,7 +29,7 @@
         <VBtn
           color="create"
           medium
-          @click="store.saveContainer"
+          @click="save"
         >
           {{ store.container.id ? 'Update' : 'Create' }}
         </VBtn>
@@ -59,5 +59,12 @@ const store = useContainerStore()
 function getContainer({ id }) {
   store.loadContainer(id)
   setParam(RouteNames.NewContainer, 'container_id', id)
+}
+
+async function save() {
+  try {
+    await store.saveContainer()
+    store.saveContainerItems()
+  } catch {}
 }
 </script>

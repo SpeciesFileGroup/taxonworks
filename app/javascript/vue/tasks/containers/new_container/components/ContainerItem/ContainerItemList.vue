@@ -73,7 +73,7 @@
             <VBtn
               circle
               :color="item.id ? 'destroy' : 'primary'"
-              @click="() => store.removeContainerItem(item)"
+              @click="() => removeItem(item)"
             >
               <VIcon
                 x-small
@@ -95,6 +95,12 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 const emit = defineEmits(['edit'])
 
 const store = useContainerStore()
+
+function removeItem(item) {
+  if (window.confirm('Are you sure you want to delete this item?')) {
+    store.removeContainerItem(item)
+  }
+}
 </script>
 
 <style scoped>

@@ -179,7 +179,8 @@ export const useContainerStore = defineStore('container', {
           : ContainerItem.create(payload)
 
         request
-          .then(() => {
+          .then(({ body }) => {
+            item.id = body.id
             item.isUnsaved = false
           })
           .catch(() => {})
