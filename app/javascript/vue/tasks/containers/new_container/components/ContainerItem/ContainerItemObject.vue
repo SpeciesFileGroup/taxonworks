@@ -16,15 +16,31 @@
         />
       </VBtn>
     </div>
-
-    <VAutocomplete
-      v-else
-      param="term"
-      label="label"
-      :url="TYPES[selectedType].autocomplete"
-      :placeholder="TYPES[selectedType].placeholder"
-      @get-item="setContainedObject"
-    />
+    <div v-else>
+      <ul class="no_bullets">
+        <li
+          v-for="(_, type) in TYPES"
+          :key="type"
+        >
+          <label>
+            <input
+              type="radio"
+              :value="type"
+              v-model="selectedType"
+            />
+            {{ type }}
+          </label>
+        </li>
+      </ul>
+      <VAutocomplete
+        class="margin-small-top"
+        param="term"
+        label="label"
+        :url="TYPES[selectedType].autocomplete"
+        :placeholder="TYPES[selectedType].placeholder"
+        @get-item="setContainedObject"
+      />
+    </div>
   </div>
 </template>
 
