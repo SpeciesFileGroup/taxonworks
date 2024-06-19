@@ -2,8 +2,8 @@
   <div class="field">
     <label class="d-block">Type</label>
     <select
+      class="capitalize"
       v-model="container.type"
-      class="sentence-case"
       @change="setType"
     >
       <option

@@ -40,6 +40,13 @@ import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
+const props = defineProps({
+  types: {
+    type: Array,
+    default: () => []
+  }
+})
+
 const parentId = defineModel({
   type: [Number, null],
   required: true

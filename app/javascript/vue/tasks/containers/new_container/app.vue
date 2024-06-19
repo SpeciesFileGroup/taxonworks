@@ -7,11 +7,12 @@
   <div
     class="horizontal-left-content align-start full_width task-container gap-medium"
   >
-    <div>
+    <div class="flex-col gap-medium full_height">
       <ContainerForm
         v-model="store.container"
-        class="container-form margin-medium-bottom"
+        class="container-form"
       />
+
       <ContainerItemList @edit="openContainerItemModal" />
     </div>
 

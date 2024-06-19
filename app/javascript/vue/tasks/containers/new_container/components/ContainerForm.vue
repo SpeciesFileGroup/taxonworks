@@ -19,7 +19,7 @@
       />
       <ContainerParent
         v-if="validParents"
-        :types="types"
+        :types="validParents"
         v-model="container.parentId"
       />
       <ContainerSize

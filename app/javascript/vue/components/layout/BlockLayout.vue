@@ -77,11 +77,9 @@ watch(
   }
 )
 
-watch(
-  expanded,
-  (newVal) => { emit('expandedChanged', newVal) }
-)
-
+watch(expanded, (newVal) => {
+  emit('expandedChanged', newVal)
+})
 </script>
 <style lang="scss" scoped>
 .block-layout {
@@ -94,7 +92,6 @@ watch(
     min-width: 100px;
   }
 
-  height: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;

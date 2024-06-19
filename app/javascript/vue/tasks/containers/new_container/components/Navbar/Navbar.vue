@@ -51,8 +51,10 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { useContainerStore } from '../../store'
-import { setParam } from '@/helpers'
+import { setParam, URLParamsToJSON } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
+import { watch } from 'vue'
+import { usePopstateListener } from '@/composables'
 
 const store = useContainerStore()
 
@@ -67,4 +69,23 @@ async function save() {
     store.saveContainerItems()
   } catch {}
 }
+
+watch(
+  () => store.container.id,
+  (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      setParam(RouteNames.NewContainer, 'container_id', newVal)
+    }
+  }
+)
+
+usePopstateListener(() => {
+  const { container_id: id } = URLParamsToJSON(location.href)
+
+  store.$reset()
+
+  if (id) {
+    store.loadContainer(id)
+  }
+})
 </script>
