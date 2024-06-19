@@ -929,7 +929,6 @@ class GeographicItem < ApplicationRecord
     #    the lat, lon of the first point in the GeoItem, see subclass for
     #    st_start_point
     def start_point
-      # TODO add st_start_point for geography
       o = st_start_point
       [o.y, o.x]
     end

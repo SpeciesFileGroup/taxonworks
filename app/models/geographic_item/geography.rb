@@ -3,5 +3,15 @@
 class GeographicItem::Geography < GeographicItem
   validates_presence_of :geography
 
-  # TODO: to_a, st_start_point, others?
+  # DEPRECATED
+  # def st_start_point
+  # end
+
+  # DEPRECATED
+  # def rendering_hash
+  # end
+
+  # DEPRECATED
+  # def to_hash
+  # end
 end
