@@ -39,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Added bootsnap gem to speed up boot times. `tmp/cache` dir is used as cache by this gem.
 - Removed `versions_associations` and `shortened_urls` tables from Project SQL export.
 - Replace validations modal in Browse nomenclature task [#3974]
+- Updated Ruby gems.
 
 [#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
 [#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
