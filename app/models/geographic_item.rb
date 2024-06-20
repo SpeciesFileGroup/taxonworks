@@ -143,6 +143,43 @@ class GeographicItem < ApplicationRecord
           .where(id: geographic_item_scope.pluck(:id))
       end
 
+      # True for those shapes that are contained within the shape_sql shape.
+      def within_sql(shape_sql)
+        'ST_Covers(' \
+          "#{shape_sql}, " \
+          "#{GeographicItem::GEOMETRY_SQL.to_sql}" \
+        ')'
+      end
+
+      # Note: !! If the target GeographicItem#id crosses the anti-meridian then
+      # you may/will get unexpected results.
+      def within_union_of_sql(*geographic_item_ids)
+        within_sql("#{GeographicItem.geometry_sql2(*geographic_item_ids)}")
+      end
+
+      def within_union_of(*geographic_item_ids)
+        where(within_union_of_sql(*geographic_item_ids))
+      end
+
+      # True for those shapes that cover the shape_sql shape.
+      def covering_sql(shape_sql)
+        'ST_Covers(' \
+          "#{GeographicItem::GEOMETRY_SQL.to_sql}, " \
+          "#{shape_sql}" \
+        ')'
+      end
+
+      # @return [Scope] of items covering the union of geographic_item_ids;
+      # does not include any of geographic_item_ids
+      def covering_union_of(*geographic_item_ids)
+        where(
+          self.covering_sql(
+            GeographicItem.geometry_sql2(*geographic_item_ids)
+          )
+        )
+        .not_ids(*geographic_item_ids)
+      end
+
       # @param [String] wkt
       # @return [Boolean]
       #   whether or not the wkt intersects with the anti-meridian
@@ -244,13 +281,11 @@ class GeographicItem < ApplicationRecord
 
       # @param [String] wkt
       # @param [Integer] distance (meters)
-      # @return [String]
-      # !! This is fully covering
-      def within_radius_of_wkt_sql(wkt, distance)
-        'ST_Covers(' \
-          "ST_Buffer(ST_GeographyFromText('#{wkt}'), #{distance}), " \
-          "(#{GeographicItem::GEOGRAPHY_SQL})" \
-        ')'
+      # @return [String] Those items contained in the distance-buffer of wkt
+      def within_radius_of_wkt(wkt, distance)
+        where(self.within_sql(
+          "ST_Buffer(ST_GeographyFromText('#{wkt}'), #{distance})"
+        ))
       end
 
       # @param [String, Integer, String]
@@ -258,8 +293,8 @@ class GeographicItem < ApplicationRecord
       #   a SQL fragment for ST_Contains() function, returns
       #   all geographic items whose target_shape contains the item supplied's
       #   source_shape
-      def containing_sql(target_shape = nil, geographic_item_id = nil,
-                         source_shape = nil)
+      def containing_shape_sql(target_shape = nil, geographic_item_id = nil,
+                               source_shape = nil)
         return 'false' if geographic_item_id.nil? || source_shape.nil? || target_shape.nil?
 
         target_shape_sql = GeographicItem.shape_column_sql(target_shape)
@@ -326,21 +361,13 @@ class GeographicItem < ApplicationRecord
         end
       end
 
-      # @param [Integer, Array of Integer] geographic_item_ids
-      # @return [String] Those geographic items containing the union of
-      # geographic_item_ids.
-      def containing_where_sql(*geographic_item_ids)
-        "ST_CoveredBy(
-          #{GeographicItem.geometry_sql2(*geographic_item_ids)},
-          #{GeographicItem::GEOMETRY_SQL.to_sql})"
-      end
-
       # @params [String] well known text
       # @return [String] the SQL fragment for the specific geometry type,
       # shifted by longitude
       # Note: this routine is called when it is already known that the A
       # argument crosses anti-meridian
       # TODO If wkt coords are in the range 0..360 and GI coords are in the range -180..180 (or vice versa), doesn't this fail? Don't you want all coords in the range 0..360 in this geometry case? Is there any assumption about range of inputs for georefs, e.g.? are they always normalized? See anti-meridian spec?
+      # TODO rename within?
       def contained_by_wkt_shifted_sql(wkt)
         "ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
         CASE geographic_items.type
@@ -365,32 +392,12 @@ class GeographicItem < ApplicationRecord
         if crosses_anti_meridian?(wkt)
           contained_by_wkt_shifted_sql(wkt)
         else
+          # TODO should probably be ST_Covers? Then use covering_sql
           'ST_Contains(' \
             "ST_GeomFromText('#{wkt}', 4326), " \
             "#{GEOMETRY_SQL.to_sql}" \
           ')'
         end
-      end
-
-      # @param [Integer, Array of Integer] geographic_item_ids
-      # @return [String] sql for contained_by via ST_Contains
-      # Note: !! If the target GeographicItem#id crosses the anti-meridian then you may/will get unexpected results.
-      def contained_by_where_sql(*geographic_item_ids)
-        'ST_Contains(' \
-          "#{GeographicItem.geometry_sql2(*geographic_item_ids)}, " \
-          "#{GEOMETRY_SQL.to_sql}" \
-        ')'
-      end
-
-      # @param [RGeo:Point] rgeo_point
-      # @return [String] sql for containing via ST_CoveredBy
-      # TODO: Remove the hard coded 4326 reference
-      # TODO: should this be wkt_point instead of rgeo_point?
-      def containing_where_for_point_sql(rgeo_point)
-        'ST_CoveredBy(' \
-          "ST_GeomFromText('#{rgeo_point}', 4326), " \
-          "#{GeographicItem::GEOMETRY_SQL.to_sql}" \
-        ')'
       end
 
       # @param [Integer] geographic_item_id
@@ -404,20 +411,14 @@ class GeographicItem < ApplicationRecord
       # Scopes
       #
 
-      # @param [Integer, Array of Integer] geographic_item_ids
-      # @return [Scope]
-      #    the geographic items containing all of the geographic_item ids;
-      #    return value never includes geographic_item_ids
-      def containing(*geographic_item_ids)
-        where(GeographicItem.containing_where_sql(geographic_item_ids)).not_ids(*geographic_item_ids)
-      end
-
       # @param [RGeo::Point] rgeo_point
       # @return [Scope]
       #    the geographic items containing this point
       # TODO: should be containing_wkt ?
       def containing_point(rgeo_point)
-        where(GeographicItem.containing_where_for_point_sql(rgeo_point))
+        where(
+          self.covering_sql("ST_GeomFromText('#{rgeo_point}', 4326)")
+        )
       end
 
       # return [Scope]
@@ -499,6 +500,7 @@ class GeographicItem < ApplicationRecord
       #        WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)'))
       #               OR ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
       #
+      # TODO rename in st_ style (I think it's backwards now?)
       def are_contained_in_item(shape, *geographic_items) # = containing
         geographic_items.flatten! # in case there is a array of arrays, or multiple objects
         shape = shape.to_s.downcase
@@ -514,7 +516,8 @@ class GeographicItem < ApplicationRecord
         when 'any_poly', 'any_line'
           part = []
           SHAPE_TYPES.each { |shape|
-            if column.to_s.index(shape.gsub('any_', ''))
+            shape = shape.to_s.downcase
+            if shape.index(shape.gsub('any_', ''))
               part.push(GeographicItem.are_contained_in_item(shape, geographic_items).to_a)
             end
           }
@@ -523,8 +526,11 @@ class GeographicItem < ApplicationRecord
 
         else
           q = geographic_items.flatten.collect { |geographic_item|
-            GeographicItem.containing_sql(shape, geographic_item.id,
-                                          geographic_item.geo_object_type)
+            GeographicItem.containing_shape_sql(
+              shape,
+              geographic_item.id,
+              geographic_item.geo_object_type
+            )
           }.join(' or ')
 
           # This will prevent the invocation of *ALL* of the GeographicItems
@@ -599,14 +605,14 @@ class GeographicItem < ApplicationRecord
       # @return [String]
       def select_distance_with_geo_object(shape, geographic_item)
         shape_column = GeographicItem.shape_column_sql(shape)
-        select("*, ST_Distance(#{shape_column}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance")
+        select("*, ST_Distance(#{shape_column}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) AS distance")
       end
 
       # @param [String, GeographicItem]
       # @return [Scope]
       def where_distance_greater_than_zero(shape, geographic_item)
         shape_column = GeographicItem.shape_column_sql(shape)
-        where("#{shape_column} is not null and ST_Distance(#{shape_column}, " \
+        where("#{shape_column} IS NOT NULL AND ST_Distance(#{shape_column}, " \
               "GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0")
       end
 
@@ -636,7 +642,10 @@ class GeographicItem < ApplicationRecord
       # @return [Hash]
       #   as per #inferred_geographic_name_hierarchy but for Rgeo point
       def point_inferred_geographic_name_hierarchy(point)
-        GeographicItem.containing_point(point).order(cached_total_area: :ASC).first&.inferred_geographic_name_hierarchy
+        self
+          .containing_point(point)
+          .order(cached_total_area: :ASC)
+          .first&.inferred_geographic_name_hierarchy
       end
 
       # @param [String] type_name ('polygon', 'point', 'line', etc)
@@ -723,13 +732,6 @@ class GeographicItem < ApplicationRecord
       end
     end
 
-    # @param [RGeo::Point] point
-    # @return [Hash]
-    #   as per #inferred_geographic_name_hierarchy but for Rgeo point
-    def point_inferred_geographic_name_hierarchy(point)
-      GeographicItem.containing_point(point).order(cached_total_area: :ASC).first&.inferred_geographic_name_hierarchy
-    end
-
     def geographic_name_hierarchy
       a = quick_geographic_name_hierarchy # quick; almost never the case, UI not setup to do this
       return a if a.present?
@@ -740,7 +742,7 @@ class GeographicItem < ApplicationRecord
     #   the Geographic Areas that contain (gis) this geographic item
     def containing_geographic_areas
       GeographicArea.joins(:geographic_items).includes(:geographic_area_type)
-        .joins("JOIN (#{GeographicItem.containing(id).to_sql}) j on geographic_items.id = j.id")
+        .joins("JOIN (#{GeographicItem.covering_union_of(id).to_sql}) j ON geographic_items.id = j.id")
     end
 
     # @return [Boolean]

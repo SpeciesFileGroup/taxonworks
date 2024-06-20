@@ -362,9 +362,10 @@ class CollectingEvent < ApplicationRecord
 
     # @param [GeographicItem] geographic_item
     # @return [Scope]
-    # TODO: use joins(:geographic_items).where(containing scope), simplied to
     def contained_within(geographic_item)
-      CollectingEvent.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(geographic_item.id))
+      CollectingEvent.joins(:geographic_items).where(
+        GeographicItem.within_union_of_sql(geographic_item.id)
+      )
     end
 
     # @param [CollectingEvent Scope] collecting_events
@@ -790,6 +791,7 @@ class CollectingEvent < ApplicationRecord
       r = geographic_area.geographic_name_classification
     when :verbatim_map_center # elsif map_center
       # slowest
+      # TODO test this
       r = GeographicItem.point_inferred_geographic_name_hierarchy(verbatim_map_center)
     end
     r ||= {}
@@ -821,7 +823,10 @@ class CollectingEvent < ApplicationRecord
       #  Struck EGI, EGI must contain GI, therefor anything that contains EGI contains GI, threfor containing GI will always be the bigger set
       #   !! and there was no tests broken
       # GeographicItem.are_contained_in_item('any_poly', self.geographic_items.to_a).pluck(:id).uniq
-      gi_list = GeographicItem.containing(*geographic_items.pluck(:id)).pluck(:id).uniq
+      gi_list = GeographicItem
+       .covering_union_of(*geographic_items.pluck(:id))
+       .pluck(:id)
+       .uniq
 
     else
       # use geographic_area only if there are no GIs or EGIs

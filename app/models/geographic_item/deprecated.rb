@@ -19,9 +19,8 @@ module GeographicItem::Deprecated
     #    geographic_item ids; return value always includes geographic_item_ids
     # (works via ST_Contains)
     def contained_by(*geographic_item_ids)
-      where(GeographicItem.contained_by_where_sql(geographic_item_ids))
+      where(GeographicItem.within_union_of_sql(geographic_item_ids))
     end
-
 
     # DEPRECATED
     # @return [GeographicItem::ActiveRecord_Relation]
@@ -91,7 +90,7 @@ module GeographicItem::Deprecated
         #{GEOGRAPHY_SQL})"
     end
 
-    # DEPRECATED
+    # DEPRECATED, used only in specs
     # @param [Interger, Array of Integer] ids
     # @return [Array]
     #   If we detect that some query id has crossed the meridian, then loop through
@@ -99,6 +98,7 @@ module GeographicItem::Deprecated
     #   Should only be used if GeographicItem.crosses_anti_meridian_by_id? is true.
     #   Note that this does not return a Scope, so you can't chain it like contained_by?
     # TODO: test this
+    # TODO rename within?
     def contained_by_with_antimeridian_check(*ids)
       ids.flatten! # make sure there is only one level of splat (*)
       results = []
@@ -111,7 +111,7 @@ module GeographicItem::Deprecated
       end
 
       non_crossing_ids = ids - crossing_ids
-      results.push GeographicItem.contained_by(non_crossing_ids).to_a if non_crossing_ids.any?
+      results.push self.where(self.within_union_of_sql(non_crossing_ids)).to_a if non_crossing_ids.any?
 
       crossing_ids.each do |id|
         # [61666, 61661, 61659, 61654, 61639]

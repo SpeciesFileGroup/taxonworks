@@ -342,7 +342,7 @@ class CollectionObject < ApplicationRecord
       retval = CollectionObject.where(id: step_4.sort)
     else
       retval = CollectionObject.joins(:geographic_items)
-        .where(GeographicItem.contained_by_where_sql(geographic_item.id))
+        .where(GeographicItem.within_union_of_sql(geographic_item.id))
         .limit(limit)
         .includes(:data_attributes, :collecting_event)
     end

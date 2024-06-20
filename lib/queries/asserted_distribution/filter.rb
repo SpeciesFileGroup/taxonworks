@@ -170,7 +170,8 @@ module Queries
         if geometry = RGeo::GeoJSON.decode(geo_json)
           case geometry.geometry_type.to_s
           when 'Point'
-            ::GeographicItem.joins(:geographic_areas).where( ::GeographicItem.within_radius_of_wkt_sql(geometry.to_s, radius ) )
+            # TODO test this
+            ::GeographicItem.joins(:geographic_areas).within_radius_of_wkt_sql(geometry.to_s, radius )
           when 'Polygon', 'MultiPolygon'
             ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(geometry.to_s))
           else

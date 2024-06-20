@@ -654,23 +654,23 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           before { [k, l, b, b1, b2, e1].each }
 
           specify 'find the polygon containing the points' do
-            expect(GeographicItem.containing(p1.id).to_a).to contain_exactly(k)
+            expect(GeographicItem.covering_union_of(p1.id).to_a).to contain_exactly(k)
           end
 
           specify 'find the polygon containing all three points' do
-            expect(GeographicItem.containing(p1.id, p2.id, p3.id).to_a).to contain_exactly(k)
+            expect(GeographicItem.covering_union_of(p1.id, p2.id, p3.id).to_a).to contain_exactly(k)
           end
 
           specify 'find that a line string can contain a point' do
-            expect(GeographicItem.containing(p4.id).to_a).to contain_exactly(l)
+            expect(GeographicItem.covering_union_of(p4.id).to_a).to contain_exactly(l)
           end
 
           specify 'point in two polygons, but not their intersection' do
-            expect(GeographicItem.containing(p18.id).to_a).to contain_exactly(b1, b2)
+            expect(GeographicItem.covering_union_of(p18.id).to_a).to contain_exactly(b1, b2)
           end
 
           specify 'point in two polygons, one with a hole in it' do
-            expect(GeographicItem.containing(p19.id).to_a).to contain_exactly(b1, b)
+            expect(GeographicItem.covering_union_of(p19.id).to_a).to contain_exactly(b1, b)
           end
         end
 
@@ -746,12 +746,12 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           before { [p1, p2, p3, p11, p12, k, l].each }
 
           specify 'find the points in a polygon' do
-            expect(GeographicItem.contained_by(k.id).to_a).to contain_exactly(p1, p2, p3, k)
+            expect(GeographicItem.within_union_of(k.id).to_a).to contain_exactly(p1, p2, p3, k)
           end
 
           specify 'find the (overlapping) points in a polygon' do
             overlapping_point = FactoryBot.create(:geographic_item_point, point: point12.as_binary)
-            expect(GeographicItem.contained_by(e1.id).to_a).to contain_exactly(p12, overlapping_point, p11, e1)
+            expect(GeographicItem.within_union_of(e1.id).to_a).to contain_exactly(p12, overlapping_point, p11, e1)
           end
         end
 
@@ -1684,23 +1684,23 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           before { [k, l, b, b1, b2, e1].each }
 
           specify 'find the polygon containing the points' do
-            expect(GeographicItem.containing(p1.id).to_a).to contain_exactly(k)
+            expect(GeographicItem.covering_union_of(p1.id).to_a).to contain_exactly(k)
           end
 
           specify 'find the polygon containing all three points' do
-            expect(GeographicItem.containing(p1.id, p2.id, p3.id).to_a).to contain_exactly(k)
+            expect(GeographicItem.covering_union_of(p1.id, p2.id, p3.id).to_a).to contain_exactly(k)
           end
 
           specify 'find that a line string can contain a point' do
-            expect(GeographicItem.containing(p4.id).to_a).to contain_exactly(l)
+            expect(GeographicItem.covering_union_of(p4.id).to_a).to contain_exactly(l)
           end
 
           specify 'point in two polygons, but not their intersection' do
-            expect(GeographicItem.containing(p18.id).to_a).to contain_exactly(b1, b2)
+            expect(GeographicItem.covering_union_of(p18.id).to_a).to contain_exactly(b1, b2)
           end
 
           specify 'point in two polygons, one with a hole in it' do
-            expect(GeographicItem.containing(p19.id).to_a).to contain_exactly(b1, b)
+            expect(GeographicItem.covering_union_of(p19.id).to_a).to contain_exactly(b1, b)
           end
         end
 
@@ -1776,12 +1776,12 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           before { [p1, p2, p3, p11, p12, k, l].each }
 
           specify 'find the points in a polygon' do
-            expect(GeographicItem.contained_by(k.id).to_a).to contain_exactly(p1, p2, p3, k)
+            expect(GeographicItem.within_union_of(k.id).to_a).to contain_exactly(p1, p2, p3, k)
           end
 
           specify 'find the (overlapping) points in a polygon' do
             overlapping_point = FactoryBot.create(:geographic_item_point, point: point12.as_binary)
-            expect(GeographicItem.contained_by(e1.id).to_a).to contain_exactly(p12, overlapping_point, p11, e1)
+            expect(GeographicItem.within_union_of(e1.id).to_a).to contain_exactly(p12, overlapping_point, p11, e1)
           end
         end
 
