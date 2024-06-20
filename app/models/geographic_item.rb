@@ -636,7 +636,7 @@ class GeographicItem < ApplicationRecord
       # @return [Hash]
       #   as per #inferred_geographic_name_hierarchy but for Rgeo point
       def point_inferred_geographic_name_hierarchy(point)
-        GeographicItem.containing_point(point).order(cached_total_area: :ASC).limit(1).first&.inferred_geographic_name_hierarchy
+        GeographicItem.containing_point(point).order(cached_total_area: :ASC).first&.inferred_geographic_name_hierarchy
       end
 
       # @param [String] type_name ('polygon', 'point', 'line', etc)
@@ -715,13 +715,19 @@ class GeographicItem < ApplicationRecord
         .joins(:geographic_areas_geographic_items)
         .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
         .ordered_by_area
-        .limit(1)
         .first
 
         small_area.geographic_name_classification
       else
         {}
       end
+    end
+
+    # @param [RGeo::Point] point
+    # @return [Hash]
+    #   as per #inferred_geographic_name_hierarchy but for Rgeo point
+    def point_inferred_geographic_name_hierarchy(point)
+      GeographicItem.containing_point(point).order(cached_total_area: :ASC).first&.inferred_geographic_name_hierarchy
     end
 
     def geographic_name_hierarchy
@@ -834,8 +840,6 @@ class GeographicItem < ApplicationRecord
     def intersects?(target_geo_object)
       self.geo_object.intersects?(target_geo_object)
     end
-
-
 
     # @return [GeoJSON hash]
     #    via Rgeo apparently necessary for GeometryCollection

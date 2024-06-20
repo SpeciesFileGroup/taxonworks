@@ -900,7 +900,6 @@ class CollectingEvent < ApplicationRecord
   # @return [GeoJSON::Feature]
   #   the first geographic item of the first georeference on this collecting event
   def to_geo_json_feature
-    # !! avoid loading the whole geographic item, just grab the bits we need:
     # self.georeferences(true)  # do this to
     to_simple_json_feature.merge({
       'properties' => {
@@ -921,13 +920,11 @@ class CollectingEvent < ApplicationRecord
     }
 
     if geographic_items.any?
-      geo_item_id      = geographic_items.select(:id).first.id
-      query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
-      base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
+      base['geometry'] = RGeo::GeoJSON.encode(geographic_items.first.geo_object)
     end
+
     base
   end
-
 
   # @param [Float] delta_z, will be used to fill in the z coordinate of the point
   # @return [RGeo::Geographic::ProjectedPointImpl, nil]
@@ -1013,7 +1010,7 @@ class CollectingEvent < ApplicationRecord
           # not_georeference_attributes = %w{created_at updated_at project_id updated_by_id created_by_id collecting_event_id id position}
           georeferences.each do |g|
             i = g.dup
-          
+
             g.georeferencer_roles.each do |r|
               i.georeferencer_roles.build(person: r.person, position: r.position)
             end
@@ -1027,7 +1024,7 @@ class CollectingEvent < ApplicationRecord
           add_incremented_identifier(to_object: a, incremented_identifier_id:)
         end
 
-        if !annotations.blank? # TODO: boolean param this 
+        if !annotations.blank? # TODO: boolean param this
           clone_annotations(to_object: a, except: [:identifiers])
         end
 
