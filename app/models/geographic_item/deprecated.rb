@@ -6,7 +6,7 @@ module GeographicItem::Deprecated
   #
 
   class_methods do
-      # DEPRECATED
+    # DEPRECATED
     def st_collect(geographic_item_scope)
       GeographicItem.select("ST_Collect(#{GeographicItem::GEOMETRY_SQL.to_sql}) as collection")
         .where(id: geographic_item_scope.pluck(:id))

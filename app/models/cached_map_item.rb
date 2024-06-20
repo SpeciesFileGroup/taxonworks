@@ -168,6 +168,7 @@ class CachedMapItem < ApplicationRecord
     # aware of this assumption
 
     # This is a fast first pass, pure intersection
+    # TODO move this to geo item
     a = GeographicItem
       .joins(:geographic_areas_geographic_items)
       .where(geographic_areas_geographic_items: { data_origin: })

@@ -180,6 +180,26 @@ class GeographicItem < ApplicationRecord
         .not_ids(*geographic_item_ids)
       end
 
+      # @param [Integer] geographic_item_id
+      # @param [Integer] buffer can be positive or negative, in meters for the
+      #                  default geographic case
+      # @param [Boolean] geometric: whether the buffer should be created using
+      #                  geographic (default) or geometric coordinates
+      # @return [RGeo::Polygon or RGeo::MultiPolygon]
+      #   The buffer of size `buffer` around geographic_item_id
+      def st_buffer_for_item(geographic_item_id, buffer, geometric: false)
+        geometric = geometric ? '::geometry' : ''
+
+        GeographicItem.select(
+          'ST_Buffer(' \
+            "#{GeographicItem::GEOGRAPHY_SQL}#{geometric}, " \
+            "#{buffer}" \
+          ') AS buffer'
+        )
+        .where(id: geographic_item_id)
+        .first.buffer
+      end
+
       # @param [String] wkt
       # @return [Boolean]
       #   whether or not the wkt intersects with the anti-meridian
@@ -252,7 +272,6 @@ class GeographicItem < ApplicationRecord
           "#{distance}" \
         ')'
       end
-
 
       # @param [Integer] geographic_item_id
       # @param [Number] distance (in meters) (positive only?!)
@@ -477,14 +496,6 @@ class GeographicItem < ApplicationRecord
 
           where(q)
         end
-      end
-
-      # @param [GeographicItem#id] geographic_item_id
-      # @param [Float] distance in meters ?!?!
-      # @return [ActiveRecord::Relation]
-      # !! should be distance, not radius?!
-      def within_radius_of_item(geographic_item_id, distance)
-        where(within_radius_of_item_sql(geographic_item_id, distance))
       end
 
       # rubocop:disable Metrics/MethodLength

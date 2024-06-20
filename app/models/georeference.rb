@@ -151,16 +151,11 @@ class Georeference < ApplicationRecord
   # @return [Scope] georeferences
   #   all georeferences within some distance of a geographic_item, by id
   def self.within_radius_of_item(geographic_item_id, distance)
-    return where(id: -1) if geographic_item_id.nil? || distance.nil?
-    # sanitize_sql_array(["name=:name and group_id=:group_id", name: "foo'bar", group_id: 4])
-    # => "name='foo''bar' and group_id=4"
-    q1 = "ST_Distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
-      "(#{GeographicItem.select_geography_sql(geographic_item_id)})) < #{distance}"
-    # q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance(?, (?)) < ?',
-    #                                                    GeographicItem::GEOGRAPHY_SQL,
-    #                                                    GeographicItem.select_geography_sql(geographic_item_id),
-    #                                                    distance])
-    Georeference.joins(:geographic_item).where(q1)
+    return none if geographic_item_id.nil? || distance.nil?
+
+    Georeference.joins(:geographic_item).where(
+      GeographicItem.within_radius_of_item_sql(geographic_item_id, distance)
+    )
   end
 
   # @param [String] locality string
@@ -307,10 +302,14 @@ class Georeference < ApplicationRecord
     retval
   end
 
+  # DEPRECATED
   # @return [Rgeo::polygon, nil]
   #   a polygon representing the buffer
   def error_radius_buffer_polygon
     return nil if error_radius.nil? || geographic_item.nil?
+
+    # This should be moved to GeographicItem, but can we assume geographic_item has
+    # been saved yet?
     sql_str = ActivRecord::Base.send(
       :sanitize_sql_array,
       ['SELECT ST_Buffer(?, ?)',
