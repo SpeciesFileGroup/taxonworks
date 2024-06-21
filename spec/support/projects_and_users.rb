@@ -13,7 +13,7 @@ module ProjectsAndUsers
     # Current.project_id = nil
   end
 
-  # This is used before all tests of type :model, :controller, :helper
+  # This is used before all tests of type :model, :helper
   # id 1 matters!!
   def self.spin_up_projects_users_and_housekeeping
     u = FactoryBot.create(:valid_user, id: 1, self_created: true)
