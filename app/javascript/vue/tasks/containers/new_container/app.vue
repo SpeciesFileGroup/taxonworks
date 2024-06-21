@@ -13,12 +13,26 @@
         class="container-form"
       />
 
-      <ContainerItemList @edit="openContainerItemModal" />
+      <div class="overflow-y-auto">
+        <ContainerItemList
+          v-if="store.getItemsOutsideContainer.length"
+          title="Container Items (Outside)"
+          :list="store.getItemsOutsideContainer"
+          @edit="openContainerItemModal"
+        />
+        <ContainerItemList
+          v-if="store.getItemsInsideContainer.length"
+          title="Container Items (Inside)"
+          :list="store.getItemsInsideContainer"
+          @edit="openContainerItemModal"
+        />
+      </div>
     </div>
 
     <VueEncase
       class="container-viewer"
       v-bind="store.encaseOpts"
+      v-model:selected-items="store.selectedItems"
       @container-item:right-click="openContainerItemModal"
       @container-item:left-click="handleClick"
     />

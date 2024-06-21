@@ -7,6 +7,7 @@ import {
   makeContainerItemPayload
 } from '../adapters'
 import { removeFromArray, addToArray, shorten } from '@/helpers'
+import { comparePosition } from '../utils'
 
 const HOVER_COLOR = {
   filled: 'blue',
@@ -25,8 +26,21 @@ const DEFAULT_OPTS = {
   }
 }
 
-function comparePosition({ x, y, z }, position) {
-  return position.x === x && position.y === y && position.z === z
+function makeVisualizerContainerItem(item, { truncateMaxLength, hoverRow }) {
+  const label = truncateMaxLength
+    ? shorten(item.label, truncateMaxLength)
+    : item.label
+  const style =
+    hoverRow && comparePosition(item.position, hoverRow.position)
+      ? { color: HOVER_COLOR }
+      : {}
+
+  return {
+    position: item.position,
+    metadata: item,
+    label,
+    style
+  }
 }
 
 function isItemInContainer({ x, y, z }, size) {
@@ -47,26 +61,15 @@ export const useContainerStore = defineStore('container', {
     truncateMaxLength: 50,
     container: makeContainer(),
     containerItems: [],
-    hoverRow: null
+    hoverRow: null,
+    selectedItems: []
   }),
 
   getters: {
     encaseOpts(state) {
-      const containerItems = state.containerItems.map((item) => {
-        return {
-          ...item,
-          label: state.truncateMaxLength
-            ? shorten(item.label, state.truncateMaxLength)
-            : item.label,
-          style:
-            state.hoverRow &&
-            comparePosition(item.position, state.hoverRow.position)
-              ? {
-                  color: HOVER_COLOR
-                }
-              : {}
-        }
-      })
+      const containerItems = state.containerItems.map((item) =>
+        makeVisualizerContainerItem(item, state)
+      )
 
       return {
         ...DEFAULT_OPTS,
@@ -94,6 +97,13 @@ export const useContainerStore = defineStore('container', {
         )
     },
 
+    getSelectedContainerItemByPosition(state) {
+      return (coordinates) =>
+        state.selectedItems.find(({ position }) =>
+          comparePosition(coordinates, position)
+        )
+    },
+
     getItemsOutsideContainer(state) {
       return state.containerItems.filter(
         (item) => !isItemInContainer(item.position, this.container.size)
@@ -104,6 +114,14 @@ export const useContainerStore = defineStore('container', {
       return state.containerItems.filter((item) =>
         isItemInContainer(item.position, this.container.size)
       )
+    },
+
+    isItemInside(state) {
+      return (item) => {
+        return state.getItemsInsideContainer.some((i) =>
+          comparePosition(i.position, item.position)
+        )
+      }
     }
   },
 
@@ -142,6 +160,26 @@ export const useContainerStore = defineStore('container', {
 
     addContainerItem(item) {
       addToArray(this.containerItems, item, { property: 'uuid' })
+    },
+
+    addSelectedItem(item) {
+      if (
+        !this.selectedItems.some((i) =>
+          comparePosition(i.position, item.position)
+        )
+      ) {
+        this.selectedItems.push(makeVisualizerContainerItem(item, this))
+      }
+    },
+
+    removeSelectedItem(item) {
+      const index = this.selectedItems.findIndex((i) =>
+        comparePosition(item.position, i.position)
+      )
+
+      if (index > -1) {
+        this.selectedItems.splice(index, 1)
+      }
     },
 
     removeContainerItem(item) {
