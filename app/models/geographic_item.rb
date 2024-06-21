@@ -200,6 +200,17 @@ class GeographicItem < ApplicationRecord
         .first.buffer
       end
 
+      # True for those shapes that are within `distance` of (i.e. intersect the
+      # `distance`-buffer of) the shape_sql shape. This is a geography dwithin,
+      # distance is in meters.
+      def st_dwithin_sql(shape_sql, distance)
+        'ST_DWithin(' \
+            "(#{GeographicItem::GEOGRAPHY_SQL}), " \
+            "(#{shape_sql}), " \
+            "#{distance}" \
+          ')'
+      end
+
       # @param [String] wkt
       # @return [Boolean]
       #   whether or not the wkt intersects with the anti-meridian
@@ -263,14 +274,18 @@ class GeographicItem < ApplicationRecord
       end
 
       # @param [Integer] geographic_item_id
-      # @param [Integer] distance
-      # @return [String]
+      # @param [Integer] distance in meters
+      # @return [Scope] of shapes within distance of (i.e. whose
+      #   distance-buffer intersects) geographic_item_id
       def within_radius_of_item_sql(geographic_item_id, distance)
-        'ST_DWithin(' \
-          "(#{GeographicItem::GEOGRAPHY_SQL}), " \
-          "(#{select_geography_sql(geographic_item_id)}), " \
-          "#{distance}" \
-        ')'
+        self.st_dwithin_sql(
+          "#{select_geography_sql(geographic_item_id)}",
+          distance
+        )
+      end
+
+      def within_radius_of_item(geographic_item_id, distance)
+        where(within_radius_of_item_sql(geographic_item_id, distance))
       end
 
       # @param [Integer] geographic_item_id
@@ -278,6 +293,9 @@ class GeographicItem < ApplicationRecord
       # @param [Number] buffer: distance in meters to grow/shrink the shapes checked against (negative allowed)
       # @return [String]
       def st_buffer_st_within(geographic_item_id, distance, buffer = 0)
+        # You can't always switch the buffer to the second argument, even when
+        # distance is 0, without further assumptions (think of buffer being
+        # large negative compared to geographic_item_id but not another shape))
         'ST_DWithin(' \
           "ST_Buffer(#{GeographicItem::GEOGRAPHY_SQL}, #{buffer}), " \
           "(#{select_geography_sql(geographic_item_id)}), " \
@@ -288,14 +306,13 @@ class GeographicItem < ApplicationRecord
       # TODO: 3D is overkill here
       # @param [String] wkt
       # @param [Integer] distance (meters)
-      # @return [String]
-      # !! This is intersecting
+      # @return [String] Shapes within distance of (i.e. whose
+      #   distance-buffer intersects) wkt
       def intersecting_radius_of_wkt_sql(wkt, distance)
-        'ST_DWithin(' \
-          "(#{GeographicItem::GEOGRAPHY_SQL}), " \
-          "ST_GeographyFromText('#{wkt}'), " \
-          "#{distance}" \
-        ')'
+        self.st_dwithin_sql(
+          "ST_GeographyFromText('#{wkt}')",
+          distance
+        )
       end
 
       # @param [String] wkt
@@ -527,7 +544,7 @@ class GeographicItem < ApplicationRecord
         when 'any_poly', 'any_line'
           part = []
           SHAPE_TYPES.each { |shape|
-            shape = shape.to_s.downcase
+            shape = shape.to_s
             if shape.index(shape.gsub('any_', ''))
               part.push(GeographicItem.are_contained_in_item(shape, geographic_items).to_a)
             end
