@@ -24,7 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Encoding unencodable text as Code128 breaks label preview 
 - Identifier between range breaks filter when blank params passed
-- DwcIndex failing to update on Georeference and Role related changes
+- DwcIndex failing to update on Georeference, Role, BiocurationClassification, TaxonName, InternalAttribute changes
 - Sometimes URL parameters are set incorrectly in facets.
 - A COLDP export name and taxon remarks bug [#3837]
 - Project dump not working when all params were supplied [#3967]
