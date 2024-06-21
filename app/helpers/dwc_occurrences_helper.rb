@@ -87,9 +87,10 @@ module DwcOccurrencesHelper
 
     a = ::Person
       .left_joins(:identifiers)
-      .joins(:dwc_occurrences)
+      .joins(collecting_events: [:collection_objects])
+      .joins("JOIN dwc_occurrences dwo on dwo.dwc_occurrence_object_id = collection_objects.id AND dwo.dwc_occurrence_object_type = 'CollectionObject'")
+      .where(dwo: {project_id: project_id})
       .order(:cached)
-      .merge(records)
 
     with_global_id = a.where("identifiers.type ILIKE 'Identifier::Global%'").distinct.pluck(:id, :cached)
     without_global_id =  a.where("(identifiers.id is null) OR identifiers.type not ILIKE 'Identifier::Global%'").distinct.pluck(:id, :cached)

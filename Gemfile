@@ -30,6 +30,8 @@ gem 'roo-xls', '~> 1.2'
 
 gem 'csv', '~> 3.2'
 
+# Needed until Ruby 3.3.4 is released https://github.com/ruby/ruby/pull/11006
+gem 'net-pop', github: 'ruby/net-pop'
 
 gem 'net-smtp', '~> 0.4'
 gem 'mail', '~> 2.8', '>= 2.8.1'

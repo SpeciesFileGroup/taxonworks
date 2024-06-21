@@ -2,9 +2,10 @@
 
 # Universal Resource Identifier
 class Identifier::Global::Uri < Identifier::Global
-  validate :using_uri_class
 
-  def using_uri_class
+  validate :identifier_is_uri
+
+  def identifier_is_uri
     unless identifier.nil?
       uris = URI.extract(identifier)
       if uris.count == 0
@@ -26,4 +27,5 @@ class Identifier::Global::Uri < Identifier::Global
       end
     end
   end
+
 end

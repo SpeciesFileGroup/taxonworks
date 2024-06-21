@@ -346,11 +346,8 @@ class User < ApplicationRecord
     if !last_seen_at.nil?
       t = Time.now - last_seen_at
       if t > 5
-        a = t < 301 ? time_active + t : (time_active || 0)
-
-        if t > 5
-          update_columns(last_seen_at: Time.now, time_active: a) 
-        end
+        a = (t < 301.0) ? (time_active + t) : (time_active || 0)
+        update_columns(last_seen_at: Time.now, time_active: a)
       end
     else
       update_columns(last_seen_at: Time.now)
@@ -358,7 +355,7 @@ class User < ApplicationRecord
 
     update_project_member_last_seen_at
 
-    true 
+    true
   end
 
   # TODO: we still global track at User, this is hit only when that
@@ -370,11 +367,8 @@ class User < ApplicationRecord
       if !pm.last_seen_at.nil?
         t = Time.now - pm.last_seen_at
         if t > 5
-          a = t < 301 ? (pm.time_active || 0) + t : (pm.time_active || 0)
-
-          if t > 5
-            pm.update_columns(last_seen_at: Time.now, time_active: a) 
-          end
+          a = (t < 301.0) ? (pm.time_active || 0) + t : (pm.time_active || 0)
+          pm.update_columns(last_seen_at: Time.now, time_active: a)
         end
       else
         pm.update_columns(last_seen_at: Time.now)
