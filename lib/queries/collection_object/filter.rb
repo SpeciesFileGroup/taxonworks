@@ -904,7 +904,7 @@ module Queries
         return nil if dwc_occurrence_query.nil?
 
          s = ::CollectionObject
-          .with(query_dwc_co: dwc_occurrence_query.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
+           .with(query_dwc_co: dwc_occurrence_query.all.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
           .joins(:dwc_occurrence)
           .joins('JOIN query_dwc_co as query_dwc_co1 on query_dwc_co1.id = dwc_occurrences.id')
           .to_sql
