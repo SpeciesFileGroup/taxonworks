@@ -660,7 +660,7 @@ class CollectingEvent < ApplicationRecord
   # @return [Scope]
   # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
   def collecting_events_intersecting_with
-    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).distinct
+    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first.id).distinct
     gr     = [] # all collecting events for a geographic_item
 
     pieces.each { |o|

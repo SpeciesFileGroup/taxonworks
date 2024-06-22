@@ -961,11 +961,11 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           end
 
           specify "::intersecting list of objects (uses 'or')" do
-            expect(GeographicItem.intersecting('polygon', [l])).to eq([k])
+            expect(GeographicItem.intersecting('polygon', [l.id])).to eq([k])
           end
 
           specify "::intersecting list of objects (uses 'or')" do
-            expect(GeographicItem.intersecting('polygon', [f1]))
+            expect(GeographicItem.intersecting('polygon', [f1.id]))
               .to eq([]) # Is this right?
           end
 
@@ -1991,11 +1991,11 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           end
 
           specify "::intersecting list of objects (uses 'or')" do
-            expect(GeographicItem.intersecting('polygon', [l])).to eq([k])
+            expect(GeographicItem.intersecting('polygon', [l.id])).to eq([k])
           end
 
           specify "::intersecting list of objects (uses 'or')" do
-            expect(GeographicItem.intersecting('polygon', [f1]))
+            expect(GeographicItem.intersecting('polygon', [f1.id]))
               .to eq([]) # Is this right?
           end
 

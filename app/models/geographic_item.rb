@@ -499,24 +499,27 @@ class GeographicItem < ApplicationRecord
                             ).distinct
       end
 
-      # @param [String, GeographicItems]
       # @return [Scope]
-      def intersecting(shape, *geographic_items)
+      def intersecting(shape, *geographic_item_ids)
         shape = shape.to_s.downcase
         if shape == 'any'
           pieces = []
           SHAPE_TYPES.each { |shape|
-            pieces.push(GeographicItem.intersecting(shape, geographic_items).to_a)
+            pieces.push(
+              GeographicItem.intersecting(shape, geographic_item_ids).to_a
+            )
           }
 
           # @TODO change 'id in (?)' to some other sql construct
           GeographicItem.where(id: pieces.flatten.map(&:id))
         else
           shape_column = GeographicItem.shape_column_sql(shape)
-          q = geographic_items.flatten.collect { |geographic_item|
+          q = geographic_item_ids.flatten.collect { |geographic_item_id|
             # seems like we want this: http://danshultz.github.io/talks/mastering_activerecord_arel/#/15/2
-            # TODO would geometry intersect be equivalent and faster?
-            "ST_Intersects(#{shape_column}, '#{geographic_item.geo_object}')"
+            'ST_Intersects(' \
+              "#{shape_column}::geometry, " \
+              "(#{self.select_geometry_sql(geographic_item_id)})" \
+            ')'
           }.join(' or ')
 
           where(q)
