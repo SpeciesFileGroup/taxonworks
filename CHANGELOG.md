@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- OTU inventory endpoint failing when synonyms are empty
 - CachedMap metadata raises when out-of-date 
 - Encoding unencodable text as Code128 breaks label preview 
 - Identifier between range breaks filter when blank params passed
