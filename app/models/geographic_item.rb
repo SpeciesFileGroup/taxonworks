@@ -139,7 +139,7 @@ class GeographicItem < ApplicationRecord
     class << self
 
       def st_union(geographic_item_scope)
-        GeographicItem.select("ST_Union(#{GeographicItem::GEOMETRY_SQL.to_sql}) as collection")
+        self.select("ST_Union(#{GeographicItem::GEOMETRY_SQL.to_sql}) as collection")
           .where(id: geographic_item_scope.pluck(:id))
       end
 
@@ -154,7 +154,9 @@ class GeographicItem < ApplicationRecord
       # Note: !! If the target GeographicItem#id crosses the anti-meridian then
       # you may/will get unexpected results.
       def within_union_of_sql(*geographic_item_ids)
-        within_sql("#{GeographicItem.geometry_sql2(*geographic_item_ids)}")
+        within_sql("#{
+          self.items_as_one_geometry_sql(*geographic_item_ids)
+        }")
       end
 
       def within_union_of(*geographic_item_ids)
@@ -174,7 +176,7 @@ class GeographicItem < ApplicationRecord
       def covering_union_of(*geographic_item_ids)
         where(
           self.covering_sql(
-            GeographicItem.geometry_sql2(*geographic_item_ids)
+            self.items_as_one_geometry_sql(*geographic_item_ids)
           )
         )
         .not_ids(*geographic_item_ids)
@@ -334,6 +336,7 @@ class GeographicItem < ApplicationRecord
         return 'false' if geographic_item_id.nil? || source_shape.nil? || target_shape.nil?
 
         target_shape_sql = GeographicItem.shape_column_sql(target_shape)
+
         'ST_Contains(' \
           "#{target_shape_sql}::geometry, " \
           "(#{geometry_sql(geographic_item_id, source_shape)})" \
@@ -349,6 +352,7 @@ class GeographicItem < ApplicationRecord
         return 'false' if geographic_item_id.nil? || source_shape.nil? || target_shape.nil?
 
         target_shape_sql = GeographicItem.shape_column_sql(target_shape)
+
         'ST_Contains(' \
           "(#{geometry_sql(geographic_item_id, source_shape)}), " \
           "#{target_shape_sql}::geometry" \
@@ -374,11 +378,15 @@ class GeographicItem < ApplicationRecord
         geographic_item_ids.flatten!
         q = ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
           "SELECT ST_Collect(f.the_geom) AS single_geometry
-     FROM (
-        SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL.to_sql})).geom as the_geom
-        FROM geographic_items
-        WHERE id in (?))
-      AS f", geographic_item_ids])
+          FROM (
+            SELECT (
+              ST_DUMP(#{GeographicItem::GEOMETRY_SQL.to_sql})
+            ).geom AS the_geom
+            FROM geographic_items
+            WHERE id in (?)
+          ) AS f",
+          geographic_item_ids
+        ])
 
       '(' + q + ')'
       end
@@ -388,7 +396,7 @@ class GeographicItem < ApplicationRecord
       #   returns a single geometry "column" (paren wrapped) as
       #   "single_geometry" for multiple geographic item ids, or the geometry
       #   as 'geometry' for a single id
-      def geometry_sql2(*geographic_item_ids)
+      def items_as_one_geometry_sql(*geographic_item_ids)
         geographic_item_ids.flatten! # *ALWAYS* reduce the pile to a single level of ids
         if geographic_item_ids.count == 1
           "(#{GeographicItem.geometry_for_sql(geographic_item_ids.first)})"

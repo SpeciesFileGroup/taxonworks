@@ -86,7 +86,7 @@ module GeographicItem::Deprecated
     # Result doesn't contain self. Much slower than containing_where_sql
     def containing_where_sql_geog(*geographic_item_ids)
       "ST_CoveredBy(
-        (#{GeographicItem.geometry_sql2(*geographic_item_ids)})::geography,
+        (#{GeographicItem.items_as_one_geometry(*geographic_item_ids)})::geography,
         #{GEOGRAPHY_SQL})"
     end
 
