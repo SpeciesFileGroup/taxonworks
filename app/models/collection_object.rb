@@ -332,7 +332,7 @@ class CollectionObject < ApplicationRecord
     if steps
       gi = GeographicItem.find(geographic_item_id)
       # find the geographic_items inside gi
-      step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
+      step_1 = GeographicItem.st_coveredby_item('any', gi) # .pluck(:id)
       # find the georeferences from the geographic_items
       step_2 = step_1.map(&:georeferences).uniq.flatten
       # find the collecting events connected to the georeferences

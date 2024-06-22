@@ -326,7 +326,7 @@ module Queries
         when 'Polygon', 'MultiPolygon'
           ::CollectingEvent
             .joins(:geographic_items)
-            .where(::GeographicItem.contained_by_wkt_sql(wkt))
+            .where(::GeographicItem.covered_by_wkt_sql(wkt))
         else
           nil
         end

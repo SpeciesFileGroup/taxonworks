@@ -143,7 +143,7 @@ class GeographicItem < ApplicationRecord
           .where(id: geographic_item_scope.pluck(:id))
       end
 
-      # True for those shapes that are contained within the shape_sql shape.
+      # True for those shapes that are within (subsets of) the shape_sql shape.
       def within_sql(shape_sql)
         'ST_Covers(' \
           "#{shape_sql}, " \
@@ -323,7 +323,7 @@ class GeographicItem < ApplicationRecord
 
       # @param [String] wkt
       # @param [Integer] distance (meters)
-      # @return [String] Those items contained in the distance-buffer of wkt
+      # @return [String] Those items within the distance-buffer of wkt
       def within_radius_of_wkt(wkt, distance)
         where(self.within_sql(
           "ST_Buffer(ST_GeographyFromText('#{wkt}'), #{distance})"
@@ -332,16 +332,16 @@ class GeographicItem < ApplicationRecord
 
       # @param [String, Integer, String]
       # @return [String]
-      #   a SQL fragment for ST_Contains() function, returns
-      #   all geographic items whose target_shape contains the item supplied's
+      #   a SQL fragment for ST_Covers() function, returns
+      #   all geographic items whose target_shape covers the item supplied's
       #   source_shape
-      def containing_shape_sql(target_shape = nil, geographic_item_id = nil,
+      def st_covers_sql(target_shape = nil, geographic_item_id = nil,
                                source_shape = nil)
         return 'false' if geographic_item_id.nil? || source_shape.nil? || target_shape.nil?
 
         target_shape_sql = GeographicItem.shape_column_sql(target_shape)
 
-        'ST_Contains(' \
+        'ST_Covers(' \
           "#{target_shape_sql}::geometry, " \
           "(#{geometry_sql(geographic_item_id, source_shape)})" \
         ')'
@@ -349,17 +349,17 @@ class GeographicItem < ApplicationRecord
 
       # @param [String, Integer, String]
       # @return [String]
-      #   a SQL fragment for ST_Contains() function, returns
-      #   all geographic items whose target_shape is contained in the item
+      #   a SQL fragment for ST_Covers() function, returns
+      #   all geographic items whose target_shape is covered by the item
       #   supplied's source_shape
-      def reverse_containing_sql(target_shape = nil, geographic_item_id = nil, source_shape = nil)
+      def st_coveredby_sql(target_shape = nil, geographic_item_id = nil, source_shape = nil)
         return 'false' if geographic_item_id.nil? || source_shape.nil? || target_shape.nil?
 
         target_shape_sql = GeographicItem.shape_column_sql(target_shape)
 
-        'ST_Contains(' \
-          "(#{geometry_sql(geographic_item_id, source_shape)}), " \
-          "#{target_shape_sql}::geometry" \
+        'ST_CoveredBy(' \
+          "#{target_shape_sql}::geometry, " \
+          "(#{geometry_sql(geographic_item_id, source_shape)})" \
         ')'
       end
 
@@ -415,36 +415,31 @@ class GeographicItem < ApplicationRecord
       # Note: this routine is called when it is already known that the A
       # argument crosses anti-meridian
       # TODO If wkt coords are in the range 0..360 and GI coords are in the range -180..180 (or vice versa), doesn't this fail? Don't you want all coords in the range 0..360 in this geometry case? Is there any assumption about range of inputs for georefs, e.g.? are they always normalized? See anti-meridian spec?
-      # TODO rename within?
-      def contained_by_wkt_shifted_sql(wkt)
-        "ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
-        CASE geographic_items.type
-           WHEN 'GeographicItem::MultiPolygon' THEN ST_ShiftLongitude(multi_polygon::geometry)
-           WHEN 'GeographicItem::Point' THEN ST_ShiftLongitude(point::geometry)
-           WHEN 'GeographicItem::LineString' THEN ST_ShiftLongitude(line_string::geometry)
-           WHEN 'GeographicItem::Polygon' THEN ST_ShiftLongitude(polygon::geometry)
-           WHEN 'GeographicItem::MultiLineString' THEN ST_ShiftLongitude(multi_line_string::geometry)
-           WHEN 'GeographicItem::MultiPoint' THEN ST_ShiftLongitude(multi_point::geometry)
-           WHEN 'GeographicItem::GeometryCollection' THEN ST_ShiftLongitude(geometry_collection::geometry)
-           WHEN 'GeographicItem::Geography' THEN ST_ShiftLongitude(geography::geometry)
-        END
-        )
-      )"
+      def covered_by_wkt_shifted_sql(wkt)
+        "ST_CoveredBy(
+          (CASE geographic_items.type
+            WHEN 'GeographicItem::MultiPolygon' THEN ST_ShiftLongitude(multi_polygon::geometry)
+            WHEN 'GeographicItem::Point' THEN ST_ShiftLongitude(point::geometry)
+            WHEN 'GeographicItem::LineString' THEN ST_ShiftLongitude(line_string::geometry)
+            WHEN 'GeographicItem::Polygon' THEN ST_ShiftLongitude(polygon::geometry)
+            WHEN 'GeographicItem::MultiLineString' THEN ST_ShiftLongitude(multi_line_string::geometry)
+            WHEN 'GeographicItem::MultiPoint' THEN ST_ShiftLongitude(multi_point::geometry)
+            WHEN 'GeographicItem::GeometryCollection' THEN ST_ShiftLongitude(geometry_collection::geometry)
+            WHEN 'GeographicItem::Geography' THEN ST_ShiftLongitude(geography::geometry)
+          END),
+          ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)),
+        )"
       end
 
       # TODO: Remove the hard coded 4326 reference
       # @params [String] wkt
       # @return [String] SQL fragment limiting geographic items to those
-      # contained by this WKT
-      def contained_by_wkt_sql(wkt)
+      # covered by this WKT
+      def covered_by_wkt_sql(wkt)
         if crosses_anti_meridian?(wkt)
-          contained_by_wkt_shifted_sql(wkt)
+          covered_by_wkt_shifted_sql(wkt)
         else
-          # TODO should probably be ST_Covers? Then use covering_sql
-          'ST_Contains(' \
-            "ST_GeomFromText('#{wkt}', 4326), " \
-            "#{GEOMETRY_SQL.to_sql}" \
-          ')'
+          self.within_sql("ST_GeomFromText('#{wkt}', 4326)")
         end
       end
 
@@ -461,9 +456,9 @@ class GeographicItem < ApplicationRecord
 
       # @param [RGeo::Point] rgeo_point
       # @return [Scope]
-      #    the geographic items containing this point
-      # TODO: should be containing_wkt ?
-      def containing_point(rgeo_point)
+      #    the geographic items covering this point
+      # TODO: should be covering_wkt ?
+      def covering_point(rgeo_point)
         where(
           self.covering_sql("ST_GeomFromText('#{rgeo_point}', 4326)")
         )
@@ -534,24 +529,23 @@ class GeographicItem < ApplicationRecord
       # @param [String] shape to search
       # @param [GeographicItem] geographic_items or array of geographic_items
       #                         to be tested.
-      # @return [Scope] of GeographicItems that contain at least one of
+      # @return [Scope] of GeographicItems that cover at least one of
       #                 geographic_items
       #
       # If this scope is given an Array of GeographicItems as a second parameter,
       # it will return the 'OR' of each of the objects against the table.
       # SELECT COUNT(*) FROM "geographic_items"
-      #        WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)'))
-      #               OR ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
+      #        WHERE (ST_Covers(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)'))
+      #               OR ST_Covers(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
       #
-      # TODO rename in st_ style (I think it's backwards now?)
-      def are_contained_in_item(shape, *geographic_items) # = containing
+      def st_covers_item(shape, *geographic_items)
         geographic_items.flatten! # in case there is a array of arrays, or multiple objects
         shape = shape.to_s.downcase
         case shape
         when 'any'
           part = []
           SHAPE_TYPES.each { |shape|
-            part.push(GeographicItem.are_contained_in_item(shape, geographic_items).to_a)
+            part.push(GeographicItem.st_covers_item(shape, geographic_items).to_a)
           }
           # TODO: change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten.map(&:id))
@@ -561,7 +555,7 @@ class GeographicItem < ApplicationRecord
           SHAPE_TYPES.each { |shape|
             shape = shape.to_s
             if shape.index(shape.gsub('any_', ''))
-              part.push(GeographicItem.are_contained_in_item(shape, geographic_items).to_a)
+              part.push(GeographicItem.st_covers_item(shape, geographic_items).to_a)
             end
           }
           # TODO: change 'id in (?)' to some other sql construct
@@ -569,7 +563,7 @@ class GeographicItem < ApplicationRecord
 
         else
           q = geographic_items.flatten.collect { |geographic_item|
-            GeographicItem.containing_shape_sql(
+            GeographicItem.st_covers_sql(
               shape,
               geographic_item.id,
               geographic_item.geo_object_type
@@ -593,15 +587,15 @@ class GeographicItem < ApplicationRecord
       #'multi_line_string'.
       # @param geographic_items [GeographicItem] Can be a single
       # GeographicItem, or an array of GeographicItem.
-      # @return [Scope] of all GeographicItems of the given shape contained
-      # in one or more of geographic_items
-      def is_contained_by(shape, *geographic_items)
+      # @return [Scope] of all GeographicItems of the given shape covered by
+      # one or more of geographic_items
+      def st_coveredby_item(shape, *geographic_items)
         shape = shape.to_s.downcase
         case shape
         when 'any'
           part = []
           SHAPE_TYPES.each { |shape|
-            part.push(GeographicItem.is_contained_by(shape, geographic_items).to_a)
+            part.push(GeographicItem.st_coveredby_item(shape, geographic_items).to_a)
           }
           # @TODO change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten.map(&:id))
@@ -609,8 +603,9 @@ class GeographicItem < ApplicationRecord
         when 'any_poly', 'any_line'
           part = []
           SHAPE_TYPES.each { |shape|
-            if shape.to_s.index(shape.gsub('any_', ''))
-              part.push(GeographicItem.is_contained_by(shape, geographic_items).to_a)
+            shape = shape.to_s
+            if shape.index(shape.gsub('any_', ''))
+              part.push(GeographicItem.st_coveredby_item(shape, geographic_items).to_a)
             end
           }
           # @TODO change 'id in (?)' to some other sql construct
@@ -618,8 +613,11 @@ class GeographicItem < ApplicationRecord
 
         else
           q = geographic_items.flatten.collect { |geographic_item|
-            GeographicItem.reverse_containing_sql(shape, geographic_item.to_param,
-                                                  geographic_item.geo_object_type)
+            GeographicItem.st_coveredby_sql(
+              shape,
+              geographic_item.to_param,
+              geographic_item.geo_object_type
+            )
           }.join(' or ')
           where(q) # .not_including(geographic_items)
         end
@@ -654,7 +652,7 @@ class GeographicItem < ApplicationRecord
       #   as per #inferred_geographic_name_hierarchy but for Rgeo point
       def point_inferred_geographic_name_hierarchy(point)
         self
-          .containing_point(point)
+          .covering_point(point)
           .order(cached_total_area: :ASC)
           .first&.inferred_geographic_name_hierarchy
       end
@@ -706,11 +704,11 @@ class GeographicItem < ApplicationRecord
 
     # @return [Hash]
     #   a geographic_name_classification (see GeographicArea) inferred by
-    # finding the smallest area containing this GeographicItem, in the most accurate gazetteer
+    # finding the smallest area covering this GeographicItem, in the most accurate gazetteer
     # and using it to return country/state/county. See also the logic in
     # filling in missing levels in GeographicArea.
     def inferred_geographic_name_hierarchy
-      if small_area = containing_geographic_areas
+      if small_area = covering_geographic_areas
         .joins(:geographic_areas_geographic_items)
         .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
         .ordered_by_area
@@ -729,8 +727,8 @@ class GeographicItem < ApplicationRecord
     end
 
     # @return [Scope]
-    #   the Geographic Areas that contain (gis) this geographic item
-    def containing_geographic_areas
+    #   the Geographic Areas that cover (gis) this geographic item
+    def covering_geographic_areas
       GeographicArea
       .joins(:geographic_items)
       .includes(:geographic_area_type)

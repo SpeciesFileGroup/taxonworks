@@ -104,7 +104,7 @@ module GeographicItem::Deprecated
     # @param [GeographicItem] geographic_item
     # @return [String] of SQL for all GeographicItems of the given shape
     # contained by geographic_item
-    def is_contained_by_sql(shape, geographic_item)
+    def is_covered_by_sql(shape, geographic_item)
       template = "(ST_Contains(#{geographic_item.geo_object}, %s::geometry))"
       retval = []
       shape = shape.to_s.downcase
@@ -170,8 +170,8 @@ module GeographicItem::Deprecated
         q1 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_AsText((SELECT polygon FROM geographic_items ' \
                                                             'WHERE id = ?))', id])
         r = GeographicItem.where(
-          # GeographicItem.contained_by_wkt_shifted_sql(GeographicItem.find(id).geo_object.to_s)
-          GeographicItem.contained_by_wkt_shifted_sql(
+          # GeographicItem.covered_by_wkt_shifted_sql(GeographicItem.find(id).geo_object.to_s)
+          GeographicItem.covered_by_wkt_shifted_sql(
             ApplicationRecord.connection.execute(q1).first['st_astext'])
         ).to_a
         results.push(r)

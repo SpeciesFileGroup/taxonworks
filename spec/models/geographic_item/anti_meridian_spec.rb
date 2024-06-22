@@ -373,7 +373,7 @@ describe GeographicItem, type: :model, group: :geo do
         specify 'shifting an already shifted polygon has no effect' do
           shifted_wkt = eastern_box.geo_object.to_s
           expect(shifted_wkt =~ /-/).to be_falsey
-          expect(GeographicItem.where(GeographicItem.contained_by_wkt_sql(shifted_wkt)).map(&:id))
+          expect(GeographicItem.where(GeographicItem.covered_by_wkt_sql(shifted_wkt)).map(&:id))
             .to contain_exactly(point_in_eastern_box.id, eastern_box.id)
         end
       end

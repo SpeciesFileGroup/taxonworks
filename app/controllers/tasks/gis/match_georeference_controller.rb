@@ -70,7 +70,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       when 'polygon'
         @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id)
           .joins(:geographic_items)
-          .where(GeographicItem.contained_by_wkt_sql(geometry))
+          .where(GeographicItem.convered_by_wkt_sql(geometry))
       else
       end
     end
@@ -143,7 +143,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       when 'polygon'
         @georeferences = Georeference.with_project_id(sessions_current_project_id)
           .joins(:geographic_item)
-          .where(GeographicItem.contained_by_wkt_sql(geometry))
+          .where(GeographicItem.covered_by_wkt_sql(geometry))
       else
       end
       if @georeferences.blank?
