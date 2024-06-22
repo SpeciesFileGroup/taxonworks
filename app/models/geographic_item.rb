@@ -620,38 +620,6 @@ class GeographicItem < ApplicationRecord
 
       # rubocop:enable Metrics/MethodLength
 
-      # @param [String, GeographicItem]
-      # @return [Scope]
-      def ordered_by_shortest_distance_from(shape, geographic_item)
-        select_distance_with_geo_object(shape, geographic_item)
-          .where_distance_greater_than_zero(shape, geographic_item)
-          .order('distance')
-      end
-
-      # @param [String, GeographicItem]
-      # @return [Scope]
-      def ordered_by_longest_distance_from(shape, geographic_item)
-        select_distance_with_geo_object(shape, geographic_item)
-          .where_distance_greater_than_zero(shape, geographic_item)
-          .order('distance desc')
-      end
-
-      # @param [String] shape
-      # @param [GeographicItem] geographic_item
-      # @return [String]
-      def select_distance_with_geo_object(shape, geographic_item)
-        shape_column = GeographicItem.shape_column_sql(shape)
-        select("*, ST_Distance(#{shape_column}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) AS distance")
-      end
-
-      # @param [String, GeographicItem]
-      # @return [Scope]
-      def where_distance_greater_than_zero(shape, geographic_item)
-        shape_column = GeographicItem.shape_column_sql(shape)
-        where("#{shape_column} IS NOT NULL AND ST_Distance(#{shape_column}, " \
-              "GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0")
-      end
-
       # @param [GeographicItem]
       # @return [Scope]
       def not_including(geographic_items)
@@ -668,7 +636,7 @@ class GeographicItem < ApplicationRecord
       def distance_between(geographic_item_id1, geographic_item_id2)
         q = 'ST_Distance(' \
                "#{GeographicItem::GEOGRAPHY_SQL}, " \
-               "(#{select_geography_sql(geographic_item_id2)}) " \
+               "(#{self.select_geography_sql(geographic_item_id2)}) " \
              ') as distance'
 
         GeographicItem.where(id: geographic_item_id1).pick(Arel.sql(q))
@@ -709,27 +677,6 @@ class GeographicItem < ApplicationRecord
           retval = nil
         end
         retval
-      end
-
-      # example, not used
-      # @param [Integer] geographic_item_id
-      # @return [RGeo::Geographic object]
-      def geometry_for(geographic_item_id)
-        GeographicItem.select(GeographicItem::GEOMETRY_SQL.to_sql + ' AS geometry').find(geographic_item_id)['geometry']
-      end
-
-      # example, not used
-      # @param [Integer, Array] geographic_item_ids
-      # @return [Scope]
-      def st_multi(*geographic_item_ids)
-        GeographicItem.find_by_sql(
-          "SELECT ST_Multi(ST_Collect(g.the_geom)) AS singlegeom
-     FROM (
-        SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL.to_sql})).geom AS the_geom
-        FROM geographic_items
-        WHERE id IN (?))
-      AS g;", geographic_item_ids.flatten
-        )
       end
     end # class << self
 
@@ -777,22 +724,25 @@ class GeographicItem < ApplicationRecord
     # @return [Scope]
     #   the Geographic Areas that contain (gis) this geographic item
     def containing_geographic_areas
-      GeographicArea.joins(:geographic_items).includes(:geographic_area_type)
-        .joins("JOIN (#{GeographicItem.covering_union_of(id).to_sql}) j ON geographic_items.id = j.id")
+      GeographicArea
+      .joins(:geographic_items)
+      .includes(:geographic_area_type)
+      .joins(
+        "JOIN (#{GeographicItem.covering_union_of(id).to_sql}) AS j ON " \
+        'geographic_items.id = j.id'
+      )
     end
 
     # @return [Boolean]
     #   whether stored shape is ST_IsValid
     def valid_geometry?
-      GeographicItem.where(id:).select("ST_IsValid(ST_AsBinary(#{data_column})) is_valid").first['is_valid']
-    end
-
-    # @return [Array of latitude, longitude]
-    #    the lat, lon of the first point in the GeoItem, see subclass for
-    #    st_start_point
-    def start_point
-      o = st_start_point
-      [o.y, o.x]
+      GeographicItem
+      .where(id:)
+      .select(
+        'ST_IsValid(' \
+          "ST_AsBinary(#{data_column})" \
+        ') AS is_valid'
+      ).first['is_valid']
     end
 
     # @return [Array]
@@ -813,7 +763,7 @@ class GeographicItem < ApplicationRecord
     def centroid
       # Gis::FACTORY.point(*center_coords.reverse)
       return geo_object if geo_object_type == :point
-      return Gis::FACTORY.parse_wkt(self.st_centroid)
+      return Gis::FACTORY.parse_wkt(st_centroid)
     end
 
     # @param [GeographicItem] geographic_item
@@ -850,12 +800,6 @@ class GeographicItem < ApplicationRecord
     #   a WKT POINT representing the centroid of the geographic item
     def st_centroid
       GeographicItem.where(id:).pick(Arel.sql("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}))")).gsub(/SRID=\d*;/, '')
-    end
-
-    # @return [Integer]
-    #   the number of points in the geometry
-    def st_npoints
-      GeographicItem.where(id:).pick(Arel.sql("ST_NPoints(#{GeographicItem::GEOMETRY_SQL.to_sql}) as npoints"))
     end
 
     # !!TODO: migrate these to use native column calls
@@ -927,7 +871,7 @@ class GeographicItem < ApplicationRecord
       begin
         geom = RGeo::GeoJSON.decode(value, json_parser: :json, geo_factory: Gis::FACTORY)
       rescue RGeo::Error::InvalidGeometry => e
-        errors.add(:base, "invalid geometry: #{e.to_s}")
+        errors.add(:base, "invalid geometry: #{e}")
         return
       end
 
@@ -1007,8 +951,10 @@ class GeographicItem < ApplicationRecord
                    FROM (SELECT id, #{column}::geometry AS p_geom FROM geographic_items where id = #{id}) AS b \
               ) AS a;").collect{|a| a['is_ccw']}
       elsif (column = polygon_column)
-        ApplicationRecord.connection.execute("SELECT ST_IsPolygonCCW(#{column}::geometry) as is_ccw \
-          FROM geographic_items where  id = #{id};").collect{|a| a['is_ccw']}
+        ApplicationRecord.connection.execute(
+          "SELECT ST_IsPolygonCCW(#{column}::geometry) as is_ccw \
+          FROM geographic_items where  id = #{id};"
+        ).collect { |a| a['is_ccw'] }
       else
         []
       end
@@ -1031,7 +977,7 @@ class GeographicItem < ApplicationRecord
     end
 
     def st_isvalidreason
-      r = ApplicationRecord.connection.execute( "SELECT ST_IsValidReason(  #{GeographicItem::GEOMETRY_SQL.to_sql }) from  geographic_items where geographic_items.id = #{id}").first['st_isvalidreason']
+      ApplicationRecord.connection.execute( "SELECT ST_IsValidReason(  #{GeographicItem::GEOMETRY_SQL.to_sql }) from  geographic_items where geographic_items.id = #{id}").first['st_isvalidreason']
     end
 
     # @return [Symbol, nil]
@@ -1056,8 +1002,8 @@ class GeographicItem < ApplicationRecord
     private
 
     # @return [Symbol]
-    #   returns the attribute (column name) containing data
-    #   nearly all methods should use #geo_object_type instead
+    #   Returns the attribute (column name) containing data.
+    #   Nearly all methods should use #geo_object_type instead.
     def data_column
       # This works before and after this item has been saved
       DATA_TYPES.each { |item|
@@ -1076,8 +1022,9 @@ class GeographicItem < ApplicationRecord
 
     # @param [String] shape, the type of shape you want
     # @return [String]
-    #   A paren-wrapped SQL fragment for selecting the geography column
-    #   containing shape. Returns the column named :shape if no shape is found.
+    #   A paren-wrapped SQL fragment for selecting the column containing
+    #   the given shape (e.g. a polygon).
+    #   Returns the column named :shape if no shape is found.
     #   !! This should probably never be called except to be put directly in a
     #   raw ST_* statement as the parameter that matches some shape.
     def self.shape_column_sql(shape)
@@ -1168,7 +1115,6 @@ class GeographicItem < ApplicationRecord
       update_column(:cached_total_area, area)
     end
 
-    # @return [Boolean, String] false if already set, or type to which it was set
     def set_type_if_shape_column_present
       if type.blank?
         column = data_column

@@ -6,6 +6,58 @@ module GeographicItem::Deprecated
   #
 
   class_methods do
+
+    # DEPRECATED, used only in specs
+    def st_distance_item_to_shape(geographic_item_id, shape)
+      shape_column = GeographicItem.shape_column_sql(shape)
+
+      'ST_Distance(' \
+          "#{shape_column}, " \
+          "(#{self.select_geography_sql(geographic_item_id)})" \
+        ')'
+    end
+
+    # DEPRECATED, used only in specs
+    # @param [String, GeographicItem]
+    # @return [Scope]
+    def ordered_by_shortest_distance_from(shape, geographic_item)
+      select_distance_with_geo_object(shape, geographic_item)
+        .where_distance_greater_than_zero(shape, geographic_item)
+        .order('distance')
+    end
+
+    # DEPRECATED, used only in specs
+    # @param [String, GeographicItem]
+    # @return [Scope]
+    def ordered_by_longest_distance_from(shape, geographic_item)
+      select_distance_with_geo_object(shape, geographic_item)
+        .where_distance_greater_than_zero(shape, geographic_item)
+        .order('distance desc')
+    end
+
+    # DEPRECATED, used only in specs
+    # @param [String] shape
+    # @param [GeographicItem] geographic_item
+    # @return [String]
+    def select_distance_with_geo_object(shape, geographic_item)
+      select(
+        '*, ' \
+        "#{self.st_distance_item_to_shape(geographic_item.id, shape)} " \
+        ' AS distance'
+      )
+    end
+
+    # DEPRECATED, used only in specs
+    # @param [String, GeographicItem]
+    # @return [Scope]
+    def where_distance_greater_than_zero(shape, geographic_item)
+      shape_column = GeographicItem.shape_column_sql(shape)
+      where(
+        "#{shape_column} IS NOT NULL AND " \
+        "#{self.st_distance_item_to_shape(geographic_item.id, shape)} > 0"
+      )
+    end
+
     # DEPRECATED
     def st_collect(geographic_item_scope)
       GeographicItem.select("ST_Collect(#{GeographicItem::GEOMETRY_SQL.to_sql}) as collection")
@@ -138,6 +190,15 @@ module GeographicItem::Deprecated
     end
 
     # DEPRECATED
+    # example, not used
+    # @param [Integer] geographic_item_id
+    # @return [RGeo::Geographic object]
+    def geometry_for(geographic_item_id)
+      select(GeographicItem::GEOMETRY_SQL.to_sql + ' AS geometry')
+        .find(geographic_item_id)['geometry']
+    end
+
+    # DEPRECATED
     # @return [Scope]
     #   adds an area_in_meters field, with meters
     def with_area
@@ -213,6 +274,21 @@ module GeographicItem::Deprecated
       end
     end
 
+    # example, not used
+    # @param [Integer, Array] geographic_item_ids
+    # @return [Scope]
+    def st_multi(*geographic_item_ids)
+      # TODO why is ST_Multi here?
+      GeographicItem.find_by_sql(
+        "SELECT ST_Multi(ST_Collect(g.the_geom)) AS singlegeom
+    FROM (
+      SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL.to_sql})).geom AS the_geom
+      FROM geographic_items
+      WHERE id IN (?))
+    AS g;", geographic_item_ids.flatten
+      )
+    end
+
   end # class_methods
 
   # Used only in specs
@@ -272,6 +348,13 @@ module GeographicItem::Deprecated
   # !! Unused. Doesn't check Geometry collection or geography column
   def has_polygons?
     ['GeographicItem::MultiPolygon', 'GeographicItem::Polygon'].include?(self.type)
+  end
+
+  # DEPRECATED, used only in specs
+  # @return [Integer]
+  #   the number of points in the geometry
+  def st_npoints
+    GeographicItem.where(id:).pick(Arel.sql("ST_NPoints(#{GeographicItem::GEOMETRY_SQL.to_sql}) as npoints"))
   end
 
   private
@@ -377,4 +460,14 @@ module GeographicItem::Deprecated
   def multi_polygon_to_hash(_multi_polygon)
     {polygons: to_a}
   end
+
+  # DEPRECATED - subclass st_start_point methods are also unused
+  # @return [Array of latitude, longitude]
+  #    the lat, lon of the first point in the GeoItem, see subclass for
+  #    st_start_point
+  def start_point
+    o = st_start_point
+    [o.y, o.x]
+  end
+  # end private
 end
