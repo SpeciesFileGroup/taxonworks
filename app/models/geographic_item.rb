@@ -213,6 +213,10 @@ class GeographicItem < ApplicationRecord
           ')'
       end
 
+      def st_asgeojson
+        select("ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}) geo_json")
+      end
+
       # @param [String] wkt
       # @return [Boolean]
       #   whether or not the wkt intersects with the anti-meridian

@@ -70,12 +70,11 @@ module Gis::GeoJSON
   def self.quick_geo_json_string(geographic_item_id)
     return nil if geographic_item_id.nil?
 
-    query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json_str"
     a = GeographicItem.where(id: geographic_item_id)
-      .select(query)
+      .st_asgeojson
       .limit(1)
     ::GeographicItem.connection.select_all(a.to_sql)
-      .first['geo_json_str']
+      .first['geo_json']
   end
 
   # @return [GeoJSON] content for geometry
