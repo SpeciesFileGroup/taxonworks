@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- CachedMap metadata raises when out-of-date 
 - Encoding unencodable text as Code128 breaks label preview 
 - Identifier between range breaks filter when blank params passed
 - DwcIndex failing to update on Georeference, Role, BiocurationClassification, TaxonName, InternalAttribute changes
