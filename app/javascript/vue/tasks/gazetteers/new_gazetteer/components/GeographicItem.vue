@@ -8,7 +8,7 @@
     fit-bounds
     zoom="1"
     resize
-    :draw-controls="drawControls"
+    :draw-controls="!editingDisabled"
     :draw-circle="false"
     :draw-polyline="false"
     :cut-polygon="false"
@@ -24,6 +24,7 @@
     class="geolist"
     :list="shapes"
     @delete="(shape) => removeFromShapes(shape)"
+    :editingDisabled="editingDisabled"
   />
 </template>
 
@@ -31,10 +32,10 @@
 import DisplayList from './DisplayList.vue'
 import VMap from '@/components/georeferences/map'
 import { addToArray, removeFromArray } from '@/helpers/arrays'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 const props = defineProps({
-  gazHasName: {
+  editingDisabled: {
     type: Boolean,
     default: false
   }
@@ -43,9 +44,6 @@ const props = defineProps({
 const emit = defineEmits(['shapesUpdated'])
 
 const shapes = ref([])
-const drawControls = computed(() => {
-  return props.gazHasName && shapes.value.length == 0
-})
 
 function addToShapes(shape) {
   if (!shape.uuid) {
@@ -54,12 +52,10 @@ function addToShapes(shape) {
 
   addToArray(shapes.value, shape, { property: 'uuid' })
   emit('shapesUpdated', shapes)
-  drawControls.value = false
 }
 
 function removeFromShapes(shape) {
   removeFromArray(shapes.value, shape, { property: 'uuid' })
-  drawControls.value = true
 }
 </script>
 

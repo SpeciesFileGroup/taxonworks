@@ -26,7 +26,8 @@
                 :global-id="item.global_id"
               />
               <VBtn
-                color="destroy"
+                v-if="!editingDisabled"
+                color="primary"
                 circle
                 @click="deleteItem(item)"
               >
@@ -53,6 +54,10 @@ const props = defineProps({
   list: {
     type: Array,
     default: () => []
+  },
+  editingDisabled: {
+    type: Boolean,
+    default: false
   }
 })
 

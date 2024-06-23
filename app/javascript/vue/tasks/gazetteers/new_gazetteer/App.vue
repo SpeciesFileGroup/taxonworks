@@ -43,12 +43,12 @@
             Clone
           </VBtn>
           <VBtn
-            :disable="!name || !leafletShapes"
+            :disabled="saveDisabled"
             @click="saveGaz"
             class="button normal-input button-submit button-size margin-small-right"
             type="button"
           >
-            Save
+            {{ saveLabel }}
           </VBtn>
           <VBtn
             @click="reset"
@@ -64,7 +64,7 @@
   </NavBar>
 
   <div class="field label-above">
-    <label>Name - required before a shape can be added</label>
+    <label>Name</label>
     <input
       type="text"
       class="normal-input name-input"
@@ -73,12 +73,11 @@
   </div>
 
   <div class="editing-note">
-    Only one shape can be added and once added it can't be edited, instead you can
-    delete and re-add.
+    You can create multiple shapes which will be saved as a single collection. Once saved you can no longer edit the shape(s), instead you can delete and recreate.
   </div>
   <GeographicItem
     @shapes-updated="(shapes) => leafletShapes = shapes"
-    :gaz-has-name="!!name"
+    :editing-disabled="shapeSaved"
   />
 </template>
 
@@ -91,12 +90,18 @@ import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import { Gazetteer } from '@/routes/endpoints'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+
+let leafletShapes = []
 
 const gaz = ref({})
 const name = ref('')
+const saveLabel = ref('Save')
+const shapeSaved = ref(false)
 
-let leafletShapes = []
+const saveDisabled = computed(() => {
+  return !(name.value) || leafletShapes.length == 0
+})
 
 function saveGaz() {
   let shape = leafletShapes.value[0]
@@ -107,7 +112,10 @@ function saveGaz() {
   }
 
   Gazetteer.create({ gazetteer })
-    .then(() => {})
+    .then(() => {
+      shapeSaved.value = true
+      saveLabel.value = 'Update name'
+    })
     .catch(() => {})
 }
 
