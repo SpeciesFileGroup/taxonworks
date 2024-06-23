@@ -64,7 +64,7 @@
   </NavBar>
 
   <div class="field label-above">
-    <label>Name</label>
+    <label>Name - required before a shape can be added</label>
     <input
       type="text"
       class="normal-input name-input"
@@ -72,7 +72,14 @@
     />
   </div>
 
-  <GeographicItem @shapes-updated="(shapes) => leafletShapes = shapes" />
+  <div class="editing-note">
+    Only one shape can be added and once added it can't be edited, instead you can
+    delete and re-add.
+  </div>
+  <GeographicItem
+    @shapes-updated="(shapes) => leafletShapes = shapes"
+    :gaz-has-name="!!name"
+  />
 </template>
 
 <script setup>
@@ -113,5 +120,10 @@ function reset() {}
 <style lang="scss" scoped>
 .name-input {
   width: 400px;
+}
+
+.editing-note {
+  margin-left: 10vw;
+  margin-bottom: 6px;
 }
 </style>

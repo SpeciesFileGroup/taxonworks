@@ -31,12 +31,21 @@
 import DisplayList from './DisplayList.vue'
 import VMap from '@/components/georeferences/map'
 import { addToArray, removeFromArray } from '@/helpers/arrays'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+
+const props = defineProps({
+  gazHasName: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const emit = defineEmits(['shapesUpdated'])
 
 const shapes = ref([])
-const drawControls = ref(true)
+const drawControls = computed(() => {
+  return props.gazHasName && shapes.value.length == 0
+})
 
 function addToShapes(shape) {
   if (!shape.uuid) {
@@ -57,7 +66,7 @@ function removeFromShapes(shape) {
 <style lang="scss" scoped>
 .lmap {
   max-width: 80vw;
-  margin: 2em auto;
+  margin: 0px auto 2em auto;
 }
 
 .geolist {
