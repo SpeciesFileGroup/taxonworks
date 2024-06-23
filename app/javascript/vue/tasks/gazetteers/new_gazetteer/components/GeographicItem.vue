@@ -51,7 +51,7 @@ function addToShapes(shape) {
   }
 
   addToArray(shapes.value, shape, { property: 'uuid' })
-  emit('shapesUpdated', shapes)
+  emit('shapesUpdated', shapes.value)
 }
 
 function removeFromShapes(shape) {

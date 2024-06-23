@@ -92,23 +92,29 @@ import VPin from '@/components/ui/Button/ButtonPin.vue'
 import { Gazetteer } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 
-let leafletShapes = []
-
+let leafletShapes = ref([])
 const gaz = ref({})
 const name = ref('')
 const saveLabel = ref('Save')
 const shapeSaved = ref(false)
 
 const saveDisabled = computed(() => {
-  return !(name.value) || leafletShapes.length == 0
+  return !(name.value) || leafletShapes.value.length == 0
 })
 
 function saveGaz() {
-  let shape = leafletShapes.value[0]
-  shape.properties.data_type = 'geography'
+  const geojson = leafletShapes.value.map((shape) => {
+    delete shape['uuid']
+    return JSON.stringify(shape)
+  })
+
+  const shapes = {
+    geojson
+  }
+
   const gazetteer = {
     name: name.value,
-    geographic_item_attributes: { shape: JSON.stringify(shape) },
+    shapes
   }
 
   Gazetteer.create({ gazetteer })

@@ -5,7 +5,10 @@ const controller = 'gazetteers'
 const permitParams = {
   gazetteer: {
     name: String,
-    geographic_item_attributes: { shape: Object }
+    shapes: {
+      geojson: []
+    }
+    //geographic_item_attributes: { shape: Object }
   }
 }
 
