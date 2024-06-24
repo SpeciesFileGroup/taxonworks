@@ -1,5 +1,5 @@
 <template>
-  <!-- Add spinner -->
+  <!-- TODO Add spinner -->
   <NavBar>
     <div class="flex-separate full_width">
       <div class="middle margin-small-left">
@@ -85,6 +85,7 @@
   <GeographicItem
     @shapes-updated="(shapes) => leafletShapes = shapes"
     :editing-disabled="!!gz.id"
+    ref="geoItemComponent"
   />
 </template>
 
@@ -103,6 +104,7 @@ let leafletShapes = ref([])
 const gz = ref({})
 const name = ref('')
 const saveLabel = ref('Save')
+const geoItemComponent = ref(null)
 
 const saveDisabled = computed(() => {
   return !(name.value) || leafletShapes.value.length == 0
@@ -153,7 +155,12 @@ function updateGz() {
 
 function cloneGz() {}
 
-function reset() {}
+function reset() {
+  geoItemComponent.value.reset()
+  saveLabel.value = 'Save'
+  gz.value = {}
+  name.value = ''
+}
 
 </script>
 

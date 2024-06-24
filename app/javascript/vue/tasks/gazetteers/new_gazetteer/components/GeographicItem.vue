@@ -44,6 +44,13 @@ const emit = defineEmits(['shapesUpdated'])
 
 const shapes = ref([])
 
+function reset() {
+  shapes.value = []
+  emit('shapesUpdated', shapes.value)
+  props.editingDisabled = false
+}
+defineExpose({reset})
+
 function addToShapes(shape) {
   if (!shape.uuid) {
     shape.uuid = crypto.randomUUID()
