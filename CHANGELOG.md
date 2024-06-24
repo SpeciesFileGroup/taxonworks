@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwcOccurrence filter on all attributes
 - DwcOccurrence visible in Project vocabulary
 - Confirmation modal on mass annotator [#3969]
+- `TW_ACTION_MAILER_SMTP_SETTINGS_USER_NAME` and `TW_ACTION_MAILER_SMTP_SETTINGS_PASSWORD` for container deployments
 
 ### Fixed
 
