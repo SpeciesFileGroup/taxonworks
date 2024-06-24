@@ -44,4 +44,25 @@ class Gazetteer < ApplicationRecord
 
   accepts_nested_attributes_for :geographic_item
 
+  # @return [Hash] of the pieces of a GeoJSON 'Feature'
+  def to_geo_json_feature
+    to_simple_json_feature.merge(
+      properties: {
+        gazetteer: {
+          id:,
+          tag: name
+        }
+      }
+    )
+  end
+
+  def to_simple_json_feature
+    {
+      type: 'Feature',
+      properties: {},
+      geometry: geographic_item.to_geo_json
+    }
+  end
+
+
 end

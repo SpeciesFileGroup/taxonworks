@@ -3,27 +3,21 @@
     <div class="flex-separate full_width">
       <div class="middle margin-small-left">
         <span
-          v-if="gaz.id"
           class="margin-small-left"
-          v-html="gaz.object_tag"
-        />
-        <span
-          class="margin-small-left"
-          v-else
         >
-          New gazetteer
+          {{ headerLabel }}
         </span>
         <div
-          v-if="gaz.id"
+          v-if="gz.id"
           class="horizontal-left-content margin-small-left gap-small"
         >
           <VPin
             class="circle-button"
-            :object-id="gaz.id"
+            :object-id="gz.id"
             type="Gazetteer"
           />
-          <RadialAnnotator :global-id="gaz.global_id" />
-          <RadialNavigator :global-id="gaz.global_id" />
+          <RadialAnnotator :global-id="gz.global_id" />
+          <RadialNavigator :global-id="gz.global_id" />
         </div>
       </div>
       <ul class="context-menu no_bullets">
@@ -37,14 +31,14 @@
           <VBtn
             type="button"
             class="button normal-input button-submit margin-small-right"
-            :disabled="!gaz.id"
-            @click="cloneGaz"
+            :disabled="!gz.id"
+            @click="cloneGz"
           >
             Clone
           </VBtn>
           <VBtn
             :disabled="saveDisabled"
-            @click="saveGaz"
+            @click="saveGz"
             class="button normal-input button-submit button-size margin-small-right"
             type="button"
           >
@@ -73,11 +67,22 @@
   </div>
 
   <div class="editing-note">
-    You can create multiple shapes which will be saved as a single collection. Once saved you can no longer edit the shape(s), instead you can delete and recreate.
+    <ul>
+      <li>
+        Multiple shapes will be combined into a single collection.
+      </li>
+      <li>
+        Once saved you can no longer edit the shape(s), instead you can delete and recreate.
+      </li>
+      <li>
+        Overlapping shapes are discouraged and may give unexpected results.
+      </li>
+    </ul>
+
   </div>
   <GeographicItem
     @shapes-updated="(shapes) => leafletShapes = shapes"
-    :editing-disabled="shapeSaved"
+    :editing-disabled="!!gz.id"
   />
 </template>
 
@@ -93,39 +98,59 @@ import { Gazetteer } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 
 let leafletShapes = ref([])
-const gaz = ref({})
+const gz = ref({})
 const name = ref('')
 const saveLabel = ref('Save')
-const shapeSaved = ref(false)
 
 const saveDisabled = computed(() => {
   return !(name.value) || leafletShapes.value.length == 0
 })
 
-function saveGaz() {
+const headerLabel = computed(() => {
+  return gz.value.id ? gz.value.name : 'New Gazetteer'
+})
+
+function saveGz() {
+  if (gz.value.id) {
+    updateGz()
+  } else {
+    saveNewGz()
+  }
+}
+
+function saveNewGz() {
   const geojson = leafletShapes.value.map((shape) => {
     delete shape['uuid']
     return JSON.stringify(shape)
   })
 
-  const shapes = {
-    geojson
-  }
-
   const gazetteer = {
     name: name.value,
-    shapes
+    shapes: { geojson }
   }
 
   Gazetteer.create({ gazetteer })
-    .then(() => {
-      shapeSaved.value = true
+    .then(({ body }) => {
+      gz.value = body
       saveLabel.value = 'Update name'
     })
     .catch(() => {})
 }
 
-function cloneGaz() {}
+function updateGz() {
+  // TODO finish
+  const gazetteer = {
+    name: name.value
+  }
+
+  Gazetteer.update({ gazetteer })
+    .then(() => {
+
+    })
+    .catch(() => {})
+}
+
+function cloneGz() {}
 
 function reset() {}
 

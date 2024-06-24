@@ -10,7 +10,6 @@
     resize
     :draw-controls="!editingDisabled"
     :draw-circle="false"
-    :draw-polyline="false"
     :cut-polygon="false"
     :removal-mode="false"
     :edit-mode="false"

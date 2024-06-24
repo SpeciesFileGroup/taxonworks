@@ -1,3 +1,3 @@
-json.array!(@gazeteers) do |gazeteer|
-  json.partial! 'attributes',  gazeteer:
+json.array!(@gazetteers) do |gazetteer|
+  json.partial! 'attributes',  gazetteer:
 end
