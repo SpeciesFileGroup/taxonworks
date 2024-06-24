@@ -152,7 +152,7 @@ gem 'gnfinder', '~> 1.0'
 gem 'amazing_print', '~> 1.5'
 gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 3.0'
-gem 'term-ansicolor', '~> 1.6' # DEPRECATED
+
 gem 'chronic', '~> 0.10.2'
 gem 'logical_query_parser'
 gem 'logic_tools'
@@ -172,6 +172,7 @@ gem 'parallel', '~> 1.23'
 gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
+  # gem 'term-ansicolor', '~> 1.6' # DEPRECATED
   gem 'faker', '~> 3.2'
   gem 'rspec-rails', '~> 6.1'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'

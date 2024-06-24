@@ -393,7 +393,7 @@ GEM
     nenv (0.3.0)
     net-http (0.4.1)
       uri
-    net-imap (0.4.13)
+    net-imap (0.4.14)
       date
       net-protocol
     net-protocol (0.2.2)
@@ -682,11 +682,8 @@ GEM
       rtesseract (~> 3.1)
     stringio (3.1.1)
     strscan (3.1.0)
-    sync (0.5.0)
     taxonifi (0.6.0)
       require_all (~> 3.0)
-    term-ansicolor (1.9.0)
-      tins (~> 1.0)
     terrapin (1.0.1)
       climate_control
     terser (1.2.3)
@@ -701,9 +698,6 @@ GEM
     timecop (0.9.10)
     timeliness (0.4.5)
     timeout (0.4.1)
-    tins (1.33.0)
-      bigdecimal
-      sync
     treetop (1.6.12)
       polyglot (~> 0.3)
     ttfunk (1.8.0)
@@ -877,7 +871,6 @@ DEPENDENCIES
   sprockets-rails (~> 3.4.0)
   sqed (~> 0.8.1)
   taxonifi (~> 0.6.0)
-  term-ansicolor (~> 1.6)
   terser (~> 1.2)
   thor (~> 1.2)
   thruster
