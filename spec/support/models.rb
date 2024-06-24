@@ -18,6 +18,12 @@ end
 # These methods are available throughout specs.
 module ModelHelper
 
+  # TODO: Reconsider need if occurrence import specs are refactored
+  def init_housekeeping(user_id: 1, project_id: 1)
+    Current.user_id = user_id
+    Current.project_id = project_id
+  end
+
   # Returns the name of the TW factory for a class, includes
   # the formatting for nested subclasses.
   def class_factory_name(klass)
