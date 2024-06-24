@@ -61,12 +61,15 @@ class GazetteersController < ApplicationController
     end
   end
 
-  # PATCH/PUT /gazetteers/1 or /gazetteers/1.json
+  # PATCH/PUT /gazetteers/1
+  # PATCH/PUT /gazetteers/1.json
   def update
+    byebug
     respond_to do |format|
       if @gazetteer.update(gazetteer_params)
         format.html { redirect_to gazetteer_url(@gazetteer), notice: "Gazetteer was successfully updated." }
-        format.json { render :show, status: :ok, location: @gazetteer }
+        # TODO Add updated message
+        format.json { render :show, status: :ok }
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @gazetteer.errors, status: :unprocessable_entity }

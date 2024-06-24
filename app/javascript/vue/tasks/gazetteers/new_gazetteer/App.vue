@@ -1,4 +1,5 @@
 <template>
+  <!-- Add spinner -->
   <NavBar>
     <div class="flex-separate full_width">
       <div class="middle margin-small-left">
@@ -16,6 +17,7 @@
             :object-id="gz.id"
             type="Gazetteer"
           />
+          <!-- TODO complains when undefined instead of "" or something-->
           <RadialAnnotator :global-id="gz.global_id" />
           <RadialNavigator :global-id="gz.global_id" />
         </div>
@@ -138,14 +140,13 @@ function saveNewGz() {
 }
 
 function updateGz() {
-  // TODO finish
   const gazetteer = {
     name: name.value
   }
 
-  Gazetteer.update({ gazetteer })
-    .then(() => {
-
+  Gazetteer.update(gz.value.id, { gazetteer })
+    .then(({ body }) => {
+      gz.value = body
     })
     .catch(() => {})
 }
