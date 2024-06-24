@@ -202,6 +202,9 @@ end
 
 resources :container_items, except: [:edit] do
   concerns [:data_routes]
+  collection do
+    post :batch_add, defaults: {format: :json}
+  end
 end
 
 resources :contents do

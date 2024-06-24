@@ -84,6 +84,18 @@ class ContainerItemsController < ApplicationController
     render json: data
   end
 
+  # POST container_items/batch_add
+  def batch_add
+    if r = ContainerItem.batch_add(params)
+    #   preview: params[:preview],
+    #   collecting_event: collecting_event_params.merge(by: sessions_current_user_id),
+    #   collecting_event_query: params[:collecting_event_query])
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
   private
     def set_container_item
       @container_item = ContainerItem.with_project_id(sessions_current_project_id).find(params[:id])

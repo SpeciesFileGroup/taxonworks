@@ -183,7 +183,7 @@ class Container < ApplicationRecord
   end
 
   # @return [Boolean]
-  #    add the objects to this container
+  # add the objects to this container
   def add_container_items(objects)
     return false if new_record?
 

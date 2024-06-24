@@ -95,6 +95,16 @@ class ContainerItem < ApplicationRecord
     set_container
   end
 
+  # @params
+  def self.batch_add(params)
+    c = Container.find(params[:container_id])
+    q = Queries::Filter.instatiated_base_filter(params)
+
+    c.add_container_items(q.all)
+
+    return { success: true }
+  end
+
   # @return [Container, nil]
   #   the immediate container for this ContainerItem
   def container
