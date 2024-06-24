@@ -8,6 +8,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     TaxonNameClassification.delete_all
     TaxonName.delete_all
     TaxonNameHierarchy.delete_all
+
+    init_housekeeping 
+    
     @order = FactoryBot.create(:iczn_order)
   end
 

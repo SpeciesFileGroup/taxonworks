@@ -530,7 +530,7 @@ class TaxonName < ApplicationRecord
 
   # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
   def synonyms
-    TaxonName.with_cached_valid_taxon_name_id(self.id)
+    TaxonName.with_cached_valid_taxon_name_id(id)
   end
 
   # @return [String]

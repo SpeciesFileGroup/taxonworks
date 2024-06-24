@@ -6,9 +6,11 @@ module CachedMapsHelper
 
     o = Otu.find(cached_map.otu_id)
 
+    # TODO: if this is empty then CachedMap should not exist.
     i = cached_map.latest_cached_map_item
+
     a = cached_map.updated_at
-    b = i.created_at
+    b = i&.created_at
 
     c = cached_map.synced?
 

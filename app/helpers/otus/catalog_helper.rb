@@ -74,7 +74,7 @@ module Otus::CatalogHelper
     if otu.taxon_name
       synonyms = otu.taxon_name.synonyms.where(type: 'Protonym').where.not(id: otu.taxon_name_id)&.order(:cached, :cached_author_year)
     else
-      synonyms = [] 
+      synonyms = ::TaxonName.none
     end
 
     data = { otu_id: otu.id,
