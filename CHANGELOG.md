@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- People queries referencing `use_min` and `use_max` in combination with other facets
 - `/observation_matrix_column/list`
 - Queries referencing emtpy `identifier_start` or end failing
 - Moving depiciton from an Otu could fail in some cases
