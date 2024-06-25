@@ -64,7 +64,6 @@ class GazetteersController < ApplicationController
   # PATCH/PUT /gazetteers/1
   # PATCH/PUT /gazetteers/1.json
   def update
-    byebug
     respond_to do |format|
       if @gazetteer.update(gazetteer_params)
         format.html { redirect_to gazetteer_url(@gazetteer), notice: "Gazetteer was successfully updated." }
