@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Moving depiciton from an Otu could fail in some cases
 - OTU inventory endpoint failing when synonyms are empty
 - CachedMap metadata raises when out-of-date 
 - Encoding unencodable text as Code128 breaks label preview 
