@@ -39,9 +39,25 @@
 <script>
 import ModalComponent from '@/components/ui/Modal'
 import { GEOREFERENCE_WKT } from '@/constants/index.js'
+import { props } from 'vue-handy-scroll'
 
 export default {
   components: { ModalComponent },
+
+  props: {
+    type: {
+      type: String,
+      default: GEOREFERENCE_WKT
+    },
+    id_key: {
+      type: String,
+      default: 'tmpId'
+    },
+    id_generator: {
+      type: Function,
+      default: () => Math.random().toString(36).substr(2, 5)
+    }
+  },
 
   emits: ['create'],
 
@@ -55,9 +71,9 @@ export default {
   methods: {
     createShape() {
       this.$emit('create', {
-        tmpId: Math.random().toString(36).substr(2, 5),
+        [this.id_key]: (this.id_generator)(),
         wkt: this.wkt,
-        type: GEOREFERENCE_WKT
+        type: this.type
       })
       this.show = false
     },
