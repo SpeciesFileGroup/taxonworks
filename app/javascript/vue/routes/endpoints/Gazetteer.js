@@ -6,7 +6,8 @@ const permitParams = {
   gazetteer: {
     name: String,
     shapes: {
-      geojson: []
+      geojson: [],
+      wkt: []
     }
     //geographic_item_attributes: { shape: Object }
   }

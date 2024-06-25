@@ -32,9 +32,38 @@
     </ul>
 
   </div>
+
+  <div
+    class="horizontal-left-content margin-medium-top margin-medium-bottom"
+  >
+    <WktComponent
+      :disabled="!!gz.id"
+      :type="GZ_WKT"
+      id_key="uuid"
+      :id_generator="() => randomUUID()"
+      @create="(wkt) => addToShapes(wkt, GZ_WKT)"
+      class="margin-small-right"
+    >
+      <template #header>
+        <h3>Create WKT shape</h3>
+      </template>
+    </WktComponent>
+<!--
+    <manually-component
+      class="margin-small-right"
+      @create="addGeoreference($event, GEOREFERENCE_POINT)"
+    />
+    <geolocate-component
+      :disabled="!collectingEvent.id"
+      class="margin-small-right"
+      @create="addToQueue"
+    />
+-->
+  </div>
+
   <Leaflet
     :shapes="leafletShapes"
-    @shapes-updated="(shape) => addToShapes(shape)"
+    @shapes-updated="(shape) => addToShapes(shape, GZ_LEAFLET)"
     :editing-disabled="!!gz.id"
   />
 
@@ -51,9 +80,16 @@ import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import DisplayList from './components/DisplayList.vue'
 import Leaflet from './components/Leaflet.vue'
 import NavBar from './components/NavBar.vue'
+import WktComponent from '@/tasks/collecting_events/new_collecting_event/components/parsed/georeferences/wkt.vue'
 import { Gazetteer } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
+import { randomUUID } from '@/helpers'
 import { addToArray, removeFromArray } from '@/helpers/arrays'
+import {
+  //GZ_POINT,
+  GZ_WKT,
+  GZ_LEAFLET
+} from '@/constants/index.js'
 
 const shapes = ref([])
 const gz = ref({})
@@ -77,18 +113,27 @@ function saveGz() {
 }
 
 function saveNewGz() {
-  const geojson = shapes.value.map((item) => {
-    return JSON.stringify(item.shape)
-  })
+  const geojson = shapes.value
+    .filter((item) => item.type == GZ_LEAFLET)
+    .map((item) => JSON.stringify(item.shape))
+
+  const wkt = shapes.value
+    .filter((item) => item.type == GZ_WKT)
+    .map((item) => item.shape)
 
   const gazetteer = {
     name: name.value,
-    shapes: { geojson }
+    shapes: {
+      geojson,
+      wkt
+    }
   }
 
   Gazetteer.create({ gazetteer })
     .then(({ body }) => {
       gz.value = body
+      // TODO can we update the map to display the combined shape? Maybe fetch
+      // a geojson version?
     })
     .catch(() => {})
 }
@@ -113,13 +158,24 @@ function reset() {
   name.value = ''
 }
 
-// TODO make types a constant
-function addToShapes(shape) {
-  shapes.value.push({
-    uuid: crypto.randomUUID(),
-    type: 'leaflet',
-    shape
-  })
+function addToShapes(shape, type) {
+  switch(type) {
+    case GZ_LEAFLET:
+      shapes.value.push({
+        uuid: randomUUID(),
+        type,
+        // TODO should store this as stringified?
+        shape
+      })
+      break
+    case GZ_WKT:
+      shapes.value.push({
+        uuid: shape.uuid,
+        type: GZ_WKT,
+        shape: shape.wkt
+      })
+      break
+  }
 }
 
 function removeFromShapes(shape) {

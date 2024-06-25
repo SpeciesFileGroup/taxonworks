@@ -18,8 +18,8 @@
           :key="item.uuid"
           class="list-complete-item"
         >
-          <td class="word-keep-all">{{ item.shape.geometry.type }}</td>
-          <td>{{ getCoordinates(item.shape.geometry.coordinates) }}</td>
+          <td class="word-keep-all">{{ shapeType(item) }}</td>
+          <td>{{ getCoordinates(item) }}</td>
           <td>{{ item.type }}</td>
           <td>
             <div class="horizontal-right-content gap-small">
@@ -51,6 +51,11 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { convertToLatLongOrder } from '@/helpers/geojson.js'
+import {
+  //GZ_POINT,
+  GZ_WKT,
+  GZ_LEAFLET
+} from '@/constants/index.js'
 
 const props = defineProps({
   list: {
@@ -75,13 +80,28 @@ function deleteItem(item) {
   }
 }
 
-function getCoordinates(coordinates) {
-  const flatten = coordinates.flat(1)
+function shapeType(item) {
+  switch(item.type) {
+    case GZ_LEAFLET:
+      return item.shape.geometry.type
+    case GZ_WKT:
+      return 'WKT'
+  }
+}
 
-  if (typeof flatten[0] === 'number') {
-    return convertToLatLongOrder(coordinates)
-  } else {
-    return flatten.map((arr) => convertToLatLongOrder(arr))
+function getCoordinates(item) {
+  switch(item.type) {
+    case GZ_LEAFLET:
+      const coordinates = item.shape.geometry.coordinates
+      const flattened = coordinates.flat(1)
+      if (typeof flattened[0] === 'number') {
+        return convertToLatLongOrder(coordinates)
+      } else {
+        return flattened.map((arr) => convertToLatLongOrder(arr))
+      }
+      break
+    case GZ_WKT:
+      return item.shape
   }
 }
 </script>
