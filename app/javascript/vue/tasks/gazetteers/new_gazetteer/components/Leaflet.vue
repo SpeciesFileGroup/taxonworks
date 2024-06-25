@@ -18,22 +18,17 @@
     @geoJsonLayersEdited="(shape) => addToShapes(shape)"
     @geoJsonLayerCreated="(shape) => addToShapes(shape)"
   />
-
-  <DisplayList
-    class="geolist"
-    :list="shapes"
-    @delete="(shape) => removeFromShapes(shape)"
-    :editingDisabled="editingDisabled"
-  />
 </template>
 
 <script setup>
-import DisplayList from './DisplayList.vue'
 import VMap from '@/components/georeferences/map'
-import { addToArray, removeFromArray } from '@/helpers/arrays'
-import { ref } from 'vue'
+import { addToArray } from '@/helpers/arrays'
 
 const props = defineProps({
+  shapes: {
+    type: Array,
+    default: []
+  },
   editingDisabled: {
     type: Boolean,
     default: false
@@ -42,26 +37,8 @@ const props = defineProps({
 
 const emit = defineEmits(['shapesUpdated'])
 
-const shapes = ref([])
-
-function reset() {
-  shapes.value = []
-  emit('shapesUpdated', shapes.value)
-  props.editingDisabled = false
-}
-defineExpose({reset})
-
 function addToShapes(shape) {
-  if (!shape.uuid) {
-    shape.uuid = crypto.randomUUID()
-  }
-
-  addToArray(shapes.value, shape, { property: 'uuid' })
-  emit('shapesUpdated', shapes.value)
-}
-
-function removeFromShapes(shape) {
-  removeFromArray(shapes.value, shape, { property: 'uuid' })
+  emit('shapesUpdated', shape)
 }
 </script>
 
@@ -69,9 +46,5 @@ function removeFromShapes(shape) {
 .lmap {
   max-width: 80vw;
   margin: 0px auto 2em auto;
-}
-
-.geolist {
-  margin-bottom: 2em;
 }
 </style>

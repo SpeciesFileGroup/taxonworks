@@ -23,7 +23,8 @@
         Multiple shapes will be combined into a single collection.
       </li>
       <li>
-        Once saved you can no longer edit the shape(s), instead you can delete and recreate.
+        Once saved you can no longer edit the shape(s), instead you can delete
+        and recreate.
       </li>
       <li>
         Overlapping shapes are discouraged and may give unexpected results.
@@ -31,27 +32,40 @@
     </ul>
 
   </div>
-  <GeographicItem
-    @shapes-updated="(shapes) => leafletShapes = shapes"
+  <Leaflet
+    :shapes="leafletShapes"
+    @shapes-updated="(shape) => addToShapes(shape)"
     :editing-disabled="!!gz.id"
-    ref="geoItemComponent"
+  />
+
+  <DisplayList
+    class="geolist"
+    :list="shapes"
+    @delete="(shape) => removeFromShapes(shape)"
+    :editing-disabled="!!gz.id"
   />
 </template>
 
 <script setup>
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
-import GeographicItem from './components/GeographicItem.vue'
+import DisplayList from './components/DisplayList.vue'
+import Leaflet from './components/Leaflet.vue'
 import NavBar from './components/NavBar.vue'
 import { Gazetteer } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
+import { addToArray, removeFromArray } from '@/helpers/arrays'
 
-let leafletShapes = ref([])
+const shapes = ref([])
 const gz = ref({})
 const name = ref('')
 const geoItemComponent = ref(null)
 
+const leafletShapes = computed(() => {
+  return shapes.value.map((item) => item.shape)
+})
+
 const saveDisabled = computed(() => {
-  return !(name.value) || leafletShapes.value.length == 0
+  return !(name.value) || shapes.value.length == 0
 })
 
 function saveGz() {
@@ -63,9 +77,8 @@ function saveGz() {
 }
 
 function saveNewGz() {
-  const geojson = leafletShapes.value.map((shape) => {
-    delete shape['uuid']
-    return JSON.stringify(shape)
+  const geojson = shapes.value.map((item) => {
+    return JSON.stringify(item.shape)
   })
 
   const gazetteer = {
@@ -95,9 +108,22 @@ function updateGz() {
 function cloneGz() {}
 
 function reset() {
-  geoItemComponent.value.reset()
+  shapes.value = []
   gz.value = {}
   name.value = ''
+}
+
+// TODO make types a constant
+function addToShapes(shape) {
+  shapes.value.push({
+    uuid: crypto.randomUUID(),
+    type: 'leaflet',
+    shape
+  })
+}
+
+function removeFromShapes(shape) {
+  removeFromArray(shapes.value, shape, { property: 'uuid' })
 }
 
 </script>
@@ -110,5 +136,9 @@ function reset() {
 .editing-note {
   margin-left: 10vw;
   margin-bottom: 6px;
+}
+
+.geolist {
+  margin-bottom: 2em;
 }
 </style>

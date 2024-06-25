@@ -5,6 +5,7 @@
         <tr>
           <th class="word-keep-all">Shape</th>
           <th class="word-keep-all">Coordinates</th>
+          <th class="word-keep-all">Type</th>
           <th />
         </tr>
       </thead>
@@ -17,8 +18,9 @@
           :key="item.uuid"
           class="list-complete-item"
         >
-          <td class="word-keep-all">{{ item.geometry.type }}</td>
-          <td>{{ getCoordinates(item.geometry.coordinates) }}</td>
+          <td class="word-keep-all">{{ item.shape.geometry.type }}</td>
+          <td>{{ getCoordinates(item.shape.geometry.coordinates) }}</td>
+          <td>{{ item.type }}</td>
           <td>
             <div class="horizontal-right-content gap-small">
               <RadialAnnotator
