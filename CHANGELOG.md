@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- `/observation_matrix_column/list`
 - Queries referencing emtpy `identifier_start` or end failing
 - Moving depiciton from an Otu could fail in some cases
 - OTU inventory endpoint failing when synonyms are empty
