@@ -213,7 +213,11 @@ module Settings
   def self.load_action_mailer_smtp_settings(config, settings)
     if settings
       config.action_mailer.delivery_method = :smtp
-      config.action_mailer.smtp_settings = {openssl_verify_mode: 'none'}.merge!(settings)
+      config.action_mailer.smtp_settings = {
+        openssl_verify_mode: 'none',
+        user_name: ENV['TW_ACTION_MAILER_SMTP_SETTINGS_USER_NAME'],
+        password: ENV['TW_ACTION_MAILER_SMTP_SETTINGS_PASSWORD']
+      }.merge!(settings)
     end
   end
 
