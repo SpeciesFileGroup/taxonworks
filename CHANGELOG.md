@@ -110,6 +110,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Taxon name with nomen nudum status, nomen dubium status + invalidating relationship should be treated as separate invalid taxon.
 - Quick forms: Lock buttons don't work on Biological associations.
 - Week in review task [#3926]
 - Missing Image metadata breaks radial
