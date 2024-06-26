@@ -948,7 +948,7 @@ class TaxonName < ApplicationRecord
 
   # @return [TaxonName]
   #  a valid taxon_name for an invalid name or self for valid name.
-  #  a stub here - See Protonym and Combination
+  #  a stub here -  See Protonym and Combination
   def get_valid_taxon_name
     nil
   end
