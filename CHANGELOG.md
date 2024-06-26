@@ -19,9 +19,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwcOccurrence filter on all attributes
 - DwcOccurrence visible in Project vocabulary
 - Confirmation modal on mass annotator [#3969]
+- `TW_ACTION_MAILER_SMTP_SETTINGS_USER_NAME`, `TW_ACTION_MAILER_SMTP_SETTINGS_PASSWORD` and `TW_ACTION_MAILER_SMTP_SETTINGS_AUTHENTICATION_TYPE` env vars for container deployments
 
 ### Fixed
 
+- People queries referencing `use_min` and `use_max` in combination with other facets
+- `/observation_matrix_column/list`
+- Queries referencing emtpy `identifier_start` or end failing
+- Moving depiciton from an Otu could fail in some cases
 - OTU inventory endpoint failing when synonyms are empty
 - CachedMap metadata raises when out-of-date 
 - Encoding unencodable text as Code128 breaks label preview 

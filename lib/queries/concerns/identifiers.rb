@@ -92,11 +92,19 @@ module Queries::Concerns::Identifiers
     attr_accessor :no_identifier_clauses
 
     def identifier_start
-      @identifier_start.to_s
+      if @identifier_start.blank?
+        nil
+      else
+        @identifier_start.to_s
+      end
     end
 
     def identifier_end
-      @identifier_end.to_s
+      if @identifier_end.blank?
+        nil
+      else
+        @identifier_end.to_s
+      end
     end
 
     def match_identifiers_delimiter
