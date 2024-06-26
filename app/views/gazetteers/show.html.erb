@@ -1,10 +1,14 @@
-<p style="color: green"><%= notice %></p>
+<%= content_for :associated do -%>
+  <p> <strong>Shape:</strong></p>
+  <%= simple_map([@gazetteer]) -%>
 
-<%= render @gazetteer %>
+  <p>
+  <strong> GeographicItems (shape IDs): </strong>
+  <%= geographic_item_link(@gazetteer.geographic_item) -%>
+  </p>
 
-<div>
-  <%= link_to "Edit this gazetteer", edit_gazetteer_path(@gazetteer) %> |
-  <%= link_to "Back to gazetteers", gazetteers_path %>
+  <%= link_to('Debug default geographic item', debug_geographic_item_task_path(geographic_item_id: @gazetteer.geographic_item_id)) %>
 
-  <%= button_to "Destroy this gazetteer", @gazetteer, method: :delete %>
-</div>
+<% end %>
+
+<%= render(partial: 'shared/data/project/show', locals: {object: @gazetteer}) -%>

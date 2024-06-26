@@ -17,7 +17,6 @@
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= gaz.name %></td>
           <td><%= gazetteer_link(gaz.parent) %></td>
-          <td><%= gazetteer_type_tag(gaz.type) %></td>
           <td><%= gaz.iso_3166_a2 %></td>
           <td><%= gaz.iso_3166_a3 %></td>
           <%= fancy_metadata_cells_tag(gaz) -%>

@@ -3,6 +3,10 @@
   <p>Names from geographic areas: <%= geographic_area_link_list(@geographic_item.geographic_areas) -%></p>
   <p>Parents through geographic areas: <%= geographic_area_link_list(@geographic_item.parent_geographic_areas) -%></p>
 
+  <h3> Gazetteers </h3>
+  <p>Names from gazetteers: <%= gazetteer_link_list(@geographic_item.gazetteers) -%></p>
+  <%# TODO gazetteer parents%>
+
   <h3> Geographic Items </h3>
   <p> Parent items through geographic areas: <%= geographic_item_parent_nav_links(@geographic_item) -%></p>
 

@@ -50,6 +50,7 @@ class GazetteersController < ApplicationController
       return
     end
 
+    # TODO does this bypass save and set_cached_area? If not, how does that happen?
     @gazetteer.geographic_item = GeographicItem.new(geography: shape)
 
     if @gazetteer.save

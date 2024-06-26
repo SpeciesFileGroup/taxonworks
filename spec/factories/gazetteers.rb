@@ -22,7 +22,7 @@ FactoryBot.define do
       name { 'gaz random polygon' }
     end
 
-    factory :gazeteer_with_multi_polygon do
+    factory :gazetteer_with_multi_polygon do
       association :geographic_item, factory: :geographic_item_with_multi_polygon
       name { 'gaz random multi-polygon' }
     end

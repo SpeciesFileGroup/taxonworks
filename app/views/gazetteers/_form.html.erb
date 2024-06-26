@@ -1,8 +1,7 @@
 <%= content_tag(:span, 'Use the new/edit gazetteer task.', class: [:feedback, 'feedback-warning']) %>
 <br />
 <br />
-<%# TODO %>
-<%= link_to('New/edit gazetteer task', ) %>
+<%= link_to('New gazetteer task', new_gazetteer_task_path(id: @gazetteer&.id )) %>
 <br />
 <br />
 

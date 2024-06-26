@@ -27,7 +27,8 @@
     <h3> Project specific </h3>
     <%= table_from_hash_tag({
       'Georeferences' => collecting_events_count_using_this_geographic_item(@geographic_item.id),
-      'AssertedDistributions' => @geographic_item.asserted_distributions.where(project_id: sessions_current_project_id).count
+      'AssertedDistributions' => @geographic_item.asserted_distributions.where(project_id: sessions_current_project_id).count,
+      'Gazetteers' => @geographic_item.gazetteers.where(project_id: sessions_current_project_id).count
     }) %>
 
   </div>
@@ -81,6 +82,10 @@
     <h3> GeographicArea </h3>
     <p> Names from geographic areas: <%= geographic_area_link_list(@geographic_item.geographic_areas) -%> </p>
     <p> Parents through geographic areas: <%= geographic_area_link_list(@geographic_item.parent_geographic_areas) -%></p>
+
+    <h3> Gazetteer </h3>
+    <p> Names from gazetteers: <%= gazetteer_link_list(@geographic_item.gazetteers) -%> </p>
+    <%# TODO Gazetteer parents %>
 
     <h3> Parents </h3>
     <p> Through geographic areas: <%= geographic_item_parent_nav_links(@geographic_item) -%> </p>
