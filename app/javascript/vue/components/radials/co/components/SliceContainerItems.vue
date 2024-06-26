@@ -30,19 +30,9 @@
         :batch-service="ContainerItem.batchAdd"
         :payload="payload"
         :disabled="!container"
+        button-label="Create"
         @update="updateMessage"
         @close="emit('close')"
-      />
-
-      <PreviewBatch
-        :batch-service="ContainerItem.batchAdd"
-        :payload="payload"
-        :disabled="!container"
-        @finalize="
-          () => {
-            updateBatchRef.openModal()
-          }
-        "
       />
     </div>
   </div>
@@ -52,7 +42,6 @@
 import { computed, ref } from 'vue'
 import { ContainerItem } from '@/routes/endpoints'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 

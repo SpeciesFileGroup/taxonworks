@@ -123,7 +123,7 @@ onBeforeMount(() => {
 }
 
 .container-form {
-  width: 400px;
+  min-width: 410px;
 }
 
 .task-container {

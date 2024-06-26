@@ -5,7 +5,7 @@
     :disabled="disabled"
     @click="openModal"
   >
-    Update
+    {{ buttonLabel }}
   </VBtn>
   <VModal
     v-if="isModalVisible"
@@ -55,6 +55,11 @@ const props = defineProps({
   disabled: {
     type: Boolean,
     default: false
+  },
+
+  buttonLabel: {
+    type: String,
+    default: 'Update'
   }
 })
 

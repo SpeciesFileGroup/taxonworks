@@ -16,13 +16,13 @@ import SliceBiocurations from './components/SliceBiocurations/SliceBiocurations.
 import SliceRepository from './components/SliceRepository.vue'
 import SliceCollectingEvent from './components/SliceCollectingEvent.vue'
 import SlicePreparationType from './components/SlicePreparationType.vue'
-import SliceContainer from './components/SliceContainer.vue'
+import SliceContainerItems from './components/SliceContainerItems.vue'
 import DwcSlice from './components/DwCSlice.vue'
 
 const SLICES = {
   'Add biocurations': SliceBiocurations,
   'Collecting event': SliceCollectingEvent,
-  Container: SliceContainer,
+  'Container items': SliceContainerItems,
   'Taxon determinations': SliceTaxonDetermination,
   Repository: SliceRepository,
   'Regenerate DwC': DwcSlice,
