@@ -4,6 +4,17 @@ describe 'Identifiable', type: :model, group: [:identifiers] do
   let(:identifiable_instance) {TestIdentifiable.new}
   let(:identifiable_class) {TestIdentifiable}
 
+  specify '#add_incremented_identifier' do
+    a = FactoryBot.create(:valid_otu)
+    b = FactoryBot.create(:valid_otu)
+
+    i = FactoryBot.create(:valid_identifier, identifier: "1", identifier_object: a)
+
+    a.add_incremented_identifier(to_object: b, incremented_identifier_id: i.id)
+
+    expect(b.local_identifiers.first.identifier.to_f).to eq(i.identifier.to_f + 1.0)
+  end
+
   context 'associations' do
     specify 'has many identifiers' do
       expect(identifiable_instance.identifiers << Identifier.new).to be_truthy

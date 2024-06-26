@@ -8,7 +8,7 @@
       <p>Create sequence relationships between sequences and primer sequences and creates gene descriptors and gene attributes</p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are (see <%= link_to('sample template', asset_path('batch_load_templates/sequence_relationships/sequence_relationships_primers_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Column headers are (see <%= link_to('sample template', asset_path('batch_load_templates/sequence_relationships/sequence_relationships_primers_batch_load.tab', skip_pipeline: true), target: '_blank') -%>).</li>
         <li>Multiple uploads of the same data will create duplicated data.</li>
         <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
       </ul>

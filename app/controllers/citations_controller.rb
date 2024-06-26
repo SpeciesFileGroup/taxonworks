@@ -18,7 +18,7 @@ class CitationsController < ApplicationController
         @citations = ::Queries::Citation::Filter.new(params).all
           .where(project_id: sessions_current_project_id)
           .eager_load(:source)
-          .order(:source_id, :pages)
+          .order(:cached_nomenclature_date, :cached, :source_id, :pages)
           .page(params[:page]).per(params[:per])
       }
     end

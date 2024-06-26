@@ -9,14 +9,29 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- POST `/annotations/move?from_global_id=<>&to_global_id=<>&only[]=&except[]=`
+- Clone CollectingEvent can include annotations, incremented identifiers
+- Model Identifier::Local::Event in part: [#3800]
+- Task - DwcOccurrence status
 - `/api/v1/taxon_names/origin_citation.csv`, taxon names plus their origin citation
 - Reasonable min/max elevations hard validations
 - Increased scope of string cleaning [#3947]
 - DwcOccurrence filter on all attributes
+- DwcOccurrence visible in Project vocabulary
 - Confirmation modal on mass annotator [#3969]
+- `TW_ACTION_MAILER_SMTP_SETTINGS_USER_NAME`, `TW_ACTION_MAILER_SMTP_SETTINGS_PASSWORD` and `TW_ACTION_MAILER_SMTP_SETTINGS_AUTHENTICATION_TYPE` env vars for container deployments
 
 ### Fixed
 
+- People queries referencing `use_min` and `use_max` in combination with other facets
+- `/observation_matrix_column/list`
+- Queries referencing emtpy `identifier_start` or end failing
+- Moving depiciton from an Otu could fail in some cases
+- OTU inventory endpoint failing when synonyms are empty
+- CachedMap metadata raises when out-of-date 
+- Encoding unencodable text as Code128 breaks label preview 
+- Identifier between range breaks filter when blank params passed
+- DwcIndex failing to update on Georeference, Role, BiocurationClassification, TaxonName, InternalAttribute changes
 - Sometimes URL parameters are set incorrectly in facets.
 - A COLDP export name and taxon remarks bug [#3837]
 - Project dump not working when all params were supplied [#3967]
@@ -25,16 +40,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Optimized performance of union, intersect and related filter queries cleaning `select` for intermediate queries
 - Upgraded to Rails 7. [#3819]
 - Changed default URL protocol to HTTPS for TaxonWorks-generated e-mails in production environments.
 - Added bootsnap gem to speed up boot times. `tmp/cache` dir is used as cache by this gem.
 - Removed `versions_associations` and `shortened_urls` tables from Project SQL export.
+- Replace validations modal in Browse nomenclature task [#3974]
+- Updated Ruby gems.
 
+[#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
 [#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
 [#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
 [#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
 [#3967]: https://github.com/SpeciesFileGroup/taxonworks/pull/3967
 [#3969]: https://github.com/SpeciesFileGroup/taxonworks/pull/3969
+[#3974]: https://github.com/SpeciesFileGroup/taxonworks/pull/3974
 
 ## [0.41.1] - 2024-05-10
 

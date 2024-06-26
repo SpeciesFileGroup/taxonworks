@@ -92,11 +92,19 @@ module Queries::Concerns::Identifiers
     attr_accessor :no_identifier_clauses
 
     def identifier_start
-      @identifier_start.to_s
+      if @identifier_start.blank?
+        nil
+      else
+        @identifier_start.to_s
+      end
     end
 
     def identifier_end
-      @identifier_end.to_s
+      if @identifier_end.blank?
+        nil
+      else
+        @identifier_end.to_s
+      end
     end
 
     def match_identifiers_delimiter
@@ -348,8 +356,8 @@ module Queries::Concerns::Identifiers
   end
 
   def identifier_between_facet
-    return nil if @identifier_start.nil?
-    @identifier_end = @identifier_start if @identifier_end.nil?
+    return nil if @identifier_start.blank?
+    @identifier_end = @identifier_start if @identifier_end.blank?
 
     w = between
     w = w.and(identifier_table[:namespace_id].eq(namespace_id)) if namespace_id # TODO: redundant with namespace facet likely

@@ -13,7 +13,11 @@
             layout?.properties
           "
         >
-          <td colspan="2" />
+          <td
+            :colspan="
+              radialObject || radialAnnotator || radialNavigator ? 2 : 1
+            "
+          />
           <template
             v-for="header in headerGroups"
             :key="header"
@@ -66,7 +70,10 @@
               type="checkbox"
             />
           </th>
-          <th class="w-2" />
+          <th
+            v-if="radialObject || radialAnnotator || radialNavigator"
+            class="w-2"
+          />
           <th
             v-for="(title, attr) in attributes"
             :key="attr"
@@ -156,7 +163,7 @@
               type="checkbox"
             />
           </td>
-          <td>
+          <td v-if="radialObject || radialAnnotator || radialNavigator">
             <div class="horizontal-right-content gap-small">
               <slot
                 name="buttons-left"
@@ -167,7 +174,6 @@
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
               <RadialObject
-                v-if="radialObject"
                 :global-id="item.global_id"
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
@@ -277,10 +283,21 @@ const props = defineProps({
   radialObject: {
     type: Boolean,
     default: false
+  },
+
+  radialAnnotator: {
+    type: Boolean,
+    default: true
+  },
+
+  radialNavigator: {
+    type: Boolean,
+    default: true
   }
 })
 
 const emit = defineEmits([
+  'remove',
   'onSort',
   'update:modelValue',
   'mouseover:row',

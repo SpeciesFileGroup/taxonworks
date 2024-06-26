@@ -8,7 +8,7 @@ module Shared::IsData::Annotation
   # middle is left, top/bottom right
 
   # see config/initializes/constanst/model/annotations for types
-
+  #
   included do
 
     # @return [Boolean]
@@ -16,6 +16,52 @@ module Shared::IsData::Annotation
     def annotates?
       respond_to?(:annotated_object)
     end
+
+    # TODO: consider implications of allowing cloning from any objet
+    # to any object
+    # This should be wrapped in a larger transction
+    def clone_annotations(to_object: nil, except: [], only: [])
+      return false if to_object.nil?
+      a = !only.empty? ? only : (::ANNOTATION_TYPES - except)
+      a.each do |t|
+        if respond_to?(t)
+          send(t).each do |o|
+            o.dup
+            to_object.send(t) << o
+          end
+        end
+      end
+      to_object
+    end
+  end
+
+  # TODO: consider implications of allowing cloning from any objet
+  # to any object
+  def move_annotations(to_object: nil, except: [], only: [])
+    return false if to_object.nil?
+
+    e = except.map(&:to_sym)
+    o = only.map(&:to_sym)
+
+    errors = []
+
+    a = !only.empty? ? o : (::ANNOTATION_TYPES - e)
+    a.each do |t|
+      if respond_to?(t)
+        send(t).each do |i|
+          i.annotated_object = to_object
+
+          begin
+            i.save!
+          rescue ActiveRecord::RecordInvalid => e
+            errors.push e
+          end
+
+        end
+      end
+      errors
+    end
+
   end
 
 

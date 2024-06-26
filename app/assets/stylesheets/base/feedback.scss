@@ -3,23 +3,23 @@
 .feedback {
   color: $default_text;
   position: relative;
-  padding: .75rem 1.25rem;
+  padding: 0.75rem 1.25rem;
   margin-bottom: 1rem;
-  border-radius: .25rem;
+  border-radius: 0.25rem;
   border: 1px solid;
-  line-height: 2
+  line-height: 2;
 }
 
 .feedback-thin {
-  padding: .1875rem 0.3125rem;
-  margin-bottom: .25rem;
-  border-radius: .0625rem;
+  padding: 0.1875rem 0.3125rem;
+  margin-bottom: 0.25rem;
+  border-radius: 0.0625rem;
 }
 // See concept from bootstrap alerts
 
 // blue
 .feedback-primary {
-  color:  $color-blue-4;
+  color: $color-blue-4;
   background-color: $color-blue-0;
   border-color: $color-blue-3;
 }
@@ -79,7 +79,8 @@
   background-color: $color-complement-4;
 }
 
-.warning { // danger
+.warning {
+  // danger
   background-color: $color-primary-4;
 }
 
@@ -105,6 +106,10 @@
 
 .disabled {
   color: $color-secondary-2-2;
+}
+
+.bg-combination {
+  background-color: $navigation_background;
 }
 
 .mx-spinner {

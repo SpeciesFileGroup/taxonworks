@@ -54,3 +54,7 @@ export const FILTER_LOAN = {
   label: 'Loans',
   link: '/tasks/loans/filter'
 }
+export const FILTER_DWC_OCCURRENCE = {
+  label: 'DwcOccurrences',
+  link: '/tasks/dwc_occurrences/filter'
+}

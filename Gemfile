@@ -30,6 +30,8 @@ gem 'roo-xls', '~> 1.2'
 
 gem 'csv', '~> 3.2'
 
+# Needed until Ruby 3.3.4 is released https://github.com/ruby/ruby/pull/11006
+gem 'net-pop', github: 'ruby/net-pop'
 
 gem 'net-smtp', '~> 0.4'
 gem 'mail', '~> 2.8', '>= 2.8.1'
@@ -150,7 +152,7 @@ gem 'gnfinder', '~> 1.0'
 gem 'amazing_print', '~> 1.5'
 gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 3.0'
-gem 'term-ansicolor', '~> 1.6' # DEPRECATED
+
 gem 'chronic', '~> 0.10.2'
 gem 'logical_query_parser'
 gem 'logic_tools'
@@ -170,6 +172,7 @@ gem 'parallel', '~> 1.23'
 gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
+  # gem 'term-ansicolor', '~> 1.6' # DEPRECATED
   gem 'faker', '~> 3.2'
   gem 'rspec-rails', '~> 6.1'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'

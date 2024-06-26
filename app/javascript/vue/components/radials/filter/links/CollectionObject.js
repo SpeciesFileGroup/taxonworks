@@ -9,6 +9,7 @@ import {
   FILTER_OTU,
   FILTER_SOURCE,
   FILTER_TAXON_NAME,
+  FILTER_DWC_OCCURRENCE,
 } from '../constants/filterLinks'
 
 export const CollectionObject = [
@@ -21,4 +22,5 @@ export const CollectionObject = [
   FILTER_OTU,
   FILTER_SOURCE,
   FILTER_TAXON_NAME,
+  FILTER_DWC_OCCURRENCE,
 ]

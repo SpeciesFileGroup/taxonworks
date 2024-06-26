@@ -5,7 +5,9 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   before :all do
     DatabaseCleaner.start
-    FactoryBot.create(:root_taxon_name)
+    # TODO: this is janky
+    Project.find(1).send(:create_root_taxon_name)
+    #  FactoryBot.create(:root_taxon_name)
   end
 
   after(:all) do
@@ -13,7 +15,9 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a parent and child taxon from a text file' do
-    before(:all) { import_checklist_tsv('parent_child.tsv', 2, 'parent_child') }
+    before(:all) do
+      import_checklist_tsv('parent_child.tsv', 2, 'parent_child')
+    end
 
     after(:all) { DatabaseCleaner.clean }
 
@@ -1171,6 +1175,11 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   context 'when importing a second time that builds off the first import' do
     before(:all) do
       DatabaseCleaner.start
+
+      # TODO: consider better init hooks
+      Current.project_id = 1
+      Current.user_id = 1
+
       import_dataset = ImportDataset::DarwinCore::Checklist.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/' + 'two_part_upload/two_part_upload_1.tsv'), 'text/plain'),
         description: "part 1",
@@ -1281,39 +1290,45 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName
   #
   # TODO test importing multiple times
-end
+  end
 
-# Stages and imports a DwC-A dataset, in TSV format
-#
-# @param [String] file_name The path to the file. Base directory is `spec/files/import_datasets/checklists/`
-# @param [Integer] import_iterations Number of times to call import on dataset.
-# @param [String] description The description to add to the dataset. if nil, uses filename.
-def import_checklist_tsv(file_name, import_iterations, description = nil)
-  DatabaseCleaner.start
-  import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-    source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/' + file_name), 'text/plain'),
-    description: description || file_name # use file name as description if not given
-  ).tap { |i| i.stage }
+  # Stages and imports a DwC-A dataset, in TSV format
+  #
+  # @param [String] file_name The path to the file. Base directory is `spec/files/import_datasets/checklists/`
+  # @param [Integer] import_iterations Number of times to call import on dataset.
+  # @param [String] description The description to add to the dataset. if nil, uses filename.
+  def import_checklist_tsv(file_name, import_iterations, description = nil)
+    DatabaseCleaner.start
 
-  import_iterations.times { |_|
-    import_dataset.import(5000, 100)
-  }
-end
+    #  # TODO: consider better init hooks
+    #  Project.find(1).send(:create_root_taxon_name)
+   Current.project_id = 1
+   Current.user_id = 1
 
-# Helper method to expect an OriginalCombination relationship with less code duplication
-# @param [Integer, Protonym] subject_taxon_name (the higher rank name)
-# @param [Integer, Protonym] object_taxon_name (the lower rank name)
-# @param [String] rank The (short) rank to expect in the relationship
-def expect_original_combination(subject_taxon_name, object_taxon_name, rank)
-  expect(TaxonNameRelationship.find_by({ subject_taxon_name: subject_taxon_name, object_taxon_name: object_taxon_name }).type_name).to eq('TaxonNameRelationship::OriginalCombination::Original' + rank.capitalize)
-end
+    import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+      source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/' + file_name), 'text/plain'),
+      description: description || file_name # use file name as description if not given
+    ).tap { |i| i.stage }
 
-def expect_relationship(subject_taxon_name, object_taxon_name, relationship)
-  r = TaxonNameRelationship.find_by(subject_taxon_name: subject_taxon_name, object_taxon_name: object_taxon_name)
-  expect(r.type).to eq(relationship)
-end
+    import_iterations.times { |_|
+      import_dataset.import(5000, 100)
+    }
+  end
 
-def verify_all_records_imported(num_records)
-  expect(DatasetRecord.all.count).to eq(num_records)
-  expect(DatasetRecord.all.map { |row| row.status }).to all(eq('Imported'))
-end
+  # Helper method to expect an OriginalCombination relationship with less code duplication
+  # @param [Integer, Protonym] subject_taxon_name (the higher rank name)
+  # @param [Integer, Protonym] object_taxon_name (the lower rank name)
+  # @param [String] rank The (short) rank to expect in the relationship
+  def expect_original_combination(subject_taxon_name, object_taxon_name, rank)
+    expect(TaxonNameRelationship.find_by({ subject_taxon_name: subject_taxon_name, object_taxon_name: object_taxon_name }).type_name).to eq('TaxonNameRelationship::OriginalCombination::Original' + rank.capitalize)
+  end
+
+  def expect_relationship(subject_taxon_name, object_taxon_name, relationship)
+    r = TaxonNameRelationship.find_by(subject_taxon_name: subject_taxon_name, object_taxon_name: object_taxon_name)
+    expect(r.type).to eq(relationship)
+  end
+
+  def verify_all_records_imported(num_records)
+    expect(DatasetRecord.all.count).to eq(num_records)
+    expect(DatasetRecord.all.map { |row| row.status }).to all(eq('Imported'))
+  end

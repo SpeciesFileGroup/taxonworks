@@ -109,13 +109,13 @@
   <div class="panel content">
     <h2> Estimated activity per project (old) </h2>
     <em>Important: this plot is an estimate based on user activity.  Active users in multiple projects will skew this estimate as their toal activity throughout is added to both projects. </em>
-    <%= column_chart Project.joins(:users).group(:id).sum('users.time_active').to_a.collect{|a,b| [Project.find(a).name, (b.to_f / 3600.0).round(0) ]}.sort_by(&:second).reverse!, xtitle: 'Project', ytitle: 'Time active (hours)', discrete: true, height: '400px' %>
+    <%= column_chart Project.joins(:users).group(:id).sum('users.time_active').to_a.collect{|a,b| [Project.find(a).name, (b.to_f / 3600.0).round(0) ]}.sort_by(&:second).reverse!.select{|c| !(c[1] == 0)}, xtitle: 'Project', ytitle: 'Time active (hours)', discrete: true, height: '400px' %>
   </div>
 
   <div class="panel content">
     <h2> Estimated activity per project</h2>
     <em> Tracked since Starting 2024/MM/DD </em>
-    <%= column_chart Project.joins(:users).group(:id).sum('project_members.time_active').to_a.collect{|a,b| [Project.find(a).name, (b.to_f / 3600.0).round(0) ]}.sort_by(&:second).reverse!, xtitle: 'Project', ytitle: 'Time active (hours)', discrete: true, height: '400px' %>
+    <%= column_chart Project.joins(:users).group(:id).sum('project_members.time_active').to_a.collect{|a,b| [Project.find(a).name, (b.to_f / 3600.0).round(0) ]}.sort_by(&:second).reverse!.select{|c| !(c[1] == 0)}, xtitle: 'Project', ytitle: 'Time active (hours)', discrete: true, height: '400px' %>
   </div>
 
 </div>

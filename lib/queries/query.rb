@@ -80,7 +80,10 @@ module Queries
     def referenced_klass_except(query)
       t = "q_#{table.name}"
       s = "with #{t} AS (" + query.to_sql + ')' +
-      referenced_klass.joins("LEFT JOIN #{t} AS #{t}1 on #{t}1.id = #{table.name}.id").to_sql
+      referenced_klass
+        .joins("LEFT JOIN #{t} AS #{t}1 on #{t}1.id = #{table.name}.id")
+        .select(:id)
+        .to_sql
       referenced_klass.from("(#{s}) as #{table.name}")
     end
 

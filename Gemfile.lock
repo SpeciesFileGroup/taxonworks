@@ -75,6 +75,13 @@ GIT
       actionpack (>= 3.2)
       railties (>= 3.2)
 
+GIT
+  remote: https://github.com/ruby/net-pop.git
+  revision: e8d0afe2773b9eb6a23c39e9e437f6fc0fc7c733
+  specs:
+    net-pop (0.1.2)
+      net-protocol
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -276,15 +283,11 @@ GEM
     faraday-net_http (3.1.0)
       net-http
     ffi (1.17.0-aarch64-linux-gnu)
-    ffi (1.17.0-aarch64-linux-musl)
     ffi (1.17.0-arm-linux-gnu)
-    ffi (1.17.0-arm-linux-musl)
     ffi (1.17.0-arm64-darwin)
     ffi (1.17.0-x86-linux-gnu)
-    ffi (1.17.0-x86-linux-musl)
     ffi (1.17.0-x86_64-darwin)
     ffi (1.17.0-x86_64-linux-gnu)
-    ffi (1.17.0-x86_64-linux-musl)
     ffi-geos (2.4.0)
       ffi (>= 1.0.0)
     formatador (1.1.0)
@@ -361,7 +364,7 @@ GEM
     logger (1.6.0)
     logic_tools (0.3.9)
       parslet
-    logical_query_parser (0.4.0)
+    logical_query_parser (0.3.4)
       treetop (~> 1.6.8)
     loofah (2.22.0)
       crass (~> 1.0.2)
@@ -380,8 +383,6 @@ GEM
     mime-types-data (3.2024.0604)
     mini_mime (1.1.5)
     minitest (5.24.0)
-    mize (0.4.1)
-      protocol (~> 2.0)
     modularity (3.0.1)
     msgpack (1.7.2)
     multi_json (1.15.0)
@@ -395,7 +396,6 @@ GEM
     net-imap (0.4.14)
       date
       net-protocol
-    net-pop (0.1.2)
     net-protocol (0.2.2)
       timeout
     net-smtp (0.5.0)
@@ -449,8 +449,6 @@ GEM
     prawn (2.4.0)
       pdf-core (~> 0.9.0)
       ttfunk (~> 1.7)
-    protocol (2.0.0)
-      ruby_parser (~> 3.0)
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -535,7 +533,7 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
-    rexml (3.3.1)
+    rexml (3.3.0)
       strscan
     rgb (0.1.2)
     rgeo (3.0.1)
@@ -626,9 +624,6 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby-units (2.3.2)
-    ruby_parser (3.21.0)
-      racc (~> 1.5)
-      sexp_processor (~> 4.16)
     rubyzip (2.3.2)
     sassc (2.4.0)
       ffi (~> 1.9)
@@ -649,7 +644,6 @@ GEM
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
     semantic_range (3.0.0)
-    sexp_processor (4.17.1)
     shakapacker (8.0.0)
       activesupport (>= 5.2)
       package_json
@@ -688,12 +682,8 @@ GEM
       rtesseract (~> 3.1)
     stringio (3.1.1)
     strscan (3.1.0)
-    sync (0.5.0)
     taxonifi (0.6.0)
       require_all (~> 3.0)
-    term-ansicolor (1.10.2)
-      mize
-      tins (~> 1.0)
     terrapin (1.0.1)
       climate_control
     terser (1.2.3)
@@ -708,9 +698,6 @@ GEM
     timecop (0.9.10)
     timeliness (0.4.5)
     timeout (0.4.1)
-    tins (1.33.0)
-      bigdecimal
-      sync
     treetop (1.6.12)
       polyglot (~> 0.3)
     ttfunk (1.8.0)
@@ -760,19 +747,11 @@ GEM
 
 PLATFORMS
   aarch64-linux
-  aarch64-linux-gnu
-  aarch64-linux-musl
   arm-linux
-  arm-linux-gnu
-  arm-linux-musl
   arm64-darwin
   x86-linux
-  x86-linux-gnu
-  x86-linux-musl
   x86_64-darwin
   x86_64-linux
-  x86_64-linux-gnu
-  x86_64-linux-musl
 
 DEPENDENCIES
   activerecord-postgis-adapter (~> 9.0)
@@ -831,6 +810,7 @@ DEPENDENCIES
   matrix (~> 0.4.2)
   modularity (~> 3.0.0)
   namecase (~> 2.0)
+  net-pop!
   net-smtp (~> 0.4)
   nexus_parser (~> 1.2.2)
   os (~> 1.0, >= 1.0.1)
@@ -891,7 +871,6 @@ DEPENDENCIES
   sprockets-rails (~> 3.4.0)
   sqed (~> 0.8.1)
   taxonifi (~> 0.6.0)
-  term-ansicolor (~> 1.6)
   terser (~> 1.2)
   thor (~> 1.2)
   thruster
@@ -909,7 +888,7 @@ DEPENDENCIES
   zip_tricks (~> 5.6)
 
 RUBY VERSION
-   ruby 3.3.3p89
+   ruby 3.3.0p0
 
 BUNDLED WITH
-   2.5.11
+   2.5.4
