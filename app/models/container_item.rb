@@ -100,9 +100,22 @@ class ContainerItem < ApplicationRecord
     c = Container.find(params[:container_id])
     q = Queries::Query::Filter.instatiated_base_filter(params)
 
+    cit = c.container_items.count
+
+    r = ::BatchResponse.new(
+      total_attempted: q.all.count, 
+      async: false,
+      preview: false,
+    )
+
     c.add_container_items(q.all)
 
-    return { success: true }
+    cia = c.container_items.reload.count
+
+    r.updated = r.total_attempted - (cia - cit)
+    r.not_updated = r.total_attempted - r.updated
+
+    return r.to_json
   end
 
   # @return [Container, nil]
