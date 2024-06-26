@@ -1,4 +1,5 @@
 import baseCRUD from './base'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const permitParams = {
   container_item: {
@@ -15,5 +16,7 @@ const permitParams = {
 }
 
 export const ContainerItem = {
-  ...baseCRUD('container_items', permitParams)
+  ...baseCRUD('container_items', permitParams),
+
+  batchAdd: (params) => AjaxCall('post', '/container_items/batch_add', params)
 }

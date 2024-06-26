@@ -98,7 +98,7 @@ class ContainerItem < ApplicationRecord
   # @params
   def self.batch_add(params)
     c = Container.find(params[:container_id])
-    q = Queries::Filter.instatiated_base_filter(params)
+    q = Queries::Query::Filter.instatiated_base_filter(params)
 
     c.add_container_items(q.all)
 
