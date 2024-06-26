@@ -202,6 +202,44 @@ class GeographicItem < ApplicationRecord
         .first.buffer
       end
 
+      def st_distance_sql(shape_sql)
+        'ST_Distance(' \
+          "#{GeographicItem::GEOGRAPHY_SQL}, " \
+          "(#{shape_sql})" \
+        ')'
+      end
+
+      def st_area_sql(shape_sql)
+        'ST_Area(' \
+          "(#{shape_sql})" \
+        ')'
+      end
+
+      def st_isvalid_sql(shape_sql)
+        'ST_IsValid(' \
+          "(#{shape_sql})" \
+        ')'
+      end
+
+
+      def st_isvalidreason_sql(shape_sql)
+        'ST_IsValidReason(' \
+          "(#{shape_sql})" \
+        ')'
+      end
+
+      def st_astext_sql(shape_sql)
+        'ST_AsText(' \
+          "(#{shape_sql})" \
+        ')'
+      end
+
+      def st_minimumboundingradius_sql(shape_sql)
+        'ST_MinimumBoundingRadius(' \
+          "(#{shape_sql})" \
+        ')'
+      end
+
       # True for those shapes that are within `distance` of (i.e. intersect the
       # `distance`-buffer of) the shape_sql shape. This is a geography dwithin,
       # distance is in meters.
@@ -414,7 +452,6 @@ class GeographicItem < ApplicationRecord
       # shifted by longitude
       # Note: this routine is called when it is already known that the A
       # argument crosses anti-meridian
-      # TODO If wkt coords are in the range 0..360 and GI coords are in the range -180..180 (or vice versa), doesn't this fail? Don't you want all coords in the range 0..360 in this geometry case? Is there any assumption about range of inputs for georefs, e.g.? are they always normalized? See anti-meridian spec?
       def covered_by_wkt_shifted_sql(wkt)
         "ST_CoveredBy(
           (CASE geographic_items.type
@@ -639,10 +676,9 @@ class GeographicItem < ApplicationRecord
       # @param [Integer] geographic_item_id2
       # @return [Float]
       def distance_between(geographic_item_id1, geographic_item_id2)
-        q = 'ST_Distance(' \
-               "#{GeographicItem::GEOGRAPHY_SQL}, " \
-               "(#{self.select_geography_sql(geographic_item_id2)}) " \
-             ') as distance'
+        q = self.st_distance_sql(
+          self.select_geography_sql(geographic_item_id2)
+        )
 
         GeographicItem.where(id: geographic_item_id1).pick(Arel.sql(q))
       end
@@ -744,10 +780,8 @@ class GeographicItem < ApplicationRecord
       GeographicItem
       .where(id:)
       .select(
-        'ST_IsValid(' \
-          "ST_AsBinary(#{data_column})" \
-        ') AS is_valid'
-      ).first['is_valid']
+        self.class.st_isvalid_sql("ST_AsBinary(#{data_column})")
+      ).first['st_isvalid']
     end
 
     # @return [Array]
@@ -913,14 +947,16 @@ class GeographicItem < ApplicationRecord
       geom
     end
 
-    # @return [String]
+    # @return [String] wkt
     def to_wkt
       #  10k  #<Benchmark::Tms:0x00007fb0dfd30fd0 @label="", @real=25.237487000005785, @cstime=0.0, @cutime=0.0, @stime=1.1704609999999995, @utime=5.507929999999988, @total=6.678390999999987>
       #  GeographicItem.select("ST_AsText( #{GeographicItem::GEOMETRY_SQL.to_sql}) wkt").where(id: id).first.wkt
 
       # 10k <Benchmark::Tms:0x00007fb0e02f7540 @label="", @real=21.619827999995323, @cstime=0.0, @cutime=0.0, @stime=0.8850890000000007, @utime=3.2958549999999605, @total=4.180943999999961>
-      if (a = ApplicationRecord.connection.execute( "SELECT ST_AsText( #{GeographicItem::GEOMETRY_SQL.to_sql} ) wkt from geographic_items where geographic_items.id = #{id}").first)
-        return a['wkt']
+      if (a = select_self(
+          self.class.st_astext_sql(GeographicItem::GEOMETRY_SQL.to_sql)
+      ))
+        return a['st_astext']
       else
         return nil
       end
@@ -930,7 +966,11 @@ class GeographicItem < ApplicationRecord
     # TODO: share with world
     #    Geographic item 96862 (Cajamar in Brazil) is the only(?) record to fail using `false` (quicker) method of everything we tested
     def area
-      a = GeographicItem.where(id:).select("ST_Area(#{GeographicItem::GEOGRAPHY_SQL}, true) as area_in_meters").first['area_in_meters']
+      # use select_self
+      a = GeographicItem.where(id:).select(
+        self.class.st_area_sql(GeographicItem::GEOGRAPHY_SQL)
+      ).first['st_area']
+
       a = nil if a.nan?
       a
     end
@@ -940,8 +980,13 @@ class GeographicItem < ApplicationRecord
     #
     # Use case is returning the radius from a circle we calculated via buffer for error-polygon creation.
     def radius
-      r = ApplicationRecord.connection.execute( "SELECT ST_MinimumBoundingRadius( ST_Transform(  #{GeographicItem::GEOMETRY_SQL.to_sql}, 4326 )  ) AS radius from geographic_items where geographic_items.id = #{id}").first['radius'].split(',').last.chop.to_f
-      r = (r * Utilities::Geo::ONE_WEST_MEAN).to_i
+      r = select_self(
+        self.class.st_minimumboundingradius_sql(
+          GeographicItem::GEOMETRY_SQL.to_sql
+        )
+      )['st_minimumboundingradius'].split(',').last.chop.to_f
+
+      (r * Utilities::Geo::ONE_WEST_MEAN).to_i
     end
 
     # Convention is to store in PostGIS in CCW
@@ -978,11 +1023,19 @@ class GeographicItem < ApplicationRecord
     end
 
     def st_isvalid
-      ApplicationRecord.connection.execute( "SELECT ST_IsValid(  #{GeographicItem::GEOMETRY_SQL.to_sql }) from  geographic_items where geographic_items.id = #{id}").first['st_isvalid']
+      select_self(
+        self.class.st_isvalid_sql(
+          GeographicItem::GEOMETRY_SQL.to_sql
+        )
+      )['st_isvalid']
     end
 
     def st_isvalidreason
-      ApplicationRecord.connection.execute( "SELECT ST_IsValidReason(  #{GeographicItem::GEOMETRY_SQL.to_sql }) from  geographic_items where geographic_items.id = #{id}").first['st_isvalidreason']
+      select_self(
+        self.class.st_isvalidreason_sql(
+          GeographicItem::GEOMETRY_SQL.to_sql
+        )
+      )['st_isvalidreason']
     end
 
     # @return [Symbol, nil]
@@ -1038,6 +1091,10 @@ class GeographicItem < ApplicationRecord
       '(CASE ST_GeometryType(geography::geometry) ' \
       "WHEN '#{st_shape}' THEN geography " \
       "ELSE #{shape} END)"
+    end
+
+    def select_self(shape_sql)
+      ApplicationRecord.connection.execute( "SELECT #{shape_sql} FROM geographic_items WHERE geographic_items.id = #{id}").first
     end
 
     def align_winding
