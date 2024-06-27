@@ -2,20 +2,16 @@
   <h1>DwC Dashboard</h1>
   <div id="dwc-dashboard">
     <download-panel :params="params" />
-    <graph-component />
     <download-recent />
     <healt-panel />
-    <collector-table />
   </div>
 </template>
 <script setup>
 import { provide } from 'vue'
 import { state, actions } from './store/index.js'
-import GraphComponent from './components/Graph/GraphPanel.vue'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import DownloadPanel from './components/Download/DownloadPanel.vue'
 import HealtPanel from './components/Health/HealthPanel.vue'
-import { URLParamsToJSON } from '@/helpers/url/parse.js'
-import CollectorTable from './components/Collector/CollectorTable.vue'
 import DownloadRecent from './components/Download/DownloadRecent.vue'
 
 const params = URLParamsToJSON(location.href)
