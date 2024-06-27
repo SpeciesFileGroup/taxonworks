@@ -16,14 +16,14 @@ import DownloadRecent from './components/Download/DownloadRecent.vue'
 
 const params = URLParamsToJSON(location.href)
 
+defineOptions({
+  name: 'DwcDashboard'
+})
+
 provide('state', state)
 provide('actions', actions)
-</script>
 
-<script>
-export default {
-  name: 'DwcDashboard'
-}
+actions.getMetadata()
 </script>
 
 <style>
