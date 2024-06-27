@@ -22,6 +22,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `TW_ACTION_MAILER_SMTP_SETTINGS_USER_NAME`, `TW_ACTION_MAILER_SMTP_SETTINGS_PASSWORD` and `TW_ACTION_MAILER_SMTP_SETTINGS_AUTHENTICATION_TYPE` env vars for container deployments
 
 ### Fixed
+
+- Broken BiologicalAssociation scope for DwC download [#3949]
 - NeXML render to screen  [#3961]
 - People queries referencing `use_min` and `use_max` in combination with other facets
 - `/observation_matrix_column/list`
@@ -40,14 +42,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
-- Optimized performance of union, intersect and related filter queries cleaning `select` for intermediate queries
 - Upgraded to Rails 7. [#3819]
-- Changed default URL protocol to HTTPS for TaxonWorks-generated e-mails in production environments.
-- Added bootsnap gem to speed up boot times. `tmp/cache` dir is used as cache by this gem.
-- Removed `versions_associations` and `shortened_urls` tables from Project SQL export.
+- Changed default URL protocol to HTTPS for TaxonWorks-generated e-mails in production environments
+- Added bootsnap gem to speed up boot times. `tmp/cache` dir is used as cache by this gem
+- Removed `versions_associations` and `shortened_urls` tables from Project SQL export
 - Replace validations modal in Browse nomenclature task [#3974]
-- Updated Ruby gems.
+- Updated Ruby gems
 
+[#3949]: https://github.com/SpeciesFileGroup/taxonworks/issues/3949
 [#3961]: https://github.com/SpeciesFileGroup/taxonworks/issues/3961
 [#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
 [#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
