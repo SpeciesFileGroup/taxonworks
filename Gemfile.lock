@@ -364,7 +364,7 @@ GEM
     logger (1.6.0)
     logic_tools (0.3.9)
       parslet
-    logical_query_parser (0.3.4)
+    logical_query_parser (0.4.0)
       treetop (~> 1.6.8)
     loofah (2.22.0)
       crass (~> 1.0.2)
@@ -533,7 +533,7 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
-    rexml (3.3.0)
+    rexml (3.3.1)
       strscan
     rgb (0.1.2)
     rgeo (3.0.1)

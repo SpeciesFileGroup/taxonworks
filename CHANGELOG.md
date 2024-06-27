@@ -22,7 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `TW_ACTION_MAILER_SMTP_SETTINGS_USER_NAME`, `TW_ACTION_MAILER_SMTP_SETTINGS_PASSWORD` and `TW_ACTION_MAILER_SMTP_SETTINGS_AUTHENTICATION_TYPE` env vars for container deployments
 
 ### Fixed
-
+- NeXML render to screen  [#3961]
 - People queries referencing `use_min` and `use_max` in combination with other facets
 - `/observation_matrix_column/list`
 - Queries referencing emtpy `identifier_start` or end failing
@@ -48,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Replace validations modal in Browse nomenclature task [#3974]
 - Updated Ruby gems.
 
+[#3961]: https://github.com/SpeciesFileGroup/taxonworks/issues/3961
 [#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
 [#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
 [#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
