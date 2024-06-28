@@ -79,7 +79,7 @@ import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import RolePicker from '@/components/role_picker.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
-
+import { getCurrentUserId } from '@/helpers'
 const MAX_LIMIT = 250
 
 const props = defineProps({
@@ -105,9 +105,10 @@ const payload = computed(() => ({
   collecting_event: {
     roles_attributes:
       // remove position so roles are appended to end of list
-      collectingEvent.value.roles_attributes.map(
-        ({ position, ...rest }) => rest
-      )
+      collectingEvent.value.roles_attributes.map(({ position, ...rest }) => ({
+        ...rest,
+        by: getCurrentUserId()
+      }))
   }
 }))
 
