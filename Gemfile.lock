@@ -694,7 +694,7 @@ GEM
     thruster (0.1.4-arm64-darwin)
     thruster (0.1.4-x86_64-darwin)
     thruster (0.1.4-x86_64-linux)
-    tilt (2.3.0)
+    tilt (2.4.0)
     timecop (0.9.10)
     timeliness (0.4.5)
     timeout (0.4.1)
