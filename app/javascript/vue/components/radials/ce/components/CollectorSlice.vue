@@ -123,3 +123,9 @@ function updateMessage(data) {
   TW.workbench.alert.create(message, 'notice')
 }
 </script>
+
+<style scoped>
+:deep(.vue-autocomplete-list) {
+  min-width: 700px;
+}
+</style>
