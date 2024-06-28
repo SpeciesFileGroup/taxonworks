@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- CE batch update collectors [#3936]
 - Broken BiologicalAssociation scope for DwC download [#3949]
 - NeXML render to screen  [#3961]
 - People queries referencing `use_min` and `use_max` in combination with other facets
@@ -50,13 +51,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems
 - Georeference `error_radius` rounded to nearest meter before save [#3946]
 
+[#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
+[#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
+[#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
+[#3936]: https://github.com/SpeciesFileGroup/taxonworks/issues/3936
 [#3946]: https://github.com/SpeciesFileGroup/taxonworks/issues/3946
+[#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
 [#3949]: https://github.com/SpeciesFileGroup/taxonworks/issues/3949
 [#3961]: https://github.com/SpeciesFileGroup/taxonworks/issues/3961
-[#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
-[#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
-[#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
-[#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
 [#3967]: https://github.com/SpeciesFileGroup/taxonworks/pull/3967
 [#3969]: https://github.com/SpeciesFileGroup/taxonworks/pull/3969
 [#3974]: https://github.com/SpeciesFileGroup/taxonworks/pull/3974
