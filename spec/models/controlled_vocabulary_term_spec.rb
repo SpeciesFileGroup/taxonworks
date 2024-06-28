@@ -64,6 +64,7 @@ describe ControlledVocabularyTerm, type: :model do
   end
 
   specify 'if uri_relation is provided it must be in SKOS_RELATIONS' do
+    controlled_vocabulary_term.uri = 'http://abc.com/123'
     controlled_vocabulary_term.uri_relation = 'skos:not_real_fake'
     expect(controlled_vocabulary_term.valid?).to be_falsey
     expect(controlled_vocabulary_term.errors.include?(:uri_relation)).to be_truthy

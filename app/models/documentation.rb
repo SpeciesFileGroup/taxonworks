@@ -25,7 +25,7 @@ class Documentation < ApplicationRecord
   acts_as_list scope: [:project_id, :documentation_object_id, :documentation_object_type]
 
   include Housekeeping
-  include Shared::Identifiers
+
   include Shared::Notes
   include Shared::Tags
   include Shared::IsData

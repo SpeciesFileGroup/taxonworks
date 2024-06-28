@@ -110,7 +110,7 @@ class DatasetRecordsController < ApplicationController
       dataset_records = import_dataset.core_records
       params[:filter]&.each do |key, value|
         dataset_records = dataset_records.where(
-          id: import_dataset.core_records_fields.at(key.to_i).with_value(value).select(:dataset_record_id)
+          id: import_dataset.core_records_fields.at(key.to_i).having_value(value).select(:dataset_record_id)
         )
       end
 

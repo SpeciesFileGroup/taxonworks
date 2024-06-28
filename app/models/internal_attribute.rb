@@ -8,23 +8,29 @@
 #   The the id of the ControlledVocabularyTerm::Predicate.  Term is referenced as #predicate.
 #
 class InternalAttribute < DataAttribute
+
+  include Shared::DwcOccurrenceHooks
+
   validates_presence_of :predicate
   validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type, :controlled_vocabulary_term_id, :project_id]
 
-  after_save :update_dwc_occurrences
-
-  # TODO: wrap in generic (reindex_dwc_occurrences method for use in InternalAttribute and elsewhere)
-  # TODO: perhaps a Job
-  def update_dwc_occurrences
-    if DWC_ATTRIBUTE_URIS.values.flatten.include?(predicate.uri)
-
-      if attribute_subject.respond_to?(:set_dwc_occurrence)
-        attribute_subject.set_dwc_occurrence
+  def dwc_occurrences
+    if DWC_ATTRIBUTE_URIS.values.flatten.include?(predicate&.uri)
+      # TODO: probably use some generic interface here
+      case attribute_subject_type
+      when 'CollectingEvent'
+        ::Queries::DwcOccurrence::Filter.new(
+          collecting_event_query: {
+            id: attribute_subject_id
+          }
+        ).all
+      when 'CollectionObject'
+        ::DwcOccurrence.where(id: attribute_subject.dwc_occurrence.id)
+      else
+        ::DwcOccurrence.none
       end
-
-      if attribute_subject.respond_to?(:update_dwc_occurrences)
-        attribute_subject.update_dwc_occurrences
-      end
+    else
+      ::DwcOccurrence.none
     end
   end
 

@@ -9,7 +9,6 @@
           <a
             :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
             class="taxonname"
-            v-hotkey="shortcuts"
           >
             <span v-html="taxonNameAndAuthor" />
           </a>
@@ -74,16 +73,28 @@
           >
             <td>{{ item.type_type }} ({{ item.collection_object.total }})</td>
             <td>
-              <div class="horizontal-right-content">
-                <radial-annotator :global-id="item.global_id" />
-                <span
+              <div class="horizontal-right-content gap-xsmall">
+                <RadialAnnotator :global-id="item.global_id" />
+                <VBtn
+                  circle
+                  color="primary"
                   @click="setTypeMaterial(item)"
-                  class="button circle-button btn-edit button-default"
-                />
-                <span
+                >
+                  <VIcon
+                    name="pencil"
+                    x-small
+                  />
+                </VBtn>
+                <VBtn
+                  circle
+                  color="destroy"
                   @click="removeTypeSpecimen(item)"
-                  class="button circle-button btn-delete"
-                />
+                >
+                  <VIcon
+                    name="trash"
+                    x-small
+                  />
+                </VBtn>
               </div>
             </td>
           </tr>
@@ -92,96 +103,42 @@
     </div>
   </div>
 </template>
-<script>
-import { RouteNames } from '@/routes/routes'
+
+<script setup>
 import { GetterNames } from '../store/getters/getters'
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
 import ActionNames from '../store/actions/actionNames'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import OtuRadial from '@/components/otu/otu.vue'
-import platformKey from '@/helpers/getPlatformKey'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
-export default {
-  components: {
-    RadialAnnotator,
-    RadialObject,
-    OtuRadial,
-    VPin,
-    VBtn,
-    VIcon
-  },
+const store = useStore()
 
-  computed: {
-    typeMaterial() {
-      return this.$store.getters[GetterNames.GetTypeMaterial]
-    },
+const typeMaterial = computed(() => store.getters[GetterNames.GetTypeMaterial])
+const typesMaterial = computed(
+  () => store.getters[GetterNames.GetTypeMaterials]
+)
+const taxon = computed(() => store.getters[GetterNames.GetTaxon])
+const taxonNameAndAuthor = computed(
+  () => `${taxon.value.cached_html} ${taxon.value.cached_author_year || ''}`
+)
 
-    typesMaterial() {
-      return this.$store.getters[GetterNames.GetTypeMaterials]
-    },
-
-    taxon() {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
-
-    taxonNameAndAuthor() {
-      return `${this.taxon.cached_html} ${this.taxon.cached_author_year || ''}`
-    },
-
-    shortcuts() {
-      const keys = {}
-
-      keys[`${platformKey()}+o`] = this.switchBrowseOtu
-      keys[`${platformKey()}+e`] = this.switchComprehensive
-      keys[`${platformKey()}+t`] = this.switchNewTaxonName
-
-      return keys
-    }
-  },
-
-  methods: {
-    reloadPage() {
-      window.location.href = '/tasks/type_material/edit_type_material'
-    },
-
-    removeTypeSpecimen(item) {
-      if (window.confirm('Are you sure you want to destroy this record?')) {
-        this.$store.dispatch(ActionNames.RemoveTypeSpecimen, item.id)
-      }
-    },
-
-    setTypeMaterial(material) {
-      this.$store.dispatch(ActionNames.LoadTypeMaterial, material)
-    },
-
-    newType() {
-      this.$store.dispatch(ActionNames.SetNewTypeMaterial)
-    },
-
-    switchComprehensive() {
-      const coId = this.typeMaterial.collection_object_id
-      const coParam = coId ? `&collection_object_id=${coId}` : ''
-
-      window.open(
-        `${RouteNames.DigitizeTask}?taxon_name_id=${this.taxon.id}${coParam}`,
-        '_self'
-      )
-    },
-
-    switchBrowseOtu() {
-      this.$refs.browseOtu.openApp()
-    },
-
-    switchNewTaxonName() {
-      window.open(
-        `${RouteNames.NewTaxonName}?taxon_name_id=${this.taxon.id}`,
-        '_self'
-      )
-    }
+function removeTypeSpecimen(item) {
+  if (window.confirm('Are you sure you want to destroy this record?')) {
+    store.dispatch(ActionNames.RemoveTypeSpecimen, item.id)
   }
+}
+
+function setTypeMaterial(material) {
+  store.dispatch(ActionNames.LoadTypeMaterial, material)
+}
+
+function newType() {
+  store.dispatch(ActionNames.SetNewTypeMaterial)
 }
 </script>
 <style lang="scss" scoped>

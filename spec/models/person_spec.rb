@@ -5,6 +5,19 @@ describe Person, type: :model, group: [:sources, :people] do
   let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
   let(:human_source) { FactoryBot.create(:valid_source_human) }
 
+  let(:p) { FactoryBot.create(:valid_person) }
+  let(:ce) { FactoryBot.create(:valid_collecting_event) }
+
+  specify 'update triggers dwc_occurrences update' do
+    ce.collectors << p
+    s = Specimen.create!(collecting_event: ce)
+    expect(s.dwc_occurrence.recordedBy).to eq(p.cached)
+    v = 'Argyle'
+    p.update!(last_name: v)
+
+    expect(s.dwc_occurrence.reload.recordedBy).to eq(v)
+  end
+
   context 'validation' do
     before { person.valid? }
 

@@ -82,7 +82,7 @@
   </div>
 </template>
 
-<style src="./QualitativeDescriptor.styl" lang="stylus"></style>
+<style src="./QualitativeDescriptor.scss" lang="scss"></style>
 
 <script>
 import { ActionNames } from '../../store/actions/actions'

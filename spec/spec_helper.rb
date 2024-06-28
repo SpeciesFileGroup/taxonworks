@@ -112,7 +112,7 @@ RSpec.configure do |config|
 
   config.after(:suite) do
     FileUtils.rm_rf( Rails.configuration.x.test_tmp_file_dir )
-    Features::Downloads.clear_downloads # TODO if global than doesn't belong in Features 
+    Features::Downloads.clear_downloads # TODO if global than doesn't belong in Features
     FileUtils.rm_rf(Download.storage_path)
   end
 

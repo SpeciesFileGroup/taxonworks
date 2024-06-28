@@ -11,7 +11,7 @@ ENV['RAILS_ENV'] ||= 'test'
 
 require_relative '../config/environment'
 
-ActiveRecord::Migration.check_pending!
+ActiveRecord::Migration.check_all_pending!
 ActiveRecord::Migration.maintain_test_schema!
 
 require 'amazing_print'
@@ -29,4 +29,3 @@ Dir[Rails.root.join('spec/support/**/*.rb')].sort.reverse.each { |f| require f }
 ApplicationRecord.connection.tables.each { |t| ApplicationRecord.connection.reset_pk_sequence!(t) }
 
 FactoryBot.use_parent_strategy = false
-

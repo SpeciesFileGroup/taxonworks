@@ -34,6 +34,27 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
 
   let!(:gagi) { GeographicAreasGeographicItem.create!(geographic_item: item_d, geographic_area: g_a) }
 
+  let(:ce) { FactoryBot.create(:valid_collecting_event) }
+
+  specify '#dwc_occurrences' do
+    s = Specimen.create!(collecting_event: ce)
+    g = FactoryBot.create(:valid_georeference, collecting_event: ce)
+
+    expect(g.dwc_occurrences).to contain_exactly(DwcOccurrence.first)
+  end
+
+  # If updated you should also manually test the delayed version using
+  # Delayed::Worker.new.work_off
+  specify 'on create triggers dwc rebuild' do
+    s = Specimen.create!(collecting_event: ce)
+
+    expect(s.dwc_occurrence.decimalLatitude).to eq(nil)
+    g = FactoryBot.create(:valid_georeference, collecting_event: ce)
+
+    expect(s.dwc_occurrence.reload.decimalLatitude).to eq(g.latitude)
+  end
+
+
   context 'associations' do
     context 'belongs_to' do
       specify '#geographic_item' do
@@ -111,6 +132,13 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
           georeference.valid?
           expect(georeference.errors[:error_radius]).to_not be_present
         end
+
+        specify 'is rounded to nearest meter' do
+          georeference.error_radius = 1.23
+          georeference.valid?
+          expect(georeference.error_radius).to eq(1) 
+        end
+
       end
 
       specify '#error_depth is < some Earth-based limit' do

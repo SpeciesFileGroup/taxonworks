@@ -26,6 +26,16 @@ import PrintLabel from '../components/collectingEvent/components/map/printLabel'
 import SoftValidation from '@/components/soft_validations/panel'
 import Depictions from '../components/collectingEvent/components/map/depictions'
 
+import TypeMaterial from '../components/typeMaterial/TypeMaterialMain.vue'
+import BiologicalAssociations from '../components/biologicalAssociation/main.vue'
+import TaxonDetermination from '../components/taxonDetermination/main.vue'
+
+const ComponentLeftColumn = {
+  TaxonDeterminationLayout: 'TaxonDeterminationLayout',
+  BiologicalAssociation: 'BiologicalAssociation',
+  TypeMaterial: 'TypeMaterial'
+}
+
 const ComponentVerbatim = {
   Label: 'Label',
   Locality: 'Locality',
@@ -86,7 +96,16 @@ const VueComponents = {
   [ComponentMap.SoftValidation]: SoftValidation,
   [ComponentMap.PrintLabel]: PrintLabel,
   [ComponentMap.Map]: MapComponent,
-  [ComponentMap.Depictions]: Depictions
+  [ComponentMap.Depictions]: Depictions,
+  [ComponentLeftColumn.TypeMaterial]: TypeMaterial,
+  [ComponentLeftColumn.BiologicalAssociation]: BiologicalAssociations,
+  [ComponentLeftColumn.TaxonDeterminationLayout]: TaxonDetermination
 }
 
-export { VueComponents, ComponentVerbatim, ComponentParse, ComponentMap }
+export {
+  VueComponents,
+  ComponentVerbatim,
+  ComponentParse,
+  ComponentMap,
+  ComponentLeftColumn
+}

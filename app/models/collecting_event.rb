@@ -207,6 +207,8 @@ class CollectingEvent < ApplicationRecord
   ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
 
   NEARBY_DISTANCE = 5000
+  MINIMUM_ELEVATION = -11000
+  MAXIMUM_ELEVATION = 8500
 
   attr_accessor :with_verbatim_data_georeference
 
@@ -236,8 +238,6 @@ class CollectingEvent < ApplicationRecord
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy, inverse_of: :role_object
   has_many :collectors, -> { order('roles.position ASC') }, through: :collector_roles, source: :person, inverse_of: :collecting_events
 
-  has_many :dwc_occurrences, through: :collection_objects, inverse_of: :collecting_event
-
   # see also app/models/collecting_event/georeference.rb for more has_many
 
   has_many :otus, -> { unscope(:order) }, through: :collection_objects, source: 'otu'
@@ -255,12 +255,15 @@ class CollectingEvent < ApplicationRecord
   after_save :set_cached, unless: -> { no_cached }
   after_save :update_dwc_occurrences , unless: -> { no_dwc_occurrence }
 
-  # see also app/models/colelcting_event/georeference.rb for more accepts_nested_attributes
+  # See also app/models/collecting_event/georeference.rb for more accepts_nested_attributes
   accepts_nested_attributes_for :collectors, :collector_roles, allow_destroy: true
 
   validate :check_verbatim_geolocation_uncertainty,
     :check_date_range,
     :check_elevation_range,
+    :check_min_land_elevation,
+    :check_max_land_elevation,
+    :check_date_range,
     :check_ma_range
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: -> { verbatim_label.blank? }
@@ -990,26 +993,51 @@ class CollectingEvent < ApplicationRecord
   # end
 
   # @return [CollectingEvent]
-  #   the instance may not be valid!
-  def clone
+  #  the instance may not be valid!
+  def clone(annotations: false, incremented_identifier_id: nil)
     a = dup
-    a.created_by_id = nil
-    a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
 
-    roles.each do |r|
-      a.collector_roles.build(person: r.person, position: r.position)
-    end
+    CollectingEvent.transaction do
+      begin
+        a.created_by_id = nil
 
-    if georeferences.load.any?
-      not_georeference_attributes = %w{created_at updated_at project_id updated_by_id created_by_id collecting_event_id id position}
-      georeferences.each do |g|
-        c = g.dup.attributes.select{|c| !not_georeference_attributes.include?(c) }
-        a.georeferences.build(c)
+        if a.verbatim_label.present?
+          a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
+        end
+
+        roles.each do |r|
+          a.collector_roles.build(person: r.person, position: r.position)
+        end
+
+        if georeferences.load.any?
+          # not_georeference_attributes = %w{created_at updated_at project_id updated_by_id created_by_id collecting_event_id id position}
+          georeferences.each do |g|
+            i = g.dup
+          
+            g.georeferencer_roles.each do |r|
+              i.georeferencer_roles.build(person: r.person, position: r.position)
+            end
+
+            a.georeferences << i
+
+          end
+        end
+
+        if incremented_identifier_id
+          add_incremented_identifier(to_object: a, incremented_identifier_id:)
+        end
+
+        if !annotations.blank? # TODO: boolean param this 
+          clone_annotations(to_object: a, except: [:identifiers])
+        end
+
+        a.save! # TODO: confirm behaviour is OK in case of comprehensive.
+
+      rescue ActiveRecord::RecordInvalid
+        raise ActiveRecord::Rollback
       end
+      a
     end
-
-    a.save
-    a
   end
 
   # @return [String, nil]
@@ -1036,6 +1064,7 @@ class CollectingEvent < ApplicationRecord
 
     # @return [Hash, false]
     def batch_update(params)
+
       request = QueryBatchRequest.new(
         klass: 'CollectingEvent',
         object_filter_params: params[:collecting_event_query],
@@ -1132,6 +1161,21 @@ class CollectingEvent < ApplicationRecord
 
   def check_ma_range
     errors.add(:min_ma, 'Min ma is < Max ma.') if min_ma.present? && max_ma.present? && min_ma > max_ma
+  end
+
+  def check_max_land_elevation
+    m = 'This is Earth, not Bespin, contact us sky collector.'
+    if (maximum_elevation.present? && maximum_elevation > MAXIMUM_ELEVATION)
+      errors.add(:maximum_elevation, m)
+    end
+
+    if (minimum_elevation.present? && minimum_elevation > MAXIMUM_ELEVATION)  # 2023 LLM
+      errors.add(:minimum_elevation, m)
+    end
+  end
+
+  def check_min_land_elevation
+    errors.add(:minimum_elevation, 'You know a deeper trench than we do, contact us.') if minimum_elevation.present? && minimum_elevation < MINIMUM_ELEVATION # 2023 LLM
   end
 
   def check_elevation_range

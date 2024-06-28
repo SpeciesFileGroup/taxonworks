@@ -17,11 +17,19 @@
   width: 200px;
   bottom: 0;
   left: 0;
+  max-width: 200px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .header-slanted-cell {
   min-width: 70px;
   position: relative;
   text-align: left;
+  background-color: transparent;
+}
+
+.header-slanted-cell:hover {
   background-color: transparent;
 }
 

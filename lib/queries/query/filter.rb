@@ -39,15 +39,15 @@ module Queries
     # !! model is not referencened in this constant.
     #
     SUBQUERIES = {
-      asserted_distribution: [:source, :otu, :biological_association, :taxon_name],
+      asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence],
       biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name, :asserted_distribution], # :field_occurrence
       biological_associations_graph: [:biological_association, :source],
-      collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name],
-      collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
+      collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence],
+      collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence],
       content: [:source, :otu, :taxon_name, :image],
       controlled_vocabulary_term: [:data_attribute],
       data_attribute: [:collection_object, :collecting_event, :taxon_name, :otu],
-      dwc_occurrence: [:asserted_distribution, :collection_object],
+      dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
       field_occurrence: [], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
@@ -97,6 +97,7 @@ module Queries
       controlled_vocabulary_term_query: '::Queries::ControlledVocabularyTerm::Filter',
       data_attribute_query: '::Queries::DataAttribute::Filter',
       descriptor_query: '::Queries::Descriptor::Filter',
+      document_query: '::Queries::Document::Filter',
       dwc_occurrence_query: '::Queries::DwcOccurrence::Filter',
       extract_query: '::Queries::Extract::Filter',
       field_occurrence_query: '::Queries::FieldOccurrence::Filter',
@@ -168,6 +169,12 @@ module Queries
 
     # @return [Query::Descriptor::Filter, nil]
     attr_accessor :descriptor_query
+
+    # @return [Query::Document::Filter, nil]
+    attr_accessor :document_query
+
+    # @return [Query::DwcOccurrence::Filter, nil]
+    attr_accessor :dwc_occurrence_query
 
     # @return [Query::TaxonName::Filter, nil]
     attr_accessor :field_occurrence_query

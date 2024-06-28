@@ -31,6 +31,23 @@ module Shared::Identifiers
 
     # Used to memoize identifier for navigating purposes
     attr_accessor :navigating_identifier
+
+    # builds a new identifier, incremented from previous target, and assigns it to `to_object`
+    # @return the identifier
+    def add_incremented_identifier(to_object: nil, incremented_identifier_id: nil)
+      if to_object.respond_to?(:identifiers)
+        i = Identifier.find(incremented_identifier_id).dup
+        i.increment_identifier
+        i.identifier_object = to_object
+        i.save!
+      else
+        false
+      end
+    end
+
+    def local_identifiers
+      identifiers.where("type ilike 'Identifier::Local%'")
+    end
   end
 
   module ClassMethods
@@ -129,6 +146,7 @@ module Shared::Identifiers
     else
       nil
     end
+
   end
 
   protected

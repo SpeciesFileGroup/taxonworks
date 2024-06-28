@@ -5,15 +5,18 @@
       <div class="full_width">
         <fieldset>
           <legend>Namespace</legend>
-          <smart-selector
-            class="full_width"
-            ref="smartSelector"
-            model="namespaces"
-            target="CollectingEvent"
-            klass="CollectingEvent"
-            v-model="namespace"
-            @selected="setNamespace"
-          />
+          <div class="horizontal-left-content align-start">
+            <SmartSelector
+              class="full_width"
+              ref="smartSelector"
+              model="namespaces"
+              target="CollectingEvent"
+              klass="CollectingEvent"
+              v-model="namespace"
+              @selected="setNamespace"
+            />
+            <WidgetNamespace @create="setNamespace" />
+          </div>
           <template v-if="tripCode.namespace_id && namespace">
             <div class="middle separate-top">
               <span data-icon="ok" />
@@ -57,6 +60,7 @@
 
 <script>
 import SmartSelector from '@/components/ui/SmartSelector.vue'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 import extendCE from '../mixins/extendCE'
 import { Namespace, Identifier } from '@/routes/endpoints'
 import { GetterNames } from '../../store/getters/getters'
@@ -66,7 +70,8 @@ export default {
   mixins: [extendCE],
 
   components: {
-    SmartSelector
+    SmartSelector,
+    WidgetNamespace
   },
 
   computed: {
@@ -115,6 +120,7 @@ export default {
 
   methods: {
     setNamespace(namespace) {
+      this.namespace = namespace
       this.tripCode.namespace_id = namespace.id
     },
 

@@ -1,4 +1,14 @@
 scope :tasks do
+  scope :dwc_occurrences do
+    scope :filter, controller: 'tasks/dwc_occurrences/filter' do
+      get '/', action: :index, as: 'filter_dwc_occurrences_task'
+    end
+
+    scope :status, controller: 'tasks/dwc_occurrences/status' do
+      get '/', action: :index
+      post '/', action: :index
+    end
+  end
 
   scope :data_attributes do
     scope :field_synchronize, controller: 'tasks/data_attributes/field_synchronize' do
@@ -288,7 +298,7 @@ scope :tasks do
 
   scope :collecting_events do
     scope :spatial_summary, controller: 'tasks/collecting_events/spatial_summary' do
-      get '/', action: :index, as: 'collecting_events_spatial_summary_task'
+      match '/', action: :index, via: [:get, :post], as: 'collecting_events_spatial_summary_task'
     end
 
     scope :new_collecting_event, controller: 'tasks/collecting_events/new_collecting_event' do
@@ -570,6 +580,10 @@ scope :tasks do
   end
 
   scope :observation_matrices do
+    scope :import_nexus, controller: 'tasks/observation_matrices/import_nexus' do
+      get '/', action: :index, as: 'import_nexus_task'
+    end
+
     scope :matrix_column_coder, controller: 'tasks/observation_matrices/matrix_column_coder' do
       get :index, as: 'index_matrix_column_coder_task'
     end

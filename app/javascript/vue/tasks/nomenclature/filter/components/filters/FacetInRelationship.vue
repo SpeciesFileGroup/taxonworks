@@ -55,6 +55,7 @@
       label="name"
       set-key="type"
       :delete-warning="false"
+      soft-delete
       :list="relationshipSelected"
       @delete="removeItem"
     />

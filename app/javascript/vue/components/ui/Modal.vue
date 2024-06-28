@@ -1,6 +1,7 @@
 <template>
-  <transition name="modal">
+  <Transition name="modal">
     <div
+      v-if="isVisible"
       class="modal-mask"
       @click="emit('close')"
       @key.esc.stop="emit('close')"
@@ -30,11 +31,11 @@
         </div>
       </div>
     </div>
-  </transition>
+  </Transition>
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { ModalEventStack } from '@/utils'
 
 defineProps({
@@ -58,6 +59,8 @@ let listenerId
 
 const emit = defineEmits(['close'])
 
+const isVisible = ref(false)
+
 const handleKeys = (e) => {
   if (e.key === 'Escape') {
     e.stopPropagation()
@@ -66,6 +69,7 @@ const handleKeys = (e) => {
 }
 
 onMounted(() => {
+  isVisible.value = true
   listenerId = ModalEventStack.addListener(handleKeys, {
     atStart: true,
     stopPropagation: true

@@ -72,7 +72,7 @@ const LAYOUT_SETTING = {
 
 const store = useStore()
 const preferences = computed(
-  () => store.getters[GetterNames.GetPreferences].layout
+  () => store.getters[GetterNames.GetPreferences]?.layout || {}
 )
 const showModal = ref(false)
 </script>

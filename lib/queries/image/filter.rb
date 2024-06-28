@@ -400,6 +400,8 @@ module Queries
                       TaxonName.none
                     end
 
+
+
         ::Image.joins(collection_objects: [type_materials: [:protonym]]).where(collection_objects: {type_materials: {protonym: protonyms}})
       end
 

@@ -40,20 +40,20 @@ class Project < ApplicationRecord
      Citation
      Note
      CharacterState
-     Protocol
      AlternateValue
      DataAttribute
      TaggedSectionKeyword
      Tag
      Confidence
      Role
-     SledImage
      Label
      Attribution
      DwcOccurrence
      ProtocolRelationship
+     Protocol
      SqedDepiction
      Depiction
+     SledImage
      Documentation
      Document
      CollectionObjectObservation
@@ -81,12 +81,10 @@ class Project < ApplicationRecord
      ProjectSource
      TaxonDetermination
      TypeMaterial
-     RangedLotCategory
      Image
      CommonName
      TaxonNameClassification
      TaxonNameRelationship
-     ControlledVocabularyTerm
      OriginRelationship
      Sequence
      SequenceRelationship
@@ -99,9 +97,10 @@ class Project < ApplicationRecord
      ObservationMatrix
      FieldOccurrence
      CollectionObject
+     RangedLotCategory
      CollectingEvent
-     Otu
      OtuRelationship
+     Otu
      TaxonName
      Descriptor
      ProjectMember
@@ -109,6 +108,7 @@ class Project < ApplicationRecord
      DatasetRecordField
      DatasetRecord
      ImportDataset
+     ControlledVocabularyTerm
      CachedMapItem
      CachedMapRegister
      CachedMap

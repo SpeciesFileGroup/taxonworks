@@ -17,6 +17,9 @@
           class="margin-small-left"
           v-model="settings.locked.namespace"
         />
+        <div class="margin-small-left">
+          <WidgetNamespace @create="(item) => (namespace = item)" />
+        </div>
       </template>
     </SmartSelector>
     <template v-if="namespace">
@@ -32,6 +35,7 @@
 
 <script setup>
 import { FIELD_OCCURRENCE } from '@/constants/index.js'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'
