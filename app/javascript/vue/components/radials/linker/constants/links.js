@@ -1,6 +1,7 @@
 export const TASK_COLLECTING_EVENT_SPATIAL_SUMMARY = {
   label: 'Spatial summary',
-  link: '/tasks/collecting_events/spatial_summary'
+  link: '/tasks/collecting_events/spatial_summary',
+  post: true
 }
 
 export const TASK_COLLECTION_OBJECT_MATCH = {

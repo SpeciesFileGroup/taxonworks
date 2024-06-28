@@ -25,14 +25,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - CE batch update collectors [#3936]
 - Broken BiologicalAssociation scope for DwC download [#3949]
-- NeXML render to screen  [#3961]
+- NeXML render to screen [#3961]
 - People queries referencing `use_min` and `use_max` in combination with other facets
 - `/observation_matrix_column/list`
 - Queries referencing emtpy `identifier_start` or end failing
 - Moving depiciton from an Otu could fail in some cases
 - OTU inventory endpoint failing when synonyms are empty
-- CachedMap metadata raises when out-of-date 
-- Encoding unencodable text as Code128 breaks label preview 
+- CachedMap metadata raises when out-of-date
+- Encoding unencodable text as Code128 breaks label preview
 - Identifier between range breaks filter when blank params passed
 - DwcIndex failing to update on Georeference, Role, BiocurationClassification, TaxonName, InternalAttribute changes
 - Sometimes URL parameters are set incorrectly in facets.
@@ -40,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Project dump not working when all params were supplied [#3967]
 - Radial annotator: Selected object in "Move to" section is not displayed in Depictions slice
 - Project SQL export failed to export tables with NULL project_id.
+- Spatial Summary of the results in Filter Collecting Event "URI too large error" [#3937]
 
 ### Changed
 
@@ -55,6 +56,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
 [#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
 [#3936]: https://github.com/SpeciesFileGroup/taxonworks/issues/3936
+[#3937]: https://github.com/SpeciesFileGroup/taxonworks/issues/3937
 [#3946]: https://github.com/SpeciesFileGroup/taxonworks/issues/3946
 [#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
 [#3949]: https://github.com/SpeciesFileGroup/taxonworks/issues/3949
