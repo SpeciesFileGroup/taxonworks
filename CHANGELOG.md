@@ -48,7 +48,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed `versions_associations` and `shortened_urls` tables from Project SQL export
 - Replace validations modal in Browse nomenclature task [#3974]
 - Updated Ruby gems
+- Georeference `error_radius` rounded to nearest meter before save [#3946]
 
+[#3946]: https://github.com/SpeciesFileGroup/taxonworks/issues/3946
 [#3949]: https://github.com/SpeciesFileGroup/taxonworks/issues/3949
 [#3961]: https://github.com/SpeciesFileGroup/taxonworks/issues/3961
 [#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
