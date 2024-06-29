@@ -251,8 +251,8 @@ class GeographicItem < ApplicationRecord
           ')'
       end
 
-      def st_asgeojson
-        select("ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}) geo_json")
+      def st_asgeojson_sql(shape_sql)
+        "ST_AsGeoJSON(#{shape_sql})"
       end
 
       # @param [String] wkt
@@ -868,16 +868,12 @@ class GeographicItem < ApplicationRecord
       RGeo::GeoJSON.encode(geo_object).to_json
     end
 
-    # @return [Hash]
-    #   in GeoJSON format
-    #   Computed via "raw" PostGIS (much faster). This
-    #   requires the geo_object_type and id.
+    # @return [Hash] in GeoJSON format
     def to_geo_json
       JSON.parse(
-        GeographicItem.connection.select_one(
-          "SELECT ST_AsGeoJSON(#{data_column}::geometry) a " \
-          "FROM geographic_items WHERE id=#{id};"
-        )['a']
+        select_self(
+          self.class.st_asgeojson_sql(data_column)
+        )['st_asgeojson']
       )
     end
 
@@ -966,7 +962,7 @@ class GeographicItem < ApplicationRecord
     # TODO: share with world
     #    Geographic item 96862 (Cajamar in Brazil) is the only(?) record to fail using `false` (quicker) method of everything we tested
     def area
-      # use select_self
+      # TODO use select_self
       a = GeographicItem.where(id:).select(
         self.class.st_area_sql(GeographicItem::GEOGRAPHY_SQL)
       ).first['st_area']
@@ -1093,6 +1089,7 @@ class GeographicItem < ApplicationRecord
       "ELSE #{shape} END)"
     end
 
+    # TODO select_from_self?
     def select_self(shape_sql)
       ApplicationRecord.connection.execute( "SELECT #{shape_sql} FROM geographic_items WHERE geographic_items.id = #{id}").first
     end
