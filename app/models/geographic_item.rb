@@ -339,7 +339,7 @@ class GeographicItem < ApplicationRecord
       def st_buffer_st_within(geographic_item_id, distance, buffer = 0)
         # You can't always switch the buffer to the second argument, even when
         # distance is 0, without further assumptions (think of buffer being
-        # large negative compared to geographic_item_id but not another shape))
+        # large negative compared to geographic_item_id, but not another shape))
         'ST_DWithin(' \
           "ST_Buffer(#{GeographicItem::GEOGRAPHY_SQL}, #{buffer}), " \
           "(#{select_geography_sql(geographic_item_id)}), " \

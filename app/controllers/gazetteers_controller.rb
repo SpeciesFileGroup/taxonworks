@@ -11,6 +11,7 @@ class GazetteersController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json do
+        # TODO gzs, not gas
         @geographic_areas = ::Queries::GeographicArea::Filter.new(params).all
           .includes(:geographic_items)
           .page(params[:page])
@@ -44,8 +45,18 @@ class GazetteersController < ApplicationController
   def create
     @gazetteer = Gazetteer.new(gazetteer_params)
 
-    shape = combine_shapes_to_rgeo(shape_params['shapes'])
-    if shape.nil?
+    begin
+      shape = Gazetteer.combine_shapes_to_rgeo(shape_params['shapes'])
+    # TODO make sure these errors work
+    rescue RGeo::Error::RGeoError => e
+      @gazetteer.errors.add(:base, "Invalid WKT: #{e}")
+    rescue RGeo::Error::InvalidGeometry => e
+      @gazetteer.errors.add(:base, "Invalid geometry: #{e}")
+    rescue TaxonWorks::Error => e
+      @gazetteer.errors.add(:base, e)
+    end
+
+    if @gazetteer.errors.include?(:base) || shape.nil?
       render json: @gazetteer.errors, status: :unprocessable_entity
       return
     end
@@ -101,107 +112,5 @@ class GazetteersController < ApplicationController
     params.require(:gazetteer).permit(shapes: { geojson: [], wkt: []})
   end
 
-  # @return [Array] of RGeo::Geographic::Projected*Impl
-  def convert_geojson_to_rgeo(shapes)
-    return [] if shapes.blank?
 
-    rgeo_shapes = shapes.map { |shape|
-      begin
-        RGeo::GeoJSON.decode(
-          shape, json_parser: :json, geo_factory: Gis::FACTORY
-        )
-      rescue RGeo::Error::InvalidGeometry => e
-        @gazetteer.errors.add(:base, "invalid geometry: #{e}")
-        nil
-      end
-    }
-    if rgeo_shapes.include?(nil)
-      return nil
-    end
-
-    rgeo_shapes.map { |shape| shape.geometry }
-  end
-
-  # @return [Array] of RGeo::Geographic::Projected*Impl
-  def convert_wkt_to_rgeo(wkt_shapes)
-    return [] if wkt_shapes.blank?
-
-    rgeo_shapes = wkt_shapes.map { |shape|
-      begin
-        ::Gis::FACTORY.parse_wkt(shape)
-      rescue RGeo::Error::RGeoError => e
-        @gazetteer.errors.add(:base, "invalid WKT: #{e}")
-        nil
-      end
-    }
-    if rgeo_shapes.include?(nil)
-      return nil
-    end
-
-    rgeo_shapes
-  end
-
-  # Assumes @gazetteer is set
-  # @param [Hash]
-  # @return A single rgeo shape containing all of the input shapes, or nil on
-  #   error with @gazetteer.errors set
-  def combine_shapes_to_rgeo(shapes)
-    if shapes['geojson'].blank? && shapes['wkt'].blank?
-      @gazetteer.errors.add(:base, 'No shapes provided')
-      return nil
-    end
-
-    geojson_rgeo = convert_geojson_to_rgeo(shapes['geojson'])
-    wkt_rgeo = convert_wkt_to_rgeo(shapes['wkt'])
-    if geojson_rgeo.nil? || wkt_rgeo.nil?
-      return nil
-    end
-
-    shapes = geojson_rgeo + wkt_rgeo
-
-    combine_rgeo_shapes(shapes)
-  end
-
-  # @param [Array] rgeo_shapes of RGeo::Geographic::Projected*Impl
-  # @return [RGeo::Geographic::Projected*Impl] A single shape combining all of the
-  #   input shapes
-  def combine_rgeo_shapes(rgeo_shapes)
-    if rgeo_shapes.count == 1
-      return rgeo_shapes[0]
-    end
-
-    multi = nil
-    type = nil
-
-    types = rgeo_shapes.map { |shape|
-      shape.geometry_type.type_name
-    }.uniq
-
-    if types.count == 1
-      type = types[0]
-      case type
-      when 'Point'
-        multi = Gis::FACTORY.multi_point(rgeo_shapes)
-      when 'LineString'
-        multi = Gis::FACTORY.multi_line_string(rgeo_shapes)
-      when 'Polygon'
-        multi = Gis::FACTORY.multi_polygon(rgeo_shapes)
-      when 'GeometryCollection'
-        multi = Gis::FACTORY.collection(rgeo_shapes)
-      end
-    else # multiple geometries of different types
-      type = 'GeometryCollection'
-      # This could itself include GeometryCollection(s)
-      multi = Gis::FACTORY.collection(rgeo_shapes)
-    end
-
-    if multi.nil?
-      @gazetteer.errors.add(:base,
-        "Error in combining multiple #{type}s into a multi-#{type}"
-      )
-      return nil
-    end
-
-    multi
-  end
 end
