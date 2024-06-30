@@ -244,7 +244,7 @@ class GeographicArea < ApplicationRecord
   def self.is_contained_by(geographic_area)
     pieces = nil
     if geographic_area.geographic_items.any?
-      pieces = GeographicItem.st_coveredby_item('any_poly', geographic_area.geo_object)
+      pieces = GeographicItem.st_coveredby('any_poly', geographic_area.geo_object)
       others = []
       pieces.each { |other|
         others.push(other.geographic_areas.to_a)
@@ -259,7 +259,7 @@ class GeographicArea < ApplicationRecord
   def self.are_contained_in(geographic_area)
     pieces = nil
     if geographic_area.geographic_items.any?
-      pieces = GeographicItem.st_covers_item('any_poly', geographic_area.geo_object)
+      pieces = GeographicItem.st_covers('any_poly', geographic_area.geo_object)
       others = []
       pieces.each { |other|
         others.push(other.geographic_areas.to_a)

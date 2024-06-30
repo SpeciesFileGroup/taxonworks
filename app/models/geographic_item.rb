@@ -563,10 +563,13 @@ class GeographicItem < ApplicationRecord
       end
 
       # rubocop:disable Metrics/MethodLength
-      # @param [String] shape to search
+      # @param [String] shape can be any of SHAPE_TYPES, or 'any' to check
+      # against all types, 'any_poly' to check against 'polygon' or
+      # 'multi_polygon', or 'any_line' to check against 'line_string' or
+      # 'multi_line_string'.
       # @param [GeographicItem] geographic_items or array of geographic_items
       #                         to be tested.
-      # @return [Scope] of GeographicItems that cover at least one of
+      # @return [Scope] of GeographicItems whose `shape` covers at least one of
       #                 geographic_items
       #
       # If this scope is given an Array of GeographicItems as a second parameter,
@@ -575,14 +578,14 @@ class GeographicItem < ApplicationRecord
       #        WHERE (ST_Covers(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)'))
       #               OR ST_Covers(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
       #
-      def st_covers_item(shape, *geographic_items)
+      def st_covers(shape, *geographic_items)
         geographic_items.flatten! # in case there is a array of arrays, or multiple objects
         shape = shape.to_s.downcase
         case shape
         when 'any'
           part = []
           SHAPE_TYPES.each { |shape|
-            part.push(GeographicItem.st_covers_item(shape, geographic_items).to_a)
+            part.push(GeographicItem.st_covers(shape, geographic_items).to_a)
           }
           # TODO: change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten.map(&:id))
@@ -592,7 +595,7 @@ class GeographicItem < ApplicationRecord
           SHAPE_TYPES.each { |shape|
             shape = shape.to_s
             if shape.index(shape.gsub('any_', ''))
-              part.push(GeographicItem.st_covers_item(shape, geographic_items).to_a)
+              part.push(GeographicItem.st_covers(shape, geographic_items).to_a)
             end
           }
           # TODO: change 'id in (?)' to some other sql construct
@@ -621,18 +624,18 @@ class GeographicItem < ApplicationRecord
       # @param shape [String] can be any of SHAPE_TYPES, or 'any' to check
       # against all types, 'any_poly' to check against 'polygon' or
       # 'multi_polygon', or 'any_line' to check against 'line_string' or
-      #'multi_line_string'.
+      # 'multi_line_string'.
       # @param geographic_items [GeographicItem] Can be a single
       # GeographicItem, or an array of GeographicItem.
-      # @return [Scope] of all GeographicItems of the given shape covered by
+      # @return [Scope] of all GeographicItems of the given `shape  ` covered by
       # one or more of geographic_items
-      def st_coveredby_item(shape, *geographic_items)
+      def st_coveredby(shape, *geographic_items)
         shape = shape.to_s.downcase
         case shape
         when 'any'
           part = []
           SHAPE_TYPES.each { |shape|
-            part.push(GeographicItem.st_coveredby_item(shape, geographic_items).to_a)
+            part.push(GeographicItem.st_coveredby(shape, geographic_items).to_a)
           }
           # @TODO change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten.map(&:id))
@@ -642,7 +645,7 @@ class GeographicItem < ApplicationRecord
           SHAPE_TYPES.each { |shape|
             shape = shape.to_s
             if shape.index(shape.gsub('any_', ''))
-              part.push(GeographicItem.st_coveredby_item(shape, geographic_items).to_a)
+              part.push(GeographicItem.st_coveredby(shape, geographic_items).to_a)
             end
           }
           # @TODO change 'id in (?)' to some other sql construct
@@ -652,7 +655,7 @@ class GeographicItem < ApplicationRecord
           q = geographic_items.flatten.collect { |geographic_item|
             GeographicItem.st_coveredby_sql(
               shape,
-              geographic_item.to_param,
+              geographic_item.id,
               geographic_item.geo_object_type
             )
           }.join(' or ')
