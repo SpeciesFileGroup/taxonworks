@@ -915,6 +915,7 @@ class GeographicItem < ApplicationRecord
 
       this_type = nil
 
+      # TODO is this first case still used?
       if geom.respond_to?(:properties) && geom.properties['data_type'].present?
         this_type = geom.properties['data_type']
       elsif geom.respond_to?(:geometry_type)
@@ -994,10 +995,10 @@ class GeographicItem < ApplicationRecord
     #   true - ccw (preferred), except see donuts
     def orientations
       if (column = multi_polygon_column)
-        ApplicationRecord.connection.execute(" \
-             SELECT ST_IsPolygonCCW(a.geom) as is_ccw
+        ApplicationRecord.connection.execute(
+             "SELECT ST_IsPolygonCCW(a.geom) as is_ccw
                 FROM ( SELECT b.id, (ST_Dump(p_geom)).geom AS geom
-                   FROM (SELECT id, #{column}::geometry AS p_geom FROM geographic_items where id = #{id}) AS b \
+                   FROM (SELECT id, #{column}::geometry AS p_geom FROM geographic_items where id = #{id}) AS b
               ) AS a;").collect{|a| a['is_ccw']}
       elsif (column = polygon_column)
         ApplicationRecord.connection.execute(
@@ -1113,7 +1114,6 @@ class GeographicItem < ApplicationRecord
            )
         end
       end
-      true
     end
 
     # Crude debuging helper, write the shapes
