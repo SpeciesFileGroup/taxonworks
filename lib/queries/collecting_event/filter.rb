@@ -319,10 +319,9 @@ module Queries
       def spatial_query(geometry_type, wkt)
         case geometry_type
         when 'Point'
-          # TODO test this
           ::CollectingEvent
             .joins(:geographic_items)
-            .within_radius_of_wkt(wkt, radius)
+            .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius))
         when 'Polygon', 'MultiPolygon'
           ::CollectingEvent
             .joins(:geographic_items)

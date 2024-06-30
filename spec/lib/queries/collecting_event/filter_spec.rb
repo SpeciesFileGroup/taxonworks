@@ -24,7 +24,7 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
   specify '#recent' do
-    query.recent = true 
+    query.recent = true
     expect(query.all.map(&:id)).to contain_exactly(ce2.id, ce1.id)
   end
 
@@ -46,7 +46,7 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
 
   specify '#collection_objects' do
     CollectionObject.create!(collecting_event: ce1, total: 1)
-    query.collection_objects = false 
+    query.collection_objects = false
     expect(query.all.map(&:id)).to contain_exactly(ce2.id)
   end
 
@@ -98,7 +98,7 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   specify 'between date range 1, ActionController::Parameters' do
     h = {start_date: '1999-1-1', end_date: '2001-1-1'}
     p = ActionController::Parameters.new( h )
-    q = Queries::CollectingEvent::Filter.new(p) 
+    q = Queries::CollectingEvent::Filter.new(p)
 
     expect(q.all.map(&:id)).to contain_exactly(ce2.id)
   end
@@ -161,7 +161,7 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     end
 
     specify '#wkt (POLYGON)' do
-      query.wkt = wkt_point
+      query.wkt = wkt_polygon
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 

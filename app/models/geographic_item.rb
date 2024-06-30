@@ -362,10 +362,10 @@ class GeographicItem < ApplicationRecord
       # @param [String] wkt
       # @param [Integer] distance (meters)
       # @return [String] Those items within the distance-buffer of wkt
-      def within_radius_of_wkt(wkt, distance)
-        where(self.within_sql(
+      def within_radius_of_wkt_sql(wkt, distance)
+        self.within_sql(
           "ST_Buffer(ST_GeographyFromText('#{wkt}'), #{distance})"
-        ))
+        )
       end
 
       # @param [String, Integer, String]
