@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Nexus file import [#2029]
 - POST `/annotations/move?from_global_id=<>&to_global_id=<>&only[]=&except[]=`
 - Clone CollectingEvent can include annotations, incremented identifiers
 - Model Identifier::Local::Event in part: [#3800]
@@ -56,6 +57,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems
 - Georeference `error_radius` rounded to nearest meter before save [#3946]
 
+[#2029]: https://github.com/SpeciesFileGroup/taxonworks/issues/2029
 [#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
 [#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
 [#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
