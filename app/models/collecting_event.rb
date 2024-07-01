@@ -362,9 +362,10 @@ class CollectingEvent < ApplicationRecord
 
     # @param [GeographicItem] geographic_item
     # @return [Scope]
-    # TODO: use joins(:geographic_items).where(containing scope), simplied to
     def contained_within(geographic_item)
-      CollectingEvent.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(geographic_item.id))
+      CollectingEvent.joins(:geographic_items).where(
+        GeographicItem.within_union_of_sql(geographic_item.id)
+      )
     end
 
     # @param [CollectingEvent Scope] collecting_events
@@ -659,7 +660,7 @@ class CollectingEvent < ApplicationRecord
   # @return [Scope]
   # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
   def collecting_events_intersecting_with
-    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).distinct
+    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first.id).distinct
     gr     = [] # all collecting events for a geographic_item
 
     pieces.each { |o|
@@ -790,6 +791,7 @@ class CollectingEvent < ApplicationRecord
       r = geographic_area.geographic_name_classification
     when :verbatim_map_center # elsif map_center
       # slowest
+      # TODO test this
       r = GeographicItem.point_inferred_geographic_name_hierarchy(verbatim_map_center)
     end
     r ||= {}
@@ -820,15 +822,18 @@ class CollectingEvent < ApplicationRecord
       #
       #  Struck EGI, EGI must contain GI, therefor anything that contains EGI contains GI, threfor containing GI will always be the bigger set
       #   !! and there was no tests broken
-      # GeographicItem.are_contained_in_item('any_poly', self.geographic_items.to_a).pluck(:id).uniq
-      gi_list = GeographicItem.containing(*geographic_items.pluck(:id)).pluck(:id).uniq
+      # GeographicItem.st_covers_item('any_poly', self.geographic_items.to_a).pluck(:id).uniq
+      gi_list = GeographicItem
+       .covering_union_of(*geographic_items.pluck(:id))
+       .pluck(:id)
+       .uniq
 
     else
       # use geographic_area only if there are no GIs or EGIs
       unless self.geographic_area.nil?
         # unless self.geographic_area.geographic_items.empty?
         # we need to use the geographic_area directly
-        gi_list = GeographicItem.are_contained_in_item('any_poly', self.geographic_area.geographic_items).pluck(:id).uniq
+        gi_list = GeographicItem.st_covers_item('any_poly', self.geographic_area.geographic_items).pluck(:id).uniq
         # end
       end
     end
@@ -900,7 +905,6 @@ class CollectingEvent < ApplicationRecord
   # @return [GeoJSON::Feature]
   #   the first geographic item of the first georeference on this collecting event
   def to_geo_json_feature
-    # !! avoid loading the whole geographic item, just grab the bits we need:
     # self.georeferences(true)  # do this to
     to_simple_json_feature.merge({
       'properties' => {
@@ -921,13 +925,11 @@ class CollectingEvent < ApplicationRecord
     }
 
     if geographic_items.any?
-      geo_item_id      = geographic_items.select(:id).first.id
-      query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
-      base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
+      base['geometry'] = RGeo::GeoJSON.encode(geographic_items.first.geo_object)
     end
+
     base
   end
-
 
   # @param [Float] delta_z, will be used to fill in the z coordinate of the point
   # @return [RGeo::Geographic::ProjectedPointImpl, nil]
@@ -1013,7 +1015,7 @@ class CollectingEvent < ApplicationRecord
           # not_georeference_attributes = %w{created_at updated_at project_id updated_by_id created_by_id collecting_event_id id position}
           georeferences.each do |g|
             i = g.dup
-          
+
             g.georeferencer_roles.each do |r|
               i.georeferencer_roles.build(person: r.person, position: r.position)
             end
@@ -1027,7 +1029,7 @@ class CollectingEvent < ApplicationRecord
           add_incremented_identifier(to_object: a, incremented_identifier_id:)
         end
 
-        if !annotations.blank? # TODO: boolean param this 
+        if !annotations.blank? # TODO: boolean param this
           clone_annotations(to_object: a, except: [:identifiers])
         end
 

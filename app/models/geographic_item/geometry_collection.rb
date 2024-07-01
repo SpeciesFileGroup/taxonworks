@@ -1,7 +1,6 @@
 # Geometry collection definition...
 #
 class GeographicItem::GeometryCollection < GeographicItem
-  SHAPE_COLUMN = :geometry_collection
   validates_presence_of :geometry_collection
 
   # @return [RGeo::Point] first point in the collection

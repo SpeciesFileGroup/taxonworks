@@ -130,7 +130,7 @@ module Queries
       end
 
       def from_wkt(wkt_shape)
-        i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(wkt_shape))
+        i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.covered_by_wkt_sql(wkt_shape))
 
         j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
         k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have a shapes
@@ -170,9 +170,10 @@ module Queries
         if geometry = RGeo::GeoJSON.decode(geo_json)
           case geometry.geometry_type.to_s
           when 'Point'
-            ::GeographicItem.joins(:geographic_areas).where( ::GeographicItem.within_radius_of_wkt_sql(geometry.to_s, radius ) )
+            # TODO test this
+            ::GeographicItem.joins(:geographic_areas).within_radius_of_wkt_sql(geometry.to_s, radius )
           when 'Polygon', 'MultiPolygon'
-            ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(geometry.to_s))
+            ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.covered_by_wkt_sql(geometry.to_s))
           else
             nil
           end

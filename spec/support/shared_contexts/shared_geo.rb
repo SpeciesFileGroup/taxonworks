@@ -155,7 +155,8 @@ shared_context 'stuff for complex geo tests' do
     multi_polygon: 'MULTIPOLYGON(((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, ' \
     '0.0 0.0 0.0)),((10.0 10.0 0.0, 20.0 10.0 0.0, 20.0 20.0 0.0, 10.0 20.0 0.0, 10.0 10.0 0.0)))',
     geometry_collection: 'GEOMETRYCOLLECTION( POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, ' \
-    '0.0 10.0 0.0, 0.0 0.0 0.0)), POINT(10 10 0)) '
+    '0.0 10.0 0.0, 0.0 0.0 0.0)), POINT(10 10 0)) ',
+    geography:'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0))'
   }.freeze }
 
   let(:room2024) { RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757) }

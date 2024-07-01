@@ -171,7 +171,7 @@ class CachedMapItem < ApplicationRecord
     a = GeographicItem
       .joins(:geographic_areas_geographic_items)
       .where(geographic_areas_geographic_items: { data_origin: })
-      .where( "ST_Intersects( multi_polygon, ( select #{ GeographicItem::GEOGRAPHY_SQL } from geographic_items where geographic_items.id = #{geographic_item_id}) )" )
+      .merge(GeographicItem.intersecting(:multi_polygon, geographic_item_id))
       .pluck(:id)
 
     return a if buffer.nil?

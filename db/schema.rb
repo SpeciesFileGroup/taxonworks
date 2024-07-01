@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_18_162420) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_09_040400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -954,6 +954,35 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_18_162420) do
     t.index ["updated_by_id"], name: "index_field_occurrences_on_updated_by_id"
   end
 
+  create_table "gazetteer_hierarchies", id: false, force: :cascade do |t|
+    t.integer "ancestor_id", null: false
+    t.integer "descendant_id", null: false
+    t.integer "generations", null: false
+    t.index ["ancestor_id", "descendant_id", "generations"], name: "gazetteer_anc_desc_idx", unique: true
+    t.index ["descendant_id"], name: "gazetteer_desc_idx"
+  end
+
+  create_table "gazetteers", force: :cascade do |t|
+    t.integer "geographic_item_id", null: false
+    t.integer "parent_id"
+    t.string "name", null: false
+    t.string "iso_3166_a2"
+    t.string "iso_3166_a3"
+    t.bigint "project_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.index ["created_by_id"], name: "index_gazetteers_on_created_by_id"
+    t.index ["geographic_item_id"], name: "index_gazetteers_on_geographic_item_id"
+    t.index ["iso_3166_a2"], name: "index_gazetteers_on_iso_3166_a2"
+    t.index ["iso_3166_a3"], name: "index_gazetteers_on_iso_3166_a3"
+    t.index ["name"], name: "index_gazetteers_on_name"
+    t.index ["parent_id"], name: "index_gazetteers_on_parent_id"
+    t.index ["project_id"], name: "index_gazetteers_on_project_id"
+    t.index ["updated_by_id"], name: "index_gazetteers_on_updated_by_id"
+  end
+
   create_table "gene_attributes", id: :serial, force: :cascade do |t|
     t.integer "descriptor_id", null: false
     t.integer "sequence_id", null: false
@@ -1042,8 +1071,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_18_162420) do
     t.integer "updated_by_id", null: false
     t.string "type", null: false
     t.decimal "cached_total_area"
+    t.geography "geography", limit: {:srid=>4326, :type=>"geometry", :has_z=>true, :geographic=>true}
     t.index "st_centroid(\nCASE type\n    WHEN 'GeographicItem::MultiPolygon'::text THEN (multi_polygon)::geometry\n    WHEN 'GeographicItem::Point'::text THEN (point)::geometry\n    WHEN 'GeographicItem::LineString'::text THEN (line_string)::geometry\n    WHEN 'GeographicItem::Polygon'::text THEN (polygon)::geometry\n    WHEN 'GeographicItem::MultiLineString'::text THEN (multi_line_string)::geometry\n    WHEN 'GeographicItem::MultiPoint'::text THEN (multi_point)::geometry\n    WHEN 'GeographicItem::GeometryCollection'::text THEN (geometry_collection)::geometry\n    ELSE NULL::geometry\nEND)", name: "idx_centroid", using: :gist
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
+    t.index ["geography"], name: "index_geographic_items_on_geography", using: :gist
     t.index ["geometry_collection"], name: "geometry_collection_gix", using: :gist
     t.index ["line_string"], name: "line_string_gix", using: :gist
     t.index ["multi_line_string"], name: "multi_line_string_gix", using: :gist
@@ -2289,6 +2320,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_18_162420) do
   add_foreign_key "field_occurrences", "ranged_lot_categories"
   add_foreign_key "field_occurrences", "users", column: "created_by_id"
   add_foreign_key "field_occurrences", "users", column: "updated_by_id"
+  add_foreign_key "gazetteers", "projects"
   add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
   add_foreign_key "gene_attributes", "projects"
   add_foreign_key "gene_attributes", "sequences"

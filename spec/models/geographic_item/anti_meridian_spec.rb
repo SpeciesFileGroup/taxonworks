@@ -336,14 +336,14 @@ describe GeographicItem, type: :model, group: :geo do
         before { build_structure }
 
         specify 'results from single non-meridian crossing polygon is found' do
-          # invokes geometry_sql2
+          # invokes items_as_one_geometry
           # using contained_by_with_antimeridian_check is not harmful for non-crossing objects
           expect(GeographicItem.contained_by_with_antimeridian_check(western_box.id).map(&:id))
             .to contain_exactly(point_in_western_box.id, western_box.id)
         end
 
         specify 'results from multiple non-meridian crossing polygons are found' do
-          # invokes geometry_sql2
+          # invokes items_as_one_geometry
           # using contained_by_with_antimeridian_check is not harmful for non-crossing objects
           expect(GeographicItem.contained_by_with_antimeridian_check(eastern_box.id, western_box.id).map(&:id))
             .to contain_exactly(point_in_eastern_box.id,
@@ -373,7 +373,7 @@ describe GeographicItem, type: :model, group: :geo do
         specify 'shifting an already shifted polygon has no effect' do
           shifted_wkt = eastern_box.geo_object.to_s
           expect(shifted_wkt =~ /-/).to be_falsey
-          expect(GeographicItem.where(GeographicItem.contained_by_wkt_sql(shifted_wkt)).map(&:id))
+          expect(GeographicItem.where(GeographicItem.covered_by_wkt_sql(shifted_wkt)).map(&:id))
             .to contain_exactly(point_in_eastern_box.id, eastern_box.id)
         end
       end

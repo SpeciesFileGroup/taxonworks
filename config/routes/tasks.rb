@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :gazetteers do
+    scope :new_gazetteer, controller: 'tasks/gazetteers/new_gazetteer' do
+      get '/', action: :index, as: 'new_gazetteer_task'
+    end
+  end
+
   scope :dwc_occurrences do
     scope :filter, controller: 'tasks/dwc_occurrences/filter' do
       get '/', action: :index, as: 'filter_dwc_occurrences_task'

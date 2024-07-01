@@ -185,7 +185,7 @@ class GeographicArea < ApplicationRecord
 
   scope :ordered_by_area, -> (direction = :ASC) { joins(:geographic_items).order("geographic_items.cached_total_area #{direction || 'ASC'}") }
 
-  # Based strictly on the original data recording a level ID, 
+  # Based strictly on the original data recording a level ID,
   # this is *inferrence* and it will fail with some data.
   def self.inferred_as_country
     where('geographic_areas.level0_id = geographic_areas.id')
@@ -244,7 +244,7 @@ class GeographicArea < ApplicationRecord
   def self.is_contained_by(geographic_area)
     pieces = nil
     if geographic_area.geographic_items.any?
-      pieces = GeographicItem.is_contained_by('any_poly', geographic_area.geo_object)
+      pieces = GeographicItem.st_coveredby_item('any_poly', geographic_area.geo_object)
       others = []
       pieces.each { |other|
         others.push(other.geographic_areas.to_a)
@@ -259,7 +259,7 @@ class GeographicArea < ApplicationRecord
   def self.are_contained_in(geographic_area)
     pieces = nil
     if geographic_area.geographic_items.any?
-      pieces = GeographicItem.are_contained_in_item('any_poly', geographic_area.geo_object)
+      pieces = GeographicItem.st_covers_item('any_poly', geographic_area.geo_object)
       others = []
       pieces.each { |other|
         others.push(other.geographic_areas.to_a)
