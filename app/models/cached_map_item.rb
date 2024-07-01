@@ -179,7 +179,9 @@ class CachedMapItem < ApplicationRecord
     # Refine the pass by smoothing using buffer/st_within
     return GeographicItem
       .where(id: a)
-      .where( GeographicItem.st_buffer_st_within(geographic_item_id, 0.0, buffer) )
+      .where(
+        GeographicItem.st_buffer_st_within_sql(geographic_item_id, 0.0, buffer)
+      )
       .pluck(:id)
   end
 

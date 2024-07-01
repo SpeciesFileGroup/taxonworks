@@ -357,6 +357,17 @@ module GeographicItem::Deprecated
     GeographicItem.where(id:).pick(Arel.sql("ST_NPoints(#{GeographicItem::GEOMETRY_SQL.to_sql}) as npoints"))
   end
 
+  # DEPRECATED
+  # @param [Integer] geographic_item_id
+  # @return [Double] distance in meters
+  def st_distance_spheroid(geographic_item_id)
+    q = self.class.st_distancespheroid_sql(
+      self.class.select_geometry_sql(id),
+      self.class.select_geometry_sql(geographic_item_id)
+    )
+    GeographicItem.where(id:).pick(Arel.sql(q))
+  end
+
   private
 
       # @param [RGeo::Point] point

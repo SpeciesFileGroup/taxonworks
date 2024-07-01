@@ -746,12 +746,16 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           before { [p1, p2, p3, p11, p12, k, l].each }
 
           specify 'find the points in a polygon' do
-            expect(GeographicItem.within_union_of(k.id).to_a).to contain_exactly(p1, p2, p3, k)
+            expect(
+              GeographicItem.where(
+                GeographicItem.within_union_of_sql(k.id)
+              ).to_a
+            ).to contain_exactly(p1, p2, p3, k)
           end
 
           specify 'find the (overlapping) points in a polygon' do
             overlapping_point = FactoryBot.create(:geographic_item_point, point: point12.as_binary)
-            expect(GeographicItem.within_union_of(e1.id).to_a).to contain_exactly(p12, overlapping_point, p11, e1)
+            expect(GeographicItem.where(GeographicItem.within_union_of_sql(e1.id)).to_a).to contain_exactly(p12, overlapping_point, p11, e1)
           end
         end
 
@@ -1779,12 +1783,12 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           before { [p1, p2, p3, p11, p12, k, l].each }
 
           specify 'find the points in a polygon' do
-            expect(GeographicItem.within_union_of(k.id).to_a).to contain_exactly(p1, p2, p3, k)
+            expect(GeographicItem.where(GeographicItem.within_union_of_sql(k.id))).to_a.to contain_exactly(p1, p2, p3, k)
           end
 
           specify 'find the (overlapping) points in a polygon' do
             overlapping_point = FactoryBot.create(:geographic_item_point, point: point12.as_binary)
-            expect(GeographicItem.within_union_of(e1.id).to_a).to contain_exactly(p12, overlapping_point, p11, e1)
+            expect(GeographicItem.where(GeographicItem.within_union_of_sql(e1.id))).to_a.to contain_exactly(p12, overlapping_point, p11, e1)
           end
         end
 
