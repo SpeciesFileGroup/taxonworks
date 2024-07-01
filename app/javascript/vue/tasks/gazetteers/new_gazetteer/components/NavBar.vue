@@ -79,7 +79,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['cloneGz, saveGz, resetGz'])
+const emit = defineEmits(['cloneGz', 'saveGz', 'resetGz'])
 
 const headerLabel = computed(() => {
   return props.gz.id ? props.gz.name : 'New Gazetteer'

@@ -46,7 +46,7 @@ class GazetteersController < ApplicationController
     @gazetteer = Gazetteer.new(gazetteer_params)
 
     begin
-      shape = Gazetteer.combine_shapes_to_rgeo(shape_params['shapes'])
+      rgeo_shape = Gazetteer.combine_shapes_to_rgeo(shape_params['shapes'])
     # TODO make sure these errors work
     rescue RGeo::Error::RGeoError => e
       @gazetteer.errors.add(:base, "Invalid WKT: #{e}")
@@ -56,13 +56,15 @@ class GazetteersController < ApplicationController
       @gazetteer.errors.add(:base, e)
     end
 
-    if @gazetteer.errors.include?(:base) || shape.nil?
+    if @gazetteer.errors.include?(:base) || rgeo_shape.nil?
       render json: @gazetteer.errors, status: :unprocessable_entity
       return
     end
 
-    # TODO does this bypass save and set_cached_area? If not, how does that happen?
-    @gazetteer.geographic_item = GeographicItem.new(geography: shape)
+    @gazetteer.build_geographic_item(
+      type: 'GeographicItem::Geography',
+      geography: rgeo_shape
+    )
 
     if @gazetteer.save
       render :show, status: :created, location: @gazetteer
@@ -105,8 +107,9 @@ class GazetteersController < ApplicationController
   end
 
   def gazetteer_params
-    params.require(:gazetteer).permit(:name, :parent_id, :iso_3166_a2, :iso_3166_a3)
-  end
+    params.require(:gazetteer).permit(:name, :parent_id,
+      :iso_3166_a2, :iso_3166_a3)
+    end
 
   def shape_params
     params.require(:gazetteer).permit(shapes: { geojson: [], wkt: []})
