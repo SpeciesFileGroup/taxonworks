@@ -814,6 +814,7 @@ class GeographicItem < ApplicationRecord
 
     # @return [String]
     #   a WKT POINT representing the centroid of the geographic item
+    #   *as a geometry object*
     def st_centroid
       GeographicItem
         .where(id:)
