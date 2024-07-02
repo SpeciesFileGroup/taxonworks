@@ -85,20 +85,6 @@ module GeographicItem::Deprecated
     end
 
     # DEPRECATED
-    # @param [Integer] ids
-    # @return [Boolean]
-    #   whether or not any GeographicItem passed intersects the anti-meridian
-    #   !! StrongParams security considerations
-    #   This is our first line of defense against queries that define multiple shapes, one or
-    #   more of which crosses the anti-meridian.  In this case the current TW strategy within the
-    #   UI is to abandon the search, and prompt the user to refactor the query.
-    def crosses_anti_meridian_by_id?(*ids)
-      q = "SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as " \
-            'left_intersect), ST_GeogFromText(?)) as r;', ANTI_MERIDIAN
-      GeographicItem.find_by_sql([q]).first.r
-    end
-
-    # DEPRECATED
     # rubocop:disable Metrics/MethodLength
     # @param [String] shape
     # @param [GeographicItem] geographic_item
