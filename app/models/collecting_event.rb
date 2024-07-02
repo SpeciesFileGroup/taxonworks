@@ -638,13 +638,6 @@ class CollectingEvent < ApplicationRecord
     end
   end
 
-  # @param [GeographicItem]
-  # @return [String]
-  #   see how far away we are from another gi
-  def distance_to(geographic_item_id)
-    GeographicItem.distance_between(preferred_georeference.geographic_item_id, geographic_item_id)
-  end
-
   # @param [Double] distance in meters
   # @return [Scope]
   def collecting_events_within_radius_of(distance)

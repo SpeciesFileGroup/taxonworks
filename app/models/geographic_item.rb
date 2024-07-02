@@ -52,10 +52,6 @@ class GeographicItem < ApplicationRecord
   include Shared::IsData
   include Shared::SharedAcrossProjects
 
-  # Methods that are deprecated or used only in specs
-  # TODO move spec-only methods somewhere else?
-  include GeographicItem::Deprecated
-
   # @return [Hash, nil]
   #   An internal variable for use in super calls, holds a Hash in GeoJSON format (temporarily)
   attr_accessor :geometry
@@ -680,17 +676,6 @@ class GeographicItem < ApplicationRecord
       # Other
       #
 
-      # @param [Integer] geographic_item_id1
-      # @param [Integer] geographic_item_id2
-      # @return [Float]
-      def distance_between(geographic_item_id1, geographic_item_id2)
-        q = st_distance_sql(
-          select_geography_sql(geographic_item_id2)
-        )
-
-        GeographicItem.where(id: geographic_item_id1).pick(Arel.sql(q))
-      end
-
       # @param [RGeo::Point] point
       # @return [Hash]
       #   as per #inferred_geographic_name_hierarchy but for Rgeo point
@@ -816,7 +801,7 @@ class GeographicItem < ApplicationRecord
 
     # @param [GeographicItem] geographic_item
     # @return [Double] distance in meters
-    # Like st_distance but works with changed and non persisted objects
+    # Works with changed and non persisted objects
     def st_distance_to_geographic_item(geographic_item)
       unless !persisted? || changed?
         a = "(#{self.class.select_geography_sql(id)})"

@@ -260,10 +260,9 @@ class Georeference < ApplicationRecord
       georeferenceProtocol: protocols.collect{|p| p.name}.join('|')
     )
 
-    if geographic_item.type == 'GeographicItem::Point'
-      b = geographic_item.to_a
-      h[:decimalLongitude] = b.first
-      h[:decimalLatitude] = b.second
+    if geographic_item.geo_object_type == :point
+      h[:decimalLongitude] = geographic_item.geo_object.x
+      h[:decimalLatitude] = geographic_item.geo_object.y
       h[:coordinateUncertaintyInMeters] = error_radius
     end
 
