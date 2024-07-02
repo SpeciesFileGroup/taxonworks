@@ -11,7 +11,8 @@ import { ActionFunctions } from './actions/actions'
 import {
   ComponentMap,
   ComponentParse,
-  ComponentVerbatim
+  ComponentVerbatim,
+  ComponentLeftColumn
 } from '../const/components'
 import makeCollectingEvent from '@/factory/CollectingEvent.js'
 import makeCollectionObject from '@/factory/CollectionObject.js'
@@ -81,7 +82,7 @@ function makeInitialState() {
     identifiers: [],
     georeferences: [],
     materialTypes: [],
-    namespaceSelected: '',
+    namespaceSelected: undefined,
     preferences: {},
     preparation_type_id: undefined,
     project_preferences: undefined,
@@ -91,11 +92,7 @@ function makeInitialState() {
     taxon_determinations: [],
     typeSpecimens: [],
     componentsOrder: {
-      leftColumn: [
-        'TaxonDeterminationLayout',
-        'BiologicalAssociation',
-        'TypeMaterial'
-      ],
+      leftColumn: Object.values(ComponentLeftColumn),
       ComponentParse: Object.values(ComponentParse),
       ComponentVerbatim: Object.values(ComponentVerbatim),
       ComponentMap: Object.values(ComponentMap)

@@ -59,7 +59,7 @@ FROM base AS assets-precompiler
 # http://blog.zeit.io/use-a-fake-db-adapter-to-play-nice-with-rails-assets-precompilation/
 RUN bundle add activerecord-nulldb-adapter
 RUN printf "production:\n  adapter: nulldb" > config/database.yml \
-&&  printf "production:\n  secret_key_base: $(bundle exec rake secret)" > config/secrets.yml
+&&  printf "production:\n  secret_key_base: $(bundle exec rails secret)" > config/secrets.yml
 
 # Precompiling and also removing config files just in case someone uses `docker build --target=assets-precompiler`
 

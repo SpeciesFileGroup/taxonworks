@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { TaxonDetermination } from '@/routes/endpoints'
-import { addToArray, removeFromArray } from '@/helpers'
+import { addToArray, removeFromArray, randomUUID } from '@/helpers'
 
 export default defineStore('taxonDeterminations', {
   state: () => ({
@@ -21,7 +21,7 @@ export default defineStore('taxonDeterminations', {
       }).then(({ body }) => {
         this.determinations = body.map((item) => ({
           ...item,
-          uuid: crypto.randomUUID(),
+          uuid: randomUUID(),
           isUnsaved: false
         }))
       })
@@ -43,7 +43,7 @@ export default defineStore('taxonDeterminations', {
         TaxonDetermination.destroy(determination.id)
       }
 
-      removeFromArray(this.determinations, determination, 'uuid')
+      removeFromArray(this.determinations, determination, { property: 'uuid' })
     },
 
     save({ objectId, objectType }) {

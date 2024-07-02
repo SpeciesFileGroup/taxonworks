@@ -110,7 +110,7 @@ class DatasetRecordsController < ApplicationController
       dataset_records = import_dataset.core_records
       params[:filter]&.each do |key, value|
         dataset_records = dataset_records.where(
-          id: import_dataset.core_records_fields.at(key.to_i).with_value(value).select(:dataset_record_id)
+          id: import_dataset.core_records_fields.at(key.to_i).having_value(value).select(:dataset_record_id)
         )
       end
 
@@ -134,12 +134,12 @@ class DatasetRecordsController < ApplicationController
         zip.write_deflated_file(filename) do |sink|
           sink.write CSV.generate_line([
             'Status', 'error_data', *headers
-          ], col_sep: "\t", quote_char: '')
+          ], col_sep: "\t")
 
           filtered_records.find_each do |row|
             sink.write CSV.generate_line([
               row.status, row.metadata&.dig('error_data', 'messages'), *row.data_fields
-            ], col_sep: "\t", quote_char: '')
+            ], col_sep: "\t")
           end
         end
       end

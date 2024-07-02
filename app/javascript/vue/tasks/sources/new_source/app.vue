@@ -17,7 +17,7 @@
         </li>
       </ul>
     </div>
-    <nav-bar class="source-navbar">
+    <NavBar class="source-navbar">
       <div class="flex-separate full_width">
         <div class="middle">
           <template v-if="source.id">
@@ -29,42 +29,39 @@
             <div
               class="flex-wrap-row nav__source-buttons margin-small-left gap-small"
             >
-              <pin-component
+              <VPin
                 class="circle-button"
                 type="Source"
                 :object-id="source.id"
               />
-              <add-source
+              <AddSource
                 :project-source-id="source.project_source_id"
                 :id="source.id"
               />
-              <radial-annotator :global-id="source.global_id" />
-              <radial-object :global-id="source.global_id" />
+              <RadialAnnotator :global-id="source.global_id" />
+              <RadialObject :global-id="source.global_id" />
             </div>
           </template>
           <span v-else>New record</span>
         </div>
-        <div
-          class="nav__buttons gap-small"
-          v-hotkey="shortcuts"
-        >
-          <v-icon
+        <div class="nav__buttons gap-small">
+          <VIcon
             v-if="unsave"
             name="attention"
             color="attention"
             title="You have unsaved changes."
           />
           <button
-            @click="saveSource"
-            :disabled="source.type === 'Source::Bibtex' && !source.bibtex_type"
             class="button normal-input button-submit button-size"
             type="button"
+            :disabled="source.type === SOURCE_BIBTEX && !source.bibtex_type"
+            @click="saveSource"
           >
             Save
           </button>
-          <clone-source />
+          <CloneSource />
           <button
-            v-if="source.type === 'Source::Verbatim' && source.id"
+            v-if="source.type === SOURCE_VERBATIM && source.id"
             class="button normal-input button-submit button-size"
             type="button"
             @click="convert"
@@ -75,209 +72,178 @@
             v-help.section.navBar.crossRef
             class="button normal-input button-default button-size"
             type="button"
-            @click="showModal = true"
+            @click="() => (isModalVisible = true)"
           >
             CrossRef
           </button>
           <button
             class="button normal-input button-default button-size"
             type="button"
-            @click="showBibtex = true"
+            @click="() => (showBibtex = true)"
           >
             BibTeX
           </button>
           <button
-            @click="showRecent = true"
             class="button normal-input button-default button-size"
             type="button"
+            @click="() => (showRecent = true)"
           >
             Recent
           </button>
           <button
-            @click="reset"
             class="button normal-input button-default button-size"
             type="button"
+            @click="reset"
           >
             New
           </button>
         </div>
       </div>
-    </nav-bar>
-    <recent-component
+    </NavBar>
+    <RecentComponent
       v-if="showRecent"
-      @close="showRecent = false"
+      @close="() => (showRecent = false)"
     />
     <div class="horizontal-left-content align-start">
       <div class="full_width panel content">
-        <source-type class="margin-medium-bottom" />
-        <component :is="section" />
+        <SourceType class="margin-medium-bottom" />
+        <component :is="componentSection[source.type]" />
       </div>
-      <right-section class="margin-medium-left" />
+      <RightSection class="margin-medium-left" />
     </div>
-    <cross-ref
-      v-if="showModal"
-      @close="showModal = false"
+    <CrossRef
+      v-if="isModalVisible"
+      @close="() => (isModalVisible = false)"
     />
-    <bibtex-button
+    <BibtexButton
       v-if="showBibtex"
-      @close="showBibtex = false"
+      @close="() => (showBibtex = false)"
     />
-    <spinner-component
+    <VSpinner
       v-if="settings.isConverting"
-      :full-screen="true"
+      full-screen
       :logo-size="{ width: '100px', height: '100px' }"
       legend="Converting verbatim to BiBTeX..."
     />
   </div>
 </template>
 
-<script>
-import SourceType from './components/sourceType'
-import RecentComponent from './components/recent'
-import SpinnerComponent from '@/components/ui/VSpinner'
+<script setup>
+import { computed, ref, watch, onMounted } from 'vue'
+import { useStore } from 'vuex'
+import { User } from '@/routes/endpoints'
+import { GetterNames } from './store/getters/getters'
+import { ActionNames } from './store/actions/actions'
+import { MutationNames } from './store/mutations/mutations'
+import { SOURCE_BIBTEX, SOURCE_HUMAN, SOURCE_VERBATIM } from '@/constants'
 
-import CrossRef from './components/crossRef'
-import BibtexButton from './components/bibtex'
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
 import Human from './components/person/PersonHuman.vue'
+import SourceType from './components/sourceType'
+import RecentComponent from './components/recent'
+
+import CrossRef from './components/crossRef'
+import BibtexButton from './components/bibtex'
+import VSpinner from '@/components/ui/VSpinner'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialObject from '@/components/radials/navigation/radial'
 import AddSource from '@/components/ui/Button/ButtonAddToProjectSource'
 import CloneSource from './components/cloneSource'
 import VIcon from '@/components/ui/VIcon/index.vue'
-
-import PinComponent from '@/components/ui/Button/ButtonPin.vue'
-
-import { User } from '@/routes/endpoints'
-import { GetterNames } from './store/getters/getters'
-import { ActionNames } from './store/actions/actions'
-import { MutationNames } from './store/mutations/mutations'
+import VPin from '@/components/ui/Button/ButtonPin.vue'
 
 import RightSection from './components/rightSection'
 import NavBar from '@/components/layout/NavBar'
 import platformKey from '@/helpers/getPlatformKey'
+import useHotkey from 'vue3-hotkey'
 
-export default {
-  name: 'NewSource',
+const componentSection = {
+  [SOURCE_VERBATIM]: Verbatim,
+  [SOURCE_BIBTEX]: Bibtex,
+  [SOURCE_HUMAN]: Human
+}
 
-  components: {
-    CloneSource,
-    RadialAnnotator,
-    RadialObject,
-    PinComponent,
-    SourceType,
-    Verbatim,
-    Bibtex,
-    CrossRef,
-    RightSection,
-    BibtexButton,
-    AddSource,
-    NavBar,
-    RecentComponent,
-    SpinnerComponent,
-    VIcon,
-    Human
-  },
+defineOptions({
+  name: 'NewSource'
+})
 
-  computed: {
-    shortcuts() {
-      const keys = {}
+const store = useStore()
 
-      keys[`${platformKey()}+s`] = this.saveSource
-      keys[`${platformKey()}+n`] = this.reset
-
-      return keys
-    },
-
-    section() {
-      const type = this.$store.getters[GetterNames.GetType]
-      return type ? type.split('::')[1] : undefined
-    },
-
-    source() {
-      return this.$store.getters[GetterNames.GetSource]
-    },
-
-    settings: {
-      get() {
-        return this.$store.getters[GetterNames.GetSettings]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetSettings, value)
-      }
-    },
-
-    unsave() {
-      const settings = this.$store.getters[GetterNames.GetSettings]
-      return settings.lastSave < settings.lastEdit
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 's'],
+    handler() {
+      saveSource()
     }
   },
-
-  data() {
-    return {
-      showModal: false,
-      showBibtex: false,
-      showRecent: false
-    }
-  },
-
-  watch: {
-    source: {
-      handler(newVal, oldVal) {
-        if (newVal.id === oldVal.id) {
-          this.settings.lastEdit = Date.now()
-        }
-      },
-      deep: true
-    }
-  },
-
-  mounted() {
-    TW.workbench.keyboard.createLegend(
-      `${platformKey()}+s`,
-      'Save',
-      'New source'
-    )
-    TW.workbench.keyboard.createLegend(
-      `${platformKey()}+n`,
-      'New',
-      'New source'
-    )
-    TW.workbench.keyboard.createLegend(
-      `${platformKey()}+c`,
-      'Clone source',
-      'New source'
-    )
-
-    const urlParams = new URLSearchParams(window.location.search)
-    const sourceId = urlParams.get('source_id')
-
-    if (/^\d+$/.test(sourceId)) {
-      this.$store.dispatch(ActionNames.LoadSource, sourceId)
-    }
-
-    User.preferences().then((response) => {
-      this.$store.commit(MutationNames.SetPreferences, response.body)
-    })
-  },
-
-  methods: {
-    reset() {
-      this.$store.dispatch(ActionNames.ResetSource)
-    },
-    saveSource() {
-      if (this.source.type === 'Source::Bibtex' && !this.source.bibtex_type)
-        return
-      this.$store.dispatch(ActionNames.SaveSource)
-    },
-    cloneSource() {
-      this.$store.dispatch(ActionNames.CloneSource)
-    },
-    convert() {
-      this.$store.dispatch(ActionNames.ConvertToBibtex)
+  {
+    keys: [platformKey(), 'n'],
+    handler() {
+      reset()
     }
   }
+])
+
+useHotkey(shortcuts.value)
+
+const source = computed(() => store.getters[GetterNames.GetSource])
+const settings = computed({
+  get() {
+    return store.getters[GetterNames.GetSettings]
+  },
+  set(value) {
+    store.commit(MutationNames.SetSettings, value)
+  }
+})
+
+const unsave = computed(() => settings.value.lastSave < settings.value.lastEdit)
+
+const isModalVisible = ref(false)
+const showBibtex = ref(false)
+const showRecent = ref(false)
+
+watch(
+  source,
+  (newVal, oldVal) => {
+    if (newVal.id === oldVal.id) {
+      settings.value.lastEdit = Date.now()
+    }
+  },
+  { deep: true }
+)
+
+onMounted(() => {
+  TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New source')
+  TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'New', 'New source')
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+c`,
+    'Clone source',
+    'New source'
+  )
+
+  const urlParams = new URLSearchParams(window.location.search)
+  const sourceId = urlParams.get('source_id')
+
+  if (/^\d+$/.test(sourceId)) {
+    store.dispatch(ActionNames.LoadSource, sourceId)
+  }
+
+  User.preferences().then(({ body }) => {
+    store.commit(MutationNames.SetPreferences, body)
+  })
+})
+
+function reset() {
+  store.dispatch(ActionNames.ResetSource)
+}
+function saveSource() {
+  if (source.value.type === SOURCE_BIBTEX && !source.value.bibtex_type) return
+  store.dispatch(ActionNames.SaveSource)
+}
+
+function convert() {
+  store.dispatch(ActionNames.ConvertToBibtex)
 }
 </script>
 <style scoped>

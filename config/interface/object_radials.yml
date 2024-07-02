@@ -31,6 +31,7 @@ AssertedDistribution:
 BiologicalAssociation:
   tasks:
     - edit_biological_associations_graph_task
+    - filter_biological_associations_task
   edit: edit_biological_associations_graph_task
   new: edit_biological_associations_graph_task
   config:
@@ -100,6 +101,9 @@ FieldOccurrence:
     recent: true
 GeographicArea:
   tasks:
+    - filter_asserted_distributions_task
+    - filter_collecting_events_task
+    - filter_otus_task
     - asserted_distributions_basic_endemism_task
   config:
     recent: false
@@ -108,9 +112,16 @@ GeographicItem:
     - debug_geographic_item_task
   config:
     recent: false
+Image:
+  tasks:
+    - filter_images_task
+  config:
+    recent: false
+  new: new_image_task
 Lead:
   tasks:
     - show_lead_task
+    - leads_hub_task
   new: new_lead_task
   edit: new_lead_task
 Loan:

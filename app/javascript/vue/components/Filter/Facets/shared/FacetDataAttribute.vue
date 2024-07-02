@@ -1,5 +1,5 @@
 <template>
-  <FacetContainer>
+  <FacetContainer v-help="en.facets.dataAttributes">
     <h3>Data attributes</h3>
     <AddPredicate @add="(p) => predicates.push(p)" />
     <TablePredicate
@@ -44,6 +44,8 @@
 <script setup>
 import { computed, ref, watch, onBeforeMount } from 'vue'
 import { ControlledVocabularyTerm } from '@/routes/endpoints'
+import { vHelp } from '@/directives'
+import { en } from '../../help'
 import TablePredicate from './FacetDataAttribute/TablePredicate.vue'
 import TableValue from './FacetDataAttribute/TableValue.vue'
 import AddPredicate from './FacetDataAttribute/AddPredicate.vue'

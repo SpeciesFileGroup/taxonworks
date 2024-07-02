@@ -1,57 +1,54 @@
 <template>
   <CustomAttributes
     v-if="projectPreferences"
-    ref="customAttributes"
+    ref="customAttributeRef"
     :object-id="collectingEvent.id"
-    object-type="CollectingEvent"
-    model="CollectingEvent"
-    :model-preferences="projectPreferences.model_predicate_sets.CollectingEvent"
+    :object-type="COLLECTING_EVENT"
+    :model="COLLECTING_EVENT"
+    :model-preferences="
+      projectPreferences.model_predicate_sets[COLLECTING_EVENT]
+    "
     @on-update="setAttributes"
   />
 </template>
 
-<script>
+<script setup>
 import CustomAttributes from '@/components/custom_attributes/predicates/predicates'
-import extendCE from '../../mixins/extendCE.js'
+import { COLLECTING_EVENT } from '@/constants'
+import { MutationNames } from '../../../../store/mutations/mutations'
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { ActionNames } from '../../../../store/actions/actions.js'
+import { computed, onBeforeUnmount, ref } from 'vue'
+import { useStore } from 'vuex'
 
-export default {
-  mixins: [extendCE],
+const store = useStore()
+const customAttributeRef = ref()
 
-  components: { CustomAttributes },
+const collectingEvent = computed({
+  get: () => store.getters[GetterNames.GetCollectingEvent],
+  set: (value) => store.commit(MutationNames.SetCollectingEvent, value)
+})
 
-  computed: {
-    projectPreferences() {
-      return this.$store.getters[GetterNames.GetProjectPreferences]
+const projectPreferences = computed(
+  () => store.getters[GetterNames.GetProjectPreferences]
+)
+
+const unsubscribe = store.subscribeAction({
+  after: (action) => {
+    if (action.type === ActionNames.SaveCollectingEvent) {
+      customAttributeRef.value.loadDataAttributes()
     }
-  },
-
-  data() {
-    return {
-      unsubscribe: null
-    }
-  },
-
-  created() {
-    this.$store.subscribeAction({
-      after: (action) => {
-        if (action.type === ActionNames.SaveCollectingEvent) {
-          this.$refs.customAttributes.loadDataAttributes()
-        }
-      }
-    })
-  },
-
-  beforeUnmount() {
-    this.unsubscribe()
-  },
-
-  methods: {
-    setAttributes(dataAttributes) {
-      this.collectingEvent.data_attributes_attributes = dataAttributes
-      this.updateChange()
+    if (action.type === ActionNames.ResetStore) {
+      customAttributeRef.value.resetRows()
     }
   }
+})
+
+onBeforeUnmount(() => {
+  unsubscribe()
+})
+
+function setAttributes(dataAttributes) {
+  collectingEvent.value.data_attributes_attributes = dataAttributes
 }
 </script>

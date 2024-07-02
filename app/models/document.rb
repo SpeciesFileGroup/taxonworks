@@ -1,4 +1,4 @@
-# A Document is digital file that has text inhering within it.  Handled formats are pdfs and txt at present.
+# A Document is digital file that has text inhering within it.
 #
 # Documents are to Documentation as Images are to Depictions.
 #
@@ -13,6 +13,10 @@
 # @!attribute document_file_file_size
 #   @return [Integer]
 #     size of the document in K
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
 #
 # @!attribute document_file_updated_at
 #   @return [Timestamp]
@@ -32,6 +36,18 @@
 #            { "1": ["300", "301"]
 #              "2": ["301"]
 #            } ... printed page 301 is on pdf pages 1,2; page 1 contains printed pages 300, and part of 301
+#
+# @!attribute page_total
+#   @return [Integer]
+#   Total number of pages in the document
+#
+# @!attribute document_file_fingerprint
+#   @return [String]
+#   Used to recognize duplicate files; computed by Paperclip
+#
+# @!attribute is_public
+#   @return [Boolean]
+#   True if this document can be publicly shared, otherwise false.
 #
 class Document < ApplicationRecord
   include Housekeeping
@@ -57,8 +73,9 @@ class Document < ApplicationRecord
 
   accepts_nested_attributes_for :documentation, allow_destroy: true, reject_if: :reject_documentation
 
+  # TODO: Remove on ActiveStorage
   before_save :set_pdf_metadata, if: -> {
-    ActiveSupport::Deprecation.silence do
+   Rails.application.deprecators.silence do
       changed_attributes.include?('document_file_file_size') &&
         document_file_content_type =~ /pdf/
     end
@@ -111,6 +128,72 @@ class Document < ApplicationRecord
 
   def pdftotext
     `pdftotext -layout #{document_file.path} -`
+  end
+
+  # @param used_on [String] a documentable base class name like
+  # `Source`, `CollectingEvent`, or `Descriptor`
+  # @return [Scope]
+  #   the max 10 most recently used documents, as `used_on`
+  def self.used_recently(user_id, project_id, used_on)
+    i = arel_table
+    d = Documentation.arel_table
+
+    # i is a select manager
+    j = d.project(
+        d['document_id'],
+        d['updated_at'],
+        d['documentation_object_type']
+      )
+      .from(d)
+      .where(d['updated_at'].gt( 1.week.ago ))
+      .where(d['updated_by_id'].eq(user_id))
+      .where(d['project_id'].eq(project_id))
+      .order(d['updated_at'].desc)
+
+    z = j.as('recent_i')
+
+    k = Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+      z['document_id'].eq(i['id']).and(z['documentation_object_type'].eq(used_on))
+    ))
+
+    joins(k).distinct.limit(10).pluck(:id)
+  end
+
+  # @params target [String], nil or the base class name of an object that
+  # can be documented.
+  # @return [Hash] documents optimized for user selection
+  def self.select_optimized(user_id, project_id, target = nil)
+    r = target ? used_recently(user_id, project_id, target) : []
+    h = {
+      quick: [],
+      pinboard: Document.pinned_by(user_id).where(project_id:).to_a,
+      recent: []
+    }
+
+    if target && !r.empty?
+      h[:recent] = (
+        Document.where('"documents"."id" IN (?)', r.first(5) ).to_a +
+        Document.where(
+          project_id:,
+          created_by_id: user_id,
+          created_at: 3.hours.ago..Time.now
+        )
+        .order('updated_at DESC')
+        .limit(3).to_a
+      ).uniq.sort{|a,b| a.updated_at <=> b.updated_at}
+
+      h[:quick] = (
+        Document.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a +
+        Document.where('"documents"."id" IN (?)', r.first(4) ).to_a)
+        .uniq.sort{|a,b| a.updated_at <=> b.updated_at}
+    else
+      h[:recent] =
+        Document.where(project_id:).order('updated_at DESC').limit(10).to_a
+      h[:quick] = Document.pinned_by(user_id).pinboard_inserted
+        .where(pinboard_items: {project_id:}).order('updated_at DESC').to_a
+    end
+
+    h
   end
 
   protected

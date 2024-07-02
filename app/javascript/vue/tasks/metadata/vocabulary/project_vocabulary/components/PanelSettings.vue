@@ -59,11 +59,11 @@
     </div>
 
     <div>
-      <label class="d-block">Begining with</label>
+      <label class="d-block">Beginning with</label>
       <input
         class="full_width"
         type="text"
-        v-model="parameters.begining_with"
+        v-model="parameters.begins_with"
       />
     </div>
 
@@ -97,6 +97,7 @@
 
 <script setup>
 import { Metadata } from '@/routes/endpoints'
+import { ajaxCall } from '@/helpers'
 import { ref, onBeforeMount, watch } from 'vue'
 import { vBetweenNumbers } from '@/directives'
 
@@ -112,6 +113,7 @@ watch(
   () => parameters.value.model,
   (newVal) => {
     if (newVal) {
+      attributes.value = []
       Metadata.attributes({ model: newVal }).then(({ body }) => {
         attributes.value = body
       })
@@ -123,7 +125,10 @@ watch(
 )
 
 onBeforeMount(() => {
-  Metadata.dataModels().then(({ body }) => {
+  ajaxCall(
+    'get',
+    '/tasks/metadata/vocabulary/project_vocabulary/data_models'
+  ).then(({ body }) => {
     models.value = body
   })
 })

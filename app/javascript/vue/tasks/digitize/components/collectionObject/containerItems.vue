@@ -9,68 +9,62 @@
           :disabled="!collectionObjects.length"
           type="button"
           @click="addToContainer"
-          v-hotkey="shortcuts"
           class="button normal-input button-default"
         >
           Add to container
         </button>
       </div>
     </h2>
-    <table-collection-objects />
+    <TableCollectionObjects />
   </div>
 </template>
 
-<script>
-import TableCollectionObjects from '../collectionObject/tableCollectionObjects'
+<script setup>
 import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
+import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
+import TableCollectionObjects from '../collectionObject/tableCollectionObjects'
+import useHotkey from 'vue3-hotkey'
 import platformKey from '@/helpers/getPlatformKey.js'
 
-export default {
-  components: { TableCollectionObjects },
+const store = useStore()
 
-  computed: {
-    collectionObject() {
-      return this.$store.getters[GetterNames.GetCollectionObject]
-    },
+const collectionObject = computed(
+  () => store.getters[GetterNames.GetCollectionObject]
+)
+const collectionObjects = computed(
+  () => store.getters[GetterNames.GetCollectionObjects]
+)
 
-    collectionObjects() {
-      return this.$store.getters[GetterNames.GetCollectionObjects]
-    },
-
-    shortcuts() {
-      const keys = {}
-
-      keys[`${platformKey()}+p`] = this.addToContainer
-
-      return keys
-    }
-  },
-
-  methods: {
-    newDigitalization() {
-      this.$store.dispatch(ActionNames.NewCollectionObject)
-      this.$store.dispatch(ActionNames.NewIdentifier)
-      this.$store.dispatch(ActionNames.ResetTaxonDetermination)
-    },
-
-    addToContainer() {
-      if (!this.collectionObjects.length) return
-      this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-        this.$store
-          .dispatch(ActionNames.AddToContainer, this.collectionObject)
-          .then(() => {
-            this.newDigitalization()
-            this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-              this.$store.dispatch(
-                ActionNames.AddToContainer,
-                this.collectionObject
-              )
-            })
-          })
-      })
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 'p'],
+    handler() {
+      addToContainer()
     }
   }
+])
+
+useHotkey(shortcuts.value)
+
+function newDigitalization() {
+  store.dispatch(ActionNames.NewCollectionObject)
+  store.dispatch(ActionNames.NewIdentifier)
+  store.dispatch(ActionNames.ResetTaxonDetermination)
+}
+
+function addToContainer() {
+  if (!collectionObjects.value.length) return
+  store.dispatch(ActionNames.SaveDigitalization).then(() => {
+    store
+      .dispatch(ActionNames.AddToContainer, collectionObject.value)
+      .then(() => {
+        newDigitalization()
+        store.dispatch(ActionNames.SaveDigitalization).then(() => {
+          store.dispatch(ActionNames.AddToContainer, collectionObject.value)
+        })
+      })
+  })
 }
 </script>

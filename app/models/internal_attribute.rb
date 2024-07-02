@@ -8,23 +8,29 @@
 #   The the id of the ControlledVocabularyTerm::Predicate.  Term is referenced as #predicate.
 #
 class InternalAttribute < DataAttribute
+
+  include Shared::DwcOccurrenceHooks
+
   validates_presence_of :predicate
   validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type, :controlled_vocabulary_term_id, :project_id]
 
-  after_save :update_dwc_occurrences
-
-  # TODO: wrap in generic (reindex_dwc_occurrences method for use in InternalAttribute and elsewhere)
-  # TODO: perhaps a Job
-  def update_dwc_occurrences
-    if DWC_ATTRIBUTE_URIS.values.flatten.include?(predicate.uri)
-
-      if attribute_subject.respond_to?(:set_dwc_occurrence)
-        attribute_subject.set_dwc_occurrence
+  def dwc_occurrences
+    if DWC_ATTRIBUTE_URIS.values.flatten.include?(predicate&.uri)
+      # TODO: probably use some generic interface here
+      case attribute_subject_type
+      when 'CollectingEvent'
+        ::Queries::DwcOccurrence::Filter.new(
+          collecting_event_query: {
+            id: attribute_subject_id
+          }
+        ).all
+      when 'CollectionObject'
+        ::DwcOccurrence.where(id: attribute_subject.dwc_occurrence.id)
+      else
+        ::DwcOccurrence.none
       end
-
-      if attribute_subject.respond_to?(:update_dwc_occurrences)
-        attribute_subject.update_dwc_occurrences
-      end
+    else
+      ::DwcOccurrence.none
     end
   end
 
@@ -37,7 +43,6 @@ class InternalAttribute < DataAttribute
       controlled_vocabulary_term_id:,
       value: value_from,
     )
-
 
     b.all.update_all(value: value_to)
   end
@@ -55,32 +60,50 @@ class InternalAttribute < DataAttribute
         controlled_vocabulary_term_id:
       })
 
-    s = 'WITH query_with_ia AS (' + a.to_sql + ') ' +
-      attribute_scope.referenced_klass
-      .joins("LEFT JOIN query_with_ia as query_with_ia1 ON query_with_ia1.id = #{attribute_scope.table.name}.id")
-      .where("query_with_ia1.id is null")
-      .to_sql
+    # If the join is empty, we need to add to all
+    if a.size == 0
+      b = attribute_scope.all
+    else
+      s = 'WITH query_with_ia AS (' + a.to_sql + ') ' +
+        attribute_scope.referenced_klass
+        .joins("LEFT JOIN query_with_ia as query_with_ia1 ON query_with_ia1.id = #{attribute_scope.table.name}.id")
+        .where("query_with_ia1.id is null")
+        .to_sql
 
-    b = attribute_scope.referenced_klass.from('(' + s + ") as #{attribute_scope.table.name}").distinct
+      b = attribute_scope.referenced_klass.from('(' + s + ") as #{attribute_scope.table.name}").distinct
+    end
 
+    # stop-gap, we shouldn't hit this
+    return false if b.size > 1000
 
     InternalAttribute.transaction do
       b.each do |o|
-        ::InternalAttribute.create!(
-          controlled_vocabulary_term_id:,
-          value: value_to,
-          attribute_subject: o)
+        begin
+          ::InternalAttribute.create!(
+            controlled_vocabulary_term_id:,
+            value: value_to,
+            attribute_subject: o)
+        rescue ActiveRecord::RecordInvalid => e
+          # TODO: check necessity of this
+          # This should not be necessary, but proceed
+        end
       end
     end
-
   end
 
   # <some_object>_query={}&value_from=123&value_to=456&predicate_id=890
-
   def self.batch_update_or_create(params)
     a = Queries::Query::Filter.base_filter(params)
 
-    b = a.new(params)
+    q = params.keys.select{|z| z =~ /_query/}.first
+
+    return false if q.nil?
+
+    b = a.new(params[q])
+
+    s = b.all.count
+
+    return false if b.params.empty? || s > 1000 || s == 0
 
     transaction do
       update_value(b, params[:predicate_id], params[:value_from], params[:value_to])

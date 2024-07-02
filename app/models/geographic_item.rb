@@ -204,7 +204,7 @@ class GeographicItem < ApplicationRecord
         return nil unless [:latitude, :longitude].include?(choice)
         f = "'D.DDDDDD'" # TODO: probably a constant somewhere
         v = (choice == :latitude ? 1 : 2)
-        "CASE type
+        "CASE geographic_items.type
       WHEN 'GeographicItem::GeometryCollection' THEN split_part(ST_AsLatLonText(ST_Centroid" \
       "(geometry_collection::geometry), #{f}), ' ', #{v})
       WHEN 'GeographicItem::LineString' THEN split_part(ST_AsLatLonText(ST_Centroid(line_string::geometry), " \
@@ -1129,7 +1129,14 @@ class GeographicItem < ApplicationRecord
     def shape=(value)
 
       if value.present?
-        geom = RGeo::GeoJSON.decode(value, json_parser: :json, geo_factory: Gis::FACTORY)
+
+        begin
+          geom = RGeo::GeoJSON.decode(value, json_parser: :json, geo_factory: Gis::FACTORY)
+        rescue RGeo::Error::InvalidGeometry => e
+          errors.add(:base, "invalid geometry: #{e.to_s}")
+          return
+        end
+
         this_type = nil
 
         if geom.respond_to?(:geometry_type)
@@ -1145,7 +1152,6 @@ class GeographicItem < ApplicationRecord
           errors.add(:base, 'type is not set from shape')
           return
         end
-        # raise('GeographicItem.type not set.') if type.blank?
 
         object = nil
 

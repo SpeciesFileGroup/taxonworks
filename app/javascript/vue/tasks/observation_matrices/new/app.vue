@@ -34,9 +34,9 @@
             </a>
           </li>
           <li>
-            <a href="/tasks/accessions/comprehensive/index"
-              >New collection object</a
-            >
+            <a href="/tasks/accessions/comprehensive/"
+              >New collection object
+            </a>
           </li>
           <li v-if="matrix.id && settings.sortable">
             <button

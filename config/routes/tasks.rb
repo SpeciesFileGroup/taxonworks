@@ -1,5 +1,27 @@
 scope :tasks do
+  scope :dwc_occurrences do
+    scope :filter, controller: 'tasks/dwc_occurrences/filter' do
+      get '/', action: :index, as: 'filter_dwc_occurrences_task'
+    end
+
+    scope :status, controller: 'tasks/dwc_occurrences/status' do
+      get '/', action: :index
+      post '/', action: :index
+    end
+  end
+
+  scope :data_attributes do
+    scope :field_synchronize, controller: 'tasks/data_attributes/field_synchronize' do
+      get '/', action: :index, as: 'field_synchronize_task'
+      get :values, defaults: {format: :json}
+    end
+  end
+
   scope :leads do
+    scope :hub, controller: 'tasks/leads/hub' do
+      get '/', action: :index, as: 'leads_hub_task'
+    end
+
     scope :show, controller: 'tasks/leads/show' do
       get '/', action: :index, as: 'show_lead_task'
     end
@@ -13,6 +35,7 @@ scope :tasks do
     scope :vocabulary do
       scope :project_vocabulary, controller: 'tasks/metadata/vocabulary/project_vocabulary' do
         get '/', action: :index, as: 'project_vocabulary_task'
+        get :data_models, defaults: {format: :json}
       end
     end
   end
@@ -191,7 +214,7 @@ scope :tasks do
     end
 
     scope :new_image, controller: 'tasks/images/new_image' do
-      get :index, as: 'index_new_image_task'
+      get :index, as: 'new_image_task'
     end
   end
 
@@ -274,6 +297,10 @@ scope :tasks do
   end
 
   scope :collecting_events do
+    scope :spatial_summary, controller: 'tasks/collecting_events/spatial_summary' do
+      match '/', action: :index, via: [:get, :post], as: 'collecting_events_spatial_summary_task'
+    end
+
     scope :new_collecting_event, controller: 'tasks/collecting_events/new_collecting_event' do
       get '/', action: :index, as: 'new_collecting_event_task'
     end
@@ -283,7 +310,7 @@ scope :tasks do
     end
 
     scope :filter, controller: 'tasks/collecting_events/filter' do
-      get '/', action: :index, as: 'filter_collecting_events_task'
+      match '/', action: :index, via: [:get, :post], as: 'filter_collecting_events_task'
     end
 
     scope :parse do
@@ -553,6 +580,10 @@ scope :tasks do
   end
 
   scope :observation_matrices do
+    scope :import_nexus, controller: 'tasks/observation_matrices/import_nexus' do
+      get '/', action: :index, as: 'import_nexus_task'
+    end
+
     scope :matrix_column_coder, controller: 'tasks/observation_matrices/matrix_column_coder' do
       get :index, as: 'index_matrix_column_coder_task'
     end

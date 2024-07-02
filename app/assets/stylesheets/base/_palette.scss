@@ -8,32 +8,32 @@
 /* Palette URL: http://paletton.com/#uid=7000B0k2DzD00+90NMH5tsI9rot */
 
 // red
-$color-primary-0: #FFEAEA; /* Main Primary color */
-$color-primary-1: #FFFFFF;
-$color-primary-2: #FFF9F9;
-$color-primary-3: #E5BEBE;
-$color-primary-4: #C38A8A;
+$color-primary-0: #ffeaea; /* Main Primary color */
+$color-primary-1: #ffffff;
+$color-primary-2: #fff9f9;
+$color-primary-3: #e5bebe;
+$color-primary-4: #c38a8a;
 
 // yellow/brown (see)
-$color-secondary-1-0: #FFF5EA; /* Main Secondary color (1) */
-$color-secondary-1-1: #FFFFFF;
-$color-secondary-1-2: #FFFCF9;
-$color-secondary-1-3: #E5D2BE;
-$color-secondary-1-4: #C3A78A;
+$color-secondary-1-0: #fff5ea; /* Main Secondary color (1) */
+$color-secondary-1-1: #ffffff;
+$color-secondary-1-2: #fffcf9;
+$color-secondary-1-3: #e5d2be;
+$color-secondary-1-4: #c3a78a;
 
 // blue-gray (go)
-$color-secondary-2-0: #9DA7AB; /* Main Secondary color (2) */
-$color-secondary-2-1: #FCFCFC;
-$color-secondary-2-2: #D0D3D5;
+$color-secondary-2-0: #9da7ab; /* Main Secondary color (2) */
+$color-secondary-2-1: #fcfcfc;
+$color-secondary-2-2: #d0d3d5;
 $color-secondary-2-3: #788990;
-$color-secondary-2-4: #5D9ECE; // !! This is obviously modified to be more blue, original value is different // 
+$color-secondary-2-4: #5d9ece; // !! This is obviously modified to be more blue, original value is different //
 
 // gray-green (do)
-$color-complement-0: #C1D2C1; /* Main Complement color */
-$color-complement-1: #FEFEFE;
-$color-complement-2: #E3E8E3;
-$color-complement-3: #98B798;
-$color-complement-4: #6E9C6E;
+$color-complement-0: #c1d2c1; /* Main Complement color */
+$color-complement-1: #fefefe;
+$color-complement-2: #e3e8e3;
+$color-complement-3: #98b798;
+$color-complement-4: #6e9c6e;
 
 /* CSS - Cascading Style Sheet */
 /* Palette color codes */
@@ -43,33 +43,32 @@ $color-complement-4: #6E9C6E;
 
 // blues - label is temporary prior to union
 // color is an experiment, is not part of the generation above
-$color-blue-0: #B0CAFF;	/* Main Primary color */
-$color-blue-1: #FFFFFF;
-$color-blue-2: #FFFFFF;
-$color-blue-3: #6899FA;
-$color-blue-4: #4C81EB;
+$color-blue-0: #b0caff; /* Main Primary color */
+$color-blue-1: #ffffff;
+$color-blue-2: #ffffff;
+$color-blue-3: #6899fa;
+$color-blue-4: #4c81eb;
 
+//
 
-// 
-
-// TODO: deprecate, remove 
+// TODO: deprecate, remove
 // help
-$color-help-bubbles: #FFA000;
-$color-help-button: #FF8F00;
+$color-help-bubbles: #ffa000;
+$color-help-button: #ff8f00;
 $color-help-description: #444;
-$color-help-text: #F5F5F5;
+$color-help-text: #f5f5f5;
 
 // TODO - deprecate, remove
 
-$color-button-default: #F5F5F5;
+$color-button-default: #f5f5f5;
 $color-create-button: #9ccc65;
 $color-action-button: #9ccc65;
 $color-request-button: $color-secondary-2-4;
-$color-button-disabled: #e5e5e5;
-$color-remove-button: #F44336;
+$color-button-disabled: #ececec;
+$color-remove-button: #f44336;
 
 // TODO - deprecate
-// aliases 
+// aliases
 $muted_blue: $color-secondary-2-0;
 $muted_red: $color-secondary-1-3;
 $background_gray: $color-secondary-2-1;
@@ -87,7 +86,7 @@ $viewpoert_background: $background_gray;
 $hub_background: #fafafa;
 $navigation_focus_color: $color-secondary-2-0;
 $navigation_focus_background: $color-secondary-2-4;
-$panel_background: #FFF;
+$panel_background: #fff;
 $focus_link_color: #000;
 $color-data: #006ebf;
 
@@ -100,7 +99,7 @@ $soft_validation: #ff8c00;
 $color-header: #455a64;
 
 .muted_red {
-  background-color: $muted_red
+  background-color: $muted_red;
 }
 
 .muted_blue {
@@ -145,4 +144,3 @@ $color-header: #455a64;
 .red {
   color: red;
 }
-

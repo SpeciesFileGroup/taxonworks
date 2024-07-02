@@ -19,7 +19,7 @@ module DwcOccurrencesHelper
 
     r = []
     dwc_occurrence.dwc_occurrence_object.dwc_occurrence_attributes(false).each do |k, v|
-#    CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.each do |k|
+      #    CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.each do |k|
       next if [:footprintWKT].include?(k)
       if !v.blank?
         r.push tag.tr( (tag.td(k) + tag.td(v)).html_safe )
@@ -87,9 +87,10 @@ module DwcOccurrencesHelper
 
     a = ::Person
       .left_joins(:identifiers)
-      .joins(:dwc_occurrences)
+      .joins(collecting_events: [:collection_objects])
+      .joins("JOIN dwc_occurrences dwo on dwo.dwc_occurrence_object_id = collection_objects.id AND dwo.dwc_occurrence_object_type = 'CollectionObject'")
+      .where(dwo: {project_id: project_id})
       .order(:cached)
-      .merge(records)
 
     with_global_id = a.where("identifiers.type ILIKE 'Identifier::Global%'").distinct.pluck(:id, :cached)
     without_global_id =  a.where("(identifiers.id is null) OR identifiers.type not ILIKE 'Identifier::Global%'").distinct.pluck(:id, :cached)
@@ -98,6 +99,21 @@ module DwcOccurrencesHelper
       without_global_id: without_global_id,
       with_global_id: with_global_id
     }
+  end
+
+  # @return String html table or empty
+  def is_stale_metadata_tag(dwc_occurrence)
+    d = dwc_occurrence.is_stale_metadata
+    u = dwc_occurrence.updated_at
+    return '' if d.empty?
+
+    tag.table(
+      d.collect{|k,v|
+        tag.tr(
+          ( tag.td(k.to_s.humanize) + tag.td( (u < v) ? tag.span(v, class: [:feedback, 'feedback-thin', 'feedback-danger']) : distance_of_time_in_words(u, v) ) ).html_safe
+        )
+      }.join.html_safe
+    )
   end
 
 

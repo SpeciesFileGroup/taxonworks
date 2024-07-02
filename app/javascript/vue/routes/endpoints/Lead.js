@@ -73,5 +73,9 @@ export const Lead = {
 
   delete_couplet: (id) => AjaxCall(
     'post', `/${controller}/${id}/delete_couplet.json`
+  ),
+
+  otus: (id) => AjaxCall(
+    'get', `/${controller}/${id}/otus.json`
   )
 }

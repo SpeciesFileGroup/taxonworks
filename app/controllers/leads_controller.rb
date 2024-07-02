@@ -2,29 +2,35 @@ class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   before_action :set_lead, only: %i[
     edit create_for_edit update destroy show show_all show_all_print all_texts
-    destroy_couplet insert_couplet delete_couplet duplicate update_meta ]
+    destroy_couplet insert_couplet delete_couplet duplicate update_meta otus]
 
   # GET /leads
   # GET /leads.json
   def index
     respond_to do |format|
       format.html {
-        @recent_objects = Lead.recent_from_project_id(sessions_current_project_id).where('parent_id is null').order(updated_at: :desc).limit(10)
+        one_week_ago = Time.now.utc.to_date - 7
+        @recent_objects = Lead
+          .roots_with_data(sessions_current_project_id)
+          .where('key_updated_at > ?', one_week_ago)
+          .reorder(key_updated_at: :desc)
+          .limit(10)
+
         render '/shared/data/all/index'
       }
       format.json {
-        @leads = Lead.with_project_id(sessions_current_project_id)
-          .where('parent_id is null')
-          .order(:text)
-          .page(params[:page])
-          .per(params[:per])
+        if params[:load_root_otus]
+          @leads = Lead.roots_with_data(sessions_current_project_id, true)
+        else
+          @leads = Lead.roots_with_data(sessions_current_project_id)
+        end
       }
     end
   end
 
   def list
-    @leads = Lead.with_project_id(sessions_current_project_id)
-      .where('parent_id is null').order(:id).page(params[:page])
+    @leads = Lead.
+      roots_with_data(sessions_current_project_id).page(params[:page])
   end
 
   # GET /leads/1/all_texts.json
@@ -217,10 +223,21 @@ class LeadsController < ApplicationController
   def update_meta
     respond_to do |format|
       if @lead.update(lead_params)
-        format.json { head :no_content }
+        format.json {}
       else
         format.json { render json: @lead.errors, status: :unprocessable_entity}
       end
+    end
+  end
+
+  # GET /leads/1/otus.json
+  def otus
+    leads_list = @lead.self_and_descendants.where.not(otu_id: nil).includes(:otu)
+
+    @otus = leads_list.to_a.map{|l| l.otu}.uniq(&:id)
+
+    respond_to do |format|
+      format.json {}
     end
   end
 
@@ -238,6 +255,15 @@ class LeadsController < ApplicationController
     else
       redirect_to lead_path(params[:id])
     end
+  end
+
+  # GET /leads/download
+  def download
+    send_data Export::CSV.generate_csv(
+        Lead.where(project_id: sessions_current_project_id)
+      ),
+      type: 'text',
+      filename: "leads_#{DateTime.now}.tsv"
   end
 
   private

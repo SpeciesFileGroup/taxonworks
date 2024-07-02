@@ -15,10 +15,10 @@ module Queries
           autocomplete_exact_alternate_value('name', 'AlternateValue::Translation'),
           autocomplete_exact_alternate_value('name', 'AlternateValue::Abbreviation'),
 
-          autocomplete_begining_name,
-          #autocomplete_begining_alternate_value,
-          autocomplete_begining_alternate_value('name', 'AlternateValue::Translation'),
-          autocomplete_begining_alternate_value('name', 'AlternateValue::Abbreviation'),
+          autocomplete_beginning_name,
+          #autocomplete_beginning_alternate_value,
+          autocomplete_beginning_alternate_value('name', 'AlternateValue::Translation'),
+          autocomplete_beginning_alternate_value('name', 'AlternateValue::Abbreviation'),
 
           autocomplete_ordered_wildcard_pieces_in_name,
           #autocomplete_ordered_wildcard_alternate_value,
@@ -65,8 +65,8 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
-      #    match begining of name
-      def autocomplete_begining_name
+      #    match beginning of name
+      def autocomplete_beginning_name
         a = table[:name].matches(query_string + '%')
         base_query.where(a.to_sql).limit(20)
       end
@@ -95,7 +95,7 @@ module Queries
         ).limit(20)
       end
 
-      def autocomplete_begining_alternate_value(attribute = 'name', type = 'AlternateValue')
+      def autocomplete_beginning_alternate_value(attribute = 'name', type = 'AlternateValue')
         ::Serial.joins(:alternate_values).where(
           alternate_value_table[:type].eq(type).and(
           alternate_value_table[:alternate_value_object_attribute].eq(attribute).

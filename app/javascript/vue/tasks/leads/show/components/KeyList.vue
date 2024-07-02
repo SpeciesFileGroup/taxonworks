@@ -36,8 +36,8 @@
           </td>
           <td>{{ key.couplet_count }}</td>
           <td>{{ key.is_public? 'True' : 'False' }}</td>
-          <td>{{ key.updated_at }}</td>
-          <td>{{ key.updated_by }}</td>
+          <td>{{ key.key_updated_at_in_words }}</td>
+          <td>{{ key.key_updated_by }}</td>
           <td>
             <div class="horizontal-right-content gap-small">
               <RadialNavigator :global-id="key.global_id" />
@@ -63,7 +63,7 @@
 
 <script setup>
 import { Lead } from '@/routes/endpoints'
-import { defineEmits, onBeforeMount, ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -74,7 +74,7 @@ const keys = ref([])
 const loading = ref(true)
 
 onBeforeMount(() => {
-  Lead.where({ extend: ['otu', 'couplet_count', 'updater'] })
+  Lead.where()
     .then(({ body }) => {
       keys.value = body
     })

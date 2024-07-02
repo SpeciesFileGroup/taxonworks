@@ -6,7 +6,7 @@
         placeholder="Identifier"
         type="text"
         v-model="identifier"
-      >
+      />
     </div>
     <button
       type="button"
@@ -24,7 +24,7 @@ import { ref } from 'vue'
 
 defineProps({
   type: {
-    type: String,
+    type: [String, null],
     required: true
   }
 })

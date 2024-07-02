@@ -39,15 +39,15 @@ module Queries
     # !! model is not referencened in this constant.
     #
     SUBQUERIES = {
-      asserted_distribution: [:source, :otu, :biological_association, :taxon_name],
+      asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence],
       biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name, :asserted_distribution], # :field_occurrence
       biological_associations_graph: [:biological_association, :source],
-      collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name],
-      collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
+      collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence],
+      collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence],
       content: [:source, :otu, :taxon_name, :image],
       controlled_vocabulary_term: [:data_attribute],
       data_attribute: [:collection_object, :collecting_event, :taxon_name, :otu],
-      dwc_occurrence: [:asserted_distribution, :collection_object],
+      dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
       field_occurrence: [], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
@@ -60,13 +60,13 @@ module Queries
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source ]
     }.freeze
 
-   def self.query_name
-     base_name + '_query'
-   end
+    def self.query_name
+      base_name + '_query'
+    end
 
-   def query_name
-     self.class.query_name
-   end
+    def query_name
+      self.class.query_name
+    end
 
     # @return [Hash]
     #  only referenced in specs
@@ -97,6 +97,7 @@ module Queries
       controlled_vocabulary_term_query: '::Queries::ControlledVocabularyTerm::Filter',
       data_attribute_query: '::Queries::DataAttribute::Filter',
       descriptor_query: '::Queries::Descriptor::Filter',
+      document_query: '::Queries::Document::Filter',
       dwc_occurrence_query: '::Queries::DwcOccurrence::Filter',
       extract_query: '::Queries::Extract::Filter',
       field_occurrence_query: '::Queries::FieldOccurrence::Filter',
@@ -169,6 +170,12 @@ module Queries
     # @return [Query::Descriptor::Filter, nil]
     attr_accessor :descriptor_query
 
+    # @return [Query::Document::Filter, nil]
+    attr_accessor :document_query
+
+    # @return [Query::DwcOccurrence::Filter, nil]
+    attr_accessor :dwc_occurrence_query
+
     # @return [Query::TaxonName::Filter, nil]
     attr_accessor :field_occurrence_query
 
@@ -198,8 +205,34 @@ module Queries
     attr_accessor :recent
 
     # @return Boolean
-    #   When true api_except_params is applied
+    #   When true api_except_params is applied and
+    #   other restrictions are placed:
+    #     - :venn param is ignored
     attr_accessor :api
+
+    # @return String
+    #   A JSON full URL containing the base string for a query
+    attr_accessor :venn
+
+    # @return Symbol one of :a, :ab, :b
+    #  defaults to :ab
+    #    :a :ab  :b
+    #  ( A ( B ) C )
+    attr_accessor :venn_mode
+
+    def venn_mode
+      v = @venn_mode.to_s.downcase.to_sym
+      v  = :ab if v.blank?
+      if [:a, :ab, :b].include?(v)
+        v
+      else
+        nil
+      end
+    end
+
+    def process_url_into_params(url)
+      Rack::Utils.parse_nested_query(url)
+    end
 
     # @return Hash
     #  the parsed/permitted params
@@ -215,6 +248,9 @@ module Queries
       @api = boolean_param(query_params, :api)
       @recent = boolean_param(query_params, :recent)
       @object_global_id = query_params[:object_global_id]
+
+      @venn = query_params[:venn]
+      @venn_mode = query_params[:venn_mode]
 
       # !! This is the *only* place Current.project_id should be seen !! It's still not the best
       # way to implement this, but we use it to optimize the scope of sub/nested-queries efficiently.
@@ -255,18 +291,31 @@ module Queries
     # @return [Filter, nil]
     #    the class of filter that is referenced at the base of this parameter set
     def self.base_filter(params)
-      s = params.keys.select{|s| s =~ /\A.+_query\z/}.first
+      if s = base_query_name(params)
+        t = s.gsub('_query', '').to_sym
 
-      return nil if s.nil?
-
-      t = s.gsub('_query', '').to_sym
-
-      if SUBQUERIES.include?(t)
-        k = t.to_s.camelcase
-        return "Queries::#{k}::Filter".constantize
+        if SUBQUERIES.include?(t)
+          k = t.to_s.camelcase
+          return "Queries::#{k}::Filter".constantize
+        else
+          return nil
+        end
       else
-        return nil
+        nil
       end
+    end
+
+    # An instiatied filter, with params set, for params with patterns like `otu_query={}`
+    def self.instatiated_base_filter(params)
+      if s = base_filter(params)
+        s.new(params[base_query_name(params)])
+      else
+        nil
+      end
+    end
+
+    def self.base_query_name(params)
+      params.keys.select{|s| s =~ /\A.+_query\z/}.first
     end
 
     def self.included_annotator_facets
@@ -304,7 +353,7 @@ module Queries
     # Any params set here, and in corresponding subclasses will not
     # be permitted when api: true is present
     def self.api_except_params
-      []
+      [:venn, :venn_mode]
     end
 
     # @return Array, nil
@@ -601,6 +650,19 @@ module Queries
       referenced_klass_intersection(clauses)
     end
 
+    def apply_venn(query)
+      Queries.venn(query, venn_query.all, venn_mode)
+    end
+
+    def venn_query
+      u = ::Addressable::URI.parse(venn)
+      p = ::Rack::Utils.parse_query(u.query)
+
+      a = ActionController::Parameters.new(p)
+
+      self.class.new(a)
+    end
+
     # @param nil_empty [Boolean]
     #   If true then if there are no clauses return nil not .all
     # @return [ActiveRecord::Relation]
@@ -626,6 +688,10 @@ module Queries
         q = b
       else
         q = referenced_klass.all
+      end
+
+      if venn && !api
+        q = apply_venn(q)
       end
 
       if recent

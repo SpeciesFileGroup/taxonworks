@@ -4,9 +4,9 @@
     <fieldset>
       <legend>Namespace</legend>
       <div
-        class="horizontal-left-content align-start separate-bottom full_width"
+        class="horizontal-left-content align-start separate-bottom full_width gap-small"
       >
-        <smart-selector
+        <SmartSelector
           class="full_width"
           ref="smartSelector"
           model="namespaces"
@@ -16,11 +16,7 @@
           pin-type="Namespace"
           @selected="setNamespace"
         />
-        <a
-          class="margin-small-top margin-small-left"
-          href="/namespaces/new"
-          >New</a
-        >
+        <WidgetNamespace @create="setNamespace" />
       </div>
       <template v-if="identifier.namespace">
         <div class="middle separate-top">
@@ -59,58 +55,27 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 
-export default {
-  components: { SmartSelector },
-
-  props: {
-    count: {
-      type: Number,
-      default: 0
-    },
-
-    modelValue: {
-      type: Object,
-      required: true
-    }
-  },
-
-  emits: ['update:modelValue'],
-
-  computed: {
-    end() {
-      return this.identifier.start + this.count - 1
-    },
-
-    identifier: {
-      get() {
-        return this.modelValue
-      },
-      set(value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
-  },
-
-  data() {
-    return {
-      start: null
-    }
-  },
-
-  methods: {
-    setNamespace(namespace) {
-      this.identifier.namespace = namespace
-      this.namespace = namespace
-    },
-
-    unset() {
-      this.identifier.namespace = undefined
-      this.namespace = undefined
-    }
+const props = defineProps({
+  count: {
+    type: Number,
+    default: 0
   }
+})
+
+const identifier = defineModel({ type: Object, required: true })
+const end = computed(() =>
+  Number.isInteger(identifier.value.start)
+    ? identifier.value.start + props.count
+    : ''
+)
+
+function setNamespace(namespace) {
+  identifier.value.namespace = namespace
 }
 </script>
 

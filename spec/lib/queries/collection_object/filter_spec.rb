@@ -5,6 +5,19 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
+  specify 'dwc_occurrence_query_facet' do
+    Specimen.create!
+    Specimen.create!
+    s3 = Specimen.create!
+
+    Delayed::Worker.new.work_off
+    o = DwcOccurrence.order(id: :DESC).limit(1)
+
+    query.dwc_occurrence_query = o
+    expect(query.all).to contain_exactly(s3)
+  end
+
+
   context 'housekeeping_extensions' do
     let!(:s) { Specimen.create!(updated_at: old_date, created_at: old_date) }
     let(:old_date) { 2.weeks.ago }
@@ -112,7 +125,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     p = ActionController::Parameters.new(h)
 
     q = Queries::CollectionObject::Filter.new(p)
-    expect(q.all.first).to eq(Specimen.second)
+    expect(q.all.unscope(:order).order(:id).first).to eq(Specimen.second)
   end
 
   specify 'CollectingEvent params are permitted' do

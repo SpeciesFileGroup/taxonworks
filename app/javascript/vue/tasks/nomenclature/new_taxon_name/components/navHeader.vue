@@ -1,30 +1,30 @@
 <template>
-  <nav-bar navbar-class="panel content relative">
+  <NavBar navbar-class="panel content relative">
     <div class="flex-separate">
       <ul class="no_bullets context-menu">
         <template
-          v-for="(link, key, index) in menu"
-          :key="key"
+          v-for="({ title, isAvailableFor }, index) in SectionComponents"
+          :key="title"
         >
           <li
             class="navigation-item context-menu-option"
-            v-if="link"
+            v-if="isAvailableFor(taxon)"
           >
             <a
               data-turbolinks="false"
               :class="{ active: activePosition == index }"
-              :href="'#' + key.toLowerCase().replace(' ', '-')"
+              :href="'#' + title.toLowerCase().replace(' ', '-')"
               @click="activePosition = index"
-              >{{ key }}
+              >{{ title }}
             </a>
           </li>
         </template>
       </ul>
       <div class="horizontal-center-content margin-medium-left">
-        <save-taxon-name
+        <SaveTaxonName
           class="normal-input button button-submit separate-right"
         />
-        <clone-taxon-name
+        <CloneTaxonName
           v-help.section.navbar.clone
           class="separate-right"
         />
@@ -44,7 +44,7 @@
           v-help.section.navbar.childIcon
           class="button normal-input button-default btn-create-sister button-new-icon margin-small-right"
         />
-        <create-new-button />
+        <CreateNewButton />
       </div>
     </div>
     <autosave
@@ -52,79 +52,49 @@
       class="position-absolute full_width"
       :disabled="!taxon.id || !isAutosaveActive"
     />
-  </nav-bar>
+  </NavBar>
 </template>
-<script>
+<script setup>
 import SaveTaxonName from './saveTaxonName.vue'
 import CreateNewButton from './createNewButton.vue'
 import CloneTaxonName from './cloneTaxon'
 import NavBar from '@/components/layout/NavBar'
 import Autosave from './autosave'
+import { SectionComponents } from '../const/components'
 import { GetterNames } from '../store/getters/getters'
 import { RouteNames } from '@/routes/routes'
+import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
 
-export default {
-  components: {
-    SaveTaxonName,
-    CreateNewButton,
-    CloneTaxonName,
-    NavBar,
-    Autosave
-  },
+const store = useStore()
+const unsavedChanges = computed(() => {
+  return (
+    store.getters[GetterNames.GetLastChange] >
+    store.getters[GetterNames.GetLastSave]
+  )
+})
 
-  props: {
-    menu: {
-      type: Object,
-      required: true
-    }
-  },
+const taxon = computed(() => store.getters[GetterNames.GetTaxon])
+const parent = computed(() => store.getters[GetterNames.GetParent])
 
-  computed: {
-    unsavedChanges() {
-      return (
-        this.$store.getters[GetterNames.GetLastChange] >
-        this.$store.getters[GetterNames.GetLastSave]
+const isAutosaveActive = computed(() => store.getters[GetterNames.GetAutosave])
+const parentId = computed(() => parent.value?.id)
+
+const activePosition = ref(0)
+
+function createNew(id) {
+  const url = `${RouteNames.NewTaxonName}?parent_id=${id}`
+
+  if (unsavedChanges.value) {
+    if (
+      window.confirm(
+        'You have unsaved changes. Are you sure you want to create a new taxon name? All unsaved changes will be lost.'
       )
-    },
-
-    taxon() {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
-
-    parent() {
-      return this.$store.getters[GetterNames.GetParent]
-    },
-
-    isAutosaveActive() {
-      return this.$store.getters[GetterNames.GetAutosave]
-    },
-
-    parentId() {
-      return this.parent?.id
+    ) {
+      window.open(url, '_self')
     }
-  },
-
-  data() {
-    return {
-      activePosition: 0
-    }
-  },
-
-  methods: {
-    createNew(id) {
-      this.url = `${RouteNames.NewTaxonName}?parent_id=${id}`
-      if (this.unsavedChanges) {
-        if (
-          window.confirm(
-            'You have unsaved changes. Are you sure you want to create a new taxon name? All unsaved changes will be lost.'
-          )
-        ) {
-          window.open(this.url, '_self')
-        }
-      } else {
-        window.open(this.url, '_self')
-      }
-    }
+  } else {
+    window.open(url, '_self')
   }
 }
 </script>

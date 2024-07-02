@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { Georeference } from '@/routes/endpoints'
-import { addToArray, removeFromArray } from '@/helpers'
+import { addToArray, removeFromArray, randomUUID } from '@/helpers'
 
 export default defineStore('georeferences', {
   state: () => ({
@@ -20,7 +20,7 @@ export default defineStore('georeferences', {
 
         this.georeferences = body.map((item) => ({
           ...item,
-          uuid: crypto.randomUUID(),
+          uuid: randomUUID(),
           isUnsaved: false
         }))
 
@@ -33,7 +33,7 @@ export default defineStore('georeferences', {
         Georeference.destroy(georeference.id)
       }
 
-      removeFromArray(this.georeferences, georeference, 'uuid')
+      removeFromArray(this.georeferences, georeference, { property: 'uuid' })
     },
 
     async processGeoreferenceQueue(ceId) {

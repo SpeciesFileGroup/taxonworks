@@ -61,6 +61,7 @@ class Person < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::IsData
   include Shared::OriginRelationship
+  include Shared::DwcOccurrenceHooks
 
   ALTERNATE_VALUES_FOR = [:last_name, :first_name].freeze
   IGNORE_SIMILAR = [:type, :cached].freeze
@@ -122,7 +123,9 @@ class Person < ApplicationRecord
   has_many :sources, through: :roles, source: :role_object, source_type: 'Source' # Editor or Author or Person
 
   has_many :collection_objects, through: :collecting_events
-  has_many :dwc_occurrences, through: :collection_objects
+
+  # Deprecated
+  # has_many :dwc_occurrences, through: :collection_objects # TODO: There are technically many more, expand
 
   scope :created_before, -> (time) { where('created_at < ?', time) }
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
@@ -433,13 +436,16 @@ class Person < ApplicationRecord
     collector_roles.any?
   end
 
-
   def role_counts(project_id)
     {
       in_project: self.roles.where(project_id:).group(:type).count,
       not_in_project: self.roles.where.not(project_id:).where.not(project_id: nil).group(:type).count,
       community: self.roles.where(project_id: nil).group(:type).count
     }
+  end
+
+  def dwc_occurrences
+    ::Queries::DwcOccurrence::Filter.new(person_id: [id]).all
   end
 
   # @param [String] name_string

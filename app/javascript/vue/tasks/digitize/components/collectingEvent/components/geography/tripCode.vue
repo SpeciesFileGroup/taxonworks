@@ -3,8 +3,8 @@
     <h2>Trip code</h2>
     <fieldset>
       <legend>Namespace</legend>
-      <div class="horizontal-left-content middle field separate-bottom">
-        <smart-selector
+      <div class="horizontal-left-content field separate-bottom align-start">
+        <SmartSelector
           class="full_width"
           ref="smartSelector"
           model="namespaces"
@@ -12,6 +12,7 @@
           klass="CollectingEvent"
           @selected="setTripCode"
         />
+        <WidgetNamespace @create="setTripCode" />
       </div>
       <template v-if="identifier.namespace_id">
         <hr />
@@ -49,6 +50,7 @@
 
 <script>
 import SmartSelector from '@/components/ui/SmartSelector.vue'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
 
@@ -58,7 +60,8 @@ import validateIdentifier from '../../../../validations/namespace.js'
 export default {
   components: {
     validateComponent,
-    SmartSelector
+    SmartSelector,
+    WidgetNamespace
   },
 
   computed: {

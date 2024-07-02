@@ -80,8 +80,11 @@ function addToArray(arr, obj, opts = {}) {
   }
 }
 
-function removeFromArray(arr, obj, property = 'id') {
-  const index = arr.findIndex((item) => obj[property] === item[property])
+function removeFromArray(arr, obj, opts = {}) {
+  const { property = 'id', primitive = false } = opts
+  const index = primitive
+    ? arr.findIndex((item) => obj === item)
+    : arr.findIndex((item) => obj[property] === item[property])
 
   if (index > -1) {
     arr.splice(index, 1)

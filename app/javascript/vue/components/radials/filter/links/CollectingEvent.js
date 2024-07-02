@@ -6,6 +6,7 @@ import {
   FILTER_SOURCE,
   FILTER_TAXON_NAME,
   FILTER_IMAGE,
+  FILTER_DWC_OCCURRENCE,
 } from '../constants/filterLinks'
 
 export const CollectingEvent = [
@@ -15,4 +16,5 @@ export const CollectingEvent = [
   FILTER_SOURCE,
   FILTER_TAXON_NAME,
   FILTER_IMAGE,
+  FILTER_DWC_OCCURRENCE,
 ]

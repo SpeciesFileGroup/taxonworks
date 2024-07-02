@@ -1,6 +1,7 @@
 // use requestId to cancel previous request with the same Id
 import Axios from 'axios'
 import { capitalize } from './strings'
+import { getCSRFToken } from './user'
 
 const REQUEST_TYPE = {
   Get: 'get',
@@ -30,9 +31,7 @@ axios.interceptors.response.use(
 async function ajaxCall(type, url, data = {}, config = {}) {
   const cancelFunction = config.cancelRequest || data.cancelRequest
   const requestId = config.requestId || data.requestId
-  const CSRFToken = document
-    .querySelector('meta[name="csrf-token"]')
-    .getAttribute('content')
+  const CSRFToken = getCSRFToken()
   const defaultHeaders = { 'X-CSRF-Token': CSRFToken }
 
   if (type === REQUEST_TYPE.Get || type === REQUEST_TYPE.Delete) {

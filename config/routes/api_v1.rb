@@ -59,12 +59,14 @@ namespace :api, defaults: {format: :json} do
 
       get '/dwc_occurrences', to: '/dwc_occurrences#api_index'
 
+      get '/taxon_names/origin_citation', to: '/taxon_names#api_origin_citation'
       get '/taxon_names', to: '/taxon_names#api_index'
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/parse', to: '/taxon_names#parse'
       get '/taxon_names/:id/inventory/catalog', to: '/taxon_names#api_catalog'
       get '/taxon_names/:id/inventory/summary', to: '/taxon_names#api_summary'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
+
 
       get '/taxon_name_classifications', to: '/taxon_name_classifications#api_index'
       get '/taxon_name_classifications/taxon_name_classification_types', to: '/taxon_name_classifications#taxon_name_classification_types'
@@ -97,6 +99,7 @@ namespace :api, defaults: {format: :json} do
 
       get '/biological_associations/:id/resource_relationship', to: '/biological_associations#api_resource_relationship'
       get '/biological_associations/:id/globi', to: '/biological_associations#api_globi'
+      get '/biological_associations/extended', to: '/biological_associations#api_index_extended'
       get '/biological_associations/simple', to: '/biological_associations#api_index_simple'
       get '/biological_associations', to: '/biological_associations#api_index'
       get '/biological_associations/:id', to: '/biological_associations#api_show'
