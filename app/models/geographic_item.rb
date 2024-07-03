@@ -876,7 +876,7 @@ class GeographicItem < ApplicationRecord
       }
     end
 
-    # @param value [String] like:
+    # @param value [String] geojson like:
     #   '{"type":"Feature","geometry":{"type":"Point","coordinates":[2.5,4.0]},"properties":{"color":"red"}}'
     #
     #   '{"type":"Feature","geometry":{"type":"Polygon","coordinates":"[[[-125.29394388198853, 48.584480409793],
@@ -885,7 +885,11 @@ class GeographicItem < ApplicationRecord
     #
     #  '{"type":"Point","coordinates":[2.5,4.0]},"properties":{"color":"red"}}'
     #
-    # @return [RGeo object]
+    # TODO: WHY! boolean not nil, or object
+    # !! To assign to the geography column you must include
+    # "data_type":"geography" in the properties hash of `value`` (once all
+    # shapes are assigned to the geography column this will of course no longer
+    # be necessary).
     def shape=(value)
       return if value.blank?
 
@@ -898,14 +902,12 @@ class GeographicItem < ApplicationRecord
 
       this_type = nil
 
-      # TODO is this first case still used?
       if geom.respond_to?(:properties) && geom.properties['data_type'].present?
         this_type = geom.properties['data_type']
       elsif geom.respond_to?(:geometry_type)
         this_type = geom.geometry_type.to_s
       elsif geom.respond_to?(:geometry)
         this_type = geom.geometry.geometry_type.to_s
-      else
       end
 
       self.type = GeographicItem.eval_for_type(this_type) unless geom.nil?

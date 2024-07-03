@@ -36,8 +36,9 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     end
   end
 
+  # Note these all use geography as the shape column via
+  # "data_type":"geography" in the properties hash
   context 'construction via #shape=' do
-
     let(:geo_json) {
       '{
         "type": "Feature",
@@ -46,6 +47,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
           "coordinates": [10, 10]
         },
         "properties": {
+          "data_type":"geography",
           "name": "Sample Point",
           "description": "This is a sample point feature."
         }
@@ -60,11 +62,19 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
           "coordinates": [20, 20]
         },
         "properties": {
+          "data_type":"geography",
           "name": "Sample Point",
           "description": "This is a sample point feature."
         }
       }'
     }
+    specify 'geojson with properties: data_type: geography assigns to ' \
+      'geography column' do
+      geographic_item.shape = '{"type":"Feature","geometry":{"type":"Point",' \
+      '"coordinates":[-88.09681320155505,40.461195702960666]},' \
+      '"properties":{"data_type":"geography", "name":"Paxton City Hall"}}'
+      expect(geographic_item.geography).to be_truthy
+    end
 
     specify '#shape=' do
       g = GeographicItem.new(shape: geo_json)
@@ -91,7 +101,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
             ]
           ]
         },
-        "properties": {}
+        "properties": {"data_type":"geography"}
       }'
 
       g = GeographicItem.new(shape: bad)
@@ -102,7 +112,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     specify 'for polygon' do
       geographic_item.shape = '{"type":"Feature","geometry":{"type":"Polygon",' \
         '"coordinates":[[[-90.25122106075287,38.619731572825145],[-86.12036168575287,39.77758382625017],' \
-        '[-87.62384042143822,41.89478088863241],[-90.25122106075287,38.619731572825145]]]},"properties":{}}'
+        '[-87.62384042143822,41.89478088863241],[-90.25122106075287,38.619731572825145]]]},"properties":{"data_type":"geography"}}'
       expect(geographic_item.valid?).to be_truthy
     end
 
@@ -111,14 +121,16 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
         '{"type":"Feature","geometry":{"type":"LineString","coordinates":[' \
         '[-90.25122106075287,38.619731572825145],' \
         '[-86.12036168575287,39.77758382625017],' \
-        '[-87.62384042143822,41.89478088863241]]},"properties":{}}'
+        '[-87.62384042143822,41.89478088863241]]},' \
+        '"properties":{"data_type":"geography"}}'
       expect(geographic_item.valid?).to be_truthy
     end
 
     specify 'for "circle"' do
       geographic_item.shape = '{"type":"Feature","geometry":{"type":"Point",' \
         '"coordinates":[-88.09681320155505,40.461195702960666]},' \
-        '"properties":{"radius":1468.749413840412, "name":"Paxton City Hall"}}'
+        '"properties":{"data_type":"geography","radius":1468.749413840412,' \
+        '"name":"Paxton City Hall"}}'
       expect(geographic_item.valid?).to be_truthy
     end
   end
