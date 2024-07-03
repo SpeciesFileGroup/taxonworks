@@ -2,12 +2,16 @@
   <FacetContainer highlight>
     <h3>Venn</h3>
     <div class="field label-above">
-      <label ><em>Paste the full JSON or browser URL of a query for this
-        filter (the "B" query)</em>
-      </label >
+      <label
+        ><em
+          >Paste the full JSON or browser URL of a query for this filter (the
+          "B" query)</em
+        >
+      </label>
       <input
         class="full_width"
         type="text"
+        :value="params.venn"
         @change="(e) => (params.venn = encodeURI(e.target.value))"
       />
       <label>Operation</label>
