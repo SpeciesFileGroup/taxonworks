@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+
+- `repositories/autocomplete` label [#3981]
+
+[#3981]: https://github.com/SpeciesFileGroup/taxonworks/issues/3981
 
 ## [0.42.0] - 2024-06-28
 
