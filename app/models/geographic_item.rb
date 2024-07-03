@@ -563,8 +563,10 @@ class GeographicItem < ApplicationRecord
       # 'multi_line_string'.
       # @param [GeographicItem] geographic_items or array of geographic_items
       #                         to be tested.
-      # @return [Scope] of GeographicItems whose `shape` covers at least one of
-      #                 geographic_items
+      # @return [Scope] of GeographicItems whose `shape` contains at least one
+      #                 of geographic_items.
+      #                 !! Returns geographic_item when geographic_item is of
+      #                    type `shape`
       #
       # If this scope is given an Array of GeographicItems as a second parameter,
       # it will return the 'OR' of each of the objects against the table.
@@ -578,18 +580,18 @@ class GeographicItem < ApplicationRecord
         case shape
         when 'any'
           part = []
-          SHAPE_TYPES.each { |shape|
-            part.push(GeographicItem.st_covers(shape, geographic_items).to_a)
+          SHAPE_TYPES.each { |s|
+            part.push(GeographicItem.st_covers(s, geographic_items).to_a)
           }
           # TODO: change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten.map(&:id))
 
         when 'any_poly', 'any_line'
           part = []
-          SHAPE_TYPES.each { |shape|
-            shape = shape.to_s
-            if shape.index(shape.gsub('any_', ''))
-              part.push(GeographicItem.st_covers(shape, geographic_items).to_a)
+          SHAPE_TYPES.each { |s|
+            s = s.to_s
+            if s.index(shape.gsub('any_', ''))
+              part.push(GeographicItem.st_covers(s, geographic_items).to_a)
             end
           }
           # TODO: change 'id in (?)' to some other sql construct
@@ -620,7 +622,7 @@ class GeographicItem < ApplicationRecord
       # 'multi_line_string'.
       # @param geographic_items [GeographicItem] Can be a single
       # GeographicItem, or an array of GeographicItem.
-      # @return [Scope] of all GeographicItems of the given `shape  ` covered by
+      # @return [Scope] of all GeographicItems of the given `shape` covered by
       # one or more of geographic_items
       # !! Returns geographic_item when geographic_item is of type `shape`
       def st_covered_by(shape, *geographic_items)
@@ -628,18 +630,18 @@ class GeographicItem < ApplicationRecord
         case shape
         when 'any'
           part = []
-          SHAPE_TYPES.each { |shape|
-            part.push(GeographicItem.st_covered_by(shape, geographic_items).to_a)
+          SHAPE_TYPES.each { |s|
+            part.push(GeographicItem.st_covered_by(s, geographic_items).to_a)
           }
           # @TODO change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten.map(&:id))
 
         when 'any_poly', 'any_line'
           part = []
-          SHAPE_TYPES.each { |shape|
-            shape = shape.to_s
-            if shape.index(shape.gsub('any_', ''))
-              part.push(GeographicItem.st_covered_by(shape, geographic_items).to_a)
+          SHAPE_TYPES.each { |s|
+            s = s.to_s
+            if s.index(shape.gsub('any_', ''))
+              part.push(GeographicItem.st_covered_by(s, geographic_items).to_a)
             end
           }
           # @TODO change 'id in (?)' to some other sql construct
