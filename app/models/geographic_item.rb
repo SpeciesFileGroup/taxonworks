@@ -135,7 +135,7 @@ class GeographicItem < ApplicationRecord
     class << self
 
       def st_union(geographic_item_scope)
-        self.select("ST_Union(#{GeographicItem::GEOMETRY_SQL.to_sql}) as collection")
+        select("ST_Union(#{GeographicItem::GEOMETRY_SQL.to_sql}) as collection")
           .where(id: geographic_item_scope.pluck(:id))
       end
 
@@ -146,46 +146,47 @@ class GeographicItem < ApplicationRecord
         ')'
       end
 
-      # True for those shapes that are within (subsets of) the shape_sql shape.
-      def within_sql(shape_sql)
+      # True for those shapes that cover the shape_sql shape.
+      def superset_of_sql(shape_sql)
         st_covers_sql(
-          shape_sql,
-          GeographicItem::GEOMETRY_SQL.to_sql
+          GeographicItem::GEOMETRY_SQL.to_sql,
+          shape_sql
         )
       end
 
-      # Note: !! If the target GeographicItem#id crosses the anti-meridian then
-      # you may/will get unexpected results.
-      def within_union_of_sql(*geographic_item_ids)
-        within_sql(
-          self.items_as_one_geometry_sql(*geographic_item_ids)
+      # @return [Scope] of items covering the union of geographic_item_ids;
+      # does not include any of geographic_item_ids
+      def superset_of_union_of(*geographic_item_ids)
+        where(
+          superset_of_sql(
+            items_as_one_geometry_sql(*geographic_item_ids)
+          )
         )
+        .not_ids(*geographic_item_ids)
       end
 
-      def st_coveredby_sql(shape1_sql, shape2_sql)
+      def st_covered_by_sql(shape1_sql, shape2_sql)
         'ST_CoveredBy(' \
           "(#{shape1_sql})::geometry, " \
           "(#{shape2_sql})::geometry" \
         ')'
       end
 
-      # True for those shapes that cover the shape_sql shape.
-      def covering_sql(shape_sql)
-        st_coveredby_sql(
-          shape_sql,
-          GeographicItem::GEOMETRY_SQL.to_sql
+      # True for those shapes that are subsets of the shape_sql shape.
+      def subset_of_sql(shape_sql)
+        st_covered_by_sql(
+          GeographicItem::GEOMETRY_SQL.to_sql,
+          shape_sql
         )
       end
 
-      # @return [Scope] of items covering the union of geographic_item_ids;
-      # does not include any of geographic_item_ids
-      def covering_union_of(*geographic_item_ids)
-        where(
-          covering_sql(
-            items_as_one_geometry_sql(*geographic_item_ids)
-          )
+      # Note: !! If the target GeographicItem#id crosses the anti-meridian then
+      # you may/will get unexpected results.
+      # TODO why don't we exclude self here?
+      def subset_of_union_of_sql(*geographic_item_ids)
+        subset_of_sql(
+          self.items_as_one_geometry_sql(*geographic_item_ids)
         )
-        .not_ids(*geographic_item_ids)
       end
 
       def st_distance_sql(shape_sql)
@@ -201,43 +202,43 @@ class GeographicItem < ApplicationRecord
         ')'
       end
 
-      def st_isvalid_sql(shape_sql)
+      def st_is_valid_sql(shape_sql)
         'ST_IsValid(' \
           "(#{shape_sql})" \
         ')'
       end
 
-      def st_isvalidreason_sql(shape_sql)
+      def st_is_valid_reason_sql(shape_sql)
         'ST_IsValidReason(' \
           "(#{shape_sql})" \
         ')'
       end
 
-      def st_astext_sql(shape_sql)
+      def st_as_text_sql(shape_sql)
         'ST_AsText(' \
           "(#{shape_sql})" \
         ')'
       end
 
-      def st_minimumboundingradius_sql(shape_sql)
+      def st_minimum_bounding_radius_sql(shape_sql)
         'ST_MinimumBoundingRadius(' \
           "(#{shape_sql})" \
         ')'
       end
 
-      def st_asgeojson_sql(shape_sql)
+      def st_as_geo_json_sql(shape_sql)
         'ST_AsGeoJSON(' \
           "(#{shape_sql})" \
         ')'
       end
 
-      def st_geographyfromtext_sql(wkt_sql)
+      def st_geography_from_text_sql(wkt_sql)
         'ST_GeographyFromText(' \
           "'#{wkt_sql}'" \
         ')'
       end
 
-      def st_geomfromtext_sql(wkt_sql)
+      def st_geom_from_text_sql(wkt_sql)
         'ST_GeomFromText(' \
           "'#{wkt_sql}', " \
           '4326' \
@@ -261,14 +262,6 @@ class GeographicItem < ApplicationRecord
         'ST_Intersects(' \
           "(#{shape1_sql})::geometry, " \
           "(#{shape2_sql})::geometry" \
-        ')'
-      end
-
-      def st_distancespheroid_sql(shape1_sql, shape2_sql)
-        'ST_DistanceSpheroid(' \
-          "(#{shape1_sql})::geometry, " \
-          "(#{shape2_sql})::geometry, " \
-          "'#{Gis::SPHEROID}'" \
         ')'
       end
 
@@ -395,7 +388,7 @@ class GeographicItem < ApplicationRecord
       #   distance-buffer intersects) wkt
       def intersecting_radius_of_wkt_sql(wkt, distance)
         st_dwithin_sql(
-          st_geographyfromtext_sql(wkt),
+          st_geography_from_text_sql(wkt),
           distance
         )
       end
@@ -404,9 +397,9 @@ class GeographicItem < ApplicationRecord
       # @param [Integer] distance (meters)
       # @return [String] Those items within the distance-buffer of wkt
       def within_radius_of_wkt_sql(wkt, distance)
-        within_sql(
+        subset_of_sql(
           st_buffer_sql(
-            st_geographyfromtext_sql(wkt),
+            st_geography_from_text_sql(wkt),
             distance
           )
         )
@@ -464,7 +457,7 @@ class GeographicItem < ApplicationRecord
       # Note: this routine is called when it is already known that the A
       # argument crosses anti-meridian
       def covered_by_wkt_shifted_sql(wkt)
-        "ST_CoveredBy(
+        "st_covered_by(
           (CASE geographic_items.type
             WHEN 'GeographicItem::MultiPolygon' THEN ST_ShiftLongitude(multi_polygon::geometry)
             WHEN 'GeographicItem::Point' THEN ST_ShiftLongitude(point::geometry)
@@ -486,8 +479,8 @@ class GeographicItem < ApplicationRecord
         if crosses_anti_meridian?(wkt)
           covered_by_wkt_shifted_sql(wkt)
         else
-          within_sql(
-            st_geomfromtext_sql(wkt)
+          subset_of_sql(
+            st_geom_from_text_sql(wkt)
           )
         end
       end
@@ -629,13 +622,14 @@ class GeographicItem < ApplicationRecord
       # GeographicItem, or an array of GeographicItem.
       # @return [Scope] of all GeographicItems of the given `shape  ` covered by
       # one or more of geographic_items
-      def st_coveredby(shape, *geographic_items)
+      # !! Returns geographic_item when geographic_item is of type `shape`
+      def st_covered_by(shape, *geographic_items)
         shape = shape.to_s.downcase
         case shape
         when 'any'
           part = []
           SHAPE_TYPES.each { |shape|
-            part.push(GeographicItem.st_coveredby(shape, geographic_items).to_a)
+            part.push(GeographicItem.st_covered_by(shape, geographic_items).to_a)
           }
           # @TODO change 'id in (?)' to some other sql construct
           GeographicItem.where(id: part.flatten.map(&:id))
@@ -645,7 +639,7 @@ class GeographicItem < ApplicationRecord
           SHAPE_TYPES.each { |shape|
             shape = shape.to_s
             if shape.index(shape.gsub('any_', ''))
-              part.push(GeographicItem.st_coveredby(shape, geographic_items).to_a)
+              part.push(GeographicItem.st_covered_by(shape, geographic_items).to_a)
             end
           }
           # @TODO change 'id in (?)' to some other sql construct
@@ -653,7 +647,7 @@ class GeographicItem < ApplicationRecord
 
         else
           q = geographic_items.flatten.collect { |geographic_item|
-            st_coveredby_sql(
+            st_covered_by_sql(
               shape_column_sql(shape),
               geometry_sql(geographic_item.id, geographic_item.geo_object_type)
             )
@@ -681,7 +675,7 @@ class GeographicItem < ApplicationRecord
       #   as per #inferred_geographic_name_hierarchy but for Rgeo point
       def point_inferred_geographic_name_hierarchy(point)
         self
-          .where(covering_sql(st_geomfromtext_sql(point.to_s)))
+          .where(superset_of_sql(st_geom_from_text_sql(point.to_s)))
           .order(cached_total_area: :ASC)
           .first&.inferred_geographic_name_hierarchy
       end
@@ -762,7 +756,7 @@ class GeographicItem < ApplicationRecord
       .joins(:geographic_items)
       .includes(:geographic_area_type)
       .joins(
-        "JOIN (#{GeographicItem.covering_union_of(id).to_sql}) AS j ON " \
+        "JOIN (#{GeographicItem.superset_of_union_of(id).to_sql}) AS j ON " \
         'geographic_items.id = j.id'
       )
     end
@@ -773,7 +767,7 @@ class GeographicItem < ApplicationRecord
       GeographicItem
       .where(id:)
       .select(
-        self.class.st_isvalid_sql("#{data_column}::geometry")
+        self.class.st_is_valid_sql("#{data_column}::geometry")
       ).first['st_isvalid']
     end
 
@@ -806,13 +800,13 @@ class GeographicItem < ApplicationRecord
       unless !persisted? || changed?
         a = "(#{self.class.select_geography_sql(id)})"
       else
-        a = self.class.st_geographyfromtext_sql(geo_object.to_s)
+        a = self.class.st_geography_from_text_sql(geo_object.to_s)
       end
 
       unless !geographic_item.persisted? || geographic_item.changed?
         b = "(#{self.class.select_geography_sql(geographic_item.id)})"
       else
-        b = self.class.st_geographyfromtext_sql(geographic_item.geo_object.to_s)
+        b = self.class.st_geography_from_text_sql(geographic_item.geo_object.to_s)
       end
 
       ActiveRecord::Base.connection.select_value("SELECT ST_Distance(#{a}, #{b})")
@@ -824,7 +818,7 @@ class GeographicItem < ApplicationRecord
       GeographicItem
         .where(id:)
         .pick(Arel.sql(
-          self.class.st_astext_sql(
+          self.class.st_as_text_sql(
             self.class.st_centroid_sql(GeographicItem::GEOMETRY_SQL.to_sql)
           )
         ))
@@ -861,7 +855,7 @@ class GeographicItem < ApplicationRecord
     def to_geo_json
       JSON.parse(
         select_self(
-          self.class.st_asgeojson_sql(data_column)
+          self.class.st_as_geo_json_sql(data_column)
         )['st_asgeojson']
       )
     end
@@ -940,7 +934,7 @@ class GeographicItem < ApplicationRecord
 
       # 10k <Benchmark::Tms:0x00007fb0e02f7540 @label="", @real=21.619827999995323, @cstime=0.0, @cutime=0.0, @stime=0.8850890000000007, @utime=3.2958549999999605, @total=4.180943999999961>
       if (a = select_self(
-          self.class.st_astext_sql(GeographicItem::GEOMETRY_SQL.to_sql)
+          self.class.st_as_text_sql(GeographicItem::GEOMETRY_SQL.to_sql)
       ))
         return a['st_astext']
       else
@@ -966,7 +960,7 @@ class GeographicItem < ApplicationRecord
     # Use case is returning the radius from a circle we calculated via buffer for error-polygon creation.
     def radius
       r = select_self(
-        self.class.st_minimumboundingradius_sql(
+        self.class.st_minimum_bounding_radius_sql(
           GeographicItem::GEOMETRY_SQL.to_sql
         )
       )['st_minimumboundingradius'].split(',').last.chop.to_f
@@ -1009,7 +1003,7 @@ class GeographicItem < ApplicationRecord
 
     def st_isvalid
       select_self(
-        self.class.st_isvalid_sql(
+        self.class.st_is_valid_sql(
           GeographicItem::GEOMETRY_SQL.to_sql
         )
       )['st_isvalid']
@@ -1017,7 +1011,7 @@ class GeographicItem < ApplicationRecord
 
     def st_isvalidreason
       select_self(
-        self.class.st_isvalidreason_sql(
+        self.class.st_is_valid_reason_sql(
           GeographicItem::GEOMETRY_SQL.to_sql
         )
       )['st_isvalidreason']

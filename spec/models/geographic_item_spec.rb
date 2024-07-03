@@ -137,7 +137,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       #                             geographic_item_with_polygon.geo_object)).to be_falsey
     end
 
-    specify 'ST_CoveredBy' do
+    specify 'st_covered_by' do
       skip
       #expect(GeographicItem.covers(geographic_item_with_polygon.geo_object,
       #                             geographic_item_with_point_c.geo_object)).to be_truthy
@@ -570,23 +570,23 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           before { [k, l, b, b1, b2, e1].each }
 
           specify 'find the polygon containing the points' do
-            expect(GeographicItem.covering_union_of(p1.id).to_a).to contain_exactly(k)
+            expect(GeographicItem.superset_of_union_of(p1.id).to_a).to contain_exactly(k)
           end
 
           specify 'find the polygon containing all three points' do
-            expect(GeographicItem.covering_union_of(p1.id, p2.id, p3.id).to_a).to contain_exactly(k)
+            expect(GeographicItem.superset_of_union_of(p1.id, p2.id, p3.id).to_a).to contain_exactly(k)
           end
 
           specify 'find that a line string can contain a point' do
-            expect(GeographicItem.covering_union_of(p4.id).to_a).to contain_exactly(l)
+            expect(GeographicItem.superset_of_union_of(p4.id).to_a).to contain_exactly(l)
           end
 
           specify 'point in two polygons, but not their intersection' do
-            expect(GeographicItem.covering_union_of(p18.id).to_a).to contain_exactly(b1, b2)
+            expect(GeographicItem.superset_of_union_of(p18.id).to_a).to contain_exactly(b1, b2)
           end
 
           specify 'point in two polygons, one with a hole in it' do
-            expect(GeographicItem.covering_union_of(p19.id).to_a).to contain_exactly(b1, b)
+            expect(GeographicItem.superset_of_union_of(p19.id).to_a).to contain_exactly(b1, b)
           end
         end
 
@@ -664,14 +664,14 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           specify 'find the points in a polygon' do
             expect(
               GeographicItem.where(
-                GeographicItem.within_union_of_sql(k.id)
+                GeographicItem.subset_of_union_of_sql(k.id)
               ).to_a
             ).to contain_exactly(p1, p2, p3, k)
           end
 
           specify 'find the (overlapping) points in a polygon' do
             overlapping_point = FactoryBot.create(:geographic_item_point, point: point12.as_binary)
-            expect(GeographicItem.where(GeographicItem.within_union_of_sql(e1.id)).to_a).to contain_exactly(p12, overlapping_point, p11, e1)
+            expect(GeographicItem.where(GeographicItem.subset_of_union_of_sql(e1.id)).to_a).to contain_exactly(p12, overlapping_point, p11, e1)
           end
         end
 
@@ -679,16 +679,16 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           before { [b, p0, p1, p2, p3, p11, p12, p13, p18, p19].each }
 
           specify ' three things inside k' do
-            expect(GeographicItem.st_coveredby('any', k).not_including(k).to_a)
+            expect(GeographicItem.st_covered_by('any', k).not_including(k).to_a)
               .to contain_exactly(p1, p2, p3)
           end
 
           specify 'one thing outside k' do
-            expect(GeographicItem.st_coveredby('any', p4).not_including(p4).to_a).to eq([])
+            expect(GeographicItem.st_covered_by('any', p4).not_including(p4).to_a).to eq([])
           end
 
           specify 'three things inside and one thing outside k' do
-            pieces = GeographicItem.st_coveredby('any',
+            pieces = GeographicItem.st_covered_by('any',
                                                     [e2, k]).not_including([k, e2]).to_a
             # p_a just happens to be in context because it happens to be the
             # GeographicItem of the Georeference g_a defined in an outer
@@ -700,19 +700,19 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           # other objects are returned as well, we just don't care about them:
           # we want to find p1 inside K, and p11 inside e1
           specify 'one specific thing inside one thing, and another specific thing inside another thing' do
-            expect(GeographicItem.st_coveredby('any',
+            expect(GeographicItem.st_covered_by('any',
                                                   [e1, k]).to_a)
               .to include(p1, p11)
           end
 
           specify 'one thing (p19) inside a polygon (b) with interior, and another inside ' \
             'the interior which is NOT included (p18)' do
-              expect(GeographicItem.st_coveredby('any', b).not_including(b).to_a).to eq([p19])
+              expect(GeographicItem.st_covered_by('any', b).not_including(b).to_a).to eq([p19])
             end
 
           specify 'three things inside two things. Notice that the outer ring of b ' \
             'is co-incident with b1, and thus "contained".' do
-              expect(GeographicItem.st_coveredby('any',
+              expect(GeographicItem.st_covered_by('any',
                                                     [b1, b2]).not_including([b1, b2]).to_a)
                 .to contain_exactly(p18, p19, b)
             end
@@ -720,7 +720,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           # other objects are returned as well, we just don't care about them
           # we want to find p19 inside b and b1, but returned only once
           specify 'both b and b1 contain p19, which gets returned only once' do
-            expect(GeographicItem.st_coveredby('any',
+            expect(GeographicItem.st_covered_by('any',
                                                   [b1, b]).to_a)
               .to include(p19)
           end

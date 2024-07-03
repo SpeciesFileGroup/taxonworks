@@ -364,7 +364,7 @@ class CollectingEvent < ApplicationRecord
     # @return [Scope]
     def contained_within(geographic_item)
       CollectingEvent.joins(:geographic_items).where(
-        GeographicItem.within_union_of_sql(geographic_item.id)
+        GeographicItem.subset_of_union_of_sql(geographic_item.id)
       )
     end
 
@@ -817,7 +817,7 @@ class CollectingEvent < ApplicationRecord
       #   !! and there was no tests broken
       # GeographicItem.st_covers('any_poly', self.geographic_items.to_a).pluck(:id).uniq
       gi_list = GeographicItem
-       .covering_union_of(*geographic_items.pluck(:id))
+       .superset_of_union_of(*geographic_items.pluck(:id))
        .pluck(:id)
        .uniq
 
