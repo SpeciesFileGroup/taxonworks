@@ -352,7 +352,7 @@ class GeographicItem < ApplicationRecord
       end
 
       # @param [Integer] geographic_item_id
-      # @param [Integer] distance in meters
+      # @param [Integer] distance in meters TODO not so sure about that - geo items are in degrees, postgis says units are meters
       # @return [Scope] of shapes within distance of (i.e. whose
       #   distance-buffer intersects) geographic_item_id
       def within_radius_of_item_sql(geographic_item_id, distance)
@@ -537,7 +537,7 @@ class GeographicItem < ApplicationRecord
           pieces = []
           SHAPE_TYPES.each { |shape|
             pieces.push(
-              GeographicItem.intersecting(shape, geographic_item_ids).to_a
+              self.intersecting(shape, geographic_item_ids).to_a
             )
           }
 
