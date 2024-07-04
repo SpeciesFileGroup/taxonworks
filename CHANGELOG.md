@@ -7,8 +7,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+
+- `repositories/autocomplete` label [#3981]
+
+[#3981]: https://github.com/SpeciesFileGroup/taxonworks/issues/3981
+
+## [0.42.0] - 2024-06-28
+
 ### Added
 
+- Nexus file import [#2029]
 - POST `/annotations/move?from_global_id=<>&to_global_id=<>&only[]=&except[]=`
 - Clone CollectingEvent can include annotations, incremented identifiers
 - Model Identifier::Local::Event in part: [#3800]
@@ -23,13 +32,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- CE batch update collectors [#3936]
+- Broken BiologicalAssociation scope for DwC download [#3949]
+- NeXML render to screen [#3961]
 - People queries referencing `use_min` and `use_max` in combination with other facets
 - `/observation_matrix_column/list`
 - Queries referencing emtpy `identifier_start` or end failing
 - Moving depiciton from an Otu could fail in some cases
 - OTU inventory endpoint failing when synonyms are empty
-- CachedMap metadata raises when out-of-date 
-- Encoding unencodable text as Code128 breaks label preview 
+- CachedMap metadata raises when out-of-date
+- Encoding unencodable text as Code128 breaks label preview
 - Identifier between range breaks filter when blank params passed
 - DwcIndex failing to update on Georeference, Role, BiocurationClassification, TaxonName, InternalAttribute changes
 - Sometimes URL parameters are set incorrectly in facets.
@@ -37,21 +49,28 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Project dump not working when all params were supplied [#3967]
 - Radial annotator: Selected object in "Move to" section is not displayed in Depictions slice
 - Project SQL export failed to export tables with NULL project_id.
+- Spatial Summary of the results in Filter Collecting Event "URI too large error" [#3937]
 
 ### Changed
 
-- Optimized performance of union, intersect and related filter queries cleaning `select` for intermediate queries
 - Upgraded to Rails 7. [#3819]
-- Changed default URL protocol to HTTPS for TaxonWorks-generated e-mails in production environments.
-- Added bootsnap gem to speed up boot times. `tmp/cache` dir is used as cache by this gem.
-- Removed `versions_associations` and `shortened_urls` tables from Project SQL export.
+- Changed default URL protocol to HTTPS for TaxonWorks-generated e-mails in production environments
+- Added bootsnap gem to speed up boot times. `tmp/cache` dir is used as cache by this gem
+- Removed `versions_associations` and `shortened_urls` tables from Project SQL export
 - Replace validations modal in Browse nomenclature task [#3974]
-- Updated Ruby gems.
+- Updated Ruby gems
+- Georeference `error_radius` rounded to nearest meter before save [#3946]
 
+[#2029]: https://github.com/SpeciesFileGroup/taxonworks/issues/2029
 [#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
-[#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
-[#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
 [#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
+[#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
+[#3936]: https://github.com/SpeciesFileGroup/taxonworks/issues/3936
+[#3937]: https://github.com/SpeciesFileGroup/taxonworks/issues/3937
+[#3946]: https://github.com/SpeciesFileGroup/taxonworks/issues/3946
+[#3947]: https://github.com/SpeciesFileGroup/taxonworks/pull/3947/
+[#3949]: https://github.com/SpeciesFileGroup/taxonworks/issues/3949
+[#3961]: https://github.com/SpeciesFileGroup/taxonworks/issues/3961
 [#3967]: https://github.com/SpeciesFileGroup/taxonworks/pull/3967
 [#3969]: https://github.com/SpeciesFileGroup/taxonworks/pull/3969
 [#3974]: https://github.com/SpeciesFileGroup/taxonworks/pull/3974
@@ -130,6 +149,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Taxon name with nomen nudum status, nomen dubium status + invalidating relationship should be treated as separate invalid taxon.
 - Quick forms: Lock buttons don't work on Biological associations.
 - Week in review task [#3926]
 - Missing Image metadata breaks radial
@@ -4657,7 +4677,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.1..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.42.0..development
+[0.42.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.1...v0.42.0
 [0.41.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.0...v0.41.1
 [0.41.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.6...v0.41.0
 [0.40.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.5...v0.40.6

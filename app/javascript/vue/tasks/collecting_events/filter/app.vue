@@ -78,6 +78,7 @@
           v-model="selectedIds"
           :layout="currentLayout"
           :list="list"
+          :radial-object="false"
           @mouseover:row="setRowHover"
           @mouseout:body="() => (rowHover = null)"
           @on-sort="($event) => (list = $event)"

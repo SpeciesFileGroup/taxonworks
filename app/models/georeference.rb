@@ -129,6 +129,8 @@ class Georeference < ApplicationRecord
   #  When true, cascading cached values (e.g. in CollectingEvent) are not built
   attr_accessor :no_cached
 
+  before_validation :round_error_radius
+  
   after_save :set_cached, unless: -> { self.no_cached || (self.collecting_event && self.collecting_event.no_cached == true) }
 
   after_destroy :set_cached_collecting_event
@@ -594,6 +596,15 @@ class Georeference < ApplicationRecord
       ::Math.sin(from_lat_rad_) * ::Math.cos(to_lat_rad_) * ::Math.cos(delta_lon_rad_)
     DEGREES_PER_RADIAN * ::Math.atan2(y_, x_)
   end
+
+  private
+
+  def round_error_radius
+    if error_radius.present?
+      write_attribute(:error_radius, error_radius.round)
+    end
+  end
+
 end
 
 #Dir[Rails.root.to_s + '/app/models/georeference/**/*.rb'].each { |file| require_dependency file }

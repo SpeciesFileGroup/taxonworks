@@ -16,7 +16,10 @@
     </template>
     <template #body>
       <VSpinner v-if="isLoading" />
-      <PreviewTable :data="data" />
+      <PreviewTable
+        v-if="data"
+        :data="data"
+      />
     </template>
     <template #footer>
       <div class="horizontal-right-content">

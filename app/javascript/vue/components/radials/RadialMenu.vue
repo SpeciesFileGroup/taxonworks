@@ -13,7 +13,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['onClick'])
+const emit = defineEmits(['onClick', 'contextmenu'])
 
 const radialContainer = ref(null)
 let radialInstance = null
@@ -38,5 +38,6 @@ function initRadialMenu() {
 
 function handleEvents() {
   radialInstance.on('click', (event) => emit('onClick', event))
+  radialInstance.on('contextmenu', (event) => emit('contextmenu', event))
 }
 </script>

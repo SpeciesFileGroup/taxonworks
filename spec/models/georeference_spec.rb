@@ -132,6 +132,13 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
           georeference.valid?
           expect(georeference.errors[:error_radius]).to_not be_present
         end
+
+        specify 'is rounded to nearest meter' do
+          georeference.error_radius = 1.23
+          georeference.valid?
+          expect(georeference.error_radius).to eq(1) 
+        end
+
       end
 
       specify '#error_depth is < some Earth-based limit' do

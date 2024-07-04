@@ -255,7 +255,7 @@ class CollectingEvent < ApplicationRecord
   after_save :set_cached, unless: -> { no_cached }
   after_save :update_dwc_occurrences , unless: -> { no_dwc_occurrence }
 
-  # see also app/models/colelcting_event/georeference.rb for more accepts_nested_attributes
+  # See also app/models/collecting_event/georeference.rb for more accepts_nested_attributes
   accepts_nested_attributes_for :collectors, :collector_roles, allow_destroy: true
 
   validate :check_verbatim_geolocation_uncertainty,
@@ -1064,6 +1064,7 @@ class CollectingEvent < ApplicationRecord
 
     # @return [Hash, false]
     def batch_update(params)
+
       request = QueryBatchRequest.new(
         klass: 'CollectingEvent',
         object_filter_params: params[:collecting_event_query],
