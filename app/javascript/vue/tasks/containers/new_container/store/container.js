@@ -104,6 +104,11 @@ export const useContainerStore = defineStore('container', {
         )
     },
 
+    getSelectedContainerItemByUUID(state) {
+      return (uuid) =>
+        state.selectedItems.find((item) => item.metadata.uuid === uuid)
+    },
+
     getItemsOutsideContainer(state) {
       return state.containerItems.filter(
         (item) => !isItemInContainer(item.position, this.container.size)
@@ -163,18 +168,41 @@ export const useContainerStore = defineStore('container', {
     },
 
     addSelectedItem(item) {
-      if (
-        !this.selectedItems.some((i) =>
-          comparePosition(i.position, item.position)
-        )
-      ) {
+      if (!this.selectedItems.some((i) => i.metadata.uuid === item.uuid)) {
         this.selectedItems.push(makeVisualizerContainerItem(item, this))
       }
     },
 
+    fillContainer(items) {
+      const { size } = this.container
+
+      for (let y = 0; y < size.y; y++) {
+        for (let z = 0; z < size.z; z++) {
+          for (let x = 0; x < size.x; x++) {
+            const cellItem = this.getContainerItemByPosition({ x, y, z })
+
+            if (!cellItem && items.length) {
+              const item = items.shift()
+              const containerItem = {
+                ...item,
+                position: {
+                  x,
+                  y,
+                  z
+                },
+                isUnsaved: true
+              }
+
+              this.addContainerItem(containerItem)
+            }
+          }
+        }
+      }
+    },
+
     removeSelectedItem(item) {
-      const index = this.selectedItems.findIndex((i) =>
-        comparePosition(item.position, i.position)
+      const index = this.selectedItems.findIndex(
+        (i) => i.metadata.uuid === item.uuid
       )
 
       if (index > -1) {

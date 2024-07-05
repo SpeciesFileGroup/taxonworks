@@ -9,7 +9,20 @@
           />
         </th>
         <th>{{ title }}</th>
-        <th />
+        <th>
+          <VBtn
+            color="primary"
+            @click="
+              store.fillContainer(
+                list.filter((item) =>
+                  store.selectedItems.some((i) => i.metadata.uuid === item.uuid)
+                )
+              )
+            "
+          >
+            Fill container
+          </VBtn>
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -22,7 +35,7 @@
         <td>
           <input
             type="checkbox"
-            :checked="!!store.getSelectedContainerItemByPosition(item.position)"
+            :checked="!!store.getSelectedContainerItemByUUID(item.uuid)"
             @change="() => toggleItem(item)"
           />
         </td>
@@ -88,8 +101,8 @@ const emit = defineEmits(['edit'])
 
 const selectAll = computed({
   get() {
-    return props.list.every(({ position }) =>
-      store.selectedItems.some((i) => comparePosition(position, i.position))
+    return props.list.every(({ uuid }) =>
+      store.selectedItems.some((i) => uuid === i.uuid)
     )
   },
   set(value) {
@@ -113,9 +126,7 @@ function removeItem(item) {
 }
 
 function toggleItem(item) {
-  const alreadySelected = store.getSelectedContainerItemByPosition(
-    item.position
-  )
+  const alreadySelected = store.getSelectedContainerItemByUUID(item.uuid)
 
   if (alreadySelected) {
     store.removeSelectedItem(item)
