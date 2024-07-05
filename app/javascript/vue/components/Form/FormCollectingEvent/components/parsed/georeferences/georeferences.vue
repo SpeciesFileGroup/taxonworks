@@ -146,7 +146,7 @@ import ModalComponent from '@/components/ui/Modal'
 import WktComponent from './wkt'
 import DateComponent from '@/components/ui/Date/DateFields.vue'
 import useStore from '../../../store/georeferences.js'
-import { addToArray } from '@/helpers'
+import { addToArray, randomUUID } from '@/helpers'
 import { computed, ref, watch } from 'vue'
 import { truncateDecimal } from '@/helpers/math.js'
 import {
@@ -282,7 +282,7 @@ function updateRadius(geo) {
 
 function addGeoreference(shape, type = GEOREFERENCE_LEAFLET) {
   addToQueue({
-    uuid: crypto.randomUUID(),
+    uuid: randomUUID(),
     geographic_item_attributes: { shape: JSON.stringify(shape) },
     error_radius: shape.properties?.radius,
     type,
@@ -332,7 +332,7 @@ function createVerbatimShape() {
   }
 
   addToQueue({
-    uuid: crypto.randomUUID(),
+    uuid: randomUUID(),
     geographic_item_attributes: { shape: JSON.stringify(shape) },
     collecting_event_id: collectingEvent.value.id,
     type: GEOREFERENCE_VERBATIM,

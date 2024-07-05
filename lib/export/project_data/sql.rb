@@ -8,8 +8,8 @@ module ::Export::ProjectData::Sql
       ['-h', config[:host]],
       ['-s', config[:database]],
       ['-U', config[:username]],
-      ['-p', config[:port]]
-    ].reject! { |(a, v)| v.nil? }.flatten!
+      ['-p', config[:port].to_s]
+    ].reject { |(a, v)| v.nil? }.flatten!
 
     # Retrieve schema
     schema = Open3.capture3({'PGPASSWORD' => config[:password]}, 'pg_dump', '-w', '-O', *args).first
@@ -95,7 +95,7 @@ module ::Export::ProjectData::Sql
   def self.dump_table(table, io, project_id)
     cols = get_table_cols(table)
     if cols.include?('"project_id"')
-      where_clause = "WHERE project_id IN (#{project_id}, NULL)"
+      where_clause = "WHERE project_id = #{project_id} OR project_id IS NULL"
     elsif table == 'projects'
       where_clause = "WHERE id = #{project_id}"
     else

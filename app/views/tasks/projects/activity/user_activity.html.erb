@@ -1,10 +1,10 @@
 <%= content_for :head do -%>
-  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js", "chartjs" %>
-<% end %> 
+  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" %>
+<% end %>
 
 <h1> Administration - User activity </h1>
 
-<%= link_to 'Back', administration_path() %> 
+<%= link_to 'Back', administration_path() %>
 
 <div class="flexbox">
 
@@ -12,8 +12,8 @@
     <h2> Last 20 logins </h2>
     <ol>
       <% User.limit(20).order(current_sign_in_at: :desc).where('current_sign_in_at IS NOT NULL').each do |u| -%>
-        <li> <%= user_link(u) %> <%= content_tag :span, time_ago_in_words(u.current_sign_in_at) + " ago", class: :subtle -%> </li> 
-      <% end %> 
+        <li> <%= user_link(u) %> <%= content_tag :span, time_ago_in_words(u.current_sign_in_at) + " ago", class: :subtle -%> </li>
+      <% end %>
     </ol>
   </div>
 
@@ -21,8 +21,8 @@
     <h2> Recently seen </h2>
     <ol>
       <% User.limit(20).order(last_seen_at: :desc).where('last_seen_at IS NOT NULL').each do |u| -%>
-        <li> <%= user_link(u) %> <%= content_tag :span, time_ago_in_words(u.last_seen_at) + " ago", class: :subtle -%> </li> 
-      <% end %> 
+        <li> <%= user_link(u) %> <%= content_tag :span, time_ago_in_words(u.last_seen_at) + " ago", class: :subtle -%> </li>
+      <% end %>
     </ol>
   </div>
 
@@ -33,7 +33,7 @@
       <% User.limit(20).order(time_active: :desc).where('time_active IS NOT NULL').each do |u| -%>
         <li> <%= user_link(u) %> <%= distance_of_time_in_words(u.time_active) -%>
         or <%= (u.time_active.to_f / 3600.to_f || 0).round(0) -%> hours</li>
-      <% end %> 
+      <% end %>
     </ol>
   </div>
 </div>
@@ -41,7 +41,7 @@
 <div class="flexbox">
   <div class="item item1">
     <h2> Last seen - past week </h2>
-    <%= column_chart User.where('last_seen_at > ?', 1.week.ago).group_by_day_of_week(:last_seen_at, format: "%a").count, 
+    <%= column_chart User.where('last_seen_at > ?', 1.week.ago).group_by_day_of_week(:last_seen_at, format: "%a").count,
       discrete: true, ytitle: 'Count', xtitle: 'Last seen day'
     %>
 
@@ -51,7 +51,7 @@
   </div>
 </div>
 
-# Find the number of users per propject 
+# Find the number of users per propject
 
 <div class="flexbox">
   <div class="item item1">

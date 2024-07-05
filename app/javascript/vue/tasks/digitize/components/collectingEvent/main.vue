@@ -67,13 +67,7 @@
             >
               Browse
             </button>
-            <button
-              type="button"
-              class="button normal-input button-submit"
-              @click="cloneCE"
-            >
-              Clone
-            </button>
+            <CloneForm />
           </div>
         </div>
       </fieldset>
@@ -87,6 +81,8 @@
 </template>
 
 <script setup>
+import { computed, ref, watch } from 'vue'
+import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
@@ -100,10 +96,9 @@ import BlockLayout from '@/components/layout/BlockLayout.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
+import CloneForm from './components/CloneForm.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import useHotkey from 'vue3-hotkey'
-import { computed, ref, watch } from 'vue'
-import { useStore } from 'vuex'
 
 const store = useStore()
 
@@ -161,10 +156,6 @@ function setCollectingEvent(ce) {
 
 function cleanCollectingEvent() {
   store.dispatch(ActionNames.NewCollectingEvent)
-}
-
-function cloneCE() {
-  store.dispatch(ActionNames.CloneCollectingEvent, collectingEvent.value.id)
 }
 
 function openBrowse() {

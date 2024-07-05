@@ -13,6 +13,10 @@
           class="margin-small-left"
           v-model="lock.identifier"
         />
+        <WidgetNamespace
+          class="margin-small-left"
+          @create="(item) => (store.catalogNumber.namespace = item)"
+        />
       </template>
     </SmartSelector>
     <SmartSelectorItem
@@ -38,6 +42,7 @@ import useStore from '../../store/store.js'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 import { COLLECTION_OBJECT } from '@/constants/index'
 
 const store = useStore()

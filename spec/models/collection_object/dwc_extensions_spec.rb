@@ -391,7 +391,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       InternalAttribute.create!(predicate: g, attribute_subject: s, value: 'Space alien')
 
       expect(s.dwc_associated_taxa).to eq('Space alien')
-      expect(s.dwc_occurrence.associatedTaxa).to eq('Space alien')
+      expect(s.dwc_occurrence.reload.associatedTaxa).to eq('Space alien')
     end
 
     specify '#dwc_water_body' do

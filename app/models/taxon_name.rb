@@ -167,6 +167,7 @@ class TaxonName < ApplicationRecord
   include Shared::MatrixHooks::Dynamic
 
   include TaxonName::MatrixHooks
+  include Shared::DwcOccurrenceHooks
 
   # Allows users to provide arbitrary annotations that "over-ride" rank string
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # !! Don't even think about putting this on `name`
@@ -529,7 +530,7 @@ class TaxonName < ApplicationRecord
 
   # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
   def synonyms
-    TaxonName.with_cached_valid_taxon_name_id(self.id)
+    TaxonName.with_cached_valid_taxon_name_id(id)
   end
 
   # @return [String]
@@ -948,7 +949,7 @@ class TaxonName < ApplicationRecord
 
   # @return [TaxonName]
   #  a valid taxon_name for an invalid name or self for valid name.
-  #  a stub here - See Protonym and Combination
+  #  a stub here -  See Protonym and Combination
   def get_valid_taxon_name
     nil
   end
@@ -1029,6 +1030,10 @@ class TaxonName < ApplicationRecord
     end
     n = (n.presence || name)
     return n
+  end
+
+  def dwc_occurrences
+    ::Queries::DwcOccurrence::Filter.new(taxon_name_id: id).all
   end
 
   def clear_cached(update: false)

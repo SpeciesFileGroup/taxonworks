@@ -3,7 +3,10 @@ require 'rails_helper'
 describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
   before :all do
     DatabaseCleaner.start
-    @root = FactoryBot.create(:root_taxon_name)
+
+    init_housekeeping
+
+    @root = FactoryBot.create(:root_taxon_name) 
   end
 
   after(:all) do
@@ -13,6 +16,9 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
   context 'when importing a single occurrence in a text file' do
     before :all do
       DatabaseCleaner.start
+
+      init_housekeeping
+
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/dwca_occurrences.txt'), 'text/plain'),
         description: 'Testing'
@@ -57,13 +63,16 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
   end
 
   context 'when not supplying custom namespaces for occurrenceID nor eventID' do
-    before :all do
+    before(:all) do
+
+      init_housekeeping
+
       DatabaseCleaner.start
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/auto_created_namespaces.tsv'), 'text/plain'),
         description: 'occurrenceID and eventID namespaces test'
       ).tap { |i| i.stage }
-      @imported = 3.times.map { @import_dataset.reload.import(5000, 1) }.flatten # WARN: Importing one at a time is deliberate 
+      @imported = 3.times.map { @import_dataset.reload.import(5000, 1) }.flatten # WARN: Importing one at a time is deliberate
     end
 
     after :all do
@@ -73,7 +82,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     let(:collection_objects) do
       @imported.map { |r| CollectionObject.find(r.metadata.dig('imported_objects','collection_object', 'id')) }
     end
-    
+
     let(:core_id_namespaces) { Namespace.where("name ILIKE 'occurrenceID namespace for%'") }
     let(:event_id_namespaces) { Namespace.where("name ILIKE 'eventID namespace for%'") }
     let(:occurrence_id_identifiers) do
@@ -106,7 +115,11 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   context 'when importing an occurrence that is missing an intermediate protonym' do
     before :all do
+
       DatabaseCleaner.start
+
+      init_housekeeping
+
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/intermediate_protonym.tsv'), 'text/plain'),
         description: 'Missing Ancestor Protonym',
@@ -124,7 +137,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       species = Protonym.create!(parent: genus, name: "cambouei", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
 
       @imported = @import_dataset.import(5000, 100)
-
     end
 
     let!(:results) { @imported }
@@ -146,6 +158,9 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
   context 'when import an occurrence with a type material' do
     before :all do
       DatabaseCleaner.start
+
+      init_housekeeping
+
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/type_material.tsv'), 'text/plain'),
         description: 'Type Material',
@@ -153,7 +168,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                            'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
-      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent_id: 1, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
@@ -199,6 +214,9 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
   context 'when import an occurrence with a type material matching a synonym of the current taxon name' do
     before :all do
       DatabaseCleaner.start
+
+      init_housekeeping
+
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_original_misspelling.tsv'), 'text/plain'),
         description: 'Type Material Synonym',
@@ -206,7 +224,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                            'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
-      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent_id: 1, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
@@ -258,6 +276,9 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
   context 'when importing an occurrence with a type material matching a misspelling of an obsolete combination of the current taxon name' do
     before :all do
       DatabaseCleaner.start
+
+      init_housekeeping
+
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_combination_misspelling.tsv'), 'text/plain'),
         description: 'Type Material Obsolete Combination Misspelling',
@@ -265,7 +286,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                            'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
-      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent_id: 1, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
@@ -313,11 +334,16 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   context 'when importing an occurrence with a type material matching a misspelling of a synonym of the current taxon name' do
     before :all do
-      @import_dataset = prepare_occurrence_tsv('typeStatus_synonym_misspelling.tsv',
-                                               import_settings: { 'restrict_to_existing_nomenclature' => true,
-                                                                  'require_type_material_success' => true })
 
-      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+     init_housekeeping
+
+      @import_dataset = prepare_occurrence_tsv(
+        'typeStatus_synonym_misspelling.tsv',
+        import_settings: {
+          'restrict_to_existing_nomenclature' => true,
+          'require_type_material_success' => true })
+
+      kingdom = Protonym.create!(parent_id: 1, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
@@ -381,10 +407,15 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   context 'when importing an occurrence with a type material matching a subsequent combination of the current taxon name' do
     before :all do
-      @import_dataset = prepare_occurrence_tsv('typeStatus_subsequent_combination.tsv', import_settings: { 'restrict_to_existing_nomenclature' => true,
-                                                                                                           'require_type_material_success' => true })
 
-      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      init_housekeeping
+
+      @import_dataset = prepare_occurrence_tsv(
+        'typeStatus_subsequent_combination.tsv',
+        import_settings: { 'restrict_to_existing_nomenclature' => true,
+                           'require_type_material_success' => true })
+
+      kingdom = Protonym.create!(parent_id: 1, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
@@ -408,7 +439,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       s_brachynoda.original_species = s_mayri
       s_brachynoda.original_subspecies = s_brachynoda
 
-
       # Add synonym relationship
       TaxonNameRelationship::Iczn::Invalidating::Usage::Synonym.create!(subject_taxon_name: s_brachynoda, object_taxon_name: s_mayri)
 
@@ -416,7 +446,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       Combination.create(genus: g_liponera, species: s_mayri, subspecies: s_brachynoda)
 
       @imported = @import_dataset.import(5000, 100)
-
     end
 
     let!(:results) { @imported }
@@ -445,6 +474,9 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
     before :all do
       DatabaseCleaner.start
+
+      init_housekeeping
+
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_wildcard_subgenus.tsv'), 'text/plain'),
         description: 'Type Material Wildcard Subgenus',
@@ -452,7 +484,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                            'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
-      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent_id: 1, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
@@ -498,6 +530,9 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
     before :all do
       DatabaseCleaner.start
+
+      init_housekeeping
+
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_unresolved_homonym.tsv'), 'text/plain'),
         description: 'Type Material Homonym',
@@ -506,7 +541,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       ).tap { |i| i.stage }
 
 
-      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent_id: 1, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
@@ -518,11 +553,11 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       g_karavaievia = Protonym.create!(parent: g_camponotus, name: "Karavaievia", rank_class: Ranks.lookup(:iczn, :subgenus), also_create_otu: true)
 
       s_nigripes_dumpert = Protonym.create!(parent: g_karavaievia, name: "nigripes", rank_class: Ranks.lookup(:iczn, :species),
-                                           verbatim_author: "Dumpert", year_of_publication: 1995, also_create_otu: true)
+                                            verbatim_author: "Dumpert", year_of_publication: 1995, also_create_otu: true)
 
       s_nidulans = Protonym.create!(parent: g_camponotus, name: "nidulans", rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
       s_nigripes_wheeler = Protonym.create!(parent: g_dendromyrmex, name: "nigripes", rank_class: Ranks.lookup(:iczn, :species),
-                                           verbatim_author: "Wheeler", year_of_publication: 1916, also_create_otu: true)
+                                            verbatim_author: "Wheeler", year_of_publication: 1916, also_create_otu: true)
 
       s_nigripes_wheeler.original_genus = g_dendromyrmex
       s_nigripes_wheeler.original_species = s_nidulans
@@ -561,12 +596,14 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
   context 'when importing an occurrence with a type material that is a resolved homonym' do
 
     before :all do
-      @import_dataset = prepare_occurrence_tsv('type_material_homonym.tsv',
-                                               import_settings: { 'restrict_to_existing_nomenclature' => true,
-                                                                  'require_type_material_success' => true }
+      @import_dataset = prepare_occurrence_tsv(
+        'type_material_homonym.tsv',
+        import_settings: {
+          'restrict_to_existing_nomenclature' => true,
+          'require_type_material_success' => true }
       )
 
-      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent_id: 1, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
@@ -581,7 +618,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
       # Camponotus (Tanaemyrmex) fervens (Smith, 1857) is a homonym replaced by Camponotus (Tanaemyrmex) fervidus Donisthorpe, 1943
       s_fervens_smith = Protonym.create!(parent: g_tanaemyrmex, name: "fervens", rank_class: Ranks.lookup(:iczn, :species),
-                                            verbatim_author: "Smith", year_of_publication: 1857, also_create_otu: true)
+                                         verbatim_author: "Smith", year_of_publication: 1857, also_create_otu: true)
       s_fervens_smith.original_genus = g_formica
       s_fervens_smith.original_species = s_fervens_smith
 
@@ -631,6 +668,9 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
     before :all do
       DatabaseCleaner.start
+
+      init_housekeeping
+
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_bad_type.tsv'), 'text/plain'),
         description: 'bad type material',
@@ -639,7 +679,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       ).tap { |i| i.stage }
 
 
-      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent_id: 1, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
@@ -667,7 +707,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
       TaxonNameRelationship::Iczn::Invalidating::Usage::Synonym.create!(subject_taxon_name: s_obscurata, object_taxon_name: s_breviscapus)
 
-
       @imported = @import_dataset.import(5000, 100)
     end
 
@@ -691,6 +730,9 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
   context 'when importing a specimen with missing intermediate ranks that needs an OTU created' do
     before :all do
       DatabaseCleaner.start
+
+      init_housekeeping
+
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/create_otu.tsv'), 'text/plain'),
         description: 'create otu',
@@ -698,7 +740,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       ).tap { |i| i.stage }
 
 
-      kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create(parent_id: 1, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
@@ -828,7 +870,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                                                import_settings: { 'restrict_to_existing_nomenclature' => true,
                                                                   'require_type_material_success' => true })
 
-      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent_id: 1, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
@@ -881,7 +923,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
       @person = Person.create!(last_name: 'Forel', first_name: 'Auguste')
 
-      kingdom = Protonym.create!(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent_id: 1, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: "Arthropoda", rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: "Insecta", rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: "Hymenoptera", rank_class: Ranks.lookup(:iczn, :order))
@@ -913,11 +955,13 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     after(:all) { DatabaseCleaner.clean }
 
     before :all do
+      init_housekeeping
+
       @import_dataset = prepare_occurrence_tsv('typeStatus_subsequent_combination_without_subgenus.tsv',
                                                import_settings: { 'restrict_to_existing_nomenclature' => true,
                                                                   'require_type_material_success' => true})
 
-      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -928,12 +972,12 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       subgenus = Protonym.create!(parent: genus, name: 'Tanaemyrmex', rank_class: Ranks.lookup(:iczn, :subgenus), also_create_otu: true)
 
       s_atlantis = Protonym.create!(parent: subgenus, name: 'atlantis', rank_class: Ranks.lookup(:iczn, :species),
-                                      verbatim_author: 'Forel', year_of_publication: 1890, also_create_otu: true)
+                                    verbatim_author: 'Forel', year_of_publication: 1890, also_create_otu: true)
       s_maculatus = Protonym.create!(parent: subgenus, name: 'maculatus', rank_class: Ranks.lookup(:iczn, :species),
                                      verbatim_author: '(Fabricius)', year_of_publication: 1782, also_create_otu: true)
 
       s_hesperius = Protonym.create!(parent: subgenus, name: 'hesperius', rank_class: Ranks.lookup(:iczn, :species),
-                                    verbatim_author: 'Emery', year_of_publication: 1893, also_create_otu: true)
+                                     verbatim_author: 'Emery', year_of_publication: 1893, also_create_otu: true)
 
       s_hesperius.original_genus = genus
       s_hesperius.original_species = s_maculatus
@@ -959,8 +1003,11 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     after(:all) { DatabaseCleaner.clean }
 
     before :all do
+
+      init_housekeeping
+
       @import_dataset = prepare_occurrence_tsv('authorship_missing_subgenus.tsv', import_settings: { 'restrict_to_existing_nomenclature' => true })
-      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -978,7 +1025,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                                   verbatim_author: 'Ashmead', year_of_publication: 1905)
 
       @species = Protonym.create!(parent: subgenus, name: 'maculata', rank_class: Ranks.lookup(:iczn, :species),
-                                           verbatim_author: '(Fabricius)', year_of_publication: 1782, also_create_otu: true)
+                                  verbatim_author: '(Fabricius)', year_of_publication: 1782, also_create_otu: true)
       @species.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
 
       make_original_combination_from_current!(genus)
@@ -1004,8 +1051,11 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     after(:all) { DatabaseCleaner.clean }
 
     before :all do
+
+      init_housekeeping
+
       @import_dataset = prepare_occurrence_tsv('homonym_name.tsv', import_settings: { 'restrict_to_existing_nomenclature' => true })
-      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1016,7 +1066,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                                verbatim_author: 'Westwood', year_of_publication: 1840)
 
       g_Oligomyrmex = Protonym.create!(parent: tribe, name: 'Oligomyrmex', rank_class: Ranks.lookup(:iczn, :genus),
-                                               verbatim_author: 'Mayr', year_of_publication: 1867)
+                                       verbatim_author: 'Mayr', year_of_publication: 1867)
       g_Oligomyrmex.synonymize_with(genus)
 
       arnoldi_forel =  Protonym.create!(parent: genus, name: 'arnoldi', rank_class: Ranks.lookup(:iczn, :species),
@@ -1080,9 +1130,12 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     #  Formicidae › Formicinae › Camponotini › Camponotus › Camponotus (Tanaemyrmex) › Camponotus kugleri
 
     before :all do
+
+      init_housekeeping
+
       @import_dataset = prepare_occurrence_tsv('missing_subgenus.tsv', import_settings: { 'restrict_to_existing_nomenclature' => false })
 
-      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1101,11 +1154,11 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       subgenus = Protonym.create!(parent: genus, name: 'Myrmosericus', rank_class: Ranks.lookup(:iczn, :subgenus),
                                   verbatim_author: 'Forel', year_of_publication: 1912)
       species = Protonym.create!(parent: subgenus, name: 'vestita', rank_class: Ranks.lookup(:iczn, :species),
-                                     verbatim_author: '(Smith)', year_of_publication: 1858)
+                                 verbatim_author: '(Smith)', year_of_publication: 1858)
       species.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
 
       @subspecies = Protonym.create!(parent: species, name: 'bombycinus', rank_class: Ranks.lookup(:iczn, :subspecies),
-                                  verbatim_author: 'Santschi', year_of_publication: 1930, also_create_otu: true)
+                                     verbatim_author: 'Santschi', year_of_publication: 1930, also_create_otu: true)
 
       make_original_combination_from_current!(genus)
       make_original_combination_from_current!(subgenus)
@@ -1113,7 +1166,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       make_original_combination_from_current!(@subspecies)
 
       s_cruentatus = Protonym.create!(parent: subgenus, name: 'cruentata', rank_class: Ranks.lookup(:iczn, :species),
-                                     verbatim_author: '(Latreille)', year_of_publication: 1802, also_create_otu: true)
+                                      verbatim_author: '(Latreille)', year_of_publication: 1802, also_create_otu: true)
       s_cruentatus.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
       create_original_combination!(s_cruentatus, {genus: genus_formica, species: s_cruentatus})
 
@@ -1132,8 +1185,11 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     after(:all) { DatabaseCleaner.clean }
 
     before :all do
+
+      init_housekeeping
+
       @import_dataset = prepare_occurrence_tsv('homonym_same_author.tsv', import_settings: { 'restrict_to_existing_nomenclature' => true })
-      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1165,7 +1221,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
       # replacement name for unicolor 1877
       s_monochrous = Protonym.create!(parent: genus, name: 'monochroa', rank_class: Ranks.lookup(:iczn, :species),
-                                         verbatim_author: '(Dalla Torre)', year_of_publication: 1892, also_create_otu: true)
+                                      verbatim_author: '(Dalla Torre)', year_of_publication: 1892, also_create_otu: true)
       create_original_combination!(s_monochrous, {genus: g_Pseudomyrma, species: s_monochrous})
       set_homonym_replacement_for!(s_unicolor_1877, s_monochrous)
 
@@ -1200,7 +1256,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = prepare_occurrence_tsv('conjugation_misspelling.tsv',
                                                import_settings: { 'restrict_to_existing_nomenclature' => true})
 
-      family = Protonym.create!(parent: @root, name: 'Formicidae', rank_class: Ranks.lookup(:iczn, :family))
+      family = Protonym.create!(parent_id: 1, name: 'Formicidae', rank_class: Ranks.lookup(:iczn, :family))
       genus = Protonym.create!(parent: family, name: 'Fulakora', rank_class: Ranks.lookup(:iczn, :genus))
       TaxonNameClassification::Latinized::Gender::Feminine.create!(taxon_name: genus)
 
@@ -1237,11 +1293,14 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     after(:all) { DatabaseCleaner.clean }
 
     before :all do
-      @import_dataset = prepare_occurrence_tsv('type_material_authorship.tsv', import_settings:
-        { 'restrict_to_existing_nomenclature' => true,
-          'require_type_material_success' => true })
 
-      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      init_housekeeping
+
+      @import_dataset = prepare_occurrence_tsv('type_material_authorship.tsv', import_settings:
+                                               { 'restrict_to_existing_nomenclature' => true,
+                                                 'require_type_material_success' => true })
+
+      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1299,11 +1358,14 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     after(:all) { DatabaseCleaner.clean }
 
     before :all do
-      @import_dataset = prepare_occurrence_tsv('type_material_authorship_homonym.tsv', import_settings:
-        { 'restrict_to_existing_nomenclature' => true,
-          'require_type_material_success' => true })
 
-      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      init_housekeeping
+
+      @import_dataset = prepare_occurrence_tsv('type_material_authorship_homonym.tsv', import_settings:
+                                               { 'restrict_to_existing_nomenclature' => true,
+                                                 'require_type_material_success' => true })
+
+      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1350,8 +1412,11 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     after(:all) { DatabaseCleaner.clean }
 
     before :all do
-      @import_dataset = prepare_occurrence_tsv('identification_remark.tsv',
-                                               import_settings: { 'restrict_to_existing_nomenclature' => false })
+      init_housekeeping
+
+      @import_dataset = prepare_occurrence_tsv(
+        'identification_remark.tsv',
+        import_settings: { 'restrict_to_existing_nomenclature' => false })
 
       @imported = @import_dataset.import(5000, 100)
     end
@@ -1373,50 +1438,57 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       end
     end
   end
-end
-
-
-# @param [Protonym] object_taxon
-def make_original_combination_from_current!(object_taxon)
-  ancestors = Protonym.self_and_ancestors_of(object_taxon).map { |taxon| [taxon.rank&.to_sym, taxon] }.to_h
-  create_original_combination!(object_taxon, ancestors)
-end
-
-# @param [Protonym] object_taxon
-# @param [Hash{Symbol=>Protonym}] ranks
-def create_original_combination!(object_taxon, ranks)
-  original_combination_ranks = {
-    genus: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
-    subgenus: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus',
-    species: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
-    subspecies: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
-    variety: 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
-    form: 'TaxonNameRelationship::OriginalCombination::OriginalForm'
-  }.freeze
-
-  ranks.each_pair do |rank, subject|
-    rank_class = original_combination_ranks[rank]
-    TaxonNameRelationship.create!(type: rank_class, subject_taxon_name: subject, object_taxon_name: object_taxon) if rank_class
   end
-end
-
-# @param [Protonym] subject The invalid homonym
-# @param [Protonym] replacement The replacement name
-def set_homonym_replacement_for!(subject, replacement)
-  TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym.create!(subject_taxon_name: subject, object_taxon_name: replacement)
-end
 
 
-# Set up DatabaseCleaner, stage tsv file for import
-# @param [String] file_name
-# @param [String, nil] description
-# @param [Hash] import_settings
-def prepare_occurrence_tsv(file_name, description = nil, import_settings: {})
-  DatabaseCleaner.start
-  ImportDataset::DarwinCore::Occurrences.create!(
-    source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/' + file_name), 'text/plain'),
-    description: description || file_name, # use file name as description if not given
-    import_settings: import_settings
-  ).tap { |i| i.stage }
+  # @param [Protonym] object_taxon
+  def make_original_combination_from_current!(object_taxon)
+    ancestors = Protonym.self_and_ancestors_of(object_taxon).map { |taxon| [taxon.rank&.to_sym, taxon] }.to_h
+    create_original_combination!(object_taxon, ancestors)
+  end
 
-end
+  # @param [Protonym] object_taxon
+  # @param [Hash{Symbol=>Protonym}] ranks
+  def create_original_combination!(object_taxon, ranks)
+    original_combination_ranks = {
+      genus: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
+      subgenus: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus',
+      species: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
+      subspecies: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
+      variety: 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
+      form: 'TaxonNameRelationship::OriginalCombination::OriginalForm'
+    }.freeze
+
+    ranks.each_pair do |rank, subject|
+      rank_class = original_combination_ranks[rank]
+      TaxonNameRelationship.create!(type: rank_class, subject_taxon_name: subject, object_taxon_name: object_taxon) if rank_class
+    end
+  end
+
+  # @param [Protonym] subject The invalid homonym
+  # @param [Protonym] replacement The replacement name
+  def set_homonym_replacement_for!(subject, replacement)
+    TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym.create!(subject_taxon_name: subject, object_taxon_name: replacement)
+  end
+
+
+  # Set up DatabaseCleaner, stage tsv file for import
+  # @param [String] file_name
+  # @param [String, nil] description
+  # @param [Hash] import_settings
+  def prepare_occurrence_tsv(file_name, description = nil, import_settings: {})
+    DatabaseCleaner.start
+
+    Current.project_id = 1
+    Current.user_id = 1
+
+    ImportDataset::DarwinCore::Occurrences.create!(
+      source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/' + file_name), 'text/plain'),
+      description: description || file_name, # use file name as description if not given
+      import_settings: import_settings
+    ).tap { |i| i.stage }
+
+  end
+
+
+

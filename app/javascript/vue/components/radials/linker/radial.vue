@@ -15,7 +15,8 @@
         <div class="horizontal-center-content">
           <radial-menu
             :options="menuOptions"
-            @on-click="saveParams"
+            @on-click="handleClick"
+            @contextmenu="handleContextMenu"
           />
         </div>
       </template>
@@ -39,7 +40,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { copyObjectByArray } from '@/helpers/objects.js'
+import { copyObjectByArray, createAndSubmitForm } from '@/helpers'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam.js'
 import RadialMenu from '@/components/radials/RadialMenu.vue'
@@ -107,7 +108,11 @@ const menuOptions = computed(() => {
       item.link + '?' + qs.stringify(parameters, { arrayFormat: 'brackets' })
 
     if (Object.values(filteredParameters).some(Boolean)) {
-      slices.push(addSlice({ ...item, link }))
+      if (item.post) {
+        slices.push(addSlice({ label: item.label }))
+      } else {
+        slices.push(addSlice({ ...item, link }))
+      }
     }
   })
 
@@ -126,7 +131,6 @@ const menuOptions = computed(() => {
       class: 'slice'
     },
     middleButton: {
-      // Middle button
       radius: 28,
       name: 'middle',
       svgAttributes: {
@@ -156,6 +160,7 @@ function getParametersForId() {
 function addSlice({ label, link }) {
   return {
     label,
+    name: label,
     link,
     svgAttributes: {
       class: 'slice'
@@ -187,12 +192,32 @@ function filterEmptyParams(object) {
   return obj
 }
 
-function saveParams() {
+function handleClick({ name }) {
+  const item = filterLinks.value.find(({ label }) => label === name)
   const filteredParameters = filterEmptyParams(
     isOnlyIds.value ? getParametersForId() : getParametersForAll()
   )
 
-  sessionStorage.setItem('linkerQuery', JSON.stringify(filteredParameters))
+  if (item.post) {
+    createAndSubmitForm({ action: item.link, data: filteredParameters })
+  } else {
+    sessionStorage.setItem('linkerQuery', JSON.stringify(filteredParameters))
+  }
+}
+
+function handleContextMenu({ name }) {
+  const item = filterLinks.value.find(({ label }) => label === name)
+  const filteredParameters = filterEmptyParams(
+    isOnlyIds.value ? getParametersForId() : getParametersForAll()
+  )
+
+  if (item.post) {
+    createAndSubmitForm({
+      action: item.link,
+      data: filteredParameters,
+      openTab: true
+    })
+  }
 }
 
 watch(isVisible, (newVal) => {

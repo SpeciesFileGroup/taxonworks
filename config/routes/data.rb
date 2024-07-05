@@ -293,6 +293,7 @@ end
 # TODO: these should default json?
 resources :dwc_occurrences, only: [:create] do
   collection do
+    match :filter, to: 'dwc_occurrences#index', via: [:get, :post]
     get :index, defaults: {format: :json}
     get 'metadata', defaults: {format: :json}
     get 'predicates', defaults: {format: :json}
@@ -810,6 +811,9 @@ resources :taxon_names do
     get :predicted_rank, {format: :json}
 
     patch :batch_update
+
+    get :origin_citation, defaults: {format: :json}
+    post :origin_citation, defaults:  {format: :json}
   end
 
   member do

@@ -14,16 +14,6 @@
 #   2) Wipe, and rebuild on some schedule. It would in theory be possible to track and rebuild when a class of every property was created (or updated), however
 #   this is a lot of overhead to inject/code for a lot of models. It would inject latency at numerous stages that would perhaps impact UI performance.
 #
-#  Notes -
-#
-#  This experiment isn't going to work at scale, too many preceding calls for big returns
-#
-#  after_find :refresh, if: -> { persisted? && is_stale? }
-#
-#  def refresh
-#    dwc_occurrence_object.set_dwc_occurrence
-#  end
-#
 # TODO: The basisOfRecord CVTs are not super informative.
 #    We know collection object is definitely 1:1 with PreservedSpecimen, however
 #    AssertedDistribution could be HumanObservation (if source is person), or ... what? if
@@ -68,7 +58,6 @@ class DwcOccurrence < ApplicationRecord
   end
 
   belongs_to :dwc_occurrence_object, polymorphic: true, inverse_of: :dwc_occurrence
-  has_one :collecting_event, through: :dwc_occurrence_object, inverse_of: :dwc_occurrences
 
   before_validation :generate_uuid_if_required
   before_validation :set_metadata_attributes
@@ -79,6 +68,27 @@ class DwcOccurrence < ApplicationRecord
   validates :dwc_occurrence_object_id, uniqueness: { scope: [:dwc_occurrence_object_type,:project_id] }
 
   attr_accessor :occurrence_identifier
+
+  def collection_object
+    dwc_occurence_object_type == 'CollectionObject' ? dwc_occurence_object : nil
+  end
+
+  def asserted_distribution
+    dwc_occurence_object_type == 'AssertedDistribution' ? dwc_occurence_object : nil
+  end
+
+  def collecting_event
+    collection_object&.collecting_event
+  end
+
+  def otu
+    case dwc_occurrence_object_type
+    when 'AssertedDistribution'
+      dwc_occurrence_object.otu
+    when 'CollectionObject'
+      collection_object.otu
+    end    
+  end
 
   # Delete all stale indecies, where stale = object is missing
   def self.sweep
@@ -91,7 +101,7 @@ class DwcOccurrence < ApplicationRecord
   def self.stale(kind = 'CollectionObject')
     tbl = kind.tableize
     DwcOccurrence.joins("LEFT JOIN #{tbl} tbl on dwc_occurrences.dwc_occurrence_object_id = tbl.id")
-    .where("tbl.id IS NULL and dwc_occurrences.dwc_occurrence_object_type = '#{kind}'")
+      .where("tbl.id IS NULL and dwc_occurrences.dwc_occurrence_object_type = '#{kind}'")
   end
 
   def self.annotates?
@@ -121,6 +131,7 @@ class DwcOccurrence < ApplicationRecord
 
   # ---
 
+  # TODO: Move to DwcOccurrence filter
   # @return [Scope]
   #   all DwcOccurrences for the Otu
   #   * Includes synonymy (coordinate OTUs).
@@ -154,6 +165,7 @@ class DwcOccurrence < ApplicationRecord
     from("((#{a.all.to_sql}) UNION (#{b.all.to_sql})) as dwc_occurrences")
   end
 
+  # TODO: use filters
   # Return scopes by a collection object filter
   def self.by_collection_object_filter(filter_scope: nil, project_id: nil)
     return DwcOccurrence.none if project_id.nil? || filter_scope.nil?
@@ -266,42 +278,68 @@ class DwcOccurrence < ApplicationRecord
   def is_stale?
     case dwc_occurrence_object_type
     when 'CollectionObject'
-
-      # Checks made on values, not time (necessary to handle lists)
-      return true if taxon_determination_is_stale?
-
-      # Order these roughgly by most probable/frequent changes, and/or fewest db calls required
-      times = [
-        dwc_occurrence_object.updated_at, # Shouldn't be neccessary since on_save rebuilds, but cheap here
-        dwc_occurrence_object.collecting_event&.updated_at,
-        dwc_occurrence_object.taxon_determinations.order(:position)&.first&.updated_at,
-        dwc_occurrence_object.biocuration_classifications.order(:updated_at).first&.updated_at,
-        dwc_occurrence_object.georeferences.order(:updated_at).first&.updated_at,
-        dwc_occurrence_object.data_attributes.order(:updated_at).first&.updated_at,
-
-        dwc_occurrence_object.collecting_event&.data_attributes&.order(:updated_at)&.first&.updated_at,
-      ]
-
-      n = read_attribute(:updated_at) # || Time.current <- if this then never stale!
+      times = is_stale_metadata.values
+      n = read_attribute(:updated_at)
 
       times.each do |v|
-        next if v.nil?
         return true if v > n
       end
 
       return false
     else # AssertedDistribution
-      dwc_occurrence_object.updated_at > updated_at
+     return  dwc_occurrence_object.updated_at > updated_at
     end
   end
 
-  # @return Boolean
-  #   acts_as_list actions don't trigger updated_at changes, handle this by comparing current values
-  def taxon_determination_is_stale?
-    dwc_occurrence_object&.taxon_determinations.order(:position).first&.otu&.taxon_name&.cached_name_and_author_year != scientificName
+  def is_stale_metadata
+    case dwc_occurrence_object_type
+    when 'CollectionObject'
+
+      o = CollectionObject.select(:id, :updated_at, :collecting_event_id).find_by(id: dwc_occurrence_object_id)
+      ce = CollectingEvent.select(:id, :updated_at).find_by(id: o.collecting_event_id)
+
+      td =  dwc_occurrence_object&.taxon_determinations.order(:position).first
+
+      tdr = if td&.otu&.taxon_name&.cached_name_and_author_year != scientificName
+              td.updated_at 
+            else
+              nil
+            end
+
+      tc = if fieldNumber != o.dwc_field_number
+             collecting_event.identifiers.where(type: 'Identifier::Local::TripCode').first.updated_at
+           else
+             nil
+           end
+
+      return {
+        collection_object: o.updated_at, # Shouldn't be neccessary since on_save rebuilds, but cheap here
+        collecting_event: ce&.updated_at,
+        trip_code: tc,
+        taxon_determination: dwc_occurrence_object.taxon_determinations.order(:position)&.first&.updated_at,
+        taxon_determination_reorder: tdr,
+        taxon_determination_roles: dwc_occurrence_object.taxon_determinations.order(:position)&.first&.updated_at,
+        biocuration_classification: dwc_occurrence_object.biocuration_classifications.order(:updated_at).first&.updated_at,
+        georeferences: dwc_occurrence_object.georeferences.order(:updated_at).first&.updated_at,
+
+        data_attributes: dwc_occurrence_object.data_attributes.order(:updated_at).first&.updated_at,
+
+        collection_object_roles: dwc_occurrence_object.roles.order(:updated_at).first&.updated_at,
+        collecting_event_data_attributes: dwc_occurrence_object.collecting_event&.data_attributes&.order(:updated_at)&.first&.updated_at,
+        collecting_event_roles: dwc_occurrence_object.collecting_event&.roles&.order(:updated_at)&.first&.updated_at
+       # citations?
+        # tags?!
+      }.select{|k,v| !v.nil?}
+
+    else # AssertedDistribution
+      { 
+        asserted_distribution: dwc_occurrence_object.updated_at,
+        # TODO: Citations
+      }
+    end
   end
 
-  protected
+    protected
 
   def create_object_uuid
     @occurrence_identifier = Identifier::Global::Uuid::TaxonworksDwcOccurrence.create!(

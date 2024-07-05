@@ -24,6 +24,7 @@ class Tasks::Metadata::Vocabulary::ProjectVocabularyController < ApplicationCont
       Descriptor
       Document
       Download
+      DwcOccurrence
       Extract
       FieldOccurrence
       GeographicArea

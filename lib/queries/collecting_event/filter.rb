@@ -401,6 +401,19 @@ module Queries
         ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
       end
 
+      def dwc_occurrence_query_facet
+        return nil if dwc_occurrence_query.nil?
+
+        s = ::CollectingEvent
+          .with(query_dwc_ce: dwc_occurrence_query.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
+          .joins('JOIN collection object co co.collecting_event_id = collecting_events.id')
+          .joins("JOIN dwc_occurrences do on do.dwc_occurrence_object_type = 'CollectionObject' and do.dwc_occurrence_object_id = co.id")
+          .joins('JOIN query_dwc_ce as query_dwc_ce1 on query_dwc_ce1.id = dwc_occurrences.id')
+          .to_sql
+
+        ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
+      end
+
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
         s = 'WITH query_tn_ce AS (' + taxon_name_query.all.to_sql + ') ' +
@@ -435,6 +448,7 @@ module Queries
         [
           biological_association_query_facet,
           collection_object_query_facet,
+          dwc_occurrence_query_facet,
           otu_query_facet,
           taxon_name_query_facet,
 
