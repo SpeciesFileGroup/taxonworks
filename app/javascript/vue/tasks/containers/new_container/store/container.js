@@ -106,7 +106,7 @@ export const useContainerStore = defineStore('container', {
 
     getSelectedContainerItemByUUID(state) {
       return (uuid) =>
-        state.selectedItems.find((item) => item.metadata.uuid === uuid)
+        state.selectedItems.find((item) => item.metadata?.uuid === uuid)
     },
 
     getItemsOutsideContainer(state) {

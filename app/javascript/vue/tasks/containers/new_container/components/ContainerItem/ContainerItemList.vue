@@ -15,7 +15,9 @@
             @click="
               store.fillContainer(
                 list.filter((item) =>
-                  store.selectedItems.some((i) => i.metadata.uuid === item.uuid)
+                  store.selectedItems.some(
+                    (i) => i.metadata?.uuid === item.uuid
+                  )
                 )
               )
             "
