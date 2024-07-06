@@ -1,8 +1,10 @@
 # require 'rgeo'
 
-# A GeographicItem is one and only one of [point, line_string, polygon, multi_point, multi_line_string,
-# multi_polygon, geometry_collection, geography] which describes a position, path, or area on the globe, generally associated
-# with a geographic_area (through a geographic_area_geographic_item entry), a gazetteer, or a georeference.
+# A GeographicItem is one and only one of [point, line_string, polygon,
+# multi_point, multi_line_string, multi_polygon, geometry_collection,
+# geography] which describes a position, path, or area on the globe,
+# generally associated with a geographic_area (through a
+# geographic_area_geographic_item entry), a gazetteer, or a georeference.
 #
 # @!attribute point
 #   @return [RGeo::Geographic::ProjectedPointImpl]
@@ -369,7 +371,8 @@ class GeographicItem < ApplicationRecord
       # @param [Integer] geographic_item_id
       # @param [Number] distance (in meters) (positive only?!)
       # @param [Number] buffer: distance in meters to grow/shrink the shapes checked against (negative allowed)
-      # @return [String]
+      # @return [String] Shapes whose `buffer` is within `distance` of
+      #   geographic_item
       def st_buffer_st_within_sql(geographic_item_id, distance, buffer = 0)
         # You can't always switch the buffer to the second argument, even when
         # distance is 0, without further assumptions (think of buffer being
@@ -773,28 +776,6 @@ class GeographicItem < ApplicationRecord
       ).first['st_isvalid']
     end
 
-    # @return [Array]
-    #   the lat, long, as STRINGs for the centroid of this geographic item
-    #   Meh- this: https://postgis.net/docs/en/ST_MinimumBoundingRadius.html
-    def center_coords
-      r = GeographicItem.find_by_sql(
-        "Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}), " \
-        "'D.DDDDDD'), ' ', 1) latitude, split_part(ST_AsLatLonText(ST_Centroid" \
-        "(#{GeographicItem::GEOMETRY_SQL.to_sql}), 'D.DDDDDD'), ' ', 2) " \
-        "longitude from geographic_items where id = #{id};")[0]
-
-      [r.latitude, r.longitude]
-    end
-
-    # @return [RGeo::Geographic::ProjectedPointImpl]
-    #    representing the centroid of this geographic item
-    def centroid
-      # Gis::FACTORY.point(*center_coords.reverse)
-      return geo_object if geo_object_type == :point
-
-      Gis::FACTORY.parse_wkt(st_centroid)
-    end
-
     # @param [GeographicItem] geographic_item
     # @return [Double] distance in meters
     # Works with changed and non persisted objects
@@ -815,8 +796,7 @@ class GeographicItem < ApplicationRecord
     end
 
     # @return [String]
-    #   a WKT POINT representing the centroid of the geographic item
-    #   *as a geometry object*
+    #   a WKT POINT representing the geometry centroid of the geographic item
     def st_centroid
       GeographicItem
         .where(id:)
@@ -825,6 +805,29 @@ class GeographicItem < ApplicationRecord
             self.class.st_centroid_sql(GeographicItem::GEOMETRY_SQL.to_sql)
           )
         ))
+    end
+
+    # @return [RGeo::Geographic::ProjectedPointImpl]
+    #    representing the geometric centroid of this geographic item
+    def centroid
+      # Gis::FACTORY.point(*center_coords.reverse)
+      return geo_object if geo_object_type == :point
+
+      Gis::FACTORY.parse_wkt(st_centroid)
+    end
+
+    # @return [Array]
+    #   the lat, long, as STRINGs for the geometric centroid of this geographic
+    #   item
+    #   Meh- this: https://postgis.net/docs/en/ST_MinimumBoundingRadius.html
+    def center_coords
+      r = GeographicItem.find_by_sql(
+        "Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}), " \
+        "'D.DDDDDD'), ' ', 1) latitude, split_part(ST_AsLatLonText(ST_Centroid" \
+        "(#{GeographicItem::GEOMETRY_SQL.to_sql}), 'D.DDDDDD'), ' ', 2) " \
+        "longitude from geographic_items where id = #{id};")[0]
+
+      [r.latitude, r.longitude]
     end
 
     # !!TODO: migrate these to use native column calls
@@ -1082,13 +1085,8 @@ class GeographicItem < ApplicationRecord
 
     def align_winding
       if orientations.flatten.include?(false)
-        if (column = multi_polygon_column)
-          column = column.to_s
-          ApplicationRecord.connection.execute(
-            "UPDATE geographic_items SET #{column} = ST_ForcePolygonCCW(#{column}::geometry)
-              WHERE id = #{self.id};"
-           )
-        elsif (column = polygon_column)
+        column = polygon_column || multi_polygon_column
+        if (column)
           column = column.to_s
           ApplicationRecord.connection.execute(
             "UPDATE geographic_items SET #{column} = ST_ForcePolygonCCW(#{column}::geometry)

@@ -19,23 +19,33 @@ shared_context 'stuff for geography tests' do
   }.freeze }
 
   let(:simple_point) {
-    FactoryBot.create(:geographic_item_geography, geography: simple_shapes[:point])
+    FactoryBot.create(
+      :geographic_item_geography, geography: simple_shapes[:point]
+    )
   }
 
   let(:simple_line_string) {
-    FactoryBot.create(:geographic_item_geography, geography: simple_shapes[:line_string])
+    FactoryBot.create(
+      :geographic_item_geography, geography: simple_shapes[:line_string]
+    )
   }
 
   let(:simple_polygon) {
-    FactoryBot.create(:geographic_item_geography, geography: simple_shapes[:polygon])
+    FactoryBot.create(
+      :geographic_item_geography, geography: simple_shapes[:polygon]
+    )
   }
 
   let(:simple_multi_point) {
-    FactoryBot.create(:geographic_item_geography, geography: simple_shapes[:multi_point])
+    FactoryBot.create(
+      :geographic_item_geography, geography: simple_shapes[:multi_point]
+    )
   }
 
   let(:simple_multi_line_string) {
-    FactoryBot.create(:geographic_item_geography, geography: simple_shapes[:multi_line_string])
+    FactoryBot.create(
+      :geographic_item_geography, geography: simple_shapes[:multi_line_string]
+    )
   }
 
   let(:simple_multi_polygon) {
@@ -50,13 +60,42 @@ shared_context 'stuff for geography tests' do
     )
   }
 
-  let(:simple_rgeo_point) { RSPEC_GEO_FACTORY.point(10, -10, 0) }
-
-  ###### Specific shapes testing relations between shapes
+  ###### Specific shapes for testing relations between shapes
+  #
+  #      donut              box                    distant_point
+  # 20 @@@@@@@@@         @@@@@@@@@                       #
+  #    @       @         @       @
+  # 15 @ &@@@@ @         @   %%%%%%%%%
+  #    @ &   @ @         @   %   @   %
+  # 10 @ # # @ @         &&&&#&&&&   %
+  #    @ &   @ @         @   %   @   %  rectangle_intersecting_box
+  #  5 @ &@@@@ @         @   % # @   %
+  #    @#      @         @   %   @   %
+  #  0 @@@@@@@@@         @@@@%%%%%%%%%
+  #
+  #    0       20        40  50  60  70
+  #  # = point, & = line
+  #
+  #  Donut shapes: donut, donut_left_interior_edge,
+  #    donut_bottom_and_left_interior_edges (a multi_line),
+  #    donut_centroid, donut_left_interior_edge_point, donut_interior_point
+  #
+  #  Box shapes: box, box_horizontal_bisect_line, box_centroid
+  #
+  #  Rectangle shapes: rectangle_intersecting_box,
+  #    box_rectangle_intersection_point
+  #
+  #  box_rectangle_union is what it says as a single polygon
+  #
+  #  MultiPoint: donut_box_multi_point (donut_interior_point, box_centroid)
+  #  MultiLine: donut_bottom_and_left_interior_edges
+  #  MultiPolygon: donut_rectangle_multi_polygon
+  #  GeometryCollection: donut_box_bisector_rectangle_geometry_collection
+  #    (donut, box_horizontal_bisect_line, rectangle_intersecting_box)
 
   ### Point intended to be outside of any of the shapes defined below
   let(:distant_point) {
-    FactoryBot.create(:geographic_item_geography, geography: 'POINT(1000 1000 0)')
+    FactoryBot.create(:geographic_item_geography, geography: 'POINT(85 175 0)')
   }
 
   ### A donut polygon and sub-shapes
@@ -69,7 +108,8 @@ shared_context 'stuff for geography tests' do
     FactoryBot.create(:geographic_item_geography, geography: d)
   end
 
-  let(:donut_hole_point) {
+  # geometric centroid
+  let(:donut_centroid) {
     FactoryBot.create(:geographic_item_geography, geography: donut.centroid)
   }
 
@@ -126,6 +166,7 @@ shared_context 'stuff for geography tests' do
     FactoryBot.create(:geographic_item_geography, geography: b)
   end
 
+  # geometric centroid
   let(:box_centroid) {
     FactoryBot.create(:geographic_item_geography, geography: box.centroid)
   }
@@ -140,8 +181,8 @@ shared_context 'stuff for geography tests' do
   }
 
   ### A rectangle polygon intersecting the previous box; both start at y=0,
-  # the rectangle is taller than box_centroid but shorter than box;
-  # box_centroid is in the left side of rectangle
+  # the rectangle is taller than box_centroid but shorter than box (is that
+  # important?); box_centroid is in the left side of rectangle
   let(:rectangle_intersecting_box) do
     b = 'POLYGON((50 0 0, 70 0 0, 70 15 0, 50 15 0, 50 0 0))'
 
@@ -163,7 +204,7 @@ shared_context 'stuff for geography tests' do
   ### A multi_point
   let(:donut_box_multi_point) do
     donut_point = donut_interior_point.geo_object
-    box_point = box_centroid
+    box_point = box_centroid.geo_object
     m_p = RSPEC_GEO_FACTORY.multi_point([donut_point, box_point])
 
     FactoryBot.create(:geographic_item_geography, geography: m_p)
@@ -182,22 +223,7 @@ shared_context 'stuff for geography tests' do
   end
 
   ### A geometry_collection
-  let(:donut_and_rectangle_geometry_collection) do
-    g_c = RSPEC_GEO_FACTORY.collection(
-      [
-        donut.geo_object,
-        rectangle_intersecting_box.geo_object
-      ]
-    )
-
-    FactoryBot.create(:geographic_item_geography, geography: g_c)
-  end
-
-  # Same as :donut_and_rectangle_geometry_collection but including a line
-  # intersecting the interior of rectangle (adding a point in the interior of
-  # rectangle seems fine) - st_cover fails with this collection as its first
-  # argument.
-  let(:fail_multi_dimen_geometry_collection) do
+  let(:donut_box_bisector_rectangle_geometry_collection) do
     g_c = RSPEC_GEO_FACTORY.collection(
       [
         donut.geo_object,

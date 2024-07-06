@@ -6,8 +6,13 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
 
   # the pattern `before { [s1, s2, ...].each }` is to instantiate variables
   # that have been `let` (not `let!`) by referencing them using [...].each.
+  # Shapes that were FactoryBot.created in `let`s will be saved to the
+  # database at that time, so you can specify your shapes universe for a given
+  # context by listing the shapes you want to exist in that universe.
 
   # TODO add some geometry_collection specs
+  # TODO add and comment out any ce, co, gr, ad specs that currently only need
+  # to be tested against non-geography columns
 
   let(:geographic_item) { GeographicItem.new }
 
@@ -39,6 +44,56 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     specify 'geometry_collection' do
       expect(simple_geometry_collection.geo_object_type)
         .to eq(:geometry_collection)
+    end
+  end
+
+  context 'initialization hooks' do
+    context 'winding' do
+      let(:cw_polygon) do
+        # exterior cw, interior ccw (both backwards)
+        p = 'POLYGON ((0 0, 0 10, 10 10, 10 0, 0 0), ' \
+          '(3 3, 6 3, 6 6, 3 6, 3 3))'
+
+          FactoryBot.create(:geographic_item_geography, geography: p)
+      end
+
+      let(:ccw_cw_m_p) do
+        # First ccw, second cw
+        m_p = 'MULTIPOLYGON (((0 0, 10 0, 10 10, 0 10, 0 0)),' \
+                            '((20 0, 20 10, 30 10, 30 0, 20 0)))'
+
+        FactoryBot.create(:geographic_item_geography, geography: m_p)
+      end
+
+      specify 'polygon winding is ccw after save' do
+        expect(cw_polygon.geo_object.exterior_ring.ccw?).to eq(false)
+        expect(
+          cw_polygon.geo_object.interior_rings.map(&:ccw?).uniq
+        ).to eq([true])
+
+        cw_polygon.save!
+        cw_polygon.reload
+        expect(cw_polygon.geo_object.exterior_ring.ccw?).to eq(true)
+        expect(
+          cw_polygon.geo_object.interior_rings.map(&:ccw?).uniq
+        ).to eq([false])
+      end
+
+      specify 'multi_polygon winding is ccw after save' do
+        expect(ccw_cw_m_p.geo_object[0].exterior_ring.ccw?).to eq(true)
+        expect(ccw_cw_m_p.geo_object[1].exterior_ring.ccw?). to eq(false)
+
+        ccw_cw_m_p.save!
+        ccw_cw_m_p.reload
+        expect(ccw_cw_m_p.geo_object[0].exterior_ring.ccw?).to eq(true)
+        expect(ccw_cw_m_p.geo_object[1].exterior_ring.ccw?). to eq(true)
+      end
+    end
+
+    context 'area' do
+      specify 'area of a saved polygon is > 0' do
+        expect(box.area).to be > 0
+      end
     end
   end
 
@@ -172,7 +227,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     end
 
     specify 'a point, when provided, has a legal geography' do
-      geographic_item.geography = simple_rgeo_point
+      geographic_item.geography = simple_point.geo_object
       expect(geographic_item.valid?).to be_truthy
     end
 
@@ -183,66 +238,100 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     end
   end
 
-  context '#geo_object' do
-    before {
-      geographic_item.geography = simple_rgeo_point
-    }
-
-    specify '#geo_object returns stored data' do
-      geographic_item.save!
-      expect(geographic_item.geo_object).to eq(simple_rgeo_point)
-    end
-
-    specify '#geo_object returns stored db data' do
-      geographic_item.save!
-      geo_id = geographic_item.id
-      expect(GeographicItem.find(geo_id).geo_object).to eq geographic_item.geo_object
-    end
-  end
-
   context 'instance methods' do
-    specify '#geo_object' do
-      expect(geographic_item).to respond_to(:geo_object)
+
+    context 'rgeo through geo_object' do
+      context '#geo_object' do
+        before {
+          geographic_item.geography = simple_point.geo_object
+        }
+
+        specify '#geo_object' do
+          expect(geographic_item).to respond_to(:geo_object)
+        end
+
+        specify '#geo_object returns stored data' do
+          geographic_item.save!
+          expect(geographic_item.geo_object).to eq(simple_point.geo_object)
+        end
+
+        specify '#geo_object returns stored db data' do
+          geographic_item.save!
+          geo_id = geographic_item.id
+          expect(GeographicItem.find(geo_id).geo_object)
+            .to eq geographic_item.geo_object
+        end
+      end
+
+      specify '#contains? - to see if one object is contained by another.' do
+        expect(geographic_item).to respond_to(:contains?)
+      end
+
+      specify '#within? -  to see if one object is within another.' do
+        expect(geographic_item).to respond_to(:within?)
+      end
+
+      specify '#contains? if one object is inside the area defined by the other' do
+        expect(donut.contains?(donut_interior_point.geo_object)).to be_truthy
+      end
+
+      specify '#contains? if one object is outside the area defined by the other' do
+        expect(donut.contains?(distant_point.geo_object)).to be_falsey
+      end
     end
 
-    specify '#contains? - to see if one object is contained by another.' do
-      expect(geographic_item).to respond_to(:contains?)
+    context 'centroids' do
+      context '#st_centroid' do
+        specify '#st_centroid returns wkt of the centroid' do
+          expect(simple_polygon.st_centroid).to eq('POINT(5 5)')
+        end
+      end
+
+      context '#centroid' do
+        specify '#centroid returns an rgeo centroid' do
+          expect(box.centroid).to eq(box_centroid.geo_object)
+        end
+      end
+
+      context '#center_coords' do
+        specify 'works for a polygon' do
+          lat, long = box.center_coords
+          expect(lat.to_s).to eq(lat)
+          expect(long.to_s).to eq(long)
+          expect(lat.to_f).to be_within(0.01).of(box_centroid.geo_object.y)
+          expect(long.to_f).to be_within(0.01).of(box_centroid.geo_object.x)
+        end
+      end
     end
 
-    specify '#within? -  to see if one object is within another.' do
-      expect(geographic_item).to respond_to(:within?)
-    end
-
-    specify '#contains? if one object is inside the area defined by the other' do
-      expect(donut.contains?(donut_interior_point.geo_object)).to be_truthy
-    end
-
-    specify '#contains? if one object is outside the area defined by the other' do
-      expect(donut.contains?(distant_point.geo_object)).to be_falsey
-    end
-
-    specify '#st_centroid returns a lat/lng of the centroid of the GeoObject' do
-      simple_polygon.save!
-      expect(simple_polygon.st_centroid).to eq('POINT(5 5)')
+    context '#st_distance_to_geographic_item' do
+      specify 'works for distance from polygon to point on equator' do
+        # p is on the equator, we compute distance from p to donut
+        p = box.geo_object.exterior_ring.points.first
+        p_x = p.x
+        p = FactoryBot.create(:geographic_item_geography, geography: p)
+        long_difference = p_x - donut.geo_object.exterior_ring.points.second.x
+        expected_distance = Utilities::Geo::ONE_WEST * long_difference
+        expect(donut.st_distance_to_geographic_item(p))
+          .to be_within(0.01).of(expected_distance)
+      end
     end
   end
 
   context 'class methods' do
 
-    specify '::within_radius_of_item' do
-        expect(GeographicItem).to respond_to(:within_radius_of_item)
-      end
-
-    specify '::intersecting method' do
-      expect(GeographicItem).to respond_to(:intersecting)
-    end
-
-    context '::superset_of_union_of - return objects containing the union of the
-             given objects' do
-      before(:each) {
-        [donut, donut_hole_point, donut_interior_point,
-         donut_left_interior_edge_point].each
+    context '::superset_of_union_of - return objects containing the union of the given objects' do
+      before {
+        [donut, donut_centroid, donut_interior_point,
+         donut_left_interior_edge_point, donut_left_interior_edge,
+         donut_bottom_and_left_interior_edges].each
       }
+
+      specify "doesn't return self" do
+        expect(GeographicItem.superset_of_union_of(
+          donut.id
+        ).to_a).to eq([])
+      end
 
       specify 'find the polygon containing the point' do
         expect(GeographicItem.superset_of_union_of(
@@ -250,9 +339,21 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
         ).to_a).to contain_exactly(donut)
       end
 
-      specify 'find the polygon containing two points' do
+      specify 'tests against the *union* of its inputs' do
         expect(GeographicItem.superset_of_union_of(
-          donut_interior_point.id, donut_left_interior_edge_point.id
+          donut_interior_point.id, distant_point  .id
+        ).to_a).to eq([])
+      end
+
+      specify 'polygon containing two of its points is returned once' do
+        expect(GeographicItem.superset_of_union_of(
+          [donut_interior_point.id, donut_left_interior_edge_point.id]
+        ).to_a).to contain_exactly(donut)
+      end
+
+      specify 'polygon containing two of its points is returned once' do
+        expect(GeographicItem.superset_of_union_of(
+          [donut_interior_point.id, donut_left_interior_edge_point.id]
         ).to_a).to contain_exactly(donut)
       end
 
@@ -262,26 +363,21 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
         ).to_a).to contain_exactly(donut)
       end
 
-      specify "donut doesn't contain point in donut hole" do
-        expect(
-          GeographicItem.superset_of_union_of(
-            donut_hole_point.id
-        ).to_a).to eq([])
-      end
-
       specify 'find that shapes contain their vertices' do
         vertex = FactoryBot.create(:geographic_item_geography,
           geography: donut_left_interior_edge.geo_object.start_point)
 
         expect(GeographicItem.superset_of_union_of(
           vertex.id
-        ).to_a).to contain_exactly(donut_left_interior_edge, donut)
+        ).to_a).to contain_exactly(donut,
+          donut_left_interior_edge, donut_bottom_and_left_interior_edges
+        )
       end
     end
 
     context '::within_union_of' do
       before { [donut_bottom_and_left_interior_edges,
-        donut_interior_point, donut_hole_point,
+        donut_interior_point, donut_centroid,
         donut_left_interior_edge].each
       }
 
@@ -441,7 +537,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
 
       specify 'works with any_poly' do
         expect(GeographicItem.st_covered_by('any_poly',
-          donut_and_rectangle_geometry_collection).to_a)
+          donut_rectangle_multi_polygon).to_a)
         .to contain_exactly(
            donut, rectangle_intersecting_box, donut_rectangle_multi_polygon
         )
@@ -449,10 +545,22 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
 
       specify 'DOES NOT WORK with arbitrary geometry collection' do
         pending 'ST_Covers fails when input GeometryCollection has a line intersecting a polygon\'s interior'
-        # The same test as the previous only the collection in the first
-        # argument also contains a line intersecting the interior of rectangle
+        # The same test as the previous only the geometry collection in the
+        # first argument also contains a line intersecting the interior of
+        # rectangle - if you remove the line from the collection the test
+        # passes:
+        # pass_g_c = FactoryBot.create(:geographic_item_geography, geography:
+        #  RSPEC_GEO_FACTORY.collection(
+        #    [
+        #       donut.geo_object,
+        #       rectangle_intersecting_box.geo_object,
+        #    ]
+        # )
+        # If the line only intersects the boundary of rectangle, or the line
+        # is interior to rectangle, or if it's instead an interior point of
+        # rectangle, the test also passes.
         expect(GeographicItem.st_covered_by('any_poly',
-          fail_multi_dimen_geometry_collection).to_a)
+          donut_box_bisector_rectangle_geometry_collection).to_a)
         .to contain_exactly(
           donut, rectangle_intersecting_box, donut_rectangle_multi_polygon
         )
@@ -526,5 +634,94 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
         )
       end
     end
+
+    context '::lat_long_sql' do
+      specify 'returns latitude of a point' do
+        expect(GeographicItem
+          .where(id: distant_point.id)
+          .select(GeographicItem.lat_long_sql(:latitude))
+          .first['latitude'].to_f
+        ).to be_within(0.01).of(distant_point.geo_object.y)
+      end
+
+      specify 'returns longitude of a point' do
+        expect(GeographicItem
+          .where(id: distant_point.id)
+          .select(GeographicItem.lat_long_sql(:longitude))
+          .first['longitude'].to_f
+        ).to be_within(0.01).of(distant_point.geo_object.x)
+      end
+    end
+
+    context '::within_radius_of_wkt_sql' do
+      specify 'works for a wkt point' do
+        wkt = donut_centroid.to_wkt
+        # donut centroid is (10, 10), r is a little more than the radius of
+        # donut
+        r = 10 * 1.5 * Utilities::Geo::ONE_WEST
+        expect(GeographicItem.where(
+          GeographicItem.within_radius_of_wkt_sql(wkt, r))
+        ).to contain_exactly(donut_centroid,
+          donut, donut_bottom_and_left_interior_edges,
+          donut_left_interior_edge, donut_left_interior_edge_point
+        )
+      end
+    end
+
+    context '::covered_by_wkt_sql' do
+      specify 'works for a wkt multipolygon' do
+        wkt = donut_rectangle_multi_polygon.to_wkt
+        expect(GeographicItem.where(
+          GeographicItem.covered_by_wkt_sql(wkt))
+        # Should contain all donut shapes and all rectangle shapes
+        ).to contain_exactly(donut_rectangle_multi_polygon,
+          donut, donut_bottom_and_left_interior_edges,
+          donut_left_interior_edge, donut_left_interior_edge_point,
+          rectangle_intersecting_box
+        )
+      end
+    end
+
+    context '::st_buffer_st_within_sql' do
+      before { [donut, box, rectangle_intersecting_box].each }
+
+      specify 'buffer = 0, d = 0 is intersection' do
+        expect(
+          GeographicItem.where(
+            GeographicItem.st_buffer_st_within_sql(box.id, 0, 0)
+          )
+        ).to contain_exactly(box, rectangle_intersecting_box)
+      end
+
+      specify 'expanding target shapes works' do
+        # box is 20 units from donut
+        buffer = 25 * Utilities::Geo::ONE_WEST
+        expect(
+          GeographicItem.where(
+            GeographicItem.st_buffer_st_within_sql(donut.id, 0, buffer)
+          ).to_a
+        ).to contain_exactly(donut, box)
+      end
+
+      specify 'shrinking target shapes works' do
+        # control case
+        buffer = 0
+        expect(
+          GeographicItem.where(
+            GeographicItem.st_buffer_st_within_sql(
+              donut_left_interior_edge_point.id, 0, buffer)
+          ).to_a
+        ).to eq([donut])
+
+        buffer = -(1 * Utilities::Geo::ONE_WEST)
+        expect(
+          GeographicItem.where(
+            GeographicItem.st_buffer_st_within_sql(
+              donut_left_interior_edge_point.id, 0, buffer)
+          ).to_a
+        ).to eq([])
+      end
+    end
   end
+
 end
