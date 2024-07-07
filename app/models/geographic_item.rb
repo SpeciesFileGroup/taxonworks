@@ -54,10 +54,6 @@ class GeographicItem < ApplicationRecord
   include Shared::IsData
   include Shared::SharedAcrossProjects
 
-  # @return [Hash, nil]
-  #   An internal variable for use in super calls, holds a Hash in GeoJSON format (temporarily)
-  attr_accessor :geometry
-
   # @return [Boolean, RGeo object]
   # @params value [Hash in GeoJSON format] ?!
   # TODO: WHY! boolean not nil, or object
@@ -851,12 +847,6 @@ class GeographicItem < ApplicationRecord
       self.geo_object.intersects?(target_geo_object)
     end
 
-    # @return [GeoJSON hash]
-    #    via Rgeo apparently necessary for GeometryCollection
-    def rgeo_to_geo_json
-      RGeo::GeoJSON.encode(geo_object).to_json
-    end
-
     # @return [Hash] in GeoJSON format
     def to_geo_json
       JSON.parse(
@@ -869,9 +859,8 @@ class GeographicItem < ApplicationRecord
     # @return [Hash]
     #   the shape as a GeoJSON Feature with some item metadata
     def to_geo_json_feature
-      @geometry ||= to_geo_json
       {'type' => 'Feature',
-       'geometry' => geometry,
+       'geometry' => to_geo_json,
        'properties' => {
          'geographic_item' => {
            'id' => id}
