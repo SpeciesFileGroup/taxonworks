@@ -16,6 +16,7 @@
       <div class="overflow-y-auto">
         <ContainerItemList
           v-if="store.getItemsOutsideContainer.length"
+          fill-button
           title="Container Items (Outside)"
           :list="store.getItemsOutsideContainer"
           @edit="openContainerItemModal"

@@ -10,20 +10,13 @@
         </th>
         <th>{{ title }}</th>
         <th>
-          <VBtn
-            color="primary"
-            @click="
-              store.fillContainer(
-                list.filter((item) =>
-                  store.selectedItems.some(
-                    (i) => i.metadata?.uuid === item.uuid
-                  )
-                )
-              )
-            "
-          >
-            Fill container
-          </VBtn>
+          <div class="horizontal-right-content">
+            <FillContainerModal
+              v-if="fillButton"
+              :disabled="!listSelected.length"
+              :list="listSelected"
+            />
+          </div>
         </th>
       </tr>
     </thead>
@@ -83,9 +76,9 @@
 <script setup>
 import { computed } from 'vue'
 import { useContainerStore } from '../../store'
-import { comparePosition } from '../../utils'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import FillContainerModal from './ContainerItemFill.vue'
 
 const props = defineProps({
   list: {
@@ -96,10 +89,21 @@ const props = defineProps({
   title: {
     type: String,
     required: true
+  },
+
+  fillButton: {
+    type: Boolean,
+    default: false
   }
 })
 
 const emit = defineEmits(['edit'])
+
+const listSelected = computed(() =>
+  props.list.filter((item) =>
+    store.selectedItems.some((i) => i.metadata?.uuid === item.uuid)
+  )
+)
 
 const selectAll = computed({
   get() {

@@ -173,23 +173,24 @@ export const useContainerStore = defineStore('container', {
       }
     },
 
-    fillContainer(items) {
+    fillContainer(items, { direction }) {
       const { size } = this.container
 
-      for (let y = 0; y < size.y; y++) {
-        for (let z = 0; z < size.z; z++) {
-          for (let x = 0; x < size.x; x++) {
-            const cellItem = this.getContainerItemByPosition({ x, y, z })
+      for (let i = 0; i < size[direction[0]]; i++) {
+        for (let j = 0; j < size[direction[1]]; j++) {
+          for (let k = 0; k < size[direction[2]]; k++) {
+            const position = {
+              [direction[0]]: i,
+              [direction[1]]: j,
+              [direction[2]]: k
+            }
+            const cellItem = this.getContainerItemByPosition(position)
 
             if (!cellItem && items.length) {
               const item = items.shift()
               const containerItem = {
                 ...item,
-                position: {
-                  x,
-                  y,
-                  z
-                },
+                position,
                 isUnsaved: true
               }
 
