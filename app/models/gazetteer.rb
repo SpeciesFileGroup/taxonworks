@@ -75,9 +75,6 @@ class Gazetteer < ApplicationRecord
 
     geojson_rgeo = convert_geojson_to_rgeo(shapes['geojson'])
     wkt_rgeo = convert_wkt_to_rgeo(shapes['wkt'])
-    if geojson_rgeo.nil? || wkt_rgeo.nil?
-      return nil
-    end
 
     shapes = geojson_rgeo + wkt_rgeo
 
@@ -96,8 +93,7 @@ class Gazetteer < ApplicationRecord
       )
     }
 
-    # TODO can i do the &geometry thing here?
-    rgeo_shapes.map { |shape| shape.geometry }
+    rgeo_shapes.map(&:geometry)
   end
 
   # @return [Array] of RGeo::Geographic::Projected*Impl
@@ -123,40 +119,15 @@ class Gazetteer < ApplicationRecord
       return rgeo_shapes[0]
     end
 
-    multi = nil
-    type = nil
+    # unary_union, which would be preferable here, is apparently unavailable
+    # for geographic geometries
+    u = rgeo_shapes[0]
+    rgeo_shapes[1..].each { |s| u = u.union(s) }
 
-    types = rgeo_shapes.map { |shape|
-      shape.geometry_type.type_name
-    }.uniq
-
-    if types.count == 1
-      type = types[0]
-      case type
-      when 'Point'
-        multi = Gis::FACTORY.multi_point(rgeo_shapes)
-      when 'LineString'
-        multi = Gis::FACTORY.multi_line_string(rgeo_shapes)
-      when 'Polygon'
-        multi = Gis::FACTORY.multi_polygon(rgeo_shapes)
-      when 'GeometryCollection'
-        multi = Gis::FACTORY.collection(rgeo_shapes)
-      end
-    else # multiple geometries of different types
-      type = 'Multi-types'
-      # This could itself include GeometryCollection(s)
-      multi = Gis::FACTORY.collection(rgeo_shapes)
+    if u.nil?
+      raise TaxonWorks::Error, 'Computing the union of the shapes failed'
     end
 
-    if multi.nil?
-      message = type == 'Multi-types' ?
-        'Error in combining mutiple types into a single GeometryCollection' :
-        "Error in combining multiple #{type}s into a multi-#{type}"
-      raise Taxonworks::Error, message
-    end
-
-    multi
+    u
   end
-
-
 end
