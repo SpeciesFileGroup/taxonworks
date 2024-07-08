@@ -74,8 +74,8 @@ class Otu < ApplicationRecord
   has_many :sequences, through: :extracts, source: :derived_sequences
 
   has_many :collecting_events, -> { distinct }, through: :collection_objects
-  has_many :common_names, dependent: :destroy
-  has_many :collection_profiles, dependent: :restrict_with_error # Do not destroy old profiles
+  has_many :common_names, dependent: :destroy, inverse_of: :otu
+  has_many :collection_profiles, inverse_of: :otu, dependent: :restrict_with_error # Do not destroy old profiles
 
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :public_contents, inverse_of: :otu, dependent: :destroy
@@ -86,8 +86,8 @@ class Otu < ApplicationRecord
 
   has_many :content_topics, through: :contents, source: :topic
 
-  has_many :otu_relationships, foreign_key: :subject_otu_id
-  has_many :related_otu_relationships, class_name: 'OtuRelationship', foreign_key: :object_otu_id
+  has_many :otu_relationships, foreign_key: :subject_otu_id, inverse_of: :subject_otu
+  has_many :related_otu_relationships, class_name: 'OtuRelationship', foreign_key: :object_otu_id, inverse_of: :object_otu
 
   has_many :leads, inverse_of: :otu, dependent: :restrict_with_error
 

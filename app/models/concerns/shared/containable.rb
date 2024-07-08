@@ -10,7 +10,7 @@ module Shared::Containable
 
     after_save :contain, unless: -> {contained_in.blank?}
 
-    has_one :container_item, as: :contained_object, dependent: :destroy
+    has_one :container_item, as: :contained_object, dependent: :destroy, inverse_of: :contained_object
     has_one :parent_container_item, through: :container_item, source: :parent, class_name: 'ContainerItem'
     has_one :container, through: :parent_container_item, source: :contained_object, source_type: 'Container'
   end

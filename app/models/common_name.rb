@@ -10,11 +10,11 @@ class CommonName < ApplicationRecord
 
   ALTERNATE_VALUES_FOR = [:name].freeze
 
-  belongs_to :geographic_area
-  belongs_to :otu
-  belongs_to :language
+  belongs_to :geographic_area, inverse_of: :common_names
+  belongs_to :otu, inverse_of: :common_names
+  belongs_to :language, inverse_of: :common_names
 
-  has_one :taxon_name, through: :otu
+  has_one :taxon_name, through: :otu, inverse_of: :common_names
 
   validates_presence_of :name
   validates_presence_of :otu_id

@@ -15,7 +15,7 @@ module Shared::IsData
     include Metamorphosize
     include HasRoles
     include Shared::Verifiers
-    include Merge
+    include Shared::Unify
   end
 
   module ClassMethods
@@ -159,6 +159,8 @@ module Shared::IsData
     return true if u.is_administrator?
 
     p = u.projects.pluck(:id)
+
+    # TODO: !! replace with a simple wrapped transaction and roll it back
 
     self.class.reflect_on_all_associations(:has_many).each do |r|
       if r.klass.column_names.include?('project_id')
