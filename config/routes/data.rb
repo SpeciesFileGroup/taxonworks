@@ -15,7 +15,6 @@ concern :data_routes do |options|
 
   member do
     get 'related' # TODO: remove or redirect here to Task route
-    post 'merge/:taxon_name_id', defaults: {format: :json}
   end
 end
 

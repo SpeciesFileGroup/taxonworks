@@ -88,6 +88,10 @@ scope :s do
   get ':id' => 'shortener/shortened_urls#show'
 end
 
+scope :unify, controller: :unify do
+  match '/', action: :unify, via: :post
+end
+
 resources :users, except: :new do
   resources :projects, only: [:index], defaults: {format: :json}, action: :user_projects
 
