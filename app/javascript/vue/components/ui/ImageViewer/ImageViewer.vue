@@ -26,10 +26,7 @@
           />
           <img
             v-else
-            :class="[
-              'img-maxsize',
-              state.fullSizeImage ? 'img-fullsize' : 'img-normalsize'
-            ]"
+            class="img-maxsize"
             @click="state.fullSizeImage = !state.fullSizeImage"
             :src="urlSrc"
           />
@@ -360,14 +357,6 @@ watch(isModalVisible, (newVal) => {
     transition: all 0.5s ease;
     max-width: 100%;
     max-height: 60vh;
-  }
-
-  .img-fullsize {
-    cursor: zoom-out;
-  }
-
-  .img-normalsize {
-    cursor: zoom-in;
   }
 
   .field {
