@@ -27,7 +27,9 @@ class GazetteersController < ApplicationController
 
   # GET /gazetteers/new
   def new
-    @gazetteer = Gazetteer.new
+    respond_to do |format|
+      format.html { redirect_to new_gazetteer_task_path }
+    end
   end
 
   # GET /gazetteers/1/edit

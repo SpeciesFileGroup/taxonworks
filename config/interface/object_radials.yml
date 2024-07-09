@@ -98,6 +98,10 @@ FieldOccurrence:
   new: new_field_occurrence_task,
   config:
     recent: true
+Gazetteer:
+  tasks:
+    - new_gazetteer_task
+  new: new_gazetteer_task
 GeographicArea:
   tasks:
     - filter_asserted_distributions_task
