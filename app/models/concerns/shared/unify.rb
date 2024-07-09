@@ -180,6 +180,21 @@ module Shared::Unify
     s
   end
 
+  def unify_relations_metadata
+    s = {}
+    merge_relations.each do |r|
+      i = send(r.name)
+      next if i.nil?
+      if i.class.name.match('CollectionProxy')
+        next unless i.count > 0
+        s[r.name] = { total: i.count }
+      else
+        s[r.name] = { total: 1 }
+      end
+    end
+    s
+  end
+
   private
 
   # TODO: add error array

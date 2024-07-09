@@ -1,6 +1,5 @@
 class UnifyController < ApplicationController
-  include DataControllerConfiguration::ProjectDataControllerConfiguration
-
+  before_action :require_sign_in_and_project_selection
   before_action :set_targets, only: [:unify]
 
   def unify
@@ -12,6 +11,12 @@ class UnifyController < ApplicationController
   # GET /merge/relations?klass=Otu
   def relations
     # something params[:klass]  
+  end
+
+  # GET /unify/metadata
+  def metadata
+    object = GlobalID::Locator.locate(params.require(:global_id))
+    render json: object.unify_relations_metadata
   end
 
   private
