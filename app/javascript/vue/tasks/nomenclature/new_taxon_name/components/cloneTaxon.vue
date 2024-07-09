@@ -132,6 +132,7 @@ const store = useStore()
 const shortcuts = ref([
   {
     keys: [platformKey(), 'l'],
+    preventDefault: true,
     handler() {
       taxon.value.id && !isSaving.value
     }

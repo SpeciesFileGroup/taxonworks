@@ -175,12 +175,14 @@ const store = useStore()
 const shortcuts = ref([
   {
     keys: [platformKey(), 'm'],
+    preventDefault: true,
     handler() {
       switchTypeMaterial()
     }
   },
   {
     keys: [platformKey(), 'e'],
+    preventDefault: true,
     handler() {
       switchComprehensive()
     }

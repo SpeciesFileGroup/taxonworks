@@ -109,6 +109,7 @@ const isLoading = ref()
 const shortcuts = ref([
   {
     keys: [platformKey(), 'f'],
+    preventDefault: true,
     handler() {
       focusSearch()
     }
