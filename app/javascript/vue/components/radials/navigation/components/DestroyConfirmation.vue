@@ -64,7 +64,9 @@ export default {
   },
 
   mounted() {
-    this.$refs.inputtext.focus()
+    this.$nextTick(() => {
+      this.$refs.inputtext.focus()
+    })
   },
 
   methods: {
