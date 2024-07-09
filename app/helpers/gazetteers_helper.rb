@@ -15,12 +15,6 @@ module GazetteersHelper
     link_to(link_text, gazetteer)
   end
 
-  def geographic_item_link(geographic_item, link_text = nil)
-    return nil if geographic_item.nil?
-    link_text ||= geographic_item.to_param
-    link_to(link_text, geographic_item_path(geographic_item), data: {turbolinks: false})
-  end
-
   def gazetteer_link_list(gazetteers)
     content_tag(:ul) do
       gazetteers.collect { |a| content_tag(:li, gazetteer_link(a)) }.join.html_safe

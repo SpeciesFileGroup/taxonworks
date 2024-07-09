@@ -109,13 +109,14 @@ class GeographicItem < ApplicationRecord
     has_many :geographic_area_types, through: :geographic_areas
     has_many :parent_geographic_areas, through: :geographic_areas, source: :parent
 
-    has_many :gazetteers, inverse_of: :geographic_item
     has_many :georeferences, inverse_of: :geographic_item
     has_many :georeferences_through_error_geographic_item,
       class_name: 'Georeference', foreign_key: :error_geographic_item_id, inverse_of: :error_geographic_item
     has_many :collecting_events_through_georeferences, through: :georeferences, source: :collecting_event
     has_many :collecting_events_through_georeference_error_geographic_item,
       through: :georeferences_through_error_geographic_item, source: :collecting_event
+
+    has_one :gazetteer, inverse_of: :geographic_item
 
     # TODO: THIS IS NOT GOOD
     before_validation :set_type_if_shape_column_present

@@ -90,12 +90,17 @@ class GazetteersController < ApplicationController
     end
   end
 
-  # DELETE /gazetteers/1 or /gazetteers/1.json
+  # DELETE /gazetteers/1
+  # DELETE /gazetteers/1.json
   def destroy
+    # TODO Handle children/parents (if used)
     @gazetteer.destroy!
 
     respond_to do |format|
-      format.html { redirect_to gazetteers_url, notice: "Gazetteer was successfully destroyed." }
+      format.html {
+        redirect_to gazetteers_url,
+          notice: 'Gazetteer was successfully destroyed.'
+      }
       format.json { head :no_content }
     end
   end

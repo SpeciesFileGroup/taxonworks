@@ -38,7 +38,7 @@ class Gazetteer < ApplicationRecord
 
   has_closure_tree
 
-  belongs_to :geographic_item, inverse_of: :gazetteers
+  belongs_to :geographic_item, inverse_of: :gazetteer, dependent: :destroy
 
   validates :name, presence: true, length: {minimum: 1}
 
