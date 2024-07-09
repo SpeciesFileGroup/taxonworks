@@ -3,7 +3,7 @@
 # The values here are returned as JSON via /metadata/radial/:klass
 #
 # Valid attributes (* required)
-#   tasks: - A named task (see user_tasks.yml) !! Limit this to 3 or 4
+#   tasks*: - A named task (see user_tasks.yml) !! Limit this to 3 or 4
 #   recent: - defaults to true if not provided, if false no recent list is shown
 #   edit: over-ride data->edit
 #   new: over-ride data->new
@@ -102,6 +102,7 @@ Gazetteer:
   tasks:
     - new_gazetteer_task
   new: new_gazetteer_task
+  edit: new_gazetteer_task
 GeographicArea:
   tasks:
     - filter_asserted_distributions_task

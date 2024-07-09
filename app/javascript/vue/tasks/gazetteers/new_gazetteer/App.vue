@@ -13,7 +13,7 @@
     <input
       type="text"
       class="normal-input name-input"
-      v-model="name"
+      v-model="gz.name"
     />
   </div>
 
@@ -85,6 +85,7 @@ import { Gazetteer } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import { randomUUID } from '@/helpers'
 import { addToArray, removeFromArray } from '@/helpers/arrays'
+import { URLParamsToJSON } from '@/helpers/url/parse'
 import {
   //GZ_POINT,
   GZ_WKT,
@@ -93,16 +94,36 @@ import {
 
 const shapes = ref([])
 const gz = ref({})
-const name = ref('')
 const geoItemComponent = ref(null)
+const loading = ref(false)
 
 const leafletShapes = computed(() => {
   return shapes.value.map((item) => item.shape)
 })
 
 const saveDisabled = computed(() => {
-  return !(name.value) || shapes.value.length == 0
+  return !(gz.value.name) || shapes.value.length == 0
 })
+
+const { gazetteer_id } = URLParamsToJSON(location.href)
+
+if (gazetteer_id) {
+  loadGz(gazetteer_id)
+}
+
+function loadGz(gzId) {
+  Gazetteer.find(gzId)
+  .then(({ body }) => {
+    gz.value = body
+    shapes.value = [
+      {
+        shape: body.shape,
+        type: GZ_LEAFLET
+      }
+    ]
+  })
+  .catch(() => {})
+}
 
 function saveGz() {
   if (gz.value.id) {
@@ -122,7 +143,7 @@ function saveNewGz() {
     .map((item) => item.shape)
 
   const gazetteer = {
-    name: name.value,
+    name: gz.value.name,
     shapes: {
       geojson,
       wkt
@@ -132,15 +153,14 @@ function saveNewGz() {
   Gazetteer.create({ gazetteer })
     .then(({ body }) => {
       gz.value = body
-      // TODO can we update the map to display the combined shape? Maybe fetch
-      // a geojson version?
+      // TODO probably want to fetch the edit version with the combined shape
     })
     .catch(() => {})
 }
 
 function updateGz() {
   const gazetteer = {
-    name: name.value
+    name: gz.value.name
   }
 
   Gazetteer.update(gz.value.id, { gazetteer })
@@ -155,7 +175,6 @@ function cloneGz() {}
 function reset() {
   shapes.value = []
   gz.value = {}
-  name.value = ''
 }
 
 function addToShapes(shape, type) {

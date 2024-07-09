@@ -9,7 +9,6 @@ const permitParams = {
       geojson: [],
       wkt: []
     }
-    //geographic_item_attributes: { shape: Object }
   }
 }
 

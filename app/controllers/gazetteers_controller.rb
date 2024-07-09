@@ -34,6 +34,9 @@ class GazetteersController < ApplicationController
 
   # GET /gazetteers/1/edit
   def edit
+    respond_to do |format|
+      format.html { redirect_to new_gazetteer_task_path gazetteer_id: @gazetteer.id }
+    end
   end
 
   # GET /gazetteers/list
