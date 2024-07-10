@@ -21,4 +21,13 @@ module GazetteersHelper
     end
   end
 
+  def gazetteer_autocomplete_tag(gazetteer)
+    gazetteer_tag(gazetteer)
+  end
+
+  def gazetteers_search_form
+    render('/gazetteers/quick_search_form')
+  end
+
+
 end

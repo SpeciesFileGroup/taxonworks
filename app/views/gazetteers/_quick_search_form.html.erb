@@ -1,0 +1,11 @@
+<%= form_tag(search_gazetteers_path, {method: :get}) do %>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+               locals:  {controller: 'gazetteers',
+                         object:     nil,
+                         method:     'id',
+                         autofocus: true,
+                         send_select: true,
+                         tag_id:     'gazetteer_id_for_quick_search_form',
+                         size:       '',
+                         display:    ''} %>
+<% end %>
