@@ -1,6 +1,7 @@
 <template>
   <div>
     <button
+      :disabled="disabled"
       class="button normal-input button-default"
       @click="setModalView(true)"
     >
@@ -56,6 +57,10 @@ export default {
     id_generator: {
       type: Function,
       default: () => Math.random().toString(36).substr(2, 5)
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
 
