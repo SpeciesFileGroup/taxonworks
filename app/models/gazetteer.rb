@@ -88,12 +88,23 @@ class Gazetteer < ApplicationRecord
 
     rgeo_shapes = shapes.map { |shape|
       # Raises RGeo::Error::InvalidGeometry on error
-      RGeo::GeoJSON.decode(
+      rgeo_shape = RGeo::GeoJSON.decode(
         shape, json_parser: :json, geo_factory: Gis::FACTORY
       )
+
+      circle = nil
+      if rgeo_shape.geometry.geometry_type.to_s == 'Point' &&
+           rgeo_shape.properties['radius'].present?
+        # TODO probably limit radius and/or center (if leaflet doesn't already)
+        r = rgeo_shape.properties['radius']
+
+        circle = GeographicItem.circle(rgeo_shape.geometry, r)
+      end
+
+      circle || rgeo_shape.geometry
     }
 
-    rgeo_shapes.map(&:geometry)
+    rgeo_shapes
   end
 
   # @return [Array] of RGeo::Geographic::Projected*Impl

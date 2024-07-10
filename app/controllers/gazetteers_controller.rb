@@ -54,7 +54,7 @@ class GazetteersController < ApplicationController
       rgeo_shape = Gazetteer.combine_shapes_to_rgeo(shape_params['shapes'])
     # TODO make sure these errors work
     rescue RGeo::Error::RGeoError => e
-      @gazetteer.errors.add(:base, "Invalid WKT: #{e}")
+      @gazetteer.errors.add(:base, e)
     rescue RGeo::Error::InvalidGeometry => e
       @gazetteer.errors.add(:base, "Invalid geometry: #{e}")
     rescue TaxonWorks::Error => e

@@ -250,10 +250,11 @@ class GeographicItem < ApplicationRecord
         ')'
       end
 
-      def st_buffer_sql(shape_sql, distance)
+      def st_buffer_sql(shape_sql, distance, num_seg_quarter_circle: 8)
         'ST_Buffer(' \
           "(#{shape_sql})::geography," \
-          "#{distance}" \
+          "#{distance}, " \
+          "#{num_seg_quarter_circle}" \
         ')'
       end
 
@@ -680,6 +681,32 @@ class GeographicItem < ApplicationRecord
           .where(superset_of_sql(st_geom_from_text_sql(point.to_s)))
           .order(cached_total_area: :ASC)
           .first&.inferred_geographic_name_hierarchy
+      end
+
+      # @param [RGeo::Point] center in lat/long
+      # @param [Integer] radius of the circle, in meters
+      # @param [Integer] buffer_resolution: the number of sides of the polygon
+      #                  approximation per quarter circle
+      # @return [RGeo::Polygon] A polygon approximation of the desired circle, in
+      #                         geographic coordinates
+      def circle(center, radius, buffer_resolution: 8)
+        # TODO check params
+
+        # TODO sanitize(? not sure why that was dropped elsewhere)
+        sql = 'SELECT ' +
+          st_buffer_sql(
+            st_geography_from_text_sql(
+              "POINT (#{center.x} #{center.y})",
+            ),
+            radius,
+            num_seg_quarter_circle: buffer_resolution
+          )
+
+        result = ActiveRecord::Base.connection.execute(sql)
+
+        circle_wkb = result.to_a.first['st_buffer']
+
+        Gis::FACTORY.parse_wkb(circle_wkb)
       end
 
       # @param [String] type_name ('polygon', 'point', 'line', etc)
