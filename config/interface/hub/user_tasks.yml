@@ -945,3 +945,11 @@ filter_dwc_occurrences_task:
     - filter
   status: prototype
   description: 'Filter records in the DarwinCore index.'
+
+index_new_filename_depicting_image_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
