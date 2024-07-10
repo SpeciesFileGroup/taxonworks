@@ -80,12 +80,15 @@ import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import DisplayList from './components/DisplayList.vue'
 import Leaflet from './components/Leaflet.vue'
 import NavBar from './components/NavBar.vue'
+import SetParam from '@/helpers/setParam'
 import WktComponent from '@/tasks/collecting_events/new_collecting_event/components/parsed/georeferences/wkt.vue'
 import { Gazetteer } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import { randomUUID } from '@/helpers'
+import { RouteNames } from '@/routes/routes'
 import { addToArray, removeFromArray } from '@/helpers/arrays'
 import { URLParamsToJSON } from '@/helpers/url/parse'
+import { usePopstateListener } from '@/composables'
 import {
   //GZ_POINT,
   GZ_WKT,
@@ -175,7 +178,17 @@ function cloneGz() {}
 function reset() {
   shapes.value = []
   gz.value = {}
+  SetParam(RouteNames.NewGazetteer, 'gazetteer_id')
 }
+
+usePopstateListener(() => {
+  const { gazetteer_id } = URLParamsToJSON(location.href)
+  if (gazetteer_id) {
+    loadGz(gazetteer_id)
+  } else {
+    reset()
+  }
+})
 
 function addToShapes(shape, type) {
   switch(type) {
