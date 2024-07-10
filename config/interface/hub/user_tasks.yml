@@ -948,7 +948,7 @@ filter_dwc_occurrences_task:
 
 index_new_filename_depicting_image_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'New filename depicting image'
   related:
   categories:
   status: prototype

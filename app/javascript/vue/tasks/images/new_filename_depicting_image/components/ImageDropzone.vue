@@ -7,39 +7,24 @@
     :dropzone-options="DROPZONE_CONFIG"
     @vdropzone-success="success"
     @vdropzone-sending="sending"
+    @vdropzone-error="error"
   />
-  <div
-    class="flex-wrap-row separate-top"
-    v-if="images.length"
-  >
-    <ImageViewer
-      v-for="item in images"
-      :key="item.id"
-      :image="item"
-      @delete="(e) => emit('remove', e)"
-    />
-    <div
-      data-icon="reset"
-      class="reset-button"
-      @click="clearImages"
-    >
-      <span>Clear images</span>
-    </div>
-  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { getCSRFToken } from '@/helpers'
+import { getCSRFToken, randomUUID } from '@/helpers'
 import VDropzone from '@/components/dropzone.vue'
-import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
 
 const images = defineModel({
   type: Array,
   default: () => []
 })
 
-const emit = defineEmits(['remove', 'created', 'update:modelValue'])
+const errorImages = defineModel('error', {
+  type: Array,
+  default: () => []
+})
 const dropzoneRef = ref(null)
 
 const DROPZONE_CONFIG = {
@@ -53,6 +38,16 @@ const DROPZONE_CONFIG = {
   },
   dictDefaultMessage: 'Drop images here',
   acceptedFiles: 'image/*,.heic'
+}
+
+function error(file, error) {
+  dropzoneRef.value.removeFile(file)
+  errorImages.value.push({
+    uuid: randomUUID(),
+    image: file.dataURL,
+    error
+  })
+  TW.workbench.alert.create(Object.values(error).join('; '), 'error')
 }
 
 function success(file, response) {
@@ -69,21 +64,3 @@ function sending(file, xhr, formData) {
   formData.append('image[filename_depicts_object]', true)
 }
 </script>
-
-<style scoped>
-.reset-button {
-  margin: 4px;
-  width: 100px;
-  height: 65px;
-  padding: 0px;
-  padding-top: 10px;
-  background-position: center;
-  background-position-y: 30px;
-  background-size: 30px;
-  text-align: center;
-}
-.reset-button:hover {
-  opacity: 0.8;
-  cursor: pointer;
-}
-</style>
