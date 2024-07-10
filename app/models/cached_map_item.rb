@@ -227,7 +227,7 @@ class CachedMapItem < ApplicationRecord
 
   def self.dynamic_buffer(geographic_item_id)
     v = GeographicItem.select(:id, :cached_total_area).find(geographic_item_id).cached_total_area
-    return 0 if v.nil?
+    return 0 if v.nil? || v.to_i == 0
     case Math.log10(v).to_i
     when 0..2 # 3786
       0.0
