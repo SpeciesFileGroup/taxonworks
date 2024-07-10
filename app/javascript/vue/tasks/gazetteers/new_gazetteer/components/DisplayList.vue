@@ -71,13 +71,7 @@ const props = defineProps({
 const emit = defineEmits(['delete'])
 
 function deleteItem(item) {
-  if (
-    window.confirm(
-      "You're trying to delete this record. Are you sure want to proceed?"
-    )
-  ) {
-    emit('delete', item)
-  }
+  emit('delete', item)
 }
 
 function shapeType(item) {
