@@ -1,27 +1,28 @@
 <template>
-  <h3>Error</h3>
-  <div
-    v-for="(item, index) in list"
-    :key="item.uuid"
-    class="new-filename-error-row flex-separate gap-small middle"
-  >
-    <div class="horizontal-left-content gap-small">
-      <img
-        :src="item.image"
-        class="new-filename-error-thumb"
-      />
-      <span>{{ Object.values(item.error).join('; ') }}</span>
-    </div>
-    <VBtn
-      color="primary"
-      circle
-      @click="() => list.splice(index, 1)"
+  <div>
+    <div
+      v-for="(item, index) in list"
+      :key="item.uuid"
+      class="new-filename-error-row flex-separate gap-small middle"
     >
-      <VIcon
-        name="trash"
-        x-small
-      />
-    </VBtn>
+      <div class="horizontal-left-content gap-small">
+        <img
+          :src="item.image"
+          class="new-filename-error-thumb"
+        />
+        <span>{{ Object.values(item.error).join('; ') }}</span>
+      </div>
+      <VBtn
+        color="primary"
+        circle
+        @click="() => list.splice(index, 1)"
+      >
+        <VIcon
+          name="trash"
+          x-small
+        />
+      </VBtn>
+    </div>
   </div>
 </template>
 
@@ -53,5 +54,6 @@ const list = defineModel({
 
 .new-filename-error-row:last-child {
   border-bottom: none;
+  padding-bottom: 0;
 }
 </style>
