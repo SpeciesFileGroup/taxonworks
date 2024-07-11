@@ -234,12 +234,13 @@ function switchToTask(url) {
     flex-direction: column;
     .header {
       border-left: 4px solid green;
-      h3 {
-        font-weight: 300;
-      }
       padding: 1em;
       padding-left: 1.5em;
       border-bottom: 1px solid #f5f5f5;
+
+      h3 {
+        font-weight: 300;
+      }
     }
     .body {
       padding: 2em;
