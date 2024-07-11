@@ -62,24 +62,9 @@ module Gis::GeoJSON
     result
   end
 
-  # @return String, nil
-  #   a GeoJSON string
-  # The point is to not instantiate a whole AR object, but query
-  # as directly as possible to get the GeoJSON string value.
-  # It's unclear as to whether this saves that much time.
-  def self.quick_geo_json_string(geographic_item_id)
-    return nil if geographic_item_id.nil?
-
-    a = GeographicItem.where(id: geographic_item_id)
-      .st_asgeojson
-      .limit(1)
-    ::GeographicItem.connection.select_all(a.to_sql)
-      .first['geo_json']
-  end
-
   # @return [GeoJSON] content for geometry
   def self.quick_geo_json(geographic_item_id)
-    JSON.parse(quick_geo_json_string(geographic_item_id))
+    GeographicItem.find(geographic_item_id).to_geo_json
   end
 
   # # @return [a Feature]
