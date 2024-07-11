@@ -20,14 +20,15 @@
   <div class="editing-note">
     <ul>
       <li>
-        Multiple shapes will be combined into a single collection.
+        Multiple shapes will be combined into a single shape - a circle is
+        transformed into a polygon approximating the circle.
       </li>
       <li>
         Once saved you can no longer edit the shape(s), instead you can delete
         and recreate.
       </li>
       <li>
-        Overlapping shapes are discouraged and may give unexpected results.
+        Overlapping shapes may give unexpected results.
       </li>
     </ul>
 
@@ -76,7 +77,6 @@
 </template>
 
 <script setup>
-import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import DisplayList from './components/DisplayList.vue'
 import Leaflet from './components/Leaflet.vue'
 import NavBar from './components/NavBar.vue'
@@ -157,6 +157,7 @@ function saveNewGz() {
     .then(({ body }) => {
       gz.value = body
       // TODO probably want to fetch the edit version with the combined shape
+      SetParam(RouteNames.NewGazetteer, 'gazetteer_id', gz.value.id)
     })
     .catch(() => {})
 }
