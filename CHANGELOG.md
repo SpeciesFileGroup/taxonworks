@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - `repositories/autocomplete` label [#3981]
+- Updated Ruby gems.
 
 ### Fixed
 
