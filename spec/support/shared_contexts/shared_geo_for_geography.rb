@@ -1,7 +1,5 @@
 require 'support/vendor/rspec_geo_helpers'
 
-RSPEC_GEO_FACTORY = Gis::FACTORY
-
 shared_context 'stuff for geography tests' do
 
   ###### Simple shapes - no intended relation to each other

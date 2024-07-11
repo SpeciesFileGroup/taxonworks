@@ -6,7 +6,7 @@
     width="auto"
     :geojson="shapes"
     fit-bounds
-    zoom="1"
+    :zoom="1"
     resize
     :draw-controls="!editingDisabled"
     :draw-circle="false"

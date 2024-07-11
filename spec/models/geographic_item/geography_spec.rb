@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
 describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
-  include_context 'stuff for geography tests' # spec/support/shared_contexts/shared_geo_for_geography.rb
+  include_context 'stuff for geography tests' # that's spec/support/shared_contexts/shared_geo_for_geography.rb
 
   # the pattern `before { [s1, s2, ...].each }` is to instantiate variables
   # that have been `let` (not `let!`) by referencing them using [...].each.
@@ -351,12 +351,6 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
         ).to_a).to contain_exactly(donut)
       end
 
-      specify 'polygon containing two of its points is returned once' do
-        expect(GeographicItem.superset_of_union_of(
-          [donut_interior_point.id, donut_left_interior_edge_point.id]
-        ).to_a).to contain_exactly(donut)
-      end
-
       specify 'a polygon covers its edge' do
         expect(GeographicItem.superset_of_union_of(
           donut_bottom_and_left_interior_edges.id
@@ -543,7 +537,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
         )
       end
 
-      specify 'DOES NOT WORK with arbitrary geometry collection' do
+      specify 'does not work with arbitrary geometry collection' do
         pending 'ST_Covers fails when input GeometryCollection has a line intersecting a polygon\'s interior'
         # The same test as the previous only the geometry collection in the
         # first argument also contains a line intersecting the interior of

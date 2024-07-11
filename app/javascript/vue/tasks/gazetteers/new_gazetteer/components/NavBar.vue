@@ -31,14 +31,6 @@
             data-icon="warning"
           />
           <VBtn
-            type="button"
-            class="button normal-input button-submit margin-small-right"
-            :disabled="!gz.id"
-            @click="emit('cloneGz')"
-          >
-            Clone
-          </VBtn>
-          <VBtn
             :disabled="saveDisabled"
             @click="emit('saveGz')"
             class="button normal-input button-submit button-size margin-small-right"
@@ -56,7 +48,6 @@
         </li>
       </ul>
     </div>
-    <ConfirmationModal ref="confirmationModal" />
   </NavBar>
 </template>
 

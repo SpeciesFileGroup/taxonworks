@@ -73,8 +73,6 @@ class GazetteersController < ApplicationController
 
     if @gazetteer.save
       render :show, status: :created, location: @gazetteer
-      # TODO make this notice work
-      flash[:notice] = 'Gazetteer created.'
     else
       render json: @gazetteer.errors, status: :unprocessable_entity
     end
@@ -85,8 +83,7 @@ class GazetteersController < ApplicationController
   def update
     respond_to do |format|
       if @gazetteer.update(gazetteer_params)
-        format.html { redirect_to gazetteer_url(@gazetteer), notice: "Gazetteer was successfully updated." }
-        # TODO Add updated message
+        format.html { redirect_to gazetteer_url(@gazetteer) }
         format.json { render :show, status: :ok }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -104,6 +101,7 @@ class GazetteersController < ApplicationController
     respond_to do |format|
       format.html {
         redirect_to gazetteers_url,
+          # TODO this doesn't work
           notice: 'Gazetteer was successfully destroyed.'
       }
       format.json { head :no_content }

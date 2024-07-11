@@ -97,7 +97,6 @@ import {
 
 const shapes = ref([])
 const gz = ref({})
-const geoItemComponent = ref(null)
 const loading = ref(false)
 
 const leafletShapes = computed(() => {
@@ -163,6 +162,7 @@ function saveNewGz() {
       }
     ]
       SetParam(RouteNames.NewGazetteer, 'gazetteer_id', gz.value.id)
+      TW.workbench.alert.create('New gazetteer created.', 'notice')
     })
     .catch(() => {})
 }
@@ -175,11 +175,10 @@ function updateGz() {
   Gazetteer.update(gz.value.id, { gazetteer })
     .then(({ body }) => {
       gz.value = body
+      TW.workbench.alert.create('Gazetteer updated.', 'notice')
     })
     .catch(() => {})
 }
-
-function cloneGz() {}
 
 function reset() {
   shapes.value = []
@@ -210,6 +209,7 @@ function addToShapes(shape, type) {
       shapes.value.push({
         uuid: shape.uuid,
         type: GZ_WKT,
+        // TODO can we turn this into something leaflet can display right now?
         shape: shape.wkt
       })
       break

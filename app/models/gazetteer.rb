@@ -73,6 +73,7 @@ class Gazetteer < ApplicationRecord
       raise TaxonWorks::Error, 'No shapes provided'
     end
 
+    # TODO anti-meridian fails here
     geojson_rgeo = convert_geojson_to_rgeo(shapes['geojson'])
     wkt_rgeo = convert_wkt_to_rgeo(shapes['wkt'])
 
@@ -132,6 +133,7 @@ class Gazetteer < ApplicationRecord
 
     # unary_union, which would be preferable here, is apparently unavailable
     # for geographic geometries
+    # TODO use pg's ST_UnaryUnion instead?
     u = rgeo_shapes[0]
     rgeo_shapes[1..].each { |s| u = u.union(s) }
 

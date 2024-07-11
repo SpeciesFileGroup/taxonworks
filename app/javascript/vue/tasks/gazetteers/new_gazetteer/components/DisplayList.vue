@@ -127,6 +127,7 @@ function coordinatesForGeometryCollection(geometries) {
         geometry
       }
     }
+    shape_hash.properties = {}
 
     const new_shape = {
       type: GZ_LEAFLET,
