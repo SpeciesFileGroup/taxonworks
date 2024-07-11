@@ -31,6 +31,7 @@ AssertedDistribution:
 BiologicalAssociation:
   tasks:
     - edit_biological_associations_graph_task
+    - filter_biological_associations_task
   edit: edit_biological_associations_graph_task
   new: edit_biological_associations_graph_task
   config:

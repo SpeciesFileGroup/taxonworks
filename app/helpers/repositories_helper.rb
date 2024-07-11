@@ -20,18 +20,21 @@ module RepositoriesHelper
   def repository_autocomplete_tag(repository)
     [repository.name,
      tag.span(repository.acronym, class: [:feedback, 'feedback-thin', 'feedback-secondary']),
-     tag.span(repository.url, class: [:feedback, 'feedback-thin']),
+     repository.url.present? ? tag.span(repository.url, class: [:feedback, 'feedback-thin']) : nil,
      (repository.is_index_herbariorum ? tag.span('Herbarium', class: [:feedback, 'feedback-info', 'feedback-thin']) : nil),
      repository_usage_tag(repository)
     ].compact.join(' ').html_safe
   end
 
   def repository_usage_tag(repository)
-    a = (repository.respond_to?(:use_count) && repository.use_count.to_s) || repository.collection_objects.where(collection_objects: {project_id: sessions_current_project_id}).count.to_s
-    b = repository.current_collection_objects.where(collection_objects: {project_id: sessions_current_project_id}).count
-    s = 'Project use: ' + a
-    s << + ' (current repository use: ' + b.to_s + ')' if b > 0
-    content_tag(:span, s, class: [:feedback, 'feedback-thin'])
+    total_current_used = repository.current_collection_objects.where(collection_objects: {project_id: sessions_current_project_id}).count
+    total_in_project = repository.collection_objects.where(collection_objects: {project_id: sessions_current_project_id}).count + total_current_used
+    total_used = (repository.respond_to?(:use_count) && repository.use_count) 
+
+    in_project_tag = content_tag(:span, "In&nbsp;Project".html_safe, class: [:feedback, 'feedback-thin', 'feedback-success']) if total_in_project > 0
+    uses_tag = content_tag(:span, "#{total_in_project.zero? ? total_used : total_in_project} #{"use".pluralize(total_in_project)}", class: [:feedback, 'feedback-thin', 'feedback-primary'])
+
+    [uses_tag, in_project_tag].compact.join(' ')
   end
 
   def repositories_search_form

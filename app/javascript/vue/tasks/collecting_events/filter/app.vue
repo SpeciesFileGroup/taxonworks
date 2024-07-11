@@ -78,6 +78,7 @@
           v-model="selectedIds"
           :layout="currentLayout"
           :list="list"
+          :radial-object="false"
           @mouseover:row="setRowHover"
           @mouseout:body="() => (rowHover = null)"
           @on-sort="($event) => (list = $event)"
@@ -104,14 +105,7 @@ import FilterList from '@/components/Filter/Table/TableResults.vue'
 import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
 import { listParser } from './utils/listParser.js'
 import { COLLECTING_EVENT } from '@/constants/index.js'
-import {
-  computed,
-  ref,
-  reactive,
-  defineOptions,
-  onMounted,
-  onBeforeMount
-} from 'vue'
+import { computed, ref, reactive, onMounted, onBeforeMount } from 'vue'
 import { sortArray } from '@/helpers/arrays'
 import { CollectingEvent } from '@/routes/endpoints'
 import { LAYOUTS } from './constants/layouts.js'

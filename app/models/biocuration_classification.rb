@@ -24,6 +24,7 @@
 class BiocurationClassification < ApplicationRecord
   include Housekeeping
   include Shared::IsData
+  include Shared::DwcOccurrenceHooks
 
   acts_as_list scope: [:biocuration_classification_object_id, :biocuration_classification_object_type, :project_id]
 
@@ -33,22 +34,14 @@ class BiocurationClassification < ApplicationRecord
   validates_presence_of :biocuration_class, :biocuration_classification_object
   validates_uniqueness_of :biocuration_class, scope: [:biocuration_classification_object]
 
-  # Janky, but here for now
-  after_save :update_dwc_occurrence
-  after_destroy :revert_dwc_occurrence
+  def dwc_occurrences
+    if biocuration_classification_object&.dwc_occurrence
+      DwcOccurrence.where(id: biocuration_classification_object.dwc_occurrence.id)
+    else
+      DwcOccurrence.none
+    end
+  end
 
   protected
-
-  def update_dwc_occurrence
-    if biocuration_class.uri == DWC_FOSSIL_URI
-      biocuration_classification_object.dwc_occurrence&.update_attribute(:basisOfRecord, 'FossilSpecimen')
-    end
-  end
-
-  def revert_dwc_occurrence
-    if biocuration_class.uri == DWC_FOSSIL_URI
-      biocuration_classification_object.dwc_occurrence&.update_attribute(:basisOfRecord, 'PreservedSpecimen')
-    end
-  end
 
 end

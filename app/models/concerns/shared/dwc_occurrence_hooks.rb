@@ -1,11 +1,10 @@
 # Add hooks to ensure record changes trigger re-indexing at DwcOccurrence
 module Shared::DwcOccurrenceHooks
-
   extend ActiveSupport::Concern
 
   included do
-
     after_save_commit :update_dwc_occurrence, if: :saved_changes?
+    after_destroy :update_dwc_occurrence
 
     def update_dwc_occurrence
       t = dwc_occurrences.count

@@ -329,12 +329,12 @@ module CollectionObject::DwcExtensions
   # TODO: consider CVT attributes with Predicates linked to URIs
   def dwc_sex
     biocuration_classes.tagged_with_uri(::DWC_ATTRIBUTE_URIS[:sex])
-      .pluck(:name)&.join(', ').presence
+      .pluck(:name)&.join(', ').presence # TODO: Use delimeter!
   end
 
   def dwc_caste
     biocuration_classes.tagged_with_uri(::DWC_ATTRIBUTE_URIS[:caste])
-       .pluck(:name)&.join(', ').presence
+       .pluck(:name)&.join(', ').presence #  TODO: Use delimeter!
   end
 
   def dwc_verbatim_coordinates
