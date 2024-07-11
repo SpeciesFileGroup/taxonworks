@@ -670,9 +670,14 @@ scope :tasks do
     end
   end
 
-  # TODO: nest in peopl
-  scope :uniquify_people, controller: 'tasks/uniquify/people' do
-    get 'index', as: 'uniquify_people_task'
+  scope :uniquify do
+    scope :objects, controller: 'tasks/uniquify/objects' do
+      get '/', action: :index, as: 'uniquify_objects_task'
+    end
+
+    scope :people, controller: 'tasks/uniquify/people' do
+      get 'index', as: 'uniquify_people_task'
+    end
   end
 
   scope :serials, controller: 'tasks/serials/similar' do

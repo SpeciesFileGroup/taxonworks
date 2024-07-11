@@ -945,3 +945,10 @@ filter_dwc_occurrences_task:
     - filter
   status: prototype
   description: 'Filter records in the DarwinCore index.'
+uniquify_objects_task:
+  hub: true
+  name: 'Uniquify objects'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
