@@ -156,7 +156,12 @@ function saveNewGz() {
   Gazetteer.create({ gazetteer })
     .then(({ body }) => {
       gz.value = body
-      // TODO probably want to fetch the edit version with the combined shape
+      shapes.value = [
+      {
+        shape: gz.value.shape,
+        type: GZ_LEAFLET
+      }
+    ]
       SetParam(RouteNames.NewGazetteer, 'gazetteer_id', gz.value.id)
     })
     .catch(() => {})
