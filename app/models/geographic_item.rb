@@ -458,7 +458,7 @@ class GeographicItem < ApplicationRecord
       # Note: this routine is called when it is already known that the A
       # argument crosses anti-meridian
       def covered_by_wkt_shifted_sql(wkt)
-        "st_covered_by(
+        "ST_CoveredBy(
           (CASE geographic_items.type
             WHEN 'GeographicItem::MultiPolygon' THEN ST_ShiftLongitude(multi_polygon::geometry)
             WHEN 'GeographicItem::Point' THEN ST_ShiftLongitude(point::geometry)
@@ -469,7 +469,7 @@ class GeographicItem < ApplicationRecord
             WHEN 'GeographicItem::GeometryCollection' THEN ST_ShiftLongitude(geometry_collection::geometry)
             WHEN 'GeographicItem::Geography' THEN ST_ShiftLongitude(geography::geometry)
           END),
-          ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)),
+          ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326))
         )"
       end
 
@@ -478,6 +478,7 @@ class GeographicItem < ApplicationRecord
       # covered by this WKT
       def covered_by_wkt_sql(wkt)
         if crosses_anti_meridian?(wkt)
+          # TODO Add anti-meridian test here
           covered_by_wkt_shifted_sql(wkt)
         else
           subset_of_sql(
