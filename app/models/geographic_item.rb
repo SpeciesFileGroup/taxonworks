@@ -791,16 +791,6 @@ class GeographicItem < ApplicationRecord
       )
     end
 
-    # @return [Boolean]
-    #   whether stored shape is ST_IsValid
-    def valid_geometry?
-      GeographicItem
-      .where(id:)
-      .select(
-        self.class.st_is_valid_sql("#{data_column}::geometry")
-      ).first['st_isvalid']
-    end
-
     # @param [GeographicItem] geographic_item
     # @return [Double] distance in meters
     # Works with changed and non persisted objects
@@ -1027,7 +1017,7 @@ class GeographicItem < ApplicationRecord
       a == [false]
     end
 
-    def st_isvalid
+    def st_is_valid
       select_self(
         self.class.st_is_valid_sql(
           GeographicItem::GEOMETRY_SQL.to_sql
@@ -1035,7 +1025,7 @@ class GeographicItem < ApplicationRecord
       )['st_isvalid']
     end
 
-    def st_isvalidreason
+    def st_is_valid_reason
       select_self(
         self.class.st_is_valid_reason_sql(
           GeographicItem::GEOMETRY_SQL.to_sql
@@ -1097,8 +1087,8 @@ class GeographicItem < ApplicationRecord
     end
 
     # TODO select_from_self?
-    def select_self(shape_sql)
-      ApplicationRecord.connection.execute( "SELECT #{shape_sql} FROM geographic_items WHERE geographic_items.id = #{id}").first
+    def select_self(sql)
+      ApplicationRecord.connection.execute( "SELECT #{sql} FROM geographic_items WHERE geographic_items.id = #{id}").first
     end
 
     def align_winding

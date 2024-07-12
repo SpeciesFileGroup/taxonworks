@@ -341,7 +341,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
 
       specify 'tests against the *union* of its inputs' do
         expect(GeographicItem.superset_of_union_of(
-          donut_interior_point.id, distant_point  .id
+          donut_interior_point.id, distant_point.id
         ).to_a).to eq([])
       end
 
@@ -714,6 +714,24 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
               donut_left_interior_edge_point.id, 0, buffer)
           ).to_a
         ).to eq([])
+      end
+    end
+
+    context '#st_is_valid' do
+      specify 'valid polygon is valid' do
+        expect(simple_polygon.st_is_valid).to be_truthy
+      end
+
+      # TODO I don't think it's actually possible to save an invalid geometry
+      # without validation failing, i.e. I think st_is_valid can only ever
+      # return true.
+      specify 'invalid line is invalid' do
+        invalid_line = 'LINESTRING (0 0)'
+        geographic_item.geography = invalid_line
+
+        # Uhhhh...
+        expect{ geographic_item.valid? }
+          .to raise_error(RGeo::Error::InvalidGeometry)
       end
     end
   end

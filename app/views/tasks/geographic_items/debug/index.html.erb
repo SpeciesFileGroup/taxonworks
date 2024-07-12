@@ -16,8 +16,8 @@
       'Basic donut orientations?' => (@geographic_item.is_basic_donut? ? 'Yes' : 'No'),
       'Total polygons' => orientations.count,
       'Orientation (polygons)' => orientations.collect{|o| o ? 'CCW' : 'CW'}.join(', '),
-      'ST_IsValid' => (@geographic_item.st_isvalid ? 'Yes' : 'No'),
-      'ST_IsValidReason' => @geographic_item.st_isvalidreason,
+      'ST_IsValid' => (@geographic_item.st_is_valid ? 'Yes' : 'No'),
+      'ST_IsValidReason' => @geographic_item.st_is_valid_reason,
       'cached_total_area (m)' => @geographic_item.cached_total_area,
       'CachedMapItem#dynamic_buffer' => buffer
     }) %>
@@ -41,7 +41,7 @@
     <%= simple_map([@geographic_item]) -%>
   </div>
 
-  <% if @geographic_item.st_isvalid %>
+  <% if @geographic_item.st_is_valid %>
     <div class="panel content separate-left">
       <h3> WebLevel1 (full translate) </h3>
       <% a = CachedMapItem.translate_geographic_item_id( @geographic_item.id, 'AssertedDistribution', ['ne_states']) %>

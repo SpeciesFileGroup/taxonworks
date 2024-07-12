@@ -403,32 +403,32 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         expect(e1.contains?(p10.geo_object)).to be_falsey
       end
 
-      specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-        expect(p0.valid_geometry?).to be_truthy
+      specify '#st_is_valid returns \'true\' for a valid GeoObject' do
+        expect(p0.st_is_valid).to be_truthy
       end
 
-      specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-        expect(a.valid_geometry?).to be_truthy
+      specify '#st_is_valid returns \'true\' for a valid GeoObject' do
+        expect(a.st_is_valid).to be_truthy
       end
 
-      specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-        expect(b.valid_geometry?).to be_truthy
+      specify '#st_is_valid returns \'true\' for a valid GeoObject' do
+        expect(b.st_is_valid).to be_truthy
       end
 
-      specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-        expect(h.valid_geometry?).to be_truthy
+      specify '#st_is_valid returns \'true\' for a valid GeoObject' do
+        expect(h.st_is_valid).to be_truthy
       end
 
-      specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-        expect(f.valid_geometry?).to be_truthy
+      specify '#st_is_valid returns \'true\' for a valid GeoObject' do
+        expect(f.st_is_valid).to be_truthy
       end
 
-      specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-        expect(g.valid_geometry?).to be_truthy
+      specify '#st_is_valid returns \'true\' for a valid GeoObject' do
+        expect(g.st_is_valid).to be_truthy
       end
 
-      specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-        expect(all_items.valid_geometry?).to be_truthy
+      specify '#st_is_valid returns \'true\' for a valid GeoObject' do
+        expect(all_items.st_is_valid).to be_truthy
       end
 
       specify '#st_centroid returns a lat/lng of the centroid of the GeoObject' do
