@@ -210,7 +210,7 @@ scope :tasks do
 
   scope :images do
     scope :new_filename_depicting_image, controller: 'tasks/images/new_filename_depicting_image' do
-      get '/', action: :index, as: 'index_new_filename_depicting_image_task'
+      get '/', action: :index, as: 'new_filename_depicting_image_task'
     end
 
     scope :filter, controller: 'tasks/images/filter' do
