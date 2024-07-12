@@ -1,5 +1,5 @@
 <template>
-  <BlockLayout>
+  <BlockLayout :warning="error.length">
     <template #header>
       <h3>Images</h3>
     </template>

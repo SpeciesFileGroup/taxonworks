@@ -25,14 +25,14 @@
         v-model="images"
         v-model:error="error"
       />
-      <PanelDepictions v-model="images" />
+      <UploadedImages v-model="images" />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import PanelDepictions from './components/PanelDepictions.vue'
+import UploadedImages from './components/UploadedImages.vue'
 import PanelImage from './components/PanelImage.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
