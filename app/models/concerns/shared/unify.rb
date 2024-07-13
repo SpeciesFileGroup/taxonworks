@@ -1,6 +1,6 @@
 # Merge concepts
-#   
-#   When b merges to a the operation is: 
+#
+#   When b merges to a the operation is:
 #     `complete` if b is left with no related data
 #      `blocked` when merging is prevented by data validations
 #
@@ -8,16 +8,15 @@
 #  Difference b/w polymorphic and non-polymorphic objects
 #
 #  what about difference in values of the objects
+
 #
-#    
-#  mode strict => absolutely no conflicting values
-#
-# TODO: 
+# TODO:
+#   -  mode strict => rollback if  *any* conflicting values?!
 #   - Annotation classes can not be merged
 #   - write spec that ensures :inverse_of is seat for all necessary classes
-#       Otu.first.merge_relations.collect{|r| [r.options[:inverse_of], r.name]} 
-#       
-#   - Pinboard items should be destroyed, and not cause failure 
+#       Otu.first.merge_relations.collect{|r| [r.options[:inverse_of], r.name]}
+#
+#   - Pinboard items should be destroyed, and not cause failure
 #   - Mode that destroys invalid objects (e.g. global identifiers that can't be merged)
 module Shared::Unify
 
@@ -31,7 +30,7 @@ module Shared::Unify
     :dwc_occurrence_object # !? <- should be destroyed, not replaced
   ]
 
-  # Alwyas include these, regardless of wether 
+  # Alwyas include these, regardless of wether
   # they are inferred
   INCLUDE_RELATIONS = [
     :roles
@@ -42,7 +41,7 @@ module Shared::Unify
   end
 
   # Iterating thorugh all of these
-  def only_relations 
+  def only_relations
     []
   end
 
@@ -51,33 +50,33 @@ module Shared::Unify
     []
   end
 
-  def merge_relations
-    if only_relations.any?
-      only_relations  
+  def merge_relations(only: [], except: [])
+    if (only_relations + only).uniq.any?
+      (only_relations + only).uniq
     else
-      used_inferred_relations - except_relations 
+      used_inferred_relations - (except_relations + except).uniq
     end
   end
 
   # @return Array of symbols
   #   - or split to Polymorphic
   #
-  # TODO: remove cached references, they should be computed     
+  # TODO: remove cached references, they should be computed
   def inferred_relations
-    (ApplicationEnumeration.klass_reflections(self.class) + 
+    (ApplicationEnumeration.klass_reflections(self.class) +
      ApplicationEnumeration.klass_reflections(self.class, :has_one))
       .delete_if{|r| r.options[:foreign_key] =~ /cache/}
       .delete_if{|r| r.options[:through].present? || r.options[:class_name].present?}
     # .delete_if{|r| r.scope != nil && !INCLUDE_RELATIONS.include?(r.name)}
 
-    # TODO: eliminate relations with * where clauses * 
+    # TODO: eliminate relations with * where clauses *
     # - somehow remove exlcude relations here
   end
 
-  # Remove nil.  
+  # Remove nil.
   # Keep seperated from inferred_relations so we can better audi all models in specs
   def used_inferred_relations
-    inferred_relations.select{|r| !r.options[:inverse_of].nil?} 
+    inferred_relations.select{|r| !r.options[:inverse_of].nil?}
   end
 
   # Methods to be called per Class before merge_relations are iterated
@@ -101,12 +100,12 @@ module Shared::Unify
   # TODO: consider
   #   - a merge with preview = true wrapped in a transaction that you can roll back
   def mergeable?(remove_object)
-    # !! Proxy 
+    # !! Proxy
     # Otu.first.merge_relations.collect{|r| [r.options[:inverse_of], r.name]} -> can have no nil in first position
     #   - if nil then assume it's cannonical form
     # TODO:
     #   - elimninate COMMUNITY data
-    #   - maybe a class method Otu.new. ....   
+    #   - maybe a class method Otu.new. ....
     #   - Both belong to the same project
     #
   end
@@ -122,7 +121,7 @@ module Shared::Unify
     if !is_community?
       if project_id != o.project_id
         s.merge!(
-          failed: true, 
+          failed: true,
           message: 'missmatched projects')
         return s
       end
@@ -130,21 +129,21 @@ module Shared::Unify
 
     if o.class.base_class.name != self.class.base_class.name
       s.merge!(
-        failed: true, 
+        failed: true,
         message: 'missmatched object types')
       return s
     end
 
     # All related non-annotation objects, by default
     self.class.transaction do
-      merge_relations.each do |r|
+
+      merge_relations(only:, except:).each do |r|
 
         i = o.send(r.name)
-        next if i.nil?
+        next if i.nil? # has_one case
 
         # Discern b/w has_one and has_many
         if i.class.name.match('CollectionProxy')
-
           next unless i.any?
 
           s.merge!(
@@ -157,7 +156,7 @@ module Shared::Unify
             j.update_attribute(r.options[:inverse_of], self)
             log_unify_result(j, r, s)
           end
-          
+
         else
           s.merge!(
             r.name => {
@@ -170,7 +169,7 @@ module Shared::Unify
         end
       end
 
-      # TODO: explore further
+      # TODO: explore further, the preventing objects should all be moved or destroyed if properly iterated through
       begin
         o.destroy!
       rescue ActiveRecord::InvalidForeignKey
@@ -181,12 +180,12 @@ module Shared::Unify
             ]
           }
         )
+        raise ActiveRecord::Rollback
       end
 
       if preview
-        raise ActiveRecord::Rollback 
-      end 
-
+        raise ActiveRecord::Rollback
+      end
     end
     s
   end
@@ -194,16 +193,20 @@ module Shared::Unify
   def unify_relations_metadata
     s = {}
     merge_relations.each do |r|
+
       i = send(r.name)
       next if i.nil?
+
+      name = r.name.to_s.humanize
+
       if i.class.name.match('CollectionProxy')
         next unless i.count > 0
-        s[r.name] = { total: i.count }
+        s[r.name] = { total: i.count, name: }
       else
-        s[r.name] = { total: 1 }
+        s[r.name] = { total: 1, name: }
       end
     end
-    s
+    s.sort.to_h
   end
 
   private
@@ -212,10 +215,13 @@ module Shared::Unify
   def log_unify_result(object, relation, result)
     if object.errors.any?
       result[relation.name][:unmerged] += 1
-      # TODO - delete/cleanup logic
+
+      result[relation.name][:errors] ||= []
+      result[relation.name][:errors].push(object.id)
+
+      # TODO - delete/cleanup logic here?
 
     else
-      
       result[relation.name][:merged] += 1
     end
   end
