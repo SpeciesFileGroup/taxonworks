@@ -23,7 +23,7 @@ class UnifyController < ApplicationController
 
   def set_targets
     @remove_object = GlobalID::Locator.locate(params.require(:remove_global_id))
-    @keep_objecct = GlobalID::Locator.locate(params.require(:keep_global_id))
+    @keep_object = GlobalID::Locator.locate(params.require(:keep_global_id))
   end
   
 end
