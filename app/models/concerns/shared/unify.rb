@@ -170,11 +170,22 @@ module Shared::Unify
         end
       end
 
-      o.destroy!
+      # TODO: explore further
+      begin
+        o.destroy!
+      rescue ActiveRecord::InvalidForeignKey
+        s.merge!(
+          object: {
+            errors: [
+              { message: 'prevented by foreign_key' }
+            ]
+          }
+        )
+      end
 
       if preview
         raise ActiveRecord::Rollback 
-      end
+      end 
 
     end
     s
