@@ -1,5 +1,6 @@
 <template>
   <FacetGeographic v-model="params" />
+  <FacetGazetteer v-model="params" />
   <FaceDeterminations v-model="params" />
   <FacetIdentifiers v-model="params" />
   <FacetPeople
@@ -39,6 +40,7 @@
 <script setup>
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic.vue'
+import FacetGazetteer from '@/components/Filter/Facets/shared/FacetGazetteer.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetTotalUsed from '@/components/Filter/Facets/shared/FacetTotalUsed.vue'
 import FacetCollectingEventAttributes from '@/components/Filter/Facets/CollectingEvent/FacetCollectingEvent/FacetCollectingEvent.vue'
