@@ -20,6 +20,7 @@ module Queries
         :descendants,
         :descriptor_id,
         :geo_json,
+        :gazetteer_ids,
         :geographic_area_id,
         :geographic_area_mode,
         :name,
@@ -34,6 +35,7 @@ module Queries
 
         collecting_event_id: [],
         descriptor_id: [],
+        gazetteer_ids: [],
         geographic_area_id: [],
         name: [],
         otu_id: [],
@@ -119,6 +121,10 @@ module Queries
       #  in geo_json format (no Feature ...) ?!
       attr_accessor :geo_json
 
+      # @param gazetteer_ids [String, Array]
+      # @return [Array]
+      attr_accessor :gazetteer_ids
+
       # @param geographic_area_id [String, Array]
       # @return [Array]
       attr_accessor :geographic_area_id
@@ -188,6 +194,7 @@ module Queries
         @descendants = boolean_param(params, :descendants)
         @descriptor_id = params[:descriptor_id]
         @geo_json = params[:geo_json]
+        @gazetteer_ids = params[:gazetteer_ids]
         @geographic_area_id = params[:geographic_area_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
         @historical_determinations = boolean_param(params, :historical_determinations)
@@ -218,6 +225,10 @@ module Queries
 
       def name
         [@name].flatten.compact.collect { |n| n.strip }
+      end
+
+      def gazetteer_ids
+        [@gazetteer_ids].flatten.compact
       end
 
       def geographic_area_id
@@ -397,6 +408,17 @@ module Queries
         ::Otu.from("(#{query.to_sql}) as otus").distinct
       end
 
+      def gazetteer_ids_facet
+        return nil if gazetteer_ids.empty?
+
+        a = ::Gazetteer.where(id: gazetteer_ids)
+
+        i = ::GeographicItem.joins(:gazetteer).where(gazetteer: a)
+        wkt_shape = ::GeographicItem.st_union(i).to_a.first['st_union'].to_s
+
+        from_wkt(wkt_shape)
+      end
+
       def geographic_area_id_facet
         return nil if geographic_area_id.empty?
         a = nil
@@ -417,7 +439,7 @@ module Queries
           c = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: { geographic_area: a })
         when true # spatial
           i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
-          wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s # todo, check
+          wkt_shape = ::GeographicItem.st_union(i).to_a.first['st_union'].to_s # todo, check
           return from_wkt(wkt_shape)
         end
 
@@ -624,6 +646,7 @@ module Queries
           contents_facet,
           descriptor_id_facet,
           geo_json_facet,
+          gazetteer_ids_facet,
           geographic_area_id_facet,
           observations_facet,
           taxon_name_id_facet,

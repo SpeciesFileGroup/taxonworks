@@ -133,8 +133,9 @@ class GeographicItem < ApplicationRecord
 
     class << self
 
+      # TODO move to gi filter?
       def st_union(geographic_item_scope)
-        select("ST_Union(#{GeographicItem::GEOMETRY_SQL.to_sql}) as collection")
+        select("ST_Union(#{GeographicItem::GEOMETRY_SQL.to_sql}) as st_union")
           .where(id: geographic_item_scope.pluck(:id))
       end
 
