@@ -2,13 +2,12 @@
 #
 #   When b merges to a the operation is:
 #     `complete` if b is left with no related data
-#      `blocked` when merging is prevented by data validations
-#
+#     `blocked` when merging is prevented by data validations
 #
 #  Difference b/w polymorphic and non-polymorphic objects
 #
 #  what about difference in values of the objects
-
+#
 #
 # TODO:
 #   -  mode strict => rollback if  *any* conflicting values?!
@@ -19,13 +18,11 @@
 #   - Pinboard items should be destroyed, and not cause failure
 #   - Mode that destroys invalid objects (e.g. global identifiers that can't be merged)
 module Shared::Unify
-
   extend ActiveSupport::Concern
 
   # Used when batch iterating :all
   EXCLUDE_RELATIONS = [
     # all the housekeeping and project relations
-
     :versions,
     :dwc_occurrence_object # !? <- should be destroyed, not replaced
   ]
@@ -51,10 +48,10 @@ module Shared::Unify
   end
 
   def merge_relations(only: [], except: [])
-    if (only_relations + only).uniq.any?
-      (only_relations + only).uniq
+    if (only_relations + [only].flatten).uniq.any?
+      (only_relations + [only].flatten).uniq
     else
-      used_inferred_relations - (except_relations + except).uniq
+      used_inferred_relations - (except_relations + [except].flatten).uniq
     end
   end
 
@@ -180,6 +177,17 @@ module Shared::Unify
             ]
           }
         )
+
+        raise ActiveRecord::Rollback
+      rescue ActiveRecord::RecordNotDestroyed
+        s.merge!(
+          object: {
+            errors: [
+              { message: 'record not destroyed' }
+            ]
+          }
+        )
+
         raise ActiveRecord::Rollback
       end
 
