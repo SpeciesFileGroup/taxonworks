@@ -85,30 +85,36 @@ watch(expanded, (newVal) => {
 .block-layout {
   border-top-left-radius: 0px;
   transition: all 1s;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+
   .validation-warning {
     border-left: 4px solid #ff8c00 !important;
   }
+
   .create-button {
     min-width: 100px;
   }
 
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
   .header {
     border-left: 4px solid green;
-    h3 {
-      font-weight: 300;
-    }
     padding: 1em;
     padding-left: 1.5em;
     border-bottom: 1px solid #f5f5f5;
+
+    h3 {
+      font-weight: 300;
+    }
   }
+
   .body {
     padding: 2em;
     padding-top: 1em;
     padding-bottom: 1em;
   }
+
   .taxonName-input,
   #error_explanation {
     width: 300px;

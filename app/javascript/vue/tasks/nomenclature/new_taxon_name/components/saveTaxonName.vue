@@ -32,6 +32,7 @@ const isSaving = computed(() => store.getters[GetterNames.GetSaving])
 const shortcuts = ref([
   {
     keys: [platformKey(), 's'],
+    preventDefault: true,
     handler() {
       saveTaxon()
     }
