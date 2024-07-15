@@ -4,20 +4,18 @@ import {
   BIOLOGICAL_ASSOCIATIONS_GRAPH,
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
-  COMBINATION,
   CONTAINER,
   CONTENT,
   CONTROLLED_VOCABULARY_TERM,
-  DATA_ATTRIBUTE,
   DEPICTION,
   DESCRIPTOR,
   EXTRACT,
   FIELD_OCCURRENCE,
   GEOREFERENCE,
   IMAGE,
-  LEAD,
   LOAN,
   OBSERVATION,
+  OBSERVATION_MATRIX,
   OTU,
   PEOPLE,
   SOURCE,
@@ -37,13 +35,13 @@ export const TYPE_LINKS = {
     autocomplete: '/biological_associations_graphs/autocomplete'
   },
   [COLLECTING_EVENT]: {
-    autocomplete: '/collecting_events/autocomplete'
+    autocomplete: '/collecting_events/autocomplete',
+    smartSelector: 'collecting_events'
   },
   [COLLECTION_OBJECT]: {
-    autocomplete: '/collection_objects/autocomplete'
-  },
-  [COMBINATION]: {
-    autocomplete: '/combinations/autocomplete'
+    autocomplete: '/collection_objects/autocomplete',
+    radialObject: true,
+    smartSelector: 'collection_objects'
   },
   [CONTAINER]: {
     autocomplete: '/containers/autocomplete'
@@ -54,9 +52,6 @@ export const TYPE_LINKS = {
   [CONTROLLED_VOCABULARY_TERM]: {
     autocomplete: '/controlled_vocabulary_terms/autocomplete'
   },
-  [DATA_ATTRIBUTE]: {
-    autocomplete: '/data_attributes/autocomplete'
-  },
   [DEPICTION]: {
     autocomplete: '/depictions/autocomplete'
   },
@@ -64,7 +59,8 @@ export const TYPE_LINKS = {
     autocomplete: '/descriptors/autocomplete'
   },
   [EXTRACT]: {
-    autocomplete: '/extracts/autocomplete'
+    autocomplete: '/extracts/autocomplete',
+    smartSelector: 'extracts'
   },
   [FIELD_OCCURRENCE]: {
     autocomplete: '/field_occurrences/autocomplete'
@@ -73,10 +69,8 @@ export const TYPE_LINKS = {
     autocomplete: '/georeferences/autocomplete'
   },
   [IMAGE]: {
-    autocomplete: '/images/autocomplete'
-  },
-  [LEAD]: {
-    autocomplete: '/leads/autocomplete'
+    autocomplete: '/images/autocomplete',
+    radialObject: true
   },
   [LOAN]: {
     autocomplete: '/loans/autocomplete'
@@ -84,20 +78,24 @@ export const TYPE_LINKS = {
   [OBSERVATION]: {
     autocomplete: '/observations/autocomplete'
   },
-  [OTU]: {
-    autocomplete: '/otus/autocomplete'
+  [OBSERVATION_MATRIX]: {
+    autocomplete: '/observation_matrices/autocomplete'
   },
-  [PEOPLE]: {
-    autocomplete: '/people/autocomplete'
+  [OTU]: {
+    autocomplete: '/otus/autocomplete',
+    radialObject: true
   },
   [SOURCE]: {
-    autocomplete: '/sources/autocomplete'
+    autocomplete: '/sources/autocomplete',
+    radialObject: true,
+    smartSelector: 'sources'
   },
   [TAXON_DETERMINATION]: {
     autocomplete: '/sources/autocomplete'
   },
   [TAXON_NAME]: {
-    autocomplete: '/taxon_names/autocomplete'
+    autocomplete: '/taxon_names/autocomplete',
+    smartSelector: 'taxon_names'
   },
   [TYPE_MATERIAL]: {
     autocomplete: '/type_materials/autocomplete'

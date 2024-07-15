@@ -17,6 +17,15 @@ function toSnakeCase(string) {
     .replace(/^_/, '')
 }
 
+function toPascalCase(str) {
+  const words = str.replace(/([a-z])([A-Z])/g, '$1 $2').split(/[_-\s]+/)
+  const pascalCaseStr = words
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('')
+
+  return pascalCaseStr
+}
+
 function replaceAt(index, string, newString) {
   return index > -1
     ? string.substr(0, index) +
@@ -51,5 +60,6 @@ export {
   replaceAt,
   stringInline,
   humanize,
-  isEmpty
+  isEmpty,
+  toPascalCase
 }

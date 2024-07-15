@@ -1,21 +1,19 @@
 <template>
-  <div>
-    <table class="table-striped">
-      <thead>
-        <th>Annotations</th>
-        <th>Total</th>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(item, key) in metadata"
-          :key="key"
-        >
-          <td>{{ key }}</td>
-          <td>{{ item.total }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <table class="table-striped">
+    <thead>
+      <th>Annotations</th>
+      <th class="w-2">Total</th>
+    </thead>
+    <tbody>
+      <tr
+        v-for="(item, key) in metadata"
+        :key="key"
+      >
+        <td>{{ key }}</td>
+        <td>{{ item.total }}</td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script setup>
