@@ -37,7 +37,7 @@ module Queries
         :collector_id_or,
         :collecting_event_id,
         :determiner_name_regex,
-        :gazetteer_ids,
+        :gazetteer_id,
         :geo_json,
         :geographic_area,
         :geographic_area_id,
@@ -51,7 +51,7 @@ module Queries
         :wkt,
         collecting_event_id: [],
         collector_id: [],
-        gazetteer_ids: [],
+        gazetteer_id: [],
         geographic_area_id: [],
       ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
 
@@ -140,9 +140,9 @@ module Queries
       attr_accessor :geographic_area_id
       attr_accessor :geographic_area_mode
 
-      # @param gazetteer_ids [Array, Integer, String]
+      # @param gazetteer_id [Array, Integer, String]
       # @return [Array]
-      attr_accessor :gazetteer_ids
+      attr_accessor :gazetteer_id
 
       # @return [String, nil]
       #   the maximum number of CollectionObjects linked to CollectingEvent
@@ -161,7 +161,7 @@ module Queries
         @collection_objects = boolean_param(params, :collection_objects )
         @collector_id = params[:collector_id]
         @collector_id_or = boolean_param(params, :collector_id_or )
-        @gazetteer_ids = params[:gazetteer_ids]
+        @gazetteer_id = params[:gazetteer_id]
         @geo_json = params[:geo_json]
         @geographic_area = boolean_param(params, :geographic_area)
         @geographic_area_id = params[:geographic_area_id]
@@ -193,8 +193,8 @@ module Queries
         [@collection_object_id].flatten.compact
       end
 
-      def gazetteer_ids
-        [@gazetteer_ids].flatten.compact
+      def gazetteer_id
+        [@gazetteer_id].flatten.compact
       end
 
       def geographic_area_id
@@ -255,10 +255,10 @@ module Queries
         end
       end
 
-      def gazetteer_ids_facet
-        return nil if gazetteer_ids.empty?
+      def gazetteer_id_facet
+        return nil if gazetteer_id.empty?
 
-        a = ::Gazetteer.where(id: gazetteer_ids)
+        a = ::Gazetteer.where(id: gazetteer_id)
 
         i = ::GeographicItem.joins(:gazetteer).where(gazetteer: a)
         wkt_shape = ::GeographicItem.st_union(i).to_a.first['st_union'].to_s
@@ -477,7 +477,7 @@ module Queries
           collection_objects_facet,
           collector_id_facet,
           geo_json_facet,
-          gazetteer_ids_facet,
+          gazetteer_id_facet,
           geographic_area_facet,
           geographic_area_id_facet,
           georeferences_facet,

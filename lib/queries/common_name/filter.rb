@@ -4,7 +4,7 @@ module Queries
 
       PARAMS = [
         :common_name_id,
-        :gazetteer_ids,
+        :gazetteer_id,
         :geographic_area_id,
         :language_id,
         :name,
@@ -14,12 +14,12 @@ module Queries
       ].freeze
 
       # Query variables
-      attr_accessor :name, :gazetteer_ids, :geographic_area_id, :otu_id,
+      attr_accessor :name, :gazetteer_id, :geographic_area_id, :otu_id,
         :language_id
 
       def initialize(query_params)
         super
-        @gazetteer_ids = params[:gazetteer_ids]
+        @gazetteer_id = params[:gazetteer_id]
         @geographic_area_id = params[:geographic_area_id]
         @language_id = params[:language_id]
         @name = params[:name]
@@ -34,8 +34,8 @@ module Queries
         [@language_id].flatten.compact
       end
 
-      def gazetteer_ids
-        [@gazetteer_ids].flatten.compact
+      def gazetteer_id
+        [@gazetteer_id].flatten.compact
       end
 
       def geographic_area_id
@@ -61,9 +61,9 @@ module Queries
         table[:name].eq(name)
       end
 
-      def gazetteer_ids_facet
-        return nil if gazetteer_ids.empty?
-        table[:gazetteer_ids].in(gazetteer_ids)
+      def gazetteer_id_facet
+        return nil if gazetteer_id.empty?
+        table[:gazetteer_id].in(gazetteer_id)
       end
 
       def geographic_area_id_facet
@@ -73,7 +73,7 @@ module Queries
 
       def and_clauses
         [
-          gazetteer_ids_facet,
+          gazetteer_id_facet,
           geographic_area_id_facet,
           language_id_facet,
           name_facet,

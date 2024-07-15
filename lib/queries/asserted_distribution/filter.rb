@@ -12,7 +12,7 @@ module Queries
         :asserted_distribution_id,
         :descendants,
         :geo_json,
-        :gazetteer_ids,
+        :gazetteer_id,
         :geographic_area_id,
         :geographic_item_id,
         :geographic_area_mode,
@@ -22,7 +22,7 @@ module Queries
         :taxon_name_id,
         :wkt,
         asserted_distribution_id: [],
-        gazetteer_ids: [],
+        gazetteer_id: [],
         geographic_area_id: [],
         geographic_item_id: [],
         otu_id: [],
@@ -39,7 +39,7 @@ module Queries
 
       # @param gazetteer_id [Array, Integer, String]
       # @return [Array]
-      attr_accessor :gazetteer_ids
+      attr_accessor :gazetteer_id
 
       # @param geographic_area_id [Array, Integer, String]
       # @return [Array]
@@ -85,7 +85,7 @@ module Queries
         @asserted_distribution_id = params[:asserted_distribution_id]
         @descendants = boolean_param(params, :descendants)
         @geo_json = params[:geo_json]
-        @gazetteer_ids = params[:gazetteer_ids]
+        @gazetteer_id = params[:gazetteer_id]
         @geographic_area_id = params[:geographic_area_id]
         @geographic_item_id = params[:geographic_item_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
@@ -110,8 +110,8 @@ module Queries
         [@otu_id].flatten.compact
       end
 
-      def gazetteer_ids
-        [@gazetteer_ids].flatten.compact
+      def gazetteer_id
+        [@gazetteer_id].flatten.compact
       end
 
       def geographic_area_id
@@ -193,10 +193,10 @@ module Queries
         end
       end
 
-      def gazetteer_ids_facet
-        return nil if gazetteer_ids.empty?
+      def gazetteer_id_facet
+        return nil if gazetteer_id.empty?
 
-        a = ::Gazetteer.where(id: gazetteer_ids)
+        a = ::Gazetteer.where(id: gazetteer_id)
 
         i = ::GeographicItem.joins(:gazetteer).where(gazetteer: a)
         wkt_shape = ::GeographicItem.st_union(i).to_a.first['st_union'].to_s
@@ -318,7 +318,7 @@ module Queries
           otu_query_facet,
           taxon_name_query_facet,
 
-          gazetteer_ids_facet,
+          gazetteer_id_facet,
           geographic_area_id_facet,
           geographic_item_id_facet,
           taxon_name_id_facet,

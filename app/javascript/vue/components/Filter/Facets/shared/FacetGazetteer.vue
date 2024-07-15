@@ -85,7 +85,7 @@ function addGazetteer(id) {
 }
 
 watch(
-  () => geographic.value.gazetteer_ids,
+  () => geographic.value.gazetteer_id,
   (newVal, oldVal) => {
     if (!newVal?.length && oldVal?.length) {
       gazetteers.value = []
@@ -97,14 +97,14 @@ watch(
 watch(
   gazetteers,
   () => {
-    geographic.value.gazetteer_ids = gazetteers.value.map((item) => item.id)
+    geographic.value.gazetteer_id = gazetteers.value.map((item) => item.id)
   },
   { deep: true }
 )
 
 onBeforeMount(() => {
-  if (geographic.value.gazetteer_ids) {
-    [geographic.value.gazetteer_ids].flat().forEach((id) => {
+  if (geographic.value.gazetteer_id) {
+    [geographic.value.gazetteer_id].flat().forEach((id) => {
       addGazetteer(id)
     })
   }
