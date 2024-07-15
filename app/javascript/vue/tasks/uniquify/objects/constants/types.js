@@ -17,7 +17,6 @@ import {
   OBSERVATION,
   OBSERVATION_MATRIX,
   OTU,
-  PEOPLE,
   SOURCE,
   TAXON_DETERMINATION,
   TAXON_NAME,
@@ -47,7 +46,8 @@ export const TYPE_LINKS = {
     autocomplete: '/containers/autocomplete'
   },
   [CONTENT]: {
-    autocomplete: '/contents/autocomplete'
+    autocomplete: '/contents/autocomplete',
+    smartSelector: 'contents'
   },
   [CONTROLLED_VOCABULARY_TERM]: {
     autocomplete: '/controlled_vocabulary_terms/autocomplete'
@@ -63,13 +63,16 @@ export const TYPE_LINKS = {
     smartSelector: 'extracts'
   },
   [FIELD_OCCURRENCE]: {
-    autocomplete: '/field_occurrences/autocomplete'
+    autocomplete: '/field_occurrences/autocomplete',
+    smartSelector: 'field_occurrences'
   },
   [GEOREFERENCE]: {
     autocomplete: '/georeferences/autocomplete'
   },
   [IMAGE]: {
     autocomplete: '/images/autocomplete',
+    smartSelector: 'images',
+    target: IMAGE,
     radialObject: true
   },
   [LOAN]: {
@@ -83,6 +86,8 @@ export const TYPE_LINKS = {
   },
   [OTU]: {
     autocomplete: '/otus/autocomplete',
+    smartSelector: 'otus',
+    target: OTU,
     radialObject: true
   },
   [SOURCE]: {
