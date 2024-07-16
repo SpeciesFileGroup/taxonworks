@@ -15,7 +15,7 @@
       >
         <tr
           v-for="item in list"
-          :key="item.uuid || 1 "
+          :key="item.uuid"
           class="list-complete-item"
         >
           <td class="word-keep-all">{{ shapeType(item) }}</td>

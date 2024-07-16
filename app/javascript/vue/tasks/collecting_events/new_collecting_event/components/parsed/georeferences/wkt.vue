@@ -50,11 +50,11 @@ export default {
       type: String,
       default: GEOREFERENCE_WKT
     },
-    id_key: {
+    idKey: {
       type: String,
       default: 'tmpId'
     },
-    id_generator: {
+    idGenerator: {
       type: Function,
       default: () => Math.random().toString(36).substr(2, 5)
     },
@@ -76,7 +76,7 @@ export default {
   methods: {
     createShape() {
       this.$emit('create', {
-        [this.id_key]: (this.id_generator)(),
+        [this.idKey]: (this.idGenerator)(),
         wkt: this.wkt,
         type: this.type
       })

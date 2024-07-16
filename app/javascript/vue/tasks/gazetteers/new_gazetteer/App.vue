@@ -40,8 +40,8 @@
     <WktComponent
       :disabled="!!gz.id"
       :type="GZ_WKT"
-      id_key="uuid"
-      :id_generator="() => randomUUID()"
+      id-key="uuid"
+      :id-generator="() => randomUUID()"
       @create="(wkt) => addToShapes(wkt, GZ_WKT)"
       class="margin-small-right"
     >
@@ -158,7 +158,8 @@ function saveNewGz() {
       shapes.value = [
       {
         shape: gz.value.shape,
-        type: GZ_LEAFLET
+        type: GZ_LEAFLET,
+        uuid: randomUUID()
       }
     ]
       SetParam(RouteNames.NewGazetteer, 'gazetteer_id', gz.value.id)
