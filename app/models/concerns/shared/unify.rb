@@ -4,8 +4,6 @@
 #     `complete` if b is left with no related data
 #     `blocked` when merging is prevented by data validations
 #
-#  Difference b/w polymorphic and non-polymorphic objects
-#
 #  what about difference in values of the objects
 #
 #
@@ -17,35 +15,26 @@
 #
 #   - Pinboard items should be destroyed, and not cause failure
 #   - Mode that destroys invalid objects (e.g. global identifiers that can't be merged)
+#
 module Shared::Unify
   extend ActiveSupport::Concern
 
-  # Used when batch iterating :all
+  # Never auto-handle these.
   EXCLUDE_RELATIONS = [
-    # all the housekeeping and project relations
-    :versions,
-    :dwc_occurrence_object # !? <- should be destroyed, not replaced
+    # TODO: all the housekeeping and project relations?
+    :versions,      # Not picked up, but adding in case, these should be destoyed as well?
+    :dwc_occurrence # Will be destroyed on CollectinoObject destroy, not replaced
   ]
 
-  # Alwyas include these, regardless of wether
-  # they are inferred
-  INCLUDE_RELATIONS = [
-    :roles
-  ]
+  # Per class, Iterating thorugh all of these
+  # def only_relations
+  #   []
+  # end
 
-  included do
-    attr_accessor :merge
-  end
-
-  # Iterating thorugh all of these
-  def only_relations
-    []
-  end
-
-  # When merging skip these relations
-  def except_relations
-    []
-  end
+  # Per class, when merging skip these relations
+  # def except_relations
+  #   []
+  # end
 
   def merge_relations(only: [], except: [])
     if (only_relations + [only].flatten).uniq.any?
@@ -64,10 +53,9 @@ module Shared::Unify
      ApplicationEnumeration.klass_reflections(self.class, :has_one))
       .delete_if{|r| r.options[:foreign_key] =~ /cache/}
       .delete_if{|r| r.options[:through].present? || r.options[:class_name].present?}
-    # .delete_if{|r| r.scope != nil && !INCLUDE_RELATIONS.include?(r.name)}
+      .delete_if{|r| EXCLUDE_RELATIONS.include?(r.name.to_sym)}
 
-    # TODO: eliminate relations with * where clauses *
-    # - somehow remove exlcude relations here
+    # TODO: eliminate relations with * where clauses * ?
   end
 
   # Remove nil.
@@ -189,6 +177,8 @@ module Shared::Unify
         )
 
         raise ActiveRecord::Rollback
+        # rescue
+        # raise ActiveRecord::Rollback
       end
 
       if preview
