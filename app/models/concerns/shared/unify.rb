@@ -27,14 +27,14 @@ module Shared::Unify
   ]
 
   # Per class, Iterating thorugh all of these
-  # def only_relations
-  #   []
-  # end
+  def only_relations
+    []
+  end
 
   # Per class, when merging skip these relations
-  # def except_relations
-  #   []
-  # end
+  def except_relations
+    []
+  end
 
   def merge_relations(only: [], except: [])
     if (only_relations + [only].flatten).uniq.any?
