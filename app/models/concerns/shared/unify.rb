@@ -64,15 +64,20 @@ module Shared::Unify
     inferred_relations.select{|r| !r.options[:inverse_of].nil?}
   end
 
-  # Methods to be called per Class before merge_relations are iterated
+  # Methods to be called per Class immediately before the transaction starts
   #  TODO: use with super, cleanup pinboard items inside of transactionj<t_úX>
-  def before_merge
-    []
+  def before_unify
+    if respond_to?(:pinboard_items) 
+      pinboard_items.destroy_all
+    end
+
+    if respond_to?(:versions)
+      versions.destroy_all
+    end
   end
 
-  # Methods to be called per Class after merge_relations are iterated
-  def after_merge
-    []
+  # Methods to be called per Class after unify but before object is destroyed
+  def after_unify
   end
 
   # re-vist this concept remove is_data?
@@ -122,6 +127,8 @@ module Shared::Unify
     # All related non-annotation objects, by default
     self.class.transaction do
 
+      before_unify
+
       merge_relations(only:, except:).each do |r|
 
         i = o.send(r.name)
@@ -157,21 +164,21 @@ module Shared::Unify
       # TODO: explore further, the preventing objects should all be moved or destroyed if properly iterated through
       begin
         o.destroy!
-      rescue ActiveRecord::InvalidForeignKey
+      rescue ActiveRecord::InvalidForeignKey => e
         s.merge!(
           object: {
             errors: [
-              { message: 'prevented by foreign_key' }
+              { message: e.message.to_s }
             ]
           }
         )
 
         raise ActiveRecord::Rollback
-      rescue ActiveRecord::RecordNotDestroyed
+      rescue ActiveRecord::RecordNotDestroyed => e
         s.merge!(
           object: {
             errors: [
-              { message: 'record not destroyed' }
+              { message: "record not destroyed {#{e.message.to_s}" }
             ]
           }
         )
@@ -180,6 +187,8 @@ module Shared::Unify
         # rescue
         # raise ActiveRecord::Rollback
       end
+
+      after_unify
 
       if preview
         raise ActiveRecord::Rollback
