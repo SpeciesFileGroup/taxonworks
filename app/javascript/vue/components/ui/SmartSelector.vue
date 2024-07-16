@@ -1,12 +1,23 @@
 <template>
   <div ref="rootRef">
     <div class="separate-bottom horizontal-left-content">
-      <switch-components
-        class="full_width capitalize"
-        v-model="view"
-        ref="tabselectorRef"
-        :options="options"
-      />
+      <div class="horizontal-left-content">
+        <VSpinner
+          v-if="isLoading"
+          :show-legend="false"
+          spinner-position="middle"
+          :logo-size="{
+            width: '24px',
+            height: '24px'
+          }"
+        />
+        <switch-components
+          class="full_width capitalize"
+          v-model="view"
+          ref="tabselectorRef"
+          :options="options"
+        />
+      </div>
       <default-pin
         v-if="pinSection"
         class="margin-small-left"
@@ -126,6 +137,7 @@ import OrderSmart from '@/helpers/smartSelector/orderSmartSelector'
 import SelectFirst from '@/helpers/smartSelector/selectFirstSmartOption'
 import DefaultPin from '@/components/ui/Button/ButtonPinned'
 import OtuPicker from '@/components/otu/otu_picker/otu_picker'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
   modelValue: {
@@ -288,6 +300,7 @@ const view = ref()
 const options = ref([])
 const lastSelected = ref()
 const elementSize = useOnResize(rootRef)
+const isLoading = ref(false)
 
 const listStyle = computed(() => {
   return {
@@ -345,6 +358,9 @@ const refresh = (forceUpdate = false) => {
     ...props.params
   }
 
+  lists.value = []
+  isLoading.value = true
+
   AjaxCall('get', `/${props.model}/select_options`, { params })
     .then((response) => {
       lists.value = response.body
@@ -356,8 +372,10 @@ const refresh = (forceUpdate = false) => {
     })
     .catch(() => {
       options.value = []
-      lists.value = []
       view.value = undefined
+    })
+    .finally(() => {
+      isLoading.value = false
     })
 }
 
