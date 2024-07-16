@@ -78,12 +78,12 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   keepGlobalId: {
-    type: [String, null],
-    required: true
+    type: String,
+    default: undefined
   },
   removeGlobalId: {
-    type: [Object, null],
-    required: true
+    type: String,
+    default: undefined
   }
 })
 
@@ -99,7 +99,6 @@ function openModal() {
     preview: true
   })
     .then(({ body }) => {
-      console.log(body)
       previewResponse.value = body
     })
     .catch(() => {})

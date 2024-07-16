@@ -1,22 +1,27 @@
 <template>
   <div>
     <label class="d-block">{{ title }}</label>
-    <SmartSelector
-      v-if="modelOpts.smartSelector"
-      :model="modelOpts.smartSelector"
-      :target="modelOpts.target"
-      @selected="(item) => (selected = item)"
-    />
-    <VAutocomplete
-      v-else
-      :url="modelOpts.autocomplete"
-      :min="2"
-      param="term"
-      placeholder="Select an object"
-      label="label_html"
-      clear-after
-      @select="({ id }) => loadObjectById(id)"
-    />
+    <div v-show="!selected">
+      <SmartSelector
+        v-if="modelOpts.smartSelector"
+        :model="modelOpts.smartSelector"
+        :target="modelOpts.target"
+        :filter-ids="excludeIds"
+        :label="modelOpts.smartSelectorLabel || 'object_tag'"
+        v-model="selected"
+      />
+      <VAutocomplete
+        v-else
+        :url="modelOpts.autocomplete"
+        :min="2"
+        param="term"
+        placeholder="Select an object"
+        label="label_html"
+        :excluded-ids="excludeIds"
+        clear-after
+        @select="({ id }) => loadObjectById(id)"
+      />
+    </div>
     <SmartSelectorItem
       :item="selected"
       label="object_tag"
@@ -54,6 +59,11 @@ const props = defineProps({
   model: {
     type: String,
     required: true
+  },
+
+  excludeIds: {
+    type: Array,
+    default: () => []
   }
 })
 

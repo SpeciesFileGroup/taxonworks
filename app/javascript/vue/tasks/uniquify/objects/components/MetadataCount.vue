@@ -9,7 +9,7 @@
         v-for="(item, key) in metadata"
         :key="key"
       >
-        <td>{{ key }}</td>
+        <td>{{ item.name }}</td>
         <td>{{ item.total }}</td>
       </tr>
     </tbody>

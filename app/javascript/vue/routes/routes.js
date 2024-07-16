@@ -66,7 +66,8 @@ const RouteNames = {
   PrintLabel: '/tasks/labels/print_labels',
   ProjectVocabulary: '/tasks/metadata/vocabulary/project_vocabulary',
   ShowLead: '/tasks/leads/show',
-  TypeMaterial: '/tasks/type_material/edit_type_material'
+  TypeMaterial: '/tasks/type_material/edit_type_material',
+  UniquifyObjects: '/tasks/uniquify/objects'
 }
 
 const FILTER_ROUTES = {

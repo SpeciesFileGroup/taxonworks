@@ -23,6 +23,7 @@
           ref="keepRef"
           :title="model"
           :model="model"
+          :exclude-ids="[destroyObject?.id, keepObject?.id].filter(Boolean)"
           v-model="keepObject"
         />
         <MetadataCount
@@ -41,6 +42,7 @@
         <ObjectSelector
           :title="model"
           :model="model"
+          :exclude-ids="[destroyObject?.id, keepObject?.id].filter(Boolean)"
           v-model="destroyObject"
         />
         <MetadataCount
@@ -68,7 +70,9 @@
 
 <script setup>
 import { ref, nextTick, watch, onMounted } from 'vue'
-import { toPascalCase } from '@/helpers'
+import { toPascalCase, toSnakeCase } from '@/helpers'
+import { RouteNames } from '@/routes/routes.js'
+import SetParam from '@/helpers/setParam.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import ObjectSelector from './ObjectSelector.vue'
@@ -106,5 +110,18 @@ onMounted(() => {
       })
     }
   })
+})
+
+watch(keepObject, (newVal) => {
+  if (newVal) {
+    const url = new URL(RouteNames.UniquifyObjects, window.location.origin)
+    const paramName = toSnakeCase(model.value) + '_id'
+    url.searchParams.set(paramName, newVal?.id)
+    const newUrl = url.pathname + url.search
+
+    history.pushState(null, null, newUrl)
+  } else {
+    history.pushState(null, null, RouteNames.UniquifyObjects)
+  }
 })
 </script>

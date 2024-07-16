@@ -24,6 +24,7 @@
           v-if="autocomplete && !otuPicker"
           :id="`smart-selector-${model}-autocomplete`"
           :input-id="inputId"
+          :excluded-id="filterIds"
           placeholder="Search..."
           :url="autocompleteUrl ? autocompleteUrl : `/${model}/autocomplete`"
           param="term"

@@ -93,7 +93,8 @@ export const TYPE_LINKS = {
   [SOURCE]: {
     autocomplete: '/sources/autocomplete',
     radialObject: true,
-    smartSelector: 'sources'
+    smartSelector: 'sources',
+    smartSelectorLabel: 'cached'
   },
   [TAXON_DETERMINATION]: {
     autocomplete: '/sources/autocomplete'

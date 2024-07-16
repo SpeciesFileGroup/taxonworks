@@ -13,8 +13,13 @@ function shorten(str, maxLen, separator = ' ') {
 
 function toSnakeCase(string) {
   return string
-    .replace(/\.?([A-Z])/g, (x, y) => `_${y.toLowerCase()}`)
+    .replace(/\s+/g, '_')
+    .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
+    .replace(/-+/g, '_')
+    .replace(/_+/g, '_')
     .replace(/^_/, '')
+    .replace(/_$/, '')
+    .toLowerCase()
 }
 
 function toPascalCase(str) {
