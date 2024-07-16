@@ -1,5 +1,3 @@
-# require 'rgeo'
-
 # A GeographicItem is one and only one of [point, line_string, polygon,
 # multi_point, multi_line_string, multi_polygon, geometry_collection,
 # geography] which describes a position, path, or area on the globe,

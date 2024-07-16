@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
 describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
-  include_context 'stuff for geography tests' # that's spec/support/shared_contexts/shared_geo_for_geography.rb
+  include_context 'stuff for GeographicItem tests' # that's spec/support/shared_contexts/shared_basic_geo.rb
 
   # the pattern `before { [s1, s2, ...].each }` is to instantiate variables
   # that have been `let` (not `let!`) by referencing them using [...].each.

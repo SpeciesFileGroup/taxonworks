@@ -1,6 +1,8 @@
 require 'support/vendor/rspec_geo_helpers'
 
-shared_context 'stuff for geography tests' do
+# See shared_geo.rb for a more expansive variety of shapes
+
+shared_context 'stuff for GeographicItem tests' do
 
   ###### Simple shapes - no intended relation to each other
   let(:simple_shapes) { {
@@ -58,7 +60,7 @@ shared_context 'stuff for geography tests' do
     )
   }
 
-  ###### Specific shapes for testing relations between shapes
+  ###### Specific shapes for testing spatial relations between shapes
   # !! Specs should make no assumptions about the size of these shapes or
   # about their location in space; for that see distance spec shapes below
   #
