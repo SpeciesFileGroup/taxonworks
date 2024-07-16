@@ -59,6 +59,8 @@ shared_context 'stuff for geography tests' do
   }
 
   ###### Specific shapes for testing relations between shapes
+  # !! Specs should make no assumptions about the size of these shapes or
+  # about their location in space; for that see distance spec shapes below
   #
   #    donut              box                    distant_point
   #  ---------         ---------                       #
@@ -266,6 +268,7 @@ shared_context 'stuff for geography tests' do
 
   ###### Multi-shapes
   # !! Note these instantiate their constituent shapes
+
   ### A multi_point
   let(:donut_box_multi_point) do
     donut_point = donut_interior_point.geo_object
@@ -299,4 +302,21 @@ shared_context 'stuff for geography tests' do
 
     FactoryBot.create(:geographic_item_geography, geography: g_c)
   end
+
+  ###### Shapes used for specs involving distances
+  # These are all along the equator where it's easier to compute distances
+  # !! These bear no explicit reference to the other shapes above, but be
+  # aware that if you include shapes above with these, your distance specs
+  # could capture those shapes as well
+  let(:equator_point_long_0) {
+    FactoryBot.create(:geographic_item_geography, geography: 'POINT (0 0)')
+  }
+
+  let(:equator_point_long_20) {
+    FactoryBot.create(:geographic_item_geography, geography: 'POINT (20 0)')
+  }
+
+  let(:equator_point_long_30) {
+    FactoryBot.create(:geographic_item_geography, geography: 'POINT (30 0)')
+  }
 end

@@ -309,15 +309,11 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     end
 
     context '#st_distance_to_geographic_item' do
-      specify 'works for distance from polygon to point on equator' do
-        # p is on the equator, we compute distance from p to donut
-        p = box.geo_object.exterior_ring.points.first
-        p_x = p.x
-        p = FactoryBot.create(:geographic_item_geography, geography: p)
-        long_difference = p_x - donut.geo_object.exterior_ring.points.second.x
-        expected_distance = Utilities::Geo::ONE_WEST * long_difference
-        expect(donut.st_distance_to_geographic_item(p))
-          .to be_within(0.01).of(expected_distance)
+      specify 'works for distance beetween points on equator' do
+        expect(
+          equator_point_long_0
+            .st_distance_to_geographic_item(equator_point_long_20)
+        ).to be_within(0.01).of(20 * Utilities::Geo::ONE_WEST)
       end
     end
   end
@@ -582,23 +578,27 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     end
 
     context '::within_radius_of_item' do
-      before { [box, box_horizontal_bisect_line, box_centroid].each }
-
+      before { [equator_point_long_0, equator_point_long_20,
+        equator_point_long_30].each }
       specify 'returns objects within a specific distance of an object' do
-        # box is 20 from donut at the "equator", box_centroid is 30 from donut
-        r = 25 * Utilities::Geo::ONE_WEST
+        r = 15 * Utilities::Geo::ONE_WEST
         expect(
-          GeographicItem.within_radius_of_item(donut.id, r)
-        ).to contain_exactly(donut,
-          box, box_horizontal_bisect_line
-        )
+          GeographicItem.within_radius_of_item(equator_point_long_20.id, r)
+        ).to contain_exactly(equator_point_long_20, equator_point_long_30)
+      end
+
+      specify "doesn't return objects outside a specific distance of an object" do
+        r = 5 * Utilities::Geo::ONE_WEST
+        expect(
+          GeographicItem.within_radius_of_item(equator_point_long_20.id, r)
+        ).to contain_exactly(equator_point_long_20)
       end
 
       # Intended?
       specify 'shape is within_radius_of itself' do
         expect(
-          GeographicItem.within_radius_of_item(box_centroid.id, 100)
-        ).to include(box_centroid)
+          GeographicItem.within_radius_of_item(distant_point.id, 100)
+        ).to include(distant_point)
       end
     end
 
@@ -659,18 +659,15 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     end
 
     context '::within_radius_of_wkt_sql' do
+      before { [equator_point_long_0, equator_point_long_20,
+        equator_point_long_30].each }
+
       specify 'works for a wkt point' do
-        wkt = donut_centroid.to_wkt
-        # donut centroid is (10, 10), r is a little more than the radius of
-        # donut
-        r = 10 * 1.5 * Utilities::Geo::ONE_WEST
+        wkt = equator_point_long_20.to_wkt
+        r = 15 * Utilities::Geo::ONE_WEST
         expect(GeographicItem.where(
           GeographicItem.within_radius_of_wkt_sql(wkt, r))
-        ).to contain_exactly(donut_centroid,
-          donut, donut_interior_bottom_left_multi_line,
-          donut_left_interior_edge, donut_bottom_interior_edge,
-          donut_left_interior_edge_point
-        )
+        ).to contain_exactly(equator_point_long_20, equator_point_long_30)
       end
     end
 
@@ -689,27 +686,32 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     end
 
     context '::st_buffer_st_within_sql' do
-      before { [donut, box, rectangle_intersecting_box].each }
+      before { [equator_point_long_0, equator_point_long_20,
+        equator_point_long_30].each }
 
       specify 'buffer = 0, d = 0 is intersection' do
         expect(
           GeographicItem.where(
             GeographicItem.st_buffer_st_within_sql(box.id, 0, 0)
           )
-        ).to contain_exactly(box, rectangle_intersecting_box)
+        ).to include(box, rectangle_intersecting_box)
       end
 
       specify 'expanding target shapes works' do
-        # box is 20 units from donut
-        buffer = 25 * Utilities::Geo::ONE_WEST
+        buffer = 15 * Utilities::Geo::ONE_WEST
         expect(
           GeographicItem.where(
-            GeographicItem.st_buffer_st_within_sql(donut.id, 0, buffer)
+            GeographicItem.st_buffer_st_within_sql(
+              equator_point_long_20.id, 0, buffer
+            )
           ).to_a
-        ).to contain_exactly(donut, box)
+        ).to contain_exactly(equator_point_long_20, equator_point_long_30)
       end
 
       specify 'shrinking target shapes works' do
+        # instantiate donut
+        donut
+
         # control case
         buffer = 0
         expect(
