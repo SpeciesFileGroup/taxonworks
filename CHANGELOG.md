@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Removed bad foreign-key constraint on BiocurationClassifications
 - Content autocomplete not scoped to projects
 - Some hotkeys don't work on Firefox on Linux [#3988]
 
