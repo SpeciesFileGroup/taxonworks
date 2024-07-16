@@ -899,8 +899,8 @@ class GeographicItem < ApplicationRecord
     #
     # TODO: WHY! boolean not nil, or object
     # !! To assign to the geography column you must include
-    # "data_type":"geography" in the properties hash of `value`` (once all
-    # shapes are assigned to the geography column this will of course no longer
+    # "data_type":"geography" in the properties hash of `value` (once all
+    # shapes are assigned to the geography column that will of course no longer
     # be necessary).
     def shape=(value)
       return if value.blank?

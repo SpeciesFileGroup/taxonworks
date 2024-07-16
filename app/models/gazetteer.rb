@@ -64,6 +64,32 @@ class Gazetteer < ApplicationRecord
     }
   end
 
+  # @param shapes, a hash:
+  #   geojson: array of geojson hashes,
+  #   wkt: array of wkt strings
+  # Builds a GeographicItem for this gazetteer from the combined input shapes
+  def build_gi_from_shapes(shapes)
+    begin
+      rgeo_shape = self.class.combine_shapes_to_rgeo(shapes)
+    # TODO make sure these errors work
+    rescue RGeo::Error::RGeoError => e
+      errors.add(:base, e)
+    rescue RGeo::Error::InvalidGeometry => e
+      errors.add(:base, "Invalid geometry: #{e}")
+    rescue TaxonWorks::Error => e
+      errors.add(:base, e)
+    end
+
+    if errors.include?(:base) || rgeo_shape.nil?
+      return
+    end
+
+    build_geographic_item(
+      type: 'GeographicItem::Geography',
+      geography: rgeo_shape
+    )
+  end
+
   # Assumes @gazetteer is set
   # @param [Hash] TODO describe shape of hash
   # @return A single rgeo shape containing all of the input shapes

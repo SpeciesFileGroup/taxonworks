@@ -50,26 +50,11 @@ class GazetteersController < ApplicationController
   def create
     @gazetteer = Gazetteer.new(gazetteer_params)
 
-    begin
-      rgeo_shape = Gazetteer.combine_shapes_to_rgeo(shape_params['shapes'])
-    # TODO make sure these errors work
-    rescue RGeo::Error::RGeoError => e
-      @gazetteer.errors.add(:base, e)
-    rescue RGeo::Error::InvalidGeometry => e
-      @gazetteer.errors.add(:base, "Invalid geometry: #{e}")
-    rescue TaxonWorks::Error => e
-      @gazetteer.errors.add(:base, e)
-    end
-
-    if @gazetteer.errors.include?(:base) || rgeo_shape.nil?
+    @gazetteer.build_gi_from_shapes(shape_params['shapes'])
+    if @gazetteer.errors.include?(:base)
       render json: @gazetteer.errors, status: :unprocessable_entity
       return
     end
-
-    @gazetteer.build_geographic_item(
-      type: 'GeographicItem::Geography',
-      geography: rgeo_shape
-    )
 
     if @gazetteer.save
       render :show, status: :created, location: @gazetteer
