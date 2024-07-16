@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Content autocomplete not scoped to projects
 - Some hotkeys don't work on Firefox on Linux [#3988]
 
 [#3981]: https://github.com/SpeciesFileGroup/taxonworks/issues/3981
