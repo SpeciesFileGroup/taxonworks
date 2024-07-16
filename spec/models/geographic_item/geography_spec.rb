@@ -101,6 +101,51 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     end
   end
 
+  context 'scopes (GeographicItems can be found by searching with)' do
+    before {
+      [ce_box_centroid, ce_rectangle_point,
+        gr_box_centroid, gr_rectangle_point, distant_point].each
+    }
+
+    specify '::geo_with_collecting_event includes' do
+      expect(GeographicItem.geo_with_collecting_event.to_a)
+        .to contain_exactly(box_centroid, box_rectangle_intersection_point)
+    end
+
+    specify '::geo_with_collecting_event does not include' do
+      expect(GeographicItem.geo_with_collecting_event.to_a)
+        .not_to include(distant_point)
+    end
+
+    specify '::err_with_collecting_event includes' do
+      expect(GeographicItem.err_with_collecting_event.to_a)
+        .to contain_exactly(box, rectangle_intersecting_box)
+    end
+
+    specify '::err_with_collecting_event does not include' do
+      expect(GeographicItem.err_with_collecting_event.to_a)
+        .not_to include(distant_point)
+    end
+
+    specify '::include_collecting_event' do
+      # This is just all created GeographicItems (doesn't test preloading)
+      expect(GeographicItem.include_collecting_event.to_a)
+        .to contain_exactly(box_centroid, box, distant_point,
+          rectangle_intersecting_box, box_rectangle_intersection_point)
+    end
+
+    specify '::with_collecting_event_through_georeferences includes' do
+      expect(GeographicItem.with_collecting_event_through_georeferences.to_a)
+        .to contain_exactly(box_centroid, box_rectangle_intersection_point,
+          box, rectangle_intersecting_box)
+    end
+
+    specify '::with_collecting_event_through_georeferences does not contain' do
+      expect(GeographicItem.with_collecting_event_through_georeferences.to_a)
+        .not_to include(distant_point)
+    end
+  end
+
   # Note these all use geography as the shape column via
   # "data_type":"geography" in the properties hash
   context 'construction via #shape=' do

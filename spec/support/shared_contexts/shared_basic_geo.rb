@@ -321,4 +321,30 @@ shared_context 'stuff for GeographicItem tests' do
   let(:equator_point_long_30) {
     FactoryBot.create(:geographic_item_geography, geography: 'POINT (30 0)')
   }
+
+  ###### Collecting events
+  let(:ce_box_centroid) {
+    FactoryBot.create(:valid_collecting_event)
+  }
+
+  let(:ce_rectangle_point) {
+    FactoryBot.create(:valid_collecting_event)
+  }
+
+  ###### Georeferences
+  let(:gr_box_centroid) {
+    FactoryBot.create(:georeference_verbatim_data,
+      api_request: 'gr_box',
+      collecting_event: ce_box_centroid,
+      geographic_item: box_centroid,
+      error_geographic_item: box)
+  }
+
+  let(:gr_rectangle_point) {
+    FactoryBot.create(:georeference_verbatim_data,
+      api_request: 'gr_rectangle_point',
+      collecting_event: ce_rectangle_point,
+      geographic_item: box_rectangle_intersection_point,
+      error_geographic_item: rectangle_intersecting_box)
+  }
 end
