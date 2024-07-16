@@ -10,6 +10,10 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
   # database at that time, so you can specify your shapes universe for a given
   # context by listing the shapes you want to exist in that universe.
 
+  # !! Note that multi-shapes instantiate their constituent shapes, so for
+  # example if you reference (and therefore instantiate)
+  # donut_rectangle_multi_polygon, you've also instantiated donut and rectangle.
+
   # TODO add some geometry_collection specs
   # TODO add and comment out any ce, co, gr, ad specs that currently only need
   # to be tested against non-geography columns
@@ -324,7 +328,8 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
       before {
         [donut, donut_centroid, donut_interior_point,
          donut_left_interior_edge_point, donut_left_interior_edge,
-         donut_bottom_and_left_interior_edges].each
+         donut_bottom_interior_edge,
+         donut_interior_bottom_left_multi_line].each
       }
 
       specify "doesn't return self" do
@@ -353,7 +358,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
 
       specify 'a polygon covers its edge' do
         expect(GeographicItem.superset_of_union_of(
-          donut_bottom_and_left_interior_edges.id
+          donut_interior_bottom_left_multi_line.id
         ).to_a).to contain_exactly(donut)
       end
 
@@ -364,15 +369,16 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
         expect(GeographicItem.superset_of_union_of(
           vertex.id
         ).to_a).to contain_exactly(donut,
-          donut_left_interior_edge, donut_bottom_and_left_interior_edges
+          donut_left_interior_edge, donut_bottom_interior_edge,
+          donut_interior_bottom_left_multi_line
         )
       end
     end
 
     context '::within_union_of' do
-      before { [donut_bottom_and_left_interior_edges,
+      before { [donut_interior_bottom_left_multi_line,
         donut_interior_point, donut_centroid,
-        donut_left_interior_edge].each
+        donut_left_interior_edge, donut_bottom_interior_edge].each
       }
 
       specify 'a shape is within_union_of itself' do
@@ -388,8 +394,9 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
           GeographicItem.where(
             GeographicItem.subset_of_union_of_sql(donut.id)
           ).to_a
-        ).to contain_exactly(donut, donut_bottom_and_left_interior_edges,
-          donut_interior_point, donut_left_interior_edge)
+        ).to contain_exactly(donut, donut_interior_bottom_left_multi_line,
+          donut_left_interior_edge, donut_bottom_interior_edge,
+          donut_interior_point)
       end
 
       specify 'returns duplicates' do
@@ -407,15 +414,15 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     context '::st_covers - returns objects of a given shape which contain one
              or more given objects' do
       before { [donut, donut_left_interior_edge,
-                donut_bottom_and_left_interior_edges,
+                donut_interior_bottom_left_multi_line,
                 donut_rectangle_multi_polygon,
                 box, box_rectangle_union
               ].each }
 
       specify 'includes self when self is of the right shape' do
         expect(GeographicItem.st_covers('multi_line_string',
-          [donut_bottom_and_left_interior_edges]).to_a)
-        .to include(donut_bottom_and_left_interior_edges)
+          [donut_interior_bottom_left_multi_line]).to_a)
+        .to include(donut_interior_bottom_left_multi_line)
       end
 
       specify 'a shape that covers two input shapes is only returned once' do
@@ -431,7 +438,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
         expect(GeographicItem.st_covers('any',
           [donut_left_interior_edge]).to_a)
         .to contain_exactly(donut_left_interior_edge,
-          donut_bottom_and_left_interior_edges, donut,
+          donut_interior_bottom_left_multi_line, donut,
           donut_rectangle_multi_polygon
         )
       end
@@ -456,7 +463,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
           donut_left_interior_edge_point, distant_point).to_a)
         .to contain_exactly(
           donut_left_interior_edge,
-          donut_bottom_and_left_interior_edges
+          donut_interior_bottom_left_multi_line
         )
       end
 
@@ -474,7 +481,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
           donut_left_interior_edge_point).to_a)
         .to contain_exactly(donut_left_interior_edge_point,
           donut_left_interior_edge,
-          donut_bottom_and_left_interior_edges,
+          donut_interior_bottom_left_multi_line,
           donut,
           donut_rectangle_multi_polygon
         )
@@ -485,21 +492,23 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
              objects.' do
       before { [donut, donut_interior_point, donut_left_interior_edge_point,
                 donut_left_interior_edge_point, donut_left_interior_edge,
-                donut_bottom_and_left_interior_edges,
+                donut_bottom_interior_edge,
+                donut_interior_bottom_left_multi_line,
                 box, box_centroid, box_horizontal_bisect_line,
                 rectangle_intersecting_box, box_rectangle_intersection_point,
                 donut_rectangle_multi_polygon].each }
 
       specify 'object of the right shape is st_covered_by itself' do
         expect(GeographicItem.st_covered_by('multi_line_string',
-            [donut_bottom_and_left_interior_edges]).to_a)
-          .to include(donut_bottom_and_left_interior_edges)
+            [donut_interior_bottom_left_multi_line]).to_a)
+          .to include(donut_interior_bottom_left_multi_line)
       end
 
       specify 'includes shapes which are a boundary component of an input' do
         expect(GeographicItem.st_covered_by('line_string',
           donut).to_a)
-        .to contain_exactly(donut_left_interior_edge)
+        .to contain_exactly(donut_left_interior_edge,
+          donut_bottom_interior_edge)
       end
 
       specify 'a point only covers itself' do
@@ -518,14 +527,16 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
         expect(GeographicItem.st_covered_by('point',
           donut, box).to_a)
         .to contain_exactly(donut_interior_point,
-          donut_left_interior_edge_point, box_centroid, box_rectangle_intersection_point)
+          donut_left_interior_edge_point, box_centroid,
+          box_rectangle_intersection_point)
       end
 
       specify 'works with any_line' do
         expect(GeographicItem.st_covered_by('any_line',
           donut).to_a)
         .to contain_exactly(
-          donut_left_interior_edge, donut_bottom_and_left_interior_edges
+          donut_left_interior_edge, donut_bottom_interior_edge,
+          donut_interior_bottom_left_multi_line
         )
       end
 
@@ -656,8 +667,9 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
         expect(GeographicItem.where(
           GeographicItem.within_radius_of_wkt_sql(wkt, r))
         ).to contain_exactly(donut_centroid,
-          donut, donut_bottom_and_left_interior_edges,
-          donut_left_interior_edge, donut_left_interior_edge_point
+          donut, donut_interior_bottom_left_multi_line,
+          donut_left_interior_edge, donut_bottom_interior_edge,
+          donut_left_interior_edge_point
         )
       end
     end
@@ -669,9 +681,9 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
           GeographicItem.covered_by_wkt_sql(wkt))
         # Should contain all donut shapes and all rectangle shapes
         ).to contain_exactly(donut_rectangle_multi_polygon,
-          donut, donut_bottom_and_left_interior_edges,
-          donut_left_interior_edge, donut_left_interior_edge_point,
-          rectangle_intersecting_box
+          donut, donut_interior_bottom_left_multi_line,
+          donut_left_interior_edge, donut_bottom_interior_edge,
+          donut_left_interior_edge_point, rectangle_intersecting_box
         )
       end
     end

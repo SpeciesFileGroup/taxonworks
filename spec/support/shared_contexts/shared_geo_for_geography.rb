@@ -60,22 +60,21 @@ shared_context 'stuff for geography tests' do
 
   ###### Specific shapes for testing relations between shapes
   #
-  #      donut              box                    distant_point
-  # 20 @@@@@@@@@         @@@@@@@@@                       #
-  #    @       @         @       @
-  # 15 @ &@@@@ @         @   %%%%%%%%%
-  #    @ &   @ @         @   %   @   %
-  # 10 @ # # @ @         &&&&#&&&&   %
-  #    @ &   @ @         @   %   @   %  rectangle_intersecting_box
-  #  5 @ &@@@@ @         @   % # @   %
-  #    @#      @         @   %   @   %
-  #  0 @@@@@@@@@         @@@@%%%%%%%%%
+  #    donut              box                    distant_point
+  #  ---------         ---------                       #
+  #  |       |         |       |
+  #  | &---- |         |   %%%%%%%%%
+  #  | &   | |         |   %   |   %
+  #  | # # | |         &&&&#&&&&   %
+  #  | &   | |         |   %   |   %  rectangle_intersecting_box
+  #  | &&&&& |         |   % # |   %
+  #  |#      |         |   %   |   %
+  #  ---------         ----%%%%%%%%%
   #
-  #    0       20        40  50  60  70
   #  # = point, & = line
   #
-  #  Donut shapes: donut, donut_left_interior_edge,
-  #    donut_bottom_and_left_interior_edges (a multi_line),
+  #  Donut shapes: donut, donut_left_interior_edge, donut_bottom_interior_edge
+  #    donut_interior_bottom_left_multi_line,
   #    donut_centroid, donut_left_interior_edge_point, donut_interior_point
   #
   #  Box shapes: box, box_horizontal_bisect_line, box_centroid
@@ -85,120 +84,188 @@ shared_context 'stuff for geography tests' do
   #
   #  box_rectangle_union is what it says as a single polygon
   #
+  #  !! Note that multi-shapes instantiate their constituent shapes
   #  MultiPoint: donut_box_multi_point (donut_interior_point, box_centroid)
-  #  MultiLine: donut_bottom_and_left_interior_edges
+  #  MultiLine: donut_interior_bottom_left_multi_line
   #  MultiPolygon: donut_rectangle_multi_polygon
   #  GeometryCollection: donut_box_bisector_rectangle_geometry_collection
   #    (donut, box_horizontal_bisect_line, rectangle_intersecting_box)
 
   ### Point intended to be outside of any of the shapes defined below
   let(:distant_point) {
-    FactoryBot.create(:geographic_item_geography, geography: 'POINT(85 175 0)')
+    FactoryBot.create(:geographic_item_geography, geography: 'POINT(80 170 0)')
   }
 
   ### A donut polygon and sub-shapes
-  let(:donut) do
-    # Definitions below assume both interior and exterior are squares starting
-    # at the lower left corner; exterior ccw, interior cw
-    d = 'POLYGON((0 0 0, 20 0 0, 20 20 0, 0 20 0, 0 0 0),
-                 (5 5 0, 15 5 0, 15 15 0, 5 15 0, 5 5 0))'
+  # donut = POLYGON((0 0 0, 20 0 0, 20 20 0, 0 20 0, 0 0 0),
+  #                 (5 5 0, 15 5 0, 15 15 0, 5 15 0, 5 5 0))
+  # !! we describe donut outside of the definition of donut so that we can also
+  # describe its subshapes without instantiating donut in doing so
+  let(:d_llc_x) { 0 }
+  let(:d_llc_y) { 0 }
+  # width == height, but that's not necessary
+  let(:d_w) { 20 } # should be divisible by 4
+  let(:d_h) { 20 } # should be divisible by 4
+  # width of the ring == height of the ring, but that's not necessary
+  let(:d_ring_w) { 5 }
+  let(:d_ring_h) { 5 }
+  # For convenience:
+  # 'or' == outer ring
+  let(:d_or_llc) { '0 0 0' }
+  let(:d_or_lrc) { '20 0 0' }
+  let(:d_or_urc) { '20 20 0' }
+  let(:d_or_ulc) { '0 20 0' }
+  # 'ir' == inner ring
+  let(:d_ir_llc) { '5 5 0' }
+  let(:d_ir_ulc) { '15 5 0' }
+  let(:d_ir_urc) { '15 15 0' }
+  let(:d_ir_lrc) { '5 15 0' }
 
-    FactoryBot.create(:geographic_item_geography, geography: d)
+  let(:donut) do
+    p = "POLYGON((#{d_or_llc}, #{d_or_lrc}, #{d_or_urc}, #{d_or_ulc},
+                  #{d_or_llc}),
+                 (#{d_ir_llc}, #{d_ir_ulc}, #{d_ir_urc}, #{d_ir_lrc},
+                  #{d_ir_llc}))"
+
+    FactoryBot.create(:geographic_item_geography, geography: p)
   end
 
   # geometric centroid
-  let(:donut_centroid) {
-    FactoryBot.create(:geographic_item_geography, geography: donut.centroid)
-  }
+  let(:donut_centroid) do
+    c_x = d_llc_x + d_w / 2
+    c_y = d_llc_y + d_h / 2
+    c = "POINT (#{c_x} #{c_y} 0)"
+
+    FactoryBot.create(:geographic_item_geography, geography: c)
+  end
 
   let (:donut_interior_point) do
-    # Both corners are lower left
-    exterior_ring_corner = donut.geo_object.exterior_ring.start_point
-    interior_ring_corner = donut.geo_object.interior_rings.first.start_point
-    interior_x = (interior_ring_corner.x - exterior_ring_corner.x) / 2
-    interior_y = (interior_ring_corner.y - exterior_ring_corner.y) / 2
+    interior_x = d_llc_x + d_ring_w / 2
+    interior_y = d_llc_y + d_ring_h / 2
+    i_p = "POINT(#{interior_x} #{interior_y} 0)"
 
-    FactoryBot.create(:geographic_item_point,
-      point: "POINT(#{interior_x} #{interior_y} 0)")
+    FactoryBot.create(:geographic_item_geography, geography: i_p)
   end
 
   let (:donut_left_interior_edge_point) {
-    # lower left corner of interior ring
-    interior_llc = donut.geo_object.interior_rings.first.start_point
-    # upper left corner of interior ring
-    interior_ulc = donut.geo_object.interior_rings.first.points.fourth
-    x = interior_llc.x
-    y = interior_llc.y + (interior_ulc.y - interior_llc.y) / 2
+    p_x = d_llc_x + d_ring_w
+    p_y = d_llc_y + d_h / 2
+    p = "POINT (#{p_x} #{p_y} 0)"
 
-    FactoryBot.create(:geographic_item_geography,
-      geography: "POINT(#{x} #{y} 0)")
+    FactoryBot.create(:geographic_item_geography, geography: p)
   }
 
   let (:donut_left_interior_edge) {
-    start_point = donut.geo_object.interior_rings.first.points.first
-    end_point = donut.geo_object.interior_rings.first.points.fourth
+    l_x = d_llc_x + d_ring_w
+    l_lower_y = d_llc_y + d_ring_h
+    l_upper_y = d_llc_y + d_h - d_ring_h
+    l = "LINESTRING (#{l_x} #{l_lower_y}, #{l_x} #{l_upper_y})"
 
-    FactoryBot.create(:geographic_item_geography,
-      geography: RSPEC_GEO_FACTORY.line_string([start_point, end_point]))
+    FactoryBot.create(:geographic_item_geography, geography: l)
+  }
+
+  let (:donut_bottom_interior_edge) {
+    l_left_x = d_llc_x + d_ring_w
+    l_right_x = d_llc_x + d_w - d_ring_w
+    l_y = d_llc_y + d_ring_h
+    l = "LINESTRING (#{l_left_x} #{l_y}, #{l_right_x} #{l_y})"
+
+    FactoryBot.create(:geographic_item_geography, geography: l)
   }
 
   # A multi_line_string
-  let (:donut_bottom_and_left_interior_edges) {
-    # lower left corner
-    llc = donut.geo_object.interior_rings.first.points.first
-    # lower right corner
-    lrc = donut.geo_object.interior_rings.first.points.second
-    #upper left corner
-    ulc = donut.geo_object.interior_rings.first.points.fourth
-    lower_edge = RSPEC_GEO_FACTORY.line_string([llc, lrc])
-    left_edge = RSPEC_GEO_FACTORY.line_string([ulc, llc])
+  let (:donut_interior_bottom_left_multi_line) {
+    m_l = RSPEC_GEO_FACTORY.multi_line_string([
+      donut_left_interior_edge.geo_object,
+      donut_bottom_interior_edge.geo_object
+    ])
 
-    FactoryBot.create(:geographic_item_geography,
-      geography: RSPEC_GEO_FACTORY.multi_line_string([left_edge, lower_edge]))
+    FactoryBot.create(:geographic_item_geography, geography: m_l)
   }
 
   ### A box polygon and sub-shapes
+
+  # box = POLYGON((40 0 0, 60 0 0, 60 20 0, 40 20 0, 40 0 0))
+  let(:box_llc_x) {40}
+  let(:box_llc_y) {0}
+  # width == height, though that isn't necessary
+  let(:box_w) {20} # should be divisible by 2
+  let(:box_h) {20} # should be divisible by 2
+  # For convenience:
+  let(:box_llc) {'40 0 0'}
+  let(:box_lrc) {'60 0 0'}
+  let(:box_urc) {'60 20 0'}
+  let(:box_ulc) {'40 20 0'}
+
+
   let(:box) do
-    b = 'POLYGON((40 0 0, 60 0 0, 60 20 0, 40 20 0, 40 0 0))'
+    b = "POLYGON((#{box_llc}, #{box_lrc}, #{box_urc}, #{box_ulc}, #{box_llc}))"
 
     FactoryBot.create(:geographic_item_geography, geography: b)
   end
 
   # geometric centroid
   let(:box_centroid) {
-    FactoryBot.create(:geographic_item_geography, geography: box.centroid)
+    c_x = box_llc_x + box_w / 2
+    c_y = box_llc_y + box_h / 2
+    c = "POINT (#{c_x} #{c_y} 0)"
+
+    FactoryBot.create(:geographic_item_geography, geography: c)
   }
 
   let(:box_horizontal_bisect_line) {
-    points = box.geo_object.exterior_ring.points
-    left_x = points.first.x
-    right_x = points.second.x
-    y = points.first.y + (points.fourth.y - points.first.y) / 2
+    left_x = box_llc_x
+    right_x = left_x + box_w
+    y = box_llc_y + box_h / 2
     line = "LINESTRING (#{left_x} #{y} 0, #{right_x} #{y} 0)"
     FactoryBot.create(:geographic_item_geography, geography: line)
   }
 
-  ### A rectangle polygon intersecting the previous box; both start at y=0,
-  # the rectangle is taller than box_centroid but shorter than box (is that
-  # important?); box_centroid is in the left side of rectangle
-  let(:rectangle_intersecting_box) do
-    b = 'POLYGON((50 0 0, 70 0 0, 70 15 0, 50 15 0, 50 0 0))'
+  ### A rectangle polygon intersecting the previous box; both start at the same
+  # height, the rectangle is taller than box_centroid but shorter than box (is
+  # that important?); box_centroid is in the left side of rectangle; the right
+  # side of rectangle is beyond the right side of box
 
-    FactoryBot.create(:geographic_item_geography, geography: b)
+  # rectangle = POLYGON((50 0 0, 70 0 0, 70 15 0, 50 15 0, 50 0 0))
+  let(:rect_w) { box_w }
+  let(:rect_h) { 3 * box_h / 4 }
+  let(:rectangle_intersecting_box) do
+    llc_x = box_llc_x + box_w / 2
+    llc_y = box_llc_y
+
+    lrc_x = llc_x + rect_w
+    lrc_y = llc_y
+
+    urc_x = lrc_x
+    urc_y = lrc_y + rect_h
+
+    ulc_x = llc_x
+    ulc_y = urc_y
+
+    r = "POLYGON ((#{llc_x} #{llc_y} 0, #{lrc_x} #{lrc_y} 0, " \
+                  "#{urc_x} #{urc_y} 0, #{ulc_x} #{ulc_y} 0, " \
+                  "#{llc_x} #{llc_y} 0))"
+
+    FactoryBot.create(:geographic_item_geography, geography: r)
   end
 
   ### A point in the interior of the intersection of box and rectangle
   let(:box_rectangle_intersection_point) {
-    FactoryBot.create(:geographic_item_geography, geography: 'POINT (55 5 0)')
+    i_x = box_llc_x + 3 * box_w / 4
+    i_y = box_llc_y + box_h / 4
+    i = "POINT (#{i_x} #{i_y})"
+
+    FactoryBot.create(:geographic_item_geography, geography: i)
   }
 
   ### The union of the box and rectangle polygons as a single polygon
   let(:box_rectangle_union) {
-    FactoryBot.create(:geographic_item_geography,
-      geography: box.geo_object.union(rectangle_intersecting_box.geo_object)
-  )}
+    m_p = box.geo_object.union(rectangle_intersecting_box.geo_object)
+
+    FactoryBot.create(:geographic_item_geography, geography: m_p)}
 
   ###### Multi-shapes
+  # !! Note these instantiate their constituent shapes
   ### A multi_point
   let(:donut_box_multi_point) do
     donut_point = donut_interior_point.geo_object
@@ -209,7 +276,7 @@ shared_context 'stuff for geography tests' do
   end
 
   ### A mult_line_string
-  # :donut_bottom_and_left_interior_edges is a multi_line_string
+  # :donut_interior_bottom_left_multi_line is a multi_line_string
 
   ### A multi_polygon
   let(:donut_rectangle_multi_polygon) do
