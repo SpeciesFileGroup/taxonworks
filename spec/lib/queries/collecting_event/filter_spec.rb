@@ -136,14 +136,14 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     let(:point_lat) { '10.0' }
     let(:point_long) { '10.0' }
 
-   # let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
-   let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
+    # let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
+    let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
     let(:geographic_item) { GeographicItem::Point.create!( point: factory_point ) }
 
     let!(:point_georeference) {
       Georeference::VerbatimData.create!(
         collecting_event: ce1,
-        geographic_item: geographic_item,
+        geographic_item:
       )
     }
 
@@ -153,6 +153,17 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
 
     let(:geo_json_polygon) {
       '{ "type": "Polygon","coordinates": [[ [5.0, 5.0], [15.0, 5.0], [15.0, 15.0], [5.0, 15.0], [5.0, 5.0] ]] }'
+    }
+
+    let(:gi_polygon) {
+      FactoryBot.create(:geographic_item_geography, geography: wkt_polygon)
+    }
+
+    let(:gz_polygon) {
+      FactoryBot.create(:gazetteer,
+        geographic_item: gi_polygon,
+        name: 'gi_polygon'
+      )
     }
 
     specify '#wkt (POINT)' do
@@ -172,6 +183,11 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
 
     specify '#geo_json (POLYGON)' do
       query.geo_json = geo_json_polygon
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+    end
+
+    specify '#gazetteer_id' do
+      query.gazetteer_id = gz_polygon.id
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 

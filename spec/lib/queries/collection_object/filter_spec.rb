@@ -605,8 +605,23 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     end
 
     specify '#geographic_area_id' do
-      ce1.update(geographic_area: FactoryBot.create(:valid_geographic_area))
+      ce1.update!(geographic_area: FactoryBot.create(:valid_geographic_area))
       query.base_collecting_event_query.geographic_area_id = [ce1.geographic_area.id]
+      expect(query.all.pluck(:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#gazetteer_id' do
+      gi = FactoryBot.create(:valid_geographic_item)
+      _point_georeference =
+        Georeference::VerbatimData.create!(
+          collecting_event: ce1,
+          geographic_item: gi,
+        )
+
+      gz = FactoryBot.create(:gazetteer,
+        geographic_item: gi, name: 'gz matching ce1 georef')
+
+      query.base_collecting_event_query.gazetteer_id = [gz.id]
       expect(query.all.pluck(:id)).to contain_exactly(co1.id)
     end
 
