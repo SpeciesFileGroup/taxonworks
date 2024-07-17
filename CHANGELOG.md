@@ -17,8 +17,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed bad foreign-key constraint on BiocurationClassifications
 - Content autocomplete not scoped to projects
 - Some hotkeys don't work on Firefox on Linux [#3988]
+- Cancel previous autocomplete requests [#3982]
 
 [#3981]: https://github.com/SpeciesFileGroup/taxonworks/issues/3981
+[#3982]: https://github.com/SpeciesFileGroup/taxonworks/issues/3982
 [#3988]: https://github.com/SpeciesFileGroup/taxonworks/issues/3988
 
 ## [0.42.0] - 2024-06-28
