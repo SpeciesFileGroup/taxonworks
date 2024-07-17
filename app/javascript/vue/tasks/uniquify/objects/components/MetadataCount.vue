@@ -1,7 +1,7 @@
 <template>
   <table class="table-striped">
     <thead>
-      <th>Annotations</th>
+      <th>Related</th>
       <th class="w-2">Total</th>
     </thead>
     <tbody>
