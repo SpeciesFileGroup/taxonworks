@@ -942,7 +942,7 @@ filter_dwc_occurrences_task:
     - collecting_event
     - asserted_distribution
   categories:
-    - filter
+    - filters
   status: prototype
   description: 'Filter records in the DarwinCore index.'
 new_gazetteer_task:
@@ -951,7 +951,6 @@ new_gazetteer_task:
   related:
   categories:
     - collecting_event
-    - filters
     - new
   status: prototype
   description: 'Create named shapes for use in your project.'
