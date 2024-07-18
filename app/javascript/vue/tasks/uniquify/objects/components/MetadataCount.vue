@@ -28,14 +28,22 @@ const item = defineModel({
 watch(
   () => item.value.global_id,
   (newVal) => {
-    const obj = item.value
-
-    if (!obj.metadata) {
-      Unify.metadata({ global_id: newVal }).then(({ body }) => {
-        obj.metadata = body
-      })
+    if (!item.value.metadata) {
+      loadMetadata(newVal)
     }
   },
   { immediate: true }
 )
+
+function loadMetadata(globalId) {
+  const obj = item.value
+
+  Unify.metadata({ global_id: globalId }).then(({ body }) => {
+    obj.metadata = body
+  })
+}
+
+defineExpose({
+  loadMetadata
+})
 </script>
