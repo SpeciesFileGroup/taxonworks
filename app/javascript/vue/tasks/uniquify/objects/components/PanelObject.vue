@@ -29,7 +29,7 @@
         <MetadataCount
           v-if="keepObject"
           class="full_width"
-          :global-id="keepObject.global_id"
+          v-model="keepObject"
         />
       </template>
     </BlockLayout>
@@ -48,13 +48,17 @@
         <MetadataCount
           v-if="destroyObject"
           class="full_width"
-          :global-id="destroyObject.global_id"
+          v-model="destroyObject"
         />
       </template>
     </BlockLayout>
   </div>
 
   <div class="horizontal-left-content middle gap-small margin-medium-top">
+    <ButtonMerge
+      :keep-global-id="keepObject?.global_id"
+      :remove-global-id="destroyObject?.global_id"
+    />
     <PrewiewMerge
       :keep-global-id="keepObject?.global_id"
       :remove-global-id="destroyObject?.global_id"
@@ -72,7 +76,7 @@
 import { ref, nextTick, watch, onMounted } from 'vue'
 import { toPascalCase, toSnakeCase } from '@/helpers'
 import { RouteNames } from '@/routes/routes.js'
-import SetParam from '@/helpers/setParam.js'
+import ButtonMerge from './ButtonMerge.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import ObjectSelector from './ObjectSelector.vue'
@@ -114,10 +118,8 @@ onMounted(() => {
 
 watch(keepObject, (newVal) => {
   if (newVal) {
-    const url = new URL(RouteNames.UniquifyObjects, window.location.origin)
     const paramName = toSnakeCase(model.value) + '_id'
-    url.searchParams.set(paramName, newVal?.id)
-    const newUrl = url.pathname + url.search
+    const newUrl = `${RouteNames.UniquifyObjects}?${paramName}=${newVal.id}`
 
     history.pushState(null, null, newUrl)
   } else {

@@ -127,8 +127,8 @@ export default {
     },
 
     time: {
-      type: String,
-      default: '500'
+      type: [String, Number],
+      default: 500
     },
 
     arrayList: {
@@ -195,7 +195,7 @@ export default {
       type: this.sendLabel,
       json: [],
       current: -1,
-      requestId: Math.random().toString(36).substr(2, 5)
+      controller: null
     }
   },
 
@@ -343,9 +343,12 @@ export default {
         this.showList = this.json.length > 0
       } else {
         this.spinner = true
+        this.controller?.abort()
+        this.controller = new AbortController()
+
         AjaxCall('get', this.ajaxUrl(), {
-          requestId: this.requestId,
-          headers: this.headers
+          headers: this.headers,
+          signal: this.controller.signal
         })
           .then(({ body }) => {
             this.json = this.getNested(body, this.nested)
@@ -358,6 +361,7 @@ export default {
             this.searchEnd = true
             this.$emit('found', this.showList)
           })
+          .catch(() => {})
           .finally(() => {
             this.spinner = false
           })
