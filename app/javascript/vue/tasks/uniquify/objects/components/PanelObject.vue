@@ -28,6 +28,7 @@
         />
         <MetadataCount
           v-if="keepObject"
+          ref="keepMetadataRef"
           class="full_width"
           v-model="keepObject"
         />
@@ -58,6 +59,7 @@
     <ButtonMerge
       :keep-global-id="keepObject?.global_id"
       :remove-global-id="destroyObject?.global_id"
+      @merge="handleMerge"
     />
     <PrewiewMerge
       :keep-global-id="keepObject?.global_id"
@@ -88,6 +90,7 @@ const model = ref(null)
 const destroyObject = ref(null)
 const keepObject = ref(null)
 const keepRef = ref(null)
+const keepMetadataRef = ref(null)
 
 watch(model, () => {
   destroyObject.value = null
@@ -99,6 +102,11 @@ function flip() {
 
   destroyObject.value = keepObject.value
   keepObject.value = tmp
+}
+
+function handleMerge() {
+  destroyObject.value = null
+  keepMetadataRef.value.loadMetadata(keepObject.value.global_id)
 }
 
 onMounted(() => {
