@@ -19,11 +19,11 @@
 module Shared::Unify
   extend ActiveSupport::Concern
 
-  # Never auto-handle these.
+  # Never auto-handle these, let the final destroy remoe them.
   EXCLUDE_RELATIONS = [
     # TODO: all the housekeeping and project relations?
     :versions,      # Not picked up, but adding in case, these should be destoyed as well?
-    :dwc_occurrence # Will be destroyed on CollectinoObject destroy, not replaced
+    :dwc_occurrence # Will be destroyed on CollectinoObject destroy
   ]
 
   # Per class, Iterating thorugh all of these
