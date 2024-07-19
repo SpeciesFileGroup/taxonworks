@@ -39,6 +39,10 @@ const props = defineProps({
   removeGlobalId: {
     type: String,
     default: undefined
+  },
+  only: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -54,6 +58,7 @@ function openModal() {
   Unify.merge({
     remove_global_id: props.removeGlobalId,
     keep_global_id: props.keepGlobalId,
+    only: props.only,
     preview: true
   })
     .then(({ body }) => {

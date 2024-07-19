@@ -66,7 +66,7 @@ async function mergeObjects() {
     Unify.merge({
       remove_global_id: props.removeGlobalId,
       keep_global_id: props.keepGlobalId,
-      preview: true
+      only: props.only
     })
       .then(({ body }) => {
         emit('merge')
