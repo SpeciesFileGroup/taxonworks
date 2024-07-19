@@ -17,6 +17,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
   # TODO add some geometry_collection specs
   # TODO add and comment out any ce, co, gr, ad specs that currently only need
   # to be tested against non-geography columns
+  #TODO spec intersecting_radius_of_wkt
 
   let(:geographic_item) { GeographicItem.new }
 
