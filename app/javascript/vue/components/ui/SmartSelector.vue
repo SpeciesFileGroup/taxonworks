@@ -301,6 +301,7 @@ const options = ref([])
 const lastSelected = ref()
 const elementSize = useOnResize(rootRef)
 const isLoading = ref(false)
+const controller = ref(null)
 
 const listStyle = computed(() => {
   return {
@@ -360,8 +361,13 @@ const refresh = (forceUpdate = false) => {
 
   lists.value = []
   isLoading.value = true
+  controller.value?.abort()
+  controller.value = new AbortController()
 
-  AjaxCall('get', `/${props.model}/select_options`, { params })
+  AjaxCall('get', `/${props.model}/select_options`, {
+    params,
+    signal: controller.value.signal
+  })
     .then((response) => {
       lists.value = response.body
       addCustomElements()
@@ -453,6 +459,7 @@ watch(
 )
 
 onUnmounted(() => {
+  controller.value.abort()
   document.removeEventListener('smartselector:update', refresh)
 })
 
