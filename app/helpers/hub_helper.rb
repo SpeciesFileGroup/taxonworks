@@ -16,7 +16,7 @@ module HubHelper
           content_tag(:div, task.name, class: 'task_name') +
           content_tag(:div, task.description, class: 'task_description') 
         }
-      ),send(task.path), data: { turbolinks: false }) +
+      ),send(task.path), data: { turbolinks: false }, tabindex: 0) +
       content_tag(:div, '', class: 'fav-link') {
         favorite_page_link('tasks', task.prefix) 
       }       
