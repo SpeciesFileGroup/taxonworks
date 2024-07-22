@@ -1,15 +1,6 @@
 <template>
   <table class="table-striped">
     <thead>
-      <th
-        class="w-2"
-        v-if="checkboxes"
-      >
-        <input
-          type="checkbox"
-          v-model="selectAll"
-        />
-      </th>
       <th>Related</th>
       <th class="w-2">Total</th>
       <th
@@ -23,15 +14,7 @@
       <tr
         v-for="({ name, total }, key) in item.metadata"
         :key="key"
-        @click="() => checkboxes && toggleOnly(key)"
       >
-        <td v-if="checkboxes">
-          <input
-            type="checkbox"
-            :value="key"
-            v-model="only"
-          />
-        </td>
         <td>{{ name }}</td>
         <td>{{ total }}</td>
         <td
@@ -39,12 +22,21 @@
           v-html="getTotalWithMerge(total, key)"
         />
       </tr>
+      <tr
+        v-for="{ name, total } in rows"
+        :key="name"
+        class="text-update-color font-bold"
+      >
+        <td>{{ name }}</td>
+        <td />
+        <td>{{ total }}</td>
+      </tr>
     </tbody>
   </table>
 </template>
 
 <script setup>
-import { computed, nextTick, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { Unify } from '@/routes/endpoints'
 import { addToArray, removeFromArray } from '@/helpers'
 
@@ -54,9 +46,9 @@ const props = defineProps({
     default: undefined
   },
 
-  checkboxes: {
-    type: Boolean,
-    default: false
+  only: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -65,9 +57,16 @@ const item = defineModel({
   default: () => ({})
 })
 
-const only = defineModel('only', {
-  type: Array,
-  default: undefined
+const rows = computed(() => {
+  if (!props.mergeItem?.metadata || !item.value?.metadata) {
+    return []
+  }
+
+  const metadata = Object.keys(item.value.metadata)
+
+  return Object.entries(props.mergeItem.metadata)
+    .filter(([key]) => props.only.includes(key) && !metadata.includes(key))
+    .map(([, value]) => ({ ...value }))
 })
 
 watch(
@@ -75,53 +74,26 @@ watch(
   (newVal) => {
     if (!item.value.metadata) {
       loadMetadata(newVal)
-    } else {
-      nextTick(() => {
-        only.value = Object.keys(item.value.metadata)
-      })
     }
   },
   { immediate: true }
 )
-
-const selectAll = computed({
-  get: () =>
-    only.value.length === Object.keys(item.value?.metadata || {}).length,
-  set: (value) => {
-    only.value = value ? Object.keys(item.value?.metadata) : []
-  }
-})
 
 function loadMetadata(globalId) {
   const obj = item.value
 
   Unify.metadata({ global_id: globalId }).then(({ body }) => {
     obj.metadata = body
-    only.value = Object.keys(body)
   })
 }
 
 function getTotalWithMerge(count, key) {
-  const onlyLength = only.value?.length
+  const onlyLength = props.only?.length
   const { total = 0 } = props.mergeItem?.metadata?.[key] || {}
 
-  console.log(
-    !onlyLength || (onlyLength && only.value.includes(key)),
-    !onlyLength,
-    onlyLength && only.value.includes(key)
-  )
-
-  return !onlyLength || (onlyLength && only.value.includes(key))
+  return !onlyLength || (onlyLength && props.only.includes(key))
     ? `<b class="text-update-color">${total + count}</b>`
     : count
-}
-
-function toggleOnly(key) {
-  if (only.value.includes(key)) {
-    removeFromArray(only.value, key, { primitive: true })
-  } else {
-    addToArray(only.value, key, { primitive: true })
-  }
 }
 
 defineExpose({

@@ -29,12 +29,12 @@
             :exclude-ids="[destroyObject?.id, keepObject?.id].filter(Boolean)"
             v-model="keepObject"
           />
-          <MetadataCount
+          <KeepMetadata
             v-if="keepObject"
             ref="keepMetadataRef"
             class="full_width"
             :merge-item="destroyObject"
-            v-model:only="only"
+            :only="only"
             v-model="keepObject"
           />
         </template>
@@ -93,6 +93,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import ObjectSelector from './components/ObjectSelector.vue'
 import MetadataCount from './components/MetadataCount.vue'
+import KeepMetadata from './components/KeepMetadata.vue'
 import ModelSelector from './components/ModelSelector.vue'
 import PrewiewMerge from './components/PreviewMerge.vue'
 

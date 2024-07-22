@@ -42,6 +42,10 @@ const props = defineProps({
   removeGlobalId: {
     type: String,
     default: undefined
+  },
+  only: {
+    type: Array,
+    default: () => []
   }
 })
 
