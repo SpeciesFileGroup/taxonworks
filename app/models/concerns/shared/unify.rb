@@ -1,32 +1,27 @@
-# Merge concepts
-#
-#   When b merges to a the operation is:
-#     `complete` if b is left with no related data
-#     `blocked` when merging is prevented by data validations
-#
-#  what about difference in values of the objects
-#
+# A module to unify two objects into 1.
+#  * Annotation classes can not be unified.
+#  * Users and projects can not be unified, though technically the approach should be be a hard/but robust approach to the problem, with some key exceptions (e.g. two root TaxonNames)
+#  * Base attributes of the object (.e.g. name) being destroyed are not copied nor persisted back into the remaining object
+#  * Any related object that, once updated to point to its new object, that fails to save, _is destroyed_.  The assumption
+#  is that there are duplicate values or other constraints that make the object redundant, as if it was being added a-new.
+#  * `preview` rolls back all changes
+#  * Run `rake tw:development:linting:inverse_of_preventing_unify` judiciously when modifying models or this code. It will catch missing `inverse_of` parameters required to unify objects.  Note that it will always report some missing relationships that do not matter.
 #
 # TODO:
-#   -  mode strict => rollback if  *any* conflicting values?!
-#   - Annotation classes can not be merged
-#   - write spec that ensures :inverse_of is seat for all necessary classes
-#       Otu.first.merge_relations.collect{|r| [r.options[:inverse_of], r.name]}
-#
-#   - Pinboard items should be destroyed, and not cause failure
-#   - Mode that destroys invalid objects (e.g. global identifiers that can't be merged)
+#   - consider `strict` mode, where a preview is auto-run then inspected for any errors, if present the unify fails
 #
 module Shared::Unify
   extend ActiveSupport::Concern
 
-  # Never auto-handle these, let the final destroy remoe them.
+  # Never auto-handle these, let the final destroy remove them.
+  # Housekeeping relations are not hit here, we don't merge users at the moment.
   EXCLUDE_RELATIONS = [
-    # TODO: all the housekeeping and project relations?
-    :versions,      # Not picked up, but adding in case, these should be destoyed as well?
-    :dwc_occurrence # Will be destroyed on CollectinoObject destroy
+    :versions,       # Not picked up, but adding in case
+    :dwc_occurrence, # Will be destroyed on related objects destruction
+    :pinboard_items, # Technically not needed here
   ]
 
-  # Per class, Iterating thorugh all of these
+  # Per class, Iterating through all of these
   def only_relations
     []
   end
@@ -36,54 +31,48 @@ module Shared::Unify
     []
   end
 
+  # @return Array of ActiveRecord::Reflection
+  # Perhaps used_inferred to hash
   def merge_relations(only: [], except: [])
-    if (only_relations + [only].flatten).uniq.any?
-      (only_relations + [only].flatten).uniq
+    if (only_relations + [only&.map(&:to_sym)].flatten).uniq.any?
+      o = (only_relations + [only&.map(&:to_sym)].flatten).uniq
+      used_inferred_relations.select{|a| o.include?(a.name)}
     else
-      used_inferred_relations - (except_relations + [except].flatten).uniq
+      e = (except_relations + [except&.map(&:to_sym)].flatten).uniq
+      used_inferred_relations.select{|a| !e.include?(a.name)}
     end
   end
 
-  # @return Array of symbols
-  #   - or split to Polymorphic
-  #
-  # TODO: remove cached references, they should be computed
+  # @return Array of ActiveRecord::Reflection
   def inferred_relations
     (ApplicationEnumeration.klass_reflections(self.class) +
      ApplicationEnumeration.klass_reflections(self.class, :has_one))
       .delete_if{|r| r.options[:foreign_key] =~ /cache/}
       .delete_if{|r| r.options[:through].present? || r.options[:class_name].present?}
       .delete_if{|r| EXCLUDE_RELATIONS.include?(r.name.to_sym)}
-
-    # TODO: eliminate relations with * where clauses * ?
   end
 
-  # Remove nil.
-  # Keep seperated from inferred_relations so we can better audi all models in specs
+  # @return Array of ActiveRecord::Reflection
+  # Keep separated from inferred_relations so we can better audit all models in rake linting
   def used_inferred_relations
     inferred_relations.select{|r| !r.options[:inverse_of].nil?}
   end
 
+  # TODO: this should just be handled with after destroy ...
+  #
   # Methods to be called per Class immediately before the transaction starts
-  #  TODO: use with super, cleanup pinboard items inside of transactionj<t_úX>
+  #  TODO: use with super, cleanup pinboard items inside of transaction
   def before_unify
-    if respond_to?(:pinboard_items) 
-      pinboard_items.destroy_all
-    end
-
-    if respond_to?(:versions)
-      versions.destroy_all
-    end
   end
 
   # Methods to be called per Class after unify but before object is destroyed
   def after_unify
   end
 
-  # re-vist this concept remove is_data?
+  # re-visit this concept remove is_data?
   # @return Boolean
   #   true - there is no FK or polymorphic reference to this object
-  #        - this object is anot a blessed or special class record (e.g. a Root taxon name)
+  #        - this object is not a blessed or special class record (e.g. a Root taxon name)
   def used?
   end
 
@@ -92,9 +81,9 @@ module Shared::Unify
   def mergeable?(remove_object)
     # !! Proxy
     # Otu.first.merge_relations.collect{|r| [r.options[:inverse_of], r.name]} -> can have no nil in first position
-    #   - if nil then assume it's cannonical form
+    #   - if nil then assume it's canonical form
     # TODO:
-    #   - elimninate COMMUNITY data
+    #   - eliminate COMMUNITY data
     #   - maybe a class method Otu.new. ....
     #   - Both belong to the same project
     #
@@ -102,7 +91,6 @@ module Shared::Unify
 
   # Unify is not the same as move.  For example we could move annotations
   # from one class of things to another, we can not do that here.
-  # TODO: ensusure project level check is here
   def unify(remove_object, only: [], except: [], preview: false)
     s = {}
 
@@ -126,11 +114,9 @@ module Shared::Unify
 
     # All related non-annotation objects, by default
     self.class.transaction do
-
       before_unify
 
       merge_relations(only:, except:).each do |r|
-
         i = o.send(r.name)
         next if i.nil? # has_one case
 
@@ -184,8 +170,6 @@ module Shared::Unify
         )
 
         raise ActiveRecord::Rollback
-        # rescue
-        # raise ActiveRecord::Rollback
       end
 
       after_unify
