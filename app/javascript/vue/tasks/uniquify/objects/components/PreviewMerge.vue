@@ -23,13 +23,15 @@
           :destroy-metadata="remove?.metadata"
           :response="previewResponse"
         />
-        <TableResponse :response="previewResponse" />
-      </template>
-      <template #footer>
+        <TableResponse
+          class="margin-medium-bottom"
+          :response="previewResponse"
+        />
         <ButtonMerge
           :keep-global-id="keep?.global_id"
           :remove-global-id="remove?.global_id"
           :only="only"
+          :disabled="previewResponse?.object?.errors"
           @merge="
             () => {
               onMerge()
@@ -74,8 +76,13 @@ const props = defineProps({
   }
 })
 
+const previewResponse = defineModel('response', {
+  type: Object,
+  default: () => ({})
+})
+
 const isModalVisible = ref(false)
-const previewResponse = ref({})
+
 const isLoading = ref(false)
 
 function openModal() {

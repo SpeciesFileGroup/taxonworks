@@ -1,7 +1,7 @@
 <template>
   <VBtn
     color="destroy"
-    :disabled="!keepGlobalId || !removeGlobalId"
+    :disabled="!keepGlobalId || !removeGlobalId || disabled"
     @click="mergeObjects"
   >
     Merge
@@ -39,13 +39,20 @@ const props = defineProps({
     type: String,
     default: undefined
   },
+
   removeGlobalId: {
     type: String,
     default: undefined
   },
+
   only: {
     type: Array,
     default: () => []
+  },
+
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 
