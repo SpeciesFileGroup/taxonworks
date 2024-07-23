@@ -209,6 +209,10 @@ scope :tasks do
   end
 
   scope :images do
+    scope :new_filename_depicting_image, controller: 'tasks/images/new_filename_depicting_image' do
+      get '/', action: :index, as: 'new_filename_depicting_image_task'
+    end
+
     scope :filter, controller: 'tasks/images/filter' do
       get '/', action: :index, as: 'filter_images_task'
     end
