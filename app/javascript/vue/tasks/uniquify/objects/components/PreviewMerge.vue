@@ -2,7 +2,7 @@
   <div>
     <VBtn
       color="primary"
-      :disabled="!keepGlobalId || !removeGlobalId"
+      :disabled="!keep?.global_id || !remove?.global_id"
       @click="openModal"
     >
       Preview
@@ -17,7 +17,26 @@
       </template>
       <template #body>
         <VSpinner v-if="isLoading" />
+        <PreviewMergeTable
+          v-if="keep?.metadata && remove?.metadata"
+          :keep-metadata="keep?.metadata"
+          :destroy-metadata="remove?.metadata"
+          :response="previewResponse"
+        />
         <TableResponse :response="previewResponse" />
+      </template>
+      <template #footer>
+        <ButtonMerge
+          :keep-global-id="keep?.global_id"
+          :remove-global-id="remove?.global_id"
+          :only="only"
+          @merge="
+            () => {
+              onMerge()
+              isModalVisible = false
+            }
+          "
+        />
       </template>
     </VModal>
   </div>
@@ -30,19 +49,28 @@ import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import TableResponse from './TableResponse.vue'
+import PreviewMergeTable from './PreviewMergeTable.vue'
+import ButtonMerge from './ButtonMerge.vue'
 
 const props = defineProps({
-  keepGlobalId: {
-    type: String,
+  keep: {
+    type: Object,
     default: undefined
   },
-  removeGlobalId: {
-    type: String,
+
+  remove: {
+    type: Object,
     default: undefined
   },
+
   only: {
     type: Array,
     default: () => []
+  },
+
+  onMerge: {
+    type: Function,
+    required: true
   }
 })
 
@@ -56,8 +84,8 @@ function openModal() {
   previewResponse.value = {}
 
   Unify.merge({
-    remove_global_id: props.removeGlobalId,
-    keep_global_id: props.keepGlobalId,
+    remove_global_id: props.remove.global_id,
+    keep_global_id: props.keep.global_id,
     only: props.only,
     preview: true
   })
