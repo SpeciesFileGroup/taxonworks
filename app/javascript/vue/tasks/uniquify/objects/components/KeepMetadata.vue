@@ -38,7 +38,6 @@
 <script setup>
 import { computed, watch } from 'vue'
 import { Unify } from '@/routes/endpoints'
-import { addToArray, removeFromArray } from '@/helpers'
 
 const props = defineProps({
   mergeItem: {
