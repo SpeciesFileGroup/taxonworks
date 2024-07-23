@@ -805,7 +805,6 @@ class TaxonName < ApplicationRecord
     combination_list_all.select{|c| c.protonyms_by_rank[c.protonyms_by_rank.keys.last] == self}
   end
 
-
   # TODO: should be moved to helpers
   # and referenced in models with helper.
 
@@ -813,6 +812,7 @@ class TaxonName < ApplicationRecord
   # though variously used in soft_validations
   # (and various are only used in helpers already)
 
+  # TODO: helper/render?
   # @return [String]
   #   combination of cached_html and cached_author_year.
   def cached_html_name_and_author_year
@@ -1590,7 +1590,6 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # @return [String]
   #  a reified ID is used when the original combination, which does not yet have it's own ID, is not the same as the current classification
   # Some observations:
   #  - reified ids are only for original combinations (for which we have no ID)

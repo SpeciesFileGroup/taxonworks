@@ -264,8 +264,8 @@ class Otu < ApplicationRecord
   end
 
   # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, `TaxonDetermination`
-  # @return [Scope]
-  #   the max 10 most recently used otus, as `used_on`
+  # @return [Array]
+  #   ids of the max 10 most recently used otus, as `used_on`
   def self.used_recently(user_id, project_id, used_on = '')
     t = case used_on
         when 'AssertedDistribution'
@@ -320,25 +320,29 @@ class Otu < ApplicationRecord
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
     r = used_recently(user_id, project_id, target)
+
+    q = Otu.where(project_id:).includes(:taxon_name) # faster than eager_load(), even with n+1
+
     h = {
       quick: [],
-      pinboard: Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
+      pinboard: q.pinned_by(user_id).to_a,
       recent: []
     }
 
     if target && !r.empty?
       h[:recent] = (
-        Otu.where('"otus"."id" IN (?)', r.first(10) ).to_a +
-        Otu.where(project_id:, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(3).to_a
+        q.where(id: r.first(10) ).to_a +
+        q.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(3).to_a
       ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
       h[:quick] = (
-        Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a +
-        Otu.where(project_id:, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(1).to_a +
-        Otu.where('"otus"."id" IN (?)', r.first(4) ).to_a
+        q.pinned_by(user_id).to_a +
+        q.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(1).to_a +
+        q.where(id: r.first(4) ).to_a
       ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
     else
-      h[:recent] = Otu.where(project_id:).order('updated_at DESC').limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
-      h[:quick] = Otu.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+      h[:recent] = q.order(updated_at: :desc).limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+
+      h[:quick] = q.pinned_by(user_id).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
     end
 
     h
@@ -355,6 +359,7 @@ class Otu < ApplicationRecord
   end
 
   # TODO: Deprecate for helper method, HTML does not belong here
+  #   this is also a costly sort because it n+1 to taxon_name
   def otu_name
     if name.present?
       name
