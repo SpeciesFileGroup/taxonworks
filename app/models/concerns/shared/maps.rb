@@ -19,7 +19,7 @@ module Shared::Maps
   included do
     attr_accessor :cached_map_registered
 
-    has_one :cached_map_register, as: :cached_map_register_object, dependent: :delete
+    has_one :cached_map_register, as: :cached_map_register_object, inverse_of: :cached_map_register_object, dependent: :delete
 
     after_create :initialize_cached_map_items
 
