@@ -28,7 +28,7 @@ module Queries::Concerns::Gazetteers
     a = ::Gazetteer.where(id: gazetteer_id)
 
     i = ::GeographicItem.joins(:gazetteer).where(gazetteer: a)
-    wkt_shape = ::GeographicItem.st_union(i).to_a.first['st_union'].to_s
+    wkt_shape = ::Queries::GeographicItem.st_union(i).to_a.first['st_union'].to_s
 
     from_wkt(wkt_shape)
   end

@@ -131,11 +131,8 @@ class GeographicItem < ApplicationRecord
 
     class << self
 
-      # TODO move to gi filter?
+      # DEPRECATED, moved to ::Queries::GeographicItem
       def st_union(geographic_item_scope)
-        # TODO arel spec this?
-        #arel_table.project(st_union_sql(GeographicItem::GEOMETRY_SQL).as(:st_union))
-        #  .where(id: geographic_item_scope.pluck(:id))
         select("ST_Union(#{GeographicItem::GEOMETRY_SQL.to_sql}) as st_union")
           .where(id: geographic_item_scope.pluck(:id))
       end
@@ -208,6 +205,15 @@ class GeographicItem < ApplicationRecord
       def st_area_sql(shape)
         Arel::Nodes::NamedFunction.new(
           'ST_Area', [
+            shape
+          ]
+        )
+      end
+
+      # Intended here to be used as an aggregate function
+      def st_union_sql(shape)
+        Arel::Nodes::NamedFunction.new(
+          'ST_Union', [
             shape
           ]
         )

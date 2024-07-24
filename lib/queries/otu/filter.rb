@@ -424,7 +424,9 @@ module Queries
           c = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: { geographic_area: a })
         when true # spatial
           i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
-          wkt_shape = ::GeographicItem.st_union(i).to_a.first['st_union'].to_s # todo, check
+          wkt_shape =
+            ::Queries::GeographicItem.st_union(i)
+              .to_a.first['st_union'].to_s # todo, check
           return from_wkt(wkt_shape)
         end
 

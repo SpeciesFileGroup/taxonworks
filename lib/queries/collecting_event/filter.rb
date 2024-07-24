@@ -243,7 +243,9 @@ module Queries
           return ::CollectingEvent.where(geographic_area: a)
         when true # spatial
           i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
-          wkt_shape = ::GeographicItem.st_union(i).to_a.first['st_union'].to_s
+          wkt_shape =
+            ::Queries::GeographicItem.st_union(i)
+              .to_a.first['st_union'].to_s
           return from_wkt(wkt_shape)
         end
       end
