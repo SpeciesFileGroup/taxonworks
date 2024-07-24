@@ -4,6 +4,7 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
+      include Queries::Concerns::Gazetteers
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
       include Queries::Helpers
@@ -121,10 +122,6 @@ module Queries
       #  in geo_json format (no Feature ...) ?!
       attr_accessor :geo_json
 
-      # @param gazetteer_id [String, Array]
-      # @return [Array]
-      attr_accessor :gazetteer_id
-
       # @param geographic_area_id [String, Array]
       # @return [Array]
       attr_accessor :geographic_area_id
@@ -194,7 +191,6 @@ module Queries
         @descendants = boolean_param(params, :descendants)
         @descriptor_id = params[:descriptor_id]
         @geo_json = params[:geo_json]
-        @gazetteer_id = params[:gazetteer_id]
         @geographic_area_id = params[:geographic_area_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
         @historical_determinations = boolean_param(params, :historical_determinations)
@@ -406,17 +402,6 @@ module Queries
         query = referenced_klass_union([q1, q2, q3, q4])
 
         ::Otu.from("(#{query.to_sql}) as otus").distinct
-      end
-
-      def gazetteer_id_facet
-        return nil if gazetteer_id.empty?
-
-        a = ::Gazetteer.where(id: gazetteer_id)
-
-        i = ::GeographicItem.joins(:gazetteer).where(gazetteer: a)
-        wkt_shape = ::GeographicItem.st_union(i).to_a.first['st_union'].to_s
-
-        from_wkt(wkt_shape)
       end
 
       def geographic_area_id_facet

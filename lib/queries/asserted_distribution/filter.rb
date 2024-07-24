@@ -7,6 +7,7 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Citations
+      include Queries::Concerns::Gazetteers
 
       PARAMS = [
         :asserted_distribution_id,
@@ -36,10 +37,6 @@ module Queries
       # @param otu_id [Array, Integer, String]
       # @return [Array]
       attr_accessor :otu_id
-
-      # @param gazetteer_id [Array, Integer, String]
-      # @return [Array]
-      attr_accessor :gazetteer_id
 
       # @param geographic_area_id [Array, Integer, String]
       # @return [Array]
@@ -85,7 +82,6 @@ module Queries
         @asserted_distribution_id = params[:asserted_distribution_id]
         @descendants = boolean_param(params, :descendants)
         @geo_json = params[:geo_json]
-        @gazetteer_id = params[:gazetteer_id]
         @geographic_area_id = params[:geographic_area_id]
         @geographic_item_id = params[:geographic_item_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
@@ -98,6 +94,7 @@ module Queries
 
         set_citations_params(params)
         set_data_attributes_params(params)
+        set_gazetteer_params(params)
         set_notes_params(params)
         set_tags_params(params)
       end
@@ -191,17 +188,6 @@ module Queries
         else
           nil
         end
-      end
-
-      def gazetteer_id_facet
-        return nil if gazetteer_id.empty?
-
-        a = ::Gazetteer.where(id: gazetteer_id)
-
-        i = ::GeographicItem.joins(:gazetteer).where(gazetteer: a)
-        wkt_shape = ::GeographicItem.st_union(i).to_a.first['st_union'].to_s
-
-        from_wkt(wkt_shape)
       end
 
       def geographic_area_id_facet

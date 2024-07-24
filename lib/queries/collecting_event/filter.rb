@@ -12,6 +12,7 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Depictions
+      include Queries::Concerns::Gazetteers
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
@@ -37,7 +38,6 @@ module Queries
         :collector_id_or,
         :collecting_event_id,
         :determiner_name_regex,
-        :gazetteer_id,
         :geo_json,
         :geographic_area,
         :geographic_area_id,
@@ -51,15 +51,16 @@ module Queries
         :wkt,
         collecting_event_id: [],
         collector_id: [],
-        gazetteer_id: [],
         geographic_area_id: [],
       ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
 
       PARAMS = [
         *BASE_PARAMS,
+        :gazetteer_id,
         :otu_id,
         :collection_object_id,
         collection_object_id: [],
+        gazetteer_id: [],
         otu_id: [],
       ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
 
@@ -140,10 +141,6 @@ module Queries
       attr_accessor :geographic_area_id
       attr_accessor :geographic_area_mode
 
-      # @param gazetteer_id [Array, Integer, String]
-      # @return [Array]
-      attr_accessor :gazetteer_id
-
       # @return [String, nil]
       #   the maximum number of CollectionObjects linked to CollectingEvent
       attr_accessor :use_max
@@ -161,7 +158,6 @@ module Queries
         @collection_objects = boolean_param(params, :collection_objects )
         @collector_id = params[:collector_id]
         @collector_id_or = boolean_param(params, :collector_id_or )
-        @gazetteer_id = params[:gazetteer_id]
         @geo_json = params[:geo_json]
         @geographic_area = boolean_param(params, :geographic_area)
         @geographic_area_id = params[:geographic_area_id]
@@ -180,6 +176,7 @@ module Queries
         set_data_attributes_params(params)
         set_date_params(params)
         set_depiction_params(params)
+        set_gazetteer_params(params)
         set_notes_params(params)
         set_protocols_params(params)
         set_tags_params(params)
@@ -191,10 +188,6 @@ module Queries
 
       def collection_object_id
         [@collection_object_id].flatten.compact
-      end
-
-      def gazetteer_id
-        [@gazetteer_id].flatten.compact
       end
 
       def geographic_area_id
@@ -253,17 +246,6 @@ module Queries
           wkt_shape = ::GeographicItem.st_union(i).to_a.first['st_union'].to_s
           return from_wkt(wkt_shape)
         end
-      end
-
-      def gazetteer_id_facet
-        return nil if gazetteer_id.empty?
-
-        a = ::Gazetteer.where(id: gazetteer_id)
-
-        i = ::GeographicItem.joins(:gazetteer).where(gazetteer: a)
-        wkt_shape = ::GeographicItem.st_union(i).to_a.first['st_union'].to_s
-
-        from_wkt(wkt_shape)
       end
 
       def georeferences_facet
