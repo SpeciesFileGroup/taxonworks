@@ -49,11 +49,14 @@
         <h3>Create WKT shape</h3>
       </template>
     </WktComponent>
-<!--
-    <manually-component
+
+    <PointComponent
       class="margin-small-right"
-      @create="addGeoreference($event, GEOREFERENCE_POINT)"
+      :title="'Add a point by lat, long'"
+      :include-range="false"
+      @create="(e) => addToShapes(e, GZ_POINT)"
     />
+<!--
     <geolocate-component
       :disabled="!collectingEvent.id"
       class="margin-small-right"
@@ -79,6 +82,7 @@
 <script setup>
 import DisplayList from './components/DisplayList.vue'
 import Leaflet from './components/Leaflet.vue'
+import PointComponent from '@/components/georeferences/manuallyComponent.vue'
 import NavBar from './components/NavBar.vue'
 import SetParam from '@/helpers/setParam'
 import WktComponent from '@/tasks/collecting_events/new_collecting_event/components/parsed/georeferences/wkt.vue'
@@ -90,7 +94,7 @@ import { addToArray, removeFromArray } from '@/helpers/arrays'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { usePopstateListener } from '@/composables'
 import {
-  //GZ_POINT,
+  GZ_POINT,
   GZ_WKT,
   GZ_LEAFLET
 } from '@/constants/index.js'
@@ -144,11 +148,16 @@ function saveNewGz() {
     .filter((item) => item.type == GZ_WKT)
     .map((item) => item.shape)
 
+  const points = shapes.value
+    .filter((item) => item.type == GZ_POINT)
+    .map((item) => JSON.stringify(item.shape))
+
   const gazetteer = {
     name: gz.value.name,
     shapes: {
       geojson,
-      wkt
+      wkt,
+      points
     }
   }
 
@@ -212,6 +221,13 @@ function addToShapes(shape, type) {
         type: GZ_WKT,
         // TODO can we turn this into something leaflet can display right now?
         shape: shape.wkt
+      })
+      break
+    case GZ_POINT:
+      shapes.value.push({
+        uuid: randomUUID(),
+        type,
+        shape
       })
       break
   }

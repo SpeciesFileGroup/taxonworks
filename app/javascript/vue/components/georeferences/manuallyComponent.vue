@@ -1,6 +1,7 @@
 <template>
   <div>
     <button
+      :disabled="disabled"
       class="button normal-input button-default"
       @click="isModalVisible = true"
     >
@@ -76,6 +77,10 @@ const props = defineProps({
   includeRange: {
     type: Boolean,
     default: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 

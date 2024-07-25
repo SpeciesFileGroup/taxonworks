@@ -97,7 +97,7 @@ shared_context 'stuff for GeographicItem tests' do
 
   ### Point intended to be outside of any of the shapes defined below
   let(:distant_point) {
-    FactoryBot.create(:geographic_item_geography, geography: 'POINT(80 170 0)')
+    FactoryBot.create(:geographic_item_geography, geography: 'POINT(170 80 0)')
   }
 
   ### A donut polygon and sub-shapes

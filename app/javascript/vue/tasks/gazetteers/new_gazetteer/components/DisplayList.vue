@@ -52,7 +52,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { convertToLatLongOrder } from '@/helpers/geojson.js'
 import {
-  //GZ_POINT,
+  GZ_POINT,
   GZ_WKT,
   GZ_LEAFLET
 } from '@/constants/index.js'
@@ -84,6 +84,8 @@ function shapeType(item) {
       return item.shape.geometry.type
     case GZ_WKT:
       return 'WKT'
+    case GZ_POINT:
+      return 'Point'
   }
 }
 
@@ -109,6 +111,10 @@ function getCoordinates(item) {
       break
     case GZ_WKT:
       return item.shape
+    case GZ_POINT:
+      const coordinates =
+        convertToLatLongOrder(item.shape.geometry.coordinates)
+      return `Point (${coordinates[0]} ${coordinates[1]})`
   }
 }
 
