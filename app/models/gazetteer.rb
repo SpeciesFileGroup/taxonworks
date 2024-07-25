@@ -66,7 +66,8 @@ class Gazetteer < ApplicationRecord
 
   # @param shapes, a hash:
   #   geojson: array of geojson hashes,
-  #   wkt: array of wkt strings
+  #   wkt: array of wkt strings,
+  #   points: array of geojson points
   # Builds a GeographicItem for this gazetteer from the combined input shapes
   def build_gi_from_shapes(shapes)
     begin
@@ -91,19 +92,21 @@ class Gazetteer < ApplicationRecord
   end
 
   # Assumes @gazetteer is set
-  # @param [Hash] TODO describe shape of hash
+  # @param [Hash] hash as in build_gi_from_shapes
   # @return A single rgeo shape containing all of the input shapes
   # Raises on error
   def self.combine_shapes_to_rgeo(shapes)
-    if shapes['geojson'].blank? && shapes['wkt'].blank?
+    if shapes['geojson'].blank? && shapes['wkt'].blank? &&
+        shapes['points'].blank?
       raise TaxonWorks::Error, 'No shapes provided'
     end
 
     # TODO anti-meridian fails here
-    geojson_rgeo = convert_geojson_to_rgeo(shapes['geojson'])
+    leaflet_rgeo = convert_geojson_to_rgeo(shapes['geojson'])
     wkt_rgeo = convert_wkt_to_rgeo(shapes['wkt'])
+    points_rgeo = convert_geojson_to_rgeo(shapes['points'])
 
-    shapes = geojson_rgeo + wkt_rgeo
+    shapes = leaflet_rgeo + wkt_rgeo + points_rgeo
 
     combine_rgeo_shapes(shapes)
   end

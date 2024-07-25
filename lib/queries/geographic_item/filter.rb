@@ -8,5 +8,9 @@ module Queries
       .where(id: geographic_item_scope.pluck(:id))
     end
 
+    class Filter < Query::Filter
+
+    end
+
   end
 end

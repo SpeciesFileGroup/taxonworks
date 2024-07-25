@@ -7,7 +7,8 @@ const permitParams = {
     name: String,
     shapes: {
       geojson: [],
-      wkt: []
+      wkt: [],
+      points: []
     }
   }
 }
