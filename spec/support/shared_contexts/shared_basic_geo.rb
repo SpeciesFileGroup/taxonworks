@@ -208,7 +208,8 @@ shared_context 'stuff for GeographicItem tests' do
     FactoryBot.create(:geographic_item_geography, geography: b)
   end
 
-  # geometric centroid
+  # geometric centroid - *not* covered by box_horizontal_bisect_line in
+  # geographic coordinates
   let(:box_centroid) {
     c_x = box_llc_x + box_w / 2
     c_y = box_llc_y + box_h / 2

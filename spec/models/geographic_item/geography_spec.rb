@@ -333,11 +333,13 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     context 'centroids' do
       context '#st_centroid' do
         specify '#st_centroid returns wkt of the centroid' do
+          # geometric centroid
           expect(simple_polygon.st_centroid).to eq('POINT(5 5)')
         end
       end
 
       context '#centroid' do
+        # geometric centroid
         specify '#centroid returns an rgeo centroid' do
           expect(box.centroid).to eq(box_centroid.geo_object)
         end
@@ -671,7 +673,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
 
       specify 'works with multiple input shapes' do
         expect(GeographicItem.intersecting('line_string',
-          [donut_left_interior_edge_point.id, box_centroid.id]).to_a)
+          [donut_left_interior_edge_point.id, box.id]).to_a)
         .to contain_exactly(
           donut_left_interior_edge, box_horizontal_bisect_line
         )
@@ -681,7 +683,8 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
         expect(GeographicItem.intersecting('any',
           box_horizontal_bisect_line.id).to_a)
         .to contain_exactly(box_horizontal_bisect_line,
-          box, box_centroid, rectangle_intersecting_box, box_rectangle_union
+          # geographic intersects does not include box_centroid
+          box, rectangle_intersecting_box, box_rectangle_union
         )
       end
     end

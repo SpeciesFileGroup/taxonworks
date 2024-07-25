@@ -634,7 +634,7 @@ class GeographicItem < ApplicationRecord
                             ).distinct
       end
 
-      # @return [Scope]
+      # This is a geographic intersect, not geometric
       def intersecting(shape, *geographic_item_ids)
         shape = shape.to_s.downcase
         if shape == 'any'
@@ -652,7 +652,7 @@ class GeographicItem < ApplicationRecord
             # seems like we want this: http://danshultz.github.io/talks/mastering_activerecord_arel/#/15/2
             st_intersects_sql(
               shape_column_sql(shape),
-              select_geometry_sql(geographic_item_id)
+              select_geography_sql(geographic_item_id)
             )
           }
 
