@@ -11,7 +11,7 @@
       @close="isModalVisible = false"
     >
       <template #header>
-        <h3>Create georeference</h3>
+        <h3>{{ title }}</h3>
       </template>
       <template #body>
         <div class="field label-above">
@@ -28,7 +28,10 @@
             v-model="shape.long"
           />
         </div>
-        <div class="field label-above">
+        <div
+          v-if="includeRange"
+          class="field label-above"
+        >
           <label>Range distance</label>
           <label
             v-for="range in RANGES"
@@ -64,6 +67,17 @@ import convertDMS from '@/helpers/parseDMS.js'
 import { computed, ref, watch } from 'vue'
 
 const RANGES = [0, 10, 100, 1000, 10000]
+
+const props = defineProps({
+  title: {
+    type: String,
+    default: 'Create georeference'
+  },
+  includeRange: {
+    type: Boolean,
+    default: true
+  }
+})
 
 const emit = defineEmits(['create'])
 
