@@ -9,6 +9,9 @@
 #
 # TODO:
 #   - consider `strict` mode, where a preview is auto-run then inspected for any errors, if present the unify fails
+#   - Attempt to move annotations from unsavable objects over, or consider hooks for this.
+#     - Requires a generic duplicate method?!
+#       - 
 #
 module Shared::Unify
   extend ActiveSupport::Concern
@@ -200,15 +203,31 @@ module Shared::Unify
     s.sort.to_h
   end
 
+  def move_annotations_to_identical(object)
+    i = object.identical
+    if i.total == 1
+      j = i.first
+      # Move annotations from the 
+      j.move_annotations(to_object: object)
+    else
+      return false
+    end
+  end
+
   private
 
   # TODO: add error array
   def log_unify_result(object, relation, result)
     if object.errors.any?
+      
+     # object can't be updated, move it's annotations to self
+      move_annotations_to_identical(object)
+
       result[relation.name][:unmerged] += 1
 
       result[relation.name][:errors] ||= []
       result[relation.name][:errors].push(object.id)
+
 
       # TODO - delete/cleanup logic here?
 
