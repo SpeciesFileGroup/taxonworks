@@ -44,14 +44,23 @@
         />
       </template>
       <template #footer>
-        <div>
+        <div class="horizontal-left-content middle gap-small">
           <VBtn
             :disabled="!bibtex"
             color="primary"
             medium
-            :href="downloadFormattedUrl"
+            @click="() => downloadFormatted()"
           >
             Download formatted
+          </VBtn>
+
+          <VBtn
+            :disabled="!bibtex"
+            color="primary"
+            medium
+            @click="() => downloadFormatted('.pdf')"
+          >
+            Download PDF
           </VBtn>
         </div>
       </template>
@@ -112,13 +121,6 @@ const payload = computed(() =>
   )
 )
 
-const downloadFormattedUrl = computed(
-  () =>
-    `/sources/download_formatted?${Qs.stringify(payload.value, {
-      arrayFormat: 'brackets'
-    })}`
-)
-
 watch(
   [() => props.params, () => props.selectedList],
   () => {
@@ -151,17 +153,6 @@ function loadBibtexStyle() {
   }
 }
 
-function generateLinks() {
-  isLoading.value = true
-  GetBibliography(payload.value)
-    .then(({ body }) => {
-      links.value = body
-    })
-    .finally(() => {
-      isLoading.value = false
-    })
-}
-
 function loadBibliography() {
   isLoading.value = true
 
@@ -170,6 +161,15 @@ function loadBibliography() {
     bibtex.value = response.body
     isLoading.value = false
   })
+}
+
+function downloadFormatted(extension = '') {
+  window.open(
+    `/sources/download_formatted${extension}?${Qs.stringify(payload.value, {
+      arrayFormat: 'brackets'
+    })}`,
+    '_self'
+  )
 }
 </script>
 
