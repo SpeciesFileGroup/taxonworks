@@ -10,7 +10,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Add new task to quickly assign images as depictions to the objects identified in their filename [#3986]
-- Radial annotator: Pagination in Depictions slice
+- Radial annotator: Pagination to the Depictions slice
+- Comprehensive: Pagination to the depictions panel
 
 ### Changed
 
