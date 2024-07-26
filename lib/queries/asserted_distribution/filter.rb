@@ -228,12 +228,8 @@ module Queries
           j = o.join(h, Arel::Nodes::InnerJoin).on(o[:taxon_name_id].eq(h[:descendant_id]))
           z = h[:ancestor_id].in(taxon_name_id)
 
-          ::AssertedDistribution.joins(:otu)
-            .joins('JOIN taxon_name_hierarchies tnh ON tnh.descendant_id = otus.id')
-            .where('tnh.ancestor_id IN ?', taxon_name_id)
-
+          ::AssertedDistribution.joins(:otu).joins(j.join_sources).where(z)
         else
-
           ::AssertedDistribution.joins(:otu).where(otus: {taxon_name_id:})
         end
       end
