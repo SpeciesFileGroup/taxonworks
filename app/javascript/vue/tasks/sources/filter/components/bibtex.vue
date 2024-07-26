@@ -75,7 +75,7 @@ import { ref, watch, computed } from 'vue'
 import { downloadTextFile } from '@/helpers/files.js'
 
 const NO_API_MESSAGE =
-  'To share your project administrator must create an API token.'
+  'To share your project administrator must create a project API token.'
 
 const props = defineProps({
   params: {

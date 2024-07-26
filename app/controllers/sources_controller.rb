@@ -244,7 +244,17 @@ class SourcesController < ApplicationController
       (params[:is_public] == 'true' ? true : false),
       params[:style_id]
     )
-    render '/downloads/show.json'
+    render '/downloads/show'
+  end
+
+  # GET /sources/generate.json?<filter params>
+  def download_formatted
+    params.require(:style_id)
+    @sources = Queries::Source::Filter.new(params).all
+      .order(:cached)
+
+    f = render_to_string(:index, formats: [:bib])
+    send_data(f, filename: "tw_bibliography_#{DateTime.now}.txt", type: 'text/plain')
   end
 
   # GET /api/v1/sources

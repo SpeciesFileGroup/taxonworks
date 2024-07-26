@@ -749,6 +749,7 @@ resources :sources do
     get :csl_types, defaults: {format: :json}
     get :generate, defaults: {format: :json}
     patch :batch_update
+    get :download_formatted, defaults: {format: :json}
   end
 
   member do

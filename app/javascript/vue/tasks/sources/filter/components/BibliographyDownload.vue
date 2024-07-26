@@ -113,7 +113,7 @@ const props = defineProps({
 })
 
 const NO_API_MESSAGE =
-  'To share your project administrator must create an API token.'
+  'To share your project administrator must create an project API token.'
 
 const isLoading = ref(false)
 const bibtex = ref()
