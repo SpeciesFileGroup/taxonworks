@@ -11,9 +11,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Task to add image and as depictions to the objects identified in their filename [#3986]
 - PDF version of styled/formatted source download [#3996]
-- Type checking pattern for integers sent to `*_id` params in the API 
+- Type checking pattern for integers sent to `*_id` params in the API
 - Radial annotator: Pagination to the Depictions slice
 - Comprehensive: Pagination to the depictions panel
+- Filter source: add ID to list [#3984]
 
 ### Changed
 
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Some hotkeys don't work on Firefox on Linux [#3988]
 - Cancel previous autocomplete requests [#3982]
 
+[#3984]: https://github.com/SpeciesFileGroup/taxonworks/issues/3984
 [#3991]: https://github.com/SpeciesFileGroup/taxonworks/issues/3991
 [#3981]: https://github.com/SpeciesFileGroup/taxonworks/issues/3981
 [#3982]: https://github.com/SpeciesFileGroup/taxonworks/issues/3982
