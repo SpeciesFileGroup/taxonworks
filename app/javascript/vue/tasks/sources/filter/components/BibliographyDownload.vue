@@ -45,35 +45,14 @@
       </template>
       <template #footer>
         <div>
-          <button
-            v-if="!links"
-            type="button"
-            class="button normal-input button-default margin-small-right"
+          <VBtn
             :disabled="!bibtex"
-            @click="generateLinks"
+            color="primary"
+            medium
+            :href="downloadFormattedUrl"
           >
-            Generate download
-          </button>
-          <template v-else>
-            <span>Share link:</span>
-            <div class="middle">
-              <pre class="margin-small-right">{{
-                links.api_file_url || NO_API_MESSAGE
-              }}</pre>
-              <clipboard-button
-                v-if="links.api_file_url"
-                :text="links.api_file_url"
-              />
-            </div>
-          </template>
-          <button
-            :disabled="!bibtex"
-            type="button"
-            @click="downloadTextFile(bibtex, 'text/bib', 'bibliography.bib')"
-            class="button normal-input button-default"
-          >
-            Download BibTeX
-          </button>
+            Download formatted
+          </VBtn>
         </div>
       </template>
     </VModal>
@@ -83,17 +62,17 @@
 <script setup>
 import VModal from '@/components/ui/Modal'
 import VSpinner from '@/components/ui/VSpinner'
-import ClipboardButton from '@/components/ui/Button/ButtonClipboard'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { sortArray } from '@/helpers/arrays.js'
 import { SOURCE_BIBTEX } from '@/constants'
 import { ref, watch, computed } from 'vue'
+import Qs from 'qs'
 
 import {
   GetBibliography,
   GetBibtexStyle,
   GetBibtex
 } from '../request/resources'
-import { downloadTextFile } from '@/helpers/files.js'
 
 const props = defineProps({
   params: {
@@ -111,9 +90,6 @@ const props = defineProps({
     default: () => []
   }
 })
-
-const NO_API_MESSAGE =
-  'To share your project administrator must create an project API token.'
 
 const isLoading = ref(false)
 const bibtex = ref()
@@ -134,6 +110,13 @@ const payload = computed(() =>
       per: props.pagination.total
     }
   )
+)
+
+const downloadFormattedUrl = computed(
+  () =>
+    `/sources/download_formatted?${Qs.stringify(payload.value, {
+      arrayFormat: 'brackets'
+    })}`
 )
 
 watch(
