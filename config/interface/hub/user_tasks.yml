@@ -952,3 +952,12 @@ uniquify_objects_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+new_filename_depicting_image_task:
+  hub: true
+  name: 'New filename depicting image'
+  related:
+  categories:
+    - image
+    - collection_object
+  status: prototype
+  description: "Upload images assigning them as depictions of CollectionObjects based on the identifier in the filename. You shouldn't really be using this as a day-to-day workflow, there are better approaches."

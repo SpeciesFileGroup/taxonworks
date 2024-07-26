@@ -15,7 +15,8 @@ $tw-colors: (
   'secondary': #5a1321,
   'update': #9ccc65,
   'warning': #ff8c00,
-  'white': #ffffff
+  'white': #ffffff,
+  'border': #f5f5f5
 );
 
 @each $key, $value in $tw-colors {
