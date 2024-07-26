@@ -34,41 +34,20 @@
 
   </div>
 
-  <div
-    class="horizontal-left-content margin-medium-top margin-medium-bottom"
-  >
-    <WktComponent
-      :disabled="!!gz.id"
-      :type="GZ_WKT"
-      id-key="uuid"
-      :id-generator="() => randomUUID()"
-      @create="(wkt) => addToShapes(wkt, GZ_WKT)"
-      class="margin-small-right"
-    >
-      <template #header>
-        <h3>Create WKT shape</h3>
-      </template>
-    </WktComponent>
-
-    <PointComponent
-      class="margin-small-right"
-      :title="'Add a point by lat, long'"
-      :include-range="false"
-      @create="(e) => addToShapes(e, GZ_POINT)"
-    />
-<!--
-    <geolocate-component
-      :disabled="!collectingEvent.id"
-      class="margin-small-right"
-      @create="addToQueue"
-    />
--->
-  </div>
+  <OtherInputs
+    :inputs-disabled="!!gz.id"
+    @new-shape="(data, type) => addToShapes(data, type)"
+  />
 
   <Leaflet
     :shapes="leafletShapes"
     @shapes-updated="(shape) => addToShapes(shape, GZ_LEAFLET)"
     :editing-disabled="!!gz.id"
+  />
+
+  <OtherInputs
+    :inputs-disabled="!!gz.id"
+    @new-shape="(data, type) => addToShapes(data, type)"
   />
 
   <DisplayList
@@ -82,10 +61,9 @@
 <script setup>
 import DisplayList from './components/DisplayList.vue'
 import Leaflet from './components/Leaflet.vue'
-import PointComponent from '@/components/georeferences/manuallyComponent.vue'
 import NavBar from './components/NavBar.vue'
+import OtherInputs from './components/OtherInputs.vue'
 import SetParam from '@/helpers/setParam'
-import WktComponent from '@/tasks/collecting_events/new_collecting_event/components/parsed/georeferences/wkt.vue'
 import { Gazetteer } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import { randomUUID } from '@/helpers'
@@ -102,7 +80,6 @@ import {
 const shapes = ref([])
 const gz = ref({})
 const loading = ref(false)
-
 const leafletShapes = computed(() => {
   return shapes.value.map((item) => item.shape)
 })
@@ -245,8 +222,12 @@ function removeFromShapes(shape) {
 }
 
 .editing-note {
-  margin-left: 10vw;
+  //margin-left: 10vw;
   margin-bottom: 6px;
+}
+
+.editing-note > ul {
+  padding-left: 1em;
 }
 
 .geolist {
