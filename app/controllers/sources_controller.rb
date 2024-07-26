@@ -257,7 +257,6 @@ class SourcesController < ApplicationController
 
     respond_to do |format|
       format.pdf do
-
         pdf = Prawn::Document.new
         pdf.text(f, inline_format: true) # Formats <i>
 

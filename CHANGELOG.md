@@ -8,31 +8,36 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+
+- Task to add image and as depictions to the objects identified in their filename [#3986]
 - PDF version of styled/formatted source download [#3996]
 - Type checking pattern for integers sent to `*_id` params in the API 
-- Add new task to quickly assign images as depictions to the objects identified in their filename [#3986]
 - Radial annotator: Pagination to the Depictions slice
 - Comprehensive: Pagination to the depictions panel
 
 ### Changed
 
 - `repositories/autocomplete` label [#3981]
-- Updated Ruby gems.
+- Updated Ruby gems
 
 ### Fixed
 
+- Removed deprecated GoogleMap georeference form [#3991]
+- Print label generation [#3992]
 - Generating a TaxonWorks Download for a bibtex result failing [#3997]
 - Removed bad foreign-key constraint on BiocurationClassifications, TaxonDeterminations
 - Content autocomplete not scoped to projects
 - Some hotkeys don't work on Firefox on Linux [#3988]
 - Cancel previous autocomplete requests [#3982]
 
-[#3997]: https://github.com/SpeciesFileGroup/taxonworks/issues/3997
-[#3996]: https://github.com/SpeciesFileGroup/taxonworks/issues/3996
-[#3986]: https://github.com/SpeciesFileGroup/taxonworks/issues/3986
+[#3991]: https://github.com/SpeciesFileGroup/taxonworks/issues/3991
 [#3981]: https://github.com/SpeciesFileGroup/taxonworks/issues/3981
 [#3982]: https://github.com/SpeciesFileGroup/taxonworks/issues/3982
+[#3986]: https://github.com/SpeciesFileGroup/taxonworks/issues/3986
 [#3988]: https://github.com/SpeciesFileGroup/taxonworks/issues/3988
+[#3992]: https://github.com/SpeciesFileGroup/taxonworks/issues/3992
+[#3996]: https://github.com/SpeciesFileGroup/taxonworks/issues/3996
+[#3997]: https://github.com/SpeciesFileGroup/taxonworks/issues/3997
 
 ## [0.42.0] - 2024-06-28
 
