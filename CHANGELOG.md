@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Type checking pattern for integers sent to `*_id` params in the API 
 - Add new task to quickly assign images as depictions to the objects identified in their filename [#3986]
 - Radial annotator: Pagination in Depictions slice
 
@@ -19,7 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
-- Removed bad foreign-key constraint on BiocurationClassifications
+- Removed bad foreign-key constraint on BiocurationClassifications, TaxonDeterminations
 - Content autocomplete not scoped to projects
 - Some hotkeys don't work on Firefox on Linux [#3988]
 - Cancel previous autocomplete requests [#3982]

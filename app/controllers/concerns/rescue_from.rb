@@ -5,6 +5,11 @@ module RescueFrom
   included do
     rescue_from 'ActiveRecord::RecordNotFound', with: :record_not_found
 
+    rescue_from 'TaxonWorks::Error::API' do |exception|
+      raise unless request.format == :json
+      render json: {error: exception}, status: :bad_request
+    end
+
     rescue_from 'ActionController::ParameterMissing' do |exception|
       raise unless request.format == :json
       render json: { error: exception }, status: 400
