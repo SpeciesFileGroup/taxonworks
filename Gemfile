@@ -179,7 +179,7 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
-  gem 'prawn', '~> 2.4.0'
+  gem 'prawn', '~> 2.5.0'
   gem 'puma', '~> 6.3'
 end
 

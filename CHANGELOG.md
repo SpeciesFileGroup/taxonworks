@@ -8,7 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-
+- PDF version of styled/formatted source download [#3996]
 - Type checking pattern for integers sent to `*_id` params in the API 
 - Add new task to quickly assign images as depictions to the objects identified in their filename [#3986]
 - Radial annotator: Pagination to the Depictions slice
@@ -21,11 +21,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Generating a TaxonWorks Download for a bibtex result failing [#3997]
 - Removed bad foreign-key constraint on BiocurationClassifications, TaxonDeterminations
 - Content autocomplete not scoped to projects
 - Some hotkeys don't work on Firefox on Linux [#3988]
 - Cancel previous autocomplete requests [#3982]
 
+[#3997]: https://github.com/SpeciesFileGroup/taxonworks/issues/3997
+[#3996]: https://github.com/SpeciesFileGroup/taxonworks/issues/3996
 [#3986]: https://github.com/SpeciesFileGroup/taxonworks/issues/3986
 [#3981]: https://github.com/SpeciesFileGroup/taxonworks/issues/3981
 [#3982]: https://github.com/SpeciesFileGroup/taxonworks/issues/3982

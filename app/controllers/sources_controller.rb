@@ -254,7 +254,20 @@ class SourcesController < ApplicationController
       .order(:cached)
 
     f = render_to_string(:index, formats: [:bib])
-    send_data(f, filename: "tw_bibliography_#{DateTime.now}.txt", type: 'text/plain')
+
+    respond_to do |format|
+      format.pdf do
+
+        pdf = Prawn::Document.new
+        pdf.text(f, inline_format: true) # Formats <i>
+
+        send_data(pdf.render, filename: "tw_bibliography_#{DateTime.now}.pdf", type: 'application/pdf')
+      end
+
+      format.json do
+        send_data(f, filename: "tw_bibliography_#{DateTime.now}.txt", type: 'text/plain')
+      end 
+    end
   end
 
   # GET /api/v1/sources
