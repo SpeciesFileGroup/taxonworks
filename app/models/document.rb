@@ -67,7 +67,15 @@ class Document < ApplicationRecord
   has_attached_file :document_file,
     filename_cleaner:  Utilities::CleanseFilename
 
-  validates_attachment_content_type :document_file, content_type: ['application/octet-stream', 'application/pdf', 'text/plain', 'text/xml']
+  validates_attachment_content_type :document_file,
+    content_type: ['application/octet-stream', 'application/pdf', 'text/plain',
+    'text/xml',
+    # shapefiles:
+    # .shx => application/octet-stream
+    # .dbf => application/x-dbf
+    # .shp => application/x-shapefile
+    # .prj => text/plain
+    'application/x-dbf', 'application/x-shapefile']
   validates_attachment_presence :document_file
   validates_attachment_size :document_file, greater_than: 1.bytes
 
