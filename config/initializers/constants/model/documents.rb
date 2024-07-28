@@ -6,17 +6,36 @@ Rails.application.config.after_initialize do
     {
       group: '',
       content_type: '',
-      extensions: ['Any extension']
+      extensions: [
+        {
+          extension: 'Any extension',
+          content_type: ''
+        }
+      ]
     },
+
     {
       group: 'pdf',
-      content_type: 'application/pdf',
-      extensions: ['.pdf']
+      extensions: [
+        {
+          extension: '.pdf',
+          content_type: 'application/pdf',
+        }
+      ]
     },
+
     {
       group: 'nexus',
-      content_type: 'text/plain',
-      extensions: ['.nex', '.nxs']
+      extensions: [
+        {
+          extension: '.nex',
+          content_type: 'text/plain'
+        },
+        {
+          extension: '.nxs',
+          content_type: 'text/plain'
+        }
+      ]
     }
   ].freeze
 
