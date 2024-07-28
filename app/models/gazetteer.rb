@@ -182,6 +182,26 @@ class Gazetteer < ApplicationRecord
     dbf_doc = Document.find(shapefile[:shp_doc_id])
     prj_doc = Document.find(shapefile[:shp_doc_id])
 
+    # The above shapefile files are unlikely to all be in the same directory, as
+    # required by rgeo-shapefile, so create symbolic links to each in a new
+    # temporary folder.
+    tmp_dir = Rails.root.join('tmp', 'shapefiles', SecureRandom.hex)
+    FileUtils.mkdir_p(tmp_dir)
 
+    shp_link = File.join(tmp_dir, 'shapefile.shp')
+    shx_link = File.join(tmp_dir, 'shapefile.shx')
+    dbf_link = File.join(tmp_dir, 'shapefile.dbf')
+    prj_link = File.join(tmp_dir, 'shapefile.prj')
+
+    FileUtils.ln_s(shp_doc.document_file.path, shp_link)
+    FileUtils.ln_s(shx_doc.document_file.path, shx_link)
+    FileUtils.ln_s(dbf_doc.document_file.path, dbf_link)
+    FileUtils.ln_s(prj_doc.document_file.path, prj_link)
+
+    # TODO process the shapefile from the tmp directory, where all of the
+    # shapefile pieces have the same basename
+
+    FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link])
+    FileUtils.rmdir(tmp_dir)
   end
 end
