@@ -954,3 +954,10 @@ new_gazetteer_task:
     - new
   status: prototype
   description: 'Create named shapes for use in your project.'
+import_gazetteers_task:
+  hub: true
+  name: 'Import gazetteers'
+  related:
+  categories:
+  status: prototype
+  description: 'Import gazetteers from a shapefile'
