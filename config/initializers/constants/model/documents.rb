@@ -36,7 +36,70 @@ Rails.application.config.after_initialize do
           content_type: 'text/plain'
         }
       ]
+    },
+
+    {
+      group: 'shapefile',
+      extensions: [
+        {
+          extension: '.shp',
+          content_type: 'application/x-shapefile'
+        },
+        {
+          extension: '.shx',
+          content_type: 'application/x-shapefile'
+        },
+        {
+          extension: '.dbf',
+          content_type: 'application/x-dbf'
+        },
+        {
+          extension: '.prj',
+          content_type: 'text/plain'
+        }
+      ]
+    },
+
+    {
+      group: 'shp',
+      extensions: [
+        {
+          extension: '.shp',
+          content_type: 'application/x-shapefile'
+        }
+      ]
+    },
+
+    {
+      group: 'shx',
+      extensions: [
+        {
+          extension: '.shx',
+          content_type: 'application/x-shapefile'
+        }
+      ]
+    },
+
+    {
+      group: 'dbf',
+      extensions: [
+        {
+          extension: '.dbf',
+          content_type: 'application/x-dbf'
+        }
+      ]
+    },
+
+    {
+      group: 'prj',
+      extensions: [
+        {
+          extension: '.prj',
+          content_type: 'text/plain'
+        }
+      ]
     }
+
   ].freeze
 
 end

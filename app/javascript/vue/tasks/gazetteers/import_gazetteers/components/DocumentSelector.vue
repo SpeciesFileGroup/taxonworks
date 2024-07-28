@@ -1,17 +1,17 @@
 <template>
   <fieldset class="document_select">
-    <legend>Select a Nexus document</legend>
+    <legend>Select shapefile documents</legend>
     <VSpinner v-if="isLoading" />
     <SmartSelector
       klass="Documents"
       model="documents"
-      v-model="nexusDoc"
+      @selected="(d) => addToList(d)"
       label="document_file_file_name"
       pin-section="Documents"
       pin-type="Document"
       :add-tabs="['new', 'filter']"
       class="selector"
-      :filter="(item) => nexusExtensions.some(ext => item.document_file_file_name.endsWith(ext))"
+      :filter="(item) => shapefileExtensions.some(ext => item.document_file_file_name.endsWith(ext))"
     >
       <template #new>
         <Dropzone
@@ -35,7 +35,7 @@
         <FilterDocument
           v-model="parameters"
           :extension-groups="extensionGroups"
-          :filter-group-names="['nexus']"
+          :filter-group-names="['shapefile', 'shp', 'shx', 'dbf', 'prj']"
           @filter="() => loadList(parameters)"
         />
         <div class="results">
@@ -45,13 +45,13 @@
           >
             <label
               class="cursor-pointer"
-              @mousedown="() => nexusDoc = doc"
+              @mousedown="() => addToList(doc)"
             >
               <input
-                @keyup.enter="() => nexusDoc = doc"
-                @keyup.space="() => nexusDoc = doc"
-                :checked="nexusDoc && doc.id == nexusDoc.id"
+                @keyup.enter="() => addToList(doc)"
+                @keyup.space="() => addToList(doc)"
                 type="radio"
+                name="filtered file list"
               />
               {{ doc.document_file_file_name }}
             </label>
@@ -59,26 +59,34 @@
         </div>
       </template>
     </SmartSelector>
-    <SmartSelectorItem
-      :item="nexusDoc"
-      label="document_file_file_name"
-      @unset="() => nexusDoc = undefined"
-      class="selector_item"
-    />
-    <div v-if="noMatchesForExtension === true">
+
+    <div v-if="noMatchesForExtensions === true">
       <i>No documents found matching the selected extensions</i>
+    </div>
+
+    <div
+      v-for="doc in shapefileDocs"
+      :key="doc.id"
+    >
+      <SmartSelectorItem
+        :item="doc"
+        label="document_file_file_name"
+        @unset="() => removeFromList(doc)"
+        class="selector_item"
+      />
     </div>
   </fieldset>
 </template>
 
 <script setup>
 import Dropzone from '@/components/dropzone.vue'
-import FilterDocument from './FilterDocument.vue'
-import SmartSelector from '@/components/ui/SmartSelector'
+import FilterDocument from '@/tasks/observation_matrices/import_nexus/components/FilterDocument.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import { addToArray, removeFromArray } from '@/helpers/arrays.js'
 import { Document } from '@/routes/endpoints'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const DROPZONE_CONFIG_BASE = {
   paramName: 'document[document_file]',
@@ -88,31 +96,46 @@ const DROPZONE_CONFIG_BASE = {
       .querySelector('meta[name="csrf-token"]')
       .getAttribute('content')
   },
-  dictDefaultMessage: 'Drop a nexus file here',
+  dictDefaultMessage: 'Drop a shapefile file here',
 }
 
 const emit = defineEmits('selected')
 
-const nexusDoc = defineModel()
+const shapefileDocs = defineModel()
+shapefileDocs.value = []
 
 const isPublicDocument = ref(false)
 const parameters = ref({})
 const filterList = ref([])
 const isLoading = ref(true)
-const noMatchesForExtension = ref(undefined)
+const noMatchesForExtensions = ref(undefined)
 const extensionGroups = ref([])
+const smartSelectorDoc = ref(undefined)
 
-const nexusExtensions = computed(() => {
-  const nexusGroup = extensionGroups.value.find((h) => h['group'] == 'nexus')
-  return nexusGroup ? nexusGroup['extensions'] : []
+const shapefileExtensions = computed(() => {
+  const shapefileGroup =
+    extensionGroups.value.find((h) => h['group'] == 'shapefile')
+  if (shapefileGroup) {
+    return shapefileGroup['extensions'].map((v => v['extension']))
+  } else {
+    return []
+  }
 })
 
 const dropzoneConfig = computed(() => {
   return {
     ...DROPZONE_CONFIG_BASE,
-    acceptedFiles: nexusExtensions.value.join(', ')
+    acceptedFiles: shapefileExtensions.value.join(', ')
   }
 })
+
+function addToList(doc) {
+  addToArray(shapefileDocs.value, doc)
+}
+
+function removeFromList(doc) {
+  removeFromArray(shapefileDocs.value, doc)
+}
 
 function sending(file, xhr, formData) {
   formData.append('document[is_public]', isPublicDocument.value)
@@ -120,10 +143,10 @@ function sending(file, xhr, formData) {
 
 function success(file, response) {
   // Note: dropzone calls success once for each file dropped, even when multiple
-  // are dropped at once - here we always select the last one dropped
-  nexusDoc.value = response
+  // are dropped at once
+  shapefileDocs.value.push(response)
   isPublicDocument.value = false
-  noMatchesForExtension.value = undefined
+  noMatchesForExtensions.value = undefined
 }
 
 function loadList(params) {
@@ -134,7 +157,7 @@ function loadList(params) {
   Document.filter(params)
     .then(({ body }) => {
       filterList.value = body
-      noMatchesForExtension.value = filterList.value.length == 0
+      noMatchesForExtensions.value = filterList.value.length == 0
     })
     .finally(() => {
       isLoading.value = false
