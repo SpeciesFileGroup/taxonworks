@@ -1,7 +1,7 @@
 <template>
   <FacetFileExtension
     v-model="params"
-    :extension-groups="nexusExtensionsGroup"
+    :extension-groups="filterExtensionsGroup"
   />
   <VBtn
     color="primary"
@@ -19,26 +19,38 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import { computed } from 'vue'
 
 const props = defineProps({
+  // All extension groups
   extensionGroups: {
     type: Array,
     required: true
+  },
+  // The names of the extension groups this filter is filtering for
+  filterGroupNames: {
+    type: Array,
+    default: ['nexus']
   }
+
 })
 
 const emit = defineEmits(['filter'])
 
 const params = defineModel()
 
-const nexusExtensionsGroup = computed(() => {
+const filterExtensionsGroup = computed(() => {
   if (props.extensionGroups == []) {
     return []
-  } else {
-    const anyGroup = props.extensionGroups.find((h) => h['group'] == '')
-    const nexusGroup =
-      props.extensionGroups.find((h) => h['group'] == 'nexus')
-
-    return [anyGroup, nexusGroup]
   }
+
+  let filterGroups = []
+  // Matches any extension
+  filterGroups.push(props.extensionGroups.find((h) => h['group'] == ''))
+  props.filterGroupNames.forEach((name) => {
+    filterGroups.push(
+      props.extensionGroups.find((h) => h['group'] == name)
+    )
+  })
+
+  return filterGroups
 })
 
 </script>

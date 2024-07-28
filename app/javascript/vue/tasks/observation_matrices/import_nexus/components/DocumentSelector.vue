@@ -35,6 +35,7 @@
         <FilterDocument
           v-model="parameters"
           :extension-groups="extensionGroups"
+          :filter-group-names="['nexus']"
           @filter="() => loadList(parameters)"
         />
         <div class="results">
@@ -118,6 +119,7 @@ function sending(file, xhr, formData) {
 }
 
 function success(file, response) {
+  // Note: dropzone calls success once for each file dropped, even when multiple are dropped at once - here we always select the last one dropped
   nexusDoc.value = response
   isPublicDocument.value = false
   noMatchesForExtension.value = undefined
