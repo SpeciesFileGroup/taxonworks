@@ -1,3 +1,5 @@
+require 'fileutils'
+
 # Gazetteer allows a project to add its own named shapes to participate in
 # filtering, georeferencing, etc.
 #
@@ -171,5 +173,15 @@ class Gazetteer < ApplicationRecord
     end
 
     u
+  end
+
+  def self.import_from_shapefile(shapefile)
+    # TODO check params
+    shp_doc = Document.find(shapefile[:shp_doc_id])
+    shx_doc = Document.find(shapefile[:shp_doc_id])
+    dbf_doc = Document.find(shapefile[:shp_doc_id])
+    prj_doc = Document.find(shapefile[:shp_doc_id])
+
+
   end
 end

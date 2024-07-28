@@ -109,6 +109,10 @@ class GazetteersController < ApplicationController
     end
   end
 
+  def import
+    Gazetteer.import_from_shapefile(import_params)
+  end
+
   private
 
   def set_gazetteer
@@ -126,5 +130,10 @@ class GazetteersController < ApplicationController
     )
   end
 
+  def import_params
+    params.require(:shapefile).permit(
+      :shp_doc_id, :shx_doc_id, :dbf_doc_id, :prj_doc_id
+    )
+  end
 
 end

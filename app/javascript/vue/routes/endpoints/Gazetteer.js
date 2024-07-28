@@ -10,9 +10,18 @@ const permitParams = {
       wkt: [],
       points: []
     }
+  },
+  shapefile: {
+    shp_doc_id: Number,
+    shx_doc_id: Number,
+    dbf_doc_id: Number,
+    prj_doc_id: Number
   }
 }
 
 export const Gazetteer = {
-  ...baseCRUD(controller, permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  import: (params) => AjaxCall('post', `/${controller}/import.json`, params)
+
 }
