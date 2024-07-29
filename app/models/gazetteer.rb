@@ -178,11 +178,12 @@ class Gazetteer < ApplicationRecord
   def self.import_from_shapefile(shapefile)
     # TODO check params
     shp_doc = Document.find(shapefile[:shp_doc_id])
-    shx_doc = Document.find(shapefile[:shp_doc_id])
-    dbf_doc = Document.find(shapefile[:shp_doc_id])
-    prj_doc = Document.find(shapefile[:shp_doc_id])
+    shx_doc = Document.find(shapefile[:shx_doc_id])
+    dbf_doc = Document.find(shapefile[:dbf_doc_id])
+    prj_doc = Document.find(shapefile[:prj_doc_id])
+    name_field = shapefile[:name_field]
 
-    # The above shapefile files are unlikely to all be in the same directory, as
+    # The above shapefile files are unlikely to all be in the same directory as
     # required by rgeo-shapefile, so create symbolic links to each in a new
     # temporary folder.
     tmp_dir = Rails.root.join('tmp', 'shapefiles', SecureRandom.hex)
@@ -198,10 +199,56 @@ class Gazetteer < ApplicationRecord
     FileUtils.ln_s(dbf_doc.document_file.path, dbf_link)
     FileUtils.ln_s(prj_doc.document_file.path, prj_link)
 
-    # TODO process the shapefile from the tmp directory, where all of the
-    # shapefile pieces have the same basename
+    r = processShapeFile(shp_link, name_field)
 
     FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link])
     FileUtils.rmdir(tmp_dir)
   end
+
+  def self.processShapeFile(shpfile, name_field)
+    r = {
+      num_records: 0,
+      num_gzs_created: 0,
+      error_ids: [],
+      error_messages: [],
+      aborted: false
+    }
+    # TODO what can .open throw? no such file, bad shapefile, ...
+    RGeo::Shapefile::Reader.open(shpfile, factory: Gis::FACTORY) do |file|
+      r[:num_records] = file.num_records
+      # `file.each do |record|` throws on |record| before you can catch it and
+      # continue the iteration
+      begin
+        Gazetteer.transaction do
+          for i in 0...file.num_records
+            begin
+              record = file[i]
+              g = Gazetteer.new(
+                name: record[name_field]
+              )
+
+              g.build_geographic_item(
+                type: 'GeographicItem::Geography',
+                geography: record.geometry
+              )
+
+              g.save!
+              r[:num_gzs_created] = r[:num_gzs_created] + 1
+            rescue RGeo::Error::InvalidGeometry => e
+              r[:error_ids] << i + 1 # db ids are 1-based
+              r[:error_messages] << e.to_s
+            rescue ActiveRecord::RecordInvalid
+              r[:error_ids] << i + 1 # db ids are 1-based
+              r[:error_messages] << e.to_s
+            end
+          end
+        end
+      rescue ActiveRecord::RecordInvalid
+        r[:aborted] = true
+      end
+    end
+
+    r
+  end
+
 end

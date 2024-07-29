@@ -132,7 +132,7 @@ class GazetteersController < ApplicationController
 
   def import_params
     params.require(:shapefile).permit(
-      :shp_doc_id, :shx_doc_id, :dbf_doc_id, :prj_doc_id
+      :shp_doc_id, :shx_doc_id, :dbf_doc_id, :prj_doc_id, :name_field
     )
   end
 

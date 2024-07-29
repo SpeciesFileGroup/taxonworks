@@ -15,7 +15,8 @@ const permitParams = {
     shp_doc_id: Number,
     shx_doc_id: Number,
     dbf_doc_id: Number,
-    prj_doc_id: Number
+    prj_doc_id: Number,
+    name_field: String
   }
 }
 
