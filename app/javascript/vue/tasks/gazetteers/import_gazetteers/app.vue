@@ -13,7 +13,7 @@
     />
   </div>
 
-  <div class="preview_button">
+  <div class="process_button">
     <VBtn
       :disabled="processingDisabled"
       color="primary"
@@ -22,7 +22,40 @@
     >
       Process shapefile
     </VBtn>
-    </div>
+  </div>
+
+  <div class="results">
+    <!-- Perma-displaying this so it doesn't get populated below the fold with
+         no notice that that's happened -->
+    <fieldset>
+      <legend>Import results</legend>
+      <div v-if="results">
+        <p>
+          Number of shapefile records: {{ results['num_records'] }}
+        </p>
+        <p>
+          Number of gazetteers created: {{ results['num_gzs_created'] }}
+        </p>
+        <p>
+          Aborted? {{ results['aborted'] ? 'Yes' : 'No' }}
+        </p>
+        <p v-if="resultErrors">
+          <p>Errors, in the form "record number: error message":</p>
+          <ul>
+            <li
+              v-for="error in resultErrors"
+              :key="error"
+            >
+              {{ error }}
+            </li>
+          </ul>
+        </p>
+      </div>
+      <p v-else>
+        No shapefiles processed
+      </p>
+    </fieldset>
+  </div>
 
 </template>
 
@@ -34,14 +67,30 @@ import { computed, ref } from 'vue'
 
 const selectedDocs = ref([])
 const shape_name_field = ref('')
+const results = ref(null)
 
 const processingDisabled = computed(() => {
   return selectedDocs.value.length != 4 || !shape_name_field.value
 })
 
+const resultErrors = computed(() => {
+  if (results.value == null || results.value['error_ids'].length == 0) {
+    return null
+  }
+
+  let a = []
+  results.value['error_ids'].forEach((id, i) => {
+    a.push(id + ': ' + results.value['error_messages'][i])
+  })
+
+  return a
+})
+
 function processShapefile() {
+  results.value = null
   // TODO make sure there's only one of each
   // TODO make sure they all have the same basename, I guess
+  // TODO report fail if prj provided and not WGS84, but don't require prj
   const shp = getFileForExtension('.shp')
   const shx = getFileForExtension('.shx')
   const dbf = getFileForExtension('.dbf')
@@ -58,6 +107,11 @@ function processShapefile() {
   }
 
   Gazetteer.import(payload)
+  .then(({ body }) => {
+    results.value = body
+    // TODO: maybe clear currently selected shape files?
+  })
+  .catch(() => {})
 }
 
 function getFileForExtension(extension) {
@@ -70,5 +124,14 @@ function getFileForExtension(extension) {
 <style lang="scss" scoped>
 .document_selector {
   margin-bottom: 2em;
+}
+
+.process_button {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.results {
+  margin-bottom: 1em;
 }
 </style>

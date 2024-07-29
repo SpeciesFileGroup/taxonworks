@@ -110,7 +110,7 @@ class GazetteersController < ApplicationController
   end
 
   def import
-    Gazetteer.import_from_shapefile(import_params)
+    @results = Gazetteer.import_from_shapefile(import_params)
   end
 
   private

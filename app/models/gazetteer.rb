@@ -203,6 +203,8 @@ class Gazetteer < ApplicationRecord
 
     FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link])
     FileUtils.rmdir(tmp_dir)
+
+    r
   end
 
   def self.processShapeFile(shpfile, name_field)
@@ -216,14 +218,22 @@ class Gazetteer < ApplicationRecord
     # TODO what can .open throw? no such file, bad shapefile, ...
     RGeo::Shapefile::Reader.open(shpfile, factory: Gis::FACTORY) do |file|
       r[:num_records] = file.num_records
-      # `file.each do |record|` throws on |record| before you can catch it and
-      # continue the iteration
       begin
+        # Not sure this is right, depends on if we want to create all records
+        # that don't give an error or create none if any fails
         Gazetteer.transaction do
+          # `file.each do |record|` throws on |record| before you can catch it and
+          # continue the iteration, so do indexed iteration instead
           for i in 0...file.num_records
             begin
               record = file[i]
               g = Gazetteer.new(
+                # TODO: missing name handling - current thoughts:
+                # * shapefile name field required
+                # * assuming eventual delayed job, test some records to
+                #   make sure the name matches before starting the delayed job,
+                #   i.e. make sure there wasn't a typo in name_field
+                # * create random name for empty names? fail just those? fail all?
                 name: record[name_field]
               )
 
@@ -233,11 +243,12 @@ class Gazetteer < ApplicationRecord
               )
 
               g.save!
+
               r[:num_gzs_created] = r[:num_gzs_created] + 1
             rescue RGeo::Error::InvalidGeometry => e
               r[:error_ids] << i + 1 # db ids are 1-based
               r[:error_messages] << e.to_s
-            rescue ActiveRecord::RecordInvalid
+            rescue ActiveRecord::RecordInvalid => e
               r[:error_ids] << i + 1 # db ids are 1-based
               r[:error_messages] << e.to_s
             end
