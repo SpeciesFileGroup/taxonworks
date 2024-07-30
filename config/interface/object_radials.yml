@@ -102,6 +102,7 @@ FieldOccurrence:
 Gazetteer:
   tasks:
     - new_gazetteer_task
+    - import_gazetteers_task
   new: new_gazetteer_task
   edit: new_gazetteer_task
 GeographicArea:
