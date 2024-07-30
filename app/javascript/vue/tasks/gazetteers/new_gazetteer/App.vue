@@ -17,6 +17,24 @@
     />
   </div>
 
+  <div class="field label-above">
+    <label>ISO 3166 A2 country code</label>
+    <input
+      type="text"
+      class="input-xsmall-width"
+      v-model="gz.iso_3166_a2"
+    />
+  </div>
+
+  <div class="field label-above">
+    <label>ISO 3166 A3 country code</label>
+    <input
+      type="text"
+      class="input-xsmall-width"
+      v-model="gz.iso_3166_a3"
+    />
+  </div>
+
   <div class="editing-note">
     <ul>
       <li>
@@ -131,6 +149,8 @@ function saveNewGz() {
 
   const gazetteer = {
     name: gz.value.name,
+    iso_3166_a2: gz.value.iso_3166_a2,
+    iso_3166_a3: gz.value.iso_3166_a3,
     shapes: {
       geojson,
       wkt,
@@ -156,7 +176,9 @@ function saveNewGz() {
 
 function updateGz() {
   const gazetteer = {
-    name: gz.value.name
+    name: gz.value.name,
+    iso_3166_a2: gz.value.iso_3166_a2,
+    iso_3166_a3: gz.value.iso_3166_a3
   }
 
   Gazetteer.update(gz.value.id, { gazetteer })

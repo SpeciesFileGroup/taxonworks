@@ -1,7 +1,7 @@
 require 'fileutils'
 
 # Gazetteer allows a project to add its own named shapes to participate in
-# filtering, georeferencing, etc.
+# filtering, etc.
 #
 # @!attribute geography
 #   @return [RGeo::Geographic::Geography]
@@ -42,7 +42,16 @@ class Gazetteer < ApplicationRecord
 
   belongs_to :geographic_item, inverse_of: :gazetteer, dependent: :destroy
 
+  before_validation do
+    self.iso_3166_a2 = iso_3166_a2.strip.upcase if iso_3166_a2.present?
+  end
+  before_validation do
+    self.iso_3166_a3 = iso_3166_a3.strip.upcase if iso_3166_a3.present?
+  end
+
   validates :name, presence: true, length: {minimum: 1}
+  validate :iso_3166_a2_is_two_characters
+  validate :iso_3166_a3_is_three_characters
 
   accepts_nested_attributes_for :geographic_item
 
@@ -259,6 +268,18 @@ class Gazetteer < ApplicationRecord
     end
 
     r
+  end
+
+  private
+
+  def iso_3166_a2_is_two_characters
+    errors.add(:iso_3166_a2, 'must be exactly two characters') unless
+      iso_3166_a2.nil? || /\A[A-Z][A-Z]\z/.match?(iso_3166_a2)
+  end
+
+  def iso_3166_a3_is_three_characters
+    errors.add(:iso_3166_a3, 'must be exactly three characters') unless
+      iso_3166_a3.nil? || /\A[A-Z][A-Z][A-Z]\z/.match?(iso_3166_a3)
   end
 
 end

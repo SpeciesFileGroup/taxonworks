@@ -5,6 +5,8 @@ const controller = 'gazetteers'
 const permitParams = {
   gazetteer: {
     name: String,
+    iso_3166_a2: String,
+    iso_3166_a3: String,
     shapes: {
       geojson: [],
       wkt: [],
