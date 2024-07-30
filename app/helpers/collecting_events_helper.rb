@@ -120,14 +120,6 @@ module CollectingEventsHelper
     render('/collecting_events/quick_search_form')
   end
 
-  def next_without_georeference_for_google_maps_link(collecting_event)
-    if n = collecting_event.next_without_georeference
-      link_to('Skip to next CE without georeference', new_georeferences_google_map_path(georeference: {collecting_event_id: n.to_param}), id: :next_without_georeference)
-    else
-      nil
-    end
-  end
-
   # @return [String]
   #   short string of use in autocomplete selects
   def collecting_event_namespace_select_tag

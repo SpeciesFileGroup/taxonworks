@@ -362,8 +362,6 @@ end
 # TODO: fix broken interfaces, deprecate?
 namespace :georeferences do
   resources :geo_locates, only: [:new, :create]
-  resources :google_maps, only: [:new, :create]
-  # verbatim_data
 end
 
 resources :identifiers, except: [:show] do
@@ -756,6 +754,7 @@ resources :sources do
     get :csl_types, defaults: {format: :json}
     get :generate, defaults: {format: :json}
     patch :batch_update
+    get :download_formatted, defaults: {format: :json}
   end
 
   member do

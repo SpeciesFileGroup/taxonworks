@@ -7,6 +7,7 @@
       :url-request="urlRequest"
       :object-type="OTU"
       :selected-ids="selectedIds"
+      :extend-download="extendDownload"
       :list="list"
       v-model="parameters"
       v-model:append="append"
@@ -72,6 +73,8 @@ import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
 import { OTU } from '@/constants/index.js'
 import { Otu } from '@/routes/endpoints'
+import { computed } from 'vue'
+import csvDownload from './components/csvDownload.vue'
 
 const extend = ['taxonomy']
 
@@ -87,6 +90,16 @@ const {
   makeFilterRequest,
   resetFilter
 } = useFilter(Otu, { listParser, initParameters: { extend } })
+
+const extendDownload = computed(() => [
+  {
+    label: 'CSV',
+    component: csvDownload,
+    bind: {
+      params: parameters.value
+    }
+  }
+])
 </script>
 
 <script>

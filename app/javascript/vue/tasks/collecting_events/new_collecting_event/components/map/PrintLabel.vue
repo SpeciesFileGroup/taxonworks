@@ -61,7 +61,7 @@ export default {
   mixins: [extendCE],
   computed: {
     isEmpty() {
-      return this.label.text.length === 0
+      return !this.label.text?.length
     },
     label: {
       get() {

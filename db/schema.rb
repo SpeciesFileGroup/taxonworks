@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_09_040400) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_16_191947) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -2204,7 +2204,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_09_040400) do
   add_foreign_key "attributions", "projects"
   add_foreign_key "attributions", "users", column: "created_by_id"
   add_foreign_key "attributions", "users", column: "updated_by_id"
-  add_foreign_key "biocuration_classifications", "collection_objects", column: "biological_collection_object_id", name: "biocuration_classifications_biological_collection_object_i_fkey"
   add_foreign_key "biocuration_classifications", "controlled_vocabulary_terms", column: "biocuration_class_id", name: "biocuration_classifications_biocuration_class_id_fkey"
   add_foreign_key "biocuration_classifications", "projects", name: "biocuration_classifications_project_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "created_by_id", name: "biocuration_classifications_created_by_id_fkey"
@@ -2505,7 +2504,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_09_040400) do
   add_foreign_key "tags", "projects", name: "tags_project_id_fkey"
   add_foreign_key "tags", "users", column: "created_by_id", name: "tags_created_by_id_fkey"
   add_foreign_key "tags", "users", column: "updated_by_id", name: "tags_updated_by_id_fkey"
-  add_foreign_key "taxon_determinations", "collection_objects", column: "biological_collection_object_id", name: "taxon_determinations_biological_collection_object_id_fkey"
   add_foreign_key "taxon_determinations", "otus", name: "taxon_determinations_otu_id_fkey"
   add_foreign_key "taxon_determinations", "projects", name: "taxon_determinations_project_id_fkey"
   add_foreign_key "taxon_determinations", "users", column: "created_by_id", name: "taxon_determinations_created_by_id_fkey"

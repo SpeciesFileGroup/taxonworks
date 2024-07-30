@@ -1,6 +1,6 @@
 module Queries::Helpers
 
-  # @params params []
+  # @params params
   # @params attribute [Symbol]
   # @return [Boolean, nil]
   def boolean_param(params, attribute)
@@ -17,4 +17,18 @@ module Queries::Helpers
       raise
     end
   end
+
+  # @params params
+  # @params attribute [Symbol]
+  # @return [Boolean, nil]
+  def integer_param(params, attribute)
+    return nil if attribute.nil? || params[attribute].nil?
+
+    [params[attribute]].flatten.each do |v|
+      next if Utilities::Strings.only_integer(v)
+      raise TaxonWorks::Error::API, "values of #{attribute} must be integers (provided: #{params[attribute]})"
+    end
+    params[attribute]
+  end
+
 end

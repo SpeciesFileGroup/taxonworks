@@ -20,6 +20,7 @@ bundle exec erb /app/config/docker/application_settings.yml.erb > /app/config/ap
 bundle exec erb /app/config/docker/pgpass.erb > /root/.pgpass
 chmod 0600 /root/.pgpass
 
+[ "${TW_DISABLE_DEPLOY_UPDATE_DATABASE,,}" == "true" ] || \
 bundle exec rake tw:production:deploy:update_database database_user=$POSTGRES_USER database_host=$POSTGRES_HOST
 
 touch tmp/init_complete
