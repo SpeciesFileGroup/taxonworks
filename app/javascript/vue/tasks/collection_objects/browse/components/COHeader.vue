@@ -90,7 +90,7 @@ const openComprehenseive = (id) => {
 function handleRadialCreate({ item }) {
   switch (item.base_class) {
     case DEPICTION:
-      addToArray(store.state.depictions, item)
+      addToArray(store.state.depictions.list, item)
       break
 
     case IDENTIFIER:
@@ -105,7 +105,7 @@ function handleRadialCreate({ item }) {
 function handleRadialDelete({ item }) {
   switch (item.base_class) {
     case DEPICTION:
-      removeFromArray(store.state.depictions, item)
+      removeFromArray(store.state.depictions.list, item)
       break
     case IDENTIFIER:
       removeFromArray(store.state.identifiers[COLLECTION_OBJECT], item)
@@ -116,7 +116,7 @@ function handleRadialDelete({ item }) {
 function handleRadialUpdate({ item }) {
   switch (item.base_class) {
     case DEPICTION:
-      addToArray(store.state.depictions, item)
+      addToArray(store.state.depictions.list, item)
       break
   }
 }

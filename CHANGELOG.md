@@ -12,8 +12,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Task to add image and as depictions to the objects identified in their filename [#3986]
 - PDF version of styled/formatted source download [#3996]
 - Type checking pattern for integers sent to `*_id` params in the API
-- Radial annotator: Pagination to the Depictions slice
-- Comprehensive: Pagination to the depictions panel
+- Radial annotator: Pagination to depictions slice
+- Comprehensive: Pagination to depictions panel
+- Browse collection objects Pagination to depictions panel
 - Filter source: add ID to list [#3984]
 - TW_DISABLE_DEPLOY_UPDATE_DATABASE env var to disable DB backup and migration at deploy time.
 
