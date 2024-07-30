@@ -103,7 +103,6 @@ class Gazetteer < ApplicationRecord
       raise TaxonWorks::Error, 'No shapes provided'
     end
 
-    # TODO anti-meridian fails here
     leaflet_rgeo = convert_geojson_to_rgeo(shapes['geojson'])
     wkt_rgeo = convert_wkt_to_rgeo(shapes['wkt'])
     points_rgeo = convert_geojson_to_rgeo(shapes['points'])

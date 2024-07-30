@@ -960,4 +960,4 @@ import_gazetteers_task:
   related:
   categories:
   status: prototype
-  description: 'Import gazetteers from a shapefile'
+  description: 'Import gazetteers from a shapefile.'

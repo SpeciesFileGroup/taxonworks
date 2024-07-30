@@ -1,4 +1,6 @@
 <template>
+  <!-- TODO add spinner -->
+  <!-- TODO somehwere here display which of the required files have been added, whether they all have the same basename?-->
   <DocumentSelector
     v-model="selectedDocs"
     class="document_selector"
@@ -36,7 +38,7 @@
         <p>
           Number of gazetteers created: {{ results['num_gzs_created'] }}
         </p>
-        <p>
+        <p v-if="results['num_gzs_created'] < results['num_records']">
           Aborted? {{ results['aborted'] ? 'Yes' : 'No' }}
         </p>
         <p v-if="resultErrors">
