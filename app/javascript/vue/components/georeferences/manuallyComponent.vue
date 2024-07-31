@@ -20,6 +20,7 @@
           <input
             type="text"
             v-model="shape.lat"
+            ref="inputText"
           />
         </div>
         <div class="field label-above">
@@ -65,7 +66,7 @@
 <script setup>
 import ModalComponent from '@/components/ui/Modal'
 import convertDMS from '@/helpers/parseDMS.js'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
 const RANGES = [0, 10, 100, 1000, 10000]
 
@@ -86,13 +87,15 @@ const props = defineProps({
 
 const emit = defineEmits(['create'])
 
+const inputText = ref(null)
+
 const validateFields = computed(
   () => convertDMS(shape.value.lat) && convertDMS(shape.value.long)
 )
 const isModalVisible = ref(false)
 const shape = ref({})
 
-const createShape = () => {
+function createShape() {
   const geoJson = {
     type: 'Feature',
     properties: { radius: shape.value.range || null },
@@ -113,6 +116,10 @@ watch(isModalVisible, (newVal) => {
       long: undefined,
       range: 0
     }
+
+    nextTick(() => {
+      inputText.value.focus()
+    })
   }
 })
 </script>

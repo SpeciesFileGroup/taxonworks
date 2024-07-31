@@ -21,6 +21,7 @@
             class="full_width"
             rows="8"
             v-model="wkt"
+            ref="textArea"
           />
         </div>
       </template>
@@ -40,7 +41,7 @@
 <script setup>
 import VModal from '@/components/ui/Modal'
 import { GEOREFERENCE_WKT } from '@/constants/index.js'
-import { ref } from 'vue'
+import { nextTick, ref } from 'vue'
 
 const props = defineProps({
   type: {
@@ -65,6 +66,7 @@ const emit = defineEmits(['create'])
 
 const show = ref(false)
 const wkt = ref(undefined)
+const textArea = ref(null)
 
 function createShape() {
   emit('create', {
@@ -82,5 +84,10 @@ function resetShape() {
 function setModalView(value) {
   resetShape()
   show.value = value
+  if (value) {
+    nextTick(() => {
+      textArea.value.focus()
+    })
+  }
 }
 </script>
