@@ -7,7 +7,7 @@
     >
       WKT coordinates
     </button>
-    <modal-component
+    <VModal
       v-if="show"
       @close="setModalView(false)"
     >
@@ -33,64 +33,54 @@
           Add
         </button>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
-<script>
-import ModalComponent from '@/components/ui/Modal'
+<script setup>
+import VModal from '@/components/ui/Modal'
 import { GEOREFERENCE_WKT } from '@/constants/index.js'
-import { props } from 'vue-handy-scroll'
+import { ref } from 'vue'
 
-export default {
-  components: { ModalComponent },
-
-  props: {
-    type: {
-      type: String,
-      default: GEOREFERENCE_WKT
-    },
-    idKey: {
-      type: String,
-      default: 'tmpId'
-    },
-    idGenerator: {
-      type: Function,
-      default: () => Math.random().toString(36).substr(2, 5)
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    }
+const props = defineProps({
+  type: {
+    type: String,
+    default: GEOREFERENCE_WKT
   },
-
-  emits: ['create'],
-
-  data() {
-    return {
-      show: false,
-      wkt: undefined
-    }
+  idKey: {
+    type: String,
+    default: 'tmpId'
   },
-
-  methods: {
-    createShape() {
-      this.$emit('create', {
-        [this.idKey]: (this.idGenerator)(),
-        wkt: this.wkt,
-        type: this.type
-      })
-      this.show = false
-    },
-
-    resetShape() {
-      this.wkt = undefined
-    },
-
-    setModalView(value) {
-      this.resetShape()
-      this.show = value
-    }
+  idGenerator: {
+    type: Function,
+    default: () => Math.random().toString(36).substr(2, 5)
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
+})
+
+const emit = defineEmits(['create'])
+
+const show = ref(false)
+const wkt = ref(undefined)
+
+function createShape() {
+  emit('create', {
+      [props.idKey]: (props.idGenerator)(),
+      wkt: wkt.value,
+      type: props.type
+    })
+  show.value = false
+}
+
+function resetShape() {
+  wkt.value = undefined
+}
+
+function setModalView(value) {
+  resetShape()
+  show.value = value
 }
 </script>
