@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- TaxonName filter Original combination with/out facet (both with and without)
 - Removed deprecated GoogleMap georeference form [#3991]
 - Print label generation [#3992]
 - Generating a TaxonWorks Download for a bibtex result failing [#3997]
