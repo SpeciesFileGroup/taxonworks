@@ -137,12 +137,13 @@ onMounted(() => {
 </script>
 <style lang="scss">
 .graph-container {
+  position: relative;
+
   svg {
     width: 100%;
     height: calc(100vh - 250px);
     cursor: move;
   }
-  position: relative;
 
   &__stats {
     position: absolute;

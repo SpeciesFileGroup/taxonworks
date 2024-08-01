@@ -9,10 +9,50 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.43.0] - 2024-07-31
+
+### Added
+
+- Task to add image and as depictions to the objects identified in their filename [#3986]
+- PDF version of styled/formatted source download [#3996]
+- Type checking pattern for integers sent to `*_id` params in the API
+- Radial annotator: Pagination to depictions slice
+- Comprehensive: Pagination to depictions panel
+- Browse collection objects Pagination to depictions panel
+- Filter source: add ID to list [#3984]
+- TW_DISABLE_DEPLOY_UPDATE_DATABASE env var to disable DB backup and migration at deploy time.
+
+### Changed
+
+- `repositories/autocomplete` label [#3981]
+- Updated Ruby gems
+
+### Fixed
+
+- TaxonName filter Original combination with/out facet (both with and without)
+- Removed deprecated GoogleMap georeference form [#3991]
+- Print label generation [#3992]
+- Generating a TaxonWorks Download for a bibtex result failing [#3997]
+- Removed bad foreign-key constraint on BiocurationClassifications, TaxonDeterminations
+- Content autocomplete not scoped to projects
+- Some hotkeys don't work on Firefox on Linux [#3988]
+- Cancel previous autocomplete requests [#3982]
+
+[#3984]: https://github.com/SpeciesFileGroup/taxonworks/issues/3984
+[#3991]: https://github.com/SpeciesFileGroup/taxonworks/issues/3991
+[#3981]: https://github.com/SpeciesFileGroup/taxonworks/issues/3981
+[#3982]: https://github.com/SpeciesFileGroup/taxonworks/issues/3982
+[#3986]: https://github.com/SpeciesFileGroup/taxonworks/issues/3986
+[#3988]: https://github.com/SpeciesFileGroup/taxonworks/issues/3988
+[#3992]: https://github.com/SpeciesFileGroup/taxonworks/issues/3992
+[#3996]: https://github.com/SpeciesFileGroup/taxonworks/issues/3996
+[#3997]: https://github.com/SpeciesFileGroup/taxonworks/issues/3997
+
 ## [0.42.0] - 2024-06-28
 
 ### Added
 
+- Nexus file import [#2029]
 - POST `/annotations/move?from_global_id=<>&to_global_id=<>&only[]=&except[]=`
 - Clone CollectingEvent can include annotations, incremented identifiers
 - Model Identifier::Local::Event in part: [#3800]
@@ -56,6 +96,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems
 - Georeference `error_radius` rounded to nearest meter before save [#3946]
 
+[#2029]: https://github.com/SpeciesFileGroup/taxonworks/issues/2029
 [#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
 [#3819]: https://github.com/SpeciesFileGroup/taxonworks/pull/3819/
 [#3837]: https://github.com/SpeciesFileGroup/taxonworks/pull/3837/
@@ -4671,7 +4712,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.42.0..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.0..development
+[0.43.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.42.0...v0.43.0
 [0.42.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.1...v0.42.0
 [0.41.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.0...v0.41.1
 [0.41.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.6...v0.41.0

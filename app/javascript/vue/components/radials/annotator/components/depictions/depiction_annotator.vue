@@ -113,13 +113,21 @@
         />
         Is data depiction
       </label>
-      <DepictionList
+      <VPagination
         class="margin-large-top"
+        :pagination="pagination"
+        @next-page="({ page }) => loadDepictions(page)"
+      />
+      <DepictionList
         :list="list"
         @delete="removeItem"
         @selected="(item) => (depiction = item)"
         @update:caption="updateDepiction"
         @update:label="updateDepiction"
+      />
+      <VPagination
+        :pagination="pagination"
+        @next-page="({ page }) => loadDepictions(page)"
       />
     </div>
   </div>
@@ -132,10 +140,12 @@ import SmartSelector from '@/components/ui/SmartSelector'
 import DepictionList from './DepictionList.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VPagination from '@/components/pagination.vue'
 import MoveTo from './MoveTo.vue'
+import { getPagination } from '@/helpers'
 import { useSlice } from '@/components/radials/composables'
 import { Depiction, Image } from '@/routes/endpoints'
-import { computed, ref } from 'vue'
+import { computed, ref, onBeforeMount } from 'vue'
 
 const DROPZONE_CONFIG = {
   paramName: 'depiction[image_attributes][image_file]',
@@ -173,6 +183,7 @@ const props = defineProps({
 
 const parameters = ref({})
 const depiction = ref()
+const pagination = ref({})
 const isDataDepiction = ref(false)
 const selectedObject = ref()
 const filterList = ref([])
@@ -255,12 +266,19 @@ function removeItem(item) {
   })
 }
 
-Depiction.where({
-  depiction_object_id: props.objectId,
-  depiction_object_type: props.objectType
-}).then(({ body }) => {
-  list.value = body
-})
+function loadDepictions(page = 1) {
+  Depiction.where({
+    depiction_object_id: props.objectId,
+    depiction_object_type: props.objectType,
+    per: 50,
+    page
+  }).then((response) => {
+    list.value = response.body
+    pagination.value = getPagination(response)
+  })
+}
+
+onBeforeMount(() => loadDepictions())
 </script>
 
 <style scoped>

@@ -19,17 +19,14 @@
             :height="depiction.image.height"
             :groups="svgClip"
             :image="{
-              url: depiction.image.image_file_url,
+              url: originalImageUrl,
               width: depiction.image.width,
               height: depiction.image.height
             }"
           />
           <img
             v-else
-            :class="[
-              'img-maxsize',
-              state.fullSizeImage ? 'img-fullsize' : 'img-normalsize'
-            ]"
+            class="img-maxsize"
             @click="state.fullSizeImage = !state.fullSizeImage"
             :src="urlSrc"
           />
@@ -185,7 +182,7 @@ import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import ImageViewerAttributions from './ImageViewerAttributions.vue'
 import ImageViewerCitations from './ImageViewerCitations.vue'
 import SvgViewer from '@/components/Svg/SvgViewer.vue'
-import { Depiction, Image, Citation, Attribution } from '@/routes/endpoints'
+import { Depiction, Citation, Attribution } from '@/routes/endpoints'
 import { imageSVGViewBox, imageScale } from '@/helpers/images'
 import { computed, reactive, ref, watch } from 'vue'
 import { IMAGE } from '@/constants'
@@ -245,30 +242,27 @@ const svgClip = computed(() => {
 })
 
 const imageObject = computed(() => props.depiction?.image || props.image)
+const isUnsupportedType = computed(() =>
+  CONVERT_IMAGE_TYPES.includes(imageObject.value.content_type)
+)
+const originalImageUrl = computed(() =>
+  isUnsupportedType.value
+    ? imageObject.value.original_png
+    : imageObject.value.image_file_url
+)
 
 const urlSrc = computed(() => {
   const depiction = props.depiction
   const { width, height } = image.value
 
-  if (hasSVGBox.value) {
-    return imageSVGViewBox(
-      imageObject.value.id,
-      depiction.svg_view_box,
-      width,
-      height
-    )
-  }
-
-  if (CONVERT_IMAGE_TYPES.includes(image.value.content_type)) {
-    return imageScale(
-      imageObject.value.id,
-      `0 0 ${width} ${height}`,
-      width,
-      height
-    )
-  }
-
-  return image.value.image_file_url
+  return hasSVGBox.value
+    ? imageSVGViewBox(
+        imageObject.value.id,
+        depiction.svg_view_box,
+        width,
+        height
+      )
+    : originalImageUrl.value
 })
 
 const hasSVGBox = computed(() => props.depiction?.svg_view_box != null)
@@ -363,14 +357,6 @@ watch(isModalVisible, (newVal) => {
     transition: all 0.5s ease;
     max-width: 100%;
     max-height: 60vh;
-  }
-
-  .img-fullsize {
-    cursor: zoom-out;
-  }
-
-  .img-normalsize {
-    cursor: zoom-in;
   }
 
   .field {

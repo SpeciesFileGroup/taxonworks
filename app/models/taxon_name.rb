@@ -162,6 +162,7 @@ class TaxonName < ApplicationRecord
   include Shared::IsData
   include Shared::QueryBatchUpdate
   include TaxonName::OtuSyncronization
+  include TaxonName::Hierarchy
 
   include Shared::MatrixHooks::Member
   include Shared::MatrixHooks::Dynamic
@@ -1181,7 +1182,6 @@ class TaxonName < ApplicationRecord
       self_and_ancestors
         .unscope(:order)
         .order(generations: :DESC)
-        .reload # TODO Why needed? Should not be
         .to_a
     end
   end
