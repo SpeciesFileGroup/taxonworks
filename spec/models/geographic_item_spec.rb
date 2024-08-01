@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
-describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
+describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
   include_context 'stuff for GeographicItem tests' # that's spec/support/shared_contexts/shared_basic_geo.rb
 
   # the pattern `before { [s1, s2, ...].each }` is to instantiate variables
@@ -59,7 +59,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
         p = 'POLYGON ((0 0, 0 10, 10 10, 10 0, 0 0), ' \
           '(3 3, 6 3, 6 6, 3 6, 3 3))'
 
-          FactoryBot.create(:geographic_item_geography, geography: p)
+          FactoryBot.create(:geographic_item, geography: p)
       end
 
       let(:ccw_cw_m_p) do
@@ -67,7 +67,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
         m_p = 'MULTIPOLYGON (((0 0, 10 0, 10 10, 0 10, 0 0)),' \
                             '((20 0, 20 10, 30 10, 30 0, 20 0)))'
 
-        FactoryBot.create(:geographic_item_geography, geography: m_p)
+        FactoryBot.create(:geographic_item, geography: m_p)
       end
 
       specify 'polygon winding is ccw after save' do
@@ -147,8 +147,6 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     end
   end
 
-  # Note these all use geography as the shape column via
-  # "data_type":"geography" in the properties hash
   context 'construction via #shape=' do
     let(:geo_json) {
       '{
@@ -158,7 +156,6 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
           "coordinates": [10, 10]
         },
         "properties": {
-          "data_type":"geography",
           "name": "Sample Point",
           "description": "This is a sample point feature."
         }
@@ -173,19 +170,11 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
           "coordinates": [20, 20]
         },
         "properties": {
-          "data_type":"geography",
           "name": "Sample Point",
           "description": "This is a sample point feature."
         }
       }'
     }
-    specify 'geojson with properties: data_type: geography assigns to ' \
-      'geography column' do
-      geographic_item.shape = '{"type":"Feature","geometry":{"type":"Point",' \
-      '"coordinates":[-88.09681320155505,40.461195702960666]},' \
-      '"properties":{"data_type":"geography", "name":"Paxton City Hall"}}'
-      expect(geographic_item.geography).to be_truthy
-    end
 
     specify '#shape=' do
       g = GeographicItem.new(shape: geo_json)
@@ -211,8 +200,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
               [-80.498221, 25.761437]
             ]
           ]
-        },
-        "properties": {"data_type":"geography"}
+        }
       }'
 
       g = GeographicItem.new(shape: bad)
@@ -223,7 +211,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     specify 'for polygon' do
       geographic_item.shape = '{"type":"Feature","geometry":{"type":"Polygon",' \
         '"coordinates":[[[-90.25122106075287,38.619731572825145],[-86.12036168575287,39.77758382625017],' \
-        '[-87.62384042143822,41.89478088863241],[-90.25122106075287,38.619731572825145]]]},"properties":{"data_type":"geography"}}'
+        '[-87.62384042143822,41.89478088863241],[-90.25122106075287,38.619731572825145]]]}}'
       expect(geographic_item.valid?).to be_truthy
     end
 
@@ -232,15 +220,14 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
         '{"type":"Feature","geometry":{"type":"LineString","coordinates":[' \
         '[-90.25122106075287,38.619731572825145],' \
         '[-86.12036168575287,39.77758382625017],' \
-        '[-87.62384042143822,41.89478088863241]]},' \
-        '"properties":{"data_type":"geography"}}'
+        '[-87.62384042143822,41.89478088863241]]}}'
       expect(geographic_item.valid?).to be_truthy
     end
 
     specify 'for "circle"' do
       geographic_item.shape = '{"type":"Feature","geometry":{"type":"Point",' \
         '"coordinates":[-88.09681320155505,40.461195702960666]},' \
-        '"properties":{"data_type":"geography","radius":1468.749413840412,' \
+        '"properties":{"radius":1468.749413840412,' \
         '"name":"Paxton City Hall"}}'
       expect(geographic_item.valid?).to be_truthy
     end
@@ -252,7 +239,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     end
 
     specify '#geo_object_type when item not saved' do
-      geographic_item.point = simple_shapes[:point]
+      geographic_item.geography = simple_shapes[:point]
       expect(geographic_item.geo_object_type).to eq(:point)
     end
   end
@@ -264,7 +251,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
     end
 
     specify 'invalid data for point is invalid' do
-      geographic_item.point = 'Some string'
+      geographic_item.geography = 'Some string'
       expect(geographic_item.valid?).to be_falsey
     end
 
@@ -407,7 +394,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
       end
 
       specify 'find that shapes contain their vertices' do
-        vertex = FactoryBot.create(:geographic_item_geography,
+        vertex = FactoryBot.create(:geographic_item,
           geography: donut_left_interior_edge.geo_object.start_point)
 
         expect(GeographicItem.superset_of_union_of(
@@ -444,7 +431,7 @@ describe GeographicItem::Geography, type: :model, group: [:geo, :shared_geo] do
       end
 
       specify 'returns duplicates' do
-        duplicate_point = FactoryBot.create(:geographic_item_geography,
+        duplicate_point = FactoryBot.create(:geographic_item,
           geography: box_centroid.geo_object)
 
         expect(

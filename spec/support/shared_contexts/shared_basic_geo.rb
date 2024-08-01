@@ -20,43 +20,43 @@ shared_context 'stuff for GeographicItem tests' do
 
   let(:simple_point) {
     FactoryBot.create(
-      :geographic_item_geography, geography: simple_shapes[:point]
+      :geographic_item, geography: simple_shapes[:point]
     )
   }
 
   let(:simple_line_string) {
     FactoryBot.create(
-      :geographic_item_geography, geography: simple_shapes[:line_string]
+      :geographic_item, geography: simple_shapes[:line_string]
     )
   }
 
   let(:simple_polygon) {
     FactoryBot.create(
-      :geographic_item_geography, geography: simple_shapes[:polygon]
+      :geographic_item, geography: simple_shapes[:polygon]
     )
   }
 
   let(:simple_multi_point) {
     FactoryBot.create(
-      :geographic_item_geography, geography: simple_shapes[:multi_point]
+      :geographic_item, geography: simple_shapes[:multi_point]
     )
   }
 
   let(:simple_multi_line_string) {
     FactoryBot.create(
-      :geographic_item_geography, geography: simple_shapes[:multi_line_string]
+      :geographic_item, geography: simple_shapes[:multi_line_string]
     )
   }
 
   let(:simple_multi_polygon) {
     FactoryBot.create(
-      :geographic_item_geography, geography: simple_shapes[:multi_polygon]
+      :geographic_item, geography: simple_shapes[:multi_polygon]
     )
   }
 
   let(:simple_geometry_collection) {
     FactoryBot.create(
-      :geographic_item_geography, geography: simple_shapes[:geometry_collection]
+      :geographic_item, geography: simple_shapes[:geometry_collection]
     )
   }
 
@@ -97,7 +97,7 @@ shared_context 'stuff for GeographicItem tests' do
 
   ### Point intended to be outside of any of the shapes defined below
   let(:distant_point) {
-    FactoryBot.create(:geographic_item_geography, geography: 'POINT(170 80 0)')
+    FactoryBot.create(:geographic_item, geography: 'POINT(170 80 0)')
   }
 
   ### A donut polygon and sub-shapes
@@ -131,7 +131,7 @@ shared_context 'stuff for GeographicItem tests' do
                  (#{d_ir_llc}, #{d_ir_ulc}, #{d_ir_urc}, #{d_ir_lrc},
                   #{d_ir_llc}))"
 
-    FactoryBot.create(:geographic_item_geography, geography: p)
+    FactoryBot.create(:geographic_item, geography: p)
   end
 
   # geometric centroid
@@ -140,7 +140,7 @@ shared_context 'stuff for GeographicItem tests' do
     c_y = d_llc_y + d_h / 2
     c = "POINT (#{c_x} #{c_y} 0)"
 
-    FactoryBot.create(:geographic_item_geography, geography: c)
+    FactoryBot.create(:geographic_item, geography: c)
   end
 
   let (:donut_interior_point) do
@@ -148,7 +148,7 @@ shared_context 'stuff for GeographicItem tests' do
     interior_y = d_llc_y + d_ring_h / 2
     i_p = "POINT(#{interior_x} #{interior_y} 0)"
 
-    FactoryBot.create(:geographic_item_geography, geography: i_p)
+    FactoryBot.create(:geographic_item, geography: i_p)
   end
 
   let (:donut_left_interior_edge_point) {
@@ -156,7 +156,7 @@ shared_context 'stuff for GeographicItem tests' do
     p_y = d_llc_y + d_h / 2
     p = "POINT (#{p_x} #{p_y} 0)"
 
-    FactoryBot.create(:geographic_item_geography, geography: p)
+    FactoryBot.create(:geographic_item, geography: p)
   }
 
   let (:donut_left_interior_edge) {
@@ -165,7 +165,7 @@ shared_context 'stuff for GeographicItem tests' do
     l_upper_y = d_llc_y + d_h - d_ring_h
     l = "LINESTRING (#{l_x} #{l_lower_y}, #{l_x} #{l_upper_y})"
 
-    FactoryBot.create(:geographic_item_geography, geography: l)
+    FactoryBot.create(:geographic_item, geography: l)
   }
 
   let (:donut_bottom_interior_edge) {
@@ -174,7 +174,7 @@ shared_context 'stuff for GeographicItem tests' do
     l_y = d_llc_y + d_ring_h
     l = "LINESTRING (#{l_left_x} #{l_y}, #{l_right_x} #{l_y})"
 
-    FactoryBot.create(:geographic_item_geography, geography: l)
+    FactoryBot.create(:geographic_item, geography: l)
   }
 
   # A multi_line_string
@@ -184,7 +184,7 @@ shared_context 'stuff for GeographicItem tests' do
       donut_bottom_interior_edge.geo_object
     ])
 
-    FactoryBot.create(:geographic_item_geography, geography: m_l)
+    FactoryBot.create(:geographic_item, geography: m_l)
   }
 
   ### A box polygon and sub-shapes
@@ -205,7 +205,7 @@ shared_context 'stuff for GeographicItem tests' do
   let(:box) do
     b = "POLYGON((#{box_llc}, #{box_lrc}, #{box_urc}, #{box_ulc}, #{box_llc}))"
 
-    FactoryBot.create(:geographic_item_geography, geography: b)
+    FactoryBot.create(:geographic_item, geography: b)
   end
 
   # geometric centroid - *not* covered by box_horizontal_bisect_line in
@@ -215,7 +215,7 @@ shared_context 'stuff for GeographicItem tests' do
     c_y = box_llc_y + box_h / 2
     c = "POINT (#{c_x} #{c_y} 0)"
 
-    FactoryBot.create(:geographic_item_geography, geography: c)
+    FactoryBot.create(:geographic_item, geography: c)
   }
 
   let(:box_horizontal_bisect_line) {
@@ -223,7 +223,7 @@ shared_context 'stuff for GeographicItem tests' do
     right_x = left_x + box_w
     y = box_llc_y + box_h / 2
     line = "LINESTRING (#{left_x} #{y} 0, #{right_x} #{y} 0)"
-    FactoryBot.create(:geographic_item_geography, geography: line)
+    FactoryBot.create(:geographic_item, geography: line)
   }
 
   ### A rectangle polygon intersecting the previous box; both start at the same
@@ -251,7 +251,7 @@ shared_context 'stuff for GeographicItem tests' do
                   "#{urc_x} #{urc_y} 0, #{ulc_x} #{ulc_y} 0, " \
                   "#{llc_x} #{llc_y} 0))"
 
-    FactoryBot.create(:geographic_item_geography, geography: r)
+    FactoryBot.create(:geographic_item, geography: r)
   end
 
   ### A point in the interior of the intersection of box and rectangle
@@ -260,14 +260,14 @@ shared_context 'stuff for GeographicItem tests' do
     i_y = box_llc_y + box_h / 4
     i = "POINT (#{i_x} #{i_y})"
 
-    FactoryBot.create(:geographic_item_geography, geography: i)
+    FactoryBot.create(:geographic_item, geography: i)
   }
 
   ### The union of the box and rectangle polygons as a single polygon
   let(:box_rectangle_union) {
     m_p = box.geo_object.union(rectangle_intersecting_box.geo_object)
 
-    FactoryBot.create(:geographic_item_geography, geography: m_p)}
+    FactoryBot.create(:geographic_item, geography: m_p)}
 
   ###### Multi-shapes
   # !! Note these instantiate their constituent shapes
@@ -278,7 +278,7 @@ shared_context 'stuff for GeographicItem tests' do
     box_point = box_centroid.geo_object
     m_p = RSPEC_GEO_FACTORY.multi_point([donut_point, box_point])
 
-    FactoryBot.create(:geographic_item_geography, geography: m_p)
+    FactoryBot.create(:geographic_item, geography: m_p)
   end
 
   ### A mult_line_string
@@ -290,7 +290,7 @@ shared_context 'stuff for GeographicItem tests' do
       [donut.geo_object, rectangle_intersecting_box.geo_object]
     )
 
-    FactoryBot.create(:geographic_item_geography, geography: m_poly)
+    FactoryBot.create(:geographic_item, geography: m_poly)
   end
 
   ### A geometry_collection
@@ -303,7 +303,7 @@ shared_context 'stuff for GeographicItem tests' do
       ]
     )
 
-    FactoryBot.create(:geographic_item_geography, geography: g_c)
+    FactoryBot.create(:geographic_item, geography: g_c)
   end
 
   ###### Shapes used for specs involving distances
@@ -312,15 +312,15 @@ shared_context 'stuff for GeographicItem tests' do
   # aware that if you include shapes above with these, your distance specs
   # could capture those shapes as well
   let(:equator_point_long_0) {
-    FactoryBot.create(:geographic_item_geography, geography: 'POINT (0 0)')
+    FactoryBot.create(:geographic_item, geography: 'POINT (0 0)')
   }
 
   let(:equator_point_long_20) {
-    FactoryBot.create(:geographic_item_geography, geography: 'POINT (20 0)')
+    FactoryBot.create(:geographic_item, geography: 'POINT (20 0)')
   }
 
   let(:equator_point_long_30) {
-    FactoryBot.create(:geographic_item_geography, geography: 'POINT (30 0)')
+    FactoryBot.create(:geographic_item, geography: 'POINT (30 0)')
   }
 
   ###### Collecting events
