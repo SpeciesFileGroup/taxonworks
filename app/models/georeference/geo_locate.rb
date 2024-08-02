@@ -70,8 +70,7 @@ class Georeference::GeoLocate < Georeference
   def make_err_polygon(wkb)
     polygon = Gis::FACTORY.parse_wkb(wkb)
     # ActiveRecord::Base.send(:sanitize_sql_array, ['polygon = ST_GeographyFromText(?)', polygon.to_s])
-    test_grs = GeographicItem
-      .where(GeographicItem.shape_is_polygon)
+    test_grs = GeographicItem.polygons
       .where(['geography = ST_GeographyFromText(?)', polygon.to_s])
     if test_grs.empty?
       test_grs = [GeographicItem.new(geography: polygon)]
@@ -92,8 +91,7 @@ class Georeference::GeoLocate < Georeference
     if x.blank? || y.blank?
       test_grs = []
     else
-      test_grs = GeographicItem
-        .where(GeographicItem.shape_is_point)
+      test_grs = GeographicItem.points
         .where("geography = ST_GeographyFromText('POINT(? ? ?)')",
                 x.to_f, y.to_f, z.to_f)
                    # .where(['ST_Z(point::geometry) = ?', z.to_f])

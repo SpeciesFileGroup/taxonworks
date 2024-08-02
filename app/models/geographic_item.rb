@@ -71,6 +71,14 @@ class GeographicItem < ApplicationRecord
     scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
     scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
 
+    scope :points, -> { where(shape_is_type(:point)) }
+    scope :multi_points, -> { where(shape_is_type(:multi_point)) }
+    scope :line_strings, -> { where(shape_is_type(:line_string)) }
+    scope :multi_line_strings, -> { where(shape_is_type(:multi_line_string)) }
+    scope :polygons, -> { where(shape_is_type(:polygon)) }
+    scope :multi_polygons, -> { where(shape_is_type(:multi_polygon)) }
+    scope :geometry_collections, -> { where(shape_is_type(:geometry_collection)) }
+
     after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
     after_save :align_winding
 
@@ -1013,34 +1021,6 @@ class GeographicItem < ApplicationRecord
     #  the Rgeo shape (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
     def geo_object
       geography
-    end
-
-    def self.shape_is_point
-      shape_is_type(:point)
-    end
-
-    def self.shape_is_multi_point
-      shape_is_type(:multi_point)
-    end
-
-    def self.shape_is_line_string
-      shape_is_type(:line_string)
-    end
-
-    def self.shape_is_multi_line_string
-      shape_is_type(:multi_line_string)
-    end
-
-    def self.shape_is_polygon
-      shape_is_type(:polygon)
-    end
-
-    def self.shape_is_multi_polygon
-      shape_is_type(:multi_polygon)
-    end
-
-    def self.shape_is_geometry_collection
-      shape_is_type(:geometry_collection)
     end
 
     def self.geography_as_geometry

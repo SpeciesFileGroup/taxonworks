@@ -48,8 +48,7 @@ class Georeference::VerbatimData < Georeference
       if point.nil?
         test_grs = []
       else
-        test_grs = GeographicItem
-          .where(GeographicItem.shape_is_point)
+        test_grs = GeographicItem.points
           .where("geography = ST_GeographyFromText('POINT(? ? ?)')",
              point.x, point.y, point.z
           )
