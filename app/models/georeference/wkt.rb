@@ -9,9 +9,8 @@ class Georeference::Wkt < Georeference
   def wkt=(value)
     begin
       a = ::Gis::FACTORY.parse_wkt(value)
-      b =  a.geometry_type.type_name.tableize.singularize.to_sym
 
-      self.geographic_item = GeographicItem.new(b => a)
+      self.geographic_item = GeographicItem.new(geography: a)
       @wkt_error = nil
     rescue RGeo::Error::RGeoError => e
       self.geographic_item = nil
@@ -31,7 +30,7 @@ class Georeference::Wkt < Georeference
       georeferenceRemarks: "Created by pasting in a shape in WKT (well known text) format.",
       geodeticDatum: nil # TODO: check
     )
-    h[:georeferenceProtocol] = 'General purpose georeference derived from any source that produces WKT (well known text).' if h[:georeferenceProtocol].blank?  
+    h[:georeferenceProtocol] = 'General purpose georeference derived from any source that produces WKT (well known text).' if h[:georeferenceProtocol].blank?
     h
   end
 

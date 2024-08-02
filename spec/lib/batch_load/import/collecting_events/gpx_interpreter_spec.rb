@@ -12,7 +12,7 @@ describe BatchLoad::Import::CollectingEvents::GPXInterpreter, type: :model, grou
   # let(:setup) {
   #   gpx = GPX::GPXFile.new(file_name)
   # }
-            
+
   let(:import) { BatchLoad::Import::CollectingEvents::GPXInterpreter.new(
     project_id: project.id,
     user_id: user.id,
@@ -24,8 +24,10 @@ describe BatchLoad::Import::CollectingEvents::GPXInterpreter, type: :model, grou
   specify 'baseline is 0' do
     expect(CollectingEvent.count).to eq(0)
     expect(Georeference::GPX.count).to eq(0)
-    expect(GeographicItem::Point.count).to eq(0)
-    expect(GeographicItem::LineString.count).to eq(0)
+    expect(GeographicItem.where(GeographicItem.shape_is_point).count).to eq(0)
+    expect(
+      GeographicItem.where(GeographicItem.shape_is_line_string).count
+    ).to eq(0)
   end
 
   specify '.new succeeds' do

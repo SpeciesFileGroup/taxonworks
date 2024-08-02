@@ -227,13 +227,13 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     # smaller
     a = FactoryBot.create(:level1_geographic_area)
     s1 = a.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
     )
 
     # bigger
     b = FactoryBot.create(:level1_geographic_area)
     s2 = b.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
     )
 
     # Use smaller
@@ -261,7 +261,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
 
     smaller_ga = FactoryBot.create(:level1_geographic_area)
     smaller_ga.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon(
+      geography: RspecGeoHelpers.make_polygon(
         RSPEC_GEO_FACTORY.point(10, 10), 0, 0, 5.0, 5.0
       )
     )

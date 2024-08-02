@@ -316,7 +316,7 @@ describe GeographicArea, type: :model, group: [:geo, :shared_geo] do
     let(:geographic_area) { champaign }
     let(:gi) {
       geographic_area.geographic_areas_geographic_items
-      geo_item = GeographicItem::Polygon.create!(polygon: RSPEC_GEO_FACTORY.polygon(list_k))
+      geo_item = GeographicItem.create!(geography: RSPEC_GEO_FACTORY.polygon(list_k))
       geographic_area.geographic_areas_geographic_items.first.destroy!
       geographic_area.geographic_areas_geographic_items << GeographicAreasGeographicItem.new(geographic_item: geo_item,
                                                                                              data_origin:     'SFG')
@@ -455,7 +455,7 @@ describe GeographicArea, type: :model, group: [:geo, :shared_geo] do
 
         specify 'retrieving geolocate UI parameters as a string' do
           # pending 'completion of a method for geolocate_ui_params_string'
-          ford.geographic_items << GeographicItem::MultiPolygon.create!(multi_polygon: fc_shape)
+          ford.geographic_items << GeographicItem.create!(geography: fc_shape)
           point = ford.geolocate_attributes.slice("Latitude", "Longitude").values.join('|')
           expect(ford.geolocate_ui_params_string)
             .to eq('http://www.geo-locate.org/web/webgeoreflight.aspx' \

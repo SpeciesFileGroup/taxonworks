@@ -70,9 +70,11 @@ class Georeference::GeoLocate < Georeference
   def make_err_polygon(wkb)
     polygon = Gis::FACTORY.parse_wkb(wkb)
     # ActiveRecord::Base.send(:sanitize_sql_array, ['polygon = ST_GeographyFromText(?)', polygon.to_s])
-    test_grs = GeographicItem::Polygon.where(['polygon = ST_GeographyFromText(?)', polygon.to_s])
+    test_grs = GeographicItem
+      .where(GeographicItem.shape_is_polygon)
+      .where(['geography = ST_GeographyFromText(?)', polygon.to_s])
     if test_grs.empty?
-      test_grs = [GeographicItem.new(polygon:)]
+      test_grs = [GeographicItem.new(geography: polygon)]
     end
     if test_grs.first.new_record?
       test_grs.first.save
@@ -85,17 +87,19 @@ class Georeference::GeoLocate < Georeference
   # @param [String] x = longitude
   # @param [String] y = latitude
   # @param [String] z = elevation, defaults to 0.0
-  # @return [Object] GeographicItem::Point, either found or created.
+  # @return [Object] Point GeographicItem, either found or created.
   def make_geographic_point(x, y, z = '0.0')
     if x.blank? || y.blank?
       test_grs = []
     else
-      test_grs = GeographicItem::Point
-                   .where("point = ST_GeographyFromText('POINT(? ? ?)')", x.to_f, y.to_f, z.to_f)
+      test_grs = GeographicItem
+        .where(GeographicItem.shape_is_point)
+        .where("geography = ST_GeographyFromText('POINT(? ? ?)')",
+                x.to_f, y.to_f, z.to_f)
                    # .where(['ST_Z(point::geometry) = ?', z.to_f])
     end
     if test_grs.empty? # put a new one in the array
-      test_grs = [GeographicItem.new(point: Gis::FACTORY.point(x, y, z))]
+      test_grs = [GeographicItem.new(geography: Gis::FACTORY.point(x, y, z))]
     end
     test_grs.first
   end
@@ -135,7 +139,7 @@ class Georeference::GeoLocate < Georeference
 
       uncertainty_polygon.each { |point| err_array.push(Gis::FACTORY.point(point[0], point[1])) }
 
-      self.error_geographic_item = GeographicItem.new(polygon: Gis::FACTORY.polygon(Gis::FACTORY.line_string(err_array)))
+      self.error_geographic_item = GeographicItem.new(geography: Gis::FACTORY.polygon(Gis::FACTORY.line_string(err_array)))
     end
   end
 

@@ -708,7 +708,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     # Merge clauses
     context 'merge' do
       let(:factory_point) { RSPEC_GEO_FACTORY.point('10.0', '10.0') }
-      let(:geographic_item) { GeographicItem::Point.create!( point: factory_point ) }
+      let(:geographic_item) { GeographicItem.create!( geography: factory_point ) }
 
       let!(:point_georeference) {
         Georeference::VerbatimData.create!(

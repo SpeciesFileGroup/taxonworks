@@ -15,13 +15,13 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
 
   let(:small_geo_area) do
     a = FactoryBot.create(:level1_geographic_area)
-    a.geographic_items << GeographicItem.create!( polygon: small_polygon)
+    a.geographic_items << GeographicItem.create!( geography: small_polygon)
     a
   end
 
   let(:big_geo_area) do
     b = FactoryBot.create(:level1_geographic_area)
-    b.geographic_items << GeographicItem.create!( polygon: big_polygon)
+    b.geographic_items << GeographicItem.create!( geography: big_polygon)
     b
   end
 

@@ -42,13 +42,17 @@ class Georeference::VerbatimData < Georeference
 
       point = collecting_event.verbatim_map_center(delta_z) # hmm
 
-      attributes = {point: point}
+      attributes = {geography: point}
       attributes[:by] = self.by if self.by
 
       if point.nil?
         test_grs = []
       else
-        test_grs = GeographicItem::Point.where("point = ST_GeographyFromText('POINT(? ? ?)')", point.x, point.y, point.z)
+        test_grs = GeographicItem
+          .where(GeographicItem.shape_is_point)
+          .where("geography = ST_GeographyFromText('POINT(? ? ?)')",
+             point.x, point.y, point.z
+          )
       end
 
       if test_grs.empty?

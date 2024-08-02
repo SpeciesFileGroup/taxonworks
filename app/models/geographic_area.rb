@@ -274,8 +274,8 @@ class GeographicArea < ApplicationRecord
   # @return [Scope] all areas which contain the point specified.
   def self.find_by_lat_long(latitude = 0.0, longitude = 0.0)
     point = ActiveRecord::Base.send(:sanitize_sql_array, ['POINT(:long :lat)', long: longitude, lat: latitude])
-    a = ::GeographicArea.joins(:geographic_items).where("ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))")
-    b = ::GeographicArea.joins(:geographic_items).where("ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))")
+    a = ::GeographicArea.joins(:geographic_items).where("ST_Contains(geography::geometry, GeomFromEWKT('srid=4326;#{point}'))")
+    b = ::GeographicArea.joins(:geographic_items).where("ST_Contains(geography::geometry, GeomFromEWKT('srid=4326;#{point}'))")
     GeographicArea.from("((#{a.to_sql}) UNION (#{b.to_sql})) as geographic_areas")
   end
 
@@ -286,7 +286,7 @@ class GeographicArea < ApplicationRecord
     ::GeographicArea
       .joins(:geographic_items)
       .merge(GeographicArea.find_by_lat_long(latitude, longitude))
-      .select("geographic_areas.*, ST_Area(#{::GeographicItem::GEOMETRY_SQL.to_sql}) As sqft")
+      .select('geographic_areas.*, ST_Area(geography::geometry) AS sqft')
       .order('sqft')
       .distinct
   end
@@ -478,7 +478,7 @@ class GeographicArea < ApplicationRecord
       # this nil signals the top of the stack: Everything terminates at 'Earth'
       item = parent.geographic_area_map_focus unless parent.nil?
     else
-      item = GeographicItem.new(point: geographic_items.first.st_centroid)
+      item = GeographicItem.new(geography: geographic_items.first.st_centroid)
     end
     item
   end
@@ -489,8 +489,8 @@ class GeographicArea < ApplicationRecord
     h = name_hash
 
     if item = geographic_area_map_focus # rubocop:disable Lint/AssignmentInCondition
-      h['Longitude'] = item.point.x
-      h['Latitude']  = item.point.y
+      h['Longitude'] = item.geography.x
+      h['Latitude']  = item.geography.y
     end
 
     h

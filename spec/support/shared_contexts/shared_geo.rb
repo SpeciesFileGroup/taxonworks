@@ -289,20 +289,20 @@ shared_context 'stuff for complex geo tests' do
   let(:box_e) { RSPEC_GEO_FACTORY.polygon(list_box_e) }
 
   let(:new_box_a) { FactoryBot.create(
-    :geographic_item_multi_polygon,
-    multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([box_a]),
+    :geographic_item,
+    geography: RSPEC_GEO_FACTORY.multi_polygon([box_a]),
     by: geo_user) }
 
-  let(:new_box_b) { FactoryBot.create(:geographic_item_multi_polygon,
-                                      multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([box_b]),
+  let(:new_box_b) { FactoryBot.create(:geographic_item,
+                                      geography: RSPEC_GEO_FACTORY.multi_polygon([box_b]),
                                       by: geo_user) }
 
-  let(:new_box_c) { FactoryBot.create(:geographic_item_multi_polygon,
-                                      multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([box_c]),
+  let(:new_box_c) { FactoryBot.create(:geographic_item,
+                                      geography: RSPEC_GEO_FACTORY.multi_polygon([box_c]),
                                       by: geo_user) }
 
-  let(:new_box_e) { FactoryBot.create(:geographic_item_multi_polygon,
-                                      multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([box_e]),
+  let(:new_box_e) { FactoryBot.create(:geographic_item,
+                                      geography: RSPEC_GEO_FACTORY.multi_polygon([box_e]),
                                       by: geo_user) }
 
 =begin
@@ -514,11 +514,11 @@ shared_context 'stuff for complex geo tests' do
                                    api_request: 'gr_p4s',
                                    collecting_event: ce_p4s,
                                    error_geographic_item: nil,
-                                   geographic_item: GeographicItem.new(point: new_box_c.st_centroid, by: geo_user)) }
+                                   geographic_item: GeographicItem.new(geography: new_box_c.st_centroid, by: geo_user)) }
 
   # Collection objects
-  let(:p_a) { GeographicItem::Point.create!(point: new_box_a.st_centroid, by: geo_user) }
-  let(:p_b) { GeographicItem::Point.create!(point: new_box_b.st_centroid, by: geo_user) }
+  let(:p_a) { GeographicItem.create!(geography: new_box_a.st_centroid, by: geo_user) }
+  let(:p_b) { GeographicItem.create!(geography: new_box_b.st_centroid, by: geo_user) }
 
   let(:gr_a) { Georeference::VerbatimData.create!(
     api_request: 'area_a',
@@ -538,7 +538,7 @@ shared_context 'stuff for complex geo tests' do
        RSPEC_GEO_FACTORY.point(2.5, -2.5, 0.0)])
   }
 
-  let(:err_b) { GeographicItem::Polygon.create!(polygon: RSPEC_GEO_FACTORY.polygon(polygon_inner), by: geo_user) }
+  let(:err_b) { GeographicItem.create!(geography: RSPEC_GEO_FACTORY.polygon(polygon_inner), by: geo_user) }
 
   let(:gr_b) {
     Georeference::VerbatimData.create!(
@@ -562,67 +562,67 @@ shared_context 'stuff for complex geo tests' do
   #
 
   # GeographicItem interactions
-  let(:p0) { FactoryBot.create(:geographic_item_point, point: point0.as_binary, by: geo_user) } # 0
-  let(:p1) { FactoryBot.create(:geographic_item_point, point: point1.as_binary, by: geo_user) }
-  let(:p2) { FactoryBot.create(:geographic_item_point, point: point2.as_binary, by: geo_user) } # 2
-  let(:p3) { FactoryBot.create(:geographic_item_point, point: point3.as_binary, by: geo_user) } # 3
-  let(:p5) { FactoryBot.create(:geographic_item_point, point: point5.as_binary, by: geo_user) } # 5
-  let(:p6) { FactoryBot.create(:geographic_item_point, point: point6.as_binary, by: geo_user) } # 6
-  let(:p7) { FactoryBot.create(:geographic_item_point, point: point7.as_binary, by: geo_user) } # 7
-  let(:p8) { FactoryBot.create(:geographic_item_point, point: point8.as_binary, by: geo_user) } # 8
-  let(:p9) { FactoryBot.create(:geographic_item_point, point: point9.as_binary, by: geo_user) } # 9
-  let(:p10) { FactoryBot.create(:geographic_item_point, point: point10.as_binary, by: geo_user) } # 10
-  let(:p11) { FactoryBot.create(:geographic_item_point, point: point11.as_binary, by: geo_user) } # 11
-  let(:p12) { FactoryBot.create(:geographic_item_point, point: point12.as_binary, by: geo_user) } # 10
-  let(:p13) { FactoryBot.create(:geographic_item_point, point: point13.as_binary, by: geo_user) } # 10
-  let(:p14) { FactoryBot.create(:geographic_item_point, point: point14.as_binary, by: geo_user) } # 14
-  let(:p15) { FactoryBot.create(:geographic_item_point, point: point15.as_binary, by: geo_user) } # 15
-  let(:p16) { FactoryBot.create(:geographic_item_point, point: point16.as_binary, by: geo_user) } # 16
-  let(:p17) { FactoryBot.create(:geographic_item_point, point: point17.as_binary, by: geo_user) } # 17
-  let(:p18) { FactoryBot.create(:geographic_item_point, point: point18.as_binary, by: geo_user) } # 18
-  let(:p19) { FactoryBot.create(:geographic_item_point, point: point19.as_binary, by: geo_user) } # 19
+  let(:p0) { FactoryBot.create(:geographic_item, geography: point0.as_binary, by: geo_user) } # 0
+  let(:p1) { FactoryBot.create(:geographic_item, geography: point1.as_binary, by: geo_user) }
+  let(:p2) { FactoryBot.create(:geographic_item, geography: point2.as_binary, by: geo_user) } # 2
+  let(:p3) { FactoryBot.create(:geographic_item, geography: point3.as_binary, by: geo_user) } # 3
+  let(:p5) { FactoryBot.create(:geographic_item, geography: point5.as_binary, by: geo_user) } # 5
+  let(:p6) { FactoryBot.create(:geographic_item, geography: point6.as_binary, by: geo_user) } # 6
+  let(:p7) { FactoryBot.create(:geographic_item, geography: point7.as_binary, by: geo_user) } # 7
+  let(:p8) { FactoryBot.create(:geographic_item, geography: point8.as_binary, by: geo_user) } # 8
+  let(:p9) { FactoryBot.create(:geographic_item, geography: point9.as_binary, by: geo_user) } # 9
+  let(:p10) { FactoryBot.create(:geographic_item, geography: point10.as_binary, by: geo_user) } # 10
+  let(:p11) { FactoryBot.create(:geographic_item, geography: point11.as_binary, by: geo_user) } # 11
+  let(:p12) { FactoryBot.create(:geographic_item, geography: point12.as_binary, by: geo_user) } # 10
+  let(:p13) { FactoryBot.create(:geographic_item, geography: point13.as_binary, by: geo_user) } # 10
+  let(:p14) { FactoryBot.create(:geographic_item, geography: point14.as_binary, by: geo_user) } # 14
+  let(:p15) { FactoryBot.create(:geographic_item, geography: point15.as_binary, by: geo_user) } # 15
+  let(:p16) { FactoryBot.create(:geographic_item, geography: point16.as_binary, by: geo_user) } # 16
+  let(:p17) { FactoryBot.create(:geographic_item, geography: point17.as_binary, by: geo_user) } # 17
+  let(:p18) { FactoryBot.create(:geographic_item, geography: point18.as_binary, by: geo_user) } # 18
+  let(:p19) { FactoryBot.create(:geographic_item, geography: point19.as_binary, by: geo_user) } # 19
 
-  let(:a) { FactoryBot.create(:geographic_item_line_string, line_string: shape_a1.as_binary, by: geo_user) } # 24
-  let(:b) { FactoryBot.create(:geographic_item_polygon, polygon: shape_b.as_binary, by: geo_user) } # 27
-  let(:c1) { FactoryBot.create(:geographic_item_line_string, line_string: shape_c1, by: geo_user) } # 28
-  let(:c2) { FactoryBot.create(:geographic_item_line_string, line_string: shape_c2, by: geo_user) } # 28
-  let(:c3) { FactoryBot.create(:geographic_item_line_string, line_string: shape_c3, by: geo_user) } # 29
-  let(:c) { FactoryBot.create(:geographic_item_multi_line_string,
-                              multi_line_string: shape_c.as_binary, by: geo_user) } # 30
+  let(:a) { FactoryBot.create(:geographic_item, geography: shape_a1.as_binary, by: geo_user) } # 24
+  let(:b) { FactoryBot.create(:geographic_item, geography: shape_b.as_binary, by: geo_user) } # 27
+  let(:c1) { FactoryBot.create(:geographic_item, geography: shape_c1, by: geo_user) } # 28
+  let(:c2) { FactoryBot.create(:geographic_item, geography: shape_c2, by: geo_user) } # 28
+  let(:c3) { FactoryBot.create(:geographic_item, geography: shape_c3, by: geo_user) } # 29
+  let(:c) { FactoryBot.create(:geographic_item,
+                              geography: shape_c.as_binary, by: geo_user) } # 30
 
-  let(:d) { FactoryBot.create(:geographic_item_line_string, line_string: shape_d.as_binary, by: geo_user) }
+  let(:d) { FactoryBot.create(:geographic_item, geography: shape_d.as_binary, by: geo_user) }
 
-  let(:b1) { FactoryBot.create(:geographic_item_polygon, polygon: shape_b_outer.as_binary, by: geo_user) } # 25
-  let(:b2) { FactoryBot.create(:geographic_item_polygon, polygon: shape_b_inner.as_binary, by: geo_user) } # 26
+  let(:b1) { FactoryBot.create(:geographic_item, geography: shape_b_outer.as_binary, by: geo_user) } # 25
+  let(:b2) { FactoryBot.create(:geographic_item, geography: shape_b_inner.as_binary, by: geo_user) } # 26
   let(:e0) { e.geo_object } # a collection of polygons
-  let(:e1) { FactoryBot.create(:geographic_item_polygon, polygon: poly_e1.as_binary, by: geo_user) } # 35
-  let(:e2) { FactoryBot.create(:geographic_item_polygon, polygon: poly_e2.as_binary, by: geo_user) } # 33
-  let(:e3) { FactoryBot.create(:geographic_item_polygon, polygon: poly_e3.as_binary, by: geo_user) } # 34
-  let(:e4) { FactoryBot.create(:geographic_item_polygon, polygon: poly_e4.as_binary, by: geo_user) } # 35
-  let(:e5) { FactoryBot.create(:geographic_item_polygon, polygon: poly_e5.as_binary, by: geo_user) } # 35
-  let(:e) { FactoryBot.create(:geographic_item_geometry_collection,
-                              geometry_collection: shape_e.as_binary, by: geo_user) } # 37
-  let(:f1) { FactoryBot.create(:geographic_item_line_string, line_string: shape_f1.as_binary, by: geo_user) } # 38
-  let(:f2) { FactoryBot.create(:geographic_item_line_string, line_string: shape_f2.as_binary, by: geo_user) } # 39
+  let(:e1) { FactoryBot.create(:geographic_item, geography: poly_e1.as_binary, by: geo_user) } # 35
+  let(:e2) { FactoryBot.create(:geographic_item, geography: poly_e2.as_binary, by: geo_user) } # 33
+  let(:e3) { FactoryBot.create(:geographic_item, geography: poly_e3.as_binary, by: geo_user) } # 34
+  let(:e4) { FactoryBot.create(:geographic_item, geography: poly_e4.as_binary, by: geo_user) } # 35
+  let(:e5) { FactoryBot.create(:geographic_item, geography: poly_e5.as_binary, by: geo_user) } # 35
+  let(:e) { FactoryBot.create(:geographic_item,
+                              geography: shape_e.as_binary, by: geo_user) } # 37
+  let(:f1) { FactoryBot.create(:geographic_item, geography: shape_f1.as_binary, by: geo_user) } # 38
+  let(:f2) { FactoryBot.create(:geographic_item, geography: shape_f2.as_binary, by: geo_user) } # 39
 
-  let(:f) { FactoryBot.create(:geographic_item_multi_line_string,
-                              multi_line_string: shape_f.as_binary, by: geo_user) } # 40
-  let(:g1) { FactoryBot.create(:geographic_item_polygon, polygon: shape_g1.as_binary, by: geo_user) } # 41
-  let(:g2) { FactoryBot.create(:geographic_item_polygon, polygon: shape_g2.as_binary, by: geo_user) } # 42
-  let(:g3) { FactoryBot.create(:geographic_item_polygon, polygon: shape_g3.as_binary, by: geo_user) } # 43
-  let(:g) { FactoryBot.create(:geographic_item_multi_polygon,
-                              multi_polygon: shape_g.as_binary, by: geo_user) } # 44
-  let(:h) { FactoryBot.create(:geographic_item_multi_point, multi_point: shape_h.as_binary, by: geo_user) } # 45
-  let(:j) { FactoryBot.create(:geographic_item_geometry_collection, geometry_collection: shape_j, by: geo_user) } # 47
-  let(:k) { FactoryBot.create(:geographic_item_polygon, polygon: shape_k.as_binary, by: geo_user) }
-  let(:l) { FactoryBot.create(:geographic_item_line_string, line_string: shape_l.as_binary, by: geo_user) } # 49
+  let(:f) { FactoryBot.create(:geographic_item,
+                              geography: shape_f.as_binary, by: geo_user) } # 40
+  let(:g1) { FactoryBot.create(:geographic_item, geography: shape_g1.as_binary, by: geo_user) } # 41
+  let(:g2) { FactoryBot.create(:geographic_item, geography: shape_g2.as_binary, by: geo_user) } # 42
+  let(:g3) { FactoryBot.create(:geographic_item, geography: shape_g3.as_binary, by: geo_user) } # 43
+  let(:g) { FactoryBot.create(:geographic_item,
+                              geography: shape_g.as_binary, by: geo_user) } # 44
+  let(:h) { FactoryBot.create(:geographic_item, geography: shape_h.as_binary, by: geo_user) } # 45
+  let(:j) { FactoryBot.create(:geographic_item, geography: shape_j, by: geo_user) } # 47
+  let(:k) { FactoryBot.create(:geographic_item, geography: shape_k.as_binary, by: geo_user) }
+  let(:l) { FactoryBot.create(:geographic_item, geography: shape_l.as_binary, by: geo_user) } # 49
 
   let(:r) { a.geo_object.intersection(p16.geo_object) }
 
-  let(:item_a) { FactoryBot.create(:geographic_item_polygon, polygon: box_1, by: geo_user) } # 57
-  let(:item_b) { FactoryBot.create(:geographic_item_polygon, polygon: box_2, by: geo_user) } # 58
-  let(:item_c) { FactoryBot.create(:geographic_item_polygon, polygon: box_3, by: geo_user) } # 59
-  let(:item_d) { FactoryBot.create(:geographic_item_polygon, polygon: box_4, by: geo_user) } # 60
+  let(:item_a) { FactoryBot.create(:geographic_item, geography: box_1, by: geo_user) } # 57
+  let(:item_b) { FactoryBot.create(:geographic_item, geography: box_2, by: geo_user) } # 58
+  let(:item_c) { FactoryBot.create(:geographic_item, geography: box_3, by: geo_user) } # 59
+  let(:item_d) { FactoryBot.create(:geographic_item, geography: box_4, by: geo_user) } # 60
 
   let(:ce_p1s) { FactoryBot.create(:collecting_event, verbatim_label: '@ce_p1s collect_event test', by: geo_user, project: geo_project) }
 
@@ -754,13 +754,13 @@ shared_context 'stuff for complex geo tests' do
 
   let(:champaign) {
     cc = parent_county
-    cc.geographic_items << GeographicItem::MultiPolygon.create!(multi_polygon: cc_shape, by: geo_user)
+    cc.geographic_items << GeographicItem.create!(geography: cc_shape, by: geo_user)
     cc
   }
 
   let(:illinois) {
     il = champaign.parent
-    il.geographic_items << GeographicItem::MultiPolygon.create!(multi_polygon: il_shape, by: geo_user)
+    il.geographic_items << GeographicItem.create!(geography: il_shape, by: geo_user)
     il
   }
 
@@ -1138,15 +1138,15 @@ Two different shapes with the same name, 'East Boxia', and
                                      api_request: 'gr_n3_ob',
                                      collecting_event: ce_old_boxia_2,
                                      error_geographic_item: item_ob,
-                                     geographic_item: GeographicItem.new(point: item_n3.st_centroid)) }
+                                     geographic_item: GeographicItem.new(geography: item_n3.st_centroid)) }
   let(:ce_old_boxia_2) { FactoryBot.create(:collecting_event,
                                            start_date_year: 1993,
                                            start_date_month: 3,
                                            start_date_day: 3,
                                            verbatim_label: '@ce_old_boxia_2',
                                            geographic_area: area_old_boxia) }
-  let(:item_m4) { FactoryBot.create(:geographic_item, multi_polygon: shape_m4) }
-  let(:item_r) { FactoryBot.create(:geographic_item, multi_polygon: shape_r) }
+  let(:item_m4) { FactoryBot.create(:geographic_item, geography: shape_m4) }
+  let(:item_r) { FactoryBot.create(:geographic_item, geography: shape_r) }
   let(:shape_r) { RspecGeoHelpers.make_multipolygon(shape_m3[0]
     .exterior_ring.points[0], 0, 0, 2, 2) }
   let(:shape_m4) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 0, 3, 1, 1) }
@@ -1193,7 +1193,7 @@ Two different shapes with the same name, 'East Boxia', and
                                   api_request: 'gr_n3',
                                   collecting_event: ce_n3,
                                   error_geographic_item: item_n3,
-                                  geographic_item: GeographicItem.new(point: item_n3.st_centroid)) }
+                                  geographic_item: GeographicItem.new(geography: item_n3.st_centroid)) }
   let(:co_n3) { FactoryBot.create(:valid_collection_object, { collecting_event: ce_n3 }) }
   let(:area_n3) {
     area = FactoryBot.create(:level1_geographic_area,
@@ -1206,7 +1206,7 @@ Two different shapes with the same name, 'East Boxia', and
   area
   }
   let(:shape_m3) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 0, 2, 1, 1) }
-  let(:item_n3) { FactoryBot.create(:geographic_item, multi_polygon: shape_n3) }
+  let(:item_n3) { FactoryBot.create(:geographic_item, geography: shape_n3) }
   let(:shape_n3) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 1, 2, 1, 1) }
 
   # build the collecting event for an object in P1(B), part of Big Boxia
@@ -1221,7 +1221,7 @@ Two different shapes with the same name, 'East Boxia', and
                                    api_request: 'gr_p1b',
                                    collecting_event: ce_p1b,
                                    error_geographic_item: item_p1b,
-                                   geographic_item: GeographicItem.new(point: item_p1b.st_centroid)) }
+                                   geographic_item: GeographicItem.new(geography: item_p1b.st_centroid)) }
   let(:area_land_mass) {
     area = FactoryBot.create(:level0_geographic_area,
                              name: 'Great Northern Land Mass',
@@ -1257,19 +1257,19 @@ Two different shapes with the same name, 'East Boxia', and
 
   # secondary country shapes
   # same shape as Q, different object
-  let(:item_bb) { FactoryBot.create(:geographic_item, multi_polygon: shape_q) }
+  let(:item_bb) { FactoryBot.create(:geographic_item, geography: shape_q) }
 
   # superseded country shapes
-  let(:item_q) { FactoryBot.create(:geographic_item, multi_polygon: shape_q) }
-  let(:item_u) { FactoryBot.create(:geographic_item, multi_polygon: shape_u) }
-  let(:item_ob) { FactoryBot.create(:geographic_item, multi_polygon: shape_ob) }
-  let(:item_eb_1) { FactoryBot.create(:geographic_item, multi_polygon: shape_eb_1) }
-  let(:item_eb_2) { FactoryBot.create(:geographic_item, multi_polygon: shape_eb_2) }
-  let(:item_wb) { FactoryBot.create(:geographic_item, multi_polygon: shape_wb) }
-  let(:item_p1b) { FactoryBot.create(:geographic_item, multi_polygon: shape_p1b) }
+  let(:item_q) { FactoryBot.create(:geographic_item, geography: shape_q) }
+  let(:item_u) { FactoryBot.create(:geographic_item, geography: shape_u) }
+  let(:item_ob) { FactoryBot.create(:geographic_item, geography: shape_ob) }
+  let(:item_eb_1) { FactoryBot.create(:geographic_item, geography: shape_eb_1) }
+  let(:item_eb_2) { FactoryBot.create(:geographic_item, geography: shape_eb_2) }
+  let(:item_wb) { FactoryBot.create(:geographic_item, geography: shape_wb) }
+  let(:item_p1b) { FactoryBot.create(:geographic_item, geography: shape_p1b) }
 
   # the entire land mass
-  let(:item_w) { FactoryBot.create(:geographic_item, multi_polygon: shape_w) }
+  let(:item_w) { FactoryBot.create(:geographic_item, geography: shape_w) }
 
   # some other areas
   let(:east_boxia) { [area_east_boxia_1, area_east_boxia_2, area_east_boxia_2] }
@@ -1320,7 +1320,7 @@ Two different shapes with the same name, 'East Boxia', and
                                   api_request: 'gr_o1',
                                   collecting_event: ce_o1,
                                   error_geographic_item: item_o1,
-                                  geographic_item: GeographicItem.new(point: item_o1.st_centroid)) }
+                                  geographic_item: GeographicItem.new(geography: item_o1.st_centroid)) }
 
   let(:area_o1) {
     area = FactoryBot.create(:level2_geographic_area,
@@ -1332,7 +1332,7 @@ Two different shapes with the same name, 'East Boxia', and
   area.save!
   area
   }
-  let(:item_o1) { FactoryBot.create(:geographic_item, multi_polygon: shape_o1) }
+  let(:item_o1) { FactoryBot.create(:geographic_item, geography: shape_o1) }
 
   # build the collecting event for an object in O3
   # @ce_o3 has no georeference
@@ -1364,11 +1364,11 @@ Two different shapes with the same name, 'East Boxia', and
   area.save!
   area
   }
-  let(:item_s) { FactoryBot.create(:geographic_item, multi_polygon: shape_s) }
+  let(:item_s) { FactoryBot.create(:geographic_item, geography: shape_s) }
   let(:shape_s) { RspecGeoHelpers.make_multipolygon(shape_o3[0]
     .exterior_ring.points[0], 0, 0, 2, 2) }
   let(:shape_o3) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 2, 2, 1, 1) }
-  let(:item_o3) { FactoryBot.create(:geographic_item, multi_polygon: shape_o3) }
+  let(:item_o3) { FactoryBot.create(:geographic_item, geography: shape_o3) }
   let(:area_so3) {
     area = FactoryBot.create(:level1_geographic_area,
                              name: 'SO3',
@@ -1394,12 +1394,12 @@ Two different shapes with the same name, 'East Boxia', and
                                     api_request: 'gr_n2_a',
                                     collecting_event: ce_n2,
                                     error_geographic_item: item_n2,
-                                    geographic_item: GeographicItem.new(point: item_n2.st_centroid)) }
+                                    geographic_item: GeographicItem.new(geography: item_n2.st_centroid)) }
   let(:gr_n2_b) { FactoryBot.create(:georeference_verbatim_data,
                                     api_request: 'gr_n2_b',
                                     collecting_event: ce_n2,
                                     error_geographic_item: item_n2,
-                                    geographic_item: GeographicItem.new(point: item_n2.st_centroid)) }
+                                    geographic_item: GeographicItem.new(geography: item_n2.st_centroid)) }
   let(:area_n2) {
     area = FactoryBot.create(:level2_geographic_area,
                              name: 'N2',
@@ -1420,10 +1420,10 @@ Two different shapes with the same name, 'East Boxia', and
   area.save!
   area
   }
-  let(:item_t_1) { FactoryBot.create(:geographic_item, multi_polygon: shape_t_1) }
+  let(:item_t_1) { FactoryBot.create(:geographic_item, geography: shape_t_1) }
   let(:shape_t_1) { RspecGeoHelpers.make_multipolygon(shape_m1[0]
     .exterior_ring.points[0], 0, 0, 2, 2) }
-  let(:item_n2) { FactoryBot.create(:geographic_item, multi_polygon: shape_n2) }
+  let(:item_n2) { FactoryBot.create(:geographic_item, geography: shape_n2) }
   let(:shape_n2) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 1, 1, 1, 1) }
   let(:area_t_2) {
     area = FactoryBot.create(:level1_geographic_area,
@@ -1435,7 +1435,7 @@ Two different shapes with the same name, 'East Boxia', and
   area.save!
   area
   }
-  let(:item_t_2) { FactoryBot.create(:geographic_item, multi_polygon: shape_t_2) }
+  let(:item_t_2) { FactoryBot.create(:geographic_item, geography: shape_t_2) }
   let(:shape_t_2) { RspecGeoHelpers.make_multipolygon(shape_m1[0]
     .exterior_ring.points[0], 0, 0, 2, 2) }
 
@@ -1450,7 +1450,7 @@ Two different shapes with the same name, 'East Boxia', and
                                   api_request: 'gr_n4',
                                   collecting_event: ce_n4,
                                   error_geographic_item: item_n4,
-                                  geographic_item: GeographicItem.new(point: item_n4.st_centroid)) }
+                                  geographic_item: GeographicItem.new(geography: item_n4.st_centroid)) }
   let(:co_n4) { FactoryBot.create(:valid_collection_object, { collecting_event: ce_n4 }) }
 
   let(:area_n4) {
@@ -1474,7 +1474,7 @@ Two different shapes with the same name, 'East Boxia', and
   area.save!
   area
   }
-  let(:item_n4) { FactoryBot.create(:geographic_item, multi_polygon: shape_n4) }
+  let(:item_n4) { FactoryBot.create(:geographic_item, geography: shape_n4) }
   let(:shape_n4) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 1, 3, 1, 1) }
 
 
@@ -1501,7 +1501,7 @@ Two different shapes with the same name, 'East Boxia', and
                                   api_request: 'gr_m1',
                                   collecting_event: ce_m1,
                                   error_geographic_item: item_m1,
-                                  geographic_item: GeographicItem.new(point: item_m1.st_centroid)) }
+                                  geographic_item: GeographicItem.new(geography: item_m1.st_centroid)) }
 
   let(:ce_m1a) { FactoryBot.create(:collecting_event,
                                    start_date_year: 1971,
@@ -1515,7 +1515,7 @@ Two different shapes with the same name, 'East Boxia', and
                                    api_request: 'gr_m1a',
                                    collecting_event: ce_m1a,
                                    error_geographic_item: item_m1,
-                                   geographic_item: GeographicItem.new(point: item_m1.st_centroid)) }
+                                   geographic_item: GeographicItem.new(geography: item_m1.st_centroid)) }
 
   let(:area_m1) {
     area = FactoryBot.create(:level2_geographic_area,
@@ -1527,7 +1527,7 @@ Two different shapes with the same name, 'East Boxia', and
   area.save!
   area
   }
-  let(:item_m1) { FactoryBot.create(:geographic_item, multi_polygon: shape_m1) }
+  let(:item_m1) { FactoryBot.create(:geographic_item, geography: shape_m1) }
   let(:area_qtm1) {
     area = FactoryBot.create(:level2_geographic_area,
                              name: 'QTM1',
@@ -1561,7 +1561,7 @@ Two different shapes with the same name, 'East Boxia', and
   #                               api_request: 'gr_p2',
   #                               collecting_event: @ce_p2,
   #                               error_geographic_item: @item_p2,
-  #                               geographic_item: GeographicItem.new(point: @item_p2.st_centroid))
+  #                               geographic_item: GeographicItem.new(geography: @item_p2.st_centroid))
   let(:co_p2b) { FactoryBot.create(:valid_collection_object, { collecting_event: ce_p2b }) }
 
   let(:area_p2b) {
@@ -1574,7 +1574,7 @@ Two different shapes with the same name, 'East Boxia', and
   area.save!
   area
   }
-  let(:item_p2b) { FactoryBot.create(:geographic_item, multi_polygon: shape_p2b) }
+  let(:item_p2b) { FactoryBot.create(:geographic_item, geography: shape_p2b) }
   let(:shape_p2b) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 3, 1, 1, 1) }
 
   let(:area_qup2) {
@@ -1611,7 +1611,7 @@ Two different shapes with the same name, 'East Boxia', and
                                   api_request: 'gr_m2 in Big Boxia',
                                   collecting_event: ce_m2,
                                   error_geographic_item: item_m2,
-                                  geographic_item: GeographicItem.new(point: item_m2.st_centroid)) }
+                                  geographic_item: GeographicItem.new(geography: item_m2.st_centroid)) }
 
   let(:area_m2) {
     area = FactoryBot.create(:level2_geographic_area,
@@ -1623,7 +1623,7 @@ Two different shapes with the same name, 'East Boxia', and
   area.save!
   area
   }
-  let(:item_m2) { FactoryBot.create(:geographic_item, multi_polygon: shape_m2) }
+  let(:item_m2) { FactoryBot.create(:geographic_item, geography: shape_m2) }
   let(:shape_m2) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 0, 1, 1, 1) }
 
   # build the collecting event for objects in N1
@@ -1638,7 +1638,7 @@ Two different shapes with the same name, 'East Boxia', and
   #                             api_request: 'gr_n1',
   #                             collecting_event: @ce_n1,
   #                             error_geographic_item: @item_n1,
-  #                             geographic_item: GeographicItem.new(point: @item_n1.st_centroid))
+  #                             geographic_item: GeographicItem.new(geography: @item_n1.st_centroid))
 
   let(:area_n1) {
     area = FactoryBot.create(:level2_geographic_area,
@@ -1650,7 +1650,7 @@ Two different shapes with the same name, 'East Boxia', and
   area.save!
   area
   }
-  let(:item_n1) { FactoryBot.create(:geographic_item, multi_polygon: shape_n1) }
+  let(:item_n1) { FactoryBot.create(:geographic_item, geography: shape_n1) }
   let(:shape_n1) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 1, 0, 1, 1) }
 
   let(:area_qtn1) {
@@ -1675,7 +1675,7 @@ Two different shapes with the same name, 'East Boxia', and
                                   api_request: 'gr_o2',
                                   collecting_event: ce_o2,
                                   error_geographic_item: item_o2,
-                                  geographic_item: GeographicItem.new(point: item_o2.st_centroid)) }
+                                  geographic_item: GeographicItem.new(geography: item_o2.st_centroid)) }
 
   let(:co_o2) { FactoryBot.create(:valid_collection_object, { collecting_event: ce_o2 }) }
 
@@ -1690,7 +1690,7 @@ Two different shapes with the same name, 'East Boxia', and
   area
   }
 
-  let(:item_o2) { FactoryBot.create(:geographic_item, multi_polygon: shape_o2, by: geo_user) }
+  let(:item_o2) { FactoryBot.create(:geographic_item, geography: shape_o2, by: geo_user) }
   let(:shape_o2) { RspecGeoHelpers.make_multipolygon(point_m1_p0, 2, 1, 1, 1) }
 
   # build for collecting event for objects in M3
@@ -1704,7 +1704,7 @@ Two different shapes with the same name, 'East Boxia', and
                                   api_request: 'gr_m3',
                                   collecting_event: ce_m3,
                                   error_geographic_item: item_m3,
-                                  geographic_item: GeographicItem.new(point: item_m3.st_centroid)) }
+                                  geographic_item: GeographicItem.new(geography: item_m3.st_centroid)) }
   let(:co_m3) { FactoryBot.create(:valid_collection_object, { collecting_event: ce_m3 }) }
 
   let(:area_m3) {
@@ -1717,6 +1717,6 @@ Two different shapes with the same name, 'East Boxia', and
   area.save!
   area
   }
-  let(:item_m3) { FactoryBot.create(:geographic_item, multi_polygon: shape_m3, by: geo_user) }
+  let(:item_m3) { FactoryBot.create(:geographic_item, geography: shape_m3, by: geo_user) }
 
 end

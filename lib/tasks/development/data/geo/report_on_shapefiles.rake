@@ -1,23 +1,23 @@
 namespace :tw do
   namespace :development do
     namespace :data do
-      namespace :geo do 
+      namespace :geo do
 
         desc "Report on the shapefiles.\n
            rake tw:development:data:geo:report_on_shapefiles data_directory=/Users/matt/src/sf/tw/gaz/ ?index=[something]"
         task report_on_shapefiles: [:environment, :geo_dev_init, :data_directory] do
-          BaseDir  = @args[:data_directory] 
+          BaseDir  = @args[:data_directory]
           Dir.glob(BaseDir + '**/*.shp').each { |filename|
             # @mjy is unsure of use of index at this point
             # index is only expected to work for the GADM V2 shape file set: intended *only* as a
             # short-cut to a problem record.
             # index     = ENV['index']
-            read_shape(filename, 0) 
+            read_shape(filename, 0)
           }
         end
 
         #noinspection RubyStringKeysInHashInspection
-        # This does not update the database. 
+        # This does not update the database.
         # Should be considered early trial code?
         def read_shape(filename, index)
           # TODO: For some reason, Gis::FACTORY does not seem to be the default factory, so we are being specific here, to get the lenient polygon tests.  This gets us past the problem polygons, but does not actually deal with the problem.
@@ -30,7 +30,7 @@ namespace :tw do
             file.seek_index(index)
             count = file.num_records
             ess   = (count == 1) ? '' : 's'
-            puts filename 
+            puts filename
             puts "#{Time.now.strftime "%H:%M:%S"}: #{filename} contains #{count} item#{ess}."
 
             # things to do before each file
@@ -117,7 +117,7 @@ namespace :tw do
                 record.geographic_area_type          = area_type[0]
 
                 record.geographic_item               = GeographicItem.new
-                record.geographic_item.multi_polygon = item.geometry
+                record.geographic_item.geography = item.geometry
 
                 record.save!
 

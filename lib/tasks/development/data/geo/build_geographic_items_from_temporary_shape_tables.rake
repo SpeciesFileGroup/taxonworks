@@ -16,7 +16,7 @@ namespace :tw do
         def create_geographic_item_records
           puts 'Creating GeographicItems'
           geo_item = GeographicItem.new
-          geo_item.multi_polygon = SIMPLE_SHAPES[:multi_polygon]
+          geo_item.geography = SIMPLE_SHAPES[:multi_polygon]
           @dummy_multi_polygon = geo_item.geo_object
           GeographicAreasGeographicItem.order('data_origin').find_each do |a|
             create_geographic_item_and_update_related(a) if a.geographic_item_id.blank?
@@ -27,7 +27,7 @@ namespace :tw do
         def create_geographic_item_and_update_related(a)
           return unless a.geographic_item_id.blank? # allows the task to be stopped and started, be careful with this assumption!
 
-          i    = GeographicItem.create(multi_polygon: @dummy_multi_polygon)
+          i    = GeographicItem.create(geography: @dummy_multi_polygon)
           sql1 = "UPDATE geographic_areas_geographic_items SET geographic_item_id = '#{i.id}' where id = #{a.id};"
           sql2 = "UPDATE geographic_items SET point = null, multi_polygon = ( select ST_Force3D(geom) from #{a.data_origin} where gid = '#{a.origin_gid}') WHERE id = #{i.id};"
           ApplicationRecord.connection.execute(sql1)

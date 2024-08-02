@@ -277,20 +277,20 @@ describe GeographicItem, type: :model, group: :geo do
 
       # boxes
       let(:eastern_box_text) { 'POLYGON(( 176.0 27.0,  179.0 27.0,  179.0 25.0,  176.0 25.0,  176.0 27.0))' }
-      let(:eastern_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(eastern_box_text)) }
+      let(:eastern_box) { GeographicItem.create(geography: Gis::FACTORY.parse_wkt(eastern_box_text)) }
       let(:western_box_text) { 'POLYGON((-179.0 27.0, -176.0 27.0, -176.0 25.0, -179.0 25.0, -179.0 27.0))' }
-      let(:western_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(western_box_text)) }
-      let(:crossing_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(left_right_anti_box)) }
+      let(:western_box) { GeographicItem.create(geography: Gis::FACTORY.parse_wkt(western_box_text)) }
+      let(:crossing_box) { GeographicItem.create(geography: Gis::FACTORY.parse_wkt(left_right_anti_box)) }
 
       # lines
-      let(:l_r_line) { GeographicItem.create(line_string: Gis::FACTORY.parse_wkt(left_right_anti_line)) }
-      let(:r_l_line) { GeographicItem.create(line_string: Gis::FACTORY.parse_wkt(right_left_anti_line)) }
+      let(:l_r_line) { GeographicItem.create(geography: Gis::FACTORY.parse_wkt(left_right_anti_line)) }
+      let(:r_l_line) { GeographicItem.create(geography: Gis::FACTORY.parse_wkt(right_left_anti_line)) }
 
       # points
-      let(:point_in_eastern_box) { GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(177 26.0)')) }
-      let(:point_in_europe) { GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(17 26.0)')) }
-      let(:point_in_england) { GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(1 26.0)')) }
-      let(:point_in_western_box) { GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(-177.0 26.0)')) }
+      let(:point_in_eastern_box) { GeographicItem.create(geography: Gis::FACTORY.parse_wkt('POINT(177 26.0)')) }
+      let(:point_in_europe) { GeographicItem.create(geography: Gis::FACTORY.parse_wkt('POINT(17 26.0)')) }
+      let(:point_in_england) { GeographicItem.create(geography: Gis::FACTORY.parse_wkt('POINT(1 26.0)')) }
+      let(:point_in_western_box) { GeographicItem.create(geography: Gis::FACTORY.parse_wkt('POINT(-177.0 26.0)')) }
 
       let(:build_structure) { [western_box, eastern_box, point_in_western_box,
                                point_in_eastern_box, point_in_europe, point_in_england,

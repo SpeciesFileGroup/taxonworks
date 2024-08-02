@@ -595,7 +595,7 @@ class CollectingEvent < ApplicationRecord
       local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude)
       elev            = Utilities::Geo.distance_in_meters(verbatim_elevation).to_f
       point           = Gis::FACTORY.point(local_latitude, local_longitude, elev)
-      GeographicItem.new(point:)
+      GeographicItem.new(geography: point)
     else
       nil
     end

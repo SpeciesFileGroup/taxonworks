@@ -130,13 +130,14 @@ class Georeference < ApplicationRecord
   attr_accessor :no_cached
 
   before_validation :round_error_radius
-  
+
   after_save :set_cached, unless: -> { self.no_cached || (self.collecting_event && self.collecting_event.no_cached == true) }
 
   after_destroy :set_cached_collecting_event
 
   def self.point_type
-    joins(:geographic_item).where(geographic_items: {type: 'GeographicItem::Point'})
+    joins(:geographic_item)
+      .where(geographic_items: {geo_object_type: :point})
   end
 
   # @param [Array] of parameters in the style of 'params'

@@ -59,8 +59,8 @@ module Queries
 
       def containing_point_facet
         return nil if containing_point.nil?
-        a = ::GeographicArea.joins(:geographic_items).where("ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{containing_point}'))")
-        b = ::GeographicArea.joins(:geographic_items).where("ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{containing_point}'))")
+        a = ::GeographicArea.joins(:geographic_items).where(GeographicItem.shape_is_polygon).where("ST_Contains(geography::geometry, GeomFromEWKT('srid=4326;#{containing_point}'))")
+        b = ::GeographicArea.joins(:geographic_items).where(GeographicItem.shape_is_multi_polygon).where("ST_Contains(geography::geometry, GeomFromEWKT('srid=4326;#{containing_point}'))")
         referenced_klass_union([a,b])
       end
 

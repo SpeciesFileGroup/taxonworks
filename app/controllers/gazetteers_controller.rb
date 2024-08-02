@@ -11,12 +11,7 @@ class GazetteersController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json do
-        # TODO gzs, not gas
-        @geographic_areas = ::Queries::GeographicArea::Filter.new(params).all
-          .includes(:geographic_items)
-          .page(params[:page])
-          .per(params[:per])
-          # .order('geographic_items.cached_total_area, geographic_area.name')
+        # no filter on GZs yet
       end
     end
   end

@@ -97,7 +97,6 @@ class Gazetteer < ApplicationRecord
     end
 
     build_geographic_item(
-      type: 'GeographicItem::Geography',
       geography: rgeo_shape
     )
   end
@@ -246,7 +245,6 @@ class Gazetteer < ApplicationRecord
               )
 
               g.build_geographic_item(
-                type: 'GeographicItem::Geography',
                 geography: record.geometry
               )
 

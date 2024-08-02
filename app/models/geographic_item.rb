@@ -1015,17 +1015,42 @@ class GeographicItem < ApplicationRecord
       geography
     end
 
+    def self.shape_is_point
+      shape_is_type(:point)
+    end
+
+    def self.shape_is_multi_point
+      shape_is_type(:multi_point)
+    end
+
+    def self.shape_is_line_string
+      shape_is_type(:line_string)
+    end
+
+    def self.shape_is_multi_line_string
+      shape_is_type(:multi_line_string)
+    end
+
+    def self.shape_is_polygon
+      shape_is_type(:polygon)
+    end
+
+    def self.shape_is_multi_polygon
+      shape_is_type(:multi_polygon)
+    end
+
+    def self.shape_is_geometry_collection
+      shape_is_type(:geometry_collection)
+    end
+
+    def self.geography_as_geometry
+      Arel.sql('geography::geometry')
+    end
+
     private
 
-    def geography_is_polygon?
-      geo_object_type == :polygon
-    end
-
-    def geography_is_multi_polygon?
-      geo_object_type == :multi_polygon
-    end
-
-    # @param [String] shape, the name of the shape you want, e.g. 'polygon'
+    # @param [String or Symbol] shape, the name of the shape you want, e.g.
+    #   :polygon
     # @return [Arel::Nodes::Case]
     #   A Case statement that selects the geography column if that column is of
     #   type `shape`, otherwise NULL
@@ -1035,6 +1060,22 @@ class GeographicItem < ApplicationRecord
       Arel::Nodes::Case.new(st_geometry_type(arel_table[:geography]))
         .when(st_shape.to_sym).then(arel_table[:geography])
         .else(Arel.sql('NULL'))
+    end
+
+    def self.shape_is_type(shape)
+      st_shape = 'ST_' + shape.to_s.camelize
+
+      Arel::Nodes::Case.new(st_geometry_type(arel_table[:geography]))
+        .when(st_shape.to_sym).then(Arel.sql('TRUE'))
+        .else(Arel.sql('FALSE'))
+    end
+
+    def geography_is_polygon?
+      geo_object_type == :polygon
+    end
+
+    def geography_is_multi_polygon?
+      geo_object_type == :multi_polygon
     end
 
     def select_from_self(named_function)
@@ -1156,9 +1197,5 @@ class GeographicItem < ApplicationRecord
       Arel.sql(
         Arel::Nodes::Grouping.new(sql).to_sql + '::geometry'
       )
-    end
-
-    def self.geography_as_geometry
-      Arel.sql('geography::geometry')
     end
 end

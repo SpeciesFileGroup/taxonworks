@@ -138,7 +138,7 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
 
     # let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
     let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
-    let(:geographic_item) { GeographicItem::Point.create!( point: factory_point ) }
+    let(:geographic_item) { GeographicItem.create!( geography: factory_point ) }
 
     let!(:point_georeference) {
       Georeference::VerbatimData.create!(
@@ -156,7 +156,7 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     }
 
     let(:gi_polygon) {
-      FactoryBot.create(:geographic_item_geography, geography: wkt_polygon)
+      FactoryBot.create(:geographic_item, geography: wkt_polygon)
     }
 
     let(:gz_polygon) {
