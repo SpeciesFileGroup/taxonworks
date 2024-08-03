@@ -1,5 +1,5 @@
 <template>
-  <!-- TODO add spinner -->
+  <VSpinner v-if="isLoading" />
   <!-- TODO somehwere here display which of the required files have been added, whether they all have the same basename?-->
   <DocumentSelector
     v-model="selectedDocs"
@@ -42,7 +42,7 @@
           Aborted? {{ results['aborted'] ? 'Yes' : 'No' }}
         </p>
         <p v-if="resultErrors">
-          <p>Errors, in the form "record number: error message":</p>
+          <p>Errors, written "record number: error message":</p>
           <ul>
             <li
               v-for="error in resultErrors"
@@ -64,12 +64,16 @@
 <script setup>
 import DocumentSelector from './components/DocumentSelector.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import { Gazetteer } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
+
+const SHAPEFILE_EXTENSIONS = ['.shp', '.shx', '.dbf', '.prj']
 
 const selectedDocs = ref([])
 const shape_name_field = ref('')
 const results = ref(null)
+const isLoading = ref(false)
 
 const processingDisabled = computed(() => {
   return selectedDocs.value.length != 4 || !shape_name_field.value
@@ -90,13 +94,15 @@ const resultErrors = computed(() => {
 
 function processShapefile() {
   results.value = null
-  // TODO make sure there's only one of each
-  // TODO make sure they all have the same basename, I guess
   // TODO report fail if prj provided and not WGS84, but don't require prj
   const shp = getFileForExtension('.shp')
   const shx = getFileForExtension('.shx')
   const dbf = getFileForExtension('.dbf')
   const prj = getFileForExtension('.prj')
+
+  if (!validateShapefileFileset({shp, shx, dbf, prj})) {
+    return
+  }
 
   const payload = {
     shapefile: {
@@ -108,18 +114,54 @@ function processShapefile() {
     }
   }
 
+  isLoading.value = true
   Gazetteer.import(payload)
   .then(({ body }) => {
     results.value = body
     // TODO: maybe clear currently selected shape files?
   })
   .catch(() => {})
+  .finally(() => { isLoading.value = false })
 }
 
 function getFileForExtension(extension) {
   return selectedDocs.value.find(
     (d) => d.document_file_file_name.endsWith(extension)
   )
+}
+
+function validateShapefileFileset(fileset) {
+  // Check that all required files are there
+  let missingFiles = []
+  Object.keys(fileset).map((key) => {
+    if (!fileset[key]) {
+      missingFiles.push(key)
+    }
+  })
+  missingFiles = missingFiles.join(', ')
+
+  if (missingFiles) {
+    TW.workbench.alert.create('Missing files: ' + missingFiles, 'error')
+    return false
+  }
+
+  // Check that they all have the same basename
+  const shpBasename = basename(fileset['shp'])
+  Object.keys(fileset).forEach((key) => {
+    if (basename(fileset[key]) != shpBasename) {
+      TW.workbench.alert.create(
+        'All files must have the name ' + shpBasename, 'error'
+      )
+      return false
+    }
+  })
+
+  return true
+}
+
+// Assumes Document file whose document_file_file_name has a '.eee' extension
+function basename(file) {
+  return file['document_file_file_name'].slice(0, -4)
 }
 </script>
 

@@ -1,5 +1,4 @@
 <template>
-  <!-- TODO Add spinner -->
   <NavBar
     :gz="gz"
     :save-disabled="saveDisabled"

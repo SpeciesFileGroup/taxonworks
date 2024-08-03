@@ -223,7 +223,6 @@ class Gazetteer < ApplicationRecord
       aborted: false
     }
     # TODO what can .open throw? no such file, bad shapefile, ...
-    # TODO add srib parameter?
     RGeo::Shapefile::Reader.open(shpfile, factory: Gis::FACTORY) do |file|
       r[:num_records] = file.num_records
       begin
