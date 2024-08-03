@@ -1155,8 +1155,12 @@ class GeographicItem < ApplicationRecord
     # @return [Boolean]
     # true iff point.x is between -180.0 and +180.0
     def check_point_limits
+      # TODO If you don't draw shapes on the "middle map" in leaflet then it
+      # sends you coordinates outside the desired range, and
+      # RGeo::GeoJSON.decode doesn't fix that for points - though it does for
+      # polygons(!) - so this causes an exception in that case.
       if geo_object_type == :point
-        errors.add(:point_limit, 'Longitude exceeds limits: 180.0 to -180.0.') if
+        errors.add(:point_limit, "Longitude #{geography.x} exceeds limits: 180.0 to -180.0.") if
           geography.x > 180.0 || geography.x < -180.0
       end
     end
