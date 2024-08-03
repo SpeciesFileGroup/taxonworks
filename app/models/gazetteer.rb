@@ -223,17 +223,16 @@ class Gazetteer < ApplicationRecord
       aborted: false
     }
     # TODO what can .open throw? no such file, bad shapefile, ...
-    RGeo::Shapefile::Reader.open(shpfile, factory: Gis::FACTORY) do |file|
+    RGeo::Shapefile::Reader.open(
+      shpfile, factory: Gis::FACTORY, allow_unsafe: true
+    ) do |file|
       r[:num_records] = file.num_records
       begin
         # Not sure this is right, depends on if we want to create all records
         # that don't give an error or create none if any fails
         Gazetteer.transaction do
-          # `file.each do |record|` throws on |record| before you can catch it and
-          # continue the iteration, so do indexed iteration instead
-          for i in 0...file.num_records
+          file.each do |record|
             begin
-              record = file[i]
               g = Gazetteer.new(
                 # TODO: missing name handling - current thoughts:
                 # * shapefile name field required
@@ -244,18 +243,22 @@ class Gazetteer < ApplicationRecord
                 name: record[name_field]
               )
 
+              # TODO: abort if too many invalid?
+              shape = record.geometry.valid? ?
+                record.geometry : record.geometry.make_valid
+
               g.build_geographic_item(
-                geography: record.geometry
+                geography: shape
               )
 
               g.save!
 
-              r[:num_gzs_created] = r[:num_gzs_created] + 1
+              r[:num_gzs_created] += 1
             rescue RGeo::Error::InvalidGeometry => e
-              r[:error_ids] << i + 1 # db ids are 1-based
+              r[:error_ids] << record.id
               r[:error_messages] << e.to_s
             rescue ActiveRecord::RecordInvalid => e
-              r[:error_ids] << i + 1 # db ids are 1-based
+              r[:error_ids] << record.id
               r[:error_messages] << e.to_s
             end
           end
