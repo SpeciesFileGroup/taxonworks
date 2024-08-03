@@ -237,7 +237,7 @@ class GeographicItem < ApplicationRecord
       end
 
       def st_geography_from_text_sql(wkt)
-        wkt = ActiveRecord::Base.connection.quote_string(wkt)
+        wkt = quote_string(wkt)
         Arel::Nodes::NamedFunction.new(
           'ST_GeographyFromText', [
             Arel::Nodes::Quoted.new(wkt),
@@ -250,7 +250,7 @@ class GeographicItem < ApplicationRecord
       end
 
       def st_geom_from_text_sql(wkt)
-        wkt = ActiveRecord::Base.connection.quote_string(wkt)
+        wkt = quote_string(wkt)
         Arel::Nodes::NamedFunction.new(
           'ST_GeometryFromText', [
             Arel::Nodes::Quoted.new(wkt),
@@ -313,8 +313,7 @@ class GeographicItem < ApplicationRecord
       #   whether or not the wkt intersects with the anti-meridian
       # TODO is this spec'd?
       def crosses_anti_meridian?(wkt)
-        # TODO make this a quote_string method on gi?
-        wkt = ActiveRecord::Base.connection.quote_string(wkt)
+        wkt = quote_string(wkt)
         select_one(
           st_intersects_sql(
             st_geography_from_text_sql(wkt),
@@ -417,7 +416,7 @@ class GeographicItem < ApplicationRecord
       # @return [NamedFunction] Shapes within distance of (i.e. whose
       #   distance-buffer intersects) wkt
       def intersecting_radius_of_wkt_sql(wkt, distance)
-        wkt = ActiveRecord::Base.connection.quote_string(wkt) # sanitize
+        wkt = quote_string(wkt)
         st_dwithin_sql(
           st_geography_from_text_sql(wkt),
           arel_table[:geography],
@@ -430,7 +429,7 @@ class GeographicItem < ApplicationRecord
       # @return [NamedFunction] Those items within the distance-buffer of wkt
       # TODO make me understand how this is different than the previous fcn
       def within_radius_of_wkt_sql(wkt, distance)
-        wkt = ActiveRecord::Base.connection.quote_string(wkt) # sanitize
+        wkt = quote_string(wkt)
         subset_of_sql(
           st_buffer_sql(
             st_geography_from_text_sql(wkt),
@@ -479,7 +478,7 @@ class GeographicItem < ApplicationRecord
       # Note: this routine is called when it is already known that the A
       # argument crosses anti-meridian
       def covered_by_wkt_shifted_sql(wkt)
-        wkt = ActiveRecord::Base.connection.quote_string(wkt) # sanitize
+        wkt = quote_string(wkt)
         st_covered_by_sql(
           st_shift_longitude_sql(geography_as_geometry),
           st_shift_longitude_sql(st_geom_from_text_sql(wkt))
@@ -490,7 +489,7 @@ class GeographicItem < ApplicationRecord
       # @return [NamedFunction] SQL fragment limiting geographic items to those
       # covered by this WKT
       def covered_by_wkt_sql(wkt)
-        wkt = ActiveRecord::Base.connection.quote_string(wkt) # sanitize
+        wkt = quote_string(wkt)
         if crosses_anti_meridian?(wkt)
           # TODO Add anti-meridian test here
           covered_by_wkt_shifted_sql(wkt)
@@ -1178,4 +1177,9 @@ class GeographicItem < ApplicationRecord
         Arel::Nodes::Grouping.new(sql).to_sql + '::geometry'
       )
     end
+
+    def self.quote_string(s)
+      ActiveRecord::Base.connection.quote_string(s)
+    end
+
 end
