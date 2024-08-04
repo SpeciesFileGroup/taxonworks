@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+
+- Updated gems
+
 ### Fixed
 
 - Integer type checking impacting AssertedDistribution filter
