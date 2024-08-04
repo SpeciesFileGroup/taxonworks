@@ -25,7 +25,8 @@ module Queries::Helpers
     return nil if attribute.nil? || params[attribute].nil?
 
     [params[attribute]].flatten.each do |v|
-      next if Utilities::Strings.only_integer(v)
+      next if v.kind_of?(Integer)
+      next if Utilities::Strings.only_integer(v) # This rabbit hole feels a little janky
       raise TaxonWorks::Error::API, "values of #{attribute} must be integers (provided: #{params[attribute]})"
     end
     params[attribute]
