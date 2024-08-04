@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.43.1] - 2024-08-04
+
 ### Changed
 
 - Updated gems
@@ -18,8 +22,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Misspelled DwcOccurrence attribute
 
 [#4000]: https://github.com/SpeciesFileGroup/taxonworks/issues/4000
-
-\-
 
 ## [0.43.0] - 2024-07-31
 
@@ -4724,7 +4726,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.0..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.1..development
+[0.43.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.0...v0.43.1
 [0.43.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.42.0...v0.43.0
 [0.42.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.1...v0.42.0
 [0.41.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.0...v0.41.1
