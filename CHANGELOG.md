@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+
+- Integer type checking impacting AssertedDistribution filter
+
 \-
 
 ## [0.43.0] - 2024-07-31
