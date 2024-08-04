@@ -179,9 +179,15 @@ module Queries
           case geometry.geometry_type.to_s
           when 'Point'
             # TODO test this
-            ::GeographicItem.joins(:geographic_areas).within_radius_of_wkt_sql(geometry.to_s, radius )
+            ::GeographicItem
+              .joins(:geographic_areas)
+              .where(
+                ::GeographicItem.within_radius_of_wkt_sql(geometry.to_s, radius)
+              )
           when 'Polygon', 'MultiPolygon'
-            ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.covered_by_wkt_sql(geometry.to_s))
+            ::GeographicItem
+              .joins(:geographic_areas)
+              .where(::GeographicItem.covered_by_wkt_sql(geometry.to_s))
           else
             nil
           end

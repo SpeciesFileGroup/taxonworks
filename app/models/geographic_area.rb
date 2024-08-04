@@ -274,8 +274,25 @@ class GeographicArea < ApplicationRecord
   # @return [Scope] all areas which contain the point specified.
   def self.find_by_lat_long(latitude = 0.0, longitude = 0.0)
     point = ActiveRecord::Base.send(:sanitize_sql_array, ['POINT(:long :lat)', long: longitude, lat: latitude])
-    a = ::GeographicArea.joins(:geographic_items).where("ST_Contains(geography::geometry, GeomFromEWKT('srid=4326;#{point}'))")
-    b = ::GeographicArea.joins(:geographic_items).where("ST_Contains(geography::geometry, GeomFromEWKT('srid=4326;#{point}'))")
+
+    a = ::GeographicArea.joins(:geographic_items)
+      .merge(::GeographicItem.polygons)
+      .where(
+        ::GeographicItem.st_covers_sql(
+          ::GeographicItem.geography_as_geometry,
+          ::GeographicItem.st_geom_from_text_sql(point)
+        )
+      )
+
+    b = ::GeographicArea.joins(:geographic_items)
+      .merge(::GeographicItem.multi_polygons)
+      .where(
+        ::GeographicItem.st_covers_sql(
+          ::GeographicItem.geography_as_geometry,
+          ::GeographicItem.st_geom_from_text_sql(point)
+        )
+      )
+
     GeographicArea.from("((#{a.to_sql}) UNION (#{b.to_sql})) as geographic_areas")
   end
 
