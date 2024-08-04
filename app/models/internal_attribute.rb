@@ -25,8 +25,8 @@ class InternalAttribute < DataAttribute
         ).all
       when 'CollectionObject'
         ::DwcOccurrence.where(
-          dwc_occurence_object_id: attribute_subject_id,
-          dwc_occurence_object_type: 'CollectionObject')
+          dwc_occurrence_object_id: attribute_subject_id,
+          dwc_occurrence_object_type: 'CollectionObject')
       else
         ::DwcOccurrence.none
       end

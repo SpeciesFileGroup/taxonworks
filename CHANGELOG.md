@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Integer type checking impacting AssertedDistribution filter
 - Editing DataAttributes trigger complete re-index of the DwcOccurences [#4000]
+- Misspelled DwcOccurrence attribute
 
 [#4000]: https://github.com/SpeciesFileGroup/taxonworks/issues/4000
 

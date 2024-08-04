@@ -39,7 +39,7 @@ class DwcOccurrence < ApplicationRecord
     :created_by_id,
     :updated_by_id,
     :dwc_occurrence_object_type,
-    :dwc_occurence_object_id
+    :dwc_occurrence_object_id
   ].freeze
 
   HEADER_CONVERTERS = {
@@ -70,11 +70,11 @@ class DwcOccurrence < ApplicationRecord
   attr_accessor :occurrence_identifier
 
   def collection_object
-    dwc_occurence_object_type == 'CollectionObject' ? dwc_occurence_object : nil
+    dwc_occurrence_object_type == 'CollectionObject' ? dwc_occurence_object : nil
   end
 
   def asserted_distribution
-    dwc_occurence_object_type == 'AssertedDistribution' ? dwc_occurence_object : nil
+    dwc_occurrence_object_type == 'AssertedDistribution' ? dwc_occurence_object : nil
   end
 
   def collecting_event
@@ -87,7 +87,7 @@ class DwcOccurrence < ApplicationRecord
       dwc_occurrence_object.otu
     when 'CollectionObject'
       collection_object.otu
-    end    
+    end
   end
 
   # Delete all stale indecies, where stale = object is missing
@@ -301,7 +301,7 @@ class DwcOccurrence < ApplicationRecord
       td =  dwc_occurrence_object&.taxon_determinations.order(:position).first
 
       tdr = if td&.otu&.taxon_name&.cached_name_and_author_year != scientificName
-              td.updated_at 
+              td.updated_at
             else
               nil
             end
@@ -332,7 +332,7 @@ class DwcOccurrence < ApplicationRecord
       }.select{|k,v| !v.nil?}
 
     else # AssertedDistribution
-      { 
+      {
         asserted_distribution: dwc_occurrence_object.updated_at,
         # TODO: Citations
       }
