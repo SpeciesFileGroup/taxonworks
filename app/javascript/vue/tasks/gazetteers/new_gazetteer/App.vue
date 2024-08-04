@@ -85,7 +85,7 @@ import { Gazetteer } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import { randomUUID } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
-import { addToArray, removeFromArray } from '@/helpers/arrays'
+import { removeFromArray } from '@/helpers/arrays'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { usePopstateListener } from '@/composables'
 import {
@@ -96,7 +96,6 @@ import {
 
 const shapes = ref([])
 const gz = ref({})
-const loading = ref(false)
 const leafletShapes = computed(() => {
   return shapes.value.map((item) => item.shape)
 })
@@ -209,15 +208,13 @@ function addToShapes(shape, type) {
       shapes.value.push({
         uuid: randomUUID(),
         type,
-        // TODO should store this as stringified?
         shape
       })
       break
     case GZ_WKT:
       shapes.value.push({
         uuid: shape.uuid,
-        type: GZ_WKT,
-        // TODO can we turn this into something leaflet can display right now?
+        type,
         shape: shape.wkt
       })
       break

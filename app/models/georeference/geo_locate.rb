@@ -44,8 +44,6 @@ class Georeference::GeoLocate < Georeference
         self.error_radius = response_radius
         # Why are we turning error radius into a polygon!?
 
-        # TODO this should be moved to GeographicItem, but geographic_item
-        # hasn't been saved yet
         q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Buffer(?, ?);',
           self.geographic_item.geo_object.to_s,
           ((response_radius) / Utilities::Geo::ONE_WEST_MEAN)])

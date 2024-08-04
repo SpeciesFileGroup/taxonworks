@@ -91,7 +91,6 @@ function shapeType(item) {
 
 function getCoordinates(item) {
   switch(item.type) {
-    // TODO display this as copyable WKT, possibly with a modal to display/copy the entire thing (is that useful?)
     case GZ_LEAFLET:
       switch(shapeType(item)) {
         case 'GeometryCollection':

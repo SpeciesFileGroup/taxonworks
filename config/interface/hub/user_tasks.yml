@@ -956,11 +956,11 @@ new_gazetteer_task:
   description: 'Create named shapes for use in your project.'
 import_gazetteers_task:
   hub: true
-  name: 'Import gazetteers'
+  name: 'Import Gazetteers'
   related:
   categories:
   status: prototype
-  description: 'Import gazetteers from a shapefile.'
+  description: 'Import Gazetteers from a shapefile.'
 new_filename_depicting_image_task:
   hub: true
   name: 'New filename depicting image'

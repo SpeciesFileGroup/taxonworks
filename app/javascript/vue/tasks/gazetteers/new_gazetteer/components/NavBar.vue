@@ -16,14 +16,13 @@
             :object-id="gz.id"
             type="Gazetteer"
           />
-          <!-- TODO complains when undefined instead of "" or something-->
           <RadialAnnotator :global-id="gz.global_id" />
           <RadialNavigator :global-id="gz.global_id" />
         </div>
       </div>
       <ul class="context-menu no_bullets">
         <li class="horizontal-right-content">
-          <!-- TODO -->
+          <!-- TODO? -->
           <span
             v-if="false"
             class="medium-icon margin-small-right"

@@ -310,8 +310,6 @@ class Georeference < ApplicationRecord
   def error_radius_buffer_polygon
     return nil if error_radius.nil? || geographic_item.nil?
 
-    # TODO This should be moved to GeographicItem, but can we assume geographic_item
-    # has been saved yet?
     sql_str = ActivRecord::Base.send(
       :sanitize_sql_array,
       ['SELECT ST_Buffer(?, ?)',
