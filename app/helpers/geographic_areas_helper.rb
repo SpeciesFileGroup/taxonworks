@@ -10,15 +10,14 @@ module GeographicAreasHelper
     geographic_area.name
   end
 
-  def geographic_area_autocomplete_tag(geographic_area, term)
+  def geographic_area_autocomplete_tag(geographic_area, term, mark = true)
     return nil if geographic_area.nil?
-
-    if term
+    if term && mark
       s = geographic_area.name.gsub(/#{Regexp.escape(term)}/i, "<mark>#{term}</mark>") + ' '
     else
       s = geographic_area.name + ' '
     end
-    
+
     s = [geographic_area&.parent&.parent&.name, geographic_area&.parent&.name, s].compact.join(': ').gsub('Earth: ', '')
 
     s += content_tag(:span, geographic_area.geographic_area_type.name, class: [:feedback, 'feedback-info', 'feedback-thin'])  unless geographic_area.geographic_area_type.nil?
