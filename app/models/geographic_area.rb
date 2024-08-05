@@ -435,7 +435,7 @@ class GeographicArea < ApplicationRecord
 
   # @return [RGeo object] of the default GeographicItem
   def geo_object
-    default_geographic_item
+    default_geographic_item&.geo_object
   end
 
   alias shape geo_object
