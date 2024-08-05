@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+
+- CSD: Prevent user add duplicate types for type materials [#4002]
 
 ## [0.43.1] - 2024-08-04
 
@@ -22,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Misspelled DwcOccurrence attribute
 
 [#4000]: https://github.com/SpeciesFileGroup/taxonworks/issues/4000
+[#4002]: https://github.com/SpeciesFileGroup/taxonworks/issues/4002
 
 ## [0.43.0] - 2024-07-31
 
