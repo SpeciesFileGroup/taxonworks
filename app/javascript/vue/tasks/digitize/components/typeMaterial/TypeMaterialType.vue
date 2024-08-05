@@ -9,8 +9,7 @@
         <li
           v-if="
             !typeMaterials.some(
-              (item) =>
-                item.type === key && item.internalId !== typeMaterial.internalId
+              (item) => item.type === key && item.uuid !== typeMaterial.uuid
             )
           "
         >
