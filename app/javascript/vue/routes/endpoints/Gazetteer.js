@@ -10,7 +10,8 @@ const permitParams = {
     shapes: {
       geojson: [],
       wkt: [],
-      points: []
+      points: [],
+      ga_union: []
     }
   },
   shapefile: {

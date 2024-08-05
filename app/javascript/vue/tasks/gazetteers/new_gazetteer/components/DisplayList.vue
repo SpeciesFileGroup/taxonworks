@@ -19,7 +19,10 @@
           class="list-complete-item"
         >
           <td class="word-keep-all">{{ shapeType(item) }}</td>
-          <td>{{ getCoordinates(item) }}</td>
+          <td v-if="item.type == GZ_UNION">
+            <span v-html="getCoordinates(item)" />
+          </td>
+          <td v-else>{{ getCoordinates(item) }}</td>
           <td>{{ item.type }}</td>
           <td>
             <div class="horizontal-right-content gap-small">
@@ -54,7 +57,8 @@ import { convertToLatLongOrder } from '@/helpers/geojson.js'
 import {
   GZ_POINT,
   GZ_WKT,
-  GZ_LEAFLET
+  GZ_LEAFLET,
+  GZ_UNION
 } from '@/constants/index.js'
 
 const props = defineProps({
@@ -86,6 +90,8 @@ function shapeType(item) {
       return 'WKT'
     case GZ_POINT:
       return 'Point'
+    case GZ_UNION:
+      return 'Geographic Area'
   }
 }
 
@@ -99,6 +105,8 @@ function getCoordinates(item) {
             )
 
         default: // not GeometryCollection
+          // TODO: this fails for Multi-shapes returned after Save (array shapes
+          // are different)
           const coordinates = item.shape.geometry.coordinates
           const flattened = coordinates.flat(1)
           if (typeof flattened[0] === 'number') {
@@ -108,12 +116,17 @@ function getCoordinates(item) {
           }
       }
       break
+
     case GZ_WKT:
       return item.shape
+
     case GZ_POINT:
       const coordinates =
         convertToLatLongOrder(item.shape.geometry.coordinates)
       return `Point (${coordinates[0]} ${coordinates[1]})`
+
+    case GZ_UNION:
+      return item.shape.label_html
   }
 }
 

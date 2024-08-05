@@ -107,15 +107,16 @@ class Gazetteer < ApplicationRecord
   # Raises on error
   def self.combine_shapes_to_rgeo(shapes)
     if shapes['geojson'].blank? && shapes['wkt'].blank? &&
-        shapes['points'].blank?
+        shapes['points'].blank? && shapes['ga_union'].blank?
       raise TaxonWorks::Error, 'No shapes provided'
     end
 
     leaflet_rgeo = convert_geojson_to_rgeo(shapes['geojson'])
     wkt_rgeo = convert_wkt_to_rgeo(shapes['wkt'])
     points_rgeo = convert_geojson_to_rgeo(shapes['points'])
+    ga_rgeo = convert_ga_to_rgeo(shapes['ga_union'])
 
-    shapes = leaflet_rgeo + wkt_rgeo + points_rgeo
+    shapes = leaflet_rgeo + wkt_rgeo + points_rgeo + ga_rgeo
 
     combine_rgeo_shapes(shapes)
   end
@@ -146,6 +147,12 @@ class Gazetteer < ApplicationRecord
     rgeo_shapes
   end
 
+  def self.convert_ga_to_rgeo(ga_ids)
+    return [] if ga_ids.blank?
+
+    GeographicArea.where(id: ga_ids).map { |ga| ga.geo_object }
+  end
+
   # @return [Array] of RGeo::Geographic::Projected*Impl
   # Raises RGeo::Error::RGeoError on error
   def self.convert_wkt_to_rgeo(wkt_shapes)
@@ -171,7 +178,7 @@ class Gazetteer < ApplicationRecord
 
     # unary_union, which would be preferable here, is apparently unavailable
     # for geographic geometries
-    # TODO use pg's ST_UnaryUnion instead?
+    # TODO use pg's ST_Union/UnaryUnion instead?
     u = rgeo_shapes[0]
     rgeo_shapes[1..].each { |s| u = u.union(s) }
 

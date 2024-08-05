@@ -67,6 +67,11 @@
     @new-shape="(data, type) => addToShapes(data, type)"
   />
 
+  <UnionInput
+    :input-disabled="!!gz.id"
+    @new-shape="(data, type) => addToShapes(data, type)"
+  />
+
   <DisplayList
     class="geolist"
     :list="shapes"
@@ -80,6 +85,7 @@ import DisplayList from './components/DisplayList.vue'
 import Leaflet from './components/Leaflet.vue'
 import NavBar from './components/NavBar.vue'
 import OtherInputs from './components/OtherInputs.vue'
+import UnionInput from './components/UnionInput.vue'
 import SetParam from '@/helpers/setParam'
 import { Gazetteer } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
@@ -91,7 +97,8 @@ import { usePopstateListener } from '@/composables'
 import {
   GZ_POINT,
   GZ_WKT,
-  GZ_LEAFLET
+  GZ_LEAFLET,
+  GZ_UNION
 } from '@/constants/index.js'
 
 const shapes = ref([])
@@ -132,6 +139,10 @@ function saveGz() {
   }
 }
 
+// TODO Add Preview button? To send existing listed shapes to server and return
+// them for display on leaflet, without saving them to GZ - for unions and wkt
+// mostly
+
 function saveNewGz() {
   const geojson = shapes.value
     .filter((item) => item.type == GZ_LEAFLET)
@@ -145,6 +156,10 @@ function saveNewGz() {
     .filter((item) => item.type == GZ_POINT)
     .map((item) => JSON.stringify(item.shape))
 
+  const gaUnion = shapes.value
+    .filter((item) => item.type == GZ_UNION)
+    .map((item) => item.shape.id)
+
   const gazetteer = {
     name: gz.value.name,
     iso_3166_a2: gz.value.iso_3166_a2,
@@ -152,7 +167,8 @@ function saveNewGz() {
     shapes: {
       geojson,
       wkt,
-      points
+      points,
+      ga_union: gaUnion
     }
   }
 
@@ -225,6 +241,12 @@ function addToShapes(shape, type) {
         shape
       })
       break
+    case GZ_UNION:
+      shapes.value.push({
+        uuid: randomUUID(),
+        type,
+        shape
+      })
   }
 }
 

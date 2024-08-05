@@ -121,7 +121,7 @@ class GazetteersController < ApplicationController
 
   def shape_params
     params.require(:gazetteer).permit(
-      shapes: { geojson: [], wkt: [], points: []}
+      shapes: { geojson: [], wkt: [], points: [], ga_union: []}
     )
   end
 
