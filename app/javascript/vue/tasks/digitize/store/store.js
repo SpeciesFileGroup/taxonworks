@@ -18,7 +18,7 @@ import makeCollectingEvent from '@/factory/CollectingEvent.js'
 import makeCollectionObject from '@/factory/CollectionObject.js'
 import makeLabel from '@/factory/Label.js'
 import makeIdentifier from '@/factory/Identifier.js'
-import makeTypeSpecimen from '../helpers/makeTypeSpecimen'
+import makeTypeMaterial from '@/factory/TypeMaterial.js'
 import { reactive } from 'vue'
 
 function makeInitialState() {
@@ -71,7 +71,7 @@ function makeInitialState() {
     collection_object: makeCollectionObject(),
     geographicArea: undefined,
     label: makeLabel(COLLECTING_EVENT),
-    typeMaterial: makeTypeSpecimen(),
+    typeMaterial: makeTypeMaterial(),
     biocurations: [],
     biologicalAssociations: [],
     collection_objects: [],

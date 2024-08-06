@@ -140,9 +140,10 @@ export default {
 }
 
 .dwc-table-help {
+  font-weight: normal;
+
   td {
     color: initial;
   }
-  font-weight: normal;
 }
 </style>

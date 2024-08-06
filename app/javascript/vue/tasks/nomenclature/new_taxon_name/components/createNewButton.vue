@@ -56,18 +56,21 @@ const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 const shortcuts = ref([
   {
     keys: [PlatformKey(), 'p'],
+    preventDefault: true,
     handler() {
       createNewWithParent()
     }
   },
   {
     keys: [PlatformKey(), 'd'],
+    preventDefault: true,
     handler() {
       createNewWithChild()
     }
   },
   {
     keys: [PlatformKey(), 'n'],
+    preventDefault: true,
     handler() {
       createNew()
     }

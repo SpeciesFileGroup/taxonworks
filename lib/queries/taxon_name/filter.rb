@@ -448,9 +448,9 @@ module Queries
       def original_combination_facet
         return nil if original_combination.nil?
         if original_combination
-          ::Protonym.joins(:original_combination_relationships)
+          ::Protonym.joins(:original_combination_relationships).distinct
         else
-          ::Protonym.where.missing(:original_combination_relationships)
+          ::Protonym.left_joins(:original_combination_relationships).where(taxon_name_relationships: {id: nil})
         end
       end
 

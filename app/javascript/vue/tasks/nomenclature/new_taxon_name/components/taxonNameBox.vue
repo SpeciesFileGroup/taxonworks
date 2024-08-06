@@ -102,12 +102,14 @@ const store = useStore()
 const shortcuts = ref([
   {
     keys: [platformKey(), 'b'],
+    preventDefault: true,
     handler() {
       switchBrowse()
     }
   },
   {
     keys: [platformKey(), 'o'],
+    preventDefault: true,
     handler() {
       switchBrowseOtu()
     }

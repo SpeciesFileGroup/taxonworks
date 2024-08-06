@@ -302,4 +302,28 @@ module OtusHelper
     h
   end
 
+  def ranked_otu_table(otus)
+    d = TaxonName.ranked_otus(otu_scope: @otus)
+    tbl = %w{otu_id order family genus species otu_name taxon_name taxon_name_author_year}
+    output = StringIO.new
+    output.puts ::CSV.generate_line(tbl, col_sep: "\t", encoding: Encoding::UTF_8)
+
+    d.each do |o|
+      output.puts ::CSV.generate_line(
+        [
+          o.id,
+          o['order'],
+          o['family'],
+          o['genus'],
+          o['species'],
+          o.name,
+          o.cached,
+          o.cached_author_year
+        ],
+      col_sep: "\t", encoding: Encoding::UTF_8)
+    end
+
+    output.string
+  end
+
 end

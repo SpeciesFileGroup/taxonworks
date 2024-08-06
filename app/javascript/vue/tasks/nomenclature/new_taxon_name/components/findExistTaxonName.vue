@@ -83,7 +83,8 @@ export default {
     return {
       json: [],
       spinner: false,
-      getRequest: 0
+      getRequest: 0,
+      controller: null
     }
   },
 
@@ -135,19 +136,24 @@ export default {
       if (this.search.length < Number(this.min)) return
       this.spinner = true
       this.clearResults()
+      this.controller?.abort()
+      this.controller = new AbortController()
       AjaxCall('get', this.ajaxUrl(), {
-        requestId: 'findTaxon'
-      }).then((response) => {
-        this.json = response.body
-        if (Array.isArray(response.body))
-          this.json.sort((a, b) => {
-            if (a.label < b.label) return -1
-            if (a.label > b.label) return 1
-            return 0
-          })
-        this.spinner = false
-        this.$emit('existing', this.json)
+        signal: this.controller.signal
       })
+        .then((response) => {
+          this.json = response.body
+          if (Array.isArray(response.body))
+            this.json.sort((a, b) => {
+              if (a.label < b.label) return -1
+              if (a.label > b.label) return 1
+              return 0
+            })
+
+          this.spinner = false
+          this.$emit('existing', this.json)
+        })
+        .catch(() => {})
     }
   }
 }
