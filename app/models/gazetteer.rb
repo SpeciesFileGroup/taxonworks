@@ -40,6 +40,8 @@ class Gazetteer < ApplicationRecord
 
   has_closure_tree
 
+  delegate :geo_object, to: :geographic_item
+
   belongs_to :geographic_item, inverse_of: :gazetteer, dependent: :destroy
 
   before_validation do
@@ -107,7 +109,8 @@ class Gazetteer < ApplicationRecord
   # Raises on error
   def self.combine_shapes_to_rgeo(shapes)
     if shapes['geojson'].blank? && shapes['wkt'].blank? &&
-        shapes['points'].blank? && shapes['ga_union'].blank?
+        shapes['points'].blank? && shapes['ga_union'].blank? &&
+        shapes['gz_union'].blank?
       raise TaxonWorks::Error, 'No shapes provided'
     end
 
@@ -115,8 +118,9 @@ class Gazetteer < ApplicationRecord
     wkt_rgeo = convert_wkt_to_rgeo(shapes['wkt'])
     points_rgeo = convert_geojson_to_rgeo(shapes['points'])
     ga_rgeo = convert_ga_to_rgeo(shapes['ga_union'])
+    gz_rgeo = convert_gz_to_rgeo(shapes['gz_union'])
 
-    shapes = leaflet_rgeo + wkt_rgeo + points_rgeo + ga_rgeo
+    shapes = leaflet_rgeo + wkt_rgeo + points_rgeo + ga_rgeo + gz_rgeo
 
     combine_rgeo_shapes(shapes)
   end
@@ -151,6 +155,12 @@ class Gazetteer < ApplicationRecord
     return [] if ga_ids.blank?
 
     GeographicArea.where(id: ga_ids).map { |ga| ga.geo_object }
+  end
+
+  def self.convert_gz_to_rgeo(gz_ids)
+    return [] if gz_ids.blank?
+
+    Gazetteer.where(id: gz_ids).map { |gz| gz.geo_object }
   end
 
   # @return [Array] of RGeo::Geographic::Projected*Impl

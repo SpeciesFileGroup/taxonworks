@@ -68,7 +68,7 @@
   />
 
   <UnionInput
-    :input-disabled="!!gz.id"
+    :inputs-disabled="!!gz.id"
     @new-shape="(data, type) => addToShapes(data, type)"
   />
 
@@ -98,7 +98,8 @@ import {
   GZ_POINT,
   GZ_WKT,
   GZ_LEAFLET,
-  GZ_UNION
+  GZ_UNION_GA,
+  GZ_UNION_GZ
 } from '@/constants/index.js'
 
 const shapes = ref([])
@@ -157,7 +158,11 @@ function saveNewGz() {
     .map((item) => JSON.stringify(item.shape))
 
   const gaUnion = shapes.value
-    .filter((item) => item.type == GZ_UNION)
+    .filter((item) => item.type == GZ_UNION_GA)
+    .map((item) => item.shape.id)
+
+  const gzUnion = shapes.value
+    .filter((item) => item.type == GZ_UNION_GZ)
     .map((item) => item.shape.id)
 
   const gazetteer = {
@@ -168,7 +173,8 @@ function saveNewGz() {
       geojson,
       wkt,
       points,
-      ga_union: gaUnion
+      ga_union: gaUnion,
+      gz_union: gzUnion
     }
   }
 
@@ -241,7 +247,14 @@ function addToShapes(shape, type) {
         shape
       })
       break
-    case GZ_UNION:
+    case GZ_UNION_GA:
+      shapes.value.push({
+        uuid: randomUUID(),
+        type,
+        shape
+      })
+      break
+    case GZ_UNION_GZ:
       shapes.value.push({
         uuid: randomUUID(),
         type,

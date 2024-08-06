@@ -19,7 +19,7 @@
           class="list-complete-item"
         >
           <td class="word-keep-all">{{ shapeType(item) }}</td>
-          <td v-if="item.type == GZ_UNION">
+          <td v-if="item.type == GZ_UNION_GA || item.type == GZ_UNION_GZ">
             <span v-html="getCoordinates(item)" />
           </td>
           <td v-else>{{ getCoordinates(item) }}</td>
@@ -58,7 +58,8 @@ import {
   GZ_POINT,
   GZ_WKT,
   GZ_LEAFLET,
-  GZ_UNION
+  GZ_UNION_GA,
+  GZ_UNION_GZ
 } from '@/constants/index.js'
 
 const props = defineProps({
@@ -90,8 +91,10 @@ function shapeType(item) {
       return 'WKT'
     case GZ_POINT:
       return 'Point'
-    case GZ_UNION:
+    case GZ_UNION_GA:
       return 'Geographic Area'
+    case GZ_UNION_GZ:
+      return 'Gazetteer'
   }
 }
 
@@ -125,7 +128,10 @@ function getCoordinates(item) {
         convertToLatLongOrder(item.shape.geometry.coordinates)
       return `Point (${coordinates[0]} ${coordinates[1]})`
 
-    case GZ_UNION:
+    case GZ_UNION_GA:
+      return item.shape.label_html
+
+    case GZ_UNION_GZ:
       return item.shape.label_html
   }
 }

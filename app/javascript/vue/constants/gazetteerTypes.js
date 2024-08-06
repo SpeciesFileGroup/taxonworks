@@ -2,4 +2,5 @@
 export const GZ_LEAFLET = 'Leaflet'
 export const GZ_POINT = 'Point'
 export const GZ_WKT = 'WKT'
-export const GZ_UNION = 'Union'
+export const GZ_UNION_GA = 'GA Union'
+export const GZ_UNION_GZ = 'GZ Union'

@@ -1,25 +1,43 @@
 <template>
-  <fieldset class="shape-input">
-    <legend>Add Geographic Areas to your Gazetteer</legend>
-    <VAutocomplete
-      :disabled="inputsDisabled"
-      min="2"
-      placeholder="Select a Geographic Area"
-      label="label_html"
-      display="label"
-      clear-after
-      param="term"
-      :addParams="{ mark: false }"
-      url="/geographic_areas/autocomplete"
-      @get-item="(item) => addShape(item)"
-    />
-  </fieldset>
+  <div class="union-inputs">
+    <fieldset class="shape-input">
+      <legend>Add Geographic Areas to this Gazetteer</legend>
+      <VAutocomplete
+        :disabled="inputsDisabled"
+        min="2"
+        placeholder="Select a Geographic Area"
+        label="label_html"
+        display="label"
+        clear-after
+        param="term"
+        :addParams="{ mark: false }"
+        url="/geographic_areas/autocomplete"
+        @get-item="(item) => addShape(item, GZ_UNION_GA)"
+      />
+    </fieldset>
+
+    <fieldset class="shape-input">
+      <legend>Add other Gazetteers to this Gazetteer</legend>
+      <VAutocomplete
+        :disabled="inputsDisabled"
+        min="2"
+        placeholder="Select a Gazetteer"
+        label="label_html"
+        display="label"
+        clear-after
+        param="term"
+        url="/gazetteers/autocomplete"
+        @get-item="(item) => addShape(item, GZ_UNION_GZ)"
+      />
+    </fieldset>
+  </div>
 </template>
 
 <script setup>
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import {
-  GZ_UNION
+  GZ_UNION_GA,
+  GZ_UNION_GZ
 } from '@/constants/index.js'
 
 const props = defineProps({
@@ -31,13 +49,12 @@ const props = defineProps({
 
 const emit = defineEmits(['newShape'])
 
-function addShape(item) {
-  if (item.label_html.includes('without shape')) {
+function addShape(item, type) {
+  if (type == GZ_UNION_GA && item.label_html.includes('without shape')) {
     TW.workbench.alert.create('Only GAs with shape can be added.', 'error')
     return
   }
-  // TODO can we reject if choice doesn't have a shape?
-  emit('newShape', item, GZ_UNION)
+  emit('newShape', item, type)
 }
 </script>
 
@@ -47,5 +64,11 @@ function addShape(item) {
   padding: 1.5em;
   margin-bottom: 1.5em;
   margin-top: 1.5em;
+  margin-right: 1em;
+}
+
+.union-inputs {
+  display: flex;
+  flex-wrap: wrap;
 }
 </style>
