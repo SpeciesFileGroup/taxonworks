@@ -324,6 +324,7 @@ resources :gazetteers do
   concerns [:data_routes]
   collection do
     post :import, defaults: {format: :json}
+    post :preview, defaults: {format: :json} # post to support long WKT strings
   end
 end
 

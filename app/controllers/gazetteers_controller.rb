@@ -108,6 +108,12 @@ class GazetteersController < ApplicationController
     @results = Gazetteer.import_from_shapefile(import_params)
   end
 
+  def preview
+    s = Gazetteer.combine_shapes_to_rgeo(shape_params['shapes'])
+    f = RGeo::GeoJSON::Feature.new(s)
+    @shape = RGeo::GeoJSON.encode(f)
+  end
+
   private
 
   def set_gazetteer

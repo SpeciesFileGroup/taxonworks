@@ -27,6 +27,8 @@ const permitParams = {
 export const Gazetteer = {
   ...baseCRUD(controller, permitParams),
 
-  import: (params) => AjaxCall('post', `/${controller}/import.json`, params)
+  import: (params) => AjaxCall('post', `/${controller}/import.json`, params),
+
+  preview: (params) => AjaxCall('post', `/${controller}/preview.json`, params)
 
 }
