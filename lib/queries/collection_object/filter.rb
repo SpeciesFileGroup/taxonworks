@@ -854,7 +854,7 @@ module Queries
 
       def collecting_event_query_facet
         return nil if collecting_event_query.nil?
-        s = 'WITH query_ce_co AS (' + collecting_event_query.all.to_sql + ') ' +
+        s = 'WITH query_ce_co AS (' + collecting_event_query.all.select(:id).to_sql + ') ' +
           ::CollectionObject
           .joins('JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = collection_objects.collecting_event_id')
           .to_sql

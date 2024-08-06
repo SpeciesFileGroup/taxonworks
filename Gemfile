@@ -24,7 +24,7 @@ gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 5.1'
-gem 'rmagick', '~> 5.1' # , '>= 4.2.2'
+gem 'rmagick', '~> 6.0' 
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 
@@ -134,7 +134,7 @@ gem 'ruby-graphviz', '~> 1.2.5', require: false
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.6.0'
-gem 'sqed', '~>0.8.1'
+gem 'sqed', '~>0.8.3'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul', require: 'dwc_archive' # '~> 1.1', '>= 1.1.2'
 gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'
@@ -179,7 +179,7 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
-  gem 'prawn', '~> 2.4.0'
+  gem 'prawn', '~> 2.5.0'
   gem 'puma', '~> 6.3'
 end
 

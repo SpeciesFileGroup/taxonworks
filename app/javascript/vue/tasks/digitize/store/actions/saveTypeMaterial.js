@@ -1,6 +1,6 @@
 import { MutationNames } from '../mutations/mutations'
 import { TypeMaterial } from '@/routes/endpoints'
-import makeTypeSpecimen from '../../helpers/makeTypeSpecimen'
+import makeTypeMaterial from '@/factory/TypeMaterial.js'
 
 export default ({ commit, state }) => {
   const typeSpecimens = [...state.typeSpecimens]
@@ -20,14 +20,13 @@ export default ({ commit, state }) => {
 
     promises.push(saveRequest)
 
-    saveRequest.then(({ body }) =>
+    saveRequest.then(({ body }) => {
       commit(
         MutationNames.AddTypeMaterial,
-        makeTypeSpecimen({ ...typeSpecimen, ...body })
+        makeTypeMaterial({ ...typeSpecimen, ...body })
       )
-    )
+    })
   })
-
   return Promise.all(promises)
 }
 

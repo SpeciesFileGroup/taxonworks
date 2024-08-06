@@ -21,11 +21,12 @@ class InternalAttribute < DataAttribute
       when 'CollectingEvent'
         ::Queries::DwcOccurrence::Filter.new(
           collecting_event_query: {
-            id: attribute_subject_id
-          }
+            collecting_event_id: attribute_subject_id }
         ).all
       when 'CollectionObject'
-        ::DwcOccurrence.where(id: attribute_subject.dwc_occurrence.id)
+        ::DwcOccurrence.where(
+          dwc_occurrence_object_id: attribute_subject_id,
+          dwc_occurrence_object_type: 'CollectionObject')
       else
         ::DwcOccurrence.none
       end

@@ -98,7 +98,13 @@ const CSV_DOWNLOAD = {
   }
 }
 
-const DOWNLOAD_LIST = computed(() => [CSV_DOWNLOAD, ...props.extendDownload])
+const DOWNLOAD_LIST = computed(() => {
+  const list = props.extendDownload
+
+  return list.some((item) => item.label === 'CSV')
+    ? list
+    : [CSV_DOWNLOAD, ...list]
+})
 
 const selectedDownloadItem = computed(() =>
   DOWNLOAD_LIST.value.find(({ label }) => label === selectedDownloadLabel.value)

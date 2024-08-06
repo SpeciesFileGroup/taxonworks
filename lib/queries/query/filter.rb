@@ -699,7 +699,7 @@ module Queries
       end
 
       if paginate
-        q = q.page(page).per(per)
+        q = q.order(:id).page(page).per(per)
       end
 
       q

@@ -1,27 +1,35 @@
 <template>
   <div class="depiction-container">
-    <dropzone
+    <VDropzone
       class="dropzone-card separate-bottom"
       @vdropzone-sending="sending"
       @vdropzone-file-added="addedfile"
       @vdropzone-success="success"
       @vdropzone-error="error"
-      ref="depiction"
-      :id="`depiction-${dropzoneId}`"
+      ref="dropzoneRef"
+      :id="`depiction-${DROPZONE_ID}`"
       url="/depictions"
-      :use-custom-dropzone-options="true"
-      :dropzone-options="dropzone"
+      use-custom-dropzone-options
+      :dropzone-options="dropzoneConfig"
+    />
+
+    <VPagination
+      :pagination="pagination"
+      @next-page="
+        ({ page }) =>
+          loadDepictions({ id: objectValue.id, type: objectType, page })
+      "
     />
     <div
-      class="flex-wrap-row"
+      class="flex-wrap-row depictions-list"
       v-if="figuresList.length"
     >
-      <image-viewer
+      <ImageViewer
         v-for="item in figuresList"
-        @delete="removeDepiction"
         :key="item.id"
         :depiction="item"
         edit
+        @delete="removeDepiction"
       >
         <template #thumbfooter>
           <div
@@ -31,185 +39,177 @@
               @click="removeDepiction(item)"
               class="button circle-button btn-delete"
             />
-            <zoom-image
+            <ZoomImage
               :data="getImageDepictionUrl(item)"
               :depiction="item"
             />
           </div>
         </template>
-      </image-viewer>
+      </ImageViewer>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import ActionNames from '../../store/actions/actionNames'
-import ImageViewer from '@/components/ui/ImageViewer/ImageViewer'
-import Dropzone from '@/components/dropzone.vue'
-import { Depiction } from '@/routes/endpoints'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
+import VDropzone from '@/components/dropzone.vue'
 import ZoomImage from './zoomImage.vue'
+import VPagination from '@/components/pagination.vue'
+
+import { getPagination } from '@/helpers'
+import { Depiction } from '@/routes/endpoints'
 import { imageSVGViewBox } from '@/helpers/images'
 
-export default {
-  components: {
-    ImageViewer,
-    Dropzone,
-    ZoomImage
+import { ref, watch } from 'vue'
+import { useStore } from 'vuex'
+
+const DROPZONE_ID = Math.random().toString(36).substr(2, 5)
+
+const props = defineProps({
+  actionSave: {
+    type: String,
+    required: true
   },
-  props: {
-    actionSave: {
-      type: String,
-      required: true
-    },
-    objectValue: {
-      type: Object,
-      required: true
-    },
-    objectType: {
-      type: String,
-      required: true
-    },
-    defaultMessage: {
-      type: String,
-      default: 'Drop images or click here to add figures'
+  objectValue: {
+    type: Object,
+    required: true
+  },
+  objectType: {
+    type: String,
+    required: true
+  },
+  defaultMessage: {
+    type: String,
+    default: 'Drop images or click here to add figures'
+  }
+})
+
+const emit = defineEmits(['create', 'delete'])
+
+const dropzoneConfig = {
+  paramName: 'depiction[image_attributes][image_file]',
+  url: '/depictions',
+  autoProcessQueue: false,
+  headers: {
+    'X-CSRF-Token': document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute('content')
+  },
+  dictDefaultMessage: props.defaultMessage,
+  acceptedFiles: 'image/*,.heic'
+}
+
+const store = useStore()
+const creatingType = ref(false)
+const pagination = ref({})
+
+const dropzoneRef = ref(null)
+const figuresList = ref([])
+
+watch(
+  () => props.objectValue,
+  (newVal, oldVal) => {
+    if (newVal.id && newVal.id != oldVal.id) {
+      dropzoneRef.value.setOption('autoProcessQueue', true)
+      dropzoneRef.value.processQueue()
+      loadDepictions({ id: newVal.id, type: props.objectType })
+    } else if (!newVal.id) {
+      figuresList.value = []
+      dropzoneRef.value.setOption('autoProcessQueue', false)
     }
-  },
+  }
+)
 
-  emits: ['create', 'delete'],
+function success(file, response) {
+  figuresList.value.push(response)
+  dropzoneRef.value.removeFile(file)
+  emit('create', response)
+}
 
-  data() {
-    return {
-      creatingType: false,
-      displayBody: true,
-      figuresList: [],
-      dropzoneId: Math.random().toString(36).substr(2, 5),
-      dropzone: {
-        paramName: 'depiction[image_attributes][image_file]',
-        url: '/depictions',
-        autoProcessQueue: false,
-        headers: {
-          'X-CSRF-Token': document
-            .querySelector('meta[name="csrf-token"]')
-            .getAttribute('content')
-        },
-        dictDefaultMessage: this.defaultMessage,
-        acceptedFiles: 'image/*,.heic'
+function sending(file, xhr, formData) {
+  formData.append('depiction[depiction_object_id]', props.objectValue.id)
+  formData.append('depiction[depiction_object_type]', props.objectType)
+}
+
+function addedfile() {
+  if (!props.objectValue.id && !creatingType.value) {
+    creatingType.value = true
+    store.dispatch(ActionNames[props.actionSave], props.objectValue).then(
+      (data) => {
+        if (!data?.id) return
+        setTimeout(() => {
+          dropzoneRef.value.setOption('autoProcessQueue', true)
+          dropzoneRef.value.processQueue()
+          creatingType.value = false
+        }, 500)
+      },
+      () => {
+        creatingType.value = false
       }
-    }
-  },
+    )
+  }
+}
 
-  watch: {
-    objectValue(newVal, oldVal) {
-      if (newVal.id && newVal.id != oldVal.id) {
-        this.$refs.depiction.setOption('autoProcessQueue', true)
-        this.$refs.depiction.processQueue()
-        Depiction.where({
-          depiction_object_id: newVal.id,
-          depiction_object_type: this.objectType
-        })
-          .then((response) => {
-            this.figuresList = response.body
-          })
-          .catch(() => {})
-      } else if (!newVal.id) {
-        this.figuresList = []
-        this.$refs.depiction.setOption('autoProcessQueue', false)
-      }
-    }
-  },
-
-  created() {
-    if (this.objectValue.id) {
-      this.getDepictions(this.objectValue.id).then((response) => {
-        this.figuresList = response.body
-      })
-    }
-  },
-  methods: {
-    success(file, response) {
-      this.figuresList.push(response)
-      this.$refs.depiction.removeFile(file)
-      this.$emit('create', response)
-    },
-
-    sending(file, xhr, formData) {
-      formData.append('depiction[depiction_object_id]', this.objectValue.id)
-      formData.append('depiction[depiction_object_type]', this.objectType)
-    },
-
-    addedfile() {
-      if (!this.objectValue.id && !this.creatingType) {
-        this.creatingType = true
-        this.$store
-          .dispatch(ActionNames[this.actionSave], this.objectValue)
-          .then(
-            (data) => {
-              if (!data?.id) return
-              setTimeout(() => {
-                this.$refs.depiction.setOption('autoProcessQueue', true)
-                this.$refs.depiction.processQueue()
-                this.creatingType = false
-              }, 500)
-            },
-            () => {
-              this.creatingType = false
-            }
-          )
-      }
-    },
-
-    removeDepiction(depiction) {
-      if (window.confirm('Are you sure want to proceed?')) {
-        Depiction.destroy(depiction.id).then(() => {
-          TW.workbench.alert.create(
-            'Depiction was successfully deleted.',
-            'notice'
-          )
-          this.figuresList.splice(
-            this.figuresList.findIndex((figure) => figure.id === depiction.id),
-            1
-          )
-          this.$emit('delete', depiction)
-        })
-      }
-    },
-
-    error(event) {
-      TW.workbench.alert.create(
-        `There was an error uploading the image: ${event.xhr.responseText}`,
-        'error'
+function removeDepiction(depiction) {
+  if (window.confirm('Are you sure want to proceed?')) {
+    Depiction.destroy(depiction.id).then(() => {
+      TW.workbench.alert.create('Depiction was successfully deleted.', 'notice')
+      figuresList.value.splice(
+        figuresList.value.findIndex((figure) => figure.id === depiction.id),
+        1
       )
-    },
+      emit('delete', depiction)
+    })
+  }
+}
 
-    getImageDepictionUrl(depiction) {
-      return depiction.svg_view_box
-        ? this.makeSVGViewbox(depiction)
-        : {
-            imageUrl: depiction.image.image_display_url,
-            width: depiction.image.width,
-            height: depiction.image.height
-          }
-    },
+function error(event) {
+  TW.workbench.alert.create(
+    `There was an error uploading the image: ${event.xhr.responseText}`,
+    'error'
+  )
+}
 
-    makeSVGViewbox(depiction) {
-      const width = Math.floor(window.innerWidth * 0.75)
-      const height =
-        window.innerHeight * 0.4 < 400
-          ? Math.floor(window.innerHeight * 0.4)
-          : 400
-      const imageUrl = imageSVGViewBox(
-        depiction.image.id,
-        depiction.svg_view_box,
-        width,
-        height
-      )
-
-      return {
-        imageUrl,
-        width,
-        height
+function getImageDepictionUrl(depiction) {
+  return depiction.svg_view_box
+    ? makeSVGViewbox(depiction)
+    : {
+        imageUrl: depiction.image.image_display_url,
+        width: depiction.image.width,
+        height: depiction.image.height
       }
-    }
+}
+
+function loadDepictions({ id, type, page = 1 }) {
+  Depiction.where({
+    depiction_object_id: id,
+    depiction_object_type: type,
+    page,
+    per: 50
+  })
+    .then((response) => {
+      pagination.value = getPagination(response)
+      figuresList.value = response.body
+    })
+    .catch(() => {})
+}
+
+function makeSVGViewbox(depiction) {
+  const width = Math.floor(window.innerWidth * 0.75)
+  const height =
+    window.innerHeight * 0.4 < 400 ? Math.floor(window.innerHeight * 0.4) : 400
+  const imageUrl = imageSVGViewBox(
+    depiction.image.id,
+    depiction.svg_view_box,
+    width,
+    height
+  )
+
+  return {
+    imageUrl,
+    width,
+    height
   }
 }
 </script>
@@ -217,5 +217,29 @@ export default {
 .depiction-container {
   width: 100%;
   max-width: 100%;
+}
+.depictions-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  -webkit-transition: background 0.3s;
+  transition: background 0.3s;
+}
+
+::-webkit-scrollbar-corner {
+  background: 0 0;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 0.25rem;
+  background-color: rgb(156, 163, 175);
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgb(229, 231, 235);
 }
 </style>

@@ -215,6 +215,10 @@ scope :tasks do
   end
 
   scope :images do
+    scope :new_filename_depicting_image, controller: 'tasks/images/new_filename_depicting_image' do
+      get '/', action: :index, as: 'new_filename_depicting_image_task'
+    end
+
     scope :filter, controller: 'tasks/images/filter' do
       get '/', action: :index, as: 'filter_images_task'
     end
@@ -655,8 +659,9 @@ scope :tasks do
       #   get 'set_author', as: 'set_author_for_otu_filter'
       #   get 'set_nomen', as: 'set_nomen_for_otu_filter'
       #   get 'set_verbatim', as: 'set_verbatim_for_otu_filter'
-      get 'download', action: 'download', as: 'download_otus_filter_result'
+      post 'download', action: 'download', as: 'download_otus_filter_result' # nested/large URIs
     end
+
   end
 
   scope :people do
